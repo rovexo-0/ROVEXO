@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
-import {
-  buildProductImagePath,
-  buildTempImagePath,
-  processListingImage,
-} from "@/lib/storage/server-images";
+import { buildProductImagePath, buildTempImagePath } from "@/lib/storage/server-images";
 import { getPublicStorageUrl, validateUploadFile } from "@/lib/storage/upload";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -23,6 +19,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get("file");
+    const thumbnail = formData.get("thumbnail");
     const productId = String(formData.get("productId") ?? "").trim() || null;
     const sessionId = String(formData.get("sessionId") ?? "").trim() || crypto.randomUUID();
 
@@ -30,7 +27,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Image file is required." }, { status: 400 });
     }
 
+    if (!(thumbnail instanceof File)) {
+      return NextResponse.json({ error: "Thumbnail image is required." }, { status: 400 });
+    }
+
     validateUploadFile("products", file);
+    validateUploadFile("products", thumbnail);
 
     if (productId) {
       const supabase = await createClient();
@@ -46,8 +48,11 @@ export async function POST(request: Request) {
       }
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const processed = await processListingImage(buffer);
+    const [fullBuffer, thumbnailBuffer] = await Promise.all([
+      file.arrayBuffer().then((data) => Buffer.from(data)),
+      thumbnail.arrayBuffer().then((data) => Buffer.from(data)),
+    ]);
+    const contentType = "image/jpeg" as const;
     const filename = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}.jpg`;
 
     const fullPath = productId
@@ -59,12 +64,12 @@ export async function POST(request: Request) {
     const admin = createAdminClient();
 
     const [fullUpload, thumbUpload] = await Promise.all([
-      admin.storage.from("products").upload(fullPath, processed.full, {
-        contentType: processed.contentType,
+      admin.storage.from("products").upload(fullPath, fullBuffer, {
+        contentType,
         upsert: true,
       }),
-      admin.storage.from("products").upload(thumbPath, processed.thumbnail, {
-        contentType: processed.contentType,
+      admin.storage.from("products").upload(thumbPath, thumbnailBuffer, {
+        contentType,
         upsert: true,
       }),
     ]);

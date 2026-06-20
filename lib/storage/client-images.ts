@@ -7,6 +7,13 @@ const COMPRESSION_OPTIONS = {
   fileType: "image/jpeg" as const,
 };
 
+const THUMBNAIL_OPTIONS = {
+  maxSizeMB: 0.2,
+  maxWidthOrHeight: 400,
+  useWebWorker: true,
+  fileType: "image/jpeg" as const,
+};
+
 export async function compressListingImage(file: File): Promise<File> {
   if (!file.type.startsWith("image/")) {
     throw new Error("Only image files are supported.");
@@ -17,6 +24,10 @@ export async function compressListingImage(file: File): Promise<File> {
   }
 
   return imageCompression(file, COMPRESSION_OPTIONS);
+}
+
+export async function createListingThumbnail(file: File): Promise<File> {
+  return imageCompression(file, THUMBNAIL_OPTIONS);
 }
 
 export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;

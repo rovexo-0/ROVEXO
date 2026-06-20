@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Vercel provides image optimization; Next.js installs sharp automatically when needed.
   images: {
     remotePatterns: [
       {

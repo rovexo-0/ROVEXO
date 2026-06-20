@@ -1,4 +1,8 @@
-import { compressListingImage, validateClientImage } from "@/lib/storage/client-images";
+import {
+  compressListingImage,
+  createListingThumbnail,
+  validateClientImage,
+} from "@/lib/storage/client-images";
 
 export type UploadedImageResult = {
   url: string;
@@ -17,6 +21,7 @@ export async function uploadListingImage(input: {
 }): Promise<UploadedImageResult> {
   validateClientImage(input.file);
   const compressed = await compressListingImage(input.file);
+  const thumbnail = await createListingThumbnail(compressed);
   const sessionId = input.sessionId ?? crypto.randomUUID();
   const maxRetries = input.maxRetries ?? 3;
 
@@ -28,6 +33,7 @@ export async function uploadListingImage(input: {
 
       const formData = new FormData();
       formData.append("file", compressed, compressed.name || "listing.jpg");
+      formData.append("thumbnail", thumbnail, "listing-thumb.jpg");
       if (input.productId) formData.append("productId", input.productId);
       formData.append("sessionId", sessionId);
 
