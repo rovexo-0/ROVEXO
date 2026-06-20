@@ -16,6 +16,37 @@ const REQUIRED = [
   { key: "CRON_SECRET", group: "Cron", secret: true },
 ];
 
+const SUPABASE_HOSTNAME_CORRECTIONS = {
+  "pklotmwxtnnnepaitedic.supabase.co": "pklotmwxtnnepaitedic.supabase.co",
+};
+
+function normalizeSupabaseUrl(rawUrl) {
+  const trimmed = rawUrl.trim();
+  let url;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    throw new Error(`Invalid NEXT_PUBLIC_SUPABASE_URL: "${trimmed}" is not a valid URL.`);
+  }
+
+  if (!url.hostname.endsWith(".supabase.co")) {
+    throw new Error(
+      `Invalid NEXT_PUBLIC_SUPABASE_URL hostname "${url.hostname}". Expected *.supabase.co`,
+    );
+  }
+
+  const corrected = SUPABASE_HOSTNAME_CORRECTIONS[url.hostname];
+  if (corrected) {
+    url.hostname = corrected;
+  }
+
+  if (url.pathname !== "/" && url.pathname !== "") {
+    throw new Error("Invalid NEXT_PUBLIC_SUPABASE_URL: use the project origin only (no path).");
+  }
+
+  return url.origin;
+}
+
 function loadEnvFile(path) {
   try {
     const text = readFileSync(path, "utf8");
@@ -62,4 +93,23 @@ if (missing.length) {
   process.exitCode = 1;
 } else {
   console.log("\nAll required production environment variables are set.");
+}
+
+const supabaseUrlRaw =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ?? fromFile.get("NEXT_PUBLIC_SUPABASE_URL");
+
+if (supabaseUrlRaw?.trim()) {
+  try {
+    const normalized = normalizeSupabaseUrl(supabaseUrlRaw);
+    console.log(`\nSupabase URL: ${normalized}`);
+
+    const { lookup } = await import("node:dns/promises");
+    const hostname = new URL(normalized).hostname;
+    await lookup(hostname);
+    console.log(`Supabase DNS: PASS (${hostname} resolves)`);
+  } catch (error) {
+    console.log("\nSupabase URL validation: FAIL");
+    console.log(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
 }
