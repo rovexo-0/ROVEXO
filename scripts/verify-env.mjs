@@ -3,9 +3,18 @@
 import { readFileSync } from "node:fs";
 
 const REQUIRED = [
-  { key: "NEXT_PUBLIC_SUPABASE_URL", group: "Supabase" },
-  { key: "NEXT_PUBLIC_SUPABASE_ANON_KEY", group: "Supabase" },
-  { key: "SUPABASE_SERVICE_ROLE_KEY", group: "Supabase", secret: true },
+  { key: "NEXT_PUBLIC_SUPABASE_URL", group: "Supabase", aliases: ["SUPABASE_URL"] },
+  {
+    key: "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    group: "Supabase",
+    aliases: ["SUPABASE_ANON_KEY", "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"],
+  },
+  {
+    key: "SUPABASE_SERVICE_ROLE_KEY",
+    group: "Supabase",
+    secret: true,
+    aliases: ["SUPABASE_SECRET_KEY"],
+  },
   { key: "NEXT_PUBLIC_APP_URL", group: "App" },
   { key: "STRIPE_SECRET_KEY", group: "Stripe", secret: true },
   { key: "STRIPE_WEBHOOK_SECRET", group: "Stripe Webhook", secret: true },
@@ -22,16 +31,23 @@ const SUPABASE_HOSTNAME_CORRECTIONS = {
 
 function normalizeSupabaseUrl(rawUrl) {
   const trimmed = rawUrl.trim();
+  const candidate = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
   let url;
   try {
-    url = new URL(trimmed);
+    url = new URL(candidate);
   } catch {
-    throw new Error(`Invalid NEXT_PUBLIC_SUPABASE_URL: "${trimmed}" is not a valid URL.`);
+    throw new Error(`Invalid Supabase URL: "${trimmed}" is not a valid URL.`);
   }
 
   if (!url.hostname.endsWith(".supabase.co")) {
     throw new Error(
-      `Invalid NEXT_PUBLIC_SUPABASE_URL hostname "${url.hostname}". Expected *.supabase.co`,
+      `Invalid Supabase URL hostname "${url.hostname}". Expected https://<project-ref>.supabase.co`,
+    );
+  }
+
+  if (url.hostname.includes("pooler.") || url.hostname.includes("supabase.com")) {
+    throw new Error(
+      `Invalid Supabase URL hostname "${url.hostname}". Use https://<project-ref>.supabase.co, not the database pooler URL.`,
     );
   }
 
@@ -41,7 +57,7 @@ function normalizeSupabaseUrl(rawUrl) {
   }
 
   if (url.pathname !== "/" && url.pathname !== "") {
-    throw new Error("Invalid NEXT_PUBLIC_SUPABASE_URL: use the project origin only (no path).");
+    throw new Error("Invalid Supabase URL: use the project origin only (no path).");
   }
 
   return url.origin;
@@ -70,9 +86,16 @@ const fromFile = loadEnvFile(".env.local");
 const present = [];
 const missing = [];
 
+function hasEnvValue(item, fromFile) {
+  const names = [item.key, ...(item.aliases ?? [])];
+  return names.some((name) => {
+    const value = process.env[name] ?? fromFile.get(name);
+    return Boolean(value?.trim());
+  });
+}
+
 for (const item of REQUIRED) {
-  const value = process.env[item.key] ?? fromFile.get(item.key);
-  if (value && value.trim()) {
+  if (hasEnvValue(item, fromFile)) {
     present.push(item);
   } else {
     missing.push(item);
@@ -96,7 +119,10 @@ if (missing.length) {
 }
 
 const supabaseUrlRaw =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? fromFile.get("NEXT_PUBLIC_SUPABASE_URL");
+  process.env.SUPABASE_URL ??
+  process.env.NEXT_PUBLIC_SUPABASE_URL ??
+  fromFile.get("SUPABASE_URL") ??
+  fromFile.get("NEXT_PUBLIC_SUPABASE_URL");
 
 if (supabaseUrlRaw?.trim()) {
   try {
