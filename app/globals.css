@@ -1,26 +1,102 @@
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@import "../styles/tokens.css";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-primary: var(--ds-color-primary);
+  --color-primary-foreground: var(--ds-color-primary-foreground);
+  --color-secondary: var(--ds-color-secondary);
+  --color-secondary-foreground: var(--ds-color-secondary-foreground);
+  --color-success: var(--ds-color-success);
+  --color-success-foreground: var(--ds-color-success-foreground);
+  --color-warning: var(--ds-color-warning);
+  --color-warning-foreground: var(--ds-color-warning-foreground);
+  --color-danger: var(--ds-color-danger);
+  --color-danger-foreground: var(--ds-color-danger-foreground);
+  --color-background: var(--ds-color-background);
+  --color-surface: var(--ds-color-surface);
+  --color-surface-muted: var(--ds-color-surface-muted);
+  --color-border: var(--ds-color-border);
+  --color-text-primary: var(--ds-color-text-primary);
+  --color-text-secondary: var(--ds-color-text-secondary);
+  --color-text-muted: var(--ds-color-text-muted);
+  --color-ring: var(--ds-color-ring);
+  --color-star: var(--ds-color-star);
+  --color-overlay: var(--ds-color-overlay);
+
+  --spacing-ds-1: var(--ds-space-1);
+  --spacing-ds-2: var(--ds-space-2);
+  --spacing-ds-3: var(--ds-space-3);
+  --spacing-ds-4: var(--ds-space-4);
+  --spacing-ds-5: var(--ds-space-5);
+  --spacing-ds-6: var(--ds-space-6);
+  --spacing-ds-7: var(--ds-space-7);
+  --spacing-ds-8: var(--ds-space-8);
+
+  --radius-ds-sm: var(--ds-radius-sm);
+  --radius-ds-md: var(--ds-radius-md);
+  --radius-ds-lg: var(--ds-radius-lg);
+  --radius-ds-xl: var(--ds-radius-xl);
+  --radius-ds-full: var(--ds-radius-full);
+
+  --shadow-ds-soft: var(--ds-shadow-soft);
+  --shadow-ds-medium: var(--ds-shadow-medium);
+  --shadow-ds-floating: var(--ds-shadow-floating);
+
+  --duration-ds-fast: var(--ds-duration-fast);
+  --duration-ds-normal: var(--ds-duration-normal);
+  --duration-ds-slow: var(--ds-duration-slow);
+
+  --ease-ds: var(--ds-ease);
+  --ease-ds-spring: var(--ds-ease-spring);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+body {
+  background: var(--ds-color-background);
+  color: var(--ds-color-text-primary);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@keyframes sell-published-check-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes sell-published-check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.sell-published-check {
+  animation: sell-published-check-pop var(--ds-duration-slow) var(--ds-ease-spring) both;
+}
+
+.sell-published-check-path {
+  stroke-dasharray: 14;
+  stroke-dashoffset: 14;
+  animation: sell-published-check-draw var(--ds-duration-slow) var(--ds-ease) 120ms both;
 }
