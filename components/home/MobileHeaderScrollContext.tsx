@@ -45,7 +45,8 @@ export function MobileHeaderScrollProvider({ children }: { children: ReactNode }
     if (headerElementRef.current === element) return;
   
     headerElementRef.current = element;
-  
+    setHeaderVersion((version) => version + 1);
+
     const nextHeight = element?.offsetHeight ?? 0;
   
     setHeaderHeight((current) =>

@@ -11,7 +11,7 @@ type SearchProviderProps = {
 };
 
 export function SearchProvider({ children, isSeller = false }: SearchProviderProps) {
-  const { isOpen, initialQuery, open, close, value } = useSearchOverlayState(isSeller);
+  const { isOpen, initialQuery, close, value } = useSearchOverlayState(isSeller);
 
   return (
     <SearchOverlayContext.Provider value={value}>

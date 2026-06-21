@@ -5,7 +5,6 @@ import { IconButton } from "@/components/ui/IconButton";
 import { Card } from "@/components/ui/Card";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 import { ANALYTICS_DATE_RANGES, type AnalyticsDateRange } from "@/lib/analytics/types";
 
 type AnalyticsHeaderProps = {

@@ -11,7 +11,7 @@ export type ListingPromotionRecord = {
   amountCents: number;
   stripeSessionId: string | null;
   stripePaymentIntentId?: string | null;
-  status: "pending" | "active" | "expired" | "failed";
+  status: "pending" | "active" | "expired" | "failed" | "suspended";
   createdAt?: string;
 };
 

@@ -552,13 +552,56 @@ export async function searchListings(
     query = query.eq("seller_id", options.sellerId);
   }
 
-  if (options.categorySlug) {
+  if (options.categoryIds?.length) {
+    query = query.in("category_id", options.categoryIds);
+  } else if (options.categorySlugPath?.length) {
+    const { resolveCategoryIdBySlugPath, getDescendantCategoryIds } = await import(
+      "@/lib/categories/server"
+    );
+    const rootId = await resolveCategoryIdBySlugPath(options.categorySlugPath);
+    if (rootId) {
+      const ids = await getDescendantCategoryIds(rootId);
+      query = query.in("category_id", ids);
+    } else {
+      return { items: [], total: 0, page, hasMore: false };
+    }
+  } else if (options.categorySlug) {
     const { data: category } = await supabase
       .from("categories")
       .select("id")
       .eq("slug", options.categorySlug)
       .maybeSingle();
     if (category) query = query.eq("category_id", category.id);
+  }
+
+  if (options.minPrice != null) {
+    query = query.gte("price", options.minPrice);
+  }
+
+  if (options.maxPrice != null) {
+    query = query.lte("price", options.maxPrice);
+  }
+
+  if (options.conditions?.length) {
+    query = query.in("condition", options.conditions);
+  }
+
+  if (options.postedToday) {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    query = query.gte("created_at", startOfDay.toISOString());
+  }
+
+  if (options.deliveryAvailable) {
+    query = query.not("delivery_carriers", "eq", "{}");
+  }
+
+  if (options.collectionOnly) {
+    query = query.or("delivery_carriers.is.null,delivery_carriers.eq.{}");
+  }
+
+  if (options.inStock) {
+    query = query.gt("stock", 0);
   }
 
   if (options.brand?.trim()) {

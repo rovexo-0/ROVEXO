@@ -1,28 +1,44 @@
-"use client";
-
-import { useEffect } from "react";
+import type { Metadata } from "next";
+import { Suspense } from "react";
 import Header from "@/components/Header";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { Card } from "@/components/ui/Card";
-import { useSearchOverlayOptional } from "@/features/search/client";
+import { SearchResultsView } from "@/features/search/components/SearchResultsView";
+import { SearchLandingClient } from "@/features/search/components/SearchLandingClient";
+import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
 
-export default function SearchPage() {
-  const searchOverlay = useSearchOverlayOptional();
+type SearchPageProps = {
+  searchParams: Promise<{ q?: string }>;
+};
 
-  useEffect(() => {
-    searchOverlay?.open();
-  }, [searchOverlay]);
+export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
+  const { q } = await searchParams;
+  if (q?.trim()) {
+    return {
+      title: `Search “${q.trim()}” · ROVEXO`,
+      description: `Find ${q.trim()} and more on ROVEXO.`,
+    };
+  }
+  return {
+    title: "Search · ROVEXO",
+    description: "Search products, categories, and sellers on ROVEXO.",
+  };
+}
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const { q } = await searchParams;
+  const hasQuery = Boolean(q?.trim());
 
   return (
     <BetaAppShell bottomNavTab="search">
       <Header />
       <main className="px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
-        <Card padding="lg" className="shadow-ds-soft">
-          <h1 className="text-xl font-semibold text-text-primary">Search</h1>
-          <p className="mt-ds-2 text-sm text-text-secondary">
-            Use the search bar above to find products, sellers, stores, and categories.
-          </p>
-        </Card>
+        {hasQuery ? (
+          <Suspense fallback={<ProductGridSkeleton count={8} />}>
+            <SearchResultsView />
+          </Suspense>
+        ) : (
+          <SearchLandingClient />
+        )}
       </main>
     </BetaAppShell>
   );

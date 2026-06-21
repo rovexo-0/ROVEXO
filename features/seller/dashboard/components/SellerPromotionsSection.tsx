@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { formatPromotionRemaining } from "@/lib/promotions/format";
+import { PromotionRenewButton } from "@/features/seller/dashboard/components/PromotionRenewButton";
 import { getPromotionDuration } from "@/lib/promotions/config";
 import type { SellerPromotionHistoryItem, SellerPromotionStats } from "@/lib/promotions/types";
 import type { ActiveSellerPromotion } from "@/lib/seller/types";
@@ -25,6 +26,8 @@ function statusLabel(status: SellerPromotionHistoryItem["status"]): string {
       return "Expired";
     case "failed":
       return "Failed";
+    case "suspended":
+      return "Suspended";
     default:
       return status;
   }
@@ -165,6 +168,14 @@ export function SellerPromotionsSection({
                       )}
                     </div>
                   </div>
+
+                  {(item.status === "expired" || item.status === "active") && (
+                    <PromotionRenewButton
+                      productId={item.productId}
+                      type={item.type}
+                      durationId={item.durationId}
+                    />
+                  )}
                 </div>
               </div>
             );

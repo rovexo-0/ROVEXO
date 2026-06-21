@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
-import { createClient } from "@/lib/supabase/server";
+import { resolveListingCategoryId } from "@/lib/categories/resolve-listing";
 import {
   deleteSellerListing,
   getSellerListingById,
@@ -33,6 +33,7 @@ const updateSchema = z.object({
       categorySlug: z.string(),
       subcategorySlug: z.string(),
       childCategorySlug: z.string().optional(),
+      categorySlugs: z.array(z.string()).optional(),
     })
     .nullable()
     .optional(),
@@ -78,17 +79,10 @@ export async function PATCH(request: Request, context: RouteContext) {
     let categoryId: string | null | undefined;
 
     if (body.categoryPath !== undefined) {
-      if (body.categoryPath === null) {
-        categoryId = null;
-      } else {
-        const supabase = await createClient();
-        const { data: category } = await supabase
-          .from("categories")
-          .select("id")
-          .eq("slug", body.categoryPath.childCategorySlug ?? body.categoryPath.subcategorySlug)
-          .maybeSingle();
-        categoryId = category?.id ?? null;
-      }
+      categoryId =
+        body.categoryPath === null
+          ? null
+          : await resolveListingCategoryId(body.categoryPath);
     }
 
     if (body.inventory) {

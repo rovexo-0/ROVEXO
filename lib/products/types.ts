@@ -31,6 +31,8 @@ export type ProductDetail = Product & {
   stock: number;
   availability: "in_stock" | "low_stock" | "out_of_stock";
   sellerId: string;
+  sellerUsername?: string | null;
+  categoryId?: string | null;
 };
 
 export type ProductsPage = {

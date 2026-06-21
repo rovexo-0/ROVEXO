@@ -240,7 +240,7 @@ export function SettingsPage({ profile }: SettingsPageProps) {
         open={logoutOpen}
         title="Log out?"
         description="You will need to sign in again to access your account, orders, and messages."
-        confirmLabel="Log Out"
+        confirmLabel={logoutPending ? "Logging out…" : "Log Out"}
         cancelLabel="Cancel"
         onConfirm={handleLogout}
         onCancel={() => setLogoutOpen(false)}

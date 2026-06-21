@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { getDeliveryCarrier, getDeliveryPrice } from "@/lib/checkout/delivery";
+import { getDeliveryPrice } from "@/lib/checkout/delivery";
 import { calculateOrderTotals } from "@/lib/orders/pricing";
 import type { Order } from "@/lib/orders/types";
 import type { ProductDetail } from "@/lib/products/types";

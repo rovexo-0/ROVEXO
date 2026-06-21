@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useRef, type ReactNode, type SVGProps } from "react";
+import { useCallback, type ReactNode, type SVGProps } from "react";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { cn } from "@/lib/cn";
@@ -21,28 +21,6 @@ function BellIcon({ className }: { className?: string }) {
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" aria-hidden>
       <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
     </svg>
-  );
-}
-
-function SearchLogo() {
-  return (
-    <Link
-      href="/"
-      className="flex items-center gap-2 shrink-0"
-      aria-label="ROVEXO Home"
-    >
-      <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-transparent">
-        <img
-          src="/logo-3d.png"
-          alt="ROVEXO"
-          className="h-8 w-8 object-contain"
-        />
-      </div>
-
-      <span className="text-[17px] font-extrabold tracking-tight text-text-primary">
-        ROV<span className="text-primary">EXO</span>
-      </span>
-    </Link>
   );
 }
 
@@ -231,7 +209,6 @@ export default function Header({ isSeller, unreadNotifications = 0 }: HeaderProp
               overlay
               hideSubmitButton
               showAiCamera={showSellerTools}
-              unreadNotifications={unreadNotifications}
               placeholder="Search products, brands or sellers..."
             />
           </div>

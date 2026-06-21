@@ -1321,6 +1321,58 @@ export type Database = {
           },
         ]
       }
+      promotion_analytics_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          product_id: string
+          promotion_id: string | null
+          seller_id: string
+          surface: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          product_id: string
+          promotion_id?: string | null
+          seller_id: string
+          surface: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          product_id?: string
+          promotion_id?: string | null
+          seller_id?: string
+          surface?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotion_analytics_events_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promotion_analytics_events_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promotion_analytics_events_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "listing_promotions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       withdraw_methods: {
         Row: {
           connected: boolean
@@ -1380,6 +1432,7 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      expire_stale_pending_promotions: { Args: never; Returns: number }
       find_or_create_brand: { Args: { brand_name: string }; Returns: string }
       generate_order_number: { Args: never; Returns: string }
       compute_promotion_score: {

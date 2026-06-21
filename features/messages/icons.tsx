@@ -1,5 +1,5 @@
 import type { SVGProps } from "react";
-import type { ChatMessage, MessageStatus } from "@/lib/messages/types";
+import type { MessageStatus } from "@/lib/messages/types";
 
 export function MessageStatusIcon({ status }: { status: MessageStatus }) {
   if (status === "sent") {

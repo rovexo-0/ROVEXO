@@ -1,5 +1,5 @@
-import { flattenCategoryPaths, resolveCategoryPath } from "@/lib/categories/queries";
-import type { FlatCategoryPath } from "@/lib/categories/types";
+import { resolveCategoryPathBySlugs } from "@/lib/categories/queries";
+import { flatPathFromSegments, type FlatCategoryPath } from "@/lib/categories/types";
 import { createClient } from "@/lib/supabase/server";
 
 type CategoryRow = {
@@ -38,45 +38,15 @@ export async function resolveFlatCategoryPathFromId(
   const chain = await fetchCategoryChain(categoryId);
   if (chain.length < 2) return null;
 
-  const category = chain[0]!;
-  const subcategory = chain[1]!;
-  const child = chain[2];
+  const slugs = chain.map((node) => node.slug);
+  const fromTree = resolveCategoryPathBySlugs(slugs);
+  if (fromTree) return fromTree;
 
-  const resolved = resolveCategoryPath(
-    category.slug,
-    subcategory.slug,
-    child?.slug,
-  );
+  const segments = chain.map((node) => ({
+    id: node.id,
+    name: node.name,
+    slug: node.slug,
+  }));
 
-  if (resolved) {
-    const flatMatch = flattenCategoryPaths().find((path) => {
-      if (child?.slug) {
-        return (
-          path.categorySlug === category.slug &&
-          path.subcategorySlug === subcategory.slug &&
-          path.childCategorySlug === child.slug
-        );
-      }
-      return path.categorySlug === category.slug && path.subcategorySlug === subcategory.slug;
-    });
-
-    if (flatMatch) return flatMatch;
-  }
-
-  const pathLabel =
-    chain[chain.length - 1]?.path_label ??
-    chain.map((node) => node.name).join(" › ");
-
-  return {
-    categoryId: category.id,
-    categoryName: category.name,
-    categorySlug: category.slug,
-    subcategoryId: subcategory.id,
-    subcategoryName: subcategory.name,
-    subcategorySlug: subcategory.slug,
-    childCategoryId: child?.id,
-    childCategoryName: child?.name,
-    childCategorySlug: child?.slug,
-    pathLabel,
-  };
+  return flatPathFromSegments(segments);
 }

@@ -274,6 +274,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
               categorySlug: draft.categoryPath.categorySlug,
               subcategorySlug: draft.categoryPath.subcategorySlug,
               childCategorySlug: draft.categoryPath.childCategorySlug,
+              categorySlugs: draft.categoryPath.segments.map((segment) => segment.slug),
             }
           : null,
         inventory: {

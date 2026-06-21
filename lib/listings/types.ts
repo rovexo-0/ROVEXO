@@ -87,8 +87,17 @@ export type UpdateListingInput = Partial<Omit<CreateListingInput, "sellerId">> &
 export type SearchListingsOptions = {
   query?: string;
   categorySlug?: string;
+  categorySlugPath?: string[];
+  categoryIds?: string[];
   brand?: string;
   sellerId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  conditions?: string[];
+  postedToday?: boolean;
+  deliveryAvailable?: boolean;
+  collectionOnly?: boolean;
+  inStock?: boolean;
   sort?: "newest" | "price_asc" | "price_desc";
   page?: number;
   pageSize?: number;

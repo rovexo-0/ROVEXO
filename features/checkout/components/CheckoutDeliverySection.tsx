@@ -5,7 +5,6 @@ import { Price } from "@/components/ui/Price";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { DELIVERY_OPTIONS } from "@/lib/checkout/delivery";
-import type { CheckoutDraft } from "@/features/checkout/types";
 import type { CheckoutFormController } from "@/features/checkout/hooks/use-checkout-form";
 
 type CheckoutDeliverySectionProps = {

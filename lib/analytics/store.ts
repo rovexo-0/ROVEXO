@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { buildDashboardPerformance } from "@/lib/dashboard/utils";
-import type { Tables } from "@/lib/supabase/types/database";
+import { getSellerPromotionAnalytics } from "@/lib/promotions/analytics";
 import type {
   AnalyticsDateRange,
   BusinessAnalyticsData,
@@ -51,7 +51,7 @@ export async function getSellerAnalyticsData(
   const supabase = await createClient();
   const since = rangeStart(range);
 
-  const [{ data: orders }, { data: products }] = await Promise.all([
+  const [{ data: orders }, { data: products }, promotionAnalytics] = await Promise.all([
     supabase
       .from("orders")
       .select("total, status, created_at")
@@ -61,6 +61,7 @@ export async function getSellerAnalyticsData(
       .from("products")
       .select("id, title, views, likes, price")
       .eq("seller_id", userId),
+    getSellerPromotionAnalytics(userId, since),
   ]);
 
   const productIds = (products ?? []).map((product) => product.id);
@@ -88,6 +89,16 @@ export async function getSellerAnalyticsData(
         value: views > 0 ? Number(((completed.length / views) * 100).toFixed(1)) : 0,
         format: "percent",
       },
+      {
+        label: "Promo CTR",
+        value: promotionAnalytics.ctr,
+        format: "percent",
+      },
+      {
+        label: "Promo revenue",
+        value: promotionAnalytics.revenueCents / 100,
+        format: "currency",
+      },
     ],
     performance: buildPerformanceFromOrders(completed, products ?? []),
     topProducts:
@@ -108,6 +119,7 @@ export async function getSellerAnalyticsData(
       reviews: products?.reduce((sum, product) => sum + product.likes, 0) ?? 0,
       saves: saves ?? 0,
     },
+    promotions: promotionAnalytics,
   };
 }
 

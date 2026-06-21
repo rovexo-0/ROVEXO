@@ -1,6 +1,11 @@
 import type { Product } from "@/lib/products/types";
 
-export function productToCardProps(product: Product) {
+type PromotionSurface = "homepage" | "search" | "category" | "listing" | "seller";
+
+export function productToCardProps(
+  product: Product,
+  promotionSurface: PromotionSurface = "search",
+) {
   return {
     id: product.id,
     slug: product.slug,
@@ -14,6 +19,9 @@ export function productToCardProps(product: Product) {
     rating: product.rating,
     reviewCount: product.reviewCount,
     views: product.views,
+    productId: product.id,
+    promotionSurface,
     isFeatured: product.isFeatured,
+    isBumped: product.isBumped,
   };
 }

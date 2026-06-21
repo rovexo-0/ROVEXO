@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useState, type KeyboardEvent, type SyntheticEvent } from "react";
+import { useCallback, useEffect, useState, type KeyboardEvent, type SyntheticEvent } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Price } from "@/components/ui/Price";
 import { cn } from "@/lib/cn";
 import { normalizeCondition } from "@/lib/products/utils";
+import { trackPromotionEvent } from "@/components/promotions/PromotionAnalyticsBeacon";
 import { focusRing, transitionNormal, transitionSpring } from "@/components/ui/tokens";
 
 export type ProductCardProps = {
@@ -18,7 +19,10 @@ export type ProductCardProps = {
   price: number;
   condition?: string;
   views?: number;
+  productId?: string;
+  promotionSurface?: "homepage" | "search" | "category" | "listing" | "seller";
   isFeatured?: boolean;
+  isBumped?: boolean;
   isFavorite?: boolean;
   onFavorite?: () => void;
   favoriteLabel?: string;
@@ -65,7 +69,10 @@ export function ProductCard({
   price,
   condition,
   views,
+  productId,
+  promotionSurface = "search",
   isFeatured = false,
+  isBumped = false,
   isFavorite: isFavoriteProp,
   onFavorite,
   className,
@@ -76,9 +83,17 @@ export function ProductCard({
 
   const isFavorite = isFavoriteProp ?? isFavoriteInternal;
 
+  useEffect(() => {
+    if (!productId || (!isFeatured && !isBumped)) return;
+    trackPromotionEvent(productId, "impression", promotionSurface);
+  }, [isBumped, isFeatured, productId, promotionSurface]);
+
   const openProduct = useCallback(() => {
+    if (productId && (isFeatured || isBumped)) {
+      trackPromotionEvent(productId, "click", promotionSurface);
+    }
     router.push(href);
-  }, [href, router]);
+  }, [href, isBumped, isFeatured, productId, promotionSurface, router]);
 
   const toggleFavorite = useCallback(
     (event: SyntheticEvent) => {
@@ -125,6 +140,8 @@ export function ProductCard({
         "group flex h-full cursor-pointer flex-col overflow-hidden",
         transitionNormal,
         "active:-translate-y-0.5 active:shadow-ds-medium md:hover:-translate-y-0.5 md:hover:shadow-ds-medium",
+        isFeatured && "ring-2 ring-warning/40",
+        isBumped && !isFeatured && "ring-2 ring-success/30",
         focusRing,
         className,
       )}
@@ -158,6 +175,15 @@ export function ProductCard({
             className="absolute right-ds-2 top-ds-2 px-ds-2 py-0.5 text-[0.6875rem] shadow-ds-soft"
           >
             Featured
+          </Badge>
+        )}
+
+        {isBumped && !isFeatured && (
+          <Badge
+            variant="success"
+            className="absolute right-ds-2 top-ds-2 px-ds-2 py-0.5 text-[0.6875rem] shadow-ds-soft"
+          >
+            Boosted
           </Badge>
         )}
       </div>

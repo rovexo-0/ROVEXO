@@ -1,12 +1,21 @@
 import type { MetadataRoute } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getAppUrl } from "@/lib/supabase/env";
+import { getCategoryTree } from "@/lib/categories/queries";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://rovexo.com";
+  const baseUrl = getAppUrl();
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: baseUrl, changeFrequency: "daily", priority: 1 },
     { url: `${baseUrl}/search`, changeFrequency: "daily", priority: 0.8 },
+    { url: `${baseUrl}/categories`, changeFrequency: "weekly", priority: 0.9 },
   ];
+
+  const categoryRoutes: MetadataRoute.Sitemap = getCategoryTree().map((category) => ({
+    url: `${baseUrl}/category/${category.slug}`,
+    changeFrequency: "weekly",
+    priority: 0.85,
+  }));
 
   try {
     const admin = createAdminClient();
@@ -24,8 +33,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    return [...staticRoutes, ...productRoutes];
+    return [...staticRoutes, ...categoryRoutes, ...productRoutes];
   } catch {
-    return staticRoutes;
+    return [...staticRoutes, ...categoryRoutes];
   }
 }

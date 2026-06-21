@@ -53,6 +53,7 @@ export function InventoryQuantityField({
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
+          role="spinbutton"
           value={String(value)}
           onChange={(event) => {
             const next = event.target.value.replace(/\D/g, "");

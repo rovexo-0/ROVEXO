@@ -1,8 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import {
+  BUMP_COOLDOWN_HOURS,
   computeEndsAt,
   getPromotionDuration,
+  MAX_BUMPS_PER_DAY,
   type PromotionType,
 } from "@/lib/promotions/config";
 import { computePromotionScore } from "@/lib/promotions/format";
@@ -23,6 +25,69 @@ type ApplyPromotionInput = {
 export async function refreshExpiredPromotions(): Promise<void> {
   const admin = createAdminClient();
   await admin.rpc("refresh_expired_promotions");
+}
+
+export async function markPendingPromotionFailed(
+  promotionId: string,
+  sellerId?: string,
+): Promise<void> {
+  const admin = createAdminClient();
+  let query = admin
+    .from("listing_promotions")
+    .update({ status: "failed" })
+    .eq("id", promotionId)
+    .eq("status", "pending");
+
+  if (sellerId) {
+    query = query.eq("seller_id", sellerId);
+  }
+
+  await query;
+}
+
+async function validateBumpPurchase(
+  sellerId: string,
+  productId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const admin = createAdminClient();
+  const supabase = await createClient();
+
+  const { data: product } = await supabase
+    .from("products")
+    .select("last_bumped_at")
+    .eq("id", productId)
+    .eq("seller_id", sellerId)
+    .maybeSingle();
+
+  if (product?.last_bumped_at) {
+    const cooldownMs = BUMP_COOLDOWN_HOURS * 60 * 60 * 1000;
+    const elapsed = Date.now() - new Date(product.last_bumped_at).getTime();
+    if (elapsed < cooldownMs) {
+      const minutesLeft = Math.ceil((cooldownMs - elapsed) / 60_000);
+      return {
+        ok: false,
+        error: `Bump cooldown active. Try again in ${minutesLeft} minute(s).`,
+      };
+    }
+  }
+
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { count } = await admin
+    .from("listing_promotions")
+    .select("*", { count: "exact", head: true })
+    .eq("seller_id", sellerId)
+    .eq("type", "bump")
+    .gte("created_at", dayAgo)
+    .in("status", ["pending", "active", "expired"]);
+
+  if ((count ?? 0) >= MAX_BUMPS_PER_DAY) {
+    return {
+      ok: false,
+      error: `Daily bump limit reached (${MAX_BUMPS_PER_DAY} per 24 hours).`,
+    };
+  }
+
+  return { ok: true };
 }
 
 export async function createPendingPromotion(
@@ -229,6 +294,13 @@ export async function createPromotionCheckoutSession(input: {
     return { error: "Only published listings can be promoted." };
   }
 
+  if (input.type === "bump") {
+    const bumpCheck = await validateBumpPurchase(input.sellerId, input.productId);
+    if (!bumpCheck.ok) {
+      return { error: bumpCheck.error };
+    }
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -301,7 +373,7 @@ export async function createPromotionCheckoutSession(input: {
         amountCents: String(duration.priceCents),
       },
       success_url: `${baseUrl}/seller/listings?promotion=success&type=${input.type}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/seller/listings?promotion=cancelled`,
+      cancel_url: `${baseUrl}/seller/listings?promotion=cancelled&promotion_id=${pending.id}`,
     },
     {
       idempotencyKey: `promo-checkout-${pending.id}`,

@@ -1,5 +1,11 @@
 import { categoryTree } from "@/lib/categories/tree";
 import type { CategoryNode, CategoryPath, FlatCategoryPath } from "@/lib/categories/types";
+import { flatPathFromSegments } from "@/lib/categories/types";
+import {
+  collectLeafPaths,
+  findNodeBySlugPath,
+  segmentsFromPath,
+} from "@/lib/categories/navigation";
 
 function buildPathLabel(path: CategoryPath): string {
   const parts = [path.category.name, path.subcategory.name];
@@ -7,45 +13,21 @@ function buildPathLabel(path: CategoryPath): string {
   return parts.join(" › ");
 }
 
-function walkPaths(
+function walkLegacyPaths(
   category: CategoryNode,
   subcategory: CategoryNode,
   childCategory: CategoryNode | undefined,
   results: FlatCategoryPath[],
 ): void {
-  const path: CategoryPath = { category, subcategory, childCategory };
-  results.push({
-    categoryId: category.id,
-    categoryName: category.name,
-    categorySlug: category.slug,
-    subcategoryId: subcategory.id,
-    subcategoryName: subcategory.name,
-    subcategorySlug: subcategory.slug,
-    childCategoryId: childCategory?.id,
-    childCategoryName: childCategory?.name,
-    childCategorySlug: childCategory?.slug,
-    pathLabel: buildPathLabel(path),
-  });
+  const segments = childCategory
+    ? segmentsFromPath([category, subcategory, childCategory])
+    : segmentsFromPath([category, subcategory]);
+
+  results.push(flatPathFromSegments(segments));
 }
 
 export function flattenCategoryPaths(): FlatCategoryPath[] {
-  const results: FlatCategoryPath[] = [];
-
-  for (const category of categoryTree) {
-    if (!category.children?.length) continue;
-
-    for (const subcategory of category.children) {
-      if (subcategory.children?.length) {
-        for (const child of subcategory.children) {
-          walkPaths(category, subcategory, child, results);
-        }
-      } else {
-        walkPaths(category, subcategory, undefined, results);
-      }
-    }
-  }
-
-  return results;
+  return collectLeafPaths(categoryTree).map(({ segments }) => flatPathFromSegments(segments));
 }
 
 export function resolveCategoryPath(
@@ -53,28 +35,35 @@ export function resolveCategoryPath(
   subcategorySlug: string,
   childCategorySlug?: string,
 ): CategoryPath | null {
-  const category = categoryTree.find((node) => node.slug === categorySlug);
-  if (!category?.children) return null;
+  const slugs = childCategorySlug
+    ? [categorySlug, subcategorySlug, childCategorySlug]
+    : [categorySlug, subcategorySlug];
+  const path = findNodeBySlugPath(categoryTree, slugs);
+  if (!path || path.length < 2) return null;
 
-  const subcategory = category.children.find((node) => node.slug === subcategorySlug);
-  if (!subcategory) return null;
+  return {
+    category: path[0]!,
+    subcategory: path[1]!,
+    childCategory: path[2],
+  };
+}
 
-  if (!childCategorySlug) {
-    return { category, subcategory };
-  }
-
-  const childCategory = subcategory.children?.find((node) => node.slug === childCategorySlug);
-  if (!childCategory) return null;
-
-  return { category, subcategory, childCategory };
+export function resolveCategoryPathBySlugs(slugs: string[]): FlatCategoryPath | null {
+  const path = findNodeBySlugPath(categoryTree, slugs);
+  if (!path || path.length < 2) return null;
+  return flatPathFromSegments(segmentsFromPath(path));
 }
 
 export function flatPathToCategoryPath(flat: FlatCategoryPath): CategoryPath | null {
-  return resolveCategoryPath(
-    flat.categorySlug,
-    flat.subcategorySlug,
-    flat.childCategorySlug,
-  );
+  const slugs = flat.segments.map((segment) => segment.slug);
+  const path = findNodeBySlugPath(categoryTree, slugs);
+  if (!path || path.length < 2) return null;
+
+  return {
+    category: path[0]!,
+    subcategory: path[1]!,
+    childCategory: path[2],
+  };
 }
 
 export function getCategoryTree(): CategoryNode[] {
@@ -84,13 +73,14 @@ export function getCategoryTree(): CategoryNode[] {
 export function findCategoryPathById(pathId: string): FlatCategoryPath | undefined {
   return flattenCategoryPaths().find(
     (path) =>
-      [path.childCategoryId, path.subcategoryId, path.categoryId].filter(Boolean).join(":") === pathId ||
-      `${path.categorySlug}:${path.subcategorySlug}:${path.childCategorySlug ?? ""}` === pathId,
+      path.segments.map((segment) => segment.id).join(":") === pathId ||
+      `${path.categorySlug}:${path.subcategorySlug}:${path.childCategorySlug ?? ""}` === pathId ||
+      path.segments.map((segment) => segment.slug).join(":") === pathId,
   );
 }
 
 export function toPathId(flat: FlatCategoryPath): string {
-  return `${flat.categorySlug}:${flat.subcategorySlug}:${flat.childCategorySlug ?? ""}`;
+  return flat.segments.map((segment) => segment.slug).join(":");
 }
 
 export function categoryPathFromFlat(flat: FlatCategoryPath): CategoryPath {
@@ -101,4 +91,4 @@ export function categoryPathFromFlat(flat: FlatCategoryPath): CategoryPath {
   return resolved;
 }
 
-export { buildPathLabel };
+export { buildPathLabel, walkLegacyPaths };

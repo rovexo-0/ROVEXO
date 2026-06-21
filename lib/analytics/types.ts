@@ -46,6 +46,15 @@ export type SellerAnalyticsData = {
   topProducts: AnalyticsTopProduct[];
   trafficSources: AnalyticsSegment[];
   recentActivity: AnalyticsRecentActivity;
+  promotions?: PromotionAnalyticsSummary;
+};
+
+export type PromotionAnalyticsSummary = {
+  impressions: number;
+  clicks: number;
+  ctr: number;
+  purchases: number;
+  revenueCents: number;
 };
 
 export type BusinessAnalyticsData = {

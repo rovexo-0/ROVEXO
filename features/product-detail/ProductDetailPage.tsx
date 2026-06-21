@@ -17,23 +17,31 @@ import { ProductDetailTopBar } from "@/features/product-detail/ProductDetailTopB
 import { ProductEngagementRow } from "@/features/product-detail/ProductEngagementRow";
 import { ProductGallery } from "@/features/product-detail/ProductGallery";
 import { ProductSimilarItems } from "@/features/product-detail/ProductSimilarItems";
+import { ProductSellerCard } from "@/features/product-detail/ProductSellerCard";
+import { ProductReportDialog } from "@/features/product-detail/ProductReportDialog";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import type { CategoryBreadcrumb } from "@/lib/categories/navigation";
 
 type ProductDetailPageProps = {
   product: ProductDetail;
   similarProducts: Product[];
   initialIsSaved?: boolean;
+  breadcrumbs?: CategoryBreadcrumb[];
 };
 
 const COLLAPSE_OFFSET = 120;
 
 function triggerHapticFeedback() {
-  // Placeholder for native haptic feedback in the future mobile app shell.
+  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+    navigator.vibrate(10);
+  }
 }
 
 export function ProductDetailPage({
   product,
   similarProducts,
   initialIsSaved = false,
+  breadcrumbs = [],
 }: ProductDetailPageProps) {
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -111,6 +119,8 @@ export function ProductDetailPage({
       </div>
 
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+        {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
+
         <section aria-labelledby="product-info-heading" className="flex flex-col gap-ds-3">
           <h2 id="product-info-heading" className="sr-only">
             Product information
@@ -153,6 +163,21 @@ export function ProductDetailPage({
         <ProductDescription description={product.description} />
 
         <ProductDelivery carriers={product.deliveryCarriers} />
+
+        <ProductSellerCard
+          sellerId={product.sellerId}
+          sellerName={product.sellerName}
+          sellerUsername={product.sellerUsername}
+          sellerAvatar={product.sellerAvatar}
+          sellerVerified={product.sellerVerified}
+          rating={product.rating}
+          reviewCount={product.reviewCount}
+          salesCount={product.salesCount}
+        />
+
+        <div className="flex justify-end">
+          <ProductReportDialog productSlug={product.slug} />
+        </div>
 
         <ProductSimilarItems products={similarProducts} />
       </main>

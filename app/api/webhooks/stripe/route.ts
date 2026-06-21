@@ -45,6 +45,12 @@ export async function POST(request: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         if (session.metadata?.checkoutType === "order" && session.metadata.orderId) {
           await cancelPendingOrder(session.metadata.orderId);
+        } else if (
+          session.metadata?.checkoutType === "promotion" &&
+          session.metadata.promotionId
+        ) {
+          const { markPendingPromotionFailed } = await import("@/lib/promotions/service");
+          await markPendingPromotionFailed(session.metadata.promotionId);
         }
         break;
       }

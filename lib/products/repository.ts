@@ -15,7 +15,7 @@ import type {
 const PAGE_SIZE = 8;
 
 type ProductRow = Tables<"products"> & {
-  profiles: Pick<Tables<"profiles">, "full_name" | "avatar_url" | "verified"> | null;
+  profiles: Pick<Tables<"profiles">, "full_name" | "avatar_url" | "verified" | "username"> | null;
   product_images: Pick<
     Tables<"product_images">,
     "url" | "thumbnail_url" | "sort_order" | "is_primary"
@@ -25,7 +25,7 @@ type ProductRow = Tables<"products"> & {
 
 const PRODUCT_SELECT = `
   *,
-  profiles!products_seller_id_fkey ( full_name, avatar_url, verified ),
+  profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username ),
   product_images ( url, sort_order, is_primary ),
   brands ( name )
 `;
@@ -85,6 +85,8 @@ function mapProductDetail(row: ProductRow): ProductDetail {
     stock: row.stock,
     availability: productAvailability(row.stock, row.low_stock_alert),
     sellerId: row.seller_id,
+    sellerUsername: row.profiles?.username ?? null,
+    categoryId: row.category_id,
   };
 }
 

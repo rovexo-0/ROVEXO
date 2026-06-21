@@ -48,8 +48,11 @@ export function CategoryChip(props: CategoryChipProps) {
     );
   }
 
-  const { active: _active, label: _label, className: _className, ...buttonProps } =
-  props as CategoryChipButtonProps;
+  const buttonProps = Object.fromEntries(
+    Object.entries(props as CategoryChipButtonProps).filter(
+      ([key]) => !["label", "active", "className"].includes(key),
+    ),
+  ) as Omit<CategoryChipButtonProps, "label" | "active" | "className">;
 
   return (
     <button type="button" className={cn(chipStyles(active), className)} {...buttonProps}>

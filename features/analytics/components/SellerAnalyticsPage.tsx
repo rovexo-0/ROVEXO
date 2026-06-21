@@ -9,6 +9,7 @@ import {
 } from "@/features/analytics/components/AnalyticsExportSection";
 import { AnalyticsHeader } from "@/features/analytics/components/AnalyticsHeader";
 import { AnalyticsOverviewGrid } from "@/features/analytics/components/AnalyticsOverviewGrid";
+import { AnalyticsPromotionsSection } from "@/features/analytics/components/AnalyticsPromotionsSection";
 import { AnalyticsRecentActivitySection } from "@/features/analytics/components/AnalyticsRecentActivitySection";
 import { AnalyticsTopProductsSection } from "@/features/analytics/components/AnalyticsTopProductsSection";
 import { useAnalyticsData } from "@/features/analytics/hooks/use-analytics-data";
@@ -41,6 +42,8 @@ export function SellerAnalyticsPage({
         )}
 
         <AnalyticsOverviewGrid metrics={data.overview} />
+
+        {data.promotions && <AnalyticsPromotionsSection data={data.promotions} />}
 
         <DashboardPerformanceSection
           performance={data.performance}

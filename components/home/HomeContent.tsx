@@ -10,15 +10,21 @@ import {
 import { ProductCard } from "@/components/ui/ProductCard";
 import { productToCardProps } from "@/lib/products/card";
 import type { Product, ProductsPage } from "@/lib/products/types";
-import { ProductGridSkeleton } from "@/components/home/ProductGridSkeleton";
+import { ProductGridSkeleton, ProductSectionEmpty } from "@/components/home/ProductSectionStates";
 import { ProductSection } from "@/components/home/ProductSection";
+import { HomeHero } from "@/components/home/HomeHero";
+import { CategoryGridSection, type HomeCategoryCard } from "@/components/home/CategoryGridSection";
+import { TrendingSearchesSection } from "@/components/home/TrendingSearchesSection";
 import { transitionFast } from "@/components/ui/tokens";
 
 type HomeContentProps = {
+  categories: HomeCategoryCard[];
+  featured: Product[];
   trending: Product[];
   newToday: Product[];
   recommended: Product[];
   recommendedHasMore: boolean;
+  loadError?: boolean;
 };
 
 const PULL_THRESHOLD = 72;
@@ -36,10 +42,13 @@ async function fetchSection(section: string, page: number): Promise<ProductsPage
 }
 
 export function HomeContent({
+  categories,
+  featured,
   trending: initialTrending,
   newToday: initialNewToday,
   recommended: initialRecommended,
   recommendedHasMore: initialRecommendedHasMore,
+  loadError = false,
 }: HomeContentProps) {
   const [trending, setTrending] = useState(initialTrending);
   const [newToday, setNewToday] = useState(initialNewToday);
@@ -49,6 +58,7 @@ export function HomeContent({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
+  const [refreshError, setRefreshError] = useState(false);
   const [, startTransition] = useTransition();
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -57,12 +67,13 @@ export function HomeContent({
 
   const refreshAll = useCallback(async () => {
     setIsRefreshing(true);
+    setRefreshError(false);
 
     try {
       const [trendingPage, newPage, recommendedPageData] = await Promise.all([
         fetchSection("trending", 1),
         fetchSection("new", 1),
-        fetchSection("recommended", 1),
+        fetchSection("trending", 1),
       ]);
 
       setTrending(trendingPage.items);
@@ -70,6 +81,8 @@ export function HomeContent({
       setRecommended(recommendedPageData.items);
       setRecommendedPage(1);
       setHasMoreRecommended(recommendedPageData.hasMore);
+    } catch {
+      setRefreshError(true);
     } finally {
       setIsRefreshing(false);
       setPullDistance(0);
@@ -83,7 +96,7 @@ export function HomeContent({
 
     try {
       const nextPage = recommendedPage + 1;
-      const data = await fetchSection("recommended", nextPage);
+      const data = await fetchSection("trending", nextPage);
       setRecommended((current) => [...current, ...data.items]);
       setRecommendedPage(nextPage);
       setHasMoreRecommended(data.hasMore);
@@ -94,11 +107,11 @@ export function HomeContent({
 
   useEffect(() => {
     const node = loadMoreRef.current;
-    if (!node) return;
+    if (!node || !hasMoreRecommended || isLoadingMore) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting) {
+        if (entries[0]?.isIntersecting && !isLoadingMore && hasMoreRecommended) {
           startTransition(() => {
             void loadMoreRecommended();
           });
@@ -109,7 +122,7 @@ export function HomeContent({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [loadMoreRecommended]);
+  }, [hasMoreRecommended, isLoadingMore, loadMoreRecommended]);
 
   function handleTouchStart(event: React.TouchEvent) {
     if (window.scrollY > 0 || isRefreshing) return;
@@ -138,6 +151,7 @@ export function HomeContent({
   }
 
   const showSkeletons = isRefreshing;
+  const sectionError = loadError || refreshError;
 
   return (
     <div
@@ -153,19 +167,36 @@ export function HomeContent({
         {isRefreshing ? "Refreshing…" : pullDistance >= PULL_THRESHOLD ? "Release to refresh" : pullDistance > 0 ? "Pull to refresh" : null}
       </div>
 
-      <main className="flex flex-col gap-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))] pt-ds-4 md:gap-ds-7 lg:mx-auto lg:max-w-7xl lg:w-full lg:pt-ds-5">
+      <main className="flex flex-col gap-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))] pt-[calc(7.5rem+env(safe-area-inset-top))] md:gap-ds-7 lg:mx-auto lg:max-w-7xl lg:w-full lg:pt-[calc(8rem+env(safe-area-inset-top))]">
+        <HomeHero />
+
+        <CategoryGridSection categories={categories} />
+
+        <TrendingSearchesSection />
+
+        <ProductSection
+          id="featured-heading"
+          title="Featured Listings"
+          products={featured}
+          loading={showSkeletons}
+          error={sectionError}
+          viewAllHref="/search?q=&featured=1"
+        />
+
         <ProductSection
           id="trending-heading"
           title="Trending Today"
           products={trending}
           loading={showSkeletons}
+          error={sectionError}
         />
 
         <ProductSection
           id="new-heading"
-          title="New Today"
+          title="Latest Listings"
           products={newToday}
           loading={showSkeletons}
+          error={sectionError}
         />
 
         <section aria-labelledby="recommended-heading" className="px-ds-4">
@@ -175,10 +206,19 @@ export function HomeContent({
           <div className="grid grid-cols-2 gap-ds-3 md:grid-cols-3 md:gap-ds-4 lg:grid-cols-4">
             {showSkeletons ? (
               <ProductGridSkeleton count={4} />
+            ) : sectionError ? (
+              <div
+                role="alert"
+                className="col-span-full rounded-ds-xl border border-danger/30 bg-danger/5 px-ds-5 py-ds-6 text-center text-sm text-text-secondary"
+              >
+                Unable to load recommendations.
+              </div>
+            ) : recommended.length === 0 ? (
+              <ProductSectionEmpty title="recommendations" />
             ) : (
               recommended.map((product) => (
                 <div key={product.id} className="h-full">
-                  <ProductCard {...productToCardProps(product)} />
+                  <ProductCard {...productToCardProps(product, "homepage")} />
                 </div>
               ))
             )}

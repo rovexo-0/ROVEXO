@@ -5,6 +5,9 @@ import { incrementProductViews } from "@/lib/listings/repository";
 import { fetchProductBySlug, fetchSimilarProducts } from "@/lib/products/queries";
 import { isProductSaved } from "@/lib/saved/check";
 import { getAuthContext } from "@/lib/auth/session";
+import { getCategoryBreadcrumbsForProduct } from "@/lib/categories/server";
+import { productJsonLd } from "@/lib/seo/json-ld";
+import { getAppUrl } from "@/lib/supabase/env";
 
 type ListingPageProps = {
   params: Promise<{ slug: string }>;
@@ -20,15 +23,24 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
 
   const title = `${product.title} · ROVEXO`;
   const description = product.description.slice(0, 160) || `Buy ${product.title} on ROVEXO.`;
+  const canonical = `${getAppUrl()}/listing/${slug}`;
 
   return {
     title,
     description,
+    alternates: { canonical },
     openGraph: {
       title,
       description,
+      url: canonical,
       images: product.images[0] ? [{ url: product.images[0] }] : undefined,
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: product.images[0] ? [product.images[0]] : undefined,
     },
   };
 }
@@ -45,16 +57,26 @@ export default async function ListingPage({ params }: ListingPageProps) {
     notFound();
   }
 
+  const [breadcrumbs, initialIsSaved] = await Promise.all([
+    getCategoryBreadcrumbsForProduct(product.categoryId ?? null),
+    auth ? isProductSaved(auth.user.id, slug) : Promise.resolve(false),
+  ]);
+
   await incrementProductViews(slug);
 
-  const initialIsSaved = auth ? await isProductSaved(auth.user.id, slug) : false;
+  const structuredData = productJsonLd(product, breadcrumbs);
 
   return (
     <div className="min-h-screen bg-background text-text-primary">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <ProductDetailPage
         product={product}
         similarProducts={similarProducts}
         initialIsSaved={initialIsSaved}
+        breadcrumbs={breadcrumbs}
       />
     </div>
   );

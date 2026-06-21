@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   useCallback,
   useEffect,
@@ -40,7 +41,6 @@ export type SearchBarProps = {
   overlay?: boolean;
   hideSubmitButton?: boolean;
   showAiCamera?: boolean;
-  unreadNotifications?: number;
   debounceMs?: number;
   recentSearches?: string[];
   trendingSearches?: string[];
@@ -128,7 +128,6 @@ export function SearchBar({
   overlay = false,
   hideSubmitButton = false,
   showAiCamera = false,
-  unreadNotifications = 0,
 }: SearchBarProps) {
   const generatedId = useId();
   const resolvedInputId = inputId ?? generatedId;
@@ -263,9 +262,11 @@ export function SearchBar({
   )}
 >
           <div className="absolute left-3 top-1/2 flex -translate-y-1/2 items-center gap-2 pointer-events-none">
-  <img
+  <Image
     src="/logo-3d.png"
     alt="ROVEXO"
+    width={32}
+    height={32}
     className="h-8 w-8 object-contain"
   />
 

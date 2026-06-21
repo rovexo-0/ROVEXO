@@ -27,6 +27,12 @@ export const BUMP_DURATIONS: BumpDurationOption[] = [
   { id: "7d", label: "7 days", hours: 168, priceCents: 999, priceLabel: "£9.99" },
 ];
 
+/** Minimum hours between bumps on the same listing. */
+export const BUMP_COOLDOWN_HOURS = 1;
+
+/** Maximum bump purchases per seller per rolling 24 hours. */
+export const MAX_BUMPS_PER_DAY = 10;
+
 export const FEATURE_DURATIONS: FeatureDurationOption[] = [
   { id: "7d", label: "7 days", days: 7, priceCents: 999, priceLabel: "£9.99" },
   { id: "14d", label: "14 days", days: 14, priceCents: 1499, priceLabel: "£14.99" },

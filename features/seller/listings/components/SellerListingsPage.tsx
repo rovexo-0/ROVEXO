@@ -226,8 +226,6 @@ export function SellerListingsPage({ data }: { data: SellerListingsData }) {
         ? "Promotion checkout cancelled."
         : null;
 
-  const activeFilter = (searchParams.get("filter") as ListingFilter | null) ?? data.filter;
-
   useEffect(() => {
     const sessionId = searchParams.get("session_id");
 
@@ -241,6 +239,14 @@ export function SellerListingsPage({ data }: { data: SellerListingsData }) {
         router.refresh();
       });
     } else if (promotionStatus === "cancelled") {
+      const promotionId = searchParams.get("promotion_id");
+      if (promotionId) {
+        void fetch("/api/promotions/cancel", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ promotionId }),
+        });
+      }
       router.replace("/seller/listings");
     }
   }, [promotionStatus, router, searchParams]);

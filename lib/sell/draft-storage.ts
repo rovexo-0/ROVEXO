@@ -5,8 +5,12 @@ const STORAGE_KEY = "rovexo:sell-draft";
 export function saveSellDraft(draft: SellListingDraft): void {
   if (typeof window === "undefined") return;
 
-  const { photos: _photos, analysis: _analysis, ...payload } = draft;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  window.localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(draft, (key, value) =>
+      key === "photos" || key === "analysis" ? undefined : value,
+    ),
+  );
 }
 
 export function loadSellDraft(): Partial<SellListingDraft> | null {

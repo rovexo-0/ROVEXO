@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
-import { createClient } from "@/lib/supabase/server";
+import { resolveListingCategoryId } from "@/lib/categories/resolve-listing";
 import {
   createSellerListing,
   getSellerListings,
@@ -32,6 +32,7 @@ const listingSchema = z.object({
       categorySlug: z.string(),
       subcategorySlug: z.string(),
       childCategorySlug: z.string().optional(),
+      categorySlugs: z.array(z.string()).optional(),
     })
     .nullable(),
   inventory: z
@@ -85,12 +86,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Category is required." }, { status: 400 });
     }
 
-    const supabase = await createClient();
-    const { data: category } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("slug", body.categoryPath.childCategorySlug ?? body.categoryPath.subcategorySlug)
-      .maybeSingle();
+    const categoryId = await resolveListingCategoryId(body.categoryPath);
 
     if (body.inventory) {
       const stock = clampInventory(body.inventory.stock);
@@ -110,7 +106,7 @@ export async function POST(request: Request) {
       condition: body.condition,
       price: body.price,
       acceptOffers: body.acceptOffers,
-      categoryId: category?.id ?? null,
+      categoryId,
       status: body.status ?? "published",
       inventory: body.inventory
         ? {
