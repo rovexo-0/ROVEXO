@@ -1345,6 +1345,45 @@ export type Database = {
           },
         ]
       }
+      support_tickets: {
+        Row: {
+          attachment_urls: string[]
+          category: Database["public"]["Enums"]["support_category"]
+          created_at: string
+          description: string
+          id: string
+          status: Database["public"]["Enums"]["support_status"]
+          subject: string
+          ticket_number: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachment_urls?: string[]
+          category: Database["public"]["Enums"]["support_category"]
+          created_at?: string
+          description: string
+          id?: string
+          status?: Database["public"]["Enums"]["support_status"]
+          subject: string
+          ticket_number: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachment_urls?: string[]
+          category?: Database["public"]["Enums"]["support_category"]
+          created_at?: string
+          description?: string
+          id?: string
+          status?: Database["public"]["Enums"]["support_status"]
+          subject?: string
+          ticket_number?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       saved_items: {
         Row: {
           last_viewed_at: string | null
@@ -1430,6 +1469,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      seller_tax_profiles: {
+        Row: {
+          address_line1: string | null
+          address_line2: string | null
+          city: string | null
+          company_name: string | null
+          company_number: string | null
+          country: string
+          created_at: string
+          director_name: string | null
+          email: string | null
+          full_name: string | null
+          nino: string | null
+          phone: string | null
+          postcode: string | null
+          registered_address: string | null
+          registration_type: Database["public"]["Enums"]["seller_registration_type"]
+          seller_id: string
+          stripe_connect_completed: boolean
+          submitted_at: string | null
+          updated_at: string
+          utr: string | null
+          vat_number: string | null
+        }
+        Insert: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          company_name?: string | null
+          company_number?: string | null
+          country?: string
+          created_at?: string
+          director_name?: string | null
+          email?: string | null
+          full_name?: string | null
+          nino?: string | null
+          phone?: string | null
+          postcode?: string | null
+          registered_address?: string | null
+          registration_type: Database["public"]["Enums"]["seller_registration_type"]
+          seller_id: string
+          stripe_connect_completed?: boolean
+          submitted_at?: string | null
+          updated_at?: string
+          utr?: string | null
+          vat_number?: string | null
+        }
+        Update: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          company_name?: string | null
+          company_number?: string | null
+          country?: string
+          created_at?: string
+          director_name?: string | null
+          email?: string | null
+          full_name?: string | null
+          nino?: string | null
+          phone?: string | null
+          postcode?: string | null
+          registered_address?: string | null
+          registration_type?: Database["public"]["Enums"]["seller_registration_type"]
+          seller_id?: string
+          stripe_connect_completed?: boolean
+          submitted_at?: string | null
+          updated_at?: string
+          utr?: string | null
+          vat_number?: string | null
+        }
+        Relationships: []
       }
       shipping_addresses: {
         Row: {
@@ -1770,6 +1881,7 @@ export type Database = {
       expire_stale_pending_promotions: { Args: never; Returns: number }
       find_or_create_brand: { Args: { brand_name: string }; Returns: string }
       generate_order_number: { Args: never; Returns: string }
+      generate_support_ticket_number: { Args: never; Returns: string }
       compute_promotion_score: {
         Args: {
           p_bump_count: number
@@ -1821,6 +1933,10 @@ export type Database = {
         | "order"
         | "offer"
         | "review"
+        | "payment"
+        | "follower"
+        | "moderation"
+        | "promotion_expired"
         | "saved_item_sold"
         | "price_reduced"
         | "system"
@@ -1840,6 +1956,25 @@ export type Database = {
         | "cancelled"
       product_status: "draft" | "published" | "paused" | "sold" | "deleted"
       sender_role: "buyer" | "seller"
+      seller_registration_type:
+        | "personal"
+        | "pro_seller"
+        | "business_sole_trader"
+        | "business_company"
+      support_category:
+        | "account"
+        | "buying"
+        | "selling"
+        | "payments"
+        | "delivery"
+        | "chat"
+        | "technical"
+        | "business"
+        | "pro_seller"
+        | "appeal_moderation"
+        | "report_user"
+        | "other"
+      support_status: "open" | "in_progress" | "resolved" | "closed"
       user_role: "buyer" | "seller" | "business" | "admin"
       wallet_tx_status: "completed" | "pending" | "failed" | "refunded"
       wallet_tx_type: "sale" | "withdrawal" | "fee" | "refund" | "promotion"
@@ -1984,6 +2119,10 @@ export const Constants = {
         "order",
         "offer",
         "review",
+        "payment",
+        "follower",
+        "moderation",
+        "promotion_expired",
         "saved_item_sold",
         "price_reduced",
         "system",
@@ -2000,6 +2139,27 @@ export const Constants = {
       ],
       product_status: ["draft", "published", "paused", "sold", "deleted"],
       sender_role: ["buyer", "seller"],
+      seller_registration_type: [
+        "personal",
+        "pro_seller",
+        "business_sole_trader",
+        "business_company",
+      ],
+      support_category: [
+        "account",
+        "buying",
+        "selling",
+        "payments",
+        "delivery",
+        "chat",
+        "technical",
+        "business",
+        "pro_seller",
+        "appeal_moderation",
+        "report_user",
+        "other",
+      ],
+      support_status: ["open", "in_progress", "resolved", "closed"],
       user_role: ["buyer", "seller", "business", "admin"],
       wallet_tx_status: ["completed", "pending", "failed", "refunded"],
       wallet_tx_type: ["sale", "withdrawal", "fee", "refund", "promotion"],

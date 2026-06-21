@@ -1,17 +1,18 @@
 import Link from "next/link";
 
-const footerLinks = {
-  shop: ["Women", "Men", "Kids", "Electronics", "Home"],
-  sell: ["How to sell", "Seller protection", "Shipping guide", "Pricing tips"],
-  company: ["About us", "Careers", "Press", "Sustainability", "Blog"],
-  support: ["Help center", "Contact us", "Trust & safety", "Terms", "Privacy"],
-};
+const SUPPORT_LINKS = [
+  { label: "Help center", href: "/help" },
+  { label: "Contact us", href: "/support" },
+  { label: "Trust & safety", href: "/help/trust-and-safety" },
+  { label: "Terms", href: "/help/terms-of-service" },
+  { label: "Privacy", href: "/help/privacy-policy" },
+];
 
-const socialLinks = [
-  { label: "X", href: "https://x.com" },
-  { label: "in", href: "https://linkedin.com" },
-  { label: "ig", href: "https://instagram.com" },
-  { label: "fb", href: "https://facebook.com" },
+const SELL_LINKS = [
+  { label: "How to sell", href: "/help/selling-get-started" },
+  { label: "Seller protection", href: "/help/buying-buyer-protection" },
+  { label: "Shipping guide", href: "/help/delivery-shipping" },
+  { label: "Pricing tips", href: "/help/selling-get-started" },
 ];
 
 export default function Footer() {
@@ -29,58 +30,17 @@ export default function Footer() {
               </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-gray-500">
-              The modern marketplace to buy, sell, and discover pre-loved and new
-              items across Europe.
+              The modern marketplace to buy, sell, and discover pre-loved and new items across Europe.
             </p>
-            <div className="mt-6 flex gap-2">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-xs font-bold text-gray-600 shadow-sm transition-colors hover:text-[#2563eb]"
-                >
-                  {social.label}
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900">Shop</h3>
-            <ul className="mt-4 space-y-2.5 text-sm text-gray-500">
-              {footerLinks.shop.map((item) => (
-                <li key={item}>
-                  <Link href="#" className="hover:text-[#2563eb]">
-                    {item}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
 
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900">Sell</h3>
             <ul className="mt-4 space-y-2.5 text-sm text-gray-500">
-              {footerLinks.sell.map((item) => (
-                <li key={item}>
-                  <Link href="#" className="hover:text-[#2563eb]">
-                    {item}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900">Company</h3>
-            <ul className="mt-4 space-y-2.5 text-sm text-gray-500">
-              {footerLinks.company.map((item) => (
-                <li key={item}>
-                  <Link href="#" className="hover:text-[#2563eb]">
-                    {item}
+              {SELL_LINKS.map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className="hover:text-[#2563eb]">
+                    {item.label}
                   </Link>
                 </li>
               ))}
@@ -90,10 +50,10 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wider text-gray-900">Support</h3>
             <ul className="mt-4 space-y-2.5 text-sm text-gray-500">
-              {footerLinks.support.map((item) => (
-                <li key={item}>
-                  <Link href="#" className="hover:text-[#2563eb]">
-                    {item}
+              {SUPPORT_LINKS.map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className="hover:text-[#2563eb]">
+                    {item.label}
                   </Link>
                 </li>
               ))}
@@ -102,9 +62,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-gray-200 pt-8 sm:flex-row">
-          <p className="text-sm text-gray-400">
-            © {new Date().getFullYear()} ROVEXO. All rights reserved.
-          </p>
+          <p className="text-sm text-gray-400">© {new Date().getFullYear()} ROVEXO. All rights reserved.</p>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm text-gray-400">
             <span>EU Marketplace</span>
             <span>Secure payments</span>

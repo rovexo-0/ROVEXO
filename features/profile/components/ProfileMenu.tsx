@@ -92,6 +92,7 @@ export function ProfileMenu({ profile }: ProfileMenuProps) {
           <ProfileMenuRow
             title="Help Centre"
             subtitle="Support"
+            href="/help"
             icon={<HelpMenuIcon className="h-5 w-5" />}
           />
         </div>

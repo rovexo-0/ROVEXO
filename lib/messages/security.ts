@@ -1,4 +1,5 @@
 import { analyzeMessageContent } from "@/lib/moderation/analyzer";
+import { buildMessageSecurityNotice } from "@/lib/moderation/user-messages";
 import type { ModerationResult } from "@/lib/moderation/types";
 
 export type MessageSecurityWarning = {
@@ -9,11 +10,12 @@ export type MessageSecurityWarning = {
 
 export function inspectMessageContent(content: string): MessageSecurityWarning {
   const result = analyzeMessageContent(content);
+  const userMessage = buildMessageSecurityNotice(result);
 
   if (result.decision === "blocked") {
     return {
       blocked: true,
-      warning: result.summary,
+      warning: userMessage,
       result,
     };
   }
@@ -21,7 +23,7 @@ export function inspectMessageContent(content: string): MessageSecurityWarning {
   if (result.decision === "warning") {
     return {
       blocked: false,
-      warning: result.summary,
+      warning: userMessage,
       result,
     };
   }
@@ -31,5 +33,5 @@ export function inspectMessageContent(content: string): MessageSecurityWarning {
 
 export function buildAutoReplyWarning(warning: string | null): string | null {
   if (!warning) return null;
-  return `ROVEXO safety notice: ${warning} Keep payments and communication on ROVEXO for buyer protection.`;
+  return `${warning} Keep payments and communication on ROVEXO for buyer protection.`;
 }

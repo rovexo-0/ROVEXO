@@ -27,6 +27,14 @@ export type SellerDashboardData = {
   activePromotions: ActiveSellerPromotion[];
   promotionStats: SellerPromotionStats;
   promotionHistory: SellerPromotionHistoryItem[];
+  followers: number;
+  profileViews: number;
+  responseTimeMinutes: number;
+  conversionRate: number;
+  featuredCount: number;
+  bumpCount: number;
+  monthlyRevenue: number;
+  monthlyOrders: number;
   todaySummary: DashboardSummaryCard[];
   performance: DashboardPerformance;
   recentOrders: DashboardRecentOrder[];

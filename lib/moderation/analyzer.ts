@@ -67,10 +67,28 @@ const RULE_GROUPS: RuleGroup[] = [
     ],
   },
   {
+    category: "prescription_medicines",
+    decision: "blocked",
+    weight: 0.95,
+    patterns: [/\b(prescription only|pharmacy pills|oxycodone|tramadol|antibiotics without prescription)\b/i],
+  },
+  {
     category: "alcohol",
     decision: "warning",
     weight: 0.55,
     patterns: [/\b(vodka|whisky|whiskey|rum bottle|tequila|home brew kit|moonshine)\b/i],
+  },
+  {
+    category: "tobacco",
+    decision: "warning",
+    weight: 0.7,
+    patterns: [/\b(cigarettes|rolling tobacco|snus|cigar box)\b/i],
+  },
+  {
+    category: "vapes",
+    decision: "warning",
+    weight: 0.7,
+    patterns: [/\b(vape pen|e-?cig|disposable vape|nicotine liquid)\b/i],
   },
   {
     category: "counterfeit",
@@ -129,8 +147,73 @@ const RULE_GROUPS: RuleGroup[] = [
     patterns: [
       /\b[\w.+-]+@[\w-]+\.[\w.-]+\b/i,
       /\b(\+?\d[\d\s().-]{7,}\d)\b/,
-      /\b(whatsapp|telegram|signal|snapchat)\b/i,
     ],
+  },
+  {
+    category: "whatsapp",
+    decision: "warning",
+    weight: 0.85,
+    patterns: [/\b(whatsapp|wa\.me|whats app)\b/i],
+  },
+  {
+    category: "telegram",
+    decision: "warning",
+    weight: 0.85,
+    patterns: [/\b(telegram|t\.me\/)\b/i],
+  },
+  {
+    category: "instagram",
+    decision: "warning",
+    weight: 0.75,
+    patterns: [/\b(instagram|insta dm|ig:@)\b/i],
+  },
+  {
+    category: "snapchat",
+    decision: "warning",
+    weight: 0.75,
+    patterns: [/\b(snapchat|snap me)\b/i],
+  },
+  {
+    category: "discord",
+    decision: "warning",
+    weight: 0.75,
+    patterns: [/\b(discord\.gg|discord server)\b/i],
+  },
+  {
+    category: "external_links",
+    decision: "warning",
+    weight: 0.8,
+    patterns: [/\b(https?:\/\/|www\.)\S+/i],
+  },
+  {
+    category: "crypto_scam",
+    decision: "blocked",
+    weight: 0.95,
+    patterns: [/\b(crypto giveaway|send btc|bitcoin doubler|eth giveaway)\b/i],
+  },
+  {
+    category: "money_laundering",
+    decision: "blocked",
+    weight: 0.95,
+    patterns: [/\b(money mule|clean cash|no questions asked transfer)\b/i],
+  },
+  {
+    category: "fake_giveaway",
+    decision: "blocked",
+    weight: 0.9,
+    patterns: [/\b(free iphone giveaway|you won prize|claim reward now)\b/i],
+  },
+  {
+    category: "animal_abuse",
+    decision: "blocked",
+    weight: 1,
+    patterns: [/\b(animal fight|dog fighting|cruelty video)\b/i],
+  },
+  {
+    category: "violence",
+    decision: "blocked",
+    weight: 0.95,
+    patterns: [/\b(kill you|violent attack|assault video)\b/i],
   },
 ];
 
@@ -212,6 +295,17 @@ export function analyzeMessageContent(content: string): ModerationResult {
   return analyzeTextContent(content);
 }
 
+export function analyzeUsername(username: string): ModerationResult {
+  return analyzeTextContent(username);
+}
+
+export function analyzeProfileText(input: {
+  fullName?: string;
+  bio?: string;
+}): ModerationResult {
+  return analyzeTextContent([input.fullName, input.bio].filter(Boolean).join("\n"));
+}
+
 function buildResult(hits: ModerationHit[]): ModerationResult {
   if (!hits.length) {
     return {
@@ -232,12 +326,18 @@ function buildResult(hits: ModerationHit[]): ModerationResult {
       "ammunition",
       "explosives",
       "drugs",
+      "prescription_medicines",
       "counterfeit",
       "adult",
       "stolen_goods",
       "dangerous_chemicals",
       "fake_documents",
       "scam",
+      "crypto_scam",
+      "money_laundering",
+      "fake_giveaway",
+      "animal_abuse",
+      "violence",
     ].includes(hit.category),
   );
 

@@ -7,6 +7,7 @@ import { SellAnalyzingIndicator } from "@/features/sell/components/SellAnalyzing
 import { SellListingForm, useSellPublishState } from "@/features/sell/components/SellListingForm";
 import { SellPageHeader } from "@/features/sell/components/SellPageHeader";
 import { SellPhotoSection } from "@/features/sell/components/SellPhotoSection";
+import { HelpPageFooter } from "@/features/help/components/HelpPageFooter";
 import { SellPublishFooter } from "@/features/sell/components/SellPublishFooter";
 import { SellPublishedStep } from "@/features/sell/components/steps/SellPublishedStep";
 import { useSellForm } from "@/features/sell/hooks/use-sell-wizard";
@@ -73,6 +74,7 @@ export function SellPage({
           editListingId={editListingId}
         />
       )}
+      <HelpPageFooter pathname="/sell" />
     </BetaAppShell>
   );
 }

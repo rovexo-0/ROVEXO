@@ -2,7 +2,18 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 type CreateNotificationInput = {
   userId: string;
-  type: "message" | "order" | "offer" | "review" | "saved_item_sold" | "price_reduced" | "system";
+  type:
+    | "message"
+    | "order"
+    | "offer"
+    | "review"
+    | "payment"
+    | "follower"
+    | "moderation"
+    | "promotion_expired"
+    | "saved_item_sold"
+    | "price_reduced"
+    | "system";
   title: string;
   subtitle: string;
   href?: string;

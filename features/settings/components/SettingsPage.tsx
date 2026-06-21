@@ -5,6 +5,7 @@ import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { signOut } from "@/lib/auth/actions";
+import { HelpPageFooter } from "@/features/help/components/HelpPageFooter";
 import { ConfirmDialog } from "@/features/settings/components/ConfirmDialog";
 import { SettingSection } from "@/features/settings/components/SettingSection";
 import { SettingToggle } from "@/features/settings/components/SettingToggle";
@@ -235,6 +236,7 @@ export function SettingsPage({ profile }: SettingsPageProps) {
           Log Out
         </button>
       </main>
+      <HelpPageFooter pathname="/settings" />
 
       <ConfirmDialog
         open={logoutOpen}

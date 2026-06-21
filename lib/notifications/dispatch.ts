@@ -10,6 +10,10 @@ type DispatchInput = {
     | "order"
     | "offer"
     | "review"
+    | "payment"
+    | "follower"
+    | "moderation"
+    | "promotion_expired"
     | "saved_item_sold"
     | "price_reduced"
     | "system";
@@ -41,6 +45,11 @@ export async function dispatchNotification(input: DispatchInput): Promise<void> 
         return settings?.offers ?? true;
       case "review":
         return settings?.reviews ?? true;
+      case "payment":
+      case "follower":
+      case "moderation":
+      case "promotion_expired":
+        return settings?.system ?? true;
       default:
         return true;
     }

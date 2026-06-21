@@ -3,7 +3,11 @@ export type NotificationFilter =
   | "messages"
   | "orders"
   | "offers"
+  | "payments"
   | "reviews"
+  | "followers"
+  | "promotions"
+  | "moderation"
   | "system";
 
 export type NotificationType =
@@ -11,6 +15,10 @@ export type NotificationType =
   | "order"
   | "offer"
   | "review"
+  | "payment"
+  | "follower"
+  | "moderation"
+  | "promotion_expired"
   | "saved_item_sold"
   | "price_reduced"
   | "system";
@@ -20,6 +28,10 @@ export type NotificationIcon =
   | "order"
   | "offer"
   | "review"
+  | "payment"
+  | "follower"
+  | "moderation"
+  | "promotion"
   | "product"
   | "system";
 

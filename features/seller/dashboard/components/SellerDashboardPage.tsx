@@ -5,6 +5,7 @@ import { DashboardPerformanceSection } from "@/features/dashboard/components/Das
 import { DashboardQuickActionsGrid } from "@/features/dashboard/components/DashboardQuickActionsGrid";
 import { DashboardRecentOrdersSection } from "@/features/dashboard/components/DashboardRecentOrdersSection";
 import { DashboardSummaryGrid } from "@/features/dashboard/components/DashboardSummaryGrid";
+import { HelpPageFooter } from "@/features/help/components/HelpPageFooter";
 import { SellerDashboardHeader } from "@/features/seller/dashboard/components/SellerDashboardHeader";
 import { SellerProfileCard } from "@/features/seller/dashboard/components/SellerProfileCard";
 import { SellerPromotionsSection } from "@/features/seller/dashboard/components/SellerPromotionsSection";
@@ -47,6 +48,34 @@ export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
 
         <DashboardSummaryGrid cards={data.todaySummary} />
 
+        <Card padding="lg" className="shadow-ds-soft">
+          <h2 className="text-base font-semibold text-text-primary">30-day performance</h2>
+          <div className="mt-ds-4 grid grid-cols-2 gap-ds-3 text-sm">
+            <Metric label="Revenue" value={`£${data.monthlyRevenue.toFixed(2)}`} />
+            <Metric label="Orders" value={String(data.monthlyOrders)} />
+            <Metric label="Conversion" value={`${data.conversionRate}%`} />
+            <Metric label="Response time" value={`${data.responseTimeMinutes} min`} />
+            <Metric label="Profile views" value={String(data.profileViews)} />
+            <Metric label="Followers" value={String(data.followers)} />
+            <Metric label="Featured" value={String(data.featuredCount)} />
+            <Metric label="Bumps" value={String(data.bumpCount)} />
+          </div>
+          <div className="mt-ds-4 flex flex-wrap gap-ds-2">
+            <Link
+              href="/seller/analytics"
+              className="rounded-ds-full bg-primary px-ds-4 py-ds-2 text-sm font-medium text-white"
+            >
+              View analytics
+            </Link>
+            <Link
+              href="/seller/tax"
+              className="rounded-ds-full border border-border px-ds-4 py-ds-2 text-sm font-medium text-text-primary"
+            >
+              Tax registration
+            </Link>
+          </div>
+        </Card>
+
         <SellerPromotionsSection
           promotions={data.activePromotions}
           stats={data.promotionStats}
@@ -58,7 +87,17 @@ export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
         <DashboardPerformanceSection performance={data.performance} />
 
         <DashboardRecentOrdersSection orders={data.recentOrders} viewAllHref="/seller/orders" />
+        <HelpPageFooter pathname="/seller/dashboard" />
       </main>
     </BetaAppShell>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-text-secondary">{label}</p>
+      <p className="mt-ds-1 font-semibold text-text-primary">{value}</p>
+    </div>
   );
 }

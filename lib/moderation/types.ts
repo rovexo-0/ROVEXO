@@ -10,7 +10,10 @@ export type ModerationCategory =
   | "bb_guns"
   | "explosives"
   | "drugs"
+  | "prescription_medicines"
   | "alcohol"
+  | "tobacco"
+  | "vapes"
   | "counterfeit"
   | "adult"
   | "stolen_goods"
@@ -21,6 +24,17 @@ export type ModerationCategory =
   | "duplicate"
   | "off_platform_payment"
   | "contact_info"
+  | "external_links"
+  | "whatsapp"
+  | "telegram"
+  | "instagram"
+  | "snapchat"
+  | "discord"
+  | "crypto_scam"
+  | "money_laundering"
+  | "fake_giveaway"
+  | "animal_abuse"
+  | "violence"
   | "profanity";
 
 export type ModerationHit = {

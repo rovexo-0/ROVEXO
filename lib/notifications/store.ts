@@ -12,6 +12,14 @@ function notificationIcon(type: Tables<"notifications">["type"]): NotificationIc
       return "offer";
     case "review":
       return "review";
+    case "payment":
+      return "payment";
+    case "follower":
+      return "follower";
+    case "moderation":
+      return "moderation";
+    case "promotion_expired":
+      return "promotion";
     case "saved_item_sold":
     case "price_reduced":
       return "product";

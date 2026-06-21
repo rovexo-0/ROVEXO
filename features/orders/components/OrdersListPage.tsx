@@ -1,6 +1,7 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { Card } from "@/components/ui/Card";
+import { HelpPageFooter } from "@/features/help/components/HelpPageFooter";
 import { OrderListItem } from "@/features/orders/components/OrderListItem";
 import type { Order, OrderViewRole } from "@/lib/orders/types";
 
@@ -36,6 +37,7 @@ export function OrdersListPage({
           orders.map((order) => <OrderListItem key={order.id} order={order} userId={userId} />)
         )}
       </main>
+      <HelpPageFooter pathname="/orders" />
     </BetaAppShell>
   );
 }
