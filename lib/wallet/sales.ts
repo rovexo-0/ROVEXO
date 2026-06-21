@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export const PLATFORM_FEE_RATE = 0.1;
+export const PLATFORM_FEE_RATE = 0.05;
 export const PENDING_HOLD_HOURS = 36;
 
 function roundMoney(value: number): number {

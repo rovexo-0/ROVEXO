@@ -6,6 +6,7 @@ import { ChatInput } from "@/features/messages/components/ChatInput";
 import { ChatMessageList } from "@/features/messages/components/ChatMessageList";
 import { ChatQuickActions } from "@/features/messages/components/ChatQuickActions";
 import { PinnedProductCard } from "@/features/messages/components/PinnedProductCard";
+import { useChatRealtime } from "@/features/messages/hooks/use-chat-realtime";
 import { getViewerRole } from "@/lib/messages/types";
 import type { Conversation } from "@/lib/messages/types";
 
@@ -15,10 +16,17 @@ type ChatPageProps = {
 
 export function ChatPage({ initialConversation }: ChatPageProps) {
   const [conversation, setConversation] = useState(initialConversation);
+  const [warning, setWarning] = useState<string | null>(null);
   const viewerRole = getViewerRole(conversation.participant);
 
+  useChatRealtime(conversation.id, conversation.participant.id, setConversation);
+
   useEffect(() => {
-    void fetch(`/api/messages/${conversation.id}`, { method: "PATCH" });
+    void fetch(`/api/messages/${conversation.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "read" }),
+    });
   }, [conversation.id]);
 
   const handleSend = useCallback(
@@ -29,10 +37,21 @@ export function ChatPage({ initialConversation }: ChatPageProps) {
         body: JSON.stringify({ content, senderRole: viewerRole }),
       });
 
-      if (!response.ok) return;
+      const payload = (await response.json()) as {
+        conversation?: Conversation;
+        warning?: string | null;
+        error?: string;
+      };
 
-      const payload = (await response.json()) as { conversation: Conversation };
-      setConversation(payload.conversation);
+      if (!response.ok) {
+        setWarning(payload.error ?? "Unable to send message.");
+        return;
+      }
+
+      if (payload.conversation) {
+        setConversation(payload.conversation);
+      }
+      setWarning(payload.warning ?? null);
     },
     [conversation.id, viewerRole],
   );
@@ -45,13 +64,19 @@ export function ChatPage({ initialConversation }: ChatPageProps) {
         <PinnedProductCard product={conversation.product} />
       </div>
 
+      {warning ? (
+        <div className="border-b border-warning/30 bg-warning/10 px-ds-4 py-ds-2 text-sm text-warning">
+          {warning}
+        </div>
+      ) : null}
+
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ChatMessageList messages={conversation.messages} />
       </div>
 
       <div className="mt-auto shrink-0">
         <ChatQuickActions viewerRole={viewerRole} product={conversation.product} />
-        <ChatInput onSend={handleSend} />
+        <ChatInput onSend={handleSend} disabled={conversation.blocked} />
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { buildProductImagePath } from "@/lib/storage/server-images";
 import { getPublicStorageUrl } from "@/lib/storage/upload";
 import { formatPromotionRemaining, isPromotionActive } from "@/lib/promotions/format";
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
+import { scanListingBeforePublish } from "@/lib/moderation/scan-listing";
 import type {
   CreateListingInput,
   ListingFilter,
@@ -331,6 +332,17 @@ export async function createSellerListing(
 
   await insertProductImages(product.id, input.sellerId, input.images);
 
+  if (status === "published") {
+    await scanListingBeforePublish({
+      sellerId: input.sellerId,
+      productId: product.id,
+      title: input.title,
+      description: input.description,
+      brand: input.brand,
+      imageNames: input.images.map((image) => image.storagePath || image.url),
+    });
+  }
+
   return getSellerListingById(input.sellerId, product.id);
 }
 
@@ -402,6 +414,28 @@ export async function updateSellerListing(
     }
 
     await insertProductImages(productId, sellerId, input.images);
+  }
+
+  const nextStatus = input.status ?? existing.status;
+  const shouldScan =
+    nextStatus === "published" &&
+    (input.status === "published" ||
+      input.title !== undefined ||
+      input.description !== undefined ||
+      input.images?.length);
+
+  if (shouldScan) {
+    const refreshed = await getSellerListingById(sellerId, productId);
+    if (refreshed) {
+      await scanListingBeforePublish({
+        sellerId,
+        productId,
+        title: refreshed.title,
+        description: refreshed.description,
+        brand: refreshed.brand ?? undefined,
+        imageNames: refreshed.images.map((image) => image.storagePath || image.url),
+      });
+    }
   }
 
   return getSellerListingById(sellerId, productId);

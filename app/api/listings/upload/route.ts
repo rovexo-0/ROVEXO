@@ -4,6 +4,8 @@ import { buildProductImagePath, buildTempImagePath } from "@/lib/storage/server-
 import { getPublicStorageUrl, validateUploadFile } from "@/lib/storage/upload";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { analyzeImageMetadata } from "@/lib/moderation/analyzer";
+import { enqueueModerationReview } from "@/lib/moderation/service";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 
 export async function POST(request: Request) {
@@ -76,6 +78,19 @@ export async function POST(request: Request) {
 
     if (fullUpload.error || thumbUpload.error) {
       return NextResponse.json({ error: "Upload failed." }, { status: 500 });
+    }
+
+    const imageResult = analyzeImageMetadata({ fileName: filename });
+    if (productId && imageResult.decision !== "approved") {
+      await enqueueModerationReview({
+        targetType: "listing_image",
+        targetId: productId,
+        productId,
+        sellerId: auth.user.id,
+        source: "image_upload",
+        result: imageResult,
+        payload: { storagePath: fullPath },
+      });
     }
 
     return NextResponse.json({

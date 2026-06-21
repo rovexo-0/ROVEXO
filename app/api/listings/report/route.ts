@@ -1,5 +1,6 @@
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 import { requireApiAuth } from "@/lib/auth/session";
+import { createContentReport } from "@/lib/moderation/service";
 import { createNotification } from "@/lib/notifications/create";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
@@ -31,6 +32,15 @@ export async function POST(request: Request) {
     if (!product) {
       return NextResponse.json({ error: "Listing not found." }, { status: 404 });
     }
+
+    await createContentReport({
+      reporterId: auth.user.id,
+      targetType: "listing",
+      targetId: product.id,
+      productSlug: body.productSlug,
+      reason: body.reason,
+      details: body.message,
+    });
 
     await createNotification({
       userId: auth.user.id,

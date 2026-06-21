@@ -214,38 +214,109 @@ export type Database = {
           },
         ]
       }
+      content_reports: {
+        Row: {
+          created_at: string
+          details: string
+          id: string
+          product_slug: string | null
+          reason: string
+          reporter_id: string
+          status: Database["public"]["Enums"]["moderation_queue_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["moderation_target"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string
+          id?: string
+          product_slug?: string | null
+          reason: string
+          reporter_id: string
+          status?: Database["public"]["Enums"]["moderation_queue_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["moderation_target"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string
+          id?: string
+          product_slug?: string | null
+          reason?: string
+          reporter_id?: string
+          status?: Database["public"]["Enums"]["moderation_queue_status"]
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["moderation_target"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
+          buyer_archived: boolean
+          buyer_blocked: boolean
           buyer_id: string
+          buyer_muted: boolean
+          buyer_pinned: boolean
           buyer_unread_count: number
           created_at: string
           id: string
           last_message: string
           last_message_at: string
           product_id: string
+          seller_archived: boolean
+          seller_blocked: boolean
           seller_id: string
+          seller_muted: boolean
+          seller_pinned: boolean
           seller_unread_count: number
         }
         Insert: {
+          buyer_archived?: boolean
+          buyer_blocked?: boolean
           buyer_id: string
+          buyer_muted?: boolean
+          buyer_pinned?: boolean
           buyer_unread_count?: number
           created_at?: string
           id?: string
           last_message?: string
           last_message_at?: string
           product_id: string
+          seller_archived?: boolean
+          seller_blocked?: boolean
           seller_id: string
+          seller_muted?: boolean
+          seller_pinned?: boolean
           seller_unread_count?: number
         }
         Update: {
+          buyer_archived?: boolean
+          buyer_blocked?: boolean
           buyer_id?: string
+          buyer_muted?: boolean
+          buyer_pinned?: boolean
           buyer_unread_count?: number
           created_at?: string
           id?: string
           last_message?: string
           last_message_at?: string
           product_id?: string
+          seller_archived?: boolean
+          seller_blocked?: boolean
           seller_id?: string
+          seller_muted?: boolean
+          seller_pinned?: boolean
           seller_unread_count?: number
         }
         Relationships: [
@@ -276,8 +347,15 @@ export type Database = {
         Row: {
           content: string
           conversation_id: string
+          deleted_at: string | null
+          delivered_at: string | null
+          edited_at: string | null
           id: string
           kind: Database["public"]["Enums"]["message_kind"]
+          moderation_decision: Database["public"]["Enums"]["moderation_decision"] | null
+          moderation_warning: string | null
+          reactions: Json
+          reply_to_id: string | null
           sender_id: string
           sender_role: Database["public"]["Enums"]["sender_role"]
           sent_at: string
@@ -286,8 +364,15 @@ export type Database = {
         Insert: {
           content: string
           conversation_id: string
+          deleted_at?: string | null
+          delivered_at?: string | null
+          edited_at?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["message_kind"]
+          moderation_decision?: Database["public"]["Enums"]["moderation_decision"] | null
+          moderation_warning?: string | null
+          reactions?: Json
+          reply_to_id?: string | null
           sender_id: string
           sender_role: Database["public"]["Enums"]["sender_role"]
           sent_at?: string
@@ -296,8 +381,15 @@ export type Database = {
         Update: {
           content?: string
           conversation_id?: string
+          deleted_at?: string | null
+          delivered_at?: string | null
+          edited_at?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["message_kind"]
+          moderation_decision?: Database["public"]["Enums"]["moderation_decision"] | null
+          moderation_warning?: string | null
+          reactions?: Json
+          reply_to_id?: string | null
           sender_id?: string
           sender_role?: Database["public"]["Enums"]["sender_role"]
           sent_at?: string
@@ -319,6 +411,135 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      conversation_reports: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          details: string
+          id: string
+          reason: string
+          reporter_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          details?: string
+          id?: string
+          reason: string
+          reporter_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          details?: string
+          id?: string
+          reason?: string
+          reporter_id?: string
+        }
+        Relationships: []
+      }
+      moderation_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          decision: Database["public"]["Enums"]["moderation_decision"] | null
+          id: string
+          metadata: Json
+          new_status: Database["public"]["Enums"]["moderation_queue_status"] | null
+          notes: string
+          previous_status: Database["public"]["Enums"]["moderation_queue_status"] | null
+          queue_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          decision?: Database["public"]["Enums"]["moderation_decision"] | null
+          id?: string
+          metadata?: Json
+          new_status?: Database["public"]["Enums"]["moderation_queue_status"] | null
+          notes?: string
+          previous_status?: Database["public"]["Enums"]["moderation_queue_status"] | null
+          queue_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          decision?: Database["public"]["Enums"]["moderation_decision"] | null
+          id?: string
+          metadata?: Json
+          new_status?: Database["public"]["Enums"]["moderation_queue_status"] | null
+          notes?: string
+          previous_status?: Database["public"]["Enums"]["moderation_queue_status"] | null
+          queue_id?: string | null
+        }
+        Relationships: []
+      }
+      moderation_queue: {
+        Row: {
+          categories: Json
+          confidence: number
+          created_at: string
+          decision: Database["public"]["Enums"]["moderation_decision"]
+          id: string
+          override_decision: Database["public"]["Enums"]["moderation_decision"] | null
+          override_notes: string | null
+          payload: Json
+          product_id: string | null
+          reviewed_at: string | null
+          reviewer_id: string | null
+          seller_id: string | null
+          source: string
+          status: Database["public"]["Enums"]["moderation_queue_status"]
+          summary: string
+          target_id: string
+          target_type: Database["public"]["Enums"]["moderation_target"]
+          updated_at: string
+        }
+        Insert: {
+          categories?: Json
+          confidence?: number
+          created_at?: string
+          decision: Database["public"]["Enums"]["moderation_decision"]
+          id?: string
+          override_decision?: Database["public"]["Enums"]["moderation_decision"] | null
+          override_notes?: string | null
+          payload?: Json
+          product_id?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          seller_id?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["moderation_queue_status"]
+          summary?: string
+          target_id: string
+          target_type: Database["public"]["Enums"]["moderation_target"]
+          updated_at?: string
+        }
+        Update: {
+          categories?: Json
+          confidence?: number
+          created_at?: string
+          decision?: Database["public"]["Enums"]["moderation_decision"]
+          id?: string
+          override_decision?: Database["public"]["Enums"]["moderation_decision"] | null
+          override_notes?: string | null
+          payload?: Json
+          product_id?: string | null
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          seller_id?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["moderation_queue_status"]
+          summary?: string
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["moderation_target"]
+          updated_at?: string
+        }
+        Relationships: []
       }
       email_outbox: {
         Row: {
@@ -471,6 +692,36 @@ export type Database = {
           },
         ]
       }
+      notification_delivery_log: {
+        Row: {
+          channel: string
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          status: string
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          status: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       offers: {
         Row: {
           amount: number
@@ -590,12 +841,16 @@ export type Database = {
           delivery_fee: number
           disputes_disabled: boolean
           id: string
+          invoice_number: string | null
           item_price: number
           order_number: string
           paid_at: string | null
+          platform_fee: number
           protected_fee: number
+          receipt_url: string | null
           reserved_until: string | null
           seller_id: string
+          seller_payout: number
           shipped_at: string | null
           shipping_address_id: string | null
           status: Database["public"]["Enums"]["order_status"]
@@ -616,12 +871,16 @@ export type Database = {
           delivery_fee?: number
           disputes_disabled?: boolean
           id?: string
+          invoice_number?: string | null
           item_price: number
           order_number: string
           paid_at?: string | null
+          platform_fee?: number
           protected_fee?: number
+          receipt_url?: string | null
           reserved_until?: string | null
           seller_id: string
+          seller_payout?: number
           shipped_at?: string | null
           shipping_address_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -642,12 +901,16 @@ export type Database = {
           delivery_fee?: number
           disputes_disabled?: boolean
           id?: string
+          invoice_number?: string | null
           item_price?: number
           order_number?: string
           paid_at?: string | null
+          platform_fee?: number
           protected_fee?: number
+          receipt_url?: string | null
           reserved_until?: string | null
           seller_id?: string
+          seller_payout?: number
           shipped_at?: string | null
           shipping_address_id?: string | null
           status?: Database["public"]["Enums"]["order_status"]
@@ -807,6 +1070,10 @@ export type Database = {
           likes: number
           listing_type: string
           low_stock_alert: number
+          moderation_confidence: number
+          moderation_reviewed_at: string | null
+          moderation_status: Database["public"]["Enums"]["moderation_decision"]
+          moderation_summary: string
           original_price: number | null
           price: number
           promotion_score: number
@@ -847,6 +1114,10 @@ export type Database = {
           likes?: number
           listing_type?: string
           low_stock_alert?: number
+          moderation_confidence?: number
+          moderation_reviewed_at?: string | null
+          moderation_status?: Database["public"]["Enums"]["moderation_decision"]
+          moderation_summary?: string
           original_price?: number | null
           price: number
           promotion_score?: number
@@ -887,6 +1158,10 @@ export type Database = {
           likes?: number
           listing_type?: string
           low_stock_alert?: number
+          moderation_confidence?: number
+          moderation_reviewed_at?: string | null
+          moderation_status?: Database["public"]["Enums"]["moderation_decision"]
+          moderation_summary?: string
           original_price?: number | null
           price?: number
           promotion_score?: number
@@ -969,6 +1244,42 @@ export type Database = {
           updated_at?: string
           username?: string
           verified?: boolean
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          platform: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          platform?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          platform?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1210,6 +1521,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_presence: {
+        Row: {
+          last_seen_at: string
+          online: boolean
+          typing_conversation_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          last_seen_at?: string
+          online?: boolean
+          typing_conversation_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          last_seen_at?: string
+          online?: boolean
+          typing_conversation_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       wallet_transactions: {
         Row: {
@@ -1468,6 +1803,19 @@ export type Database = {
     Enums: {
       message_kind: "text" | "photo" | "emoji"
       message_status: "sent" | "delivered" | "read"
+      moderation_decision: "approved" | "warning" | "blocked"
+      moderation_queue_status:
+        | "pending"
+        | "approved"
+        | "warning"
+        | "blocked"
+        | "overridden"
+      moderation_target:
+        | "listing"
+        | "listing_image"
+        | "message"
+        | "profile"
+        | "conversation"
       notification_type:
         | "message"
         | "order"
@@ -1628,6 +1976,9 @@ export const Constants = {
     Enums: {
       message_kind: ["text", "photo", "emoji"],
       message_status: ["sent", "delivered", "read"],
+      moderation_decision: ["approved", "warning", "blocked"],
+      moderation_queue_status: ["pending", "approved", "warning", "blocked", "overridden"],
+      moderation_target: ["listing", "listing_image", "message", "profile", "conversation"],
       notification_type: [
         "message",
         "order",

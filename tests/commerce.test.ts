@@ -20,9 +20,9 @@ describe("order pricing", () => {
 describe("seller wallet math", () => {
   it("applies platform fee", () => {
     const { platformFee, sellerAmount } = calculateSellerNetAmount(100);
-    expect(platformFee).toBe(10);
-    expect(sellerAmount).toBe(90);
-    expect(PLATFORM_FEE_RATE).toBe(0.1);
+    expect(platformFee).toBe(5);
+    expect(sellerAmount).toBe(95);
+    expect(PLATFORM_FEE_RATE).toBe(0.05);
   });
 });
 

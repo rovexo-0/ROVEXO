@@ -28,9 +28,10 @@ export function PinnedProductCard({ product }: PinnedProductCardProps) {
           <div className="min-w-0 flex-1">
             <p className="line-clamp-1 text-sm font-semibold text-text-primary">{product.title}</p>
             <Price amount={product.price} size="sm" className="mt-ds-1" />
-            <Badge variant="success" className="mt-ds-1">
-              {product.condition}
-            </Badge>
+            <div className="mt-ds-1 flex flex-wrap gap-ds-1">
+              <Badge variant="success">{product.condition}</Badge>
+              {product.status === "sold" ? <Badge variant="default">Sold</Badge> : null}
+            </div>
           </div>
 
           <ChevronRightIcon className="h-4 w-4 shrink-0 text-text-muted" />

@@ -5,7 +5,8 @@ import { notifyOrderPaid, notifyOrderCancelled } from "@/lib/orders/notification
 import { calculateOrderTotals } from "@/lib/orders/pricing";
 import { getOrderById } from "@/lib/orders/store";
 import type { Order } from "@/lib/orders/types";
-import { creditSellerForOrder } from "@/lib/wallet/sales";
+import { buildOrderReceiptUrl, generateInvoiceNumber } from "@/lib/invoices/receipt";
+import { calculateSellerNetAmount, creditSellerForOrder } from "@/lib/wallet/sales";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
 
 const RESERVATION_MINUTES = 30;
@@ -62,15 +63,18 @@ export async function createOrderCheckoutSession(
   const deliveryPrice =
     input.deliveryOption === "express" ? 9.99 : 4.99;
   const totals = calculateOrderTotals(Number(product.price), deliveryPrice);
+  const { platformFee, sellerAmount } = calculateSellerNetAmount(totals.itemPrice);
   const reservedUntil = new Date(Date.now() + RESERVATION_MINUTES * 60 * 1000).toISOString();
   const imageUrl = primaryImage(product.product_images);
 
   const { data: orderNumber } = await admin.rpc("generate_order_number");
+  const resolvedOrderNumber = orderNumber ?? `RVX${Date.now().toString(36).toUpperCase()}`;
+  const invoiceNumber = generateInvoiceNumber(resolvedOrderNumber);
 
   const { data: orderRow, error: orderError } = await admin
     .from("orders")
     .insert({
-      order_number: orderNumber ?? `RVX${Date.now().toString(36).toUpperCase()}`,
+      order_number: resolvedOrderNumber,
       buyer_id: input.buyerId,
       seller_id: product.seller_id,
       status: "awaiting_payment",
@@ -79,6 +83,9 @@ export async function createOrderCheckoutSession(
       protected_fee: totals.protectedFee,
       delivery_fee: totals.delivery,
       total: totals.total,
+      platform_fee: platformFee,
+      seller_payout: sellerAmount,
+      invoice_number: invoiceNumber,
       reserved_until: reservedUntil,
     })
     .select("id, order_number")
@@ -137,17 +144,30 @@ export async function createOrderCheckoutSession(
   }
 
   const stripe = getStripeClient();
-  const { data: buyerProfile } = await admin
-    .from("profiles")
-    .select("email")
-    .eq("id", input.buyerId)
-    .maybeSingle();
+  const [{ data: buyerProfile }, { data: sellerProfile }] = await Promise.all([
+    admin.from("profiles").select("email").eq("id", input.buyerId).maybeSingle(),
+    admin
+      .from("seller_profiles")
+      .select("stripe_connect_account_id")
+      .eq("id", product.seller_id)
+      .maybeSingle(),
+  ]);
+
+  const connectAccountId = sellerProfile?.stripe_connect_account_id ?? null;
 
   const session = await stripe.checkout.sessions.create(
     {
       mode: "payment",
       payment_method_types: ["card"],
       customer_email: buyerProfile?.email ?? undefined,
+      ...(connectAccountId
+        ? {
+            payment_intent_data: {
+              application_fee_amount: Math.round(platformFee * 100),
+              transfer_data: { destination: connectAccountId },
+            },
+          }
+        : {}),
       line_items: [
         {
           quantity: 1,
@@ -264,6 +284,7 @@ export async function fulfillOrderFromStripeSession(session: {
       stripe_session_id: session.id,
       stripe_payment_intent_id: paymentIntentId,
       reserved_until: null,
+      receipt_url: buildOrderReceiptUrl(orderId),
     })
     .eq("id", orderId)
     .eq("status", "awaiting_payment");
