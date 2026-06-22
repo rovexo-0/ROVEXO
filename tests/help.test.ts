@@ -7,7 +7,7 @@ describe("help centre", () => {
   it("finds articles by keyword search", () => {
     const results = searchHelpArticles("refund");
     expect(results.length).toBeGreaterThan(0);
-    expect(results[0]?.article.slug).toBe("payments-refunds");
+    expect(results[0]?.article?.slug).toBe("payments-refunds");
   });
 
   it("returns official article content only", () => {
@@ -24,6 +24,6 @@ describe("help centre", () => {
   it("answers from help articles when matched", () => {
     const response = answerHelpQuestion("buyer protection");
     expect(response.matched).toBe(true);
-    expect(response.articles[0]?.article.slug).toBe("buying-buyer-protection");
+    expect(response.articles[0]?.article?.slug).toBe("buying-buyer-protection");
   });
 });

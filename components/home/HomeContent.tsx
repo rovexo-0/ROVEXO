@@ -1,20 +1,21 @@
 "use client";
 
 import {
+  memo,
   useCallback,
   useEffect,
   useRef,
   useState,
   useTransition,
 } from "react";
-import { ProductCard } from "@/components/ui/ProductCard";
-import { productToCardProps } from "@/lib/products/card";
 import type { Product, ProductsPage } from "@/lib/products/types";
-import { ProductGridSkeleton, ProductSectionEmpty } from "@/components/home/ProductSectionStates";
-import { ProductSection } from "@/components/home/ProductSection";
+import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
+import { ProductCarouselSection } from "@/components/home/ProductCarouselSection";
 import { HomeHero } from "@/components/home/HomeHero";
 import { CategoryGridSection, type HomeCategoryCard } from "@/components/home/CategoryGridSection";
 import { TrendingSearchesSection } from "@/components/home/TrendingSearchesSection";
+import { RecentlyViewedSection } from "@/features/launch/components/RecentlyViewedSection";
+import { cn } from "@/lib/cn";
 import { transitionFast } from "@/components/ui/tokens";
 
 type HomeContentProps = {
@@ -24,6 +25,7 @@ type HomeContentProps = {
   newToday: Product[];
   recommended: Product[];
   recommendedHasMore: boolean;
+  sponsoredProducts?: Product[];
   loadError?: boolean;
 };
 
@@ -41,13 +43,14 @@ async function fetchSection(section: string, page: number): Promise<ProductsPage
   return response.json();
 }
 
-export function HomeContent({
+export const HomeContent = memo(function HomeContent({
   categories,
   featured,
   trending: initialTrending,
   newToday: initialNewToday,
   recommended: initialRecommended,
   recommendedHasMore: initialRecommendedHasMore,
+  sponsoredProducts = [],
   loadError = false,
 }: HomeContentProps) {
   const [trending, setTrending] = useState(initialTrending);
@@ -60,6 +63,8 @@ export function HomeContent({
   const [pullDistance, setPullDistance] = useState(0);
   const [refreshError, setRefreshError] = useState(false);
   const [, startTransition] = useTransition();
+  const scroll = useMobileHeaderScrollContext();
+  const usesHeaderSpacer = Boolean(scroll);
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef(0);
@@ -122,7 +127,7 @@ export function HomeContent({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasMoreRecommended, isLoadingMore, loadMoreRecommended]);
+  }, [hasMoreRecommended, isLoadingMore, loadMoreRecommended, recommended.length]);
 
   function handleTouchStart(event: React.TouchEvent) {
     if (window.scrollY > 0 || isRefreshing) return;
@@ -161,72 +166,82 @@ export function HomeContent({
     >
       <div
         aria-live="polite"
-        className={`flex items-center justify-center overflow-hidden text-sm text-text-secondary ${transitionFast}`}
+        className={cn(
+          "flex items-center justify-center overflow-hidden text-sm text-text-secondary",
+          transitionFast,
+        )}
         style={{ height: pullDistance > 0 || isRefreshing ? Math.max(pullDistance, isRefreshing ? 40 : 0) : 0 }}
       >
-        {isRefreshing ? "Refreshing…" : pullDistance >= PULL_THRESHOLD ? "Release to refresh" : pullDistance > 0 ? "Pull to refresh" : null}
+        {isRefreshing
+          ? "Refreshing…"
+          : pullDistance >= PULL_THRESHOLD
+            ? "Release to refresh"
+            : pullDistance > 0
+              ? "Pull to refresh"
+              : null}
       </div>
 
-      <main className="flex flex-col gap-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))] pt-[calc(7.5rem+env(safe-area-inset-top))] md:gap-ds-7 lg:mx-auto lg:max-w-7xl lg:w-full lg:pt-[calc(8rem+env(safe-area-inset-top))]">
-        <HomeHero />
+      <main
+        className={cn(
+          "flex flex-col gap-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))] md:gap-ds-7 lg:mx-auto lg:max-w-7xl lg:w-full",
+          usesHeaderSpacer
+            ? "pt-0 lg:pt-[calc(8rem+env(safe-area-inset-top))]"
+            : "pt-[calc(11rem+env(safe-area-inset-top))] lg:pt-[calc(8rem+env(safe-area-inset-top))]",
+        )}
+      >
+        <HomeHero className="mt-ds-1" />
 
-        <CategoryGridSection categories={categories} />
-
-        <TrendingSearchesSection />
-
-        <ProductSection
+        <ProductCarouselSection
           id="featured-heading"
-          title="Featured Listings"
+          title="⭐ Featured Listings"
           products={featured}
           loading={showSkeletons}
           error={sectionError}
           viewAllHref="/search?q=&featured=1"
         />
 
-        <ProductSection
+        <ProductCarouselSection
           id="trending-heading"
-          title="Trending Today"
+          title="🔥 Trending Today"
           products={trending}
           loading={showSkeletons}
           error={sectionError}
         />
 
-        <ProductSection
+        <ProductCarouselSection
           id="new-heading"
-          title="Latest Listings"
+          title="🆕 New Today"
           products={newToday}
           loading={showSkeletons}
           error={sectionError}
         />
 
-        <section aria-labelledby="recommended-heading" className="px-ds-4">
-          <h2 id="recommended-heading" className="mb-ds-3 text-lg font-semibold text-text-primary">
-            Recommended For You
-          </h2>
-          <div className="grid grid-cols-2 gap-ds-3 md:grid-cols-3 md:gap-ds-4 lg:grid-cols-4">
-            {showSkeletons ? (
-              <ProductGridSkeleton count={4} />
-            ) : sectionError ? (
-              <div
-                role="alert"
-                className="col-span-full rounded-ds-xl border border-danger/30 bg-danger/5 px-ds-5 py-ds-6 text-center text-sm text-text-secondary"
-              >
-                Unable to load recommendations.
-              </div>
-            ) : recommended.length === 0 ? (
-              <ProductSectionEmpty title="recommendations" />
-            ) : (
-              recommended.map((product) => (
-                <div key={product.id} className="h-full">
-                  <ProductCard {...productToCardProps(product, "homepage")} />
-                </div>
-              ))
-            )}
-            {isLoadingMore && <ProductGridSkeleton count={2} />}
-          </div>
-          <div ref={loadMoreRef} className="h-ds-2" aria-hidden />
-        </section>
+        <ProductCarouselSection
+          id="recommended-heading"
+          title="❤️ Recommended For You"
+          products={recommended}
+          loading={showSkeletons}
+          loadingMore={isLoadingMore}
+          error={sectionError}
+          footer={<div ref={loadMoreRef} className="h-ds-2" aria-hidden />}
+        />
+
+        {sponsoredProducts.length > 0 ? (
+          <ProductCarouselSection
+            id="sponsored-heading"
+            title="Sponsored Listings"
+            products={sponsoredProducts}
+            loading={showSkeletons}
+            error={sectionError}
+          />
+        ) : null}
+
+        <CategoryGridSection categories={categories} />
+
+        <TrendingSearchesSection />
+
+        <RecentlyViewedSection />
       </main>
     </div>
   );
-}
+});

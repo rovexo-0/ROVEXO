@@ -2,7 +2,7 @@
 
 ## Phase 1 — Database
 
-Apply all migrations in order (`supabase/migrations/20250618000001` through `20250620000008`):
+Apply all migrations in order (`supabase/migrations/20250618000001` through `20250630000001`):
 
 ```bash
 supabase link --project-ref <your-project-ref>
@@ -25,7 +25,7 @@ Expected: no rows returned (all checks pass).
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Client auth |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Server/admin operations |
 | `NEXT_PUBLIC_APP_URL` | Yes | Canonical app URL (https://yourdomain.com) |
-| `STRIPE_SECRET_KEY` | Yes | Payments + Connect |
+| `STRIPE_SECRET_KEY` | Yes | Payments + Connect + subscriptions |
 | `STRIPE_WEBHOOK_SECRET` | Yes | Webhook signature verification |
 | `RESEND_API_KEY` | Yes | Transactional email |
 | `EMAIL_FROM` | Yes | Sender address (verified in Resend) |
@@ -47,14 +47,15 @@ pnpm verify:env
    - `checkout.session.completed`
    - `checkout.session.expired`
    - `checkout.session.async_payment_failed`
+   - `customer.subscription.updated`
+   - `customer.subscription.deleted`
    - `transfer.reversed`
    - `charge.refunded`
 4. Copy webhook signing secret to `STRIPE_WEBHOOK_SECRET`.
 5. Test checkout → success URL → webhook fulfillment.
-6. Test cancel URL → order cancelled + email.
+6. Test subscription checkout at `/plans`.
 7. Test seller Connect onboarding at `/seller/wallet`.
-8. Test withdrawal (requires Connect + platform balance).
-9. Test admin refund action (creates Stripe refund).
+8. Test admin refund action (creates Stripe refund).
 
 ## Phase 4 — Email (Resend)
 
@@ -81,6 +82,8 @@ Set `CRON_SECRET` in Vercel — Vercel sends `Authorization: Bearer <CRON_SECRET
 
 Maintenance handles:
 - Expired promotions
+- Scheduled promotion activation
+- Saved search match notifications
 - Expired awaiting-payment orders
 - Wallet pending → available release
 - Email outbox (with retry)
@@ -106,6 +109,8 @@ curl -H "Authorization: Bearer $CRON_SECRET" https://<domain>/api/cron/maintenan
 - Seller routes: role checks on listings/wallet/analytics
 - Webhooks: Stripe signature verification
 - Cron: `CRON_SECRET` bearer token
+- Platform analytics POST: authenticated + rate limited
+- Security headers via `next.config.ts`
 - Reviews: RPC-only insert (direct client insert blocked)
 - RLS enabled on all sensitive tables
 
@@ -127,8 +132,9 @@ Post-deploy:
 1. Confirm HTTPS on custom domain
 2. Run schema verification SQL
 3. Send test order end-to-end
-4. Trigger cron manually
-5. Monitor Vercel function logs + Supabase dashboard
+4. Test subscription purchase at `/plans`
+5. Trigger cron manually
+6. Monitor Vercel function logs + Supabase dashboard
 
 ## Phase 10 — Final QA
 

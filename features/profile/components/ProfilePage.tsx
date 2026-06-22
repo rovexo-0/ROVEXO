@@ -1,6 +1,7 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { IconButton } from "@/components/ui/IconButton";
 import { ProfileHero } from "@/features/profile/components/ProfileHero";
+import { NavigationHub } from "@/features/navigation/components/NavigationHub";
 import { ProfileMenu } from "@/features/profile/components/ProfileMenu";
 import { ProfileSignOutButton } from "@/features/profile/components/ProfileSignOutButton";
 import { SellerOverviewCards } from "@/features/profile/components/SellerOverviewCards";
@@ -29,6 +30,8 @@ export function ProfilePage({ profile }: ProfilePageProps) {
         {profile.isSeller && profile.sellerStats && (
           <SellerOverviewCards stats={profile.sellerStats} />
         )}
+
+        <NavigationHub profile={profile} />
 
         <ProfileMenu profile={profile} />
 

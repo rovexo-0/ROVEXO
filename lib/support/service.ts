@@ -1,5 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { Json } from "@/lib/supabase/types/database";
 import type { SupportCategory, SupportTicket } from "@/lib/support/types";
+import type { SupportHelpContext } from "@/lib/help/types";
 
 type CreateTicketInput = {
   userId: string;
@@ -7,6 +9,7 @@ type CreateTicketInput = {
   subject: string;
   description: string;
   attachmentUrls?: string[];
+  helpContext?: SupportHelpContext;
 };
 
 function mapTicket(row: Record<string, unknown>): SupportTicket {
@@ -35,6 +38,7 @@ export async function createSupportTicket(input: CreateTicketInput): Promise<Sup
       subject: input.subject,
       description: input.description,
       attachment_urls: input.attachmentUrls ?? [],
+      help_context: (input.helpContext ?? {}) as Json,
       status: "open",
     })
     .select("*")

@@ -6,6 +6,7 @@ import { SEARCH_DEBOUNCE_MS, SEARCH_PRODUCT_PAGE_SIZE } from "@/features/search/
 import { fetchSearchResults } from "@/features/search/utils/fetch-search";
 import { mergeProductResults } from "@/features/search/utils/search-client";
 import { useDebouncedValue } from "@/features/search/hooks/use-debounced-value";
+import { trackGaEvent } from "@/lib/analytics/ga4-events";
 
 export function useSearchResults(initialQuery = "") {
   const [query, setQuery] = useState(initialQuery);
@@ -43,6 +44,10 @@ export function useSearchResults(initialQuery = "") {
         }
         return data;
       });
+
+      if (!append && searchQuery.trim()) {
+        trackGaEvent("search", { search_term: searchQuery.trim() });
+      }
     } catch (error) {
       if ((error as Error).name !== "AbortError") {
         setResults(null);

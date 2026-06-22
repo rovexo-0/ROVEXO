@@ -16,7 +16,7 @@ export async function getBusinessDashboardData(userId?: string): Promise<Busines
   const supabase = await createClient();
   const { data: businessAccount } = await supabase
     .from("business_accounts")
-    .select("business_name")
+    .select("business_name, trust_score, verified_business, verified_wholesale, verified_manufacturer, verified_supplier")
     .eq("id", sellerId)
     .maybeSingle();
 

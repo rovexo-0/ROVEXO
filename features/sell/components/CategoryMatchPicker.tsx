@@ -3,6 +3,7 @@
 import { cn } from "@/lib/cn";
 import { toPathId } from "@/lib/categories/queries";
 import type { CategoryMatchResult } from "@/lib/ai-camera/types";
+import { AI_CAMERA_CONFIDENCE_THRESHOLD } from "@/lib/ai-camera/types";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
 type CategoryMatchPickerProps = {
@@ -14,11 +15,13 @@ type CategoryMatchPickerProps = {
 export function CategoryMatchPicker({ matches, value, onChange }: CategoryMatchPickerProps) {
   if (matches.length === 0) return null;
 
+  const thresholdPercent = Math.round(AI_CAMERA_CONFIDENCE_THRESHOLD * 100);
+
   return (
     <div className="flex flex-col gap-ds-2">
       <p className="text-sm font-medium text-text-primary">Choose the best matching category</p>
       <p className="text-xs text-text-secondary">
-        Confidence was below 85%. Select one of the top matches below.
+        Confidence was below {thresholdPercent}%. Select one of the top matches below.
       </p>
 
       <ul className="flex flex-col gap-ds-2" role="listbox" aria-label="Suggested categories">

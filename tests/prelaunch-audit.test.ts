@@ -1,0 +1,34 @@
+import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
+describe("Pre-launch production config", () => {
+  it("includes vercel cron for maintenance", () => {
+    const vercel = JSON.parse(readFileSync(path.join(process.cwd(), "vercel.json"), "utf8"));
+    expect(vercel.crons).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/api/cron/maintenance",
+          schedule: "*/15 * * * *",
+        }),
+      ]),
+    );
+  });
+
+  it("documents required env vars in .env.example", () => {
+    const example = readFileSync(path.join(process.cwd(), ".env.example"), "utf8");
+    expect(example).toContain("NEXT_PUBLIC_APP_URL");
+    expect(example).toContain("CRON_SECRET");
+    expect(example).toContain("UPSTASH_REDIS_REST_URL");
+  });
+
+  it("validates protection case creation server-side", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "lib/protection/service.ts"),
+      "utf8",
+    );
+    expect(source).toContain("order.buyer_id !== input.buyerId");
+    expect(source).toContain("DISPUTABLE_ORDER_STATUSES");
+    expect(source).not.toMatch(/sellerId: input\.sellerId/);
+  });
+});

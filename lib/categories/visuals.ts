@@ -46,6 +46,14 @@ const CATEGORY_IMAGES: Record<string, string> = {
     "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=600&fit=crop",
   agriculture:
     "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&h=600&fit=crop",
+  travel:
+    "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&h=600&fit=crop",
+  events:
+    "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&h=600&fit=crop",
+  "free-stuff":
+    "https://images.unsplash.com/photo-1513885535751-05f0b0195c95?w=800&h=600&fit=crop",
+  "everything-else":
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600&fit=crop",
 };
 
 const DEFAULT_IMAGE =
@@ -83,6 +91,10 @@ export function getCategoryIcon(slug: string): string {
     office: "🖇️",
     industrial: "🏭",
     agriculture: "🌾",
+    travel: "✈️",
+    events: "🎉",
+    "free-stuff": "🎁",
+    "everything-else": "📦",
   };
   return icons[slug] ?? "🏷️";
 }

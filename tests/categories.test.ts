@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { categoryTree, homeCategories } from "@/lib/categories/tree";
+import { categoryTree, homeCategories, taxonomyStats } from "@/lib/categories/tree";
 import {
   findNodeBySlugPath,
   collectLeafPaths,
@@ -17,8 +17,14 @@ describe("marketplace category tree", () => {
     for (const slug of [
       "vehicles",
       "property",
+      "phones",
+      "computers",
       "electronics",
-      "fashion",
+      "gaming",
+      "tv-audio",
+      "womens-fashion",
+      "mens-fashion",
+      "kids-fashion",
       "home-garden",
       "diy",
       "tools",
@@ -26,12 +32,11 @@ describe("marketplace category tree", () => {
       "health",
       "beauty",
       "pets",
-      "baby-kids",
+      "baby",
       "toys",
       "books",
       "music",
       "movies",
-      "gaming",
       "collectibles",
       "business",
       "jobs",
@@ -41,9 +46,21 @@ describe("marketplace category tree", () => {
       "office",
       "industrial",
       "agriculture",
+      "travel",
+      "events",
+      "free-stuff",
+      "everything-else",
+      "cycling",
+      "fishing",
+      "camping",
     ]) {
       expect(slugs.has(slug)).toBe(true);
     }
+  });
+
+  it("meets enterprise taxonomy scale targets", () => {
+    expect(categoryTree.length).toBeGreaterThanOrEqual(50);
+    expect(taxonomyStats.leaves).toBeGreaterThanOrEqual(1000);
   });
 
   it("supports deep Home & Garden nesting", () => {
@@ -71,9 +88,9 @@ describe("marketplace category tree", () => {
   });
 
   it("resolves category paths by slug arrays", () => {
-    const flat = resolveCategoryPathBySlugs(["electronics", "phones-tablets", "smartphones"]);
-    expect(flat?.pathLabel).toContain("Electronics");
-    expect(flat?.segments.at(-1)?.slug).toBe("smartphones");
+    const flat = resolveCategoryPathBySlugs(["phones", "smartphones", "unlocked-phones"]);
+    expect(flat?.pathLabel).toContain("Phones");
+    expect(flat?.segments.at(-1)?.slug).toBe("unlocked-phones");
   });
 
   it("keeps legacy flatten helper working", () => {

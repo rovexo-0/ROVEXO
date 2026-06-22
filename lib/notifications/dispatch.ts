@@ -16,6 +16,7 @@ type DispatchInput = {
     | "promotion_expired"
     | "saved_item_sold"
     | "price_reduced"
+    | "saved_search_match"
     | "system";
   title: string;
   subtitle: string;
@@ -49,6 +50,7 @@ export async function dispatchNotification(input: DispatchInput): Promise<void> 
       case "follower":
       case "moderation":
       case "promotion_expired":
+      case "saved_search_match":
         return settings?.system ?? true;
       default:
         return true;

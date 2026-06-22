@@ -27,7 +27,7 @@ export type AdminPromotionRow = {
   type: PromotionType;
   durationId: string;
   amountCents: number;
-  status: "pending" | "active" | "expired" | "failed" | "suspended";
+  status: "pending" | "active" | "scheduled" | "expired" | "failed" | "suspended";
   startsAt: string;
   endsAt: string;
   stripeSessionId: string | null;

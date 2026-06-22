@@ -23,6 +23,7 @@ const STATUS_VARIANTS: Record<
 > = {
   pending: "warning",
   active: "success",
+  scheduled: "warning",
   expired: "default",
   failed: "danger",
   suspended: "danger",

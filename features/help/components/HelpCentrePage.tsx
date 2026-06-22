@@ -4,102 +4,132 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { HelpAssistant } from "@/features/help/components/HelpAssistant";
-import { HELP_CATEGORIES } from "@/lib/help/content/articles";
-import type { HelpArticle, HelpCategory } from "@/lib/help/types";
-import { searchHelpArticles } from "@/lib/help/search";
+import { HELP_TOPIC_GROUPS, getHelpTopicsByGroup } from "@/lib/help/content/topics";
+import { searchHelpCentre } from "@/lib/help/search";
+import type { HelpSearchResult } from "@/lib/help/types";
 
 type HelpCentrePageProps = {
-  articles: HelpArticle[];
   initialQuery?: string;
 };
 
-export function HelpCentrePage({ articles, initialQuery = "" }: HelpCentrePageProps) {
+export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
   const [query, setQuery] = useState(initialQuery);
-
-  const results = useMemo(() => searchHelpArticles(query), [query]);
-  const grouped = useMemo(() => {
-    const map = new Map<HelpCategory, HelpArticle[]>();
-    for (const category of HELP_CATEGORIES) {
-      map.set(
-        category.id,
-        articles.filter((article) => article.category === category.id),
-      );
-    }
-    return map;
-  }, [articles]);
+  const results = useMemo(() => searchHelpCentre(query), [query]);
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-ds-6 px-ds-4 py-ds-6">
-      <div className="max-w-2xl">
-        <h1 className="text-2xl font-bold text-text-primary">Help Centre</h1>
-        <p className="mt-ds-2 text-sm text-text-secondary">
-          Search official ROVEXO guidance for buying, selling, payments, safety, and more.
-        </p>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-ds-8 px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
+      <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6 shadow-ds-soft">
+        <p className="text-sm font-medium text-primary">ROVEXO Help Center</p>
+        <h1 className="mt-ds-2 text-3xl font-bold text-text-primary">Welcome to ROVEXO Help Center</h1>
+        <p className="mt-ds-2 text-base text-text-secondary">How can we help you today?</p>
         <label className="sr-only" htmlFor="help-search">
-          Search help articles
+          Search help
         </label>
         <input
           id="help-search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search help articles..."
-          className="mt-ds-4 w-full rounded-ds-lg border border-border bg-surface px-ds-4 py-ds-3 text-sm text-text-primary"
+          placeholder="Search articles, categories, FAQs, features, policies..."
+          className="mt-ds-5 w-full rounded-ds-xl border border-border bg-surface px-ds-4 py-ds-4 text-sm text-text-primary shadow-sm"
         />
-      </div>
+      </section>
 
       <HelpAssistant compact />
 
-      {query.trim() ? (
-        <section aria-label="Search results">
-          <h2 className="text-lg font-semibold">Search results</h2>
-          <div className="mt-ds-4 grid gap-ds-3">
-            {results.map((result) => (
-              <Link key={result.article.slug} href={`/help/${result.article.slug}`}>
-                <Card padding="md" interactive className="shadow-ds-soft">
-                  <p className="font-semibold text-text-primary">{result.article.title}</p>
-                  <p className="mt-ds-1 text-sm text-text-secondary">{result.excerpt}</p>
-                </Card>
-              </Link>
-            ))}
-            {!results.length ? (
-              <Card padding="md" className="shadow-ds-soft">
-                <p className="text-sm text-text-secondary">
-                  No articles matched your search. Try different keywords or{" "}
-                  <Link href="/support" className="text-primary underline">
-                    contact Support
-                  </Link>
-                  .
-                </p>
-              </Card>
-            ) : null}
-          </div>
+      {!query.trim() ? (
+        <section className="grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
+          <QuickLink href="/help/faq" title="FAQ" description="Common questions and answers" />
+          <QuickLink href="/help/policies" title="Policies" description="Terms, privacy, and safety rules" />
+          <QuickLink href="/support" title="Contact Support" description="Open a support ticket" />
+          <QuickLink href="/assistant" title="AI Assistant" description="Guided help and search" />
+          <QuickLink href="/resolution" title="Resolution Centre" description="Disputes and protection cases" />
+          <QuickLink href="/trust" title="Trust Center" description="Score, verification, and safety" />
+          <QuickLink href="/help/category/withdraw" title="Processing times" description="Withdrawals, orders, and reviews" />
+          <QuickLink href="/help/category/business-accounts" title="Business help" description="B2B accounts and wholesale" />
         </section>
+      ) : null}
+
+      {query.trim() ? (
+        <SearchResults results={results} query={query} />
       ) : (
-        <div className="grid gap-ds-6 lg:grid-cols-[1fr_1fr]">
-          {HELP_CATEGORIES.map((category) => {
-            const items = grouped.get(category.id) ?? [];
-            if (!items.length) return null;
-            return (
-              <section key={category.id}>
-                <h2 className="text-lg font-semibold text-text-primary">{category.label}</h2>
-                <p className="mt-ds-1 text-sm text-text-secondary">{category.description}</p>
-                <ul className="mt-ds-3 space-y-ds-2">
-                  {items.map((article) => (
-                    <li key={article.slug}>
-                      <Link
-                        href={`/help/${article.slug}`}
-                        className="text-sm font-medium text-primary hover:underline"
-                      >
-                        {article.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
-        </div>
+        <BrowseTopics />
       )}
     </div>
+  );
+}
+
+function SearchResults({ results, query }: { results: HelpSearchResult[]; query: string }) {
+  return (
+    <section aria-label="Search results">
+      <h2 className="text-lg font-semibold text-text-primary">Search results</h2>
+      <p className="mt-ds-1 text-sm text-text-secondary">
+        {results.length} result{results.length === 1 ? "" : "s"} for “{query}”
+      </p>
+      <div className="mt-ds-4 grid gap-ds-3">
+        {results.map((result) => (
+          <Link key={`${result.type}:${result.id}`} href={result.href}>
+            <Card padding="md" interactive className="shadow-ds-soft">
+              <div className="flex items-center justify-between gap-ds-3">
+                <p className="font-semibold text-text-primary">{result.title}</p>
+                <span className="rounded-full bg-surface-muted px-ds-2 py-ds-0.5 text-xs capitalize text-text-muted">
+                  {result.type}
+                </span>
+              </div>
+              <p className="mt-ds-1 text-sm text-text-secondary">{result.excerpt}</p>
+            </Card>
+          </Link>
+        ))}
+        {!results.length ? (
+          <Card padding="md" className="shadow-ds-soft">
+            <p className="text-sm text-text-secondary">
+              No matches found. Browse help topics below or try “withdraw”, “refund”, or “order tracking”.
+            </p>
+          </Card>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+function QuickLink({ href, title, description }: { href: string; title: string; description: string }) {
+  return (
+    <Link href={href}>
+      <Card padding="md" interactive className="h-full shadow-ds-soft">
+        <p className="font-semibold text-text-primary">{title}</p>
+        <p className="mt-ds-1 text-sm text-text-secondary">{description}</p>
+      </Card>
+    </Link>
+  );
+}
+
+function BrowseTopics() {
+  return (
+    <section aria-labelledby="browse-topics-heading">
+      <h2 id="browse-topics-heading" className="text-lg font-semibold text-text-primary">
+        Browse Help Topics
+      </h2>
+      <div className="mt-ds-5 space-y-ds-8">
+        {HELP_TOPIC_GROUPS.map((group) => {
+          const topics = getHelpTopicsByGroup(group);
+          if (!topics.length) return null;
+          return (
+            <div key={group}>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-text-muted">{group}</h3>
+              <div className="mt-ds-3 grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
+                {topics.map((topic) => (
+                  <Link key={topic.slug} href={`/help/category/${topic.slug}`}>
+                    <Card padding="md" interactive className="h-full shadow-ds-soft">
+                      <p className="text-lg">{topic.icon}</p>
+                      <p className="mt-ds-2 font-semibold text-text-primary">{topic.label}</p>
+                      <p className="mt-ds-1 text-sm text-text-secondary">{topic.description}</p>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }

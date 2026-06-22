@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
@@ -16,7 +16,7 @@ type PromotionPickerProps = {
   type: PromotionType;
   listingTitle: string;
   busy?: boolean;
-  onSelect: (durationId: string) => void;
+  onSelect: (durationId: string, scheduledStartAt?: string | null) => void;
   onCancel: () => void;
 };
 
@@ -29,6 +29,8 @@ export function PromotionPicker({
   onCancel,
 }: PromotionPickerProps) {
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const [scheduleEnabled, setScheduleEnabled] = useState(false);
+  const [scheduledStartAt, setScheduledStartAt] = useState("");
   const options = type === "bump" ? BUMP_DURATIONS : FEATURE_DURATIONS;
   const title = type === "bump" ? "Bump listing" : "Feature listing";
   const description =
@@ -79,6 +81,23 @@ export function PromotionPicker({
         </p>
         <p className="mt-ds-2 truncate text-xs font-medium text-text-primary">{listingTitle}</p>
 
+        <label className="mt-ds-4 flex items-center gap-ds-2 text-sm text-text-secondary">
+          <input
+            type="checkbox"
+            checked={scheduleEnabled}
+            onChange={(event) => setScheduleEnabled(event.target.checked)}
+          />
+          Schedule for later
+        </label>
+        {scheduleEnabled ? (
+          <input
+            type="datetime-local"
+            value={scheduledStartAt}
+            onChange={(event) => setScheduledStartAt(event.target.value)}
+            className="mt-ds-2 w-full rounded-ds-lg border border-border px-ds-3 py-ds-2 text-sm"
+          />
+        ) : null}
+
         <div className="mt-ds-4 flex flex-col gap-ds-2">
           {options.map((option) => (
             <Button
@@ -88,7 +107,14 @@ export function PromotionPicker({
               size="md"
               disabled={busy}
               className="min-h-ds-7 justify-between rounded-ds-lg px-ds-4"
-              onClick={() => onSelect(option.id)}
+              onClick={() =>
+                onSelect(
+                  option.id,
+                  scheduleEnabled && scheduledStartAt
+                    ? new Date(scheduledStartAt).toISOString()
+                    : null,
+                )
+              }
             >
               <span>{option.label}</span>
               <span className="font-semibold text-primary">{option.priceLabel}</span>

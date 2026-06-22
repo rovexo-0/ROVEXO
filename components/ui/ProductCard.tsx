@@ -9,6 +9,8 @@ import { Price } from "@/components/ui/Price";
 import { cn } from "@/lib/cn";
 import { normalizeCondition } from "@/lib/products/utils";
 import { trackPromotionEvent } from "@/components/promotions/PromotionAnalyticsBeacon";
+import { trackGaEvent } from "@/lib/analytics/ga4-events";
+import { getActiveMarket } from "@/lib/seo/markets";
 import { focusRing, transitionNormal, transitionSpring } from "@/components/ui/tokens";
 
 export type ProductCardProps = {
@@ -110,12 +112,20 @@ export function ProductCard({
 
       if (willSave) {
         triggerHapticFeedback();
+        if (productId) {
+          const { currency } = getActiveMarket();
+          trackGaEvent("add_to_favorites", {
+            item_id: productId,
+            item_name: title,
+            currency,
+          });
+        }
       }
 
       setHeartAnimating(true);
       window.setTimeout(() => setHeartAnimating(false), 150);
     },
-    [isFavorite, onFavorite],
+    [isFavorite, onFavorite, productId, title],
   );
 
   const handleCardKeyDown = useCallback(

@@ -13,9 +13,14 @@ import type { SellerDashboardData } from "@/lib/seller/types";
 
 const QUICK_ACTIONS = [
   { href: "/sell", emoji: "➕", label: "New Listing" },
+  { href: "/sell/camera", emoji: "📷", label: "AI Camera" },
   { href: "/seller/listings", emoji: "📦", label: "My Listings" },
   { href: "/seller/orders", emoji: "📨", label: "Orders" },
+  { href: "/seller/wallet", emoji: "👛", label: "Wallet" },
+  { href: "/seller/analytics", emoji: "📈", label: "Analytics" },
+  { href: "/seller/tax", emoji: "🧾", label: "Tax" },
   { href: "/messages", emoji: "💬", label: "Messages" },
+  { href: "/plans", emoji: "💳", label: "Plans" },
 ] as const;
 
 type SellerDashboardPageProps = {

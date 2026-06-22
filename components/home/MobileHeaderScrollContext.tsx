@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -35,31 +36,51 @@ function isMobileViewport() {
 
 export function MobileHeaderScrollProvider({ children }: { children: ReactNode }) {
   const [isVisible, setIsVisible] = useState(true);
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const [headerVersion, setHeaderVersion] = useState(0);
-  const headerElementRef = useRef<HTMLElement | null>(null);
+  const [headerElement, setHeaderElement] = useState<HTMLElement | null>(null);
+  const [measuredHeaderHeight, setMeasuredHeaderHeight] = useState(0);
   const lastScrollY = useRef(0);
   const scrollDownDistance = useRef(0);
 
-  const registerHeader = useCallback((element: HTMLElement | null) => {
-    if (headerElementRef.current === element) return;
-  
-    headerElementRef.current = element;
-    setHeaderVersion((version) => version + 1);
+  const headerHeight = headerElement ? measuredHeaderHeight : 0;
 
-    const nextHeight = element?.offsetHeight ?? 0;
-  
-    setHeaderHeight((current) =>
-      current === nextHeight ? current : nextHeight
-    );
+  const updateHeaderHeight = useCallback((element: HTMLElement) => {
+    const nextHeight = element.offsetHeight;
+    setMeasuredHeaderHeight((current) => (current === nextHeight ? current : nextHeight));
   }, []);
+
+  const registerHeader = useCallback((element: HTMLElement | null) => {
+    setHeaderElement((current) => (current === element ? current : element));
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!headerElement) {
+      return;
+    }
+
+    const handleMeasure = () => {
+      updateHeaderHeight(headerElement);
+    };
+
+    handleMeasure();
+
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined" ? new ResizeObserver(handleMeasure) : null;
+
+    resizeObserver?.observe(headerElement);
+    window.addEventListener("resize", handleMeasure);
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", handleMeasure);
+    };
+  }, [headerElement, updateHeaderHeight]);
 
   useLayoutEffect(() => {
     function handleScroll() {
       if (!isMobileViewport()) {
         scrollDownDistance.current = 0;
         lastScrollY.current = getScrollY();
-        setIsVisible(true);
+        setIsVisible((current) => (current ? current : true));
         return;
       }
 
@@ -68,15 +89,15 @@ export function MobileHeaderScrollProvider({ children }: { children: ReactNode }
 
       if (currentScrollY <= 0) {
         scrollDownDistance.current = 0;
-        setIsVisible(true);
+        setIsVisible((current) => (current ? current : true));
       } else if (scrollDelta > 0) {
         scrollDownDistance.current += scrollDelta;
         if (scrollDownDistance.current > SCROLL_DOWN_THRESHOLD) {
-          setIsVisible(false);
+          setIsVisible((current) => (current ? false : current));
         }
       } else if (scrollDelta < 0) {
         scrollDownDistance.current = 0;
-        setIsVisible(true);
+        setIsVisible((current) => (current ? current : true));
       }
 
       lastScrollY.current = currentScrollY;
@@ -84,36 +105,26 @@ export function MobileHeaderScrollProvider({ children }: { children: ReactNode }
 
     lastScrollY.current = getScrollY();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useLayoutEffect(() => {
-    const element = headerElementRef.current;
-    if (!element) return;
-
-    function measureHeader() {
-      if (!element) return;
-      setHeaderHeight(element.offsetHeight);
-    }
-
-    measureHeader();
-
-    const resizeObserver =
-      typeof ResizeObserver !== "undefined" ? new ResizeObserver(measureHeader) : null;
-
-    resizeObserver?.observe(element);
-    window.addEventListener("resize", measureHeader);
 
     return () => {
-      resizeObserver?.disconnect();
-      window.removeEventListener("resize", measureHeader);
+      window.removeEventListener("scroll", handleScroll);
     };
-  }, [headerVersion]);
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({
+      isVisible,
+      headerHeight,
+      registerHeader,
+    }),
+    [headerHeight, isVisible, registerHeader],
+  );
 
   return (
-    <MobileHeaderScrollContext.Provider value={{ isVisible, headerHeight, registerHeader }}>
+    <MobileHeaderScrollContext.Provider value={contextValue}>
       <div
         aria-hidden
+        suppressHydrationWarning
         className="overflow-hidden transition-[height] duration-200 ease-in-out lg:hidden"
         style={{ height: isVisible ? headerHeight : 0 }}
       />

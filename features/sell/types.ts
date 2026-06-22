@@ -1,6 +1,8 @@
 import type { FlatCategoryPath } from "@/lib/categories/types";
 import type { AiCameraAnalysisResult } from "@/lib/ai-camera/types";
-import { isInventoryValid } from "@/lib/sell/inventory";
+import type { SellListingMode } from "@/lib/profile/account";
+import type { ShippingMethod } from "@/lib/shipping/carriers";
+import { clampInventory } from "@/lib/sell/inventory";
 
 export type SellView = "form" | "published";
 
@@ -31,27 +33,24 @@ export type SellListingDraft = {
 
   brand: string;
   color: string;
+  material: string;
   size: string;
 
   condition: string;
+  shippingMethod: ShippingMethod;
 
-  // Fixed Price
   price: string;
 
-  // Auction
   auctionStartPrice: string;
   reservePrice: string;
   buyNowPrice: string;
   auctionEndsAt: string;
 
-  // Live
   liveEnabled: boolean;
 
   acceptOffers: boolean;
 
-  sku: string;
   stock: number;
-  lowStockAlert: number;
 
   analysis: AiCameraAnalysisResult | null;
 };
@@ -79,9 +78,11 @@ export function createEmptyDraft(): SellListingDraft {
 
     brand: "",
     color: "",
+    material: "",
     size: "",
 
     condition: "",
+    shippingMethod: "delivery_available",
 
     price: "",
 
@@ -94,49 +95,96 @@ export function createEmptyDraft(): SellListingDraft {
 
     acceptOffers: true,
 
-    sku: "",
     stock: 1,
-    lowStockAlert: 5,
 
     analysis: null,
   };
 }
 
-export function isListingValid(
-  draft: SellListingDraft,
-  options?: { requireInventory?: boolean },
-): boolean {
-  const hasUploadedPhotos =
+export type ListingValidationField =
+  | "photos"
+  | "title"
+  | "description"
+  | "category"
+  | "price"
+  | "condition"
+  | "shippingMethod"
+  | "stock";
+
+export type ListingValidationErrors = Partial<Record<ListingValidationField, string>>;
+
+export type ListingValidationOptions = {
+  mode?: SellListingMode;
+};
+
+function hasValidPhotos(draft: SellListingDraft): boolean {
+  return (
     draft.photos.length > 0 &&
-    draft.photos.every((photo) => photo.uploaded || photo.file);
-
-  const inventoryValid = isInventoryValid(
-    draft.stock,
-    options?.requireInventory ? draft.lowStockAlert : draft.stock,
+    draft.photos.every((photo) => photo.uploaded || photo.file) &&
+    !draft.photos.some((photo) => photo.uploading)
   );
+}
 
-  if (!hasUploadedPhotos) return false;
-  if (!draft.categoryPath) return false;
-  if (!draft.title.trim()) return false;
-  if (!draft.description.trim()) return false;
-  if (!draft.brand.trim()) return false;
-  if (!draft.condition) return false;
-  if (!inventoryValid) return false;
-
+function hasValidPrice(draft: SellListingDraft): boolean {
   switch (draft.listingType) {
     case "fixed":
-      return Number(draft.price) > 0;
-
-    case "auction":
-      return (
-        Number(draft.auctionStartPrice) >= 1 &&
-        draft.auctionEndsAt.trim().length > 0
-      );
-
     case "live":
       return Number(draft.price) > 0;
-
+    case "auction":
+      return Number(draft.auctionStartPrice) >= 1 && draft.auctionEndsAt.trim().length > 0;
     default:
       return false;
   }
+}
+
+export function getListingValidationErrors(
+  draft: SellListingDraft,
+  options?: ListingValidationOptions,
+): ListingValidationErrors {
+  const errors: ListingValidationErrors = {};
+  const mode = options?.mode ?? "advanced";
+
+  if (!hasValidPhotos(draft)) {
+    errors.photos = draft.photos.some((photo) => photo.uploading)
+      ? "Wait for photos to finish uploading."
+      : "Add at least one photo.";
+  }
+
+  if (draft.title.trim().length < 3) {
+    errors.title = "Title must be at least 3 characters.";
+  }
+
+  if (draft.description.trim().length < 10) {
+    errors.description = "Description must be at least 10 characters.";
+  }
+
+  if (!draft.categoryPath) {
+    errors.category = "Select a category.";
+  }
+
+  if (!draft.condition) {
+    errors.condition = "Select the item condition.";
+  }
+
+  const stock = clampInventory(draft.stock);
+  if (stock < 1) {
+    errors.stock = "Quantity must be at least 1.";
+  }
+
+  if (mode === "quick" && !draft.shippingMethod) {
+    errors.shippingMethod = "Select a delivery option.";
+  }
+
+  if (!hasValidPrice(draft)) {
+    errors.price = "Enter a price greater than zero.";
+  }
+
+  return errors;
+}
+
+export function isListingValid(
+  draft: SellListingDraft,
+  options?: ListingValidationOptions,
+): boolean {
+  return Object.keys(getListingValidationErrors(draft, options)).length === 0;
 }

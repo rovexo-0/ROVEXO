@@ -46,6 +46,7 @@ const updateSchema = z.object({
     .optional(),
   images: z.array(imageSchema).min(1).max(8).optional(),
   removeImageIds: z.array(z.string()).optional(),
+  deliveryCarriers: z.array(z.string()).optional(),
 });
 
 export async function GET(_request: Request, context: RouteContext) {
@@ -103,6 +104,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       price: body.price,
       acceptOffers: body.acceptOffers,
       categoryId,
+      deliveryCarriers: body.deliveryCarriers,
       inventory: body.inventory
         ? {
             sku: body.inventory.sku?.trim() || null,

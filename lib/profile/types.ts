@@ -16,6 +16,7 @@ export type UserProfile = {
   memberSince: string;
   accountType: AccountType;
   isSeller: boolean;
+  isAdmin: boolean;
   sellerStats?: SellerStats;
   unreadMessages: number;
   unreadNotifications: number;

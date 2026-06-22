@@ -6,13 +6,19 @@ import { DashboardSummaryGrid } from "@/features/dashboard/components/DashboardS
 import { BusinessDashboardHeader } from "@/features/business/dashboard/components/BusinessDashboardHeader";
 import { BusinessProfileCard } from "@/features/business/dashboard/components/BusinessProfileCard";
 import { InventoryOverviewSection } from "@/features/business/dashboard/components/InventoryOverviewSection";
+import { HelpPageFooter } from "@/features/help/components/HelpPageFooter";
 import type { BusinessDashboardData } from "@/lib/business/types";
 
 const QUICK_ACTIONS = [
+  { href: "/business/center", emoji: "🏢", label: "Business Center" },
   { href: "/sell", emoji: "➕", label: "Add Product" },
   { href: "/business/inventory", emoji: "📦", label: "Inventory" },
+  { href: "/business/analytics", emoji: "📈", label: "Analytics" },
+  { href: "/business/directory", emoji: "📇", label: "Directory" },
+  { href: "/wholesale", emoji: "🏭", label: "Wholesale" },
   { href: "/seller/orders", emoji: "📨", label: "Orders" },
   { href: "/messages", emoji: "💬", label: "Messages" },
+  { href: "/plans", emoji: "💳", label: "Plans" },
 ] as const;
 
 type BusinessDashboardPageProps = {
@@ -36,6 +42,7 @@ export function BusinessDashboardPage({ data }: BusinessDashboardPageProps) {
         <DashboardPerformanceSection performance={data.performance} />
 
         <DashboardRecentOrdersSection orders={data.recentOrders} viewAllHref="/seller/orders" />
+        <HelpPageFooter pathname="/business/dashboard" />
       </main>
     </BetaAppShell>
   );

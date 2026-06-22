@@ -10,6 +10,7 @@ import { checkRateLimit } from "@/lib/api/rate-limit";
 import { sendPasswordResetEmail } from "@/lib/email/service";
 import { getAppUrl } from "@/lib/supabase/env";
 import { redirectPathForRole, sanitizeNextPath } from "@/lib/auth/redirects";
+import { queueGaEvents, type QueuedGaEvent } from "@/lib/analytics/queue-ga-event";
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -118,6 +119,15 @@ export async function signUp(
     return { error: "An account with this email already exists." };
   }
 
+  const queuedEvents: QueuedGaEvent[] = [{ name: "sign_up", params: { method: "email" } }];
+  if (role === "seller" || role === "business") {
+    queuedEvents.push({
+      name: "seller_registration",
+      params: { account_type: role },
+    });
+  }
+  await queueGaEvents(queuedEvents);
+
   if (data.session) {
     redirect(redirectPathForRole(role));
   }
@@ -162,6 +172,8 @@ export async function signIn(
   }
 
   revalidatePath("/", "layout");
+
+  await queueGaEvents([{ name: "login", params: { method: "email" } }]);
 
   const next = formData.get("next")?.toString();
   if (next) {

@@ -102,26 +102,50 @@ export type Database = {
       business_accounts: {
         Row: {
           business_name: string
+          company_type: string
           created_at: string
+          description: string
           id: string
           tax_id: string | null
+          trust_score: number
           updated_at: string
+          verification_level: Database["public"]["Enums"]["trust_verification_level"]
+          verified_business: boolean
+          verified_manufacturer: boolean
+          verified_supplier: boolean
+          verified_wholesale: boolean
           website: string | null
         }
         Insert: {
           business_name: string
+          company_type?: string
           created_at?: string
+          description?: string
           id: string
           tax_id?: string | null
+          trust_score?: number
           updated_at?: string
+          verification_level?: Database["public"]["Enums"]["trust_verification_level"]
+          verified_business?: boolean
+          verified_manufacturer?: boolean
+          verified_supplier?: boolean
+          verified_wholesale?: boolean
           website?: string | null
         }
         Update: {
           business_name?: string
+          company_type?: string
           created_at?: string
+          description?: string
           id?: string
           tax_id?: string | null
+          trust_score?: number
           updated_at?: string
+          verification_level?: Database["public"]["Enums"]["trust_verification_level"]
+          verified_business?: boolean
+          verified_manufacturer?: boolean
+          verified_supplier?: boolean
+          verified_wholesale?: boolean
           website?: string | null
         }
         Relationships: [
@@ -137,28 +161,40 @@ export type Database = {
       categories: {
         Row: {
           created_at: string
+          icon: string
           id: string
+          is_active: boolean
           name: string
           parent_id: string | null
           path_label: string
+          seo_description: string | null
+          seo_title: string | null
           slug: string
           sort_order: number
         }
         Insert: {
           created_at?: string
+          icon?: string
           id?: string
+          is_active?: boolean
           name: string
           parent_id?: string | null
           path_label: string
+          seo_description?: string | null
+          seo_title?: string | null
           slug: string
           sort_order?: number
         }
         Update: {
           created_at?: string
+          icon?: string
           id?: string
+          is_active?: boolean
           name?: string
           parent_id?: string | null
           path_label?: string
+          seo_description?: string | null
+          seo_title?: string | null
           slug?: string
           sort_order?: number
         }
@@ -166,6 +202,53 @@ export type Database = {
           {
             foreignKeyName: "categories_parent_id_fkey"
             columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      category_filter_definitions: {
+        Row: {
+          category_id: string
+          created_at: string
+          filter_key: string
+          filter_type: Database["public"]["Enums"]["category_filter_type"]
+          id: string
+          is_required: boolean
+          label: string
+          options: Json
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          filter_key: string
+          filter_type?: Database["public"]["Enums"]["category_filter_type"]
+          id?: string
+          is_required?: boolean
+          label: string
+          options?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          filter_key?: string
+          filter_type?: Database["public"]["Enums"]["category_filter_type"]
+          id?: string
+          is_required?: boolean
+          label?: string
+          options?: Json
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "category_filter_definitions_category_id_fkey"
+            columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
             referencedColumns: ["id"]
@@ -491,6 +574,8 @@ export type Database = {
           product_id: string | null
           reviewed_at: string | null
           reviewer_id: string | null
+          risk_level: Database["public"]["Enums"]["moderation_risk_level"]
+          risk_score: number
           seller_id: string | null
           source: string
           status: Database["public"]["Enums"]["moderation_queue_status"]
@@ -511,6 +596,8 @@ export type Database = {
           product_id?: string | null
           reviewed_at?: string | null
           reviewer_id?: string | null
+          risk_level?: Database["public"]["Enums"]["moderation_risk_level"]
+          risk_score?: number
           seller_id?: string | null
           source?: string
           status?: Database["public"]["Enums"]["moderation_queue_status"]
@@ -531,6 +618,8 @@ export type Database = {
           product_id?: string | null
           reviewed_at?: string | null
           reviewer_id?: string | null
+          risk_level?: Database["public"]["Enums"]["moderation_risk_level"]
+          risk_score?: number
           seller_id?: string | null
           source?: string
           status?: Database["public"]["Enums"]["moderation_queue_status"]
@@ -839,7 +928,9 @@ export type Database = {
           delivered_at: string | null
           delivery_carrier: string
           delivery_fee: number
+          dispatch_by: string | null
           disputes_disabled: boolean
+          estimated_delivery_at: string | null
           id: string
           invoice_number: string | null
           item_price: number
@@ -853,6 +944,7 @@ export type Database = {
           seller_payout: number
           shipped_at: string | null
           shipping_address_id: string | null
+          shipping_method: Database["public"]["Enums"]["shipping_method"]
           status: Database["public"]["Enums"]["order_status"]
           stripe_payment_intent_id: string | null
           stripe_refund_id: string | null
@@ -869,7 +961,9 @@ export type Database = {
           delivered_at?: string | null
           delivery_carrier?: string
           delivery_fee?: number
+          dispatch_by?: string | null
           disputes_disabled?: boolean
+          estimated_delivery_at?: string | null
           id?: string
           invoice_number?: string | null
           item_price: number
@@ -883,6 +977,7 @@ export type Database = {
           seller_payout?: number
           shipped_at?: string | null
           shipping_address_id?: string | null
+          shipping_method?: Database["public"]["Enums"]["shipping_method"]
           status?: Database["public"]["Enums"]["order_status"]
           stripe_payment_intent_id?: string | null
           stripe_refund_id?: string | null
@@ -899,7 +994,9 @@ export type Database = {
           delivered_at?: string | null
           delivery_carrier?: string
           delivery_fee?: number
+          dispatch_by?: string | null
           disputes_disabled?: boolean
+          estimated_delivery_at?: string | null
           id?: string
           invoice_number?: string | null
           item_price?: number
@@ -913,6 +1010,7 @@ export type Database = {
           seller_payout?: number
           shipped_at?: string | null
           shipping_address_id?: string | null
+          shipping_method?: Database["public"]["Enums"]["shipping_method"]
           status?: Database["public"]["Enums"]["order_status"]
           stripe_payment_intent_id?: string | null
           stripe_refund_id?: string | null
@@ -942,6 +1040,200 @@ export type Database = {
             columns: ["shipping_address_id"]
             isOneToOne: false
             referencedRelation: "shipping_addresses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_shipments: {
+        Row: {
+          carrier: string
+          created_at: string
+          delivered_at: string | null
+          dispatch_at: string | null
+          estimated_delivery_at: string | null
+          id: string
+          last_event: string
+          order_id: string
+          status: Database["public"]["Enums"]["shipment_status"]
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          carrier: string
+          created_at?: string
+          delivered_at?: string | null
+          dispatch_at?: string | null
+          estimated_delivery_at?: string | null
+          id?: string
+          last_event?: string
+          order_id: string
+          status?: Database["public"]["Enums"]["shipment_status"]
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          carrier?: string
+          created_at?: string
+          delivered_at?: string | null
+          dispatch_at?: string | null
+          estimated_delivery_at?: string | null
+          id?: string
+          last_event?: string
+          order_id?: string
+          status?: Database["public"]["Enums"]["shipment_status"]
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_shipments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      protection_case_events: {
+        Row: {
+          actor_id: string | null
+          case_id: string
+          created_at: string
+          event_type: string
+          id: string
+          message: string
+          metadata: Json
+        }
+        Insert: {
+          actor_id?: string | null
+          case_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          message?: string
+          metadata?: Json
+        }
+        Update: {
+          actor_id?: string | null
+          case_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          message?: string
+          metadata?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protection_case_events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "protection_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      protection_cases: {
+        Row: {
+          admin_id: string | null
+          admin_notes: string
+          appeal_reason: string | null
+          appealed_at: string | null
+          buyer_id: string
+          case_type: Database["public"]["Enums"]["protection_case_type"]
+          created_at: string
+          description: string
+          id: string
+          order_id: string
+          outcome: Database["public"]["Enums"]["protection_case_outcome"]
+          reason: string
+          refund_amount: number | null
+          resolved_at: string | null
+          seller_id: string
+          status: Database["public"]["Enums"]["protection_case_status"]
+          updated_at: string
+        }
+        Insert: {
+          admin_id?: string | null
+          admin_notes?: string
+          appeal_reason?: string | null
+          appealed_at?: string | null
+          buyer_id: string
+          case_type: Database["public"]["Enums"]["protection_case_type"]
+          created_at?: string
+          description?: string
+          id?: string
+          order_id: string
+          outcome?: Database["public"]["Enums"]["protection_case_outcome"]
+          reason: string
+          refund_amount?: number | null
+          resolved_at?: string | null
+          seller_id: string
+          status?: Database["public"]["Enums"]["protection_case_status"]
+          updated_at?: string
+        }
+        Update: {
+          admin_id?: string | null
+          admin_notes?: string
+          appeal_reason?: string | null
+          appealed_at?: string | null
+          buyer_id?: string
+          case_type?: Database["public"]["Enums"]["protection_case_type"]
+          created_at?: string
+          description?: string
+          id?: string
+          order_id?: string
+          outcome?: Database["public"]["Enums"]["protection_case_outcome"]
+          reason?: string
+          refund_amount?: number | null
+          resolved_at?: string | null
+          seller_id?: string
+          status?: Database["public"]["Enums"]["protection_case_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protection_cases_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      protection_evidence: {
+        Row: {
+          case_id: string
+          created_at: string
+          description: string
+          file_name: string
+          file_url: string
+          id: string
+          uploaded_by: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          description?: string
+          file_name: string
+          file_url: string
+          id?: string
+          uploaded_by: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          description?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protection_evidence_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "protection_cases"
             referencedColumns: ["id"]
           },
         ]
@@ -1345,12 +1637,49 @@ export type Database = {
           },
         ]
       }
+      help_analytics_events: {
+        Row: {
+          article_slug: string | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json
+          search_query: string | null
+          solution_id: string | null
+          topic_slug: string | null
+          user_id: string | null
+        }
+        Insert: {
+          article_slug?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json
+          search_query?: string | null
+          solution_id?: string | null
+          topic_slug?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          article_slug?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json
+          search_query?: string | null
+          solution_id?: string | null
+          topic_slug?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       support_tickets: {
         Row: {
           attachment_urls: string[]
           category: Database["public"]["Enums"]["support_category"]
           created_at: string
           description: string
+          help_context: Json
           id: string
           status: Database["public"]["Enums"]["support_status"]
           subject: string
@@ -1363,6 +1692,7 @@ export type Database = {
           category: Database["public"]["Enums"]["support_category"]
           created_at?: string
           description: string
+          help_context?: Json
           id?: string
           status?: Database["public"]["Enums"]["support_status"]
           subject: string
@@ -1375,6 +1705,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["support_category"]
           created_at?: string
           description?: string
+          help_context?: Json
           id?: string
           status?: Database["public"]["Enums"]["support_status"]
           subject?: string
@@ -1819,6 +2150,661 @@ export type Database = {
           },
         ]
       }
+      recently_viewed: {
+        Row: {
+          product_id: string
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          product_id: string
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          product_id?: string
+          user_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recently_viewed_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recently_viewed_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_searches: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          last_notified_at: string | null
+          notify_enabled: boolean
+          query: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_notified_at?: string | null
+          notify_enabled?: boolean
+          query: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_notified_at?: string | null
+          notify_enabled?: boolean
+          query?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_searches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_search_notification_log: {
+        Row: {
+          id: string
+          notified_at: string
+          product_id: string
+          saved_search_id: string
+        }
+        Insert: {
+          id?: string
+          notified_at?: string
+          product_id: string
+          saved_search_id: string
+        }
+        Update: {
+          id?: string
+          notified_at?: string
+          product_id?: string
+          saved_search_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_search_notification_log_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_search_notification_log_saved_search_id_fkey"
+            columns: ["saved_search_id"]
+            isOneToOne: false
+            referencedRelation: "saved_searches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          seller_id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          seller_id: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          seller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_follows_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monetization_plans: {
+        Row: {
+          active: boolean
+          created_at: string
+          features: Json
+          id: string
+          interval: string
+          name: string
+          price_cents: number
+          slug: string
+          sort_order: number
+          tier: Database["public"]["Enums"]["monetization_plan_tier"]
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          features?: Json
+          id?: string
+          interval?: string
+          name: string
+          price_cents?: number
+          slug: string
+          sort_order?: number
+          tier: Database["public"]["Enums"]["monetization_plan_tier"]
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          features?: Json
+          id?: string
+          interval?: string
+          name?: string
+          price_cents?: number
+          slug?: string
+          sort_order?: number
+          tier?: Database["public"]["Enums"]["monetization_plan_tier"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      monetization_subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          id: string
+          metadata: Json
+          plan_id: string
+          status: Database["public"]["Enums"]["monetization_subscription_status"]
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          metadata?: Json
+          plan_id: string
+          status?: Database["public"]["Enums"]["monetization_subscription_status"]
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          metadata?: Json
+          plan_id?: string
+          status?: Database["public"]["Enums"]["monetization_subscription_status"]
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monetization_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "monetization_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "monetization_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_analytics_events: {
+        Row: {
+          dimensions: Json
+          domain: string
+          id: string
+          metric: string
+          recorded_at: string
+          value: number
+        }
+        Insert: {
+          dimensions?: Json
+          domain: string
+          id?: string
+          metric: string
+          recorded_at?: string
+          value?: number
+        }
+        Update: {
+          dimensions?: Json
+          domain?: string
+          id?: string
+          metric?: string
+          recorded_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      platform_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          metadata: Json
+          resource_id: string | null
+          resource_type: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          resource_id?: string | null
+          resource_type: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          resource_id?: string | null
+          resource_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_audit_logs_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_error_logs: {
+        Row: {
+          category: string
+          context: Json
+          created_at: string
+          id: string
+          level: string
+          message: string
+          stack_trace: string | null
+        }
+        Insert: {
+          category: string
+          context?: Json
+          created_at?: string
+          id?: string
+          level?: string
+          message: string
+          stack_trace?: string | null
+        }
+        Update: {
+          category?: string
+          context?: Json
+          created_at?: string
+          id?: string
+          level?: string
+          message?: string
+          stack_trace?: string | null
+        }
+        Relationships: []
+      }
+      cron_job_runs: {
+        Row: {
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          job_name: string
+          result: Json
+          started_at: string
+          status: string
+        }
+        Insert: {
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          job_name: string
+          result?: Json
+          started_at?: string
+          status: string
+        }
+        Update: {
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          job_name?: string
+          result?: Json
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      rfq_requests: {
+        Row: {
+          buyer_id: string
+          category_slug: string | null
+          created_at: string
+          description: string
+          id: string
+          metadata: Json
+          premium: boolean
+          quantity: number
+          seller_id: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          category_slug?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json
+          premium?: boolean
+          quantity?: number
+          seller_id?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          category_slug?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json
+          premium?: boolean
+          quantity?: number
+          seller_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rfq_requests_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rfq_requests_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trust_events: {
+        Row: {
+          created_at: string
+          delta: number
+          event_type: string
+          id: string
+          metadata: Json
+          score_after: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta?: number
+          event_type: string
+          id?: string
+          metadata?: Json
+          score_after?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delta?: number
+          event_type?: string
+          id?: string
+          metadata?: Json
+          score_after?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trust_scores: {
+        Row: {
+          business_score: number
+          buyer_score: number
+          level: Database["public"]["Enums"]["trust_verification_level"]
+          score: number
+          seller_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_score?: number
+          buyer_score?: number
+          level?: Database["public"]["Enums"]["trust_verification_level"]
+          score?: number
+          seller_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_score?: number
+          buyer_score?: number
+          level?: Database["public"]["Enums"]["trust_verification_level"]
+          score?: number
+          seller_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trust_verifications: {
+        Row: {
+          created_at: string
+          document_urls: string[]
+          expires_at: string | null
+          id: string
+          level: Database["public"]["Enums"]["trust_verification_level"]
+          metadata: Json
+          reviewed_at: string | null
+          reviewer_id: string | null
+          status: Database["public"]["Enums"]["trust_verification_status"]
+          updated_at: string
+          user_id: string
+          verification_type: Database["public"]["Enums"]["trust_verification_type"]
+        }
+        Insert: {
+          created_at?: string
+          document_urls?: string[]
+          expires_at?: string | null
+          id?: string
+          level?: Database["public"]["Enums"]["trust_verification_level"]
+          metadata?: Json
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          status?: Database["public"]["Enums"]["trust_verification_status"]
+          updated_at?: string
+          user_id: string
+          verification_type: Database["public"]["Enums"]["trust_verification_type"]
+        }
+        Update: {
+          created_at?: string
+          document_urls?: string[]
+          expires_at?: string | null
+          id?: string
+          level?: Database["public"]["Enums"]["trust_verification_level"]
+          metadata?: Json
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          status?: Database["public"]["Enums"]["trust_verification_status"]
+          updated_at?: string
+          user_id?: string
+          verification_type?: Database["public"]["Enums"]["trust_verification_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_verifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trust_verifications_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wholesale_accounts: {
+        Row: {
+          account_type: Database["public"]["Enums"]["wholesale_account_type"]
+          bulk_pricing_enabled: boolean
+          company_name: string
+          created_at: string
+          id: string
+          metadata: Json
+          moq_default: number
+          rfq_enabled: boolean
+          updated_at: string
+          verified: boolean
+        }
+        Insert: {
+          account_type?: Database["public"]["Enums"]["wholesale_account_type"]
+          bulk_pricing_enabled?: boolean
+          company_name: string
+          created_at?: string
+          id: string
+          metadata?: Json
+          moq_default?: number
+          rfq_enabled?: boolean
+          updated_at?: string
+          verified?: boolean
+        }
+        Update: {
+          account_type?: Database["public"]["Enums"]["wholesale_account_type"]
+          bulk_pricing_enabled?: boolean
+          company_name?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          moq_default?: number
+          rfq_enabled?: boolean
+          updated_at?: string
+          verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wholesale_accounts_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wholesale_pricing_tiers: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string
+          id: string
+          min_quantity: number
+          product_id: string | null
+          seller_id: string
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          id?: string
+          min_quantity: number
+          product_id?: string | null
+          seller_id: string
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          id?: string
+          min_quantity?: number
+          product_id?: string | null
+          seller_id?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wholesale_pricing_tiers_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wholesale_pricing_tiers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       withdraw_methods: {
         Row: {
           connected: boolean
@@ -1913,8 +2899,21 @@ export type Database = {
       slugify: { Args: { value: string }; Returns: string }
     }
     Enums: {
+      category_filter_type: "text" | "number" | "select" | "boolean" | "range"
       message_kind: "text" | "photo" | "emoji"
       message_status: "sent" | "delivered" | "read"
+      monetization_plan_tier:
+        | "free"
+        | "seller_pro"
+        | "business"
+        | "wholesale"
+        | "enterprise"
+      monetization_subscription_status:
+        | "trialing"
+        | "active"
+        | "past_due"
+        | "cancelled"
+        | "expired"
       moderation_decision: "approved" | "warning" | "blocked"
       moderation_queue_status:
         | "pending"
@@ -1922,6 +2921,7 @@ export type Database = {
         | "warning"
         | "blocked"
         | "overridden"
+      moderation_risk_level: "low" | "medium" | "high" | "critical"
       moderation_target:
         | "listing"
         | "listing_image"
@@ -1939,6 +2939,7 @@ export type Database = {
         | "promotion_expired"
         | "saved_item_sold"
         | "price_reduced"
+        | "saved_search_match"
         | "system"
       offer_status:
         | "pending"
@@ -1954,6 +2955,33 @@ export type Database = {
         | "issue_open"
         | "completed"
         | "cancelled"
+      protection_case_outcome:
+        | "pending"
+        | "refund_full"
+        | "refund_partial"
+        | "return_accepted"
+        | "return_rejected"
+        | "no_action"
+        | "seller_favour"
+        | "buyer_favour"
+      protection_case_status:
+        | "open"
+        | "awaiting_seller"
+        | "awaiting_buyer"
+        | "under_review"
+        | "resolved"
+        | "appealed"
+        | "closed"
+      protection_case_type: "refund" | "return" | "dispute" | "appeal"
+      shipment_status:
+        | "pending"
+        | "label_created"
+        | "dispatched"
+        | "in_transit"
+        | "out_for_delivery"
+        | "delivered"
+        | "failed"
+      shipping_method: "collection_only" | "local_delivery" | "delivery_available"
       product_status: "draft" | "published" | "paused" | "sold" | "deleted"
       sender_role: "buyer" | "seller"
       seller_registration_type:
@@ -1975,7 +3003,31 @@ export type Database = {
         | "report_user"
         | "other"
       support_status: "open" | "in_progress" | "resolved" | "closed"
+      trust_verification_level: "basic" | "verified" | "premium" | "enterprise"
+      trust_verification_status:
+        | "not_started"
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "expired"
+      trust_verification_type:
+        | "email"
+        | "phone"
+        | "identity"
+        | "address"
+        | "payment"
+        | "business"
+        | "wholesale"
+        | "manufacturer"
+        | "supplier"
+        | "document"
       user_role: "buyer" | "seller" | "business" | "admin"
+      wholesale_account_type:
+        | "wholesale"
+        | "manufacturer"
+        | "supplier"
+        | "importer"
+        | "exporter"
       wallet_tx_status: "completed" | "pending" | "failed" | "refunded"
       wallet_tx_type: "sale" | "withdrawal" | "fee" | "refund" | "promotion"
       withdraw_provider: "bank_account" | "stripe_connect"
@@ -2125,6 +3177,7 @@ export const Constants = {
         "promotion_expired",
         "saved_item_sold",
         "price_reduced",
+        "saved_search_match",
         "system",
       ],
       offer_status: ["pending", "accepted", "rejected", "expired", "cancelled"],
@@ -2160,7 +3213,34 @@ export const Constants = {
         "other",
       ],
       support_status: ["open", "in_progress", "resolved", "closed"],
+      trust_verification_level: ["basic", "verified", "premium", "enterprise"],
+      trust_verification_status: [
+        "not_started",
+        "pending",
+        "approved",
+        "rejected",
+        "expired",
+      ],
+      trust_verification_type: [
+        "email",
+        "phone",
+        "identity",
+        "address",
+        "payment",
+        "business",
+        "wholesale",
+        "manufacturer",
+        "supplier",
+        "document",
+      ],
       user_role: ["buyer", "seller", "business", "admin"],
+      wholesale_account_type: [
+        "wholesale",
+        "manufacturer",
+        "supplier",
+        "importer",
+        "exporter",
+      ],
       wallet_tx_status: ["completed", "pending", "failed", "refunded"],
       wallet_tx_type: ["sale", "withdrawal", "fee", "refund", "promotion"],
       withdraw_provider: ["bank_account", "stripe_connect"],

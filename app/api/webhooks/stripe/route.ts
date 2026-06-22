@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { logPaymentError } from "@/lib/ops/logger";
 import { cancelPendingOrder, fulfillOrderFromStripeSession } from "@/lib/orders/checkout";
 import { fulfillPromotionFromStripeSession } from "@/lib/promotions/service";
+import {
+  fulfillSubscriptionFromStripeSession,
+  syncSubscriptionFromStripe,
+} from "@/lib/monetization/stripe";
+import { recordPlatformAnalyticsEvent } from "@/lib/platform-analytics/events";
 import { getStripeClient, getStripeWebhookSecret, isStripeConfigured } from "@/lib/stripe/server";
 import {
   reverseFailedStripeTransfer,
@@ -35,9 +41,24 @@ export async function POST(request: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         if (session.metadata?.checkoutType === "promotion") {
           await fulfillPromotionFromStripeSession(session);
+          await recordPlatformAnalyticsEvent({ domain: "promotions", metric: "checkout_completed" });
         } else if (session.metadata?.checkoutType === "order") {
           await fulfillOrderFromStripeSession(session);
+          await recordPlatformAnalyticsEvent({ domain: "orders", metric: "checkout_completed" });
+        } else if (session.metadata?.checkoutType === "subscription") {
+          await fulfillSubscriptionFromStripeSession(session);
+          await recordPlatformAnalyticsEvent({ domain: "monetization", metric: "subscription_activated" });
         }
+        break;
+      }
+      case "customer.subscription.updated":
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object as Stripe.Subscription;
+        await syncSubscriptionFromStripe(subscription);
+        await recordPlatformAnalyticsEvent({
+          domain: "monetization",
+          metric: event.type === "customer.subscription.deleted" ? "subscription_cancelled" : "subscription_renewed",
+        });
         break;
       }
       case "checkout.session.expired":
@@ -73,7 +94,7 @@ export async function POST(request: Request) {
         break;
     }
   } catch (error) {
-    console.error("Stripe webhook handler error:", error);
+    logPaymentError("Stripe webhook handler failed", error, { eventType: event.type });
     return NextResponse.json({ error: "Webhook handler failed." }, { status: 500 });
   }
 

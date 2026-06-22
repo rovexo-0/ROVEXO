@@ -2,9 +2,14 @@
 
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { cn } from "@/lib/cn";
+import type { SellListingMode } from "@/lib/profile/account";
+import { usesQuickListingForm } from "@/lib/profile/account";
 import type { SellListingDraft } from "@/features/sell/types";
+import { getListingValidationErrors } from "@/features/sell/types";
+import { FieldError } from "@/features/sell/components/FieldError";
 import { SellAnalyzingIndicator } from "@/features/sell/components/SellAnalyzingIndicator";
 import { SellListingForm, useSellPublishState } from "@/features/sell/components/SellListingForm";
+import { SellQuickListingForm } from "@/features/sell/components/SellQuickListingForm";
 import { SellPageHeader } from "@/features/sell/components/SellPageHeader";
 import { SellPhotoSection } from "@/features/sell/components/SellPhotoSection";
 import { HelpPageFooter } from "@/features/help/components/HelpPageFooter";
@@ -13,21 +18,30 @@ import { SellPublishedStep } from "@/features/sell/components/steps/SellPublishe
 import { useSellForm } from "@/features/sell/hooks/use-sell-wizard";
 
 type SellPageProps = {
-  manageInventory?: boolean;
+  listingMode?: SellListingMode;
   editListingId?: string;
   initialDraft?: SellListingDraft;
 };
 
 export function SellPage({
-  manageInventory = false,
+  listingMode = "advanced",
   editListingId,
   initialDraft,
 }: SellPageProps) {
-  const form = useSellForm({ manageInventory, editListingId, initialDraft });
-  const { view, isAnalyzing, analysisError, isPublishing, uploadProgress, draftSavedMessage, saveDraft, publishListing } =
-    form;
+  const quickMode = usesQuickListingForm(listingMode);
+  const form = useSellForm({ listingMode, editListingId, initialDraft });
+  const {
+    view,
+    isAnalyzing,
+    analysisError,
+    isPublishing,
+    uploadProgress,
+    draftSavedMessage,
+    saveDraft,
+    publishListing,
+  } = form;
   const isPublished = view === "published";
-  const canPublish = useSellPublishState(form, manageInventory);
+  const canPublish = useSellPublishState(form, { mode: listingMode });
 
   return (
     <BetaAppShell showBottomNav={false}>
@@ -36,6 +50,7 @@ export function SellPage({
           onSaveDraft={saveDraft}
           draftSavedMessage={draftSavedMessage}
           editListingId={editListingId}
+          quickMode={quickMode}
         />
       )}
 
@@ -51,7 +66,8 @@ export function SellPage({
           <SellPublishedStep form={form} />
         ) : (
           <>
-            <SellPhotoSection form={form} uploadProgress={uploadProgress} />
+            <SellPhotoSection form={form} uploadProgress={uploadProgress} quickMode={quickMode} />
+            <FieldError message={getListingValidationErrors(form.draft, { mode: form.listingMode }).photos} />
 
             {isAnalyzing && <SellAnalyzingIndicator />}
 
@@ -61,7 +77,11 @@ export function SellPage({
               </p>
             )}
 
-            <SellListingForm form={form} manageInventory={manageInventory} />
+            {quickMode ? (
+              <SellQuickListingForm form={form} />
+            ) : (
+              <SellListingForm form={form} />
+            )}
           </>
         )}
       </main>
@@ -72,6 +92,7 @@ export function SellPage({
           loading={isPublishing}
           onPublish={() => void publishListing()}
           editListingId={editListingId}
+          quickMode={quickMode}
         />
       )}
       <HelpPageFooter pathname="/sell" />

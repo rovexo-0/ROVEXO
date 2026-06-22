@@ -4,21 +4,55 @@ import { ProfileMenuRow } from "@/features/profile/components/ProfileMenuRow";
 import {
   AboutMenuIcon,
   HelpMenuIcon,
-  ListingsIcon,
   MessagesMenuIcon,
   NotificationsMenuIcon,
   OrdersMenuIcon,
   SettingsIcon,
-  WalletMenuIcon,
 } from "@/features/profile/icons";
 import { BETA_VERSION } from "@/lib/beta/roadmap";
+import {
+  ADMIN_NAV,
+  BUSINESS_NAV,
+  BUYER_NAV,
+  SELLER_NAV,
+  SHARED_NAV,
+  type NavLink,
+} from "@/lib/navigation/map";
 import type { UserProfile } from "@/lib/profile/types";
 
 type ProfileMenuProps = {
   profile: UserProfile;
 };
 
+function MenuSection({ title, links }: { title: string; links: NavLink[] }) {
+  if (!links.length) return null;
+
+  return (
+    <div className="border-t border-border">
+      <p className="px-ds-4 pb-ds-1 pt-ds-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
+        {title}
+      </p>
+      {links.map((link) => (
+        <ProfileMenuRow
+          key={link.href}
+          title={link.label}
+          subtitle={link.subtitle}
+          href={link.href}
+          icon={<HelpMenuIcon className="h-5 w-5" />}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function ProfileMenu({ profile }: ProfileMenuProps) {
+  const buyerLinks = BUYER_NAV.filter(
+    (link) => !["/orders", "/saved"].includes(link.href),
+  );
+  const sharedLinks = SHARED_NAV.filter(
+    (link) => !["/messages", "/notifications", "/settings"].includes(link.href),
+  );
+
   return (
     <Card padding="none" className="overflow-hidden shadow-ds-soft">
       <nav aria-label="Profile menu">
@@ -29,16 +63,14 @@ export function ProfileMenu({ profile }: ProfileMenuProps) {
           icon={<OrdersMenuIcon className="h-5 w-5" />}
         />
 
-        {profile.isSeller && (
-          <div className="border-t border-border">
-            <ProfileMenuRow
-              title="My Listings"
-              subtitle="Manage your items"
-              href="/seller/listings"
-              icon={<ListingsIcon className="h-5 w-5" />}
-            />
-          </div>
-        )}
+        <div className="border-t border-border">
+          <ProfileMenuRow
+            title="Cart"
+            subtitle="Items ready to checkout"
+            href="/cart"
+            icon={<OrdersMenuIcon className="h-5 w-5" />}
+          />
+        </div>
 
         <div className="border-t border-border">
           <ProfileMenuRow
@@ -68,32 +100,24 @@ export function ProfileMenu({ profile }: ProfileMenuProps) {
           />
         </div>
 
-        {profile.isSeller && (
-          <div className="border-t border-border">
-            <ProfileMenuRow
-              title="Wallet"
-              subtitle="Balance & Transactions"
-              href="/seller/wallet"
-              icon={<WalletMenuIcon className="h-5 w-5" />}
-            />
-          </div>
-        )}
+        <MenuSection title="Buyer Dashboard" links={buyerLinks} />
+
+        {profile.isSeller ? <MenuSection title="Seller Dashboard" links={SELLER_NAV} /> : null}
+
+        {profile.accountType === "business" || profile.isAdmin ? (
+          <MenuSection title="Business Dashboard" links={BUSINESS_NAV} />
+        ) : null}
+
+        <MenuSection title="Account" links={sharedLinks} />
+
+        {profile.isAdmin ? <MenuSection title="Administration" links={ADMIN_NAV} /> : null}
 
         <div className="border-t border-border">
           <ProfileMenuRow
             title="Settings"
-            subtitle="Preferences & Privacy"
+            subtitle="Preferences & privacy"
             href="/settings"
             icon={<SettingsIcon className="h-5 w-5" />}
-          />
-        </div>
-
-        <div className="border-t border-border">
-          <ProfileMenuRow
-            title="Help Centre"
-            subtitle="Support"
-            href="/help"
-            icon={<HelpMenuIcon className="h-5 w-5" />}
           />
         </div>
 

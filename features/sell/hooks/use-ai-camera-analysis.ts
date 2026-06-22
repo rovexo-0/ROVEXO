@@ -30,7 +30,10 @@ export function useAiCameraAnalysis() {
     });
   }, []);
 
-  const analyze = useCallback(async (file: File) => {
+  const analyze = useCallback(async (files: File | File[]) => {
+    const images = Array.isArray(files) ? files : [files];
+    const preview = images[0];
+
     setState((current) => {
       if (current.previewUrl) URL.revokeObjectURL(current.previewUrl);
       return {
@@ -38,13 +41,15 @@ export function useAiCameraAnalysis() {
         isAnalyzing: true,
         error: null,
         result: null,
-        previewUrl: URL.createObjectURL(file),
+        previewUrl: preview ? URL.createObjectURL(preview) : null,
       };
     });
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      for (const file of images) {
+        formData.append("images", file);
+      }
 
       const response = await fetch("/api/ai/camera/analyze", {
         method: "POST",

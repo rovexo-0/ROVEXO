@@ -10,6 +10,7 @@ import type { SellFormController } from "@/features/sell/hooks/use-sell-wizard";
 type SellPhotoSectionProps = {
   form: SellFormController;
   uploadProgress?: number;
+  quickMode?: boolean;
 };
 
 function CameraIcon({ className }: { className?: string }) {
@@ -38,7 +39,7 @@ function GripIcon({ className }: { className?: string }) {
   );
 }
 
-export function SellPhotoSection({ form, uploadProgress = 0 }: SellPhotoSectionProps) {
+export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }: SellPhotoSectionProps) {
   const { draft, addPhotos, removePhoto, replacePhoto, reorderPhotos, retryPhotoUpload, isPublishing } =
     form;
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -116,26 +117,43 @@ export function SellPhotoSection({ form, uploadProgress = 0 }: SellPhotoSectionP
       />
 
       {draft.photos.length === 0 ? (
-        <div className="flex gap-ds-2">
+        <div className={cn("flex gap-ds-2", quickMode && "flex-col sm:flex-row")}>
+          {quickMode ? (
+            <button
+              type="button"
+              onClick={() => cameraInputRef.current?.click()}
+              className={cn(
+                "flex min-h-[88px] flex-1 flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-primary bg-primary/5 px-ds-4 py-ds-4 text-primary",
+                focusRing,
+              )}
+            >
+              <CameraIcon className="h-8 w-8" />
+              <span className="text-sm font-bold">AI Camera</span>
+              <span className="text-xs text-text-secondary">Snap a photo — we suggest category & details</span>
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={() => galleryInputRef.current?.click()}
             className={cn(
               "flex min-h-ds-7 flex-1 items-center justify-center rounded-ds-md border border-dashed border-border bg-surface-muted px-ds-4 py-ds-3 text-sm font-semibold text-primary",
               focusRing,
+              quickMode && "min-h-[56px]",
             )}
           >
             + Add Photos
           </button>
-          <IconButton
-            label="Take photo"
-            variant="outline"
-            size="md"
-            className="min-h-ds-7 min-w-ds-7 shrink-0 rounded-ds-md"
-            onClick={() => cameraInputRef.current?.click()}
-          >
-            <CameraIcon className="h-5 w-5" />
-          </IconButton>
+          {!quickMode ? (
+            <IconButton
+              label="Take photo"
+              variant="outline"
+              size="md"
+              className="min-h-ds-7 min-w-ds-7 shrink-0 rounded-ds-md"
+              onClick={() => cameraInputRef.current?.click()}
+            >
+              <CameraIcon className="h-5 w-5" />
+            </IconButton>
+          ) : null}
         </div>
       ) : (
         <div className="flex flex-col gap-ds-3">
@@ -229,15 +247,17 @@ export function SellPhotoSection({ form, uploadProgress = 0 }: SellPhotoSectionP
                 >
                   + Add
                 </button>
-                <IconButton
-                  label="Take photo"
-                  variant="outline"
-                  size="md"
-                  className="h-20 w-20 shrink-0 snap-start rounded-ds-md"
+                <button
+                  type="button"
                   onClick={() => cameraInputRef.current?.click()}
+                  className={cn(
+                    "flex h-20 w-20 shrink-0 snap-start flex-col items-center justify-center gap-ds-1 rounded-ds-md border border-primary bg-primary/5 text-xs font-bold text-primary",
+                    focusRing,
+                  )}
                 >
                   <CameraIcon className="h-5 w-5" />
-                </IconButton>
+                  AI
+                </button>
               </>
             )}
           </div>

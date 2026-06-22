@@ -252,14 +252,14 @@ export function SellerListingsPage({ data }: { data: SellerListingsData }) {
   }, [promotionStatus, router, searchParams]);
 
   const startPromotionCheckout = useCallback(
-    async (listingId: string, type: PromotionType, durationId: string) => {
+    async (listingId: string, type: PromotionType, durationId: string, scheduledStartAt?: string | null) => {
       setBusyId(listingId);
 
       try {
         const response = await fetch("/api/promotions/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productId: listingId, type, durationId }),
+          body: JSON.stringify({ productId: listingId, type, durationId, scheduledStartAt }),
         });
         const payload = (await response.json()) as { success?: boolean; url?: string; error?: string };
 
@@ -431,9 +431,14 @@ export function SellerListingsPage({ data }: { data: SellerListingsData }) {
         listingTitle={promotionTarget?.title ?? ""}
         busy={busyId !== null}
         onCancel={() => setPromotionTarget(null)}
-        onSelect={(durationId) => {
+        onSelect={(durationId, scheduledStartAt) => {
           if (!promotionTarget) return;
-          void startPromotionCheckout(promotionTarget.listingId, promotionTarget.type, durationId);
+          void startPromotionCheckout(
+            promotionTarget.listingId,
+            promotionTarget.type,
+            durationId,
+            scheduledStartAt,
+          );
         }}
       />
     </BetaAppShell>

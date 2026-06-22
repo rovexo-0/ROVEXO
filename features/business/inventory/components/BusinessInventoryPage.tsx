@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import { WholesalePricingManager } from "@/features/wholesale/components/WholesalePricingManager";
 import type { InventoryItem, InventoryStatus } from "@/lib/business/inventory";
 import type { BusinessInventoryData } from "@/lib/business/types";
 
@@ -96,6 +97,8 @@ export function BusinessInventoryPage({ data }: BusinessInventoryPageProps) {
 
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
         <p className="text-sm text-text-secondary">{data.company.companyName}</p>
+
+        <WholesalePricingManager />
 
         <Card padding="none" className="overflow-hidden shadow-ds-soft">
           {filteredItems.length === 0 ? (

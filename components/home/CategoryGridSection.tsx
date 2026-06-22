@@ -52,7 +52,7 @@ export function CategoryGridSection({ categories }: CategoryGridSectionProps) {
                   {getCategoryIcon(category.slug)} {category.name}
                 </p>
                 <p className="text-xs text-white/75">
-                  {category.itemCount.toLocaleString()} items
+                  {new Intl.NumberFormat("en-IE").format(category.itemCount)} items
                 </p>
               </div>
             </Link>

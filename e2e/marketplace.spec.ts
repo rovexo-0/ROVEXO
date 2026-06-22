@@ -28,4 +28,12 @@ test.describe("marketplace core", () => {
     });
     await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toBeVisible();
   });
+
+  test("health endpoint responds", async ({ request }) => {
+    const response = await request.get("/api/health");
+    expect(response.ok()).toBeTruthy();
+    const payload = (await response.json()) as { status: string; checks: Record<string, unknown> };
+    expect(["healthy", "degraded", "unhealthy"]).toContain(payload.status);
+    expect(payload.checks).toBeTruthy();
+  });
 });

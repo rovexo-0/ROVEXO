@@ -20,6 +20,7 @@ type ApplyPromotionInput = {
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
   promotionId?: string;
+  scheduledStartAt?: string | null;
 };
 
 export async function refreshExpiredPromotions(): Promise<void> {
@@ -148,6 +149,43 @@ export async function applyListingPromotion(
     return { success: false, error: "Only published listings can be promoted." };
   }
 
+  if (input.scheduledStartAt) {
+    const start = new Date(input.scheduledStartAt);
+    if (start.getTime() > now.getTime()) {
+      const scheduledEndsAt = computeEndsAt(input.type, input.durationId, start);
+      if (!scheduledEndsAt) {
+        return { success: false, error: "Invalid promotion duration." };
+      }
+
+      const scheduledUpdate = {
+        status: "scheduled" as const,
+        starts_at: start.toISOString(),
+        ends_at: scheduledEndsAt.toISOString(),
+        stripe_session_id: input.stripeSessionId ?? null,
+        stripe_payment_intent_id: input.stripePaymentIntentId ?? null,
+        amount_cents: input.amountCents,
+      };
+
+      if (input.promotionId) {
+        await admin
+          .from("listing_promotions")
+          .update(scheduledUpdate)
+          .eq("id", input.promotionId)
+          .eq("seller_id", input.sellerId);
+      } else {
+        await admin.from("listing_promotions").insert({
+          product_id: input.productId,
+          seller_id: input.sellerId,
+          type: input.type,
+          duration_id: input.durationId,
+          ...scheduledUpdate,
+        });
+      }
+
+      return { success: true, endsAt: scheduledEndsAt.toISOString() };
+    }
+  }
+
   const endsAt = computeEndsAt(input.type, input.durationId, now);
   if (!endsAt) {
     return { success: false, error: "Invalid promotion duration." };
@@ -272,6 +310,7 @@ export async function createPromotionCheckoutSession(input: {
   productId: string;
   type: PromotionType;
   durationId: string;
+  scheduledStartAt?: string | null;
 }): Promise<{ url: string } | { error: string }> {
   const duration = getPromotionDuration(input.type, input.durationId);
   if (!duration) {
@@ -316,6 +355,7 @@ export async function createPromotionCheckoutSession(input: {
       type: input.type,
       durationId: input.durationId,
       amountCents: duration.priceCents,
+      scheduledStartAt: input.scheduledStartAt,
     });
 
     if (!result.success) {
@@ -371,6 +411,7 @@ export async function createPromotionCheckoutSession(input: {
         type: input.type,
         durationId: input.durationId,
         amountCents: String(duration.priceCents),
+        scheduledStartAt: input.scheduledStartAt ?? "",
       },
       success_url: `${baseUrl}/seller/listings?promotion=success&type=${input.type}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/seller/listings?promotion=cancelled&promotion_id=${pending.id}`,
@@ -407,6 +448,7 @@ export async function fulfillPromotionFromStripeSession(
   const type = metadata.type as PromotionType | undefined;
   const durationId = metadata.durationId;
   const amountCents = Number(metadata.amountCents ?? 0);
+  const scheduledStartAt = metadata.scheduledStartAt || null;
 
   if (!promotionId || !productId || !sellerId || !type || !durationId) {
     return { success: false, error: "Missing promotion metadata." };
@@ -450,6 +492,7 @@ export async function fulfillPromotionFromStripeSession(
     stripeSessionId: session.id,
     stripePaymentIntentId: paymentIntentId,
     promotionId,
+    scheduledStartAt,
   });
 }
 
@@ -720,4 +763,36 @@ export async function getSellerPromotionHistory(
       createdAt: row.created_at,
     };
   });
+}
+
+export async function activateScheduledPromotions(): Promise<number> {
+  const admin = createAdminClient();
+  const now = new Date().toISOString();
+  const { data: scheduled } = await admin
+    .from("listing_promotions")
+    .select("id, product_id, seller_id, type, duration_id, amount_cents, stripe_session_id, stripe_payment_intent_id")
+    .eq("status", "scheduled")
+    .lte("starts_at", now)
+    .limit(50);
+
+  let activated = 0;
+
+  for (const promo of scheduled ?? []) {
+    const result = await applyListingPromotion({
+      sellerId: promo.seller_id,
+      productId: promo.product_id,
+      type: promo.type as PromotionType,
+      durationId: promo.duration_id,
+      amountCents: promo.amount_cents,
+      stripeSessionId: promo.stripe_session_id,
+      stripePaymentIntentId: promo.stripe_payment_intent_id,
+      promotionId: promo.id,
+    });
+
+    if (result.success) {
+      activated += 1;
+    }
+  }
+
+  return activated;
 }

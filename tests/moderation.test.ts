@@ -14,6 +14,7 @@ describe("moderation analyzer", () => {
     });
     expect(result.decision).toBe("blocked");
     expect(result.categories).toContain("firearms");
+    expect(result.riskLevel).toBe("critical");
   });
 
   it("warns on knife listings", () => {
@@ -46,5 +47,12 @@ describe("moderation analyzer", () => {
     expect(duplicate).not.toBeNull();
     expect(duplicate!.decision).not.toBe("approved");
     expect(duplicate!.categories).toContain("duplicate");
+  });
+
+  it("detects hate speech", () => {
+    const result = analyzeMessageContent("This listing contains a racial slur message");
+    expect(result.decision).toBe("blocked");
+    expect(result.categories).toContain("hate_speech");
+    expect(result.riskLevel).toBe("critical");
   });
 });

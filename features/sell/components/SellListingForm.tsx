@@ -6,17 +6,22 @@ import { cn } from "@/lib/cn";
 import { toPathId } from "@/lib/categories/queries";
 import type { CategoryMatchResult } from "@/lib/ai-camera/types";
 import { getSellCurrencyConfig } from "@/lib/sell/currency";
+import { AiSuggestionPanel } from "@/features/sell/components/AiSuggestionPanel";
 import { CategoryMatchPicker } from "@/features/sell/components/CategoryMatchPicker";
 import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicker";
+import { FieldError, fieldErrorClassName } from "@/features/sell/components/FieldError";
 import { InventoryQuantityField } from "@/features/sell/components/InventoryQuantityField";
-import { SellInventoryFields } from "@/features/sell/components/SellInventoryFields";
-import { SELL_CONDITIONS, isListingValid } from "@/features/sell/types";
+import {
+  SELL_CONDITIONS,
+  getListingValidationErrors,
+  isListingValid,
+  type ListingValidationOptions,
+} from "@/features/sell/types";
 import type { SellFormController } from "@/features/sell/hooks/use-sell-wizard";
 import { focusRing } from "@/components/ui/tokens";
 
 type SellListingFormProps = {
   form: SellFormController;
-  manageInventory?: boolean;
 };
 
 const fieldClassName =
@@ -26,11 +31,13 @@ function FormRow({
   label,
   htmlFor,
   children,
+  error,
   className,
 }: {
   label: string;
   htmlFor?: string;
   children: ReactNode;
+  error?: string;
   className?: string;
 }) {
   return (
@@ -39,15 +46,17 @@ function FormRow({
         {label}
       </label>
       {children}
+      <FieldError message={error} />
     </div>
   );
 }
 
-export function SellListingForm({ form, manageInventory = false }: SellListingFormProps) {
-  const { draft, updateDraft, setCategoryPath } = form;
+export function SellListingForm({ form }: SellListingFormProps) {
+  const { draft, updateDraft, setCategoryPath, listingMode } = form;
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const analysis = draft.analysis;
   const currency = useMemo(() => getSellCurrencyConfig(), []);
+  const errors = getListingValidationErrors(draft, { mode: listingMode });
 
   const handleMatchSelect = (match: CategoryMatchResult) => {
     setCategoryPath(match.path);
@@ -62,45 +71,59 @@ export function SellListingForm({ form, manageInventory = false }: SellListingFo
         Listing details
       </h2>
 
+      <AiSuggestionPanel form={form} />
+
       <div className="overflow-hidden rounded-ds-lg border border-border bg-surface shadow-ds-soft">
-        <FormRow label="Title" htmlFor="sell-title">
+        <FormRow label="Title" htmlFor="sell-title" error={errors.title}>
           <input
             id="sell-title"
             type="text"
             value={draft.title}
             onChange={(event) => updateDraft({ title: event.target.value })}
             placeholder="Listing title"
-            className={cn(fieldClassName, focusRing, "rounded-ds-sm px-ds-2 py-ds-2")}
+            maxLength={80}
+            className={cn(
+              fieldClassName,
+              focusRing,
+              fieldErrorClassName(Boolean(errors.title)),
+              "rounded-ds-sm px-ds-2 py-ds-2",
+            )}
           />
         </FormRow>
 
         <div className="border-t border-border">
-          <FormRow label="Description" htmlFor="sell-description">
+          <FormRow label="Description" htmlFor="sell-description" error={errors.description}>
             <textarea
               id="sell-description"
               value={draft.description}
               onChange={(event) => updateDraft({ description: event.target.value })}
               rows={4}
-              placeholder="Describe your item"
-              className={cn(fieldClassName, focusRing, "min-h-[6rem] resize-y rounded-ds-sm px-ds-2 py-ds-2")}
+              placeholder="Describe your item using only what you know about it"
+              className={cn(
+                fieldClassName,
+                focusRing,
+                fieldErrorClassName(Boolean(errors.description)),
+                "min-h-[6rem] resize-y rounded-ds-sm px-ds-2 py-ds-2",
+              )}
             />
           </FormRow>
         </div>
 
         <div className="border-t border-border">
-          <FormRow label="Category">
+          <FormRow label="Category" error={errors.category}>
             <button
               type="button"
               onClick={() => setCategoryPickerOpen((current) => !current)}
               className={cn(
                 "min-h-ds-7 w-full rounded-ds-sm border border-border bg-surface-muted px-ds-3 py-ds-2 text-left text-sm text-text-primary",
+                fieldErrorClassName(Boolean(errors.category)),
                 focusRing,
               )}
             >
               {categoryDisplay || "Select category"}
             </button>
 
-            {analysis && !analysis.autoSelected && (
+            {analysis && !analysis.autoSelected && analysis.matches.length > 0 && (
               <CategoryMatchPicker
                 matches={analysis.matches}
                 value={draft.categoryPath ? toPathId(draft.categoryPath) : null}
@@ -121,20 +144,20 @@ export function SellListingForm({ form, manageInventory = false }: SellListingFo
         </div>
 
         <div className="border-t border-border">
-          <FormRow label="Brand" htmlFor="sell-brand">
+          <FormRow label="Brand (optional)" htmlFor="sell-brand">
             <input
               id="sell-brand"
               type="text"
               value={draft.brand}
               onChange={(event) => updateDraft({ brand: event.target.value })}
-              placeholder="Brand"
+              placeholder="Leave blank if unknown"
               className={cn(fieldClassName, focusRing, "rounded-ds-sm px-ds-2 py-ds-2")}
             />
           </FormRow>
         </div>
 
-        <div className="border-t border-border">
-          <FormRow label="Colour" htmlFor="sell-colour">
+        <div className="border-t border-border grid gap-0 sm:grid-cols-2">
+          <FormRow label="Colour (optional)" htmlFor="sell-colour" className="sm:border-r sm:border-border">
             <input
               id="sell-colour"
               type="text"
@@ -144,23 +167,21 @@ export function SellListingForm({ form, manageInventory = false }: SellListingFo
               className={cn(fieldClassName, focusRing, "rounded-ds-sm px-ds-2 py-ds-2")}
             />
           </FormRow>
-        </div>
 
-        <div className="border-t border-border">
-          <FormRow label="Size" htmlFor="sell-size">
+          <FormRow label="Size (optional)" htmlFor="sell-size">
             <input
               id="sell-size"
               type="text"
               value={draft.size}
               onChange={(event) => updateDraft({ size: event.target.value })}
-              placeholder="Size (if detected)"
+              placeholder="e.g. UK 9"
               className={cn(fieldClassName, focusRing, "rounded-ds-sm px-ds-2 py-ds-2")}
             />
           </FormRow>
         </div>
 
         <div className="border-t border-border">
-          <FormRow label="Condition">
+          <FormRow label="Condition" error={errors.condition}>
             <div className="flex flex-wrap gap-ds-2">
               {SELL_CONDITIONS.map((condition) => (
                 <CategoryChip
@@ -175,7 +196,7 @@ export function SellListingForm({ form, manageInventory = false }: SellListingFo
         </div>
 
         <div className="border-t border-border">
-          <FormRow label="Price" htmlFor="sell-price">
+          <FormRow label="Price" htmlFor="sell-price" error={errors.price}>
             <div className="relative">
               <span className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-sm font-semibold text-text-secondary">
                 {currency.symbol}
@@ -189,7 +210,12 @@ export function SellListingForm({ form, manageInventory = false }: SellListingFo
                 value={draft.price}
                 onChange={(event) => updateDraft({ price: event.target.value })}
                 placeholder="0.00"
-                className={cn(fieldClassName, focusRing, "rounded-ds-sm py-ds-2 pl-ds-5 pr-ds-2")}
+                className={cn(
+                  fieldClassName,
+                  focusRing,
+                  fieldErrorClassName(Boolean(errors.price)),
+                  "rounded-ds-sm py-ds-2 pl-ds-5 pr-ds-2",
+                )}
               />
             </div>
           </FormRow>
@@ -198,14 +224,13 @@ export function SellListingForm({ form, manageInventory = false }: SellListingFo
         <div className="border-t border-border px-ds-4 py-ds-3">
           <InventoryQuantityField
             id="sell-quantity"
-            label="Available Quantity"
+            label="Available quantity"
             value={draft.stock}
             onChange={(stock) => updateDraft({ stock })}
             helpText="How many of this item do you have?"
           />
+          <FieldError message={errors.stock} />
         </div>
-
-        {manageInventory && <SellInventoryFields form={form} />}
 
         <div className="border-t border-border">
           <label className="flex min-h-ds-7 cursor-pointer items-center gap-ds-3 px-ds-4 py-ds-3">
@@ -215,7 +240,7 @@ export function SellListingForm({ form, manageInventory = false }: SellListingFo
               onChange={(event) => updateDraft({ acceptOffers: event.target.checked })}
               className="h-4 w-4 rounded border-border text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
             />
-            <span className="text-sm font-medium text-text-primary">Accept Offers</span>
+            <span className="text-sm font-medium text-text-primary">Accept offers</span>
           </label>
         </div>
       </div>
@@ -223,8 +248,9 @@ export function SellListingForm({ form, manageInventory = false }: SellListingFo
   );
 }
 
-export function useSellPublishState(form: SellFormController, manageInventory = false) {
-  return (
-    isListingValid(form.draft, { requireInventory: manageInventory }) && !form.isAnalyzing
-  );
+export function useSellPublishState(
+  form: SellFormController,
+  options: ListingValidationOptions = {},
+) {
+  return isListingValid(form.draft, { mode: form.listingMode, ...options });
 }

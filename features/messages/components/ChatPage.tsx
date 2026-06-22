@@ -9,6 +9,7 @@ import { PinnedProductCard } from "@/features/messages/components/PinnedProductC
 import { useChatRealtime } from "@/features/messages/hooks/use-chat-realtime";
 import { getViewerRole } from "@/lib/messages/types";
 import type { Conversation } from "@/lib/messages/types";
+import { trackGaEvent } from "@/lib/analytics/ga4-events";
 
 type ChatPageProps = {
   initialConversation: Conversation;
@@ -31,6 +32,8 @@ export function ChatPage({ initialConversation }: ChatPageProps) {
 
   const handleSend = useCallback(
     async (content: string) => {
+      const isFirstMessage = conversation.messages.length === 0;
+
       const response = await fetch(`/api/messages/${conversation.id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -50,10 +53,17 @@ export function ChatPage({ initialConversation }: ChatPageProps) {
 
       if (payload.conversation) {
         setConversation(payload.conversation);
+        if (isFirstMessage) {
+          trackGaEvent("chat_started", {
+            conversation_id: conversation.id,
+            item_id: conversation.product.slug,
+            item_name: conversation.product.title,
+          });
+        }
       }
       setWarning(payload.warning ?? null);
     },
-    [conversation.id, viewerRole],
+    [conversation.id, conversation.messages.length, conversation.product.slug, conversation.product.title, viewerRole],
   );
 
   return (

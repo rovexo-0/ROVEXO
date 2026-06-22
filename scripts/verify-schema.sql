@@ -72,3 +72,52 @@ where t.schemaname = 'public'
     'cart_items', 'email_outbox', 'listing_promotions'
   )
   and c.relrowsecurity = false;
+
+-- Phase 8 + Pass 6 + RC1 tables
+select 'missing saved_searches table' as issue
+where not exists (
+  select 1 from information_schema.tables
+  where table_schema = 'public' and table_name = 'saved_searches'
+)
+union all
+select 'missing recently_viewed table'
+where not exists (
+  select 1 from information_schema.tables
+  where table_schema = 'public' and table_name = 'recently_viewed'
+)
+union all
+select 'missing seller_follows table'
+where not exists (
+  select 1 from information_schema.tables
+  where table_schema = 'public' and table_name = 'seller_follows'
+)
+union all
+select 'missing monetization_plans table'
+where not exists (
+  select 1 from information_schema.tables
+  where table_schema = 'public' and table_name = 'monetization_plans'
+)
+union all
+select 'missing platform_analytics_events table'
+where not exists (
+  select 1 from information_schema.tables
+  where table_schema = 'public' and table_name = 'platform_analytics_events'
+)
+union all
+select 'missing saved_search_notification_log table'
+where not exists (
+  select 1 from information_schema.tables
+  where table_schema = 'public' and table_name = 'saved_search_notification_log'
+)
+union all
+select 'missing platform_error_logs table'
+where not exists (
+  select 1 from information_schema.tables
+  where table_schema = 'public' and table_name = 'platform_error_logs'
+)
+union all
+select 'missing cron_job_runs table'
+where not exists (
+  select 1 from information_schema.tables
+  where table_schema = 'public' and table_name = 'cron_job_runs'
+);

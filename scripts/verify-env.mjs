@@ -118,6 +118,30 @@ if (missing.length) {
   console.log("\nAll required production environment variables are set.");
 }
 
+const appUrlRaw = process.env.NEXT_PUBLIC_APP_URL ?? fromFile.get("NEXT_PUBLIC_APP_URL");
+
+if (appUrlRaw?.trim()) {
+  try {
+    const appUrl = new URL(
+      /^https?:\/\//i.test(appUrlRaw.trim()) ? appUrlRaw.trim() : `https://${appUrlRaw.trim()}`,
+    );
+
+    if (appUrl.protocol !== "https:") {
+      throw new Error(`NEXT_PUBLIC_APP_URL must use https in production (${appUrl.href}).`);
+    }
+
+    if (appUrl.pathname !== "/" && appUrl.pathname !== "") {
+      throw new Error("NEXT_PUBLIC_APP_URL must not include a path.");
+    }
+
+    console.log(`\nApp URL: ${appUrl.origin}`);
+  } catch (error) {
+    console.log("\nApp URL validation: FAIL");
+    console.log(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
+}
+
 const supabaseUrlRaw =
   process.env.SUPABASE_URL ??
   process.env.NEXT_PUBLIC_SUPABASE_URL ??

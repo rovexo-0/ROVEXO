@@ -103,6 +103,12 @@ export async function checkRateLimit(
   if (upstash) {
     return upstash;
   }
+
+  if (process.env.NODE_ENV === "production") {
+    console.error("[rate-limit] Upstash is not configured in production.");
+    return { allowed: false, retryAfterSeconds: windowSec };
+  }
+
   return memoryRateLimit(key, limit, windowMs);
 }
 

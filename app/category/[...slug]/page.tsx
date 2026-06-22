@@ -5,7 +5,8 @@ import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoryPageView } from "@/features/categories/components/CategoryPageView";
 import { resolveCategoryPage } from "@/lib/categories/server";
 import { searchListings } from "@/lib/listings/repository";
-import { getAppUrl } from "@/lib/supabase/env";
+import { breadcrumbJsonLd, categoryJsonLd } from "@/lib/seo/json-ld";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 type CategoryPageProps = {
   params: Promise<{ slug: string[] }>;
@@ -16,38 +17,27 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const category = await resolveCategoryPage(slug);
 
   if (!category) {
-    return { title: "Category not found · ROVEXO" };
+    return { title: "Category not found", robots: { index: false, follow: false } };
   }
 
-  const title = `${category.node.name} · ROVEXO`;
-  const description = `Shop ${category.node.name} on ROVEXO. Browse verified sellers and protected checkout.`;
-  const canonical = `${getAppUrl()}/category/${slug.join("/")}`;
+  const title = category.seoTitle ?? `${category.node.name} for Sale UK`;
+  const description =
+    category.seoDescription ??
+    `Shop ${category.node.name} on ROVEXO. Browse verified UK sellers with buyer protection and secure checkout.`;
 
-  return {
+  return buildPageMetadata({
     title,
     description,
-    alternates: { canonical },
-    openGraph: {
-      title,
-      description,
-      url: canonical,
-      images: [{ url: category.imageUrl }],
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [category.imageUrl],
-    },
-  };
+    path: `/category/${slug.join("/")}`,
+    imageUrl: category.imageUrl,
+  });
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
   const category = await resolveCategoryPage(slug);
 
-  if (!category) {
+  if (!category || !category.isActive) {
     notFound();
   }
 
@@ -58,9 +48,25 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     pageSize: 24,
   });
 
+  const description =
+    category.seoDescription ??
+    `Shop ${category.node.name} on ROVEXO. Browse verified UK sellers with buyer protection and secure checkout.`;
+
   return (
     <BetaAppShell bottomNavTab="search">
       <Header />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([
+            categoryJsonLd(category.node.name, slug, description),
+            breadcrumbJsonLd([
+              { name: "Home", href: "/" },
+              ...category.breadcrumbs.map((crumb) => ({ name: crumb.name, href: crumb.href })),
+            ]),
+          ]),
+        }}
+      />
       <CategoryPageView category={category} products={results.items} total={results.total} />
     </BetaAppShell>
   );

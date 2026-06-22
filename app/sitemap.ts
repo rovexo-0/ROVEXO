@@ -1,50 +1,50 @@
 import type { MetadataRoute } from "next";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { getAllHelpArticles } from "@/lib/help/content/articles";
+import {
+  buildBlogSitemapEntries,
+  buildBusinessSitemapEntries,
+  buildCategorySitemapEntries,
+  buildImageSitemapEntries,
+  buildLocationSitemapEntries,
+  buildProductSitemapEntries,
+  buildSellerSitemapEntries,
+  buildStaticSitemapEntries,
+} from "@/lib/seo/sitemaps/generators";
 import { getAppUrl } from "@/lib/supabase/env";
-import { getCategoryTree } from "@/lib/categories/queries";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = getAppUrl();
-  const helpRoutes: MetadataRoute.Sitemap = getAllHelpArticles().map((article) => ({
-    url: `${baseUrl}/help/${article.slug}`,
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
-
-  const staticRoutes: MetadataRoute.Sitemap = [
-    { url: baseUrl, changeFrequency: "daily", priority: 1 },
-    { url: `${baseUrl}/search`, changeFrequency: "daily", priority: 0.8 },
-    { url: `${baseUrl}/categories`, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${baseUrl}/help`, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/support`, changeFrequency: "monthly", priority: 0.5 },
-    ...helpRoutes,
+export async function generateSitemaps() {
+  return [
+    { id: "static" },
+    { id: "categories" },
+    { id: "locations" },
+    { id: "products" },
+    { id: "sellers" },
+    { id: "business" },
+    { id: "blog" },
+    { id: "images" },
   ];
+}
 
-  const categoryRoutes: MetadataRoute.Sitemap = getCategoryTree().map((category) => ({
-    url: `${baseUrl}/category/${category.slug}`,
-    changeFrequency: "weekly",
-    priority: 0.85,
-  }));
+export default async function sitemap(props: { id: Promise<string> }): Promise<MetadataRoute.Sitemap> {
+  const id = await props.id;
 
-  try {
-    const admin = createAdminClient();
-    const { data: products } = await admin
-      .from("products")
-      .select("slug, updated_at")
-      .eq("status", "published")
-      .order("updated_at", { ascending: false })
-      .limit(500);
-
-    const productRoutes: MetadataRoute.Sitemap = (products ?? []).map((product) => ({
-      url: `${baseUrl}/listing/${product.slug}`,
-      lastModified: product.updated_at,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    }));
-
-    return [...staticRoutes, ...categoryRoutes, ...productRoutes];
-  } catch {
-    return [...staticRoutes, ...categoryRoutes];
+  switch (id) {
+    case "static":
+      return buildStaticSitemapEntries();
+    case "categories":
+      return buildCategorySitemapEntries();
+    case "locations":
+      return buildLocationSitemapEntries();
+    case "products":
+      return buildProductSitemapEntries();
+    case "sellers":
+      return buildSellerSitemapEntries();
+    case "business":
+      return buildBusinessSitemapEntries();
+    case "blog":
+      return buildBlogSitemapEntries();
+    case "images":
+      return buildImageSitemapEntries();
+    default:
+      return [{ url: getAppUrl(), changeFrequency: "daily", priority: 1 }];
   }
 }

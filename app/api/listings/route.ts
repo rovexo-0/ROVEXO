@@ -26,6 +26,7 @@ const listingSchema = z.object({
   condition: z.string().min(1),
   price: z.number().positive(),
   acceptOffers: z.boolean(),
+  deliveryCarriers: z.array(z.string()).optional(),
   status: z.enum(["draft", "published"]).optional(),
   categoryPath: z
     .object({
@@ -107,6 +108,7 @@ export async function POST(request: Request) {
       price: body.price,
       acceptOffers: body.acceptOffers,
       categoryId,
+      deliveryCarriers: body.deliveryCarriers,
       status: body.status ?? "published",
       inventory: body.inventory
         ? {

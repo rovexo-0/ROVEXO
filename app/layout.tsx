@@ -4,7 +4,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { SearchProvider } from "@/features/search/client";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { PwaProvider } from "@/components/pwa/PwaProvider";
+import { organizationJsonLd } from "@/lib/seo/metadata";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,15 +34,30 @@ export const metadata: Metadata = {
     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
     description:
       "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
+    images: [{ url: "/icons/icon-512.png", width: 512, height: 512, alt: "ROVEXO" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
     description:
       "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
+    images: ["/icons/icon-512.png"],
   },
   alternates: {
     canonical: "/",
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "ROVEXO",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
   },
 };
 
@@ -54,12 +72,22 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
     >
-      <body className="min-h-full flex flex-col bg-background text-text-primary">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-background text-text-primary"
+      >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+        />
         <ThemeProvider>
-          <SearchProvider>
-            {children}
-          </SearchProvider>
+          <PwaProvider>
+            <SearchProvider>
+              {children}
+            </SearchProvider>
+          </PwaProvider>
         </ThemeProvider>
+        <GoogleAnalytics />
       </body>
     </html>
   );

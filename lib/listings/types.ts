@@ -70,6 +70,7 @@ export type CreateListingInput = {
   price: number;
   acceptOffers: boolean;
   categoryId?: string | null;
+  deliveryCarriers?: string[];
   status?: ProductStatus;
   inventory?: {
     sku?: string | null;

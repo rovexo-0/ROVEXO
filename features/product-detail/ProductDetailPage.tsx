@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { normalizeCondition } from "@/lib/products/utils";
 import type { Product, ProductDetail } from "@/lib/products/types";
 import { transitionSlow } from "@/components/ui/tokens";
+import { RecordRecentlyViewed } from "@/features/launch/components/RecordRecentlyViewed";
 import { ProductActionBar } from "@/features/product-detail/ProductActionBar";
 import { ProductBuyerProtection } from "@/features/product-detail/ProductBuyerProtection";
 import { ProductDelivery } from "@/features/product-detail/ProductDelivery";
@@ -21,6 +22,8 @@ import { ProductSellerCard } from "@/features/product-detail/ProductSellerCard";
 import { ProductReportDialog } from "@/features/product-detail/ProductReportDialog";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import type { CategoryBreadcrumb } from "@/lib/categories/navigation";
+import { trackGaEvent } from "@/lib/analytics/ga4-events";
+import { getActiveMarket } from "@/lib/seo/markets";
 
 type ProductDetailPageProps = {
   product: ProductDetail;
@@ -51,6 +54,16 @@ export function ProductDetailPage({
   const isPurchasable = product.availability !== "out_of_stock" && product.stock > 0;
 
   useEffect(() => {
+    const { currency } = getActiveMarket();
+    trackGaEvent("view_item", {
+      item_id: product.id,
+      item_name: product.title,
+      price: product.price,
+      currency,
+    });
+  }, [product.id, product.price, product.title]);
+
+  useEffect(() => {
     const onScroll = () => setIsCollapsed(window.scrollY > COLLAPSE_OFFSET);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -65,6 +78,12 @@ export function ProductDetailPage({
 
     if (nextSaved) {
       triggerHapticFeedback();
+      const { currency } = getActiveMarket();
+      trackGaEvent("add_to_favorites", {
+        item_id: product.id,
+        item_name: product.title,
+        currency,
+      });
       void fetch("/api/saved", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -77,7 +96,7 @@ export function ProductDetailPage({
         body: JSON.stringify({ productSlugs: [product.slug] }),
       }).catch(() => setIsSaved(!nextSaved));
     }
-  }, [isSaved, product.slug]);
+  }, [isSaved, product.id, product.slug, product.title]);
 
   const handleShare = useCallback(async () => {
     if (typeof navigator === "undefined" || !navigator.share) return;
@@ -92,6 +111,7 @@ export function ProductDetailPage({
 
   return (
     <div className="min-h-screen bg-background text-text-primary">
+      <RecordRecentlyViewed productSlug={product.slug} />
       <ProductDetailScrollHeader
         visible={isCollapsed}
         title={product.title}

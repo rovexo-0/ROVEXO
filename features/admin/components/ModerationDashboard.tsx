@@ -4,7 +4,8 @@ import { useCallback, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import type { ModerationDecision, ModerationQueueItem } from "@/lib/moderation/types";
+import type { ModerationDecision, ModerationQueueItem, ModerationRiskLevel } from "@/lib/moderation/types";
+import { riskLevelLabel } from "@/lib/moderation/risk";
 
 type AuditLog = {
   id: string;
@@ -18,6 +19,13 @@ type AuditLog = {
 type ModerationDashboardProps = {
   initialQueue: ModerationQueueItem[];
   initialAuditLogs: AuditLog[];
+};
+
+const RISK_VARIANTS: Record<ModerationRiskLevel, "default" | "success" | "warning" | "danger"> = {
+  low: "success",
+  medium: "warning",
+  high: "warning",
+  critical: "danger",
 };
 
 const STATUS_VARIANTS: Record<
@@ -120,8 +128,10 @@ export function ModerationDashboard({
           </p>
         </Card>
         <Card padding="lg" className="shadow-ds-soft">
-          <p className="text-sm text-text-secondary">Audit events</p>
-          <p className="mt-ds-1 text-2xl font-bold">{auditLogs.length}</p>
+          <p className="text-sm text-text-secondary">High / Critical</p>
+          <p className="mt-ds-1 text-2xl font-bold">
+            {queue.filter((item) => item.riskLevel === "high" || item.riskLevel === "critical").length}
+          </p>
         </Card>
       </div>
 
@@ -158,10 +168,13 @@ export function ModerationDashboard({
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{item.summary || item.targetType}</p>
                   <p className="mt-ds-1 text-xs text-text-secondary">
-                    {item.targetType} · {Math.round(item.confidence * 100)}% confidence
+                    {item.targetType} · {Math.round(item.confidence * 100)}% · Risk {item.riskScore}
                   </p>
                 </div>
-                <Badge variant={STATUS_VARIANTS[item.status]}>{item.status}</Badge>
+                <div className="flex flex-col items-end gap-ds-1">
+                  <Badge variant={RISK_VARIANTS[item.riskLevel]}>{riskLevelLabel(item.riskLevel)}</Badge>
+                  <Badge variant={STATUS_VARIANTS[item.status]}>{item.status}</Badge>
+                </div>
               </button>
             ))}
             {!filtered.length ? (
@@ -177,7 +190,8 @@ export function ModerationDashboard({
                 <Badge variant={STATUS_VARIANTS[selected.status]}>{selected.status}</Badge>
                 <h3 className="mt-ds-2 text-lg font-semibold">{selected.summary}</h3>
                 <p className="mt-ds-1 text-sm text-text-secondary">
-                  Source: {selected.source} · Decision: {selected.decision}
+                  Source: {selected.source} · Decision: {selected.decision} · Risk:{" "}
+                  {riskLevelLabel(selected.riskLevel)} ({selected.riskScore})
                 </p>
               </div>
 

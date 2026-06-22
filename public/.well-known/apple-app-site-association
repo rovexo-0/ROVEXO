@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAMID.com.rovexo.app",
+        "paths": ["/listing/*", "/category/*", "/messages/*", "/orders/*", "/resolution/*"]
+      }
+    ]
+  }
+}

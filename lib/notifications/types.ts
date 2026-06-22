@@ -21,6 +21,7 @@ export type NotificationType =
   | "promotion_expired"
   | "saved_item_sold"
   | "price_reduced"
+  | "saved_search_match"
   | "system";
 
 export type NotificationIcon =

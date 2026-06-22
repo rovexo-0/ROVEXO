@@ -27,6 +27,9 @@ export type CategoryPageData = {
   subcategories: CategoryNode[];
   categoryIds: string[];
   imageUrl: string;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  isActive: boolean;
 };
 
 type CategoryRow = {
@@ -36,6 +39,9 @@ type CategoryRow = {
   parent_id: string | null;
   path_label: string;
   sort_order: number;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  is_active?: boolean;
 };
 
 function mapRow(row: CategoryRow): DbCategory {
@@ -104,6 +110,25 @@ export async function resolveCategoryPage(slugs: string[]): Promise<CategoryPage
   const dbId = await resolveCategoryIdBySlugPath(slugs);
   const categoryIds = dbId ? await getDescendantCategoryIds(dbId) : [];
 
+  let seoTitle: string | null = null;
+  let seoDescription: string | null = null;
+  let isActive = true;
+
+  if (dbId) {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("categories")
+      .select("seo_title, seo_description, is_active")
+      .eq("id", dbId)
+      .maybeSingle();
+
+    if (data) {
+      seoTitle = data.seo_title;
+      seoDescription = data.seo_description;
+      isActive = data.is_active ?? true;
+    }
+  }
+
   return {
     node,
     path,
@@ -112,6 +137,9 @@ export async function resolveCategoryPage(slugs: string[]): Promise<CategoryPage
     subcategories: node.children ?? [],
     categoryIds,
     imageUrl: getCategoryImageUrl(node.slug),
+    seoTitle,
+    seoDescription,
+    isActive,
   };
 }
 

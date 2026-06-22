@@ -13,6 +13,7 @@ type CreateNotificationInput = {
     | "promotion_expired"
     | "saved_item_sold"
     | "price_reduced"
+    | "saved_search_match"
     | "system";
   title: string;
   subtitle: string;

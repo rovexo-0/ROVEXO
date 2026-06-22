@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import {
   useCallback,
   useEffect,
@@ -41,6 +40,7 @@ export type SearchBarProps = {
   overlay?: boolean;
   hideSubmitButton?: boolean;
   showAiCamera?: boolean;
+  variant?: "default" | "header";
   debounceMs?: number;
   recentSearches?: string[];
   trendingSearches?: string[];
@@ -128,12 +128,15 @@ export function SearchBar({
   overlay = false,
   hideSubmitButton = false,
   showAiCamera = false,
+  variant = "default",
 }: SearchBarProps) {
   const generatedId = useId();
   const resolvedInputId = inputId ?? generatedId;
   const listboxId = `${resolvedInputId}-listbox`;
   const searchOverlay = useSearchOverlayOptional();
   const useOverlay = overlay && Boolean(searchOverlay);
+  const isHeaderVariant = variant === "header";
+  const resolvedPlaceholder = placeholder ?? (isHeaderVariant ? "Search products..." : "Items or Members.....");
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -248,32 +251,31 @@ export function SearchBar({
         <input type="hidden" name="type" value={scope} />
 
         <label htmlFor={resolvedInputId} className="sr-only">
-          Search products, users, or stores
+          {isHeaderVariant ? "Search products" : "Search products, users, or stores"}
         </label>
 
         <div
-  className={cn(
-    "relative flex w-full items-center rounded-full border border-white/10 bg-black/90 pl-3 pr-2 backdrop-blur-xl",
-    shadowSoft,
-    transitionFast,
-    isOpen && "border-primary/40 shadow-ds-medium ring-2 ring-ring/20",
-    !isOpen &&
-      "focus-within:border-primary/40 focus-within:shadow-ds-medium focus-within:ring-2 focus-within:ring-ring/20",
-  )}
->
-          <div className="absolute left-3 top-1/2 flex -translate-y-1/2 items-center gap-2 pointer-events-none">
-  <Image
-    src="/logo-3d.png"
-    alt="ROVEXO"
-    width={32}
-    height={32}
-    className="h-8 w-8 object-contain"
-  />
-
-  <span className="text-[16px] font-bold text-white whitespace-nowrap">
-    Rovexo
-  </span>
-</div>
+          className={cn(
+            "relative flex w-full items-center rounded-ds-full border pl-3 pr-2",
+            shadowSoft,
+            transitionFast,
+            isHeaderVariant
+              ? "min-h-11 border-border/80 bg-surface shadow-ds-soft transition-[border-color,box-shadow,background-color] duration-ds-normal ease-ds"
+              : "border-white/10 bg-black/90 backdrop-blur-xl",
+            isOpen && "border-primary/40 shadow-ds-medium ring-2 ring-ring/20",
+            !isOpen &&
+              "focus-within:border-primary/40 focus-within:shadow-ds-medium focus-within:ring-2 focus-within:ring-ring/20",
+          )}
+          data-voice-search-ready={isHeaderVariant ? "true" : undefined}
+        >
+          <span
+            className={cn(
+              "pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center",
+              isHeaderVariant ? "text-text-muted" : "text-white/70",
+            )}
+          >
+            <SearchIcon className="h-5 w-5" />
+          </span>
 
           <input
             ref={inputRef}
@@ -281,7 +283,7 @@ export function SearchBar({
             type="search"
             name={name}
             value={query}
-            placeholder={placeholder}
+            placeholder={resolvedPlaceholder}
             autoComplete="off"
             role="combobox"
             aria-expanded={isOpen}
@@ -302,19 +304,13 @@ export function SearchBar({
             onKeyDown={handleKeyDown}
             readOnly={useOverlay}
             className={cn(
-              "h-[3.25rem] min-w-0 flex-1 border-0 bg-transparent py-0  pl-[120px] pr-ds-2 text-sm text-text-primary outline-none placeholder:text-text-muted sm:text-base lg:h-[3.75rem]",
+              "min-w-0 flex-1 border-0 bg-transparent py-0 pl-10 pr-ds-2 text-sm text-text-primary outline-none placeholder:text-text-muted sm:text-base",
+              isHeaderVariant ? "h-11" : "h-[3.25rem] lg:h-[3.75rem]",
               useOverlay && "cursor-pointer",
             )}
           />
 
-<div className="mr-2 flex shrink-0 items-center gap-2">
-<button
-  type="submit"
-  aria-label="Search"
-  className="flex h-9 w-9 items-center justify-center rounded-full text-text-muted hover:bg-white/10 hover:text-white transition-colors"
->
-  <SearchIcon className="h-5 w-5" />
-</button>
+          <div className="mr-1 flex shrink-0 items-center gap-1.5">
             {isDebouncing && (
               <span
                 className="flex min-h-ds-7 min-w-ds-7 items-center justify-center text-text-muted"
@@ -367,6 +363,20 @@ export function SearchBar({
                 )}
               >
                 {buttonLabel}
+              </button>
+            )}
+
+            {isHeaderVariant && hideSubmitButton && (
+              <button
+                type="submit"
+                aria-label="Search"
+                className={cn(
+                  "flex h-9 w-9 items-center justify-center rounded-ds-full text-text-muted hover:bg-secondary hover:text-text-primary",
+                  focusRing,
+                  transitionFast,
+                )}
+              >
+                <SearchIcon className="h-5 w-5" />
               </button>
             )}
           </div>

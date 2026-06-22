@@ -6,6 +6,7 @@ import { notifyOrderDelivered, notifyOrderShipped, notifyOrderRefunded } from "@
 import { releaseProductInventory } from "@/lib/inventory/service";
 import type { DeliveryCarrier } from "@/lib/products/types";
 import { refundSellerForOrder } from "@/lib/wallet/sales";
+import { createProtectionCase } from "@/lib/protection/service";
 import type {
   AddTrackingInput,
   CreateOrderInput,
@@ -262,6 +263,15 @@ export async function applyOrderAction(
     }
 
     await supabase.from("orders").update({ status: "issue_open" }).eq("id", id);
+
+    await createProtectionCase({
+      orderId: id,
+      buyerId: existing.buyer.id,
+      caseType: "dispute",
+      reason: "buyer_reported_issue",
+      description: `Buyer reported an issue on order ${existing.orderNumber}.`,
+    });
+
     return getOrderById(id);
   }
 

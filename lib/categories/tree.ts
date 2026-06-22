@@ -1,1 +1,1 @@
-export { categoryTree, homeCategories } from "@/lib/categories/marketplace-tree";
+export { categoryTree, homeCategories, taxonomyStats } from "@/lib/categories/marketplace-tree";

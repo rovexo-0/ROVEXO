@@ -33,6 +33,7 @@ export function getNotificationFilterCategory(type: NotificationType): Notificat
       return "promotions";
     case "saved_item_sold":
     case "price_reduced":
+    case "saved_search_match":
     case "system":
       return "system";
   }
@@ -99,6 +100,7 @@ export function mapNotificationIcon(type: NotificationType): Notification["icon"
       return "promotion";
     case "saved_item_sold":
     case "price_reduced":
+    case "saved_search_match":
       return "product";
     case "system":
       return "system";

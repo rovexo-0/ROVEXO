@@ -17,19 +17,21 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">ROVEXO Admin</p>
             <h1 className="text-lg font-semibold">Operations</h1>
           </div>
-          <nav className="flex gap-ds-3 text-sm font-medium">
-            <Link href="/admin" className="text-primary">
-              Dashboard
-            </Link>
-            <Link href="/admin/orders" className="text-text-secondary hover:text-text-primary">
-              Orders
-            </Link>
-            <Link href="/admin/promotions" className="text-text-secondary hover:text-text-primary">
-              Promotions
-            </Link>
-            <Link href="/admin/moderation" className="text-text-secondary hover:text-text-primary">
-              Moderation
-            </Link>
+          <nav className="flex flex-wrap gap-x-ds-3 gap-y-ds-1 text-sm font-medium">
+            <Link href="/admin" className="text-primary">Dashboard</Link>
+            <Link href="/admin/operations" className="text-text-secondary hover:text-text-primary">Operations</Link>
+            <Link href="/admin/analytics" className="text-text-secondary hover:text-text-primary">Analytics</Link>
+            <Link href="/admin/help" className="text-text-secondary hover:text-text-primary">Help</Link>
+            <Link href="/admin/trust" className="text-text-secondary hover:text-text-primary">Trust</Link>
+            <Link href="/admin/business" className="text-text-secondary hover:text-text-primary">Business</Link>
+            <Link href="/admin/wholesale" className="text-text-secondary hover:text-text-primary">Wholesale</Link>
+            <Link href="/admin/monetization" className="text-text-secondary hover:text-text-primary">Monetization</Link>
+            <Link href="/admin/orders" className="text-text-secondary hover:text-text-primary">Orders</Link>
+            <Link href="/admin/promotions" className="text-text-secondary hover:text-text-primary">Promotions</Link>
+            <Link href="/admin/moderation" className="text-text-secondary hover:text-text-primary">Moderation</Link>
+            <Link href="/admin/categories" className="text-text-secondary hover:text-text-primary">Categories</Link>
+            <Link href="/admin/seo" className="text-text-secondary hover:text-text-primary">SEO</Link>
+            <Link href="/admin/protection" className="text-text-secondary hover:text-text-primary">Protection</Link>
           </nav>
         </div>
       </header>

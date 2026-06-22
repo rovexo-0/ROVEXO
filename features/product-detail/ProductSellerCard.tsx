@@ -1,3 +1,4 @@
+import { FollowSellerButton } from "@/features/launch/components/FollowSellerButton";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { Rating } from "@/components/ui/Rating";
@@ -18,6 +19,7 @@ type ProductSellerCardProps = {
 };
 
 export function ProductSellerCard({
+  sellerId,
   sellerName,
   sellerUsername,
   sellerAvatar,
@@ -51,12 +53,15 @@ export function ProductSellerCard({
           </p>
         </div>
       </Link>
-      <Link
-        href={profileHref}
-        className="mt-ds-4 inline-flex min-h-ds-7 w-full items-center justify-center rounded-ds-full border border-border text-sm font-semibold text-text-primary hover:border-primary/30 hover:text-primary"
-      >
-        View shop
-      </Link>
+      <div className="mt-ds-4 flex flex-col gap-ds-2">
+        <FollowSellerButton sellerId={sellerId} />
+        <Link
+          href={profileHref}
+          className="inline-flex min-h-ds-7 w-full items-center justify-center rounded-ds-full border border-border text-sm font-semibold text-text-primary hover:border-primary/30 hover:text-primary"
+        >
+          View shop
+        </Link>
+      </div>
     </Card>
   );
 }

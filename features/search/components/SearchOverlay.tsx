@@ -16,6 +16,7 @@ import { EmptyState } from "@/features/search/components/EmptyState";
 import { LoadingSkeleton } from "@/features/search/components/LoadingSkeleton";
 import { ProductResults } from "@/features/search/components/ProductResults";
 import { RecentSearches } from "@/features/search/components/RecentSearches";
+import { SavedSearchesPanel } from "@/features/search/components/SavedSearchesPanel";
 import { SearchSection } from "@/features/search/components/SearchSection";
 import { SellerActions } from "@/features/search/components/SellerActions";
 import { SellerResults } from "@/features/search/components/SellerResults";
@@ -271,6 +272,10 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
                 </SearchSection>
               )}
 
+              <SearchSection title="⭐ Saved Searches">
+                <SavedSearchesPanel currentQuery="" onSelect={applySearch} />
+              </SearchSection>
+
               {results.trending.length > 0 && (
                 <SearchSection title="🔥 Trending Searches">
                   <TrendingSearches
@@ -299,6 +304,10 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
 
           {hasQuery && !isDebouncing && !isLoading && results && (
             <>
+              <SearchSection title="⭐ Saved Searches">
+                <SavedSearchesPanel currentQuery={query} onSelect={applySearch} />
+              </SearchSection>
+
               {results.products.length > 0 && (
                 <SearchSection title="📦 Products">
                   <ProductResults

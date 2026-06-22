@@ -30,6 +30,7 @@ function mapProfileRow(
     memberSince: formatMemberSince(profile.created_at),
     accountType: accountType === "admin" ? "business" : accountType,
     isSeller,
+    isAdmin: profile.role === "admin",
     sellerStats: sellerProfile
       ? {
           listings: sellerProfile.listing_count,

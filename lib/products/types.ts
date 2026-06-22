@@ -1,6 +1,13 @@
 export type ProductSection = "trending" | "new" | "recommended";
 
-export type DeliveryCarrier = "Royal Mail" | "Evri" | "DPD" | "InPost";
+export type DeliveryCarrier =
+  | "Royal Mail"
+  | "Evri"
+  | "DPD"
+  | "UPS"
+  | "FedEx"
+  | "Parcelforce"
+  | "InPost";
 
 export type Product = {
   id: string;

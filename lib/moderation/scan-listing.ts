@@ -4,8 +4,19 @@ import {
   analyzeListingContent,
   isDuplicateListingText,
 } from "@/lib/moderation/analyzer";
+import { computeRiskLevel, computeRiskScore } from "@/lib/moderation/risk";
 import { applyListingModeration } from "@/lib/moderation/service";
 import type { ModerationResult } from "@/lib/moderation/types";
+
+function finalizeResult(hits: ModerationResult["hits"], base: ModerationResult): ModerationResult {
+  const decision = base.decision;
+  return {
+    ...base,
+    hits,
+    riskScore: computeRiskScore(hits),
+    riskLevel: computeRiskLevel(hits, decision),
+  };
+}
 
 export async function scanListingBeforePublish(input: {
   sellerId: string;
@@ -28,13 +39,7 @@ export async function scanListingBeforePublish(input: {
   );
 
   const mergedHits = [...textResult.hits, ...imageResults.flatMap((result) => result.hits)];
-  let result = analyzeListingContent({
-    title: input.title,
-    description: input.description,
-    brand: input.brand,
-    imageNames: input.imageNames,
-  });
-  result = { ...result, hits: mergedHits };
+  let result = finalizeResult(mergedHits, textResult);
 
   const { data: existingListings } = await admin
     .from("products")
@@ -53,10 +58,16 @@ export async function scanListingBeforePublish(input: {
   );
 
   if (duplicate) {
-    result =
-      result.decision === "blocked" || duplicate.decision === "blocked"
-        ? { ...duplicate, decision: "blocked", confidence: Math.max(result.confidence, duplicate.confidence) }
-        : duplicate;
+    const mergedDuplicateHits = [...result.hits, ...duplicate.hits];
+    const decision =
+      result.decision === "blocked" || duplicate.decision === "blocked" ? "blocked" : duplicate.decision;
+    result = finalizeResult(mergedDuplicateHits, {
+      ...duplicate,
+      decision,
+      confidence: Math.max(result.confidence, duplicate.confidence),
+      categories: [...new Set([...result.categories, ...duplicate.categories])],
+      summary: duplicate.summary,
+    });
   }
 
   return applyListingModeration({

@@ -6,6 +6,8 @@ import { CategoryChip } from "@/components/ui/CategoryChip";
 import { getCategoryIcon } from "@/lib/categories/visuals";
 import type { CategoryPageData } from "@/lib/categories/server";
 import type { Product } from "@/lib/products/types";
+import { InternalLinksSection } from "@/features/seo/components/InternalLinksSection";
+import { popularBrowseLinks, relatedCategoryLinks } from "@/lib/seo/internal-links";
 import Image from "next/image";
 
 type CategoryPageViewProps = {
@@ -17,6 +19,11 @@ type CategoryPageViewProps = {
 export function CategoryPageView({ category, products, total }: CategoryPageViewProps) {
   const { node, breadcrumbs, subcategories, imageUrl } = category;
   const hrefPrefix = breadcrumbs[breadcrumbs.length - 1]?.href ?? `/category/${node.slug}`;
+  const slugPath = breadcrumbs.map((crumb) => crumb.slug);
+  const internalLinkGroups = [
+    relatedCategoryLinks(slugPath),
+    popularBrowseLinks(),
+  ];
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-ds-6 px-ds-4 py-ds-5 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))] pt-[calc(7.5rem+env(safe-area-inset-top))]">
@@ -26,7 +33,7 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
         <div className="relative aspect-[21/9] min-h-[140px] w-full md:min-h-[200px]">
           <Image
             src={imageUrl}
-            alt=""
+            alt={`${node.name} category on ROVEXO`}
             fill
             priority
             sizes="100vw"
@@ -85,6 +92,8 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
           </div>
         )}
       </section>
+
+      <InternalLinksSection groups={internalLinkGroups} />
     </main>
   );
 }

@@ -5,6 +5,7 @@ type SellPublishFooterProps = {
   loading: boolean;
   onPublish: () => void;
   editListingId?: string;
+  quickMode?: boolean;
 };
 
 export function SellPublishFooter({
@@ -12,8 +13,9 @@ export function SellPublishFooter({
   loading,
   onPublish,
   editListingId,
+  quickMode = false,
 }: SellPublishFooterProps) {
-  const actionLabel = editListingId ? "Save Changes" : "Publish Listing";
+  const actionLabel = editListingId ? "Save Changes" : quickMode ? "Publish" : "Publish Listing";
   const loadingLabel = editListingId ? "Saving…" : "Publishing…";
 
   return (

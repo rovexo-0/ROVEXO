@@ -1,4 +1,5 @@
 import type { HelpArticle, HelpCategory } from "@/lib/help/types";
+import { enrichHelpArticle } from "@/lib/help/content/article-meta";
 
 export const HELP_CATEGORIES: Array<{ id: HelpCategory; label: string; description: string }> = [
   { id: "account", label: "Account", description: "Sign in, security, and profile settings" },
@@ -446,13 +447,14 @@ Provide accurate details including address and tax identifiers where required. T
 ];
 
 export function getHelpArticle(slug: string): HelpArticle | undefined {
-  return HELP_ARTICLES.find((article) => article.slug === slug);
+  const article = HELP_ARTICLES.find((entry) => entry.slug === slug);
+  return article ? enrichHelpArticle(article) : undefined;
 }
 
 export function getHelpArticlesByCategory(category: HelpCategory): HelpArticle[] {
-  return HELP_ARTICLES.filter((article) => article.category === category);
+  return HELP_ARTICLES.filter((article) => article.category === category).map(enrichHelpArticle);
 }
 
 export function getAllHelpArticles(): HelpArticle[] {
-  return HELP_ARTICLES;
+  return HELP_ARTICLES.map(enrichHelpArticle);
 }

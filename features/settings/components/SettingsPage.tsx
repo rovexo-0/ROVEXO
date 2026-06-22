@@ -14,6 +14,7 @@ import { SettingsProfileCard } from "@/features/settings/components/SettingsProf
 import { ProfileMenuRow } from "@/features/profile/components/ProfileMenuRow";
 import {
   ListingsIcon,
+  NotificationsMenuIcon,
   OrdersMenuIcon,
   SignOutIcon,
   WalletMenuIcon,
@@ -129,6 +130,13 @@ export function SettingsPage({ profile }: SettingsPageProps) {
         </SettingSection>
 
         <SettingSection title="Notifications">
+          <ProfileMenuRow
+            title="Notification Settings"
+            subtitle="Push, email, and saved search alerts"
+            href="/notifications/settings"
+            icon={<NotificationsMenuIcon className="h-5 w-5" />}
+          />
+          <SettingsDivider />
           <SettingToggle
             id="settings-push-notifications"
             label="Push Notifications"
@@ -213,9 +221,17 @@ export function SettingsPage({ profile }: SettingsPageProps) {
         )}
 
         <SettingSection title="About">
-          <ProfileMenuRow title="Terms of Service" icon={<TermsIcon className="h-5 w-5" />} />
+          <ProfileMenuRow
+            title="Terms of Service"
+            href="/help/terms-of-service"
+            icon={<TermsIcon className="h-5 w-5" />}
+          />
           <SettingsDivider />
-          <ProfileMenuRow title="Privacy Policy" icon={<PrivacyIcon className="h-5 w-5" />} />
+          <ProfileMenuRow
+            title="Privacy Policy"
+            href="/help/privacy-policy"
+            icon={<PrivacyIcon className="h-5 w-5" />}
+          />
           <SettingsDivider />
           <div className="flex min-h-ds-7 items-center justify-between px-ds-4 py-ds-3">
             <span className="text-sm font-medium text-text-primary">App Version</span>

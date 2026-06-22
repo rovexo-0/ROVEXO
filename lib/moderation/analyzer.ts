@@ -1,4 +1,5 @@
 import type { ModerationCategory, ModerationDecision, ModerationHit, ModerationResult } from "@/lib/moderation/types";
+import { computeRiskLevel, computeRiskScore } from "@/lib/moderation/risk";
 
 type RuleGroup = {
   category: ModerationCategory;
@@ -20,7 +21,33 @@ const RULE_GROUPS: RuleGroup[] = [
     category: "firearm_accessories",
     decision: "blocked",
     weight: 0.95,
-    patterns: [/\b(silencer|suppressor|gun magazine|magazine clip|holster rifle|trigger group|ar15 part)\b/i],
+    patterns: [
+      /\b(silencer|suppressor|gun magazine|magazine clip|holster rifle|trigger group|ar15 part|gun scope mount)\b/i,
+    ],
+  },
+  {
+    category: "gun_parts",
+    decision: "blocked",
+    weight: 0.98,
+    patterns: [/\b(gun part|barrel assembly|bolt carrier|lower receiver|upper receiver|firing pin)\b/i],
+  },
+  {
+    category: "scopes",
+    decision: "blocked",
+    weight: 0.9,
+    patterns: [/\b(rifle scope|sniper scope|night vision scope|thermal scope|red dot sight)\b/i],
+  },
+  {
+    category: "magazines",
+    decision: "blocked",
+    weight: 0.95,
+    patterns: [/\b(gun magazine|extended mag|drum magazine|30 round mag|magazine loader)\b/i],
+  },
+  {
+    category: "suppressors",
+    decision: "blocked",
+    weight: 1,
+    patterns: [/\b(sound suppressor|gun suppressor|silencer attachment|moderator rifle)\b/i],
   },
   {
     category: "ammunition",
@@ -50,13 +77,31 @@ const RULE_GROUPS: RuleGroup[] = [
     category: "bb_guns",
     decision: "warning",
     weight: 0.65,
-    patterns: [/\b(bb gun|bb pistol|spring powered gun)\b/i],
+    patterns: [/\b(bb gun|bb pistol|spring powered gun|pellet gun|co2 rifle)\b/i],
+  },
+  {
+    category: "pellet_guns",
+    decision: "warning",
+    weight: 0.65,
+    patterns: [/\b(pellet gun|air rifle|pcp rifle|break barrel rifle)\b/i],
+  },
+  {
+    category: "crossbows",
+    decision: "blocked",
+    weight: 0.9,
+    patterns: [/\b(crossbow|compound crossbow|crossbow bolts)\b/i],
   },
   {
     category: "explosives",
     decision: "blocked",
     weight: 1,
     patterns: [/\b(explosive|detonator|tnt|dynamite|firework powder|pyrotechnic|bomb\b|grenade)\b/i],
+  },
+  {
+    category: "fireworks",
+    decision: "blocked",
+    weight: 0.95,
+    patterns: [/\b(fireworks|roman candle|bottle rocket|m80 firework|professional pyrotechnics)\b/i],
   },
   {
     category: "drugs",
@@ -215,6 +260,26 @@ const RULE_GROUPS: RuleGroup[] = [
     weight: 0.95,
     patterns: [/\b(kill you|violent attack|assault video)\b/i],
   },
+  {
+    category: "hate_speech",
+    decision: "blocked",
+    weight: 0.98,
+    patterns: [
+      /\b(racial slur|nazi|white power|ethnic cleansing|genocide praise|kill all (?:jews|muslims|blacks|whites))\b/i,
+    ],
+  },
+  {
+    category: "fraud_attempt",
+    decision: "blocked",
+    weight: 0.92,
+    patterns: [/\b(identity theft|card skimmer|phishing link|steal password|bank login details)\b/i],
+  },
+  {
+    category: "fake_image",
+    decision: "warning",
+    weight: 0.75,
+    patterns: [/\b(stock photo only|not actual item|rendered image|ai generated photo|placeholder image)\b/i],
+  },
 ];
 
 const IMAGE_FILENAME_PATTERNS: Array<{ category: ModerationCategory; pattern: RegExp; weight: number }> = [
@@ -222,6 +287,8 @@ const IMAGE_FILENAME_PATTERNS: Array<{ category: ModerationCategory; pattern: Re
   { category: "knives", pattern: /(knife|blade|machete)/i, weight: 0.7 },
   { category: "drugs", pattern: /(pill|powder|narcotic)/i, weight: 0.85 },
   { category: "adult", pattern: /(adult|xxx|nsfw)/i, weight: 0.95 },
+  { category: "fake_image", pattern: /(stock-photo|placeholder|render|mockup)/i, weight: 0.8 },
+  { category: "scopes", pattern: /(scope|sight|optic)/i, weight: 0.75 },
 ];
 
 function normalizeText(input: string): string {
@@ -314,6 +381,8 @@ function buildResult(hits: ModerationHit[]): ModerationResult {
       categories: [],
       hits: [],
       summary: "No policy violations detected.",
+      riskLevel: "low",
+      riskScore: 0,
     };
   }
 
@@ -323,8 +392,14 @@ function buildResult(hits: ModerationHit[]): ModerationResult {
     [
       "firearms",
       "firearm_accessories",
+      "gun_parts",
+      "scopes",
+      "magazines",
+      "suppressors",
       "ammunition",
       "explosives",
+      "fireworks",
+      "crossbows",
       "drugs",
       "prescription_medicines",
       "counterfeit",
@@ -338,11 +413,15 @@ function buildResult(hits: ModerationHit[]): ModerationResult {
       "fake_giveaway",
       "animal_abuse",
       "violence",
+      "hate_speech",
+      "fraud_attempt",
     ].includes(hit.category),
   );
 
   const decision: ModerationDecision = blocked ? "blocked" : "warning";
   const confidence = Math.min(0.99, Math.max(0.55, topWeight));
+  const riskScore = computeRiskScore(hits);
+  const riskLevel = computeRiskLevel(hits, decision);
 
   return {
     decision,
@@ -350,6 +429,8 @@ function buildResult(hits: ModerationHit[]): ModerationResult {
     categories,
     hits,
     summary: `${decision === "blocked" ? "Blocked" : "Warning"}: ${categories.join(", ")}`,
+    riskLevel,
+    riskScore,
   };
 }
 
@@ -370,6 +451,8 @@ export function isDuplicateListingText(
         categories: ["duplicate"],
         hits: [{ category: "duplicate", term: item.title, weight: 0.88 }],
         summary: "Potential duplicate listing detected.",
+        riskLevel: "medium",
+        riskScore: 88,
       };
     }
   }

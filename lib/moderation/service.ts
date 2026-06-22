@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requiresModerationQueue } from "@/lib/moderation/risk";
 import type {
   ContentReport,
   ModerationDecision,
@@ -30,6 +31,8 @@ function mapQueueRow(row: Record<string, unknown>): ModerationQueueItem {
     confidence: Number(row.confidence),
     categories: (row.categories as ModerationQueueItem["categories"]) ?? [],
     summary: String(row.summary ?? ""),
+    riskLevel: (row.risk_level as ModerationQueueItem["riskLevel"]) ?? "low",
+    riskScore: Number(row.risk_score ?? 0),
     status: row.status as ModerationQueueItem["status"],
     payload: (row.payload as Record<string, unknown>) ?? {},
     createdAt: String(row.created_at),
@@ -48,6 +51,10 @@ export async function enqueueModerationReview(input: QueueInsert): Promise<Moder
         ? "warning"
         : "blocked";
 
+  const needsQueue =
+    input.result.decision !== "approved" &&
+    (requiresModerationQueue(input.result.riskLevel) || input.result.decision === "blocked");
+
   const { data, error } = await admin
     .from("moderation_queue")
     .insert({
@@ -60,9 +67,13 @@ export async function enqueueModerationReview(input: QueueInsert): Promise<Moder
       confidence: input.result.confidence,
       categories: input.result.categories,
       summary: input.result.summary,
-      status: input.result.decision === "approved" ? "approved" : "pending",
+      risk_level: input.result.riskLevel,
+      risk_score: input.result.riskScore,
+      status: needsQueue ? "pending" : input.result.decision === "approved" ? "approved" : status,
       payload: {
         hits: input.result.hits,
+        riskLevel: input.result.riskLevel,
+        riskScore: input.result.riskScore,
         ...(input.payload ?? {}),
       },
     })
@@ -260,6 +271,8 @@ export async function createContentReport(input: {
       categories: [],
       hits: [],
       summary: `User report: ${input.reason}`,
+      riskLevel: "medium",
+      riskScore: 55,
     },
     payload: { reportId: data.id, details: input.details ?? "" },
   });
@@ -335,14 +348,19 @@ export async function applyListingModeration(input: {
     .eq("id", input.productId);
 
   if (input.result.decision !== "approved") {
-    await enqueueModerationReview({
-      targetType: "listing",
-      targetId: input.productId,
-      productId: input.productId,
-      sellerId: input.sellerId,
-      source: input.source,
-      result: input.result,
-    });
+    const shouldQueue =
+      requiresModerationQueue(input.result.riskLevel) || input.result.decision === "blocked";
+
+    if (shouldQueue) {
+      await enqueueModerationReview({
+        targetType: "listing",
+        targetId: input.productId,
+        productId: input.productId,
+        sellerId: input.sellerId,
+        source: input.source,
+        result: input.result,
+      });
+    }
   }
 
   if (input.result.decision === "blocked") {

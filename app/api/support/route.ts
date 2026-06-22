@@ -3,6 +3,7 @@ import { z } from "zod";
 import { enforceRateLimit, enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { requireApiAuth } from "@/lib/auth/session";
 import { createSupportTicket } from "@/lib/support/service";
+import type { SupportHelpContext } from "@/lib/help/types";
 
 const supportCategorySchema = z.enum([
   "account",
@@ -24,6 +25,23 @@ const supportSchema = z.object({
   subject: z.string().min(3).max(200),
   description: z.string().min(10).max(5000),
   attachmentUrls: z.array(z.string().min(1)).max(5).optional(),
+  helpContext: z
+    .object({
+      helpTopicSlug: z.string().optional(),
+      decisionTreePath: z.array(z.any()).optional(),
+      articlesViewed: z.array(z.string()).optional(),
+      solutionsViewed: z.array(z.string()).optional(),
+      treeCompleted: z.boolean().optional(),
+      resolutionAttempted: z.boolean().optional(),
+      currentPage: z.string().optional(),
+      device: z.string().optional(),
+      browser: z.string().optional(),
+      platformVersion: z.string().optional(),
+      country: z.string().optional(),
+      accountType: z.string().optional(),
+      errorCode: z.string().optional(),
+    })
+    .optional(),
 });
 
 export async function POST(request: Request) {
@@ -44,6 +62,7 @@ export async function POST(request: Request) {
       subject: body.subject,
       description: body.description,
       attachmentUrls: body.attachmentUrls,
+      helpContext: body.helpContext as SupportHelpContext | undefined,
     });
 
     if (!ticket) {

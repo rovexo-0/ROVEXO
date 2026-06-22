@@ -8,6 +8,7 @@ const checkoutSchema = z.object({
   productId: z.string().uuid(),
   type: z.enum(["bump", "feature"]),
   durationId: z.string().min(2),
+  scheduledStartAt: z.string().datetime().optional().nullable(),
 });
 
 export async function POST(request: Request) {
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
       productId: body.productId,
       type: body.type,
       durationId: body.durationId,
+      scheduledStartAt: body.scheduledStartAt,
     });
 
     if ("error" in result) {

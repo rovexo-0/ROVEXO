@@ -1,11 +1,8 @@
-import { resolveFlatCategoryPathFromId } from "@/lib/listings/category-path";
 import type { SellerListing } from "@/lib/listings/types";
 import { createEmptyDraft, type SellListingDraft, type SellPhoto } from "@/features/sell/types";
+import { resolveFlatCategoryPathFromId } from "@/lib/listings/category-path";
 
-export async function sellerListingToDraft(
-  listing: SellerListing,
-  manageInventory: boolean,
-): Promise<SellListingDraft> {
+export async function sellerListingToDraft(listing: SellerListing): Promise<SellListingDraft> {
   const categoryPath = await resolveFlatCategoryPathFromId(listing.categoryId);
 
   const photos: SellPhoto[] = listing.images.map((image) => ({
@@ -31,9 +28,7 @@ export async function sellerListingToDraft(
     condition: listing.condition,
     price: String(listing.price),
     acceptOffers: listing.acceptOffers,
-    sku: listing.sku ?? "",
     stock: listing.stock,
-    lowStockAlert: manageInventory ? listing.lowStockAlert : listing.stock,
     analysis: null,
   };
 }

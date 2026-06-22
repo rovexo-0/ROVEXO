@@ -5,6 +5,7 @@ type SellPageHeaderProps = {
   onSaveDraft: () => void;
   draftSavedMessage?: string | null;
   editListingId?: string;
+  quickMode?: boolean;
 };
 
 function BackIcon({ className }: { className?: string }) {
@@ -31,6 +32,7 @@ export function SellPageHeader({
   onSaveDraft,
   draftSavedMessage,
   editListingId,
+  quickMode = false,
 }: SellPageHeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface/95 shadow-ds-soft backdrop-blur-xl backdrop-saturate-150">
@@ -51,7 +53,7 @@ export function SellPageHeader({
         </IconButton>
 
         <h1 className="truncate text-center text-lg font-semibold text-text-primary">
-          {editListingId ? "Edit Listing" : "Sell"}
+          {editListingId ? "Edit Listing" : quickMode ? "Sell item" : "Sell"}
         </h1>
 
         <IconButton

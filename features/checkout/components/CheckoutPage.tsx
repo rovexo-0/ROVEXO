@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Card } from "@/components/ui/Card";
@@ -18,6 +18,8 @@ import { useCheckoutForm } from "@/features/checkout/hooks/use-checkout-form";
 import type { CheckoutDraft } from "@/features/checkout/types";
 import type { Order } from "@/lib/orders/types";
 import type { ProductDetail } from "@/lib/products/types";
+import { trackGaEvent } from "@/lib/analytics/ga4-events";
+import { getActiveMarket } from "@/lib/seo/markets";
 
 type CheckoutPageProps = {
   product: ProductDetail;
@@ -28,8 +30,33 @@ export function CheckoutPage({ product, initialDraft }: CheckoutPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const form = useCheckoutForm(product, initialDraft);
-  const { view, totals, isSubmitting, canPay, placeOrder, errorMessage, setSuccessOrder, setView } = form;
+  const { view, totals, order, isSubmitting, canPay, placeOrder, errorMessage, setSuccessOrder, setView } = form;
   const isSuccess = view === "success";
+  const purchaseTrackedRef = useRef(false);
+
+  useEffect(() => {
+    const { currency } = getActiveMarket();
+    trackGaEvent("begin_checkout", {
+      item_id: product.id,
+      item_name: product.title,
+      value: product.price,
+      currency,
+    });
+  }, [product.id, product.price, product.title]);
+
+  useEffect(() => {
+    if (view !== "success" || !order || purchaseTrackedRef.current) return;
+
+    purchaseTrackedRef.current = true;
+    const { currency } = getActiveMarket();
+    trackGaEvent("purchase", {
+      transaction_id: order.id,
+      value: order.totals.total,
+      currency,
+      item_id: product.id,
+      item_name: product.title,
+    });
+  }, [order, product.id, product.title, view]);
 
   useEffect(() => {
     const orderStatus = searchParams.get("order");

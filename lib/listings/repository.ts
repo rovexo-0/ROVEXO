@@ -200,6 +200,10 @@ async function moveImageToProductFolder(
   sellerId: string,
   productId: string,
 ): Promise<ListingImageInput> {
+  if (!image.storagePath.startsWith(`${sellerId}/`)) {
+    throw new Error("Invalid image storage path.");
+  }
+
   if (!image.storagePath.includes("/temp/")) {
     return image;
   }
@@ -317,6 +321,7 @@ export async function createSellerListing(
       condition: input.condition,
       price: input.price,
       accept_offers: input.acceptOffers,
+      delivery_carriers: input.deliveryCarriers ?? ["Royal Mail", "Evri"],
       status,
       stock,
       sku: input.inventory?.sku,
@@ -373,6 +378,9 @@ export async function updateSellerListing(
     ...(input.inventory?.sku !== undefined && { sku: input.inventory.sku }),
     ...(input.inventory?.lowStockAlert !== undefined && {
       low_stock_alert: input.inventory.lowStockAlert,
+    }),
+    ...(input.deliveryCarriers !== undefined && {
+      delivery_carriers: input.deliveryCarriers,
     }),
   };
 

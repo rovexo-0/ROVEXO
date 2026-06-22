@@ -1,14 +1,23 @@
 export type ModerationDecision = "approved" | "warning" | "blocked";
 
+export type ModerationRiskLevel = "low" | "medium" | "high" | "critical";
+
 export type ModerationCategory =
   | "firearms"
   | "firearm_accessories"
+  | "gun_parts"
+  | "scopes"
+  | "magazines"
+  | "suppressors"
   | "ammunition"
   | "knives"
   | "swords"
+  | "crossbows"
   | "airsoft"
   | "bb_guns"
+  | "pellet_guns"
   | "explosives"
+  | "fireworks"
   | "drugs"
   | "prescription_medicines"
   | "alcohol"
@@ -35,6 +44,9 @@ export type ModerationCategory =
   | "fake_giveaway"
   | "animal_abuse"
   | "violence"
+  | "hate_speech"
+  | "fake_image"
+  | "fraud_attempt"
   | "profanity";
 
 export type ModerationHit = {
@@ -49,6 +61,8 @@ export type ModerationResult = {
   categories: ModerationCategory[];
   hits: ModerationHit[];
   summary: string;
+  riskLevel: ModerationRiskLevel;
+  riskScore: number;
 };
 
 export type ModerationTarget = "listing" | "listing_image" | "message" | "profile" | "conversation";
@@ -64,6 +78,8 @@ export type ModerationQueueItem = {
   confidence: number;
   categories: ModerationCategory[];
   summary: string;
+  riskLevel: ModerationRiskLevel;
+  riskScore: number;
   status: "pending" | "approved" | "warning" | "blocked" | "overridden";
   payload: Record<string, unknown>;
   createdAt: string;
