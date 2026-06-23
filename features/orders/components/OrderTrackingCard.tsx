@@ -12,7 +12,7 @@ export function OrderTrackingCard({ order }: OrderTrackingCardProps) {
   const trackingUrl = getTrackingUrl(order.deliveryCarrier, order.trackingNumber);
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-3 shadow-ds-soft">
+    <Card padding="lg" className="flex flex-col gap-ds-3">
       <h2 className="text-base font-semibold text-text-primary">Tracking</h2>
 
       <dl className="grid gap-ds-2 text-sm">

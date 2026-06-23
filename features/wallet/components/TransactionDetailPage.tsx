@@ -43,7 +43,7 @@ export function TransactionDetailPage({ profile, transaction }: TransactionDetai
       />
 
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
-        <Card padding="md" className="shadow-ds-soft">
+        <Card padding="md" className="">
           <div className="flex items-start gap-ds-3">
             <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-ds-lg bg-surface-muted">
               <Image
@@ -70,7 +70,7 @@ export function TransactionDetailPage({ profile, transaction }: TransactionDetai
           </div>
         </Card>
 
-        <Card padding="md" className="shadow-ds-soft">
+        <Card padding="md" className="">
           <DetailRow label="Date" value={formatWalletDateTime(transaction.createdAt)} />
           <div className="border-t border-border">
             <DetailRow label="Type" value={transaction.type} />

@@ -36,7 +36,7 @@ function SummaryRow({
 
 export function OrderSummary({ totals, title = "Order Summary" }: OrderSummaryProps) {
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-4 shadow-ds-soft">
+    <Card padding="lg" className="flex flex-col gap-ds-4">
       <h2 className="text-base font-semibold text-text-primary">{title}</h2>
 
       <div className="flex flex-col gap-ds-3">

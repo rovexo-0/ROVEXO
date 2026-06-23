@@ -82,13 +82,8 @@ export function HeaderSearchBar({
     openSearchOverlay();
   }
 
-  const controlHeight =
-    size === "large"
-      ? "var(--header-search-height)"
-      : size === "inline"
-        ? "2.25rem"
-        : "var(--header-control-height)";
-  const actionSize = size === "inline" ? "h-7 w-7" : "h-9 w-9";
+  const controlHeight = "var(--ds-search-bar-h)";
+  const actionSize = size === "inline" ? "h-9 w-9" : "h-9 w-9";
   const miniActionSize = size === "inline" ? "h-7 w-7" : "h-8 w-8";
   const searchIconSize = size === "inline" ? "h-4 w-4" : "h-[1.125rem] w-[1.125rem]";
   const inputText = size === "inline" ? "text-xs" : "text-sm lg:text-base";
@@ -105,12 +100,12 @@ export function HeaderSearchBar({
 
         <div
           className={cn(
-            "group/header-search premium-glass relative flex w-full items-center overflow-hidden rounded-ds-full",
-            "premium-depth-2 premium-glow",
+            "search-bar-2026 premium-glass relative flex w-full items-center overflow-hidden rounded-ds-full",
+            "premium-depth-1",
             "transition-[border-color,box-shadow,transform] duration-ds-normal ease-ds-spring",
             "hover:-translate-y-px",
-            "focus-within:ring-2 focus-within:ring-primary/25",
-            isActive && "ring-2 ring-primary/25",
+            "focus-within:ring-2 focus-within:ring-primary/20",
+            isActive && "ring-2 ring-primary/20",
             "active:scale-[0.995]",
           )}
           style={{ height: controlHeight }}

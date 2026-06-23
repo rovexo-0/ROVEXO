@@ -16,7 +16,7 @@ export function CheckoutReturnPolicy({ form }: CheckoutReturnPolicyProps) {
   const { draft, updateDraft } = form;
 
   return (
-    <Card padding="lg" className="shadow-ds-soft">
+    <Card padding="lg" className="">
       <h2 className="text-base font-semibold text-text-primary">Returns & buyer protection</h2>
       <p className="mt-ds-2 text-sm text-text-secondary">
         Eligible purchases include ROVEXO Buyer Protection. You may open a case within{" "}

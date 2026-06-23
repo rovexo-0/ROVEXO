@@ -1,4 +1,5 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { Card } from "@/components/ui/Card";
 import { IconButton } from "@/components/ui/IconButton";
 import { ProfileDashboardCards } from "@/features/profile/components/ProfileDashboardCards";
 import { ProfileHero } from "@/features/profile/components/ProfileHero";
@@ -20,7 +21,7 @@ type ProfilePageProps = {
 export function ProfilePage({ profile, trustData }: ProfilePageProps) {
   return (
     <BetaAppShell bottomNavTab="account">
-      <header className="sticky top-0 z-50 border-b border-border bg-surface/95 shadow-ds-soft backdrop-blur-xl backdrop-saturate-150">
+      <header className="premium-page-header sticky top-0 z-50">
         <div className="flex items-center justify-between gap-ds-3 px-ds-4 pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]">
           <h1 className="min-w-0 truncate text-2xl font-bold text-text-primary">My Profile</h1>
           <IconButton href="/settings" label="Settings" variant="ghost" size="md">
@@ -35,7 +36,8 @@ export function ProfilePage({ profile, trustData }: ProfilePageProps) {
         <ProfileDashboardCards />
 
         {trustData && (
-          <Link href="/trust" className="block rounded-ds-xl border border-border bg-surface p-ds-4 shadow-ds-soft">
+          <Link href="/trust" className="block">
+            <Card padding="md" interactive>
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Trust Score</p>
@@ -53,6 +55,7 @@ export function ProfilePage({ profile, trustData }: ProfilePageProps) {
               showLabel={false}
               className="mt-3"
             />
+            </Card>
           </Link>
         )}
 

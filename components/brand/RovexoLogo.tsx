@@ -4,7 +4,7 @@ import { focusRing, transitionFast } from "@/components/ui/tokens";
 
 type RovexoLogoProps = {
   className?: string;
-  variant?: "full" | "compact" | "mark";
+  variant?: "full" | "compact" | "mark" | "responsive";
 };
 
 type RovexoLogoBrandProps = {
@@ -17,7 +17,7 @@ function LogoGlyph({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "flex shrink-0 items-center justify-center rounded-[7px] bg-[image:var(--ds-gradient-primary)] shadow-ds-soft",
+        "flex shrink-0 items-center justify-center rounded-[7px] bg-[image:var(--ds-gradient-primary)]",
         className,
       )}
     >
@@ -68,28 +68,36 @@ export function RovexoLogoBrand({ className, integrated = false }: RovexoLogoBra
   );
 }
 
-function RovexoLogoMark({ variant = "full" }: { variant?: RovexoLogoProps["variant"] }) {
-  const showWordmark = variant !== "mark";
-  const isCompact = variant === "compact" || variant === "mark";
+function RovexoLogoMark({
+  variant = "full",
+  responsive = false,
+}: {
+  variant?: RovexoLogoProps["variant"];
+  responsive?: boolean;
+}) {
+  const isMark = variant === "mark" && !responsive;
+  const isCompact = variant === "compact" || variant === "mark" || responsive;
+  const wordmarkVisible = !isMark;
 
   return (
     <span
       className={cn(
         "inline-flex h-full items-center",
         isCompact ? "gap-1.5" : "gap-2 sm:gap-2.5",
-        showWordmark && !isCompact && "min-w-[7.25rem] sm:min-w-[7.5rem]",
+        wordmarkVisible && !isCompact && "min-w-[7.25rem] sm:min-w-[7.5rem]",
       )}
       aria-hidden
     >
       <LogoGlyph
         className={cn(
-          isCompact ? "aspect-square h-[1.625rem] rounded-[7px]" : "aspect-square h-[92%]",
+          isCompact ? "aspect-square h-[1.5rem] rounded-[6px]" : "aspect-square h-[92%]",
         )}
       />
-      {showWordmark && (
+      {wordmarkVisible && (
         <Wordmark
           className={cn(
-            isCompact ? "text-[0.8125rem] leading-none sm:text-sm" : "text-[0.95rem] sm:text-base lg:text-[1.05rem]",
+            responsive && "hidden sm:inline",
+            isCompact ? "text-[0.8125rem] leading-none" : "text-[0.95rem] sm:text-base lg:text-[1.05rem]",
           )}
         />
       )}
@@ -98,7 +106,8 @@ function RovexoLogoMark({ variant = "full" }: { variant?: RovexoLogoProps["varia
 }
 
 export function RovexoLogo({ className, variant = "full" }: RovexoLogoProps) {
-  const isCompact = variant === "compact" || variant === "mark";
+  const isCompact = variant === "compact" || variant === "mark" || variant === "responsive";
+  const isResponsive = variant === "responsive";
 
   return (
     <Link
@@ -106,14 +115,17 @@ export function RovexoLogo({ className, variant = "full" }: RovexoLogoProps) {
       aria-label="ROVEXO Home"
       className={cn(
         "inline-flex shrink-0 items-center",
-        isCompact ? "h-7 sm:h-8" : "h-[28px] sm:h-[30px] lg:h-[32px]",
+        isCompact ? "h-7" : "h-[28px] sm:h-[30px] lg:h-[32px]",
         focusRing,
         transitionFast,
         "hover:opacity-90 active:scale-[0.98]",
         className,
       )}
     >
-      <RovexoLogoMark variant={variant} />
+      <RovexoLogoMark
+        variant={variant === "responsive" ? "mark" : variant}
+        responsive={isResponsive}
+      />
     </Link>
   );
 }

@@ -25,7 +25,7 @@ export function BusinessDirectoryPage({ companies }: BusinessDirectoryPageProps)
         {companies.length ? (
           companies.map((company) => (
             <Link key={company.id} href={`/store/${company.username}`}>
-              <Card padding="md" interactive className="h-full shadow-ds-soft">
+              <Card padding="md" interactive className="h-full">
                 <div className="flex items-start gap-ds-3">
                   <Avatar src={company.avatarUrl ?? undefined} alt={company.companyName} size="md" />
                   <div>
@@ -47,7 +47,7 @@ export function BusinessDirectoryPage({ companies }: BusinessDirectoryPageProps)
             </Link>
           ))
         ) : (
-          <Card padding="lg" className="col-span-full shadow-ds-soft">
+          <Card padding="lg" className="col-span-full">
             <p className="text-sm text-text-secondary">No business profiles are listed yet.</p>
           </Card>
         )}

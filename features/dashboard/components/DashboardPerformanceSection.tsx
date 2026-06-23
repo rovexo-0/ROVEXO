@@ -60,7 +60,7 @@ export function DashboardPerformanceSection({
         <span className="text-xs font-medium text-text-secondary">{performance.periodLabel}</span>
       </div>
 
-      <Card padding="md" className="flex flex-col gap-ds-4 shadow-ds-soft">
+      <Card padding="md" className="flex flex-col gap-ds-4">
         <div className="flex flex-wrap gap-ds-2">
           {performance.metrics.map((metric) => (
             <CategoryChip

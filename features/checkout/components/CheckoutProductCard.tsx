@@ -11,7 +11,7 @@ type CheckoutProductCardProps = {
 
 export function CheckoutProductCard({ product }: CheckoutProductCardProps) {
   return (
-    <Card padding="none" className="overflow-hidden shadow-ds-soft">
+    <Card padding="none" className="overflow-hidden">
       <div className="flex gap-ds-3 p-ds-4">
         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
           <Image

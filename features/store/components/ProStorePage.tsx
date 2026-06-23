@@ -74,7 +74,7 @@ export function ProStorePage({
         </section>
 
         <div className="mx-auto flex max-w-4xl flex-col gap-ds-5 px-ds-4 py-ds-5">
-          <Card padding="lg" className="shadow-ds-soft">
+          <Card padding="lg" className="">
             {rating > 0 && <Rating value={rating} reviewCount={reviewCount} size="sm" />}
             <p className="mt-ds-2 text-sm text-text-secondary">
               {listingCount} listings · {salesCount} sales · {followerCount} followers
@@ -99,13 +99,13 @@ export function ProStorePage({
               Featured products
             </h2>
             {displayFeatured.length > 0 ? (
-              <div className="grid grid-cols-2 gap-ds-3 md:grid-cols-4">
+              <div className="marketplace-listing-grid">
                 {displayFeatured.map((product) => (
                   <ProductCard key={product.id} {...productToCardProps(product)} />
                 ))}
               </div>
             ) : (
-              <Card padding="lg" className="shadow-ds-soft">
+              <Card padding="lg" className="">
                 <p className="text-sm text-text-secondary">No featured products yet.</p>
               </Card>
             )}
@@ -121,13 +121,13 @@ export function ProStorePage({
               </Link>
             </div>
             {listings.length > 0 ? (
-              <div className="grid grid-cols-2 gap-ds-3 md:grid-cols-4">
+              <div className="marketplace-listing-grid">
                 {listings.map((product) => (
                   <ProductCard key={product.id} {...productToCardProps(product)} />
                 ))}
               </div>
             ) : (
-              <Card padding="lg" className="shadow-ds-soft">
+              <Card padding="lg" className="">
                 <p className="text-sm text-text-secondary">No active listings.</p>
               </Card>
             )}

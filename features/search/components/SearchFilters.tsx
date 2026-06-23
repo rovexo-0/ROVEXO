@@ -30,7 +30,7 @@ export function SearchFilters({ values, onChange }: SearchFiltersProps) {
   }
 
   return (
-    <section aria-label="Search filters" className="flex flex-col gap-ds-3 rounded-ds-xl border border-border bg-surface p-ds-4 shadow-ds-soft">
+    <section aria-label="Search filters" className="flex flex-col gap-ds-3 premium-form-section p-ds-4">
       <div className="grid grid-cols-2 gap-ds-3 md:grid-cols-4">
         <label className="flex flex-col gap-ds-1 text-xs font-medium text-text-secondary">
           Min price
@@ -40,7 +40,7 @@ export function SearchFilters({ values, onChange }: SearchFiltersProps) {
             inputMode="decimal"
             value={values.minPrice ?? ""}
             onChange={(event) => update({ minPrice: event.target.value || undefined })}
-            className="min-h-ds-7 rounded-ds-md border border-border bg-background px-ds-3 text-sm text-text-primary"
+            className="premium-input min-h-ds-7 px-ds-3 text-sm"
           />
         </label>
         <label className="flex flex-col gap-ds-1 text-xs font-medium text-text-secondary">
@@ -51,7 +51,7 @@ export function SearchFilters({ values, onChange }: SearchFiltersProps) {
             inputMode="decimal"
             value={values.maxPrice ?? ""}
             onChange={(event) => update({ maxPrice: event.target.value || undefined })}
-            className="min-h-ds-7 rounded-ds-md border border-border bg-background px-ds-3 text-sm text-text-primary"
+            className="premium-input min-h-ds-7 px-ds-3 text-sm"
           />
         </label>
         <label className="flex flex-col gap-ds-1 text-xs font-medium text-text-secondary">
@@ -59,7 +59,7 @@ export function SearchFilters({ values, onChange }: SearchFiltersProps) {
           <select
             value={values.condition ?? ""}
             onChange={(event) => update({ condition: event.target.value || undefined })}
-            className="min-h-ds-7 rounded-ds-md border border-border bg-background px-ds-3 text-sm text-text-primary"
+            className="premium-input min-h-ds-7 px-ds-3 text-sm"
           >
             <option value="">Any</option>
             {CONDITIONS.map((condition) => (
@@ -76,7 +76,7 @@ export function SearchFilters({ values, onChange }: SearchFiltersProps) {
             value={values.brand ?? ""}
             onChange={(event) => update({ brand: event.target.value || undefined })}
             placeholder="Any brand"
-            className="min-h-ds-7 rounded-ds-md border border-border bg-background px-ds-3 text-sm text-text-primary"
+            className="premium-input min-h-ds-7 px-ds-3 text-sm"
           />
         </label>
       </div>
@@ -87,7 +87,7 @@ export function SearchFilters({ values, onChange }: SearchFiltersProps) {
           <select
             value={values.category ?? ""}
             onChange={(event) => update({ category: event.target.value || undefined })}
-            className="min-h-ds-7 rounded-ds-md border border-border bg-background px-ds-3 text-sm text-text-primary"
+            className="premium-input min-h-ds-7 px-ds-3 text-sm"
           >
             <option value="">All categories</option>
             {categories.map((category) => (
@@ -104,7 +104,7 @@ export function SearchFilters({ values, onChange }: SearchFiltersProps) {
             onChange={(event) =>
               update({ sort: event.target.value as SearchFilterValues["sort"] })
             }
-            className="min-h-ds-7 rounded-ds-md border border-border bg-background px-ds-3 text-sm text-text-primary"
+            className="premium-input min-h-ds-7 px-ds-3 text-sm"
           >
             <option value="newest">Newest</option>
             <option value="price_asc">Price: low to high</option>

@@ -103,36 +103,36 @@ export function AdminPromotionsPage({
       </div>
 
       <div className="grid gap-ds-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <p className="text-sm text-text-secondary">Active</p>
           <p className="mt-ds-1 text-2xl font-bold">{stats.activePromotions}</p>
         </Card>
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <p className="text-sm text-text-secondary">Revenue (month)</p>
           <p className="mt-ds-1 text-2xl font-bold">{formatCurrency(stats.monthRevenueCents)}</p>
         </Card>
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <p className="text-sm text-text-secondary">Impressions</p>
           <p className="mt-ds-1 text-2xl font-bold">{stats.impressions}</p>
         </Card>
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <p className="text-sm text-text-secondary">CTR</p>
           <p className="mt-ds-1 text-2xl font-bold">{stats.ctr}%</p>
         </Card>
       </div>
 
-      <Card padding="md" className="shadow-ds-soft">
+      <Card padding="md" className="">
         <div className="flex flex-col gap-ds-3 sm:flex-row">
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search listings or sellers"
-            className="min-h-ds-7 flex-1 rounded-ds-md border border-border bg-surface px-ds-3 text-sm"
+            className="premium-input min-h-ds-7 flex-1 px-ds-3 text-sm"
           />
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
-            className="min-h-ds-7 rounded-ds-md border border-border bg-surface px-ds-3 text-sm"
+            className="premium-input min-h-ds-7 px-ds-3 text-sm"
           >
             <option value="all">All statuses</option>
             <option value="pending">Pending</option>
@@ -145,12 +145,12 @@ export function AdminPromotionsPage({
       </Card>
 
       {message && (
-        <Card padding="sm" className="border-primary/30 bg-primary/5 shadow-ds-soft">
+        <Card padding="sm" className="border-primary/30 bg-primary/5">
           <p className="text-sm text-text-primary">{message}</p>
         </Card>
       )}
 
-      <Card padding="none" className="overflow-hidden shadow-ds-soft">
+      <Card padding="none" className="overflow-hidden">
         {filtered.length === 0 ? (
           <p className="px-ds-4 py-ds-6 text-sm text-text-secondary">No promotions found.</p>
         ) : (

@@ -13,7 +13,7 @@ type AddTrackingCardProps = {
 };
 
 const fieldClassName =
-  "min-h-ds-7 w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm text-text-primary placeholder:text-text-muted";
+  "min-h-ds-7 w-full premium-input px-ds-3 py-ds-2 text-sm placeholder:text-text-muted";
 
 export function AddTrackingCard({ order, onAdded }: AddTrackingCardProps) {
   const [trackingNumber, setTrackingNumber] = useState(order.trackingNumber ?? "");
@@ -55,7 +55,7 @@ export function AddTrackingCard({ order, onAdded }: AddTrackingCardProps) {
   };
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-4 shadow-ds-soft">
+    <Card padding="lg" className="flex flex-col gap-ds-4">
       <div>
         <h2 className="text-base font-semibold text-text-primary">Add Tracking</h2>
         <p className="mt-ds-1 text-sm text-text-secondary">

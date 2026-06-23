@@ -35,13 +35,13 @@ export function HelpResolutionPrompt({ topicSlug }: HelpResolutionPromptProps) {
   const supportAllowed = canAccessSupport(readHelpSession());
 
   return (
-    <Card padding="lg" className="shadow-ds-soft">
+    <Card padding="lg">
       <h2 className="text-lg font-semibold text-text-primary">Did this solve your problem?</h2>
       <div className="mt-ds-4 flex flex-wrap gap-ds-2">
         <Link
           href="/help"
           onClick={handleYes}
-          className="inline-flex min-h-ds-7 items-center rounded-ds-full border border-border bg-surface px-ds-5 text-sm font-semibold text-text-primary"
+          className="premium-chip inline-flex min-h-ds-7 items-center px-ds-5 text-sm font-semibold text-text-primary"
         >
           Yes — return home
         </Link>

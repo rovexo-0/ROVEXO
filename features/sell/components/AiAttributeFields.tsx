@@ -15,7 +15,7 @@ type AiAttributeFieldsProps = {
 };
 
 const fieldClassName =
-  "min-h-ds-7 w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm text-text-primary placeholder:text-text-muted";
+  "min-h-ds-7 w-full premium-input px-ds-3 py-ds-2 text-sm placeholder:text-text-muted";
 
 export function AiAttributeFields({
   brand,

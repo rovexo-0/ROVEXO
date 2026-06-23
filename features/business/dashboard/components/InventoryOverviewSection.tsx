@@ -23,7 +23,7 @@ function InventoryStatCard({ label, value, href, accentClassName }: InventorySta
         padding="sm"
         interactive
         className={cn(
-          "flex min-h-[88px] flex-col justify-center gap-ds-1 shadow-ds-soft",
+          "flex min-h-[88px] flex-col justify-center gap-ds-1",
           transitionFast,
           focusRing,
         )}

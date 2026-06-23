@@ -31,7 +31,7 @@ export function CartPage({ cart }: CartPageProps) {
           />
         ) : (
           cart.items.map((item) => (
-            <Card key={item.id} padding="md" className="flex gap-ds-3 shadow-ds-soft">
+            <Card key={item.id} padding="md" className="flex gap-ds-3">
               <div className="h-20 w-20 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />
@@ -61,7 +61,7 @@ export function CartPage({ cart }: CartPageProps) {
         )}
 
         {cart.items.length > 0 && (
-          <Card padding="lg" className="flex flex-col gap-ds-4 shadow-ds-soft">
+          <Card padding="lg" className="flex flex-col gap-ds-4">
             <div className="flex items-center justify-between text-sm">
               <span className="text-text-secondary">Subtotal</span>
               <Price amount={cart.subtotal} size="sm" />

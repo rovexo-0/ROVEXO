@@ -336,7 +336,7 @@ export function SettingsPage({ profile }: SettingsPageProps) {
           type="button"
           onClick={() => setLogoutOpen(true)}
           className={cn(
-            "flex min-h-ds-7 w-full items-center justify-center gap-ds-2 rounded-ds-lg border border-border bg-surface px-ds-4 py-ds-4 text-base font-semibold text-danger shadow-ds-soft",
+            "premium-btn premium-glass flex min-h-ds-7 w-full items-center justify-center gap-ds-2 border border-danger/30 px-ds-4 py-ds-4 text-base font-semibold text-danger",
             transitionFast,
             focusRing,
           )}

@@ -57,3 +57,9 @@ export const transitionNormal = "transition-all duration-ds-normal ease-ds";
 export const transitionSlow = "transition-all duration-ds-slow ease-ds";
 export const transitionSpring =
   "transition-transform duration-ds-fast ease-ds-spring will-change-transform";
+export const premiumPageHeader = "premium-page-header sticky top-0 z-50";
+export const premiumFormSection = "premium-form-section";
+export const premiumInput = "premium-input";
+export const premiumFooterBar = "premium-footer-bar";
+export const premiumChip = "premium-chip";
+export const premiumSurfacePanel = "premium-surface-panel";

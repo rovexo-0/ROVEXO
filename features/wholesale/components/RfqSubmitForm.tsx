@@ -46,7 +46,7 @@ export function RfqSubmitForm() {
   };
 
   return (
-    <Card padding="lg" className="shadow-ds-soft">
+    <Card padding="lg" className="">
       <h2 className="text-lg font-semibold">Submit RFQ</h2>
       <p className="mt-ds-1 text-sm text-text-secondary">Request quotes from verified wholesale suppliers.</p>
       <div className="mt-ds-4 space-y-ds-3">

@@ -24,7 +24,7 @@ export function AnalyticsGeographicSection({ countries }: AnalyticsGeographicSec
         Geographic Sales
       </h2>
 
-      <Card padding="md" className="shadow-ds-soft">
+      <Card padding="md" className="">
         <div className="overflow-hidden rounded-ds-md bg-surface-muted">
           <svg viewBox="0 0 360 180" className="h-auto w-full" role="img" aria-label="World sales map">
             <rect width="360" height="180" className="fill-surface-muted" />

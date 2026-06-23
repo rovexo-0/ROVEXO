@@ -13,7 +13,7 @@ type AvailableBalanceCardProps = {
 
 export function AvailableBalanceCard({ balance }: AvailableBalanceCardProps) {
   return (
-    <Card padding="lg" className="shadow-ds-soft">
+    <Card padding="lg" className="">
       <div className="flex flex-col gap-ds-4">
         <div className="flex items-start justify-between gap-ds-3">
           <div>

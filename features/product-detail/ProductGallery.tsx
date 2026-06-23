@@ -92,7 +92,7 @@ export function ProductGallery({ images, title, className }: ProductGalleryProps
 
         <div
           aria-live="polite"
-          className="pointer-events-none absolute bottom-ds-4 left-ds-4 rounded-ds-full bg-overlay px-ds-3 py-ds-1 text-xs font-semibold text-text-primary shadow-ds-soft backdrop-blur-md backdrop-saturate-150"
+          className="pointer-events-none absolute bottom-ds-4 left-ds-4 rounded-ds-full bg-overlay px-ds-3 py-ds-1 text-xs font-semibold text-text-primary backdrop-blur-md backdrop-saturate-150"
         >
           {activeIndex + 1} / {images.length}
         </div>

@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { MouseEvent, ReactNode } from "react";
-import { PremiumIcon } from "@/components/icons/PremiumIcon";
-import { useSearchOverlayOptional } from "@/features/search/client";
 import { cn } from "@/lib/cn";
+import { useSearchOverlayOptional } from "@/features/search/client";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
 const STROKE = 1.75;
@@ -23,7 +22,6 @@ type NavItem = {
   label: string;
   href: string;
   icon: ReactNode;
-  match: (pathname: string) => boolean;
 };
 
 function NavIcon({ children, className }: { children: ReactNode; className?: string }) {
@@ -74,51 +72,13 @@ function SellIcon({ className }: { className?: string }) {
   );
 }
 
+const iconClass = "bottom-nav-item-2026__icon";
+
 const navItems: NavItem[] = [
-  {
-    id: "home",
-    label: "Home",
-    href: "/",
-    icon: (
-      <PremiumIcon size="sm" className="!bg-transparent !shadow-none !border-0">
-        <HomeIcon className="h-5 w-5" />
-      </PremiumIcon>
-    ),
-    match: (pathname) => pathname === "/",
-  },
-  {
-    id: "search",
-    label: "Search",
-    href: "/search",
-    icon: (
-      <PremiumIcon size="sm" className="!bg-transparent !shadow-none !border-0">
-        <SearchIcon className="h-5 w-5" />
-      </PremiumIcon>
-    ),
-    match: (pathname) => pathname.startsWith("/search"),
-  },
-  {
-    id: "saved",
-    label: "Saved",
-    href: "/saved",
-    icon: (
-      <PremiumIcon size="sm" className="!bg-transparent !shadow-none !border-0">
-        <SavedIcon className="h-5 w-5" />
-      </PremiumIcon>
-    ),
-    match: (pathname) => pathname.startsWith("/saved"),
-  },
-  {
-    id: "account",
-    label: "Account",
-    href: "/account",
-    icon: (
-      <PremiumIcon size="sm" className="!bg-transparent !shadow-none !border-0">
-        <AccountIcon className="h-5 w-5" />
-      </PremiumIcon>
-    ),
-    match: (pathname) => pathname.startsWith("/account"),
-  },
+  { id: "home", label: "Home", href: "/", icon: <HomeIcon className={iconClass} /> },
+  { id: "search", label: "Search", href: "/search", icon: <SearchIcon className={iconClass} /> },
+  { id: "saved", label: "Saved", href: "/saved", icon: <SavedIcon className={iconClass} /> },
+  { id: "account", label: "Account", href: "/account", icon: <AccountIcon className={iconClass} /> },
 ];
 
 function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab {
@@ -127,7 +87,6 @@ function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab
   if (pathname.startsWith("/search")) return "search";
   if (pathname.startsWith("/saved")) return "saved";
   if (pathname.startsWith("/account")) return "account";
-  if (pathname === "/") return "home";
   return "home";
 }
 
@@ -145,26 +104,12 @@ function NavLink({
       href={item.href}
       aria-label={item.label}
       aria-current={isActive ? "page" : undefined}
+      data-active={isActive}
       onClick={onNavigate}
-      className={cn(
-        "relative flex min-h-ds-7 min-w-ds-7 flex-col items-center justify-center gap-ds-1 rounded-ds-md px-ds-2 py-ds-1",
-        transitionFast,
-        focusRing,
-        isActive ? "text-primary" : "text-text-secondary hover:text-text-primary",
-      )}
+      className={cn("bottom-nav-item-2026", focusRing, transitionFast)}
     >
-      <span className={cn("flex items-center justify-center", transitionFast, isActive && "scale-110")}>
-        {item.icon}
-      </span>
-      <span className="text-[11px] font-semibold leading-none">{item.label}</span>
-      <span
-        aria-hidden
-        className={cn(
-          "absolute -bottom-0.5 h-1 w-6 rounded-ds-full bg-[image:var(--ds-gradient-primary)] shadow-[0_0_12px_rgba(37,99,235,0.45)]",
-          transitionFast,
-          isActive ? "scale-100 opacity-100" : "scale-0 opacity-0",
-        )}
-      />
+      {item.icon}
+      <span className="bottom-nav-item-2026__label">{item.label}</span>
     </Link>
   );
 }
@@ -178,7 +123,6 @@ export function BottomNavigation({
   const searchOverlay = useSearchOverlayOptional();
   const activeTab = resolveActiveTab(pathname, active);
   const isSellActive = activeTab === "sell";
-
   const [home, search, saved, account] = navItems;
 
   function handleSearchNavigate(event: MouseEvent<HTMLAnchorElement>) {
@@ -192,53 +136,39 @@ export function BottomNavigation({
     <nav
       aria-label={ariaLabel}
       className={cn(
-        "pointer-events-none fixed inset-x-0 bottom-0 z-50 px-ds-4",
-        "pb-[max(env(safe-area-inset-bottom),var(--ds-space-3))]",
+        "pointer-events-none fixed inset-x-0 bottom-0 z-50 px-ds-2",
+        "pb-[max(env(safe-area-inset-bottom),0.375rem)]",
         className,
       )}
     >
-      <div
-        className={cn(
-          "premium-glass premium-depth-3 pointer-events-auto relative mx-auto max-w-md overflow-hidden rounded-[var(--ds-radius-premium)]",
-        )}
-      >
-        <ul className="relative z-[1] grid grid-cols-5 items-end px-ds-2 pb-ds-2 pt-ds-5">
-          <li className="flex justify-center">
+      <div className="bottom-nav-shell-2026 pointer-events-auto relative mx-auto max-w-[22rem]">
+        <ul className="bottom-nav-grid-2026">
+          <li>
             <NavLink item={home} isActive={activeTab === "home"} />
           </li>
-          <li className="flex justify-center">
+          <li>
             <NavLink item={search} isActive={activeTab === "search"} onNavigate={handleSearchNavigate} />
           </li>
 
-          <li className="relative flex flex-col items-center">
+          <li>
             <Link
               href="/sell"
               aria-label="Sell"
               aria-current={isSellActive ? "page" : undefined}
-              className={cn(
-                "premium-btn premium-pulse-glow absolute -top-[var(--ds-space-6)] flex h-16 w-16 items-center justify-center rounded-ds-full text-primary-foreground",
-                "bg-[image:var(--ds-gradient-primary)] shadow-[var(--ds-glow-primary)]",
-                "hover:scale-105 active:scale-90",
-                focusRing,
-              )}
+              data-active={isSellActive}
+              className={cn("bottom-nav-item-2026 bottom-nav-item-2026--sell", focusRing, transitionFast)}
             >
-              <SellIcon className="h-7 w-7" />
+              <span className="bottom-nav-sell-2026">
+                <SellIcon className="bottom-nav-item-2026__icon" />
+              </span>
+              <span className="bottom-nav-item-2026__label">Sell</span>
             </Link>
-            <span
-              className={cn(
-                "mt-[var(--ds-space-6)] text-[11px] font-semibold leading-none",
-                transitionFast,
-                isSellActive ? "text-primary" : "text-text-secondary",
-              )}
-            >
-              Sell
-            </span>
           </li>
 
-          <li className="flex justify-center">
+          <li>
             <NavLink item={saved} isActive={activeTab === "saved"} />
           </li>
-          <li className="flex justify-center">
+          <li>
             <NavLink item={account} isActive={activeTab === "account"} />
           </li>
         </ul>
@@ -246,3 +176,4 @@ export function BottomNavigation({
     </nav>
   );
 }
+

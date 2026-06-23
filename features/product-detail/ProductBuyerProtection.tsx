@@ -19,7 +19,7 @@ export function ProductBuyerProtection({ itemPrice }: ProductBuyerProtectionProp
       className={cn("block rounded-ds-lg", transitionFast, focusRing)}
       aria-label={`Buyer protection fee ${protectionFee} pounds — view details`}
     >
-      <Card padding="sm" className="flex items-center gap-ds-3 shadow-ds-soft">
+      <Card padding="sm" className="flex items-center gap-ds-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-ds-md bg-success/10 text-success">
           <ShieldIcon className="h-5 w-5" />
         </span>

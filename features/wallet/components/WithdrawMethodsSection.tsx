@@ -29,7 +29,7 @@ function MethodCard({
   const isConnect = method.provider === "stripe_connect";
 
   return (
-    <Card padding="md" className={cn("shadow-ds-soft", transitionFast, focusRing)}>
+    <Card padding="md" className={cn("", transitionFast, focusRing)}>
       <div className="flex min-h-[72px] items-center gap-ds-3">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-ds-lg bg-surface-muted text-sm font-bold text-text-secondary">
           {method.provider === "bank_account" ? "BA" : "SC"}

@@ -22,7 +22,7 @@ export async function NotificationDetailPage({ id }: NotificationDetailPageProps
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <header className="sticky top-0 z-50 border-b border-border bg-surface/95 shadow-ds-soft backdrop-blur-xl backdrop-saturate-150">
+      <header className="premium-page-header sticky top-0 z-50">
         <div
           className={cn(
             "grid min-h-[56px] grid-cols-[48px_1fr_48px] items-center gap-ds-2 px-ds-4",
@@ -38,7 +38,7 @@ export async function NotificationDetailPage({ id }: NotificationDetailPageProps
       </header>
 
       <main className="mx-auto w-full max-w-2xl px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
-        <Card padding="lg" className="flex flex-col gap-ds-4 shadow-ds-soft">
+        <Card padding="lg" className="flex flex-col gap-ds-4">
           <div className="flex items-start gap-ds-3">
             <span
               className={cn(

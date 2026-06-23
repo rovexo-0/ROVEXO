@@ -95,7 +95,7 @@ export function OrderDetailView({ initialOrder, userId }: OrderDetailViewProps) 
       )}
 
       {order.status === "awaiting_payment" && (
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <p className="text-sm text-text-secondary">Awaiting payment from buyer.</p>
         </Card>
       )}
@@ -119,7 +119,7 @@ export function OrderDetailView({ initialOrder, userId }: OrderDetailViewProps) 
       <OrderActionsCard order={order} view={view} />
 
       {showBuyerConfirm && (
-        <Card padding="lg" className="flex flex-col gap-ds-4 shadow-ds-soft">
+        <Card padding="lg" className="flex flex-col gap-ds-4">
           <h2 className="text-base font-semibold text-text-primary">Confirm Everything OK</h2>
 
           <div className="flex flex-col gap-ds-3">
@@ -149,7 +149,7 @@ export function OrderDetailView({ initialOrder, userId }: OrderDetailViewProps) 
       )}
 
       {order.status === "issue_open" && (
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <h2 className="text-base font-semibold text-text-primary">Issue Open</h2>
           <p className="mt-ds-2 text-sm text-text-secondary">
             {view === "buyer"

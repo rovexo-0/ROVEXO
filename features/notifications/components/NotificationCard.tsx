@@ -17,7 +17,7 @@ export function NotificationCard({ notification }: NotificationCardProps) {
       padding="sm"
       interactive
       className={cn(
-        "min-h-[72px] max-h-[84px] shadow-ds-soft",
+        "min-h-[72px] max-h-[84px]",
         !notification.read && "border-primary/20 bg-primary/[0.03]",
       )}
     >

@@ -34,7 +34,7 @@ export function WithdrawMethodStep({ flow }: WithdrawMethodStepProps) {
                 padding="md"
                 interactive
                 className={cn(
-                  "shadow-ds-soft",
+                  "",
                   transitionFast,
                   focusRing,
                   selected && "border-primary ring-2 ring-ring/20",

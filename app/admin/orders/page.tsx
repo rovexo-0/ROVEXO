@@ -12,7 +12,7 @@ export default async function AdminOrdersPage() {
 
       <div className="flex flex-col gap-ds-3">
         {orders.map((order) => (
-          <Card key={order.id} padding="md" className="shadow-ds-soft">
+          <Card key={order.id} padding="md" className="">
             <div className="flex flex-wrap items-center justify-between gap-ds-3">
               <div>
                 <p className="font-semibold text-text-primary">{order.orderNumber}</p>

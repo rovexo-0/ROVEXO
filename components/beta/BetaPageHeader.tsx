@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { IconButton } from "@/components/ui/IconButton";
-import { cn } from "@/lib/cn";
+import { StickyPageHeader } from "@/components/ui/StickyPageHeader";
 
 type BetaPageHeaderProps = {
   title: string;
@@ -19,19 +19,14 @@ function BackIcon({ className }: { className?: string }) {
 
 export function BetaPageHeader({ title, backHref = "/", className }: BetaPageHeaderProps) {
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 border-b border-border bg-surface/95 shadow-ds-soft backdrop-blur-xl backdrop-saturate-150",
-        className,
-      )}
-    >
+    <StickyPageHeader className={className}>
       <div className="flex items-center gap-ds-3 px-ds-4 pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]">
         <IconButton href={backHref} label="Go back" variant="ghost" size="md">
           <BackIcon className="h-5 w-5" />
         </IconButton>
         <h1 className="min-w-0 flex-1 truncate text-lg font-semibold text-text-primary">{title}</h1>
       </div>
-    </header>
+    </StickyPageHeader>
   );
 }
 

@@ -1,4 +1,6 @@
 import { Card } from "@/components/ui/Card";
+import { PremiumIcon } from "@/components/icons/PremiumIcon";
+import { AnimatedCounter } from "@/features/dashboard/components/AnimatedCounter";
 import {
   FollowersIcon,
   ListingsIcon,
@@ -19,9 +21,13 @@ type StatCardProps = {
 
 function StatCard({ icon, value, label }: StatCardProps) {
   return (
-    <Card padding="sm" className="flex flex-1 flex-col items-center gap-ds-1 py-ds-3 shadow-ds-soft">
-      <span className="flex h-8 w-8 items-center justify-center text-primary">{icon}</span>
-      <span className="text-lg font-bold tabular-nums text-text-primary">{value}</span>
+    <Card padding="sm" className="flex flex-1 flex-col items-center gap-ds-2 py-ds-4">
+      <PremiumIcon size="sm" glow>
+        {icon}
+      </PremiumIcon>
+      <span className="text-xl font-bold tabular-nums tracking-tight text-text-primary">
+        <AnimatedCounter value={value} />
+      </span>
       <span className="text-xs font-medium text-text-secondary">{label}</span>
     </Card>
   );

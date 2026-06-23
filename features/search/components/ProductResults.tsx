@@ -68,7 +68,7 @@ export function ProductResults({
                 onClick={onNavigate}
                 onMouseEnter={() => onHoverIndex(navIndex)}
                 className={cn(
-                  "flex min-h-ds-7 items-center gap-ds-3 rounded-ds-lg border border-border bg-surface p-ds-2 hover:bg-surface-muted",
+                  "premium-menu-row premium-glass flex min-h-ds-7 items-center gap-ds-3 rounded-ds-lg p-ds-2",
                   focusRing,
                   transitionFast,
                   isActive && "border-primary/30 bg-surface-muted",

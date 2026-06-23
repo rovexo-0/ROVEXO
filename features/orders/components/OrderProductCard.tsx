@@ -38,7 +38,7 @@ export function OrderProductCardContent({
   counterpartyName,
 }: OrderProductCardContentProps) {
   return (
-    <Card padding="none" className="overflow-hidden shadow-ds-soft">
+    <Card padding="none" className="overflow-hidden">
       <div className="flex gap-ds-4 p-ds-4">
         <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
           <Image

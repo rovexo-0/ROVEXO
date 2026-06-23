@@ -18,7 +18,7 @@ type SellQuickListingFormProps = {
 };
 
 const fieldClassName =
-  "min-h-ds-7 w-full rounded-ds-sm border border-border bg-surface px-ds-3 py-ds-2 text-sm text-text-primary placeholder:text-text-muted";
+  "premium-input min-h-ds-7 w-full rounded-ds-sm px-ds-3 py-ds-2 text-sm placeholder:text-text-muted";
 
 function FormRow({
   label,
@@ -67,7 +67,7 @@ export function SellQuickListingForm({ form }: SellQuickListingFormProps) {
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-ds-lg border border-border bg-surface shadow-ds-soft">
+      <div className="premium-form-section overflow-hidden">
         <FormRow label="Title" htmlFor="sell-quick-title" error={errors.title}>
           <input
             id="sell-quick-title"
@@ -109,7 +109,7 @@ export function SellQuickListingForm({ form }: SellQuickListingFormProps) {
               type="button"
               onClick={() => setCategoryPickerOpen((current) => !current)}
               className={cn(
-                "min-h-ds-7 w-full rounded-ds-sm border border-border bg-surface-muted px-ds-3 py-ds-2 text-left text-sm text-text-primary",
+                "premium-input min-h-ds-7 w-full rounded-ds-sm bg-surface-muted/60 px-ds-3 py-ds-2 text-left text-sm",
                 fieldErrorClassName(Boolean(errors.category)),
                 focusRing,
               )}
@@ -206,7 +206,7 @@ export function SellQuickListingForm({ form }: SellQuickListingFormProps) {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-ds-lg border border-border bg-surface shadow-ds-soft">
+      <div className="premium-form-section overflow-hidden">
         <button
           type="button"
           onClick={() => setMoreDetailsOpen((open) => !open)}

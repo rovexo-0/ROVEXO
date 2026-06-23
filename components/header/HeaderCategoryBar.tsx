@@ -120,8 +120,8 @@ export const HeaderCategoryBar = memo(function HeaderCategoryBar({
                     transitionNormal,
                     focusRing,
                     isActive
-                      ? "bg-[image:var(--ds-gradient-primary)] text-primary-foreground shadow-ds-soft"
-                      : "border border-border/70 bg-surface text-text-secondary shadow-ds-soft hover:border-primary/25 hover:text-primary",
+                      ? "bg-[image:var(--ds-gradient-primary)] text-primary-foreground"
+                      : "border border-border/70 bg-surface text-text-secondary hover:border-primary/25 hover:text-primary",
                   )}
                 >
                   <CategoryIcon

@@ -24,7 +24,7 @@ export function WithdrawReviewStep({ flow }: WithdrawReviewStepProps) {
         Review
       </h2>
 
-      <Card padding="md" className="shadow-ds-soft">
+      <Card padding="md" className="">
         <ReviewRow label="Method" value={selectedMethod?.label ?? "—"} />
         <div className="border-t border-border">
           <ReviewRow

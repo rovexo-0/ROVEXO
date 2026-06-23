@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
+import { PremiumIcon } from "@/components/icons/PremiumIcon";
 import {
   HelpMenuIcon,
   MessagesMenuIcon,
@@ -28,8 +29,10 @@ export function ProfileDashboardCards() {
           const Icon = link.icon;
           return (
             <Link key={link.href} href={link.href}>
-              <Card padding="sm" interactive className="h-full min-h-[88px] shadow-ds-soft">
-                <Icon className="h-5 w-5 text-primary" />
+              <Card padding="sm" interactive className="h-full min-h-[92px]">
+                <PremiumIcon size="sm" glow>
+                  <Icon className="h-5 w-5 text-primary" />
+                </PremiumIcon>
                 <p className="mt-ds-2 text-sm font-semibold text-text-primary">{link.label}</p>
                 <p className="mt-ds-0.5 line-clamp-2 text-xs text-text-secondary">{link.subtitle}</p>
               </Card>

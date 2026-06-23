@@ -12,19 +12,23 @@ export function HomeHeroSearch({ className }: HomeHeroSearchProps) {
   return (
     <MotionDiv
       aria-labelledby="home-hero-search-heading"
-      className={cn(
-        "premium-card mx-ds-4 overflow-hidden px-ds-5 py-ds-6",
-        className,
-      )}
+      className={cn("hero-banner-2026 mx-auto", className)}
     >
-      <h2 id="home-hero-search-heading" className="relative z-[1] text-2xl font-bold tracking-tight text-text-primary">
-        Find your next deal
-      </h2>
-      <p className="relative z-[1] mt-ds-2 text-sm leading-relaxed text-text-secondary">
-        Search fashion, electronics, home, vehicles and more on ROVEXO.
-      </p>
-      <div className="relative z-[1] mt-ds-5">
-        <HeaderSearchBar inputId="home-hero-search" placeholder="Search ROVEXO…" size="large" />
+      <div className="hero-banner-2026__orb hero-banner-2026__orb--left" aria-hidden />
+      <div className="hero-banner-2026__orb hero-banner-2026__orb--right" aria-hidden />
+      <div className="hero-banner-2026__mesh" aria-hidden />
+
+      <div className="hero-banner-2026__content">
+        <p className="hero-banner-2026__eyebrow">Premium marketplace</p>
+        <h2 id="home-hero-search-heading" className="hero-banner-2026__title">
+          Find your next deal
+        </h2>
+        <p className="hero-banner-2026__subtitle">
+          Fashion, electronics, home, vehicles and more
+        </p>
+        <div className="hero-banner-2026__search">
+          <HeaderSearchBar inputId="home-hero-search" placeholder="Search ROVEXO…" size="large" className="w-full" />
+        </div>
       </div>
     </MotionDiv>
   );

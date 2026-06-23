@@ -32,20 +32,20 @@ export function ProductSection({
           </a>
         )}
       </div>
-      <div className="grid grid-cols-2 gap-ds-3 md:grid-cols-3 md:gap-ds-4 lg:grid-cols-4">
+      <div className="marketplace-listing-grid">
         {loading ? (
           <ProductGridSkeleton count={4} />
         ) : error ? (
-          <div className="col-span-full rounded-ds-xl border border-danger/50 bg-surface px-ds-5 py-ds-6 text-center text-sm font-medium text-text-primary">
+          <div className="w-full [grid-column:1/-1] rounded-ds-xl border border-danger/50 bg-surface px-ds-5 py-ds-6 text-center text-sm font-medium text-text-primary">
             Unable to load {title.toLowerCase()}.
           </div>
         ) : products.length === 0 ? (
-          <ProductSectionEmpty title={title} />
+          <div className="[grid-column:1/-1]">
+            <ProductSectionEmpty title={title} />
+          </div>
         ) : (
           products.map((product) => (
-            <div key={product.id} className="h-full">
-              <ProductCard {...productToCardProps(product, "homepage")} />
-            </div>
+            <ProductCard key={product.id} {...productToCardProps(product, "homepage")} />
           ))
         )}
       </div>

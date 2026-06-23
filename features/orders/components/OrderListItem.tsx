@@ -24,7 +24,7 @@ export function OrderListItem({ order, userId }: OrderListItemProps) {
 
   return (
     <Link href={getOrderDetailHref(order.id, view)} className="block">
-      <Card padding="none" interactive className="overflow-hidden shadow-ds-soft">
+      <Card padding="none" interactive className="overflow-hidden">
         <div className="flex gap-ds-4 p-ds-4">
           <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
             <Image

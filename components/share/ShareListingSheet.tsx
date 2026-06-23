@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PremiumIcon } from "@/components/icons/PremiumIcon";
 import { cn } from "@/lib/cn";
 import { getListingShareUrl } from "@/lib/share/listing-url";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -24,9 +25,9 @@ type ShareChannel = {
 
 function ShareChannelIcon({ children }: { children: React.ReactNode }) {
   return (
-    <span className="flex h-11 w-11 items-center justify-center rounded-ds-lg bg-surface-muted text-text-primary">
+    <PremiumIcon size="md" className="text-text-primary">
       {children}
-    </span>
+    </PremiumIcon>
   );
 }
 
@@ -147,7 +148,7 @@ export function ShareListingSheet({ open, onClose, title, slug, productId, price
       <button
         type="button"
         aria-label="Close share menu"
-        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+        className="absolute inset-0 premium-sheet-overlay"
         onClick={onClose}
       />
       <div
@@ -156,7 +157,7 @@ export function ShareListingSheet({ open, onClose, title, slug, productId, price
         aria-modal="true"
         aria-labelledby="share-listing-title"
         className={cn(
-          "relative z-10 w-full max-w-md rounded-t-ds-xl border border-border bg-surface p-ds-5 shadow-ds-floating sm:rounded-ds-xl",
+          "premium-sheet relative z-10 w-full max-w-md rounded-t-ds-xl p-ds-5 sm:rounded-ds-xl premium-enter",
           transitionFast,
         )}
       >
@@ -225,7 +226,7 @@ export function ShareListingSheet({ open, onClose, title, slug, productId, price
           type="button"
           onClick={() => void copyLink()}
           className={cn(
-            "mt-ds-4 flex w-full items-center justify-between rounded-ds-lg border border-border bg-surface-muted px-ds-4 py-ds-3 text-left text-sm",
+            "mt-ds-4 premium-input flex w-full items-center justify-between rounded-ds-lg bg-surface-muted/50 px-ds-4 py-ds-3 text-left text-sm",
             focusRing,
             transitionFast,
           )}

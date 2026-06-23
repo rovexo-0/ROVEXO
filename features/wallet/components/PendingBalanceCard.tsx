@@ -11,7 +11,7 @@ export function PendingBalanceCard({ balance, availableAt }: PendingBalanceCardP
   const daysRemaining = getDaysUntilAvailable(availableAt);
 
   return (
-    <Card padding="md" className="shadow-ds-soft">
+    <Card padding="md" className="">
       <div className="flex flex-col gap-ds-2">
         <p className="text-sm font-medium text-text-secondary">Pending Balance</p>
         <Price amount={balance} size="lg" />

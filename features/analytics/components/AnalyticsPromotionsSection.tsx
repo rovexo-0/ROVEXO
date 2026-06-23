@@ -18,7 +18,7 @@ export function AnalyticsPromotionsSection({ data }: AnalyticsPromotionsSectionP
         Promotions
       </h2>
 
-      <Card padding="sm" className="shadow-ds-soft">
+      <Card padding="sm" className="">
         <div className="grid grid-cols-2 gap-ds-3 sm:grid-cols-3">
           <div>
             <p className="text-lg font-bold tabular-nums text-text-primary">{data.impressions}</p>

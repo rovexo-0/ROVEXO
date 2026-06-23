@@ -22,7 +22,7 @@ function SummaryCard({ label, metric }: SummaryCardProps) {
     metric.changePercent >= 0 ? "text-success" : "text-danger";
 
   return (
-    <Card padding="sm" className="flex min-h-[96px] flex-col justify-center gap-ds-1 shadow-ds-soft">
+    <Card padding="sm" className="flex min-h-[96px] flex-col justify-center gap-ds-1">
       <span className="text-lg font-bold tabular-nums text-text-primary">
         <AnimatedCounter
           value={Math.round(metric.value * 100)}

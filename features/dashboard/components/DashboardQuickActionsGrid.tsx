@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
+import { PremiumIcon } from "@/components/icons/PremiumIcon";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
@@ -31,14 +32,16 @@ export function DashboardQuickActionsGrid({
               padding="md"
               interactive
               className={cn(
-                "flex min-h-[88px] flex-col items-start justify-center gap-ds-2 shadow-ds-soft",
+                "flex min-h-[92px] flex-col items-start justify-center gap-ds-2",
                 transitionFast,
                 focusRing,
               )}
             >
-              <span className="text-xl" aria-hidden>
-                {action.emoji}
-              </span>
+              <PremiumIcon size="sm" float label={action.label}>
+                <span className="text-lg leading-none" aria-hidden>
+                  {action.emoji}
+                </span>
+              </PremiumIcon>
               <span className="text-sm font-semibold text-text-primary">{action.label}</span>
             </Card>
           </Link>

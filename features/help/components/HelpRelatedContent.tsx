@@ -20,7 +20,7 @@ export function HelpRelatedContent({ solution, topicSlug }: HelpRelatedContentPr
       </h2>
 
       {solution.relatedQuestions.length > 0 && (
-        <Card padding="md" className="shadow-ds-soft">
+        <Card padding="md" className="">
           <h3 className="text-sm font-semibold text-text-primary">Related questions</h3>
           <ul className="mt-ds-3 space-y-ds-2">
             {solution.relatedQuestions.map((item) => (
@@ -34,7 +34,7 @@ export function HelpRelatedContent({ solution, topicSlug }: HelpRelatedContentPr
         </Card>
       )}
 
-      <Card padding="md" className="shadow-ds-soft">
+      <Card padding="md" className="">
         <h3 className="text-sm font-semibold text-text-primary">Related categories</h3>
         <div className="mt-ds-3 flex flex-wrap gap-ds-2">
           {(solution.relatedTopics.length ? solution.relatedTopics : topic?.relatedTopics ?? []).map((slug) => (
@@ -49,7 +49,7 @@ export function HelpRelatedContent({ solution, topicSlug }: HelpRelatedContentPr
         </div>
       </Card>
 
-      <Card padding="md" className="shadow-ds-soft">
+      <Card padding="md" className="">
         <h3 className="text-sm font-semibold text-text-primary">Related platform features</h3>
         <div className="mt-ds-3 flex flex-wrap gap-ds-2">
           {solution.relatedFeatures.map((item) => (
@@ -64,7 +64,7 @@ export function HelpRelatedContent({ solution, topicSlug }: HelpRelatedContentPr
         </div>
       </Card>
 
-      <Card padding="md" className="shadow-ds-soft">
+      <Card padding="md" className="">
         <h3 className="text-sm font-semibold text-text-primary">Related policies</h3>
         <ul className="mt-ds-3 space-y-ds-2">
           {solution.relatedPolicies.map((item) => (

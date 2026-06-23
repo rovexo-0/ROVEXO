@@ -40,7 +40,7 @@ export function AnalyticsDoughnutChart({
         {title}
       </h2>
 
-      <Card padding="md" className="shadow-ds-soft">
+      <Card padding="md" className="">
         <div className="flex flex-col items-center gap-ds-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative h-40 w-40 shrink-0">
             <svg viewBox="0 0 140 140" className="h-full w-full -rotate-90" role="img" aria-label={title}>

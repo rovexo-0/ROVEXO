@@ -14,7 +14,7 @@ export function ProductDelivery({ carriers }: ProductDeliveryProps) {
       <ul className="flex flex-wrap gap-ds-2">
         {carriers.map((carrier) => (
           <li key={carrier}>
-            <span className="inline-flex items-center rounded-ds-full border border-border bg-surface-muted px-ds-4 py-ds-2 text-xs font-semibold text-text-primary shadow-ds-soft">
+            <span className="premium-chip inline-flex items-center px-ds-4 py-ds-2 text-xs font-semibold text-text-primary">
               {carrier}
             </span>
           </li>

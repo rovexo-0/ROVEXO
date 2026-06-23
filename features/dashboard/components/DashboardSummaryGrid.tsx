@@ -16,8 +16,8 @@ function formatSummaryValue(value: number, format?: DashboardSummaryCard["format
 
 function SummaryCard({ label, value, format }: DashboardSummaryCard) {
   return (
-    <Card padding="sm" className="flex min-h-[88px] flex-col justify-center gap-ds-1 shadow-ds-soft">
-      <span className="text-lg font-bold text-text-primary">
+    <Card padding="sm" className="flex min-h-[92px] flex-col justify-center gap-ds-1">
+      <span className="text-xl font-bold tracking-tight text-text-primary">
         <AnimatedCounter
           value={value}
           format={(next) => formatSummaryValue(next, format)}

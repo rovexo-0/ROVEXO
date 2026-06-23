@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
+import { PremiumIcon } from "@/components/icons/PremiumIcon";
 import { getNavigationSections } from "@/lib/navigation/map";
 import type { UserProfile } from "@/lib/profile/types";
 
@@ -20,7 +21,12 @@ export function NavigationHub({ profile }: NavigationHubProps) {
           <div className="mt-ds-3 grid grid-cols-2 gap-ds-2 sm:grid-cols-3">
             {section.links.map((link) => (
               <Link key={link.href} href={link.href}>
-                <Card padding="sm" interactive className="h-full min-h-[72px] shadow-ds-soft">
+                <Card padding="sm" interactive className="h-full min-h-[76px]">
+                  <PremiumIcon size="sm" className="mb-ds-2">
+                    <span className="text-sm font-bold text-primary" aria-hidden>
+                      {link.label.charAt(0)}
+                    </span>
+                  </PremiumIcon>
                   <p className="text-sm font-semibold text-text-primary">{link.label}</p>
                   {link.subtitle ? (
                     <p className="mt-ds-0.5 line-clamp-2 text-xs text-text-secondary">{link.subtitle}</p>

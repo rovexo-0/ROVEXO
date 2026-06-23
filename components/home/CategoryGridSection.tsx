@@ -35,7 +35,7 @@ export function CategoryGridSection({ categories }: CategoryGridSectionProps) {
             <Link
               key={category.id}
               href={`/category/${category.slug}`}
-              className="group relative overflow-hidden rounded-ds-xl border border-border bg-surface shadow-ds-soft"
+              className="premium-card group relative overflow-hidden"
             >
               <div className="relative aspect-[4/3]">
                 <Image

@@ -14,7 +14,7 @@ type WholesaleCenterPageProps = {
 export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps) {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-ds-8 px-ds-4 py-ds-6">
-      <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6 shadow-ds-soft">
+      <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6">
         <p className="text-sm font-medium text-primary">ROVEXO Wholesale Center</p>
         <h1 className="mt-ds-2 text-3xl font-bold text-text-primary">Wholesale & B2B</h1>
         <p className="mt-ds-2 text-sm text-text-secondary">
@@ -32,7 +32,7 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
       </section>
 
       <section className="grid gap-ds-4 lg:grid-cols-[1fr_1fr]">
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <h2 className="text-lg font-semibold">Your wholesale account</h2>
           {account ? (
             <div className="mt-ds-4 space-y-ds-2 text-sm text-text-secondary">
@@ -57,7 +57,7 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
           )}
         </Card>
 
-        <Card padding="lg" className="shadow-ds-soft" id="pricing">
+        <Card padding="lg" className="" id="pricing">
           <h2 className="text-lg font-semibold">Bulk pricing tiers</h2>
           {account?.bulkPricingEnabled ? (
             <div className="mt-ds-4">
@@ -76,7 +76,7 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
       </section>
 
       <section className="grid gap-ds-4 lg:grid-cols-[1fr_1fr]">
-        <Card padding="lg" className="shadow-ds-soft lg:col-span-2">
+        <Card padding="lg" className="lg:col-span-2">
           <h2 className="text-lg font-semibold">Wholesale features</h2>
           <ul className="mt-ds-4 space-y-ds-3">
             {WHOLESALE_FEATURES.map((feature) => (
@@ -96,7 +96,7 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
         <div className="mt-ds-4 grid gap-ds-3">
           {rfqs.length ? (
             rfqs.map((rfq) => (
-              <Card key={rfq.id} padding="md" className="shadow-ds-soft">
+              <Card key={rfq.id} padding="md" className="">
                 <div className="flex items-start justify-between gap-ds-3">
                   <div>
                     <p className="font-semibold text-text-primary">{rfq.title}</p>
@@ -111,7 +111,7 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
               </Card>
             ))
           ) : (
-            <Card padding="md" className="shadow-ds-soft">
+            <Card padding="md" className="">
               <p className="text-sm text-text-secondary">No open RFQ requests yet.</p>
             </Card>
           )}
@@ -124,7 +124,7 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
 function QuickNav({ href, label }: { href: string; label: string }) {
   return (
     <Link href={href}>
-      <Card padding="sm" interactive className="shadow-ds-soft">
+      <Card padding="sm" interactive className="">
         <p className="text-sm font-semibold text-text-primary">{label}</p>
       </Card>
     </Link>

@@ -20,7 +20,7 @@ export function CheckoutDeliverySection({ form }: CheckoutDeliverySectionProps) 
         Delivery
       </h2>
 
-      <Card padding="md" className="flex flex-col gap-ds-3 shadow-ds-soft">
+      <Card padding="md" className="flex flex-col gap-ds-3">
         {DELIVERY_OPTIONS.map((option) => {
           const selected = draft.deliveryOption === option.id;
 

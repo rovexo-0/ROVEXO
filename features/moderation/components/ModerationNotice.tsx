@@ -11,7 +11,7 @@ const actionClassName =
 
 export function ModerationNotice({ notice }: ModerationNoticeProps) {
   return (
-    <Card padding="md" className="border-warning/30 bg-warning/5 shadow-ds-soft">
+    <Card padding="md" className="border-warning/30 bg-warning/5">
       <h3 className="text-sm font-semibold text-text-primary">{notice.title}</h3>
       <p className="mt-ds-2 text-sm text-text-secondary">{notice.message}</p>
       <div className="mt-ds-3 flex flex-wrap gap-ds-2">
@@ -20,7 +20,7 @@ export function ModerationNotice({ notice }: ModerationNoticeProps) {
             Edit Listing
           </Link>
         ) : null}
-        <Link href={notice.requestReviewHref} className={`${actionClassName} border border-border bg-surface`}>
+        <Link href={notice.requestReviewHref} className={`${actionClassName} premium-chip text-text-primary`}>
           Request Review
         </Link>
         <Link href={notice.learnMoreHref} className={`${actionClassName} text-text-primary`}>

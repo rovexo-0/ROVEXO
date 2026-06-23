@@ -24,9 +24,9 @@ export const AuctionsSection = memo(function AuctionsSection({
 
   return (
     <section aria-labelledby="auctions-heading" className="px-ds-4">
-      <div className="mb-ds-3 flex items-end justify-between gap-ds-3">
+      <div className="mb-ds-2 flex items-end justify-between gap-ds-2">
         <div>
-          <h2 id="auctions-heading" className="text-lg font-semibold tracking-tight text-text-primary">
+          <h2 id="auctions-heading" className="home-section-2026__title text-text-primary">
             Live auctions
           </h2>
           <p className="text-sm text-text-secondary">
@@ -39,7 +39,7 @@ export const AuctionsSection = memo(function AuctionsSection({
       </div>
 
       {!hasLiveAuctions && !loading && !error ? (
-        <div className="rounded-ds-xl border border-dashed border-primary/25 bg-primary/5 px-ds-5 py-ds-6 text-center shadow-ds-soft">
+        <div className="rounded-ds-xl border border-dashed border-primary/25 bg-primary/5 px-ds-5 py-ds-6 text-center">
           <p className="text-sm font-semibold text-text-primary">Coming soon</p>
           <p className="mt-ds-1 text-sm text-text-secondary">
             Live bidding is rolling out. List an auction from the sell flow today.
@@ -56,11 +56,7 @@ export const AuctionsSection = memo(function AuctionsSection({
         </div>
       ) : (
         <div
-          className={cn(
-            "-mx-ds-4 flex gap-ds-3 overflow-x-auto px-ds-4 pb-ds-1",
-            "scroll-smooth overscroll-x-contain touch-pan-x snap-x snap-mandatory",
-            "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-          )}
+          className="marketplace-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           role={error ? "group" : "list"}
           aria-busy={loading}
           aria-live={error ? "polite" : undefined}
@@ -73,17 +69,7 @@ export const AuctionsSection = memo(function AuctionsSection({
             </div>
           ) : (
             products.map((product) => (
-              <div
-                key={product.id}
-                role="listitem"
-                className="w-[11rem] shrink-0 snap-start sm:w-[12.5rem]"
-              >
-                <HomeProductCard
-                  {...productToCardProps(product, "homepage")}
-                  layout="carousel"
-                  showBidButton
-                />
-              </div>
+              <HomeProductCard key={product.id} {...productToCardProps(product, "homepage")} />
             ))
           )}
         </div>

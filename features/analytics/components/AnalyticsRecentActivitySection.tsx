@@ -10,7 +10,7 @@ type AnalyticsRecentActivitySectionProps = {
 
 function ActivityCard({ label, value }: { label: string; value: number }) {
   return (
-    <Card padding="sm" className="flex min-h-[88px] flex-col justify-center gap-ds-1 shadow-ds-soft">
+    <Card padding="sm" className="flex min-h-[88px] flex-col justify-center gap-ds-1">
       <span className="text-lg font-bold tabular-nums text-text-primary">
         <AnimatedCounter value={value} />
       </span>

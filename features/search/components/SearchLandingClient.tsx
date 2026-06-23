@@ -17,7 +17,7 @@ export function SearchLandingClient() {
 
   return (
     <div className="flex flex-col gap-ds-5">
-      <Card padding="lg" className="shadow-ds-soft">
+      <Card padding="lg" className="">
         <h1 className="text-xl font-semibold text-text-primary">Search ROVEXO</h1>
         <p className="mt-ds-2 text-sm leading-relaxed text-text-secondary">
           Find products, sellers, stores, and categories. Use the search bar above or explore
@@ -25,7 +25,7 @@ export function SearchLandingClient() {
         </p>
       </Card>
 
-      <Card padding="none" className="overflow-hidden shadow-ds-soft">
+      <Card padding="none" className="overflow-hidden">
         <VoiceSearchPlaceholder />
       </Card>
 
@@ -49,7 +49,7 @@ export function SearchLandingClient() {
         <div className="mt-ds-3 grid grid-cols-2 gap-ds-2 sm:grid-cols-3">
           {defaultCategories.slice(0, 6).map((category) => (
             <Link key={category.href} href={category.href}>
-              <Card padding="sm" interactive className="min-h-[72px] shadow-ds-soft">
+              <Card padding="sm" interactive className="min-h-[72px]">
                 <p className="text-sm font-semibold text-text-primary">{category.name}</p>
               </Card>
             </Link>

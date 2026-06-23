@@ -22,7 +22,7 @@ export function HelpPoliciesPage({ policies }: HelpPoliciesPageProps) {
       <div className="grid gap-ds-3">
         {policies.map((policy) => (
           <Link key={policy.slug} href={policy.href}>
-            <Card padding="md" interactive className="shadow-ds-soft">
+            <Card padding="md" interactive className="">
               <p className="font-semibold text-text-primary">{policy.title}</p>
               <p className="mt-ds-1 text-sm text-text-secondary">{policy.summary}</p>
             </Card>

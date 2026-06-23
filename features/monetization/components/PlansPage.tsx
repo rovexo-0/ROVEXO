@@ -78,7 +78,7 @@ export function PlansPage({ plans, products, subscription }: PlansPageProps) {
         <h2 className="text-lg font-semibold">Subscription plans</h2>
         <div className="mt-ds-4 grid gap-ds-4 md:grid-cols-2 lg:grid-cols-3">
           {plans.map((plan) => (
-            <Card key={plan.id} padding="lg" className="shadow-ds-soft">
+            <Card key={plan.id} padding="lg" className="">
               <p className="font-semibold text-text-primary">{plan.name}</p>
               <p className="mt-ds-1 text-2xl font-bold text-primary">
                 {plan.priceCents === 0 ? "Free" : `£${(plan.priceCents / 100).toFixed(2)}/${plan.interval}`}
@@ -105,7 +105,7 @@ export function PlansPage({ plans, products, subscription }: PlansPageProps) {
         <h2 className="text-lg font-semibold">Monetization products</h2>
         <div className="mt-ds-4 grid gap-ds-3 sm:grid-cols-2">
           {products.map((product) => (
-            <Card key={product.id} padding="md" className="shadow-ds-soft">
+            <Card key={product.id} padding="md" className="">
               <div className="flex items-start justify-between gap-ds-3">
                 <div>
                   <p className="font-semibold text-text-primary">{product.title}</p>

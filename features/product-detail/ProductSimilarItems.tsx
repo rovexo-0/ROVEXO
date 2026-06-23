@@ -15,14 +15,9 @@ export function ProductSimilarItems({ products }: ProductSimilarItemsProps) {
         Similar Items
       </h2>
 
-      <div
-        className="-mx-ds-4 flex gap-ds-3 overflow-x-auto px-ds-4 pb-ds-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        role="list"
-      >
+      <div className="marketplace-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="list">
         {products.map((product) => (
-          <div key={product.id} role="listitem" className="w-[11rem] shrink-0">
-            <ProductCard {...productToCardProps(product)} />
-          </div>
+          <ProductCard key={product.id} {...productToCardProps(product)} />
         ))}
       </div>
     </section>

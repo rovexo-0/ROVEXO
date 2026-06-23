@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/Card";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 type LoadingSkeletonProps = {
   count?: number;
@@ -12,12 +13,12 @@ export function LoadingSkeleton({ count = 4 }: LoadingSkeletonProps) {
       aria-label="Loading search results"
     >
       {Array.from({ length: count }).map((_, index) => (
-        <Card key={index} padding="sm" aria-hidden className="animate-pulse">
+        <Card key={index} padding="sm" aria-hidden>
           <div className="flex items-center gap-ds-3">
-            <div className="h-14 w-14 rounded-ds-md bg-surface-muted" />
+            <Skeleton className="h-14 w-14" rounded="md" />
             <div className="flex flex-1 flex-col gap-ds-2">
-              <div className="h-4 w-3/4 rounded-ds-sm bg-surface-muted" />
-              <div className="h-3 w-1/3 rounded-ds-sm bg-surface-muted" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/3" />
             </div>
           </div>
         </Card>

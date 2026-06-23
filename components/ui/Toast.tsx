@@ -58,7 +58,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={toast.id}
             role="status"
             className={cn(
-              "pointer-events-auto w-full max-w-sm rounded-ds-lg border px-ds-4 py-ds-3 shadow-ds-floating",
+              "pointer-events-auto premium-sheet w-full max-w-sm border px-ds-4 py-ds-3 premium-enter",
               variantStyles[toast.variant],
               transitionFast,
             )}

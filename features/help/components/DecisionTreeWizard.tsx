@@ -116,7 +116,7 @@ export function DecisionTreeWizard({ tree }: DecisionTreeWizardProps) {
           </Button>
         </>
       ) : currentNode ? (
-        <Card padding="lg" className="shadow-ds-soft transition-opacity duration-200">
+        <Card padding="lg" className="transition-opacity duration-200">
           <h2 className="text-lg font-semibold text-text-primary">{currentNode.question}</h2>
           <div className="mt-ds-5 space-y-ds-2">
             {currentNode.options.map((optionEntry) => (
@@ -124,7 +124,7 @@ export function DecisionTreeWizard({ tree }: DecisionTreeWizardProps) {
                 key={optionEntry.id}
                 type="button"
                 onClick={() => chooseOption(optionEntry.id)}
-                className="flex w-full items-center gap-ds-3 rounded-ds-lg border border-border bg-surface px-ds-4 py-ds-3 text-left text-sm text-text-primary transition-colors hover:border-primary hover:bg-primary/5"
+                className="flex w-full items-center gap-ds-3 premium-menu-row premium-glass flex w-full items-center gap-ds-3 rounded-ds-lg px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:border-primary/40"
               >
                 <span className="inline-flex h-4 w-4 rounded-full border border-border" aria-hidden />
                 {optionEntry.label}

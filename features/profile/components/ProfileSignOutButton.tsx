@@ -25,7 +25,7 @@ export function ProfileSignOutButton() {
         onClick={() => setLogoutOpen(true)}
         disabled={pending}
         className={cn(
-          "flex min-h-[56px] w-full items-center justify-center gap-ds-2 rounded-ds-lg border border-border bg-surface px-ds-4 py-ds-3 text-base font-semibold text-danger shadow-ds-soft",
+          "premium-btn premium-glass flex min-h-[56px] w-full items-center justify-center gap-ds-2 border border-danger/30 px-ds-4 py-ds-3 text-base font-semibold text-danger",
           transitionFast,
           focusRing,
         )}

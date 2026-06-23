@@ -40,12 +40,12 @@ export function ProductReportDialog({ productSlug }: ProductReportDialogProps) {
 
       {open && (
         <div
-          className="fixed inset-0 z-[200] flex items-end justify-center bg-black/40 p-ds-4 sm:items-center"
+          className="premium-sheet-overlay fixed inset-0 z-[200] flex items-end justify-center p-ds-4 sm:items-center"
           role="dialog"
           aria-modal="true"
           aria-labelledby="report-dialog-title"
         >
-          <div className="w-full max-w-md rounded-ds-xl bg-background p-ds-5 shadow-ds-soft">
+          <div className="premium-sheet premium-enter w-full max-w-md p-ds-5">
             <h2 id="report-dialog-title" className="text-lg font-semibold text-text-primary">
               Report listing
             </h2>
@@ -64,7 +64,7 @@ export function ProductReportDialog({ productSlug }: ProductReportDialogProps) {
                   <select
                     value={reason}
                     onChange={(event) => setReason(event.target.value)}
-                    className="min-h-ds-7 rounded-ds-md border border-border bg-background px-ds-3 text-text-primary"
+                    className="premium-input min-h-ds-7 px-ds-3 text-text-primary"
                   >
                     <option value="misleading">Misleading description</option>
                     <option value="counterfeit">Counterfeit or replica</option>
@@ -79,7 +79,7 @@ export function ProductReportDialog({ productSlug }: ProductReportDialogProps) {
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
                     rows={3}
-                    className="rounded-ds-md border border-border bg-background px-ds-3 py-ds-2 text-text-primary"
+                    className="premium-input min-h-[88px] px-ds-3 py-ds-2 text-text-primary"
                   />
                 </label>
                 {status === "error" && (

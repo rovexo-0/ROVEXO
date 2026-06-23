@@ -30,7 +30,7 @@ export default function CategoriesIndexPage() {
               <Link
                 key={category.id}
                 href={`/category/${category.slug}`}
-                className="group relative overflow-hidden rounded-ds-xl border border-border bg-surface shadow-ds-soft transition-transform hover:-translate-y-0.5"
+                className="group relative overflow-hidden premium-card transition-transform hover:-translate-y-0.5"
               >
                 <div className="relative aspect-[16/10]">
                   <Image

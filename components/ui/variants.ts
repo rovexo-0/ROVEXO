@@ -24,7 +24,7 @@ export const buttonVariants = {
     transitionFast,
   ),
   ghost: cn(
-    "text-text-secondary hover:bg-secondary/80 hover:text-primary rounded-ds-md",
+    "premium-btn rounded-ds-md text-text-secondary hover:bg-secondary/80 hover:text-primary",
     focusRing,
     transitionFast,
   ),

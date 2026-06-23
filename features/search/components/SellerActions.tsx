@@ -27,7 +27,7 @@ function ChartIcon({ className }: { className?: string }) {
 }
 
 const actionStyles = cn(
-  "inline-flex min-h-ds-7 flex-1 items-center justify-center gap-ds-2 rounded-ds-full border border-border bg-surface px-ds-3 text-xs font-medium text-text-secondary sm:px-ds-4 sm:text-sm",
+  "premium-chip inline-flex min-h-ds-7 flex-1 items-center justify-center gap-ds-2 px-ds-3 text-xs font-medium text-text-secondary sm:px-ds-4 sm:text-sm",
   transitionFast,
   focusRing,
 );

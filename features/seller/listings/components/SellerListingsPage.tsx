@@ -330,7 +330,7 @@ export function SellerListingsPage({ data }: { data: SellerListingsData }) {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <header className="sticky top-0 z-50 border-b border-border bg-surface/95 shadow-ds-soft backdrop-blur-xl backdrop-saturate-150">
+      <header className="premium-page-header sticky top-0 z-50">
         <div
           className={cn(
             "grid min-h-[56px] grid-cols-[48px_1fr_48px] items-center gap-ds-2 px-ds-4",
@@ -365,13 +365,13 @@ export function SellerListingsPage({ data }: { data: SellerListingsData }) {
 
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
         {(promotionMessage || checkoutError) && (
-          <Card padding="sm" className="border-primary/30 bg-primary/5 shadow-ds-soft">
+          <Card padding="sm" className="border-primary/30 bg-primary/5">
             <p className="text-sm font-medium text-primary">{promotionMessage ?? checkoutError}</p>
           </Card>
         )}
 
         {data.lowStockCount > 0 && (
-          <Card padding="sm" className="border-warning/30 bg-warning/5 shadow-ds-soft">
+          <Card padding="sm" className="border-warning/30 bg-warning/5">
             <p className="text-sm font-medium text-warning">
               {data.lowStockCount} listing{data.lowStockCount === 1 ? "" : "s"} running low on stock.
             </p>
@@ -406,7 +406,7 @@ export function SellerListingsPage({ data }: { data: SellerListingsData }) {
           })}
         </div>
 
-        <Card padding="none" className="overflow-hidden shadow-ds-soft">
+        <Card padding="none" className="overflow-hidden">
           {data.listings.length === 0 ? (
             <p className="px-ds-4 py-ds-6 text-center text-sm text-text-secondary">
               No listings match this filter.

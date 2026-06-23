@@ -40,7 +40,7 @@ export function ProfileHero({ profile }: ProfileHeroProps) {
           <p className="text-xs text-text-muted">Member since {profile.memberSince}</p>
         </div>
 
-        <div className="grid w-full grid-cols-2 gap-ds-3 rounded-ds-lg border border-border bg-surface-muted p-ds-3">
+        <div className="premium-glass premium-depth-1 grid w-full grid-cols-2 gap-ds-3 rounded-ds-lg p-ds-3">
           <div className="text-center">
             <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Buyer rating</p>
             <div className="mt-ds-1 flex justify-center">

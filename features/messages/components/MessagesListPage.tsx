@@ -35,7 +35,7 @@ export function MessagesListPage({ conversations }: MessagesListPageProps) {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <header className="sticky top-0 z-50 border-b border-border bg-surface/95 shadow-ds-soft backdrop-blur-xl backdrop-saturate-150">
+      <header className="premium-page-header sticky top-0 z-50">
         <div className="flex items-center justify-between gap-ds-3 px-ds-4 pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]">
           <h1 className="min-w-0 truncate text-2xl font-bold text-text-primary">Messages</h1>
           <IconButton
@@ -56,7 +56,7 @@ export function MessagesListPage({ conversations }: MessagesListPageProps) {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search conversations"
               className={cn(
-                "min-h-ds-7 w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm text-text-primary placeholder:text-text-muted",
+                "min-h-ds-7 w-full premium-input px-ds-3 py-ds-2 text-sm placeholder:text-text-muted",
                 focusRing,
               )}
             />

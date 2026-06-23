@@ -8,7 +8,7 @@ export const HomeHero = memo(function HomeHero({ className }: { className?: stri
     <section
       aria-labelledby="home-hero-heading"
       className={cn(
-        "relative mx-ds-4 overflow-hidden rounded-ds-xl bg-[image:var(--ds-gradient-primary)] px-ds-5 py-ds-7 text-primary-foreground shadow-ds-soft md:px-ds-7 md:py-ds-8",
+        "relative mx-ds-4 overflow-hidden rounded-ds-xl bg-[image:var(--ds-gradient-primary)] px-ds-5 py-ds-7 text-primary-foreground md:px-ds-7 md:py-ds-8",
         className,
       )}
     >

@@ -16,7 +16,7 @@ export function ConversationCard({ conversation }: ConversationCardProps) {
 
   return (
     <Link href={`/messages/${conversation.id}`} className="block">
-      <Card padding="sm" interactive className="min-h-[56px] shadow-ds-soft">
+      <Card padding="sm" interactive className="min-h-[56px]">
         <div className="flex items-center gap-ds-3">
           <Avatar
             src={participant.avatarUrl}

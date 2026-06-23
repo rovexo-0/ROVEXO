@@ -23,13 +23,13 @@ export function HelpFaqPage() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search FAQs..."
-          className="mt-ds-4 w-full rounded-ds-xl border border-border bg-surface px-ds-4 py-ds-3 text-sm"
+          className="mt-ds-4 w-full premium-input rounded-ds-xl px-ds-4 py-ds-3 text-sm"
         />
       </div>
 
       <div className="space-y-ds-3">
         {faqs.map((faq) => (
-          <Card key={faq.id} padding="md" className="shadow-ds-soft">
+          <Card key={faq.id} padding="md" className="">
             <p className="font-semibold text-text-primary">{faq.question}</p>
             <p className="mt-ds-2 text-sm text-text-secondary">{faq.answer}</p>
             <Link href={faq.href} className="mt-ds-3 inline-flex text-sm font-medium text-primary hover:underline">
@@ -38,7 +38,7 @@ export function HelpFaqPage() {
           </Card>
         ))}
         {!faqs.length ? (
-          <Card padding="md" className="shadow-ds-soft">
+          <Card padding="md" className="">
             <p className="text-sm text-text-secondary">No FAQs matched your search.</p>
           </Card>
         ) : null}

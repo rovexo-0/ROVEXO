@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
 @import "../styles/premium-2026.css";
+@import "../styles/locked-2026.css";
 
 @theme inline {
   --color-primary: var(--ds-color-primary);
@@ -63,17 +64,11 @@ body {
 }
 
 :root {
-  --header-control-height: 2.75rem;
-  --header-search-height: 3rem;
-  --header-shell-height: 3.75rem;
-  --header-mobile-stack-height: 3.75rem;
-}
-
-@media (min-width: 1024px) {
-  :root {
-    --header-control-height: 2.75rem;
-    --header-shell-height: 3.75rem;
-  }
+  --header-control-height: 44px;
+  --header-search-height: 48px;
+  --header-shell-height: 52px;
+  --header-mobile-stack-height: 52px;
+  --bottom-nav-shell-height: 60px;
 }
 
 .sr-only {

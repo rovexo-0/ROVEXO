@@ -18,7 +18,7 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-ds-8 px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
-      <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6 shadow-ds-soft">
+      <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6">
         <p className="text-sm font-medium text-primary">ROVEXO Help Center</p>
         <h1 className="mt-ds-2 text-3xl font-bold text-text-primary">Welcome to ROVEXO Help Center</h1>
         <p className="mt-ds-2 text-base text-text-secondary">How can we help you today?</p>
@@ -30,7 +30,7 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search articles, categories, FAQs, features, policies..."
-          className="mt-ds-5 w-full rounded-ds-xl border border-border bg-surface px-ds-4 py-ds-4 text-sm text-text-primary shadow-sm"
+          className="mt-ds-5 w-full premium-input rounded-ds-xl px-ds-4 py-ds-4 text-sm"
         />
       </section>
 
@@ -68,7 +68,7 @@ function SearchResults({ results, query }: { results: HelpSearchResult[]; query:
       <div className="mt-ds-4 grid gap-ds-3">
         {results.map((result) => (
           <Link key={`${result.type}:${result.id}`} href={result.href}>
-            <Card padding="md" interactive className="shadow-ds-soft">
+            <Card padding="md" interactive className="">
               <div className="flex items-center justify-between gap-ds-3">
                 <p className="font-semibold text-text-primary">{result.title}</p>
                 <span className="rounded-full bg-surface-muted px-ds-2 py-ds-0.5 text-xs capitalize text-text-muted">
@@ -80,7 +80,7 @@ function SearchResults({ results, query }: { results: HelpSearchResult[]; query:
           </Link>
         ))}
         {!results.length ? (
-          <Card padding="md" className="shadow-ds-soft">
+          <Card padding="md" className="">
             <p className="text-sm text-text-secondary">
               No matches found. Browse help topics below or try “withdraw”, “refund”, or “order tracking”.
             </p>
@@ -94,7 +94,7 @@ function SearchResults({ results, query }: { results: HelpSearchResult[]; query:
 function QuickLink({ href, title, description }: { href: string; title: string; description: string }) {
   return (
     <Link href={href}>
-      <Card padding="md" interactive className="h-full shadow-ds-soft">
+      <Card padding="md" interactive className="h-full">
         <p className="font-semibold text-text-primary">{title}</p>
         <p className="mt-ds-1 text-sm text-text-secondary">{description}</p>
       </Card>
@@ -118,7 +118,7 @@ function BrowseTopics() {
               <div className="mt-ds-3 grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
                 {topics.map((topic) => (
                   <Link key={topic.slug} href={`/help/category/${topic.slug}`}>
-                    <Card padding="md" interactive className="h-full shadow-ds-soft">
+                    <Card padding="md" interactive className="h-full">
                       <p className="text-lg">{topic.icon}</p>
                       <p className="mt-ds-2 font-semibold text-text-primary">{topic.label}</p>
                       <p className="mt-ds-1 text-sm text-text-secondary">{topic.description}</p>

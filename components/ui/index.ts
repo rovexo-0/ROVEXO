@@ -15,7 +15,8 @@ export { Price, type PriceProps } from "@/components/ui/Price";
 export { ProductCard, type ProductCardProps } from "@/components/ui/ProductCard";
 export { Rating, type RatingProps } from "@/components/ui/Rating";
 export { SearchBar, type SearchBarProps } from "@/components/ui/SearchBar";
-export { MotionDiv, MotionPress } from "@/components/ui/motion";
+export { Skeleton, SkeletonText } from "@/components/ui/Skeleton";
+export { StickyPageHeader } from "@/components/ui/StickyPageHeader";
 export { PremiumIcon } from "@/components/icons/PremiumIcon";
 export { ToastProvider, useToast, type ToastVariant } from "@/components/ui/Toast";
 export type { SearchScope, SuggestedSeller } from "@/lib/search/defaults";
@@ -37,4 +38,8 @@ export {
   transitionNormal,
   transitionSlow,
   transitionSpring,
+  premiumPageHeader,
+  premiumFormSection,
+  premiumInput,
+  premiumFooterBar,
 } from "@/components/ui/tokens";

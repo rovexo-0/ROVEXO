@@ -34,7 +34,7 @@ export function HeaderProfileLink({ className }: { className?: string }) {
       href="/account"
       aria-label="Account"
       className={cn(
-        "inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-ds-full",
+        "touch-target-2026 inline-flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-ds-full",
         transitionFast,
         "hover:opacity-90 active:scale-[0.94]",
         focusRing,

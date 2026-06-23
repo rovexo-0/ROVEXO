@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { IconButton } from "@/components/ui/IconButton";
+import { StickyPageHeader } from "@/components/ui/StickyPageHeader";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
@@ -27,7 +28,7 @@ export function DashboardHeader({
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-border bg-surface/95 shadow-ds-soft backdrop-blur-xl backdrop-saturate-150">
+      <StickyPageHeader>
         <div
           className={cn(
             "grid min-h-[56px] grid-cols-[48px_1fr_48px] items-center gap-ds-2 px-ds-4",
@@ -66,17 +67,17 @@ export function DashboardHeader({
             )}
           </Link>
         </div>
-      </header>
+      </StickyPageHeader>
 
       {menuOpen && (
-        <div className="fixed inset-0 z-[100] bg-overlay px-ds-4 pt-[calc(56px+env(safe-area-inset-top))]">
+        <div className="premium-sheet-overlay fixed inset-0 z-[100] px-ds-4 pt-[calc(56px+env(safe-area-inset-top))]">
           <button
             type="button"
             aria-label="Close menu"
             className="absolute inset-0"
             onClick={() => setMenuOpen(false)}
           />
-          <Card padding="none" className="relative mx-auto mt-ds-3 max-w-2xl overflow-hidden shadow-ds-floating">
+          <Card padding="none" className="relative mx-auto mt-ds-3 max-w-2xl overflow-hidden">
             <nav aria-label={menuLabel}>
               {menuItems.map((item, index) => (
                 <div key={item.title} className={index > 0 ? "border-t border-border" : undefined}>

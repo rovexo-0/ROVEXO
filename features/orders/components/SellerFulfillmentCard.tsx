@@ -48,7 +48,7 @@ export function SellerFulfillmentCard({ order, onUpdated }: SellerFulfillmentCar
   }
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-3 shadow-ds-soft">
+    <Card padding="lg" className="flex flex-col gap-ds-3">
       <h2 className="text-base font-semibold text-text-primary">Seller fulfillment</h2>
 
       {canMarkDelivered && (

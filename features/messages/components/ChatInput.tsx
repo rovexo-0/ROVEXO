@@ -57,7 +57,7 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
           placeholder="Type a message..."
           disabled={disabled || sending}
           className={cn(
-            "min-h-[56px] flex-1 rounded-ds-full border border-border bg-surface-muted px-ds-4 py-ds-3 text-sm text-text-primary placeholder:text-text-muted",
+            "premium-input min-h-[56px] flex-1 rounded-ds-full px-ds-4 py-ds-3 text-sm placeholder:text-text-muted",
             focusRing,
           )}
         />

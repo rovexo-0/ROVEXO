@@ -1,4 +1,5 @@
 import { IconButton } from "@/components/ui/IconButton";
+import { StickyPageHeader } from "@/components/ui/StickyPageHeader";
 import { cn } from "@/lib/cn";
 
 type SellPageHeaderProps = {
@@ -35,7 +36,7 @@ export function SellPageHeader({
   quickMode = false,
 }: SellPageHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-surface/95 shadow-ds-soft backdrop-blur-xl backdrop-saturate-150">
+    <StickyPageHeader>
       <div
         className={cn(
           "grid min-h-[56px] grid-cols-[48px_1fr_48px] items-center gap-ds-2 px-ds-4",
@@ -72,6 +73,6 @@ export function SellPageHeader({
           {draftSavedMessage}
         </p>
       )}
-    </header>
+    </StickyPageHeader>
   );
 }

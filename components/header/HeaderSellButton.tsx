@@ -12,7 +12,7 @@ export function HeaderSellButton({ className }: HeaderSellButtonProps) {
       href="/sell"
       className={cn(
         "inline-flex h-9 shrink-0 items-center justify-center rounded-ds-full px-ds-4 text-sm font-semibold text-primary-foreground",
-        "bg-[image:var(--ds-gradient-primary)] shadow-ds-soft",
+        "bg-[image:var(--ds-gradient-primary)]",
         "hover:scale-[1.02] hover:shadow-ds-medium active:scale-[0.98]",
         focusRing,
         transitionFast,

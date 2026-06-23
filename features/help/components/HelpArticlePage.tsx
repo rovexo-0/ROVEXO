@@ -54,7 +54,7 @@ export function HelpArticlePage({ article }: HelpArticlePageProps) {
         <p className="mt-ds-2 text-sm text-text-secondary">{sections.overview}</p>
       </div>
 
-      <Card padding="lg" className="shadow-ds-soft">
+      <Card padding="lg" className="">
         <div className="space-y-ds-5">
           <section>
             <h2 className="text-sm font-semibold text-text-primary">Overview</h2>

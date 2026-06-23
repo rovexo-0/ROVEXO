@@ -29,16 +29,13 @@ const HeaderActions = memo(function HeaderActions({
   return (
     <>
       <HeaderIconLink href="/messages" label="Messages" badge={unreadMessages} size="compact">
-        <MessagesMenuIcon className="h-[1.125rem] w-[1.125rem]" />
+        <MessagesMenuIcon className="h-5 w-5" />
       </HeaderIconLink>
-      <HeaderIconLink
-        href="/notifications"
-        label="Notifications"
-        badge={unreadNotifications}
-        size="compact"
-      >
-        <NotificationsMenuIcon className="h-[1.125rem] w-[1.125rem]" />
+      <HeaderIconLink href="/notifications" label="Notifications" badge={unreadNotifications} size="compact">
+        <NotificationsMenuIcon className="h-5 w-5" />
       </HeaderIconLink>
+      <HeaderWishlistLink size="compact" />
+      <HeaderProfileLink />
     </>
   );
 });
@@ -68,10 +65,9 @@ function Header({
   return (
     <header
       ref={headerRef}
-      data-header-version="mobile-v1"
+      data-header-version="premium-2026"
       className={cn(
-        "top-0 left-0 right-0 z-[100] border-b border-border/60",
-        "premium-glass premium-depth-1 shadow-[var(--ds-depth-2)]",
+        "header-premium-2026 top-0 left-0 right-0 z-[100]",
         hasScrollBehavior
           ? cn(
               "fixed will-change-transform transition-[transform,opacity] duration-200 ease-in-out",
@@ -84,36 +80,36 @@ function Header({
           : "sticky",
       )}
     >
-      <div className="mx-auto max-w-7xl px-ds-3 lg:px-ds-4">
+      <div className="mx-auto max-w-7xl px-ds-2 sm:px-ds-3 lg:px-ds-4">
         <div
           className={cn(
-            "flex min-h-[var(--header-shell-height)] flex-nowrap items-center gap-ds-2",
-            "pt-[max(env(safe-area-inset-top),var(--ds-space-2))] pb-ds-2",
+            "relative flex min-h-[var(--header-shell-height)] items-center justify-center",
+            "pt-[max(env(safe-area-inset-top),var(--ds-space-1))] pb-1",
           )}
         >
-          <RovexoLogo variant="mark" className="shrink-0 sm:hidden" />
-          <RovexoLogo variant="compact" className="hidden shrink-0 sm:inline-flex" />
+          <div className="absolute inset-y-0 left-0 z-[2] flex items-center pl-ds-0.5">
+            <RovexoLogo variant="responsive" />
+          </div>
 
-          <HeaderSearchBar
-            inputId="header-search"
-            size="inline"
-            placeholder="Search for anything..."
-            className="min-w-0 flex-1 max-sm:[&_input]:placeholder:text-[11px]"
-          />
+          <div className="header-premium-2026__search z-[1] w-full px-[4.25rem] sm:px-[5.5rem] md:px-[6.5rem] lg:max-w-xl lg:px-[7rem]">
+            <HeaderSearchBar
+              inputId="header-search"
+              size="inline"
+              placeholder="Search ROVEXO…"
+              className="mx-auto w-full"
+            />
+          </div>
 
           <div
-            className="flex shrink-0 flex-nowrap items-center gap-0.5"
+            className="absolute inset-y-0 right-0 z-[2] flex items-center gap-0"
             role="group"
             aria-label="Quick links"
           >
-            <HeaderWishlistLink size="compact" className="md:hidden" />
             <HeaderActions
               unreadMessages={unreadMessages}
               unreadNotifications={unreadNotifications}
             />
-            <HeaderProfileLink />
-            <HeaderWishlistLink size="compact" className="hidden md:inline-flex" />
-            <HeaderSellButton className="hidden lg:inline-flex" />
+            <HeaderSellButton className="ml-0.5 hidden lg:inline-flex" />
           </div>
         </div>
       </div>
@@ -128,7 +124,7 @@ export default memo(Header);
 export function NotificationBell({ unreadCount }: { unreadCount: number }) {
   return (
     <HeaderIconLink href="/notifications" label="Notifications" badge={unreadCount} size="compact">
-      <NotificationsMenuIcon className="h-[1.125rem] w-[1.125rem]" />
+      <NotificationsMenuIcon className="h-5 w-5" />
     </HeaderIconLink>
   );
 }

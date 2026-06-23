@@ -39,7 +39,7 @@ export function ProgrammaticPageView({ page, products, total }: ProgrammaticPage
       <p className="mt-ds-2 text-xs text-text-muted">{total} listings</p>
 
       {products.length ? (
-        <div className="mt-ds-6 grid grid-cols-2 gap-ds-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-ds-6 marketplace-listing-grid">
           {products.map((product) => (
             <ProductCard key={product.id} {...productToCardProps(product, "category")} />
           ))}

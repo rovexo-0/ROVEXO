@@ -6,10 +6,11 @@ export type PriceProps = {
   currency?: string;
   locale?: string;
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
 };
 
 const sizeStyles = {
+  xs: { current: "text-sm", original: "text-[0.6875rem]" },
   sm: { current: "text-base", original: "text-xs" },
   md: { current: "text-lg", original: "text-sm" },
   lg: { current: "text-xl", original: "text-sm" },

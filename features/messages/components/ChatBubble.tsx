@@ -16,7 +16,7 @@ export function ChatBubble({ message }: ChatBubbleProps) {
       <div className={cn("flex max-w-[75%] flex-col gap-ds-1", isBuyer ? "items-end" : "items-start")}>
         <div
           className={cn(
-            "rounded-ds-lg px-ds-3 py-ds-2 text-sm leading-relaxed shadow-ds-soft",
+            "rounded-ds-lg px-ds-3 py-ds-2 text-sm leading-relaxed",
             isBuyer
               ? "rounded-br-sm bg-primary text-primary-foreground"
               : "rounded-bl-sm bg-surface-muted text-text-primary",

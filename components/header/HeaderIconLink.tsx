@@ -19,8 +19,8 @@ function formatBadgeCount(count: number): string {
 }
 
 const sizeStyles = {
-  default: "h-10 min-h-10 w-10 min-w-10 rounded-ds-md",
-  compact: "h-11 min-h-11 w-11 min-w-11 rounded-ds-sm",
+  default: "h-11 min-h-11 w-11 min-w-11 rounded-ds-md",
+  compact: "touch-target-2026 h-11 w-11 min-h-[44px] min-w-[44px] rounded-ds-sm",
 } as const;
 
 export function HeaderIconLink({

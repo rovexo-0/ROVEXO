@@ -71,7 +71,7 @@ export function BusinessInventoryPage({ data }: BusinessInventoryPageProps) {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <header className="sticky top-0 z-50 border-b border-border bg-surface/95 shadow-ds-soft backdrop-blur-xl backdrop-saturate-150">
+      <header className="premium-page-header sticky top-0 z-50">
         <div
           className={cn(
             "grid min-h-[56px] grid-cols-[48px_1fr_48px] items-center gap-ds-2 px-ds-4",
@@ -100,7 +100,7 @@ export function BusinessInventoryPage({ data }: BusinessInventoryPageProps) {
 
         <WholesalePricingManager />
 
-        <Card padding="none" className="overflow-hidden shadow-ds-soft">
+        <Card padding="none" className="overflow-hidden">
           {filteredItems.length === 0 ? (
             <p className="px-ds-4 py-ds-6 text-center text-sm text-text-secondary">
               No inventory items match this filter.

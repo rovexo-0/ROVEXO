@@ -41,7 +41,7 @@ export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
         />
 
         {data.lowStockCount > 0 && (
-          <Card padding="sm" className="border-warning/30 bg-warning/5 shadow-ds-soft">
+          <Card padding="sm" className="border-warning/30 bg-warning/5">
             <p className="text-sm font-medium text-warning">
               {data.lowStockCount} listing{data.lowStockCount === 1 ? "" : "s"} running low on stock.{" "}
               <Link href="/seller/listings?filter=low_stock" className="underline">
@@ -53,7 +53,7 @@ export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
 
         <DashboardSummaryGrid cards={data.todaySummary} />
 
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <h2 className="text-base font-semibold text-text-primary">30-day performance</h2>
           <div className="mt-ds-4 grid grid-cols-2 gap-ds-3 text-sm">
             <Metric label="Revenue" value={`£${data.monthlyRevenue.toFixed(2)}`} />

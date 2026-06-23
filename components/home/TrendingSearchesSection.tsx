@@ -18,7 +18,7 @@ export function TrendingSearchesSection({
           <li key={term}>
             <Link
               href={`/search?q=${encodeURIComponent(term)}`}
-              className="inline-flex min-h-ds-7 items-center rounded-ds-full border border-border bg-surface px-ds-4 text-sm font-medium text-text-secondary shadow-ds-soft hover:border-primary/30 hover:text-primary"
+              className="premium-chip inline-flex min-h-ds-7 items-center px-ds-4 text-sm font-medium text-text-secondary hover:text-primary"
             >
               {term}
             </Link>

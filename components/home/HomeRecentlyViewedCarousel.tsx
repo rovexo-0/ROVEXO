@@ -22,8 +22,8 @@ export function HomeRecentlyViewedCarousel() {
 
   return (
     <section aria-labelledby="recently-viewed-heading" className="px-ds-4">
-      <div className="mb-ds-3 flex items-end justify-between gap-ds-3">
-        <h2 id="recently-viewed-heading" className="text-lg font-semibold tracking-tight text-text-primary">
+      <div className="mb-ds-2 flex items-end justify-between gap-ds-2">
+        <h2 id="recently-viewed-heading" className="home-section-2026__title text-text-primary">
           Recently Viewed
         </h2>
         <Link href="/saved" className={cn("text-sm font-semibold text-primary hover:opacity-80", focusRing)}>
@@ -31,22 +31,9 @@ export function HomeRecentlyViewedCarousel() {
         </Link>
       </div>
 
-      <div
-        className={cn(
-          "-mx-ds-4 flex gap-ds-3 overflow-x-auto px-ds-4 pb-ds-1",
-          "scroll-smooth overscroll-x-contain touch-pan-x snap-x snap-mandatory",
-          "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-        )}
-        role="list"
-      >
+      <div className="marketplace-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="list">
         {items.map((product) => (
-          <div
-            key={product.id}
-            role="listitem"
-            className="w-[10.5rem] shrink-0 snap-start sm:w-[12.5rem]"
-          >
-            <HomeProductCard {...productToCardProps(product, "homepage")} layout="carousel" />
-          </div>
+          <HomeProductCard key={product.id} {...productToCardProps(product, "homepage")} />
         ))}
       </div>
     </section>

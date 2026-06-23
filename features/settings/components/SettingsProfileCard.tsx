@@ -18,7 +18,7 @@ export function SettingsProfileCard({ profile }: SettingsProfileCardProps) {
       <Card
         padding="md"
         interactive
-        className={cn("shadow-ds-soft", transitionFast, focusRing)}
+        className={cn("", transitionFast, focusRing)}
       >
         <div className="flex min-h-[72px] items-center gap-ds-3">
           <Avatar

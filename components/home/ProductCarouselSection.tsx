@@ -32,7 +32,6 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
   loadingMore = false,
   error = false,
   hideWhenEmpty = true,
-  showBidButton = false,
   viewAllHref,
   footer,
   className,
@@ -44,9 +43,9 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
   const showViewAll = Boolean(viewAllHref && products.length > 0 && !loading && !error);
 
   return (
-    <section aria-labelledby={id} className={cn("px-ds-4", className)}>
-      <div className="mb-ds-3 flex items-end justify-between gap-ds-3">
-        <h2 id={id} className="text-lg font-semibold tracking-tight text-text-primary">
+    <section aria-labelledby={id} className={cn("home-section-2026 px-ds-4", className)}>
+      <div className="mb-ds-2 flex items-end justify-between gap-ds-2">
+        <h2 id={id} className="home-section-2026__title text-text-primary">
           {title}
         </h2>
         {showViewAll ? (
@@ -61,8 +60,7 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
 
       <div
         className={cn(
-          "-mx-ds-4 flex gap-ds-3 overflow-x-auto px-ds-4 pb-ds-1",
-          "scroll-smooth overscroll-x-contain touch-pan-x snap-x snap-mandatory",
+          "marketplace-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1",
           "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         )}
         role={error ? "group" : "list"}
@@ -81,17 +79,10 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
           </div>
         ) : (
           products.map((product) => (
-            <div
+            <HomeProductCard
               key={product.id}
-              role="listitem"
-              className="w-[10.5rem] shrink-0 snap-start sm:w-[12.5rem] md:w-[13.75rem]"
-            >
-              <HomeProductCard
-                {...productToCardProps(product, "homepage")}
-                layout="carousel"
-                showBidButton={showBidButton}
-              />
-            </div>
+              {...productToCardProps(product, "homepage")}
+            />
           ))
         )}
         {loadingMore ? <ProductCarouselSkeleton count={2} /> : null}

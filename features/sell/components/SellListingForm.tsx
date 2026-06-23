@@ -62,7 +62,7 @@ export function SellListingForm({ form }: SellListingFormProps) {
         Listing details
       </h2>
 
-      <div className="overflow-hidden rounded-ds-lg border border-border bg-surface shadow-ds-soft">
+      <div className="premium-form-section overflow-hidden">
         <FormRow label="Title" htmlFor="sell-title" error={errors.title}>
           <input
             id="sell-title"
@@ -104,7 +104,7 @@ export function SellListingForm({ form }: SellListingFormProps) {
               type="button"
               onClick={() => setCategoryPickerOpen((current) => !current)}
               className={cn(
-                "min-h-ds-7 w-full rounded-ds-sm border border-border bg-surface-muted px-ds-3 py-ds-2 text-left text-sm text-text-primary",
+                "premium-input min-h-ds-7 w-full rounded-ds-sm bg-surface-muted/60 px-ds-3 py-ds-2 text-left text-sm",
                 fieldErrorClassName(Boolean(errors.category)),
                 focusRing,
               )}

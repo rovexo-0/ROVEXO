@@ -61,7 +61,7 @@ export function RecentTransactionsSection({ transactions }: RecentTransactionsSe
         Recent Transactions
       </h2>
 
-      <Card padding="none" className="overflow-hidden shadow-ds-soft">
+      <Card padding="none" className="overflow-hidden">
         {items.length === 0 ? (
           <p className="px-ds-4 py-ds-6 text-center text-sm text-text-secondary">
             No transactions yet.

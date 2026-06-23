@@ -110,13 +110,13 @@ export function CheckoutPage({ product, initialDraft }: CheckoutPageProps) {
         ) : (
           <>
             {product.availability === "out_of_stock" || product.stock <= 0 ? (
-              <Card padding="sm" className="border-danger/30 bg-danger/5 shadow-ds-soft">
+              <Card padding="sm" className="border-danger/30 bg-danger/5">
                 <p className="text-sm font-medium text-danger">This item is out of stock.</p>
               </Card>
             ) : null}
 
             {errorMessage && (
-              <Card padding="sm" className="border-danger/30 bg-danger/5 shadow-ds-soft">
+              <Card padding="sm" className="border-danger/30 bg-danger/5">
                 <p className="text-sm font-medium text-danger">{errorMessage}</p>
               </Card>
             )}

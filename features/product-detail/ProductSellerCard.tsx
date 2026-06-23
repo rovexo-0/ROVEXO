@@ -33,7 +33,7 @@ export function ProductSellerCard({
   const profileHref = sellerUsername ? `/user/${sellerUsername}` : "/search";
 
   return (
-    <Card padding="lg" className={cn("shadow-ds-soft", className)}>
+    <Card padding="lg" className={cn("", className)}>
       <h2 className="mb-ds-3 text-sm font-semibold uppercase tracking-wide text-text-muted">
         Seller
       </h2>

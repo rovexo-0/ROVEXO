@@ -54,7 +54,7 @@ export function ProfileMenu({ profile }: ProfileMenuProps) {
   );
 
   return (
-    <Card padding="none" className="overflow-hidden shadow-ds-soft">
+    <Card padding="none" className="overflow-hidden">
       <nav aria-label="Profile menu">
         <ProfileMenuRow
           title="Orders"

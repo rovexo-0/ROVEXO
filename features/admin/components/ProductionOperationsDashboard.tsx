@@ -48,7 +48,7 @@ export function ProductionOperationsDashboard({ data }: ProductionOperationsDash
         <h3 className="text-sm font-semibold uppercase tracking-wide text-text-muted">Dependency health</h3>
         <div className="mt-ds-3 grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-4">
           {Object.entries(data.health.checks).map(([name, check]) => (
-            <Card key={name} padding="md" className="shadow-ds-soft">
+            <Card key={name} padding="md" className="">
               <p className="text-sm capitalize text-text-secondary">{name}</p>
               <div className="mt-ds-2 flex items-center gap-ds-2">
                 <Badge variant={STATUS_VARIANT[check.status]}>{check.status}</Badge>
@@ -63,21 +63,21 @@ export function ProductionOperationsDashboard({ data }: ProductionOperationsDash
       <section>
         <h3 className="text-sm font-semibold uppercase tracking-wide text-text-muted">Platform status</h3>
         <div className="mt-ds-3 grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Card padding="md" className="shadow-ds-soft"><p className="text-sm text-text-secondary">Total users</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.totalUsers}</p></Card>
-          <Card padding="md" className="shadow-ds-soft"><p className="text-sm text-text-secondary">Active (7d)</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.activeUsers7d}</p></Card>
-          <Card padding="md" className="shadow-ds-soft"><p className="text-sm text-text-secondary">Orders</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.totalOrders}</p></Card>
-          <Card padding="md" className="shadow-ds-soft"><p className="text-sm text-text-secondary">Subscriptions</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.activeSubscriptions}</p></Card>
-          <Card padding="md" className="shadow-ds-soft"><p className="text-sm text-text-secondary">Pending withdrawals</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.pendingWithdrawals}</p></Card>
-          <Card padding="md" className="shadow-ds-soft"><p className="text-sm text-text-secondary">Trust queue</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.pendingVerifications}</p></Card>
-          <Card padding="md" className="shadow-ds-soft"><p className="text-sm text-text-secondary">Reports queue</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.pendingModeration}</p></Card>
-          <Card padding="md" className="shadow-ds-soft"><p className="text-sm text-text-secondary">Protection cases</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.openProtectionCases}</p></Card>
-          <Card padding="md" className="shadow-ds-soft"><p className="text-sm text-text-secondary">Failed emails</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.failedEmails}</p></Card>
-          <Card padding="md" className="shadow-ds-soft"><p className="text-sm text-text-secondary">Pending emails</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.pendingEmails}</p></Card>
+          <Card padding="md" className=""><p className="text-sm text-text-secondary">Total users</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.totalUsers}</p></Card>
+          <Card padding="md" className=""><p className="text-sm text-text-secondary">Active (7d)</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.activeUsers7d}</p></Card>
+          <Card padding="md" className=""><p className="text-sm text-text-secondary">Orders</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.totalOrders}</p></Card>
+          <Card padding="md" className=""><p className="text-sm text-text-secondary">Subscriptions</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.activeSubscriptions}</p></Card>
+          <Card padding="md" className=""><p className="text-sm text-text-secondary">Pending withdrawals</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.pendingWithdrawals}</p></Card>
+          <Card padding="md" className=""><p className="text-sm text-text-secondary">Trust queue</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.pendingVerifications}</p></Card>
+          <Card padding="md" className=""><p className="text-sm text-text-secondary">Reports queue</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.pendingModeration}</p></Card>
+          <Card padding="md" className=""><p className="text-sm text-text-secondary">Protection cases</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.openProtectionCases}</p></Card>
+          <Card padding="md" className=""><p className="text-sm text-text-secondary">Failed emails</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.failedEmails}</p></Card>
+          <Card padding="md" className=""><p className="text-sm text-text-secondary">Pending emails</p><p className="mt-ds-1 text-2xl font-bold">{data.platform.pendingEmails}</p></Card>
         </div>
       </section>
 
       <section className="grid gap-ds-4 lg:grid-cols-2">
-        <Card padding="md" className="shadow-ds-soft">
+        <Card padding="md" className="">
           <h3 className="font-semibold">Cron status</h3>
           <p className="mt-ds-2 text-sm text-text-secondary">
             Last run: {data.cron.lastRunAt ? new Date(data.cron.lastRunAt).toLocaleString("en-GB") : "Never"}
@@ -94,7 +94,7 @@ export function ProductionOperationsDashboard({ data }: ProductionOperationsDash
           </ul>
         </Card>
 
-        <Card padding="md" className="shadow-ds-soft">
+        <Card padding="md" className="">
           <h3 className="font-semibold">Recent errors</h3>
           <ul className="mt-ds-4 max-h-72 space-y-ds-2 overflow-y-auto text-sm">
             {data.errors.map((error) => (

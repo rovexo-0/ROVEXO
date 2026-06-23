@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { PremiumIcon } from "@/components/icons/PremiumIcon";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { ChevronRightIcon } from "@/features/product-detail/icons";
@@ -25,14 +26,9 @@ export function ProfileMenuRow({
 }: ProfileMenuRowProps) {
   const content = (
     <>
-      <span
-        className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center text-text-secondary",
-          iconClassName,
-        )}
-      >
+      <PremiumIcon size="sm" className={iconClassName} label={title}>
         {icon}
-      </span>
+      </PremiumIcon>
 
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold text-text-primary">{title}</span>
@@ -53,7 +49,7 @@ export function ProfileMenuRow({
   );
 
   const rowClassName = cn(
-    "flex min-h-[56px] w-full items-center gap-ds-3 px-ds-4 py-ds-2",
+    "premium-menu-row flex min-h-[56px] w-full items-center gap-ds-3 px-ds-4 py-ds-2",
     transitionFast,
     focusRing,
   );

@@ -13,7 +13,7 @@ export function SupportSuccessPage({ ticketNumber }: SupportSuccessPageProps) {
   return (
     <BetaAppShell showBottomNav={false}>
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-8">
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <h1 className="text-xl font-semibold text-text-primary">{SUPPORT_SUCCESS_MESSAGE.title}</h1>
           {ticketNumber ? (
             <p className="mt-ds-2 text-sm text-text-secondary">Reference: {ticketNumber}</p>

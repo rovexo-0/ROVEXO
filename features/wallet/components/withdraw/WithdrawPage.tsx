@@ -75,7 +75,7 @@ export function WithdrawPage({ profile, data }: WithdrawPageProps) {
       </main>
 
       {!isSuccess && (
-        <footer className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface/95 px-ds-4 py-ds-3 pb-[calc(12px+env(safe-area-inset-bottom))] shadow-ds-soft backdrop-blur-xl">
+        <footer className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface/95 px-ds-4 py-ds-3 pb-[calc(12px+env(safe-area-inset-bottom))] backdrop-blur-xl">
           <div className="mx-auto w-full max-w-2xl">
             {flow.step === "review" ? (
               <Button

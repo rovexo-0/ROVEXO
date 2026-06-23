@@ -53,7 +53,7 @@ export function SellerPromotionsSection({
         </Link>
       </div>
 
-      <Card padding="sm" className="shadow-ds-soft">
+      <Card padding="sm" className="">
         <div className="grid grid-cols-3 gap-ds-2 text-center">
           <div>
             <p className="text-lg font-semibold text-text-primary">{stats.activeCount}</p>
@@ -75,7 +75,7 @@ export function SellerPromotionsSection({
       </Card>
 
       {promotions.length > 0 && (
-        <Card padding="none" className="overflow-hidden shadow-ds-soft">
+        <Card padding="none" className="overflow-hidden">
           <p className="border-b border-border px-ds-4 py-ds-2 text-xs font-semibold uppercase tracking-wide text-text-secondary">
             Active now
           </p>
@@ -116,7 +116,7 @@ export function SellerPromotionsSection({
       )}
 
       {history.length > 0 && (
-        <Card padding="none" className="overflow-hidden shadow-ds-soft">
+        <Card padding="none" className="overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-ds-4 py-ds-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
               History

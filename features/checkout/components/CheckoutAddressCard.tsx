@@ -19,7 +19,7 @@ function ChevronRightIcon({ className }: { className?: string }) {
 }
 
 const fieldClassName =
-  "min-h-ds-7 w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm text-text-primary placeholder:text-text-muted";
+  "min-h-ds-7 w-full premium-input px-ds-3 py-ds-2 text-sm placeholder:text-text-muted";
 
 export function CheckoutAddressCard({ form }: CheckoutAddressCardProps) {
   const { draft, updateDraft } = form;
@@ -44,7 +44,7 @@ export function CheckoutAddressCard({ form }: CheckoutAddressCardProps) {
         </button>
       </div>
 
-      <Card padding="md" className="shadow-ds-soft">
+      <Card padding="md" className="">
         {isEditing ? (
           <div className="flex flex-col gap-ds-3">
             <label className="flex flex-col gap-ds-2">

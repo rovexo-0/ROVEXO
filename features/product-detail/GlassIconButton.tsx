@@ -20,7 +20,7 @@ export function GlassIconButton({
       aria-label={label}
       className={cn(
         "flex min-h-ds-7 min-w-ds-7 items-center justify-center rounded-ds-full",
-        "border border-border/60 bg-overlay text-text-primary shadow-ds-soft backdrop-blur-md backdrop-saturate-150",
+        "border border-border/60 bg-overlay text-text-primary backdrop-blur-md backdrop-saturate-150",
         focusRing,
         transitionNormal,
         className,

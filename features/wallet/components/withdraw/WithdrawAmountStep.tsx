@@ -19,7 +19,7 @@ export function WithdrawAmountStep({ flow }: WithdrawAmountStepProps) {
         Enter Amount
       </h2>
 
-      <Card padding="md" className="shadow-ds-soft">
+      <Card padding="md" className="">
         <div className="flex flex-col gap-ds-4">
           <p className="text-sm text-text-secondary">
             Available: {formatCurrency(availableBalance)}
@@ -35,7 +35,7 @@ export function WithdrawAmountStep({ flow }: WithdrawAmountStepProps) {
               value={draft.amount}
               onChange={(event) => updateDraft({ amount: event.target.value })}
               className={cn(
-                "min-h-ds-7 rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-lg font-semibold tabular-nums text-text-primary",
+                "min-h-ds-7 premium-input px-ds-3 py-ds-2 text-lg font-semibold tabular-nums",
                 focusRing,
               )}
             />

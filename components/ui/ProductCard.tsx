@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, type KeyboardEvent, type SyntheticEvent } from "react";
 import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
 import { Price } from "@/components/ui/Price";
 import { cn } from "@/lib/cn";
 import { normalizeCondition } from "@/lib/products/utils";
@@ -35,19 +34,8 @@ export type ProductCardProps = {
 
 function HeartIcon({ className, filled }: { className?: string; filled?: boolean }) {
   return (
-    <svg
-      className={className}
-      fill={filled ? "currentColor" : "none"}
-      viewBox="0 0 24 24"
-      strokeWidth={1.75}
-      stroke="currentColor"
-      aria-hidden
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-      />
+    <svg className={className} fill={filled ? "currentColor" : "none"} viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
     </svg>
   );
 }
@@ -69,9 +57,8 @@ function EyeIcon({ className }: { className?: string }) {
   );
 }
 
-function triggerHapticFeedback() {
-  // Placeholder for native haptic feedback in the future mobile app shell.
-}
+const badgeClass = "px-1 py-0.5 text-[9px] leading-none";
+const iconBtn = "flex h-7 w-7 shrink-0 items-center justify-center rounded-ds-full text-text-secondary";
 
 export function ProductCard({
   title,
@@ -96,7 +83,6 @@ export function ProductCard({
   const [shareOpen, setShareOpen] = useState(false);
 
   const listingSlug = slug ?? href.replace(/^\/listing\//, "").split("?")[0] ?? "";
-
   const isFavorite = isFavoriteProp ?? isFavoriteInternal;
 
   useEffect(() => {
@@ -115,27 +101,13 @@ export function ProductCard({
     (event: SyntheticEvent) => {
       event.preventDefault();
       event.stopPropagation();
-
       const willSave = !isFavorite;
-
-      if (onFavorite) {
-        onFavorite();
-      } else {
-        setIsFavoriteInternal(willSave);
+      if (onFavorite) onFavorite();
+      else setIsFavoriteInternal(willSave);
+      if (willSave && productId) {
+        const { currency } = getActiveMarket();
+        trackSaveListing({ itemId: productId, itemName: title, currency });
       }
-
-      if (willSave) {
-        triggerHapticFeedback();
-        if (productId) {
-          const { currency } = getActiveMarket();
-          trackSaveListing({
-            itemId: productId,
-            itemName: title,
-            currency,
-          });
-        }
-      }
-
       setHeartAnimating(true);
       window.setTimeout(() => setHeartAnimating(false), 150);
     },
@@ -153,117 +125,74 @@ export function ProductCard({
   );
 
   return (
-    <Card
-      padding="none"
+    <article
       role="article"
       tabIndex={0}
       aria-label={title}
       onClick={openProduct}
       onKeyDown={handleCardKeyDown}
       className={cn(
-        "group flex h-full cursor-pointer flex-col overflow-hidden rounded-[var(--ds-radius-premium)]",
-        "premium-card border-0 bg-surface/95",
+        "marketplace-listing-card group cursor-pointer",
         transitionNormal,
-        "md:hover:-translate-y-1",
         isFeatured && "ring-2 ring-warning/40",
         isBumped && !isFeatured && "ring-2 ring-success/30",
         focusRing,
         className,
       )}
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-t-[var(--ds-radius-premium)] bg-surface-muted">
+      <div className="marketplace-listing-card__image">
         <Image
           src={imageUrl}
           alt={imageAlt ?? title}
           fill
           loading="lazy"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className={cn(
-            "object-cover premium-image-depth",
-            transitionNormal,
-            "group-hover:scale-[1.04] group-active:scale-[1.02]",
-          )}
+          sizes="158px"
+          className={cn("object-cover", transitionNormal, "group-hover:scale-[1.03]")}
         />
-
         {condition && (
-          <Badge
-            variant="default"
-            className="absolute left-ds-2 top-ds-2 px-ds-2 py-0.5 text-[0.6875rem] shadow-ds-soft"
-          >
+          <Badge variant="default" className={cn("absolute left-1 top-1", badgeClass)}>
             {normalizeCondition(condition)}
           </Badge>
         )}
-
         {isFeatured && (
-          <Badge
-            variant="warning"
-            className="absolute right-ds-2 top-ds-2 px-ds-2 py-0.5 text-[0.6875rem] shadow-ds-soft"
-          >
-            Featured
-          </Badge>
+          <Badge variant="warning" className={cn("absolute right-1 top-1", badgeClass)}>Featured</Badge>
         )}
-
         {isBumped && !isFeatured && (
-          <Badge
-            variant="success"
-            className="absolute right-ds-2 top-ds-2 px-ds-2 py-0.5 text-[0.6875rem] shadow-ds-soft"
-          >
-            Boosted
-          </Badge>
+          <Badge variant="success" className={cn("absolute right-1 top-1", badgeClass)}>Boosted</Badge>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-ds-2 p-ds-3">
-        <p className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug text-text-primary">
-          {title}
-        </p>
-
-        <Price amount={price} size="lg" />
-
-        <div className="mt-auto flex items-center justify-between gap-ds-2">
+      <div className="marketplace-listing-card__body">
+        <p className="marketplace-listing-card__title">{title}</p>
+        <Price amount={price} size="xs" className="gap-0.5" />
+        <div className="marketplace-listing-card__meta">
           {views != null ? (
-            <p className="inline-flex min-h-ds-7 items-center gap-ds-1 text-xs text-text-secondary">
-              <EyeIcon className="h-3.5 w-3.5" />
-              <span>{views}</span>
-            </p>
+            <span className="inline-flex items-center gap-0.5 text-[10px] text-text-secondary">
+              <EyeIcon className="h-3 w-3" />
+              {views}
+            </span>
           ) : (
             <span aria-hidden />
           )}
-
-          <div className="flex items-center gap-ds-1">
+          <div className="flex items-center gap-0.5">
             {listingSlug ? (
               <button
                 type="button"
                 aria-label="Share listing"
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setShareOpen(true);
-                }}
-                className={cn(
-                  "flex min-h-ds-7 min-w-ds-7 shrink-0 items-center justify-center rounded-ds-full text-text-secondary",
-                  focusRing,
-                  transitionSpring,
-                )}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShareOpen(true); }}
+                className={cn(iconBtn, focusRing, transitionSpring)}
               >
-                <ShareIcon className="h-5 w-5" />
+                <ShareIcon className="h-3.5 w-3.5" />
               </button>
             ) : null}
-
             <button
               type="button"
               aria-label="Save item"
               aria-pressed={isFavorite}
               onClick={toggleFavorite}
-              className={cn(
-                "flex min-h-ds-7 min-w-ds-7 shrink-0 items-center justify-center rounded-ds-full text-text-secondary",
-                focusRing,
-                transitionSpring,
-                isFavorite && "text-danger",
-                heartAnimating && "scale-90",
-              )}
+              className={cn(iconBtn, focusRing, transitionSpring, isFavorite && "text-danger", heartAnimating && "scale-90")}
             >
-              <HeartIcon filled={isFavorite} className="h-5 w-5" />
+              <HeartIcon filled={isFavorite} className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -279,6 +208,6 @@ export function ProductCard({
           price={price}
         />
       ) : null}
-    </Card>
+    </article>
   );
 }

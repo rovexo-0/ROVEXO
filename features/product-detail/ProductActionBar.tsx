@@ -19,7 +19,7 @@ export function ProductActionBar({
   return (
     <div
       className={cn(
-        "fixed inset-x-0 bottom-0 z-[110] border-t border-border bg-surface/95 shadow-ds-floating backdrop-blur-xl backdrop-saturate-150",
+        "premium-footer-bar fixed inset-x-0 bottom-0 z-[110]",
         className,
       )}
     >

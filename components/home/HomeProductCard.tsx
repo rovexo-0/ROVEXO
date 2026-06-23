@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, type KeyboardEvent, type SyntheticEvent } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
 import { Price } from "@/components/ui/Price";
-import { Rating } from "@/components/ui/Rating";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
 import { cn } from "@/lib/cn";
 import { normalizeCondition } from "@/lib/products/utils";
@@ -15,7 +13,6 @@ import { trackPromotionEvent } from "@/components/promotions/PromotionAnalyticsB
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 import { getActiveMarket } from "@/lib/seo/markets";
 import { focusRing, transitionNormal, transitionSpring } from "@/components/ui/tokens";
-import { calculateProtectedFee } from "@/lib/orders/pricing";
 
 export type HomeProductCardProps = {
   title: string;
@@ -93,7 +90,6 @@ export function HomeProductCard({
   imageUrl,
   imageAlt,
   price,
-  originalPrice,
   condition,
   views,
   productId,
@@ -104,17 +100,10 @@ export function HomeProductCard({
   isNew = false,
   sellerName,
   sellerAvatar,
-  sellerVerified = false,
   sellerTrustScore,
-  sellerResponseRate,
-  location,
-  rating = 0,
-  reviewCount = 0,
   listingType,
   auctionEndsAt,
   auctionCurrentBid,
-  layout = "carousel",
-  showBidButton = false,
   className,
 }: HomeProductCardProps) {
   const router = useRouter();
@@ -124,7 +113,6 @@ export function HomeProductCard({
   const isAuction = listingType === "auction";
   const countdown = formatCountdown(auctionEndsAt);
   const displayPrice = isAuction && auctionCurrentBid != null ? auctionCurrentBid : price;
-  const protectionFee = calculateProtectedFee(displayPrice);
 
   useEffect(() => {
     if (!productId || (!isFeatured && !isBumped)) return;
@@ -172,75 +160,34 @@ export function HomeProductCard({
   );
 
   return (
-    <Card
-      padding="none"
+    <article
       role="article"
       tabIndex={0}
       aria-label={title}
       onClick={openProduct}
       onKeyDown={handleCardKeyDown}
       className={cn(
-        "group flex h-full cursor-pointer flex-col overflow-hidden",
+        "marketplace-listing-card group cursor-pointer",
         transitionNormal,
-        "active:-translate-y-0.5 active:shadow-ds-medium md:hover:-translate-y-0.5 md:hover:shadow-ds-medium",
         isFeatured && "ring-2 ring-warning/35",
         focusRing,
         className,
       )}
     >
-      <div
-        className={cn(
-          "relative overflow-hidden bg-surface-muted",
-          layout === "grid" ? "aspect-[4/5]" : "aspect-[4/5] sm:aspect-square",
-        )}
-      >
+      <div className="marketplace-listing-card__image">
         <Image
           src={imageUrl}
           alt={imageAlt ?? title}
           fill
           loading="lazy"
-          sizes={layout === "grid" ? "(max-width: 640px) 50vw, 25vw" : "14rem"}
+          sizes="158px"
           className={cn("object-cover", transitionNormal, "group-hover:scale-[1.03]")}
         />
 
-        <div className="absolute left-ds-2 top-ds-2 flex max-w-[calc(100%-3rem)] flex-wrap gap-ds-1">
-          {isFeatured ? (
-            <Badge variant="warning" className="px-ds-2 py-0.5 text-[0.6875rem] shadow-ds-soft">
-              Featured
-            </Badge>
-          ) : null}
-          {isNew ? (
-            <Badge variant="success" className="px-ds-2 py-0.5 text-[0.6875rem] shadow-ds-soft">
-              New
-            </Badge>
-          ) : null}
-          {isAuction ? (
-            <Badge variant="danger" className="px-ds-2 py-0.5 text-[0.6875rem] shadow-ds-soft">
-              Auction
-            </Badge>
-          ) : null}
-          {sellerVerified ? (
-            <Badge variant="default" className="bg-primary/90 px-ds-2 py-0.5 text-[0.6875rem] text-primary-foreground shadow-ds-soft">
-              Verified
-            </Badge>
-          ) : null}
-        </div>
-
-        <div className="absolute bottom-ds-2 left-ds-2 right-ds-2 flex flex-wrap gap-ds-1">
-          {sellerTrustScore != null ? (
-            <Badge
-              variant="default"
-              className="bg-surface/92 px-ds-2 py-0.5 text-[0.6875rem] shadow-ds-soft backdrop-blur-sm"
-            >
-              Trust {sellerTrustScore}
-            </Badge>
-          ) : null}
-          <Badge
-            variant="default"
-            className="bg-surface/92 px-ds-2 py-0.5 text-[0.6875rem] shadow-ds-soft backdrop-blur-sm"
-          >
-            Protected +{new Intl.NumberFormat(undefined, { style: "currency", currency: getActiveMarket().currency, maximumFractionDigits: 2 }).format(protectionFee)}
-          </Badge>
+        <div className="absolute left-1 top-1 flex max-w-[calc(100%-2rem)] flex-wrap gap-0.5">
+          {isFeatured ? <Badge variant="warning" className="px-1 py-0.5 text-[9px] leading-none">Featured</Badge> : null}
+          {isNew ? <Badge variant="success" className="px-1 py-0.5 text-[9px] leading-none">New</Badge> : null}
+          {isAuction ? <Badge variant="danger" className="px-1 py-0.5 text-[9px] leading-none">Auction</Badge> : null}
         </div>
 
         <button
@@ -249,81 +196,50 @@ export function HomeProductCard({
           aria-pressed={isSaved}
           onClick={toggleFavorite}
           className={cn(
-            "absolute right-ds-2 top-ds-2 flex min-h-ds-7 min-w-ds-7 items-center justify-center rounded-ds-full",
-            "bg-surface/90 text-text-secondary shadow-ds-soft backdrop-blur-sm",
+            "absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-ds-full bg-surface/90 backdrop-blur-sm",
             focusRing,
             transitionSpring,
             isSaved && "text-danger",
             heartAnimating && "scale-90",
           )}
         >
-          <HeartIcon filled={isSaved} className="h-5 w-5" />
+          <HeartIcon filled={isSaved} className="h-3.5 w-3.5" />
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col gap-ds-2 p-ds-3">
+      <div className="marketplace-listing-card__body">
         {condition ? (
-          <p className="text-[0.6875rem] font-medium uppercase tracking-wide text-text-secondary">
+          <p className="truncate text-[9px] font-medium uppercase tracking-wide text-text-muted">
             {normalizeCondition(condition)}
           </p>
         ) : null}
 
-        <p className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-text-primary">
-          {title}
-        </p>
+        <p className="marketplace-listing-card__title">{title}</p>
 
-        <div className="flex items-center gap-ds-2">
-          <Price amount={displayPrice} size="lg" />
-          {originalPrice && originalPrice > price ? (
-            <span className="text-xs text-text-muted line-through">
-              {new Intl.NumberFormat(undefined, { style: "currency", currency: getActiveMarket().currency }).format(originalPrice)}
-            </span>
-          ) : null}
-        </div>
+        <Price amount={displayPrice} size="xs" className="gap-0.5" />
 
         {sellerName ? (
-          <div className="flex items-center gap-ds-2">
-            <Avatar src={sellerAvatar} alt={sellerName} name={sellerName} size="sm" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-medium text-text-primary">{sellerName}</p>
-              <div className="flex flex-wrap items-center gap-x-ds-2 gap-y-0.5 text-[0.6875rem] text-text-secondary">
-                {location ? <span>{location}</span> : null}
-                {sellerResponseRate != null ? <span>{sellerResponseRate}% response</span> : null}
-              </div>
-            </div>
+          <div className="flex items-center gap-1">
+            <Avatar src={sellerAvatar} alt={sellerName} name={sellerName} size="sm" className="!h-5 !w-5" />
+            <p className="min-w-0 flex-1 truncate text-[10px] font-medium text-text-primary">{sellerName}</p>
           </div>
         ) : null}
 
-        <div className="mt-auto flex items-center justify-between gap-ds-2 text-xs text-text-secondary">
-          <div className="flex items-center gap-ds-2">
+        <div className="marketplace-listing-card__meta">
+          <div className="flex min-w-0 items-center gap-1 text-[10px] text-text-secondary">
             {views != null ? (
-              <span className="inline-flex items-center gap-ds-1">
-                <EyeIcon className="h-3.5 w-3.5" />
+              <span className="inline-flex items-center gap-0.5">
+                <EyeIcon className="h-3 w-3" />
                 {views}
               </span>
             ) : null}
-            {countdown ? <span className="font-medium text-danger">{countdown}</span> : null}
+            {countdown ? <span className="truncate font-medium text-danger">{countdown}</span> : null}
           </div>
-          <Rating value={rating} reviewCount={reviewCount} size="sm" />
+          {sellerTrustScore != null ? (
+            <span className="shrink-0 text-[10px] font-medium text-primary">{sellerTrustScore}</span>
+          ) : null}
         </div>
-
-        {(showBidButton || isAuction) && countdown ? (
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              openProduct();
-            }}
-            className={cn(
-              "mt-ds-1 min-h-ds-7 w-full rounded-ds-full bg-primary text-xs font-semibold text-primary-foreground",
-              "shadow-[0_4px_14px_rgba(37,99,235,0.35)] transition-transform active:scale-[0.97]",
-              focusRing,
-            )}
-          >
-            Place bid
-          </button>
-        ) : null}
       </div>
-    </Card>
+    </article>
   );
 }

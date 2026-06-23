@@ -1,16 +1,24 @@
+import type { CategoryIconType } from "@/components/icons/CategoryIcon3D";
+
 export type HomeCategoryRailItem = {
   name: string;
   slug: string;
-  icon: string;
+  icon: CategoryIconType;
 };
 
 export const HOME_CATEGORY_RAIL: HomeCategoryRailItem[] = [
-  { name: "Vehicles", slug: "vehicles", icon: "🚗" },
-  { name: "Property", slug: "property", icon: "🏠" },
-  { name: "Phones", slug: "electronics", icon: "📱" },
-  { name: "Computers", slug: "electronics", icon: "💻" },
-  { name: "Fashion", slug: "fashion", icon: "👗" },
-  { name: "More", slug: "", icon: "✨" },
+  { name: "Vehicles", slug: "vehicles", icon: "vehicles" },
+  { name: "Property", slug: "property", icon: "property" },
+  { name: "Phones", slug: "electronics", icon: "phones" },
+  { name: "Computers", slug: "electronics", icon: "computers" },
+  { name: "Fashion", slug: "fashion", icon: "fashion" },
+  { name: "Electronics", slug: "electronics", icon: "electronics" },
+  { name: "Furniture", slug: "home-garden", icon: "furniture" },
+  { name: "Gaming", slug: "gaming", icon: "gaming" },
+  { name: "Jobs", slug: "jobs", icon: "jobs" },
+  { name: "Services", slug: "services", icon: "services" },
+  { name: "Wholesale", slug: "business", icon: "wholesale" },
+  { name: "Auctions", slug: "vehicles", icon: "auctions" },
 ];
 
 export type HomeQuickFilter = {

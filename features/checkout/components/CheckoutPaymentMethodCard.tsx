@@ -62,7 +62,7 @@ export function CheckoutPaymentMethodCard({ form }: CheckoutPaymentMethodCardPro
         </button>
       </div>
 
-      <Card padding="md" className="shadow-ds-soft">
+      <Card padding="md" className="">
         {isChanging ? (
           <div className="flex flex-col gap-ds-2">
             {methods.map((method) => {

@@ -13,8 +13,7 @@ type InventoryQuantityFieldProps = {
   helpText?: string;
 };
 
-const controlClassName =
-  "min-h-ds-7 rounded-ds-md border border-border bg-surface text-sm text-text-primary";
+const controlClassName = "premium-input min-h-ds-7 text-sm text-text-primary";
 
 export function InventoryQuantityField({
   id,

@@ -167,7 +167,7 @@ export const HomeContent = memo(function HomeContent({
 
       <main
         className={cn(
-          "flex flex-col gap-ds-5 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))] md:gap-ds-6 lg:mx-auto lg:max-w-7xl lg:w-full pt-ds-2",
+          "flex flex-col gap-ds-4 pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))] lg:mx-auto lg:max-w-7xl lg:w-full pt-ds-1",
         )}
       >
         <HomeHeroSearch />

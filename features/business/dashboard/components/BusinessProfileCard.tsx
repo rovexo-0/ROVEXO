@@ -13,7 +13,7 @@ type BusinessProfileCardProps = {
 
 export function BusinessProfileCard({ company }: BusinessProfileCardProps) {
   return (
-    <Card padding="md" className="shadow-ds-soft">
+    <Card padding="md" className="">
       <div className="flex items-start gap-ds-3">
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-ds-lg bg-surface-muted">
           <Image

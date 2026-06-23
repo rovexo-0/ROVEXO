@@ -21,7 +21,7 @@ export function SellerProfileCard({
   activeListings,
 }: SellerProfileCardProps) {
   return (
-    <Card padding="md" className="shadow-ds-soft">
+    <Card padding="md" className="">
       <div className="flex items-start gap-ds-3">
         <Avatar
           src={profile.avatarUrl}

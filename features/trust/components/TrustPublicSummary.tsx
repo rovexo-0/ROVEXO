@@ -11,7 +11,7 @@ type TrustPublicSummaryProps = {
 
 export function TrustPublicSummary({ summary, compact = false }: TrustPublicSummaryProps) {
   return (
-    <Card padding={compact ? "md" : "lg"} className="shadow-ds-soft">
+    <Card padding={compact ? "md" : "lg"} className="">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Trust Score</p>

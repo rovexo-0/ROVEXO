@@ -79,7 +79,7 @@ export function ProtectionCaseActions({ caseId, status, isAdmin }: ProtectionCas
             onChange={(event) => setReason(event.target.value)}
             rows={3}
             placeholder="Explain why this case should be reviewed again"
-            className="w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm"
+            className="premium-input w-full px-ds-3 py-ds-2 text-sm"
           />
           <Button disabled={busy} onClick={() => void submitAppeal()}>
             Submit appeal
@@ -93,7 +93,7 @@ export function ProtectionCaseActions({ caseId, status, isAdmin }: ProtectionCas
           <select
             value={outcome}
             onChange={(event) => setOutcome(event.target.value)}
-            className="w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm"
+            className="premium-input w-full px-ds-3 py-ds-2 text-sm"
           >
             <option value="refund_full">Full refund (buyer favour)</option>
             <option value="refund_partial">Partial refund</option>
@@ -108,7 +108,7 @@ export function ProtectionCaseActions({ caseId, status, isAdmin }: ProtectionCas
             onChange={(event) => setNotes(event.target.value)}
             rows={3}
             placeholder="Admin notes"
-            className="w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm"
+            className="premium-input w-full px-ds-3 py-ds-2 text-sm"
           />
           <Button disabled={busy} onClick={() => void resolveCase()}>
             Resolve case

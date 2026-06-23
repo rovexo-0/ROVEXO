@@ -72,7 +72,7 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
           Listings
         </h2>
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 gap-ds-3 md:grid-cols-3 md:gap-ds-4 lg:grid-cols-4">
+          <div className="marketplace-listing-grid">
             {products.map((product) => (
               <ProductCard key={product.id} {...productToCardProps(product)} />
             ))}

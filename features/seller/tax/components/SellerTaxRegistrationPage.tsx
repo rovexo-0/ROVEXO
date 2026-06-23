@@ -85,7 +85,7 @@ export function SellerTaxRegistrationPage({
           </p>
         </div>
 
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <fieldset className="grid gap-ds-3">
             <legend className="text-sm font-semibold text-text-primary">Registration type</legend>
             {SELLER_REGISTRATION_OPTIONS.map((option) => (
@@ -105,7 +105,7 @@ export function SellerTaxRegistrationPage({
           </fieldset>
         </Card>
 
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <div className="grid gap-ds-4">
             {showSoleTraderFields ? (
               <>
@@ -181,7 +181,7 @@ function Field({
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-ds-1 w-full rounded-ds-lg border border-border bg-surface px-ds-3 py-ds-2 text-sm"
+        className="mt-ds-1 w-full premium-input px-ds-3 py-ds-2 text-sm"
       />
     </div>
   );

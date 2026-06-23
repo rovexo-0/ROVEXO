@@ -101,7 +101,7 @@ export function AiSuggestionPanel({ form }: AiSuggestionPanelProps) {
 
   if (!hasSuggestions) {
     return (
-      <div className="rounded-ds-lg border border-border bg-surface-muted px-ds-4 py-ds-3">
+      <div className="premium-glass rounded-ds-lg px-ds-4 py-ds-3">
         <p className="text-sm font-medium text-text-primary">
           We&apos;re not completely sure what this item is.
         </p>

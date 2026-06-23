@@ -253,11 +253,11 @@ export function SearchBar({
             transitionFast,
             isHeaderVariant
               ? cn(
-                  "border-border/80 bg-surface shadow-ds-soft",
+                  "premium-glass border-border/60",
                   "transition-[border-color,box-shadow,background-color,transform] duration-ds-normal ease-ds",
-                  "hover:border-primary/25 hover:shadow-ds-medium",
-                  "focus-within:border-primary/45 focus-within:shadow-ds-medium focus-within:ring-2 focus-within:ring-ring/15",
-                  isOpen && "border-primary/45 shadow-ds-medium ring-2 ring-ring/15",
+                  "hover:border-primary/25 hover:shadow-[var(--ds-depth-2)]",
+                  "focus-within:border-primary/45 focus-within:shadow-[var(--ds-glow-primary)] focus-within:ring-2 focus-within:ring-ring/15",
+                  isOpen && "border-primary/45 shadow-[var(--ds-glow-primary)] ring-2 ring-ring/15",
                   isResponsive
                     ? "min-h-9 pl-2.5 pr-1.5 lg:min-h-11 lg:pl-3 lg:pr-2"
                     : isCompact
@@ -371,7 +371,7 @@ export function SearchBar({
               <button
                 type="submit"
                 className={cn(
-                  "inline-flex h-10 min-w-ds-7 items-center justify-center rounded-ds-full bg-primary px-ds-4 text-sm font-semibold text-primary-foreground shadow-ds-soft hover:opacity-90 lg:h-11 lg:px-ds-5",
+                  "inline-flex h-10 min-w-ds-7 items-center justify-center rounded-ds-full bg-primary px-ds-4 text-sm font-semibold text-primary-foreground hover:opacity-90 lg:h-11 lg:px-ds-5",
                   focusRing,
                   transitionFast,
                 )}

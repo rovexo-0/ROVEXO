@@ -46,7 +46,7 @@ export function WholesalePricingManager() {
   };
 
   return (
-    <Card padding="lg" className="shadow-ds-soft">
+    <Card padding="lg" className="">
       <h2 className="text-lg font-semibold">Bulk pricing tiers</h2>
       <div className="mt-ds-4 grid gap-ds-3 sm:grid-cols-3">
         <input

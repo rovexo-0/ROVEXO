@@ -42,7 +42,7 @@ export function BusinessCenterPage({
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-ds-8 px-ds-4 py-ds-6">
-      <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6 shadow-ds-soft">
+      <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6">
         <p className="text-sm font-medium text-primary">ROVEXO Business Center</p>
         <h1 className="mt-ds-2 text-3xl font-bold text-text-primary">{companyName}</h1>
         <p className="mt-ds-2 text-sm text-text-secondary">
@@ -60,7 +60,7 @@ export function BusinessCenterPage({
       <section className="grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
         {sections.map((section) => (
           <Link key={section.href} href={section.href}>
-            <Card padding="md" interactive className="h-full shadow-ds-soft">
+            <Card padding="md" interactive className="h-full">
               <p className="text-xl">{section.icon}</p>
               <p className="mt-ds-2 font-semibold text-text-primary">{section.title}</p>
               <p className="mt-ds-1 text-sm text-text-secondary">{section.description}</p>

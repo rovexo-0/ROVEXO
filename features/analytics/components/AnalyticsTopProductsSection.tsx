@@ -15,7 +15,7 @@ export function AnalyticsTopProductsSection({ title, products }: AnalyticsTopPro
         {title}
       </h2>
 
-      <Card padding="none" className="overflow-hidden shadow-ds-soft">
+      <Card padding="none" className="overflow-hidden">
         {products.map((product, index) => (
           <div
             key={product.id}

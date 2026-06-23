@@ -15,7 +15,7 @@ export function SellerTrustDashboard({ data }: SellerTrustDashboardProps) {
         <h1 className="mt-1 text-2xl font-bold text-text-primary">Your reputation at a glance</h1>
       </section>
 
-      <Card padding="lg" className="shadow-ds-soft">
+      <Card padding="lg" className="">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <TrustTierBadge tier={data.score.tier} />
           {data.score.scoreLocked && (
@@ -32,7 +32,7 @@ export function SellerTrustDashboard({ data }: SellerTrustDashboardProps) {
       </Card>
 
       <div className="grid gap-ds-4 md:grid-cols-2">
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <h2 className="font-semibold text-text-primary">How to improve</h2>
           <ul className="mt-3 space-y-2 text-sm text-text-secondary">
             {data.recommendations.map((item) => (
@@ -41,7 +41,7 @@ export function SellerTrustDashboard({ data }: SellerTrustDashboardProps) {
           </ul>
         </Card>
 
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <h2 className="font-semibold text-text-primary">Recent changes</h2>
           <ul className="mt-3 space-y-2 text-sm text-text-secondary">
             {data.recentEvents.length ? (
@@ -60,7 +60,7 @@ export function SellerTrustDashboard({ data }: SellerTrustDashboardProps) {
         </Card>
       </div>
 
-      <Card padding="lg" className="shadow-ds-soft">
+      <Card padding="lg" className="">
         <h2 className="font-semibold text-text-primary">Performance factors</h2>
         <dl className="mt-4 grid grid-cols-2 gap-4 text-sm md:grid-cols-3">
           <Metric label="Completed sales" value={String(data.factors.completedSales)} />

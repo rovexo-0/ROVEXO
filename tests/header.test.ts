@@ -21,12 +21,13 @@ describe("official header design", () => {
     expect(source).toContain("premium-glass");
   });
 
-  it("keeps logo, messages, notifications and profile on the same top row", () => {
+  it("keeps logo, centered search, messages, notifications and profile on the same top row", () => {
     const source = readFileSync(path.join(process.cwd(), "components/Header.tsx"), "utf8");
     expect(source).toContain("HeaderSearchBar");
     expect(source).toContain("RovexoLogo");
     expect(source).toContain("HeaderActions");
     expect(source).toContain("HeaderProfileLink");
-    expect(source).toContain('data-header-version="mobile-v1"');
+    expect(source).toContain('data-header-version="premium-2026"');
+    expect(source).toContain("header-premium-2026__search");
   });
 });

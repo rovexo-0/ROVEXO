@@ -14,7 +14,7 @@ type TrustCenterPageProps = {
 export function TrustCenterPage({ data }: TrustCenterPageProps) {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-ds-8 px-ds-4 py-ds-6">
-      <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6 shadow-ds-soft">
+      <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6">
         <p className="text-sm font-medium text-primary">ROVEXO Trust Center</p>
         <h1 className="mt-ds-2 text-3xl font-bold text-text-primary">Trust & Safety</h1>
         <p className="mt-ds-2 max-w-2xl text-sm text-text-secondary">
@@ -23,7 +23,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
       </section>
 
       <section id="score" className="grid gap-ds-4 lg:grid-cols-[1.2fr_1fr]">
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold">Trust Score</h2>
             <TrustTierBadge tier={data.score.tier} />
@@ -49,7 +49,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
           )}
         </Card>
 
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <h2 className="text-lg font-semibold">How to improve</h2>
           <ul className="mt-ds-4 space-y-ds-2 text-sm text-text-secondary">
             {data.recommendations.map((item) => (
@@ -61,7 +61,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
 
       <section id="history">
         <h2 className="text-lg font-semibold">Recent score changes</h2>
-        <Card padding="lg" className="mt-ds-4 shadow-ds-soft">
+        <Card padding="lg" className="mt-ds-4">
           {data.recentEvents.length ? (
             <ul className="space-y-ds-3 text-sm text-text-secondary">
               {data.recentEvents.map((event) => (
@@ -85,7 +85,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
           {VERIFICATION_TYPES.map((item) => {
             const record = data.verifications.find((entry) => entry.verificationType === item.type);
             return (
-              <Card key={item.type} padding="md" className="shadow-ds-soft">
+              <Card key={item.type} padding="md" className="">
                 <div className="flex items-start justify-between gap-ds-3">
                   <div>
                     <p className="font-semibold text-text-primary">{item.label}</p>
@@ -97,7 +97,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
             );
           })}
         </div>
-        <Card padding="lg" className="mt-ds-4 shadow-ds-soft">
+        <Card padding="lg" className="mt-ds-4">
           <h3 className="font-semibold text-text-primary">Request verification</h3>
           <p className="mt-ds-1 text-sm text-text-secondary">
             Submit verification requests for moderator review. Approved verifications update your trust score.
@@ -111,7 +111,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
         <div className="mt-ds-4 grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
           {TRUST_CENTER_SECTIONS.map((section) => (
             <Link key={section.id} href={section.href}>
-              <Card padding="md" interactive className="h-full shadow-ds-soft">
+              <Card padding="md" interactive className="h-full">
                 <p className="text-xl">{section.icon}</p>
                 <p className="mt-ds-2 font-semibold text-text-primary">{section.title}</p>
                 <p className="mt-ds-1 text-sm text-text-secondary">{section.description}</p>
@@ -134,7 +134,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
 function TrustQuickLink({ href, label }: { href: string; label: string }) {
   return (
     <Link href={href}>
-      <Card padding="sm" interactive className="shadow-ds-soft">
+      <Card padding="sm" interactive className="">
         <p className="text-sm font-semibold text-text-primary">{label}</p>
       </Card>
     </Link>

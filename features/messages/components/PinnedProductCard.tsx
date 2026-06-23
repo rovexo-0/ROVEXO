@@ -13,7 +13,7 @@ type PinnedProductCardProps = {
 export function PinnedProductCard({ product }: PinnedProductCardProps) {
   return (
     <Link href={`/listing/${product.slug}`} className="block">
-      <Card padding="sm" interactive className="shadow-ds-soft">
+      <Card padding="sm" interactive className="">
         <div className="flex items-center gap-ds-3">
           <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
             <Image

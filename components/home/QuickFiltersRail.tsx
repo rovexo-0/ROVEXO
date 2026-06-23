@@ -28,7 +28,7 @@ export const QuickFiltersRail = memo(function QuickFiltersRail() {
             className={cn(
               "inline-flex min-h-ds-7 shrink-0 snap-start items-center rounded-ds-full",
               "border border-border/80 bg-surface px-ds-4 text-sm font-medium text-text-secondary",
-              "shadow-ds-soft transition-[transform,box-shadow,border-color,color] duration-ds-fast ease-ds",
+              "transition-[transform,box-shadow,border-color,color] duration-ds-fast ease-ds",
               "hover:border-primary/35 hover:text-primary hover:shadow-ds-medium",
               "active:scale-[0.97]",
               focusRing,

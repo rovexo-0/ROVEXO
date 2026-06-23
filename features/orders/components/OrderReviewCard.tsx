@@ -64,7 +64,7 @@ export function OrderReviewCard({ orderId, sellerName }: OrderReviewCardProps) {
 
   if (existingReview) {
     return (
-      <Card padding="lg" className="flex flex-col gap-ds-3 shadow-ds-soft">
+      <Card padding="lg" className="flex flex-col gap-ds-3">
         <h2 className="text-base font-semibold text-text-primary">Your review</h2>
         <Rating value={existingReview.rating} size="sm" />
         {existingReview.comment && (
@@ -77,14 +77,14 @@ export function OrderReviewCard({ orderId, sellerName }: OrderReviewCardProps) {
   if (!canReview) {
     if (!message) return null;
     return (
-      <Card padding="lg" className="shadow-ds-soft">
+      <Card padding="lg" className="">
         <p className="text-sm text-text-secondary">{message}</p>
       </Card>
     );
   }
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-4 shadow-ds-soft">
+    <Card padding="lg" className="flex flex-col gap-ds-4">
       <h2 className="text-base font-semibold text-text-primary">Rate {sellerName}</h2>
 
       <div className="flex gap-ds-2">
@@ -109,7 +109,7 @@ export function OrderReviewCard({ orderId, sellerName }: OrderReviewCardProps) {
         value={comment}
         onChange={(event) => setComment(event.target.value)}
         placeholder="Share your experience (optional)"
-        className="min-h-[96px] w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm text-text-primary"
+        className="min-h-[96px] w-full premium-input px-ds-3 py-ds-2 text-sm"
       />
 
       {message && <p className="text-sm text-text-secondary">{message}</p>}

@@ -92,19 +92,19 @@ export function TrustAdminDashboard({ summary, pending, audit }: TrustAdminDashb
             value={userId}
             onChange={(event) => setUserId(event.target.value)}
             placeholder="User UUID"
-            className="rounded-ds-md border border-border bg-surface px-3 py-2 text-sm"
+            className="premium-input px-3 py-2 text-sm"
           />
           <input
             value={delta}
             onChange={(event) => setDelta(event.target.value)}
             placeholder="Delta or target score"
-            className="rounded-ds-md border border-border bg-surface px-3 py-2 text-sm"
+            className="premium-input px-3 py-2 text-sm"
           />
           <input
             value={reason}
             onChange={(event) => setReason(event.target.value)}
             placeholder="Reason"
-            className="rounded-ds-md border border-border bg-surface px-3 py-2 text-sm md:col-span-2"
+            className="premium-input px-3 py-2 text-sm md:col-span-2"
           />
         </div>
         {error && <p className="mt-2 text-sm text-danger">{error}</p>}

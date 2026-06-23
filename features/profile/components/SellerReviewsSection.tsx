@@ -23,7 +23,7 @@ export function SellerReviewsSection({ reviews }: SellerReviewsSectionProps) {
     <section className="flex flex-col gap-ds-3">
       <h2 className="text-base font-semibold text-text-primary">Reviews</h2>
       {reviews.map((review) => (
-        <Card key={review.id} padding="lg" className="shadow-ds-soft">
+        <Card key={review.id} padding="lg" className="">
           <div className="flex items-center justify-between gap-ds-3">
             <p className="text-sm font-medium text-text-primary">
               {review.reviewerName ?? "Buyer"}

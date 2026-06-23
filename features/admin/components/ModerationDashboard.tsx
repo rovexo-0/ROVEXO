@@ -109,25 +109,25 @@ export function ModerationDashboard({
       </div>
 
       <div className="grid gap-ds-4 sm:grid-cols-4">
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <p className="text-sm text-text-secondary">Pending review</p>
           <p className="mt-ds-1 text-2xl font-bold">
             {queue.filter((item) => item.status === "pending").length}
           </p>
         </Card>
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <p className="text-sm text-text-secondary">Warnings</p>
           <p className="mt-ds-1 text-2xl font-bold">
             {queue.filter((item) => item.status === "warning").length}
           </p>
         </Card>
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <p className="text-sm text-text-secondary">Blocked</p>
           <p className="mt-ds-1 text-2xl font-bold">
             {queue.filter((item) => item.status === "blocked").length}
           </p>
         </Card>
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           <p className="text-sm text-text-secondary">High / Critical</p>
           <p className="mt-ds-1 text-2xl font-bold">
             {queue.filter((item) => item.riskLevel === "high" || item.riskLevel === "critical").length}
@@ -151,7 +151,7 @@ export function ModerationDashboard({
       </div>
 
       <div className="grid gap-ds-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card padding="none" className="overflow-hidden shadow-ds-soft">
+        <Card padding="none" className="overflow-hidden">
           <div className="border-b border-border px-ds-4 py-ds-3">
             <h3 className="font-semibold">Review queue</h3>
           </div>
@@ -183,7 +183,7 @@ export function ModerationDashboard({
           </div>
         </Card>
 
-        <Card padding="lg" className="shadow-ds-soft">
+        <Card padding="lg" className="">
           {selected ? (
             <div className="flex flex-col gap-ds-4">
               <div>

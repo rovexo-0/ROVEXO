@@ -14,10 +14,10 @@ export function TrustListingBadge({ summary, className }: TrustListingBadgeProps
     <Link
       href="/trust"
       className={cn(
-        "inline-flex items-center gap-2 rounded-ds-full border border-border/80 bg-surface px-3 py-1.5 text-sm shadow-ds-soft",
+        "premium-chip inline-flex items-center gap-2 px-3 py-1.5 text-sm",
         transitionFast,
         focusRing,
-        "hover:border-primary/30 hover:shadow-ds-medium",
+        "hover:border-primary/30",
         className,
       )}
       aria-label={`Seller trust score ${summary.score}`}

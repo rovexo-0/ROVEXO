@@ -121,7 +121,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
             type="button"
             onClick={() => galleryInputRef.current?.click()}
             className={cn(
-              "flex min-h-[88px] flex-1 flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-dashed border-border bg-surface-muted px-ds-4 py-ds-4 text-primary",
+              "premium-upload-zone flex min-h-[88px] flex-1 flex-col items-center justify-center gap-ds-2 px-ds-4 py-ds-4 text-primary",
               focusRing,
             )}
           >
@@ -133,7 +133,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
             type="button"
             onClick={() => cameraInputRef.current?.click()}
             className={cn(
-              "flex min-h-ds-7 flex-1 items-center justify-center rounded-ds-md border border-border bg-surface px-ds-4 py-ds-3 text-sm font-semibold text-text-primary",
+              "premium-btn flex min-h-ds-7 flex-1 items-center justify-center rounded-ds-md border border-border/80 bg-surface/80 px-ds-4 py-ds-3 text-sm font-semibold text-text-primary",
               focusRing,
               quickMode && "min-h-[56px]",
             )}
@@ -157,7 +157,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
                 }}
                 onDragEnd={() => setDragIndex(null)}
                 className={cn(
-                  "relative h-20 w-20 shrink-0 snap-start overflow-hidden rounded-ds-md bg-surface-muted shadow-ds-soft",
+                  "relative h-20 w-20 shrink-0 snap-start overflow-hidden rounded-ds-md bg-surface-muted",
                   dragIndex === index && "opacity-70 ring-2 ring-primary",
                 )}
               >
@@ -189,7 +189,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
                 <button
                   type="button"
                   aria-label={`Reorder photo ${index + 1}`}
-                  className="absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-ds-full bg-overlay text-text-primary shadow-ds-soft"
+                  className="absolute bottom-1 left-1 flex h-6 w-6 items-center justify-center rounded-ds-full bg-overlay text-text-primary"
                 >
                   <GripIcon className="h-3 w-3" />
                 </button>
@@ -199,7 +199,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
                     type="button"
                     aria-label={`Replace photo ${index + 1}`}
                     onClick={() => openReplace(photo.id)}
-                    className="flex h-6 w-6 items-center justify-center rounded-ds-full bg-overlay text-[0.625rem] font-bold text-text-primary shadow-ds-soft"
+                    className="flex h-6 w-6 items-center justify-center rounded-ds-full bg-overlay text-[0.625rem] font-bold text-text-primary"
                   >
                     ↻
                   </button>
@@ -207,7 +207,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
                     type="button"
                     aria-label={`Remove photo ${index + 1}`}
                     onClick={() => void removePhoto(photo.id)}
-                    className="flex h-6 w-6 items-center justify-center rounded-ds-full bg-overlay text-sm font-bold text-text-primary shadow-ds-soft"
+                    className="flex h-6 w-6 items-center justify-center rounded-ds-full bg-overlay text-sm font-bold text-text-primary"
                   >
                     ×
                   </button>
@@ -237,7 +237,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
                   type="button"
                   onClick={() => cameraInputRef.current?.click()}
                   className={cn(
-                    "flex h-20 w-20 shrink-0 snap-start flex-col items-center justify-center gap-ds-1 rounded-ds-md border border-border bg-surface-muted text-xs font-semibold text-text-primary",
+                    "premium-glass flex h-20 w-20 shrink-0 snap-start flex-col items-center justify-center gap-ds-1 rounded-ds-md text-xs font-semibold text-text-primary",
                     focusRing,
                   )}
                 >
