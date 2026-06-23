@@ -30,74 +30,66 @@ const ICONS = [
 
 const SIZE = 512;
 
-function isBackgroundPixel(r, g, b) {
+function isBackdropPixel(r, g, b) {
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const saturation = max === 0 ? 0 : (max - min) / max;
   const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
-  // Neutral greys, whites, and checkerboard backdrop tones.
-  return saturation < 0.14 && luminance > 35;
+  if (saturation > 0.14) return false;
+  if (luminance > 35) return true;
+  if (luminance < 24) return true;
+  return false;
 }
 
 function removeBackground(pixels, width, height, channels) {
   const total = width * height;
-  const isForeground = new Uint8Array(total);
+  const visited = new Uint8Array(total);
+  const queue = [];
 
-  for (let pos = 0; pos < total; pos += 1) {
+  const seed = (x, y) => {
+    const pos = y * width + x;
+    if (visited[pos]) return;
     const idx = pos * channels;
     const alpha = pixels[idx + 3];
-    if (alpha < 16) continue;
-    if (!isBackgroundPixel(pixels[idx], pixels[idx + 1], pixels[idx + 2])) {
-      isForeground[pos] = 1;
+    if (alpha < 16 || isBackdropPixel(pixels[idx], pixels[idx + 1], pixels[idx + 2])) {
+      visited[pos] = 1;
+      queue.push(pos);
     }
+  };
+
+  for (let x = 0; x < width; x += 1) {
+    seed(x, 0);
+    seed(x, height - 1);
+  }
+  for (let y = 0; y < height; y += 1) {
+    seed(0, y);
+    seed(width - 1, y);
   }
 
-  const visited = new Uint8Array(total);
-  let bestComponent = null;
-  let bestSize = 0;
+  while (queue.length > 0) {
+    const pos = queue.pop();
+    const idx = pos * channels;
+    pixels[idx + 3] = 0;
 
-  for (let pos = 0; pos < total; pos += 1) {
-    if (!isForeground[pos] || visited[pos]) continue;
+    const x = pos % width;
+    const y = Math.floor(pos / width);
 
-    const queue = [pos];
-    const component = [];
-    visited[pos] = 1;
+    for (const [nx, ny] of [
+      [x - 1, y],
+      [x + 1, y],
+      [x, y - 1],
+      [x, y + 1],
+    ]) {
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+      const next = ny * width + nx;
+      if (visited[next]) continue;
 
-    while (queue.length > 0) {
-      const current = queue.pop();
-      component.push(current);
-      const x = current % width;
-      const y = Math.floor(current / width);
-
-      for (const [nx, ny] of [
-        [x - 1, y],
-        [x + 1, y],
-        [x, y - 1],
-        [x, y + 1],
-      ]) {
-        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
-        const next = ny * width + nx;
-        if (!isForeground[next] || visited[next]) continue;
+      const nIdx = next * channels;
+      const alpha = pixels[nIdx + 3];
+      if (alpha < 16 || isBackdropPixel(pixels[nIdx], pixels[nIdx + 1], pixels[nIdx + 2])) {
         visited[next] = 1;
         queue.push(next);
       }
-    }
-
-    if (component.length > bestSize) {
-      bestSize = component.length;
-      bestComponent = component;
-    }
-  }
-
-  for (let pos = 0; pos < total; pos += 1) {
-  const idx = pos * channels;
-    pixels[idx + 3] = 0;
-  }
-
-  if (bestComponent) {
-    for (const pos of bestComponent) {
-      const idx = pos * channels;
-      pixels[idx + 3] = 255;
     }
   }
 }
