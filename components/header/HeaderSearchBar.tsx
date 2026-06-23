@@ -104,8 +104,8 @@ export function HeaderSearchBar({
             "premium-depth-1",
             "transition-[border-color,box-shadow,transform] duration-ds-normal ease-ds-spring",
             "hover:-translate-y-px",
-            "focus-within:ring-2 focus-within:ring-primary/20",
-            isActive && "ring-2 ring-primary/20",
+            "focus-within:ring-2 focus-within:ring-primary/30 focus-within:shadow-[0_0_20px_rgb(59_130_246/0.25)]",
+            isActive && "ring-2 ring-primary/30 shadow-[0_0_20px_rgb(59_130_246/0.25)]",
             "active:scale-[0.995]",
           )}
           style={{ height: controlHeight }}

@@ -185,9 +185,9 @@ export function HomeProductCard({
         />
 
         <div className="absolute left-1 top-1 flex max-w-[calc(100%-2rem)] flex-wrap gap-0.5">
-          {isFeatured ? <Badge variant="warning" className="px-1 py-0.5 text-[9px] leading-none">Featured</Badge> : null}
-          {isNew ? <Badge variant="success" className="px-1 py-0.5 text-[9px] leading-none">New</Badge> : null}
-          {isAuction ? <Badge variant="danger" className="px-1 py-0.5 text-[9px] leading-none">Auction</Badge> : null}
+          {isFeatured ? <Badge variant="warning" className="marketplace-listing-card__badge px-1 py-0.5 text-[9px] leading-none">Featured</Badge> : null}
+          {isNew ? <Badge variant="success" className="marketplace-listing-card__badge px-1 py-0.5 text-[9px] leading-none">New</Badge> : null}
+          {isAuction ? <Badge variant="danger" className="marketplace-listing-card__badge px-1 py-0.5 text-[9px] leading-none">Auction</Badge> : null}
         </div>
 
         <button
@@ -196,7 +196,7 @@ export function HomeProductCard({
           aria-pressed={isSaved}
           onClick={toggleFavorite}
           className={cn(
-            "absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-ds-full bg-surface/90 backdrop-blur-sm",
+            "marketplace-listing-card__heart absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-ds-full",
             focusRing,
             transitionSpring,
             isSaved && "text-danger",

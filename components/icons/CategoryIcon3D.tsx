@@ -9,9 +9,13 @@ export type CategoryIconType =
   | "fashion"
   | "electronics"
   | "furniture"
+  | "garden"
+  | "sports"
+  | "pets"
   | "gaming"
   | "jobs"
   | "services"
+  | "autoparts"
   | "wholesale"
   | "auctions"
   | "more";
@@ -123,6 +127,55 @@ function FurnitureIcon() {
   );
 }
 
+function GardenIcon() {
+  return (
+    <g filter="url(#ci-shadow)">
+      <path d="M17 26V14c0-4-2.5-7-5-8.5C9.5 7 7 10 7 14v12h10Z" fill="url(#ci-front)" />
+      <path d="M17 14c0-4 2.5-7 5-8.5 2.5 1.5 5 4.5 5 8.5v12H17V14Z" fill="url(#ci-top)" />
+      <rect x="6" y="24" width="22" height="3" rx="1" fill="url(#ci-side)" />
+      <circle cx="12" cy="12" r="2" fill="url(#ci-accent)" />
+      <circle cx="22" cy="11" r="2.5" fill="url(#ci-accent)" opacity="0.85" />
+    </g>
+  );
+}
+
+function SportsIcon() {
+  return (
+    <g filter="url(#ci-shadow)">
+      <circle cx="17" cy="17" r="9" fill="url(#ci-front)" />
+      <path d="M8.5 12.5c3 2 9 2 12 0M8.5 21.5c3-2 9-2 12 0M17 8v18" stroke="url(#ci-accent)" strokeWidth="1.25" fill="none" />
+      <ellipse cx="13" cy="13" rx="2.5" ry="1.5" fill="#ffffff" opacity="0.35" />
+    </g>
+  );
+}
+
+function PetsIcon() {
+  return (
+    <g filter="url(#ci-shadow)">
+      <ellipse cx="17" cy="19" rx="6" ry="5" fill="url(#ci-front)" />
+      <circle cx="10" cy="12" r="3" fill="url(#ci-top)" />
+      <circle cx="24" cy="12" r="3" fill="url(#ci-top)" />
+      <circle cx="12" cy="22" r="2.5" fill="url(#ci-side)" />
+      <circle cx="22" cy="22" r="2.5" fill="url(#ci-side)" />
+      <circle cx="15" cy="18" r="1" fill="#0f172a" opacity="0.7" />
+      <circle cx="19" cy="18" r="1" fill="#0f172a" opacity="0.7" />
+    </g>
+  );
+}
+
+function AutoPartsIcon() {
+  return (
+    <g filter="url(#ci-shadow)">
+      <circle cx="17" cy="17" r="9" fill="none" stroke="url(#ci-top)" strokeWidth="2.5" />
+      <circle cx="17" cy="17" r="3.5" fill="url(#ci-accent)" />
+      <rect x="16" y="5" width="2" height="5" rx="0.75" fill="url(#ci-side)" />
+      <rect x="16" y="24" width="2" height="5" rx="0.75" fill="url(#ci-side)" />
+      <rect x="5" y="16" width="5" height="2" rx="0.75" fill="url(#ci-side)" />
+      <rect x="24" y="16" width="5" height="2" rx="0.75" fill="url(#ci-side)" />
+    </g>
+  );
+}
+
 function GamingIcon() {
   return (
     <g filter="url(#ci-shadow)">
@@ -199,9 +252,13 @@ const ICONS: Record<CategoryIconType, () => ReactElement> = {
   fashion: FashionIcon,
   electronics: ElectronicsIcon,
   furniture: FurnitureIcon,
+  garden: GardenIcon,
+  sports: SportsIcon,
+  pets: PetsIcon,
   gaming: GamingIcon,
   jobs: JobsIcon,
   services: ServicesIcon,
+  autoparts: AutoPartsIcon,
   wholesale: WholesaleIcon,
   auctions: AuctionsIcon,
   more: MoreIcon,

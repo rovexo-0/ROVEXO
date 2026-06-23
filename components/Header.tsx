@@ -6,8 +6,6 @@ import { HeaderCategoryBar } from "@/components/header/HeaderCategoryBar";
 import { HeaderIconLink } from "@/components/header/HeaderIconLink";
 import { HeaderProfileLink } from "@/components/header/HeaderProfileLink";
 import { HeaderSearchBar } from "@/components/header/HeaderSearchBar";
-import { HeaderSellButton } from "@/components/header/HeaderSellButton";
-import { HeaderWishlistLink } from "@/components/header/HeaderWishlistLink";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
 import { useHeaderBadges } from "@/features/header/hooks/use-header-badges";
@@ -34,7 +32,6 @@ const HeaderActions = memo(function HeaderActions({
       <HeaderIconLink href="/notifications" label="Notifications" badge={unreadNotifications} size="compact">
         <NotificationsMenuIcon className="h-5 w-5" />
       </HeaderIconLink>
-      <HeaderWishlistLink size="compact" />
       <HeaderProfileLink />
     </>
   );
@@ -91,7 +88,7 @@ function Header({
             <RovexoLogo variant="responsive" />
           </div>
 
-          <div className="header-premium-2026__search z-[1] w-full px-[4.25rem] sm:px-[5.5rem] md:px-[6.5rem] lg:max-w-xl lg:px-[7rem]">
+          <div className="header-premium-2026__search z-[1] w-full px-[3.75rem] sm:px-[5rem] md:px-[5.5rem] lg:max-w-xl lg:px-[6.5rem]">
             <HeaderSearchBar
               inputId="header-search"
               size="inline"
@@ -101,7 +98,7 @@ function Header({
           </div>
 
           <div
-            className="absolute inset-y-0 right-0 z-[2] flex items-center gap-0"
+            className="absolute inset-y-0 right-0 z-[2] flex items-center gap-0 pr-ds-0.5"
             role="group"
             aria-label="Quick links"
           >
@@ -109,7 +106,6 @@ function Header({
               unreadMessages={unreadMessages}
               unreadNotifications={unreadNotifications}
             />
-            <HeaderSellButton className="ml-0.5 hidden lg:inline-flex" />
           </div>
         </div>
       </div>

@@ -150,15 +150,15 @@ export function ProductCard({
           className={cn("object-cover", transitionNormal, "group-hover:scale-[1.03]")}
         />
         {condition && (
-          <Badge variant="default" className={cn("absolute left-1 top-1", badgeClass)}>
+          <Badge variant="default" className={cn("marketplace-listing-card__badge absolute left-1 top-1", badgeClass)}>
             {normalizeCondition(condition)}
           </Badge>
         )}
         {isFeatured && (
-          <Badge variant="warning" className={cn("absolute right-1 top-1", badgeClass)}>Featured</Badge>
+          <Badge variant="warning" className={cn("marketplace-listing-card__badge absolute right-1 top-1", badgeClass)}>Featured</Badge>
         )}
         {isBumped && !isFeatured && (
-          <Badge variant="success" className={cn("absolute right-1 top-1", badgeClass)}>Boosted</Badge>
+          <Badge variant="success" className={cn("marketplace-listing-card__badge absolute right-1 top-1", badgeClass)}>Boosted</Badge>
         )}
       </div>
 
@@ -190,7 +190,7 @@ export function ProductCard({
               aria-label="Save item"
               aria-pressed={isFavorite}
               onClick={toggleFavorite}
-              className={cn(iconBtn, focusRing, transitionSpring, isFavorite && "text-danger", heartAnimating && "scale-90")}
+              className={cn(iconBtn, "marketplace-listing-card__heart", focusRing, transitionSpring, isFavorite && "text-danger", heartAnimating && "scale-90")}
             >
               <HeartIcon filled={isFavorite} className="h-3.5 w-3.5" />
             </button>

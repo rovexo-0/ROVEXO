@@ -7,19 +7,21 @@ import {
 export const buttonVariants = {
   primary: cn(
     "premium-btn bg-[image:var(--ds-gradient-primary)] text-primary-foreground",
-    "hover:brightness-105",
+    "shadow-[var(--ds-depth-2),inset_0_1px_0_rgb(255_255_255/0.35)]",
+    "hover:brightness-105 hover:-translate-y-px hover:shadow-[var(--ds-glow-primary)]",
+    "active:translate-y-0 active:scale-[0.98]",
     focusRing,
     transitionFast,
   ),
   secondary: cn(
     "premium-btn bg-secondary text-secondary-foreground premium-depth-1",
-    "hover:brightness-[0.98]",
+    "hover:brightness-[0.98] hover:-translate-y-px",
     focusRing,
     transitionFast,
   ),
   outline: cn(
     "premium-btn border border-border/80 bg-surface/80 text-text-primary backdrop-blur-md",
-    "hover:border-primary/40 hover:bg-surface-muted premium-glow",
+    "shadow-[var(--ds-depth-1)] hover:border-primary/40 hover:bg-surface-muted hover:shadow-[var(--ds-glow-primary)]",
     focusRing,
     transitionFast,
   ),
