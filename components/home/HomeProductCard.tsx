@@ -144,7 +144,7 @@ export function HomeProductCard({
       }
 
       setHeartAnimating(true);
-      window.setTimeout(() => setHeartAnimating(false), 150);
+      window.setTimeout(() => setHeartAnimating(false), 180);
     },
     [isSaved, productId, title, toggle],
   );
@@ -180,7 +180,8 @@ export function HomeProductCard({
           alt={imageAlt ?? title}
           fill
           loading="lazy"
-          sizes="158px"
+          sizes="174px"
+          quality={88}
           className={cn("object-cover", transitionNormal, "group-hover:scale-[1.03]")}
         />
 
@@ -200,7 +201,7 @@ export function HomeProductCard({
             focusRing,
             transitionSpring,
             isSaved && "text-danger",
-            heartAnimating && "scale-90",
+            heartAnimating && "is-animating",
           )}
         >
           <HeartIcon filled={isSaved} className="h-3.5 w-3.5" />

@@ -115,6 +115,8 @@ async function processIcon(sourcePath, outputPath) {
   await sharp(pixels, {
     raw: { width: info.width, height: info.height, channels: info.channels },
   })
+    .trim()
+    .resize(SIZE, SIZE, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .webp({ quality: 92, effort: 6, alphaQuality: 100 })
     .toFile(outputPath);
 }

@@ -80,7 +80,7 @@ function Header({
       <div className="mx-auto max-w-7xl px-ds-2 sm:px-ds-3 lg:px-ds-4">
         <div
           className={cn(
-            "relative flex min-h-[var(--header-shell-height)] items-center justify-center",
+            "relative flex w-full min-h-[var(--header-shell-height)] items-center",
             "pt-[max(env(safe-area-inset-top),var(--ds-space-1))] pb-1",
           )}
         >
@@ -88,7 +88,7 @@ function Header({
             <RovexoLogo variant="responsive" />
           </div>
 
-          <div className="header-premium-2026__search z-[1] w-full px-[3.75rem] sm:px-[5rem] md:px-[5.5rem] lg:max-w-xl lg:px-[6.5rem]">
+          <div className="header-premium-2026__search z-[1] min-w-0 flex-1 px-[2.75rem] sm:px-[3.75rem] md:px-[4.25rem] lg:px-[4.75rem]">
             <HeaderSearchBar
               inputId="header-search"
               size="inline"

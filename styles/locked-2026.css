@@ -659,7 +659,8 @@
 }
 
 .bottom-nav-sell-2026:active {
-  transform: translateY(calc(-1 * var(--ds-bottom-nav-sell-float))) scale(0.94);
+  transform: translateY(calc(-1 * var(--ds-bottom-nav-sell-float))) scale(0.97);
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .glass-surface-2026 {
@@ -690,7 +691,7 @@
 }
 
 .header-premium-2026__search {
-  max-width: min(100%, 420px);
+  max-width: 100%;
 }
 
 /* Search bar 48px */

@@ -15,6 +15,7 @@ import { HomeRecentlyViewedCarousel } from "@/components/home/HomeRecentlyViewed
 import { AuctionsSection } from "@/components/home/AuctionsSection";
 import { cn } from "@/lib/cn";
 import { transitionFast } from "@/components/ui/tokens";
+import "@/styles/home-premium-polish.css";
 
 type HomeContentProps = {
   featured: Product[];
@@ -168,7 +169,7 @@ export const HomeContent = memo(function HomeContent({
 
       <main
         className={cn(
-          "flex flex-col gap-ds-2 pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))] lg:mx-auto lg:max-w-7xl lg:w-full",
+          "home-premium-polish flex flex-col gap-ds-2 pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))] lg:mx-auto lg:max-w-7xl lg:w-full",
         )}
       >
         <HomeCategoryRail />
