@@ -29,62 +29,75 @@ const ICONS = [
 ];
 
 const SIZE = 512;
-const COLOR_TOLERANCE = 34;
-const MAX_FLOOD_ALPHA = 252;
 
-function colorDistance(r1, g1, b1, r2, g2, b2) {
-  return Math.max(Math.abs(r1 - r2), Math.abs(g1 - g2), Math.abs(b1 - b2));
+function isBackgroundPixel(r, g, b) {
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const saturation = max === 0 ? 0 : (max - min) / max;
+  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+  // Neutral greys, whites, and checkerboard backdrop tones.
+  return saturation < 0.14 && luminance > 35;
 }
 
 function removeBackground(pixels, width, height, channels) {
-  const visited = new Uint8Array(width * height);
-  const queue = [];
+  const total = width * height;
+  const isForeground = new Uint8Array(total);
 
-  const seed = (x, y) => {
-    const idx = (y * width + x) * channels;
-    queue.push(idx);
-    visited[y * width + x] = 1;
-  };
+  for (let pos = 0; pos < total; pos += 1) {
+    const idx = pos * channels;
+    const alpha = pixels[idx + 3];
+    if (alpha < 16) continue;
+    if (!isBackgroundPixel(pixels[idx], pixels[idx + 1], pixels[idx + 2])) {
+      isForeground[pos] = 1;
+    }
+  }
 
-  seed(0, 0);
-  seed(width - 1, 0);
-  seed(0, height - 1);
-  seed(width - 1, height - 1);
+  const visited = new Uint8Array(total);
+  let bestComponent = null;
+  let bestSize = 0;
 
-  while (queue.length > 0) {
-    const idx = queue.pop();
-    const x = (idx / channels) % width;
-    const y = Math.floor(idx / channels / width);
-    const r = pixels[idx];
-    const g = pixels[idx + 1];
-    const b = pixels[idx + 2];
+  for (let pos = 0; pos < total; pos += 1) {
+    if (!isForeground[pos] || visited[pos]) continue;
 
-    pixels[idx + 3] = 0;
+    const queue = [pos];
+    const component = [];
+    visited[pos] = 1;
 
-    const neighbors = [
-      [x - 1, y],
-      [x + 1, y],
-      [x, y - 1],
-      [x, y + 1],
-    ];
+    while (queue.length > 0) {
+      const current = queue.pop();
+      component.push(current);
+      const x = current % width;
+      const y = Math.floor(current / width);
 
-    for (const [nx, ny] of neighbors) {
-      if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
-      const nPos = ny * width + nx;
-      if (visited[nPos]) continue;
-
-      const nIdx = nPos * channels;
-      const nr = pixels[nIdx];
-      const ng = pixels[nIdx + 1];
-      const nb = pixels[nIdx + 2];
-      const na = pixels[nIdx + 3];
-
-      if (na > MAX_FLOOD_ALPHA) continue;
-
-      if (colorDistance(r, g, b, nr, ng, nb) <= COLOR_TOLERANCE) {
-        visited[nPos] = 1;
-        queue.push(nIdx);
+      for (const [nx, ny] of [
+        [x - 1, y],
+        [x + 1, y],
+        [x, y - 1],
+        [x, y + 1],
+      ]) {
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+        const next = ny * width + nx;
+        if (!isForeground[next] || visited[next]) continue;
+        visited[next] = 1;
+        queue.push(next);
       }
+    }
+
+    if (component.length > bestSize) {
+      bestSize = component.length;
+      bestComponent = component;
+    }
+  }
+
+  for (let pos = 0; pos < total; pos += 1) {
+  const idx = pos * channels;
+    pixels[idx + 3] = 0;
+  }
+
+  if (bestComponent) {
+    for (const pos of bestComponent) {
+      const idx = pos * channels;
+      pixels[idx + 3] = 255;
     }
   }
 }
