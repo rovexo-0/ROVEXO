@@ -1,29 +1,30 @@
-/* Tab icon sizing — explicit 32px SVG, no transform scale */
-.bottom-nav-icon-3d.bottom-nav-icon-3d--tab {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  min-height: 32px;
+/* Tab icons: force 32×32 SVG — scoped to bottom navigation shell only */
+[data-bottom-nav="2026"] .bottom-nav-icon-3d.bottom-nav-icon-3d--tab {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
 }
 
-.bottom-nav-tab-icon-2026 {
-  display: block;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
+[data-bottom-nav="2026"] .bottom-nav-icon-3d.bottom-nav-icon-3d--tab svg,
+[data-bottom-nav="2026"] .bottom-nav-tab-icon-2026 {
+  display: block !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
 }
 
-.bottom-nav-item-2026[data-active="true"] .bottom-nav-icon-3d.bottom-nav-icon-3d--tab,
-.bottom-nav-icon-3d.bottom-nav-icon-3d--tab.bottom-nav-icon-3d--active {
-  transform: none;
+[data-bottom-nav="2026"] .bottom-nav-item-2026[data-active="true"] .bottom-nav-icon-3d.bottom-nav-icon-3d--tab,
+[data-bottom-nav="2026"] .bottom-nav-icon-3d.bottom-nav-icon-3d--tab.bottom-nav-icon-3d--active {
+  transform: none !important;
 }
 
-.bottom-nav-item-2026[data-active="true"]:hover .bottom-nav-icon-3d.bottom-nav-icon-3d--tab,
-.bottom-nav-item-2026:hover .bottom-nav-icon-3d.bottom-nav-icon-3d--tab {
-  transform: translateY(-1px);
-}
-
-.bottom-nav-icon-3d.bottom-nav-icon-3d--tab svg.bottom-nav-tab-icon-2026 {
-  width: 32px;
-  height: 32px;
+[data-bottom-nav="2026"] .bottom-nav-item-2026[data-active="true"]:hover .bottom-nav-icon-3d.bottom-nav-icon-3d--tab,
+[data-bottom-nav="2026"] .bottom-nav-item-2026:hover .bottom-nav-icon-3d.bottom-nav-icon-3d--tab {
+  transform: translateY(-1px) !important;
 }

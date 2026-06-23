@@ -57,7 +57,7 @@ function NavLink({
       onClick={onNavigate}
       className={cn("bottom-nav-item-2026", focusRing, transitionFast)}
     >
-      <BottomNavIcon3D type={item.id} active={isActive} size="tab" />
+      <BottomNavIcon3D type={item.id} active={isActive} size="tab" className="bottom-nav-tab-32" />
       <span className="bottom-nav-item-2026__label">{item.label}</span>
     </Link>
   );
@@ -83,6 +83,7 @@ export function BottomNavigation({
 
   return (
     <nav
+      data-bottom-nav="2026"
       aria-label={ariaLabel}
       className={cn(
         "pointer-events-none fixed inset-x-0 bottom-0 z-50 px-ds-2",
