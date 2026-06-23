@@ -7,6 +7,7 @@ import { BottomNavIcon3D, type BottomNavIconType } from "@/components/icons/Bott
 import { cn } from "@/lib/cn";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
+import "./bottom-navigation.css";
 
 export type BottomNavTab = "home" | "search" | "sell" | "saved" | "account";
 

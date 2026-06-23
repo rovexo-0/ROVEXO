@@ -1,0 +1,29 @@
+/* Tab icon sizing — explicit 32px SVG, no transform scale */
+.bottom-nav-icon-3d.bottom-nav-icon-3d--tab {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.bottom-nav-tab-icon-2026 {
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.bottom-nav-item-2026[data-active="true"] .bottom-nav-icon-3d.bottom-nav-icon-3d--tab,
+.bottom-nav-icon-3d.bottom-nav-icon-3d--tab.bottom-nav-icon-3d--active {
+  transform: none;
+}
+
+.bottom-nav-item-2026[data-active="true"]:hover .bottom-nav-icon-3d.bottom-nav-icon-3d--tab,
+.bottom-nav-item-2026:hover .bottom-nav-icon-3d.bottom-nav-icon-3d--tab {
+  transform: translateY(-1px);
+}
+
+.bottom-nav-icon-3d.bottom-nav-icon-3d--tab svg.bottom-nav-tab-icon-2026 {
+  width: 32px;
+  height: 32px;
+}

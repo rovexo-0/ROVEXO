@@ -9,9 +9,12 @@ type BottomNavIcon3DProps = {
   type: BottomNavIconType;
   active?: boolean;
   className?: string;
-  /** Tab icons render at 31px; sell stays at 24px inside the sell button. */
+  /** Tab icons render at 32px; sell stays at 24px inside the sell button. */
   size?: "tab" | "sell";
 };
+
+const TAB_ICON_PX = 32;
+const SELL_ICON_PX = 24;
 
 function IconDefs({ uid }: { uid: string }) {
   return (
@@ -182,18 +185,27 @@ export function BottomNavIcon3D({
   const uid = useId().replace(/:/g, "");
   const RenderIcon = ICON_RENDERERS[type];
   const isSell = size === "sell";
+  const iconPx = isSell ? SELL_ICON_PX : TAB_ICON_PX;
 
   return (
     <span
       className={cn(
         "bottom-nav-icon-3d",
         isSell ? "bottom-nav-icon-3d--sell-inner" : "bottom-nav-icon-3d--tab",
-        active && "bottom-nav-icon-3d--active",
+        active && !isSell && "bottom-nav-icon-3d--active",
         className,
       )}
+      style={{ width: iconPx, height: iconPx }}
       aria-hidden
     >
-      <svg viewBox="0 0 24 24" className="bottom-nav-item-2026__icon" role="presentation">
+      <svg
+        viewBox="0 0 24 24"
+        width={iconPx}
+        height={iconPx}
+        style={{ width: iconPx, height: iconPx }}
+        className={isSell ? "bottom-nav-item-2026__icon" : "bottom-nav-tab-icon-2026"}
+        role="presentation"
+      >
         <IconDefs uid={uid} />
         {RenderIcon(uid)}
       </svg>
