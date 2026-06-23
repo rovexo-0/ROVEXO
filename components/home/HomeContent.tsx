@@ -10,10 +10,9 @@ import {
 } from "react";
 import type { Product, ProductsPage } from "@/lib/products/types";
 import { ProductCarouselSection } from "@/components/home/ProductCarouselSection";
-import { HomeHeroSearch } from "@/components/home/HomeHeroSearch";
 import { HomeCategoryRail } from "@/components/home/HomeCategoryRail";
 import { HomeRecentlyViewedCarousel } from "@/components/home/HomeRecentlyViewedCarousel";
-import { PopularListingsGrid } from "@/components/home/PopularListingsGrid";
+import { AuctionsSection } from "@/components/home/AuctionsSection";
 import { cn } from "@/lib/cn";
 import { transitionFast } from "@/components/ui/tokens";
 
@@ -23,6 +22,7 @@ type HomeContentProps = {
   popularHasMore: boolean;
   recommended: Product[];
   newest: Product[];
+  auctions: Product[];
   loadError?: boolean;
 };
 
@@ -46,6 +46,7 @@ export const HomeContent = memo(function HomeContent({
   popularHasMore: initialPopularHasMore,
   recommended,
   newest,
+  auctions,
   loadError = false,
 }: HomeContentProps) {
   const [popular, setPopular] = useState(initialPopular);
@@ -167,10 +168,9 @@ export const HomeContent = memo(function HomeContent({
 
       <main
         className={cn(
-          "flex flex-col gap-ds-4 pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))] lg:mx-auto lg:max-w-7xl lg:w-full pt-ds-1",
+          "flex flex-col gap-ds-2 pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))] lg:mx-auto lg:max-w-7xl lg:w-full",
         )}
       >
-        <HomeHeroSearch />
         <HomeCategoryRail />
 
         <ProductCarouselSection
@@ -183,17 +183,6 @@ export const HomeContent = memo(function HomeContent({
         />
 
         <ProductCarouselSection
-          id="popular-heading"
-          title="Popular Listings"
-          products={popular}
-          loading={showSkeletons}
-          loadingMore={isLoadingMorePopular}
-          error={sectionError}
-          viewAllHref="/search?q=&sort=popular"
-          footer={<div ref={loadMorePopularRef} className="h-ds-2" aria-hidden />}
-        />
-
-        <ProductCarouselSection
           id="recommended-heading"
           title="Recommended For You"
           products={recommended}
@@ -202,24 +191,29 @@ export const HomeContent = memo(function HomeContent({
           viewAllHref="/search?q=&sort=trending"
         />
 
-        <HomeRecentlyViewedCarousel />
-
         <ProductCarouselSection
-          id="new-today-heading"
-          title="New Today"
+          id="latest-heading"
+          title="Latest Listings"
           products={newest}
           loading={showSkeletons}
           error={sectionError}
           viewAllHref="/search?q=&sort=newest"
         />
 
-        <PopularListingsGrid
-          id="latest-heading"
-          title="Latest Listings"
-          products={newest}
+        <ProductCarouselSection
+          id="popular-near-heading"
+          title="Popular Near You"
+          products={popular}
           loading={showSkeletons}
+          loadingMore={isLoadingMorePopular}
           error={sectionError}
+          viewAllHref="/search?q=&sort=popular"
+          footer={<div ref={loadMorePopularRef} className="h-ds-2" aria-hidden />}
         />
+
+        <AuctionsSection products={auctions} loading={showSkeletons} error={sectionError} />
+
+        <HomeRecentlyViewedCarousel />
       </main>
     </div>
   );

@@ -33,7 +33,7 @@ export const AuctionsSection = memo(function AuctionsSection({
             {hasLiveAuctions ? "Bid on items ending soon" : "Auctions launching across ROVEXO"}
           </p>
         </div>
-        <Link href="/search?q=&sort=ending" className={cn("text-sm font-semibold text-primary", focusRing)}>
+        <Link href="/auctions" className={cn("text-sm font-semibold text-primary", focusRing)}>
           View all
         </Link>
       </div>
@@ -45,7 +45,7 @@ export const AuctionsSection = memo(function AuctionsSection({
             Live bidding is rolling out. List an auction from the sell flow today.
           </p>
           <Link
-            href="/sell"
+            href="/sell/auction"
             className={cn(
               "mt-ds-4 inline-flex min-h-ds-7 items-center rounded-ds-full bg-primary px-ds-5 text-sm font-semibold text-primary-foreground",
               focusRing,

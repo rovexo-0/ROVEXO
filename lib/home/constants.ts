@@ -1,27 +1,45 @@
-import type { CategoryIconType } from "@/components/icons/CategoryIcon3D";
+export type HomeCategoryIconType =
+  | "vehicles"
+  | "property"
+  | "phones"
+  | "computers"
+  | "fashion"
+  | "electronics"
+  | "furniture"
+  | "home-garden"
+  | "sports"
+  | "pets"
+  | "jobs"
+  | "services"
+  | "autoparts"
+  | "wholesale"
+  | "auctions"
+  | "more";
 
 export type HomeCategoryRailItem = {
   name: string;
   slug: string;
-  icon: CategoryIconType;
+  icon: HomeCategoryIconType;
+  href?: string;
 };
 
 export const HOME_CATEGORY_RAIL: HomeCategoryRailItem[] = [
   { name: "Vehicles", slug: "vehicles", icon: "vehicles" },
   { name: "Property", slug: "property", icon: "property" },
   { name: "Phones", slug: "electronics", icon: "phones" },
-  { name: "Laptops", slug: "electronics", icon: "computers" },
+  { name: "Computers", slug: "electronics", icon: "computers" },
   { name: "Fashion", slug: "fashion", icon: "fashion" },
   { name: "Electronics", slug: "electronics", icon: "electronics" },
   { name: "Furniture", slug: "home-garden", icon: "furniture" },
-  { name: "Garden", slug: "home-garden", icon: "garden" },
+  { name: "Home & Garden", slug: "home-garden", icon: "home-garden" },
   { name: "Sports", slug: "sports", icon: "sports" },
   { name: "Pets", slug: "pets", icon: "pets" },
   { name: "Jobs", slug: "jobs", icon: "jobs" },
   { name: "Services", slug: "services", icon: "services" },
   { name: "Auto Parts", slug: "vehicles", icon: "autoparts" },
   { name: "Wholesale", slug: "business", icon: "wholesale" },
-  { name: "Auction", slug: "vehicles", icon: "auctions" },
+  { name: "Auctions", slug: "vehicles", icon: "auctions", href: "/auctions" },
+  { name: "More", slug: "", icon: "more", href: "/categories" },
 ];
 
 export type HomeQuickFilter = {
