@@ -9,6 +9,7 @@ export { Button, type ButtonProps } from "@/components/ui/Button";
 export { Card, type CardProps } from "@/components/ui/Card";
 export { CategoryChip, type CategoryChipProps } from "@/components/ui/CategoryChip";
 export { EmptyState } from "@/components/ui/EmptyState";
+export { GlassSurface, type GlassSurfaceProps } from "@/components/ui/GlassSurface";
 export { designTokens } from "@/components/ui/tokens";
 export { IconButton, type IconButtonProps } from "@/components/ui/IconButton";
 export { Price, type PriceProps } from "@/components/ui/Price";
