@@ -31,6 +31,7 @@ export function SellPage({
   const form = useSellForm({ listingMode, editListingId, initialDraft });
   const {
     view,
+    formError,
     isPublishing,
     uploadProgress,
     draftSavedMessage,
@@ -76,13 +77,22 @@ export function SellPage({
       </main>
 
       {!isPublished && (
-        <SellPublishFooter
-          disabled={!canPublish}
-          loading={isPublishing}
-          onPublish={() => void publishListing()}
-          editListingId={editListingId}
-          quickMode={quickMode}
-        />
+        <>
+          {formError ? (
+            <div className="fixed inset-x-0 bottom-[calc(84px+env(safe-area-inset-bottom))] z-[109] px-ds-4">
+              <p className="mx-auto max-w-2xl rounded-ds-md border border-destructive/30 bg-destructive/10 px-ds-3 py-ds-2 text-sm text-destructive">
+                {formError}
+              </p>
+            </div>
+          ) : null}
+          <SellPublishFooter
+            disabled={!canPublish}
+            loading={isPublishing}
+            onPublish={() => void publishListing()}
+            editListingId={editListingId}
+            quickMode={quickMode}
+          />
+        </>
       )}
       <HelpPageFooter pathname="/sell" />
     </BetaAppShell>

@@ -14,12 +14,12 @@ for (const viewport of viewports) {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    await expect(page.locator('[data-header-version="mobile-v1"]')).toBeVisible();
+    await expect(page.locator('[data-header-version="premium-2026"]')).toBeVisible();
     await expect(page.locator("#header-search")).toBeVisible();
-    await expect(page.locator("#home-hero-search-heading")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /featured listings/i })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
 
-    const headerBox = await page.locator('[data-header-version="mobile-v1"]').boundingBox();
+    const headerBox = await page.locator('[data-header-version="premium-2026"]').boundingBox();
     expect(headerBox?.width).toBeGreaterThan(0);
     expect(headerBox?.height).toBeGreaterThan(0);
   });

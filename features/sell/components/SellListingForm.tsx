@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import { toPathId } from "@/lib/categories/queries";
 import { getSellCurrencyConfig } from "@/lib/sell/currency";
 import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicker";
+import { TitleCategorySuggestions } from "@/features/sell/components/TitleCategorySuggestions";
 import { FieldError, fieldErrorClassName } from "@/features/sell/components/FieldError";
 import { InventoryQuantityField } from "@/features/sell/components/InventoryQuantityField";
 import {
@@ -49,7 +50,7 @@ function FormRow({
 }
 
 export function SellListingForm({ form }: SellListingFormProps) {
-  const { draft, updateDraft, setCategoryPath, listingMode } = form;
+  const { draft, updateDraft, setCategoryPath, categorySuggestions, listingMode } = form;
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const currency = useMemo(() => getSellCurrencyConfig(), []);
   const errors = getListingValidationErrors(draft, { mode: listingMode });
@@ -121,6 +122,12 @@ export function SellListingForm({ form }: SellListingFormProps) {
                 }}
               />
             )}
+
+            <TitleCategorySuggestions
+              suggestions={categorySuggestions}
+              selectedPath={draft.categoryPath}
+              onSelect={setCategoryPath}
+            />
           </FormRow>
         </div>
 
