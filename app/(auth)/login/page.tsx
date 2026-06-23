@@ -6,6 +6,8 @@ import {
   AuthForm,
   AuthLink,
 } from "@/features/auth/components/AuthForm";
+import { AuthPasswordField } from "@/features/auth/components/AuthPasswordField";
+import { LoginRememberRow } from "@/features/auth/components/LoginRememberRow";
 
 type LoginPageProps = {
   searchParams: Promise<{ next?: string; error?: string }>;
@@ -43,14 +45,14 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           inputMode="email"
           placeholder="you@example.com"
         />
-        <AuthField
+        <AuthPasswordField
           label="Password"
           name="password"
-          type="password"
           autoComplete="current-password"
           placeholder="Enter your password"
         />
       </AuthFieldGroup>
+      <LoginRememberRow />
     </AuthForm>
   );
 }

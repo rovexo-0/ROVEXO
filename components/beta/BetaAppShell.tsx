@@ -18,7 +18,13 @@ export function BetaAppShell({
   className,
 }: BetaAppShellProps) {
   return (
-    <div className={cn("min-h-screen bg-background text-text-primary", className)}>
+    <div
+      className={cn(
+        "min-h-screen bg-background text-text-primary",
+        "bg-[radial-gradient(ellipse_120%_80%_at_50%_-30%,rgb(37_99_235/0.08),transparent)]",
+        className,
+      )}
+    >
       {children}
       {showBottomNav && <BottomNavigation active={bottomNavTab} />}
     </div>

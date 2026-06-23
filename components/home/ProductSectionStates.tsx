@@ -32,11 +32,12 @@ export function ProductSectionEmpty({
 export function ProductSectionError({ onRetry }: { onRetry?: () => void }) {
   return (
     <div
-      role="alert"
-      className="col-span-full rounded-ds-xl border border-danger/30 bg-danger/5 px-ds-5 py-ds-8 text-center"
+      role="status"
+      aria-live="polite"
+      className="col-span-full rounded-ds-xl border border-danger/50 bg-surface px-ds-5 py-ds-8 text-center"
     >
       <p className="text-sm font-medium text-text-primary">Unable to load products</p>
-      <p className="mt-ds-1 text-sm text-text-secondary">Something went wrong. Please try again.</p>
+      <p className="mt-ds-1 text-sm text-text-primary">Something went wrong. Please try again.</p>
       {onRetry && (
         <button
           type="button"

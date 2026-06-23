@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { onReviewSubmitted } from "@/lib/trust/events";
 import type { CreateReviewInput, Review, ReviewEligibility } from "@/lib/reviews/types";
 
 function mapReview(row: {
@@ -96,6 +97,13 @@ export async function createOrderReview(
   if (!review) {
     return { error: "Review created but could not be loaded." };
   }
+
+  void onReviewSubmitted({
+    orderId: input.orderId,
+    reviewerId: buyerId,
+    revieweeId: review.reviewee_id,
+    rating: input.rating,
+  });
 
   return { review: mapReview(review) };
 }

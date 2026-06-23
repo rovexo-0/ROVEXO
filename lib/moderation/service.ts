@@ -8,6 +8,7 @@ import type {
   ModerationTarget,
 } from "@/lib/moderation/types";
 import type { Json } from "@/lib/supabase/types/database";
+import { onContentReportTargeted, onModerationDecision } from "@/lib/trust/events";
 
 type QueueInsert = {
   targetType: ModerationTarget;
@@ -231,7 +232,63 @@ export async function resolveModerationQueueItem(input: {
     notes: input.notes ?? "",
   });
 
+  if (existing.seller_id) {
+    void onModerationDecision({
+      sellerId: String(existing.seller_id),
+      decision: input.decision,
+      queueId: input.queueId,
+    });
+  }
+
   return mapQueueRow(data as Record<string, unknown>);
+}
+
+async function resolveReportTargetUserId(input: {
+  reporterId: string;
+  targetType: ModerationTarget;
+  targetId: string;
+}): Promise<string | null> {
+  const admin = createAdminClient();
+
+  if (input.targetType === "profile") {
+    return input.targetId;
+  }
+
+  if (input.targetType === "listing" || input.targetType === "listing_image") {
+    const { data: product } = await admin
+      .from("products")
+      .select("seller_id")
+      .eq("id", input.targetId)
+      .maybeSingle();
+    return product?.seller_id ? String(product.seller_id) : null;
+  }
+
+  if (input.targetType === "conversation") {
+    const { data: conversation } = await admin
+      .from("conversations")
+      .select("buyer_id, seller_id")
+      .eq("id", input.targetId)
+      .maybeSingle();
+    if (!conversation) return null;
+    if (conversation.buyer_id === input.reporterId) {
+      return String(conversation.seller_id);
+    }
+    if (conversation.seller_id === input.reporterId) {
+      return String(conversation.buyer_id);
+    }
+    return null;
+  }
+
+  if (input.targetType === "message") {
+    const { data: message } = await admin
+      .from("messages")
+      .select("sender_id")
+      .eq("id", input.targetId)
+      .maybeSingle();
+    return message?.sender_id ? String(message.sender_id) : null;
+  }
+
+  return null;
 }
 
 export async function createContentReport(input: {
@@ -276,6 +333,14 @@ export async function createContentReport(input: {
     },
     payload: { reportId: data.id, details: input.details ?? "" },
   });
+
+  const targetUserId = await resolveReportTargetUserId(input);
+  if (targetUserId && targetUserId !== input.reporterId) {
+    void onContentReportTargeted({
+      targetUserId,
+      reportId: String(data.id),
+    });
+  }
 
   return {
     id: String(data.id),

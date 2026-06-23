@@ -7,6 +7,7 @@ import { getPublicStorageUrl } from "@/lib/storage/upload";
 import { formatPromotionRemaining, isPromotionActive } from "@/lib/promotions/format";
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { scanListingBeforePublish } from "@/lib/moderation/scan-listing";
+import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import type {
   CreateListingInput,
   ListingFilter,
@@ -80,7 +81,7 @@ function mapSellerListing(row: ProductRow): SellerListing {
     lowStockAlert: row.low_stock_alert,
     views: row.views,
     likes: row.likes,
-    imageUrl: primary?.url ?? "/placeholder-product.png",
+    imageUrl: primary?.url ?? PRODUCT_IMAGE_FALLBACK,
     thumbnailUrl: primary?.thumbnailUrl ?? null,
     images,
     createdAt: row.created_at,
@@ -118,7 +119,7 @@ function mapProductRow(row: ProductRow): Product {
     reviewCount: row.review_count,
     views: row.views,
     likes: row.likes,
-    imageUrl: primary?.url ?? "/placeholder-product.png",
+    imageUrl: primary?.url ?? PRODUCT_IMAGE_FALLBACK,
     sections: (row.sections ?? []) as ProductSection[],
     isFeatured: isPromotionActive(row.featured_until),
     isBumped: isPromotionActive(row.bumped_until),

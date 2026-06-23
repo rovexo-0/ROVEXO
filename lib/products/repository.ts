@@ -1,9 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tables } from "@/lib/supabase/types/database";
 import { searchListings as searchListingsRepo } from "@/lib/listings/repository";
 import { isPromotionActive } from "@/lib/promotions/format";
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { toProductDetail } from "@/lib/products/detail";
+import { getActiveMarket } from "@/lib/seo/markets";
+import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import type {
   DeliveryCarrier,
   Product,
@@ -34,10 +37,18 @@ function primaryImage(row: ProductRow): string {
   const sorted = [...(row.product_images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
-  return sorted[0]?.url ?? "/placeholder-product.png";
+  return sorted[0]?.url ?? PRODUCT_IMAGE_FALLBACK;
+}
+
+function deriveTrustScore(rating: number, verified: boolean): number {
+  const base = Math.round(45 + rating * 11);
+  return Math.min(100, verified ? base + 5 : base);
 }
 
 function mapProductRow(row: ProductRow): Product {
+  const verified = row.profiles?.verified ?? false;
+  const rating = Number(row.rating);
+
   return {
     id: row.id,
     slug: row.slug,
@@ -47,17 +58,72 @@ function mapProductRow(row: ProductRow): Product {
     condition: row.condition,
     brand: row.brands?.name,
     sellerName: row.profiles?.full_name ?? "Seller",
+    sellerId: row.seller_id,
     sellerAvatar: row.profiles?.avatar_url,
-    sellerVerified: row.profiles?.verified ?? false,
-    rating: Number(row.rating),
+    sellerVerified: verified,
+    sellerTrustScore: deriveTrustScore(rating, verified),
+    sellerResponseRate: Math.min(100, Math.round(70 + rating * 6)),
+    location: getActiveMarket().name,
+    listingType: row.listing_type ?? "fixed",
+    auctionEndsAt: row.auction_ends_at,
+    auctionCurrentBid:
+      row.listing_type === "auction" && row.auction_start_price != null
+        ? Number(row.auction_start_price)
+        : null,
+    rating,
     reviewCount: row.review_count,
     views: row.views,
     likes: row.likes,
     imageUrl: primaryImage(row),
-    sections: (row.sections ?? []) as ProductSection[],
+    sections: (row.sections ?? []) as Product["sections"],
     isFeatured: isPromotionActive(row.featured_until),
     isBumped: isPromotionActive(row.bumped_until),
   };
+}
+
+async function enrichProductsWithTrust(products: Product[]): Promise<Product[]> {
+  const sellerIds = [...new Set(products.map((product) => product.sellerId).filter(Boolean))] as string[];
+  if (sellerIds.length === 0) {
+    return products;
+  }
+
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("trust_scores")
+    .select("user_id, score, tier, factors_snapshot")
+    .in("user_id", sellerIds);
+
+  const trustBySeller = new Map(
+    (data ?? []).map((row) => [
+      String(row.user_id),
+      {
+        score: Number(row.score),
+        tier: String(row.tier ?? "silver"),
+        responseRate:
+          row.factors_snapshot &&
+          typeof row.factors_snapshot === "object" &&
+          "responseRate" in row.factors_snapshot
+            ? Number((row.factors_snapshot as { responseRate?: number }).responseRate ?? 0)
+            : null,
+      },
+    ]),
+  );
+
+  return products.map((product) => {
+    if (!product.sellerId) return product;
+    const trust = trustBySeller.get(product.sellerId);
+    if (!trust) return product;
+
+    return {
+      ...product,
+      sellerTrustScore: trust.score,
+      sellerTier: trust.tier,
+      sellerResponseRate:
+        trust.responseRate && trust.responseRate > 0
+          ? Math.round(trust.responseRate)
+          : product.sellerResponseRate,
+    };
+  });
 }
 
 function productAvailability(
@@ -115,6 +181,12 @@ export async function getProductsBySection(
       .gt("featured_until", now)
       .order("promotion_score", { ascending: false })
       .order("featured_until", { ascending: false });
+  } else if (section === "popular") {
+    query = query.order("views", { ascending: false }).order("created_at", { ascending: false });
+  } else if (section === "auctions") {
+    query = query
+      .eq("listing_type", "auction")
+      .order("auction_ends_at", { ascending: true, nullsFirst: false });
   } else {
     query = query
       .contains("sections", [section])
@@ -130,7 +202,24 @@ export async function getProductsBySection(
   let rawRows = (data as ProductRow[] | null) ?? [];
   let total = count ?? 0;
 
-  if (rawRows.length === 0 && page === 1 && section !== "new") {
+  if (rawRows.length === 0 && page === 1 && section === "popular") {
+    const fallback = await supabase
+      .from("products")
+      .select(PRODUCT_SELECT, { count: "exact" })
+      .eq("status", "published")
+      .order("views", { ascending: false })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (fallback.error) {
+      throw fallback.error;
+    }
+
+    rawRows = (fallback.data as ProductRow[] | null) ?? [];
+    total = fallback.count ?? rawRows.length;
+  }
+
+  if (rawRows.length === 0 && page === 1 && !["new", "popular", "auctions"].includes(section)) {
     const fallback = await supabase
       .from("products")
       .select(PRODUCT_SELECT, { count: "exact" })
@@ -147,7 +236,7 @@ export async function getProductsBySection(
     total = fallback.count ?? rawRows.length;
   }
 
-  const items = rawRows.map(mapProductRow);
+  const items = await enrichProductsWithTrust(rawRows.map(mapProductRow));
 
   return {
     items,

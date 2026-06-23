@@ -7,7 +7,6 @@ import { usesQuickListingForm } from "@/lib/profile/account";
 import type { SellListingDraft } from "@/features/sell/types";
 import { getListingValidationErrors } from "@/features/sell/types";
 import { FieldError } from "@/features/sell/components/FieldError";
-import { SellAnalyzingIndicator } from "@/features/sell/components/SellAnalyzingIndicator";
 import { SellListingForm, useSellPublishState } from "@/features/sell/components/SellListingForm";
 import { SellQuickListingForm } from "@/features/sell/components/SellQuickListingForm";
 import { SellPageHeader } from "@/features/sell/components/SellPageHeader";
@@ -32,8 +31,6 @@ export function SellPage({
   const form = useSellForm({ listingMode, editListingId, initialDraft });
   const {
     view,
-    isAnalyzing,
-    analysisError,
     isPublishing,
     uploadProgress,
     draftSavedMessage,
@@ -68,14 +65,6 @@ export function SellPage({
           <>
             <SellPhotoSection form={form} uploadProgress={uploadProgress} quickMode={quickMode} />
             <FieldError message={getListingValidationErrors(form.draft, { mode: form.listingMode }).photos} />
-
-            {isAnalyzing && <SellAnalyzingIndicator />}
-
-            {analysisError && (
-              <p className="text-sm font-medium text-danger" role="alert">
-                {analysisError}
-              </p>
-            )}
 
             {quickMode ? (
               <SellQuickListingForm form={form} />

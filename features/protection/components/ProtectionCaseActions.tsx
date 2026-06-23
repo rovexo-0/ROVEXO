@@ -1,58 +1,122 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import type { ProtectionCaseStatus } from "@/lib/protection/service";
 
 type ProtectionCaseActionsProps = {
   caseId: string;
+  status: ProtectionCaseStatus;
   isAdmin: boolean;
-  status: string;
 };
 
-export function ProtectionCaseActions({ caseId, isAdmin, status }: ProtectionCaseActionsProps) {
+export function ProtectionCaseActions({ caseId, status, isAdmin }: ProtectionCaseActionsProps) {
+  const router = useRouter();
+  const [reason, setReason] = useState("");
   const [notes, setNotes] = useState("");
+  const [outcome, setOutcome] = useState("refund_full");
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!isAdmin || status === "resolved" || status === "closed") return null;
+  async function submitAppeal() {
+    if (!reason.trim()) {
+      setError("Enter a reason for your appeal.");
+      return;
+    }
 
-  const resolve = async (outcome: "buyer_favour" | "seller_favour" | "no_action") => {
     setBusy(true);
-    setMessage(null);
+    setError(null);
     try {
       const response = await fetch(`/api/protection/cases/${caseId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "resolve", outcome, notes }),
+        body: JSON.stringify({ action: "appeal", reason: reason.trim() }),
       });
-      setMessage(response.ok ? "Case resolved." : "Unable to resolve case.");
+      if (!response.ok) throw new Error("Appeal failed");
+      router.refresh();
+    } catch {
+      setError("Unable to submit appeal. Try again.");
     } finally {
       setBusy(false);
     }
-  };
+  }
+
+  async function resolveCase() {
+    setBusy(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/protection/cases/${caseId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "resolve",
+          outcome,
+          notes: notes.trim() || "Admin resolution",
+        }),
+      });
+      if (!response.ok) throw new Error("Resolve failed");
+      router.refresh();
+    } catch {
+      setError("Unable to resolve case.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const canAppeal = status === "resolved";
 
   return (
-    <div className="mt-ds-6 rounded-ds-lg border border-border p-ds-4">
-      <h2 className="text-lg font-semibold">Admin resolution</h2>
-      <textarea
-        value={notes}
-        onChange={(event) => setNotes(event.target.value)}
-        rows={3}
-        placeholder="Decision notes"
-        className="mt-ds-3 w-full rounded-ds-lg border border-border px-ds-3 py-ds-2 text-sm"
-      />
-      <div className="mt-ds-3 flex flex-wrap gap-ds-2">
-        <Button variant="primary" disabled={busy} onClick={() => void resolve("buyer_favour")}>
-          Buyer favour
-        </Button>
-        <Button variant="secondary" disabled={busy} onClick={() => void resolve("seller_favour")}>
-          Seller favour
-        </Button>
-        <Button variant="secondary" disabled={busy} onClick={() => void resolve("no_action")}>
-          No action
-        </Button>
-      </div>
-      {message ? <p className="mt-ds-2 text-sm text-text-secondary">{message}</p> : null}
-    </div>
+    <Card className="mt-ds-6 space-y-ds-4 p-ds-4">
+      <h2 className="text-lg font-semibold">Case actions</h2>
+
+      {canAppeal && !isAdmin && (
+        <div className="space-y-ds-3">
+          <p className="text-sm text-text-secondary">Submit an appeal if you disagree with the outcome.</p>
+          <textarea
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            rows={3}
+            placeholder="Explain why this case should be reviewed again"
+            className="w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm"
+          />
+          <Button disabled={busy} onClick={() => void submitAppeal()}>
+            Submit appeal
+          </Button>
+        </div>
+      )}
+
+      {isAdmin && status !== "closed" && (
+        <div className="space-y-ds-3">
+          <label className="block text-sm font-medium">Resolution outcome</label>
+          <select
+            value={outcome}
+            onChange={(event) => setOutcome(event.target.value)}
+            className="w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm"
+          >
+            <option value="refund_full">Full refund (buyer favour)</option>
+            <option value="refund_partial">Partial refund</option>
+            <option value="return_accepted">Return accepted</option>
+            <option value="return_rejected">Return rejected (seller favour)</option>
+            <option value="no_action">No action</option>
+            <option value="buyer_favour">Buyer favour</option>
+            <option value="seller_favour">Seller favour</option>
+          </select>
+          <textarea
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            rows={3}
+            placeholder="Admin notes"
+            className="w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm"
+          />
+          <Button disabled={busy} onClick={() => void resolveCase()}>
+            Resolve case
+          </Button>
+        </div>
+      )}
+
+      {error && <p className="text-sm text-danger">{error}</p>}
+    </Card>
   );
 }

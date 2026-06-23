@@ -5,8 +5,9 @@ import { cancelPendingOrder } from "@/lib/orders/checkout";
 import { notifyOrderDelivered, notifyOrderShipped, notifyOrderRefunded } from "@/lib/orders/notifications";
 import { releaseProductInventory } from "@/lib/inventory/service";
 import type { DeliveryCarrier } from "@/lib/products/types";
-import { refundSellerForOrder } from "@/lib/wallet/sales";
+import { refundSellerForOrder, creditSellerForOrder } from "@/lib/wallet/sales";
 import { createProtectionCase } from "@/lib/protection/service";
+import { onOrderCompleted, onOrderRefunded, onShipmentDelivered } from "@/lib/trust/events";
 import type {
   AddTrackingInput,
   CreateOrderInput,
@@ -182,6 +183,19 @@ export async function applyOrderAction(
       orderNumber: existing.orderNumber,
     });
 
+    const deliveredAt = new Date();
+    const shippedAt = existing.shippedAt ? new Date(existing.shippedAt) : null;
+    const slaDays = existing.deliveryCarrier === "DPD" ? 3 : 5;
+    const onTime =
+      !shippedAt ||
+      deliveredAt.getTime() - shippedAt.getTime() <= slaDays * 86_400_000;
+
+    void onShipmentDelivered({
+      orderId: id,
+      sellerId: existing.seller.id,
+      onTime,
+    });
+
     return getOrderById(id);
   }
 
@@ -190,7 +204,7 @@ export async function applyOrderAction(
       return existing;
     }
 
-    await cancelPendingOrder(id, "Cancelled by user.");
+    await cancelPendingOrder(id, "Cancelled by user.", { initiatedBy: "buyer" });
     return getOrderById(id);
   }
 
@@ -236,6 +250,12 @@ export async function applyOrderAction(
       amount: Number(orderRow?.total ?? existing.totals.total),
     });
 
+    void onOrderRefunded({
+      orderId: id,
+      buyerId: existing.buyer.id,
+      sellerId: existing.seller.id,
+    });
+
     await supabase.from("orders").update({ status: "cancelled" }).eq("id", id);
     return getOrderById(id);
   }
@@ -253,6 +273,37 @@ export async function applyOrderAction(
         disputes_disabled: true,
       })
       .eq("id", id);
+
+    const admin = createAdminClient();
+    const { data: orderRow } = await admin
+      .from("orders")
+      .select(
+        "order_number, seller_id, item_price, stripe_payment_intent_id, order_items ( title, image_url )",
+      )
+      .eq("id", id)
+      .maybeSingle();
+
+    const item = (
+      orderRow?.order_items as Array<{ title: string; image_url: string }> | null
+    )?.[0];
+
+    if (orderRow && item) {
+      await creditSellerForOrder({
+        orderId: id,
+        orderNumber: orderRow.order_number,
+        sellerId: orderRow.seller_id,
+        productTitle: item.title,
+        productImageUrl: item.image_url,
+        itemPrice: Number(orderRow.item_price),
+        stripePaymentIntentId: orderRow.stripe_payment_intent_id,
+      });
+    }
+
+    void onOrderCompleted({
+      orderId: id,
+      buyerId: existing.buyer.id,
+      sellerId: existing.seller.id,
+    });
 
     return getOrderById(id);
   }

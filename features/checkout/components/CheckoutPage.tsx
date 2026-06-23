@@ -10,6 +10,7 @@ import { CheckoutDeliverySection } from "@/features/checkout/components/Checkout
 import { CheckoutPageHeader } from "@/features/checkout/components/CheckoutPageHeader";
 import { CheckoutPayFooter } from "@/features/checkout/components/CheckoutPayFooter";
 import { CheckoutPaymentMethodCard } from "@/features/checkout/components/CheckoutPaymentMethodCard";
+import { CheckoutReturnPolicy } from "@/features/checkout/components/CheckoutReturnPolicy";
 import { CheckoutProcessingOverlay } from "@/features/checkout/components/CheckoutProcessingOverlay";
 import { CheckoutProductCard } from "@/features/checkout/components/CheckoutProductCard";
 import { CheckoutSuccessView } from "@/features/checkout/components/CheckoutSuccessView";
@@ -124,6 +125,7 @@ export function CheckoutPage({ product, initialDraft }: CheckoutPageProps) {
             <CheckoutDeliverySection form={form} />
             <CheckoutAddressCard form={form} />
             <CheckoutPaymentMethodCard form={form} />
+            <CheckoutReturnPolicy form={form} />
             <OrderSummary totals={totals} />
           </>
         )}

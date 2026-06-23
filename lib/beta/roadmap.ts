@@ -120,7 +120,7 @@ export const BETA_MODULES = [
     name: "My Listings",
     route: "/seller/listings",
     area: "seller",
-    status: "planned",
+    status: "complete",
     description: "Manage active, draft, and sold listings.",
   },
   {
@@ -176,7 +176,7 @@ export const BETA_MODULES = [
     name: "AI Description",
     route: "/sell",
     area: "seller",
-    status: "planned",
+    status: "complete",
     description: "Generate listing descriptions during sell flow.",
   },
   {
@@ -184,7 +184,7 @@ export const BETA_MODULES = [
     name: "AI Price Suggestion",
     route: "/sell",
     area: "seller",
-    status: "planned",
+    status: "complete",
     description: "Suggested pricing based on listing details.",
   },
   {
@@ -208,7 +208,7 @@ export const BETA_MODULES = [
     name: "36 Hour Payment Release",
     route: "/orders",
     area: "payments",
-    status: "planned",
+    status: "complete",
     description: "Escrow release after delivery confirmation window.",
   },
   {
@@ -216,7 +216,7 @@ export const BETA_MODULES = [
     name: "Seller Shipping Label",
     route: "/seller/orders",
     area: "payments",
-    status: "planned",
+    status: "complete",
     description: "Seller generates and attaches own shipping label.",
   },
   {
@@ -224,7 +224,7 @@ export const BETA_MODULES = [
     name: "Return Policy",
     route: "/checkout/[slug]",
     area: "payments",
-    status: "planned",
+    status: "complete",
     description: "Return window and policy acceptance at checkout.",
   },
   {
@@ -232,7 +232,7 @@ export const BETA_MODULES = [
     name: "Refund Flow",
     route: "/orders",
     area: "payments",
-    status: "planned",
+    status: "complete",
     description: "Buyer refund requests and seller resolution.",
   },
 ] as const satisfies readonly BetaModuleDefinition[];

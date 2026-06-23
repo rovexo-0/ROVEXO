@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getPublicSellerProfile } from "@/lib/profile/public";
 import { ProStorePage } from "@/features/store/components/ProStorePage";
 import { createClient } from "@/lib/supabase/server";
+import { getPublicTrustSummary } from "@/lib/trust/service";
 import { getAppUrl } from "@/lib/supabase/env";
 
 type PageProps = {
@@ -86,6 +87,8 @@ export default async function ProStoreRoute({ params }: PageProps) {
     notFound();
   }
 
+  const trustSummary = await getPublicTrustSummary(store.profile.id);
+
   return (
     <ProStorePage
       storeName={store.business?.business_name ?? store.profile.full_name}
@@ -100,6 +103,7 @@ export default async function ProStoreRoute({ params }: PageProps) {
       listingCount={store.listingCount}
       salesCount={store.salesCount}
       listings={store.listings}
+      sellerTrust={trustSummary}
     />
   );
 }

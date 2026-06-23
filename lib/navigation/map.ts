@@ -24,9 +24,9 @@ export const SELLER_NAV: NavLink[] = [
   { href: "/seller/orders", label: "Seller Orders", subtitle: "Fulfillment & shipping" },
   { href: "/seller/wallet", label: "Wallet", subtitle: "Balance & withdrawals" },
   { href: "/seller/analytics", label: "Seller Analytics", subtitle: "Views, sales & trends" },
+  { href: "/seller/trust", label: "Trust Score", subtitle: "Reputation & improvements" },
   { href: "/seller/tax", label: "Tax Registration", subtitle: "VAT & tax settings" },
   { href: "/sell", label: "Sell an Item", subtitle: "Create a new listing" },
-  { href: "/sell/camera", label: "AI Camera Sell", subtitle: "Photo-based listing wizard" },
 ];
 
 export const BUSINESS_NAV: NavLink[] = [

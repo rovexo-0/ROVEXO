@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isPurchasable } from "@/lib/inventory/service";
+import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 
 export type CartItem = {
   id: string;
@@ -63,7 +64,7 @@ function mapCartRow(row: {
     slug: row.products.slug,
     title: row.products.title,
     price: Number(row.products.price),
-    imageUrl: images[0]?.url ?? "/placeholder-product.png",
+    imageUrl: images[0]?.url ?? PRODUCT_IMAGE_FALLBACK,
     quantity: row.quantity,
     stock: row.products.stock,
     available: isPurchasable(row.products.stock, row.products.status),

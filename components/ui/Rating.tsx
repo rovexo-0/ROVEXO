@@ -40,7 +40,9 @@ export function Rating({
         {clampedValue.toFixed(1)}
       </span>
       {reviewCount != null && (
-        <span className={size === "sm" ? "text-xs" : "text-sm"}>({reviewCount})</span>
+        <span className={cn(size === "sm" ? "text-xs" : "text-sm", "text-text-secondary")}>
+          ({reviewCount})
+        </span>
       )}
     </div>
   );

@@ -13,6 +13,7 @@ import {
   reverseFailedStripeTransfer,
   syncStripeRefundFromCharge,
 } from "@/lib/stripe/webhook-sync";
+import { syncChargebackTrustFromDispute } from "@/lib/trust/chargeback";
 
 export async function POST(request: Request) {
   if (!isStripeConfigured()) {
@@ -88,6 +89,18 @@ export async function POST(request: Request) {
         if (paymentIntentId && refundId) {
           await syncStripeRefundFromCharge({ paymentIntentId, refundId });
         }
+        break;
+      }
+      case "charge.dispute.created": {
+        const dispute = event.data.object as Stripe.Dispute;
+        const paymentIntentId =
+          typeof dispute.payment_intent === "string"
+            ? dispute.payment_intent
+            : dispute.payment_intent?.id ?? null;
+        await syncChargebackTrustFromDispute({
+          disputeId: dispute.id,
+          paymentIntentId,
+        });
         break;
       }
       default:

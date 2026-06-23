@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { ShareListingSheet } from "@/components/share/ShareListingSheet";
 import { PublishedCheckmark } from "@/features/sell/components/PublishedCheckmark";
 import type { SellFormController } from "@/features/sell/hooks/use-sell-wizard";
 
@@ -12,26 +13,7 @@ type SellPublishedStepProps = {
 
 export function SellPublishedStep({ form }: SellPublishedStepProps) {
   const { draft, publishedSlug } = form;
-
-  const handleShare = useCallback(async () => {
-    if (!publishedSlug || typeof window === "undefined") return;
-
-    const url = `${window.location.origin}/listing/${publishedSlug}`;
-
-    if (typeof navigator !== "undefined" && navigator.share) {
-      await navigator
-        .share({
-          title: draft.title,
-          url,
-        })
-        .catch(() => undefined);
-      return;
-    }
-
-    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(url).catch(() => undefined);
-    }
-  }, [draft.title, publishedSlug]);
+  const [shareOpen, setShareOpen] = useState(false);
 
   return (
     <section
@@ -62,11 +44,20 @@ export function SellPublishedStep({ form }: SellPublishedStepProps) {
           fullWidth
           size="lg"
           className="min-h-ds-7 rounded-ds-lg text-base"
-          onClick={() => void handleShare()}
+          onClick={() => setShareOpen(true)}
           disabled={!publishedSlug}
         >
           Share Listing
         </Button>
+
+        {publishedSlug ? (
+          <ShareListingSheet
+            open={shareOpen}
+            onClose={() => setShareOpen(false)}
+            title={draft.title || "ROVEXO listing"}
+            slug={publishedSlug}
+          />
+        ) : null}
 
         <Link href="/account" className="block w-full">
           <Button variant="ghost" fullWidth size="lg" className="min-h-ds-7 text-base">

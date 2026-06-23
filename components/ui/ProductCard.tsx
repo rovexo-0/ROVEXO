@@ -9,7 +9,8 @@ import { Price } from "@/components/ui/Price";
 import { cn } from "@/lib/cn";
 import { normalizeCondition } from "@/lib/products/utils";
 import { trackPromotionEvent } from "@/components/promotions/PromotionAnalyticsBeacon";
-import { trackGaEvent } from "@/lib/analytics/ga4-events";
+import { trackSaveListing } from "@/lib/analytics/marketplace-events";
+import { ShareListingSheet } from "@/components/share/ShareListingSheet";
 import { getActiveMarket } from "@/lib/seo/markets";
 import { focusRing, transitionNormal, transitionSpring } from "@/components/ui/tokens";
 
@@ -22,6 +23,7 @@ export type ProductCardProps = {
   condition?: string;
   views?: number;
   productId?: string;
+  slug?: string;
   promotionSurface?: "homepage" | "search" | "category" | "listing" | "seller";
   isFeatured?: boolean;
   isBumped?: boolean;
@@ -50,6 +52,14 @@ function HeartIcon({ className, filled }: { className?: string; filled?: boolean
   );
 }
 
+function ShareIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.02.356.057.526.111m1.683 2.342a2.25 2.25 0 1 0 2.433 3.334m-2.433-3.334a2.246 2.246 0 0 0-1.683-.111m1.683 2.342 2.433 3.334M7.217 10.907 3.75 8.25m3.467 2.657L3.75 13.5m13.5-5.25-3.467 2.657m3.467-2.657L20.25 8.25m-3.467 2.657 3.467 2.657" />
+    </svg>
+  );
+}
+
 function EyeIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" aria-hidden>
@@ -72,6 +82,7 @@ export function ProductCard({
   condition,
   views,
   productId,
+  slug,
   promotionSurface = "search",
   isFeatured = false,
   isBumped = false,
@@ -82,6 +93,9 @@ export function ProductCard({
   const router = useRouter();
   const [isFavoriteInternal, setIsFavoriteInternal] = useState(false);
   const [heartAnimating, setHeartAnimating] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+
+  const listingSlug = slug ?? href.replace(/^\/listing\//, "").split("?")[0] ?? "";
 
   const isFavorite = isFavoriteProp ?? isFavoriteInternal;
 
@@ -114,9 +128,9 @@ export function ProductCard({
         triggerHapticFeedback();
         if (productId) {
           const { currency } = getActiveMarket();
-          trackGaEvent("add_to_favorites", {
-            item_id: productId,
-            item_name: title,
+          trackSaveListing({
+            itemId: productId,
+            itemName: title,
             currency,
           });
         }
@@ -147,16 +161,17 @@ export function ProductCard({
       onClick={openProduct}
       onKeyDown={handleCardKeyDown}
       className={cn(
-        "group flex h-full cursor-pointer flex-col overflow-hidden",
+        "group flex h-full cursor-pointer flex-col overflow-hidden rounded-[var(--ds-radius-premium)]",
+        "premium-card border-0 bg-surface/95",
         transitionNormal,
-        "active:-translate-y-0.5 active:shadow-ds-medium md:hover:-translate-y-0.5 md:hover:shadow-ds-medium",
+        "md:hover:-translate-y-1",
         isFeatured && "ring-2 ring-warning/40",
         isBumped && !isFeatured && "ring-2 ring-success/30",
         focusRing,
         className,
       )}
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-t-ds-lg bg-surface-muted">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-t-[var(--ds-radius-premium)] bg-surface-muted">
         <Image
           src={imageUrl}
           alt={imageAlt ?? title}
@@ -164,9 +179,9 @@ export function ProductCard({
           loading="lazy"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className={cn(
-            "object-cover",
+            "object-cover premium-image-depth",
             transitionNormal,
-            "group-hover:scale-[1.02] group-active:scale-[1.02]",
+            "group-hover:scale-[1.04] group-active:scale-[1.02]",
           )}
         />
 
@@ -215,23 +230,55 @@ export function ProductCard({
             <span aria-hidden />
           )}
 
-          <button
-            type="button"
-            aria-label="Save item"
-            aria-pressed={isFavorite}
-            onClick={toggleFavorite}
-            className={cn(
-              "flex min-h-ds-7 min-w-ds-7 shrink-0 items-center justify-center rounded-ds-full text-text-secondary",
-              focusRing,
-              transitionSpring,
-              isFavorite && "text-danger",
-              heartAnimating && "scale-90",
-            )}
-          >
-            <HeartIcon filled={isFavorite} className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-ds-1">
+            {listingSlug ? (
+              <button
+                type="button"
+                aria-label="Share listing"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setShareOpen(true);
+                }}
+                className={cn(
+                  "flex min-h-ds-7 min-w-ds-7 shrink-0 items-center justify-center rounded-ds-full text-text-secondary",
+                  focusRing,
+                  transitionSpring,
+                )}
+              >
+                <ShareIcon className="h-5 w-5" />
+              </button>
+            ) : null}
+
+            <button
+              type="button"
+              aria-label="Save item"
+              aria-pressed={isFavorite}
+              onClick={toggleFavorite}
+              className={cn(
+                "flex min-h-ds-7 min-w-ds-7 shrink-0 items-center justify-center rounded-ds-full text-text-secondary",
+                focusRing,
+                transitionSpring,
+                isFavorite && "text-danger",
+                heartAnimating && "scale-90",
+              )}
+            >
+              <HeartIcon filled={isFavorite} className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
+
+      {listingSlug ? (
+        <ShareListingSheet
+          open={shareOpen}
+          onClose={() => setShareOpen(false)}
+          title={title}
+          slug={listingSlug}
+          productId={productId}
+          price={price}
+        />
+      ) : null}
     </Card>
   );
 }

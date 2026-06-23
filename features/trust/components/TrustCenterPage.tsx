@@ -2,11 +2,13 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { TrustVerificationActions } from "@/features/trust/components/TrustVerificationActions";
-import type { TrustCenterData } from "@/lib/trust/types";
+import { TrustScoreMeter } from "@/features/trust/components/TrustScoreMeter";
+import { TrustTierBadge } from "@/features/trust/components/TrustTierBadge";
+import type { TrustDashboardData } from "@/lib/trust/types";
 import { TRUST_CENTER_SECTIONS, VERIFICATION_TYPES } from "@/lib/trust/types";
 
 type TrustCenterPageProps = {
-  data: TrustCenterData;
+  data: TrustDashboardData;
 };
 
 export function TrustCenterPage({ data }: TrustCenterPageProps) {
@@ -22,9 +24,17 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
 
       <section id="score" className="grid gap-ds-4 lg:grid-cols-[1.2fr_1fr]">
         <Card padding="lg" className="shadow-ds-soft">
-          <h2 className="text-lg font-semibold">Trust Score</h2>
-          <p className="mt-ds-4 text-5xl font-bold text-primary">{data.score.score}</p>
-          <p className="mt-ds-1 text-sm capitalize text-text-secondary">Level: {data.score.level}</p>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold">Trust Score</h2>
+            <TrustTierBadge tier={data.score.tier} />
+          </div>
+          <TrustScoreMeter
+            score={data.score.score}
+            tier={data.score.tier}
+            progressPercent={data.progress.percent}
+            nextTier={data.progress.next}
+            className="mt-ds-4"
+          />
           <div className="mt-ds-5 grid gap-ds-3 sm:grid-cols-3">
             <ScorePill label="Buyer" value={data.score.buyerScore} />
             <ScorePill label="Seller" value={data.score.sellerScore} />
@@ -40,19 +50,32 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
         </Card>
 
         <Card padding="lg" className="shadow-ds-soft">
-          <h2 className="text-lg font-semibold">Trust History</h2>
+          <h2 className="text-lg font-semibold">How to improve</h2>
           <ul className="mt-ds-4 space-y-ds-2 text-sm text-text-secondary">
-            {data.recentEvents.length ? (
-              data.recentEvents.map((event) => (
-                <li key={event.id} className="flex justify-between gap-ds-3 border-b border-border pb-ds-2">
-                  <span>{event.eventType.replace(/_/g, " ")}</span>
-                  <span>{event.delta >= 0 ? `+${event.delta}` : event.delta}</span>
-                </li>
-              ))
-            ) : (
-              <li>No trust events yet. Complete verifications to build your score.</li>
-            )}
+            {data.recommendations.map((item) => (
+              <li key={item}>• {item}</li>
+            ))}
           </ul>
+        </Card>
+      </section>
+
+      <section id="history">
+        <h2 className="text-lg font-semibold">Recent score changes</h2>
+        <Card padding="lg" className="mt-ds-4 shadow-ds-soft">
+          {data.recentEvents.length ? (
+            <ul className="space-y-ds-3 text-sm text-text-secondary">
+              {data.recentEvents.map((event) => (
+                <li key={event.id} className="flex items-start justify-between gap-ds-3 border-b border-border pb-ds-2 last:border-0 last:pb-0">
+                  <span>{event.reason ?? event.eventType.replace(/_/g, " ")}</span>
+                  <span className={event.delta >= 0 ? "font-semibold text-success" : "font-semibold text-danger"}>
+                    {event.delta >= 0 ? `+${event.delta}` : event.delta}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-text-secondary">No trust events yet. Complete orders and verifications to build your score.</p>
+          )}
         </Card>
       </section>
 

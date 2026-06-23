@@ -16,6 +16,7 @@ type AuthFormProps = {
   footer?: React.ReactNode;
   initialError?: string;
   beforeSubmit?: (formData: FormData) => string | null;
+  successContent?: React.ReactNode;
 };
 
 export function AuthForm({
@@ -27,11 +28,16 @@ export function AuthForm({
   footer,
   initialError,
   beforeSubmit,
+  successContent,
 }: AuthFormProps) {
   const [state, formAction, pending] = useActionState(action, {});
   const [clientError, setClientError] = useState<string | null>(null);
 
   const alertMessage = clientError ?? state.error ?? initialError;
+
+  if (state.success && successContent) {
+    return <div className="flex w-full flex-col gap-ds-6">{successContent}</div>;
+  }
 
   return (
     <div className="flex w-full flex-col gap-ds-6">

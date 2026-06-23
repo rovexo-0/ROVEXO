@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { MouseEvent, ReactNode } from "react";
+import { PremiumIcon } from "@/components/icons/PremiumIcon";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { cn } from "@/lib/cn";
-import { focusRing, shadowFloating, transitionFast } from "@/components/ui/tokens";
+import { focusRing, transitionFast } from "@/components/ui/tokens";
 
 const STROKE = 1.75;
 
@@ -25,22 +26,9 @@ type NavItem = {
   match: (pathname: string) => boolean;
 };
 
-function NavIcon({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+function NavIcon({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={STROKE}
-      stroke="currentColor"
-      aria-hidden
-    >
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={STROKE} stroke="currentColor" aria-hidden>
       {children}
     </svg>
   );
@@ -91,28 +79,44 @@ const navItems: NavItem[] = [
     id: "home",
     label: "Home",
     href: "/",
-    icon: <HomeIcon className="h-6 w-6" />,
+    icon: (
+      <PremiumIcon size="sm" className="!bg-transparent !shadow-none !border-0">
+        <HomeIcon className="h-5 w-5" />
+      </PremiumIcon>
+    ),
     match: (pathname) => pathname === "/",
   },
   {
     id: "search",
     label: "Search",
     href: "/search",
-    icon: <SearchIcon className="h-6 w-6" />,
+    icon: (
+      <PremiumIcon size="sm" className="!bg-transparent !shadow-none !border-0">
+        <SearchIcon className="h-5 w-5" />
+      </PremiumIcon>
+    ),
     match: (pathname) => pathname.startsWith("/search"),
   },
   {
     id: "saved",
     label: "Saved",
     href: "/saved",
-    icon: <SavedIcon className="h-6 w-6" />,
+    icon: (
+      <PremiumIcon size="sm" className="!bg-transparent !shadow-none !border-0">
+        <SavedIcon className="h-5 w-5" />
+      </PremiumIcon>
+    ),
     match: (pathname) => pathname.startsWith("/saved"),
   },
   {
     id: "account",
     label: "Account",
     href: "/account",
-    icon: <AccountIcon className="h-6 w-6" />,
+    icon: (
+      <PremiumIcon size="sm" className="!bg-transparent !shadow-none !border-0">
+        <AccountIcon className="h-5 w-5" />
+      </PremiumIcon>
+    ),
     match: (pathname) => pathname.startsWith("/account"),
   },
 ];
@@ -149,20 +153,14 @@ function NavLink({
         isActive ? "text-primary" : "text-text-secondary hover:text-text-primary",
       )}
     >
-      <span
-        className={cn(
-          "flex h-6 w-6 items-center justify-center",
-          transitionFast,
-          isActive && "scale-105",
-        )}
-      >
+      <span className={cn("flex items-center justify-center", transitionFast, isActive && "scale-110")}>
         {item.icon}
       </span>
-      <span className="text-[11px] font-medium leading-none">{item.label}</span>
+      <span className="text-[11px] font-semibold leading-none">{item.label}</span>
       <span
         aria-hidden
         className={cn(
-          "absolute bottom-0 h-1 w-1 rounded-ds-full bg-primary",
+          "absolute -bottom-0.5 h-1 w-6 rounded-ds-full bg-[image:var(--ds-gradient-primary)] shadow-[0_0_12px_rgba(37,99,235,0.45)]",
           transitionFast,
           isActive ? "scale-100 opacity-100" : "scale-0 opacity-0",
         )}
@@ -201,12 +199,10 @@ export function BottomNavigation({
     >
       <div
         className={cn(
-          "pointer-events-auto mx-auto max-w-md rounded-ds-xl border border-border bg-overlay backdrop-blur-xl backdrop-saturate-150",
-          shadowFloating,
-          "supports-[backdrop-filter]:bg-overlay",
+          "premium-glass premium-depth-3 pointer-events-auto relative mx-auto max-w-md overflow-hidden rounded-[var(--ds-radius-premium)]",
         )}
       >
-        <ul className="grid grid-cols-5 items-end px-ds-2 pb-ds-2 pt-ds-5">
+        <ul className="relative z-[1] grid grid-cols-5 items-end px-ds-2 pb-ds-2 pt-ds-5">
           <li className="flex justify-center">
             <NavLink item={home} isActive={activeTab === "home"} />
           </li>
@@ -220,10 +216,8 @@ export function BottomNavigation({
               aria-label="Sell"
               aria-current={isSellActive ? "page" : undefined}
               className={cn(
-                "absolute -top-[var(--ds-space-6)] flex h-16 w-16 min-h-ds-7 min-w-ds-7 items-center justify-center rounded-ds-full text-primary-foreground",
-                "bg-[image:var(--ds-gradient-primary)]",
-                shadowFloating,
-                "transition-transform duration-ds-fast ease-ds-spring will-change-transform",
+                "premium-btn premium-pulse-glow absolute -top-[var(--ds-space-6)] flex h-16 w-16 items-center justify-center rounded-ds-full text-primary-foreground",
+                "bg-[image:var(--ds-gradient-primary)] shadow-[var(--ds-glow-primary)]",
                 "hover:scale-105 active:scale-90",
                 focusRing,
               )}
@@ -232,7 +226,7 @@ export function BottomNavigation({
             </Link>
             <span
               className={cn(
-                "mt-[var(--ds-space-6)] text-[11px] font-medium leading-none",
+                "mt-[var(--ds-space-6)] text-[11px] font-semibold leading-none",
                 transitionFast,
                 isSellActive ? "text-primary" : "text-text-secondary",
               )}

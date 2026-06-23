@@ -14,6 +14,36 @@ export type TrustVerificationStatus = "not_started" | "pending" | "approved" | "
 
 export type TrustVerificationLevel = "basic" | "verified" | "premium" | "enterprise";
 
+export type TrustTier = "bronze" | "silver" | "gold" | "platinum" | "diamond";
+
+export type TrustFactorSnapshot = {
+  completedSales: number;
+  completedPurchases: number;
+  cancelledOrders: number;
+  disputesLost: number;
+  disputesWon: number;
+  refundsIssued: number;
+  positiveReviews: number;
+  negativeReviews: number;
+  reportsReceived: number;
+  moderationPenalties: number;
+  verificationsApproved: number;
+  accountAgeDays: number;
+  profileCompletion: number;
+  onTimeShipments: number;
+  lateShipments: number;
+  responseRate: number;
+  repeatBuyers: number;
+  chargebacks: number;
+  suspensions: number;
+  warnings: number;
+  shippingReliability: number | null;
+  emailVerified: boolean;
+  phoneVerified: boolean;
+};
+
+export type TrustRecommendations = string[];
+
 export type TrustScore = {
   userId: string;
   score: number;
@@ -21,7 +51,13 @@ export type TrustScore = {
   sellerScore: number;
   businessScore: number;
   level: TrustVerificationLevel;
+  tier: TrustTier;
+  scoreLocked: boolean;
+  lockReason: string | null;
+  factors: TrustFactorSnapshot | null;
+  recommendations: TrustRecommendations;
   updatedAt: string;
+  lastRecalculatedAt: string | null;
 };
 
 export type TrustVerification = {
@@ -40,7 +76,47 @@ export type TrustEvent = {
   eventType: string;
   delta: number;
   scoreAfter: number | null;
+  reason: string | null;
   createdAt: string;
+};
+
+export type TrustAdminAuditEntry = {
+  id: string;
+  userId: string;
+  adminId: string;
+  action: string;
+  delta: number | null;
+  scoreBefore: number | null;
+  scoreAfter: number | null;
+  reason: string;
+  createdAt: string;
+};
+
+export type PublicTrustSummary = {
+  userId: string;
+  score: number;
+  tier: TrustTier;
+  level: TrustVerificationLevel;
+  badges: string[];
+  completedSales: number;
+  completedPurchases: number;
+  responseRate: number | null;
+  shippingReliability: number | null;
+  accountAgeDays: number;
+  verifications: string[];
+  isLowTrust: boolean;
+  trustReasons: string[];
+  warnings: string[];
+};
+
+export type TrustDashboardData = TrustCenterData & {
+  factors: TrustFactorSnapshot;
+  recommendations: TrustRecommendations;
+  progress: {
+    current: TrustTier;
+    next: TrustTier | null;
+    percent: number;
+  };
 };
 
 export type TrustCenterSection = {
@@ -84,3 +160,11 @@ export const VERIFICATION_TYPES: Array<{ type: TrustVerificationType; label: str
   { type: "supplier", label: "Verified Supplier", description: "Supplier trade verification" },
   { type: "document", label: "Document Verification", description: "Supporting business documents" },
 ];
+
+export const TRUST_TIER_COLORS: Record<TrustTier, string> = {
+  bronze: "text-amber-700",
+  silver: "text-zinc-400",
+  gold: "text-yellow-500",
+  platinum: "text-sky-300",
+  diamond: "text-cyan-300",
+};

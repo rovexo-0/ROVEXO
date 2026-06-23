@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Price } from "@/components/ui/Price";
 import type { CartSummary } from "@/lib/cart/store";
 
@@ -23,12 +23,12 @@ export function CartPage({ cart }: CartPageProps) {
 
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]">
         {cart.items.length === 0 ? (
-          <Card padding="lg" className="shadow-ds-soft">
-            <p className="text-sm text-text-secondary">Your cart is empty.</p>
-            <Link href="/" className="mt-ds-4 inline-block text-sm font-semibold text-primary">
-              Continue shopping
-            </Link>
-          </Card>
+          <EmptyState
+            title="Your cart is empty"
+            description="Add items from listings to checkout securely on ROVEXO."
+            actionLabel="Continue shopping"
+            actionHref="/"
+          />
         ) : (
           cart.items.map((item) => (
             <Card key={item.id} padding="md" className="flex gap-ds-3 shadow-ds-soft">

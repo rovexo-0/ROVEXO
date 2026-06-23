@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/products/types";
+import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 
 export type PublicSellerProfile = {
   id: string;
@@ -69,7 +70,7 @@ export async function getPublicSellerProfile(
       reviewCount: row.review_count,
       views: row.views,
       likes: row.likes,
-      imageUrl: images[0]?.url ?? "/placeholder-product.png",
+      imageUrl: images[0]?.url ?? PRODUCT_IMAGE_FALLBACK,
       sections: row.sections as Product["sections"],
       isFeatured: Boolean(row.featured_until && new Date(row.featured_until) > new Date()),
       isBumped: Boolean(row.bumped_until && new Date(row.bumped_until) > new Date()),

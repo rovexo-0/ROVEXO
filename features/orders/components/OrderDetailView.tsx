@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { PublishedCheckmark } from "@/features/sell/components/PublishedCheckmark";
 import { AddTrackingCard } from "@/features/orders/components/AddTrackingCard";
+import { IssueResolutionLink } from "@/features/orders/components/IssueResolutionLink";
+import { ShippingLabelCard } from "@/features/orders/components/ShippingLabelCard";
 import { DeliveryStatusCard } from "@/features/orders/components/DeliveryStatusCard";
 import { OrderActionsCard } from "@/features/orders/components/OrderActionsCard";
 import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
@@ -70,7 +72,9 @@ export function OrderDetailView({ initialOrder, userId }: OrderDetailViewProps) 
             Thank you!
           </h2>
 
-          <p className="mt-ds-2 text-sm text-text-secondary">Payment released to seller.</p>
+          <p className="mt-ds-2 text-sm text-text-secondary">
+            Funds enter a 36-hour buyer protection hold, then release to the seller.
+          </p>
 
           {order.disputesDisabled && (
             <p className="mt-ds-1 text-xs text-text-muted">Further disputes are disabled for this order.</p>
@@ -99,6 +103,10 @@ export function OrderDetailView({ initialOrder, userId }: OrderDetailViewProps) 
       <OrderTrackingCard order={order} />
 
       <OrderSummary totals={order.totals} title="Payment summary" />
+
+      {view === "seller" && (
+        <ShippingLabelCard order={order} />
+      )}
 
       {view === "seller" && (
         <AddTrackingCard order={order} onAdded={setOrder} />
@@ -145,9 +153,10 @@ export function OrderDetailView({ initialOrder, userId }: OrderDetailViewProps) 
           <h2 className="text-base font-semibold text-text-primary">Issue Open</h2>
           <p className="mt-ds-2 text-sm text-text-secondary">
             {view === "buyer"
-              ? "Your issue is being reviewed. Our team will follow up shortly."
-              : "The buyer reported an issue on this order. Check messages for details."}
+              ? "Your issue is being reviewed. Track progress in the Resolution Centre."
+              : "The buyer reported an issue on this order. Respond in the Resolution Centre."}
           </p>
+          <IssueResolutionLink orderId={order.id} className="mt-ds-4" />
         </Card>
       )}
     </div>

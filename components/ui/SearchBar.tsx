@@ -39,8 +39,8 @@ export type SearchBarProps = {
   className?: string;
   overlay?: boolean;
   hideSubmitButton?: boolean;
-  showAiCamera?: boolean;
   variant?: "default" | "header";
+  size?: "compact" | "comfortable" | "responsive";
   debounceMs?: number;
   recentSearches?: string[];
   trendingSearches?: string[];
@@ -85,15 +85,6 @@ function LoadingSpinner({ className }: { className?: string }) {
   );
 }
 
-function CameraIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 8.813 4.5h6.374a2.31 2.31 0 0 1 2.006 1.175l1.015 1.8A2.31 2.31 0 0 0 20.25 8.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18V8.25c0-.994.627-1.881 1.566-2.212l1.511-.863Z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-    </svg>
-  );
-}
-
 function PanelSection({
   title,
   children,
@@ -127,8 +118,8 @@ export function SearchBar({
   onSearch,
   overlay = false,
   hideSubmitButton = false,
-  showAiCamera = false,
   variant = "default",
+  size = "comfortable",
 }: SearchBarProps) {
   const generatedId = useId();
   const resolvedInputId = inputId ?? generatedId;
@@ -136,6 +127,8 @@ export function SearchBar({
   const searchOverlay = useSearchOverlayOptional();
   const useOverlay = overlay && Boolean(searchOverlay);
   const isHeaderVariant = variant === "header";
+  const isCompact = isHeaderVariant && (size === "compact" || size === "responsive");
+  const isResponsive = isHeaderVariant && size === "responsive";
   const resolvedPlaceholder = placeholder ?? (isHeaderVariant ? "Search products..." : "Items or Members.....");
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -256,25 +249,52 @@ export function SearchBar({
 
         <div
           className={cn(
-            "relative flex w-full items-center rounded-ds-full border pl-3 pr-2",
-            shadowSoft,
+            "group/search relative flex w-full items-center rounded-ds-full border",
             transitionFast,
             isHeaderVariant
-              ? "min-h-11 border-border/80 bg-surface shadow-ds-soft transition-[border-color,box-shadow,background-color] duration-ds-normal ease-ds"
-              : "border-white/10 bg-black/90 backdrop-blur-xl",
-            isOpen && "border-primary/40 shadow-ds-medium ring-2 ring-ring/20",
-            !isOpen &&
-              "focus-within:border-primary/40 focus-within:shadow-ds-medium focus-within:ring-2 focus-within:ring-ring/20",
+              ? cn(
+                  "border-border/80 bg-surface shadow-ds-soft",
+                  "transition-[border-color,box-shadow,background-color,transform] duration-ds-normal ease-ds",
+                  "hover:border-primary/25 hover:shadow-ds-medium",
+                  "focus-within:border-primary/45 focus-within:shadow-ds-medium focus-within:ring-2 focus-within:ring-ring/15",
+                  isOpen && "border-primary/45 shadow-ds-medium ring-2 ring-ring/15",
+                  isResponsive
+                    ? "min-h-9 pl-2.5 pr-1.5 lg:min-h-11 lg:pl-3 lg:pr-2"
+                    : isCompact
+                      ? "min-h-9 pl-2.5 pr-1.5"
+                      : "min-h-11 pl-3 pr-2",
+                  "active:scale-[0.995]",
+                )
+              : cn(
+                  "border-white/10 bg-black/90 pl-3 pr-2 backdrop-blur-xl",
+                  shadowSoft,
+                  isOpen && "border-primary/40 shadow-ds-medium ring-2 ring-ring/20",
+                  !isOpen &&
+                    "focus-within:border-primary/40 focus-within:shadow-ds-medium focus-within:ring-2 focus-within:ring-ring/20",
+                ),
           )}
           data-voice-search-ready={isHeaderVariant ? "true" : undefined}
         >
           <span
             className={cn(
-              "pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 items-center",
-              isHeaderVariant ? "text-text-muted" : "text-white/70",
+              "pointer-events-none absolute top-1/2 flex -translate-y-1/2 items-center transition-colors duration-ds-normal",
+              isHeaderVariant
+                ? cn(
+                    "text-text-muted group-focus-within/search:text-primary/80",
+                    isResponsive
+                      ? "left-2.5 lg:left-3"
+                      : isCompact
+                        ? "left-2.5"
+                        : "left-3",
+                  )
+                : "left-3 text-white/70",
             )}
           >
-            <SearchIcon className="h-5 w-5" />
+            <SearchIcon
+              className={cn(
+                isResponsive ? "h-4 w-4 lg:h-5 lg:w-5" : isCompact ? "h-4 w-4" : "h-5 w-5",
+              )}
+            />
           </span>
 
           <input
@@ -304,8 +324,16 @@ export function SearchBar({
             onKeyDown={handleKeyDown}
             readOnly={useOverlay}
             className={cn(
-              "min-w-0 flex-1 border-0 bg-transparent py-0 pl-10 pr-ds-2 text-sm text-text-primary outline-none placeholder:text-text-muted sm:text-base",
-              isHeaderVariant ? "h-11" : "h-[3.25rem] lg:h-[3.75rem]",
+              "min-w-0 flex-1 border-0 bg-transparent py-0 text-text-primary outline-none placeholder:text-text-muted",
+              isHeaderVariant
+                ? cn(
+                    isResponsive
+                      ? "h-9 pl-8 pr-1 text-xs sm:text-sm lg:h-11 lg:pl-10 lg:pr-ds-2 lg:text-base"
+                      : isCompact
+                        ? "h-9 pl-8 pr-1 text-xs sm:text-sm"
+                        : "h-11 pl-10 pr-ds-2 text-sm sm:text-base",
+                  )
+                : "h-[3.25rem] pl-10 pr-ds-2 text-sm lg:h-[3.75rem] sm:text-base",
               useOverlay && "cursor-pointer",
             )}
           />
@@ -339,20 +367,6 @@ export function SearchBar({
               </button>
             )}
 
-            {showAiCamera && (
-              <Link
-                href="/sell"
-                aria-label="AI Camera"
-                className={cn(
-                  "flex min-h-ds-7 min-w-ds-7 items-center justify-center rounded-ds-full text-text-secondary hover:bg-secondary hover:text-text-primary",
-                  focusRing,
-                  transitionFast,
-                )}
-              >
-                <CameraIcon className="h-5 w-5" />
-              </Link>
-            )}
-
             {!hideSubmitButton && (
               <button
                 type="submit"
@@ -366,12 +380,12 @@ export function SearchBar({
               </button>
             )}
 
-            {isHeaderVariant && hideSubmitButton && (
+            {isHeaderVariant && hideSubmitButton && !isCompact && (
               <button
                 type="submit"
                 aria-label="Search"
                 className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-ds-full text-text-muted hover:bg-secondary hover:text-text-primary",
+                  "flex h-9 w-9 items-center justify-center rounded-ds-full text-text-muted hover:bg-secondary hover:text-text-primary active:scale-95",
                   focusRing,
                   transitionFast,
                 )}

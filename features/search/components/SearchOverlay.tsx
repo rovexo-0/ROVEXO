@@ -12,7 +12,9 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { CategoryResults } from "@/features/search/components/CategoryResults";
-import { EmptyState } from "@/features/search/components/EmptyState";
+import { SearchResultsEmpty } from "@/features/search/components/SearchResultsEmpty";
+import { SuggestedSearches } from "@/features/search/components/SuggestedSearches";
+import { VoiceSearchPlaceholder } from "@/features/search/components/VoiceSearchPlaceholder";
 import { LoadingSkeleton } from "@/features/search/components/LoadingSkeleton";
 import { ProductResults } from "@/features/search/components/ProductResults";
 import { RecentSearches } from "@/features/search/components/RecentSearches";
@@ -197,22 +199,22 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
         className={cn("absolute inset-0 bg-background/70 backdrop-blur-sm", transitionFast)}
       />
 
-      <div
-        ref={panelRef}
-        onKeyDown={handleKeyDown}
-        className={cn(
-          "relative mx-auto flex h-full w-full max-w-2xl flex-col bg-background/95 shadow-ds-floating backdrop-blur-xl backdrop-saturate-150",
-          transitionFast,
-          visible ? "translate-y-0" : "translate-y-2",
-        )}
-      >
+        <div
+          ref={panelRef}
+          onKeyDown={handleKeyDown}
+          className={cn(
+            "premium-glass premium-depth-3 relative mx-auto flex h-full w-full max-w-2xl flex-col overflow-hidden",
+            transitionFast,
+            visible ? "translate-y-0" : "translate-y-2",
+          )}
+        >
         <header className="border-b border-border px-ds-4 pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]">
           <form onSubmit={handleSubmit} role="search" className="flex items-center gap-ds-2">
             <div
               className={cn(
-                "relative flex min-h-ds-7 flex-1 items-center rounded-ds-full border border-border bg-overlay pl-ds-7 pr-ds-2 shadow-ds-soft backdrop-blur-xl",
+                "premium-glass premium-depth-2 premium-glow relative flex min-h-ds-7 flex-1 items-center rounded-ds-full pl-ds-7 pr-ds-2",
                 transitionFast,
-                "focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-ring/20",
+                "focus-within:ring-2 focus-within:ring-primary/25",
               )}
             >
               <SearchIcon className="pointer-events-none absolute left-ds-4 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" />
@@ -260,8 +262,10 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
 
           {!hasQuery && !isLoading && results && (
             <>
+              <VoiceSearchPlaceholder />
+
               {history.length > 0 && (
-                <SearchSection title="🕒 Recent Searches">
+                <SearchSection title="Recent Searches">
                   <RecentSearches
                     items={history}
                     activeIndex={activeIndex}
@@ -272,12 +276,16 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
                 </SearchSection>
               )}
 
-              <SearchSection title="⭐ Saved Searches">
+              <SearchSection title="Saved Searches">
                 <SavedSearchesPanel currentQuery="" onSelect={applySearch} />
               </SearchSection>
 
+              <SearchSection title="Suggested Searches">
+                <SuggestedSearches onSelect={applySearch} />
+              </SearchSection>
+
               {results.trending.length > 0 && (
-                <SearchSection title="🔥 Trending Searches">
+                <SearchSection title="Trending Searches">
                   <TrendingSearches
                     items={results.trending}
                     activeIndex={activeIndex}
@@ -288,7 +296,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
               )}
 
               {results.categories.length > 0 && (
-                <SearchSection title="📂 Categories">
+                <SearchSection title="Popular Categories">
                   <CategoryResults
                     items={results.categories}
                     activeIndex={activeIndex}
@@ -298,18 +306,18 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
                 </SearchSection>
               )}
 
-              {showIdleEmpty && <EmptyState variant="idle" />}
+              {showIdleEmpty && <SearchResultsEmpty variant="idle" />}
             </>
           )}
 
           {hasQuery && !isDebouncing && !isLoading && results && (
             <>
-              <SearchSection title="⭐ Saved Searches">
+              <SearchSection title="Saved Searches">
                 <SavedSearchesPanel currentQuery={query} onSelect={applySearch} />
               </SearchSection>
 
               {results.products.length > 0 && (
-                <SearchSection title="📦 Products">
+                <SearchSection title="Products">
                   <ProductResults
                     items={results.products}
                     activeIndex={activeIndex}
@@ -324,7 +332,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
               )}
 
               {(results.sellers.length > 0 || results.users.length > 0) && (
-                <SearchSection title="👤 Sellers">
+                <SearchSection title="Sellers">
                   <SellerResults
                     sellers={results.sellers}
                     users={results.users}
@@ -337,7 +345,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
               )}
 
               {results.stores.length > 0 && (
-                <SearchSection title="🏪 Stores">
+                <SearchSection title="Stores">
                   <StoreResults
                     items={results.stores}
                     activeIndex={activeIndex}
@@ -348,7 +356,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
               )}
 
               {results.categories.length > 0 && (
-                <SearchSection title="📂 Categories">
+                <SearchSection title="Categories">
                   <CategoryResults
                     items={results.categories}
                     activeIndex={activeIndex}
@@ -358,7 +366,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
                 </SearchSection>
               )}
 
-              {showNoResults && <EmptyState variant="no-results" query={debouncedQuery} />}
+              {showNoResults && <SearchResultsEmpty variant="no-results" query={debouncedQuery} />}
             </>
           )}
         </div>

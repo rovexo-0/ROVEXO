@@ -23,6 +23,7 @@ const REQUIRED = [
   { key: "UPSTASH_REDIS_REST_URL", group: "Upstash Redis" },
   { key: "UPSTASH_REDIS_REST_TOKEN", group: "Upstash Redis", secret: true },
   { key: "CRON_SECRET", group: "Cron", secret: true },
+  { key: "NEXT_PUBLIC_GA_MEASUREMENT_ID", group: "Google Analytics" },
 ];
 
 const SUPABASE_HOSTNAME_CORRECTIONS = {

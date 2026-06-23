@@ -1,15 +1,14 @@
 import { Card } from "@/components/ui/Card";
 import { HeartIcon } from "@/features/product-detail/icons";
 import { ProfileMenuRow } from "@/features/profile/components/ProfileMenuRow";
+import { getNavLinkIcon } from "@/lib/navigation/link-icons";
 import {
   AboutMenuIcon,
-  HelpMenuIcon,
   MessagesMenuIcon,
   NotificationsMenuIcon,
   OrdersMenuIcon,
   SettingsIcon,
 } from "@/features/profile/icons";
-import { BETA_VERSION } from "@/lib/beta/roadmap";
 import {
   ADMIN_NAV,
   BUSINESS_NAV,
@@ -18,6 +17,7 @@ import {
   SHARED_NAV,
   type NavLink,
 } from "@/lib/navigation/map";
+import { BETA_VERSION } from "@/lib/beta/roadmap";
 import type { UserProfile } from "@/lib/profile/types";
 
 type ProfileMenuProps = {
@@ -38,7 +38,7 @@ function MenuSection({ title, links }: { title: string; links: NavLink[] }) {
           title={link.label}
           subtitle={link.subtitle}
           href={link.href}
-          icon={<HelpMenuIcon className="h-5 w-5" />}
+          icon={getNavLinkIcon(link.href)}
         />
       ))}
     </div>

@@ -9,23 +9,20 @@ import {
   useTransition,
 } from "react";
 import type { Product, ProductsPage } from "@/lib/products/types";
-import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { ProductCarouselSection } from "@/components/home/ProductCarouselSection";
-import { HomeHero } from "@/components/home/HomeHero";
-import { CategoryGridSection, type HomeCategoryCard } from "@/components/home/CategoryGridSection";
-import { TrendingSearchesSection } from "@/components/home/TrendingSearchesSection";
-import { RecentlyViewedSection } from "@/features/launch/components/RecentlyViewedSection";
+import { HomeHeroSearch } from "@/components/home/HomeHeroSearch";
+import { HomeCategoryRail } from "@/components/home/HomeCategoryRail";
+import { HomeRecentlyViewedCarousel } from "@/components/home/HomeRecentlyViewedCarousel";
+import { PopularListingsGrid } from "@/components/home/PopularListingsGrid";
 import { cn } from "@/lib/cn";
 import { transitionFast } from "@/components/ui/tokens";
 
 type HomeContentProps = {
-  categories: HomeCategoryCard[];
   featured: Product[];
-  trending: Product[];
-  newToday: Product[];
+  popular: Product[];
+  popularHasMore: boolean;
   recommended: Product[];
-  recommendedHasMore: boolean;
-  sponsoredProducts?: Product[];
+  newest: Product[];
   loadError?: boolean;
 };
 
@@ -44,29 +41,23 @@ async function fetchSection(section: string, page: number): Promise<ProductsPage
 }
 
 export const HomeContent = memo(function HomeContent({
-  categories,
   featured,
-  trending: initialTrending,
-  newToday: initialNewToday,
-  recommended: initialRecommended,
-  recommendedHasMore: initialRecommendedHasMore,
-  sponsoredProducts = [],
+  popular: initialPopular,
+  popularHasMore: initialPopularHasMore,
+  recommended,
+  newest,
   loadError = false,
 }: HomeContentProps) {
-  const [trending, setTrending] = useState(initialTrending);
-  const [newToday, setNewToday] = useState(initialNewToday);
-  const [recommended, setRecommended] = useState(initialRecommended);
-  const [recommendedPage, setRecommendedPage] = useState(1);
-  const [hasMoreRecommended, setHasMoreRecommended] = useState(initialRecommendedHasMore);
+  const [popular, setPopular] = useState(initialPopular);
+  const [popularPage, setPopularPage] = useState(1);
+  const [hasMorePopular, setHasMorePopular] = useState(initialPopularHasMore);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isLoadingMorePopular, setIsLoadingMorePopular] = useState(false);
   const [pullDistance, setPullDistance] = useState(0);
   const [refreshError, setRefreshError] = useState(false);
   const [, startTransition] = useTransition();
-  const scroll = useMobileHeaderScrollContext();
-  const usesHeaderSpacer = Boolean(scroll);
 
-  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const loadMorePopularRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef(0);
   const isPulling = useRef(false);
 
@@ -75,17 +66,10 @@ export const HomeContent = memo(function HomeContent({
     setRefreshError(false);
 
     try {
-      const [trendingPage, newPage, recommendedPageData] = await Promise.all([
-        fetchSection("trending", 1),
-        fetchSection("new", 1),
-        fetchSection("trending", 1),
-      ]);
-
-      setTrending(trendingPage.items);
-      setNewToday(newPage.items);
-      setRecommended(recommendedPageData.items);
-      setRecommendedPage(1);
-      setHasMoreRecommended(recommendedPageData.hasMore);
+      const popularPageData = await fetchSection("popular", 1);
+      setPopular(popularPageData.items);
+      setPopularPage(1);
+      setHasMorePopular(popularPageData.hasMore);
     } catch {
       setRefreshError(true);
     } finally {
@@ -94,31 +78,31 @@ export const HomeContent = memo(function HomeContent({
     }
   }, []);
 
-  const loadMoreRecommended = useCallback(async () => {
-    if (isLoadingMore || !hasMoreRecommended) return;
+  const loadMorePopular = useCallback(async () => {
+    if (isLoadingMorePopular || !hasMorePopular) return;
 
-    setIsLoadingMore(true);
+    setIsLoadingMorePopular(true);
 
     try {
-      const nextPage = recommendedPage + 1;
-      const data = await fetchSection("trending", nextPage);
-      setRecommended((current) => [...current, ...data.items]);
-      setRecommendedPage(nextPage);
-      setHasMoreRecommended(data.hasMore);
+      const nextPage = popularPage + 1;
+      const data = await fetchSection("popular", nextPage);
+      setPopular((current) => [...current, ...data.items]);
+      setPopularPage(nextPage);
+      setHasMorePopular(data.hasMore);
     } finally {
-      setIsLoadingMore(false);
+      setIsLoadingMorePopular(false);
     }
-  }, [hasMoreRecommended, isLoadingMore, recommendedPage]);
+  }, [hasMorePopular, isLoadingMorePopular, popularPage]);
 
   useEffect(() => {
-    const node = loadMoreRef.current;
-    if (!node || !hasMoreRecommended || isLoadingMore) return;
+    const node = loadMorePopularRef.current;
+    if (!node || !hasMorePopular || isLoadingMorePopular) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting && !isLoadingMore && hasMoreRecommended) {
+        if (entries[0]?.isIntersecting) {
           startTransition(() => {
-            void loadMoreRecommended();
+            void loadMorePopular();
           });
         }
       },
@@ -127,7 +111,7 @@ export const HomeContent = memo(function HomeContent({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasMoreRecommended, isLoadingMore, loadMoreRecommended, recommended.length]);
+  }, [hasMorePopular, isLoadingMorePopular, loadMorePopular, popular.length]);
 
   function handleTouchStart(event: React.TouchEvent) {
     if (window.scrollY > 0 || isRefreshing) return;
@@ -183,17 +167,15 @@ export const HomeContent = memo(function HomeContent({
 
       <main
         className={cn(
-          "flex flex-col gap-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))] md:gap-ds-7 lg:mx-auto lg:max-w-7xl lg:w-full",
-          usesHeaderSpacer
-            ? "pt-0 lg:pt-[calc(8rem+env(safe-area-inset-top))]"
-            : "pt-[calc(11rem+env(safe-area-inset-top))] lg:pt-[calc(8rem+env(safe-area-inset-top))]",
+          "flex flex-col gap-ds-5 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))] md:gap-ds-6 lg:mx-auto lg:max-w-7xl lg:w-full pt-ds-2",
         )}
       >
-        <HomeHero className="mt-ds-1" />
+        <HomeHeroSearch />
+        <HomeCategoryRail />
 
         <ProductCarouselSection
           id="featured-heading"
-          title="⭐ Featured Listings"
+          title="Featured Listings"
           products={featured}
           loading={showSkeletons}
           error={sectionError}
@@ -201,46 +183,43 @@ export const HomeContent = memo(function HomeContent({
         />
 
         <ProductCarouselSection
-          id="trending-heading"
-          title="🔥 Trending Today"
-          products={trending}
+          id="popular-heading"
+          title="Popular Listings"
+          products={popular}
           loading={showSkeletons}
+          loadingMore={isLoadingMorePopular}
           error={sectionError}
-        />
-
-        <ProductCarouselSection
-          id="new-heading"
-          title="🆕 New Today"
-          products={newToday}
-          loading={showSkeletons}
-          error={sectionError}
+          viewAllHref="/search?q=&sort=popular"
+          footer={<div ref={loadMorePopularRef} className="h-ds-2" aria-hidden />}
         />
 
         <ProductCarouselSection
           id="recommended-heading"
-          title="❤️ Recommended For You"
+          title="Recommended For You"
           products={recommended}
           loading={showSkeletons}
-          loadingMore={isLoadingMore}
           error={sectionError}
-          footer={<div ref={loadMoreRef} className="h-ds-2" aria-hidden />}
+          viewAllHref="/search?q=&sort=trending"
         />
 
-        {sponsoredProducts.length > 0 ? (
-          <ProductCarouselSection
-            id="sponsored-heading"
-            title="Sponsored Listings"
-            products={sponsoredProducts}
-            loading={showSkeletons}
-            error={sectionError}
-          />
-        ) : null}
+        <HomeRecentlyViewedCarousel />
 
-        <CategoryGridSection categories={categories} />
+        <ProductCarouselSection
+          id="new-today-heading"
+          title="New Today"
+          products={newest}
+          loading={showSkeletons}
+          error={sectionError}
+          viewAllHref="/search?q=&sort=newest"
+        />
 
-        <TrendingSearchesSection />
-
-        <RecentlyViewedSection />
+        <PopularListingsGrid
+          id="latest-heading"
+          title="Latest Listings"
+          products={newest}
+          loading={showSkeletons}
+          error={sectionError}
+        />
       </main>
     </div>
   );

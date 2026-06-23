@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const section = searchParams.get("section") as ProductSection | null;
   const page = Number(searchParams.get("page") ?? "1");
 
-  if (!section || !["trending", "new", "recommended"].includes(section)) {
+  if (!section || !["trending", "new", "recommended", "popular", "auctions"].includes(section)) {
     return NextResponse.json({ error: "Invalid section" }, { status: 400 });
   }
 

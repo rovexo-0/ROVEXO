@@ -9,6 +9,7 @@ import { normalizeCondition } from "@/lib/products/utils";
 import type { Product, ProductDetail } from "@/lib/products/types";
 import { transitionSlow } from "@/components/ui/tokens";
 import { RecordRecentlyViewed } from "@/features/launch/components/RecordRecentlyViewed";
+import { ShareListingSheet } from "@/components/share/ShareListingSheet";
 import { ProductActionBar } from "@/features/product-detail/ProductActionBar";
 import { ProductBuyerProtection } from "@/features/product-detail/ProductBuyerProtection";
 import { ProductDelivery } from "@/features/product-detail/ProductDelivery";
@@ -22,6 +23,7 @@ import { ProductSellerCard } from "@/features/product-detail/ProductSellerCard";
 import { ProductReportDialog } from "@/features/product-detail/ProductReportDialog";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import type { CategoryBreadcrumb } from "@/lib/categories/navigation";
+import type { PublicTrustSummary } from "@/lib/trust/types";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 import { getActiveMarket } from "@/lib/seo/markets";
 
@@ -30,6 +32,7 @@ type ProductDetailPageProps = {
   similarProducts: Product[];
   initialIsSaved?: boolean;
   breadcrumbs?: CategoryBreadcrumb[];
+  sellerTrust?: PublicTrustSummary | null;
 };
 
 const COLLAPSE_OFFSET = 120;
@@ -45,6 +48,7 @@ export function ProductDetailPage({
   similarProducts,
   initialIsSaved = false,
   breadcrumbs = [],
+  sellerTrust,
 }: ProductDetailPageProps) {
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -98,16 +102,11 @@ export function ProductDetailPage({
     }
   }, [isSaved, product.id, product.slug, product.title]);
 
-  const handleShare = useCallback(async () => {
-    if (typeof navigator === "undefined" || !navigator.share) return;
+  const [shareOpen, setShareOpen] = useState(false);
 
-    await navigator
-      .share({
-        title: product.title,
-        url: window.location.href,
-      })
-      .catch(() => undefined);
-  }, [product.title]);
+  const openShare = useCallback(() => {
+    setShareOpen(true);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background text-text-primary">
@@ -133,10 +132,19 @@ export function ProductDetailPage({
             isSaved={isSaved}
             heartAnimating={heartAnimating}
             onSave={toggleSave}
-            onShare={() => void handleShare()}
+            onShare={openShare}
           />
         )}
       </div>
+
+      <ShareListingSheet
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        title={product.title}
+        slug={product.slug}
+        productId={product.id}
+        price={product.price}
+      />
 
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
         {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
@@ -178,7 +186,7 @@ export function ProductDetailPage({
           />
         </section>
 
-        <ProductBuyerProtection />
+        <ProductBuyerProtection itemPrice={product.price} />
 
         <ProductDescription description={product.description} />
 
@@ -193,6 +201,7 @@ export function ProductDetailPage({
           rating={product.rating}
           reviewCount={product.reviewCount}
           salesCount={product.salesCount}
+          sellerTrust={sellerTrust}
         />
 
         <div className="flex justify-end">

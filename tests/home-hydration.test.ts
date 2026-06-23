@@ -34,10 +34,10 @@ describe("Home page hydration safety", () => {
     expect(headerSource).not.toContain("setHeaderRef");
   });
 
-  it("avoids lazy Suspense boundary for RecentlyViewedSection", () => {
+  it("avoids lazy Suspense boundary for recently viewed carousel", () => {
     const source = readSource("components/home/HomeContent.tsx");
 
-    expect(source).toContain('from "@/features/launch/components/RecentlyViewedSection"');
+    expect(source).toContain('from "@/components/home/HomeRecentlyViewedCarousel"');
     expect(source).not.toContain("lazy(");
     expect(source).not.toContain("<Suspense");
   });

@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
-import { IconButton } from "@/components/ui/IconButton";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import type { SellFormController } from "@/features/sell/hooks/use-sell-wizard";
@@ -118,42 +117,29 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
 
       {draft.photos.length === 0 ? (
         <div className={cn("flex gap-ds-2", quickMode && "flex-col sm:flex-row")}>
-          {quickMode ? (
-            <button
-              type="button"
-              onClick={() => cameraInputRef.current?.click()}
-              className={cn(
-                "flex min-h-[88px] flex-1 flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-primary bg-primary/5 px-ds-4 py-ds-4 text-primary",
-                focusRing,
-              )}
-            >
-              <CameraIcon className="h-8 w-8" />
-              <span className="text-sm font-bold">AI Camera</span>
-              <span className="text-xs text-text-secondary">Snap a photo — we suggest category & details</span>
-            </button>
-          ) : null}
           <button
             type="button"
             onClick={() => galleryInputRef.current?.click()}
             className={cn(
-              "flex min-h-ds-7 flex-1 items-center justify-center rounded-ds-md border border-dashed border-border bg-surface-muted px-ds-4 py-ds-3 text-sm font-semibold text-primary",
+              "flex min-h-[88px] flex-1 flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-dashed border-border bg-surface-muted px-ds-4 py-ds-4 text-primary",
+              focusRing,
+            )}
+          >
+            <CameraIcon className="h-8 w-8" />
+            <span className="text-sm font-semibold">Add Photos</span>
+            <span className="text-xs text-text-secondary">Upload up to 8 images</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => cameraInputRef.current?.click()}
+            className={cn(
+              "flex min-h-ds-7 flex-1 items-center justify-center rounded-ds-md border border-border bg-surface px-ds-4 py-ds-3 text-sm font-semibold text-text-primary",
               focusRing,
               quickMode && "min-h-[56px]",
             )}
           >
-            + Add Photos
+            Take photo
           </button>
-          {!quickMode ? (
-            <IconButton
-              label="Take photo"
-              variant="outline"
-              size="md"
-              className="min-h-ds-7 min-w-ds-7 shrink-0 rounded-ds-md"
-              onClick={() => cameraInputRef.current?.click()}
-            >
-              <CameraIcon className="h-5 w-5" />
-            </IconButton>
-          ) : null}
         </div>
       ) : (
         <div className="flex flex-col gap-ds-3">
@@ -251,12 +237,12 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
                   type="button"
                   onClick={() => cameraInputRef.current?.click()}
                   className={cn(
-                    "flex h-20 w-20 shrink-0 snap-start flex-col items-center justify-center gap-ds-1 rounded-ds-md border border-primary bg-primary/5 text-xs font-bold text-primary",
+                    "flex h-20 w-20 shrink-0 snap-start flex-col items-center justify-center gap-ds-1 rounded-ds-md border border-border bg-surface-muted text-xs font-semibold text-text-primary",
                     focusRing,
                   )}
                 >
                   <CameraIcon className="h-5 w-5" />
-                  AI
+                  Camera
                 </button>
               </>
             )}

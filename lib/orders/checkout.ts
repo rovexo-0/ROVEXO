@@ -2,11 +2,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getDeliveryCarrier, type DeliveryOptionId } from "@/lib/checkout/delivery";
 import { isPurchasable, releaseProductInventory, reserveProductInventory } from "@/lib/inventory/service";
 import { notifyOrderPaid, notifyOrderCancelled } from "@/lib/orders/notifications";
+import { onOrderCancelled } from "@/lib/trust/events";
 import { calculateOrderTotals } from "@/lib/orders/pricing";
 import { getOrderById } from "@/lib/orders/store";
 import type { Order } from "@/lib/orders/types";
 import { buildOrderReceiptUrl, generateInvoiceNumber } from "@/lib/invoices/receipt";
-import { calculateSellerNetAmount, creditSellerForOrder } from "@/lib/wallet/sales";
+import { calculateSellerNetAmount } from "@/lib/wallet/sales";
+import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
 
 const RESERVATION_MINUTES = 30;
@@ -27,7 +29,7 @@ function primaryImage(
   const sorted = [...(images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
-  return sorted[0]?.url ?? "/placeholder-product.png";
+  return sorted[0]?.url ?? PRODUCT_IMAGE_FALLBACK;
 }
 
 export async function createOrderCheckoutSession(
@@ -52,6 +54,16 @@ export async function createOrderCheckoutSession(
 
   if (!isPurchasable(product.stock, product.status)) {
     return { error: "This item is out of stock." };
+  }
+
+  const { data: sellerSettings } = await admin
+    .from("user_settings")
+    .select("vacation_mode")
+    .eq("user_id", product.seller_id)
+    .maybeSingle();
+
+  if (sellerSettings?.vacation_mode) {
+    return { error: "This seller is currently on vacation and not accepting orders." };
   }
 
   const reserved = await reserveProductInventory(product.id, 1);
@@ -299,15 +311,14 @@ export async function fulfillOrderFromStripeSession(session: {
   )?.[0];
 
   if (item) {
-    await creditSellerForOrder({
-      orderId,
-      orderNumber: order.order_number,
-      sellerId: order.seller_id,
-      productTitle: item.title,
-      productImageUrl: item.image_url,
-      itemPrice: Number(order.item_price),
-      stripePaymentIntentId: paymentIntentId,
-    });
+    const { platformFee, sellerAmount } = calculateSellerNetAmount(Number(order.item_price));
+    await admin
+      .from("orders")
+      .update({
+        platform_fee: platformFee,
+        seller_payout: sellerAmount,
+      })
+      .eq("id", orderId);
   }
 
   const [{ data: buyerProfile }, { data: sellerProfile }] = await Promise.all([
@@ -327,11 +338,15 @@ export async function fulfillOrderFromStripeSession(session: {
   return { success: true };
 }
 
-export async function cancelPendingOrder(orderId: string, reason?: string): Promise<void> {
+export async function cancelPendingOrder(
+  orderId: string,
+  reason?: string,
+  options?: { initiatedBy?: "buyer" | "seller" | "system" },
+): Promise<void> {
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("status, order_number, buyer_id, order_items(product_id, quantity)")
+    .select("status, order_number, buyer_id, seller_id, order_items(product_id, quantity)")
     .eq("id", orderId)
     .maybeSingle();
 
@@ -360,6 +375,13 @@ export async function cancelPendingOrder(orderId: string, reason?: string): Prom
     buyerEmail: buyerProfile?.email ?? "",
     orderNumber: order.order_number,
     reason,
+  });
+
+  void onOrderCancelled({
+    orderId,
+    buyerId: order.buyer_id,
+    sellerId: String(order.seller_id),
+    initiatedBy: options?.initiatedBy ?? "system",
   });
 }
 

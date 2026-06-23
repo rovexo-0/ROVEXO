@@ -74,7 +74,11 @@ function CategoryIcon({ slug, className }: { slug: string; className?: string })
   return <>{icons[slug] ?? icons.fashion}</>;
 }
 
-export const HeaderCategoryBar = memo(function HeaderCategoryBar() {
+export const HeaderCategoryBar = memo(function HeaderCategoryBar({
+  className,
+}: {
+  className?: string;
+}) {
   const pathname = usePathname();
   const scrollerRef = useRef<HTMLDivElement>(null);
 
@@ -93,7 +97,7 @@ export const HeaderCategoryBar = memo(function HeaderCategoryBar() {
   }, []);
 
   return (
-    <nav aria-label="Browse categories" className="border-t border-border">
+    <nav aria-label="Browse categories" className={cn("border-t border-border", className)}>
       <div
         ref={scrollerRef}
         className={cn(

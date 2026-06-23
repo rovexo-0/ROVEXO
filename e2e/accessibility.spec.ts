@@ -1,0 +1,49 @@
+import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
+
+const criticalRoutes = [
+  { path: "/", name: "Homepage" },
+  { path: "/search?q=phone", name: "Search results" },
+  { path: "/categories", name: "Categories" },
+  { path: "/login", name: "Login" },
+  { path: "/register", name: "Register" },
+];
+
+for (const route of criticalRoutes) {
+  test(`WCAG audit: ${route.name}`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(route.path);
+    await page.waitForLoadState("domcontentloaded");
+
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .analyze();
+
+    expect(results.violations, formatViolations(results.violations)).toEqual([]);
+  });
+}
+
+test("touch targets meet minimum size on homepage header actions", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  const messages = page.getByRole("link", { name: "Messages" });
+  const box = await messages.boundingBox();
+  expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+  expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+});
+
+function formatViolations(
+  violations: Awaited<ReturnType<AxeBuilder["analyze"]>>["violations"],
+): string {
+  if (!violations.length) return "";
+  return violations
+    .map(
+      (violation) =>
+        `${violation.id} (${violation.impact}): ${violation.description}\n  ${violation.nodes
+          .slice(0, 3)
+          .map((node) => node.target.join(" "))
+          .join("\n  ")}`,
+    )
+    .join("\n\n");
+}

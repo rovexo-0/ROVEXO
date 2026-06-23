@@ -7,6 +7,7 @@ import { SearchProvider } from "@/features/search/client";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
+import { ToastProvider } from "@/components/ui/Toast";
 import { organizationJsonLd } from "@/lib/seo/metadata";
 
 const geistSans = Geist({
@@ -82,9 +83,11 @@ export default function RootLayout({
         />
         <ThemeProvider>
           <PwaProvider>
-            <SearchProvider>
-              {children}
-            </SearchProvider>
+            <ToastProvider>
+              <SearchProvider>
+                {children}
+              </SearchProvider>
+            </ToastProvider>
           </PwaProvider>
         </ThemeProvider>
         <GoogleAnalytics />

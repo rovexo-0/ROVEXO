@@ -9,6 +9,7 @@ export type CheckoutDraft = {
   addressLine: string;
   postcode: string;
   country: string;
+  acceptedReturnPolicy: boolean;
 };
 
 export function createCheckoutDraft(
@@ -18,6 +19,7 @@ export function createCheckoutDraft(
   return {
     deliveryOption: "standard",
     paymentMethod,
+    acceptedReturnPolicy: false,
     ...address,
   };
 }

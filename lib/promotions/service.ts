@@ -10,6 +10,7 @@ import {
 import { computePromotionScore } from "@/lib/promotions/format";
 import type { ListingPromotionRecord } from "@/lib/promotions/types";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
+import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 
 type ApplyPromotionInput = {
   sellerId: string;
@@ -278,7 +279,7 @@ export async function applyListingPromotion(
       sellerId: input.sellerId,
       promotionId: input.promotionId,
       productTitle: product.title,
-      productImageUrl: images[0]?.url ?? "/placeholder-product.png",
+      productImageUrl: images[0]?.url ?? PRODUCT_IMAGE_FALLBACK,
       amountCents: input.amountCents,
       type: input.type,
       durationId: input.durationId,
@@ -583,7 +584,7 @@ export async function getActiveSellerPromotions(
     const images = [...(product.product_images ?? [])].sort(
       (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
     );
-    const imageUrl = images[0]?.url ?? "/placeholder-product.png";
+    const imageUrl = images[0]?.url ?? PRODUCT_IMAGE_FALLBACK;
 
     if (product.bumped_until && new Date(product.bumped_until).getTime() > now) {
       results.push({
@@ -751,7 +752,7 @@ export async function getSellerPromotionHistory(
       id: row.id,
       productId: row.product_id,
       productTitle: product?.title ?? "Listing",
-      productImageUrl: images[0]?.url ?? "/placeholder-product.png",
+      productImageUrl: images[0]?.url ?? PRODUCT_IMAGE_FALLBACK,
       type: row.type as PromotionType,
       durationId: row.duration_id,
       amountCents: row.amount_cents,

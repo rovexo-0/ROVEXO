@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { signOut } from "@/lib/auth/actions";
@@ -10,6 +11,7 @@ import { ConfirmDialog } from "@/features/settings/components/ConfirmDialog";
 import { SettingSection } from "@/features/settings/components/SettingSection";
 import { SettingToggle } from "@/features/settings/components/SettingToggle";
 import { SettingsHeader } from "@/features/settings/components/SettingsHeader";
+import { SettingsLoadingSkeleton } from "@/features/settings/components/SettingsLoadingSkeleton";
 import { SettingsProfileCard } from "@/features/settings/components/SettingsProfileCard";
 import { ProfileMenuRow } from "@/features/profile/components/ProfileMenuRow";
 import {
@@ -45,10 +47,19 @@ function SettingsDivider() {
   return <div className="border-t border-border" />;
 }
 
+function ComingSoonBadge() {
+  return (
+    <Badge variant="default" className="ml-auto shrink-0 text-[10px] uppercase tracking-wide">
+      Soon
+    </Badge>
+  );
+}
+
 export function SettingsPage({ profile }: SettingsPageProps) {
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [logoutPending, startLogoutTransition] = useTransition();
 
   useEffect(() => {
@@ -96,7 +107,7 @@ export function SettingsPage({ profile }: SettingsPageProps) {
     return (
       <BetaAppShell showBottomNav={false}>
         <SettingsHeader profile={profile} />
-        <div className="px-ds-4 py-ds-8 text-sm text-text-secondary">Loading settings…</div>
+        <SettingsLoadingSkeleton />
       </BetaAppShell>
     );
   }
@@ -117,21 +128,51 @@ export function SettingsPage({ profile }: SettingsPageProps) {
 
         <SettingsProfileCard profile={profile} />
 
-        <SettingSection title="Account">
+        <SettingSection title="Profile">
           <ProfileMenuRow
-            title="Personal Information"
+            title="Personal information"
+            subtitle="Name, username, avatar"
             href="/account"
             icon={<AccountIcon className="h-5 w-5" />}
           />
           <SettingsDivider />
-          <ProfileMenuRow title="Addresses" icon={<AccountIcon className="h-5 w-5" />} />
+          <ProfileMenuRow
+            title="Email"
+            subtitle={profile.email}
+            href="/account"
+            icon={<AccountIcon className="h-5 w-5" />}
+          />
+        </SettingSection>
+
+        <SettingSection title="Security">
+          <ProfileMenuRow
+            title="Password"
+            subtitle="Reset via secure email link"
+            href="/forgot-password"
+            icon={<LockIcon className="h-5 w-5" />}
+          />
           <SettingsDivider />
-          <ProfileMenuRow title="Payment Methods" icon={<PaymentIcon className="h-5 w-5" />} />
+          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
+            <TwoFactorIcon className="h-5 w-5 shrink-0 text-text-secondary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-text-primary">Two-factor authentication</p>
+              <p className="text-xs text-text-secondary">Extra protection for your account</p>
+            </div>
+            <ComingSoonBadge />
+          </div>
+          <SettingsDivider />
+          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
+            <BlockedIcon className="h-5 w-5 shrink-0 text-text-secondary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-text-primary">Blocked users</p>
+            </div>
+            <ComingSoonBadge />
+          </div>
         </SettingSection>
 
         <SettingSection title="Notifications">
           <ProfileMenuRow
-            title="Notification Settings"
+            title="Notification settings"
             subtitle="Push, email, and saved search alerts"
             href="/notifications/settings"
             icon={<NotificationsMenuIcon className="h-5 w-5" />}
@@ -139,81 +180,121 @@ export function SettingsPage({ profile }: SettingsPageProps) {
           <SettingsDivider />
           <SettingToggle
             id="settings-push-notifications"
-            label="Push Notifications"
+            label="Push notifications"
             checked={settings.pushNotifications}
             onChange={(checked) => void updateSetting({ pushNotifications: checked })}
           />
           <SettingsDivider />
           <SettingToggle
             id="settings-email-notifications"
-            label="Email Notifications"
+            label="Email notifications"
             checked={settings.emailNotifications}
             onChange={(checked) => void updateSetting({ emailNotifications: checked })}
           />
         </SettingSection>
 
-        <SettingSection title="Appearance">
+        <SettingSection title="Privacy">
+          <ProfileMenuRow
+            title="Privacy policy"
+            href="/help/privacy-policy"
+            icon={<PrivacyIcon className="h-5 w-5" />}
+          />
+          <SettingsDivider />
+          <ProfileMenuRow title="Trust Centre" href="/trust" icon={<PrivacyIcon className="h-5 w-5" />} />
+        </SettingSection>
+
+        <SettingSection title="Preferences">
+          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
+            <LanguageIcon className="h-5 w-5 shrink-0 text-text-secondary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-text-primary">Language</p>
+              <p className="text-xs text-text-secondary">{settings.language}</p>
+            </div>
+            <ComingSoonBadge />
+          </div>
+          <SettingsDivider />
+          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
+            <CurrencyIcon className="h-5 w-5 shrink-0 text-text-secondary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-text-primary">Currency</p>
+              <p className="text-xs text-text-secondary">{settings.currency}</p>
+            </div>
+            <ComingSoonBadge />
+          </div>
+          <SettingsDivider />
+          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
+            <AccountIcon className="h-5 w-5 shrink-0 text-text-secondary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-text-primary">Appearance</p>
+              <p className="text-xs text-text-secondary">Themes & display options</p>
+            </div>
+            <ComingSoonBadge />
+          </div>
+          <SettingsDivider />
           <SettingToggle
             id="settings-dark-mode"
-            label="Dark Mode"
+            label="Dark mode"
+            description="Toggle dark theme (beta)"
             checked={settings.darkMode}
             onChange={(checked) => void updateSetting({ darkMode: checked })}
           />
-          <SettingsDivider />
-          <ProfileMenuRow
-            title="Language"
-            subtitle={settings.language}
-            icon={<LanguageIcon className="h-5 w-5" />}
-          />
-          <SettingsDivider />
-          <ProfileMenuRow
-            title="Currency"
-            subtitle={settings.currency}
-            icon={<CurrencyIcon className="h-5 w-5" />}
-          />
-        </SettingSection>
-
-        <SettingSection title="Privacy & Security">
-          <ProfileMenuRow title="Change Password" icon={<LockIcon className="h-5 w-5" />} />
-          <SettingsDivider />
-          <ProfileMenuRow
-            title="Two-Factor Authentication"
-            icon={<TwoFactorIcon className="h-5 w-5" />}
-          />
-          <SettingsDivider />
-          <ProfileMenuRow title="Blocked Users" icon={<BlockedIcon className="h-5 w-5" />} />
         </SettingSection>
 
         <SettingSection title="Payments">
-          <ProfileMenuRow title="Stripe" icon={<StripeIcon className="h-5 w-5" />} />
+          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
+            <StripeIcon className="h-5 w-5 shrink-0 text-text-secondary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-text-primary">Stripe</p>
+            </div>
+            <ComingSoonBadge />
+          </div>
           <SettingsDivider />
+          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
+            <PaymentIcon className="h-5 w-5 shrink-0 text-text-secondary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-text-primary">Payment methods</p>
+            </div>
+            <ComingSoonBadge />
+          </div>
           {profile.isSeller && (
             <>
+              <SettingsDivider />
               <ProfileMenuRow
                 title="Wallet"
                 href="/seller/wallet"
                 icon={<WalletMenuIcon className="h-5 w-5" />}
               />
-              <SettingsDivider />
             </>
           )}
-          <ProfileMenuRow title="Transaction History" icon={<OrdersMenuIcon className="h-5 w-5" />} />
+          <SettingsDivider />
+          <ProfileMenuRow
+            title="Orders"
+            subtitle="Transaction history"
+            href="/orders"
+            icon={<OrdersMenuIcon className="h-5 w-5" />}
+          />
         </SettingSection>
 
         {profile.isSeller && (
           <SettingSection title="Selling">
-            <ProfileMenuRow title="Shipping Settings" icon={<ShippingIcon className="h-5 w-5" />} />
+            <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
+              <ShippingIcon className="h-5 w-5 shrink-0 text-text-secondary" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-text-primary">Shipping settings</p>
+              </div>
+              <ComingSoonBadge />
+            </div>
             <SettingsDivider />
             <SettingToggle
               id="settings-vacation-mode"
-              label="Vacation Mode"
+              label="Vacation mode"
               description="Pause new orders while you are away"
               checked={settings.vacationMode}
               onChange={(checked) => void updateSetting({ vacationMode: checked })}
             />
             <SettingsDivider />
             <ProfileMenuRow
-              title="Business Settings"
+              title="Business settings"
               href={businessSettingsHref}
               icon={<ListingsIcon className="h-5 w-5" />}
             />
@@ -222,22 +303,34 @@ export function SettingsPage({ profile }: SettingsPageProps) {
 
         <SettingSection title="About">
           <ProfileMenuRow
-            title="Terms of Service"
+            title="Terms of service"
             href="/help/terms-of-service"
             icon={<TermsIcon className="h-5 w-5" />}
           />
           <SettingsDivider />
           <ProfileMenuRow
-            title="Privacy Policy"
+            title="Privacy policy"
             href="/help/privacy-policy"
             icon={<PrivacyIcon className="h-5 w-5" />}
           />
           <SettingsDivider />
           <div className="flex min-h-ds-7 items-center justify-between px-ds-4 py-ds-3">
-            <span className="text-sm font-medium text-text-primary">App Version</span>
+            <span className="text-sm font-medium text-text-primary">App version</span>
             <span className="text-sm text-text-secondary">{BETA_VERSION}</span>
           </div>
         </SettingSection>
+
+        <button
+          type="button"
+          onClick={() => setDeleteOpen(true)}
+          className={cn(
+            "flex min-h-ds-7 w-full items-center justify-center rounded-ds-lg border border-danger/30 bg-danger/5 px-ds-4 py-ds-4 text-base font-semibold text-danger",
+            transitionFast,
+            focusRing,
+          )}
+        >
+          Delete account
+        </button>
 
         <button
           type="button"
@@ -249,7 +342,7 @@ export function SettingsPage({ profile }: SettingsPageProps) {
           )}
         >
           <SignOutIcon className="h-5 w-5" />
-          Log Out
+          Log out
         </button>
       </main>
       <HelpPageFooter pathname="/settings" />
@@ -258,10 +351,23 @@ export function SettingsPage({ profile }: SettingsPageProps) {
         open={logoutOpen}
         title="Log out?"
         description="You will need to sign in again to access your account, orders, and messages."
-        confirmLabel={logoutPending ? "Logging out…" : "Log Out"}
+        confirmLabel={logoutPending ? "Logging out…" : "Log out"}
         cancelLabel="Cancel"
         onConfirm={handleLogout}
         onCancel={() => setLogoutOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={deleteOpen}
+        title="Delete account?"
+        description="Account deletion is not available in v1.0. Contact support if you need help closing your account."
+        confirmLabel="Contact support"
+        cancelLabel="Cancel"
+        onConfirm={() => {
+          setDeleteOpen(false);
+          window.location.href = "/support";
+        }}
+        onCancel={() => setDeleteOpen(false)}
       />
     </BetaAppShell>
   );

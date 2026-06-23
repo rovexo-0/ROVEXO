@@ -9,7 +9,7 @@ export { CategoryResults } from "@/features/search/components/CategoryResults";
 export { SellerResults } from "@/features/search/components/SellerResults";
 export { StoreResults } from "@/features/search/components/StoreResults";
 export { ProductResults } from "@/features/search/components/ProductResults";
-export { EmptyState } from "@/features/search/components/EmptyState";
+export { SearchResultsEmpty } from "@/features/search/components/SearchResultsEmpty";
 export { LoadingSkeleton } from "@/features/search/components/LoadingSkeleton";
 export { SellerActions } from "@/features/search/components/SellerActions";
 

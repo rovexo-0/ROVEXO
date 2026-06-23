@@ -2571,31 +2571,94 @@ export type Database = {
           },
         ]
       }
+      trust_admin_audit: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          delta: number | null
+          id: string
+          metadata: Json
+          reason: string
+          score_after: number | null
+          score_before: number | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          delta?: number | null
+          id?: string
+          metadata?: Json
+          reason: string
+          score_after?: number | null
+          score_before?: number | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          delta?: number | null
+          id?: string
+          metadata?: Json
+          reason?: string
+          score_after?: number | null
+          score_before?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_admin_audit_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trust_admin_audit_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trust_events: {
         Row: {
+          actor_id: string | null
           created_at: string
           delta: number
           event_type: string
           id: string
+          idempotency_key: string | null
           metadata: Json
+          reason: string | null
           score_after: number | null
           user_id: string
         }
         Insert: {
+          actor_id?: string | null
           created_at?: string
           delta?: number
           event_type: string
           id?: string
+          idempotency_key?: string | null
           metadata?: Json
+          reason?: string | null
           score_after?: number | null
           user_id: string
         }
         Update: {
+          actor_id?: string | null
           created_at?: string
           delta?: number
           event_type?: string
           id?: string
+          idempotency_key?: string | null
           metadata?: Json
+          reason?: string | null
           score_after?: number | null
           user_id?: string
         }
@@ -2613,27 +2676,45 @@ export type Database = {
         Row: {
           business_score: number
           buyer_score: number
+          factors_snapshot: Json
+          last_recalculated_at: string | null
           level: Database["public"]["Enums"]["trust_verification_level"]
+          lock_reason: string | null
+          recommendations: Json
           score: number
+          score_locked: boolean
           seller_score: number
+          tier: Database["public"]["Enums"]["trust_tier"]
           updated_at: string
           user_id: string
         }
         Insert: {
           business_score?: number
           buyer_score?: number
+          factors_snapshot?: Json
+          last_recalculated_at?: string | null
           level?: Database["public"]["Enums"]["trust_verification_level"]
+          lock_reason?: string | null
+          recommendations?: Json
           score?: number
+          score_locked?: boolean
           seller_score?: number
+          tier?: Database["public"]["Enums"]["trust_tier"]
           updated_at?: string
           user_id: string
         }
         Update: {
           business_score?: number
           buyer_score?: number
+          factors_snapshot?: Json
+          last_recalculated_at?: string | null
           level?: Database["public"]["Enums"]["trust_verification_level"]
+          lock_reason?: string | null
+          recommendations?: Json
           score?: number
+          score_locked?: boolean
           seller_score?: number
+          tier?: Database["public"]["Enums"]["trust_tier"]
           updated_at?: string
           user_id?: string
         }
@@ -3003,6 +3084,7 @@ export type Database = {
         | "report_user"
         | "other"
       support_status: "open" | "in_progress" | "resolved" | "closed"
+      trust_tier: "bronze" | "silver" | "gold" | "platinum" | "diamond"
       trust_verification_level: "basic" | "verified" | "premium" | "enterprise"
       trust_verification_status:
         | "not_started"
@@ -3213,6 +3295,7 @@ export const Constants = {
         "other",
       ],
       support_status: ["open", "in_progress", "resolved", "closed"],
+      trust_tier: ["bronze", "silver", "gold", "platinum", "diamond"],
       trust_verification_level: ["basic", "verified", "premium", "enterprise"],
       trust_verification_status: [
         "not_started",

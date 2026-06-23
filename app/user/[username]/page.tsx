@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { Rating } from "@/components/ui/Rating";
 import { getPublicSellerProfile } from "@/lib/profile/public";
@@ -9,6 +10,8 @@ import {
   loadSellerReviews,
   SellerReviewsSection,
 } from "@/features/profile/components/SellerReviewsSection";
+import { TrustPublicSummary } from "@/features/trust/components/TrustPublicSummary";
+import { getPublicTrustSummary } from "@/lib/trust/service";
 
 type PageProps = {
   params: Promise<{ username: string }>;
@@ -22,7 +25,10 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
     notFound();
   }
 
-  const reviews = await loadSellerReviews(profile.id);
+  const [reviews, trustSummary] = await Promise.all([
+    loadSellerReviews(profile.id),
+    getPublicTrustSummary(profile.id),
+  ]);
 
   return (
     <BetaAppShell>
@@ -42,6 +48,8 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
           </p>
         </Card>
 
+        <TrustPublicSummary summary={trustSummary} />
+
         {profile.listings.length > 0 ? (
           <section className="grid grid-cols-2 gap-ds-3">
             {profile.listings.map((product) => (
@@ -58,9 +66,12 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
             ))}
           </section>
         ) : (
-          <Card padding="lg" className="shadow-ds-soft">
-            <p className="text-sm text-text-secondary">No active listings.</p>
-          </Card>
+          <EmptyState
+            title="No active listings"
+            description="This seller has no items listed right now."
+            actionLabel="Browse marketplace"
+            actionHref="/"
+          />
         )}
 
         <SellerReviewsSection sellerId={profile.id} reviews={reviews} />

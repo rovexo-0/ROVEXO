@@ -1,9 +1,5 @@
 import { cn } from "@/lib/cn";
-import {
-  shadowMediumHover,
-  shadowSoft,
-  transitionFast,
-} from "@/components/ui/tokens";
+import { transitionFast } from "@/components/ui/tokens";
 import type { HTMLAttributes } from "react";
 
 export type CardProps = HTMLAttributes<HTMLDivElement> & {
@@ -28,15 +24,14 @@ export function Card({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-ds-lg border border-border bg-surface",
-        shadowSoft,
+        "premium-card relative border-border/70 bg-surface/90",
         paddingStyles[padding],
-        interactive && cn("cursor-pointer", transitionFast, shadowMediumHover),
+        interactive && cn("cursor-pointer", transitionFast),
         className,
       )}
       {...props}
     >
-      {children}
+      <div className="relative z-[1]">{children}</div>
     </div>
   );
 }

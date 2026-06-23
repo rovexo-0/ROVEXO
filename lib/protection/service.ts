@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/types/database";
+import { onProtectionResolved } from "@/lib/trust/events";
 
 export type ProtectionCaseType = "refund" | "return" | "dispute" | "appeal";
 export type ProtectionCaseStatus =
@@ -193,6 +194,18 @@ export async function getProtectionCase(caseId: string): Promise<ProtectionCase 
   return data ? mapCase(data as CaseRow) : null;
 }
 
+export async function getProtectionCaseByOrderId(orderId: string): Promise<ProtectionCase | null> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("protection_cases")
+    .select("*")
+    .eq("order_id", orderId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data ? mapCase(data as CaseRow) : null;
+}
+
 export async function listProtectionCasesForUser(
   userId: string,
   role: "buyer" | "seller",
@@ -350,6 +363,13 @@ export async function resolveProtectionCase(input: {
     eventType: "admin_decision",
     message: input.notes,
     metadata: { outcome: input.outcome, refundAmount: input.refundAmount },
+  });
+
+  void onProtectionResolved({
+    caseId: input.caseId,
+    buyerId: String(data.buyer_id),
+    sellerId: String(data.seller_id),
+    outcome: input.outcome,
   });
 
   return mapCase(data as CaseRow);

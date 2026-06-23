@@ -7,6 +7,7 @@ import { isProductSaved } from "@/lib/saved/check";
 import { getAuthContext } from "@/lib/auth/session";
 import { getCategoryBreadcrumbsForProduct } from "@/lib/categories/server";
 import { productJsonLd } from "@/lib/seo/json-ld";
+import { getPublicTrustSummary } from "@/lib/trust/service";
 import { getAppUrl } from "@/lib/supabase/env";
 
 type ListingPageProps = {
@@ -57,9 +58,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
     notFound();
   }
 
-  const [breadcrumbs, initialIsSaved] = await Promise.all([
+  const [breadcrumbs, initialIsSaved, sellerTrust] = await Promise.all([
     getCategoryBreadcrumbsForProduct(product.categoryId ?? null),
     auth ? isProductSaved(auth.user.id, slug) : Promise.resolve(false),
+    getPublicTrustSummary(product.sellerId),
   ]);
 
   await incrementProductViews(slug);
@@ -77,6 +79,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
         similarProducts={similarProducts}
         initialIsSaved={initialIsSaved}
         breadcrumbs={breadcrumbs}
+        sellerTrust={sellerTrust}
       />
     </div>
   );

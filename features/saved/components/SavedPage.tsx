@@ -3,13 +3,13 @@
 import { useMemo, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { IconButton } from "@/components/ui/IconButton";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { cn } from "@/lib/cn";
 import { productToCardProps } from "@/lib/products/card";
 import { focusRing } from "@/components/ui/tokens";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { SavedEmptyState } from "@/features/saved/components/SavedEmptyState";
 import { SearchIcon } from "@/features/messages/icons";
 import {
@@ -103,16 +103,19 @@ export function SavedPage({ initialItems }: SavedPageProps) {
 
         {searchOpen && (
           <div className="px-ds-4 pb-ds-3">
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search saved items"
-              className={cn(
-                "min-h-ds-7 w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm text-text-primary placeholder:text-text-muted",
-                focusRing,
-              )}
-            />
+            <div className="relative">
+              <SearchIcon className="pointer-events-none absolute left-ds-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" />
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search saved items"
+                className={cn(
+                  "min-h-ds-7 w-full rounded-ds-full border border-border bg-surface pl-ds-8 pr-ds-3 py-ds-2 text-sm text-text-primary placeholder:text-text-muted shadow-ds-soft",
+                  focusRing,
+                )}
+              />
+            </div>
           </div>
         )}
 
@@ -205,9 +208,16 @@ export function SavedPage({ initialItems }: SavedPageProps) {
         {items.length === 0 ? (
           <SavedEmptyState />
         ) : visibleItems.length === 0 ? (
-          <Card padding="lg" className="text-center shadow-ds-soft">
-            <p className="text-sm text-text-secondary">No saved items match this filter.</p>
-          </Card>
+          <EmptyState
+            title="No matches"
+            description="Try another category filter or clear your search."
+            actionLabel="Show all saved"
+            onAction={() => {
+              setFilter("all");
+              setQuery("");
+              setShowMoreFilters(false);
+            }}
+          />
         ) : (
           <div className="grid grid-cols-2 gap-ds-3">
             {visibleItems.map((item) => {

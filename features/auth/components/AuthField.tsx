@@ -38,7 +38,7 @@ export function AuthField({
   return (
     <div className="border-b border-border/70 px-ds-4 py-ds-3 last:border-b-0">
       <label className="flex flex-col gap-ds-1">
-        <span className="text-xs font-medium uppercase tracking-wide text-text-muted">
+        <span className="text-xs font-medium uppercase tracking-wide text-text-secondary">
           {label}
         </span>
         <input
@@ -80,7 +80,7 @@ export function AuthField({
           {validationMessage}
         </p>
       ) : hint ? (
-        <p className="mt-ds-1 text-xs text-text-muted">{hint}</p>
+        <p className="mt-ds-1 text-xs text-text-secondary">{hint}</p>
       ) : null}
     </div>
   );

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { memo, type ReactNode } from "react";
-import { ProductCard } from "@/components/ui/ProductCard";
+import { HomeProductCard } from "@/components/home/HomeProductCard";
 import { productToCardProps } from "@/lib/products/card";
 import type { Product } from "@/lib/products/types";
 import { ProductCarouselSkeleton } from "@/components/home/ProductCarouselSkeleton";
@@ -17,6 +17,8 @@ type ProductCarouselSectionProps = {
   loading?: boolean;
   loadingMore?: boolean;
   error?: boolean;
+  hideWhenEmpty?: boolean;
+  showBidButton?: boolean;
   viewAllHref?: string;
   footer?: ReactNode;
   className?: string;
@@ -29,16 +31,22 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
   loading = false,
   loadingMore = false,
   error = false,
+  hideWhenEmpty = true,
+  showBidButton = false,
   viewAllHref,
   footer,
   className,
 }: ProductCarouselSectionProps) {
+  if (hideWhenEmpty && !loading && !error && products.length === 0) {
+    return null;
+  }
+
   const showViewAll = Boolean(viewAllHref && products.length > 0 && !loading && !error);
 
   return (
     <section aria-labelledby={id} className={cn("px-ds-4", className)}>
       <div className="mb-ds-3 flex items-end justify-between gap-ds-3">
-        <h2 id={id} className="text-lg font-semibold text-text-primary">
+        <h2 id={id} className="text-lg font-semibold tracking-tight text-text-primary">
           {title}
         </h2>
         {showViewAll ? (
@@ -57,16 +65,14 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
           "scroll-smooth overscroll-x-contain touch-pan-x snap-x snap-mandatory",
           "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         )}
-        role="list"
+        role={error ? "group" : "list"}
         aria-busy={loading || loadingMore}
+        aria-live={error ? "polite" : undefined}
       >
         {loading ? (
           <ProductCarouselSkeleton count={4} />
         ) : error ? (
-          <div
-            role="alert"
-            className="min-w-full snap-start rounded-ds-xl border border-danger/30 bg-danger/5 px-ds-5 py-ds-6 text-center text-sm text-text-secondary"
-          >
+          <div className="min-w-full snap-start rounded-ds-xl border border-danger/50 bg-surface px-ds-5 py-ds-6 text-center text-sm font-medium text-text-primary">
             Unable to load {title.replace(/^[^\s]+\s/, "").toLowerCase()}.
           </div>
         ) : products.length === 0 ? (
@@ -80,7 +86,11 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
               role="listitem"
               className="w-[10.5rem] shrink-0 snap-start sm:w-[12.5rem] md:w-[13.75rem]"
             >
-              <ProductCard {...productToCardProps(product, "homepage")} />
+              <HomeProductCard
+                {...productToCardProps(product, "homepage")}
+                layout="carousel"
+                showBidButton={showBidButton}
+              />
             </div>
           ))
         )}

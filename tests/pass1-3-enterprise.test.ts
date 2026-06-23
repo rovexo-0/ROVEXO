@@ -29,12 +29,18 @@ describe("pass 1-3 enterprise systems", () => {
         sellerScore: 72,
         businessScore: 68,
         level: "verified",
+        tier: "gold",
+        scoreLocked: false,
+        lockReason: null,
+        factors: null,
+        recommendations: [],
         updatedAt: new Date().toISOString(),
+        lastRecalculatedAt: null,
       },
       [{ id: "1", userId: "user-1", verificationType: "identity", status: "approved", level: "verified", documentUrls: [], reviewedAt: null, expiresAt: null }],
       true,
     );
-    expect(badges).toContain("Verified Buyer");
+    expect(badges).toContain("Trusted Buyer");
   });
 
   it("pass 3: exposes business directory query surface", async () => {

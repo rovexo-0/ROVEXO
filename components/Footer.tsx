@@ -31,7 +31,6 @@ const BUSINESS_LINKS = [
 const SELL_LINKS = [
   { label: "Seller dashboard", href: "/seller/dashboard" },
   { label: "Sell an item", href: "/sell" },
-  { label: "AI camera sell", href: "/sell/camera" },
   { label: "How to sell", href: "/help/selling-get-started" },
   { label: "Seller protection", href: "/help/buying-buyer-protection" },
   { label: "Shipping guide", href: "/help/delivery-shipping" },

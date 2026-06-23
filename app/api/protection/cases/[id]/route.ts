@@ -58,7 +58,14 @@ export async function PATCH(request: Request, context: RouteContext) {
     const updated = await resolveProtectionCase({
       caseId: id,
       adminId: auth.user.id,
-      outcome: body.outcome as "refund_full" | "refund_partial" | "return_accepted" | "no_action" | "buyer_favour" | "seller_favour",
+      outcome: body.outcome as
+        | "refund_full"
+        | "refund_partial"
+        | "return_accepted"
+        | "return_rejected"
+        | "no_action"
+        | "buyer_favour"
+        | "seller_favour",
       notes: String(body.notes ?? ""),
       refundAmount: typeof body.refundAmount === "number" ? body.refundAmount : undefined,
     });

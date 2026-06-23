@@ -1,6 +1,6 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
-import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { HelpPageFooter } from "@/features/help/components/HelpPageFooter";
 import { OrderListItem } from "@/features/orders/components/OrderListItem";
 import type { Order, OrderViewRole } from "@/lib/orders/types";
@@ -30,9 +30,12 @@ export function OrdersListPage({
 
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
         {orders.length === 0 ? (
-          <Card padding="lg" className="text-center shadow-ds-soft">
-            <p className="text-sm text-text-secondary">No orders yet.</p>
-          </Card>
+          <EmptyState
+            title="No orders yet"
+            description="When you buy or sell on ROVEXO, your orders will appear here."
+            actionLabel="Browse listings"
+            actionHref="/"
+          />
         ) : (
           orders.map((order) => <OrderListItem key={order.id} order={order} userId={userId} />)
         )}

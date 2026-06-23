@@ -3,6 +3,21 @@
     {
       "path": "/api/cron/maintenance",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/orders/cleanup",
+      "schedule": "0 3 * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(self), microphone=(), geolocation=()" }
+      ]
     }
   ]
 }

@@ -9,7 +9,7 @@ describe("Pre-launch production config", () => {
       expect.arrayContaining([
         expect.objectContaining({
           path: "/api/cron/maintenance",
-          schedule: "*/15 * * * *",
+          schedule: "0 6 * * *",
         }),
       ]),
     );
@@ -30,5 +30,19 @@ describe("Pre-launch production config", () => {
     expect(source).toContain("order.buyer_id !== input.buyerId");
     expect(source).toContain("DISPUTABLE_ORDER_STATUSES");
     expect(source).not.toMatch(/sellerId: input\.sellerId/);
+  });
+
+  it("gates seller orders routes to sellers", () => {
+    for (const route of ["app/seller/orders/page.tsx", "app/seller/orders/[id]/page.tsx"]) {
+      const source = readFileSync(path.join(process.cwd(), route), "utf8");
+      expect(source).toContain("profile.isSeller");
+      expect(source).toContain('redirect("/account")');
+    }
+  });
+
+  it("blocks checkout when seller is on vacation", () => {
+    const source = readFileSync(path.join(process.cwd(), "lib/orders/checkout.ts"), "utf8");
+    expect(source).toContain("vacation_mode");
+    expect(source).toContain("on vacation");
   });
 });

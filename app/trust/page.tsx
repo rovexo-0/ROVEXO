@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { TrustCenterPage } from "@/features/trust/components/TrustCenterPage";
 import { getAuthContext } from "@/lib/auth/session";
-import { getTrustCenterData } from "@/lib/trust/service";
+import { getTrustDashboardData } from "@/lib/trust/service";
 
 export const metadata: Metadata = {
   title: "Trust Center | ROVEXO",
@@ -22,7 +22,7 @@ export default async function TrustPage() {
     .eq("id", auth.user.id)
     .maybeSingle();
 
-  const data = await getTrustCenterData(auth.user.id, Boolean(profile?.verified));
+  const data = await getTrustDashboardData(auth.user.id, Boolean(profile?.verified));
 
   return (
     <BetaAppShell showBottomNav={false}>

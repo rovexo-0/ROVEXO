@@ -8,9 +8,9 @@
   --ds-color-primary-foreground: #ffffff;
   --ds-color-secondary: #f3f4f6;
   --ds-color-secondary-foreground: #111827;
-  --ds-color-success: #16a34a;
+  --ds-color-success: #15803d;
   --ds-color-success-foreground: #ffffff;
-  --ds-color-warning: #ea580c;
+  --ds-color-warning: #c2410c;
   --ds-color-warning-foreground: #ffffff;
   --ds-color-danger: #dc2626;
   --ds-color-danger-foreground: #ffffff;
@@ -20,7 +20,7 @@
   --ds-color-border: #e5e7eb;
   --ds-color-text-primary: #111827;
   --ds-color-text-secondary: #6b7280;
-  --ds-color-text-muted: #9ca3af;
+  --ds-color-text-muted: #757575;
   --ds-color-ring: #2563eb;
   --ds-color-star: #fbbf24;
   --ds-color-overlay: rgb(255 255 255 / 0.8);
@@ -140,9 +140,9 @@
   --ds-color-primary-foreground: #ffffff;
   --ds-color-secondary: #f3f4f6;
   --ds-color-secondary-foreground: #111827;
-  --ds-color-success: #16a34a;
+  --ds-color-success: #15803d;
   --ds-color-success-foreground: #ffffff;
-  --ds-color-warning: #ea580c;
+  --ds-color-warning: #c2410c;
   --ds-color-warning-foreground: #ffffff;
   --ds-color-danger: #dc2626;
   --ds-color-danger-foreground: #ffffff;
@@ -152,7 +152,7 @@
   --ds-color-border: #e5e7eb;
   --ds-color-text-primary: #111827;
   --ds-color-text-secondary: #6b7280;
-  --ds-color-text-muted: #9ca3af;
+  --ds-color-text-muted: #757575;
   --ds-color-ring: #2563eb;
   --ds-color-star: #fbbf24;
   --ds-color-overlay: rgb(255 255 255 / 0.8);

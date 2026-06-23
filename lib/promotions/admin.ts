@@ -8,6 +8,7 @@ import { computePromotionScore } from "@/lib/promotions/format";
 import { applyListingPromotion } from "@/lib/promotions/service";
 import type { AdminPromotionRow, AdminPromotionStats } from "@/lib/promotions/admin-types";
 import { getAdminPromotionAnalytics } from "@/lib/promotions/analytics";
+import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 
 function mapAdminPromotionRow(row: {
   id: string;
@@ -35,7 +36,7 @@ function mapAdminPromotionRow(row: {
     id: row.id,
     productId: row.product_id,
     productTitle: row.products?.title ?? "Listing",
-    productImageUrl: images[0]?.url ?? "/placeholder-product.png",
+    productImageUrl: images[0]?.url ?? PRODUCT_IMAGE_FALLBACK,
     sellerId: row.seller_id,
     sellerName: row.profiles?.full_name ?? "Seller",
     type: row.type as PromotionType,

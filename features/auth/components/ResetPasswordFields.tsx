@@ -1,25 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { AuthField } from "@/features/auth/components/AuthField";
 import { AuthFieldGroup } from "@/features/auth/components/AuthFieldGroup";
+import { AuthPasswordField } from "@/features/auth/components/AuthPasswordField";
+import { useState } from "react";
 
 export function ResetPasswordFields() {
   const [confirmError, setConfirmError] = useState<string | null>(null);
 
   return (
     <AuthFieldGroup>
-      <AuthField
+      <AuthPasswordField
         label="New password"
         name="password"
-        type="password"
         autoComplete="new-password"
         minLength={8}
         hint="At least 8 characters"
       />
       <div className="border-b border-border/70 px-ds-4 py-ds-3 last:border-b-0">
         <label className="flex flex-col gap-ds-1">
-          <span className="text-xs font-medium uppercase tracking-wide text-text-muted">
+          <span className="text-xs font-medium uppercase tracking-wide text-text-secondary">
             Confirm password
           </span>
           <input

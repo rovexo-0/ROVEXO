@@ -8,6 +8,8 @@ import { Rating } from "@/components/ui/Rating";
 import { productToCardProps } from "@/lib/products/card";
 import type { Product } from "@/lib/products/types";
 import { getCategoryImageUrl } from "@/lib/categories/visuals";
+import { TrustPublicSummary } from "@/features/trust/components/TrustPublicSummary";
+import type { PublicTrustSummary } from "@/lib/trust/types";
 import Image from "next/image";
 
 type ProStorePageProps = {
@@ -23,6 +25,7 @@ type ProStorePageProps = {
   listingCount: number;
   salesCount: number;
   listings: Product[];
+  sellerTrust?: PublicTrustSummary;
 };
 
 export function ProStorePage({
@@ -38,6 +41,7 @@ export function ProStorePage({
   listingCount,
   salesCount,
   listings,
+  sellerTrust,
 }: ProStorePageProps) {
   const featured = listings.filter((item) => item.isFeatured).slice(0, 8);
   const displayFeatured = featured.length > 0 ? featured : listings.slice(0, 8);
@@ -87,6 +91,8 @@ export function ProStorePage({
               </a>
             )}
           </Card>
+
+          {sellerTrust && <TrustPublicSummary summary={sellerTrust} compact />}
 
           <section aria-labelledby="featured-products-heading">
             <h2 id="featured-products-heading" className="mb-ds-3 text-lg font-semibold text-text-primary">

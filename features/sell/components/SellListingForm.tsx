@@ -4,10 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { cn } from "@/lib/cn";
 import { toPathId } from "@/lib/categories/queries";
-import type { CategoryMatchResult } from "@/lib/ai-camera/types";
 import { getSellCurrencyConfig } from "@/lib/sell/currency";
-import { AiSuggestionPanel } from "@/features/sell/components/AiSuggestionPanel";
-import { CategoryMatchPicker } from "@/features/sell/components/CategoryMatchPicker";
 import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicker";
 import { FieldError, fieldErrorClassName } from "@/features/sell/components/FieldError";
 import { InventoryQuantityField } from "@/features/sell/components/InventoryQuantityField";
@@ -54,14 +51,8 @@ function FormRow({
 export function SellListingForm({ form }: SellListingFormProps) {
   const { draft, updateDraft, setCategoryPath, listingMode } = form;
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
-  const analysis = draft.analysis;
   const currency = useMemo(() => getSellCurrencyConfig(), []);
   const errors = getListingValidationErrors(draft, { mode: listingMode });
-
-  const handleMatchSelect = (match: CategoryMatchResult) => {
-    setCategoryPath(match.path);
-    setCategoryPickerOpen(false);
-  };
 
   const categoryDisplay = draft.categoryPath?.pathLabel ?? "";
 
@@ -70,8 +61,6 @@ export function SellListingForm({ form }: SellListingFormProps) {
       <h2 id="sell-form-heading" className="sr-only">
         Listing details
       </h2>
-
-      <AiSuggestionPanel form={form} />
 
       <div className="overflow-hidden rounded-ds-lg border border-border bg-surface shadow-ds-soft">
         <FormRow label="Title" htmlFor="sell-title" error={errors.title}>
@@ -122,14 +111,6 @@ export function SellListingForm({ form }: SellListingFormProps) {
             >
               {categoryDisplay || "Select category"}
             </button>
-
-            {analysis && !analysis.autoSelected && analysis.matches.length > 0 && (
-              <CategoryMatchPicker
-                matches={analysis.matches}
-                value={draft.categoryPath ? toPathId(draft.categoryPath) : null}
-                onChange={handleMatchSelect}
-              />
-            )}
 
             {categoryPickerOpen && (
               <CategoryTreePicker

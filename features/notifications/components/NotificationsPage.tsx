@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { Card } from "@/components/ui/Card";
 import { CategoryChip } from "@/components/ui/CategoryChip";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { IconButton } from "@/components/ui/IconButton";
 import { cn } from "@/lib/cn";
 import { NotificationCard } from "@/features/notifications/components/NotificationCard";
@@ -99,9 +99,12 @@ export function NotificationsPage({ initialNotifications }: NotificationsPagePro
         {showEmpty ? (
           <NotificationsEmptyState />
         ) : showFilteredEmpty ? (
-          <Card padding="lg" className="text-center shadow-ds-soft">
-            <p className="text-sm text-text-secondary">No notifications in this category.</p>
-          </Card>
+          <EmptyState
+            title="No notifications here"
+            description="Try another category or check back later."
+            actionLabel="Show all"
+            onAction={() => setFilter("all")}
+          />
         ) : (
           visibleNotifications.map((notification) => (
             <SwipeableNotificationRow

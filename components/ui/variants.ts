@@ -1,29 +1,30 @@
 import { cn } from "@/lib/cn";
 import {
   focusRing,
-  shadowSoft,
   transitionFast,
 } from "@/components/ui/tokens";
 
 export const buttonVariants = {
   primary: cn(
-    "bg-primary text-primary-foreground hover:opacity-90",
-    shadowSoft,
+    "premium-btn bg-[image:var(--ds-gradient-primary)] text-primary-foreground",
+    "hover:brightness-105",
     focusRing,
     transitionFast,
   ),
   secondary: cn(
-    "bg-secondary text-secondary-foreground hover:opacity-90",
+    "premium-btn bg-secondary text-secondary-foreground premium-depth-1",
+    "hover:brightness-[0.98]",
     focusRing,
     transitionFast,
   ),
   outline: cn(
-    "border border-border bg-surface text-text-primary hover:border-primary/30 hover:bg-surface-muted",
+    "premium-btn border border-border/80 bg-surface/80 text-text-primary backdrop-blur-md",
+    "hover:border-primary/40 hover:bg-surface-muted premium-glow",
     focusRing,
     transitionFast,
   ),
   ghost: cn(
-    "text-text-secondary hover:bg-secondary hover:text-primary",
+    "text-text-secondary hover:bg-secondary/80 hover:text-primary rounded-ds-md",
     focusRing,
     transitionFast,
   ),
@@ -31,8 +32,8 @@ export const buttonVariants = {
 
 export const buttonSizes = {
   sm: "h-9 rounded-ds-sm px-ds-3 text-sm font-semibold",
-  md: "h-10 rounded-ds-md px-ds-5 text-sm font-semibold",
-  lg: "h-11 rounded-ds-lg px-ds-6 text-sm font-semibold",
+  md: "h-11 rounded-ds-md px-ds-5 text-sm font-semibold",
+  lg: "h-12 rounded-ds-lg px-ds-6 text-base font-semibold",
 } as const;
 
 export const iconButtonSizes = {

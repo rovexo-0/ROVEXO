@@ -6,7 +6,12 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { checkRateLimit } from "@/lib/api/rate-limit";
+import {
+  checkAuthRateLimit,
+  clearAuthRateLimit,
+  enforceAuthRequestRateLimit,
+  recordAuthRateLimitFailure,
+} from "@/lib/auth/rate-limit";
 import { sendPasswordResetEmail } from "@/lib/email/service";
 import { getAppUrl } from "@/lib/supabase/env";
 import { redirectPathForRole, sanitizeNextPath } from "@/lib/auth/redirects";
@@ -75,7 +80,7 @@ export async function signUp(
   }
 
   const ip = await clientIpFromHeaders();
-  const registerLimit = await checkRateLimit(`auth-register:${ip}`, 5, 15 * 60_000);
+  const registerLimit = await checkAuthRateLimit("register", ip);
   if (!registerLimit.allowed) {
     return { error: "Too many registration attempts. Please try again later." };
   }
@@ -90,6 +95,7 @@ export async function signUp(
     .maybeSingle();
 
   if (existingUsername) {
+    await recordAuthRateLimitFailure("register", ip);
     return { error: "Username is already taken." };
   }
 
@@ -108,18 +114,26 @@ export async function signUp(
   });
 
   if (error) {
+    await recordAuthRateLimitFailure("register", ip);
     return { error: error.message };
   }
 
   if (!data.user) {
+    await recordAuthRateLimitFailure("register", ip);
     return { error: "Unable to create account. Please try again." };
   }
 
   if (data.user.identities?.length === 0) {
+    await recordAuthRateLimitFailure("register", ip);
     return { error: "An account with this email already exists." };
   }
 
-  const queuedEvents: QueuedGaEvent[] = [{ name: "sign_up", params: { method: "email" } }];
+  await clearAuthRateLimit("register", ip);
+
+  const queuedEvents: QueuedGaEvent[] = [
+    { name: "register", params: { method: "email", role } },
+    { name: "sign_up", params: { method: "email" } },
+  ];
   if (role === "seller" || role === "business") {
     queuedEvents.push({
       name: "seller_registration",
@@ -149,7 +163,7 @@ export async function signIn(
   }
 
   const ip = await clientIpFromHeaders();
-  const loginLimit = await checkRateLimit(`auth-login:${ip}`, 10, 15 * 60_000);
+  const loginLimit = await checkAuthRateLimit("login", ip);
   if (!loginLimit.allowed) {
     return { error: "Too many login attempts. Please try again later." };
   }
@@ -158,8 +172,11 @@ export async function signIn(
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
+    await recordAuthRateLimitFailure("login", ip);
     return { error: error.message };
   }
+
+  await clearAuthRateLimit("login", ip);
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
@@ -201,7 +218,7 @@ export async function requestPasswordReset(
   }
 
   const ip = await clientIpFromHeaders();
-  const resetLimit = await checkRateLimit(`auth-reset:${ip}`, 5, 15 * 60_000);
+  const resetLimit = await enforceAuthRequestRateLimit("reset", ip);
   if (!resetLimit.allowed) {
     return { error: "Too many reset attempts. Please try again later." };
   }
@@ -273,6 +290,12 @@ export async function resendVerificationEmail(
 
   if (!parsed.success) {
     return { error: "Enter a valid email address." };
+  }
+
+  const ip = await clientIpFromHeaders();
+  const resendLimit = await enforceAuthRequestRateLimit("verify-resend", ip);
+  if (!resendLimit.allowed) {
+    return { error: "Too many verification requests. Please try again later." };
   }
 
   const supabase = await createClient();

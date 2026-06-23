@@ -3,63 +3,74 @@ import Header from "@/components/Header";
 import { HomeContent } from "@/components/home/HomeContent";
 import { HomePageShell } from "@/components/home/HomePageShell";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { getSponsoredSections } from "@/lib/advertising/service";
-import { getTopLevelCategoryCounts } from "@/lib/categories/server";
 import { fetchProducts } from "@/lib/products/queries";
+import { homePageJsonLd } from "@/lib/seo/home-jsonld";
 import type { ProductsPage } from "@/lib/products/types";
 
 const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rovexo.com";
+
 export const metadata: Metadata = {
   title: "ROVEXO · Buy and sell with buyer protection",
   description:
-    "Discover trending listings, shop by category, and sell fashion, electronics, home, vehicles and more on ROVEXO.",
+    "Discover featured listings, shop by category, and sell fashion, electronics, home, vehicles and more on ROVEXO.",
+  alternates: {
+    canonical: siteUrl,
+  },
   openGraph: {
     title: "ROVEXO · The modern marketplace",
     description: "Buy and sell with buyer protection, verified sellers, and secure checkout.",
     type: "website",
+    url: siteUrl,
+    siteName: "ROVEXO",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ROVEXO · The modern marketplace",
+    description: "Buy and sell with buyer protection, verified sellers, and secure checkout.",
   },
 };
 
 export default async function HomePage() {
-  let categories: Awaited<ReturnType<typeof getTopLevelCategoryCounts>> = [];
   let loadError = false;
 
-  try {
-    categories = await getTopLevelCategoryCounts();
-  } catch {
-    loadError = true;
-  }
-
-  let trending: ProductsPage = emptyPage;
-  let newToday: ProductsPage = emptyPage;
   let featured: ProductsPage = emptyPage;
+  let popular: ProductsPage = emptyPage;
   let recommended: ProductsPage = emptyPage;
-  let sponsored: Awaited<ReturnType<typeof getSponsoredSections>> = [];
+  let newest: ProductsPage = emptyPage;
 
   try {
-    [trending, newToday, featured, recommended, sponsored] = await Promise.all([
+    const [featuredPage, popularPage, trendingPage, newestPage] = await Promise.all([
+      fetchProducts("recommended", 1),
+      fetchProducts("popular", 1),
       fetchProducts("trending", 1),
       fetchProducts("new", 1),
-      fetchProducts("recommended", 1),
-      fetchProducts("trending", 1),
-      getSponsoredSections(),
     ]);
+
+    featured = featuredPage;
+    popular = popularPage;
+    recommended = trendingPage;
+    newest = newestPage;
   } catch {
     loadError = true;
   }
+
+  const structuredData = homePageJsonLd(featured.items, siteUrl);
 
   return (
     <BetaAppShell bottomNavTab="home">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <HomePageShell header={<Header />} bottomNav={null}>
         <HomeContent
-          categories={categories}
           featured={featured.items}
-          trending={trending.items}
-          newToday={newToday.items}
+          popular={popular.items}
+          popularHasMore={popular.hasMore}
           recommended={recommended.items}
-          recommendedHasMore={recommended.hasMore}
-          sponsoredProducts={sponsored[0]?.products ?? []}
+          newest={newest.items}
           loadError={loadError}
         />
       </HomePageShell>

@@ -1,4 +1,4 @@
-export type ProductSection = "trending" | "new" | "recommended";
+export type ProductSection = "trending" | "new" | "recommended" | "popular" | "auctions";
 
 export type DeliveryCarrier =
   | "Royal Mail"
@@ -18,8 +18,16 @@ export type Product = {
   condition: string;
   brand?: string;
   sellerName: string;
+  sellerId?: string;
   sellerAvatar?: string | null;
   sellerVerified?: boolean;
+  sellerTrustScore?: number;
+  sellerTier?: string;
+  sellerResponseRate?: number;
+  location?: string;
+  listingType?: string;
+  auctionEndsAt?: string | null;
+  auctionCurrentBid?: number | null;
   rating: number;
   reviewCount: number;
   views?: number;

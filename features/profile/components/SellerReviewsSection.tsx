@@ -1,4 +1,5 @@
 import { listSellerReviews } from "@/lib/reviews/store";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Card } from "@/components/ui/Card";
 import { Rating } from "@/components/ui/Rating";
 import type { Review } from "@/lib/reviews/types";
@@ -11,10 +12,10 @@ type SellerReviewsSectionProps = {
 export function SellerReviewsSection({ reviews }: SellerReviewsSectionProps) {
   if (!reviews.length) {
     return (
-      <Card padding="lg" className="shadow-ds-soft">
-        <h2 className="text-base font-semibold text-text-primary">Reviews</h2>
-        <p className="mt-ds-2 text-sm text-text-secondary">No reviews yet.</p>
-      </Card>
+      <EmptyState
+        title="No reviews yet"
+        description="Reviews from buyers will appear here after completed orders."
+      />
     );
   }
 
