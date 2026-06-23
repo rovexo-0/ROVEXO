@@ -1,25 +1,23 @@
 import type { HomeCategoryIconType } from "@/lib/home/constants";
 
-const ICON_VERSION = "v3";
-
 /** 512×512 WebP sources — displayed at 54×54 in the category rail */
 export const HOME_CATEGORY_ICON_SRC: Record<HomeCategoryIconType, string> = {
-  vehicles: `/categories/home/vehicles.webp?${ICON_VERSION}`,
-  property: `/categories/home/property.webp?${ICON_VERSION}`,
-  phones: `/categories/home/phones.webp?${ICON_VERSION}`,
-  computers: `/categories/home/computers.webp?${ICON_VERSION}`,
-  fashion: `/categories/home/fashion.webp?${ICON_VERSION}`,
-  electronics: `/categories/home/electronics.webp?${ICON_VERSION}`,
-  furniture: `/categories/home/furniture.webp?${ICON_VERSION}`,
-  "home-garden": `/categories/home/home-garden.webp?${ICON_VERSION}`,
-  sports: `/categories/home/sports.webp?${ICON_VERSION}`,
-  pets: `/categories/home/pets.webp?${ICON_VERSION}`,
-  jobs: `/categories/home/jobs.webp?${ICON_VERSION}`,
-  services: `/categories/home/services.webp?${ICON_VERSION}`,
-  autoparts: `/categories/home/autoparts.webp?${ICON_VERSION}`,
-  wholesale: `/categories/home/wholesale.webp?${ICON_VERSION}`,
-  auctions: `/categories/home/auctions.webp?${ICON_VERSION}`,
-  more: `/categories/home/more.webp?${ICON_VERSION}`,
+  vehicles: "/categories/home/vehicles.webp",
+  property: "/categories/home/property.webp",
+  phones: "/categories/home/phones.webp",
+  computers: "/categories/home/computers.webp",
+  fashion: "/categories/home/fashion.webp",
+  electronics: "/categories/home/electronics.webp",
+  furniture: "/categories/home/furniture.webp",
+  "home-garden": "/categories/home/home-garden.webp",
+  sports: "/categories/home/sports.webp",
+  pets: "/categories/home/pets.webp",
+  jobs: "/categories/home/jobs.webp",
+  services: "/categories/home/services.webp",
+  autoparts: "/categories/home/autoparts.webp",
+  wholesale: "/categories/home/wholesale.webp",
+  auctions: "/categories/home/auctions.webp",
+  more: "/categories/home/more.webp",
 };
 
 export function getHomeCategoryIconSrc(icon: HomeCategoryIconType): string {
