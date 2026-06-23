@@ -92,7 +92,7 @@ function Header({
             <HeaderSearchBar
               inputId="header-search"
               size="inline"
-              placeholder="Search ROVEXO…"
+              placeholder="Search ROVEXO..."
               className="mx-auto w-full"
             />
           </div>

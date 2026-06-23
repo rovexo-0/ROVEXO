@@ -9,16 +9,17 @@ describe("official header design", () => {
     expect(ROVEXO_LOGO_DIMENSIONS.compactHeight).toBeGreaterThan(0);
   });
 
-  it("implements premium glass search bar with assistant actions", () => {
+  it("implements Apple-style tap-to-search bar with left icon only", () => {
     const source = readFileSync(
       path.join(process.cwd(), "components/header/HeaderSearchBar.tsx"),
       "utf8",
     );
-    expect(source).toContain("Search for anything...");
+    expect(source).toContain("Search ROVEXO...");
     expect(source).toContain('data-header-search="bar"');
-    expect(source).toContain("openSearchOverlay");
-    expect(source).toContain("/assistant");
-    expect(source).toContain("premium-glass");
+    expect(source).toContain('href="/search"');
+    expect(source).toContain("header-search-bar-2026");
+    expect(source).not.toContain("premium-glass");
+    expect(source).not.toContain("/assistant");
   });
 
   it("keeps logo, centered search, messages, notifications and profile on the same top row", () => {
