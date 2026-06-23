@@ -530,6 +530,26 @@
   height: var(--ds-bottom-nav-icon);
 }
 
+.bottom-nav-icon-3d--tab {
+  width: 31px;
+  height: 31px;
+}
+
+.bottom-nav-icon-3d--tab .bottom-nav-item-2026__icon {
+  width: 31px;
+  height: 31px;
+}
+
+.bottom-nav-sell-2026 .bottom-nav-icon-3d--sell-inner {
+  width: var(--ds-bottom-nav-icon);
+  height: var(--ds-bottom-nav-icon);
+}
+
+.bottom-nav-sell-2026 .bottom-nav-icon-3d--sell-inner .bottom-nav-item-2026__icon {
+  width: var(--ds-bottom-nav-icon);
+  height: var(--ds-bottom-nav-icon);
+}
+
 .bottom-nav-icon-3d {
   display: inline-flex;
   align-items: center;

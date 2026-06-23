@@ -56,7 +56,7 @@ function NavLink({
       onClick={onNavigate}
       className={cn("bottom-nav-item-2026", focusRing, transitionFast)}
     >
-      <BottomNavIcon3D type={item.id} active={isActive} />
+      <BottomNavIcon3D type={item.id} active={isActive} size="tab" />
       <span className="bottom-nav-item-2026__label">{item.label}</span>
     </Link>
   );
@@ -107,7 +107,7 @@ export function BottomNavigation({
               className={cn("bottom-nav-item-2026 bottom-nav-item-2026--sell", focusRing, transitionFast)}
             >
               <span className="bottom-nav-sell-2026">
-                <BottomNavIcon3D type="sell" active={isSellActive} />
+                <BottomNavIcon3D type="sell" active={isSellActive} size="sell" />
               </span>
               <span className="bottom-nav-item-2026__label">Sell</span>
             </Link>
