@@ -59,7 +59,10 @@ export async function updatePlatformSetting(input: {
     action: "platform_settings.update",
     resourceType: "platform_settings",
     resourceId: input.key,
-    metadata: input.value,
+    metadata:
+      typeof input.value === "object" && input.value !== null && !Array.isArray(input.value)
+        ? (input.value as Record<string, unknown>)
+        : { value: input.value },
   });
 }
 
