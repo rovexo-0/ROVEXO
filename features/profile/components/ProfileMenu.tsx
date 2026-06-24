@@ -15,6 +15,7 @@ import {
   BUYER_NAV,
   SELLER_NAV,
   SHARED_NAV,
+  getNavigationSections,
   type NavLink,
 } from "@/lib/navigation/map";
 import { BETA_VERSION } from "@/lib/beta/roadmap";
@@ -110,7 +111,14 @@ export function ProfileMenu({ profile }: ProfileMenuProps) {
 
         <MenuSection title="Account" links={sharedLinks} />
 
-        {profile.isAdmin ? <MenuSection title="Administration" links={ADMIN_NAV} /> : null}
+        {profile.isSuperAdmin ? (
+          <MenuSection
+            title="Super Admin"
+            links={getNavigationSections(profile).find((section) => section.id === "super-admin")?.links ?? []}
+          />
+        ) : profile.isAdmin ? (
+          <MenuSection title="Administration" links={ADMIN_NAV} />
+        ) : null}
 
         <div className="border-t border-border">
           <ProfileMenuRow

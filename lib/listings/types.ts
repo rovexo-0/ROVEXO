@@ -72,6 +72,10 @@ export type CreateListingInput = {
   categoryId?: string | null;
   deliveryCarriers?: string[];
   status?: ProductStatus;
+  listingType?: "fixed" | "auction";
+  auctionStartPrice?: number;
+  reservePrice?: number | null;
+  auctionEndsAt?: string | null;
   inventory?: {
     sku?: string | null;
     stock: number;

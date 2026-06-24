@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiRole } from "@/lib/auth/session";
+import { requireApiAdmin } from "@/lib/auth/session";
 import {
   adminAdjustTrustScore,
   adminSetTrustScore,
@@ -46,7 +46,7 @@ const adminSchema = z.discriminatedUnion("action", [
 ]);
 
 export async function GET() {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   const [summary, pending, audit] = await Promise.all([
@@ -59,7 +59,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   try {

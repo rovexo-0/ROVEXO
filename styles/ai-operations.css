@@ -1,0 +1,68 @@
+.ai-ops-center {
+  animation: ai-ops-fade-in 0.45s var(--ds-ease, ease) both;
+}
+
+.ai-ops-hero {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ds-glass-bg, #fff) 92%, rgb(37 99 235 / 8%)),
+    color-mix(in srgb, var(--ds-glass-bg, #fff) 88%, rgb(59 130 246 / 6%))
+  );
+  box-shadow: var(--ds-depth-3, 0 20px 50px rgb(15 23 42 / 10%));
+}
+
+.ai-ops-section {
+  position: relative;
+}
+
+.ai-ops-section::before {
+  content: "";
+  position: absolute;
+  inset: -12px -8px auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(37 99 235 / 20%), transparent);
+  pointer-events: none;
+}
+
+.ai-ops-card {
+  transition:
+    transform var(--ds-duration-normal, 220ms) var(--ds-ease-spring, ease),
+    box-shadow var(--ds-duration-normal, 220ms) ease;
+}
+
+.ai-ops-assistant {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ds-glass-bg, #fff) 95%, rgb(37 99 235 / 6%)),
+    var(--ds-glass-bg, #fff)
+  );
+}
+
+@keyframes ai-ops-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-theme="dark"] .ai-ops-hero {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ds-glass-bg, #0f172a) 92%, rgb(37 99 235 / 12%)),
+    color-mix(in srgb, var(--ds-glass-bg, #0f172a) 88%, rgb(30 64 175 / 10%))
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-ops-center {
+    animation: none;
+  }
+
+  .ai-ops-card:hover {
+    transform: none;
+  }
+}

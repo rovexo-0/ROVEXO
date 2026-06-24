@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireApiRole } from "@/lib/auth/session";
+import { requireApiAdmin } from "@/lib/auth/session";
 import {
   deleteAdminCategory,
   deleteCategoryFilter,
@@ -13,7 +13,7 @@ import {
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   const { id } = await context.params;
@@ -27,7 +27,7 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   const { id } = await context.params;
@@ -86,7 +86,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 }
 
 export async function DELETE(_request: Request, context: RouteContext) {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   const { id } = await context.params;

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
-import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
+import { requireApiAuth, requireApiAdmin } from "@/lib/auth/session";
 import { recordPlatformAnalyticsEvent } from "@/lib/platform-analytics/events";
 import { getPlatformAnalyticsSnapshot } from "@/lib/platform-analytics/service";
 
@@ -13,7 +13,7 @@ const eventSchema = z.object({
 });
 
 export async function GET() {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   const snapshot = await getPlatformAnalyticsSnapshot();

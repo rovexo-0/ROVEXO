@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getUserRole, requireApiAuth } from "@/lib/auth/session";
+import { getUserRole, isPlatformAdminRole, requireApiAuth } from "@/lib/auth/session";
 import { applyOrderAction, getOrderById } from "@/lib/orders/store";
 import { canPerformOrderAction } from "@/lib/orders/role";
 import type { AddTrackingInput, OrderAction } from "@/lib/orders/types";
@@ -54,7 +54,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     const role = await getUserRole(auth.user.id);
-    if (!canPerformOrderAction(body.action, existing, auth.user.id, role === "admin")) {
+    if (!canPerformOrderAction(body.action, existing, auth.user.id, isPlatformAdminRole(role ?? "buyer"))) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

@@ -11,14 +11,21 @@ export async function GET() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("full_name, avatar_url")
+    .select("id, email, role, full_name, avatar_url")
     .eq("id", auth.user.id)
     .maybeSingle();
 
+  if (!data) {
+    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+  }
+
   return NextResponse.json({
     profile: {
-      fullName: data?.full_name ?? "Account",
-      avatarUrl: data?.avatar_url ?? null,
+      id: data.id,
+      email: data.email,
+      role: data.role,
+      fullName: data.full_name,
+      avatarUrl: data.avatar_url ?? null,
     },
   });
 }

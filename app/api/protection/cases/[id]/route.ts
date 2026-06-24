@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getUserRole, requireApiAuth } from "@/lib/auth/session";
+import { getUserRole, isPlatformAdminRole, requireApiAuth } from "@/lib/auth/session";
 import {
   addProtectionEvidence,
   getProtectionCase,
@@ -22,7 +22,11 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Case not found." }, { status: 404 });
   }
 
-  if (caseRecord.buyerId !== auth.user.id && caseRecord.sellerId !== auth.user.id && role !== "admin") {
+  if (
+    caseRecord.buyerId !== auth.user.id &&
+    caseRecord.sellerId !== auth.user.id &&
+    !isPlatformAdminRole(role ?? "buyer")
+  ) {
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
 
@@ -54,7 +58,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       : NextResponse.json({ error: "Failed to submit appeal." }, { status: 500 });
   }
 
-  if (body.action === "resolve" && role === "admin") {
+  if (body.action === "resolve" && isPlatformAdminRole(role ?? "buyer")) {
     const updated = await resolveProtectionCase({
       caseId: id,
       adminId: auth.user.id,
@@ -78,7 +82,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (
       caseRecord.buyerId !== auth.user.id &&
       caseRecord.sellerId !== auth.user.id &&
-      role !== "admin"
+      !isPlatformAdminRole(role ?? "buyer")
     ) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }

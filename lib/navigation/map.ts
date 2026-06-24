@@ -1,4 +1,5 @@
 import type { UserProfile } from "@/lib/profile/types";
+import { SUPER_ADMIN_PRIMARY_NAV } from "@/lib/super-admin/nav";
 
 export type NavLink = {
   href: string;
@@ -48,6 +49,12 @@ export const SHARED_NAV: NavLink[] = [
   { href: "/help/policies", label: "Policies", subtitle: "Terms & platform rules" },
 ];
 
+export const SUPER_ADMIN_NAV_LINK: NavLink = {
+  href: "/super-admin",
+  label: "Super Admin",
+  subtitle: "Platform control centre",
+};
+
 export const ADMIN_NAV: NavLink[] = [
   { href: "/admin", label: "Admin Dashboard", subtitle: "Orders & promotions overview" },
   { href: "/admin/operations", label: "Production Operations", subtitle: "Health, cron & errors" },
@@ -90,7 +97,17 @@ export function getNavigationSections(profile: UserProfile) {
 
   sections.push({ id: "shared", title: "Account", links: SHARED_NAV });
 
-  if (profile.isAdmin) {
+  if (profile.isSuperAdmin) {
+    sections.push({
+      id: "super-admin",
+      title: "Super Admin",
+      links: SUPER_ADMIN_PRIMARY_NAV.map((item) => ({
+        href: item.href,
+        label: item.label,
+        subtitle: item.description,
+      })),
+    });
+  } else if (profile.isAdmin) {
     sections.push({ id: "admin", title: "Administration", links: ADMIN_NAV });
   }
 
@@ -123,4 +140,5 @@ export const ALL_PUBLIC_ROUTES = [
   "/seller/dashboard",
   "/business/dashboard",
   "/admin",
+  "/super-admin",
 ] as const;

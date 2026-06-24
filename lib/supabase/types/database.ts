@@ -78,6 +78,29 @@ export type Database = {
           },
         ]
       }
+      auction_launch_subscribers: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auction_launch_subscribers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brands: {
         Row: {
           created_at: string
@@ -1339,6 +1362,70 @@ export type Database = {
           },
         ]
       }
+      platform_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_entitlements: {
+        Row: {
+          company_verified: boolean
+          lifetime_premium: boolean
+          premium: boolean
+          promotion_credits: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_verified?: boolean
+          lifetime_premium?: boolean
+          premium?: boolean
+          promotion_credits?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_verified?: boolean
+          lifetime_premium?: boolean
+          premium?: boolean
+          promotion_credits?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_entitlements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           accept_offers: boolean
@@ -1505,34 +1592,46 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string
           avatar_url: string | null
           created_at: string
+          deleted_at: string | null
           email: string
           full_name: string
           id: string
           role: Database["public"]["Enums"]["user_role"]
+          suspended_at: string | null
+          suspended_reason: string | null
           updated_at: string
           username: string
           verified: boolean
         }
         Insert: {
+          account_status?: string
           avatar_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           email: string
           full_name: string
           id: string
           role?: Database["public"]["Enums"]["user_role"]
+          suspended_at?: string | null
+          suspended_reason?: string | null
           updated_at?: string
           username: string
           verified?: boolean
         }
         Update: {
+          account_status?: string
           avatar_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           email?: string
           full_name?: string
           id?: string
           role?: Database["public"]["Enums"]["user_role"]
+          suspended_at?: string | null
+          suspended_reason?: string | null
           updated_at?: string
           username?: string
           verified?: boolean
@@ -1758,6 +1857,7 @@ export type Database = {
           follower_count: number
           id: string
           listing_count: number
+          listing_limit: number | null
           rating: number
           review_count: number
           sales_count: number
@@ -1771,6 +1871,7 @@ export type Database = {
           follower_count?: number
           id: string
           listing_count?: number
+          listing_limit?: number | null
           rating?: number
           review_count?: number
           sales_count?: number
@@ -1784,6 +1885,7 @@ export type Database = {
           follower_count?: number
           id?: string
           listing_count?: number
+          listing_limit?: number | null
           rating?: number
           review_count?: number
           sales_count?: number
@@ -3103,7 +3205,7 @@ export type Database = {
         | "manufacturer"
         | "supplier"
         | "document"
-      user_role: "buyer" | "seller" | "business" | "admin"
+      user_role: "buyer" | "seller" | "business" | "admin" | "super_admin"
       wholesale_account_type:
         | "wholesale"
         | "manufacturer"
@@ -3316,7 +3418,7 @@ export const Constants = {
         "supplier",
         "document",
       ],
-      user_role: ["buyer", "seller", "business", "admin"],
+      user_role: ["buyer", "seller", "business", "admin", "super_admin"],
       wholesale_account_type: [
         "wholesale",
         "manufacturer",

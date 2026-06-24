@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiRole } from "@/lib/auth/session";
+import { requireApiAdmin } from "@/lib/auth/session";
 import {
   adminActivatePromotion,
   adminExpirePromotion,
@@ -15,7 +15,7 @@ const actionSchema = z.object({
 });
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   const { id } = await context.params;

@@ -44,6 +44,10 @@ const listingSchema = z.object({
     })
     .optional(),
   images: z.array(imageSchema).min(1).max(8),
+  listingType: z.enum(["fixed", "auction"]).optional(),
+  auctionStartPrice: z.number().positive().optional(),
+  reservePrice: z.number().positive().optional().nullable(),
+  auctionEndsAt: z.string().datetime().optional().nullable(),
 });
 
 const FILTERS: ListingFilter[] = [
@@ -87,6 +91,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Category is required." }, { status: 400 });
     }
 
+    if (body.listingType === "auction") {
+      return NextResponse.json(
+        { error: "Auctions are coming soon. Fixed-price listings only." },
+        { status: 403 },
+      );
+    }
+
     const categoryId = await resolveListingCategoryId(body.categoryPath);
 
     if (body.inventory) {
@@ -110,6 +121,10 @@ export async function POST(request: Request) {
       categoryId,
       deliveryCarriers: body.deliveryCarriers,
       status: body.status ?? "published",
+      listingType: body.listingType,
+      auctionStartPrice: body.auctionStartPrice,
+      reservePrice: body.reservePrice,
+      auctionEndsAt: body.auctionEndsAt,
       inventory: body.inventory
         ? {
             sku: body.inventory.sku?.trim() || null,

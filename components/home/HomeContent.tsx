@@ -23,7 +23,6 @@ type HomeContentProps = {
   popularHasMore: boolean;
   recommended: Product[];
   newest: Product[];
-  auctions: Product[];
   loadError?: boolean;
 };
 
@@ -47,7 +46,6 @@ export const HomeContent = memo(function HomeContent({
   popularHasMore: initialPopularHasMore,
   recommended,
   newest,
-  auctions,
   loadError = false,
 }: HomeContentProps) {
   const [popular, setPopular] = useState(initialPopular);
@@ -212,7 +210,7 @@ export const HomeContent = memo(function HomeContent({
           footer={<div ref={loadMorePopularRef} className="h-ds-2" aria-hidden />}
         />
 
-        <AuctionsSection products={auctions} loading={showSkeletons} error={sectionError} />
+        <AuctionsSection />
 
         <HomeRecentlyViewedCarousel />
       </main>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Card } from "@/components/ui/Card";
 import { ProtectionCaseActions } from "@/features/protection/components/ProtectionCaseActions";
-import { requireAuthContext, getUserRole } from "@/lib/auth/session";
+import { getUserRole, isPlatformAdminRole, requireAuthContext } from "@/lib/auth/session";
 import { getProtectionCase, listProtectionCaseEvents } from "@/lib/protection/service";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
@@ -31,7 +31,11 @@ export default async function ResolutionCasePage({ params }: ResolutionCasePageP
     notFound();
   }
 
-  if (caseRecord.buyerId !== auth.user.id && caseRecord.sellerId !== auth.user.id && role !== "admin") {
+  if (
+    caseRecord.buyerId !== auth.user.id &&
+    caseRecord.sellerId !== auth.user.id &&
+    !isPlatformAdminRole(role ?? "buyer")
+  ) {
     notFound();
   }
 
@@ -61,7 +65,11 @@ export default async function ResolutionCasePage({ params }: ResolutionCasePageP
           )}
         </Card>
 
-        <ProtectionCaseActions caseId={caseRecord.id} isAdmin={role === "admin"} status={caseRecord.status} />
+        <ProtectionCaseActions
+          caseId={caseRecord.id}
+          isAdmin={isPlatformAdminRole(role ?? "buyer")}
+          status={caseRecord.status}
+        />
 
         <section className="mt-ds-8">
           <h2 className="text-lg font-semibold">Case timeline</h2>

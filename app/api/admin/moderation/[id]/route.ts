@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiRole } from "@/lib/auth/session";
+import { requireApiAdmin } from "@/lib/auth/session";
 import { overrideModerationDecision, resolveModerationQueueItem } from "@/lib/moderation/service";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -12,7 +12,7 @@ const actionSchema = z.object({
 });
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   try {

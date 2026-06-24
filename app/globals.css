@@ -1,7 +1,4 @@
 @import "tailwindcss";
-@import "../styles/tokens.css";
-@import "../styles/premium-2026.css";
-@import "../styles/locked-2026.css";
 
 @theme inline {
   --color-primary: var(--ds-color-primary);

@@ -21,9 +21,7 @@ type SellerListingsRouteProps = {
 
 export default async function SellerListingsRoute({ searchParams }: SellerListingsRouteProps) {
   const profile = await getProfile();
-  const role = profile.accountType;
-
-  if (role !== "seller" && role !== "business" && role !== "admin") {
+  if (!profile.isSeller) {
     redirect("/account");
   }
 

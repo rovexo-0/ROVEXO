@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { requireApiRole } from "@/lib/auth/session";
+import { requireApiAdmin } from "@/lib/auth/session";
 import { listModerationAuditLogs, listModerationQueue } from "@/lib/moderation/service";
 
 export async function GET(request: Request) {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   const { searchParams } = new URL(request.url);

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireApiRole } from "@/lib/auth/session";
+import { requireApiAdmin } from "@/lib/auth/session";
 import {
   createAdminCategory,
   listAdminCategories,
@@ -7,7 +7,7 @@ import {
 } from "@/lib/categories/admin";
 
 export async function GET() {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   const categories = await listAdminCategories();
@@ -15,7 +15,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   const body = (await request.json()) as {

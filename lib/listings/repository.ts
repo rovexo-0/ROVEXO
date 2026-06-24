@@ -308,6 +308,9 @@ export async function createSellerListing(
   const sections: ProductSection[] =
     status === "published" ? ["new", "trending", "recommended"] : [];
 
+  const isAuction = input.listingType === "auction";
+  const auctionStart = input.auctionStartPrice ?? input.price;
+
   const { data: product, error } = await supabase
     .from("products")
     .insert({
@@ -320,14 +323,21 @@ export async function createSellerListing(
       color: input.color,
       size: input.size,
       condition: input.condition,
-      price: input.price,
-      accept_offers: input.acceptOffers,
+      price: isAuction ? (input.price > auctionStart ? input.price : auctionStart) : input.price,
+      accept_offers: isAuction ? input.price > auctionStart : input.acceptOffers,
       delivery_carriers: input.deliveryCarriers ?? ["Royal Mail", "Evri"],
       status,
       stock,
       sku: input.inventory?.sku,
       low_stock_alert: input.inventory?.lowStockAlert ?? 5,
       sections,
+      listing_type: input.listingType ?? "fixed",
+      auction_start_price: isAuction ? auctionStart : null,
+      auction_starts_at: isAuction ? new Date().toISOString() : null,
+      auction_ends_at: isAuction ? input.auctionEndsAt ?? null : null,
+      reserve_price: isAuction ? input.reservePrice ?? null : null,
+      current_bid: isAuction ? auctionStart : null,
+      bid_count: isAuction ? 0 : undefined,
     })
     .select("id")
     .single();

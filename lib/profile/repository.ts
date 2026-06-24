@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/lib/supabase/types/database";
 import type { UserProfile } from "@/lib/profile/types";
 import type { AccountType } from "@/lib/profile/account";
-import { isSellerRole } from "@/lib/auth/session";
+import { isAdmin, isSellerRole, isSuperAdmin } from "@/lib/auth/session";
 
 function formatMemberSince(isoDate: string): string {
   return new Intl.DateTimeFormat("en-GB", {
@@ -17,8 +17,9 @@ function mapProfileRow(
   unreadMessages: number,
   unreadNotifications: number,
 ): UserProfile {
-  const accountType = profile.role as AccountType | "admin";
-  const isSeller = isSellerRole(profile.role);
+  const accountType: AccountType =
+    profile.role === "admin" ? "business" : (profile.role as AccountType);
+  const seller = isSellerRole(profile.role);
 
   return {
     id: profile.id,
@@ -28,9 +29,11 @@ function mapProfileRow(
     avatarUrl: profile.avatar_url,
     verified: profile.verified,
     memberSince: formatMemberSince(profile.created_at),
-    accountType: accountType === "admin" ? "business" : accountType,
-    isSeller,
-    isAdmin: profile.role === "admin",
+    role: profile.role,
+    accountType,
+    isSeller: seller,
+    isAdmin: isAdmin(profile.role),
+    isSuperAdmin: isSuperAdmin(profile.role),
     sellerStats: sellerProfile
       ? {
           listings: sellerProfile.listing_count,
@@ -57,8 +60,7 @@ async function countUnreadMessages(
     return 0;
   }
 
-  const isSellerViewer =
-    role === "seller" || role === "business" || role === "admin";
+  const isSellerViewer = isSellerRole(role);
 
   return conversations.reduce((sum, conversation) => {
     if (conversation.buyer_id === userId) {

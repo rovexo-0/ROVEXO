@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireApiRole } from "@/lib/auth/session";
+import { requireApiAdmin } from "@/lib/auth/session";
 import { adminUpdateOrderStatus } from "@/lib/admin/queries";
 import type { OrderStatus } from "@/lib/orders/types";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) {
     return auth;
   }

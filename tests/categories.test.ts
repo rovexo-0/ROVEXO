@@ -91,6 +91,10 @@ describe("marketplace category tree", () => {
     const flat = resolveCategoryPathBySlugs(["phones", "smartphones", "unlocked-phones"]);
     expect(flat?.pathLabel).toContain("Phones");
     expect(flat?.segments.at(-1)?.slug).toBe("unlocked-phones");
+
+    expect(resolveCategoryPathBySlugs(["tools", "power-tools", "drills"])).not.toBeNull();
+    expect(resolveCategoryPathBySlugs(["car-parts", "wheels-tyres", "tyres"])).not.toBeNull();
+    expect(resolveCategoryPathBySlugs(["electronics", "tv-video", "televisions"])).not.toBeNull();
   });
 
   it("keeps legacy flatten helper working", () => {

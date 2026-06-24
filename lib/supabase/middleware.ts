@@ -16,9 +16,19 @@ const PROTECTED_PREFIXES = [
   "/seller",
   "/business",
   "/admin",
+  "/super-admin",
+  "/dashboard",
+];
+
+const SUPER_ADMIN_ROUTE_PREFIXES = [
+  "/admin",
+  "/super-admin",
+  "/dashboard",
 ];
 
 const AUTH_ONLY_WHEN_SIGNED_OUT = ["/login", "/register", "/forgot-password"];
+
+type UserRole = Database["public"]["Enums"]["user_role"];
 
 type PendingCookie = {
   name: string;
@@ -31,6 +41,34 @@ function applyPendingCookies(response: NextResponse, pendingCookies: PendingCook
     response.cookies.set(name, value, options);
   });
   return response;
+}
+
+function matchesRoutePrefix(pathname: string, prefixes: string[]): boolean {
+  return prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+async function getProfileRole(
+  supabase: ReturnType<typeof createServerClient<Database>>,
+  userId: string,
+): Promise<UserRole | null> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  return data?.role ?? null;
+}
+
+function forbiddenPageRedirect(request: NextRequest, pendingCookies: PendingCookie[]) {
+  const forbiddenUrl = request.nextUrl.clone();
+  forbiddenUrl.pathname = "/403";
+  forbiddenUrl.search = "";
+  return applyPendingCookies(NextResponse.redirect(forbiddenUrl), pendingCookies);
+}
+
+function forbiddenApiResponse() {
+  return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 }
 
 export async function updateSession(request: NextRequest) {
@@ -60,6 +98,18 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+
+  if (
+    pathname === "/sell/auction" ||
+    pathname.startsWith("/sell/auction/") ||
+    (pathname.startsWith("/auctions/") && pathname !== "/auctions")
+  ) {
+    const auctionsUrl = request.nextUrl.clone();
+    auctionsUrl.pathname = "/auctions";
+    auctionsUrl.search = "";
+    return applyPendingCookies(NextResponse.redirect(auctionsUrl), pendingCookies);
+  }
+
   const isProtected = PROTECTED_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
@@ -111,6 +161,28 @@ export async function updateSession(request: NextRequest) {
     loginUrl.searchParams.set("next", "/reset-password");
     loginUrl.searchParams.set("error", "reset_session_required");
     return applyPendingCookies(NextResponse.redirect(loginUrl), pendingCookies);
+  }
+
+  if (user) {
+    const role = await getProfileRole(supabase, user.id);
+
+    if (pathname.startsWith("/api/super-admin/") && role !== "super_admin") {
+      return forbiddenApiResponse();
+    }
+
+    if (
+      pathname.startsWith("/api/admin/") &&
+      role !== "super_admin" &&
+      role !== "admin"
+    ) {
+      return forbiddenApiResponse();
+    }
+
+    if (!isApiRoute && matchesRoutePrefix(pathname, SUPER_ADMIN_ROUTE_PREFIXES)) {
+      if (role !== "super_admin") {
+        return forbiddenPageRedirect(request, pendingCookies);
+      }
+    }
   }
 
   return applyPendingCookies(supabaseResponse, pendingCookies);

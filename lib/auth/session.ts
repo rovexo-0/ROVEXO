@@ -2,6 +2,20 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/lib/supabase/types/database";
 import type { User } from "@supabase/supabase-js";
+import {
+  isAdmin,
+  isSeller,
+  isSuperAdmin,
+  type ProfileAuthFields,
+} from "@/lib/auth/roles";
+
+export {
+  isAdmin,
+  isAuthenticated,
+  isSeller,
+  isSuperAdmin,
+  type ProfileAuthFields,
+} from "@/lib/auth/roles";
 
 export type AuthContext = {
   supabase: Awaited<ReturnType<typeof createClient>>;
@@ -16,6 +30,20 @@ export async function getAuthContext(): Promise<AuthContext | null> {
   } = await supabase.auth.getUser();
 
   if (error || !user) {
+    return null;
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("account_status")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.account_status === "suspended") {
+    return null;
+  }
+
+  if (profile?.account_status === "deleted") {
     return null;
   }
 
@@ -90,17 +118,62 @@ export class AuthError extends Error {
 }
 
 export function isSellerRole(role: UserRole): boolean {
-  return role === "seller" || role === "business" || role === "admin";
+  return isSeller(role);
 }
 
 export function isBusinessRole(role: UserRole): boolean {
-  return role === "business" || role === "admin";
+  return role === "business" || isAdmin(role);
 }
 
-export async function requireAdmin(): Promise<AuthContext & { role: "admin" }> {
-  return requireRole(["admin"]) as Promise<AuthContext & { role: "admin" }>;
+export function isSuperAdminRole(role: UserRole): boolean {
+  return isSuperAdmin(role);
 }
 
-export async function requireApiAdmin(): Promise<(AuthContext & { role: "admin" }) | NextResponse> {
-  return requireApiRole(["admin"]) as Promise<(AuthContext & { role: "admin" }) | NextResponse>;
+export function isPlatformAdminRole(role: UserRole): boolean {
+  return isAdmin(role);
+}
+
+export async function getProfileAuthFields(userId: string): Promise<ProfileAuthFields | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id, email, role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!data?.role) return null;
+
+  return {
+    id: data.id,
+    email: data.email,
+    role: data.role,
+  };
+}
+
+export async function requireSuperAdmin(): Promise<AuthContext & { role: "super_admin" }> {
+  return requireRole(["super_admin"]) as Promise<AuthContext & { role: "super_admin" }>;
+}
+
+export async function requireApiSuperAdmin(): Promise<
+  (AuthContext & { role: "super_admin" }) | NextResponse
+> {
+  return requireApiRole(["super_admin"]) as Promise<
+    (AuthContext & { role: "super_admin" }) | NextResponse
+  >;
+}
+
+export async function requireAdmin(): Promise<
+  AuthContext & { role: "admin" | "super_admin" }
+> {
+  return requireRole(["admin", "super_admin"]) as Promise<
+    AuthContext & { role: "admin" | "super_admin" }
+  >;
+}
+
+export async function requireApiAdmin(): Promise<
+  (AuthContext & { role: "admin" | "super_admin" }) | NextResponse
+> {
+  return requireApiRole(["admin", "super_admin"]) as Promise<
+    (AuthContext & { role: "admin" | "super_admin" }) | NextResponse
+  >;
 }

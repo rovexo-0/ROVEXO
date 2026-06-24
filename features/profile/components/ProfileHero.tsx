@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { MotionDiv } from "@/components/ui/motion";
 import { Rating } from "@/components/ui/Rating";
 import { VerifiedIcon } from "@/features/product-detail/icons";
+import { SuperAdminBadge } from "@/features/auth/components/SuperAdminBadge";
 import type { UserProfile } from "@/lib/profile/types";
 
 type ProfileHeroProps = {
@@ -25,12 +26,14 @@ export function ProfileHero({ profile }: ProfileHeroProps) {
           />
         </div>
 
-        {profile.verified && (
+        {profile.isSuperAdmin ? (
+          <SuperAdminBadge />
+        ) : profile.verified ? (
           <Badge variant="success" className="gap-ds-1">
             <VerifiedIcon className="h-3.5 w-3.5" />
             Verified seller
           </Badge>
-        )}
+        ) : null}
 
         <div className="flex w-full flex-col gap-ds-1">
           <h2 id="profile-name" className="truncate text-xl font-semibold text-text-primary">

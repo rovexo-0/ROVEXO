@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ProductDetailPage } from "@/features/product-detail/ProductDetailPage";
 import { incrementProductViews } from "@/lib/listings/repository";
 import { fetchProductBySlug, fetchSimilarProducts } from "@/lib/products/queries";
@@ -56,6 +56,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
 
   if (!product) {
     notFound();
+  }
+
+  if (product.listingType === "auction") {
+    redirect("/auctions");
   }
 
   const [breadcrumbs, initialIsSaved, sellerTrust] = await Promise.all([

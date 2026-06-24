@@ -12,9 +12,7 @@ type EditListingRouteProps = {
 
 export default async function EditListingRoute({ params }: EditListingRouteProps) {
   const profile = await getProfile();
-  const role = profile.accountType;
-
-  if (role !== "seller" && role !== "business" && role !== "admin") {
+  if (!profile.isSeller) {
     redirect("/account");
   }
 

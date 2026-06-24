@@ -9,10 +9,11 @@ import { uploadListingImage, deleteListingImage } from "@/lib/listings/upload-cl
 import { buildPublishDescription } from "@/lib/sell/publish-description";
 import { deliveryCarriersForMethod } from "@/lib/sell/delivery";
 import {
+  detectCategoryFromTitle,
   shouldAutoSelectCategory,
-  suggestCategoryFromTitle,
-  type TitleCategorySuggestion,
-} from "@/lib/sell/suggest-category-from-title";
+  type CategoryDetectionResult,
+} from "@/lib/sell/category-detection-pro";
+import { logCategoryManualOverride } from "@/lib/sell/category-detection-learning";
 import type { SellListingMode } from "@/lib/profile/account";
 import {
   createEmptyDraft,
@@ -27,7 +28,7 @@ type UseSellFormOptions = {
   initialDraft?: SellListingDraft;
 };
 
-const TITLE_CATEGORY_DEBOUNCE_MS = 400;
+const TITLE_CATEGORY_DEBOUNCE_MS = 80;
 
 export function useSellForm(options: UseSellFormOptions = {}) {
   const { listingMode = "advanced", editListingId, initialDraft } = options;
@@ -39,12 +40,19 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     return stored ? { ...createEmptyDraft(), ...stored } : createEmptyDraft();
   });
   const [formError, setFormError] = useState<string | null>(null);
-  const [categorySuggestions, setCategorySuggestions] = useState<TitleCategorySuggestion[]>([]);
+  const [categoryDetection, setCategoryDetection] = useState<CategoryDetectionResult>({
+    suggestions: [],
+    top: null,
+    tier: "none",
+  });
+  const [categoryDetectionDismissed, setCategoryDetectionDismissed] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
   const [draftSavedMessage, setDraftSavedMessage] = useState<string | null>(null);
-  const categoryLockedRef = useRef(Boolean(initialDraft?.categoryPath));
+  const userOverrodeCategoryRef = useRef(Boolean(initialDraft?.categoryPath));
+  const lastAiTopPathIdRef = useRef<string | null>(null);
+  const lastAiAppliedPathIdRef = useRef<string | null>(null);
   const titleCategoryTimerRef = useRef<number | null>(null);
   const uploadSessionRef = useRef(crypto.randomUUID());
   const [removedImageIds, setRemovedImageIds] = useState<string[]>([]);
@@ -184,17 +192,34 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     }
 
     titleCategoryTimerRef.current = window.setTimeout(() => {
-      const suggestions = suggestCategoryFromTitle(draft.title);
-      setCategorySuggestions(suggestions);
+      const detection = detectCategoryFromTitle(draft.title);
+      setCategoryDetection(detection);
+      setCategoryDetectionDismissed(false);
+      lastAiTopPathIdRef.current = detection.top
+        ? `${detection.top.path.categorySlug}:${detection.top.path.subcategorySlug}:${detection.top.path.childCategorySlug ?? ""}`
+        : null;
 
-      if (categoryLockedRef.current) return;
+      if (userOverrodeCategoryRef.current) return;
 
-      const autoSelect = shouldAutoSelectCategory(suggestions);
+      const autoSelect = shouldAutoSelectCategory(detection.suggestions);
       if (autoSelect) {
-        setDraft((current) =>
-          current.categoryPath ? current : { ...current, categoryPath: autoSelect.path },
-        );
+        const nextPathId = `${autoSelect.path.categorySlug}:${autoSelect.path.subcategorySlug}:${autoSelect.path.childCategorySlug ?? ""}`;
+        lastAiAppliedPathIdRef.current = nextPathId;
+        setDraft((current) => ({ ...current, categoryPath: autoSelect.path }));
+        return;
       }
+
+      const appliedPathId = lastAiAppliedPathIdRef.current;
+      if (!appliedPathId) return;
+
+      setDraft((current) => {
+        const currentPathId = current.categoryPath
+          ? `${current.categoryPath.categorySlug}:${current.categoryPath.subcategorySlug}:${current.categoryPath.childCategorySlug ?? ""}`
+          : null;
+        if (currentPathId !== appliedPathId) return current;
+        lastAiAppliedPathIdRef.current = null;
+        return { ...current, categoryPath: null };
+      });
     }, TITLE_CATEGORY_DEBOUNCE_MS);
 
     return () => {
@@ -208,9 +233,55 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     setDraft((current) => ({ ...current, ...patch }));
   }, []);
 
-  const setCategoryPath = useCallback((categoryPath: FlatCategoryPath) => {
-    categoryLockedRef.current = true;
-    setDraft((current) => ({ ...current, categoryPath }));
+  const setCategoryPath = useCallback(
+    (categoryPath: FlatCategoryPath, source: "manual" | "confirm" = "manual") => {
+      if (source === "manual") {
+        userOverrodeCategoryRef.current = true;
+      }
+
+      setDraft((current) => {
+        const nextPathId = `${categoryPath.categorySlug}:${categoryPath.subcategorySlug}:${categoryPath.childCategorySlug ?? ""}`;
+
+        if (
+          source === "manual" &&
+          categoryDetection.top &&
+          lastAiTopPathIdRef.current &&
+          lastAiTopPathIdRef.current !== nextPathId
+        ) {
+          void logCategoryManualOverride({
+            title: current.title,
+            suggestedPath: categoryDetection.top.path,
+            chosenPath: categoryPath,
+            confidence: categoryDetection.top.confidence,
+            tier: categoryDetection.tier,
+          });
+        }
+
+        return { ...current, categoryPath };
+      });
+    },
+    [categoryDetection],
+  );
+
+  const confirmSuggestedCategory = useCallback(() => {
+    if (!categoryDetection.top) return;
+    setCategoryPath(categoryDetection.top.path, "confirm");
+  }, [categoryDetection, setCategoryPath]);
+
+  const dismissCategoryDetection = useCallback(() => {
+    setCategoryDetectionDismissed(true);
+    if (categoryDetection.top && draft.categoryPath) {
+      const currentPathId = `${draft.categoryPath.categorySlug}:${draft.categoryPath.subcategorySlug}:${draft.categoryPath.childCategorySlug ?? ""}`;
+      const aiPathId = `${categoryDetection.top.path.categorySlug}:${categoryDetection.top.path.subcategorySlug}:${categoryDetection.top.path.childCategorySlug ?? ""}`;
+      if (currentPathId === aiPathId) {
+        userOverrodeCategoryRef.current = true;
+        setDraft((current) => ({ ...current, categoryPath: null }));
+      }
+    }
+  }, [categoryDetection, draft.categoryPath]);
+
+  const openCategoryPickerForChange = useCallback(() => {
+    userOverrodeCategoryRef.current = true;
   }, []);
 
   const saveDraft = useCallback(() => {
@@ -311,7 +382,8 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     view,
     draft,
     formError,
-    categorySuggestions,
+    categoryDetection,
+    categoryDetectionDismissed,
     isPublishing,
     uploadProgress,
     publishedSlug,
@@ -325,6 +397,9 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     retryPhotoUpload,
     updateDraft,
     setCategoryPath,
+    confirmSuggestedCategory,
+    dismissCategoryDetection,
+    openCategoryPickerForChange,
     saveDraft,
     publishListing,
   };

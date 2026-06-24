@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { toPathId } from "@/lib/categories/queries";
 import { getSellCurrencyConfig } from "@/lib/sell/currency";
 import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicker";
-import { TitleCategorySuggestions } from "@/features/sell/components/TitleCategorySuggestions";
+import { AiCategoryDetection } from "@/features/sell/components/TitleCategorySuggestions";
 import { FieldError, fieldErrorClassName } from "@/features/sell/components/FieldError";
 import { InventoryQuantityField } from "@/features/sell/components/InventoryQuantityField";
 import {
@@ -50,7 +50,17 @@ function FormRow({
 }
 
 export function SellListingForm({ form }: SellListingFormProps) {
-  const { draft, updateDraft, setCategoryPath, categorySuggestions, listingMode } = form;
+  const {
+    draft,
+    updateDraft,
+    setCategoryPath,
+    categoryDetection,
+    categoryDetectionDismissed,
+    confirmSuggestedCategory,
+    dismissCategoryDetection,
+    openCategoryPickerForChange,
+    listingMode,
+  } = form;
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const currency = useMemo(() => getSellCurrencyConfig(), []);
   const errors = getListingValidationErrors(draft, { mode: listingMode });
@@ -123,9 +133,16 @@ export function SellListingForm({ form }: SellListingFormProps) {
               />
             )}
 
-            <TitleCategorySuggestions
-              suggestions={categorySuggestions}
+            <AiCategoryDetection
+              detection={categoryDetection}
+              dismissed={categoryDetectionDismissed}
               selectedPath={draft.categoryPath}
+              onConfirm={confirmSuggestedCategory}
+              onChange={() => {
+                openCategoryPickerForChange();
+                setCategoryPickerOpen(true);
+              }}
+              onDismiss={dismissCategoryDetection}
               onSelect={setCategoryPath}
             />
           </FormRow>

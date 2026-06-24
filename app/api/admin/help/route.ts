@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireApiRole } from "@/lib/auth/session";
+import { requireApiAdmin } from "@/lib/auth/session";
 import { getHelpAnalyticsSummary } from "@/lib/help/analytics";
 import { listIncompleteHelpDocumentation } from "@/lib/help/feature-docs";
 import { HELP_TOPICS } from "@/lib/help/content/topics";
@@ -7,7 +7,7 @@ import { getAllHelpArticles } from "@/lib/help/content/articles";
 import { getAllDecisionTrees } from "@/lib/help/decision-trees/registry";
 
 export async function GET() {
-  const auth = await requireApiRole(["admin"]);
+  const auth = await requireApiAdmin();
   if (auth instanceof NextResponse) return auth;
 
   const [analytics, incompleteDocs] = await Promise.all([

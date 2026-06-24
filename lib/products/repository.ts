@@ -176,6 +176,8 @@ export async function getProductsBySection(
     query = query
       .gt("bumped_until", now)
       .order("last_bumped_at", { ascending: false });
+  } else if (section === "auctions") {
+    return { items: [], page, hasMore: false };
   } else if (section === "recommended") {
     query = query
       .gt("featured_until", now)
@@ -183,10 +185,6 @@ export async function getProductsBySection(
       .order("featured_until", { ascending: false });
   } else if (section === "popular") {
     query = query.order("views", { ascending: false }).order("created_at", { ascending: false });
-  } else if (section === "auctions") {
-    query = query
-      .eq("listing_type", "auction")
-      .order("auction_ends_at", { ascending: true, nullsFirst: false });
   } else {
     query = query
       .contains("sections", [section])
