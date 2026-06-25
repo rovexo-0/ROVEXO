@@ -1,3 +1,4 @@
+import { detectAiCategory } from "@/lib/taxonomies/ai-category";
 import { matchCategoriesFromLabels } from "@/lib/ai-camera/rules";
 import { toPathId } from "@/lib/categories/queries";
 import type { FlatCategoryPath } from "@/lib/categories/types";
@@ -75,7 +76,11 @@ function matchTitleRules(title: string): TitleCategorySuggestion[] {
   return [...matches.values()].sort((a, b) => b.confidence - a.confidence);
 }
 
-export function suggestCategoryFromTitle(title: string): TitleCategorySuggestion[] {
+export function suggestCategoryFromTitle(
+  title: string,
+  description = "",
+  photoMetadata: Array<{ description?: string; filename?: string }> = [],
+): TitleCategorySuggestion[] {
   const trimmed = title.trim();
   if (trimmed.length < MIN_TITLE_LENGTH) return [];
 
@@ -83,6 +88,14 @@ export function suggestCategoryFromTitle(title: string): TitleCategorySuggestion
   const ruleMatches = matchTitleRules(normalized);
   if (ruleMatches.length > 0) {
     return ruleMatches.slice(0, 3);
+  }
+
+  const aiResult = detectAiCategory(trimmed, description, photoMetadata);
+  if (aiResult.topMatches.length > 0) {
+    return aiResult.topMatches.slice(0, 3).map((suggestion) => ({
+      path: suggestion.path,
+      confidence: suggestion.confidence,
+    }));
   }
 
   return matchCategoriesFromLabels(titleToLabels(trimmed)).map(({ path, confidence }) => ({

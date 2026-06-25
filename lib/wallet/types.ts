@@ -15,6 +15,29 @@ export type WalletTransaction = {
   feeAmount?: number;
   withdrawMethodLabel?: string;
   payoutAvailableAt?: string;
+  stripeTransferId?: string;
+};
+
+export type ConnectPayoutStatus = {
+  connected: boolean;
+  payoutsEnabled: boolean;
+};
+
+export type WalletData = {
+  /** Legacy manual-withdraw balance (v1.0 automatic payouts do not increase this). */
+  availableBalance: number;
+  pendingBalance: number;
+  pendingAvailableAt: string;
+  /** Completed sale payouts transferred to Stripe Connect. */
+  paidOutBalance: number;
+  monthSummary: {
+    revenue: WalletSummaryMetric;
+    withdrawn: WalletSummaryMetric;
+    fees: WalletSummaryMetric;
+  };
+  transactions: WalletTransaction[];
+  withdrawMethods: WithdrawMethod[];
+  connectStatus: ConnectPayoutStatus;
 };
 
 export type WithdrawMethodProvider = "bank_account" | "stripe_connect";
@@ -30,19 +53,6 @@ export type WithdrawMethod = {
 export type WalletSummaryMetric = {
   value: number;
   changePercent: number;
-};
-
-export type WalletData = {
-  availableBalance: number;
-  pendingBalance: number;
-  pendingAvailableAt: string;
-  monthSummary: {
-    revenue: WalletSummaryMetric;
-    withdrawn: WalletSummaryMetric;
-    fees: WalletSummaryMetric;
-  };
-  transactions: WalletTransaction[];
-  withdrawMethods: WithdrawMethod[];
 };
 
 export type WithdrawDraft = {

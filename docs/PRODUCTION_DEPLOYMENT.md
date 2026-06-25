@@ -2,7 +2,7 @@
 
 ## Phase 1 — Database
 
-Apply all migrations in order (`supabase/migrations/20250618000001` through `20250630000001`):
+Apply all migrations in order (`supabase/migrations/` — **33** files through `20250703000001_super_admin_platform.sql`):
 
 ```bash
 supabase link --project-ref <your-project-ref>
@@ -32,6 +32,7 @@ Expected: no rows returned (all checks pass).
 | `UPSTASH_REDIS_REST_URL` | Yes | Production rate limiting |
 | `UPSTASH_REDIS_REST_TOKEN` | Yes | Production rate limiting |
 | `CRON_SECRET` | Yes | Cron job authentication |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Yes | Google Analytics 4 |
 
 Verify locally:
 
@@ -42,7 +43,7 @@ pnpm verify:env
 ## Phase 3 — Stripe
 
 1. Enable Stripe Connect (Express accounts) on your platform account.
-2. Register webhook endpoint: `https://<domain>/api/webhooks/stripe`
+2. Register webhook endpoint: `https://<domain>/api/stripe/webhook` (canonical) or `https://<domain>/api/webhooks/stripe` (legacy alias)
 3. Subscribe to events:
    - `checkout.session.completed`
    - `checkout.session.expired`
@@ -51,6 +52,8 @@ pnpm verify:env
    - `customer.subscription.deleted`
    - `transfer.reversed`
    - `charge.refunded`
+   - `charge.dispute.created`
+   - `account.updated`
 4. Copy webhook signing secret to `STRIPE_WEBHOOK_SECRET`.
 5. Test checkout → success URL → webhook fulfillment.
 6. Test subscription checkout at `/plans`.
@@ -76,7 +79,12 @@ Cron processes queue every 15 minutes via `/api/cron/maintenance`.
 
 ## Phase 5 — Cron (Vercel)
 
-`vercel.json` schedules maintenance every 15 minutes.
+`vercel.json` schedules:
+
+| Route | Schedule | Purpose |
+|-------|----------|---------|
+| `/api/cron/maintenance` | Every 15 minutes (`*/15 * * * *`) | Promotions, wallet release, email queue, cart cleanup |
+| `/api/cron/orders/cleanup` | Every 15 minutes (`*/15 * * * *`) | Expired checkout reservations only |
 
 Set `CRON_SECRET` in Vercel — Vercel sends `Authorization: Bearer <CRON_SECRET>`.
 

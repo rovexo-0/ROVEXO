@@ -8,11 +8,14 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "verify:env": "node scripts/verify-env.mjs",
+    "verify:env": "npx tsx scripts/verify-env.ts",
     "verify:production": "node scripts/verify-production.mjs",
     "test": "vitest run",
+    "test:ci": "vitest run --exclude tests/supabase.integration.test.ts",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install",
+    "test:e2e:android-sell": "playwright test e2e/sell-android.spec.ts --project=android-chromium"
   },
   "dependencies": {
     "@next/third-parties": "16.2.9",

@@ -1,5 +1,9 @@
 import type { HelpArticle, HelpCategory } from "@/lib/help/types";
 import { enrichHelpArticle } from "@/lib/help/content/article-meta";
+import {
+  PRIVACY_DATA_CONTROLLER_MARKDOWN,
+  TERMS_PLATFORM_OPERATOR_MARKDOWN,
+} from "@/lib/legal/content";
 
 export const HELP_CATEGORIES: Array<{ id: HelpCategory; label: string; description: string }> = [
   { id: "account", label: "Account", description: "Sign in, security, and profile settings" },
@@ -387,7 +391,9 @@ ROVEXO processes personal data to operate the marketplace, prevent fraud, and im
 - Access, correct, or delete your data subject to legal retention requirements
 - Manage marketing and notification preferences in Settings
 
-Contact Support for privacy requests. We respond within applicable legal timeframes.`,
+Contact Support for privacy requests. We respond within applicable legal timeframes.
+
+${PRIVACY_DATA_CONTROLLER_MARKDOWN}`,
   },
   {
     slug: "terms-of-service",
@@ -406,7 +412,9 @@ By using ROVEXO you agree to:
 
 ROVEXO may update these terms. Continued use after changes constitutes acceptance.
 
-Disputes are handled under Irish/EU consumer law where applicable.`,
+Disputes are handled under Irish/EU consumer law where applicable.
+
+${TERMS_PLATFORM_OPERATOR_MARKDOWN}`,
   },
   {
     slug: "trust-and-safety",

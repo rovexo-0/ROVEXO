@@ -9,7 +9,7 @@ export async function reverseFailedStripeTransfer(transferId: string): Promise<b
 
   const { data: transaction } = await admin
     .from("wallet_transactions")
-    .select("id, user_id, wallet_id, amount, status")
+    .select("id, user_id, wallet_id, amount, status, type")
     .eq("stripe_transfer_id", transferId)
     .maybeSingle();
 
@@ -20,7 +20,7 @@ export async function reverseFailedStripeTransfer(transferId: string): Promise<b
   const refundAmount = Math.abs(Number(transaction.amount));
   const { data: wallet } = await admin
     .from("wallets")
-    .select("available_balance")
+    .select("pending_balance, available_balance")
     .eq("id", transaction.wallet_id)
     .maybeSingle();
 
@@ -28,17 +28,35 @@ export async function reverseFailedStripeTransfer(transferId: string): Promise<b
     return false;
   }
 
-  await admin
-    .from("wallets")
-    .update({
-      available_balance: roundMoney(Number(wallet.available_balance) + refundAmount),
-    })
-    .eq("id", transaction.wallet_id);
+  if (transaction.type === "sale") {
+    await admin
+      .from("wallets")
+      .update({
+        pending_balance: roundMoney(Number(wallet.pending_balance) + refundAmount),
+      })
+      .eq("id", transaction.wallet_id);
 
-  await admin
-    .from("wallet_transactions")
-    .update({ status: "failed", description: `transfer_failed:${transferId}` })
-    .eq("id", transaction.id);
+    await admin
+      .from("wallet_transactions")
+      .update({
+        status: "pending",
+        stripe_transfer_id: null,
+        description: `transfer_reversed:${transferId}`,
+      })
+      .eq("id", transaction.id);
+  } else {
+    await admin
+      .from("wallets")
+      .update({
+        available_balance: roundMoney(Number(wallet.available_balance) + refundAmount),
+      })
+      .eq("id", transaction.wallet_id);
+
+    await admin
+      .from("wallet_transactions")
+      .update({ status: "failed", description: `transfer_failed:${transferId}` })
+      .eq("id", transaction.id);
+  }
 
   return true;
 }

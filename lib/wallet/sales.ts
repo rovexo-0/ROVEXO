@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { processAutomaticSellerPayouts } from "@/lib/stripe/payouts";
 
 export const PLATFORM_FEE_RATE = 0.05;
 export const PENDING_HOLD_HOURS = 36;
@@ -74,6 +75,8 @@ export async function creditSellerForOrder(input: {
     })
     .eq("id", wallet.id);
 
+  const piSuffix = input.stripePaymentIntentId ? `|pi:${input.stripePaymentIntentId}` : "";
+
   await admin.from("wallet_transactions").insert({
     wallet_id: wallet.id,
     user_id: input.sellerId,
@@ -85,53 +88,16 @@ export async function creditSellerForOrder(input: {
     status: "pending",
     type: "sale",
     payout_available_at: payoutAvailableAt.toISOString(),
-    description: input.stripePaymentIntentId ? `pi:${input.stripePaymentIntentId}` : null,
+    description: `order:${input.orderId}${piSuffix}`,
   });
 }
 
+/**
+ * Runs automatic Connect transfers for sales past the hold period, then returns the count transferred.
+ * Preserves the legacy function name used by cron maintenance.
+ */
 export async function releaseSellerPendingBalances(): Promise<number> {
-  const admin = createAdminClient();
-  const now = new Date().toISOString();
-
-  const { data: wallets } = await admin
-    .from("wallets")
-    .select("id, user_id, pending_balance, available_balance, pending_available_at")
-    .gt("pending_balance", 0)
-    .lte("pending_available_at", now);
-
-  if (!wallets?.length) {
-    return 0;
-  }
-
-  let released = 0;
-
-  for (const wallet of wallets) {
-    const pending = Number(wallet.pending_balance);
-    if (pending <= 0) {
-      continue;
-    }
-
-    await admin
-      .from("wallets")
-      .update({
-        pending_balance: 0,
-        available_balance: roundMoney(Number(wallet.available_balance) + pending),
-      })
-      .eq("id", wallet.id);
-
-    await admin
-      .from("wallet_transactions")
-      .update({ status: "completed" })
-      .eq("wallet_id", wallet.id)
-      .eq("user_id", wallet.user_id)
-      .eq("type", "sale")
-      .eq("status", "pending")
-      .lte("payout_available_at", now);
-
-    released += 1;
-  }
-
-  return released;
+  return processAutomaticSellerPayouts();
 }
 
 export async function refundSellerForOrder(orderId: string, sellerId: string): Promise<void> {
@@ -160,13 +126,15 @@ export async function refundSellerForOrder(orderId: string, sellerId: string): P
     return;
   }
 
-  if (saleTx?.status === "pending") {
+  if (saleTx?.status === "pending" && !saleTx.stripe_transfer_id) {
     await admin
       .from("wallets")
       .update({
         pending_balance: Math.max(0, roundMoney(Number(wallet.pending_balance) - sellerAmount)),
       })
       .eq("id", wallet.id);
+  } else if (saleTx?.status === "completed" && saleTx.stripe_transfer_id) {
+    // Transfer already sent to Connect; ledger refund entry only (Stripe reversal handled separately).
   } else if (saleTx?.status === "completed") {
     await admin
       .from("wallets")

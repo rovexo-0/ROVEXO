@@ -88,26 +88,41 @@ export async function notifyOrderDelivered(input: {
   ]);
 }
 
-export async function notifyWithdrawalCompleted(input: {
+export async function notifyPayoutTransferred(input: {
   sellerId: string;
   sellerEmail: string;
   amount: number;
+  orderNumber: string;
 }): Promise<void> {
   await Promise.all([
     createNotification({
       userId: input.sellerId,
       type: "system",
-      title: "Withdrawal completed",
-      subtitle: `£${input.amount.toFixed(2)} sent to your account`,
+      title: "Payout sent",
+      subtitle: `£${input.amount.toFixed(2)} for order ${input.orderNumber}`,
       href: "/seller/wallet",
     }),
     queueEmail({
       to: input.sellerEmail,
-      subject: "Withdrawal completed",
-      body: `Your withdrawal of £${input.amount.toFixed(2)} has been processed.`,
+      subject: `Payout sent — ${input.orderNumber}`,
+      body: `Your payout of £${input.amount.toFixed(2)} for order ${input.orderNumber} has been transferred to your Stripe Connect account. Stripe will deposit it to your bank automatically.`,
       template: "withdrawal_completed",
     }),
   ]);
+}
+
+/** @deprecated Manual withdrawals removed in v1.0 — use notifyPayoutTransferred */
+export async function notifyWithdrawalCompleted(input: {
+  sellerId: string;
+  sellerEmail: string;
+  amount: number;
+}): Promise<void> {
+  await notifyPayoutTransferred({
+    sellerId: input.sellerId,
+    sellerEmail: input.sellerEmail,
+    amount: input.amount,
+    orderNumber: "withdrawal",
+  });
 }
 
 export async function notifyOrderRefunded(input: {

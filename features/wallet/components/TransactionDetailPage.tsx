@@ -98,11 +98,16 @@ export function TransactionDetailPage({ profile, transaction }: TransactionDetai
               />
             </div>
           )}
+          {transaction.stripeTransferId && (
+            <div className="border-t border-border">
+              <DetailRow label="Stripe transfer" value={transaction.stripeTransferId} />
+            </div>
+          )}
           {pendingDays != null && transaction.status === "pending" && (
             <div className="border-t border-border">
               <DetailRow
-                label="Availability"
-                value={`Available in ${pendingDays} ${pendingDays === 1 ? "day" : "days"}`}
+                label="Payout"
+                value={`Transfers after hold (${pendingDays} ${pendingDays === 1 ? "day" : "days"})`}
               />
             </div>
           )}

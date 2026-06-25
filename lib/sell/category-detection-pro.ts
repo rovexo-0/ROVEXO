@@ -22,8 +22,12 @@ export function getCategoryDetectionTier(confidence: number): CategoryDetectionT
   return "none";
 }
 
-export function detectCategoryFromTitle(title: string): CategoryDetectionResult {
-  const suggestions = suggestCategoryFromTitle(title);
+export function detectCategoryFromTitle(
+  title: string,
+  description = "",
+  photoMetadata: Array<{ description?: string; filename?: string }> = [],
+): CategoryDetectionResult {
+  const suggestions = suggestCategoryFromTitle(title, description, photoMetadata);
   const top = suggestions[0] ?? null;
   const tier = top ? getCategoryDetectionTier(top.confidence) : "none";
 

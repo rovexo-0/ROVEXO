@@ -1,3 +1,4 @@
+import { CRON_STALE_AFTER_MS } from "@/lib/cron/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isStripeConfigured, getStripeClient } from "@/lib/stripe/server";
 
@@ -126,8 +127,12 @@ async function checkCron(): Promise<HealthCheckResult> {
     }
 
     const ageMs = Date.now() - new Date(data.started_at).getTime();
-    if (ageMs > 60 * 60_000) {
-      return { status: "degraded", latencyMs: 0, message: "Last cron run over 1 hour ago" };
+    if (ageMs > CRON_STALE_AFTER_MS) {
+      return {
+        status: "degraded",
+        latencyMs: 0,
+        message: `Last cron run over ${Math.round(CRON_STALE_AFTER_MS / 60_000)} minutes ago`,
+      };
     }
 
     return { status: "healthy", latencyMs: 0 };

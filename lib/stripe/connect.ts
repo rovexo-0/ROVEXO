@@ -1,8 +1,63 @@
+import type Stripe from "stripe";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export function isStripeConnectConfigured(): boolean {
   return isStripeConfigured();
+}
+
+export async function syncConnectAccountFromStripe(account: Stripe.Account): Promise<void> {
+  const sellerId = account.metadata?.sellerId;
+  if (!sellerId) {
+    return;
+  }
+
+  const admin = createAdminClient();
+  const payoutsEnabled = account.payouts_enabled ?? false;
+  const detailsSubmitted = account.details_submitted ?? false;
+
+  await admin
+    .from("seller_profiles")
+    .update({
+      stripe_connect_account_id: account.id,
+    })
+    .eq("id", sellerId);
+
+  await admin
+    .from("seller_tax_profiles")
+    .update({ stripe_connect_completed: payoutsEnabled && detailsSubmitted })
+    .eq("seller_id", sellerId);
+
+  await admin
+    .from("withdraw_methods")
+    .update({ connected: payoutsEnabled && detailsSubmitted })
+    .eq("user_id", sellerId)
+    .eq("provider", "stripe_connect");
+}
+
+export async function syncConnectAccountBySellerId(sellerId: string): Promise<{
+  connected: boolean;
+  payoutsEnabled: boolean;
+}> {
+  const admin = createAdminClient();
+  const { data: sellerProfile } = await admin
+    .from("seller_profiles")
+    .select("stripe_connect_account_id")
+    .eq("id", sellerId)
+    .maybeSingle();
+
+  if (!sellerProfile?.stripe_connect_account_id || !isStripeConfigured()) {
+    return { connected: false, payoutsEnabled: false };
+  }
+
+  const stripe = getStripeClient();
+  const account = await stripe.accounts.retrieve(sellerProfile.stripe_connect_account_id);
+  await syncConnectAccountFromStripe(account);
+
+  return {
+    connected: account.details_submitted ?? false,
+    payoutsEnabled: account.payouts_enabled ?? false,
+  };
 }
 
 export async function createConnectAccountLink(sellerId: string): Promise<
@@ -65,22 +120,5 @@ export async function getConnectAccountStatus(sellerId: string): Promise<{
   connected: boolean;
   payoutsEnabled: boolean;
 }> {
-  const admin = createAdminClient();
-  const { data: sellerProfile } = await admin
-    .from("seller_profiles")
-    .select("stripe_connect_account_id")
-    .eq("id", sellerId)
-    .maybeSingle();
-
-  if (!sellerProfile?.stripe_connect_account_id || !isStripeConfigured()) {
-    return { connected: false, payoutsEnabled: false };
-  }
-
-  const stripe = getStripeClient();
-  const account = await stripe.accounts.retrieve(sellerProfile.stripe_connect_account_id);
-
-  return {
-    connected: account.details_submitted ?? false,
-    payoutsEnabled: account.payouts_enabled ?? false,
-  };
+  return syncConnectAccountBySellerId(sellerId);
 }

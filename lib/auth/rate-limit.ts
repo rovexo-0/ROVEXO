@@ -12,9 +12,13 @@ const AUTH_RATE_LIMIT_ALLOWED: RateLimitResult = {
   retryAfterSeconds: 0,
 };
 
-/** Auth rate limits are enforced in production only. */
+/** Auth rate limits are enforced in production only (skipped during Playwright E2E). */
 export function isAuthRateLimitDisabled(): boolean {
-  return process.env.NODE_ENV !== "production";
+  return (
+    process.env.NODE_ENV !== "production" ||
+    process.env.PLAYWRIGHT_E2E === "1" ||
+    process.env.E2E_TEST === "1"
+  );
 }
 
 const AUTH_RATE_LIMITS: Record<

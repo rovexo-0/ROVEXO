@@ -1,56 +1,41 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { logPaymentError } from "@/lib/ops/logger";
+import { notifyPayoutTransferred } from "@/lib/orders/notifications";
+import { getConnectAccountStatus } from "@/lib/stripe/connect";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
-import { notifyWithdrawalCompleted } from "@/lib/orders/notifications";
-import type { WalletTransaction } from "@/lib/wallet/types";
 
 function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-export async function processStripeWithdrawal(input: {
+function parseOrderIdFromDescription(description: string | null): string | null {
+  if (!description?.startsWith("order:")) {
+    return null;
+  }
+  const orderId = description.slice("order:".length).trim();
+  return orderId || null;
+}
+
+export type TransferSalePayoutResult =
+  | { success: true; transferId: string }
+  | { success: false; error: string; retryable: boolean };
+
+export async function transferSalePayoutToConnect(input: {
+  saleTransactionId: string;
   userId: string;
-  methodId: string;
+  orderId: string;
+  orderNumber: string;
   amount: number;
-}): Promise<WalletTransaction | null> {
+  connectAccountId: string;
+}): Promise<TransferSalePayoutResult> {
   const admin = createAdminClient();
-  const supabase = await createClient();
-
-  const { data: method } = await supabase
-    .from("withdraw_methods")
-    .select("*")
-    .eq("user_id", input.userId)
-    .eq("id", input.methodId)
-    .maybeSingle();
-
-  const { data: wallet } = await supabase
-    .from("wallets")
-    .select("*")
-    .eq("user_id", input.userId)
-    .maybeSingle();
-
-  if (!method || !wallet || input.amount <= 0 || input.amount > Number(wallet.available_balance)) {
-    return null;
-  }
-
-  if (method.provider !== "stripe_connect") {
-    return null;
-  }
-
-  const { data: sellerProfile } = await admin
-    .from("seller_profiles")
-    .select("stripe_connect_account_id")
-    .eq("id", input.userId)
-    .maybeSingle();
-
-  const connectAccountId = sellerProfile?.stripe_connect_account_id;
-  if (!connectAccountId) {
-    return null;
-  }
-
   const amountCents = Math.round(input.amount * 100);
-  const orderNumber = `WD-${Date.now().toString().slice(-8)}`;
-  let stripeTransferId: string | null = null;
+
+  if (amountCents <= 0) {
+    return { success: false, error: "Invalid payout amount.", retryable: false };
+  }
+
+  let transferId: string;
 
   if (isStripeConfigured()) {
     try {
@@ -59,59 +44,82 @@ export async function processStripeWithdrawal(input: {
         {
           amount: amountCents,
           currency: "gbp",
-          destination: connectAccountId,
+          destination: input.connectAccountId,
           metadata: {
             userId: input.userId,
-            orderNumber,
+            orderId: input.orderId,
+            orderNumber: input.orderNumber,
+            saleTransactionId: input.saleTransactionId,
           },
         },
-        { idempotencyKey: `withdraw-${input.userId}-${orderNumber}` },
+        { idempotencyKey: `order-payout-${input.orderId}` },
       );
-      stripeTransferId = transfer.id;
-    } catch {
-      return null;
+      transferId = transfer.id;
+    } catch (error) {
+      logPaymentError("Stripe sale payout transfer failed", error, {
+        orderId: input.orderId,
+        userId: input.userId,
+      });
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Transfer failed.",
+        retryable: true,
+      };
     }
   } else if (process.env.NODE_ENV === "production") {
-    return null;
+    return { success: false, error: "Stripe is not configured.", retryable: true };
   } else {
-    stripeTransferId = `dev_transfer_${orderNumber}`;
+    transferId = `dev_transfer_${input.orderId}`;
   }
 
-  const newBalance = roundMoney(Number(wallet.available_balance) - input.amount);
+  const { data: saleTx } = await admin
+    .from("wallet_transactions")
+    .select("id, wallet_id, amount, status, stripe_transfer_id")
+    .eq("id", input.saleTransactionId)
+    .maybeSingle();
+
+  if (!saleTx || saleTx.stripe_transfer_id) {
+    return { success: true, transferId: saleTx?.stripe_transfer_id ?? transferId };
+  }
+
+  const { data: wallet } = await admin
+    .from("wallets")
+    .select("pending_balance")
+    .eq("id", saleTx.wallet_id)
+    .maybeSingle();
+
+  if (!wallet) {
+    return { success: false, error: "Wallet not found.", retryable: false };
+  }
+
+  const sellerAmount = Number(saleTx.amount);
+  const nextPending = Math.max(0, roundMoney(Number(wallet.pending_balance) - sellerAmount));
 
   const { error: walletError } = await admin
     .from("wallets")
-    .update({ available_balance: newBalance })
-    .eq("id", wallet.id)
-    .eq("user_id", input.userId);
+    .update({ pending_balance: nextPending })
+    .eq("id", saleTx.wallet_id);
 
   if (walletError) {
-    return null;
+    return { success: false, error: "Unable to update wallet ledger.", retryable: true };
   }
 
-  const { data: transaction } = await admin
+  const { error: txError } = await admin
     .from("wallet_transactions")
-    .insert({
-      wallet_id: wallet.id,
-      user_id: input.userId,
-      order_number: orderNumber,
-      product_title: `Withdrawal to ${method.label}`,
-      amount: -input.amount,
+    .update({
       status: "completed",
-      type: "withdrawal",
-      withdraw_method_label: `${method.label} ••${method.last_digits}`,
-      stripe_transfer_id: stripeTransferId,
-      description: stripeTransferId ? `transfer:${stripeTransferId}` : null,
+      stripe_transfer_id: transferId,
+      description: `order:${input.orderId}|transfer:${transferId}`,
     })
-    .select("*")
-    .single();
+    .eq("id", input.saleTransactionId)
+    .is("stripe_transfer_id", null);
 
-  if (!transaction) {
+  if (txError) {
     await admin
       .from("wallets")
-      .update({ available_balance: Number(wallet.available_balance) })
-      .eq("id", wallet.id);
-    return null;
+      .update({ pending_balance: Number(wallet.pending_balance) })
+      .eq("id", saleTx.wallet_id);
+    return { success: false, error: "Unable to record payout.", retryable: true };
   }
 
   const { data: profile } = await admin
@@ -120,22 +128,78 @@ export async function processStripeWithdrawal(input: {
     .eq("id", input.userId)
     .maybeSingle();
 
-  await notifyWithdrawalCompleted({
+  await notifyPayoutTransferred({
     sellerId: input.userId,
     sellerEmail: profile?.email ?? "",
-    amount: input.amount,
+    amount: sellerAmount,
+    orderNumber: input.orderNumber,
   });
 
-  return {
-    id: transaction.id,
-    orderNumber: transaction.order_number ?? "",
-    productTitle: transaction.product_title,
-    productImageUrl: transaction.product_image_url ?? "",
-    amount: Number(transaction.amount),
-    status: transaction.status,
-    type: transaction.type,
-    createdAt: transaction.created_at,
-    withdrawMethodLabel: transaction.withdraw_method_label ?? undefined,
-    description: transaction.description ?? undefined,
-  };
+  return { success: true, transferId };
+}
+
+/**
+ * After the hold period, transfer eligible sale ledger entries to the seller's Connect account.
+ * Stripe Express then pays out to the seller's bank automatically.
+ */
+export async function processAutomaticSellerPayouts(): Promise<number> {
+  const admin = createAdminClient();
+  const now = new Date().toISOString();
+
+  const { data: eligibleSales } = await admin
+    .from("wallet_transactions")
+    .select("id, user_id, order_number, amount, description, payout_available_at")
+    .eq("type", "sale")
+    .eq("status", "pending")
+    .is("stripe_transfer_id", null)
+    .lte("payout_available_at", now)
+    .order("payout_available_at", { ascending: true })
+    .limit(100);
+
+  if (!eligibleSales?.length) {
+    return 0;
+  }
+
+  let transferred = 0;
+
+  for (const sale of eligibleSales) {
+    const orderId = parseOrderIdFromDescription(sale.description);
+    if (!orderId) {
+      logPaymentError("Sale payout missing order id in description", null, {
+        saleTransactionId: sale.id,
+      });
+      continue;
+    }
+
+    const { data: sellerProfile } = await admin
+      .from("seller_profiles")
+      .select("stripe_connect_account_id")
+      .eq("id", sale.user_id)
+      .maybeSingle();
+
+    const connectAccountId = sellerProfile?.stripe_connect_account_id;
+    if (!connectAccountId) {
+      continue;
+    }
+
+    const connectStatus = await getConnectAccountStatus(sale.user_id);
+    if (!connectStatus.connected || !connectStatus.payoutsEnabled) {
+      continue;
+    }
+
+    const result = await transferSalePayoutToConnect({
+      saleTransactionId: sale.id,
+      userId: sale.user_id,
+      orderId,
+      orderNumber: sale.order_number ?? orderId,
+      amount: Number(sale.amount),
+      connectAccountId,
+    });
+
+    if (result.success) {
+      transferred += 1;
+    }
+  }
+
+  return transferred;
 }

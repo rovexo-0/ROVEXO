@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PlatformOperatorFooterNotice } from "@/components/legal/PlatformOperatorFooterNotice";
 
 const SUPPORT_LINKS = [
   { label: "Help center", href: "/help" },
@@ -8,6 +9,7 @@ const SUPPORT_LINKS = [
   { label: "Trust Center", href: "/trust" },
   { label: "Resolution Centre", href: "/resolution" },
   { label: "Contact us", href: "/support" },
+  { label: "Legal", href: "/legal" },
   { label: "Terms", href: "/help/terms-of-service" },
   { label: "Privacy", href: "/help/privacy-policy" },
 ];
@@ -108,12 +110,15 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-gray-200 pt-8 sm:flex-row">
-          <p className="text-sm text-gray-400">© {new Date().getFullYear()} ROVEXO. All rights reserved.</p>
-          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm text-gray-400">
-            <span>EU Marketplace</span>
-            <span>Secure payments</span>
-            <span>Carbon-neutral shipping</span>
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-gray-200 pt-8">
+          <PlatformOperatorFooterNotice className="w-full" />
+          <div className="flex w-full flex-col items-center justify-between gap-4 sm:flex-row">
+            <p className="text-sm text-gray-400">© {new Date().getFullYear()} ROVEXO. All rights reserved.</p>
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm text-gray-400">
+              <span>EU Marketplace</span>
+              <span>Secure payments</span>
+              <span>Carbon-neutral shipping</span>
+            </div>
           </div>
         </div>
       </div>

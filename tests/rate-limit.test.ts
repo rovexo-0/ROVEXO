@@ -138,6 +138,7 @@ describe("stripe production helpers", () => {
     const refunds = await import("@/lib/stripe/refunds");
     const payouts = await import("@/lib/stripe/payouts");
     expect(refunds.createOrderStripeRefund).toBeTypeOf("function");
-    expect(payouts.processStripeWithdrawal).toBeTypeOf("function");
+    expect(payouts.transferSalePayoutToConnect).toBeTypeOf("function");
+    expect(payouts.processAutomaticSellerPayouts).toBeTypeOf("function");
   });
 });

@@ -81,3 +81,36 @@ export function logStorageError(message: string, error: unknown, context?: Recor
 export function logCronEvent(message: string, context?: Record<string, unknown>, level: OpsLogLevel = "info") {
   void logOpsEvent({ category: "cron", message, context, level });
 }
+
+/** Audit trail for Stripe webhook events (persisted in production). */
+export function logStripeWebhookEvent(
+  message: string,
+  context?: Record<string, unknown>,
+  level: OpsLogLevel = "info",
+): void {
+  if (process.env.NODE_ENV !== "production") {
+    const prefix = `[WEBHOOK][${level.toUpperCase()}]`;
+    if (level === "error") {
+      console.error(prefix, message, context ?? {});
+    } else if (level === "warn") {
+      console.warn(prefix, message, context ?? {});
+    } else {
+      console.info(prefix, message, context ?? {});
+    }
+  }
+
+  void (async () => {
+    try {
+      const admin = createAdminClient();
+      await admin.from("platform_error_logs").insert({
+        level,
+        category: "payment",
+        message: `[stripe-webhook] ${message}`,
+        context: (context ?? {}) as Json,
+        stack_trace: null,
+      });
+    } catch {
+      // Logging must never block webhook processing.
+    }
+  })();
+}

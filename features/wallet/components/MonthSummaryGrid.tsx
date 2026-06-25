@@ -46,7 +46,7 @@ export function MonthSummaryGrid({ revenue, withdrawn, fees }: MonthSummaryGridP
 
       <div className="grid grid-cols-3 gap-ds-3">
         <SummaryCard label="Revenue" metric={revenue} />
-        <SummaryCard label="Withdrawn" metric={withdrawn} />
+        <SummaryCard label="Paid out" metric={withdrawn} />
         <SummaryCard label="Fees" metric={fees} />
       </div>
     </section>

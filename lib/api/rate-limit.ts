@@ -205,11 +205,18 @@ export function getClientIp(request: Request): string {
   return request.headers.get("x-real-ip")?.trim() || "unknown";
 }
 
+function isE2eTestRun(): boolean {
+  return process.env.PLAYWRIGHT_E2E === "1" || process.env.E2E_TEST === "1";
+}
+
 export async function checkRateLimit(
   key: string,
   limit: number,
   windowMs: number,
 ): Promise<RateLimitResult> {
+  if (isE2eTestRun()) {
+    return UNLIMITED_RESULT;
+  }
   if (shouldBypassAuthRateLimit(key)) {
     return UNLIMITED_RESULT;
   }
@@ -233,6 +240,9 @@ export async function getRateLimitStatus(
   limit: number,
   windowMs: number,
 ): Promise<RateLimitResult> {
+  if (isE2eTestRun()) {
+    return UNLIMITED_RESULT;
+  }
   if (shouldBypassAuthRateLimit(key)) {
     return UNLIMITED_RESULT;
   }

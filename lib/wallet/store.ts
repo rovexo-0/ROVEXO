@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { getConnectAccountStatus } from "@/lib/stripe/connect";
 import type { Tables } from "@/lib/supabase/types/database";
 import type { WalletData, WalletTransaction, WithdrawMethod } from "@/lib/wallet/types";
 
@@ -17,6 +18,7 @@ function mapTransaction(row: Tables<"wallet_transactions">): WalletTransaction {
     withdrawMethodLabel: row.withdraw_method_label ?? undefined,
     feeAmount: row.fee_amount != null ? Number(row.fee_amount) : undefined,
     description: row.description ?? undefined,
+    stripeTransferId: row.stripe_transfer_id ?? undefined,
   };
 }
 
@@ -41,11 +43,11 @@ export async function getWalletData(userId: string): Promise<WalletData> {
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-  const [{ data: monthTransactions }, { data: transactions }, { data: methods }] =
+  const [{ data: monthTransactions }, { data: transactions }, { data: methods }, { data: paidOutRows }, connectStatus] =
     await Promise.all([
       supabase
         .from("wallet_transactions")
-        .select("amount, type, status")
+        .select("amount, type, status, stripe_transfer_id")
         .eq("user_id", userId)
         .gte("created_at", monthStart),
       supabase
@@ -59,11 +61,24 @@ export async function getWalletData(userId: string): Promise<WalletData> {
         .select("*")
         .eq("user_id", userId)
         .order("created_at", { ascending: true }),
+      supabase
+        .from("wallet_transactions")
+        .select("amount")
+        .eq("user_id", userId)
+        .eq("type", "sale")
+        .eq("status", "completed")
+        .not("stripe_transfer_id", "is", null),
+      getConnectAccountStatus(userId),
     ]);
 
   const monthRevenue =
     monthTransactions
-      ?.filter((tx) => tx.type === "sale" && tx.status === "completed")
+      ?.filter((tx) => tx.type === "sale")
+      .reduce((sum, tx) => sum + Number(tx.amount), 0) ?? 0;
+
+  const monthPaidOut =
+    monthTransactions
+      ?.filter((tx) => tx.type === "sale" && tx.status === "completed" && tx.stripe_transfer_id)
       .reduce((sum, tx) => sum + Number(tx.amount), 0) ?? 0;
 
   const monthWithdrawn = Math.abs(
@@ -71,6 +86,9 @@ export async function getWalletData(userId: string): Promise<WalletData> {
       ?.filter((tx) => tx.type === "withdrawal")
       .reduce((sum, tx) => sum + Number(tx.amount), 0) ?? 0,
   );
+
+  const paidOutBalance =
+    paidOutRows?.reduce((sum, tx) => sum + Number(tx.amount), 0) ?? 0;
 
   const monthFees = Math.abs(
     monthTransactions
@@ -82,13 +100,15 @@ export async function getWalletData(userId: string): Promise<WalletData> {
     availableBalance: Number(wallet?.available_balance ?? 0),
     pendingBalance: Number(wallet?.pending_balance ?? 0),
     pendingAvailableAt: wallet?.pending_available_at ?? new Date().toISOString(),
+    paidOutBalance,
     monthSummary: {
       revenue: { value: monthRevenue, changePercent: 0 },
-      withdrawn: { value: monthWithdrawn, changePercent: 0 },
+      withdrawn: { value: monthPaidOut + monthWithdrawn, changePercent: 0 },
       fees: { value: monthFees, changePercent: 0 },
     },
     transactions: (transactions ?? []).map(mapTransaction),
     withdrawMethods: (methods ?? []).map(mapWithdrawMethod),
+    connectStatus,
   };
 }
 

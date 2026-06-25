@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { PlatformOperatorContactSection } from "@/components/legal/PlatformOperatorContactSection";
 import { HelpAssistant } from "@/features/help/components/HelpAssistant";
 import { SupportForm } from "@/features/support/components/SupportForm";
 import Link from "next/link";
@@ -30,6 +31,7 @@ export default function SupportPage() {
         <Suspense fallback={<SupportFormFallback />}>
           <SupportForm />
         </Suspense>
+        <PlatformOperatorContactSection />
         <HelpAssistant compact />
       </main>
     </BetaAppShell>

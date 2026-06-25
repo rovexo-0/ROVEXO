@@ -94,7 +94,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
       <input
         ref={galleryInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         multiple
         className="sr-only"
         onChange={handleGalleryChange}
@@ -102,7 +102,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
       <input
         ref={cameraInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         capture="environment"
         className="sr-only"
         onChange={handleCameraChange}
@@ -110,7 +110,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
       <input
         ref={replaceInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         className="sr-only"
         onChange={handleReplaceChange}
       />

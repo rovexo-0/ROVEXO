@@ -3,16 +3,29 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 describe("Pre-launch production config", () => {
-  it("includes vercel cron for maintenance", () => {
+  it("includes vercel cron schedules for maintenance and order cleanup", () => {
     const vercel = JSON.parse(readFileSync(path.join(process.cwd(), "vercel.json"), "utf8"));
     expect(vercel.crons).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           path: "/api/cron/maintenance",
-          schedule: "0 6 * * *",
+          schedule: "*/15 * * * *",
+        }),
+        expect.objectContaining({
+          path: "/api/cron/orders/cleanup",
+          schedule: "*/15 * * * *",
         }),
       ]),
     );
+  });
+
+  it("runs order cleanup cron independently from maintenance", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "app/api/cron/orders/cleanup/route.ts"),
+      "utf8",
+    );
+    expect(source).toContain("runOrderCleanupJob");
+    expect(source).not.toContain("runProductionMaintenance");
   });
 
   it("documents required env vars in .env.example", () => {
@@ -44,5 +57,6 @@ describe("Pre-launch production config", () => {
     const source = readFileSync(path.join(process.cwd(), "lib/orders/checkout.ts"), "utf8");
     expect(source).toContain("vacation_mode");
     expect(source).toContain("on vacation");
+    expect(source).toContain("expires_at");
   });
 });

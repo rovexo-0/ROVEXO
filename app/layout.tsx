@@ -7,6 +7,7 @@ import "@/styles/locked-2026.css";
 import "./globals.css";
 
 import { SearchProvider } from "@/features/search/client";
+import Footer from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
@@ -88,7 +89,10 @@ export default function RootLayout({
           <PwaProvider>
             <ToastProvider>
               <SearchProvider>
-                {children}
+                <div className="flex min-h-full flex-1 flex-col">
+                  {children}
+                  <Footer />
+                </div>
               </SearchProvider>
             </ToastProvider>
           </PwaProvider>

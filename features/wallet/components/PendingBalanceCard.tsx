@@ -16,7 +16,7 @@ export function PendingBalanceCard({ balance, availableAt }: PendingBalanceCardP
         <p className="text-sm font-medium text-text-secondary">Pending Balance</p>
         <Price amount={balance} size="lg" />
         <p className="text-xs text-text-secondary">
-          Available in {daysRemaining} {daysRemaining === 1 ? "day" : "days"}
+          Transfers to Stripe after hold ({daysRemaining} {daysRemaining === 1 ? "day" : "days"} remaining)
         </p>
       </div>
     </Card>

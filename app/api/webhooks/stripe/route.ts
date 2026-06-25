@@ -1,19 +1,10 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { logPaymentError } from "@/lib/ops/logger";
-import { cancelPendingOrder, fulfillOrderFromStripeSession } from "@/lib/orders/checkout";
-import { fulfillPromotionFromStripeSession } from "@/lib/promotions/service";
-import {
-  fulfillSubscriptionFromStripeSession,
-  syncSubscriptionFromStripe,
-} from "@/lib/monetization/stripe";
-import { recordPlatformAnalyticsEvent } from "@/lib/platform-analytics/events";
+import { handleStripeWebhookEvent } from "@/lib/stripe/webhook-handler";
 import { getStripeClient, getStripeWebhookSecret, isStripeConfigured } from "@/lib/stripe/server";
-import {
-  reverseFailedStripeTransfer,
-  syncStripeRefundFromCharge,
-} from "@/lib/stripe/webhook-sync";
-import { syncChargebackTrustFromDispute } from "@/lib/trust/chargeback";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   if (!isStripeConfigured()) {
@@ -37,79 +28,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    switch (event.type) {
-      case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
-        if (session.metadata?.checkoutType === "promotion") {
-          await fulfillPromotionFromStripeSession(session);
-          await recordPlatformAnalyticsEvent({ domain: "promotions", metric: "checkout_completed" });
-        } else if (session.metadata?.checkoutType === "order") {
-          await fulfillOrderFromStripeSession(session);
-          await recordPlatformAnalyticsEvent({ domain: "orders", metric: "checkout_completed" });
-        } else if (session.metadata?.checkoutType === "subscription") {
-          await fulfillSubscriptionFromStripeSession(session);
-          await recordPlatformAnalyticsEvent({ domain: "monetization", metric: "subscription_activated" });
-        }
-        break;
-      }
-      case "customer.subscription.updated":
-      case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription;
-        await syncSubscriptionFromStripe(subscription);
-        await recordPlatformAnalyticsEvent({
-          domain: "monetization",
-          metric: event.type === "customer.subscription.deleted" ? "subscription_cancelled" : "subscription_renewed",
-        });
-        break;
-      }
-      case "checkout.session.expired":
-      case "checkout.session.async_payment_failed": {
-        const session = event.data.object as Stripe.Checkout.Session;
-        if (session.metadata?.checkoutType === "order" && session.metadata.orderId) {
-          await cancelPendingOrder(session.metadata.orderId);
-        } else if (
-          session.metadata?.checkoutType === "promotion" &&
-          session.metadata.promotionId
-        ) {
-          const { markPendingPromotionFailed } = await import("@/lib/promotions/service");
-          await markPendingPromotionFailed(session.metadata.promotionId);
-        }
-        break;
-      }
-      case "transfer.reversed": {
-        const transfer = event.data.object as Stripe.Transfer;
-        await reverseFailedStripeTransfer(transfer.id);
-        break;
-      }
-      case "charge.refunded": {
-        const charge = event.data.object as Stripe.Charge;
-        const paymentIntentId =
-          typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
-        const refundId = charge.refunds?.data[0]?.id;
-        if (paymentIntentId && refundId) {
-          await syncStripeRefundFromCharge({ paymentIntentId, refundId });
-        }
-        break;
-      }
-      case "charge.dispute.created": {
-        const dispute = event.data.object as Stripe.Dispute;
-        const paymentIntentId =
-          typeof dispute.payment_intent === "string"
-            ? dispute.payment_intent
-            : dispute.payment_intent?.id ?? null;
-        await syncChargebackTrustFromDispute({
-          disputeId: dispute.id,
-          paymentIntentId,
-        });
-        break;
-      }
-      default:
-        break;
-    }
-  } catch (error) {
-    logPaymentError("Stripe webhook handler failed", error, { eventType: event.type });
+    await handleStripeWebhookEvent(event);
+  } catch {
     return NextResponse.json({ error: "Webhook handler failed." }, { status: 500 });
   }
 
-  return NextResponse.json({ received: true });
+  return NextResponse.json({ received: true }, { status: 200 });
 }

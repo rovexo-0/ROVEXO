@@ -84,6 +84,10 @@ export async function PATCH(request: Request, context: RouteContext) {
         body.categoryPath === null
           ? null
           : await resolveListingCategoryId(body.categoryPath);
+
+      if (body.categoryPath !== null && !categoryId) {
+        return NextResponse.json({ error: "Invalid category selected." }, { status: 400 });
+      }
     }
 
     if (body.inventory) {

@@ -186,13 +186,23 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     });
   }, []);
 
+  const buildPhotoMetadata = useCallback(
+    (photos: SellListingDraft["photos"]): Array<{ description?: string; filename?: string }> =>
+      photos.map((photo) => ({ filename: photo.file?.name, description: undefined })),
+    [],
+  );
+
   useEffect(() => {
     if (titleCategoryTimerRef.current) {
       window.clearTimeout(titleCategoryTimerRef.current);
     }
 
     titleCategoryTimerRef.current = window.setTimeout(() => {
-      const detection = detectCategoryFromTitle(draft.title);
+      const detection = detectCategoryFromTitle(
+        draft.title,
+        draft.description,
+        buildPhotoMetadata(draft.photos),
+      );
       setCategoryDetection(detection);
       setCategoryDetectionDismissed(false);
       lastAiTopPathIdRef.current = detection.top
@@ -227,7 +237,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
         window.clearTimeout(titleCategoryTimerRef.current);
       }
     };
-  }, [draft.title]);
+  }, [draft.title, draft.description, draft.photos, buildPhotoMetadata]);
 
   const updateDraft = useCallback((patch: Partial<SellListingDraft>) => {
     setDraft((current) => ({ ...current, ...patch }));

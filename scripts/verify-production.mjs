@@ -4,12 +4,14 @@ import { execSync } from "node:child_process";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
+const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
+
 const steps = [
-  { name: "ESLint", command: "pnpm exec eslint . --quiet" },
-  { name: "TypeScript", command: "pnpm typecheck" },
-  { name: "Tests", command: "pnpm test" },
-  { name: "Production build", command: "pnpm build" },
-  { name: "Environment", command: "node scripts/verify-env.mjs" },
+  { name: "ESLint", command: `${npmCmd} run lint` },
+  { name: "TypeScript", command: `${npmCmd} run typecheck` },
+  { name: "Tests", command: `${npmCmd} run test:ci` },
+  { name: "Production build", command: `${npmCmd} run build` },
+  { name: "Environment", command: `${npmCmd} run verify:env` },
 ];
 
 const migrationDir = join(process.cwd(), "supabase/migrations");

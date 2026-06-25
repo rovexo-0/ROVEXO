@@ -13,6 +13,8 @@ import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } 
 
 const RESERVATION_MINUTES = 30;
 
+export const ORDER_CHECKOUT_RESERVATION_MINUTES = RESERVATION_MINUTES;
+
 type CheckoutInput = {
   buyerId: string;
   productSlug: string;
@@ -156,30 +158,18 @@ export async function createOrderCheckoutSession(
   }
 
   const stripe = getStripeClient();
-  const [{ data: buyerProfile }, { data: sellerProfile }] = await Promise.all([
-    admin.from("profiles").select("email").eq("id", input.buyerId).maybeSingle(),
-    admin
-      .from("seller_profiles")
-      .select("stripe_connect_account_id")
-      .eq("id", product.seller_id)
-      .maybeSingle(),
-  ]);
+  const { data: buyerProfile } = await admin
+    .from("profiles")
+    .select("email")
+    .eq("id", input.buyerId)
+    .maybeSingle();
 
-  const connectAccountId = sellerProfile?.stripe_connect_account_id ?? null;
-
+  // Platform collects the full payment; seller payouts run after delivery + hold via Connect transfers.
   const session = await stripe.checkout.sessions.create(
     {
       mode: "payment",
       payment_method_types: ["card"],
       customer_email: buyerProfile?.email ?? undefined,
-      ...(connectAccountId
-        ? {
-            payment_intent_data: {
-              application_fee_amount: Math.round(platformFee * 100),
-              transfer_data: { destination: connectAccountId },
-            },
-          }
-        : {}),
       line_items: [
         {
           quantity: 1,
@@ -218,6 +208,7 @@ export async function createOrderCheckoutSession(
       },
       success_url: `${baseUrl}/checkout/${product.slug}?${successQuery.toString()}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout/${product.slug}?${cancelQuery.toString()}`,
+      expires_at: Math.floor(Date.now() / 1000) + RESERVATION_MINUTES * 60,
     },
     { idempotencyKey: `order-checkout-${orderRow.id}` },
   );

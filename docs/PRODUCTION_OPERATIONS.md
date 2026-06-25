@@ -34,9 +34,14 @@ View recent errors in `/admin/operations`.
 
 ## Cron job history
 
-Maintenance runs are recorded in `cron_job_runs` after each `/api/cron/maintenance` execution.
+Cron runs are recorded in `cron_job_runs`:
 
-Schedule: every 15 minutes via `vercel.json`.
+| Route | Schedule | Work |
+|-------|----------|------|
+| `/api/cron/maintenance` | Every 15 min | Promotions, wallet release, emails, cart cleanup |
+| `/api/cron/orders/cleanup` | Every 15 min | Expired `awaiting_payment` orders only |
+
+Configured in `vercel.json` (`*/15 * * * *`).
 
 ## Database backups (Supabase)
 

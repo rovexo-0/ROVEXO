@@ -9,7 +9,9 @@ import { releaseSellerPendingBalances } from "@/lib/wallet/sales";
 
 export type MaintenanceResult = {
   expiredOrders: number;
+  /** Automatic Connect transfers completed this run. */
   walletReleased: number;
+  payoutsTransferred: number;
   cartItemsRemoved: number;
   promotionsRefreshed: boolean;
   scheduledPromotionsActivated: number;
@@ -31,6 +33,7 @@ export async function runProductionMaintenance(): Promise<MaintenanceResult> {
     const result = {
       expiredOrders,
       walletReleased,
+      payoutsTransferred: walletReleased,
       cartItemsRemoved,
       promotionsRefreshed: true,
       scheduledPromotionsActivated,

@@ -99,6 +99,9 @@ export async function POST(request: Request) {
     }
 
     const categoryId = await resolveListingCategoryId(body.categoryPath);
+    if (!categoryId) {
+      return NextResponse.json({ error: "Invalid category selected." }, { status: 400 });
+    }
 
     if (body.inventory) {
       const stock = clampInventory(body.inventory.stock);
