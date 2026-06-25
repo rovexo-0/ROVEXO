@@ -7,6 +7,7 @@ import type {
   ModerationResult,
   ModerationTarget,
 } from "@/lib/moderation/types";
+import { toAuditLogMetadata, type AuditLogMetadata } from "@/lib/audit/metadata";
 import type { Json } from "@/lib/supabase/types/database";
 import { onContentReportTargeted, onModerationDecision } from "@/lib/trust/events";
 
@@ -379,7 +380,7 @@ async function writeAuditLog(input: {
   newStatus?: string;
   decision?: ModerationDecision;
   notes?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: AuditLogMetadata | Record<string, unknown>;
 }) {
   const admin = createAdminClient();
   await admin.from("moderation_audit_logs").insert({
@@ -390,7 +391,7 @@ async function writeAuditLog(input: {
     new_status: (input.newStatus as ModerationQueueItem["status"] | undefined) ?? null,
     decision: input.decision ?? null,
     notes: input.notes ?? "",
-    metadata: (input.metadata ?? {}) as Json,
+    metadata: toAuditLogMetadata(input.metadata) ?? {},
   });
 }
 

@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { toAuditLogMetadata, type AuditLogMetadata } from "@/lib/audit/metadata";
 import type { Json } from "@/lib/supabase/types/database";
 
 export type PlatformAnalyticsDomain =
@@ -35,7 +36,7 @@ export async function writeAuditLog(input: {
   action: string;
   resourceType: string;
   resourceId?: string | null;
-  metadata?: Record<string, unknown>;
+  metadata?: AuditLogMetadata | Record<string, unknown>;
 }): Promise<void> {
   try {
     const admin = createAdminClient();
@@ -44,7 +45,7 @@ export async function writeAuditLog(input: {
       action: input.action,
       resource_type: input.resourceType,
       resource_id: input.resourceId ?? null,
-      metadata: (input.metadata ?? {}) as Json,
+      metadata: toAuditLogMetadata(input.metadata) ?? {},
     });
   } catch {
     // Audit logging must not block primary flows.
