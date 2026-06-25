@@ -8,6 +8,7 @@ import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { addressInputSchema, type AddressInput } from "@/lib/account/schemas";
+import { SUPPORTED_COUNTRIES } from "@/lib/account/countries";
 import type { UserAddress } from "@/lib/addresses/repository";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
@@ -151,7 +152,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
           </Link>
           <h1 className="mt-ds-3 text-2xl font-bold text-text-primary">Address book</h1>
           <p className="mt-ds-1 text-sm text-text-secondary">
-            Manage shipping and billing addresses for checkout and invoices.
+            Manage personal shipping addresses and business billing addresses for checkout and invoices.
           </p>
         </div>
 
@@ -162,12 +163,12 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
               type="button"
               onClick={() => switchType(type)}
               className={cn(
-                "rounded-ds-full px-ds-4 py-ds-2 text-sm font-medium capitalize",
+                "rounded-ds-full px-ds-4 py-ds-2 text-sm font-medium",
                 activeType === type ? "bg-primary text-primary-foreground" : "bg-surface-muted text-text-secondary",
                 focusRing,
               )}
             >
-              {type}
+              {type === "shipping" ? "Personal / shipping" : "Business / billing"}
             </button>
           ))}
         </div>
@@ -241,7 +242,13 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
           </div>
           <div>
             <label htmlFor="country" className="text-sm font-medium">Country</label>
-            <input id="country" className={cn(inputClassName, "mt-ds-1")} {...register("country")} />
+            <select id="country" className={cn(inputClassName, "mt-ds-1")} {...register("country")}>
+              {SUPPORTED_COUNTRIES.map((country) => (
+                <option key={country.code} value={country.name}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
             {errors.country ? <p className="text-xs text-danger">{errors.country.message}</p> : null}
           </div>
           <label className="flex items-center gap-ds-2 text-sm text-text-primary">

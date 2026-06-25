@@ -1,5 +1,5 @@
 import { flatTaxonomy } from "@/lib/taxonomy/category-tree";
-import { normalizeText, normalizeSearchTerm } from "@/lib/taxonomy/category-normalizer";
+import { normalizeSearchTerm } from "@/lib/taxonomy/category-normalizer";
 
 export type SynonymSource = "name" | "alias" | "keyword" | "brand" | "model" | "slug" | "seo";
 
@@ -57,7 +57,7 @@ function collectSynonymEntries() {
     record("seo", category.seoSlug.replace(/\//g, " "));
   }
 
-  for (const [base, synonyms] of Object.entries(SYNONYM_ALIASES)) {
+  for (const [, synonyms] of Object.entries(SYNONYM_ALIASES)) {
     for (const synonym of synonyms) {
       entries.push({
         phrase: synonym,

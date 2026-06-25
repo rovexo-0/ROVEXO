@@ -34,20 +34,32 @@ alter table public.recently_viewed enable row level security;
 alter table public.saved_searches enable row level security;
 alter table public.seller_follows enable row level security;
 
+drop policy if exists "recently_viewed_select_own" on public.recently_viewed;
 create policy "recently_viewed_select_own" on public.recently_viewed for select using (auth.uid() = user_id);
+drop policy if exists "recently_viewed_insert_own" on public.recently_viewed;
 create policy "recently_viewed_insert_own" on public.recently_viewed for insert with check (auth.uid() = user_id);
+drop policy if exists "recently_viewed_update_own" on public.recently_viewed;
 create policy "recently_viewed_update_own" on public.recently_viewed for update using (auth.uid() = user_id);
+drop policy if exists "recently_viewed_delete_own" on public.recently_viewed;
 create policy "recently_viewed_delete_own" on public.recently_viewed for delete using (auth.uid() = user_id);
 
+drop policy if exists "saved_searches_select_own" on public.saved_searches;
 create policy "saved_searches_select_own" on public.saved_searches for select using (auth.uid() = user_id);
+drop policy if exists "saved_searches_insert_own" on public.saved_searches;
 create policy "saved_searches_insert_own" on public.saved_searches for insert with check (auth.uid() = user_id);
+drop policy if exists "saved_searches_update_own" on public.saved_searches;
 create policy "saved_searches_update_own" on public.saved_searches for update using (auth.uid() = user_id);
+drop policy if exists "saved_searches_delete_own" on public.saved_searches;
 create policy "saved_searches_delete_own" on public.saved_searches for delete using (auth.uid() = user_id);
 
+drop policy if exists "seller_follows_select_own" on public.seller_follows;
 create policy "seller_follows_select_own" on public.seller_follows for select using (auth.uid() = follower_id);
+drop policy if exists "seller_follows_insert_own" on public.seller_follows;
 create policy "seller_follows_insert_own" on public.seller_follows for insert with check (auth.uid() = follower_id);
+drop policy if exists "seller_follows_delete_own" on public.seller_follows;
 create policy "seller_follows_delete_own" on public.seller_follows for delete using (auth.uid() = follower_id);
 
+drop trigger if exists "saved_searches_set_updated_at" on public.saved_searches;
 create trigger saved_searches_set_updated_at
   before update on public.saved_searches
   for each row execute function public.set_updated_at();

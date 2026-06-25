@@ -32,10 +32,12 @@ create index if not exists cron_job_runs_started_idx
 alter table public.platform_error_logs enable row level security;
 alter table public.cron_job_runs enable row level security;
 
+drop policy if exists "platform_error_logs_admin" on public.platform_error_logs;
 create policy "platform_error_logs_admin"
   on public.platform_error_logs for select
   using (public.is_admin());
 
+drop policy if exists "cron_job_runs_admin" on public.cron_job_runs;
 create policy "cron_job_runs_admin"
   on public.cron_job_runs for select
   using (public.is_admin());

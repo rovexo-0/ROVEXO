@@ -1,12 +1,16 @@
 -- ROVEXO Trust Score System — tiers, audit, security hardening
 
+do $do$ begin
 create type public.trust_tier as enum (
   'bronze',
   'silver',
   'gold',
   'platinum',
   'diamond'
-);
+)
+;
+exception when duplicate_object then null;
+end $do$;
 
 alter table public.trust_scores
   add column if not exists tier public.trust_tier not null default 'bronze',

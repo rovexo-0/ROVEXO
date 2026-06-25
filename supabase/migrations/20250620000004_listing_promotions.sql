@@ -77,12 +77,14 @@ GRANT EXECUTE ON FUNCTION public.compute_promotion_score(INTEGER, TIMESTAMPTZ, T
 
 ALTER TABLE public.listing_promotions ENABLE ROW LEVEL SECURITY;
 
+drop policy if exists "listing_promotions_select_own" on public.listing_promotions;
 CREATE POLICY listing_promotions_select_own
 ON public.listing_promotions
 FOR SELECT
 TO authenticated
 USING (seller_id = auth.uid());
 
+drop policy if exists "listing_promotions_insert_own" on public.listing_promotions;
 CREATE POLICY listing_promotions_insert_own
 ON public.listing_promotions
 FOR INSERT

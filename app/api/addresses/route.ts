@@ -34,7 +34,10 @@ export async function POST(request: Request) {
 
     const address = await createUserAddress(auth.user.id, parsed.data);
     return NextResponse.json({ address });
-  } catch {
-    return NextResponse.json({ error: "Unable to save address." }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unable to save address." },
+      { status: 400 },
+    );
   }
 }

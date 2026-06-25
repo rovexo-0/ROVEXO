@@ -25,8 +25,9 @@ export function AiCategoryDetection({
   onConfirm,
   onChange,
   onDismiss,
-  onSelect,
+  onSelect: _onSelect,
 }: AiCategoryDetectionProps) {
+  void _onSelect;
   if (dismissed || !detection.top) return null;
 
   const selectedPathId = selectedPath ? toPathId(selectedPath) : null;

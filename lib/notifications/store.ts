@@ -44,6 +44,28 @@ function mapNotification(row: Tables<"notifications">): Notification {
   };
 }
 
+function mapSettings(row: Tables<"notification_settings">): NotificationSettings {
+  return {
+    pushEnabled: row.push_enabled,
+    messages: row.messages,
+    orders: row.orders,
+    offers: row.offers,
+    reviews: row.reviews,
+    promotions: row.promotions,
+    marketing: row.marketing,
+    system: row.system,
+    emailMessages: row.email_messages,
+    emailOrders: row.email_orders,
+    emailPromotions: row.email_promotions,
+    emailMarketing: row.email_marketing,
+    quietHoursEnabled: row.quiet_hours_enabled,
+    quietHoursStart: row.quiet_hours_start.slice(0, 5),
+    quietHoursEnd: row.quiet_hours_end.slice(0, 5),
+    sound: row.sound,
+    vibration: row.vibration,
+  };
+}
+
 export async function listNotifications(userId: string): Promise<Notification[]> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -106,19 +128,7 @@ export async function getNotificationSettings(
     return null;
   }
 
-  return {
-    pushEnabled: data.push_enabled,
-    messages: data.messages,
-    orders: data.orders,
-    offers: data.offers,
-    reviews: data.reviews,
-    system: data.system,
-    quietHoursEnabled: data.quiet_hours_enabled,
-    quietHoursStart: data.quiet_hours_start.slice(0, 5),
-    quietHoursEnd: data.quiet_hours_end.slice(0, 5),
-    sound: data.sound,
-    vibration: data.vibration,
-  };
+  return mapSettings(data);
 }
 
 export async function updateNotificationSettings(
@@ -126,22 +136,32 @@ export async function updateNotificationSettings(
   patch: Partial<NotificationSettings>,
 ): Promise<NotificationSettings | null> {
   const supabase = await createClient();
-  await supabase
-    .from("notification_settings")
-    .update({
-      push_enabled: patch.pushEnabled,
-      messages: patch.messages,
-      orders: patch.orders,
-      offers: patch.offers,
-      reviews: patch.reviews,
-      system: patch.system,
-      quiet_hours_enabled: patch.quietHoursEnabled,
-      quiet_hours_start: patch.quietHoursStart,
-      quiet_hours_end: patch.quietHoursEnd,
-      sound: patch.sound,
-      vibration: patch.vibration,
-    })
-    .eq("user_id", userId);
+  const update: Record<string, boolean | string | undefined> = {};
+
+  if (patch.pushEnabled !== undefined) update.push_enabled = patch.pushEnabled;
+  if (patch.messages !== undefined) update.messages = patch.messages;
+  if (patch.orders !== undefined) update.orders = patch.orders;
+  if (patch.offers !== undefined) update.offers = patch.offers;
+  if (patch.reviews !== undefined) update.reviews = patch.reviews;
+  if (patch.promotions !== undefined) update.promotions = patch.promotions;
+  if (patch.marketing !== undefined) update.marketing = patch.marketing;
+  if (patch.system !== undefined) update.system = patch.system;
+  if (patch.emailMessages !== undefined) update.email_messages = patch.emailMessages;
+  if (patch.emailOrders !== undefined) update.email_orders = patch.emailOrders;
+  if (patch.emailPromotions !== undefined) update.email_promotions = patch.emailPromotions;
+  if (patch.emailMarketing !== undefined) update.email_marketing = patch.emailMarketing;
+  if (patch.quietHoursEnabled !== undefined) update.quiet_hours_enabled = patch.quietHoursEnabled;
+  if (patch.quietHoursStart !== undefined) update.quiet_hours_start = patch.quietHoursStart;
+  if (patch.quietHoursEnd !== undefined) update.quiet_hours_end = patch.quietHoursEnd;
+  if (patch.sound !== undefined) update.sound = patch.sound;
+  if (patch.vibration !== undefined) update.vibration = patch.vibration;
+
+  if (Object.keys(update).length) {
+    await supabase
+      .from("notification_settings")
+      .update(update as Tables<"notification_settings">)
+      .eq("user_id", userId);
+  }
 
   return getNotificationSettings(userId);
 }

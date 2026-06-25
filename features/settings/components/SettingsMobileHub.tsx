@@ -3,8 +3,6 @@
 import { MobileHubNavigator } from "@/features/mobile-ui";
 import { MobilePremiumSection, MobilePremiumGrid } from "@/features/mobile-ui";
 import { MobilePremiumCard } from "@/features/mobile-ui";
-import { AppearancePicker } from "@/features/settings/components/AppearancePicker";
-import { LanguagePicker } from "@/features/settings/components/LanguagePicker";
 import { SettingToggle } from "@/features/settings/components/SettingToggle";
 import { getNavLinkIcon } from "@/lib/navigation/link-icons";
 import { SignOutIcon } from "@/features/profile/icons";
@@ -77,25 +75,26 @@ export function SettingsMobileHub({
       <MobilePremiumSection id="mhub-account-tools" title="Account">
         <MobilePremiumGrid>
           <MobilePremiumCard href="/account/edit" label="Edit profile" subtitle="Name, avatar, phone" icon={getNavLinkIcon("/account")} />
-          <MobilePremiumCard href="/account/addresses" label="Addresses" subtitle="Shipping & billing" icon={getNavLinkIcon("/orders")} />
+          <MobilePremiumCard href="/account/addresses" label="Addresses" subtitle="Personal & business" icon={getNavLinkIcon("/orders")} />
           <MobilePremiumCard href="/account/payment-methods" label="Payment methods" subtitle="Cards & payouts" icon={getNavLinkIcon("/plans")} />
+          <MobilePremiumCard href="/account/security" label="Security" subtitle="Password & 2FA" icon={getNavLinkIcon("/account")} />
+          <MobilePremiumCard href="/account/privacy" label="Privacy" subtitle="Visibility & marketing" icon={getNavLinkIcon("/account")} />
+          <MobilePremiumCard href="/account/buyer/preferences" label="Buyer preferences" subtitle="Alerts & recommendations" icon={getNavLinkIcon("/account")} />
+          {profile.isSeller ? (
+            <MobilePremiumCard href="/account/seller/shipping" label="Shipping settings" subtitle="Handling & carriers" icon={getNavLinkIcon("/seller/dashboard")} />
+          ) : null}
           <MobilePremiumCard href="/notifications/settings" label="Notifications" subtitle="Push & email" icon={getNavLinkIcon("/notifications")} />
         </MobilePremiumGrid>
       </MobilePremiumSection>
-      <MobileHubNavigator profile={profile} sectionTitle="Explore ROVEXO" />
-      <MobilePremiumSection id="mhub-language" title="Language & appearance">
-        <div className="flex flex-col gap-ds-4 px-ds-1">
-          <LanguagePicker
-            value={settings.language}
-            localeCode={settings.localeCode}
-            onChange={(localeCode) => onUpdate({ localeCode })}
-          />
-          <AppearancePicker
-            value={settings.appearanceMode}
-            onChange={(appearanceMode) => onUpdate({ appearanceMode })}
-          />
-        </div>
+      <MobilePremiumSection id="mhub-preferences-links" title="Language & region">
+        <MobilePremiumGrid>
+          <MobilePremiumCard href="/account/preferences/language" label="Language" subtitle={settings.language} icon={getNavLinkIcon("/settings")} />
+          <MobilePremiumCard href="/account/preferences/appearance" label="Appearance" subtitle={settings.appearanceMode} icon={getNavLinkIcon("/settings")} />
+          <MobilePremiumCard href="/account/preferences/timezone" label="Timezone" subtitle={settings.timezone} icon={getNavLinkIcon("/settings")} />
+          <MobilePremiumCard href="/account/preferences/currency" label="Currency" subtitle={settings.currency} icon={getNavLinkIcon("/settings")} />
+        </MobilePremiumGrid>
       </MobilePremiumSection>
+      <MobileHubNavigator profile={profile} sectionTitle="Explore ROVEXO" />
       <SettingsToggles
         settings={settings}
         onUpdate={onUpdate}

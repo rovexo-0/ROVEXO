@@ -8,7 +8,6 @@ import type {
   ModerationTarget,
 } from "@/lib/moderation/types";
 import { toAuditLogMetadata, type AuditLogMetadata } from "@/lib/audit/metadata";
-import type { Json } from "@/lib/supabase/types/database";
 import { onContentReportTargeted, onModerationDecision } from "@/lib/trust/events";
 
 type QueueInsert = {

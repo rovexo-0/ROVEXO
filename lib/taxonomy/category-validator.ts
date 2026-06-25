@@ -1,4 +1,4 @@
-import { taxonomyTree, flatTaxonomy, type TaxonomyCategoryNode } from "@/lib/taxonomy/category-tree";
+import { taxonomyTree, type TaxonomyCategoryNode } from "@/lib/taxonomy/category-tree";
 
 export type TaxonomyIssueSeverity = "warning" | "error";
 

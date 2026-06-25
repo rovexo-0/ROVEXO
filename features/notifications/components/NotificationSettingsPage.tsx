@@ -108,6 +108,22 @@ export function NotificationSettingsPage() {
           />
           <SettingsDivider />
           <SettingToggle
+            id="push-promotions"
+            label="Promotions"
+            checked={settings.promotions}
+            disabled={pushDisabled}
+            onChange={(checked) => void updateSetting({ promotions: checked })}
+          />
+          <SettingsDivider />
+          <SettingToggle
+            id="push-marketing"
+            label="Marketing"
+            checked={settings.marketing}
+            disabled={pushDisabled}
+            onChange={(checked) => void updateSetting({ marketing: checked })}
+          />
+          <SettingsDivider />
+          <SettingToggle
             id="push-offers"
             label="Offers"
             checked={settings.offers}
@@ -129,6 +145,36 @@ export function NotificationSettingsPage() {
             checked={settings.system}
             disabled={pushDisabled}
             onChange={(checked) => void updateSetting({ system: checked })}
+          />
+        </SettingSection>
+
+        <SettingSection title="Email Notifications">
+          <SettingToggle
+            id="email-messages"
+            label="Messages"
+            checked={settings.emailMessages}
+            onChange={(checked) => void updateSetting({ emailMessages: checked })}
+          />
+          <SettingsDivider />
+          <SettingToggle
+            id="email-orders"
+            label="Orders"
+            checked={settings.emailOrders}
+            onChange={(checked) => void updateSetting({ emailOrders: checked })}
+          />
+          <SettingsDivider />
+          <SettingToggle
+            id="email-promotions"
+            label="Promotions"
+            checked={settings.emailPromotions}
+            onChange={(checked) => void updateSetting({ emailPromotions: checked })}
+          />
+          <SettingsDivider />
+          <SettingToggle
+            id="email-marketing"
+            label="Marketing"
+            checked={settings.emailMarketing}
+            onChange={(checked) => void updateSetting({ emailMarketing: checked })}
           />
         </SettingSection>
 
@@ -185,7 +231,7 @@ export function NotificationSettingsPage() {
         </SettingSection>
 
         <p className="text-center text-xs text-text-muted">
-          Only useful notifications. No ads or promotional spam.
+          Control which updates reach you by push and email.
         </p>
 
         <Link href="/settings" className="text-center text-sm font-medium text-primary">

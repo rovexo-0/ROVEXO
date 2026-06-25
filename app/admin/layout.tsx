@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children: _children }: { children: React.ReactNode }) {
+  void _children;
   try {
     await requireRole(["super_admin"]);
   } catch {

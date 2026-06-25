@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { signOut } from "@/lib/auth/actions";
@@ -36,8 +35,6 @@ import {
 } from "@/features/settings/icons";
 import { BETA_VERSION } from "@/lib/beta/roadmap";
 import { syncThemeFromSettings } from "@/lib/settings/theme";
-import { AppearancePicker } from "@/features/settings/components/AppearancePicker";
-import { LanguagePicker } from "@/features/settings/components/LanguagePicker";
 import { SettingsThemeSync } from "@/components/providers/SettingsThemeSync";
 import type { AppSettings } from "@/lib/settings/types";
 import type { UserProfile } from "@/lib/profile/types";
@@ -48,14 +45,6 @@ type SettingsPageProps = {
 
 function SettingsDivider() {
   return <div className="border-t border-border" />;
-}
-
-function ComingSoonBadge() {
-  return (
-    <Badge variant="default" className="ml-auto shrink-0 text-[10px] uppercase tracking-wide">
-      Soon
-    </Badge>
-  );
 }
 
 export function SettingsPage({ profile }: SettingsPageProps) {
@@ -171,28 +160,25 @@ export function SettingsPage({ profile }: SettingsPageProps) {
 
         <SettingSection title="Security">
           <ProfileMenuRow
-            title="Password"
-            subtitle="Reset via secure email link"
-            href="/forgot-password"
+            title="Password & security"
+            subtitle="Password, two-factor, blocked users"
+            href="/account/security"
             icon={<LockIcon className="h-5 w-5" />}
           />
           <SettingsDivider />
-          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
-            <TwoFactorIcon className="h-5 w-5 shrink-0 text-text-secondary" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-text-primary">Two-factor authentication</p>
-              <p className="text-xs text-text-secondary">Extra protection for your account</p>
-            </div>
-            <ComingSoonBadge />
-          </div>
+          <ProfileMenuRow
+            title="Two-factor authentication"
+            subtitle="Extra protection for your account"
+            href="/account/security"
+            icon={<TwoFactorIcon className="h-5 w-5" />}
+          />
           <SettingsDivider />
-          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
-            <BlockedIcon className="h-5 w-5 shrink-0 text-text-secondary" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-text-primary">Blocked users</p>
-            </div>
-            <ComingSoonBadge />
-          </div>
+          <ProfileMenuRow
+            title="Blocked users"
+            subtitle="Manage blocked accounts"
+            href="/account/blocked-users"
+            icon={<BlockedIcon className="h-5 w-5" />}
+          />
         </SettingSection>
 
         <SettingSection title="Notifications">
@@ -220,6 +206,20 @@ export function SettingsPage({ profile }: SettingsPageProps) {
 
         <SettingSection title="Privacy">
           <ProfileMenuRow
+            title="Privacy settings"
+            subtitle="Profile visibility and marketing"
+            href="/account/privacy"
+            icon={<PrivacyIcon className="h-5 w-5" />}
+          />
+          <SettingsDivider />
+          <ProfileMenuRow
+            title="Buyer preferences"
+            subtitle="Alerts and recommendations"
+            href="/account/buyer/preferences"
+            icon={<PrivacyIcon className="h-5 w-5" />}
+          />
+          <SettingsDivider />
+          <ProfileMenuRow
             title="Privacy policy"
             href="/help/privacy-policy"
             icon={<PrivacyIcon className="h-5 w-5" />}
@@ -229,28 +229,33 @@ export function SettingsPage({ profile }: SettingsPageProps) {
         </SettingSection>
 
         <SettingSection title="Preferences">
-          <div className="px-ds-4 py-ds-3">
-            <LanguagePicker
-              value={settings.language}
-              localeCode={settings.localeCode}
-              onChange={(localeCode) => void updateSetting({ localeCode })}
-            />
-          </div>
+          <ProfileMenuRow
+            title="Language"
+            subtitle={settings.language}
+            href="/account/preferences/language"
+            icon={<CurrencyIcon className="h-5 w-5" />}
+          />
           <SettingsDivider />
-          <div className="px-ds-4 py-ds-3">
-            <AppearancePicker
-              value={settings.appearanceMode}
-              onChange={(appearanceMode) => void updateSetting({ appearanceMode })}
-            />
-          </div>
+          <ProfileMenuRow
+            title="Appearance"
+            subtitle={settings.appearanceMode}
+            href="/account/preferences/appearance"
+            icon={<CurrencyIcon className="h-5 w-5" />}
+          />
           <SettingsDivider />
-          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
-            <CurrencyIcon className="h-5 w-5 shrink-0 text-text-secondary" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-text-primary">Currency</p>
-              <p className="text-xs text-text-secondary">{settings.currency}</p>
-            </div>
-          </div>
+          <ProfileMenuRow
+            title="Timezone"
+            subtitle={settings.timezone}
+            href="/account/preferences/timezone"
+            icon={<CurrencyIcon className="h-5 w-5" />}
+          />
+          <SettingsDivider />
+          <ProfileMenuRow
+            title="Currency"
+            subtitle={settings.currency}
+            href="/account/preferences/currency"
+            icon={<CurrencyIcon className="h-5 w-5" />}
+          />
         </SettingSection>
 
         <SettingSection title="Payments">
@@ -282,13 +287,12 @@ export function SettingsPage({ profile }: SettingsPageProps) {
 
         {profile.isSeller && (
           <SettingSection title="Selling">
-            <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
-              <ShippingIcon className="h-5 w-5 shrink-0 text-text-secondary" />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-text-primary">Shipping settings</p>
-              </div>
-              <ComingSoonBadge />
-            </div>
+            <ProfileMenuRow
+              title="Shipping settings"
+              subtitle="Handling, carriers, and delivery"
+              href="/account/seller/shipping"
+              icon={<ShippingIcon className="h-5 w-5" />}
+            />
             <SettingsDivider />
             <SettingToggle
               id="settings-vacation-mode"

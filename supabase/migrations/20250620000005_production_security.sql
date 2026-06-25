@@ -12,12 +12,14 @@ end $do$;
 -- Prevent non-admin wallet balance tampering via RLS
 -- ---------------------------------------------------------------------------
 drop policy if exists "wallets_update_own" on public.wallets;
+drop policy if exists "wallets_update_admin" on public.wallets;
 create policy "wallets_update_admin"
   on public.wallets for update
   using (public.is_admin())
   with check (public.is_admin());
 
 drop policy if exists "wallet_transactions_insert_own" on public.wallet_transactions;
+drop policy if exists "wallet_transactions_insert_admin" on public.wallet_transactions;
 create policy "wallet_transactions_insert_admin"
   on public.wallet_transactions for insert
   with check (public.is_admin());

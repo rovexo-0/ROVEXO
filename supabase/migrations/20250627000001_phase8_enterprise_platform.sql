@@ -1,5 +1,6 @@
 -- Phase 8: Trust + Business + Wholesale + Monetization + Platform Analytics
 
+do $do$ begin
 create type public.trust_verification_type as enum (
   'email',
   'phone',
@@ -11,46 +12,69 @@ create type public.trust_verification_type as enum (
   'manufacturer',
   'supplier',
   'document'
-);
+)
+;
+exception when duplicate_object then null;
+end $do$;
 
+do $do$ begin
 create type public.trust_verification_status as enum (
   'not_started',
   'pending',
   'approved',
   'rejected',
   'expired'
-);
+)
+;
+exception when duplicate_object then null;
+end $do$;
 
+do $do$ begin
 create type public.trust_verification_level as enum (
   'basic',
   'verified',
   'premium',
   'enterprise'
-);
+)
+;
+exception when duplicate_object then null;
+end $do$;
 
+do $do$ begin
 create type public.wholesale_account_type as enum (
   'wholesale',
   'manufacturer',
   'supplier',
   'importer',
   'exporter'
-);
+)
+;
+exception when duplicate_object then null;
+end $do$;
 
+do $do$ begin
 create type public.monetization_plan_tier as enum (
   'free',
   'seller_pro',
   'business',
   'wholesale',
   'enterprise'
-);
+)
+;
+exception when duplicate_object then null;
+end $do$;
 
+do $do$ begin
 create type public.monetization_subscription_status as enum (
   'trialing',
   'active',
   'past_due',
   'cancelled',
   'expired'
-);
+)
+;
+exception when duplicate_object then null;
+end $do$;
 
 alter table public.business_accounts
   add column if not exists company_type text not null default 'company',

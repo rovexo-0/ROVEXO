@@ -10,6 +10,7 @@ import "./globals.css";
 import { SearchProvider } from "@/features/search/client";
 import Footer from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { VisitorPresenceBeacon } from "@/components/analytics/VisitorPresenceBeacon";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LocaleProvider } from "@/lib/i18n/provider";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
@@ -102,6 +103,7 @@ export default function RootLayout({
           </LocaleProvider>
         </ThemeProvider>
         <GoogleAnalytics />
+        <VisitorPresenceBeacon />
       </body>
     </html>
   );

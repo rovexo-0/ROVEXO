@@ -1,12 +1,10 @@
 import { type FlatCategoryPath } from "@/lib/categories/types";
-import { normalizeSearchTerm, tokenize } from "@/lib/taxonomy/category-normalizer";
+import { normalizeSearchTerm } from "@/lib/taxonomy/category-normalizer";
 import { searchCategories, type CategorySearchResult } from "@/lib/taxonomy/category-search";
 import {
-  getCategoryById,
   getCategoryBySlug,
   getCategoryPathSlugs,
 } from "@/lib/taxonomy/category-index";
-import { getSynonymMatches } from "@/lib/taxonomy/category-synonyms";
 import type { TaxonomyCategoryNode } from "@/lib/taxonomy/category-tree";
 
 export type AiCategorySuggestion = {

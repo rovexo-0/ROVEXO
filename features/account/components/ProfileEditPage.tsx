@@ -7,6 +7,7 @@ import Link from "next/link";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Button } from "@/components/ui/Button";
 import { AvatarUploader } from "@/features/account/components/AvatarUploader";
+import { EmailChangeForm } from "@/features/account/components/EmailChangeForm";
 import { PasswordChangeForm } from "@/features/account/components/PasswordChangeForm";
 import { profileUpdateSchema, type ProfileUpdateInput } from "@/lib/account/schemas";
 import type { ProfileDetails } from "@/lib/profile/service";
@@ -128,6 +129,7 @@ export function ProfileEditPage({ initialProfile }: ProfileEditPageProps) {
           <Field label="Full name" id="fullName" error={errors.fullName?.message}>
             <input id="fullName" className={inputClassName} autoComplete="name" {...register("fullName")} />
           </Field>
+          <p className="-mt-ds-2 text-xs text-text-muted">This is your display name across ROVEXO.</p>
 
           <Field label="Username" id="username" error={errors.username?.message}>
             <input
@@ -165,6 +167,12 @@ export function ProfileEditPage({ initialProfile }: ProfileEditPageProps) {
               <p className="mt-ds-1 text-xs text-success">Verified</p>
             )}
             {verifyMessage ? <p className="mt-ds-2 text-xs text-text-secondary">{verifyMessage}</p> : null}
+            <div className="mt-ds-4 border-t border-border pt-ds-4">
+              <p className="text-sm font-medium text-text-primary">Change email</p>
+              <div className="mt-ds-2">
+                <EmailChangeForm currentEmail={profile.email} />
+              </div>
+            </div>
           </div>
 
           <Button type="submit" variant="primary" disabled={isSubmitting}>

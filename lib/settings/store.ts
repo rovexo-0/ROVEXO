@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
+import { isValidCurrency } from "@/lib/account/currencies";
 import { getLocaleOption } from "@/lib/i18n/config";
 import type { AppSettings, AppSettingsPatch } from "@/lib/settings/types";
 import { DEFAULT_APP_SETTINGS } from "@/lib/settings/types";
-import type { AppearanceMode } from "@/lib/settings/types";
+import type { AppearanceMode, ProfileVisibility } from "@/lib/settings/types";
 
 type SettingsRow = {
   push_notifications: boolean;
@@ -13,6 +14,10 @@ type SettingsRow = {
   vacation_mode: boolean;
   locale_code?: string;
   appearance_mode?: string;
+  timezone?: string;
+  profile_visibility?: string;
+  marketing_emails?: boolean;
+  show_activity_status?: boolean;
 };
 
 function mapRow(data: SettingsRow): AppSettings {
@@ -25,6 +30,11 @@ function mapRow(data: SettingsRow): AppSettings {
     vacationMode: data.vacation_mode,
     localeCode: data.locale_code ?? DEFAULT_APP_SETTINGS.localeCode,
     appearanceMode: (data.appearance_mode as AppearanceMode) ?? DEFAULT_APP_SETTINGS.appearanceMode,
+    timezone: data.timezone ?? DEFAULT_APP_SETTINGS.timezone,
+    profileVisibility:
+      (data.profile_visibility as ProfileVisibility) ?? DEFAULT_APP_SETTINGS.profileVisibility,
+    marketingEmails: data.marketing_emails ?? DEFAULT_APP_SETTINGS.marketingEmails,
+    showActivityStatus: data.show_activity_status ?? DEFAULT_APP_SETTINGS.showActivityStatus,
   };
 }
 
@@ -63,6 +73,10 @@ export async function updateAppSettings(
     next.currency = locale.currencyLabel;
   }
 
+  if (patch.currency && !isValidCurrency(patch.currency)) {
+    throw new Error("Invalid currency.");
+  }
+
   if (patch.appearanceMode) {
     if (patch.appearanceMode === "light") next.darkMode = false;
     if (patch.appearanceMode === "dark") next.darkMode = true;
@@ -72,7 +86,7 @@ export async function updateAppSettings(
 
   const darkMode = appearanceToDarkMode(next.appearanceMode, next.darkMode);
 
-  await supabase.from("user_settings").upsert({
+  const { error } = await supabase.from("user_settings").upsert({
     user_id: userId,
     push_notifications: next.pushNotifications,
     email_notifications: next.emailNotifications,
@@ -82,7 +96,20 @@ export async function updateAppSettings(
     vacation_mode: next.vacationMode,
     locale_code: next.localeCode,
     appearance_mode: next.appearanceMode,
+    timezone: next.timezone,
+    profile_visibility: next.profileVisibility,
+    marketing_emails: next.marketingEmails,
+    show_activity_status: next.showActivityStatus,
   });
 
+  if (error) throw error;
+
   return { ...next, darkMode };
+}
+
+export async function updatePrivacySettings(
+  userId: string,
+  patch: Pick<AppSettings, "profileVisibility" | "marketingEmails" | "showActivityStatus">,
+): Promise<AppSettings> {
+  return updateAppSettings(userId, patch);
 }

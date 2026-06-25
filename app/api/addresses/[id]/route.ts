@@ -34,8 +34,11 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     const address = await updateUserAddress(auth.user.id, id, parsed.data);
     return NextResponse.json({ address });
-  } catch {
-    return NextResponse.json({ error: "Unable to update address." }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unable to update address." },
+      { status: 400 },
+    );
   }
 }
 

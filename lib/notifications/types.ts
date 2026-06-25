@@ -56,7 +56,13 @@ export type NotificationSettings = {
   orders: boolean;
   offers: boolean;
   reviews: boolean;
+  promotions: boolean;
+  marketing: boolean;
   system: boolean;
+  emailMessages: boolean;
+  emailOrders: boolean;
+  emailPromotions: boolean;
+  emailMarketing: boolean;
   quietHoursEnabled: boolean;
   quietHoursStart: string;
   quietHoursEnd: string;

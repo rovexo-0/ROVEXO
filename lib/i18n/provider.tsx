@@ -25,11 +25,33 @@ function readStoredLocale(): LocaleCode {
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [localeCode, setLocaleCodeState] = useState<LocaleCode>(readStoredLocale);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     document.documentElement.lang = localeToHtmlLang(localeCode);
   }, [localeCode]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch("/api/settings");
+        if (!response.ok) return;
+        const payload = (await response.json()) as { settings?: { localeCode?: LocaleCode } };
+        const code = payload.settings?.localeCode;
+        if (!cancelled && code && getLocaleOption(code)) {
+          setLocaleCodeState(code);
+          window.localStorage.setItem(STORAGE_KEY, code);
+          document.documentElement.lang = localeToHtmlLang(code);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const applyLocale = useCallback((code: LocaleCode) => {
     setLocaleCodeState(code);

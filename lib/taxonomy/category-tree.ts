@@ -535,19 +535,6 @@ const HEALTH_BRANDS = [
   "Xiaomi",
 ];
 
-const HEALTH_MODEL_BASES: Record<string, readonly string[]> = {
-  Fitbit: ["Charge", "Versa", "Sense", "Inspire", "Ace", "Luxe", "Aria", "Blaze", "Surge", "Alta"],
-  Garmin: ["Forerunner", "Fenix", "Vivoactive", "Venu", "Instinct", "Enduro", "Quatix", "Approach", "Descent", "Tactix"],
-  Withings: ["Body+", "ScanWatch", "Pulse HR", "Steel HR", "BPM Connect", "Sleep", "Thermo", "Move", "Body Cardio", "Nokia Steel"],
-  Omron: ["M7", "M5", "HEM-7157", "HEM-7120", "EVOLV", "Complete", "7 Series", "IA1", "HEM-7420", "HEM-6152"],
-  Beurer: ["BM 57", "BM 85", "BM 58", "FT 95", "BC 30", "MG 295", "IL 50", "TL 100", "SF 40", "FW 20"],
-  Philips: ["Sonicare ProtectiveClean", "OneBlade", "Norelco", "Respironics", "SatinShave", "AirFloss", "Philips Avent", "Lumea", "Hue", "PowerPro"],
-  Braun: ["Series 7", "Series 9", "Silk-épil", "ThermoScan", "Oral-B", "CoolTec", "Multigroom", "CareStyle", "FreeStyle", "Silk-épil 9"],
-  Panasonic: ["Lumix", "Arc5", "ES-LV95", "EW-DL82", "EW-Na58", "RP-HTX80", "ER-GB80", "NN-SN966S", "SR-TEK", "KX-TG7875"],
-  JBL: ["Pulse", "Charge", "Flip", "Wave", "Tour", "Live", "Club", "Tune", "Endurance", "Xtreme"],
-  Xiaomi: ["Mi Band", "Amazfit", "Mi Smart", "Mi Air Purifier", "Mi Scale", "Mi Electric Toothbrush", "Mi Robot Vacuum", "Mi TV", "Mi Watch", "Mi Body Composition"],
-};
-
 const CATEGORY_DEFINITIONS: RawCategoryNode[] = [
   {
     name: "Vehicles",

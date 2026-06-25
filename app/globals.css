@@ -107,3 +107,134 @@ body {
   stroke-dashoffset: 14;
   animation: sell-published-check-draw var(--ds-duration-slow) var(--ds-ease) 120ms both;
 }
+
+.live-countries-scroll {
+  max-height: min(70vh, 40rem);
+  overscroll-behavior: contain;
+}
+
+@keyframes live-country-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes live-country-leave {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes live-country-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+}
+
+.live-country-row-enter {
+  animation: live-country-enter 320ms var(--ds-ease) both;
+}
+
+.live-country-row-leave {
+  animation: live-country-leave 320ms var(--ds-ease) both;
+}
+
+.live-country-pulse-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: live-country-pulse 1.4s ease-in-out infinite;
+}
+
+.live-country-bar {
+  transition: width 480ms var(--ds-ease);
+}
+
+.live-analytics-glass {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.78));
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 12px 32px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(14px);
+}
+
+.live-analytics-scroll {
+  overscroll-behavior: contain;
+}
+
+.live-analytics-fade-in {
+  animation: live-analytics-fade-in 360ms var(--ds-ease) both;
+}
+
+.live-analytics-bar {
+  transition: width 520ms var(--ds-ease);
+}
+
+.live-analytics-map-pulse {
+  animation: live-analytics-map-pulse 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.live-analytics-loading {
+  animation: live-analytics-fade-in 420ms var(--ds-ease) both;
+}
+
+@keyframes live-analytics-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes live-analytics-map-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-country-row-enter,
+  .live-country-row-leave,
+  .live-country-pulse-dot,
+  .live-country-bar,
+  .live-analytics-fade-in,
+  .live-analytics-bar,
+  .live-analytics-map-pulse,
+  .live-analytics-loading {
+    animation: none;
+    transition: none;
+  }
+}
