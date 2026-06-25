@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiAuth } from "@/lib/auth/session";
-import { createClient } from "@/lib/supabase/server";
+import { getProfileDetails, updateProfileDetails } from "@/lib/profile/service";
+import { profileUpdateSchema } from "@/lib/account/schemas";
 
 export async function GET() {
   const auth = await requireApiAuth();
@@ -8,24 +9,34 @@ export async function GET() {
     return auth;
   }
 
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("profiles")
-    .select("id, email, role, full_name, avatar_url")
-    .eq("id", auth.user.id)
-    .maybeSingle();
-
-  if (!data) {
+  const profile = await getProfileDetails(auth.user.id);
+  if (!profile) {
     return NextResponse.json({ error: "Profile not found" }, { status: 404 });
   }
 
-  return NextResponse.json({
-    profile: {
-      id: data.id,
-      email: data.email,
-      role: data.role,
-      fullName: data.full_name,
-      avatarUrl: data.avatar_url ?? null,
-    },
-  });
+  return NextResponse.json({ profile });
+}
+
+export async function PATCH(request: Request) {
+  const auth = await requireApiAuth();
+  if (auth instanceof NextResponse) {
+    return auth;
+  }
+
+  try {
+    const body = await request.json();
+    const parsed = profileUpdateSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid profile data." },
+        { status: 400 },
+      );
+    }
+
+    const profile = await updateProfileDetails(auth.user.id, parsed.data);
+    return NextResponse.json({ profile });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unable to update profile.";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
 }

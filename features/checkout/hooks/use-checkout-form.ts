@@ -39,12 +39,40 @@ export function useCheckoutForm(product: ProductDetail, initialDraft: CheckoutDr
     setErrorMessage(null);
 
     try {
+      let shippingAddressId = draft.addressId;
+
+      if (!shippingAddressId) {
+        const addressResponse = await fetch("/api/addresses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            recipientName: draft.recipientName,
+            addressLine: draft.addressLine,
+            postcode: draft.postcode,
+            country: draft.country,
+            addressType: "shipping",
+            isDefault: true,
+          }),
+        });
+        const addressPayload = (await addressResponse.json()) as {
+          address?: { id: string };
+          error?: string;
+        };
+        if (!addressResponse.ok || !addressPayload.address?.id) {
+          setErrorMessage(addressPayload.error ?? "Unable to save shipping address.");
+          return;
+        }
+        shippingAddressId = addressPayload.address.id;
+        updateDraft({ addressId: shippingAddressId });
+      }
+
       const response = await fetch("/api/orders/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productSlug: product.slug,
           deliveryOption: draft.deliveryOption,
+          shippingAddressId,
         }),
       });
 
@@ -79,7 +107,7 @@ export function useCheckoutForm(product: ProductDetail, initialDraft: CheckoutDr
     } finally {
       setIsSubmitting(false);
     }
-  }, [canPay, draft.deliveryOption, isSubmitting, product.slug]);
+  }, [canPay, draft, isSubmitting, product.slug, updateDraft]);
 
   return {
     view,

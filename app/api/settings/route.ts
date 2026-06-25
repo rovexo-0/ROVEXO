@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAppSettings, updateAppSettings } from "@/lib/settings/store";
-import type { AppSettingsPatch } from "@/lib/settings/types";
+import { settingsPatchSchema } from "@/lib/account/schemas";
 import { requireApiAuth } from "@/lib/auth/session";
 
 export async function GET() {
@@ -20,8 +20,16 @@ export async function PATCH(request: Request) {
   }
 
   try {
-    const body = (await request.json()) as AppSettingsPatch;
-    const settings = await updateAppSettings(auth.user.id, body);
+    const body = await request.json();
+    const parsed = settingsPatchSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid settings." },
+        { status: 400 },
+      );
+    }
+
+    const settings = await updateAppSettings(auth.user.id, parsed.data);
     return NextResponse.json({ settings });
   } catch {
     return NextResponse.json({ error: "Unable to update settings." }, { status: 500 });

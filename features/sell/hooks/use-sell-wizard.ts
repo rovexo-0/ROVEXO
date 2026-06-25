@@ -388,6 +388,16 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     }
   }, [draft, editListingId, removedImageIds, router, uploadPhoto]);
 
+  const resetForAnotherListing = useCallback(() => {
+    setView("form");
+    setPublishedSlug(null);
+    setFormError(null);
+    setDraft(createEmptyDraft());
+    setRemovedImageIds([]);
+    setCategoryDetection({ suggestions: [], top: null, tier: "none" });
+    setCategoryDetectionDismissed(false);
+  }, []);
+
   return {
     view,
     draft,
@@ -412,6 +422,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     openCategoryPickerForChange,
     saveDraft,
     publishListing,
+    resetForAnotherListing,
   };
 }
 

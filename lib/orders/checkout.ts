@@ -19,6 +19,7 @@ type CheckoutInput = {
   buyerId: string;
   productSlug: string;
   deliveryOption: DeliveryOptionId;
+  shippingAddressId?: string;
 };
 
 type CheckoutResult =
@@ -101,6 +102,7 @@ export async function createOrderCheckoutSession(
       seller_payout: sellerAmount,
       invoice_number: invoiceNumber,
       reserved_until: reservedUntil,
+      shipping_address_id: input.shippingAddressId ?? null,
     })
     .select("id, order_number")
     .single();

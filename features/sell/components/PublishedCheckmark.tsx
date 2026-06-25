@@ -1,6 +1,13 @@
-export function PublishedCheckmark() {
+import { cn } from "@/lib/cn";
+
+export function PublishedCheckmark({ className }: { className?: string }) {
   return (
-    <div className="sell-published-check flex h-20 w-20 items-center justify-center rounded-ds-full bg-success/10">
+    <div
+      className={cn(
+        "sell-published-check flex h-20 w-20 items-center justify-center rounded-ds-full bg-success/10",
+        className,
+      )}
+    >
       <svg
         className="h-10 w-10 text-success"
         viewBox="0 0 24 24"

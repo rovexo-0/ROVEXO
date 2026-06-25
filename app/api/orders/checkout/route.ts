@@ -18,6 +18,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as {
       productSlug?: string;
       deliveryOption?: DeliveryOptionId;
+      shippingAddressId?: string;
     };
 
     if (!body.productSlug) {
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
       buyerId: auth.user.id,
       productSlug: body.productSlug,
       deliveryOption: body.deliveryOption ?? "standard",
+      shippingAddressId: body.shippingAddressId,
     });
 
     if ("error" in result) {

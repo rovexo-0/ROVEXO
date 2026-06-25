@@ -1599,7 +1599,9 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          phone: string | null
           role: Database["public"]["Enums"]["user_role"]
+          stripe_customer_id: string | null
           suspended_at: string | null
           suspended_reason: string | null
           updated_at: string
@@ -1614,7 +1616,9 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          stripe_customer_id?: string | null
           suspended_at?: string | null
           suspended_reason?: string | null
           updated_at?: string
@@ -1629,7 +1633,9 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          stripe_customer_id?: string | null
           suspended_at?: string | null
           suspended_reason?: string | null
           updated_at?: string
@@ -1979,6 +1985,7 @@ export type Database = {
         Row: {
           address_line: string
           address_line_2: string | null
+          address_type: string
           city: string | null
           country: string
           created_at: string
@@ -1992,6 +1999,7 @@ export type Database = {
         Insert: {
           address_line: string
           address_line_2?: string | null
+          address_type?: string
           city?: string | null
           country?: string
           created_at?: string
@@ -2005,6 +2013,7 @@ export type Database = {
         Update: {
           address_line?: string
           address_line_2?: string | null
+          address_type?: string
           city?: string | null
           country?: string
           created_at?: string
@@ -2027,30 +2036,36 @@ export type Database = {
       }
       user_settings: {
         Row: {
+          appearance_mode: string
           currency: string
           dark_mode: boolean
           email_notifications: boolean
           language: string
+          locale_code: string
           push_notifications: boolean
           updated_at: string
           user_id: string
           vacation_mode: boolean
         }
         Insert: {
+          appearance_mode?: string
           currency?: string
           dark_mode?: boolean
           email_notifications?: boolean
           language?: string
+          locale_code?: string
           push_notifications?: boolean
           updated_at?: string
           user_id: string
           vacation_mode?: boolean
         }
         Update: {
+          appearance_mode?: string
           currency?: string
           dark_mode?: boolean
           email_notifications?: boolean
           language?: string
+          locale_code?: string
           push_notifications?: boolean
           updated_at?: string
           user_id?: string
@@ -2984,6 +2999,53 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_methods: {
+        Row: {
+          brand: string
+          created_at: string
+          exp_month: number
+          exp_year: number
+          id: string
+          is_default: boolean
+          last4: string
+          stripe_payment_method_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          brand?: string
+          created_at?: string
+          exp_month: number
+          exp_year: number
+          id?: string
+          is_default?: boolean
+          last4: string
+          stripe_payment_method_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          brand?: string
+          created_at?: string
+          exp_month?: number
+          exp_year?: number
+          id?: string
+          is_default?: boolean
+          last4?: string
+          stripe_payment_method_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_methods_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

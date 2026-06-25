@@ -1,8 +1,12 @@
 "use client";
 
 import { MobileHubNavigator } from "@/features/mobile-ui";
-import { MobilePremiumSection } from "@/features/mobile-ui";
+import { MobilePremiumSection, MobilePremiumGrid } from "@/features/mobile-ui";
+import { MobilePremiumCard } from "@/features/mobile-ui";
+import { AppearancePicker } from "@/features/settings/components/AppearancePicker";
+import { LanguagePicker } from "@/features/settings/components/LanguagePicker";
 import { SettingToggle } from "@/features/settings/components/SettingToggle";
+import { getNavLinkIcon } from "@/lib/navigation/link-icons";
 import { SignOutIcon } from "@/features/profile/icons";
 import type { UserProfile } from "@/lib/profile/types";
 import type { AppSettings } from "@/lib/settings/types";
@@ -45,15 +49,6 @@ function SettingsToggles({
             onChange={(checked) => onUpdate({ emailNotifications: checked })}
           />
         </div>
-        <div className="mhub-card mhub-toggle-card px-ds-3 py-ds-2">
-          <SettingToggle
-            id="settings-dark-mobile"
-            label="Dark mode"
-            description="Toggle dark theme"
-            checked={settings.darkMode}
-            onChange={(checked) => onUpdate({ darkMode: checked })}
-          />
-        </div>
         {showVacation ? (
           <div className="mhub-card mhub-toggle-card px-ds-3 py-ds-2">
             <SettingToggle
@@ -79,7 +74,28 @@ export function SettingsMobileHub({
 }: SettingsMobileHubProps) {
   return (
     <div className="flex flex-col gap-ds-4">
+      <MobilePremiumSection id="mhub-account-tools" title="Account">
+        <MobilePremiumGrid>
+          <MobilePremiumCard href="/account/edit" label="Edit profile" subtitle="Name, avatar, phone" icon={getNavLinkIcon("/account")} />
+          <MobilePremiumCard href="/account/addresses" label="Addresses" subtitle="Shipping & billing" icon={getNavLinkIcon("/orders")} />
+          <MobilePremiumCard href="/account/payment-methods" label="Payment methods" subtitle="Cards & payouts" icon={getNavLinkIcon("/plans")} />
+          <MobilePremiumCard href="/notifications/settings" label="Notifications" subtitle="Push & email" icon={getNavLinkIcon("/notifications")} />
+        </MobilePremiumGrid>
+      </MobilePremiumSection>
       <MobileHubNavigator profile={profile} sectionTitle="Explore ROVEXO" />
+      <MobilePremiumSection id="mhub-language" title="Language & appearance">
+        <div className="flex flex-col gap-ds-4 px-ds-1">
+          <LanguagePicker
+            value={settings.language}
+            localeCode={settings.localeCode}
+            onChange={(localeCode) => onUpdate({ localeCode })}
+          />
+          <AppearancePicker
+            value={settings.appearanceMode}
+            onChange={(appearanceMode) => onUpdate({ appearanceMode })}
+          />
+        </div>
+      </MobilePremiumSection>
       <SettingsToggles
         settings={settings}
         onUpdate={onUpdate}

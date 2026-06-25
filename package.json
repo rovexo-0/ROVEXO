@@ -18,7 +18,9 @@
     "test:e2e:android-sell": "playwright test e2e/sell-android.spec.ts --project=android-chromium"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.4.0",
     "@next/third-parties": "16.2.9",
+    "@stripe/stripe-js": "^9.8.0",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "browser-image-compression": "^2.0.2",
@@ -26,6 +28,7 @@
     "next-themes": "^0.4.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-hook-form": "^7.80.0",
     "stripe": "^18.5.0",
     "zod": "^4.4.3"
   },

@@ -10,10 +10,11 @@ export type CheckoutDraft = {
   postcode: string;
   country: string;
   acceptedReturnPolicy: boolean;
+  addressId?: string;
 };
 
 export function createCheckoutDraft(
-  address: Pick<CheckoutDraft, "recipientName" | "addressLine" | "postcode" | "country">,
+  address: Pick<CheckoutDraft, "recipientName" | "addressLine" | "postcode" | "country" | "addressId">,
   paymentMethod: PaymentMethodId,
 ): CheckoutDraft {
   return {

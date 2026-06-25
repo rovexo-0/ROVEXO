@@ -11,6 +11,7 @@ import { SearchProvider } from "@/features/search/client";
 import Footer from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { LocaleProvider } from "@/lib/i18n/provider";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
 import { ToastProvider } from "@/components/ui/Toast";
 import { organizationJsonLd } from "@/lib/seo/metadata";
@@ -87,7 +88,8 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
         />
         <ThemeProvider>
-          <PwaProvider>
+          <LocaleProvider>
+            <PwaProvider>
             <ToastProvider>
               <SearchProvider>
                 <div className="flex min-h-full flex-1 flex-col">
@@ -96,7 +98,8 @@ export default function RootLayout({
                 </div>
               </SearchProvider>
             </ToastProvider>
-          </PwaProvider>
+            </PwaProvider>
+          </LocaleProvider>
         </ThemeProvider>
         <GoogleAnalytics />
       </body>

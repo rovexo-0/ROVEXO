@@ -19,7 +19,7 @@ export default async function CheckoutRoute({ params }: CheckoutPageProps) {
   }
 
   const profile = await getProfile();
-  const address = getDefaultCheckoutAddress(profile);
+  const address = await getDefaultCheckoutAddress(profile);
   const initialDraft = createCheckoutDraft(address, getDefaultPaymentMethod());
 
   return <CheckoutPage product={product} initialDraft={initialDraft} />;

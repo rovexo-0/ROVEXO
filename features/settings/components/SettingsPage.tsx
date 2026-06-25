@@ -21,13 +21,11 @@ import {
   NotificationsMenuIcon,
   OrdersMenuIcon,
   SignOutIcon,
-  WalletMenuIcon,
 } from "@/features/profile/icons";
 import {
   AccountIcon,
   BlockedIcon,
   CurrencyIcon,
-  LanguageIcon,
   LockIcon,
   PaymentIcon,
   PrivacyIcon,
@@ -37,7 +35,10 @@ import {
   TwoFactorIcon,
 } from "@/features/settings/icons";
 import { BETA_VERSION } from "@/lib/beta/roadmap";
-import { applyTheme } from "@/lib/settings/theme";
+import { syncThemeFromSettings } from "@/lib/settings/theme";
+import { AppearancePicker } from "@/features/settings/components/AppearancePicker";
+import { LanguagePicker } from "@/features/settings/components/LanguagePicker";
+import { SettingsThemeSync } from "@/components/providers/SettingsThemeSync";
 import type { AppSettings } from "@/lib/settings/types";
 import type { UserProfile } from "@/lib/profile/types";
 
@@ -69,7 +70,7 @@ export function SettingsPage({ profile }: SettingsPageProps) {
       .then((response) => response.json())
       .then((payload: { settings: AppSettings }) => {
         setSettings(payload.settings);
-        applyTheme(payload.settings.darkMode);
+        syncThemeFromSettings(payload.settings);
       });
   }, []);
 
@@ -80,8 +81,10 @@ export function SettingsPage({ profile }: SettingsPageProps) {
     const next = { ...settings, ...patch };
     setSettings(next);
 
-    if (patch.darkMode != null) {
-      applyTheme(patch.darkMode);
+    if (patch.appearanceMode != null) {
+      syncThemeFromSettings({ ...next, appearanceMode: patch.appearanceMode });
+    } else if (patch.darkMode != null) {
+      syncThemeFromSettings({ ...next, darkMode: patch.darkMode });
     }
 
     const response = await fetch("/api/settings", {
@@ -119,6 +122,7 @@ export function SettingsPage({ profile }: SettingsPageProps) {
 
   return (
     <BetaAppShell showBottomNav={false}>
+      <SettingsThemeSync settings={settings} />
       <SettingsHeader profile={profile} />
 
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
@@ -146,15 +150,22 @@ export function SettingsPage({ profile }: SettingsPageProps) {
           <ProfileMenuRow
             title="Personal information"
             subtitle="Name, username, avatar"
-            href="/account"
+            href="/account/edit"
             icon={<AccountIcon className="h-5 w-5" />}
           />
           <SettingsDivider />
           <ProfileMenuRow
             title="Email"
             subtitle={profile.email}
-            href="/account"
+            href="/account/edit"
             icon={<AccountIcon className="h-5 w-5" />}
+          />
+          <SettingsDivider />
+          <ProfileMenuRow
+            title="Addresses"
+            subtitle="Shipping and billing"
+            href="/account/addresses"
+            icon={<ShippingIcon className="h-5 w-5" />}
           />
         </SettingSection>
 
@@ -218,13 +229,19 @@ export function SettingsPage({ profile }: SettingsPageProps) {
         </SettingSection>
 
         <SettingSection title="Preferences">
-          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
-            <LanguageIcon className="h-5 w-5 shrink-0 text-text-secondary" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-text-primary">Language</p>
-              <p className="text-xs text-text-secondary">{settings.language}</p>
-            </div>
-            <ComingSoonBadge />
+          <div className="px-ds-4 py-ds-3">
+            <LanguagePicker
+              value={settings.language}
+              localeCode={settings.localeCode}
+              onChange={(localeCode) => void updateSetting({ localeCode })}
+            />
+          </div>
+          <SettingsDivider />
+          <div className="px-ds-4 py-ds-3">
+            <AppearancePicker
+              value={settings.appearanceMode}
+              onChange={(appearanceMode) => void updateSetting({ appearanceMode })}
+            />
           </div>
           <SettingsDivider />
           <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
@@ -233,53 +250,27 @@ export function SettingsPage({ profile }: SettingsPageProps) {
               <p className="text-sm font-medium text-text-primary">Currency</p>
               <p className="text-xs text-text-secondary">{settings.currency}</p>
             </div>
-            <ComingSoonBadge />
           </div>
-          <SettingsDivider />
-          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
-            <AccountIcon className="h-5 w-5 shrink-0 text-text-secondary" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-text-primary">Appearance</p>
-              <p className="text-xs text-text-secondary">Themes & display options</p>
-            </div>
-            <ComingSoonBadge />
-          </div>
-          <SettingsDivider />
-          <SettingToggle
-            id="settings-dark-mode"
-            label="Dark mode"
-            description="Toggle dark theme (beta)"
-            checked={settings.darkMode}
-            onChange={(checked) => void updateSetting({ darkMode: checked })}
-          />
         </SettingSection>
 
         <SettingSection title="Payments">
-          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
-            <StripeIcon className="h-5 w-5 shrink-0 text-text-secondary" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-text-primary">Stripe</p>
-            </div>
-            <ComingSoonBadge />
-          </div>
-          <SettingsDivider />
-          <div className="flex min-h-ds-7 items-center gap-ds-3 px-ds-4 py-ds-3">
-            <PaymentIcon className="h-5 w-5 shrink-0 text-text-secondary" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-text-primary">Payment methods</p>
-            </div>
-            <ComingSoonBadge />
-          </div>
-          {profile.isSeller && (
+          <ProfileMenuRow
+            title="Payment methods"
+            subtitle="Saved cards for checkout"
+            href="/account/payment-methods"
+            icon={<PaymentIcon className="h-5 w-5" />}
+          />
+          {profile.isSeller ? (
             <>
               <SettingsDivider />
               <ProfileMenuRow
-                title="Wallet"
+                title="Stripe Connect"
+                subtitle="Seller payouts and bank account"
                 href="/seller/wallet"
-                icon={<WalletMenuIcon className="h-5 w-5" />}
+                icon={<StripeIcon className="h-5 w-5" />}
               />
             </>
-          )}
+          ) : null}
           <SettingsDivider />
           <ProfileMenuRow
             title="Orders"

@@ -1,3 +1,5 @@
+export type AppearanceMode = "light" | "dark" | "system";
+
 export type AppSettings = {
   pushNotifications: boolean;
   emailNotifications: boolean;
@@ -5,6 +7,8 @@ export type AppSettings = {
   language: string;
   currency: string;
   vacationMode: boolean;
+  localeCode: string;
+  appearanceMode: AppearanceMode;
 };
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
@@ -14,6 +18,8 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   language: "English",
   currency: "EUR (€)",
   vacationMode: false,
+  localeCode: "en-IE",
+  appearanceMode: "system",
 };
 
 export type AppSettingsPatch = Partial<AppSettings>;
