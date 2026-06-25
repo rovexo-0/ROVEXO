@@ -1,6 +1,11 @@
+"use client";
+
+import { MobileHubSections } from "@/features/mobile-ui";
+import { ResponsiveShell } from "@/features/mobile-ui";
+import { getBusinessHubSections } from "@/lib/mobile-ui/hubs";
+import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 
 function buildBusinessSections(storeSlug: string) {
   return [
@@ -40,34 +45,43 @@ export function BusinessCenterPage({
 }: BusinessCenterPageProps) {
   const sections = buildBusinessSections(storeSlug);
 
-  return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-ds-8 px-ds-4 py-ds-6">
-      <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6">
-        <p className="text-sm font-medium text-primary">ROVEXO Business Center</p>
-        <h1 className="mt-ds-2 text-3xl font-bold text-text-primary">{companyName}</h1>
-        <p className="mt-ds-2 text-sm text-text-secondary">
-          Business sellers, company profiles, wholesale tools, verification, analytics, and marketing.
-        </p>
-        <div className="mt-ds-4 flex flex-wrap gap-ds-2">
-          {verifiedBusiness ? <Badge>Verified Business</Badge> : null}
-          {verifiedWholesale ? <Badge>Verified Wholesale</Badge> : null}
-          {verifiedManufacturer ? <Badge>Verified Manufacturer</Badge> : null}
-          {verifiedSupplier ? <Badge>Verified Supplier</Badge> : null}
-          <Badge>Trust Score {trustScore}</Badge>
-        </div>
-      </section>
+  const hero = (
+    <section className="mhub-hero lg:rounded-ds-xl lg:bg-gradient-to-br lg:from-primary/10 lg:via-surface lg:to-surface lg:p-ds-6">
+      <p className="text-sm font-medium text-primary">ROVEXO Business Center</p>
+      <h1 className="mt-ds-2 text-2xl font-bold text-text-primary lg:text-3xl">{companyName}</h1>
+      <p className="mt-ds-2 text-sm text-text-secondary">
+        Business sellers, company profiles, wholesale tools, verification, analytics, and marketing.
+      </p>
+      <div className="mt-ds-4 flex flex-wrap gap-ds-2">
+        {verifiedBusiness ? <Badge>Verified Business</Badge> : null}
+        {verifiedWholesale ? <Badge>Verified Wholesale</Badge> : null}
+        {verifiedManufacturer ? <Badge>Verified Manufacturer</Badge> : null}
+        {verifiedSupplier ? <Badge>Verified Supplier</Badge> : null}
+        <Badge>Trust Score {trustScore}</Badge>
+      </div>
+    </section>
+  );
 
-      <section className="grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
-        {sections.map((section) => (
-          <Link key={section.href} href={section.href}>
-            <Card padding="md" interactive className="h-full">
-              <p className="text-xl">{section.icon}</p>
-              <p className="mt-ds-2 font-semibold text-text-primary">{section.title}</p>
-              <p className="mt-ds-1 text-sm text-text-secondary">{section.description}</p>
-            </Card>
-          </Link>
-        ))}
-      </section>
+  return (
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-ds-6 px-ds-4 py-ds-6">
+      {hero}
+
+      <ResponsiveShell
+        mobile={<MobileHubSections sections={getBusinessHubSections()} />}
+        desktop={
+          <section className="grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
+            {sections.map((section) => (
+              <Link key={section.href} href={section.href}>
+                <Card padding="md" interactive className="h-full">
+                  <p className="text-xl">{section.icon}</p>
+                  <p className="mt-ds-2 font-semibold text-text-primary">{section.title}</p>
+                  <p className="mt-ds-1 text-sm text-text-secondary">{section.description}</p>
+                </Card>
+              </Link>
+            ))}
+          </section>
+        }
+      />
     </div>
   );
 }

@@ -44,7 +44,10 @@ export function SuperAdminUsersPanel({ initialQuery = "" }: SuperAdminUsersPanel
   }, [query, status, role]);
 
   useEffect(() => {
-    void loadUsers();
+    const timer = window.setTimeout(() => {
+      void loadUsers();
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [loadUsers]);
 
   const loadInsights = useCallback(async (userId: string) => {

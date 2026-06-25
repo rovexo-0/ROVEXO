@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
+import { HelpMobileNav } from "@/features/help/components/HelpMobileNav";
+import { focusRing } from "@/components/ui/tokens";
+import { cn } from "@/lib/cn";
 import type { HelpPolicyEntry } from "@/lib/help/policies";
 
 type HelpPoliciesPageProps = {
@@ -19,15 +22,37 @@ export function HelpPoliciesPage({ policies }: HelpPoliciesPageProps) {
         </p>
       </div>
 
-      <div className="grid gap-ds-3">
-        {policies.map((policy) => (
-          <Link key={policy.slug} href={policy.href}>
-            <Card padding="md" interactive className="">
-              <p className="font-semibold text-text-primary">{policy.title}</p>
-              <p className="mt-ds-1 text-sm text-text-secondary">{policy.summary}</p>
-            </Card>
-          </Link>
-        ))}
+      <div className="mhub-mobile">
+        <HelpMobileNav />
+      </div>
+
+      <div className="mhub-mobile">
+        <div className="mhub-grid">
+          {policies.map((policy) => (
+            <Link
+              key={policy.slug}
+              href={policy.href}
+              className={cn("mhub-card", focusRing)}
+              aria-label={`${policy.title}. ${policy.summary}`}
+            >
+              <p className="mhub-card__title">{policy.title}</p>
+              <p className="mhub-card__subtitle">{policy.summary}</p>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div className="mhub-desktop">
+        <div className="grid gap-ds-3">
+          {policies.map((policy) => (
+            <Link key={policy.slug} href={policy.href}>
+              <Card padding="md" interactive className="">
+                <p className="font-semibold text-text-primary">{policy.title}</p>
+                <p className="mt-ds-1 text-sm text-text-secondary">{policy.summary}</p>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );

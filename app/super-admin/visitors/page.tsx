@@ -4,7 +4,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export default async function SuperAdminVisitorsPage() {
   const admin = createAdminClient();
-  const fiveMinutesAgo = new Date(Date.now() - 5 * 60_000).toISOString();
+  const now = new Date();
+  const fiveMinutesAgo = new Date(now.getTime() - 5 * 60_000).toISOString();
   const [{ count: onlineNow }, { data: presence }] = await Promise.all([
     admin
       .from("user_presence")

@@ -10,11 +10,16 @@ import type { UserProfile } from "@/lib/profile/types";
 
 type ProfileHeroProps = {
   profile: UserProfile;
+  variant?: "default" | "dashboard";
 };
 
-export function ProfileHero({ profile }: ProfileHeroProps) {
+export function ProfileHero({ profile, variant = "default" }: ProfileHeroProps) {
+  const isDashboard = variant === "dashboard";
+
   return (
-    <MotionDiv className="premium-card overflow-hidden p-ds-6">
+    <MotionDiv
+      className={isDashboard ? "account-dash-card overflow-hidden p-ds-4" : "premium-card overflow-hidden p-ds-6"}
+    >
       <section aria-labelledby="profile-name" className="relative z-[1] flex flex-col items-center gap-ds-4 text-center">
         <div className="relative">
           <Avatar

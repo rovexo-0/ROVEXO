@@ -14,6 +14,8 @@ import type { AssistantPersona, MarketplaceAssistantResponse } from "@/lib/ai-as
 import { inferAssistantPersona } from "@/lib/ai-assistant/marketplace";
 import { renderMarkdown } from "@/lib/help/markdown";
 import { cn } from "@/lib/cn";
+import { MobileHubSections } from "@/features/mobile-ui";
+import { getSupportHubSections } from "@/lib/mobile-ui/hubs";
 
 export function MarketplaceAssistantPage() {
   const pathname = usePathname();
@@ -40,8 +42,17 @@ export function MarketplaceAssistantPage() {
 
   const activePersona = ASSISTANT_PERSONAS.find((entry) => entry.id === persona);
 
+  const supportTiles = getSupportHubSections()[0]?.tiles.filter((t) =>
+    ["/help", "/support", "/resolution", "/trust"].includes(t.href),
+  ) ?? [];
+
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-ds-6 px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
+      <div className="mhub-mobile">
+        <MobileHubSections
+          sections={[{ id: "assistant-links", title: "Quick Access", tiles: supportTiles }]}
+        />
+      </div>
       <MotionDiv className="premium-card flex items-start gap-ds-4 p-ds-5">
         <PremiumIcon size="lg" float glow label="ROVEXO AI">
           <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden>

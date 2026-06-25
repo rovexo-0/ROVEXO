@@ -5,6 +5,8 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { PlansMobileNav } from "@/features/monetization/components/PlansMobileNav";
+import { ResponsiveShell } from "@/features/mobile-ui";
 import type { MonetizationPlan, MonetizationProduct, MonetizationSubscription } from "@/lib/monetization/types";
 
 type PlansPageProps = {
@@ -73,6 +75,8 @@ export function PlansPage({ plans, products, subscription }: PlansPageProps) {
         ) : null}
         {error ? <p className="mt-ds-2 text-sm text-red-600">{error}</p> : null}
       </section>
+
+      <ResponsiveShell mobile={<PlansMobileNav />} desktop={null} />
 
       <section>
         <h2 className="text-lg font-semibold">Subscription plans</h2>

@@ -14,7 +14,6 @@ export function AuctionCountdown({ endsAt, urgent = false, className }: AuctionC
   const [label, setLabel] = useState(() => formatAuctionCountdown(endsAt));
 
   useEffect(() => {
-    setLabel(formatAuctionCountdown(endsAt));
     const timer = window.setInterval(() => {
       setLabel(formatAuctionCountdown(endsAt));
     }, 1000);

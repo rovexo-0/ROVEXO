@@ -37,7 +37,7 @@ export function getNavLinkIcon(href: string, className = "h-5 w-5"): ReactNode {
   ) {
     return <ListingsIcon className={className} />;
   }
-  if (href.startsWith("/settings")) {
+  if (href.startsWith("/settings") || href === "/legal") {
     return <SettingsIcon className={className} />;
   }
   if (

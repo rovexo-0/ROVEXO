@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/Card";
 import { AnimatedCounter } from "@/features/dashboard/components/AnimatedCounter";
+import { cn } from "@/lib/cn";
 import type { DashboardSummaryCard } from "@/features/dashboard/types";
 
 type DashboardSummaryGridProps = {
@@ -16,15 +17,20 @@ function formatSummaryValue(value: number, format?: DashboardSummaryCard["format
 
 function SummaryCard({ label, value, format }: DashboardSummaryCard) {
   return (
-    <Card padding="sm" className="flex min-h-[92px] flex-col justify-center gap-ds-1">
-      <span className="text-xl font-bold tracking-tight text-text-primary">
-        <AnimatedCounter
-          value={value}
-          format={(next) => formatSummaryValue(next, format)}
-        />
-      </span>
-      <span className="text-xs font-medium text-text-secondary">{label}</span>
-    </Card>
+    <>
+      <div className={cn("mhub-card mhub-toggle-card lg:hidden")}>
+        <span className="text-xl font-bold tracking-tight text-text-primary">
+          <AnimatedCounter value={value} format={(next) => formatSummaryValue(next, format)} />
+        </span>
+        <span className="text-xs font-medium text-text-secondary">{label}</span>
+      </div>
+      <Card padding="sm" className="hidden min-h-[92px] flex-col justify-center gap-ds-1 lg:flex">
+        <span className="text-xl font-bold tracking-tight text-text-primary">
+          <AnimatedCounter value={value} format={(next) => formatSummaryValue(next, format)} />
+        </span>
+        <span className="text-xs font-medium text-text-secondary">{label}</span>
+      </Card>
+    </>
   );
 }
 
@@ -38,9 +44,11 @@ export function DashboardSummaryGrid({
         {title}
       </h2>
 
-      <div className="grid grid-cols-2 gap-ds-3">
+      <div className="mhub-grid lg:grid lg:grid-cols-2 lg:gap-ds-3">
         {cards.map((card) => (
-          <SummaryCard key={card.label} {...card} />
+          <div key={card.label}>
+            <SummaryCard {...card} />
+          </div>
         ))}
       </div>
     </section>

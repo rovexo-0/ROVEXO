@@ -13,6 +13,8 @@ import { SettingToggle } from "@/features/settings/components/SettingToggle";
 import { SettingsHeader } from "@/features/settings/components/SettingsHeader";
 import { SettingsLoadingSkeleton } from "@/features/settings/components/SettingsLoadingSkeleton";
 import { SettingsProfileCard } from "@/features/settings/components/SettingsProfileCard";
+import { SettingsMobileHub } from "@/features/settings/components/SettingsMobileHub";
+import { ResponsiveShell } from "@/features/mobile-ui";
 import { ProfileMenuRow } from "@/features/profile/components/ProfileMenuRow";
 import {
   ListingsIcon,
@@ -126,6 +128,18 @@ export function SettingsPage({ profile }: SettingsPageProps) {
           </p>
         )}
 
+        <ResponsiveShell
+          mobile={
+            <SettingsMobileHub
+              profile={profile}
+              settings={settings}
+              onUpdate={(patch) => void updateSetting(patch)}
+              onLogout={() => setLogoutOpen(true)}
+              onDelete={() => setDeleteOpen(true)}
+            />
+          }
+          desktop={
+            <>
         <SettingsProfileCard profile={profile} />
 
         <SettingSection title="Profile">
@@ -344,6 +358,9 @@ export function SettingsPage({ profile }: SettingsPageProps) {
           <SignOutIcon className="h-5 w-5" />
           Log out
         </button>
+            </>
+          }
+        />
       </main>
       <HelpPageFooter pathname="/settings" />
 

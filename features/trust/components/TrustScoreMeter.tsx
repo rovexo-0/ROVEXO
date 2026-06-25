@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { transitionNormal } from "@/components/ui/tokens";
 import type { TrustTier } from "@/lib/trust/types";
@@ -22,6 +23,12 @@ export function TrustScoreMeter({
   nextTier,
 }: TrustScoreMeterProps) {
   const fill = Math.max(0, Math.min(100, score));
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setAnimated(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, [score]);
 
   return (
     <div className={cn("space-y-2", className)} aria-label={`Trust score ${score} out of 100`}>
@@ -44,7 +51,9 @@ export function TrustScoreMeter({
             "h-full rounded-ds-full bg-[image:var(--ds-gradient-primary)]",
             transitionNormal,
           )}
-          style={{ width: `${fill}%` }}
+          style={{
+            width: animated ? `${fill}%` : "0%",
+          }}
           role="progressbar"
           aria-valuenow={score}
           aria-valuemin={0}

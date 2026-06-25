@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { IconButton } from "@/components/ui/IconButton";
 import { StickyPageHeader } from "@/components/ui/StickyPageHeader";
-import { Card } from "@/components/ui/Card";
+import { MobilePremiumCard } from "@/features/mobile-ui/components/MobilePremiumCard";
+import { MobilePremiumGrid } from "@/features/mobile-ui";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { BellIcon, MenuIcon } from "@/features/dashboard/icons";
-import { ProfileMenuRow } from "@/features/profile/components/ProfileMenuRow";
 import type { DashboardMenuItem } from "@/features/dashboard/types";
 
 type DashboardHeaderProps = {
@@ -17,6 +17,11 @@ type DashboardHeaderProps = {
   menuItems: DashboardMenuItem[];
   menuLabel: string;
 };
+
+function formatNotificationBadge(count: number): string {
+  if (count > 9) return "9+";
+  return String(count);
+}
 
 export function DashboardHeader({
   title,
@@ -62,7 +67,7 @@ export function DashboardHeader({
             <BellIcon className="h-5 w-5" />
             {unreadNotifications > 0 && (
               <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-ds-full bg-danger px-1 text-[0.625rem] font-bold text-danger-foreground">
-                {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                {formatNotificationBadge(unreadNotifications)}
               </span>
             )}
           </Link>
@@ -70,27 +75,31 @@ export function DashboardHeader({
       </StickyPageHeader>
 
       {menuOpen && (
-        <div className="premium-sheet-overlay fixed inset-0 z-[100] px-ds-4 pt-[calc(56px+env(safe-area-inset-top))]">
+        <div className="premium-sheet-overlay fixed inset-0 z-[100] overflow-y-auto px-ds-4 pt-[calc(56px+env(safe-area-inset-top))] pb-ds-6">
           <button
             type="button"
             aria-label="Close menu"
             className="absolute inset-0"
             onClick={() => setMenuOpen(false)}
           />
-          <Card padding="none" className="relative mx-auto mt-ds-3 max-w-2xl overflow-hidden">
-            <nav aria-label={menuLabel}>
-              {menuItems.map((item, index) => (
-                <div key={item.title} className={index > 0 ? "border-t border-border" : undefined}>
-                  <ProfileMenuRow
-                    title={item.title}
-                    href={item.href}
-                    icon={item.icon}
-                    badge={item.badge}
-                  />
-                </div>
+          <nav
+            aria-label={menuLabel}
+            className="relative mx-auto mt-ds-3 max-w-2xl"
+            onClick={() => setMenuOpen(false)}
+          >
+            <MobilePremiumGrid>
+              {menuItems.map((item) => (
+                <MobilePremiumCard
+                  key={item.title}
+                  href={item.href ?? "/account"}
+                  label={item.title}
+                  subtitle="Open"
+                  icon={item.icon}
+                  badgeCount={item.badge ?? 0}
+                />
               ))}
-            </nav>
-          </Card>
+            </MobilePremiumGrid>
+          </nav>
         </div>
       )}
     </>

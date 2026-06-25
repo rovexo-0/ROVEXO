@@ -1,5 +1,7 @@
 import { RfqSubmitForm } from "@/features/wholesale/components/RfqSubmitForm";
+import { WholesaleMobileNav } from "@/features/wholesale/components/WholesaleMobileNav";
 import { WholesalePricingManager } from "@/features/wholesale/components/WholesalePricingManager";
+import { ResponsiveShell } from "@/features/mobile-ui";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -22,14 +24,19 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
         </p>
       </section>
 
-      <section className="grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
-        <QuickNav href="/business/inventory" label="Bulk pricing" />
-        <QuickNav href="/business/directory" label="Business directory" />
-        <QuickNav href="/plans" label="Wholesale plans" />
-        <QuickNav href="/help/category/wholesale" label="Wholesale help" />
-        <QuickNav href="/trust#verification" label="Verification" />
-        <QuickNav href="/business/center" label="Business center" />
-      </section>
+      <ResponsiveShell
+        mobile={<WholesaleMobileNav />}
+        desktop={
+          <section className="grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
+            <QuickNav href="/business/inventory" label="Bulk pricing" />
+            <QuickNav href="/business/directory" label="Business directory" />
+            <QuickNav href="/plans" label="Wholesale plans" />
+            <QuickNav href="/help/category/wholesale" label="Wholesale help" />
+            <QuickNav href="/trust#verification" label="Verification" />
+            <QuickNav href="/business/center" label="Business center" />
+          </section>
+        }
+      />
 
       <section className="grid gap-ds-4 lg:grid-cols-[1fr_1fr]">
         <Card padding="lg" className="">
@@ -78,14 +85,28 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
       <section className="grid gap-ds-4 lg:grid-cols-[1fr_1fr]">
         <Card padding="lg" className="lg:col-span-2">
           <h2 className="text-lg font-semibold">Wholesale features</h2>
-          <ul className="mt-ds-4 space-y-ds-3">
-            {WHOLESALE_FEATURES.map((feature) => (
-              <li key={feature.id}>
-                <p className="font-medium text-text-primary">{feature.title}</p>
-                <p className="text-sm text-text-secondary">{feature.description}</p>
-              </li>
-            ))}
-          </ul>
+          <ResponsiveShell
+            mobile={
+              <div className="mt-ds-4 mhub-grid">
+                {WHOLESALE_FEATURES.map((feature) => (
+                  <div key={feature.id} className="mhub-card mhub-toggle-card">
+                    <p className="font-medium text-text-primary">{feature.title}</p>
+                    <p className="mt-ds-1 text-sm text-text-secondary">{feature.description}</p>
+                  </div>
+                ))}
+              </div>
+            }
+            desktop={
+              <ul className="mt-ds-4 space-y-ds-3">
+                {WHOLESALE_FEATURES.map((feature) => (
+                  <li key={feature.id}>
+                    <p className="font-medium text-text-primary">{feature.title}</p>
+                    <p className="text-sm text-text-secondary">{feature.description}</p>
+                  </li>
+                ))}
+              </ul>
+            }
+          />
         </Card>
       </section>
 

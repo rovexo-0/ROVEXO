@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import "@/styles/tokens.css";
 import "@/styles/premium-2026.css";
+import "@/styles/mobile-premium.css";
 import "@/styles/locked-2026.css";
 import "./globals.css";
 

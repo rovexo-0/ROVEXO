@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Header from "@/components/Header";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { CategoriesMobileNav } from "@/features/categories/components/CategoriesMobileNav";
+import { ResponsiveShell } from "@/features/mobile-ui";
 import { getCategoryTree } from "@/lib/categories/queries";
 import { getCategoryIcon, getCategoryImageUrl } from "@/lib/categories/visuals";
 import Image from "next/image";
@@ -25,7 +27,9 @@ export default function CategoriesIndexPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-ds-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ResponsiveShell mobile={<CategoriesMobileNav />} desktop={null} />
+
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 lg:gap-ds-4">
             {tree.map((category) => (
               <Link
                 key={category.id}

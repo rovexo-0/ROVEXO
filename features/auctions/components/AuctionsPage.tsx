@@ -80,7 +80,10 @@ export function AuctionsPage({ initialData }: AuctionsPageProps) {
   }, []);
 
   useEffect(() => {
-    void refreshFiltered(filter, categorySlug);
+    const timer = window.setTimeout(() => {
+      void refreshFiltered(filter, categorySlug);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [categorySlug, filter, refreshFiltered]);
 
   return (

@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { MobileHubSections } from "@/features/mobile-ui";
+import { ResponsiveShell } from "@/features/mobile-ui";
 import type { SuperAdminDashboardData } from "@/lib/super-admin/dashboard";
 import { SUPER_ADMIN_QUICK_LINKS } from "@/lib/super-admin/nav";
 import { SuperAdminQuickActions } from "@/features/super-admin/components/SuperAdminQuickActions";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import Link from "next/link";
+import { getSuperAdminHubSections } from "@/lib/mobile-ui/hubs";
 import type { HealthStatus } from "@/lib/ops/health";
 
 type SuperAdminDashboardProps = {
@@ -190,31 +191,36 @@ export function SuperAdminDashboard({ data }: SuperAdminDashboardProps) {
         </div>
       </section>
 
-      <section>
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-text-muted">Command modules</h3>
-        <div className="mt-ds-3 grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
-          {SUPER_ADMIN_QUICK_LINKS.slice(0, 12).map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "rounded-ds-xl border border-border bg-white p-ds-4 shadow-[0_8px_24px_rgba(15,23,42,0.05)] transition-transform hover:-translate-y-0.5",
-                focusRing,
-              )}
-            >
-              <div className="flex items-center gap-ds-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-ds-lg bg-primary/10 text-xl">
-                  {item.icon}
-                </span>
-                <div>
-                  <p className="font-semibold text-text-primary">{item.label}</p>
-                  <p className="text-xs text-text-secondary">{item.description}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <ResponsiveShell
+        mobile={<MobileHubSections sections={getSuperAdminHubSections()} />}
+        desktop={
+          <section>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-text-muted">Command modules</h3>
+            <div className="mt-ds-3 grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
+              {SUPER_ADMIN_QUICK_LINKS.slice(0, 12).map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "rounded-ds-xl border border-border bg-white p-ds-4 shadow-[0_8px_24px_rgba(15,23,42,0.05)] transition-transform hover:-translate-y-0.5",
+                    focusRing,
+                  )}
+                >
+                  <div className="flex items-center gap-ds-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-ds-lg bg-primary/10 text-xl">
+                      {item.icon}
+                    </span>
+                    <div>
+                      <p className="font-semibold text-text-primary">{item.label}</p>
+                      <p className="text-xs text-text-secondary">{item.description}</p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        }
+      />
     </div>
   );
 }

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
+import { HelpMobileNav } from "@/features/help/components/HelpMobileNav";
+import { ResponsiveShell } from "@/features/mobile-ui";
 import { listHelpFaqs, searchHelpFaqs } from "@/lib/help/faq";
 
 export function HelpFaqPage() {
@@ -26,6 +28,8 @@ export function HelpFaqPage() {
           className="mt-ds-4 w-full premium-input rounded-ds-xl px-ds-4 py-ds-3 text-sm"
         />
       </div>
+
+      <ResponsiveShell mobile={<HelpMobileNav />} desktop={null} />
 
       <div className="space-y-ds-3">
         {faqs.map((faq) => (
