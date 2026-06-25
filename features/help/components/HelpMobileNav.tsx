@@ -1,8 +1,7 @@
 "use client";
 
-import { MobileHubSections } from "@/features/mobile-ui";
-import { getSupportHubSections } from "@/lib/mobile-ui/hubs";
+import { MobileHubNavigator } from "@/features/mobile-ui";
 
 export function HelpMobileNav() {
-  return <MobileHubSections sections={getSupportHubSections()} />;
+  return <MobileHubNavigator defaultHub="support" startExpanded sectionTitle="Support hubs" />;
 }

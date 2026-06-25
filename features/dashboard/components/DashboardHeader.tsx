@@ -1,21 +1,22 @@
 "use client";
 
-import Link from "next/link";
 import { useState, type ReactNode } from "react";
+import Link from "next/link";
 import { IconButton } from "@/components/ui/IconButton";
 import { StickyPageHeader } from "@/components/ui/StickyPageHeader";
-import { MobilePremiumCard } from "@/features/mobile-ui/components/MobilePremiumCard";
-import { MobilePremiumGrid } from "@/features/mobile-ui";
+import { MobileHubNavigator } from "@/features/mobile-ui";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { BellIcon, MenuIcon } from "@/features/dashboard/icons";
-import type { DashboardMenuItem } from "@/features/dashboard/types";
+import type { MobilePrimaryHubId } from "@/lib/mobile-ui/types";
+import type { UserProfile } from "@/lib/profile/types";
 
 type DashboardHeaderProps = {
   title: string;
   unreadNotifications: number;
-  menuItems: DashboardMenuItem[];
   menuLabel: string;
+  profile: UserProfile;
+  defaultHub?: MobilePrimaryHubId;
 };
 
 function formatNotificationBadge(count: number): string {
@@ -26,8 +27,9 @@ function formatNotificationBadge(count: number): string {
 export function DashboardHeader({
   title,
   unreadNotifications,
-  menuItems,
   menuLabel,
+  profile,
+  defaultHub,
 }: DashboardHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -82,24 +84,14 @@ export function DashboardHeader({
             className="absolute inset-0"
             onClick={() => setMenuOpen(false)}
           />
-          <nav
-            aria-label={menuLabel}
+          <div
             className="relative mx-auto mt-ds-3 max-w-2xl"
+            role="dialog"
+            aria-label={menuLabel}
             onClick={() => setMenuOpen(false)}
           >
-            <MobilePremiumGrid>
-              {menuItems.map((item) => (
-                <MobilePremiumCard
-                  key={item.title}
-                  href={item.href ?? "/account"}
-                  label={item.title}
-                  subtitle="Open"
-                  icon={item.icon}
-                  badgeCount={item.badge ?? 0}
-                />
-              ))}
-            </MobilePremiumGrid>
-          </nav>
+            <MobileHubNavigator profile={profile} defaultHub={defaultHub} />
+          </div>
         </div>
       )}
     </>

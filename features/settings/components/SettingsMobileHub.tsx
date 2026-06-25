@@ -1,11 +1,9 @@
 "use client";
 
-import { MobileHubSections } from "@/features/mobile-ui";
+import { MobileHubNavigator } from "@/features/mobile-ui";
 import { MobilePremiumSection } from "@/features/mobile-ui";
 import { SettingToggle } from "@/features/settings/components/SettingToggle";
 import { SignOutIcon } from "@/features/profile/icons";
-import { BETA_VERSION } from "@/lib/beta/roadmap";
-import type { MobileHubSection } from "@/lib/mobile-ui/types";
 import type { UserProfile } from "@/lib/profile/types";
 import type { AppSettings } from "@/lib/settings/types";
 import { cn } from "@/lib/cn";
@@ -18,84 +16,6 @@ type SettingsMobileHubProps = {
   onLogout: () => void;
   onDelete: () => void;
 };
-
-function buildSettingsSections(
-  profile: UserProfile,
-  businessSettingsHref: string,
-): MobileHubSection[] {
-  return [
-    {
-      id: "profile",
-      title: "Profile",
-      tiles: [
-        { href: "/account", label: "Personal information", subtitle: "Name, username, avatar" },
-        { href: "/account", label: "Email", subtitle: profile.email },
-      ],
-    },
-    {
-      id: "security",
-      title: "Security",
-      tiles: [{ href: "/forgot-password", label: "Password", subtitle: "Reset via email" }],
-    },
-    {
-      id: "notifications",
-      title: "Notifications",
-      tiles: [
-        {
-          href: "/notifications/settings",
-          label: "Notification settings",
-          subtitle: "Push & email",
-        },
-      ],
-    },
-    {
-      id: "privacy",
-      title: "Privacy",
-      tiles: [
-        { href: "/help/privacy-policy", label: "Privacy policy", subtitle: "Data & privacy" },
-        { href: "/trust", label: "Trust Centre", subtitle: "Score & safety" },
-      ],
-    },
-    {
-      id: "payments",
-      title: "Payments",
-      tiles: [
-        { href: "/orders", label: "Orders", subtitle: "Transaction history", badge: "orders" },
-        ...(profile.isSeller
-          ? [
-              {
-                href: "/seller/wallet",
-                label: "Wallet",
-                subtitle: "Seller balance",
-                badge: "wallet-payout" as const,
-              },
-            ]
-          : []),
-      ],
-    },
-    ...(profile.isSeller
-      ? [
-          {
-            id: "selling",
-            title: "Selling",
-            tiles: [
-              { href: businessSettingsHref, label: "Business settings", subtitle: "Seller dashboard" },
-              { href: "/seller/listings", label: "My Listings", subtitle: "Manage inventory" },
-            ],
-          } satisfies MobileHubSection,
-        ]
-      : []),
-    {
-      id: "about",
-      title: "About",
-      tiles: [
-        { href: "/help/terms-of-service", label: "Terms", subtitle: "Terms of service" },
-        { href: "/help/privacy-policy", label: "Privacy", subtitle: "Privacy policy" },
-        { href: "/legal", label: "About ROVEXO", subtitle: `Version ${BETA_VERSION}` },
-      ],
-    },
-  ];
-}
 
 function SettingsToggles({
   settings,
@@ -157,15 +77,9 @@ export function SettingsMobileHub({
   onLogout,
   onDelete,
 }: SettingsMobileHubProps) {
-  const businessSettingsHref =
-    profile.accountType === "business" ? "/business/dashboard" : "/seller/dashboard";
-
   return (
     <div className="flex flex-col gap-ds-4">
-      <MobileHubSections
-        sections={buildSettingsSections(profile, businessSettingsHref)}
-        badgeSeed={{ isSeller: profile.isSeller }}
-      />
+      <MobileHubNavigator profile={profile} sectionTitle="Explore ROVEXO" />
       <SettingsToggles
         settings={settings}
         onUpdate={onUpdate}

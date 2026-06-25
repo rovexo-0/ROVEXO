@@ -31,6 +31,7 @@ export default async function BusinessCenterRoute() {
   return (
     <BetaAppShell showBottomNav={false}>
       <BusinessCenterPage
+        profile={profile}
         companyName={businessAccount?.business_name ?? "Your Business"}
         storeSlug={profile.username ?? profile.id}
         verifiedBusiness={Boolean(businessAccount?.verified_business)}

@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { MobileHubSections } from "@/features/mobile-ui";
+import { MobileHubNavigator } from "@/features/mobile-ui";
 import { ResponsiveShell } from "@/features/mobile-ui";
-import { getTrustHubSections } from "@/lib/mobile-ui/hubs";
+import { MobileHubSections } from "@/features/mobile-ui";
 import { TrustVerificationActions } from "@/features/trust/components/TrustVerificationActions";
 import { TrustScoreMeter } from "@/features/trust/components/TrustScoreMeter";
 import { TrustTierBadge } from "@/features/trust/components/TrustTierBadge";
 import type { TrustDashboardData } from "@/lib/trust/types";
 import { TRUST_CENTER_SECTIONS, VERIFICATION_TYPES } from "@/lib/trust/types";
+import { getTrustHubSections } from "@/lib/mobile-ui/hubs";
 import { cn } from "@/lib/cn";
 
 type TrustCenterPageProps = {
@@ -70,7 +71,12 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
       </section>
 
       <ResponsiveShell
-        mobile={<MobileHubSections sections={getTrustHubSections()} />}
+        mobile={
+          <>
+            <MobileHubSections sections={getTrustHubSections()} />
+            <MobileHubNavigator defaultHub="support" sectionTitle="All hubs" />
+          </>
+        }
         desktop={
           <section>
             <h2 className="text-lg font-semibold">Trust Center</h2>

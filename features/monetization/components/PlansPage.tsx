@@ -7,15 +7,17 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { PlansMobileNav } from "@/features/monetization/components/PlansMobileNav";
 import { ResponsiveShell } from "@/features/mobile-ui";
+import type { UserProfile } from "@/lib/profile/types";
 import type { MonetizationPlan, MonetizationProduct, MonetizationSubscription } from "@/lib/monetization/types";
 
 type PlansPageProps = {
   plans: MonetizationPlan[];
   products: MonetizationProduct[];
   subscription: MonetizationSubscription | null;
+  profile: UserProfile;
 };
 
-export function PlansPage({ plans, products, subscription }: PlansPageProps) {
+export function PlansPage({ plans, products, subscription, profile }: PlansPageProps) {
   const router = useRouter();
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +78,7 @@ export function PlansPage({ plans, products, subscription }: PlansPageProps) {
         {error ? <p className="mt-ds-2 text-sm text-red-600">{error}</p> : null}
       </section>
 
-      <ResponsiveShell mobile={<PlansMobileNav />} desktop={null} />
+      <ResponsiveShell mobile={<PlansMobileNav profile={profile} />} desktop={null} />
 
       <section>
         <h2 className="text-lg font-semibold">Subscription plans</h2>

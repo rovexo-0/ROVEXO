@@ -1,8 +1,8 @@
 "use client";
 
-import { MobileHubSections } from "@/features/mobile-ui";
+import { MobileHubNavigator } from "@/features/mobile-ui";
 import { ResponsiveShell } from "@/features/mobile-ui";
-import { getBusinessHubSections } from "@/lib/mobile-ui/hubs";
+import type { UserProfile } from "@/lib/profile/types";
 import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
@@ -25,6 +25,7 @@ function buildBusinessSections(storeSlug: string) {
 }
 
 type BusinessCenterPageProps = {
+  profile: UserProfile;
   companyName: string;
   storeSlug: string;
   verifiedBusiness: boolean;
@@ -35,6 +36,7 @@ type BusinessCenterPageProps = {
 };
 
 export function BusinessCenterPage({
+  profile,
   companyName,
   storeSlug,
   verifiedBusiness,
@@ -67,7 +69,15 @@ export function BusinessCenterPage({
       {hero}
 
       <ResponsiveShell
-        mobile={<MobileHubSections sections={getBusinessHubSections()} />}
+        mobile={
+          <MobileHubNavigator
+            profile={profile}
+            defaultHub="business"
+            startExpanded
+            context={{ storeSlug }}
+            sectionTitle="Explore ROVEXO"
+          />
+        }
         desktop={
           <section className="grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
             {sections.map((section) => (

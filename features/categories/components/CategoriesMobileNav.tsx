@@ -1,8 +1,7 @@
 "use client";
 
-import { MobileHubSections } from "@/features/mobile-ui";
-import { getCategoriesNavSections } from "@/lib/mobile-ui/hubs";
+import { MobileHubNavigator } from "@/features/mobile-ui";
 
 export function CategoriesMobileNav() {
-  return <MobileHubSections sections={getCategoriesNavSections()} />;
+  return <MobileHubNavigator defaultHub="buy" startExpanded sectionTitle="Explore ROVEXO" />;
 }

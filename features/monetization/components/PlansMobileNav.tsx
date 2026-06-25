@@ -1,8 +1,19 @@
 "use client";
 
-import { MobileHubSections } from "@/features/mobile-ui";
-import { getPlansHubSections } from "@/lib/mobile-ui/hubs";
+import { MobileHubNavigator } from "@/features/mobile-ui";
+import type { UserProfile } from "@/lib/profile/types";
 
-export function PlansMobileNav() {
-  return <MobileHubSections sections={getPlansHubSections()} />;
+type PlansMobileNavProps = {
+  profile?: UserProfile;
+};
+
+export function PlansMobileNav({ profile }: PlansMobileNavProps) {
+  return (
+    <MobileHubNavigator
+      profile={profile}
+      defaultHub="business"
+      startExpanded
+      sectionTitle="Explore ROVEXO"
+    />
+  );
 }

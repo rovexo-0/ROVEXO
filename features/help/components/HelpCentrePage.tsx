@@ -3,22 +3,20 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { HelpAssistant } from "@/features/help/components/HelpAssistant";
-import { MobileHubSections } from "@/features/mobile-ui";
+import { MobileHubNavigator } from "@/features/mobile-ui";
 import { MobilePremiumCard } from "@/features/mobile-ui/components/MobilePremiumCard";
 import { MobilePremiumGrid } from "@/features/mobile-ui";
 import { ResponsiveShell } from "@/features/mobile-ui";
-import { getHelpHubQuickTiles } from "@/lib/mobile-ui/hubs";
 import { getNavLinkIcon } from "@/lib/navigation/link-icons";
 import { HELP_TOPIC_GROUPS, getHelpTopicsByGroup } from "@/lib/help/content/topics";
 import { searchHelpCentre } from "@/lib/help/search";
 import type { HelpSearchResult } from "@/lib/help/types";
+import { getHelpHubQuickTiles } from "@/lib/mobile-ui/hubs";
 import { Card } from "@/components/ui/Card";
 
 type HelpCentrePageProps = {
   initialQuery?: string;
 };
-
-const QUICK_TILES = getHelpHubQuickTiles();
 
 export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
   const [query, setQuery] = useState(initialQuery);
@@ -53,10 +51,7 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
         mobile={
           !query.trim() ? (
             <>
-              <MobileHubSections
-                sections={[{ id: "support", title: "Support", tiles: QUICK_TILES }]}
-                header={null}
-              />
+              <MobileHubNavigator defaultHub="support" startExpanded sectionTitle="Support hubs" />
               <MobileBrowseTopics />
             </>
           ) : (
@@ -67,7 +62,7 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
           <>
             {!query.trim() ? (
               <section className="grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
-                {QUICK_TILES.map((tile) => (
+                {getHelpHubQuickTiles().map((tile) => (
                   <DesktopQuickLink
                     key={tile.href + tile.label}
                     href={tile.href}

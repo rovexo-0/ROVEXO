@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MobileHubSections } from "@/features/mobile-ui";
-import { getAccountHubSections } from "@/lib/mobile-ui/hubs";
+import { MobileHubNavigator } from "@/features/mobile-ui";
 import { ProfileHero } from "@/features/profile/components/ProfileHero";
 import { ProfileSignOutButton } from "@/features/profile/components/ProfileSignOutButton";
 import { SellerOverviewCards } from "@/features/profile/components/SellerOverviewCards";
@@ -10,7 +9,6 @@ import type { TrustDashboardData } from "@/lib/trust/types";
 import type { UserProfile } from "@/lib/profile/types";
 import { NotificationsMenuIcon } from "@/features/profile/icons";
 import { IconButton } from "@/components/ui/IconButton";
-import { useMobileBadges } from "@/features/mobile-ui/hooks/use-mobile-badges";
 
 type AccountMobileDashboardProps = {
   profile: UserProfile;
@@ -25,7 +23,7 @@ function AccountHeaderActions({ notificationCount }: { notificationCount: number
       </IconButton>
       {notificationCount > 0 ? (
         <span className="mhub-badge mhub-badge--danger pointer-events-none absolute right-0 top-0" aria-hidden>
-          {notificationCount > 99 ? "99+" : notificationCount}
+          {notificationCount > 9 ? "9+" : notificationCount}
         </span>
       ) : null}
     </div>
@@ -66,18 +64,12 @@ function TrustCard({ trustData }: { trustData: TrustDashboardData }) {
 }
 
 export function AccountMobileDashboard({ profile, trustData }: AccountMobileDashboardProps) {
-  const badges = useMobileBadges({
-    messages: profile.unreadMessages,
-    notifications: profile.unreadNotifications,
-    isSeller: profile.isSeller,
-  });
-
   return (
     <div className="flex flex-col gap-ds-4">
       <header className="premium-page-header sticky top-0 z-50 -mx-ds-4 px-ds-4">
         <div className="flex items-center justify-between gap-ds-3 pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]">
           <h1 className="min-w-0 truncate text-2xl font-bold text-text-primary">Account</h1>
-          <AccountHeaderActions notificationCount={badges.notifications} />
+          <AccountHeaderActions notificationCount={profile.unreadNotifications} />
         </div>
       </header>
 
@@ -91,13 +83,13 @@ export function AccountMobileDashboard({ profile, trustData }: AccountMobileDash
         <SellerOverviewCards stats={profile.sellerStats} layout="mobile-dashboard" />
       ) : null}
 
-      <MobileHubSections
-        sections={getAccountHubSections(profile)}
-        badges={badges}
+      <MobileHubNavigator
+        profile={profile}
+        sectionTitle="Explore ROVEXO"
         badgeSeed={{
+          isSeller: profile.isSeller,
           messages: profile.unreadMessages,
           notifications: profile.unreadNotifications,
-          isSeller: profile.isSeller,
         }}
       />
 

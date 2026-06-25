@@ -8,6 +8,8 @@ export type MobileBadgeKey =
 
 export type MobileBadgeTone = "danger" | "success" | "muted";
 
+export type MobilePrimaryHubId = "buy" | "sell" | "business" | "support";
+
 export type MobileTile = {
   href: string;
   label: string;
@@ -24,4 +26,15 @@ export type MobileHubSection = {
   tiles: MobileTile[];
 };
 
+export type MobilePrimaryHub = {
+  id: MobilePrimaryHubId;
+  label: string;
+  subtitle: string;
+  tiles: MobileTile[];
+};
+
 export type MobileBadges = Record<MobileBadgeKey, number>;
+
+export type MobileHubContext = {
+  storeSlug?: string;
+};

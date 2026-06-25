@@ -1,8 +1,7 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Card } from "@/components/ui/Card";
-import { MobileHubSections } from "@/features/mobile-ui";
+import { MobileHubNavigator } from "@/features/mobile-ui";
 import { ResponsiveShell } from "@/features/mobile-ui";
-import { getSupportHubSections } from "@/lib/mobile-ui/hubs";
 import Link from "next/link";
 import type { ProtectionCase } from "@/lib/protection/service";
 
@@ -61,9 +60,7 @@ export function ResolutionMobileContent({ buyerCases, sellerCases }: ResolutionM
           Buyer and seller protection cases with evidence and appeals.
         </p>
       </section>
-      <MobileHubSections
-        sections={getSupportHubSections().filter((s) => s.id === "support")}
-      />
+      <MobileHubNavigator defaultHub="support" startExpanded sectionTitle="Support hubs" />
       <CaseGrid title="Your buyer cases" cases={buyerCases} emptyLabel="No open buyer cases." />
       <CaseGrid title="Your seller cases" cases={sellerCases} emptyLabel="No seller protection cases." />
     </div>
