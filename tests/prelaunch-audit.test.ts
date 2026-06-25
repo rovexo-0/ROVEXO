@@ -9,11 +9,11 @@ describe("Pre-launch production config", () => {
       expect.arrayContaining([
         expect.objectContaining({
           path: "/api/cron/maintenance",
-          schedule: "*/15 * * * *",
+          schedule: "0 6 * * *",
         }),
         expect.objectContaining({
           path: "/api/cron/orders/cleanup",
-          schedule: "*/15 * * * *",
+          schedule: "0 3 * * *",
         }),
       ]),
     );
