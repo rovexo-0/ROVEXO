@@ -3,7 +3,6 @@
 import { memo } from "react";
 import type { Product } from "@/lib/products/types";
 import { ProductCarouselSection } from "@/components/home/ProductCarouselSection";
-import { HomeHeroBanner } from "@/components/home/HomeHeroBanner";
 import { HomeCategoryRail } from "@/components/home/HomeCategoryRail";
 import { AuctionsSection } from "@/components/home/AuctionsSection";
 import { StoreMigrationHeroBanner } from "@/features/seller/migration/components/StoreMigrationHeroBanner";
@@ -26,20 +25,19 @@ export const HomeContent = memo(function HomeContent({
   return (
     <main
       className={cn(
-        "home-premium-polish flex flex-col gap-ds-2 pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))] lg:mx-auto lg:max-w-7xl lg:w-full",
+        "home-premium-polish flex flex-col gap-ds-3 pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))] lg:mx-auto lg:max-w-7xl lg:w-full",
       )}
     >
-      <HomeHeroBanner />
+      <StoreMigrationHeroBanner />
 
       <HomeCategoryRail />
-
-      <StoreMigrationHeroBanner />
 
       <ProductCarouselSection
         id="featured-heading"
         title="Featured Listings"
         products={featured}
         error={loadError}
+        hideWhenEmpty={false}
         viewAllHref="/search?q=&featured=1"
       />
 
@@ -48,6 +46,7 @@ export const HomeContent = memo(function HomeContent({
         title="Recommended For You"
         products={recommended}
         error={loadError}
+        hideWhenEmpty={false}
         viewAllHref="/search?q=&sort=trending"
       />
 
@@ -58,6 +57,7 @@ export const HomeContent = memo(function HomeContent({
         title="Latest Listings"
         products={newest}
         error={loadError}
+        hideWhenEmpty={false}
         viewAllHref="/search?q=&sort=newest"
       />
     </main>

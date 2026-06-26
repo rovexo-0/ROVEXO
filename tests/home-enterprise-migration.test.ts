@@ -20,7 +20,6 @@ const LEGACY_HOME_IMPORTS = [
 ];
 
 const ENTERPRISE_HOME_IMPORTS = [
-  "HomeHeroBanner",
   "HomeCategoryRail",
   "StoreMigrationHeroBanner",
   "ProductCarouselSection",
@@ -41,6 +40,8 @@ describe("Homepage enterprise migration contract", () => {
       expect(homeContent).not.toContain(legacyImport);
     }
 
+    expect(homeContent).not.toContain("HomeHeroBanner");
+
     for (const enterpriseImport of ENTERPRISE_HOME_IMPORTS) {
       expect(homeContent).toContain(enterpriseImport);
     }
@@ -49,18 +50,15 @@ describe("Homepage enterprise migration contract", () => {
   it("keeps the approved v1.0 homepage section order", () => {
     const homeContent = readSource("components/home/HomeContent.tsx");
 
-    const heroIndex = homeContent.indexOf("<HomeHeroBanner");
-    const categoryIndex = homeContent.indexOf("<HomeCategoryRail");
     const bannerIndex = homeContent.indexOf("<StoreMigrationHeroBanner");
+    const categoryIndex = homeContent.indexOf("<HomeCategoryRail");
     const featuredIndex = homeContent.indexOf('title="Featured Listings"');
     const recommendedIndex = homeContent.indexOf('title="Recommended For You"');
     const auctionsIndex = homeContent.indexOf("<AuctionsSection");
     const latestIndex = homeContent.indexOf('title="Latest Listings"');
 
-    expect(heroIndex).toBeGreaterThan(-1);
-    expect(categoryIndex).toBeGreaterThan(heroIndex);
-    expect(bannerIndex).toBeGreaterThan(categoryIndex);
-    expect(featuredIndex).toBeGreaterThan(bannerIndex);
+    expect(bannerIndex).toBeGreaterThan(-1);
+    expect(categoryIndex).toBeGreaterThan(bannerIndex);
     expect(recommendedIndex).toBeGreaterThan(featuredIndex);
     expect(auctionsIndex).toBeGreaterThan(recommendedIndex);
     expect(latestIndex).toBeGreaterThan(auctionsIndex);
