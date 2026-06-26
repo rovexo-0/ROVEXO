@@ -3,6 +3,26 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 describe("Pre-launch production config", () => {
+  it("uses Vercel Hobby-compatible cron schedules (at most once per day)", () => {
+    const vercel = JSON.parse(readFileSync(path.join(process.cwd(), "vercel.json"), "utf8"));
+    for (const cron of vercel.crons) {
+      expect(cron.schedule).not.toMatch(/\*\//);
+      expect(cron.schedule).toMatch(/^\S+ \S+ \* \* \*$/);
+    }
+    expect(vercel.crons).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: "/api/cron/migration/process",
+          schedule: "0 4 * * *",
+        }),
+        expect.objectContaining({
+          path: "/api/cron/migration/publish",
+          schedule: "0 5 * * *",
+        }),
+      ]),
+    );
+  });
+
   it("includes vercel cron schedules for maintenance and order cleanup", () => {
     const vercel = JSON.parse(readFileSync(path.join(process.cwd(), "vercel.json"), "utf8"));
     expect(vercel.crons).toEqual(
