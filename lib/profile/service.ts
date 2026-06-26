@@ -21,23 +21,25 @@ export async function getProfileDetails(userId: string): Promise<ProfileDetails 
   const admin = createAdminClient();
 
   const [{ data: profile }, { data: seller }, authUser] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+    admin
+      .from("profiles")
+      .select("id, username, full_name, avatar_url, verified, role, phone, email")
+      .eq("id", userId)
+      .maybeSingle(),
     supabase.from("seller_profiles").select("bio").eq("id", userId).maybeSingle(),
     admin.auth.admin.getUserById(userId),
   ]);
 
   if (!profile) return null;
 
-  const row = profile as { phone?: string | null; stripe_customer_id?: string | null };
-
   return {
     id: profile.id,
-    email: profile.email,
+    email: authUser.data.user?.email ?? profile.email,
     role: profile.role,
     fullName: profile.full_name,
     username: profile.username,
     avatarUrl: profile.avatar_url,
-    phone: row.phone ?? null,
+    phone: profile.phone ?? null,
     verified: profile.verified,
     bio: seller?.bio ?? null,
     emailVerified: Boolean(authUser.data.user?.email_confirmed_at),

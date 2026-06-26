@@ -4,6 +4,13 @@ import type { UserProfile } from "@/lib/profile/types";
 import type { AccountType } from "@/lib/profile/account";
 import { isAdmin, isSellerRole, isSuperAdmin } from "@/lib/auth/session";
 
+/** Columns granted to authenticated users (see prelaunch_security migration). */
+const PROFILE_READ_COLUMNS =
+  "id, username, full_name, avatar_url, verified, role, created_at" as const;
+
+const SELLER_PROFILE_READ_COLUMNS =
+  "id, listing_count, sales_count, follower_count" as const;
+
 function formatMemberSince(isoDate: string): string {
   return new Intl.DateTimeFormat("en-GB", {
     month: "long",
@@ -11,9 +18,19 @@ function formatMemberSince(isoDate: string): string {
   }).format(new Date(isoDate));
 }
 
+type ProfileReadRow = Pick<
+  Tables<"profiles">,
+  "id" | "username" | "full_name" | "avatar_url" | "verified" | "role" | "created_at" | "email"
+>;
+
+type SellerProfileStatsRow = Pick<
+  Tables<"seller_profiles">,
+  "listing_count" | "sales_count" | "follower_count"
+>;
+
 function mapProfileRow(
-  profile: Tables<"profiles">,
-  sellerProfile: Tables<"seller_profiles"> | null,
+  profile: ProfileReadRow,
+  sellerProfile: SellerProfileStatsRow | null,
   unreadMessages: number,
   unreadNotifications: number,
 ): UserProfile {
@@ -76,19 +93,33 @@ async function countUnreadMessages(
 export async function fetchProfileByUserId(userId: string): Promise<UserProfile | null> {
   const supabase = await createClient();
 
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", userId)
-    .maybeSingle();
+  const [
+    { data: profile, error },
+    {
+      data: { user },
+    },
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select(PROFILE_READ_COLUMNS)
+      .eq("id", userId)
+      .maybeSingle(),
+    supabase.auth.getUser(),
+  ]);
 
   if (error || !profile) {
     return null;
   }
 
+  const email = user?.id === userId ? (user.email ?? "") : "";
+
   const [{ data: sellerProfile }, unreadMessages, { count: unreadNotifications }] =
     await Promise.all([
-      supabase.from("seller_profiles").select("*").eq("id", userId).maybeSingle(),
+      supabase
+        .from("seller_profiles")
+        .select(SELLER_PROFILE_READ_COLUMNS)
+        .eq("id", userId)
+        .maybeSingle(),
       countUnreadMessages(userId, profile.role),
       supabase
         .from("notifications")
@@ -97,7 +128,12 @@ export async function fetchProfileByUserId(userId: string): Promise<UserProfile 
         .eq("read", false),
     ]);
 
-  return mapProfileRow(profile, sellerProfile, unreadMessages, unreadNotifications ?? 0);
+  return mapProfileRow(
+    { ...profile, email },
+    sellerProfile,
+    unreadMessages,
+    unreadNotifications ?? 0,
+  );
 }
 
 export async function fetchCurrentProfile(): Promise<UserProfile | null> {
