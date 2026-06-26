@@ -5,7 +5,7 @@ test.describe("marketplace core", () => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
     await expect(page.locator("#header-search, [data-header-search='bar']").first()).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByRole("heading", { name: /featured listings/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /premium marketplace/i }).first()).toBeVisible();
     const categories = page.locator('section[aria-labelledby="home-categories-heading"]');
     await expect(categories.locator('a[href="/category/vehicles"]').first()).toBeVisible();
     await expect(categories.locator('a[href="/category/fashion"]').first()).toBeVisible();

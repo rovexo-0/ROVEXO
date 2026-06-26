@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, Settings } from "lucide-react";
+import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
 import { NotificationBadge } from "@/features/account-page/components/NotificationBadge";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { focusRing } from "@/components/ui/tokens";
@@ -21,7 +21,7 @@ export function AccountPageHeader() {
             aria-label={hasUnread ? `Notifications, ${unreadCount} unread` : "Notifications"}
             className={cn("account-header__action", focusRing)}
           >
-            <Bell size={24} strokeWidth={2} aria-hidden />
+            <DashboardIcon3D type="notifications" size={24} />
             {hasUnread ? <NotificationBadge count={unreadCount} /> : null}
           </Link>
           <Link
@@ -29,7 +29,7 @@ export function AccountPageHeader() {
             aria-label="Settings"
             className={cn("account-header__action", focusRing)}
           >
-            <Settings size={24} strokeWidth={2} aria-hidden />
+            <DashboardIcon3D type="settings" size={24} />
           </Link>
         </div>
       </div>

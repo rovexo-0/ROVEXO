@@ -41,7 +41,7 @@ export function getSellerDashboardTiles(): MobileTile[] {
     tile("/seller/connectors", "Marketplace Connectors", "Connect external stores"),
     tile("/seller/trust", "Trust Score", "Reputation & improvements"),
     tile("/seller/tax", "Tax Registration", "VAT & tax settings"),
-    tile("/sell", "Sell an Item", "Create a new listing"),
+    tile("/sell", "Sell Item", "Create a new listing"),
     tile("/sell/new", "Publish Listing", "Listing creation wizard"),
   ];
 }

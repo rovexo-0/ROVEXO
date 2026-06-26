@@ -15,6 +15,7 @@ const PROTECTED_PREFIXES = [
   "/checkout",
   "/sell",
   "/seller",
+  "/import",
   "/business",
   "/admin",
   "/super-admin",

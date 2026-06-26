@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { memo } from "react";
-import { SELL_WIZARD_PATH } from "@/lib/seller/migration/config";
+import { IMPORT_WIZARD_PATH } from "@/lib/seller/migration/config";
 import { MIGRATION_PLATFORMS } from "@/lib/seller/migration/constants";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
@@ -16,7 +16,7 @@ export const StoreMigrationHeroBanner = memo(function StoreMigrationHeroBanner()
   return (
     <section aria-labelledby="store-migration-banner-heading" className="px-ds-4">
       <Link
-        href={SELL_WIZARD_PATH}
+        href={IMPORT_WIZARD_PATH}
         className={cn(
           "bring-your-item-banner-2026 group border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-surface shadow-[0_12px_40px_rgba(15,23,42,0.08)] transition-colors hover:border-primary/35",
           focusRing,
@@ -47,7 +47,7 @@ export const StoreMigrationHeroBanner = memo(function StoreMigrationHeroBanner()
                 "min-h-10 px-ds-5 text-sm text-white",
               )}
             >
-              Bring Your Item
+              Bring Your Items
             </span>
           </div>
         </div>

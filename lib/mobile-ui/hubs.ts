@@ -5,6 +5,7 @@ import {
 } from "@/lib/navigation/map";
 import { SUPER_ADMIN_NAV } from "@/lib/super-admin/nav";
 import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
+import { MARKETPLACE_CONNECTORS_PATH } from "@/lib/seller/marketplace/config";
 import type { UserProfile } from "@/lib/profile/types";
 import type {
   MobileHubContext,
@@ -66,8 +67,9 @@ export function getSellHubTiles(profile: UserProfile): MobileTile[] {
     tile("/seller/orders", "Seller Orders", "Fulfillment & shipping", "orders"),
     tile("/seller/wallet", "Wallet", "Balance & withdrawals", "wallet-payout"),
     tile("/seller/analytics", "Analytics", "Views, sales & trends"),
-    tile(MIGRATION_CENTER_PATH, "Bring Your Item", "Import your store"),
-    tile("/sell/new", "Publish Wizard", "Step-by-step listing"),
+    tile(MIGRATION_CENTER_PATH, "Bring Your Items", "Import your entire store"),
+    tile("/sell/new", "Publish Listing", "Step-by-step listing"),
+    tile(MARKETPLACE_CONNECTORS_PATH, "Marketplace Connectors", "Connect external stores"),
     tile("/seller/tax", "Tax", "VAT & registration"),
   ];
 }

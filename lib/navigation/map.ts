@@ -1,5 +1,6 @@
 import type { UserProfile } from "@/lib/profile/types";
 import { SUPER_ADMIN_PRIMARY_NAV } from "@/lib/super-admin/nav";
+import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
 
 export type NavLink = {
   href: string;
@@ -25,11 +26,11 @@ export const SELLER_NAV: NavLink[] = [
   { href: "/seller/orders", label: "Seller Orders", subtitle: "Fulfillment & shipping" },
   { href: "/seller/wallet", label: "Wallet", subtitle: "Balance & withdrawals" },
   { href: "/seller/analytics", label: "Seller Analytics", subtitle: "Views, sales & trends" },
-  { href: "/seller/migration", label: "Bring Your Items", subtitle: "Import your entire store" },
+  { href: MIGRATION_CENTER_PATH, label: "Bring Your Items", subtitle: "Import your entire store" },
   { href: "/seller/connectors", label: "Marketplace Connectors", subtitle: "Connect external stores" },
   { href: "/seller/trust", label: "Trust Score", subtitle: "Reputation & improvements" },
   { href: "/seller/tax", label: "Tax Registration", subtitle: "VAT & tax settings" },
-  { href: "/sell", label: "Sell an Item", subtitle: "Create a new listing" },
+  { href: "/sell", label: "Sell Item", subtitle: "Create a new listing" },
   { href: "/sell/new", label: "Publish Listing", subtitle: "Listing creation wizard" },
 ];
 
@@ -141,6 +142,8 @@ export const ALL_PUBLIC_ROUTES = [
   "/resolution",
   "/sell",
   "/sell/new",
+  "/import",
+  "/import-wizard",
   "/seller/migration",
   "/seller/connectors",
   "/seller/dashboard",

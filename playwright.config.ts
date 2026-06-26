@@ -5,9 +5,14 @@ import { loadDotEnvFiles } from "./scripts/playwright-env.mjs";
 // Load local secrets (Supabase, Stripe, etc.) for the dev server and integration tests.
 loadDotEnvFiles();
 
-const port = process.env.PLAYWRIGHT_PORT ?? "3020";
-// Use 127.0.0.1 (not localhost) so Windows does not resolve to ::1 while next start binds IPv4.
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${port}`;
+const managedE2EPort = "3025";
+const port = process.env.PLAYWRIGHT_ALLOW_REMOTE === "1"
+  ? (process.env.PLAYWRIGHT_PORT ?? managedE2EPort)
+  : managedE2EPort;
+// Always target the managed local E2E server (ignore PLAYWRIGHT_BASE_URL / SKIP from .env.local).
+const localBaseURL = `http://127.0.0.1:${port}`;
+const baseURL = localBaseURL;
+const useManagedWebServer = process.env.PLAYWRIGHT_ALLOW_REMOTE !== "1";
 const isCI = Boolean(process.env.CI);
 
 const webServerEnvObj: Record<string, string> = {
@@ -20,7 +25,7 @@ const webServerEnvObj: Record<string, string> = {
   SUPABASE_SERVICE_ROLE_KEY:
     process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY ?? "placeholder",
   // Always align app URL with the Playwright-managed server port (do not inherit .env.local).
-  NEXT_PUBLIC_APP_URL: baseURL,
+  NEXT_PUBLIC_APP_URL: localBaseURL,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? "sk_test_placeholder",
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET ?? "whsec_placeholder",
   RESEND_API_KEY: process.env.RESEND_API_KEY ?? "re_placeholder",
@@ -61,14 +66,14 @@ export default defineConfig({
     timeout: 15_000,
   },
   projects: buildAllProjects(),
-  webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
-    ? undefined
-    : {
+  webServer: useManagedWebServer
+    ? {
         command: webServerCommand(),
         url: `${baseURL}/api/health/live`,
-        // Only reuse an existing server when explicitly opted in (avoids stale/broken dev servers).
-        reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === "1",
+        // Never attach to a stale dev server on another port (e.g. 3020 from .env.local).
+        reuseExistingServer: false,
         timeout: 300_000,
         env: webServerEnvObj,
-      },
+      }
+    : undefined,
 });

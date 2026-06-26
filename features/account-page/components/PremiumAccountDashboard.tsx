@@ -24,6 +24,16 @@ type PremiumAccountDashboardProps = {
   trustData?: TrustDashboardData;
 };
 
+function dedupeTiles(tiles: MobileTile[]): MobileTile[] {
+  const seen = new Set<string>();
+  return tiles.filter((entry) => {
+    const key = entry.href;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function HubSection({
   id,
   title,
@@ -38,7 +48,7 @@ function HubSection({
   return (
     <section className="account-section" aria-labelledby={id}>
       <SectionTitle id={id}>{title}</SectionTitle>
-      <div className="account-menu-grid">
+      <div className="account-menu-grid enterprise-hub-grid">
         {tiles.map((tile) => (
           <MenuCard
             key={`${id}-${tile.href}-${tile.label}`}
@@ -59,7 +69,7 @@ export function PremiumAccountDashboard({ profile, trustData }: PremiumAccountDa
   const resolveBadge = (href: string, key?: MobileBadgeKey) =>
     badgeCounts ? resolveHrefBadge(href, badgeCounts) : resolveMobileBadge(key, badges);
 
-  const buyTiles = getBuyHubTiles();
+  const buyTiles = dedupeTiles([...QUICK_ACCESS_TILES, ...getBuyHubTiles()]);
   const sellTiles = getSellHubTiles(profile);
   const businessTiles = getBusinessHubTiles(profile);
   const supportTiles = getSupportHubTiles();
@@ -71,27 +81,20 @@ export function PremiumAccountDashboard({ profile, trustData }: PremiumAccountDa
       <div className="account-page__content">
         <ProfileCard profile={profile} trustData={trustData} />
 
-        <HubSection
-          id="account-quick-access"
-          title="Quick Access"
-          tiles={QUICK_ACCESS_TILES}
-          resolveBadge={resolveBadge}
-        />
+        <HubSection id="account-buy-hub" title="BUY" tiles={buyTiles} resolveBadge={resolveBadge} />
 
-        <HubSection id="account-buy-hub" title="Buy Hub" tiles={buyTiles} resolveBadge={resolveBadge} />
-
-        <HubSection id="account-sell-hub" title="Sell Hub" tiles={sellTiles} resolveBadge={resolveBadge} />
+        <HubSection id="account-sell-hub" title="SELL" tiles={sellTiles} resolveBadge={resolveBadge} />
 
         <HubSection
           id="account-business-hub"
-          title="Business Hub"
+          title="BUSINESS"
           tiles={businessTiles}
           resolveBadge={resolveBadge}
         />
 
         <HubSection
           id="account-support-hub"
-          title="Support Hub"
+          title="SUPPORT"
           tiles={supportTiles}
           resolveBadge={resolveBadge}
         />

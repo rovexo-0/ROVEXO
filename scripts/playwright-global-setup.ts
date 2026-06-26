@@ -61,7 +61,7 @@ function runProductionBuild(env: NodeJS.ProcessEnv) {
 export default async function globalSetup() {
   loadDotEnvFiles();
 
-  const port = process.env.PLAYWRIGHT_PORT ?? "3020";
+  const port = process.env.PLAYWRIGHT_PORT ?? "3025";
   const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${port}`;
 
   const buildEnv: NodeJS.ProcessEnv = {

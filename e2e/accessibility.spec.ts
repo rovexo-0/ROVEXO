@@ -13,7 +13,7 @@ for (const route of criticalRoutes) {
   test(`WCAG audit: ${route.name}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(route.path);
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState(route.path.startsWith("/search") ? "domcontentloaded" : "networkidle");
 
     const axe = new AxeBuilder({ page }).withTags([
       "wcag2a",

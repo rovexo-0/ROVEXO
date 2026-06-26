@@ -9,13 +9,14 @@ import {
   MIGRATION_IMPORT_METHODS,
   MIGRATION_PLATFORMS,
 } from "@/lib/seller/migration/constants";
-import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
+import { IMPORT_WIZARD_PATH, MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
 import { buildPreviewItems } from "@/lib/seller/migration/preview";
 import { MIGRATION_BATCH_SIZE } from "@/lib/seller/migration/engine/config";
 
 describe("store migration module", () => {
   it("defines migration center route", () => {
-    expect(MIGRATION_CENTER_PATH).toBe("/seller/migration");
+    expect(MIGRATION_CENTER_PATH).toBe(IMPORT_WIZARD_PATH);
+    expect(MIGRATION_CENTER_PATH).toBe("/import");
   });
 
   it("lists supported platforms and import methods", () => {

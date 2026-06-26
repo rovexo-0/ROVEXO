@@ -16,7 +16,7 @@ for (const viewport of viewports) {
 
     await expect(page.locator('[data-header-version="premium-2026"]')).toBeVisible();
     await expect(page.locator("#header-search")).toBeVisible();
-    await expect(page.getByRole("heading", { name: /featured listings/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /premium marketplace/i }).first()).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
 
     const headerBox = await page.locator('[data-header-version="premium-2026"]').boundingBox();

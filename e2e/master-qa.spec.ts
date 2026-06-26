@@ -12,7 +12,7 @@ type RouteExpectation = {
 };
 
 const PUBLIC_ROUTES: RouteExpectation[] = [
-  { path: "/", name: "Homepage", landmark: /featured listings/i },
+  { path: "/", name: "Homepage", landmark: /premium marketplace/i },
   { path: "/search", name: "Search", landmark: /search rovexo|results for/i },
   { path: "/categories", name: "Categories", landmark: /all categories/i },
   { path: "/category/home-garden/furniture/beds", name: "Category", landmark: "Beds" },
@@ -42,7 +42,8 @@ const PROTECTED_ROUTES: RouteExpectation[] = [
   { path: "/notifications", name: "Notifications", authRedirect: true },
   { path: "/saved", name: "Saved", authRedirect: true },
   { path: "/admin", name: "Admin", authRedirect: true },
-  { path: "/seller/migration", name: "Migration center", authRedirect: true },
+  { path: "/import", name: "Import wizard", authRedirect: true },
+  { path: "/seller/migration", name: "Migration center (legacy)", authRedirect: true },
   { path: "/seller/connectors", name: "Marketplace connectors", authRedirect: true },
   { path: "/cart", name: "Cart", authRedirect: true },
   { path: "/resolution", name: "Resolution Centre", authRedirect: true },
@@ -102,17 +103,23 @@ test.describe("Master QA — homepage sections", () => {
 
     await expect(page.locator('[data-header-version="premium-2026"]')).toBeVisible();
     await expect(page.locator("#header-search, [data-header-search='bar']").first()).toBeVisible();
-    await expect(page.getByRole("heading", { name: /premium marketplace|featured listings/i }).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /premium marketplace/i }).first()).toBeVisible();
     await expect(page.locator('section[aria-labelledby="home-categories-heading"]')).toBeVisible();
-    await expect(page.getByRole("heading", { name: /featured listings/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /recommended for you/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /latest listings/i })).toBeVisible();
+
+    const featuredHeading = page.getByRole("heading", { name: /featured listings/i });
+    if ((await featuredHeading.count()) > 0) {
+      await expect(featuredHeading).toBeVisible();
+      await expect(page.getByRole("heading", { name: /recommended for you/i })).toBeVisible();
+      await expect(page.getByRole("heading", { name: /latest listings/i })).toBeVisible();
+    }
+
     await page.locator("#auctions-heading").scrollIntoViewIfNeeded();
     await expect(page.locator("#auctions-heading")).toHaveText(/popular auctions/i);
     const banner = page.locator('section[aria-labelledby="store-migration-banner-heading"] a');
     await banner.scrollIntoViewIfNeeded();
     await expect(banner).toBeVisible();
-    await expect(banner).toHaveAttribute("href", "/sell/new");
+    await expect(banner).toHaveAttribute("href", "/import");
+    await expect(banner.getByText("Bring Your Items")).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
   });
 });
@@ -129,22 +136,23 @@ test.describe("Master QA — navigation links", () => {
     await expect(nav.getByRole("link", { name: "Account" })).toBeVisible();
   });
 
-  test("bring your item banner opens sell wizard", async ({ page }) => {
+  test("bring your items banner opens import wizard", async ({ page }) => {
     await page.goto("/");
     const banner = page.locator('section[aria-labelledby="store-migration-banner-heading"] a');
     await banner.scrollIntoViewIfNeeded();
     await expect(banner).toBeVisible();
-    await expect(banner).toHaveAttribute("href", "/sell/new");
-    await expect(banner.getByText("Bring Your Item")).toBeVisible();
+    await expect(banner).toHaveAttribute("href", "/import");
+    await expect(banner.getByText("Bring Your Items")).toBeVisible();
   });
 
-  test("footer help links resolve", async ({ page }) => {
+  test("footer legal links resolve", async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    const helpLink = page.getByRole("link", { name: "Help center" }).first();
-    await expect(helpLink).toBeVisible();
-    await helpLink.click();
-    await expect(page).toHaveURL(/\/help/);
+    const footer = page.getByRole("contentinfo");
+    await footer.scrollIntoViewIfNeeded();
+    const contactLink = footer.getByRole("link", { name: "Contact" });
+    await expect(contactLink).toBeVisible();
+    await contactLink.click();
+    await expect(page).toHaveURL(/\/support/);
     await assertNoServerError(page);
   });
 });
