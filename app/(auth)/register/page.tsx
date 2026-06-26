@@ -1,8 +1,11 @@
 import { signUp } from "@/lib/auth/actions";
+import { redirectIfAuthenticated } from "@/lib/auth/guest-redirect";
 import { AuthForm, AuthLink } from "@/features/auth/components/AuthForm";
 import { RegisterFields } from "@/features/auth/components/RegisterFields";
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  await redirectIfAuthenticated();
+
   return (
     <AuthForm
       title="Create your account"

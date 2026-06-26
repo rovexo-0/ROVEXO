@@ -30,7 +30,11 @@ export function redirectPathForRole(role: UserRole): string {
   return "/account";
 }
 
+/** Default destination after auth when already signed in (middleware + post-login). */
+export const AUTHENTICATED_HOME = "/account";
+
 export const AUTH_ERROR_MESSAGES: Record<string, string> = {
   auth_callback_failed: "Sign-in link expired or invalid. Please try again.",
   reset_session_required: "Open the password reset link from your email to continue.",
+  profile_missing: "Your account session is incomplete. Please sign in again.",
 };

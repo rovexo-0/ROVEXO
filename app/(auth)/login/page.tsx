@@ -1,4 +1,5 @@
 import { signIn } from "@/lib/auth/actions";
+import { redirectIfAuthenticated } from "@/lib/auth/guest-redirect";
 import { AUTH_ERROR_MESSAGES } from "@/lib/auth/redirects";
 import {
   AuthField,
@@ -8,12 +9,15 @@ import {
 } from "@/features/auth/components/AuthForm";
 import { AuthPasswordField } from "@/features/auth/components/AuthPasswordField";
 import { LoginRememberRow } from "@/features/auth/components/LoginRememberRow";
+import { AUTH_EMAIL_PLACEHOLDER } from "@/lib/email/constants";
 
 type LoginPageProps = {
   searchParams: Promise<{ next?: string; error?: string }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
+  await redirectIfAuthenticated();
+
   const { next, error } = await searchParams;
   const initialError = error
     ? AUTH_ERROR_MESSAGES[error] ?? "Unable to sign in. Please try again."
@@ -43,7 +47,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           type="email"
           autoComplete="email"
           inputMode="email"
-          placeholder="you@example.com"
+          placeholder={AUTH_EMAIL_PLACEHOLDER}
         />
         <AuthPasswordField
           label="Password"
