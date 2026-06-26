@@ -67,7 +67,7 @@ function Header({
         "header-premium-2026 top-0 left-0 right-0 z-[100]",
         hasScrollBehavior
           ? cn(
-              "fixed will-change-transform transition-[transform,opacity] duration-200 ease-in-out",
+              "fixed will-change-transform transition-[transform,opacity] duration-[220ms] ease-in-out",
               "lg:sticky lg:relative lg:will-change-auto",
               isVisible
                 ? "translate-y-0 opacity-100"

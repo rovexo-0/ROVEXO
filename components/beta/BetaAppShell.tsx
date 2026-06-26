@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { BottomNavigation, type BottomNavTab } from "@/components/ui/BottomNavigation";
+import { MobileHeaderScrollProvider } from "@/components/home/MobileHeaderScrollContext";
 import { RealtimeNotificationProvider } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { cn } from "@/lib/cn";
 
@@ -22,16 +23,18 @@ export function BetaAppShell({
 }: BetaAppShellProps) {
   return (
     <RealtimeNotificationProvider initialUnreadCount={initialUnreadCount}>
-      <div
-        className={cn(
-          "min-h-screen bg-background text-text-primary",
-          "bg-[radial-gradient(ellipse_120%_80%_at_50%_-30%,rgb(37_99_235/0.08),transparent)]",
-          className,
-        )}
-      >
-        {children}
-        {showBottomNav && <BottomNavigation active={bottomNavTab} />}
-      </div>
+      <MobileHeaderScrollProvider>
+        <div
+          className={cn(
+            "min-h-screen bg-background text-text-primary",
+            "bg-[radial-gradient(ellipse_120%_80%_at_50%_-30%,rgb(37_99_235/0.08),transparent)]",
+            className,
+          )}
+        >
+          {children}
+          {showBottomNav && <BottomNavigation active={bottomNavTab} />}
+        </div>
+      </MobileHeaderScrollProvider>
     </RealtimeNotificationProvider>
   );
 }

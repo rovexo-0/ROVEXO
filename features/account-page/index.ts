@@ -1,4 +1,5 @@
 export { AccountPageView } from "@/features/account-page/components/AccountPageView";
+export { PremiumAccountDashboard } from "@/features/account-page/components/PremiumAccountDashboard";
 export { AccountPageHeader } from "@/features/account-page/components/AccountPageHeader";
 export { ProfileCard } from "@/features/account-page/components/ProfileCard";
 export { TrustScoreCard } from "@/features/account-page/components/TrustScoreCard";

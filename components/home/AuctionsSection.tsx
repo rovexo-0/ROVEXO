@@ -12,7 +12,7 @@ export const AuctionsSection = memo(function AuctionsSection() {
       <div className="mb-ds-2 flex items-end justify-between gap-ds-2">
         <div>
           <h2 id="auctions-heading" className="home-section-2026__title text-text-primary">
-            Auctions
+            Popular Auctions
           </h2>
           <p className="text-sm text-text-secondary">Bid on live listings from verified sellers</p>
         </div>

@@ -713,6 +713,33 @@
   min-height: var(--ds-touch-target);
 }
 
+/* Bring Your Item banner — LOCKED 600×225 @ 26px (design system v1.0) */
+.bring-your-item-banner-2026 {
+  display: block;
+  width: min(calc(100% - var(--ds-space-4)), var(--ds-hero-banner-w));
+  max-width: var(--ds-hero-banner-w);
+  height: var(--ds-hero-banner-h);
+  margin-inline: auto;
+  border-radius: var(--ds-hero-banner-radius);
+  overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.bring-your-item-banner-2026__inner {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--ds-space-4);
+}
+
+@media (min-width: 640px) {
+  .bring-your-item-banner-2026__inner {
+    padding: var(--ds-space-5);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marketplace-listing-card:hover,
   .marketplace-listing-card:active,

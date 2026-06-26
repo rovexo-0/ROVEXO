@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { MouseEvent } from "react";
-import { Home, Search, Heart, User, Plus } from "lucide-react";
+import { BottomNavIcon3D, type BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
+import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -21,14 +22,14 @@ type NavItem = {
   id: BottomNavTab;
   label: string;
   href: string;
-  icon: typeof Home;
+  icon: BottomNavIconType;
 };
 
 const navItems: NavItem[] = [
-  { id: "home", label: "Home", href: "/", icon: Home },
-  { id: "search", label: "Search", href: "/search", icon: Search },
-  { id: "saved", label: "Saved", href: "/saved", icon: Heart },
-  { id: "account", label: "Account", href: "/account", icon: User },
+  { id: "home", label: "Home", href: "/", icon: "home" },
+  { id: "search", label: "Search", href: "/search", icon: "search" },
+  { id: "saved", label: "Saved", href: "/saved", icon: "saved" },
+  { id: "account", label: "Account", href: "/account", icon: "account" },
 ];
 
 function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab {
@@ -49,8 +50,6 @@ function NavLink({
   isActive: boolean;
   onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
-  const Icon = item.icon;
-
   return (
     <Link
       href={item.href}
@@ -60,8 +59,8 @@ function NavLink({
       onClick={onNavigate}
       className={cn("bottom-nav-item-2026", focusRing, transitionFast)}
     >
-      <span className="bottom-nav-lucide-icon">
-        <Icon size={24} strokeWidth={isActive ? 2.25 : 2} aria-hidden />
+      <span className="bottom-nav-icon-3d-wrap">
+        <BottomNavIcon3D type={item.icon} active={isActive} size="tab" />
       </span>
       <span className="bottom-nav-item-2026__label">{item.label}</span>
     </Link>
@@ -75,8 +74,11 @@ export function BottomNavigation({
 }: BottomNavigationProps) {
   const pathname = usePathname();
   const searchOverlay = useSearchOverlayOptional();
+  const scroll = useMobileHeaderScrollContext();
   const activeTab = resolveActiveTab(pathname, active);
   const isSellActive = activeTab === "sell";
+  const isChromeVisible = scroll?.isVisible ?? true;
+  const hasScrollBehavior = Boolean(scroll);
   const [home, search, saved, account] = navItems;
 
   function handleSearchNavigate(event: MouseEvent<HTMLAnchorElement>) {
@@ -93,6 +95,9 @@ export function BottomNavigation({
       className={cn(
         "pointer-events-none fixed inset-x-0 bottom-0 z-50 px-ds-2",
         "pb-[max(env(safe-area-inset-bottom),0.375rem)]",
+        hasScrollBehavior &&
+          "max-lg:transition-transform max-lg:duration-[220ms] max-lg:ease-in-out max-lg:will-change-transform",
+        hasScrollBehavior && !isChromeVisible && "max-lg:translate-y-[calc(100%+1rem)]",
         className,
       )}
     >
@@ -114,7 +119,7 @@ export function BottomNavigation({
               className={cn("bottom-nav-item-2026 bottom-nav-item-2026--sell", focusRing, transitionFast)}
             >
               <span className="bottom-nav-sell-2026">
-                <Plus size={26} strokeWidth={2.5} aria-hidden />
+                <BottomNavIcon3D type="sell" active={isSellActive} size="sell" />
               </span>
               <span className="bottom-nav-item-2026__label">Sell</span>
             </Link>

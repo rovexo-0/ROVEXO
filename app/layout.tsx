@@ -5,6 +5,7 @@ import "@/styles/tokens.css";
 import "@/styles/premium-2026.css";
 import "@/styles/mobile-premium.css";
 import "@/styles/dashboard-v1.css";
+import "@/features/account-page/styles/account-page.css";
 import "@/styles/locked-2026.css";
 import "./globals.css";
 
