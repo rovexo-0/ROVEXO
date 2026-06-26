@@ -43,7 +43,7 @@ export function AccountAppearancePage() {
     <AccountPageShell
       title="Appearance"
       subtitle="Choose light, dark, or match your system."
-      backHref="/settings"
+      backHref="/account/settings"
       backLabel="Settings"
     >
       <section className="premium-card p-ds-5">

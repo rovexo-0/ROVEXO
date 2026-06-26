@@ -1,83 +1,64 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { IconButton } from "@/components/ui/IconButton";
-import { StickyPageHeader } from "@/components/ui/StickyPageHeader";
+import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
 import { MobileHubNavigator } from "@/features/mobile-ui";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
-import { BellIcon, MenuIcon } from "@/features/dashboard/icons";
 import type { MobilePrimaryHubId } from "@/lib/mobile-ui/types";
 import type { UserProfile } from "@/lib/profile/types";
 
 type DashboardHeaderProps = {
   title: string;
-  unreadNotifications: number;
   menuLabel: string;
   profile: UserProfile;
   defaultHub?: MobilePrimaryHubId;
+  settingsHref?: string;
 };
-
-function formatNotificationBadge(count: number): string {
-  if (count > 9) return "9+";
-  return String(count);
-}
 
 export function DashboardHeader({
   title,
-  unreadNotifications,
   menuLabel,
   profile,
   defaultHub,
+  settingsHref = "/account/settings",
 }: DashboardHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
-      <StickyPageHeader>
-        <div
-          className={cn(
-            "grid min-h-[56px] grid-cols-[48px_1fr_48px] items-center gap-ds-2 px-ds-4",
-            "pt-[max(env(safe-area-inset-top),var(--ds-space-3))] pb-ds-3",
-          )}
-        >
+      <header className="dash-v1-header">
+        <div className="dash-v1-header__row">
           <IconButton
             label={menuOpen ? "Close menu" : "Open menu"}
             variant="ghost"
             size="md"
-            className="justify-self-start"
+            className="dash-v1-header__action shrink-0"
             onClick={() => setMenuOpen((current) => !current)}
           >
-            <MenuIcon className="h-5 w-5" />
+            <DashboardIcon3D type="categories" size={28} />
           </IconButton>
 
-          <h1 className="truncate text-center text-lg font-semibold text-text-primary">{title}</h1>
+          <h1 className="dash-v1-header__title text-center">{title}</h1>
 
-          <Link
-            href="/notifications"
-            aria-label={
-              unreadNotifications > 0
-                ? `Notifications, ${unreadNotifications} unread`
-                : "Notifications"
-            }
-            className={cn(
-              "relative inline-flex min-h-ds-7 min-w-ds-7 items-center justify-center justify-self-end rounded-ds-md text-text-primary",
-              focusRing,
-            )}
-          >
-            <BellIcon className="h-5 w-5" />
-            {unreadNotifications > 0 && (
-              <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-ds-full bg-danger px-1 text-[0.625rem] font-bold text-danger-foreground">
-                {formatNotificationBadge(unreadNotifications)}
-              </span>
-            )}
-          </Link>
+          <div className="dash-v1-header__actions">
+            <NotificationBell />
+            <Link
+              href={settingsHref}
+              aria-label="Settings"
+              className={cn("dash-v1-header__action", focusRing)}
+            >
+              <DashboardIcon3D type="settings" size={28} />
+            </Link>
+          </div>
         </div>
-      </StickyPageHeader>
+      </header>
 
-      {menuOpen && (
-        <div className="premium-sheet-overlay fixed inset-0 z-[100] overflow-y-auto px-ds-4 pt-[calc(56px+env(safe-area-inset-top))] pb-ds-6">
+      {menuOpen ? (
+        <div className="premium-sheet-overlay fixed inset-0 z-[100] overflow-y-auto bg-white/95 px-5 pt-[calc(72px+env(safe-area-inset-top))] pb-6">
           <button
             type="button"
             aria-label="Close menu"
@@ -85,7 +66,7 @@ export function DashboardHeader({
             onClick={() => setMenuOpen(false)}
           />
           <div
-            className="relative mx-auto mt-ds-3 max-w-2xl"
+            className="relative mx-auto mt-3 max-w-2xl"
             role="dialog"
             aria-label={menuLabel}
             onClick={() => setMenuOpen(false)}
@@ -93,11 +74,7 @@ export function DashboardHeader({
             <MobileHubNavigator profile={profile} defaultHub={defaultHub} />
           </div>
         </div>
-      )}
+      ) : null}
     </>
   );
-}
-
-export function dashboardMenuIcon(icon: ReactNode) {
-  return icon;
 }

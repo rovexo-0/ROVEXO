@@ -38,7 +38,7 @@ These **cannot** be completed in code alone:
 | 4 | **Resend domain** | Verify `EMAIL_FROM` domain |
 | 5 | **Upstash Redis** | REST URL + token in Vercel |
 | 6 | **Vercel Pro** | Required for `vercel.json` cron jobs |
-| 7 | **Custom domain + SSL** | `NEXT_PUBLIC_APP_URL=https://rovexo.co.uk` |
+| 7 | **Custom domain + SSL** | `NEXT_PUBLIC_APP_URL=https://www.rovexo.co.uk` |
 | 8 | **DNS / SSL smoke test** | Post-deploy curl + checkout |
 
 ## Production readiness score

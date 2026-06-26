@@ -18,6 +18,9 @@ export type MaintenanceResult = {
   savedSearchNotifications: number;
   emailsSent: number;
   emailsFailed: number;
+  pushRetriesProcessed: number;
+  pushRetriesSucceeded: number;
+  pushRetriesFailed: number;
 };
 
 export async function runProductionMaintenance(): Promise<MaintenanceResult> {
@@ -29,6 +32,8 @@ export async function runProductionMaintenance(): Promise<MaintenanceResult> {
     const cartItemsRemoved = await cleanupAbandonedCartItems();
     const emailResult = await sendQueuedEmails(50);
     const savedSearchResult = await processSavedSearchNotifications();
+    const { processPushDeliveryRetries } = await import("@/lib/push/retry");
+    const pushRetryResult = await processPushDeliveryRetries(50);
 
     const result = {
       expiredOrders,
@@ -40,6 +45,9 @@ export async function runProductionMaintenance(): Promise<MaintenanceResult> {
       savedSearchNotifications: savedSearchResult.notificationsSent,
       emailsSent: emailResult.sent,
       emailsFailed: emailResult.failed,
+      pushRetriesProcessed: pushRetryResult.processed,
+      pushRetriesSucceeded: pushRetryResult.succeeded,
+      pushRetriesFailed: pushRetryResult.failed,
     };
 
     await recordCronJobRun({ jobName: "maintenance", status: "success", result });

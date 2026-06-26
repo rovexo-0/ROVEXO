@@ -39,6 +39,48 @@ export function getNotificationFilterCategory(type: NotificationType): Notificat
   }
 }
 
+export function formatNotificationBadgeCount(count: number): string {
+  if (count <= 0) return "";
+  if (count > 99) return "99+";
+  return String(count);
+}
+
+export type NotificationTimeGroup = "today" | "yesterday" | "earlier";
+
+export function getNotificationTimeGroup(iso: string): NotificationTimeGroup {
+  const date = new Date(iso);
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfYesterday = new Date(startOfToday);
+  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+
+  if (date >= startOfToday) return "today";
+  if (date >= startOfYesterday) return "yesterday";
+  return "earlier";
+}
+
+export function groupNotificationsByTime(notifications: Notification[]): Array<{
+  group: NotificationTimeGroup;
+  label: string;
+  items: Notification[];
+}> {
+  const groups: Record<NotificationTimeGroup, Notification[]> = {
+    today: [],
+    yesterday: [],
+    earlier: [],
+  };
+
+  for (const notification of notifications) {
+    groups[getNotificationTimeGroup(notification.createdAt)].push(notification);
+  }
+
+  return [
+    { group: "today" as const, label: "Today", items: groups.today },
+    { group: "yesterday" as const, label: "Yesterday", items: groups.yesterday },
+    { group: "earlier" as const, label: "Earlier", items: groups.earlier },
+  ].filter((section) => section.items.length > 0);
+}
+
 export function formatNotificationTime(iso: string): string {
   const date = new Date(iso);
   const now = new Date();

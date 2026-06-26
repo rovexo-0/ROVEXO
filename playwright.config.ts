@@ -23,7 +23,7 @@ const webServerEnvObj: Record<string, string> = {
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? "sk_test_placeholder",
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET ?? "whsec_placeholder",
   RESEND_API_KEY: process.env.RESEND_API_KEY ?? "re_placeholder",
-  EMAIL_FROM: process.env.EMAIL_FROM ?? "ROVEXO <noreply@rovexo.com>",
+  EMAIL_FROM: process.env.EMAIL_FROM ?? "ROVEXO <support@rovexo.co.uk>",
   UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL ?? "https://placeholder.upstash.io",
   UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN ?? "placeholder",
   CRON_SECRET: process.env.CRON_SECRET ?? "placeholder",

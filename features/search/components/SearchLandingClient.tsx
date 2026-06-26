@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { useSearchOverlayOptional } from "@/features/search/client";
-import { VoiceSearchPlaceholder } from "@/features/search/components/VoiceSearchPlaceholder";
 import { defaultCategories, defaultTrendingSearches } from "@/lib/search/defaults";
 
 export function SearchLandingClient() {
@@ -23,10 +22,6 @@ export function SearchLandingClient() {
           Find products, sellers, stores, and categories. Use the search bar above or explore
           trending and popular categories below.
         </p>
-      </Card>
-
-      <Card padding="none" className="overflow-hidden">
-        <VoiceSearchPlaceholder />
       </Card>
 
       <section aria-labelledby="search-trending-heading">

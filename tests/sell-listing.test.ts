@@ -182,9 +182,9 @@ describe("sell listing validation", () => {
     draft.photos = [
       {
         id: "1",
-        previewUrl: "https://example.com/a.jpg",
+        previewUrl: "https://www.rovexo.co.uk/media/test/a.jpg",
         uploaded: true,
-        url: "https://example.com/a.jpg",
+        url: "https://www.rovexo.co.uk/media/test/a.jpg",
         storagePath: "seller/a.jpg",
       },
     ];

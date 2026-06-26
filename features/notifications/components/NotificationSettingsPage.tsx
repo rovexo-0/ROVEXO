@@ -84,11 +84,23 @@ export function NotificationSettingsPage() {
         )}
 
         <SettingSection title="Push Notifications">
+          <Link href="/notifications/preferences" className="mb-2 text-sm text-primary underline">
+            Smart notification preferences
+          </Link>
           <SettingToggle
             id="push-enabled"
             label="Push Notifications"
             checked={settings.pushEnabled}
             onChange={(checked) => void updateSetting({ pushEnabled: checked })}
+          />
+          <SettingsDivider />
+          <SettingToggle
+            id="browser-push"
+            label="Browser push"
+            description="Receive push notifications in this browser"
+            checked={settings.browserPush}
+            disabled={pushDisabled}
+            onChange={(checked) => void updateSetting({ browserPush: checked })}
           />
           <SettingsDivider />
           <SettingToggle
@@ -234,7 +246,7 @@ export function NotificationSettingsPage() {
           Control which updates reach you by push and email.
         </p>
 
-        <Link href="/settings" className="text-center text-sm font-medium text-primary">
+        <Link href="/account/settings" className="text-center text-sm font-medium text-primary">
           All Settings
         </Link>
       </main>

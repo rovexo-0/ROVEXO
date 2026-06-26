@@ -1,8 +1,10 @@
+import { OFFICIAL_EMAIL } from "@/lib/email/constants";
+
 export const LEGAL_OPERATOR_NAME = "DNS EUROPA LTD";
 
-export const LEGAL_SUPPORT_EMAIL = "support@rovexo.co.uk";
+export const LEGAL_SUPPORT_EMAIL = OFFICIAL_EMAIL;
 
-export const LEGAL_WEBSITE_URL = "https://rovexo.co.uk";
+export const LEGAL_WEBSITE_URL = "https://www.rovexo.co.uk";
 
 export const PLATFORM_OPERATOR_NOTICE = `ROVEXO is owned and operated by ${LEGAL_OPERATOR_NAME}.`;
 

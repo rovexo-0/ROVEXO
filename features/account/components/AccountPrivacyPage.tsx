@@ -61,7 +61,7 @@ export function AccountPrivacyPage() {
     <AccountPageShell
       title="Privacy settings"
       subtitle="Control who can see your profile and how ROVEXO contacts you."
-      backHref="/settings"
+      backHref="/account/profile"
       backLabel="Settings"
     >
       <form onSubmit={onSubmit} className="premium-card flex flex-col gap-ds-4 p-ds-5" noValidate>

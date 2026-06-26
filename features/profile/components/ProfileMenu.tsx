@@ -124,7 +124,7 @@ export function ProfileMenu({ profile }: ProfileMenuProps) {
           <ProfileMenuRow
             title="Settings"
             subtitle="Preferences & privacy"
-            href="/settings"
+            href="/account/settings"
             icon={<SettingsIcon className="h-5 w-5" />}
           />
         </div>

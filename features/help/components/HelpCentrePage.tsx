@@ -7,7 +7,7 @@ import { MobileHubNavigator } from "@/features/mobile-ui";
 import { MobilePremiumCard } from "@/features/mobile-ui/components/MobilePremiumCard";
 import { MobilePremiumGrid } from "@/features/mobile-ui";
 import { ResponsiveShell } from "@/features/mobile-ui";
-import { getNavLinkIcon } from "@/lib/navigation/link-icons";
+import { resolveDashboardIconType } from "@/components/icons/DashboardIcon3D";
 import { HELP_TOPIC_GROUPS, getHelpTopicsByGroup } from "@/lib/help/content/topics";
 import { searchHelpCentre } from "@/lib/help/search";
 import type { HelpSearchResult } from "@/lib/help/types";
@@ -94,7 +94,7 @@ function MobileSearchResults({ results, query }: { results: HelpSearchResult[]; 
             href={result.href}
             label={result.title}
             subtitle={result.excerpt}
-            icon={getNavLinkIcon(result.href)}
+            iconType={resolveDashboardIconType(result.href)}
           />
         ))}
       </MobilePremiumGrid>
@@ -122,7 +122,7 @@ function MobileBrowseTopics() {
                     href={`/help/category/${topic.slug}`}
                     label={topic.label}
                     subtitle={topic.description}
-                    icon={<span className="mhub-icon__emoji">{topic.icon}</span>}
+                    iconType="help"
                   />
                 ))}
               </MobilePremiumGrid>

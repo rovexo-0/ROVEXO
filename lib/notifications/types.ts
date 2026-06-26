@@ -50,8 +50,20 @@ export type Notification = {
   detail?: string;
 };
 
+export type NotificationPreferences = {
+  orders: boolean;
+  messages: boolean;
+  payments: boolean;
+  support: boolean;
+  marketing: boolean;
+  security: boolean;
+  business: boolean;
+  ai: boolean;
+};
+
 export type NotificationSettings = {
   pushEnabled: boolean;
+  browserPush: boolean;
   messages: boolean;
   orders: boolean;
   offers: boolean;

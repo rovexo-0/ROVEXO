@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { isDocumentVisible } from "@/lib/performance/visibility";
 
 export function useAnimatedNumber(value: number, durationMs = 600): number {
   const [display, setDisplay] = useState(value);
@@ -12,9 +13,19 @@ export function useAnimatedNumber(value: number, durationMs = 600): number {
     const to = value;
     if (from === to) return;
 
+    if (!isDocumentVisible()) {
+      setDisplay(to);
+      return;
+    }
+
     startRef.current = { from, startedAt: performance.now() };
 
     const tick = (now: number) => {
+      if (!isDocumentVisible()) {
+        setDisplay(to);
+        return;
+      }
+
       const elapsed = now - startRef.current.startedAt;
       const progress = Math.min(1, elapsed / durationMs);
       const eased = 1 - (1 - progress) ** 3;

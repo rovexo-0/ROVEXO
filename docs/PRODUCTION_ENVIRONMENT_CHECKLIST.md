@@ -16,14 +16,14 @@ The script exits with code **1** if any required variable is missing or URL vali
 
 | Variable | Group | Status | Example | Notes |
 |----------|-------|--------|---------|-------|
-| `NEXT_PUBLIC_APP_URL` | App | ✗ Missing | `https://rovexo.com` | Canonical HTTPS URL for Stripe return URLs, sitemap, metadata |
+| `NEXT_PUBLIC_APP_URL` | App | ✗ Missing | `https://www.rovexo.co.uk` | Canonical HTTPS URL for Stripe return URLs, sitemap, metadata |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase | ✓ Present | `https://<project-ref>.supabase.co` | Alias: `SUPABASE_URL` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase | ✓ Present | `sb_publishable_<key>` | Aliases: `SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase | ✓ Present | `sb_secret_<key>` | Alias: `SUPABASE_SECRET_KEY` |
 | `STRIPE_SECRET_KEY` | Stripe | ✗ Missing | `sk_live_<key>` | Use `sk_live_` in production (`lib/stripe/server.ts`) |
 | `STRIPE_WEBHOOK_SECRET` | Stripe | ✗ Missing | `whsec_<key>` | Webhook signing for `/api/webhooks/stripe` |
 | `RESEND_API_KEY` | Email | ✗ Missing | `re_<key>` | Transactional email (`lib/email/service.ts`) |
-| `EMAIL_FROM` | Email | ✗ Missing | `ROVEXO <noreply@rovexo.com>` | Verified sender in Resend |
+| `EMAIL_FROM` | Email | ✗ Missing | `ROVEXO <support@rovexo.co.uk>` | Verified sender in Resend |
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis | ✗ Missing | `https://<name>-<id>.upstash.io` | Production rate limiting (`lib/api/rate-limit.ts`) |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis | ✗ Missing | `<token>` | Pair with REST URL |
 | `CRON_SECRET` | Cron | ✗ Missing | `<secure-random-string>` | Bearer token for `/api/cron/*` |
@@ -38,7 +38,7 @@ The script exits with code **1** if any required variable is missing or URL vali
 | Variable | Group | Status | Example | Notes |
 |----------|-------|--------|---------|-------|
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe | – Not set | `pk_live_<key>` | **Not used** by Stripe Hosted Checkout in v1.0; only needed if client-side Stripe.js is added |
-| `NEXT_PUBLIC_SITE_URL` | App | – Not set | `https://rovexo.com` | SEO fallback; defaults to `https://rovexo.com` |
+| `NEXT_PUBLIC_SITE_URL` | App | – Not set | `https://www.rovexo.co.uk` | SEO fallback; defaults to `https://www.rovexo.co.uk` |
 | `OPENAI_API_KEY` | AI Camera | – Not set | `sk-<key>` | Only when AI camera vision is enabled (`lib/ai-camera/config.ts`) |
 
 ---

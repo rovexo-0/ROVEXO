@@ -27,6 +27,8 @@ const commandSchema = z.object({
     "credit_wallet",
     "refund_payment",
     "broadcast_notification",
+    "send_emergency_notification",
+    "send_category_notification",
     "send_push_notification",
     "send_email_notification",
     "create_backup",
@@ -38,7 +40,12 @@ const commandSchema = z.object({
   message: z.string().optional(),
   title: z.string().optional(),
   subtitle: z.string().optional(),
-  audience: z.enum(["all", "sellers", "businesses"]).optional(),
+  audience: z.enum(["all", "sellers", "businesses", "buyers", "admins"]).optional(),
+  kind: z.enum(["platform", "category", "emergency"]).optional(),
+  country: z.string().max(3).optional(),
+  category: z
+    .enum(["orders", "messages", "payments", "support", "marketing", "security", "business", "ai"])
+    .optional(),
   amount: z.number().optional(),
 });
 
@@ -70,15 +77,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, message: "Backup request logged for ops pipeline." });
     }
 
-    if (body.action === "broadcast_notification") {
+    if (body.action === "broadcast_notification" || body.action === "send_emergency_notification" || body.action === "send_category_notification") {
       const { broadcastSuperAdminNotification } = await import("@/lib/super-admin/notifications");
-      await broadcastSuperAdminNotification({
+      const kind =
+        body.action === "send_emergency_notification"
+          ? "emergency"
+          : body.action === "send_category_notification"
+            ? "category"
+            : (body.kind ?? "platform");
+      const result = await broadcastSuperAdminNotification({
         actorId: auth.user.id,
         title: body.title ?? "ROVEXO update",
         subtitle: body.subtitle ?? "",
         audience: body.audience ?? "all",
+        kind,
+        country: body.country,
+        category: body.category,
       });
-      return NextResponse.json({ ok: true });
+      return NextResponse.json({ ok: true, ...result });
     }
 
     if (body.action === "send_push_notification") {

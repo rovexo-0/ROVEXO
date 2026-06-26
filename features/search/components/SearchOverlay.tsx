@@ -14,7 +14,6 @@ import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { CategoryResults } from "@/features/search/components/CategoryResults";
 import { SearchResultsEmpty } from "@/features/search/components/SearchResultsEmpty";
 import { SuggestedSearches } from "@/features/search/components/SuggestedSearches";
-import { VoiceSearchPlaceholder } from "@/features/search/components/VoiceSearchPlaceholder";
 import { LoadingSkeleton } from "@/features/search/components/LoadingSkeleton";
 import { ProductResults } from "@/features/search/components/ProductResults";
 import { RecentSearches } from "@/features/search/components/RecentSearches";
@@ -262,8 +261,6 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
 
           {!hasQuery && !isLoading && results && (
             <>
-              <VoiceSearchPlaceholder />
-
               {history.length > 0 && (
                 <SearchSection title="Recent Searches">
                   <RecentSearches

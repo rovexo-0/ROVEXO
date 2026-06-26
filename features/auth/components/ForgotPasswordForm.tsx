@@ -10,6 +10,7 @@ import {
 } from "@/features/auth/components/AuthForm";
 import { PublishedCheckmark } from "@/features/sell/components/PublishedCheckmark";
 import { Button } from "@/components/ui/Button";
+import { AUTH_EMAIL_PLACEHOLDER } from "@/lib/email/constants";
 
 export function ForgotPasswordForm() {
   return (
@@ -48,7 +49,7 @@ export function ForgotPasswordForm() {
           type="email"
           autoComplete="email"
           inputMode="email"
-          placeholder="you@example.com"
+          placeholder={AUTH_EMAIL_PLACEHOLDER}
         />
       </AuthFieldGroup>
     </AuthForm>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { isDocumentVisible } from "@/lib/performance/visibility";
 
 const DURATION_MS = 2000;
 const PARTICLE_COUNT = 24;
@@ -209,7 +210,7 @@ export function CelebrationAnimation({ active = true }: CelebrationAnimationProp
     window.addEventListener("resize", resize);
 
     const tick = (now: number) => {
-      if (cancelled) return;
+      if (cancelled || !isDocumentVisible()) return;
 
       const elapsed = now - startedAt;
       if (elapsed >= DURATION_MS) {

@@ -18,6 +18,8 @@ export type ActiveSellerPromotion = {
   endsAt: string;
 };
 
+import type { SellerMigrationSummary } from "@/lib/seller/migration/types";
+
 export type SellerDashboardData = {
   profile: UserProfile;
   sellerRating: number;
@@ -38,4 +40,5 @@ export type SellerDashboardData = {
   todaySummary: DashboardSummaryCard[];
   performance: DashboardPerformance;
   recentOrders: DashboardRecentOrder[];
+  migrationSummary: SellerMigrationSummary | null;
 };

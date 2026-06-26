@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { getAppUrl } from "@/lib/supabase/env";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://rovexo.com";
+  const baseUrl = getAppUrl();
 
   return {
     rules: [

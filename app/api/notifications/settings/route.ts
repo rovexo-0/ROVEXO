@@ -17,6 +17,7 @@ export async function GET() {
   return NextResponse.json({
     settings: settings ?? {
       pushEnabled: true,
+      browserPush: true,
       messages: true,
       orders: true,
       offers: true,

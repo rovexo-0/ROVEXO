@@ -4,11 +4,11 @@ test.describe("marketplace core", () => {
   test("homepage renders search, categories and featured listings", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
-    await expect(page.locator("#header-search")).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator("#header-search, [data-header-search='bar']").first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByRole("heading", { name: /featured listings/i })).toBeVisible();
     const categories = page.locator('section[aria-labelledby="home-categories-heading"]');
-    await expect(categories.locator('a[href="/category/vehicles"]')).toBeVisible();
-    await expect(categories.locator('a[href="/category/fashion"]')).toBeVisible();
+    await expect(categories.locator('a[href="/category/vehicles"]').first()).toBeVisible();
+    await expect(categories.locator('a[href="/category/fashion"]').first()).toBeVisible();
   });
 
   test("categories index is reachable", async ({ page }) => {

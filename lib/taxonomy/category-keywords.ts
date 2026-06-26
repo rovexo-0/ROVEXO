@@ -1,4 +1,4 @@
-import { flatTaxonomy } from "@/lib/taxonomy/category-tree";
+import { getFlatTaxonomy } from "@/lib/taxonomy/category-tree";
 import { normalizeKeyword, tokenize } from "@/lib/taxonomy/category-normalizer";
 
 export type KeywordSource = "name" | "alias" | "keyword" | "brand" | "model" | "slug";
@@ -18,7 +18,7 @@ export type KeywordIndex = Map<string, KeywordEntry[]>;
 function collectPhrases() {
   const entries: KeywordEntry[] = [];
 
-  for (const category of flatTaxonomy) {
+  for (const category of getFlatTaxonomy()) {
     const record = (
       source: KeywordSource,
       phrase: string | undefined | null,
@@ -63,21 +63,33 @@ function collectPhrases() {
   return entries;
 }
 
-const keywordEntries = collectPhrases();
+let keywordEntriesCache: KeywordEntry[] | null = null;
 
-export const keywordIndex: KeywordIndex = keywordEntries.reduce((map, entry) => {
-  const bucket = map.get(entry.token) ?? [];
-  bucket.push(entry);
-  map.set(entry.token, bucket);
-  return map;
-}, new Map<string, KeywordEntry[]>());
+function getKeywordEntries(): KeywordEntry[] {
+  if (keywordEntriesCache) return keywordEntriesCache;
+  keywordEntriesCache = collectPhrases();
+  return keywordEntriesCache;
+}
+
+let keywordIndexCache: KeywordIndex | null = null;
+
+function getKeywordIndex(): KeywordIndex {
+  if (keywordIndexCache) return keywordIndexCache;
+  keywordIndexCache = getKeywordEntries().reduce((map, entry) => {
+    const bucket = map.get(entry.token) ?? [];
+    bucket.push(entry);
+    map.set(entry.token, bucket);
+    return map;
+  }, new Map<string, KeywordEntry[]>());
+  return keywordIndexCache;
+}
 
 export function getKeywordMatches(words: string | string[]): KeywordEntry[] {
   const tokens = Array.isArray(words) ? words : tokenize(words);
   const matches: KeywordEntry[] = [];
 
   for (const token of tokens) {
-    const tokenMatches = keywordIndex.get(token);
+    const tokenMatches = getKeywordIndex().get(token);
     if (!tokenMatches) continue;
     matches.push(...tokenMatches);
   }
@@ -86,7 +98,7 @@ export function getKeywordMatches(words: string | string[]): KeywordEntry[] {
 }
 
 export function getCategoryKeywords(categoryId: string): string[] {
-  const category = flatTaxonomy.find((node) => node.id === categoryId);
+  const category = getFlatTaxonomy().find((node) => node.id === categoryId);
   if (!category) return [];
 
   return [category.name, ...(category.aliases ?? []), ...(category.keywords ?? []), ...(category.brands ?? []), ...(category.models ?? [])]
@@ -95,5 +107,5 @@ export function getCategoryKeywords(categoryId: string): string[] {
 }
 
 export function getAllKeywordTokens(): string[] {
-  return Array.from(keywordIndex.keys());
+  return Array.from(getKeywordIndex().keys());
 }

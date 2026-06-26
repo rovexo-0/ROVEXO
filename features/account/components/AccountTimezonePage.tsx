@@ -62,7 +62,7 @@ export function AccountTimezonePage() {
     <AccountPageShell
       title="Timezone"
       subtitle="Set your local timezone for order updates and notifications."
-      backHref="/settings"
+      backHref="/account/settings"
       backLabel="Settings"
     >
       <form onSubmit={onSubmit} className="premium-card flex flex-col gap-ds-4 p-ds-5" noValidate>

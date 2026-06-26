@@ -25,7 +25,7 @@ const REQUIRED_SPECS: EnvSpec[] = [
     key: "NEXT_PUBLIC_APP_URL",
     group: "App",
     required: true,
-    example: "https://rovexo.com",
+    example: "https://www.rovexo.co.uk",
     description: "Canonical HTTPS URL for redirects, Stripe return URLs, sitemap, and metadata.",
   },
   {
@@ -81,7 +81,7 @@ const REQUIRED_SPECS: EnvSpec[] = [
     key: "EMAIL_FROM",
     group: "Email (Resend)",
     required: true,
-    example: "ROVEXO <noreply@rovexo.com>",
+    example: "ROVEXO <support@rovexo.co.uk>",
     description: "Verified sender address in Resend.",
   },
   {
@@ -129,8 +129,8 @@ const OPTIONAL_SPECS: EnvSpec[] = [
     key: "NEXT_PUBLIC_SITE_URL",
     group: "App",
     required: false,
-    example: "https://rovexo.com",
-    description: "Optional SEO fallback; defaults to https://rovexo.com.",
+    example: "https://www.rovexo.co.uk",
+    description: "Optional SEO fallback; defaults to https://www.rovexo.co.uk.",
   },
   {
     key: "OPENAI_API_KEY",
@@ -139,6 +139,28 @@ const OPTIONAL_SPECS: EnvSpec[] = [
     secret: true,
     example: "sk-<key>",
     description: "Optional. Required only when AI camera vision is enabled.",
+  },
+  {
+    key: "ETSY_API_KEYSTRING",
+    group: "Marketplace Connectors",
+    required: false,
+    secret: true,
+    example: "<etsy-api-keystring>",
+    description: "Optional Etsy Open API keystring when not supplied per seller at connect time.",
+  },
+  {
+    key: "EBAY_API_BASE_URL",
+    group: "Marketplace Connectors",
+    required: false,
+    example: "https://api.ebay.com",
+    description: "Optional eBay REST API base URL override (defaults to production API).",
+  },
+  {
+    key: "ETSY_API_BASE_URL",
+    group: "Marketplace Connectors",
+    required: false,
+    example: "https://openapi.etsy.com",
+    description: "Optional Etsy Open API v3 base URL override.",
   },
 ];
 

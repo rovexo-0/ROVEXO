@@ -1,8 +1,15 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { DashboardPerformanceSection } from "@/features/dashboard/components/DashboardPerformanceSection";
-import { AnalyticsDoughnutChart } from "@/features/analytics/components/AnalyticsDoughnutChart";
+const AnalyticsDoughnutChart = dynamic(
+  () =>
+    import("@/features/analytics/components/AnalyticsDoughnutChart").then(
+      (module) => module.AnalyticsDoughnutChart,
+    ),
+  { ssr: false },
+);
 import {
   AnalyticsExportSection,
   buildSellerExportExtras,

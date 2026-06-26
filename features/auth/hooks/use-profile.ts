@@ -23,12 +23,16 @@ export function useProfile(): ProfileState {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch("/api/profile", { credentials: "same-origin" });
+      const response = await fetch("/api/profile", {
+        credentials: "same-origin",
+        signal,
+      });
+      if (signal?.aborted) return;
       if (!response.ok) {
         setProfile(null);
         setError(response.status === 401 ? "Unauthorized" : "Unable to load profile");
@@ -36,20 +40,26 @@ export function useProfile(): ProfileState {
       }
 
       const payload = (await response.json()) as { profile: ClientProfile };
+      if (signal?.aborted) return;
       setProfile(payload.profile);
-    } catch {
+    } catch (error) {
+      if ((error as Error).name === "AbortError") return;
       setProfile(null);
       setError("Unable to load profile");
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
     const timer = window.setTimeout(() => {
-      void refresh();
+      void refresh(controller.signal);
     }, 0);
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
   }, [refresh]);
 
   return { profile, loading, error, refresh };

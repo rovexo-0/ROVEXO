@@ -14,7 +14,7 @@ type SettingsProfileCardProps = {
 
 export function SettingsProfileCard({ profile }: SettingsProfileCardProps) {
   return (
-    <Link href="/account" className="block">
+    <Link href="/account/profile" className="block">
       <Card
         padding="md"
         interactive

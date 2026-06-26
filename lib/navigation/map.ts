@@ -25,9 +25,12 @@ export const SELLER_NAV: NavLink[] = [
   { href: "/seller/orders", label: "Seller Orders", subtitle: "Fulfillment & shipping" },
   { href: "/seller/wallet", label: "Wallet", subtitle: "Balance & withdrawals" },
   { href: "/seller/analytics", label: "Seller Analytics", subtitle: "Views, sales & trends" },
+  { href: "/seller/migration", label: "Bring Your Items", subtitle: "Import your entire store" },
+  { href: "/seller/connectors", label: "Marketplace Connectors", subtitle: "Connect external stores" },
   { href: "/seller/trust", label: "Trust Score", subtitle: "Reputation & improvements" },
   { href: "/seller/tax", label: "Tax Registration", subtitle: "VAT & tax settings" },
   { href: "/sell", label: "Sell an Item", subtitle: "Create a new listing" },
+  { href: "/sell/new", label: "Publish Listing", subtitle: "Listing creation wizard" },
 ];
 
 export const BUSINESS_NAV: NavLink[] = [
@@ -137,6 +140,9 @@ export const ALL_PUBLIC_ROUTES = [
   "/business/directory",
   "/resolution",
   "/sell",
+  "/sell/new",
+  "/seller/migration",
+  "/seller/connectors",
   "/seller/dashboard",
   "/business/dashboard",
   "/admin",

@@ -9,6 +9,7 @@ import {
   getSellerPromotionHistory,
   getSellerPromotionStats,
 } from "@/lib/promotions/service";
+import { getSellerMigrationSummary } from "@/lib/seller/migration/repository-summary";
 import { createClient } from "@/lib/supabase/server";
 import type { SellerDashboardData } from "@/lib/seller/types";
 
@@ -64,6 +65,8 @@ export async function getSellerDashboardData(userId?: string): Promise<SellerDas
   );
   const todaySales = todayOrders.reduce((sum, order) => sum + order.totals.total, 0);
 
+  const migrationSummary = await getSellerMigrationSummary(sellerId);
+
   return {
     profile,
     sellerRating: Number(sellerProfile?.rating ?? 0),
@@ -91,6 +94,7 @@ export async function getSellerDashboardData(userId?: string): Promise<SellerDas
     }),
     monthlyRevenue: Number(revenueMetric?.value ?? 0),
     monthlyOrders: Number(ordersMetric?.value ?? 0),
+    migrationSummary,
   };
 }
 

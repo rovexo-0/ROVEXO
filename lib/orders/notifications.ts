@@ -9,17 +9,23 @@ export async function notifyOrderPaid(input: {
   orderNumber: string;
   productTitle: string;
 }): Promise<void> {
+  const { emitSmartNotification } = await import("@/lib/notifications/events");
+
   await Promise.all([
-    createNotification({
+    emitSmartNotification({
       userId: input.buyerId,
-      type: "order",
+      eventType: "new_order",
+      idempotencyKey: `order-paid-buyer-${input.orderNumber}`,
+      notificationType: "order",
       title: "Order confirmed",
       subtitle: `Payment received for ${input.productTitle}`,
       href: "/orders",
     }),
-    createNotification({
+    emitSmartNotification({
       userId: input.sellerId,
-      type: "order",
+      eventType: "new_order",
+      idempotencyKey: `order-paid-seller-${input.orderNumber}`,
+      notificationType: "order",
       title: "New order",
       subtitle: `${input.orderNumber} — ${input.productTitle}`,
       href: "/seller/orders",

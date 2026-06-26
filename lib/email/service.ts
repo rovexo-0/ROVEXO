@@ -1,3 +1,4 @@
+import { OFFICIAL_EMAIL, OFFICIAL_EMAIL_FROM } from "@/lib/email/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type QueueEmailInput = {
@@ -12,7 +13,7 @@ const MAX_RETRIES = 5;
 
 async function sendViaProvider(input: QueueEmailInput): Promise<{ ok: boolean; error?: string }> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.EMAIL_FROM?.trim() || "ROVEXO <orders@rovexo.com>";
+  const from = process.env.EMAIL_FROM?.trim() || OFFICIAL_EMAIL_FROM;
 
   if (!apiKey) {
     return { ok: false, error: "RESEND_API_KEY not configured" };
@@ -68,7 +69,7 @@ export async function sendPasswordResetEmail(input: {
   await queueEmail({
     to: input.to,
     subject: "Reset your ROVEXO password",
-    body: `Reset your password using this link (expires soon):\n\n${input.resetUrl}\n\nIf you did not request this, ignore this email.`,
+    body: `Reset your password using this link (expires soon):\n\n${input.resetUrl}\n\nIf you did not request this, ignore this email.\n\nNeed help? Contact ${OFFICIAL_EMAIL}.`,
     template: "password_reset",
   });
 }

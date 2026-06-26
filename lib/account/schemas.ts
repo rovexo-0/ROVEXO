@@ -163,8 +163,22 @@ export const emailChangeSchema = z.object({
 
 export type EmailChangeInput = z.infer<typeof emailChangeSchema>;
 
+export const notificationPreferencesPatchSchema = z.object({
+  orders: z.boolean().optional(),
+  messages: z.boolean().optional(),
+  payments: z.boolean().optional(),
+  support: z.boolean().optional(),
+  marketing: z.boolean().optional(),
+  security: z.boolean().optional(),
+  business: z.boolean().optional(),
+  ai: z.boolean().optional(),
+});
+
+export type NotificationPreferencesPatchInput = z.infer<typeof notificationPreferencesPatchSchema>;
+
 export const notificationSettingsPatchSchema = z.object({
   pushEnabled: z.boolean().optional(),
+  browserPush: z.boolean().optional(),
   messages: z.boolean().optional(),
   orders: z.boolean().optional(),
   offers: z.boolean().optional(),

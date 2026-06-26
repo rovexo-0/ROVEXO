@@ -8,7 +8,9 @@ import {
   subscribeToPresence,
   updatePresence,
 } from "@/lib/messages/realtime";
+import { useDocumentVisible } from "@/lib/performance/hooks";
 import type { ChatMessage, Conversation } from "@/lib/messages/types";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 function mapRealtimeMessage(row: Record<string, unknown>): ChatMessage {
   return {
@@ -31,47 +33,59 @@ export function useChatRealtime(
   participantId: string,
   setConversation: Dispatch<SetStateAction<Conversation>>,
 ) {
+  const visible = useDocumentVisible();
+
   useEffect(() => {
+    if (!visible) return;
+
     void updatePresence({ online: true });
 
-    const messageChannel = subscribeToConversationMessages(conversationId, (row) => {
-      const incoming = mapRealtimeMessage(row);
-      setConversation((current) => ({
-        ...current,
-        messages: current.messages.some((message) => message.id === incoming.id)
-          ? current.messages.map((message) => (message.id === incoming.id ? incoming : message))
-          : [...current.messages, incoming],
-        lastMessage: incoming.content,
-        lastMessageAt: incoming.sentAt,
-      }));
-    });
+    const channels: RealtimeChannel[] = [];
 
-    const metaChannel = subscribeToConversationMeta(conversationId, (row) => {
-      setConversation((current) => ({
-        ...current,
-        lastMessage: String(row.last_message ?? current.lastMessage),
-        lastMessageAt: String(row.last_message_at ?? current.lastMessageAt),
-      }));
-    });
+    channels.push(
+      subscribeToConversationMessages(conversationId, (row) => {
+        const incoming = mapRealtimeMessage(row);
+        setConversation((current) => ({
+          ...current,
+          messages: current.messages.some((message) => message.id === incoming.id)
+            ? current.messages.map((message) => (message.id === incoming.id ? incoming : message))
+            : [...current.messages, incoming],
+          lastMessage: incoming.content,
+          lastMessageAt: incoming.sentAt,
+        }));
+      }),
+    );
 
-    const presenceChannel = subscribeToPresence(participantId, (row) => {
-      setConversation((current) => ({
-        ...current,
-        participant: {
-          ...current.participant,
-          online: Boolean(row.online),
-          lastSeen: row.last_seen_at ? String(row.last_seen_at) : current.participant.lastSeen,
-        },
-      }));
-    });
+    channels.push(
+      subscribeToConversationMeta(conversationId, (row) => {
+        setConversation((current) => ({
+          ...current,
+          lastMessage: String(row.last_message ?? current.lastMessage),
+          lastMessageAt: String(row.last_message_at ?? current.lastMessageAt),
+        }));
+      }),
+    );
+
+    channels.push(
+      subscribeToPresence(participantId, (row) => {
+        setConversation((current) => ({
+          ...current,
+          participant: {
+            ...current.participant,
+            online: Boolean(row.online),
+            lastSeen: row.last_seen_at ? String(row.last_seen_at) : current.participant.lastSeen,
+          },
+        }));
+      }),
+    );
 
     return () => {
       void updatePresence({ online: false, typingConversationId: null });
-      void messageChannel.unsubscribe();
-      void metaChannel.unsubscribe();
-      void presenceChannel.unsubscribe();
+      for (const channel of channels) {
+        void channel.unsubscribe();
+      }
     };
-  }, [conversationId, participantId, setConversation]);
+  }, [conversationId, participantId, setConversation, visible]);
 }
 
 export async function signalTyping(conversationId: string, typing: boolean): Promise<void> {

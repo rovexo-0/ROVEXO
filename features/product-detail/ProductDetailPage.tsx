@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useDocumentVisible } from "@/lib/performance/hooks";
+import { throttle } from "@/lib/performance/throttle";
 import { Badge } from "@/components/ui/Badge";
 import { Price } from "@/components/ui/Price";
 import { cn } from "@/lib/cn";
@@ -51,6 +53,7 @@ export function ProductDetailPage({
   sellerTrust,
 }: ProductDetailPageProps) {
   const router = useRouter();
+  const visible = useDocumentVisible();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSaved, setIsSaved] = useState(initialIsSaved);
   const [heartAnimating, setHeartAnimating] = useState(false);
@@ -68,11 +71,16 @@ export function ProductDetailPage({
   }, [product.id, product.price, product.title]);
 
   useEffect(() => {
-    const onScroll = () => setIsCollapsed(window.scrollY > COLLAPSE_OFFSET);
+    if (!visible) return;
+
+    const onScroll = throttle(() => {
+      setIsCollapsed(window.scrollY > COLLAPSE_OFFSET);
+    }, 16);
+
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [visible]);
 
   const toggleSave = useCallback(() => {
     const nextSaved = !isSaved;

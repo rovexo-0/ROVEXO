@@ -1,10 +1,6 @@
 import { PremiumIcon } from "@/components/icons/PremiumIcon";
+import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
 import { AnimatedCounter } from "@/features/dashboard/components/AnimatedCounter";
-import {
-  FollowersIcon,
-  ListingsIcon,
-  SalesIcon,
-} from "@/features/profile/icons";
 import type { SellerStats } from "@/lib/profile/types";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
@@ -25,10 +21,8 @@ type StatCardProps = {
 function StatCard({ icon, value, label, className, mobileDashboard }: StatCardProps) {
   if (mobileDashboard) {
     return (
-      <div className={cn("account-dash-card flex min-h-[96px] flex-col items-center justify-center gap-ds-2", className)}>
-        <PremiumIcon size="sm" glow>
-          {icon}
-        </PremiumIcon>
+      <div className={cn("dash-v1-tile flex min-h-[96px] flex-col items-center justify-center gap-2", className)}>
+        <div className="dash-v1-tile__icon">{icon}</div>
         <span className="text-xl font-bold tabular-nums tracking-tight text-text-primary">
           <AnimatedCounter value={value} />
         </span>
@@ -57,30 +51,30 @@ export function SellerOverviewCards({ stats, layout = "default" }: SellerOvervie
     <section aria-labelledby="seller-overview-heading" className="flex flex-col gap-ds-3">
       <h2
         id="seller-overview-heading"
-        className={isMobileDashboard ? "account-dash-section__title" : "sr-only"}
+        className={isMobileDashboard ? "dash-v1-section__title" : "sr-only"}
       >
         Seller overview
       </h2>
 
       <div
         className={cn(
-          isMobileDashboard ? "account-dash-seller-stats" : "grid grid-cols-3 gap-ds-3",
+          isMobileDashboard ? "dash-v1-grid" : "grid grid-cols-3 gap-ds-3",
         )}
       >
         <StatCard
-          icon={<ListingsIcon className="h-5 w-5" />}
+          icon={<DashboardIcon3D type="listings" size={32} />}
           value={stats.listings}
           label="Listings"
           mobileDashboard={isMobileDashboard}
         />
         <StatCard
-          icon={<SalesIcon className="h-5 w-5" />}
+          icon={<DashboardIcon3D type="analytics" size={32} />}
           value={stats.sales}
           label="Sales"
           mobileDashboard={isMobileDashboard}
         />
         <StatCard
-          icon={<FollowersIcon className="h-5 w-5" />}
+          icon={<DashboardIcon3D type="account" size={32} />}
           value={stats.followers}
           label="Followers"
           mobileDashboard={isMobileDashboard}

@@ -27,6 +27,7 @@ import {
   type SuggestedSeller,
 } from "@/lib/search/defaults";
 import { useSearchOverlayOptional } from "@/features/search/client";
+import { useDebouncedValue } from "@/features/search/hooks/use-debounced-value";
 import { focusRing, shadowSoft, transitionFast } from "@/components/ui/tokens";
 
 export type SearchBarProps = {
@@ -48,17 +49,6 @@ export type SearchBarProps = {
   suggestedSellers?: SuggestedSeller[];
   onSearch?: (query: string, scope: SearchScope) => void;
 };
-
-function useDebouncedValue<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setDebouncedValue(value), delay);
-    return () => window.clearTimeout(timer);
-  }, [value, delay]);
-
-  return debouncedValue;
-}
 
 function SearchIcon({ className }: { className?: string }) {
   return (

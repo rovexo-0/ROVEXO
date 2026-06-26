@@ -12,10 +12,30 @@ vi.mock("@/lib/auctions/notify-store", () => ({
   subscribeToAuctionLaunch: vi.fn(),
 }));
 
-describe("auctions coming soon API", () => {
-  it("blocks the legacy auctions listing API", async () => {
-    const response = await getAuctionsApi();
-    expect(response.status).toBe(404);
+vi.mock("@/lib/auctions/queries", () => ({
+  getAuctionsPageData: vi.fn(),
+}));
+
+const emptyPageData = {
+  stats: { liveAuctions: 0, endingSoon: 0, activeBidders: 0, watchingNow: 0 },
+  categories: [],
+  featured: [],
+  endingSoon: [],
+  newest: [],
+  mostWatched: [],
+  all: [],
+};
+
+describe("auctions API", () => {
+  it("returns auction page data from the listings API", async () => {
+    const { getAuctionsPageData } = await import("@/lib/auctions/queries");
+    vi.mocked(getAuctionsPageData).mockResolvedValueOnce(emptyPageData);
+
+    const response = await getAuctionsApi(new Request("http://localhost/api/auctions"));
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.items).toEqual([]);
+    expect(body.stats).toEqual(emptyPageData.stats);
   });
 
   it("requires auth to subscribe for launch notifications", async () => {

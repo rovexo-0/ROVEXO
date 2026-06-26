@@ -4,8 +4,10 @@ import {
   SUGGEST_CONFIDENCE_MIN,
   detectCategoryFromTitle,
   getCategoryDetectionTier,
-  hashTitleForLearning,
   shouldAutoSelectCategory,
+} from "@/lib/sell/category-detection-pro";
+import {
+  hashTitleForLearning,
   suggestCategoryFromTitle,
 } from "@/lib/sell/suggest-category-from-title";
 import { resolveTitleCategoryPath } from "@/lib/sell/title-category-rules";

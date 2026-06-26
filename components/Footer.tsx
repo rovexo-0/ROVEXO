@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PlatformOperatorFooterNotice } from "@/components/legal/PlatformOperatorFooterNotice";
+import { LEGAL_SUPPORT_EMAIL } from "@/lib/legal/content";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
 
@@ -35,6 +36,9 @@ const BUSINESS_LINKS = [
 const SELL_LINKS = [
   { label: "Seller dashboard", href: "/seller/dashboard" },
   { label: "Sell an item", href: "/sell" },
+  { label: "Publish listing", href: "/sell/new" },
+  { label: "Bring your items", href: "/seller/migration" },
+  { label: "Marketplace connectors", href: "/seller/connectors" },
   { label: "How to sell", href: "/help/selling-get-started" },
   { label: "Seller protection", href: "/help/buying-buyer-protection" },
   { label: "Shipping guide", href: "/help/delivery-shipping" },
@@ -90,6 +94,11 @@ export default function Footer() {
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-text-secondary">
               The modern marketplace to buy, sell, and discover pre-loved and new items across Europe.
+            </p>
+            <p className="mt-3 text-sm text-text-secondary">
+              <Link href={`mailto:${LEGAL_SUPPORT_EMAIL}`} className="hover:text-primary hover:underline">
+                {LEGAL_SUPPORT_EMAIL}
+              </Link>
             </p>
           </div>
 

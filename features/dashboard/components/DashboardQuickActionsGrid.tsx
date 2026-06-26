@@ -1,16 +1,18 @@
 import Link from "next/link";
-import { PremiumIcon } from "@/components/icons/PremiumIcon";
-import { MobileNavIcon } from "@/features/mobile-ui/components/MobileNavIcon";
+import { DashboardIcon3D, resolveDashboardIconType, type DashboardIconType } from "@/components/icons/DashboardIcon3D";
 import { Card } from "@/components/ui/Card";
+import { PremiumIcon } from "@/components/icons/PremiumIcon";
+import { DashboardGrid } from "@/features/dashboard/components/DashboardGrid";
+import { DashboardSection } from "@/features/dashboard/components/DashboardSection";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { ChevronRightIcon } from "@/features/product-detail/icons";
 
 export type QuickActionItem = {
   href: string;
-  emoji: string;
   label: string;
   subtitle?: string;
+  iconType?: DashboardIconType;
 };
 
 type DashboardQuickActionsGridProps = {
@@ -23,56 +25,54 @@ export function DashboardQuickActionsGrid({
   actions,
 }: DashboardQuickActionsGridProps) {
   return (
-    <section aria-labelledby="dashboard-quick-actions-heading" className="flex flex-col gap-ds-3">
-      <h2 id="dashboard-quick-actions-heading" className="mhub-section__title lg:text-base lg:font-semibold">
-        {title}
-      </h2>
-
-      <div className="mhub-grid lg:grid lg:grid-cols-2 lg:gap-ds-3">
-        {actions.map((action) => (
-          <Link
-            key={action.href + action.label}
-            href={action.href}
-            className={cn("mhub-card lg:hidden", focusRing)}
-            aria-label={action.label}
-          >
-            <div className="mhub-card__top">
-              <MobileNavIcon>
-                <span className="mhub-icon__emoji" aria-hidden>
-                  {action.emoji}
-                </span>
-              </MobileNavIcon>
-              <ChevronRightIcon className="mhub-card__chevron h-4 w-4" aria-hidden />
-            </div>
-            <div>
-              <p className="mhub-card__title">{action.label}</p>
-              {action.subtitle ? (
-                <p className="mhub-card__subtitle">{action.subtitle}</p>
-              ) : null}
-            </div>
-          </Link>
-        ))}
-        {actions.map((action) => (
-          <Link key={`desktop-${action.href}`} href={action.href} className="hidden lg:block">
-            <Card
-              padding="md"
-              interactive
-              className={cn(
-                "flex min-h-[92px] flex-col items-start justify-center gap-ds-2",
-                transitionFast,
-                focusRing,
-              )}
+    <DashboardSection id="dash-quick-actions" title={title}>
+      <DashboardGrid className="lg:grid lg:grid-cols-2 lg:gap-ds-3">
+        {actions.map((action) => {
+          const iconType = action.iconType ?? resolveDashboardIconType(action.href);
+          return (
+            <Link
+              key={action.href + action.label}
+              href={action.href}
+              className={cn("dash-v1-tile lg:hidden", focusRing)}
+              aria-label={action.label}
             >
-              <PremiumIcon size="sm" float label={action.label}>
-                <span className="text-lg leading-none" aria-hidden>
-                  {action.emoji}
-                </span>
-              </PremiumIcon>
-              <span className="text-sm font-semibold text-text-primary">{action.label}</span>
-            </Card>
-          </Link>
-        ))}
-      </div>
-    </section>
+              <div className="dash-v1-tile__top">
+                <div className="dash-v1-tile__icon">
+                  <DashboardIcon3D type={iconType} size={32} />
+                </div>
+                <ChevronRightIcon className="dash-v1-tile__chevron h-4 w-4" aria-hidden />
+              </div>
+              <div>
+                <p className="dash-v1-tile__title">{action.label}</p>
+                {action.subtitle ? (
+                  <p className="dash-v1-tile__subtitle">{action.subtitle}</p>
+                ) : null}
+              </div>
+            </Link>
+          );
+        })}
+        {actions.map((action) => {
+          const iconType = action.iconType ?? resolveDashboardIconType(action.href);
+          return (
+            <Link key={`desktop-${action.href}`} href={action.href} className="hidden lg:block">
+              <Card
+                padding="md"
+                interactive
+                className={cn(
+                  "flex min-h-[92px] flex-col items-start justify-center gap-ds-2",
+                  transitionFast,
+                  focusRing,
+                )}
+              >
+                <PremiumIcon size="sm" float label={action.label}>
+                  <DashboardIcon3D type={iconType} size={24} />
+                </PremiumIcon>
+                <span className="text-sm font-semibold text-text-primary">{action.label}</span>
+              </Card>
+            </Link>
+          );
+        })}
+      </DashboardGrid>
+    </DashboardSection>
   );
 }

@@ -5,11 +5,12 @@ import { HomePageShell } from "@/components/home/HomePageShell";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { fetchProducts } from "@/lib/products/queries";
 import { homePageJsonLd } from "@/lib/seo/home-jsonld";
+import { getAppUrl } from "@/lib/supabase/env";
 import type { ProductsPage } from "@/lib/products/types";
 
 const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://rovexo.com";
+const siteUrl = getAppUrl();
 
 export const metadata: Metadata = {
   title: "ROVEXO · Buy and sell with buyer protection",

@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import type { DashboardBadgeKey } from "@/lib/profile/dashboard-sections";
+import { useVisibilityPolling } from "@/lib/performance/hooks";
+import { fetchDeduped } from "@/lib/performance/fetch";
 
 export type AccountDashboardBadges = Record<DashboardBadgeKey, number>;
 
@@ -42,66 +44,53 @@ export function useAccountDashboardBadges(
     notifications: initial.notifications ?? 0,
   });
 
-  useEffect(() => {
-    let cancelled = false;
+  const refresh = useCallback(async () => {
+    try {
+      const requestInit = { cache: "no-store" as const };
+      const responses = await Promise.all([
+        fetchDeduped("/api/messages", { ...requestInit, dedupeKey: "account-badges:messages" }),
+        fetchDeduped("/api/notifications", { ...requestInit, dedupeKey: "account-badges:notifications" }),
+        fetchDeduped("/api/cart", { ...requestInit, dedupeKey: "account-badges:cart" }),
+        fetchDeduped("/api/saved", { ...requestInit, dedupeKey: "account-badges:saved" }),
+        fetchDeduped("/api/orders", { ...requestInit, dedupeKey: "account-badges:orders" }),
+      ]);
 
-    async function refresh() {
-      try {
-        const requests: Promise<Response>[] = [
-          fetch("/api/messages", { cache: "no-store" }),
-          fetch("/api/notifications", { cache: "no-store" }),
-          fetch("/api/cart", { cache: "no-store" }),
-          fetch("/api/saved", { cache: "no-store" }),
-          fetch("/api/orders", { cache: "no-store" }),
-        ];
+      if (responses.some((response) => !response.ok)) return;
 
-        const responses = await Promise.all(requests);
-        if (responses.some((response) => !response.ok)) {
-          return;
-        }
+      const [messagesPayload, notificationsPayload, cartPayload, savedPayload, ordersPayload] =
+        await Promise.all(responses.map((response) => response.json()));
 
-        const [messagesPayload, notificationsPayload, cartPayload, savedPayload, ordersPayload] =
-          await Promise.all(responses.map((response) => response.json()));
+      const messages = (messagesPayload as { conversations?: Array<{ unreadCount?: number }> })
+        .conversations;
+      const notifications = (notificationsPayload as { notifications?: Array<{ read?: boolean }> })
+        .notifications;
+      const cart = (cartPayload as { cart?: { itemCount?: number } }).cart;
+      const saved = (savedPayload as { items?: unknown[] }).items;
+      const orders = (ordersPayload as { orders?: Array<{ status?: string }> }).orders;
 
-        if (cancelled) return;
-
-        const messages = (messagesPayload as { conversations?: Array<{ unreadCount?: number }> })
-          .conversations;
-        const notifications = (notificationsPayload as { notifications?: Array<{ read?: boolean }> })
-          .notifications;
-        const cart = (cartPayload as { cart?: { itemCount?: number } }).cart;
-        const saved = (savedPayload as { items?: unknown[] }).items;
-        const orders = (ordersPayload as { orders?: Array<{ status?: string }> }).orders;
-
-        let walletPayout = 0;
-        if (initial.isSeller) {
-          const sales = countActiveOrders(orders);
-          walletPayout = sales > 0 ? 1 : 0;
-        }
-
-        setBadges({
-          messages: (messages ?? []).reduce((sum, item) => sum + (item.unreadCount ?? 0), 0),
-          notifications: (notifications ?? []).filter((item) => !item.read).length,
-          cart: cart?.itemCount ?? 0,
-          saved: saved?.length ?? 0,
-          orders: countActiveOrders(orders),
-          walletPayout,
-        });
-      } catch {
-        // Ignore transient network errors.
+      let walletPayout = 0;
+      if (initial.isSeller) {
+        const sales = countActiveOrders(orders);
+        walletPayout = sales > 0 ? 1 : 0;
       }
+
+      setBadges({
+        messages: (messages ?? []).reduce((sum, item) => sum + (item.unreadCount ?? 0), 0),
+        notifications: (notifications ?? []).filter((item) => !item.read).length,
+        cart: cart?.itemCount ?? 0,
+        saved: saved?.length ?? 0,
+        orders: countActiveOrders(orders),
+        walletPayout,
+      });
+    } catch {
+      // Ignore transient network errors.
     }
-
-    void refresh();
-    const intervalId = window.setInterval(refresh, POLL_INTERVAL_MS);
-    window.addEventListener("focus", refresh);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(intervalId);
-      window.removeEventListener("focus", refresh);
-    };
   }, [initial.isSeller]);
+
+  useVisibilityPolling(() => void refresh(), POLL_INTERVAL_MS, {
+    immediate: true,
+    refreshOnVisible: true,
+  });
 
   return {
     messages: badges.messages,

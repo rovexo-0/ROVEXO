@@ -24,7 +24,7 @@ export function AccountLanguagePage() {
     <AccountPageShell
       title="Language"
       subtitle="Choose your preferred language and regional format."
-      backHref="/settings"
+      backHref="/account/settings"
       backLabel="Settings"
     >
       <section className="premium-card p-ds-5">

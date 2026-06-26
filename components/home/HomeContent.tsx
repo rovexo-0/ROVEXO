@@ -3,16 +3,18 @@
 import {
   memo,
   useCallback,
-  useEffect,
   useRef,
   useState,
   useTransition,
 } from "react";
 import type { Product, ProductsPage } from "@/lib/products/types";
+import { useIntersectionWhenVisible } from "@/lib/performance/hooks";
 import { ProductCarouselSection } from "@/components/home/ProductCarouselSection";
+import { HomeHeroSearch } from "@/components/home/HomeHeroSearch";
 import { HomeCategoryRail } from "@/components/home/HomeCategoryRail";
 import { HomeRecentlyViewedCarousel } from "@/components/home/HomeRecentlyViewedCarousel";
 import { AuctionsSection } from "@/components/home/AuctionsSection";
+import { StoreMigrationHeroBanner } from "@/features/seller/migration/components/StoreMigrationHeroBanner";
 import { cn } from "@/lib/cn";
 import { transitionFast } from "@/components/ui/tokens";
 import "@/styles/home-premium-polish.css";
@@ -94,24 +96,18 @@ export const HomeContent = memo(function HomeContent({
     }
   }, [hasMorePopular, isLoadingMorePopular, popularPage]);
 
-  useEffect(() => {
-    const node = loadMorePopularRef.current;
-    if (!node || !hasMorePopular || isLoadingMorePopular) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          startTransition(() => {
-            void loadMorePopular();
-          });
-        }
-      },
-      { rootMargin: "240px" },
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [hasMorePopular, isLoadingMorePopular, loadMorePopular, popular.length]);
+  useIntersectionWhenVisible(
+    () => {
+      startTransition(() => {
+        void loadMorePopular();
+      });
+    },
+    {
+      targetRef: loadMorePopularRef,
+      enabled: hasMorePopular && !isLoadingMorePopular,
+      rootMargin: "240px",
+    },
+  );
 
   function handleTouchStart(event: React.TouchEvent) {
     if (window.scrollY > 0 || isRefreshing) return;
@@ -170,7 +166,11 @@ export const HomeContent = memo(function HomeContent({
           "home-premium-polish flex flex-col gap-ds-2 pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))] lg:mx-auto lg:max-w-7xl lg:w-full",
         )}
       >
+        <HomeHeroSearch />
+
         <HomeCategoryRail />
+
+        <StoreMigrationHeroBanner />
 
         <ProductCarouselSection
           id="featured-heading"

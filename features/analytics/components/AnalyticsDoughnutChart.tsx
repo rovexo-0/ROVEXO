@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
 import type { AnalyticsSegment } from "@/lib/analytics/types";
@@ -17,7 +18,7 @@ const SEGMENT_COLORS = [
   "text-danger",
 ] as const;
 
-export function AnalyticsDoughnutChart({
+export const AnalyticsDoughnutChart = memo(function AnalyticsDoughnutChart({
   title,
   segments,
   headingId,
@@ -101,4 +102,4 @@ export function AnalyticsDoughnutChart({
       </Card>
     </section>
   );
-}
+});

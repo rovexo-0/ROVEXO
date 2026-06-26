@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/lib/supabase/types/database";
-import type { Notification, NotificationIcon, NotificationSettings } from "@/lib/notifications/types";
+import type { Notification, NotificationIcon, NotificationPreferences, NotificationSettings } from "@/lib/notifications/types";
 
 function notificationIcon(type: Tables<"notifications">["type"]): NotificationIcon {
   switch (type) {
@@ -47,6 +47,7 @@ function mapNotification(row: Tables<"notifications">): Notification {
 function mapSettings(row: Tables<"notification_settings">): NotificationSettings {
   return {
     pushEnabled: row.push_enabled,
+    browserPush: row.browser_push ?? true,
     messages: row.messages,
     orders: row.orders,
     offers: row.offers,
@@ -114,6 +115,68 @@ export async function deleteNotifications(userId: string, ids: string[]): Promis
   await supabase.from("notifications").delete().eq("user_id", userId).in("id", ids);
 }
 
+export async function markAllNotificationsRead(userId: string): Promise<void> {
+  const supabase = await createClient();
+  await supabase.from("notifications").update({ read: true }).eq("user_id", userId).eq("read", false);
+}
+
+export async function deleteAllReadNotifications(userId: string): Promise<void> {
+  const supabase = await createClient();
+  await supabase.from("notifications").delete().eq("user_id", userId).eq("read", true);
+}
+
+function mapPreferences(row: Tables<"notification_preferences">): NotificationPreferences {
+  return {
+    orders: row.orders,
+    messages: row.messages,
+    payments: row.payments,
+    support: row.support,
+    marketing: row.marketing,
+    security: row.security,
+    business: row.business,
+    ai: row.ai,
+  };
+}
+
+export async function getNotificationPreferences(
+  userId: string,
+): Promise<NotificationPreferences | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("notification_preferences")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  return data ? mapPreferences(data) : null;
+}
+
+export async function updateNotificationPreferences(
+  userId: string,
+  patch: Partial<NotificationPreferences>,
+): Promise<NotificationPreferences | null> {
+  const supabase = await createClient();
+  const update: Partial<Tables<"notification_preferences">> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (patch.orders !== undefined) update.orders = patch.orders;
+  if (patch.messages !== undefined) update.messages = patch.messages;
+  if (patch.payments !== undefined) update.payments = patch.payments;
+  if (patch.support !== undefined) update.support = patch.support;
+  if (patch.marketing !== undefined) update.marketing = patch.marketing;
+  if (patch.security !== undefined) update.security = patch.security;
+  if (patch.business !== undefined) update.business = patch.business;
+  if (patch.ai !== undefined) update.ai = patch.ai;
+
+  await supabase.from("notification_preferences").upsert({
+    user_id: userId,
+    ...update,
+  });
+
+  return getNotificationPreferences(userId);
+}
+
 export async function getNotificationSettings(
   userId: string,
 ): Promise<NotificationSettings | null> {
@@ -139,6 +202,7 @@ export async function updateNotificationSettings(
   const update: Record<string, boolean | string | undefined> = {};
 
   if (patch.pushEnabled !== undefined) update.push_enabled = patch.pushEnabled;
+  if (patch.browserPush !== undefined) update.browser_push = patch.browserPush;
   if (patch.messages !== undefined) update.messages = patch.messages;
   if (patch.orders !== undefined) update.orders = patch.orders;
   if (patch.offers !== undefined) update.offers = patch.offers;

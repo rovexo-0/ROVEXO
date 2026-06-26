@@ -3,7 +3,7 @@ import {
   AUTO_SELECT_CONFIDENCE,
   detectCategoryFromTitle,
   shouldAutoSelectCategory,
-} from "@/lib/sell/suggest-category-from-title";
+} from "@/lib/sell/category-detection-pro";
 import { resolveTitleCategoryPath } from "@/lib/sell/title-category-rules";
 
 /** STEP 7 — release verification titles (title-only, ≥90% auto-select). */

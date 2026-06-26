@@ -20,14 +20,14 @@ Set exactly these **12 canonical names**. Do not also set their aliases (see §3
 
 | # | Variable | Example value | Used by |
 |---|----------|---------------|---------|
-| 1 | `NEXT_PUBLIC_APP_URL` | `https://rovexo.com` | Stripe return URLs, sitemap, `metadataBase`, robots |
+| 1 | `NEXT_PUBLIC_APP_URL` | `https://www.rovexo.co.uk` | Stripe return URLs, sitemap, `metadataBase`, robots |
 | 2 | `NEXT_PUBLIC_SUPABASE_URL` | `https://pklotmwxtnnepaitedic.supabase.co` | Browser auth + server Supabase clients |
 | 3 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `sb_publishable_…` | Browser auth (`lib/supabase/client.ts`) |
 | 4 | `SUPABASE_SERVICE_ROLE_KEY` | `sb_secret_…` | Server admin client only (`lib/supabase/admin.ts`) |
 | 5 | `STRIPE_SECRET_KEY` | `sk_live_…` | Checkout, Connect, payouts, webhooks |
 | 6 | `STRIPE_WEBHOOK_SECRET` | `whsec_…` | `/api/webhooks/stripe` signature verification |
 | 7 | `RESEND_API_KEY` | `re_…` | Transactional email |
-| 8 | `EMAIL_FROM` | `ROVEXO <noreply@rovexo.com>` | Resend sender (must be verified in Resend) |
+| 8 | `EMAIL_FROM` | `ROVEXO <support@rovexo.co.uk>` | Resend sender (must be verified in Resend) |
 | 9 | `UPSTASH_REDIS_REST_URL` | `https://….upstash.io` | Production API rate limiting |
 | 10 | `UPSTASH_REDIS_REST_TOKEN` | `<token>` | Production API rate limiting |
 | 11 | `CRON_SECRET` | `<openssl rand -hex 32>` | `/api/cron/maintenance`, `/api/cron/orders/cleanup` |
@@ -54,7 +54,7 @@ Listed in §1.
 
 | Variable | Prefix | Server-only | Notes |
 |----------|--------|-------------|-------|
-| `NEXT_PUBLIC_SITE_URL` | ✓ `NEXT_PUBLIC_` | No (bundled) | SEO on homepage; defaults to `https://rovexo.com` |
+| `NEXT_PUBLIC_SITE_URL` | ✓ `NEXT_PUBLIC_` | No (bundled) | SEO on homepage; defaults to `https://www.rovexo.co.uk` |
 | `OPENAI_API_KEY` | ✗ | ✓ | AI camera vision (`lib/ai-camera/config.ts`) |
 | `OPENAI_VISION_MODEL` | ✗ | ✓ | Defaults to `gpt-4o-mini` |
 | `AI_CAMERA_VISION_MOCK` | ✗ | ✓ | **Do not set `true` in production** |
@@ -162,8 +162,8 @@ Already in repo — no changes needed:
 
 ### Stripe webhook (dashboard, not env file)
 
-1. Endpoint: `https://rovexo.co.uk/api/stripe/webhook` (GET returns **405** when deployed — confirms route exists)
-2. Legacy alias: `https://rovexo.co.uk/api/webhooks/stripe`
+1. Endpoint: `https://www.rovexo.co.uk/api/stripe/webhook` (GET returns **405** when deployed — confirms route exists)
+2. Legacy alias: `https://www.rovexo.co.uk/api/webhooks/stripe`
 2. Events: `checkout.session.completed`, `account.updated`, `charge.refunded`, `transfer.reversed` (see `docs/PRODUCTION_DEPLOYMENT.md`)
 3. Copy signing secret → `STRIPE_WEBHOOK_SECRET` in Vercel
 
@@ -173,7 +173,7 @@ Already in repo — no changes needed:
 
 ### Environment variables (Vercel → Production)
 
-- [ ] `NEXT_PUBLIC_APP_URL` = `https://rovexo.com` (HTTPS, no trailing path)
+- [ ] `NEXT_PUBLIC_APP_URL` = `https://www.rovexo.co.uk` (HTTPS, no trailing path)
 - [ ] `NEXT_PUBLIC_SUPABASE_URL` = `https://pklotmwxtnnepaitedic.supabase.co`
 - [ ] `NEXT_PUBLIC_SUPABASE_ANON_KEY` = Supabase publishable key
 - [ ] `SUPABASE_SERVICE_ROLE_KEY` = Supabase secret key (Sensitive)
@@ -206,8 +206,8 @@ Already in repo — no changes needed:
 ### Post-deploy smoke tests
 
 ```bash
-curl https://rovexo.com/api/health/live
-curl -H "Authorization: Bearer $CRON_SECRET" https://rovexo.com/api/cron/maintenance
+curl https://www.rovexo.co.uk/api/health/live
+curl -H "Authorization: Bearer $CRON_SECRET" https://www.rovexo.co.uk/api/cron/maintenance
 ```
 
 - [ ] Checkout test with live Stripe (small amount, then refund)

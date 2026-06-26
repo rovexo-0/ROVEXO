@@ -10,6 +10,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { throttle } from "@/lib/performance/throttle";
+import { useDocumentVisible } from "@/lib/performance/hooks";
 
 const SCROLL_DOWN_THRESHOLD = 40;
 const MOBILE_MEDIA = "(max-width: 1023px)";
@@ -35,6 +37,7 @@ function isMobileViewport() {
 }
 
 export function MobileHeaderScrollProvider({ children }: { children: ReactNode }) {
+  const visible = useDocumentVisible();
   const [isVisible, setIsVisible] = useState(true);
   const [headerElement, setHeaderElement] = useState<HTMLElement | null>(null);
   const [measuredHeaderHeight, setMeasuredHeaderHeight] = useState(0);
@@ -53,7 +56,7 @@ export function MobileHeaderScrollProvider({ children }: { children: ReactNode }
   }, []);
 
   useLayoutEffect(() => {
-    if (!headerElement) {
+    if (!headerElement || !visible) {
       return;
     }
 
@@ -73,10 +76,12 @@ export function MobileHeaderScrollProvider({ children }: { children: ReactNode }
       resizeObserver?.disconnect();
       window.removeEventListener("resize", handleMeasure);
     };
-  }, [headerElement, updateHeaderHeight]);
+  }, [headerElement, updateHeaderHeight, visible]);
 
   useLayoutEffect(() => {
-    function handleScroll() {
+    if (!visible) return;
+
+    const handleScroll = throttle(() => {
       if (!isMobileViewport()) {
         scrollDownDistance.current = 0;
         lastScrollY.current = getScrollY();
@@ -101,7 +106,7 @@ export function MobileHeaderScrollProvider({ children }: { children: ReactNode }
       }
 
       lastScrollY.current = currentScrollY;
-    }
+    }, 16);
 
     lastScrollY.current = getScrollY();
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -109,7 +114,7 @@ export function MobileHeaderScrollProvider({ children }: { children: ReactNode }
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [visible]);
 
   const contextValue = useMemo(
     () => ({

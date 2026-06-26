@@ -9,6 +9,7 @@ import {
 } from "@/lib/navigation/map";
 import { SUPER_ADMIN_NAV } from "@/lib/super-admin/nav";
 import { TRUST_CENTER_SECTIONS } from "@/lib/trust/types";
+import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
 import type { UserProfile } from "@/lib/profile/types";
 import type {
   MobileHubContext,
@@ -55,7 +56,7 @@ export function getBuyHubTiles(): MobileTile[] {
     tile("/auctions", "Auctions", "Live bidding"),
     tile("/messages", "Messages", "Buyer & seller chats", "messages"),
     tile("/notifications", "Notifications", "Alerts & activity", "notifications"),
-    tile("/settings", "Settings", "Account & privacy"),
+    tile("/settings", "Settings", "Account & privacy", "notifications"),
     tile("/account", "Account", "Profile dashboard"),
   ]);
 }
@@ -64,14 +65,21 @@ export function getSellHubTiles(profile: UserProfile): MobileTile[] {
   if (profile.isSeller) {
     return dedupeTiles(
       fromNav(SELLER_NAV, {
+        "/seller/dashboard": "notifications",
+        "/seller/listings": "notifications",
         "/seller/orders": "orders",
         "/seller/wallet": "wallet-payout",
+        "/seller/analytics": "notifications",
+        "/account/seller/shipping": "notifications",
       }),
     );
   }
 
   return [
     tile("/sell", "Sell an item", "Create a listing"),
+    tile("/sell/new", "Publish listing", "Step-by-step wizard"),
+    tile(MIGRATION_CENTER_PATH, "Bring Your Items", "Import your entire store"),
+    tile("/seller/connectors", "Marketplace Connectors", "Connect external stores"),
     tile("/help/selling-get-started", "How to sell", "Getting started guide"),
     tile("/help/buying-buyer-protection", "Seller protection", "Safety & coverage"),
     tile("/help/delivery-shipping", "Shipping guide", "Delivery best practices"),
@@ -85,7 +93,11 @@ export function getBusinessHubTiles(profile: UserProfile, context?: MobileHubCon
     ...(context?.storeSlug
       ? [tile(`/store/${context.storeSlug}`, "Company profile", "Public store page")]
       : []),
-    ...fromNav(BUSINESS_NAV),
+    ...fromNav(BUSINESS_NAV, {
+      "/business/dashboard": "notifications",
+      "/business/analytics": "notifications",
+      "/wholesale": "notifications",
+    }),
     tile("/plans", "Plans & Premium", "Business subscriptions"),
     tile("/messages", "Messages", "Leads & conversations", "messages"),
   ]);
@@ -108,7 +120,13 @@ export function getBusinessHubTiles(profile: UserProfile, context?: MobileHubCon
 
 export function getSupportHubTiles(): MobileTile[] {
   return dedupeTiles([
-    ...fromNav(HELP_NAV),
+    ...fromNav(HELP_NAV, {
+      "/assistant": "notifications",
+      "/help": "notifications",
+      "/help/faq": "notifications",
+      "/help/policies": "notifications",
+      "/settings": "notifications",
+    }),
     tile("/help/terms-of-service", "Terms of service", "Platform terms"),
     tile("/help/privacy-policy", "Privacy policy", "Data & privacy"),
     tile("/legal", "Legal", "Platform information"),

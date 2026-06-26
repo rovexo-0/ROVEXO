@@ -10,7 +10,7 @@ import {
   resolveMobileBadge,
   useMobileBadges,
 } from "@/features/mobile-ui/hooks/use-mobile-badges";
-import { getNavLinkIcon } from "@/lib/navigation/link-icons";
+import { resolveDashboardIconType } from "@/components/icons/DashboardIcon3D";
 import type { MobileBadges, MobileHubSection } from "@/lib/mobile-ui/types";
 
 type MobileHubSectionsProps = {
@@ -42,7 +42,7 @@ export function MobileHubSections({
                   href={tile.href}
                   label={tile.label}
                   subtitle={tile.subtitle}
-                  icon={getNavLinkIcon(tile.href)}
+                  iconType={resolveDashboardIconType(tile.href)}
                   badgeKey={tile.badge}
                   badgeCount={resolveMobileBadge(tile.badge, badges, tile.badgeCount)}
                   badgeTone={tile.badgeTone}

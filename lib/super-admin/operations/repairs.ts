@@ -40,7 +40,7 @@ const REPAIR_CATALOG: Record<
     cause: "RESEND_API_KEY or EMAIL_FROM is missing.",
     affectedFiles: [".env.local", "lib/email/service.ts"],
     suggestedFix: "Add Resend API key and verified sender address to environment.",
-    diff: "+ RESEND_API_KEY=re_...\n+ EMAIL_FROM=ROVEXO <noreply@yourdomain.com>",
+    diff: "+ RESEND_API_KEY=re_...\n+ EMAIL_FROM=ROVEXO <support@rovexo.co.uk>",
     lowRisk: false,
   },
   cron_stale: {
@@ -56,7 +56,7 @@ const REPAIR_CATALOG: Record<
     cause: "NEXT_PUBLIC_APP_URL does not use https:// in production.",
     affectedFiles: [".env.local", "next.config.ts"],
     suggestedFix: "Set NEXT_PUBLIC_APP_URL to your HTTPS production origin.",
-    diff: "NEXT_PUBLIC_APP_URL=https://rovexo.com",
+    diff: "NEXT_PUBLIC_APP_URL=https://www.rovexo.co.uk",
     lowRisk: false,
   },
 };

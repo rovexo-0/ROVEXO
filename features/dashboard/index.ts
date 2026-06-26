@@ -1,0 +1,10 @@
+export { DashboardShell } from "@/features/dashboard/components/DashboardShell";
+export { DashboardPageHeader } from "@/features/dashboard/components/DashboardPageHeader";
+export { ProfileCard } from "@/features/dashboard/components/ProfileCard";
+export { TrustScoreCard } from "@/features/dashboard/components/TrustScoreCard";
+export { DashboardSection } from "@/features/dashboard/components/DashboardSection";
+export { DashboardGrid } from "@/features/dashboard/components/DashboardGrid";
+export { DashboardTile } from "@/features/dashboard/components/DashboardTile";
+export { NotificationBadge } from "@/features/dashboard/components/NotificationBadge";
+export { LogoutButton } from "@/features/dashboard/components/LogoutButton";
+export { DashboardQuickAccess } from "@/features/dashboard/components/DashboardQuickAccess";

@@ -4,7 +4,7 @@ import { MobileHubNavigator } from "@/features/mobile-ui";
 import { MobilePremiumSection, MobilePremiumGrid } from "@/features/mobile-ui";
 import { MobilePremiumCard } from "@/features/mobile-ui";
 import { SettingToggle } from "@/features/settings/components/SettingToggle";
-import { getNavLinkIcon } from "@/lib/navigation/link-icons";
+import { resolveDashboardIconType } from "@/components/icons/DashboardIcon3D";
 import { SignOutIcon } from "@/features/profile/icons";
 import type { UserProfile } from "@/lib/profile/types";
 import type { AppSettings } from "@/lib/settings/types";
@@ -74,24 +74,24 @@ export function SettingsMobileHub({
     <div className="flex flex-col gap-ds-4">
       <MobilePremiumSection id="mhub-account-tools" title="Account">
         <MobilePremiumGrid>
-          <MobilePremiumCard href="/account/edit" label="Edit profile" subtitle="Name, avatar, phone" icon={getNavLinkIcon("/account")} />
-          <MobilePremiumCard href="/account/addresses" label="Addresses" subtitle="Personal & business" icon={getNavLinkIcon("/orders")} />
-          <MobilePremiumCard href="/account/payment-methods" label="Payment methods" subtitle="Cards & payouts" icon={getNavLinkIcon("/plans")} />
-          <MobilePremiumCard href="/account/security" label="Security" subtitle="Password & 2FA" icon={getNavLinkIcon("/account")} />
-          <MobilePremiumCard href="/account/privacy" label="Privacy" subtitle="Visibility & marketing" icon={getNavLinkIcon("/account")} />
-          <MobilePremiumCard href="/account/buyer/preferences" label="Buyer preferences" subtitle="Alerts & recommendations" icon={getNavLinkIcon("/account")} />
+          <MobilePremiumCard href="/account/profile" label="Edit profile" subtitle="Name, avatar, phone" iconType={resolveDashboardIconType("/account/profile")} />
+          <MobilePremiumCard href="/account/addresses" label="Addresses" subtitle="Personal & business" iconType={resolveDashboardIconType("/account/addresses")} />
+          <MobilePremiumCard href="/account/payment-methods" label="Payment methods" subtitle="Cards & payouts" iconType={resolveDashboardIconType("/account/payment-methods")} />
+          <MobilePremiumCard href="/account/security" label="Security" subtitle="Password & 2FA" iconType={resolveDashboardIconType("/account/security")} />
+          <MobilePremiumCard href="/account/privacy" label="Privacy" subtitle="Visibility & marketing" iconType={resolveDashboardIconType("/account/privacy")} />
+          <MobilePremiumCard href="/account/buyer/preferences" label="Buyer preferences" subtitle="Alerts & recommendations" iconType={resolveDashboardIconType("/account/buyer/preferences")} />
           {profile.isSeller ? (
-            <MobilePremiumCard href="/account/seller/shipping" label="Shipping settings" subtitle="Handling & carriers" icon={getNavLinkIcon("/seller/dashboard")} />
+            <MobilePremiumCard href="/account/seller/shipping" label="Shipping settings" subtitle="Handling & carriers" iconType={resolveDashboardIconType("/account/seller/shipping")} />
           ) : null}
-          <MobilePremiumCard href="/notifications/settings" label="Notifications" subtitle="Push & email" icon={getNavLinkIcon("/notifications")} />
+          <MobilePremiumCard href="/notifications/settings" label="Notifications" subtitle="Push & email" iconType={resolveDashboardIconType("/notifications/settings")} />
         </MobilePremiumGrid>
       </MobilePremiumSection>
       <MobilePremiumSection id="mhub-preferences-links" title="Language & region">
         <MobilePremiumGrid>
-          <MobilePremiumCard href="/account/preferences/language" label="Language" subtitle={settings.language} icon={getNavLinkIcon("/settings")} />
-          <MobilePremiumCard href="/account/preferences/appearance" label="Appearance" subtitle={settings.appearanceMode} icon={getNavLinkIcon("/settings")} />
-          <MobilePremiumCard href="/account/preferences/timezone" label="Timezone" subtitle={settings.timezone} icon={getNavLinkIcon("/settings")} />
-          <MobilePremiumCard href="/account/preferences/currency" label="Currency" subtitle={settings.currency} icon={getNavLinkIcon("/settings")} />
+          <MobilePremiumCard href="/account/preferences/language" label="Language" subtitle={settings.language} iconType={resolveDashboardIconType("/account/preferences/language")} />
+          <MobilePremiumCard href="/account/preferences/appearance" label="Appearance" subtitle={settings.appearanceMode} iconType={resolveDashboardIconType("/account/preferences/appearance")} />
+          <MobilePremiumCard href="/account/preferences/timezone" label="Timezone" subtitle={settings.timezone} iconType={resolveDashboardIconType("/account/preferences/timezone")} />
+          <MobilePremiumCard href="/account/preferences/currency" label="Currency" subtitle={settings.currency} iconType={resolveDashboardIconType("/account/preferences/currency")} />
         </MobilePremiumGrid>
       </MobilePremiumSection>
       <MobileHubNavigator profile={profile} sectionTitle="Explore ROVEXO" />

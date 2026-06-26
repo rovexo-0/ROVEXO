@@ -30,7 +30,7 @@ Step-by-step guide for deploying ROVEXO to **Vercel Production**. This document 
 | Stripe account | Live mode enabled; Connect Express for seller payouts |
 | Resend account | Domain verified for outbound email |
 | Upstash account | Redis database for production rate limiting |
-| Custom domain | e.g. `rovexo.com` pointed to Vercel |
+| Custom domain | e.g. `www.rovexo.co.uk` pointed to Vercel |
 
 ---
 
@@ -106,13 +106,13 @@ These eight variables are **not set** in the current local environment and must 
 
 | Source | Website | Exact page | What to copy |
 |--------|---------|------------|--------------|
-| Custom domain (recommended) | [vercel.com/dashboard](https://vercel.com/dashboard) | Project → **Settings** → **Domains** | Your production domain, e.g. `rovexo.com` |
+| Custom domain (recommended) | [vercel.com/dashboard](https://vercel.com/dashboard) | Project → **Settings** → **Domains** | Your production domain, e.g. `www.rovexo.co.uk` |
 | Vercel default | Same | **Domains** tab | `your-project.vercel.app` (use only before custom domain is ready) |
 
 **Exact value format**
 
 ```
-https://rovexo.com
+https://www.rovexo.co.uk
 ```
 
 | Rule | Requirement |
@@ -130,9 +130,9 @@ https://rovexo.com
 
 **How to verify it works**
 
-1. Redeploy, then open `https://rovexo.com` — site loads over HTTPS.
-2. View page source → `<link rel="canonical">` and Open Graph URLs should use `https://rovexo.com`.
-3. `curl -sI https://rovexo.com/robots.txt` — `Sitemap:` line should reference your domain.
+1. Redeploy, then open `https://www.rovexo.co.uk` — site loads over HTTPS.
+2. View page source → `<link rel="canonical">` and Open Graph URLs should use `https://www.rovexo.co.uk`.
+3. `curl -sI https://www.rovexo.co.uk/robots.txt` — `Sitemap:` line should reference your domain.
 4. Run locally (after copying to `.env.local`): `npm run verify:env` — App URL validation shows ✓.
 
 ---
@@ -172,7 +172,7 @@ sk_live_51XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 **How to verify it works**
 
-1. `curl -s https://rovexo.com/api/health | jq .checks.stripe` — should show `"status": "healthy"`.
+1. `curl -s https://www.rovexo.co.uk/api/health | jq .checks.stripe` — should show `"status": "healthy"`.
 2. Complete a small live checkout on the site → payment succeeds → order appears in Supabase.
 3. Stripe Dashboard → **Payments** — payment record appears.
 4. `npm run verify:env` — warns if key is `sk_test_` instead of `sk_live_`.
@@ -199,7 +199,7 @@ Direct link: [dashboard.stripe.com/webhooks](https://dashboard.stripe.com/webhoo
 
 | Setting | Value |
 |---------|-------|
-| Endpoint URL | `https://rovexo.com/api/webhooks/stripe` |
+| Endpoint URL | `https://www.rovexo.co.uk/api/webhooks/stripe` |
 | Mode | Live |
 | Events | `checkout.session.completed`, `checkout.session.expired`, `checkout.session.async_payment_failed`, `customer.subscription.updated`, `customer.subscription.deleted`, `transfer.reversed`, `charge.refunded`, `account.updated` |
 
@@ -225,7 +225,7 @@ whsec_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 1. Stripe Dashboard → **Webhooks** → your endpoint → **Send test webhook** → `checkout.session.completed` → should return **200**.
 2. Complete a real checkout → webhook **Event deliveries** tab shows successful delivery (green).
 3. Order status in ROVEXO updates to paid (webhook fulfillment).
-4. `curl -s https://rovexo.com/api/health | jq .checks.stripe` — healthy (implies key + webhook secret configured).
+4. `curl -s https://www.rovexo.co.uk/api/health | jq .checks.stripe` — healthy (implies key + webhook secret configured).
 
 ---
 
@@ -264,7 +264,7 @@ re_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 **How to verify it works**
 
-1. `curl -s https://rovexo.com/api/health | jq .checks.email` — should show `"status": "healthy"` (also requires `EMAIL_FROM`).
+1. `curl -s https://www.rovexo.co.uk/api/health | jq .checks.email` — should show `"status": "healthy"` (also requires `EMAIL_FROM`).
 2. Trigger a password reset or complete a test order → email arrives in inbox.
 3. Resend Dashboard → **Emails** — delivery log shows sent message.
 
@@ -282,7 +282,7 @@ re_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 | Source | Website | Exact page | What to copy |
 |--------|---------|------------|--------------|
-| Verified domain | [resend.com](https://resend.com) | **Domains** → your domain → **Verified** | Any address on that domain, e.g. `noreply@rovexo.com` |
+| Verified domain | [resend.com](https://resend.com) | **Domains** → your domain → **Verified** | Official sender: `support@rovexo.co.uk` |
 
 Direct link: [resend.com/domains](https://resend.com/domains)
 
@@ -291,13 +291,13 @@ You must verify domain DNS (SPF, DKIM) on Resend before this works.
 **Exact value format**
 
 ```
-ROVEXO <noreply@rovexo.com>
+ROVEXO <support@rovexo.co.uk>
 ```
 
 Or without display name:
 
 ```
-noreply@rovexo.com
+support@rovexo.co.uk
 ```
 
 | Rule | Requirement |
@@ -314,7 +314,7 @@ noreply@rovexo.com
 
 **How to verify it works**
 
-1. `curl -s https://rovexo.com/api/health | jq .checks.email` — `"status": "healthy"`.
+1. `curl -s https://www.rovexo.co.uk/api/health | jq .checks.email` — `"status": "healthy"`.
 2. Send test email via order flow or password reset.
 3. Resend → **Emails** — sender matches your `EMAIL_FROM` value.
 
@@ -357,7 +357,7 @@ https://concrete-gibbon-12345.upstash.io
 
 **How to verify it works**
 
-1. `curl -s https://rovexo.com/api/health | jq .checks.redis` — `"status": "healthy"` (requires token too).
+1. `curl -s https://www.rovexo.co.uk/api/health | jq .checks.redis` — `"status": "healthy"` (requires token too).
 2. Without Redis configured, health shows `"Redis not configured (memory fallback active)"` — must not appear in production.
 3. Rapid repeated API calls should be rate-limited (429) in production.
 
@@ -398,7 +398,7 @@ AXXXaaBCdefGhIjKlMnOpQrStUvWxYz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
 
 **How to verify it works**
 
-1. `curl -s https://rovexo.com/api/health | jq .checks.redis` — `"status": "healthy"`.
+1. `curl -s https://www.rovexo.co.uk/api/health | jq .checks.redis` — `"status": "healthy"`.
 2. Manual ping (replace values):
 
 ```bash
@@ -458,7 +458,7 @@ Vercel Cron automatically sends `Authorization: Bearer <CRON_SECRET>` when invok
 **How to verify it works**
 
 ```bash
-curl -s -H "Authorization: Bearer YOUR_CRON_SECRET" https://rovexo.com/api/cron/maintenance
+curl -s -H "Authorization: Bearer YOUR_CRON_SECRET" https://www.rovexo.co.uk/api/cron/maintenance
 ```
 
 Expected: JSON response with maintenance results (not 401).
@@ -466,7 +466,7 @@ Expected: JSON response with maintenance results (not 401).
 Without header:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}" https://rovexo.com/api/cron/maintenance
+curl -s -o /dev/null -w "%{http_code}" https://www.rovexo.co.uk/api/cron/maintenance
 ```
 
 Expected: `401`
@@ -474,7 +474,7 @@ Expected: `401`
 Health check:
 
 ```bash
-curl -s https://rovexo.com/api/health | jq .checks.cron
+curl -s https://www.rovexo.co.uk/api/health | jq .checks.cron
 ```
 
 After first successful run: `"status": "healthy"`.
@@ -515,7 +515,7 @@ https://pklotmwxtnnepaitedic.supabase.co
 
 **Vercel:** Key `NEXT_PUBLIC_SUPABASE_URL` → Production → Sensitive **Off**
 
-**Verify:** `npm run verify:env` — Supabase DNS resolves ✓. Health: `curl -s https://rovexo.com/api/health | jq .checks.database` → healthy.
+**Verify:** `npm run verify:env` — Supabase DNS resolves ✓. Health: `curl -s https://www.rovexo.co.uk/api/health | jq .checks.database` → healthy.
 
 ---
 
@@ -544,7 +544,7 @@ Legacy format `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` also works.
 
 > Must use the `NEXT_PUBLIC_` prefix — not `SUPABASE_ANON_KEY` alone — so the browser bundle receives it.
 
-**Verify:** Log in on `https://rovexo.com/login` — session persists. Browser DevTools → Network → Supabase requests return 200.
+**Verify:** Log in on `https://www.rovexo.co.uk/login` — session persists. Browser DevTools → Network → Supabase requests return 200.
 
 ---
 
@@ -571,7 +571,7 @@ Legacy JWT format also works. **Never expose in client code or `NEXT_PUBLIC_` va
 
 **Vercel:** Key `SUPABASE_SERVICE_ROLE_KEY` → Production → Sensitive **On**
 
-**Verify:** `curl -s https://rovexo.com/api/health | jq .checks.database` → healthy. Seller listing creation and checkout work server-side.
+**Verify:** `curl -s https://www.rovexo.co.uk/api/health | jq .checks.database` → healthy. Seller listing creation and checkout work server-side.
 
 ---
 
@@ -669,13 +669,13 @@ Requires Vercel Pro for cron jobs.
 
 ```bash
 # Liveness (no auth)
-curl -s https://rovexo.com/api/health/live
+curl -s https://www.rovexo.co.uk/api/health/live
 
 # Full platform health
-curl -s https://rovexo.com/api/health | jq .
+curl -s https://www.rovexo.co.uk/api/health | jq .
 
 # Cron (replace secret)
-curl -s -H "Authorization: Bearer $CRON_SECRET" https://rovexo.com/api/cron/maintenance
+curl -s -H "Authorization: Bearer $CRON_SECRET" https://www.rovexo.co.uk/api/cron/maintenance
 ```
 
 ### Expected health statuses (all vars configured)
@@ -698,7 +698,7 @@ curl -s -H "Authorization: Bearer $CRON_SECRET" https://rovexo.com/api/cron/main
 - [ ] Confirm order email received
 - [ ] Seller Connect onboarding
 - [ ] Stripe webhook delivery green in dashboard
-- [ ] `https://rovexo.com/sitemap.xml` loads
+- [ ] `https://www.rovexo.co.uk/sitemap.xml` loads
 
 ---
 
@@ -740,8 +740,8 @@ curl -s -H "Authorization: Bearer $CRON_SECRET" https://rovexo.com/api/cron/main
 
 ```bash
 npm run verify:env          # local — exit 0 when all 12 present
-curl https://rovexo.com/api/health/live
-curl https://rovexo.com/api/health
+curl https://www.rovexo.co.uk/api/health/live
+curl https://www.rovexo.co.uk/api/health
 ```
 
 **Ready for production:** all 12 variables set in Vercel Production, health checks pass, smoke tests complete.

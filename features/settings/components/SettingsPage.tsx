@@ -139,14 +139,14 @@ export function SettingsPage({ profile }: SettingsPageProps) {
           <ProfileMenuRow
             title="Personal information"
             subtitle="Name, username, avatar"
-            href="/account/edit"
+            href="/account/profile"
             icon={<AccountIcon className="h-5 w-5" />}
           />
           <SettingsDivider />
           <ProfileMenuRow
             title="Email"
             subtitle={profile.email}
-            href="/account/edit"
+            href="/account/profile"
             icon={<AccountIcon className="h-5 w-5" />}
           />
           <SettingsDivider />
@@ -357,7 +357,7 @@ export function SettingsPage({ profile }: SettingsPageProps) {
           }
         />
       </main>
-      <HelpPageFooter pathname="/settings" />
+      <HelpPageFooter pathname="/account/settings" />
 
       <ConfirmDialog
         open={logoutOpen}

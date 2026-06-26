@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 import { AuthFieldGroup } from "@/features/auth/components/AuthFieldGroup";
 import { AuthField } from "@/features/auth/components/AuthField";
 import { AuthSelect } from "@/features/auth/components/AuthSelect";
+import { AUTH_EMAIL_PLACEHOLDER } from "@/lib/email/constants";
 
 function passwordStrength(password: string): { score: number; label: string } {
   if (!password) return { score: 0, label: "" };
@@ -73,7 +74,7 @@ export function RegisterFields() {
           type="email"
           autoComplete="email"
           inputMode="email"
-          placeholder="you@example.com"
+          placeholder={AUTH_EMAIL_PLACEHOLDER}
         />
       </AuthFieldGroup>
 

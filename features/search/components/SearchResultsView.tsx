@@ -8,6 +8,7 @@ import type { Product } from "@/lib/products/types";
 import { ProductGridSkeleton, ProductSectionEmpty } from "@/components/home/ProductSectionStates";
 import { SearchFilters, type SearchFilterValues } from "@/features/search/components/SearchFilters";
 import { parseSearchFilters, serializeSearchFilters } from "@/features/search/utils/filters";
+import { useIntersectionWhenVisible } from "@/lib/performance/hooks";
 
 type SearchResultsResponse = {
   items: Product[];
@@ -20,9 +21,13 @@ async function fetchResults(
   query: string,
   filters: SearchFilterValues,
   page: number,
+  signal?: AbortSignal,
 ): Promise<SearchResultsResponse> {
   const params = new URLSearchParams(serializeSearchFilters({ ...filters, q: query, page: String(page) }));
-  const response = await fetch(`/api/search/results?${params.toString()}`, { cache: "no-store" });
+  const response = await fetch(`/api/search/results?${params.toString()}`, {
+    cache: "no-store",
+    signal,
+  });
   if (!response.ok) throw new Error("Search failed");
   return response.json();
 }
@@ -44,71 +49,68 @@ export function SearchResultsView() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const loadPage = useCallback(
-    async (nextPage: number, append: boolean) => {
+    async (nextPage: number, append: boolean, signal?: AbortSignal) => {
       if (append) setIsLoadingMore(true);
       else setLoading(true);
       setError(false);
 
       try {
-        const data = await fetchResults(query, filters, nextPage);
+        const data = await fetchResults(query, filters, nextPage, signal);
+        if (signal?.aborted) return;
         setItems((current) => (append ? [...current, ...data.items] : data.items));
         setTotal(data.total);
         setPage(data.page);
         setHasMore(data.hasMore);
-      } catch {
+      } catch (error) {
+        if ((error as Error).name === "AbortError") return;
         setError(true);
       } finally {
-        setLoading(false);
-        setIsLoadingMore(false);
+        if (!signal?.aborted) {
+          setLoading(false);
+          setIsLoadingMore(false);
+        }
       }
     },
     [filters, query],
   );
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function run() {
       setLoading(true);
       setError(false);
       try {
-        const data = await fetchResults(query, filters, 1);
-        if (cancelled) return;
+        const data = await fetchResults(query, filters, 1, controller.signal);
+        if (controller.signal.aborted) return;
         setItems(data.items);
         setTotal(data.total);
         setPage(data.page);
         setHasMore(data.hasMore);
-      } catch {
-        if (!cancelled) setError(true);
+      } catch (error) {
+        if ((error as Error).name === "AbortError") return;
+        setError(true);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     }
 
     void run();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, [filters, query]);
 
-  useEffect(() => {
-    const node = loadMoreRef.current;
-    if (!node || !hasMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          startTransition(() => {
-            void loadPage(page + 1, true);
-          });
-        }
-      },
-      { rootMargin: "240px" },
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [hasMore, loadPage, page]);
+  useIntersectionWhenVisible(
+    () => {
+      startTransition(() => {
+        void loadPage(page + 1, true);
+      });
+    },
+    {
+      targetRef: loadMoreRef,
+      enabled: hasMore && !isLoadingMore,
+      rootMargin: "240px",
+    },
+  );
 
   function updateFilters(next: SearchFilterValues) {
     const params = serializeSearchFilters({ ...next, q: query });

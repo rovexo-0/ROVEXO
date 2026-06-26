@@ -31,7 +31,7 @@ describe("normalizeSupabaseUrl", () => {
   });
 
   it("rejects non-supabase hostnames", () => {
-    expect(() => normalizeSupabaseUrl("https://example.com")).toThrow(/supabase\.co/);
+    expect(() => normalizeSupabaseUrl("https://invalid-host.test")).toThrow(/supabase\.co/);
   });
 
   it("rejects database pooler URLs", () => {

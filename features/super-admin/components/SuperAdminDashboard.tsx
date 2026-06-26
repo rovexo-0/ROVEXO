@@ -2,8 +2,8 @@
 
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
-import { MobileHubSections } from "@/features/mobile-ui";
-import { ResponsiveShell } from "@/features/mobile-ui";
+import { MobileHubSections, ResponsiveShell } from "@/features/mobile-ui";
+import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
 import type { SuperAdminDashboardData } from "@/lib/super-admin/dashboard";
 import { SUPER_ADMIN_QUICK_LINKS } from "@/lib/super-admin/nav";
 import { SuperAdminQuickActions } from "@/features/super-admin/components/SuperAdminQuickActions";
@@ -192,7 +192,11 @@ export function SuperAdminDashboard({ data }: SuperAdminDashboardProps) {
       </section>
 
       <ResponsiveShell
-        mobile={<MobileHubSections sections={getSuperAdminHubSections()} />}
+        mobile={
+          <DashboardShell className="rounded-[20px] border border-black/[0.04] p-5 shadow-[0_8px_30px_rgba(15,23,42,0.08)]">
+            <MobileHubSections sections={getSuperAdminHubSections()} />
+          </DashboardShell>
+        }
         desktop={
           <section>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-text-muted">Command modules</h3>

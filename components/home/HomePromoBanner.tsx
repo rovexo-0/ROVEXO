@@ -5,6 +5,7 @@ import Link from "next/link";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { HOME_PROMO_SLIDES } from "@/lib/home/constants";
 import { getCategoryImageUrl } from "@/lib/categories/visuals";
+import { useVisibilityInterval } from "@/lib/performance/hooks";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 
@@ -23,12 +24,9 @@ export const HomePromoBanner = memo(function HomePromoBanner({ className }: { cl
     [slides.length],
   );
 
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setActiveIndex((current) => (current + 1) % slides.length);
-    }, AUTO_ADVANCE_MS);
-    return () => window.clearInterval(timer);
-  }, [slides.length]);
+  useVisibilityInterval(() => {
+    setActiveIndex((current) => (current + 1) % slides.length);
+  }, AUTO_ADVANCE_MS);
 
   function handleTouchStart(event: React.TouchEvent) {
     touchStartX.current = event.touches[0]?.clientX ?? 0;

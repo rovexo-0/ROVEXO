@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { MouseEvent } from "react";
-import { BottomNavIcon3D, type BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
+import { Home, Search, Heart, User, Plus } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -18,16 +18,17 @@ export type BottomNavigationProps = {
 };
 
 type NavItem = {
-  id: BottomNavIconType;
+  id: BottomNavTab;
   label: string;
   href: string;
+  icon: typeof Home;
 };
 
 const navItems: NavItem[] = [
-  { id: "home", label: "Home", href: "/" },
-  { id: "search", label: "Search", href: "/search" },
-  { id: "saved", label: "Saved", href: "/saved" },
-  { id: "account", label: "Account", href: "/account" },
+  { id: "home", label: "Home", href: "/", icon: Home },
+  { id: "search", label: "Search", href: "/search", icon: Search },
+  { id: "saved", label: "Saved", href: "/saved", icon: Heart },
+  { id: "account", label: "Account", href: "/account", icon: User },
 ];
 
 function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab {
@@ -48,6 +49,8 @@ function NavLink({
   isActive: boolean;
   onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
 }) {
+  const Icon = item.icon;
+
   return (
     <Link
       href={item.href}
@@ -57,7 +60,9 @@ function NavLink({
       onClick={onNavigate}
       className={cn("bottom-nav-item-2026", focusRing, transitionFast)}
     >
-      <BottomNavIcon3D type={item.id} active={isActive} size="tab" className="bottom-nav-tab-32" />
+      <span className="bottom-nav-lucide-icon">
+        <Icon size={24} strokeWidth={isActive ? 2.25 : 2} aria-hidden />
+      </span>
       <span className="bottom-nav-item-2026__label">{item.label}</span>
     </Link>
   );
@@ -109,7 +114,7 @@ export function BottomNavigation({
               className={cn("bottom-nav-item-2026 bottom-nav-item-2026--sell", focusRing, transitionFast)}
             >
               <span className="bottom-nav-sell-2026">
-                <BottomNavIcon3D type="sell" active={isSellActive} size="sell" />
+                <Plus size={26} strokeWidth={2.5} aria-hidden />
               </span>
               <span className="bottom-nav-item-2026__label">Sell</span>
             </Link>

@@ -62,6 +62,434 @@ export type Database = {
           },
         ]
       }
+      store_migration_jobs: {
+        Row: {
+          id: string
+          seller_id: string
+          platform: string
+          import_method: string
+          status: string
+          progress_percent: number
+          estimated_seconds: number | null
+          stats: Json
+          progress: Json | null
+          report: Json | null
+          duplicate_policy: string
+          input_payload: Json | null
+          items_total: number
+          current_batch: number
+          total_batches: number
+          notify_on_complete: boolean
+          started_at: string | null
+          completed_at: string | null
+          error_message: string | null
+          publish_status: string
+          publish_progress: Json | null
+          publish_report: Json | null
+          auto_publish: boolean
+          scheduled_publish_at: string | null
+          publish_batch: number
+          publish_total_batches: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          platform: string
+          import_method: string
+          status?: string
+          progress_percent?: number
+          estimated_seconds?: number | null
+          stats?: Json
+          progress?: Json | null
+          report?: Json | null
+          duplicate_policy?: string
+          input_payload?: Json | null
+          items_total?: number
+          current_batch?: number
+          total_batches?: number
+          notify_on_complete?: boolean
+          started_at?: string | null
+          completed_at?: string | null
+          error_message?: string | null
+          publish_status?: string
+          publish_progress?: Json | null
+          publish_report?: Json | null
+          auto_publish?: boolean
+          scheduled_publish_at?: string | null
+          publish_batch?: number
+          publish_total_batches?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          platform?: string
+          import_method?: string
+          status?: string
+          progress_percent?: number
+          estimated_seconds?: number | null
+          stats?: Json
+          progress?: Json | null
+          report?: Json | null
+          duplicate_policy?: string
+          input_payload?: Json | null
+          items_total?: number
+          current_batch?: number
+          total_batches?: number
+          notify_on_complete?: boolean
+          started_at?: string | null
+          completed_at?: string | null
+          error_message?: string | null
+          publish_status?: string
+          publish_progress?: Json | null
+          publish_report?: Json | null
+          auto_publish?: boolean
+          scheduled_publish_at?: string | null
+          publish_batch?: number
+          publish_total_batches?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_migration_jobs_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_migration_category_mappings: {
+        Row: {
+          id: string
+          seller_id: string
+          platform: string
+          source_category: string
+          rovexo_category_slug: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          platform: string
+          source_category: string
+          rovexo_category_slug: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          platform?: string
+          source_category?: string
+          rovexo_category_slug?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_migration_category_mappings_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_migration_connectors: {
+        Row: {
+          id: string
+          seller_id: string
+          platform: string
+          connection_status: string
+          credentials_encrypted: string | null
+          settings: Json
+          last_sync_at: string | null
+          last_error: string | null
+          enabled: boolean
+          health_status: string
+          sync_status: string
+          provider_version: string
+          last_health_check_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          platform: string
+          connection_status?: string
+          credentials_encrypted?: string | null
+          settings?: Json
+          last_sync_at?: string | null
+          last_error?: string | null
+          enabled?: boolean
+          health_status?: string
+          sync_status?: string
+          provider_version?: string
+          last_health_check_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          platform?: string
+          connection_status?: string
+          credentials_encrypted?: string | null
+          settings?: Json
+          last_sync_at?: string | null
+          last_error?: string | null
+          enabled?: boolean
+          health_status?: string
+          sync_status?: string
+          provider_version?: string
+          last_health_check_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_migration_connectors_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_marketplace_connector_events: {
+        Row: {
+          id: string
+          seller_id: string
+          platform: string
+          event_type: string
+          duration_ms: number | null
+          error_count: number
+          metadata: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          platform: string
+          event_type: string
+          duration_ms?: number | null
+          error_count?: number
+          metadata?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          platform?: string
+          event_type?: string
+          duration_ms?: number | null
+          error_count?: number
+          metadata?: Json
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_marketplace_connector_events_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_migration_image_assets: {
+        Row: {
+          id: string
+          seller_id: string
+          content_hash: string
+          source_url: string | null
+          bucket: string
+          paths: Json
+          width: number | null
+          height: number | null
+          bytes: number | null
+          status: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          content_hash: string
+          source_url?: string | null
+          bucket?: string
+          paths?: Json
+          width?: number | null
+          height?: number | null
+          bytes?: number | null
+          status?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          content_hash?: string
+          source_url?: string | null
+          bucket?: string
+          paths?: Json
+          width?: number | null
+          height?: number | null
+          bytes?: number | null
+          status?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_migration_image_assets_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_migration_file_mapping_templates: {
+        Row: {
+          id: string
+          seller_id: string
+          platform: string
+          name: string
+          mapping: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          platform: string
+          name?: string
+          mapping?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          platform?: string
+          name?: string
+          mapping?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_migration_file_mapping_templates_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_migration_items: {
+        Row: {
+          id: string
+          job_id: string
+          seller_id: string
+          batch_index: number
+          item_index: number
+          status: string
+          fingerprint: string | null
+          duplicate_action: string | null
+          existing_product_id: string | null
+          normalized_data: Json | null
+          warnings: Json
+          error_message: string | null
+          validation_status: string
+          validation_errors: Json
+          suggested_category_slug: string | null
+          product_id: string | null
+          publish_status: string
+          selected: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          job_id: string
+          seller_id: string
+          batch_index?: number
+          item_index: number
+          status?: string
+          fingerprint?: string | null
+          duplicate_action?: string | null
+          existing_product_id?: string | null
+          normalized_data?: Json | null
+          warnings?: Json
+          error_message?: string | null
+          validation_status?: string
+          validation_errors?: Json
+          suggested_category_slug?: string | null
+          product_id?: string | null
+          publish_status?: string
+          selected?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          job_id?: string
+          seller_id?: string
+          batch_index?: number
+          item_index?: number
+          status?: string
+          fingerprint?: string | null
+          duplicate_action?: string | null
+          existing_product_id?: string | null
+          normalized_data?: Json | null
+          warnings?: Json
+          error_message?: string | null
+          validation_status?: string
+          validation_errors?: Json
+          suggested_category_slug?: string | null
+          product_id?: string | null
+          publish_status?: string
+          selected?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_migration_items_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "store_migration_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_migration_items_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_migration_items_existing_product_id_fkey"
+            columns: ["existing_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_migration_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bids: {
         Row: {
           amount: number
@@ -1344,27 +1772,51 @@ export type Database = {
         Row: {
           channel: string
           created_at: string
+          delivered_at: string | null
+          error_message: string | null
           event_type: string
+          group_key: string | null
           id: string
+          notification_id: string | null
           payload: Json
+          priority: string
+          retry_count: number
+          next_retry_at: string | null
+          silent: boolean
           status: string
           user_id: string
         }
         Insert: {
           channel: string
           created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
           event_type: string
+          group_key?: string | null
           id?: string
+          notification_id?: string | null
           payload?: Json
+          priority?: string
+          retry_count?: number
+          next_retry_at?: string | null
+          silent?: boolean
           status: string
           user_id: string
         }
         Update: {
           channel?: string
           created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
           event_type?: string
+          group_key?: string | null
           id?: string
+          notification_id?: string | null
           payload?: Json
+          priority?: string
+          retry_count?: number
+          next_retry_at?: string | null
+          silent?: boolean
           status?: string
           user_id?: string
         }
@@ -1380,6 +1832,7 @@ export type Database = {
       }
       notification_settings: {
         Row: {
+          browser_push: boolean
           email_marketing: boolean
           email_messages: boolean
           email_orders: boolean
@@ -1401,6 +1854,7 @@ export type Database = {
           vibration: boolean
         }
         Insert: {
+          browser_push?: boolean
           email_marketing?: boolean
           email_messages?: boolean
           email_orders?: boolean
@@ -1422,6 +1876,7 @@ export type Database = {
           vibration?: boolean
         }
         Update: {
+          browser_push?: boolean
           email_marketing?: boolean
           email_messages?: boolean
           email_orders?: boolean
@@ -1452,15 +1907,113 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          ai: boolean
+          business: boolean
+          marketing: boolean
+          messages: boolean
+          orders: boolean
+          payments: boolean
+          security: boolean
+          support: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai?: boolean
+          business?: boolean
+          marketing?: boolean
+          messages?: boolean
+          orders?: boolean
+          payments?: boolean
+          security?: boolean
+          support?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai?: boolean
+          business?: boolean
+          marketing?: boolean
+          messages?: boolean
+          orders?: boolean
+          payments?: boolean
+          security?: boolean
+          support?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          idempotency_key: string
+          notification_id: string | null
+          payload: Json
+          processed_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          idempotency_key: string
+          notification_id?: string | null
+          payload?: Json
+          processed_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          idempotency_key?: string
+          notification_id?: string | null
+          payload?: Json
+          processed_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_events_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           avatar_name: string | null
           avatar_url: string | null
           created_at: string
           detail: string | null
+          group_key: string | null
           href: string
           id: string
+          priority: string
           read: boolean
+          silent: boolean
           subtitle: string
           title: string
           type: Database["public"]["Enums"]["notification_type"]
@@ -1471,9 +2024,12 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           detail?: string | null
+          group_key?: string | null
           href?: string
           id?: string
+          priority?: string
           read?: boolean
+          silent?: boolean
           subtitle?: string
           title: string
           type: Database["public"]["Enums"]["notification_type"]
@@ -1484,9 +2040,12 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           detail?: string | null
+          group_key?: string | null
           href?: string
           id?: string
+          priority?: string
           read?: boolean
+          silent?: boolean
           subtitle?: string
           title?: string
           type?: Database["public"]["Enums"]["notification_type"]

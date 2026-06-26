@@ -5,23 +5,35 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export default async function SuperAdminAuctionsPage() {
   const admin = createAdminClient();
-  const { count } = await admin
-    .from("auction_launch_subscribers")
-    .select("*", { count: "exact", head: true });
+
+  const [{ count: subscriberCount }, { count: liveAuctionCount }] = await Promise.all([
+    admin.from("auction_launch_subscribers").select("*", { count: "exact", head: true }),
+    admin
+      .from("products")
+      .select("*", { count: "exact", head: true })
+      .eq("listing_type", "auction")
+      .eq("status", "published"),
+  ]);
 
   return (
     <>
       <SuperAdminPageHeader
         title="Auctions"
-        description="Auctions are disabled for v1.0. Monitor launch interest and manage the coming-soon experience."
+        description="Monitor live auction listings and launch-interest subscribers."
       />
-      <Card padding="md" className="bg-white">
-        <p className="text-sm text-text-secondary">Users waiting for Auctions launch</p>
-        <p className="mt-ds-1 text-3xl font-bold">{count ?? 0}</p>
-        <Link href="/auctions" className="mt-ds-4 inline-flex text-sm font-semibold text-primary">
-          View coming soon page
-        </Link>
-      </Card>
+      <div className="grid gap-ds-4 md:grid-cols-2">
+        <Card padding="md" className="bg-white">
+          <p className="text-sm text-text-secondary">Live published auctions</p>
+          <p className="mt-ds-1 text-3xl font-bold">{liveAuctionCount ?? 0}</p>
+          <Link href="/auctions" className="mt-ds-4 inline-flex text-sm font-semibold text-primary">
+            View auctions page
+          </Link>
+        </Card>
+        <Card padding="md" className="bg-white">
+          <p className="text-sm text-text-secondary">Launch notification subscribers</p>
+          <p className="mt-ds-1 text-3xl font-bold">{subscriberCount ?? 0}</p>
+        </Card>
+      </div>
     </>
   );
 }

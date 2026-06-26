@@ -14,7 +14,7 @@ type HeaderIconLinkProps = {
 
 function formatBadgeCount(count: number): string {
   if (count > 99) return "99+";
-  if (count > 9) return "9+";
+  return String(count);
   return String(count);
 }
 

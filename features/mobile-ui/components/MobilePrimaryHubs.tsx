@@ -14,7 +14,7 @@ import {
 } from "@/features/mobile-ui/hooks/use-mobile-badges";
 import { getHubBadgeCount } from "@/lib/mobile-ui/hub-badges";
 import { getMobilePrimaryHubs } from "@/lib/mobile-ui/hubs";
-import { getNavLinkIcon } from "@/lib/navigation/link-icons";
+import { resolveDashboardIconType } from "@/components/icons/DashboardIcon3D";
 import type {
   MobileBadges,
   MobileHubContext,
@@ -82,7 +82,7 @@ export function MobilePrimaryHubs({
               href={tile.href}
               label={tile.label}
               subtitle={tile.subtitle}
-              icon={getNavLinkIcon(tile.href)}
+              iconType={resolveDashboardIconType(tile.href)}
               badgeKey={tile.badge}
               badgeCount={resolveMobileBadge(tile.badge, badges, tile.badgeCount)}
               badgeTone={tile.badgeTone}

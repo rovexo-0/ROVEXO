@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { AuctionSellPage } from "@/features/auctions/sell/AuctionSellPage";
 
 export default function AuctionSellRoute() {
-  redirect("/auctions");
+  return <AuctionSellPage />;
 }

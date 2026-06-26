@@ -17,7 +17,7 @@ export const SUPER_ADMIN_PRIMARY_NAV: SuperAdminNavItem[] = [
   { href: "/super-admin/reports", label: "Reports", description: "Moderation queue", icon: "🚩" },
   { href: "/super-admin/analytics", label: "Analytics", description: "Platform metrics", icon: "📈" },
   { href: "/super-admin/seo", label: "SEO", description: "Search optimisation", icon: "🌐" },
-  { href: "/super-admin/platform", label: "Feature Flags", description: "Maintenance & toggles", icon: "🚦" },
+  { href: "/super-admin/platform", label: "Platform Settings", description: "Feature flags & maintenance", icon: "⚙️" },
   { href: "/super-admin/notifications", label: "Notifications", description: "Broadcast messages", icon: "🔔" },
   { href: "/super-admin/trust", label: "Trust Centre", description: "Scores & verification", icon: "🛡️" },
   { href: "/super-admin/moderation", label: "Moderation", description: "Content moderation", icon: "🧹" },
@@ -30,7 +30,6 @@ export const SUPER_ADMIN_PRIMARY_NAV: SuperAdminNavItem[] = [
   { href: "/super-admin/operations", label: "AI Operations Center", description: "AI monitoring & repair", icon: "🤖" },
   { href: "/super-admin/audit", label: "Logs", description: "Audit history", icon: "📋" },
   { href: "/super-admin/backups", label: "Backups", description: "Backup centre", icon: "💾" },
-  { href: "/super-admin/platform", label: "Settings", description: "Platform settings", icon: "⚙️" },
 ];
 
 export type SuperAdminNavSection = {
@@ -73,7 +72,7 @@ export const SUPER_ADMIN_NAV: SuperAdminNavSection[] = [
       { href: "/super-admin/promotions", label: "Promotions", description: "Campaign overview", icon: "📣" },
       { href: "/super-admin/coupons", label: "Coupons", description: "Discount codes", icon: "🎟️" },
       { href: "/super-admin/reviews", label: "Reviews", description: "Product reviews", icon: "💬" },
-      { href: "/super-admin/auctions", label: "Auctions", description: "Coming soon", icon: "🔨" },
+      { href: "/super-admin/auctions", label: "Auctions", description: "Live auctions & subscribers", icon: "🔨" },
     ],
   },
   {

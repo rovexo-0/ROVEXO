@@ -11,7 +11,6 @@ export function SellerDashboardHeader({ profile }: SellerDashboardHeaderProps) {
   return (
     <DashboardHeader
       title="Seller Dashboard"
-      unreadNotifications={profile.unreadNotifications}
       menuLabel="Seller menu"
       profile={profile}
       defaultHub="sell"

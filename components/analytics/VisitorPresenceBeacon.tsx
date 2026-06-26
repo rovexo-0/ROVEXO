@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { useVisibilityPolling } from "@/lib/performance/hooks";
+import { isDocumentVisible } from "@/lib/performance/visibility";
 
 const STORAGE_KEY = "rovexo-visitor-session";
 const HEARTBEAT_INTERVAL_MS = 45_000;
@@ -19,6 +21,8 @@ function getOrCreateSessionId(): string {
 }
 
 async function sendHeartbeat(sessionId: string): Promise<void> {
+  if (!isDocumentVisible()) return;
+
   await fetch("/api/analytics/live-presence", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -34,26 +38,16 @@ async function sendHeartbeat(sessionId: string): Promise<void> {
 export function VisitorPresenceBeacon() {
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    const sessionId = getOrCreateSessionId();
-    let intervalId = 0;
-
-    void sendHeartbeat(sessionId);
-    intervalId = window.setInterval(() => void sendHeartbeat(sessionId), HEARTBEAT_INTERVAL_MS);
-
-    const onVisibility = () => {
-      if (document.visibilityState === "visible") {
-        void sendHeartbeat(sessionId);
-      }
-    };
-
-    document.addEventListener("visibilitychange", onVisibility);
-
-    return () => {
-      window.clearInterval(intervalId);
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
+    getOrCreateSessionId();
   }, []);
+
+  useVisibilityPolling(
+    () => {
+      void sendHeartbeat(getOrCreateSessionId());
+    },
+    HEARTBEAT_INTERVAL_MS,
+    { immediate: true, refreshOnVisible: true },
+  );
 
   return null;
 }

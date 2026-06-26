@@ -63,7 +63,7 @@ export function ProfileHero({ profile, variant = "default" }: ProfileHeroProps) 
           </div>
         </div>
 
-        <Link href="/account/edit" className="w-full">
+        <Link href="/account/profile" className="w-full">
           <Button variant="primary" size="md" fullWidth className="min-h-ds-7 rounded-ds-lg">
             Edit profile
           </Button>

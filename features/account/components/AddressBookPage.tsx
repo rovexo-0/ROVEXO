@@ -147,7 +147,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
     <BetaAppShell showBottomNav={false}>
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-6 px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
         <div>
-          <Link href="/account" className="text-sm font-medium text-primary hover:underline">
+          <Link href="/account/profile" className="text-sm font-medium text-primary hover:underline">
             ← Account
           </Link>
           <h1 className="mt-ds-3 text-2xl font-bold text-text-primary">Address book</h1>

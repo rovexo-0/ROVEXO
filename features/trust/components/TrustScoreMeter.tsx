@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import { transitionNormal } from "@/components/ui/tokens";
+import { useDocumentVisible } from "@/lib/performance/hooks";
 import type { TrustTier } from "@/lib/trust/types";
 
 type TrustScoreMeterProps = {
@@ -24,11 +25,17 @@ export function TrustScoreMeter({
 }: TrustScoreMeterProps) {
   const fill = Math.max(0, Math.min(100, score));
   const [animated, setAnimated] = useState(false);
+  const visible = useDocumentVisible();
 
   useEffect(() => {
+    if (!visible) {
+      setAnimated(false);
+      return;
+    }
+
     const frame = window.requestAnimationFrame(() => setAnimated(true));
     return () => window.cancelAnimationFrame(frame);
-  }, [score]);
+  }, [score, visible]);
 
   return (
     <div className={cn("space-y-2", className)} aria-label={`Trust score ${score} out of 100`}>

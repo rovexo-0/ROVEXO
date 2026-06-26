@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Price } from "@/components/ui/Price";
@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { productToCardProps } from "@/lib/products/card";
 import type { Product } from "@/lib/products/types";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
+import { useIntersectionWhenVisible } from "@/lib/performance/hooks";
 
 type ProductResultsProps = {
   items: Product[];
@@ -32,22 +33,11 @@ export function ProductResults({
 }: ProductResultsProps) {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const node = sentinelRef.current;
-    if (!node || !hasMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          onLoadMore();
-        }
-      },
-      { rootMargin: "160px" },
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [hasMore, onLoadMore]);
+  useIntersectionWhenVisible(onLoadMore, {
+    targetRef: sentinelRef,
+    enabled: hasMore && !isLoadingMore,
+    rootMargin: "160px",
+  });
 
   if (items.length === 0) return null;
 

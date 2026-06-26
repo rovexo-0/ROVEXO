@@ -81,7 +81,7 @@ export function AccountBlockedUsersPage() {
     <AccountPageShell
       title="Blocked users"
       subtitle="Block users to prevent them from messaging you on ROVEXO."
-      backHref="/account/security"
+      backHref="/account/profile"
       backLabel="Security"
     >
       <form onSubmit={onSubmit} className="premium-card flex flex-col gap-ds-3 p-ds-5" noValidate>

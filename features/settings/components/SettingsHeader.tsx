@@ -11,7 +11,6 @@ export function SettingsHeader({ profile }: SettingsHeaderProps) {
   return (
     <DashboardHeader
       title="Settings"
-      unreadNotifications={profile.unreadNotifications}
       menuLabel="Settings menu"
       profile={profile}
     />

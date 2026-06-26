@@ -26,12 +26,14 @@ function SearchIcon({ className }: { className?: string }) {
 }
 
 export function HeaderSearchBar({
+  inputId = "header-search",
   placeholder = "Search ROVEXO...",
   className,
 }: HeaderSearchBarProps) {
   return (
     <div className={cn("relative w-full min-w-0", className)}>
       <Link
+        id={inputId}
         href="/search"
         role="search"
         aria-label={placeholder}

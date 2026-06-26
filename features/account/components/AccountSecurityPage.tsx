@@ -77,7 +77,7 @@ export function AccountSecurityPage() {
     <AccountPageShell
       title="Account security"
       subtitle="Manage your password, sessions, and two-factor authentication."
-      backHref="/settings"
+      backHref="/account/profile"
       backLabel="Settings"
     >
       <div className="flex flex-col gap-ds-4">

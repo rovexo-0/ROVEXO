@@ -14,7 +14,7 @@ export const AuctionsSection = memo(function AuctionsSection() {
           <h2 id="auctions-heading" className="home-section-2026__title text-text-primary">
             Auctions
           </h2>
-          <p className="text-sm text-text-secondary">Live bidding is coming soon to ROVEXO</p>
+          <p className="text-sm text-text-secondary">Bid on live listings from verified sellers</p>
         </div>
         <Link href="/auctions" className={cn("text-sm font-semibold text-primary", focusRing)}>
           Learn more
@@ -32,9 +32,9 @@ export const AuctionsSection = memo(function AuctionsSection() {
           <HomeCategoryIconImage type="auctions" className="h-14 w-14" />
         </div>
         <div className="min-w-0 text-left">
-          <p className="text-sm font-semibold text-text-primary">Coming soon</p>
+          <p className="text-sm font-semibold text-text-primary">Live auctions</p>
           <p className="mt-ds-1 text-sm text-text-secondary">
-            A faster, smarter auctions experience is on the way. Tap to get notified at launch.
+            Browse active auctions and place bids on items you want.
           </p>
         </div>
       </Link>

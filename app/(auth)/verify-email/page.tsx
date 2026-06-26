@@ -5,6 +5,7 @@ import {
   AuthForm,
   AuthLink,
 } from "@/features/auth/components/AuthForm";
+import { AUTH_EMAIL_PLACEHOLDER } from "@/lib/email/constants";
 
 type VerifyEmailPageProps = {
   searchParams: Promise<{ email?: string }>;
@@ -29,7 +30,7 @@ export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageP
           autoComplete="email"
           inputMode="email"
           defaultValue={email}
-          placeholder="you@example.com"
+          placeholder={AUTH_EMAIL_PLACEHOLDER}
         />
       </AuthFieldGroup>
     </AuthForm>

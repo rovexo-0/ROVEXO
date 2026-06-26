@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
+import { useDocumentVisible } from "@/lib/performance/hooks";
 
 type AnimatedCounterProps = {
   value: number;
@@ -8,14 +9,20 @@ type AnimatedCounterProps = {
   format?: (value: number) => string;
 };
 
-export function AnimatedCounter({
+export const AnimatedCounter = memo(function AnimatedCounter({
   value,
   duration = 700,
   format = (next) => next.toLocaleString(),
 }: AnimatedCounterProps) {
   const [displayValue, setDisplayValue] = useState(0);
+  const visible = useDocumentVisible();
 
   useEffect(() => {
+    if (!visible) {
+      setDisplayValue(value);
+      return;
+    }
+
     let frameId = 0;
     const start = performance.now();
 
@@ -28,7 +35,7 @@ export function AnimatedCounter({
 
     frameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameId);
-  }, [duration, value]);
+  }, [duration, value, visible]);
 
   return <span className="tabular-nums">{format(displayValue)}</span>;
-}
+});

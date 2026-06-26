@@ -1,4 +1,4 @@
-import { taxonomyTree, type TaxonomyCategoryNode } from "@/lib/taxonomy/category-tree";
+import { getTaxonomyTree, type TaxonomyCategoryNode } from "@/lib/taxonomy/category-tree";
 
 export type TaxonomyIssueSeverity = "warning" | "error";
 
@@ -12,7 +12,7 @@ function isValidSlug(slug: string): boolean {
   return typeof slug === "string" && slug.length > 0 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
 }
 
-export function validateTaxonomyTree(tree: TaxonomyCategoryNode[] = taxonomyTree): TaxonomyValidationIssue[] {
+export function validateTaxonomyTree(tree: TaxonomyCategoryNode[] = getTaxonomyTree()): TaxonomyValidationIssue[] {
   const issues: TaxonomyValidationIssue[] = [];
   const idRegistry = new Set<string>();
   const slugRegistry = new Set<string>();
@@ -92,7 +92,7 @@ export function validateTaxonomyTree(tree: TaxonomyCategoryNode[] = taxonomyTree
   return issues;
 }
 
-export function assertTaxonomyIsValid(tree: TaxonomyCategoryNode[] = taxonomyTree): void {
+export function assertTaxonomyIsValid(tree: TaxonomyCategoryNode[] = getTaxonomyTree()): void {
   const issues = validateTaxonomyTree(tree);
   if (issues.length > 0) {
     const messages = issues.map((issue) => `${issue.type}: ${issue.message}`).join("\n");

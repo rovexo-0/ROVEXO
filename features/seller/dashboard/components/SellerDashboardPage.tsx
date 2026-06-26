@@ -4,23 +4,26 @@ import Link from "next/link";
 import { DashboardPerformanceSection } from "@/features/dashboard/components/DashboardPerformanceSection";
 import { DashboardQuickActionsGrid } from "@/features/dashboard/components/DashboardQuickActionsGrid";
 import { DashboardRecentOrdersSection } from "@/features/dashboard/components/DashboardRecentOrdersSection";
+import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
 import { DashboardSummaryGrid } from "@/features/dashboard/components/DashboardSummaryGrid";
 import { HelpPageFooter } from "@/features/help/components/HelpPageFooter";
 import { SellerDashboardHeader } from "@/features/seller/dashboard/components/SellerDashboardHeader";
 import { SellerProfileCard } from "@/features/seller/dashboard/components/SellerProfileCard";
 import { SellerPromotionsSection } from "@/features/seller/dashboard/components/SellerPromotionsSection";
+import { BringYourItemsDashboardCard } from "@/features/seller/migration/components/BringYourItemsDashboardCard";
+import { SellerMigrationHistorySection } from "@/features/seller/migration/components/SellerMigrationHistorySection";
 import type { SellerDashboardData } from "@/lib/seller/types";
 
 const QUICK_ACTIONS = [
-  { href: "/sell", emoji: "➕", label: "New Listing" },
-  { href: "/seller/listings", emoji: "📦", label: "My Listings" },
-  { href: "/seller/orders", emoji: "📨", label: "Orders" },
-  { href: "/seller/wallet", emoji: "👛", label: "Wallet" },
-  { href: "/seller/analytics", emoji: "📈", label: "Analytics" },
-  { href: "/seller/trust", emoji: "⭐", label: "Trust Score" },
-  { href: "/seller/tax", emoji: "🧾", label: "Tax" },
-  { href: "/messages", emoji: "💬", label: "Messages" },
-  { href: "/plans", emoji: "💳", label: "Plans" },
+  { href: "/sell", label: "New Listing", subtitle: "Create a listing" },
+  { href: "/seller/listings", label: "My Listings", subtitle: "Manage inventory" },
+  { href: "/seller/orders", label: "Orders", subtitle: "Fulfillment & shipping" },
+  { href: "/seller/wallet", label: "Wallet", subtitle: "Balance & payouts" },
+  { href: "/seller/analytics", label: "Analytics", subtitle: "Views, sales & trends" },
+  { href: "/seller/trust", label: "Trust Score", subtitle: "Reputation & safety" },
+  { href: "/seller/tax", label: "Tax", subtitle: "VAT & registration" },
+  { href: "/messages", label: "Messages", subtitle: "Buyer & seller chats" },
+  { href: "/plans", label: "Plans", subtitle: "Premium subscriptions" },
 ] as const;
 
 type SellerDashboardPageProps = {
@@ -30,15 +33,21 @@ type SellerDashboardPageProps = {
 export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
   return (
     <BetaAppShell showBottomNav={false}>
-      <SellerDashboardHeader profile={data.profile} />
-
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+      <main className="mx-auto w-full max-w-2xl bg-white px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+        <DashboardShell>
+          <SellerDashboardHeader profile={data.profile} />
         <SellerProfileCard
           profile={data.profile}
           sellerRating={data.sellerRating}
           reviewCount={data.reviewCount}
           activeListings={data.activeListings}
         />
+
+        <BringYourItemsDashboardCard />
+
+        {data.migrationSummary ? (
+          <SellerMigrationHistorySection summary={data.migrationSummary} />
+        ) : null}
 
         {data.lowStockCount > 0 && (
           <Card padding="sm" className="border-warning/30 bg-warning/5">
@@ -93,6 +102,7 @@ export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
 
         <DashboardRecentOrdersSection orders={data.recentOrders} viewAllHref="/seller/orders" />
         <HelpPageFooter pathname="/seller/dashboard" />
+        </DashboardShell>
       </main>
     </BetaAppShell>
   );

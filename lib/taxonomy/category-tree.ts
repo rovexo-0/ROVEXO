@@ -1405,14 +1405,25 @@ function buildTaxonomyTree(): TaxonomyCategoryNode[] {
   return CATEGORY_DEFINITIONS.map((node) => buildNode(node, null, null, []));
 }
 
-export const taxonomyTree = buildTaxonomyTree();
+let taxonomyTreeCache: TaxonomyCategoryNode[] | null = null;
+let flatTaxonomyCache: TaxonomyCategoryNode[] | null = null;
 
-export const flatTaxonomy: TaxonomyCategoryNode[] = (() => {
-  const nodes: TaxonomyCategoryNode[] = [];
-  const walk = (node: TaxonomyCategoryNode) => {
-    nodes.push(node);
-    node.children.forEach(walk);
-  };
-  taxonomyTree.forEach(walk);
-  return nodes;
-})();
+export function getTaxonomyTree(): TaxonomyCategoryNode[] {
+  if (!taxonomyTreeCache) {
+    taxonomyTreeCache = buildTaxonomyTree();
+  }
+  return taxonomyTreeCache;
+}
+
+export function getFlatTaxonomy(): TaxonomyCategoryNode[] {
+  if (!flatTaxonomyCache) {
+    const nodes: TaxonomyCategoryNode[] = [];
+    const walk = (node: TaxonomyCategoryNode) => {
+      nodes.push(node);
+      node.children.forEach(walk);
+    };
+    getTaxonomyTree().forEach(walk);
+    flatTaxonomyCache = nodes;
+  }
+  return flatTaxonomyCache;
+}

@@ -24,7 +24,7 @@ export function MobilePremiumBadge({ count, badgeKey, tone = "danger" }: MobileP
       )}
       aria-label={isWallet ? "Available" : `${count} unread`}
     >
-      {isWallet ? "●" : count > 9 ? "9+" : count}
+      {isWallet ? "●" : count > 99 ? "99+" : count}
     </span>
   );
 }

@@ -247,7 +247,7 @@ Dashboard, users (via moderation), listings, reports, moderation, categories, se
 | Cron jobs | **PASS** — routes + `CRON_SECRET` pattern | Requires Production Verification |
 | Health endpoint | **PASS** — `/api/health` | Returns 503 when DB unhealthy |
 | GA4 | **PASS** — `@next/third-parties`, `G-RNEMD5BT0S` | Requires redeploy + env |
-| SSL / DNS (`rovexo.com`) | N/A | **Requires Production Verification** |
+| SSL / DNS (`www.rovexo.co.uk`) | N/A | **Requires Production Verification** |
 
 ---
 
@@ -323,7 +323,7 @@ _None blocking code merge after external config — deployment/config gaps below
 5. **Resend:** Configure domain + `RESEND_API_KEY`.
 6. **Upstash:** Configure Redis for production rate limiting.
 7. **Cron:** Confirm Vercel cron invokes `/api/cron/maintenance` and `/api/cron/orders/cleanup` with `CRON_SECRET`.
-8. **DNS:** Point `rovexo.com` to Vercel; verify SSL.
+8. **DNS:** Point `www.rovexo.co.uk` to Vercel; verify SSL.
 9. **GA4:** Confirm Realtime after deploy.
 10. **Visual QA:** Compare live site to approved reference.
 11. **Lighthouse:** Run on production URL; target CWV thresholds.

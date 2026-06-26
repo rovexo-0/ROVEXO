@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState, type RefObject } from "react";
+import { useDocumentVisible } from "@/lib/performance/hooks";
+import { throttle } from "@/lib/performance/throttle";
 
 type VirtualListState = {
   startIndex: number;
@@ -20,6 +22,8 @@ export function useVirtualList(
     totalHeight: itemCount * itemHeight,
   });
 
+  const visible = useDocumentVisible();
+
   const update = useCallback(() => {
     const element = containerRef.current;
     if (!element) return;
@@ -39,18 +43,21 @@ export function useVirtualList(
   }, [containerRef, itemCount, itemHeight, overscan]);
 
   useEffect(() => {
+    if (!visible) return;
+
     update();
     const element = containerRef.current;
     if (!element) return;
 
-    element.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    const onScroll = throttle(update, 16);
+    element.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
 
     return () => {
-      element.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
+      element.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
     };
-  }, [containerRef, update]);
+  }, [containerRef, update, visible]);
 
   return state;
 }

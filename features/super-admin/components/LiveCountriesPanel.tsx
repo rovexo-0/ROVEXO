@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { useVisibilityPolling } from "@/lib/performance/hooks";
 import type { LiveCountriesSnapshot, LiveCountry } from "@/lib/analytics/live-countries/types";
 
 const POLL_INTERVAL_MS = 10_000;
@@ -21,7 +22,7 @@ export function LiveCountriesPanel() {
     return Math.max(...displayCountries.map((country) => country.activeUsers), 1);
   }, [displayCountries]);
 
-  const syncCountries = (nextCountries: LiveCountry[]) => {
+  const syncCountries = useCallback((nextCountries: LiveCountry[]) => {
     setDisplayCountries((current) => {
       const nextCodes = new Set(nextCountries.map((country) => country.code));
       const currentMap = new Map(current.map((country) => [country.code, country]));
@@ -53,38 +54,33 @@ export function LiveCountriesPanel() {
 
       return merged.sort((left, right) => right.activeUsers - left.activeUsers);
     });
-  };
+  }, []);
+
+  const load = useCallback(async () => {
+    try {
+      const response = await fetch("/api/analytics/live-countries", { cache: "no-store" });
+      if (!response.ok) {
+        setError("Unable to load live countries.");
+        return;
+      }
+
+      const payload = (await response.json()) as LiveCountriesSnapshot;
+      setSnapshot(payload);
+      setError(null);
+      syncCountries(payload.countries);
+    } catch {
+      setError("Unable to load live countries.");
+    }
+  }, [syncCountries]);
+
+  useVisibilityPolling(() => void load(), POLL_INTERVAL_MS, {
+    immediate: true,
+    refreshOnVisible: true,
+  });
 
   useEffect(() => {
-    let cancelled = false;
-    let intervalId = 0;
     const timers = leavingTimers.current;
-
-    const load = async () => {
-      try {
-        const response = await fetch("/api/analytics/live-countries", { cache: "no-store" });
-        if (!response.ok) {
-          if (!cancelled) setError("Unable to load live countries.");
-          return;
-        }
-
-        const payload = (await response.json()) as LiveCountriesSnapshot;
-        if (cancelled) return;
-
-        setSnapshot(payload);
-        setError(null);
-        syncCountries(payload.countries);
-      } catch {
-        if (!cancelled) setError("Unable to load live countries.");
-      }
-    };
-
-    void load();
-    intervalId = window.setInterval(() => void load(), POLL_INTERVAL_MS);
-
     return () => {
-      cancelled = true;
-      window.clearInterval(intervalId);
       for (const timer of timers.values()) {
         window.clearTimeout(timer);
       }

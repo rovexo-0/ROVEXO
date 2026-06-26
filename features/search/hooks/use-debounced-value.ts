@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useDocumentVisible } from "@/lib/performance/hooks";
 
 export function useDebouncedValue<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
+  const visible = useDocumentVisible();
 
   useEffect(() => {
+    if (!visible) return;
     const timer = window.setTimeout(() => setDebouncedValue(value), delay);
     return () => window.clearTimeout(timer);
-  }, [value, delay]);
+  }, [value, delay, visible]);
 
-  return debouncedValue;
+  return visible ? debouncedValue : value;
 }

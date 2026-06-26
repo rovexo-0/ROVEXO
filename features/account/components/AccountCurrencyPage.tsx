@@ -62,7 +62,7 @@ export function AccountCurrencyPage() {
     <AccountPageShell
       title="Currency"
       subtitle="Choose how prices are displayed across ROVEXO."
-      backHref="/settings"
+      backHref="/account/settings"
       backLabel="Settings"
     >
       <form onSubmit={onSubmit} className="premium-card flex flex-col gap-ds-4 p-ds-5" noValidate>

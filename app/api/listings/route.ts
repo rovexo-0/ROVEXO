@@ -92,10 +92,12 @@ export async function POST(request: Request) {
     }
 
     if (body.listingType === "auction") {
-      return NextResponse.json(
-        { error: "Auctions are coming soon. Fixed-price listings only." },
-        { status: 403 },
-      );
+      if (!body.auctionStartPrice || Number(body.auctionStartPrice) < 1) {
+        return NextResponse.json({ error: "Auction start price is required." }, { status: 400 });
+      }
+      if (!body.auctionEndsAt) {
+        return NextResponse.json({ error: "Auction end date is required." }, { status: 400 });
+      }
     }
 
     const categoryId = await resolveListingCategoryId(body.categoryPath);

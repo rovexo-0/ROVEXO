@@ -2,6 +2,7 @@ import type { NotificationSettings } from "@/lib/notifications/types";
 
 export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   pushEnabled: true,
+  browserPush: true,
   messages: true,
   orders: true,
   offers: true,

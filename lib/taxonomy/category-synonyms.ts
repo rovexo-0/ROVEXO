@@ -1,4 +1,4 @@
-import { flatTaxonomy } from "@/lib/taxonomy/category-tree";
+import { getFlatTaxonomy } from "@/lib/taxonomy/category-tree";
 import { normalizeSearchTerm } from "@/lib/taxonomy/category-normalizer";
 
 export type SynonymSource = "name" | "alias" | "keyword" | "brand" | "model" | "slug" | "seo";
@@ -34,7 +34,7 @@ function normalizeSynonymPhrase(phrase: string): string {
 function collectSynonymEntries() {
   const entries: SynonymEntry[] = [];
 
-  for (const category of flatTaxonomy) {
+  for (const category of getFlatTaxonomy()) {
     const record = (source: SynonymSource, phrase: string | undefined | null) => {
       if (!phrase || !phrase.trim()) return;
       const normalized = normalizeSynonymPhrase(phrase);
@@ -73,25 +73,37 @@ function collectSynonymEntries() {
   return entries;
 }
 
-const synonymEntries = collectSynonymEntries();
+let synonymEntriesCache: SynonymEntry[] | null = null;
 
-export const synonymIndex: SynonymIndex = synonymEntries.reduce((map, entry) => {
-  const bucket = map.get(entry.normalized) ?? [];
-  bucket.push(entry);
-  map.set(entry.normalized, bucket);
-  return map;
-}, new Map<string, SynonymEntry[]>());
+function getSynonymEntriesList(): SynonymEntry[] {
+  if (synonymEntriesCache) return synonymEntriesCache;
+  synonymEntriesCache = collectSynonymEntries();
+  return synonymEntriesCache;
+}
+
+let synonymIndexCache: SynonymIndex | null = null;
+
+function getSynonymIndex(): SynonymIndex {
+  if (synonymIndexCache) return synonymIndexCache;
+  synonymIndexCache = getSynonymEntriesList().reduce((map, entry) => {
+    const bucket = map.get(entry.normalized) ?? [];
+    bucket.push(entry);
+    map.set(entry.normalized, bucket);
+    return map;
+  }, new Map<string, SynonymEntry[]>());
+  return synonymIndexCache;
+}
 
 export function getSynonymEntries(term: string): SynonymEntry[] {
   const normalized = normalizeSynonymPhrase(term);
-  return synonymIndex.get(normalized) ?? [];
+  return getSynonymIndex().get(normalized) ?? [];
 }
 
 export function getSynonymMatches(term: string): SynonymEntry[] {
   const normalized = normalizeSynonymPhrase(term);
   const results = new Map<string, SynonymEntry>();
 
-  for (const [key, entries] of synonymIndex.entries()) {
+  for (const [key, entries] of getSynonymIndex().entries()) {
     if (key.includes(normalized) || normalized.includes(key)) {
       for (const entry of entries) {
         results.set(`${entry.categoryId}:${entry.phrase}:${entry.source}`, entry);
@@ -103,9 +115,9 @@ export function getSynonymMatches(term: string): SynonymEntry[] {
 }
 
 export function getSynonymMap(): SynonymIndex {
-  return synonymIndex;
+  return getSynonymIndex();
 }
 
 export function getAllSynonymPhrases(): string[] {
-  return Array.from(new Set(synonymEntries.map((entry) => entry.normalized)));
+  return Array.from(new Set(getSynonymEntriesList().map((entry) => entry.normalized)));
 }

@@ -51,11 +51,23 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
+  reactStrictMode: true,
+  productionBrowserSourceMaps: false,
   // Pin workspace root so Next.js does not pick up parent lockfiles on Windows.
   outputFileTracingRoot: projectRoot,
   turbopack: {
     root: projectRoot,
   },
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
+  ...(isProduction
+    ? {
+        compiler: {
+          removeConsole: { exclude: ["error", "warn"] },
+        },
+      }
+    : {}),
   // Allow these origins in dev for HMR and dev resources when Playwright uses localhost/127.0.0.1
   allowedDevOrigins: ["localhost", "127.0.0.1"],
   images: {
@@ -72,6 +84,12 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      { source: "/business", destination: "/business/center", permanent: true },
+      { source: "/account/orders", destination: "/orders", permanent: true },
+      { source: "/account/orders/:path*", destination: "/orders/:path*", permanent: true },
+      { source: "/account/wallet", destination: "/seller/wallet", permanent: true },
+      { source: "/account/wallet/:path*", destination: "/seller/wallet/:path*", permanent: true },
+      { source: "/item/:slug", destination: "/listing/:slug", permanent: true },
       { source: "/cars", destination: "/browse/cars", permanent: true },
       { source: "/cars/:path*", destination: "/browse/cars/:path*", permanent: true },
       { source: "/phones", destination: "/browse/phones", permanent: true },

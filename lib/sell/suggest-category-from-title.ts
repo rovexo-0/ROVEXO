@@ -114,13 +114,3 @@ export function hashTitleForLearning(title: string): string {
   }
   return (hash >>> 0).toString(16).padStart(8, "0");
 }
-
-export {
-  AUTO_SELECT_CONFIDENCE,
-  SUGGEST_CONFIDENCE_MIN,
-  detectCategoryFromTitle,
-  getCategoryDetectionTier,
-  shouldAutoSelectCategory,
-  type CategoryDetectionResult,
-  type CategoryDetectionTier,
-} from "@/lib/sell/category-detection-pro";

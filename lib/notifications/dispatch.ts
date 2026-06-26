@@ -1,7 +1,11 @@
 import { createNotification } from "@/lib/notifications/create";
-import { queueEmail } from "@/lib/email/service";
-import { sendPushNotification } from "@/lib/push/service";
+import { deliverNotificationChannels } from "@/lib/notifications/deliver";
+import {
+  buildNotificationGroupKey,
+  resolveNotificationPriority,
+} from "@/lib/notifications/grouping";
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { PushPriority } from "@/lib/push/vapid";
 
 type DispatchInput = {
   userId: string;
@@ -23,6 +27,9 @@ type DispatchInput = {
   href?: string;
   detail?: string;
   email?: { to: string; subject: string; body: string };
+  priority?: PushPriority;
+  silent?: boolean;
+  groupKey?: string;
 };
 
 export async function dispatchNotification(input: DispatchInput): Promise<void> {
@@ -61,38 +68,40 @@ export async function dispatchNotification(input: DispatchInput): Promise<void> 
     return;
   }
 
-  await createNotification({
+  const priority = input.priority ?? resolveNotificationPriority(input.type);
+  const groupKey =
+    input.groupKey ??
+    buildNotificationGroupKey({ userId: input.userId, type: input.type, href: input.href });
+
+  const notificationId = await createNotification({
     userId: input.userId,
     type: input.type,
     title: input.title,
     subtitle: input.subtitle,
     href: input.href,
     detail: input.detail,
+    priority,
+    silent: input.silent,
+    groupKey,
   });
 
-  if (input.email && (userSettings?.email_notifications ?? true)) {
-    await queueEmail({
-      to: input.email.to,
-      subject: input.email.subject,
-      body: input.email.body,
-      template: input.type,
-      metadata: { userId: input.userId, href: input.href ?? "" },
-    });
+  if (!notificationId) {
+    return;
   }
 
-  if (settings?.push_enabled ?? false) {
-    await sendPushNotification(input.userId, {
-      title: input.title,
-      body: input.subtitle,
-      href: input.href,
-    });
-  }
-
-  await admin.from("notification_delivery_log").insert({
-    user_id: input.userId,
-    channel: "in_app",
-    event_type: input.type,
-    status: "queued",
-    payload: { title: input.title, href: input.href ?? "" },
+  await deliverNotificationChannels({
+    userId: input.userId,
+    notificationId,
+    type: input.type,
+    eventType: input.type,
+    title: input.title,
+    subtitle: input.subtitle,
+    href: input.href,
+    priority,
+    silent: input.silent,
+    groupKey,
+    email:
+      input.email && (userSettings?.email_notifications ?? true) ? input.email : undefined,
+    skipPush: !(settings?.push_enabled ?? false),
   });
 }

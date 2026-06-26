@@ -1,4 +1,8 @@
-import { flatTaxonomy, taxonomyTree, type TaxonomyCategoryNode } from "@/lib/taxonomy/category-tree";
+import {
+  getFlatTaxonomy as getFlatTaxonomyNodes,
+  getTaxonomyTree as getTaxonomyTreeNodes,
+  type TaxonomyCategoryNode,
+} from "@/lib/taxonomy/category-tree";
 import { normalizeText } from "@/lib/taxonomy/category-normalizer";
 import { getKeywordMatches } from "@/lib/taxonomy/category-keywords";
 import { getSynonymEntries } from "@/lib/taxonomy/category-synonyms";
@@ -31,7 +35,7 @@ function buildIndexMaps(): CategoryIndexMaps {
     }
   }
 
-  taxonomyTree.forEach((root) => walk(root, []));
+  getTaxonomyTreeNodes().forEach((root) => walk(root, []));
 
   indexMaps = { byId, bySlug, bySeoSlug, pathById };
   return indexMaps;
@@ -102,21 +106,22 @@ export function findCategoriesByText(text: string): TaxonomyCategoryNode[] {
 }
 
 export function getFlatTaxonomy(): TaxonomyCategoryNode[] {
-  return flatTaxonomy;
+  return getFlatTaxonomyNodes();
 }
 
 export function getTaxonomyTree(): TaxonomyCategoryNode[] {
-  return taxonomyTree;
+  return getTaxonomyTreeNodes();
 }
 
-export const taxonomyReport = (() => {
-  const totalCategories = flatTaxonomy.length;
-  const totalSubcategories = flatTaxonomy.filter((node) => !node.isLeaf).length;
-  const totalLeafCategories = flatTaxonomy.filter((node) => node.isLeaf).length;
-  const totalAliases = flatTaxonomy.reduce((sum, node) => sum + (node.aliases?.length ?? 0), 0);
-  const totalKeywords = flatTaxonomy.reduce((sum, node) => sum + (node.keywords?.length ?? 0), 0);
-  const totalBrands = flatTaxonomy.reduce((sum, node) => sum + (node.brands?.length ?? 0), 0);
-  const totalModels = flatTaxonomy.reduce((sum, node) => sum + (node.models?.length ?? 0), 0);
+export function getTaxonomyReport() {
+  const flat = getFlatTaxonomyNodes();
+  const totalCategories = flat.length;
+  const totalSubcategories = flat.filter((node) => !node.isLeaf).length;
+  const totalLeafCategories = flat.filter((node) => node.isLeaf).length;
+  const totalAliases = flat.reduce((sum, node) => sum + (node.aliases?.length ?? 0), 0);
+  const totalKeywords = flat.reduce((sum, node) => sum + (node.keywords?.length ?? 0), 0);
+  const totalBrands = flat.reduce((sum, node) => sum + (node.brands?.length ?? 0), 0);
+  const totalModels = flat.reduce((sum, node) => sum + (node.models?.length ?? 0), 0);
   const totalSynonymPhrases = totalAliases + totalKeywords + totalBrands + totalModels + totalCategories;
 
   return {
@@ -130,12 +135,12 @@ export const taxonomyReport = (() => {
     totalSynonymPhrases,
     totalNodesInTree: totalCategories,
   };
-})();
+}
 
 export function getAllCategoryIds(): string[] {
-  return flatTaxonomy.map((node) => node.id);
+  return getFlatTaxonomyNodes().map((node) => node.id);
 }
 
 export function getAllSeoSlugs(): string[] {
-  return flatTaxonomy.map((node) => node.seoSlug);
+  return getFlatTaxonomyNodes().map((node) => node.seoSlug);
 }

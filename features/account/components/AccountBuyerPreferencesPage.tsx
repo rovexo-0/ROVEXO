@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AccountPageShell } from "@/features/account/components/AccountPageShell";
 import { Button } from "@/components/ui/Button";
@@ -24,7 +24,7 @@ export function AccountBuyerPreferencesPage() {
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     setValue,
     formState: { isSubmitting },
   } = useForm<BuyerPreferencesInput>({
@@ -39,7 +39,7 @@ export function AccountBuyerPreferencesPage() {
     },
   });
 
-  const selectedCategories = watch("preferredCategorySlugs") ?? [];
+  const selectedCategories = useWatch({ control, name: "preferredCategorySlugs" }) ?? [];
 
   useEffect(() => {
     let cancelled = false;
@@ -93,7 +93,7 @@ export function AccountBuyerPreferencesPage() {
     <AccountPageShell
       title="Buyer preferences"
       subtitle="Personalise alerts, region, and category interests."
-      backHref="/settings"
+      backHref="/account/profile"
       backLabel="Settings"
     >
       <form onSubmit={onSubmit} className="premium-card flex flex-col gap-ds-4 p-ds-5" noValidate>

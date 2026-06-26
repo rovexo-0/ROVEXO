@@ -11,7 +11,6 @@ export function BusinessDashboardHeader({ profile }: BusinessDashboardHeaderProp
   return (
     <DashboardHeader
       title="Business Dashboard"
-      unreadNotifications={profile.unreadNotifications}
       menuLabel="Business menu"
       profile={profile}
       defaultHub="business"

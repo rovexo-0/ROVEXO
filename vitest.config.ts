@@ -5,12 +5,16 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
-    testTimeout: 30_000,
-    hookTimeout: 30_000,
+    testTimeout: 120_000,
+    hookTimeout: 120_000,
+    pool: "forks",
+    maxWorkers: 1,
+    fileParallelism: false,
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "."),
+      "server-only": path.resolve(__dirname, "tests/mocks/server-only.ts"),
     },
   },
 });

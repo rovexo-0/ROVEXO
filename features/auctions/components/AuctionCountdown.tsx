@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatAuctionCountdown } from "@/lib/auctions/utils";
+import { useVisibilityInterval } from "@/lib/performance/hooks";
 import { cn } from "@/lib/cn";
 
 type AuctionCountdownProps = {
@@ -14,11 +15,12 @@ export function AuctionCountdown({ endsAt, urgent = false, className }: AuctionC
   const [label, setLabel] = useState(() => formatAuctionCountdown(endsAt));
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setLabel(formatAuctionCountdown(endsAt));
-    }, 1000);
-    return () => window.clearInterval(timer);
+    setLabel(formatAuctionCountdown(endsAt));
   }, [endsAt]);
+
+  useVisibilityInterval(() => {
+    setLabel(formatAuctionCountdown(endsAt));
+  }, 1000);
 
   return (
     <span className={cn("auctions-countdown", !urgent && "auctions-countdown--calm", className)}>

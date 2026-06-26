@@ -89,15 +89,40 @@ export function getSupabaseServiceRoleKey(): string {
   );
 }
 
+/** Canonical production origin when env vars are unset (UK marketplace). */
+export const DEFAULT_APP_URL = "https://www.rovexo.co.uk";
+
+function normalizeAppOrigin(raw: string): string {
+  const trimmed = raw.trim().replace(/\/$/, "");
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
+/**
+ * Canonical app origin for auth callbacks, Stripe return URLs, sitemaps, and metadata.
+ * Set `NEXT_PUBLIC_APP_URL` in production (e.g. https://www.rovexo.co.uk).
+ * Not used by middleware redirects — missing values do not cause HTTP redirect loops.
+ */
 export function getAppUrl(): string {
-  const configured = readFirstEnv("NEXT_PUBLIC_APP_URL");
+  const configured = readFirstEnv("NEXT_PUBLIC_APP_URL", "NEXT_PUBLIC_SITE_URL");
   if (configured) {
-    return configured.replace(/\/$/, "");
+    return normalizeAppOrigin(configured);
+  }
+
+  const productionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  if (productionUrl) {
+    return normalizeAppOrigin(productionUrl);
   }
 
   const vercelUrl = process.env.VERCEL_URL?.trim();
   if (vercelUrl) {
-    return `https://${vercelUrl.replace(/^https?:\/\//, "")}`;
+    return normalizeAppOrigin(vercelUrl);
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    return DEFAULT_APP_URL;
   }
 
   return "http://localhost:3000";

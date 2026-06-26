@@ -30,7 +30,7 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
 
   async function createTempSeller(): Promise<TempSeller> {
     const idSeed = Date.now().toString(36).slice(-6);
-    const email = `e2e-seller-${idSeed}@example.test`;
+    const email = `support+e2e-seller-${idSeed}@rovexo.co.uk`;
     const password = `Testpass!${idSeed}`;
     const username = `e2e_seller_${idSeed}`;
 

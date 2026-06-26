@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/tokens.css";
 import "@/styles/premium-2026.css";
 import "@/styles/mobile-premium.css";
+import "@/styles/dashboard-v1.css";
 import "@/styles/locked-2026.css";
 import "./globals.css";
 
@@ -11,11 +12,14 @@ import { SearchProvider } from "@/features/search/client";
 import Footer from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { VisitorPresenceBeacon } from "@/components/analytics/VisitorPresenceBeacon";
+import { PageVisibilityProvider } from "@/components/providers/PageVisibilityProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LocaleProvider } from "@/lib/i18n/provider";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
+import { PushSubscriptionManager } from "@/features/notifications/components/PushSubscriptionManager";
 import { ToastProvider } from "@/components/ui/Toast";
 import { organizationJsonLd } from "@/lib/seo/metadata";
+import { getAppUrl } from "@/lib/supabase/env";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +32,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://rovexo.com"),
+  metadataBase: new URL(getAppUrl()),
   title: {
     default: "ROVEXO – Buy & Sell on the Modern Marketplace",
     template: "%s | ROVEXO",
@@ -89,8 +93,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
         />
         <ThemeProvider>
+          <PageVisibilityProvider>
           <LocaleProvider>
             <PwaProvider>
+            <PushSubscriptionManager />
             <ToastProvider>
               <SearchProvider>
                 <div className="flex min-h-full flex-1 flex-col">
@@ -101,6 +107,7 @@ export default function RootLayout({
             </ToastProvider>
             </PwaProvider>
           </LocaleProvider>
+          </PageVisibilityProvider>
         </ThemeProvider>
         <GoogleAnalytics />
         <VisitorPresenceBeacon />
