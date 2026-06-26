@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { memo } from "react";
 import { HomeCategoryIconImage } from "@/components/home/HomeCategoryIconImage";
-import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { HOME_CATEGORY_RAIL } from "@/lib/home/constants";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -14,20 +13,10 @@ type HomeCategoryRailProps = {
 };
 
 export const HomeCategoryRail = memo(function HomeCategoryRail({ className }: HomeCategoryRailProps) {
-  const scroll = useMobileHeaderScrollContext();
-  const isChromeVisible = scroll?.isVisible ?? true;
-  const hasScrollBehavior = Boolean(scroll);
-
   return (
     <section
       aria-labelledby="home-categories-heading"
-      className={cn(
-        "home-category-rail-section px-ds-4",
-        hasScrollBehavior &&
-          "max-lg:transition-[transform,opacity] max-lg:duration-[220ms] max-lg:ease-in-out max-lg:will-change-transform",
-        hasScrollBehavior && !isChromeVisible && "max-lg:-translate-y-3 max-lg:opacity-0 max-lg:pointer-events-none",
-        className,
-      )}
+      className={cn("home-category-rail-section px-ds-4", className)}
     >
       <h2 id="home-categories-heading" className="sr-only">
         Categories

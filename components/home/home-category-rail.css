@@ -1,12 +1,12 @@
 /* Homepage premium 3D category rail — HomeCategoryRail only */
 .home-category-rail-section {
-  margin-top: 12px;
-  margin-bottom: 16px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .home-category-premium-rail {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   overflow-x: auto;
   overflow-y: hidden;
   padding-bottom: 4px;
@@ -19,6 +19,7 @@
   scrollbar-width: none;
   transform: translateZ(0);
   will-change: scroll-position;
+  justify-content: center;
 }
 
 .home-category-premium-rail::-webkit-scrollbar {
@@ -30,7 +31,7 @@
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  width: 72px;
+  width: 76px;
   scroll-snap-align: start;
   -webkit-tap-highlight-color: transparent;
 }
@@ -40,8 +41,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 72px;
-  height: 72px;
+  width: 76px;
+  height: 76px;
   overflow: visible;
   border-radius: 22px;
   border: 1px solid rgb(255 255 255 / 0.8);
@@ -95,8 +96,8 @@
   position: relative;
   z-index: 1;
   display: block;
-  width: 54px;
-  height: 54px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
   object-position: center;
   flex-shrink: 0;
@@ -107,12 +108,12 @@
 
 .home-category-premium-label {
   margin-top: 4px;
-  width: 80px;
+  width: 76px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: center;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 1.2;
   color: #1f2937;
