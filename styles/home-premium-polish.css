@@ -28,13 +28,13 @@
 }
 
 .home-premium-polish .marketplace-listing-card__image {
-  height: 132px;
+  height: 125px;
 }
 
 .home-premium-polish .marketplace-listing-card__body {
-  height: 123px;
-  padding: 3px 5px 5px;
-  gap: 2px;
+  height: 125px;
+  padding: 4px 6px 6px;
+  gap: 3px;
 }
 
 .home-premium-polish .marketplace-listing-card__image img {

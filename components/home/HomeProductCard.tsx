@@ -197,7 +197,7 @@ export function HomeProductCard({
           aria-pressed={isSaved}
           onClick={toggleFavorite}
           className={cn(
-            "marketplace-listing-card__heart absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-ds-full",
+            "marketplace-listing-card__heart absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded-ds-full",
             focusRing,
             transitionSpring,
             isSaved && "text-danger",

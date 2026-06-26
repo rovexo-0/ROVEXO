@@ -78,7 +78,7 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
           </div>
         ) : products.length === 0 ? (
           <div className="min-w-full snap-start">
-            <ProductSectionEmpty title={title.replace(/^[^\s]+\s/, "")} />
+            <ProductSectionEmpty title={title} />
           </div>
         ) : (
           products.map((product) => (

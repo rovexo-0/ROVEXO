@@ -8,22 +8,23 @@
   --ds-hero-banner-h: 225px;
   --ds-hero-banner-radius: 26px;
 
-  --ds-listing-card-w: 158px;
-  --ds-listing-card-h: 255px;
-  --ds-listing-card-image-w: 158px;
-  --ds-listing-card-image-h: 120px;
+  --ds-listing-card-w: 170px;
+  --ds-listing-card-h: 250px;
+  --ds-listing-card-image-w: 170px;
+  --ds-listing-card-image-h: 125px;
   --ds-listing-card-image-radius: 22px;
-  --ds-listing-card-body-h: 135px;
+  --ds-listing-card-body-h: 125px;
 
-  --ds-category-tile: 60px;
-  --ds-category-tile-radius: 18px;
-  --ds-category-icon: 34px;
-  --ds-category-label-size: 11px;
+  --ds-category-tile: 76px;
+  --ds-category-tile-radius: 22px;
+  --ds-category-icon: 48px;
+  --ds-category-label-size: 15px;
 
-  --ds-bottom-nav-item: 60px;
-  --ds-bottom-nav-icon: 24px;
-  --ds-bottom-nav-label-size: 11px;
-  --ds-bottom-nav-sell-float: 8px;
+  --ds-bottom-nav-item: 74px;
+  --ds-bottom-nav-icon: 32px;
+  --ds-bottom-nav-label-size: 15px;
+  --ds-bottom-nav-sell-float: 10px;
+  --ds-bottom-nav-shell-h: 92px;
 
   --ds-search-bar-h: 48px;
   --ds-touch-target: 44px;
@@ -443,22 +444,20 @@
   position: relative;
   overflow: visible;
   margin-inline: auto;
-  max-width: 22rem;
+  width: 92%;
+  max-width: none;
+  min-height: var(--ds-bottom-nav-shell-h, 92px);
   padding-top: var(--ds-bottom-nav-sell-float);
-  border-radius: 22px 22px 14px 14px;
+  border-radius: 34px;
   border: 1px solid rgb(255 255 255 / 0.68);
-  background: linear-gradient(
-    180deg,
-    rgb(255 255 255 / 0.84) 0%,
-    rgb(255 255 255 / 0.72) 100%
-  );
+  background: rgb(255 255 255 / 0.78);
   box-shadow:
     0 -1px 0 rgb(255 255 255 / 0.95) inset,
     0 10px 36px rgb(15 23 42 / 0.14),
     0 4px 12px rgb(37 99 235 / 0.1),
     0 0 0 1px rgb(37 99 235 / 0.07);
-  backdrop-filter: blur(22px) saturate(185%);
-  -webkit-backdrop-filter: blur(22px) saturate(185%);
+  backdrop-filter: blur(30px) saturate(185%);
+  -webkit-backdrop-filter: blur(30px) saturate(185%);
 }
 
 .bottom-nav-shell-2026::before {
@@ -604,8 +603,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--ds-bottom-nav-item);
-  height: var(--ds-bottom-nav-item);
+  width: 74px;
+  height: 74px;
   margin-bottom: 1px;
   overflow: hidden;
   border-radius: var(--ds-radius-full);
