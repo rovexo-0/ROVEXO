@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { MouseEvent } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { BottomNavIcon3D, type BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
+import { Avatar } from "@/components/ui/Avatar";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
 import { useSearchOverlayOptional } from "@/features/search/client";
@@ -67,6 +68,56 @@ function NavLink({
   );
 }
 
+function AccountNavLink({ isActive }: { isActive: boolean }) {
+  const [profile, setProfile] = useState<{ name: string; avatarUrl: string | null } | null>(null);
+  const accountItem = navItems.find((item) => item.id === "account")!;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void fetch("/api/profile", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { profile?: { fullName?: string; avatarUrl?: string | null } } | null) => {
+        if (!cancelled && payload?.profile) {
+          setProfile({
+            name: payload.profile.fullName ?? "Account",
+            avatarUrl: payload.profile.avatarUrl ?? null,
+          });
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <Link
+      href={accountItem.href}
+      aria-label={accountItem.label}
+      aria-current={isActive ? "page" : undefined}
+      data-active={isActive}
+      className={cn("bottom-nav-item-2026", focusRing, transitionFast)}
+    >
+      <span className="bottom-nav-icon-3d-wrap">
+        {profile ? (
+          <Avatar
+            src={profile.avatarUrl}
+            alt={profile.name}
+            name={profile.name}
+            size="nav"
+            className={cn(isActive && "ring-2 ring-primary")}
+          />
+        ) : (
+          <BottomNavIcon3D type="account" active={isActive} size="tab" />
+        )}
+      </span>
+      <span className="bottom-nav-item-2026__label">{accountItem.label}</span>
+    </Link>
+  );
+}
+
 export function BottomNavigation({
   active,
   className,
@@ -79,7 +130,7 @@ export function BottomNavigation({
   const isSellActive = activeTab === "sell";
   const isChromeVisible = scroll?.isVisible ?? true;
   const hasScrollBehavior = Boolean(scroll);
-  const [home, search, saved, account] = navItems;
+  const [home, search, saved] = navItems;
 
   function handleSearchNavigate(event: MouseEvent<HTMLAnchorElement>) {
     if (pathname === "/" && searchOverlay) {
@@ -93,15 +144,17 @@ export function BottomNavigation({
       data-bottom-nav="2026"
       aria-label={ariaLabel}
       className={cn(
-        "pointer-events-none fixed inset-x-0 bottom-0 z-50 px-ds-2",
-        "pb-[max(env(safe-area-inset-bottom),0.375rem)]",
+        "pointer-events-none fixed inset-x-0 bottom-3 z-50 flex justify-center px-ds-3",
+        "pb-[max(env(safe-area-inset-bottom),0px)]",
         hasScrollBehavior &&
-          "max-lg:transition-transform max-lg:duration-[220ms] max-lg:ease-in-out max-lg:will-change-transform",
-        hasScrollBehavior && !isChromeVisible && "max-lg:translate-y-[calc(100%+1rem)]",
+          "max-lg:transition-[transform,opacity] max-lg:duration-[250ms] max-lg:ease-in-out max-lg:will-change-[transform,opacity]",
+        hasScrollBehavior &&
+          !isChromeVisible &&
+          "max-lg:translate-y-[120px] max-lg:opacity-0 max-lg:pointer-events-none",
         className,
       )}
     >
-      <div className="bottom-nav-shell-2026 pointer-events-auto relative mx-auto max-w-[22rem]">
+      <div className="bottom-nav-shell-2026 pointer-events-auto relative w-[92%] max-w-none">
         <ul className="bottom-nav-grid-2026">
           <li>
             <NavLink item={home} isActive={activeTab === "home"} />
@@ -129,7 +182,7 @@ export function BottomNavigation({
             <NavLink item={saved} isActive={activeTab === "saved"} />
           </li>
           <li>
-            <NavLink item={account} isActive={activeTab === "account"} />
+            <AccountNavLink isActive={activeTab === "account"} />
           </li>
         </ul>
       </div>

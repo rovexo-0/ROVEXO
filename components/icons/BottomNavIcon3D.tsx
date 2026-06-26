@@ -14,7 +14,7 @@ type BottomNavIcon3DProps = {
 };
 
 const TAB_ICON_PX = 32;
-const SELL_ICON_PX = 24;
+const SELL_ICON_PX = 34;
 
 function IconDefs({ uid }: { uid: string }) {
   return (

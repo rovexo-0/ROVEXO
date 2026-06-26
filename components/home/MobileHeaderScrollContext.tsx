@@ -130,8 +130,8 @@ export function MobileHeaderScrollProvider({ children }: { children: ReactNode }
       <div
         aria-hidden
         suppressHydrationWarning
-        className="overflow-hidden transition-[height] duration-[220ms] ease-in-out lg:hidden"
-        style={{ height: isVisible ? headerHeight : 0 }}
+        className="overflow-hidden lg:hidden"
+        style={{ height: headerHeight }}
       />
       {children}
     </MobileHeaderScrollContext.Provider>
