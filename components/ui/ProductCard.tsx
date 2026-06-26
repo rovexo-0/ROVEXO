@@ -125,8 +125,7 @@ export function ProductCard({
   );
 
   return (
-    <article
-      role="article"
+    <div
       tabIndex={0}
       aria-label={title}
       onClick={openProduct}
@@ -208,6 +207,6 @@ export function ProductCard({
           price={price}
         />
       ) : null}
-    </article>
+    </div>
   );
 }

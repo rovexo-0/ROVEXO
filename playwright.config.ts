@@ -5,8 +5,9 @@ import { loadDotEnvFiles } from "./scripts/playwright-env.mjs";
 // Load local secrets (Supabase, Stripe, etc.) for the dev server and integration tests.
 loadDotEnvFiles();
 
-const port = process.env.PLAYWRIGHT_PORT ?? "3010";
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${port}`;
+const port = process.env.PLAYWRIGHT_PORT ?? "3020";
+// Use 127.0.0.1 (not localhost) so Windows does not resolve to ::1 while next start binds IPv4.
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${port}`;
 const isCI = Boolean(process.env.CI);
 
 const webServerEnvObj: Record<string, string> = {
@@ -35,7 +36,7 @@ function webServerCommand() {
   if (process.env.PLAYWRIGHT_DEV_SERVER === "1") {
     return `npx next dev -p ${port}`;
   }
-  return `npx next start -p ${port}`;
+  return `node scripts/playwright-prestart.mjs ${port}`;
 }
 
 export default defineConfig({

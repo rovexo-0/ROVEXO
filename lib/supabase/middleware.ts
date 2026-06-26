@@ -19,6 +19,7 @@ const PROTECTED_PREFIXES = [
   "/admin",
   "/super-admin",
   "/dashboard",
+  "/resolution",
 ];
 
 const SUPER_ADMIN_ROUTE_PREFIXES = [

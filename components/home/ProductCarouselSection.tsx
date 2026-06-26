@@ -59,11 +59,14 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
       </div>
 
       <div
+        data-carousel-version="2026"
         className={cn(
           "marketplace-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1",
           "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         )}
-        role={error ? "group" : "list"}
+        role="group"
+        aria-roledescription={!error && products.length > 0 ? "carousel" : undefined}
+        aria-label={!error && products.length > 0 ? title : undefined}
         aria-busy={loading || loadingMore}
         aria-live={error ? "polite" : undefined}
       >

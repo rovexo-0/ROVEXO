@@ -160,8 +160,8 @@ export function HomeProductCard({
   );
 
   return (
-    <article
-      role="article"
+    <div
+      data-listing-card-version="2026"
       tabIndex={0}
       aria-label={title}
       onClick={openProduct}
@@ -241,6 +241,6 @@ export function HomeProductCard({
           ) : null}
         </div>
       </div>
-    </article>
+    </div>
   );
 }

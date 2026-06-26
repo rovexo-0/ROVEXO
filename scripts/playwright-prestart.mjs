@@ -10,7 +10,7 @@ import { ensureProductionBuild } from "./playwright-webserver.mjs";
 
 loadDotEnvFiles();
 
-const port = process.argv[2] ?? process.env.PLAYWRIGHT_PORT ?? "3010";
+const port = process.argv[2] ?? process.env.PLAYWRIGHT_PORT ?? "3020";
 const pm = resolvePackageManager();
 
 const webServerEnv = {
@@ -22,7 +22,7 @@ const webServerEnv = {
     "placeholder",
   SUPABASE_SERVICE_ROLE_KEY:
     process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY ?? "placeholder",
-  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? `http://localhost:${port}`,
+  NEXT_PUBLIC_APP_URL: process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${port}`,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? "sk_test_placeholder",
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET ?? "whsec_placeholder",
   RESEND_API_KEY: process.env.RESEND_API_KEY ?? "re_placeholder",

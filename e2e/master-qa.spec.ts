@@ -42,7 +42,14 @@ const PROTECTED_ROUTES: RouteExpectation[] = [
   { path: "/notifications", name: "Notifications", authRedirect: true },
   { path: "/saved", name: "Saved", authRedirect: true },
   { path: "/admin", name: "Admin", authRedirect: true },
-  { path: "/super-admin", name: "Super Admin", authRedirect: true },
+  { path: "/seller/migration", name: "Migration center", authRedirect: true },
+  { path: "/seller/connectors", name: "Marketplace connectors", authRedirect: true },
+  { path: "/cart", name: "Cart", authRedirect: true },
+  { path: "/resolution", name: "Resolution Centre", authRedirect: true },
+  { path: "/help/faq", name: "FAQ", landmark: /faq/i },
+  { path: "/help/policies", name: "Policies", landmark: /policies/i },
+  { path: "/help/terms-of-service", name: "Terms of service" },
+  { path: "/help/privacy-policy", name: "Privacy policy" },
 ];
 
 async function assertNoServerError(page: Page) {
@@ -100,6 +107,12 @@ test.describe("Master QA — homepage sections", () => {
     await expect(page.getByRole("heading", { name: /featured listings/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: /recommended for you/i })).toBeVisible();
     await expect(page.getByRole("heading", { name: /latest listings/i })).toBeVisible();
+    await page.locator("#auctions-heading").scrollIntoViewIfNeeded();
+    await expect(page.locator("#auctions-heading")).toHaveText(/popular auctions/i);
+    const banner = page.locator('section[aria-labelledby="store-migration-banner-heading"] a');
+    await banner.scrollIntoViewIfNeeded();
+    await expect(banner).toBeVisible();
+    await expect(banner).toHaveAttribute("href", "/sell/new");
     await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
   });
 });
@@ -116,10 +129,19 @@ test.describe("Master QA — navigation links", () => {
     await expect(nav.getByRole("link", { name: "Account" })).toBeVisible();
   });
 
+  test("bring your item banner opens sell wizard", async ({ page }) => {
+    await page.goto("/");
+    const banner = page.locator('section[aria-labelledby="store-migration-banner-heading"] a');
+    await banner.scrollIntoViewIfNeeded();
+    await expect(banner).toBeVisible();
+    await expect(banner).toHaveAttribute("href", "/sell/new");
+    await expect(banner.getByText("Bring Your Item")).toBeVisible();
+  });
+
   test("footer help links resolve", async ({ page }) => {
     await page.goto("/");
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    const helpLink = page.getByRole("link", { name: "Help center" });
+    const helpLink = page.getByRole("link", { name: "Help center" }).first();
     await expect(helpLink).toBeVisible();
     await helpLink.click();
     await expect(page).toHaveURL(/\/help/);

@@ -31,7 +31,12 @@ export function HomeRecentlyViewedCarousel() {
         </Link>
       </div>
 
-      <div className="marketplace-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="list">
+      <div
+        className="marketplace-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        role="group"
+        aria-roledescription="carousel"
+        aria-label="Recently viewed listings"
+      >
         {items.map((product) => (
           <HomeProductCard key={product.id} {...productToCardProps(product, "homepage")} />
         ))}

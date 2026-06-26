@@ -195,10 +195,7 @@ export function getTrustHubSections(): MobileHubSection[] {
     {
       id: "trust",
       title: "Trust Centre",
-      tiles: [
-        tile("/trust", "Trust Centre", "Score & safety"),
-        tile("/trust/verification", "Verification", "Identity & seller checks"),
-      ],
+      tiles: [tile("/trust", "Trust Centre", "Score, safety & verification")],
     },
   ];
 }

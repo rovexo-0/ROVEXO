@@ -60,7 +60,9 @@ export const PopularListingsGrid = memo(function PopularListingsGrid({
       <div
         ref={gridRef}
         className="marketplace-listing-grid"
-        role={error ? "group" : "list"}
+        role="group"
+        aria-roledescription={!error && products.length > 0 ? "carousel" : undefined}
+        aria-label={!error && products.length > 0 ? title : undefined}
         aria-busy={loading || loadingMore}
         aria-live={error ? "polite" : undefined}
       >
