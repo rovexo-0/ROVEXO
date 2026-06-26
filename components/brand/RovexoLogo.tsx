@@ -31,6 +31,25 @@ function LogoGlyph({ className }: { className?: string }) {
   );
 }
 
+/** Header mark — blue R logo 40×40 @ 12px radius */
+export function RovexoHeaderMark({ className }: { className?: string }) {
+  return (
+    <Link
+      href="/"
+      aria-label="ROVEXO Home"
+      className={cn(
+        "inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] shrink-0 items-center justify-center",
+        focusRing,
+        transitionFast,
+        "hover:opacity-90 active:scale-[0.98]",
+        className,
+      )}
+    >
+      <LogoGlyph className="h-10 w-10 rounded-[12px]" />
+    </Link>
+  );
+}
+
 function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("font-extrabold tracking-tight text-text-primary", className)}>

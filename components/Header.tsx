@@ -1,15 +1,15 @@
 "use client";
 
 import { memo, useLayoutEffect, useRef } from "react";
-import { RovexoLogo } from "@/components/brand/RovexoLogo";
+import { RovexoHeaderMark } from "@/components/brand/RovexoLogo";
 import { HeaderCategoryBar } from "@/components/header/HeaderCategoryBar";
 import { HeaderIconLink } from "@/components/header/HeaderIconLink";
 import { HeaderProfileLink } from "@/components/header/HeaderProfileLink";
 import { HeaderSearchBar } from "@/components/header/HeaderSearchBar";
+import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
 import { useHeaderBadges } from "@/features/header/hooks/use-header-badges";
-import { MessagesMenuIcon, NotificationsMenuIcon } from "@/features/profile/icons";
 
 export type HeaderProps = {
   isSeller?: boolean;
@@ -27,10 +27,10 @@ const HeaderActions = memo(function HeaderActions({
   return (
     <>
       <HeaderIconLink href="/messages" label="Messages" badge={unreadMessages} size="compact">
-        <MessagesMenuIcon className="h-5 w-5" />
+        <DashboardIcon3D type="messages" size={22} />
       </HeaderIconLink>
       <HeaderIconLink href="/notifications" label="Notifications" badge={unreadNotifications} size="compact">
-        <NotificationsMenuIcon className="h-5 w-5" />
+        <DashboardIcon3D type="notifications" size={22} />
       </HeaderIconLink>
       <HeaderProfileLink />
     </>
@@ -51,8 +51,6 @@ function Header({
 
   const unreadMessages = Math.max(unreadMessagesProp, liveBadges.unreadMessages);
   const unreadNotifications = Math.max(unreadNotificationsProp, liveBadges.unreadNotifications);
-  const isVisible = scroll?.isVisible ?? true;
-  const hasScrollBehavior = Boolean(scroll);
 
   useLayoutEffect(() => {
     registerHeader?.(headerRef.current);
@@ -64,41 +62,26 @@ function Header({
       ref={headerRef}
       data-header-version="premium-2026"
       className={cn(
-        "header-premium-2026 top-0 left-0 right-0 z-[100]",
-        hasScrollBehavior
-          ? cn(
-              "fixed will-change-transform transition-[transform,opacity] duration-[220ms] ease-in-out",
-              "lg:sticky lg:relative lg:will-change-auto",
-              isVisible
-                ? "translate-y-0 opacity-100"
-                : "max-lg:-translate-y-full max-lg:opacity-0 max-lg:pointer-events-none",
-              "lg:translate-y-0 lg:opacity-100 lg:pointer-events-auto",
-            )
-          : "sticky",
+        "header-premium-2026 sticky top-0 left-0 right-0 z-[100]",
+        "pt-[max(env(safe-area-inset-top),var(--ds-space-1))]",
       )}
     >
-      <div className="mx-auto max-w-7xl px-ds-2 sm:px-ds-3 lg:px-ds-4">
-        <div
-          className={cn(
-            "relative flex w-full min-h-[var(--header-shell-height)] items-center",
-            "pt-[max(env(safe-area-inset-top),var(--ds-space-1))] pb-1",
-          )}
-        >
-          <div className="absolute inset-y-0 left-0 z-[2] flex items-center pl-ds-0.5">
-            <RovexoLogo variant="responsive" />
+      <div className="mx-auto max-w-7xl px-ds-4">
+        <div className="relative flex w-full min-h-[var(--header-shell-height)] items-center gap-2 pb-1">
+          <div className="z-[2] flex shrink-0 items-center">
+            <RovexoHeaderMark />
           </div>
 
-          <div className="header-premium-2026__search z-[1] min-w-0 flex-1 px-[2.75rem] sm:px-[3.75rem] md:px-[4.25rem] lg:px-[4.75rem]">
+          <div className="header-premium-2026__search z-[1] min-w-0 flex-1">
             <HeaderSearchBar
               inputId="header-search"
-              size="inline"
               placeholder="Search ROVEXO..."
-              className="mx-auto w-full"
+              className="w-full"
             />
           </div>
 
           <div
-            className="absolute inset-y-0 right-0 z-[2] flex items-center gap-0 pr-ds-0.5"
+            className="z-[2] flex shrink-0 items-center gap-0"
             role="group"
             aria-label="Quick links"
           >
@@ -120,7 +103,7 @@ export default memo(Header);
 export function NotificationBell({ unreadCount }: { unreadCount: number }) {
   return (
     <HeaderIconLink href="/notifications" label="Notifications" badge={unreadCount} size="compact">
-      <NotificationsMenuIcon className="h-5 w-5" />
+      <DashboardIcon3D type="notifications" size={22} />
     </HeaderIconLink>
   );
 }

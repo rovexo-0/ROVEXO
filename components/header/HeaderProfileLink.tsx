@@ -34,7 +34,7 @@ export function HeaderProfileLink({ className }: { className?: string }) {
       href="/account"
       aria-label="Account"
       className={cn(
-        "touch-target-2026 inline-flex h-11 w-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-ds-full",
+        "inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-ds-full",
         transitionFast,
         "hover:opacity-90 active:scale-[0.94]",
         focusRing,
@@ -45,8 +45,8 @@ export function HeaderProfileLink({ className }: { className?: string }) {
         src={profile?.avatarUrl}
         alt={profile?.name ?? "Account"}
         name={profile?.name}
-        size="sm"
-        className="ring-2 ring-background"
+        size="header"
+        className="ring-2 ring-primary"
       />
     </Link>
   );

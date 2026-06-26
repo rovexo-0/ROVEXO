@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/cn";
 
-export type AvatarSize = "sm" | "md" | "lg" | "xl";
+export type AvatarSize = "sm" | "md" | "lg" | "xl" | "header" | "nav";
 
 export type AvatarProps = {
   src?: string | null;
@@ -13,7 +13,9 @@ export type AvatarProps = {
 
 const sizeStyles: Record<AvatarSize, { container: string; text: string; image: number }> = {
   sm: { container: "h-8 w-8", text: "text-xs", image: 32 },
+  nav: { container: "h-8 w-8", text: "text-xs", image: 32 },
   md: { container: "h-10 w-10", text: "text-sm", image: 40 },
+  header: { container: "h-[42px] w-[42px]", text: "text-sm", image: 42 },
   lg: { container: "h-12 w-12", text: "text-base", image: 48 },
   xl: { container: "h-20 w-20", text: "text-xl", image: 80 },
 };

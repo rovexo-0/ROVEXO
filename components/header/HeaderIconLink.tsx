@@ -15,12 +15,11 @@ type HeaderIconLinkProps = {
 function formatBadgeCount(count: number): string {
   if (count > 99) return "99+";
   return String(count);
-  return String(count);
 }
 
 const sizeStyles = {
   default: "h-11 min-h-11 w-11 min-w-11 rounded-ds-md",
-  compact: "touch-target-2026 h-11 w-11 min-h-[44px] min-w-[44px] rounded-ds-sm",
+  compact: "header-action-2026 h-10 w-10 min-h-[44px] min-w-[44px] rounded-ds-sm",
 } as const;
 
 export function HeaderIconLink({
@@ -53,7 +52,7 @@ export function HeaderIconLink({
           className={cn(
             "absolute flex items-center justify-center rounded-ds-full bg-danger font-bold leading-none text-danger-foreground ring-2 ring-background",
             size === "compact"
-              ? "right-0.5 top-0.5 h-4 min-w-4 px-0.5 text-[0.5625rem]"
+              ? "right-0 top-0 h-[18px] min-w-[18px] px-0.5 text-[0.5625rem]"
               : "right-1 top-1 h-[1.125rem] min-w-[1.125rem] px-1 text-[0.625rem]",
           )}
           aria-hidden
