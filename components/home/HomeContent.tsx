@@ -3,7 +3,7 @@
 import { memo } from "react";
 import type { Product } from "@/lib/products/types";
 import { ProductCarouselSection } from "@/components/home/ProductCarouselSection";
-import { HomeHeroSearch } from "@/components/home/HomeHeroSearch";
+import { HomeHeroBanner } from "@/components/home/HomeHeroBanner";
 import { HomeCategoryRail } from "@/components/home/HomeCategoryRail";
 import { AuctionsSection } from "@/components/home/AuctionsSection";
 import { StoreMigrationHeroBanner } from "@/features/seller/migration/components/StoreMigrationHeroBanner";
@@ -29,7 +29,7 @@ export const HomeContent = memo(function HomeContent({
         "home-premium-polish flex flex-col gap-ds-2 pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))] lg:mx-auto lg:max-w-7xl lg:w-full",
       )}
     >
-      <HomeHeroSearch />
+      <HomeHeroBanner />
 
       <HomeCategoryRail />
 

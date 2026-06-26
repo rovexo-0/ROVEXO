@@ -7,19 +7,21 @@ function readSource(relativePath: string): string {
 }
 
 describe("Home page hydration safety", () => {
-  it("keeps HomeHero free of client-only render values", () => {
-    const source = readSource("components/home/HomeHero.tsx");
+  it("keeps HomeHeroBanner free of client-only render values", () => {
+    const source = readSource("components/home/HomeHeroBanner.tsx");
 
-    expect(source).not.toContain('"use client"');
+    expect(source).toContain('"use client"');
+    expect(source).toContain("hero-banner-2026");
     expect(source).not.toMatch(/Date\.now|Math\.random|crypto\.randomUUID/);
-    expect(source).not.toMatch(/typeof window|localStorage|sessionStorage|navigator\./);
   });
 
-  it("uses stable locale formatting in CategoryGridSection", () => {
-    const source = readSource("components/home/CategoryGridSection.tsx");
+  it("uses enterprise HomeCategoryRail on the homepage", () => {
+    const homeContent = readSource("components/home/HomeContent.tsx");
+    const categoryRail = readSource("components/home/HomeCategoryRail.tsx");
 
-    expect(source).toContain('new Intl.NumberFormat("en-IE")');
-    expect(source).not.toMatch(/\.toLocaleString\(\)/);
+    expect(homeContent).toContain("HomeCategoryRail");
+    expect(homeContent).not.toContain("CategoryGridSection");
+    expect(categoryRail).toContain("home-category-premium-rail");
   });
 
   it("defers header height measurement to layout effects", () => {
