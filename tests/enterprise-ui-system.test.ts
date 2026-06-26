@@ -1,42 +1,42 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { getSellHubTiles } from "@/lib/mobile-ui/hubs";
-import { getSellerDashboardTiles } from "@/lib/dashboard/sections";
-import { SELLER_NAV } from "@/lib/navigation/map";
-import {
-  IMPORT_WIZARD_PATH,
-  MIGRATION_CENTER_PATH,
-} from "@/lib/seller/migration/config";
-import type { UserProfile } from "@/lib/profile/types";
 
-const profile = { isSeller: true } as UserProfile;
-
-describe("Enterprise UI system — import routing", () => {
-  it("uses canonical /import path for migration center", () => {
-    expect(MIGRATION_CENTER_PATH).toBe(IMPORT_WIZARD_PATH);
-    expect(MIGRATION_CENTER_PATH).toBe("/import");
+describe("Enterprise UI system — homepage hero", () => {
+  it("does not render Official ROVEXO banner on homepage", () => {
+    const homeContent = readFileSync(join(process.cwd(), "components/home/HomeContent.tsx"), "utf8");
+    expect(homeContent).not.toContain("HomeHeroBanner");
+    expect(homeContent).toContain("StoreMigrationHeroBanner");
   });
 
-  it("routes Bring Your Items to import wizard (never /sell)", () => {
-    const sellHub = getSellHubTiles(profile);
-    const sellerDash = getSellerDashboardTiles();
-    const bringHub = sellHub.find((tile) => tile.label === "Bring Your Items");
-    const bringDash = sellerDash.find((tile) => tile.label === "Bring Your Items");
-    const bringNav = SELLER_NAV.find((link) => link.label === "Bring Your Items");
+  it("routes import hero CTAs to sell wizard and migration center", () => {
+    const banner = readFileSync(
+      join(process.cwd(), "features/seller/migration/components/StoreMigrationHeroBanner.tsx"),
+      "utf8",
+    );
+    expect(banner).toContain("SELL_WIZARD_PATH");
+    expect(banner).toContain("LEGACY_MIGRATION_CENTER_PATH");
+    expect(banner).toContain("Bring Your Item");
+    expect(banner).toContain("Import Your Item");
+  });
 
-    expect(bringHub?.href).toBe("/import");
-    expect(bringDash?.href).toBe("/import");
-    expect(bringNav?.href).toBe("/import");
-    expect(bringHub?.href).not.toBe("/sell");
+  it("hero carousel auto-advances without skipping the migration slide on mount", () => {
+    const banner = readFileSync(
+      join(process.cwd(), "features/seller/migration/components/StoreMigrationHeroBanner.tsx"),
+      "utf8",
+    );
+    expect(banner).toContain("AUTO_ADVANCE_MS = 5000");
+    expect(banner).toContain('immediate: false');
+    expect(banner).toContain("Sell Faster");
+    expect(banner).toContain("Premium Marketplace");
   });
 });
 
 describe("Enterprise UI system — design lock", () => {
-  it("locks hub card dimensions in dashboard CSS", () => {
+  it("locks hub card vertical layout in dashboard CSS", () => {
     const css = readFileSync(join(process.cwd(), "styles/dashboard-v1.css"), "utf8");
-    expect(css).toContain("--dash-v1-card-min-height: 82px");
-    expect(css).toContain("--dash-v1-hub-icon-size: 56px");
+    expect(css).toContain("--dash-v1-card-min-height: 100px");
+    expect(css).toContain("flex-direction: column");
     expect(css).toContain("grid-template-columns: repeat(2, minmax(0, 1fr))");
   });
 
@@ -50,34 +50,45 @@ describe("Enterprise UI system — design lock", () => {
     expect(menuCard).toContain("enterprise-hub-card");
   });
 
-  it("uses horizontal enterprise layout in mobile hub cards", () => {
+  it("uses vertical enterprise layout in mobile hub cards", () => {
     const card = readFileSync(
       join(process.cwd(), "features/mobile-ui/components/MobilePremiumCard.tsx"),
       "utf8",
     );
-    expect(card).toContain("dash-v1-tile__body");
+    expect(card).toContain("dash-v1-tile__title");
     expect(card).toContain("DashboardIcon3D");
+    expect(card).not.toContain("dash-v1-tile__body");
   });
 
   it("names account hub sections BUY SELL BUSINESS SUPPORT", () => {
     const dashboard = readFileSync(
+      join(process.cwd(), "components/home/HomeContent.tsx"),
+      "utf8",
+    );
+    const accountDashboard = readFileSync(
       join(process.cwd(), "features/account-page/components/PremiumAccountDashboard.tsx"),
       "utf8",
     );
-    expect(dashboard).toContain('title="BUY"');
-    expect(dashboard).toContain('title="SELL"');
-    expect(dashboard).toContain('title="BUSINESS"');
-    expect(dashboard).toContain('title="SUPPORT"');
-    expect(dashboard).not.toContain("Quick Access");
+    expect(accountDashboard).toContain('title="BUY"');
+    expect(accountDashboard).toContain('title="SELL"');
+    expect(accountDashboard).toContain('title="BUSINESS"');
+    expect(accountDashboard).toContain('title="SUPPORT"');
+    expect(accountDashboard).not.toContain("Quick Access");
+    expect(dashboard).not.toContain("HomeHeroBanner");
+  });
+});
+
+describe("Enterprise UI system — header", () => {
+  it("uses R logo mark and premium 3D header icons", () => {
+    const header = readFileSync(join(process.cwd(), "components/Header.tsx"), "utf8");
+    expect(header).toContain("RovexoHeaderMark");
+    expect(header).toContain("DashboardIcon3D");
+    expect(header).not.toContain("MessagesMenuIcon");
   });
 
-  it("routes homepage migration banner to import wizard", () => {
-    const banner = readFileSync(
-      join(process.cwd(), "features/seller/migration/components/StoreMigrationHeroBanner.tsx"),
-      "utf8",
-    );
-    expect(banner).toContain("IMPORT_WIZARD_PATH");
-    expect(banner).not.toContain("SELL_WIZARD_PATH");
-    expect(banner).toContain("Bring Your Items");
+  it("uses premium 3D search icon in header search bar", () => {
+    const searchBar = readFileSync(join(process.cwd(), "components/header/HeaderSearchBar.tsx"), "utf8");
+    expect(searchBar).toContain("BottomNavIcon3D");
+    expect(searchBar).toContain('type="search"');
   });
 });

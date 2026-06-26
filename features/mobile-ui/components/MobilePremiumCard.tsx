@@ -35,13 +35,11 @@ export function MobilePremiumCard({
       <MobilePremiumBadge count={badgeCount} badgeKey={badgeKey} tone={badgeTone} />
 
       <div className="dash-v1-tile__icon enterprise-hub-card__icon">
-        <DashboardIcon3D type={iconType} size={40} />
+        <DashboardIcon3D type={iconType} size={36} />
       </div>
-      <div className="dash-v1-tile__body enterprise-hub-card__body">
-        <p className="dash-v1-tile__title enterprise-hub-card__title">{label}</p>
-        <p className="dash-v1-tile__subtitle enterprise-hub-card__subtitle">{subtitle}</p>
-        {statusLabel ? <p className="dash-v1-tile__status">{statusLabel}</p> : null}
-      </div>
+      <p className="dash-v1-tile__title enterprise-hub-card__title">{label}</p>
+      <p className="dash-v1-tile__subtitle enterprise-hub-card__subtitle">{subtitle}</p>
+      {statusLabel ? <p className="dash-v1-tile__status">{statusLabel}</p> : null}
     </Link>
   );
 }

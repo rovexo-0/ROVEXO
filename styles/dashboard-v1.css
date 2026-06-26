@@ -12,7 +12,7 @@
   --dash-v1-section-size: 0.875rem;
   --dash-v1-card-title-size: 1.125rem;
   --dash-v1-card-desc-size: 0.8125rem;
-  --dash-v1-card-min-height: 82px;
+  --dash-v1-card-min-height: 100px;
   --dash-v1-panel-min-height: 120px;
   --dash-v1-hub-card-radius: 22px;
   --dash-v1-hub-card-padding: 18px;
@@ -114,7 +114,7 @@
   grid-auto-rows: auto;
 }
 
-/* Enterprise hub card — official 2-column horizontal layout */
+/* Enterprise hub card — compact vertical layout (icon above title) */
 .dash-v1-tile,
 .account-menu-card,
 .enterprise-hub-card {
@@ -123,21 +123,22 @@
   width: 100%;
   max-width: none;
   min-width: 0;
-  height: var(--dash-v1-card-min-height);
+  height: auto;
   min-height: var(--dash-v1-card-min-height);
-  max-height: var(--dash-v1-card-min-height);
-  flex-direction: row;
+  max-height: none;
+  flex-direction: column;
   align-items: center;
-  gap: var(--dash-v1-hub-card-gap);
+  justify-content: center;
+  gap: 8px;
   overflow: hidden;
   border-radius: var(--dash-v1-hub-card-radius);
   border: 1px solid var(--ds-glass-border, rgba(0, 0, 0, 0.04));
   background: var(--ds-glass-bg, #ffffff);
-  padding: var(--dash-v1-hub-card-padding);
+  padding: 16px 12px;
   box-shadow: var(--ds-depth-2, 0 8px 30px rgba(15, 23, 42, 0.08));
   backdrop-filter: blur(var(--ds-glass-blur, 12px)) saturate(160%);
   -webkit-backdrop-filter: blur(var(--ds-glass-blur, 12px)) saturate(160%);
-  text-align: left;
+  text-align: center;
   text-decoration: none;
   color: inherit;
   transition:
@@ -151,8 +152,8 @@
 .enterprise-hub-card__icon,
 .account-menu-card__icon {
   display: flex;
-  height: var(--dash-v1-hub-icon-size);
-  width: var(--dash-v1-hub-icon-size);
+  height: 40px;
+  width: 40px;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
@@ -163,8 +164,10 @@
 .account-menu-card__body {
   display: flex;
   min-width: 0;
-  flex: 1;
+  width: 100%;
+  flex: 0;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
   gap: 2px;
 }

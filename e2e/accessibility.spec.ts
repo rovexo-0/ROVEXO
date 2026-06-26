@@ -37,10 +37,16 @@ test("touch targets meet minimum size on homepage header actions", async ({ page
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
 
-  const messages = page.getByRole("link", { name: "Messages" });
-  const box = await messages.boundingBox();
-  expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
-  expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+  const header = page.locator('[data-header-version="premium-2026"]');
+  const messages = header.getByRole("link", { name: "Messages" });
+  const notifications = header.getByRole("link", { name: "Notifications" });
+  const account = header.getByRole("link", { name: "Account" });
+
+  for (const target of [messages, notifications, account]) {
+    const box = await target.boundingBox();
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+  }
 });
 
 function formatViolations(

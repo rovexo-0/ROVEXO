@@ -25,12 +25,10 @@ export function MenuCard({ href, title, subtitle, badgeCount = 0 }: MenuCardProp
         <NotificationBadge count={badgeCount} className="account-menu-card__badge enterprise-hub-badge" />
       ) : null}
       <div className="account-menu-card__icon dash-v1-tile__icon">
-        <DashboardIcon3D type={iconType} size={40} />
+        <DashboardIcon3D type={iconType} size={36} />
       </div>
-      <div className="account-menu-card__body dash-v1-tile__body">
-        <p className="account-menu-card__title dash-v1-tile__title">{title}</p>
-        <p className="account-menu-card__subtitle dash-v1-tile__subtitle">{subtitle}</p>
-      </div>
+      <p className="account-menu-card__title dash-v1-tile__title">{title}</p>
+      <p className="account-menu-card__subtitle dash-v1-tile__subtitle">{subtitle}</p>
     </Link>
   );
 }

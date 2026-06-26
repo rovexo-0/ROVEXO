@@ -16,14 +16,47 @@ for (const viewport of viewports) {
 
     await expect(page.locator('[data-header-version="premium-2026"]')).toBeVisible();
     await expect(page.locator("#header-search")).toBeVisible();
-    await expect(page.getByRole("heading", { name: /premium marketplace/i }).first()).toBeVisible();
+    await expect(page.locator('section[aria-label="ROVEXO hero carousel"]')).toBeVisible();
+    await expect(page.getByRole("tablist", { name: "Hero slides" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /move your entire store to rovexo/i })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
 
     const headerBox = await page.locator('[data-header-version="premium-2026"]').boundingBox();
     expect(headerBox?.width).toBeGreaterThan(0);
     expect(headerBox?.height).toBeGreaterThan(0);
+
+    const overflow = await page.evaluate(() => {
+      const doc = document.documentElement;
+      return doc.scrollWidth > doc.clientWidth + 1;
+    });
+    expect(overflow, "page must not scroll horizontally").toBe(false);
   });
 }
+
+test("homepage has no unexpected console errors on load", async ({ page }) => {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      consoleErrors.push(message.text());
+    }
+  });
+  page.on("pageerror", (error) => {
+    consoleErrors.push(error.message);
+  });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.waitForLoadState("domcontentloaded");
+  await page.waitForTimeout(500);
+
+  const unexpected = consoleErrors.filter(
+    (line) =>
+      !line.includes("401 (Unauthorized)") &&
+      !line.includes("Failed to load resource") &&
+      !line.includes("Missing required environment variable"),
+  );
+  expect(unexpected, unexpected.join("\n")).toEqual([]);
+});
 
 test("search page is usable on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });

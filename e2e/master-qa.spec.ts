@@ -1,5 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
+const HERO_CAROUSEL_SELECTOR = 'section[aria-label="ROVEXO hero carousel"]';
+
 type RouteExpectation = {
   path: string;
   name: string;
@@ -7,12 +9,14 @@ type RouteExpectation = {
   finalPath?: RegExp;
   /** Heading or landmark to confirm render (public pages) */
   landmark?: RegExp | string;
+  /** Homepage hero carousel — migration slide is slide 1 on load */
+  heroCarousel?: boolean;
   /** Protected routes redirect to login when unauthenticated */
   authRedirect?: boolean;
 };
 
 const PUBLIC_ROUTES: RouteExpectation[] = [
-  { path: "/", name: "Homepage", landmark: /premium marketplace/i },
+  { path: "/", name: "Homepage", landmark: /move your entire store to rovexo/i, heroCarousel: true },
   { path: "/search", name: "Search", landmark: /search rovexo|results for/i },
   { path: "/categories", name: "Categories", landmark: /all categories/i },
   { path: "/category/home-garden/furniture/beds", name: "Category", landmark: "Beds" },
@@ -71,6 +75,10 @@ test.describe("Master QA — public routes", () => {
       }
 
       if (route.landmark) {
+        if (route.heroCarousel) {
+          await expect(page.locator(HERO_CAROUSEL_SELECTOR)).toBeVisible();
+          await expect(page.getByRole("tablist", { name: "Hero slides" })).toBeVisible();
+        }
         await expect(page.getByRole("heading", { name: route.landmark }).first()).toBeVisible({
           timeout: 20_000,
         });
@@ -103,7 +111,9 @@ test.describe("Master QA — homepage sections", () => {
 
     await expect(page.locator('[data-header-version="premium-2026"]')).toBeVisible();
     await expect(page.locator("#header-search, [data-header-search='bar']").first()).toBeVisible();
-    await expect(page.getByRole("heading", { name: /premium marketplace/i }).first()).toBeVisible();
+    await expect(page.locator(HERO_CAROUSEL_SELECTOR)).toBeVisible();
+    await expect(page.getByRole("tablist", { name: "Hero slides" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /move your entire store to rovexo/i })).toBeVisible();
     await expect(page.locator('section[aria-labelledby="home-categories-heading"]')).toBeVisible();
 
     const featuredHeading = page.getByRole("heading", { name: /featured listings/i });
@@ -115,11 +125,13 @@ test.describe("Master QA — homepage sections", () => {
 
     await page.locator("#auctions-heading").scrollIntoViewIfNeeded();
     await expect(page.locator("#auctions-heading")).toHaveText(/popular auctions/i);
-    const banner = page.locator('section[aria-labelledby="store-migration-banner-heading"] a');
-    await banner.scrollIntoViewIfNeeded();
-    await expect(banner).toBeVisible();
-    await expect(banner).toHaveAttribute("href", "/import");
-    await expect(banner.getByText("Bring Your Items")).toBeVisible();
+    const bannerSection = page.locator(HERO_CAROUSEL_SELECTOR);
+    await bannerSection.scrollIntoViewIfNeeded();
+    await expect(bannerSection.getByRole("link", { name: "Bring Your Item" })).toHaveAttribute("href", "/sell/new");
+    await expect(bannerSection.getByRole("link", { name: "Import Your Item" })).toHaveAttribute(
+      "href",
+      "/seller/migration",
+    );
     await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
   });
 });
@@ -136,13 +148,15 @@ test.describe("Master QA — navigation links", () => {
     await expect(nav.getByRole("link", { name: "Account" })).toBeVisible();
   });
 
-  test("bring your items banner opens import wizard", async ({ page }) => {
+  test("import hero banner CTAs resolve correctly", async ({ page }) => {
     await page.goto("/");
-    const banner = page.locator('section[aria-labelledby="store-migration-banner-heading"] a');
-    await banner.scrollIntoViewIfNeeded();
-    await expect(banner).toBeVisible();
-    await expect(banner).toHaveAttribute("href", "/import");
-    await expect(banner.getByText("Bring Your Items")).toBeVisible();
+    const bannerSection = page.locator(HERO_CAROUSEL_SELECTOR);
+    await bannerSection.scrollIntoViewIfNeeded();
+    await expect(bannerSection.getByRole("link", { name: "Bring Your Item" })).toHaveAttribute("href", "/sell/new");
+    await expect(bannerSection.getByRole("link", { name: "Import Your Item" })).toHaveAttribute(
+      "href",
+      "/seller/migration",
+    );
   });
 
   test("footer legal links resolve", async ({ page }) => {
