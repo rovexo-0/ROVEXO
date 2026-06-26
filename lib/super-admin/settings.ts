@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/types/database";
+import { toAuditLogMetadata } from "@/lib/audit/metadata";
 import { auditSuperAdminAction } from "@/lib/super-admin/audit";
 
 export type MaintenanceModeSettings = {
@@ -34,7 +35,8 @@ export async function getPlatformSetting<T>(key: string, fallback: T): Promise<T
 export async function listPlatformSettings(): Promise<Record<string, Json>> {
   const admin = createAdminClient();
   const { data } = await admin.from("platform_settings").select("key, value");
-  return Object.fromEntries((data ?? []).map((row) => [row.key, row.value]));
+  const entries = (data ?? []).map((row) => [row.key, row.value] as const);
+  return Object.fromEntries(entries) as Record<string, Json>;
 }
 
 export async function updatePlatformSetting(input: {
@@ -45,7 +47,7 @@ export async function updatePlatformSetting(input: {
   const admin = createAdminClient();
   const { error } = await admin.from("platform_settings").upsert({
     key: input.key,
-    value: input.value as Json,
+    value: input.value,
     updated_at: new Date().toISOString(),
     updated_by: input.actorId,
   });
@@ -59,7 +61,7 @@ export async function updatePlatformSetting(input: {
     action: "platform_settings.update",
     resourceType: "platform_settings",
     resourceId: input.key,
-    metadata: input.value,
+    metadata: toAuditLogMetadata(input.value),
   });
 }
 
