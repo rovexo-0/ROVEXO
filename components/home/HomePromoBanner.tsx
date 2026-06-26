@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import { HOME_PROMO_SLIDES } from "@/lib/home/constants";
 import { getCategoryImageUrl } from "@/lib/categories/visuals";
 import { useVisibilityInterval } from "@/lib/performance/hooks";

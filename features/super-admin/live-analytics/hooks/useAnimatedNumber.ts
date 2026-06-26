@@ -14,8 +14,10 @@ export function useAnimatedNumber(value: number, durationMs = 600): number {
     if (from === to) return;
 
     if (!isDocumentVisible()) {
-      setDisplay(to);
-      return;
+      frameRef.current = requestAnimationFrame(() => setDisplay(to));
+      return () => {
+        if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      };
     }
 
     startRef.current = { from, startedAt: performance.now() };

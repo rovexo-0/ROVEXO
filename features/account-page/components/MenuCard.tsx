@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { NotificationBadge } from "@/features/account-page/components/NotificationBadge";
@@ -14,8 +15,6 @@ type MenuCardProps = {
 };
 
 export function MenuCard({ href, title, subtitle, badgeCount = 0 }: MenuCardProps) {
-  const Icon = resolveMenuIcon(href);
-
   return (
     <Link
       href={href}
@@ -27,7 +26,7 @@ export function MenuCard({ href, title, subtitle, badgeCount = 0 }: MenuCardProp
       ) : null}
       <div className="account-menu-card__top">
         <div className="account-menu-card__icon">
-          <Icon size={22} strokeWidth={2} aria-hidden />
+          {createElement(resolveMenuIcon(href), { size: 22, strokeWidth: 2, "aria-hidden": true })}
         </div>
         <ChevronRight className="account-menu-card__chevron" size={18} strokeWidth={2} aria-hidden />
       </div>

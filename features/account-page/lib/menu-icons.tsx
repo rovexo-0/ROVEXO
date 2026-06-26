@@ -11,7 +11,6 @@ import {
   LayoutDashboard,
   LifeBuoy,
   List,
-  MapPin,
   Package,
   Percent,
   Scale,

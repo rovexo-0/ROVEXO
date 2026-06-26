@@ -28,13 +28,18 @@ export function TrustScoreMeter({
   const visible = useDocumentVisible();
 
   useEffect(() => {
-    if (!visible) {
-      setAnimated(false);
-      return;
-    }
+    if (!visible) return;
 
-    const frame = window.requestAnimationFrame(() => setAnimated(true));
-    return () => window.cancelAnimationFrame(frame);
+    let animateFrame = 0;
+    const resetFrame = window.requestAnimationFrame(() => {
+      setAnimated(false);
+      animateFrame = window.requestAnimationFrame(() => setAnimated(true));
+    });
+
+    return () => {
+      window.cancelAnimationFrame(resetFrame);
+      window.cancelAnimationFrame(animateFrame);
+    };
   }, [score, visible]);
 
   return (
@@ -59,7 +64,7 @@ export function TrustScoreMeter({
             transitionNormal,
           )}
           style={{
-            width: animated ? `${fill}%` : "0%",
+            width: visible && animated ? `${fill}%` : "0%",
           }}
           role="progressbar"
           aria-valuenow={score}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { useDebouncedValue } from "@/features/search/hooks/use-debounced-value";
 import type { SuperAdminSearchResult } from "@/lib/super-admin/search";
@@ -12,29 +12,45 @@ export function SuperAdminGlobalSearch() {
   const [results, setResults] = useState<SuperAdminSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const search = useCallback(async (value: string, signal: AbortSignal) => {
-    if (value.trim().length < 2) {
-      setResults([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    const response = await fetch(`/api/super-admin/search?q=${encodeURIComponent(value.trim())}`, {
-      signal,
-    });
-    if (signal.aborted) return;
-    const payload = (await response.json()) as { results?: SuperAdminSearchResult[] };
-    setResults(payload.results ?? []);
-    setLoading(false);
-  }, []);
-
   useEffect(() => {
     const controller = new AbortController();
-    void search(debouncedQuery, controller.signal).catch((error) => {
-      if ((error as Error).name !== "AbortError") setLoading(false);
+
+    const runSearch = async () => {
+      if (debouncedQuery.trim().length < 2) {
+        setResults([]);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      try {
+        const response = await fetch(
+          `/api/super-admin/search?q=${encodeURIComponent(debouncedQuery.trim())}`,
+          { signal: controller.signal },
+        );
+        if (controller.signal.aborted) return;
+        const payload = (await response.json()) as { results?: SuperAdminSearchResult[] };
+        setResults(payload.results ?? []);
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          setResults([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) void runSearch();
     });
-    return () => controller.abort();
-  }, [debouncedQuery, search]);
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [debouncedQuery]);
 
   return (
     <div className="space-y-ds-4">

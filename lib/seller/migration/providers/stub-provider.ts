@@ -69,7 +69,7 @@ export function createStubProvider(
       integrationStatus: "stub",
       capabilities: definition.capabilities ?? classifiedsCapabilities(),
     },
-    async connect(_input: MigrationConnectorInput): Promise<void> {
+    async connect(): Promise<void> {
       return;
     },
     async estimateTotal(input: Omit<MigrationConnectorInput, "offset" | "limit">): Promise<number> {

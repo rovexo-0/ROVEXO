@@ -31,7 +31,10 @@ export function useVisibilityPolling(
 ): void {
   const { immediate = true, refreshOnVisible = true } = options;
   const callbackRef = useRef(callback);
-  callbackRef.current = callback;
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  });
 
   useEffect(() => {
     let intervalId = 0;
@@ -84,8 +87,11 @@ export function useRafLoopWhenVisible(
   active: boolean,
 ): void {
   const tickRef = useRef(tick);
-  tickRef.current = tick;
   const visible = useDocumentVisible();
+
+  useEffect(() => {
+    tickRef.current = tick;
+  });
 
   useEffect(() => {
     if (!active || !visible) return;
@@ -135,8 +141,16 @@ export function usePauseableEffect(
 
 export function useStableCallback<T extends (...args: never[]) => unknown>(fn: T): T {
   const ref = useRef(fn);
-  ref.current = fn;
-  return useCallback(((...args) => ref.current(...args)) as T, []);
+
+  useEffect(() => {
+    ref.current = fn;
+  });
+
+  const stableCallback = useCallback(function stableCallback(...args: never[]) {
+    return ref.current(...args);
+  }, []);
+
+  return stableCallback as T;
 }
 
 export function useVisibilityState(): boolean {
@@ -161,8 +175,11 @@ export function useIntersectionWhenVisible(
 ): void {
   const visible = useDocumentVisible();
   const callbackRef = useRef(callback);
-  callbackRef.current = callback;
   const { targetRef, enabled = true, root, rootMargin, threshold } = options;
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  });
 
   useEffect(() => {
     const node = targetRef.current;
