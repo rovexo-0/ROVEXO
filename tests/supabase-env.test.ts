@@ -54,9 +54,19 @@ describe("Supabase env resolution", () => {
     vi.unstubAllEnvs();
   });
 
-  it("prefers SUPABASE_URL over NEXT_PUBLIC_SUPABASE_URL", () => {
-    vi.stubEnv("SUPABASE_URL", "https://pklotmwxtnnepaitedic.supabase.co");
-    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://wrong.supabase.co");
+  it("prefers NEXT_PUBLIC_SUPABASE_URL over SUPABASE_URL for universal client/server access", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://pklotmwxtnnepaitedic.supabase.co");
+    vi.stubEnv("SUPABASE_URL", "https://wrong.supabase.co");
+    expect(getSupabaseUrl()).toBe("https://pklotmwxtnnepaitedic.supabase.co");
+  });
+
+  it("derives Supabase URL from project ref env when URL is unset", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_PROJECT_REF", "pklotmwxtnnepaitedic");
+    expect(getSupabaseUrl()).toBe("https://pklotmwxtnnepaitedic.supabase.co");
+  });
+
+  it("uses the documented ROVEXO project ref in development when env is unset", () => {
+    vi.stubEnv("NODE_ENV", "development");
     expect(getSupabaseUrl()).toBe("https://pklotmwxtnnepaitedic.supabase.co");
   });
 

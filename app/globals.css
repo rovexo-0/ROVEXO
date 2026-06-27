@@ -72,15 +72,15 @@ body {
 
 :root {
   --header-control-height: 44px;
-  --header-search-height: 56px;
-  --header-shell-height: 64px;
-  --header-mobile-stack-height: 56px;
+  --header-search-height: 48px;
+  --header-shell-height: 56px;
+  --header-mobile-stack-height: 52px;
   --bottom-nav-shell-height: 84px;
 }
 
 @media (min-width: 768px) {
   :root {
-    --header-shell-height: 72px;
+    --header-shell-height: 60px;
   }
 }
 

@@ -6,7 +6,13 @@ import { Avatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
-export function HeaderProfileLink({ className }: { className?: string }) {
+export function HeaderProfileLink({
+  className,
+  avatarClassName,
+}: {
+  className?: string;
+  avatarClassName?: string;
+}) {
   const [profile, setProfile] = useState<{ name: string; avatarUrl: string | null } | null>(null);
 
   useEffect(() => {
@@ -34,7 +40,7 @@ export function HeaderProfileLink({ className }: { className?: string }) {
       href="/account"
       aria-label="Account"
       className={cn(
-        "inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-ds-full",
+        "inline-flex shrink-0 items-center justify-center rounded-ds-full",
         transitionFast,
         "hover:opacity-90 active:scale-[0.94]",
         focusRing,
@@ -46,7 +52,7 @@ export function HeaderProfileLink({ className }: { className?: string }) {
         alt={profile?.name ?? "Account"}
         name={profile?.name}
         size="header"
-        className="ring-2 ring-primary"
+        className={avatarClassName}
       />
     </Link>
   );

@@ -21,12 +21,21 @@ export type HomeCategoryIconType =
   | "jewellery"
   | "diy"
   | "tools"
+  | "kids"
   | "kids-fashion"
   | "womens-fashion"
   | "mens-fashion"
   | "shoes"
   | "cycling"
+  | "business"
+  | "luxury"
+  | "collectibles"
+  | "handmade"
   | "more";
+
+import { ROVEXO_HOME_CATEGORY_RAIL } from "@/lib/home/category-premium-library";
+import type { RovexoCategoryPremiumKey } from "@/lib/home/category-premium-library";
+import { heroCampaignImage } from "@/lib/home/hero-images";
 
 export type HomeCategoryNavItem = {
   name: string;
@@ -36,29 +45,8 @@ export type HomeCategoryNavItem = {
   href?: string;
 };
 
-/** Approved homepage horizontal category bar + 3D icon rail */
-export const HOME_CATEGORY_NAV: HomeCategoryNavItem[] = [
-  { name: "Vehicles", slug: "vehicles", icon: "vehicles", subtitle: "Cars, vans & bikes" },
-  { name: "Property", slug: "property", icon: "property", subtitle: "Homes & rentals" },
-  { name: "Phones", slug: "phones", icon: "phones", subtitle: "Mobile & tablets" },
-  { name: "Computers", slug: "computers", icon: "computers", subtitle: "Laptops & PCs" },
-  { name: "Electronics", slug: "electronics", icon: "electronics", subtitle: "Tech & gadgets" },
-  { name: "Gaming", slug: "gaming", icon: "gaming", subtitle: "Consoles & games" },
-  { name: "Home & Garden", slug: "home-garden", icon: "home-garden", subtitle: "Decor & outdoor" },
-  { name: "DIY", slug: "diy", icon: "diy", subtitle: "Build & repair" },
-  { name: "Tools", slug: "tools", icon: "tools", subtitle: "Power & hand tools" },
-  { name: "Women's Fashion", slug: "womens-fashion", icon: "womens-fashion", subtitle: "Dresses & style" },
-  { name: "Men's Fashion", slug: "mens-fashion", icon: "mens-fashion", subtitle: "Suits & casual" },
-  { name: "Kids Fashion", slug: "kids-fashion", icon: "kids-fashion", subtitle: "Children's wear" },
-  { name: "Shoes", slug: "shoes", icon: "shoes", subtitle: "Trainers & boots" },
-  { name: "Jewellery", slug: "jewellery", icon: "jewellery", subtitle: "Watches & gems" },
-  { name: "Beauty", slug: "beauty", icon: "beauty", subtitle: "Skincare & makeup" },
-  { name: "Health", slug: "health", icon: "health", subtitle: "Wellness & care" },
-  { name: "Pets", slug: "pets", icon: "pets", subtitle: "Animals & supplies" },
-  { name: "Sports", slug: "sports", icon: "sports", subtitle: "Fitness & gear" },
-  { name: "Services", slug: "services", icon: "services", subtitle: "Local professionals" },
-  { name: "Auto Parts", slug: "car-parts", icon: "autoparts", subtitle: "Parts & accessories" },
-];
+/** Approved homepage horizontal category bar — assets from category-premium-library */
+export const HOME_CATEGORY_NAV: HomeCategoryNavItem[] = [...ROVEXO_HOME_CATEGORY_RAIL];
 
 /** @deprecated Use HOME_CATEGORY_NAV */
 export type HomeCategoryRailItem = HomeCategoryNavItem;
@@ -124,6 +112,146 @@ export type HomeSecondaryBanner = {
   cta: string;
   href: string;
 };
+
+export type HomeHeroBannerTheme = "blue" | "indigo" | "violet" | "cyan" | "emerald";
+
+export type HomeHeroBannerSlide = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  cta: string;
+  href: string;
+  headingId?: string;
+  theme?: HomeHeroBannerTheme;
+  icon?: HomeCategoryIconType;
+  categoryKey?: RovexoCategoryPremiumKey;
+  /** Premium campaign photography (lazy-loaded, next slide preloaded) */
+  image?: string;
+};
+
+/** Launch Candidate hero campaigns — local assets in public/hero/ only */
+export const HOME_HERO_BANNERS: HomeHeroBannerSlide[] = [
+  {
+    id: "vehicles",
+    title: "Premium Vehicles",
+    subtitle: "Cars, vans & motorcycles from verified sellers.",
+    cta: "Browse vehicles",
+    href: "/category/vehicles",
+    theme: "blue",
+    icon: "vehicles",
+    categoryKey: "vehicles",
+    image: heroCampaignImage("vehicles"),
+  },
+  {
+    id: "property",
+    title: "Property & Rentals",
+    subtitle: "Homes, flats, and commercial spaces across Europe.",
+    cta: "Explore property",
+    href: "/category/property",
+    theme: "indigo",
+    icon: "property",
+    categoryKey: "property",
+    image: heroCampaignImage("property"),
+  },
+  {
+    id: "phones",
+    title: "Phones & Tablets",
+    subtitle: "Flagship devices from trusted sellers.",
+    cta: "Shop phones",
+    href: "/category/phones",
+    theme: "cyan",
+    icon: "phones",
+    categoryKey: "phones",
+    image: heroCampaignImage("phones"),
+  },
+  {
+    id: "computers",
+    title: "Computers & Laptops",
+    subtitle: "Work, study, and create with premium tech.",
+    cta: "Browse computers",
+    href: "/category/computers",
+    theme: "violet",
+    icon: "computers",
+    categoryKey: "computers",
+    image: heroCampaignImage("computers"),
+  },
+  {
+    id: "electronics",
+    title: "Electronics & Tech",
+    subtitle: "Headphones, gadgets, and smart devices.",
+    cta: "Shop electronics",
+    href: "/category/electronics",
+    theme: "violet",
+    icon: "electronics",
+    categoryKey: "electronics",
+    image: heroCampaignImage("electronics"),
+  },
+  {
+    id: "fashion",
+    title: "Luxury Fashion",
+    subtitle: "Designer pieces and premium streetwear.",
+    cta: "Shop fashion",
+    href: "/category/fashion",
+    theme: "cyan",
+    icon: "fashion",
+    categoryKey: "fashion",
+    image: heroCampaignImage("fashion"),
+  },
+  {
+    id: "home-garden",
+    title: "Home & Garden",
+    subtitle: "Furniture, décor, and outdoor living.",
+    cta: "Discover home",
+    href: "/category/home-garden",
+    theme: "emerald",
+    icon: "home-garden",
+    categoryKey: "home-garden",
+    image: heroCampaignImage("home-garden"),
+  },
+  {
+    id: "luxury",
+    title: "Luxury & Collectibles",
+    subtitle: "Watches, gems, and collector pieces.",
+    cta: "View luxury",
+    href: "/category/luxury",
+    theme: "violet",
+    icon: "luxury",
+    categoryKey: "luxury",
+    image: heroCampaignImage("luxury"),
+  },
+  {
+    id: "verified-sellers",
+    title: "Verified Sellers",
+    subtitle: "Shop with confidence across ROVEXO.",
+    cta: "Browse verified",
+    href: "/search?q=&verified=1",
+    theme: "blue",
+    icon: "services",
+    categoryKey: "services",
+    image: heroCampaignImage("verified-sellers"),
+  },
+  {
+    id: "auctions",
+    title: "Live Auctions",
+    subtitle: "Bid on exclusive items ending soon.",
+    cta: "Place a bid",
+    href: "/auctions",
+    theme: "blue",
+    icon: "auctions",
+    image: heroCampaignImage("auctions"),
+  },
+  {
+    id: "seasonal",
+    title: "Seasonal Promotions",
+    subtitle: "Curated deals for this season.",
+    cta: "Shop deals",
+    href: "/search?q=&sort=trending",
+    theme: "emerald",
+    icon: "sports",
+    categoryKey: "sports",
+    image: heroCampaignImage("seasonal"),
+  },
+];
 
 export const HOME_SECONDARY_BANNERS: HomeSecondaryBanner[] = [
   {

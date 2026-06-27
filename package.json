@@ -20,7 +20,11 @@
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install",
     "test:e2e:android-sell": "playwright test e2e/sell-android.spec.ts --project=android-chromium",
-    "generate:brand": "node scripts/generate-brand-assets.mjs"
+    "generate:brand": "node scripts/generate-brand-assets.mjs",
+    "generate:category-assets": "node scripts/generate-home-category-icons.mjs",
+    "verify:category-assets": "node scripts/verify-category-premium-assets.mjs",
+    "generate:hero-campaigns": "node scripts/generate-hero-campaign-sources.mjs && node scripts/generate-hero-campaigns.mjs",
+    "verify:hero-campaigns": "node scripts/verify-hero-campaigns.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

@@ -42,6 +42,6 @@ describe("Home page hydration safety", () => {
 
     expect(source).not.toContain("lazy(");
     expect(source).not.toContain("<Suspense");
-    expect(source).toContain("StoreMigrationHeroBanner");
+    expect(source).toContain("HomeHeroBannerEngine");
   });
 });

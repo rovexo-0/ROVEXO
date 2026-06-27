@@ -1,0 +1,26 @@
+{
+  "generated": 20,
+  "icons": [
+    "vehicles",
+    "autoparts",
+    "property",
+    "phones",
+    "computers",
+    "electronics",
+    "gaming",
+    "home-garden",
+    "diy",
+    "tools",
+    "fashion",
+    "kids",
+    "sports",
+    "pets",
+    "business",
+    "services",
+    "luxury",
+    "collectibles",
+    "handmade",
+    "furniture"
+  ],
+  "size": 1024
+}

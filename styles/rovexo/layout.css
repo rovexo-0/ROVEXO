@@ -355,11 +355,13 @@
   min-height: var(--ds-bottom-nav-shell-h, 88px);
   padding-top: var(--ds-bottom-nav-sell-float);
   border-radius: var(--ds-radius-2xl);
-  border: 1px solid var(--ds-color-border);
-  background: var(--ds-glass-bg);
-  box-shadow: var(--ds-shadow-premium);
-  backdrop-filter: blur(var(--ds-glass-blur)) saturate(185%);
-  -webkit-backdrop-filter: blur(var(--ds-glass-blur)) saturate(185%);
+  border: 1px solid rgb(15 23 42 / 0.06);
+  background: rgb(255 255 255 / 0.92);
+  box-shadow:
+    0 4px 24px rgb(15 23 42 / 0.08),
+    0 1px 0 rgb(255 255 255 / 0.8) inset;
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
 }
 
 .rx-bottom-nav-shell::before {
@@ -403,10 +405,16 @@
   width: var(--ds-bottom-nav-item);
   height: var(--ds-bottom-nav-item);
   margin-inline: auto;
-  gap: 2px;
+  gap: 3px;
   border-radius: var(--ds-radius-md);
   color: var(--ds-color-text-secondary);
-  transition: color 150ms var(--ds-ease);
+  transition:
+    color 150ms var(--ds-ease),
+    transform 150ms var(--ds-ease-spring);
+}
+
+.rx-bottom-nav-item:active {
+  transform: scale(0.96);
 }
 
 .rx-bottom-nav-item[data-active="true"] {
@@ -558,20 +566,20 @@
   background: linear-gradient(145deg, rgb(255 255 255 / 0.12) 0%, transparent 48%);
 }
 
-/* Premium floating header */
+/* Premium floating header — transparent chrome, no panel */
 .rx-header-shell {
-  margin: var(--ds-space-3) var(--ds-space-4) 0;
-  border: 1px solid var(--ds-color-border);
-  border-radius: var(--ds-radius-xl);
-  background: var(--ds-glass-bg);
-  box-shadow: var(--ds-shadow-premium);
-  backdrop-filter: blur(var(--ds-glass-blur)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--ds-glass-blur)) saturate(180%);
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 [data-theme="dark"] .rx-header-shell {
-  background: color-mix(in srgb, var(--ds-color-surface) 82%, transparent);
-  border-color: var(--ds-color-border);
+  background: transparent;
+  border-color: transparent;
 }
 
 .rx-header-shell__search {

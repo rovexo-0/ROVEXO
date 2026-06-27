@@ -4,6 +4,8 @@ import { HomeContent } from "@/components/home/HomeContent";
 import { HomePageShell } from "@/components/home/HomePageShell";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { fetchProducts } from "@/lib/products/queries";
+import { getAuctionsPageData } from "@/lib/auctions/queries";
+import { getRecommendedBusinesses } from "@/lib/launch/recommendations";
 import { homePageJsonLd } from "@/lib/seo/home-jsonld";
 import { getAppUrl } from "@/lib/supabase/env";
 import type { ProductsPage } from "@/lib/products/types";
@@ -34,26 +36,63 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  let loadError = false;
+  const loadError = {
+    recommended: false,
+    recentlyListed: false,
+    auctions: false,
+  };
 
-  let featured: ProductsPage = emptyPage;
+  let recommended: ProductsPage = emptyPage;
+  let recentlyListed: ProductsPage = emptyPage;
+  let liveAuctions: Awaited<ReturnType<typeof getAuctionsPageData>>["featured"] = [];
+  let businesses: Awaited<ReturnType<typeof getRecommendedBusinesses>> = [];
 
-  try {
-    featured = await fetchProducts("recommended", 1);
-  } catch {
-    loadError = true;
+  const [recommendedResult, recentlyListedResult, auctionsResult, businessesResult] =
+    await Promise.allSettled([
+      fetchProducts("recommended", 1),
+      fetchProducts("new", 1),
+      getAuctionsPageData(),
+      getRecommendedBusinesses(8),
+    ]);
+
+  if (recommendedResult.status === "fulfilled") {
+    recommended = recommendedResult.value;
+  } else {
+    loadError.recommended = true;
   }
 
-  const structuredData = homePageJsonLd(featured.items, siteUrl);
+  if (recentlyListedResult.status === "fulfilled") {
+    recentlyListed = recentlyListedResult.value;
+  } else {
+    loadError.recentlyListed = true;
+  }
+
+  if (auctionsResult.status === "fulfilled") {
+    liveAuctions = auctionsResult.value.featured.slice(0, 8);
+  } else {
+    loadError.auctions = true;
+  }
+
+  if (businessesResult.status === "fulfilled") {
+    businesses = businessesResult.value;
+  }
+
+  const structuredData = homePageJsonLd(recommended.items, siteUrl);
 
   return (
-    <BetaAppShell bottomNavTab="home">
+    <BetaAppShell bottomNavTab="home" className="rx-page-home">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <HomePageShell header={<Header />} bottomNav={null}>
-        <HomeContent featured={featured.items} loadError={loadError} />
+        <HomeContent
+          recommended={recommended.items}
+          recentlyListed={recentlyListed.items}
+          liveAuctions={liveAuctions}
+          businesses={businesses}
+          loadError={loadError}
+        />
       </HomePageShell>
     </BetaAppShell>
   );

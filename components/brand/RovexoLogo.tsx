@@ -21,14 +21,14 @@ export function RovexoHeaderMark({ className }: { className?: string }) {
       href="/"
       aria-label="ROVEXO Home"
       className={cn(
-        "inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] shrink-0 items-center justify-center",
+        "inline-flex h-[48px] w-[48px] min-h-[48px] min-w-[48px] shrink-0 items-center justify-center",
         focusRing,
         transitionFast,
         "hover:opacity-90 active:scale-[0.98]",
         className,
       )}
     >
-      <RovexoAppIconMark className="h-10 w-10 rounded-[12px]" uid="header-mark" />
+      <RovexoAppIconMark className="h-[46px] w-[46px] rounded-[14px]" uid="header-mark" />
     </Link>
   );
 }

@@ -1,0 +1,52 @@
+[
+  {
+    "file": "pages/header-logo__desktop__light.png",
+    "device": "desktop",
+    "kind": "header-logo"
+  },
+  {
+    "file": "pages/homepage-header__desktop__light.png",
+    "device": "desktop",
+    "kind": "homepage-header"
+  },
+  {
+    "file": "pages/header-logo__laptop__light.png",
+    "device": "laptop",
+    "kind": "header-logo"
+  },
+  {
+    "file": "pages/homepage-header__laptop__light.png",
+    "device": "laptop",
+    "kind": "homepage-header"
+  },
+  {
+    "file": "pages/header-logo__tablet__light.png",
+    "device": "tablet",
+    "kind": "header-logo"
+  },
+  {
+    "file": "pages/homepage-header__tablet__light.png",
+    "device": "tablet",
+    "kind": "homepage-header"
+  },
+  {
+    "file": "pages/header-logo__iphone__light.png",
+    "device": "iphone",
+    "kind": "header-logo"
+  },
+  {
+    "file": "pages/homepage-header__iphone__light.png",
+    "device": "iphone",
+    "kind": "homepage-header"
+  },
+  {
+    "file": "pages/header-logo__android__light.png",
+    "device": "android",
+    "kind": "header-logo"
+  },
+  {
+    "file": "pages/homepage-header__android__light.png",
+    "device": "android",
+    "kind": "homepage-header"
+  }
+]

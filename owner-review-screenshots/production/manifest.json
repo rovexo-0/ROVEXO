@@ -1,0 +1,251 @@
+{
+  "generatedAt": "2026-06-27T12:24:45.302Z",
+  "baseUrl": "https://www.rovexo.co.uk",
+  "entries": [
+    {
+      "file": "pages/homepage__desktop.png",
+      "id": "homepage",
+      "label": "Homepage",
+      "device": "desktop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/homepage__laptop.png",
+      "id": "homepage",
+      "label": "Homepage",
+      "device": "laptop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/homepage__tablet.png",
+      "id": "homepage",
+      "label": "Homepage",
+      "device": "tablet",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/homepage__iphone.png",
+      "id": "homepage",
+      "label": "Homepage",
+      "device": "iphone",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/homepage__android.png",
+      "id": "homepage",
+      "label": "Homepage",
+      "device": "android",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/hero__desktop.png",
+      "id": "hero",
+      "label": "Hero Slider",
+      "device": "desktop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/hero__laptop.png",
+      "id": "hero",
+      "label": "Hero Slider",
+      "device": "laptop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/hero__tablet.png",
+      "id": "hero",
+      "label": "Hero Slider",
+      "device": "tablet",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/hero__iphone.png",
+      "id": "hero",
+      "label": "Hero Slider",
+      "device": "iphone",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/hero__android.png",
+      "id": "hero",
+      "label": "Hero Slider",
+      "device": "android",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/categories__desktop.png",
+      "id": "categories",
+      "label": "Categories",
+      "device": "desktop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/categories__laptop.png",
+      "id": "categories",
+      "label": "Categories",
+      "device": "laptop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/categories__tablet.png",
+      "id": "categories",
+      "label": "Categories",
+      "device": "tablet",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/categories__iphone.png",
+      "id": "categories",
+      "label": "Categories",
+      "device": "iphone",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/categories__android.png",
+      "id": "categories",
+      "label": "Categories",
+      "device": "android",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/logo__desktop.png",
+      "id": "logo",
+      "label": "ROVEXO App Logo",
+      "device": "desktop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/logo__laptop.png",
+      "id": "logo",
+      "label": "ROVEXO App Logo",
+      "device": "laptop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/logo__tablet.png",
+      "id": "logo",
+      "label": "ROVEXO App Logo",
+      "device": "tablet",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/logo__iphone.png",
+      "id": "logo",
+      "label": "ROVEXO App Logo",
+      "device": "iphone",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/logo__android.png",
+      "id": "logo",
+      "label": "ROVEXO App Logo",
+      "device": "android",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/featured__desktop.png",
+      "id": "featured",
+      "label": "Featured Listings",
+      "device": "desktop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/featured__laptop.png",
+      "id": "featured",
+      "label": "Featured Listings",
+      "device": "laptop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/featured__tablet.png",
+      "id": "featured",
+      "label": "Featured Listings",
+      "device": "tablet",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/featured__iphone.png",
+      "id": "featured",
+      "label": "Featured Listings",
+      "device": "iphone",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/featured__android.png",
+      "id": "featured",
+      "label": "Featured Listings",
+      "device": "android",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/auctions__desktop.png",
+      "id": "auctions",
+      "label": "Popular Auctions",
+      "device": "desktop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/auctions__laptop.png",
+      "id": "auctions",
+      "label": "Popular Auctions",
+      "device": "laptop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/auctions__tablet.png",
+      "id": "auctions",
+      "label": "Popular Auctions",
+      "device": "tablet",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/auctions__iphone.png",
+      "id": "auctions",
+      "label": "Popular Auctions",
+      "device": "iphone",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/auctions__android.png",
+      "id": "auctions",
+      "label": "Popular Auctions",
+      "device": "android",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/pwa-manifest__desktop.png",
+      "id": "pwa-manifest",
+      "label": "PWA Manifest",
+      "device": "desktop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/pwa-manifest__laptop.png",
+      "id": "pwa-manifest",
+      "label": "PWA Manifest",
+      "device": "laptop",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/pwa-manifest__tablet.png",
+      "id": "pwa-manifest",
+      "label": "PWA Manifest",
+      "device": "tablet",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/pwa-manifest__iphone.png",
+      "id": "pwa-manifest",
+      "label": "PWA Manifest",
+      "device": "iphone",
+      "url": "https://www.rovexo.co.uk"
+    },
+    {
+      "file": "pages/pwa-manifest__android.png",
+      "id": "pwa-manifest",
+      "label": "PWA Manifest",
+      "device": "android",
+      "url": "https://www.rovexo.co.uk"
+    }
+  ]
+}

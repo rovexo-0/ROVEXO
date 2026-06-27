@@ -1,8 +1,8 @@
 /* ROVEXO v1.0 — Premium hero banner (Version 1) */
 
 .rx-hero-section {
-  margin-top: var(--ds-space-1);
-  margin-bottom: var(--ds-space-1);
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .import-rx-hero-banner {
@@ -116,9 +116,10 @@
   opacity: 0;
   pointer-events: none;
   transition:
-    opacity var(--ds-duration-slow) var(--ds-ease),
-    transform var(--ds-duration-slow) var(--ds-ease);
-  transform: translateX(24px);
+    opacity 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateX(12px);
   will-change: opacity, transform;
 }
 
@@ -130,7 +131,11 @@
 }
 
 .import-rx-hero-banner__panel--before {
-  transform: translateX(-24px);
+  transform: translateX(-12px);
+}
+
+.import-rx-hero-banner__panel--after {
+  transform: translateX(12px);
 }
 
 .import-rx-hero-banner__slide {
@@ -177,16 +182,17 @@
 .import-rx-hero-banner__title {
   font-size: clamp(1.125rem, 3.2vw, 1.625rem);
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: var(--ds-font-heading-tracking);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
   color: var(--ds-color-primary-foreground);
 }
 
 .import-rx-hero-banner__subtitle {
   max-width: 28rem;
   font-size: var(--ds-font-caption-size);
-  line-height: 1.45;
-  color: color-mix(in srgb, var(--ds-color-primary-foreground) 88%, transparent);
+  line-height: 1.5;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--ds-color-primary-foreground) 92%, transparent);
 }
 
 .import-rx-hero-banner__actions {
@@ -227,6 +233,17 @@
   color: var(--ds-color-primary-foreground);
   background: var(--ds-gradient-primary);
   box-shadow: var(--ds-shadow-medium);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    transform var(--ds-duration-fast) var(--ds-ease),
+    box-shadow var(--ds-duration-fast) var(--ds-ease),
+    opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.import-rx-hero-banner__cta--visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .import-rx-hero-banner__cta:hover {
@@ -542,6 +559,20 @@
 }
 
 @media (max-width: 639px) {
+  .import-rx-hero-banner__dots {
+    gap: var(--ds-space-1);
+    margin-top: var(--ds-space-1);
+  }
+
+  .import-rx-hero-banner__dot {
+    height: 6px;
+    width: 6px;
+  }
+
+  .import-rx-hero-banner__dot--active {
+    width: 18px;
+  }
+
   .import-rx-hero-banner__visual {
     display: flex;
     min-height: 72px;
@@ -569,10 +600,145 @@
   }
 }
 
+.import-rx-hero-banner--premium {
+  isolation: isolate;
+  box-shadow:
+    0 22px 60px rgba(15, 23, 42, 0.16),
+    0 8px 24px rgba(37, 99, 235, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.import-rx-hero-banner--premium::before,
+.import-rx-hero-banner--premium::after {
+  z-index: 1;
+}
+
+.import-rx-hero-banner__photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.import-rx-hero-banner__photo-picture {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.import-rx-hero-banner__photo-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.06);
+  transition: transform 8s cubic-bezier(0.22, 1, 0.36, 1), filter var(--ds-duration-slow) var(--ds-ease);
+  will-change: transform;
+}
+
+.import-rx-hero-banner__photo-img--active {
+  animation: rx-hero-ken-burns 14s ease-in-out infinite alternate;
+}
+
+.import-rx-hero-banner__photo-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(112deg, rgba(255, 255, 255, 0.12) 0%, rgba(15, 23, 42, 0.62) 48%, rgba(37, 99, 235, 0.32) 100%),
+    radial-gradient(circle at 84% 16%, rgba(59, 130, 246, 0.24) 0%, transparent 52%);
+}
+
+.import-rx-hero-banner__slide {
+  position: relative;
+  z-index: 2;
+}
+
+.import-rx-hero-banner__panel--active .import-rx-hero-banner__visual-scene {
+  animation: rx-hero-parallax 6s ease-in-out infinite alternate;
+}
+
+.import-rx-hero-banner__panel:not(.import-rx-hero-banner__panel--active) {
+  filter: blur(1px);
+  opacity: 0;
+}
+
+.import-rx-hero-banner__panel--active {
+  filter: none;
+  opacity: 1;
+}
+
+@keyframes rx-hero-ken-burns {
+  0% {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.14) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@keyframes rx-hero-parallax {
+  0% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  100% {
+    transform: translateY(-6px) rotate(2deg);
+  }
+}
+
+.import-rx-hero-banner__category-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 16px 28px rgba(15, 23, 42, 0.35));
+  animation: rx-hero-parallax 5.5s ease-in-out infinite alternate;
+}
+
+.import-rx-hero-banner__category-icon .rx-category-render {
+  width: 88px;
+  height: 88px;
+}
+
+.import-rx-hero-banner__copy,
+.import-rx-hero-banner__visual,
+.import-rx-hero-banner__dots {
+  position: relative;
+  z-index: 2;
+}
+
+.import-rx-hero-banner__title {
+  text-shadow: 0 2px 16px rgba(15, 23, 42, 0.35);
+}
+
+.import-rx-hero-banner__cta--primary {
+  backdrop-filter: blur(8px);
+}
+
+@media (min-width: 640px) {
+  .import-rx-hero-banner--premium {
+    height: 260px;
+    min-height: 260px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .import-rx-hero-banner--premium {
+    height: 300px;
+    min-height: 300px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .import-rx-hero-banner,
   .import-rx-hero-banner__panel,
-  .import-rx-hero-banner__cta,
+  .import-rx-hero-banner__cta--primary,
+  .import-rx-hero-banner__cta--visible {
+    opacity: 1;
+    transform: none;
+  }
+
   .import-rx-hero-banner__cta:hover,
   .import-rx-hero-banner__cta:active,
   .import-rx-hero-banner__dot,
@@ -582,9 +748,18 @@
   .import-rx-hero-banner__rocket,
   .import-rx-hero-banner__shield,
   .import-rx-hero-banner__hammer,
-  .import-rx-hero-banner__gift {
+  .import-rx-hero-banner__gift,
+  .import-rx-hero-banner__photo-img,
+  .import-rx-hero-banner__photo-img--active,
+  .import-rx-hero-banner__panel--active .import-rx-hero-banner__visual-scene,
+  .import-rx-hero-banner__category-icon {
     animation: none;
     transform: none;
     transition: none;
   }
+
+  .import-rx-hero-banner__panel:not(.import-rx-hero-banner__panel--active) {
+    filter: none;
+  }
 }
+

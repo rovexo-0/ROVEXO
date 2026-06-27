@@ -38,11 +38,15 @@ const SECTIONS = [
 
   { id: "homepage", label: "Homepage", crop: "full" as const },
 
-  { id: "hero", label: "Hero", crop: "hero" as const },
+  { id: "hero", label: "Hero Banner", crop: "hero" as const },
 
-  { id: "featured", label: "Featured Listings", crop: "featured" as const },
+  { id: "recommended", label: "Recommended", crop: "featured" as const },
 
-  { id: "auctions", label: "Popular Auctions", crop: "auctions" as const },
+  { id: "recently-listed", label: "Recently Listed", crop: "featured" as const },
+
+  { id: "auctions", label: "Live Auctions", crop: "auctions" as const },
+
+  { id: "business", label: "Business Spotlight", crop: "featured" as const },
 
 ] as const;
 
@@ -148,23 +152,43 @@ for (const section of SECTIONS) {
 
         await hero.screenshot({ path: filePath });
 
-      } else if (section.crop === "featured") {
+      } else if (section.id === "recommended") {
 
-        const featured = page.locator('section[aria-labelledby="featured-heading"]');
+        const block = page.locator('section[aria-labelledby="recommended-heading"]');
 
-        await featured.scrollIntoViewIfNeeded();
+        await block.scrollIntoViewIfNeeded();
 
-        await expect(page.getByRole("heading", { name: /featured listings/i })).toBeVisible();
+        await expect(page.getByRole("heading", { name: /^Recommended$/i })).toBeVisible();
 
-        await featured.screenshot({ path: filePath });
+        await block.screenshot({ path: filePath });
+
+      } else if (section.id === "recently-listed") {
+
+        const block = page.locator('section[aria-labelledby="recently-listed-heading"]');
+
+        await block.scrollIntoViewIfNeeded();
+
+        await expect(page.getByRole("heading", { name: /recently listed/i })).toBeVisible();
+
+        await block.screenshot({ path: filePath });
+
+      } else if (section.id === "business") {
+
+        const block = page.locator('section[aria-labelledby="business-spotlight-heading"]');
+
+        await block.scrollIntoViewIfNeeded();
+
+        await expect(page.getByRole("heading", { name: /business spotlight/i })).toBeVisible();
+
+        await block.screenshot({ path: filePath });
 
       } else {
 
-        const auctions = page.locator("#auctions-heading").locator("..");
+        const auctions = page.locator("#live-auctions-heading").locator("..");
 
         await auctions.scrollIntoViewIfNeeded();
 
-        await expect(page.getByRole("heading", { name: /popular auctions/i })).toBeVisible();
+        await expect(page.getByRole("heading", { name: /live auctions/i })).toBeVisible();
 
         await auctions.screenshot({ path: filePath });
 

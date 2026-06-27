@@ -1,0 +1,17 @@
+{
+  "campaigns": [
+    "vehicles",
+    "property",
+    "phones",
+    "computers",
+    "electronics",
+    "fashion",
+    "home-garden",
+    "luxury",
+    "verified-sellers",
+    "auctions",
+    "seasonal"
+  ],
+  "width": 1920,
+  "height": 1080
+}

@@ -1,11 +1,27 @@
+/** Canonical ROVEXO Supabase project ref (see supabase/.temp/project-ref). */
+export const ROVEXO_SUPABASE_PROJECT_REF = "pklotmwxtnnepaitedic";
+
 function readFirstEnv(...names: string[]): string | undefined {
   for (const name of names) {
     const value = process.env[name]?.trim();
-    if (value) {
+    if (value && !value.includes("<")) {
       return value;
     }
   }
   return undefined;
+}
+
+function readSupabaseProjectRef(): string | undefined {
+  return readFirstEnv(
+    "NEXT_PUBLIC_SUPABASE_PROJECT_REF",
+    "SUPABASE_PROJECT_REF",
+    "SUPABASE_PROJECT_ID",
+    "NEXT_PUBLIC_SUPABASE_PROJECT_ID",
+  );
+}
+
+function buildSupabaseUrlFromProjectRef(projectRef: string): string {
+  return normalizeSupabaseUrl(`https://${projectRef}.supabase.co`);
 }
 
 function required(label: string, value: string | undefined): string {
@@ -63,22 +79,48 @@ export function normalizeSupabaseUrl(rawUrl: string): string {
 }
 
 export function getSupabaseUrl(): string {
+  const configured = readFirstEnv(
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "SUPABASE_URL",
+  );
+  if (configured) {
+    return normalizeSupabaseUrl(configured);
+  }
+
+  const projectRef = readSupabaseProjectRef();
+  if (projectRef) {
+    return buildSupabaseUrlFromProjectRef(projectRef);
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    return buildSupabaseUrlFromProjectRef(ROVEXO_SUPABASE_PROJECT_REF);
+  }
+
+  if (process.env.VERCEL) {
+    return buildSupabaseUrlFromProjectRef(ROVEXO_SUPABASE_PROJECT_REF);
+  }
+
   return normalizeSupabaseUrl(
     required(
       "SUPABASE_URL or NEXT_PUBLIC_SUPABASE_URL",
-      readFirstEnv("SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL"),
+      undefined,
     ),
   );
 }
 
 export function getSupabaseAnonKey(): string {
+  const key = readFirstEnv(
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "SUPABASE_ANON_KEY",
+  );
+  if (key) {
+    return key;
+  }
+
   return required(
     "SUPABASE_ANON_KEY, NEXT_PUBLIC_SUPABASE_ANON_KEY, or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-    readFirstEnv(
-      "SUPABASE_ANON_KEY",
-      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-      "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-    ),
+    undefined,
   );
 }
 

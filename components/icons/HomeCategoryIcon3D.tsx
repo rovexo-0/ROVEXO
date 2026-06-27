@@ -52,10 +52,21 @@ function IconDefs({ uid }: { uid: string }) {
         <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
         <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
       </linearGradient>
-      <filter id={`${uid}-shadow`} x="-40%" y="-40%" width="180%" height="180%">
-        <feDropShadow dx="0" dy="2" stdDeviation="1.4" floodColor="#0f172a" floodOpacity="0.22" />
-        <feDropShadow dx="0" dy="0" stdDeviation="1.8" floodColor="#3b82f6" floodOpacity="0.18" />
+      <filter id={`${uid}-shadow`} x="-50%" y="-50%" width="200%" height="200%">
+        <feDropShadow dx="0" dy="3" stdDeviation="2" floodColor="#0f172a" floodOpacity="0.28" />
+        <feDropShadow dx="0" dy="8" stdDeviation="6" floodColor="#3b82f6" floodOpacity="0.16" />
       </filter>
+      <filter id={`${uid}-glow`} x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur stdDeviation="3.5" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+      <radialGradient id={`${uid}-ambient`} cx="50%" cy="65%" r="55%">
+        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.35" />
+        <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+      </radialGradient>
     </defs>
   );
 }
@@ -63,8 +74,9 @@ function IconDefs({ uid }: { uid: string }) {
 function Plate({ uid }: { uid: string }) {
   return (
     <>
-      <circle cx="12" cy="12.5" r="9" fill={`url(#${uid}-blue)`} opacity="0.1" />
-      <ellipse cx="10" cy="9" rx="4.5" ry="2.8" fill="#ffffff" opacity="0.35" />
+      <ellipse cx="12" cy="18" rx="7.5" ry="2.2" fill="#0f172a" opacity="0.12" />
+      <circle cx="12" cy="12.5" r="9.5" fill={`url(#${uid}-ambient)`} />
+      <ellipse cx="10" cy="9" rx="4.8" ry="3" fill="#ffffff" opacity="0.42" />
     </>
   );
 }
@@ -73,8 +85,8 @@ function Glyph({ uid, children }: { uid: string; children: ReactNode }) {
   return (
     <g filter={`url(#${uid}-shadow)`}>
       <Plate uid={uid} />
-      {children}
-      <rect x="5" y="6" width="14" height="12" rx="3" fill={`url(#${uid}-shine)`} opacity="0.22" pointerEvents="none" />
+      <g filter={`url(#${uid}-glow)`}>{children}</g>
+      <rect x="5" y="6" width="14" height="12" rx="3" fill={`url(#${uid}-shine)`} opacity="0.26" pointerEvents="none" />
     </g>
   );
 }
@@ -82,10 +94,13 @@ function Glyph({ uid, children }: { uid: string; children: ReactNode }) {
 function CarIcon({ uid }: { uid: string }) {
   return (
     <Glyph uid={uid}>
-      <rect x="4.5" y="10.5" width="15" height="5.5" rx="2" fill={`url(#${uid}-blue)`} />
-      <rect x="7" y="8.5" width="10" height="3.5" rx="1.2" fill={`url(#${uid}-indigo)`} />
-      <circle cx="8" cy="16.2" r="1.4" fill="#1e293b" />
-      <circle cx="16" cy="16.2" r="1.4" fill="#1e293b" />
+      <path d="M4 13.5h16l-1.2-3.2a1.2 1.2 0 0 0-1.1-.8H6.3a1.2 1.2 0 0 0-1.1.8L4 13.5Z" fill={`url(#${uid}-blue)`} />
+      <path d="M7.5 9.5h9l1.2 2.2H6.3L7.5 9.5Z" fill={`url(#${uid}-indigo)`} />
+      <rect x="8.5" y="10.2" width="7" height="1.6" rx="0.5" fill="#ffffff" opacity="0.45" />
+      <circle cx="8" cy="15.8" r="1.5" fill="#1e293b" />
+      <circle cx="16" cy="15.8" r="1.5" fill="#1e293b" />
+      <circle cx="8" cy="15.8" r="0.55" fill="#94a3b8" />
+      <circle cx="16" cy="15.8" r="0.55" fill="#94a3b8" />
     </Glyph>
   );
 }
@@ -126,11 +141,13 @@ function ShirtIcon({ uid }: { uid: string }) {
   );
 }
 
-function ChipIcon({ uid }: { uid: string }) {
+function HeadphonesIcon({ uid }: { uid: string }) {
   return (
     <Glyph uid={uid}>
-      <rect x="7.5" y="7.5" width="9" height="9" rx="1.5" fill={`url(#${uid}-blue)`} />
-      <rect x="9.5" y="9.5" width="5" height="5" rx="0.8" fill={`url(#${uid}-cyan)`} />
+      <path d="M8 12.5v3.5a1.2 1.2 0 0 0 1.2 1.2h1.1v-5.8a4.2 4.2 0 0 1 8.4 0v5.8h1.1a1.2 1.2 0 0 0 1.2-1.2v-3.5" fill="none" stroke={`url(#${uid}-indigo)`} strokeWidth="2" strokeLinecap="round" />
+      <rect x="6.8" y="12.8" width="2.8" height="4.8" rx="1.2" fill={`url(#${uid}-blue)`} />
+      <rect x="14.4" y="12.8" width="2.8" height="4.8" rx="1.2" fill={`url(#${uid}-blue)`} />
+      <path d="M9.5 8.8h5" stroke="#ffffff" strokeOpacity="0.45" strokeWidth="1.2" strokeLinecap="round" />
     </Glyph>
   );
 }
@@ -138,17 +155,11 @@ function ChipIcon({ uid }: { uid: string }) {
 function SofaIcon({ uid }: { uid: string }) {
   return (
     <Glyph uid={uid}>
-      <rect x="5" y="11" width="14" height="4.5" rx="1.5" fill={`url(#${uid}-amber)`} />
-      <rect x="6" y="8.5" width="12" height="3.5" rx="1.2" fill={`url(#${uid}-blue)`} />
-    </Glyph>
-  );
-}
-
-function LeafIcon({ uid }: { uid: string }) {
-  return (
-    <Glyph uid={uid}>
-      <path d="M12 6c-3.5 2-5 5.5-4.5 9.5 2.5-1 4.5-3.5 4.5-9.5Z" fill={`url(#${uid}-green)`} />
-      <path d="M12 6v9.5" stroke="#ffffff" strokeOpacity="0.45" />
+      <rect x="4.5" y="11.5" width="15" height="4.8" rx="1.8" fill={`url(#${uid}-amber)`} />
+      <rect x="5.5" y="8.5" width="13" height="4.2" rx="1.4" fill={`url(#${uid}-blue)`} />
+      <rect x="4.5" y="10.5" width="2.2" height="5.8" rx="1" fill={`url(#${uid}-indigo)`} />
+      <rect x="17.3" y="10.5" width="2.2" height="5.8" rx="1" fill={`url(#${uid}-indigo)`} />
+      <rect x="8" y="10" width="8" height="1.4" rx="0.5" fill="#ffffff" opacity="0.35" />
     </Glyph>
   );
 }
@@ -156,8 +167,10 @@ function LeafIcon({ uid }: { uid: string }) {
 function BallIcon({ uid }: { uid: string }) {
   return (
     <Glyph uid={uid}>
-      <circle cx="12" cy="12" r="5.5" fill={`url(#${uid}-green)`} />
-      <path d="M8 10.5c2.5 1 5.5 1 8 0" stroke="#ffffff" strokeOpacity="0.45" fill="none" />
+      <circle cx="12" cy="12" r="5.8" fill={`url(#${uid}-green)`} />
+      <path d="M6.8 12c2.8 2.2 6.4 2.2 10.4 0" stroke="#ffffff" strokeOpacity="0.5" fill="none" strokeWidth="1.1" />
+      <path d="M12 6.2v11.6" stroke="#ffffff" strokeOpacity="0.35" fill="none" strokeWidth="1" />
+      <path d="M8.2 8.5c1.6 1.2 3.4 1.8 7.6 1.2" stroke="#ffffff" strokeOpacity="0.28" fill="none" />
     </Glyph>
   );
 }
@@ -194,16 +207,6 @@ function WheelIcon({ uid }: { uid: string }) {
     <Glyph uid={uid}>
       <circle cx="12" cy="12" r="5.5" fill="none" stroke={`url(#${uid}-blue)`} strokeWidth="2.2" />
       <circle cx="12" cy="12" r="1.5" fill={`url(#${uid}-indigo)`} />
-    </Glyph>
-  );
-}
-
-function StackIcon({ uid }: { uid: string }) {
-  return (
-    <Glyph uid={uid}>
-      <rect x="6" y="12" width="12" height="3" rx="0.8" fill={`url(#${uid}-amber)`} />
-      <rect x="7" y="9" width="10" height="3" rx="0.8" fill={`url(#${uid}-blue)`} />
-      <rect x="8" y="6" width="8" height="3" rx="0.8" fill={`url(#${uid}-indigo)`} />
     </Glyph>
   );
 }
@@ -255,8 +258,12 @@ function HeartIcon({ uid }: { uid: string }) {
 function BabyIcon({ uid }: { uid: string }) {
   return (
     <Glyph uid={uid}>
-      <circle cx="12" cy="10" r="3" fill={`url(#${uid}-cyan)`} />
-      <path d="M7.5 16.5c1-2.5 9-2.5 9 0" fill={`url(#${uid}-blue)`} />
+      <ellipse cx="12" cy="14.5" rx="4.2" ry="3.2" fill={`url(#${uid}-cyan)`} />
+      <circle cx="10" cy="11.5" r="1.5" fill={`url(#${uid}-blue)`} />
+      <circle cx="14" cy="11.5" r="1.5" fill={`url(#${uid}-blue)`} />
+      <circle cx="12" cy="10.5" r="2.2" fill={`url(#${uid}-rose)`} />
+      <circle cx="11.2" cy="10" r="0.35" fill="#1e293b" />
+      <circle cx="12.8" cy="10" r="0.35" fill="#1e293b" />
     </Glyph>
   );
 }
@@ -352,16 +359,16 @@ const RENDERERS: Record<HomeCategoryIconType, (uid: string) => ReactElement> = {
   phones: (uid) => <PhoneIcon uid={uid} />,
   computers: (uid) => <LaptopIcon uid={uid} />,
   fashion: (uid) => <ShirtIcon uid={uid} />,
-  electronics: (uid) => <ChipIcon uid={uid} />,
+  electronics: (uid) => <HeadphonesIcon uid={uid} />,
   gaming: (uid) => <GamingIcon uid={uid} />,
   furniture: (uid) => <SofaIcon uid={uid} />,
-  "home-garden": (uid) => <LeafIcon uid={uid} />,
+  "home-garden": (uid) => <SofaIcon uid={uid} />,
   sports: (uid) => <BallIcon uid={uid} />,
   pets: (uid) => <PawIcon uid={uid} />,
   jobs: (uid) => <BriefcaseIcon uid={uid} />,
   services: (uid) => <WrenchIcon uid={uid} />,
   autoparts: (uid) => <WheelIcon uid={uid} />,
-  wholesale: (uid) => <StackIcon uid={uid} />,
+  wholesale: (uid) => <BriefcaseIcon uid={uid} />,
   auctions: (uid) => <StarIcon uid={uid} />,
   more: (uid) => <GridIcon uid={uid} />,
   beauty: (uid) => <SparkleIcon uid={uid} />,
@@ -375,6 +382,11 @@ const RENDERERS: Record<HomeCategoryIconType, (uid: string) => ReactElement> = {
   "mens-fashion": (uid) => <MensFashionIcon uid={uid} />,
   shoes: (uid) => <ShoesIcon uid={uid} />,
   cycling: (uid) => <BikeIcon uid={uid} />,
+  kids: (uid) => <KidsFashionIcon uid={uid} />,
+  business: (uid) => <BriefcaseIcon uid={uid} />,
+  luxury: (uid) => <DiamondIcon uid={uid} />,
+  collectibles: (uid) => <StarIcon uid={uid} />,
+  handmade: (uid) => <HammerIcon uid={uid} />,
 };
 
 export function HomeCategoryIcon3D({ type, className, size = 40 }: HomeCategoryIcon3DProps) {
