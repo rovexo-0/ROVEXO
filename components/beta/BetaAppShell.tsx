@@ -26,8 +26,7 @@ export function BetaAppShell({
       <MobileHeaderScrollProvider>
         <div
           className={cn(
-            "min-h-screen bg-background text-text-primary",
-            "bg-[radial-gradient(ellipse_120%_80%_at_50%_-30%,rgb(37_99_235/0.08),transparent)]",
+            "rx-page min-h-screen bg-background text-text-primary",
             className,
           )}
         >

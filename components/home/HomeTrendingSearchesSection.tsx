@@ -20,7 +20,7 @@ export function HomeTrendingSearchesSection({ searches }: HomeTrendingSearchesSe
             <Link
               href={`/search?q=${encodeURIComponent(term)}`}
               className={cn(
-                "premium-chip inline-flex min-h-ds-7 items-center px-ds-4 text-sm font-medium text-text-secondary",
+                "rx-chip inline-flex min-h-ds-7 items-center px-ds-4 text-sm font-medium text-text-secondary",
                 "hover:border-primary/30 hover:text-primary",
                 focusRing,
               )}

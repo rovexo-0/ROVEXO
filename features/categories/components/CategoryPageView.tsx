@@ -72,7 +72,7 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
           Listings
         </h2>
         {products.length > 0 ? (
-          <div className="marketplace-listing-grid">
+          <div className="rx-listing-grid">
             {products.map((product) => (
               <ProductCard key={product.id} {...productToCardProps(product)} />
             ))}

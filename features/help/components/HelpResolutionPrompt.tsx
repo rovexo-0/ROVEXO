@@ -41,7 +41,7 @@ export function HelpResolutionPrompt({ topicSlug }: HelpResolutionPromptProps) {
         <Link
           href="/help"
           onClick={handleYes}
-          className="premium-chip inline-flex min-h-ds-7 items-center px-ds-5 text-sm font-semibold text-text-primary"
+          className="rx-chip inline-flex min-h-ds-7 items-center px-ds-5 text-sm font-semibold text-text-primary"
         >
           Yes — return home
         </Link>

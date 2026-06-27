@@ -8,6 +8,7 @@ import {
   updateSellerListing,
 } from "@/lib/listings/repository";
 import { clampInventory, isInventoryValid } from "@/lib/sell/inventory";
+import { sanitizeListingLocationCity } from "@/lib/sell/listing-location";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -27,6 +28,7 @@ const updateSchema = z.object({
   size: z.string().optional(),
   condition: z.string().min(1).optional(),
   price: z.number().positive().optional(),
+  locationCity: z.string().min(1).max(80).nullable().optional(),
   acceptOffers: z.boolean().optional(),
   categoryPath: z
     .object({
@@ -106,6 +108,10 @@ export async function PATCH(request: Request, context: RouteContext) {
       size: body.size,
       condition: body.condition,
       price: body.price,
+      locationCity:
+        body.locationCity !== undefined
+          ? sanitizeListingLocationCity(body.locationCity)
+          : undefined,
       acceptOffers: body.acceptOffers,
       categoryId,
       deliveryCarriers: body.deliveryCarriers,

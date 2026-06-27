@@ -1,0 +1,71 @@
+/* ROVEXO v1.0 — Premium Typography System */
+
+.text-display {
+  font-size: var(--ds-font-display-size);
+  font-weight: var(--ds-font-display-weight);
+  line-height: var(--ds-font-display-leading);
+  letter-spacing: var(--ds-font-display-tracking);
+  color: var(--ds-color-text-primary);
+}
+
+.text-heading {
+  font-size: var(--ds-font-heading-size);
+  font-weight: var(--ds-font-heading-weight);
+  line-height: var(--ds-font-heading-leading);
+  letter-spacing: var(--ds-font-heading-tracking);
+  color: var(--ds-color-text-primary);
+}
+
+.text-title {
+  font-size: var(--ds-font-title-size);
+  font-weight: var(--ds-font-title-weight);
+  line-height: var(--ds-font-title-leading);
+  letter-spacing: var(--ds-font-title-tracking);
+  color: var(--ds-color-text-primary);
+}
+
+.text-subtitle {
+  font-size: var(--ds-font-subtitle-size);
+  font-weight: var(--ds-font-subtitle-weight);
+  line-height: var(--ds-font-subtitle-leading);
+  letter-spacing: var(--ds-font-subtitle-tracking);
+  color: var(--ds-color-text-secondary);
+}
+
+.text-body {
+  font-size: var(--ds-font-body-size);
+  font-weight: var(--ds-font-body-weight);
+  line-height: var(--ds-font-body-leading);
+  letter-spacing: var(--ds-font-body-tracking);
+  color: var(--ds-color-text-primary);
+}
+
+.text-caption {
+  font-size: var(--ds-font-caption-size);
+  font-weight: var(--ds-font-caption-weight);
+  line-height: var(--ds-font-caption-leading);
+  letter-spacing: var(--ds-font-caption-tracking);
+  color: var(--ds-color-text-muted);
+}
+
+.rx-page {
+  background: var(--ds-color-background);
+  background-image: var(--ds-gradient-page);
+  color: var(--ds-color-text-primary);
+}
+
+.premium-section-heading {
+  font-size: var(--ds-font-title-size);
+  font-weight: var(--ds-font-title-weight);
+  letter-spacing: var(--ds-font-title-tracking);
+  line-height: var(--ds-font-title-leading);
+  color: var(--ds-color-text-primary);
+}
+
+.premium-section-subheading {
+  font-size: var(--ds-font-caption-size);
+  font-weight: var(--ds-font-caption-weight);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ds-color-text-muted);
+}

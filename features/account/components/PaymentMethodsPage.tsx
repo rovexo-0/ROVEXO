@@ -90,7 +90,7 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
           </p>
         </div>
 
-        <section className="premium-card p-ds-5">
+        <section className="rx-surface-card p-ds-5">
           <h2 className="text-base font-semibold text-text-primary">Buyer cards</h2>
           <div className="mt-ds-4 flex flex-col gap-ds-3">
             {loading ? <p className="text-sm text-text-secondary">Loading cards…</p> : null}
@@ -128,7 +128,7 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
         </section>
 
         {profile.isSeller ? (
-          <section className="premium-card p-ds-5">
+          <section className="rx-surface-card p-ds-5">
             <h2 className="text-base font-semibold text-text-primary">Seller payouts</h2>
             <p className="mt-ds-1 text-sm text-text-secondary">
               Connect your bank account with Stripe to receive payouts securely.

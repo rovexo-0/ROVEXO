@@ -190,9 +190,9 @@ export function BottomNavIcon3D({
   return (
     <span
       className={cn(
-        "bottom-nav-icon-3d",
-        isSell ? "bottom-nav-icon-3d--sell-inner" : "bottom-nav-icon-3d--tab",
-        active && !isSell && "bottom-nav-icon-3d--active",
+        "rx-bottom-nav-icon",
+        isSell ? "rx-bottom-nav-icon--sell-inner" : "rx-bottom-nav-icon--tab",
+        active && !isSell && "rx-bottom-nav-icon--active",
         className,
       )}
       style={{ width: iconPx, height: iconPx }}
@@ -203,7 +203,7 @@ export function BottomNavIcon3D({
         width={iconPx}
         height={iconPx}
         style={{ width: iconPx, height: iconPx }}
-        className={isSell ? "bottom-nav-item-2026__icon" : "bottom-nav-tab-icon-2026"}
+        className={isSell ? "rx-bottom-nav-item__icon" : "rx-bottom-nav-tab-icon"}
         role="presentation"
       >
         <IconDefs uid={uid} />

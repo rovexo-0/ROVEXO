@@ -19,7 +19,7 @@ function ChevronRightIcon({ className }: { className?: string }) {
 }
 
 const fieldClassName =
-  "min-h-ds-7 w-full premium-input px-ds-3 py-ds-2 text-sm placeholder:text-text-muted";
+  "min-h-ds-7 w-full rx-input px-ds-3 py-ds-2 text-sm placeholder:text-text-muted";
 
 export function CheckoutAddressCard({ form }: CheckoutAddressCardProps) {
   const { draft, updateDraft } = form;

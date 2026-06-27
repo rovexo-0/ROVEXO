@@ -91,19 +91,19 @@ export function SuperAdminNotificationsPanel() {
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Title"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           />
           <textarea
             value={subtitle}
             onChange={(event) => setSubtitle(event.target.value)}
             placeholder="Message"
             rows={3}
-            className="premium-input rounded-ds-md px-ds-3 py-ds-2 text-sm"
+            className="rx-input rounded-ds-md px-ds-3 py-ds-2 text-sm"
           />
           <select
             value={audience}
             onChange={(event) => setAudience(event.target.value as BroadcastAudience)}
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           >
             <option value="all">All users</option>
             <option value="buyers">Buyers</option>
@@ -115,12 +115,12 @@ export function SuperAdminNotificationsPanel() {
             value={country}
             onChange={(event) => setCountry(event.target.value.toUpperCase())}
             placeholder="Country code (optional, e.g. GB)"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           />
           <select
             value={category}
             onChange={(event) => setCategory(event.target.value as PreferenceCategory | "")}
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           >
             <option value="">All categories</option>
             <option value="orders">Orders</option>
@@ -188,7 +188,7 @@ export function SuperAdminNotificationsPanel() {
             value={userId}
             onChange={(event) => setUserId(event.target.value)}
             placeholder="User ID"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm md:col-span-2"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm md:col-span-2"
           />
           <Button
             variant="secondary"

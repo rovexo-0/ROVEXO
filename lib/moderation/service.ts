@@ -8,6 +8,23 @@ import type {
   ModerationTarget,
 } from "@/lib/moderation/types";
 import { toAuditLogMetadata, type AuditLogMetadata } from "@/lib/audit/metadata";
+import {
+  notifySellerModerationResolved,
+  notifySellerReviewCaseCreated,
+  notifySuperAdminsNewReport,
+} from "@/lib/moderation/notifications";
+import {
+  appendTimelineStep,
+  buildInitialTimeline,
+  buildSellerEvidence,
+  formatReportReason,
+  getEstimatedReviewTime,
+  getHowToFix,
+  mapSellerReviewStatus,
+  parseTimeline,
+  type AdminModerationCaseDetail,
+  type SellerReviewCase,
+} from "@/lib/moderation/review-center";
 import { onContentReportTargeted, onModerationDecision } from "@/lib/trust/events";
 
 type QueueInsert = {
@@ -18,6 +35,7 @@ type QueueInsert = {
   source: string;
   result: ModerationResult;
   payload?: Record<string, unknown>;
+  forcePending?: boolean;
 };
 
 function mapQueueRow(row: Record<string, unknown>): ModerationQueueItem {
@@ -70,7 +88,13 @@ export async function enqueueModerationReview(input: QueueInsert): Promise<Moder
       summary: input.result.summary,
       risk_level: input.result.riskLevel,
       risk_score: input.result.riskScore,
-      status: needsQueue ? "pending" : input.result.decision === "approved" ? "approved" : status,
+      status: input.forcePending
+        ? "pending"
+        : needsQueue
+          ? "pending"
+          : input.result.decision === "approved"
+            ? "approved"
+            : status,
       payload: {
         hits: input.result.hits,
         riskLevel: input.result.riskLevel,
@@ -156,6 +180,17 @@ export async function overrideModerationDecision(input: {
       .eq("id", existing.product_id);
   }
 
+  await syncContentReportStatus(existing, input.decision === "blocked" ? "blocked" : input.decision === "warning" ? "warning" : "approved");
+
+  if (existing.seller_id) {
+    void notifySellerModerationResolved({
+      sellerId: String(existing.seller_id),
+      productTitle: String(existing.summary ?? "Listing"),
+      outcome: input.decision === "approved" ? "restored" : input.decision === "blocked" ? "removed" : "changes",
+      caseId: input.queueId,
+    });
+  }
+
   await writeAuditLog({
     queueId: input.queueId,
     actorId: input.reviewerId,
@@ -220,6 +255,22 @@ export async function resolveModerationQueueItem(input: {
         status: input.decision === "blocked" ? "paused" : "published",
       })
       .eq("id", existing.product_id);
+  }
+
+  await syncContentReportStatus(existing, status);
+
+  if (existing.seller_id) {
+    void notifySellerModerationResolved({
+      sellerId: String(existing.seller_id),
+      productTitle: String(existing.summary ?? "Listing"),
+      outcome:
+        input.decision === "approved"
+          ? "restored"
+          : input.decision === "blocked"
+            ? "removed"
+            : "changes",
+      caseId: input.queueId,
+    });
   }
 
   await writeAuditLog({
@@ -318,21 +369,88 @@ export async function createContentReport(input: {
     return null;
   }
 
-  await enqueueModerationReview({
-    targetType: input.targetType,
-    targetId: input.targetId,
-    source: "user_report",
-    result: {
-      decision: "warning",
-      confidence: 0.7,
-      categories: [],
-      hits: [],
-      summary: `User report: ${input.reason}`,
-      riskLevel: "medium",
-      riskScore: 55,
-    },
-    payload: { reportId: data.id, details: input.details ?? "" },
-  });
+  let queueItem: ModerationQueueItem | null = null;
+
+  if (input.targetType === "listing") {
+    const { data: product } = await admin
+      .from("products")
+      .select("id, seller_id, slug, title")
+      .eq("id", input.targetId)
+      .maybeSingle();
+
+    const reportCount = await countListingReports(input.targetId);
+    const reporterLabel = reportCount > 1 ? "Multiple Verified Users" : "Verified ROVEXO User";
+    const timeline = buildInitialTimeline(String(data.created_at));
+
+    queueItem = await enqueueModerationReview({
+      targetType: input.targetType,
+      targetId: input.targetId,
+      productId: product?.id ?? input.targetId,
+      sellerId: product?.seller_id ?? null,
+      source: "user_report",
+      forcePending: true,
+      result: {
+        decision: "warning",
+        confidence: 0.7,
+        categories: [],
+        hits: [],
+        summary: `User report: ${formatReportReason(input.reason)}`,
+        riskLevel: "medium",
+        riskScore: 55,
+      },
+      payload: {
+        reportId: data.id,
+        reason: input.reason,
+        details: input.details ?? "",
+        timeline,
+        reporterLabel,
+      },
+    });
+
+    if (product) {
+      await admin
+        .from("products")
+        .update({
+          status: "paused",
+          moderation_status: "warning",
+          moderation_summary: `Under review: ${formatReportReason(input.reason)}`,
+          moderation_reviewed_at: new Date().toISOString(),
+        })
+        .eq("id", product.id);
+
+      if (product.seller_id && queueItem) {
+        void notifySellerReviewCaseCreated({
+          sellerId: String(product.seller_id),
+          productTitle: product.title,
+          caseId: queueItem.id,
+        });
+      }
+
+      if (queueItem) {
+        void notifySuperAdminsNewReport({
+          productTitle: product.title,
+          reason: formatReportReason(input.reason),
+          queueId: queueItem.id,
+        });
+      }
+    }
+  } else {
+    queueItem = await enqueueModerationReview({
+      targetType: input.targetType,
+      targetId: input.targetId,
+      source: "user_report",
+      result: {
+        decision: "warning",
+        confidence: 0.7,
+        categories: [],
+        hits: [],
+        summary: `User report: ${input.reason}`,
+        riskLevel: "medium",
+        riskScore: 55,
+      },
+      payload: { reportId: data.id, details: input.details ?? "" },
+    });
+  }
 
   const targetUserId = await resolveReportTargetUserId(input);
   if (targetUserId && targetUserId !== input.reporterId) {
@@ -434,4 +552,262 @@ export async function applyListingModeration(input: {
   }
 
   return { allowed: true, result: input.result };
+}
+
+async function countListingReports(productId: string): Promise<number> {
+  const admin = createAdminClient();
+  const { count } = await admin
+    .from("content_reports")
+    .select("*", { count: "exact", head: true })
+    .eq("target_type", "listing")
+    .eq("target_id", productId);
+  return count ?? 0;
+}
+
+async function syncContentReportStatus(
+  queueRow: Record<string, unknown>,
+  status: ModerationQueueItem["status"],
+): Promise<void> {
+  const payload = (queueRow.payload as Record<string, unknown> | undefined) ?? {};
+  const reportId = payload.reportId ? String(payload.reportId) : null;
+  if (!reportId) return;
+
+  const admin = createAdminClient();
+  await admin.from("content_reports").update({ status }).eq("id", reportId);
+}
+
+async function mapQueueToSellerCase(
+  item: ModerationQueueItem,
+  product: {
+    id: string;
+    slug: string;
+    title: string;
+    imageUrl: string | null;
+  },
+): Promise<SellerReviewCase> {
+  const payload = item.payload ?? {};
+  const reason = String(payload.reason ?? "other");
+  const mapped = mapSellerReviewStatus(item);
+  const timeline = parseTimeline(payload);
+  const reporterLabel = String(payload.reporterLabel ?? "Verified ROVEXO User");
+
+  return {
+    id: item.id,
+    queueId: item.id,
+    productId: product.id,
+    productSlug: product.slug,
+    productTitle: product.title,
+    productImageUrl: product.imageUrl,
+    status: mapped.status,
+    statusLabel: mapped.label,
+    reason,
+    reasonLabel: formatReportReason(reason),
+    howToFix: getHowToFix(reason),
+    estimatedReviewTime: getEstimatedReviewTime(item.riskScore),
+    moderatorNotes: item.overrideNotes ?? item.summary,
+    evidence: buildSellerEvidence({
+      reason,
+      details: String(payload.details ?? ""),
+      summary: item.summary,
+      overrideNotes: item.overrideNotes,
+      reporterLabel,
+    }),
+    reporterLabel,
+    timeline,
+    sellerResponse: payload.sellerResponse ? String(payload.sellerResponse) : null,
+    canRespond: mapped.status === "under_review" || mapped.status === "changes_requested",
+    canEditListing: mapped.status !== "removed",
+    decision: mapped.decision,
+    createdAt: item.createdAt,
+    updatedAt: item.reviewedAt ?? item.createdAt,
+  };
+}
+
+export async function listSellerReviewCases(sellerId: string): Promise<SellerReviewCase[]> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("moderation_queue")
+    .select("*")
+    .eq("seller_id", sellerId)
+    .eq("target_type", "listing")
+    .in("status", ["pending", "warning", "blocked", "overridden"])
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  const items = ((data as Record<string, unknown>[] | null) ?? []).map(mapQueueRow);
+  const cases: SellerReviewCase[] = [];
+
+  for (const item of items) {
+    if (!item.productId) continue;
+    const { data: product } = await admin
+      .from("products")
+      .select("id, slug, title, product_images(url, sort_order)")
+      .eq("id", item.productId)
+      .maybeSingle();
+
+    if (!product) continue;
+
+    const images = (product.product_images as Array<{ url: string; sort_order: number }> | null) ?? [];
+    const imageUrl = images.sort((a, b) => a.sort_order - b.sort_order)[0]?.url ?? null;
+
+    cases.push(
+      await mapQueueToSellerCase(item, {
+        id: product.id,
+        slug: product.slug,
+        title: product.title,
+        imageUrl,
+      }),
+    );
+  }
+
+  return cases;
+}
+
+export async function getSellerReviewCase(
+  sellerId: string,
+  queueId: string,
+): Promise<SellerReviewCase | null> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("moderation_queue")
+    .select("*")
+    .eq("id", queueId)
+    .eq("seller_id", sellerId)
+    .maybeSingle();
+
+  if (!data) return null;
+
+  const item = mapQueueRow(data as Record<string, unknown>);
+  if (!item.productId) return null;
+
+  const { data: product } = await admin
+    .from("products")
+    .select("id, slug, title, product_images(url, sort_order)")
+    .eq("id", item.productId)
+    .maybeSingle();
+
+  if (!product) return null;
+
+  const images = (product.product_images as Array<{ url: string; sort_order: number }> | null) ?? [];
+  const imageUrl = images.sort((a, b) => a.sort_order - b.sort_order)[0]?.url ?? null;
+
+  return mapQueueToSellerCase(item, {
+    id: product.id,
+    slug: product.slug,
+    title: product.title,
+    imageUrl,
+  });
+}
+
+export async function submitSellerReviewResponse(input: {
+  sellerId: string;
+  queueId: string;
+  explanation: string;
+}): Promise<SellerReviewCase | null> {
+  const admin = createAdminClient();
+  const { data: existing } = await admin
+    .from("moderation_queue")
+    .select("*")
+    .eq("id", input.queueId)
+    .eq("seller_id", input.sellerId)
+    .maybeSingle();
+
+  if (!existing) return null;
+
+  const payload = (existing.payload as Record<string, unknown>) ?? {};
+  const timeline = appendTimelineStep(parseTimeline(payload), "seller_response");
+  const nextTimeline = appendTimelineStep(timeline, "decision_pending");
+
+  await admin
+    .from("moderation_queue")
+    .update({
+      payload: {
+        ...payload,
+        sellerResponse: input.explanation.trim(),
+        timeline: nextTimeline,
+      },
+    })
+    .eq("id", input.queueId);
+
+  await writeAuditLog({
+    queueId: input.queueId,
+    actorId: input.sellerId,
+    action: "seller_response",
+    notes: input.explanation.trim(),
+  });
+
+  return getSellerReviewCase(input.sellerId, input.queueId);
+}
+
+export async function getAdminModerationCaseDetail(queueId: string): Promise<AdminModerationCaseDetail | null> {
+  const admin = createAdminClient();
+  const { data } = await admin.from("moderation_queue").select("*").eq("id", queueId).maybeSingle();
+  if (!data) return null;
+
+  const item = mapQueueRow(data as Record<string, unknown>);
+  const payload = item.payload ?? {};
+  const reportId = payload.reportId ? String(payload.reportId) : null;
+
+  let report: AdminModerationCaseDetail["report"] = null;
+  let reporter: AdminModerationCaseDetail["reporter"] = null;
+  let reportCount = 0;
+
+  if (reportId) {
+    const { data: reportRow } = await admin.from("content_reports").select("*").eq("id", reportId).maybeSingle();
+    if (reportRow) {
+      report = {
+        id: String(reportRow.id),
+        reason: String(reportRow.reason),
+        details: String(reportRow.details ?? ""),
+        createdAt: String(reportRow.created_at),
+        status: String(reportRow.status),
+      };
+
+      const { data: reporterProfile } = await admin
+        .from("profiles")
+        .select("id, full_name, email, username")
+        .eq("id", reportRow.reporter_id)
+        .maybeSingle();
+
+      if (reporterProfile) {
+        reporter = {
+          id: reporterProfile.id,
+          name: reporterProfile.full_name ?? reporterProfile.username ?? "User",
+          email: reporterProfile.email,
+          username: reporterProfile.username,
+        };
+      }
+    }
+  }
+
+  if (item.productId) {
+    reportCount = await countListingReports(item.productId);
+  }
+
+  let product: AdminModerationCaseDetail["product"] = null;
+  if (item.productId) {
+    const { data: productRow } = await admin
+      .from("products")
+      .select("id, slug, title, seller_id")
+      .eq("id", item.productId)
+      .maybeSingle();
+    if (productRow) {
+      product = {
+        id: productRow.id,
+        slug: productRow.slug,
+        title: productRow.title,
+        sellerId: String(productRow.seller_id),
+      };
+    }
+  }
+
+  return {
+    queue: item,
+    report,
+    reporter,
+    reportCount,
+    product,
+    timeline: parseTimeline(payload),
+    sellerResponse: payload.sellerResponse ? String(payload.sellerResponse) : null,
+  };
 }

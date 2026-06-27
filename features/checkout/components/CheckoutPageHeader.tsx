@@ -15,7 +15,7 @@ function BackIcon({ className }: { className?: string }) {
 
 export function CheckoutPageHeader({ backHref }: CheckoutPageHeaderProps) {
   return (
-    <header className="premium-page-header sticky top-0 z-50">
+    <header className="rx-page-header sticky top-0 z-50">
       <div
         className={cn(
           "grid min-h-[56px] grid-cols-[48px_1fr_48px] items-center gap-ds-2 px-ds-4",

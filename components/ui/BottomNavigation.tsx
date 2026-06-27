@@ -58,12 +58,12 @@ function NavLink({
       aria-current={isActive ? "page" : undefined}
       data-active={isActive}
       onClick={onNavigate}
-      className={cn("bottom-nav-item-2026", focusRing, transitionFast)}
+      className={cn("rx-bottom-nav-item", focusRing, transitionFast)}
     >
-      <span className="bottom-nav-icon-3d-wrap">
+      <span className="rx-bottom-nav-icon-wrap">
         <BottomNavIcon3D type={item.icon} active={isActive} size="tab" />
       </span>
-      <span className="bottom-nav-item-2026__label">{item.label}</span>
+      <span className="rx-bottom-nav-item__label">{item.label}</span>
     </Link>
   );
 }
@@ -98,9 +98,9 @@ function AccountNavLink({ isActive }: { isActive: boolean }) {
       aria-label={accountItem.label}
       aria-current={isActive ? "page" : undefined}
       data-active={isActive}
-      className={cn("bottom-nav-item-2026", focusRing, transitionFast)}
+      className={cn("rx-bottom-nav-item", focusRing, transitionFast)}
     >
-      <span className="bottom-nav-icon-3d-wrap">
+      <span className="rx-bottom-nav-icon-wrap">
         {profile ? (
           <Avatar
             src={profile.avatarUrl}
@@ -113,7 +113,7 @@ function AccountNavLink({ isActive }: { isActive: boolean }) {
           <BottomNavIcon3D type="account" active={isActive} size="tab" />
         )}
       </span>
-      <span className="bottom-nav-item-2026__label">{accountItem.label}</span>
+      <span className="rx-bottom-nav-item__label">{accountItem.label}</span>
     </Link>
   );
 }
@@ -154,8 +154,8 @@ export function BottomNavigation({
         className,
       )}
     >
-      <div className="bottom-nav-shell-2026 pointer-events-auto relative w-[92%] max-w-none">
-        <ul className="bottom-nav-grid-2026">
+      <div className="rx-bottom-nav-shell pointer-events-auto relative w-[92%] max-w-none">
+        <ul className="rx-bottom-nav-grid">
           <li>
             <NavLink item={home} isActive={activeTab === "home"} />
           </li>
@@ -169,12 +169,12 @@ export function BottomNavigation({
               aria-label="Sell"
               aria-current={isSellActive ? "page" : undefined}
               data-active={isSellActive}
-              className={cn("bottom-nav-item-2026 bottom-nav-item-2026--sell", focusRing, transitionFast)}
+              className={cn("rx-bottom-nav-item rx-bottom-nav-item--sell", focusRing, transitionFast)}
             >
-              <span className="bottom-nav-sell-2026">
+              <span className="rx-bottom-nav-sell">
                 <BottomNavIcon3D type="sell" active={isSellActive} size="sell" />
               </span>
-              <span className="bottom-nav-item-2026__label">Sell</span>
+              <span className="rx-bottom-nav-item__label">Sell</span>
             </Link>
           </li>
 

@@ -75,7 +75,7 @@ export function MarketplaceConnectorsPage() {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto w-full max-w-4xl bg-white px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <main className="mx-auto w-full max-w-4xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
         <StickyPageHeader>
           <div className="flex items-center gap-ds-2">
             <IconButton

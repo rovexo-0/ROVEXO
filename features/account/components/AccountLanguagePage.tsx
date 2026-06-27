@@ -27,7 +27,7 @@ export function AccountLanguagePage() {
       backHref="/account/settings"
       backLabel="Settings"
     >
-      <section className="premium-card p-ds-5">
+      <section className="rx-surface-card p-ds-5">
         <LanguagePicker
           value={getLocaleOption(localeCode).language}
           localeCode={localeCode}

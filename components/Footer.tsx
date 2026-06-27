@@ -14,18 +14,18 @@ const FOOTER_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border bg-surface-muted">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+    <footer className="border-t border-border bg-[var(--ds-glass-bg)] shadow-[var(--ds-shadow-soft)] backdrop-blur-xl">
+      <div className="mx-auto max-w-7xl px-ds-4 py-ds-7 sm:px-ds-6 lg:px-ds-8 lg:py-ds-9">
         <div className="max-w-md">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-lg font-black text-primary-foreground">
+          <Link href="/" className="flex items-center gap-ds-3">
+            <div className="rx-glass rx-depth-2 flex h-10 w-10 items-center justify-center rounded-ds-lg bg-[image:var(--ds-gradient-primary)] text-lg font-black text-primary-foreground">
               R
             </div>
-            <span className="text-xl font-extrabold tracking-tight text-text-primary">
+            <span className="text-title text-xl font-extrabold tracking-tight text-text-primary">
               ROV<span className="text-primary">EXO</span>
             </span>
           </Link>
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-text-secondary">
+          <p className="text-body mt-ds-4 max-w-xs text-text-secondary">
             The modern marketplace to buy, sell, and discover pre-loved and new items across Europe.
           </p>
           <p className="mt-3 text-sm text-text-secondary">

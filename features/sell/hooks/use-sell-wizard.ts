@@ -7,6 +7,7 @@ import type { FlatCategoryPath } from "@/lib/categories/types";
 import { clearSellDraft, loadSellDraft, saveSellDraft } from "@/lib/sell/draft-storage";
 import { uploadListingImage, deleteListingImage } from "@/lib/listings/upload-client";
 import { buildPublishDescription } from "@/lib/sell/publish-description";
+import { sanitizeListingLocationCity } from "@/lib/sell/listing-location";
 import { deliveryCarriersForMethod } from "@/lib/sell/delivery";
 import {
   detectCategoryFromTitle,
@@ -320,6 +321,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
       const payload = {
         title: draft.title.trim(),
         description: buildPublishDescription(draft.title, draft.description, draft.material),
+        locationCity: sanitizeListingLocationCity(draft.locationCity),
         brand: draft.brand.trim() || undefined,
         color: draft.color.trim() || undefined,
         size: draft.size.trim() || undefined,

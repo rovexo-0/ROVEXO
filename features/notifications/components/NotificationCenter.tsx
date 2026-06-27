@@ -144,7 +144,7 @@ export function NotificationCenter({ initialNotifications }: NotificationCenterP
 
   const renderSection = (title: string, items: Notification[]) => (
     <section key={title} className="flex flex-col gap-3" aria-label={title}>
-      <h2 className="dash-v1-section__title">{title}</h2>
+      <h2 className="rx-dash-section__title">{title}</h2>
       {items.map((notification) => (
         <SwipeableNotificationRow
           key={notification.id}
@@ -161,9 +161,9 @@ export function NotificationCenter({ initialNotifications }: NotificationCenterP
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <header className="dash-v1-header">
-        <div className="dash-v1-header__row">
-          <h1 className="dash-v1-header__title">Notifications</h1>
+      <header className="rx-dash-header">
+        <div className="rx-dash-header__row">
+          <h1 className="rx-dash-header__title">Notifications</h1>
           <IconButton href="/notifications/settings" label="Notification settings" variant="ghost" size="md">
             <SettingsIcon className="h-5 w-5" />
           </IconButton>

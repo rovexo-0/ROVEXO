@@ -88,5 +88,21 @@ export function buildSearchNavItems({
     });
   });
 
+  results.brands.forEach((brand) => {
+    items.push({
+      id: `brand-${brand.href}`,
+      label: brand.name,
+      href: brand.href,
+    });
+  });
+
+  results.locations.forEach((location) => {
+    items.push({
+      id: `location-${location.href}`,
+      label: location.name,
+      href: location.href,
+    });
+  });
+
   return items;
 }

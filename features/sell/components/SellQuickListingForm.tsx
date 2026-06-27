@@ -10,6 +10,7 @@ import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicke
 import { AiCategoryDetection } from "@/features/sell/components/TitleCategorySuggestions";
 import { FieldError, fieldErrorClassName } from "@/features/sell/components/FieldError";
 import { InventoryQuantityField } from "@/features/sell/components/InventoryQuantityField";
+import { SellLocationField } from "@/features/sell/components/SellLocationField";
 import { getListingValidationErrors, SELL_CONDITIONS } from "@/features/sell/types";
 import type { SellFormController } from "@/features/sell/hooks/use-sell-wizard";
 import { focusRing } from "@/components/ui/tokens";
@@ -19,7 +20,7 @@ type SellQuickListingFormProps = {
 };
 
 const fieldClassName =
-  "premium-input min-h-ds-7 w-full rounded-ds-sm px-ds-3 py-ds-2 text-sm placeholder:text-text-muted";
+  "rx-input min-h-ds-7 w-full rounded-ds-sm px-ds-3 py-ds-2 text-sm placeholder:text-text-muted";
 
 function FormRow({
   label,
@@ -78,8 +79,10 @@ export function SellQuickListingForm({ form }: SellQuickListingFormProps) {
         </p>
       </div>
 
-      <div className="premium-form-section overflow-hidden">
-        <FormRow label="Title" htmlFor="sell-quick-title" error={errors.title}>
+      <div className="rx-form-section overflow-hidden">
+        <SellLocationField form={form} error={errors.location} />
+
+        <FormRow label="Title" htmlFor="sell-quick-title" error={errors.title} className="border-t border-border">
           <input
             id="sell-quick-title"
             type="text"
@@ -120,7 +123,7 @@ export function SellQuickListingForm({ form }: SellQuickListingFormProps) {
               type="button"
               onClick={() => setCategoryPickerOpen((current) => !current)}
               className={cn(
-                "premium-input min-h-ds-7 w-full rounded-ds-sm bg-surface-muted/60 px-ds-3 py-ds-2 text-left text-sm",
+                "rx-input min-h-ds-7 w-full rounded-ds-sm bg-surface-muted/60 px-ds-3 py-ds-2 text-left text-sm",
                 fieldErrorClassName(Boolean(errors.category)),
                 focusRing,
               )}
@@ -230,7 +233,7 @@ export function SellQuickListingForm({ form }: SellQuickListingFormProps) {
         </div>
       </div>
 
-      <div className="premium-form-section overflow-hidden">
+      <div className="rx-form-section overflow-hidden">
         <button
           type="button"
           onClick={() => setMoreDetailsOpen((open) => !open)}

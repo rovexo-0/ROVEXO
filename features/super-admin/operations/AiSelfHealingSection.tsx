@@ -56,7 +56,7 @@ export function AiSelfHealingSection({ settings, onUpdated }: AiSelfHealingSecti
         When enabled, AI may automatically repair only low-risk operational issues.
       </p>
 
-      <Card padding="none" className="premium-card mt-ds-4 overflow-hidden border border-border/80">
+      <Card padding="none" className="rx-surface-card mt-ds-4 overflow-hidden border border-border/80">
         <SettingToggle
           id="ai-auto-repair"
           label="Enable AI Auto Repair"
@@ -70,7 +70,7 @@ export function AiSelfHealingSection({ settings, onUpdated }: AiSelfHealingSecti
       {error ? <p className="mt-ds-2 text-sm text-danger">{error}</p> : null}
 
       <div className="mt-ds-4 grid gap-ds-4 md:grid-cols-2">
-        <Card padding="md" className="premium-glass border border-emerald-500/20">
+        <Card padding="md" className="rx-glass border border-emerald-500/20">
           <p className="text-sm font-semibold text-text-primary">Low-risk auto repairs</p>
           <ul className="mt-ds-2 space-y-ds-1 text-sm text-text-secondary">
             {LOW_RISK_EXAMPLES.map((item) => (
@@ -78,7 +78,7 @@ export function AiSelfHealingSection({ settings, onUpdated }: AiSelfHealingSecti
             ))}
           </ul>
         </Card>
-        <Card padding="md" className="premium-glass border border-red-500/20">
+        <Card padding="md" className="rx-glass border border-red-500/20">
           <p className="text-sm font-semibold text-text-primary">Hard limits</p>
           <ul className="mt-ds-2 space-y-ds-1 text-sm text-text-secondary">
             {NEVER_RULES.map((item) => (

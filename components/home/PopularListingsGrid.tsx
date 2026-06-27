@@ -53,13 +53,13 @@ export const PopularListingsGrid = memo(function PopularListingsGrid({
 
   return (
     <section aria-labelledby={id} className={cn("px-ds-4", className)}>
-      <h2 id={id} className="home-section-2026__title mb-ds-2 text-text-primary">
+      <h2 id={id} className="rx-section__title mb-ds-2 text-text-primary">
         {title}
       </h2>
 
       <div
         ref={gridRef}
-        className="marketplace-listing-grid"
+        className="rx-listing-grid"
         role="group"
         aria-roledescription={!error && products.length > 0 ? "carousel" : undefined}
         aria-label={!error && products.length > 0 ? title : undefined}

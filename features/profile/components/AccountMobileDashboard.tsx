@@ -66,7 +66,7 @@ function TrustCard({ trustData }: { trustData: TrustDashboardData }) {
 export function AccountMobileDashboard({ profile, trustData }: AccountMobileDashboardProps) {
   return (
     <div className="flex flex-col gap-ds-4">
-      <header className="premium-page-header sticky top-0 z-50 -mx-ds-4 px-ds-4">
+      <header className="rx-page-header sticky top-0 z-50 -mx-ds-4 px-ds-4">
         <div className="flex items-center justify-between gap-ds-3 pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]">
           <h1 className="min-w-0 truncate text-2xl font-bold text-text-primary">Account</h1>
           <AccountHeaderActions notificationCount={profile.unreadNotifications} />

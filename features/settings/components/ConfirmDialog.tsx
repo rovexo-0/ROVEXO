@@ -50,7 +50,7 @@ export function ConfirmDialog({
       <button
         type="button"
         aria-label="Close dialog"
-        className="absolute inset-0 premium-sheet-overlay"
+        className="absolute inset-0 rx-sheet-overlay"
         onClick={onCancel}
       />
 
@@ -60,7 +60,7 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-description"
-        className="premium-sheet relative w-full max-w-sm"
+        className="rx-sheet relative w-full max-w-sm"
       >
         <h2 id="confirm-dialog-title" className="text-base font-semibold text-text-primary">
           {title}

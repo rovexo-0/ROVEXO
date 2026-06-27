@@ -1,6 +1,6 @@
 export function AiOperationsHeader() {
   return (
-    <header className="ai-ops-hero premium-glass relative overflow-hidden rounded-ds-xl border border-primary/15 p-ds-6 sm:p-ds-8">
+    <header className="ai-ops-hero rx-glass relative overflow-hidden rounded-ds-xl border border-primary/15 p-ds-6 sm:p-ds-8">
       <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute -bottom-20 -left-10 h-40 w-40 rounded-full bg-blue-400/15 blur-3xl" aria-hidden />
       <div className="relative">

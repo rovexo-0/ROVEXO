@@ -7,9 +7,9 @@ type DashboardPageHeaderProps = {
 
 export function DashboardPageHeader({ title, className }: DashboardPageHeaderProps) {
   return (
-    <header className={cn("dash-v1-header", className)}>
-      <div className="dash-v1-header__row">
-        <h1 className="dash-v1-header__title">{title}</h1>
+    <header className={cn("rx-dash-header", className)}>
+      <div className="rx-dash-header__row">
+        <h1 className="rx-dash-header__title">{title}</h1>
       </div>
     </header>
   );

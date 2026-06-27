@@ -14,7 +14,7 @@ export function TrustListingBadge({ summary, className }: TrustListingBadgeProps
     <Link
       href="/trust"
       className={cn(
-        "premium-chip inline-flex items-center gap-2 px-3 py-1.5 text-sm",
+        "rx-chip inline-flex items-center gap-2 px-3 py-1.5 text-sm",
         transitionFast,
         focusRing,
         "hover:border-primary/30",

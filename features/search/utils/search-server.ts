@@ -6,7 +6,8 @@ import {
   filterSuggestions,
   filterSellers,
 } from "@/lib/search/defaults";
-import type { SearchResults } from "@/features/search/types";
+import { MANUAL_LISTING_CITIES } from "@/lib/sell/listing-location";
+import type { SearchBrand, SearchLocation, SearchResults } from "@/features/search/types";
 import { SEARCH_PRODUCT_PAGE_SIZE } from "@/features/search/types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,7 +22,31 @@ type SearchAllOptions = {
   brand?: string;
   categorySlug?: string;
   sellerId?: string;
+  locationCity?: string;
 };
+
+async function searchBrands(query: string): Promise<SearchBrand[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("brands")
+    .select("name")
+    .ilike("name", `%${query}%`)
+    .limit(5);
+
+  return (data ?? []).map((row) => ({
+    name: row.name,
+    href: `/search?q=${encodeURIComponent(row.name)}&brand=${encodeURIComponent(row.name)}`,
+  }));
+}
+
+function searchLocations(query: string): SearchLocation[] {
+  return MANUAL_LISTING_CITIES.filter((city) => includesQuery(city, query))
+    .slice(0, 5)
+    .map((name) => ({
+      name,
+      href: `/search?q=${encodeURIComponent(name)}&location=${encodeURIComponent(name)}`,
+    }));
+}
 
 async function searchProfiles(query: string) {
   const supabase = await createClient();
@@ -51,12 +76,14 @@ export async function searchAll(
       users: [],
       trending: defaultTrendingSearches,
       categories: defaultCategories,
+      brands: [],
+      locations: [],
       productsHasMore: false,
       productsOffset: 0,
     };
   }
 
-  const [{ items: products, hasMore }, profileMatches] = await Promise.all([
+  const [{ items: products, hasMore }, profileMatches, brands] = await Promise.all([
     searchListingsRepo({
       query: normalized,
       page,
@@ -65,8 +92,10 @@ export async function searchAll(
       brand: options.brand,
       categorySlug: options.categorySlug,
       sellerId: options.sellerId,
+      locationCity: options.locationCity,
     }),
     searchProfiles(normalized),
+    searchBrands(normalized),
   ]);
 
   return {
@@ -91,6 +120,8 @@ export async function searchAll(
     })),
     trending: filterSuggestions(defaultTrendingSearches, normalized),
     categories: defaultCategories.filter((category) => includesQuery(category.name, normalized)),
+    brands,
+    locations: searchLocations(normalized),
     productsHasMore: hasMore,
     productsOffset: productOffset + products.length,
   };

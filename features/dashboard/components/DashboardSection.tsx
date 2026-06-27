@@ -10,8 +10,8 @@ type DashboardSectionProps = {
 
 export function DashboardSection({ id, title, children, className }: DashboardSectionProps) {
   return (
-    <section className={cn("dash-v1-section", className)} aria-labelledby={id}>
-      <h2 id={id} className="dash-v1-section__title">
+    <section className={cn("rx-dash-section", className)} aria-labelledby={id}>
+      <h2 id={id} className="rx-dash-section__title">
         {title}
       </h2>
       {children}

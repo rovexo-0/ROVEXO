@@ -121,7 +121,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
             type="button"
             onClick={() => galleryInputRef.current?.click()}
             className={cn(
-              "premium-upload-zone flex min-h-[88px] flex-1 flex-col items-center justify-center gap-ds-2 px-ds-4 py-ds-4 text-primary",
+              "rx-upload flex min-h-[88px] flex-1 flex-col items-center justify-center gap-ds-2 px-ds-4 py-ds-4 text-primary",
               focusRing,
             )}
           >
@@ -133,7 +133,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
             type="button"
             onClick={() => cameraInputRef.current?.click()}
             className={cn(
-              "premium-btn flex min-h-ds-7 flex-1 items-center justify-center rounded-ds-md border border-border/80 bg-surface/80 px-ds-4 py-ds-3 text-sm font-semibold text-text-primary",
+              "rx-btn flex min-h-ds-7 flex-1 items-center justify-center rounded-ds-md border border-border/80 bg-surface/80 px-ds-4 py-ds-3 text-sm font-semibold text-text-primary",
               focusRing,
               quickMode && "min-h-[56px]",
             )}
@@ -180,7 +180,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
                   <button
                     type="button"
                     onClick={() => void retryPhotoUpload(photo.id)}
-                    className="absolute inset-x-1 bottom-7 rounded-ds-sm bg-danger px-1 py-0.5 text-[0.625rem] font-semibold text-white"
+                    className="absolute inset-x-1 bottom-7 rounded-ds-sm bg-danger px-1 py-0.5 text-[0.625rem] font-semibold text-danger-foreground"
                   >
                     Retry
                   </button>
@@ -237,7 +237,7 @@ export function SellPhotoSection({ form, uploadProgress = 0, quickMode = false }
                   type="button"
                   onClick={() => cameraInputRef.current?.click()}
                   className={cn(
-                    "premium-glass flex h-20 w-20 shrink-0 snap-start flex-col items-center justify-center gap-ds-1 rounded-ds-md text-xs font-semibold text-text-primary",
+                    "rx-glass flex h-20 w-20 shrink-0 snap-start flex-col items-center justify-center gap-ds-1 rounded-ds-md text-xs font-semibold text-text-primary",
                     focusRing,
                   )}
                 >

@@ -5,7 +5,7 @@ import { searchListings as searchListingsRepo } from "@/lib/listings/repository"
 import { isPromotionActive } from "@/lib/promotions/format";
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { toProductDetail } from "@/lib/products/detail";
-import { getActiveMarket } from "@/lib/seo/markets";
+import { resolveProductLocationCity, stripListingLocationMarker } from "@/lib/sell/listing-location";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import type {
   DeliveryCarrier,
@@ -63,7 +63,7 @@ function mapProductRow(row: ProductRow): Product {
     sellerVerified: verified,
     sellerTrustScore: deriveTrustScore(rating, verified),
     sellerResponseRate: Math.min(100, Math.round(70 + rating * 6)),
-    location: getActiveMarket().name,
+    location: resolveProductLocationCity(row.location_city, row.description),
     listingType: row.listing_type ?? "fixed",
     auctionEndsAt: row.auction_ends_at,
     auctionCurrentBid:
@@ -145,7 +145,7 @@ function mapProductDetail(row: ProductRow): ProductDetail {
   return {
     ...detail,
     images: images.length > 0 ? images : detail.images,
-    description: row.description || detail.description,
+    description: stripListingLocationMarker(row.description) || detail.description,
     deliveryCarriers: (row.delivery_carriers ?? detail.deliveryCarriers) as DeliveryCarrier[],
     salesCount: Math.max(1, row.review_count),
     stock: row.stock,

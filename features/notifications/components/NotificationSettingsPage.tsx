@@ -59,7 +59,7 @@ export function NotificationSettingsPage() {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <header className="premium-page-header sticky top-0 z-50">
+      <header className="rx-page-header sticky top-0 z-50">
         <div
           className={cn(
             "grid min-h-[56px] grid-cols-[48px_1fr_48px] items-center gap-ds-2 px-ds-4",
@@ -206,7 +206,7 @@ export function NotificationSettingsPage() {
                 value={settings.quietHoursStart}
                 onChange={(event) => void updateSetting({ quietHoursStart: event.target.value })}
                 className={cn(
-                  "premium-input min-h-ds-7 px-ds-3 py-ds-2 text-sm text-text-primary",
+                  "rx-input min-h-ds-7 px-ds-3 py-ds-2 text-sm text-text-primary",
                   focusRing,
                 )}
               />
@@ -218,7 +218,7 @@ export function NotificationSettingsPage() {
                 value={settings.quietHoursEnd}
                 onChange={(event) => void updateSetting({ quietHoursEnd: event.target.value })}
                 className={cn(
-                  "premium-input min-h-ds-7 px-ds-3 py-ds-2 text-sm text-text-primary",
+                  "rx-input min-h-ds-7 px-ds-3 py-ds-2 text-sm text-text-primary",
                   focusRing,
                 )}
               />

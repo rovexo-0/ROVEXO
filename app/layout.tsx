@@ -1,14 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import "@/styles/tokens.css";
-import "@/styles/premium-2026.css";
-import "@/styles/mobile-premium.css";
-import "@/styles/dashboard-v1.css";
-import "@/features/account-page/styles/account-page.css";
-import "@/styles/locked-2026.css";
+import "@/styles/rovexo/index.css";
 import "./globals.css";
-
 import { SearchProvider } from "@/features/search/client";
 import Footer from "@/components/Footer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
@@ -47,14 +41,14 @@ export const metadata: Metadata = {
     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
     description:
       "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
-    images: [{ url: "/icons/icon-512.png", width: 512, height: 512, alt: "ROVEXO" }],
+    images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "ROVEXO" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
     description:
       "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
-    images: ["/icons/icon-512.png"],
+    images: ["/brand/og-image.png"],
   },
   alternates: {
     canonical: "/",
@@ -66,8 +60,16 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
   },
   icons: {
-    icon: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
-    apple: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: [{ url: "/favicon.ico" }],
   },
   other: {
     "mobile-web-app-capable": "yes",

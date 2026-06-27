@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
+import { RovexoAppIconMark } from "@/components/brand/RovexoAppIconMark";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
 type RovexoLogoProps = {
@@ -13,25 +14,7 @@ type RovexoLogoBrandProps = {
   integrated?: boolean;
 };
 
-function LogoGlyph({ className }: { className?: string }) {
-  return (
-    <span
-      className={cn(
-        "flex shrink-0 items-center justify-center rounded-[7px] bg-[image:var(--ds-gradient-primary)]",
-        className,
-      )}
-    >
-      <svg viewBox="0 0 24 24" className="h-[52%] w-[52%] text-primary-foreground" aria-hidden>
-        <path
-          fill="currentColor"
-          d="M6 18V6h5.2c2.52 0 4.08 1.34 4.08 3.36 0 1.46-.74 2.46-2.02 2.94l2.74 5.7h-2.46l-2.38-5.02H8.4V18H6Zm2.4-6.86h2.58c1.24 0 1.92-.58 1.92-1.58 0-1-.68-1.58-1.92-1.58H8.4v3.16Z"
-        />
-      </svg>
-    </span>
-  );
-}
-
-/** Header mark — blue R logo 40×40 @ 12px radius */
+/** Header mark — official ROVEXO app icon */
 export function RovexoHeaderMark({ className }: { className?: string }) {
   return (
     <Link
@@ -45,7 +28,7 @@ export function RovexoHeaderMark({ className }: { className?: string }) {
         className,
       )}
     >
-      <LogoGlyph className="h-10 w-10 rounded-[12px]" />
+      <RovexoAppIconMark className="h-10 w-10 rounded-[12px]" uid="header-mark" />
     </Link>
   );
 }
@@ -69,12 +52,13 @@ export function RovexoLogoBrand({ className, integrated = false }: RovexoLogoBra
       )}
       aria-hidden
     >
-      <LogoGlyph
+      <RovexoAppIconMark
         className={cn(
           integrated
             ? "aspect-square h-6 w-6 rounded-[6px] lg:h-7 lg:w-7 lg:rounded-[7px]"
             : "aspect-square h-[1.625rem] rounded-[7px]",
         )}
+        uid="brand-inline"
       />
       <Wordmark
         className={cn(
@@ -107,10 +91,9 @@ function RovexoLogoMark({
       )}
       aria-hidden
     >
-      <LogoGlyph
-        className={cn(
-          isCompact ? "aspect-square h-[1.5rem] rounded-[6px]" : "aspect-square h-[92%]",
-        )}
+      <RovexoAppIconMark
+        className={cn(isCompact ? "aspect-square h-[1.5rem] rounded-[6px]" : "aspect-square h-[92%] rounded-[12px]")}
+        uid="logo-mark"
       />
       {wordmarkVisible && (
         <Wordmark
@@ -141,10 +124,7 @@ export function RovexoLogo({ className, variant = "full" }: RovexoLogoProps) {
         className,
       )}
     >
-      <RovexoLogoMark
-        variant={variant === "responsive" ? "mark" : variant}
-        responsive={isResponsive}
-      />
+      <RovexoLogoMark variant={variant === "responsive" ? "mark" : variant} responsive={isResponsive} />
     </Link>
   );
 }

@@ -26,23 +26,23 @@ export function MobilePrimaryHubFolder({ hub, badgeCount, onOpen }: MobilePrimar
   return (
     <button
       type="button"
-      className={cn("dash-v1-tile", focusRing)}
+      className={cn("rx-dash-tile", focusRing)}
       onClick={onOpen}
       aria-label={`${hub.label} hub. ${hub.subtitle}. ${itemCount} destinations${badgeCount > 0 ? `, ${badgeCount} notifications` : ""}`}
       aria-haspopup="true"
     >
       <MobilePremiumBadge count={badgeCount} />
 
-      <div className="dash-v1-tile__top">
-        <div className="dash-v1-tile__icon">
+      <div className="rx-dash-tile__top">
+        <div className="rx-dash-tile__icon">
           <DashboardIcon3D type={HUB_ICON_MAP[hub.id]} size={32} />
         </div>
-        <ChevronRightIcon className="dash-v1-tile__chevron h-4 w-4 shrink-0" aria-hidden />
+        <ChevronRightIcon className="rx-dash-tile__chevron h-4 w-4 shrink-0" aria-hidden />
       </div>
 
       <div>
-        <p className="dash-v1-tile__title">{hub.label}</p>
-        <p className="dash-v1-tile__subtitle">{hub.subtitle}</p>
+        <p className="rx-dash-tile__title">{hub.label}</p>
+        <p className="rx-dash-tile__subtitle">{hub.subtitle}</p>
         <p className="mt-1 text-[0.6875rem] font-medium text-text-muted">
           {itemCount} {itemCount === 1 ? "link" : "links"}
         </p>

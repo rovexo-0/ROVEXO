@@ -13,7 +13,7 @@ function SearchIcon() {
   );
 }
 
-export function SearchResultsEmpty({ variant, query }: SearchResultsEmptyProps) {
+export function SearchResultsEmpty({ variant }: SearchResultsEmptyProps) {
   if (variant === "idle") {
     return (
       <EmptyState
@@ -31,12 +31,8 @@ export function SearchResultsEmpty({ variant, query }: SearchResultsEmptyProps) 
     <EmptyState
       icon={<SearchIcon />}
       title="No results found"
-      description={
-        query
-          ? `Nothing matched “${query}”. Try different keywords or browse categories.`
-          : "Try different keywords or browse categories."
-      }
-      actionLabel="View all categories"
+      suggestions={["Check spelling", "Remove filters", "Browse categories"]}
+      actionLabel="Browse categories"
       actionHref="/categories"
       className="mx-ds-4 border-none bg-transparent shadow-none"
     />

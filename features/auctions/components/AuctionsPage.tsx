@@ -12,7 +12,6 @@ import { filterAuctions } from "@/lib/auctions/utils";
 import type { AuctionFilter, AuctionsPageData } from "@/lib/auctions/types";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
-import "@/styles/auctions-2026.css";
 
 type AuctionsPageProps = {
   initialData: AuctionsPageData;

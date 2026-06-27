@@ -12,7 +12,10 @@ import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { CategoryResults } from "@/features/search/components/CategoryResults";
+import { SearchLocationFilter } from "@/features/search/components/SearchLocationFilter";
 import { SearchResultsEmpty } from "@/features/search/components/SearchResultsEmpty";
+import { SearchScopeChips } from "@/features/search/components/SearchScopeChips";
+import { SearchSuggestionList } from "@/features/search/components/SearchSuggestionList";
 import { SuggestedSearches } from "@/features/search/components/SuggestedSearches";
 import { LoadingSkeleton } from "@/features/search/components/LoadingSkeleton";
 import { ProductResults } from "@/features/search/components/ProductResults";
@@ -21,17 +24,23 @@ import { SavedSearchesPanel } from "@/features/search/components/SavedSearchesPa
 import { SearchSection } from "@/features/search/components/SearchSection";
 import { SellerActions } from "@/features/search/components/SellerActions";
 import { SellerResults } from "@/features/search/components/SellerResults";
-import { StoreResults } from "@/features/search/components/StoreResults";
 import { TrendingSearches } from "@/features/search/components/TrendingSearches";
 import { useSearchKeyboard } from "@/features/search/hooks/use-search-keyboard";
 import { useSearchResults } from "@/features/search/hooks/use-search-results";
-import type { SearchOverlayProps } from "@/features/search/types";
+import type { SearchFilterScope, SearchOverlayProps } from "@/features/search/types";
 import { SEARCH_TRANSITION_MS } from "@/features/search/types";
 import {
   addSearchHistory,
   clearSearchHistory,
   getSearchHistory,
+  removeSearchHistoryItem,
 } from "@/features/search/utils/history";
+import {
+  getSearchLocationMode,
+  resolveActiveLocationCity,
+  setSearchLocationMode,
+  type SearchLocationMode,
+} from "@/features/search/utils/location-preference";
 import { buildSearchNavItems } from "@/features/search/utils/keyboard-items";
 import { hasSearchResults } from "@/features/search/utils/search-client";
 
@@ -67,6 +76,8 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
+  const [scope, setScope] = useState<SearchFilterScope>("products");
+  const [locationCity, setLocationCity] = useState<string | undefined>(undefined);
 
   const {
     query,
@@ -76,9 +87,10 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
     isLoading,
     isLoadingMore,
     isDebouncing,
+    isTooShort,
     hasQuery,
     loadMoreProducts,
-  } = useSearchResults(initialQuery);
+  } = useSearchResults(initialQuery, locationCity);
 
   const applySearch = useCallback(
     (term: string) => {
@@ -116,6 +128,8 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
     const initialize = () => {
       setMounted(true);
       setHistory(getSearchHistory());
+      const mode = getSearchLocationMode();
+      setLocationCity(resolveActiveLocationCity(mode));
       frame = window.requestAnimationFrame(() => setVisible(true));
       inputRef.current?.focus();
     };
@@ -158,6 +172,15 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
     setHistory([]);
   }
 
+  function handleRemoveHistory(term: string) {
+    setHistory(removeSearchHistoryItem(term));
+  }
+
+  function handleLocationChange(mode: SearchLocationMode, city?: string) {
+    setSearchLocationMode(mode);
+    setLocationCity(mode === "current" || mode === "nearby" ? city : undefined);
+  }
+
   if (!mounted) return null;
 
   const showIdleEmpty =
@@ -176,9 +199,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
   const idleCategoryOffset = history.length + (results?.trending.length ?? 0);
 
   const productOffset = 0;
-  const sellerOffset = results?.products.length ?? 0;
-  const storeOffset = sellerOffset + (results?.sellers.length ?? 0) + (results?.users.length ?? 0);
-  const queryCategoryOffset = storeOffset + (results?.stores.length ?? 0);
+  const sellerOffset = 0;
 
   return createPortal(
     <div
@@ -202,7 +223,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
           ref={panelRef}
           onKeyDown={handleKeyDown}
           className={cn(
-            "premium-glass premium-depth-3 relative mx-auto flex h-full w-full max-w-2xl flex-col overflow-hidden",
+            "rx-glass rx-depth-3 relative mx-auto flex h-full w-full max-w-2xl flex-col overflow-hidden will-change-transform",
             transitionFast,
             visible ? "translate-y-0" : "translate-y-2",
           )}
@@ -211,7 +232,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
           <form onSubmit={handleSubmit} role="search" className="flex items-center gap-ds-2">
             <div
               className={cn(
-                "premium-glass premium-depth-2 premium-glow relative flex min-h-ds-7 flex-1 items-center rounded-ds-full pl-ds-7 pr-ds-2",
+                "rx-glass rx-depth-2 rx-glow relative flex min-h-ds-7 flex-1 items-center rounded-ds-full pl-ds-7 pr-ds-2",
                 transitionFast,
                 "focus-within:ring-2 focus-within:ring-primary/25",
               )}
@@ -251,13 +272,24 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
           </form>
 
           {isSeller && <SellerActions />}
+
+          <div className="mt-ds-3 flex flex-col gap-ds-3">
+            <SearchScopeChips active={scope} onChange={setScope} query={query} />
+            <SearchLocationFilter onChange={handleLocationChange} />
+          </div>
         </header>
 
         <div
           id="search-overlay-results"
-          className="flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),var(--ds-space-4))]"
+          className="min-h-[12rem] flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),var(--ds-space-4))]"
         >
           {(isDebouncing || isLoading) && hasQuery && <LoadingSkeleton />}
+
+          {isTooShort && !isDebouncing && (
+            <p className="px-ds-4 py-ds-3 text-sm text-text-secondary" role="status">
+              Type at least 2 characters to search.
+            </p>
+          )}
 
           {!hasQuery && !isLoading && results && (
             <>
@@ -268,6 +300,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
                     activeIndex={activeIndex}
                     navOffset={recentOffset}
                     onSelect={applySearch}
+                    onRemove={handleRemoveHistory}
                     onClear={handleClearHistory}
                   />
                 </SearchSection>
@@ -313,22 +346,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
                 <SavedSearchesPanel currentQuery={query} onSelect={applySearch} />
               </SearchSection>
 
-              {results.products.length > 0 && (
-                <SearchSection title="Products">
-                  <ProductResults
-                    items={results.products}
-                    activeIndex={activeIndex}
-                    navOffset={productOffset}
-                    hasMore={results.productsHasMore}
-                    isLoadingMore={isLoadingMore}
-                    onHoverIndex={setActiveIndex}
-                    onNavigate={saveCurrentQuery}
-                    onLoadMore={() => void loadMoreProducts()}
-                  />
-                </SearchSection>
-              )}
-
-              {(results.sellers.length > 0 || results.users.length > 0) && (
+              {scope === "sellers" && (results.sellers.length > 0 || results.users.length > 0) && (
                 <SearchSection title="Sellers">
                   <SellerResults
                     sellers={results.sellers}
@@ -341,29 +359,72 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
                 </SearchSection>
               )}
 
-              {results.stores.length > 0 && (
-                <SearchSection title="Stores">
-                  <StoreResults
-                    items={results.stores}
-                    activeIndex={activeIndex}
-                    navOffset={storeOffset}
-                    onHoverIndex={setActiveIndex}
-                  />
-                </SearchSection>
+              {scope === "products" && (
+                <>
+                  <SearchSection title="Suggestions">
+                    <SearchSuggestionList
+                      results={results}
+                      query={debouncedQuery}
+                      activeIndex={activeIndex}
+                      navOffset={productOffset}
+                      onHoverIndex={setActiveIndex}
+                      onNavigate={saveCurrentQuery}
+                    />
+                  </SearchSection>
+
+                  {results.products.length > 5 && (
+                    <SearchSection title="More products">
+                      <ProductResults
+                        items={results.products.slice(5)}
+                        activeIndex={activeIndex}
+                        navOffset={productOffset + 5 + results.categories.length + results.brands.length + results.locations.length}
+                        hasMore={results.productsHasMore}
+                        isLoadingMore={isLoadingMore}
+                        onHoverIndex={setActiveIndex}
+                        onNavigate={saveCurrentQuery}
+                        onLoadMore={() => void loadMoreProducts()}
+                      />
+                    </SearchSection>
+                  )}
+                </>
               )}
 
-              {results.categories.length > 0 && (
-                <SearchSection title="Categories">
-                  <CategoryResults
-                    items={results.categories}
-                    activeIndex={activeIndex}
-                    navOffset={queryCategoryOffset}
-                    onHoverIndex={setActiveIndex}
-                  />
-                </SearchSection>
-              )}
+              {scope === "products" &&
+              results.products.length <= 5 &&
+              results.productsHasMore &&
+              results.products.length > 0 ? (
+                <div className="px-ds-4 py-ds-2">
+                  <button
+                    type="button"
+                    onClick={() => void loadMoreProducts()}
+                    disabled={isLoadingMore}
+                    className="text-sm font-semibold text-primary"
+                  >
+                    {isLoadingMore ? "Loading…" : "Load more products"}
+                  </button>
+                </div>
+              ) : null}
 
-              {showNoResults && <SearchResultsEmpty variant="no-results" query={debouncedQuery} />}
+              {scope === "products" && hasSearchResults(results) ? (
+                <div className="border-t border-border px-ds-4 py-ds-3">
+                  <a
+                    href={`/search?q=${encodeURIComponent(debouncedQuery)}${locationCity ? `&location=${encodeURIComponent(locationCity)}` : ""}`}
+                    className="text-sm font-semibold text-primary"
+                    onClick={saveCurrentQuery}
+                  >
+                    View all results
+                  </a>
+                </div>
+              ) : null}
+
+              {scope === "sellers" &&
+                results.sellers.length === 0 &&
+                results.users.length === 0 &&
+                showNoResults && <SearchResultsEmpty variant="no-results" query={debouncedQuery} />}
+
+              {scope === "products" && showNoResults && (
+                <SearchResultsEmpty variant="no-results" query={debouncedQuery} />
+              )}
             </>
           )}
         </div>

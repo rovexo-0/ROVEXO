@@ -148,7 +148,7 @@ export function ShareListingSheet({ open, onClose, title, slug, productId, price
       <button
         type="button"
         aria-label="Close share menu"
-        className="absolute inset-0 premium-sheet-overlay"
+        className="absolute inset-0 rx-sheet-overlay"
         onClick={onClose}
       />
       <div
@@ -157,7 +157,7 @@ export function ShareListingSheet({ open, onClose, title, slug, productId, price
         aria-modal="true"
         aria-labelledby="share-listing-title"
         className={cn(
-          "premium-sheet relative z-10 w-full max-w-md rounded-t-ds-xl p-ds-5 sm:rounded-ds-xl premium-enter",
+          "rx-sheet relative z-10 w-full max-w-md rounded-t-ds-xl p-ds-5 sm:rounded-ds-xl rx-enter",
           transitionFast,
         )}
       >
@@ -226,7 +226,7 @@ export function ShareListingSheet({ open, onClose, title, slug, productId, price
           type="button"
           onClick={() => void copyLink()}
           className={cn(
-            "mt-ds-4 premium-input flex w-full items-center justify-between rounded-ds-lg bg-surface-muted/50 px-ds-4 py-ds-3 text-left text-sm",
+            "mt-ds-4 rx-input flex w-full items-center justify-between rounded-ds-lg bg-surface-muted/50 px-ds-4 py-ds-3 text-left text-sm",
             focusRing,
             transitionFast,
           )}

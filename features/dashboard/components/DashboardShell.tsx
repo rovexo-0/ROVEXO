@@ -7,5 +7,5 @@ type DashboardShellProps = {
 };
 
 export function DashboardShell({ children, className }: DashboardShellProps) {
-  return <div className={cn("dash-v1-shell", className)}>{children}</div>;
+  return <div className={cn("rx-dash-shell", className)}>{children}</div>;
 }

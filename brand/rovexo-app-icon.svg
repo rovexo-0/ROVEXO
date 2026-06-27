@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none" role="img" aria-label="ROVEXO">
+  <defs>
+    <linearGradient id="rx-bg" x1="128" y1="96" x2="896" y2="928" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1224"/>
+      <stop offset="0.55" stop-color="#101A33"/>
+      <stop offset="1" stop-color="#0A1020"/>
+    </linearGradient>
+    <linearGradient id="rx-r" x1="300" y1="220" x2="760" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="0.45" stop-color="#6366F1"/>
+      <stop offset="0.78" stop-color="#A855F7"/>
+      <stop offset="1" stop-color="#EC4899"/>
+    </linearGradient>
+    <linearGradient id="rx-shine" x1="220" y1="180" x2="520" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="rx-glow" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="28" flood-color="#2563EB" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#A855F7" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <g filter="url(#rx-glow)">
+    <rect x="96" y="96" width="832" height="832" rx="196" fill="url(#rx-bg)"/>
+    <rect x="96" y="96" width="832" height="832" rx="196" fill="url(#rx-shine)"/>
+    <path fill="url(#rx-r)" d="M312 736V288h148c71.4 0 115.5 38 115.5 95.2 0 41.4-21 69.8-57.2 83.2l77.6 161.6h-69.7l-67.4-141.4H376.8V736H312Zm68.2-193.8h73c34.2 0 53.2-16 53.2-44.8 0-28.3-19-44.8-53.2-44.8h-73v89.6Z"/>
+    <ellipse cx="360" cy="300" rx="168" ry="88" fill="#FFFFFF" opacity="0.14"/>
+  </g>
+</svg>

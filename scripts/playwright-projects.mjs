@@ -60,6 +60,19 @@ export function buildDesktopProjects() {
 }
 
 /**
+ * Screenshot suite runs on Chromium only to avoid duplicate captures across browsers.
+ */
+export function buildScreenshotProject() {
+  if (!isBrowserInstalled(chromium)) return null;
+
+  return {
+    name: "chromium-screenshots",
+    testMatch: /(screenshots|owner-review-gallery|owner-review-screenshots|owner-final-visual-review|homepage-premium-polish-review|owner-review-phase1|owner-review-homepage-final|owner-review-brand)\.spec\.ts/,
+    use: { ...devices["Desktop Chrome"] },
+  };
+}
+
+/**
  * Android Chromium project for the sell flow E2E (camera capture + mobile viewport).
  */
 export function buildAndroidSellProject() {
@@ -82,5 +95,13 @@ export function buildAndroidSellProject() {
  * All projects: installed desktop browsers + dedicated Android sell project.
  */
 export function buildAllProjects() {
-  return [...buildDesktopProjects(), buildAndroidSellProject()];
+  const screenshotProject = buildScreenshotProject();
+  const desktop = buildDesktopProjects().map((project) => ({
+    ...project,
+    testIgnore: [/sell-android\.spec\.ts/, /screenshots\.spec\.ts/, /owner-review-screenshots\.spec\.ts/, /owner-final-visual-review\.spec\.ts/, /owner-review-gallery\.spec\.ts/],
+  }));
+
+  return screenshotProject
+    ? [...desktop, screenshotProject, buildAndroidSellProject()]
+    : [...desktop, buildAndroidSellProject()];
 }

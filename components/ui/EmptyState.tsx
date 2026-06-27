@@ -7,7 +7,8 @@ import { cn } from "@/lib/cn";
 type EmptyStateProps = {
   icon?: ReactNode;
   title: string;
-  description: string;
+  description?: string;
+  suggestions?: string[];
   actionLabel?: string;
   actionHref?: string;
   onAction?: () => void;
@@ -18,6 +19,7 @@ export function EmptyState({
   icon,
   title,
   description,
+  suggestions,
   actionLabel,
   actionHref,
   onAction,
@@ -26,19 +28,33 @@ export function EmptyState({
   return (
     <MotionDiv
       className={cn(
-        "premium-card flex flex-col items-center justify-center px-ds-6 py-ds-8 text-center",
+        "rx-surface-card flex flex-col items-center justify-center px-ds-6 py-ds-8 text-center",
         className,
       )}
     >
       {icon ? (
-        <div className="premium-icon-3d mb-ds-4 flex h-16 w-16 items-center justify-center rounded-ds-xl text-primary premium-float">
+        <div className="rx-icon-3d mb-ds-4 flex h-16 w-16 items-center justify-center rounded-ds-xl text-primary rx-float">
           {icon}
         </div>
       ) : null}
       <h3 className="relative z-[1] text-lg font-semibold tracking-tight text-text-primary">{title}</h3>
-      <p className="relative z-[1] mt-ds-2 max-w-sm text-sm leading-relaxed text-text-secondary">
-        {description}
-      </p>
+      {description ? (
+        <p className="relative z-[1] mt-ds-2 max-w-sm text-sm leading-relaxed text-text-secondary">
+          {description}
+        </p>
+      ) : null}
+      {suggestions?.length ? (
+        <ul className="relative z-[1] mt-ds-4 max-w-sm space-y-ds-2 text-left text-sm text-text-secondary">
+          {suggestions.map((suggestion) => (
+            <li key={suggestion} className="flex items-start gap-ds-2">
+              <span aria-hidden className="mt-0.5 text-primary">
+                •
+              </span>
+              <span>{suggestion}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
       {actionLabel && actionHref ? (
         <Link href={actionHref} className="relative z-[1] mt-ds-5">
           <Button size="md">{actionLabel}</Button>

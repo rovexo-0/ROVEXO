@@ -11,7 +11,7 @@ describe("Home page hydration safety", () => {
     const source = readSource("components/home/HomeHeroBanner.tsx");
 
     expect(source).toContain('"use client"');
-    expect(source).toContain("hero-banner-2026");
+    expect(source).toContain("rx-hero-banner");
     expect(source).not.toMatch(/Date\.now|Math\.random|crypto\.randomUUID/);
   });
 
@@ -21,7 +21,8 @@ describe("Home page hydration safety", () => {
 
     expect(homeContent).toContain("HomeCategoryRail");
     expect(homeContent).not.toContain("CategoryGridSection");
-    expect(categoryRail).toContain("home-category-premium-rail");
+    expect(categoryRail).toContain("rx-category-rail");
+    expect(categoryRail).toContain("rx-category-card");
   });
 
   it("defers header height measurement to layout effects", () => {

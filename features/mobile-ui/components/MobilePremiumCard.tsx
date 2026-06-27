@@ -29,17 +29,17 @@ export function MobilePremiumCard({
   return (
     <Link
       href={href}
-      className={cn("dash-v1-tile enterprise-hub-card", focusRing)}
+      className={cn("rx-dash-tile rx-hub-card", focusRing)}
       aria-label={statusLabel ? `${label}. ${subtitle}. ${statusLabel}` : `${label}. ${subtitle}`}
     >
       <MobilePremiumBadge count={badgeCount} badgeKey={badgeKey} tone={badgeTone} />
 
-      <div className="dash-v1-tile__icon enterprise-hub-card__icon">
+      <div className="rx-dash-tile__icon rx-hub-card__icon">
         <DashboardIcon3D type={iconType} size={36} />
       </div>
-      <p className="dash-v1-tile__title enterprise-hub-card__title">{label}</p>
-      <p className="dash-v1-tile__subtitle enterprise-hub-card__subtitle">{subtitle}</p>
-      {statusLabel ? <p className="dash-v1-tile__status">{statusLabel}</p> : null}
+      <p className="rx-dash-tile__title rx-hub-card__title">{label}</p>
+      <p className="rx-dash-tile__subtitle rx-hub-card__subtitle">{subtitle}</p>
+      {statusLabel ? <p className="rx-dash-tile__status">{statusLabel}</p> : null}
     </Link>
   );
 }

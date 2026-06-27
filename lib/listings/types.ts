@@ -26,6 +26,7 @@ export type SellerListing = {
   slug: string;
   title: string;
   description: string;
+  locationCity: string | null;
   brand: string | null;
   brandId: string | null;
   categoryId: string | null;
@@ -63,6 +64,7 @@ export type CreateListingInput = {
   sellerId: string;
   title: string;
   description: string;
+  locationCity?: string | null;
   brand?: string;
   color?: string;
   size?: string;
@@ -103,6 +105,7 @@ export type SearchListingsOptions = {
   deliveryAvailable?: boolean;
   collectionOnly?: boolean;
   inStock?: boolean;
+  locationCity?: string;
   sort?: "newest" | "price_asc" | "price_desc";
   page?: number;
   pageSize?: number;

@@ -179,7 +179,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
             <p className="text-sm text-text-secondary">No {activeType} addresses yet.</p>
           ) : null}
           {addresses.map((address) => (
-            <article key={address.id} className="premium-card p-ds-4">
+            <article key={address.id} className="rx-surface-card p-ds-4">
               <div className="flex items-start justify-between gap-ds-3">
                 <div>
                   <p className="font-semibold text-text-primary">{address.recipientName}</p>
@@ -210,7 +210,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
           ))}
         </section>
 
-        <form onSubmit={onSubmit} className="premium-card flex flex-col gap-ds-3 p-ds-5" noValidate>
+        <form onSubmit={onSubmit} className="rx-surface-card flex flex-col gap-ds-3 p-ds-5" noValidate>
           <h2 className="text-base font-semibold text-text-primary">
             {editingId ? "Edit address" : `Add ${activeType} address`}
           </h2>

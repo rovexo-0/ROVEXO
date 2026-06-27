@@ -5,6 +5,7 @@ type FetchSearchParams = {
   query: string;
   productOffset?: number;
   productLimit?: number;
+  locationCity?: string;
   signal?: AbortSignal;
 };
 
@@ -12,6 +13,7 @@ export async function fetchSearchResults({
   query,
   productOffset = 0,
   productLimit = SEARCH_PRODUCT_PAGE_SIZE,
+  locationCity,
   signal,
 }: FetchSearchParams): Promise<SearchResults> {
   const params = new URLSearchParams({
@@ -19,6 +21,9 @@ export async function fetchSearchResults({
     offset: String(productOffset),
     limit: String(productLimit),
   });
+  if (locationCity?.trim()) {
+    params.set("location", locationCity.trim());
+  }
 
   const response = await fetch(`/api/search?${params.toString()}`, {
     cache: "no-store",

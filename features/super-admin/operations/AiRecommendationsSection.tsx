@@ -20,7 +20,7 @@ export function AiRecommendationsSection({ recommendations }: { recommendations:
 
       <div className="mt-ds-4 grid gap-ds-3 lg:grid-cols-2">
         {recommendations.map((item) => (
-          <Card key={item.id} padding="md" className="premium-card border border-border/80">
+          <Card key={item.id} padding="md" className="rx-surface-card border border-border/80">
             <div className="flex flex-wrap items-start justify-between gap-ds-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-primary">{item.category}</p>

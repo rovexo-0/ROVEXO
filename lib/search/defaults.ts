@@ -15,10 +15,12 @@ export const defaultRecentSearches = [
 ];
 
 export const defaultTrendingSearches = [
-  "iPhone 15",
-  "Designer bags",
-  "PlayStation 5",
-  "Winter jackets",
+  "Cars",
+  "iPhone",
+  "Furniture",
+  "Tools",
+  "Fashion",
+  "Pets",
 ];
 
 export const defaultCategories = homeCategories.map((category) => ({

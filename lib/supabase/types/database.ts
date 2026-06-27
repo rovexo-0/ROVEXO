@@ -2579,6 +2579,7 @@ export type Database = {
           last_bumped_at: string | null
           likes: number
           listing_type: string
+          location_city: string | null
           local_delivery_radius_km: number | null
           low_stock_alert: number
           moderation_confidence: number
@@ -2627,6 +2628,7 @@ export type Database = {
           last_bumped_at?: string | null
           likes?: number
           listing_type?: string
+          location_city?: string | null
           local_delivery_radius_km?: number | null
           low_stock_alert?: number
           moderation_confidence?: number
@@ -2675,6 +2677,7 @@ export type Database = {
           last_bumped_at?: string | null
           likes?: number
           listing_type?: string
+          location_city?: string | null
           local_delivery_radius_km?: number | null
           low_stock_alert?: number
           moderation_confidence?: number

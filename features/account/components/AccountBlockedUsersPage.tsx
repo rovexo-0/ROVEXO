@@ -84,7 +84,7 @@ export function AccountBlockedUsersPage() {
       backHref="/account/profile"
       backLabel="Security"
     >
-      <form onSubmit={onSubmit} className="premium-card flex flex-col gap-ds-3 p-ds-5" noValidate>
+      <form onSubmit={onSubmit} className="rx-surface-card flex flex-col gap-ds-3 p-ds-5" noValidate>
         <h2 className="text-base font-semibold text-text-primary">Block a user</h2>
         <div>
           <label htmlFor="username" className="text-sm font-medium">
@@ -104,7 +104,7 @@ export function AccountBlockedUsersPage() {
         {message ? <p className="text-sm text-text-secondary">{message}</p> : null}
       </form>
 
-      <section className="premium-card mt-ds-4 p-ds-5">
+      <section className="rx-surface-card mt-ds-4 p-ds-5">
         <h2 className="text-base font-semibold text-text-primary">Blocked list</h2>
         {loading ? <p className="mt-ds-3 text-sm text-text-secondary">Loading…</p> : null}
         {!loading && !blocked.length ? (

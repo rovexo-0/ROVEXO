@@ -60,19 +60,19 @@ function Header({
   return (
     <header
       ref={headerRef}
-      data-header-version="premium-2026"
+      data-header-version="rovexo-v1"
       className={cn(
-        "header-premium-2026 sticky top-0 left-0 right-0 z-[100]",
+        "rx-header-shell sticky top-0 left-0 right-0 z-[100]",
         "pt-[max(env(safe-area-inset-top),var(--ds-space-1))]",
       )}
     >
       <div className="mx-auto max-w-7xl px-ds-4">
-        <div className="relative flex w-full min-h-[var(--header-shell-height)] items-center gap-2 pb-1">
-          <div className="z-[2] flex shrink-0 items-center">
+        <div className="relative flex w-full min-h-[var(--header-shell-height)] items-center gap-2">
+          <div className="z-[2] flex shrink-0 items-center self-center">
             <RovexoHeaderMark />
           </div>
 
-          <div className="header-premium-2026__search z-[1] min-w-0 flex-1">
+          <div className="rx-header-shell__search z-[1] flex min-w-0 flex-1 items-center self-center">
             <HeaderSearchBar
               inputId="header-search"
               placeholder="Search ROVEXO..."
@@ -81,7 +81,7 @@ function Header({
           </div>
 
           <div
-            className="z-[2] flex shrink-0 items-center gap-0"
+            className="z-[2] flex shrink-0 items-center gap-1 self-center"
             role="group"
             aria-label="Quick links"
           >
@@ -93,7 +93,7 @@ function Header({
         </div>
       </div>
 
-      <HeaderCategoryBar className="hidden md:block" />
+      <HeaderCategoryBar />
     </header>
   );
 }

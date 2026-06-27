@@ -19,7 +19,7 @@ export function SellPublishFooter({
   const loadingLabel = editListingId ? "Saving…" : "Publishing…";
 
   return (
-    <div className="premium-footer-bar fixed inset-x-0 bottom-0 z-[110]">
+    <div className="rx-footer-bar fixed inset-x-0 bottom-0 z-[110]">
       <div className="mx-auto max-w-2xl px-ds-4 py-ds-3 pb-[max(env(safe-area-inset-bottom),var(--ds-space-3))]">
         <Button
           variant="primary"

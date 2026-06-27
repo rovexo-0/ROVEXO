@@ -28,7 +28,7 @@ export function LogoutButton({ className }: LogoutButtonProps) {
         type="button"
         onClick={() => setLogoutOpen(true)}
         disabled={pending}
-        className={cn("dash-v1-logout", focusRing, className)}
+        className={cn("rx-dash-logout", focusRing, className)}
       >
         <SignOutIcon className="h-5 w-5" aria-hidden />
         {pending ? "Signing out…" : "Sign Out"}

@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { BottomNavIcon3D } from "@/components/icons/BottomNavIcon3D";
 import { cn } from "@/lib/cn";
+import { useSearchOverlayOptional } from "@/features/search/client";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import "./header-search-bar.css";
 
@@ -19,21 +19,24 @@ export function HeaderSearchBar({
   placeholder = "Search ROVEXO...",
   className,
 }: HeaderSearchBarProps) {
+  const searchOverlay = useSearchOverlayOptional();
+
   return (
     <div className={cn("relative w-full min-w-0", className)}>
-      <Link
+      <button
         id={inputId}
-        href="/search"
+        type="button"
         role="search"
         aria-label={placeholder}
         data-header-search="bar"
-        className={cn("header-search-bar-2026", focusRing, transitionFast)}
+        onClick={() => searchOverlay?.open()}
+        className={cn("header-rx-search-bar w-full text-left", focusRing, transitionFast)}
       >
         <span className="header-search-bar-2026__icon" aria-hidden>
           <BottomNavIcon3D type="search" size="tab" />
         </span>
         <span className="header-search-bar-2026__placeholder">{placeholder}</span>
-      </Link>
+      </button>
     </div>
   );
 }

@@ -32,7 +32,7 @@ export function ProductSection({
           </a>
         )}
       </div>
-      <div className="marketplace-listing-grid">
+      <div className="rx-listing-grid">
         {loading ? (
           <ProductGridSkeleton count={4} />
         ) : error ? (

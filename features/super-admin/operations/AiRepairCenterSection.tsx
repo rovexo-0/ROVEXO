@@ -119,12 +119,12 @@ export function AiRepairCenterSection({ snapshot, onUpdated }: AiRepairCenterSec
 
       <div className="mt-ds-4 space-y-ds-3">
         {snapshot.issues.length === 0 ? (
-          <Card padding="md" className="premium-card bg-white/90">
+          <Card padding="md" className="rx-surface-card bg-white/90">
             <p className="text-sm text-text-secondary">No issues detected. Run a platform scan to refresh.</p>
           </Card>
         ) : (
           snapshot.issues.map((issue) => (
-            <Card key={issue.id} padding="md" className="premium-card border border-border/80 bg-white/90 dark:bg-slate-900/80">
+            <Card key={issue.id} padding="md" className="rx-surface-card border border-border/80 bg-white/90 dark:bg-slate-900/80">
               <div className="flex flex-wrap items-start justify-between gap-ds-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-ds-2">

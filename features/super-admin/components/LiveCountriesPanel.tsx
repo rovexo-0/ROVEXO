@@ -114,7 +114,7 @@ export function LiveCountriesPanel() {
       </div>
 
       <div
-        className="live-countries-scroll premium-card overflow-y-auto scroll-smooth p-ds-2"
+        className="live-countries-scroll rx-surface-card overflow-y-auto scroll-smooth p-ds-2"
         role="list"
         aria-live="polite"
         aria-relevant="additions removals"

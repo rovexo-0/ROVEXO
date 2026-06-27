@@ -1,7 +1,10 @@
 import { test, expect, type Page } from "@playwright/test";
-
-const HERO_CAROUSEL_SELECTOR = 'section[aria-label="ROVEXO hero carousel"]';
-
+import {
+  HERO_CAROUSEL_SELECTOR,
+  waitForHeroCarousel,
+  waitForHomepageUi,
+} from "./helpers/stable-ui";
+import { escapeSlugForRegExp, resolveListingSlugForE2E } from "./helpers/listing-slug";
 type RouteExpectation = {
   path: string;
   name: string;
@@ -106,32 +109,23 @@ test.describe("Master QA — protected routes (unauthenticated)", () => {
 
 test.describe("Master QA — homepage sections", () => {
   test("hero, categories, listings, navigation", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("domcontentloaded");
-
-    await expect(page.locator('[data-header-version="premium-2026"]')).toBeVisible();
-    await expect(page.locator("#header-search, [data-header-search='bar']").first()).toBeVisible();
-    await expect(page.locator(HERO_CAROUSEL_SELECTOR)).toBeVisible();
-    await expect(page.getByRole("tablist", { name: "Hero slides" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /move your entire store to rovexo/i })).toBeVisible();
-    await expect(page.locator('section[aria-labelledby="home-categories-heading"]')).toBeVisible();
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await waitForHomepageUi(page);
+    await waitForHeroCarousel(page);
 
     const featuredHeading = page.getByRole("heading", { name: /featured listings/i });
     if ((await featuredHeading.count()) > 0) {
       await expect(featuredHeading).toBeVisible();
-      await expect(page.getByRole("heading", { name: /recommended for you/i })).toBeVisible();
-      await expect(page.getByRole("heading", { name: /latest listings/i })).toBeVisible();
     }
+
+    await expect(page.getByRole("heading", { name: /recommended for you/i })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /latest listings/i })).toHaveCount(0);
 
     await page.locator("#auctions-heading").scrollIntoViewIfNeeded();
     await expect(page.locator("#auctions-heading")).toHaveText(/popular auctions/i);
     const bannerSection = page.locator(HERO_CAROUSEL_SELECTOR);
     await bannerSection.scrollIntoViewIfNeeded();
-    await expect(bannerSection.getByRole("link", { name: "Bring Your Item" })).toHaveAttribute("href", "/sell/new");
-    await expect(bannerSection.getByRole("link", { name: "Import Your Item" })).toHaveAttribute(
-      "href",
-      "/seller/migration",
-    );
+    await expect(bannerSection.getByRole("link", { name: "Bring Your Items" })).toHaveAttribute("href", "/sell/new");
     await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
   });
 });
@@ -152,11 +146,7 @@ test.describe("Master QA — navigation links", () => {
     await page.goto("/");
     const bannerSection = page.locator(HERO_CAROUSEL_SELECTOR);
     await bannerSection.scrollIntoViewIfNeeded();
-    await expect(bannerSection.getByRole("link", { name: "Bring Your Item" })).toHaveAttribute("href", "/sell/new");
-    await expect(bannerSection.getByRole("link", { name: "Import Your Item" })).toHaveAttribute(
-      "href",
-      "/seller/migration",
-    );
+    await expect(bannerSection.getByRole("link", { name: "Bring Your Items" })).toHaveAttribute("href", "/sell/new");
   });
 
   test("footer legal links resolve", async ({ page }) => {
@@ -172,21 +162,27 @@ test.describe("Master QA — navigation links", () => {
 });
 
 test.describe("Master QA — listing alias", () => {
-  test("/item/:slug redirects to listing page", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("domcontentloaded");
-    const listingLink = page.locator('a[href^="/listing/"]').first();
-    const count = await listingLink.count();
-    test.skip(count === 0, "No listings on homepage to test alias redirect");
+  test("/item/:slug redirects to listing page", async ({ page, request }) => {
+    const { slug, cleanup } = await resolveListingSlugForE2E(request, page);
 
-    const href = await listingLink.getAttribute("href");
-    const slug = href?.replace("/listing/", "");
-    expect(slug).toBeTruthy();
+    try {
+      const redirectResponse = await request.get(`/item/${encodeURIComponent(slug)}`, {
+        maxRedirects: 0,
+      });
+      expect([301, 308, 307]).toContain(redirectResponse.status());
+      const location = redirectResponse.headers().location ?? "";
+      expect(location).toMatch(new RegExp(`/listing/${escapeSlugForRegExp(slug)}(?:\\?.*)?$`));
 
-    const response = await page.goto(`/item/${slug}`, { waitUntil: "domcontentloaded" });
-    expect(response?.status()).toBeLessThan(500);
-    await expect(page).toHaveURL(new RegExp(`/listing/${slug}`));
-    await expect(page.locator("main")).toBeVisible();
+      const response = await page.goto(`/item/${encodeURIComponent(slug)}`, {
+        waitUntil: "domcontentloaded",
+      });
+      expect(response?.status()).toBe(200);
+      await expect(page).toHaveURL(new RegExp(`/listing/${escapeSlugForRegExp(slug)}`));
+      await expect(page.locator("main")).toBeVisible();
+      await assertNoServerError(page);
+    } finally {
+      await cleanup();
+    }
   });
 });
 

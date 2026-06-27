@@ -3,6 +3,8 @@
 @theme inline {
   --color-primary: var(--ds-color-primary);
   --color-primary-foreground: var(--ds-color-primary-foreground);
+  --color-accent: var(--ds-color-accent);
+  --color-accent-foreground: var(--ds-color-accent-foreground);
   --color-secondary: var(--ds-color-secondary);
   --color-secondary-foreground: var(--ds-color-secondary-foreground);
   --color-success: var(--ds-color-success);
@@ -30,16 +32,19 @@
   --spacing-ds-6: var(--ds-space-6);
   --spacing-ds-7: var(--ds-space-7);
   --spacing-ds-8: var(--ds-space-8);
+  --spacing-ds-9: var(--ds-space-9);
 
   --radius-ds-sm: var(--ds-radius-sm);
   --radius-ds-md: var(--ds-radius-md);
   --radius-ds-lg: var(--ds-radius-lg);
   --radius-ds-xl: var(--ds-radius-xl);
+  --radius-ds-2xl: var(--ds-radius-2xl);
   --radius-ds-full: var(--ds-radius-full);
 
   --shadow-ds-soft: var(--ds-shadow-soft);
   --shadow-ds-medium: var(--ds-shadow-medium);
   --shadow-ds-floating: var(--ds-shadow-floating);
+  --shadow-ds-premium: var(--ds-shadow-premium);
 
   --duration-ds-fast: var(--ds-duration-fast);
   --duration-ds-normal: var(--ds-duration-normal);
@@ -54,18 +59,29 @@
 
 body {
   background: var(--ds-color-background);
+  background-image: var(--ds-gradient-page);
   color: var(--ds-color-text-primary);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: var(--ds-font-body-size);
+  line-height: var(--ds-font-body-leading);
+  letter-spacing: var(--ds-font-body-tracking);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 :root {
   --header-control-height: 44px;
-  --header-search-height: 48px;
-  --header-shell-height: 52px;
-  --header-mobile-stack-height: 52px;
-  --bottom-nav-shell-height: 60px;
+  --header-search-height: 56px;
+  --header-shell-height: 64px;
+  --header-mobile-stack-height: 56px;
+  --bottom-nav-shell-height: 84px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-shell-height: 72px;
+  }
 }
 
 .sr-only {
@@ -237,4 +253,13 @@ body {
     animation: none;
     transition: none;
   }
+}
+
+/* ROVEXO v1.0 — legacy utility migration (UI-only, preserves class names in markup) */
+.bg-white {
+  background-color: var(--ds-color-surface);
+}
+
+.text-white {
+  color: var(--ds-color-primary-foreground);
 }

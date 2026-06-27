@@ -19,7 +19,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install",
-    "test:e2e:android-sell": "playwright test e2e/sell-android.spec.ts --project=android-chromium"
+    "test:e2e:android-sell": "playwright test e2e/sell-android.spec.ts --project=android-chromium",
+    "generate:brand": "node scripts/generate-brand-assets.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

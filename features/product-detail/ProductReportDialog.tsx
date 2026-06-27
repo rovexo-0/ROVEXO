@@ -40,12 +40,12 @@ export function ProductReportDialog({ productSlug }: ProductReportDialogProps) {
 
       {open && (
         <div
-          className="premium-sheet-overlay fixed inset-0 z-[200] flex items-end justify-center p-ds-4 sm:items-center"
+          className="rx-sheet-overlay fixed inset-0 z-[200] flex items-end justify-center p-ds-4 sm:items-center"
           role="dialog"
           aria-modal="true"
           aria-labelledby="report-dialog-title"
         >
-          <div className="premium-sheet premium-enter w-full max-w-md p-ds-5">
+          <div className="rx-sheet rx-enter w-full max-w-md p-ds-5">
             <h2 id="report-dialog-title" className="text-lg font-semibold text-text-primary">
               Report listing
             </h2>
@@ -64,9 +64,14 @@ export function ProductReportDialog({ productSlug }: ProductReportDialogProps) {
                   <select
                     value={reason}
                     onChange={(event) => setReason(event.target.value)}
-                    className="premium-input min-h-ds-7 px-ds-3 text-text-primary"
+                    className="rx-input min-h-ds-7 px-ds-3 text-text-primary"
                   >
                     <option value="misleading">Misleading description</option>
+                    <option value="wrong_category">Wrong category</option>
+                    <option value="wrong_photos">Wrong photos</option>
+                    <option value="duplicate">Duplicate listing</option>
+                    <option value="suspicious">Suspicious listing</option>
+                    <option value="wrong_location">Wrong location</option>
                     <option value="counterfeit">Counterfeit or replica</option>
                     <option value="prohibited">Prohibited item</option>
                     <option value="spam">Spam or scam</option>
@@ -79,7 +84,7 @@ export function ProductReportDialog({ productSlug }: ProductReportDialogProps) {
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
                     rows={3}
-                    className="premium-input min-h-[88px] px-ds-3 py-ds-2 text-text-primary"
+                    className="rx-input min-h-[88px] px-ds-3 py-ds-2 text-text-primary"
                   />
                 </label>
                 {status === "error" && (

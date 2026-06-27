@@ -28,13 +28,13 @@ export function ProfileCard({
     : null;
 
   return (
-    <section className="dash-v1-profile-card" aria-labelledby="dash-profile-name">
-      <div className="dash-v1-profile-card__actions">
-        <NotificationBell className="dash-v1-profile-card__action" />
+    <section className="rx-dash-profile-card" aria-labelledby="dash-profile-name">
+      <div className="rx-dash-profile-card__actions">
+        <NotificationBell className="rx-dash-profile-card__action" />
         <Link
           href={settingsHref}
           aria-label="Settings"
-          className={cn("dash-v1-profile-card__action", focusRing)}
+          className={cn("rx-dash-profile-card__action", focusRing)}
         >
           <DashboardIcon3D type="settings" size={26} />
         </Link>
@@ -71,7 +71,7 @@ export function ProfileCard({
         {trustData ? (
           <Link
             href="/trust"
-            className={cn("dash-v1-trust-card w-full text-left", focusRing)}
+            className={cn("rx-dash-trust-card w-full text-left", focusRing)}
             aria-label="View Trust Centre"
           >
             <div className="flex items-start justify-between gap-3">
@@ -93,13 +93,13 @@ export function ProfileCard({
               ) : null}
             </div>
             <div
-              className="dash-v1-trust-meter mt-3"
+              className="rx-dash-trust-meter mt-3"
               role="progressbar"
               aria-valuenow={trustData.score.score}
               aria-valuemin={0}
               aria-valuemax={100}
             >
-              <div className="dash-v1-trust-meter__fill" style={{ width: `${fill}%` }} />
+              <div className="rx-dash-trust-meter__fill" style={{ width: `${fill}%` }} />
             </div>
           </Link>
         ) : null}

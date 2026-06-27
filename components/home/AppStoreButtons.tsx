@@ -23,7 +23,7 @@ function PlayIcon({ className }: { className?: string }) {
 
 export function AppStoreButtons({ className }: AppStoreButtonsProps) {
   return (
-    <div className={cn("hero-banner-2026__stores", className)}>
+    <div className={cn("rx-hero-banner__stores", className)}>
       <a
         href="https://apps.apple.com"
         target="_blank"

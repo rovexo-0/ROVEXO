@@ -30,26 +30,26 @@ export function DashboardHeader({
 
   return (
     <>
-      <header className="dash-v1-header">
-        <div className="dash-v1-header__row">
+      <header className="rx-dash-header">
+        <div className="rx-dash-header__row">
           <IconButton
             label={menuOpen ? "Close menu" : "Open menu"}
             variant="ghost"
             size="md"
-            className="dash-v1-header__action shrink-0"
+            className="rx-dash-header__action shrink-0"
             onClick={() => setMenuOpen((current) => !current)}
           >
             <DashboardIcon3D type="categories" size={28} />
           </IconButton>
 
-          <h1 className="dash-v1-header__title text-center">{title}</h1>
+          <h1 className="rx-dash-header__title text-center">{title}</h1>
 
-          <div className="dash-v1-header__actions">
+          <div className="rx-dash-header__actions">
             <NotificationBell />
             <Link
               href={settingsHref}
               aria-label="Settings"
-              className={cn("dash-v1-header__action", focusRing)}
+              className={cn("rx-dash-header__action", focusRing)}
             >
               <DashboardIcon3D type="settings" size={28} />
             </Link>
@@ -58,7 +58,7 @@ export function DashboardHeader({
       </header>
 
       {menuOpen ? (
-        <div className="premium-sheet-overlay fixed inset-0 z-[100] overflow-y-auto bg-white/95 px-5 pt-[calc(72px+env(safe-area-inset-top))] pb-6">
+        <div className="rx-sheet-overlay fixed inset-0 z-[100] overflow-y-auto px-5 pt-[calc(72px+env(safe-area-inset-top))] pb-6">
           <button
             type="button"
             aria-label="Close menu"

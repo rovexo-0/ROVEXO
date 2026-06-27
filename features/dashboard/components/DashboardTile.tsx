@@ -34,15 +34,15 @@ export function DashboardTile({
   const content = (
     <>
       <NotificationBadge count={badgeCount} tone={badgeTone} />
-      <div className="dash-v1-tile__top">
-        <div className="dash-v1-tile__icon">
+      <div className="rx-dash-tile__top">
+        <div className="rx-dash-tile__icon">
           <DashboardIcon3D type={iconType} size={32} />
         </div>
-        <ChevronRightIcon className="dash-v1-tile__chevron h-4 w-4 shrink-0" aria-hidden />
+        <ChevronRightIcon className="rx-dash-tile__chevron h-4 w-4 shrink-0" aria-hidden />
       </div>
       <div>
-        <p className="dash-v1-tile__title">{title}</p>
-        <p className="dash-v1-tile__subtitle">{subtitle}</p>
+        <p className="rx-dash-tile__title">{title}</p>
+        <p className="rx-dash-tile__subtitle">{subtitle}</p>
         {statusLabel ? (
           <p className="mt-1 text-[0.6875rem] font-medium text-text-muted">{statusLabel}</p>
         ) : null}
@@ -50,7 +50,7 @@ export function DashboardTile({
     </>
   );
 
-  const className = cn("dash-v1-tile", focusRing);
+  const className = cn("rx-dash-tile", focusRing);
   const ariaLabel = statusLabel ? `${title}. ${subtitle}. ${statusLabel}` : `${title}. ${subtitle}`;
 
   if (asButton && onClick) {
@@ -69,5 +69,5 @@ export function DashboardTile({
 }
 
 export function DashboardTileIcon({ children }: { children: ReactNode }) {
-  return <div className="dash-v1-tile__icon">{children}</div>;
+  return <div className="rx-dash-tile__icon">{children}</div>;
 }

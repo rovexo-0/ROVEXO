@@ -13,8 +13,8 @@ export function NotificationBadge({ count, className, tone = "danger" }: Notific
   return (
     <span
       className={[
-        "dash-v1-badge pointer-events-none absolute",
-        tone === "danger" ? "dash-v1-badge--danger" : "dash-v1-badge--success",
+        "rx-dash-badge pointer-events-none absolute",
+        tone === "danger" ? "rx-dash-badge--danger" : "rx-dash-badge--success",
         className,
       ]
         .filter(Boolean)

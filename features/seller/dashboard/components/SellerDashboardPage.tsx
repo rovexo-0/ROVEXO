@@ -17,6 +17,7 @@ import type { SellerDashboardData } from "@/lib/seller/types";
 const QUICK_ACTIONS = [
   { href: "/sell", label: "New Listing", subtitle: "Create a listing" },
   { href: "/seller/listings", label: "My Listings", subtitle: "Manage inventory" },
+  { href: "/seller/review-center", label: "Review Center", subtitle: "Moderation reviews" },
   { href: "/seller/orders", label: "Orders", subtitle: "Fulfillment & shipping" },
   { href: "/seller/wallet", label: "Wallet", subtitle: "Balance & payouts" },
   { href: "/seller/analytics", label: "Analytics", subtitle: "Views, sales & trends" },
@@ -33,7 +34,7 @@ type SellerDashboardPageProps = {
 export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto w-full max-w-2xl bg-white px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <main className="mx-auto w-full max-w-2xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
         <DashboardShell>
           <SellerDashboardHeader profile={data.profile} />
         <SellerProfileCard
@@ -77,7 +78,7 @@ export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
           <div className="mt-ds-4 flex flex-wrap gap-ds-2">
             <Link
               href="/seller/analytics"
-              className="rounded-ds-full bg-primary px-ds-4 py-ds-2 text-sm font-medium text-white"
+              className="rounded-ds-full bg-primary px-ds-4 py-ds-2 text-sm font-medium text-primary-foreground"
             >
               View analytics
             </Link>

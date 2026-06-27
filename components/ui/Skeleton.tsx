@@ -16,7 +16,7 @@ export function Skeleton({ className, rounded = "md" }: SkeletonProps) {
   return (
     <div
       aria-hidden
-      className={cn("premium-skeleton", roundedStyles[rounded], className)}
+      className={cn("rx-skeleton", roundedStyles[rounded], className)}
     />
   );
 }

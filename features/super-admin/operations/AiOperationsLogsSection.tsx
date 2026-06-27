@@ -49,7 +49,7 @@ export function AiOperationsLogsSection({ logs }: { logs: Record<string, LogEntr
         ))}
       </div>
 
-      <Card padding="none" className="premium-card mt-ds-4 overflow-hidden border border-border/80">
+      <Card padding="none" className="rx-surface-card mt-ds-4 overflow-hidden border border-border/80">
         <div className="max-h-80 overflow-y-auto">
           {entries.length === 0 ? (
             <p className="px-ds-4 py-ds-6 text-sm text-text-secondary">No logs in this category.</p>

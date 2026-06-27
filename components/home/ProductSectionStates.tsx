@@ -13,15 +13,12 @@ export function ProductSectionEmpty({
   message = "Check back soon for new listings in this section.",
 }: ProductSectionEmptyProps) {
   return (
-    <div
-      role="status"
-      className="col-span-full rounded-ds-xl border border-dashed border-border bg-secondary/40 px-ds-5 py-ds-8 text-center"
-    >
-      <p className="text-sm font-medium text-text-primary">No {title.toLowerCase()} yet</p>
-      <p className="mt-ds-1 text-sm text-text-secondary">{message}</p>
+    <div role="status" className="rx-home-empty">
+      <p className="rx-home-empty__title">No {title.toLowerCase()} yet</p>
+      <p className="rx-home-empty__message">{message}</p>
       <Link
         href="/categories"
-        className="mt-ds-4 inline-flex min-h-ds-7 items-center rounded-ds-full bg-primary px-ds-5 text-sm font-semibold text-primary-foreground"
+        className="rx-home-empty__cta inline-flex min-h-ds-7 items-center rounded-ds-full bg-primary px-ds-5 text-sm font-semibold text-primary-foreground"
       >
         Browse categories
       </Link>
@@ -34,15 +31,15 @@ export function ProductSectionError({ onRetry }: { onRetry?: () => void }) {
     <div
       role="status"
       aria-live="polite"
-      className="col-span-full rounded-ds-xl border border-danger/50 bg-surface px-ds-5 py-ds-8 text-center"
+      className="rx-home-empty border-danger/50 bg-surface"
     >
-      <p className="text-sm font-medium text-text-primary">Unable to load products</p>
-      <p className="mt-ds-1 text-sm text-text-primary">Something went wrong. Please try again.</p>
+      <p className="rx-home-empty__title">Unable to load products</p>
+      <p className="rx-home-empty__message">Something went wrong. Please try again.</p>
       {onRetry && (
         <button
           type="button"
           onClick={onRetry}
-          className="mt-ds-4 inline-flex min-h-ds-7 items-center rounded-ds-full bg-primary px-ds-5 text-sm font-semibold text-primary-foreground"
+          className="rx-home-empty__cta inline-flex min-h-ds-7 items-center rounded-ds-full bg-primary px-ds-5 text-sm font-semibold text-primary-foreground"
         >
           Retry
         </button>

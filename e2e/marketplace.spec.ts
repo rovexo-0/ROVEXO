@@ -1,32 +1,32 @@
 import { test, expect } from "@playwright/test";
+import {
+  waitForDomContentLoaded,
+  waitForHomepageUi,
+  waitForSearchResultsUi,
+} from "./helpers/stable-ui";
 
 test.describe("marketplace core", () => {
   test("homepage renders search, categories and featured listings", async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("domcontentloaded");
-    await expect(page.locator("#header-search, [data-header-search='bar']").first()).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('section[aria-label="ROVEXO hero carousel"]')).toBeVisible();
-    await expect(page.getByRole("tablist", { name: "Hero slides" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /move your entire store to rovexo/i })).toBeVisible();
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await waitForHomepageUi(page);
     const categories = page.locator('section[aria-labelledby="home-categories-heading"]');
     await expect(categories.locator('a[href="/category/vehicles"]').first()).toBeVisible();
-    await expect(categories.locator('a[href="/category/fashion"]').first()).toBeVisible();
+    await expect(categories.locator('a[href="/category/womens-fashion"]').first()).toBeVisible();
   });
 
   test("categories index is reachable", async ({ page }) => {
-    await page.goto("/categories");
+    await page.goto("/categories", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: /all categories/i })).toBeVisible();
   });
 
   test("search results page loads", async ({ page }) => {
-    await page.goto("/search?q=phone");
-    await expect(page.getByRole("heading", { name: /results for/i })).toBeVisible();
-    await expect(page.getByLabel("Search filters")).toBeVisible();
+    await page.goto("/search?q=phone", { waitUntil: "domcontentloaded" });
+    await waitForSearchResultsUi(page);
   });
 
   test("category page resolves nested slug path", async ({ page }) => {
-    await page.goto("/category/home-garden/furniture/beds");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/category/home-garden/furniture/beds", { waitUntil: "domcontentloaded" });
+    await waitForDomContentLoaded(page);
     await expect(page.getByRole("heading", { name: "Beds", exact: true })).toBeVisible({
       timeout: 15_000,
     });

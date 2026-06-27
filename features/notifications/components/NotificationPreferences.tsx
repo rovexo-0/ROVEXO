@@ -67,17 +67,17 @@ export function NotificationPreferencesPage() {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <header className="dash-v1-header">
-        <div className="dash-v1-header__row">
+      <header className="rx-dash-header">
+        <div className="rx-dash-header__row">
           <IconButton href="/notifications" label="Back to notifications" variant="ghost" size="md">
             <BackIcon className="h-5 w-5" />
           </IconButton>
-          <h1 className="dash-v1-header__title text-center">Notification preferences</h1>
+          <h1 className="rx-dash-header__title text-center">Notification preferences</h1>
           <span aria-hidden className="w-12" />
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-5 bg-white px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <main className="mx-auto flex w-full max-w-2xl flex-col gap-5 bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
         {saving ? (
           <p className="sr-only" aria-live="polite">
             Saving preferences
@@ -152,7 +152,7 @@ export function NotificationPreferencesPage() {
 
         <Link
           href="/notifications/settings"
-          className={cn("dash-v1-tile flex-row items-center justify-between px-4 py-4", focusRing)}
+          className={cn("rx-dash-tile flex-row items-center justify-between px-4 py-4", focusRing)}
         >
           <span className="text-sm font-semibold text-text-primary">Push & email settings</span>
           <span className="text-xs text-text-secondary">Advanced delivery options</span>

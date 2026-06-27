@@ -55,7 +55,7 @@ export function AiEmergencySection() {
           <Card
             key={item.action}
             padding="md"
-            className="premium-card border border-red-500/15 bg-gradient-to-br from-white/95 to-red-50/40 dark:from-slate-900/90 dark:to-red-950/20"
+            className="rx-surface-card border border-red-500/15 bg-gradient-to-br from-white/95 to-red-50/40 dark:from-slate-900/90 dark:to-red-950/20"
           >
             <div className="flex items-center gap-ds-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-ds-lg bg-red-500/10 text-xl">

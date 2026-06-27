@@ -52,7 +52,7 @@ export function AuctionCard({ auction, variant = "default", className }: Auction
           </div>
         </Link>
         <div className="auctions-featured-card__body">
-          <Link href={href} className={cn("auction-card-2026__title line-clamp-2 hover:text-primary", focusRing)}>
+          <Link href={href} className={cn("rx-auction-card__title line-clamp-2 hover:text-primary", focusRing)}>
             {auction.title}
           </Link>
           <p className="auctions-featured-card__bid">
@@ -69,7 +69,7 @@ export function AuctionCard({ auction, variant = "default", className }: Auction
               "inline-flex w-full items-center justify-center",
               buttonVariants.primary,
               buttonSizes.md,
-              "auctions-btn-gradient min-h-11 border-0 text-white",
+              "auctions-btn-gradient min-h-11 border-0 text-primary-foreground",
               focusRing,
             )}
           >
@@ -81,9 +81,9 @@ export function AuctionCard({ auction, variant = "default", className }: Auction
   }
 
   return (
-    <article className={cn("auction-card-2026", className)}>
+    <article className={cn("rx-auction-card", className)}>
       <Link href={href} className={cn("block", focusRing)}>
-        <div className="auction-card-2026__image">
+        <div className="rx-auction-card__image">
           <Image src={auction.imageUrl} alt={auction.title} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" />
           {auction.isFeatured ? (
             <Badge variant="primary" className="absolute left-3 top-3">
@@ -93,19 +93,19 @@ export function AuctionCard({ auction, variant = "default", className }: Auction
         </div>
       </Link>
 
-      <div className="auction-card-2026__body">
-        <Link href={href} className={cn("auction-card-2026__title line-clamp-2 hover:text-primary", focusRing)}>
+      <div className="rx-auction-card__body">
+        <Link href={href} className={cn("rx-auction-card__title line-clamp-2 hover:text-primary", focusRing)}>
           {auction.title}
         </Link>
 
-        <div className="auction-card-2026__row">
+        <div className="rx-auction-card__row">
           <span>
             Current bid <Price amount={currentBid} className="font-semibold text-text-primary" />
           </span>
           <AuctionCountdown endsAt={auction.auctionEndsAt} urgent={isUrgent} />
         </div>
 
-        <div className="auction-card-2026__row">
+        <div className="rx-auction-card__row">
           <span>Next min. <Price amount={auction.minNextBid} /></span>
           <span>{auction.bidCount} bids · {auction.watchers} watching</span>
         </div>
@@ -122,14 +122,14 @@ export function AuctionCard({ auction, variant = "default", className }: Auction
           {auction.sellerVerified ? <Badge variant="success">Verified</Badge> : null}
         </div>
 
-        <div className="auction-card-2026__actions">
+        <div className="rx-auction-card__actions">
           <Link
             href={href}
             className={cn(
               "inline-flex items-center justify-center",
               buttonVariants.primary,
               buttonSizes.sm,
-              "auctions-btn-gradient min-h-10 border-0 text-white",
+              "auctions-btn-gradient min-h-10 border-0 text-primary-foreground",
               focusRing,
             )}
           >

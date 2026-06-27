@@ -35,7 +35,7 @@ export function WithdrawAmountStep({ flow }: WithdrawAmountStepProps) {
               value={draft.amount}
               onChange={(event) => updateDraft({ amount: event.target.value })}
               className={cn(
-                "min-h-ds-7 premium-input px-ds-3 py-ds-2 text-lg font-semibold tabular-nums",
+                "min-h-ds-7 rx-input px-ds-3 py-ds-2 text-lg font-semibold tabular-nums",
                 focusRing,
               )}
             />

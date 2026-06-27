@@ -119,37 +119,37 @@ export function SuperAdminQuickActions({ compact = false }: SuperAdminQuickActio
             value={userId}
             onChange={(event) => setUserId(event.target.value)}
             placeholder="User ID"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           />
           <input
             value={productId}
             onChange={(event) => setProductId(event.target.value)}
             placeholder="Product ID"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           />
           <input
             value={orderId}
             onChange={(event) => setOrderId(event.target.value)}
             placeholder="Order ID"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           />
           <input
             value={amount}
             onChange={(event) => setAmount(event.target.value)}
             placeholder="Wallet amount (£)"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           />
           <input
             value={notifyTitle}
             onChange={(event) => setNotifyTitle(event.target.value)}
             placeholder="Notification title"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm md:col-span-2"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm md:col-span-2"
           />
           <input
             value={notifyBody}
             onChange={(event) => setNotifyBody(event.target.value)}
             placeholder="Notification message / reason"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm md:col-span-2"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm md:col-span-2"
           />
         </div>
       </Card>

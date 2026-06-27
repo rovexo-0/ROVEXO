@@ -49,7 +49,7 @@ export function ProfileMenuRow({
   );
 
   const rowClassName = cn(
-    "premium-menu-row flex min-h-[56px] w-full items-center gap-ds-3 px-ds-4 py-ds-2",
+    "rx-menu-row flex min-h-[56px] w-full items-center gap-ds-3 px-ds-4 py-ds-2",
     transitionFast,
     focusRing,
   );

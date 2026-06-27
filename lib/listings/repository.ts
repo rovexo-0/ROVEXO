@@ -66,6 +66,7 @@ function mapSellerListing(row: ProductRow): SellerListing {
     slug: row.slug,
     title: row.title,
     description: row.description,
+    locationCity: row.location_city ?? null,
     brand: row.brands?.name ?? null,
     brandId: row.brand_id,
     categoryId: row.category_id,
@@ -318,6 +319,7 @@ export async function createSellerListing(
       slug,
       title: input.title,
       description: input.description,
+      location_city: input.locationCity?.trim() || null,
       brand_id: brandId,
       category_id: input.categoryId,
       color: input.color,
@@ -377,6 +379,9 @@ export async function updateSellerListing(
   const patch: TablesUpdate<"products"> = {
     ...(input.title !== undefined && { title: input.title }),
     ...(input.description !== undefined && { description: input.description }),
+    ...(input.locationCity !== undefined && {
+      location_city: input.locationCity?.trim() || null,
+    }),
     ...(input.brand !== undefined && { brand_id: brandId }),
     ...(input.categoryId !== undefined && { category_id: input.categoryId }),
     ...(input.color !== undefined && { color: input.color }),
@@ -492,6 +497,7 @@ export async function duplicateSellerListing(
     sellerId,
     title: `${existing.title} (Copy)`,
     description: existing.description,
+    locationCity: existing.locationCity,
     brand: existing.brand ?? undefined,
     color: existing.color ?? undefined,
     size: existing.size ?? undefined,
@@ -655,6 +661,10 @@ export async function searchListings(
 
   if (options.inStock) {
     query = query.gt("stock", 0);
+  }
+
+  if (options.locationCity?.trim()) {
+    query = query.eq("location_city", options.locationCity.trim());
   }
 
   if (options.brand?.trim()) {

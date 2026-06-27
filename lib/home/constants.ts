@@ -3,8 +3,9 @@ export type HomeCategoryIconType =
   | "property"
   | "phones"
   | "computers"
-  | "fashion"
   | "electronics"
+  | "gaming"
+  | "fashion"
   | "furniture"
   | "home-garden"
   | "sports"
@@ -14,33 +15,56 @@ export type HomeCategoryIconType =
   | "autoparts"
   | "wholesale"
   | "auctions"
+  | "beauty"
+  | "health"
+  | "baby"
+  | "jewellery"
+  | "diy"
+  | "tools"
+  | "kids-fashion"
+  | "womens-fashion"
+  | "mens-fashion"
+  | "shoes"
+  | "cycling"
   | "more";
 
-export type HomeCategoryRailItem = {
+export type HomeCategoryNavItem = {
   name: string;
   slug: string;
   icon: HomeCategoryIconType;
+  subtitle: string;
   href?: string;
 };
 
-export const HOME_CATEGORY_RAIL: HomeCategoryRailItem[] = [
-  { name: "Vehicles", slug: "vehicles", icon: "vehicles" },
-  { name: "Property", slug: "property", icon: "property" },
-  { name: "Phones", slug: "electronics", icon: "phones" },
-  { name: "Computers", slug: "electronics", icon: "computers" },
-  { name: "Fashion", slug: "fashion", icon: "fashion" },
-  { name: "Electronics", slug: "electronics", icon: "electronics" },
-  { name: "Furniture", slug: "home-garden", icon: "furniture" },
-  { name: "Home & Garden", slug: "home-garden", icon: "home-garden" },
-  { name: "Sports", slug: "sports", icon: "sports" },
-  { name: "Pets", slug: "pets", icon: "pets" },
-  { name: "Jobs", slug: "jobs", icon: "jobs" },
-  { name: "Services", slug: "services", icon: "services" },
-  { name: "Auto Parts", slug: "vehicles", icon: "autoparts" },
-  { name: "Wholesale", slug: "business", icon: "wholesale" },
-  { name: "Auctions", slug: "vehicles", icon: "auctions", href: "/auctions" },
-  { name: "More", slug: "", icon: "more", href: "/categories" },
+/** Approved homepage horizontal category bar + 3D icon rail */
+export const HOME_CATEGORY_NAV: HomeCategoryNavItem[] = [
+  { name: "Vehicles", slug: "vehicles", icon: "vehicles", subtitle: "Cars, vans & bikes" },
+  { name: "Property", slug: "property", icon: "property", subtitle: "Homes & rentals" },
+  { name: "Phones", slug: "phones", icon: "phones", subtitle: "Mobile & tablets" },
+  { name: "Computers", slug: "computers", icon: "computers", subtitle: "Laptops & PCs" },
+  { name: "Electronics", slug: "electronics", icon: "electronics", subtitle: "Tech & gadgets" },
+  { name: "Gaming", slug: "gaming", icon: "gaming", subtitle: "Consoles & games" },
+  { name: "Home & Garden", slug: "home-garden", icon: "home-garden", subtitle: "Decor & outdoor" },
+  { name: "DIY", slug: "diy", icon: "diy", subtitle: "Build & repair" },
+  { name: "Tools", slug: "tools", icon: "tools", subtitle: "Power & hand tools" },
+  { name: "Women's Fashion", slug: "womens-fashion", icon: "womens-fashion", subtitle: "Dresses & style" },
+  { name: "Men's Fashion", slug: "mens-fashion", icon: "mens-fashion", subtitle: "Suits & casual" },
+  { name: "Kids Fashion", slug: "kids-fashion", icon: "kids-fashion", subtitle: "Children's wear" },
+  { name: "Shoes", slug: "shoes", icon: "shoes", subtitle: "Trainers & boots" },
+  { name: "Jewellery", slug: "jewellery", icon: "jewellery", subtitle: "Watches & gems" },
+  { name: "Beauty", slug: "beauty", icon: "beauty", subtitle: "Skincare & makeup" },
+  { name: "Health", slug: "health", icon: "health", subtitle: "Wellness & care" },
+  { name: "Pets", slug: "pets", icon: "pets", subtitle: "Animals & supplies" },
+  { name: "Sports", slug: "sports", icon: "sports", subtitle: "Fitness & gear" },
+  { name: "Services", slug: "services", icon: "services", subtitle: "Local professionals" },
+  { name: "Auto Parts", slug: "car-parts", icon: "autoparts", subtitle: "Parts & accessories" },
 ];
+
+/** @deprecated Use HOME_CATEGORY_NAV */
+export type HomeCategoryRailItem = HomeCategoryNavItem;
+
+/** @deprecated Use HOME_CATEGORY_NAV */
+export const HOME_CATEGORY_RAIL: HomeCategoryNavItem[] = HOME_CATEGORY_NAV;
 
 export type HomeQuickFilter = {
   id: string;
@@ -90,5 +114,65 @@ export const HOME_PROMO_SLIDES: HomePromoSlide[] = [
     href: "/search?q=&deals=1",
     categorySlug: "vehicles",
     accent: "from-sky-600 via-primary to-blue-700",
+  },
+];
+
+export type HomeSecondaryBanner = {
+  id: string;
+  title: string;
+  subtitle: string;
+  cta: string;
+  href: string;
+};
+
+export const HOME_SECONDARY_BANNERS: HomeSecondaryBanner[] = [
+  {
+    id: "bring-items",
+    title: "Bring Your Items",
+    subtitle: "Import your entire store in minutes.",
+    cta: "Start import",
+    href: "/import-wizard",
+  },
+  {
+    id: "start-selling",
+    title: "Start Selling",
+    subtitle: "Reach millions of buyers across Europe.",
+    cta: "Sell now",
+    href: "/sell/new",
+  },
+  {
+    id: "buyer-protection",
+    title: "Buyer Protection",
+    subtitle: "Secure checkout on every order.",
+    cta: "Learn more",
+    href: "/trust",
+  },
+  {
+    id: "fast-delivery",
+    title: "Fast Delivery",
+    subtitle: "Trusted sellers. Quick shipping.",
+    cta: "Shop now",
+    href: "/search?q=&sort=trending",
+  },
+  {
+    id: "verified-sellers",
+    title: "Verified Sellers",
+    subtitle: "Shop with confidence across ROVEXO.",
+    cta: "Explore",
+    href: "/trust",
+  },
+  {
+    id: "secure-payments",
+    title: "Secure Payments",
+    subtitle: "Encrypted checkout & protection.",
+    cta: "Learn more",
+    href: "/trust",
+  },
+  {
+    id: "zero-fees",
+    title: "Zero Listing Fees",
+    subtitle: "List today with no upfront charges.",
+    cta: "List free",
+    href: "/sell",
   },
 ];

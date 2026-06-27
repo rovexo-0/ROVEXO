@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ReviewTimeline } from "@/features/seller/review-center/components/ReviewTimeline";
+import type { AdminModerationCaseDetail } from "@/lib/moderation/review-center";
 import type { ModerationDecision, ModerationQueueItem, ModerationRiskLevel } from "@/lib/moderation/types";
 import { riskLevelLabel } from "@/lib/moderation/risk";
 
@@ -49,6 +51,7 @@ export function ModerationDashboard({
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("pending");
+  const [caseDetail, setCaseDetail] = useState<AdminModerationCaseDetail | null>(null);
 
   const filtered = useMemo(() => {
     if (filter === "all") return queue;
@@ -56,6 +59,28 @@ export function ModerationDashboard({
   }, [filter, queue]);
 
   const selected = filtered.find((item) => item.id === selectedId) ?? filtered[0] ?? null;
+
+  useEffect(() => {
+    if (!selected?.id) return;
+
+    let cancelled = false;
+
+    async function loadDetail() {
+      const response = await fetch(`/api/admin/moderation/cases/${selected.id}`);
+      if (cancelled) return;
+      if (!response.ok) {
+        setCaseDetail(null);
+        return;
+      }
+      const payload = (await response.json()) as { detail: AdminModerationCaseDetail };
+      setCaseDetail(payload.detail);
+    }
+
+    void loadDetail();
+    return () => {
+      cancelled = true;
+    };
+  }, [selected?.id]);
 
   const refresh = useCallback(async () => {
     const response = await fetch("/api/admin/moderation");
@@ -102,9 +127,9 @@ export function ModerationDashboard({
   return (
     <div className="flex flex-col gap-ds-5">
       <div>
-        <h2 className="text-xl font-semibold">AI Moderation</h2>
+        <h2 className="text-xl font-semibold">Moderation & Reports</h2>
         <p className="mt-ds-1 text-sm text-text-secondary">
-          Review automated decisions, override outcomes, and inspect audit history.
+          Review reported listings, inspect reporter evidence, and take action.
         </p>
       </div>
 
@@ -209,35 +234,72 @@ export function ModerationDashboard({
                 <Button
                   size="sm"
                   disabled={busyId === selected.id}
-                  onClick={() => void runAction(selected.id, "approve")}
+                  onClick={() => void runAction(selected.id, "approve", "Listing restored")}
                 >
-                  Approve
+                  Restore
                 </Button>
                 <Button
                   size="sm"
                   variant="secondary"
                   disabled={busyId === selected.id}
-                  onClick={() => void runAction(selected.id, "warn")}
+                  onClick={() => void runAction(selected.id, "warn", "Changes requested")}
                 >
-                  Warn
+                  Request changes
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   disabled={busyId === selected.id}
-                  onClick={() => void runAction(selected.id, "block")}
+                  onClick={() => void runAction(selected.id, "block", "Listing removed")}
                 >
-                  Block
+                  Remove
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   disabled={busyId === selected.id}
-                  onClick={() => void runAction(selected.id, "override", "Manual override")}
+                  onClick={() => void runAction(selected.id, "override", "Manual override approved")}
                 >
                   Override
                 </Button>
               </div>
+
+              {caseDetail ? (
+                <div className="rx-glass rounded-ds-lg border border-border p-ds-4">
+                  <h4 className="text-sm font-semibold">Case evidence</h4>
+                  {caseDetail.reporter ? (
+                    <dl className="mt-ds-3 grid gap-ds-2 text-sm">
+                      <div>
+                        <dt className="text-xs font-medium uppercase text-text-muted">Reporter</dt>
+                        <dd>{caseDetail.reporter.name} · {caseDetail.reporter.email}</dd>
+                      </div>
+                      {caseDetail.report ? (
+                        <div>
+                          <dt className="text-xs font-medium uppercase text-text-muted">Report reason</dt>
+                          <dd>{caseDetail.report.reason} — {caseDetail.report.details || "No details"}</dd>
+                        </div>
+                      ) : null}
+                      <div>
+                        <dt className="text-xs font-medium uppercase text-text-muted">Report count</dt>
+                        <dd>{caseDetail.reportCount}</dd>
+                      </div>
+                      {caseDetail.sellerResponse ? (
+                        <div>
+                          <dt className="text-xs font-medium uppercase text-text-muted">Seller response</dt>
+                          <dd>{caseDetail.sellerResponse}</dd>
+                        </div>
+                      ) : null}
+                    </dl>
+                  ) : (
+                    <p className="mt-ds-2 text-sm text-text-secondary">No linked user report.</p>
+                  )}
+                  {caseDetail.timeline.length ? (
+                    <div className="mt-ds-4">
+                      <ReviewTimeline steps={caseDetail.timeline} />
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
 
               <div>
                 <h4 className="text-sm font-semibold">Audit log</h4>

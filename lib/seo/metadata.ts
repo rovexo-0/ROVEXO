@@ -12,7 +12,7 @@ type PageMetadataInput = {
 
 export function buildPageMetadata(input: PageMetadataInput): Metadata {
   const canonical = `${getAppUrl()}${input.path.startsWith("/") ? input.path : `/${input.path}`}`;
-  const image = input.imageUrl ?? `${getAppUrl()}/icons/icon-512.png`;
+  const image = input.imageUrl ?? `${getAppUrl()}/brand/og-image.png`;
 
   return {
     title: input.title,

@@ -28,7 +28,7 @@ export function RecentlyViewedSection() {
           View all
         </Link>
       </div>
-      <div className="marketplace-listing-grid">
+      <div className="rx-listing-grid">
         {items.slice(0, 4).map((product) => (
           <ProductCard key={product.slug} {...productToCardProps(product, "homepage")} />
         ))}

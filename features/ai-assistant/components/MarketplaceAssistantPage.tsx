@@ -46,7 +46,7 @@ export function MarketplaceAssistantPage() {
       <div className="mhub-mobile">
         <MobileHubNavigator defaultHub="support" startExpanded sectionTitle="Support hubs" />
       </div>
-      <MotionDiv className="premium-card flex items-start gap-ds-4 p-ds-5">
+      <MotionDiv className="rx-surface-card flex items-start gap-ds-4 p-ds-5">
         <PremiumIcon size="lg" float glow label="ROVEXO AI">
           <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
@@ -83,7 +83,7 @@ export function MarketplaceAssistantPage() {
             onChange={(event) => setQuery(event.target.value)}
             rows={3}
             placeholder="Ask about orders, withdrawals, verification, wholesale, navigation..."
-            className="premium-glass premium-depth-1 w-full rounded-[var(--ds-radius-premium)] border-0 px-ds-4 py-ds-3 text-sm outline-none ring-2 ring-transparent focus:ring-primary/25"
+            className="rx-glass rx-depth-1 w-full rounded-[var(--ds-radius-premium)] border-0 px-ds-4 py-ds-3 text-sm outline-none ring-2 ring-transparent focus:ring-primary/25"
           />
         </div>
         <Button className="relative z-[1] mt-ds-3" size="lg" disabled={!query.trim() || busy} onClick={() => void ask()}>
@@ -95,7 +95,7 @@ export function MarketplaceAssistantPage() {
             {response.premiumRequired ? (
               <Badge variant="warning">Premium AI available on Enterprise plan — see /plans</Badge>
             ) : null}
-            <div className="premium-glass premium-depth-1 rounded-[var(--ds-radius-premium)] px-ds-4 py-ds-4">
+            <div className="rx-glass rx-depth-1 rounded-[var(--ds-radius-premium)] px-ds-4 py-ds-4">
               <p className="mb-ds-2 text-xs font-semibold uppercase tracking-wide text-primary">Assistant</p>
               <div
                 className="text-sm leading-relaxed text-text-secondary"
@@ -129,7 +129,7 @@ export function MarketplaceAssistantPage() {
                   key={item.href + item.label}
                   href={item.href}
                   className={cn(
-                    "premium-card block px-ds-4 py-ds-3 text-sm font-medium text-primary",
+                    "rx-surface-card block px-ds-4 py-ds-3 text-sm font-medium text-primary",
                     "hover:-translate-y-px",
                   )}
                 >

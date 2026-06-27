@@ -21,8 +21,8 @@ type StatCardProps = {
 function StatCard({ icon, value, label, className, mobileDashboard }: StatCardProps) {
   if (mobileDashboard) {
     return (
-      <div className={cn("dash-v1-tile flex min-h-[96px] flex-col items-center justify-center gap-2", className)}>
-        <div className="dash-v1-tile__icon">{icon}</div>
+      <div className={cn("rx-dash-tile flex min-h-[96px] flex-col items-center justify-center gap-2", className)}>
+        <div className="rx-dash-tile__icon">{icon}</div>
         <span className="text-xl font-bold tabular-nums tracking-tight text-text-primary">
           <AnimatedCounter value={value} />
         </span>
@@ -32,7 +32,7 @@ function StatCard({ icon, value, label, className, mobileDashboard }: StatCardPr
   }
 
   return (
-    <div className={cn("premium-card flex flex-1 flex-col items-center gap-ds-2 p-ds-3 py-ds-4", className)}>
+    <div className={cn("rx-surface-card flex flex-1 flex-col items-center gap-ds-2 p-ds-3 py-ds-4", className)}>
       <PremiumIcon size="sm" glow>
         {icon}
       </PremiumIcon>
@@ -51,14 +51,14 @@ export function SellerOverviewCards({ stats, layout = "default" }: SellerOvervie
     <section aria-labelledby="seller-overview-heading" className="flex flex-col gap-ds-3">
       <h2
         id="seller-overview-heading"
-        className={isMobileDashboard ? "dash-v1-section__title" : "sr-only"}
+        className={isMobileDashboard ? "rx-dash-section__title" : "sr-only"}
       >
         Seller overview
       </h2>
 
       <div
         className={cn(
-          isMobileDashboard ? "dash-v1-grid" : "grid grid-cols-3 gap-ds-3",
+          isMobileDashboard ? "rx-dash-grid" : "grid grid-cols-3 gap-ds-3",
         )}
       >
         <StatCard

@@ -38,7 +38,7 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
     <>
       {children}
       {showBanner && (
-        <div className="fixed inset-x-4 bottom-20 z-50 premium-sheet p-ds-4 sm:inset-x-auto sm:right-4 sm:max-w-sm">
+        <div className="fixed inset-x-4 bottom-20 z-50 rx-sheet p-ds-4 sm:inset-x-auto sm:right-4 sm:max-w-sm">
           <p className="text-sm font-semibold">Install ROVEXO</p>
           <p className="mt-ds-1 text-xs text-text-secondary">
             Add ROVEXO to your home screen for faster access and offline support.

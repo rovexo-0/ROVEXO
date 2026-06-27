@@ -181,7 +181,7 @@ function Field({
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-ds-1 w-full premium-input px-ds-3 py-ds-2 text-sm"
+        className="mt-ds-1 w-full rx-input px-ds-3 py-ds-2 text-sm"
       />
     </div>
   );

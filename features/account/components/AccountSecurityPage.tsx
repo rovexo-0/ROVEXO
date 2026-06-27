@@ -81,7 +81,7 @@ export function AccountSecurityPage() {
       backLabel="Settings"
     >
       <div className="flex flex-col gap-ds-4">
-        <section className="premium-card p-ds-5">
+        <section className="rx-surface-card p-ds-5">
           <h2 className="text-base font-semibold text-text-primary">Password</h2>
           <p className="mt-ds-1 text-sm text-text-secondary">
             Change your password securely without leaving ROVEXO.
@@ -94,7 +94,7 @@ export function AccountSecurityPage() {
           </Link>
         </section>
 
-        <section className="premium-card p-ds-5">
+        <section className="rx-surface-card p-ds-5">
           <h2 className="text-base font-semibold text-text-primary">Sessions & devices</h2>
           <p className="mt-ds-1 text-sm text-text-secondary">
             Review your active session and sign out everywhere else if needed.
@@ -134,7 +134,7 @@ export function AccountSecurityPage() {
           {sessionMessage ? <p className="mt-ds-2 text-sm text-text-secondary">{sessionMessage}</p> : null}
         </section>
 
-        <section className="premium-card p-ds-5">
+        <section className="rx-surface-card p-ds-5">
           <div className="flex items-center justify-between gap-ds-3">
             <h2 className="text-base font-semibold text-text-primary">Two-factor authentication</h2>
             {security?.mfa.enabled ? <Badge>Enabled</Badge> : <Badge variant="default">Off</Badge>}
@@ -153,7 +153,7 @@ export function AccountSecurityPage() {
           )}
         </section>
 
-        <section className="premium-card p-ds-5">
+        <section className="rx-surface-card p-ds-5">
           <h2 className="text-base font-semibold text-text-primary">Blocked users</h2>
           <p className="mt-ds-1 text-sm text-text-secondary">
             Manage users you have blocked from contacting you.

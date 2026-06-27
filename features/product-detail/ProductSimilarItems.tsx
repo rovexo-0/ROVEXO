@@ -16,7 +16,7 @@ export function ProductSimilarItems({ products }: ProductSimilarItemsProps) {
       </h2>
 
       <div
-        className="marketplace-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="rx-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         role="group"
         aria-roledescription="carousel"
         aria-label="Similar listings"

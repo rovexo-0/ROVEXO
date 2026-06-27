@@ -23,7 +23,7 @@ export function AuctionsEmptyState({ className }: { className?: string }) {
           "inline-flex items-center justify-center",
           buttonVariants.primary,
           buttonSizes.lg,
-          "auctions-btn-gradient min-h-12 border-0 px-8 text-white",
+          "auctions-btn-gradient min-h-12 border-0 px-8 text-primary-foreground",
           focusRing,
         )}
       >

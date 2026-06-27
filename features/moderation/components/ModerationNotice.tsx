@@ -20,7 +20,7 @@ export function ModerationNotice({ notice }: ModerationNoticeProps) {
             Edit Listing
           </Link>
         ) : null}
-        <Link href={notice.requestReviewHref} className={`${actionClassName} premium-chip text-text-primary`}>
+        <Link href={notice.requestReviewHref} className={`${actionClassName} rx-chip text-text-primary`}>
           Request Review
         </Link>
         <Link href={notice.learnMoreHref} className={`${actionClassName} text-text-primary`}>

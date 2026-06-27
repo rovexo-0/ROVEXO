@@ -10,9 +10,9 @@ export type GlassSurfaceProps = {
 } & HTMLAttributes<HTMLElement>;
 
 const depthClass = {
-  1: "premium-depth-1",
-  2: "premium-depth-2",
-  3: "premium-depth-3",
+  1: "rx-depth-1",
+  2: "rx-depth-2",
+  3: "rx-depth-3",
 } as const;
 
 export function GlassSurface({
@@ -26,9 +26,9 @@ export function GlassSurface({
   return (
     <Component
       className={cn(
-        "glass-surface-2026 premium-glass",
+        "rx-glass-surface rx-glass",
         depthClass[depth],
-        glow && "premium-glow",
+        glow && "rx-glow",
         className,
       )}
       {...props}

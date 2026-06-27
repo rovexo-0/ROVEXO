@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
+import { buttonSizes, buttonVariants } from "@/components/ui/variants";
 
 type PremiumButtonProps = {
   href?: string;
@@ -12,19 +13,9 @@ type PremiumButtonProps = {
   disabled?: boolean;
 };
 
-export function PremiumButton({
-  href,
-  children,
-  className,
-  onClick,
-  type = "button",
-  disabled,
-}: PremiumButtonProps) {
-  const styles = cn(
-    "inline-flex min-h-[48px] items-center justify-center rounded-[20px] bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_rgba(37,99,235,0.28)] transition-transform active:scale-[0.98]",
-    focusRing,
-    className,
-  );
+/** @deprecated Use `Button` from `@/components/ui/Button` */
+export function PremiumButton({ href, children, className, onClick, type = "button", disabled }: PremiumButtonProps) {
+  const styles = cn(buttonVariants.primary, buttonSizes.lg, className);
 
   if (href) {
     return (
@@ -35,8 +26,8 @@ export function PremiumButton({
   }
 
   return (
-    <button type={type} onClick={onClick} disabled={disabled} className={styles}>
+    <Button type={type} onClick={onClick} disabled={disabled} variant="primary" size="lg" className={className}>
       {children}
-    </button>
+    </Button>
   );
 }

@@ -6,7 +6,9 @@ export function hasSearchResults(results: SearchResults): boolean {
     results.sellers.length > 0 ||
     results.stores.length > 0 ||
     results.users.length > 0 ||
-    results.categories.length > 0
+    results.categories.length > 0 ||
+    results.brands.length > 0 ||
+    results.locations.length > 0
   );
 }
 

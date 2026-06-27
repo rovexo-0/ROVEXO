@@ -26,11 +26,11 @@ export function NotificationBell({
     <Link
       href={href}
       aria-label={hasUnread ? `Notifications, ${unreadCount} unread` : "Notifications"}
-      className={cn("dash-v1-header__action relative", focusRing, className)}
+      className={cn("rx-dash-header__action relative", focusRing, className)}
     >
       <DashboardIcon3D type="notifications" size={size} />
       {hasUnread ? (
-        <span className="dash-v1-badge dash-v1-badge--danger right-1 top-1" aria-hidden>
+        <span className="rx-dash-badge rx-dash-badge--danger right-1 top-1" aria-hidden>
           {label}
         </span>
       ) : null}

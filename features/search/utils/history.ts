@@ -31,3 +31,12 @@ export function clearSearchHistory(): void {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(STORAGE_KEY);
 }
+
+export function removeSearchHistoryItem(term: string): string[] {
+  const normalized = term.trim();
+  if (!normalized || typeof window === "undefined") return getSearchHistory();
+
+  const next = getSearchHistory().filter((item) => item !== normalized);
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  return next;
+}

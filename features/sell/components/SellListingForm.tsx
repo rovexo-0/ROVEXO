@@ -9,6 +9,7 @@ import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicke
 import { AiCategoryDetection } from "@/features/sell/components/TitleCategorySuggestions";
 import { FieldError, fieldErrorClassName } from "@/features/sell/components/FieldError";
 import { InventoryQuantityField } from "@/features/sell/components/InventoryQuantityField";
+import { SellLocationField } from "@/features/sell/components/SellLocationField";
 import {
   SELL_CONDITIONS,
   getListingValidationErrors,
@@ -73,8 +74,10 @@ export function SellListingForm({ form }: SellListingFormProps) {
         Listing details
       </h2>
 
-      <div className="premium-form-section overflow-hidden">
-        <FormRow label="Title" htmlFor="sell-title" error={errors.title}>
+      <div className="rx-form-section overflow-hidden">
+        <SellLocationField form={form} error={errors.location} />
+
+        <FormRow label="Title" htmlFor="sell-title" error={errors.title} className="border-t border-border">
           <input
             id="sell-title"
             type="text"
@@ -115,7 +118,7 @@ export function SellListingForm({ form }: SellListingFormProps) {
               type="button"
               onClick={() => setCategoryPickerOpen((current) => !current)}
               className={cn(
-                "premium-input min-h-ds-7 w-full rounded-ds-sm bg-surface-muted/60 px-ds-3 py-ds-2 text-left text-sm",
+                "rx-input min-h-ds-7 w-full rounded-ds-sm bg-surface-muted/60 px-ds-3 py-ds-2 text-left text-sm",
                 fieldErrorClassName(Boolean(errors.category)),
                 focusRing,
               )}

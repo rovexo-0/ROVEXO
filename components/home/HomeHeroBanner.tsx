@@ -21,29 +21,29 @@ export function HomeHeroBanner({ className }: HomeHeroBannerProps) {
         as="section"
         depth={3}
         glow
-        className="hero-banner-2026 hero-banner-2026--royal !border-0 !bg-transparent !shadow-none before:!opacity-0"
+        className="rx-hero-banner rx-hero-banner--royal !border-0 !bg-transparent !shadow-none before:!opacity-0"
       >
-        <div className="hero-banner-2026__particles" aria-hidden>
+        <div className="rx-hero-banner__particles" aria-hidden>
           {Array.from({ length: 14 }).map((_, index) => (
-            <span key={index} className="hero-banner-2026__particle" style={{ "--i": index } as CSSProperties} />
+            <span key={index} className="rx-hero-banner__particle" style={{ "--i": index } as CSSProperties} />
           ))}
         </div>
-        <div className="hero-banner-2026__lines" aria-hidden />
-        <div className="hero-banner-2026__glow" aria-hidden />
-        <div className="hero-banner-2026__sheen" aria-hidden />
+        <div className="rx-hero-banner__lines" aria-hidden />
+        <div className="rx-hero-banner__glow" aria-hidden />
+        <div className="rx-hero-banner__sheen" aria-hidden />
 
-        <div className="hero-banner-2026__content hero-banner-2026__content--split">
-          <div className="hero-banner-2026__brand-col">
+        <div className="rx-hero-banner__content rx-hero-banner__content--split">
+          <div className="rx-hero-banner__brand-col">
             <RovexoLogo3D className="h-14 w-14 shrink-0 sm:h-[4.25rem] sm:w-[4.25rem]" />
           </div>
 
-          <div className="hero-banner-2026__copy-col">
-            <p className="hero-banner-2026__eyebrow">Official ROVEXO</p>
-            <h2 id="home-hero-search-heading" className="hero-banner-2026__headline">
+          <div className="rx-hero-banner__copy-col">
+            <p className="rx-hero-banner__eyebrow">Official ROVEXO</p>
+            <h2 id="home-hero-search-heading" className="rx-hero-banner__headline">
               Premium Marketplace
             </h2>
-            <p className="hero-banner-2026__title">Find your next deal</p>
-            <p className="hero-banner-2026__subtitle">
+            <p className="rx-hero-banner__title">Find your next deal</p>
+            <p className="rx-hero-banner__subtitle">
               Download the app — buy and sell with buyer protection
             </p>
             <AppStoreButtons />

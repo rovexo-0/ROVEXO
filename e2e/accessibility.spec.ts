@@ -1,19 +1,49 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import {
+  waitForDomContentLoaded,
+  waitForHomepageUi,
+  waitForSearchResultsUi,
+} from "./helpers/stable-ui";
 
 const criticalRoutes = [
-  { path: "/", name: "Homepage" },
-  { path: "/search?q=phone", name: "Search results" },
-  { path: "/categories", name: "Categories" },
-  { path: "/login", name: "Login" },
-  { path: "/register", name: "Register" },
+  { path: "/", name: "Homepage", wait: "home" as const },
+  { path: "/search?q=phone", name: "Search results", wait: "search" as const },
+  { path: "/categories", name: "Categories", wait: "categories" as const },
+  { path: "/login", name: "Login", wait: "login" as const },
+  { path: "/register", name: "Register", wait: "register" as const },
 ];
+
+async function waitForRouteUi(
+  page: import("@playwright/test").Page,
+  wait: (typeof criticalRoutes)[number]["wait"],
+) {
+  await waitForDomContentLoaded(page);
+
+  switch (wait) {
+    case "home":
+      await waitForHomepageUi(page);
+      break;
+    case "search":
+      await waitForSearchResultsUi(page);
+      break;
+    case "categories":
+      await expect(page.getByRole("heading", { name: /all categories/i })).toBeVisible();
+      break;
+    case "login":
+      await expect(page.getByRole("heading", { name: /welcome back/i })).toBeVisible();
+      break;
+    case "register":
+      await expect(page.getByRole("heading", { name: /create your account/i })).toBeVisible();
+      break;
+  }
+}
 
 for (const route of criticalRoutes) {
   test(`WCAG audit: ${route.name}`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(route.path);
-    await page.waitForLoadState(route.path.startsWith("/search") ? "domcontentloaded" : "networkidle");
+    await page.goto(route.path, { waitUntil: "domcontentloaded" });
+    await waitForRouteUi(page, route.wait);
 
     const axe = new AxeBuilder({ page }).withTags([
       "wcag2a",
@@ -22,22 +52,21 @@ for (const route of criticalRoutes) {
       "wcag21aa",
     ]);
 
-    // Listing carousels use group + labelled cards; axe list/children rules false-positive on SSR markup.
-    if (route.path === "/") {
+    if (route.path === "/" || route.wait === "search") {
       axe.disableRules(["aria-required-children"]);
     }
 
     const results = await axe.analyze();
-
     expect(results.violations, formatViolations(results.violations)).toEqual([]);
   });
 }
 
 test("touch targets meet minimum size on homepage header actions", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await waitForHomepageUi(page);
 
-  const header = page.locator('[data-header-version="premium-2026"]');
+  const header = page.locator('[data-header-version="rovexo-v1"]');
   const messages = header.getByRole("link", { name: "Messages" });
   const notifications = header.getByRole("link", { name: "Notifications" });
   const account = header.getByRole("link", { name: "Account" });

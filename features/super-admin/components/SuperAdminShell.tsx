@@ -17,8 +17,8 @@ export function SuperAdminShell({ children }: SuperAdminShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-text-primary">
-      <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
+    <div className="rx-page min-h-screen bg-background text-text-primary">
+      <header className="sticky top-0 z-40 border-b border-border bg-[var(--ds-glass-bg)] shadow-[var(--ds-shadow-soft)] backdrop-blur-xl">
         <div className="flex items-center justify-between gap-ds-3 px-ds-4 py-ds-3">
           <div>
             <div className="flex flex-wrap items-center gap-ds-2">
@@ -48,7 +48,7 @@ export function SuperAdminShell({ children }: SuperAdminShellProps) {
       <div className="mx-auto flex w-full max-w-[1440px]">
         <aside
           className={cn(
-            "w-full shrink-0 border-r border-border bg-white lg:block lg:w-72",
+            "w-full shrink-0 border-r border-border bg-surface lg:block lg:w-72",
             mobileOpen ? "block" : "hidden",
           )}
         >

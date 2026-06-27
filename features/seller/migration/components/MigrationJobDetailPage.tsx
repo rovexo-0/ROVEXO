@@ -82,7 +82,7 @@ export function MigrationJobDetailPage({
   if (error) {
     return (
       <BetaAppShell showBottomNav={false}>
-        <main className="mx-auto w-full max-w-2xl bg-white px-5 py-5">
+        <main className="mx-auto w-full max-w-2xl bg-background px-5 py-5">
           <Card padding="lg" className="border-error/30 bg-error/5">
             <p className="text-sm text-error">{error}</p>
             <Link href="/seller/migration" className="mt-ds-3 inline-block text-sm text-primary underline">
@@ -104,7 +104,7 @@ export function MigrationJobDetailPage({
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto w-full max-w-2xl bg-white px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <main className="mx-auto w-full max-w-2xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
         <StickyPageHeader>
           <div className="flex items-center gap-ds-2">
             <IconButton

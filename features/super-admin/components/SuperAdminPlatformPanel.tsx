@@ -68,7 +68,7 @@ export function SuperAdminPlatformPanel() {
             }))
           }
           rows={3}
-          className="premium-input mt-ds-3 w-full rounded-ds-md px-ds-3 py-ds-2 text-sm"
+          className="rx-input mt-ds-3 w-full rounded-ds-md px-ds-3 py-ds-2 text-sm"
         />
         <Button className="mt-ds-3" onClick={() => void save("maintenance_mode", maintenance)}>
           Save maintenance
@@ -124,7 +124,7 @@ export function SuperAdminPlatformPanel() {
               }))
             }
             placeholder="Title"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           />
           <textarea
             value={announcement.body}
@@ -136,7 +136,7 @@ export function SuperAdminPlatformPanel() {
             }
             placeholder="Body"
             rows={3}
-            className="premium-input rounded-ds-md px-ds-3 py-ds-2 text-sm"
+            className="rx-input rounded-ds-md px-ds-3 py-ds-2 text-sm"
           />
         </div>
         <Button className="mt-ds-3" onClick={() => void save("platform_announcement", announcement)}>

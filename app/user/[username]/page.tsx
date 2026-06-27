@@ -51,7 +51,7 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
         <TrustPublicSummary summary={trustSummary} />
 
         {profile.listings.length > 0 ? (
-          <section className="marketplace-listing-grid">
+          <section className="rx-listing-grid">
             {profile.listings.map((product) => (
               <ProductCard
                 key={product.id}

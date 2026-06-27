@@ -16,7 +16,7 @@ export function AiIncidentHistorySection({ incidents }: { incidents: IncidentRec
       <h2 className="text-lg font-semibold text-text-primary">Incident History</h2>
       <p className="mt-ds-1 text-sm text-text-secondary">AI-assisted repairs and rollback availability.</p>
 
-      <Card padding="none" className="premium-card mt-ds-4 overflow-hidden border border-border/80">
+      <Card padding="none" className="rx-surface-card mt-ds-4 overflow-hidden border border-border/80">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead className="border-b border-border bg-surface-muted/60 text-xs uppercase tracking-wide text-text-muted">

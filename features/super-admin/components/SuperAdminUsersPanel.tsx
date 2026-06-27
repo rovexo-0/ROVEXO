@@ -130,12 +130,12 @@ export function SuperAdminUsersPanel({ initialQuery = "" }: SuperAdminUsersPanel
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search username, name, or email"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           />
           <select
             value={status}
             onChange={(event) => setStatus(event.target.value as typeof status)}
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           >
             <option value="all">All statuses</option>
             <option value="active">Active</option>
@@ -145,7 +145,7 @@ export function SuperAdminUsersPanel({ initialQuery = "" }: SuperAdminUsersPanel
           <select
             value={role}
             onChange={(event) => setRole(event.target.value as UserRole | "all")}
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           >
             <option value="all">All roles</option>
             <option value="buyer">Buyer</option>
@@ -302,7 +302,7 @@ export function SuperAdminUsersPanel({ initialQuery = "" }: SuperAdminUsersPanel
                       value={noteDraft}
                       onChange={(event) => setNoteDraft(event.target.value)}
                       rows={3}
-                      className="premium-input mt-ds-2 w-full rounded-ds-md px-ds-3 py-ds-2 text-sm"
+                      className="rx-input mt-ds-2 w-full rounded-ds-md px-ds-3 py-ds-2 text-sm"
                       placeholder="Private notes visible only to Super Admin…"
                     />
                     <Button

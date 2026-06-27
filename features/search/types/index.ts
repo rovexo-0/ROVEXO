@@ -5,6 +5,16 @@ export type SearchCategory = {
   href: string;
 };
 
+export type SearchBrand = {
+  name: string;
+  href: string;
+};
+
+export type SearchLocation = {
+  name: string;
+  href: string;
+};
+
 export type SearchSeller = {
   name: string;
   href: string;
@@ -32,6 +42,8 @@ export type SearchResults = {
   users: SearchUser[];
   trending: string[];
   categories: SearchCategory[];
+  brands: SearchBrand[];
+  locations: SearchLocation[];
   productsHasMore: boolean;
   productsOffset: number;
 };
@@ -57,5 +69,15 @@ export type SearchOverlayProps = {
 };
 
 export const SEARCH_DEBOUNCE_MS = 300;
+export const SEARCH_MIN_CHARS = 2;
 export const SEARCH_PRODUCT_PAGE_SIZE = 8;
-export const SEARCH_TRANSITION_MS = 150;
+export const SEARCH_TRANSITION_MS = 200;
+
+export type SearchFilterScope = "products" | "auctions" | "businesses" | "sellers";
+
+export const SEARCH_FILTER_SCOPES: { id: SearchFilterScope; label: string }[] = [
+  { id: "products", label: "Products" },
+  { id: "auctions", label: "Auctions" },
+  { id: "businesses", label: "Businesses" },
+  { id: "sellers", label: "Sellers" },
+];

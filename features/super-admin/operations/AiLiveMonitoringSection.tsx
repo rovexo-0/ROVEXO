@@ -16,7 +16,7 @@ export function AiLiveMonitoringSection({ services }: { services: LiveServiceSta
           <Card
             key={service.id}
             padding="sm"
-            className="premium-glass flex items-center justify-between gap-ds-3 border border-border/70"
+            className="rx-glass flex items-center justify-between gap-ds-3 border border-border/70"
           >
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-text-primary">{service.label}</p>

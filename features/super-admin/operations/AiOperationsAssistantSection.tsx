@@ -62,7 +62,7 @@ export function AiOperationsAssistantSection() {
         Super Admin assistant with full operations context across the codebase.
       </p>
 
-      <Card padding="md" className="premium-card ai-ops-assistant mt-ds-4 border border-primary/20">
+      <Card padding="md" className="rx-surface-card ai-ops-assistant mt-ds-4 border border-primary/20">
         <div className="flex max-h-80 flex-col gap-ds-3 overflow-y-auto pr-ds-1">
           {messages.map((message, index) => (
             <div
@@ -102,7 +102,7 @@ export function AiOperationsAssistantSection() {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder="Ask about issues, logs, performance, security, or request generated code…"
-            className="premium-input min-h-11 flex-1 rounded-ds-lg border border-border bg-white/90 px-ds-4 text-sm dark:bg-slate-900/80"
+            className="rx-input min-h-11 flex-1 rounded-ds-lg border border-border bg-white/90 px-ds-4 text-sm dark:bg-slate-900/80"
           />
           <Button type="submit" disabled={loading || !input.trim()}>
             {loading ? "Thinking…" : "Send"}

@@ -7,5 +7,5 @@ type DashboardGridProps = {
 };
 
 export function DashboardGrid({ children, className }: DashboardGridProps) {
-  return <div className={cn("dash-v1-grid", className)}>{children}</div>;
+  return <div className={cn("rx-dash-grid", className)}>{children}</div>;
 }

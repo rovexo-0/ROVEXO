@@ -19,7 +19,6 @@ import { uploadListingImage } from "@/lib/listings/upload-client";
 import type { SellPhoto } from "@/features/sell/types";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
-import "@/styles/auctions-2026.css";
 
 const UK_SHIPPING = [
   { id: "collection_only" as const, label: "Collection Only" },
@@ -190,7 +189,7 @@ export function AuctionSellPage() {
           <>
             <SellPhotoSection form={form} uploadProgress={form.uploadProgress} />
 
-            <section className="premium-form-section overflow-hidden rounded-ds-xl">
+            <section className="rx-form-section overflow-hidden rounded-ds-xl">
               <div className="flex flex-col gap-ds-2 px-ds-4 py-ds-3">
                 <label htmlFor="auction-title" className="text-sm font-medium">
                   Title

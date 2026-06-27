@@ -7,7 +7,7 @@ function MetricChart({ title, values, color }: { title: string; values: number[]
   const max = Math.max(...values, 1);
 
   return (
-    <Card padding="md" className="premium-card border border-border/80">
+    <Card padding="md" className="rx-surface-card border border-border/80">
       <p className="text-sm font-semibold text-text-primary">{title}</p>
       <div className="mt-ds-4 flex h-28 items-end gap-ds-2">
         {values.map((value, index) => (
@@ -46,7 +46,7 @@ export function AiPerformanceSection({ performance }: { performance: Performance
 
       <div className="mt-ds-4 grid gap-ds-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {statCards.map((stat) => (
-          <Card key={stat.label} padding="sm" className="premium-glass text-center">
+          <Card key={stat.label} padding="sm" className="rx-glass text-center">
             <p className="text-xs text-text-secondary">{stat.label}</p>
             <p className="mt-ds-1 text-lg font-bold text-text-primary">{stat.value}</p>
           </Card>

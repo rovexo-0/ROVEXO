@@ -24,18 +24,18 @@ export function ProfileDashboardCards() {
           <Link
             key={link.href}
             href={link.href}
-            className={cn("dash-v1-tile", focusRing)}
+            className={cn("rx-dash-tile", focusRing)}
             aria-label={`${link.label}. ${link.subtitle}`}
           >
-            <div className="dash-v1-tile__top">
-              <div className="dash-v1-tile__icon">
+            <div className="rx-dash-tile__top">
+              <div className="rx-dash-tile__icon">
                 <DashboardIcon3D type={resolveDashboardIconType(link.href)} size={32} />
               </div>
-              <ChevronRightIcon className="dash-v1-tile__chevron h-4 w-4 shrink-0" aria-hidden />
+              <ChevronRightIcon className="rx-dash-tile__chevron h-4 w-4 shrink-0" aria-hidden />
             </div>
             <div>
-              <p className="dash-v1-tile__title">{link.label}</p>
-              <p className="dash-v1-tile__subtitle">{link.subtitle}</p>
+              <p className="rx-dash-tile__title">{link.label}</p>
+              <p className="rx-dash-tile__subtitle">{link.subtitle}</p>
             </div>
           </Link>
         ))}

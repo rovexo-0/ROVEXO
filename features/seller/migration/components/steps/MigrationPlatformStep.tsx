@@ -31,7 +31,7 @@ export function MigrationPlatformStep({ selected, onSelect }: MigrationPlatformS
                 aria-selected={isSelected}
                 onClick={() => onSelect(platform.id)}
                 className={cn(
-                  "premium-card flex w-full flex-col items-start gap-ds-2 p-ds-3 text-left",
+                  "rx-surface-card flex w-full flex-col items-start gap-ds-2 p-ds-3 text-left",
                   isSelected && "ring-2 ring-primary",
                   focusRing,
                 )}

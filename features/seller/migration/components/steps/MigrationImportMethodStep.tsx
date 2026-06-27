@@ -31,7 +31,7 @@ export function MigrationImportMethodStep({ selected, onSelect }: MigrationImpor
                 aria-selected={isSelected}
                 onClick={() => onSelect(method.id)}
                 className={cn(
-                  "premium-card flex w-full items-start gap-ds-3 p-ds-4 text-left",
+                  "rx-surface-card flex w-full items-start gap-ds-3 p-ds-4 text-left",
                   isSelected && "ring-2 ring-primary",
                   focusRing,
                 )}

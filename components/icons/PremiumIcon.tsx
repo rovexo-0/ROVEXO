@@ -29,10 +29,10 @@ export function PremiumIcon({
       role={label ? "img" : undefined}
       aria-label={label}
       className={cn(
-        "premium-icon-3d relative shrink-0",
+        "rx-icon-3d relative shrink-0",
         sizeStyles[size],
-        float && "premium-float",
-        glow && "premium-pulse-glow",
+        float && "rx-float",
+        glow && "rx-pulse-glow",
         className,
       )}
     >

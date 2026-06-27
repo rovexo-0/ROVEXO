@@ -17,8 +17,8 @@ describe("official header design", () => {
     expect(source).toContain("Search ROVEXO...");
     expect(source).toContain('data-header-search="bar"');
     expect(source).toContain('href="/search"');
-    expect(source).toContain("header-search-bar-2026");
-    expect(source).not.toContain("premium-glass");
+    expect(source).toContain("header-rx-search-bar");
+    expect(source).not.toContain("rx-glass");
     expect(source).not.toContain("/assistant");
   });
 
@@ -28,7 +28,7 @@ describe("official header design", () => {
     expect(source).toContain("RovexoHeaderMark");
     expect(source).toContain("HeaderActions");
     expect(source).toContain("HeaderProfileLink");
-    expect(source).toContain('data-header-version="premium-2026"');
-    expect(source).toContain("header-premium-2026__search");
+    expect(source).toContain('data-header-version="rovexo-v1"');
+    expect(source).toContain("rx-header-shell__search");
   });
 });

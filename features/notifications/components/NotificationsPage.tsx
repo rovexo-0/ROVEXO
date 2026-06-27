@@ -70,7 +70,7 @@ export function NotificationsPage({ initialNotifications }: NotificationsPagePro
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <header className="premium-page-header sticky top-0 z-50">
+      <header className="rx-page-header sticky top-0 z-50">
         <div
           className={cn(
             "flex min-h-[56px] items-center justify-between gap-ds-3 px-ds-4",

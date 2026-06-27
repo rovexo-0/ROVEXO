@@ -7,6 +7,7 @@ export function useProductWatchlist(slug: string, initialSaved = false) {
   const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
+    if (!slug) return;
     let cancelled = false;
 
     void fetch(`/api/saved?slug=${encodeURIComponent(slug)}`, { cache: "no-store" })
@@ -24,7 +25,7 @@ export function useProductWatchlist(slug: string, initialSaved = false) {
   }, [slug]);
 
   const toggle = useCallback(async () => {
-    if (isPending) return;
+    if (!slug || isPending) return;
 
     const nextSaved = !isSaved;
     setIsSaved(nextSaved);

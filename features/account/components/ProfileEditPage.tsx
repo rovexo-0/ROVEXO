@@ -112,7 +112,7 @@ export function ProfileEditPage({ initialProfile, isSeller = false }: ProfileEdi
       title="Profile"
       subtitle="Manage your photo, contact details, addresses, security, and preferences."
     >
-      <section aria-labelledby="avatar-heading" className="premium-card p-ds-5">
+      <section aria-labelledby="avatar-heading" className="rx-surface-card p-ds-5">
         <h2 id="avatar-heading" className="text-base font-semibold text-text-primary">
           Profile photo
         </h2>
@@ -125,7 +125,7 @@ export function ProfileEditPage({ initialProfile, isSeller = false }: ProfileEdi
         </div>
       </section>
 
-      <form onSubmit={onSubmit} className="premium-card flex flex-col gap-ds-4 p-ds-5" noValidate>
+      <form onSubmit={onSubmit} className="rx-surface-card flex flex-col gap-ds-4 p-ds-5" noValidate>
         <h2 className="text-base font-semibold text-text-primary">Personal information</h2>
 
         <Field label="Full name" id="fullName" error={errors.fullName?.message}>
@@ -187,7 +187,7 @@ export function ProfileEditPage({ initialProfile, isSeller = false }: ProfileEdi
         ) : null}
       </form>
 
-      <section className="premium-card p-ds-5">
+      <section className="rx-surface-card p-ds-5">
         <h2 className="text-base font-semibold text-text-primary">Password</h2>
         <p className="mt-ds-1 text-sm text-text-secondary">Change your password without leaving ROVEXO.</p>
         <div className="mt-ds-4">

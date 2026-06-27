@@ -43,9 +43,9 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
   const showViewAll = Boolean(viewAllHref && products.length > 0 && !loading && !error);
 
   return (
-    <section aria-labelledby={id} className={cn("home-section-2026 px-ds-4", className)}>
+    <section aria-labelledby={id} className={cn("rx-section px-ds-4", className)}>
       <div className="mb-ds-2 flex items-end justify-between gap-ds-2">
-        <h2 id={id} className="home-section-2026__title text-text-primary">
+        <h2 id={id} className="rx-section__title text-text-primary">
           {title}
         </h2>
         {showViewAll ? (
@@ -61,7 +61,7 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
       <div
         data-carousel-version="2026"
         className={cn(
-          "marketplace-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1",
+          "rx-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1",
           "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         )}
         role="group"

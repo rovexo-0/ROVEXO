@@ -29,7 +29,7 @@ type BusinessDashboardPageProps = {
 export function BusinessDashboardPage({ data }: BusinessDashboardPageProps) {
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto w-full max-w-2xl bg-white px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <main className="mx-auto w-full max-w-2xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
         <DashboardShell>
           <BusinessDashboardHeader profile={data.profile} />
         <BusinessProfileCard company={data.company} />

@@ -19,7 +19,7 @@ export function ProductActionBar({
   return (
     <div
       className={cn(
-        "premium-footer-bar fixed inset-x-0 bottom-0 z-[110]",
+        "rx-footer-bar fixed inset-x-0 bottom-0 z-[110]",
         className,
       )}
     >

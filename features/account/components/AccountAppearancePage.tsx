@@ -46,7 +46,7 @@ export function AccountAppearancePage() {
       backHref="/account/settings"
       backLabel="Settings"
     >
-      <section className="premium-card p-ds-5">
+      <section className="rx-surface-card p-ds-5">
         {settings ? (
           <AppearancePicker
             value={settings.appearanceMode}

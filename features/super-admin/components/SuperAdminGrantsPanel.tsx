@@ -30,13 +30,13 @@ export function SuperAdminGrantsPanel() {
             value={userId}
             onChange={(event) => setUserId(event.target.value)}
             placeholder="User ID"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           />
           <input
             value={productId}
             onChange={(event) => setProductId(event.target.value)}
             placeholder="Product ID (featured/bump)"
-            className="premium-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 rounded-ds-md px-ds-3 text-sm"
           />
         </div>
       </Card>
@@ -74,7 +74,7 @@ export function SuperAdminGrantsPanel() {
             value={amount}
             onChange={(event) => setAmount(event.target.value)}
             type="number"
-            className="premium-input mt-ds-3 min-h-ds-7 w-full rounded-ds-md px-ds-3 text-sm"
+            className="rx-input mt-ds-3 min-h-ds-7 w-full rounded-ds-md px-ds-3 text-sm"
           />
           <Button
             className="mt-ds-3"
@@ -97,7 +97,7 @@ export function SuperAdminGrantsPanel() {
             value={credits}
             onChange={(event) => setCredits(event.target.value)}
             type="number"
-            className="premium-input mt-ds-3 min-h-ds-7 w-full rounded-ds-md px-ds-3 text-sm"
+            className="rx-input mt-ds-3 min-h-ds-7 w-full rounded-ds-md px-ds-3 text-sm"
           />
           <Button
             className="mt-ds-3"

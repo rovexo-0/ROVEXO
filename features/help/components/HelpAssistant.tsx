@@ -51,7 +51,7 @@ export function HelpAssistant({ compact = false }: HelpAssistantProps) {
         onChange={(event) => setQuery(event.target.value)}
         rows={compact ? 2 : 3}
         placeholder={'Try "I can\'t withdraw my money" or "Where is my order?"'}
-        className="mt-ds-3 w-full premium-input px-ds-3 py-ds-2 text-sm"
+        className="mt-ds-3 w-full rx-input px-ds-3 py-ds-2 text-sm"
       />
       <Button className="mt-ds-3" disabled={!query.trim()} onClick={ask}>
         Ask

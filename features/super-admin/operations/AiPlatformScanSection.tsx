@@ -59,7 +59,7 @@ export function AiPlatformScanSection({ snapshot, onScanned }: AiPlatformScanSec
           <Card
             key={item.id}
             padding="sm"
-            className="premium-glass border border-border/70 bg-white/80 dark:bg-slate-900/70"
+            className="rx-glass border border-border/70 bg-white/80 dark:bg-slate-900/70"
           >
             <div className="flex items-center justify-between gap-ds-2">
               <p className="text-sm font-medium text-text-primary">{item.label}</p>

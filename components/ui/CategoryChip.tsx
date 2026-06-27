@@ -23,12 +23,12 @@ export type CategoryChipProps = CategoryChipLinkProps | CategoryChipButtonProps;
 
 const chipStyles = (active?: boolean) =>
   cn(
-    "premium-btn inline-flex shrink-0 items-center rounded-ds-full px-ds-4 py-ds-2 text-sm font-semibold sm:px-ds-5",
+    "rx-btn inline-flex shrink-0 items-center rounded-ds-full px-ds-4 py-ds-2 text-sm font-semibold sm:px-ds-5",
     transitionFast,
     focusRing,
     active
       ? "bg-[image:var(--ds-gradient-primary)] text-primary-foreground shadow-[var(--ds-glow-primary)]"
-      : "premium-glass text-text-secondary hover:text-primary premium-depth-1",
+      : "rx-glass text-text-secondary hover:text-primary rx-depth-1",
   );
 
 export function CategoryChip(props: CategoryChipProps) {

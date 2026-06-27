@@ -127,12 +127,12 @@ export function AdminPromotionsPage({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search listings or sellers"
-            className="premium-input min-h-ds-7 flex-1 px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 flex-1 px-ds-3 text-sm"
           />
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
-            className="premium-input min-h-ds-7 px-ds-3 text-sm"
+            className="rx-input min-h-ds-7 px-ds-3 text-sm"
           >
             <option value="all">All statuses</option>
             <option value="pending">Pending</option>

@@ -18,7 +18,7 @@ export function ProfileHero({ profile, variant = "default" }: ProfileHeroProps) 
 
   return (
     <MotionDiv
-      className={isDashboard ? "account-dash-card overflow-hidden p-ds-4" : "premium-card overflow-hidden p-ds-6"}
+      className={isDashboard ? "account-dash-card overflow-hidden p-ds-4" : "rx-surface-card overflow-hidden p-ds-6"}
     >
       <section aria-labelledby="profile-name" className="relative z-[1] flex flex-col items-center gap-ds-4 text-center">
         <div className="relative">
@@ -48,7 +48,7 @@ export function ProfileHero({ profile, variant = "default" }: ProfileHeroProps) 
           <p className="text-xs text-text-muted">Member since {profile.memberSince}</p>
         </div>
 
-        <div className="premium-glass premium-depth-1 grid w-full grid-cols-2 gap-ds-3 rounded-ds-lg p-ds-3">
+        <div className="rx-glass rx-depth-1 grid w-full grid-cols-2 gap-ds-3 rounded-ds-lg p-ds-3">
           <div className="text-center">
             <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Buyer rating</p>
             <div className="mt-ds-1 flex justify-center">

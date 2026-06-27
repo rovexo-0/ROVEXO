@@ -37,7 +37,7 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Search articles, categories, FAQs..."
-        className="mt-ds-4 w-full premium-input rounded-ds-xl px-ds-4 py-ds-3 text-sm lg:mt-ds-5 lg:py-ds-4"
+        className="mt-ds-4 w-full rx-input rounded-ds-xl px-ds-4 py-ds-3 text-sm lg:mt-ds-5 lg:py-ds-4"
       />
     </section>
   );

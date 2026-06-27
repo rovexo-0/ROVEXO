@@ -88,7 +88,7 @@ export function SavedPage({ initialItems }: SavedPageProps) {
 
   return (
     <BetaAppShell bottomNavTab="saved">
-      <header className="premium-page-header sticky top-0 z-50">
+      <header className="rx-page-header sticky top-0 z-50">
         <div className="flex items-center justify-between gap-ds-3 px-ds-4 pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]">
           <h1 className="min-w-0 truncate text-2xl font-bold text-text-primary">Saved</h1>
           <IconButton
@@ -111,7 +111,7 @@ export function SavedPage({ initialItems }: SavedPageProps) {
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search saved items"
                 className={cn(
-                  "premium-input premium-glass min-h-ds-7 w-full rounded-ds-full pl-ds-8 pr-ds-3 py-ds-2 text-sm placeholder:text-text-muted",
+                  "rx-input rx-glass min-h-ds-7 w-full rounded-ds-full pl-ds-8 pr-ds-3 py-ds-2 text-sm placeholder:text-text-muted",
                   focusRing,
                 )}
               />
@@ -189,7 +189,7 @@ export function SavedPage({ initialItems }: SavedPageProps) {
                 value={sort}
                 onChange={(event) => setSort(event.target.value as SavedSort)}
                 className={cn(
-                  "premium-input min-h-ds-7 px-ds-3 py-ds-2 text-sm font-medium text-text-primary",
+                  "rx-input min-h-ds-7 px-ds-3 py-ds-2 text-sm font-medium text-text-primary",
                   focusRing,
                 )}
               >
@@ -219,7 +219,7 @@ export function SavedPage({ initialItems }: SavedPageProps) {
             }}
           />
         ) : (
-          <div className="marketplace-listing-grid">
+          <div className="rx-listing-grid">
             {visibleItems.map((item) => {
               const selected = selectedSlugs.includes(item.product.slug);
               const cardProps = productToCardProps(item.product);
@@ -239,7 +239,7 @@ export function SavedPage({ initialItems }: SavedPageProps) {
                       aria-pressed={selected}
                       onClick={() => toggleSelect(item.product.slug)}
                       className={cn(
-                        "premium-chip absolute left-ds-2 top-ds-2 z-20 flex h-6 w-6 items-center justify-center text-xs font-bold",
+                        "rx-chip absolute left-ds-2 top-ds-2 z-20 flex h-6 w-6 items-center justify-center text-xs font-bold",
                         selected && "border-primary bg-primary text-primary-foreground",
                         focusRing,
                       )}

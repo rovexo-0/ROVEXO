@@ -243,7 +243,7 @@ export function SearchBar({
             transitionFast,
             isHeaderVariant
               ? cn(
-                  "premium-glass border-border/60",
+                  "rx-glass border-border/60",
                   "transition-[border-color,box-shadow,background-color,transform] duration-ds-normal ease-ds",
                   "hover:border-primary/25 hover:shadow-[var(--ds-depth-2)]",
                   "focus-within:border-primary/45 focus-within:shadow-[var(--ds-glow-primary)] focus-within:ring-2 focus-within:ring-ring/15",

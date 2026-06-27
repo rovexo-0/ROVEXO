@@ -12,7 +12,7 @@ type MotionProps = HTMLAttributes<HTMLDivElement> & {
 export function MotionDiv({ children, className, delay = 0, style, ...props }: MotionProps) {
   return (
     <div
-      className={cn("premium-enter", className)}
+      className={cn("rx-enter", className)}
       style={{
         animationDelay: delay ? `${delay}ms` : undefined,
         ...style,
@@ -30,7 +30,7 @@ export function MotionPress({
   ...props
 }: HTMLAttributes<HTMLButtonElement> & { children: ReactNode }) {
   return (
-    <button type="button" className={cn("premium-btn", className)} {...props}>
+    <button type="button" className={cn("rx-btn", className)} {...props}>
       {children}
     </button>
   );

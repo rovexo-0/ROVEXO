@@ -84,7 +84,7 @@ export function HelpSolutionView({ solution, topicSlug }: HelpSolutionViewProps)
           <div className="mt-ds-6 space-y-ds-3">
             <h3 className="text-sm font-semibold text-text-primary">Frequently asked questions</h3>
             {solution.faqs.map((faq) => (
-              <details key={faq.question} className="premium-glass premium-depth-1 rounded-ds-lg px-ds-4 py-ds-3">
+              <details key={faq.question} className="rx-glass rx-depth-1 rounded-ds-lg px-ds-4 py-ds-3">
                 <summary className="cursor-pointer text-sm font-medium text-text-primary">{faq.question}</summary>
                 <p className="mt-ds-2 text-sm text-text-secondary">{faq.answer}</p>
               </details>

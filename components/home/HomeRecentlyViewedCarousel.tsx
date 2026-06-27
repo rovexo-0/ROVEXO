@@ -23,7 +23,7 @@ export function HomeRecentlyViewedCarousel() {
   return (
     <section aria-labelledby="recently-viewed-heading" className="px-ds-4">
       <div className="mb-ds-2 flex items-end justify-between gap-ds-2">
-        <h2 id="recently-viewed-heading" className="home-section-2026__title text-text-primary">
+        <h2 id="recently-viewed-heading" className="rx-section__title text-text-primary">
           Recently Viewed
         </h2>
         <Link href="/saved" className={cn("text-sm font-semibold text-primary hover:opacity-80", focusRing)}>
@@ -32,7 +32,7 @@ export function HomeRecentlyViewedCarousel() {
       </div>
 
       <div
-        className="marketplace-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="rx-listing-carousel -mx-ds-4 px-ds-4 pb-ds-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         role="group"
         aria-roledescription="carousel"
         aria-label="Recently viewed listings"

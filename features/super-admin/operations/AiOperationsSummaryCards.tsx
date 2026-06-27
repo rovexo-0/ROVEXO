@@ -34,7 +34,7 @@ export function AiOperationsSummaryCards({ summary }: { summary: AiOperationsSum
           <Card
             key={card.label}
             padding="md"
-            className={`premium-card ai-ops-card overflow-hidden border shadow-[0_12px_40px_rgba(15,23,42,0.08)] ${
+            className={`rx-surface-card ai-ops-card overflow-hidden border shadow-[0_12px_40px_rgba(15,23,42,0.08)] ${
               isStatus ? SEVERITY_CARD[statusValue] : "border-border/80 bg-white/90 dark:bg-slate-900/80"
             }`}
           >

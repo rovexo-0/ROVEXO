@@ -52,6 +52,8 @@ export type SellListingDraft = {
 
   stock: number;
 
+  locationCity: string | null;
+
   analysis: AiCameraAnalysisResult | null;
 };
 
@@ -97,6 +99,8 @@ export function createEmptyDraft(): SellListingDraft {
 
     stock: 1,
 
+    locationCity: null,
+
     analysis: null,
   };
 }
@@ -109,7 +113,8 @@ export type ListingValidationField =
   | "price"
   | "condition"
   | "shippingMethod"
-  | "stock";
+  | "stock"
+  | "location";
 
 export type ListingValidationErrors = Partial<Record<ListingValidationField, string>>;
 
@@ -177,6 +182,10 @@ export function getListingValidationErrors(
 
   if (!hasValidPrice(draft)) {
     errors.price = "Enter a price greater than zero.";
+  }
+
+  if (!draft.locationCity?.trim()) {
+    errors.location = "Choose your city.";
   }
 
   return errors;

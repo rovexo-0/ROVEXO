@@ -59,7 +59,7 @@ export function SuperAdminGlobalSearch() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search users, listings, businesses, orders, reports, messages…"
-          className="premium-input min-h-ds-7 w-full rounded-ds-md px-ds-3 text-sm"
+          className="rx-input min-h-ds-7 w-full rounded-ds-md px-ds-3 text-sm"
           autoFocus
         />
       </Card>

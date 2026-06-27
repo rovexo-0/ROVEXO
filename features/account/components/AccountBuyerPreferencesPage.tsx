@@ -96,7 +96,7 @@ export function AccountBuyerPreferencesPage() {
       backHref="/account/profile"
       backLabel="Settings"
     >
-      <form onSubmit={onSubmit} className="premium-card flex flex-col gap-ds-4 p-ds-5" noValidate>
+      <form onSubmit={onSubmit} className="rx-surface-card flex flex-col gap-ds-4 p-ds-5" noValidate>
         <div>
           <label htmlFor="region" className="text-sm font-medium text-text-primary">
             Region

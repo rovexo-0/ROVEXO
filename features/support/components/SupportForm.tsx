@@ -113,7 +113,7 @@ export function SupportForm() {
             id="support-category"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            className="mt-ds-1 w-full premium-input px-ds-3 py-ds-2 text-sm"
+            className="mt-ds-1 w-full rx-input px-ds-3 py-ds-2 text-sm"
           >
             {SUPPORT_CATEGORIES.map((item) => (
               <option key={item.id} value={item.id}>
@@ -131,7 +131,7 @@ export function SupportForm() {
             id="support-subject"
             value={subject}
             onChange={(event) => setSubject(event.target.value)}
-            className="mt-ds-1 w-full premium-input px-ds-3 py-ds-2 text-sm"
+            className="mt-ds-1 w-full rx-input px-ds-3 py-ds-2 text-sm"
           />
         </div>
 
@@ -144,7 +144,7 @@ export function SupportForm() {
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             rows={6}
-            className="mt-ds-1 w-full premium-input px-ds-3 py-ds-2 text-sm"
+            className="mt-ds-1 w-full rx-input px-ds-3 py-ds-2 text-sm"
           />
         </div>
 

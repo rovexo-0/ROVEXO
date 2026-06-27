@@ -48,7 +48,7 @@ function HubSection({
   return (
     <section className="account-section" aria-labelledby={id}>
       <SectionTitle id={id}>{title}</SectionTitle>
-      <div className="account-menu-grid enterprise-hub-grid">
+      <div className="account-menu-grid rx-hub-grid">
         {tiles.map((tile) => (
           <MenuCard
             key={`${id}-${tile.href}-${tile.label}`}

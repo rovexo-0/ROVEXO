@@ -42,7 +42,7 @@ export function SellPage({
   const canPublish = useSellPublishState(form, { mode: listingMode });
 
   return (
-    <BetaAppShell showBottomNav={false}>
+    <BetaAppShell showBottomNav={false} className="sell-page-v1">
       {!isPublished && (
         <SellPageHeader
           onSaveDraft={saveDraft}

@@ -109,7 +109,7 @@ export function OrderReviewCard({ orderId, sellerName }: OrderReviewCardProps) {
         value={comment}
         onChange={(event) => setComment(event.target.value)}
         placeholder="Share your experience (optional)"
-        className="min-h-[96px] w-full premium-input px-ds-3 py-ds-2 text-sm"
+        className="min-h-[96px] w-full rx-input px-ds-3 py-ds-2 text-sm"
       />
 
       {message && <p className="text-sm text-text-secondary">{message}</p>}

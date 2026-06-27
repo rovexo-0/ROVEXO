@@ -103,7 +103,7 @@ export function MarketplaceConnectorSettingsModal({
       <button
         type="button"
         aria-label="Close settings"
-        className="absolute inset-0 premium-sheet-overlay"
+        className="absolute inset-0 rx-sheet-overlay"
         onClick={onClose}
       />
 
@@ -112,7 +112,7 @@ export function MarketplaceConnectorSettingsModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="connector-settings-title"
-        className="premium-sheet relative max-h-[85vh] w-full max-w-md overflow-y-auto"
+        className="rx-sheet relative max-h-[85vh] w-full max-w-md overflow-y-auto"
       >
         <div className="flex items-start gap-ds-3">
           <span className="text-2xl" aria-hidden>

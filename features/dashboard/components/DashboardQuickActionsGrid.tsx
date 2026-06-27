@@ -33,19 +33,19 @@ export function DashboardQuickActionsGrid({
             <Link
               key={action.href + action.label}
               href={action.href}
-              className={cn("dash-v1-tile lg:hidden", focusRing)}
+              className={cn("rx-dash-tile lg:hidden", focusRing)}
               aria-label={action.label}
             >
-              <div className="dash-v1-tile__top">
-                <div className="dash-v1-tile__icon">
+              <div className="rx-dash-tile__top">
+                <div className="rx-dash-tile__icon">
                   <DashboardIcon3D type={iconType} size={32} />
                 </div>
-                <ChevronRightIcon className="dash-v1-tile__chevron h-4 w-4" aria-hidden />
+                <ChevronRightIcon className="rx-dash-tile__chevron h-4 w-4" aria-hidden />
               </div>
               <div>
-                <p className="dash-v1-tile__title">{action.label}</p>
+                <p className="rx-dash-tile__title">{action.label}</p>
                 {action.subtitle ? (
-                  <p className="dash-v1-tile__subtitle">{action.subtitle}</p>
+                  <p className="rx-dash-tile__subtitle">{action.subtitle}</p>
                 ) : null}
               </div>
             </Link>

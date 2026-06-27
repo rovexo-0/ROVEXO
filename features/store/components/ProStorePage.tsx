@@ -99,7 +99,7 @@ export function ProStorePage({
               Featured products
             </h2>
             {displayFeatured.length > 0 ? (
-              <div className="marketplace-listing-grid">
+              <div className="rx-listing-grid">
                 {displayFeatured.map((product) => (
                   <ProductCard key={product.id} {...productToCardProps(product)} />
                 ))}
@@ -121,7 +121,7 @@ export function ProStorePage({
               </Link>
             </div>
             {listings.length > 0 ? (
-              <div className="marketplace-listing-grid">
+              <div className="rx-listing-grid">
                 {listings.map((product) => (
                   <ProductCard key={product.id} {...productToCardProps(product)} />
                 ))}

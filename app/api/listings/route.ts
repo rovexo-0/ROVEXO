@@ -8,6 +8,7 @@ import {
 } from "@/lib/listings/repository";
 import type { ListingFilter } from "@/lib/listings/types";
 import { clampInventory, isInventoryValid } from "@/lib/sell/inventory";
+import { sanitizeListingLocationCity } from "@/lib/sell/listing-location";
 
 const imageSchema = z.object({
   url: z.string().url(),
@@ -25,6 +26,7 @@ const listingSchema = z.object({
   size: z.string().optional(),
   condition: z.string().min(1),
   price: z.number().positive(),
+  locationCity: z.string().min(1).max(80).optional(),
   acceptOffers: z.boolean(),
   deliveryCarriers: z.array(z.string()).optional(),
   status: z.enum(["draft", "published"]).optional(),
@@ -117,6 +119,7 @@ export async function POST(request: Request) {
       sellerId: auth.user.id,
       title: body.title,
       description: body.description,
+      locationCity: sanitizeListingLocationCity(body.locationCity),
       brand: body.brand,
       color: body.color,
       size: body.size,

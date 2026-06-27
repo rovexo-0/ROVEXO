@@ -1,13 +1,24 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { productToCardProps } from "@/lib/products/card";
 import type { Product } from "@/lib/products/types";
-import { ProductGridSkeleton, ProductSectionEmpty } from "@/components/home/ProductSectionStates";
+import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
 import { SearchFilters, type SearchFilterValues } from "@/features/search/components/SearchFilters";
+import { SearchResultsEmpty } from "@/features/search/components/SearchResultsEmpty";
+import { SearchScopeChips } from "@/features/search/components/SearchScopeChips";
+import { SellerResults } from "@/features/search/components/SellerResults";
 import { parseSearchFilters, serializeSearchFilters } from "@/features/search/utils/filters";
+import type { SearchFilterScope } from "@/features/search/types";
+import type { SearchResults } from "@/features/search/types";
+import {
+  getSearchCurrentCity,
+  setSearchLocationMode,
+  type SearchLocationMode,
+} from "@/features/search/utils/location-preference";
+import { sortSearchResultItems } from "@/features/search/utils/sort-results";
 import { useIntersectionWhenVisible } from "@/lib/performance/hooks";
 
 type SearchResultsResponse = {
@@ -32,13 +43,22 @@ async function fetchResults(
   return response.json();
 }
 
+async function fetchSellerResults(query: string, signal?: AbortSignal): Promise<SearchResults> {
+  const params = new URLSearchParams({ q: query });
+  const response = await fetch(`/api/search?${params.toString()}`, { cache: "no-store", signal });
+  if (!response.ok) throw new Error("Search failed");
+  return response.json();
+}
+
 export function SearchResultsView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get("q")?.trim() ?? "";
   const filters = parseSearchFilters(searchParams);
+  const scope: SearchFilterScope = filters.scope ?? "products";
 
   const [items, setItems] = useState<Product[]>([]);
+  const [sellerResults, setSellerResults] = useState<SearchResults | null>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -61,8 +81,8 @@ export function SearchResultsView() {
         setTotal(data.total);
         setPage(data.page);
         setHasMore(data.hasMore);
-      } catch (error) {
-        if ((error as Error).name === "AbortError") return;
+      } catch (fetchError) {
+        if ((fetchError as Error).name === "AbortError") return;
         setError(true);
       } finally {
         if (!signal?.aborted) {
@@ -80,15 +100,26 @@ export function SearchResultsView() {
     async function run() {
       setLoading(true);
       setError(false);
+
       try {
-        const data = await fetchResults(query, filters, 1, controller.signal);
-        if (controller.signal.aborted) return;
-        setItems(data.items);
-        setTotal(data.total);
-        setPage(data.page);
-        setHasMore(data.hasMore);
-      } catch (error) {
-        if ((error as Error).name === "AbortError") return;
+        if (scope === "sellers") {
+          const data = await fetchSellerResults(query, controller.signal);
+          if (controller.signal.aborted) return;
+          setSellerResults(data);
+          setItems([]);
+          setTotal(data.sellers.length + data.users.length);
+          setHasMore(false);
+        } else {
+          const data = await fetchResults(query, filters, 1, controller.signal);
+          if (controller.signal.aborted) return;
+          setItems(data.items);
+          setTotal(data.total);
+          setPage(data.page);
+          setHasMore(data.hasMore);
+          setSellerResults(null);
+        }
+      } catch (fetchError) {
+        if ((fetchError as Error).name === "AbortError") return;
         setError(true);
       } finally {
         if (!controller.signal.aborted) setLoading(false);
@@ -97,7 +128,7 @@ export function SearchResultsView() {
 
     void run();
     return () => controller.abort();
-  }, [filters, query]);
+  }, [filters, query, scope]);
 
   useIntersectionWhenVisible(
     () => {
@@ -107,7 +138,7 @@ export function SearchResultsView() {
     },
     {
       targetRef: loadMoreRef,
-      enabled: hasMore && !isLoadingMore,
+      enabled: scope === "products" && hasMore && !isLoadingMore,
       rootMargin: "240px",
     },
   );
@@ -117,22 +148,42 @@ export function SearchResultsView() {
     router.replace(`/search?${params.toString()}`);
   }
 
+  function updateScope(nextScope: SearchFilterScope) {
+    updateFilters({ ...filters, scope: nextScope });
+  }
+
+  function handleLocationChange(mode: SearchLocationMode, city?: string) {
+    setSearchLocationMode(mode);
+    const nextLocation = mode === "current" || mode === "nearby" ? city : undefined;
+    updateFilters({ ...filters, location: nextLocation });
+  }
+
+  const displayedItems = useMemo(() => {
+    if (filters.sort !== "most_viewed" && filters.sort !== "nearest") return items;
+    return sortSearchResultItems(items, filters.sort, filters.location ?? getSearchCurrentCity() ?? undefined);
+  }, [filters.location, filters.sort, items]);
+
   return (
     <div className="flex flex-col gap-ds-5">
-      <div>
+      <div className="min-h-[3.75rem]">
         <h1 className="text-xl font-semibold text-text-primary">
           {query ? `Results for “${query}”` : "Browse listings"}
         </h1>
-        {!loading && !error && (
+        {!loading && !error && scope === "products" && (
           <p className="mt-ds-1 text-sm text-text-secondary">
             {total.toLocaleString()} {total === 1 ? "result" : "results"}
           </p>
         )}
       </div>
 
-      <SearchFilters values={filters} onChange={updateFilters} />
+      <SearchScopeChips active={scope} onChange={updateScope} query={query} />
+      <SearchFilters
+        values={filters}
+        onChange={updateFilters}
+        onLocationChange={handleLocationChange}
+      />
 
-      <div className="marketplace-listing-grid px-ds-4">
+      <div className="rx-listing-grid min-h-[24rem] px-ds-4">
         {loading ? (
           <ProductGridSkeleton count={8} />
         ) : error ? (
@@ -149,13 +200,29 @@ export function SearchResultsView() {
               Try again
             </button>
           </div>
+        ) : scope === "sellers" && sellerResults ? (
+          sellerResults.sellers.length + sellerResults.users.length === 0 ? (
+            <div className="col-span-full">
+              <SearchResultsEmpty variant="no-results" query={query} />
+            </div>
+          ) : (
+            <div className="col-span-full">
+              <SellerResults
+                sellers={sellerResults.sellers}
+                users={sellerResults.users}
+                activeIndex={-1}
+                navOffset={0}
+                onHoverIndex={() => undefined}
+                onNavigate={() => undefined}
+              />
+            </div>
+          )
         ) : items.length === 0 ? (
-          <ProductSectionEmpty
-            title="results"
-            message="Try different keywords or adjust your filters."
-          />
+          <div className="col-span-full">
+            <SearchResultsEmpty variant="no-results" query={query} />
+          </div>
         ) : (
-          items.map((product) => (
+          displayedItems.map((product) => (
             <ProductCard key={product.id} {...productToCardProps(product)} />
           ))
         )}

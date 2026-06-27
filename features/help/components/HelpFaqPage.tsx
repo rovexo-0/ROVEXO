@@ -25,7 +25,7 @@ export function HelpFaqPage() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search FAQs..."
-          className="mt-ds-4 w-full premium-input rounded-ds-xl px-ds-4 py-ds-3 text-sm"
+          className="mt-ds-4 w-full rx-input rounded-ds-xl px-ds-4 py-ds-3 text-sm"
         />
       </div>
 

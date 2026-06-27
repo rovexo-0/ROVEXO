@@ -133,7 +133,7 @@ export function CategoriesAdmin({ initialCategories }: CategoriesAdminProps) {
             <label className="block space-y-1">
               <span className="text-sm font-medium">Icon</span>
               <input
-                className="premium-input w-full px-ds-3 py-ds-2"
+                className="rx-input w-full px-ds-3 py-ds-2"
                 value={selected.icon}
                 onChange={(event) =>
                   setCategories((prev) =>
@@ -148,7 +148,7 @@ export function CategoriesAdmin({ initialCategories }: CategoriesAdminProps) {
             <label className="block space-y-1">
               <span className="text-sm font-medium">SEO Title</span>
               <input
-                className="premium-input w-full px-ds-3 py-ds-2"
+                className="rx-input w-full px-ds-3 py-ds-2"
                 value={selected.seoTitle ?? ""}
                 onChange={(event) =>
                   setCategories((prev) =>
@@ -163,7 +163,7 @@ export function CategoriesAdmin({ initialCategories }: CategoriesAdminProps) {
             <label className="block space-y-1">
               <span className="text-sm font-medium">SEO Description</span>
               <textarea
-                className="min-h-24 premium-input w-full px-ds-3 py-ds-2"
+                className="min-h-24 rx-input w-full px-ds-3 py-ds-2"
                 value={selected.seoDescription ?? ""}
                 onChange={(event) =>
                   setCategories((prev) =>

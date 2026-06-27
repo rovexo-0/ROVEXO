@@ -9,7 +9,7 @@ type StickyPageHeaderProps = {
 /** Shared sticky page header — Premium 2026 glass chrome. */
 export function StickyPageHeader({ children, className }: StickyPageHeaderProps) {
   return (
-    <header className={cn("premium-page-header sticky top-0 z-50", className)}>
+    <header className={cn("rx-page-header sticky top-0 z-50", className)}>
       {children}
     </header>
   );

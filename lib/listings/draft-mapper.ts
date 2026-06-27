@@ -1,6 +1,7 @@
 import type { SellerListing } from "@/lib/listings/types";
 import { createEmptyDraft, type SellListingDraft, type SellPhoto } from "@/features/sell/types";
 import { resolveFlatCategoryPathFromId } from "@/lib/listings/category-path";
+import { stripListingLocationMarker } from "@/lib/sell/listing-location";
 
 export async function sellerListingToDraft(listing: SellerListing): Promise<SellListingDraft> {
   const categoryPath = await resolveFlatCategoryPathFromId(listing.categoryId);
@@ -24,7 +25,8 @@ export async function sellerListingToDraft(listing: SellerListing): Promise<Sell
     color: listing.color ?? "",
     size: listing.size ?? "",
     title: listing.title,
-    description: listing.description,
+    description: stripListingLocationMarker(listing.description),
+    locationCity: listing.locationCity,
     condition: listing.condition,
     price: String(listing.price),
     acceptOffers: listing.acceptOffers,

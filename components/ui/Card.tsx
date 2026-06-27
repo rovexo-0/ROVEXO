@@ -24,7 +24,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "premium-card relative border-border/70 bg-surface/90",
+        "rx-surface-card relative border-border/70 bg-surface/90",
         paddingStyles[padding],
         interactive && cn("cursor-pointer", transitionFast),
         className,
