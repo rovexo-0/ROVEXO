@@ -4,11 +4,14 @@ import { useCallback, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { ENTERPRISE_SOC_MODULE_DESCRIPTOR } from "@/lib/enterprise-security-operations-center/descriptor";
 import { ENTERPRISE_SOC_API, ENTERPRISE_SOC_ROUTES } from "@/lib/enterprise-security-operations-center/registry";
 import type { SocSnapshot, SocTab } from "@/lib/enterprise-security-operations-center/types";
+import { createOmegaValidations } from "@/lib/super-admin/premium/omega-status";
 
 const NAV_ROUTES = ENTERPRISE_SOC_ROUTES.filter((r) => r.id !== "dashboard-alt");
+const MODULE_ID = ENTERPRISE_SOC_MODULE_DESCRIPTOR.id;
 
 type EnterpriseSocAdminProps = {
   initialSnapshot: SocSnapshot;
@@ -72,62 +75,52 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
   const firstThreat = snapshot.threats[0];
   const firstEvent = snapshot.liveEvents[0] ?? snapshot.events[0];
 
+  const validations = createOmegaValidations(
+    undefined,
+    snapshot.health.status === "healthy" ? "healthy" : snapshot.health.status === "warning" ? "warning" : "critical",
+  );
+
+  const banner = snapshot.pendingPublish
+    ? "Pending publish — draft differs from live."
+    : snapshot.settings.emergencyLockdown
+      ? "Emergency lockdown is active."
+      : undefined;
+
   return (
-    <div className="esoc-admin">
-      <header className="esoc-admin__header">
-        <div>
-          <p className="esoc-admin__eyebrow">Enterprise Security Operations Center</p>
-          <h2 className="esoc-admin__title">Cyber Security Platform</h2>
-          <p className="esoc-admin__desc">
-            Threat intelligence, intrusion detection, firewall, scanner, and compliance — powered by SCAN, SENTINEL, and OMEGA AI.
-          </p>
-        </div>
-        <div className="esoc-admin__scores">
-          <div className={cn("esoc-score", `esoc-score--${snapshot.dashboard.threatLevel}`)}>
-            <span>Threat</span>
-            <strong>{snapshot.dashboard.threatLevel}</strong>
-          </div>
-          <div className="esoc-score esoc-score--security">
-            <span>Score</span>
-            <strong>{snapshot.dashboard.securityScore}%</strong>
-          </div>
-          <div className="esoc-score esoc-score--health">
-            <span>Health</span>
-            <strong>{snapshot.health.score}%</strong>
-          </div>
-        </div>
-      </header>
-
-      <div className="esoc-admin__actions">
-        <Button type="button" disabled={isPending} onClick={() => runAction("scan")}>Run Scan</Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("toggle-lockdown")}>
-          {snapshot.settings.emergencyLockdown ? "Disable Lockdown" : "Emergency Lockdown"}
-        </Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => refresh()}>Refresh</Button>
-        <Link href="/super-admin/ai" className="esoc-link">AI Operating System</Link>
-        <Link href="/super-admin/incidents" className="esoc-link">Incident Response</Link>
-        <Link href="/super-admin/security-engine" className="esoc-link">Security Engine</Link>
-      </div>
-
-      {message && <p className="esoc-admin__message">{message}</p>}
-      {snapshot.pendingPublish && <p className="esoc-admin__banner">Pending publish — draft differs from live.</p>}
-      {snapshot.settings.emergencyLockdown && (
-        <p className="esoc-admin__banner esoc-admin__banner--lockdown">Emergency lockdown is active.</p>
-      )}
-
-      <nav className="esoc-tabs" aria-label="SOC sections">
-        {NAV_ROUTES.map((route) => (
-          <Link key={route.id} href={route.href} className={cn("esoc-tab", (activeTab === route.id || (activeTab === "dashboard" && route.id === "dashboard")) && "esoc-tab--active")}>
-            {route.label}
-          </Link>
-        ))}
-      </nav>
-
+    <EnterpriseAdminShell
+      moduleId={MODULE_ID}
+      eyebrow="Enterprise Security Operations Center"
+      title="Cyber Security Platform"
+      description="Threat intelligence, intrusion detection, firewall, scanner, and compliance — powered by SCAN, SENTINEL, and OMEGA AI."
+      enterpriseScore={snapshot.dashboard.securityScore}
+      healthStatus={snapshot.health.status}
+      validations={validations}
+      routeTabs={NAV_ROUTES}
+      activeTab={activeTab}
+      isPending={isPending}
+      message={message}
+      banner={banner}
+      aiInsight="OMEGA PRIME: Security Operations Center is production ready for global enterprise audit."
+      actions={
+        <>
+          <Button type="button" disabled={isPending} onClick={() => runAction("scan")}>Run Scan</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("toggle-lockdown")}>
+            {snapshot.settings.emergencyLockdown ? "Disable Lockdown" : "Emergency Lockdown"}
+          </Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => refresh()}>Refresh</Button>
+        </>
+      }
+      quickLinks={[
+        { label: "AI Operating System", href: "/super-admin/ai" },
+        { label: "Incident Response", href: "/super-admin/incidents" },
+        { label: "Security Engine", href: "/super-admin/security-engine" },
+      ]}
+    >
       {activeTab === "dashboard" && (
         <div className="esoc-grid">
-          <section className="esoc-panel">
+          <section className="ea-panel">
             <h3>SOC Dashboard</h3>
-            <dl className="esoc-metrics">
+            <dl className="ea-metrics">
               <div><dt>Threat Level</dt><dd>{snapshot.dashboard.threatLevel}</dd></div>
               <div><dt>Security Score</dt><dd>{snapshot.dashboard.securityScore}%</dd></div>
               <div><dt>Live Threat Feed</dt><dd>{snapshot.dashboard.liveThreatFeedCount}</dd></div>
@@ -145,9 +138,9 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
             </dl>
           </section>
           {snapshot.aiInsights.length > 0 && (
-            <section className="esoc-panel">
+            <section className="ea-panel">
               <h3>AI Security Insights</h3>
-              <ul className="esoc-list">
+              <ul className="ea-list">
                 {snapshot.aiInsights.slice(0, 5).map((i) => (
                   <li key={i.id}><strong>{i.source.toUpperCase()}</strong> — {i.summary} ({i.confidence}%)</li>
                 ))}
@@ -158,9 +151,9 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
       )}
 
       {activeTab === "live" && (
-        <section className="esoc-panel">
+        <section className="ea-panel">
           <h3>Live Security Events</h3>
-          <table className="esoc-table">
+          <table className="ea-table">
             <thead>
               <tr><th>ID</th><th>Category</th><th>Level</th><th>Summary</th><th>Source</th><th>IP</th><th>Time</th><th>Actions</th></tr>
             </thead>
@@ -188,14 +181,14 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
       )}
 
       {activeTab === "threats" && (
-        <section className="esoc-panel">
+        <section className="ea-panel">
           <h3>Threat Intelligence</h3>
           {firstThreat && (
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("block", { ip: firstThreat.ip })}>
               Block {firstThreat.ip}
             </Button>
           )}
-          <ul className="esoc-list">
+          <ul className="ea-list">
             {snapshot.threats.map((t) => (
               <li key={t.id}>
                 <strong>{t.ip}</strong> — {t.country} / {t.asn} · confidence {t.confidence}%
@@ -207,9 +200,9 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
       )}
 
       {activeTab === "firewall" && (
-        <section className="esoc-panel">
+        <section className="ea-panel">
           <h3>Firewall Center</h3>
-          <ul className="esoc-list">
+          <ul className="ea-list">
             {snapshot.firewallRules.map((r) => (
               <li key={r.id}><strong>{r.label}</strong> [{r.type}] — {r.value} · {r.action} · {r.enabled ? "enabled" : "disabled"}</li>
             ))}
@@ -218,9 +211,9 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
       )}
 
       {activeTab === "devices" && (
-        <section className="esoc-panel">
+        <section className="ea-panel">
           <h3>Device Security</h3>
-          <ul className="esoc-list">
+          <ul className="ea-list">
             {snapshot.devices.map((d) => (
               <li key={d.id}>
                 <strong>{d.platform}</strong> — {d.trusted ? "trusted" : "unknown"} · {d.locked ? "locked" : "active"}
@@ -237,9 +230,9 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
       )}
 
       {activeTab === "sessions" && (
-        <section className="esoc-panel">
+        <section className="ea-panel">
           <h3>Session Monitoring</h3>
-          <ul className="esoc-list">
+          <ul className="ea-list">
             {snapshot.sessions.map((s) => (
               <li key={s.id}>
                 <strong>{s.userId}</strong> — {s.ip} ({s.country}) · MFA {s.mfaVerified ? "yes" : "no"}
@@ -253,10 +246,10 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
       )}
 
       {activeTab === "scanner" && (
-        <section className="esoc-panel">
+        <section className="ea-panel">
           <h3>Security Scanner</h3>
           <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("scan")}>Run Full Scan</Button>
-          <ul className="esoc-list">
+          <ul className="ea-list">
             {snapshot.scannerResults.map((r) => (
               <li key={r.id}><strong>{r.type}</strong> — {r.status} · score {r.score}%</li>
             ))}
@@ -265,9 +258,9 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
       )}
 
       {activeTab === "vulnerabilities" && (
-        <section className="esoc-panel">
+        <section className="ea-panel">
           <h3>Vulnerabilities</h3>
-          <ul className="esoc-list">
+          <ul className="ea-list">
             {snapshot.vulnerabilities.map((v) => (
               <li key={v.id}><strong>{v.component}</strong> [{v.severity}] — {v.description} · {v.status}</li>
             ))}
@@ -276,9 +269,9 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
       )}
 
       {activeTab === "compliance" && (
-        <section className="esoc-panel">
+        <section className="ea-panel">
           <h3>Compliance</h3>
-          <ul className="esoc-list">
+          <ul className="ea-list">
             {snapshot.complianceFrameworks.map((f) => (
               <li key={f}>{f.replace(/-/g, " ")}</li>
             ))}
@@ -287,21 +280,21 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
       )}
 
       {activeTab === "audit" && (
-        <section className="esoc-panel">
+        <section className="ea-panel">
           <h3>Security Audit Timeline</h3>
-          <ul className="esoc-list">
+          <ul className="ea-list">
             {snapshot.auditTimeline.map((e) => (
               <li key={e.id}><strong>{e.action}</strong> — {e.actor} · {e.timestamp.slice(0, 16).replace("T", " ")}</li>
             ))}
           </ul>
-          <Link href="/super-admin/audit" className="esoc-link">Open Audit & Compliance Center →</Link>
+          <Link href="/super-admin/audit" className="ea-link">Open Audit & Compliance Center →</Link>
         </section>
       )}
 
       {activeTab === "settings" && (
-        <section className="esoc-panel">
+        <section className="ea-panel">
           <h3>SOC Settings</h3>
-          <dl className="esoc-metrics">
+          <dl className="ea-metrics">
             <div><dt>Emergency Lockdown</dt><dd>{snapshot.settings.emergencyLockdown ? "Active" : "Off"}</dd></div>
             <div><dt>Auto Block</dt><dd>{snapshot.settings.autoBlockEnabled ? "Enabled" : "Disabled"}</dd></div>
             <div><dt>Auto Quarantine</dt><dd>{snapshot.settings.autoQuarantineEnabled ? "Enabled" : "Disabled"}</dd></div>
@@ -309,7 +302,7 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
             <div><dt>MFA Required</dt><dd>{snapshot.settings.mfaRequired ? "Yes" : "No"}</dd></div>
             <div><dt>Approval Workflow</dt><dd>{snapshot.settings.approvalWorkflowEnabled ? "Enabled" : "Disabled"}</dd></div>
           </dl>
-          <div className="esoc-admin__actions">
+          <div className="ea-admin__actions">
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("export", { format: "json" })}>Export JSON</Button>
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("export", { format: "pdf", reportType: "threats" })}>Threat Report PDF</Button>
             {firstEvent?.ip && (
@@ -318,6 +311,6 @@ export function EnterpriseSocAdmin({ initialSnapshot, defaultTab = "dashboard" }
           </div>
         </section>
       )}
-    </div>
+    </EnterpriseAdminShell>
   );
 }

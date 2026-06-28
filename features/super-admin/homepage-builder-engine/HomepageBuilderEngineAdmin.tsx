@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { HOMEPAGE_BUILDER_MODULE_DESCRIPTOR } from "@/lib/homepage-builder-engine/descriptor";
 import {
   HOMEPAGE_BUILDER_API,
@@ -12,6 +13,9 @@ import {
   HOMEPAGE_SECTION_TYPES,
 } from "@/lib/homepage-builder-engine/registry";
 import type { HomepageBuilderSnapshot, HomepageBuilderTab, HomepagePreviewMode } from "@/lib/homepage-builder-engine/types";
+import { createOmegaValidations } from "@/lib/super-admin/premium/omega-status";
+
+const MODULE_ID = HOMEPAGE_BUILDER_MODULE_DESCRIPTOR.id;
 
 type HomepageBuilderEngineAdminProps = {
   initialSnapshot: HomepageBuilderSnapshot;
@@ -60,65 +64,47 @@ export function HomepageBuilderEngineAdmin({
     [refresh],
   );
 
+  const validations = createOmegaValidations(
+    undefined,
+    snapshot.health.status === "healthy" ? "healthy" : snapshot.health.status === "warning" ? "warning" : "critical",
+  );
+
   return (
-    <div className="hpb-admin">
-      <header className="hpb-admin__header">
-        <div>
-          <p className="hpb-admin__eyebrow">Visual CMS Pro v2</p>
-          <h2 className="hpb-admin__title">Enterprise Homepage Builder</h2>
-          <p className="hpb-admin__desc">
-            Create, edit, publish, preview, and rollback every homepage section across the marketplace.
-          </p>
-        </div>
-        <div className="hpb-admin__scores">
-          <div className="hpb-score">
-            <span>Production</span>
-            <strong>{snapshot.dashboard.productionSections}</strong>
-          </div>
-          <div className="hpb-score hpb-score--health">
-            <span>Health</span>
-            <strong>{snapshot.health.score}%</strong>
-          </div>
-          <div className="hpb-score hpb-score--theme">
-            <span>Theme</span>
-            <strong>{snapshot.production.lastEditor ? "Live" : "—"}</strong>
-          </div>
-        </div>
-      </header>
-
-      <div className="hpb-admin__actions">
-        <Button type="button" disabled={isPending} onClick={() => runAction(HOMEPAGE_BUILDER_API.publish)}>
-          Publish
-        </Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction(HOMEPAGE_BUILDER_API.validate)}>
-          Validate
-        </Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction(HOMEPAGE_BUILDER_API.export)}>
-          Export
-        </Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => refresh()}>
-          Refresh
-        </Button>
-        <Link href="/super-admin/assets" className="hpb-link">Asset Manager</Link>
-        <Link href="/super-admin/visual-cms" className="hpb-link">Visual CMS</Link>
-      </div>
-
-      {message && <p className="hpb-admin__message">{message}</p>}
-      {snapshot.pendingPublish && <p className="hpb-admin__banner">Pending publish — draft differs from production.</p>}
-
-      <nav className="hpb-tabs" aria-label="Homepage builder sections">
-        {HOMEPAGE_BUILDER_ROUTES.map((route) => (
-          <Link key={route.id} href={route.href} className={cn("hpb-tab", activeTab === route.id && "hpb-tab--active")}>
-            {route.label}
-          </Link>
-        ))}
-      </nav>
-
+    <EnterpriseAdminShell
+      moduleId={MODULE_ID}
+      eyebrow="Visual CMS Pro v2"
+      title="Enterprise Homepage Builder"
+      description="Create, edit, publish, preview, and rollback every homepage section across the marketplace."
+      enterpriseScore={snapshot.health.score}
+      healthStatus={snapshot.health.status}
+      validations={validations}
+      routeTabs={HOMEPAGE_BUILDER_ROUTES}
+      activeTab={activeTab}
+      isPending={isPending}
+      message={message}
+      banner={snapshot.pendingPublish ? "Pending publish — draft differs from production." : undefined}
+      searchQuery={query}
+      onSearchChange={setQuery}
+      searchPlaceholder="Search sections…"
+      aiInsight="OMEGA PRIME: Homepage Builder is production ready for global enterprise audit."
+      actions={
+        <>
+          <Button type="button" disabled={isPending} onClick={() => runAction(HOMEPAGE_BUILDER_API.publish)}>Publish</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction(HOMEPAGE_BUILDER_API.validate)}>Validate</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction(HOMEPAGE_BUILDER_API.export)}>Export</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => refresh()}>Refresh</Button>
+        </>
+      }
+      quickLinks={[
+        { label: "Asset Manager", href: "/super-admin/assets" },
+        { label: "Visual CMS", href: "/super-admin/visual-cms" },
+      ]}
+    >
       {activeTab === "dashboard" && (
         <div className="hpb-grid">
-          <section className="hpb-panel">
+          <section className="ea-panel">
             <h3>Homepage Overview</h3>
-            <dl className="hpb-metrics">
+            <dl className="ea-metrics">
               <div><dt>Production Sections</dt><dd>{snapshot.dashboard.productionSections}</dd></div>
               <div><dt>Draft Sections</dt><dd>{snapshot.dashboard.draftSections}</dd></div>
               <div><dt>Scheduled</dt><dd>{snapshot.dashboard.scheduledHomepages}</dd></div>
@@ -129,9 +115,9 @@ export function HomepageBuilderEngineAdmin({
               <div><dt>Active Theme</dt><dd>{snapshot.integrations.visualCms ? "ROVEXO Premium" : "Default"}</dd></div>
             </dl>
           </section>
-          <section className="hpb-panel">
+          <section className="ea-panel">
             <h3>Integrations</h3>
-            <ul className="hpb-flag-list">
+            <ul className="ea-list">
               <li><strong>Asset Manager</strong><span>{snapshot.integrations.assetManager ? "Connected" : "Off"}</span></li>
               <li><strong>Visual CMS</strong><span>{snapshot.integrations.visualCms ? "Connected" : "Off"}</span></li>
               <li><strong>Workflow Engine</strong><span>{snapshot.integrations.workflowEngine ? "Connected" : "Off"}</span></li>
@@ -141,10 +127,10 @@ export function HomepageBuilderEngineAdmin({
       )}
 
       {(activeTab === "dashboard" || activeTab === "editor") && (
-        <section className="hpb-panel hpb-panel--wide">
+        <section className="ea-panel ea-panel--wide">
           <h3>Section Editor</h3>
-          <input className="hpb-search" placeholder="Search sections..." value={query} onChange={(e) => setQuery(e.target.value)} />
-          <ul className="hpb-list">
+          <input className="ea-input" placeholder="Search sections..." value={query} onChange={(e) => setQuery(e.target.value)} />
+          <ul className="ea-list">
             {filteredSections.slice(0, activeTab === "editor" ? 100 : 12).map((section) => (
               <li key={section.id} className="hpb-list__item">
                 <div>
@@ -164,11 +150,11 @@ export function HomepageBuilderEngineAdmin({
       )}
 
       {activeTab === "preview" && (
-        <section className="hpb-panel hpb-panel--wide">
+        <section className="ea-panel ea-panel--wide">
           <h3>Live Preview</h3>
-          <div className="hpb-chip-grid">
+          <div className="ea-chip-grid">
             {HOMEPAGE_PREVIEW_MODES.map((mode) => (
-              <button key={mode} type="button" className={cn("hpb-chip", previewMode === mode && "hpb-chip--active")} onClick={() => setPreviewMode(mode)}>
+              <button key={mode} type="button" className={cn("ea-chip", previewMode === mode && "ea-chip--active")} onClick={() => setPreviewMode(mode)}>
                 {mode}
               </button>
             ))}
@@ -181,9 +167,9 @@ export function HomepageBuilderEngineAdmin({
       )}
 
       {activeTab === "components" && (
-        <section className="hpb-panel hpb-panel--wide">
+        <section className="ea-panel ea-panel--wide">
           <h3>Component Library</h3>
-          <ul className="hpb-list">
+          <ul className="ea-list">
             {snapshot.componentLibrary.map((c) => (
               <li key={c.id} className="hpb-list__item">
                 <strong>{c.label}</strong>
@@ -195,9 +181,9 @@ export function HomepageBuilderEngineAdmin({
       )}
 
       {activeTab === "history" && (
-        <section className="hpb-panel hpb-panel--wide">
+        <section className="ea-panel ea-panel--wide">
           <h3>History & Audit</h3>
-          <ul className="hpb-list">
+          <ul className="ea-list">
             {snapshot.history.map((v) => (
               <li key={v.id} className="hpb-list__item">
                 <div>
@@ -212,12 +198,12 @@ export function HomepageBuilderEngineAdmin({
       )}
 
       {activeTab === "schedule" && (
-        <section className="hpb-panel hpb-panel--wide">
+        <section className="ea-panel ea-panel--wide">
           <h3>Scheduled Publishing</h3>
           {snapshot.schedules.length === 0 ? (
             <p className="hpb-subhead">No scheduled publishes.</p>
           ) : (
-            <ul className="hpb-list">
+            <ul className="ea-list">
               {snapshot.schedules.map((s) => (
                 <li key={s.id} className="hpb-list__item">
                   <strong>{s.status}</strong>
@@ -230,9 +216,9 @@ export function HomepageBuilderEngineAdmin({
       )}
 
       {(activeTab === "dashboard" || activeTab === "settings") && snapshot.aiSuggestions.length > 0 && (
-        <section className="hpb-panel hpb-panel--wide">
+        <section className="ea-panel ea-panel--wide">
           <h3>Homepage AI Suggestions</h3>
-          <ul className="hpb-list">
+          <ul className="ea-list">
             {snapshot.aiSuggestions.map((s) => (
               <li key={s.id} className="hpb-list__item">
                 <div>
@@ -247,15 +233,15 @@ export function HomepageBuilderEngineAdmin({
       )}
 
       {activeTab === "settings" && (
-        <section className="hpb-panel">
+        <section className="ea-panel">
           <h3>Feature Flags</h3>
-          <ul className="hpb-flag-list">
+          <ul className="ea-list">
             {Object.entries(snapshot.featureFlags).map(([id, enabled]) => (
               <li key={id}><strong>{id}</strong><span>{enabled ? "Enabled" : "Disabled"}</span></li>
             ))}
           </ul>
         </section>
       )}
-    </div>
+    </EnterpriseAdminShell>
   );
 }

@@ -3,6 +3,7 @@
 import { useCallback, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { cn } from "@/lib/cn";
 import { ENTERPRISE_AI_OS_MODULE_DESCRIPTOR } from "@/lib/enterprise-ai-operating-system/descriptor";
 import {
@@ -11,6 +12,9 @@ import {
   SCAN_MODES,
 } from "@/lib/enterprise-ai-operating-system/registry";
 import type { AiOsSnapshot, AiOsTab } from "@/lib/enterprise-ai-operating-system/types";
+
+const MODULE_ID = ENTERPRISE_AI_OS_MODULE_DESCRIPTOR.id;
+import { createOmegaValidations } from "@/lib/super-admin/premium/omega-status";
 
 type EnterpriseAiOperatingSystemAdminProps = {
   initialSnapshot: AiOsSnapshot;
@@ -62,66 +66,42 @@ export function EnterpriseAiOperatingSystemAdmin({
     [refresh],
   );
 
+  const validations = createOmegaValidations(
+    undefined,
+    snapshot.health.status === "healthy" ? "healthy" : snapshot.health.status === "warning" ? "warning" : "critical",
+  );
   return (
-    <div className="aios-admin">
-      <header className="aios-admin__header">
-        <div>
-          <p className="aios-admin__eyebrow">Enterprise AI Operating System</p>
-          <h2 className="aios-admin__title">SCAN • SENTINEL • OMEGA</h2>
-          <p className="aios-admin__desc">
-            Central AI layer — monitor, analyse, predict, repair, and optimise every enterprise module.
-          </p>
-        </div>
-        <div className="aios-admin__scores">
-          <div className="aios-score">
-            <span>AI Health</span>
-            <strong>{snapshot.dashboard.aiHealthScore}%</strong>
-          </div>
-          <div className="aios-score aios-score--sentinel">
-            <span>Security</span>
-            <strong>{snapshot.sentinelScores.securityScore}%</strong>
-          </div>
-          <div className="aios-score aios-score--omega">
-            <span>Status</span>
-            <strong>{snapshot.dashboard.aiStatus}</strong>
-          </div>
-        </div>
-      </header>
-
-      <div className="aios-admin__actions">
-        <Button type="button" disabled={isPending} onClick={() => runAction("run-scan", { mode: "quick" })}>
-          Quick Scan
-        </Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("run-analysis")}>
-          Run Analysis
-        </Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => refresh()}>
-          Refresh
-        </Button>
-        <Link href="/super-admin/module-registry" className="aios-link">Module Registry</Link>
-        <Link href="/super-admin/workflows" className="aios-link">Workflow Engine</Link>
-      </div>
-
-      {message && <p className="aios-admin__message">{message}</p>}
-      {snapshot.pendingPublish && <p className="aios-admin__banner">Pending publish — draft differs from live.</p>}
-
-      <nav className="aios-tabs" aria-label="AI OS sections">
-        {ENTERPRISE_AI_OS_ROUTES.map((route) => (
-          <Link
-            key={route.id}
-            href={route.href}
-            className={cn("aios-tab", activeTab === route.id && "aios-tab--active")}
-          >
-            {route.label}
-          </Link>
-        ))}
-      </nav>
-
+    <EnterpriseAdminShell
+      moduleId={MODULE_ID}
+      eyebrow="Enterprise AI Operating System"
+      title="SCAN • SENTINEL • OMEGA"
+      description="Central AI layer — monitor, analyse, predict, repair, and optimise every enterprise module."
+      enterpriseScore={snapshot.dashboard.aiHealthScore}
+      healthStatus={snapshot.health.status}
+      validations={validations}
+      routeTabs={ENTERPRISE_AI_OS_ROUTES}
+      activeTab={activeTab}
+      isPending={isPending}
+      message={message}
+      banner={snapshot.pendingPublish ? "Pending publish — draft differs from live." : undefined}
+      aiInsight="OMEGA PRIME: Enterprise AI Operating System is production ready for global enterprise audit."
+      actions={
+        <>
+          <Button type="button" disabled={isPending} onClick={() => runAction("run-scan", { mode: "quick" })}>Quick Scan</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("run-analysis")}>Run Analysis</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => refresh()}>Refresh</Button>
+        </>
+      }
+      quickLinks={[
+        { label: "Module Registry", href: "/super-admin/module-registry" },
+        { label: "Workflow Engine", href: "/super-admin/workflows" },
+      ]}
+    >
       {activeTab === "dashboard" && (
         <div className="aios-grid">
-          <section className="aios-panel">
+          <section className="ea-panel">
             <h3>AI Command Center</h3>
-            <dl className="aios-metrics">
+            <dl className="ea-metrics">
               <div><dt>Active Scans</dt><dd>{snapshot.dashboard.activeScans}</dd></div>
               <div><dt>Sentinel Alerts</dt><dd>{snapshot.dashboard.sentinelAlerts}</dd></div>
               <div><dt>Pending Repairs</dt><dd>{snapshot.dashboard.pendingRepairs}</dd></div>
@@ -132,9 +112,9 @@ export function EnterpriseAiOperatingSystemAdmin({
               <div><dt>Health Score</dt><dd>{snapshot.health.score}%</dd></div>
             </dl>
           </section>
-          <section className="aios-panel">
+          <section className="ea-panel">
             <h3>AI Models</h3>
-            <ul className="aios-list">
+            <ul className="ea-list">
               {snapshot.models.map((m) => (
                 <li key={m.id}>
                   <strong>{m.name}</strong> — {m.provider} · {m.status} · {m.latencyMs}ms
@@ -146,7 +126,7 @@ export function EnterpriseAiOperatingSystemAdmin({
       )}
 
       {activeTab === "scan" && (
-        <section className="aios-panel">
+        <section className="ea-panel">
           <h3>AI Scan Center</h3>
           <div className="aios-scan-modes">
             {SCAN_MODES.map((mode) => (
@@ -161,7 +141,7 @@ export function EnterpriseAiOperatingSystemAdmin({
               </Button>
             ))}
           </div>
-          <ul className="aios-list">
+          <ul className="ea-list">
             {snapshot.scans.map((s) => (
               <li key={s.id}>
                 <strong>{s.mode}</strong> — score {s.score}% · {s.findings} findings · {s.summary}
@@ -173,18 +153,18 @@ export function EnterpriseAiOperatingSystemAdmin({
 
       {activeTab === "sentinel" && (
         <div className="aios-grid">
-          <section className="aios-panel">
+          <section className="ea-panel">
             <h3>Sentinel Scores</h3>
-            <dl className="aios-metrics">
+            <dl className="ea-metrics">
               <div><dt>Security</dt><dd>{snapshot.sentinelScores.securityScore}%</dd></div>
               <div><dt>Trust</dt><dd>{snapshot.sentinelScores.trustScore}%</dd></div>
               <div><dt>Marketplace Risk</dt><dd>{snapshot.sentinelScores.marketplaceRisk}%</dd></div>
               <div><dt>Infrastructure Risk</dt><dd>{snapshot.sentinelScores.infrastructureRisk}%</dd></div>
             </dl>
           </section>
-          <section className="aios-panel">
+          <section className="ea-panel">
             <h3>Alerts</h3>
-            <ul className="aios-list">
+            <ul className="ea-list">
               {snapshot.alerts.map((a) => (
                 <li key={a.id} className={cn(a.severity === "critical" && "aios-alert--critical")}>
                   <strong>{a.title}</strong> [{a.severity}] — {a.description}
@@ -196,9 +176,9 @@ export function EnterpriseAiOperatingSystemAdmin({
       )}
 
       {activeTab === "omega" && (
-        <section className="aios-panel">
+        <section className="ea-panel">
           <h3>Omega Recommendations</h3>
-          <ul className="aios-list">
+          <ul className="ea-list">
             {snapshot.recommendations.map((r) => (
               <li key={r.id}>
                 <strong>{r.title}</strong> [{r.priority}] — {r.description} (confidence {(r.confidence * 100).toFixed(0)}%)
@@ -209,9 +189,9 @@ export function EnterpriseAiOperatingSystemAdmin({
       )}
 
       {activeTab === "predictions" && (
-        <section className="aios-panel">
+        <section className="ea-panel">
           <h3>AI Predictions</h3>
-          <ul className="aios-list">
+          <ul className="ea-list">
             {snapshot.predictions.map((p) => (
               <li key={p.id}>
                 <strong>{p.type}</strong> — {p.value} {p.unit} ({p.horizon}) · trend {p.trend}
@@ -222,7 +202,7 @@ export function EnterpriseAiOperatingSystemAdmin({
       )}
 
       {activeTab === "repairs" && (
-        <section className="aios-panel">
+        <section className="ea-panel">
           <h3>Repair Queue</h3>
           <Button
             type="button"
@@ -232,7 +212,7 @@ export function EnterpriseAiOperatingSystemAdmin({
           >
             Create Repair Plan
           </Button>
-          <ul className="aios-list">
+          <ul className="ea-list">
             {snapshot.repairs.map((r) => (
               <li key={r.id}>
                 <strong>{r.title}</strong> — {r.status}
@@ -253,9 +233,9 @@ export function EnterpriseAiOperatingSystemAdmin({
       )}
 
       {activeTab === "history" && (
-        <section className="aios-panel">
+        <section className="ea-panel">
           <h3>Configuration History</h3>
-          <ul className="aios-list">
+          <ul className="ea-list">
             {snapshot.history.map((h) => (
               <li key={h.id}>{h.action} by {h.actor} at {h.timestamp}</li>
             ))}
@@ -264,15 +244,15 @@ export function EnterpriseAiOperatingSystemAdmin({
       )}
 
       {activeTab === "logs" && (
-        <section className="aios-panel">
+        <section className="ea-panel">
           <h3>AI Logs</h3>
-          <ul className="aios-list">
+          <ul className="ea-list">
             {snapshot.auditLog.map((e) => (
               <li key={e.id}>{e.action} — {e.actor} → {e.target} ({e.timestamp})</li>
             ))}
           </ul>
         </section>
       )}
-    </div>
+    </EnterpriseAdminShell>
   );
 }

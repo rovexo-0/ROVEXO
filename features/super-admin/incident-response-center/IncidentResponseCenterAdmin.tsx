@@ -4,12 +4,16 @@ import { useCallback, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { INCIDENT_RESPONSE_MODULE_DESCRIPTOR } from "@/lib/incident-response-center/descriptor";
 import {
   INCIDENT_RESPONSE_CENTER_API,
   INCIDENT_RESPONSE_CENTER_ROUTES,
 } from "@/lib/incident-response-center/registry";
 import type { IncidentSnapshot, IncidentTab } from "@/lib/incident-response-center/types";
+import { createOmegaValidations } from "@/lib/super-admin/premium/omega-status";
+
+const MODULE_ID = INCIDENT_RESPONSE_MODULE_DESCRIPTOR.id;
 
 type IncidentResponseCenterAdminProps = {
   initialSnapshot: IncidentSnapshot;
@@ -71,63 +75,51 @@ export function IncidentResponseCenterAdmin({
 
   const firstLive = snapshot.liveIncidents[0];
 
+  const validations = createOmegaValidations(
+    undefined,
+    snapshot.health.status === "healthy" ? "healthy" : snapshot.health.status === "warning" ? "warning" : "critical",
+  );
+
+  const banner = snapshot.pendingPublish
+    ? "Pending publish — draft differs from live."
+    : snapshot.dashboard.emergencyMode
+      ? "Emergency mode is active."
+      : undefined;
+
   return (
-    <div className="irc-admin">
-      <header className="irc-admin__header">
-        <div>
-          <p className="irc-admin__eyebrow">Enterprise Incident Response Center</p>
-          <h2 className="irc-admin__title">Emergency Operations Platform</h2>
-          <p className="irc-admin__desc">
-            Detect, respond, analyze root cause, and generate postmortems — integrated with SCAN, SENTINEL, and OMEGA AI.
-          </p>
-        </div>
-        <div className="irc-admin__scores">
-          <div className="irc-score irc-score--active">
-            <span>Active</span>
-            <strong>{snapshot.dashboard.activeIncidents}</strong>
-          </div>
-          <div className="irc-score irc-score--critical">
-            <span>Critical</span>
-            <strong>{snapshot.dashboard.critical}</strong>
-          </div>
-          <div className="irc-score irc-score--health">
-            <span>Health</span>
-            <strong>{snapshot.health.score}%</strong>
-          </div>
-        </div>
-      </header>
-
-      <div className="irc-admin__actions">
-        <Button type="button" disabled={isPending} onClick={() => runAction("toggle-emergency-mode")}>
-          {snapshot.dashboard.emergencyMode ? "Disable Emergency Mode" : "Enable Emergency Mode"}
-        </Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => refresh()}>
-          Refresh
-        </Button>
-        <Link href="/super-admin/ai" className="irc-link">AI Operating System</Link>
-        <Link href="/super-admin/deployment" className="irc-link">Deployment Center</Link>
-        <Link href="/super-admin/recovery" className="irc-link">Recovery Center</Link>
-      </div>
-
-      {message && <p className="irc-admin__message">{message}</p>}
-      {snapshot.pendingPublish && <p className="irc-admin__banner">Pending publish — draft differs from live.</p>}
-      {snapshot.dashboard.emergencyMode && (
-        <p className="irc-admin__banner irc-admin__banner--emergency">Emergency mode is active.</p>
-      )}
-
-      <nav className="irc-tabs" aria-label="Incident sections">
-        {INCIDENT_RESPONSE_CENTER_ROUTES.map((route) => (
-          <Link key={route.id} href={route.href} className={cn("irc-tab", activeTab === route.id && "irc-tab--active")}>
-            {route.label}
-          </Link>
-        ))}
-      </nav>
-
+    <EnterpriseAdminShell
+      moduleId={MODULE_ID}
+      eyebrow="Enterprise Incident Response Center"
+      title="Emergency Operations Platform"
+      description="Detect, respond, analyze root cause, and generate postmortems — integrated with SCAN, SENTINEL, and OMEGA AI."
+      enterpriseScore={snapshot.health.score}
+      healthStatus={snapshot.health.status}
+      validations={validations}
+      routeTabs={INCIDENT_RESPONSE_CENTER_ROUTES}
+      activeTab={activeTab}
+      isPending={isPending}
+      message={message}
+      banner={banner}
+      aiInsight="OMEGA PRIME: Incident Response Center is production ready for global enterprise audit."
+      actions={
+        <>
+          <Button type="button" disabled={isPending} onClick={() => runAction("toggle-emergency-mode")}>
+            {snapshot.dashboard.emergencyMode ? "Disable Emergency Mode" : "Enable Emergency Mode"}
+          </Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => refresh()}>Refresh</Button>
+        </>
+      }
+      quickLinks={[
+        { label: "AI Operating System", href: "/super-admin/ai" },
+        { label: "Deployment Center", href: "/super-admin/deployment" },
+        { label: "Recovery Center", href: "/super-admin/recovery" },
+      ]}
+    >
       {activeTab === "dashboard" && (
         <div className="irc-grid">
-          <section className="irc-panel">
+          <section className="ea-panel">
             <h3>Dashboard</h3>
-            <dl className="irc-metrics">
+            <dl className="ea-metrics">
               <div><dt>Active Incidents</dt><dd>{snapshot.dashboard.activeIncidents}</dd></div>
               <div><dt>Critical</dt><dd>{snapshot.dashboard.critical}</dd></div>
               <div><dt>Major</dt><dd>{snapshot.dashboard.major}</dd></div>
@@ -142,9 +134,9 @@ export function IncidentResponseCenterAdmin({
             </dl>
           </section>
           {snapshot.aiSuggestions.length > 0 && (
-            <section className="irc-panel">
+            <section className="ea-panel">
               <h3>AI Suggestions</h3>
-              <ul className="irc-list">
+              <ul className="ea-list">
                 {snapshot.aiSuggestions.slice(0, 5).map((s) => (
                   <li key={s.id}>
                     <strong>{s.source.toUpperCase()}</strong> — {s.summary} ({s.confidence}%)
@@ -157,9 +149,9 @@ export function IncidentResponseCenterAdmin({
       )}
 
       {(activeTab === "live" || activeTab === "critical") && (
-        <section className="irc-panel">
+        <section className="ea-panel">
           <h3>{activeTab === "critical" ? "Critical Incidents" : "Live Incidents"}</h3>
-          <table className="irc-table">
+          <table className="ea-table">
             <thead>
               <tr>
                 <th>ID</th>
@@ -199,9 +191,9 @@ export function IncidentResponseCenterAdmin({
       )}
 
       {activeTab === "history" && (
-        <section className="irc-panel">
+        <section className="ea-panel">
           <h3>Incident History</h3>
-          <ul className="irc-list">
+          <ul className="ea-list">
             {snapshot.incidents.map((inc) => (
               <li key={inc.id}>
                 <strong>{inc.id}</strong> [{inc.priority}] {inc.title} — {inc.status}
@@ -213,7 +205,7 @@ export function IncidentResponseCenterAdmin({
       )}
 
       {activeTab === "root-cause" && (
-        <section className="irc-panel">
+        <section className="ea-panel">
           <h3>Root Cause Analysis</h3>
           {firstLive && (
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("analyze-root-cause", { incidentId: firstLive.id })}>
@@ -224,7 +216,7 @@ export function IncidentResponseCenterAdmin({
             <div key={rca.incidentId} className="irc-rca">
               <h4>{rca.incidentId} — {rca.confidencePercent}% confidence</h4>
               <p>{rca.aiExplanation}</p>
-              <ul className="irc-list">
+              <ul className="ea-list">
                 {rca.dependencies.map((d) => <li key={d}>Dependency: {d}</li>)}
               </ul>
             </div>
@@ -233,11 +225,11 @@ export function IncidentResponseCenterAdmin({
       )}
 
       {activeTab === "timeline" && (
-        <section className="irc-panel">
+        <section className="ea-panel">
           <h3>Incident Event Timeline</h3>
           <p className="irc-note">Chronological audit timeline is managed by the Incident Timeline module.</p>
-          <Link href="/super-admin/incidents/timeline/live" className="irc-link">Open Live Timeline →</Link>
-          <ul className="irc-list">
+          <Link href="/super-admin/incidents/timeline/live" className="ea-link">Open Live Timeline →</Link>
+          <ul className="ea-list">
             {snapshot.timeline.slice(0, 20).map((e) => (
               <li key={e.id}>
                 <strong>{e.type}</strong> — {e.summary} · {e.actor} · {e.timestamp.slice(0, 16).replace("T", " ")}
@@ -248,7 +240,7 @@ export function IncidentResponseCenterAdmin({
       )}
 
       {activeTab === "postmortem" && (
-        <section className="irc-panel">
+        <section className="ea-panel">
           <h3>Postmortem Reports</h3>
           {firstLive && (
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("generate-postmortem", { incidentId: firstLive.id, format: "pdf" })}>
@@ -267,7 +259,7 @@ export function IncidentResponseCenterAdmin({
       )}
 
       {activeTab === "playbooks" && (
-        <section className="irc-panel">
+        <section className="ea-panel">
           <h3>Response Playbooks</h3>
           <div className="irc-playbooks">
             {snapshot.playbooks.map((pb) => (
@@ -282,7 +274,7 @@ export function IncidentResponseCenterAdmin({
               </Button>
             ))}
           </div>
-          <ul className="irc-list">
+          <ul className="ea-list">
             {snapshot.playbooks.map((pb) => (
               <li key={pb.id}><strong>{pb.label}</strong> — {pb.description} (~{pb.estimatedMinutes}m)</li>
             ))}
@@ -291,9 +283,9 @@ export function IncidentResponseCenterAdmin({
       )}
 
       {activeTab === "settings" && (
-        <section className="irc-panel">
+        <section className="ea-panel">
           <h3>Settings</h3>
-          <dl className="irc-metrics">
+          <dl className="ea-metrics">
             <div><dt>Emergency Mode</dt><dd>{snapshot.settings.emergencyMode ? "Active" : "Off"}</dd></div>
             <div><dt>Auto Assign</dt><dd>{snapshot.settings.autoAssignEnabled ? "Enabled" : "Disabled"}</dd></div>
             <div><dt>Auto Escalate</dt><dd>{snapshot.settings.autoEscalateEnabled ? "Enabled" : "Disabled"}</dd></div>
@@ -302,12 +294,12 @@ export function IncidentResponseCenterAdmin({
             <div><dt>Default Owner</dt><dd>{snapshot.settings.defaultOwner}</dd></div>
             <div><dt>Escalation Threshold</dt><dd>{snapshot.settings.escalationThresholdMinutes} minutes</dd></div>
           </dl>
-          <div className="irc-admin__actions">
+          <div className="ea-admin__actions">
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("export", { format: "json" })}>Export JSON</Button>
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("export", { format: "csv" })}>Export CSV</Button>
           </div>
         </section>
       )}
-    </div>
+    </EnterpriseAdminShell>
   );
 }

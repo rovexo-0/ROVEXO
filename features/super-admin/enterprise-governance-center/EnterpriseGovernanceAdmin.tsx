@@ -1,14 +1,16 @@
 "use client";
 
 import { useCallback, useState, useTransition } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/cn";
+import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { ENTERPRISE_GOVERNANCE_MODULE_DESCRIPTOR } from "@/lib/enterprise-governance-center/descriptor";
 import { ENTERPRISE_GOVERNANCE_API, ENTERPRISE_GOVERNANCE_ROUTES } from "@/lib/enterprise-governance-center/registry";
 import type { GovernanceSnapshot, GovernanceTab } from "@/lib/enterprise-governance-center/types";
+import { createDefaultEnterpriseDashboard } from "@/lib/super-admin/premium/dashboard-standard";
+import { createOmegaValidations } from "@/lib/super-admin/premium/omega-status";
 
 const NAV_ROUTES = ENTERPRISE_GOVERNANCE_ROUTES.filter((r) => r.id !== "constitution-alt");
+const MODULE_ID = ENTERPRISE_GOVERNANCE_MODULE_DESCRIPTOR.id;
 
 type EnterpriseGovernanceAdminProps = { initialSnapshot: GovernanceSnapshot; defaultTab?: GovernanceTab };
 
@@ -49,56 +51,81 @@ export function EnterpriseGovernanceAdmin({ initialSnapshot, defaultTab = "const
     [refresh],
   );
 
+  const validations = createOmegaValidations(
+    undefined,
+    snapshot.health.status === "healthy" ? "healthy" : snapshot.health.status === "warning" ? "warning" : "critical",
+  );
+
+  const dashboard = activeTab === "constitution"
+    ? {
+        ...createDefaultEnterpriseDashboard("Governance"),
+        kpis: [
+          { id: "overall", label: "Overall Score", value: `${snapshot.overallScore}%`, status: "healthy" as const },
+          { id: "modules", label: "Modules Tracked", value: snapshot.moduleCompliance.length, status: "healthy" as const },
+          { id: "certificates", label: "Certificates", value: snapshot.certificates.length, status: "healthy" as const },
+          {
+            id: "violations",
+            label: "Violations",
+            value: snapshot.architectureViolations.length,
+            status: snapshot.architectureViolations.length > 0 ? "warning" as const : "healthy" as const,
+          },
+        ],
+        recentActivity: snapshot.auditEntries.slice(0, 5).map((entry) => ({
+          id: entry.id,
+          action: entry.action,
+          actor: entry.actor,
+          target: entry.target,
+          timestamp: entry.timestamp,
+        })),
+        aiInsights: ["Constitution, certification, and validation authority are OMEGA certified."],
+        quickActions: [
+          { label: "Module Registry", href: "/super-admin/module-registry" },
+          { label: "OMEGA", href: "/super-admin/omega" },
+          { label: "Certification Center", href: "/super-admin/certification" },
+        ],
+      }
+    : undefined;
+
   return (
-    <div className="egc-admin">
-      <header className="egc-admin__header">
-        <div>
-          <p className="egc-admin__eyebrow">Enterprise Governance Center</p>
-          <h2 className="egc-admin__title">Enterprise Constitution & Certification Authority</h2>
-          <p className="egc-admin__desc">
-            Highest platform authority — constitution, architecture governance, compliance, certification, and validation.
-          </p>
-        </div>
-        <div className="egc-score">
-          <strong>{snapshot.overallScore}%</strong>
-          <span>Enterprise Score</span>
-        </div>
-      </header>
-
-      <div className="egc-admin__actions">
-        <Button type="button" disabled={isPending} onClick={() => runAction("validate")}>Run Full Validation</Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("scan")}>Architecture Scan</Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("certify")}>Issue Certificate</Button>
-        <Link href="/super-admin/module-registry" className="egc-link">Module Registry</Link>
-        <Link href="/super-admin/omega" className="egc-link">OMEGA</Link>
-        <Link href="/super-admin/certification" className="egc-link">Certification Center</Link>
-      </div>
-
-      {message && <p className="egc-admin__message">{message}</p>}
-      {snapshot.pendingPublish && <p className="egc-admin__banner">Pending publish — draft differs from live.</p>}
-
-      <nav className="egc-tabs" aria-label="Governance sections">
-        {NAV_ROUTES.map((route) => (
-          <Link
-            key={route.id}
-            href={route.href}
-            className={cn("egc-tab", (activeTab === route.id || (activeTab === "constitution" && route.id === "constitution")) && "egc-tab--active")}
-          >
-            {route.label}
-          </Link>
-        ))}
-      </nav>
-
+    <EnterpriseAdminShell
+      moduleId={MODULE_ID}
+      eyebrow="Enterprise Governance Center"
+      title="Enterprise Constitution & Certification Authority"
+      description="Highest platform authority — constitution, architecture governance, compliance, certification, and validation."
+      enterpriseScore={snapshot.overallScore}
+      healthStatus={snapshot.health.status}
+      validations={validations}
+      routeTabs={NAV_ROUTES}
+      activeTab={activeTab}
+      isPending={isPending}
+      message={message}
+      banner={snapshot.pendingPublish ? "Pending publish — draft differs from live." : undefined}
+      aiInsight="OMEGA PRIME: Governance Center is production ready for global enterprise audit."
+      showDashboard={activeTab === "constitution"}
+      dashboard={dashboard}
+      actions={
+        <>
+          <Button type="button" disabled={isPending} onClick={() => runAction("validate")}>Run Full Validation</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("scan")}>Architecture Scan</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("certify")}>Issue Certificate</Button>
+        </>
+      }
+      quickLinks={[
+        { label: "Module Registry", href: "/super-admin/module-registry" },
+        { label: "OMEGA", href: "/super-admin/omega" },
+        { label: "Certification Center", href: "/super-admin/certification" },
+      ]}
+    >
       {activeTab === "constitution" && (
-        <section className="egc-panel">
+        <section className="ea-panel">
           <h3>Official Enterprise Constitution v{snapshot.settings.constitutionVersion}</h3>
-          <ul className="egc-list">
+          <ul className="ea-list">
             {snapshot.constitution.map((a) => (
               <li key={a.id}><strong>{a.title}</strong> — {a.summary} (v{a.version})</li>
             ))}
           </ul>
           <h4>Amendments</h4>
-          <ul className="egc-list">
+          <ul className="ea-list">
             {snapshot.amendments.map((a) => (
               <li key={a.id}>{a.section}: {a.summary} — {new Date(a.date).toLocaleDateString()}</li>
             ))}
@@ -107,15 +134,15 @@ export function EnterpriseGovernanceAdmin({ initialSnapshot, defaultTab = "const
       )}
 
       {activeTab === "architecture" && (
-        <section className="egc-panel">
+        <section className="ea-panel">
           <h3>Architecture Governance</h3>
-          <table className="egc-table">
+          <table className="ea-table">
             <thead><tr><th>Check</th><th>Severity</th><th>Message</th><th>Module</th></tr></thead>
             <tbody>
               {snapshot.architectureViolations.map((v) => (
                 <tr key={v.id}>
                   <td>{v.check}</td>
-                  <td className={v.severity === "high" ? "egc-fail" : ""}>{v.severity}</td>
+                  <td className={v.severity === "high" ? "ea-fail" : ""}>{v.severity}</td>
                   <td>{v.message}</td>
                   <td>{v.moduleId ?? "—"}</td>
                 </tr>
@@ -126,15 +153,15 @@ export function EnterpriseGovernanceAdmin({ initialSnapshot, defaultTab = "const
       )}
 
       {activeTab === "compliance" && (
-        <section className="egc-panel">
+        <section className="ea-panel">
           <h3>Enterprise Compliance</h3>
-          <table className="egc-table">
+          <table className="ea-table">
             <thead><tr><th>Module</th><th>Status</th><th>Categories</th></tr></thead>
             <tbody>
               {snapshot.moduleCompliance.map((m) => (
                 <tr key={m.moduleId}>
                   <td>{m.label}</td>
-                  <td className={m.status === "pass" ? "egc-pass" : m.status === "warning" ? "egc-warn" : "egc-fail"}>{m.status.toUpperCase()}</td>
+                  <td className={m.status === "pass" ? "ea-pass" : m.status === "warning" ? "ea-warn" : "ea-fail"}>{m.status.toUpperCase()}</td>
                   <td>{Object.values(m.categories).filter((s) => s === "pass").length}/{Object.keys(m.categories).length} pass</td>
                 </tr>
               ))}
@@ -144,9 +171,9 @@ export function EnterpriseGovernanceAdmin({ initialSnapshot, defaultTab = "const
       )}
 
       {activeTab === "enterprise-rules" && (
-        <section className="egc-panel">
+        <section className="ea-panel">
           <h3>Enterprise Rule Engine</h3>
-          <ul className="egc-list">
+          <ul className="ea-list">
             {snapshot.rules.map((r) => (
               <li key={r.id}><strong>{r.name}</strong> — {r.scope} · {r.enabled ? "enabled" : "disabled"} · {r.violations} violations</li>
             ))}
@@ -155,11 +182,11 @@ export function EnterpriseGovernanceAdmin({ initialSnapshot, defaultTab = "const
       )}
 
       {activeTab === "technical-debt" && (
-        <section className="egc-panel">
+        <section className="ea-panel">
           <h3>Technical Debt Center</h3>
-          <div className="egc-debt-grid">
+          <div className="ea-grid">
             {snapshot.technicalDebt.map((d) => (
-              <div key={d.category} className="egc-debt-card">
+              <div key={d.category} className="ea-card">
                 <span>{d.category}</span>
                 <strong>{d.score}</strong>
                 <small>{d.items} items · {d.trend}</small>
@@ -170,9 +197,9 @@ export function EnterpriseGovernanceAdmin({ initialSnapshot, defaultTab = "const
       )}
 
       {activeTab === "enterprise-score" && (
-        <section className="egc-panel">
+        <section className="ea-panel">
           <h3>Enterprise Score</h3>
-          <dl className="egc-metrics">
+          <dl className="ea-metrics">
             {snapshot.enterpriseScores.map((s) => (
               <div key={s.domain}><dt>{s.label}</dt><dd>{s.score}%</dd></div>
             ))}
@@ -182,10 +209,10 @@ export function EnterpriseGovernanceAdmin({ initialSnapshot, defaultTab = "const
       )}
 
       {activeTab === "certification" && (
-        <section className="egc-panel">
+        <section className="ea-panel">
           <h3>Certification Center</h3>
           <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("certify")}>Generate ROVEXO Enterprise Certificate</Button>
-          <ul className="egc-list">
+          <ul className="ea-list">
             {snapshot.certificates.map((c) => (
               <li key={c.id}>
                 <strong>{c.id}</strong> — {c.checksPassed}/{c.checksTotal} checks · signed {new Date(c.issuedAt).toLocaleString()} · {c.immutable ? "immutable" : "draft"}
@@ -196,9 +223,9 @@ export function EnterpriseGovernanceAdmin({ initialSnapshot, defaultTab = "const
       )}
 
       {activeTab === "audit" && (
-        <section className="egc-panel">
+        <section className="ea-panel">
           <h3>Audit Center</h3>
-          <table className="egc-table">
+          <table className="ea-table">
             <thead><tr><th>Type</th><th>Action</th><th>Actor</th><th>Target</th><th>Time</th></tr></thead>
             <tbody>
               {snapshot.auditEntries.map((e) => (
@@ -216,10 +243,10 @@ export function EnterpriseGovernanceAdmin({ initialSnapshot, defaultTab = "const
       )}
 
       {activeTab === "validation" && (
-        <section className="egc-panel">
+        <section className="ea-panel">
           <h3>Validation Center</h3>
           <Button type="button" disabled={isPending} onClick={() => runAction("validate")}>Run Full Enterprise Validation</Button>
-          <ul className="egc-list">
+          <ul className="ea-list">
             {snapshot.validationRuns.map((v) => (
               <li key={v.id}>
                 {v.id} — {v.status} · {v.stagesCompleted.length} stages completed
@@ -231,9 +258,9 @@ export function EnterpriseGovernanceAdmin({ initialSnapshot, defaultTab = "const
       )}
 
       {activeTab === "reports" && (
-        <section className="egc-panel">
+        <section className="ea-panel">
           <h3>Reports</h3>
-          <div className="egc-admin__actions">
+          <div className="ea-admin__actions">
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("export", { format: "json" })}>JSON</Button>
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("export", { format: "csv" })}>CSV</Button>
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("export", { format: "pdf" })}>PDF</Button>
@@ -241,6 +268,6 @@ export function EnterpriseGovernanceAdmin({ initialSnapshot, defaultTab = "const
           </div>
         </section>
       )}
-    </div>
+    </EnterpriseAdminShell>
   );
 }

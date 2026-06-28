@@ -3,6 +3,7 @@
 import { useCallback, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { cn } from "@/lib/cn";
 import { ENTERPRISE_MOBILE_CC_MODULE_DESCRIPTOR } from "@/lib/enterprise-mobile-control-center/descriptor";
 import {
@@ -13,6 +14,9 @@ import {
   OTA_ROLLOUT_TYPES,
 } from "@/lib/enterprise-mobile-control-center/registry";
 import type { MobileCcSnapshot, MobileCcTab } from "@/lib/enterprise-mobile-control-center/types";
+
+const MODULE_ID = ENTERPRISE_MOBILE_CC_MODULE_DESCRIPTOR.id;
+import { createOmegaValidations } from "@/lib/super-admin/premium/omega-status";
 import { listAndroidBuildTypes, listIosBuildTypes } from "@/lib/enterprise-mobile-control-center/builds";
 
 type EnterpriseMobileControlCenterAdminProps = {
@@ -69,66 +73,42 @@ export function EnterpriseMobileControlCenterAdmin({
     [refresh],
   );
 
+  const validations = createOmegaValidations(
+    undefined,
+    snapshot.health.status === "healthy" ? "healthy" : snapshot.health.status === "warning" ? "warning" : "critical",
+  );
   return (
-    <div className="mcc-admin">
-      <header className="mcc-admin__header">
-        <div>
-          <p className="mcc-admin__eyebrow">Enterprise Mobile Control Center</p>
-          <h2 className="mcc-admin__title">Super Admin Mobile Platform</h2>
-          <p className="mcc-admin__desc">
-            Manage Android and iOS builds, releases, OTA updates, devices, and push notifications.
-          </p>
-        </div>
-        <div className="mcc-admin__scores">
-          <div className="mcc-score">
-            <span>Release Health</span>
-            <strong>{snapshot.dashboard.releaseHealth}%</strong>
-          </div>
-          <div className="mcc-score mcc-score--devices">
-            <span>Active Devices</span>
-            <strong>{snapshot.dashboard.activeDevices}</strong>
-          </div>
-          <div className="mcc-score mcc-score--push">
-            <span>Push</span>
-            <strong>{snapshot.dashboard.pushStatus}</strong>
-          </div>
-        </div>
-      </header>
-
-      <div className="mcc-admin__actions">
-        <Button type="button" disabled={isPending} onClick={() => runAction("build", { buildType: "build-android-aab" })}>
-          Build Android AAB
-        </Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("build", { buildType: "build-testflight" })}>
-          Build TestFlight
-        </Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => refresh()}>
-          Refresh
-        </Button>
-        <Link href="/super-admin/mobile-distribution" className="mcc-link">Mobile Distribution</Link>
-        <Link href="/super-admin/ai" className="mcc-link">Enterprise AI OS</Link>
-      </div>
-
-      {message && <p className="mcc-admin__message">{message}</p>}
-      {snapshot.pendingPublish && <p className="mcc-admin__banner">Pending publish — draft differs from live.</p>}
-
-      <nav className="mcc-tabs" aria-label="Mobile control sections">
-        {MOBILE_CC_ROUTES.map((route) => (
-          <Link
-            key={route.id}
-            href={route.href}
-            className={cn("mcc-tab", activeTab === route.id && "mcc-tab--active")}
-          >
-            {route.label}
-          </Link>
-        ))}
-      </nav>
-
+    <EnterpriseAdminShell
+      moduleId={MODULE_ID}
+      eyebrow="Enterprise Mobile Control Center"
+      title="Super Admin Mobile Platform"
+      description="Manage Android and iOS builds, releases, OTA updates, devices, and push notifications."
+      enterpriseScore={snapshot.dashboard.releaseHealth}
+      healthStatus={snapshot.health.status}
+      validations={validations}
+      routeTabs={MOBILE_CC_ROUTES}
+      activeTab={activeTab}
+      isPending={isPending}
+      message={message}
+      banner={snapshot.pendingPublish ? "Pending publish — draft differs from live." : undefined}
+      aiInsight="OMEGA PRIME: Mobile Control Center is production ready for global enterprise audit."
+      actions={
+        <>
+          <Button type="button" disabled={isPending} onClick={() => runAction("build", { buildType: "build-android-aab" })}>Build Android AAB</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("build", { buildType: "build-testflight" })}>Build TestFlight</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => refresh()}>Refresh</Button>
+        </>
+      }
+      quickLinks={[
+        { label: "Mobile Distribution", href: "/super-admin/mobile-distribution" },
+        { label: "Enterprise AI OS", href: "/super-admin/ai" },
+      ]}
+    >
       {activeTab === "dashboard" && (
         <div className="mcc-grid">
-          <section className="mcc-panel">
+          <section className="ea-panel">
             <h3>Dashboard</h3>
-            <dl className="mcc-metrics">
+            <dl className="ea-metrics">
               <div><dt>Android Build</dt><dd>{snapshot.dashboard.androidBuild}</dd></div>
               <div><dt>iOS Build</dt><dd>{snapshot.dashboard.iosBuild}</dd></div>
               <div><dt>Production</dt><dd>{snapshot.dashboard.productionVersion}</dd></div>
@@ -141,9 +121,9 @@ export function EnterpriseMobileControlCenterAdmin({
               <div><dt>Build Queue</dt><dd>{snapshot.dashboard.buildQueue}</dd></div>
             </dl>
           </section>
-          <section className="mcc-panel">
+          <section className="ea-panel">
             <h3>Analytics</h3>
-            <dl className="mcc-metrics">
+            <dl className="ea-metrics">
               <div><dt>DAU</dt><dd>{snapshot.analytics.dailyActiveDevices}</dd></div>
               <div><dt>MAU</dt><dd>{snapshot.analytics.monthlyActiveDevices}</dd></div>
               <div><dt>Retention</dt><dd>{(snapshot.analytics.retention * 100).toFixed(0)}%</dd></div>
@@ -153,9 +133,9 @@ export function EnterpriseMobileControlCenterAdmin({
             </dl>
           </section>
           {snapshot.aiSuggestions.length > 0 && (
-            <section className="mcc-panel">
+            <section className="ea-panel">
               <h3>AI Suggestions</h3>
-              <ul className="mcc-list">
+              <ul className="ea-list">
                 {snapshot.aiSuggestions.map((s) => (
                   <li key={s.id}><strong>{s.title}</strong> — {s.description}</li>
                 ))}
@@ -166,7 +146,7 @@ export function EnterpriseMobileControlCenterAdmin({
       )}
 
       {activeTab === "builds" && (
-        <section className="mcc-panel">
+        <section className="ea-panel">
           <h3>Build Center</h3>
           <div className="mcc-build-modes">
             {UNIQUE_BUILD_TYPES.map((type) => (
@@ -175,7 +155,7 @@ export function EnterpriseMobileControlCenterAdmin({
               </Button>
             ))}
           </div>
-          <ul className="mcc-list">
+          <ul className="ea-list">
             {snapshot.buildHistory.map((b) => (
               <li key={b.id}><strong>{b.platform}</strong> {b.type} — v{b.version} #{b.buildNumber} · {b.status}</li>
             ))}
@@ -184,9 +164,9 @@ export function EnterpriseMobileControlCenterAdmin({
       )}
 
       {activeTab === "downloads" && (
-        <section className="mcc-panel">
+        <section className="ea-panel">
           <h3>Download Center</h3>
-          <ul className="mcc-list">
+          <ul className="ea-list">
             {snapshot.downloads.map((d) => (
               <li key={d.id}><strong>{d.type}</strong> — {d.platform} v{d.version} · {d.url}</li>
             ))}
@@ -195,7 +175,7 @@ export function EnterpriseMobileControlCenterAdmin({
       )}
 
       {activeTab === "ios" && (
-        <section className="mcc-panel">
+        <section className="ea-panel">
           <h3>iOS Center</h3>
           <div className="mcc-build-modes">
             {listIosBuildTypes().map((type) => (
@@ -204,7 +184,7 @@ export function EnterpriseMobileControlCenterAdmin({
               </Button>
             ))}
           </div>
-          <ul className="mcc-list">
+          <ul className="ea-list">
             {snapshot.releases.filter((r) => r.platform === "ios").map((r) => (
               <li key={r.id}>{r.channel} v{r.version} — {r.status}</li>
             ))}
@@ -213,7 +193,7 @@ export function EnterpriseMobileControlCenterAdmin({
       )}
 
       {activeTab === "android" && (
-        <section className="mcc-panel">
+        <section className="ea-panel">
           <h3>Android Center</h3>
           <div className="mcc-build-modes">
             {listAndroidBuildTypes().map((type) => (
@@ -222,7 +202,7 @@ export function EnterpriseMobileControlCenterAdmin({
               </Button>
             ))}
           </div>
-          <ul className="mcc-list">
+          <ul className="ea-list">
             {snapshot.releases.filter((r) => r.platform === "android").map((r) => (
               <li key={r.id}>{r.channel} v{r.version} — {r.status}</li>
             ))}
@@ -231,9 +211,9 @@ export function EnterpriseMobileControlCenterAdmin({
       )}
 
       {activeTab === "devices" && (
-        <section className="mcc-panel">
+        <section className="ea-panel">
           <h3>Device Management</h3>
-          <ul className="mcc-list">
+          <ul className="ea-list">
             {snapshot.devices.map((d) => (
               <li key={d.id}>
                 <strong>{d.name}</strong> ({d.platform}) — v{d.appVersion} · {d.online ? "online" : "offline"} · {d.securityStatus}
@@ -248,7 +228,7 @@ export function EnterpriseMobileControlCenterAdmin({
       )}
 
       {activeTab === "ota" && (
-        <section className="mcc-panel">
+        <section className="ea-panel">
           <h3>OTA Update Center</h3>
           <div className="mcc-build-modes">
             {OTA_ROLLOUT_TYPES.map((type) => (
@@ -257,7 +237,7 @@ export function EnterpriseMobileControlCenterAdmin({
               </Button>
             ))}
           </div>
-          <ul className="mcc-list">
+          <ul className="ea-list">
             {snapshot.otaUpdates.map((o) => (
               <li key={o.id}><strong>{o.type}</strong> v{o.version} — {o.status} ({o.rolloutPercent}%)</li>
             ))}
@@ -266,7 +246,7 @@ export function EnterpriseMobileControlCenterAdmin({
       )}
 
       {activeTab === "push" && (
-        <section className="mcc-panel">
+        <section className="ea-panel">
           <h3>Push Center</h3>
           <div className="mcc-build-modes">
             {PUSH_TYPES.map((type) => (
@@ -275,13 +255,13 @@ export function EnterpriseMobileControlCenterAdmin({
               </Button>
             ))}
           </div>
-          <ul className="mcc-list">
+          <ul className="ea-list">
             {snapshot.pushCampaigns.map((p) => (
               <li key={p.id}><strong>{p.title}</strong> — {p.type} · {(p.deliveryRate * 100).toFixed(0)}% delivery</li>
             ))}
           </ul>
         </section>
       )}
-    </div>
+    </EnterpriseAdminShell>
   );
 }

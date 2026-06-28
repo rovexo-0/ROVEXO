@@ -1,14 +1,16 @@
 "use client";
 
 import { useCallback, useState, useTransition } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/cn";
+import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { ENTERPRISE_AUTOMATION_HUB_MODULE_DESCRIPTOR } from "@/lib/enterprise-automation-hub/descriptor";
 import { ENTERPRISE_AUTOMATION_HUB_API, ENTERPRISE_AUTOMATION_HUB_ROUTES } from "@/lib/enterprise-automation-hub/registry";
 import type { AutomationSnapshot, AutomationTab } from "@/lib/enterprise-automation-hub/types";
+import { createDefaultEnterpriseDashboard } from "@/lib/super-admin/premium/dashboard-standard";
+import { createOmegaValidations } from "@/lib/super-admin/premium/omega-status";
 
 const NAV_ROUTES = ENTERPRISE_AUTOMATION_HUB_ROUTES.filter((r) => r.id !== "dashboard-alt");
+const MODULE_ID = ENTERPRISE_AUTOMATION_HUB_MODULE_DESCRIPTOR.id;
 
 type EnterpriseAutomationHubAdminProps = { initialSnapshot: AutomationSnapshot; defaultTab?: AutomationTab };
 
@@ -54,83 +56,84 @@ export function EnterpriseAutomationHubAdmin({ initialSnapshot, defaultTab = "da
   );
 
   const d = snapshot.dashboard;
+  const validations = createOmegaValidations(
+    undefined,
+    snapshot.health.status === "healthy" ? "healthy" : snapshot.health.status === "warning" ? "warning" : "critical",
+  );
+
+  const dashboard = activeTab === "dashboard"
+    ? {
+        ...createDefaultEnterpriseDashboard("Automation"),
+        kpis: [
+          { id: "active", label: "Active Workflows", value: d.activeWorkflows, status: "healthy" as const },
+          { id: "running", label: "Running Jobs", value: d.runningJobs, status: "healthy" as const },
+          { id: "success", label: "Success Rate", value: `${d.successRate}%`, status: "healthy" as const },
+          { id: "health", label: "Automation Health", value: `${d.automationHealth}%`, status: "healthy" as const },
+        ],
+        recentActivity: snapshot.auditLog.slice(0, 5).map((entry) => ({
+          id: entry.id,
+          action: entry.action,
+          actor: entry.actor,
+          target: entry.target,
+          timestamp: entry.timestamp,
+        })),
+        aiInsights: snapshot.aiInsights.slice(0, 3).map((i) => `${i.source.toUpperCase()} [${i.type}]: ${i.summary}`),
+        quickActions: [
+          { label: "Workflow Engine", href: "/super-admin/workflows" },
+          { label: "AI Operating System", href: "/super-admin/ai" },
+        ],
+      }
+    : undefined;
 
   return (
-    <div className="eah-admin">
-      <header className="eah-admin__header">
-        <div>
-          <p className="eah-admin__eyebrow">Enterprise Automation Hub</p>
-          <h2 className="eah-admin__title">Workflow & Rule Automation Platform</h2>
-          <p className="eah-admin__desc">Visual workflows, rule engine, event triggers, AI automation, approvals, and execution monitoring.</p>
-        </div>
-        <div className="eah-admin__scores">
-          <div className="eah-score eah-score--active"><span>Active</span><strong>{d.activeWorkflows}</strong></div>
-          <div className="eah-score eah-score--running"><span>Running</span><strong>{d.runningJobs}</strong></div>
-          <div className="eah-score eah-score--health"><span>Health</span><strong>{d.automationHealth}%</strong></div>
-        </div>
-      </header>
-
-      <div className="eah-admin__actions">
-        <Button type="button" disabled={isPending} onClick={() => runAction("refresh")}>Refresh</Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("run")}>Run Workflow</Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("pause")}>Pause</Button>
-        <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("generate-ai-insights")}>AI Insights</Button>
-        <Link href="/super-admin/workflows" className="eah-link">Workflow Engine</Link>
-        <Link href="/super-admin/ai" className="eah-link">AI Operating System</Link>
-      </div>
-
-      {message && <p className="eah-admin__message">{message}</p>}
-      {snapshot.pendingPublish && <p className="eah-admin__banner">Pending publish — draft differs from live.</p>}
-
-      <nav className="eah-tabs" aria-label="Automation sections">
-        {NAV_ROUTES.map((route) => (
-          <Link
-            key={route.id}
-            href={route.href}
-            className={cn("eah-tab", (activeTab === route.id || (activeTab === "dashboard" && route.id === "dashboard")) && "eah-tab--active")}
-          >
-            {route.label}
-          </Link>
-        ))}
-      </nav>
-
+    <EnterpriseAdminShell
+      moduleId={MODULE_ID}
+      eyebrow="Enterprise Automation Hub"
+      title="Workflow & Rule Automation Platform"
+      description="Visual workflows, rule engine, event triggers, AI automation, approvals, and execution monitoring."
+      enterpriseScore={snapshot.health.score}
+      healthStatus={snapshot.health.status}
+      validations={validations}
+      routeTabs={NAV_ROUTES}
+      activeTab={activeTab}
+      isPending={isPending}
+      message={message}
+      banner={snapshot.pendingPublish ? "Pending publish — draft differs from live." : undefined}
+      aiInsight="OMEGA PRIME: Automation Hub is production ready for global enterprise audit."
+      showDashboard={activeTab === "dashboard"}
+      dashboard={dashboard}
+      actions={
+        <>
+          <Button type="button" disabled={isPending} onClick={() => runAction("refresh")}>Refresh</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("run")}>Run Workflow</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("pause")}>Pause</Button>
+          <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("generate-ai-insights")}>AI Insights</Button>
+        </>
+      }
+      quickLinks={[
+        { label: "Workflow Engine", href: "/super-admin/workflows" },
+        { label: "AI Operating System", href: "/super-admin/ai" },
+      ]}
+    >
       {activeTab === "dashboard" && (
-        <div className="eah-grid">
-          <section className="eah-panel">
-            <h3>Automation Dashboard</h3>
-            <dl className="eah-metrics">
-              <div><dt>Active Workflows</dt><dd>{d.activeWorkflows}</dd></div>
-              <div><dt>Running Jobs</dt><dd>{d.runningJobs}</dd></div>
-              <div><dt>Scheduled Jobs</dt><dd>{d.scheduledJobs}</dd></div>
-              <div><dt>Paused Jobs</dt><dd>{d.pausedJobs}</dd></div>
-              <div><dt>Failed Jobs</dt><dd>{d.failedJobs}</dd></div>
-              <div><dt>AI Automations</dt><dd>{d.aiAutomations}</dd></div>
-              <div><dt>Approval Queue</dt><dd>{d.approvalQueue}</dd></div>
-              <div><dt>Avg Execution</dt><dd>{d.averageExecutionTimeMs}ms</dd></div>
-              <div><dt>Success Rate</dt><dd>{d.successRate}%</dd></div>
-              <div><dt>Rollback Queue</dt><dd>{d.rollbackQueue}</dd></div>
-              <div><dt>Automation Health</dt><dd>{d.automationHealth}%</dd></div>
-            </dl>
-          </section>
-          <section className="eah-panel">
-            <h3>AI Automation</h3>
-            <ul className="eah-list">
-              {snapshot.aiInsights.slice(0, 5).map((i) => (
-                <li key={i.id}><strong>{i.source.toUpperCase()}</strong> [{i.type}] — {i.summary} ({i.confidence}%)</li>
-              ))}
-            </ul>
-          </section>
-        </div>
+        <section className="ea-panel">
+          <h3>AI Automation</h3>
+          <ul className="ea-list">
+            {snapshot.aiInsights.slice(0, 5).map((i) => (
+              <li key={i.id}><strong>{i.source.toUpperCase()}</strong> [{i.type}] — {i.summary} ({i.confidence}%)</li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {activeTab === "workflows" && (
-        <section className="eah-panel">
+        <section className="ea-panel">
           <h3>Workflow Engine</h3>
-          <div className="eah-admin__actions">
+          <div className="ea-admin__actions">
             <Button type="button" variant="secondary" size="sm" disabled={isPending} onClick={() => runAction("enable")}>Enable All</Button>
             <Button type="button" variant="secondary" size="sm" disabled={isPending} onClick={() => runAction("disable")}>Disable All</Button>
           </div>
-          <table className="eah-table">
+          <table className="ea-table">
             <thead><tr><th>Name</th><th>Type</th><th>Mode</th><th>Steps</th><th>Status</th><th>Version</th></tr></thead>
             <tbody>
               {snapshot.workflows.map((w) => (
@@ -149,9 +152,9 @@ export function EnterpriseAutomationHubAdmin({ initialSnapshot, defaultTab = "da
       )}
 
       {activeTab === "rules" && (
-        <section className="eah-panel">
+        <section className="ea-panel">
           <h3>Rule Engine</h3>
-          <table className="eah-table">
+          <table className="ea-table">
             <thead><tr><th>Rule</th><th>Condition</th><th>Operator</th><th>Action</th><th>Priority</th><th>Enabled</th></tr></thead>
             <tbody>
               {snapshot.rules.map((r) => (
@@ -170,9 +173,9 @@ export function EnterpriseAutomationHubAdmin({ initialSnapshot, defaultTab = "da
       )}
 
       {activeTab === "events" && (
-        <section className="eah-panel">
+        <section className="ea-panel">
           <h3>Event Triggers</h3>
-          <ul className="eah-list">
+          <ul className="ea-list">
             {snapshot.eventTriggers.map((e) => (
               <li key={e.id}><strong>{e.trigger}</strong> → {e.workflowId} — {e.enabled ? "enabled" : "disabled"}</li>
             ))}
@@ -181,9 +184,9 @@ export function EnterpriseAutomationHubAdmin({ initialSnapshot, defaultTab = "da
       )}
 
       {activeTab === "templates" && (
-        <section className="eah-panel">
+        <section className="ea-panel">
           <h3>Workflow Templates</h3>
-          <ul className="eah-list">
+          <ul className="ea-list">
             {snapshot.templates.map((t) => (
               <li key={t.id}><strong>{t.name}</strong> ({t.type}) — {t.steps} steps {t.reusable ? "· reusable" : ""}</li>
             ))}
@@ -192,9 +195,9 @@ export function EnterpriseAutomationHubAdmin({ initialSnapshot, defaultTab = "da
       )}
 
       {activeTab === "schedules" && (
-        <section className="eah-panel">
+        <section className="ea-panel">
           <h3>Scheduled Jobs</h3>
-          <table className="eah-table">
+          <table className="ea-table">
             <thead><tr><th>Label</th><th>Cron</th><th>Workflow</th><th>Next Run</th><th>Enabled</th></tr></thead>
             <tbody>
               {snapshot.schedules.map((s) => (
@@ -212,9 +215,9 @@ export function EnterpriseAutomationHubAdmin({ initialSnapshot, defaultTab = "da
       )}
 
       {activeTab === "history" && (
-        <section className="eah-panel">
+        <section className="ea-panel">
           <h3>Execution History</h3>
-          <table className="eah-table">
+          <table className="ea-table">
             <thead><tr><th>ID</th><th>Workflow</th><th>Triggered By</th><th>Status</th><th>Duration</th><th>Rollback</th></tr></thead>
             <tbody>
               {snapshot.executions.map((e) => (
@@ -233,9 +236,9 @@ export function EnterpriseAutomationHubAdmin({ initialSnapshot, defaultTab = "da
       )}
 
       {activeTab === "monitoring" && (
-        <section className="eah-panel">
+        <section className="ea-panel">
           <h3>Real-time Monitoring</h3>
-          <dl className="eah-metrics">
+          <dl className="ea-metrics">
             <div><dt>Running Jobs</dt><dd>{d.runningJobs}</dd></div>
             <div><dt>Success Rate</dt><dd>{d.successRate}%</dd></div>
             <div><dt>Failure Rate</dt><dd>{100 - d.successRate}%</dd></div>
@@ -247,10 +250,10 @@ export function EnterpriseAutomationHubAdmin({ initialSnapshot, defaultTab = "da
       )}
 
       {activeTab === "approvals" && (
-        <section className="eah-panel">
+        <section className="ea-panel">
           <h3>Approval Workflows</h3>
           <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("publish")}>Publish Pending</Button>
-          <ul className="eah-list">
+          <ul className="ea-list">
             {snapshot.approvals.map((a) => (
               <li key={a.id}><strong>{a.workflowId}</strong> v{a.version} — {a.status} (by {a.requestedBy})</li>
             ))}
@@ -259,10 +262,10 @@ export function EnterpriseAutomationHubAdmin({ initialSnapshot, defaultTab = "da
       )}
 
       {activeTab === "versions" && (
-        <section className="eah-panel">
+        <section className="ea-panel">
           <h3>Version History</h3>
           <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("rollback")}>Rollback Latest</Button>
-          <ul className="eah-list">
+          <ul className="ea-list">
             {snapshot.versions.map((v) => (
               <li key={v.id}>{v.workflowId} v{v.version} — published {new Date(v.publishedAt).toLocaleDateString()} {v.rollbackAvailable ? "· rollback available" : ""}</li>
             ))}
@@ -271,22 +274,22 @@ export function EnterpriseAutomationHubAdmin({ initialSnapshot, defaultTab = "da
       )}
 
       {activeTab === "settings" && (
-        <section className="eah-panel">
+        <section className="ea-panel">
           <h3>Settings</h3>
-          <dl className="eah-metrics">
+          <dl className="ea-metrics">
             <div><dt>MFA for Publish</dt><dd>{snapshot.settings.mfaRequiredForPublish ? "Required" : "Optional"}</dd></div>
             <div><dt>Auto Approval</dt><dd>{snapshot.settings.autoApprovalEnabled ? "Enabled" : "Disabled"}</dd></div>
             <div><dt>Max Parallel Jobs</dt><dd>{snapshot.settings.maxParallelJobs}</dd></div>
             <div><dt>Default Mode</dt><dd>{snapshot.settings.defaultExecutionMode}</dd></div>
             <div><dt>AI Suggestions</dt><dd>{snapshot.settings.aiSuggestionsEnabled ? "Enabled" : "Disabled"}</dd></div>
           </dl>
-          <div className="eah-admin__actions" style={{ marginTop: "0.75rem" }}>
+          <div className="ea-admin__actions" style={{ marginTop: "0.75rem" }}>
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("export", { format: "json" })}>Export JSON</Button>
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("export", { format: "csv" })}>Export CSV</Button>
             <Button type="button" variant="secondary" disabled={isPending} onClick={() => runAction("export", { format: "yaml" })}>Export YAML</Button>
           </div>
         </section>
       )}
-    </div>
+    </EnterpriseAdminShell>
   );
 }
