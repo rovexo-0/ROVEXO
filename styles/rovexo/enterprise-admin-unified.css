@@ -509,3 +509,55 @@
     background: color-mix(in srgb, var(--ds-color-surface) 96%, transparent);
   }
 }
+
+/* Enterprise Category Management — 3-panel workspace */
+.ecm-workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(240px, 320px);
+  gap: 1rem;
+  align-items: start;
+}
+
+.ecm-tree-panel,
+.ecm-center-panel,
+.ecm-inspector-panel {
+  min-height: 28rem;
+  max-height: 72vh;
+  overflow: auto;
+}
+
+.ecm-tree-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.375rem;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  color: var(--ds-color-text);
+}
+
+.ecm-tree-item:hover {
+  background: var(--ds-color-surface-muted);
+}
+
+.ecm-tree-item--selected {
+  background: color-mix(in srgb, var(--ds-color-primary) 12%, transparent);
+  color: var(--ds-color-primary);
+}
+
+.ecm-tree-item__count {
+  margin-left: auto;
+  font-size: 0.6875rem;
+  opacity: 0.65;
+}
+
+@media (max-width: 1024px) {
+  .ecm-workspace {
+    grid-template-columns: 1fr;
+  }
+}

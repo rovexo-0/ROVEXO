@@ -1,0 +1,4 @@
+export const GLOBAL_UI_INTEGRITY_DRAFT_KEY = "omega_global_ui_integrity_engine_draft_v1";
+export const GLOBAL_UI_INTEGRITY_LIVE_KEY = "omega_global_ui_integrity_engine_live_v1";
+export const GLOBAL_UI_INTEGRITY_HISTORY_KEY = "omega_global_ui_integrity_engine_config_history_v1";
+export const GLOBAL_UI_INTEGRITY_SETTINGS_KEY = "omega_global_ui_integrity_engine_settings_v1";

@@ -14,7 +14,7 @@ export const ENTERPRISE_GOVERNANCE_ROUTES = [
 
 export const CONSTITUTION_SECTIONS = [
   "architecture", "security", "marketplace", "payments", "ai", "infrastructure", "mobile",
-  "deployment", "compliance", "ui", "ux", "performance", "accessibility", "enterprise-standards",
+  "deployment", "compliance", "ui", "ux", "performance", "accessibility", "homepage-integrity", "global-ui-integrity", "launch-readiness", "marketplace-completion", "enterprise-standards",
   "search", "storage", "recovery", "business-rules",
 ] as const;
 
@@ -47,7 +47,7 @@ export const CERTIFICATION_CHECKS = [
 
 export const VALIDATION_PIPELINE = [
   "scan", "sentinel", "omega", "architecture-engine", "security-engine", "marketplace-validator",
-  "performance-validator", "accessibility-validator", "seo-validator", "infrastructure-validator", "certification-engine",
+  "global-ui-integrity-engine", "launch-readiness-engine", "marketplace-completion-engine", "performance-validator", "accessibility-validator", "seo-validator", "infrastructure-validator", "certification-engine",
 ] as const;
 
 export const REPORT_TYPES = ["architecture", "security", "governance", "certification", "audit"] as const;

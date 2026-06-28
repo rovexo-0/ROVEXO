@@ -62,5 +62,6 @@ export const HOMEPAGE_BUILDER_MODULE_DESCRIPTOR: EnterpriseModuleDescriptor = {
     "enterprise-core",
     "mission-control",
     "theme-studio",
+    "homepage-enterprise-certification-engine",
   ],
 };

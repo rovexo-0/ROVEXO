@@ -72,5 +72,13 @@ export const OMEGA_COMMAND_CENTER_MODULE_DESCRIPTOR: EnterpriseModuleDescriptor 
     "enterprise-mobile-control-center",
     "enterprise-core",
     "mission-control",
+    "omega-quality-assurance-center",
+    "omega-development-director",
+    "enterprise-observability-center",
+    "enterprise-e2e-validation-engine",
+    "enterprise-autonomous-execution-engine",
+    "homepage-enterprise-certification-engine",
+    "enterprise-governance-center",
+    "certification-center",
   ],
 };

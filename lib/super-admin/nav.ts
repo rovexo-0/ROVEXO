@@ -16,7 +16,7 @@ export const SUPER_ADMIN_PRIMARY_NAV: SuperAdminNavItem[] = [
   { href: "/super-admin", label: "Mission Control", description: "Platform operating system", icon: "🛰️" },
   { href: "/super-admin/users", label: "Users", description: "Accounts & sessions", icon: "👤" },
   { href: "/super-admin/listings", label: "Listings", description: "All marketplace listings", icon: "🏷️" },
-  { href: "/super-admin/categories", label: "Categories", description: "Taxonomy tree", icon: "📁" },
+  { href: "/super-admin/category-management", label: "Categories", description: "Taxonomy tree", icon: "📁" },
   { href: "/super-admin/orders", label: "Orders", description: "Order management", icon: "📦" },
   { href: "/super-admin/payments", label: "Payments", description: "Transactions", icon: "💳" },
   { href: "/super-admin/wallet", label: "Wallet", description: "Balances & withdrawals", icon: "👛" },
@@ -134,7 +134,7 @@ export const SUPER_ADMIN_NAV: SuperAdminNavSection[] = [
     title: "Marketplace",
     items: [
       { href: "/super-admin/listings", label: "Listings", description: "All products", icon: "🏷️" },
-      { href: "/super-admin/categories", label: "Categories", description: "Taxonomy tree", icon: "📁" },
+      { href: "/super-admin/category-management", label: "Categories", description: "Taxonomy tree", icon: "📁" },
       { href: "/super-admin/orders", label: "Orders", description: "Order management", icon: "📦" },
       { href: "/super-admin/featured", label: "Featured", description: "Featured placements", icon: "⭐" },
       { href: "/super-admin/bumps", label: "Bumps", description: "Bump promotions", icon: "📈" },

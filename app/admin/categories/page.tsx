@@ -1,8 +1,5 @@
-import { CategoriesAdmin } from "@/features/admin/components/CategoriesAdmin";
-import { listAdminCategories } from "@/lib/categories/admin";
+import { redirect } from "next/navigation";
 
-export default async function AdminCategoriesPage() {
-  const categories = await listAdminCategories();
-
-  return <CategoriesAdmin initialCategories={categories} />;
+export default function LegacyAdminCategoriesRedirect() {
+  redirect("/super-admin/category-management");
 }

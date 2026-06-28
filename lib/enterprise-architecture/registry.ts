@@ -13,6 +13,16 @@ import { ENTERPRISE_SOC_MODULE_DESCRIPTOR } from "@/lib/enterprise-security-oper
 import { ENTERPRISE_BI_MODULE_DESCRIPTOR } from "@/lib/enterprise-business-intelligence/descriptor";
 import { ENTERPRISE_AUTOMATION_HUB_MODULE_DESCRIPTOR } from "@/lib/enterprise-automation-hub/descriptor";
 import { OMEGA_COMMAND_CENTER_MODULE_DESCRIPTOR } from "@/lib/omega-command-center/descriptor";
+import { OMEGA_QA_MODULE_DESCRIPTOR } from "@/lib/omega-quality-assurance-center/descriptor";
+import { OMEGA_DEV_DIRECTOR_MODULE_DESCRIPTOR } from "@/lib/omega-development-director/descriptor";
+import { OBSERVABILITY_MODULE_DESCRIPTOR } from "@/lib/enterprise-observability-center/descriptor";
+import { E2E_VALIDATION_MODULE_DESCRIPTOR } from "@/lib/enterprise-e2e-validation-engine/descriptor";
+import { EXECUTION_ENGINE_MODULE_DESCRIPTOR } from "@/lib/enterprise-autonomous-execution-engine/descriptor";
+import { HOMEPAGE_CERTIFICATION_MODULE_DESCRIPTOR } from "@/lib/homepage-enterprise-certification-engine/descriptor";
+import { CATEGORY_MANAGEMENT_MODULE_DESCRIPTOR } from "@/lib/enterprise-category-management-center/descriptor";
+import { GLOBAL_UI_INTEGRITY_MODULE_DESCRIPTOR } from "@/lib/omega-global-ui-integrity-engine/descriptor";
+import { LAUNCH_READINESS_MODULE_DESCRIPTOR } from "@/lib/enterprise-launch-readiness-engine/descriptor";
+import { MARKETPLACE_COMPLETION_MODULE_DESCRIPTOR } from "@/lib/enterprise-marketplace-completion-engine/descriptor";
 import { ENTERPRISE_GOVERNANCE_MODULE_DESCRIPTOR } from "@/lib/enterprise-governance-center/descriptor";
 import { ENTERPRISE_DEVELOPMENT_MODULE_DESCRIPTOR } from "@/lib/enterprise-development-center/descriptor";
 
@@ -25,6 +35,16 @@ export const ENTERPRISE_MODULE_DESCRIPTORS: readonly EnterpriseModuleDescriptor[
   ENTERPRISE_BI_MODULE_DESCRIPTOR,
   ENTERPRISE_AUTOMATION_HUB_MODULE_DESCRIPTOR,
   OMEGA_COMMAND_CENTER_MODULE_DESCRIPTOR,
+  OMEGA_QA_MODULE_DESCRIPTOR,
+  OMEGA_DEV_DIRECTOR_MODULE_DESCRIPTOR,
+  OBSERVABILITY_MODULE_DESCRIPTOR,
+  E2E_VALIDATION_MODULE_DESCRIPTOR,
+  EXECUTION_ENGINE_MODULE_DESCRIPTOR,
+  HOMEPAGE_CERTIFICATION_MODULE_DESCRIPTOR,
+  GLOBAL_UI_INTEGRITY_MODULE_DESCRIPTOR,
+  LAUNCH_READINESS_MODULE_DESCRIPTOR,
+  MARKETPLACE_COMPLETION_MODULE_DESCRIPTOR,
+  CATEGORY_MANAGEMENT_MODULE_DESCRIPTOR,
   ENTERPRISE_GOVERNANCE_MODULE_DESCRIPTOR,
   ENTERPRISE_DEVELOPMENT_MODULE_DESCRIPTOR,
   ENTERPRISE_COMPLIANCE_MODULE_DESCRIPTOR,

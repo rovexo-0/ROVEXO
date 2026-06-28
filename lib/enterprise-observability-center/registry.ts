@@ -1,0 +1,208 @@
+export const OBSERVABILITY_ROUTES = [
+  { id: "dashboard", label: "Health Dashboard", href: "/super-admin/observability" },
+  { id: "monitoring", label: "Live Monitoring", href: "/super-admin/observability/monitoring" },
+  { id: "telemetry", label: "Telemetry", href: "/super-admin/observability/telemetry" },
+  { id: "alerts", label: "Smart Alerts", href: "/super-admin/observability/alerts" },
+  { id: "topology", label: "Topology Map", href: "/super-admin/observability/topology" },
+  { id: "diagnostics", label: "Diagnostics", href: "/super-admin/observability/diagnostics" },
+  { id: "timeline", label: "Historical Timeline", href: "/super-admin/observability/timeline" },
+  { id: "capacity", label: "Capacity Planning", href: "/super-admin/observability/capacity" },
+  { id: "omega", label: "OMEGA Integration", href: "/super-admin/observability/omega" },
+  { id: "reports", label: "Reports", href: "/super-admin/observability/reports" },
+] as const;
+
+export const MONITORING_SUBSYSTEMS = [
+  "frontend",
+  "backend",
+  "api-gateway",
+  "authentication",
+  "buyer-platform",
+  "seller-platform",
+  "business-platform",
+  "super-admin",
+  "homepage",
+  "categories",
+  "listing-engine",
+  "checkout",
+  "wallet",
+  "payments",
+  "orders",
+  "shipping",
+  "messaging",
+  "notifications",
+  "search",
+  "seo",
+  "ai-services",
+  "automation-engine",
+  "deployment-engine",
+  "certification-engine",
+  "database",
+  "redis",
+  "storage",
+  "cron-jobs",
+  "queues",
+  "background-workers",
+  "webhooks",
+  "third-party-integrations",
+] as const;
+
+export const HEALTH_DASHBOARD_METRICS = [
+  "platform-health",
+  "module-health",
+  "api-health",
+  "database-health",
+  "storage-health",
+  "queue-health",
+  "cache-health",
+  "worker-health",
+  "search-health",
+  "ai-health",
+  "payment-health",
+  "deployment-health",
+  "security-health",
+  "certification-health",
+  "governance-health",
+  "qa-health",
+] as const;
+
+export const TELEMETRY_METRICS = [
+  "cpu",
+  "memory",
+  "disk",
+  "storage",
+  "bandwidth",
+  "api-latency",
+  "request-rate",
+  "error-rate",
+  "timeouts",
+  "exceptions",
+  "database-queries",
+  "slow-queries",
+  "queue-latency",
+  "worker-execution-time",
+  "cache-hit-ratio",
+  "search-latency",
+  "image-processing",
+  "background-jobs",
+] as const;
+
+export const ALERT_TYPES = [
+  "high-latency",
+  "api-failures",
+  "database-degradation",
+  "memory-leaks",
+  "storage-exhaustion",
+  "queue-congestion",
+  "job-failures",
+  "search-failures",
+  "webhook-failures",
+  "payment-failures",
+  "deployment-failures",
+  "security-anomalies",
+  "ai-failures",
+  "certification-failures",
+] as const;
+
+export const DIAGNOSTIC_DOMAINS = [
+  "network",
+  "api",
+  "database",
+  "storage",
+  "queues",
+  "workers",
+  "authentication",
+  "payments",
+  "messaging",
+  "search",
+  "ai",
+  "seo",
+  "infrastructure",
+] as const;
+
+export const TIMELINE_EVENT_TYPES = [
+  "outage",
+  "incident",
+  "deployment",
+  "performance",
+  "capacity",
+  "error",
+  "alert",
+  "security-event",
+  "certification-change",
+  "architecture-change",
+] as const;
+
+export const CAPACITY_FORECASTS = [
+  "traffic-growth",
+  "storage-usage",
+  "cpu-usage",
+  "memory-usage",
+  "database-growth",
+  "queue-growth",
+  "search-index-growth",
+  "infrastructure-scaling",
+] as const;
+
+export const TOPOLOGY_NODE_TYPES = [
+  "application",
+  "service",
+  "module",
+  "api",
+  "worker",
+  "queue",
+  "storage",
+  "database",
+  "external-provider",
+  "ai-service",
+  "enterprise-module",
+] as const;
+
+export const OMEGA_FEED_TYPES = [
+  "health-events",
+  "performance-metrics",
+  "telemetry",
+  "alerts",
+  "diagnostics",
+  "infrastructure-status",
+  "regression-signals",
+  "availability-reports",
+  "capacity-predictions",
+  "risk-indicators",
+] as const;
+
+export const REPORT_TYPES = [
+  "health",
+  "performance",
+  "availability",
+  "infrastructure",
+  "capacity",
+  "incident",
+  "telemetry",
+  "architecture",
+] as const;
+
+export const EXPORT_FORMATS = ["pdf", "excel", "csv", "json"] as const;
+
+export const PROTECTED_AREAS = [
+  "payments",
+  "wallet",
+  "authentication",
+  "orders",
+  "shipping",
+  "marketplace-business-logic",
+  "production-database",
+  "deployment-pipeline",
+  "business-rules",
+] as const;
+
+export const OBSERVABILITY_API = {
+  snapshot: "/api/super-admin/observability",
+  action: "/api/super-admin/observability/action",
+  monitor: "/api/super-admin/observability/monitor",
+  telemetry: "/api/super-admin/observability/telemetry",
+  diagnose: "/api/super-admin/observability/diagnose",
+  alerts: "/api/super-admin/observability/alerts",
+  syncOmega: "/api/super-admin/observability/sync-omega",
+  export: "/api/super-admin/observability/export",
+  v1Snapshot: "/api/v1/super-admin/observability",
+} as const;

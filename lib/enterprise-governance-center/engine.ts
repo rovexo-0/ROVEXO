@@ -79,6 +79,11 @@ function createRules(): EnterpriseRule[] {
     { id: "rule-sec-1", name: "MFA on critical actions", scope: "super-admin", enabled: true, violations: 0 },
     { id: "rule-ai-1", name: "AI requests through OMEGA only", scope: "ai-engines", enabled: true, violations: 0 },
     { id: "rule-mkt-1", name: "Marketplace logic isolation", scope: "marketplace", enabled: true, violations: 0 },
+    { id: "rule-home-1", name: "No duplicated homepage categories", scope: "homepage", enabled: true, violations: 0 },
+    { id: "rule-home-2", name: "No empty space above search bar", scope: "homepage", enabled: true, violations: 0 },
+    { id: "rule-global-1", name: "Global UI Integrity PASS 100% required", scope: "platform", enabled: true, violations: 0 },
+    { id: "rule-global-2", name: "No duplicated UI across platform", scope: "platform", enabled: true, violations: 0 },
+    { id: "rule-global-3", name: "Premium 2026 design consistency", scope: "platform", enabled: true, violations: 0 },
   ];
 }
 

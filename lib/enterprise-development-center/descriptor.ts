@@ -56,6 +56,7 @@ export const ENTERPRISE_DEVELOPMENT_MODULE_DESCRIPTOR: EnterpriseModuleDescripto
     "enterprise-deployment-center",
     "certification-center",
     "omega-command-center",
+    "omega-development-director",
     "enterprise-workflow-engine",
     "platform-studio",
     "app-studio",
