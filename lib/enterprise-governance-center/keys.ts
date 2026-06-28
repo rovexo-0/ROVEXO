@@ -1,0 +1,6 @@
+export const ENTERPRISE_GOVERNANCE_DRAFT_KEY = "enterprise_governance_center_draft_v1";
+export const ENTERPRISE_GOVERNANCE_LIVE_KEY = "enterprise_governance_center_live_v1";
+export const ENTERPRISE_GOVERNANCE_HISTORY_KEY = "enterprise_governance_center_config_history_v1";
+export const ENTERPRISE_GOVERNANCE_SETTINGS_KEY = "enterprise_governance_center_settings_v1";
+export const ENTERPRISE_GOVERNANCE_AUDIT_KEY = "enterprise_governance_center_audit_v1";
+export const ENTERPRISE_GOVERNANCE_CERTIFICATES_KEY = "enterprise_governance_center_certificates_v1";

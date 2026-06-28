@@ -1,0 +1,30 @@
+.egc-admin { display: flex; flex-direction: column; gap: var(--ds-space-4, 1rem); padding: var(--ds-space-4, 1rem) 0; }
+.egc-admin__header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--ds-space-4, 1rem); align-items: flex-start; }
+.egc-admin__eyebrow { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.7; margin: 0 0 0.25rem; color: #a78bfa; }
+.egc-admin__title { margin: 0 0 0.5rem; font-size: 1.5rem; }
+.egc-admin__desc { margin: 0; max-width: 42rem; opacity: 0.85; }
+.egc-score { display: flex; flex-direction: column; align-items: center; padding: 0.75rem 1.25rem; border-radius: 0.5rem; border: 2px solid #a78bfa; background: rgba(167, 139, 250, 0.08); }
+.egc-score strong { font-size: 1.5rem; color: #a78bfa; }
+.egc-score span { font-size: 0.7rem; opacity: 0.75; }
+.egc-admin__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.egc-link { font-size: 0.875rem; opacity: 0.85; }
+.egc-admin__message, .egc-admin__banner { margin: 0; padding: 0.5rem 0.75rem; border-radius: 0.375rem; background: var(--ds-surface-2, rgba(255,255,255,0.04)); }
+.egc-tabs { display: flex; flex-wrap: wrap; gap: 0.25rem; border-bottom: 1px solid var(--ds-border, rgba(255,255,255,0.08)); padding-bottom: 0.5rem; }
+.egc-tab { padding: 0.375rem 0.75rem; border-radius: 0.375rem; font-size: 0.8125rem; opacity: 0.75; }
+.egc-tab--active { opacity: 1; background: rgba(167, 139, 250, 0.12); }
+.egc-panel { padding: var(--ds-space-4, 1rem); border-radius: 0.5rem; background: var(--ds-surface-2, rgba(255,255,255,0.03)); }
+.egc-panel h3 { margin: 0 0 0.75rem; font-size: 1rem; }
+.egc-panel h4 { margin: 0.75rem 0 0.375rem; font-size: 0.875rem; }
+.egc-list { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.375rem; font-size: 0.8125rem; }
+.egc-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; margin-top: 0.5rem; }
+.egc-table th, .egc-table td { padding: 0.5rem; text-align: left; border-bottom: 1px solid var(--ds-border, rgba(255,255,255,0.06)); }
+.egc-pass { color: #22c55e; }
+.egc-warn { color: #eab308; }
+.egc-fail { color: #ef4444; }
+.egc-metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 0.5rem; margin: 0; }
+.egc-metrics div { display: flex; flex-direction: column; gap: 0.125rem; }
+.egc-metrics dt { font-size: 0.7rem; opacity: 0.65; }
+.egc-metrics dd { margin: 0; font-weight: 600; }
+.egc-debt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 0.5rem; }
+.egc-debt-card { display: flex; flex-direction: column; gap: 0.25rem; padding: 0.625rem; border-radius: 0.375rem; background: rgba(255,255,255,0.03); font-size: 0.75rem; text-transform: capitalize; }
+.egc-debt-card strong { font-size: 1.125rem; }
