@@ -29,6 +29,10 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   // Pin workspace root so Next.js does not pick up parent lockfiles on Windows.
   outputFileTracingRoot: projectRoot,
+  // Static premium assets are served from CDN/public; exclude from serverless traces.
+  outputFileTracingExcludes: {
+    "/*": ["public/**", "scripts/**", "e2e/**", "tests/**", "mobile/**", ".next/cache/**"],
+  },
   turbopack: {
     root: projectRoot,
   },
