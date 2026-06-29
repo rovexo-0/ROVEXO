@@ -21,6 +21,7 @@ describe("title-only category detection", () => {
 
   it("returns empty suggestions for short titles", () => {
     expect(suggestCategoryFromTitle("ab")).toEqual([]);
+    expect(suggestCategoryFromTitle("abcd")).toEqual([]);
     expect(suggestCategoryFromTitle("  ")).toEqual([]);
   });
 

@@ -8,6 +8,7 @@ import {
 } from "@/lib/listings/repository";
 import type { ListingFilter } from "@/lib/listings/types";
 import { clampInventory, isInventoryValid } from "@/lib/sell/inventory";
+import { LISTING_TITLE_MAX, LISTING_TITLE_MIN } from "@/lib/sell/listing-title";
 import { sanitizeListingLocationCity } from "@/lib/sell/listing-location";
 
 const imageSchema = z.object({
@@ -19,7 +20,7 @@ const imageSchema = z.object({
 });
 
 const listingSchema = z.object({
-  title: z.string().min(3),
+  title: z.string().min(LISTING_TITLE_MIN).max(LISTING_TITLE_MAX),
   description: z.string().min(10),
   brand: z.string().optional(),
   color: z.string().optional(),

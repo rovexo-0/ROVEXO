@@ -7,7 +7,7 @@ import { usesQuickListingForm } from "@/lib/profile/account";
 import type { SellListingDraft } from "@/features/sell/types";
 import { getListingValidationErrors } from "@/features/sell/types";
 import { FieldError } from "@/features/sell/components/FieldError";
-import { SellListingForm, useSellPublishState } from "@/features/sell/components/SellListingForm";
+import { SellListingForm } from "@/features/sell/components/SellListingForm";
 import { SellQuickListingForm } from "@/features/sell/components/SellQuickListingForm";
 import { SellPageHeader } from "@/features/sell/components/SellPageHeader";
 import { SellPhotoSection } from "@/features/sell/components/SellPhotoSection";
@@ -35,11 +35,11 @@ export function SellPage({
     isPublishing,
     uploadProgress,
     draftSavedMessage,
+    showValidation,
     saveDraft,
     publishListing,
   } = form;
   const isPublished = view === "published";
-  const canPublish = useSellPublishState(form, { mode: listingMode });
 
   return (
     <BetaAppShell showBottomNav={false} className="sell-page-v1">
@@ -65,7 +65,14 @@ export function SellPage({
         ) : (
           <>
             <SellPhotoSection form={form} uploadProgress={uploadProgress} quickMode={quickMode} />
-            <FieldError message={getListingValidationErrors(form.draft, { mode: form.listingMode }).photos} />
+            <FieldError
+              message={
+                getListingValidationErrors(form.draft, {
+                  mode: form.listingMode,
+                  showErrors: showValidation,
+                }).photos
+              }
+            />
 
             {quickMode ? (
               <SellQuickListingForm form={form} />
@@ -86,7 +93,7 @@ export function SellPage({
             </div>
           ) : null}
           <SellPublishFooter
-            disabled={!canPublish}
+            disabled={isPublishing}
             loading={isPublishing}
             onPublish={() => void publishListing()}
             editListingId={editListingId}

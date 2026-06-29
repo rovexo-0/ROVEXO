@@ -16,6 +16,8 @@ import { sendPasswordResetEmail } from "@/lib/email/service";
 import { getAppUrl } from "@/lib/supabase/env";
 import { redirectPathForRole, sanitizeNextPath } from "@/lib/auth/redirects";
 import { queueGaEvents, type QueuedGaEvent } from "@/lib/analytics/queue-ga-event";
+import { mapAuthErrorMessage } from "@/lib/auth/errors";
+import { applySessionPersistence } from "@/lib/auth/session-cookies";
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -115,7 +117,7 @@ export async function signUp(
 
   if (error) {
     await recordAuthRateLimitFailure("register", ip);
-    return { error: error.message };
+    return { error: mapAuthErrorMessage(error.message) };
   }
 
   if (!data.user) {
@@ -173,8 +175,10 @@ export async function signIn(
 
   if (error) {
     await recordAuthRateLimitFailure("login", ip);
-    return { error: error.message };
+    return { error: mapAuthErrorMessage(error.message) };
   }
+
+  await applySessionPersistence(formData.get("remember") === "on");
 
   await clearAuthRateLimit("login", ip);
 
@@ -275,7 +279,7 @@ export async function updatePassword(
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: mapAuthErrorMessage(error.message) };
   }
 
   revalidatePath("/", "layout");
@@ -308,7 +312,7 @@ export async function resendVerificationEmail(
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: mapAuthErrorMessage(error.message) };
   }
 
   return { success: "Verification email sent." };

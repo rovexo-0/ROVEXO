@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import { toPathId } from "@/lib/categories/queries";
 import { getSellCurrencyConfig } from "@/lib/sell/currency";
 import { SHIPPING_METHODS } from "@/lib/shipping/carriers";
+import { ListingTitleField } from "@/features/sell/components/ListingTitleField";
 import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicker";
 import { AiCategoryDetection } from "@/features/sell/components/TitleCategorySuggestions";
 import { FieldError, fieldErrorClassName } from "@/features/sell/components/FieldError";
@@ -53,6 +54,9 @@ export function SellQuickListingForm({ form }: SellQuickListingFormProps) {
   const {
     draft,
     updateDraft,
+    commitTitle,
+    pendingTitleRef,
+    showValidation,
     setCategoryPath,
     categoryDetection,
     categoryDetectionDismissed,
@@ -64,7 +68,7 @@ export function SellQuickListingForm({ form }: SellQuickListingFormProps) {
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const [moreDetailsOpen, setMoreDetailsOpen] = useState(false);
   const currency = useMemo(() => getSellCurrencyConfig(), []);
-  const errors = getListingValidationErrors(draft, { mode: listingMode });
+  const errors = getListingValidationErrors(draft, { mode: listingMode, showErrors: showValidation });
 
   const categoryDisplay = draft.categoryPath?.pathLabel ?? "";
 
@@ -82,16 +86,15 @@ export function SellQuickListingForm({ form }: SellQuickListingFormProps) {
       <div className="rx-form-section overflow-hidden">
         <SellLocationField form={form} error={errors.location} />
 
-        <FormRow label="Title" htmlFor="sell-quick-title" error={errors.title} className="border-t border-border">
-          <input
+        <FormRow label="Title" htmlFor="sell-quick-title" className="border-t border-border">
+          <ListingTitleField
             id="sell-quick-title"
-            type="text"
             value={draft.title}
-            onChange={(event) => updateDraft({ title: event.target.value })}
             placeholder="What are you selling?"
-            maxLength={80}
-            className={cn(fieldClassName, focusRing, fieldErrorClassName(Boolean(errors.title)))}
-            autoComplete="off"
+            showValidation={showValidation}
+            className={cn(fieldClassName, focusRing)}
+            onCommit={commitTitle}
+            pendingTitleRef={pendingTitleRef}
           />
         </FormRow>
 

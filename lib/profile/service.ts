@@ -81,17 +81,13 @@ export async function updateProfileDetails(
   }
 
   if (input.bio !== undefined) {
-    const { data: seller } = await supabase
-      .from("seller_profiles")
-      .select("id")
-      .eq("id", userId)
-      .maybeSingle();
-
-    if (seller) {
-      await supabase
-        .from("seller_profiles")
-        .update({ bio: sanitizeOptionalText(input.bio) ?? null })
-        .eq("id", userId);
+    const bio = sanitizeOptionalText(input.bio) ?? null;
+    const { error } = await supabase.from("seller_profiles").upsert(
+      { id: userId, bio },
+      { onConflict: "id" },
+    );
+    if (error) {
+      throw new Error("Unable to save bio.");
     }
   }
 

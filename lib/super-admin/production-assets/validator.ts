@@ -44,7 +44,11 @@ const MIN_CATEGORY_SOURCE_BYTES = 12_000;
 const MIN_CATEGORY_3D_SOURCE_BYTES = 8_000;
 const MIN_HERO_SOURCE_BYTES = 80_000;
 
-const APPROVED_CATEGORY_PIPELINES = new Set(["source-photography-only", "v16-raster-3d"]);
+const APPROVED_CATEGORY_PIPELINES = new Set([
+  "source-photography-only",
+  "v16-raster-3d",
+  "icons8-3d-fluency",
+]);
 
 function minCategoryRailBytes(size: number, ext: "avif" | "webp" | "png"): number {
   if (size === 1024) return MIN_CATEGORY_BYTES;
@@ -231,7 +235,7 @@ async function validateCategoryRail(issues: ValidationIssue[]): Promise<number> 
       pushIssue(issues, {
         code: "broken-manifest",
         path: relativePublicPath(manifestPath),
-        message: "Category manifest must declare an approved pipeline (source-photography-only or v16-raster-3d)",
+        message: "Category manifest must declare an approved pipeline (source-photography-only, v16-raster-3d, or icons8-3d-fluency)",
         section: "homepage-categories",
       });
     }
@@ -401,7 +405,7 @@ async function validateSourceMasters(issues: ValidationIssue[]): Promise<number>
       pushIssue(issues, {
         code: "broken-manifest",
         path: relativePublicPath(categorySourceManifest),
-        message: "Category source manifest must declare an approved pipeline (source-photography-only or v16-raster-3d)",
+        message: "Category source manifest must declare an approved pipeline (source-photography-only, v16-raster-3d, or icons8-3d-fluency)",
         section: "sources",
       });
     }

@@ -33,7 +33,7 @@ export function createDefaultEnterpriseCoreHistory(): EnterpriseCoreHistoryEntry
 function createDefaultNotifications(): EnterpriseCoreNotification[] {
   return [
     { id: "n-1", title: "Enterprise Core online", message: "Unified operating system initialized", severity: "success", module: "enterprise-core", timestamp: now(), acknowledged: true },
-    { id: "n-2", title: "Push notifications", message: "Configure web push keys for full delivery", severity: "warning", module: "notifications", timestamp: now(), acknowledged: false, group: "system" },
+    { id: "n-2", title: "Web push", message: "Development only — configure VAPID keys for browser push delivery", severity: "info", module: "notifications", timestamp: now(), acknowledged: true, group: "system" },
     { id: "n-3", title: "Platform healthy", message: "All core services operational", severity: "info", module: "operations", timestamp: now(), acknowledged: true, group: "health" },
   ];
 }

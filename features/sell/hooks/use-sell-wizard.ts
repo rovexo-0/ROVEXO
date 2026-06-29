@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 import type { FlatCategoryPath } from "@/lib/categories/types";
+import type { AiCameraAnalysisResult } from "@/lib/ai-camera/types";
 import { clearSellDraft, loadSellDraft, saveSellDraft } from "@/lib/sell/draft-storage";
 import { uploadListingImage, deleteListingImage } from "@/lib/listings/upload-client";
 import { buildPublishDescription } from "@/lib/sell/publish-description";
@@ -14,10 +15,19 @@ import {
   shouldAutoSelectCategory,
   type CategoryDetectionResult,
 } from "@/lib/sell/category-detection-pro";
+import {
+  applyAiAnalysisFields,
+  categoryDetectionFromAiAnalysis,
+} from "@/lib/sell/listing-ai-category";
 import { logCategoryManualOverride } from "@/lib/sell/category-detection-learning";
+import {
+  createDebouncedCategoryDetection,
+  CATEGORY_DETECTION_DEBOUNCE_MS,
+} from "@/lib/sell/category-detection-scheduler";
 import type { SellListingMode } from "@/lib/profile/account";
 import {
   createEmptyDraft,
+  isListingValid,
   type SellListingDraft,
   type SellPhoto,
   type SellView,
@@ -29,8 +39,6 @@ type UseSellFormOptions = {
   initialDraft?: SellListingDraft;
 };
 
-const TITLE_CATEGORY_DEBOUNCE_MS = 80;
-
 export function useSellForm(options: UseSellFormOptions = {}) {
   const { listingMode = "advanced", editListingId, initialDraft } = options;
   const router = useRouter();
@@ -41,6 +49,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     return stored ? { ...createEmptyDraft(), ...stored } : createEmptyDraft();
   });
   const [formError, setFormError] = useState<string | null>(null);
+  const [showValidation, setShowValidation] = useState(false);
   const [categoryDetection, setCategoryDetection] = useState<CategoryDetectionResult>({
     suggestions: [],
     top: null,
@@ -54,9 +63,142 @@ export function useSellForm(options: UseSellFormOptions = {}) {
   const userOverrodeCategoryRef = useRef(Boolean(initialDraft?.categoryPath));
   const lastAiTopPathIdRef = useRef<string | null>(null);
   const lastAiAppliedPathIdRef = useRef<string | null>(null);
-  const titleCategoryTimerRef = useRef<number | null>(null);
+  const pendingTitleRef = useRef(draft.title);
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
+  const pendingDetectionSnapshotRef = useRef<
+    Pick<SellListingDraft, "title" | "description" | "photos"> | null
+  >(null);
+  const runCategoryDetectionBodyRef = useRef(() => {});
+  const categoryDetectionSchedulerRef = useRef(
+    createDebouncedCategoryDetection(() => {
+      runCategoryDetectionBodyRef.current();
+    }, CATEGORY_DETECTION_DEBOUNCE_MS),
+  );
   const uploadSessionRef = useRef(crypto.randomUUID());
   const [removedImageIds, setRemovedImageIds] = useState<string[]>([]);
+
+  const buildPhotoMetadata = useCallback(
+    (photos: SellListingDraft["photos"]): Array<{ description?: string; filename?: string }> =>
+      photos.map((photo) => ({ filename: photo.file?.name, description: undefined })),
+    [],
+  );
+
+  const applyCategoryDetection = useCallback((detection: CategoryDetectionResult) => {
+    setCategoryDetection(detection);
+    setCategoryDetectionDismissed(false);
+    lastAiTopPathIdRef.current = detection.top
+      ? `${detection.top.path.categorySlug}:${detection.top.path.subcategorySlug}:${detection.top.path.childCategorySlug ?? ""}`
+      : null;
+
+    if (userOverrodeCategoryRef.current) return;
+
+    const autoSelect = shouldAutoSelectCategory(detection.suggestions);
+    if (autoSelect) {
+      const nextPathId = `${autoSelect.path.categorySlug}:${autoSelect.path.subcategorySlug}:${autoSelect.path.childCategorySlug ?? ""}`;
+      lastAiAppliedPathIdRef.current = nextPathId;
+      setDraft((current) => ({ ...current, categoryPath: autoSelect.path }));
+      return;
+    }
+
+    const appliedPathId = lastAiAppliedPathIdRef.current;
+    if (!appliedPathId) return;
+
+    setDraft((current) => {
+      const currentPathId = current.categoryPath
+        ? `${current.categoryPath.categorySlug}:${current.categoryPath.subcategorySlug}:${current.categoryPath.childCategorySlug ?? ""}`
+        : null;
+      if (currentPathId !== appliedPathId) return current;
+      lastAiAppliedPathIdRef.current = null;
+      return { ...current, categoryPath: null };
+    });
+  }, []);
+
+  runCategoryDetectionBodyRef.current = () => {
+    const current = draftRef.current;
+    const snapshot = pendingDetectionSnapshotRef.current;
+    const title = snapshot?.title ?? pendingTitleRef.current ?? current.title;
+    const description = snapshot?.description ?? current.description;
+    const photos = snapshot?.photos ?? current.photos;
+    const detection = detectCategoryFromTitle(title, description, buildPhotoMetadata(photos));
+    applyCategoryDetection(detection);
+    pendingDetectionSnapshotRef.current = null;
+  };
+
+  const scheduleCategoryDetection = useCallback(
+    (snapshot?: Pick<SellListingDraft, "title" | "description" | "photos">) => {
+      pendingDetectionSnapshotRef.current = snapshot ?? null;
+      categoryDetectionSchedulerRef.current.schedule();
+    },
+    [],
+  );
+
+  const runCategoryDetectionSoon = useCallback(
+    (snapshot?: Pick<SellListingDraft, "title" | "description" | "photos">) => {
+      pendingDetectionSnapshotRef.current = snapshot ?? null;
+      categoryDetectionSchedulerRef.current.runSoon();
+    },
+    [],
+  );
+
+  const runPhotoAiAnalysis = useCallback(
+    async (photo: SellPhoto) => {
+      if (!photo.file) {
+        runCategoryDetectionSoon();
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append("image", photo.file);
+        const response = await fetch("/api/ai/camera/analyze", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          runCategoryDetectionSoon();
+          return;
+        }
+
+        const analysis = (await response.json()) as AiCameraAnalysisResult;
+        const current = draftRef.current;
+        const title = pendingTitleRef.current || current.title;
+        const detection = categoryDetectionFromAiAnalysis(analysis, title, current.description);
+        applyCategoryDetection(detection);
+
+        const patch = applyAiAnalysisFields(analysis, {
+          title,
+          brand: current.brand,
+          color: current.color,
+          size: current.size,
+          condition: current.condition,
+          description: current.description,
+        });
+
+        setDraft((state) => {
+          const next = {
+            ...state,
+            analysis,
+            ...(patch.title ? { title: patch.title } : {}),
+            ...(patch.brand ? { brand: patch.brand } : {}),
+            ...(patch.color ? { color: patch.color } : {}),
+            ...(patch.size ? { size: patch.size } : {}),
+            ...(patch.condition ? { condition: patch.condition } : {}),
+            ...(patch.description ? { description: patch.description } : {}),
+            ...(patch.categoryPath && !userOverrodeCategoryRef.current
+              ? { categoryPath: patch.categoryPath }
+              : {}),
+          };
+          if (patch.title) pendingTitleRef.current = patch.title;
+          return next;
+        });
+      } catch {
+        runCategoryDetectionSoon();
+      }
+    },
+    [applyCategoryDetection, runCategoryDetectionSoon],
+  );
 
   const uploadPhoto = useCallback(async (photo: SellPhoto, index: number, photoCount: number) => {
     if (!photo.file || photo.uploaded) return photo;
@@ -100,22 +242,32 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     }
   }, [editListingId]);
 
-  const addPhotos = useCallback((files: FileList | File[]) => {
-    const incoming = Array.from(files).map((file) => ({
-      id: crypto.randomUUID(),
-      file,
-      previewUrl: URL.createObjectURL(file),
-      uploaded: false,
-    }));
+  const addPhotos = useCallback(
+    (files: FileList | File[]) => {
+      const incoming = Array.from(files).map((file) => ({
+        id: crypto.randomUUID(),
+        file,
+        previewUrl: URL.createObjectURL(file),
+        uploaded: false,
+      }));
 
-    setDraft((current) => ({
-      ...current,
-      photos: [...current.photos, ...incoming].slice(0, 8),
-    }));
-  }, []);
+      setDraft((current) => {
+        const wasEmpty = current.photos.length === 0;
+        const photos = [...current.photos, ...incoming].slice(0, 8);
+        const firstPhoto = wasEmpty && photos.length > 0 ? photos[0] : null;
+        if (firstPhoto) {
+          queueMicrotask(() => {
+            void runPhotoAiAnalysis(firstPhoto);
+          });
+        }
+        return { ...current, photos };
+      });
+    },
+    [runPhotoAiAnalysis],
+  );
 
   const removePhoto = useCallback(async (id: string) => {
-    const photo = draft.photos.find((item) => item.id === id);
+    const photo = draftRef.current.photos.find((item) => item.id === id);
     if (photo?.existingImageId) {
       setRemovedImageIds((current) =>
         current.includes(photo.existingImageId!) ? current : [...current, photo.existingImageId!],
@@ -133,15 +285,16 @@ export function useSellForm(options: UseSellFormOptions = {}) {
       if (target?.file) URL.revokeObjectURL(target.previewUrl);
       return { ...current, photos: current.photos.filter((item) => item.id !== id) };
     });
-  }, [draft.photos]);
+  }, []);
 
   const retryPhotoUpload = useCallback(async (id: string) => {
-    const index = draft.photos.findIndex((photo) => photo.id === id);
-    const photo = draft.photos[index];
+    const photos = draftRef.current.photos;
+    const index = photos.findIndex((photo) => photo.id === id);
+    const photo = photos[index];
     if (!photo?.file || index < 0) return;
 
     try {
-      const uploaded = await uploadPhoto(photo, index, draft.photos.length);
+      const uploaded = await uploadPhoto(photo, index, photos.length);
       setDraft((current) => ({
         ...current,
         photos: current.photos.map((item) => (item.id === id ? uploaded : item)),
@@ -149,10 +302,10 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     } catch {
       // uploadPhoto already sets uploadError on the photo
     }
-  }, [draft.photos, uploadPhoto]);
+  }, [uploadPhoto]);
 
   const replacePhoto = useCallback((id: string, file: File) => {
-    const existing = draft.photos.find((photo) => photo.id === id);
+    const existing = draftRef.current.photos.find((photo) => photo.id === id);
     if (existing?.existingImageId) {
       setRemovedImageIds((current) =>
         current.includes(existing.existingImageId!)
@@ -175,7 +328,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
         };
       }),
     }));
-  }, [draft.photos]);
+  }, []);
 
   const reorderPhotos = useCallback((fromIndex: number, toIndex: number) => {
     if (fromIndex === toIndex) return;
@@ -187,62 +340,25 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     });
   }, []);
 
-  const buildPhotoMetadata = useCallback(
-    (photos: SellListingDraft["photos"]): Array<{ description?: string; filename?: string }> =>
-      photos.map((photo) => ({ filename: photo.file?.name, description: undefined })),
-    [],
-  );
-
-  useEffect(() => {
-    if (titleCategoryTimerRef.current) {
-      window.clearTimeout(titleCategoryTimerRef.current);
-    }
-
-    titleCategoryTimerRef.current = window.setTimeout(() => {
-      const detection = detectCategoryFromTitle(
-        draft.title,
-        draft.description,
-        buildPhotoMetadata(draft.photos),
-      );
-      setCategoryDetection(detection);
-      setCategoryDetectionDismissed(false);
-      lastAiTopPathIdRef.current = detection.top
-        ? `${detection.top.path.categorySlug}:${detection.top.path.subcategorySlug}:${detection.top.path.childCategorySlug ?? ""}`
-        : null;
-
-      if (userOverrodeCategoryRef.current) return;
-
-      const autoSelect = shouldAutoSelectCategory(detection.suggestions);
-      if (autoSelect) {
-        const nextPathId = `${autoSelect.path.categorySlug}:${autoSelect.path.subcategorySlug}:${autoSelect.path.childCategorySlug ?? ""}`;
-        lastAiAppliedPathIdRef.current = nextPathId;
-        setDraft((current) => ({ ...current, categoryPath: autoSelect.path }));
-        return;
-      }
-
-      const appliedPathId = lastAiAppliedPathIdRef.current;
-      if (!appliedPathId) return;
-
-      setDraft((current) => {
-        const currentPathId = current.categoryPath
-          ? `${current.categoryPath.categorySlug}:${current.categoryPath.subcategorySlug}:${current.categoryPath.childCategorySlug ?? ""}`
-          : null;
-        if (currentPathId !== appliedPathId) return current;
-        lastAiAppliedPathIdRef.current = null;
-        return { ...current, categoryPath: null };
-      });
-    }, TITLE_CATEGORY_DEBOUNCE_MS);
-
-    return () => {
-      if (titleCategoryTimerRef.current) {
-        window.clearTimeout(titleCategoryTimerRef.current);
-      }
-    };
-  }, [draft.title, draft.description, draft.photos, buildPhotoMetadata]);
-
   const updateDraft = useCallback((patch: Partial<SellListingDraft>) => {
+    if (typeof patch.title === "string") {
+      pendingTitleRef.current = patch.title;
+    }
     setDraft((current) => ({ ...current, ...patch }));
   }, []);
+
+  const commitTitle = useCallback(
+    (title: string) => {
+      pendingTitleRef.current = title;
+      updateDraft({ title });
+      scheduleCategoryDetection({
+        title,
+        description: draftRef.current.description,
+        photos: draftRef.current.photos,
+      });
+    },
+    [scheduleCategoryDetection, updateDraft],
+  );
 
   const setCategoryPath = useCallback(
     (categoryPath: FlatCategoryPath, source: "manual" | "confirm" = "manual") => {
@@ -260,7 +376,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
           lastAiTopPathIdRef.current !== nextPathId
         ) {
           void logCategoryManualOverride({
-            title: current.title,
+            title: pendingTitleRef.current || current.title,
             suggestedPath: categoryDetection.top.path,
             chosenPath: categoryPath,
             confidence: categoryDetection.top.confidence,
@@ -281,64 +397,77 @@ export function useSellForm(options: UseSellFormOptions = {}) {
 
   const dismissCategoryDetection = useCallback(() => {
     setCategoryDetectionDismissed(true);
-    if (categoryDetection.top && draft.categoryPath) {
-      const currentPathId = `${draft.categoryPath.categorySlug}:${draft.categoryPath.subcategorySlug}:${draft.categoryPath.childCategorySlug ?? ""}`;
+    const currentDraft = draftRef.current;
+    if (categoryDetection.top && currentDraft.categoryPath) {
+      const currentPathId = `${currentDraft.categoryPath.categorySlug}:${currentDraft.categoryPath.subcategorySlug}:${currentDraft.categoryPath.childCategorySlug ?? ""}`;
       const aiPathId = `${categoryDetection.top.path.categorySlug}:${categoryDetection.top.path.subcategorySlug}:${categoryDetection.top.path.childCategorySlug ?? ""}`;
       if (currentPathId === aiPathId) {
         userOverrodeCategoryRef.current = true;
         setDraft((current) => ({ ...current, categoryPath: null }));
       }
     }
-  }, [categoryDetection, draft.categoryPath]);
+  }, [categoryDetection]);
 
   const openCategoryPickerForChange = useCallback(() => {
     userOverrodeCategoryRef.current = true;
   }, []);
 
   const saveDraft = useCallback(() => {
-    saveSellDraft(draft);
+    const nextDraft = { ...draftRef.current, title: pendingTitleRef.current };
+    saveSellDraft(nextDraft);
     setDraftSavedMessage("Draft saved");
     window.setTimeout(() => setDraftSavedMessage(null), 2000);
-  }, [draft]);
+  }, []);
 
   const publishListing = useCallback(async () => {
+    const committedTitle = pendingTitleRef.current.trim();
+    const effectiveDraft = { ...draftRef.current, title: committedTitle };
+    setShowValidation(true);
+
+    if (!isListingValid(effectiveDraft, { mode: listingMode })) {
+      setFormError("Please complete all required fields.");
+      return;
+    }
+
     setIsPublishing(true);
     setFormError(null);
     setUploadProgress(0);
+    setDraft((current) => ({ ...current, title: committedTitle }));
 
     try {
+      const workingDraft = { ...draftRef.current, title: committedTitle };
       const uploadedPhotos: SellPhoto[] = [];
-      for (let index = 0; index < draft.photos.length; index += 1) {
-        const photo = draft.photos[index]!;
+      for (let index = 0; index < workingDraft.photos.length; index += 1) {
+        const photo = workingDraft.photos[index]!;
         const uploaded = photo.file
-          ? await uploadPhoto(photo, index, draft.photos.length)
+          ? await uploadPhoto(photo, index, workingDraft.photos.length)
           : photo;
         uploadedPhotos.push(uploaded);
       }
 
-      setDraft((current) => ({ ...current, photos: uploadedPhotos }));
+      setDraft((current) => ({ ...current, photos: uploadedPhotos, title: committedTitle }));
 
       const payload = {
-        title: draft.title.trim(),
-        description: buildPublishDescription(draft.title, draft.description, draft.material),
-        locationCity: sanitizeListingLocationCity(draft.locationCity),
-        brand: draft.brand.trim() || undefined,
-        color: draft.color.trim() || undefined,
-        size: draft.size.trim() || undefined,
-        condition: draft.condition,
-        price: Number(draft.price),
-        acceptOffers: draft.acceptOffers,
-        deliveryCarriers: deliveryCarriersForMethod(draft.shippingMethod),
-        categoryPath: draft.categoryPath
+        title: committedTitle,
+        description: buildPublishDescription(committedTitle, workingDraft.description, workingDraft.material),
+        locationCity: sanitizeListingLocationCity(workingDraft.locationCity),
+        brand: workingDraft.brand.trim() || undefined,
+        color: workingDraft.color.trim() || undefined,
+        size: workingDraft.size.trim() || undefined,
+        condition: workingDraft.condition,
+        price: Number(workingDraft.price),
+        acceptOffers: workingDraft.acceptOffers,
+        deliveryCarriers: deliveryCarriersForMethod(workingDraft.shippingMethod),
+        categoryPath: workingDraft.categoryPath
           ? {
-              categorySlug: draft.categoryPath.categorySlug,
-              subcategorySlug: draft.categoryPath.subcategorySlug,
-              childCategorySlug: draft.categoryPath.childCategorySlug,
-              categorySlugs: draft.categoryPath.segments.map((segment) => segment.slug),
+              categorySlug: workingDraft.categoryPath.categorySlug,
+              subcategorySlug: workingDraft.categoryPath.subcategorySlug,
+              childCategorySlug: workingDraft.categoryPath.childCategorySlug,
+              categorySlugs: workingDraft.categoryPath.segments.map((segment) => segment.slug),
             }
           : null,
         inventory: {
-          stock: draft.stock,
+          stock: workingDraft.stock,
         },
         images: uploadedPhotos.map((photo, index) => ({
           url: photo.url!,
@@ -378,7 +507,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
       setView("published");
       trackGaEvent("listing_created", {
         item_id: result.listing?.id ?? result.listing?.slug ?? "unknown",
-        item_name: draft.title.trim(),
+        item_name: committedTitle,
       });
     } catch (error) {
       setFormError(
@@ -388,12 +517,14 @@ export function useSellForm(options: UseSellFormOptions = {}) {
       setIsPublishing(false);
       setUploadProgress(0);
     }
-  }, [draft, editListingId, removedImageIds, router, uploadPhoto]);
+  }, [editListingId, listingMode, removedImageIds, router, uploadPhoto]);
 
   const resetForAnotherListing = useCallback(() => {
     setView("form");
     setPublishedSlug(null);
     setFormError(null);
+    setShowValidation(false);
+    pendingTitleRef.current = "";
     setDraft(createEmptyDraft());
     setRemovedImageIds([]);
     setCategoryDetection({ suggestions: [], top: null, tier: "none" });
@@ -404,6 +535,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     view,
     draft,
     formError,
+    showValidation,
     categoryDetection,
     categoryDetectionDismissed,
     isPublishing,
@@ -418,6 +550,8 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     reorderPhotos,
     retryPhotoUpload,
     updateDraft,
+    commitTitle,
+    pendingTitleRef,
     setCategoryPath,
     confirmSuggestedCategory,
     dismissCategoryDetection,

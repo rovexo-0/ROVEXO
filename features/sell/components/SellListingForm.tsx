@@ -5,6 +5,7 @@ import { CategoryChip } from "@/components/ui/CategoryChip";
 import { cn } from "@/lib/cn";
 import { toPathId } from "@/lib/categories/queries";
 import { getSellCurrencyConfig } from "@/lib/sell/currency";
+import { ListingTitleField } from "@/features/sell/components/ListingTitleField";
 import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicker";
 import { AiCategoryDetection } from "@/features/sell/components/TitleCategorySuggestions";
 import { FieldError, fieldErrorClassName } from "@/features/sell/components/FieldError";
@@ -54,6 +55,9 @@ export function SellListingForm({ form }: SellListingFormProps) {
   const {
     draft,
     updateDraft,
+    commitTitle,
+    pendingTitleRef,
+    showValidation,
     setCategoryPath,
     categoryDetection,
     categoryDetectionDismissed,
@@ -64,7 +68,7 @@ export function SellListingForm({ form }: SellListingFormProps) {
   } = form;
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const currency = useMemo(() => getSellCurrencyConfig(), []);
-  const errors = getListingValidationErrors(draft, { mode: listingMode });
+  const errors = getListingValidationErrors(draft, { mode: listingMode, showErrors: showValidation });
 
   const categoryDisplay = draft.categoryPath?.pathLabel ?? "";
 
@@ -77,20 +81,18 @@ export function SellListingForm({ form }: SellListingFormProps) {
       <div className="rx-form-section overflow-hidden">
         <SellLocationField form={form} error={errors.location} />
 
-        <FormRow label="Title" htmlFor="sell-title" error={errors.title} className="border-t border-border">
-          <input
+        <FormRow label="Title" htmlFor="sell-title" className="border-t border-border">
+          <ListingTitleField
             id="sell-title"
-            type="text"
             value={draft.title}
-            onChange={(event) => updateDraft({ title: event.target.value })}
-            placeholder="Listing title"
-            maxLength={80}
+            showValidation={showValidation}
             className={cn(
               fieldClassName,
               focusRing,
-              fieldErrorClassName(Boolean(errors.title)),
               "rounded-ds-sm px-ds-2 py-ds-2",
             )}
+            onCommit={commitTitle}
+            pendingTitleRef={pendingTitleRef}
           />
         </FormRow>
 

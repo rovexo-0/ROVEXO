@@ -3,6 +3,7 @@ import type { AiCameraAnalysisResult } from "@/lib/ai-camera/types";
 import type { SellListingMode } from "@/lib/profile/account";
 import type { ShippingMethod } from "@/lib/shipping/carriers";
 import { clampInventory } from "@/lib/sell/inventory";
+import { validateListingTitle } from "@/lib/sell/listing-title";
 
 export type SellView = "form" | "published";
 
@@ -120,6 +121,8 @@ export type ListingValidationErrors = Partial<Record<ListingValidationField, str
 
 export type ListingValidationOptions = {
   mode?: SellListingMode;
+  /** When false, validation errors are omitted until blur or publish. */
+  showErrors?: boolean;
 };
 
 function hasValidPhotos(draft: SellListingDraft): boolean {
@@ -142,12 +145,11 @@ function hasValidPrice(draft: SellListingDraft): boolean {
   }
 }
 
-export function getListingValidationErrors(
+function collectListingValidationErrors(
   draft: SellListingDraft,
-  options?: ListingValidationOptions,
+  mode: SellListingMode,
 ): ListingValidationErrors {
   const errors: ListingValidationErrors = {};
-  const mode = options?.mode ?? "advanced";
 
   if (!hasValidPhotos(draft)) {
     errors.photos = draft.photos.some((photo) => photo.uploading)
@@ -155,8 +157,9 @@ export function getListingValidationErrors(
       : "Add at least one photo.";
   }
 
-  if (draft.title.trim().length < 3) {
-    errors.title = "Title must be at least 3 characters.";
+  const titleError = validateListingTitle(draft.title, { required: true });
+  if (titleError) {
+    errors.title = titleError;
   }
 
   if (draft.description.trim().length < 10) {
@@ -191,9 +194,17 @@ export function getListingValidationErrors(
   return errors;
 }
 
+export function getListingValidationErrors(
+  draft: SellListingDraft,
+  options?: ListingValidationOptions,
+): ListingValidationErrors {
+  if (!options?.showErrors) return {};
+  return collectListingValidationErrors(draft, options?.mode ?? "advanced");
+}
+
 export function isListingValid(
   draft: SellListingDraft,
   options?: ListingValidationOptions,
 ): boolean {
-  return Object.keys(getListingValidationErrors(draft, options)).length === 0;
+  return Object.keys(collectListingValidationErrors(draft, options?.mode ?? "advanced")).length === 0;
 }

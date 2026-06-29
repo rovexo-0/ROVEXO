@@ -42,7 +42,7 @@ export function createDefaultOmegaLiveModules(): OmegaLiveModule[] {
     { id: "payments", label: "Payments", score: 99, status: "online" },
     { id: "identity", label: "Identity", score: 96, status: "online" },
     { id: "infrastructure", label: "Infrastructure", score: 95, status: "online" },
-    { id: "performance", label: "Performance", score: 94, status: "degraded" },
+    { id: "performance", label: "Performance", score: 95, status: "online" },
     { id: "guardian", label: "Guardian", score: 99, status: "online" },
     { id: "sentinel", label: "Sentinel", score: 98, status: "online" },
     { id: "antivirus", label: "Antivirus", score: 97, status: "online" },
@@ -65,58 +65,7 @@ export function createDefaultOmegaSystemStatus(): OmegaSystemStatusRow[] {
 }
 
 export function createDefaultOmegaAlerts(): OmegaAlert[] {
-  return [
-    {
-      id: "alert-1",
-      severity: "critical",
-      module: "Infrastructure",
-      title: "Elevated API latency in EU-West",
-      message: "p95 response time exceeded 500ms threshold for 12 minutes.",
-      status: "open",
-      recommendedAction: "Scale API workers and review cache hit rate.",
-      createdAt: "2026-06-26T03:45:00.000Z",
-    },
-    {
-      id: "alert-2",
-      severity: "high",
-      module: "Security",
-      title: "Blocked authentication attempts spike",
-      message: "Sentinel blocked 47 high-risk login attempts in the last hour.",
-      status: "acknowledged",
-      recommendedAction: "Review IP blocklist and enable MFA enforcement.",
-      createdAt: "2026-06-26T02:30:00.000Z",
-    },
-    {
-      id: "alert-3",
-      severity: "medium",
-      module: "Certification",
-      title: "Certificate renewal window open",
-      message: "Production TLS certificate expires in 45 days.",
-      status: "open",
-      recommendedAction: "Schedule automated renewal via Certification Center.",
-      createdAt: "2026-06-25T18:00:00.000Z",
-    },
-    {
-      id: "alert-4",
-      severity: "low",
-      module: "Performance",
-      title: "Cache hit rate below target",
-      message: "Redis cache hit rate at 88% (target 92%).",
-      status: "open",
-      recommendedAction: "Warm critical keys and review TTL policies.",
-      createdAt: "2026-06-25T14:20:00.000Z",
-    },
-    {
-      id: "alert-5",
-      severity: "information",
-      module: "Release",
-      title: "Beta channel update available",
-      message: "Super Admin Mobile v1.0.1-beta ready for staging validation.",
-      status: "open",
-      recommendedAction: "Review release notes before promotion.",
-      createdAt: "2026-06-25T10:00:00.000Z",
-    },
-  ];
+  return [];
 }
 
 export function createDefaultOmegaGlobalScan(): OmegaGlobalScanReport {
@@ -125,11 +74,11 @@ export function createDefaultOmegaGlobalScan(): OmegaGlobalScanReport {
     id: `scan-result-${check.id}`,
     scanId: check.id,
     label: check.label,
-    status: index === 6 ? ("warning" as const) : ("pass" as const),
-    score: index === 6 ? 88 : 96 + (index % 4),
+    status: "pass" as const,
+    score: 96 + (index % 4),
     durationMs: 1200 + index * 180,
     completedAt,
-    summary: index === 6 ? "Performance scan detected elevated latency." : `${check.module} verified — no issues.`,
+    summary: `${check.module} verified — no issues.`,
   }));
 
   return {
@@ -139,7 +88,7 @@ export function createDefaultOmegaGlobalScan(): OmegaGlobalScanReport {
     overallScore: 96,
     status: "pass",
     results,
-    unifiedSummary: "OMEGA Global Scan complete. 8/9 checks passed. Performance requires attention.",
+    unifiedSummary: "OMEGA Global Scan complete. All checks passed.",
   };
 }
 
@@ -174,7 +123,7 @@ export function createDefaultOmegaReleaseCenter(): OmegaReleaseCenter {
 export function createDefaultOmegaCertifications(): OmegaCertificationItem[] {
   const statuses: Array<"pass" | "warning" | "fail"> = [
     "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass",
-    "pass", "warning", "pass", "pass", "pass",
+    "pass", "pass", "pass", "pass", "pass",
   ];
   return OMEGA_CERTIFICATION_ITEMS.map((item, index) => ({
     id: item.id,

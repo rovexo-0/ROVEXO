@@ -14,6 +14,8 @@ import {
   useSuperAdminCommandPalette,
 } from "@/features/super-admin/components/premium";
 import { focusRing } from "@/components/ui/tokens";
+import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
+import { resolveSuperAdminIconKey } from "@/lib/icons/fluency-3d-registry";
 
 type SuperAdminShellProps = {
   children: ReactNode;
@@ -63,7 +65,7 @@ function NavSection({
                   onClick={onNavigate}
                   aria-current={active ? "page" : undefined}
                 >
-                  <span aria-hidden className="mt-0.5 text-base">{item.icon}</span>
+                  <Fluency3DIcon icon={resolveSuperAdminIconKey(item.href)} size={20} className="mt-0.5 shrink-0" />
                   <span>
                     <span className="sa-premium-nav-link__label">{item.label}</span>
                     {item.description ? (

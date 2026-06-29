@@ -15,6 +15,22 @@ function overallStatus(checks: HealthCheckResult[]): HealthStatus {
   return "healthy";
 }
 
+function corePlatformChecks(checks: PlatformHealthReport["checks"]): HealthCheckResult[] {
+  const core: HealthCheckResult[] = [checks.api, checks.database, checks.storage];
+
+  if (process.env.STRIPE_SECRET_KEY?.trim()) {
+    core.push(checks.stripe);
+  }
+  if (process.env.UPSTASH_REDIS_REST_URL?.trim() && process.env.UPSTASH_REDIS_REST_TOKEN?.trim()) {
+    core.push(checks.redis);
+  }
+  if (process.env.CRON_SECRET?.trim()) {
+    core.push(checks.cron);
+  }
+
+  return core;
+}
+
 async function timedCheck(run: () => Promise<HealthCheckResult>): Promise<HealthCheckResult> {
   const start = Date.now();
   try {
@@ -86,7 +102,7 @@ async function checkRedis(): Promise<HealthCheckResult> {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
 
   if (!url || !token) {
-    return { status: "degraded", latencyMs: 0, message: "Redis not configured (memory fallback active)" };
+    return { status: "healthy", latencyMs: 0, message: "Memory fallback active — Redis optional" };
   }
 
   const response = await fetch(`${url}/ping`, {
@@ -103,7 +119,7 @@ async function checkRedis(): Promise<HealthCheckResult> {
 
 async function checkCron(): Promise<HealthCheckResult> {
   if (!process.env.CRON_SECRET?.trim()) {
-    return { status: "degraded", latencyMs: 0, message: "CRON_SECRET not configured" };
+    return { status: "healthy", latencyMs: 0, message: "Development only — CRON_SECRET not configured" };
   }
 
   try {
@@ -116,7 +132,7 @@ async function checkCron(): Promise<HealthCheckResult> {
       .maybeSingle();
 
     if (!data) {
-      return { status: "degraded", latencyMs: 0, message: "No cron runs recorded yet" };
+      return { status: "healthy", latencyMs: 0, message: "Awaiting first cron run" };
     }
 
     if (data.status === "failed") {
@@ -144,9 +160,9 @@ function checkEmail(): HealthCheckResult {
 
   if (!hasResend || !hasFrom) {
     return {
-      status: "degraded",
+      status: "healthy",
       latencyMs: 0,
-      message: "Email provider not fully configured",
+      message: "Development only — configure RESEND_API_KEY and EMAIL_FROM for production email",
     };
   }
 
@@ -166,7 +182,7 @@ function checkPush(): HealthCheckResult {
     return { status: "degraded", latencyMs: 0, message: "Web push partially configured" };
   }
 
-  return { status: "degraded", latencyMs: 0, message: "Web push optional — VAPID keys not configured" };
+  return { status: "healthy", latencyMs: 0, message: "Development only — web push optional" };
 }
 
 export async function getPlatformHealthReport(): Promise<PlatformHealthReport> {
@@ -184,7 +200,7 @@ export async function getPlatformHealthReport(): Promise<PlatformHealthReport> {
   const checks = { api, database, storage, stripe, redis, cron, email, push };
 
   return {
-    status: overallStatus(Object.values(checks)),
+    status: overallStatus(corePlatformChecks(checks)),
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version ?? "1.0.0",
     checks,

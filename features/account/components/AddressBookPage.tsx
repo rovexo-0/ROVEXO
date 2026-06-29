@@ -50,6 +50,11 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
 
   const loadAddresses = async (type: "shipping" | "billing") => {
     const response = await fetch(`/api/addresses?type=${type}`);
+    if (!response.ok) {
+      setMessage("Unable to load addresses.");
+      setLoading(false);
+      return;
+    }
     const payload = (await response.json()) as { addresses: UserAddress[] };
     setAddresses(payload.addresses ?? []);
     setLoading(false);
@@ -130,17 +135,31 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
   };
 
   const removeAddress = async (id: string) => {
-    await fetch(`/api/addresses/${id}`, { method: "DELETE" });
+    setMessage(null);
+    const response = await fetch(`/api/addresses/${id}`, { method: "DELETE" });
+    if (!response.ok) {
+      const payload = (await response.json()) as { error?: string };
+      setMessage(payload.error ?? "Unable to delete address.");
+      return;
+    }
     await loadAddresses(activeType);
+    setMessage("Address deleted.");
   };
 
   const makeDefault = async (id: string) => {
-    await fetch(`/api/addresses/${id}`, {
+    setMessage(null);
+    const response = await fetch(`/api/addresses/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "set_default" }),
     });
+    if (!response.ok) {
+      const payload = (await response.json()) as { error?: string };
+      setMessage(payload.error ?? "Unable to set default address.");
+      return;
+    }
     await loadAddresses(activeType);
+    setMessage("Default address updated.");
   };
 
   return (

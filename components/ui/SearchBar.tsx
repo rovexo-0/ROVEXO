@@ -29,6 +29,7 @@ import {
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { useDebouncedValue } from "@/features/search/hooks/use-debounced-value";
 import { focusRing, shadowSoft, transitionFast } from "@/components/ui/tokens";
+import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
 
 export type SearchBarProps = {
   inputId?: string;
@@ -51,19 +52,11 @@ export type SearchBarProps = {
 };
 
 function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-    </svg>
-  );
+  return <Fluency3DIcon icon="search" size={20} className={className} />;
 }
 
 function ClearIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
-  );
+  return <Fluency3DIcon icon="feature-close" size={18} className={className} />;
 }
 
 function LoadingSpinner({ className }: { className?: string }) {

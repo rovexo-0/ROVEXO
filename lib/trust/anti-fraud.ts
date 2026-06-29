@@ -48,6 +48,16 @@ export async function detectReviewFraud(input: {
   return { blocked: false };
 }
 
+export async function detectSelfOffer(input: {
+  buyerId: string;
+  sellerId: string;
+}): Promise<TrustFraudCheck> {
+  if (input.buyerId === input.sellerId) {
+    return { blocked: true, reason: "self_offer" };
+  }
+  return { blocked: false };
+}
+
 export async function detectOrderTrustFraud(input: {
   buyerId: string;
   sellerId: string;

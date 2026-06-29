@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { LogOut } from "lucide-react";
+import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
 import { ConfirmDialog } from "@/features/settings/components/ConfirmDialog";
 import { signOut } from "@/lib/auth/actions";
 import { focusRing } from "@/components/ui/tokens";
@@ -30,7 +30,7 @@ export function LogoutButton({ className }: LogoutButtonProps) {
         disabled={pending}
         className={cn("account-logout", focusRing, className)}
       >
-        <LogOut size={20} strokeWidth={2} aria-hidden />
+        <Fluency3DIcon icon="feature-sign-out" size={20} />
         {pending ? "Signing out…" : "Sign Out"}
       </button>
 

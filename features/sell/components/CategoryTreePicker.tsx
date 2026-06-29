@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { cn } from "@/lib/cn";
 import { getCategoryTree } from "@/lib/categories/queries";
+import { loadCategoriesWithRecovery } from "@/lib/categories/category-loader";
 import {
   flatPathFromSegments,
   type CategorySegment,
@@ -22,8 +23,27 @@ function nodesToSegments(nodes: CategoryNode[]): CategorySegment[] {
 }
 
 export function CategoryTreePicker({ onChange, className }: CategoryTreePickerProps) {
-  const tree = useMemo(() => getCategoryTree(), []);
+  const [tree, setTree] = useState<CategoryNode[]>(() => getCategoryTree());
+  const [loadNotice, setLoadNotice] = useState<string | null>(null);
   const [selectedPath, setSelectedPath] = useState<CategoryNode[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void loadCategoriesWithRecovery().then((result) => {
+      if (cancelled) return;
+      setTree(result.tree);
+      if (result.source === "static" && result.recovered) {
+        setLoadNotice("Categories loaded from offline backup. You can still publish.");
+      } else if (result.recovered) {
+        setLoadNotice("Categories recovered. You can still publish.");
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const levels = useMemo(() => {
     const result: { label: string; nodes: CategoryNode[] }[] = [
@@ -50,6 +70,11 @@ export function CategoryTreePicker({ onChange, className }: CategoryTreePickerPr
 
   return (
     <div className={cn("flex flex-col gap-ds-4", className)}>
+      {loadNotice ? (
+        <p className="text-xs text-text-secondary" role="status">
+          {loadNotice}
+        </p>
+      ) : null}
       {levels.map((level, levelIndex) => (
         <div key={`${level.label}-${levelIndex}`}>
           <p className="mb-ds-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
@@ -75,12 +100,12 @@ export function flatPathFromSelection(
   categorySlug: string,
   subcategorySlug: string,
   childCategorySlug?: string,
+  tree: CategoryNode[] = getCategoryTree(),
 ): FlatCategoryPath | null {
   const slugs = childCategorySlug
     ? [categorySlug, subcategorySlug, childCategorySlug]
     : [categorySlug, subcategorySlug];
 
-  const tree = getCategoryTree();
   const path: CategoryNode[] = [];
   let nodes = tree;
 

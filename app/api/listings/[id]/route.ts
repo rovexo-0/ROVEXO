@@ -9,6 +9,7 @@ import {
 } from "@/lib/listings/repository";
 import { clampInventory, isInventoryValid } from "@/lib/sell/inventory";
 import { sanitizeListingLocationCity } from "@/lib/sell/listing-location";
+import { LISTING_TITLE_MAX, LISTING_TITLE_MIN } from "@/lib/sell/listing-title";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -21,7 +22,7 @@ const imageSchema = z.object({
 });
 
 const updateSchema = z.object({
-  title: z.string().min(3).optional(),
+  title: z.string().min(LISTING_TITLE_MIN).max(LISTING_TITLE_MAX).optional(),
   description: z.string().min(10).optional(),
   brand: z.string().optional(),
   color: z.string().optional(),

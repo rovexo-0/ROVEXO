@@ -177,9 +177,27 @@ export function ProfileEditPage({ initialProfile, isSeller = false }: ProfileEdi
           </div>
         </div>
 
-        <Button type="submit" variant="primary" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : "Save changes"}
-        </Button>
+        <div className="flex flex-wrap gap-ds-2">
+          <Button type="submit" variant="primary" disabled={isSubmitting}>
+            {isSubmitting ? "Saving…" : "Save changes"}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={isSubmitting}
+            onClick={() => {
+              setSaveMessage(null);
+              reset({
+                fullName: profile.fullName,
+                username: profile.username,
+                phone: profile.phone ?? "",
+                bio: profile.bio ?? "",
+              });
+            }}
+          >
+            Cancel changes
+          </Button>
+        </div>
         {saveMessage ? (
           <p className="text-sm text-text-secondary" aria-live="polite">
             {saveMessage}

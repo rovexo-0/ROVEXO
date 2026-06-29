@@ -44,7 +44,7 @@ async function main() {
     if (!manifest.formats?.includes("avif")) {
       invalid.push("manifest.json missing avif format");
     }
-    const validPipelines = ["source-photography-only", "v16-raster-3d", "v15-raster-montage"];
+    const validPipelines = ["source-photography-only", "v16-raster-3d", "v15-raster-montage", "icons8-3d-fluency"];
     if (!validPipelines.includes(manifest.pipeline)) {
       invalid.push(`manifest.json pipeline not recognized: ${manifest.pipeline}`);
     }

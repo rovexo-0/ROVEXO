@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck } from "lucide-react";
+import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
 import { Avatar } from "@/components/ui/Avatar";
 import { SuperAdminBadge } from "@/features/auth/components/SuperAdminBadge";
 import { TrustScoreCard } from "@/features/account-page/components/TrustScoreCard";
@@ -43,7 +43,7 @@ export function ProfileCard({ profile, trustData }: ProfileCardProps) {
           <SuperAdminBadge />
         ) : profile.verified ? (
           <span className="account-profile-card__badge">
-            <BadgeCheck size={14} strokeWidth={2} aria-hidden />
+            <Fluency3DIcon icon="feature-verified" size={14} />
             Verified Seller
           </span>
         ) : null}

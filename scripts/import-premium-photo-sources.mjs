@@ -7,6 +7,7 @@
 import { mkdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { composePremiumStudioMaster } from "./assets/premium-studio-compose.mjs";
 import { HOME_CATEGORY_ICON_TYPES } from "./data/home-category-icon-types.mjs";
 import {
   CATEGORY_PHOTO_SOURCES,
@@ -62,33 +63,9 @@ async function fetchPhoto(urls) {
   throw lastError;
 }
 
-/** Remove near-white studio backgrounds for transparent category icons */
-async function isolateProduct(buffer, threshold = 248) {
-  const { data, info } = await sharp(buffer)
-    .ensureAlpha()
-    .resize(CATEGORY_MASTER, CATEGORY_MASTER, {
-      fit: "contain",
-      background: { r: 255, g: 255, b: 255, alpha: 1 },
-    })
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i];
-    const g = data[i + 1];
-    const b = data[i + 2];
-    if (r >= threshold && g >= threshold && b >= threshold) {
-      data[i + 3] = 0;
-    } else if (r >= threshold - 18 && g >= threshold - 18 && b >= threshold - 18) {
-      data[i + 3] = Math.max(0, data[i + 3] - 80);
-    }
-  }
-
-  return sharp(data, {
-    raw: { width: info.width, height: info.height, channels: 4 },
-  })
-    .png({ compressionLevel: 9 })
-    .toBuffer();
+/** Premium studio isolation — photorealistic transparent masters */
+async function isolateProduct(buffer) {
+  return composePremiumStudioMaster(buffer, CATEGORY_MASTER, 0.8);
 }
 
 async function importCategoryIcon(key) {
