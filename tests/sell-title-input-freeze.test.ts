@@ -75,11 +75,11 @@ describe("category detection debounce constants", () => {
   });
 });
 
-describe("sell background policy launch blocker", () => {
-  it("keeps AI, category suggestion, and geolocation off until re-enabled", () => {
-    expect(sellBackgroundPolicy.photoAiEnabled).toBe(false);
-    expect(sellBackgroundPolicy.categorySuggestEnabled).toBe(false);
-    expect(sellBackgroundPolicy.autoLocationEnabled).toBe(false);
+describe("sell background policy", () => {
+  it("enables background features that only run after title idle commit", () => {
+    expect(sellBackgroundPolicy.photoAiEnabled).toBe(true);
+    expect(sellBackgroundPolicy.categorySuggestEnabled).toBe(true);
+    expect(sellBackgroundPolicy.autoLocationEnabled).toBe(true);
   });
 });
 
@@ -106,9 +106,18 @@ describe("title idle commit scheduler", () => {
     expect(commit).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(800);
-    vi.runAllTimers();
 
     expect(commit).toHaveBeenCalledTimes(1);
     expect(commit).toHaveBeenCalledWith("x".repeat(120));
+  });
+
+  it("flush commits synchronously for publish and save", () => {
+    const commit = vi.fn();
+    const scheduler = createTitleIdleScheduler(commit, () => "Ready to publish title", 800);
+
+    scheduler.flush();
+
+    expect(commit).toHaveBeenCalledTimes(1);
+    expect(commit).toHaveBeenCalledWith("Ready to publish title");
   });
 });

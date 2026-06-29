@@ -25,6 +25,7 @@ import {
   CATEGORY_DETECTION_DEBOUNCE_MS,
 } from "@/lib/sell/category-detection-scheduler";
 import { sellBackgroundPolicy } from "@/lib/sell/sell-background-policy";
+import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
 import type { SellListingMode } from "@/lib/profile/account";
 import {
   createEmptyDraft,
@@ -424,22 +425,27 @@ export function useSellForm(options: UseSellFormOptions = {}) {
   }, []);
 
   const saveDraft = useCallback(() => {
-    const nextDraft = { ...draftRef.current, title: pendingTitleRef.current };
+    flushTitleCommitRef.current?.();
+    const nextDraft = resolveEffectiveSellDraft(draftRef.current, pendingTitleRef.current);
     saveSellDraft(nextDraft);
+    setDraft((current) =>
+      current.title === nextDraft.title ? current : { ...current, title: nextDraft.title },
+    );
     setDraftSavedMessage("Draft saved");
     window.setTimeout(() => setDraftSavedMessage(null), 2000);
   }, []);
 
   const publishListing = useCallback(async () => {
     flushTitleCommitRef.current?.();
-    const committedTitle = pendingTitleRef.current.trim();
-    const effectiveDraft = { ...draftRef.current, title: committedTitle };
+    const effectiveDraft = resolveEffectiveSellDraft(draftRef.current, pendingTitleRef.current);
     setShowValidation(true);
 
     if (!isListingValid(effectiveDraft, { mode: listingMode })) {
       setFormError("Please complete all required fields.");
       return;
     }
+
+    const committedTitle = effectiveDraft.title;
 
     setIsPublishing(true);
     setFormError(null);
@@ -546,6 +552,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
   return {
     view,
     draft,
+    effectiveDraft: resolveEffectiveSellDraft(draft, pendingTitleRef.current),
     formError,
     showValidation,
     categoryDetection,

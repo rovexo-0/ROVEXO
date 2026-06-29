@@ -1,15 +1,14 @@
-/** Milliseconds of title idle time before any sell-page background work may run. */
+/** Milliseconds of title idle time before background sell-page intelligence may run. */
 export const SELL_TITLE_IDLE_MS = 800;
 
 /**
- * Launch blocker controls — background intelligence is OFF until title has been idle.
- * Re-enable individual flags after title isolation is verified in production.
+ * Background sell-page features. All run only after title idle commit — never on keypress.
  */
 export const sellBackgroundPolicy = {
   /** AI vision analysis after first photo upload. */
-  photoAiEnabled: false,
+  photoAiEnabled: true,
   /** Title/photo category suggestion and auto-select. */
-  categorySuggestEnabled: false,
+  categorySuggestEnabled: true,
   /** Browser geolocation → city autofill on sell form load. */
-  autoLocationEnabled: false,
+  autoLocationEnabled: true,
 } as const;

@@ -54,6 +54,7 @@ function FormRow({
 export function SellQuickListingForm({ form }: SellQuickListingFormProps) {
   const {
     draft,
+    effectiveDraft,
     updateDraft,
     syncTitleAfterIdle,
     flushTitleCommitRef,
@@ -70,7 +71,7 @@ export function SellQuickListingForm({ form }: SellQuickListingFormProps) {
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const [moreDetailsOpen, setMoreDetailsOpen] = useState(false);
   const currency = useMemo(() => getSellCurrencyConfig(), []);
-  const errors = getListingValidationErrors(draft, { mode: listingMode, showErrors: showValidation });
+  const errors = getListingValidationErrors(effectiveDraft, { mode: listingMode, showErrors: showValidation });
 
   const categoryDisplay = draft.categoryPath?.pathLabel ?? "";
 

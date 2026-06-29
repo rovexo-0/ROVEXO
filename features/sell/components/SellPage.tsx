@@ -36,6 +36,8 @@ export function SellPage({
     uploadProgress,
     draftSavedMessage,
     showValidation,
+    effectiveDraft,
+    listingMode,
     saveDraft,
     publishListing,
   } = form;
@@ -67,8 +69,8 @@ export function SellPage({
             <SellPhotoSection form={form} uploadProgress={uploadProgress} quickMode={quickMode} />
             <FieldError
               message={
-                getListingValidationErrors(form.draft, {
-                  mode: form.listingMode,
+                getListingValidationErrors(effectiveDraft, {
+                  mode: listingMode,
                   showErrors: showValidation,
                 }).photos
               }

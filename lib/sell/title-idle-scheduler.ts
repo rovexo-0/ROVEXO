@@ -3,12 +3,13 @@ export const TITLE_IDLE_COMMIT_MS = 800;
 type TitleIdleScheduler = {
   touch: () => void;
   cancel: () => void;
+  /** Commits the current title immediately (publish / save). */
   flush: () => void;
 };
 
 /**
  * Fires `commit` only after the user has stopped changing the title for `idleMs`.
- * Never runs on the input event path.
+ * `flush()` commits synchronously so publish/save never races validation.
  */
 export function createTitleIdleScheduler(
   commit: (title: string) => void,
@@ -17,16 +18,16 @@ export function createTitleIdleScheduler(
 ): TitleIdleScheduler {
   let timer: ReturnType<typeof setTimeout> | null = null;
 
-  function runCommit() {
-    timer = null;
-    setTimeout(() => {
-      commit(getTitle());
-    }, 0);
+  function commitNow() {
+    commit(getTitle());
   }
 
   function touch() {
     if (timer) clearTimeout(timer);
-    timer = setTimeout(runCommit, idleMs);
+    timer = setTimeout(() => {
+      timer = null;
+      commitNow();
+    }, idleMs);
   }
 
   function cancel() {
@@ -36,7 +37,7 @@ export function createTitleIdleScheduler(
 
   function flush() {
     cancel();
-    runCommit();
+    commitNow();
   }
 
   return { touch, cancel, flush };
