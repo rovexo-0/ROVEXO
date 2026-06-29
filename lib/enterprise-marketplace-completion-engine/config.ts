@@ -7,7 +7,8 @@ import {
 } from "@/lib/enterprise-architecture";
 import type { EnterpriseConfigDocument, EnterpriseConfigHistoryEntry } from "@/lib/enterprise-architecture/types";
 import { MARKETPLACE_COMPLETION_MODULE_DESCRIPTOR } from "@/lib/enterprise-marketplace-completion-engine/descriptor";
-import { createDefaultMarketplaceCompletionSettings, createDefaultMarketplaceCompletionState } from "@/lib/enterprise-marketplace-completion-engine/engine";
+import { createDefaultMarketplaceCompletionSettings } from "@/lib/enterprise-marketplace-completion-engine/engine";
+import { createPendingMarketplaceCompletionState } from "@/lib/enterprise-marketplace-completion-engine/pending-state";
 import {
   MARKETPLACE_COMPLETION_DRAFT_KEY,
   MARKETPLACE_COMPLETION_HISTORY_KEY,
@@ -20,7 +21,7 @@ export type MarketplaceCompletionConfigDocument = EnterpriseConfigDocument<Marke
 export type MarketplaceCompletionConfigHistoryEntry = EnterpriseConfigHistoryEntry<MarketplaceCompletionConfigDocument>;
 
 function createDefaultDocument(label: "Draft" | "Live"): MarketplaceCompletionConfigDocument {
-  const state = createDefaultMarketplaceCompletionState();
+  const state = createPendingMarketplaceCompletionState();
   const settings = createDefaultMarketplaceCompletionSettings();
   return {
     label,
@@ -34,7 +35,7 @@ function createDefaultDocument(label: "Draft" | "Live"): MarketplaceCompletionCo
 
 function normalizeDocument(doc: MarketplaceCompletionConfigDocument): MarketplaceCompletionConfigDocument {
   const defaults = createDefaultDocument(doc.label);
-  const defaultState = createDefaultMarketplaceCompletionState();
+  const defaultState = createPendingMarketplaceCompletionState();
   return {
     ...defaults,
     ...doc,

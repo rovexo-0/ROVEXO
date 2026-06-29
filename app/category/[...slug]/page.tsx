@@ -8,6 +8,8 @@ import { searchListings } from "@/lib/listings/repository";
 import { breadcrumbJsonLd, categoryJsonLd } from "@/lib/seo/json-ld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
+export const revalidate = 300;
+
 type CategoryPageProps = {
   params: Promise<{ slug: string[] }>;
 };

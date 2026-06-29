@@ -5,11 +5,15 @@ import { CategoriesMobileNav } from "@/features/categories/components/Categories
 import { CategoryCompactCard } from "@/features/categories/components/CategoryCompactCard";
 import { ResponsiveShell } from "@/features/mobile-ui";
 import { getCategoryTree } from "@/lib/categories/queries";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
-export const metadata: Metadata = {
+export const revalidate = 3600;
+
+export const metadata: Metadata = buildPageMetadata({
   title: "All Categories · ROVEXO",
   description: "Browse every ROVEXO marketplace category from vehicles and property to fashion and home.",
-};
+  path: "/categories",
+});
 
 export default function CategoriesIndexPage() {
   const tree = getCategoryTree();

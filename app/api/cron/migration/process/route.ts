@@ -1,10 +1,9 @@
-import { NextResponse } from "next/server";
-import { authorizeCronRequest } from "@/lib/cron/auth";
+import { executeCronRoute } from "@/lib/cron/runner";
 import { MIGRATION_MAX_BATCHES_PER_RUN } from "@/lib/seller/migration/engine/config";
 import { listActiveMigrationJobs } from "@/lib/seller/migration/repository";
 import { runMigrationEngine } from "@/lib/seller/migration/service";
 
-async function handleCron() {
+async function runMigrationProcessCron() {
   const jobs = await listActiveMigrationJobs();
   let processed = 0;
 
@@ -13,19 +12,13 @@ async function handleCron() {
     if (result) processed += 1;
   }
 
-  return NextResponse.json({ processed, queued: jobs.length });
+  return { processed, queued: jobs.length };
 }
 
 export async function GET(request: Request) {
-  if (!authorizeCronRequest(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return handleCron();
+  return executeCronRoute(request, "migration/process", runMigrationProcessCron);
 }
 
 export async function POST(request: Request) {
-  if (!authorizeCronRequest(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  return handleCron();
+  return executeCronRoute(request, "migration/process", runMigrationProcessCron);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { getRelatedModuleHref } from "@/lib/enterprise-architecture/registry";
@@ -13,7 +13,11 @@ import { createOmegaValidations } from "@/lib/super-admin/premium/omega-status";
 
 const MODULE_ID = MARKETPLACE_COMPLETION_MODULE_DESCRIPTOR.id;
 
-type Props = { initialSnapshot: MarketplaceCompletionSnapshot; defaultTab?: MarketplaceCompletionTab };
+type Props = {
+  initialSnapshot: MarketplaceCompletionSnapshot;
+  defaultTab?: MarketplaceCompletionTab;
+  loadSnapshotOnMount?: boolean;
+};
 
 function statusClass(status: string) {
   if (status === "pass") return "ea-pass";
@@ -44,10 +48,15 @@ function ValidationTable({ title, items }: { title: string; items: CompletionVal
   );
 }
 
-export function EnterpriseMarketplaceCompletionAdmin({ initialSnapshot, defaultTab = "dashboard" }: Props) {
+export function EnterpriseMarketplaceCompletionAdmin({
+  initialSnapshot,
+  defaultTab = "dashboard",
+  loadSnapshotOnMount = false,
+}: Props) {
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [activeTab] = useState(defaultTab);
   const [message, setMessage] = useState<string | null>(null);
+  const [isLoadingSnapshot, setIsLoadingSnapshot] = useState(loadSnapshotOnMount);
   const [isPending, startTransition] = useTransition();
 
   const refresh = useCallback(async () => {
@@ -55,6 +64,23 @@ export function EnterpriseMarketplaceCompletionAdmin({ initialSnapshot, defaultT
     const data = (await response.json()) as { marketplaceCompletion?: MarketplaceCompletionSnapshot };
     if (data.marketplaceCompletion) setSnapshot(data.marketplaceCompletion);
   }, []);
+
+  useEffect(() => {
+    if (!loadSnapshotOnMount) return;
+    let cancelled = false;
+    void refresh()
+      .catch(() => {
+        if (!cancelled) {
+          setMessage("Unable to load marketplace completion snapshot. Use Validate to run certification scans.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingSnapshot(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadSnapshotOnMount, refresh]);
 
   const runAction = useCallback((action: string, payload?: Record<string, unknown>) => {
     startTransition(async () => {
@@ -151,6 +177,12 @@ export function EnterpriseMarketplaceCompletionAdmin({ initialSnapshot, defaultT
         ...(certHref ? [{ label: "Certification", href: certHref }] : []),
       ]}
     >
+      {isLoadingSnapshot && (
+        <section className="ea-panel ea-panel--wide" aria-live="polite">
+          <p>Loading marketplace completion snapshot… Certification scans run at request time, not during build.</p>
+        </section>
+      )}
+
       {activeTab === "dashboard" && (
         <>
           <section className="ea-panel ea-panel--wide">

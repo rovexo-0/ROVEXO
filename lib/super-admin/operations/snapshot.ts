@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPlatformHealthReport } from "@/lib/ops/health";
+import type { Json } from "@/lib/supabase/types/database";
 import { getProductionOperationsSnapshot } from "@/lib/ops/production-status";
 import { getMonitoringWidgets } from "@/lib/super-admin/insights";
 import { getPlatformSetting, updatePlatformSetting } from "@/lib/super-admin/settings";
@@ -46,7 +47,7 @@ export async function updateAiOperationsSettings(
   await updatePlatformSetting({
     actorId,
     key: "ai_operations_settings",
-    value: next,
+    value: next as unknown as Json,
   });
   return next;
 }
@@ -86,56 +87,70 @@ export async function storePatch(patch: RepairPatch, actorId: string): Promise<v
 }
 
 async function fetchLogsByCategories(): Promise<Record<string, LogEntry[]>> {
-  const admin = createAdminClient();
-  const categories = ["api", "cron", "email", "payment", "auth", "admin", "storage", "unhandled"] as const;
-  const since = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
-
-  const entries = await Promise.all(
-    categories.map(async (category) => {
-      const { data } = await admin
-        .from("platform_error_logs")
-        .select("id, level, category, message, created_at")
-        .eq("category", category)
-        .gte("created_at", since)
-        .order("created_at", { ascending: false })
-        .limit(25);
-      return [
-        category,
-        (data ?? []).map((row) => ({
-          id: row.id,
-          level: row.level,
-          category: row.category,
-          message: row.message,
-          createdAt: row.created_at,
-        })),
-      ] as const;
-    }),
-  );
-
-  const searchLogs = await admin
-    .from("platform_analytics_events")
-    .select("id, domain, metric, recorded_at")
-    .eq("domain", "search")
-    .gte("recorded_at", since)
-    .order("recorded_at", { ascending: false })
-    .limit(15);
-
-  return {
-    system: entries.find(([c]) => c === "unhandled")?.[1] ?? [],
-    api: entries.find(([c]) => c === "api")?.[1] ?? [],
-    cron: entries.find(([c]) => c === "cron")?.[1] ?? [],
-    email: entries.find(([c]) => c === "email")?.[1] ?? [],
-    payment: entries.find(([c]) => c === "payment")?.[1] ?? [],
-    search:
-      searchLogs.data?.map((row) => ({
-        id: row.id,
-        level: "info",
-        category: "search",
-        message: `${row.domain}:${row.metric}`,
-        createdAt: row.recorded_at,
-      })) ?? [],
-    authentication: entries.find(([c]) => c === "auth")?.[1] ?? [],
+  const emptyLogs = {
+    system: [] as LogEntry[],
+    api: [] as LogEntry[],
+    cron: [] as LogEntry[],
+    email: [] as LogEntry[],
+    payment: [] as LogEntry[],
+    search: [] as LogEntry[],
+    authentication: [] as LogEntry[],
   };
+
+  try {
+    const admin = createAdminClient();
+    const categories = ["api", "cron", "email", "payment", "auth", "admin", "storage", "unhandled"] as const;
+    const since = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+
+    const entries = await Promise.all(
+      categories.map(async (category) => {
+        const { data } = await admin
+          .from("platform_error_logs")
+          .select("id, level, category, message, created_at")
+          .eq("category", category)
+          .gte("created_at", since)
+          .order("created_at", { ascending: false })
+          .limit(25);
+        return [
+          category,
+          (data ?? []).map((row) => ({
+            id: row.id,
+            level: row.level,
+            category: row.category,
+            message: row.message,
+            createdAt: row.created_at,
+          })),
+        ] as const;
+      }),
+    );
+
+    const searchLogs = await admin
+      .from("platform_analytics_events")
+      .select("id, domain, metric, recorded_at")
+      .eq("domain", "search")
+      .gte("recorded_at", since)
+      .order("recorded_at", { ascending: false })
+      .limit(15);
+
+    return {
+      system: entries.find(([c]) => c === "unhandled")?.[1] ?? [],
+      api: entries.find(([c]) => c === "api")?.[1] ?? [],
+      cron: entries.find(([c]) => c === "cron")?.[1] ?? [],
+      email: entries.find(([c]) => c === "email")?.[1] ?? [],
+      payment: entries.find(([c]) => c === "payment")?.[1] ?? [],
+      search:
+        searchLogs.data?.map((row) => ({
+          id: row.id,
+          level: "info",
+          category: "search",
+          message: `${row.domain}:${row.metric}`,
+          createdAt: row.recorded_at,
+        })) ?? [],
+      authentication: entries.find(([c]) => c === "auth")?.[1] ?? [],
+    };
+  } catch {
+    return emptyLogs;
+  }
 }
 
 function buildPerformance(health: Awaited<ReturnType<typeof getPlatformHealthReport>>): PerformanceSnapshot {
@@ -198,9 +213,15 @@ export async function getAiOperationsSnapshot(): Promise<AiOperationsSnapshot> {
     await admin.from("profiles").select("id").eq("role", "super_admin").limit(1).maybeSingle()
   ).data?.id;
 
-  const securityBase = superAdminId
-    ? await getSuperAdminSecuritySnapshot(superAdminId)
-    : { failedLoginAttempts24h: 0 };
+  let failedLoginAttempts24h = 0;
+  if (superAdminId) {
+    try {
+      const securityBase = await getSuperAdminSecuritySnapshot(superAdminId);
+      failedLoginAttempts24h = securityBase.failedLoginAttempts24h;
+    } catch {
+      failedLoginAttempts24h = 0;
+    }
+  }
 
   const summary: AiOperationsSummary = {
     platformHealth: mapLiveStatus(health.status),
@@ -232,12 +253,20 @@ export async function getAiOperationsSnapshot(): Promise<AiOperationsSnapshot> {
     performance,
     security: {
       rateLimitingEnabled: Boolean(process.env.UPSTASH_REDIS_REST_URL),
-      failedLogins24h: securityBase.failedLoginAttempts24h,
+      failedLogins24h: failedLoginAttempts24h,
       suspiciousIps: [],
       blockedAttacks24h: 0,
       jwtStatus: mapLiveStatus(health.checks.database.status),
       apiSecurityStatus: fileExists("middleware.ts") ? "healthy" : "critical",
-      securityHeaders: ["X-Frame-Options", "X-Content-Type-Options", "Referrer-Policy", "Permissions-Policy"],
+      securityHeaders: [
+        "Content-Security-Policy",
+        "Strict-Transport-Security",
+        "X-Frame-Options",
+        "X-Content-Type-Options",
+        "Referrer-Policy",
+        "Permissions-Policy",
+        "Cross-Origin-Opener-Policy",
+      ],
     },
     logs,
     patches,
@@ -249,6 +278,10 @@ function fileExists(path: string): boolean {
 }
 
 export async function runAiOperationsScan(actorId: string): Promise<AiOperationsSnapshot> {
-  await updateAiOperationsSettings(actorId, { lastScanAt: new Date().toISOString() });
+  try {
+    await updateAiOperationsSettings(actorId, { lastScanAt: new Date().toISOString() });
+  } catch {
+    // Settings persistence must not block scan execution.
+  }
   return getAiOperationsSnapshot();
 }

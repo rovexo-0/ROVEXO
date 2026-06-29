@@ -27,9 +27,11 @@ export function AiRepairCenterSection({ snapshot, onUpdated }: AiRepairCenterSec
   }
 
   async function refresh() {
-    const response = await fetch("/api/super-admin/operations");
-    const payload = (await response.json()) as { snapshot: AiOperationsSnapshot };
-    onUpdated(payload.snapshot);
+    const response = await fetch("/api/super-admin/operations?mode=ai");
+    const text = await response.text();
+    const payload = text ? (JSON.parse(text) as { data?: { snapshot?: AiOperationsSnapshot }; snapshot?: AiOperationsSnapshot }) : {};
+    const nextSnapshot = payload.data?.snapshot ?? payload.snapshot;
+    if (nextSnapshot) onUpdated(nextSnapshot);
   }
 
   async function generateFix(issue: DetectedIssue) {

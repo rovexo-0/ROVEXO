@@ -7,7 +7,7 @@ import {
 } from "@/lib/enterprise-marketplace-completion-engine/config";
 import { MARKETPLACE_COMPLETION_MODULE_DESCRIPTOR } from "@/lib/enterprise-marketplace-completion-engine/descriptor";
 import { computeMarketplaceEnterpriseScore, createDefaultMarketplaceCompletionSettings } from "@/lib/enterprise-marketplace-completion-engine/engine";
-import { runMarketplaceCompletionScan } from "@/lib/enterprise-marketplace-completion-engine/scanner";
+import { createPendingMarketplaceCompletionScanResult } from "@/lib/enterprise-marketplace-completion-engine/pending-state";
 import { runMarketplaceIntelligenceScan } from "@/lib/enterprise-marketplace-completion-engine/intelligence";
 import { runMarketplaceConsistencyScan } from "@/lib/enterprise-marketplace-completion-engine/consistency";
 import { runAutonomousMarketplaceDirectorScan } from "@/lib/enterprise-marketplace-completion-engine/director";
@@ -78,7 +78,7 @@ export async function getMarketplaceCompletionSnapshot(tab: MarketplaceCompletio
     orderCompletion: flags.order_completion_enabled !== false ? orderCompletion : { scannedAt: new Date().toISOString(), active: false, launchPriority: 9, passPercent: 0, status: "pending", orderCompletionPass: false, orderCertified: false, productionReady: false, launchReady: false, domainsComplete: 0, domainsTotal: 0, domains: [], workflow: [], buyer: [], seller: [], company: [], statusEngine: [], database: [], security: [], accessibility: [], performance: [], certificationScores: [], passConditions: [], autoRepairs: [] },
     shippingCompletion: flags.shipping_completion_enabled !== false ? shippingCompletion : { scannedAt: new Date().toISOString(), active: false, launchPriority: 11, passPercent: 0, status: "pending", shippingCompletionPass: false, shippingCertified: false, productionReady: false, launchReady: false, domainsComplete: 0, domainsTotal: 0, domains: [], platform: [], database: [], security: [], accessibility: [], performance: [], certificationScores: [], passConditions: [], autoRepairs: [] },
     communicationCompletion: flags.communication_completion_enabled !== false ? communicationCompletion : { scannedAt: new Date().toISOString(), active: false, launchPriority: 12, passPercent: 0, status: "pending", communicationCompletionPass: false, communicationCertified: false, productionReady: false, launchReady: false, domainsComplete: 0, domainsTotal: 0, domains: [], emailPlatform: [], emailSecurity: [], pushPlatform: [], cronQueues: [], realtime: [], database: [], security: [], accessibility: [], performance: [], certificationScores: [], passConditions: [], autoRepairs: [] },
-    completionScan: enabled ? completionScan : runMarketplaceCompletionScan("full-scan"),
+    completionScan: enabled ? completionScan : createPendingMarketplaceCompletionScanResult(),
     productionGates,
     blockers,
     repairActions: flags.completion_auto_repair_enabled !== false ? repairActions : [],

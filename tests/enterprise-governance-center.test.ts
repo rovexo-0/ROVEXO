@@ -98,7 +98,7 @@ describe("constitution", () => {
   it("defines constitution sections", () => {
     expect(CONSTITUTION_SECTIONS).toContain("architecture");
     expect(CONSTITUTION_SECTIONS).toContain("ai");
-    expect(CONSTITUTION_SECTIONS.length).toBe(18);
+    expect(CONSTITUTION_SECTIONS.length).toBe(22);
   });
 
   it("creates constitution articles", () => {

@@ -11,10 +11,10 @@ describe("Enterprise UI system — homepage hero", () => {
 
   it("routes hero slide CTAs to approved marketplace destinations", () => {
     const constants = readFileSync(join(process.cwd(), "lib/home/constants.ts"), "utf8");
-    expect(constants).toContain("Browse vehicles");
-    expect(constants).toContain("Place a bid");
-    expect(constants).toContain("Shop deals");
-    expect(constants).toContain("Browse verified");
+    expect(constants).toContain("Start import");
+    expect(constants).toContain("List free");
+    expect(constants).toContain("Browse directory");
+    expect(constants).toContain("Learn more");
     expect(constants).toContain("HOME_HERO_BANNERS");
     expect(constants).not.toContain("unsplash.com");
   });

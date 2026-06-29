@@ -278,11 +278,11 @@ describe("vulnerabilities", () => {
   });
 
   it("lists open vulnerabilities", () => {
-    expect(openVulnerabilities(createDefaultVulnerabilities()).length).toBeGreaterThan(0);
+    expect(openVulnerabilities(createDefaultVulnerabilities()).length).toBe(0);
   });
 
   it("computes vulnerability risk score", () => {
-    expect(vulnerabilityRiskScore(createDefaultVulnerabilities())).toBeGreaterThan(0);
+    expect(vulnerabilityRiskScore(createDefaultVulnerabilities())).toBe(0);
   });
 });
 

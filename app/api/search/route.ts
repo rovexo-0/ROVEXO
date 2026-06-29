@@ -1,5 +1,5 @@
 import { searchAll } from "@/features/search/utils/search-server";
-import { NextResponse } from "next/server";
+import { jsonWithCache } from "@/lib/api/cache-headers";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 
 export async function GET(request: Request) {
@@ -18,5 +18,5 @@ export async function GET(request: Request) {
     locationCity: location,
   });
 
-  return NextResponse.json(results);
+  return jsonWithCache(results, "public-short");
 }

@@ -118,6 +118,28 @@ const REQUIRED_SPECS: EnvSpec[] = [
 
 const OPTIONAL_SPECS: EnvSpec[] = [
   {
+    key: "NEXT_PUBLIC_VAPID_PUBLIC_KEY",
+    group: "Push (Web)",
+    required: false,
+    example: "BEl62i...",
+    description: "Optional. Web push VAPID public key.",
+  },
+  {
+    key: "VAPID_PRIVATE_KEY",
+    group: "Push (Web)",
+    required: false,
+    secret: true,
+    example: "<private-key>",
+    description: "Optional. Web push VAPID private key.",
+  },
+  {
+    key: "VAPID_SUBJECT",
+    group: "Push (Web)",
+    required: false,
+    example: "mailto:support@rovexo.co.uk",
+    description: "Optional. mailto: contact for VAPID.",
+  },
+  {
     key: "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
     group: "Stripe",
     required: false,

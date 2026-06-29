@@ -114,7 +114,9 @@ function scanSecurity(scan: MarketplaceCompletionScanResult): CompletionValidati
     if (check === "session-integrity") pass = checkoutApi.includes("requireApiAuth");
     if (check === "webhook-validation") pass = fileExists("lib/stripe/webhook-handler.ts");
     if (check === "payment-integrity") pass = fileExists("lib/stripe/server.ts");
-    if (check === "csrf" || check === "fraud-detection" || check === "bot-protection") pass = fileExists("middleware.ts");
+    if (check === "csrf" || check === "fraud-detection" || check === "bot-protection") {
+      pass = fileExists("middleware.ts") && fileExists("lib/api/csrf-guard.ts");
+    }
     return createCheck("checkout-security", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }

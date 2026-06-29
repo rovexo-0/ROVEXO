@@ -22,6 +22,7 @@ export type PlatformHealthReport = {
     redis: HealthCheckResult;
     cron: HealthCheckResult;
     email: HealthCheckResult;
+    push: HealthCheckResult;
   };
 };
 
@@ -156,6 +157,22 @@ function checkEmail(): HealthCheckResult {
   return { status: "healthy", latencyMs: 0 };
 }
 
+function checkPush(): HealthCheckResult {
+  const hasPublic = Boolean(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY?.trim());
+  const hasPrivate = Boolean(process.env.VAPID_PRIVATE_KEY?.trim());
+  const hasSubject = Boolean(process.env.VAPID_SUBJECT?.trim());
+
+  if (hasPublic && hasPrivate && hasSubject) {
+    return { status: "healthy", latencyMs: 0, message: "Web push VAPID configured" };
+  }
+
+  if (hasPublic || hasPrivate || hasSubject) {
+    return { status: "degraded", latencyMs: 0, message: "Web push partially configured" };
+  }
+
+  return { status: "degraded", latencyMs: 0, message: "Web push optional — VAPID keys not configured" };
+}
+
 export async function getPlatformHealthReport(): Promise<PlatformHealthReport> {
   const [database, storage, stripe, redis, cron] = await Promise.all([
     timedCheck(checkDatabase),
@@ -167,7 +184,8 @@ export async function getPlatformHealthReport(): Promise<PlatformHealthReport> {
 
   const api: HealthCheckResult = { status: "healthy", latencyMs: 0 };
   const email = checkEmail();
-  const checks = { api, database, storage, stripe, redis, cron, email };
+  const push = checkPush();
+  const checks = { api, database, storage, stripe, redis, cron, email, push };
 
   return {
     status: overallStatus(Object.values(checks)),

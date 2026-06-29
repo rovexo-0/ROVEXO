@@ -21,13 +21,29 @@ export type PlatformAnnouncementSettings = {
   href: string;
 };
 
-export async function getPlatformSetting<T>(key: string, fallback: T): Promise<T> {
+function resolvePlatformSettingFallback<T>(fallback: T | (() => T)): T {
+  return typeof fallback === "function" ? (fallback as () => T)() : fallback;
+}
+
+function isSelfContainedConfigDocument(value: Record<string, unknown>): boolean {
+  return "settings" in value && "featureFlags" in value;
+}
+
+export async function getPlatformSetting<T>(key: string, fallback: T | (() => T)): Promise<T> {
   const admin = createAdminClient();
   const { data } = await admin.from("platform_settings").select("value").eq("key", key).maybeSingle();
-  if (!data?.value) return fallback;
+  if (!data?.value) return resolvePlatformSettingFallback(fallback);
   if (Array.isArray(data.value)) return data.value as T;
-  if (typeof data.value === "object" && data.value !== null && !Array.isArray(fallback)) {
-    return { ...fallback, ...(data.value as Record<string, unknown>) } as T;
+  if (typeof data.value === "object" && data.value !== null) {
+    const stored = data.value as Record<string, unknown>;
+    if (isSelfContainedConfigDocument(stored)) {
+      return stored as T;
+    }
+    const fallbackValue = resolvePlatformSettingFallback(fallback);
+    if (!Array.isArray(fallbackValue) && typeof fallbackValue === "object" && fallbackValue !== null) {
+      return { ...fallbackValue, ...stored } as T;
+    }
+    return stored as T;
   }
   return data.value as T;
 }
