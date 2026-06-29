@@ -17,8 +17,8 @@ export function AiPlatformScanSection({ snapshot, onScanned }: AiPlatformScanSec
   const [error, setError] = useState<string | null>(null);
 
   async function runScan() {
+    console.log("RUNSCAN CLICKED");
     setScanning(true);
-    setError(null);
     try {
       const response = await fetch("/api/super-admin/operations/scan", { method: "POST" });
       const text = await response.text();

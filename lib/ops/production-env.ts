@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import type { HealthStatus } from "@/lib/ops/health";
+import type { HealthStatus } from "@/lib/ops/health-types";
 
 export type EnvValidationItem = {
   key: string;
