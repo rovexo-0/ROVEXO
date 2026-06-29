@@ -1,7 +1,7 @@
 /** Homepage launch layout constants — composition only. */
 export const HOME_LAUNCH_SECTION_CARD_LIMIT = 6;
 
-export const HOME_LAUNCH_VIEW_ALL_LABEL = "View All →";
+export const HOME_LAUNCH_VIEW_ALL_LABEL = "View All";
 
 export const HOME_LAUNCH_VIEW_ALL_HREFS = {
   auctions: "/auctions",

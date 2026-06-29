@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { memo, useMemo } from "react";
-import { HomeAuctionCard } from "@/components/home/HomeAuctionCard";
+import { PremiumListingCard } from "@/components/home/PremiumProductCard";
 import {
   HOME_LAUNCH_SECTION_CARD_LIMIT,
   HOME_LAUNCH_VIEW_ALL_HREFS,
   HOME_LAUNCH_VIEW_ALL_LABEL,
 } from "@/components/home/home-launch-config";
 import type { AuctionListing } from "@/lib/auctions/types";
+import { productToCardProps } from "@/lib/products/card";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 
@@ -45,16 +46,16 @@ export const LiveAuctionsSection = memo(function LiveAuctionsSection({
       </div>
 
       <div
-        className={cn(
-          "rx-home-launch-scroll rx-home-launch-scroll--auctions -mx-ds-4 px-ds-4 pb-ds-1",
-          "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-        )}
+        className="rx-home-launch-scroll -mx-ds-4 px-ds-4 pb-ds-1"
         role="group"
         aria-roledescription="carousel"
         aria-label="Popular auctions"
       >
         {visibleAuctions.map((auction) => (
-          <HomeAuctionCard key={auction.id} auction={auction} className="rx-home-auction-scroll__card" />
+          <PremiumListingCard
+            key={auction.id}
+            {...productToCardProps(auction, "homepage")}
+          />
         ))}
       </div>
     </section>

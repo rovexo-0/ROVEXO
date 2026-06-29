@@ -10,6 +10,7 @@ import { HomeProductSection } from "@/components/home/HomeProductSection";
 import { HomeCategoryRail } from "@/components/home/HomeCategoryRail";
 import { HomeAllListingsSection } from "@/components/home/HomeAllListingsSection";
 import { HomeTrendingListingsSection } from "@/components/home/HomeTrendingListingsSection";
+import { HOME_LAUNCH_VIEW_ALL_HREFS } from "@/components/home/home-launch-config";
 import { VisualThemeScope } from "@/components/platform-visual/VisualThemeScope";
 import type { PlatformVisualConfig } from "@/lib/platform-visual/types";
 import { cn } from "@/lib/cn";
@@ -100,7 +101,7 @@ export const HomeContent = memo(function HomeContent({
             products={recommended}
             error={loadError?.recommended}
             hideWhenEmpty
-            viewAllHref="/search?q=&sort=recommended"
+            viewAllHref={HOME_LAUNCH_VIEW_ALL_HREFS.recommended}
           />
         </section>
 
@@ -111,7 +112,7 @@ export const HomeContent = memo(function HomeContent({
             products={newListings}
             error={loadError?.newListings}
             hideWhenEmpty
-            viewAllHref="/search?q=&sort=newest"
+            viewAllHref={HOME_LAUNCH_VIEW_ALL_HREFS.newListings}
           />
         </section>
 
@@ -122,7 +123,7 @@ export const HomeContent = memo(function HomeContent({
             products={latestListings}
             error={loadError?.latestListings}
             hideWhenEmpty
-            viewAllHref="/search?q=&sort=trending"
+            viewAllHref={HOME_LAUNCH_VIEW_ALL_HREFS.latestListings}
           />
         </section>
 
