@@ -1,7 +1,7 @@
 {
-  "version": "v16-premium-3d-pack",
-  "pipeline": "v16-raster-3d",
-  "importedAt": "2026-06-29T16:41:16.813Z",
+  "version": "approved-premium-photography",
+  "pipeline": "source-photography-only",
+  "importedAt": "2026-06-27T23:02:52.556Z",
   "keys": [
     "vehicles",
     "property",
