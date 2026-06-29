@@ -83,7 +83,7 @@ export const HomeCategoryRail = memo(function HomeCategoryRail({
       >
         <div
           className="rx-category-rail__track"
-          data-category-renderer="HomeCategoryIconImage-premium"
+          data-category-renderer="HomeCategoryIconImage-premium-3d"
           style={gap != null ? { gap } : undefined}
         >
           {loopedCategories.map(({ category, copyIndex }) => {

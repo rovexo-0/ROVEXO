@@ -332,3 +332,24 @@
     transition: none;
   }
 }
+
+/* Recovery: search header flush below safe area */
+.rx-page-home .rx-header-premium {
+  margin-top: 0;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: 0;
+}
+
+.rx-page-home .rx-header-premium__inner,
+.rx-page-home .rx-header-shell {
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.rx-page-home .rx-header-premium__row {
+  min-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}

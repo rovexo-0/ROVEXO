@@ -353,19 +353,10 @@
   transform: translate3d(0, 0, 0);
 }
 
-.rx-page-home .rx-category-icon-3d--premium {
-  width: 100%;
-  height: 100%;
-  filter: drop-shadow(0 8px 18px rgb(15 23 42 / 0.14));
-}
-
-[data-theme="dark"] .rx-page-home .rx-category-icon-3d--premium {
-  filter: drop-shadow(0 10px 22px rgb(0 0 0 / 0.35));
-}
-
-.rx-page-home .rx-category-rail--infinite .rx-category-render__img,
-.rx-page-home .rx-category-rail--infinite picture {
-  display: none !important;
+.rx-page-home .rx-category-render--premium-3d .rx-category-render__img {
+  object-fit: contain;
+  border-radius: 0;
+  background: transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {

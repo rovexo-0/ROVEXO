@@ -24,7 +24,7 @@ describe("ROVEXO premium category asset library", () => {
     }
   });
 
-  it("renders premium homepage categories with 3D SVG only", () => {
+  it("renders premium homepage categories with approved 3D assets", () => {
     const source = readFileSync(
       path.join(process.cwd(), "components/home/HomeCategoryIconImage.tsx"),
       "utf8",
@@ -35,9 +35,10 @@ describe("ROVEXO premium category asset library", () => {
     );
 
     expect(source).toContain('variant === "premium"');
-    expect(source).toContain("HomeCategoryIcon3D");
-    expect(source).not.toContain("<picture>");
-    expect(source).not.toContain("rx-category-render__img");
+    expect(source).toContain("<picture>");
+    expect(source).toContain("rx-category-render__img");
+    expect(source).toContain("PremiumCategoryRenderMissing");
+    expect(source).not.toContain("rx-category-icon-3d--premium");
     expect(railSource).toContain('variant="premium"');
     expect(railSource).toContain("rx-category-rail--infinite");
     expect(railSource).toContain("useCategoryRailInfiniteCarousel");
