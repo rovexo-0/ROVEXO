@@ -41,7 +41,33 @@ const MIN_CATEGORY_BYTES = 1024;
 const MIN_CATEGORY_RESPONSIVE_BYTES = 512;
 const MIN_HERO_BYTES = 4096;
 const MIN_CATEGORY_SOURCE_BYTES = 12_000;
+const MIN_CATEGORY_3D_SOURCE_BYTES = 8_000;
 const MIN_HERO_SOURCE_BYTES = 80_000;
+
+const APPROVED_CATEGORY_PIPELINES = new Set(["source-photography-only", "v16-raster-3d"]);
+
+function minCategoryRailBytes(size: number, ext: "avif" | "webp" | "png"): number {
+  if (size === 1024) return MIN_CATEGORY_BYTES;
+  if (size === 64) return ext === "png" ? 400 : 150;
+  if (size === 128) return ext === "png" ? 700 : 200;
+  if (size === 256) return ext === "png" ? 1_500 : 450;
+  if (size === 512) return ext === "png" ? 3_000 : 900;
+  return MIN_CATEGORY_RESPONSIVE_BYTES;
+}
+
+async function readCategoryPipeline(): Promise<string | undefined> {
+  const manifestPath = path.join(ROOT, "public/categories/manifest.json");
+  try {
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as { pipeline?: string };
+    return manifest.pipeline;
+  } catch {
+    return undefined;
+  }
+}
+
+function isApprovedCategoryPipeline(pipeline: string | undefined): boolean {
+  return Boolean(pipeline && APPROVED_CATEGORY_PIPELINES.has(pipeline));
+}
 
 const SECTION_LABELS = PRODUCTION_ASSET_SECTION_LABELS;
 
@@ -175,7 +201,7 @@ async function validateCategoryRail(issues: ValidationIssue[]): Promise<number> 
 
         count += 1;
         const { size: bytes } = await stat(assetPath);
-        const minBytes = size === 1024 ? MIN_CATEGORY_BYTES : MIN_CATEGORY_RESPONSIVE_BYTES;
+        const minBytes = minCategoryRailBytes(size, ext);
         if (bytes < minBytes) {
           pushIssue(issues, {
             code: "undersized-asset",
@@ -201,11 +227,11 @@ async function validateCategoryRail(issues: ValidationIssue[]): Promise<number> 
       pipeline?: string;
       formats?: string[];
     };
-    if (manifest.pipeline !== "source-photography-only") {
+    if (!isApprovedCategoryPipeline(manifest.pipeline)) {
       pushIssue(issues, {
         code: "broken-manifest",
         path: relativePublicPath(manifestPath),
-        message: "Category manifest must declare pipeline: source-photography-only",
+        message: "Category manifest must declare an approved pipeline (source-photography-only or v16-raster-3d)",
         section: "homepage-categories",
       });
     }
@@ -307,6 +333,9 @@ async function validateSourceMasters(issues: ValidationIssue[]): Promise<number>
   let count = 0;
   const categorySource = path.join(ROOT, "public/categories/source");
   const heroSource = path.join(ROOT, "public/hero/source");
+  const categoryPipeline = await readCategoryPipeline();
+  const category3dPack = categoryPipeline === "v16-raster-3d";
+  const minCategorySourceBytes = category3dPack ? MIN_CATEGORY_3D_SOURCE_BYTES : MIN_CATEGORY_SOURCE_BYTES;
 
   for (const icon of ROVEXO_CATEGORY_PREMIUM_KEYS) {
     const filePath = path.join(categorySource, `${icon}.png`);
@@ -322,11 +351,13 @@ async function validateSourceMasters(issues: ValidationIssue[]): Promise<number>
     }
     count += 1;
     const { size } = await stat(filePath);
-    if (size < MIN_CATEGORY_SOURCE_BYTES) {
+    if (size < minCategorySourceBytes) {
       pushIssue(issues, {
         code: "undersized-asset",
         path: rel,
-        message: `Category source too small (${size} bytes) — not approved premium photography`,
+        message: category3dPack
+          ? `Category 3D source too small (${size} bytes) — not approved premium render`
+          : `Category source too small (${size} bytes) — not approved premium photography`,
         section: "sources",
       });
     }
@@ -356,25 +387,41 @@ async function validateSourceMasters(issues: ValidationIssue[]): Promise<number>
     }
   }
 
-  for (const manifestPath of [
-    path.join(categorySource, "manifest.json"),
-    path.join(heroSource, "manifest.json"),
-  ]) {
-    if (!(await exists(manifestPath))) {
+  const categorySourceManifest = path.join(categorySource, "manifest.json");
+  if (!(await exists(categorySourceManifest))) {
+    pushIssue(issues, {
+      code: "missing-asset",
+      path: relativePublicPath(categorySourceManifest),
+      message: "Missing source manifest.json",
+      section: "sources",
+    });
+  } else {
+    const manifest = JSON.parse(await readFile(categorySourceManifest, "utf8")) as { pipeline?: string };
+    if (!isApprovedCategoryPipeline(manifest.pipeline)) {
       pushIssue(issues, {
-        code: "missing-asset",
-        path: relativePublicPath(manifestPath),
-        message: "Missing source manifest.json",
+        code: "broken-manifest",
+        path: relativePublicPath(categorySourceManifest),
+        message: "Category source manifest must declare an approved pipeline (source-photography-only or v16-raster-3d)",
         section: "sources",
       });
-      continue;
     }
-    const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as { pipeline?: string };
+  }
+
+  const heroSourceManifest = path.join(heroSource, "manifest.json");
+  if (!(await exists(heroSourceManifest))) {
+    pushIssue(issues, {
+      code: "missing-asset",
+      path: relativePublicPath(heroSourceManifest),
+      message: "Missing source manifest.json",
+      section: "sources",
+    });
+  } else {
+    const manifest = JSON.parse(await readFile(heroSourceManifest, "utf8")) as { pipeline?: string };
     if (manifest.pipeline !== "source-photography-only") {
       pushIssue(issues, {
         code: "broken-manifest",
-        path: relativePublicPath(manifestPath),
-        message: "Source manifest must declare pipeline: source-photography-only",
+        path: relativePublicPath(heroSourceManifest),
+        message: "Hero source manifest must declare pipeline: source-photography-only",
         section: "sources",
       });
     }
