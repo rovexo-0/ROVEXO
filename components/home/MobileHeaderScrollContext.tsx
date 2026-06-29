@@ -127,12 +127,6 @@ export function MobileHeaderScrollProvider({ children }: { children: ReactNode }
 
   return (
     <MobileHeaderScrollContext.Provider value={contextValue}>
-      <div
-        aria-hidden
-        suppressHydrationWarning
-        className="overflow-hidden lg:hidden"
-        style={{ height: headerHeight }}
-      />
       {children}
     </MobileHeaderScrollContext.Provider>
   );
