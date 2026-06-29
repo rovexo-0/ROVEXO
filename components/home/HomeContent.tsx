@@ -1,34 +1,30 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { memo, useCallback, type FocusEvent, type MouseEvent } from "react";
-import type { BusinessDirectoryEntry } from "@/lib/business/directory";
+import { memo } from "react";
 import type { Product } from "@/lib/products/types";
 import type { AuctionListing } from "@/lib/auctions/types";
-import type { HomeHeroBannerSlide } from "@/lib/home/constants";
 import { FeaturedListingsSection } from "@/components/home/FeaturedListingsSection";
 import { HomeProductSection } from "@/components/home/HomeProductSection";
 import { HomeCategoryRail } from "@/components/home/HomeCategoryRail";
-import { HomeHeroBannerEngine } from "@/features/seller/migration/components/StoreMigrationHeroBanner";
-import { HeroCategorySyncProvider, useHeroCategorySync } from "@/lib/home/hero-category-sync";
-import { resolveCategoryKeyFromHref } from "@/lib/home/hero-slide-map";
+import { HeaderCategoryBar } from "@/components/header/HeaderCategoryBar";
 import { VisualSection } from "@/components/platform-visual/VisualSection";
 import { VisualThemeScope } from "@/components/platform-visual/VisualThemeScope";
 import type { HomepageBuilderComponent, PlatformVisualConfig } from "@/lib/platform-visual/types";
 import { cn } from "@/lib/cn";
 
-const LiveAuctionsSection = dynamic(
+const BringYourItemsBanner = dynamic(
   () =>
-    import("@/components/home/LiveAuctionsSection").then((module) => ({
-      default: module.LiveAuctionsSection,
+    import("@/components/home/BringYourItemsBanner").then((module) => ({
+      default: module.BringYourItemsBanner,
     })),
   { loading: () => null },
 );
 
-const BusinessSpotlightSection = dynamic(
+const LiveAuctionsSection = dynamic(
   () =>
-    import("@/components/home/BusinessSpotlightSection").then((module) => ({
-      default: module.BusinessSpotlightSection,
+    import("@/components/home/LiveAuctionsSection").then((module) => ({
+      default: module.LiveAuctionsSection,
     })),
   { loading: () => null },
 );
@@ -41,78 +37,57 @@ const HomeContinueBrowsingCarousel = dynamic(
   { loading: () => null },
 );
 
+const TrendingSearchesSection = dynamic(
+  () =>
+    import("@/components/home/TrendingSearchesSection").then((module) => ({
+      default: module.TrendingSearchesSection,
+    })),
+  { loading: () => null },
+);
+
 type HomeContentProps = {
   featured: Product[];
   recommended: Product[];
-  recentlyListed: Product[];
+  newListings: Product[];
+  latestListings: Product[];
   liveAuctions: AuctionListing[];
-  businesses: BusinessDirectoryEntry[];
   visualConfig: PlatformVisualConfig;
-  heroSlides: HomeHeroBannerSlide[];
-  heroAutoAdvanceMs: number;
   loadError?: {
     featured?: boolean;
     recommended?: boolean;
-    recentlyListed?: boolean;
+    newListings?: boolean;
+    latestListings?: boolean;
     auctions?: boolean;
   };
 };
 
-const HomeCategoryRailSync = memo(function HomeCategoryRailSync({
-  component,
-}: {
-  component: HomepageBuilderComponent;
-}) {
-  const { setPreviewCategoryKey, clearPreviewCategoryKey } = useHeroCategorySync();
-  const iconSize = component.style.iconSize ?? 80;
-
-  const handleCategoryPreview = useCallback(
-    (event: FocusEvent | MouseEvent) => {
-      const card = (event.target as HTMLElement).closest("a.rx-category-card");
-      if (!card) return;
-      const categoryKey = resolveCategoryKeyFromHref(card.getAttribute("href"));
-      if (categoryKey) setPreviewCategoryKey(categoryKey);
-    },
-    [setPreviewCategoryKey],
-  );
-
-  const handleCategoryPreviewEnd = useCallback(
-    (event: MouseEvent) => {
-      const nextTarget = event.relatedTarget as Node | null;
-      if (nextTarget && event.currentTarget.contains(nextTarget)) return;
-      clearPreviewCategoryKey();
-    },
-    [clearPreviewCategoryKey],
-  );
-
-  return (
-    <VisualSection component={component}>
-      <div
-        className="rx-home-category-sync"
-        onFocusCapture={handleCategoryPreview}
-        onMouseOver={handleCategoryPreview}
-        onMouseLeave={handleCategoryPreviewEnd}
-      >
-        <HomeCategoryRail iconSize={iconSize} gap={component.style.gap} />
-      </div>
-    </VisualSection>
-  );
-});
-
 function renderHomeSection(
   component: HomepageBuilderComponent,
-  props: Omit<HomeContentProps, "visualConfig" | "heroSlides" | "heroAutoAdvanceMs"> & {
-    heroSlides: HomeHeroBannerSlide[];
-    heroAutoAdvanceMs: number;
-  },
+  props: Omit<HomeContentProps, "visualConfig">,
 ) {
   switch (component.id) {
+    case "top-category-bar":
+      return (
+        <VisualSection key={component.id} component={component} className="rx-top-category-bar-section">
+          <HeaderCategoryBar className="border-t-0" />
+        </VisualSection>
+      );
     case "category-rail":
-      return <HomeCategoryRailSync key={component.id} component={component} />;
-    case "hero-slider":
       return (
         <VisualSection key={component.id} component={component}>
-          <HomeHeroBannerEngine slides={props.heroSlides} autoAdvanceMs={props.heroAutoAdvanceMs} />
+          <HomeCategoryRail iconSize={component.style.iconSize ?? 80} gap={component.style.gap} />
+        </VisualSection>
+      );
+    case "bring-items":
+      return (
+        <VisualSection key={component.id} component={component}>
+          <BringYourItemsBanner />
+        </VisualSection>
+      );
+    case "popular-auctions":
+      return (
+        <VisualSection key={component.id} component={component}>
+          <LiveAuctionsSection auctions={props.liveAuctions} loadError={props.loadError?.auctions} />
         </VisualSection>
       );
     case "featured-listings":
@@ -126,7 +101,7 @@ function renderHomeSection(
         <VisualSection key={component.id} component={component}>
           <HomeProductSection
             id="recommended-for-you-heading"
-            title="Recommended For You"
+            title="Recommended"
             products={props.recommended}
             error={props.loadError?.recommended}
             hideWhenEmpty={false}
@@ -137,14 +112,14 @@ function renderHomeSection(
           />
         </VisualSection>
       );
-    case "recently-listed":
+    case "new-listings":
       return (
         <VisualSection key={component.id} component={component}>
           <HomeProductSection
-            id="recently-listed-heading"
-            title="Recently Listed"
-            products={props.recentlyListed}
-            error={props.loadError?.recentlyListed}
+            id="new-listings-heading"
+            title="New Listings"
+            products={props.newListings}
+            error={props.loadError?.newListings}
             hideWhenEmpty={false}
             viewAllHref="/search?q=&sort=newest"
             viewAllLabel="View all →"
@@ -153,22 +128,32 @@ function renderHomeSection(
           />
         </VisualSection>
       );
-    case "popular-auctions":
+    case "latest-listings":
       return (
         <VisualSection key={component.id} component={component}>
-          <LiveAuctionsSection auctions={props.liveAuctions} loadError={props.loadError?.auctions} />
-        </VisualSection>
-      );
-    case "business-spotlight":
-      return (
-        <VisualSection key={component.id} component={component}>
-          <BusinessSpotlightSection businesses={props.businesses} />
+          <HomeProductSection
+            id="latest-listings-heading"
+            title="Latest Listings"
+            products={props.latestListings}
+            error={props.loadError?.latestListings}
+            hideWhenEmpty={false}
+            viewAllHref="/search?q=&sort=trending"
+            viewAllLabel="View all →"
+            layout="scroll-grid"
+            skeletonCount={component.style.columns ?? 4}
+          />
         </VisualSection>
       );
     case "continue-browsing":
       return (
         <VisualSection key={component.id} component={component}>
           <HomeContinueBrowsingCarousel />
+        </VisualSection>
+      );
+    case "trending-searches":
+      return (
+        <VisualSection key={component.id} component={component}>
+          <TrendingSearchesSection />
         </VisualSection>
       );
     default:
@@ -179,37 +164,30 @@ function renderHomeSection(
 export const HomeContent = memo(function HomeContent({
   featured,
   recommended,
-  recentlyListed,
+  newListings,
+  latestListings,
   liveAuctions,
-  businesses,
   visualConfig,
-  heroSlides,
-  heroAutoAdvanceMs,
   loadError = {},
 }: HomeContentProps) {
   const sectionProps = {
     featured,
     recommended,
-    recentlyListed,
+    newListings,
+    latestListings,
     liveAuctions,
-    businesses,
-    heroSlides,
-    heroAutoAdvanceMs,
     loadError,
   };
 
   return (
     <VisualThemeScope theme={visualConfig.theme} mode={visualConfig.mode}>
-      <HeroCategorySyncProvider>
-        <main
-          className={cn(
-            "rx-home-polish rx-home-final flex w-full flex-col pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))]",
-          )}
-        >
-          {visualConfig.publishedSections.map((component) => renderHomeSection(component, sectionProps))}
-        </main>
-      </HeroCategorySyncProvider>
+      <main
+        className={cn(
+          "rx-home-polish rx-home-final flex w-full flex-col pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))]",
+        )}
+      >
+        {visualConfig.publishedSections.map((component) => renderHomeSection(component, sectionProps))}
+      </main>
     </VisualThemeScope>
   );
 });
-

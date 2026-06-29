@@ -7,14 +7,6 @@ function readSource(relativePath: string): string {
 }
 
 describe("Home page hydration safety", () => {
-  it("keeps HomeHeroBanner free of client-only render values", () => {
-    const source = readSource("components/home/HomeHeroBanner.tsx");
-
-    expect(source).toContain('"use client"');
-    expect(source).toContain("rx-hero-banner");
-    expect(source).not.toMatch(/Date\.now|Math\.random|crypto\.randomUUID/);
-  });
-
   it("uses enterprise HomeCategoryRail on the homepage", () => {
     const homeContent = readSource("components/home/HomeContent.tsx");
     const categoryRail = readSource("components/home/HomeCategoryRail.tsx");
@@ -37,11 +29,12 @@ describe("Home page hydration safety", () => {
     expect(headerSource).not.toContain("setHeaderRef");
   });
 
-  it("keeps HomeContent free of lazy Suspense boundaries", () => {
+  it("lazy loads heavy homepage sections without Suspense boundaries", () => {
     const source = readSource("components/home/HomeContent.tsx");
 
-    expect(source).not.toContain("lazy(");
+    expect(source).toContain("dynamic(");
     expect(source).not.toContain("<Suspense");
-    expect(source).toContain("HomeHeroBannerEngine");
+    expect(source).not.toContain("HomeHeroBannerEngine");
+    expect(source).not.toContain("HeroCategorySyncProvider");
   });
 });

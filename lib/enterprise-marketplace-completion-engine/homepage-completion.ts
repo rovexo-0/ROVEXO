@@ -56,7 +56,8 @@ function scanVisualIntegrity(homeContent: string, scan: MarketplaceCompletionSca
 }
 
 function scanSearchArea(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const searchComponent = fileExists("components/home/HomeHeroSearch.tsx");
+  const header = readSource("components/Header.tsx");
+  const searchComponent = header.includes("HeaderSearchBar");
   const searchPage = fileExists("app/search/page.tsx");
   const searchApi = fileExists("app/api/search/route.ts");
 
@@ -92,7 +93,8 @@ function scanCategoryValidation(homeContent: string, scan: MarketplaceCompletion
 
 function scanLayoutValidation(homeContent: string, scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const noLegacyGrid = !homeContent.includes("CategoryGridSection");
-  const hasSearch = homeContent.includes("HomeHeroSearch") || fileExists("components/home/HomeHeroSearch.tsx");
+  const header = readSource("components/Header.tsx");
+  const hasSearch = header.includes("HeaderSearchBar");
 
   return HOMEPAGE_LAYOUT_VALIDATION.map((check) => {
     let pass = scan.globalUiPass && scan.homepagePass && noLegacyGrid;
@@ -111,10 +113,10 @@ function scanFeaturedContent(homeContent: string, scan: MarketplaceCompletionSca
     "featured-listings": "components/home/FeaturedListingsSection.tsx",
     "recommended-listings": "components/home/HomeProductSection.tsx",
     "latest-listings": "components/home/HomeProductSection.tsx",
-    "trending-listings": "components/home/HomeTrendingSearchesSection.tsx",
+    "trending-listings": "components/home/TrendingSearchesSection.tsx",
     "sponsored-listings": "components/home/HomePromoBanner.tsx",
     "business-promotions": "components/home/BusinessSpotlightSection.tsx",
-    "banner-rotation": "features/seller/migration/components/StoreMigrationHeroBanner.tsx",
+    "banner-rotation": "components/home/BringYourItemsBanner.tsx",
     "carousel-behaviour": "components/home/HomeRecentlyViewedCarousel.tsx",
     "lazy-loading": "components/home/ProductGridSkeleton.tsx",
   };
@@ -123,7 +125,7 @@ function scanFeaturedContent(homeContent: string, scan: MarketplaceCompletionSca
     const ref = refs[check];
     let pass = ref ? fileExists(ref) : homeContent.length > 0;
     if (check.includes("carousel") || check.includes("lazy")) pass = pass && scan.globalUiPass;
-    if (check.includes("banner")) pass = homeContent.includes("HomeHeroBannerEngine") || homeContent.includes("StoreMigrationHeroBanner");
+    if (check.includes("banner")) pass = homeContent.includes("BringYourItemsBanner");
     return createCheck("homepage-featured", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
@@ -211,7 +213,7 @@ function buildPassConditions(scan: MarketplaceCompletionScanResult, homeContent:
   const mapping: Record<(typeof HOMEPAGE_PASS_CONDITIONS)[number], boolean> = {
     "no-duplicate-categories": hasRail && noLegacyGrid,
     "no-duplicate-homepage-sections": noLegacyGrid && scan.globalUiPass,
-    "no-empty-space-above-search": fileExists("components/home/HomeHeroSearch.tsx") && scan.homepagePass,
+    "no-empty-space-above-search": readSource("components/Header.tsx").includes("HeaderSearchBar") && scan.homepagePass,
     "all-buttons-functional": fileExists("components/ui/Button.tsx"),
     "all-routes-functional": fileExists("middleware.ts"),
     "all-widgets-functional": fileExists("components/home/HomeContent.tsx"),

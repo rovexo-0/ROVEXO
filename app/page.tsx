@@ -5,16 +5,11 @@ import { HomePageShell } from "@/components/home/HomePageShell";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { fetchProducts } from "@/lib/products/queries";
 import { getAuctionsPageData } from "@/lib/auctions/queries";
-import { getRecommendedBusinesses } from "@/lib/launch/recommendations";
 import { homePageJsonLd } from "@/lib/seo/home-jsonld";
 import { getAppUrl } from "@/lib/supabase/env";
 import type { ProductsPage } from "@/lib/products/types";
 import { getAuthContext, getUserRole } from "@/lib/auth/session";
 import { getPlatformVisualConfig } from "@/lib/platform-visual/reader";
-import {
-  resolveHeroAutoAdvanceMs,
-  resolveLiveHeroSlides,
-} from "@/lib/platform-visual/resolver";
 
 const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
 
@@ -60,29 +55,28 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   }
 
   const visualConfig = await getPlatformVisualConfig({ mode: previewMode });
-  const heroSlides = resolveLiveHeroSlides(visualConfig.banners);
-  const heroAutoAdvanceMs = resolveHeroAutoAdvanceMs(visualConfig.banners);
 
   const loadError = {
     featured: false,
     recommended: false,
-    recentlyListed: false,
+    newListings: false,
+    latestListings: false,
     auctions: false,
   };
 
   let featured: ProductsPage = emptyPage;
   let recommended: ProductsPage = emptyPage;
-  let recentlyListed: ProductsPage = emptyPage;
+  let newListings: ProductsPage = emptyPage;
+  let latestListings: ProductsPage = emptyPage;
   let liveAuctions: Awaited<ReturnType<typeof getAuctionsPageData>>["featured"] = [];
-  let businesses: Awaited<ReturnType<typeof getRecommendedBusinesses>> = [];
 
-  const [featuredResult, recommendedResult, recentlyListedResult, auctionsResult, businessesResult] =
+  const [featuredResult, recommendedResult, newListingsResult, latestListingsResult, auctionsResult] =
     await Promise.allSettled([
       fetchProducts("popular", 1),
       fetchProducts("recommended", 1),
       fetchProducts("new", 1),
+      fetchProducts("trending", 1),
       getAuctionsPageData(),
-      getRecommendedBusinesses(8),
     ]);
 
   if (featuredResult.status === "fulfilled") {
@@ -97,20 +91,22 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     loadError.recommended = true;
   }
 
-  if (recentlyListedResult.status === "fulfilled") {
-    recentlyListed = recentlyListedResult.value;
+  if (newListingsResult.status === "fulfilled") {
+    newListings = newListingsResult.value;
   } else {
-    loadError.recentlyListed = true;
+    loadError.newListings = true;
+  }
+
+  if (latestListingsResult.status === "fulfilled") {
+    latestListings = latestListingsResult.value;
+  } else {
+    loadError.latestListings = true;
   }
 
   if (auctionsResult.status === "fulfilled") {
     liveAuctions = auctionsResult.value.featured.slice(0, 8);
   } else {
     loadError.auctions = true;
-  }
-
-  if (businessesResult.status === "fulfilled") {
-    businesses = businessesResult.value;
   }
 
   const structuredData = homePageJsonLd(recommended.items, siteUrl);
@@ -128,12 +124,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <HomeContent
           featured={featured.items}
           recommended={recommended.items}
-          recentlyListed={recentlyListed.items}
+          newListings={newListings.items}
+          latestListings={latestListings.items}
           liveAuctions={liveAuctions}
-          businesses={businesses}
           visualConfig={visualConfig}
-          heroSlides={heroSlides}
-          heroAutoAdvanceMs={heroAutoAdvanceMs}
           loadError={loadError}
         />
       </HomePageShell>

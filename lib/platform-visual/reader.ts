@@ -8,6 +8,7 @@ import {
   FEATURE_MANAGER_SETTING_KEY,
   HOMEPAGE_BUILDER_SETTING_KEY,
 } from "@/lib/super-admin/mission-control/defaults";
+import { normalizeHomepageBuilderConfigForLaunch } from "@/lib/super-admin/mission-control/normalize-homepage-builder";
 import { getPlatformSetting } from "@/lib/super-admin/settings";
 import {
   createDefaultMenuBuilderConfig,
@@ -41,12 +42,13 @@ function normalizeVisualBundle(bundle: PlatformVisualBundle): PlatformVisualBund
 }
 
 async function readLiveBundle(): Promise<PlatformVisualBundle> {
-  const [homepageBuilder, banners, menus, theme] = await Promise.all([
+  const [homepageBuilderRaw, banners, menus, theme] = await Promise.all([
     getPlatformSetting(HOMEPAGE_BUILDER_SETTING_KEY, createDefaultHomepageBuilderConfig()),
     getPlatformSetting(BANNER_MANAGER_SETTING_KEY, createDefaultBannerManagerConfig()),
     getPlatformSetting(PLATFORM_VISUAL_MENUS_KEY, createDefaultMenuBuilderConfig()),
     getPlatformSetting(PLATFORM_VISUAL_THEME_KEY, createDefaultThemeTokens()),
   ]);
+  const homepageBuilder = normalizeHomepageBuilderConfigForLaunch(homepageBuilderRaw);
 
   return normalizeVisualBundle({
     version: 1,

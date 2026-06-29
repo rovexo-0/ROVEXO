@@ -24,7 +24,7 @@ export const HomeContinueBrowsingCarousel = memo(function HomeContinueBrowsingCa
     <section aria-labelledby="continue-browsing-heading" className="rx-section px-ds-4">
       <div className="mb-ds-2 flex items-end justify-between gap-ds-2">
         <h2 id="continue-browsing-heading" className="rx-section__title text-text-primary">
-          Continue Browsing
+          Recently Viewed
         </h2>
         <Link href="/saved" className={cn("text-sm font-semibold text-primary hover:opacity-80", focusRing)}>
           View all →

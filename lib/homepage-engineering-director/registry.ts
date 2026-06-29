@@ -2,15 +2,17 @@ export const HOMEPAGE_FULL_SCAN_COMPONENTS = [
   "premium-header",
   "safe-area",
   "search-bar",
+  "top-category-bar",
   "category-rail",
   "category-grid",
-  "hero-banner",
+  "bring-items",
   "featured-listings",
   "recommended-listings",
+  "new-listings",
   "latest-listings",
-  "business-section",
   "community-section",
   "recently-viewed",
+  "trending-searches",
   "footer",
   "bottom-navigation",
 ] as const;
@@ -44,11 +46,9 @@ export const HOMEPAGE_LAYOUT_TARGETS = [
 ] as const;
 
 export const BANNER_VALIDATION_CHECKS = [
-  "rotation",
-  "timers",
-  "links",
+  "marketplace-sources",
   "cta-buttons",
-  "images",
+  "links",
   "responsive-behaviour",
   "lazy-loading",
 ] as const;
@@ -83,28 +83,29 @@ export const HOMEPAGE_PRODUCTION_GATES = [
 ] as const;
 
 export const PREMIUM_HOME_STACK = [
+  "HeaderCategoryBar",
   "HomeCategoryRail",
-  "HomeHeroBannerEngine",
+  "BringYourItemsBanner",
   "FeaturedListingsSection",
   "HomeProductSection",
   "LiveAuctionsSection",
-  "BusinessSpotlightSection",
   "HomeContinueBrowsingCarousel",
 ] as const;
 
 export const LEGACY_HOME_IMPORTS = [
   "HomePromoBanner",
   "HomeHero",
+  "HomeHeroBanner",
+  "HomeHeroBannerEngine",
   "CategoryGridSection",
   "PopularListingsGrid",
   "QuickFiltersRail",
   "HomeTrendingSearchesSection",
-  "TrendingSearchesSection",
   "ProductSection",
   "HomeHeroSearch",
   "HomeBenefitsRail",
   "HomeSecondaryBanners",
-  "HeaderCategoryBar",
+  "AppStoreButtons",
 ] as const;
 
 export const HOMEPAGE_SOURCE_FILES = {

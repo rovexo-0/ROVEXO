@@ -19,7 +19,7 @@ type RouteExpectation = {
 };
 
 const PUBLIC_ROUTES: RouteExpectation[] = [
-  { path: "/", name: "Homepage", landmark: /move your entire store to rovexo/i, heroCarousel: true },
+  { path: "/", name: "Homepage", landmark: /move your entire store to rovexo/i },
   { path: "/search", name: "Search", landmark: /search rovexo|results for/i },
   { path: "/categories", name: "Categories", landmark: /all categories/i },
   { path: "/category/home-garden/furniture/beds", name: "Category", landmark: "Beds" },
@@ -118,14 +118,17 @@ test.describe("Master QA — homepage sections", () => {
       await expect(featuredHeading).toBeVisible();
     }
 
-    await expect(page.getByRole("heading", { name: /recommended for you/i })).toHaveCount(0);
-    await expect(page.getByRole("heading", { name: /latest listings/i })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: /^recommended$/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /latest listings/i })).toBeVisible();
 
     await page.locator("#auctions-heading").scrollIntoViewIfNeeded();
     await expect(page.locator("#auctions-heading")).toHaveText(/popular auctions/i);
-    const bannerSection = page.locator(HERO_CAROUSEL_SELECTOR);
-    await bannerSection.scrollIntoViewIfNeeded();
-    await expect(bannerSection.getByRole("link", { name: "Bring Your Items" })).toHaveAttribute("href", "/sell/new");
+    const bringItemsSection = page.locator(".rx-bring-items-section");
+    await bringItemsSection.scrollIntoViewIfNeeded();
+    await expect(bringItemsSection.getByRole("link", { name: "Bring Your Items" })).toHaveAttribute(
+      "href",
+      "/import",
+    );
     await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
   });
 });
@@ -144,9 +147,12 @@ test.describe("Master QA — navigation links", () => {
 
   test("import hero banner CTAs resolve correctly", async ({ page }) => {
     await page.goto("/");
-    const bannerSection = page.locator(HERO_CAROUSEL_SELECTOR);
-    await bannerSection.scrollIntoViewIfNeeded();
-    await expect(bannerSection.getByRole("link", { name: "Bring Your Items" })).toHaveAttribute("href", "/sell/new");
+    const bringItemsSection = page.locator(".rx-bring-items-section");
+    await bringItemsSection.scrollIntoViewIfNeeded();
+    await expect(bringItemsSection.getByRole("link", { name: "Bring Your Items" })).toHaveAttribute(
+      "href",
+      "/import",
+    );
   });
 
   test("footer legal links resolve", async ({ page }) => {

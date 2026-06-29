@@ -9,7 +9,14 @@ export function resolvePublishedHomepageSections(
   config: HomepageBuilderConfig,
 ): HomepageBuilderComponent[] {
   return config.components
-    .filter((component) => component.enabled && component.published && !SHELL_COMPONENT_IDS.has(component.id))
+    .filter(
+      (component) =>
+        component.enabled &&
+        component.published &&
+        !SHELL_COMPONENT_IDS.has(component.id) &&
+        component.id !== "hero-slider" &&
+        component.id !== "business-spotlight",
+    )
     .sort((a, b) => a.order - b.order);
 }
 

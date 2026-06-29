@@ -21,8 +21,8 @@ describe("Hero banner category synchronization", () => {
       "utf8",
     );
 
-    expect(homeContent).toContain("HeroCategorySyncProvider");
-    expect(homeContent).toContain("HomeCategoryRailSync");
+    expect(homeContent).toContain("HeaderCategoryBar");
+    expect(homeContent).toContain("HomeCategoryRail");
     expect(categoryRail).not.toContain("HeroCategorySync");
   });
 

@@ -36,14 +36,19 @@ export type MissionControlCounter = {
 export type HomepageBuilderComponentId =
   | "header"
   | "search"
+  | "top-category-bar"
   | "category-rail"
+  | "bring-items"
   | "hero-slider"
   | "featured-listings"
   | "recommended"
+  | "new-listings"
+  | "latest-listings"
   | "recently-listed"
   | "popular-auctions"
   | "business-spotlight"
   | "continue-browsing"
+  | "trending-searches"
   | "footer"
   | "bottom-navigation";
 

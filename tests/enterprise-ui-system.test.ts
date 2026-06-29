@@ -6,7 +6,8 @@ describe("Enterprise UI system — homepage hero", () => {
   it("does not render Official ROVEXO banner on homepage", () => {
     const homeContent = readFileSync(join(process.cwd(), "components/home/HomeContent.tsx"), "utf8");
     expect(homeContent).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
-    expect(homeContent).toContain("HomeHeroBannerEngine");
+    expect(homeContent).not.toContain("HomeHeroBannerEngine");
+    expect(homeContent).toContain("BringYourItemsBanner");
   });
 
   it("routes hero slide CTAs to approved marketplace destinations", () => {

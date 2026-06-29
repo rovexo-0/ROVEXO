@@ -1795,7 +1795,7 @@ export const EXECUTION_FINAL_SUCCESS = [
 
 export const GLOBAL_HOMEPAGE_SCAN_COMPONENTS = [
   { id: "header", label: "Header", ref: "components/home/HomePageShell.tsx" },
-  { id: "search", label: "Search", ref: "components/home/HomeHeroSearch.tsx" },
+  { id: "search", label: "Search", ref: "components/header/HeaderSearchBar.tsx" },
   { id: "category-rail", label: "Category Rail", ref: "components/home/HomeCategoryRail.tsx" },
   { id: "category-drawer", label: "Category Drawer", ref: "components/home/HomeCategoryRail.tsx" },
   { id: "hero-banner", label: "Hero Banner", ref: "features/seller/migration/components/StoreMigrationHeroBanner.tsx" },
@@ -2139,7 +2139,7 @@ export const CATEGORY_PASS_CONDITIONS = [
 ] as const;
 
 export const GLOBAL_SEARCH_SCAN_DOMAINS = [
-  { id: "homepage-search", label: "Homepage Search", ref: "components/home/HomeHeroBanner.tsx" },
+  { id: "homepage-search", label: "Homepage Search", ref: "components/header/HeaderSearchBar.tsx" },
   { id: "header-search", label: "Header Search", ref: "components/header/HeaderSearchBar.tsx" },
   { id: "global-search", label: "Global Search", ref: "app/search/page.tsx" },
   { id: "category-search", label: "Category Search", ref: "lib/taxonomy/category-search.ts" },

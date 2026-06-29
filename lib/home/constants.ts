@@ -132,17 +132,6 @@ export type HomeHeroBannerSlide = {
 /** Launch Candidate hero campaigns — local assets in public/hero/ only */
 export const HOME_HERO_BANNERS: HomeHeroBannerSlide[] = [
   {
-    id: "move-store",
-    title: "Move Your Entire Store to ROVEXO",
-    subtitle: "Import listings from any marketplace in minutes.",
-    cta: "Start import",
-    href: "/import-wizard",
-    theme: "blue",
-    icon: "services",
-    categoryKey: "services",
-    image: heroCampaignImage("move-store"),
-  },
-  {
     id: "zero-fees",
     title: "Zero Listing Fees",
     subtitle: "List today with no upfront charges on ROVEXO.",

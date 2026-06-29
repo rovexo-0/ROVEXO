@@ -92,6 +92,12 @@ function scanComponentRegistry(
       complete: header.includes("HeaderSearchBar") && !header.includes("HeaderCategoryBar"),
       message: "Canonical pill search in header row",
     },
+    "top-category-bar": {
+      label: "Top Category Bar",
+      sourceRef: "components/header/HeaderCategoryBar.tsx",
+      complete: homeContent.includes("HeaderCategoryBar") && publishedIds.has("top-category-bar"),
+      message: "Premium category pills below header",
+    },
     "category-rail": {
       label: "Category Rail",
       sourceRef: "components/home/HomeCategoryRail.tsx",
@@ -104,11 +110,11 @@ function scanComponentRegistry(
       complete: !homeContent.includes("CategoryGridSection") && categoryGrid.includes("return null"),
       message: "Legacy grid retired — rail is canonical",
     },
-    "hero-banner": {
-      label: "Hero Banner",
-      sourceRef: "features/seller/migration/components/StoreMigrationHeroBanner.tsx",
-      complete: homeContent.includes("HomeHeroBannerEngine") && publishedIds.has("hero-slider"),
-      message: "HomeHeroBannerEngine with rotation",
+    "bring-items": {
+      label: "Bring Your Items",
+      sourceRef: "components/home/BringYourItemsBanner.tsx",
+      complete: homeContent.includes("BringYourItemsBanner") && publishedIds.has("bring-items"),
+      message: "Import banner below category icons",
     },
     "featured-listings": {
       label: "Featured Listings",
@@ -119,20 +125,20 @@ function scanComponentRegistry(
     "recommended-listings": {
       label: "Recommended Listings",
       sourceRef: "components/home/HomeProductSection.tsx",
-      complete: homeContent.includes('title="Recommended For You"') && publishedIds.has("recommended"),
-      message: "Recommended For You section",
+      complete: homeContent.includes('title="Recommended"') && publishedIds.has("recommended"),
+      message: "Recommended section",
+    },
+    "new-listings": {
+      label: "New Listings",
+      sourceRef: "components/home/HomeProductSection.tsx",
+      complete: homeContent.includes('title="New Listings"') && publishedIds.has("new-listings"),
+      message: "New Listings section",
     },
     "latest-listings": {
       label: "Latest Listings",
       sourceRef: "components/home/HomeProductSection.tsx",
-      complete: homeContent.includes('title="Recently Listed"') && publishedIds.has("recently-listed"),
-      message: "Recently Listed section",
-    },
-    "business-section": {
-      label: "Business Spotlight",
-      sourceRef: "components/home/BusinessSpotlightSection.tsx",
-      complete: homeContent.includes("BusinessSpotlightSection") && publishedIds.has("business-spotlight"),
-      message: "Business spotlight wired",
+      complete: homeContent.includes('title="Latest Listings"') && publishedIds.has("latest-listings"),
+      message: "Latest Listings section",
     },
     "community-section": {
       label: "Community / Auctions",
@@ -144,7 +150,13 @@ function scanComponentRegistry(
       label: "Recently Viewed",
       sourceRef: "components/home/HomeRecentlyViewedCarousel.tsx",
       complete: homeContent.includes("HomeContinueBrowsingCarousel") && publishedIds.has("continue-browsing"),
-      message: "Continue browsing carousel",
+      message: "Recently viewed carousel",
+    },
+    "trending-searches": {
+      label: "Trending",
+      sourceRef: "components/home/TrendingSearchesSection.tsx",
+      complete: homeContent.includes("TrendingSearchesSection") && publishedIds.has("trending-searches"),
+      message: "Trending searches section",
     },
     footer: {
       label: "Footer",
@@ -205,14 +217,14 @@ function scanLayoutChecks(integrityPass: boolean): EngineeringCheckResult[] {
 }
 
 function scanBannerChecks(homeContent: string): EngineeringCheckResult[] {
-  const hasEngine = homeContent.includes("HomeHeroBannerEngine");
+  const hasBringItems = homeContent.includes("BringYourItemsBanner");
   return BANNER_VALIDATION_CHECKS.map((check) => ({
     id: `banner-${check}`,
     check,
     category: "banner",
-    status: hasEngine ? passStatus() : "fail",
-    findings: hasEngine ? 0 : 1,
-    message: hasEngine ? `Hero banner ${check.replace(/-/g, " ")} verified` : "Hero banner engine missing",
+    status: hasBringItems ? passStatus() : "fail",
+    findings: hasBringItems ? 0 : 1,
+    message: hasBringItems ? `Import banner ${check.replace(/-/g, " ")} verified` : "Bring Your Items banner missing",
   }));
 }
 
@@ -294,7 +306,8 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
     header.includes("HeaderSearchBar") &&
     header.includes("/messages") &&
     header.includes("/notifications") &&
-    !header.includes("HeaderCategoryBar")
+    !header.includes("HeaderCategoryBar") &&
+    homeContent.includes("HeaderCategoryBar")
       ? 100
       : 0;
 

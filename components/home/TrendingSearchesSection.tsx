@@ -11,7 +11,7 @@ export function TrendingSearchesSection({
   return (
     <section aria-labelledby="trending-searches-heading" className="px-ds-4">
       <h2 id="trending-searches-heading" className="mb-ds-3 text-lg font-semibold text-text-primary">
-        Trending searches
+        Trending
       </h2>
       <ul className="flex flex-wrap gap-ds-2">
         {searches.map((term) => (

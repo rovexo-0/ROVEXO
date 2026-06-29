@@ -11,6 +11,7 @@
     "verify:env": "npx tsx scripts/verify-env.ts",
     "verify:production": "node scripts/verify-production.mjs",
     "db:migrate": "node scripts/supabase-migrate-workflow.mjs",
+    "db:republish-homepage": "npx tsx scripts/republish-homepage-launch-defaults.ts",
     "db:push": "supabase db push --linked --yes",
     "db:idempotent": "node scripts/refactor-migrations-idempotent.mjs",
     "test": "vitest run",

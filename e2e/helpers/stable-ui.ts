@@ -40,16 +40,14 @@ export async function waitForHomepageUi(page: Page): Promise<void> {
   await waitForDomContentLoaded(page);
   await expect(page.locator('[data-header-version="rovexo-v1"]')).toBeVisible();
   await expect(page.locator("#header-search, [data-header-search='bar']").first()).toBeVisible();
-  await expect(page.locator(HERO_CAROUSEL_SELECTOR)).toBeVisible();
-  await expect(page.getByRole("tablist", { name: "Hero slides" })).toBeVisible();
+  await expect(page.locator('nav[aria-label="Browse categories"]').first()).toBeVisible();
   await expect(page.locator('section[aria-labelledby="home-categories-heading"]')).toBeVisible();
+  await expect(page.locator(".rx-bring-items-section")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
 }
 
 export async function waitForHeroCarousel(page: Page): Promise<void> {
-  await expect(page.locator(HERO_CAROUSEL_SELECTOR)).toBeVisible();
-  await expect(page.getByRole("tablist", { name: "Hero slides" })).toBeVisible();
-  await page.waitForTimeout(300);
+  await waitForHomepageUi(page);
 }
 
 export async function waitForSearchResultsUi(page: Page): Promise<void> {

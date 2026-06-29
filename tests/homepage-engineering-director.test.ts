@@ -16,7 +16,7 @@ describe("homepage engineering director registry", () => {
     expect(HOMEPAGE_FULL_SCAN_COMPONENTS).toContain("premium-header");
     expect(HOMEPAGE_FULL_SCAN_COMPONENTS).toContain("category-rail");
     expect(HOMEPAGE_FULL_SCAN_COMPONENTS).toContain("bottom-navigation");
-    expect(HOMEPAGE_FULL_SCAN_COMPONENTS.length).toBe(14);
+    expect(HOMEPAGE_FULL_SCAN_COMPONENTS.length).toBe(16);
   });
 
   it("defines engineering scores and production gates", () => {
@@ -29,13 +29,13 @@ describe("homepage engineering director registry", () => {
   });
 
   it("defines banner validation checks", () => {
-    expect(BANNER_VALIDATION_CHECKS).toContain("rotation");
+    expect(BANNER_VALIDATION_CHECKS).toContain("marketplace-sources");
     expect(BANNER_VALIDATION_CHECKS).toContain("lazy-loading");
   });
 
   it("defines premium home stack", () => {
     expect(PREMIUM_HOME_STACK).toContain("HomeCategoryRail");
-    expect(PREMIUM_HOME_STACK).toContain("HomeHeroBannerEngine");
+    expect(PREMIUM_HOME_STACK).toContain("BringYourItemsBanner");
     expect(PREMIUM_HOME_STACK).not.toContain("CategoryGridSection");
   });
 });

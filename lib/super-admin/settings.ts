@@ -84,7 +84,7 @@ export async function listPlatformSettings(): Promise<Record<string, Json>> {
 }
 
 export async function updatePlatformSetting(input: {
-  actorId: string;
+  actorId: string | null;
   key: string;
   value: Json;
 }): Promise<void> {
@@ -104,13 +104,15 @@ export async function updatePlatformSetting(input: {
   }
 
   try {
-    await auditSuperAdminAction({
-      actorId: input.actorId,
-      action: "platform_settings.update",
-      resourceType: "platform_settings",
-      resourceId: input.key,
-      metadata: toAuditLogMetadata(input.value),
-    });
+    if (input.actorId) {
+      await auditSuperAdminAction({
+        actorId: input.actorId,
+        action: "platform_settings.update",
+        resourceType: "platform_settings",
+        resourceId: input.key,
+        metadata: toAuditLogMetadata(input.value),
+      });
+    }
   } catch {
     // Audit must not block platform settings persistence.
   }
