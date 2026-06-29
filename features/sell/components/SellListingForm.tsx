@@ -18,6 +18,7 @@ import {
   type ListingValidationOptions,
 } from "@/features/sell/types";
 import type { SellFormController } from "@/features/sell/hooks/use-sell-wizard";
+import { sellBackgroundPolicy } from "@/lib/sell/sell-background-policy";
 import { focusRing } from "@/components/ui/tokens";
 
 type SellListingFormProps = {
@@ -55,7 +56,8 @@ export function SellListingForm({ form }: SellListingFormProps) {
   const {
     draft,
     updateDraft,
-    commitTitle,
+    syncTitleAfterIdle,
+    flushTitleCommitRef,
     pendingTitleRef,
     showValidation,
     setCategoryPath,
@@ -79,20 +81,25 @@ export function SellListingForm({ form }: SellListingFormProps) {
       </h2>
 
       <div className="rx-form-section overflow-hidden">
-        <SellLocationField form={form} error={errors.location} />
+        <SellLocationField
+          form={form}
+          error={errors.location}
+          disableAutoDetect={!sellBackgroundPolicy.autoLocationEnabled}
+        />
 
         <FormRow label="Title" htmlFor="sell-title" className="border-t border-border">
           <ListingTitleField
             id="sell-title"
-            value={draft.title}
+            externalTitle={draft.title}
             showValidation={showValidation}
             className={cn(
               fieldClassName,
               focusRing,
               "rounded-ds-sm px-ds-2 py-ds-2",
             )}
-            onCommit={commitTitle}
+            onIdleCommit={syncTitleAfterIdle}
             pendingTitleRef={pendingTitleRef}
+            flushIdleCommit={flushTitleCommitRef}
           />
         </FormRow>
 
@@ -138,18 +145,20 @@ export function SellListingForm({ form }: SellListingFormProps) {
               />
             )}
 
-            <AiCategoryDetection
-              detection={categoryDetection}
-              dismissed={categoryDetectionDismissed}
-              selectedPath={draft.categoryPath}
-              onConfirm={confirmSuggestedCategory}
-              onChange={() => {
-                openCategoryPickerForChange();
-                setCategoryPickerOpen(true);
-              }}
-              onDismiss={dismissCategoryDetection}
-              onSelect={setCategoryPath}
-            />
+            {sellBackgroundPolicy.categorySuggestEnabled ? (
+              <AiCategoryDetection
+                detection={categoryDetection}
+                dismissed={categoryDetectionDismissed}
+                selectedPath={draft.categoryPath}
+                onConfirm={confirmSuggestedCategory}
+                onChange={() => {
+                  openCategoryPickerForChange();
+                  setCategoryPickerOpen(true);
+                }}
+                onDismiss={dismissCategoryDetection}
+                onSelect={setCategoryPath}
+              />
+            ) : null}
           </FormRow>
         </div>
 

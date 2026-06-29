@@ -13,11 +13,16 @@ import { focusRing } from "@/components/ui/tokens";
 type SellLocationFieldProps = {
   form: SellFormController;
   error?: string;
+  disableAutoDetect?: boolean;
 };
 
 type DetectionState = "idle" | "detecting" | "denied" | "failed";
 
-export function SellLocationField({ form, error }: SellLocationFieldProps) {
+export function SellLocationField({
+  form,
+  error,
+  disableAutoDetect = false,
+}: SellLocationFieldProps) {
   const { draft, updateDraft } = form;
   const geolocationSupported =
     typeof window !== "undefined" && "geolocation" in navigator;
@@ -27,7 +32,9 @@ export function SellLocationField({ form, error }: SellLocationFieldProps) {
   const detectionStartedRef = useRef(false);
 
   useEffect(() => {
-    if (detectionStartedRef.current || draft.locationCity || !geolocationSupported) return;
+    if (disableAutoDetect || detectionStartedRef.current || draft.locationCity || !geolocationSupported) {
+      return;
+    }
 
     detectionStartedRef.current = true;
 
@@ -60,7 +67,7 @@ export function SellLocationField({ form, error }: SellLocationFieldProps) {
         timeout: 12_000,
       },
     );
-  }, [draft.locationCity, geolocationSupported, updateDraft]);
+  }, [disableAutoDetect, draft.locationCity, geolocationSupported, updateDraft]);
 
   const showUnavailableMessage =
     detectionState === "denied" || detectionState === "failed";

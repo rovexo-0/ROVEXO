@@ -24,6 +24,7 @@ import {
   createDebouncedCategoryDetection,
   CATEGORY_DETECTION_DEBOUNCE_MS,
 } from "@/lib/sell/category-detection-scheduler";
+import { sellBackgroundPolicy } from "@/lib/sell/sell-background-policy";
 import type { SellListingMode } from "@/lib/profile/account";
 import {
   createEmptyDraft,
@@ -64,6 +65,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
   const lastAiTopPathIdRef = useRef<string | null>(null);
   const lastAiAppliedPathIdRef = useRef<string | null>(null);
   const pendingTitleRef = useRef(draft.title);
+  const flushTitleCommitRef = useRef<(() => void) | null>(null);
   const draftRef = useRef(draft);
   draftRef.current = draft;
   const pendingDetectionSnapshotRef = useRef<
@@ -127,6 +129,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
 
   const scheduleCategoryDetection = useCallback(
     (snapshot?: Pick<SellListingDraft, "title" | "description" | "photos">) => {
+      if (!sellBackgroundPolicy.categorySuggestEnabled) return;
       pendingDetectionSnapshotRef.current = snapshot ?? null;
       categoryDetectionSchedulerRef.current.schedule();
     },
@@ -135,6 +138,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
 
   const runCategoryDetectionSoon = useCallback(
     (snapshot?: Pick<SellListingDraft, "title" | "description" | "photos">) => {
+      if (!sellBackgroundPolicy.categorySuggestEnabled) return;
       pendingDetectionSnapshotRef.current = snapshot ?? null;
       categoryDetectionSchedulerRef.current.runSoon();
     },
@@ -143,6 +147,8 @@ export function useSellForm(options: UseSellFormOptions = {}) {
 
   const runPhotoAiAnalysis = useCallback(
     async (photo: SellPhoto) => {
+      if (!sellBackgroundPolicy.photoAiEnabled) return;
+
       if (!photo.file) {
         runCategoryDetectionSoon();
         return;
@@ -347,18 +353,23 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     setDraft((current) => ({ ...current, ...patch }));
   }, []);
 
-  const commitTitle = useCallback(
+  const syncTitleAfterIdle = useCallback(
     (title: string) => {
-      pendingTitleRef.current = title;
-      updateDraft({ title });
+      const next = title.trim();
+      pendingTitleRef.current = next;
+      setDraft((current) => (current.title === next ? current : { ...current, title: next }));
       scheduleCategoryDetection({
-        title,
+        title: next,
         description: draftRef.current.description,
         photos: draftRef.current.photos,
       });
     },
-    [scheduleCategoryDetection, updateDraft],
+    [scheduleCategoryDetection],
   );
+
+  const flushTitleToDraft = useCallback(() => {
+    flushTitleCommitRef.current?.();
+  }, []);
 
   const setCategoryPath = useCallback(
     (categoryPath: FlatCategoryPath, source: "manual" | "confirm" = "manual") => {
@@ -420,6 +431,7 @@ export function useSellForm(options: UseSellFormOptions = {}) {
   }, []);
 
   const publishListing = useCallback(async () => {
+    flushTitleCommitRef.current?.();
     const committedTitle = pendingTitleRef.current.trim();
     const effectiveDraft = { ...draftRef.current, title: committedTitle };
     setShowValidation(true);
@@ -550,7 +562,10 @@ export function useSellForm(options: UseSellFormOptions = {}) {
     reorderPhotos,
     retryPhotoUpload,
     updateDraft,
-    commitTitle,
+    commitTitle: syncTitleAfterIdle,
+    syncTitleAfterIdle,
+    flushTitleToDraft,
+    flushTitleCommitRef,
     pendingTitleRef,
     setCategoryPath,
     confirmSuggestedCategory,

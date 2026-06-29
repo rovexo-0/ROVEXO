@@ -3,6 +3,11 @@ import {
   CATEGORY_DETECTION_DEBOUNCE_MS,
   createDebouncedCategoryDetection,
 } from "@/lib/sell/category-detection-scheduler";
+import {
+  createTitleIdleScheduler,
+  TITLE_IDLE_COMMIT_MS,
+} from "@/lib/sell/title-idle-scheduler";
+import { sellBackgroundPolicy } from "@/lib/sell/sell-background-policy";
 import * as categoryDetectionPro from "@/lib/sell/category-detection-pro";
 import {
   clampListingTitle,
@@ -64,8 +69,46 @@ describe("title input freeze regression", () => {
 });
 
 describe("category detection debounce constants", () => {
-  it("uses a debounce window within the 500–800ms requirement", () => {
-    expect(CATEGORY_DETECTION_DEBOUNCE_MS).toBeGreaterThanOrEqual(500);
-    expect(CATEGORY_DETECTION_DEBOUNCE_MS).toBeLessThanOrEqual(800);
+  it("uses an 800ms debounce window for background category work", () => {
+    expect(CATEGORY_DETECTION_DEBOUNCE_MS).toBe(800);
+    expect(TITLE_IDLE_COMMIT_MS).toBe(800);
+  });
+});
+
+describe("sell background policy launch blocker", () => {
+  it("keeps AI, category suggestion, and geolocation off until re-enabled", () => {
+    expect(sellBackgroundPolicy.photoAiEnabled).toBe(false);
+    expect(sellBackgroundPolicy.categorySuggestEnabled).toBe(false);
+    expect(sellBackgroundPolicy.autoLocationEnabled).toBe(false);
+  });
+});
+
+describe("title idle commit scheduler", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("does not commit title while the user is still typing", () => {
+    const commit = vi.fn();
+    let title = "";
+    const scheduler = createTitleIdleScheduler((next) => commit(next), () => title, 800);
+
+    for (let index = 0; index < 120; index += 1) {
+      title = "x".repeat(index + 1);
+      scheduler.touch();
+      vi.advanceTimersByTime(50);
+    }
+
+    expect(commit).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(800);
+    vi.runAllTimers();
+
+    expect(commit).toHaveBeenCalledTimes(1);
+    expect(commit).toHaveBeenCalledWith("x".repeat(120));
   });
 });

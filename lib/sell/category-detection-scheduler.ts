@@ -1,4 +1,4 @@
-export const CATEGORY_DETECTION_DEBOUNCE_MS = 650;
+export const CATEGORY_DETECTION_DEBOUNCE_MS = 800;
 
 type DebouncedCategoryDetection = {
   schedule: () => void;

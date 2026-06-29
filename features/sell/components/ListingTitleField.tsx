@@ -1,6 +1,13 @@
 "use client";
 
-import { memo, useEffect, useId, useState, type MutableRefObject } from "react";
+import {
+  memo,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type MutableRefObject,
+} from "react";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { FieldError, fieldErrorClassName } from "@/features/sell/components/FieldError";
@@ -9,38 +16,73 @@ import {
   LISTING_TITLE_MAX,
   validateListingTitle,
 } from "@/lib/sell/listing-title";
+import {
+  createTitleIdleScheduler,
+  TITLE_IDLE_COMMIT_MS,
+} from "@/lib/sell/title-idle-scheduler";
 
 type ListingTitleFieldProps = {
   id?: string;
-  value: string;
+  /** External title — synced only while the user is not actively typing. */
+  externalTitle?: string;
   placeholder?: string;
   className?: string;
   showValidation?: boolean;
-  onCommit: (title: string) => void;
-  /** Optional ref sink for publish-time flush without parent re-renders. */
   pendingTitleRef?: MutableRefObject<string>;
+  /** Called once after {@link TITLE_IDLE_COMMIT_MS} with no further keystrokes. */
+  onIdleCommit: (title: string) => void;
+  /** Publish / save — flush pending title immediately. */
+  flushIdleCommit?: MutableRefObject<(() => void) | null>;
 };
 
 export const ListingTitleField = memo(function ListingTitleField({
   id,
-  value,
+  externalTitle = "",
   placeholder = "Listing title",
   className,
   showValidation = false,
-  onCommit,
   pendingTitleRef,
+  onIdleCommit,
+  flushIdleCommit,
 }: ListingTitleFieldProps) {
   const fallbackId = useId();
   const inputId = id ?? fallbackId;
-  const [localTitle, setLocalTitle] = useState(value);
-  const [blurred, setBlurred] = useState(false);
+  const [localTitle, setLocalTitle] = useState(externalTitle);
+  const [showFieldValidation, setShowFieldValidation] = useState(false);
+  const localTitleRef = useRef(localTitle);
+  const isTypingRef = useRef(false);
+  localTitleRef.current = localTitle;
+
+  const idleSchedulerRef = useRef(
+    createTitleIdleScheduler(
+      (title) => {
+        isTypingRef.current = false;
+        onIdleCommit(title);
+      },
+      () => localTitleRef.current,
+      TITLE_IDLE_COMMIT_MS,
+    ),
+  );
 
   useEffect(() => {
-    setLocalTitle((current) => (current === value ? current : value));
-  }, [value]);
+    if (flushIdleCommit) {
+      flushIdleCommit.current = () => idleSchedulerRef.current.flush();
+    }
+    return () => {
+      if (flushIdleCommit) flushIdleCommit.current = null;
+      idleSchedulerRef.current.cancel();
+    };
+  }, [flushIdleCommit]);
 
-  const fieldError =
-    (blurred || showValidation) ? validateListingTitle(localTitle, { required: showValidation }) : undefined;
+  useEffect(() => {
+    if (isTypingRef.current) return;
+    setLocalTitle((current) => (current === externalTitle ? current : externalTitle));
+    if (pendingTitleRef) pendingTitleRef.current = externalTitle;
+  }, [externalTitle, pendingTitleRef]);
+
+  const fieldError = showFieldValidation || showValidation
+    ? validateListingTitle(localTitle, { required: showValidation })
+    : undefined;
 
   return (
     <div className="flex flex-col gap-ds-1">
@@ -50,19 +92,18 @@ export const ListingTitleField = memo(function ListingTitleField({
         value={localTitle}
         onChange={(event) => {
           const next = clampListingTitle(event.target.value);
+          isTypingRef.current = true;
           setLocalTitle(next);
           if (pendingTitleRef) pendingTitleRef.current = next;
+          idleSchedulerRef.current.touch();
         }}
         onBlur={() => {
-          setBlurred(true);
-          const next = clampListingTitle(localTitle);
-          setLocalTitle(next);
-          if (pendingTitleRef) pendingTitleRef.current = next;
-          onCommit(next);
+          setShowFieldValidation(true);
         }}
         placeholder={placeholder}
         maxLength={LISTING_TITLE_MAX}
         autoComplete="off"
+        enterKeyHint="done"
         className={cn(className, focusRing, fieldErrorClassName(Boolean(fieldError)))}
       />
       <div className="flex items-center justify-between gap-ds-2">
