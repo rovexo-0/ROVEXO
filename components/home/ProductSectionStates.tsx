@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { PremiumEmptyStateImage } from "@/components/ui/PremiumEmptyStateImage";
 import { ProductGridSkeleton } from "@/components/home/ProductGridSkeleton";
+import { resolveHomeSectionEmptyStateId } from "@/lib/premium-design/empty-state-library";
 
 type ProductSectionEmptyProps = {
   title: string;
@@ -12,8 +14,11 @@ export function ProductSectionEmpty({
   title,
   message = "Check back soon for new listings in this section.",
 }: ProductSectionEmptyProps) {
+  const illustrationId = resolveHomeSectionEmptyStateId(title);
+
   return (
     <div role="status" className="rx-home-empty">
+      <PremiumEmptyStateImage id={illustrationId} className="mx-auto mb-ds-4" />
       <p className="rx-home-empty__title">No {title.toLowerCase()} yet</p>
       <p className="rx-home-empty__message">{message}</p>
       <Link

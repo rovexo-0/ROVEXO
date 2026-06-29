@@ -78,6 +78,7 @@ function mapProductRow(row: ProductRow): Product {
     sections: (row.sections ?? []) as Product["sections"],
     isFeatured: isPromotionActive(row.featured_until),
     isBumped: isPromotionActive(row.bumped_until),
+    createdAt: row.created_at,
   };
 }
 

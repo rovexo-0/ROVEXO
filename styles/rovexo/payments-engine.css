@@ -1,0 +1,236 @@
+/* ROVEXO Payments Engine */
+
+.pe-hub,
+.pe-admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+}
+
+.pe-admin {
+  padding: var(--ds-space-4);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pe-admin__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ds-space-3);
+}
+
+.pe-hub__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pe-hub__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ds-color-primary);
+}
+
+.pe-hub__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pe-hub__tab {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ds-color-text-secondary);
+}
+
+.pe-hub__tab--active {
+  border-color: var(--ds-color-primary);
+  color: var(--ds-color-primary);
+  background: color-mix(in srgb, var(--ds-color-primary) 10%, transparent);
+}
+
+.pe-panel {
+  padding: var(--ds-space-5);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-xl);
+  background: var(--ds-glass-bg);
+}
+
+.pe-panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ds-space-3);
+  margin-bottom: var(--ds-space-4);
+}
+
+.pe-panel__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: var(--ds-space-3);
+}
+
+.pe-search-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+  font-size: 0.9375rem;
+}
+
+.pe-module-grid {
+  display: grid;
+  gap: var(--ds-space-3);
+}
+
+@media (min-width: 768px) {
+  .pe-module-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.pe-module-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--ds-space-4);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 160ms ease;
+}
+
+.pe-module-card:hover {
+  border-color: var(--ds-color-primary);
+}
+
+.pe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pe-list__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+}
+
+.pe-list__row--link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.pe-list__row--link:hover {
+  border-color: var(--ds-color-primary);
+}
+
+.pe-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pe-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.pe-chip--active {
+  border-color: var(--ds-color-primary);
+  color: var(--ds-color-primary);
+  background: color-mix(in srgb, var(--ds-color-primary) 10%, transparent);
+}
+
+.pe-link {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ds-color-primary);
+  text-decoration: none;
+}
+
+.pe-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ds-space-3);
+}
+
+@media (min-width: 768px) {
+  .pe-analytics-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.pe-metric-card {
+  padding: var(--ds-space-4);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+}
+
+.pe-metric-card__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.pe-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 4px;
+}
+
+.pe-timeline__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  opacity: 0.45;
+}
+
+.pe-timeline__item--done {
+  opacity: 0.75;
+}
+
+.pe-timeline__item--current {
+  opacity: 1;
+}
+
+.pe-timeline__dot {
+  width: 10px;
+  height: 10px;
+  margin-top: 4px;
+  border-radius: 50%;
+  border: 2px solid var(--ds-color-border);
+  flex-shrink: 0;
+}
+
+.pe-timeline__item--done .pe-timeline__dot {
+  border-color: var(--ds-color-primary);
+  background: color-mix(in srgb, var(--ds-color-primary) 30%, transparent);
+}
+
+.pe-timeline__item--current .pe-timeline__dot {
+  border-color: var(--ds-color-primary);
+  background: var(--ds-color-primary);
+}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { memo, type ReactNode } from "react";
-import { HomeProductCard } from "@/components/home/HomeProductCard";
+import { PremiumProductCard } from "@/components/home/PremiumProductCard";
 import { productToCardProps } from "@/lib/products/card";
 import type { Product } from "@/lib/products/types";
 import { ProductCarouselSkeleton } from "@/components/home/ProductCarouselSkeleton";
@@ -82,7 +82,7 @@ export const ProductCarouselSection = memo(function ProductCarouselSection({
           </div>
         ) : (
           products.map((product) => (
-            <HomeProductCard
+            <PremiumProductCard
               key={product.id}
               {...productToCardProps(product, "homepage")}
             />

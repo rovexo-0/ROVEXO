@@ -1,4 +1,5 @@
 import { requireApiSuperAdmin } from "@/lib/auth/session";
+import { DATABASE_PERMISSION_ERROR, isDatabasePermissionError } from "@/lib/supabase/database-errors";
 import { enterpriseErrorResponse, enterpriseSuccessResponse } from "@/lib/api/enterprise-response";
 import { logApiError } from "@/lib/ops/logger";
 import { getOperationsCenterEngineSnapshot } from "@/lib/operations-center-engine/reader";
@@ -30,11 +31,17 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     logApiError("Operations snapshot failed", error, { route: "/api/super-admin/operations" });
-    return enterpriseErrorResponse(error instanceof Error ? error.message : "Operations snapshot failed.", {
-      request,
-      startedAt,
-      status: 500,
-      diagnostics: { route: "/api/super-admin/operations" },
-    });
+    return enterpriseErrorResponse(
+      isDatabasePermissionError(error) ? DATABASE_PERMISSION_ERROR : error instanceof Error ? error.message : "Operations snapshot failed.",
+      {
+        request,
+        startedAt,
+        status: 500,
+        diagnostics: {
+          route: "/api/super-admin/operations",
+          category: isDatabasePermissionError(error) ? "database_permission" : "snapshot_failure",
+        },
+      },
+    );
   }
 }

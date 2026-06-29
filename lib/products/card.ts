@@ -29,6 +29,7 @@ export function productToCardProps(
     isFeatured: product.isFeatured,
     isBumped: product.isBumped,
     isNew: product.sections?.includes("new") ?? false,
+    createdAt: product.createdAt,
     listingType: product.listingType,
     auctionEndsAt: product.auctionEndsAt,
     auctionCurrentBid: product.auctionCurrentBid,

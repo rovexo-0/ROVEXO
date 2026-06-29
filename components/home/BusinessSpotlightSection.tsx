@@ -31,8 +31,8 @@ export const BusinessSpotlightSection = memo(function BusinessSpotlightSection({
           </h2>
           <p className="rx-section__subtitle">Verified companies, wholesalers & suppliers</p>
         </div>
-        <Link href="/business/directory" className={cn("text-sm font-semibold text-primary", focusRing)}>
-          View all
+        <Link href="/business/directory" className={cn("text-sm font-semibold text-primary hover:opacity-80", focusRing)}>
+          View all →
         </Link>
       </div>
 

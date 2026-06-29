@@ -12,10 +12,10 @@
 
 .rx-home-final {
   --rx-home-max-width: 1440px;
-  --rx-home-section-gap: 24px;
-  --rx-home-header-category-gap: 16px;
-  --rx-home-category-hero-gap: 18px;
-  --rx-home-hero-products-gap: 24px;
+  --rx-home-section-gap: 16px;
+  --rx-home-header-category-gap: 9px;
+  --rx-home-category-hero-gap: 11px;
+  --rx-home-hero-products-gap: 16px;
   --rx-launch-text-primary: #000000;
   --rx-launch-text-secondary: #6b7280;
   --rx-launch-divider: #ececec;
@@ -23,7 +23,7 @@
   --ds-listing-card-image-w: 172px;
   --ds-listing-card-image-h: 172px;
   --ds-listing-card-h: 262px;
-  --ds-listing-card-body-h: 90px;
+  --ds-listing-card-body-h: 96px;
   --ds-color-text-secondary: #6b7280;
   width: 100%;
   max-width: var(--rx-home-max-width);
@@ -96,7 +96,7 @@
 
 .rx-home-final .rx-section__title {
   color: var(--rx-launch-text-primary);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 [data-theme="dark"] .rx-home-final .rx-section__title {
@@ -137,7 +137,7 @@
   border: none;
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgb(15 23 42 / 0.08);
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.08);
 }
 
 [data-theme="dark"] .rx-home-final .import-rx-hero-banner.import-rx-hero-banner--premium {
@@ -228,9 +228,9 @@
 @media (max-width: 639px) {
   .rx-home-final {
     --rx-home-section-gap: 16px;
-    --rx-home-header-category-gap: 16px;
-    --rx-home-category-hero-gap: 18px;
-    --rx-home-hero-products-gap: 24px;
+    --rx-home-header-category-gap: 8px;
+    --rx-home-category-hero-gap: 10px;
+    --rx-home-hero-products-gap: 16px;
   }
 }
 

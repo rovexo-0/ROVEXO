@@ -10,7 +10,7 @@ export function heroCampaignImage(id: HeroCampaignId): string {
   return getHeroCampaignWebpSrc(id);
 }
 
-export { getHeroCampaignAvifSrc } from "@/lib/home/hero-campaign-library";
+export { getHeroCampaignAvifSrc, getHeroCampaignPngSrc, getHeroCampaignSrcSet } from "@/lib/home/hero-campaign-library";
 
 /** @deprecated Use heroCampaignImage with HeroCampaignId */
 export function getHeroCampaignSrc(id: HeroCampaignId): string {

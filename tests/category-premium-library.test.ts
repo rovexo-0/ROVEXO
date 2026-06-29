@@ -14,11 +14,13 @@ describe("ROVEXO premium category asset library", () => {
   });
 
   it("ships every premium WebP asset on disk", () => {
-    const root = path.join(process.cwd(), "public/categories/home");
+    const root = path.join(process.cwd(), "public/categories");
 
     for (const icon of ROVEXO_CATEGORY_PREMIUM_KEYS) {
-      const assetPath = path.join(root, `${icon}.webp`);
-      expect(() => accessSync(assetPath)).not.toThrow();
+      for (const ext of ["webp", "avif", "png"]) {
+        const assetPath = path.join(root, `${icon}.${ext}`);
+        expect(() => accessSync(assetPath)).not.toThrow();
+      }
     }
   });
 
@@ -29,9 +31,7 @@ describe("ROVEXO premium category asset library", () => {
     );
 
     expect(source).toContain('variant === "premium"');
-    expect(source).not.toContain("onError={handleRenderError}");
+    expect(source).toContain("<picture>");
     expect(source).toContain("PremiumCategoryRenderMissing");
-    expect(source).not.toContain("onError={handleRenderError}");
-    expect(source).not.toContain("setRenderFailed");
   });
 });

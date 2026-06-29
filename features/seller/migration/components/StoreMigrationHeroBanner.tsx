@@ -26,15 +26,14 @@ import { focusRing } from "@/components/ui/tokens";
 
 
 
-const AUTO_ADVANCE_MS = 5000;
+const DEFAULT_AUTO_ADVANCE_MS = 5000;
 
 const DRAG_THRESHOLD = 40;
 
-
-
-const HERO_SLIDES = HOME_HERO_BANNERS;
-
-const SLIDE_COUNT = HERO_SLIDES.length;
+type HomeHeroBannerEngineProps = {
+  slides?: HomeHeroBannerSlide[];
+  autoAdvanceMs?: number;
+};
 
 
 
@@ -46,6 +45,8 @@ const HeroSlidePanel = memo(function HeroSlidePanel({
 
   shouldLoadVisual,
 
+  isFirstSlide,
+
 }: {
 
   slide: HomeHeroBannerSlide;
@@ -53,6 +54,8 @@ const HeroSlidePanel = memo(function HeroSlidePanel({
   isActive: boolean;
 
   shouldLoadVisual: boolean;
+
+  isFirstSlide: boolean;
 
 }) {
 
@@ -65,7 +68,11 @@ const HeroSlidePanel = memo(function HeroSlidePanel({
     <div className="import-rx-hero-banner__slide" data-slide-theme={slide.theme}>
 
       {slide.image && shouldLoadVisual && isHeroCampaignId(slide.id) ? (
-        <HeroCampaignPhoto campaignId={slide.id} webpSrc={slide.image} isActive={isActive} />
+        <HeroCampaignPhoto
+          campaignId={slide.id}
+          isActive={isActive}
+          priority={isFirstSlide && isActive}
+        />
       ) : null}
 
       <div className="import-rx-hero-banner__copy">
@@ -122,7 +129,11 @@ const HeroSlidePanel = memo(function HeroSlidePanel({
 
 /** Homepage cinematic banner engine — autoplay, swipe, loop, lazy visuals */
 
-export const HomeHeroBannerEngine = memo(function HomeHeroBannerEngine() {
+export const HomeHeroBannerEngine = memo(function HomeHeroBannerEngine({
+  slides = HOME_HERO_BANNERS,
+  autoAdvanceMs = DEFAULT_AUTO_ADVANCE_MS,
+}: HomeHeroBannerEngineProps) {
+  const slideCount = slides.length;
 
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -138,9 +149,9 @@ export const HomeHeroBannerEngine = memo(function HomeHeroBannerEngine() {
 
   const goTo = useCallback((index: number) => {
 
-    setActiveIndex((index + SLIDE_COUNT) % SLIDE_COUNT);
+    setActiveIndex((index + slideCount) % slideCount);
 
-  }, []);
+  }, [slideCount]);
 
 
 
@@ -160,11 +171,11 @@ export const HomeHeroBannerEngine = memo(function HomeHeroBannerEngine() {
 
       if (isDragging.current || isAutoplayPaused) return;
 
-      setActiveIndex((current) => (current + 1) % SLIDE_COUNT);
+      setActiveIndex((current) => (current + 1) % slideCount);
 
     },
 
-    AUTO_ADVANCE_MS,
+    autoAdvanceMs,
 
     { immediate: false },
 
@@ -173,7 +184,7 @@ export const HomeHeroBannerEngine = memo(function HomeHeroBannerEngine() {
 
 
   useEffect(() => {
-    const nextSlide = HERO_SLIDES[(activeIndex + 1) % SLIDE_COUNT];
+    const nextSlide = slides[(activeIndex + 1) % slideCount];
     if (!nextSlide?.image || !isHeroCampaignId(nextSlide.id)) return;
 
     const link = document.createElement("link");
@@ -185,7 +196,7 @@ export const HomeHeroBannerEngine = memo(function HomeHeroBannerEngine() {
     return () => {
       document.head.removeChild(link);
     };
-  }, [activeIndex]);
+  }, [activeIndex, slideCount, slides]);
 
   function handleTouchStart(event: TouchEvent) {
 
@@ -251,9 +262,9 @@ export const HomeHeroBannerEngine = memo(function HomeHeroBannerEngine() {
 
       Math.abs(index - activeIndex),
 
-      Math.abs(index - activeIndex + SLIDE_COUNT),
+      Math.abs(index - activeIndex + slideCount),
 
-      Math.abs(index - activeIndex - SLIDE_COUNT),
+      Math.abs(index - activeIndex - slideCount),
 
     );
 
@@ -307,7 +318,7 @@ export const HomeHeroBannerEngine = memo(function HomeHeroBannerEngine() {
 
           <div className="import-rx-hero-banner__track" aria-live="polite">
 
-            {HERO_SLIDES.map((slide, index) => (
+            {slides.map((slide, index) => (
 
               <div
 
@@ -339,6 +350,8 @@ export const HomeHeroBannerEngine = memo(function HomeHeroBannerEngine() {
 
                   shouldLoadVisual={shouldLoadVisual(index)}
 
+                  isFirstSlide={index === 0}
+
                 />
 
               </div>
@@ -353,7 +366,7 @@ export const HomeHeroBannerEngine = memo(function HomeHeroBannerEngine() {
 
         <div className="import-rx-hero-banner__dots" role="tablist" aria-label="Hero slides">
 
-          {HERO_SLIDES.map((slide, index) => (
+          {slides.map((slide, index) => (
 
             <button
 

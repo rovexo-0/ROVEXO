@@ -1,0 +1,28 @@
+{
+  "version": "premium-design-system-v1",
+  "pipeline": "source-photography-only",
+  "ids": [
+    "featured-listings",
+    "popular-auctions",
+    "recommended",
+    "recently-listed",
+    "business-spotlight",
+    "continue-browsing",
+    "messages",
+    "notifications",
+    "wishlist",
+    "orders",
+    "wallet",
+    "reviews"
+  ],
+  "sizes": [
+    240,
+    480,
+    960
+  ],
+  "formats": [
+    "avif",
+    "webp",
+    "png"
+  ]
+}

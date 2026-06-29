@@ -1,0 +1,88 @@
+/* ROVEXO Enterprise Module Registry V2 */
+
+.emr-admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--ds-space-4);
+}
+
+.emr-admin__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ds-space-4);
+  padding: var(--ds-space-5);
+  border: 1px solid color-mix(in srgb, #d4af37 25%, #333);
+  border-radius: var(--ds-radius-2xl);
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, #d4af37 10%, transparent), transparent 55%),
+    linear-gradient(145deg, #050505, #141414);
+  color: #f5f0e6;
+}
+
+.emr-admin__eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #d4af37; }
+.emr-admin__title { margin-top: 6px; font-size: clamp(1.375rem, 2vw, 1.875rem); font-weight: 800; }
+.emr-admin__desc { margin-top: 8px; max-width: 58ch; font-size: 0.9375rem; color: color-mix(in srgb, #f5f0e6 75%, transparent); }
+
+.emr-admin__scores { display: grid; grid-template-columns: repeat(3, minmax(90px, 1fr)); gap: var(--ds-space-3); }
+.emr-score { padding: var(--ds-space-3); border: 1px solid color-mix(in srgb, #d4af37 20%, #333); border-radius: var(--ds-radius-lg); background: color-mix(in srgb, #1a1a1a 90%, transparent); text-align: center; }
+.emr-score span { display: block; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; color: #a89870; }
+.emr-score strong { font-size: 1.5rem; font-weight: 800; color: #d4af37; }
+.emr-score--health strong { color: #22c55e; }
+.emr-score--enterprise strong { color: #60a5fa; }
+
+.emr-admin__actions { display: flex; flex-wrap: wrap; gap: var(--ds-space-3); align-items: center; }
+.emr-admin__message { padding: var(--ds-space-3); border-radius: var(--ds-radius-lg); background: color-mix(in srgb, #d4af37 10%, var(--ds-color-surface)); font-size: 0.875rem; }
+.emr-link { font-size: 0.875rem; font-weight: 600; color: var(--ds-color-primary); text-decoration: none; }
+
+.emr-tabs { display: flex; flex-wrap: wrap; gap: var(--ds-space-2); border-bottom: 1px solid var(--ds-color-border); padding-bottom: var(--ds-space-2); }
+.emr-tab { padding: 0.5rem 0.875rem; border-radius: var(--ds-radius-lg); font-size: 0.8125rem; font-weight: 600; color: var(--ds-color-text-secondary); text-decoration: none; }
+.emr-tab--active { background: color-mix(in srgb, #d4af37 15%, var(--ds-color-surface)); color: #8b6914; }
+
+.emr-grid { display: grid; gap: var(--ds-space-4); }
+@media (min-width: 900px) { .emr-grid { grid-template-columns: repeat(2, 1fr); } .emr-panel--wide { grid-column: 1 / -1; } }
+
+.emr-panel { padding: var(--ds-space-4); border: 1px solid var(--ds-color-border); border-radius: var(--ds-radius-xl); background: var(--ds-glass-bg, color-mix(in srgb, var(--ds-color-surface) 92%, transparent)); backdrop-filter: blur(12px); }
+.emr-panel h3 { font-size: 1.0625rem; font-weight: 800; margin-bottom: var(--ds-space-3); }
+.emr-subhead { font-size: 0.8125rem; color: var(--ds-color-text-muted); margin-bottom: var(--ds-space-3); }
+
+.emr-metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--ds-space-2); font-size: 0.875rem; }
+.emr-metrics div { display: flex; justify-content: space-between; padding: var(--ds-space-2); border: 1px solid var(--ds-color-border); border-radius: var(--ds-radius-md); }
+.emr-metrics dt { color: var(--ds-color-text-muted); font-weight: 600; }
+.emr-metrics dd { font-weight: 800; color: #8b6914; }
+
+.emr-search { width: 100%; margin-bottom: var(--ds-space-3); padding: 0.625rem 0.875rem; border: 1px solid var(--ds-color-border); border-radius: var(--ds-radius-lg); background: var(--ds-color-surface); }
+
+.emr-module-grid { display: grid; gap: var(--ds-space-3); grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.emr-module-card { padding: var(--ds-space-3); border: 1px solid var(--ds-color-border); border-radius: var(--ds-radius-lg); background: var(--ds-color-surface); display: flex; flex-direction: column; gap: var(--ds-space-2); font-size: 0.875rem; }
+.emr-module-card__head { display: flex; align-items: flex-start; gap: var(--ds-space-2); }
+.emr-module-card__head strong { display: block; }
+.emr-module-card__head small { color: var(--ds-color-text-muted); font-size: 0.75rem; }
+.emr-module-card__meta { display: flex; flex-wrap: wrap; gap: var(--ds-space-2); font-size: 0.75rem; color: var(--ds-color-text-muted); }
+
+.emr-health-badge { margin-left: auto; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: var(--ds-radius-full); }
+.emr-health--healthy { background: color-mix(in srgb, #22c55e 15%, transparent); color: #22c55e; }
+.emr-health--warning { background: color-mix(in srgb, #eab308 15%, transparent); color: #ca8a04; }
+.emr-health--critical { background: color-mix(in srgb, #f97316 15%, transparent); color: #ea580c; }
+.emr-health--failed { background: color-mix(in srgb, #ef4444 15%, transparent); color: #ef4444; }
+.emr-health--unknown { background: var(--ds-color-border); color: var(--ds-color-text-muted); }
+
+.emr-flag-list, .emr-dep-list, .emr-history-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--ds-space-2); font-size: 0.875rem; }
+.emr-flag-list li, .emr-dep-list li, .emr-history-list li { padding: var(--ds-space-2); border: 1px solid var(--ds-color-border); border-radius: var(--ds-radius-md); display: flex; flex-wrap: wrap; gap: var(--ds-space-2); align-items: center; }
+.emr-flag-list strong, .emr-dep-list strong, .emr-history-list strong { font-weight: 700; }
+.emr-flag-list small, .emr-dep-list small { color: var(--ds-color-text-muted); width: 100%; }
+
+.emr-alert { color: #ef4444; font-size: 0.875rem; font-weight: 600; margin-bottom: var(--ds-space-2); }
+
+.emr-health-grid { display: grid; gap: var(--ds-space-2); grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.emr-health-card { padding: var(--ds-space-3); border: 1px solid var(--ds-color-border); border-radius: var(--ds-radius-lg); display: flex; flex-direction: column; gap: 4px; font-size: 0.8125rem; }
+.emr-health-card strong { font-weight: 700; }
+
+@media (prefers-color-scheme: light) {
+  .emr-admin__header { color: #1a1a1a; background: linear-gradient(145deg, #faf8f3, #f0ebe0); }
+  .emr-admin__desc { color: #555; }
+}

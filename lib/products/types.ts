@@ -36,6 +36,7 @@ export type Product = {
   sections: ProductSection[];
   isFeatured?: boolean;
   isBumped?: boolean;
+  createdAt?: string | null;
 };
 
 export type ProductDetail = Product & {

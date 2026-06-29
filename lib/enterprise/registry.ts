@@ -27,7 +27,7 @@ export const ENTERPRISE_MODULES: EnterpriseModule[] = [
     id: "trust",
     name: "Trust Center",
     description: "Trust scores, verification, protection, disputes, and safety",
-    userRoutes: ["/trust", "/resolution"],
+    userRoutes: ["/trust", "/protection", "/resolution"],
     adminRoutes: ["/admin/trust"],
     apiPrefixes: ["/api/trust"],
   },

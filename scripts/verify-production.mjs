@@ -10,6 +10,7 @@ const steps = [
   { name: "ESLint", command: `${npmCmd} run lint` },
   { name: "TypeScript", command: `${npmCmd} run typecheck` },
   { name: "Tests", command: `${npmCmd} run test:ci` },
+  { name: "Production assets", command: `${npmCmd} run verify:assets` },
   { name: "Production build", command: `${npmCmd} run build` },
   { name: "Environment", command: `${npmCmd} run verify:env` },
 ];

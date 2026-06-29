@@ -1,0 +1,6 @@
+export const ENTERPRISE_WORKFLOW_ENGINE_DRAFT_KEY = "enterprise_workflow_engine_draft_v1";
+export const ENTERPRISE_WORKFLOW_ENGINE_LIVE_KEY = "enterprise_workflow_engine_live_v1";
+export const ENTERPRISE_WORKFLOW_ENGINE_HISTORY_KEY = "enterprise_workflow_engine_config_history_v1";
+export const ENTERPRISE_WORKFLOW_ENGINE_SETTINGS_KEY = "enterprise_workflow_engine_settings_v1";
+export const ENTERPRISE_WORKFLOW_ENGINE_STATE_KEY = "enterprise_workflow_engine_state_v1";
+export const ENTERPRISE_WORKFLOW_ENGINE_EXECUTIONS_KEY = "enterprise_workflow_engine_executions_v1";

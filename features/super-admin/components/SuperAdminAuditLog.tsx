@@ -19,7 +19,7 @@ export function SuperAdminAuditLog() {
 
   useEffect(() => {
     void (async () => {
-      const response = await fetch("/api/super-admin/audit?limit=100");
+      const response = await fetch("/api/super-admin/audit/timeline?limit=100");
       const payload = (await response.json()) as { entries?: AuditEntry[] };
       setEntries(payload.entries ?? []);
       setLoading(false);

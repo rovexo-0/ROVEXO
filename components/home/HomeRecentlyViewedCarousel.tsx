@@ -27,7 +27,7 @@ export const HomeContinueBrowsingCarousel = memo(function HomeContinueBrowsingCa
           Continue Browsing
         </h2>
         <Link href="/saved" className={cn("text-sm font-semibold text-primary hover:opacity-80", focusRing)}>
-          View all
+          View all →
         </Link>
       </div>
 

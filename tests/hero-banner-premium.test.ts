@@ -37,6 +37,8 @@ describe("Hero banner category synchronization", () => {
     expect(heroImages).toContain("getHeroCampaignWebpSrc");
     expect(heroImages).not.toContain("unsplash.com");
     expect(campaignLibrary).toContain("getHeroCampaignAvifSrc");
+    expect(campaignLibrary).toContain("getHeroCampaignPngSrc");
+    expect(campaignLibrary).toContain("getHeroCampaignSrcSet");
     expect(campaignLibrary).toContain("/hero/");
     expect(constants).toContain("heroCampaignImage");
     expect(constants).not.toContain("unsplash.com");

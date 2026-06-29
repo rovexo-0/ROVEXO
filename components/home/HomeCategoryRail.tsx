@@ -10,6 +10,8 @@ import { focusRing } from "@/components/ui/tokens";
 
 type HomeCategoryRailProps = {
   className?: string;
+  iconSize?: number;
+  gap?: number;
 };
 
 function triggerCategoryHaptic() {
@@ -18,7 +20,11 @@ function triggerCategoryHaptic() {
   }
 }
 
-export const HomeCategoryRail = memo(function HomeCategoryRail({ className }: HomeCategoryRailProps) {
+export const HomeCategoryRail = memo(function HomeCategoryRail({
+  className,
+  iconSize = 80,
+  gap,
+}: HomeCategoryRailProps) {
   const pathname = usePathname();
 
   const handlePress = useCallback(() => {
@@ -38,6 +44,7 @@ export const HomeCategoryRail = memo(function HomeCategoryRail({ className }: Ho
         className="rx-category-rail -mx-ds-4 px-ds-4"
         role="list"
         aria-label="Shop by category"
+        style={gap != null ? { gap } : undefined}
       >
         {HOME_CATEGORY_NAV.map((category, index) => {
           const href = category.href ?? `/category/${category.slug}`;
@@ -59,7 +66,7 @@ export const HomeCategoryRail = memo(function HomeCategoryRail({ className }: Ho
               <span className="rx-category-icon">
                 <HomeCategoryIconImage
                   type={category.icon}
-                  size={80}
+                  size={iconSize}
                   variant="premium"
                   priority={index < 4}
                 />

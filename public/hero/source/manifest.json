@@ -1,0 +1,15 @@
+{
+  "version": "approved-premium-photography",
+  "pipeline": "source-photography-only",
+  "importedAt": "2026-06-27T23:02:52.558Z",
+  "campaigns": [
+    "move-store",
+    "zero-fees",
+    "verified-businesses",
+    "buy-securely",
+    "fast-delivery",
+    "electronics-deals",
+    "home-garden",
+    "premium-auctions"
+  ]
+}

@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createServiceRoleClient } from "@/lib/supabase/admin";
 import { getPlatformHealthReport } from "@/lib/ops/health";
 import type { Json } from "@/lib/supabase/types/database";
 import { getProductionOperationsSnapshot } from "@/lib/ops/production-status";
@@ -98,7 +98,7 @@ async function fetchLogsByCategories(): Promise<Record<string, LogEntry[]>> {
   };
 
   try {
-    const admin = createAdminClient();
+    const admin = createServiceRoleClient();
     const categories = ["api", "cron", "email", "payment", "auth", "admin", "storage", "unhandled"] as const;
     const since = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
 
@@ -194,7 +194,7 @@ export async function getAiOperationsSnapshot(): Promise<AiOperationsSnapshot> {
     detail: widget.detail,
   }));
 
-  const admin = createAdminClient();
+  const admin = createServiceRoleClient();
   const since = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
   const { count: errorCount24h } = await admin
     .from("platform_error_logs")
@@ -283,5 +283,6 @@ export async function runAiOperationsScan(actorId: string): Promise<AiOperations
   } catch {
     // Settings persistence must not block scan execution.
   }
+
   return getAiOperationsSnapshot();
 }

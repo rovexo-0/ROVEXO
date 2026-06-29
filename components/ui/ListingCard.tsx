@@ -12,6 +12,7 @@ import { trackSaveListing } from "@/lib/analytics/marketplace-events";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 import { ShareListingSheet } from "@/components/share/ShareListingSheet";
 import { getActiveMarket } from "@/lib/seo/markets";
+import { formatPublishedTime } from "@/lib/home/format-published-time";
 import { focusRing, transitionNormal, transitionSpring } from "@/components/ui/tokens";
 
 export type ListingCardProps = {
@@ -22,6 +23,8 @@ export type ListingCardProps = {
   price: number;
   originalPrice?: number | null;
   condition?: string;
+  publishedAt?: string | null;
+  premiumMeta?: boolean;
   views?: number;
   productId?: string;
   slug?: string;
@@ -81,6 +84,9 @@ export function ListingCard({
   imageAlt,
   price,
   originalPrice,
+  condition,
+  publishedAt,
+  premiumMeta = false,
   views,
   productId,
   slug,
@@ -119,7 +125,9 @@ export function ListingCard({
   const displayPrice = isAuction && auctionCurrentBid != null ? auctionCurrentBid : price;
   const showRating = rating != null && rating > 0;
   const showViews = views != null;
-  const showStats = showRating || showViews || (isAuction && countdown);
+  const showStats = !premiumMeta && (showRating || showViews || (isAuction && countdown));
+  const publishedLabel = formatPublishedTime(publishedAt);
+  const showPremiumMeta = premiumMeta && (condition || location || publishedLabel);
 
   useEffect(() => {
     if (!productId || (!isFeatured && !isBumped)) return;
@@ -214,7 +222,7 @@ export function ListingCard({
           ) : null}
           {isNew ? (
             <Badge variant="success" className="rx-listing-card__badge rx-listing-card__badge px-1 py-0.5 text-[9px] leading-none uppercase">
-              New
+              NEW
             </Badge>
           ) : null}
           {isBumped && !isFeatured ? (
@@ -283,6 +291,16 @@ export function ListingCard({
           className="rx-listing-card__price rx-listing-card__price gap-0.5"
         />
 
+        {showPremiumMeta ? (
+          <div className="rx-listing-card__meta">
+            {condition ? <span className="rx-listing-card__meta-item">{condition}</span> : null}
+            {location ? <span className="rx-listing-card__meta-item">{location}</span> : null}
+            {publishedLabel ? (
+              <span className="rx-listing-card__meta-item">{publishedLabel}</span>
+            ) : null}
+          </div>
+        ) : null}
+
         {showStats ? (
           <div className="rx-listing-card__stats rx-listing-card__stats">
             {showRating ? (
@@ -306,7 +324,7 @@ export function ListingCard({
           </div>
         ) : null}
 
-        {location ? (
+        {!premiumMeta && location ? (
           <p className="rx-listing-card__location rx-listing-card__location">
             <span aria-hidden>📍</span>
             {location}

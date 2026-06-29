@@ -44,7 +44,9 @@ const PREMIUM_HOME_IMPORTS = [
 
   "HomeHeroBannerEngine",
 
-  "ProductCarouselSection",
+  "FeaturedListingsSection",
+
+  "HomeProductSection",
 
   "LiveAuctionsSection",
 
@@ -71,6 +73,8 @@ describe("Homepage enterprise migration contract", () => {
     expect(page).toContain("BetaAppShell");
 
     expect(page).toContain("<Header />");
+
+    expect(page).toContain('fetchProducts("popular"');
 
     expect(page).toContain('fetchProducts("recommended"');
 
@@ -121,7 +125,9 @@ describe("Homepage enterprise migration contract", () => {
 
     const bannerIndex = homeContent.indexOf("<HomeHeroBannerEngine");
 
-    const recommendedIndex = homeContent.indexOf('title="Recommended"');
+    const featuredIndex = homeContent.indexOf("<FeaturedListingsSection");
+
+    const recommendedIndex = homeContent.indexOf('title="Recommended For You"');
 
     const recentlyListedIndex = homeContent.indexOf('title="Recently Listed"');
 
@@ -137,7 +143,9 @@ describe("Homepage enterprise migration contract", () => {
 
     expect(bannerIndex).toBeGreaterThan(categoryIndex);
 
-    expect(recommendedIndex).toBeGreaterThan(bannerIndex);
+    expect(featuredIndex).toBeGreaterThan(bannerIndex);
+
+    expect(recommendedIndex).toBeGreaterThan(featuredIndex);
 
     expect(recentlyListedIndex).toBeGreaterThan(recommendedIndex);
 

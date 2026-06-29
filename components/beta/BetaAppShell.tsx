@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { BottomNavigation, type BottomNavTab } from "@/components/ui/BottomNavigation";
 import { MobileHeaderScrollProvider } from "@/components/home/MobileHeaderScrollContext";
 import { RealtimeNotificationProvider } from "@/features/notifications/components/RealtimeNotificationProvider";
+import type { MenuItemConfig, PlatformVisualConfig } from "@/lib/platform-visual/types";
+import { resolvePublishedMenuItems } from "@/lib/platform-visual/resolver";
 import { cn } from "@/lib/cn";
 
 type BetaAppShellProps = {
@@ -12,6 +14,7 @@ type BetaAppShellProps = {
   showBottomNav?: boolean;
   className?: string;
   initialUnreadCount?: number;
+  visualConfig?: PlatformVisualConfig;
 };
 
 export function BetaAppShell({
@@ -20,7 +23,17 @@ export function BetaAppShell({
   showBottomNav = true,
   className,
   initialUnreadCount = 0,
+  visualConfig,
 }: BetaAppShellProps) {
+  const bottomNavItems = visualConfig
+    ? resolvePublishedMenuItems(visualConfig.menus, "bottomNav")
+    : undefined;
+  const bottomNavVisible =
+    showBottomNav &&
+    (visualConfig?.shell.bottomNavigation
+      ? visualConfig.shell.bottomNavigation.enabled && visualConfig.shell.bottomNavigation.published
+      : true);
+
   return (
     <RealtimeNotificationProvider initialUnreadCount={initialUnreadCount}>
       <MobileHeaderScrollProvider>
@@ -31,7 +44,9 @@ export function BetaAppShell({
           )}
         >
           {children}
-          {showBottomNav && <BottomNavigation active={bottomNavTab} />}
+          {bottomNavVisible ? (
+            <BottomNavigation active={bottomNavTab} menuItems={bottomNavItems} visible={bottomNavVisible} />
+          ) : null}
         </div>
       </MobileHeaderScrollProvider>
     </RealtimeNotificationProvider>

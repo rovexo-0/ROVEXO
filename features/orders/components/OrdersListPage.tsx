@@ -31,6 +31,7 @@ export function OrdersListPage({
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
         {orders.length === 0 ? (
           <EmptyState
+            premiumIllustrationId="orders"
             title="No orders yet"
             description="When you buy or sell on ROVEXO, your orders will appear here."
             actionLabel="Browse listings"
