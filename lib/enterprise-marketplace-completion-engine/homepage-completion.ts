@@ -113,11 +113,11 @@ function scanFeaturedContent(homeContent: string, scan: MarketplaceCompletionSca
     "featured-listings": "components/home/FeaturedListingsSection.tsx",
     "recommended-listings": "components/home/HomeProductSection.tsx",
     "latest-listings": "components/home/HomeProductSection.tsx",
-    "trending-listings": "components/home/TrendingSearchesSection.tsx",
+    "trending-listings": "components/home/HomeTrendingListingsSection.tsx",
     "sponsored-listings": "components/home/HomePromoBanner.tsx",
     "business-promotions": "components/home/BusinessSpotlightSection.tsx",
     "banner-rotation": "components/home/BringYourItemsBanner.tsx",
-    "carousel-behaviour": "components/home/HomeRecentlyViewedCarousel.tsx",
+    "carousel-behaviour": "components/home/HomeAllListingsSection.tsx",
     "lazy-loading": "components/home/ProductGridSkeleton.tsx",
   };
 

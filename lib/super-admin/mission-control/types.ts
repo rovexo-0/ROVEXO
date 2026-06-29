@@ -49,6 +49,8 @@ export type HomepageBuilderComponentId =
   | "business-spotlight"
   | "continue-browsing"
   | "trending-searches"
+  | "trending-listings"
+  | "all-listings"
   | "footer"
   | "bottom-navigation";
 

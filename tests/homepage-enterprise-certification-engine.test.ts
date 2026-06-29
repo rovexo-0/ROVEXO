@@ -101,7 +101,7 @@ describe("homepage enterprise certification registry constants", () => {
     expect(HOMEPAGE_SECTIONS).toContain("category-rail");
     expect(HOMEPAGE_SECTIONS).toContain("bring-items");
     expect(HOMEPAGE_SECTIONS).toContain("bottom-navigation");
-    expect(HOMEPAGE_SECTIONS.length).toBe(15);
+    expect(HOMEPAGE_SECTIONS.length).toBe(14);
   });
 
   it("defines button and search checks", () => {

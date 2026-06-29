@@ -613,7 +613,7 @@ describe("execution mode 074", () => {
 
 describe("homepage completion program 075", () => {
   it("defines homepage completion domains", () => {
-    expect(GLOBAL_HOMEPAGE_SCAN_COMPONENTS.length).toBe(16);
+    expect(GLOBAL_HOMEPAGE_SCAN_COMPONENTS.length).toBe(17);
     expect(HOMEPAGE_VISUAL_INTEGRITY_CHECKS.length).toBe(18);
     expect(HOMEPAGE_SEARCH_VALIDATION.length).toBe(11);
     expect(HOMEPAGE_CATEGORY_VALIDATION.length).toBe(11);

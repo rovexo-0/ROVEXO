@@ -4,13 +4,14 @@ import dynamic from "next/dynamic";
 import { memo } from "react";
 import type { Product } from "@/lib/products/types";
 import type { AuctionListing } from "@/lib/auctions/types";
+import type { ProductsPage } from "@/lib/products/types";
 import { FeaturedListingsSection } from "@/components/home/FeaturedListingsSection";
 import { HomeProductSection } from "@/components/home/HomeProductSection";
 import { HomeCategoryRail } from "@/components/home/HomeCategoryRail";
-import { HeaderCategoryBar } from "@/components/header/HeaderCategoryBar";
-import { VisualSection } from "@/components/platform-visual/VisualSection";
+import { HomeAllListingsSection } from "@/components/home/HomeAllListingsSection";
+import { HomeTrendingListingsSection } from "@/components/home/HomeTrendingListingsSection";
 import { VisualThemeScope } from "@/components/platform-visual/VisualThemeScope";
-import type { HomepageBuilderComponent, PlatformVisualConfig } from "@/lib/platform-visual/types";
+import type { PlatformVisualConfig } from "@/lib/platform-visual/types";
 import { cn } from "@/lib/cn";
 
 const BringYourItemsBanner = dynamic(
@@ -29,27 +30,13 @@ const LiveAuctionsSection = dynamic(
   { loading: () => null },
 );
 
-const HomeContinueBrowsingCarousel = dynamic(
-  () =>
-    import("@/components/home/HomeRecentlyViewedCarousel").then((module) => ({
-      default: module.HomeContinueBrowsingCarousel,
-    })),
-  { loading: () => null },
-);
-
-const TrendingSearchesSection = dynamic(
-  () =>
-    import("@/components/home/TrendingSearchesSection").then((module) => ({
-      default: module.TrendingSearchesSection,
-    })),
-  { loading: () => null },
-);
-
 type HomeContentProps = {
   featured: Product[];
   recommended: Product[];
   newListings: Product[];
   latestListings: Product[];
+  trendingListings: Product[];
+  allListings: ProductsPage;
   liveAuctions: AuctionListing[];
   visualConfig: PlatformVisualConfig;
   loadError?: {
@@ -57,127 +44,24 @@ type HomeContentProps = {
     recommended?: boolean;
     newListings?: boolean;
     latestListings?: boolean;
+    trendingListings?: boolean;
     auctions?: boolean;
+    allListings?: boolean;
   };
 };
-
-function renderHomeSection(
-  component: HomepageBuilderComponent,
-  props: Omit<HomeContentProps, "visualConfig">,
-) {
-  switch (component.id) {
-    case "top-category-bar":
-      return (
-        <VisualSection key={component.id} component={component} className="rx-top-category-bar-section">
-          <HeaderCategoryBar className="border-t-0" />
-        </VisualSection>
-      );
-    case "category-rail":
-      return (
-        <VisualSection key={component.id} component={component}>
-          <HomeCategoryRail iconSize={component.style.iconSize ?? 80} gap={component.style.gap} />
-        </VisualSection>
-      );
-    case "bring-items":
-      return (
-        <VisualSection key={component.id} component={component}>
-          <BringYourItemsBanner />
-        </VisualSection>
-      );
-    case "popular-auctions":
-      return (
-        <VisualSection key={component.id} component={component}>
-          <LiveAuctionsSection auctions={props.liveAuctions} loadError={props.loadError?.auctions} />
-        </VisualSection>
-      );
-    case "featured-listings":
-      return (
-        <VisualSection key={component.id} component={component}>
-          <FeaturedListingsSection products={props.featured} error={props.loadError?.featured} />
-        </VisualSection>
-      );
-    case "recommended":
-      return (
-        <VisualSection key={component.id} component={component}>
-          <HomeProductSection
-            id="recommended-for-you-heading"
-            title="Recommended"
-            products={props.recommended}
-            error={props.loadError?.recommended}
-            hideWhenEmpty={false}
-            viewAllHref="/search?q=&sort=recommended"
-            viewAllLabel="View all →"
-            layout="scroll-grid"
-            skeletonCount={component.style.columns ?? 4}
-          />
-        </VisualSection>
-      );
-    case "new-listings":
-      return (
-        <VisualSection key={component.id} component={component}>
-          <HomeProductSection
-            id="new-listings-heading"
-            title="New Listings"
-            products={props.newListings}
-            error={props.loadError?.newListings}
-            hideWhenEmpty={false}
-            viewAllHref="/search?q=&sort=newest"
-            viewAllLabel="View all →"
-            layout="scroll-grid"
-            skeletonCount={component.style.columns ?? 4}
-          />
-        </VisualSection>
-      );
-    case "latest-listings":
-      return (
-        <VisualSection key={component.id} component={component}>
-          <HomeProductSection
-            id="latest-listings-heading"
-            title="Latest Listings"
-            products={props.latestListings}
-            error={props.loadError?.latestListings}
-            hideWhenEmpty={false}
-            viewAllHref="/search?q=&sort=trending"
-            viewAllLabel="View all →"
-            layout="scroll-grid"
-            skeletonCount={component.style.columns ?? 4}
-          />
-        </VisualSection>
-      );
-    case "continue-browsing":
-      return (
-        <VisualSection key={component.id} component={component}>
-          <HomeContinueBrowsingCarousel />
-        </VisualSection>
-      );
-    case "trending-searches":
-      return (
-        <VisualSection key={component.id} component={component}>
-          <TrendingSearchesSection />
-        </VisualSection>
-      );
-    default:
-      return null;
-  }
-}
 
 export const HomeContent = memo(function HomeContent({
   featured,
   recommended,
   newListings,
   latestListings,
+  trendingListings,
+  allListings,
   liveAuctions,
   visualConfig,
   loadError = {},
 }: HomeContentProps) {
-  const sectionProps = {
-    featured,
-    recommended,
-    newListings,
-    latestListings,
-    liveAuctions,
-    loadError,
-  };
+  const categoryRail = visualConfig.homepageBuilder.components.find((item) => item.id === "category-rail");
 
   return (
     <VisualThemeScope theme={visualConfig.theme} mode={visualConfig.mode}>
@@ -186,7 +70,72 @@ export const HomeContent = memo(function HomeContent({
           "rx-home-polish rx-home-final flex w-full flex-col pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))]",
         )}
       >
-        {visualConfig.publishedSections.map((component) => renderHomeSection(component, sectionProps))}
+        <section
+          className="rx-visual-section rx-home-category-only"
+          data-component-id="category-rail"
+          aria-label="Categories"
+        >
+          <HomeCategoryRail
+            iconSize={categoryRail?.style.iconSize ?? 80}
+            gap={categoryRail?.style.gap ?? 12}
+          />
+        </section>
+
+        <section className="rx-visual-section" data-component-id="bring-items">
+          <BringYourItemsBanner />
+        </section>
+
+        <section className="rx-visual-section" data-component-id="popular-auctions">
+          <LiveAuctionsSection auctions={liveAuctions} loadError={loadError?.auctions} />
+        </section>
+
+        <section className="rx-visual-section" data-component-id="featured-listings">
+          <FeaturedListingsSection products={featured} error={loadError?.featured} />
+        </section>
+
+        <section className="rx-visual-section" data-component-id="recommended">
+          <HomeProductSection
+            id="recommended-for-you-heading"
+            title="Recommended"
+            products={recommended}
+            error={loadError?.recommended}
+            hideWhenEmpty
+            viewAllHref="/search?q=&sort=recommended"
+          />
+        </section>
+
+        <section className="rx-visual-section" data-component-id="new-listings">
+          <HomeProductSection
+            id="new-listings-heading"
+            title="New Listings"
+            products={newListings}
+            error={loadError?.newListings}
+            hideWhenEmpty
+            viewAllHref="/search?q=&sort=newest"
+          />
+        </section>
+
+        <section className="rx-visual-section" data-component-id="latest-listings">
+          <HomeProductSection
+            id="latest-listings-heading"
+            title="Latest Listings"
+            products={latestListings}
+            error={loadError?.latestListings}
+            hideWhenEmpty
+            viewAllHref="/search?q=&sort=trending"
+          />
+        </section>
+
+        <section className="rx-visual-section" data-component-id="trending-listings">
+          <HomeTrendingListingsSection
+            products={trendingListings}
+            error={loadError?.trendingListings}
+          />
+        </section>
+
+        <section className="rx-visual-section" data-component-id="all-listings">
+          <HomeAllListingsSection initialPage={allListings} />
+        </section>
       </main>
     </VisualThemeScope>
   );

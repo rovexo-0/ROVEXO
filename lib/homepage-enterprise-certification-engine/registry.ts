@@ -16,7 +16,6 @@ export const HOMEPAGE_CERTIFICATION_ROUTES = [
 export const HOMEPAGE_SECTIONS = [
   "premium-header",
   "search-bar",
-  "top-category-bar",
   "category-rail",
   "bring-items",
   "featured-listings",
@@ -25,8 +24,8 @@ export const HOMEPAGE_SECTIONS = [
   "latest-listings",
   "popular-categories",
   "auction-preview",
-  "recently-viewed",
-  "trending-searches",
+  "trending-listings",
+  "all-listings",
   "footer",
   "bottom-navigation",
 ] as const;

@@ -34,6 +34,12 @@
   margin-bottom: 0;
 }
 
+.rx-page-home .rx-home-final .rx-home-category-only,
+.rx-page-home .rx-home-final .rx-visual-section.rx-home-category-only {
+  margin-top: 0;
+  padding-top: 0;
+}
+
 .rx-page-home .rx-home-final .rx-home-category-sync {
   margin-bottom: 0;
 }

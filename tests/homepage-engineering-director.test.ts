@@ -16,7 +16,7 @@ describe("homepage engineering director registry", () => {
     expect(HOMEPAGE_FULL_SCAN_COMPONENTS).toContain("premium-header");
     expect(HOMEPAGE_FULL_SCAN_COMPONENTS).toContain("category-rail");
     expect(HOMEPAGE_FULL_SCAN_COMPONENTS).toContain("bottom-navigation");
-    expect(HOMEPAGE_FULL_SCAN_COMPONENTS.length).toBe(16);
+    expect(HOMEPAGE_FULL_SCAN_COMPONENTS.length).toBe(15);
   });
 
   it("defines engineering scores and production gates", () => {

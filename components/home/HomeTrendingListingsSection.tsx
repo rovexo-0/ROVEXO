@@ -5,23 +5,23 @@ import { HomeProductSection } from "@/components/home/HomeProductSection";
 import { HOME_LAUNCH_VIEW_ALL_HREFS } from "@/components/home/home-launch-config";
 import type { Product } from "@/lib/products/types";
 
-type FeaturedListingsSectionProps = {
+type HomeTrendingListingsSectionProps = {
   products: Product[];
   error?: boolean;
 };
 
-export const FeaturedListingsSection = memo(function FeaturedListingsSection({
+export const HomeTrendingListingsSection = memo(function HomeTrendingListingsSection({
   products,
   error = false,
-}: FeaturedListingsSectionProps) {
+}: HomeTrendingListingsSectionProps) {
   return (
     <HomeProductSection
-      id="featured-listings-heading"
-      title="Featured Listings"
+      id="trending-listings-heading"
+      title="Trending"
       products={products}
       error={error}
       hideWhenEmpty
-      viewAllHref={HOME_LAUNCH_VIEW_ALL_HREFS.featured}
+      viewAllHref={HOME_LAUNCH_VIEW_ALL_HREFS.trending}
     />
   );
 });

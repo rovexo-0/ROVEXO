@@ -10,7 +10,6 @@ function readSource(relativePath: string): string {
 }
 
 const LAUNCH_SECTION_ORDER = [
-  "top-category-bar",
   "category-rail",
   "bring-items",
   "popular-auctions",
@@ -18,8 +17,8 @@ const LAUNCH_SECTION_ORDER = [
   "recommended",
   "new-listings",
   "latest-listings",
-  "continue-browsing",
-  "trending-searches",
+  "trending-listings",
+  "all-listings",
 ] as const;
 
 describe("Homepage launch recovery", () => {
@@ -30,6 +29,7 @@ describe("Homepage launch recovery", () => {
     expect(homeContent).not.toContain("Official ROVEXO");
     expect(homeContent).not.toContain("HomeHeroBannerEngine");
     expect(homeContent).not.toContain("hero-slider");
+    expect(homeContent).not.toContain("HeaderCategoryBar");
   });
 
   it("does not ship the deprecated homepage hero promotion components", () => {
@@ -41,9 +41,9 @@ describe("Homepage launch recovery", () => {
   it("matches the approved launch homepage section order", () => {
     const sections = resolvePublishedHomepageSections(createDefaultHomepageBuilderConfig());
     const ids = sections.map((section) => section.id);
-    const launchIds = ids.slice(0, LAUNCH_SECTION_ORDER.length);
-    expect(launchIds).toEqual([...LAUNCH_SECTION_ORDER]);
+    expect(ids).toEqual([...LAUNCH_SECTION_ORDER]);
     expect(ids).not.toContain("hero-slider");
+    expect(ids).not.toContain("top-category-bar");
   });
 
   it("lists approved marketplace sources on the bring-items banner", () => {
@@ -56,5 +56,13 @@ describe("Homepage launch recovery", () => {
       "Depop",
       "Shopify",
     ]);
+  });
+
+  it("renders the infinite all listings feed on the homepage", () => {
+    const homeContent = readSource("components/home/HomeContent.tsx");
+    expect(homeContent).toContain("HomeAllListingsSection");
+    expect(homeContent).toContain("HomeTrendingListingsSection");
+    expect(homeContent).not.toContain("TrendingSearchesSection");
+    expect(homeContent).not.toContain("HomeContinueBrowsingCarousel");
   });
 });

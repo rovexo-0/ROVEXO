@@ -14,7 +14,7 @@ describe("platform visual resolver", () => {
   it("returns published homepage sections in order", () => {
     const config = createDefaultHomepageBuilderConfig();
     const sections = resolvePublishedHomepageSections(config);
-    expect(sections[0]?.id).toBe("top-category-bar");
+    expect(sections[0]?.id).toBe("category-rail");
     expect(sections.some((section) => section.id === "footer")).toBe(false);
   });
 

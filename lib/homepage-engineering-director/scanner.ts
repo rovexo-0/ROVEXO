@@ -92,16 +92,13 @@ function scanComponentRegistry(
       complete: header.includes("HeaderSearchBar") && !header.includes("HeaderCategoryBar"),
       message: "Canonical pill search in header row",
     },
-    "top-category-bar": {
-      label: "Top Category Bar",
-      sourceRef: "components/header/HeaderCategoryBar.tsx",
-      complete: homeContent.includes("HeaderCategoryBar") && publishedIds.has("top-category-bar"),
-      message: "Premium category pills below header",
-    },
     "category-rail": {
       label: "Category Rail",
       sourceRef: "components/home/HomeCategoryRail.tsx",
-      complete: homeContent.includes("HomeCategoryRail") && publishedIds.has("category-rail"),
+      complete:
+        homeContent.includes("HomeCategoryRail") &&
+        publishedIds.has("category-rail") &&
+        !homeContent.includes("HeaderCategoryBar"),
       message: "Single canonical HomeCategoryRail",
     },
     "category-grid": {
@@ -146,23 +143,23 @@ function scanComponentRegistry(
       complete: homeContent.includes("LiveAuctionsSection") && publishedIds.has("popular-auctions"),
       message: "Live auctions community section",
     },
-    "recently-viewed": {
-      label: "Recently Viewed",
-      sourceRef: "components/home/HomeRecentlyViewedCarousel.tsx",
-      complete: homeContent.includes("HomeContinueBrowsingCarousel") && publishedIds.has("continue-browsing"),
-      message: "Recently viewed carousel",
-    },
-    "trending-searches": {
+    "trending-listings": {
       label: "Trending",
-      sourceRef: "components/home/TrendingSearchesSection.tsx",
-      complete: homeContent.includes("TrendingSearchesSection") && publishedIds.has("trending-searches"),
-      message: "Trending searches section",
+      sourceRef: "components/home/HomeTrendingListingsSection.tsx",
+      complete: homeContent.includes("HomeTrendingListingsSection") && publishedIds.has("trending-listings"),
+      message: "Trending listings carousel",
+    },
+    "all-listings": {
+      label: "All Listings",
+      sourceRef: "components/home/HomeAllListingsSection.tsx",
+      complete: homeContent.includes("HomeAllListingsSection") && publishedIds.has("all-listings"),
+      message: "Infinite all listings feed",
     },
     footer: {
       label: "Footer",
-      sourceRef: "components/home/HomePageShell.tsx",
-      complete: true,
-      message: "Footer optional — shell supports extension",
+      sourceRef: "styles/rovexo/home-final.css",
+      complete: readSource("styles/rovexo/home-final.css").includes(":has(.rx-page-home) > footer"),
+      message: "Homepage footer hidden — launch ends at listings",
     },
     "bottom-navigation": {
       label: "Bottom Navigation",
@@ -307,7 +304,8 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
     header.includes("/messages") &&
     header.includes("/notifications") &&
     !header.includes("HeaderCategoryBar") &&
-    homeContent.includes("HeaderCategoryBar")
+    !homeContent.includes("HeaderCategoryBar") &&
+    homeContent.includes("HomeCategoryRail")
       ? 100
       : 0;
 

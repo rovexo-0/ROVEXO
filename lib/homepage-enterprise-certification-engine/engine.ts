@@ -47,7 +47,6 @@ import type { HomepageEngineeringScanResult } from "@/lib/homepage-engineering-d
 const SECTION_COMPONENT_REFS: Record<string, string> = {
   "premium-header": "BetaAppShell / HomePageShell",
   "search-bar": "HeaderSearchBar",
-  "top-category-bar": "HeaderCategoryBar",
   "category-rail": "HomeCategoryRail",
   "bring-items": "BringYourItemsBanner",
   "featured-listings": "FeaturedListingsSection",
@@ -56,10 +55,10 @@ const SECTION_COMPONENT_REFS: Record<string, string> = {
   "latest-listings": "HomeProductSection (latest)",
   "popular-categories": "HomeCategoryRail (canonical — grid retired)",
   "sponsored-sections": "VisualSection sponsored",
-  "recently-viewed": "HomeContinueBrowsingCarousel",
-  "trending-searches": "TrendingSearchesSection",
+  "trending-listings": "HomeTrendingListingsSection",
+  "all-listings": "HomeAllListingsSection",
   "auction-preview": "LiveAuctionsSection",
-  footer: "HomePageShell footer",
+  footer: "Homepage footer hidden on launch",
   "bottom-navigation": "BetaAppShell bottom nav",
 };
 

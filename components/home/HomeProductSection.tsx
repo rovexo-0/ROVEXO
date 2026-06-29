@@ -1,28 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { memo, type ReactNode } from "react";
-import { PremiumProductCard } from "@/components/home/PremiumProductCard";
+import { memo, useMemo, type ReactNode } from "react";
+import { PremiumListingCard } from "@/components/home/PremiumProductCard";
+import {
+  HOME_LAUNCH_SECTION_CARD_LIMIT,
+  HOME_LAUNCH_VIEW_ALL_LABEL,
+} from "@/components/home/home-launch-config";
 import { productToCardProps } from "@/lib/products/card";
 import type { Product } from "@/lib/products/types";
-import { ProductCarouselSkeleton } from "@/components/home/ProductCarouselSkeleton";
-import { ProductGridSkeleton } from "@/components/home/ProductGridSkeleton";
-import { ProductSectionEmpty } from "@/components/home/ProductSectionStates";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
-
-type HomeProductSectionLayout = "featured-grid" | "scroll-grid";
 
 type HomeProductSectionProps = {
   id: string;
   title: string;
   products: Product[];
-  loading?: boolean;
   error?: boolean;
   viewAllHref?: string;
   viewAllLabel?: string;
-  layout?: HomeProductSectionLayout;
-  skeletonCount?: number;
   hideWhenEmpty?: boolean;
   className?: string;
   footer?: ReactNode;
@@ -32,25 +28,23 @@ export const HomeProductSection = memo(function HomeProductSection({
   id,
   title,
   products,
-  loading = false,
   error = false,
   viewAllHref,
-  viewAllLabel = "View all →",
-  layout = "scroll-grid",
-  skeletonCount = 4,
-  hideWhenEmpty = false,
+  viewAllLabel = HOME_LAUNCH_VIEW_ALL_LABEL,
+  hideWhenEmpty = true,
   className,
   footer,
 }: HomeProductSectionProps) {
-  if (hideWhenEmpty && !loading && !error && products.length === 0) {
+  const visibleProducts = useMemo(
+    () => products.slice(0, HOME_LAUNCH_SECTION_CARD_LIMIT),
+    [products],
+  );
+
+  if (hideWhenEmpty && (error || visibleProducts.length === 0)) {
     return null;
   }
 
-  const showViewAll = Boolean(viewAllHref && products.length > 0 && !loading && !error);
-  const gridClassName =
-    layout === "featured-grid"
-      ? "rx-home-featured-grid"
-      : "rx-home-premium-scroll rx-home-premium-scroll--desktop-grid";
+  const showViewAll = Boolean(viewAllHref && visibleProducts.length > 0);
 
   return (
     <section aria-labelledby={id} className={cn("rx-section px-ds-4", className)}>
@@ -61,44 +55,26 @@ export const HomeProductSection = memo(function HomeProductSection({
         {showViewAll ? (
           <Link
             href={viewAllHref!}
-            className={cn("text-sm font-semibold text-primary hover:opacity-80", focusRing)}
+            className={cn("shrink-0 text-sm font-semibold text-primary hover:opacity-80", focusRing)}
           >
             {viewAllLabel}
           </Link>
         ) : null}
       </div>
 
-      {loading ? (
-        <div className={cn(gridClassName, layout === "featured-grid" && "rx-home-featured-grid--loading")}>
-          {layout === "featured-grid" ? (
-            <ProductGridSkeleton count={skeletonCount} />
-          ) : (
-            <ProductCarouselSkeleton count={skeletonCount} />
-          )}
-        </div>
-      ) : error ? (
-        <div className="rounded-ds-xl border border-danger/50 bg-surface px-ds-5 py-ds-6 text-center text-sm font-medium text-text-primary">
-          Unable to load {title.toLowerCase()}.
-        </div>
-      ) : products.length === 0 ? (
-        <div className={cn(gridClassName, "rx-home-featured-grid--empty")}>
-          <ProductSectionEmpty title={title} />
-        </div>
-      ) : (
-        <div
-          className={cn(gridClassName, "-mx-ds-4 px-ds-4 pb-ds-1")}
-          role="group"
-          aria-roledescription={layout === "scroll-grid" ? "carousel" : undefined}
-          aria-label={title}
-        >
-          {products.map((product) => (
-            <PremiumProductCard
-              key={product.id}
-              {...productToCardProps(product, "homepage")}
-            />
-          ))}
-        </div>
-      )}
+      <div
+        className="rx-home-launch-scroll -mx-ds-4 px-ds-4 pb-ds-1"
+        role="group"
+        aria-roledescription="carousel"
+        aria-label={title}
+      >
+        {visibleProducts.map((product) => (
+          <PremiumListingCard
+            key={product.id}
+            {...productToCardProps(product, "homepage")}
+          />
+        ))}
+      </div>
 
       {footer}
     </section>

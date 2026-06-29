@@ -39,7 +39,12 @@ export const PremiumProductCard = memo(function PremiumProductCard({
   );
 });
 
-/** @deprecated Use PremiumProductCard — kept for existing imports */
+/** Launch homepage listing card — shared across every marketplace rail. */
+export const PremiumListingCard = PremiumProductCard;
+
+export type PremiumListingCardProps = PremiumProductCardProps;
+
+/** @deprecated Use PremiumListingCard — kept for existing imports */
 export const HomeProductCard = PremiumProductCard;
 
 export type HomeProductCardProps = PremiumProductCardProps;

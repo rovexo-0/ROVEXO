@@ -21,13 +21,13 @@ const LEGACY_HOME_IMPORTS = [
 ];
 
 const PREMIUM_HOME_IMPORTS = [
-  "HeaderCategoryBar",
   "HomeCategoryRail",
   "BringYourItemsBanner",
   "FeaturedListingsSection",
   "HomeProductSection",
   "LiveAuctionsSection",
-  "HomeContinueBrowsingCarousel",
+  "HomeTrendingListingsSection",
+  "HomeAllListingsSection",
 ];
 
 describe("Homepage enterprise migration contract", () => {
@@ -59,12 +59,12 @@ describe("Homepage enterprise migration contract", () => {
     }
   });
 
-  it("keeps top category pills in homepage content, not in the header", () => {
+  it("keeps a single category rail on the homepage", () => {
     const header = readSource("components/Header.tsx");
     const homeContent = readSource("components/home/HomeContent.tsx");
 
     expect(header).not.toContain("HeaderCategoryBar");
-    expect(homeContent).toContain("HeaderCategoryBar");
+    expect(homeContent).not.toContain("HeaderCategoryBar");
     expect(homeContent).toContain("HomeCategoryRail");
   });
 

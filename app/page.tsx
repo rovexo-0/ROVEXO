@@ -61,23 +61,36 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     recommended: false,
     newListings: false,
     latestListings: false,
+    trendingListings: false,
     auctions: false,
+    allListings: false,
   };
 
   let featured: ProductsPage = emptyPage;
   let recommended: ProductsPage = emptyPage;
   let newListings: ProductsPage = emptyPage;
   let latestListings: ProductsPage = emptyPage;
+  let trendingListings: ProductsPage = emptyPage;
+  let allListings: ProductsPage = emptyPage;
   let liveAuctions: Awaited<ReturnType<typeof getAuctionsPageData>>["featured"] = [];
 
-  const [featuredResult, recommendedResult, newListingsResult, latestListingsResult, auctionsResult] =
-    await Promise.allSettled([
-      fetchProducts("popular", 1),
-      fetchProducts("recommended", 1),
-      fetchProducts("new", 1),
-      fetchProducts("trending", 1),
-      getAuctionsPageData(),
-    ]);
+  const [
+    featuredResult,
+    recommendedResult,
+    newListingsResult,
+    latestListingsResult,
+    trendingListingsResult,
+    allListingsResult,
+    auctionsResult,
+  ] = await Promise.allSettled([
+    fetchProducts("popular", 1),
+    fetchProducts("recommended", 1),
+    fetchProducts("new", 1),
+    fetchProducts("trending", 1),
+    fetchProducts("popular", 2),
+    fetchProducts("popular", 1),
+    getAuctionsPageData(),
+  ]);
 
   if (featuredResult.status === "fulfilled") {
     featured = featuredResult.value;
@@ -103,6 +116,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     loadError.latestListings = true;
   }
 
+  if (trendingListingsResult.status === "fulfilled") {
+    trendingListings = trendingListingsResult.value;
+  } else {
+    loadError.trendingListings = true;
+  }
+
+  if (allListingsResult.status === "fulfilled") {
+    allListings = allListingsResult.value;
+  } else {
+    loadError.allListings = true;
+  }
+
   if (auctionsResult.status === "fulfilled") {
     liveAuctions = auctionsResult.value.featured.slice(0, 8);
   } else {
@@ -126,6 +151,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           recommended={recommended.items}
           newListings={newListings.items}
           latestListings={latestListings.items}
+          trendingListings={trendingListings.items}
+          allListings={allListings}
           liveAuctions={liveAuctions}
           visualConfig={visualConfig}
           loadError={loadError}

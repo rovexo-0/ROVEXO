@@ -40,9 +40,8 @@ describe("normalizeHomepageBuilderConfigForLaunch", () => {
     const publishedIds = resolvePublishedHomepageSections(normalized).map((section) => section.id);
 
     expect(publishedIds).not.toContain("hero-slider");
-    expect(publishedIds[0]).toBe("top-category-bar");
-    expect(publishedIds[1]).toBe("category-rail");
-    expect(publishedIds[2]).toBe("bring-items");
+    expect(publishedIds[0]).toBe("category-rail");
+    expect(publishedIds[1]).toBe("bring-items");
   });
 
   it("restores approved launch section order from defaults", () => {

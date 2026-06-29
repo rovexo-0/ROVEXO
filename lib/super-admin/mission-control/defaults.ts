@@ -15,7 +15,7 @@ export function createDefaultHomepageBuilderConfig(): HomepageBuilderConfig {
   const components: HomepageBuilderConfig["components"] = [
     { id: "header", label: "Header", enabled: true, published: true, order: 0, visibility: { desktop: true, tablet: true, mobile: true }, style: { padding: 16, gap: 12 } },
     { id: "search", label: "Search", enabled: true, published: true, order: 1, visibility: { desktop: true, tablet: true, mobile: true }, style: { height: 48, borderRadius: 999 } },
-    { id: "top-category-bar", label: "Top Category Bar", enabled: true, published: true, order: 2, visibility: { desktop: true, tablet: true, mobile: true }, style: { gap: 8 } },
+    { id: "top-category-bar", label: "Top Category Bar", enabled: false, published: false, order: 2, visibility: { desktop: false, tablet: false, mobile: false }, style: { gap: 8 } },
     { id: "category-rail", label: "Category Rail", enabled: true, published: true, order: 3, visibility: { desktop: true, tablet: true, mobile: true }, style: { gap: 12, iconSize: 80 } },
     { id: "bring-items", label: "Bring Your Items", enabled: true, published: true, order: 4, visibility: { desktop: true, tablet: true, mobile: true }, style: { gap: 8 } },
     { id: "popular-auctions", label: "Popular Auctions", enabled: true, published: true, order: 5, visibility: { desktop: true, tablet: true, mobile: true }, style: { gap: 12 } },
@@ -23,12 +23,14 @@ export function createDefaultHomepageBuilderConfig(): HomepageBuilderConfig {
     { id: "recommended", label: "Recommended", enabled: true, published: true, order: 7, visibility: { desktop: true, tablet: true, mobile: true }, style: { columns: 4, gap: 16 } },
     { id: "new-listings", label: "New Listings", enabled: true, published: true, order: 8, visibility: { desktop: true, tablet: true, mobile: true }, style: { columns: 4, gap: 16 } },
     { id: "latest-listings", label: "Latest Listings", enabled: true, published: true, order: 9, visibility: { desktop: true, tablet: true, mobile: true }, style: { columns: 4, gap: 16 } },
-    { id: "continue-browsing", label: "Recently Viewed", enabled: true, published: true, order: 10, visibility: { desktop: true, tablet: true, mobile: true }, style: { gap: 16 } },
-    { id: "trending-searches", label: "Trending", enabled: true, published: true, order: 11, visibility: { desktop: true, tablet: true, mobile: true }, style: { gap: 12 } },
-    { id: "hero-slider", label: "Hero Slider", enabled: false, published: false, order: 12, visibility: { desktop: false, tablet: false, mobile: false }, style: { height: 360, borderRadius: 24 } },
-    { id: "business-spotlight", label: "Business Spotlight", enabled: false, published: false, order: 13, visibility: { desktop: false, tablet: false, mobile: false }, style: { gap: 16 } },
-    { id: "footer", label: "Footer", enabled: false, published: false, order: 14, visibility: { desktop: true, tablet: true, mobile: false }, style: { padding: 24 } },
-    { id: "bottom-navigation", label: "Bottom Navigation", enabled: true, published: true, order: 15, visibility: { desktop: false, tablet: true, mobile: true }, style: { height: 72 } },
+    { id: "trending-listings", label: "Trending", enabled: true, published: true, order: 10, visibility: { desktop: true, tablet: true, mobile: true }, style: { gap: 16 } },
+    { id: "all-listings", label: "All Listings", enabled: true, published: true, order: 11, visibility: { desktop: true, tablet: true, mobile: true }, style: { gap: 16 } },
+    { id: "continue-browsing", label: "Recently Viewed", enabled: false, published: false, order: 12, visibility: { desktop: false, tablet: false, mobile: false }, style: { gap: 16 } },
+    { id: "trending-searches", label: "Trending Searches", enabled: false, published: false, order: 13, visibility: { desktop: false, tablet: false, mobile: false }, style: { gap: 12 } },
+    { id: "hero-slider", label: "Hero Slider", enabled: false, published: false, order: 14, visibility: { desktop: false, tablet: false, mobile: false }, style: { height: 360, borderRadius: 24 } },
+    { id: "business-spotlight", label: "Business Spotlight", enabled: false, published: false, order: 15, visibility: { desktop: false, tablet: false, mobile: false }, style: { gap: 16 } },
+    { id: "footer", label: "Footer", enabled: false, published: false, order: 16, visibility: { desktop: false, tablet: false, mobile: false }, style: { padding: 24 } },
+    { id: "bottom-navigation", label: "Bottom Navigation", enabled: true, published: true, order: 17, visibility: { desktop: false, tablet: true, mobile: true }, style: { height: 72 } },
   ];
 
   return {

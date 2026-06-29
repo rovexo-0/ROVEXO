@@ -177,6 +177,81 @@
   scroll-snap-align: start;
 }
 
+/* Launch homepage — 2-row horizontal marketplace rails */
+.rx-home-launch-scroll {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: calc((100% - 12px) / 2);
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.rx-home-launch-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.rx-home-launch-scroll > .rx-premium-product-card,
+.rx-home-launch-scroll > .rx-home-auction-scroll__card {
+  scroll-snap-align: start;
+  width: 100%;
+  min-width: 0;
+}
+
+.rx-home-launch-scroll--auctions {
+  grid-template-rows: repeat(2, auto);
+  grid-auto-columns: calc((100% - 12px) / 2);
+}
+
+.rx-home-all-listings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.rx-home-all-listings-grid__card {
+  width: 100%;
+  min-width: 0;
+}
+
+.rx-home-all-listings__sentinel {
+  width: 100%;
+  height: 1px;
+  margin-top: 12px;
+}
+
+.rx-home-all-listings__sentinel.is-loading {
+  height: 24px;
+}
+
+@media (min-width: 640px) {
+  .rx-home-launch-scroll {
+    grid-auto-columns: minmax(0, 200px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .rx-home-launch-scroll {
+    grid-auto-columns: minmax(0, 220px);
+  }
+
+  .rx-home-all-listings-grid {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 428px) {
+  .rx-home-launch-scroll {
+    grid-auto-columns: calc((100% - 12px) / 2);
+  }
+}
+
 .rx-home-auction-card {
   display: flex;
   flex-direction: column;

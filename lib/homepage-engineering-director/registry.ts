@@ -2,7 +2,6 @@ export const HOMEPAGE_FULL_SCAN_COMPONENTS = [
   "premium-header",
   "safe-area",
   "search-bar",
-  "top-category-bar",
   "category-rail",
   "category-grid",
   "bring-items",
@@ -11,8 +10,8 @@ export const HOMEPAGE_FULL_SCAN_COMPONENTS = [
   "new-listings",
   "latest-listings",
   "community-section",
-  "recently-viewed",
-  "trending-searches",
+  "trending-listings",
+  "all-listings",
   "footer",
   "bottom-navigation",
 ] as const;
@@ -83,13 +82,13 @@ export const HOMEPAGE_PRODUCTION_GATES = [
 ] as const;
 
 export const PREMIUM_HOME_STACK = [
-  "HeaderCategoryBar",
   "HomeCategoryRail",
   "BringYourItemsBanner",
   "FeaturedListingsSection",
   "HomeProductSection",
   "LiveAuctionsSection",
-  "HomeContinueBrowsingCarousel",
+  "HomeTrendingListingsSection",
+  "HomeAllListingsSection",
 ] as const;
 
 export const LEGACY_HOME_IMPORTS = [

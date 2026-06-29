@@ -4,7 +4,6 @@ import type { HomepageBuilderComponent, HomepageBuilderConfig } from "@/lib/supe
 const DEPRECATED_HOMEPAGE_SECTION_IDS = new Set(["hero-slider", "business-spotlight"]);
 
 const LAUNCH_PUBLISHED_SECTION_IDS = new Set([
-  "top-category-bar",
   "category-rail",
   "bring-items",
   "popular-auctions",
@@ -12,8 +11,8 @@ const LAUNCH_PUBLISHED_SECTION_IDS = new Set([
   "recommended",
   "new-listings",
   "latest-listings",
-  "continue-browsing",
-  "trending-searches",
+  "trending-listings",
+  "all-listings",
 ]);
 
 function disableDeprecatedSection(component: HomepageBuilderComponent): HomepageBuilderComponent {
