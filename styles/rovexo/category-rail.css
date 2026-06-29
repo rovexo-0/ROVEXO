@@ -311,4 +311,65 @@
   .rx-category-card:active {
     transition: none;
   }
+
+  .rx-category-rail--infinite {
+    scroll-behavior: auto;
+  }
+}
+
+/* Homepage infinite category carousel — GPU-friendly auto-scroll */
+.rx-category-rail--infinite {
+  display: block;
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+  cursor: grab;
+  contain: layout style;
+}
+
+.rx-category-rail--infinite.rx-category-rail--dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+.rx-category-rail__track {
+  display: flex;
+  align-items: flex-start;
+  width: max-content;
+  min-width: 100%;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.rx-category-rail--infinite .rx-category-rail__track {
+  gap: inherit;
+}
+
+.rx-page-home .rx-category-icon-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform: translate3d(0, 0, 0);
+}
+
+.rx-page-home .rx-category-icon-3d--premium {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 8px 18px rgb(15 23 42 / 0.14));
+}
+
+[data-theme="dark"] .rx-page-home .rx-category-icon-3d--premium {
+  filter: drop-shadow(0 10px 22px rgb(0 0 0 / 0.35));
+}
+
+.rx-page-home .rx-category-rail--infinite .rx-category-render__img,
+.rx-page-home .rx-category-rail--infinite picture {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-category-rail--infinite {
+    cursor: default;
+  }
 }

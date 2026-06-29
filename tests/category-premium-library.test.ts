@@ -24,14 +24,22 @@ describe("ROVEXO premium category asset library", () => {
     }
   });
 
-  it("never falls back to generic icons in premium carousel mode", () => {
+  it("renders premium homepage categories with 3D SVG only", () => {
     const source = readFileSync(
       path.join(process.cwd(), "components/home/HomeCategoryIconImage.tsx"),
       "utf8",
     );
+    const railSource = readFileSync(
+      path.join(process.cwd(), "components/home/HomeCategoryRail.tsx"),
+      "utf8",
+    );
 
     expect(source).toContain('variant === "premium"');
-    expect(source).toContain("<picture>");
-    expect(source).toContain("PremiumCategoryRenderMissing");
+    expect(source).toContain("HomeCategoryIcon3D");
+    expect(source).not.toContain("<picture>");
+    expect(source).not.toContain("rx-category-render__img");
+    expect(railSource).toContain('variant="premium"');
+    expect(railSource).toContain("rx-category-rail--infinite");
+    expect(railSource).toContain("useCategoryRailInfiniteCarousel");
   });
 });
