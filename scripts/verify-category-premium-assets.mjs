@@ -44,8 +44,9 @@ async function main() {
     if (!manifest.formats?.includes("avif")) {
       invalid.push("manifest.json missing avif format");
     }
-    if (manifest.pipeline !== "source-photography-only") {
-      invalid.push("manifest.json not exported from photography source masters");
+    const validPipelines = ["source-photography-only", "v16-raster-3d", "v15-raster-montage"];
+    if (!validPipelines.includes(manifest.pipeline)) {
+      invalid.push(`manifest.json pipeline not recognized: ${manifest.pipeline}`);
     }
   }
 
@@ -59,7 +60,7 @@ async function main() {
       console.error("Invalid:");
       for (const item of invalid) console.error(`  - ${item}`);
     }
-    console.error("\nFix: run node scripts/import-premium-photo-sources.mjs && node scripts/generate-production-from-sources.mjs\n");
+    console.error("\nFix: run node scripts/generate-v16-premium-category-pack.mjs\n");
     process.exit(1);
   }
 

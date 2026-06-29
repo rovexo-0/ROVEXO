@@ -1,6 +1,6 @@
 {
-  "version": "approved-premium-photography",
-  "pipeline": "source-photography-only",
+  "version": "v16-premium-3d-pack",
+  "pipeline": "v16-raster-3d",
   "railIcons": [
     "vehicles",
     "property",
