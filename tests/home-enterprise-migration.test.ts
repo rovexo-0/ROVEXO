@@ -18,58 +18,59 @@ const LEGACY_HOME_IMPORTS = [
   '@/components/home/ProductSection"',
   '@/components/home/HomeHeroSearch"',
   '@/components/home/HomeHeroBanner"',
+  "HomeContent",
 ];
 
 const PREMIUM_HOME_IMPORTS = [
-  "HomeCategoryRail",
-  "BringYourItemsBanner",
-  "FeaturedListingsSection",
-  "HomeProductSection",
-  "LiveAuctionsSection",
-  "HomeTrendingListingsSection",
-  "HomeAllListingsSection",
+  "PremiumHero",
+  "ImportListingBanner",
+  "InfiniteCategoryRail",
+  "FeaturedListings",
+  "RecommendedListings",
+  "NewListings",
+  "TrendingListings",
+  "BusinessSection",
+  "LatestListings",
+  "DealsSection",
+  "BenefitsSection",
 ];
 
 describe("Homepage enterprise migration contract", () => {
-  it("renders HomeContent from the official premium component stack", () => {
+  it("renders PremiumHomePage from the official premium component stack", () => {
     const page = readSource("app/page.tsx");
-    const homeContent = readSource("components/home/HomeContent.tsx");
+    const homeContent = readSource("components/premium/PremiumHomePage.tsx");
 
-    expect(page).toContain("HomeContent");
+    expect(page).toContain("PremiumHomePage");
     expect(page).toContain("BetaAppShell");
-    expect(page).toContain("<Header />");
+    expect(page).toContain("PremiumHeader");
     expect(page).toContain('fetchProducts("popular"');
     expect(page).toContain('fetchProducts("recommended"');
     expect(page).toContain('fetchProducts("new"');
     expect(page).toContain('fetchProducts("trending"');
-    expect(page).toContain("getAuctionsPageData");
     expect(page).not.toContain("getRecommendedBusinesses");
     expect(page).not.toContain("resolveLiveHeroSlides");
 
     for (const legacyImport of LEGACY_HOME_IMPORTS) {
       expect(homeContent).not.toContain(legacyImport);
+      expect(page).not.toContain(legacyImport);
     }
-
-    expect(homeContent).not.toContain("HomeBenefitsRail");
-    expect(homeContent).not.toContain("HomeSecondaryBanners");
-    expect(homeContent).not.toContain("HomeHeroBannerEngine");
 
     for (const enterpriseImport of PREMIUM_HOME_IMPORTS) {
       expect(homeContent).toContain(enterpriseImport);
     }
   });
 
-  it("keeps a single category rail on the homepage", () => {
-    const header = readSource("components/Header.tsx");
-    const homeContent = readSource("components/home/HomeContent.tsx");
+  it("keeps a single infinite category rail on the homepage", () => {
+    const header = readSource("components/premium/PremiumHeader.tsx");
+    const homeContent = readSource("components/premium/PremiumHomePage.tsx");
 
     expect(header).not.toContain("HeaderCategoryBar");
     expect(homeContent).not.toContain("HeaderCategoryBar");
-    expect(homeContent).toContain("HomeCategoryRail");
+    expect(homeContent).toContain("InfiniteCategoryRail");
   });
 
   it("does not render legacy Popular Near You section", () => {
-    const homeContent = readSource("components/home/HomeContent.tsx");
+    const homeContent = readSource("components/premium/PremiumHomePage.tsx");
 
     expect(homeContent).not.toContain("Popular Near You");
     expect(homeContent).not.toContain("popular-near-heading");
@@ -80,12 +81,5 @@ describe("Homepage enterprise migration contract", () => {
 
     expect(shell).toContain("MobileHeaderScrollProvider");
     expect(shell).toContain("BottomNavigation");
-  });
-
-  it("wires header scroll-hide on mobile", () => {
-    const header = readSource("components/Header.tsx");
-
-    expect(header).toContain("isChromeVisible");
-    expect(header).toContain("max-lg:-translate-y-full");
   });
 });

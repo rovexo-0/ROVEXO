@@ -1,0 +1,265 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary: var(--ds-color-primary);
+  --color-primary-foreground: var(--ds-color-primary-foreground);
+  --color-accent: var(--ds-color-accent);
+  --color-accent-foreground: var(--ds-color-accent-foreground);
+  --color-secondary: var(--ds-color-secondary);
+  --color-secondary-foreground: var(--ds-color-secondary-foreground);
+  --color-success: var(--ds-color-success);
+  --color-success-foreground: var(--ds-color-success-foreground);
+  --color-warning: var(--ds-color-warning);
+  --color-warning-foreground: var(--ds-color-warning-foreground);
+  --color-danger: var(--ds-color-danger);
+  --color-danger-foreground: var(--ds-color-danger-foreground);
+  --color-background: var(--ds-color-background);
+  --color-surface: var(--ds-color-surface);
+  --color-surface-muted: var(--ds-color-surface-muted);
+  --color-border: var(--ds-color-border);
+  --color-text-primary: var(--ds-color-text-primary);
+  --color-text-secondary: var(--ds-color-text-secondary);
+  --color-text-muted: var(--ds-color-text-muted);
+  --color-ring: var(--ds-color-ring);
+  --color-star: var(--ds-color-star);
+  --color-overlay: var(--ds-color-overlay);
+
+  --spacing-ds-1: var(--ds-space-1);
+  --spacing-ds-2: var(--ds-space-2);
+  --spacing-ds-3: var(--ds-space-3);
+  --spacing-ds-4: var(--ds-space-4);
+  --spacing-ds-5: var(--ds-space-5);
+  --spacing-ds-6: var(--ds-space-6);
+  --spacing-ds-7: var(--ds-space-7);
+  --spacing-ds-8: var(--ds-space-8);
+  --spacing-ds-9: var(--ds-space-9);
+
+  --radius-ds-sm: var(--ds-radius-sm);
+  --radius-ds-md: var(--ds-radius-md);
+  --radius-ds-lg: var(--ds-radius-lg);
+  --radius-ds-xl: var(--ds-radius-xl);
+  --radius-ds-2xl: var(--ds-radius-2xl);
+  --radius-ds-full: var(--ds-radius-full);
+
+  --shadow-ds-soft: var(--ds-shadow-soft);
+  --shadow-ds-medium: var(--ds-shadow-medium);
+  --shadow-ds-floating: var(--ds-shadow-floating);
+  --shadow-ds-premium: var(--ds-shadow-premium);
+
+  --duration-ds-fast: var(--ds-duration-fast);
+  --duration-ds-normal: var(--ds-duration-normal);
+  --duration-ds-slow: var(--ds-duration-slow);
+
+  --ease-ds: var(--ds-ease);
+  --ease-ds-spring: var(--ds-ease-spring);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--ds-color-background);
+  background-image: var(--ds-gradient-page);
+  color: var(--ds-color-text-primary);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: var(--ds-font-body-size);
+  line-height: var(--ds-font-body-leading);
+  letter-spacing: var(--ds-font-body-tracking);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+:root {
+  --header-control-height: 44px;
+  --header-search-height: 48px;
+  --header-shell-height: 56px;
+  --header-mobile-stack-height: 52px;
+  --bottom-nav-shell-height: 84px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --header-shell-height: 60px;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@keyframes sell-published-check-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sell-published-check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.sell-published-check {
+  animation: sell-published-check-pop var(--ds-duration-slow) var(--ds-ease-spring) both;
+}
+
+.sell-published-check-path {
+  stroke-dasharray: 14;
+  stroke-dashoffset: 14;
+  animation: sell-published-check-draw var(--ds-duration-slow) var(--ds-ease) 120ms both;
+}
+
+.live-countries-scroll {
+  max-height: min(70vh, 40rem);
+  overscroll-behavior: contain;
+}
+
+@keyframes live-country-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes live-country-leave {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes live-country-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+}
+
+.live-country-row-enter {
+  animation: live-country-enter 320ms var(--ds-ease) both;
+}
+
+.live-country-row-leave {
+  animation: live-country-leave 320ms var(--ds-ease) both;
+}
+
+.live-country-pulse-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: live-country-pulse 1.4s ease-in-out infinite;
+}
+
+.live-country-bar {
+  transition: width 480ms var(--ds-ease);
+}
+
+.live-analytics-glass {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.78));
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 12px 32px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(14px);
+}
+
+.live-analytics-scroll {
+  overscroll-behavior: contain;
+}
+
+.live-analytics-fade-in {
+  animation: live-analytics-fade-in 360ms var(--ds-ease) both;
+}
+
+.live-analytics-bar {
+  transition: width 520ms var(--ds-ease);
+}
+
+.live-analytics-map-pulse {
+  animation: live-analytics-map-pulse 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.live-analytics-loading {
+  animation: live-analytics-fade-in 420ms var(--ds-ease) both;
+}
+
+@keyframes live-analytics-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes live-analytics-map-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-country-row-enter,
+  .live-country-row-leave,
+  .live-country-pulse-dot,
+  .live-country-bar,
+  .live-analytics-fade-in,
+  .live-analytics-bar,
+  .live-analytics-map-pulse,
+  .live-analytics-loading {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* ROVEXO v1.0 — legacy utility migration (UI-only, preserves class names in markup) */
+.bg-white {
+  background-color: var(--ds-color-surface);
+}
+
+.text-white {
+  color: var(--ds-color-primary-foreground);
+}

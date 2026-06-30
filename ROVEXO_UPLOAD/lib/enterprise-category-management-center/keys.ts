@@ -1,0 +1,4 @@
+export const CATEGORY_MANAGEMENT_DRAFT_KEY = "enterprise_category_management_center_draft_v1";
+export const CATEGORY_MANAGEMENT_LIVE_KEY = "enterprise_category_management_center_live_v1";
+export const CATEGORY_MANAGEMENT_HISTORY_KEY = "enterprise_category_management_center_config_history_v1";
+export const CATEGORY_MANAGEMENT_SETTINGS_KEY = "enterprise_category_management_center_settings_v1";

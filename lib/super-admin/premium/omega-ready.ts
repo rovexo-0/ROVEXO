@@ -16,22 +16,22 @@ export function buildOmegaReadyRegistry(): OmegaReadyPage[] {
     entries.push(entry);
   };
 
-  for (const module of listEnterpriseModuleDescriptors()) {
-    if (!module.autoRegister) continue;
+  for (const enterpriseModule of listEnterpriseModuleDescriptors()) {
+    if (!enterpriseModule.autoRegister) continue;
     push({
-      id: module.id,
-      href: module.baseHref,
-      label: module.label,
-      moduleId: module.id,
+      id: enterpriseModule.id,
+      href: enterpriseModule.baseHref,
+      label: enterpriseModule.label,
+      moduleId: enterpriseModule.id,
       tier: "enterprise",
       score: 100,
     });
-    for (const route of module.routes) {
+    for (const route of enterpriseModule.routes) {
       push({
-        id: `${module.id}:${route.id}`,
+        id: `${enterpriseModule.id}:${route.id}`,
         href: route.href,
         label: route.label,
-        moduleId: module.id,
+        moduleId: enterpriseModule.id,
         tier: "enterprise",
         score: 100,
       });

@@ -1,0 +1,221 @@
+export const GLOBAL_UI_INTEGRITY_ROUTES = [
+  { id: "dashboard", label: "Integrity Board", href: "/super-admin/global-ui-integrity" },
+  { id: "screens", label: "Screen Coverage", href: "/super-admin/global-ui-integrity/screens" },
+  { id: "ui-validation", label: "UI Validation", href: "/super-admin/global-ui-integrity/ui-validation" },
+  { id: "ux-validation", label: "UX Validation", href: "/super-admin/global-ui-integrity/ux-validation" },
+  { id: "navigation", label: "Navigation", href: "/super-admin/global-ui-integrity/navigation" },
+  { id: "categories", label: "Categories", href: "/super-admin/global-ui-integrity/categories" },
+  { id: "layout", label: "Layout", href: "/super-admin/global-ui-integrity/layout" },
+  { id: "auto-repair", label: "Auto Repair", href: "/super-admin/global-ui-integrity/auto-repair" },
+  { id: "certification", label: "Certification", href: "/super-admin/global-ui-integrity/certification" },
+  { id: "reports", label: "Reports", href: "/super-admin/global-ui-integrity/reports" },
+] as const;
+
+export const EXECUTION_TRIGGERS = [
+  "implementation",
+  "build",
+  "typecheck",
+  "production-build",
+  "commit",
+  "deployment",
+  "full-scan",
+  "enterprise-qa",
+  "enterprise-certification",
+  "release-candidate",
+  "production-validation",
+] as const;
+
+export const GLOBAL_UI_DOMAINS = ["marketplace", "buyer", "seller", "company", "super-admin"] as const;
+
+export const GLOBAL_SCREEN_REGISTRY = [
+  { id: "homepage", domain: "marketplace", label: "Homepage", route: "/", componentRef: "HomeContent" },
+  { id: "categories", domain: "marketplace", label: "Categories", route: "/categories", componentRef: "CategoriesPage" },
+  { id: "search", domain: "marketplace", label: "Search", route: "/search", componentRef: "SearchPage" },
+  { id: "listing-create", domain: "marketplace", label: "Listing Create", route: "/sell", componentRef: "SellPage" },
+  { id: "listing-edit", domain: "marketplace", label: "Listing Edit", route: "/sell/edit", componentRef: "ListingEditPage" },
+  { id: "listing-details", domain: "marketplace", label: "Listing Details", route: "/listing/[id]", componentRef: "ListingDetailPage" },
+  { id: "featured", domain: "marketplace", label: "Featured", route: "/search?q=&sort=featured", componentRef: "FeaturedListingsSection" },
+  { id: "recommended", domain: "marketplace", label: "Recommended", route: "/search?q=&sort=recommended", componentRef: "HomeProductSection" },
+  { id: "auctions", domain: "marketplace", label: "Auctions", route: "/auctions", componentRef: "AuctionsPage" },
+  { id: "cart", domain: "marketplace", label: "Cart", route: "/cart", componentRef: "CartPage" },
+  { id: "checkout", domain: "marketplace", label: "Checkout", route: "/checkout", componentRef: "CheckoutPage" },
+  { id: "wallet", domain: "marketplace", label: "Wallet", route: "/wallet", componentRef: "WalletPage" },
+  { id: "orders", domain: "marketplace", label: "Orders", route: "/account/orders", componentRef: "OrdersListPage" },
+  { id: "shipping", domain: "marketplace", label: "Shipping", route: "/account/seller/shipping", componentRef: "SellerShippingPage" },
+  { id: "buyer-protection", domain: "marketplace", label: "Buyer Protection", route: "/trust", componentRef: "TrustPage" },
+  { id: "buyer-dashboard", domain: "buyer", label: "Buyer Dashboard", route: "/account", componentRef: "AccountDashboard" },
+  { id: "messages", domain: "buyer", label: "Messages", route: "/messages", componentRef: "MessagesEngineHub" },
+  { id: "notifications", domain: "buyer", label: "Notifications", route: "/notifications", componentRef: "NotificationsEngineHub" },
+  { id: "saved", domain: "buyer", label: "Saved", route: "/saved", componentRef: "SavedPage" },
+  { id: "watchlist", domain: "buyer", label: "Watchlist", route: "/watchlist", componentRef: "WatchlistPage" },
+  { id: "recently-viewed", domain: "buyer", label: "Recently Viewed", route: "/recently-viewed", componentRef: "HomeContinueBrowsingCarousel" },
+  { id: "reviews", domain: "buyer", label: "Reviews", route: "/reviews", componentRef: "ReviewsPage" },
+  { id: "seller-dashboard", domain: "seller", label: "Seller Dashboard", route: "/seller", componentRef: "SellerDashboard" },
+  { id: "seller-listings", domain: "seller", label: "Seller Listings", route: "/seller/listings", componentRef: "SellerListingsPage" },
+  { id: "seller-orders", domain: "seller", label: "Seller Orders", route: "/seller/orders", componentRef: "SellerOrdersPage" },
+  { id: "seller-shipping", domain: "seller", label: "Seller Shipping", route: "/seller/shipping", componentRef: "SellerShippingHub" },
+  { id: "seller-analytics", domain: "seller", label: "Seller Analytics", route: "/seller/analytics", componentRef: "SellerAnalyticsPage" },
+  { id: "seller-financial", domain: "seller", label: "Seller Financial", route: "/seller/financial", componentRef: "SellerFinancialPage" },
+  { id: "company-dashboard", domain: "company", label: "Company Dashboard", route: "/business", componentRef: "BusinessDashboard" },
+  { id: "company-team", domain: "company", label: "Team", route: "/business/team", componentRef: "BusinessTeamPage" },
+  { id: "company-verification", domain: "company", label: "Business Verification", route: "/business/verification", componentRef: "BusinessVerificationPage" },
+  { id: "company-analytics", domain: "company", label: "Company Analytics", route: "/business/analytics", componentRef: "BusinessAnalyticsPage" },
+  { id: "super-admin-modules", domain: "super-admin", label: "Enterprise Modules", route: "/super-admin", componentRef: "SuperAdminShell" },
+  { id: "omega-command", domain: "super-admin", label: "OMEGA", route: "/super-admin/omega", componentRef: "OmegaCommandCenterAdmin" },
+  { id: "qa-center", domain: "super-admin", label: "QA Center", route: "/super-admin/quality-assurance", componentRef: "OmegaQualityAssuranceAdmin" },
+  { id: "governance", domain: "super-admin", label: "Governance", route: "/super-admin/governance", componentRef: "EnterpriseGovernanceAdmin" },
+  { id: "security", domain: "super-admin", label: "Security", route: "/super-admin/security", componentRef: "EnterpriseSecurityAdmin" },
+  { id: "development", domain: "super-admin", label: "Development", route: "/super-admin/development", componentRef: "EnterpriseDevelopmentAdmin" },
+  { id: "bi", domain: "super-admin", label: "Business Intelligence", route: "/super-admin/business-intelligence", componentRef: "EnterpriseBiAdmin" },
+  { id: "certification", domain: "super-admin", label: "Certification", route: "/super-admin/certification", componentRef: "CertificationCenterAdmin" },
+  { id: "deployment", domain: "super-admin", label: "Deployment", route: "/super-admin/deployment", componentRef: "EnterpriseDeploymentAdmin" },
+  { id: "mission-control", domain: "super-admin", label: "Mission Control", route: "/super-admin/mission-control-engine", componentRef: "MissionControlAdmin" },
+  { id: "global-search", domain: "super-admin", label: "Global Search", route: "/super-admin/search", componentRef: "EnterpriseSearchAdmin" },
+] as const;
+
+export const GLOBAL_UI_CHECKS = [
+  "duplicated-ui",
+  "duplicated-categories",
+  "duplicated-sections",
+  "duplicated-cards",
+  "duplicated-widgets",
+  "duplicated-banners",
+  "duplicated-menus",
+  "duplicated-icons",
+  "empty-areas",
+  "unused-containers",
+  "invisible-blocks",
+  "unnecessary-padding",
+  "unnecessary-margins",
+  "broken-alignment",
+  "viewport-waste",
+  "safe-area-issues",
+  "cls-problems",
+  "inconsistent-spacing",
+  "inconsistent-typography",
+  "inconsistent-icon-sizing",
+  "inconsistent-shadows",
+  "inconsistent-premium-2026",
+] as const;
+
+export const GLOBAL_UX_CHECKS = [
+  "click",
+  "tap",
+  "hover",
+  "focus",
+  "keyboard",
+  "loading",
+  "success",
+  "warning",
+  "empty-state",
+  "offline-state",
+  "error-state",
+] as const;
+
+export const NAVIGATION_CHECKS = [
+  "buttons",
+  "menus",
+  "redirects",
+  "routes",
+  "breadcrumbs",
+  "deep-links",
+  "modals",
+  "drawers",
+  "dialogs",
+] as const;
+
+export const CATEGORY_GLOBAL_CHECKS = [
+  "duplicate-rendering",
+  "duplicate-ids",
+  "duplicate-slugs",
+  "duplicate-routes",
+  "orphan-categories",
+  "inactive-categories",
+  "missing-icons",
+  "missing-images",
+  "broken-hierarchy",
+  "homepage-duplication",
+] as const;
+
+export const LAYOUT_OPTIMIZATION_TARGETS = [
+  "search-bar-position",
+  "homepage-spacing",
+  "category-spacing",
+  "banner-spacing",
+  "card-spacing",
+  "section-spacing",
+  "header-spacing",
+  "footer-spacing",
+  "safe-areas",
+  "viewport-usage",
+] as const;
+
+export const GLOBAL_CERTIFICATION_SCORES = [
+  "ui",
+  "ux",
+  "performance",
+  "seo",
+  "accessibility",
+  "security",
+  "architecture",
+  "business-logic",
+  "responsive",
+  "visual-integrity",
+  "navigation",
+  "enterprise",
+] as const;
+
+export const GLOBAL_FAIL_CONDITIONS = [
+  "duplicated-ui",
+  "duplicated-categories",
+  "duplicated-homepage-sections",
+  "duplicated-banners",
+  "duplicated-widgets",
+  "empty-space",
+  "layout-gaps",
+  "broken-alignment",
+  "broken-navigation",
+  "inactive-buttons",
+  "dead-links",
+  "visual-regressions",
+  "inconsistent-premium-2026-design",
+] as const;
+
+export const PRODUCTION_PASS_REQUIREMENTS = [
+  "global-ui-integrity",
+  "qa",
+  "security",
+  "governance",
+  "e2e",
+  "performance",
+  "accessibility",
+  "seo",
+  "business-logic",
+  "navigation",
+] as const;
+
+export const PROTECTED_REPAIR_AREAS = [
+  "marketplace-business-logic",
+  "payments",
+  "wallet",
+  "authentication",
+  "orders",
+  "shipping",
+  "production-database",
+  "deployment-pipeline",
+  "permissions",
+  "production-records",
+] as const;
+
+export const REPORT_TYPES = ["global-integrity", "screens", "ui", "ux", "navigation", "categories", "layout", "certification", "auto-repair"] as const;
+export const EXPORT_FORMATS = ["pdf", "excel", "csv", "json"] as const;
+
+export const GLOBAL_UI_INTEGRITY_API = {
+  snapshot: "/api/super-admin/global-ui-integrity",
+  action: "/api/super-admin/global-ui-integrity/action",
+  validate: "/api/super-admin/global-ui-integrity/validate",
+  repair: "/api/super-admin/global-ui-integrity/repair",
+  certify: "/api/super-admin/global-ui-integrity/certify",
+  export: "/api/super-admin/global-ui-integrity/export",
+  v1Snapshot: "/api/v1/super-admin/global-ui-integrity",
+} as const;

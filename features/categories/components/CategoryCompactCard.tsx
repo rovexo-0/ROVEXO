@@ -26,7 +26,7 @@ export function CategoryCompactCard({
       href={href ?? `/category/${slug}`}
       className={cn("rx-category-card", focusRing, className)}
     >
-      <HomeCategoryIconImage type={iconType} />
+      <HomeCategoryIconImage type={iconType} variant="premium" size={40} containerSize={60} />
       <span className="rx-category-card__text">
         <span className="rx-category-card__title">{name}</span>
         <span className="rx-category-card__subtitle">{subtitle}</span>

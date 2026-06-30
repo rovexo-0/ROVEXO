@@ -1,10 +1,9 @@
 import type { HomeCategoryIconType } from "@/lib/home/constants";
 import {
-  getCategoryPremiumAssetPath,
-  getCategoryPremiumAvifSrc,
   getCategoryPremiumPngSrc,
   getCategoryPremiumSrcSet,
   isRovexoCategoryPremiumKey,
+  resolveCategoryPremiumIcon,
   ROVEXO_CATEGORY_PREMIUM_KEYS,
   ROVEXO_CATEGORY_RENDER_SIZE,
   type RovexoCategoryPremiumKey,
@@ -14,28 +13,30 @@ export {
   ROVEXO_CATEGORY_PREMIUM_KEYS as CATEGORY_PREMIUM_RENDER_TYPES,
   ROVEXO_CATEGORY_RENDER_SIZE,
   type RovexoCategoryPremiumKey as CategoryPremiumRenderType,
-  getCategoryPremiumAvifSrc,
   getCategoryPremiumPngSrc,
   getCategoryPremiumSrcSet,
+  resolveCategoryPremiumIcon,
 };
 
 const PREMIUM_RENDER_SET = new Set<string>(ROVEXO_CATEGORY_PREMIUM_KEYS);
 
-export function getCategoryPremiumRenderSrc(type: HomeCategoryIconType): string {
-  if (!isRovexoCategoryPremiumKey(type)) {
+export function getCategoryPremiumRenderSrc(type: HomeCategoryIconType | string): string {
+  const resolved = resolveCategoryPremiumIcon(type);
+  if (!isRovexoCategoryPremiumKey(resolved)) {
     throw new Error(
       `[ROVEXO] Missing premium category asset mapping for "${type}". ` +
-        `Add source PNG at public/categories/source/${type}.png and register in category-premium-library.ts`,
+        `Add source PNG at public/categories/source/${resolved}.png`,
     );
   }
-  return getCategoryPremiumAssetPath(type);
+  return getCategoryPremiumPngSrc(resolved);
 }
 
-export function hasCategoryPremiumRender(type: HomeCategoryIconType): type is RovexoCategoryPremiumKey {
-  return PREMIUM_RENDER_SET.has(type);
+export function hasCategoryPremiumRender(type: HomeCategoryIconType | string): type is RovexoCategoryPremiumKey {
+  const resolved = resolveCategoryPremiumIcon(type);
+  return PREMIUM_RENDER_SET.has(resolved);
 }
 
-export function assertCategoryPremiumRender(type: HomeCategoryIconType): asserts type is RovexoCategoryPremiumKey {
+export function assertCategoryPremiumRender(type: HomeCategoryIconType | string): asserts type is RovexoCategoryPremiumKey {
   if (!hasCategoryPremiumRender(type)) {
     throw new Error(
       `[ROVEXO] Premium category asset required for "${type}". ` +

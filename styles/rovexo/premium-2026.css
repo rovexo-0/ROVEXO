@@ -1,0 +1,81 @@
+/* ROVEXO Premium 2026 UI */
+
+@keyframes premium-glow {
+  0%,
+  100% {
+    box-shadow: 0 20px 50px -20px rgba(139, 92, 246, 0.45);
+  }
+  50% {
+    box-shadow: 0 24px 60px -16px rgba(99, 102, 241, 0.65);
+  }
+}
+
+.premium-home {
+  --premium-container: min(100% - 2rem, 80rem);
+}
+
+.premium-container {
+  width: var(--premium-container);
+  margin-inline: auto;
+}
+
+.premium-section {
+  padding-block: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .premium-section {
+    padding-block: 2.75rem;
+  }
+}
+
+.premium-hero {
+  min-height: clamp(28rem, 72vh, 40rem);
+}
+
+.premium-infinite-scroller {
+  touch-action: pan-x;
+  user-select: none;
+}
+
+.premium-infinite--dragging {
+  cursor: grabbing;
+}
+
+.premium-header__profile,
+.premium-header__avatar {
+  border-radius: 9999px;
+}
+
+.premium-bottom-nav {
+  box-shadow: 0 -12px 40px -24px rgba(99, 102, 241, 0.25);
+}
+
+.premium-listing-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.premium-listing-card:hover {
+  box-shadow: 0 24px 50px -24px rgba(15, 23, 42, 0.22);
+}
+
+.rx-category-premium-icon__img {
+  image-rendering: auto;
+}
+
+.rx-category-premium-icon {
+  flex-shrink: 0;
+}
+
+.rx-category-premium-icon__img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.premium-category-card:focus-visible {
+  outline: 2px solid rgb(139 92 246 / 0.45);
+  outline-offset: 4px;
+  border-radius: 1rem;
+}

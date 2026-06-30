@@ -31,11 +31,11 @@ function titleCase(segment: string): string {
 }
 
 function resolveDescriptorLabel(pathname: string): string | undefined {
-  for (const module of listEnterpriseModuleDescriptors()) {
-    if (pathname === module.baseHref || pathname.startsWith(`${module.baseHref}/`)) {
-      const route = module.routes.find((item) => item.href === pathname);
+  for (const enterpriseModule of listEnterpriseModuleDescriptors()) {
+    if (pathname === enterpriseModule.baseHref || pathname.startsWith(`${enterpriseModule.baseHref}/`)) {
+      const route = enterpriseModule.routes.find((item) => item.href === pathname);
       if (route) return route.label;
-      return module.label;
+      return enterpriseModule.label;
     }
   }
   return undefined;

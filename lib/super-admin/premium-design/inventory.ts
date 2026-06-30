@@ -59,15 +59,15 @@ export async function getPremiumAssetInventory(): Promise<PremiumAssetInventory>
   for (const id of ROVEXO_CATEGORY_PREMIUM_KEYS) {
     const sourcePath = `public/categories/source/${id}.png`;
     const source = await fileInfo(sourcePath);
-    const webp = await fileInfo(`public/categories/${id}.webp`);
-    if (!source.exists || !webp.exists) missing += 1;
+    const png = await fileInfo(`public/categories/${id}.png`);
+    if (!source.exists || !png.exists) missing += 1;
     assets.push({
       id,
       category: "category",
       label: id.replace(/-/g, " "),
       sourcePath,
       sourceBytes: source.bytes,
-      published: source.exists && webp.exists,
+      published: source.exists && png.exists,
       formats: ["avif", "webp", "png"],
       lastModified: source.mtime,
       version: categoryVersion,

@@ -1,0 +1,300 @@
+/* App Studio — enterprise platform operating system */
+
+.as-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+}
+
+.as-shell__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ds-space-3);
+}
+
+.as-shell__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ds-color-primary);
+}
+
+.as-shell__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.as-shell__tab {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ds-color-text-secondary);
+}
+
+.as-shell__tab--active {
+  border-color: var(--ds-color-primary);
+  color: var(--ds-color-primary);
+  background: color-mix(in srgb, var(--ds-color-primary) 10%, transparent);
+}
+
+.as-overview-grid {
+  display: grid;
+  gap: var(--ds-space-3);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.as-overview-card {
+  padding: var(--ds-space-4);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-xl);
+  background: var(--ds-glass-bg);
+}
+
+.as-overview-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.as-overview-card__icon {
+  font-size: 1.5rem;
+}
+
+.as-overview-card__title {
+  font-weight: 700;
+}
+
+.as-overview-card__meta {
+  font-size: 0.75rem;
+  color: var(--ds-color-text-muted);
+}
+
+.as-overview-card__perf,
+.as-overview-card__deps {
+  font-size: 0.8125rem;
+  color: var(--ds-color-text-secondary);
+  margin-bottom: 4px;
+}
+
+.as-overview-card__perms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 8px 0;
+}
+
+.as-overview-card__link {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ds-color-primary);
+}
+
+.as-health-pill {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.as-health-pill--healthy {
+  background: color-mix(in srgb, #22c55e 15%, transparent);
+  color: #16a34a;
+}
+
+.as-health-pill--warning {
+  background: color-mix(in srgb, #eab308 15%, transparent);
+  color: #ca8a04;
+}
+
+.as-health-pill--critical,
+.as-health-pill--offline {
+  background: color-mix(in srgb, #ef4444 15%, transparent);
+  color: #dc2626;
+}
+
+.as-chip-row,
+.as-chip-row.as-overview-card__perms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.as-chip {
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.as-chip--active {
+  border-color: var(--ds-color-primary);
+  color: var(--ds-color-primary);
+  background: color-mix(in srgb, var(--ds-color-primary) 10%, transparent);
+}
+
+.as-chip--warn {
+  border-color: #eab308;
+  color: #ca8a04;
+  background: color-mix(in srgb, #eab308 10%, transparent);
+}
+
+.as-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.as-list__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+}
+
+.as-card-grid,
+.as-nav-grid,
+.as-analytics-grid,
+.as-health-grid {
+  display: grid;
+  gap: var(--ds-space-3);
+}
+
+@media (min-width: 768px) {
+  .as-card-grid,
+  .as-nav-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .as-analytics-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .as-health-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.as-card,
+.as-analytics-card,
+.as-health-card {
+  padding: var(--ds-space-4);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+}
+
+.as-analytics-card__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.as-split-grid {
+  display: grid;
+  gap: var(--ds-space-4);
+}
+
+@media (min-width: 1024px) {
+  .as-split-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.as-severity-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.as-severity-pill--info { background: color-mix(in srgb, #3b82f6 15%, transparent); color: #2563eb; }
+.as-severity-pill--success { background: color-mix(in srgb, #22c55e 15%, transparent); color: #16a34a; }
+.as-severity-pill--warning { background: color-mix(in srgb, #eab308 15%, transparent); color: #ca8a04; }
+.as-severity-pill--high { background: color-mix(in srgb, #f97316 15%, transparent); color: #ea580c; }
+.as-severity-pill--critical { background: color-mix(in srgb, #ef4444 15%, transparent); color: #dc2626; }
+.as-severity-pill--emergency { background: #111; color: #fff; }
+
+/* Live Simulator */
+.as-simulator {
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-xl);
+  overflow: hidden;
+  background: var(--ds-glass-bg);
+}
+
+.as-simulator__toolbar {
+  padding: var(--ds-space-4);
+  border-bottom: 1px solid var(--ds-color-border);
+}
+
+.as-simulator__title {
+  font-weight: 700;
+  margin-bottom: var(--ds-space-3);
+}
+
+.as-simulator__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.as-simulator__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.as-simulator__chip {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.as-simulator__chip--active {
+  border-color: var(--ds-color-primary);
+  color: var(--ds-color-primary);
+}
+
+.as-simulator__stage {
+  display: flex;
+  justify-content: center;
+  padding: var(--ds-space-5);
+  background: #f4f4f5;
+}
+
+.as-simulator__stage--dark {
+  background: #18181b;
+}
+
+.as-simulator__frame {
+  border: 8px solid #111;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.as-simulator__iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}

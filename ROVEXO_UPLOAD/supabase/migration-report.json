@@ -1,0 +1,225 @@
+{
+  "startedAt": "2026-06-25T12:43:37.797Z",
+  "repository": "ROVEXO",
+  "projectRef": "pklotmwxtnnepaitedic",
+  "nodeVersion": "v24.18.0",
+  "npmVersion": "11.16.0",
+  "supabaseVersion": "2.108.0",
+  "migrations": {
+    "total": 38,
+    "files": [
+      "20250618000001_foundation_schema.sql",
+      "20250618000002_rls_policies.sql",
+      "20250618000003_storage.sql",
+      "20250618000004_seed_categories.sql",
+      "20250619000001_seller_listings.sql",
+      "20250619000002_bump_system.sql",
+      "20250620000001_product_select_grants.sql",
+      "20250620000002_auth_email_verified_sync.sql",
+      "20250620000003_categories_select_grants.sql",
+      "20250620000004_listing_promotions.sql",
+      "20250620000005_production_security.sql",
+      "20250620000006_commerce_production.sql",
+      "20250620000007_promotion_checkout_hardening.sql",
+      "20250620000008_production_blockers.sql",
+      "20250620000009_promotions_production.sql",
+      "20250621000001_marketplace_categories.sql",
+      "20250622000001_phase2_moderation.sql",
+      "20250622000002_phase3_chat_realtime.sql",
+      "20250622000003_phase4_payments_notifications.sql",
+      "20250623000001_phase5_launch_readiness.sql",
+      "20250624000001_phase6_enterprise.sql",
+      "20250624000002_phase6_category_filters_seed.sql",
+      "20250625000001_phase7_seo_taxonomy.sql",
+      "20250626000001_help_center_enterprise.sql",
+      "20250626000002_prelaunch_launch_tables.sql",
+      "20250626000009_prelaunch_security.sql",
+      "20250627000001_phase8_enterprise_platform.sql",
+      "20250628000001_pass6_launch_readiness.sql",
+      "20250628000002_v1_account_production_complete.sql",
+      "20250628000003_live_visitor_sessions.sql",
+      "20250628000004_live_visitor_sessions_extended.sql",
+      "20250628000009_v1_account_features.sql",
+      "20250629000001_rc1_production_finalization.sql",
+      "20250630000001_pass7_production_operations.sql",
+      "20250701000001_trust_score_system.sql",
+      "20250702000001_auction_launch_subscribers.sql",
+      "20250703000001_super_admin_platform.sql",
+      "20250704000001_live_visitor_sessions_production.sql"
+    ],
+    "duplicateVersions": [],
+    "validationIssues": [],
+    "remoteStatus": "Local          | Remote         | Time (UTC)          \n  ----------------|----------------|---------------------\n   20250618000001 | 20250618000001 | 2025-06-18 00:00:01 \n   20250618000002 | 20250618000002 | 2025-06-18 00:00:02 \n   20250618000003 | 20250618000003 | 2025-06-18 00:00:03 \n   20250618000004 | 20250618000004 | 2025-06-18 00:00:04 \n   20250619000001 | 20250619000001 | 2025-06-19 00:00:01 \n   20250619000002 | 20250619000002 | 2025-06-19 00:00:02 \n   20250620000001 | 20250620000001 | 2025-06-20 00:00:01 \n   20250620000002 | 20250620000002 | 2025-06-20 00:00:02 \n   20250620000003 | 20250620000003 | 2025-06-20 00:00:03 \n   20250620000004 | 20250620000004 | 2025-06-20 00:00:04 \n   20250620000005 | 20250620000005 | 2025-06-20 00:00:05 \n   20250620000006 | 20250620000006 | 2025-06-20 00:00:06 \n   20250620000007 | 20250620000007 | 2025-06-20 00:00:07 \n   20250620000008 | 20250620000008 | 2025-06-20 00:00:08 \n   20250620000009 |                | 2025-06-20 00:00:09 \n   20250621000001 |                | 2025-06-21 00:00:01 \n   20250622000001 |                | 2025-06-22 00:00:01 \n   20250622000002 |                | 2025-06-22 00:00:02 \n   20250622000003 |                | 2025-06-22 00:00:03 \n   20250623000001 |                | 2025-06-23 00:00:01 \n   20250624000001 |                | 2025-06-24 00:00:01 \n   20250624000002 |                | 2025-06-24 00:00:02 \n   20250625000001 |                | 2025-06-25 00:00:01 \n   20250626000001 |                | 2025-06-26 00:00:01 \n   20250626000002 |                | 2025-06-26 00:00:02 \n   20250626000009 |                | 2025-06-26 00:00:09 \n   20250627000001 |                | 2025-06-27 00:00:01 \n   20250628000001 |                | 2025-06-28 00:00:01 \n   20250628000002 |                | 2025-06-28 00:00:02 \n   20250628000003 |                | 2025-06-28 00:00:03 \n   20250628000004 |                | 2025-06-28 00:00:04 \n   20250628000009 |                | 2025-06-28 00:00:09 \n   20250629000001 |                | 2025-06-29 00:00:01 \n   20250630000001 |                | 2025-06-30 00:00:01 \n   20250701000001 |                | 2025-07-01 00:00:01 \n   20250702000001 |                | 2025-07-02 00:00:01 \n   20250703000001 |                | 2025-07-03 00:00:01 \n   20250704000001 |                | 2025-07-04 00:00:01 \n\nInitialising login role...\nConnecting to remote database..."
+  },
+  "apply": {
+    "attempted": true,
+    "success": false,
+    "output": "Supabase authentication required. Set SUPABASE_ACCESS_TOKEN or SUPABASE_DB_PASSWORD, or run `supabase login` first.",
+    "skipped": 0
+  },
+  "verification": {
+    "tables": [
+      {
+        "table": "profiles",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "user_settings",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "shipping_addresses",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "payment_methods",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "seller_shipping_settings",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "buyer_preferences",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "notification_settings",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "live_visitor_sessions",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "platform_audit_logs",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "orders",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "products",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "messages",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "notifications",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "saved_items",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "saved_searches",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "recently_viewed",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "seller_follows",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "wallets",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "wallet_transactions",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "stripe_webhook_events",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "trust_scores",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "business_profiles",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "monetization_plans",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "push_subscriptions",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "cart_items",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "reviews",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "email_outbox",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "listing_promotions",
+        "exists": true,
+        "error": ""
+      },
+      {
+        "table": "platform_error_logs",
+        "exists": true,
+        "error": null
+      },
+      {
+        "table": "search_logs",
+        "exists": true,
+        "error": null
+      }
+    ],
+    "liveAnalyticsColumns": {
+      "ok": false,
+      "error": "Could not find the table 'public.live_visitor_sessions' in the schema cache"
+    }
+  },
+  "quality": {
+    "lint": "PASS",
+    "typecheck": "PASS",
+    "build": "PASS"
+  },
+  "completedAt": "2026-06-25T12:44:46.713Z",
+  "productionReady": false
+}

@@ -17,15 +17,15 @@ export function planMarketplaceCompletionRepairs(scan: MarketplaceCompletionScan
   }
 
   const actions: CompletionRepairAction[] = [];
-  for (const module of scan.modules.filter((m) => !m.complete)) {
+  for (const enterpriseModule of scan.modules.filter((m) => !m.complete)) {
     actions.push({
-      id: `repair-module-${module.moduleId}`,
+      id: `repair-module-${enterpriseModule.moduleId}`,
       action: "complete-module",
-      target: module.pageRef,
+      target: enterpriseModule.pageRef,
       safe: true,
       requiresApproval: false,
       status: "pending",
-      message: module.message,
+      message: enterpriseModule.message,
     });
   }
   for (const check of scan.checks.filter((c) => c.status === "fail" && c.category === "ui-integrity")) {

@@ -1,3 +1,5 @@
+import { getCategoryIconPath, resolveCategoryIconType } from "@/lib/home/category-icons";
+
 const CATEGORY_IMAGES: Record<string, string> = {
   vehicles:
     "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&h=600&fit=crop",
@@ -64,37 +66,9 @@ export function getCategoryImageUrl(slug: string): string {
 }
 
 export function getCategoryIcon(slug: string): string {
-  const icons: Record<string, string> = {
-    vehicles: "🚗",
-    property: "🏠",
-    electronics: "📱",
-    fashion: "👗",
-    "home-garden": "🌿",
-    diy: "🔨",
-    tools: "🛠️",
-    sports: "⚽",
-    health: "💊",
-    beauty: "💄",
-    pets: "🐾",
-    "baby-kids": "👶",
-    toys: "🧸",
-    books: "📚",
-    music: "🎵",
-    movies: "🎬",
-    gaming: "🎮",
-    collectibles: "🏆",
-    business: "💼",
-    jobs: "💼",
-    services: "🤝",
-    tickets: "🎫",
-    food: "🍽️",
-    office: "🖇️",
-    industrial: "🏭",
-    agriculture: "🌾",
-    travel: "✈️",
-    events: "🎉",
-    "free-stuff": "🎁",
-    "everything-else": "📦",
-  };
-  return icons[slug] ?? "🏷️";
+  return getCategoryIconPath(slug);
+}
+
+export function getCategoryIconKey(slug: string): string {
+  return resolveCategoryIconType(slug);
 }

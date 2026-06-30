@@ -1,0 +1,181 @@
+/* ROVEXO Integrations Engine */
+
+.integ-hub,
+.integ-admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+}
+
+.integ-admin {
+  padding: var(--ds-space-4);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.integ-admin__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ds-space-3);
+}
+
+.integ-hub__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.integ-hub__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ds-color-primary);
+}
+
+.integ-live-banner {
+  padding: var(--ds-space-4);
+  border: 1px solid color-mix(in srgb, var(--ds-color-primary) 25%, var(--ds-color-border));
+  border-radius: var(--ds-radius-xl);
+  background: color-mix(in srgb, var(--ds-color-primary) 8%, transparent);
+}
+
+.integ-hub__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.integ-hub__tab {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ds-color-text-secondary);
+}
+
+.integ-hub__tab--active {
+  border-color: var(--ds-color-primary);
+  color: var(--ds-color-primary);
+  background: color-mix(in srgb, var(--ds-color-primary) 10%, transparent);
+}
+
+.integ-panel {
+  padding: var(--ds-space-5);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-xl);
+  background: var(--ds-glass-bg);
+}
+
+.integ-panel__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: var(--ds-space-3);
+}
+
+.integ-module-grid,
+.integ-analytics-grid {
+  display: grid;
+  gap: var(--ds-space-3);
+}
+
+@media (min-width: 768px) {
+  .integ-module-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .integ-analytics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .integ-analytics-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.integ-module-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: var(--ds-space-4);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 160ms ease;
+}
+
+.integ-module-card:hover {
+  border-color: var(--ds-color-primary);
+}
+
+.integ-metric-card {
+  padding: var(--ds-space-4);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+}
+
+.integ-metric-card__value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.integ-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.integ-list__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-3);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+}
+
+.integ-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.integ-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ds-color-text-secondary);
+  text-transform: capitalize;
+}
+
+.integ-chip--active {
+  border-color: color-mix(in srgb, var(--ds-color-primary) 40%, var(--ds-color-border));
+  color: var(--ds-color-primary);
+  background: color-mix(in srgb, var(--ds-color-primary) 10%, transparent);
+}
+
+.integ-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ds-color-primary);
+  text-decoration: none;
+}
+
+.integ-link:hover {
+  text-decoration: underline;
+}

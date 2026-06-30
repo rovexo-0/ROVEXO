@@ -1,0 +1,62 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
+import { isStoreMigrationEnabled } from "@/lib/seller/migration/config";
+import { validationPipeline } from "@/lib/seller/migration/connectors/pipelines";
+import { previewXlsxContent } from "@/lib/seller/migration/connectors/file/xlsx-parser";
+
+const previewSchema = z.object({
+  fileContent: z.string().min(1).max(5_000_000),
+  fileEncoding: z.enum(["utf8", "base64"]).optional(),
+  worksheet: z.string().max(120).optional(),
+  limit: z.number().int().min(1).max(25).optional(),
+  mapping: z.record(z.string(), z.string()).optional(),
+});
+
+export async function POST(request: Request) {
+  const auth = await requireApiAuth();
+  if (auth instanceof NextResponse) return auth;
+
+  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
+  if (roleCheck instanceof NextResponse) return roleCheck;
+
+  if (!isStoreMigrationEnabled()) {
+    return NextResponse.json({ error: "Migration feature is disabled." }, { status: 404 });
+  }
+
+  try {
+    const body = previewSchema.parse(await request.json());
+    const buffer = Buffer.from(
+      body.fileContent,
+      body.fileEncoding === "base64" ? "base64" : "utf8",
+    );
+    const preview = previewXlsxContent(buffer, body.limit ?? 5, body.mapping, body.worksheet);
+
+    const validation = preview.preview.map((listing) => ({
+      externalId: listing.externalId,
+      valid: validationPipeline.validateRaw(listing).valid,
+      errors: validationPipeline.validateRaw(listing).errors,
+    }));
+
+    return NextResponse.json({
+      worksheet: preview.worksheet,
+      worksheets: preview.worksheets,
+      headers: preview.headers,
+      detectedMapping: preview.detectedMapping,
+      totalRows: preview.rows.length,
+      preview: preview.preview,
+      validation,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: error.issues[0]?.message ?? "Invalid preview request." },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unable to preview XLSX." },
+      { status: 400 },
+    );
+  }
+}

@@ -55,7 +55,7 @@ export const ENTERPRISE_MODULE_DESCRIPTORS: readonly EnterpriseModuleDescriptor[
   ENTERPRISE_DEPLOYMENT_MODULE_DESCRIPTOR,
 ];
 
-const descriptorIndex = new Map(ENTERPRISE_MODULE_DESCRIPTORS.map((module) => [module.id, module]));
+const descriptorIndex = new Map(ENTERPRISE_MODULE_DESCRIPTORS.map((enterpriseModule) => [enterpriseModule.id, enterpriseModule]));
 
 export function getEnterpriseModuleDescriptor(id: string): EnterpriseModuleDescriptor | undefined {
   return descriptorIndex.get(id);
@@ -74,8 +74,8 @@ export function getEnterpriseModuleApi(moduleId: string) {
 }
 
 export function getRelatedModuleHref(moduleId: string, relatedModuleId: string): string | undefined {
-  const module = getEnterpriseModuleDescriptor(moduleId);
-  if (!module?.relatedModules?.includes(relatedModuleId)) return undefined;
+  const enterpriseModule = getEnterpriseModuleDescriptor(moduleId);
+  if (!enterpriseModule?.relatedModules?.includes(relatedModuleId)) return undefined;
   return getEnterpriseModuleDescriptor(relatedModuleId)?.baseHref;
 }
 
@@ -103,15 +103,15 @@ export function toEnterpriseCoreModule(descriptor: EnterpriseModuleDescriptor): 
 }
 
 export function getAutoRegisteredEnterpriseCoreModules(): EnterpriseCoreRegistryModule[] {
-  return ENTERPRISE_MODULE_DESCRIPTORS.filter((module) => module.autoRegister).map(toEnterpriseCoreModule);
+  return ENTERPRISE_MODULE_DESCRIPTORS.filter((enterpriseModule) => enterpriseModule.autoRegister).map(toEnterpriseCoreModule);
 }
 
 export function getEnterpriseModuleSettingGroups() {
-  return ENTERPRISE_MODULE_DESCRIPTORS.map((module) => ({
-    id: module.id,
-    label: module.label,
-    href: module.baseHref,
-    module: module.id,
-    keys: Object.values(module.configKeys),
+  return ENTERPRISE_MODULE_DESCRIPTORS.map((enterpriseModule) => ({
+    id: enterpriseModule.id,
+    label: enterpriseModule.label,
+    href: enterpriseModule.baseHref,
+    module: enterpriseModule.id,
+    keys: Object.values(enterpriseModule.configKeys),
   }));
 }

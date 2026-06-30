@@ -4,10 +4,10 @@ import { describe, expect, it } from "vitest";
 
 describe("Enterprise UI system — homepage hero", () => {
   it("does not render Official ROVEXO banner on homepage", () => {
-    const homeContent = readFileSync(join(process.cwd(), "components/home/HomeContent.tsx"), "utf8");
+    const homeContent = readFileSync(join(process.cwd(), "components/premium/PremiumHomePage.tsx"), "utf8");
     expect(homeContent).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
     expect(homeContent).not.toContain("HomeHeroBannerEngine");
-    expect(homeContent).toContain("BringYourItemsBanner");
+    expect(homeContent).toContain("ImportListingBanner");
   });
 
   it("routes hero slide CTAs to approved marketplace destinations", () => {
@@ -63,7 +63,7 @@ describe("Enterprise UI system — design lock", () => {
 
   it("names account hub sections BUY SELL BUSINESS SUPPORT", () => {
     const dashboard = readFileSync(
-      join(process.cwd(), "components/home/HomeContent.tsx"),
+      join(process.cwd(), "components/premium/PremiumHomePage.tsx"),
       "utf8",
     );
     const accountDashboard = readFileSync(
@@ -88,8 +88,8 @@ describe("Enterprise UI system — header", () => {
   });
 
   it("uses premium 3D search icon in header search bar", () => {
-    const searchBar = readFileSync(join(process.cwd(), "components/header/HeaderSearchBar.tsx"), "utf8");
-    expect(searchBar).toContain("BottomNavIcon3D");
-    expect(searchBar).toContain('type="search"');
+    const searchBar = readFileSync(join(process.cwd(), "components/premium/SearchBar.tsx"), "utf8");
+    expect(searchBar).toContain("Search ROVEXO");
+    expect(searchBar).toContain('role="search"');
   });
 });

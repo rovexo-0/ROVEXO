@@ -1,0 +1,97 @@
+/* Secondary premium banners — matches Hero V1 language */
+
+.rx-secondary-banners-section {
+  margin: 0;
+}
+
+.rx-secondary-banners {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.rx-secondary-banners::-webkit-scrollbar {
+  display: none;
+}
+
+.rx-secondary-banner {
+  display: flex;
+  flex: 0 0 min(82vw, 320px);
+  min-width: 260px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 112px;
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid color-mix(in srgb, var(--ds-color-primary) 18%, transparent);
+  background: linear-gradient(135deg, #2563eb 0%, #4338ca 52%, #7c3aed 100%);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+  text-decoration: none;
+  color: var(--ds-color-primary-foreground);
+  scroll-snap-align: start;
+  transition:
+    transform 180ms var(--ds-ease),
+    box-shadow 180ms var(--ds-ease);
+}
+
+.rx-secondary-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 56px rgba(37, 99, 235, 0.22);
+}
+
+.rx-secondary-banner__title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.rx-secondary-banner__subtitle {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--ds-color-primary-foreground) 82%, transparent);
+}
+
+.rx-secondary-banner__cta {
+  display: inline-flex;
+  align-self: flex-start;
+  min-height: 36px;
+  align-items: center;
+  border-radius: 14px;
+  padding: 0 14px;
+  background: color-mix(in srgb, var(--ds-color-primary-foreground) 16%, transparent);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+}
+
+@media (min-width: 1024px) {
+  .rx-secondary-banners {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .rx-secondary-banner {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-secondary-banner,
+  .rx-secondary-banner:hover {
+    transform: none;
+    transition: none;
+  }
+}

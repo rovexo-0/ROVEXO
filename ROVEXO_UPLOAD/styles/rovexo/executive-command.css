@@ -1,0 +1,290 @@
+/* ROVEXO Executive Command Center — ORI Executive Intelligence */
+
+.ecc-admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--ds-space-4);
+}
+
+.ecc-admin__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ds-space-4);
+  padding: var(--ds-space-5);
+  border: 1px solid color-mix(in srgb, #d4af37 28%, var(--ds-color-border));
+  border-radius: var(--ds-radius-2xl);
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, #d4af37 12%, transparent), transparent 55%),
+    linear-gradient(145deg, #050505, #141414);
+  color: #f5f0e6;
+}
+
+.ecc-admin__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #d4af37;
+}
+
+.ecc-admin__title {
+  margin-top: 6px;
+  font-size: clamp(1.375rem, 2vw, 1.875rem);
+  font-weight: 800;
+}
+
+.ecc-admin__desc {
+  margin-top: 8px;
+  max-width: 60ch;
+  font-size: 0.9375rem;
+  color: color-mix(in srgb, #f5f0e6 75%, transparent);
+}
+
+.ecc-admin__overall {
+  padding: var(--ds-space-4);
+  border: 1px solid #d4af37;
+  border-radius: var(--ds-radius-xl);
+  text-align: center;
+  min-width: 140px;
+  background: color-mix(in srgb, #d4af37 8%, #111);
+}
+
+.ecc-admin__overall span {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #a89870;
+}
+
+.ecc-admin__overall strong {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #d4af37;
+}
+
+.ecc-admin__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-3);
+  align-items: center;
+}
+
+.ecc-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ds-color-primary);
+  text-decoration: none;
+}
+
+.ecc-admin__message {
+  padding: var(--ds-space-3);
+  border-radius: var(--ds-radius-lg);
+  background: color-mix(in srgb, #d4af37 10%, var(--ds-color-surface));
+  font-size: 0.875rem;
+}
+
+.ecc-grid {
+  display: grid;
+  gap: var(--ds-space-4);
+}
+
+@media (min-width: 900px) {
+  .ecc-grid { grid-template-columns: repeat(2, 1fr); }
+  .ecc-panel--wide { grid-column: 1 / -1; }
+}
+
+.ecc-panel {
+  padding: var(--ds-space-4);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-xl);
+  background: var(--ds-glass-bg, color-mix(in srgb, var(--ds-color-surface) 92%, transparent));
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px color-mix(in srgb, #000 6%, transparent);
+}
+
+.ecc-panel h3 {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  margin-bottom: var(--ds-space-3);
+}
+
+.ecc-availability {
+  display: grid;
+  gap: var(--ds-space-3);
+  font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .ecc-availability { grid-template-columns: 1fr 1fr; }
+}
+
+.ecc-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--ds-space-3);
+}
+
+.ecc-metric {
+  padding: var(--ds-space-3);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+}
+
+.ecc-metric span {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ds-color-text-muted);
+}
+
+.ecc-metric strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.0625rem;
+  font-weight: 800;
+}
+
+.ecc-metric--unavailable strong {
+  color: var(--ds-color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.ecc-incident-list, .ecc-ori-list, .ecc-export-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-3);
+}
+
+.ecc-incident {
+  padding: var(--ds-space-3);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+}
+
+.ecc-incident--critical { border-left: 3px solid #ef4444; }
+.ecc-incident--high { border-left: 3px solid #f97316; }
+.ecc-incident--medium, .ecc-incident--warning { border-left: 3px solid #eab308; }
+
+.ecc-incident__head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ds-space-2);
+  margin-bottom: var(--ds-space-2);
+}
+
+.ecc-dl { display: flex; flex-direction: column; gap: var(--ds-space-2); font-size: 0.875rem; }
+.ecc-dl div { display: flex; justify-content: space-between; gap: var(--ds-space-3); }
+.ecc-dl dt { color: var(--ds-color-text-muted); font-weight: 600; }
+.ecc-dl--compact div { flex-direction: column; gap: 2px; }
+
+.ecc-cert-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: var(--ds-space-3);
+}
+
+.ecc-cert {
+  padding: var(--ds-space-3);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+}
+
+.ecc-cert span { display: block; font-size: 0.75rem; font-weight: 700; margin: 4px 0; }
+.ecc-cert--pass span { color: #15803d; }
+.ecc-cert--warning span { color: #a16207; }
+.ecc-cert--fail span { color: #b91c1c; }
+.ecc-cert--na span { color: var(--ds-color-text-muted); }
+
+.ecc-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--ds-space-3);
+  height: 120px;
+  margin-top: var(--ds-space-3);
+}
+
+.ecc-chart__bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 4px;
+}
+
+.ecc-chart__bar {
+  width: 100%;
+  max-width: 48px;
+  border-radius: var(--ds-radius-md) var(--ds-radius-md) 0 0;
+  background: linear-gradient(180deg, #d4af37, #8b6914);
+  min-height: 8px;
+}
+
+.ecc-chart__bar--na { background: var(--ds-color-border); }
+
+.ecc-ori {
+  padding: var(--ds-space-3);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+}
+
+.ecc-ori__priority {
+  display: inline-block;
+  margin-bottom: 4px;
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--ds-radius-full);
+  background: color-mix(in srgb, #d4af37 15%, transparent);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #8b6914;
+}
+
+.ecc-ori__note {
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  color: var(--ds-color-text-muted);
+  font-style: italic;
+}
+
+.ecc-action-grid, .ecc-export-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-space-2);
+}
+
+.ecc-action-link {
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: inherit;
+  background: var(--ds-color-surface);
+}
+
+.ecc-empty {
+  padding: var(--ds-space-3);
+  color: var(--ds-color-text-muted);
+  font-size: 0.875rem;
+}
+
+@media (prefers-color-scheme: light) {
+  .ecc-admin__header {
+    background: linear-gradient(145deg, #faf8f3, #f0ebe0);
+    color: #1a1a1a;
+  }
+  .ecc-admin__overall { background: #fff; }
+}

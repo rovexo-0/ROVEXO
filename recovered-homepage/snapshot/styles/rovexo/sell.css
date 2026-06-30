@@ -1,0 +1,82 @@
+/* ROVEXO v1.0 — Sell flow premium presentation */
+
+.sell-page-v1 {
+  background: var(--ds-color-background);
+  background-image: var(--ds-gradient-page);
+}
+
+.sell-page-v1 .rx-form-section {
+  padding: var(--ds-space-5);
+  border-radius: var(--ds-radius-xl);
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-glass-bg);
+  box-shadow: var(--ds-shadow-medium);
+}
+
+.sell-page-v1 .rx-input {
+  min-height: 48px;
+  border-radius: var(--ds-radius-md);
+  font-size: var(--ds-font-body-size);
+}
+
+.sell-page-v1 .rx-input:focus {
+  box-shadow: var(--ds-glow-primary);
+}
+
+.sell-page-v1 .rx-upload {
+  min-height: 120px;
+  border-radius: var(--ds-radius-xl);
+  border: 2px dashed color-mix(in srgb, var(--ds-color-primary) 32%, var(--ds-color-border));
+  background: color-mix(in srgb, var(--ds-color-primary) 4%, var(--ds-glass-bg));
+  transition:
+    border-color var(--ds-duration-fast) var(--ds-ease),
+    transform var(--ds-duration-fast) var(--ds-ease),
+    box-shadow var(--ds-duration-fast) var(--ds-ease);
+}
+
+.sell-page-v1 .rx-upload:hover {
+  border-color: color-mix(in srgb, var(--ds-color-primary) 48%, transparent);
+  box-shadow: var(--ds-shadow-floating);
+  transform: translateY(-1px);
+}
+
+.sell-page-v1 .rx-footer-bar {
+  border-radius: var(--ds-radius-xl) var(--ds-radius-xl) 0 0;
+  border: 1px solid var(--ds-color-border);
+  border-bottom: none;
+  box-shadow: var(--ds-shadow-premium);
+}
+
+.sell-page-v1 .sell-condition-chip {
+  min-height: 44px;
+  border-radius: var(--ds-radius-full);
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-glass-bg);
+  padding: 0 var(--ds-space-4);
+  font-size: var(--ds-font-caption-size);
+  font-weight: 650;
+  color: var(--ds-color-text-secondary);
+  box-shadow: var(--ds-shadow-soft);
+  transition:
+    border-color var(--ds-duration-fast) var(--ds-ease),
+    color var(--ds-duration-fast) var(--ds-ease),
+    box-shadow var(--ds-duration-fast) var(--ds-ease),
+    transform var(--ds-duration-fast) var(--ds-ease);
+}
+
+.sell-page-v1 .sell-condition-chip[data-selected="true"] {
+  border-color: color-mix(in srgb, var(--ds-color-primary) 40%, transparent);
+  color: var(--ds-color-primary);
+  box-shadow: var(--ds-glow-primary);
+}
+
+.sell-page-v1 .sell-condition-chip:hover {
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sell-page-v1 .rx-upload:hover,
+  .sell-page-v1 .sell-condition-chip:hover {
+    transform: none;
+  }
+}

@@ -1,5 +1,5 @@
 import type { Product } from "@/lib/products/types";
-import type { CategoryIconType } from "@/components/icons/CategoryIcon3D";
+import type { RovexoCategoryPremiumKey } from "@/lib/home/category-premium-library";
 
 export type AuctionFilter =
   | "all"
@@ -15,7 +15,7 @@ export type AuctionCategory = {
   id: string;
   name: string;
   slug: string;
-  icon: CategoryIconType;
+  icon: RovexoCategoryPremiumKey;
 };
 
 export type AuctionListing = Product & {

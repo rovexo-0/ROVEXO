@@ -24,6 +24,16 @@ export const HERO_CATEGORY_SLIDE_MAP: Record<RovexoCategoryPremiumKey, string> =
   pets: "home-garden",
   sports: "fast-delivery",
   services: "zero-fees",
+  fashion: "zero-fees",
+  furniture: "home-garden",
+  books: "buy-securely",
+  business: "verified-businesses",
+  collectibles: "premium-auctions",
+  kids: "home-garden",
+  luxury: "premium-auctions",
+  handmade: "zero-fees",
+  export: "fast-delivery",
+  more: "buy-securely",
 };
 
 export function resolveHeroSlideIndex(categoryKey: RovexoCategoryPremiumKey): number {

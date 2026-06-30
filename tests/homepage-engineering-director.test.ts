@@ -34,8 +34,8 @@ describe("homepage engineering director registry", () => {
   });
 
   it("defines premium home stack", () => {
-    expect(PREMIUM_HOME_STACK).toContain("HomeCategoryRail");
-    expect(PREMIUM_HOME_STACK).toContain("BringYourItemsBanner");
+    expect(PREMIUM_HOME_STACK).toContain("InfiniteCategoryRail");
+    expect(PREMIUM_HOME_STACK).toContain("ImportListingBanner");
     expect(PREMIUM_HOME_STACK).not.toContain("CategoryGridSection");
   });
 });

@@ -82,13 +82,17 @@ export const HOMEPAGE_PRODUCTION_GATES = [
 ] as const;
 
 export const PREMIUM_HOME_STACK = [
-  "HomeCategoryRail",
-  "BringYourItemsBanner",
-  "FeaturedListingsSection",
-  "HomeProductSection",
-  "LiveAuctionsSection",
-  "HomeTrendingListingsSection",
-  "HomeAllListingsSection",
+  "PremiumHero",
+  "ImportListingBanner",
+  "InfiniteCategoryRail",
+  "FeaturedListings",
+  "RecommendedListings",
+  "NewListings",
+  "TrendingListings",
+  "BusinessSection",
+  "LatestListings",
+  "DealsSection",
+  "BenefitsSection",
 ] as const;
 
 export const LEGACY_HOME_IMPORTS = [
@@ -96,6 +100,7 @@ export const LEGACY_HOME_IMPORTS = [
   "HomeHero",
   "HomeHeroBanner",
   "HomeHeroBannerEngine",
+  "HomeContent",
   "CategoryGridSection",
   "PopularListingsGrid",
   "QuickFiltersRail",
@@ -105,13 +110,15 @@ export const LEGACY_HOME_IMPORTS = [
   "HomeBenefitsRail",
   "HomeSecondaryBanners",
   "AppStoreButtons",
+  "BringYourItemsBanner",
+  "HomeCategoryRail",
 ] as const;
 
 export const HOMEPAGE_SOURCE_FILES = {
   page: "app/page.tsx",
-  homeContent: "components/home/HomeContent.tsx",
-  categoryRail: "components/home/HomeCategoryRail.tsx",
-  header: "components/Header.tsx",
+  homeContent: "components/premium/PremiumHomePage.tsx",
+  categoryRail: "components/premium/InfiniteCategoryRail.tsx",
+  header: "components/premium/PremiumHeader.tsx",
   betaShell: "components/beta/BetaAppShell.tsx",
-  categoryGrid: "components/home/CategoryGridSection.tsx",
+  categoryGrid: "components/premium/InfiniteCategoryRail.tsx",
 } as const;

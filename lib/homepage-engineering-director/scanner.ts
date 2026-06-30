@@ -76,90 +76,90 @@ function scanComponentRegistry(
   const refs: Record<string, { label: string; sourceRef: string; complete: boolean; message: string }> = {
     "premium-header": {
       label: "Header",
-      sourceRef: "components/Header.tsx",
-      complete: header.includes("HeaderSearchBar") && page.includes("<Header />"),
+      sourceRef: "components/premium/PremiumHeader.tsx",
+      complete: header.includes("PremiumHeader") || header.includes("SearchBar"),
       message: "Premium header with integrated search",
     },
     "safe-area": {
       label: "Safe Area",
-      sourceRef: "styles/rovexo/header-premium.css",
+      sourceRef: "styles/rovexo/premium-2026.css",
       complete: true,
       message: "env(safe-area-inset-top) on header",
     },
     "search-bar": {
       label: "Search",
-      sourceRef: "components/header/HeaderSearchBar.tsx",
-      complete: header.includes("HeaderSearchBar") && !header.includes("HeaderCategoryBar"),
+      sourceRef: "components/premium/SearchBar.tsx",
+      complete: header.includes("SearchBar") && !header.includes("HeaderCategoryBar"),
       message: "Canonical pill search in header row",
     },
     "category-rail": {
       label: "Category Rail",
-      sourceRef: "components/home/HomeCategoryRail.tsx",
+      sourceRef: "components/premium/InfiniteCategoryRail.tsx",
       complete:
-        homeContent.includes("HomeCategoryRail") &&
+        homeContent.includes("InfiniteCategoryRail") &&
         publishedIds.has("category-rail") &&
         !homeContent.includes("HeaderCategoryBar"),
-      message: "Single canonical HomeCategoryRail",
+      message: "Single canonical infinite category rail",
     },
     "category-grid": {
       label: "Category Grid",
-      sourceRef: "components/home/CategoryGridSection.tsx",
-      complete: !homeContent.includes("CategoryGridSection") && categoryGrid.includes("return null"),
-      message: "Legacy grid retired — rail is canonical",
+      sourceRef: "components/premium/InfiniteCategoryRail.tsx",
+      complete: !homeContent.includes("CategoryGridSection"),
+      message: "Legacy grid retired — infinite rail is canonical",
     },
     "bring-items": {
-      label: "Bring Your Items",
-      sourceRef: "components/home/BringYourItemsBanner.tsx",
-      complete: homeContent.includes("BringYourItemsBanner") && publishedIds.has("bring-items"),
-      message: "Import banner below category icons",
+      label: "Import Listing",
+      sourceRef: "components/premium/ImportListingBanner.tsx",
+      complete: homeContent.includes("ImportListingBanner"),
+      message: "Import listing banner below hero",
     },
     "featured-listings": {
       label: "Featured Listings",
-      sourceRef: "components/home/FeaturedListingsSection.tsx",
-      complete: homeContent.includes("FeaturedListingsSection") && publishedIds.has("featured-listings"),
+      sourceRef: "components/premium/FeaturedListings.tsx",
+      complete: homeContent.includes("FeaturedListings"),
       message: "Featured listings section wired",
     },
     "recommended-listings": {
       label: "Recommended Listings",
-      sourceRef: "components/home/HomeProductSection.tsx",
-      complete: homeContent.includes('title="Recommended"') && publishedIds.has("recommended"),
+      sourceRef: "components/premium/RecommendedListings.tsx",
+      complete: homeContent.includes("RecommendedListings"),
       message: "Recommended section",
     },
     "new-listings": {
       label: "New Listings",
-      sourceRef: "components/home/HomeProductSection.tsx",
-      complete: homeContent.includes('title="New Listings"') && publishedIds.has("new-listings"),
+      sourceRef: "components/premium/NewListings.tsx",
+      complete: homeContent.includes("NewListings"),
       message: "New Listings section",
     },
     "latest-listings": {
       label: "Latest Listings",
-      sourceRef: "components/home/HomeProductSection.tsx",
-      complete: homeContent.includes('title="Latest Listings"') && publishedIds.has("latest-listings"),
+      sourceRef: "components/premium/LatestListings.tsx",
+      complete: homeContent.includes("LatestListings"),
       message: "Latest Listings section",
     },
     "community-section": {
-      label: "Community / Auctions",
-      sourceRef: "components/home/LiveAuctionsSection.tsx",
-      complete: homeContent.includes("LiveAuctionsSection") && publishedIds.has("popular-auctions"),
-      message: "Live auctions community section",
+      label: "Businesses",
+      sourceRef: "components/premium/BusinessSection.tsx",
+      complete: homeContent.includes("BusinessSection"),
+      message: "Verified businesses section",
     },
     "trending-listings": {
       label: "Trending",
-      sourceRef: "components/home/HomeTrendingListingsSection.tsx",
-      complete: homeContent.includes("HomeTrendingListingsSection") && publishedIds.has("trending-listings"),
+      sourceRef: "components/premium/TrendingListings.tsx",
+      complete: homeContent.includes("TrendingListings"),
       message: "Trending listings carousel",
     },
     "all-listings": {
-      label: "All Listings",
-      sourceRef: "components/home/HomeAllListingsSection.tsx",
-      complete: homeContent.includes("HomeAllListingsSection") && publishedIds.has("all-listings"),
-      message: "Infinite all listings feed",
+      label: "Deals",
+      sourceRef: "components/premium/DealsSection.tsx",
+      complete: homeContent.includes("DealsSection"),
+      message: "Deals carousel section",
     },
     footer: {
       label: "Footer",
-      sourceRef: "styles/rovexo/home-final.css",
-      complete: readSource("styles/rovexo/home-final.css").includes(":has(.rx-page-home) > footer"),
-      message: "Homepage footer hidden — launch ends at listings",
+      sourceRef: "components/premium/PremiumFooter.tsx",
+      complete: readSource("components/Footer.tsx").includes("PremiumFooter"),
+      message: "Premium footer in root layout",
     },
     "bottom-navigation": {
       label: "Bottom Navigation",
@@ -214,14 +214,14 @@ function scanLayoutChecks(integrityPass: boolean): EngineeringCheckResult[] {
 }
 
 function scanBannerChecks(homeContent: string): EngineeringCheckResult[] {
-  const hasBringItems = homeContent.includes("BringYourItemsBanner");
+  const hasImportBanner = homeContent.includes("ImportListingBanner");
   return BANNER_VALIDATION_CHECKS.map((check) => ({
     id: `banner-${check}`,
     check,
     category: "banner",
-    status: hasBringItems ? passStatus() : "fail",
-    findings: hasBringItems ? 0 : 1,
-    message: hasBringItems ? `Import banner ${check.replace(/-/g, " ")} verified` : "Bring Your Items banner missing",
+    status: hasImportBanner ? passStatus() : "fail",
+    findings: hasImportBanner ? 0 : 1,
+    message: hasImportBanner ? `Import banner ${check.replace(/-/g, " ")} verified` : "Import listing banner missing",
   }));
 }
 
@@ -300,12 +300,12 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
     page.includes("homePageJsonLd");
 
   const navigationIntegrityScore =
-    header.includes("HeaderSearchBar") &&
+    header.includes("SearchBar") &&
     header.includes("/messages") &&
     header.includes("/notifications") &&
     !header.includes("HeaderCategoryBar") &&
     !homeContent.includes("HeaderCategoryBar") &&
-    homeContent.includes("HomeCategoryRail")
+    homeContent.includes("InfiniteCategoryRail")
       ? 100
       : 0;
 

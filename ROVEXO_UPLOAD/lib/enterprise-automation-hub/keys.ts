@@ -1,0 +1,6 @@
+export const ENTERPRISE_AUTOMATION_HUB_DRAFT_KEY = "enterprise_automation_hub_draft_v1";
+export const ENTERPRISE_AUTOMATION_HUB_LIVE_KEY = "enterprise_automation_hub_live_v1";
+export const ENTERPRISE_AUTOMATION_HUB_HISTORY_KEY = "enterprise_automation_hub_config_history_v1";
+export const ENTERPRISE_AUTOMATION_HUB_SETTINGS_KEY = "enterprise_automation_hub_settings_v1";
+export const ENTERPRISE_AUTOMATION_HUB_WORKFLOWS_KEY = "enterprise_automation_hub_workflows_v1";
+export const ENTERPRISE_AUTOMATION_HUB_EXECUTIONS_KEY = "enterprise_automation_hub_executions_v1";

@@ -1,0 +1,78 @@
+/* Homepage promo row — Phase 1 (4 equal benefit cards) */
+
+.rx-promo-row-section {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.rx-promo-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ds-space-2);
+}
+
+.rx-promo-card {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  min-height: 72px;
+  height: 100%;
+  padding: var(--ds-space-3);
+  border-radius: 16px;
+  border: 1px solid #eef2f7;
+  background: var(--ds-color-surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition:
+    transform var(--ds-duration-fast) var(--ds-ease),
+    box-shadow var(--ds-duration-fast) var(--ds-ease);
+}
+
+.rx-promo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.1);
+}
+
+.rx-promo-card__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #ffffff, #f1f5f9);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.rx-promo-card__label {
+  min-width: 0;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--ds-color-text-primary);
+}
+
+@media (min-width: 640px) {
+  .rx-promo-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--ds-space-3);
+  }
+
+  .rx-promo-card {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    min-height: 88px;
+    padding: var(--ds-space-3) var(--ds-space-2);
+    gap: var(--ds-space-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-promo-card,
+  .rx-promo-card:hover {
+    transform: none;
+    transition: none;
+  }
+}

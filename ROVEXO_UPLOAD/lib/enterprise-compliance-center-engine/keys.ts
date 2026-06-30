@@ -1,0 +1,10 @@
+export const ENTERPRISE_COMPLIANCE_CENTER_SETTINGS_KEY = "enterprise_compliance_center_settings_v1";
+export const ENTERPRISE_COMPLIANCE_CENTER_EVIDENCE_KEY = "enterprise_compliance_center_evidence_v1";
+export const ENTERPRISE_COMPLIANCE_CENTER_EXPORTS_KEY = "enterprise_compliance_center_exports_v1";
+export const ENTERPRISE_COMPLIANCE_CENTER_STATE_KEY = "enterprise_compliance_center_state_v1";
+export const ENTERPRISE_COMPLIANCE_PRE_AUDIT_RUNS_KEY = "enterprise_compliance_pre_audit_runs_v1";
+export const ENTERPRISE_COMPLIANCE_READINESS_HISTORY_KEY = "enterprise_compliance_readiness_history_v1";
+export const ENTERPRISE_COMPLIANCE_REMEDIATION_KEY = "enterprise_compliance_remediation_v1";
+export const ENTERPRISE_COMPLIANCE_CENTER_DRAFT_KEY = "enterprise_compliance_center_draft_v1";
+export const ENTERPRISE_COMPLIANCE_CENTER_LIVE_KEY = "enterprise_compliance_center_live_v1";
+export const ENTERPRISE_COMPLIANCE_CENTER_HISTORY_KEY = "enterprise_compliance_center_config_history_v1";

@@ -3,7 +3,8 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { productToCardProps } from "@/lib/products/card";
 import { CategoryChip } from "@/components/ui/CategoryChip";
-import { getCategoryIcon } from "@/lib/categories/visuals";
+import { CategoryPremiumIcon } from "@/components/category/CategoryPremiumIcon";
+import { resolveCategoryIconType } from "@/lib/home/category-icons";
 import type { CategoryPageData } from "@/lib/categories/server";
 import type { Product } from "@/lib/products/types";
 import { InternalLinksSection } from "@/features/seo/components/InternalLinksSection";
@@ -41,7 +42,15 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
           <div className="absolute inset-0 flex flex-col justify-end p-ds-5">
-            <p className="text-sm text-white/80">{getCategoryIcon(node.slug)} Browse</p>
+            <div className="flex items-center gap-2 text-sm text-white/80">
+              <CategoryPremiumIcon
+                icon={resolveCategoryIconType(node.slug)}
+                size={28}
+                containerSize={40}
+                animated={false}
+              />
+              <span>Browse</span>
+            </div>
             <h1 className="text-2xl font-bold text-white md:text-3xl">{node.name}</h1>
             <p className="mt-ds-1 text-sm text-white/85">
               {total.toLocaleString()} {total === 1 ? "listing" : "listings"}

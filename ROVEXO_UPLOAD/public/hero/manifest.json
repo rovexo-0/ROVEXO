@@ -1,0 +1,26 @@
+{
+  "version": "approved-premium-photography",
+  "pipeline": "source-photography-only",
+  "campaigns": [
+    "move-store",
+    "zero-fees",
+    "verified-businesses",
+    "buy-securely",
+    "fast-delivery",
+    "electronics-deals",
+    "home-garden",
+    "premium-auctions"
+  ],
+  "widths": [
+    768,
+    1280,
+    1920,
+    3840
+  ],
+  "height": 1080,
+  "formats": [
+    "avif",
+    "webp",
+    "png"
+  ]
+}

@@ -1,22 +1,29 @@
 "use client";
 
-import { HomeCategoryIconImage } from "@/components/home/HomeCategoryIconImage";
+import { CategoryPremiumIcon } from "@/components/category/CategoryPremiumIcon";
 import type { HomeCategoryIconType } from "@/lib/home/constants";
 
 type HomeCategoryIcon3DProps = {
-  type: HomeCategoryIconType;
+  type: HomeCategoryIconType | string;
   className?: string;
   size?: number;
+  containerSize?: number;
 };
 
-/** Premium Icons8 3D Fluency category renders (transparent). */
-export function HomeCategoryIcon3D({ type, className, size = 40 }: HomeCategoryIcon3DProps) {
+/** Premium PNG category icon (restored ROVEXO 3D photography family). */
+export function HomeCategoryIcon3D({
+  type,
+  className,
+  size = 40,
+  containerSize = 60,
+}: HomeCategoryIcon3DProps) {
   return (
-    <HomeCategoryIconImage
-      type={type}
-      variant="premium"
+    <CategoryPremiumIcon
+      icon={type}
       size={size}
+      containerSize={containerSize}
       className={className}
+      animated={false}
     />
   );
 }

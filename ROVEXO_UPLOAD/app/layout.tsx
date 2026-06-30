@@ -1,0 +1,120 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+
+import "@/styles/rovexo/index.css";
+import "./globals.css";
+import { SearchProvider } from "@/features/search/client";
+import Footer from "@/components/Footer";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { VisitorPresenceBeacon } from "@/components/analytics/VisitorPresenceBeacon";
+import { PageVisibilityProvider } from "@/components/providers/PageVisibilityProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { LocaleProvider } from "@/lib/i18n/provider";
+import { PwaProvider } from "@/components/pwa/PwaProvider";
+import { PushSubscriptionManager } from "@/features/notifications/components/PushSubscriptionManager";
+import { ToastProvider } from "@/components/ui/Toast";
+import { organizationJsonLd } from "@/lib/seo/metadata";
+import { getAppUrl } from "@/lib/supabase/env";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  metadataBase: new URL(getAppUrl()),
+  title: {
+    default: "ROVEXO – Buy & Sell on the Modern Marketplace",
+    template: "%s | ROVEXO",
+  },
+  description:
+    "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
+  openGraph: {
+    type: "website",
+    locale: "en_GB",
+    siteName: "ROVEXO",
+    title: "ROVEXO – Buy & Sell on the Modern Marketplace",
+    description:
+      "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
+    images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "ROVEXO" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ROVEXO – Buy & Sell on the Modern Marketplace",
+    description:
+      "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
+    images: ["/brand/og-image.png"],
+  },
+  alternates: {
+    canonical: "/",
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "ROVEXO",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/favicon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: [{ url: "/favicon.ico" }],
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
+    >
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-background text-text-primary"
+      >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+        />
+        <ThemeProvider>
+          <PageVisibilityProvider>
+          <LocaleProvider>
+            <PwaProvider>
+            <PushSubscriptionManager />
+            <ToastProvider>
+              <SearchProvider>
+                <div className="flex min-h-full flex-1 flex-col">
+                  {children}
+                  <Footer />
+                </div>
+              </SearchProvider>
+            </ToastProvider>
+            </PwaProvider>
+          </LocaleProvider>
+          </PageVisibilityProvider>
+        </ThemeProvider>
+        <GoogleAnalytics />
+        <VisitorPresenceBeacon />
+      </body>
+    </html>
+  );
+}

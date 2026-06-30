@@ -124,7 +124,7 @@ export function PremiumAssetManagerPanel({ initialInventory }: PremiumAssetManag
 function AssetRow({ asset }: { asset: PremiumAssetRecord }) {
   const preview =
     asset.category === "category"
-      ? `/categories/${asset.id}.webp`
+      ? `/categories/${asset.id}.png`
       : asset.category === "hero"
         ? `/hero/${asset.id}.webp`
         : `/assets/empty-states/${asset.id}.webp`;

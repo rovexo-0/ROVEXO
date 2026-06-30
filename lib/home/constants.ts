@@ -1,37 +1,10 @@
 export type HomeCategoryIconType =
-  | "vehicles"
-  | "property"
-  | "phones"
-  | "computers"
-  | "electronics"
-  | "gaming"
-  | "fashion"
-  | "furniture"
-  | "home-garden"
-  | "sports"
-  | "pets"
-  | "jobs"
-  | "services"
-  | "autoparts"
+  | RovexoCategoryPremiumKey
+  | "baby"
+  | "cycling"
   | "wholesale"
   | "auctions"
-  | "beauty"
-  | "health"
-  | "baby"
-  | "jewellery"
-  | "diy"
-  | "tools"
-  | "kids"
-  | "kids-fashion"
-  | "womens-fashion"
-  | "mens-fashion"
-  | "shoes"
-  | "cycling"
-  | "business"
-  | "luxury"
-  | "collectibles"
-  | "handmade"
-  | "more";
+  | "jobs";
 
 import { ROVEXO_HOME_CATEGORY_RAIL } from "@/lib/home/category-premium-library";
 import type { RovexoCategoryPremiumKey } from "@/lib/home/category-premium-library";

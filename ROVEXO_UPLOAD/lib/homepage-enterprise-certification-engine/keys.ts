@@ -1,0 +1,4 @@
+export const HOMEPAGE_CERTIFICATION_DRAFT_KEY = "homepage_enterprise_certification_engine_draft_v1";
+export const HOMEPAGE_CERTIFICATION_LIVE_KEY = "homepage_enterprise_certification_engine_live_v1";
+export const HOMEPAGE_CERTIFICATION_HISTORY_KEY = "homepage_enterprise_certification_engine_config_history_v1";
+export const HOMEPAGE_CERTIFICATION_SETTINGS_KEY = "homepage_enterprise_certification_engine_settings_v1";

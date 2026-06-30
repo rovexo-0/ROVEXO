@@ -8,18 +8,18 @@ function searchAdminRegistry(query: string): EnterpriseCoreSearchResult[] {
 
   const results: EnterpriseCoreSearchResult[] = [];
 
-  for (const module of ENTERPRISE_CORE_REGISTRY) {
+  for (const enterpriseModule of ENTERPRISE_CORE_REGISTRY) {
     if (
-      module.label.toLowerCase().includes(trimmed) ||
-      module.description.toLowerCase().includes(trimmed) ||
-      module.id.includes(trimmed)
+      enterpriseModule.label.toLowerCase().includes(trimmed) ||
+      enterpriseModule.description.toLowerCase().includes(trimmed) ||
+      enterpriseModule.id.includes(trimmed)
     ) {
       results.push({
-        id: `module-${module.id}`,
+        id: `module-${enterpriseModule.id}`,
         category: "settings",
-        title: module.label,
-        subtitle: module.description,
-        href: module.href,
+        title: enterpriseModule.label,
+        subtitle: enterpriseModule.description,
+        href: enterpriseModule.href,
       });
     }
   }

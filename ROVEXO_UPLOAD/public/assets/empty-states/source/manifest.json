@@ -1,0 +1,19 @@
+{
+  "version": "premium-design-system-v1",
+  "pipeline": "source-photography-only",
+  "importedAt": "2026-06-27T23:02:59.739Z",
+  "ids": [
+    "featured-listings",
+    "popular-auctions",
+    "recommended",
+    "recently-listed",
+    "business-spotlight",
+    "continue-browsing",
+    "messages",
+    "notifications",
+    "wishlist",
+    "orders",
+    "wallet",
+    "reviews"
+  ]
+}

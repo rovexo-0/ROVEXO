@@ -37,7 +37,6 @@ export function SellPage({
     draftSavedMessage,
     showValidation,
     effectiveDraft,
-    listingMode,
     saveDraft,
     publishListing,
   } = form;

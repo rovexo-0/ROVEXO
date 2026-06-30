@@ -1,0 +1,4 @@
+export const LAUNCH_READINESS_DRAFT_KEY = "enterprise_launch_readiness_engine_draft_v1";
+export const LAUNCH_READINESS_LIVE_KEY = "enterprise_launch_readiness_engine_live_v1";
+export const LAUNCH_READINESS_HISTORY_KEY = "enterprise_launch_readiness_engine_config_history_v1";
+export const LAUNCH_READINESS_SETTINGS_KEY = "enterprise_launch_readiness_engine_settings_v1";

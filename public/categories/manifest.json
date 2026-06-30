@@ -1,40 +1,42 @@
 {
   "version": "approved-premium-photography",
   "pipeline": "source-photography-only",
+  "deliveryFormat": "png",
   "railIcons": [
-    "vehicles",
-    "property",
+    "electronics",
     "phones",
     "computers",
-    "electronics",
     "gaming",
-    "home-garden",
+    "vehicles",
+    "autoparts",
+    "property",
+    "furniture",
     "diy",
-    "tools",
+    "home-garden",
+    "fashion",
+    "luxury",
+    "jewellery",
+    "beauty",
+    "health",
+    "sports",
+    "pets",
+    "business",
+    "services",
+    "books",
+    "kids",
+    "collectibles",
+    "handmade",
+    "export",
+    "tools"
+  ],
+  "extendedIcons": [
     "womens-fashion",
     "mens-fashion",
     "kids-fashion",
     "shoes",
-    "jewellery",
-    "beauty",
-    "health",
-    "pets",
-    "sports",
-    "services",
-    "autoparts"
+    "more"
   ],
-  "extendedIcons": [],
-  "sizes": [
-    64,
-    128,
-    256,
-    512,
-    1024
-  ],
-  "formats": [
-    "avif",
-    "webp",
-    "png"
-  ],
+  "sizes": [64, 128, 256, 512, 1024],
+  "formats": ["png", "webp", "avif"],
   "master": 1024
 }

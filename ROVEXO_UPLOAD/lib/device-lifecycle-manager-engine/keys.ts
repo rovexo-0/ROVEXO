@@ -1,0 +1,5 @@
+export const DEVICE_LIFECYCLE_MANAGER_RECORDS_KEY = "device_lifecycle_manager_records_v1";
+export const DEVICE_LIFECYCLE_MANAGER_HISTORY_KEY = "device_lifecycle_manager_history_v1";
+export const DEVICE_LIFECYCLE_MANAGER_LOGS_KEY = "device_lifecycle_manager_logs_v1";
+export const DEVICE_LIFECYCLE_MANAGER_ALERTS_KEY = "device_lifecycle_manager_alerts_v1";
+export const DEVICE_LIFECYCLE_MANAGER_SETTINGS_KEY = "device_lifecycle_manager_settings_v1";
