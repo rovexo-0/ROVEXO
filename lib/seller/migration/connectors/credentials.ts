@@ -2,6 +2,7 @@ import "server-only";
 
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { tryGetSupabaseServiceRoleKey } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types/database";
 import type { ConnectorConnectionStatus, ConnectorConnectInput } from "@/lib/seller/migration/connectors/types";
@@ -31,7 +32,7 @@ export type ConnectorRecord = {
 function deriveKey(): Buffer {
   const secret =
     process.env.CONNECTOR_CREDENTIALS_SECRET ??
-    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    tryGetSupabaseServiceRoleKey() ??
     "rovexo-dev-connector-key";
   return scryptSync(secret, KEY_SALT, 32);
 }

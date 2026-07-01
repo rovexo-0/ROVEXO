@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { tryCreateClient } from "@/lib/supabase/client";
 import type { RealtimeChannel, REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 
 export type NotificationRealtimeEvent = {
@@ -16,8 +16,12 @@ type SubscribeOptions = {
 export function subscribeToUserNotifications(
   userId: string,
   options: SubscribeOptions | ((event: NotificationRealtimeEvent) => void),
-): RealtimeChannel {
-  const supabase = createClient();
+): RealtimeChannel | null {
+  const supabase = tryCreateClient();
+  if (!supabase) {
+    return null;
+  }
+
   const onChange = typeof options === "function" ? options : options.onChange;
   const onStatus = typeof options === "function" ? undefined : options.onStatus;
 
@@ -65,5 +69,7 @@ export function subscribeToUserNotifications(
 }
 
 export function removeNotificationChannel(channel: RealtimeChannel): void {
-  void createClient().removeChannel(channel);
+  const supabase = tryCreateClient();
+  if (!supabase) return;
+  void supabase.removeChannel(channel);
 }

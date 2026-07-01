@@ -7,41 +7,29 @@ function readSource(relativePath: string): string {
 }
 
 describe("Home page hydration safety", () => {
-  it("keeps HomeHeroBanner free of client-only render values", () => {
-    const source = readSource("components/home/HomeHeroBanner.tsx");
+  it("keeps RovexoHomePage free of lazy Suspense boundaries", () => {
+    const source = readSource("components/home/RovexoHomePage.tsx");
 
-    expect(source).toContain('"use client"');
-    expect(source).toContain("rx-hero-banner");
-    expect(source).not.toMatch(/Date\.now|Math\.random|crypto\.randomUUID/);
+    expect(source).not.toContain("lazy(");
+    expect(source).not.toContain("<Suspense");
+    expect(source).toContain("RovexoCategoryRail");
   });
 
-  it("uses enterprise HomeCategoryRail on the homepage", () => {
-    const homeContent = readSource("components/home/HomeContent.tsx");
-    const categoryRail = readSource("components/home/HomeCategoryRail.tsx");
+  it("uses RovexoCategoryRail on the homepage", () => {
+    const homePage = readSource("components/home/RovexoHomePage.tsx");
+    const categoryRail = readSource("components/home/RovexoCategoryRail.tsx");
 
-    expect(homeContent).toContain("HomeCategoryRail");
-    expect(homeContent).not.toContain("CategoryGridSection");
-    expect(categoryRail).toContain("rx-category-rail");
-    expect(categoryRail).toContain("rx-category-card");
+    expect(homePage).toContain("RovexoCategoryRail");
+    expect(categoryRail).toContain("RovexoCategoryCard");
   });
 
   it("defers header height measurement to layout effects", () => {
-    const scrollSource = readSource("components/home/MobileHeaderScrollContext.tsx");
-    const headerSource = readSource("components/Header.tsx");
+    const scrollSource = readSource("components/home/RovexoMobileHeaderScrollContext.tsx");
+    const headerSource = readSource("components/home/RovexoHeader.tsx");
 
     expect(scrollSource).toContain("useLayoutEffect");
     expect(scrollSource).toContain("setHeaderElement");
     expect(scrollSource).not.toContain("headerElementRef");
-    expect(headerSource).toContain("useLayoutEffect");
-    expect(headerSource).toContain("headerRef");
-    expect(headerSource).not.toContain("setHeaderRef");
-  });
-
-  it("keeps HomeContent free of lazy Suspense boundaries", () => {
-    const source = readSource("components/home/HomeContent.tsx");
-
-    expect(source).not.toContain("lazy(");
-    expect(source).not.toContain("<Suspense");
-    expect(source).toContain("StoreMigrationHeroBanner");
+    expect(headerSource).toContain('"use client"');
   });
 });

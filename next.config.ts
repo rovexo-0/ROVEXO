@@ -6,7 +6,8 @@ const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 function supabaseImageHostnames(): string[] {
   const hostnames = new Set<string>(["pklotmwxtnnepaitedic.supabase.co"]);
-  const configured = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const configured =
+    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || process.env.SUPABASE_URL?.trim();
   if (configured) {
     try {
       hostnames.add(new URL(configured).hostname);

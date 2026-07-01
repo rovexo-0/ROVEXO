@@ -1,0 +1,127 @@
+/* ROVEXO Premium Header — minimal floating chrome */
+
+.rx-header-premium {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: 0;
+}
+
+.rx-header-premium__inner {
+  margin-inline: auto;
+  max-width: 80rem;
+  padding-inline: var(--ds-space-4);
+  padding-block: 0;
+}
+
+.rx-page-home .rx-header-premium__inner {
+  max-width: 1440px;
+}
+
+.rx-header-premium__row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+}
+
+@media (min-width: 640px) {
+  .rx-header-premium__row {
+    gap: 12px;
+    min-height: 50px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rx-header-premium__row {
+    gap: 14px;
+    min-height: 52px;
+  }
+}
+
+.rx-header-premium__logo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.rx-header-premium__search {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.rx-header-premium__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (min-width: 640px) {
+  .rx-header-premium__actions {
+    gap: 8px;
+  }
+}
+
+.rx-header-premium .header-action-2026 {
+  border-radius: 9999px;
+  color: var(--ds-color-text-primary);
+  transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rx-header-premium .header-action-2026:hover {
+  transform: scale(1.04);
+  background: rgb(15 23 42 / 0.04);
+  color: var(--ds-color-text-primary);
+}
+
+.rx-header-premium .header-action-2026:active {
+  transform: scale(0.98);
+}
+
+[data-theme="dark"] .rx-header-premium .header-action-2026:hover {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.rx-header-premium__profile-link {
+  display: inline-flex;
+  height: 44px;
+  width: 44px;
+  min-height: 44px;
+  min-width: 44px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  transition: transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rx-header-premium__profile-link:hover {
+  transform: scale(1.04);
+}
+
+.rx-header-premium__profile-link:active {
+  transform: scale(0.98);
+}
+
+.rx-header-premium__avatar {
+  border: 1px solid rgb(15 23 42 / 0.08);
+  box-shadow: none;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+}
+
+[data-theme="dark"] .rx-header-premium__avatar {
+  border-color: rgb(255 255 255 / 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-header-premium .header-action-2026,
+  .rx-header-premium .header-action-2026:hover,
+  .rx-header-premium .header-action-2026:active,
+  .rx-header-premium__profile-link,
+  .rx-header-premium__profile-link:hover,
+  .rx-header-premium__profile-link:active {
+    transform: none;
+    transition: none;
+  }
+}

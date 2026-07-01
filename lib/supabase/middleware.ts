@@ -2,7 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types/database";
 import { AUTHENTICATED_HOME } from "@/lib/auth/redirects";
-import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
+import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/supabase/env";
 
 const PROTECTED_PREFIXES = [
   "/account",
@@ -77,6 +77,10 @@ function forbiddenApiResponse() {
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
   let pendingCookies: PendingCookie[] = [];
+
+  if (!isSupabaseConfigured()) {
+    return supabaseResponse;
+  }
 
   try {
     const supabase = createServerClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {

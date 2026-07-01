@@ -1,0 +1,142 @@
+/* ROVEXO V1.0 — Global pure white design system */
+
+#__next,
+main,
+.app,
+.page,
+.layout,
+.mobile-layout,
+.rx-page,
+.premium-page-home,
+.home-v1-main,
+.home-v1-listing-section,
+.home-v1-categories {
+  background: #ffffff;
+  min-height: 0;
+}
+
+.rx-page {
+  background-image: none !important;
+}
+
+/* Sections — every surface white */
+section,
+article,
+header,
+footer,
+nav,
+.rx-section,
+.rx-form-section,
+.rx-surface-card,
+.rx-card,
+.rx-glass {
+  background-color: #ffffff;
+}
+
+.rx-glass,
+.rx-surface-card {
+  border-color: #eeeeee;
+  box-shadow: var(--ds-shadow-card);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.rx-glass::before {
+  display: none;
+}
+
+/* Cards */
+.rx-listing-card,
+.rx-card,
+.rx-surface-card {
+  border-radius: 22px;
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.rx-listing-card__media,
+.rx-listing-card__image,
+.home-v1-listing-card__media {
+  background: #f8fafc;
+}
+
+/* Footer */
+footer {
+  background: #ffffff !important;
+  border-color: #f1f1f1 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Text hierarchy */
+.text-text-primary,
+.rx-page,
+.home-v1-categories__title,
+.home-v1-listing-section__title,
+.home-v1-listing-card__price,
+.home-v1-listing-card__title,
+.home-v1-category-tile__name {
+  color: #111111;
+}
+
+.text-text-secondary,
+.home-v1-listing-card__tag {
+  color: #666666;
+}
+
+.text-text-muted {
+  color: #999999;
+}
+
+/* Blue accents only */
+.text-primary,
+a.text-primary,
+.home-v1-listing-section__view-all {
+  color: #2563eb !important;
+}
+
+.home-v1-bring-your-item__cta-link,
+.home-v1-bring-your-item__cta {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+/* Remove page gradients */
+[class*="bg-gradient"],
+.bg-background {
+  background-image: none !important;
+}
+
+.bg-background {
+  background-color: #ffffff !important;
+}
+
+/* Account / search / messages pages */
+.rx-page main,
+main.mx-auto,
+main.flex {
+  background: #ffffff;
+}
+
+/* Neutralize dark strips on consumer pages */
+[data-theme="light"] .rx-page-home,
+[data-theme="light"] .rx-home-final,
+[data-theme="light"] .rx-home-final .rx-section {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+
+/* Bottom nav active state */
+.home-v1-bottom-nav__item[aria-current="page"] svg {
+  color: #2563eb;
+}
+
+/* Badges */
+.header-action-2026 [aria-hidden].rounded-ds-full,
+[class*="badge"] {
+  background-color: #2563eb;
+  color: #ffffff;
+}

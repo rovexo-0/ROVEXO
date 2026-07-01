@@ -51,7 +51,7 @@ export function buildAiRecommendations(input: {
     category: "Lazy loading",
     estimatedGain: "8–12% faster LCP",
     difficulty: "low",
-    filesAffected: ["components/home/HomeContent.tsx", "components/FeaturedListings.tsx"],
+    filesAffected: ["components/home/RovexoHomePage.tsx", "components/home/RovexoFeaturedListings.tsx"],
     detail: "Defer non-critical product grids until after hero paint.",
   });
 

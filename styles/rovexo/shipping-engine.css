@@ -1,0 +1,192 @@
+/* ROVEXO Shipping Engine */
+
+.se-hub,
+.se-admin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+  padding: var(--ds-space-4);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.se-hub__header,
+.se-admin__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ds-space-3);
+}
+
+.se-hub__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ds-color-primary);
+}
+
+.se-hub__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.se-hub__meta {
+  font-size: 0.875rem;
+  color: var(--ds-color-text-secondary);
+}
+
+.se-protection-banner {
+  padding: var(--ds-space-4);
+  border: 1px solid color-mix(in srgb, var(--ds-color-primary) 25%, var(--ds-color-border));
+  border-radius: var(--ds-radius-xl);
+  background: color-mix(in srgb, var(--ds-color-primary) 8%, transparent);
+  max-width: 320px;
+}
+
+.se-hub__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.se-hub__tab {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ds-color-text-secondary);
+  text-decoration: none;
+}
+
+.se-hub__tab--active {
+  border-color: var(--ds-color-primary);
+  color: var(--ds-color-primary);
+  background: color-mix(in srgb, var(--ds-color-primary) 10%, transparent);
+}
+
+.se-panel {
+  padding: var(--ds-space-5);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-xl);
+  background: var(--ds-glass-bg);
+}
+
+.se-panel__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: var(--ds-space-3);
+}
+
+.se-panel__subtitle {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin: var(--ds-space-4) 0 var(--ds-space-2);
+}
+
+.se-panel__desc {
+  font-size: 0.875rem;
+  color: var(--ds-color-text-secondary);
+  margin-bottom: var(--ds-space-4);
+}
+
+.se-module-grid,
+.se-profile-grid,
+.se-card-grid {
+  display: grid;
+  gap: var(--ds-space-3);
+}
+
+@media (min-width: 768px) {
+  .se-module-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .se-profile-grid,
+  .se-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.se-module-card,
+.se-card {
+  padding: var(--ds-space-4);
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 160ms ease;
+}
+
+.se-module-card:hover {
+  border-color: var(--ds-color-primary);
+}
+
+.se-module-card__icon {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.se-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.se-list__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--ds-color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface);
+}
+
+.se-list__row--link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.se-list__row--link:hover {
+  border-color: var(--ds-color-primary);
+}
+
+.se-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.se-chip {
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.se-chip--active {
+  border-color: var(--ds-color-primary);
+  color: var(--ds-color-primary);
+  background: color-mix(in srgb, var(--ds-color-primary) 10%, transparent);
+}
+
+.se-link {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ds-color-primary);
+}
+
+.se-note {
+  margin-top: var(--ds-space-4);
+  font-size: 0.8125rem;
+  color: var(--ds-color-text-muted);
+}

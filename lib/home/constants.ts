@@ -21,12 +21,21 @@ export type HomeCategoryIconType =
   | "jewellery"
   | "diy"
   | "tools"
+  | "kids"
   | "kids-fashion"
   | "womens-fashion"
   | "mens-fashion"
   | "shoes"
   | "cycling"
+  | "business"
+  | "luxury"
+  | "collectibles"
+  | "handmade"
   | "more";
+
+import { ROVEXO_HOME_CATEGORY_RAIL } from "@/lib/home/category-premium-library";
+import type { RovexoCategoryPremiumKey } from "@/lib/home/category-premium-library";
+import { heroCampaignImage } from "@/lib/home/hero-images";
 
 export type HomeCategoryNavItem = {
   name: string;
@@ -36,29 +45,8 @@ export type HomeCategoryNavItem = {
   href?: string;
 };
 
-/** Approved homepage horizontal category bar + 3D icon rail */
-export const HOME_CATEGORY_NAV: HomeCategoryNavItem[] = [
-  { name: "Vehicles", slug: "vehicles", icon: "vehicles", subtitle: "Cars, vans & bikes" },
-  { name: "Property", slug: "property", icon: "property", subtitle: "Homes & rentals" },
-  { name: "Phones", slug: "phones", icon: "phones", subtitle: "Mobile & tablets" },
-  { name: "Computers", slug: "computers", icon: "computers", subtitle: "Laptops & PCs" },
-  { name: "Electronics", slug: "electronics", icon: "electronics", subtitle: "Tech & gadgets" },
-  { name: "Gaming", slug: "gaming", icon: "gaming", subtitle: "Consoles & games" },
-  { name: "Home & Garden", slug: "home-garden", icon: "home-garden", subtitle: "Decor & outdoor" },
-  { name: "DIY", slug: "diy", icon: "diy", subtitle: "Build & repair" },
-  { name: "Tools", slug: "tools", icon: "tools", subtitle: "Power & hand tools" },
-  { name: "Women's Fashion", slug: "womens-fashion", icon: "womens-fashion", subtitle: "Dresses & style" },
-  { name: "Men's Fashion", slug: "mens-fashion", icon: "mens-fashion", subtitle: "Suits & casual" },
-  { name: "Kids Fashion", slug: "kids-fashion", icon: "kids-fashion", subtitle: "Children's wear" },
-  { name: "Shoes", slug: "shoes", icon: "shoes", subtitle: "Trainers & boots" },
-  { name: "Jewellery", slug: "jewellery", icon: "jewellery", subtitle: "Watches & gems" },
-  { name: "Beauty", slug: "beauty", icon: "beauty", subtitle: "Skincare & makeup" },
-  { name: "Health", slug: "health", icon: "health", subtitle: "Wellness & care" },
-  { name: "Pets", slug: "pets", icon: "pets", subtitle: "Animals & supplies" },
-  { name: "Sports", slug: "sports", icon: "sports", subtitle: "Fitness & gear" },
-  { name: "Services", slug: "services", icon: "services", subtitle: "Local professionals" },
-  { name: "Auto Parts", slug: "car-parts", icon: "autoparts", subtitle: "Parts & accessories" },
-];
+/** Approved homepage horizontal category bar — assets from category-premium-library */
+export const HOME_CATEGORY_NAV: HomeCategoryNavItem[] = [...ROVEXO_HOME_CATEGORY_RAIL];
 
 /** @deprecated Use HOME_CATEGORY_NAV */
 export type HomeCategoryRailItem = HomeCategoryNavItem;
@@ -124,6 +112,103 @@ export type HomeSecondaryBanner = {
   cta: string;
   href: string;
 };
+
+export type HomeHeroBannerTheme = "blue" | "indigo" | "violet" | "cyan" | "emerald";
+
+export type HomeHeroBannerSlide = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  cta: string;
+  href: string;
+  headingId?: string;
+  theme?: HomeHeroBannerTheme;
+  icon?: HomeCategoryIconType;
+  categoryKey?: RovexoCategoryPremiumKey;
+  /** Premium campaign photography (lazy-loaded, next slide preloaded) */
+  image?: string;
+};
+
+/** Launch Candidate hero campaigns — local assets in public/hero/ only */
+export const HOME_HERO_BANNERS: HomeHeroBannerSlide[] = [
+  {
+    id: "zero-fees",
+    title: "Zero Listing Fees",
+    subtitle: "List today with no upfront charges on ROVEXO.",
+    cta: "List free",
+    href: "/sell",
+    theme: "violet",
+    icon: "services",
+    categoryKey: "services",
+    image: heroCampaignImage("zero-fees"),
+  },
+  {
+    id: "verified-businesses",
+    title: "Verified Businesses",
+    subtitle: "Professional storefronts, warehouses and suppliers.",
+    cta: "Browse directory",
+    href: "/business/directory",
+    theme: "blue",
+    icon: "services",
+    categoryKey: "services",
+    image: heroCampaignImage("verified-businesses"),
+  },
+  {
+    id: "buy-securely",
+    title: "Buyer Protection",
+    subtitle: "Shield, verified sellers, safe delivery on every order.",
+    cta: "Learn more",
+    href: "/trust",
+    theme: "cyan",
+    icon: "health",
+    categoryKey: "health",
+    image: heroCampaignImage("buy-securely"),
+  },
+  {
+    id: "fast-delivery",
+    title: "Fast Delivery",
+    subtitle: "Trusted sellers. Quick shipping across the UK.",
+    cta: "Shop now",
+    href: "/search?q=&sort=trending",
+    theme: "emerald",
+    icon: "vehicles",
+    categoryKey: "vehicles",
+    image: heroCampaignImage("fast-delivery"),
+  },
+  {
+    id: "electronics-deals",
+    title: "Local Marketplace",
+    subtitle: "Discover trusted sellers and unique finds near you.",
+    cta: "Explore nearby",
+    href: "/search?q=&sort=nearby",
+    theme: "indigo",
+    icon: "electronics",
+    categoryKey: "electronics",
+    image: heroCampaignImage("electronics-deals"),
+  },
+  {
+    id: "home-garden",
+    title: "Sell in Minutes",
+    subtitle: "List from your phone with photos, price, and category in one flow.",
+    cta: "Start selling",
+    href: "/sell/new",
+    theme: "emerald",
+    icon: "phones",
+    categoryKey: "phones",
+    image: heroCampaignImage("home-garden"),
+  },
+  {
+    id: "premium-auctions",
+    title: "Grow Your Business",
+    subtitle: "Reach buyers across the UK with verified storefronts and analytics.",
+    cta: "Open store",
+    href: "/business/center",
+    theme: "violet",
+    icon: "services",
+    categoryKey: "services",
+    image: heroCampaignImage("premium-auctions"),
+  },
+];
 
 export const HOME_SECONDARY_BANNERS: HomeSecondaryBanner[] = [
   {

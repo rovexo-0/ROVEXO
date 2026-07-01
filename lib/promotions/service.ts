@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/env";
 import {
   BUMP_COOLDOWN_HOURS,
   computeEndsAt,
@@ -25,8 +26,16 @@ type ApplyPromotionInput = {
 };
 
 export async function refreshExpiredPromotions(): Promise<void> {
-  const admin = createAdminClient();
-  await admin.rpc("refresh_expired_promotions");
+  if (!isSupabaseAdminConfigured()) {
+    return;
+  }
+
+  try {
+    const admin = createAdminClient();
+    await admin.rpc("refresh_expired_promotions");
+  } catch {
+    // Optional maintenance — must not block product reads or the homepage.
+  }
 }
 
 export async function markPendingPromotionFailed(

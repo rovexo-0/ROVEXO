@@ -15,6 +15,19 @@ function required(label: string, value: string | undefined): string {
   return value;
 }
 
+/** Canonical public Supabase URL (browser + server). */
+const SUPABASE_URL_KEYS = ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_URL"] as const;
+
+/** Canonical public anon/publishable key (browser + server). */
+const SUPABASE_ANON_KEYS = [
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+  "SUPABASE_ANON_KEY",
+] as const;
+
+/** Canonical server-only service role key. */
+const SUPABASE_SERVICE_ROLE_KEYS = ["SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY"] as const;
+
 /**
  * Invalid hostnames caused by an extra "n" when copying the project ref into Vercel.
  * Correct ref: pklotmwxtnnepaitedic (see supabase/.temp/project-ref).
@@ -62,30 +75,54 @@ export function normalizeSupabaseUrl(rawUrl: string): string {
   return url.origin;
 }
 
+export function tryGetSupabaseUrl(): string | null {
+  const raw = readFirstEnv(...SUPABASE_URL_KEYS);
+  if (!raw) return null;
+  try {
+    return normalizeSupabaseUrl(raw);
+  } catch {
+    return null;
+  }
+}
+
+export function tryGetSupabaseAnonKey(): string | null {
+  return readFirstEnv(...SUPABASE_ANON_KEYS) ?? null;
+}
+
+export function tryGetSupabaseServiceRoleKey(): string | undefined {
+  return readFirstEnv(...SUPABASE_SERVICE_ROLE_KEYS);
+}
+
+/** True when public Supabase client credentials are available. */
+export function isSupabaseConfigured(): boolean {
+  return Boolean(tryGetSupabaseUrl() && tryGetSupabaseAnonKey());
+}
+
+/** True when server admin Supabase credentials are available. */
+export function isSupabaseAdminConfigured(): boolean {
+  return Boolean(tryGetSupabaseUrl() && tryGetSupabaseServiceRoleKey());
+}
+
 export function getSupabaseUrl(): string {
   return normalizeSupabaseUrl(
     required(
-      "SUPABASE_URL or NEXT_PUBLIC_SUPABASE_URL",
-      readFirstEnv("SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL"),
+      "NEXT_PUBLIC_SUPABASE_URL (or SUPABASE_URL alias)",
+      readFirstEnv(...SUPABASE_URL_KEYS),
     ),
   );
 }
 
 export function getSupabaseAnonKey(): string {
   return required(
-    "SUPABASE_ANON_KEY, NEXT_PUBLIC_SUPABASE_ANON_KEY, or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-    readFirstEnv(
-      "SUPABASE_ANON_KEY",
-      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-      "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-    ),
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY (or supported alias)",
+    readFirstEnv(...SUPABASE_ANON_KEYS),
   );
 }
 
 export function getSupabaseServiceRoleKey(): string {
   return required(
-    "SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY",
-    readFirstEnv("SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_SECRET_KEY"),
+    "SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SECRET_KEY alias)",
+    readFirstEnv(...SUPABASE_SERVICE_ROLE_KEYS),
   );
 }
 

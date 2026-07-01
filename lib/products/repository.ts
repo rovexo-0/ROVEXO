@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { Tables } from "@/lib/supabase/types/database";
 import { searchListings as searchListingsRepo } from "@/lib/listings/repository";
 import { isPromotionActive } from "@/lib/promotions/format";
@@ -160,6 +161,10 @@ export async function getProductsBySection(
   section: ProductSection,
   page = 1,
 ): Promise<ProductsPage> {
+  if (!isSupabaseConfigured()) {
+    return { items: [], page, hasMore: false };
+  }
+
   await refreshExpiredPromotions();
 
   const supabase = await createClient();

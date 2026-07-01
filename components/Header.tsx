@@ -7,7 +7,7 @@ import { HeaderIconLink } from "@/components/header/HeaderIconLink";
 import { HeaderProfileLink } from "@/components/header/HeaderProfileLink";
 import { HeaderSearchBar } from "@/components/header/HeaderSearchBar";
 import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
-import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
+import { useRovexoMobileHeaderScrollContext } from "@/components/home/RovexoMobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
 import { useHeaderBadges } from "@/features/header/hooks/use-header-badges";
 
@@ -41,7 +41,7 @@ function Header({
   unreadNotifications: unreadNotificationsProp = 0,
   unreadMessages: unreadMessagesProp = 0,
 }: HeaderProps) {
-  const scroll = useMobileHeaderScrollContext();
+  const scroll = useRovexoMobileHeaderScrollContext();
   const registerHeader = scroll?.registerHeader;
   const headerRef = useRef<HTMLElement>(null);
   const liveBadges = useHeaderBadges({

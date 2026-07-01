@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   getSupabaseAnonKey,
   getSupabaseUrl,
+  isSupabaseConfigured,
   normalizeSupabaseUrl,
 } from "@/lib/supabase/env";
 
@@ -54,10 +55,22 @@ describe("Supabase env resolution", () => {
     vi.unstubAllEnvs();
   });
 
-  it("prefers SUPABASE_URL over NEXT_PUBLIC_SUPABASE_URL", () => {
-    vi.stubEnv("SUPABASE_URL", "https://pklotmwxtnnepaitedic.supabase.co");
-    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://wrong.supabase.co");
+  it("prefers NEXT_PUBLIC_SUPABASE_URL over SUPABASE_URL", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://pklotmwxtnnepaitedic.supabase.co");
+    vi.stubEnv("SUPABASE_URL", "https://wrong.supabase.co");
     expect(getSupabaseUrl()).toBe("https://pklotmwxtnnepaitedic.supabase.co");
+  });
+
+  it("reports configured state when canonical public keys are present", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://pklotmwxtnnepaitedic.supabase.co");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "sb_publishable_test");
+    expect(isSupabaseConfigured()).toBe(true);
+  });
+
+  it("reports unconfigured state when public keys are missing", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
+    expect(isSupabaseConfigured()).toBe(false);
   });
 
   it("accepts NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", () => {

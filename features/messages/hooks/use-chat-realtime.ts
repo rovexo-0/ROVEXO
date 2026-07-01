@@ -42,42 +42,39 @@ export function useChatRealtime(
 
     const channels: RealtimeChannel[] = [];
 
-    channels.push(
-      subscribeToConversationMessages(conversationId, (row) => {
-        const incoming = mapRealtimeMessage(row);
-        setConversation((current) => ({
-          ...current,
-          messages: current.messages.some((message) => message.id === incoming.id)
-            ? current.messages.map((message) => (message.id === incoming.id ? incoming : message))
-            : [...current.messages, incoming],
-          lastMessage: incoming.content,
-          lastMessageAt: incoming.sentAt,
-        }));
-      }),
-    );
+    const messageChannel = subscribeToConversationMessages(conversationId, (row) => {
+      const incoming = mapRealtimeMessage(row);
+      setConversation((current) => ({
+        ...current,
+        messages: current.messages.some((message) => message.id === incoming.id)
+          ? current.messages.map((message) => (message.id === incoming.id ? incoming : message))
+          : [...current.messages, incoming],
+        lastMessage: incoming.content,
+        lastMessageAt: incoming.sentAt,
+      }));
+    });
+    if (messageChannel) channels.push(messageChannel);
 
-    channels.push(
-      subscribeToConversationMeta(conversationId, (row) => {
-        setConversation((current) => ({
-          ...current,
-          lastMessage: String(row.last_message ?? current.lastMessage),
-          lastMessageAt: String(row.last_message_at ?? current.lastMessageAt),
-        }));
-      }),
-    );
+    const metaChannel = subscribeToConversationMeta(conversationId, (row) => {
+      setConversation((current) => ({
+        ...current,
+        lastMessage: String(row.last_message ?? current.lastMessage),
+        lastMessageAt: String(row.last_message_at ?? current.lastMessageAt),
+      }));
+    });
+    if (metaChannel) channels.push(metaChannel);
 
-    channels.push(
-      subscribeToPresence(participantId, (row) => {
-        setConversation((current) => ({
-          ...current,
-          participant: {
-            ...current.participant,
-            online: Boolean(row.online),
-            lastSeen: row.last_seen_at ? String(row.last_seen_at) : current.participant.lastSeen,
-          },
-        }));
-      }),
-    );
+    const presenceChannel = subscribeToPresence(participantId, (row) => {
+      setConversation((current) => ({
+        ...current,
+        participant: {
+          ...current.participant,
+          online: Boolean(row.online),
+          lastSeen: row.last_seen_at ? String(row.last_seen_at) : current.participant.lastSeen,
+        },
+      }));
+    });
+    if (presenceChannel) channels.push(presenceChannel);
 
     return () => {
       void updatePresence({ online: false, typingConversationId: null });

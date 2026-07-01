@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { subscribeToUserNotifications, removeNotificationChannel } from "@/lib/notifications/realtime";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { flushOfflineNotificationQueue } from "@/lib/notifications/offline-sync";
 import { createClient } from "@/lib/supabase/client";
 import { fetchDeduped } from "@/lib/performance/fetch";
@@ -183,9 +184,15 @@ export function RealtimeNotificationProvider({
     };
 
     const connect = async () => {
-      if (!isDocumentVisible() || cancelled) return;
+      if (!isSupabaseConfigured() || !isDocumentVisible() || cancelled) return;
 
-      const supabase = createClient();
+      let supabase;
+      try {
+        supabase = createClient();
+      } catch {
+        return;
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -213,6 +220,10 @@ export function RealtimeNotificationProvider({
           }
         },
       });
+
+      if (!channel) {
+        return;
+      }
     };
 
     const onVisibility = () => {

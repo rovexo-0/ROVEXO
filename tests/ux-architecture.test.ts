@@ -20,7 +20,9 @@ const LEGACY_PATTERNS = [
 
 const ALLOWLIST = new Set([
   "scripts/migrate-ui-architecture.mjs",
+  "scripts/migrate-single-source-of-truth.mjs",
   "tests/ux-architecture.test.ts",
+  "tests/single-source-of-truth.test.ts",
 ]);
 
 function walk(dir: string, files: string[] = []): string[] {

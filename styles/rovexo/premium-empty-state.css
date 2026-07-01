@@ -1,0 +1,12 @@
+.rx-premium-empty-state {
+  display: block;
+  max-width: 280px;
+}
+
+.rx-premium-empty-state__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 28px rgb(15 23 42 / 0.12));
+}

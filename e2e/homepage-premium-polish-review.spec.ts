@@ -12,9 +12,10 @@ async function setLightTheme(page: import("@playwright/test").Page) {
 }
 
 async function capture(page: import("@playwright/test").Page, name: string) {
-  await page.goto("/", { waitUntil: "networkidle" });
-  await page.waitForSelector(".import-rx-hero-banner", { timeout: 15000 });
-  await page.waitForSelector(".rx-category-card", { timeout: 10000 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.waitForSelector(".home-v1-main", { timeout: 30000 });
+  await page.waitForSelector(".home-v1-category-tile", { timeout: 15000 });
+  await page.waitForSelector(".home-v1-import-banner", { timeout: 15000 });
   await page.waitForTimeout(600);
   await page.screenshot({
     path: join(OUT, `${name}.png`),
@@ -23,7 +24,7 @@ async function capture(page: import("@playwright/test").Page, name: string) {
   });
 }
 
-test.describe("Homepage premium polish — owner review", () => {
+test.describe("RovexoHomePage — owner review", () => {
   test("desktop light", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await setLightTheme(page);
@@ -36,15 +37,15 @@ test.describe("Homepage premium polish — owner review", () => {
     await capture(page, "homepage__iphone__light__after");
   });
 
-  test("hero section desktop light", async ({ page }) => {
+  test("banner section desktop light", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await setLightTheme(page);
-    await page.goto("/", { waitUntil: "networkidle" });
-    const hero = page.locator(".import-rx-hero-banner").first();
-    await expect(hero).toBeVisible();
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    const banner = page.locator(".home-v1-import-banner").first();
+    await expect(banner).toBeVisible({ timeout: 30000 });
     await page.waitForTimeout(400);
-    await hero.screenshot({
-      path: join(OUT, "hero__desktop__light__after.png"),
+    await banner.screenshot({
+      path: join(OUT, "banner__desktop__light__after.png"),
     });
   });
 });

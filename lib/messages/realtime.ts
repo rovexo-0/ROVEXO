@@ -1,11 +1,13 @@
-import { createClient } from "@/lib/supabase/client";
+import { tryCreateClient } from "@/lib/supabase/client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export function subscribeToConversationMessages(
   conversationId: string,
   onInsert: (payload: Record<string, unknown>) => void,
-): RealtimeChannel {
-  const supabase = createClient();
+): RealtimeChannel | null {
+  const supabase = tryCreateClient();
+  if (!supabase) return null;
+
   return supabase
     .channel(`conversation:${conversationId}`)
     .on(
@@ -26,8 +28,10 @@ export function subscribeToConversationMessages(
 export function subscribeToConversationMeta(
   conversationId: string,
   onUpdate: (payload: Record<string, unknown>) => void,
-): RealtimeChannel {
-  const supabase = createClient();
+): RealtimeChannel | null {
+  const supabase = tryCreateClient();
+  if (!supabase) return null;
+
   return supabase
     .channel(`conversation-meta:${conversationId}`)
     .on(
@@ -48,8 +52,10 @@ export function subscribeToConversationMeta(
 export function subscribeToPresence(
   userId: string,
   onChange: (payload: Record<string, unknown>) => void,
-): RealtimeChannel {
-  const supabase = createClient();
+): RealtimeChannel | null {
+  const supabase = tryCreateClient();
+  if (!supabase) return null;
+
   return supabase
     .channel(`presence:${userId}`)
     .on(

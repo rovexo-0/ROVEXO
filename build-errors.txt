@@ -1,0 +1,146 @@
+﻿node.exe : npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm 
+help npmrc` for supported config options.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn Unknow...config options.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+> rovexo@0.1.0 build
+> next build
+
+Ôû▓ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+- Experiments (use with caution):
+  ┬À optimizePackageImports
+
+ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: 
+https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+Turbopack build encountered 4 warnings:
+./lib/super-admin/operations/scan.ts:28:21
+The file pattern ('/ROOT/' <dynamic> | '/ROOT' <dynamic>) matches 37142 files in [project]/
+  [90m26 |[0m
+  [90m27 |[0m [36mfunction[0m fileExists(relativePath: string): boolean {
+[31m[1m>[0m [90m28 |[0m   [36mreturn[0m existsSync(join([33mROOT[0m, relativePath));
+  [90m   |[0m                     [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m29 |[0m }
+  [90m30 |[0m
+  [90m31 |[0m [36mfunction[0m readJsonField(path: string, field: string): string | [36mnull[0m {
+
+Overly broad patterns can lead to build performance issues and over bundling.
+
+Import traces:
+  #1 [App Route]:
+    ./lib/super-admin/operations/scan.ts
+    ./lib/super-admin/operations/snapshot.ts
+    ./app/api/super-admin/operations/scan/route.ts
+
+  #2 [App Route]:
+    ./lib/super-admin/operations/scan.ts
+    ./lib/super-admin/operations/snapshot.ts
+    ./app/api/super-admin/operations/settings/route.ts
+
+  #3 [Server Component]:
+    ./lib/super-admin/operations/scan.ts
+    ./lib/super-admin/operations/snapshot.ts
+    ./app/super-admin/operations/page.tsx
+
+
+./lib/super-admin/operations/scan.ts:33:30
+The file pattern ('/ROOT/' <dynamic> | '/ROOT' <dynamic>) matches 37142 files in [project]/
+  [90m31 |[0m [36mfunction[0m readJsonField(path: string, field: string): string | [36mnull[0m {
+  [90m32 |[0m   [36mtry[0m {
+[31m[1m>[0m [90m33 |[0m     [36mconst[0m raw = readFileSync(join([33mROOT[0m, path), [32m"utf8"[0m);
+  [90m   |[0m                              [31m[1m^^^^^^^^^^^^^^^^[0m
+  [90m34 |[0m     [36mconst[0m match = raw.match([36mnew[0m 
+[33mRegExp[0m([32m`"[0m${field[32m}"\\s*:\\s*"([^"]+)"`[0m));
+  [90m35 |[0m     [36mreturn[0m match?.[[35m1[0m] ?? [36mnull[0m;
+  [90m36 |[0m   } [36mcatch[0m {
+
+Overly broad patterns can lead to build performance issues and over bundling.
+
+Import traces:
+  #1 [App Route]:
+    ./lib/super-admin/operations/scan.ts
+    ./lib/super-admin/operations/snapshot.ts
+    ./app/api/super-admin/operations/scan/route.ts
+
+  #2 [App Route]:
+    ./lib/super-admin/operations/scan.ts
+    ./lib/super-admin/operations/snapshot.ts
+    ./app/api/super-admin/operations/settings/route.ts
+
+  #3 [Server Component]:
+    ./lib/super-admin/operations/scan.ts
+    ./lib/super-admin/operations/snapshot.ts
+    ./app/super-admin/operations/page.tsx
+
+
+./lib/super-admin/operations/snapshot.ts:248:21
+The file pattern ('/ROOT/' <dynamic> | '/ROOT' <dynamic>) matches 37142 files in [project]/
+  [90m246 |[0m
+  [90m247 |[0m [36mfunction[0m fileExists(path: string): boolean {
+[31m[1m>[0m [90m248 |[0m   [36mreturn[0m existsSync(join(process.cwd(), path));
+  [90m    |[0m                     [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m249 |[0m }
+  [90m250 |[0m
+  [90m251 |[0m [36mexport[0m [36masync[0m [36mfunction[0m runAiOperationsScan(actorId: string): 
+[33mPromise[0m<[33mAiOperationsSnapshot[0m> {
+
+Overly broad patterns can lead to build performance issues and over bundling.
+
+Import traces:
+  #1 [App Route]:
+    ./lib/super-admin/operations/snapshot.ts
+    ./app/api/super-admin/operations/settings/route.ts
+
+  #2 [Server Component]:
+    ./lib/super-admin/operations/snapshot.ts
+    ./app/super-admin/operations/page.tsx
+
+  #3 [App Route]:
+    ./lib/super-admin/operations/snapshot.ts
+    ./lib/super-admin/operations/snapshot.ts
+    ./app/api/super-admin/operations/scan/route.ts
+
+
+./next.config.ts
+Encountered unexpected file in NFT list
+A file was traced that indicates that the whole project was traced unintentionally. Somewhere in the import trace 
+below, there are:
+- filesystem operations (like path.join, path.resolve or fs.readFile), or
+- very dynamic requires (like require('./' + foo)).
+To resolve this, you can
+- remove them if possible, or
+- only use them in development, or
+- make sure they are statically scoped to some subfolder: path.join(process.cwd(), 'data', bar), or
+- add ignore comments: path.join(/*turbopackIgnore: true*/ process.cwd(), bar)
+
+Import trace:
+  App Route:
+    ./next.config.ts
+    ./lib/super-admin/operations/snapshot.ts
+    ./app/api/super-admin/operations/scan/route.ts
+
+
+Ô£ô Compiled successfully in 12.2s
+  Running TypeScript ...
+Failed to type check.
+
+./components/icons/HomeCategoryIcon3D.tsx:349:7
+Type error: Type '{ vehicles: (uid: string) => Element; property: (uid: string) => Element; phones: (uid: string) => 
+Element; computers: (uid: string) => Element; fashion: (uid: string) => Element; ... 22 more ...; cycling: (uid: 
+string) => Element; }' is missing the following properties from type 'Record<HomeCategoryIconType, (uid: string) => 
+ReactElement<unknown, string | JSXElementConstructor<any>>>': business, collectibles, handmade, luxury, kids
+
+  [90m347 |[0m }
+  [90m348 |[0m
+[31m[1m>[0m [90m349 |[0m [36mconst[0m [33mRENDERERS[0m: [33mRecord[0m<[33mHomeCategoryIconType[0m, (uid: 
+string) => [33mReactElement[0m> = {
+  [90m    |[0m       [31m[1m^[0m
+  [90m350 |[0m   vehicles: (uid) => <[33mCarIcon[0m uid={uid} />,
+  [90m351 |[0m   property: (uid) => <[33mHouseIcon[0m uid={uid} />,
+  [90m352 |[0m   phones: (uid) => <[33mPhoneIcon[0m uid={uid} />,
+Next.js build worker exited with code: 1 and signal: null

@@ -9,6 +9,9 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    "ROVEXO/.next/**",
+    "ROVEXO/**",
+    "archive/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

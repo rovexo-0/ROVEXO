@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BadgeCheck } from "lucide-react";
+import { RovexoGlassIcon } from "@/components/icons/RovexoGlassIcon";
+import { RovexoIcons } from "@/lib/icons";
 import { Avatar } from "@/components/ui/Avatar";
 import { SuperAdminBadge } from "@/features/auth/components/SuperAdminBadge";
 import { TrustScoreCard } from "@/features/account-page/components/TrustScoreCard";
@@ -43,7 +44,7 @@ export function ProfileCard({ profile, trustData }: ProfileCardProps) {
           <SuperAdminBadge />
         ) : profile.verified ? (
           <span className="account-profile-card__badge">
-            <BadgeCheck size={14} strokeWidth={2} aria-hidden />
+            <RovexoGlassIcon icon={RovexoIcons.badges.verified} size={14} />
             Verified Seller
           </span>
         ) : null}
