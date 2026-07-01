@@ -42,3 +42,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Accidental nested iMac repository copy (preserved on disk; see ROVEXO_BACKUP_*)
+/ROVEXO/
