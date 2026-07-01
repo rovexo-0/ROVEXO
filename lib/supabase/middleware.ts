@@ -6,6 +6,7 @@ import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/
 
 const PROTECTED_PREFIXES = [
   "/account",
+  "/buyer",
   "/cart",
   "/orders",
   "/messages",

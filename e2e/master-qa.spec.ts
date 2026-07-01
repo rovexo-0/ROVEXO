@@ -40,6 +40,7 @@ const PROTECTED_ROUTES: RouteExpectation[] = [
   { path: "/sell/new", name: "Publish wizard", authRedirect: true },
   { path: "/seller/dashboard", name: "Seller dashboard", authRedirect: true },
   { path: "/account", name: "Account", authRedirect: true },
+  { path: "/buyer", name: "Buyer Dashboard", authRedirect: true },
   { path: "/account/profile", name: "Account profile", authRedirect: true },
   { path: "/account/settings", name: "Account settings", authRedirect: true },
   { path: "/account/orders", name: "Account orders alias", authRedirect: true },
