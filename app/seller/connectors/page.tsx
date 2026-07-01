@@ -14,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function SellerMarketplaceConnectorsRoute() {
   if (!isMarketplaceConnectorsEnabled()) {
-    redirect("/seller/dashboard");
+    redirect("/seller");
   }
 
   const profile = await getProfile();

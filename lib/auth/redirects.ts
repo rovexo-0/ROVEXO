@@ -26,7 +26,7 @@ export function sanitizeNextPath(
 export function redirectPathForRole(role: UserRole): string {
   if (role === "super_admin") return "/super-admin";
   if (role === "business") return "/business/dashboard";
-  if (role === "seller" || role === "admin") return "/seller/dashboard";
+  if (role === "seller" || role === "admin") return "/seller";
   return "/account";
 }
 

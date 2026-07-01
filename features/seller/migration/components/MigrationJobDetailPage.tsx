@@ -1,15 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { PageBack } from "@/components/navigation/PageBack";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { IconButton } from "@/components/ui/IconButton";
 import { StickyPageHeader } from "@/components/ui/StickyPageHeader";
 import { MigrationBulkPublishPanel } from "@/features/seller/migration/components/MigrationBulkPublishPanel";
-import { focusRing } from "@/components/ui/tokens";
 import type { DuplicateAction, MigrationJob, MigrationQueueItem } from "@/lib/seller/migration/types";
 
 const CATEGORY_SUGGESTIONS = [
@@ -23,14 +21,6 @@ const CATEGORY_SUGGESTIONS = [
   "other",
 ] as const;
 
-function BackIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-    </svg>
-  );
-}
-
 type MigrationJobDetailPageProps = {
   jobId: string;
   initialJob: MigrationJob;
@@ -42,7 +32,6 @@ export function MigrationJobDetailPage({
   initialJob,
   initialItems,
 }: MigrationJobDetailPageProps) {
-  const router = useRouter();
   const [job, setJob] = useState(initialJob);
   const [items, setItems] = useState(initialItems);
   const [error, setError] = useState<string | null>(null);
@@ -107,13 +96,7 @@ export function MigrationJobDetailPage({
       <main className="mx-auto w-full max-w-2xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
         <StickyPageHeader>
           <div className="flex items-center gap-ds-2">
-            <IconButton
-              label="Back to Migration Center"
-              onClick={() => router.push("/seller/migration")}
-              className={focusRing}
-            >
-              <BackIcon className="h-5 w-5" />
-            </IconButton>
+            <PageBack backHref="/import" backLabel="Import" />
             <div className="min-w-0 flex-1">
               <h1 className="truncate text-base font-semibold text-text-primary">Migration job</h1>
               <p className="truncate text-xs capitalize text-text-secondary">

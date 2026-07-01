@@ -4,14 +4,18 @@ import { Card } from "@/components/ui/Card";
 import { Price } from "@/components/ui/Price";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
-import { DELIVERY_OPTIONS } from "@/lib/checkout/delivery";
+import { DELIVERY_OPTIONS, getDeliveryPrice } from "@/lib/checkout/delivery";
 import type { CheckoutFormController } from "@/features/checkout/hooks/use-checkout-form";
 
 type CheckoutDeliverySectionProps = {
   form: CheckoutFormController;
+  listingOffersFreeDelivery?: boolean;
 };
 
-export function CheckoutDeliverySection({ form }: CheckoutDeliverySectionProps) {
+export function CheckoutDeliverySection({
+  form,
+  listingOffersFreeDelivery = false,
+}: CheckoutDeliverySectionProps) {
   const { draft, updateDraft } = form;
 
   return (
@@ -20,9 +24,14 @@ export function CheckoutDeliverySection({ form }: CheckoutDeliverySectionProps) 
         Delivery
       </h2>
 
+      {listingOffersFreeDelivery ? (
+        <p className="text-sm font-medium text-primary">This seller offers free delivery.</p>
+      ) : null}
+
       <Card padding="md" className="flex flex-col gap-ds-3">
         {DELIVERY_OPTIONS.map((option) => {
           const selected = draft.deliveryOption === option.id;
+          const optionPrice = getDeliveryPrice(option.id, { listingOffersFreeDelivery });
 
           return (
             <label
@@ -44,11 +53,15 @@ export function CheckoutDeliverySection({ form }: CheckoutDeliverySectionProps) 
               <span className="min-w-0 flex-1">
                 <span className="flex items-start justify-between gap-ds-3">
                   <span className="text-sm font-semibold text-text-primary">{option.label}</span>
-                  <Price
-                    amount={option.price}
-                    size="sm"
-                    className="shrink-0 [&_span]:font-semibold [&_span]:text-text-primary"
-                  />
+                  {optionPrice === 0 ? (
+                    <span className="shrink-0 text-sm font-semibold text-primary">Free</span>
+                  ) : (
+                    <Price
+                      amount={optionPrice}
+                      size="sm"
+                      className="shrink-0 [&_span]:font-semibold [&_span]:text-text-primary"
+                    />
+                  )}
                 </span>
                 <span className="mt-0.5 block text-xs text-text-secondary">{option.eta}</span>
               </span>

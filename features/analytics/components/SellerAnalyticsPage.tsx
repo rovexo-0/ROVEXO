@@ -29,7 +29,7 @@ type SellerAnalyticsPageProps = {
 
 export function SellerAnalyticsPage({
   initialData,
-  backHref = "/seller/dashboard",
+  backHref = "/seller",
 }: SellerAnalyticsPageProps) {
   const { data, range, loading, changeRange } = useAnalyticsData("seller", initialData);
 

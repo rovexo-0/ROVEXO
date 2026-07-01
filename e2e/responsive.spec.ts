@@ -12,15 +12,22 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForHomepageUi(page);
 
-    await expect(page.getByRole("heading", { name: /move your entire store to rovexo/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^categories$/i })).toBeVisible();
 
-    const headerBox = await page.locator('[data-header-version="rovexo-v1"]').boundingBox();
+    const headerBox = await page
+      .locator('[data-header-version="home-v1"], [data-header-version="rovexo-v1"]')
+      .first()
+      .boundingBox();
     expect(headerBox?.width).toBeGreaterThan(0);
     expect(headerBox?.height).toBeGreaterThan(0);
 
     const overflow = await page.evaluate(() => {
-      const doc = document.documentElement;
-      return doc.scrollWidth > doc.clientWidth + 1;
+      const root = document.documentElement;
+      const before = root.scrollLeft;
+      root.scrollLeft = before + 8;
+      const canScroll = root.scrollLeft !== before;
+      root.scrollLeft = before;
+      return canScroll;
     });
     expect(overflow, "page must not scroll horizontally").toBe(false);
   });

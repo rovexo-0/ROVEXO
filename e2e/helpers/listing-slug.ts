@@ -303,6 +303,78 @@ async function deleteTemporaryListing(seed: TempListingSeed): Promise<void> {
   }
 }
 
+export async function listingPageStatus(request: APIRequestContext, slug: string): Promise<number> {
+  const response = await request.get(`/listing/${encodeURIComponent(slug)}`);
+  return response.status();
+}
+
+async function firstResolvableSlug(
+  request: APIRequestContext,
+  slugs: Array<string | null | undefined>,
+): Promise<string | null> {
+  const seen = new Set<string>();
+
+  for (const candidate of slugs) {
+    const slug = candidate?.trim();
+    if (!slug || seen.has(slug)) continue;
+    seen.add(slug);
+
+    if ((await listingPageStatus(request, slug)) === 200) {
+      return slug;
+    }
+  }
+
+  return null;
+}
+
+async function collectSlugCandidates(
+  request: APIRequestContext,
+  page?: Page,
+): Promise<string[]> {
+  const candidates: string[] = [];
+
+  for (const section of PRODUCT_SECTIONS) {
+    const response = await request.get(`/api/products?section=${section}&page=1`);
+    if (!response.ok()) continue;
+    const body = (await response.json()) as ProductsApiResponse;
+    for (const item of body.items ?? []) {
+      if (item.slug?.trim()) candidates.push(item.slug.trim());
+    }
+  }
+
+  const searchEndpoints = [
+    "/api/search/results?page=1",
+    "/api/search/results?q=a&page=1",
+    "/api/search?q=phone&limit=8",
+    "/api/search?q=furniture&limit=8",
+    "/api/search?q=car&limit=8",
+  ];
+
+  for (const path of searchEndpoints) {
+    const response = await request.get(path);
+    if (!response.ok()) continue;
+    const body = (await response.json()) as SearchResultsApiResponse & SearchApiResponse;
+    for (const item of body.items ?? body.products ?? []) {
+      if (item.slug?.trim()) candidates.push(item.slug.trim());
+    }
+  }
+
+  const homepageSlug = await slugFromHomepageDocument(request);
+  if (homepageSlug) candidates.push(homepageSlug);
+
+  const adminSlug = await slugFromAdminCatalog();
+  if (adminSlug) candidates.push(adminSlug);
+
+  if (page) {
+    const cardSlug = await slugFromHomepageCards(page);
+    if (cardSlug) candidates.push(cardSlug);
+    const searchSlug = await slugFromSearchResultsPage(page);
+    if (searchSlug) candidates.push(searchSlug);
+  }
+
+  return candidates;
+}
+
 /**
  * Resolve a published listing slug for E2E without hardcoding.
  * Falls back to temporary seeded data when the catalog is empty.
@@ -311,21 +383,24 @@ export async function resolveListingSlugForE2E(
   request: APIRequestContext,
   page?: Page,
 ): Promise<ResolvedListingSlug> {
-  let slug =
-    (await slugFromProductsApi(request)) ??
-    (await slugFromSearchApi(request)) ??
-    (await slugFromHomepageDocument(request)) ??
-    (await slugFromAdminCatalog());
-
-  if (!slug && page) {
-    slug = (await slugFromHomepageCards(page)) ?? (await slugFromSearchResultsPage(page));
-  }
+  const slug = await firstResolvableSlug(request, await collectSlugCandidates(request, page));
 
   if (slug) {
     return { slug, cleanup: async () => {} };
   }
 
   const seed = await seedTemporaryListing();
+
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    if ((await listingPageStatus(request, seed.slug)) === 200) {
+      return {
+        slug: seed.slug,
+        cleanup: async () => deleteTemporaryListing(seed),
+      };
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
   return {
     slug: seed.slug,
     cleanup: async () => deleteTemporaryListing(seed),

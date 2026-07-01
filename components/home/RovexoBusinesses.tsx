@@ -70,6 +70,7 @@ export const RovexoBusinesses = memo(function RovexoBusinesses({
               key={copyIndex}
               className="home-v1-business-track__set"
               aria-hidden={copyIndex > 0 ? true : undefined}
+              {...(copyIndex > 0 ? { inert: true } : {})}
             >
               {businesses.map((business) => (
                 <RovexoBusinessCard key={`${copyIndex}-${business.id}`} business={business} />

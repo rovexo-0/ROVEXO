@@ -338,7 +338,7 @@ export function SellerListingsPage({ data }: { data: SellerListingsData }) {
           )}
         >
           <Link
-            href="/seller/dashboard"
+            href="/seller"
             aria-label="Back to Seller Dashboard"
             className={cn(
               "inline-flex min-h-ds-7 min-w-ds-7 items-center justify-center justify-self-start rounded-ds-md text-text-primary",

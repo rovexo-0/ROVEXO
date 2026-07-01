@@ -24,7 +24,7 @@ export default function Hero() {
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            href="/browse"
+            href="/search"
             className="rounded-2xl bg-white px-7 py-3.5 text-sm font-bold text-[#2563eb] shadow-lg transition-transform hover:scale-105 sm:text-base"
           >
             Start shopping

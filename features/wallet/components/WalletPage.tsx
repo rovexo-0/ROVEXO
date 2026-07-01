@@ -15,7 +15,7 @@ type WalletPageProps = {
   connectMessage?: string;
 };
 
-export function WalletPage({ profile, data, backHref = "/seller/dashboard", connectMessage }: WalletPageProps) {
+export function WalletPage({ profile, data, backHref = "/seller", connectMessage }: WalletPageProps) {
   return (
     <BetaAppShell showBottomNav={false}>
       <WalletHeader backHref={backHref} unreadNotifications={profile.unreadNotifications} />

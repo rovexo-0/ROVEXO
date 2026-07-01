@@ -66,7 +66,7 @@ test("touch targets meet minimum size on homepage header actions", async ({ page
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await waitForHomepageUi(page);
 
-  const header = page.locator('[data-header-version="rovexo-v1"]');
+  const header = page.locator('[data-header-version="home-v1"], [data-header-version="rovexo-v1"]').first();
   const messages = header.getByRole("link", { name: "Messages" });
   const notifications = header.getByRole("link", { name: "Notifications" });
   const account = header.getByRole("link", { name: "Account" });

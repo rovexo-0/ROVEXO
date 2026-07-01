@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { type MouseEvent } from "react";
+import { type MouseEvent, useEffect, useState } from "react";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { useRovexoMobileHeaderScrollContext } from "@/components/home/RovexoMobileHeaderScrollContext";
 import { RovexoIcons } from "@/lib/icons";
@@ -60,6 +61,60 @@ function NavIcon({ id }: { id: BottomNavTab }) {
       variant="bottomNav"
       className="home-v1-bottom-nav__icon"
     />
+  );
+}
+
+function AccountNavAvatar({ isActive }: { isActive: boolean }) {
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [name, setName] = useState("Account");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void fetch("/api/profile", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { profile?: { fullName?: string; avatarUrl?: string | null } } | null) => {
+        if (!cancelled && payload?.profile) {
+          setName(payload.profile.fullName ?? "Account");
+          setAvatarUrl(payload.profile.avatarUrl ?? null);
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (avatarUrl) {
+    return (
+      <Image
+        src={avatarUrl}
+        alt={name}
+        width={28}
+        height={28}
+        className={cn("home-v1-bottom-nav__avatar", isActive && "ring-2 ring-primary")}
+      />
+    );
+  }
+
+  const initials = name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  return (
+    <span
+      className={cn(
+        "home-v1-bottom-nav__avatar inline-flex items-center justify-center bg-surface-muted text-[10px] font-bold text-text-secondary",
+        isActive && "ring-2 ring-primary",
+      )}
+      aria-hidden
+    >
+      {initials}
+    </span>
   );
 }
 
@@ -123,7 +178,7 @@ export function RovexoFooterNavigation({
           >
             <RovexoIcon
               icon={RovexoIcons.navigation.sell}
-              size={28}
+              size={24}
               className="home-v1-bottom-nav__sell-icon"
             />
           </Link>
@@ -140,7 +195,7 @@ export function RovexoFooterNavigation({
               onClick={(event) => handleSearchClick(event, item)}
               className="home-v1-bottom-nav__item"
             >
-              <NavIcon id={item.id} />
+              {item.id === "account" ? <AccountNavAvatar isActive={isActive} /> : <NavIcon id={item.id} />}
               <span className="home-v1-bottom-nav__label">{item.label}</span>
             </Link>
           );

@@ -65,21 +65,20 @@ describe("Enterprise UI system — design lock", () => {
     expect(card).not.toContain("rx-dash-tile__body");
   });
 
-  it("names account hub sections BUY SELL BUSINESS SUPPORT", () => {
-    const homePage = readFileSync(
-      join(process.cwd(), "components/home/RovexoHomePage.tsx"),
+  it("names account hub quick access modules", () => {
+    const accountHome = readFileSync(
+      join(process.cwd(), "features/account-center/components/AccountCenterHome.tsx"),
       "utf8",
     );
-    const accountDashboard = readFileSync(
-      join(process.cwd(), "features/account-page/components/PremiumAccountDashboard.tsx"),
-      "utf8",
-    );
-    expect(accountDashboard).toContain('title="BUY"');
-    expect(accountDashboard).toContain('title="SELL"');
-    expect(accountDashboard).toContain('title="BUSINESS"');
-    expect(accountDashboard).toContain('title="SUPPORT"');
-    expect(accountDashboard).not.toContain("Quick Access");
-    expect(homePage).not.toContain("HomeHeroBanner");
+    const modules = readFileSync(join(process.cwd(), "lib/account-center/modules.ts"), "utf8");
+    expect(accountHome).toContain("ACCOUNT_QUICK_ACCESS");
+    expect(accountHome).toContain("AccountQuickAccessGrid");
+    expect(modules).toContain('title: "Buyer"');
+    expect(modules).toContain('title: "Seller"');
+    expect(modules).toContain('title: "Business"');
+    expect(modules).toContain('title: "Account"');
+    expect(accountHome).not.toContain('title="BUY"');
+    expect(accountHome).not.toContain("HubSection");
   });
 });
 

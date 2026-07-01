@@ -1,9 +1,9 @@
 import { dispatchNotification } from "@/lib/notifications/dispatch";
 import type { MigrationJob } from "@/lib/seller/migration/types";
-import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
+import { IMPORT_WIZARD_PATH } from "@/lib/seller/migration/config";
 
 function jobHref(jobId: string): string {
-  return `${MIGRATION_CENTER_PATH}/${jobId}`;
+  return `${IMPORT_WIZARD_PATH}/${jobId}`;
 }
 
 export async function notifyMigrationEvent(

@@ -198,7 +198,7 @@ export function ProductDetailPage({
 
         <ProductDescription description={product.description} />
 
-        <ProductDelivery carriers={product.deliveryCarriers} />
+        <ProductDelivery carriers={product.deliveryCarriers} freeDelivery={product.freeDelivery} />
 
         <ProductSellerCard
           sellerId={product.sellerId}

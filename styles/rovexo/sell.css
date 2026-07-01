@@ -1,33 +1,35 @@
 /* ROVEXO v1.0 — Sell flow premium presentation */
 
 .sell-page-v1 {
-  background: var(--ds-color-background);
-  background-image: var(--ds-gradient-page);
+  background: #ffffff;
 }
 
 .sell-page-v1 .rx-form-section {
   padding: var(--ds-space-5);
   border-radius: var(--ds-radius-xl);
-  border: 1px solid var(--ds-color-border);
-  background: var(--ds-glass-bg);
-  box-shadow: var(--ds-shadow-medium);
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
 }
 
 .sell-page-v1 .rx-input {
   min-height: 48px;
   border-radius: var(--ds-radius-md);
   font-size: var(--ds-font-body-size);
+  background: #f8fafc;
+  border: 1px solid #eeeeee;
 }
 
 .sell-page-v1 .rx-input:focus {
-  box-shadow: var(--ds-glow-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-color-primary) 18%, transparent);
 }
 
 .sell-page-v1 .rx-upload {
   min-height: 120px;
   border-radius: var(--ds-radius-xl);
-  border: 2px dashed color-mix(in srgb, var(--ds-color-primary) 32%, var(--ds-color-border));
-  background: color-mix(in srgb, var(--ds-color-primary) 4%, var(--ds-glass-bg));
+  border: 2px dashed #d1d5db;
+  background: #fafafa;
+  color: var(--ds-color-text-primary);
   transition:
     border-color var(--ds-duration-fast) var(--ds-ease),
     transform var(--ds-duration-fast) var(--ds-ease),
@@ -35,28 +37,29 @@
 }
 
 .sell-page-v1 .rx-upload:hover {
-  border-color: color-mix(in srgb, var(--ds-color-primary) 48%, transparent);
-  box-shadow: var(--ds-shadow-floating);
+  border-color: color-mix(in srgb, var(--ds-color-primary) 40%, #d1d5db);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
 }
 
 .sell-page-v1 .rx-footer-bar {
   border-radius: var(--ds-radius-xl) var(--ds-radius-xl) 0 0;
-  border: 1px solid var(--ds-color-border);
+  border: 1px solid #eeeeee;
   border-bottom: none;
-  box-shadow: var(--ds-shadow-premium);
+  background: #ffffff;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .sell-page-v1 .sell-condition-chip {
   min-height: 44px;
   border-radius: var(--ds-radius-full);
-  border: 1px solid var(--ds-color-border);
-  background: var(--ds-glass-bg);
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
   padding: 0 var(--ds-space-4);
   font-size: var(--ds-font-caption-size);
   font-weight: 650;
   color: var(--ds-color-text-secondary);
-  box-shadow: var(--ds-shadow-soft);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition:
     border-color var(--ds-duration-fast) var(--ds-ease),
     color var(--ds-duration-fast) var(--ds-ease),
@@ -67,7 +70,7 @@
 .sell-page-v1 .sell-condition-chip[data-selected="true"] {
   border-color: color-mix(in srgb, var(--ds-color-primary) 40%, transparent);
   color: var(--ds-color-primary);
-  box-shadow: var(--ds-glow-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-color-primary) 12%, transparent);
 }
 
 .sell-page-v1 .sell-condition-chip:hover {
@@ -79,4 +82,31 @@
   .sell-page-v1 .sell-condition-chip:hover {
     transform: none;
   }
+}
+
+/* Sell flow — suppress marketplace chrome if any leaks into the shell */
+.sell-flow-shell .home-v1-bottom-nav {
+  display: none !important;
+}
+
+.sell-flow-shell {
+  min-height: 100dvh;
+  overscroll-behavior-y: none;
+}
+
+.sell-page-v1 main {
+  overflow-x: clip;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
+@supports (height: 100dvh) {
+  .sell-flow-shell {
+    min-height: 100dvh;
+  }
+}
+
+.sell-page-v1 .rx-upload:hover {
+  transform: none;
 }

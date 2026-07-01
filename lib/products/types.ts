@@ -43,6 +43,7 @@ export type ProductDetail = Product & {
   description: string;
   salesCount: number;
   deliveryCarriers: DeliveryCarrier[];
+  freeDelivery?: boolean;
   stock: number;
   availability: "in_stock" | "low_stock" | "out_of_stock";
   sellerId: string;

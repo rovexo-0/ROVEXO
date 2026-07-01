@@ -84,6 +84,7 @@ export function RovexoListingCarouselSection({
               key={copyIndex}
               className="home-v1-listing-track__set"
               aria-hidden={copyIndex > 0 ? true : undefined}
+              {...(copyIndex > 0 ? { inert: true } : {})}
             >
               {visibleProducts.map((product) => (
                 <RovexoListingCard

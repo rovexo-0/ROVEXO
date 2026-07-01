@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { getLocaleOption, localeToHtmlLang, type LocaleCode } from "@/lib/i18n/config";
+import { getLocaleOption, localeDirection, localeToHtmlLang, type LocaleCode } from "@/lib/i18n/config";
 
 type LocaleContextValue = {
   localeCode: LocaleCode;
@@ -17,10 +17,10 @@ const LocaleContext = createContext<LocaleContextValue | null>(null);
 const STORAGE_KEY = "rovexo-locale";
 
 function readStoredLocale(): LocaleCode {
-  if (typeof window === "undefined") return "en-IE";
+  if (typeof window === "undefined") return "en-GB";
   const stored = window.localStorage.getItem(STORAGE_KEY) as LocaleCode | null;
   if (stored && getLocaleOption(stored)) return stored;
-  return "en-IE";
+  return "en-GB";
 }
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
@@ -29,6 +29,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = localeToHtmlLang(localeCode);
+    document.documentElement.dir = localeDirection(localeCode);
   }, [localeCode]);
 
   useEffect(() => {

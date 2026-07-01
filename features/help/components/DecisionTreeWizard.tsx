@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { PageBack } from "@/components/navigation/PageBack";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
@@ -95,9 +95,7 @@ export function DecisionTreeWizard({ tree }: DecisionTreeWizardProps) {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-ds-6 px-ds-4 py-ds-6">
       <div>
-        <Link href="/help" className="text-sm font-medium text-primary hover:underline">
-          ← Help Centre
-        </Link>
+        <PageBack variant="text" backHref="/help" backLabel="Help Centre" className="mb-ds-3" />
         <p className="mt-ds-3 text-sm text-text-muted">
           {topic?.icon} {topic?.label}
         </p>

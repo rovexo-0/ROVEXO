@@ -78,6 +78,9 @@ function mapSellerListing(row: ProductRow): SellerListing {
     acceptOffers: row.accept_offers,
     status: row.status,
     stock: row.stock,
+    shippingMethod: row.shipping_method ?? null,
+    shippingPrice: row.shipping_price != null ? Number(row.shipping_price) : null,
+    freeDelivery: row.shipping_price === 0,
     sku: row.sku,
     lowStockAlert: row.low_stock_alert,
     views: row.views,
@@ -328,6 +331,8 @@ export async function createSellerListing(
       price: isAuction ? (input.price > auctionStart ? input.price : auctionStart) : input.price,
       accept_offers: isAuction ? input.price > auctionStart : input.acceptOffers,
       delivery_carriers: input.deliveryCarriers ?? ["Royal Mail", "Evri"],
+      shipping_method: input.shippingMethod ?? "delivery_available",
+      shipping_price: input.shippingPrice ?? (input.freeDelivery ? 0 : null),
       status,
       stock,
       sku: input.inventory?.sku,
@@ -398,6 +403,9 @@ export async function updateSellerListing(
     ...(input.deliveryCarriers !== undefined && {
       delivery_carriers: input.deliveryCarriers,
     }),
+    ...(input.shippingMethod !== undefined && { shipping_method: input.shippingMethod }),
+    ...(input.shippingPrice !== undefined && { shipping_price: input.shippingPrice }),
+    ...(input.freeDelivery === true && { shipping_price: 0 }),
   };
 
   if (Object.keys(patch).length > 0) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePageBack } from "@/hooks/navigation/usePageBack";
 import { cn } from "@/lib/cn";
 import { GlassIconButton } from "@/features/product-detail/GlassIconButton";
 import { BackIcon, HeartIcon, ShareIcon } from "@/features/product-detail/icons";
@@ -18,14 +18,14 @@ export function ProductDetailTopBar({
   onSave,
   onShare,
 }: ProductDetailTopBarProps) {
-  const router = useRouter();
+  const back = usePageBack({ backHref: "/", backLabel: "Home" });
 
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 z-10">
       <div className="flex items-center justify-between px-ds-4 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]">
         <GlassIconButton
-          label="Go back"
-          onClick={() => router.back()}
+          label={back.label}
+          onClick={back.goBack}
           className="pointer-events-auto"
         >
           <BackIcon className="h-5 w-5" />

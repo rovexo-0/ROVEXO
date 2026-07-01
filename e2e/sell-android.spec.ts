@@ -8,9 +8,6 @@ import { signInWithSessionCookies } from "./helpers/auth";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../lib/supabase/types/database";
 
-loadDotEnvFiles();
-
-// Minimal valid 1×1 JPEG (red pixel).
 const SAMPLE_JPEG_BASE64 =
   "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=";
 
@@ -106,20 +103,13 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
   }
 
   async function ensureCategorySelected(page: Page) {
-    const confirmBtn = page.getByRole("button", { name: /^confirm$/i }).first();
-    if (await confirmBtn.isVisible().catch(() => false)) {
-      await confirmBtn.click();
-      return;
+    const categoryButton = page.getByRole("button", { name: /select category/i });
+    if (await categoryButton.isVisible().catch(() => false)) {
+      await categoryButton.click();
     }
 
-    const categoryValue = page.getByRole("button", { name: /select category/i });
-    if (await categoryValue.isVisible().catch(() => false)) {
-      await categoryValue.click();
-    }
-
-    // Pick the first available sector → subcategory → leaf (if shown).
     for (let level = 0; level < 3; level += 1) {
-      const chips = page.locator("section").filter({ has: page.getByText(/^category$/i) }).getByRole("button");
+      const chips = page.locator(".flex.flex-wrap.gap-ds-2").first().getByRole("button");
       const count = await chips.count();
       if (count === 0) break;
       await chips.first().click();
@@ -166,7 +156,7 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     await signIn(page, tempUser!, baseURL!);
 
     await page.goto("/sell", { waitUntil: "domcontentloaded", timeout: 180_000 });
-    await expect(page.getByRole("heading", { name: /quick listing/i })).toBeVisible({ timeout: 120_000 });
+    await expect(page.getByRole("button", { name: /add photos/i })).toBeVisible({ timeout: 120_000 });
 
     const galleryInput = page.locator('input[type="file"]:not([capture])').first();
     await galleryInput.setInputFiles(galleryImage);
@@ -178,29 +168,25 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     await expect(page.locator('img[alt^="Listing photo"]')).toBeVisible({ timeout: 15_000 });
 
     const title = `Vintage phone ${Date.now()}`;
-    await page.locator("#sell-quick-title").fill(title);
-    await page.locator("#sell-quick-description").fill(
-      "A test listing created by Playwright E2E automation. Solid condition.",
-    );
+    await page.getByPlaceholder(/what are you selling/i).fill(title);
+    await page
+      .getByPlaceholder(/describe the item/i)
+      .fill("A test listing created by Playwright E2E automation. Solid condition.");
 
-    // Trigger debounced AI category detection.
     await page.waitForTimeout(500);
     await ensureCategorySelected(page);
 
-    await page.getByRole("button", { name: /^good$/i }).click();
-    await page.locator("#sell-quick-price").fill("19.99");
-    await page.locator("#sell-quick-quantity").fill("1");
-
+    await page.getByPlaceholder("0.00").fill("19.99");
     await page.getByRole("button", { name: /delivery available/i }).click();
-
-    const locationSelect = page.locator("#sell-location");
-    if (await locationSelect.isVisible().catch(() => false)) {
-      await locationSelect.selectOption("Manchester");
-    }
 
     const publishBtn = page.getByRole("button", { name: /^publish$/i });
     await expect(publishBtn).toBeEnabled({ timeout: 15_000 });
     await publishBtn.click();
+
+    await expect(page.getByRole("heading", { name: /congratulations/i })).toBeVisible({
+      timeout: 120_000,
+    });
+    await expect(page.getByText(/published successfully/i)).toBeVisible();
 
     const start = Date.now();
     let found: { id: string } | null = null;
@@ -226,7 +212,8 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     expect(imagesRes.error).toBeNull();
     expect((imagesRes.data ?? []).length).toBeGreaterThan(0);
 
-    const firstImage = imagesRes.data?.[0];
-    expect(firstImage?.url || firstImage?.thumbnail_url || firstImage?.storage_path).toBeTruthy();
+    await page.getByRole("link", { name: /my listings/i }).click();
+    await expect(page).toHaveURL(/\/seller\/listings/, { timeout: 30_000 });
+    await expect(page.getByText(title)).toBeVisible({ timeout: 30_000 });
   });
 });

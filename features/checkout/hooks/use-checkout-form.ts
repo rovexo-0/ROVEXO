@@ -15,8 +15,12 @@ export function useCheckoutForm(product: ProductDetail, initialDraft: CheckoutDr
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const totals = useMemo(
-    () => calculateOrderTotals(product.price, getDeliveryPrice(draft.deliveryOption)),
-    [draft.deliveryOption, product.price],
+    () =>
+      calculateOrderTotals(
+        product.price,
+        getDeliveryPrice(draft.deliveryOption, { listingOffersFreeDelivery: product.freeDelivery }),
+      ),
+    [draft.deliveryOption, product.freeDelivery, product.price],
   );
 
   const updateDraft = useCallback((patch: Partial<CheckoutDraft>) => {

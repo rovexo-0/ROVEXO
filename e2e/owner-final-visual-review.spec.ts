@@ -36,7 +36,7 @@ const MAJOR_PAGES: PageDef[] = [
   { id: "browse", label: "Browse", path: "/category/home-garden/furniture/beds" },
   { id: "product-details", label: "Product Details", path: (slug) => `/listing/${slug}` },
   { id: "sell-item", label: "Sell Item", path: "/sell" },
-  { id: "seller-dashboard", label: "Seller Dashboard", path: "/seller/dashboard" },
+  { id: "seller-dashboard", label: "Seller Dashboard", path: "/seller" },
   { id: "buyer-dashboard", label: "Buyer Dashboard", path: "/buyer" },
   { id: "wallet", label: "Wallet", path: "/account/wallet" },
   { id: "orders", label: "Orders", path: "/orders" },

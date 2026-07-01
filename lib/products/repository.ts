@@ -148,6 +148,7 @@ function mapProductDetail(row: ProductRow): ProductDetail {
     images: images.length > 0 ? images : detail.images,
     description: stripListingLocationMarker(row.description) || detail.description,
     deliveryCarriers: (row.delivery_carriers ?? detail.deliveryCarriers) as DeliveryCarrier[],
+    freeDelivery: row.shipping_price === 0,
     salesCount: Math.max(1, row.review_count),
     stock: row.stock,
     availability: productAvailability(row.stock, row.low_stock_alert),

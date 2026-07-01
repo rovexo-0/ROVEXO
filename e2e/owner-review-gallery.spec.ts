@@ -27,7 +27,7 @@ const PAGES = [
   { id: "categories", label: "Categories", path: "/categories" },
   { id: "product-details", label: "Product Details", path: (slug: string) => `/listing/${slug}` },
   { id: "sell-item", label: "Sell Item", path: "/sell" },
-  { id: "seller-dashboard", label: "Seller Dashboard", path: "/seller/dashboard" },
+  { id: "seller-dashboard", label: "Seller Dashboard", path: "/seller" },
   { id: "buyer-dashboard", label: "Buyer Dashboard", path: "/buyer" },
   { id: "wallet", label: "Wallet", path: "/account/wallet" },
   { id: "orders", label: "Orders", path: "/orders" },

@@ -190,7 +190,7 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
         className="sr-only"
         onChange={(event) => void onFileChange(event)}
       />

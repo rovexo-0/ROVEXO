@@ -61,9 +61,11 @@ function Header({
     <header
       ref={headerRef}
       data-header-version="rovexo-v1"
+      data-chrome-scroll={scroll ? "registered" : undefined}
       className={cn(
-        "rx-header-shell sticky top-0 left-0 right-0 z-[100]",
+        "rx-header-shell rovexo-chrome sticky top-0 left-0 right-0 z-[100]",
         "pt-[max(env(safe-area-inset-top),var(--ds-space-1))]",
+        scroll && !scroll.isVisible && "rovexo-chrome--hidden",
       )}
     >
       <div className="mx-auto max-w-7xl px-ds-4">

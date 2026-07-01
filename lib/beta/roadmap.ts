@@ -102,7 +102,7 @@ export const BETA_MODULES = [
   {
     id: "seller-dashboard",
     name: "Dashboard",
-    route: "/seller/dashboard",
+    route: "/seller",
     area: "seller",
     status: "complete",
     description: "Seller overview with summary, performance chart, and recent orders.",

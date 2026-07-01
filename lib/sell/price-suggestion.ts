@@ -1,12 +1,12 @@
 import type { SellCondition } from "@/features/sell/types";
 
 const CONDITION_MULTIPLIER: Record<SellCondition, number> = {
-  "New with Tags": 1,
-  New: 0.95,
+  "New (Unused)": 1,
+  Used: 0.8,
   "Like New": 0.85,
   "Very Good": 0.75,
   Good: 0.65,
-  Fair: 0.5,
+  Acceptable: 0.5,
 };
 
 const CATEGORY_BASE: Record<string, number> = {

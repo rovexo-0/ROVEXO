@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { MigrationCenterPage } from "@/features/seller/migration/components/MigrationCenterPage";
 import { isStoreMigrationEnabled } from "@/lib/seller/migration/config";
@@ -14,7 +15,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function ImportWizardRoute() {
   if (!isStoreMigrationEnabled()) {
-    redirect("/seller/dashboard");
+    redirect("/seller");
   }
 
   const profile = await getProfile();
@@ -22,5 +23,9 @@ export default async function ImportWizardRoute() {
     redirect("/account");
   }
 
-  return <MigrationCenterPage />;
+  return (
+    <Suspense fallback={null}>
+      <MigrationCenterPage />
+    </Suspense>
+  );
 }

@@ -1,5 +1,11 @@
 /* ROVEXO V1.0 — Global pure white design system */
 
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 #__next,
 main,
 .app,
@@ -17,6 +23,8 @@ main,
 
 .rx-page {
   background-image: none !important;
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 /* Sections — every surface white */
@@ -63,14 +71,6 @@ nav,
   background: #f8fafc;
 }
 
-/* Footer */
-footer {
-  background: #ffffff !important;
-  border-color: #f1f1f1 !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-}
-
 /* Text hierarchy */
 .text-text-primary,
 .rx-page,
@@ -88,7 +88,7 @@ footer {
 }
 
 .text-text-muted {
-  color: #999999;
+  color: #6b7280;
 }
 
 /* Blue accents only */
@@ -114,11 +114,19 @@ a.text-primary,
   background-color: #ffffff !important;
 }
 
-/* Account / search / messages pages */
+/* Account / search / messages / account center pages */
 .rx-page main,
 main.mx-auto,
-main.flex {
-  background: #ffffff;
+main.flex,
+.account-center-shell,
+.account-center,
+.sell-page-v1 {
+  background: #ffffff !important;
+  background-image: none !important;
+}
+
+.bg-surface-muted {
+  background-color: #f8fafc !important;
 }
 
 /* Neutralize dark strips on consumer pages */
@@ -139,4 +147,29 @@ main.flex {
 [class*="badge"] {
   background-color: #2563eb;
   color: #ffffff;
+}
+
+/* ROVEXO V1.0 — force premium white theme (no legacy dark) */
+[data-theme="dark"],
+[data-theme="dark"] .rx-page,
+[data-theme="dark"] main,
+:root:not([data-theme="light"]) {
+  --ds-color-background: #ffffff;
+  --ds-color-surface: #ffffff;
+  --ds-color-surface-muted: #f8fafc;
+  --ds-color-surface-elevated: #ffffff;
+  --ds-color-text-primary: #111111;
+  --ds-color-text-secondary: #666666;
+  --ds-color-text-muted: #6b7280;
+  --ds-color-border: #eeeeee;
+  color-scheme: light;
+}
+
+[data-theme="dark"] body,
+[data-theme="dark"] .rx-page,
+[data-theme="dark"] .account-center,
+[data-theme="dark"] .sell-page-v1 {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #111111;
 }

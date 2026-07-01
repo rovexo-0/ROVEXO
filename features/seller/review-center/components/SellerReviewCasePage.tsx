@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { PageBack } from "@/components/navigation/PageBack";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
@@ -106,10 +107,8 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
         <DashboardShell>
           <div className="flex items-start justify-between gap-ds-3">
             <div>
-              <Link href="/seller/review-center" className="text-sm text-primary">
-                ← Review Center
-              </Link>
-              <h1 className="mt-ds-2 text-2xl font-semibold text-text-primary">{reviewCase.productTitle}</h1>
+              <PageBack variant="text" backHref="/seller/review-center" backLabel="Review Center" className="mb-ds-2" />
+              <h1 className="text-2xl font-semibold text-text-primary">{reviewCase.productTitle}</h1>
               <div className="mt-ds-2">
                 <ReviewStatusBadge status={reviewCase.status} label={reviewCase.statusLabel} />
               </div>

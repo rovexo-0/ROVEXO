@@ -43,7 +43,7 @@ export function SellerActions() {
         <ListIcon className="h-5 w-5 shrink-0" />
         My listings
       </Link>
-      <Link href="/seller/dashboard" aria-label="Seller dashboard" className={cn(actionStyles, "text-text-primary")}>
+      <Link href="/seller" aria-label="Seller dashboard" className={cn(actionStyles, "text-text-primary")}>
         <ChartIcon className="h-5 w-5 shrink-0" />
         Dashboard
       </Link>

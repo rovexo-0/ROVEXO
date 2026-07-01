@@ -7,7 +7,6 @@ import { DashboardSummaryGrid } from "@/features/dashboard/components/DashboardS
 import { BusinessDashboardHeader } from "@/features/business/dashboard/components/BusinessDashboardHeader";
 import { BusinessProfileCard } from "@/features/business/dashboard/components/BusinessProfileCard";
 import { InventoryOverviewSection } from "@/features/business/dashboard/components/InventoryOverviewSection";
-import { HelpPageFooter } from "@/features/help/components/HelpPageFooter";
 import type { BusinessDashboardData } from "@/lib/business/types";
 
 const QUICK_ACTIONS = [
@@ -43,7 +42,6 @@ export function BusinessDashboardPage({ data }: BusinessDashboardPageProps) {
         <DashboardPerformanceSection performance={data.performance} />
 
         <DashboardRecentOrdersSection orders={data.recentOrders} viewAllHref="/seller/orders" />
-        <HelpPageFooter pathname="/business/dashboard" />
         </DashboardShell>
       </main>
     </BetaAppShell>

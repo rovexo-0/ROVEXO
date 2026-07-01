@@ -206,7 +206,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
       className={cn(
         "fixed inset-0 z-[100] flex flex-col",
         transitionFast,
-        visible ? "opacity-100" : "opacity-0",
+        visible ? "opacity-100" : "pointer-events-none opacity-0",
       )}
       role="dialog"
       aria-modal="true"

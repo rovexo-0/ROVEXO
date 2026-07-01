@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePageBack } from "@/hooks/navigation/usePageBack";
 import { IconButton } from "@/components/ui/IconButton";
 import { cn } from "@/lib/cn";
 import { transitionNormal } from "@/components/ui/tokens";
@@ -19,7 +19,7 @@ export function ProductDetailScrollHeader({
   isSaved,
   onSave,
 }: ProductDetailScrollHeaderProps) {
-  const router = useRouter();
+  const back = usePageBack({ backHref: "/", backLabel: "Home" });
 
   return (
     <header
@@ -30,7 +30,7 @@ export function ProductDetailScrollHeader({
       )}
     >
       <div className="flex items-center gap-ds-2 px-ds-4 pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]">
-        <IconButton label="Go back" variant="ghost" size="md" onClick={() => router.back()}>
+        <IconButton label={back.label} variant="ghost" size="md" onClick={back.goBack}>
           <BackIcon className="h-5 w-5" />
         </IconButton>
 

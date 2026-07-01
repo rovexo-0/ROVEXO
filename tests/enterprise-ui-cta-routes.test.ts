@@ -36,8 +36,8 @@ describe("Enterprise UI — seller CTA routes", () => {
     expect(hrefFor(sellHub, "Publish Listing")).toBe("/sell/new");
     expect(hrefFor(sellerDash, "Publish Listing")).toBe("/sell/new");
     expect(hrefFor(sellerDash, "Sell Item")).toBe("/sell");
-    expect(hrefFor(sellHub, "Seller Dashboard")).toBe("/seller/dashboard");
-    expect(hrefFor(sellerDash, "Seller Dashboard")).toBe("/seller/dashboard");
+    expect(hrefFor(sellHub, "Seller Dashboard")).toBe("/seller");
+    expect(hrefFor(sellerDash, "Seller Dashboard")).toBe("/seller");
     expect(hrefFor(sellHub, "My Listings")).toBe("/seller/listings");
     expect(hrefFor(sellerDash, "My Listings")).toBe("/seller/listings");
     expect(hrefFor(sellHub, "Marketplace Connectors")).toBe(MARKETPLACE_CONNECTORS_PATH);
@@ -45,23 +45,9 @@ describe("Enterprise UI — seller CTA routes", () => {
   });
 });
 
-describe("Enterprise UI — footer", () => {
-  it("does not duplicate hub navigation links", () => {
-    const footer = readFileSync(join(process.cwd(), "components/Footer.tsx"), "utf8");
-    for (const label of ["Buy", "Sell", "Business", "Support"]) {
-      expect(footer).not.toContain(`title="${label}"`);
-    }
-    expect(footer).not.toContain("BUYER_LINKS");
-    expect(footer).not.toContain("SELL_LINKS");
-    expect(footer).not.toContain("BUSINESS_LINKS");
-    expect(footer).not.toContain("SUPPORT_LINKS");
-  });
-
-  it("keeps legal and contact footer links", () => {
-    const footer = readFileSync(join(process.cwd(), "components/Footer.tsx"), "utf8");
-    for (const label of ["About", "Contact", "Privacy", "Terms", "Legal"]) {
-      expect(footer).toContain(`label: "${label}"`);
-    }
-    expect(footer).toContain("All rights reserved");
+describe("Enterprise UI — legal pages remain reachable", () => {
+  it("keeps legal routes available outside the removed global footer", () => {
+    const legalPage = readFileSync(join(process.cwd(), "app/legal/page.tsx"), "utf8");
+    expect(legalPage.length).toBeGreaterThan(0);
   });
 });

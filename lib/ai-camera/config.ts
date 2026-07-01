@@ -7,12 +7,12 @@ export const AI_CAMERA_MAX_IMAGES = 8;
 
 /** UK marketplace condition labels — must match `SELL_CONDITIONS` in sell types. */
 export const AI_CAMERA_VALID_CONDITIONS = [
-  "New with Tags",
-  "New",
+  "New (Unused)",
+  "Used",
   "Like New",
   "Very Good",
   "Good",
-  "Fair",
+  "Acceptable",
 ] as const;
 
 export type AiCameraValidCondition = (typeof AI_CAMERA_VALID_CONDITIONS)[number];

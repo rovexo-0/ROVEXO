@@ -5,18 +5,20 @@ import { AccountPageShell } from "@/features/account/components/AccountPageShell
 import { LanguagePicker } from "@/features/settings/components/LanguagePicker";
 import { useLocale } from "@/lib/i18n/provider";
 import { getLocaleOption, type LocaleCode } from "@/lib/i18n/config";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
 export function AccountLanguagePage() {
   const { localeCode, setLocaleCode } = useLocale();
+  const { t } = useTranslation();
   const [message, setMessage] = useState<string | null>(null);
 
   const save = async (code: LocaleCode) => {
     setMessage(null);
     try {
       await setLocaleCode(code);
-      setMessage("Language updated.");
+      setMessage(t("language.updated"));
     } catch {
-      setMessage("Unable to update language.");
+      setMessage(t("language.error"));
     }
   };
 

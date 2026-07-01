@@ -6,7 +6,6 @@ import { DashboardQuickActionsGrid } from "@/features/dashboard/components/Dashb
 import { DashboardRecentOrdersSection } from "@/features/dashboard/components/DashboardRecentOrdersSection";
 import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
 import { DashboardSummaryGrid } from "@/features/dashboard/components/DashboardSummaryGrid";
-import { HelpPageFooter } from "@/features/help/components/HelpPageFooter";
 import { SellerDashboardHeader } from "@/features/seller/dashboard/components/SellerDashboardHeader";
 import { SellerProfileCard } from "@/features/seller/dashboard/components/SellerProfileCard";
 import { SellerPromotionsSection } from "@/features/seller/dashboard/components/SellerPromotionsSection";
@@ -102,7 +101,6 @@ export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
         <DashboardPerformanceSection performance={data.performance} />
 
         <DashboardRecentOrdersSection orders={data.recentOrders} viewAllHref="/seller/orders" />
-        <HelpPageFooter pathname="/seller/dashboard" />
         </DashboardShell>
       </main>
     </BetaAppShell>

@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function SellerMigrationJobRoute({ params }: PageProps) {
   if (!isStoreMigrationEnabled()) {
-    redirect("/seller/dashboard");
+    redirect("/seller");
   }
 
   const profile = await getProfile();

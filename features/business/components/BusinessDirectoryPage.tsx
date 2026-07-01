@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageBack } from "@/components/navigation/PageBack";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
@@ -12,9 +13,7 @@ export function BusinessDirectoryPage({ companies }: BusinessDirectoryPageProps)
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-ds-8 px-ds-4 py-ds-6">
       <section>
-        <Link href="/business/center" className="text-sm font-medium text-primary hover:underline">
-          ← Business Center
-        </Link>
+        <PageBack variant="text" backHref="/business/center" backLabel="Business Centre" className="mb-ds-3" />
         <h1 className="mt-ds-3 text-3xl font-bold text-text-primary">Business Directory</h1>
         <p className="mt-ds-2 text-sm text-text-secondary">
           Verified companies, manufacturers, suppliers, and wholesale partners.

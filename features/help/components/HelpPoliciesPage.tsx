@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageBack } from "@/components/navigation/PageBack";
 import { Card } from "@/components/ui/Card";
 import { HelpMobileNav } from "@/features/help/components/HelpMobileNav";
 import { focusRing } from "@/components/ui/tokens";
@@ -13,9 +14,7 @@ export function HelpPoliciesPage({ policies }: HelpPoliciesPageProps) {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-ds-6 px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
       <div>
-        <Link href="/help" className="text-sm font-medium text-primary hover:underline">
-          ← Help Centre
-        </Link>
+        <PageBack variant="text" backHref="/help" backLabel="Help Centre" className="mb-ds-3" />
         <h1 className="mt-ds-3 text-2xl font-bold text-text-primary">Platform Policies</h1>
         <p className="mt-ds-2 text-sm text-text-secondary">
           Terms, privacy, safety, prohibited items, and community guidelines.

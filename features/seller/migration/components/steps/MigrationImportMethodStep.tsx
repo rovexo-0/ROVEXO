@@ -48,9 +48,9 @@ export function MigrationImportMethodStep({ selected, onSelect }: MigrationImpor
           );
         })}
       </ul>
-      <Card padding="sm" className="border-dashed border-border">
+      <Card padding="sm" className="border-border bg-white">
         <p className="text-xs text-text-secondary">
-          File uploads and API credentials will connect here when marketplace integrations launch.
+          Add your store URL, listing links, or import file above, then continue to preview your migration.
         </p>
       </Card>
     </div>

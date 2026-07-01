@@ -7,49 +7,15 @@ import {
   getSellerListingById,
   updateSellerListing,
 } from "@/lib/listings/repository";
+import { revalidatePublishedListing } from "@/lib/listings/revalidate-published-listing";
 import { clampInventory, isInventoryValid } from "@/lib/sell/inventory";
 import { sanitizeListingLocationCity } from "@/lib/sell/listing-location";
+import {
+  formatListingApiValidationError,
+  updateListingSchema,
+} from "@/lib/sell/listing-api-schema";
 
 type RouteContext = { params: Promise<{ id: string }> };
-
-const imageSchema = z.object({
-  url: z.string().url(),
-  thumbnailUrl: z.string().url().optional(),
-  storagePath: z.string().min(1),
-  sortOrder: z.number().int().nonnegative(),
-  isPrimary: z.boolean(),
-});
-
-const updateSchema = z.object({
-  title: z.string().min(3).optional(),
-  description: z.string().min(10).optional(),
-  brand: z.string().optional(),
-  color: z.string().optional(),
-  size: z.string().optional(),
-  condition: z.string().min(1).optional(),
-  price: z.number().positive().optional(),
-  locationCity: z.string().min(1).max(80).nullable().optional(),
-  acceptOffers: z.boolean().optional(),
-  categoryPath: z
-    .object({
-      categorySlug: z.string(),
-      subcategorySlug: z.string(),
-      childCategorySlug: z.string().optional(),
-      categorySlugs: z.array(z.string()).optional(),
-    })
-    .nullable()
-    .optional(),
-  inventory: z
-    .object({
-      sku: z.string().optional(),
-      stock: z.number().int().nonnegative(),
-      lowStockAlert: z.number().int().nonnegative(),
-    })
-    .optional(),
-  images: z.array(imageSchema).min(1).max(8).optional(),
-  removeImageIds: z.array(z.string()).optional(),
-  deliveryCarriers: z.array(z.string()).optional(),
-});
 
 export async function GET(_request: Request, context: RouteContext) {
   const auth = await requireApiAuth();
@@ -78,7 +44,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   const { id } = await context.params;
 
   try {
-    const body = updateSchema.parse(await request.json());
+    const body = updateListingSchema.parse(await request.json());
     let categoryId: string | null | undefined;
 
     if (body.categoryPath !== undefined) {
@@ -113,6 +79,9 @@ export async function PATCH(request: Request, context: RouteContext) {
           ? sanitizeListingLocationCity(body.locationCity)
           : undefined,
       acceptOffers: body.acceptOffers,
+      freeDelivery: body.freeDelivery,
+      shippingMethod: body.shippingMethod,
+      shippingPrice: body.shippingPrice ?? undefined,
       categoryId,
       deliveryCarriers: body.deliveryCarriers,
       inventory: body.inventory
@@ -130,11 +99,13 @@ export async function PATCH(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Listing not found." }, { status: 404 });
     }
 
+    revalidatePublishedListing(listing.slug);
+
     return NextResponse.json({ listing });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.issues[0]?.message ?? "Invalid update." },
+        { error: formatListingApiValidationError(error) },
         { status: 400 },
       );
     }

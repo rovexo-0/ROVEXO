@@ -1,11 +1,12 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { RovexoAppIconMark } from "@/components/brand/RovexoAppIconMark";
 import { HeaderIconLink } from "@/components/header/HeaderIconLink";
 import { RovexoSearchBar } from "@/components/home/RovexoSearchBar";
+import { useRovexoMobileHeaderScrollContext } from "@/components/home/RovexoMobileHeaderScrollContext";
 import { useHeaderBadges } from "@/features/header/hooks/use-header-badges";
 import { RovexoIcons } from "@/lib/icons";
 import { cn } from "@/lib/cn";
@@ -33,7 +34,7 @@ function HeaderGlassAction({
       href={href}
       label={label}
       badge={badge}
-      className="home-v1-header__action !h-6 !min-h-6 !w-6 !min-w-6 rounded-none p-0 hover:bg-transparent"
+      className="home-v1-header__action rounded-none p-0 hover:bg-transparent"
       size="compact"
     >
       {icon}
@@ -45,6 +46,8 @@ export const RovexoHeader = memo(function RovexoHeader({
   unreadNotifications: unreadNotificationsProp = 0,
   unreadMessages: unreadMessagesProp = 0,
 }: RovexoHeaderProps) {
+  const scroll = useRovexoMobileHeaderScrollContext();
+  const headerRef = useRef<HTMLElement>(null);
   const liveBadges = useHeaderBadges({
     unreadMessages: unreadMessagesProp,
     unreadNotifications: unreadNotificationsProp,
@@ -53,8 +56,21 @@ export const RovexoHeader = memo(function RovexoHeader({
   const unreadMessages = Math.max(unreadMessagesProp, liveBadges.unreadMessages);
   const unreadNotifications = Math.max(unreadNotificationsProp, liveBadges.unreadNotifications);
 
+  useLayoutEffect(() => {
+    scroll?.registerHeader(headerRef.current);
+    return () => scroll?.registerHeader(null);
+  }, [scroll]);
+
   return (
-    <header data-header-version="home-v1" className="home-v1-header">
+    <header
+      ref={headerRef}
+      data-header-version="home-v1"
+      data-chrome-scroll={scroll ? "registered" : undefined}
+      className={cn(
+        "home-v1-header rovexo-chrome",
+        scroll && !scroll.isVisible && "rovexo-chrome--hidden",
+      )}
+    >
       <div className="home-v1-header__inner">
         <Link href="/" aria-label="ROVEXO Home" className={cn("home-v1-header__logo", focusRing)}>
           <RovexoAppIconMark className="h-full w-full rounded-[12px]" uid="home-v1-mark" contained />

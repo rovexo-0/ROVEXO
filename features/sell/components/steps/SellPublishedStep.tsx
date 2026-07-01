@@ -3,24 +3,29 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
+import { buttonSizes, buttonVariants } from "@/components/ui/variants";
 import { ShareListingSheet } from "@/components/share/ShareListingSheet";
 import { CelebrationAnimation } from "@/components/celebration/CelebrationAnimation";
 import { PublishedCheckmark } from "@/features/sell/components/PublishedCheckmark";
-import type { SellFormController } from "@/features/sell/hooks/use-sell-wizard";
+import { useSell } from "@/features/sell/context/SellProvider";
 
-type SellPublishedStepProps = {
-  form: SellFormController;
-};
+const linkButtonClassName = (variant: keyof typeof buttonVariants) =>
+  cn(
+    "inline-flex w-full items-center justify-center",
+    buttonVariants[variant],
+    buttonSizes.lg,
+    "min-h-ds-7 rounded-ds-lg text-base",
+  );
 
-export function SellPublishedStep({ form }: SellPublishedStepProps) {
-  const { draft, publishedSlug, resetForAnotherListing } = form;
+export function SellPublishedStep() {
+  const { draft, publishedSlug, resetForAnotherListing } = useSell();
   const [shareOpen, setShareOpen] = useState(false);
   const coverPhoto = draft.photos[0]?.previewUrl ?? draft.photos[0]?.url;
 
   return (
     <>
-      <CelebrationAnimation />
+      <CelebrationAnimation active />
 
       <section
         className="relative z-[1] flex w-full flex-col items-center justify-center px-ds-2 py-ds-8 text-center"
@@ -29,18 +34,18 @@ export function SellPublishedStep({ form }: SellPublishedStepProps) {
         <PublishedCheckmark />
 
         <h2 id="listing-published-heading" className="mt-ds-4 text-2xl font-bold text-text-primary">
-          Listing Published Successfully
+          🎉 Congratulations!
         </h2>
+
+        <p className="mt-ds-2 max-w-sm text-base text-text-primary">
+          Your listing has been published successfully.
+        </p>
 
         {coverPhoto ? (
           <div className="relative mt-ds-5 h-40 w-40 overflow-hidden rounded-ds-2xl border border-border shadow-lg">
             <Image src={coverPhoto} alt="" fill className="object-cover" sizes="160px" />
           </div>
         ) : null}
-
-        <p className="mt-ds-4 max-w-sm text-sm text-text-secondary">
-          Your listing is now live on ROVEXO.
-        </p>
 
         <div
           className="mt-ds-6 w-full max-w-sm border-t border-border pt-ds-6"
@@ -49,77 +54,59 @@ export function SellPublishedStep({ form }: SellPublishedStepProps) {
         >
           <div className="flex flex-col gap-ds-3">
             {publishedSlug ? (
-              <Link href={`/listing/${publishedSlug}`} className="block w-full">
-                <Button variant="primary" fullWidth size="lg" className="min-h-ds-7 rounded-ds-lg text-base">
-                  View Listing
-                </Button>
+              <Link href={`/listing/${publishedSlug}`} className={linkButtonClassName("primary")}>
+                View Listing
               </Link>
             ) : null}
 
-            <Button
+            <Link href="/seller/listings" className={linkButtonClassName("secondary")}>
+              My Listings
+            </Link>
+
+            <button
               type="button"
-              variant="secondary"
-              fullWidth
-              size="lg"
-              className="min-h-ds-7 rounded-ds-lg text-base"
+              className={linkButtonClassName("secondary")}
               onClick={resetForAnotherListing}
             >
-              List Another Item
-            </Button>
-          </div>
+              Sell Another Item
+            </button>
 
-          <p className="mt-ds-5 text-xs font-medium uppercase tracking-wide text-text-secondary">
-            Optional actions
-          </p>
-
-          <div className="mt-ds-3 flex flex-col gap-ds-2">
-            <Button
-              type="button"
-              variant="ghost"
-              fullWidth
-              size="lg"
-              className="min-h-ds-7 text-base"
-              onClick={() => setShareOpen(true)}
-              disabled={!publishedSlug}
-            >
-              Share Listing
-            </Button>
-
-            {publishedSlug ? (
-              <>
-                <Link href={`/seller/listings?promote=${publishedSlug}`} className="block w-full">
-                  <Button variant="ghost" fullWidth size="lg" className="min-h-ds-7 text-base">
-                    Promote Listing
-                  </Button>
-                </Link>
-                <Link href={`/seller/listings?feature=${publishedSlug}`} className="block w-full">
-                  <Button variant="ghost" fullWidth size="lg" className="min-h-ds-7 text-base">
-                    Feature Listing
-                  </Button>
-                </Link>
-                <Link href={`/seller/listings?bump=${publishedSlug}`} className="block w-full">
-                  <Button variant="ghost" fullWidth size="lg" className="min-h-ds-7 text-base">
-                    Bump Listing
-                  </Button>
-                </Link>
-              </>
-            ) : null}
+            <Link href="/" className={linkButtonClassName("ghost")}>
+              Back Home
+            </Link>
           </div>
 
           {publishedSlug ? (
-            <ShareListingSheet
-              open={shareOpen}
-              onClose={() => setShareOpen(false)}
-              title={draft.title || "ROVEXO listing"}
-              slug={publishedSlug}
-            />
-          ) : null}
+            <>
+              <p className="mt-ds-5 text-xs font-medium uppercase tracking-wide text-text-secondary">
+                Optional actions
+              </p>
 
-          <Link href="/seller/dashboard" className="mt-ds-4 block w-full">
-            <Button variant="ghost" fullWidth size="sm" className="min-h-ds-6 text-sm text-text-secondary">
-              Seller Dashboard
-            </Button>
-          </Link>
+              <div className="mt-ds-3 flex flex-col gap-ds-2">
+                <button
+                  type="button"
+                  className={linkButtonClassName("ghost")}
+                  onClick={() => setShareOpen(true)}
+                >
+                  Share Listing
+                </button>
+
+                <Link
+                  href={`/seller/listings?promote=${publishedSlug}`}
+                  className={linkButtonClassName("ghost")}
+                >
+                  Promote Listing
+                </Link>
+              </div>
+
+              <ShareListingSheet
+                open={shareOpen}
+                onClose={() => setShareOpen(false)}
+                title={draft.title || "ROVEXO listing"}
+                slug={publishedSlug}
+              />
+            </>
+          ) : null}
         </div>
       </section>
     </>

@@ -52,18 +52,18 @@ export type SellListingDraft = {
 
   stock: number;
 
-  locationCity: string | null;
+  freeDelivery: boolean;
 
   analysis: AiCameraAnalysisResult | null;
 };
 
 export const SELL_CONDITIONS = [
-  "New with Tags",
-  "New",
+  "New (Unused)",
+  "Used",
   "Like New",
   "Very Good",
   "Good",
-  "Fair",
+  "Acceptable",
 ] as const;
 
 export type SellCondition = (typeof SELL_CONDITIONS)[number];
@@ -83,7 +83,7 @@ export function createEmptyDraft(): SellListingDraft {
     material: "",
     size: "",
 
-    condition: "",
+    condition: "Used",
     shippingMethod: "delivery_available",
 
     price: "",
@@ -99,7 +99,7 @@ export function createEmptyDraft(): SellListingDraft {
 
     stock: 1,
 
-    locationCity: null,
+    freeDelivery: false,
 
     analysis: null,
   };
@@ -113,13 +113,14 @@ export type ListingValidationField =
   | "price"
   | "condition"
   | "shippingMethod"
-  | "stock"
-  | "location";
+  | "stock";
 
 export type ListingValidationErrors = Partial<Record<ListingValidationField, string>>;
 
 export type ListingValidationOptions = {
   mode?: SellListingMode;
+  /** Draft mode: false while typing. Publish mode: true on Publish click. */
+  showErrors?: boolean;
 };
 
 function hasValidPhotos(draft: SellListingDraft): boolean {
@@ -148,11 +149,16 @@ export function getListingValidationErrors(
 ): ListingValidationErrors {
   const errors: ListingValidationErrors = {};
   const mode = options?.mode ?? "advanced";
+  const showFieldErrors = options?.showErrors !== false;
 
   if (!hasValidPhotos(draft)) {
     errors.photos = draft.photos.some((photo) => photo.uploading)
       ? "Wait for photos to finish uploading."
       : "Add at least one photo.";
+  }
+
+  if (!showFieldErrors) {
+    return errors;
   }
 
   if (draft.title.trim().length < 3) {
@@ -182,10 +188,6 @@ export function getListingValidationErrors(
 
   if (!hasValidPrice(draft)) {
     errors.price = "Enter a price greater than zero.";
-  }
-
-  if (!draft.locationCity?.trim()) {
-    errors.location = "Choose your city.";
   }
 
   return errors;

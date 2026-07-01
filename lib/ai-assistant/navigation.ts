@@ -12,7 +12,7 @@ export const PLATFORM_NAVIGATION: NavigationTarget[] = [
   { label: "Orders", href: "/orders", description: "Buyer order history", keywords: ["orders", "purchases"] },
   { label: "Messages", href: "/messages", description: "Buyer and seller chat", keywords: ["messages", "chat"] },
   { label: "Sell", href: "/sell", description: "Create a new listing", keywords: ["sell", "listing", "publish"] },
-  { label: "Seller Dashboard", href: "/seller/dashboard", description: "Seller overview and stats", keywords: ["seller dashboard"] },
+  { label: "Seller Dashboard", href: "/seller", description: "Seller overview and stats", keywords: ["seller dashboard"] },
   { label: "Seller Wallet", href: "/seller/wallet", description: "Balance, withdrawals, and payouts", keywords: ["wallet", "withdraw", "payout"] },
   { label: "Business Center", href: "/business/center", description: "Business hub and verification", keywords: ["business center"] },
   { label: "Business Directory", href: "/business/directory", description: "Discover verified businesses", keywords: ["directory", "companies"] },

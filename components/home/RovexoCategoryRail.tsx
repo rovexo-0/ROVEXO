@@ -67,6 +67,7 @@ export function RovexoCategoryRail() {
               key={copyIndex}
               className="home-v1-category-track__set"
               aria-hidden={copyIndex > 0 ? true : undefined}
+              {...(copyIndex > 0 ? { inert: true } : {})}
             >
               {renderSet(copyIndex)}
             </div>

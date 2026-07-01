@@ -1,28 +1,9 @@
 /* ROVEXO Account Page — reference-matched presentation layer */
 
 .account-page {
-  --account-header-gradient: var(--ds-gradient-hero);
-  --account-card-radius: var(--ds-radius-xl);
-  --account-card-shadow: var(--ds-shadow-medium);
-  --account-card-shadow-hover: var(--ds-shadow-floating);
-  --account-grid-gap: var(--ds-space-3);
-  --account-section-gap: var(--ds-space-6);
-  --account-gutter: var(--ds-space-4);
-  --account-blue: var(--ds-color-primary);
-  --account-blue-soft: color-mix(in srgb, var(--ds-color-primary) 12%, transparent);
-  --account-text: var(--ds-color-text-primary);
-  --account-text-muted: var(--ds-color-text-secondary);
-  --account-text-subtle: var(--ds-color-text-muted);
-  --account-logout-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 48%, #b91c1c 100%);
-  --account-press-scale: 0.97;
-  --account-hover-lift: -2px;
-  --account-ease: var(--ds-ease);
-  --account-duration: var(--ds-duration-fast);
-
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   color: var(--account-text);
-  background: var(--ds-color-background);
-  background-image: var(--ds-gradient-page);
+  background: #ffffff;
   min-height: 100%;
 }
 

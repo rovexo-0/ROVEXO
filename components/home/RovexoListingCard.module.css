@@ -1,4 +1,5 @@
 .card {
+  position: relative;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -154,6 +155,8 @@
 
 .srOnly {
   position: absolute;
+  left: 0;
+  top: 0;
   width: 1px;
   height: 1px;
   padding: 0;

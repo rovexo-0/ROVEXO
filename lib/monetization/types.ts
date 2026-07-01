@@ -37,7 +37,7 @@ export const MONETIZATION_PRODUCTS: MonetizationProduct[] = [
     title: "Seller Pro",
     description: "Analytics, promotion discounts, and priority support",
     priceLabel: "£9.99/mo",
-    href: "/seller/dashboard",
+    href: "/seller",
   },
   {
     id: "business-plan",

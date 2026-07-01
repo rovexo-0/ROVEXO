@@ -1,11 +1,12 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { RovexoFooterNavigation, type BottomNavTab } from "@/components/home/RovexoFooterNavigation";
-import { RovexoMobileHeaderScrollProvider } from "@/components/home/RovexoMobileHeaderScrollContext";
 import { RealtimeNotificationProvider } from "@/features/notifications/components/RealtimeNotificationProvider";
 import type { PlatformVisualConfig } from "@/lib/platform-visual/types";
 import { resolvePublishedMenuItems } from "@/lib/platform-visual/resolver";
+import { isSellFlowRoute } from "@/lib/navigation/sell-flow-routes";
 import { cn } from "@/lib/cn";
 
 type BetaAppShellProps = {
@@ -25,10 +26,13 @@ export function BetaAppShell({
   initialUnreadCount = 0,
   visualConfig,
 }: BetaAppShellProps) {
+  const pathname = usePathname() ?? "";
+  const sellFlow = isSellFlowRoute(pathname);
   const bottomNavItems = visualConfig
     ? resolvePublishedMenuItems(visualConfig.menus, "bottomNav")
     : undefined;
   const bottomNavVisible =
+    !sellFlow &&
     showBottomNav &&
     (visualConfig?.shell.bottomNavigation
       ? visualConfig.shell.bottomNavigation.enabled && visualConfig.shell.bottomNavigation.published
@@ -36,14 +40,12 @@ export function BetaAppShell({
 
   return (
     <RealtimeNotificationProvider initialUnreadCount={initialUnreadCount}>
-      <RovexoMobileHeaderScrollProvider>
-        <div className={cn("rx-page min-h-screen bg-white text-[#111111]", className)}>
-          {children}
-          {bottomNavVisible ? (
-            <RovexoFooterNavigation active={bottomNavTab} menuItems={bottomNavItems} visible={bottomNavVisible} />
-          ) : null}
-        </div>
-      </RovexoMobileHeaderScrollProvider>
+      <div className={cn("rx-page min-h-screen bg-white text-[#111111]", sellFlow && "sell-flow-shell", className)}>
+        {children}
+        {bottomNavVisible ? (
+          <RovexoFooterNavigation active={bottomNavTab} menuItems={bottomNavItems} visible={bottomNavVisible} />
+        ) : null}
+      </div>
     </RealtimeNotificationProvider>
   );
 }

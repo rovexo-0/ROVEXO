@@ -2,14 +2,18 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { PageBack } from "@/components/navigation/PageBack";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { IconButton } from "@/components/ui/IconButton";
 import { StickyPageHeader } from "@/components/ui/StickyPageHeader";
 import { MigrationStepIndicator } from "@/features/seller/migration/components/MigrationStepIndicator";
+import { MigrationSourceFields } from "@/features/seller/migration/components/MigrationSourceFields";
 import { useMigrationWizard } from "@/features/seller/migration/hooks/use-migration-wizard";
+import { MIGRATION_PLATFORM_IDS } from "@/lib/seller/migration/constants";
+import type { MigrationPlatformId } from "@/lib/seller/migration/types";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 
@@ -53,21 +57,25 @@ const MigrationReportStep = dynamic(
   { loading: () => <StepSkeleton /> },
 );
 
-function BackIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-    </svg>
-  );
-}
-
 function StepSkeleton() {
   return <div className="h-48 animate-pulse rounded-ds-lg bg-surface" aria-hidden />;
 }
 
+function resolveInitialPlatform(searchParams: URLSearchParams): MigrationPlatformId | null {
+  const platform = searchParams.get("platform");
+  if (!platform) return null;
+  return (MIGRATION_PLATFORM_IDS as readonly string[]).includes(platform)
+    ? (platform as MigrationPlatformId)
+    : null;
+}
+
 export function MigrationCenterPage() {
-  const router = useRouter();
-  const wizard = useMigrationWizard();
+  const searchParams = useSearchParams();
+  const initialPlatform = useMemo(
+    () => resolveInitialPlatform(searchParams),
+    [searchParams],
+  );
+  const wizard = useMigrationWizard({ initialPlatform });
 
   const handlePrimary = async () => {
     if (wizard.step === 3) {
@@ -102,16 +110,10 @@ export function MigrationCenterPage() {
       <main className="mx-auto w-full max-w-2xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
         <StickyPageHeader>
           <div className="flex items-center gap-ds-2">
-            <IconButton
-              label="Back to seller dashboard"
-              onClick={() => router.push("/seller/dashboard")}
-              className={focusRing}
-            >
-              <BackIcon className="h-5 w-5" />
-            </IconButton>
+            <PageBack backHref="/account" backLabel="My Account" />
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-base font-semibold text-text-primary">Migration Center</h1>
-              <p className="truncate text-xs text-text-secondary">Bring your items to ROVEXO</p>
+              <h1 className="truncate text-base font-semibold text-text-primary">Bring Your Items</h1>
+              <p className="truncate text-xs text-text-secondary">Import listings from other marketplaces</p>
             </div>
           </div>
         </StickyPageHeader>
@@ -133,10 +135,17 @@ export function MigrationCenterPage() {
               />
             ) : null}
             {wizard.step === 2 ? (
-              <MigrationImportMethodStep
-                selected={wizard.importMethod}
-                onSelect={wizard.selectImportMethod}
-              />
+              <div className="flex flex-col gap-ds-4">
+                <MigrationImportMethodStep
+                  selected={wizard.importMethod}
+                  onSelect={wizard.selectImportMethod}
+                />
+                <MigrationSourceFields
+                  importMethod={wizard.importMethod}
+                  value={wizard.source}
+                  onChange={wizard.updateSource}
+                />
+              </div>
             ) : null}
             {wizard.step === 3 ? (
               <MigrationPreviewStep
@@ -175,7 +184,7 @@ export function MigrationCenterPage() {
             </div>
           ) : (
             <Link
-              href="/seller/dashboard"
+              href="/seller"
               className={cn(
                 "inline-flex min-h-11 items-center justify-center rounded-ds-md border border-border px-ds-4 text-sm font-medium text-text-primary",
                 focusRing,

@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/rovexo/index.css";
 import "./globals.css";
 import { SearchProvider } from "@/features/search/client";
-import Footer from "@/components/Footer";
+import { AppShellLayout } from "@/components/layout/AppShellLayout";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { VisitorPresenceBeacon } from "@/components/analytics/VisitorPresenceBeacon";
 import { PageVisibilityProvider } from "@/components/providers/PageVisibilityProvider";
@@ -83,18 +83,21 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="en-GB"
+      data-theme="light"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
     >
-      <body
-        suppressHydrationWarning
-        className="min-h-full flex flex-col bg-background text-text-primary"
-      >
+      <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
         />
+      </head>
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-background text-text-primary"
+      >
         <ThemeProvider>
           <PageVisibilityProvider>
           <LocaleProvider>
@@ -102,10 +105,7 @@ export default function RootLayout({
             <PushSubscriptionManager />
             <ToastProvider>
               <SearchProvider>
-                <div className="flex min-h-full flex-1 flex-col">
-                  {children}
-                  <Footer />
-                </div>
+                <AppShellLayout>{children}</AppShellLayout>
               </SearchProvider>
             </ToastProvider>
             </PwaProvider>

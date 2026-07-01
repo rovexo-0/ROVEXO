@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { PageBack } from "@/components/navigation/PageBack";
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
 import { HelpMobileNav } from "@/features/help/components/HelpMobileNav";
@@ -14,9 +15,7 @@ export function HelpFaqPage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-ds-6 px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
       <div>
-        <Link href="/help" className="text-sm font-medium text-primary hover:underline">
-          ← Help Centre
-        </Link>
+        <PageBack variant="text" backHref="/help" backLabel="Help Centre" className="mb-ds-3" />
         <h1 className="mt-ds-3 text-2xl font-bold text-text-primary">Frequently Asked Questions</h1>
         <p className="mt-ds-2 text-sm text-text-secondary">
           Answers from official articles and guided troubleshooting flows.

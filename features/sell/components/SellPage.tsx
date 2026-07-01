@@ -2,99 +2,76 @@
 
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { cn } from "@/lib/cn";
-import type { SellListingMode } from "@/lib/profile/account";
-import { usesQuickListingForm } from "@/lib/profile/account";
 import type { SellListingDraft } from "@/features/sell/types";
 import { getListingValidationErrors } from "@/features/sell/types";
 import { FieldError } from "@/features/sell/components/FieldError";
-import { SellListingForm, useSellPublishState } from "@/features/sell/components/SellListingForm";
-import { SellQuickListingForm } from "@/features/sell/components/SellQuickListingForm";
-import { SellPageHeader } from "@/features/sell/components/SellPageHeader";
-import { SellPhotoSection } from "@/features/sell/components/SellPhotoSection";
-import { HelpPageFooter } from "@/features/help/components/HelpPageFooter";
-import { SellPublishFooter } from "@/features/sell/components/SellPublishFooter";
+import { ListingForm } from "@/features/sell/components/ListingForm";
+import { OptionalCard } from "@/features/sell/components/OptionalCard";
+import { PhotoUploader } from "@/features/sell/components/PhotoUploader";
+import { StickyPublishButton } from "@/features/sell/components/StickyPublishButton";
 import { SellPublishedStep } from "@/features/sell/components/steps/SellPublishedStep";
-import { useSellForm } from "@/features/sell/hooks/use-sell-wizard";
+import { SellProvider, useSell } from "@/features/sell/context/SellProvider";
 
 type SellPageProps = {
-  listingMode?: SellListingMode;
   editListingId?: string;
   initialDraft?: SellListingDraft;
 };
 
-export function SellPage({
-  listingMode = "advanced",
-  editListingId,
-  initialDraft,
-}: SellPageProps) {
-  const quickMode = usesQuickListingForm(listingMode);
-  const form = useSellForm({ listingMode, editListingId, initialDraft });
-  const {
-    view,
-    formError,
-    isPublishing,
-    uploadProgress,
-    draftSavedMessage,
-    saveDraft,
-    publishListing,
-  } = form;
-  const isPublished = view === "published";
-  const canPublish = useSellPublishState(form, { mode: listingMode });
-
+export function SellPage({ editListingId, initialDraft }: SellPageProps) {
   return (
     <BetaAppShell showBottomNav={false} className="sell-page-v1">
-      {!isPublished && (
-        <SellPageHeader
-          onSaveDraft={saveDraft}
-          draftSavedMessage={draftSavedMessage}
-          editListingId={editListingId}
-          quickMode={quickMode}
-        />
-      )}
+      <SellProvider editListingId={editListingId} initialDraft={initialDraft}>
+        <SellPageInner />
+      </SellProvider>
+    </BetaAppShell>
+  );
+}
 
+function SellPageInner() {
+  const { view, formError } = useSell();
+  const isPublished = view === "published";
+
+  if (isPublished) {
+    return (
       <main
         className={cn(
           "mx-auto flex w-full max-w-2xl flex-col",
-          isPublished
-            ? "min-h-[100dvh] justify-center px-ds-4 py-ds-6 pb-[env(safe-area-inset-bottom)]"
-            : "gap-ds-5 px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]",
+          "min-h-[100dvh] justify-center px-ds-4 py-ds-6 pb-[env(safe-area-inset-bottom)]",
         )}
       >
-        {isPublished ? (
-          <SellPublishedStep form={form} />
-        ) : (
-          <>
-            <SellPhotoSection form={form} uploadProgress={uploadProgress} quickMode={quickMode} />
-            <FieldError message={getListingValidationErrors(form.draft, { mode: form.listingMode }).photos} />
+        <SellPublishedStep />
+      </main>
+    );
+  }
 
-            {quickMode ? (
-              <SellQuickListingForm form={form} />
-            ) : (
-              <SellListingForm form={form} />
-            )}
-          </>
-        )}
+  return (
+    <>
+      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]">
+        <PhotoUploader />
+        <PhotoValidationError />
+        <ListingForm />
+        <OptionalCard />
       </main>
 
-      {!isPublished && (
-        <>
-          {formError ? (
-            <div className="fixed inset-x-0 bottom-[calc(84px+env(safe-area-inset-bottom))] z-[109] px-ds-4">
-              <p className="mx-auto max-w-2xl rounded-ds-md border border-destructive/30 bg-destructive/10 px-ds-3 py-ds-2 text-sm text-destructive">
-                {formError}
-              </p>
-            </div>
-          ) : null}
-          <SellPublishFooter
-            disabled={!canPublish}
-            loading={isPublishing}
-            onPublish={() => void publishListing()}
-            editListingId={editListingId}
-            quickMode={quickMode}
-          />
-        </>
-      )}
-      <HelpPageFooter pathname="/sell" />
-    </BetaAppShell>
+      {formError ? (
+        <div className="fixed inset-x-0 bottom-[calc(84px+env(safe-area-inset-bottom))] z-[109] px-ds-4">
+          <p className="mx-auto max-w-2xl rounded-ds-md border border-destructive/30 bg-destructive/10 px-ds-3 py-ds-2 text-sm text-destructive">
+            {formError}
+          </p>
+        </div>
+      ) : null}
+
+      <StickyPublishButton />
+    </>
   );
+}
+
+function PhotoValidationError() {
+  const { draft } = useSell();
+  const photoError = getListingValidationErrors(draft, {
+    mode: "quick",
+    showErrors: false,
+  }).photos;
+
+  return <FieldError message={photoError} />;
 }

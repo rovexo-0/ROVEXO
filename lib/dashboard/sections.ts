@@ -32,7 +32,7 @@ export const BUYER_TOOLS_TILES: MobileTile[] = [
 
 export function getSellerDashboardTiles(): MobileTile[] {
   return [
-    tile("/seller/dashboard", "Seller Dashboard", "Performance & overview"),
+    tile("/seller", "Seller Dashboard", "Performance & overview"),
     tile("/seller/listings", "My Listings", "Manage inventory"),
     tile("/seller/orders", "Seller Orders", "Fulfillment & shipping", "orders"),
     tile("/seller/wallet", "Wallet", "Balance & withdrawals", "wallet-payout"),

@@ -28,6 +28,9 @@ export function useRovexoMobileHeaderScrollContext() {
   return useContext(RovexoMobileHeaderScrollContext);
 }
 
+/** @alias useRovexoMobileHeaderScrollContext */
+export const useAppChromeScroll = useRovexoMobileHeaderScrollContext;
+
 function getScrollY() {
   return window.scrollY || document.documentElement.scrollTop || 0;
 }
@@ -113,6 +116,14 @@ export function RovexoMobileHeaderScrollProvider({ children }: { children: React
   );
 
   return (
-    <RovexoMobileHeaderScrollContext.Provider value={contextValue}>{children}</RovexoMobileHeaderScrollContext.Provider>
+    <RovexoMobileHeaderScrollContext.Provider value={contextValue}>
+      <div
+        aria-hidden
+        suppressHydrationWarning
+        className="rovexo-chrome-spacer overflow-hidden lg:hidden"
+        style={{ height: headerHeight > 0 ? headerHeight : undefined }}
+      />
+      {children}
+    </RovexoMobileHeaderScrollContext.Provider>
   );
 }

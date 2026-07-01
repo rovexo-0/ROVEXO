@@ -41,10 +41,16 @@ describe("Homepage enterprise migration contract", () => {
     expect(allListingsIndex).toBeGreaterThan(businessesIndex);
   });
 
-  it("wires scroll-hide chrome through BetaAppShell", () => {
-    const shell = readSource("components/beta/BetaAppShell.tsx");
+  it("wires scroll-hide chrome through the root app shell", () => {
+    const layout = readSource("app/layout.tsx");
+    const appShell = readSource("components/layout/AppShellLayout.tsx");
+    const scrollProvider = readSource("components/layout/AppChromeScrollProvider.tsx");
+    const betaShell = readSource("components/beta/BetaAppShell.tsx");
 
-    expect(shell).toContain("RovexoMobileHeaderScrollProvider");
-    expect(shell).toContain("RovexoFooterNavigation");
+    expect(layout).toContain("AppShellLayout");
+    expect(appShell).toContain("AppChromeScrollProvider");
+    expect(scrollProvider).toContain("RovexoMobileHeaderScrollProvider");
+    expect(betaShell).toContain("RovexoFooterNavigation");
+    expect(betaShell).not.toContain("RovexoMobileHeaderScrollProvider");
   });
 });

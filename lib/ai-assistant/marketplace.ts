@@ -38,7 +38,7 @@ const PERSONA_SUGGESTIONS: Record<AssistantPersona, Array<{ label: string; href:
   ],
   seller: [
     { label: "Withdraw help", href: "/help/category/withdraw" },
-    { label: "Seller dashboard", href: "/seller/dashboard" },
+    { label: "Seller dashboard", href: "/seller" },
     { label: "Promote listings", href: "/seller/listings" },
   ],
   business: [

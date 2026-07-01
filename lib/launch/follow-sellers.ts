@@ -18,7 +18,7 @@ async function notifyNewFollower(sellerId: string, followerId: string): Promise<
       type: "follower",
       title: "New follower",
       subtitle: `${name} started following your shop`,
-      href: follower?.username ? `/user/${follower.username}` : "/seller/dashboard",
+      href: follower?.username ? `/user/${follower.username}` : "/seller",
     });
   } catch {
     // Non-blocking

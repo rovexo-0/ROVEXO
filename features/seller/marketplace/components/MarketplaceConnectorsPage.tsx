@@ -80,7 +80,7 @@ export function MarketplaceConnectorsPage() {
           <div className="flex items-center gap-ds-2">
             <IconButton
               label="Back to seller dashboard"
-              onClick={() => router.push("/seller/dashboard")}
+              onClick={() => router.push("/seller")}
               className={focusRing}
             >
               <BackIcon className="h-5 w-5" />

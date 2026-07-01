@@ -17,7 +17,13 @@ export const DELIVERY_OPTIONS: DeliveryOption[] = [
 
 export const CHECKOUT_CARRIERS = allCarrierNames();
 
-export function getDeliveryPrice(optionId: DeliveryOptionId): number {
+export function getDeliveryPrice(
+  optionId: DeliveryOptionId,
+  options?: { listingOffersFreeDelivery?: boolean },
+): number {
+  if (options?.listingOffersFreeDelivery) {
+    return 0;
+  }
   return DELIVERY_OPTIONS.find((option) => option.id === optionId)?.price ?? 4.99;
 }
 

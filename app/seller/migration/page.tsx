@@ -14,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function SellerMigrationRoute() {
   if (!isStoreMigrationEnabled()) {
-    redirect("/seller/dashboard");
+    redirect("/seller");
   }
 
   const profile = await getProfile();

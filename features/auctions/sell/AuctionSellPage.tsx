@@ -7,11 +7,9 @@ import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Button } from "@/components/ui/Button";
 import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicker";
 import { FieldError } from "@/features/sell/components/FieldError";
+import { PhotoUploader } from "@/features/sell/components/PhotoUploader";
 import { PublishedCheckmark } from "@/features/sell/components/PublishedCheckmark";
-import { SellPageHeader } from "@/features/sell/components/SellPageHeader";
-import { SellPhotoSection } from "@/features/sell/components/SellPhotoSection";
-import { SellPublishFooter } from "@/features/sell/components/SellPublishFooter";
-import { useSellForm } from "@/features/sell/hooks/use-sell-wizard";
+import { SellProvider, useSell } from "@/features/sell/context/SellProvider";
 import { createEmptyDraft, SELL_CONDITIONS } from "@/features/sell/types";
 import { AUCTION_DURATIONS } from "@/lib/auctions/constants";
 import { auctionEndsAtFromDays } from "@/lib/auctions/utils";
@@ -29,13 +27,25 @@ const fieldClassName =
   "min-h-ds-7 w-full rounded-ds-sm border border-border bg-surface px-ds-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-ring";
 
 export function AuctionSellPage() {
-  const router = useRouter();
   const initialDraft = useMemo(
-    () => ({ ...createEmptyDraft(), listingType: "auction" as const, shippingMethod: "delivery_available" as const }),
+    () => ({
+      ...createEmptyDraft(),
+      listingType: "auction" as const,
+      shippingMethod: "delivery_available" as const,
+    }),
     [],
   );
-  const form = useSellForm({ initialDraft });
-  const { draft, updateDraft, setCategoryPath } = form;
+
+  return (
+    <SellProvider initialDraft={initialDraft}>
+      <AuctionSellPageContent />
+    </SellProvider>
+  );
+}
+
+function AuctionSellPageContent() {
+  const router = useRouter();
+  const { draft, updateDraft, setCategoryPath } = useSell();
   const [durationDays, setDurationDays] = useState("7");
   const [startingBid, setStartingBid] = useState("");
   const [reservePrice, setReservePrice] = useState("");
@@ -163,8 +173,6 @@ export function AuctionSellPage() {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <SellPageHeader onSaveDraft={form.saveDraft} draftSavedMessage={form.draftSavedMessage} />
-
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]">
         <header>
           <h1 className="text-xl font-bold text-text-primary">Start Auction</h1>
@@ -187,24 +195,21 @@ export function AuctionSellPage() {
           </section>
         ) : (
           <>
-            <SellPhotoSection form={form} uploadProgress={form.uploadProgress} />
+            <PhotoUploader />
 
             <section className="rx-form-section overflow-hidden rounded-ds-xl">
               <div className="flex flex-col gap-ds-2 px-ds-4 py-ds-3">
-                <label htmlFor="auction-title" className="text-sm font-medium">
-                  Title
-                </label>
                 <input
                   id="auction-title"
                   className={cn(fieldClassName, focusRing)}
                   value={draft.title}
                   onChange={(event) => updateDraft({ title: event.target.value })}
                   placeholder="What are you auctioning?"
+                  aria-label="Auction title"
                 />
               </div>
 
               <div className="border-t border-border px-ds-4 py-ds-3">
-                <p className="mb-ds-2 text-sm font-medium">Category</p>
                 <CategoryTreePicker
                   value={draft.categoryPath?.pathLabel ?? null}
                   onChange={setCategoryPath}
@@ -212,22 +217,19 @@ export function AuctionSellPage() {
               </div>
 
               <div className="border-t border-border px-ds-4 py-ds-3">
-                <label htmlFor="auction-description" className="text-sm font-medium">
-                  Description
-                </label>
                 <textarea
                   id="auction-description"
                   rows={4}
-                  className={cn(fieldClassName, "mt-ds-2 min-h-[6rem] resize-y", focusRing)}
+                  className={cn(fieldClassName, "min-h-[6rem] resize-y", focusRing)}
                   value={draft.description}
                   onChange={(event) => updateDraft({ description: event.target.value })}
                   placeholder="Describe condition, inclusions, and shipping details"
+                  aria-label="Auction description"
                 />
               </div>
 
               <div className="border-t border-border px-ds-4 py-ds-3">
-                <p className="text-sm font-medium">Condition</p>
-                <div className="mt-ds-2 flex flex-wrap gap-ds-2">
+                <div className="flex flex-wrap gap-ds-2" role="group" aria-label="Condition">
                   {SELL_CONDITIONS.map((condition) => (
                     <button
                       key={condition}
@@ -248,70 +250,56 @@ export function AuctionSellPage() {
               </div>
 
               <div className="grid gap-ds-3 border-t border-border px-ds-4 py-ds-3 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="starting-bid" className="text-sm font-medium">
-                    Starting Bid (£)
-                  </label>
-                  <input
-                    id="starting-bid"
-                    type="number"
-                    min={1}
-                    step="0.01"
-                    className={cn(fieldClassName, "mt-ds-2", focusRing)}
-                    value={startingBid}
-                    onChange={(event) => setStartingBid(event.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="reserve-price" className="text-sm font-medium">
-                    Reserve Price (optional)
-                  </label>
-                  <input
-                    id="reserve-price"
-                    type="number"
-                    min={1}
-                    step="0.01"
-                    className={cn(fieldClassName, "mt-ds-2", focusRing)}
-                    value={reservePrice}
-                    onChange={(event) => setReservePrice(event.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="buy-now" className="text-sm font-medium">
-                    Buy It Now (optional)
-                  </label>
-                  <input
-                    id="buy-now"
-                    type="number"
-                    min={1}
-                    step="0.01"
-                    className={cn(fieldClassName, "mt-ds-2", focusRing)}
-                    value={buyNowPrice}
-                    onChange={(event) => setBuyNowPrice(event.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="duration" className="text-sm font-medium">
-                    Duration
-                  </label>
-                  <select
-                    id="duration"
-                    className={cn(fieldClassName, "mt-ds-2", focusRing)}
-                    value={durationDays}
-                    onChange={(event) => setDurationDays(event.target.value)}
-                  >
-                    {AUCTION_DURATIONS.map((option) => (
-                      <option key={option.id} value={option.days}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <input
+                  id="starting-bid"
+                  type="number"
+                  min={1}
+                  step="0.01"
+                  className={cn(fieldClassName, focusRing)}
+                  value={startingBid}
+                  onChange={(event) => setStartingBid(event.target.value)}
+                  placeholder="Starting bid"
+                  aria-label="Starting bid"
+                />
+                <input
+                  id="reserve-price"
+                  type="number"
+                  min={1}
+                  step="0.01"
+                  className={cn(fieldClassName, focusRing)}
+                  value={reservePrice}
+                  onChange={(event) => setReservePrice(event.target.value)}
+                  placeholder="Reserve price (optional)"
+                  aria-label="Reserve price"
+                />
+                <input
+                  id="buy-now"
+                  type="number"
+                  min={1}
+                  step="0.01"
+                  className={cn(fieldClassName, focusRing)}
+                  value={buyNowPrice}
+                  onChange={(event) => setBuyNowPrice(event.target.value)}
+                  placeholder="Buy it now (optional)"
+                  aria-label="Buy it now price"
+                />
+                <select
+                  id="duration"
+                  className={cn(fieldClassName, focusRing)}
+                  value={durationDays}
+                  onChange={(event) => setDurationDays(event.target.value)}
+                  aria-label="Auction duration"
+                >
+                  {AUCTION_DURATIONS.map((option) => (
+                    <option key={option.id} value={option.days}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="border-t border-border px-ds-4 py-ds-3">
-                <p className="text-sm font-medium">Shipping</p>
-                <div className="mt-ds-2 grid gap-ds-2 sm:grid-cols-2">
+                <div className="grid gap-ds-2 sm:grid-cols-2" role="radiogroup" aria-label="Shipping">
                   {UK_SHIPPING.map((option) => (
                     <button
                       key={option.id}
@@ -337,11 +325,20 @@ export function AuctionSellPage() {
         <FieldError message={publishError ?? undefined} />
       </main>
 
-      <SellPublishFooter
-        disabled={!canPublish}
-        loading={isPublishing}
-        onPublish={previewMode ? () => void publishAuction() : () => setPreviewMode(true)}
-      />
+      <div className="rx-footer-bar fixed inset-x-0 bottom-0 z-[110]">
+        <div className="mx-auto max-w-2xl px-ds-4 py-ds-3 pb-[max(env(safe-area-inset-bottom),var(--ds-space-3))]">
+          <Button
+            variant="primary"
+            fullWidth
+            size="lg"
+            className="min-h-ds-7 rounded-ds-lg text-base"
+            disabled={!canPublish || isPublishing}
+            onClick={previewMode ? () => void publishAuction() : () => setPreviewMode(true)}
+          >
+            {isPublishing ? "Publishing…" : previewMode ? "Start Auction" : "Preview Auction"}
+          </Button>
+        </div>
+      </div>
     </BetaAppShell>
   );
 }

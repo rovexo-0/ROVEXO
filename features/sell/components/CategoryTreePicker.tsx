@@ -15,13 +15,14 @@ type CategoryTreePickerProps = {
   value: string | null;
   onChange: (path: FlatCategoryPath) => void;
   className?: string;
+  hideLabels?: boolean;
 };
 
 function nodesToSegments(nodes: CategoryNode[]): CategorySegment[] {
   return nodes.map((node) => ({ id: node.id, name: node.name, slug: node.slug }));
 }
 
-export function CategoryTreePicker({ onChange, className }: CategoryTreePickerProps) {
+export function CategoryTreePicker({ onChange, className, hideLabels = false }: CategoryTreePickerProps) {
   const tree = useMemo(() => getCategoryTree(), []);
   const [selectedPath, setSelectedPath] = useState<CategoryNode[]>([]);
 
@@ -52,9 +53,11 @@ export function CategoryTreePicker({ onChange, className }: CategoryTreePickerPr
     <div className={cn("flex flex-col gap-ds-4", className)}>
       {levels.map((level, levelIndex) => (
         <div key={`${level.label}-${levelIndex}`}>
-          <p className="mb-ds-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
-            {levelIndex === 0 ? level.label : levelIndex === 1 ? "Subcategory" : "Refine"}
-          </p>
+          {hideLabels ? null : (
+            <p className="mb-ds-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+              {levelIndex === 0 ? level.label : levelIndex === 1 ? "Subcategory" : "Refine"}
+            </p>
+          )}
           <div className="flex flex-wrap gap-ds-2">
             {level.nodes.map((node) => (
               <CategoryChip

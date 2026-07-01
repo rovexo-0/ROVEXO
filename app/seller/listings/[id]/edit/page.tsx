@@ -3,7 +3,6 @@ import { SellPage } from "@/features/sell/components/SellPage";
 import { requireAuthContext } from "@/lib/auth/session";
 import { sellerListingToDraft } from "@/lib/listings/draft-mapper";
 import { getSellerListingById } from "@/lib/listings/repository";
-import { getSellListingMode } from "@/lib/profile/account";
 import { getProfile } from "@/lib/profile/data";
 
 type EditListingRouteProps = {
@@ -24,12 +23,10 @@ export default async function EditListingRoute({ params }: EditListingRouteProps
     notFound();
   }
 
-  const listingMode = getSellListingMode(profile.accountType);
   const initialDraft = await sellerListingToDraft(listing);
 
   return (
     <SellPage
-      listingMode={listingMode}
       editListingId={listing.id}
       initialDraft={initialDraft}
     />

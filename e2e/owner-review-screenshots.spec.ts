@@ -16,7 +16,7 @@ const PAGES = [
   { name: "resolution", path: "/resolution" },
   { name: "notifications", path: "/notifications" },
   { name: "account", path: "/account" },
-  { name: "seller-dashboard", path: "/seller/dashboard" },
+  { name: "seller-dashboard", path: "/seller" },
   { name: "admin", path: "/admin" },
   { name: "super-admin", path: "/super-admin" },
   { name: "auctions", path: "/auctions" },

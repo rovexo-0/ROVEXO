@@ -11,11 +11,16 @@ import type {
   MigrationPreviewItem,
   MigrationWizardStep,
 } from "@/lib/seller/migration/types";
+import {
+  buildMigrationInputPayload,
+  type MigrationSourceInput,
+} from "@/features/seller/migration/components/MigrationSourceFields";
 
 type MigrationWizardState = {
   step: MigrationWizardStep;
   platform: MigrationPlatformId | null;
   importMethod: MigrationImportMethodId | null;
+  source: MigrationSourceInput;
   jobId: string | null;
   job: MigrationJob | null;
   previewItems: MigrationPreviewItem[];
@@ -24,11 +29,23 @@ type MigrationWizardState = {
   error: string | null;
 };
 
-export function useMigrationWizard() {
+const EMPTY_SOURCE: MigrationSourceInput = {
+  storeUrl: "",
+  sourceUrls: "",
+  fileName: null,
+  fileContent: null,
+};
+
+type UseMigrationWizardOptions = {
+  initialPlatform?: MigrationPlatformId | null;
+};
+
+export function useMigrationWizard(options: UseMigrationWizardOptions = {}) {
   const [state, setState] = useState<MigrationWizardState>({
     step: 1,
-    platform: null,
+    platform: options.initialPlatform ?? null,
     importMethod: null,
+    source: EMPTY_SOURCE,
     jobId: null,
     job: null,
     previewItems: [],
@@ -73,7 +90,11 @@ export function useMigrationWizard() {
   }, []);
 
   const selectImportMethod = useCallback((importMethod: MigrationImportMethodId) => {
-    setState((current) => ({ ...current, importMethod, error: null }));
+    setState((current) => ({ ...current, importMethod, source: EMPTY_SOURCE, error: null }));
+  }, []);
+
+  const updateSource = useCallback((patch: Partial<MigrationSourceInput>) => {
+    setState((current) => ({ ...current, source: { ...current.source, ...patch }, error: null }));
   }, []);
 
   const goToStep = useCallback((step: MigrationWizardStep) => {
@@ -118,6 +139,7 @@ export function useMigrationWizard() {
         body: JSON.stringify({
           platform: state.platform,
           importMethod: state.importMethod,
+          input: buildMigrationInputPayload(state.importMethod, state.source),
         }),
       });
 
@@ -141,7 +163,7 @@ export function useMigrationWizard() {
         error: error instanceof Error ? error.message : "Unable to prepare migration.",
       }));
     }
-  }, [state.platform, state.importMethod]);
+  }, [state.platform, state.importMethod, state.source]);
 
   const startMigration = useCallback(async () => {
     if (!state.jobId) return;
@@ -182,6 +204,7 @@ export function useMigrationWizard() {
       step: 1,
       platform: null,
       importMethod: null,
+      source: EMPTY_SOURCE,
       jobId: null,
       job: null,
       previewItems: [],
@@ -200,6 +223,7 @@ export function useMigrationWizard() {
     methodLabel,
     selectPlatform,
     selectImportMethod,
+    updateSource,
     goToStep,
     goNext,
     goBack,

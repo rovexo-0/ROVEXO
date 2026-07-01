@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getDeliveryCarrier, type DeliveryOptionId } from "@/lib/checkout/delivery";
+import { getDeliveryCarrier, getDeliveryPrice, type DeliveryOptionId } from "@/lib/checkout/delivery";
 import { isPurchasable, releaseProductInventory, reserveProductInventory } from "@/lib/inventory/service";
 import { notifyOrderPaid, notifyOrderCancelled } from "@/lib/orders/notifications";
 import { onOrderCancelled } from "@/lib/trust/events";
@@ -42,7 +42,7 @@ export async function createOrderCheckoutSession(
   const { data: product } = await admin
     .from("products")
     .select(
-      "id, slug, title, price, condition, stock, status, seller_id, product_images(url, is_primary, sort_order)",
+      "id, slug, title, price, condition, stock, status, seller_id, shipping_price, product_images(url, is_primary, sort_order)",
     )
     .eq("slug", input.productSlug)
     .maybeSingle();
@@ -75,8 +75,8 @@ export async function createOrderCheckoutSession(
   }
 
   const deliveryCarrier = getDeliveryCarrier(input.deliveryOption);
-  const deliveryPrice =
-    input.deliveryOption === "express" ? 9.99 : 4.99;
+  const listingOffersFreeDelivery = product.shipping_price === 0;
+  const deliveryPrice = getDeliveryPrice(input.deliveryOption, { listingOffersFreeDelivery });
   const totals = calculateOrderTotals(Number(product.price), deliveryPrice);
   const { platformFee, sellerAmount } = calculateSellerNetAmount(totals.itemPrice);
   const reservedUntil = new Date(Date.now() + RESERVATION_MINUTES * 60 * 1000).toISOString();
@@ -166,41 +166,53 @@ export async function createOrderCheckoutSession(
     .eq("id", input.buyerId)
     .maybeSingle();
 
+  const lineItems: Array<{
+    quantity: number;
+    price_data: {
+      currency: string;
+      unit_amount: number;
+      product_data: { name: string; description?: string };
+    };
+  }> = [
+    {
+      quantity: 1,
+      price_data: {
+        currency: "gbp",
+        unit_amount: Math.round(totals.itemPrice * 100),
+        product_data: {
+          name: product.title,
+          description: product.condition,
+        },
+      },
+    },
+    {
+      quantity: 1,
+      price_data: {
+        currency: "gbp",
+        unit_amount: Math.round(totals.protectedFee * 100),
+        product_data: { name: "Buyer Protection" },
+      },
+    },
+  ];
+
+  if (totals.delivery > 0) {
+    lineItems.push({
+      quantity: 1,
+      price_data: {
+        currency: "gbp",
+        unit_amount: Math.round(totals.delivery * 100),
+        product_data: { name: `${deliveryCarrier} delivery` },
+      },
+    });
+  }
+
   // Platform collects the full payment; seller payouts run after delivery + hold via Connect transfers.
   const session = await stripe.checkout.sessions.create(
     {
       mode: "payment",
       payment_method_types: ["card"],
       customer_email: buyerProfile?.email ?? undefined,
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: "gbp",
-            unit_amount: Math.round(totals.itemPrice * 100),
-            product_data: {
-              name: product.title,
-              description: product.condition,
-            },
-          },
-        },
-        {
-          quantity: 1,
-          price_data: {
-            currency: "gbp",
-            unit_amount: Math.round(totals.protectedFee * 100),
-            product_data: { name: "Buyer Protection" },
-          },
-        },
-        {
-          quantity: 1,
-          price_data: {
-            currency: "gbp",
-            unit_amount: Math.round(totals.delivery * 100),
-            product_data: { name: `${deliveryCarrier} delivery` },
-          },
-        },
-      ],
+      line_items: lineItems,
       metadata: {
         checkoutType: "order",
         orderId: orderRow.id,

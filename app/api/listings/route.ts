@@ -6,54 +6,15 @@ import {
   createSellerListing,
   getSellerListings,
 } from "@/lib/listings/repository";
+import { revalidatePublishedListing } from "@/lib/listings/revalidate-published-listing";
+import {
+  createListingSchema,
+  formatListingApiValidationError,
+} from "@/lib/sell/listing-api-schema";
 import type { ListingFilter } from "@/lib/listings/types";
 import { clampInventory, isInventoryValid } from "@/lib/sell/inventory";
-import { sanitizeListingLocationCity } from "@/lib/sell/listing-location";
 
-const imageSchema = z.object({
-  url: z.string().url(),
-  thumbnailUrl: z.string().url().optional(),
-  storagePath: z.string().min(1),
-  sortOrder: z.number().int().nonnegative(),
-  isPrimary: z.boolean(),
-});
-
-const listingSchema = z.object({
-  title: z.string().min(3),
-  description: z.string().min(10),
-  brand: z.string().optional(),
-  color: z.string().optional(),
-  size: z.string().optional(),
-  condition: z.string().min(1),
-  price: z.number().positive(),
-  locationCity: z.string().min(1).max(80).optional(),
-  acceptOffers: z.boolean(),
-  deliveryCarriers: z.array(z.string()).optional(),
-  status: z.enum(["draft", "published"]).optional(),
-  categoryPath: z
-    .object({
-      categorySlug: z.string(),
-      subcategorySlug: z.string(),
-      childCategorySlug: z.string().optional(),
-      categorySlugs: z.array(z.string()).optional(),
-    })
-    .nullable(),
-  inventory: z
-    .object({
-      sku: z.string().optional(),
-      stock: z.number().int().nonnegative(),
-      lowStockAlert: z.number().int().nonnegative(),
-    })
-    .optional(),
-  images: z.array(imageSchema).min(1).max(8),
-  listingType: z.enum(["fixed", "auction"]).optional(),
-  auctionStartPrice: z.number().positive().optional(),
-  reservePrice: z.number().positive().optional().nullable(),
-  auctionEndsAt: z.string().datetime().optional().nullable(),
-});
-
-const FILTERS: ListingFilter[] = [
-  "all",
+const FILTERS: ListingFilter[] = [  "all",
   "draft",
   "paused",
   "sold",
@@ -87,7 +48,7 @@ export async function POST(request: Request) {
   if (roleCheck instanceof NextResponse) return roleCheck;
 
   try {
-    const body = listingSchema.parse(await request.json());
+    const body = createListingSchema.parse(await request.json());
 
     if (!body.categoryPath) {
       return NextResponse.json({ error: "Category is required." }, { status: 400 });
@@ -119,13 +80,15 @@ export async function POST(request: Request) {
       sellerId: auth.user.id,
       title: body.title,
       description: body.description,
-      locationCity: sanitizeListingLocationCity(body.locationCity),
       brand: body.brand,
       color: body.color,
       size: body.size,
       condition: body.condition,
       price: body.price,
       acceptOffers: body.acceptOffers,
+      freeDelivery: body.freeDelivery,
+      shippingMethod: body.shippingMethod,
+      shippingPrice: body.shippingPrice,
       categoryId,
       deliveryCarriers: body.deliveryCarriers,
       status: body.status ?? "published",
@@ -147,11 +110,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unable to publish listing." }, { status: 500 });
     }
 
+    revalidatePublishedListing(listing.slug);
+
     return NextResponse.json({ listing });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.issues[0]?.message ?? "Invalid listing." },
+        { error: formatListingApiValidationError(error) },
         { status: 400 },
       );
     }

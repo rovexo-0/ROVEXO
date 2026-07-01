@@ -62,7 +62,7 @@ export function getBuyHubTiles(): MobileTile[] {
 /** ROVEXO v1.0 — Sell Hub (design system locked). */
 export function getSellHubTiles(profile: UserProfile): MobileTile[] {
   return [
-    tile("/seller/dashboard", "Seller Dashboard", profile.isSeller ? "Performance & overview" : "Preview seller tools"),
+    tile("/seller", "Seller Dashboard", profile.isSeller ? "Performance & overview" : "Preview seller tools"),
     tile("/seller/listings", "My Listings", "Manage inventory"),
     tile("/seller/orders", "Seller Orders", "Fulfillment & shipping", "orders"),
     tile("/seller/wallet", "Wallet", "Balance & withdrawals", "wallet-payout"),

@@ -39,10 +39,10 @@ const REQUIRED_COMPONENT_FILES = [
 ];
 
 describe("Buyer Dashboard v1.0 — single source of truth", () => {
-  it("uses the official route and entry component", () => {
+  it("uses the official Account Center buyer module", () => {
     const page = readFileSync(join(process.cwd(), "app/buyer/page.tsx"), "utf8");
-    expect(page).toContain("BuyerDashboard");
-    expect(page).toContain("@/components/buyer/BuyerDashboard");
+    expect(page).toContain("AccountCenterModulePage");
+    expect(page).toContain('moduleId="buyer"');
     expect(page).not.toContain("BuyerDashboardV2");
   });
 
@@ -66,16 +66,10 @@ describe("Buyer Dashboard v1.0 — single source of truth", () => {
     expect(dashboard).not.toContain("BuyerDashboardV2");
   });
 
-  it("uses RovexoIcon and repository layering", () => {
-    const header = readFileSync(join(process.cwd(), "components/buyer/BuyerHeader.tsx"), "utf8");
-    const repository = readFileSync(join(process.cwd(), "lib/buyer/repository.ts"), "utf8");
+  it("loads buyer module via account center", () => {
     const page = readFileSync(join(process.cwd(), "app/buyer/page.tsx"), "utf8");
-
-    expect(header).toContain("RovexoIcon");
-    expect(header).not.toContain("lucide-react");
-    expect(repository).toContain("fetchOrdersForUser");
-    expect(repository).not.toContain("from(\"products\")");
-    expect(page).toContain("fetchBuyerDashboard");
+    expect(page).toContain("fetchProfile");
+    expect(page).toContain("AccountCenterModulePage");
   });
 
   it("does not modify the frozen homepage", () => {

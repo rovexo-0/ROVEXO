@@ -1,19 +1,14 @@
-import { IconButton } from "@/components/ui/IconButton";
+"use client";
+
+import { PageBack } from "@/components/navigation/PageBack";
 import { cn } from "@/lib/cn";
 
 type CheckoutPageHeaderProps = {
   backHref: string;
+  backLabel?: string;
 };
 
-function BackIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-    </svg>
-  );
-}
-
-export function CheckoutPageHeader({ backHref }: CheckoutPageHeaderProps) {
+export function CheckoutPageHeader({ backHref, backLabel = "Listing" }: CheckoutPageHeaderProps) {
   return (
     <header className="rx-page-header sticky top-0 z-50">
       <div
@@ -22,9 +17,12 @@ export function CheckoutPageHeader({ backHref }: CheckoutPageHeaderProps) {
           "pt-[max(env(safe-area-inset-top),var(--ds-space-3))] pb-ds-3",
         )}
       >
-        <IconButton href={backHref} label="Go back" variant="ghost" size="md" className="justify-self-start">
-          <BackIcon className="h-5 w-5" />
-        </IconButton>
+        <PageBack
+          backHref={backHref}
+          backLabel={backLabel}
+          preferHistory
+          className="justify-self-start"
+        />
 
         <h1 className="truncate text-center text-lg font-semibold text-text-primary">Checkout</h1>
 

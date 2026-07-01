@@ -78,13 +78,6 @@
   transform: translateY(calc(-1 * var(--ds-bottom-nav-sell-float, 12px))) scale(0.97);
 }
 
-.rx-footer {
-  border-top: 1px solid var(--ds-color-border);
-  background: var(--ds-glass-bg);
-  box-shadow: var(--ds-shadow-soft);
-  backdrop-filter: blur(var(--ds-glass-blur)) saturate(160%);
-}
-
 .rx-hero {
   position: relative;
   overflow: hidden;

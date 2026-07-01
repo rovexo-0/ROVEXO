@@ -17,7 +17,7 @@ export default async function SellerOrdersRoute() {
       orders={orders}
       userId={profile.id}
       listRole="seller"
-      backHref="/seller/dashboard"
+      backHref="/seller"
       showBottomNav={false}
     />
   );

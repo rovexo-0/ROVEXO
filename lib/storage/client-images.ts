@@ -1,4 +1,5 @@
 import imageCompression from "browser-image-compression";
+import { normalizeImageFile } from "@/lib/storage/normalize-image-file";
 
 const COMPRESSION_OPTIONS = {
   maxSizeMB: 1.5,
@@ -14,20 +15,27 @@ const THUMBNAIL_OPTIONS = {
   fileType: "image/jpeg" as const,
 };
 
+async function compressWithFallback(file: File, options: typeof COMPRESSION_OPTIONS): Promise<File> {
+  try {
+    return await imageCompression(file, options);
+  } catch {
+    return imageCompression(file, { ...options, useWebWorker: false });
+  }
+}
+
 export async function compressListingImage(file: File): Promise<File> {
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Only image files are supported.");
+  const normalized = await normalizeImageFile(file);
+
+  if (normalized.size <= 500_000 && normalized.type === "image/jpeg") {
+    return normalized;
   }
 
-  if (file.size <= 500_000 && file.type === "image/jpeg") {
-    return file;
-  }
-
-  return imageCompression(file, COMPRESSION_OPTIONS);
+  return compressWithFallback(normalized, COMPRESSION_OPTIONS);
 }
 
 export async function createListingThumbnail(file: File): Promise<File> {
-  return imageCompression(file, THUMBNAIL_OPTIONS);
+  const normalized = await normalizeImageFile(file);
+  return compressWithFallback(normalized, THUMBNAIL_OPTIONS);
 }
 
 export const ALLOWED_IMAGE_TYPES = [
@@ -40,7 +48,11 @@ export const ALLOWED_IMAGE_TYPES = [
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 export function validateClientImage(file: File): void {
-  if (!file.type.startsWith("image/")) {
+  const type = file.type.toLowerCase();
+  const hasImageType = type.startsWith("image/");
+  const hasKnownExtension = /\.(jpe?g|png|webp|heic|heif|gif)$/i.test(file.name);
+
+  if (!hasImageType && !hasKnownExtension) {
     throw new Error("Only image files are supported.");
   }
   if (file.size > MAX_IMAGE_BYTES) {

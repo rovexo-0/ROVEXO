@@ -38,6 +38,9 @@ export type SellerListing = {
   acceptOffers: boolean;
   status: ProductStatus;
   stock: number;
+  shippingMethod: import("@/lib/shipping/carriers").ShippingMethod | null;
+  shippingPrice: number | null;
+  freeDelivery: boolean;
   sku: string | null;
   lowStockAlert: number;
   views: number;
@@ -71,6 +74,9 @@ export type CreateListingInput = {
   condition: string;
   price: number;
   acceptOffers: boolean;
+  freeDelivery?: boolean;
+  shippingMethod?: import("@/lib/shipping/carriers").ShippingMethod;
+  shippingPrice?: number | null;
   categoryId?: string | null;
   deliveryCarriers?: string[];
   status?: ProductStatus;

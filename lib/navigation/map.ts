@@ -21,7 +21,7 @@ export const BUYER_NAV: NavLink[] = [
 ];
 
 export const SELLER_NAV: NavLink[] = [
-  { href: "/seller/dashboard", label: "Seller Dashboard", subtitle: "Performance & overview" },
+  { href: "/seller", label: "Seller Dashboard", subtitle: "Performance & overview" },
   { href: "/seller/listings", label: "My Listings", subtitle: "Manage inventory" },
   { href: "/seller/review-center", label: "Review Center", subtitle: "Listings under moderation" },
   { href: "/seller/orders", label: "Seller Orders", subtitle: "Fulfillment & shipping" },
@@ -147,7 +147,7 @@ export const ALL_PUBLIC_ROUTES = [
   "/import-wizard",
   "/seller/migration",
   "/seller/connectors",
-  "/seller/dashboard",
+  "/seller",
   "/business/dashboard",
   "/admin",
   "/super-admin",

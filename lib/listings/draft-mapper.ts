@@ -26,10 +26,11 @@ export async function sellerListingToDraft(listing: SellerListing): Promise<Sell
     size: listing.size ?? "",
     title: listing.title,
     description: stripListingLocationMarker(listing.description),
-    locationCity: listing.locationCity,
     condition: listing.condition,
     price: String(listing.price),
     acceptOffers: listing.acceptOffers,
+    shippingMethod: listing.shippingMethod ?? "delivery_available",
+    freeDelivery: listing.freeDelivery,
     stock: listing.stock,
     analysis: null,
   };

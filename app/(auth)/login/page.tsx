@@ -16,9 +16,9 @@ type LoginPageProps = {
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  await redirectIfAuthenticated();
-
   const { next, error } = await searchParams;
+  await redirectIfAuthenticated(next);
+
   const initialError = error
     ? AUTH_ERROR_MESSAGES[error] ?? "Unable to sign in. Please try again."
     : undefined;

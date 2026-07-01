@@ -71,14 +71,22 @@ export const currencySchema = z
   .max(20, "Currency is too long");
 
 export const localeCodeSchema = z.enum([
-  "en-IE",
   "en-GB",
+  "ro-RO",
   "de-DE",
   "fr-FR",
   "es-ES",
   "it-IT",
   "nl-NL",
   "pl-PL",
+  "pt-PT",
+  "hu-HU",
+  "bg-BG",
+  "el-GR",
+  "tr-TR",
+  "ar-SA",
+  "uk-UA",
+  "en-IE",
 ]);
 
 export const settingsPatchSchema = z.object({
