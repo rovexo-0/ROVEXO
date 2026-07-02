@@ -30,6 +30,7 @@ import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
 import { sellBackgroundPolicy, runSellBackgroundTask } from "@/lib/sell/sell-background-policy";
 import { compressListingImage, createListingThumbnail, validateClientImage } from "@/lib/storage/client-images";
 import { persistSellDraftSnapshot, persistSellDraftTextSync } from "@/lib/sell/persist-sell-draft";
+import { sellInputDiag } from "@/lib/sell/sell-input-diagnostics";
 import type { SellListingMode } from "@/lib/profile/account";
 import {
   createEmptyDraft,
@@ -205,6 +206,10 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
 
   const syncDescriptionToDraft = useCallback(
     (description: string) => {
+      sellInputDiag("syncDescriptionToDraft", {
+        len: description.length,
+        caller: new Error().stack?.split("\n").slice(2, 5).join(" | "),
+      });
       pendingDescriptionRef.current = description;
       setDraft((current) =>
         current.description === description ? current : { ...current, description },
@@ -226,9 +231,8 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
       pendingTitleRef,
       pendingDescriptionRef,
       uploadSessionId: uploadSessionRef.current,
-      flushPendingText,
     });
-  }, [editListingId, flushPendingText, initialDraft]);
+  }, [editListingId, initialDraft]);
 
   const persistDraftTextSync = useCallback(() => {
     if (initialDraft || editListingId) return false;
@@ -237,14 +241,17 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
       pendingTitleRef,
       pendingDescriptionRef,
       uploadSessionId: uploadSessionRef.current,
-      flushPendingText,
     });
-  }, [editListingId, flushPendingText, initialDraft]);
+  }, [editListingId, initialDraft]);
 
   useEffect(() => {
     if (initialDraft || editListingId) return;
 
     const autosaveTimer = window.setTimeout(() => {
+      sellInputDiag("autosave.timer.fire", {
+        draftDescriptionLen: draftRef.current.description.length,
+        pendingDescriptionLen: pendingDescriptionRef.current.length,
+      });
       persistDraftSnapshot();
     }, 1500);
 

@@ -41,13 +41,16 @@ describe("Sell module hydration safety", () => {
     expect(source).not.toContain("scrollIntoView");
   });
 
-  it("keeps description field uncontrolled for iOS Chrome compatibility", () => {
-    const source = readSource("features/sell/components/ListingDescriptionField.tsx");
-    expect(source).toContain("defaultValue={externalDescription}");
-    expect(source).toContain("onInput={handleInput}");
-    expect(source).not.toContain("value={");
-    expect(source).not.toContain("scrollIntoView");
-    expect(source).not.toContain("onFocus=");
+  it("persists draft from pending refs without flushing text commits during autosave", () => {
+    const source = readSource("lib/sell/persist-sell-draft.ts");
+    expect(source).not.toContain("flushPendingText");
+    expect(source).toContain("pendingDescriptionRef.current");
+  });
+
+  it("instruments sell text input when sell-input-debug is enabled", () => {
+    const source = readSource("lib/sell/sell-input-diagnostics.ts");
+    expect(source).toContain("rovexo:sell-input-debug");
+    expect(source).toContain("sellDebug");
   });
 
   it("uses a script-free ThemeProvider for forced light theme", () => {

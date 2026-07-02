@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import { toPathId } from "@/lib/categories/queries";
 import { focusRing } from "@/components/ui/tokens";
 import { bumpPendingTextVersion } from "@/lib/sell/pending-text-store";
+import { sellInputDiag } from "@/lib/sell/sell-input-diagnostics";
 import { getSellCurrencyConfig } from "@/lib/sell/currency";
 import { clampInventory, INVENTORY_MAX, INVENTORY_MIN } from "@/lib/sell/inventory";
 import {
@@ -14,7 +15,6 @@ import {
   validateListingTitle,
 } from "@/lib/sell/listing-title";
 import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicker";
-import { ListingDescriptionField } from "@/features/sell/components/ListingDescriptionField";
 import { FieldError, fieldErrorClassName } from "@/features/sell/components/FieldError";
 import {
   sellDeliveryCardClassName,
@@ -58,23 +58,34 @@ export const ListingForm = memo(function ListingForm() {
   } = useSell();
 
   const titleId = useId();
+  const descriptionId = useId();
   const categoryId = useId();
   const quantityId = useId();
   const priceId = useId();
 
   const currency = useMemo(() => getSellCurrencyConfig(), []);
   const [localTitle, setLocalTitle] = useState(draft.title);
+  const [localDescription, setLocalDescription] = useState(draft.description);
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const localTitleRef = useRef(localTitle);
+  const localDescriptionRef = useRef(localDescription);
   const isTypingTitleRef = useRef(false);
+  const isTypingDescriptionRef = useRef(false);
   const pendingBumpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const renderCountRef = useRef(0);
+  renderCountRef.current += 1;
 
   localTitleRef.current = localTitle;
+  localDescriptionRef.current = localDescription;
 
   const errors = useMemo(
     () => getListingValidationErrors(draft, { mode: "quick", showErrors: showValidation }),
     [draft, showValidation],
   );
+
+  useEffect(() => {
+    sellInputDiag("ListingForm.render", { count: renderCountRef.current });
+  });
 
   useEffect(() => {
     flushTitleCommitRef.current = () => {
@@ -87,10 +98,30 @@ export const ListingForm = memo(function ListingForm() {
   }, [flushTitleCommitRef, syncTitleToDraft]);
 
   useEffect(() => {
+    flushDescriptionCommitRef.current = () => {
+      isTypingDescriptionRef.current = false;
+      syncDescriptionToDraft(localDescriptionRef.current);
+    };
+    return () => {
+      flushDescriptionCommitRef.current = null;
+    };
+  }, [flushDescriptionCommitRef, syncDescriptionToDraft]);
+
+  useEffect(() => {
     if (isTypingTitleRef.current) return;
     setLocalTitle((current) => (current === draft.title ? current : draft.title));
     pendingTitleRef.current = draft.title;
   }, [draft.title, pendingTitleRef]);
+
+  useEffect(() => {
+    if (isTypingDescriptionRef.current) return;
+    sellInputDiag("description.externalSync", {
+      fromLen: localDescriptionRef.current.length,
+      toLen: draft.description.length,
+    });
+    setLocalDescription((current) => (current === draft.description ? current : draft.description));
+    pendingDescriptionRef.current = draft.description;
+  }, [draft.description, pendingDescriptionRef]);
 
   useEffect(
     () => () => {
@@ -176,13 +207,41 @@ export const ListingForm = memo(function ListingForm() {
         </div>
       </div>
 
-      <ListingDescriptionField
-        externalDescription={draft.description}
-        descriptionError={errors.description}
-        pendingDescriptionRef={pendingDescriptionRef}
-        flushDescriptionCommitRef={flushDescriptionCommitRef}
-        syncDescriptionToDraft={syncDescriptionToDraft}
-      />
+      <div className="flex flex-col gap-ds-1">
+        <textarea
+          id={descriptionId}
+          value={localDescription}
+          onChange={(event) => {
+            isTypingDescriptionRef.current = true;
+            const next = event.target.value;
+            setLocalDescription(next);
+            pendingDescriptionRef.current = next;
+            sellInputDiag("description.onChange", { len: next.length });
+            schedulePendingTextBump();
+          }}
+          onFocus={() => {
+            sellInputDiag("description.onFocus");
+          }}
+          onBlur={() => {
+            isTypingDescriptionRef.current = false;
+            sellInputDiag("description.onBlur", { len: localDescriptionRef.current.length });
+            syncDescriptionToDraft(localDescriptionRef.current);
+            flushPendingTextBump();
+          }}
+          placeholder="Describe the item — only include details you know are true"
+          rows={4}
+          aria-label="Listing description"
+          autoComplete="off"
+          enterKeyHint="done"
+          className={cn(
+            sellFieldClassName,
+            focusRing,
+            "min-h-[6rem] resize-none",
+            fieldErrorClassName(Boolean(errors.description)),
+          )}
+        />
+        <FieldError message={errors.description} />
+      </div>
 
       <div className="flex flex-col gap-ds-2">
         <button
