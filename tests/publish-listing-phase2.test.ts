@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   clampListingTitle,
   LISTING_TITLE_MAX,
-  LISTING_TITLE_MIN,
   validateListingTitle,
 } from "@/lib/sell/listing-title";
 import {
@@ -34,10 +33,8 @@ describe("listing title field rules", () => {
     expect(validateListingTitle(clamped)).toBeUndefined();
   });
 
-  it("requires at least 5 characters when required", () => {
-    expect(validateListingTitle("abcd", { required: true })).toContain(
-      String(LISTING_TITLE_MIN),
-    );
+  it("requires at least 3 characters when required", () => {
+    expect(validateListingTitle("ab", { required: true })).toContain("3");
     expect(validateListingTitle("Valid title", { required: true })).toBeUndefined();
   });
 
@@ -166,7 +163,6 @@ describe("AI category recovery bridge", () => {
     draft.condition = "Good";
     draft.price = "80";
     draft.shippingMethod = "delivery_available";
-    draft.locationCity = "London";
 
     expect(isListingValid(draft, { mode: "quick" })).toBe(true);
   });

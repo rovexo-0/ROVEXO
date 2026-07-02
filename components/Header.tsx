@@ -5,7 +5,8 @@ import { RovexoHeaderMark } from "@/components/brand/RovexoLogo";
 import { HeaderIconLink } from "@/components/header/HeaderIconLink";
 import { HeaderProfileLink } from "@/components/header/HeaderProfileLink";
 import { HeaderSearchBar } from "@/components/header/HeaderSearchBar";
-import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
+import { RovexoIcon } from "@/components/icons/RovexoIcon";
+import { RovexoIcons } from "@/lib/icons";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
 import { useHeaderBadges } from "@/features/header/hooks/use-header-badges";
@@ -26,10 +27,10 @@ const HeaderActions = memo(function HeaderActions({
   return (
     <>
       <HeaderIconLink href="/messages" label="Messages" badge={unreadMessages} size="compact">
-        <DashboardIcon3D type="messages" size={22} />
+        <RovexoIcon icon={RovexoIcons.chat.messages} variant="header" />
       </HeaderIconLink>
       <HeaderIconLink href="/notifications" label="Notifications" badge={unreadNotifications} size="compact">
-        <DashboardIcon3D type="notifications" size={22} />
+        <RovexoIcon icon={RovexoIcons.notifications.bell} variant="header" />
       </HeaderIconLink>
       <HeaderProfileLink className="rx-header-premium__profile-link" avatarClassName="rx-header-premium__avatar" />
     </>
@@ -100,7 +101,7 @@ export default memo(Header);
 export function NotificationBell({ unreadCount }: { unreadCount: number }) {
   return (
     <HeaderIconLink href="/notifications" label="Notifications" badge={unreadCount} size="compact">
-      <DashboardIcon3D type="notifications" size={22} />
+      <RovexoIcon icon={RovexoIcons.notifications.bell} variant="header" />
     </HeaderIconLink>
   );
 }

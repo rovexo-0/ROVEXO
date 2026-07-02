@@ -80,16 +80,20 @@ describe("Enterprise UI system — design lock", () => {
 });
 
 describe("Enterprise UI system — header", () => {
-  it("uses R logo mark and premium 3D header icons", () => {
+  it("uses R logo mark and official production header icons", () => {
     const header = readFileSync(join(process.cwd(), "components/Header.tsx"), "utf8");
     expect(header).toContain("RovexoHeaderMark");
-    expect(header).toContain("DashboardIcon3D");
+    expect(header).toContain("RovexoIcon");
+    expect(header).toContain("RovexoIcons.chat.messages");
+    expect(header).toContain("RovexoIcons.notifications.bell");
     expect(header).not.toContain("MessagesMenuIcon");
+    expect(header).not.toContain("DashboardIcon3D");
   });
 
-  it("uses premium 3D search icon in header search bar", () => {
+  it("uses official production search icon in header search bar", () => {
     const searchBar = readFileSync(join(process.cwd(), "components/header/HeaderSearchBar.tsx"), "utf8");
-    expect(searchBar).toContain("BottomNavIcon3D");
-    expect(searchBar).toContain('type="search"');
+    expect(searchBar).toContain("RovexoIcon");
+    expect(searchBar).toContain("RovexoIcons.navigation.search");
+    expect(searchBar).not.toContain("BottomNavIcon3D");
   });
 });

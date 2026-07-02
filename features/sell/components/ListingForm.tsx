@@ -41,10 +41,13 @@ function resolveDeliveryChoice(
 }
 
 function scrollFieldIntoView(event: React.FocusEvent<HTMLElement>) {
+  const target = event.currentTarget;
   requestAnimationFrame(() => {
-    event.currentTarget.scrollIntoView({ block: "center", behavior: "smooth" });
+    target.scrollIntoView({ block: "nearest", behavior: "auto" });
   });
 }
+
+const PENDING_TEXT_BUMP_MS = 300;
 
 export const ListingForm = memo(function ListingForm() {
   const {
@@ -58,7 +61,6 @@ export const ListingForm = memo(function ListingForm() {
     flushDescriptionCommitRef,
     syncTitleToDraft,
     syncDescriptionToDraft,
-    scheduleCategoryDetection,
   } = useSell();
 
   const titleId = useId();
@@ -75,6 +77,7 @@ export const ListingForm = memo(function ListingForm() {
   const localDescriptionRef = useRef(localDescription);
   const isTypingTitleRef = useRef(false);
   const isTypingDescriptionRef = useRef(false);
+  const pendingBumpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   localTitleRef.current = localTitle;
   localDescriptionRef.current = localDescription;
@@ -116,9 +119,31 @@ export const ListingForm = memo(function ListingForm() {
     pendingDescriptionRef.current = draft.description;
   }, [draft.description, pendingDescriptionRef]);
 
-  const handlePendingTextChange = () => {
+  useEffect(
+    () => () => {
+      if (pendingBumpTimerRef.current) {
+        clearTimeout(pendingBumpTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  const schedulePendingTextBump = () => {
+    if (pendingBumpTimerRef.current) {
+      clearTimeout(pendingBumpTimerRef.current);
+    }
+    pendingBumpTimerRef.current = setTimeout(() => {
+      pendingBumpTimerRef.current = null;
+      bumpPendingTextVersion();
+    }, PENDING_TEXT_BUMP_MS);
+  };
+
+  const flushPendingTextBump = () => {
+    if (pendingBumpTimerRef.current) {
+      clearTimeout(pendingBumpTimerRef.current);
+      pendingBumpTimerRef.current = null;
+    }
     bumpPendingTextVersion();
-    scheduleCategoryDetection();
   };
 
   const titleError =
@@ -156,11 +181,12 @@ export const ListingForm = memo(function ListingForm() {
             isTypingTitleRef.current = true;
             setLocalTitle(next);
             pendingTitleRef.current = next;
-            handlePendingTextChange();
+            schedulePendingTextBump();
           }}
           onBlur={() => {
             isTypingTitleRef.current = false;
             syncTitleToDraft(localTitleRef.current);
+            flushPendingTextBump();
           }}
           placeholder="What are you selling?"
           maxLength={LISTING_TITLE_MAX}
@@ -186,11 +212,12 @@ export const ListingForm = memo(function ListingForm() {
             isTypingDescriptionRef.current = true;
             setLocalDescription(event.target.value);
             pendingDescriptionRef.current = event.target.value;
-            handlePendingTextChange();
+            schedulePendingTextBump();
           }}
           onBlur={() => {
             isTypingDescriptionRef.current = false;
             syncDescriptionToDraft(localDescriptionRef.current);
+            flushPendingTextBump();
           }}
           placeholder="Describe the item — only include details you know are true"
           rows={4}

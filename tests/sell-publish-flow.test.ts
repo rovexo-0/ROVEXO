@@ -21,10 +21,9 @@ describe("sell publish flow with pending title", () => {
     draft.condition = "Good";
     draft.price = "50";
     draft.shippingMethod = "delivery_available";
-    draft.locationCity = "London";
 
     const pendingTitle = "Nike trainers size 9";
-    const effectiveDraft = resolveEffectiveSellDraft(draft, pendingTitle);
+    const effectiveDraft = resolveEffectiveSellDraft(draft, { title: pendingTitle });
 
     expect(draft.title).toBe("");
     expect(effectiveDraft.title).toBe(pendingTitle);

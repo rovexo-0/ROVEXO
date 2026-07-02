@@ -1,6 +1,7 @@
 "use client";
 
-import { BottomNavIcon3D } from "@/components/icons/BottomNavIcon3D";
+import { RovexoIcon } from "@/components/icons/RovexoIcon";
+import { RovexoIcons } from "@/lib/icons";
 import { cn } from "@/lib/cn";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -33,7 +34,7 @@ export function HeaderSearchBar({
         className={cn("header-rx-search-bar w-full text-left", focusRing, transitionFast)}
       >
         <span className="header-search-bar-2026__icon" aria-hidden>
-          <BottomNavIcon3D type="search" size="tab" />
+          <RovexoIcon icon={RovexoIcons.navigation.search} variant="header" />
         </span>
         <span className="header-search-bar-2026__placeholder">{placeholder}</span>
       </button>

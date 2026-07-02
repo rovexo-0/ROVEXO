@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type MouseEvent } from "react";
-import { BottomNavIcon3D, type BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
+import type { BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
+import { RovexoIcon } from "@/components/icons/RovexoIcon";
+import { RovexoIcons } from "@/lib/icons";
+import { resolveBottomNavGlassIcon } from "@/lib/icons/resolve";
 import { Avatar } from "@/components/ui/Avatar";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
@@ -54,6 +57,12 @@ function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab
   return "home";
 }
 
+function NavIcon({ type }: { type: BottomNavIconType }) {
+  return (
+    <RovexoIcon icon={resolveBottomNavGlassIcon(type)} size={32} className="rx-bottom-nav-tab-icon" />
+  );
+}
+
 function NavLink({
   item,
   isActive,
@@ -73,7 +82,7 @@ function NavLink({
       className={cn("rx-bottom-nav-item", focusRing, transitionFast)}
     >
       <span className="rx-bottom-nav-icon-wrap">
-        <BottomNavIcon3D type={item.icon} active={isActive} size="tab" />
+        <NavIcon type={item.icon} />
       </span>
       <span className="rx-bottom-nav-item__label">{item.label}</span>
     </Link>
@@ -121,7 +130,7 @@ function AccountNavLink({ isActive, accountItem }: { isActive: boolean; accountI
             className={cn(isActive && "ring-2 ring-primary")}
           />
         ) : (
-          <BottomNavIcon3D type="account" active={isActive} size="tab" />
+          <NavIcon type="account" />
         )}
       </span>
       <span className="rx-bottom-nav-item__label">{accountItem.label}</span>
@@ -193,7 +202,7 @@ export function BottomNavigation({
                 className={cn("rx-bottom-nav-item rx-bottom-nav-item--sell", focusRing, transitionFast)}
               >
                 <span className="rx-bottom-nav-sell">
-                  <BottomNavIcon3D type="sell" active={isSellActive} size="sell" />
+                  <RovexoIcon icon={RovexoIcons.navigation.sell} size={34} />
                 </span>
                 <span className="rx-bottom-nav-item__label">{sell.label}</span>
               </Link>
@@ -208,7 +217,7 @@ export function BottomNavigation({
                 className={cn("rx-bottom-nav-item rx-bottom-nav-item--sell", focusRing, transitionFast)}
               >
                 <span className="rx-bottom-nav-sell">
-                  <BottomNavIcon3D type="sell" active={isSellActive} size="sell" />
+                  <RovexoIcon icon={RovexoIcons.navigation.sell} size={34} />
                 </span>
                 <span className="rx-bottom-nav-item__label">Sell</span>
               </Link>
