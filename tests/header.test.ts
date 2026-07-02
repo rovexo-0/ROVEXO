@@ -9,15 +9,18 @@ describe("official header design", () => {
     expect(ROVEXO_LOGO_DIMENSIONS.compactHeight).toBeGreaterThan(0);
   });
 
-  it("implements homepage search bar with form action to /search", () => {
+  it("implements Apple-style tap-to-search bar with left icon only", () => {
     const source = readFileSync(
-      path.join(process.cwd(), "components/home/RovexoSearchBar.tsx"),
+      path.join(process.cwd(), "components/header/HeaderSearchBar.tsx"),
       "utf8",
     );
-    expect(source).toContain("Search for anything...");
-    expect(source).toContain('action="/search"');
-    expect(source).toContain("home-v1-search-bar");
-    expect(source).toContain("RovexoIcon");
+    expect(source).toContain("Search ROVEXO...");
+    expect(source).toContain('data-header-search="bar"');
+    expect(source).toContain("useSearchOverlayOptional");
+    expect(source).toContain('role="search"');
+    expect(source).toContain("header-rx-search-bar");
+    expect(source).not.toContain("rx-glass");
+    expect(source).not.toContain("/assistant");
   });
 
   it("keeps logo, centered search, messages, notifications and profile on the same top row", () => {
@@ -27,6 +30,7 @@ describe("official header design", () => {
     expect(source).toContain("HeaderActions");
     expect(source).toContain("HeaderProfileLink");
     expect(source).toContain('data-header-version="rovexo-v1"');
-    expect(source).toContain("rx-header-shell__search");
+    expect(source).toContain("rx-header-premium__search");
+    expect(source).toContain("rx-header-premium__row");
   });
 });

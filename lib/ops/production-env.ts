@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { repoPath } from "@/lib/ops/repo-path";
+import { join } from "node:path";
 import type { HealthStatus } from "@/lib/ops/health-types";
 
 export type EnvValidationItem = {
@@ -150,7 +150,7 @@ const ENV_SPECS: EnvSpec[] = [
 ];
 
 function fileExists(relativePath: string): boolean {
-  return existsSync(repoPath(relativePath));
+  return existsSync(join(process.cwd(), relativePath));
 }
 
 export function validateProductionEnvironment(): ProductionEnvironmentReport {

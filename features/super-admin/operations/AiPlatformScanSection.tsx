@@ -17,15 +17,23 @@ export function AiPlatformScanSection({ snapshot, onScanned }: AiPlatformScanSec
   const [error, setError] = useState<string | null>(null);
 
   async function runScan() {
+    console.log("RUNSCAN CLICKED");
     setScanning(true);
-    setError(null);
     try {
       const response = await fetch("/api/super-admin/operations/scan", { method: "POST" });
-      const payload = (await response.json()) as { snapshot?: AiOperationsSnapshot; error?: string };
-      if (!response.ok || !payload.snapshot) {
+      const text = await response.text();
+      let payload: { success?: boolean; data?: { snapshot?: AiOperationsSnapshot }; snapshot?: AiOperationsSnapshot; error?: string } = {};
+      try {
+        payload = text ? (JSON.parse(text) as typeof payload) : {};
+      } catch {
+        throw new Error("Invalid JSON response from operations scan.");
+      }
+
+      const snapshot = payload.data?.snapshot ?? payload.snapshot;
+      if (!response.ok || !snapshot) {
         throw new Error(payload.error ?? "Scan failed.");
       }
-      onScanned(payload.snapshot);
+      onScanned(snapshot);
     } catch (scanError) {
       setError(scanError instanceof Error ? scanError.message : "Scan failed.");
     } finally {

@@ -1,0 +1,6 @@
+export const ENTERPRISE_DEVELOPMENT_DRAFT_KEY = "enterprise_development_center_draft_v1";
+export const ENTERPRISE_DEVELOPMENT_LIVE_KEY = "enterprise_development_center_live_v1";
+export const ENTERPRISE_DEVELOPMENT_HISTORY_KEY = "enterprise_development_center_config_history_v1";
+export const ENTERPRISE_DEVELOPMENT_SETTINGS_KEY = "enterprise_development_center_settings_v1";
+export const ENTERPRISE_DEVELOPMENT_BUILDS_KEY = "enterprise_development_center_builds_v1";
+export const ENTERPRISE_DEVELOPMENT_RELEASES_KEY = "enterprise_development_center_releases_v1";

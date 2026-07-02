@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { validateMutationOrigin } from "@/lib/api/csrf-guard";
 import type { UserRole } from "@/lib/supabase/types/database";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -154,12 +155,20 @@ export async function requireSuperAdmin(): Promise<AuthContext & { role: "super_
   return requireRole(["super_admin"]) as Promise<AuthContext & { role: "super_admin" }>;
 }
 
-export async function requireApiSuperAdmin(): Promise<
-  (AuthContext & { role: "super_admin" }) | NextResponse
-> {
-  return requireApiRole(["super_admin"]) as Promise<
-    (AuthContext & { role: "super_admin" }) | NextResponse
-  >;
+export async function requireApiSuperAdmin(
+  request?: Request,
+): Promise<(AuthContext & { role: "super_admin" }) | NextResponse> {
+  const auth = await requireApiRole(["super_admin"]);
+  if (auth instanceof NextResponse) {
+    return auth;
+  }
+
+  if (request) {
+    const blocked = validateMutationOrigin(request);
+    if (blocked) return blocked;
+  }
+
+  return auth as AuthContext & { role: "super_admin" };
 }
 
 export async function requireAdmin(): Promise<

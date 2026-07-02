@@ -2,18 +2,21 @@ import Image from "next/image";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Card } from "@/components/ui/Card";
 import { Price } from "@/components/ui/Price";
+import { WalletEngineTransactionPanel } from "@/features/wallet-engine/WalletEngineTransactionPanel";
 import { TransactionStatusBadge } from "@/features/wallet/components/TransactionStatusBadge";
 import { WalletHeader } from "@/features/wallet/components/WalletHeader";
 import {
   formatWalletDateTime,
   getDaysUntilAvailable,
 } from "@/lib/wallet/utils";
+import type { WalletEngineTransactionContext } from "@/lib/wallet-engine/types";
 import type { WalletTransaction } from "@/lib/wallet/types";
 import type { UserProfile } from "@/lib/profile/types";
 
 type TransactionDetailPageProps = {
   profile: UserProfile;
   transaction: WalletTransaction;
+  transactionContext?: WalletEngineTransactionContext;
 };
 
 function DetailRow({ label, value }: { label: string; value: string }) {
@@ -27,7 +30,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function TransactionDetailPage({ profile, transaction }: TransactionDetailPageProps) {
+export function TransactionDetailPage({ profile, transaction, transactionContext }: TransactionDetailPageProps) {
   const amount = Math.abs(transaction.amount);
   const pendingDays =
     transaction.payoutAvailableAt != null
@@ -38,11 +41,12 @@ export function TransactionDetailPage({ profile, transaction }: TransactionDetai
     <BetaAppShell showBottomNav={false}>
       <WalletHeader
         title="Transaction Details"
-        backHref="/seller/wallet"
+        backHref="/wallet"
         unreadNotifications={profile.unreadNotifications}
       />
 
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+        {transactionContext ? <WalletEngineTransactionPanel context={transactionContext} /> : null}
         <Card padding="md" className="">
           <div className="flex items-start gap-ds-3">
             <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-ds-lg bg-surface-muted">

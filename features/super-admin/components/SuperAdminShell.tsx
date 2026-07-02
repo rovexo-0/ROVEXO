@@ -2,34 +2,125 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { SUPER_ADMIN_NAV } from "@/lib/super-admin/nav";
+import { buildSuperAdminBreadcrumbs, isOmegaReadyPath } from "@/lib/super-admin/premium";
 import { SuperAdminBadge } from "@/features/auth/components/SuperAdminBadge";
+import {
+  SuperAdminBreadcrumbs,
+  SuperAdminCommandPalette,
+  SuperAdminStatusBadge,
+  useSuperAdminCommandPalette,
+} from "@/features/super-admin/components/premium";
 import { focusRing } from "@/components/ui/tokens";
+import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
+import { resolveSuperAdminIconKey } from "@/lib/icons/fluency-3d-registry";
 
 type SuperAdminShellProps = {
   children: ReactNode;
 };
 
+function NavSection({
+  section,
+  pathname,
+  onNavigate,
+}: {
+  section: (typeof SUPER_ADMIN_NAV)[number];
+  pathname: string;
+  onNavigate: () => void;
+}) {
+  const isDevelopment = section.id === "development";
+  const sectionActive = isDevelopment && pathname.startsWith("/super-admin/development");
+  const [collapsed, setCollapsed] = useState(isDevelopment && !sectionActive);
+
+  return (
+    <div className="sa-premium-section">
+      <div className="sa-premium-section__title">
+        <span>{section.title}</span>
+        {section.collapsible ? (
+          <button
+            type="button"
+            className={cn("sa-premium-section__toggle", focusRing)}
+            onClick={() => setCollapsed((open) => !open)}
+            aria-expanded={!collapsed}
+          >
+            {collapsed ? "Show" : "Hide"}
+          </button>
+        ) : null}
+      </div>
+      {!collapsed ? (
+        <ul className="space-y-ds-1">
+          {section.items.map((item) => {
+            const active =
+              item.href === "/super-admin"
+                ? pathname === "/super-admin"
+                : pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={cn("sa-premium-nav-link", active && "sa-premium-nav-link--active", focusRing)}
+                  onClick={onNavigate}
+                  aria-current={active ? "page" : undefined}
+                >
+                  <Fluency3DIcon icon={resolveSuperAdminIconKey(item.href)} size={20} className="mt-0.5 shrink-0" />
+                  <span>
+                    <span className="sa-premium-nav-link__label">{item.label}</span>
+                    {item.description ? (
+                      <span className="sa-premium-nav-link__desc">{item.description}</span>
+                    ) : null}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 export function SuperAdminShell({ children }: SuperAdminShellProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const commandPalette = useSuperAdminCommandPalette();
+  const isMissionControlHome = pathname === "/super-admin";
+  const breadcrumbs = useMemo(() => buildSuperAdminBreadcrumbs(pathname), [pathname]);
+  const omegaReady = isOmegaReadyPath(pathname);
 
   return (
-    <div className="rx-page min-h-screen bg-background text-text-primary">
-      <header className="sticky top-0 z-40 border-b border-border bg-[var(--ds-glass-bg)] shadow-[var(--ds-shadow-soft)] backdrop-blur-xl">
-        <div className="flex items-center justify-between gap-ds-3 px-ds-4 py-ds-3">
-          <div>
+    <div className="sa-premium-shell rx-page min-h-screen bg-background text-text-primary">
+      <header className="sa-premium-header">
+        <div className="sa-premium-header__inner">
+          <div className="sa-premium-header__brand">
             <div className="flex flex-wrap items-center gap-ds-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                ROVEXO Super Admin
+              <p className="sa-premium-header__eyebrow">
+                {isMissionControlHome ? "Mission Control" : "ROVEXO Super Admin"}
               </p>
               <SuperAdminBadge compact />
+              {omegaReady ? <SuperAdminStatusBadge label="Ready" status="healthy" omega /> : null}
             </div>
-            <p className="text-sm text-text-secondary">Single-account platform control</p>
+            <p className="sa-premium-header__subtitle">
+              {isMissionControlHome
+                ? "Central operating system for the marketplace"
+                : "Enterprise control center — Premium 2026"}
+            </p>
           </div>
-          <div className="flex items-center gap-ds-2">
+          <div className="sa-premium-header__actions">
+            <button
+              type="button"
+              className={cn("sa-premium-search-trigger", focusRing)}
+              onClick={() => commandPalette.setOpen(true)}
+              aria-label="Open command palette"
+            >
+              <span>Search modules & pages</span>
+              <span className="sa-premium-kbd">Ctrl K</span>
+            </button>
+            <Link href="/super-admin/search" className={cn("hidden text-sm font-medium text-text-secondary hover:text-primary sm:inline", focusRing)}>
+              Global Search
+            </Link>
             <Link href="/" className={cn("hidden text-sm font-medium text-text-secondary hover:text-primary sm:inline", focusRing)}>
               Marketplace
             </Link>
@@ -45,58 +136,27 @@ export function SuperAdminShell({ children }: SuperAdminShellProps) {
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-[1440px]">
-        <aside
-          className={cn(
-            "w-full shrink-0 border-r border-border bg-surface lg:block lg:w-72",
-            mobileOpen ? "block" : "hidden",
-          )}
-        >
-          <nav className="max-h-[calc(100dvh-72px)] overflow-y-auto p-ds-3">
+      <div className="sa-premium-layout">
+        <aside className={cn("sa-premium-sidebar", !mobileOpen && "sa-premium-sidebar--closed lg:block")}>
+          <nav className="sa-premium-sidebar__nav" aria-label="Super Admin">
             {SUPER_ADMIN_NAV.map((section) => (
-              <div key={section.id} className="mb-ds-4">
-                <p className="mb-ds-2 px-ds-2 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
-                  {section.title}
-                </p>
-                <ul className="space-y-ds-1">
-                  {section.items.map((item) => {
-                    const active =
-                      item.href === "/super-admin"
-                        ? pathname === "/super-admin"
-                        : pathname.startsWith(item.href);
-
-                    return (
-                      <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          className={cn(
-                            "flex items-start gap-ds-2 rounded-ds-lg px-ds-3 py-ds-2 transition-colors",
-                            active
-                              ? "bg-primary/10 text-primary"
-                              : "text-text-secondary hover:bg-surface-muted hover:text-text-primary",
-                            focusRing,
-                          )}
-                          onClick={() => setMobileOpen(false)}
-                        >
-                          <span aria-hidden className="mt-0.5 text-base">{item.icon}</span>
-                          <span>
-                            <span className="block text-sm font-semibold">{item.label}</span>
-                            {item.description ? (
-                              <span className="block text-xs opacity-80">{item.description}</span>
-                            ) : null}
-                          </span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+              <NavSection
+                key={section.id}
+                section={section}
+                pathname={pathname}
+                onNavigate={() => setMobileOpen(false)}
+              />
             ))}
           </nav>
         </aside>
 
-        <main className="min-w-0 flex-1 px-ds-4 py-ds-6">{children}</main>
+        <main className="sa-premium-main">
+          <SuperAdminBreadcrumbs items={breadcrumbs} />
+          {children}
+        </main>
       </div>
+
+      <SuperAdminCommandPalette open={commandPalette.open} onClose={commandPalette.close} />
     </div>
   );
 }
@@ -104,14 +164,27 @@ export function SuperAdminShell({ children }: SuperAdminShellProps) {
 export function SuperAdminPageHeader({
   title,
   description,
+  actions,
+  omegaReady: omegaReadyOverride,
 }: {
   title: string;
   description?: string;
+  actions?: ReactNode;
+  omegaReady?: boolean;
 }) {
+  const pathname = usePathname();
+  const omegaReady = omegaReadyOverride ?? isOmegaReadyPath(pathname);
+
   return (
-    <div className="mb-ds-6">
-      <h1 className="text-2xl font-bold tracking-tight text-text-primary">{title}</h1>
-      {description ? <p className="mt-ds-2 max-w-3xl text-sm text-text-secondary">{description}</p> : null}
-    </div>
+    <header className="sa-premium-page-header">
+      <div>
+        <h1 className="sa-premium-page-header__title">{title}</h1>
+        {description ? <p className="sa-premium-page-header__desc">{description}</p> : null}
+      </div>
+      <div className="sa-premium-page-header__meta">
+        {omegaReady ? <SuperAdminStatusBadge label="Ready" status="healthy" omega /> : null}
+        {actions}
+      </div>
+    </header>
   );
 }

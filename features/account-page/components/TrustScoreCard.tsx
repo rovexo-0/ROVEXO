@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { RovexoGlassIcon } from "@/components/icons/RovexoGlassIcon";
-import { RovexoIcons } from "@/lib/icons";
+import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
 import type { TrustDashboardData } from "@/lib/trust/types";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
@@ -22,7 +21,7 @@ export function TrustScoreCard({ trustData }: TrustScoreCardProps) {
         <p className="account-trust-card__label">Trust Score</p>
         <div className="account-trust-card__score-row">
           <p className="account-trust-card__score">{trustData.score.score}</p>
-          <RovexoGlassIcon icon={RovexoIcons.security.shield} size={28} className="account-trust-card__shield" />
+          <Fluency3DIcon icon="trust" size={28} className="account-trust-card__shield" />
         </div>
         <p className="account-trust-card__tier">{trustData.score.tier} trust</p>
       </div>

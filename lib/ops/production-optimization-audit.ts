@@ -1,6 +1,5 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { repoPath } from "@/lib/ops/repo-path";
 import { validatePlatformPerformanceSurface } from "@/lib/ops/performance-audit";
 
 export type ProductionOptimizationCheck = {
@@ -53,17 +52,17 @@ const PRODUCTION_INDEXES = [
 ] as const;
 
 function readProjectFile(relativePath: string): string {
-  const absolutePath = repoPath(relativePath);
+  const absolutePath = join(process.cwd(), relativePath);
   if (!existsSync(absolutePath)) return "";
   return readFileSync(absolutePath, "utf8");
 }
 
 function fileExists(relativePath: string): boolean {
-  return existsSync(repoPath(relativePath));
+  return existsSync(join(process.cwd(), relativePath));
 }
 
 function migrationContainsIndex(indexName: string): boolean {
-  const migrationsDir = repoPath("supabase", "migrations");
+  const migrationsDir = join(process.cwd(), "supabase", "migrations");
   if (!existsSync(migrationsDir)) return false;
 
   return readdirSync(migrationsDir)
@@ -81,7 +80,7 @@ function buildInfrastructureChecks(): ProductionOptimizationCheck[] {
   const homePage = readProjectFile("app/page.tsx");
   const categoriesPage = readProjectFile("app/categories/page.tsx");
   const categorySlugPage = readProjectFile("app/category/[...slug]/page.tsx");
-  const homeContent = readProjectFile("components/home/RovexoHomePage.tsx");
+  const homeContent = readProjectFile("components/home/HomeContent.tsx");
 
   return [
     {
@@ -383,6 +382,7 @@ export function validateProductionOptimizationSurface(): ProductionOptimizationR
   );
 
   const indexesAdded = PRODUCTION_INDEXES.filter((name) => migrationContainsIndex(name));
+  const remainingWarnings = checks.filter((c) => !c.pass).map((c) => `${c.label}: ${c.message}`);
 
   const pass =
     performanceScore >= 85 &&

@@ -2,29 +2,12 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/cn";
+import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
 import { focusRing, transitionNormal } from "@/components/ui/tokens";
 
 type NotificationBellProps = {
   unreadCount?: number;
 };
-
-function BellIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.75}
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0018 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 00-2.31 6.022 23.848 23.848 0 005.454 1.31m5.713 0a24.255 24.255 0 01-5.713 0m5.713 0a3 3 0 11-5.713 0"
-      />
-    </svg>
-  );
-}
 
 export default function NotificationBell({
   unreadCount = 0,
@@ -46,7 +29,7 @@ export default function NotificationBell({
         focusRing
       )}
     >
-      <BellIcon className="h-5 w-5" />
+      <Fluency3DIcon icon="notifications" size={20} />
 
       {hasUnread && (
         <span

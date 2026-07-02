@@ -1,7 +1,6 @@
 "use client";
 
-import { RovexoIcon } from "@/components/icons/RovexoIcon";
-import { resolveBottomNavGlassIcon } from "@/lib/icons/resolve";
+import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
 import { cn } from "@/lib/cn";
 
 export type BottomNavIconType = "home" | "search" | "sell" | "saved" | "account";
@@ -10,36 +9,25 @@ type BottomNavIcon3DProps = {
   type: BottomNavIconType;
   active?: boolean;
   className?: string;
+  /** Tab icons render at 32px; sell stays at 34px inside the sell button. */
   size?: "tab" | "sell";
 };
 
-const SELL_ICON_PX = 28;
+const TAB_ICON_PX = 32;
+const SELL_ICON_PX = 34;
 
-export function BottomNavIcon3D({
-  type,
-  active = false,
-  className,
-  size = "tab",
-}: BottomNavIcon3DProps) {
-  const isSell = size === "sell";
+export function BottomNavIcon3D({ type, active, className, size = "tab" }: BottomNavIcon3DProps) {
+  const px = size === "sell" ? SELL_ICON_PX : TAB_ICON_PX;
 
   return (
-    <span
+    <Fluency3DIcon
+      icon={type}
+      size={px}
       className={cn(
-        "rx-bottom-nav-icon",
-        isSell ? "rx-bottom-nav-icon--sell-inner" : "rx-bottom-nav-icon--tab",
-        active && !isSell && "rx-bottom-nav-icon--active",
+        "transition-opacity duration-200",
+        active ? "opacity-100" : "opacity-90",
         className,
       )}
-      style={{ width: isSell ? SELL_ICON_PX : undefined, height: isSell ? SELL_ICON_PX : undefined }}
-      aria-hidden
-    >
-      <RovexoIcon
-        icon={resolveBottomNavGlassIcon(type)}
-        variant={isSell ? undefined : "bottomNav"}
-        size={isSell ? SELL_ICON_PX : undefined}
-        className={isSell ? "rx-bottom-nav-item__icon" : "rx-bottom-nav-tab-icon"}
-      />
-    </span>
+    />
   );
 }

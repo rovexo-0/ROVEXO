@@ -1,0 +1,4 @@
+export const MARKETPLACE_COMPLETION_DRAFT_KEY = "enterprise_marketplace_completion_engine_draft_v1";
+export const MARKETPLACE_COMPLETION_LIVE_KEY = "enterprise_marketplace_completion_engine_live_v1";
+export const MARKETPLACE_COMPLETION_HISTORY_KEY = "enterprise_marketplace_completion_engine_config_history_v1";
+export const MARKETPLACE_COMPLETION_SETTINGS_KEY = "enterprise_marketplace_completion_engine_settings_v1";

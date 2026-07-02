@@ -1,0 +1,6 @@
+export const MOBILE_DISTRIBUTION_CENTER_ENGINE_DRAFT_KEY = "mobile_distribution_center_engine_draft_v1";
+export const MOBILE_DISTRIBUTION_CENTER_ENGINE_LIVE_KEY = "mobile_distribution_center_engine_live_v1";
+export const MOBILE_DISTRIBUTION_CENTER_ENGINE_HISTORY_KEY = "mobile_distribution_center_engine_history_v1";
+export const MOBILE_DISTRIBUTION_CENTER_DEVICES_KEY = "mobile_distribution_center_devices_v1";
+export const MOBILE_DISTRIBUTION_CENTER_ANALYTICS_KEY = "mobile_distribution_center_analytics_v1";
+export const MOBILE_DISTRIBUTION_CENTER_QR_KEY = "mobile_distribution_center_qr_v1";

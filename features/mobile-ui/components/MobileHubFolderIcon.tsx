@@ -2,6 +2,8 @@
 
 import { useId } from "react";
 import { cn } from "@/lib/cn";
+import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
+import { resolveHubIconKey } from "@/lib/icons/fluency-3d-registry";
 import type { MobilePrimaryHubId } from "@/lib/mobile-ui/types";
 
 type MobileHubFolderIconProps = {
@@ -9,11 +11,11 @@ type MobileHubFolderIconProps = {
   className?: string;
 };
 
-const HUB_ACCENTS: Record<MobilePrimaryHubId, { from: string; to: string; glyph: string }> = {
-  buy: { from: "#60a5fa", to: "#1d4ed8", glyph: "🛒" },
-  sell: { from: "#34d399", to: "#047857", glyph: "🏷️" },
-  business: { from: "#a78bfa", to: "#5b21b6", glyph: "🏢" },
-  support: { from: "#fbbf24", to: "#b45309", glyph: "🎧" },
+const HUB_ACCENTS: Record<MobilePrimaryHubId, { from: string; to: string }> = {
+  buy: { from: "#60a5fa", to: "#1d4ed8" },
+  sell: { from: "#34d399", to: "#047857" },
+  business: { from: "#a78bfa", to: "#5b21b6" },
+  support: { from: "#fbbf24", to: "#b45309" },
 };
 
 export function MobileHubFolderIcon({ hub, className }: MobileHubFolderIconProps) {
@@ -21,7 +23,7 @@ export function MobileHubFolderIcon({ hub, className }: MobileHubFolderIconProps
   const accent = HUB_ACCENTS[hub];
 
   return (
-    <span className={cn("mhub-folder-icon", className)} aria-hidden>
+    <span className={cn("mhub-folder-icon relative inline-flex", className)} aria-hidden>
       <svg viewBox="0 0 48 48" className="h-12 w-12" role="presentation">
         <defs>
           <linearGradient id={`${uid}-hub`} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -34,16 +36,10 @@ export function MobileHubFolderIcon({ hub, className }: MobileHubFolderIconProps
         </defs>
         <circle cx="24" cy="24" r="22" fill={`url(#${uid}-hub)`} filter={`url(#${uid}-shadow)`} />
         <circle cx="24" cy="24" r="22" fill="white" fillOpacity="0.12" />
-        <text
-          x="24"
-          y="29"
-          textAnchor="middle"
-          fontSize="20"
-          dominantBaseline="middle"
-        >
-          {accent.glyph}
-        </text>
       </svg>
+      <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <Fluency3DIcon icon={resolveHubIconKey(hub)} size={26} />
+      </span>
     </span>
   );
 }

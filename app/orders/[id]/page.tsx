@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { OrderDetailPageShell } from "@/features/orders/components/OrderDetailPageShell";
 import { fetchOrderForUser, getOrderViewRole } from "@/lib/orders/queries";
+import { getOrdersEngineOrderContext } from "@/lib/orders-engine/reader";
 import { getProfile } from "@/lib/profile/data";
 
 type BuyerOrderDetailRouteProps = {
@@ -16,7 +17,15 @@ export default async function BuyerOrderDetailRoute({ params }: BuyerOrderDetail
     notFound();
   }
 
+  const orderContext = await getOrdersEngineOrderContext(id);
+
   return (
-    <OrderDetailPageShell order={order} userId={profile.id} backHref="/orders" bottomNavTab="account" />
+    <OrderDetailPageShell
+      order={order}
+      userId={profile.id}
+      backHref="/orders"
+      bottomNavTab="account"
+      orderContext={orderContext ?? undefined}
+    />
   );
 }

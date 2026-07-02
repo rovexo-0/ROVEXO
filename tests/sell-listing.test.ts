@@ -166,7 +166,7 @@ describe("AI vision pipeline", () => {
 describe("sell listing validation", () => {
   it("requires core fields for quick listings", () => {
     const draft = createEmptyDraft();
-    const errors = getListingValidationErrors(draft, { mode: "quick" });
+    const errors = getListingValidationErrors(draft, { mode: "quick", showErrors: true });
 
     expect(errors.photos).toBeTruthy();
     expect(errors.title).toBeTruthy();
@@ -196,7 +196,7 @@ describe("sell listing validation", () => {
     draft.price = "120";
     draft.shippingMethod = "delivery_available";
 
-    expect(getListingValidationErrors(draft, { mode: "quick" })).toEqual({});
+    expect(getListingValidationErrors(draft, { mode: "quick", showErrors: true })).toEqual({});
     expect(isListingValid(draft, { mode: "quick" })).toBe(true);
   });
 

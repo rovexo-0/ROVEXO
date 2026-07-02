@@ -1,11 +1,14 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { PremiumEmptyStateImage } from "@/components/ui/PremiumEmptyStateImage";
 import { Button } from "@/components/ui/Button";
 import { MotionDiv } from "@/components/ui/motion";
+import type { PremiumEmptyStateId } from "@/lib/premium-design/empty-state-library";
 import { cn } from "@/lib/cn";
 
 type EmptyStateProps = {
   icon?: ReactNode;
+  premiumIllustrationId?: PremiumEmptyStateId;
   title: string;
   description?: string;
   suggestions?: string[];
@@ -17,6 +20,7 @@ type EmptyStateProps = {
 
 export function EmptyState({
   icon,
+  premiumIllustrationId,
   title,
   description,
   suggestions,
@@ -32,7 +36,9 @@ export function EmptyState({
         className,
       )}
     >
-      {icon ? (
+      {premiumIllustrationId ? (
+        <PremiumEmptyStateImage id={premiumIllustrationId} className="mb-ds-4" />
+      ) : icon ? (
         <div className="rx-icon-3d mb-ds-4 flex h-16 w-16 items-center justify-center rounded-ds-xl text-primary rx-float">
           {icon}
         </div>

@@ -1,0 +1,80 @@
+import { versionedApiPath } from "@/lib/enterprise-architecture/constants";
+import type { EnterpriseModuleDescriptor } from "@/lib/enterprise-architecture/types";
+import {
+  HOMEPAGE_CERTIFICATION_DRAFT_KEY,
+  HOMEPAGE_CERTIFICATION_HISTORY_KEY,
+  HOMEPAGE_CERTIFICATION_LIVE_KEY,
+  HOMEPAGE_CERTIFICATION_SETTINGS_KEY,
+} from "@/lib/homepage-enterprise-certification-engine/keys";
+import { HOMEPAGE_CERTIFICATION_API, HOMEPAGE_CERTIFICATION_ROUTES } from "@/lib/homepage-enterprise-certification-engine/registry";
+
+const API_BASE = "/super-admin/homepage-certification";
+
+export const HOMEPAGE_CERTIFICATION_MODULE_DESCRIPTOR: EnterpriseModuleDescriptor = {
+  id: "homepage-enterprise-certification-engine",
+  label: "Homepage Enterprise Certification",
+  icon: "🏠",
+  description: "First Production Certified module — validates Homepage sections, category integrity, layout optimization, and OMEGA scores at PASS 100%",
+  category: "operations",
+  version: "1.1",
+  autoRegister: true,
+  baseHref: "/super-admin/homepage-certification",
+  routes: HOMEPAGE_CERTIFICATION_ROUTES,
+  api: {
+    snapshot: HOMEPAGE_CERTIFICATION_API.snapshot,
+    action: HOMEPAGE_CERTIFICATION_API.action,
+    v1Snapshot: versionedApiPath(API_BASE),
+    v1Action: `${versionedApiPath(API_BASE)}/action`,
+  },
+  featureFlags: [
+    { id: "homepage_enterprise_certification_engine_v1", label: "Homepage Enterprise Certification", description: "Master homepage certification toggle", defaultEnabled: true },
+    { id: "section_validation_enabled", label: "Section Validation", description: "Validate all homepage sections", defaultEnabled: true },
+    { id: "button_validation_enabled", label: "Button Validation", description: "Validate every homepage interaction", defaultEnabled: true },
+    { id: "search_validation_enabled", label: "Search Validation", description: "Validate search, autocomplete, filters", defaultEnabled: true },
+    { id: "responsive_validation_enabled", label: "Responsive Validation", description: "Mobile through large desktop", defaultEnabled: true },
+    { id: "performance_validation_enabled", label: "Performance Validation", description: "LCP, latency, bundle, lazy loading", defaultEnabled: true },
+    { id: "accessibility_validation_enabled", label: "Accessibility Validation", description: "ARIA, keyboard, screen readers", defaultEnabled: true },
+    { id: "seo_validation_enabled", label: "SEO Validation", description: "Metadata, structured data, OG tags", defaultEnabled: true },
+    { id: "validation_only_mode", label: "Validation Only", description: "Never auto-modify protected areas", defaultEnabled: true },
+    { id: "omega_score_engine_enabled", label: "OMEGA Score Engine", description: "Compute OMEGA certification scores", defaultEnabled: true },
+    { id: "require_pass_100", label: "Require PASS 100%", description: "No feature complete until 100% pass", defaultEnabled: true },
+    { id: "homepage_integrity_engine_v1", label: "Homepage Integrity Engine", description: "OMEGA Update 066.1 — category duplication and layout integrity", defaultEnabled: true },
+    { id: "category_duplication_detection", label: "Category Duplication Detection", description: "Scan rail, grid, sections, navigation for duplicates", defaultEnabled: true },
+    { id: "layout_optimization_enabled", label: "Layout Optimization", description: "Detect empty space, padding, and search bar gap issues", defaultEnabled: true },
+  ],
+  permissions: [
+    { action: "view", label: "View homepage certification", roles: ["super-admin"] },
+    { action: "validate", label: "Run full homepage validation", roles: ["super-admin"] },
+    { action: "certify", label: "Grant production certification", requiresMfa: true, roles: ["super-admin"] },
+    { action: "analyze", label: "Analyze certification failures", roles: ["super-admin"] },
+    { action: "export", label: "Export certification reports", roles: ["super-admin"] },
+    { action: "publish-config", label: "Publish configuration", requiresMfa: true, roles: ["super-admin"] },
+    { action: "rollback-config", label: "Rollback configuration", requiresMfa: true, roles: ["super-admin"] },
+    { action: "import-config", label: "Import configuration", requiresMfa: true, roles: ["super-admin"] },
+    { action: "export-config", label: "Export configuration", roles: ["super-admin"] },
+  ],
+  configKeys: {
+    draft: HOMEPAGE_CERTIFICATION_DRAFT_KEY,
+    live: HOMEPAGE_CERTIFICATION_LIVE_KEY,
+    history: HOMEPAGE_CERTIFICATION_HISTORY_KEY,
+    settings: HOMEPAGE_CERTIFICATION_SETTINGS_KEY,
+  },
+  relatedModules: [
+    "omega-command-center",
+    "omega-quality-assurance-center",
+    "omega-development-director",
+    "enterprise-observability-center",
+    "enterprise-governance-center",
+    "enterprise-security-operations-center",
+    "certification-center",
+    "homepage-builder-engine",
+    "enterprise-e2e-validation-engine",
+    "enterprise-autonomous-execution-engine",
+    "enterprise-category-management-center",
+    "homepage-category-integrity-engine",
+    "omega-global-ui-integrity-engine",
+    "enterprise-deployment-center",
+    "enterprise-module-registry-v2",
+    "mission-control-engine",
+  ],
+};

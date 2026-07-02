@@ -27,7 +27,7 @@ export async function getBusinessProfile(): Promise<UserProfile> {
   const profile = await getProfile();
 
   if (profile.accountType !== "business") {
-    throw new Error("Business account required");
+    redirect("/account");
   }
 
   return profile;

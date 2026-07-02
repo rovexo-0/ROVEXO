@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { RovexoGlassIcon } from "@/components/icons/RovexoGlassIcon";
-import { RovexoIcons } from "@/lib/icons";
+import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
 import { ConfirmDialog } from "@/features/settings/components/ConfirmDialog";
 import { signOut } from "@/lib/auth/actions";
 import { focusRing } from "@/components/ui/tokens";
@@ -31,7 +30,7 @@ export function LogoutButton({ className }: LogoutButtonProps) {
         disabled={pending}
         className={cn("account-logout", focusRing, className)}
       >
-        <RovexoGlassIcon icon={RovexoIcons.security.logout} size={20} />
+        <Fluency3DIcon icon="feature-sign-out" size={20} />
         {pending ? "Signing out…" : "Sign Out"}
       </button>
 

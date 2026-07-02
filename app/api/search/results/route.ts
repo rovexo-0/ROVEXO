@@ -1,7 +1,7 @@
 import { filtersToSearchOptions, parseSearchFilters } from "@/features/search/utils/filters";
+import { jsonWithCache } from "@/lib/api/cache-headers";
 import { searchListings } from "@/lib/listings/repository";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
-import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   const limited = await enforceRateLimit(request, "search-results", 120, 60_000);
@@ -14,5 +14,5 @@ export async function GET(request: Request) {
   const options = filtersToSearchOptions(filters, query, Number.isFinite(page) ? page : 1);
 
   const results = await searchListings(options);
-  return NextResponse.json(results);
+  return jsonWithCache(results, "public-short");
 }

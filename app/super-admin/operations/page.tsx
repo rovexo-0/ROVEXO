@@ -1,15 +1,24 @@
-import { AiOperationsCenter } from "@/features/super-admin/operations/AiOperationsCenter";
-import { getAiOperationsSnapshot } from "@/lib/super-admin/operations/snapshot";
+import { OperationsCenterAdmin } from "@/features/super-admin/operations-center/OperationsCenterAdmin";
+import { SuperAdminPageHeader } from "@/features/super-admin/components/SuperAdminShell";
+import { getOperationsCenterPageData } from "@/lib/operations-center-engine/reader";
 
 export default async function SuperAdminOperationsPage() {
-  const snapshot = await getAiOperationsSnapshot();
+  const { snapshot } = await getOperationsCenterPageData();
 
-  return <AiOperationsCenter initialSnapshot={snapshot} />;
+  return (
+    <>
+      <SuperAdminPageHeader
+        title="Operations Center"
+        description="Enterprise NOC — live platform monitoring, alerts, incidents, maintenance, and recovery."
+      />
+      <OperationsCenterAdmin initialSnapshot={snapshot} defaultTab="dashboard" />
+    </>
+  );
 }
 
 export async function generateMetadata() {
   return {
-    title: "AI Operations Center | Super Admin | ROVEXO",
+    title: "Operations Center | ROVEXO",
     robots: { index: false, follow: false },
   };
 }

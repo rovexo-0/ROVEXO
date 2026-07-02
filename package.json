@@ -11,6 +11,7 @@
     "verify:env": "npx tsx scripts/verify-env.ts",
     "verify:production": "node scripts/verify-production.mjs",
     "db:migrate": "node scripts/supabase-migrate-workflow.mjs",
+    "db:republish-homepage": "npx tsx scripts/republish-homepage-launch-defaults.ts",
     "db:push": "supabase db push --linked --yes",
     "db:idempotent": "node scripts/refactor-migrations-idempotent.mjs",
     "test": "vitest run",
@@ -21,7 +22,15 @@
     "test:e2e:install": "playwright install",
     "test:e2e:android-sell": "playwright test e2e/sell-android.spec.ts --project=android-chromium",
     "generate:brand": "node scripts/generate-brand-assets.mjs",
-    "generate:icons": "node scripts/generate-rovexo-glass-icons.mjs"
+    "generate:icons": "node scripts/generate-rovexo-glass-icons.mjs",
+    "generate:category-assets": "node scripts/generate-home-category-icons.mjs",
+    "verify:category-assets": "node scripts/verify-category-premium-assets.mjs",
+    "generate:hero-campaigns": "node scripts/generate-hero-campaign-sources.mjs && node scripts/generate-hero-campaigns.mjs",
+    "verify:hero-campaigns": "node scripts/verify-hero-campaigns.mjs",
+    "verify:assets": "npx tsx scripts/validate-production-assets.ts",
+    "import:premium-assets": "node scripts/import-premium-photo-sources.mjs && node scripts/import-premium-empty-states.mjs",
+    "generate:premium-assets": "node scripts/generate-production-from-sources.mjs && node scripts/generate-empty-state-assets.mjs",
+    "prebuild": "npm run verify:assets"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

@@ -2,6 +2,8 @@ import { existsSync } from "node:fs";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { getPlatformHealthReport } from "@/lib/ops/health";
+import { validateSecurityHeaderConfiguration } from "@/lib/ops/security-headers";
+import { validatePlatformSecuritySurface } from "@/lib/ops/production-env";
 import { isStripeConfigured } from "@/lib/stripe/server";
 import type { ScanResultItem, ScanSeverity } from "@/lib/super-admin/operations/types";
 
@@ -199,8 +201,8 @@ export async function runAiPlatformScan(): Promise<ScanResultItem[]> {
     timed("lighthouse", async () => ({
       id: "lighthouse",
       label: "Lighthouse",
-      status: fileExists("public/manifest.webmanifest") ? "healthy" : "warning",
-      message: "PWA manifest supports performance audits",
+      status: fileExists("public/sw.js") && fileExists("app/manifest.ts") ? "healthy" : "warning",
+      message: "PWA service worker and manifest route support performance audits",
       durationMs: 0,
     })),
     timed("accessibility", async () => ({
@@ -213,8 +215,13 @@ export async function runAiPlatformScan(): Promise<ScanResultItem[]> {
     timed("pwa", async () => ({
       id: "pwa",
       label: "PWA",
-      status: fileExists("public/manifest.webmanifest") ? "healthy" : "warning",
-      message: "Web app manifest published",
+      status:
+        fileExists("public/sw.js") &&
+        fileExists("app/manifest.ts") &&
+        fileExists("components/pwa/PwaProvider.tsx")
+          ? "healthy"
+          : "warning",
+      message: "Service worker, manifest route, and runtime registration active",
       durationMs: 0,
     })),
     timed("robots", async () => ({
@@ -238,13 +245,20 @@ export async function runAiPlatformScan(): Promise<ScanResultItem[]> {
       message: "API rate limiting module available",
       durationMs: 0,
     })),
-    timed("headers", async () => ({
-      id: "headers",
-      label: "Headers",
-      status: fileExists("next.config.ts") ? "healthy" : "warning",
-      message: "Security headers configured in next.config.ts",
-      durationMs: 0,
-    })),
+    timed("headers", async () => {
+      const headerConfig = validateSecurityHeaderConfiguration(process.env.NODE_ENV === "production");
+      const securitySurface = validatePlatformSecuritySurface();
+      const pass = headerConfig.pass && securitySurface.pass;
+      return {
+        id: "headers",
+        label: "Headers",
+        status: pass ? "healthy" : "warning",
+        message: pass
+          ? "CSP, HSTS, X-Frame-Options, and security surface validated"
+          : `Missing headers: ${headerConfig.missing.join(", ") || "security surface incomplete"}`,
+        durationMs: 0,
+      };
+    }),
     timed("ssl", async () => ({
       id: "ssl",
       label: "SSL",

@@ -13,6 +13,7 @@ export function SellerReviewsSection({ reviews }: SellerReviewsSectionProps) {
   if (!reviews.length) {
     return (
       <EmptyState
+        premiumIllustrationId="reviews"
         title="No reviews yet"
         description="Reviews from buyers will appear here after completed orders."
       />

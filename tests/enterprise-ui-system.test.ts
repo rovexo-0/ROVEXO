@@ -3,35 +3,31 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Enterprise UI system — homepage hero", () => {
-  it("does not render legacy hero banner on homepage", () => {
-    const homePage = readFileSync(join(process.cwd(), "components/home/RovexoHomePage.tsx"), "utf8");
-    expect(homePage).not.toContain("HomeHeroBanner");
-    expect(homePage).not.toContain("StoreMigrationHeroBanner");
-    expect(homePage).toContain("RovexoBanner");
+  it("does not render Official ROVEXO banner on homepage", () => {
+    const homeContent = readFileSync(join(process.cwd(), "components/home/HomeContent.tsx"), "utf8");
+    expect(homeContent).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
+    expect(homeContent).not.toContain("HomeHeroBannerEngine");
+    expect(homeContent).toContain("BringYourItemsBanner");
   });
 
-  it("routes hero slide CTAs to approved destinations", () => {
-    const banner = readFileSync(
-      join(process.cwd(), "features/seller/migration/components/StoreMigrationHeroBanner.tsx"),
-      "utf8",
-    );
-    expect(banner).toContain("SELL_WIZARD_PATH");
-    expect(banner).toContain("Bring Your Items");
-    expect(banner).toContain("Start Selling");
-    expect(banner).toContain("List today.");
-    expect(banner).toContain("Learn More");
-    expect(banner).toContain("Explore");
+  it("routes hero slide CTAs to approved marketplace destinations", () => {
+    const constants = readFileSync(join(process.cwd(), "lib/home/constants.ts"), "utf8");
+    expect(constants).toContain("Start import");
+    expect(constants).toContain("List free");
+    expect(constants).toContain("Browse directory");
+    expect(constants).toContain("Learn more");
+    expect(constants).toContain("HOME_HERO_BANNERS");
+    expect(constants).not.toContain("unsplash.com");
   });
 
-  it("hero carousel auto-advances without skipping the migration slide on mount", () => {
+  it("hero carousel auto-advances with deferred first tick", () => {
     const banner = readFileSync(
       join(process.cwd(), "features/seller/migration/components/StoreMigrationHeroBanner.tsx"),
       "utf8",
     );
     expect(banner).toContain("AUTO_ADVANCE_MS = 5000");
     expect(banner).toContain('immediate: false');
-    expect(banner).toContain("Sell Smarter.");
-    expect(banner).toContain("Fast Delivery Across Europe");
+    expect(banner).toContain("HOME_HERO_BANNERS");
     expect(banner).toContain("handlePointerDown");
   });
 });
@@ -65,20 +61,21 @@ describe("Enterprise UI system — design lock", () => {
     expect(card).not.toContain("rx-dash-tile__body");
   });
 
-  it("names account hub quick access modules", () => {
-    const accountHome = readFileSync(
-      join(process.cwd(), "features/account-center/components/AccountCenterHome.tsx"),
+  it("names account hub sections BUY SELL BUSINESS SUPPORT", () => {
+    const dashboard = readFileSync(
+      join(process.cwd(), "components/home/HomeContent.tsx"),
       "utf8",
     );
-    const modules = readFileSync(join(process.cwd(), "lib/account-center/modules.ts"), "utf8");
-    expect(accountHome).toContain("ACCOUNT_QUICK_ACCESS");
-    expect(accountHome).toContain("AccountQuickAccessGrid");
-    expect(modules).toContain('title: "Buyer"');
-    expect(modules).toContain('title: "Seller"');
-    expect(modules).toContain('title: "Business"');
-    expect(modules).toContain('title: "Account"');
-    expect(accountHome).not.toContain('title="BUY"');
-    expect(accountHome).not.toContain("HubSection");
+    const accountDashboard = readFileSync(
+      join(process.cwd(), "features/account-page/components/PremiumAccountDashboard.tsx"),
+      "utf8",
+    );
+    expect(accountDashboard).toContain('title="BUY"');
+    expect(accountDashboard).toContain('title="SELL"');
+    expect(accountDashboard).toContain('title="BUSINESS"');
+    expect(accountDashboard).toContain('title="SUPPORT"');
+    expect(accountDashboard).not.toContain("Quick Access");
+    expect(dashboard).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
   });
 });
 

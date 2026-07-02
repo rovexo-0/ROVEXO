@@ -97,6 +97,15 @@ export function createDefaultCanvasDocument(): VisualCanvasDocument {
 }
 
 export function canvasNodesFromHomepage(homepage: HomepageBuilderConfig): CanvasNode[] {
+  const defaultVisibility = {
+    desktop: true,
+    laptop: true,
+    tablet: true,
+    android: true,
+    iphone: true,
+    ultrawide: true,
+  };
+
   return [...homepage.components]
     .sort((a, b) => a.order - b.order)
     .map((component, index) => {

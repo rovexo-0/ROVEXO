@@ -1,17 +1,24 @@
-import { SuperAdminDashboard } from "@/features/super-admin/components/SuperAdminDashboard";
-import { SuperAdminPageHeader } from "@/features/super-admin/components/SuperAdminShell";
-import { getSuperAdminDashboardData } from "@/lib/super-admin/dashboard";
+import { MissionControlCenterV2 } from "@/features/super-admin/mission-control/MissionControlCenterV2";
+import { getMissionControlV2PageDataFromSnapshot } from "@/lib/mission-control-engine/reader";
+import { getMissionControlSnapshot } from "@/lib/super-admin/mission-control/snapshot";
 
 export default async function SuperAdminHomePage() {
-  const data = await getSuperAdminDashboardData();
+  const snapshot = await getMissionControlSnapshot();
+  const { context, sections, quickActions } = await getMissionControlV2PageDataFromSnapshot(snapshot);
 
   return (
-    <>
-      <SuperAdminPageHeader
-        title="Super Admin Dashboard"
-        description="Complete platform overview for the single ROVEXO Super Admin account."
-      />
-      <SuperAdminDashboard data={data} />
-    </>
+    <MissionControlCenterV2
+      snapshot={snapshot}
+      context={context}
+      sections={sections}
+      quickActions={quickActions}
+    />
   );
+}
+
+export async function generateMetadata() {
+  return {
+    title: "Mission Control | ROVEXO",
+    robots: { index: false, follow: false },
+  };
 }

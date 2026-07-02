@@ -1,6 +1,5 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { repoPath } from "@/lib/ops/repo-path";
 import { cacheControlValue } from "@/lib/api/cache-headers";
 import { validatePerformanceHeaderConfiguration } from "@/lib/ops/performance-headers";
 
@@ -41,17 +40,17 @@ const REQUIRED_INDEXES = [
 ] as const;
 
 function readProjectFile(relativePath: string): string {
-  const absolutePath = repoPath(relativePath);
+  const absolutePath = join(process.cwd(), relativePath);
   if (!existsSync(absolutePath)) return "";
   return readFileSync(absolutePath, "utf8");
 }
 
 function fileExists(relativePath: string): boolean {
-  return existsSync(repoPath(relativePath));
+  return existsSync(join(process.cwd(), relativePath));
 }
 
 function migrationContainsIndex(indexName: string): boolean {
-  const migrationsDir = repoPath("supabase", "migrations");
+  const migrationsDir = join(process.cwd(), "supabase", "migrations");
   if (!existsSync(migrationsDir)) return false;
 
   return readdirSync(migrationsDir)
@@ -98,7 +97,7 @@ function buildDatabaseChecks(): PerformanceCheck[] {
 function buildNextJsChecks(): PerformanceCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
   const homePage = readProjectFile("app/page.tsx");
-  const homeContent = readProjectFile("components/home/RovexoHomePage.tsx");
+  const homeContent = readProjectFile("components/home/HomeContent.tsx");
 
   return [
     {
@@ -226,7 +225,7 @@ function buildCacheChecks(): PerformanceCheck[] {
 
 function buildWebVitalsChecks(): PerformanceCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
-  const homeContent = readProjectFile("components/home/RovexoHomePage.tsx");
+  const homeContent = readProjectFile("components/home/HomeContent.tsx");
 
   return [
     {

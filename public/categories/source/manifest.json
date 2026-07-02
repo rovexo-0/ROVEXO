@@ -1,0 +1,27 @@
+{
+  "version": "approved-premium-photography",
+  "pipeline": "source-photography-only",
+  "importedAt": "2026-06-29T18:24:01.190Z",
+  "keys": [
+    "vehicles",
+    "property",
+    "phones",
+    "computers",
+    "electronics",
+    "gaming",
+    "home-garden",
+    "diy",
+    "tools",
+    "womens-fashion",
+    "mens-fashion",
+    "kids-fashion",
+    "shoes",
+    "jewellery",
+    "beauty",
+    "health",
+    "pets",
+    "sports",
+    "services",
+    "autoparts"
+  ]
+}

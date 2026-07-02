@@ -1,10 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { NextResponse } from "next/server";
 import { GET, POST } from "@/app/api/auctions/notify/route";
 import { GET as getAuctionsApi } from "@/app/api/auctions/route";
 
 vi.mock("@/lib/auth/session", () => ({
   requireApiAuth: vi.fn(),
+  getAuthContext: vi.fn(),
 }));
 
 vi.mock("@/lib/auctions/notify-store", () => ({
@@ -26,7 +29,46 @@ const emptyPageData = {
   all: [],
 };
 
-describe("auctions API", () => {
+function readSource(relativePath: string): string {
+  return readFileSync(path.join(process.cwd(), relativePath), "utf8");
+}
+
+describe("auctions coming soon", () => {
+  it("renders the premium coming soon page at /auctions", () => {
+    const route = readSource("app/auctions/page.tsx");
+    const page = readSource("features/auctions/components/AuctionsComingSoonPage.tsx");
+
+    expect(route).toContain("AuctionsComingSoonPage");
+    expect(route).not.toContain("AuctionsPage");
+    expect(route).not.toContain("getAuctionsPageData");
+    expect(page).toContain("Coming Soon");
+    expect(page).toContain("Notify Me");
+    expect(page).toContain("Back to Marketplace");
+    expect(page).toContain("Learn More");
+    expect(page).toContain("LIVE AUCTIONS");
+    expect(page).toContain("Coming in a future ROVEXO update");
+  });
+
+  it("keeps the full auctions engine available for future replacement", () => {
+    expect(readSource("features/auctions/components/AuctionsPage.tsx")).toContain(
+      "export function AuctionsPage",
+    );
+  });
+
+  it("lists all feature preview cards", () => {
+    const content = readSource("lib/auctions/coming-soon-content.ts");
+    expect(content).toContain("Real-Time Bidding");
+    expect(content).toContain("Instant Bid Updates");
+    expect(content).toContain("Watch Auctions");
+    expect(content).toContain("Live Notifications");
+    expect(content).toContain("Buyer Protection");
+    expect(content).toContain("Verified Sellers");
+    expect(content).toContain("Win Unique Items");
+    expect(content).toContain("Premium Marketplace Experience");
+  });
+});
+
+describe("auctions notify API", () => {
   it("returns auction page data from the listings API", async () => {
     const { getAuctionsPageData } = await import("@/lib/auctions/queries");
     vi.mocked(getAuctionsPageData).mockResolvedValueOnce(emptyPageData);
@@ -60,5 +102,20 @@ describe("auctions API", () => {
     const response = await GET();
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ subscribed: true });
+  });
+
+  it("persists launch notification opt-in for authenticated users", async () => {
+    const { requireApiAuth } = await import("@/lib/auth/session");
+    const { subscribeToAuctionLaunch } = await import("@/lib/auctions/notify-store");
+
+    vi.mocked(requireApiAuth).mockResolvedValueOnce({
+      user: { id: "user-1" },
+    } as never);
+    vi.mocked(subscribeToAuctionLaunch).mockResolvedValueOnce(true);
+
+    const response = await POST();
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ subscribed: true });
+    expect(subscribeToAuctionLaunch).toHaveBeenCalledWith("user-1");
   });
 });

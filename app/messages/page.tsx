@@ -1,11 +1,43 @@
-import { MessagesListPage } from "@/features/messages/components/MessagesListPage";
+import { Suspense } from "react";
+import { MessagesEngineHub } from "@/features/messages-engine/MessagesEngineHub";
+import { MESSAGES_ENGINE_MODULES } from "@/lib/messages-engine/registry";
+import {
+  getMessagesEngineAnalyticsForUser,
+  getMessagesEngineContext,
+  getPublicMessagesEngineConfig,
+  listMessagesEngineSummaries,
+} from "@/lib/messages-engine/reader";
 import { fetchConversations } from "@/lib/messages/queries";
-import { privatePageMetadata } from "@/lib/seo/private-metadata";
-
-export const metadata = privatePageMetadata;
+import { getProfile } from "@/lib/profile/data";
 
 export default async function MessagesRoute() {
-  const conversations = await fetchConversations();
+  const profile = await getProfile();
+  const [config, context, summaries, analytics, conversations] = await Promise.all([
+    getPublicMessagesEngineConfig(),
+    getMessagesEngineContext(profile.id),
+    listMessagesEngineSummaries(profile.id),
+    getMessagesEngineAnalyticsForUser(profile.id),
+    fetchConversations(),
+  ]);
 
-  return <MessagesListPage conversations={conversations} />;
+  return (
+    <Suspense fallback={<div className="me-hub p-ds-5">Loading messages…</div>}>
+      <MessagesEngineHub
+        config={config}
+        context={context}
+        modules={MESSAGES_ENGINE_MODULES}
+        summaries={summaries}
+        analytics={analytics}
+        conversations={conversations}
+      />
+    </Suspense>
+  );
+}
+
+export async function generateMetadata() {
+  return {
+    title: "Messages | ROVEXO",
+    description: "ROVEXO Messages Engine — secure marketplace communication, attachments, and real-time chat.",
+    robots: { index: false, follow: false },
+  };
 }

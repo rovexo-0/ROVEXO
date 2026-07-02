@@ -51,6 +51,8 @@ export function SettingsPage({ profile }: SettingsPageProps) {
   const [saving, setSaving] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletePending, setDeletePending] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [logoutPending, startLogoutTransition] = useTransition();
 
   useEffect(() => {
@@ -370,15 +372,40 @@ export function SettingsPage({ profile }: SettingsPageProps) {
       <ConfirmDialog
         open={deleteOpen}
         title="Delete account?"
-        description="Account deletion is not available in v1.0. Contact support if you need help closing your account."
-        confirmLabel="Contact support"
+        description="This permanently closes your ROVEXO account. You will be signed out and will need to contact support to restore access."
+        confirmLabel={deletePending ? "Deleting…" : "Delete my account"}
         cancelLabel="Cancel"
         onConfirm={() => {
-          setDeleteOpen(false);
-          window.location.href = "/support";
+          setDeleteError(null);
+          setDeletePending(true);
+          void fetch("/api/account/delete", { method: "POST" })
+            .then(async (response) => {
+              const payload = (await response.json()) as { error?: string };
+              if (!response.ok) {
+                setDeleteError(payload.error ?? "Unable to delete account.");
+                setDeletePending(false);
+                return;
+              }
+              setDeleteOpen(false);
+              window.location.href = "/login";
+            })
+            .catch(() => {
+              setDeleteError("Unable to delete account. Check your connection and try again.");
+              setDeletePending(false);
+            });
         }}
-        onCancel={() => setDeleteOpen(false)}
+        onCancel={() => {
+          if (!deletePending) {
+            setDeleteOpen(false);
+            setDeleteError(null);
+          }
+        }}
       />
+      {deleteError ? (
+        <p className="sr-only" aria-live="polite">
+          {deleteError}
+        </p>
+      ) : null}
     </BetaAppShell>
   );
 }

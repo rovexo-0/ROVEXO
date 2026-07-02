@@ -39,6 +39,10 @@ const DASHBOARD_ICON_MAP: Record<DashboardIconType, RovexoIconRef> = {
   "sell-hub": RovexoIcons.dashboard["sell-hub"],
   "business-hub": RovexoIcons.dashboard["business-hub"],
   "support-hub": RovexoIcons.dashboard["support-hub"],
+  "feature-language": RovexoIcons.settings.settings,
+  "feature-currency": RovexoIcons.payments.payment,
+  "feature-appearance": RovexoIcons.settings.settings,
+  "feature-privacy": RovexoIcons.security.shield,
 };
 
 const BOTTOM_NAV_ICON_MAP: Record<BottomNavIconType, RovexoIconRef> = {

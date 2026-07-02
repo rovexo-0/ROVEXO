@@ -9,6 +9,7 @@ import { useRovexoMobileHeaderScrollContext } from "@/components/home/RovexoMobi
 import { cn } from "@/lib/cn";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
+import type { MenuItemConfig } from "@/lib/platform-visual/types";
 import "./bottom-navigation.css";
 
 export type BottomNavTab = "home" | "search" | "sell" | "saved" | "account";
@@ -17,6 +18,8 @@ export type BottomNavigationProps = {
   active?: BottomNavTab;
   className?: string;
   ariaLabel?: string;
+  menuItems?: MenuItemConfig[];
+  visible?: boolean;
 };
 
 type NavItem = {
@@ -26,12 +29,21 @@ type NavItem = {
   icon: BottomNavIconType;
 };
 
-const navItems: NavItem[] = [
+const defaultNavItems: NavItem[] = [
   { id: "home", label: "Home", href: "/", icon: "home" },
   { id: "search", label: "Search", href: "/search", icon: "search" },
   { id: "saved", label: "Saved", href: "/saved", icon: "saved" },
   { id: "account", label: "Account", href: "/account", icon: "account" },
 ];
+
+function mapMenuItems(items: MenuItemConfig[]): NavItem[] {
+  return items.map((item) => ({
+    id: (item.id as BottomNavTab) || "home",
+    label: item.label,
+    href: item.href,
+    icon: (item.icon as BottomNavIconType) || "home",
+  }));
+}
 
 function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab {
   if (active) return active;
@@ -68,9 +80,8 @@ function NavLink({
   );
 }
 
-function AccountNavLink({ isActive }: { isActive: boolean }) {
+function AccountNavLink({ isActive, accountItem }: { isActive: boolean; accountItem: NavItem }) {
   const [profile, setProfile] = useState<{ name: string; avatarUrl: string | null } | null>(null);
-  const accountItem = navItems.find((item) => item.id === "account")!;
 
   useEffect(() => {
     let cancelled = false;
@@ -122,15 +133,22 @@ export function BottomNavigation({
   active,
   className,
   ariaLabel = "Main navigation",
+  menuItems,
+  visible = true,
 }: BottomNavigationProps) {
   const pathname = usePathname();
   const searchOverlay = useSearchOverlayOptional();
   const scroll = useRovexoMobileHeaderScrollContext();
   const activeTab = resolveActiveTab(pathname, active);
-  const isSellActive = activeTab === "sell";
   const isChromeVisible = scroll?.isVisible ?? true;
   const hasScrollBehavior = Boolean(scroll);
-  const [home, search, saved] = navItems;
+  const navItems = menuItems?.length ? mapMenuItems(menuItems) : defaultNavItems;
+  const home = navItems.find((item) => item.id === "home") ?? defaultNavItems[0];
+  const search = navItems.find((item) => item.id === "search") ?? defaultNavItems[1];
+  const saved = navItems.find((item) => item.id === "saved") ?? defaultNavItems[2];
+  const account = navItems.find((item) => item.id === "account") ?? defaultNavItems[3];
+  const sell = menuItems?.find((item) => item.id === "sell" && item.enabled);
+  const isSellActive = activeTab === "sell";
 
   function handleSearchNavigate(event: MouseEvent<HTMLAnchorElement>) {
     if (pathname === "/" && searchOverlay) {
@@ -138,6 +156,8 @@ export function BottomNavigation({
       searchOverlay.open();
     }
   }
+
+  if (!visible) return null;
 
   return (
     <nav
@@ -154,7 +174,7 @@ export function BottomNavigation({
         className,
       )}
     >
-      <div className="rx-bottom-nav-shell pointer-events-auto relative w-[92%] max-w-none">
+      <div className="rx-bottom-nav-shell pointer-events-auto relative w-full max-w-none">
         <ul className="rx-bottom-nav-grid">
           <li>
             <NavLink item={home} isActive={activeTab === "home"} />
@@ -163,26 +183,43 @@ export function BottomNavigation({
             <NavLink item={search} isActive={activeTab === "search"} onNavigate={handleSearchNavigate} />
           </li>
 
-          <li>
-            <Link
-              href="/sell"
-              aria-label="Sell"
-              aria-current={isSellActive ? "page" : undefined}
-              data-active={isSellActive}
-              className={cn("rx-bottom-nav-item rx-bottom-nav-item--sell", focusRing, transitionFast)}
-            >
-              <span className="rx-bottom-nav-sell">
-                <BottomNavIcon3D type="sell" active={isSellActive} size="sell" />
-              </span>
-              <span className="rx-bottom-nav-item__label">Sell</span>
-            </Link>
-          </li>
+          {sell ? (
+            <li>
+              <Link
+                href={sell.href}
+                aria-label={sell.label}
+                aria-current={isSellActive ? "page" : undefined}
+                data-active={isSellActive}
+                className={cn("rx-bottom-nav-item rx-bottom-nav-item--sell", focusRing, transitionFast)}
+              >
+                <span className="rx-bottom-nav-sell">
+                  <BottomNavIcon3D type="sell" active={isSellActive} size="sell" />
+                </span>
+                <span className="rx-bottom-nav-item__label">{sell.label}</span>
+              </Link>
+            </li>
+          ) : (
+            <li>
+              <Link
+                href="/sell"
+                aria-label="Sell"
+                aria-current={isSellActive ? "page" : undefined}
+                data-active={isSellActive}
+                className={cn("rx-bottom-nav-item rx-bottom-nav-item--sell", focusRing, transitionFast)}
+              >
+                <span className="rx-bottom-nav-sell">
+                  <BottomNavIcon3D type="sell" active={isSellActive} size="sell" />
+                </span>
+                <span className="rx-bottom-nav-item__label">Sell</span>
+              </Link>
+            </li>
+          )}
 
           <li>
             <NavLink item={saved} isActive={activeTab === "saved"} />
           </li>
           <li>
-            <AccountNavLink isActive={activeTab === "account"} />
+            <AccountNavLink isActive={activeTab === "account"} accountItem={account} />
           </li>
         </ul>
       </div>

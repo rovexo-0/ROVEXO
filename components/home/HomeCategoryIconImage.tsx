@@ -5,6 +5,7 @@ import type { HomeCategoryIconType } from "@/lib/home/constants";
 import {
   assertCategoryPremiumRender,
   getCategoryPremiumPngSrc,
+  getCategoryPremiumSrcSet,
   hasCategoryPremiumRender,
 } from "@/lib/home/category-premium-assets";
 import { HomeCategoryIcon3D } from "@/components/icons/HomeCategoryIcon3D";
@@ -47,24 +48,32 @@ export const HomeCategoryIconImage = memo(function HomeCategoryIconImage({
       return <PremiumCategoryRenderMissing type={type} />;
     }
 
-    const pngSrc = getCategoryPremiumPngSrc(type);
+    const avifSrcSet = getCategoryPremiumSrcSet(type, "avif");
+    const webpSrcSet = getCategoryPremiumSrcSet(type, "webp");
+    const pngFallback = getCategoryPremiumPngSrc(type);
 
     const icon = (
       <span
         className={cn("rx-category-render rx-category-render--premium-3d", className)}
         data-home-category-icon="premium-3d-asset"
       >
-        <img
-          src={pngSrc}
-          alt=""
-          width={128}
-          height={128}
-          loading={priority ? "eager" : "lazy"}
-          fetchPriority={priority ? "high" : "auto"}
-          decoding="async"
-          draggable={false}
-          className="rx-category-render__img"
-        />
+        <picture>
+          <source srcSet={avifSrcSet} sizes="(max-width: 639px) 56px, (min-width: 1024px) 72px, 64px" type="image/avif" />
+          <source srcSet={webpSrcSet} sizes="(max-width: 639px) 56px, (min-width: 1024px) 72px, 64px" type="image/webp" />
+          <img
+            src={pngFallback}
+            srcSet={getCategoryPremiumSrcSet(type, "png")}
+            sizes="(max-width: 639px) 56px, (min-width: 1024px) 72px, 64px"
+            alt=""
+            width={128}
+            height={128}
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : "auto"}
+            decoding="async"
+            draggable={false}
+            className="rx-category-render__img"
+          />
+        </picture>
       </span>
     );
 

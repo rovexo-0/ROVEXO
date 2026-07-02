@@ -7,29 +7,34 @@ function readSource(relativePath: string): string {
 }
 
 describe("Home page hydration safety", () => {
-  it("keeps RovexoHomePage free of lazy Suspense boundaries", () => {
-    const source = readSource("components/home/RovexoHomePage.tsx");
+  it("uses enterprise HomeCategoryRail on the homepage", () => {
+    const homeContent = readSource("components/home/HomeContent.tsx");
+    const categoryRail = readSource("components/home/HomeCategoryRail.tsx");
 
-    expect(source).not.toContain("lazy(");
-    expect(source).not.toContain("<Suspense");
-    expect(source).toContain("RovexoCategoryRail");
-  });
-
-  it("uses RovexoCategoryRail on the homepage", () => {
-    const homePage = readSource("components/home/RovexoHomePage.tsx");
-    const categoryRail = readSource("components/home/RovexoCategoryRail.tsx");
-
-    expect(homePage).toContain("RovexoCategoryRail");
-    expect(categoryRail).toContain("RovexoCategoryCard");
+    expect(homeContent).toContain("HomeCategoryRail");
+    expect(homeContent).not.toContain("CategoryGridSection");
+    expect(categoryRail).toContain("rx-category-rail");
+    expect(categoryRail).toContain("rx-category-card");
   });
 
   it("defers header height measurement to layout effects", () => {
-    const scrollSource = readSource("components/home/RovexoMobileHeaderScrollContext.tsx");
-    const headerSource = readSource("components/home/RovexoHeader.tsx");
+    const scrollSource = readSource("components/home/MobileHeaderScrollContext.tsx");
+    const headerSource = readSource("components/Header.tsx");
 
     expect(scrollSource).toContain("useLayoutEffect");
     expect(scrollSource).toContain("setHeaderElement");
     expect(scrollSource).not.toContain("headerElementRef");
-    expect(headerSource).toContain('"use client"');
+    expect(headerSource).toContain("useLayoutEffect");
+    expect(headerSource).toContain("headerRef");
+    expect(headerSource).not.toContain("setHeaderRef");
+  });
+
+  it("lazy loads heavy homepage sections without Suspense boundaries", () => {
+    const source = readSource("components/home/HomeContent.tsx");
+
+    expect(source).toContain("dynamic(");
+    expect(source).not.toContain("<Suspense");
+    expect(source).not.toContain("HomeHeroBannerEngine");
+    expect(source).not.toContain("HeroCategorySyncProvider");
   });
 });

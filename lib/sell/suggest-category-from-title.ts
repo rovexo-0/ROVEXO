@@ -14,7 +14,7 @@ export type TitleCategorySuggestion = {
   confidence: number;
 };
 
-export const MIN_TITLE_LENGTH = 3;
+export const MIN_TITLE_LENGTH = 5;
 
 function expandSynonyms(text: string): string {
   let expanded = text;

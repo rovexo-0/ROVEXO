@@ -1,0 +1,202 @@
+[
+  {
+    "file": "pages/homepage__desktop__light.png",
+    "id": "homepage",
+    "label": "Homepage",
+    "device": "desktop",
+    "deviceLabel": "Desktop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/homepage__laptop__light.png",
+    "id": "homepage",
+    "label": "Homepage",
+    "device": "laptop",
+    "deviceLabel": "Laptop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/homepage__tablet__light.png",
+    "id": "homepage",
+    "label": "Homepage",
+    "device": "tablet",
+    "deviceLabel": "Tablet",
+    "theme": "light"
+  },
+  {
+    "file": "pages/homepage__iphone__light.png",
+    "id": "homepage",
+    "label": "Homepage",
+    "device": "iphone",
+    "deviceLabel": "iPhone",
+    "theme": "light"
+  },
+  {
+    "file": "pages/homepage__android__light.png",
+    "id": "homepage",
+    "label": "Homepage",
+    "device": "android",
+    "deviceLabel": "Android",
+    "theme": "light"
+  },
+  {
+    "file": "pages/hero__desktop__light.png",
+    "id": "hero",
+    "label": "Hero Banner",
+    "device": "desktop",
+    "deviceLabel": "Desktop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/hero__laptop__light.png",
+    "id": "hero",
+    "label": "Hero Banner",
+    "device": "laptop",
+    "deviceLabel": "Laptop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/hero__tablet__light.png",
+    "id": "hero",
+    "label": "Hero Banner",
+    "device": "tablet",
+    "deviceLabel": "Tablet",
+    "theme": "light"
+  },
+  {
+    "file": "pages/hero__iphone__light.png",
+    "id": "hero",
+    "label": "Hero Banner",
+    "device": "iphone",
+    "deviceLabel": "iPhone",
+    "theme": "light"
+  },
+  {
+    "file": "pages/hero__android__light.png",
+    "id": "hero",
+    "label": "Hero Banner",
+    "device": "android",
+    "deviceLabel": "Android",
+    "theme": "light"
+  },
+  {
+    "file": "pages/recommended__desktop__light.png",
+    "id": "recommended",
+    "label": "Recommended",
+    "device": "desktop",
+    "deviceLabel": "Desktop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/recommended__laptop__light.png",
+    "id": "recommended",
+    "label": "Recommended",
+    "device": "laptop",
+    "deviceLabel": "Laptop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/recommended__tablet__light.png",
+    "id": "recommended",
+    "label": "Recommended",
+    "device": "tablet",
+    "deviceLabel": "Tablet",
+    "theme": "light"
+  },
+  {
+    "file": "pages/recommended__iphone__light.png",
+    "id": "recommended",
+    "label": "Recommended",
+    "device": "iphone",
+    "deviceLabel": "iPhone",
+    "theme": "light"
+  },
+  {
+    "file": "pages/recommended__android__light.png",
+    "id": "recommended",
+    "label": "Recommended",
+    "device": "android",
+    "deviceLabel": "Android",
+    "theme": "light"
+  },
+  {
+    "file": "pages/recently-listed__desktop__light.png",
+    "id": "recently-listed",
+    "label": "Recently Listed",
+    "device": "desktop",
+    "deviceLabel": "Desktop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/recently-listed__laptop__light.png",
+    "id": "recently-listed",
+    "label": "Recently Listed",
+    "device": "laptop",
+    "deviceLabel": "Laptop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/recently-listed__tablet__light.png",
+    "id": "recently-listed",
+    "label": "Recently Listed",
+    "device": "tablet",
+    "deviceLabel": "Tablet",
+    "theme": "light"
+  },
+  {
+    "file": "pages/recently-listed__iphone__light.png",
+    "id": "recently-listed",
+    "label": "Recently Listed",
+    "device": "iphone",
+    "deviceLabel": "iPhone",
+    "theme": "light"
+  },
+  {
+    "file": "pages/recently-listed__android__light.png",
+    "id": "recently-listed",
+    "label": "Recently Listed",
+    "device": "android",
+    "deviceLabel": "Android",
+    "theme": "light"
+  },
+  {
+    "file": "pages/auctions__desktop__light.png",
+    "id": "auctions",
+    "label": "Live Auctions",
+    "device": "desktop",
+    "deviceLabel": "Desktop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/auctions__laptop__light.png",
+    "id": "auctions",
+    "label": "Live Auctions",
+    "device": "laptop",
+    "deviceLabel": "Laptop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/auctions__tablet__light.png",
+    "id": "auctions",
+    "label": "Live Auctions",
+    "device": "tablet",
+    "deviceLabel": "Tablet",
+    "theme": "light"
+  },
+  {
+    "file": "pages/auctions__iphone__light.png",
+    "id": "auctions",
+    "label": "Live Auctions",
+    "device": "iphone",
+    "deviceLabel": "iPhone",
+    "theme": "light"
+  },
+  {
+    "file": "pages/auctions__android__light.png",
+    "id": "auctions",
+    "label": "Live Auctions",
+    "device": "android",
+    "deviceLabel": "Android",
+    "theme": "light"
+  }
+]

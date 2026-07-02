@@ -3,7 +3,6 @@ import path from "node:path";
 import { expect, type Page } from "@playwright/test";
 
 export const HERO_CAROUSEL_SELECTOR = 'section[aria-label="ROVEXO hero carousel"]';
-export const HOME_IMPORT_BANNER_SELECTOR = 'section[aria-labelledby="premium-bring-listings-heading"]';
 
 export const RESPONSIVE_VIEWPORTS = [
   { name: "iphone-se", label: "iPhone SE", width: 375, height: 667 },
@@ -39,45 +38,16 @@ async function waitForSearchResultsResponse(page: Page): Promise<void> {
 
 export async function waitForHomepageUi(page: Page): Promise<void> {
   await waitForDomContentLoaded(page);
-  await expect(
-    page.locator('[data-header-version="home-v1"], [data-header-version="rovexo-v1"]').first(),
-  ).toBeVisible();
-  await expect(
-    page
-      .locator(
-        "#header-search, [data-header-search='bar'], .home-v1-search-bar, form[role='search']",
-      )
-      .first(),
-  ).toBeVisible();
-  const heroCarousel = page.locator(HERO_CAROUSEL_SELECTOR);
-  const importBanner = page.locator(HOME_IMPORT_BANNER_SELECTOR);
-  if ((await heroCarousel.count()) > 0) {
-    await expect(heroCarousel).toBeVisible();
-    await expect(page.getByRole("tablist", { name: "Hero slides" })).toBeVisible();
-  } else {
-    await expect(importBanner).toBeVisible();
-  }
-  await expect(
-    page.locator(
-      'section[aria-labelledby="home-categories-heading"], section[aria-labelledby="home-v1-categories-heading"]',
-    ),
-  ).toBeVisible();
-  const bottomNav = page.getByRole("navigation", { name: /mobile navigation|main navigation/i });
-  if (await bottomNav.isVisible().catch(() => false)) {
-    await expect(bottomNav).toBeVisible();
-  }
+  await expect(page.locator('[data-header-version="rovexo-v1"]')).toBeVisible();
+  await expect(page.locator("#header-search, [data-header-search='bar']").first()).toBeVisible();
+  await expect(page.locator('nav[aria-label="Browse categories"]').first()).toBeVisible();
+  await expect(page.locator('section[aria-labelledby="home-categories-heading"]')).toBeVisible();
+  await expect(page.locator(".rx-bring-items-section")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
 }
 
 export async function waitForHeroCarousel(page: Page): Promise<void> {
-  const heroCarousel = page.locator(HERO_CAROUSEL_SELECTOR);
-  if ((await heroCarousel.count()) > 0) {
-    await expect(heroCarousel).toBeVisible();
-    await expect(page.getByRole("tablist", { name: "Hero slides" })).toBeVisible();
-    await page.waitForTimeout(300);
-    return;
-  }
-
-  await expect(page.locator(HOME_IMPORT_BANNER_SELECTOR)).toBeVisible();
+  await waitForHomepageUi(page);
 }
 
 export async function waitForSearchResultsUi(page: Page): Promise<void> {
