@@ -12,17 +12,17 @@ describe("Hero banner category synchronization", () => {
   });
 
   it("wires lightweight sync without modifying the category rail component", () => {
-    const homeContent = readFileSync(
-      path.join(process.cwd(), "components/home/HomeContent.tsx"),
+    const homePage = readFileSync(
+      path.join(process.cwd(), "components/home/RovexoHomePage.tsx"),
       "utf8",
     );
     const categoryRail = readFileSync(
-      path.join(process.cwd(), "components/home/HomeCategoryRail.tsx"),
+      path.join(process.cwd(), "components/home/RovexoCategoryRail.tsx"),
       "utf8",
     );
 
-    expect(homeContent).toContain("HomeCategoryRail");
-    expect(homeContent).not.toContain("HeaderCategoryBar");
+    expect(homePage).toContain("RovexoCategoryRail");
+    expect(homePage).not.toContain("HeaderCategoryBar");
     expect(categoryRail).not.toContain("HeroCategorySync");
   });
 

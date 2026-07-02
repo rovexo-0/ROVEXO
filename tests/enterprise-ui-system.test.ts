@@ -4,10 +4,10 @@ import { describe, expect, it } from "vitest";
 
 describe("Enterprise UI system — homepage hero", () => {
   it("does not render Official ROVEXO banner on homepage", () => {
-    const homeContent = readFileSync(join(process.cwd(), "components/home/HomeContent.tsx"), "utf8");
-    expect(homeContent).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
-    expect(homeContent).not.toContain("HomeHeroBannerEngine");
-    expect(homeContent).toContain("BringYourItemsBanner");
+    const homePage = readFileSync(join(process.cwd(), "components/home/RovexoHomePage.tsx"), "utf8");
+    expect(homePage).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
+    expect(homePage).not.toContain("HomeHeroBannerEngine");
+    expect(homePage).toContain("RovexoBanner");
   });
 
   it("routes hero slide CTAs to approved marketplace destinations", () => {
@@ -62,8 +62,8 @@ describe("Enterprise UI system — design lock", () => {
   });
 
   it("names account hub sections BUY SELL BUSINESS SUPPORT", () => {
-    const dashboard = readFileSync(
-      join(process.cwd(), "components/home/HomeContent.tsx"),
+    const homePage = readFileSync(
+      join(process.cwd(), "components/home/RovexoHomePage.tsx"),
       "utf8",
     );
     const accountDashboard = readFileSync(
@@ -75,7 +75,7 @@ describe("Enterprise UI system — design lock", () => {
     expect(accountDashboard).toContain('title="BUSINESS"');
     expect(accountDashboard).toContain('title="SUPPORT"');
     expect(accountDashboard).not.toContain("Quick Access");
-    expect(dashboard).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
+    expect(homePage).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
   });
 });
 

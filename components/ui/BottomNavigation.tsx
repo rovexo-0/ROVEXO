@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type MouseEvent } from "react";
 import { BottomNavIcon3D, type BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
 import { Avatar } from "@/components/ui/Avatar";
-import { useRovexoMobileHeaderScrollContext } from "@/components/home/RovexoMobileHeaderScrollContext";
+import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -138,7 +138,7 @@ export function BottomNavigation({
 }: BottomNavigationProps) {
   const pathname = usePathname();
   const searchOverlay = useSearchOverlayOptional();
-  const scroll = useRovexoMobileHeaderScrollContext();
+  const scroll = useMobileHeaderScrollContext();
   const activeTab = resolveActiveTab(pathname, active);
   const isChromeVisible = scroll?.isVisible ?? true;
   const hasScrollBehavior = Boolean(scroll);

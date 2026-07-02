@@ -23,13 +23,13 @@ const LAUNCH_SECTION_ORDER = [
 
 describe("Homepage launch recovery", () => {
   it("removes the App Store premium marketplace banner from homepage content", () => {
-    const homeContent = readSource("components/home/HomeContent.tsx");
-    expect(homeContent).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
-    expect(homeContent).not.toContain("AppStoreButtons");
-    expect(homeContent).not.toContain("Official ROVEXO");
-    expect(homeContent).not.toContain("HomeHeroBannerEngine");
-    expect(homeContent).not.toContain("hero-slider");
-    expect(homeContent).not.toContain("HeaderCategoryBar");
+    const homePage = readSource("components/home/RovexoHomePage.tsx");
+    expect(homePage).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
+    expect(homePage).not.toContain("AppStoreButtons");
+    expect(homePage).not.toContain("Official ROVEXO");
+    expect(homePage).not.toContain("HomeHeroBannerEngine");
+    expect(homePage).not.toContain("hero-slider");
+    expect(homePage).not.toContain("HeaderCategoryBar");
   });
 
   it("does not ship the deprecated homepage hero promotion components", () => {
@@ -59,10 +59,9 @@ describe("Homepage launch recovery", () => {
   });
 
   it("renders the infinite all listings feed on the homepage", () => {
-    const homeContent = readSource("components/home/HomeContent.tsx");
-    expect(homeContent).toContain("HomeAllListingsSection");
-    expect(homeContent).toContain("HomeTrendingListingsSection");
-    expect(homeContent).not.toContain("TrendingSearchesSection");
-    expect(homeContent).not.toContain("HomeContinueBrowsingCarousel");
+    const homePage = readSource("components/home/RovexoHomePage.tsx");
+    expect(homePage).toContain("RovexoAllListings");
+    expect(homePage).not.toContain("TrendingSearchesSection");
+    expect(homePage).not.toContain("HomeContinueBrowsingCarousel");
   });
 });

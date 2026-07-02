@@ -7,14 +7,13 @@ function readSource(relativePath: string): string {
 }
 
 describe("Home page hydration safety", () => {
-  it("uses enterprise HomeCategoryRail on the homepage", () => {
-    const homeContent = readSource("components/home/HomeContent.tsx");
-    const categoryRail = readSource("components/home/HomeCategoryRail.tsx");
+  it("uses approved RovexoCategoryRail on the homepage", () => {
+    const homePage = readSource("components/home/RovexoHomePage.tsx");
+    const categoryRail = readSource("components/home/RovexoCategoryRail.tsx");
 
-    expect(homeContent).toContain("HomeCategoryRail");
-    expect(homeContent).not.toContain("CategoryGridSection");
-    expect(categoryRail).toContain("rx-category-rail");
-    expect(categoryRail).toContain("rx-category-card");
+    expect(homePage).toContain("RovexoCategoryRail");
+    expect(homePage).not.toContain("CategoryGridSection");
+    expect(categoryRail).toContain("home-v1-category");
   });
 
   it("defers header height measurement to layout effects", () => {
@@ -29,12 +28,12 @@ describe("Home page hydration safety", () => {
     expect(headerSource).not.toContain("setHeaderRef");
   });
 
-  it("lazy loads heavy homepage sections without Suspense boundaries", () => {
-    const source = readSource("components/home/HomeContent.tsx");
+  it("keeps the v1 homepage sections statically composed", () => {
+    const source = readSource("components/home/RovexoHomePage.tsx");
 
-    expect(source).toContain("dynamic(");
     expect(source).not.toContain("<Suspense");
     expect(source).not.toContain("HomeHeroBannerEngine");
     expect(source).not.toContain("HeroCategorySyncProvider");
+    expect(source).toContain("home-v1-main");
   });
 });

@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import "@/styles/rovexo-homepage.css";
 import Header from "@/components/Header";
-import { HomeContent } from "@/components/home/HomeContent";
+import { RovexoHomePage } from "@/components/home/RovexoHomePage";
 import { HomePageShell } from "@/components/home/HomePageShell";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { fetchProducts } from "@/lib/products/queries";
-import { getAuctionsPageData } from "@/lib/auctions/queries";
 import { homePageJsonLd } from "@/lib/seo/home-jsonld";
 import { getAppUrl } from "@/lib/supabase/env";
 import type { ProductsPage } from "@/lib/products/types";
 import { getAuthContext, getUserRole } from "@/lib/auth/session";
 import { getPlatformVisualConfig } from "@/lib/platform-visual/reader";
+import { enrichHomepageData } from "@/lib/homepage/demo-data";
 
 const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
 
@@ -56,106 +57,53 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   const visualConfig = await getPlatformVisualConfig({ mode: previewMode });
 
-  const loadError = {
-    featured: false,
-    recommended: false,
-    newListings: false,
-    latestListings: false,
-    trendingListings: false,
-    auctions: false,
-    allListings: false,
-  };
-
   let featured: ProductsPage = emptyPage;
   let recommended: ProductsPage = emptyPage;
   let newListings: ProductsPage = emptyPage;
-  let latestListings: ProductsPage = emptyPage;
-  let trendingListings: ProductsPage = emptyPage;
+  let popularListings: ProductsPage = emptyPage;
   let allListings: ProductsPage = emptyPage;
-  let liveAuctions: Awaited<ReturnType<typeof getAuctionsPageData>>["featured"] = [];
 
-  const [
-    featuredResult,
-    recommendedResult,
-    newListingsResult,
-    latestListingsResult,
-    trendingListingsResult,
-    allListingsResult,
-    auctionsResult,
-  ] = await Promise.allSettled([
-    fetchProducts("popular", 1),
-    fetchProducts("recommended", 1),
-    fetchProducts("new", 1),
-    fetchProducts("trending", 1),
-    fetchProducts("popular", 2),
-    fetchProducts("popular", 1),
-    getAuctionsPageData(),
-  ]);
+  const [featuredResult, recommendedResult, newListingsResult, popularListingsResult] =
+    await Promise.allSettled([
+      fetchProducts("popular", 1),
+      fetchProducts("recommended", 1),
+      fetchProducts("new", 1),
+      fetchProducts("popular", 2),
+    ]);
 
-  if (featuredResult.status === "fulfilled") {
-    featured = featuredResult.value;
-  } else {
-    loadError.featured = true;
-  }
-
-  if (recommendedResult.status === "fulfilled") {
-    recommended = recommendedResult.value;
-  } else {
-    loadError.recommended = true;
-  }
-
-  if (newListingsResult.status === "fulfilled") {
-    newListings = newListingsResult.value;
-  } else {
-    loadError.newListings = true;
-  }
-
-  if (latestListingsResult.status === "fulfilled") {
-    latestListings = latestListingsResult.value;
-  } else {
-    loadError.latestListings = true;
-  }
-
-  if (trendingListingsResult.status === "fulfilled") {
-    trendingListings = trendingListingsResult.value;
-  } else {
-    loadError.trendingListings = true;
-  }
-
-  if (allListingsResult.status === "fulfilled") {
-    allListings = allListingsResult.value;
-  } else {
-    loadError.allListings = true;
-  }
-
-  if (auctionsResult.status === "fulfilled") {
-    liveAuctions = auctionsResult.value.featured.slice(0, 8);
-  } else {
-    loadError.auctions = true;
-  }
+  if (featuredResult.status === "fulfilled") featured = featuredResult.value;
+  if (recommendedResult.status === "fulfilled") recommended = recommendedResult.value;
+  if (newListingsResult.status === "fulfilled") newListings = newListingsResult.value;
+  if (popularListingsResult.status === "fulfilled") popularListings = popularListingsResult.value;
+  allListings = featured;
 
   const structuredData = homePageJsonLd(recommended.items, siteUrl);
+  const homepage = enrichHomepageData({
+    featured: featured.items,
+    recommended: recommended.items,
+    newListings: newListings.items,
+    popularListings: popularListings.items,
+  });
+
   const showHeader =
     !visualConfig.shell.header ||
     (visualConfig.shell.header.enabled && visualConfig.shell.header.published);
 
   return (
-    <BetaAppShell bottomNavTab="home" className="rx-page-home" visualConfig={visualConfig}>
+    <BetaAppShell bottomNavTab="home" className="rovexo-page-home" visualConfig={visualConfig}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <HomePageShell header={showHeader ? <Header /> : null} bottomNav={null}>
-        <HomeContent
-          featured={featured.items}
-          recommended={recommended.items}
-          newListings={newListings.items}
-          latestListings={latestListings.items}
-          trendingListings={trendingListings.items}
+        <RovexoHomePage
+          featured={homepage.featured}
+          recommended={homepage.recommended}
+          newListings={homepage.newListings}
+          boostListings={homepage.boostListings}
+          premiumListings={homepage.premiumListings}
+          businesses={homepage.businesses}
           allListings={allListings}
-          liveAuctions={liveAuctions}
-          visualConfig={visualConfig}
-          loadError={loadError}
         />
       </HomePageShell>
     </BetaAppShell>

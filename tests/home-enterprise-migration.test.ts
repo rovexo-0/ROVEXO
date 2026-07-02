@@ -20,59 +20,61 @@ const LEGACY_HOME_IMPORTS = [
   '@/components/home/HomeHeroBanner"',
 ];
 
-const PREMIUM_HOME_IMPORTS = [
-  "HomeCategoryRail",
-  "BringYourItemsBanner",
-  "FeaturedListingsSection",
-  "HomeProductSection",
-  "LiveAuctionsSection",
-  "HomeTrendingListingsSection",
-  "HomeAllListingsSection",
+const V1_HOME_COMPONENTS = [
+  "RovexoCategoryRail",
+  "RovexoBanner",
+  "RovexoFeaturedListings",
+  "RovexoRecommendedListings",
+  "RovexoNewListings",
+  "RovexoBoostListings",
+  "RovexoPremiumListings",
+  "RovexoBusinesses",
+  "RovexoAllListings",
 ];
 
 describe("Homepage enterprise migration contract", () => {
-  it("renders HomeContent from the official premium component stack", () => {
+  it("renders RovexoHomePage from the approved v1 component stack", () => {
     const page = readSource("app/page.tsx");
-    const homeContent = readSource("components/home/HomeContent.tsx");
+    const homePage = readSource("components/home/RovexoHomePage.tsx");
 
-    expect(page).toContain("HomeContent");
+    expect(page).toContain("RovexoHomePage");
     expect(page).toContain("BetaAppShell");
     expect(page).toContain("<Header />");
     expect(page).toContain('fetchProducts("popular"');
     expect(page).toContain('fetchProducts("recommended"');
     expect(page).toContain('fetchProducts("new"');
-    expect(page).toContain('fetchProducts("trending"');
-    expect(page).toContain("getAuctionsPageData");
+    expect(page).toContain("enrichHomepageData");
+    expect(page).not.toContain("HomeContent");
     expect(page).not.toContain("getRecommendedBusinesses");
     expect(page).not.toContain("resolveLiveHeroSlides");
 
     for (const legacyImport of LEGACY_HOME_IMPORTS) {
-      expect(homeContent).not.toContain(legacyImport);
+      expect(homePage).not.toContain(legacyImport);
     }
 
-    expect(homeContent).not.toContain("HomeBenefitsRail");
-    expect(homeContent).not.toContain("HomeSecondaryBanners");
-    expect(homeContent).not.toContain("HomeHeroBannerEngine");
+    expect(homePage).not.toContain("HomeBenefitsRail");
+    expect(homePage).not.toContain("HomeSecondaryBanners");
+    expect(homePage).not.toContain("HomeHeroBannerEngine");
 
-    for (const enterpriseImport of PREMIUM_HOME_IMPORTS) {
-      expect(homeContent).toContain(enterpriseImport);
+    for (const component of V1_HOME_COMPONENTS) {
+      expect(homePage).toContain(component);
     }
   });
 
   it("keeps a single category rail on the homepage", () => {
     const header = readSource("components/Header.tsx");
-    const homeContent = readSource("components/home/HomeContent.tsx");
+    const homePage = readSource("components/home/RovexoHomePage.tsx");
 
     expect(header).not.toContain("HeaderCategoryBar");
-    expect(homeContent).not.toContain("HeaderCategoryBar");
-    expect(homeContent).toContain("HomeCategoryRail");
+    expect(homePage).not.toContain("HeaderCategoryBar");
+    expect(homePage).toContain("RovexoCategoryRail");
   });
 
   it("does not render legacy Popular Near You section", () => {
-    const homeContent = readSource("components/home/HomeContent.tsx");
+    const homePage = readSource("components/home/RovexoHomePage.tsx");
 
-    expect(homeContent).not.toContain("Popular Near You");
-    expect(homeContent).not.toContain("popular-near-heading");
+    expect(homePage).not.toContain("Popular Near You");
+    expect(homePage).not.toContain("popular-near-heading");
   });
 
   it("wires scroll-hide chrome through BetaAppShell", () => {
