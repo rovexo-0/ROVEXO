@@ -4,7 +4,7 @@ import { focusRing } from "@/components/ui/tokens";
 export const sellFieldClassName =
   "rx-input min-h-ds-7 w-full rounded-ds-sm px-ds-3 py-ds-2 text-sm placeholder:text-text-muted";
 
-export const sellFormCardClassName = "rx-form-section flex flex-col gap-ds-3 overflow-hidden p-ds-4";
+export const sellFormCardClassName = "rx-form-section flex flex-col gap-ds-3 p-ds-4";
 
 export function sellDeliveryCardClassName(selected: boolean) {
   return cn(

@@ -90,20 +90,27 @@
 }
 
 .sell-flow-shell {
-  min-height: 100dvh;
-  overscroll-behavior-y: none;
+  min-height: 100%;
+}
+
+.sell-page-v1 .rx-form-section {
+  overflow: visible;
+}
+
+.sell-page-v1 .rx-input,
+.sell-page-v1 textarea.rx-input {
+  font-size: 16px;
 }
 
 .sell-page-v1 main {
   overflow-x: clip;
-  overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
   scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
 @supports (height: 100dvh) {
   .sell-flow-shell {
-    min-height: 100dvh;
+    min-height: 100%;
   }
 }
 

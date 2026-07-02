@@ -40,13 +40,6 @@ function resolveDeliveryChoice(
   return "delivery_available";
 }
 
-function scrollFieldIntoView(event: React.FocusEvent<HTMLElement>) {
-  const target = event.currentTarget;
-  requestAnimationFrame(() => {
-    target.scrollIntoView({ block: "nearest", behavior: "auto" });
-  });
-}
-
 const PENDING_TEXT_BUMP_MS = 300;
 
 export const ListingForm = memo(function ListingForm() {
@@ -193,7 +186,6 @@ export const ListingForm = memo(function ListingForm() {
           autoComplete="off"
           enterKeyHint="next"
           aria-label="Listing title"
-          onFocus={scrollFieldIntoView}
           className={cn(sellFieldClassName, focusRing, fieldErrorClassName(Boolean(titleError)))}
         />
         <div className="flex items-center justify-between gap-ds-2">
@@ -222,11 +214,10 @@ export const ListingForm = memo(function ListingForm() {
           placeholder="Describe the item — only include details you know are true"
           rows={4}
           aria-label="Listing description"
-          onFocus={scrollFieldIntoView}
           className={cn(
             sellFieldClassName,
             focusRing,
-            "min-h-[6rem] resize-y",
+            "min-h-[6rem] resize-none",
             fieldErrorClassName(Boolean(errors.description)),
           )}
         />
@@ -286,7 +277,6 @@ export const ListingForm = memo(function ListingForm() {
             aria-label="Quantity"
             placeholder="Quantity"
             value={String(draft.stock)}
-            onFocus={scrollFieldIntoView}
             onChange={(event) => {
               const next = event.target.value.replace(/\D/g, "");
               updateDraft({ stock: next ? clampInventory(Number(next)) : draft.stock });
@@ -335,7 +325,6 @@ export const ListingForm = memo(function ListingForm() {
             aria-label="Price"
             placeholder="0.00"
             value={draft.price}
-            onFocus={scrollFieldIntoView}
             onChange={(event) => {
               const sanitized = event.target.value.replace(/[^\d.]/g, "");
               updateDraft({ price: sanitized });
