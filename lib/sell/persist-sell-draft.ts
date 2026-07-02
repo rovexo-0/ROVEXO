@@ -4,6 +4,7 @@ import { saveDraftPhotos } from "@/lib/sell/draft-photo-storage";
 import { saveSellDraft, saveUploadSessionId } from "@/lib/sell/draft-storage";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
 import { sellInputDiag } from "@/lib/sell/sell-input-diagnostics";
+import { sellProfilePersist } from "@/lib/sell/sell-profiler";
 
 type PersistableDraftRefs = {
   draftRef: MutableRefObject<SellListingDraft>;
@@ -29,6 +30,7 @@ function resolvePersistableDraft(refs: PersistableDraftRefs): SellListingDraft {
 /** Synchronous text draft write — survives iOS pagehide / background. */
 export function persistSellDraftTextSync(refs: PersistableDraftRefs): boolean {
   try {
+    sellProfilePersist("textSync");
     const draft = resolvePersistableDraft(refs);
     saveSellDraft(draft);
     if (refs.uploadSessionId) {
@@ -45,6 +47,7 @@ export function persistSellDraftTextSync(refs: PersistableDraftRefs): boolean {
 }
 
 export async function persistSellDraftSnapshot(refs: PersistableDraftRefs): Promise<void> {
+  sellProfilePersist("snapshot");
   sellInputDiag("persist.snapshot.start");
   persistSellDraftTextSync(refs);
   const draft = resolveEffectiveSellDraft(refs.draftRef.current, {

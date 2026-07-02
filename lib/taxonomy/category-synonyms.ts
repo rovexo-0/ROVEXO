@@ -1,5 +1,8 @@
 import { getFlatTaxonomy } from "@/lib/taxonomy/category-tree";
-import { normalizeSearchTerm } from "@/lib/taxonomy/category-normalizer";
+import {
+  MAX_TOKEN_DOCUMENT_FREQUENCY,
+  normalizeSearchTerm,
+} from "@/lib/taxonomy/category-normalizer";
 
 export type SynonymSource = "name" | "alias" | "keyword" | "brand" | "model" | "slug" | "seo";
 
@@ -99,15 +102,49 @@ export function getSynonymEntries(term: string): SynonymEntry[] {
   return getSynonymIndex().get(normalized) ?? [];
 }
 
+/**
+ * Token → entries inverted index. Every synonym phrase is split into its
+ * component words so a query token can be matched in O(1), mirroring the
+ * keyword index. Replaces the previous full-index substring scan that was
+ * O(indexSize × tokens) and returned tens of thousands of false matches
+ * (e.g. token "in" matched every phrase containing the substring "in").
+ */
+let synonymTokenIndexCache: Map<string, SynonymEntry[]> | null = null;
+
+function getSynonymTokenIndex(): Map<string, SynonymEntry[]> {
+  if (synonymTokenIndexCache) return synonymTokenIndexCache;
+
+  const index = new Map<string, SynonymEntry[]>();
+  for (const entry of getSynonymEntriesList()) {
+    const tokens = entry.normalized.split(" ").filter(Boolean);
+    const seen = new Set<string>();
+    for (const token of tokens) {
+      if (seen.has(token)) continue;
+      seen.add(token);
+      const bucket = index.get(token);
+      if (bucket) {
+        bucket.push(entry);
+      } else {
+        index.set(token, [entry]);
+      }
+    }
+  }
+
+  synonymTokenIndexCache = index;
+  return index;
+}
+
 export function getSynonymMatches(term: string): SynonymEntry[] {
-  const normalized = normalizeSynonymPhrase(term);
+  const tokenIndex = getSynonymTokenIndex();
   const results = new Map<string, SynonymEntry>();
 
-  for (const [key, entries] of getSynonymIndex().entries()) {
-    if (key.includes(normalized) || normalized.includes(key)) {
-      for (const entry of entries) {
-        results.set(`${entry.categoryId}:${entry.phrase}:${entry.source}`, entry);
-      }
+  for (const token of normalizeSynonymPhrase(term).split(" ").filter(Boolean)) {
+    const bucket = tokenIndex.get(token);
+    if (!bucket) continue;
+    // Skip non-discriminating tokens that match a huge share of the taxonomy.
+    if (bucket.length > MAX_TOKEN_DOCUMENT_FREQUENCY) continue;
+    for (const entry of bucket) {
+      results.set(`${entry.categoryId}:${entry.phrase}:${entry.source}`, entry);
     }
   }
 

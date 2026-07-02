@@ -10,6 +10,7 @@ import { OptionalCard } from "@/features/sell/components/OptionalCard";
 import { PhotoUploader } from "@/features/sell/components/PhotoUploader";
 import { StickyPublishButton } from "@/features/sell/components/StickyPublishButton";
 import { SellPublishedStep } from "@/features/sell/components/steps/SellPublishedStep";
+import { SellProfilerRoot } from "@/features/sell/components/SellProfilerRoot";
 import { SellProvider, useSell } from "@/features/sell/context/SellProvider";
 
 type SellPageProps = {
@@ -21,7 +22,9 @@ export function SellPage({ editListingId, initialDraft }: SellPageProps) {
   return (
     <BetaAppShell showBottomNav={false} className="sell-page-v1">
       <SellProvider editListingId={editListingId} initialDraft={initialDraft}>
-        <SellPageInner />
+        <SellProfilerRoot>
+          <SellPageInner />
+        </SellProfilerRoot>
       </SellProvider>
     </BetaAppShell>
   );

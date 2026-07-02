@@ -1,5 +1,9 @@
 import { getFlatTaxonomy } from "@/lib/taxonomy/category-tree";
-import { normalizeKeyword, tokenize } from "@/lib/taxonomy/category-normalizer";
+import {
+  MAX_TOKEN_DOCUMENT_FREQUENCY,
+  normalizeKeyword,
+  tokenize,
+} from "@/lib/taxonomy/category-normalizer";
 
 export type KeywordSource = "name" | "alias" | "keyword" | "brand" | "model" | "slug";
 
@@ -24,8 +28,11 @@ function collectPhrases() {
       phrase: string | undefined | null,
     ) => {
       if (!phrase || !phrase.trim()) return;
-      const normalized = normalizeKeyword(phrase);
-      const tokens = tokenize(normalized);
+      // `tokenize` already normalizes; deriving `normalized` from the tokens
+      // avoids a second (redundant) normalize pass per phrase.
+      const tokens = tokenize(phrase);
+      if (tokens.length === 0) return;
+      const normalized = tokens.join(" ");
       for (const token of tokens) {
         entries.push({
           token,
@@ -91,6 +98,8 @@ export function getKeywordMatches(words: string | string[]): KeywordEntry[] {
   for (const token of tokens) {
     const tokenMatches = getKeywordIndex().get(token);
     if (!tokenMatches) continue;
+    // Skip non-discriminating tokens that match a huge share of the taxonomy.
+    if (tokenMatches.length > MAX_TOKEN_DOCUMENT_FREQUENCY) continue;
     matches.push(...tokenMatches);
   }
 

@@ -7,6 +7,7 @@ import { toPathId } from "@/lib/categories/queries";
 import { focusRing } from "@/components/ui/tokens";
 import { bumpPendingTextVersion } from "@/lib/sell/pending-text-store";
 import { sellInputDiag } from "@/lib/sell/sell-input-diagnostics";
+import { sellProfileBumpPending, sellProfileRender } from "@/lib/sell/sell-profiler";
 import { getSellCurrencyConfig } from "@/lib/sell/currency";
 import { clampInventory, INVENTORY_MAX, INVENTORY_MIN } from "@/lib/sell/inventory";
 import {
@@ -55,6 +56,10 @@ export const ListingForm = memo(function ListingForm() {
     flushDescriptionCommitRef,
     syncTitleToDraft,
     syncDescriptionToDraft,
+    scheduleCategoryDetection,
+    categorySuggestion,
+    acceptCategorySuggestion,
+    dismissCategorySuggestion,
   } = useSell();
 
   const titleId = useId();
@@ -84,6 +89,7 @@ export const ListingForm = memo(function ListingForm() {
   );
 
   useEffect(() => {
+    sellProfileRender("ListingForm", { count: renderCountRef.current });
     sellInputDiag("ListingForm.render", { count: renderCountRef.current });
   });
 
@@ -186,6 +192,9 @@ export const ListingForm = memo(function ListingForm() {
             setLocalTitle(next);
             pendingTitleRef.current = next;
             schedulePendingTextBump();
+            // Detection runs once the user pauses typing (debounced in the
+            // provider) and entirely inside the Web Worker — never per keystroke.
+            scheduleCategoryDetection();
           }}
           onBlur={() => {
             isTypingTitleRef.current = false;
@@ -260,6 +269,52 @@ export const ListingForm = memo(function ListingForm() {
           {categoryDisplay || "Select category"}
         </button>
         <FieldError message={errors.category} />
+
+        {categorySuggestion && !categoryPickerOpen ? (
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex flex-col gap-ds-2 rounded-ds-md border border-primary/40 bg-primary/5 p-ds-3"
+          >
+            <div className="flex items-center justify-between gap-ds-2">
+              <div className="flex min-w-0 flex-col">
+                <span className="text-xs font-medium text-text-muted">Suggested category</span>
+                <span className="truncate text-sm font-semibold text-text-primary">
+                  {categorySuggestion.label}
+                </span>
+              </div>
+              <span className="shrink-0 rounded-ds-sm bg-surface px-ds-2 py-ds-1 text-xs font-semibold tabular-nums text-primary">
+                {Math.round(categorySuggestion.confidence * 100)}%
+              </span>
+            </div>
+            <div className="flex gap-ds-2">
+              <button
+                type="button"
+                onClick={acceptCategorySuggestion}
+                className={cn(
+                  "min-h-ds-7 flex-1 rounded-ds-md border border-primary bg-primary/10 px-ds-3 text-sm font-semibold text-primary",
+                  focusRing,
+                )}
+              >
+                Accept
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  dismissCategorySuggestion();
+                  setCategoryPickerOpen(true);
+                }}
+                className={cn(
+                  "min-h-ds-7 flex-1 rounded-ds-md border border-border bg-surface px-ds-3 text-sm font-semibold text-text-primary",
+                  focusRing,
+                )}
+              >
+                Change
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         {categoryPickerOpen ? (
           <CategoryTreePicker
             hideLabels

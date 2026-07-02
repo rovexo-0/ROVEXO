@@ -378,7 +378,6 @@ const TOOL_BRANDS = [
   "Black & Decker",
   "Festool",
   "Metabo",
-  "Makita",
 ];
 
 const TOOL_MODEL_BASES: Record<string, readonly string[]> = {
@@ -398,7 +397,6 @@ const CAR_PART_BRANDS = [
   "Mahle",
   "Valeo",
   "NGK",
-  "Bosch",
   "Denso",
   "ZF",
   "Brembo",
@@ -1363,12 +1361,31 @@ function buildTaxonomyTree(): TaxonomyCategoryNode[] {
   const registry = new Set<string>();
 
   function ensureUniqueSlug(candidate: string, parentSlug: string | null): string {
-    let slug = candidate;
-    let suffix = 1;
+    if (!registry.has(candidate)) {
+      registry.add(candidate);
+      return candidate;
+    }
 
+    // First collision → qualify with the parent slug for a stable, readable slug.
+    if (parentSlug) {
+      const qualified = `${parentSlug}-${candidate}`;
+      if (!registry.has(qualified)) {
+        registry.add(qualified);
+        return qualified;
+      }
+    }
+
+    // Guaranteed-terminating fallback: numeric suffixing. The previous
+    // implementation recomputed a constant `${parentSlug}-${candidate}` inside
+    // the loop and never consumed `suffix`, so a duplicate sibling slug (e.g.
+    // two "Bosch" brands under "engine-parts-collection") spun forever and
+    // hung the main thread.
+    const base = parentSlug ? `${parentSlug}-${candidate}` : candidate;
+    let suffix = 2;
+    let slug = `${base}-${suffix}`;
     while (registry.has(slug)) {
-      slug = parentSlug ? `${parentSlug}-${candidate}` : `${candidate}-${suffix}`;
       suffix += 1;
+      slug = `${base}-${suffix}`;
     }
 
     registry.add(slug);

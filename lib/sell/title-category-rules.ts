@@ -134,7 +134,10 @@ export const TITLE_CATEGORY_RULES: TitleCategoryRule[] = [
     confidence: 0.92,
   },
   {
-    patterns: ["playstation", "ps5", "ps4"],
+    // `TITLE_SYNONYMS` expands ps5/ps4 → "playstation" before rules run, so
+    // match the normalized "playstation" token (covers PlayStation 5, PS5,
+    // PS5 Slim, PS4). Patterns are AND-combined, so this must be a single token.
+    patterns: ["playstation"],
     path: ["gaming", "consoles", "playstation"],
     confidence: 0.96,
   },

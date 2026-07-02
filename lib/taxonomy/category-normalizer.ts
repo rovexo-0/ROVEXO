@@ -31,6 +31,15 @@ export function normalizeSearchTerm(value: string): string {
   return tokenize(value).join(" ");
 }
 
+/**
+ * Category-search stop-token threshold. The generated taxonomy contains
+ * ubiquitous variant tokens (e.g. "max", "pro", "plus", "air") that appear in
+ * thousands of nodes. Such tokens match nearly every category, so they provide
+ * no discriminating signal for detection while dominating lookup cost. Tokens
+ * whose inverted-index bucket exceeds this size are skipped at query time.
+ */
+export const MAX_TOKEN_DOCUMENT_FREQUENCY = 800;
+
 export function normalizeKeyword(value: string): string {
   return normalizeText(value).replace(/\s+/g, " ");
 }

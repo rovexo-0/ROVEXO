@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { getPendingTextSnapshot, subscribePendingText } from "@/lib/sell/pending-text-store";
+import { profileTimed } from "@/lib/sell/sell-profiler";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
 import { isListingValid } from "@/features/sell/types";
 import { useSell } from "@/features/sell/context/SellProvider";
@@ -19,7 +20,9 @@ function readCanPublish(
     description: pendingDescriptionRef.current,
   });
   const publishDraft = effective.condition ? effective : { ...effective, condition: "Used" };
-  return isListingValid(publishDraft, { mode: "quick", showErrors: true });
+  return profileTimed("readCanPublish/isListingValid", () =>
+    isListingValid(publishDraft, { mode: "quick", showErrors: true }),
+  );
 }
 
 export type StickyPublishButtonProps = {

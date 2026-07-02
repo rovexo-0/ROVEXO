@@ -21,16 +21,25 @@ import { uploadListingImage, deleteListingImage } from "@/lib/listings/upload-cl
 import { buildListingPublishPayload } from "@/lib/sell/build-listing-publish-payload";
 import {
   detectCategoryFromTitle,
-  shouldAutoSelectCategory,
+  SUGGEST_CONFIDENCE_MIN,
   type CategoryDetectionResult,
 } from "@/lib/sell/category-detection-pro";
 import { logCategoryManualOverride } from "@/lib/sell/category-detection-learning";
 import { createDebouncedCategoryDetection } from "@/lib/sell/category-detection-scheduler";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
 import { sellBackgroundPolicy, runSellBackgroundTask } from "@/lib/sell/sell-background-policy";
+import { warmCategoryIndexes } from "@/lib/taxonomy/category-search";
 import { compressListingImage, createListingThumbnail, validateClientImage } from "@/lib/storage/client-images";
 import { persistSellDraftSnapshot, persistSellDraftTextSync } from "@/lib/sell/persist-sell-draft";
 import { sellInputDiag } from "@/lib/sell/sell-input-diagnostics";
+import {
+  initSellProfiler,
+  profileTimed,
+  sellProfileAutosave,
+  sellProfileCategoryDetect,
+  sellProfileSetDraft,
+  sellProfileSyncText,
+} from "@/lib/sell/sell-profiler";
 import type { SellListingMode } from "@/lib/profile/account";
 import {
   createEmptyDraft,
@@ -44,6 +53,16 @@ export type SellProviderOptions = {
   listingMode?: SellListingMode;
   editListingId?: string;
   initialDraft?: SellListingDraft;
+};
+
+/**
+ * A single locally-detected category the user can Accept or replace. The v1.0
+ * product decision is one suggestion + confidence — never a list or a tree.
+ */
+export type SellCategorySuggestion = {
+  path: FlatCategoryPath;
+  confidence: number;
+  label: string;
 };
 
 export type SellContextValue = {
@@ -71,6 +90,9 @@ export type SellContextValue = {
   retryPhotoUpload: (id: string) => Promise<void>;
   updateDraft: (patch: Partial<SellListingDraft>) => void;
   setCategoryPath: (categoryPath: FlatCategoryPath, source?: "manual" | "confirm") => void;
+  categorySuggestion: SellCategorySuggestion | null;
+  acceptCategorySuggestion: () => void;
+  dismissCategorySuggestion: () => void;
   publishListing: () => Promise<void>;
   resetForAnotherListing: () => void;
 };
@@ -91,6 +113,9 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   const [uploadProgress, setUploadProgress] = useState(0);
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
   const [showValidation, setShowValidation] = useState(false);
+  const [categorySuggestion, setCategorySuggestion] = useState<SellCategorySuggestion | null>(null);
+  const categorySuggestionRef = useRef<SellCategorySuggestion | null>(null);
+  const lastDetectionInputRef = useRef<string>("");
   const userOverrodeCategoryRef = useRef(Boolean(initialDraft?.categoryPath));
   const lastDetectionRef = useRef<CategoryDetectionResult>({
     suggestions: [],
@@ -105,9 +130,16 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   const draftRef = useRef(draft);
   const flushTitleCommitRef = useRef<(() => void) | null>(null);
   const flushDescriptionCommitRef = useRef<(() => void) | null>(null);
+  const draftRevisionRef = useRef(0);
+
+  useEffect(() => {
+    initSellProfiler();
+  }, []);
 
   useEffect(() => {
     draftRef.current = draft;
+    draftRevisionRef.current += 1;
+    sellProfileSetDraft("draft", `revision-${draftRevisionRef.current}`);
   }, [draft]);
 
   useEffect(() => {
@@ -146,42 +178,156 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     };
   }, [editListingId, initialDraft]);
 
+  useEffect(() => {
+    categorySuggestionRef.current = categorySuggestion;
+  }, [categorySuggestion]);
+
+  // Turns a worker/fallback detection result into at most ONE suggestion the user
+  // can Accept or Change. It never auto-applies a category and never touches the
+  // taxonomy itself — it only reads the already-computed result.
+  const applyDetectionResult = useCallback((detection: CategoryDetectionResult) => {
+    lastDetectionRef.current = detection;
+    const top = detection.top;
+    lastAiTopPathIdRef.current = top
+      ? `${top.path.categorySlug}:${top.path.subcategorySlug}:${top.path.childCategorySlug ?? ""}`
+      : null;
+
+    // Respect an existing choice; never nag once the user has picked/accepted.
+    if (userOverrodeCategoryRef.current) {
+      setCategorySuggestion(null);
+      return;
+    }
+
+    // Only surface a confident, single suggestion.
+    if (!top || top.confidence < SUGGEST_CONFIDENCE_MIN) {
+      setCategorySuggestion(null);
+      return;
+    }
+
+    const suggestedPathId = `${top.path.categorySlug}:${top.path.subcategorySlug}:${top.path.childCategorySlug ?? ""}`;
+    const currentPathId = draftRef.current.categoryPath
+      ? `${draftRef.current.categoryPath.categorySlug}:${draftRef.current.categoryPath.subcategorySlug}:${draftRef.current.categoryPath.childCategorySlug ?? ""}`
+      : null;
+    if (currentPathId === suggestedPathId) {
+      setCategorySuggestion(null);
+      return;
+    }
+
+    const label = top.path.childCategoryName ?? top.path.subcategoryName ?? top.path.categoryName;
+
+    startTransition(() => {
+      setCategorySuggestion({ path: top.path, confidence: top.confidence, label });
+    });
+  }, []);
+
+  // Keep a stable ref so the worker's long-lived `message` listener always calls
+  // the latest applier without re-creating the worker.
+  const applyDetectionResultRef = useRef(applyDetectionResult);
+  useEffect(() => {
+    applyDetectionResultRef.current = applyDetectionResult;
+  }, [applyDetectionResult]);
+
+  const acceptCategorySuggestion = useCallback(() => {
+    const suggestion = categorySuggestionRef.current;
+    if (!suggestion) return;
+    userOverrodeCategoryRef.current = true;
+    setDraft((prev) => ({ ...prev, categoryPath: suggestion.path }));
+    setCategorySuggestion(null);
+  }, []);
+
+  const dismissCategorySuggestion = useCallback(() => {
+    setCategorySuggestion(null);
+  }, []);
+
+  const detectionWorkerRef = useRef<Worker | null>(null);
+  const detectionWorkerBrokenRef = useRef(false);
+  const detectionRequestIdRef = useRef(0);
+
+  // Lazily create the detection worker. Returns null when Web Workers are
+  // unavailable or creation failed, so callers fall back to the main thread.
+  const getDetectionWorker = useCallback((): Worker | null => {
+    if (typeof window === "undefined" || typeof Worker === "undefined") return null;
+    if (detectionWorkerBrokenRef.current) return null;
+    if (detectionWorkerRef.current) return detectionWorkerRef.current;
+
+    try {
+      const worker = new Worker(
+        new URL("../workers/category-detection.worker.ts", import.meta.url),
+        { type: "module" },
+      );
+      worker.addEventListener("message", (event: MessageEvent<{ id: number; result: CategoryDetectionResult }>) => {
+        const { id, result } = event.data;
+        // Ignore responses for superseded keystrokes.
+        if (id !== detectionRequestIdRef.current) return;
+        applyDetectionResultRef.current(result);
+      });
+      worker.addEventListener("error", () => {
+        detectionWorkerBrokenRef.current = true;
+        detectionWorkerRef.current?.terminate();
+        detectionWorkerRef.current = null;
+      });
+      detectionWorkerRef.current = worker;
+      return worker;
+    } catch {
+      detectionWorkerBrokenRef.current = true;
+      return null;
+    }
+  }, []);
+
   const runCategoryDetection = useCallback(() => {
     if (!sellBackgroundPolicy.categorySuggestEnabled) return;
 
+    const title = pendingTitleRef.current.trim();
+    const description = pendingDescriptionRef.current.trim();
+    if (title.length < 3 && description.length < 3) return;
+
+    // Run once per unique input — a pause that produces the same text (e.g. blur
+    // after the debounce already fired) must not re-run detection.
+    const inputKey = `${title}\u0000${description}`;
+    if (inputKey === lastDetectionInputRef.current) return;
+    lastDetectionInputRef.current = inputKey;
+
+    sellProfileCategoryDetect("run");
+
+    const worker = getDetectionWorker();
+    if (worker) {
+      const id = (detectionRequestIdRef.current += 1);
+      worker.postMessage({ type: "detect", id, title, description });
+      return;
+    }
+
+    // Fallback (no Worker support): run on the main thread, but only during idle
+    // time so a keystroke is never blocked synchronously.
     runSellBackgroundTask(() => {
-      const title = pendingTitleRef.current.trim();
-      const description = pendingDescriptionRef.current.trim();
-      if (title.length < 3 && description.length < 3) return;
-
-      const detection = detectCategoryFromTitle(title, description);
-      lastDetectionRef.current = detection;
-      lastAiTopPathIdRef.current = detection.top
-        ? `${detection.top.path.categorySlug}:${detection.top.path.subcategorySlug}:${detection.top.path.childCategorySlug ?? ""}`
-        : null;
-
-      startTransition(() => {
-        if (userOverrodeCategoryRef.current) return;
-
-        const autoSelect = shouldAutoSelectCategory(detection.suggestions);
-        if (!autoSelect) return;
-
-        const nextPathId = `${autoSelect.path.categorySlug}:${autoSelect.path.subcategorySlug}:${autoSelect.path.childCategorySlug ?? ""}`;
-
-        setDraft((prev) => {
-          const currentPathId = prev.categoryPath
-            ? `${prev.categoryPath.categorySlug}:${prev.categoryPath.subcategorySlug}:${prev.categoryPath.childCategorySlug ?? ""}`
-            : null;
-          if (currentPathId === nextPathId) return prev;
-          return { ...prev, categoryPath: autoSelect.path };
-        });
-      });
+      const detection = profileTimed("detectCategoryFromTitle", () =>
+        detectCategoryFromTitle(title, description),
+      );
+      applyDetectionResultRef.current(detection);
     });
-  }, []);
+  }, [getDetectionWorker]);
 
   const categorySchedulerRef = useRef<ReturnType<typeof createDebouncedCategoryDetection> | null>(
     null,
   );
+
+  // Warm the taxonomy indexes once, right after mount. When a worker is
+  // available the build happens off the main thread; otherwise it is deferred to
+  // idle time so it never blocks typing. Also terminates the worker on unmount.
+  useEffect(() => {
+    if (!sellBackgroundPolicy.categorySuggestEnabled) return;
+
+    const worker = getDetectionWorker();
+    if (worker) {
+      worker.postMessage({ type: "warm" });
+    } else {
+      runSellBackgroundTask(() => warmCategoryIndexes());
+    }
+
+    return () => {
+      detectionWorkerRef.current?.terminate();
+      detectionWorkerRef.current = null;
+    };
+  }, [getDetectionWorker]);
 
   useEffect(() => {
     categorySchedulerRef.current = createDebouncedCategoryDetection(
@@ -192,11 +338,13 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   }, [runCategoryDetection]);
 
   const scheduleCategoryDetection = useCallback(() => {
+    sellProfileCategoryDetect("schedule");
     categorySchedulerRef.current?.schedule();
   }, []);
 
   const syncTitleToDraft = useCallback(
     (title: string) => {
+      sellProfileSyncText("title", title.length, "syncTitleToDraft");
       pendingTitleRef.current = title;
       setDraft((current) => (current.title === title ? current : { ...current, title }));
       scheduleCategoryDetection();
@@ -210,13 +358,15 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
         len: description.length,
         caller: new Error().stack?.split("\n").slice(2, 5).join(" | "),
       });
+      sellProfileSyncText("description", description.length, "syncDescriptionToDraft");
       pendingDescriptionRef.current = description;
       setDraft((current) =>
         current.description === description ? current : { ...current, description },
       );
-      scheduleCategoryDetection();
+      // Detection is title-driven only — typing/editing the description never
+      // triggers analysis, keeping the Description field perfectly responsive.
     },
-    [scheduleCategoryDetection],
+    [],
   );
 
   const flushPendingText = useCallback(() => {
@@ -247,11 +397,13 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   useEffect(() => {
     if (initialDraft || editListingId) return;
 
+    sellProfileAutosave("schedule");
     const autosaveTimer = window.setTimeout(() => {
       sellInputDiag("autosave.timer.fire", {
         draftDescriptionLen: draftRef.current.description.length,
         pendingDescriptionLen: pendingDescriptionRef.current.length,
       });
+      sellProfileAutosave("fire");
       persistDraftSnapshot();
     }, 1500);
 
@@ -494,6 +646,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     (categoryPath: FlatCategoryPath, source: "manual" | "confirm" = "manual") => {
       if (source === "manual") {
         userOverrodeCategoryRef.current = true;
+        setCategorySuggestion(null);
       }
 
       setDraft((current) => {
@@ -622,7 +775,9 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     pendingDescriptionRef.current = "";
     setDraft(createEmptyDraft());
     setRemovedImageIds([]);
+    setCategorySuggestion(null);
     lastDetectionRef.current = { suggestions: [], top: null, tier: "none" };
+    lastDetectionInputRef.current = "";
     userOverrodeCategoryRef.current = false;
   }, []);
 
@@ -643,6 +798,9 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     syncTitleToDraft,
     syncDescriptionToDraft,
     scheduleCategoryDetection,
+    categorySuggestion,
+    acceptCategorySuggestion,
+    dismissCategorySuggestion,
     addPhotos,
     removePhoto,
     replacePhoto,

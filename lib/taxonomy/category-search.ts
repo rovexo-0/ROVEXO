@@ -43,6 +43,23 @@ function scoreSynonymHit(entrySource: string): number {
   return SOURCE_WEIGHTS[entrySource] ?? SOURCE_WEIGHTS.synonym;
 }
 
+let indexesWarmed = false;
+
+/**
+ * Builds every taxonomy index once (tree, keyword, synonym, id maps) so the
+ * first real `searchCategories` call — which otherwise pays the full one-time
+ * construction cost — is instant. Safe to call repeatedly; all builds are
+ * memoized. Intended to run off the keystroke path (idle/mount).
+ */
+export function warmCategoryIndexes(): void {
+  if (indexesWarmed) return;
+  indexesWarmed = true;
+  getFlatTaxonomy();
+  getKeywordMatches("warm");
+  getSynonymMatches("warm");
+  getCategoryById("__warm__");
+}
+
 export function searchCategories(query: string, options: CategorySearchOptions = {}): CategorySearchResult[] {
   const normalizedQuery = normalizeSearchTerm(query);
   const tokens = tokenize(normalizedQuery);

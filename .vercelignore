@@ -1,0 +1,31 @@
+# Vercel rebuilds the app on its own servers, so generated output, dependencies,
+# VCS data, local artifacts and the accidental nested repo copy don't need to be
+# uploaded. Trimming them keeps the deployment small and, crucially, stops the
+# nested repo's node_modules/.next (~1.7GB) from being swept into serverless
+# function traces (which caused "functions exceeded the 250 MB" errors).
+#
+# IMPORTANT: Vercel's ignore matcher does NOT honor leading-slash anchoring and
+# matches case-insensitively, so every rule is UNANCHORED. Dependency/build
+# rules stay unanchored on purpose so nested copies (e.g. inside ROVEXO/) are
+# excluded too.
+
+.next
+node_modules
+out
+build
+coverage
+test-results
+playwright-report
+owner-review-screenshots
+.git
+.vercel
+*.tsbuildinfo
+vercel-preview-deploy.log
+
+# Accidental nested repository copy (~47k files, ~1.7GB). Because matching is
+# unanchored AND case-insensitive, "ROVEXO" also matches the legitimate
+# "styles/rovexo/" folder — so re-include that explicitly, otherwise
+# app/layout.tsx's `import "@/styles/rovexo/index.css"` fails to resolve.
+ROVEXO
+!styles/rovexo
+!styles/rovexo/**
