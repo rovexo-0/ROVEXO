@@ -38,6 +38,16 @@ describe("Sell module hydration safety", () => {
     expect(source).not.toContain("Date.now()");
     expect(source).not.toContain("Math.random()");
     expect(source).not.toContain("crypto.randomUUID()");
+    expect(source).not.toContain("scrollIntoView");
+  });
+
+  it("keeps description field uncontrolled for iOS Chrome compatibility", () => {
+    const source = readSource("features/sell/components/ListingDescriptionField.tsx");
+    expect(source).toContain("defaultValue={externalDescription}");
+    expect(source).toContain("onInput={handleInput}");
+    expect(source).not.toContain("value={");
+    expect(source).not.toContain("scrollIntoView");
+    expect(source).not.toContain("onFocus=");
   });
 
   it("uses a script-free ThemeProvider for forced light theme", () => {

@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 import { getPendingTextSnapshot, subscribePendingText } from "@/lib/sell/pending-text-store";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
 import { isListingValid } from "@/features/sell/types";
@@ -21,7 +22,12 @@ function readCanPublish(
   return isListingValid(publishDraft, { mode: "quick", showErrors: true });
 }
 
-export function StickyPublishButton() {
+export type StickyPublishButtonProps = {
+  /** Sticky keeps the footer in the document flow — required for iOS Chrome keyboard. */
+  position?: "fixed" | "sticky";
+};
+
+export function StickyPublishButton({ position = "fixed" }: StickyPublishButtonProps) {
   const { draft, pendingTitleRef, pendingDescriptionRef, isPublishing, publishListing, editListingId } =
     useSell();
 
@@ -35,8 +41,20 @@ export function StickyPublishButton() {
   const loadingLabel = editListingId ? "Saving…" : "Publishing…";
 
   return (
-    <div className="rx-footer-bar fixed inset-x-0 bottom-0 z-[110]">
-      <div className="mx-auto max-w-2xl px-ds-4 py-ds-3 pb-[max(env(safe-area-inset-bottom),var(--ds-space-3))]">
+    <div
+      className={cn(
+        "rx-footer-bar z-[110]",
+        position === "sticky"
+          ? "rx-footer-bar--sticky sticky bottom-0 mt-auto w-full shrink-0"
+          : "fixed inset-x-0 bottom-0",
+      )}
+    >
+      <div
+        className={cn(
+          "mx-auto max-w-2xl px-ds-4 py-ds-3",
+          position !== "sticky" && "pb-[max(env(safe-area-inset-bottom),var(--ds-space-3))]",
+        )}
+      >
         <Button
           variant="primary"
           fullWidth

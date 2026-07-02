@@ -14,6 +14,7 @@ import {
   validateListingTitle,
 } from "@/lib/sell/listing-title";
 import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicker";
+import { ListingDescriptionField } from "@/features/sell/components/ListingDescriptionField";
 import { FieldError, fieldErrorClassName } from "@/features/sell/components/FieldError";
 import {
   sellDeliveryCardClassName,
@@ -57,23 +58,18 @@ export const ListingForm = memo(function ListingForm() {
   } = useSell();
 
   const titleId = useId();
-  const descriptionId = useId();
   const categoryId = useId();
   const quantityId = useId();
   const priceId = useId();
 
   const currency = useMemo(() => getSellCurrencyConfig(), []);
   const [localTitle, setLocalTitle] = useState(draft.title);
-  const [localDescription, setLocalDescription] = useState(draft.description);
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const localTitleRef = useRef(localTitle);
-  const localDescriptionRef = useRef(localDescription);
   const isTypingTitleRef = useRef(false);
-  const isTypingDescriptionRef = useRef(false);
   const pendingBumpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   localTitleRef.current = localTitle;
-  localDescriptionRef.current = localDescription;
 
   const errors = useMemo(
     () => getListingValidationErrors(draft, { mode: "quick", showErrors: showValidation }),
@@ -91,26 +87,10 @@ export const ListingForm = memo(function ListingForm() {
   }, [flushTitleCommitRef, syncTitleToDraft]);
 
   useEffect(() => {
-    flushDescriptionCommitRef.current = () => {
-      isTypingDescriptionRef.current = false;
-      syncDescriptionToDraft(localDescriptionRef.current);
-    };
-    return () => {
-      flushDescriptionCommitRef.current = null;
-    };
-  }, [flushDescriptionCommitRef, syncDescriptionToDraft]);
-
-  useEffect(() => {
     if (isTypingTitleRef.current) return;
     setLocalTitle((current) => (current === draft.title ? current : draft.title));
     pendingTitleRef.current = draft.title;
   }, [draft.title, pendingTitleRef]);
-
-  useEffect(() => {
-    if (isTypingDescriptionRef.current) return;
-    setLocalDescription((current) => (current === draft.description ? current : draft.description));
-    pendingDescriptionRef.current = draft.description;
-  }, [draft.description, pendingDescriptionRef]);
 
   useEffect(
     () => () => {
@@ -196,33 +176,13 @@ export const ListingForm = memo(function ListingForm() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-ds-1">
-        <textarea
-          id={descriptionId}
-          value={localDescription}
-          onChange={(event) => {
-            isTypingDescriptionRef.current = true;
-            setLocalDescription(event.target.value);
-            pendingDescriptionRef.current = event.target.value;
-            schedulePendingTextBump();
-          }}
-          onBlur={() => {
-            isTypingDescriptionRef.current = false;
-            syncDescriptionToDraft(localDescriptionRef.current);
-            flushPendingTextBump();
-          }}
-          placeholder="Describe the item — only include details you know are true"
-          rows={4}
-          aria-label="Listing description"
-          className={cn(
-            sellFieldClassName,
-            focusRing,
-            "min-h-[6rem] resize-none",
-            fieldErrorClassName(Boolean(errors.description)),
-          )}
-        />
-        <FieldError message={errors.description} />
-      </div>
+      <ListingDescriptionField
+        externalDescription={draft.description}
+        descriptionError={errors.description}
+        pendingDescriptionRef={pendingDescriptionRef}
+        flushDescriptionCommitRef={flushDescriptionCommitRef}
+        syncDescriptionToDraft={syncDescriptionToDraft}
+      />
 
       <div className="flex flex-col gap-ds-2">
         <button

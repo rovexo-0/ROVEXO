@@ -46,22 +46,20 @@ function SellPageInner() {
 
   return (
     <>
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <main className="mx-auto flex min-h-full w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-4">
         <PhotoUploader />
         <PhotoValidationError />
         <ListingForm />
         <OptionalCard />
-      </main>
 
-      {formError ? (
-        <div className="fixed inset-x-0 bottom-[calc(84px+env(safe-area-inset-bottom))] z-[109] px-ds-4">
-          <p className="mx-auto max-w-2xl rounded-ds-md border border-destructive/30 bg-destructive/10 px-ds-3 py-ds-2 text-sm text-destructive">
+        {formError ? (
+          <p className="rounded-ds-md border border-destructive/30 bg-destructive/10 px-ds-3 py-ds-2 text-sm text-destructive">
             {formError}
           </p>
-        </div>
-      ) : null}
+        ) : null}
 
-      <StickyPublishButton />
+        <StickyPublishButton position="sticky" />
+      </main>
     </>
   );
 }
