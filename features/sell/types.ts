@@ -2,7 +2,6 @@ import type { FlatCategoryPath } from "@/lib/categories/types";
 import type { AiCameraAnalysisResult } from "@/lib/ai-camera/types";
 import type { SellListingMode } from "@/lib/profile/account";
 import type { ShippingMethod } from "@/lib/shipping/carriers";
-import { clampInventory } from "@/lib/sell/inventory";
 
 export type SellView = "form" | "published";
 
@@ -22,9 +21,48 @@ export type SellPhoto = {
 
 export type ListingType = "fixed" | "auction" | "live";
 
+/** Maximum photos per listing (also enforced server-side in the API schema). */
+export const SELL_PHOTO_MAX = 20;
+
+/** Parcel size drives automatic shipping labels and courier pricing. */
+export const PARCEL_SIZES = ["small", "medium", "large", "xl"] as const;
+export type ParcelSize = (typeof PARCEL_SIZES)[number];
+
+export type ParcelSizeOption = {
+  id: ParcelSize;
+  label: string;
+  description: string;
+  recommended?: boolean;
+};
+
+export const PARCEL_SIZE_OPTIONS: ParcelSizeOption[] = [
+  {
+    id: "small",
+    label: "Small",
+    description: "Fits a large letterbox — phone cases, jewellery, small accessories.",
+  },
+  {
+    id: "medium",
+    label: "Medium",
+    description: "Shoebox size — clothing, shoes, books, small electronics.",
+    recommended: true,
+  },
+  {
+    id: "large",
+    label: "Large",
+    description: "Cabin-bag size — coats, homeware, larger bundles.",
+  },
+  {
+    id: "xl",
+    label: "Extra Large",
+    description: "Bulky items — small furniture, large appliances, oversized parcels.",
+  },
+];
+
 export type SellListingDraft = {
   photos: SellPhoto[];
   categoryPath: FlatCategoryPath | null;
+  parcelSize: ParcelSize | null;
 
   listingType: ListingType;
 
@@ -72,6 +110,10 @@ export function createEmptyDraft(): SellListingDraft {
   return {
     photos: [],
     categoryPath: null,
+    // "medium" is the recommended default (see PARCEL_SIZE_OPTIONS). Parcel size
+    // is optional at the API/DB layer, so a valid default keeps a new listing
+    // genuinely complete without forcing an extra tap before publishing.
+    parcelSize: "medium",
 
     listingType: "fixed",
 
@@ -111,9 +153,7 @@ export type ListingValidationField =
   | "description"
   | "category"
   | "price"
-  | "condition"
-  | "shippingMethod"
-  | "stock";
+  | "parcelSize";
 
 export type ListingValidationErrors = Partial<Record<ListingValidationField, string>>;
 
@@ -148,7 +188,6 @@ export function getListingValidationErrors(
   options?: ListingValidationOptions,
 ): ListingValidationErrors {
   const errors: ListingValidationErrors = {};
-  const mode = options?.mode ?? "advanced";
   const showFieldErrors = options?.showErrors !== false;
 
   if (!hasValidPhotos(draft)) {
@@ -173,21 +212,12 @@ export function getListingValidationErrors(
     errors.category = "Select a category.";
   }
 
-  if (!draft.condition) {
-    errors.condition = "Select the item condition.";
-  }
-
-  const stock = clampInventory(draft.stock);
-  if (stock < 1) {
-    errors.stock = "Quantity must be at least 1.";
-  }
-
-  if (mode === "quick" && !draft.shippingMethod) {
-    errors.shippingMethod = "Select a delivery option.";
-  }
-
   if (!hasValidPrice(draft)) {
     errors.price = "Enter a price greater than zero.";
+  }
+
+  if (!draft.parcelSize) {
+    errors.parcelSize = "Select a parcel size.";
   }
 
   return errors;

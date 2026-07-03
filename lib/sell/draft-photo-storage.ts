@@ -124,47 +124,68 @@ function recordToPhoto(record: StoredPhotoRecord): SellPhoto {
 export async function saveDraftPhotos(photos: SellPhoto[]): Promise<void> {
   if (typeof indexedDB === "undefined") return;
 
-  const db = await openDraftPhotoDb();
+  // Draft photo persistence is a best-effort convenience (survives reloads /
+  // backgrounding). Some environments — notably iOS Safari private mode and
+  // storage-restricted WebViews — throw when opening IndexedDB or storing
+  // Blobs. Those failures must never surface as an uncaught rejection or block
+  // the in-memory photo flow, so we swallow them here.
+  try {
+    const db = await openDraftPhotoDb();
 
-  await new Promise<void>((resolve, reject) => {
-    const tx = db.transaction(PHOTO_STORE, "readwrite");
-    const store = tx.objectStore(PHOTO_STORE);
-    store.clear();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(PHOTO_STORE, "readwrite");
+      const store = tx.objectStore(PHOTO_STORE);
+      store.clear();
 
-    photos.forEach((photo, index) => {
-      const record = photoToRecord(photo, index);
-      if (record) store.put(record);
+      photos.forEach((photo, index) => {
+        const record = photoToRecord(photo, index);
+        if (record) store.put(record);
+      });
+
+      tx.oncomplete = () => {
+        db.close();
+        resolve();
+      };
+      tx.onerror = () => reject(tx.error ?? new Error("Unable to save sell draft photos."));
     });
-
-    tx.oncomplete = () => {
-      db.close();
-      resolve();
-    };
-    tx.onerror = () => reject(tx.error ?? new Error("Unable to save sell draft photos."));
-  });
+  } catch {
+    // Persistence unavailable — draft photos simply won't survive a reload.
+  }
 }
 
 export async function loadDraftPhotos(): Promise<SellPhoto[]> {
   if (typeof indexedDB === "undefined") return [];
 
-  const records = await runTransaction<StoredPhotoRecord[]>("readonly", (store) => store.getAll());
-  return records
-    .sort((left, right) => left.order - right.order)
-    .map(recordToPhoto)
-    .slice(0, 8);
+  try {
+    const records = await runTransaction<StoredPhotoRecord[]>("readonly", (store) => store.getAll());
+    return records
+      .sort((left, right) => left.order - right.order)
+      .map(recordToPhoto)
+      // Drop legacy/corrupt records that can no longer be published (no local
+      // file to upload and no already-uploaded URL). Restoring these would make
+      // photo validation fail and leave Publish disabled on mobile.
+      .filter((photo) => Boolean(photo.file) || Boolean(photo.uploaded && photo.url))
+      .slice(0, 8);
+  } catch {
+    return [];
+  }
 }
 
 export async function clearDraftPhotos(): Promise<void> {
   if (typeof indexedDB === "undefined") return;
 
-  const db = await openDraftPhotoDb();
-  await new Promise<void>((resolve, reject) => {
-    const tx = db.transaction(PHOTO_STORE, "readwrite");
-    tx.objectStore(PHOTO_STORE).clear();
-    tx.oncomplete = () => {
-      db.close();
-      resolve();
-    };
-    tx.onerror = () => reject(tx.error ?? new Error("Unable to clear sell draft photos."));
-  });
+  try {
+    const db = await openDraftPhotoDb();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(PHOTO_STORE, "readwrite");
+      tx.objectStore(PHOTO_STORE).clear();
+      tx.oncomplete = () => {
+        db.close();
+        resolve();
+      };
+      tx.onerror = () => reject(tx.error ?? new Error("Unable to clear sell draft photos."));
+    });
+  } catch {
+    // Best-effort cleanup — ignore storage failures.
+  }
 }

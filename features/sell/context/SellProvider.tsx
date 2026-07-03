@@ -7,7 +7,6 @@ import {
   useEffect,
   useRef,
   useState,
-  startTransition,
   type MutableRefObject,
   type ReactNode,
 } from "react";
@@ -19,24 +18,13 @@ import { clearSellDraft, loadSellDraft, loadUploadSessionId } from "@/lib/sell/d
 import { loadDraftPhotos } from "@/lib/sell/draft-photo-storage";
 import { uploadListingImage, deleteListingImage } from "@/lib/listings/upload-client";
 import { buildListingPublishPayload } from "@/lib/sell/build-listing-publish-payload";
-import {
-  detectCategoryFromTitle,
-  SUGGEST_CONFIDENCE_MIN,
-  type CategoryDetectionResult,
-} from "@/lib/sell/category-detection-pro";
-import { logCategoryManualOverride } from "@/lib/sell/category-detection-learning";
-import { createDebouncedCategoryDetection } from "@/lib/sell/category-detection-scheduler";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
-import { sellBackgroundPolicy, runSellBackgroundTask } from "@/lib/sell/sell-background-policy";
-import { warmCategoryIndexes } from "@/lib/taxonomy/category-search";
 import { compressListingImage, createListingThumbnail, validateClientImage } from "@/lib/storage/client-images";
 import { persistSellDraftSnapshot, persistSellDraftTextSync } from "@/lib/sell/persist-sell-draft";
 import { sellInputDiag } from "@/lib/sell/sell-input-diagnostics";
 import {
   initSellProfiler,
-  profileTimed,
   sellProfileAutosave,
-  sellProfileCategoryDetect,
   sellProfileSetDraft,
   sellProfileSyncText,
 } from "@/lib/sell/sell-profiler";
@@ -44,6 +32,7 @@ import type { SellListingMode } from "@/lib/profile/account";
 import {
   createEmptyDraft,
   isListingValid,
+  SELL_PHOTO_MAX,
   type SellListingDraft,
   type SellPhoto,
   type SellView,
@@ -53,16 +42,6 @@ export type SellProviderOptions = {
   listingMode?: SellListingMode;
   editListingId?: string;
   initialDraft?: SellListingDraft;
-};
-
-/**
- * A single locally-detected category the user can Accept or replace. The v1.0
- * product decision is one suggestion + confidence — never a list or a tree.
- */
-export type SellCategorySuggestion = {
-  path: FlatCategoryPath;
-  confidence: number;
-  label: string;
 };
 
 export type SellContextValue = {
@@ -81,7 +60,6 @@ export type SellContextValue = {
   flushDescriptionCommitRef: MutableRefObject<(() => void) | null>;
   syncTitleToDraft: (title: string) => void;
   syncDescriptionToDraft: (description: string) => void;
-  scheduleCategoryDetection: () => void;
   addPhotos: (files: FileList | File[]) => Promise<void>;
   removePhoto: (id: string) => Promise<void>;
   replacePhoto: (id: string, file: File) => void;
@@ -89,10 +67,7 @@ export type SellContextValue = {
   setMainPhoto: (id: string) => void;
   retryPhotoUpload: (id: string) => Promise<void>;
   updateDraft: (patch: Partial<SellListingDraft>) => void;
-  setCategoryPath: (categoryPath: FlatCategoryPath, source?: "manual" | "confirm") => void;
-  categorySuggestion: SellCategorySuggestion | null;
-  acceptCategorySuggestion: () => void;
-  dismissCategorySuggestion: () => void;
+  setCategoryPath: (categoryPath: FlatCategoryPath) => void;
   publishListing: () => Promise<void>;
   resetForAnotherListing: () => void;
 };
@@ -113,16 +88,6 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   const [uploadProgress, setUploadProgress] = useState(0);
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
   const [showValidation, setShowValidation] = useState(false);
-  const [categorySuggestion, setCategorySuggestion] = useState<SellCategorySuggestion | null>(null);
-  const categorySuggestionRef = useRef<SellCategorySuggestion | null>(null);
-  const lastDetectionInputRef = useRef<string>("");
-  const userOverrodeCategoryRef = useRef(Boolean(initialDraft?.categoryPath));
-  const lastDetectionRef = useRef<CategoryDetectionResult>({
-    suggestions: [],
-    top: null,
-    tier: "none",
-  });
-  const lastAiTopPathIdRef = useRef<string | null>(null);
   const uploadSessionRef = useRef<string>("");
   const [removedImageIds, setRemovedImageIds] = useState<string[]>([]);
   const pendingTitleRef = useRef(draft.title);
@@ -165,6 +130,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
         const merged = {
           ...createEmptyDraft(),
           ...stored,
+          parcelSize: stored?.parcelSize ?? "medium",
           photos: photos.length > 0 ? photos : current.photos,
         };
         pendingTitleRef.current = merged.title;
@@ -178,179 +144,11 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     };
   }, [editListingId, initialDraft]);
 
-  useEffect(() => {
-    categorySuggestionRef.current = categorySuggestion;
-  }, [categorySuggestion]);
-
-  // Turns a worker/fallback detection result into at most ONE suggestion the user
-  // can Accept or Change. It never auto-applies a category and never touches the
-  // taxonomy itself — it only reads the already-computed result.
-  const applyDetectionResult = useCallback((detection: CategoryDetectionResult) => {
-    lastDetectionRef.current = detection;
-    const top = detection.top;
-    lastAiTopPathIdRef.current = top
-      ? `${top.path.categorySlug}:${top.path.subcategorySlug}:${top.path.childCategorySlug ?? ""}`
-      : null;
-
-    // Respect an existing choice; never nag once the user has picked/accepted.
-    if (userOverrodeCategoryRef.current) {
-      setCategorySuggestion(null);
-      return;
-    }
-
-    // Only surface a confident, single suggestion.
-    if (!top || top.confidence < SUGGEST_CONFIDENCE_MIN) {
-      setCategorySuggestion(null);
-      return;
-    }
-
-    const suggestedPathId = `${top.path.categorySlug}:${top.path.subcategorySlug}:${top.path.childCategorySlug ?? ""}`;
-    const currentPathId = draftRef.current.categoryPath
-      ? `${draftRef.current.categoryPath.categorySlug}:${draftRef.current.categoryPath.subcategorySlug}:${draftRef.current.categoryPath.childCategorySlug ?? ""}`
-      : null;
-    if (currentPathId === suggestedPathId) {
-      setCategorySuggestion(null);
-      return;
-    }
-
-    const label = top.path.childCategoryName ?? top.path.subcategoryName ?? top.path.categoryName;
-
-    startTransition(() => {
-      setCategorySuggestion({ path: top.path, confidence: top.confidence, label });
-    });
+  const syncTitleToDraft = useCallback((title: string) => {
+    sellProfileSyncText("title", title.length, "syncTitleToDraft");
+    pendingTitleRef.current = title;
+    setDraft((current) => (current.title === title ? current : { ...current, title }));
   }, []);
-
-  // Keep a stable ref so the worker's long-lived `message` listener always calls
-  // the latest applier without re-creating the worker.
-  const applyDetectionResultRef = useRef(applyDetectionResult);
-  useEffect(() => {
-    applyDetectionResultRef.current = applyDetectionResult;
-  }, [applyDetectionResult]);
-
-  const acceptCategorySuggestion = useCallback(() => {
-    const suggestion = categorySuggestionRef.current;
-    if (!suggestion) return;
-    userOverrodeCategoryRef.current = true;
-    setDraft((prev) => ({ ...prev, categoryPath: suggestion.path }));
-    setCategorySuggestion(null);
-  }, []);
-
-  const dismissCategorySuggestion = useCallback(() => {
-    setCategorySuggestion(null);
-  }, []);
-
-  const detectionWorkerRef = useRef<Worker | null>(null);
-  const detectionWorkerBrokenRef = useRef(false);
-  const detectionRequestIdRef = useRef(0);
-
-  // Lazily create the detection worker. Returns null when Web Workers are
-  // unavailable or creation failed, so callers fall back to the main thread.
-  const getDetectionWorker = useCallback((): Worker | null => {
-    if (typeof window === "undefined" || typeof Worker === "undefined") return null;
-    if (detectionWorkerBrokenRef.current) return null;
-    if (detectionWorkerRef.current) return detectionWorkerRef.current;
-
-    try {
-      const worker = new Worker(
-        new URL("../workers/category-detection.worker.ts", import.meta.url),
-        { type: "module" },
-      );
-      worker.addEventListener("message", (event: MessageEvent<{ id: number; result: CategoryDetectionResult }>) => {
-        const { id, result } = event.data;
-        // Ignore responses for superseded keystrokes.
-        if (id !== detectionRequestIdRef.current) return;
-        applyDetectionResultRef.current(result);
-      });
-      worker.addEventListener("error", () => {
-        detectionWorkerBrokenRef.current = true;
-        detectionWorkerRef.current?.terminate();
-        detectionWorkerRef.current = null;
-      });
-      detectionWorkerRef.current = worker;
-      return worker;
-    } catch {
-      detectionWorkerBrokenRef.current = true;
-      return null;
-    }
-  }, []);
-
-  const runCategoryDetection = useCallback(() => {
-    if (!sellBackgroundPolicy.categorySuggestEnabled) return;
-
-    const title = pendingTitleRef.current.trim();
-    const description = pendingDescriptionRef.current.trim();
-    if (title.length < 3 && description.length < 3) return;
-
-    // Run once per unique input — a pause that produces the same text (e.g. blur
-    // after the debounce already fired) must not re-run detection.
-    const inputKey = `${title}\u0000${description}`;
-    if (inputKey === lastDetectionInputRef.current) return;
-    lastDetectionInputRef.current = inputKey;
-
-    sellProfileCategoryDetect("run");
-
-    const worker = getDetectionWorker();
-    if (worker) {
-      const id = (detectionRequestIdRef.current += 1);
-      worker.postMessage({ type: "detect", id, title, description });
-      return;
-    }
-
-    // Fallback (no Worker support): run on the main thread, but only during idle
-    // time so a keystroke is never blocked synchronously.
-    runSellBackgroundTask(() => {
-      const detection = profileTimed("detectCategoryFromTitle", () =>
-        detectCategoryFromTitle(title, description),
-      );
-      applyDetectionResultRef.current(detection);
-    });
-  }, [getDetectionWorker]);
-
-  const categorySchedulerRef = useRef<ReturnType<typeof createDebouncedCategoryDetection> | null>(
-    null,
-  );
-
-  // Warm the taxonomy indexes once, right after mount. When a worker is
-  // available the build happens off the main thread; otherwise it is deferred to
-  // idle time so it never blocks typing. Also terminates the worker on unmount.
-  useEffect(() => {
-    if (!sellBackgroundPolicy.categorySuggestEnabled) return;
-
-    const worker = getDetectionWorker();
-    if (worker) {
-      worker.postMessage({ type: "warm" });
-    } else {
-      runSellBackgroundTask(() => warmCategoryIndexes());
-    }
-
-    return () => {
-      detectionWorkerRef.current?.terminate();
-      detectionWorkerRef.current = null;
-    };
-  }, [getDetectionWorker]);
-
-  useEffect(() => {
-    categorySchedulerRef.current = createDebouncedCategoryDetection(
-      runCategoryDetection,
-      sellBackgroundPolicy.categoryDebounceMs,
-    );
-    return () => categorySchedulerRef.current?.cancel();
-  }, [runCategoryDetection]);
-
-  const scheduleCategoryDetection = useCallback(() => {
-    sellProfileCategoryDetect("schedule");
-    categorySchedulerRef.current?.schedule();
-  }, []);
-
-  const syncTitleToDraft = useCallback(
-    (title: string) => {
-      sellProfileSyncText("title", title.length, "syncTitleToDraft");
-      pendingTitleRef.current = title;
-      setDraft((current) => (current.title === title ? current : { ...current, title }));
-      scheduleCategoryDetection();
-    },
-    [scheduleCategoryDetection],
-  );
 
   const syncDescriptionToDraft = useCallback(
     (description: string) => {
@@ -430,6 +228,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
           const merged = {
             ...createEmptyDraft(),
             ...stored,
+            parcelSize: stored?.parcelSize ?? "medium",
             photos: photos.length > 0 ? photos : current.photos,
           };
           pendingTitleRef.current = merged.title;
@@ -507,7 +306,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   );
 
   const addPhotos = useCallback(async (files: FileList | File[]) => {
-    const remaining = 8 - draftRef.current.photos.length;
+    const remaining = SELL_PHOTO_MAX - draftRef.current.photos.length;
     const selected = Array.from(files).slice(0, remaining);
     if (selected.length === 0) return;
 
@@ -537,7 +336,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     if (added.length > 0) {
       setDraft((current) => ({
         ...current,
-        photos: [...current.photos, ...added].slice(0, 8),
+        photos: [...current.photos, ...added].slice(0, SELL_PHOTO_MAX),
       }));
     }
 
@@ -642,37 +441,9 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     });
   }, []);
 
-  const setCategoryPath = useCallback(
-    (categoryPath: FlatCategoryPath, source: "manual" | "confirm" = "manual") => {
-      if (source === "manual") {
-        userOverrodeCategoryRef.current = true;
-        setCategorySuggestion(null);
-      }
-
-      setDraft((current) => {
-        const nextPathId = `${categoryPath.categorySlug}:${categoryPath.subcategorySlug}:${categoryPath.childCategorySlug ?? ""}`;
-        const detection = lastDetectionRef.current;
-
-        if (
-          source === "manual" &&
-          detection.top &&
-          lastAiTopPathIdRef.current &&
-          lastAiTopPathIdRef.current !== nextPathId
-        ) {
-          void logCategoryManualOverride({
-            title: pendingTitleRef.current || current.title,
-            suggestedPath: detection.top.path,
-            chosenPath: categoryPath,
-            confidence: detection.top.confidence,
-            tier: detection.tier,
-          });
-        }
-
-        return { ...current, categoryPath };
-      });
-    },
-    [],
-  );
+  const setCategoryPath = useCallback((categoryPath: FlatCategoryPath) => {
+    setDraft((current) => ({ ...current, categoryPath }));
+  }, []);
 
   const publishListing = useCallback(async () => {
     flushPendingText();
@@ -775,10 +546,6 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     pendingDescriptionRef.current = "";
     setDraft(createEmptyDraft());
     setRemovedImageIds([]);
-    setCategorySuggestion(null);
-    lastDetectionRef.current = { suggestions: [], top: null, tier: "none" };
-    lastDetectionInputRef.current = "";
-    userOverrodeCategoryRef.current = false;
   }, []);
 
   return {
@@ -797,10 +564,6 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     flushDescriptionCommitRef,
     syncTitleToDraft,
     syncDescriptionToDraft,
-    scheduleCategoryDetection,
-    categorySuggestion,
-    acceptCategorySuggestion,
-    dismissCategorySuggestion,
     addPhotos,
     removePhoto,
     replacePhoto,
