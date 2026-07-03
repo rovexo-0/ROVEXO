@@ -51,6 +51,16 @@
   height: var(--rx-visual-icon-size, 80px);
 }
 
+/* Homepage main category icons — premium 3D assets are sized natively (the
+   master art fills ~84% of the frame), so no CSS scaling is required. Keep the
+   glyph borderless with no plate/outline (approved). Layout and spacing unchanged. */
+.rx-visual-section[data-component-id="category-rail"] .rx-category-render,
+.rx-visual-section[data-component-id="category-rail"] .rx-category-render--premium-3d {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+}
+
 .rx-visual-section[data-component-id="hero-slider"] .import-rx-hero-banner {
   min-height: var(--rx-visual-image-size, 360px);
   border-radius: var(--rx-visual-radius, 24px);

@@ -40,11 +40,7 @@ export function RovexoCategoryRail() {
     ));
 
   return (
-    <section aria-labelledby="home-v1-categories-heading" className="home-v1-categories">
-      <h2 id="home-v1-categories-heading" className="home-v1-categories__title">
-        Categories
-      </h2>
-
+    <section aria-label="Categories" className="home-v1-categories">
       <div
         ref={scrollerRef}
         className={cn(

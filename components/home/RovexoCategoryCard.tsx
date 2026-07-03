@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { getCategoryGlassIcon } from "@/lib/icons";
-import { RovexoIcon } from "@/components/icons/RovexoIcon";
+import {
+  getCategoryPremiumPngSrc,
+  getCategoryPremiumSrcSet,
+  isRovexoCategoryPremiumKey,
+} from "@/lib/home/category-premium-library";
 import { cn } from "@/lib/cn";
 import type { RovexoCategory } from "@/components/home/constants";
 
@@ -13,7 +16,8 @@ type RovexoCategoryCardProps = {
 };
 
 export function RovexoCategoryCard({ category, onNavigate, className }: RovexoCategoryCardProps) {
-  const iconRef = getCategoryGlassIcon(category.icon);
+  // All rail keys resolve to a premium 3D render; electronics is a safe canonical fallback.
+  const iconKey = isRovexoCategoryPremiumKey(category.icon) ? category.icon : "electronics";
 
   return (
     <Link
@@ -22,7 +26,32 @@ export function RovexoCategoryCard({ category, onNavigate, className }: RovexoCa
       className={cn("home-v1-category-tile shrink-0", className)}
     >
       <div className="home-v1-category-tile__slot">
-        <RovexoIcon icon={iconRef} variant="category" className="home-v1-category-tile__icon" />
+        <picture>
+          <source
+            srcSet={getCategoryPremiumSrcSet(iconKey, "avif")}
+            sizes="(min-width: 1024px) 56px, 52px"
+            type="image/avif"
+          />
+          <source
+            srcSet={getCategoryPremiumSrcSet(iconKey, "webp")}
+            sizes="(min-width: 1024px) 56px, 52px"
+            type="image/webp"
+          />
+          <img
+            src={getCategoryPremiumPngSrc(iconKey)}
+            srcSet={getCategoryPremiumSrcSet(iconKey, "png")}
+            sizes="(min-width: 1024px) 56px, 52px"
+            alt=""
+            aria-hidden
+            width={52}
+            height={52}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            className="home-v1-category-tile__icon"
+            style={{ objectFit: "contain" }}
+          />
+        </picture>
       </div>
       <span className="home-v1-category-tile__name">{category.name}</span>
     </Link>

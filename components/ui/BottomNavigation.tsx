@@ -4,9 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type MouseEvent } from "react";
 import type { BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
-import { RovexoIcon } from "@/components/icons/RovexoIcon";
-import { RovexoIcons } from "@/lib/icons";
-import { resolveBottomNavGlassIcon } from "@/lib/icons/resolve";
+import { PremiumNavIcon } from "@/components/icons/PremiumNavIcon";
 import { Avatar } from "@/components/ui/Avatar";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
@@ -58,8 +56,21 @@ function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab
 }
 
 function NavIcon({ type }: { type: BottomNavIconType }) {
+  return <PremiumNavIcon type={type} size={36} className="rx-bottom-nav-tab-icon" />;
+}
+
+/** White "+" glyph rendered inside the blue Sell FAB. */
+function SellPlusIcon() {
   return (
-    <RovexoIcon icon={resolveBottomNavGlassIcon(type)} size={32} className="rx-bottom-nav-tab-icon" />
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden className="rx-sell-plus">
+      <path
+        d="M12 5v14M5 12h14"
+        stroke="currentColor"
+        strokeWidth={2.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -202,7 +213,7 @@ export function BottomNavigation({
                 className={cn("rx-bottom-nav-item rx-bottom-nav-item--sell", focusRing, transitionFast)}
               >
                 <span className="rx-bottom-nav-sell">
-                  <RovexoIcon icon={RovexoIcons.navigation.sell} size={34} />
+                  <SellPlusIcon />
                 </span>
                 <span className="rx-bottom-nav-item__label">{sell.label}</span>
               </Link>
@@ -217,7 +228,7 @@ export function BottomNavigation({
                 className={cn("rx-bottom-nav-item rx-bottom-nav-item--sell", focusRing, transitionFast)}
               >
                 <span className="rx-bottom-nav-sell">
-                  <RovexoIcon icon={RovexoIcons.navigation.sell} size={34} />
+                  <SellPlusIcon />
                 </span>
                 <span className="rx-bottom-nav-item__label">Sell</span>
               </Link>
