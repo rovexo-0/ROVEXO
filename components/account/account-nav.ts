@@ -37,12 +37,12 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
   { id: "help", label: "Help", href: "/help", icon: "help", color: BLUE },
   // Row 3
   { id: "reviews", label: "Reviews", href: "/seller/review-center", icon: "reviews", color: ORANGE },
-  { id: "shipping", label: "Shipping Labels", href: "/account/seller/shipping", icon: "shipping", color: GREEN },
+  { id: "import", label: "Import", href: "/import", icon: "listings", color: GREEN },
   { id: "returns", label: "Returns", href: "/orders?tab=returns", icon: "returns", color: RED },
   { id: "notifications", label: "Notifications", href: "/notifications", icon: "notifications", color: BLUE },
   // Row 4
   { id: "security", label: "Security", href: "/account/security", icon: "security", color: BLUE },
-  { id: "following", label: "Following", href: "/buyer", icon: "following", color: PURPLE },
+  { id: "following", label: "Buying", href: "/buyer", icon: "following", color: PURPLE },
   { id: "payment", label: "Payment Methods", href: "/account/payment-methods", icon: "payment", color: BLUE },
   { id: "support", label: "Support Center", href: "/support", icon: "support", color: GREEN },
 ] as const;

@@ -18,7 +18,7 @@ export const ACCOUNT_QUICK_ACCESS: AccountQuickAccessModule[] = [
   {
     id: "buyer",
     href: "/buyer",
-    title: "Buyer",
+    title: "Buying",
     subtitle: "Orders, saved & discovery",
     icon: "buyer",
     badgeKeys: ["orders", "cart", "messages", "notifications", "saved"],
@@ -26,7 +26,7 @@ export const ACCOUNT_QUICK_ACCESS: AccountQuickAccessModule[] = [
   {
     id: "seller",
     href: "/seller",
-    title: "Seller",
+    title: "Selling",
     subtitle: "Listings, wallet & analytics",
     icon: "seller",
     badgeKeys: ["orders", "wallet-payout"],
@@ -79,7 +79,7 @@ export function getSellerModuleTiles(): MobileTile[] {
   return [
     tile("/seller/listings", "Listings", "Manage inventory"),
     tile("/seller/orders", "Orders", "Fulfillment & shipping", "orders"),
-    tile("/seller/wallet", "Wallet", "Balance & withdrawals", "wallet-payout"),
+    tile("/wallet", "Wallet", "Balance & payouts", "wallet-payout"),
     tile("/seller/analytics", "Analytics", "Views, sales & trends"),
     tile("/sell", "Publish", "Create a listing"),
     tile(MARKETPLACE_CONNECTORS_PATH, "Marketplace Import", "Connect external stores"),
@@ -133,9 +133,9 @@ export function getModuleMeta(id: AccountCenterModuleId): {
 } {
   switch (id) {
     case "buyer":
-      return { title: "Buyer", backHref: "/account", backLabel: "My Account" };
+      return { title: "Buying", backHref: "/account", backLabel: "My Account" };
     case "seller":
-      return { title: "Seller", backHref: "/account", backLabel: "My Account" };
+      return { title: "Selling", backHref: "/account", backLabel: "My Account" };
     case "business":
       return { title: "Business", backHref: "/account", backLabel: "My Account" };
     case "account":

@@ -23,9 +23,9 @@ export function getAnalyticsRangeMultiplier(range: AnalyticsDateRange): number {
 }
 
 export function formatAnalyticsCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-IE", {
+  return new Intl.NumberFormat("en-GB", {
     style: "currency",
-    currency: "EUR",
+    currency: "GBP",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);

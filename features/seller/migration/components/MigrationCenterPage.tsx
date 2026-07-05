@@ -181,8 +181,8 @@ export function MigrationCenterPage() {
   const primaryLabel = "Import";
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      <main className="byi-page mx-auto w-full max-w-2xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+    <BetaAppShell showBottomNav={false} bottomNavTab="account">
+      <main className="account-center-shell mx-auto w-full max-w-[480px] bg-background px-ds-4 py-ds-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
         <StickyPageHeader>
           <div className="flex items-center gap-ds-2">
             <PageBack backHref="/account" backLabel="My Account" />

@@ -2,8 +2,10 @@
 
 import { useSellerDashboard } from "@/hooks/seller";
 
+import { formatCurrency } from "@/lib/wallet/utils";
+
 function formatValue(value: number, format?: "currency" | "percent") {
-  if (format === "currency") return `€${value.toLocaleString()}`;
+  if (format === "currency") return formatCurrency(value);
   if (format === "percent") return `${value}%`;
   return value.toLocaleString();
 }

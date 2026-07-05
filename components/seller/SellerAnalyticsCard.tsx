@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { SellerSection } from "@/components/seller/SellerSection";
 import { useSellerDashboard } from "@/hooks/seller";
+import { formatCurrency } from "@/lib/wallet/utils";
 
 export function SellerAnalyticsCard() {
   const { data } = useSellerDashboard();
@@ -13,7 +14,7 @@ export function SellerAnalyticsCard() {
       <div className="seller-card">
         <p className="seller-stat-card__label">{analytics.rangeLabel}</p>
         <div className="seller-metric-grid">
-          <div className="seller-metric"><p className="seller-metric__value">€{analytics.revenue.toLocaleString()}</p><p className="seller-metric__label">Revenue</p></div>
+          <div className="seller-metric"><p className="seller-metric__value">{formatCurrency(analytics.revenue)}</p><p className="seller-metric__label">Revenue</p></div>
           <div className="seller-metric"><p className="seller-metric__value">{analytics.views.toLocaleString()}</p><p className="seller-metric__label">Views</p></div>
           <div className="seller-metric"><p className="seller-metric__value">{analytics.ctr}%</p><p className="seller-metric__label">CTR</p></div>
           <div className="seller-metric"><p className="seller-metric__value">{analytics.conversion}%</p><p className="seller-metric__label">Conversion</p></div>
@@ -26,7 +27,7 @@ export function SellerAnalyticsCard() {
           <Image src={listing.imageUrl} alt="" width={48} height={48} className="rounded-xl object-cover" />
           <div className="min-w-0">
             <p className="seller-list-row__title">{listing.title}</p>
-            <p className="seller-list-row__meta">€{listing.revenue.toLocaleString()} · {listing.orders} orders</p>
+            <p className="seller-list-row__meta">{formatCurrency(listing.revenue)} · {listing.orders} orders</p>
           </div>
         </div>
       ))}

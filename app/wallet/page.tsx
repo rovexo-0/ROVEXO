@@ -1,5 +1,4 @@
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { WalletOverview } from "@/features/wallet/components/WalletOverview";
+import { WalletPage } from "@/features/wallet/components/WalletPage";
 import { fetchWalletData } from "@/lib/wallet/queries";
 import { fetchProfile } from "@/lib/profile/queries";
 import { syncConnectAccountBySellerId } from "@/lib/stripe/connect";
@@ -12,8 +11,8 @@ type WalletRouteProps = {
 export default async function WalletRoute({ searchParams }: WalletRouteProps) {
   const profile = await fetchProfile();
 
-  if (!profile.isSeller) {
-    redirect("/account");
+  if (!profile) {
+    redirect("/login?next=/wallet");
   }
 
   const params = await searchParams;
@@ -24,19 +23,18 @@ export default async function WalletRoute({ searchParams }: WalletRouteProps) {
   const data = await fetchWalletData();
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      <WalletOverview
-        data={data}
-        backHref="/seller/dashboard"
-        connectMessage={
-          params.connect === "success"
-            ? "Bank account setup saved. Payouts will be sent automatically after each hold period."
-            : params.connect === "refresh"
-              ? "Finish setting up your bank account to receive automatic payouts."
-              : undefined
-        }
-      />
-    </BetaAppShell>
+    <WalletPage
+      profile={profile}
+      data={data}
+      backHref="/account"
+      connectMessage={
+        params.connect === "success"
+          ? "Bank account setup saved. Payouts will be sent automatically after each hold period."
+          : params.connect === "refresh"
+            ? "Finish setting up your bank account to receive automatic payouts."
+            : undefined
+      }
+    />
   );
 }
 

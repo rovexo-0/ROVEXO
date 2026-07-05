@@ -29,7 +29,7 @@ export function AccountCurrencyPage() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { currency: "EUR (€)" },
+    defaultValues: { currency: "GBP (£)" },
   });
 
   useEffect(() => {

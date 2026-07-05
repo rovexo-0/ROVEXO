@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { IntegrationsEngineHub } from "@/features/integrations-engine/IntegrationsEngineHub";
 import { INTEGRATIONS_ENGINE_MODULES } from "@/lib/integrations-engine/registry";
 import {
@@ -10,6 +11,11 @@ import { getProfile } from "@/lib/profile/data";
 
 export default async function IntegrationsRoute() {
   const profile = await getProfile();
+
+  if (!profile.isSuperAdmin) {
+    redirect("/account");
+  }
+
   const [config, context, analytics] = await Promise.all([
     getPublicIntegrationsEngineConfig(),
     getIntegrationsEngineContext(profile.id),

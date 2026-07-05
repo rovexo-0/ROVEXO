@@ -6,6 +6,7 @@ import { CategoryChip } from "@/components/ui/CategoryChip";
 import { cn } from "@/lib/cn";
 import { transitionSlow } from "@/components/ui/tokens";
 import type { DashboardPerformance } from "@/features/dashboard/types";
+import { formatCurrency } from "@/lib/wallet/utils";
 
 type DashboardPerformanceSectionProps = {
   performance: DashboardPerformance;
@@ -29,7 +30,7 @@ function buildPath(values: number[], width: number, height: number): string {
 }
 
 function formatTotal(value: number, format?: "currency" | "number"): string {
-  if (format === "currency") return `€${value.toLocaleString()}`;
+  if (format === "currency") return formatCurrency(value);
   return value.toLocaleString();
 }
 

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PremiumIcon } from "@/components/icons/PremiumIcon";
 import { cn } from "@/lib/cn";
-import { getListingShareUrl } from "@/lib/share/listing-url";
+import { getListingShareUrl, getFacebookShareUrl } from "@/lib/share/listing-url";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { trackShareListing } from "@/lib/analytics/marketplace-events";
 
@@ -14,12 +14,13 @@ type ShareListingSheetProps = {
   slug: string;
   productId?: string;
   price?: number;
+  imageUrl?: string;
 };
 
 type ShareChannel = {
   id: string;
   label: string;
-  href: (url: string, title: string) => string;
+  href?: (url: string, title: string) => string;
   icon: React.ReactNode;
 };
 
@@ -49,7 +50,6 @@ const channels: ShareChannel[] = [
   {
     id: "facebook",
     label: "Facebook",
-    href: (url) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
     icon: (
       <ShareChannelIcon>
         <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -128,7 +128,11 @@ export function ShareListingSheet({ open, onClose, title, slug, productId, price
   const nativeShare = useCallback(async () => {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title, url: shareUrl });
+        await navigator.share({
+          title,
+          text: title,
+          url: shareUrl,
+        });
         if (productId) {
           trackShareListing({ itemId: productId, itemName: title, price, method: "native" });
         }
@@ -140,6 +144,39 @@ export function ShareListingSheet({ open, onClose, title, slug, productId, price
     }
     void copyLink();
   }, [copyLink, onClose, productId, price, shareUrl, title]);
+
+  const shareOnFacebook = useCallback(async () => {
+    const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches;
+
+    if (isMobile && typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title, text: title, url: shareUrl });
+        if (productId) {
+          trackShareListing({ itemId: productId, itemName: title, price, method: "facebook" });
+        }
+        onClose();
+        return;
+      } catch {
+        // Fall through to Facebook URL / dialog.
+      }
+    }
+
+    const facebookUrl = getFacebookShareUrl(shareUrl);
+    const popup = window.open(
+      facebookUrl,
+      "facebook-share",
+      "width=600,height=400,menubar=no,toolbar=no,status=no,scrollbars=yes",
+    );
+
+    if (popup) {
+      if (productId) {
+        trackShareListing({ itemId: productId, itemName: title, price, method: "facebook" });
+      }
+      return;
+    }
+
+    window.location.href = facebookUrl;
+  }, [onClose, productId, price, shareUrl, title]);
 
   if (!open) return null;
 
@@ -194,32 +231,48 @@ export function ShareListingSheet({ open, onClose, title, slug, productId, price
         </button>
 
         <div className="grid grid-cols-4 gap-ds-3">
-          {channels.map((channel) => (
-            <a
-              key={channel.id}
-              href={channel.href(shareUrl, title)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => {
-                if (productId) {
-                  trackShareListing({
-                    itemId: productId,
-                    itemName: title,
-                    price,
-                    method: channel.id,
-                  });
-                }
-              }}
-              className={cn(
-                "flex flex-col items-center gap-ds-2 rounded-ds-md p-ds-2 text-center hover:bg-surface-muted",
-                focusRing,
-                transitionFast,
-              )}
-            >
-              {channel.icon}
-              <span className="text-[11px] font-medium text-text-secondary">{channel.label}</span>
-            </a>
-          ))}
+          {channels.map((channel) =>
+            channel.id === "facebook" ? (
+              <button
+                key={channel.id}
+                type="button"
+                onClick={() => void shareOnFacebook()}
+                className={cn(
+                  "flex flex-col items-center gap-ds-2 rounded-ds-md p-ds-2 text-center hover:bg-surface-muted",
+                  focusRing,
+                  transitionFast,
+                )}
+              >
+                {channel.icon}
+                <span className="text-[11px] font-medium text-text-secondary">{channel.label}</span>
+              </button>
+            ) : channel.href ? (
+              <a
+                key={channel.id}
+                href={channel.href(shareUrl, title)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  if (productId) {
+                    trackShareListing({
+                      itemId: productId,
+                      itemName: title,
+                      price,
+                      method: channel.id,
+                    });
+                  }
+                }}
+                className={cn(
+                  "flex flex-col items-center gap-ds-2 rounded-ds-md p-ds-2 text-center hover:bg-surface-muted",
+                  focusRing,
+                  transitionFast,
+                )}
+              >
+                {channel.icon}
+                <span className="text-[11px] font-medium text-text-secondary">{channel.label}</span>
+              </a>
+            ) : null,
+          )}
         </div>
 
         <button

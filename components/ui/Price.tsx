@@ -28,8 +28,8 @@ function formatAmount(amount: number, currency: string, locale: string): string 
 export function Price({
   amount,
   originalAmount,
-  currency = "EUR",
-  locale = "en-IE",
+  currency = "GBP",
+  locale = "en-GB",
   className,
   size = "md",
 }: PriceProps) {

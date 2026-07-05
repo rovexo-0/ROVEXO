@@ -36,8 +36,7 @@ export function useCheckoutForm(product: ProductDetail, initialDraft: CheckoutDr
     draft.recipientName.trim().length > 0 &&
     draft.addressLine.trim().length > 0 &&
     draft.postcode.trim().length > 0 &&
-    draft.country.trim().length > 0 &&
-    draft.acceptedReturnPolicy;
+    draft.country.trim().length > 0;
 
   const placeOrder = useCallback(async () => {
     if (!canPay || isSubmitting) return;

@@ -5,6 +5,7 @@ import {
   clearCart,
   getCartSummary,
   removeFromCart,
+  updateCartQuantity,
 } from "@/lib/cart/store";
 
 export async function GET() {
@@ -24,8 +25,9 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json()) as {
-    action?: "add" | "remove" | "clear";
+    action?: "add" | "remove" | "clear" | "update";
     productSlug?: string;
+    quantity?: number;
   };
 
   if (body.action === "clear") {
@@ -40,6 +42,15 @@ export async function POST(request: Request) {
 
   if (body.action === "remove") {
     await removeFromCart(auth.user.id, body.productSlug);
+    const cart = await getCartSummary(auth.user.id);
+    return NextResponse.json({ success: true, cart });
+  }
+
+  if (body.action === "update") {
+    const result = await updateCartQuantity(auth.user.id, body.productSlug, body.quantity ?? 1);
+    if (!result.success) {
+      return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+    }
     const cart = await getCartSummary(auth.user.id);
     return NextResponse.json({ success: true, cart });
   }

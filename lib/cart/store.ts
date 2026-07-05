@@ -169,6 +169,56 @@ export async function removeFromCart(userId: string, productSlug: string): Promi
   await supabase.from("cart_items").delete().eq("user_id", userId).eq("product_id", product.id);
 }
 
+export async function updateCartQuantity(
+  userId: string,
+  productSlug: string,
+  quantity: number,
+): Promise<{ success: boolean; error?: string }> {
+  if (!Number.isFinite(quantity) || quantity < 1) {
+    return { success: false, error: "Quantity must be at least 1." };
+  }
+
+  const admin = createAdminClient();
+  const { data: product } = await admin
+    .from("products")
+    .select("id, stock, status")
+    .eq("slug", productSlug)
+    .maybeSingle();
+
+  if (!product) {
+    return { success: false, error: "Product not found." };
+  }
+
+  if (!isPurchasable(product.stock, product.status)) {
+    return { success: false, error: "This item is out of stock." };
+  }
+
+  const cappedQuantity = Math.min(Math.floor(quantity), Math.max(product.stock, 1), 100);
+
+  const supabase = await createClient();
+  const { data: existing } = await supabase
+    .from("cart_items")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("product_id", product.id)
+    .maybeSingle();
+
+  if (!existing) {
+    return { success: false, error: "Item not in cart." };
+  }
+
+  const { error } = await supabase
+    .from("cart_items")
+    .update({ quantity: cappedQuantity })
+    .eq("id", existing.id);
+
+  if (error) {
+    return { success: false, error: "Unable to update quantity." };
+  }
+
+  return { success: true };
+}
+
 export async function clearCart(userId: string): Promise<void> {
   const supabase = await createClient();
   await supabase.from("cart_items").delete().eq("user_id", userId);

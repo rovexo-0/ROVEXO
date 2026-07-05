@@ -12,5 +12,5 @@ export default async function AccountProfileRoute() {
   const details = await getProfileDetails(profile.id);
   if (!details) redirect("/login?next=/account/profile");
 
-  return <ProfileEditPage initialProfile={details} isSeller={profile.isSeller} />;
+  return <ProfileEditPage initialProfile={details} />;
 }

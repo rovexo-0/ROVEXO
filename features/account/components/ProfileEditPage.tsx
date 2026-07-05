@@ -15,7 +15,6 @@ import {
   BlockedIcon,
   LockIcon,
   PrivacyIcon,
-  ShippingIcon,
 } from "@/features/settings/icons";
 import { getNavLinkIcon } from "@/lib/navigation/link-icons";
 import { profileUpdateSchema, type ProfileUpdateInput } from "@/lib/account/schemas";
@@ -25,7 +24,6 @@ import { focusRing } from "@/components/ui/tokens";
 
 type ProfileEditPageProps = {
   initialProfile: ProfileDetails;
-  isSeller?: boolean;
 };
 
 function Field({
@@ -55,7 +53,7 @@ const inputClassName = cn(
   focusRing,
 );
 
-export function ProfileEditPage({ initialProfile, isSeller = false }: ProfileEditPageProps) {
+export function ProfileEditPage({ initialProfile }: ProfileEditPageProps) {
   const [profile, setProfile] = useState(initialProfile);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [verifyMessage, setVerifyMessage] = useState<string | null>(null);
@@ -261,16 +259,6 @@ export function ProfileEditPage({ initialProfile, isSeller = false }: ProfileEdi
               icon={<PrivacyIcon className="h-5 w-5" />}
             />
           </div>
-          {isSeller ? (
-            <div className="border-t border-border">
-              <ProfileMenuRow
-                title="Shipping settings"
-                subtitle="Handling, carriers, and delivery"
-                href="/account/seller/shipping"
-                icon={<ShippingIcon className="h-5 w-5" />}
-              />
-            </div>
-          ) : null}
           <div className="border-t border-border">
             <ProfileMenuRow
               title="Notification preferences"

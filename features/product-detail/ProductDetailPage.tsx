@@ -151,6 +151,7 @@ export function ProductDetailPage({
         slug={product.slug}
         productId={product.id}
         price={product.price}
+        imageUrl={product.images[0]}
       />
 
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 pt-ds-3 pb-[calc(84px+env(safe-area-inset-bottom))]">

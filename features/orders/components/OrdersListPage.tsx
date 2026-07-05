@@ -21,7 +21,7 @@ export function OrdersListPage({
   showBottomNav = true,
   bottomNavTab = "account",
 }: OrdersListPageProps) {
-  const title = listRole === "buyer" ? "Orders" : "Seller Orders";
+  const title = listRole === "buyer" ? "Orders" : "Orders to fulfill";
 
   return (
     <BetaAppShell bottomNavTab={showBottomNav ? bottomNavTab : undefined} showBottomNav={showBottomNav}>

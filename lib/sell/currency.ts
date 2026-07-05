@@ -5,9 +5,9 @@ export type SellCurrencyConfig = {
 };
 
 const DEFAULT_CURRENCY: SellCurrencyConfig = {
-  currency: "EUR",
-  locale: "en-IE",
-  symbol: "€",
+  currency: "GBP",
+  locale: "en-GB",
+  symbol: "£",
 };
 
 /**
@@ -45,9 +45,9 @@ function resolveCurrencyFromLocale(locale: string): SellCurrencyConfig {
   }
 
   return {
-    currency: DEFAULT_CURRENCY.currency,
-    locale,
-    symbol: getCurrencySymbol(DEFAULT_CURRENCY.currency, locale),
+    currency: "GBP",
+    locale: locale.includes("-") ? locale : "en-GB",
+    symbol: getCurrencySymbol("GBP", locale.includes("-") ? locale : "en-GB"),
   };
 }
 

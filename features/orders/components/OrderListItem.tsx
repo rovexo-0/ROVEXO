@@ -52,6 +52,18 @@ export function OrderListItem({ order, userId }: OrderListItemProps) {
               {counterpartyLabel}: {counterpartyName}
             </p>
 
+            {view === "seller" && order.status === "issue_open" ? (
+              <p className="mt-ds-2 rounded-ds-md bg-danger/10 px-ds-2 py-ds-1 text-xs font-medium text-danger">
+                Buyer reported an issue — review in Resolution Centre
+              </p>
+            ) : null}
+
+            {view === "seller" && order.status === "cancelled" ? (
+              <p className="mt-ds-2 text-xs font-medium text-text-secondary">
+                Order cancelled
+              </p>
+            ) : null}
+
             <Price amount={order.totals.total} size="sm" className="mt-ds-2" />
           </div>
         </div>

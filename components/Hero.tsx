@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const trustBadges = [
   "Buyer protection",
-  "Free shipping €50+",
+  "Free shipping £50+",
   "Verified sellers",
   "Secure payments",
 ];

@@ -2,17 +2,18 @@
 
 import { SellerSection } from "@/components/seller/SellerSection";
 import { useSellerDashboard } from "@/hooks/seller";
+import { formatCurrency } from "@/lib/wallet/utils";
 
 export function SellerPayoutCard() {
   const { data } = useSellerDashboard();
   const { wallet } = data;
 
   return (
-    <SellerSection id="seller-payout" title="Payouts" href="/seller/wallet">
+    <SellerSection id="seller-payout" title="Payouts" href="/wallet">
       <div className="seller-card">
         <div className="seller-metric-grid">
           <div className="seller-metric">
-            <p className="seller-metric__value">€{wallet.availableBalance.toLocaleString()}</p>
+            <p className="seller-metric__value">{formatCurrency(wallet.availableBalance)}</p>
             <p className="seller-metric__label">Available payout</p>
           </div>
           <div className="seller-metric">

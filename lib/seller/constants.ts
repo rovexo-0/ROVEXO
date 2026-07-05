@@ -27,9 +27,9 @@ export function buildSellerQuickActions(counts: {
       count: counts.listings,
     },
     {
-      id: "withdraw",
-      title: "Withdraw Funds",
-      href: "/seller/wallet/withdraw",
+      id: "wallet",
+      title: "Wallet",
+      href: "/wallet",
       icon: RovexoIcons.seller.wallet,
     },
     {
@@ -50,8 +50,7 @@ export function buildSellerQuickActions(counts: {
 
 export const SELLER_SETTINGS_LINKS: SellerSettingsLink[] = [
   { id: "store", label: "Store", href: "/account/profile", icon: RovexoIcons.dashboard.listings },
-  { id: "shipping", label: "Shipping", href: "/account/seller/shipping", icon: RovexoIcons.shipping.shipping },
-  { id: "payments", label: "Payments", href: "/seller/wallet", icon: RovexoIcons.seller.wallet },
+  { id: "payments", label: "Payments", href: "/wallet", icon: RovexoIcons.seller.wallet },
   { id: "notifications", label: "Notifications", href: "/notifications/settings", icon: RovexoIcons.notifications.bell },
   { id: "appearance", label: "Appearance", href: "/account/preferences/appearance", icon: RovexoIcons.settings.settings },
   { id: "language", label: "Language", href: "/account/preferences/language", icon: RovexoIcons.dashboard.help },

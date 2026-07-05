@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { AnimatedCounter } from "@/features/dashboard/components/AnimatedCounter";
 import { cn } from "@/lib/cn";
 import type { DashboardSummaryCard } from "@/features/dashboard/types";
+import { formatCurrency } from "@/lib/wallet/utils";
 
 type DashboardSummaryGridProps = {
   title?: string;
@@ -11,7 +12,7 @@ type DashboardSummaryGridProps = {
 };
 
 function formatSummaryValue(value: number, format?: DashboardSummaryCard["format"]): string {
-  if (format === "currency") return `€${(value / 100).toFixed(2)}`;
+  if (format === "currency") return formatCurrency(value / 100);
   return value.toLocaleString();
 }
 

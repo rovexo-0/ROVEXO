@@ -29,7 +29,7 @@ export type LocaleOption = {
 };
 
 export const LOCALE_OPTIONS: LocaleOption[] = [
-  { code: "en-GB", label: "English (UK)", language: "English", currency: "GBP", currencyLabel: "GBP (£)", bcp47: "en-GB", direction: "ltr" },
+  { code: "en-GB", label: "English (United Kingdom)", language: "English", currency: "GBP", currencyLabel: "GBP (£)", bcp47: "en-GB", direction: "ltr" },
   { code: "ro-RO", label: "Română", language: "Română", currency: "RON", currencyLabel: "RON (lei)", bcp47: "ro-RO", direction: "ltr" },
   { code: "de-DE", label: "Deutsch", language: "Deutsch", currency: "EUR", currencyLabel: "EUR (€)", bcp47: "de-DE", direction: "ltr" },
   { code: "fr-FR", label: "Français", language: "Français", currency: "EUR", currencyLabel: "EUR (€)", bcp47: "fr-FR", direction: "ltr" },
