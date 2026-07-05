@@ -1057,15 +1057,11 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(8px, 2.8vw, 20px);
-  grid-auto-rows: 1fr;
 }
 
 .acx-card-motion {
   display: flex;
-}
-
-.acx-card-motion:hover {
-  z-index: 1;
+  min-width: 0;
 }
 
 .acx-card {
@@ -1083,7 +1079,13 @@
   border: 1px solid rgba(15, 23, 42, 0.04);
   box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
   text-decoration: none;
-  transition: box-shadow 0.25s var(--acx-ease);
+  transition:
+    box-shadow 0.25s var(--acx-ease),
+    transform 0.2s var(--acx-ease);
+}
+
+.acx-card:active {
+  transform: scale(0.98);
 }
 
 .acx-card:hover {
@@ -1118,5 +1120,8 @@
   .acx-card-profile__btn,
   .acx-profile__avatar {
     transition: none;
+  }
+  .acx-card:active {
+    transform: none;
   }
 }

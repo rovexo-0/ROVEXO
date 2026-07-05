@@ -1,17 +1,15 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { MyAccountCard } from "@/components/account/MyAccountCard";
 import { ACCOUNT_NAV_ITEMS, SUPER_ADMIN_ACCOUNT_NAV_ITEM } from "@/components/account/account-nav";
-import { usePrefersReducedMotion } from "@/lib/motion/use-prefers-reduced-motion";
 import type { UserRole } from "@/lib/supabase/types/database";
 
 /**
- * My Account grid — a fixed 4-column layout (never 2, never 3, never auto) of the
- * 16 spec destinations. Children fade up with a subtle stagger on mount.
+ * My Account grid — fixed 4-column layout of the 16 spec destinations.
+ * Static markup only: framer-motion transforms on grid containers break
+ * Android Chrome compositing (duplicated cards, overlapping labels).
  */
 export function MyAccountGrid({ role }: { role: UserRole }) {
-  const reduce = usePrefersReducedMotion();
   const showSuperAdmin = role === "super_admin";
 
   return (
@@ -29,14 +27,7 @@ export function MyAccountGrid({ role }: { role: UserRole }) {
           />
         </div>
       ) : null}
-      <motion.div
-        className="acx-grid"
-        initial={reduce ? false : "hidden"}
-        animate="visible"
-        variants={{
-          visible: { transition: { staggerChildren: 0.03, delayChildren: 0.02 } },
-        }}
-      >
+      <div className="acx-grid">
         {ACCOUNT_NAV_ITEMS.map((item) => (
           <MyAccountCard
             key={item.id}
@@ -46,7 +37,7 @@ export function MyAccountGrid({ role }: { role: UserRole }) {
             color={item.color}
           />
         ))}
-      </motion.div>
+      </div>
     </section>
   );
 }

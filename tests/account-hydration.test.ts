@@ -7,25 +7,28 @@ function readSource(relativePath: string): string {
 }
 
 /**
- * The My Account grid animates its cards with framer-motion. framer-motion's own
- * `useReducedMotion` reads the live media query on the client's first render while
- * the server assumes `false`, which produced a hydration mismatch on the motion
- * markup (animated `initial` opacity/transform + a `whileHover`/`whileTap`-derived
- * `tabindex`) for users who prefer reduced motion. These guards keep the fix in
- * place: the components must use the SSR-safe `usePrefersReducedMotion` hook.
+ * My Account must not use framer-motion on the grid or cards. Applying motion
+ * transforms to CSS Grid containers breaks Android Chrome compositing and
+ * produces duplicated cards, overlapping labels, and corrupted statistics.
  */
-describe("My Account hydration safety", () => {
-  it("exposes an SSR-safe reduced-motion hook via useSyncExternalStore", () => {
-    const source = readSource("lib/motion/use-prefers-reduced-motion.ts");
-    expect(source).toContain("useSyncExternalStore");
-    expect(source).toContain("function getServerSnapshot(): boolean {");
-    expect(source).toMatch(/getServerSnapshot[\s\S]*return false;/);
+describe("My Account rendering safety", () => {
+  it("MyAccountGrid does not use framer-motion", () => {
+    const source = readSource("components/account/MyAccountGrid.tsx");
+    expect(source).not.toMatch(/from ["']framer-motion["']/);
+    expect(source).not.toMatch(/<motion\./);
+    expect(source).toContain('className="acx-grid"');
   });
 
-  it("MyAccountGrid uses the SSR-safe hook, not framer-motion's useReducedMotion", () => {
-    const source = readSource("components/account/MyAccountGrid.tsx");
-    expect(source).toContain("usePrefersReducedMotion");
-    expect(source).not.toContain("useReducedMotion");
+  it("MyAccountCard does not use framer-motion", () => {
+    const source = readSource("components/account/MyAccountCard.tsx");
+    expect(source).not.toMatch(/from ["']framer-motion["']/);
+    expect(source).not.toMatch(/<motion\./);
+  });
+
+  it("acx-grid avoids grid-auto-rows: 1fr (Android grid compositor bug)", () => {
+    const css = readSource("styles/rovexo/account-2026.css");
+    const gridBlock = css.slice(css.indexOf(".acx-grid {"), css.indexOf(".acx-card-motion"));
+    expect(gridBlock).not.toContain("grid-auto-rows");
   });
 
   it("MyAccountGrid gates Super Admin Command Center by role", () => {

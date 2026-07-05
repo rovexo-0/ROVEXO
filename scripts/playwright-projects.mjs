@@ -71,7 +71,7 @@ export function buildAndroidSellProject() {
 
   return {
     name: "android-chromium",
-    testMatch: /sell-android\.spec\.ts/,
+    testMatch: /sell-android\.spec\.ts|account-android\.spec\.ts/,
     use: {
       ...devices["Pixel 7"],
     },
