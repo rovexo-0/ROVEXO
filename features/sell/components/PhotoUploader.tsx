@@ -77,16 +77,11 @@ export const PhotoUploader = memo(function PhotoUploader() {
     replaceTargetIdRef.current = null;
   };
 
-  // Trigger the hidden inputs via a ref + programmatic click inside the user
-  // gesture. This avoids <label htmlFor>/nested-input double-activation, which
-  // makes Android Chrome/Edge open then immediately dismiss the file picker.
   const openInput = useCallback((input: HTMLInputElement | null) => {
     if (!input) return;
     input.value = "";
     input.click();
   }, []);
-
-  const openGallery = useCallback(() => openInput(galleryInputRef.current), [openInput]);
 
   const openReplace = (photoId: string) => {
     replaceTargetIdRef.current = photoId;
@@ -166,16 +161,6 @@ export const PhotoUploader = memo(function PhotoUploader() {
       ) : null}
 
       <div className={cn("rx-upload", styles.card)}>
-        <input
-          ref={galleryInputRef}
-          type="file"
-          accept={GALLERY_ACCEPT}
-          multiple
-          className={styles.hiddenFileInput}
-          onChange={handleGalleryChange}
-          tabIndex={-1}
-          aria-hidden
-        />
         <input
           ref={cameraInputRef}
           type="file"
@@ -286,18 +271,23 @@ export const PhotoUploader = memo(function PhotoUploader() {
           ))}
 
           {canAddPhotos ? (
-            <button
-              type="button"
-              onClick={openGallery}
-              aria-label="Add photo"
-              className={cn(styles.addSlot, focusRing)}
-            >
+            <div className={cn(styles.addSlot, focusRing)} role="button" tabIndex={0} aria-label="Add photos">
+              <input
+                ref={galleryInputRef}
+                type="file"
+                accept={GALLERY_ACCEPT}
+                multiple
+                className={styles.overlayFileInput}
+                onChange={handleGalleryChange}
+                tabIndex={-1}
+                aria-hidden
+              />
               <CameraIcon className={styles.addSlotIcon} />
               <span>{photos.length === 0 ? "Add photos" : "Add more"}</span>
               <span className="text-xs font-semibold text-text-muted tabular-nums">
                 {photos.length}/{SELL_PHOTO_MAX}
               </span>
-            </button>
+            </div>
           ) : null}
         </div>
       </div>

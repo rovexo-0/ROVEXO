@@ -80,11 +80,16 @@ describe("HomepageEligibility engine", () => {
 
   it("excludes invalid content and seller signals", () => {
     expect(
-      HomepageEligibility.evaluate(input({ slug: "f", title: "Short", description: "Valid description here." })).reason,
+      HomepageEligibility.evaluate(input({ slug: "f", title: "No", description: "Valid description here." })).reason,
     ).toBe("INVALID_TITLE");
     expect(
+      HomepageEligibility.isEligible(
+        input({ slug: "g", title: "Valid Title Here", description: "1234567890" }),
+      ),
+    ).toBe(true);
+    expect(
       HomepageEligibility.evaluate(
-        input({ slug: "g", title: "Valid Title Here", description: "Too short" }),
+        input({ slug: "g2", title: "Valid Title Here", description: "short" }),
       ).reason,
     ).toBe("INVALID_DESCRIPTION");
     expect(
@@ -120,6 +125,11 @@ describe("HomepageEligibility engine", () => {
         input({ slug: "n", title: "Valid Title Here", moderationStatus: "pending" }),
       ).reason,
     ).toBe("MARKETPLACE_NOT_APPROVED");
+    expect(
+      HomepageEligibility.isEligible(
+        input({ slug: "warning-listing", title: "Valid Title Here", moderationStatus: "warning" }),
+      ),
+    ).toBe(true);
   });
 
   it("allows certified demo listings in closed beta mode only", () => {

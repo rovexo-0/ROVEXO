@@ -18,10 +18,7 @@ export default async function ImportWizardRoute() {
     redirect("/seller");
   }
 
-  const profile = await getProfile();
-  if (!profile.isSeller) {
-    redirect("/account");
-  }
+  await getProfile();
 
   return (
     <Suspense fallback={null}>

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
+import { requireApiAuth, requireApiMarketplaceOAuth } from "@/lib/auth/session";
 import { isMarketplaceConnectorsEnabled } from "@/lib/seller/marketplace/config";
 import { getOAuthConnectionsStatus } from "@/lib/seller/marketplace/oauth/connection-manager";
 
@@ -9,7 +9,7 @@ export async function GET() {
   const auth = await requireApiAuth();
   if (auth instanceof NextResponse) return auth;
 
-  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
+  const roleCheck = await requireApiMarketplaceOAuth();
   if (roleCheck instanceof NextResponse) return roleCheck;
 
   if (!isMarketplaceConnectorsEnabled()) {

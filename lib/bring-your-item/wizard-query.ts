@@ -7,6 +7,8 @@ export type BringYourItemWizardQuery = {
   oauthConnected: boolean;
   oauthFailed: boolean;
   oauthUnconfigured: boolean;
+  oauthAuthRequired: boolean;
+  oauthForbidden: boolean;
   shopRequired: boolean;
 };
 
@@ -24,6 +26,8 @@ export function parseBringYourItemWizardQuery(searchParams: URLSearchParams): Br
     oauthConnected: searchParams.get("connected") === "1",
     oauthFailed: searchParams.get("oauth") === "failed",
     oauthUnconfigured: searchParams.get("oauth") === "unconfigured",
+    oauthAuthRequired: searchParams.get("oauth") === "auth_required",
+    oauthForbidden: searchParams.get("oauth") === "forbidden",
     shopRequired: searchParams.get("oauth") === "shop_required",
   };
 }

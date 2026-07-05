@@ -186,7 +186,14 @@ export async function requireAdmin(): Promise<
 export async function requireApiListingRole(): Promise<
   (AuthContext & { role: UserRole }) | NextResponse
 > {
-  return requireApiRole(["buyer", "seller", "business", "admin"]);
+  return requireApiRole(["buyer", "seller", "business", "admin", "super_admin"]);
+}
+
+/** Any authenticated account may connect marketplace OAuth (unified buy/sell model). */
+export async function requireApiMarketplaceOAuth(): Promise<
+  (AuthContext & { role: UserRole }) | NextResponse
+> {
+  return requireApiListingRole();
 }
 
 export async function requireApiAdmin(): Promise<

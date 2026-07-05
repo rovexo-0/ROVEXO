@@ -23,6 +23,14 @@ function sanitizeReturnTo(returnTo: string | null | undefined): string {
   return returnTo;
 }
 
+function appendQueryToPath(path: string, params: Record<string, string>): string {
+  const url = new URL(path, "https://rovexo.local");
+  for (const [key, value] of Object.entries(params)) {
+    url.searchParams.set(key, value);
+  }
+  return `${url.pathname}${url.search}`;
+}
+
 export function buildOAuthAuthorizeResponse(input: {
   platform: OAuthPlatformId;
   sellerId: string;
@@ -46,7 +54,7 @@ export function buildOAuthAuthorizeResponse(input: {
 
   if (!clientId) {
     return {
-      redirectUrl: `${returnTo}?oauth=unconfigured`,
+      redirectUrl: appendQueryToPath(returnTo, { oauth: "unconfigured" }),
       setCookie: clearOAuthStateCookie(),
     };
   }
@@ -77,7 +85,10 @@ export function buildOAuthAuthorizeResponse(input: {
     case "shopify": {
       const shop = input.shop?.trim().replace(/^https?:\/\//, "").replace(/\/$/, "");
       if (!shop) {
-        return { redirectUrl: `${returnTo}?oauth=shop_required`, setCookie: clearOAuthStateCookie() };
+        return {
+          redirectUrl: appendQueryToPath(returnTo, { oauth: "shop_required" }),
+          setCookie: clearOAuthStateCookie(),
+        };
       }
       const scope = encodeURIComponent("read_products,read_inventory");
       redirectUrl =
@@ -205,7 +216,7 @@ export async function handleOAuthCallback(input: {
 
   if (input.error || !input.code || !state || state.platform !== input.platform) {
     return {
-      redirectUrl: `${fallback}?oauth=failed`,
+      redirectUrl: appendQueryToPath(fallback, { oauth: "failed" }),
       setCookie: clearOAuthStateCookie(),
     };
   }
@@ -224,12 +235,12 @@ export async function handleOAuthCallback(input: {
       connectedAt: new Date().toISOString(),
     });
     return {
-      redirectUrl: `${fallback}?connected=1`,
+      redirectUrl: appendQueryToPath(fallback, { connected: "1" }),
       setCookie: clearOAuthStateCookie(),
     };
   } catch {
     return {
-      redirectUrl: `${fallback}?oauth=failed`,
+      redirectUrl: appendQueryToPath(fallback, { oauth: "failed" }),
       setCookie: clearOAuthStateCookie(),
     };
   }

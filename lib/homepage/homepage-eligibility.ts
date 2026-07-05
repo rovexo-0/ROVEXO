@@ -117,6 +117,16 @@ function isInternalPlatformSeller(input: HomepageListingInput): boolean {
   return INTERNAL_PLATFORM_ROLES.has(role);
 }
 
+/** Published listings with moderation warnings remain visible; only pending/blocked are hidden. */
+function isMarketplaceModerationVisible(status: string | null | undefined): boolean {
+  if (!status) return true;
+  return status === "approved" || status === "warning";
+}
+
+/** Must stay aligned with sell publish validation (`features/sell/types.ts`). */
+const MIN_HOMEPAGE_TITLE_LENGTH = 3;
+const MIN_HOMEPAGE_DESCRIPTION_LENGTH = 10;
+
 function evaluateCoreEligibility(input: HomepageListingInput): HomepageEligibilityResult {
   const mode = resolveHomepageMode();
 
@@ -136,10 +146,10 @@ function evaluateCoreEligibility(input: HomepageListingInput): HomepageEligibili
     return { eligible: false, reason: "NOT_PUBLISHED", mode };
   }
 
-  if (!input.title || input.title.trim().length < 8) {
+  if (!input.title || input.title.trim().length < MIN_HOMEPAGE_TITLE_LENGTH) {
     return { eligible: false, reason: "INVALID_TITLE", mode };
   }
-  if (!input.description || input.description.trim().length < 24) {
+  if (!input.description || input.description.trim().length < MIN_HOMEPAGE_DESCRIPTION_LENGTH) {
     return { eligible: false, reason: "INVALID_DESCRIPTION", mode };
   }
   if (LOREM_PATTERN.test(input.description)) {
@@ -161,7 +171,7 @@ function evaluateCoreEligibility(input: HomepageListingInput): HomepageEligibili
   if (!input.sellerVerified) {
     return { eligible: false, reason: "SELLER_EMAIL_UNVERIFIED", mode };
   }
-  if (input.moderationStatus && input.moderationStatus !== "approved") {
+  if (!isMarketplaceModerationVisible(input.moderationStatus)) {
     return { eligible: false, reason: "MARKETPLACE_NOT_APPROVED", mode };
   }
 

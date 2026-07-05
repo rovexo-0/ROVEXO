@@ -113,7 +113,7 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
       { id: "styles", label: "Dedicated BYI styles loaded", pass: readSource(rootDir, "styles/rovexo/index.css").includes("bring-your-item.css") },
     ]),
     step("step-2-auth", "STEP 2 — Authentication", [
-      { id: "seller-gate", label: "Import requires seller profile", pass: importPage.includes("isSeller") && importPage.includes("redirect") },
+      { id: "seller-gate", label: "Import requires authenticated profile", pass: importPage.includes("getProfile()") && !importPage.includes("isSeller") },
       { id: "oauth-server", label: "OAuth server-only", pass: oauthService.includes('"server-only"') },
       { id: "oauth-platforms", label: "OAuth platforms configured", pass: OAUTH_PLATFORM_IDS.length >= 3 },
       { id: "listings-auth", label: "Listings API validates session", pass: listingsApi.includes("requireApi") || listingsApi.includes("getSession") },

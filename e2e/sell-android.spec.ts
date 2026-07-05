@@ -165,14 +165,13 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     await page.goto("/sell", { waitUntil: "domcontentloaded", timeout: 180_000 });
     await expect(page.getByRole("button", { name: /add photos/i })).toBeVisible({ timeout: 120_000 });
 
-    const galleryInput = page.locator('input[type="file"]:not([capture])').first();
-    await galleryInput.setInputFiles(galleryImage);
-
+    const galleryInput = page.locator('input[type="file"][multiple]:not([capture])');
     const cameraInput = page.locator('input[type="file"][capture="environment"]');
-    await cameraInput.setInputFiles(cameraImage);
+    await galleryInput.setInputFiles(galleryImage);
+    await expect(page.locator('img[alt="Main cover photo"]')).toBeVisible({ timeout: 15_000 });
 
-    await expect(page.locator('img[alt="Main photo"]')).toBeVisible({ timeout: 15_000 });
-    await expect(page.locator('img[alt^="Listing photo"]')).toBeVisible({ timeout: 15_000 });
+    await cameraInput.setInputFiles(cameraImage);
+    await expect(page.locator("[data-photo-index]")).toHaveCount(2, { timeout: 15_000 });
 
     const title = `Vintage phone ${Date.now()}`;
     await page.getByPlaceholder(/what are you selling/i).fill(title);
@@ -184,7 +183,6 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     await ensureCategorySelected(page);
 
     await page.getByPlaceholder("0.00").fill("19.99");
-    await page.getByRole("button", { name: /delivery available/i }).click();
 
     const publishBtn = page.getByRole("button", { name: /^publish$/i });
     await expect(publishBtn).toBeEnabled({ timeout: 15_000 });
@@ -193,7 +191,7 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     await expect(page.getByRole("heading", { name: /congratulations/i })).toBeVisible({
       timeout: 120_000,
     });
-    await expect(page.getByText(/published successfully/i)).toBeVisible();
+    await expect(page.getByText(/published successfully/i).first()).toBeVisible();
 
     const start = Date.now();
     let found: { id: string } | null = null;

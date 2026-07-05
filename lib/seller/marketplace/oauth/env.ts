@@ -9,6 +9,10 @@ function read(name: string): string | undefined {
 }
 
 export function oauthCallbackUrl(platform: OAuthPlatformId): string {
+  if (platform === "ebay") {
+    const runame = read("EBAY_REDIRECT_URI") ?? read("EBAY_RUNAME");
+    if (runame) return runame;
+  }
   return `${getAppUrl()}/api/seller/marketplace/oauth/${platform}/callback`;
 }
 

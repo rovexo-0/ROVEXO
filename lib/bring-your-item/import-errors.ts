@@ -99,6 +99,8 @@ const ERROR_MAP: Array<[RegExp, ImportErrorRecovery]> = [
 export function resolveOAuthWizardError(query: {
   oauthFailed: boolean;
   oauthUnconfigured: boolean;
+  oauthAuthRequired?: boolean;
+  oauthForbidden?: boolean;
   shopRequired: boolean;
 }): string | null {
   if (query.oauthFailed) {
@@ -106,6 +108,12 @@ export function resolveOAuthWizardError(query: {
   }
   if (query.oauthUnconfigured) {
     return "This marketplace connection is not configured yet. Contact support or try another platform.";
+  }
+  if (query.oauthAuthRequired) {
+    return "Sign in to connect your marketplace account, then try again.";
+  }
+  if (query.oauthForbidden) {
+    return "Your account cannot connect this marketplace right now. Sign in again or contact support.";
   }
   if (query.shopRequired) {
     return "Enter your Shopify store URL before connecting.";

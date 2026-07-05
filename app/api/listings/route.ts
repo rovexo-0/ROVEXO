@@ -112,6 +112,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unable to publish listing." }, { status: 500 });
     }
 
+    if (auth.user.email_confirmed_at) {
+      await auth.supabase
+        .from("profiles")
+        .update({ verified: true })
+        .eq("id", auth.user.id)
+        .eq("verified", false);
+    }
+
     revalidatePublishedListing(listing.slug);
 
     return NextResponse.json({ listing });

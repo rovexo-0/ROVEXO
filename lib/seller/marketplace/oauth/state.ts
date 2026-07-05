@@ -19,11 +19,16 @@ function decodePayload(value: string): OAuthStatePayload | null {
   }
 }
 
+function oauthCookieFlags(maxAgeSeconds: number): string {
+  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  return `Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAgeSeconds}${secure}`;
+}
+
 export function createOAuthState(payload: OAuthStatePayload): { value: string; cookie: string } {
   const value = encodePayload(payload);
   return {
     value,
-    cookie: `${STATE_COOKIE}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600`,
+    cookie: `${STATE_COOKIE}=${value}; ${oauthCookieFlags(600)}`,
   };
 }
 
@@ -39,7 +44,7 @@ export function readOAuthState(cookieHeader: string | null, value: string | null
 }
 
 export function clearOAuthStateCookie(): string {
-  return `${STATE_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
+  return `${STATE_COOKIE}=; ${oauthCookieFlags(0)}`;
 }
 
 export function createPkcePair(): { verifier: string; challenge: string } {
