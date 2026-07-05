@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiRole } from "@/lib/auth/session";
+import { requireApiListingRole } from "@/lib/auth/session";
 import { resolveListingCategoryId } from "@/lib/categories/resolve-listing";
 import { resolveTransactionModeFromCategoryPathPayload } from "@/lib/transaction-mode/resolver";
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
@@ -28,7 +28,7 @@ const FILTERS: ListingFilter[] = [  "all",
 export async function GET(request: Request) {
   // requireApiRole authenticates and authorizes in a single pass, so we avoid a
   // second getUser()/profile round-trip that a separate requireApiAuth would add.
-  const auth = await requireApiRole(["seller", "business", "admin"]);
+  const auth = await requireApiListingRole();
   if (auth instanceof NextResponse) return auth;
 
   const { searchParams } = new URL(request.url);
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiRole(["seller", "business", "admin"]);
+  const auth = await requireApiListingRole();
   if (auth instanceof NextResponse) return auth;
 
   try {

@@ -652,11 +652,33 @@ export async function setListingStatus(
   const sections: ProductSection[] =
     status === "published" ? ["new", "trending", "recommended"] : [];
 
-  await supabase
+  const { error: updateError } = await supabase
     .from("products")
     .update({ status, sections })
     .eq("id", productId)
     .eq("seller_id", sellerId);
+
+  if (updateError) {
+    console.error("[setListingStatus] product update failed", {
+      code: updateError.code,
+      message: updateError.message,
+    });
+    return null;
+  }
+
+  if (status === "published") {
+    const listing = await getSellerListingById(sellerId, productId);
+    if (listing) {
+      await scanListingBeforePublish({
+        sellerId,
+        productId,
+        title: listing.title,
+        description: listing.description,
+        brand: listing.brand ?? undefined,
+        imageNames: listing.images.map((image) => image.storagePath || image.url),
+      });
+    }
+  }
 
   return getSellerListingById(sellerId, productId);
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
+import { requireApiAuth, requireApiListingRole } from "@/lib/auth/session";
 import { buildProductImagePath, buildTempImagePath } from "@/lib/storage/server-images";
 import { getPublicStorageUrl, validateUploadFile } from "@/lib/storage/upload";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   const auth = await requireApiAuth();
   if (auth instanceof NextResponse) return auth;
 
-  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
+  const roleCheck = await requireApiListingRole();
   if (roleCheck instanceof NextResponse) return roleCheck;
 
   try {
@@ -115,7 +115,7 @@ export async function DELETE(request: Request) {
   const auth = await requireApiAuth();
   if (auth instanceof NextResponse) return auth;
 
-  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
+  const roleCheck = await requireApiListingRole();
   if (roleCheck instanceof NextResponse) return roleCheck;
 
   try {

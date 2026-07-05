@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import { ForbiddenBackButton } from "@/components/errors/ForbiddenBackButton";
 
 export default function ForbiddenPage() {
   return (
@@ -12,6 +13,7 @@ export default function ForbiddenPage() {
         platform accounts only.
       </p>
       <div className="mt-ds-6 flex flex-wrap justify-center gap-ds-3">
+        <ForbiddenBackButton />
         <Link
           href="/"
           className={cn(

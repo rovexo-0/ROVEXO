@@ -1,7 +1,18 @@
+import { redirect } from "next/navigation";
 import { BUSINESS_DASHBOARD_ROUTE } from "@/lib/navigation/routes";
 import type { UserRole } from "@/lib/supabase/types/database";
 
 const AUTH_ROUTE_PREFIXES = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email"];
+
+const SUPER_ADMIN_ROUTE_PREFIXES = ["/admin", "/super-admin", "/dashboard", "/staff"];
+
+function matchesRoutePrefix(pathname: string, prefixes: readonly string[]): boolean {
+  return prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+export function isSuperAdminOnlyRoute(path: string): boolean {
+  return matchesRoutePrefix(path, SUPER_ADMIN_ROUTE_PREFIXES);
+}
 
 export function sanitizeNextPath(
   next: string | null | undefined,
@@ -29,6 +40,22 @@ export function redirectPathForRole(role: UserRole): string {
   if (role === "business") return BUSINESS_DASHBOARD_ROUTE;
   if (role === "seller" || role === "admin") return "/seller";
   return "/account";
+}
+
+/** Post-login redirect that never sends non–super-admins to super-admin-only URLs (403). */
+export function redirectAfterSignIn(role: UserRole, next?: string | null): never {
+  const defaultPath = redirectPathForRole(role);
+
+  if (!next?.trim()) {
+    redirect(defaultPath);
+  }
+
+  const destination = sanitizeNextPath(next, defaultPath);
+  if (isSuperAdminOnlyRoute(destination) && role !== "super_admin") {
+    redirect(defaultPath);
+  }
+
+  redirect(destination);
 }
 
 /** Default destination after auth when already signed in (middleware + post-login). */

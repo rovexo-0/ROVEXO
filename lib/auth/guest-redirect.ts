@@ -1,7 +1,7 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
-import { AUTHENTICATED_HOME, sanitizeNextPath } from "@/lib/auth/redirects";
+import { redirectPathForRole, sanitizeNextPath } from "@/lib/auth/redirects";
 import { fetchProfileByUserId } from "@/lib/profile/repository";
 import { createClient } from "@/lib/supabase/server";
 
@@ -26,7 +26,10 @@ export async function redirectIfAuthenticated(next?: string | null): Promise<voi
 
   const profile = await fetchProfileByUserId(user.id);
   if (profile) {
-    redirect(sanitizeNextPath(next, AUTHENTICATED_HOME));
+    const destination = next
+      ? sanitizeNextPath(next, redirectPathForRole(profile.role))
+      : redirectPathForRole(profile.role);
+    redirect(destination);
   }
 
   redirect("/auth/signout?error=profile_missing");

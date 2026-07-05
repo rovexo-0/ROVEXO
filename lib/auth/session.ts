@@ -183,6 +183,12 @@ export async function requireAdmin(): Promise<
   >;
 }
 
+export async function requireApiListingRole(): Promise<
+  (AuthContext & { role: UserRole }) | NextResponse
+> {
+  return requireApiRole(["buyer", "seller", "business", "admin"]);
+}
+
 export async function requireApiAdmin(): Promise<
   (AuthContext & { role: "admin" | "super_admin" }) | NextResponse
 > {

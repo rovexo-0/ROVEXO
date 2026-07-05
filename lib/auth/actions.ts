@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
+import type { UserRole } from "@/lib/supabase/types/database";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -14,7 +15,7 @@ import {
 } from "@/lib/auth/rate-limit";
 import { sendPasswordResetEmail } from "@/lib/email/service";
 import { getAppUrl } from "@/lib/supabase/env";
-import { redirectPathForRole, sanitizeNextPath } from "@/lib/auth/redirects";
+import { redirectPathForRole, redirectAfterSignIn, sanitizeNextPath } from "@/lib/auth/redirects";
 import { queueGaEvents, type QueuedGaEvent } from "@/lib/analytics/queue-ga-event";
 import { mapAuthErrorMessage } from "@/lib/auth/errors";
 import { applySessionPersistence } from "@/lib/auth/session-cookies";
@@ -196,12 +197,8 @@ export async function signIn(
 
   await queueGaEvents([{ name: "login", params: { method: "email" } }]);
 
-  const next = formData.get("next")?.toString();
-  if (next) {
-    redirect(sanitizeNextPath(next));
-  }
-
-  redirect(redirectPathForRole(profile?.role ?? "buyer"));
+  const role = (profile?.role ?? "buyer") as UserRole;
+  redirectAfterSignIn(role, formData.get("next")?.toString());
 }
 
 export async function signOut(): Promise<void> {

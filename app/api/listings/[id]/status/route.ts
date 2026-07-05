@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
+import { requireApiListingRole } from "@/lib/auth/session";
 import { setListingStatus } from "@/lib/listings/repository";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -10,11 +10,8 @@ const statusSchema = z.object({
 });
 
 export async function POST(request: Request, context: RouteContext) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiListingRole();
   if (auth instanceof NextResponse) return auth;
-
-  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
-  if (roleCheck instanceof NextResponse) return roleCheck;
 
   const { id } = await context.params;
 

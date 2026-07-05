@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
+import { requireApiAuth, requireApiListingRole } from "@/lib/auth/session";
 import { resolveListingCategoryId } from "@/lib/categories/resolve-listing";
 import {
   deleteSellerListing,
@@ -21,7 +21,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const auth = await requireApiAuth();
   if (auth instanceof NextResponse) return auth;
 
-  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
+  const roleCheck = await requireApiListingRole();
   if (roleCheck instanceof NextResponse) return roleCheck;
 
   const { id } = await context.params;
@@ -38,7 +38,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   const auth = await requireApiAuth();
   if (auth instanceof NextResponse) return auth;
 
-  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
+  const roleCheck = await requireApiListingRole();
   if (roleCheck instanceof NextResponse) return roleCheck;
 
   const { id } = await context.params;
@@ -118,7 +118,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
   const auth = await requireApiAuth();
   if (auth instanceof NextResponse) return auth;
 
-  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
+  const roleCheck = await requireApiListingRole();
   if (roleCheck instanceof NextResponse) return roleCheck;
 
   const { id } = await context.params;

@@ -136,7 +136,10 @@ export function SelectionScreen({
 
   const toggle = (id: string) => {
     if (mode === "single") {
-      setSelected([id]);
+      const next = [id];
+      setSelected(next);
+      onDone(next);
+      onClose();
       return;
     }
     setSelected((current) =>
@@ -306,20 +309,22 @@ export function SelectionScreen({
         )}
       </div>
 
-      <div
-        className="border-t border-border px-ds-4 py-ds-3"
-        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 12px)" }}
-      >
-        <Button
-          variant="primary"
-          fullWidth
-          size="lg"
-          className="min-h-ds-7 rounded-ds-lg text-base"
-          onClick={handleDone}
+      {mode === "multiple" ? (
+        <div
+          className="border-t border-border px-ds-4 py-ds-3"
+          style={{ paddingBottom: "max(env(safe-area-inset-bottom), 12px)" }}
         >
-          {doneLabel}
-        </Button>
-      </div>
+          <Button
+            variant="primary"
+            fullWidth
+            size="lg"
+            className="min-h-ds-7 rounded-ds-lg text-base"
+            onClick={handleDone}
+          >
+            {doneLabel}
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

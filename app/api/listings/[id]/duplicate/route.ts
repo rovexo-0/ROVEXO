@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
+import { requireApiAuth, requireApiListingRole } from "@/lib/auth/session";
 import { duplicateSellerListing } from "@/lib/listings/repository";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -8,7 +8,7 @@ export async function POST(_request: Request, context: RouteContext) {
   const auth = await requireApiAuth();
   if (auth instanceof NextResponse) return auth;
 
-  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
+  const roleCheck = await requireApiListingRole();
   if (roleCheck instanceof NextResponse) return roleCheck;
 
   const { id } = await context.params;
