@@ -15,7 +15,7 @@ export function AccountCenterHome({ profile, trustData }: AccountCenterHomeProps
     <div className="acx-page">
       <div className="acx-page__container">
         {trustData ? <ProfileCard profile={profile} trustData={trustData} /> : null}
-        <MyAccountGrid />
+        <MyAccountGrid role={profile.role} />
       </div>
     </div>
   );

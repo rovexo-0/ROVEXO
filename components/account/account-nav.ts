@@ -26,7 +26,6 @@ const RED = "#EF4444";
 const GRAY = "#6B7280";
 
 export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
-  // Row 1
   { id: "orders", label: "My Orders", href: "/orders", icon: "orders", color: PURPLE },
   { id: "saved", label: "Saved Items", href: "/saved", icon: "saved", color: RED },
   { id: "listings", label: "My Listings", href: "/seller/listings", icon: "listings", color: PURPLE },
@@ -47,3 +46,12 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
   { id: "payment", label: "Payment Methods", href: "/account/payment-methods", icon: "payment", color: BLUE },
   { id: "support", label: "Support Center", href: "/support", icon: "support", color: GREEN },
 ] as const;
+
+/** Super Admin only — not part of the public 16-tile grid spec. */
+export const SUPER_ADMIN_ACCOUNT_NAV_ITEM: AccountNavItem = {
+  id: "super-admin",
+  label: "Super Admin Command Center",
+  href: "/super-admin",
+  icon: "security",
+  color: "#0F172A",
+};

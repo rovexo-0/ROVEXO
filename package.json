@@ -32,6 +32,7 @@
     "verify:demo": "npx tsx scripts/verify-demo-environment.ts",
     "cleanup:homepage-demo": "npx tsx scripts/cleanup-homepage-demo-data.ts",
     "audit:homepage-images": "npx tsx scripts/audit-homepage-images.ts",
+    "restore:super-admin": "npx tsx scripts/restore-super-admin-access.ts",
     "certify:staff-enterprise": "npx tsx scripts/certify-staff-enterprise.ts",
     "staff:native:install": "npm install --prefix apps/rovexo-staff",
     "staff:native:sync": "npm run staff:native:install && npm --prefix apps/rovexo-staff run sync",

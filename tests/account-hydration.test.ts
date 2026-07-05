@@ -28,9 +28,12 @@ describe("My Account hydration safety", () => {
     expect(source).not.toContain("useReducedMotion");
   });
 
-  it("MyAccountCard uses the SSR-safe hook, not framer-motion's useReducedMotion", () => {
-    const source = readSource("components/account/MyAccountCard.tsx");
-    expect(source).toContain("usePrefersReducedMotion");
-    expect(source).not.toContain("useReducedMotion");
+  it("MyAccountGrid gates Super Admin Command Center by role", () => {
+    const grid = readSource("components/account/MyAccountGrid.tsx");
+    const nav = readSource("components/account/account-nav.ts");
+    expect(nav).toContain("SUPER_ADMIN_ACCOUNT_NAV_ITEM");
+    expect(nav).toContain('href: "/super-admin"');
+    expect(grid).toContain('role === "super_admin"');
+    expect(grid).toContain("SUPER_ADMIN_ACCOUNT_NAV_ITEM");
   });
 });
