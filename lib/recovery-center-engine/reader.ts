@@ -1,7 +1,15 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  createDefaultBackups,
+  createDefaultRecoveryCenterEngineDocument,
+  createDefaultRecoveryCenterEngineHistory,
+  createDefaultRecoveryHistory,
+  createDefaultSafeModeState,
+} from "@/lib/recovery-center-engine/defaults";
 import { getPlatformHealthReport } from "@/lib/ops/health";
+import type { ProductionOperationsSnapshot } from "@/lib/ops/production-status";
 import { getProductionOperationsSnapshot } from "@/lib/ops/production-status";
 import { getOperationsIncidents, getOperationsMaintenanceState } from "@/lib/operations-center-engine/engine";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getAutomationControls } from "@/lib/super-admin/insights";
 import {
   getRecoveryBackups,
@@ -110,6 +118,79 @@ export async function getRecoveryCenterEngineSnapshot(): Promise<RecoveryEngineS
 export async function getRecoveryCenterPageData() {
   const snapshot = await getRecoveryCenterEngineSnapshot();
   return { snapshot };
+}
+
+/** Static snapshot for build/prerender when live Supabase or health probes are unavailable. */
+export function getRecoveryCenterOfflineSnapshot(): RecoveryEngineSnapshot {
+  const live = createDefaultRecoveryCenterEngineDocument("Live");
+  const draft = createDefaultRecoveryCenterEngineDocument("Draft");
+  const configHistory = createDefaultRecoveryCenterEngineHistory();
+  const backups = createDefaultBackups();
+  const history = createDefaultRecoveryHistory();
+  const safeMode = createDefaultSafeModeState();
+  const incidents: RecoveryEngineSnapshot["incidents"] = [];
+  const healthStatus = "healthy" as const;
+  const maintenanceEnabled = false;
+  const automationEnabled = true;
+
+  const dashboard = buildRecoveryDashboard({
+    config: live,
+    backups,
+    history,
+    safeMode,
+    incidents,
+    maintenanceEnabled,
+    healthStatus,
+  });
+  const widgets = buildRecoveryDashboardWidgets({
+    backups,
+    history,
+    safeMode,
+    incidents,
+    maintenanceEnabled,
+    healthStatus,
+  });
+  const alerts = buildRecoveryAlerts({
+    backups,
+    safeMode,
+    healthStatus,
+    automationEnabled,
+  });
+  const businessContinuity = buildBusinessContinuity({
+    backups,
+    healthStatus,
+    operations: {
+      environment: {
+        supabase: true,
+        stripe: false,
+        resend: false,
+        redis: false,
+        cron: false,
+        appUrl: true,
+      },
+    } as ProductionOperationsSnapshot,
+  });
+  const monitor = buildRecoveryMonitor({ backups, history });
+  const automation = getRecoveryAutomationActions(live);
+
+  return {
+    scannedAt: new Date().toISOString(),
+    platformStatus: "healthy",
+    dashboard,
+    widgets,
+    backups,
+    history,
+    rollbackTargets: getRollbackTargets(live),
+    alerts,
+    incidents,
+    safeMode,
+    businessContinuity,
+    monitor,
+    automation,
+    draft,
+    live,
+    configHistory,
+  };
 }
 
 export async function searchRecoveryCenter(query: string) {
