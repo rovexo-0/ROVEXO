@@ -29,22 +29,22 @@ export function RovexoCategoryCard({ category, onNavigate, className }: RovexoCa
         <picture>
           <source
             srcSet={getCategoryPremiumSrcSet(iconKey, "avif")}
-            sizes="(min-width: 1024px) 56px, 52px"
+            sizes="(min-width: 640px) 84px, 72px"
             type="image/avif"
           />
           <source
             srcSet={getCategoryPremiumSrcSet(iconKey, "webp")}
-            sizes="(min-width: 1024px) 56px, 52px"
+            sizes="(min-width: 640px) 84px, 72px"
             type="image/webp"
           />
           <img
             src={getCategoryPremiumPngSrc(iconKey)}
             srcSet={getCategoryPremiumSrcSet(iconKey, "png")}
-            sizes="(min-width: 1024px) 56px, 52px"
+            sizes="(min-width: 640px) 84px, 72px"
             alt=""
             aria-hidden
-            width={52}
-            height={52}
+            width={84}
+            height={84}
             loading="lazy"
             decoding="async"
             draggable={false}

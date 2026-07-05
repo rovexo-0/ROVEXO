@@ -17,6 +17,7 @@ import {
   loadConnectorCredentials,
   saveConnectorConnection,
   touchConnectorSync,
+  type StoredConnectorCredentials,
 } from "@/lib/seller/migration/connectors/credentials";
 import type { ConnectorDefinition, ConnectorConnectInput, ConnectorRuntimeStatus, ConnectorValidationResult, UniversalConnector } from "@/lib/seller/migration/connectors/types";
 import {
@@ -48,19 +49,26 @@ export class BaseUniversalConnector implements UniversalConnector {
     this.handlers = handlers;
   }
 
+  private toStoredCredentials(input: ConnectorConnectInput): StoredConnectorCredentials {
+    return {
+      storeUrl: input.storeUrl,
+      apiKey: input.apiKey,
+      apiSecret: input.apiSecret,
+      accessToken: input.accessToken,
+      refreshToken: input.refreshToken,
+      fileName: input.fileName,
+      expiresAt: input.expiresAt,
+      scopes: input.scopes,
+      connectedAt: input.connectedAt ?? new Date().toISOString(),
+    };
+  }
+
   async connect(input: ConnectorConnectInput): Promise<void> {
     const validation = await this.validateConfiguration(input);
     if (!validation.valid) {
       await saveConnectorConnection(
         input,
-        {
-          storeUrl: input.storeUrl,
-          apiKey: input.apiKey,
-          apiSecret: input.apiSecret,
-          accessToken: input.accessToken,
-          refreshToken: input.refreshToken,
-          fileName: input.fileName,
-        },
+        this.toStoredCredentials(input),
         "error",
         validation.errors[0]?.message ?? "Invalid configuration.",
       );
@@ -71,18 +79,7 @@ export class BaseUniversalConnector implements UniversalConnector {
       await this.handlers.connect(input);
     }
 
-    await saveConnectorConnection(
-      input,
-      {
-        storeUrl: input.storeUrl,
-        apiKey: input.apiKey,
-        apiSecret: input.apiSecret,
-        accessToken: input.accessToken,
-        refreshToken: input.refreshToken,
-        fileName: input.fileName,
-      },
-      "connected",
-    );
+    await saveConnectorConnection(input, this.toStoredCredentials(input), "connected");
   }
 
   async disconnect(sellerId: string): Promise<void> {

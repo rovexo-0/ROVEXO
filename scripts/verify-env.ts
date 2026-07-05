@@ -163,6 +163,14 @@ const OPTIONAL_SPECS: EnvSpec[] = [
     description: "Optional. Required only when AI camera vision is enabled.",
   },
   {
+    key: "SHIPPO_API_KEY",
+    group: "Shipping (Shippo)",
+    required: false,
+    secret: true,
+    example: "shippo_<key>",
+    description: "Server-side only. Shippo API key for live carrier quotes and labels. Set in .env.local or Vercel.",
+  },
+  {
     key: "ETSY_API_KEYSTRING",
     group: "Marketplace Connectors",
     required: false,

@@ -6,7 +6,6 @@ import {
   RESPONSIVE_VIEWPORTS,
   screenshotPath,
   settleUi,
-  waitForHeroCarousel,
   waitForHomepageUi,
   waitForSearchEmptyState,
   waitForSearchOverlayUi,
@@ -29,7 +28,6 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
       await captureSafely(`${viewport.name} homepage`, screenshotPath("screenshots", `${viewport.name}-homepage.png`), async () => {
         await page.goto("/", { waitUntil: "domcontentloaded" });
         await waitForHomepageUi(page);
-        await waitForHeroCarousel(page);
         await settleUi(page);
         await captureViewportScreenshot(page, screenshotPath("screenshots", `${viewport.name}-homepage.png`));
       });

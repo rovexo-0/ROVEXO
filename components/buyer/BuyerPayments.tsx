@@ -17,7 +17,7 @@ export function BuyerPayments() {
             <div>
               <p className="buyer-list-card__title">{method.label}</p>
               <p className="buyer-list-card__meta">
-                {method.connected ? `Connected${method.last4 ? ` · ${method.last4}` : ""}` : "Ready for Stripe"}
+                {method.connected ? `Connected${method.last4 ? ` · ${method.last4}` : ""}` : "Ready to add"}
               </p>
             </div>
           </article>

@@ -43,7 +43,7 @@ export function HelpRelatedContent({ solution, topicSlug }: HelpRelatedContentPr
               href={`/help/category/${slug}`}
               className="rounded-full bg-surface-muted px-ds-3 py-ds-1 text-sm text-text-primary hover:bg-surface-elevated"
             >
-              {slug.replace(/-/g, " ")}
+              {getHelpTopic(slug)?.label ?? slug.replace(/-/g, " ")}
             </Link>
           ))}
         </div>

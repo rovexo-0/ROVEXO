@@ -1,4 +1,3 @@
-import { createAdminClient } from "@/lib/supabase/admin";
 import type { HealthStatus } from "@/lib/ops/health";
 import {
   resolveCorePlatformStatus,
@@ -6,7 +5,7 @@ import {
   resolveNotificationsStatus,
   resolveServerStatus,
 } from "@/lib/ops/monitoring-services";
-import { getSuperAdminDashboardData } from "@/lib/super-admin/dashboard";
+import { getSuperAdminDashboardData, countRecentMessages, countReviews, countPlatformAuditLogs } from "@/lib/super-admin/dashboard";
 import { getPlatformSetting, updatePlatformSetting } from "@/lib/super-admin/settings";
 import type { Json } from "@/lib/supabase/types/database";
 import {
@@ -77,58 +76,54 @@ function buildServices(
 function buildCounters(
   data: Awaited<ReturnType<typeof getSuperAdminDashboardData>>,
   messageDelta: number,
+  reviewCount: number,
+  auditCount: number,
 ): MissionControlCounter[] {
   const { metrics, operations, orders } = data;
   const platform = operations.platform;
 
   return [
+    { id: "revenue", label: "Revenue Today", value: metrics.revenueToday, href: "/super-admin/analytics-engine" },
+    { id: "users", label: "Active Users", value: metrics.onlineUsers, delta: metrics.newUsersToday, href: "/super-admin/users" },
     { id: "homepage", label: "Homepage", value: metrics.liveVisitors, href: "/super-admin/homepage-builder" },
-    { id: "listings", label: "Listings", value: metrics.totalListings, delta: metrics.listingsToday, href: "/super-admin/listings" },
-    { id: "orders", label: "Orders", value: orders.totalOrders, delta: platform.awaitingPayment + platform.awaitingShipment, href: "/super-admin/orders" },
-    { id: "payments", label: "Payments", value: platform.awaitingPayment, delta: platform.awaitingPayment, href: "/super-admin/payments" },
+    { id: "listings", label: "Listings", value: metrics.totalListings, delta: metrics.listingsToday, href: "/super-admin/moderation" },
+    { id: "orders", label: "Orders", value: orders.totalOrders, delta: platform.awaitingPayment + platform.awaitingShipment, href: "/super-admin/orders-engine" },
+    { id: "payments", label: "Payments", value: platform.awaitingPayment, delta: platform.awaitingPayment, href: "/super-admin/payments-engine" },
+    { id: "wallet", label: "Wallet", value: metrics.walletBalance, href: "/super-admin/wallet-engine" },
     { id: "shipping", label: "Shipping", value: platform.awaitingShipment, delta: platform.awaitingShipment, href: "/super-admin/shipping-engine" },
     { id: "reports", label: "Reports", value: metrics.pendingReports, delta: metrics.pendingReports, href: "/super-admin/reports" },
     { id: "businesses", label: "Businesses", value: metrics.activeSellers, href: "/super-admin/businesses" },
-    { id: "reviews", label: "Reviews", value: 0, href: "/super-admin/reviews" },
-    { id: "messages", label: "Messages", value: messageDelta, delta: messageDelta, href: "/super-admin/moderation" },
-    { id: "notifications", label: "Notifications", value: platform.pendingEmails, delta: platform.pendingEmails, href: "/super-admin/notifications" },
+    { id: "reviews", label: "Reviews", value: reviewCount, href: "/super-admin/reviews" },
+    { id: "messages", label: "Messages", value: messageDelta, delta: messageDelta, href: "/super-admin/messages-engine" },
+    { id: "notifications", label: "Notifications", value: platform.pendingEmails, delta: platform.pendingEmails, href: "/super-admin/notifications-engine" },
     { id: "support", label: "Support", value: metrics.pendingSupportRequests, delta: metrics.pendingSupportRequests, href: "/super-admin/support" },
-    { id: "ai", label: "AI", value: operations.errors.length, delta: operations.errors.length, href: "/super-admin/operations" },
+    { id: "analytics", label: "Conversion", value: metrics.conversionRate, href: "/super-admin/analytics-engine" },
+    { id: "audit", label: "Audit Logs", value: auditCount, href: "/super-admin/audit" },
+    { id: "jobs", label: "Background Jobs", value: operations.cron.recentRuns.length, href: "/super-admin/monitoring" },
+    { id: "ai", label: "AI", value: operations.errors.length, delta: operations.errors.length, href: "/super-admin/operations/ai" },
     { id: "alerts", label: "System Alerts", value: operations.errors.length, delta: operations.errors.length, href: "/super-admin/monitoring" },
   ];
 }
 
-async function countRecentMessages(): Promise<number> {
-  try {
-    const admin = createAdminClient();
-    const since = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
-    const { count } = await admin
-      .from("messages")
-      .select("*", { count: "exact", head: true })
-      .gte("created_at", since);
-    return count ?? 0;
-  } catch {
-    return 0;
-  }
-}
-
 export async function getMissionControlSnapshot(): Promise<MissionControlSnapshot> {
-  const [dashboard, homepageBuilder, banners, features, ai, messageDelta] = await Promise.all([
+  const [dashboard, homepageBuilder, banners, features, ai, messageDelta, reviewCount, auditCount] = await Promise.all([
     getSuperAdminDashboardData(),
     getPlatformSetting<HomepageBuilderConfig>(HOMEPAGE_BUILDER_SETTING_KEY, createDefaultHomepageBuilderConfig()),
     getPlatformSetting<BannerManagerConfig>(BANNER_MANAGER_SETTING_KEY, createDefaultBannerManagerConfig()),
     getPlatformSetting(FEATURE_MANAGER_SETTING_KEY, createDefaultFeatureToggles()),
     getPlatformSetting(AI_MANAGER_SETTING_KEY, createDefaultAiToggles()),
     countRecentMessages(),
+    countReviews(),
+    countPlatformAuditLogs(),
   ]);
 
   const services = buildServices(dashboard.operations.health, dashboard.operations.environment);
-  const counters = buildCounters(dashboard, messageDelta);
+  const counters = buildCounters(dashboard, messageDelta, reviewCount, auditCount);
   const platformHealth = mapHealth(resolveCorePlatformStatus(dashboard.operations.health.checks));
 
-  const modules = MISSION_CONTROL_MODULES.map((module) => {
-    const counter = counters.find((item) => item.id === module.id || item.label.toLowerCase() === module.label.toLowerCase());
-    return counter?.delta ? { ...module, badge: counter.delta } : module;
+  const modules = MISSION_CONTROL_MODULES.map((mod) => {
+    const counter = counters.find((item) => item.id === mod.id || item.label.toLowerCase() === mod.label.toLowerCase());
+    return counter?.delta ? { ...mod, badge: counter.delta } : mod;
   });
 
   return {

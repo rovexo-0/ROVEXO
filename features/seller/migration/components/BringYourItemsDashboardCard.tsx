@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
-import { MARKETPLACE_CONNECTORS_PATH } from "@/lib/seller/marketplace/config";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { buttonSizes, buttonVariants } from "@/components/ui/variants";
@@ -22,9 +21,9 @@ export function BringYourItemsDashboardCard() {
           📦
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold text-text-primary">Bring Your Items</h2>
+          <h2 className="text-base font-semibold text-text-primary">Bring Your Item</h2>
           <p className="mt-ds-1 text-sm text-text-secondary">
-            Import products from your favourite marketplaces.
+            Import products from your favourite marketplaces in a few taps.
           </p>
           <ul className="mt-ds-3 flex flex-wrap gap-ds-2" aria-label="Migration features">
             {FEATURES.map((feature) => (
@@ -36,7 +35,7 @@ export function BringYourItemsDashboardCard() {
               </li>
             ))}
           </ul>
-          <div className="mt-ds-4 flex flex-wrap items-center gap-ds-3">
+          <div className="mt-ds-4">
             <Link
               href={MIGRATION_CENTER_PATH}
               className={cn(
@@ -47,16 +46,7 @@ export function BringYourItemsDashboardCard() {
                 focusRing,
               )}
             >
-              Start Store Migration
-            </Link>
-            <Link
-              href={MARKETPLACE_CONNECTORS_PATH}
-              className={cn(
-                "text-sm font-medium text-primary underline",
-                focusRing,
-              )}
-            >
-              Marketplace connectors
+              Bring your item
             </Link>
           </div>
         </div>

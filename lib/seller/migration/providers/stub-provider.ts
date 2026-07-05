@@ -6,6 +6,7 @@ import type {
 import type { MigrationImportMethodId, MigrationPlatformId } from "@/lib/seller/migration/types";
 import { getConnectorDefinition } from "@/lib/seller/migration/connectors/definitions";
 import { classifiedsCapabilities } from "@/lib/seller/migration/connectors/capabilities";
+import { resolveOfficialDemoProductImage } from "@/lib/media/official-demo-images";
 
 function estimateCount(importMethod: MigrationImportMethodId): number {
   switch (importMethod) {
@@ -50,7 +51,7 @@ function buildStubListing(
     sku: `SKU-${platform}-${index}`,
     quantity: 1 + (index % 3),
     sourceCategory: ["Fashion", "Electronics", "Home", "Sports"][index % 4],
-    imageUrls: [`https://picsum.photos/seed/${platform}-${index}/800/800`],
+    imageUrls: [resolveOfficialDemoProductImage(`${platform}-${index}`)],
     attributes: { source: platform, method: importMethod },
   };
 }

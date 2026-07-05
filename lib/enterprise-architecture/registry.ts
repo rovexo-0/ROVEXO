@@ -25,6 +25,7 @@ import { LAUNCH_READINESS_MODULE_DESCRIPTOR } from "@/lib/enterprise-launch-read
 import { MARKETPLACE_COMPLETION_MODULE_DESCRIPTOR } from "@/lib/enterprise-marketplace-completion-engine/descriptor";
 import { ENTERPRISE_GOVERNANCE_MODULE_DESCRIPTOR } from "@/lib/enterprise-governance-center/descriptor";
 import { ENTERPRISE_DEVELOPMENT_MODULE_DESCRIPTOR } from "@/lib/enterprise-development-center/descriptor";
+import { STAFF_ENTERPRISE_MODULE_DESCRIPTOR } from "@/lib/staff-enterprise/descriptor";
 
 /** Registry-driven module discovery — new modules register by exporting a descriptor. */
 export const ENTERPRISE_MODULE_DESCRIPTORS: readonly EnterpriseModuleDescriptor[] = [
@@ -52,10 +53,11 @@ export const ENTERPRISE_MODULE_DESCRIPTORS: readonly EnterpriseModuleDescriptor[
   HOMEPAGE_BUILDER_MODULE_DESCRIPTOR,
   ENTERPRISE_AI_OS_MODULE_DESCRIPTOR,
   ENTERPRISE_MOBILE_CC_MODULE_DESCRIPTOR,
+  STAFF_ENTERPRISE_MODULE_DESCRIPTOR,
   ENTERPRISE_DEPLOYMENT_MODULE_DESCRIPTOR,
 ];
 
-const descriptorIndex = new Map(ENTERPRISE_MODULE_DESCRIPTORS.map((module) => [module.id, module]));
+const descriptorIndex = new Map(ENTERPRISE_MODULE_DESCRIPTORS.map((descriptor) => [descriptor.id, descriptor]));
 
 export function getEnterpriseModuleDescriptor(id: string): EnterpriseModuleDescriptor | undefined {
   return descriptorIndex.get(id);
@@ -74,8 +76,8 @@ export function getEnterpriseModuleApi(moduleId: string) {
 }
 
 export function getRelatedModuleHref(moduleId: string, relatedModuleId: string): string | undefined {
-  const module = getEnterpriseModuleDescriptor(moduleId);
-  if (!module?.relatedModules?.includes(relatedModuleId)) return undefined;
+  const descriptor = getEnterpriseModuleDescriptor(moduleId);
+  if (!descriptor?.relatedModules?.includes(relatedModuleId)) return undefined;
   return getEnterpriseModuleDescriptor(relatedModuleId)?.baseHref;
 }
 
@@ -103,15 +105,15 @@ export function toEnterpriseCoreModule(descriptor: EnterpriseModuleDescriptor): 
 }
 
 export function getAutoRegisteredEnterpriseCoreModules(): EnterpriseCoreRegistryModule[] {
-  return ENTERPRISE_MODULE_DESCRIPTORS.filter((module) => module.autoRegister).map(toEnterpriseCoreModule);
+  return ENTERPRISE_MODULE_DESCRIPTORS.filter((descriptor) => descriptor.autoRegister).map(toEnterpriseCoreModule);
 }
 
 export function getEnterpriseModuleSettingGroups() {
-  return ENTERPRISE_MODULE_DESCRIPTORS.map((module) => ({
-    id: module.id,
-    label: module.label,
-    href: module.baseHref,
-    module: module.id,
-    keys: Object.values(module.configKeys),
+  return ENTERPRISE_MODULE_DESCRIPTORS.map((descriptor) => ({
+    id: descriptor.id,
+    label: descriptor.label,
+    href: descriptor.baseHref,
+    module: descriptor.id,
+    keys: Object.values(descriptor.configKeys),
   }));
 }

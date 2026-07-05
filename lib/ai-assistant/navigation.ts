@@ -14,7 +14,7 @@ export const PLATFORM_NAVIGATION: NavigationTarget[] = [
   { label: "Sell", href: "/sell", description: "Create a new listing", keywords: ["sell", "listing", "publish"] },
   { label: "Seller Dashboard", href: "/seller", description: "Seller overview and stats", keywords: ["seller dashboard"] },
   { label: "Seller Wallet", href: "/seller/wallet", description: "Balance, withdrawals, and payouts", keywords: ["wallet", "withdraw", "payout"] },
-  { label: "Business Center", href: "/business/center", description: "Business hub and verification", keywords: ["business center"] },
+  { label: "Business Dashboard", href: "/business/dashboard", description: "Business hub and verification", keywords: ["business dashboard", "business center"] },
   { label: "Business Directory", href: "/business/directory", description: "Discover verified businesses", keywords: ["directory", "companies"] },
   { label: "Wholesale Center", href: "/wholesale", description: "Bulk trade and RFQ", keywords: ["wholesale", "rfq", "bulk"] },
   { label: "Trust Center", href: "/trust", description: "Trust score and verification", keywords: ["trust", "verification", "safety"] },

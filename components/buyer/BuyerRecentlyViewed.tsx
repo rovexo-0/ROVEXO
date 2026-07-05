@@ -1,6 +1,6 @@
 "use client";
 
-import { RovexoListingCard } from "@/components/home/RovexoListingCard";
+import { ListingCard } from "@/components/ui/ListingCard";
 import { BuyerEmptyState } from "@/components/buyer/BuyerEmptyState";
 import { BuyerSection } from "@/components/buyer/BuyerSection";
 import { useBuyerDashboard } from "@/hooks/buyer";
@@ -16,7 +16,7 @@ export function BuyerRecentlyViewed() {
         <div className="buyer-scroll">
           {data.recentlyViewed.map((product) => (
             <div key={product.id} className="w-[170px] shrink-0 snap-start">
-              <RovexoListingCard product={product} layout="rail" />
+              <ListingCard product={product} variant="grid" surface="recently-viewed" />
             </div>
           ))}
         </div>

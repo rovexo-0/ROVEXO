@@ -1,0 +1,78 @@
+/**
+ * ROVEXO Wallet — official v1.0 wallet UI.
+ * Fully fluid, mobile-first layout. No hardcoded breakpoints: sizing is driven
+ * by clamp()/min()/max() so the page adapts to every device from small phones
+ * to ultra-wide desktops (and folds/flips) without media queries.
+ */
+
+.wallet-overview {
+  width: 100%;
+  max-width: min(100%, 40rem);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.875rem, 3.2vw, 1.25rem);
+  padding-inline: clamp(1rem, 4vw, 1.5rem);
+  padding-top: clamp(0.75rem, 3vw, 1.25rem);
+  padding-bottom: calc(clamp(1.5rem, 6vw, 2.5rem) + env(safe-area-inset-bottom));
+}
+
+/* Large, premium balance typography that scales with the viewport. */
+.wallet-overview__balance {
+  font-size: clamp(2.5rem, 11vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ds-color-text-primary);
+}
+
+.wallet-overview__balance--pending {
+  font-size: clamp(2rem, 9vw, 2.75rem);
+}
+
+.wallet-overview__label {
+  font-size: clamp(0.8125rem, 2.6vw, 0.9375rem);
+  font-weight: 600;
+  color: var(--ds-color-text-secondary);
+}
+
+.wallet-overview__desc {
+  font-size: clamp(0.8125rem, 2.4vw, 0.9375rem);
+  line-height: 1.5;
+  color: var(--ds-color-text-secondary);
+}
+
+/* GPU-accelerated card entrance; disabled for reduced-motion users. */
+.wallet-overview__card {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: wallet-card-in 360ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.wallet-overview__card:nth-child(1) { animation-delay: 0ms; }
+.wallet-overview__card:nth-child(2) { animation-delay: 40ms; }
+.wallet-overview__card:nth-child(3) { animation-delay: 80ms; }
+.wallet-overview__card:nth-child(4) { animation-delay: 120ms; }
+.wallet-overview__card:nth-child(5) { animation-delay: 160ms; }
+
+@keyframes wallet-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wallet-overview__card {
+    opacity: 1;
+    transform: none;
+    animation: none;
+    will-change: auto;
+  }
+}

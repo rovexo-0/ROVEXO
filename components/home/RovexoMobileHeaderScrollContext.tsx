@@ -61,7 +61,9 @@ export function RovexoMobileHeaderScrollProvider({ children }: { children: React
   useLayoutEffect(() => {
     if (!headerElement || !visible) return;
 
-    const handleMeasure = () => updateHeaderHeight(headerElement);
+    const handleMeasure = () => {
+      updateHeaderHeight(headerElement);
+    };
     handleMeasure();
 
     const resizeObserver =
@@ -117,12 +119,6 @@ export function RovexoMobileHeaderScrollProvider({ children }: { children: React
 
   return (
     <RovexoMobileHeaderScrollContext.Provider value={contextValue}>
-      <div
-        aria-hidden
-        suppressHydrationWarning
-        className="rovexo-chrome-spacer overflow-hidden lg:hidden"
-        style={{ height: headerHeight > 0 ? headerHeight : undefined }}
-      />
       {children}
     </RovexoMobileHeaderScrollContext.Provider>
   );

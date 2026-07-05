@@ -1,9 +1,19 @@
 import type { RovexoBusiness } from "@/components/home/constants";
-import type { Product } from "@/lib/products/types";
+import type { Product, ProductsPage } from "@/lib/products/types";
+import {
+  compareHomepageFeedProducts,
+  computeHomepagePriorityScore,
+} from "@/lib/homepage/feed-ranking";
+import { filterHomepageProducts } from "@/lib/homepage/homepage-eligibility";
+import { resolveHomepageMode } from "@/lib/homepage/config";
+import { resolveOfficialDemoProductImage } from "@/lib/media/official-demo-images";
 
 const DEMO_MIN_COUNT = 12;
 
-const demoImage = (filename: string) => `/demo/${filename}`;
+/** Demo catalogue padding is opt-in only (set ROVEXO_HOMEPAGE_DEMO=1). Production hides empty sections. */
+const HOMEPAGE_DEMO_ENABLED = resolveHomepageMode() === "demo";
+
+const demoImage = (seed: string) => resolveOfficialDemoProductImage(seed);
 
 function baseDemoProduct(
   partial: Pick<Product, "id" | "slug" | "title" | "price" | "imageUrl" | "brand"> &
@@ -432,6 +442,41 @@ export type HomepageEnrichedData = {
   businesses: RovexoBusiness[];
 };
 
+export function resolveHomepageFeedItems(feed: ProductsPage): ProductsPage {
+  const filtered = filterHomepageProducts(feed.items);
+
+  if (filtered.length > 0) {
+    return {
+      ...feed,
+      items: [...filtered]
+        .map((product) => ({
+          ...product,
+          homepagePriorityScore: computeHomepagePriorityScore(product),
+        }))
+        .sort(compareHomepageFeedProducts),
+    };
+  }
+
+  if (!HOMEPAGE_DEMO_ENABLED) {
+    return feed;
+  }
+
+  const items = [...HOMEPAGE_DEMO_PRODUCTS]
+    .map((product) => ({
+      ...product,
+      homepagePriorityScore: computeHomepagePriorityScore(product),
+    }))
+    .sort(compareHomepageFeedProducts)
+    .slice(0, 12);
+
+  return {
+    items,
+    page: 1,
+    hasMore: true,
+  };
+}
+
+/** @deprecated Homepage v1.0 uses a single All Listings feed — use resolveHomepageFeedItems. */
 export function enrichHomepageData(input: {
   featured: Product[];
   recommended: Product[];
@@ -443,14 +488,8 @@ export function enrichHomepageData(input: {
     ...input.recommended,
     ...input.newListings,
     ...input.popularListings,
-    ...HOMEPAGE_DEMO_PRODUCTS,
+    ...(HOMEPAGE_DEMO_ENABLED ? HOMEPAGE_DEMO_PRODUCTS : []),
   ]);
-
-  const featuredPreferred = pool.filter((product) => product.isFeatured);
-  const boostPreferred = pool.filter((product) => product.isBumped);
-  const premiumPreferred = pool.filter(
-    (product) => product.sellerTier === "premium" || product.listingType === "premium",
-  );
 
   const businessesFromProducts = pool
     .filter((product) => product.sellerTier === "business" || product.listingType === "business")
@@ -466,6 +505,27 @@ export function enrichHomepageData(input: {
         ? `/search?seller=${encodeURIComponent(product.sellerId)}`
         : "/search?category=business",
     }));
+
+  if (!HOMEPAGE_DEMO_ENABLED) {
+    return {
+      featured: uniqueById(input.featured),
+      recommended: uniqueById(input.recommended),
+      newListings: uniqueById(input.newListings),
+      boostListings: uniqueById(pool.filter((product) => product.isBumped)),
+      premiumListings: uniqueById(
+        pool.filter(
+          (product) => product.sellerTier === "premium" || product.listingType === "premium",
+        ),
+      ),
+      businesses: businessesFromProducts,
+    };
+  }
+
+  const featuredPreferred = pool.filter((product) => product.isFeatured);
+  const boostPreferred = pool.filter((product) => product.isBumped);
+  const premiumPreferred = pool.filter(
+    (product) => product.sellerTier === "premium" || product.listingType === "premium",
+  );
 
   return {
     featured: mergeProducts(input.featured, featuredPreferred, HOMEPAGE_DEMO_PRODUCTS),

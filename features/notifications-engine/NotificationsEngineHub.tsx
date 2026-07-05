@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { NotificationCenter } from "@/features/notifications/components/NotificationCenter";
 import { cn } from "@/lib/cn";
-import { NOTIFICATIONS_ENGINE_FILTERS, NOTIFICATIONS_ENGINE_MODULES } from "@/lib/notifications-engine/registry";
+import { NOTIFICATIONS_ENGINE_FILTERS } from "@/lib/notifications-engine/registry";
 import type {
   NotificationsEngineAnalytics,
   NotificationsEngineContext,

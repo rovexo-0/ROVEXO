@@ -20,7 +20,6 @@ import {
   createCanvasNodeFromComponent,
 } from "@/lib/platform-visual/studio-pro/canvas";
 import {
-  STUDIO_ASSET_LIBRARY,
   searchStudioAssets,
 } from "@/lib/platform-visual/studio-pro/assets";
 import {

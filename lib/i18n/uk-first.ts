@@ -5,7 +5,7 @@ export const UK_DEFAULT_CURRENCY = "GBP" as const;
 export const UK_DEFAULT_COUNTRY = "United Kingdom" as const;
 
 /** Homepage banners, campaigns, and announcements remain UK English. */
-export function isUkMarketingContent(_uiLocale: string): boolean {
+export function isUkMarketingContent(): boolean {
   return true;
 }
 

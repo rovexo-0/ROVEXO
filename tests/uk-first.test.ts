@@ -14,7 +14,6 @@ describe("UK-first marketplace", () => {
 
   it("keeps marketing content in English UK regardless of UI locale", () => {
     expect(UK_MARKETING_LOCALE).toBe("en-GB");
-    expect(isUkMarketingContent("ro-RO")).toBe(true);
-    expect(isUkMarketingContent("de-DE")).toBe(true);
+    expect(isUkMarketingContent()).toBe(true);
   });
 });

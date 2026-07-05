@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
-import { MigrationJobDetailPage } from "@/features/seller/migration/components/MigrationJobDetailPage";
-import { isStoreMigrationEnabled } from "@/lib/seller/migration/config";
-import { getMigrationJobForSeller } from "@/lib/seller/migration/repository";
-import { listMigrationItemsForJob } from "@/lib/seller/migration/repository-items";
+import { redirect } from "next/navigation";
+import { IMPORT_WIZARD_PATH, isStoreMigrationEnabled } from "@/lib/seller/migration/config";
 import { getProfile } from "@/lib/profile/data";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -14,9 +11,9 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   return buildPageMetadata({
-    title: "Migration Job",
+    title: "Import Job",
     description: "Review and publish imported listings.",
-    path: `/seller/migration/${id}`,
+    path: `${IMPORT_WIZARD_PATH}/${id}`,
     noIndex: true,
   });
 }
@@ -32,12 +29,5 @@ export default async function SellerMigrationJobRoute({ params }: PageProps) {
   }
 
   const { id } = await params;
-  const job = await getMigrationJobForSeller(profile.id, id);
-  if (!job) {
-    notFound();
-  }
-
-  const items = await listMigrationItemsForJob(profile.id, id);
-
-  return <MigrationJobDetailPage jobId={id} initialJob={job} initialItems={items} />;
+  redirect(`${IMPORT_WIZARD_PATH}/${id}`);
 }

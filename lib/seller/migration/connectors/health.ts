@@ -7,8 +7,8 @@ import {
 } from "@/lib/seller/migration/connectors/api/etsy-client";
 import {
   getConnectorRecord,
-  loadConnectorCredentials,
 } from "@/lib/seller/migration/connectors/credentials";
+import { loadConnectorCredentialsWithRefresh } from "@/lib/seller/marketplace/oauth/token-manager";
 import type { MigrationPlatformId } from "@/lib/seller/migration/types";
 
 /**
@@ -18,7 +18,7 @@ export async function verifyConnectorApiHealth(
   sellerId: string,
   platform: MigrationPlatformId,
 ): Promise<void> {
-  const credentials = await loadConnectorCredentials(sellerId, platform);
+  const credentials = await loadConnectorCredentialsWithRefresh(sellerId, platform);
   if (!credentials) {
     throw new Error("Connector is not connected.");
   }

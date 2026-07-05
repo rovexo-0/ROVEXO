@@ -18,7 +18,6 @@ import { createCheck, fileExists, labelize, passStatus, premiumStylesActive, rea
 import type {
   AiListingValidationItem,
   CompletionValidationItem,
-  ListingAutoRepairProposal,
   ListingCertificationScoreCard,
   ListingCompletionResult,
   ListingDomainScanResult,
@@ -112,7 +111,7 @@ function scanPhotoEngine(scan: MarketplaceCompletionScanResult): CompletionValid
   });
 }
 
-function scanAiListing(scan: MarketplaceCompletionScanResult): AiListingValidationItem[] {
+function scanAiListing(): AiListingValidationItem[] {
   const detection = readSource("lib/sell/category-detection-pro.ts");
   const wizard = readSource("features/sell/hooks/use-sell-wizard.ts");
 
@@ -348,7 +347,7 @@ export function runListingCompletionScan(scan: MarketplaceCompletionScanResult):
   const workflow = scanWorkflow(scan);
   const fields = scanFields(scan);
   const photoEngine = scanPhotoEngine(scan);
-  const aiListing = scanAiListing(scan);
+  const aiListing = scanAiListing();
   const liveValidation = scanLiveValidation(scan);
   const previewEngine = scanPreviewEngine(scan);
   const publishValidation = scanPublishValidation(scan);

@@ -1,4 +1,9 @@
-import { searchListings as searchListingsRepo } from "@/lib/listings/repository";
+import {
+  getRecentPublishedListings,
+  searchListings as searchListingsRepo,
+} from "@/lib/listings/repository";
+import { getCategoryBreadcrumbMap } from "@/lib/categories/server";
+import { getTrendingSearches } from "@/lib/search/trending";
 import {
   defaultCategories,
   defaultSuggestedSellers,
@@ -7,9 +12,26 @@ import {
   filterSellers,
 } from "@/lib/search/defaults";
 import { MANUAL_LISTING_CITIES } from "@/lib/sell/listing-location";
+import type { Product } from "@/lib/products/types";
 import type { SearchBrand, SearchLocation, SearchResults } from "@/features/search/types";
 import { SEARCH_PRODUCT_PAGE_SIZE } from "@/features/search/types";
 import { createClient } from "@/lib/supabase/server";
+
+const RECENT_LISTINGS_LIMIT = 8;
+
+/**
+ * Attach the full canonical category breadcrumb path to each product using a
+ * single batched categories read. Server-computed so the client renders
+ * clickable, canonical paths without any extra request or hardcoded taxonomy.
+ */
+async function withBreadcrumbs(products: Product[]): Promise<Product[]> {
+  if (!products.length) return products;
+  const map = await getCategoryBreadcrumbMap(products.map((product) => product.categoryId));
+  return products.map((product) => ({
+    ...product,
+    categoryBreadcrumbs: product.categoryId ? (map.get(product.categoryId) ?? []) : [],
+  }));
+}
 
 function includesQuery(value: string, query: string): boolean {
   return value.toLowerCase().includes(query.trim().toLowerCase());
@@ -69,17 +91,24 @@ export async function searchAll(
   const page = Math.floor(productOffset / productLimit) + 1;
 
   if (!normalized) {
+    const recentLimit = Math.min(Math.max(1, productLimit), RECENT_LISTINGS_LIMIT);
+    const recent = await getRecentPublishedListings(recentLimit);
+    const [products, trending] = await Promise.all([
+      withBreadcrumbs(recent),
+      getTrendingSearches(recent, RECENT_LISTINGS_LIMIT),
+    ]);
+
     return {
-      products: [],
+      products,
       sellers: defaultSuggestedSellers,
       stores: [],
       users: [],
-      trending: defaultTrendingSearches,
+      trending,
       categories: defaultCategories,
       brands: [],
       locations: [],
       productsHasMore: false,
-      productsOffset: 0,
+      productsOffset: products.length,
     };
   }
 
@@ -99,7 +128,7 @@ export async function searchAll(
   ]);
 
   return {
-    products,
+    products: await withBreadcrumbs(products),
     sellers: filterSellers(
       profileMatches.length
         ? profileMatches.map((profile) => ({

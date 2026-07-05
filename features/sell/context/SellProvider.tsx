@@ -19,6 +19,7 @@ import { loadDraftPhotos } from "@/lib/sell/draft-photo-storage";
 import { uploadListingImage, deleteListingImage } from "@/lib/listings/upload-client";
 import { buildListingPublishPayload } from "@/lib/sell/build-listing-publish-payload";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
+import { safeRandomUUID } from "@/lib/uuid";
 import { compressListingImage, createListingThumbnail, validateClientImage } from "@/lib/storage/client-images";
 import { persistSellDraftSnapshot, persistSellDraftTextSync } from "@/lib/sell/persist-sell-draft";
 import { sellInputDiag } from "@/lib/sell/sell-input-diagnostics";
@@ -119,8 +120,8 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
 
       if (sessionId) {
         uploadSessionRef.current = sessionId;
-      } else if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-        uploadSessionRef.current = crypto.randomUUID();
+      } else {
+        uploadSessionRef.current = safeRandomUUID();
       }
 
       if (!stored && photos.length === 0) return;
@@ -254,14 +255,14 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   }, [editListingId, initialDraft, persistDraftSnapshot, persistDraftTextSync]);
 
   const ensureUploadSessionId = useCallback(() => {
-    if (!uploadSessionRef.current && typeof crypto !== "undefined" && "randomUUID" in crypto) {
-      uploadSessionRef.current = crypto.randomUUID();
+    if (!uploadSessionRef.current) {
+      uploadSessionRef.current = safeRandomUUID();
     }
     return uploadSessionRef.current;
   }, []);
 
   const uploadPhoto = useCallback(
-    async (photo: SellPhoto, index: number, photoCount: number) => {
+    async (photo: SellPhoto, onFraction?: (fraction: number) => void) => {
       if (!photo.file || photo.uploaded) return photo;
 
       setDraft((current) => ({
@@ -276,9 +277,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
           file: photo.file,
           productId: editListingId,
           sessionId: ensureUploadSessionId(),
-          onProgress: (progress) => {
-            setUploadProgress(Math.round(((index + progress / 100) / photoCount) * 100));
-          },
+          onProgress: (progress) => onFraction?.(progress),
         });
 
         return {
@@ -319,7 +318,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
           const compressed = await compressListingImage(file);
           const thumbnail = await createListingThumbnail(compressed);
           return {
-            id: crypto.randomUUID(),
+            id: safeRandomUUID(),
             file: compressed,
             previewUrl: URL.createObjectURL(thumbnail),
             uploaded: false,
@@ -378,7 +377,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
       if (!photo?.file || index < 0) return;
 
       try {
-        const uploaded = await uploadPhoto(photo, index, photos.length);
+        const uploaded = await uploadPhoto(photo, (fraction) => setUploadProgress(fraction));
         setDraft((current) => ({
           ...current,
           photos: current.photos.map((item) => (item.id === id ? uploaded : item)),
@@ -468,14 +467,28 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     }
 
     try {
-      const uploadedPhotos: SellPhoto[] = [];
-      for (let index = 0; index < publishDraft.photos.length; index += 1) {
-        const photo = publishDraft.photos[index]!;
-        const uploaded = photo.file
-          ? await uploadPhoto(photo, index, publishDraft.photos.length)
-          : photo;
-        uploadedPhotos.push(uploaded);
-      }
+      // Upload all photos concurrently (browsers cap ~6 parallel requests per
+      // host) instead of serializing them, and aggregate per-photo progress into
+      // a single monotonic bar. On mobile this cuts multi-photo publish time
+      // roughly proportional to the number of photos.
+      const photos = publishDraft.photos;
+      const fractions = new Array(photos.length).fill(0);
+      const reportAggregate = () => {
+        const sum = fractions.reduce((total, value) => total + value, 0);
+        setUploadProgress(Math.round(sum / Math.max(1, photos.length)));
+      };
+      const uploadedPhotos: SellPhoto[] = await Promise.all(
+        photos.map((photo, index) => {
+          if (!photo.file) {
+            fractions[index] = 100;
+            return Promise.resolve(photo);
+          }
+          return uploadPhoto(photo, (fraction) => {
+            fractions[index] = fraction;
+            reportAggregate();
+          });
+        }),
+      );
 
       setDraft((current) => ({ ...current, photos: uploadedPhotos }));
 

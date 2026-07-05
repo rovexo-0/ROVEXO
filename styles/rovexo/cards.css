@@ -203,6 +203,12 @@
   scroll-snap-align: start;
 }
 
+/* Horizontal rail item width — container-owned, not ListingCard variant styling. */
+.rx-listing-carousel > [data-listing-card="rovexo"] {
+  flex: 0 0 auto;
+  width: clamp(158px, 46vw, 190px);
+}
+
 .rx-stat-card,
 .rx-dash-card,
 .rx-dashboard-card {

@@ -33,12 +33,6 @@ function mapServiceStatus(status: string): MissionControlBadgeLevel {
   return "info";
 }
 
-function mapMonitoringStatus(status: MonitoringWidget["status"]): MissionControlBadgeLevel {
-  if (status === "healthy") return "healthy";
-  if (status === "degraded") return "warning";
-  return "critical";
-}
-
 function counterLevel(id: string, value: number, delta?: number): MissionControlBadgeLevel {
   if (id === "alerts" || id === "reports" || id === "support") {
     if (value >= 10) return "critical";
@@ -290,7 +284,10 @@ export function buildMissionControlLiveWidgets(input: {
 
   return widgetDefs
     .filter((item) => config.widgets[item.key] !== false)
-    .map(({ key: _key, ...widget }) => widget);
+    .map(({ key: widgetKey, ...widget }) => {
+      void widgetKey;
+      return widget;
+    });
 }
 
 export function buildMissionControlMonitoring(input: {

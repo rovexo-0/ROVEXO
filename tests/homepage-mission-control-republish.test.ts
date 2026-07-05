@@ -5,6 +5,8 @@ import { createDefaultHomepageBuilderConfig } from "@/lib/super-admin/mission-co
 import { normalizeHomepageBuilderConfigForLaunch } from "@/lib/super-admin/mission-control/normalize-homepage-builder";
 import type { HomepageBuilderConfig } from "@/lib/super-admin/mission-control/types";
 
+const LAUNCH_PUBLISHED_SECTION_IDS = ["category-rail", "all-listings"] as const;
+
 function createLegacyHomepageBuilderConfig(): HomepageBuilderConfig {
   const defaults = createDefaultHomepageBuilderConfig();
 
@@ -21,7 +23,7 @@ function createLegacyHomepageBuilderConfig(): HomepageBuilderConfig {
         };
       }
 
-      if (component.id === "bring-items") {
+      if (component.id === "all-listings") {
         return { ...component, enabled: false, published: false };
       }
 
@@ -41,17 +43,21 @@ describe("normalizeHomepageBuilderConfigForLaunch", () => {
 
     expect(publishedIds).not.toContain("hero-slider");
     expect(publishedIds[0]).toBe("category-rail");
-    expect(publishedIds[1]).toBe("bring-items");
+    expect(publishedIds[1]).toBe("all-listings");
+    expect(publishedIds).toEqual([...LAUNCH_PUBLISHED_SECTION_IDS]);
   });
 
   it("restores approved launch section order from defaults", () => {
     const normalized = normalizeHomepageBuilderConfigForLaunch(createLegacyHomepageBuilderConfig());
     const hero = normalized.components.find((component) => component.id === "hero-slider");
+    const allListings = normalized.components.find((component) => component.id === "all-listings");
 
     expect(hero?.enabled).toBe(false);
     expect(hero?.published).toBe(false);
-    expect(resolvePublishedHomepageSections(normalized).map((section) => section.id)).toEqual(
-      resolvePublishedHomepageSections(createDefaultHomepageBuilderConfig()).map((section) => section.id),
-    );
+    expect(allListings?.enabled).toBe(true);
+    expect(allListings?.published).toBe(true);
+    expect(resolvePublishedHomepageSections(normalized).map((section) => section.id)).toEqual([
+      ...LAUNCH_PUBLISHED_SECTION_IDS,
+    ]);
   });
 });

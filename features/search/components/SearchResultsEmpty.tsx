@@ -3,6 +3,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 type SearchResultsEmptyProps = {
   variant: "idle" | "no-results";
   query?: string;
+  /** What was being searched, for per-scope messaging (e.g. "products", "sellers"). */
+  entity?: string;
 };
 
 function SearchIcon() {
@@ -13,7 +15,7 @@ function SearchIcon() {
   );
 }
 
-export function SearchResultsEmpty({ variant }: SearchResultsEmptyProps) {
+export function SearchResultsEmpty({ variant, query, entity = "results" }: SearchResultsEmptyProps) {
   if (variant === "idle") {
     return (
       <EmptyState
@@ -27,11 +29,18 @@ export function SearchResultsEmpty({ variant }: SearchResultsEmptyProps) {
     );
   }
 
+  const label = entity === "results" ? "results" : entity;
+  const title = `No ${label} found`;
+  const description = query
+    ? `We couldn't find any ${label} for “${query}”. Try another keyword — check the spelling or use fewer words.`
+    : `Try another keyword — check the spelling or use fewer words.`;
+
   return (
     <EmptyState
       icon={<SearchIcon />}
-      title="No results found"
-      suggestions={["Check spelling", "Remove filters", "Browse categories"]}
+      title={title}
+      description={description}
+      suggestions={["Try a different keyword", "Check your spelling", "Remove filters"]}
       actionLabel="Browse categories"
       actionHref="/categories"
       className="mx-ds-4 border-none bg-transparent shadow-none"

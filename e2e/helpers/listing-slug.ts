@@ -50,20 +50,6 @@ function extractSlugFromJsonLd(raw: string): string | null {
   return null;
 }
 
-/** Priority 1 — public products catalog API (`/api/products`). */
-async function slugFromProductsApi(request: APIRequestContext): Promise<string | null> {
-  for (const section of PRODUCT_SECTIONS) {
-    const response = await request.get(`/api/products?section=${section}&page=1`);
-    if (!response.ok()) continue;
-
-    const body = (await response.json()) as ProductsApiResponse;
-    const slug = pickSlug(body.items);
-    if (slug) return slug;
-  }
-
-  return null;
-}
-
 /** Priority 2 — search results APIs. */
 async function slugFromSearchApi(request: APIRequestContext): Promise<string | null> {
   const endpoints = [
@@ -275,7 +261,7 @@ async function seedTemporaryListing(): Promise<TempListingSeed> {
 
   await admin.from("product_images").insert({
     product_id: product.id,
-    url: "https://placehold.co/600x600/png?text=E2E",
+    url: "/icons/categories/electronics.svg",
     storage_path: `${sellerId}/e2e-alias-placeholder.png`,
     sort_order: 0,
     is_primary: true,

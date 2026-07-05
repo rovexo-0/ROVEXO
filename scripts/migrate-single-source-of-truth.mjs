@@ -2,7 +2,7 @@
  * ROVEXO Single Source of Truth migration.
  * Moves official homepage stack to components/home/ with Rovexo* names.
  */
-import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync, readdirSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const root = process.cwd();

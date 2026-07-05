@@ -1,6 +1,6 @@
-import { detectAiCategory } from "@/lib/taxonomies/ai-category";
 import { matchCategoriesFromLabels } from "@/lib/ai-camera/rules";
-import { toPathId } from "@/lib/categories/queries";
+import { resolveCategoryPathBySlugs, toPathId } from "@/lib/categories/queries";
+import { searchCanonicalCategories } from "@/lib/sell/canonical-category-search";
 import type { FlatCategoryPath } from "@/lib/categories/types";
 import {
   KNOWN_BRANDS,
@@ -76,32 +76,60 @@ function matchTitleRules(title: string): TitleCategorySuggestion[] {
   return [...matches.values()].sort((a, b) => b.confidence - a.confidence);
 }
 
+/**
+ * Guarantee every suggestion is a real path in the canonical marketplace tree
+ * (the single source of truth shared with the picker and server validation).
+ * Any suggestion that does not fully resolve is dropped, so the AI can never
+ * surface a category that would fail publish with "Invalid category selected".
+ */
+function canonicalize(suggestions: TitleCategorySuggestion[]): TitleCategorySuggestion[] {
+  const result: TitleCategorySuggestion[] = [];
+  const seen = new Set<string>();
+
+  for (const suggestion of suggestions) {
+    const canonicalPath = resolveCategoryPathBySlugs(
+      suggestion.path.segments.map((segment) => segment.slug),
+    );
+    if (!canonicalPath) continue;
+
+    const pathId = toPathId(canonicalPath);
+    if (seen.has(pathId)) continue;
+    seen.add(pathId);
+
+    result.push({ path: canonicalPath, confidence: suggestion.confidence });
+  }
+
+  return result;
+}
+
 export function suggestCategoryFromTitle(
   title: string,
   description = "",
-  photoMetadata: Array<{ description?: string; filename?: string }> = [],
 ): TitleCategorySuggestion[] {
   const trimmed = title.trim();
   if (trimmed.length < MIN_TITLE_LENGTH) return [];
 
   const normalized = normalizeListingText(trimmed);
-  const ruleMatches = matchTitleRules(normalized);
+
+  // 1. High-precision title rules (auto-select tier).
+  const ruleMatches = canonicalize(matchTitleRules(normalized));
   if (ruleMatches.length > 0) {
     return ruleMatches.slice(0, 3);
   }
 
-  const aiResult = detectAiCategory(trimmed, description, photoMetadata);
-  if (aiResult.topMatches.length > 0) {
-    return aiResult.topMatches.slice(0, 3).map((suggestion) => ({
-      path: suggestion.path,
-      confidence: suggestion.confidence,
-    }));
+  // 2. Canonical keyword/synonym search over the whole tree (suggest tier).
+  const searchMatches = canonicalize(searchCanonicalCategories(trimmed, description));
+  if (searchMatches.length > 0) {
+    return searchMatches.slice(0, 3);
   }
 
-  return matchCategoriesFromLabels(titleToLabels(trimmed)).map(({ path, confidence }) => ({
-    path,
-    confidence,
-  }));
+  // 3. Label/product-rule fallback (also canonical by construction).
+  return canonicalize(
+    matchCategoriesFromLabels(titleToLabels(trimmed)).map(({ path, confidence }) => ({
+      path,
+      confidence,
+    })),
+  ).slice(0, 3);
 }
 
 /** Anonymous hash for learning logs — never store raw titles. */

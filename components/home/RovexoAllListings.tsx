@@ -1,12 +1,14 @@
 "use client";
 
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { RovexoAllListingsCard } from "@/components/home/RovexoAllListingsCard";
+import { ListingCard } from "@/components/ui/ListingCard";
+import { HOMEPAGE_LISTING_CARD_PROPS } from "@/components/home/constants";
 import { RovexoAllListingsGrid } from "@/components/home/RovexoAllListingsGrid";
 import gridStyles from "@/components/home/RovexoAllListingsGrid.module.css";
 import { useMarketplaceFeedColumns } from "@/components/home/hooks/useMarketplaceFeedColumns";
 import { useVirtualizedFeedWindow } from "@/components/home/hooks/useVirtualizedFeedWindow";
 import { HOMEPAGE_DEMO_PRODUCTS } from "@/lib/homepage/demo-data";
+import { isClosedBetaHomepageMode } from "@/lib/homepage/config";
 import type { Product, ProductsPage } from "@/lib/products/types";
 
 type RovexoAllListingsProps = {
@@ -24,14 +26,23 @@ function mergeUniqueProducts(current: Product[], incoming: Product[]): Product[]
   return merged;
 }
 
+const STATIC_DEMO_FALLBACK =
+  process.env.NEXT_PUBLIC_ROVEXO_HOMEPAGE_DEMO === "1" && !isClosedBetaHomepageMode();
+
 export const RovexoAllListings = memo(function RovexoAllListings({
   initialPage,
 }: RovexoAllListingsProps) {
   const [items, setItems] = useState<Product[]>(
-    initialPage.items.length > 0 ? initialPage.items : HOMEPAGE_DEMO_PRODUCTS.slice(0, 12),
+    initialPage.items.length > 0
+      ? initialPage.items
+      : STATIC_DEMO_FALLBACK
+        ? HOMEPAGE_DEMO_PRODUCTS.slice(0, 12)
+        : [],
   );
   const [page, setPage] = useState(initialPage.page);
-  const [hasMore, setHasMore] = useState(initialPage.hasMore || initialPage.items.length === 0);
+  const [hasMore, setHasMore] = useState(
+    initialPage.hasMore || (initialPage.items.length === 0 && STATIC_DEMO_FALLBACK),
+  );
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
@@ -75,12 +86,13 @@ export const RovexoAllListings = memo(function RovexoAllListings({
       }
 
       const nextPage = page + 1;
-      const response = await fetch(`/api/products?section=popular&page=${nextPage}`, {
+      const response = await fetch(`/api/homepage/feed?page=${nextPage}`, {
         cache: "no-store",
       });
 
       if (!response.ok) {
-        appendDemoPage();
+        if (STATIC_DEMO_FALLBACK) appendDemoPage();
+        setHasMore(false);
         return;
       }
 
@@ -88,7 +100,7 @@ export const RovexoAllListings = memo(function RovexoAllListings({
 
       if (payload.items.length === 0) {
         setHasMore(false);
-        appendDemoPage();
+        if (STATIC_DEMO_FALLBACK) appendDemoPage();
         return;
       }
 
@@ -118,17 +130,19 @@ export const RovexoAllListings = memo(function RovexoAllListings({
   }, [items.length, loadTriggerIndex, loadMore]);
 
   return (
-    <section aria-labelledby="all-listings-heading" className="home-v1-listing-section home-v1-all-listings">
-      <div className="home-v1-listing-section__header">
-        <h2 id="all-listings-heading" className="home-v1-listing-section__title">
-          All Listings
-        </h2>
-      </div>
-
+    <section
+      id="home-v1-all-listings"
+      aria-label="Marketplace listings"
+      className="home-v1-listing-section home-v1-all-listings"
+    >
       <RovexoAllListingsGrid ref={gridRef}>
         {items.map((product, index) => (
           <Fragment key={product.id}>
-            <RovexoAllListingsCard product={product} />
+            <ListingCard
+              product={product}
+              variant="grid"
+              {...HOMEPAGE_LISTING_CARD_PROPS}
+            />
             {index === loadTriggerIndex ? (
               <div ref={sentinelRef} className={gridStyles.sentinel} aria-hidden />
             ) : null}

@@ -22,6 +22,17 @@ export const ROVEXO_CATEGORIES: readonly RovexoCategory[] = ROVEXO_HOME_CATEGORY
   }),
 );
 
+/** Approved marketplace import sources (display / certification). */
+export const BRING_YOUR_ITEMS_PLATFORMS = [
+  "Facebook Marketplace",
+  "eBay",
+  "Amazon",
+  "Etsy",
+  "Vinted",
+  "Depop",
+  "Shopify",
+] as const;
+
 export const ROVEXO_VIEW_ALL = {
   featured: "/search?q=&sort=popular",
   recommended: "/search?q=&sort=recommended",
@@ -92,6 +103,49 @@ export function getCategoryIconSrc(icon: string): string {
     return getCategoryPremiumPngSrc(icon);
   }
   return getCategoryPremiumPngSrc("electronics");
+}
+
+/** Shared ListingCard configuration for every homepage listing surface. */
+export const HOMEPAGE_LISTING_CARD_PROPS = {
+  surface: "homepage",
+  showSeller: false,
+  conditionPlacement: "meta",
+} as const;
+
+/** Maps a business spotlight entry onto the canonical homepage ListingCard. */
+export function rovexoBusinessToProduct(business: RovexoBusiness): Product {
+  return {
+    id: business.id,
+    slug: business.slug,
+    title: business.name,
+    price: 0,
+    condition: business.category,
+    brand: business.category,
+    sellerName: business.name,
+    sellerVerified: business.verified,
+    sellerTier: "business",
+    listingType: "business",
+    rating: 5,
+    reviewCount: 0,
+    views: business.listingCount,
+    imageUrl: business.logoUrl,
+    sections: ["popular"],
+  };
+}
+
+export function rovexoBusinessListingCardProps(business: RovexoBusiness) {
+  return {
+    ...HOMEPAGE_LISTING_CARD_PROPS,
+    product: rovexoBusinessToProduct(business),
+    variant: "carousel" as const,
+    href: business.href,
+    priceLabel: `${business.listingCount}+ listings`,
+    statusBadgeLabel: business.verified ? "Verified" : undefined,
+    showStatusBadge: business.verified,
+    showPhotoCount: false,
+    trackImpressions: false,
+    className: "home-v1-listing-card--rail",
+  };
 }
 
 export function productToHref(product: Product): string {

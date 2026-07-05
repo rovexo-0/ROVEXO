@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { BottomNavigation, type BottomNavTab } from "@/components/ui/BottomNavigation";
-import { MobileHeaderScrollProvider } from "@/components/home/MobileHeaderScrollContext";
 import { RealtimeNotificationProvider } from "@/features/notifications/components/RealtimeNotificationProvider";
 import type { PlatformVisualConfig } from "@/lib/platform-visual/types";
 import { resolvePublishedMenuItems } from "@/lib/platform-visual/resolver";
@@ -41,20 +40,18 @@ export function BetaAppShell({
 
   return (
     <RealtimeNotificationProvider initialUnreadCount={initialUnreadCount}>
-      <MobileHeaderScrollProvider>
-        <div
-          className={cn(
-            "rx-page min-h-screen bg-background text-text-primary",
-            sellFlow && "sell-flow-shell",
-            className,
-          )}
-        >
-          {children}
-          {bottomNavVisible ? (
-            <BottomNavigation active={bottomNavTab} menuItems={bottomNavItems} visible={bottomNavVisible} />
-          ) : null}
-        </div>
-      </MobileHeaderScrollProvider>
+      <div
+        className={cn(
+          "rx-page min-h-screen bg-background text-text-primary",
+          sellFlow && "sell-flow-shell",
+          className,
+        )}
+      >
+        {children}
+        {bottomNavVisible ? (
+          <BottomNavigation active={bottomNavTab} menuItems={bottomNavItems} visible={bottomNavVisible} />
+        ) : null}
+      </div>
     </RealtimeNotificationProvider>
   );
 }

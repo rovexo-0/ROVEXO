@@ -1,4 +1,7 @@
-/* ROVEXO V1.0 — Global pure white design system */
+/* ROVEXO V1.0 — Global surface theme
+ * Light-mode overrides are scoped to [data-theme="light"] so the Theme Engine's
+ * dark palette (styles/tokens.css) is never overridden. Structural rules that
+ * carry no colour (overflow, radius, backdrop-filter) stay theme-agnostic. */
 
 html,
 body {
@@ -6,45 +9,53 @@ body {
   max-width: 100%;
 }
 
-#__next,
-main,
-.app,
-.page,
-.layout,
-.mobile-layout,
-.rx-page,
-.premium-page-home,
-.home-v1-main,
-.home-v1-listing-section,
-.home-v1-categories {
-  background: #ffffff;
-  min-height: 0;
-}
-
 .rx-page {
-  background-image: none !important;
   overflow-x: clip;
   max-width: 100%;
 }
 
+/* ---- Light theme surfaces (premium pure white) ---- */
+[data-theme="light"] #__next,
+[data-theme="light"] main,
+[data-theme="light"] .app,
+[data-theme="light"] .page,
+[data-theme="light"] .layout,
+[data-theme="light"] .mobile-layout,
+[data-theme="light"] .rx-page,
+[data-theme="light"] .premium-page-home,
+[data-theme="light"] .home-v1-main,
+[data-theme="light"] .home-v1-listing-section,
+[data-theme="light"] .home-v1-categories {
+  background: #ffffff;
+  min-height: 0;
+}
+
+[data-theme="light"] .rx-page {
+  background-image: none !important;
+}
+
 /* Sections — every surface white */
-section,
-article,
-header,
-footer,
-nav,
-.rx-section,
-.rx-form-section,
-.rx-surface-card,
-.rx-card,
-.rx-glass {
+[data-theme="light"] section,
+[data-theme="light"] article,
+[data-theme="light"] header,
+[data-theme="light"] footer,
+[data-theme="light"] nav,
+[data-theme="light"] .rx-section,
+[data-theme="light"] .rx-form-section,
+[data-theme="light"] .rx-surface-card,
+[data-theme="light"] .rx-card,
+[data-theme="light"] .rx-glass {
   background-color: #ffffff;
+}
+
+[data-theme="light"] .rx-glass,
+[data-theme="light"] .rx-surface-card {
+  border-color: #eeeeee;
+  box-shadow: var(--ds-shadow-card);
 }
 
 .rx-glass,
 .rx-surface-card {
-  border-color: #eeeeee;
-  box-shadow: var(--ds-shadow-card);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -58,43 +69,48 @@ nav,
 .rx-card,
 .rx-surface-card {
   border-radius: 22px;
-  border: 1px solid #eeeeee;
-  background: #ffffff;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
 
-.rx-listing-card__media,
-.rx-listing-card__image,
-.home-v1-listing-card__media {
+[data-theme="light"] .rx-listing-card,
+[data-theme="light"] .rx-card,
+[data-theme="light"] .rx-surface-card {
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .rx-listing-card__media,
+[data-theme="light"] .rx-listing-card__image,
+[data-theme="light"] .home-v1-listing-card__media {
   background: #f8fafc;
 }
 
 /* Text hierarchy */
-.text-text-primary,
-.rx-page,
-.home-v1-categories__title,
-.home-v1-listing-section__title,
-.home-v1-listing-card__price,
-.home-v1-listing-card__title,
-.home-v1-category-tile__name {
+[data-theme="light"] .text-text-primary,
+[data-theme="light"] .rx-page,
+[data-theme="light"] .home-v1-categories__title,
+[data-theme="light"] .home-v1-listing-section__title,
+[data-theme="light"] .home-v1-listing-card__price,
+[data-theme="light"] .home-v1-listing-card__title,
+[data-theme="light"] .home-v1-category-tile__name {
   color: #111111;
 }
 
-.text-text-secondary,
-.home-v1-listing-card__tag {
+[data-theme="light"] .text-text-secondary,
+[data-theme="light"] .home-v1-listing-card__tag {
   color: #666666;
 }
 
-.text-text-muted {
+[data-theme="light"] .text-text-muted {
   color: #6b7280;
 }
 
 /* Blue accents only */
-.text-primary,
-a.text-primary,
-.home-v1-listing-section__view-all {
+[data-theme="light"] .text-primary,
+[data-theme="light"] a.text-primary,
+[data-theme="light"] .home-v1-listing-section__view-all {
   color: #2563eb !important;
 }
 
@@ -104,28 +120,28 @@ a.text-primary,
   text-decoration: none !important;
 }
 
-/* Remove page gradients */
-[class*="bg-gradient"],
-.bg-background {
+/* Remove page gradients (light only) */
+[data-theme="light"] [class*="bg-gradient"],
+[data-theme="light"] .bg-background {
   background-image: none !important;
 }
 
-.bg-background {
+[data-theme="light"] .bg-background {
   background-color: #ffffff !important;
 }
 
 /* Account / search / messages / account center pages */
-.rx-page main,
-main.mx-auto,
-main.flex,
-.account-center-shell,
-.account-center,
-.sell-page-v1 {
+[data-theme="light"] .rx-page main,
+[data-theme="light"] main.mx-auto,
+[data-theme="light"] main.flex,
+[data-theme="light"] .account-center-shell,
+[data-theme="light"] .account-center,
+[data-theme="light"] .sell-page-v1 {
   background: #ffffff !important;
   background-image: none !important;
 }
 
-.bg-surface-muted {
+[data-theme="light"] .bg-surface-muted {
   background-color: #f8fafc !important;
 }
 
@@ -137,39 +153,14 @@ main.flex,
   background-image: none !important;
 }
 
-/* Bottom nav active state */
+/* Bottom nav active state (accent — theme-agnostic) */
 .home-v1-bottom-nav__item[aria-current="page"] svg {
   color: #2563eb;
 }
 
-/* Badges */
+/* Badges (accent — theme-agnostic) */
 .header-action-2026 [aria-hidden].rounded-ds-full,
 [class*="badge"] {
   background-color: #2563eb;
   color: #ffffff;
-}
-
-/* ROVEXO V1.0 — force premium white theme (no legacy dark) */
-[data-theme="dark"],
-[data-theme="dark"] .rx-page,
-[data-theme="dark"] main,
-:root:not([data-theme="light"]) {
-  --ds-color-background: #ffffff;
-  --ds-color-surface: #ffffff;
-  --ds-color-surface-muted: #f8fafc;
-  --ds-color-surface-elevated: #ffffff;
-  --ds-color-text-primary: #111111;
-  --ds-color-text-secondary: #666666;
-  --ds-color-text-muted: #6b7280;
-  --ds-color-border: #eeeeee;
-  color-scheme: light;
-}
-
-[data-theme="dark"] body,
-[data-theme="dark"] .rx-page,
-[data-theme="dark"] .account-center,
-[data-theme="dark"] .sell-page-v1 {
-  background: #ffffff !important;
-  background-image: none !important;
-  color: #111111;
 }

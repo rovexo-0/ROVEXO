@@ -211,14 +211,52 @@ export function EnterpriseCategoryManagementAdmin({ initialSnapshot, defaultTab 
             ) : (
               <p className="ea-admin__desc">Select a category from the tree.</p>
             )}
-            {activeTab === "editor" && (
+            {activeTab === "editor" && selectedNode && (
               <div className="mt-4">
                 <h4>Editor Fields</h4>
-                <div className="ea-chip-row">
+                <div className="ea-chip-row mb-4">
                   {EDITOR_FIELDS.slice(0, 12).map((field) => (
                     <span key={field} className="ea-chip">{field.replace(/-/g, " ")}</span>
                   ))}
                 </div>
+                <label className="flex flex-col gap-ds-1 text-sm">
+                  <span className="font-medium text-text-primary">Transaction mode</span>
+                  <select
+                    className="rx-input w-full px-2 py-1"
+                    value={selectedNode.transactionMode ?? "MARKETPLACE"}
+                    disabled={isPending}
+                    onChange={(event) => {
+                      const transactionMode = event.target.value;
+                      startTransition(async () => {
+                        const response = await fetch(
+                          `/api/super-admin/categories/${selectedNode.id}/transaction-mode`,
+                          {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ transactionMode }),
+                          },
+                        );
+                        const data = (await response.json()) as { ok?: boolean; error?: string };
+                        setMessage(
+                          response.ok
+                            ? `Transaction mode updated to ${transactionMode.replace("_", " ").toLowerCase()}.`
+                            : data.error ?? "Unable to update transaction mode.",
+                        );
+                        if (response.ok) await refresh();
+                      });
+                    }}
+                    aria-label="Category transaction mode"
+                  >
+                    <option value="MARKETPLACE">Marketplace</option>
+                    <option value="DIRECT_CONTACT">Direct contact</option>
+                  </select>
+                </label>
+              </div>
+            )}
+            {activeTab === "editor" && !selectedNode && (
+              <div className="mt-4">
+                <h4>Editor Fields</h4>
+                <p className="ea-admin__desc">Select a category to edit transaction mode.</p>
               </div>
             )}
           </section>

@@ -16,14 +16,14 @@ export function isCompatibleVersion(moduleVersion: string, required: string): bo
 }
 
 export function buildVersionMatrix(modules: EnterpriseModuleV2Descriptor[]): RegistryVersionEntry[] {
-  return modules.map((module) => ({
-    id: `ver-${module.moduleId}`,
-    moduleId: module.moduleId,
-    version: module.version,
-    compatibilityVersion: module.compatibilityVersion,
-    publishedAt: module.updatedAt,
-    publishedBy: module.owner,
-    releaseNotes: `${module.moduleName} v${module.version}`,
+  return modules.map((mod) => ({
+    id: `ver-${mod.moduleId}`,
+    moduleId: mod.moduleId,
+    version: mod.version,
+    compatibilityVersion: mod.compatibilityVersion,
+    publishedAt: mod.updatedAt,
+    publishedBy: mod.owner,
+    releaseNotes: `${mod.moduleName} v${mod.version}`,
     rollbackAvailable: true,
   }));
 }
@@ -37,11 +37,11 @@ export function mergeDiscoveredModules(
   persisted: EnterpriseModuleV2Descriptor[],
 ): EnterpriseModuleV2Descriptor[] {
   const persistedMap = new Map(persisted.map((m) => [m.moduleId, m]));
-  return discovered.map((module) => {
-    const saved = persistedMap.get(module.moduleId);
-    if (!saved) return module;
+  return discovered.map((mod) => {
+    const saved = persistedMap.get(mod.moduleId);
+    if (!saved) return mod;
     return {
-      ...module,
+      ...mod,
       lifecycle: saved.lifecycle,
       health: saved.health,
       status: saved.status,

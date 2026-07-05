@@ -14,7 +14,10 @@ const RULE_GROUPS: RuleGroup[] = [
     decision: "blocked",
     weight: 1,
     patterns: [
-      /\b(assault rifle|ar-?15|ak-?47|firearm|handgun|pistol|revolver|shotgun|rifle|gun\b|glock|sig sauer|beretta)\b/i,
+      /\b(assault rifle|ar-?15|ak-?47|firearm|handgun|pistol|revolver|shotgun|rifle|glock|sig sauer|beretta)\b/i,
+      // Bare "gun" only when it is not a common tool/toy/craft compound
+      // (nail gun, glue gun, heat gun, spray gun, nerf gun, water gun, etc.).
+      /(?<!\b(?:nail|glue|hot|heat|staple|spray|water|squirt|nerf|paintball|foam|toy|t-?shirt|confetti|caulk|grease|price|air)\s)\bgun\b/i,
     ],
   },
   {
@@ -53,7 +56,14 @@ const RULE_GROUPS: RuleGroup[] = [
     category: "ammunition",
     decision: "blocked",
     weight: 1,
-    patterns: [/\b(ammunition|ammo|bullets?|rounds?|9mm|\.22\b|\.45\b|cartridge|shells?\b)\b/i],
+    // Require genuine ammunition context. Bare words like "round", "shell",
+    // "cartridge" and "bullet" appear in ordinary listings (round table, phone
+    // shell, ink/game cartridge, bullet journal) and must NOT be blocked.
+    patterns: [
+      /\b(ammunition|ammo|live rounds?|spent casings?|bullet casings?|shotgun shells?|\d{1,2}\s?gauge shells?|\.22\s?lr|\.223|\.308|\.45\s?acp)\b/i,
+      /\b(?:rifle|shotgun|pistol|handgun|gun|firearm)\s+(?:rounds?|shells?|cartridges?|ammo|ammunition)\b/i,
+      /\b9\s?mm\s+(?:ammo|ammunition|rounds?|luger|para|cartridges?)\b/i,
+    ],
   },
   {
     category: "knives",
@@ -282,13 +292,17 @@ const RULE_GROUPS: RuleGroup[] = [
   },
 ];
 
+// These run against image filenames AND the listing title, so every token must
+// be word-bounded and specific — unbounded substrings previously matched benign
+// words (pill→pillow, powder→washing powder, adult→young adult, scope→telescope,
+// sight→insight, gun→shotgun/nail gun) and wrongly blocked/paused listings.
 const IMAGE_FILENAME_PATTERNS: Array<{ category: ModerationCategory; pattern: RegExp; weight: number }> = [
-  { category: "firearms", pattern: /(gun|rifle|pistol|firearm|glock)/i, weight: 0.85 },
-  { category: "knives", pattern: /(knife|blade|machete)/i, weight: 0.7 },
-  { category: "drugs", pattern: /(pill|powder|narcotic)/i, weight: 0.85 },
-  { category: "adult", pattern: /(adult|xxx|nsfw)/i, weight: 0.95 },
-  { category: "fake_image", pattern: /(stock-photo|placeholder|render|mockup)/i, weight: 0.8 },
-  { category: "scopes", pattern: /(scope|sight|optic)/i, weight: 0.75 },
+  { category: "firearms", pattern: /\b(rifles?|pistols?|firearms?|glock|handguns?)\b/i, weight: 0.85 },
+  { category: "knives", pattern: /\b(combat knife|machete|switchblade|butterfly knife)\b/i, weight: 0.7 },
+  { category: "drugs", pattern: /\b(narcotics?|cocaine|heroin|crystal meth)\b/i, weight: 0.85 },
+  { category: "adult", pattern: /\b(xxx|nsfw|pornographic)\b/i, weight: 0.95 },
+  { category: "fake_image", pattern: /\b(stock-?photo|placeholder|mockup)\b/i, weight: 0.8 },
+  { category: "scopes", pattern: /\b(rifle ?scope|gun ?sight|red dot sight)\b/i, weight: 0.75 },
 ];
 
 function normalizeText(input: string): string {

@@ -172,8 +172,7 @@ describe("sell listing validation", () => {
     expect(errors.title).toBeTruthy();
     expect(errors.description).toBeTruthy();
     expect(errors.category).toBeTruthy();
-    expect(errors.condition).toBeUndefined();
-    expect(draft.condition).toBe("Used");
+    expect(draft.parcelSize).toBe("medium");
     expect(errors.price).toBeTruthy();
     expect(isListingValid(draft, { mode: "quick" })).toBe(false);
   });
@@ -195,6 +194,7 @@ describe("sell listing validation", () => {
     draft.condition = "Good";
     draft.price = "120";
     draft.shippingMethod = "delivery_available";
+    draft.parcelSize = "medium";
 
     expect(getListingValidationErrors(draft, { mode: "quick", showErrors: true })).toEqual({});
     expect(isListingValid(draft, { mode: "quick" })).toBe(true);

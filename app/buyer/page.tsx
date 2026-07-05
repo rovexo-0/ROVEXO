@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { AccountModuleSkeleton } from "@/components/skeletons/PageSkeletons";
 import { AccountCenterModulePage } from "@/features/account-center/components/AccountCenterModulePage";
 import { fetchProfile } from "@/lib/profile/queries";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
@@ -25,7 +26,7 @@ export default function BuyerPage() {
   return (
     <BetaAppShell bottomNavTab="account" className="account-center-shell">
       <main className="mx-auto w-full max-w-[480px] pb-[calc(84px+env(safe-area-inset-bottom))]">
-        <Suspense fallback={null}>
+        <Suspense fallback={<AccountModuleSkeleton />}>
           <BuyerModuleContent />
         </Suspense>
       </main>

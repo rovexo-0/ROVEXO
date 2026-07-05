@@ -121,7 +121,7 @@ describe("enterprise category management engine", () => {
   it("merges db categories", () => {
     const state = createDefaultCategoryManagementState();
     const merged = mergeDbCategoriesIntoState(state, [
-      { id: "1", name: "Test", slug: "test", parentId: null, pathLabel: "Test", sortOrder: 0, icon: "🏷️", seoTitle: null, seoDescription: null, isActive: true },
+      { id: "1", name: "Test", slug: "test", parentId: null, pathLabel: "Test", sortOrder: 0, icon: "🏷️", seoTitle: null, seoDescription: null, isActive: true, transactionMode: "MARKETPLACE" },
     ]);
     expect(merged.treeNodes.length).toBe(1);
     expect(merged.dashboard.totalCategories).toBe(1);

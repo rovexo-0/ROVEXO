@@ -5,7 +5,7 @@ export const AI_ENGINE_MODULES: AiEngineModule[] = [
   { id: "marketplace-assistant", label: "AI Marketplace Assistant", icon: "🤖", description: "Platform-wide assistant", href: "/assistant" },
   { id: "buyer-assistant", label: "AI Buyer Assistant", icon: "🛍️", description: "Shopping and recommendations", href: "/assistant?persona=buyer" },
   { id: "seller-assistant", label: "AI Seller Assistant", icon: "🏷️", description: "Listing and sales guidance", href: "/assistant?persona=seller" },
-  { id: "business-assistant", label: "AI Business Assistant", icon: "🏢", description: "B2B insights and reports", href: "/business/center" },
+  { id: "business-assistant", label: "AI Business Assistant", icon: "🏢", description: "B2B insights and reports", href: "/business/dashboard" },
   { id: "super-admin-assistant", label: "AI Super Admin Assistant", icon: "🛰️", description: "Operations and monitoring", href: "/super-admin/operations" },
   { id: "developer-assistant", label: "AI Developer Assistant", icon: "🛠️", description: "Build and deploy guidance", href: "/super-admin/developer" },
   { id: "customer-support", label: "AI Customer Support", icon: "🎧", description: "Ticket classification and replies", href: "/support" },

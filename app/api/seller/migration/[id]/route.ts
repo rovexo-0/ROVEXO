@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
+import { markImportCancelled } from "@/lib/seller/migration/connectors/import-state";
 import { MIGRATION_MAX_BATCHES_PER_RUN } from "@/lib/seller/migration/engine/config";
 import {
   getMigrationJobForSeller,
 } from "@/lib/seller/migration/repository";
+import { updateMigrationJobEngine } from "@/lib/seller/migration/repository-engine";
 import { runMigrationEngine } from "@/lib/seller/migration/service";
 
 type RouteContext = {
@@ -49,6 +51,15 @@ export async function PATCH(request: Request, context: RouteContext) {
   if (body.action === "start" || body.action === "process") {
     const job = await runMigrationEngine(auth.user.id, id, MIGRATION_MAX_BATCHES_PER_RUN);
     return NextResponse.json({ job });
+  }
+
+  if (body.action === "cancel") {
+    markImportCancelled(id);
+    const job = await updateMigrationJobEngine(auth.user.id, id, {
+      status: "failed",
+      errorMessage: "Import cancelled by user.",
+    });
+    return NextResponse.json({ job: job ?? existing });
   }
 
   return NextResponse.json({ job: existing });

@@ -23,7 +23,7 @@ export default async function SuperAdminQuickListingPage() {
     <>
       <SuperAdminPageHeader
         title="Quick Listing"
-        description="Create, publish, feature, and archive listings without a seller account."
+        description="Create, publish, feature, and archive listings directly from Mission Control."
       />
       <QuickListingPanel initialListings={initialListings} />
     </>

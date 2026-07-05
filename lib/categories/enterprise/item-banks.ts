@@ -80,8 +80,110 @@ export const BATHROOM_ITEMS = [
 
 export const FURNITURE_ITEMS = [
   ["Beds", "beds"], ["Mattresses", "mattresses"], ["Sofas", "sofas"], ["Chairs", "chairs"],
-  ["Tables", "tables"], ["Wardrobes", "wardrobes"], ["Drawers", "drawers"], ["Desks", "desks"],
-  ["Bookcases", "bookcases"], ["TV Units", "tv-units"],
+  ["Wardrobes", "wardrobes"], ["Drawers", "drawers"], ["Desks", "desks"],
+  ["Bookcases", "bookcases"], ["TV Units", "tv-units"], ["Benches", "benches"],
+] as const;
+
+export const HOME_TEXTILES_ITEMS = [
+  ["Blankets", "blankets"], ["Pillows", "textile-pillows"],
+  ["Duvets", "textile-duvets"], ["Bed Sheets", "textile-bed-sheets"], ["Towels", "textile-towels"],
+  ["Bath Mats", "bath-mats"], ["Cushions", "cushions"], ["Throws", "textile-throws"],
+] as const;
+
+export const CURTAIN_TYPES = [
+  ["Blackout Curtains", "blackout-curtains"],
+  ["Sheer Curtains", "sheer-curtains"],
+  ["Thermal Curtains", "thermal-curtains"],
+  ["Velvet Curtains", "velvet-curtains"],
+  ["Net Curtains", "net-curtains"],
+  ["Eyelet Curtains", "eyelet-curtains"],
+  ["Pencil Pleat Curtains", "pencil-pleat-curtains"],
+  ["Voile Curtains", "voile-curtains"],
+] as const;
+
+export const BLIND_TYPES = [
+  ["Roman Blinds", "roman-blinds"],
+  ["Roller Blinds", "roller-blinds"],
+  ["Venetian Blinds", "venetian-blinds"],
+  ["Vertical Blinds", "vertical-blinds"],
+  ["Pleated Blinds", "pleated-blinds"],
+  ["Blackout Blinds", "blackout-blinds"],
+] as const;
+
+export const TABLE_TYPES = [
+  ["Dining Table", "dining-table"],
+  ["Coffee Table", "coffee-table"],
+  ["Office Desk", "office-desk-table"],
+  ["Bedside Table", "bedside-table"],
+  ["Outdoor Table", "outdoor-table"],
+  ["Console Table", "console-table"],
+] as const;
+
+export const SMARTPHONE_ITEMS = [
+  ["Apple iPhone", "apple-iphone"],
+  ["Samsung Galaxy", "samsung-galaxy"],
+  ["Google Pixel", "google-pixel"],
+  ["Unlocked", "unlocked-phones"],
+  ["Contract", "contract-phones"],
+  ["Refurbished", "refurbished-phones"],
+] as const;
+
+export const FEATURE_PHONE_ITEMS = [
+  ["Basic Phones", "basic-phones"],
+  ["Senior Phones", "senior-phones"],
+  ["Satellite Phones", "satellite-phones"],
+] as const;
+
+export const PHONE_ACCESSORY_ITEMS = [
+  ["Chargers", "phone-chargers"],
+  ["Cases", "phone-cases"],
+  ["Screen Protectors", "screen-protectors"],
+  ["Cables", "phone-cables"],
+  ["Power Banks", "power-banks"],
+  ["Earbuds", "phone-earbuds"],
+] as const;
+
+export const VEHICLE_EXTERIOR_ITEMS = [
+  ["Bumpers", "exterior-bumpers"], ["Spoilers", "spoilers"], ["Roof Racks", "roof-racks"],
+  ["Roof Boxes", "exterior-roof-boxes"], ["Wing Mirrors", "wing-mirrors"], ["Body Kits", "body-kits"],
+  ["Grilles", "grilles"], ["Splitters", "splitters"], ["Mud Flaps", "mud-flaps"],
+  ["Number Plates", "number-plates"], ["Badges", "badges"], ["Trim", "exterior-trim"],
+] as const;
+
+export const CONSTRUCTION_ITEMS = [
+  ["Cement", "cement"], ["Concrete", "concrete"], ["Aggregates", "aggregates"],
+  ["Scaffolding", "scaffolding"], ["Bricks", "bricks"], ["Blocks", "blocks"],
+  ["Roofing", "roofing"], ["Guttering", "guttering"], ["Insulation Boards", "insulation-boards"],
+] as const;
+
+export const GYM_EQUIPMENT_ITEMS = [
+  ["Dumbbells", "dumbbells"], ["Kettlebells", "kettlebells"], ["Barbells", "barbells"],
+  ["Weight Plates", "weight-plates"], ["Power Racks", "power-racks"], ["Cross Trainers", "cross-trainers"],
+  ["Rowing Machines", "rowing-machines"], ["Exercise Bikes", "gym-bikes"], ["Yoga Mats", "yoga-mats"],
+] as const;
+
+export const LUXURY_FASHION_ITEMS = [
+  ["Designer Handbags", "designer-handbags"], ["Designer Shoes", "designer-shoes"],
+  ["Designer Coats", "designer-coats"], ["Designer Dresses", "designer-dresses"],
+  ["Designer Watches", "designer-watches"], ["Designer Jewellery", "designer-jewellery"],
+] as const;
+
+export const PHOTOGRAPHY_ITEMS = [
+  ["DSLR Cameras", "dslr-cameras"], ["Mirrorless Cameras", "mirrorless-cameras"],
+  ["Lenses", "camera-lenses"], ["Flashes", "camera-flashes"], ["Tripods", "tripods"],
+  ["Camera Bags", "camera-bags"], ["Filters", "lens-filters"], ["Memory Cards", "memory-cards"],
+] as const;
+
+export const VEHICLE_INTERIOR_ITEMS = [
+  ["Bench Seats", "bench-seats"], ["Seat Covers", "seat-covers"],
+  ["Dashboard Covers", "dashboard-covers"], ["Dashboard", "vehicle-dashboard"],
+  ["Floor Mats", "floor-mats"], ["Steering Wheels", "vehicle-steering-wheels"],
+  ["Mirrors", "vehicle-mirrors"], ["Boot Liners", "boot-liners"], ["Roof Boxes", "roof-boxes"],
+] as const;
+
+export const TENT_ACCESSORY_ITEMS = [
+  ["Tent Accessories", "tent-accessories"], ["Pegs", "tent-pegs"], ["Guy Ropes", "guy-ropes"],
+  ["Groundsheets", "groundsheets"], ["Repair Kits", "tent-repair-kits"],
 ] as const;
 
 export const BEDDING_ITEMS = [

@@ -2,7 +2,8 @@
 
 import { useEffect, useState, type RefObject } from "react";
 
-const ROW_HEIGHT_ESTIMATE = 300;
+const ROW_HEIGHT_ESTIMATE = 320;
+const ROW_GAP = 20;
 const OVERSCAN_ROWS = 2;
 const VIRTUALIZE_MIN_ITEMS = 24;
 
@@ -40,10 +41,10 @@ export function useVirtualizedFeedWindow(
     let rowHeight = ROW_HEIGHT_ESTIMATE;
 
     const measureRowHeight = () => {
-      const card = grid.querySelector<HTMLElement>(".home-v1-listing-card");
+      const card = grid.querySelector<HTMLElement>('[data-listing-card="rovexo"]');
       if (!card) return;
       const height = card.getBoundingClientRect().height;
-      if (height > 0) rowHeight = height + 16;
+      if (height > 0) rowHeight = height + ROW_GAP;
     };
 
     const update = () => {

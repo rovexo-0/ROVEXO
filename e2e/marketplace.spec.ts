@@ -9,9 +9,7 @@ test.describe("marketplace core", () => {
   test("homepage renders search, categories and featured listings", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForHomepageUi(page);
-    const categories = page.locator(
-      'section[aria-labelledby="home-categories-heading"], section[aria-labelledby="home-v1-categories-heading"]',
-    );
+    const categories = page.locator('section[aria-label="Categories"]');
     await expect(categories.locator('a[href="/search?category=vehicles"]').first()).toBeVisible();
     await expect(categories.locator('a[href="/search?category=womens-fashion"]').first()).toBeVisible();
   });

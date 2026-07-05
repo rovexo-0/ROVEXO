@@ -1,4 +1,4 @@
-const CACHE_NAME = "rovexo-static-v5";
+const CACHE_NAME = "rovexo-static-v9";
 const OFFLINE_URL = "/offline";
 
 const PRECACHE_URLS = ["/", OFFLINE_URL, "/icons/icon-192.png", "/icons/icon-512.png"];
@@ -47,18 +47,31 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((response) => {
-        if (response.ok && url.pathname.startsWith("/icons/")) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+  // Static icons and category renders are mutable assets that ship without
+  // content hashes. Use stale-while-revalidate so a replaced asset self-heals
+  // on the next load instead of being pinned forever by a cache-first strategy.
+  if (url.pathname.startsWith("/icons/") || url.pathname.startsWith("/categories/")) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(async (cache) => {
+        const cached = await cache.match(request);
+        const network = fetch(request)
+          .then((response) => {
+            if (response.ok) cache.put(request, response.clone());
+            return response;
+          })
+          .catch(() => cached);
+
+        if (cached) {
+          event.waitUntil(network);
+          return cached;
         }
-        return response;
-      });
-    }),
-  );
+        return network;
+      }),
+    );
+    return;
+  }
+
+  event.respondWith(caches.match(request).then((cached) => cached || fetch(request)));
 });
 
 function parsePushPayload(event) {

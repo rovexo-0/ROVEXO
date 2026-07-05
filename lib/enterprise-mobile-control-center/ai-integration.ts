@@ -2,7 +2,8 @@ import type { MobileAiInsight, MobileAiSuggestion, MobileBuild, MobileDevice } f
 import { MOBILE_AI_MONITOR_TYPES, MOBILE_AI_SUGGESTION_TYPES } from "@/lib/enterprise-mobile-control-center/registry";
 import { averageDeviceHealth } from "@/lib/enterprise-mobile-control-center/devices";
 
-export function generateMobileAiInsights(devices: MobileDevice[], builds: MobileBuild[]): MobileAiInsight[] {
+export function generateMobileAiInsights(devices: MobileDevice[], _builds: MobileBuild[]): MobileAiInsight[] {
+  void _builds;
   const health = averageDeviceHealth(devices);
   return MOBILE_AI_MONITOR_TYPES.map((monitorType) => ({
     id: `ai-${monitorType}`,

@@ -19,7 +19,6 @@ import type {
   AiSearchValidationItem,
   CompletionValidationItem,
   MarketplaceCompletionScanResult,
-  SearchAutoRepairProposal,
   SearchCertificationScoreCard,
   SearchCompletionResult,
   SearchDomainScanResult,
@@ -188,7 +187,7 @@ function scanSeo(scan: MarketplaceCompletionScanResult): CompletionValidationIte
   });
 }
 
-function scanAiSearch(scan: MarketplaceCompletionScanResult): AiSearchValidationItem[] {
+function scanAiSearch(): AiSearchValidationItem[] {
   const aiEngine = readSource("lib/search-engine/engine.ts");
   const aiCategory = readSource("lib/taxonomies/ai-category.ts");
 
@@ -323,7 +322,7 @@ export function runSearchCompletionScan(scan: MarketplaceCompletionScanResult): 
   const performance = scanPerformance(scan);
   const database = scanDatabase(scan);
   const seo = scanSeo(scan);
-  const aiSearch = scanAiSearch(scan);
+  const aiSearch = scanAiSearch();
   const omegaGlobal = scanOmegaGlobal(scan);
   const accessibility = scanAccessibility(scan);
 

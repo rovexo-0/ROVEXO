@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getConnectAccountStatus } from "@/lib/stripe/connect";
+import { decryptSensitive, encryptSensitive } from "@/lib/wallet/crypto";
 import type { Tables } from "@/lib/supabase/types/database";
 import type { WalletData, WalletTransaction, WithdrawMethod } from "@/lib/wallet/types";
 
@@ -162,6 +163,89 @@ export async function getWithdrawMethodById(
     .maybeSingle();
 
   return data ? mapWithdrawMethod(data) : null;
+}
+
+/**
+ * Save (replace) the user's native ROVEXO bank account. A user has a single
+ * payout bank account, so any existing bank_account method is replaced. Only
+ * masked details ever reach the client (see mapWithdrawMethod).
+ */
+export async function saveBankAccount(input: {
+  userId: string;
+  accountHolderName: string;
+  sortCode: string;
+  accountNumber: string;
+}): Promise<WithdrawMethod | null> {
+  const admin = createAdminClient();
+
+  await admin
+    .from("withdraw_methods")
+    .delete()
+    .eq("user_id", input.userId)
+    .eq("provider", "bank_account");
+
+  const { data, error } = await admin
+    .from("withdraw_methods")
+    .insert({
+      user_id: input.userId,
+      provider: "bank_account",
+      label: "Bank account",
+      last_digits: input.accountNumber.slice(-4),
+      connected: true,
+      is_default: true,
+      account_holder_name: input.accountHolderName,
+      sort_code: encryptSensitive(input.sortCode),
+      account_number: encryptSensitive(input.accountNumber),
+    })
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return mapWithdrawMethod(data);
+}
+
+/**
+ * Server-only: return the user's decrypted bank details for the hidden payout
+ * integration. Never call this from anything that serialises to the client —
+ * only the masked WithdrawMethod (last_digits) is safe for the UI.
+ */
+export async function getBankAccountForPayout(userId: string): Promise<{
+  accountHolderName: string;
+  sortCode: string;
+  accountNumber: string;
+} | null> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("withdraw_methods")
+    .select("account_holder_name, sort_code, account_number")
+    .eq("user_id", userId)
+    .eq("provider", "bank_account")
+    .maybeSingle();
+
+  if (!data?.sort_code || !data?.account_number) {
+    return null;
+  }
+
+  return {
+    accountHolderName: data.account_holder_name ?? "",
+    sortCode: decryptSensitive(data.sort_code),
+    accountNumber: decryptSensitive(data.account_number),
+  };
+}
+
+/** Remove the user's native ROVEXO bank account. */
+export async function removeBankAccount(userId: string): Promise<boolean> {
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("withdraw_methods")
+    .delete()
+    .eq("user_id", userId)
+    .eq("provider", "bank_account");
+
+  return !error;
 }
 
 export async function recordWithdrawal(input: {

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { loadConnectorCredentials } from "@/lib/seller/migration/connectors/credentials";
+import { refreshOAuthTokens } from "@/lib/seller/marketplace/oauth/token-manager";
 import { connectMarketplaceCredentials } from "@/lib/seller/marketplace/credentials";
 import { handleMarketplaceError } from "@/lib/seller/marketplace/errors";
 import { checkMarketplaceHealth } from "@/lib/seller/marketplace/health";
@@ -25,15 +26,27 @@ export async function retryMarketplaceConnection(
         throw new Error("No saved credentials to retry.");
       }
 
+      if (platform === "ebay" || platform === "etsy") {
+        await refreshOAuthTokens(sellerId, platform);
+      }
+
+      const refreshed = await loadConnectorCredentials(sellerId, platform);
+      if (!refreshed) {
+        throw new Error("No saved credentials to retry.");
+      }
+
       await connectMarketplaceCredentials({
         sellerId,
         platform,
-        storeUrl: credentials.storeUrl,
-        apiKey: credentials.apiKey,
-        apiSecret: credentials.apiSecret,
-        accessToken: credentials.accessToken,
-        refreshToken: credentials.refreshToken,
-        fileName: credentials.fileName,
+        storeUrl: refreshed.storeUrl,
+        apiKey: refreshed.apiKey,
+        apiSecret: refreshed.apiSecret,
+        accessToken: refreshed.accessToken,
+        refreshToken: refreshed.refreshToken,
+        fileName: refreshed.fileName,
+        expiresAt: refreshed.expiresAt,
+        scopes: refreshed.scopes,
+        connectedAt: refreshed.connectedAt,
       });
 
       const health = await checkMarketplaceHealth(sellerId, platform);

@@ -17,7 +17,7 @@ export const HELP_CONTENT_REQUIREMENTS: HelpContentRequirement[] = [
   },
   {
     featureId: "stripe-connect",
-    featureName: "Stripe Connect Payouts",
+    featureName: "Bank Account Payouts",
     requiredTopicSlug: "stripe",
     requiredArticleSlug: "seller-tax-registration",
     requiredTree: true,

@@ -45,3 +45,10 @@ next-env.d.ts
 
 # Accidental nested iMac repository copy (preserved on disk; see ROVEXO_BACKUP_*)
 /ROVEXO/
+
+# Staff native shell dependencies
+/apps/rovexo-staff/node_modules/
+
+# Local lint reports
+/eslint-out.json
+/eslint-report.json

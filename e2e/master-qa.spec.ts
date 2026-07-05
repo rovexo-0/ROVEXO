@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import {
-  HERO_CAROUSEL_SELECTOR,
-  waitForHeroCarousel,
+  ALL_LISTINGS_SELECTOR,
+  LISTING_CARD_SELECTOR,
   waitForHomepageUi,
 } from "./helpers/stable-ui";
 import { escapeSlugForRegExp, resolveListingSlugForE2E } from "./helpers/listing-slug";
@@ -12,14 +12,12 @@ type RouteExpectation = {
   finalPath?: RegExp;
   /** Heading or landmark to confirm render (public pages) */
   landmark?: RegExp | string;
-  /** Homepage hero carousel — migration slide is slide 1 on load */
-  heroCarousel?: boolean;
   /** Protected routes redirect to login when unauthenticated */
   authRedirect?: boolean;
 };
 
 const PUBLIC_ROUTES: RouteExpectation[] = [
-  { path: "/", name: "Homepage", landmark: /move your entire store to rovexo/i },
+  { path: "/", name: "Homepage" },
   { path: "/search", name: "Search", landmark: /search rovexo|results for/i },
   { path: "/categories", name: "Categories", landmark: /all categories/i },
   { path: "/category/home-garden/furniture/beds", name: "Category", landmark: "Beds" },
@@ -77,11 +75,12 @@ test.describe("Master QA — public routes", () => {
         await expect(page).toHaveURL(route.finalPath);
       }
 
+      if (route.path === "/") {
+        await waitForHomepageUi(page);
+        return;
+      }
+
       if (route.landmark) {
-        if (route.heroCarousel) {
-          await expect(page.locator(HERO_CAROUSEL_SELECTOR)).toBeVisible();
-          await expect(page.getByRole("tablist", { name: "Hero slides" })).toBeVisible();
-        }
         await expect(page.getByRole("heading", { name: route.landmark }).first()).toBeVisible({
           timeout: 20_000,
         });
@@ -108,27 +107,12 @@ test.describe("Master QA — protected routes (unauthenticated)", () => {
 });
 
 test.describe("Master QA — homepage sections", () => {
-  test("hero, categories, listings, navigation", async ({ page }) => {
+  test("categories, listings, navigation", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForHomepageUi(page);
-    await waitForHeroCarousel(page);
 
-    const featuredHeading = page.getByRole("heading", { name: /featured listings/i });
-    if ((await featuredHeading.count()) > 0) {
-      await expect(featuredHeading).toBeVisible();
-    }
-
-    await expect(page.getByRole("heading", { name: /^recommended$/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /latest listings/i })).toBeVisible();
-
-    await page.locator("#auctions-heading").scrollIntoViewIfNeeded();
-    await expect(page.locator("#auctions-heading")).toHaveText(/popular auctions/i);
-    const bringItemsSection = page.locator(".rx-bring-items-section");
-    await bringItemsSection.scrollIntoViewIfNeeded();
-    await expect(bringItemsSection.getByRole("link", { name: "Bring Your Items" })).toHaveAttribute(
-      "href",
-      "/import",
-    );
+    await expect(page.locator(ALL_LISTINGS_SELECTOR)).toBeVisible();
+    await expect(page.locator(LISTING_CARD_SELECTOR).first()).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
   });
 });
@@ -145,24 +129,9 @@ test.describe("Master QA — navigation links", () => {
     await expect(nav.getByRole("link", { name: "Account" })).toBeVisible();
   });
 
-  test("import hero banner CTAs resolve correctly", async ({ page }) => {
-    await page.goto("/");
-    const bringItemsSection = page.locator(".rx-bring-items-section");
-    await bringItemsSection.scrollIntoViewIfNeeded();
-    await expect(bringItemsSection.getByRole("link", { name: "Bring Your Items" })).toHaveAttribute(
-      "href",
-      "/import",
-    );
-  });
-
-  test("footer legal links resolve", async ({ page }) => {
-    await page.goto("/");
-    const footer = page.getByRole("contentinfo");
-    await footer.scrollIntoViewIfNeeded();
-    const contactLink = footer.getByRole("link", { name: "Contact" });
-    await expect(contactLink).toBeVisible();
-    await contactLink.click();
-    await expect(page).toHaveURL(/\/support/);
+  test("support contact page resolves from legal hub", async ({ page }) => {
+    await page.goto("/support", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: /contact support/i })).toBeVisible();
     await assertNoServerError(page);
   });
 });
@@ -184,7 +153,7 @@ test.describe("Master QA — listing alias", () => {
       });
       expect(response?.status()).toBe(200);
       await expect(page).toHaveURL(new RegExp(`/listing/${escapeSlugForRegExp(slug)}`));
-      await expect(page.locator("main")).toBeVisible();
+      await expect(page.locator("main").first()).toBeVisible();
       await assertNoServerError(page);
     } finally {
       await cleanup();

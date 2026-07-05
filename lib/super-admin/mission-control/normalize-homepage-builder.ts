@@ -5,13 +5,6 @@ const DEPRECATED_HOMEPAGE_SECTION_IDS = new Set(["hero-slider", "business-spotli
 
 const LAUNCH_PUBLISHED_SECTION_IDS = new Set([
   "category-rail",
-  "bring-items",
-  "popular-auctions",
-  "featured-listings",
-  "recommended",
-  "new-listings",
-  "latest-listings",
-  "trending-listings",
   "all-listings",
 ]);
 

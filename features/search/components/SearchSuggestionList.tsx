@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useMemo } from "react";
 import { cn } from "@/lib/cn";
-import { Price } from "@/components/ui/Price";
-import { productToCardProps } from "@/lib/products/card";
+import type { Product } from "@/lib/products/types";
 import type { SearchResults } from "@/features/search/types";
+import { SearchResultCard } from "@/features/search/components/SearchResultCard";
 import { highlightMatch } from "@/features/search/utils/highlight-match";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
@@ -21,14 +20,13 @@ type SearchSuggestionListProps = {
 };
 
 const ICONS = {
-  product: "🔍",
   category: "📂",
   brand: "🏷",
   location: "📍",
 } as const;
 
 type SuggestionRow =
-  | { kind: "product"; key: string; href: string; title: string; price: number; imageUrl: string }
+  | { kind: "product"; key: string; product: Product }
   | { kind: "category" | "brand" | "location"; key: string; href: string; title: string };
 
 export function SearchSuggestionList({
@@ -44,15 +42,7 @@ export function SearchSuggestionList({
     const items: SuggestionRow[] = [];
 
     for (const product of results.products.slice(0, maxProducts)) {
-      const props = productToCardProps(product);
-      items.push({
-        kind: "product",
-        key: product.id,
-        href: props.href,
-        title: product.title,
-        price: props.price,
-        imageUrl: props.imageUrl,
-      });
+      items.push({ kind: "product", key: product.id, product });
     }
 
     for (const category of results.categories) {
@@ -88,47 +78,22 @@ export function SearchSuggestionList({
   if (rows.length === 0) return null;
 
   return (
-    <ul className="flex flex-col gap-ds-1" role="listbox" aria-label="Search suggestions">
+    <ul className="flex flex-col gap-ds-2" role="listbox" aria-label="Search suggestions">
       {rows.map((row, index) => {
         const currentIndex = navOffset + index;
         const isActive = activeIndex === currentIndex;
 
         if (row.kind === "product") {
           return (
-            <li key={row.key} className="min-h-[52px]">
-              <Link
-                href={row.href}
-                role="option"
-                aria-selected={isActive}
-                id={`search-nav-item-${currentIndex}`}
-                onClick={onNavigate}
-                onMouseEnter={() => onHoverIndex(currentIndex)}
-                className={cn(
-                  "flex min-h-[52px] items-center gap-ds-3 rounded-ds-md px-ds-3 py-ds-2 text-sm text-text-primary hover:bg-secondary",
-                  focusRing,
-                  transitionFast,
-                  isActive && "bg-secondary ring-2 ring-primary/20",
-                )}
-              >
-                <span aria-hidden className="w-6 shrink-0 text-center">
-                  {ICONS.product}
-                </span>
-                <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-ds-sm bg-surface-muted">
-                  <Image
-                    src={row.imageUrl}
-                    alt=""
-                    fill
-                    loading="lazy"
-                    sizes="40px"
-                    className="object-contain"
-                  />
-                </span>
-                <span className="min-w-0 flex-1 truncate font-medium">
-                  {highlightMatch(row.title, query)}
-                </span>
-                <Price amount={row.price} size="sm" className="shrink-0" />
-              </Link>
-            </li>
+            <SearchResultCard
+              key={row.key}
+              product={row.product}
+              query={query}
+              elementId={`search-nav-item-${currentIndex}`}
+              isActive={isActive}
+              onHover={() => onHoverIndex(currentIndex)}
+              onNavigate={onNavigate}
+            />
           );
         }
 

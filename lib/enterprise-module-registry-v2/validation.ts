@@ -48,7 +48,14 @@ export function validateModuleDescriptor(module: EnterpriseModuleV2Descriptor): 
     {
       id: "routes",
       label: "Routes",
-      passed: module.routes.length > 0 && module.routes.every((r) => r.href.startsWith("/super-admin") || r.href === "/super-admin"),
+      passed:
+        module.routes.length > 0 &&
+        module.routes.every(
+          (r) =>
+            r.href.startsWith("/super-admin") ||
+            r.href === "/super-admin" ||
+            r.href.startsWith("/staff"),
+        ),
     },
     {
       id: "featureFlags",

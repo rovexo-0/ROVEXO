@@ -5,7 +5,6 @@ import { useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { cn } from "@/lib/cn";
-import { SEARCH_ENGINE_MODULES } from "@/lib/search-engine/registry";
 import type {
   SearchEngineAnalytics,
   SearchEngineContext,

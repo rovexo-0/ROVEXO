@@ -103,7 +103,6 @@ function scanMarketplaceRules(input: { modulesComplete: boolean; homepagePass: b
 
 function buildLaunchBlockers(
   scan: MarketplaceCompletionScanResult,
-  priorities: LaunchPriorityResult[],
 ): LaunchBlockerResult[] {
   const mapping: Partial<Record<(typeof LAUNCH_BLOCKERS)[number], boolean>> = {
     "critical-bugs": scan.checks.some((c) => c.status === "fail"),
@@ -275,7 +274,7 @@ export function runLaunchModeScan(scan: MarketplaceCompletionScanResult): Launch
   const marketplaceRules = scanMarketplaceRules(context);
   const infrastructure = runGlobalInfrastructureValidation();
   const cleanup = runMarketplaceCleanupScan();
-  const blockers = buildLaunchBlockers(scan, priorities);
+  const blockers = buildLaunchBlockers(scan);
   const certificationScores = buildLaunchCertificationScores(scan, infrastructure.passPercent);
   const report = buildLaunchReport(priorities, infrastructure.passPercent, scan);
   const launchRules = buildLaunchRules(scan, priorities);

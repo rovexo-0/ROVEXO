@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Locator, type Page } from "@playwright/test";
 import {
   ACCOUNT_QUICK_ACCESS,
   getAccountModuleTiles,
@@ -6,25 +6,6 @@ import {
   getSellerModuleTiles,
 } from "../lib/account-center/modules";
 import { waitForHomepageUi } from "./helpers/stable-ui";
-
-import type { UserProfile } from "../lib/profile/types";
-
-const SELLER_PROBE_PROFILE: UserProfile = {
-  id: "probe",
-  email: "probe@rovexo.co.uk",
-  username: "probe",
-  fullName: "Probe",
-  role: "seller",
-  verified: true,
-  memberSince: new Date().toISOString(),
-  accountType: "individual",
-  isSeller: true,
-  isAdmin: false,
-  isSuperAdmin: false,
-  unreadMessages: 0,
-  unreadNotifications: 0,
-};
-
 
 type ButtonProbe = {
   name: string;
@@ -81,7 +62,7 @@ const GUEST_HUB_PROBES: ButtonProbe[] = [
     path: tile.href,
     expectLogin: expectsGuestLogin(tile.href),
   })),
-  ...getSellerModuleTiles(SELLER_PROBE_PROFILE).map((tile) => ({
+  ...getSellerModuleTiles().map((tile) => ({
     name: `Seller tile — ${tile.label}`,
     path: tile.href,
     expectLogin: expectsGuestLogin(tile.href),
@@ -96,6 +77,27 @@ const PUBLIC_ACTION_PROBES: ButtonProbe[] = [
   { name: "Support — Submit request", path: "/support", control: { role: "button", name: /submit request/i } },
 ];
 
+async function expectActionControlReady(
+  page: Page,
+  target: Locator,
+  path: string,
+): Promise<void> {
+  if (path === "/register") {
+    await expect(page.getByRole("textbox", { name: "Username" })).toBeVisible();
+  }
+
+  await target.scrollIntoViewIfNeeded();
+  await expect(target).toBeVisible();
+  await expect(target).toBeEnabled();
+
+  await expect
+    .poll(async () => {
+      const box = await target.boundingBox();
+      return Boolean(box && box.width > 0 && box.height > 0);
+    })
+    .toBe(true);
+}
+
 test.describe("Button audit — public actions", () => {
   for (const probe of PUBLIC_ACTION_PROBES) {
     test(probe.name, async ({ page }) => {
@@ -106,16 +108,17 @@ test.describe("Button audit — public actions", () => {
       }
 
       const control = probe.control!;
-      const target = page.getByRole(control.role, { name: control.name }).first();
-      await expect(target).toBeVisible();
+      const target = page.getByTestId("auth-submit").or(
+        page.getByRole(control.role, { name: control.name }),
+      ).first();
+
       if (probe.path === "/support") {
+        await expect(target).toBeVisible();
         await expect(target).toBeDisabled();
         return;
       }
-      await expect(target).toBeEnabled();
-      const box = await target.boundingBox();
-      expect(box?.width ?? 0).toBeGreaterThan(0);
-      expect(box?.height ?? 0).toBeGreaterThan(0);
+
+      await expectActionControlReady(page, target, probe.path);
     });
   }
 });

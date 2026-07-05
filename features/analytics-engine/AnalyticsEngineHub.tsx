@@ -6,7 +6,6 @@ import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/wallet/utils";
-import { ANALYTICS_ENGINE_MODULES } from "@/lib/analytics-engine/registry";
 import type {
   AnalyticsEngineAnalytics,
   AnalyticsEngineContext,

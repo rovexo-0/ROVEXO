@@ -1,17 +1,19 @@
 "use client";
 
-import { memo, useCallback, useId, useRef, useState } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { useSell } from "@/features/sell/context/SellProvider";
-import type { SellPhoto } from "@/features/sell/types";
+import { SELL_PHOTO_MAX } from "@/features/sell/types";
 import styles from "@/features/sell/components/PhotoUploader.module.css";
 
 const LONG_PRESS_MS = 450;
 const MOVE_CANCEL_PX = 12;
-const PHOTO_SLOT_COUNT = 8;
-const GALLERY_ACCEPT = "image/jpeg,image/png,image/webp,image/heic,image/heif,image/*";
-const CAMERA_ACCEPT = "image/jpeg,image/png,image/*";
+// Plain `image/*` is the most compatible value across Android Chrome/Edge,
+// iOS Safari/Chrome and desktop. Enumerating extra MIME types (esp. HEIC/HEIF)
+// can push Android into a restricted document picker instead of the gallery.
+const GALLERY_ACCEPT = "image/*";
+const CAMERA_ACCEPT = "image/*";
 
 function CameraIcon({ className }: { className?: string }) {
   return (
@@ -39,8 +41,8 @@ export const PhotoUploader = memo(function PhotoUploader() {
     uploadProgress,
   } = useSell();
 
-  const galleryInputId = useId();
-  const cameraInputId = useId();
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRef = useRef<HTMLInputElement>(null);
   const replaceTargetIdRef = useRef<string | null>(null);
   const longPressTimerRef = useRef<number | null>(null);
@@ -75,12 +77,20 @@ export const PhotoUploader = memo(function PhotoUploader() {
     replaceTargetIdRef.current = null;
   };
 
-  const openReplace = (photoId: string) => {
-    replaceTargetIdRef.current = photoId;
-    const input = replaceInputRef.current;
+  // Trigger the hidden inputs via a ref + programmatic click inside the user
+  // gesture. This avoids <label htmlFor>/nested-input double-activation, which
+  // makes Android Chrome/Edge open then immediately dismiss the file picker.
+  const openInput = useCallback((input: HTMLInputElement | null) => {
     if (!input) return;
     input.value = "";
     input.click();
+  }, []);
+
+  const openGallery = useCallback(() => openInput(galleryInputRef.current), [openInput]);
+
+  const openReplace = (photoId: string) => {
+    replaceTargetIdRef.current = photoId;
+    openInput(replaceInputRef.current);
   };
 
   const clearLongPress = useCallback(() => {
@@ -138,11 +148,8 @@ export const PhotoUploader = memo(function PhotoUploader() {
     setTouchDragIndex(null);
   };
 
-  const slots: Array<SellPhoto | null> = Array.from({ length: PHOTO_SLOT_COUNT }, (_, index) => {
-    return draft.photos[index] ?? null;
-  });
-
-  const canAddPhotos = draft.photos.length < PHOTO_SLOT_COUNT;
+  const photos = draft.photos;
+  const canAddPhotos = photos.length < SELL_PHOTO_MAX;
 
   return (
     <section aria-label="Photos" className="flex flex-col gap-ds-3">
@@ -160,6 +167,26 @@ export const PhotoUploader = memo(function PhotoUploader() {
 
       <div className={cn("rx-upload", styles.card)}>
         <input
+          ref={galleryInputRef}
+          type="file"
+          accept={GALLERY_ACCEPT}
+          multiple
+          className={styles.hiddenFileInput}
+          onChange={handleGalleryChange}
+          tabIndex={-1}
+          aria-hidden
+        />
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept={CAMERA_ACCEPT}
+          capture="environment"
+          className={styles.hiddenFileInput}
+          onChange={handleCameraChange}
+          tabIndex={-1}
+          aria-hidden
+        />
+        <input
           ref={replaceInputRef}
           type="file"
           accept={GALLERY_ACCEPT}
@@ -169,32 +196,6 @@ export const PhotoUploader = memo(function PhotoUploader() {
           aria-hidden
         />
 
-        <div className={styles.header}>
-          <label htmlFor={galleryInputId} className={cn(styles.primaryAction, focusRing)}>
-            <input
-              id={galleryInputId}
-              type="file"
-              accept={GALLERY_ACCEPT}
-              multiple
-              className={styles.hiddenFileInput}
-              onChange={handleGalleryChange}
-            />
-            <CameraIcon className="h-6 w-6 shrink-0" />
-            <span className="text-sm font-semibold">Add Photos</span>
-          </label>
-          <label htmlFor={cameraInputId} className={cn(styles.secondaryAction, focusRing)}>
-            <input
-              id={cameraInputId}
-              type="file"
-              accept={CAMERA_ACCEPT}
-              capture="environment"
-              className={styles.hiddenFileInput}
-              onChange={handleCameraChange}
-            />
-            Take Photo
-          </label>
-        </div>
-
         <div
           className={styles.gallery}
           onTouchMove={handleTouchMove}
@@ -202,108 +203,102 @@ export const PhotoUploader = memo(function PhotoUploader() {
           onTouchCancel={handleTouchEnd}
           aria-label="Photo gallery slots"
         >
-          {slots.map((photo, index) => {
-            if (photo) {
-              return (
-                <div
-                  key={photo.id}
-                  data-photo-index={index}
-                  draggable
-                  onDragStart={() => setDragIndex(index)}
-                  onDragOver={(event) => event.preventDefault()}
-                  onDrop={(event) => {
-                    event.preventDefault();
-                    if (dragIndex !== null) reorderPhotos(dragIndex, index);
-                    setDragIndex(null);
-                  }}
-                  onDragEnd={() => setDragIndex(null)}
-                  onTouchStart={handleTouchStart(index)}
-                  className={cn(
-                    styles.thumb,
-                    (dragIndex === index || touchDragIndex === index) && styles.thumbDragging,
-                  )}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={photo.previewUrl}
-                    alt={index === 0 ? "Main photo" : `Listing photo ${index + 1}`}
-                    className={styles.thumbImage}
-                    loading="lazy"
-                    decoding="async"
-                    draggable={false}
-                  />
+          {photos.map((photo, index) => (
+            <div
+              key={photo.id}
+              data-photo-index={index}
+              draggable
+              onDragStart={() => setDragIndex(index)}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => {
+                event.preventDefault();
+                if (dragIndex !== null) reorderPhotos(dragIndex, index);
+                setDragIndex(null);
+              }}
+              onDragEnd={() => setDragIndex(null)}
+              onTouchStart={handleTouchStart(index)}
+              className={cn(
+                styles.thumb,
+                (dragIndex === index || touchDragIndex === index) && styles.thumbDragging,
+              )}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={photo.previewUrl}
+                alt={index === 0 ? "Main cover photo" : `Listing photo ${index + 1}`}
+                className={styles.thumbImage}
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+              />
 
-                  {photo.uploading ? <span className={styles.uploading}>…</span> : null}
+              {photo.uploading ? <span className={styles.uploading}>…</span> : null}
 
-                  <span className={styles.thumbIndex} aria-hidden>
-                    {index + 1}
-                  </span>
+              <span className={styles.thumbIndex} aria-hidden>
+                {index + 1}
+              </span>
 
-                  <div className={styles.thumbOverlay}>
-                    {index === 0 ? <span className={styles.badgeMain}>Main</span> : <span />}
-                    <div className={styles.thumbActions}>
-                      {index > 0 ? (
-                        <button
-                          type="button"
-                          className={styles.actionButtonPrimary}
-                          onClick={() => setMainPhoto(photo.id)}
-                        >
-                          Set as Main
-                        </button>
-                      ) : (
-                        <span />
-                      )}
-                      <div className="flex gap-1">
-                        <button
-                          type="button"
-                          aria-label={`Replace photo ${index + 1}`}
-                          className={styles.actionButton}
-                          onClick={() => openReplace(photo.id)}
-                        >
-                          ↻
-                        </button>
-                        <button
-                          type="button"
-                          aria-label={`Remove photo ${index + 1}`}
-                          className={styles.actionButton}
-                          onClick={() => void removePhoto(photo.id)}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {photo.uploadError ? (
+              <div className={styles.thumbOverlay}>
+                {index === 0 ? <span className={styles.badgeMainCover}>Main Cover</span> : <span />}
+                <div className={styles.thumbActions}>
+                  {index > 0 ? (
                     <button
                       type="button"
-                      onClick={() => void retryPhotoUpload(photo.id)}
-                      className="absolute inset-x-2 bottom-14 rounded-ds-sm bg-danger px-2 py-1 text-[0.625rem] font-semibold text-danger-foreground touch-manipulation"
+                      className={styles.actionButtonPrimary}
+                      onClick={() => setMainPhoto(photo.id)}
                     >
-                      Retry
+                      Set as Main
                     </button>
-                  ) : null}
+                  ) : (
+                    <span />
+                  )}
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      aria-label={`Replace photo ${index + 1}`}
+                      className={styles.actionButton}
+                      onClick={() => openReplace(photo.id)}
+                    >
+                      ↻
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`Remove photo ${index + 1}`}
+                      className={styles.actionButton}
+                      onClick={() => void removePhoto(photo.id)}
+                    >
+                      ×
+                    </button>
+                  </div>
                 </div>
-              );
-            }
+              </div>
 
-            return (
-              <label
-                key={`empty-slot-${index}`}
-                htmlFor={canAddPhotos ? galleryInputId : undefined}
-                data-photo-index={index}
-                aria-label={`Add photo to slot ${index + 1}`}
-                className={cn(
-                  styles.addSlot,
-                  !canAddPhotos && styles.addSlotDisabled,
-                  focusRing,
-                )}
-              >
-                <span className={styles.slotNumber}>{index + 1}</span>
-                {canAddPhotos ? <span className={styles.addSlotLabel}>+</span> : null}
-              </label>
-            );
-          })}
+              {photo.uploadError ? (
+                <button
+                  type="button"
+                  onClick={() => void retryPhotoUpload(photo.id)}
+                  className="absolute inset-x-2 bottom-14 rounded-ds-sm bg-danger px-2 py-1 text-[0.625rem] font-semibold text-danger-foreground touch-manipulation"
+                >
+                  Retry
+                </button>
+              ) : null}
+            </div>
+          ))}
+
+          {canAddPhotos ? (
+            <button
+              type="button"
+              onClick={openGallery}
+              aria-label="Add photo"
+              className={cn(styles.addSlot, focusRing)}
+            >
+              <CameraIcon className={styles.addSlotIcon} />
+              <span>{photos.length === 0 ? "Add photos" : "Add more"}</span>
+              <span className="text-xs font-semibold text-text-muted tabular-nums">
+                {photos.length}/{SELL_PHOTO_MAX}
+              </span>
+            </button>
+          ) : null}
         </div>
       </div>
     </section>

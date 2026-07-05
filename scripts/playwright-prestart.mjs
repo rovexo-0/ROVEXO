@@ -30,7 +30,9 @@ const webServerEnv = {
   UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL ?? "https://placeholder.upstash.io",
   UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN ?? "placeholder",
   CRON_SECRET: process.env.CRON_SECRET ?? "placeholder",
+  SHIPPO_API_KEY: process.env.SHIPPO_API_KEY ?? "shippo_test_placeholder",
   PLAYWRIGHT_E2E: "1",
+  ROVEXO_HOMEPAGE_DEMO: "1",
   NODE_ENV: "production",
 };
 

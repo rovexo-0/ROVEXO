@@ -1,3 +1,5 @@
+import { computeStoredPromotionScore } from "@/lib/homepage/feed-ranking";
+
 export function isPromotionActive(until: string | null | undefined): boolean {
   if (!until) return false;
   return new Date(until).getTime() > Date.now();
@@ -24,8 +26,5 @@ export function computePromotionScore(
   bumpedUntil: string | null,
   featuredUntil: string | null,
 ): number {
-  let score = 0;
-  if (isPromotionActive(featuredUntil)) score += 1000;
-  if (isPromotionActive(bumpedUntil)) score += 500 + bumpCount * 10;
-  return score;
+  return computeStoredPromotionScore({ bumpCount, bumpedUntil, featuredUntil });
 }

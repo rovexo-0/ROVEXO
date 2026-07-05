@@ -21,6 +21,8 @@ export {
 export type AuthContext = {
   supabase: Awaited<ReturnType<typeof createClient>>;
   user: User;
+  /** Role loaded alongside account_status in the same query to avoid a second round-trip. */
+  role: UserRole | null;
 };
 
 export async function getAuthContext(): Promise<AuthContext | null> {
@@ -34,9 +36,11 @@ export async function getAuthContext(): Promise<AuthContext | null> {
     return null;
   }
 
+  // Fetch account_status and role together: role is needed by requireRole/
+  // requireApiRole, and issuing it here removes a second profiles round-trip.
   const { data: profile } = await supabase
     .from("profiles")
-    .select("account_status")
+    .select("account_status, role")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -48,7 +52,7 @@ export async function getAuthContext(): Promise<AuthContext | null> {
     return null;
   }
 
-  return { supabase, user };
+  return { supabase, user, role: (profile?.role as UserRole | null) ?? null };
 }
 
 export async function requireAuthContext(): Promise<AuthContext> {
@@ -83,7 +87,7 @@ export async function requireRole(
   allowed: UserRole[],
 ): Promise<AuthContext & { role: UserRole }> {
   const context = await requireAuthContext();
-  const role = await getUserRole(context.user.id);
+  const role = context.role ?? (await getUserRole(context.user.id));
 
   if (!role || !allowed.includes(role)) {
     throw new AuthError("Forbidden", 403);
@@ -100,7 +104,7 @@ export async function requireApiRole(
     return auth;
   }
 
-  const role = await getUserRole(auth.user.id);
+  const role = auth.role ?? (await getUserRole(auth.user.id));
   if (!role || !allowed.includes(role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -185,4 +189,45 @@ export async function requireApiAdmin(): Promise<
   return requireApiRole(["admin", "super_admin"]) as Promise<
     (AuthContext & { role: "admin" | "super_admin" }) | NextResponse
   >;
+}
+
+export type StaffAuthContext = AuthContext & {
+  staffId: string;
+  staffRoleIds: string[];
+};
+
+/** Active staff member linked to auth profile, or super admin with implicit full access. */
+export async function requireApiStaff(
+  request?: Request,
+): Promise<StaffAuthContext | NextResponse> {
+  const auth = await requireApiAuth();
+  if (auth instanceof NextResponse) return auth;
+
+  if (auth.role === "super_admin") {
+    const { loadStaffRoleIdsByProfileId } = await import("@/lib/staff-enterprise/permissions");
+    const linked = await loadStaffRoleIdsByProfileId(auth.user.id);
+    return {
+      ...auth,
+      role: auth.role,
+      staffId: linked.staffId ?? auth.user.id,
+      staffRoleIds: linked.roleIds.length ? linked.roleIds : ["super_admin"],
+    };
+  }
+
+  const { loadStaffRoleIdsByProfileId } = await import("@/lib/staff-enterprise/permissions");
+  const linked = await loadStaffRoleIdsByProfileId(auth.user.id);
+  if (!linked.staffId || !linked.roleIds.length) {
+    return NextResponse.json({ error: "Staff access required." }, { status: 403 });
+  }
+
+  if (request) {
+    const blocked = validateMutationOrigin(request);
+    if (blocked) return blocked;
+  }
+
+  return {
+    ...auth,
+    staffId: linked.staffId,
+    staffRoleIds: linked.roleIds,
+  };
 }

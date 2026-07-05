@@ -12,7 +12,6 @@ import type {
   ExecutionTrigger,
   GlobalFailCondition,
   GlobalIntegrityScanResult,
-  GlobalUiDomain,
   GlobalUiIntegrityStatus,
 } from "@/lib/omega-global-ui-integrity-engine/types";
 

@@ -35,4 +35,14 @@ describe("RovexoMobileHeaderScrollContext regression", () => {
     expect(source).not.toContain("setHeaderRef");
     expect(source).not.toContain("setHeaderVersion");
   });
+
+  it("does not render a duplicate chrome spacer above the header", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "components/home/RovexoMobileHeaderScrollContext.tsx"),
+      "utf8",
+    );
+
+    expect(source).not.toContain("rovexo-chrome-spacer");
+    expect(source).not.toContain("--rx-chrome-spacer-height");
+  });
 });

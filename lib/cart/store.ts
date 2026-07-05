@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isPurchasable } from "@/lib/inventory/service";
+import { assertMarketplacePurchaseAllowedForProductSlug } from "@/lib/transaction-mode/validate";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 
 export type CartItem = {
@@ -103,6 +104,11 @@ export async function addToCart(
 
   if (!product) {
     return { success: false, error: "Product not found." };
+  }
+
+  const purchaseCheck = await assertMarketplacePurchaseAllowedForProductSlug(productSlug);
+  if (!purchaseCheck.allowed) {
+    return { success: false, error: purchaseCheck.error };
   }
 
   if (product.seller_id === userId) {

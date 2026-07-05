@@ -84,6 +84,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       shippingPrice: body.shippingPrice ?? undefined,
       categoryId,
       deliveryCarriers: body.deliveryCarriers,
+      parcelSize: body.parcelSize,
       inventory: body.inventory
         ? {
             sku: body.inventory.sku?.trim() || null,

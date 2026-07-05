@@ -18,7 +18,17 @@ export type StoredConnectorCredentials = {
   accessToken?: string;
   refreshToken?: string;
   fileName?: string;
+  expiresAt?: string;
+  scopes?: string;
+  connectedAt?: string;
+  tokenRefreshedAt?: string;
 };
+
+export function assertConnectorCredentialsSecret(): void {
+  if (process.env.NODE_ENV !== "production") return;
+  if (process.env.CONNECTOR_CREDENTIALS_SECRET?.trim()) return;
+  throw new Error("CONNECTOR_CREDENTIALS_SECRET is required in production.");
+}
 
 export type ConnectorRecord = {
   sellerId: string;
@@ -38,6 +48,7 @@ function deriveKey(): Buffer {
 }
 
 export function encryptCredentials(payload: StoredConnectorCredentials): string {
+  assertConnectorCredentialsSecret();
   const key = deriveKey();
   const iv = randomBytes(12);
   const cipher = createCipheriv(ALGORITHM, key, iv);
@@ -163,6 +174,32 @@ export async function loadConnectorCredentials(
 
   if (!data || data.connection_status !== "connected") return null;
   return decryptCredentials(data.credentials_encrypted);
+}
+
+export async function updateConnectorCredentials(
+  sellerId: string,
+  platform: MigrationPlatformId,
+  patch: Partial<StoredConnectorCredentials>,
+): Promise<StoredConnectorCredentials> {
+  const existing = await loadConnectorCredentials(sellerId, platform);
+  if (!existing) {
+    throw new Error("Connector is not connected.");
+  }
+
+  const merged: StoredConnectorCredentials = { ...existing, ...patch };
+  const admin = createAdminClient();
+  const now = new Date().toISOString();
+
+  await admin
+    .from("store_migration_connectors")
+    .update({
+      credentials_encrypted: encryptCredentials(merged),
+      updated_at: now,
+    })
+    .eq("seller_id", sellerId)
+    .eq("platform", platform);
+
+  return merged;
 }
 
 export async function touchConnectorSync(

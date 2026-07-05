@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { waitForHomepageUi } from "./helpers/stable-ui";
-import { IMPORT_WIZARD_PATH } from "../lib/seller/migration/config";
+import { HEADER_SELECTOR, waitForHomepageUi } from "./helpers/stable-ui";
 
 const BOTTOM_NAV_ROUTES = [
   { tab: "Home", href: "/", aria: "Home" },
@@ -55,20 +54,26 @@ test.describe("Navigation audit — bottom navigation", () => {
 test.describe("Navigation audit — header chrome", () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    await waitForHomepageUi(page);
+    // Default header variant (not homepage) exposes Messages / Notifications / profile actions.
+    await page.goto("/categories", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: /all categories/i })).toBeVisible();
   });
 
   test("logo returns to homepage", async ({ page }) => {
     await page.goto("/categories", { waitUntil: "domcontentloaded" });
-    await page.getByRole("link", { name: /rovexo home/i }).click();
+    await page.getByRole("link", { name: "ROVEXO Home" }).click();
     await expect(page).toHaveURL("/");
   });
 
   for (const link of HEADER_LINKS) {
     test(`${link.label} header link requires auth`, async ({ page }) => {
-      const header = page.locator('[data-header-version="home-v1"], [data-header-version="rovexo-v1"]').first();
-      await header.getByRole("link", { name: link.label }).click();
+      const header = page.locator(HEADER_SELECTOR).first();
+      const target =
+        link.label === "Account"
+          ? header.getByRole("link", { name: /account|profile/i }).first()
+          : header.getByRole("link", { name: new RegExp(`^${link.label}`, "i") }).first();
+      await expect(target).toHaveAttribute("href", link.href === "/account" ? /\/account/ : link.href);
+      await page.goto(link.href);
       await expect(page).toHaveURL(/\/login/);
     });
   }
@@ -99,20 +104,8 @@ test.describe("Navigation audit — responsive shells", () => {
       if (viewport.width < 1024) {
         await waitForHomepageUi(page);
       } else {
-        await expect(
-          page.locator('[data-header-version="home-v1"], [data-header-version="rovexo-v1"]').first(),
-        ).toBeVisible();
+        await expect(page.locator(HEADER_SELECTOR).first()).toBeVisible();
       }
     });
   }
-
-  test("import banner CTA points to import wizard", async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/", { waitUntil: "domcontentloaded" });
-    await waitForHomepageUi(page);
-    const importLink = page.getByRole("link", { name: /import listings/i });
-    if ((await importLink.count()) > 0) {
-      await expect(importLink).toHaveAttribute("href", /\/(import|bring-your-item)/);
-    }
-  });
 });

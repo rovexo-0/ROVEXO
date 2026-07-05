@@ -47,14 +47,34 @@ const nextConfig: NextConfig = {
         },
       }
     : {}),
-  // Allow these origins in dev for HMR and dev resources when Playwright uses localhost/127.0.0.1
-  allowedDevOrigins: ["localhost", "127.0.0.1"],
+  // Origins allowed to request dev-only assets/HMR in `next dev`. Next.js blocks
+  // cross-origin dev requests by default; when a physical device (e.g. an iPhone)
+  // loads the dev server via a LAN IP such as http://192.168.x.x:3000, the dev
+  // client bundle is blocked, so React never hydrates and the page renders but is
+  // completely non-interactive. Allow localhost + private LAN ranges so on-device
+  // testing works. This is dev-only and has no effect on production.
+  allowedDevOrigins: [
+    "localhost",
+    "127.0.0.1",
+    "192.168.*.*",
+    "10.*.*.*",
+    "172.16.*.*",
+    "172.17.*.*",
+    "172.18.*.*",
+  ],
   images: {
+    // Serve AVIF/WebP where supported so product thumbnails ship far smaller
+    // payloads on mobile. Product images are immutable (unique filenames), so the
+    // optimized results are cached for 30 days to avoid re-optimizing and let
+    // browsers reuse cached images across repeat visits.
+    formats: ["image/avif", "image/webp"],
+    // Next 15 rejects any `quality` not in this allowlist. 75 stays the default
+    // for cards/thumbnails (small payloads); 90 is used for the full-bleed
+    // Product Detail hero + lightbox so detailed photos render crisply instead
+    // of showing AVIF compression softness at high-DPR / near-1:1 display sizes.
+    qualities: [75, 90],
+    minimumCacheTTL: 2592000,
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
       ...supabaseImageHostnames().map((hostname) => ({
         protocol: "https" as const,
         hostname,
@@ -63,7 +83,8 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      { source: "/business", destination: "/business/center", permanent: true },
+      { source: "/business", destination: "/business/dashboard", permanent: true },
+      { source: "/business/center", destination: "/business/dashboard", permanent: true },
       { source: "/account/orders", destination: "/orders", permanent: true },
       { source: "/account/orders/:path*", destination: "/orders/:path*", permanent: true },
       { source: "/account/wallet", destination: "/seller/wallet", permanent: true },

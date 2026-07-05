@@ -99,11 +99,9 @@ export const MIGRATION_IMPORT_METHODS: MigrationImportMethodOption[] = [
 ];
 
 export const MIGRATION_WIZARD_STEPS = [
-  { step: 1 as const, label: "Platform" },
-  { step: 2 as const, label: "Import method" },
-  { step: 3 as const, label: "Preview" },
-  { step: 4 as const, label: "Progress" },
-  { step: 5 as const, label: "Report" },
-];
+  { step: 1 as const, label: "Marketplace" },
+  { step: 2 as const, label: "Connect" },
+  { step: 3 as const, label: "Import" },
+] as const;
 
 export { CONNECTOR_PLATFORM_IDS as MIGRATION_PLATFORM_IDS };

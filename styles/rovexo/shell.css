@@ -1,7 +1,15 @@
 /* ROVEXO Design System v1 — App shell (header, nav, footer, page) */
 
 .rx-page {
+  /* App-shell root must always fill the full viewport width and never allow
+   * horizontal overflow — otherwise the (blue-tinted) body page gradient shows
+   * beside the shell on mobile. `overflow-x: clip` contains stray child overflow
+   * without creating a scroll container (sticky/fixed descendants keep working).
+   */
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
+  overflow-x: clip;
   background: var(--ds-color-background);
   background-image: var(--ds-gradient-page);
   color: var(--ds-color-text-primary);

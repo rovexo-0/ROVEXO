@@ -8,7 +8,7 @@ import { ConversationCard } from "@/features/messages/components/ConversationCar
 import { MessagesEmptyState } from "@/features/messages/components/MessagesEmptyState";
 import { cn } from "@/lib/cn";
 import { filterConversations } from "@/lib/messages/utils";
-import { MESSAGES_ENGINE_FILTERS, MESSAGES_ENGINE_MODULES } from "@/lib/messages-engine/registry";
+import { MESSAGES_ENGINE_FILTERS } from "@/lib/messages-engine/registry";
 import type {
   MessagesEngineAnalytics,
   MessagesEngineContext,

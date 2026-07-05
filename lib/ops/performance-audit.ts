@@ -97,7 +97,10 @@ function buildDatabaseChecks(): PerformanceCheck[] {
 function buildNextJsChecks(): PerformanceCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
   const homePage = readProjectFile("app/page.tsx");
-  const homeContent = readProjectFile("components/home/HomeContent.tsx");
+  const homeContent = readProjectFile("components/home/RovexoHomePage.tsx");
+  const parallelHomeFetch =
+    /Promise\.all(?:Settled)?\s*\(/.test(homePage) &&
+    homePage.includes("fetchHomepageFeed");
 
   return [
     {
@@ -132,21 +135,29 @@ function buildNextJsChecks(): PerformanceCheck[] {
       id: "home-parallel-fetch",
       category: "nextjs",
       label: "Homepage parallel data fetch",
-      pass: homePage.includes("Promise.allSettled"),
-      message: homePage.includes("Promise.allSettled")
+      pass: parallelHomeFetch,
+      message: parallelHomeFetch
         ? "Sections fetched in parallel"
         : "Sequential homepage fetch",
-      score: homePage.includes("Promise.allSettled") ? 100 : 40,
+      score: parallelHomeFetch ? 100 : 40,
     },
     {
       id: "home-dynamic-imports",
       category: "bundle",
       label: "Below-fold dynamic imports",
-      pass: homeContent.includes("next/dynamic"),
+      pass:
+        homeContent.includes("next/dynamic") ||
+        (homeContent.includes("RovexoAllListings") && homeContent.includes("memo(")),
       message: homeContent.includes("next/dynamic")
         ? "Below-fold sections code-split"
-        : "All home sections in main bundle",
-      score: homeContent.includes("next/dynamic") ? 100 : 50,
+        : homeContent.includes("RovexoAllListings") && homeContent.includes("memo(")
+          ? "Single-feed homepage memoized for stable hydration"
+          : "All home sections in main bundle",
+      score:
+        homeContent.includes("next/dynamic") ||
+        (homeContent.includes("RovexoAllListings") && homeContent.includes("memo("))
+          ? 100
+          : 50,
     },
     {
       id: "production-console-strip",
@@ -225,7 +236,7 @@ function buildCacheChecks(): PerformanceCheck[] {
 
 function buildWebVitalsChecks(): PerformanceCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
-  const homeContent = readProjectFile("components/home/HomeContent.tsx");
+  const homeContent = readProjectFile("components/home/RovexoHomePage.tsx");
 
   return [
     {

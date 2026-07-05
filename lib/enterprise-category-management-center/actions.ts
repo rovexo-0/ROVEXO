@@ -9,7 +9,6 @@ import {
   computeCategoryEnterpriseScore,
   isCategoryCertificationEligible,
   isProtectedCategoryTarget,
-  mergeDbCategoriesIntoState,
   runTaxonomyValidation,
 } from "@/lib/enterprise-category-management-center/engine";
 import { exportCategoryManagementSnapshot, isValidCategoryManagementExportFormat } from "@/lib/enterprise-category-management-center/export";

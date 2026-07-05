@@ -29,7 +29,7 @@ import {
 } from "@/lib/enterprise-compliance-center-engine/readiness";
 import type { EnterpriseComplianceTab } from "@/lib/enterprise-compliance-center-engine/types";
 
-export async function getEnterpriseComplianceSnapshot(_tab: EnterpriseComplianceTab = "dashboard") {
+export async function getEnterpriseComplianceSnapshot() {
   const [ctx, settings, exports, preAuditHistory, readinessHistory, remediationOverrides] = await Promise.all([
     fetchEnterpriseComplianceLiveContext(),
     getEnterpriseComplianceSettings(),
@@ -103,7 +103,8 @@ export async function getEnterpriseComplianceSnapshot(_tab: EnterpriseCompliance
   };
 }
 
-export async function getEnterpriseCompliancePageData(tab: EnterpriseComplianceTab = "dashboard") {
-  const snapshot = await getEnterpriseComplianceSnapshot(tab);
+export async function getEnterpriseCompliancePageData(_tab: EnterpriseComplianceTab = "dashboard") {
+  void _tab;
+  const snapshot = await getEnterpriseComplianceSnapshot();
   return { snapshot };
 }

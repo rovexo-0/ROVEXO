@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Bind Tailwind's `dark:` variant to the Theme Engine's data-theme attribute. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme inline {
   --color-primary: var(--ds-color-primary);
   --color-primary-foreground: var(--ds-color-primary-foreground);
@@ -241,6 +244,23 @@ body {
   }
 }
 
+/* ROVEXO v1.0 — premium search result entrance (fade + slide, 200ms ease-out) */
+@keyframes rx-search-result-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rx-search-result-in {
+  animation: rx-search-result-in 200ms var(--ds-ease, ease-out) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .live-country-row-enter,
   .live-country-row-leave,
@@ -249,7 +269,8 @@ body {
   .live-analytics-fade-in,
   .live-analytics-bar,
   .live-analytics-map-pulse,
-  .live-analytics-loading {
+  .live-analytics-loading,
+  .rx-search-result-in {
     animation: none;
     transition: none;
   }

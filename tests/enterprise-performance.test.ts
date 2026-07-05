@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cacheControlValue, jsonWithCache } from "@/lib/api/cache-headers";
-import { validatePlatformPerformanceSurface } from "@/lib/ops/performance-audit";
-import { validatePerformanceHeaderConfiguration } from "@/lib/ops/performance-headers";
+import { validatePlatformPerformanceSurface } from "@/lib/ops/performance-audit";import { validatePerformanceHeaderConfiguration } from "@/lib/ops/performance-headers";
 
 describe("enterprise performance headers", () => {
   it("defines static asset cache routes", () => {
@@ -39,7 +38,7 @@ describe("enterprise performance audit", () => {
     expect(Array.isArray(report.queriesOptimized)).toBe(true);
   });
 
-  it("passes enterprise performance surface checks", () => {
+  it("reports current enterprise performance surface scores and open warnings", () => {
     const report = validatePlatformPerformanceSurface();
     expect(report.pass).toBe(true);
     expect(report.enterpriseReady).toBe(true);
@@ -48,7 +47,10 @@ describe("enterprise performance audit", () => {
     expect(report.databaseScore).toBeGreaterThanOrEqual(85);
     expect(report.cacheScore).toBeGreaterThanOrEqual(85);
     expect(report.coreWebVitalsScore).toBeGreaterThanOrEqual(80);
-    expect(report.remainingWarnings).toHaveLength(0);
+    expect(report.remainingWarnings).toEqual([]);
+    expect(report.checks.some((check) => check.id === "home-dynamic-imports" && check.pass)).toBe(true);
+    expect(report.checks.some((check) => check.id === "cwv-home-memo" && check.pass)).toBe(true);
+    expect(report.checks.some((check) => check.id === "home-parallel-fetch" && check.pass)).toBe(true);
   });
 
   it("includes required database indexes", () => {

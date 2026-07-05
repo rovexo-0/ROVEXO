@@ -132,7 +132,7 @@ function scanRegression(scan: MarketplaceCompletionScanResult): CompletionValida
   });
 }
 
-function buildZeroDefectGates(scan: MarketplaceCompletionScanResult, criticalCount: number, defects: DefectRecord[]): ZeroDefectGateResult[] {
+function buildZeroDefectGates(scan: MarketplaceCompletionScanResult, criticalCount: number): ZeroDefectGateResult[] {
   const mapping: Partial<Record<(typeof ZERO_DEFECT_GATES)[number], boolean>> = {
     "critical-defects-zero": criticalCount === 0,
     "broken-checkout": scan.modules.find((m) => m.moduleId === "checkout")?.complete ?? false,
@@ -228,7 +228,7 @@ export function runZeroDefectScan(scan: MarketplaceCompletionScanResult): ZeroDe
 
   const criticalCount = defects.filter((d) => d.severity === "critical").length;
   const highCount = defects.filter((d) => d.severity === "high").length;
-  const gates = buildZeroDefectGates(scan, criticalCount, defects);
+  const gates = buildZeroDefectGates(scan, criticalCount);
   const certification = buildCertification(scan, criticalCount, highCount);
   const report = buildEnterpriseReport(scan, defects);
   const repairWorkflow = buildRepairWorkflow(defects);

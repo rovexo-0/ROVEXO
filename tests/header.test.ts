@@ -23,7 +23,7 @@ describe("official header design", () => {
     expect(source).not.toContain("/assistant");
   });
 
-  it("keeps logo, centered search, messages, notifications and profile on the same top row", () => {
+  it("keeps logo, centered search, messages, notifications and profile on the default top row", () => {
     const source = readFileSync(path.join(process.cwd(), "components/Header.tsx"), "utf8");
     expect(source).toContain("HeaderSearchBar");
     expect(source).toContain("RovexoHeaderMark");
@@ -32,5 +32,21 @@ describe("official header design", () => {
     expect(source).toContain('data-header-version="rovexo-v1"');
     expect(source).toContain("rx-header-premium__search");
     expect(source).toContain("rx-header-premium__row");
+  });
+
+  it("promotes Bring Your Item into a two-column homepage header beside search", () => {
+    const header = readFileSync(path.join(process.cwd(), "components/Header.tsx"), "utf8");
+    const cta = readFileSync(
+      path.join(process.cwd(), "components/header/HeaderBringYourItemCta.tsx"),
+      "utf8",
+    );
+    expect(header).toContain('variant?: "default" | "homepage"');
+    expect(header).toContain("HeaderBringYourItemCta");
+    expect(header).toContain("rx-header-premium__col--search");
+    expect(header).toContain("rx-header-premium__col--cta");
+    expect(header).not.toContain("RovexoLogoBrand");
+    expect(header).toContain('data-header-layout={isHomepage ? "homepage" : "default"}');
+    expect(cta).toContain("BRING_YOUR_ITEM_PATH");
+    expect(cta).toContain("🚀");
   });
 });

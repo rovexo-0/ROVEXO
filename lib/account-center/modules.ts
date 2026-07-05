@@ -33,7 +33,7 @@ export const ACCOUNT_QUICK_ACCESS: AccountQuickAccessModule[] = [
   },
   {
     id: "business",
-    href: "/business/center",
+    href: "/business/dashboard",
     title: "Business",
     subtitle: "B2B, wholesale & directory",
     icon: "business",
@@ -75,7 +75,7 @@ export function getBuyerModuleTiles(): MobileTile[] {
 }
 
 /** Seller module — spec §11. */
-export function getSellerModuleTiles(_profile: UserProfile): MobileTile[] {
+export function getSellerModuleTiles(): MobileTile[] {
   return [
     tile("/seller/listings", "Listings", "Manage inventory"),
     tile("/seller/orders", "Orders", "Fulfillment & shipping", "orders"),
@@ -148,7 +148,7 @@ export function getModuleTiles(id: AccountCenterModuleId, profile: UserProfile):
     case "buyer":
       return getBuyerModuleTiles();
     case "seller":
-      return getSellerModuleTiles(profile);
+      return getSellerModuleTiles();
     case "business":
       return getBusinessModuleTiles(profile);
     case "account":

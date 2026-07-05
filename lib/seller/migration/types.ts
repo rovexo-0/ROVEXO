@@ -150,7 +150,7 @@ export type MigrationPreviewItem = {
   note?: string;
 };
 
-export type MigrationWizardStep = 1 | 2 | 3 | 4 | 5;
+export type MigrationWizardStep = 1 | 2 | 3;
 
 export type PublishJobStatus = "idle" | "queued" | "publishing" | "completed" | "failed" | "cancelled";
 

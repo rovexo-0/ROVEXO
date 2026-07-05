@@ -3,24 +3,38 @@ import {
   BATHROOM_ITEMS,
   BEDDING_ITEMS,
   BEDDING_SIZES,
+  BLIND_TYPES,
   BOOK_GENRES,
   CAR_BODY_TYPES,
   CAR_MAKES,
   COLLECTIBLE_TYPES,
   COMPUTER_BRANDS,
+  CONSTRUCTION_ITEMS,
+  CURTAIN_TYPES,
   DIY_ITEMS,
   FASHION_SIZES,
+  FEATURE_PHONE_ITEMS,
   FURNITURE_ITEMS,
   GARDEN_ITEMS,
+  GYM_EQUIPMENT_ITEMS,
+  HOME_TEXTILES_ITEMS,
+  LUXURY_FASHION_ITEMS,
   JOB_SECTORS,
   KITCHEN_ITEMS,
   PET_TYPES,
   PHONE_BRANDS,
+  PHONE_ACCESSORY_ITEMS,
+  PHOTOGRAPHY_ITEMS,
   POWER_TOOL_ITEMS,
   PROPERTY_TYPES,
   SERVICE_TYPES,
+  SMARTPHONE_ITEMS,
   SPORT_TYPES,
+  TABLE_TYPES,
   TOOL_BRANDS,
+  TENT_ACCESSORY_ITEMS,
+  VEHICLE_INTERIOR_ITEMS,
+  VEHICLE_EXTERIOR_ITEMS,
   pairsFromNames,
 } from "@/lib/categories/enterprise/item-banks";
 
@@ -33,6 +47,8 @@ export const ENTERPRISE_SECTORS: SectorDef[] = [
       { name: "Vans & Trucks", slug: "vans-trucks", items: [["Panel Vans", "panel-vans"], ["Pickups", "pickups"], ["Lorries", "lorries"], ["Minibuses", "minibuses"], ["Commercial", "commercial-vans"], ["Parts", "van-parts"]] },
       { name: "Caravans & Motorhomes", slug: "caravans", items: [["Caravans", "caravans"], ["Motorhomes", "motorhomes"], ["Camper Vans", "camper-vans"], ["Accessories", "caravan-accessories"]] },
       { name: "Boats", slug: "boats", items: [["Sailing", "sailing"], ["Motor Boats", "motor-boats"], ["Kayaks", "kayaks"], ["Jet Skis", "jet-skis"], ["Parts", "boat-parts"]] },
+      { name: "Interior", slug: "vehicle-interior", items: [...VEHICLE_INTERIOR_ITEMS] },
+      { name: "Exterior", slug: "vehicle-exterior", items: [...VEHICLE_EXTERIOR_ITEMS] },
     ],
   },
   {
@@ -47,7 +63,13 @@ export const ENTERPRISE_SECTORS: SectorDef[] = [
   {
     id: "cat-phones", name: "Phones", slug: "phones", sortOrder: 3,
     departments: [
-      { name: "Smartphones", slug: "smartphones", items: [["Unlocked", "unlocked-phones"], ["Contract", "contract-phones"], ["Refurbished", "refurbished-phones"], ["Accessories", "phone-accessories"]], brands: PHONE_BRANDS },
+      { name: "Smartphones", slug: "smartphones", items: [...SMARTPHONE_ITEMS], brands: PHONE_BRANDS },
+      { name: "Feature Phones", slug: "feature-phones", items: [...FEATURE_PHONE_ITEMS] },
+      {
+        name: "Accessories",
+        slug: "phone-accessories-dept",
+        groups: [{ name: "Accessories", slug: "phone-accessories", items: [...PHONE_ACCESSORY_ITEMS] }],
+      },
       { name: "Tablets", slug: "tablets", items: [["iPad", "ipad"], ["Android Tablets", "android-tablets"], ["Kids Tablets", "kids-tablets"], ["Accessories", "tablet-accessories"]], brands: PHONE_BRANDS },
       { name: "Wearables", slug: "wearables", items: [["Smartwatches", "smartwatches"], ["Fitness Trackers", "fitness-trackers"], ["VR Headsets", "vr-headsets"]], brands: ["Apple", "Samsung", "Garmin", "Fitbit"] },
       { name: "Phone Parts", slug: "phone-parts", items: [["Screens", "screens"], ["Batteries", "batteries"], ["Cases", "cases"], ["Chargers", "chargers"]] },
@@ -83,8 +105,22 @@ export const ENTERPRISE_SECTORS: SectorDef[] = [
   {
     id: "cat-home-garden", name: "Home & Garden", slug: "home-garden", sortOrder: 7,
     departments: [
-      { name: "Furniture", slug: "furniture", items: [...FURNITURE_ITEMS] },
+      {
+        name: "Furniture",
+        slug: "furniture",
+        items: [...FURNITURE_ITEMS],
+        groups: [{ name: "Tables", slug: "tables", items: [...TABLE_TYPES] }],
+      },
       { name: "Bedding", slug: "bedding", items: [...BEDDING_ITEMS, ...BEDDING_SIZES] },
+      {
+        name: "Home Textiles",
+        slug: "home-textiles",
+        items: [...HOME_TEXTILES_ITEMS],
+        groups: [
+          { name: "Curtains", slug: "curtains", items: [...CURTAIN_TYPES] },
+          { name: "Blinds", slug: "blinds", items: [...BLIND_TYPES] },
+        ],
+      },
       { name: "Kitchen", slug: "kitchen", items: [...KITCHEN_ITEMS] },
       { name: "Bathroom", slug: "bathroom", items: [...BATHROOM_ITEMS] },
       { name: "Lighting", slug: "lighting", items: [["Ceiling Lights", "ceiling-lights"], ["Floor Lamps", "floor-lamps"], ["Wall Lights", "wall-lights"], ["LED Strips", "led-strips"]] },
@@ -118,6 +154,7 @@ export const ENTERPRISE_SECTORS: SectorDef[] = [
       { name: "Shoes", slug: "womens-shoes", items: [["Trainers", "womens-trainers"], ["Heels", "heels"], ["Boots", "womens-boots"], ["Sandals", "womens-sandals"], ["Flats", "flats"]] },
       { name: "Bags", slug: "womens-bags", items: [["Handbags", "handbags"], ["Totes", "totes"], ["Clutches", "clutches"], ["Backpacks", "womens-backpacks"]] },
       { name: "Accessories", slug: "womens-accessories", items: [["Scarves", "scarves"], ["Belts", "belts"], ["Hats", "hats"], ["Sunglasses", "sunglasses"]] },
+      { name: "Luxury", slug: "womens-luxury", items: [...LUXURY_FASHION_ITEMS] },
     ],
   },
   {
@@ -196,7 +233,7 @@ export const ENTERPRISE_SECTORS: SectorDef[] = [
     id: "cat-sports", name: "Sports", slug: "sports", sortOrder: 19,
     departments: [
       { name: "Equipment", slug: "sports-equipment", items: [...SPORT_TYPES] },
-      { name: "Fitness", slug: "fitness", items: [["Weights", "weights"], ["Benches", "fitness-benches"], ["Treadmills", "treadmills"], ["Exercise Bikes", "exercise-bikes"]] },
+      { name: "Fitness", slug: "fitness", items: [...GYM_EQUIPMENT_ITEMS] },
       { name: "Outdoor", slug: "outdoor-sports", items: [["Camping", "camping"], ["Hiking", "hiking"], ["Climbing", "climbing"], ["Fishing", "fishing"], ["Cycling", "cycling"]] },
       { name: "Team Sports", slug: "team-sports", items: [["Football Kits", "football-kits"], ["Rugby", "rugby-kit"], ["Cricket", "cricket-kit"], ["Hockey", "hockey"]] },
     ],
@@ -280,6 +317,7 @@ export const ENTERPRISE_SECTORS: SectorDef[] = [
       { name: "Safety", slug: "safety", items: [["PPE", "ppe"], ["Signage", "safety-signage"], ["First Aid", "industrial-first-aid"]] },
       { name: "Materials", slug: "materials", items: [["Metals", "metals"], ["Plastics", "plastics"], ["Chemicals", "chemicals"]] },
       { name: "Warehouse", slug: "warehouse", items: [["Racking", "racking"], ["Pallet Trucks", "pallet-trucks"], ["Conveyors", "conveyors"]] },
+      { name: "Construction", slug: "construction", items: [...CONSTRUCTION_ITEMS] },
     ],
   },
   {
@@ -364,7 +402,7 @@ export const ENTERPRISE_SECTORS: SectorDef[] = [
   {
     id: "cat-camping", name: "Camping", slug: "camping", sortOrder: 38,
     departments: [
-      { name: "Tents", slug: "tents", items: [["Family Tents", "family-tents"], ["Backpacking", "backpacking-tents"], ["Pop Up", "pop-up-tents"], ["Awnings", "awnings"]] },
+      { name: "Tents", slug: "tents", items: [["Family Tents", "family-tents"], ["Backpacking", "backpacking-tents"], ["Pop Up", "pop-up-tents"], ["Awnings", "awnings"], ...TENT_ACCESSORY_ITEMS] },
       { name: "Sleeping", slug: "camping-sleeping", items: [["Sleeping Bags", "sleeping-bags"], ["Camp Beds", "camp-beds"], ["Mats", "camping-mats"], ["Pillows", "camping-pillows"]] },
       { name: "Cooking", slug: "camping-cooking", items: [["Stoves", "camping-stoves"], ["Cool Boxes", "cool-boxes"], ["Cookware", "camping-cookware"], ["Kettles", "camping-kettles"]] },
       { name: "Gear", slug: "camping-gear", items: [["Backpacks", "camping-backpacks"], ["Lighting", "camping-lighting"], ["Furniture", "camping-furniture"], ["Tools", "camping-equipment"]] },
@@ -402,7 +440,8 @@ export const ENTERPRISE_SECTORS: SectorDef[] = [
     departments: [
       { name: "Engine", slug: "engine-parts", items: [["Filters", "filters"], ["Belts", "belts"], ["Gaskets", "gaskets"], ["Turbo", "turbo"]] },
       { name: "Body", slug: "body-parts", items: [["Bumpers", "bumpers"], ["Mirrors", "car-mirrors"], ["Panels", "panels"], ["Lights", "car-lights"]] },
-      { name: "Interior", slug: "interior-parts", items: [["Seats", "car-seats"], ["Dashboards", "dashboards"], ["Steering Wheels", "steering-wheels"]] },
+      { name: "Exterior", slug: "exterior-parts", items: [...VEHICLE_EXTERIOR_ITEMS] },
+      { name: "Interior", slug: "interior-parts", items: [["Bench Seats", "car-bench-seats"], ["Seats", "car-seats"], ["Seat Covers", "car-seat-covers"], ["Dashboards", "dashboards"], ["Steering Wheels", "steering-wheels"], ["Floor Mats", "car-floor-mats"], ["Boot Liners", "car-boot-liners"], ["Roof Boxes", "car-roof-boxes"], ["Mirrors", "car-mirrors"]] },
       { name: "Wheels & Tyres", slug: "wheels-tyres", items: [["Alloy Wheels", "alloy-wheels"], ["Tyres", "tyres"], ["Steel Wheels", "steel-wheels"]] },
     ],
   },
@@ -498,7 +537,7 @@ export const ENTERPRISE_SECTORS: SectorDef[] = [
   {
     id: "cat-photo", name: "Photo & Video", slug: "photo-video", sortOrder: 53,
     departments: [
-      { name: "Cameras", slug: "photo-cameras", items: [["DSLR", "photo-dslr"], ["Mirrorless", "photo-mirrorless"], ["Film", "film-cameras"], ["Instant", "instant-cameras"]] },
+      { name: "Cameras", slug: "photo-cameras", groups: [{ name: "Cameras", slug: "cameras", items: [...PHOTOGRAPHY_ITEMS] }] },
       { name: "Lenses", slug: "photo-lenses", items: [["Prime", "prime-lenses"], ["Zoom", "zoom-lenses"], ["Macro", "macro-lenses"], ["Telephoto", "telephoto-lenses"]] },
       { name: "Video", slug: "video-equipment", items: [["Camcorders", "camcorders"], ["Cinema Cameras", "cinema-cameras"], ["Gimbals", "gimbals"], ["Lighting", "video-lighting"]] },
       { name: "Accessories", slug: "photo-accessories", items: [["Tripods", "tripods"], ["Bags", "camera-bags"], ["Filters", "lens-filters"], ["Memory Cards", "memory-cards"]] },

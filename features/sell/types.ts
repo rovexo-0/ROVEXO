@@ -2,6 +2,8 @@ import type { FlatCategoryPath } from "@/lib/categories/types";
 import type { AiCameraAnalysisResult } from "@/lib/ai-camera/types";
 import type { SellListingMode } from "@/lib/profile/account";
 import type { ShippingMethod } from "@/lib/shipping/carriers";
+import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
+import { resolveTransactionModeFromFlatPath } from "@/lib/transaction-mode/resolver";
 
 export type SellView = "form" | "published";
 
@@ -74,6 +76,14 @@ export type SellListingDraft = {
   material: string;
   size: string;
 
+  /**
+   * Category-specific optional attributes (Style, Model, Storage, RAM, …) that
+   * have no dedicated listing column. Purely client-side draft state; on publish
+   * these are folded into the description text (same additive pattern as
+   * `material`), so the API/DB contract is unchanged.
+   */
+  attributes: Record<string, string>;
+
   condition: string;
   shippingMethod: ShippingMethod;
 
@@ -124,6 +134,8 @@ export function createEmptyDraft(): SellListingDraft {
     color: "",
     material: "",
     size: "",
+
+    attributes: {},
 
     condition: "Used",
     shippingMethod: "delivery_available",
@@ -216,7 +228,11 @@ export function getListingValidationErrors(
     errors.price = "Enter a price greater than zero.";
   }
 
-  if (!draft.parcelSize) {
+  const directContact = draft.categoryPath
+    ? isDirectContactMode(resolveTransactionModeFromFlatPath(draft.categoryPath))
+    : false;
+
+  if (!directContact && !draft.parcelSize) {
     errors.parcelSize = "Select a parcel size.";
   }
 

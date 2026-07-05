@@ -1,5 +1,10 @@
 import { enGB, type MessageKey } from "@/lib/i18n/messages/en-GB";
 import { roRO } from "@/lib/i18n/messages/ro-RO";
+import { deDE } from "@/lib/i18n/messages/de-DE";
+import { frFR } from "@/lib/i18n/messages/fr-FR";
+import { itIT } from "@/lib/i18n/messages/it-IT";
+import { esES } from "@/lib/i18n/messages/es-ES";
+import { nlNL } from "@/lib/i18n/messages/nl-NL";
 import type { LocaleCode } from "@/lib/i18n/config";
 
 /**
@@ -9,6 +14,11 @@ import type { LocaleCode } from "@/lib/i18n/config";
 const catalogs: Partial<Record<LocaleCode, Record<MessageKey, string>>> = {
   "en-GB": enGB,
   "ro-RO": roRO,
+  "de-DE": deDE,
+  "fr-FR": frFR,
+  "it-IT": itIT,
+  "es-ES": esES,
+  "nl-NL": nlNL,
 };
 
 export function translate(locale: LocaleCode | string, key: MessageKey): string {

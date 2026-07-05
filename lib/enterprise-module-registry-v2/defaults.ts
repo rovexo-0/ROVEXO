@@ -19,11 +19,11 @@ export function normalizeRegistryDocument(doc: RegistryV2Document): RegistryV2Do
   const defaults = createDefaultRegistryV2Document(doc.label);
   const discovered = discoverEnterpriseModulesV2();
   const persistedMap = new Map(doc.modules.map((m) => [m.moduleId, m]));
-  const mergedModules = discovered.map((module) => {
-    const saved = persistedMap.get(module.moduleId);
-    if (!saved) return module;
+  const mergedModules = discovered.map((mod) => {
+    const saved = persistedMap.get(mod.moduleId);
+    if (!saved) return mod;
     return {
-      ...module,
+      ...mod,
       lifecycle: saved.lifecycle,
       health: saved.health,
       status: saved.status,

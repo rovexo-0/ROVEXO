@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { BUYER_REGIONS, findCountryByName, validatePostcodeForCountry } from "@/lib/account/countries";
+import { SUPPORTED_LOCALE_CODES } from "@/lib/i18n/config";
 
 export const usernameSchema = z
   .string()
@@ -70,24 +71,10 @@ export const currencySchema = z
   .min(1, "Currency is required")
   .max(20, "Currency is too long");
 
-export const localeCodeSchema = z.enum([
-  "en-GB",
-  "ro-RO",
-  "de-DE",
-  "fr-FR",
-  "es-ES",
-  "it-IT",
-  "nl-NL",
-  "pl-PL",
-  "pt-PT",
-  "hu-HU",
-  "bg-BG",
-  "el-GR",
-  "tr-TR",
-  "ar-SA",
-  "uk-UA",
-  "en-IE",
-]);
+// Single source of truth: derived from the locale registry so the two never drift.
+export const localeCodeSchema = z.enum(
+  SUPPORTED_LOCALE_CODES as [string, ...string[]],
+);
 
 export const settingsPatchSchema = z.object({
   pushNotifications: z.boolean().optional(),

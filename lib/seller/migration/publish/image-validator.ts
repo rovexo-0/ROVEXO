@@ -1,5 +1,6 @@
 import type { MigrationProcessedImage } from "@/lib/seller/migration/engine/types";
 import type { ValidationIssue } from "@/lib/seller/migration/types";
+import { isExternalPlaceholderImageUrl } from "@/lib/media/official-demo-images";
 
 const ALLOWED_IMAGE_HOSTS = /\.(jpg|jpeg|png|webp|gif)(\?|$)/i;
 
@@ -22,9 +23,8 @@ export function validateMigrationImages(
       return;
     }
     if (
-      !ALLOWED_IMAGE_HOSTS.test(url) &&
-      !url.includes("picsum.photos") &&
-      !url.includes("/storage/v1/object/public/products/")
+      isExternalPlaceholderImageUrl(url) ||
+      (!ALLOWED_IMAGE_HOSTS.test(url) && !url.includes("/storage/v1/object/public/products/"))
     ) {
       errors.push({ field: "images", message: `Image ${index + 1}: unsupported format.` });
     }

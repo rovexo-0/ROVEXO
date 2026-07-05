@@ -28,6 +28,7 @@ import type { CategoryBreadcrumb } from "@/lib/categories/navigation";
 import type { PublicTrustSummary } from "@/lib/trust/types";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 import { getActiveMarket } from "@/lib/seo/markets";
+import { getTransactionCapabilities } from "@/lib/transaction-mode/capabilities";
 
 type ProductDetailPageProps = {
   product: ProductDetail;
@@ -56,9 +57,10 @@ export function ProductDetailPage({
   const visible = useDocumentVisible();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSaved, setIsSaved] = useState(initialIsSaved);
-  const [heartAnimating, setHeartAnimating] = useState(false);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
-  const isPurchasable = product.availability !== "out_of_stock" && product.stock > 0;
+  const capabilities = getTransactionCapabilities(product.transactionMode);
+  const isPurchasable =
+    capabilities.buyNow && product.availability !== "out_of_stock" && product.stock > 0;
 
   useEffect(() => {
     const { currency } = getActiveMarket();
@@ -85,8 +87,6 @@ export function ProductDetailPage({
   const toggleSave = useCallback(() => {
     const nextSaved = !isSaved;
     setIsSaved(nextSaved);
-    setHeartAnimating(true);
-    window.setTimeout(() => setHeartAnimating(false), 200);
 
     if (nextSaved) {
       triggerHapticFeedback();
@@ -124,25 +124,24 @@ export function ProductDetailPage({
         title={product.title}
         isSaved={isSaved}
         onSave={toggleSave}
+        onShare={openShare}
       />
 
-      <div
-        className={cn(
-          "relative overflow-hidden",
-          transitionSlow,
-          isCollapsed ? "max-h-0 opacity-0" : "h-[45vh] opacity-100",
-        )}
-      >
-        <ProductGallery images={product.images} title={product.title} className="h-full" />
+      {/* Outer wrapper is NOT clipped, so the overlay action buttons (and their
+          shadows) render fully. Only the gallery itself keeps overflow-hidden
+          for the collapse animation. */}
+      <div className="relative">
+        <div
+          className={cn(
+            "relative overflow-hidden",
+            transitionSlow,
+            isCollapsed ? "max-h-0 opacity-0" : "h-[45vh] opacity-100",
+          )}
+        >
+          <ProductGallery images={product.images} title={product.title} className="h-full" />
+        </div>
 
-        {!isCollapsed && (
-          <ProductDetailTopBar
-            isSaved={isSaved}
-            heartAnimating={heartAnimating}
-            onSave={toggleSave}
-            onShare={openShare}
-          />
-        )}
+        {!isCollapsed && <ProductDetailTopBar />}
       </div>
 
       <ShareListingSheet
@@ -154,10 +153,10 @@ export function ProductDetailPage({
         price={product.price}
       />
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 pt-ds-3 pb-[calc(84px+env(safe-area-inset-bottom))]">
         {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
 
-        <section aria-labelledby="product-info-heading" className="flex flex-col gap-ds-3">
+        <section aria-labelledby="product-info-heading" className="flex flex-col gap-ds-2">
           <h2 id="product-info-heading" className="sr-only">
             Product information
           </h2>
@@ -174,13 +173,13 @@ export function ProductDetailPage({
             </Badge>
           )}
 
-          {!isPurchasable && (
+          {capabilities.buyNow && !isPurchasable && (
             <Badge variant="danger" className="w-fit px-ds-3 py-ds-1 text-xs">
               Out of Stock
             </Badge>
           )}
 
-          {cartMessage && (
+          {capabilities.addToCart && cartMessage && (
             <p className="text-sm font-medium text-primary">{cartMessage}</p>
           )}
 
@@ -194,11 +193,13 @@ export function ProductDetailPage({
           />
         </section>
 
-        <ProductBuyerProtection itemPrice={product.price} />
+        {capabilities.buyerProtection && <ProductBuyerProtection itemPrice={product.price} />}
 
         <ProductDescription description={product.description} />
 
-        <ProductDelivery carriers={product.deliveryCarriers} freeDelivery={product.freeDelivery} />
+        {capabilities.shipping && (
+          <ProductDelivery carriers={product.deliveryCarriers} freeDelivery={product.freeDelivery} />
+        )}
 
         <ProductSellerCard
           sellerId={product.sellerId}
@@ -220,6 +221,7 @@ export function ProductDetailPage({
       </main>
 
       <ProductActionBar
+        transactionMode={product.transactionMode}
         disabled={!isPurchasable}
         onMessage={() => {
           void fetch("/api/messages", {
@@ -240,23 +242,29 @@ export function ProductDetailPage({
             })
             .catch(() => router.push("/messages"));
         }}
-        onAddToCart={() => {
-          void fetch("/api/cart", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "add", productSlug: product.slug }),
-          })
-            .then(async (response) => {
-              const payload = (await response.json()) as { success?: boolean; error?: string };
-              if (payload.success) {
-                setCartMessage("Added to cart.");
-              } else {
-                setCartMessage(payload.error ?? "Unable to add to cart.");
+        onAddToCart={
+          capabilities.addToCart
+            ? () => {
+                void fetch("/api/cart", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ action: "add", productSlug: product.slug }),
+                })
+                  .then(async (response) => {
+                    const payload = (await response.json()) as { success?: boolean; error?: string };
+                    if (payload.success) {
+                      setCartMessage("Added to cart.");
+                    } else {
+                      setCartMessage(payload.error ?? "Unable to add to cart.");
+                    }
+                  })
+                  .catch(() => setCartMessage("Unable to add to cart."));
               }
-            })
-            .catch(() => setCartMessage("Unable to add to cart."));
-        }}
-        onBuy={() => router.push(`/checkout/${product.slug}`)}
+            : undefined
+        }
+        onBuy={
+          capabilities.checkout ? () => router.push(`/checkout/${product.slug}`) : undefined
+        }
       />
     </div>
   );

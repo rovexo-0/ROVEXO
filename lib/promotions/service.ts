@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/env";
@@ -25,7 +26,12 @@ type ApplyPromotionInput = {
   scheduledStartAt?: string | null;
 };
 
-export async function refreshExpiredPromotions(): Promise<void> {
+// Wrapped in React's request-scoped `cache` so that when several data loaders
+// (e.g. the four homepage sections) call this within one server render, the
+// maintenance RPC runs a single time instead of once per caller. Behaviour is
+// unchanged — it still refreshes once per request — but redundant blocking
+// round-trips are eliminated.
+export const refreshExpiredPromotions = cache(async function refreshExpiredPromotions(): Promise<void> {
   if (!isSupabaseAdminConfigured()) {
     return;
   }
@@ -36,7 +42,7 @@ export async function refreshExpiredPromotions(): Promise<void> {
   } catch {
     // Optional maintenance — must not block product reads or the homepage.
   }
-}
+});
 
 export async function markPendingPromotionFailed(
   promotionId: string,

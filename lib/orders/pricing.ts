@@ -11,14 +11,15 @@ export function calculateProtectedFee(itemPrice: number): number {
   return Math.round(clamped * 100) / 100;
 }
 
-export function calculateOrderTotals(itemPrice: number, delivery = STANDARD_DELIVERY_COST): OrderTotals {
+export function calculateOrderTotals(itemPrice: number, delivery: number | null = 0): OrderTotals {
+  const deliveryFee = delivery ?? 0;
   const protectedFee = calculateProtectedFee(itemPrice);
-  const total = Math.round((itemPrice + protectedFee + delivery) * 100) / 100;
+  const total = Math.round((itemPrice + protectedFee + deliveryFee) * 100) / 100;
 
   return {
     itemPrice,
     protectedFee,
-    delivery,
+    delivery: deliveryFee,
     total,
   };
 }

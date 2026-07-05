@@ -6,7 +6,7 @@ import { HOME_HERO_BANNERS } from "@/lib/home/constants";
 export const HERO_CATEGORY_SLIDE_MAP: Record<RovexoCategoryPremiumKey, string> = {
   vehicles: "fast-delivery",
   autoparts: "fast-delivery",
-  property: "verified-businesses",
+  property: "buy-securely",
   phones: "electronics-deals",
   computers: "electronics-deals",
   electronics: "electronics-deals",

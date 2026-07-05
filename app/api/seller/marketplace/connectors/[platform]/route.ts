@@ -17,6 +17,8 @@ import { getMarketplaceProviderView } from "@/lib/seller/marketplace/manager";
 import { getMarketplaceProvider } from "@/lib/seller/marketplace/factory";
 import { checkMarketplaceHealth } from "@/lib/seller/marketplace/health";
 import { retryMarketplaceConnection } from "@/lib/seller/marketplace/retry";
+import { refreshOAuthTokens } from "@/lib/seller/marketplace/oauth/token-manager";
+import { isOAuthPlatform } from "@/lib/seller/marketplace/oauth/types";
 import type { MigrationPlatformId } from "@/lib/seller/migration/types";
 
 type RouteContext = {
@@ -50,6 +52,7 @@ const patchSchema = z.object({
     "delete_credentials",
     "health_check",
     "retry",
+    "refresh_token",
   ]),
   settings: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).optional(),
 });
@@ -171,6 +174,12 @@ export async function PATCH(request: Request, context: RouteContext) {
         break;
       case "retry":
         await retryMarketplaceConnection(auth.user.id, platform.data);
+        break;
+      case "refresh_token":
+        if (!isOAuthPlatform(platform.data)) {
+          return NextResponse.json({ error: "This provider does not support OAuth refresh." }, { status: 400 });
+        }
+        await refreshOAuthTokens(auth.user.id, platform.data);
         break;
     }
 

@@ -22,11 +22,11 @@ const SPEC = {
   categoryIconCircle: 60,
   categoryIcon: 34,
   categoryGap: 16,
-  cardW: 171,
-  cardH: 292,
-  cardImageH: 172,
-  cardRadius: 22,
-  gridGapH: 16,
+  cardW: 173,
+  cardH: 300,
+  cardImageH: 190,
+  cardRadius: 20,
+  gridGapH: 12,
   gridGapV: 20,
   bottomNavH: 84,
   bottomNavFab: 68,
@@ -93,11 +93,14 @@ async function auditViewport(page, width, label) {
   const iconBox = await icon.boundingBox().catch(() => null);
   if (iconBox) fail("header icon size", SPEC.headerIcon, iconBox.width);
 
-  const media = await measure(page, ".home-v1-listing-scroller article div[class*='media'], .home-v1-listing-grid--feed article div[class*='media']");
+  const media = await measure(
+    page,
+    ".home-v1-listing-grid-lock article [class*='media'], .home-v1-listing-scroller article [class*='media']",
+  );
   if (media) fail("card image height", SPEC.cardImageH, media.height);
 
   const gridGap = await page.evaluate(() => {
-    const articles = document.querySelectorAll(".home-v1-listing-grid--feed > article");
+    const articles = document.querySelectorAll(".home-v1-listing-grid-lock > article");
     if (articles.length < 2) return null;
     const first = articles[0].getBoundingClientRect();
     const second = articles[1].getBoundingClientRect();
@@ -126,7 +129,7 @@ async function auditViewport(page, width, label) {
     fail("category icon circle", SPEC.categoryIconCircle, categoryIconBox.width);
   }
 
-  const cardEl = page.locator(".home-v1-listing-scroller article, .home-v1-listing-grid--feed article").first();
+  const cardEl = page.locator(".home-v1-listing-grid-lock article, .home-v1-listing-scroller article").first();
   const cardBox = await cardEl.boundingBox().catch(() => null);
   if (cardBox) {
     fail("listing card width", SPEC.cardW, cardBox.width);
@@ -143,7 +146,7 @@ async function auditViewport(page, width, label) {
   }
 
   const main = await measure(page, ".home-v1-main");
-  if (main) fail("main max content width", Math.min(width, 390), main.width, "px");
+  if (main) fail("main content width", width, main.width, "px");
 
   return results;
 }

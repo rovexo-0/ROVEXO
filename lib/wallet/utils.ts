@@ -28,7 +28,7 @@ export function getTransactionStatusVariant(status: WalletTransactionStatus): Ba
 }
 
 export function formatWalletDate(iso: string): string {
-  return new Intl.DateTimeFormat("en-IE", {
+  return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -36,7 +36,7 @@ export function formatWalletDate(iso: string): string {
 }
 
 export function formatWalletDateTime(iso: string): string {
-  return new Intl.DateTimeFormat("en-IE", {
+  return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -64,9 +64,9 @@ export function parseWithdrawAmount(raw: string, maxAmount: number): number {
 }
 
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-IE", {
+  return new Intl.NumberFormat("en-GB", {
     style: "currency",
-    currency: "EUR",
+    currency: "GBP",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);

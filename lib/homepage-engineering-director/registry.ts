@@ -4,13 +4,6 @@ export const HOMEPAGE_FULL_SCAN_COMPONENTS = [
   "search-bar",
   "category-rail",
   "category-grid",
-  "bring-items",
-  "featured-listings",
-  "recommended-listings",
-  "new-listings",
-  "latest-listings",
-  "community-section",
-  "trending-listings",
   "all-listings",
   "footer",
   "bottom-navigation",
@@ -82,13 +75,8 @@ export const HOMEPAGE_PRODUCTION_GATES = [
 ] as const;
 
 export const PREMIUM_HOME_STACK = [
-  "HomeCategoryRail",
-  "BringYourItemsBanner",
-  "FeaturedListingsSection",
-  "HomeProductSection",
-  "LiveAuctionsSection",
-  "HomeTrendingListingsSection",
-  "HomeAllListingsSection",
+  "RovexoCategoryRail",
+  "RovexoAllListings",
 ] as const;
 
 export const LEGACY_HOME_IMPORTS = [
@@ -109,8 +97,8 @@ export const LEGACY_HOME_IMPORTS = [
 
 export const HOMEPAGE_SOURCE_FILES = {
   page: "app/page.tsx",
-  homeContent: "components/home/HomeContent.tsx",
-  categoryRail: "components/home/HomeCategoryRail.tsx",
+  homeContent: "components/home/RovexoHomePage.tsx",
+  categoryRail: "components/home/RovexoCategoryRail.tsx",
   header: "components/Header.tsx",
   betaShell: "components/beta/BetaAppShell.tsx",
   categoryGrid: "components/home/CategoryGridSection.tsx",

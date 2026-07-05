@@ -5,7 +5,8 @@ import {
   getEbayInventoryCount,
   verifyEbayConnection,
 } from "@/lib/seller/migration/connectors/api/ebay-client";
-import { getConnectorRecord, loadConnectorCredentials } from "@/lib/seller/migration/connectors/credentials";
+import { getConnectorRecord } from "@/lib/seller/migration/connectors/credentials";
+import { loadConnectorCredentialsWithRefresh } from "@/lib/seller/marketplace/oauth/token-manager";
 import type { ConnectorConnectInput, ConnectorDefinition } from "@/lib/seller/migration/connectors/types";
 import type { MigrationConnectorInput } from "@/lib/seller/migration/engine/types";
 
@@ -61,13 +62,13 @@ export function createEbayConnector(definition: ConnectorDefinition): BaseUniver
     },
     estimateTotal: async (input) => {
       if (!(await hasLiveApiCredentials(input.sellerId, input.platform))) return 0;
-      const credentials = await loadConnectorCredentials(input.sellerId, input.platform);
+      const credentials = await loadConnectorCredentialsWithRefresh(input.sellerId, input.platform);
       if (!credentials?.accessToken) return 0;
       const record = await getConnectorRecord(input.sellerId, input.platform);
       return getEbayInventoryCount(credentials.accessToken, record?.settings);
     },
     fetchListings: async (input: MigrationConnectorInput) => {
-      const credentials = await loadConnectorCredentials(input.sellerId, input.platform);
+      const credentials = await loadConnectorCredentialsWithRefresh(input.sellerId, input.platform);
       if (!credentials?.accessToken) {
         throw new ConnectorApiError("eBay connector is not connected.", 401);
       }

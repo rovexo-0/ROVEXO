@@ -56,4 +56,14 @@ test.describe("SSR / hydration stabilization", () => {
 
     assertCleanConsole(errors);
   });
+
+  test("homepage renders without hydration errors on mobile viewport", async ({ page }) => {
+    const errors = attachConsoleGuards(page);
+
+    await page.setViewportSize({ width: 412, height: 915 });
+    await page.goto("/", { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await expect(page.locator("body")).toBeVisible();
+
+    assertCleanConsole(errors);
+  });
 });

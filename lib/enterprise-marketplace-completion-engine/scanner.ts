@@ -86,22 +86,22 @@ function createCheck(category: string, check: string, pass: boolean, message: st
 
 function scanMarketplaceModules(): MarketplaceModuleResult[] {
   const now = new Date().toISOString();
-  return MARKETPLACE_MODULE_REGISTRY.map((module) => {
-    const pageComplete = fileExists(module.pageRef);
-    const apiComplete = "apiRef" in module && module.apiRef ? fileExists(module.apiRef) : true;
+  return MARKETPLACE_MODULE_REGISTRY.map((mod) => {
+    const pageComplete = fileExists(mod.pageRef);
+    const apiComplete = "apiRef" in mod && mod.apiRef ? fileExists(mod.apiRef) : true;
     const complete = pageComplete && apiComplete;
     return {
-      id: `module-${module.id}`,
-      moduleId: module.id,
-      label: module.label,
-      route: module.route,
-      pageRef: module.pageRef,
+      id: `module-${mod.id}`,
+      moduleId: mod.id,
+      label: mod.label,
+      route: mod.route,
+      pageRef: mod.pageRef,
       status: complete ? passStatus() : "fail",
       complete,
       passPercent: complete ? 100 : 0,
       message: complete
-        ? `${module.label} module complete`
-        : `Missing ${!pageComplete ? module.pageRef : "apiRef" in module ? module.apiRef : "integration"}`,
+        ? `${mod.label} module complete`
+        : `Missing ${!pageComplete ? mod.pageRef : "apiRef" in mod ? mod.apiRef : "integration"}`,
       lastValidatedAt: now,
     };
   });
@@ -143,7 +143,7 @@ const SELLER_JOURNEY_REFS: Record<string, string> = {
   analytics: "app/seller/analytics/page.tsx",
   wallet: "app/seller/wallet/page.tsx",
   messages: "app/messages/page.tsx",
-  "vacation-mode": "features/settings/components/SettingsPage.tsx",
+  "vacation-mode": "app/account/settings/page.tsx",
 };
 
 const COMPANY_JOURNEY_REFS: Record<string, string> = {

@@ -17,7 +17,6 @@ export const HOMEPAGE_SECTIONS = [
   "premium-header",
   "search-bar",
   "category-rail",
-  "bring-items",
   "featured-listings",
   "recommended-listings",
   "new-listings",

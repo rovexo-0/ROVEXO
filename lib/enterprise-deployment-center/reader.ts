@@ -13,8 +13,33 @@ export async function getDeploymentSnapshot(tab: DeploymentTab = "dashboard"): P
   const draft = await getDeploymentDraftDocument();
   const {
     environments, releases, builds, queue, featureFlags, releaseNotes,
-    aiInsights, deploymentHistory, ...settings
+    aiInsights,
   } = live.settings;
+  const settings = Object.fromEntries(
+    Object.entries(live.settings).filter(
+      ([key]) =>
+        ![
+          "environments",
+          "releases",
+          "builds",
+          "queue",
+          "featureFlags",
+          "releaseNotes",
+          "aiInsights",
+          "deploymentHistory",
+        ].includes(key),
+    ),
+  ) as Omit<
+    typeof live.settings,
+    | "environments"
+    | "releases"
+    | "builds"
+    | "queue"
+    | "featureFlags"
+    | "releaseNotes"
+    | "aiInsights"
+    | "deploymentHistory"
+  >;
   const flags = live.featureFlags;
   const enabled = flags.deployment_center_enabled !== false;
   const dashboard = buildDeploymentDashboard(live.settings, settings);

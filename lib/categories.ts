@@ -1,4 +1,4 @@
-/** @deprecated Import from `@/lib/categories/tree` instead. */
+/** @deprecated Import from `@/lib/categories/taxonomy-engine` or `@/lib/categories/tree` instead. */
 export { homeCategories } from "@/lib/categories/tree";
 
 export type {

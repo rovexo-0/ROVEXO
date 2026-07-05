@@ -3,7 +3,7 @@ import type { MigrationJob } from "@/lib/seller/migration/types";
 import { IMPORT_WIZARD_PATH } from "@/lib/seller/migration/config";
 
 function jobHref(jobId: string): string {
-  return `${IMPORT_WIZARD_PATH}/${jobId}`;
+  return `${IMPORT_WIZARD_PATH}?job=${encodeURIComponent(jobId)}`;
 }
 
 export async function notifyMigrationEvent(

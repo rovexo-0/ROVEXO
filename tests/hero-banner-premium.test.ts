@@ -11,7 +11,7 @@ describe("Hero banner category synchronization", () => {
     }
   });
 
-  it("wires lightweight sync without modifying the category rail component", () => {
+  it("wires hero sync with the canonical category rail", () => {
     const homePage = readFileSync(
       path.join(process.cwd(), "components/home/RovexoHomePage.tsx"),
       "utf8",
@@ -22,8 +22,9 @@ describe("Hero banner category synchronization", () => {
     );
 
     expect(homePage).toContain("RovexoCategoryRail");
-    expect(homePage).not.toContain("HeaderCategoryBar");
-    expect(categoryRail).not.toContain("HeroCategorySync");
+    expect(homePage).not.toContain("HomeHeroBannerEngine");
+    expect(homePage).not.toContain("RovexoBanner");
+    expect(categoryRail).not.toContain("HeaderCategoryBar");
   });
 
   it("uses local hero campaign assets with AVIF and WebP support", () => {

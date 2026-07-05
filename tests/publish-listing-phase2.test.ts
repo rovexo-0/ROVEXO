@@ -41,6 +41,15 @@ describe("listing title field rules", () => {
   it("does not surface form errors until publish validation is enabled", () => {
     const draft = createEmptyDraft();
     draft.title = "ab";
+    draft.photos = [
+      {
+        id: "1",
+        previewUrl: "https://www.rovexo.co.uk/media/test/a.jpg",
+        uploaded: true,
+        url: "https://www.rovexo.co.uk/media/test/a.jpg",
+        storagePath: "seller/a.jpg",
+      },
+    ];
     expect(getListingValidationErrors(draft, { showErrors: false })).toEqual({});
     expect(isListingValid(draft)).toBe(false);
     expect(getListingValidationErrors(draft, { showErrors: true }).title).toBeTruthy();

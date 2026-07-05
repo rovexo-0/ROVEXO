@@ -67,7 +67,7 @@ export const TITLE_CATEGORY_RULES: TitleCategoryRule[] = [
     confidence: 0.92,
   },
   {
-    patterns: ["smartphone", "mobile phone", "android phone"],
+    patterns: ["smartphone|mobile phone|android phone"],
     path: ["phones", "smartphones", "unlocked-phones"],
     confidence: 0.94,
   },
@@ -90,7 +90,7 @@ export const TITLE_CATEGORY_RULES: TitleCategoryRule[] = [
     brands: ["makita"],
   },
   {
-    patterns: ["power drill", "cordless drill", "electric drill", "combi drill"],
+    patterns: ["power drill|cordless drill|electric drill|combi drill"],
     path: ["tools", "power-tools", "drills"],
     confidence: 0.94,
   },
@@ -101,7 +101,7 @@ export const TITLE_CATEGORY_RULES: TitleCategoryRule[] = [
     brands: ["adidas"],
   },
   {
-    patterns: ["trainers", "sneakers", "running shoes"],
+    patterns: ["trainers|sneakers|running shoes"],
     path: ["shoes", "trainers", "nike"],
     confidence: 0.91,
   },
@@ -112,7 +112,7 @@ export const TITLE_CATEGORY_RULES: TitleCategoryRule[] = [
     brands: ["bmw"],
   },
   {
-    patterns: ["alloy wheels", "alloys", "alloy rim"],
+    patterns: ["alloy wheels|alloys|alloy rim"],
     path: ["car-parts", "wheels-tyres", "alloy-wheels"],
     confidence: 0.95,
   },
@@ -123,13 +123,13 @@ export const TITLE_CATEGORY_RULES: TitleCategoryRule[] = [
     brands: ["audi"],
   },
   {
-    patterns: ["macbook", "mac book"],
+    patterns: ["macbook|mac book"],
     path: ["computers", "laptops", "macbooks"],
     confidence: 0.97,
     brands: ["apple"],
   },
   {
-    patterns: ["laptop", "notebook", "chromebook"],
+    patterns: ["laptop|notebook|chromebook"],
     path: ["computers", "laptops", "macbooks"],
     confidence: 0.92,
   },
@@ -239,6 +239,18 @@ export const TITLE_CATEGORY_RULES: TitleCategoryRule[] = [
     patterns: ["tyres|tires"],
     path: ["car-parts", "wheels-tyres", "tyres"],
     confidence: 0.91,
+  },
+  {
+    // Deliberately avoids the bare "book" token so "macbook"/"notebook" (laptops)
+    // are never misread as Books. Maps clear book signals to a canonical genre.
+    patterns: ["paperback|hardback|crime fiction|crime novel|romance novel|fantasy novel|sci-fi novel|thriller novel|graphic novel|comic book|manga"],
+    path: ["books", "fiction", "crime"],
+    confidence: 0.9,
+  },
+  {
+    patterns: ["plush|soft toy|teddy|teddy bear|cuddly|stuffed animal|stuffed toy"],
+    path: ["baby", "baby-toys", "soft-toys"],
+    confidence: 0.9,
   },
 ];
 

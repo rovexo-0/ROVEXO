@@ -19,8 +19,11 @@ export function GlassIconButton({
       type={type}
       aria-label={label}
       className={cn(
-        "flex min-h-ds-7 min-w-ds-7 items-center justify-center rounded-ds-full",
-        "border border-border/60 bg-overlay text-text-primary backdrop-blur-md backdrop-saturate-150",
+        "flex h-10 w-10 items-center justify-center rounded-ds-full",
+        // Solid opaque white disc + 1.5px border + deep shadow so the control
+        // stays clearly visible over bright/HDR gallery images.
+        "border-[1.5px] border-black/15 bg-white text-text-primary backdrop-blur-md",
+        "shadow-[0_6px_18px_rgba(0,0,0,0.28),0_2px_6px_rgba(0,0,0,0.18)]",
         focusRing,
         transitionNormal,
         className,

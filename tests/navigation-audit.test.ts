@@ -155,7 +155,7 @@ describe("Navigation audit — canonical navigation maps", () => {
     expect(unmatched).toEqual([]);
   });
 
-  it("routes Bring Your Item banner to import wizard", () => {
+  it("routes Bring Your Item entry to import wizard", () => {
     expect(BRING_YOUR_ITEM_PATH).toBe(IMPORT_WIZARD_PATH);
     expect(hrefMatchesAppRoute(BRING_YOUR_ITEM_PATH, patterns)).toBe(true);
     expect(hrefMatchesAppRoute("/bring-your-item", patterns)).toBe(true);

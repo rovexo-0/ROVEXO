@@ -240,7 +240,7 @@ export const BETA_MODULES = [
 export type BetaModuleId = (typeof BETA_MODULES)[number]["id"];
 
 const moduleById = new Map<string, BetaModuleDefinition>(
-  BETA_MODULES.map((module) => [module.id, module]),
+  BETA_MODULES.map((mod) => [mod.id, mod]),
 );
 
 export function getBetaModule(id: string): BetaModuleDefinition | undefined {
@@ -248,14 +248,14 @@ export function getBetaModule(id: string): BetaModuleDefinition | undefined {
 }
 
 export function getBetaModulesByArea(area: BetaArea): BetaModuleDefinition[] {
-  return BETA_MODULES.filter((module) => module.area === area);
+  return BETA_MODULES.filter((mod) => mod.area === area);
 }
 
 export function getBetaProgress() {
   const modules = BETA_MODULES as readonly BetaModuleDefinition[];
-  const complete = modules.filter((module) => module.status === "complete").length;
-  const inProgress = modules.filter((module) => module.status === "in_progress").length;
-  const planned = modules.filter((module) => module.status === "planned").length;
+  const complete = modules.filter((mod) => mod.status === "complete").length;
+  const inProgress = modules.filter((mod) => mod.status === "in_progress").length;
+  const planned = modules.filter((mod) => mod.status === "planned").length;
 
   return { complete, inProgress, planned, total: modules.length };
 }

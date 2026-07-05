@@ -37,7 +37,7 @@ function TransactionRow({ transaction }: { transaction: WalletTransaction }) {
           </p>
           <div className="mt-ds-1 flex flex-wrap items-center gap-ds-2">
             <span className={amountClassName}>
-              <Price amount={Math.abs(transaction.amount)} size="sm" />
+              <Price amount={Math.abs(transaction.amount)} size="sm" currency="GBP" locale="en-GB" />
             </span>
             <TransactionStatusBadge status={transaction.status} />
           </div>

@@ -1,7 +1,7 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, type Page } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { waitForHomepageUi, settleUi } from "./helpers/stable-ui";
+import { settleUi, waitForHomepageUi } from "./helpers/stable-ui";
 
 const OUT = join(process.cwd(), "owner-review-screenshots", "phase1");
 const PAGES_DIR = join(OUT, "pages");
@@ -18,7 +18,6 @@ const THEMES: Theme[] = ["light", "dark"];
 
 const PAGES = [
   { id: "homepage", label: "Homepage", path: "/" },
-  { id: "hero", label: "Hero", path: "/", heroOnly: true },
   { id: "categories", label: "Categories", path: "/categories" },
   { id: "dashboard", label: "Dashboard", path: "/account" },
   { id: "sell", label: "Sell", path: "/sell" },
@@ -74,16 +73,10 @@ for (const pageDef of PAGES) {
 
         await prepare(page, theme, device);
         await page.goto(pageDef.path, { waitUntil: "domcontentloaded" });
-        if (pageDef.id === "homepage" || pageDef.id === "hero") await waitForHomepageUi(page);
+        if (pageDef.id === "homepage") await waitForHomepageUi(page);
         await settleUi(page, 600);
 
-        if ("heroOnly" in pageDef && pageDef.heroOnly) {
-          const hero = page.locator(".import-rx-hero-banner").first();
-          await expect(hero).toBeVisible();
-          await hero.screenshot({ path: filePath });
-        } else {
-          await page.screenshot({ path: filePath, fullPage: true, animations: "disabled", caret: "hide" });
-        }
+        await page.screenshot({ path: filePath, fullPage: true, animations: "disabled", caret: "hide" });
 
         manifest.push({
           file: `pages/${filename}`,

@@ -1,6 +1,9 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import {
+  CATEGORY_RAIL_SELECTOR,
+  ALL_LISTINGS_SELECTOR,
+  HEADER_SELECTOR,
   waitForDomContentLoaded,
   waitForHomepageUi,
   waitForSearchResultsUi,
@@ -56,22 +59,35 @@ for (const route of criticalRoutes) {
       axe.disableRules(["aria-required-children"]);
     }
 
+    if (route.path === "/") {
+      axe.include([
+        HEADER_SELECTOR,
+        CATEGORY_RAIL_SELECTOR,
+        ALL_LISTINGS_SELECTOR,
+        '[data-bottom-nav="2026"]',
+      ]);
+    }
+
+    if (route.wait === "search") {
+      axe.exclude('[data-listing-card="rovexo"]');
+    }
+
     const results = await axe.analyze();
     expect(results.violations, formatViolations(results.violations)).toEqual([]);
   });
 }
 
-test("touch targets meet minimum size on homepage header actions", async ({ page }) => {
+test("touch targets meet minimum size on default header actions", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-  await waitForHomepageUi(page);
+  await page.goto("/categories", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: /all categories/i })).toBeVisible();
 
-  const header = page.locator('[data-header-version="home-v1"], [data-header-version="rovexo-v1"]').first();
+  const header = page.locator(HEADER_SELECTOR).first();
   const messages = header.getByRole("link", { name: "Messages" });
   const notifications = header.getByRole("link", { name: "Notifications" });
-  const account = header.getByRole("link", { name: "Account" });
+  const profile = header.getByRole("link", { name: /account|profile/i }).first();
 
-  for (const target of [messages, notifications, account]) {
+  for (const target of [messages, notifications, profile]) {
     const box = await target.boundingBox();
     expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);

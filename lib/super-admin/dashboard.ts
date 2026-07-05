@@ -176,6 +176,42 @@ export async function listAuditTimeline(limit = 50) {
   return data ?? [];
 }
 
+export async function countRecentMessages(hours = 24): Promise<number> {
+  try {
+    const admin = createAdminClient();
+    const since = new Date(Date.now() - hours * 60 * 60_000).toISOString();
+    const { count } = await admin
+      .from("messages")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", since);
+    return count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+export async function countReviews(): Promise<number> {
+  try {
+    const admin = createAdminClient();
+    const { count } = await admin.from("reviews").select("*", { count: "exact", head: true });
+    return count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+export async function countPlatformAuditLogs(): Promise<number> {
+  try {
+    const admin = createAdminClient();
+    const { count } = await admin
+      .from("platform_audit_logs")
+      .select("*", { count: "exact", head: true });
+    return count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
 export async function listUserAuditTimeline(userId: string, limit = 25) {
   const admin = createAdminClient();
   const { data } = await admin

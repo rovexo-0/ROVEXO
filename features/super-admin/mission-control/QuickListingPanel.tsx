@@ -72,7 +72,7 @@ export function QuickListingPanel({ initialListings }: QuickListingPanelProps) {
     <div className="mc-quick-listing">
       <section className="mc-section rx-surface-card rounded-ds-xl p-ds-5">
         <h2 className="mc-section__title">Create listing</h2>
-        <p className="mc-section__desc">Publish listings without switching to a seller account.</p>
+        <p className="mc-section__desc">Publish listings directly from Mission Control.</p>
         <div className="mc-quick-listing__form">
           <label className="mc-manager__field">
             <span>Title</span>

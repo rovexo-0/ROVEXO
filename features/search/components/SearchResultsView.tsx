@@ -2,8 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { ProductCard } from "@/components/ui/ProductCard";
-import { productToCardProps } from "@/lib/products/card";
+import { ListingCard } from "@/components/ui/ListingCard";
 import type { Product } from "@/lib/products/types";
 import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
 import { SearchFilters, type SearchFilterValues } from "@/features/search/components/SearchFilters";
@@ -203,7 +202,7 @@ export function SearchResultsView() {
         ) : scope === "sellers" && sellerResults ? (
           sellerResults.sellers.length + sellerResults.users.length === 0 ? (
             <div className="col-span-full">
-              <SearchResultsEmpty variant="no-results" query={query} />
+              <SearchResultsEmpty variant="no-results" query={query} entity="sellers" />
             </div>
           ) : (
             <div className="col-span-full">
@@ -219,11 +218,11 @@ export function SearchResultsView() {
           )
         ) : items.length === 0 ? (
           <div className="col-span-full">
-            <SearchResultsEmpty variant="no-results" query={query} />
+            <SearchResultsEmpty variant="no-results" query={query} entity="products" />
           </div>
         ) : (
           displayedItems.map((product) => (
-            <ProductCard key={product.id} {...productToCardProps(product)} />
+            <ListingCard key={product.id} product={product} variant="grid" surface="search" />
           ))
         )}
         {isLoadingMore && <ProductGridSkeleton count={4} />}

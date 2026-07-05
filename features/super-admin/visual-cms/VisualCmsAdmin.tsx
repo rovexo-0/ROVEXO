@@ -14,7 +14,7 @@ import {
   duplicateCanvasNode,
   syncHomepageFromCanvas,
 } from "@/lib/platform-visual/studio-pro/canvas";
-import { STUDIO_ASSET_LIBRARY, searchStudioAssets } from "@/lib/platform-visual/studio-pro/assets";
+import { searchStudioAssets } from "@/lib/platform-visual/studio-pro/assets";
 import { STUDIO_COMPONENT_LIBRARY } from "@/lib/platform-visual/studio-pro/defaults";
 import type { VisualCmsEngineSnapshot } from "@/lib/visual-cms-engine/types";
 import { getPublishWorkflowStages } from "@/lib/visual-cms-engine/timeline";

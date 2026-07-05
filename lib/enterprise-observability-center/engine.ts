@@ -9,7 +9,6 @@ import {
   PROTECTED_AREAS,
   REPORT_TYPES,
   TELEMETRY_METRICS,
-  TIMELINE_EVENT_TYPES,
 } from "@/lib/enterprise-observability-center/registry";
 import type {
   CapacityForecast,

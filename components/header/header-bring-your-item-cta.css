@@ -1,0 +1,114 @@
+/* Homepage header — Bring Your Item CTA (right 50%) */
+
+.rx-header-bring-item-cta {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding-inline: 10px;
+  border-radius: 9999px;
+  border: 0;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 52%, #1e40af 100%);
+  color: #ffffff;
+  text-decoration: none;
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.08),
+    0 8px 24px rgb(37 99 235 / 0.35);
+  transition:
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 640px) {
+  .rx-header-bring-item-cta {
+    height: 50px;
+    min-height: 50px;
+    gap: 8px;
+    padding-inline: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rx-header-bring-item-cta {
+    height: 52px;
+    min-height: 52px;
+    padding-inline: 14px;
+  }
+}
+
+.rx-header-bring-item-cta:hover {
+  filter: brightness(1.04);
+  box-shadow:
+    0 2px 4px rgb(15 23 42 / 0.1),
+    0 12px 32px rgb(37 99 235 / 0.42);
+}
+
+.rx-header-bring-item-cta:active {
+  transform: scale(0.98);
+}
+
+.rx-header-bring-item-cta:focus-visible {
+  box-shadow:
+    0 0 0 3px rgb(37 99 235 / 0.22),
+    0 8px 24px rgb(37 99 235 / 0.35);
+}
+
+.rx-header-bring-item-cta__icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+@media (min-width: 640px) {
+  .rx-header-bring-item-cta__icon {
+    font-size: 18px;
+  }
+}
+
+.rx-header-bring-item-cta__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@media (min-width: 390px) {
+  .rx-header-bring-item-cta__label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+}
+
+@media (min-width: 640px) {
+  .rx-header-bring-item-cta__label {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+}
+
+[data-theme="dark"] .rx-header-bring-item-cta {
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.3),
+    0 8px 28px rgb(37 99 235 / 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-header-bring-item-cta,
+  .rx-header-bring-item-cta:hover,
+  .rx-header-bring-item-cta:active {
+    transform: none;
+    transition: none;
+  }
+}

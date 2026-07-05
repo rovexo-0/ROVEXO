@@ -33,22 +33,25 @@ export function PayoutSetupSection({ connectStatus }: PayoutSetupSectionProps) {
   return (
     <section aria-labelledby="wallet-payout-setup-heading" className="flex flex-col gap-ds-3">
       <h2 id="wallet-payout-setup-heading" className="text-base font-semibold text-text-primary">
-        Payout setup
+        Bank account
       </h2>
 
       <Card padding="md" className={cn("", transitionFast, focusRing)}>
         <div className="flex min-h-[72px] items-center gap-ds-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-ds-lg bg-surface-muted text-sm font-bold text-text-secondary">
-            SC
+          <div
+            aria-hidden="true"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-ds-lg bg-surface-muted text-xl text-text-secondary"
+          >
+            🏦
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-text-primary">Stripe Connect Express</p>
+            <p className="truncate text-sm font-semibold text-text-primary">Bank account</p>
             <p className="mt-0.5 text-xs text-text-secondary">
-              Required for automatic payouts to your bank
+              Required to receive automatic payouts to your bank
             </p>
             <Badge variant={ready ? "success" : "warning"} className="mt-ds-2">
-              {ready ? "Ready for payouts" : connectStatus.connected ? "Verification pending" : "Not connected"}
+              {ready ? "Ready for payouts" : connectStatus.connected ? "Verification pending" : "Not added"}
             </Badge>
           </div>
 
@@ -59,7 +62,7 @@ export function PayoutSetupSection({ connectStatus }: PayoutSetupSectionProps) {
               disabled={connecting}
               onClick={() => void startConnect()}
             >
-              {connecting ? "Opening…" : connectStatus.connected ? "Continue setup" : "Connect"}
+              {connecting ? "Opening…" : connectStatus.connected ? "Continue setup" : "Add bank"}
             </Button>
           ) : null}
         </div>

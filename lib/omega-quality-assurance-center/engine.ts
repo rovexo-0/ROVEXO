@@ -223,12 +223,12 @@ function createFixCandidates(): FixCandidate[] {
 
 function createCertifications(): CertificationRecord[] {
   const modules = ENTERPRISE_MODULE_DESCRIPTORS.slice(0, 10);
-  return modules.map((module, i) => {
+  return modules.map((descriptor, i) => {
     const completed = CERTIFICATION_PIPELINE.slice(0, Math.min(CERTIFICATION_PIPELINE.length, 7 + (i % 4)));
     const productionReady = completed.includes("production-certified");
     return {
-      moduleId: module.id,
-      moduleLabel: module.label,
+      moduleId: descriptor.id,
+      moduleLabel: descriptor.label,
       currentStage: completed[completed.length - 1] ?? "development",
       stagesCompleted: completed,
       productionReady,
@@ -251,9 +251,9 @@ function createPriorityIssues(): PriorityIssue[] {
 }
 
 function createModuleStatuses(): ModuleQaStatus[] {
-  return ENTERPRISE_MODULE_DESCRIPTORS.map((module, i) => ({
-    moduleId: module.id,
-    label: module.label,
+  return ENTERPRISE_MODULE_DESCRIPTORS.map((descriptor, i) => ({
+    moduleId: descriptor.id,
+    label: descriptor.label,
     buttonCoverage: Math.max(90, 100 - (i % 6)),
     workflowCoverage: Math.max(88, 99 - (i % 8)),
     apiCoverage: Math.max(92, 100 - (i % 4)),

@@ -10,19 +10,19 @@ export type PermissionCheckInput = {
 };
 
 export function canAccessModule(moduleId: string, role: "super-admin" = "super-admin"): boolean {
-  const module = getEnterpriseModuleDescriptor(moduleId);
-  if (!module) return false;
+  const descriptor = getEnterpriseModuleDescriptor(moduleId);
+  if (!descriptor) return false;
   return role === "super-admin";
 }
 
 export function canPerformModuleAction(input: PermissionCheckInput): { allowed: boolean; reason?: string } {
-  const module = getEnterpriseModuleDescriptor(input.moduleId);
-  if (!module) return { allowed: false, reason: "Module not registered" };
+  const descriptor = getEnterpriseModuleDescriptor(input.moduleId);
+  if (!descriptor) return { allowed: false, reason: "Module not registered" };
   if (!canAccessModule(input.moduleId, input.role ?? "super-admin")) {
     return { allowed: false, reason: "Insufficient role" };
   }
 
-  const permission = module.permissions.find((item) => item.action === input.action);
+  const permission = descriptor.permissions.find((item) => item.action === input.action);
   if (!permission) return { allowed: true };
 
   if (permission.requiresMfa && !input.mfaVerified) {
@@ -35,6 +35,6 @@ export function canPerformModuleAction(input: PermissionCheckInput): { allowed: 
   return { allowed: true };
 }
 
-export function getModulePermissions(module: EnterpriseModuleDescriptor) {
-  return module.permissions;
+export function getModulePermissions(descriptor: EnterpriseModuleDescriptor) {
+  return descriptor.permissions;
 }

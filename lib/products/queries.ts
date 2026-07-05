@@ -1,5 +1,9 @@
-import { getProductBySlug, getProductsBySection, getSimilarProducts } from "@/lib/products/catalog";
+import { getHomepageFeed, getProductBySlug, getProductsBySection, getSimilarProducts } from "@/lib/products/catalog";
 import type { Product, ProductDetail, ProductSection, ProductsPage } from "@/lib/products/types";
+
+export async function fetchHomepageFeed(page = 1): Promise<ProductsPage> {
+  return getHomepageFeed(page);
+}
 
 export async function fetchProducts(
   section: ProductSection,

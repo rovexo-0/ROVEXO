@@ -21,6 +21,11 @@ type SuperAdminCommandPaletteProps = {
 };
 
 export function SuperAdminCommandPalette({ open, onClose }: SuperAdminCommandPaletteProps) {
+  if (!open) return null;
+  return <SuperAdminCommandPalettePanel onClose={onClose} />;
+}
+
+function SuperAdminCommandPalettePanel({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const debouncedQuery = useDebouncedValue(query, 150);
@@ -59,19 +64,10 @@ export function SuperAdminCommandPalette({ open, onClose }: SuperAdminCommandPal
     );
   }, [debouncedQuery, staticItems]);
 
-  useEffect(() => {
-    if (!open) return;
-    setQuery("");
-    setActiveIndex(0);
-  }, [open]);
-
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [debouncedQuery]);
+  const safeActiveIndex = filtered.length === 0 ? 0 : Math.min(activeIndex, filtered.length - 1);
 
   const onKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (!open) return;
       if (event.key === "Escape") {
         event.preventDefault();
         onClose();
@@ -84,21 +80,19 @@ export function SuperAdminCommandPalette({ open, onClose }: SuperAdminCommandPal
         event.preventDefault();
         setActiveIndex((index) => Math.max(index - 1, 0));
       }
-      if (event.key === "Enter" && filtered[activeIndex]) {
+      if (event.key === "Enter" && filtered[safeActiveIndex]) {
         event.preventDefault();
-        window.location.href = filtered[activeIndex]!.href;
+        window.location.href = filtered[safeActiveIndex]!.href;
         onClose();
       }
     },
-    [activeIndex, filtered, onClose, open],
+    [filtered, onClose, safeActiveIndex],
   );
 
   useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onKeyDown]);
-
-  if (!open) return null;
 
   return (
     <div className="sa-premium-palette" role="dialog" aria-modal="true" aria-label="Command palette" onClick={onClose}>
@@ -107,7 +101,10 @@ export function SuperAdminCommandPalette({ open, onClose }: SuperAdminCommandPal
           className="sa-premium-palette__input"
           placeholder="Search modules, pages, and commands…"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setActiveIndex(0);
+          }}
           autoFocus
           aria-label="Command palette search"
         />
@@ -119,10 +116,10 @@ export function SuperAdminCommandPalette({ open, onClose }: SuperAdminCommandPal
               <Link
                 key={item.id}
                 href={item.href}
-                className={cn("sa-premium-palette__item", index === activeIndex && "sa-premium-palette__item--active")}
+                className={cn("sa-premium-palette__item", index === safeActiveIndex && "sa-premium-palette__item--active")}
                 onClick={onClose}
                 role="option"
-                aria-selected={index === activeIndex}
+                aria-selected={index === safeActiveIndex}
               >
                 <span className="sa-premium-palette__item-icon" aria-hidden>{item.icon ?? "📄"}</span>
                 <span>

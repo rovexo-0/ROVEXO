@@ -90,7 +90,7 @@ export const ENTERPRISE_MODULES: EnterpriseModule[] = [
 ];
 
 export function getEnterpriseModule(id: EnterpriseModuleId): EnterpriseModule | undefined {
-  return ENTERPRISE_MODULES.find((module) => module.id === id);
+  return ENTERPRISE_MODULES.find((mod) => mod.id === id);
 }
 
 export function listEnterpriseModules(): EnterpriseModule[] {

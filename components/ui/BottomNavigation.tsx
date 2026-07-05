@@ -56,7 +56,7 @@ function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab
 }
 
 function NavIcon({ type }: { type: BottomNavIconType }) {
-  return <PremiumNavIcon type={type} size={36} className="rx-bottom-nav-tab-icon" />;
+  return <PremiumNavIcon type={type} size={34} className="rx-bottom-nav-tab-icon" />;
 }
 
 /** White "+" glyph rendered inside the blue Sell FAB. */
@@ -184,8 +184,7 @@ export function BottomNavigation({
       data-bottom-nav="2026"
       aria-label={ariaLabel}
       className={cn(
-        "pointer-events-none fixed inset-x-0 bottom-3 z-50 flex justify-center px-ds-3",
-        "pb-[max(env(safe-area-inset-bottom),0px)]",
+        "pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center",
         hasScrollBehavior &&
           "max-lg:transition-[transform,opacity] max-lg:duration-[250ms] max-lg:ease-in-out max-lg:will-change-[transform,opacity]",
         hasScrollBehavior &&

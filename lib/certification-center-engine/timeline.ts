@@ -14,7 +14,6 @@ import type {
   CertificationLevel,
   CertificationModuleResult,
   CertificationReport,
-  CertificationSchedule,
   CertificationScorecard,
   CertificationStatus,
   ReleaseValidationCheck,
@@ -39,16 +38,16 @@ export function buildCertificationModuleResults(input: {
 }): CertificationModuleResult[] {
   const penalty = input.healthStatus === "unhealthy" ? 15 : input.healthStatus === "degraded" ? 8 : 0;
 
-  return CERTIFICATION_MODULES.filter((m) => input.config.modules[m.id]).map((module, index) => {
+  return CERTIFICATION_MODULES.filter((m) => input.config.modules[m.id]).map((mod, index) => {
     const score = moduleScore(94 - (index % 4), input.errorCount + penalty);
     return {
-      id: module.id,
-      label: module.label,
-      icon: module.icon,
+      id: mod.id,
+      label: mod.label,
+      icon: mod.icon,
       score,
       status: severityFromScore(score),
       certified: score >= 85,
-      href: module.href,
+      href: mod.href,
     };
   });
 }
@@ -160,8 +159,8 @@ export function buildCertificationRecommendations(input: {
   for (const check of input.validations.filter((v) => !v.passed)) {
     recs.push(`Resolve ${check.label} before production certification`);
   }
-  for (const module of input.modules.filter((m) => !m.certified)) {
-    recs.push(`Bring ${module.label} above certification threshold (85%)`);
+  for (const mod of input.modules.filter((m) => !m.certified)) {
+    recs.push(`Bring ${mod.label} above certification threshold (85%)`);
   }
   if (recs.length === 0) {
     return [

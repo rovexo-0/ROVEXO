@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { canModifyRetentionPolicy, canPerformComplianceExport } from "@/lib/enterprise-compliance-center-engine/audit";
+import { canPerformComplianceExport } from "@/lib/enterprise-compliance-center-engine/audit";
 import {
   buildAuditTimeline,
   buildCertificationDashboard,
-  buildChangeTimeline,
   buildCompliancePolicies,
   buildComplianceTimeline,
   buildEvidenceVault,

@@ -1,0 +1,242 @@
+/**
+ * ROVEXO Homepage Canonical Listing Card - UI Lock v1.0
+ *
+ * Containers (layout only — do not merge):
+ *   HorizontalRail  → .home-v1-listing-scroller + .home-v1-listing-track
+ *   ListingGrid     → .home-v1-listing-grid-lock
+ *
+ * Child (identical everywhere):
+ *   ListingCard.tsx via [data-listing-card="rovexo"]
+ *
+ * Viewport 390px, content 358px, card 173x300, image 190, body 110
+ */
+
+/* Grid (All Listings feed) */
+
+.home-v1-listing-grid-lock {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--rx-home-grid-gap-x);
+  row-gap: var(--rx-home-grid-gap-y);
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  padding: 0;
+  margin: 0;
+  background: #ffffff;
+}
+
+.home-v1-listing-grid-lock > [data-listing-card="rovexo"] {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+
+.home-v1-listing-grid-lock > article {
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--rx-home-listing-card-h, 300px);
+}
+
+/* Horizontal rails (Featured, New, Premium, Boost, Recommended, Business) */
+
+.home-v1-main .home-v1-listing-card--rail {
+  flex: 0 0 var(--rx-home-listing-card-w);
+  width: var(--rx-home-listing-card-w);
+  min-width: 0;
+  max-width: none;
+  height: var(--rx-home-listing-card-h);
+}
+
+/* Card shell — identical for HorizontalRail and ListingGrid children */
+
+.home-v1-main [data-listing-card="rovexo"] {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: var(--rx-home-listing-card-h);
+  min-height: var(--rx-home-listing-card-h);
+  max-height: var(--rx-home-listing-card-h);
+  min-width: 0;
+  max-width: none;
+  overflow: hidden;
+  border-radius: var(--rx-home-listing-card-radius);
+  border: var(--rx-home-listing-card-border);
+  background: #ffffff;
+  box-shadow: var(--rx-home-listing-card-shadow);
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="link"] {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="media"] {
+  width: 100%;
+  height: var(--rx-home-listing-card-media-h);
+  min-height: var(--rx-home-listing-card-media-h);
+  max-height: var(--rx-home-listing-card-media-h);
+  aspect-ratio: auto;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--rx-home-listing-card-radius) var(--rx-home-listing-card-radius) 0 0;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="image"] {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Favourite */
+
+.home-v1-main [data-listing-card="rovexo"] [class*="favorite"] {
+  top: 10px;
+  right: 10px;
+  width: 42px;
+  height: 42px;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="favoriteIcon"] {
+  width: 24px;
+  height: 24px;
+}
+
+/* Badges */
+
+.home-v1-main [data-listing-card="rovexo"] [class*="statusBadge"] {
+  top: 10px;
+  left: 10px;
+  height: 26px;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+/* Body / content block */
+
+.home-v1-main [data-listing-card="rovexo"] [class*="body"] {
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 var(--rx-home-listing-card-body-h);
+  height: var(--rx-home-listing-card-body-h);
+  min-height: var(--rx-home-listing-card-body-h);
+  max-height: var(--rx-home-listing-card-body-h);
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0;
+  padding: 10px 12px;
+  overflow: hidden;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="bodyStack"] {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="title"] {
+  display: block;
+  margin: 0;
+  padding: 0;
+  height: 20px;
+  max-height: 20px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="priceRow"] {
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="price"] {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 18px;
+  color: #2563eb;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="originalPrice"] {
+  display: none;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="protection"] {
+  gap: 6px;
+  margin: 0;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="protectionIcon"] {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="metaCondition"] {
+  min-width: 0;
+  flex: 1 1 auto;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="views"] {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 13px;
+  white-space: nowrap;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="metaIcon"] {
+  width: 14px;
+  height: 14px;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="metaRow"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 0;
+  padding: 0;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.home-v1-main [data-listing-card="rovexo"] [class*="metaRight"] {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+[data-theme="dark"] .home-v1-main [data-listing-card="rovexo"] {
+  background: #141414;
+  border-color: rgb(255 255 255 / 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+}
+
+[data-theme="dark"] .home-v1-main [data-listing-card="rovexo"] [class*="price"] {
+  color: #60a5fa;
+}

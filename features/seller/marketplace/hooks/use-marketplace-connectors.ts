@@ -61,7 +61,8 @@ export function useMarketplaceConnectors() {
         | "reset"
         | "health_check"
         | "retry"
-        | "reconnect",
+        | "reconnect"
+        | "refresh_token",
     ) => {
       const response = await fetch(`/api/seller/marketplace/connectors/${platform}`, {
         method: "PATCH",

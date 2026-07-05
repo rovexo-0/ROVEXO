@@ -20,11 +20,13 @@ export function buildSearchNavItems({
   const items: SearchNavItem[] = [];
 
   if (!hasQuery) {
-    history.forEach((term) => {
+    // Idle discovery order must mirror the overlay render order so
+    // aria-activedescendant lines up: recent listings → trending → history.
+    results.products.forEach((product) => {
       items.push({
-        id: `recent-${term}`,
-        label: term,
-        onSelect: () => onSelectTerm(term),
+        id: `recent-listing-${product.id}`,
+        label: product.title,
+        href: `/listing/${product.slug}`,
       });
     });
 
@@ -36,11 +38,11 @@ export function buildSearchNavItems({
       });
     });
 
-    results.categories.forEach((category) => {
+    history.forEach((term) => {
       items.push({
-        id: `category-${category.href}`,
-        label: category.name,
-        href: category.href,
+        id: `recent-search-${term}`,
+        label: term,
+        onSelect: () => onSelectTerm(term),
       });
     });
 

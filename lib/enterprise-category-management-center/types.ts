@@ -60,6 +60,7 @@ export type CategoryTreeNode = {
   isFavorite: boolean;
   colorTag?: string;
   lastModifiedAt: string;
+  transactionMode?: import("@/lib/transaction-mode/types").TransactionMode;
 };
 
 export type CategoryWorkspace = {

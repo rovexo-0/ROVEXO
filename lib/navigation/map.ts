@@ -36,7 +36,6 @@ export const SELLER_NAV: NavLink[] = [
 ];
 
 export const BUSINESS_NAV: NavLink[] = [
-  { href: "/business/center", label: "Business Center", subtitle: "Hub for B2B tools" },
   { href: "/business/dashboard", label: "Business Dashboard", subtitle: "Revenue & orders" },
   { href: "/business/inventory", label: "Inventory", subtitle: "SKU & stock management" },
   { href: "/business/analytics", label: "Business Analytics", subtitle: "Insights & reports" },
@@ -60,6 +59,11 @@ export const SUPER_ADMIN_NAV_LINK: NavLink = {
   subtitle: "Platform control centre",
 };
 
+/**
+ * @deprecated LEGACY. The `/admin/*` tree redirects to `/super-admin` (see
+ * `app/admin/layout.tsx`). Retained temporarily to avoid regressions; will be
+ * migrated to the Super Admin Command Center. Do not add new entries.
+ */
 export const ADMIN_NAV: NavLink[] = [
   { href: "/admin", label: "Admin Dashboard", subtitle: "Orders & promotions overview" },
   { href: "/admin/operations", label: "Production Operations", subtitle: "Health, cron & errors" },

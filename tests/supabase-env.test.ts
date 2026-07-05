@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   getSupabaseAnonKey,
   getSupabaseUrl,
@@ -50,6 +50,10 @@ describe("normalizeSupabaseUrl", () => {
 });
 
 describe("Supabase env resolution", () => {
+  beforeEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   afterEach(() => {
     vi.unstubAllEnvs();
   });
@@ -60,13 +64,12 @@ describe("Supabase env resolution", () => {
     expect(getSupabaseUrl()).toBe("https://pklotmwxtnnepaitedic.supabase.co");
   });
 
-  it("derives Supabase URL from project ref env when URL is unset", () => {
-    vi.stubEnv("NEXT_PUBLIC_SUPABASE_PROJECT_REF", "pklotmwxtnnepaitedic");
-    expect(getSupabaseUrl()).toBe("https://pklotmwxtnnepaitedic.supabase.co");
+  it("requires an explicit Supabase URL when URL env vars are unset", () => {
+    expect(() => getSupabaseUrl()).toThrow(/NEXT_PUBLIC_SUPABASE_URL/);
   });
 
-  it("uses the documented ROVEXO project ref in development when env is unset", () => {
-    vi.stubEnv("NODE_ENV", "development");
+  it("accepts SUPABASE_URL as a server-side alias", () => {
+    vi.stubEnv("SUPABASE_URL", "https://pklotmwxtnnepaitedic.supabase.co");
     expect(getSupabaseUrl()).toBe("https://pklotmwxtnnepaitedic.supabase.co");
   });
 

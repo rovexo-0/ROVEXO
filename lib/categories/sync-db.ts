@@ -3,6 +3,8 @@ import { categoryTree } from "@/lib/categories/tree";
 import type { CategoryNode } from "@/lib/categories/types";
 import { getCategoryIcon } from "@/lib/categories/visuals";
 import { getFiltersForCategorySlug } from "@/lib/categories/filters";
+import { resolveTransactionModeForRootSlug } from "@/lib/transaction-mode/defaults";
+import type { TransactionMode } from "@/lib/transaction-mode/types";
 
 export type SyncResult = {
   categoriesUpserted: number;
@@ -20,6 +22,7 @@ type UpsertRow = {
   seo_title: string;
   seo_description: string;
   is_active: boolean;
+  transaction_mode: TransactionMode;
 };
 
 async function upsertNode(
@@ -29,6 +32,7 @@ async function upsertNode(
   sortOrder: number,
   slugToId: Map<string, string>,
   stats: SyncResult,
+  inheritedMode: TransactionMode,
 ) {
   const admin = createAdminClient();
   const pathLabel = pathParts.join(" › ");
@@ -44,6 +48,7 @@ async function upsertNode(
     seo_title: `${node.name} for Sale UK | ROVEXO`,
     seo_description: `Buy and sell ${node.name.toLowerCase()} on ROVEXO. Verified sellers, buyer protection, and secure checkout across the UK.`,
     is_active: true,
+    transaction_mode: node.transactionMode ?? inheritedMode,
   };
 
   const existingQuery = admin.from("categories").select("id").eq("slug", node.slug);
@@ -96,8 +101,17 @@ async function upsertNode(
   }
 
   const children = node.children ?? [];
+  const childMode = node.transactionMode ?? inheritedMode;
   for (let index = 0; index < children.length; index++) {
-    await upsertNode(children[index]!, categoryId, [...pathParts, node.name], index + 1, slugToId, stats);
+    await upsertNode(
+      children[index]!,
+      categoryId,
+      [...pathParts, node.name],
+      index + 1,
+      slugToId,
+      stats,
+      childMode,
+    );
   }
 }
 
@@ -107,7 +121,8 @@ export async function syncEnterpriseTaxonomyToDatabase(): Promise<SyncResult> {
 
   for (let index = 0; index < categoryTree.length; index++) {
     const root = categoryTree[index]!;
-    await upsertNode(root, null, [], index + 1, slugToId, stats);
+    const rootMode = root.transactionMode ?? resolveTransactionModeForRootSlug(root.slug);
+    await upsertNode(root, null, [], index + 1, slugToId, stats, rootMode);
   }
 
   return stats;

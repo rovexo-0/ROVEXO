@@ -125,3 +125,50 @@
     transition: none;
   }
 }
+
+/* Homepage — 50/50 search | Bring Your Item */
+
+.rx-header-premium__row--homepage {
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .rx-header-premium__row--homepage {
+    gap: 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rx-header-premium__row--homepage {
+    gap: 12px;
+  }
+}
+
+.rx-header-premium__row--homepage .rx-header-premium__col {
+  display: flex;
+  flex: 1 1 50%;
+  min-width: 0;
+  max-width: 50%;
+  align-items: center;
+}
+
+.rx-header-premium__row--homepage .rx-header-premium__col--search,
+.rx-header-premium__row--homepage .rx-header-premium__col--cta {
+  height: 48px;
+}
+
+@media (min-width: 640px) {
+  .rx-header-premium__row--homepage .rx-header-premium__col--search,
+  .rx-header-premium__row--homepage .rx-header-premium__col--cta {
+    height: 50px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rx-header-premium__row--homepage .rx-header-premium__col--search,
+  .rx-header-premium__row--homepage .rx-header-premium__col--cta {
+    height: 52px;
+  }
+}

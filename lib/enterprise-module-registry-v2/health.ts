@@ -5,12 +5,12 @@ import type {
   RegistryFeatureFlagState,
 } from "@/lib/enterprise-module-registry-v2/types";
 
-export function computeModuleHealth(module: EnterpriseModuleV2Descriptor, disabled: boolean): ModuleHealthLevel {
-  if (disabled || module.lifecycle === "disabled" || module.lifecycle === "failed") return "failed";
-  if (module.lifecycle === "maintenance" || module.lifecycle === "recovery") return "warning";
-  if (module.lifecycle === "deprecated" || module.lifecycle === "archived") return "warning";
-  if (module.health === "critical") return "critical";
-  if (module.health === "warning") return "warning";
+export function computeModuleHealth(mod: EnterpriseModuleV2Descriptor, disabled: boolean): ModuleHealthLevel {
+  if (disabled || mod.lifecycle === "disabled" || mod.lifecycle === "failed") return "failed";
+  if (mod.lifecycle === "maintenance" || mod.lifecycle === "recovery") return "warning";
+  if (mod.lifecycle === "deprecated" || mod.lifecycle === "archived") return "warning";
+  if (mod.health === "critical") return "critical";
+  if (mod.health === "warning") return "warning";
   return "healthy";
 }
 
@@ -18,10 +18,10 @@ export function applyHealthToModules(
   modules: EnterpriseModuleV2Descriptor[],
   disabledModules: string[],
 ): EnterpriseModuleV2Descriptor[] {
-  return modules.map((module) => ({
-    ...module,
-    health: computeModuleHealth(module, disabledModules.includes(module.moduleId)),
-    lifecycle: disabledModules.includes(module.moduleId) ? "disabled" : module.lifecycle,
+  return modules.map((mod) => ({
+    ...mod,
+    health: computeModuleHealth(mod, disabledModules.includes(mod.moduleId)),
+    lifecycle: disabledModules.includes(mod.moduleId) ? "disabled" : mod.lifecycle,
   }));
 }
 
@@ -63,11 +63,11 @@ export function buildFeatureFlagStates(
   overrides: Record<string, Record<string, boolean>>,
 ): RegistryFeatureFlagState[] {
   const states: RegistryFeatureFlagState[] = [];
-  for (const module of modules) {
-    for (const flag of module.featureFlags) {
-      const override = overrides[module.moduleId]?.[flag.id];
+  for (const mod of modules) {
+    for (const flag of mod.featureFlags) {
+      const override = overrides[mod.moduleId]?.[flag.id];
       states.push({
-        moduleId: module.moduleId,
+        moduleId: mod.moduleId,
         flagId: flag.id,
         enabled: flag.emergencyKillSwitch ? false : override ?? flag.defaultEnabled,
         source: flag.emergencyKillSwitch

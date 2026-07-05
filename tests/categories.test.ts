@@ -84,7 +84,7 @@ describe("marketplace category tree", () => {
     expect(leaves.length).toBeGreaterThan(100);
     const first = flatPathFromSegments(leaves[0]!.segments);
     expect(first.segments.length).toBeGreaterThanOrEqual(2);
-    expect(first.pathLabel).toContain("›");
+    expect(first.pathLabel).toContain(">");
   });
 
   it("resolves category paths by slug arrays", () => {

@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
 import { requireApiAuth } from "@/lib/auth/session";
 import { updateAvatarUrl } from "@/lib/profile/service";
-import { deleteStorageObject, uploadAvatar, StorageValidationError } from "@/lib/storage/upload";
+import { deleteAvatar, uploadAvatar, StorageValidationError } from "@/lib/storage/upload";
+
+export const runtime = "nodejs";
+
+function describeError(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "object" && error !== null && "message" in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return "Unknown error";
+}
 
 export async function POST(request: Request) {
   const auth = await requireApiAuth();
@@ -25,7 +35,19 @@ export async function POST(request: Request) {
     if (error instanceof StorageValidationError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
-    return NextResponse.json({ error: "Unable to upload avatar." }, { status: 500 });
+
+    const message = describeError(error);
+    // Surface the real failure to the server logs for diagnosis.
+    console.error("[avatar-upload] failed", {
+      userId: auth.user.id,
+      message,
+      error,
+    });
+
+    return NextResponse.json(
+      { error: `Avatar upload failed: ${message}` },
+      { status: 500 },
+    );
   }
 }
 
@@ -36,12 +58,12 @@ export async function DELETE() {
   }
 
   try {
-    await deleteStorageObject("avatars", `${auth.user.id}/avatar.webp`).catch(() => undefined);
-    await deleteStorageObject("avatars", `${auth.user.id}/avatar.jpg`).catch(() => undefined);
-    await deleteStorageObject("avatars", `${auth.user.id}/avatar.png`).catch(() => undefined);
+    await deleteAvatar(auth.user.id);
     await updateAvatarUrl(auth.user.id, null);
     return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: "Unable to remove avatar." }, { status: 500 });
+  } catch (error) {
+    const message = describeError(error);
+    console.error("[avatar-delete] failed", { userId: auth.user.id, message, error });
+    return NextResponse.json({ error: `Unable to remove avatar: ${message}` }, { status: 500 });
   }
 }

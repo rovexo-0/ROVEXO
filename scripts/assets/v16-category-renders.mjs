@@ -10,9 +10,6 @@ import {
   sharedCategoryDefs,
 } from "./v16-render-utils.mjs";
 
-const g = (x, y, w, h, r, fill, op = 1) =>
-  `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}" opacity="${op}"/>`;
-
 /** Homepage rail — all 20 premium 3D category bodies */
 const CATEGORY_BODIES = {
   vehicles: `

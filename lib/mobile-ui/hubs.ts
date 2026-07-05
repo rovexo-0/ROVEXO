@@ -80,9 +80,8 @@ export function getBusinessHubTiles(profile: UserProfile, context?: MobileHubCon
     ...(context?.storeSlug
       ? [tile(`/store/${context.storeSlug}`, "Company profile", "Public store page")]
       : []),
-    tile("/business/center", "Business Centre", "Hub for B2B tools"),
-    tile("/wholesale", "Wholesale", "MOQ, RFQ & bulk pricing"),
     tile("/business/dashboard", "Dashboard", "Revenue & orders"),
+    tile("/wholesale", "Wholesale", "MOQ, RFQ & bulk pricing"),
     tile("/business/analytics", "Analytics", "Insights & reports"),
     tile("/business/directory", "Directory", "Verified companies"),
     tile("/plans", "Plans", "Business subscriptions"),
@@ -238,7 +237,7 @@ export function getWholesaleHubSections(profile: UserProfile): MobileHubSection[
       id: "wholesale",
       title: "Wholesale",
       tiles: getBusinessHubTiles(profile).filter((entry) =>
-        ["/wholesale", "/business/inventory", "/business/directory", "/plans", "/business/center", "/trust"].some(
+        ["/wholesale", "/business/inventory", "/business/directory", "/plans", "/business/dashboard", "/trust"].some(
           (href) => entry.href.startsWith(href),
         ),
       ),

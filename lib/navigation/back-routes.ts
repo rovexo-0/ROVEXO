@@ -38,7 +38,7 @@ const EXACT_BACK_ROUTES: Record<string, BackRouteConfig> = {
   "/resolution": { parentHref: "/account", label: "Account" },
   "/assistant": { parentHref: "/help", label: "Help" },
   "/plans": { parentHref: "/account", label: "Account" },
-  "/wholesale": { parentHref: "/business/center", label: "Business Centre" },
+  "/wholesale": { parentHref: "/business/dashboard", label: "Business Dashboard" },
   "/support": { parentHref: "/help", label: "Help" },
   "/legal": { parentHref: "/", label: "Home" },
   "/help/buying-buyer-protection": { parentHref: "/buyer", label: "Buyer" },
@@ -53,9 +53,9 @@ const EXACT_BACK_ROUTES: Record<string, BackRouteConfig> = {
   "/account/privacy": { parentHref: "/account/settings", label: "Settings" },
   "/account/seller/shipping": { parentHref: "/account/settings", label: "Settings" },
   "/account/blocked-users": { parentHref: "/account/settings", label: "Settings" },
-  "/business/inventory": { parentHref: "/business/center", label: "Business Centre" },
-  "/business/analytics": { parentHref: "/business/center", label: "Business Centre" },
-  "/business/directory": { parentHref: "/business/center", label: "Business Centre" },
+  "/business/inventory": { parentHref: "/business/dashboard", label: "Business Dashboard" },
+  "/business/analytics": { parentHref: "/business/dashboard", label: "Business Dashboard" },
+  "/business/directory": { parentHref: "/business/dashboard", label: "Business Dashboard" },
 };
 
 function normalizePathname(pathname: string): string {

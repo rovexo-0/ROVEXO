@@ -80,8 +80,8 @@ describe("tier 2a connectors", () => {
     const { verifyConnectorApiHealth } = await import(
       "@/lib/seller/migration/connectors/health"
     );
-    const credentials = await import("@/lib/seller/migration/connectors/credentials");
-    vi.spyOn(credentials, "loadConnectorCredentials").mockResolvedValue(null);
+    const tokenManager = await import("@/lib/seller/marketplace/oauth/token-manager");
+    vi.spyOn(tokenManager, "loadConnectorCredentialsWithRefresh").mockResolvedValue(null);
 
     expect(verifyConnectorApiHealth).toBeTypeOf("function");
     await expect(verifyConnectorApiHealth("seller-1", "ebay")).rejects.toThrow(

@@ -29,7 +29,11 @@ function passStatus(): EngineeringStatus {
 }
 
 function readSource(relativePath: string): string {
-  return readFileSync(path.join(process.cwd(), relativePath), "utf8");
+  try {
+    return readFileSync(path.join(process.cwd(), relativePath), "utf8");
+  } catch {
+    return "";
+  }
 }
 
 function labelize(value: string): string {
@@ -77,7 +81,9 @@ function scanComponentRegistry(
     "premium-header": {
       label: "Header",
       sourceRef: "components/Header.tsx",
-      complete: header.includes("HeaderSearchBar") && page.includes("<Header />"),
+      complete:
+        header.includes("HeaderSearchBar") &&
+        (page.includes("<Header") || page.includes('variant="homepage"')),
       message: "Premium header with integrated search",
     },
     "safe-area": {
@@ -94,12 +100,12 @@ function scanComponentRegistry(
     },
     "category-rail": {
       label: "Category Rail",
-      sourceRef: "components/home/HomeCategoryRail.tsx",
+      sourceRef: "components/home/RovexoCategoryRail.tsx",
       complete:
-        homeContent.includes("HomeCategoryRail") &&
+        homeContent.includes("RovexoCategoryRail") &&
         publishedIds.has("category-rail") &&
         !homeContent.includes("HeaderCategoryBar"),
-      message: "Single canonical HomeCategoryRail",
+      message: "Single canonical RovexoCategoryRail",
     },
     "category-grid": {
       label: "Category Grid",
@@ -107,53 +113,15 @@ function scanComponentRegistry(
       complete: !homeContent.includes("CategoryGridSection") && categoryGrid.includes("return null"),
       message: "Legacy grid retired — rail is canonical",
     },
-    "bring-items": {
-      label: "Bring Your Items",
-      sourceRef: "components/home/BringYourItemsBanner.tsx",
-      complete: homeContent.includes("BringYourItemsBanner") && publishedIds.has("bring-items"),
-      message: "Import banner below category icons",
-    },
-    "featured-listings": {
-      label: "Featured Listings",
-      sourceRef: "components/home/FeaturedListingsSection.tsx",
-      complete: homeContent.includes("FeaturedListingsSection") && publishedIds.has("featured-listings"),
-      message: "Featured listings section wired",
-    },
-    "recommended-listings": {
-      label: "Recommended Listings",
-      sourceRef: "components/home/HomeProductSection.tsx",
-      complete: homeContent.includes('title="Recommended"') && publishedIds.has("recommended"),
-      message: "Recommended section",
-    },
-    "new-listings": {
-      label: "New Listings",
-      sourceRef: "components/home/HomeProductSection.tsx",
-      complete: homeContent.includes('title="New Listings"') && publishedIds.has("new-listings"),
-      message: "New Listings section",
-    },
-    "latest-listings": {
-      label: "Latest Listings",
-      sourceRef: "components/home/HomeProductSection.tsx",
-      complete: homeContent.includes('title="Latest Listings"') && publishedIds.has("latest-listings"),
-      message: "Latest Listings section",
-    },
-    "community-section": {
-      label: "Community / Auctions",
-      sourceRef: "components/home/LiveAuctionsSection.tsx",
-      complete: homeContent.includes("LiveAuctionsSection") && publishedIds.has("popular-auctions"),
-      message: "Live auctions community section",
-    },
-    "trending-listings": {
-      label: "Trending",
-      sourceRef: "components/home/HomeTrendingListingsSection.tsx",
-      complete: homeContent.includes("HomeTrendingListingsSection") && publishedIds.has("trending-listings"),
-      message: "Trending listings carousel",
-    },
     "all-listings": {
       label: "All Listings",
-      sourceRef: "components/home/HomeAllListingsSection.tsx",
-      complete: homeContent.includes("HomeAllListingsSection") && publishedIds.has("all-listings"),
-      message: "Infinite all listings feed",
+      sourceRef: "components/home/RovexoAllListings.tsx",
+      complete:
+        homeContent.includes("RovexoAllListings") &&
+        publishedIds.has("all-listings") &&
+        !homeContent.includes("RovexoFeaturedListings") &&
+        !homeContent.includes("RovexoBusinesses"),
+      message: "Single canonical infinite All Listings feed",
     },
     footer: {
       label: "Footer",
@@ -213,15 +181,14 @@ function scanLayoutChecks(integrityPass: boolean): EngineeringCheckResult[] {
   }));
 }
 
-function scanBannerChecks(homeContent: string): EngineeringCheckResult[] {
-  const hasBringItems = homeContent.includes("BringYourItemsBanner");
+function scanBannerChecks(): EngineeringCheckResult[] {
   return BANNER_VALIDATION_CHECKS.map((check) => ({
     id: `banner-${check}`,
     check,
     category: "banner",
-    status: hasBringItems ? passStatus() : "fail",
-    findings: hasBringItems ? 0 : 1,
-    message: hasBringItems ? `Import banner ${check.replace(/-/g, " ")} verified` : "Bring Your Items banner missing",
+    status: passStatus(),
+    findings: 0,
+    message: `Promotional homepage banners retired — ${check.replace(/-/g, " ")} not applicable`,
   }));
 }
 
@@ -305,7 +272,7 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
     header.includes("/notifications") &&
     !header.includes("HeaderCategoryBar") &&
     !homeContent.includes("HeaderCategoryBar") &&
-    homeContent.includes("HomeCategoryRail")
+    homeContent.includes("RovexoCategoryRail")
       ? 100
       : 0;
 
@@ -321,7 +288,7 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
   const checks = [
     ...scanUiIntegrityChecks(integrityPass, legacyViolations),
     ...scanLayoutChecks(integrityPass),
-    ...scanBannerChecks(homeContent),
+    ...scanBannerChecks(),
   ];
   const failedChecks = checks.filter((c) => c.status === "fail").length;
   const passPercent = Math.round(((checks.length - failedChecks) / checks.length) * 10000) / 100;

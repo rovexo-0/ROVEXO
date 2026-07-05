@@ -97,7 +97,7 @@ function createDefaultNavigation(): AppStudioNavigationConfig {
       { id: "settings", label: "Settings", href: "/account/settings", visible: true },
     ]),
     businessNav: navSection("business", "Business Menu", [
-      { id: "center", label: "Business Center", href: "/business/center", visible: true },
+      { id: "center", label: "Business Dashboard", href: "/business/dashboard", visible: true },
       { id: "inventory", label: "Inventory", href: "/business/inventory", visible: true },
     ]),
     sellerNav: navSection("seller", "Seller Menu", [

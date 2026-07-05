@@ -3,9 +3,8 @@ import Header from "@/components/Header";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
-import { ProductCard } from "@/components/ui/ProductCard";
+import { ListingCard } from "@/components/ui/ListingCard";
 import { Rating } from "@/components/ui/Rating";
-import { productToCardProps } from "@/lib/products/card";
 import type { Product } from "@/lib/products/types";
 import { getCategoryImageUrl } from "@/lib/categories/visuals";
 import { TrustPublicSummary } from "@/features/trust/components/TrustPublicSummary";
@@ -101,7 +100,7 @@ export function ProStorePage({
             {displayFeatured.length > 0 ? (
               <div className="rx-listing-grid">
                 {displayFeatured.map((product) => (
-                  <ProductCard key={product.id} {...productToCardProps(product)} />
+                  <ListingCard key={product.id} product={product} variant="grid" surface="store" />
                 ))}
               </div>
             ) : (
@@ -123,7 +122,7 @@ export function ProStorePage({
             {listings.length > 0 ? (
               <div className="rx-listing-grid">
                 {listings.map((product) => (
-                  <ProductCard key={product.id} {...productToCardProps(product)} />
+                  <ListingCard key={product.id} product={product} variant="grid" surface="store" />
                 ))}
               </div>
             ) : (

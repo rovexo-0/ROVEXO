@@ -99,9 +99,9 @@ describe("homepage enterprise certification descriptor", () => {
 describe("homepage enterprise certification registry constants", () => {
   it("defines homepage sections", () => {
     expect(HOMEPAGE_SECTIONS).toContain("category-rail");
-    expect(HOMEPAGE_SECTIONS).toContain("bring-items");
+    expect(HOMEPAGE_SECTIONS).not.toContain("bring-items");
     expect(HOMEPAGE_SECTIONS).toContain("bottom-navigation");
-    expect(HOMEPAGE_SECTIONS.length).toBe(14);
+    expect(HOMEPAGE_SECTIONS.length).toBe(13);
   });
 
   it("defines button and search checks", () => {

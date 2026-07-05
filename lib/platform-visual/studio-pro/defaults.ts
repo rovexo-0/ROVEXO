@@ -39,7 +39,7 @@ export const STUDIO_TEMPLATE_LIBRARY: StudioTemplateDefinition[] = [
   { id: "category", label: "Category Page", pageType: "category", icon: "📁", description: "Category browse template" },
   { id: "product", label: "Product Page", pageType: "product", icon: "🏷️", description: "Listing detail template" },
   { id: "seller-dashboard", label: "Seller Dashboard", pageType: "seller", icon: "🛍️", description: "Seller hub layout" },
-  { id: "buyer-dashboard", label: "Buyer Dashboard", pageType: "buyer", icon: "🛒", description: "Buyer account layout" },
+  { id: "buyer-dashboard", label: "Buyer Dashboard", pageType: "buyer", icon: "🛒", description: "Buyer dashboard layout" },
   { id: "business", label: "Business Page", pageType: "business", icon: "🏢", description: "Business storefront" },
   { id: "support", label: "Support Page", pageType: "support", icon: "🎧", description: "Help centre layout" },
   { id: "checkout", label: "Checkout", pageType: "checkout", icon: "💳", description: "Checkout flow shell" },
@@ -97,15 +97,6 @@ export function createDefaultCanvasDocument(): VisualCanvasDocument {
 }
 
 export function canvasNodesFromHomepage(homepage: HomepageBuilderConfig): CanvasNode[] {
-  const defaultVisibility = {
-    desktop: true,
-    laptop: true,
-    tablet: true,
-    android: true,
-    iphone: true,
-    ultrawide: true,
-  };
-
   return [...homepage.components]
     .sort((a, b) => a.order - b.order)
     .map((component, index) => {

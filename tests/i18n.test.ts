@@ -20,9 +20,20 @@ describe("i18n", () => {
     expect(hasNativeCatalog("ro-RO")).toBe(true);
   });
 
+  it("ships native catalogs for the core supported languages", () => {
+    expect(hasNativeCatalog("de-DE")).toBe(true);
+    expect(hasNativeCatalog("fr-FR")).toBe(true);
+    expect(hasNativeCatalog("it-IT")).toBe(true);
+    expect(hasNativeCatalog("es-ES")).toBe(true);
+    expect(hasNativeCatalog("nl-NL")).toBe(true);
+    expect(translate("de-DE", "account.title")).toBe("Mein Konto");
+    expect(translate("fr-FR", "account.title")).toBe("Mon compte");
+    expect(translate("es-ES", "account.title")).toBe("Mi cuenta");
+  });
+
   it("falls back to English UK for locales without native catalog", () => {
-    expect(translate("de-DE", "account.title")).toBe("My Account");
-    expect(hasNativeCatalog("de-DE")).toBe(false);
+    expect(translate("pl-PL", "account.title")).toBe("My Account");
+    expect(hasNativeCatalog("pl-PL")).toBe(false);
   });
 
   it("lists UK shipping carriers with official names", () => {

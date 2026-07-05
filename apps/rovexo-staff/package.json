@@ -1,0 +1,26 @@
+{
+  "name": "rovexo-staff",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ROVEXO Staff Enterprise native shell — Android, iOS, Windows",
+  "scripts": {
+    "sync": "npx cap sync",
+    "android:open": "npx cap open android",
+    "ios:open": "npx cap open ios",
+    "build:android:apk": "node scripts/build-android-apk.mjs",
+    "build:android:aab": "node scripts/build-android-aab.mjs",
+    "build:ios": "node scripts/build-ios-archive.mjs",
+    "build:windows": "node scripts/build-windows-msix.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.2.0",
+    "@capacitor/app": "^7.0.1",
+    "@capacitor/core": "^7.2.0",
+    "@capacitor/ios": "^7.2.0",
+    "@capacitor/push-notifications": "^7.0.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.2.0",
+    "typescript": "^5.8.3"
+  }
+}

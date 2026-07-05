@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { after } from "next/server";
 import { notFound, redirect } from "next/navigation";
 import { ProductDetailPage } from "@/features/product-detail/ProductDetailPage";
 import { incrementProductViews } from "@/lib/listings/repository";
@@ -13,6 +14,8 @@ import { getAppUrl } from "@/lib/supabase/env";
 type ListingPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: ListingPageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -68,7 +71,11 @@ export default async function ListingPage({ params }: ListingPageProps) {
     getPublicTrustSummary(product.sellerId),
   ]);
 
-  await incrementProductViews(slug);
+  // View counting is best-effort and must not block the page render; run it
+  // after the response is sent.
+  after(() => {
+    void incrementProductViews(slug).catch(() => undefined);
+  });
 
   const structuredData = productJsonLd(product, breadcrumbs);
 

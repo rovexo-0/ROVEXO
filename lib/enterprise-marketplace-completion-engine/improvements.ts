@@ -26,7 +26,7 @@ export function runSmartImprovementEngine(input: {
 }): SmartImprovementResult {
   const allPass = input.modulesComplete && input.homepagePass && input.globalPass && input.launchPass && premiumStylesActive();
 
-  const items: SmartImprovementItem[] = SMART_IMPROVEMENT_CATEGORIES.map((category, index) => ({
+  const items: SmartImprovementItem[] = SMART_IMPROVEMENT_CATEGORIES.map((category) => ({
     id: `improvement-${category}`,
     category,
     label: labelize(category),

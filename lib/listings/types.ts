@@ -31,6 +31,7 @@ export type SellerListing = {
   brandId: string | null;
   categoryId: string | null;
   categoryPath: string | null;
+  transactionMode: import("@/lib/transaction-mode/types").TransactionMode;
   color: string | null;
   size: string | null;
   condition: string;
@@ -79,6 +80,7 @@ export type CreateListingInput = {
   shippingPrice?: number | null;
   categoryId?: string | null;
   deliveryCarriers?: string[];
+  parcelSize?: "small" | "medium" | "large" | "xl" | null;
   status?: ProductStatus;
   listingType?: "fixed" | "auction";
   auctionStartPrice?: number;

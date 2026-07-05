@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 import {
+  CATEGORY_RAIL_SELECTOR,
+  HEADER_SELECTOR,
   RESPONSIVE_VIEWPORTS,
   waitForDomContentLoaded,
   waitForHomepageUi,
@@ -12,12 +14,9 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForHomepageUi(page);
 
-    await expect(page.getByRole("heading", { name: /^categories$/i })).toBeVisible();
+    await expect(page.locator(CATEGORY_RAIL_SELECTOR)).toBeVisible();
 
-    const headerBox = await page
-      .locator('[data-header-version="home-v1"], [data-header-version="rovexo-v1"]')
-      .first()
-      .boundingBox();
+    const headerBox = await page.locator(HEADER_SELECTOR).first().boundingBox();
     expect(headerBox?.width).toBeGreaterThan(0);
     expect(headerBox?.height).toBeGreaterThan(0);
 
@@ -53,7 +52,8 @@ test("homepage has no unexpected console errors on load", async ({ page }) => {
     (line) =>
       !line.includes("401 (Unauthorized)") &&
       !line.includes("Failed to load resource") &&
-      !line.includes("Missing required environment variable"),
+      !line.includes("Missing required environment variable") &&
+      !line.includes("ServiceWorker intercepted"),
   );
   expect(unexpected, unexpected.join("\n")).toEqual([]);
 });

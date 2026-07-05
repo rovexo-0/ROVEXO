@@ -17,7 +17,7 @@ export function SellerPayoutCard() {
           </div>
           <div className="seller-metric">
             <p className="seller-metric__value">{wallet.connectStatus.connected ? "Connected" : "Not connected"}</p>
-            <p className="seller-metric__label">Stripe status</p>
+            <p className="seller-metric__label">Payout status</p>
           </div>
         </div>
       </div>

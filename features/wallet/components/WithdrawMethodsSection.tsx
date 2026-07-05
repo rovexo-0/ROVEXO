@@ -14,7 +14,7 @@ type WithdrawMethodsSectionProps = {
 };
 
 function providerLabel(provider: WithdrawMethod["provider"]): string {
-  return provider === "bank_account" ? "Bank Account" : "Stripe Connect";
+  return provider === "bank_account" ? "Bank Account" : "Bank payouts";
 }
 
 function MethodCard({

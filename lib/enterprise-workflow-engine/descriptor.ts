@@ -1,5 +1,4 @@
 import { versionedApiPath } from "@/lib/enterprise-architecture/constants";
-import type { EnterpriseModuleDescriptor } from "@/lib/enterprise-architecture/types";
 import {
   ENTERPRISE_WORKFLOW_ENGINE_DRAFT_KEY,
   ENTERPRISE_WORKFLOW_ENGINE_HISTORY_KEY,

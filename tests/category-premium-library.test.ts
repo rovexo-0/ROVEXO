@@ -30,7 +30,12 @@ describe("ROVEXO premium category asset library", () => {
       "utf8",
     );
     const railSource = readFileSync(
-      path.join(process.cwd(), "components/home/HomeCategoryRail.tsx"),
+      path.join(process.cwd(), "components/home/RovexoCategoryRail.tsx"),
+      "utf8",
+    );
+
+    const cardSource = readFileSync(
+      path.join(process.cwd(), "components/home/RovexoCategoryCard.tsx"),
       "utf8",
     );
 
@@ -39,8 +44,8 @@ describe("ROVEXO premium category asset library", () => {
     expect(source).toContain("rx-category-render__img");
     expect(source).toContain("PremiumCategoryRenderMissing");
     expect(source).not.toContain("rx-category-icon-3d--premium");
-    expect(railSource).toContain('variant="premium"');
-    expect(railSource).toContain("rx-category-rail--infinite");
-    expect(railSource).toContain("useCategoryRailInfiniteCarousel");
+    expect(cardSource).toContain("home-v1-category-tile");
+    expect(railSource).toContain("useInfiniteCarousel");
+    expect(railSource).toContain('aria-label="Categories"');
   });
 });

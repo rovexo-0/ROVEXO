@@ -122,7 +122,11 @@ export function CheckoutPage({ product, initialDraft }: CheckoutPageProps) {
             )}
 
             <CheckoutProductCard product={product} />
-            <CheckoutDeliverySection form={form} listingOffersFreeDelivery={product.freeDelivery} />
+            <CheckoutDeliverySection
+              form={form}
+              listingOffersFreeDelivery={product.freeDelivery}
+              listingShippingPrice={product.shippingPrice ?? null}
+            />
             <CheckoutAddressCard form={form} />
             <CheckoutPaymentMethodCard form={form} />
             <CheckoutReturnPolicy form={form} />

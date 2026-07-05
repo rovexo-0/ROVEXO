@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
-import { ProductCard } from "@/components/ui/ProductCard";
-import { productToCardProps } from "@/lib/products/card";
+import { ListingCard } from "@/components/ui/ListingCard";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { getCategoryIcon } from "@/lib/categories/visuals";
 import type { CategoryPageData } from "@/lib/categories/server";
@@ -74,7 +73,7 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
         {products.length > 0 ? (
           <div className="rx-listing-grid">
             {products.map((product) => (
-              <ProductCard key={product.id} {...productToCardProps(product)} />
+              <ListingCard key={product.id} product={product} variant="grid" surface="category" />
             ))}
           </div>
         ) : (

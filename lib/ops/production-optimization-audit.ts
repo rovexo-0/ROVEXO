@@ -382,7 +382,6 @@ export function validateProductionOptimizationSurface(): ProductionOptimizationR
   );
 
   const indexesAdded = PRODUCTION_INDEXES.filter((name) => migrationContainsIndex(name));
-  const remainingWarnings = checks.filter((c) => !c.pass).map((c) => `${c.label}: ${c.message}`);
 
   const pass =
     performanceScore >= 85 &&

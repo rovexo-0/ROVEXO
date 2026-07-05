@@ -15,7 +15,7 @@ export const TOPIC_SEEDS: TopicSeed[] = [
   { slug: "orders", label: "Orders", description: "Order tracking, delivery, and issues", icon: "📋", group: "Marketplace", keywords: ["order", "tracking", "delivery"] },
   { slug: "payments", label: "Payments", description: "Checkout, cards, and payment issues", icon: "💳", group: "Payments", keywords: ["payment", "card", "checkout"] },
   { slug: "withdraw", label: "Withdraw", description: "Seller withdrawals and payouts", icon: "💷", group: "Payments", keywords: ["withdraw", "payout", "processing"] },
-  { slug: "stripe", label: "Stripe", description: "Stripe Connect and payout setup", icon: "💠", group: "Payments", keywords: ["stripe", "connect", "payout"] },
+  { slug: "stripe", label: "Payouts & Bank Setup", description: "Bank account setup and seller payouts", icon: "💠", group: "Payments", keywords: ["payout", "bank", "connect", "stripe"] },
   { slug: "wallet", label: "Wallet", description: "Seller wallet balance and transactions", icon: "👛", group: "Payments", keywords: ["wallet", "balance", "transaction"] },
   { slug: "chat-messages", label: "Chat & Messages", description: "Messaging buyers and sellers", icon: "💬", group: "Communication", keywords: ["chat", "message", "conversation"] },
   { slug: "trust-score", label: "Trust Score", description: "Trust, reputation, and safety signals", icon: "⭐", group: "Trust & Safety", keywords: ["trust", "score", "reputation"] },

@@ -85,7 +85,7 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
           <PageBack variant="text" backHref="/account/settings" backLabel="Settings" className="mb-ds-3" />
           <h1 className="text-2xl font-bold text-text-primary">Payment methods</h1>
           <p className="mt-ds-1 text-sm text-text-secondary">
-            Save cards for faster checkout. Seller payouts use Stripe Connect.
+            Save cards for faster checkout. Seller payouts go to your bank account.
           </p>
         </div>
 
@@ -130,7 +130,7 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
           <section className="rx-surface-card p-ds-5">
             <h2 className="text-base font-semibold text-text-primary">Seller payouts</h2>
             <p className="mt-ds-1 text-sm text-text-secondary">
-              Connect your bank account with Stripe to receive payouts securely.
+              Add your bank account to receive payouts securely.
             </p>
             <Link href="/seller/wallet" className="mt-ds-4 inline-flex">
               <Button variant="secondary">Open seller wallet</Button>

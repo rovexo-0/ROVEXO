@@ -9,7 +9,7 @@ import {
   EXECUTION_SAFE_AUTOMATION,
   MODULE_SCAN_LAYERS,
 } from "@/lib/enterprise-marketplace-completion-engine/registry";
-import { createCheck, fileExists, labelize, passStatus, premiumStylesActive, readSource } from "@/lib/enterprise-marketplace-completion-engine/scan-utils";
+import { fileExists, labelize, passStatus, premiumStylesActive, readSource } from "@/lib/enterprise-marketplace-completion-engine/scan-utils";
 import type {
   AutonomousExecutionCycleStep,
   ExecutionDashboardMetricResult,
@@ -19,7 +19,6 @@ import type {
   ExecutionModePriorityResult,
   ExecutionModeResult,
   ExecutionReleasePolicyResult,
-  ExecutionSafeAutomationProposal,
   MarketplaceCompletionScanResult,
   ModuleScanLayerResult,
 } from "@/lib/enterprise-marketplace-completion-engine/types";

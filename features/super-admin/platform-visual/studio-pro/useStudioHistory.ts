@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ThemeStudioProDocument } from "@/lib/platform-visual/studio-pro/types";
 
 type HistoryState = {
@@ -16,7 +16,9 @@ export function useStudioHistory(initial: ThemeStudioProDocument) {
     future: [],
   });
   const presentRef = useRef(initial);
-  presentRef.current = state.present;
+  useEffect(() => {
+    presentRef.current = state.present;
+  }, [state.present]);
 
   const commit = useCallback((next: ThemeStudioProDocument, recordHistory = true) => {
     setState((current) => {

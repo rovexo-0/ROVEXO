@@ -3,7 +3,7 @@ import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { ProductCard } from "@/components/ui/ProductCard";
+import { ListingCard } from "@/components/ui/ListingCard";
 import { Rating } from "@/components/ui/Rating";
 import { getPublicSellerProfile } from "@/lib/profile/public";
 import {
@@ -53,16 +53,7 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
         {profile.listings.length > 0 ? (
           <section className="rx-listing-grid">
             {profile.listings.map((product) => (
-              <ProductCard
-                key={product.id}
-                title={product.title}
-                href={`/listing/${product.slug}`}
-                imageUrl={product.imageUrl}
-                price={product.price}
-                condition={product.condition}
-                views={product.views}
-                isFeatured={product.isFeatured}
-              />
+              <ListingCard key={product.id} product={product} variant="grid" surface="seller" />
             ))}
           </section>
         ) : (

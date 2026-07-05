@@ -10,7 +10,8 @@ import { validateRegistryModules } from "@/lib/enterprise-module-registry-v2/val
 import { buildVersionMatrix, detectPendingPublish } from "@/lib/enterprise-module-registry-v2/versioning";
 import type { ModuleRegistryV2Snapshot, ModuleRegistryV2Tab } from "@/lib/enterprise-module-registry-v2/types";
 
-export async function getModuleRegistryV2Snapshot(_tab: ModuleRegistryV2Tab = "dashboard"): Promise<ModuleRegistryV2Snapshot> {
+export async function getModuleRegistryV2Snapshot(_tab?: ModuleRegistryV2Tab): Promise<ModuleRegistryV2Snapshot> {
+  void _tab;
   const [draft, live, history] = await Promise.all([
     getRegistryDraft(),
     readLiveRegistryDocument(),
@@ -55,7 +56,8 @@ export async function getModuleRegistryV2Snapshot(_tab: ModuleRegistryV2Tab = "d
   };
 }
 
-export async function getModuleRegistryPageData(tab: ModuleRegistryV2Tab = "dashboard") {
-  const snapshot = await getModuleRegistryV2Snapshot(tab);
+export async function getModuleRegistryPageData(_tab: ModuleRegistryV2Tab = "dashboard") {
+  void _tab;
+  const snapshot = await getModuleRegistryV2Snapshot();
   return { snapshot };
 }

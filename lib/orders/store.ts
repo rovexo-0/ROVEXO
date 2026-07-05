@@ -131,14 +131,18 @@ export async function applyOrderAction(
       return existing;
     }
 
-    await supabase
-      .from("orders")
-      .update({
-        status: "shipped",
-        tracking_number: trackingNumber,
-        shipped_at: new Date().toISOString(),
-      })
-      .eq("id", id);
+    const carrier = (existing.deliveryCarrier || "Royal Mail") as import("@/lib/shipping/carriers").UkCarrier;
+    const { error: shippingError } = await import("@/lib/shipping/store").then((m) =>
+      m.attachShippingTracking({
+        orderId: id,
+        carrier,
+        trackingNumber,
+      }),
+    );
+
+    if (shippingError) {
+      return existing;
+    }
 
     const admin = createAdminClient();
     const { data: buyerProfile } = await admin

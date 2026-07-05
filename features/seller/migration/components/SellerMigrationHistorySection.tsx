@@ -52,13 +52,20 @@ export function SellerMigrationHistorySection({ summary }: SellerMigrationHistor
               </p>
             </div>
             <div className="flex flex-wrap gap-ds-2">
-              <Link href={`/seller/migration/${job.id}`}>
+              {(job.status === "processing" || job.status === "queued") ? (
+                <Link href={`${MIGRATION_CENTER_PATH}?job=${job.id}`}>
+                  <Button size="sm" variant="primary">
+                    Resume import
+                  </Button>
+                </Link>
+              ) : null}
+              <Link href={`${MIGRATION_CENTER_PATH}?job=${job.id}`}>
                 <Button size="sm" variant="outline">
-                  Open report
+                  Open import
                 </Button>
               </Link>
               {job.publishStatus === "failed" ? (
-                <Link href={`/seller/migration/${job.id}`}>
+                <Link href={`${MIGRATION_CENTER_PATH}?job=${job.id}`}>
                   <Button size="sm">Retry failed</Button>
                 </Link>
               ) : null}
@@ -71,7 +78,7 @@ export function SellerMigrationHistorySection({ summary }: SellerMigrationHistor
         <p className="mt-ds-3 text-xs text-warning">
           {summary.failedPublishCount} listing{summary.failedPublishCount === 1 ? "" : "s"} failed to
           publish.{" "}
-          <Link href={`/seller/migration/${latest.id}`} className="underline">
+          <Link href={`${MIGRATION_CENTER_PATH}?job=${latest.id}`} className="underline">
             Review and retry
           </Link>
         </p>

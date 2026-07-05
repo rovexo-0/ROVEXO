@@ -69,7 +69,11 @@ describe("omega enterprise mobile core engine v1.0", () => {
       latestScan: scan,
       performanceScore: 95,
     });
-    expect(dashboard.alertCounts.critical).toBeGreaterThan(0);
+    expect(dashboard.alertCounts.critical).toBe(0);
+    expect(dashboard.alertCounts.high).toBe(0);
+    expect(dashboard.alertCounts.medium).toBe(0);
+    expect(dashboard.alertCounts.low).toBe(0);
+    expect(dashboard.alertCounts.information).toBe(0);
     expect(dashboard.lastGlobalScanScore).toBe(96);
   });
 
@@ -103,8 +107,8 @@ describe("omega enterprise mobile core engine v1.0", () => {
     expect(canPerformOmegaAction("run-scan", settings).allowed).toBe(true);
   });
 
-  it("tracks default alerts by severity", () => {
-    expect(alerts.filter((a) => a.severity === "critical").length).toBeGreaterThan(0);
+  it("starts with an empty default alert feed", () => {
+    expect(alerts).toEqual([]);
     expect(alerts.every((a) => a.recommendedAction.length > 0)).toBe(true);
   });
 
@@ -163,8 +167,9 @@ describe("omega enterprise mobile core engine v1.0", () => {
     expect(OMEGA_ACTION_CENTER.map((a) => a.id)).toContain("maintenance-mode");
   });
 
-  it("provides open alerts for dashboard counts", () => {
+  it("provides dashboard alert counts from the default feed", () => {
     const open = alerts.filter((a) => a.status !== "resolved");
-    expect(open.length).toBeGreaterThan(0);
+    expect(open.length).toBe(0);
+    expect(alerts.every((a) => typeof a.severity === "string")).toBe(true);
   });
 });

@@ -1,0 +1,13 @@
+{
+  "platform": "windows",
+  "format": "msix",
+  "generatedAt": "2026-07-05T03:47:57.727Z",
+  "success": true,
+  "artifact": "C:\\Users\\User\\Projects\\ROVEXO\\apps\\rovexo-staff\\dist\\windows\\ROVEXOStaff.msix",
+  "note": "Windows MSIX packaging uses Capacitor shell loading staff.rovexo.co.uk. Sign with enterprise certificate for sideload or Microsoft Store.",
+  "instructions": [
+    "cd apps/rovexo-staff && npm install && npx cap sync",
+    "Package with MSIX Packaging Tool or Visual Studio Windows App SDK project",
+    "Configure NEXT_PUBLIC_STAFF_URL for production staff portal"
+  ]
+}

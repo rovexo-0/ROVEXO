@@ -9,6 +9,7 @@ export const LockIcon = createFluencyFeatureIcon("feature-lock");
 export const TwoFactorIcon = createFluencyFeatureIcon("feature-two-factor");
 export const BlockedIcon = createFluencyFeatureIcon("feature-blocked");
 export const StripeIcon = createFluencyFeatureIcon("feature-stripe");
+export const PayoutsIcon = createFluencyFeatureIcon("feature-wallet-menu");
 export const ShippingIcon = createFluencyFeatureIcon("feature-shipping");
 export const TermsIcon = createFluencyFeatureIcon("feature-terms");
 export const PrivacyIcon = createFluencyFeatureIcon("feature-privacy");

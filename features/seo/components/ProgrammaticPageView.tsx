@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
-import { ProductCard } from "@/components/ui/ProductCard";
+import { ListingCard } from "@/components/ui/ListingCard";
 import type { Product } from "@/lib/products/types";
-import { productToCardProps } from "@/lib/products/card";
 import type { ProgrammaticPage } from "@/lib/seo/programmatic/resolver";
 import { InternalLinksSection } from "@/features/seo/components/InternalLinksSection";
 import { localBrowseLinks, popularBrowseLinks, relatedCategoryLinks } from "@/lib/seo/internal-links";
@@ -41,7 +40,7 @@ export function ProgrammaticPageView({ page, products, total }: ProgrammaticPage
       {products.length ? (
         <div className="mt-ds-6 rx-listing-grid">
           {products.map((product) => (
-            <ProductCard key={product.id} {...productToCardProps(product, "category")} />
+            <ListingCard key={product.id} product={product} variant="grid" surface="category" />
           ))}
         </div>
       ) : (

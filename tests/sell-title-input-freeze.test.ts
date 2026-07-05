@@ -69,17 +69,18 @@ describe("title input freeze regression", () => {
 });
 
 describe("category detection debounce constants", () => {
-  it("uses an 800ms debounce window for background category work", () => {
-    expect(CATEGORY_DETECTION_DEBOUNCE_MS).toBe(800);
+  it("uses a 1000ms debounce window for background category work", () => {
+    expect(CATEGORY_DETECTION_DEBOUNCE_MS).toBe(1000);
     expect(TITLE_IDLE_COMMIT_MS).toBe(800);
   });
 });
 
 describe("sell background policy", () => {
-  it("enables background features that only run after title idle commit", () => {
-    expect(sellBackgroundPolicy.photoAiEnabled).toBe(true);
+  it("keeps heavy background work disabled on the title input path", () => {
+    expect(sellBackgroundPolicy.photoAiEnabled).toBe(false);
     expect(sellBackgroundPolicy.categorySuggestEnabled).toBe(true);
-    expect(sellBackgroundPolicy.autoLocationEnabled).toBe(true);
+    expect(sellBackgroundPolicy.autoLocationEnabled).toBe(false);
+    expect(sellBackgroundPolicy.categoryDebounceMs).toBe(1000);
   });
 });
 

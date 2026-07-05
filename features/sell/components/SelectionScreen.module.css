@@ -1,0 +1,21 @@
+/* Universal Selection Engine — drill-in navigation animation. */
+.screen {
+  animation: selectionScreenEnter 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes selectionScreenEnter {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen {
+    animation: none;
+  }
+}

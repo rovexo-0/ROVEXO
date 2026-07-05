@@ -16,7 +16,8 @@ describe("homepage engineering director registry", () => {
     expect(HOMEPAGE_FULL_SCAN_COMPONENTS).toContain("premium-header");
     expect(HOMEPAGE_FULL_SCAN_COMPONENTS).toContain("category-rail");
     expect(HOMEPAGE_FULL_SCAN_COMPONENTS).toContain("bottom-navigation");
-    expect(HOMEPAGE_FULL_SCAN_COMPONENTS.length).toBe(15);
+    expect(HOMEPAGE_FULL_SCAN_COMPONENTS).toContain("all-listings");
+    expect(HOMEPAGE_FULL_SCAN_COMPONENTS.length).toBe(8);
   });
 
   it("defines engineering scores and production gates", () => {
@@ -34,8 +35,9 @@ describe("homepage engineering director registry", () => {
   });
 
   it("defines premium home stack", () => {
-    expect(PREMIUM_HOME_STACK).toContain("HomeCategoryRail");
-    expect(PREMIUM_HOME_STACK).toContain("BringYourItemsBanner");
+    expect(PREMIUM_HOME_STACK).toContain("RovexoCategoryRail");
+    expect(PREMIUM_HOME_STACK).toContain("RovexoAllListings");
+    expect(PREMIUM_HOME_STACK).not.toContain("RovexoBanner");
     expect(PREMIUM_HOME_STACK).not.toContain("CategoryGridSection");
   });
 });

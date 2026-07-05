@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { getTileIcon } from "@/lib/account-center/tile-icons";
-import { NotificationBadge } from "@/features/account-page/components/NotificationBadge";
+import { NotificationBadge } from "@/features/account-center/components/NotificationBadge";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
 import type { MobileTile } from "@/lib/mobile-ui/types";

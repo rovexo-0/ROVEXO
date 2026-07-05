@@ -113,7 +113,7 @@ ROVEXO checkout includes buyer protection on eligible purchases.
 
 ## Seller requirements
 - Complete seller tax registration before receiving payouts.
-- Connect Stripe for secure payouts.
+- Add your bank account for secure payouts.
 - Follow prohibited items and community guidelines.`,
   },
   {
@@ -146,7 +146,7 @@ Listings with clear photos sell faster and receive fewer disputes.`,
 ## Sellers
 - ROVEXO collects payment and releases seller payouts after order milestones.
 - A platform commission applies to completed sales.
-- Connect Stripe from your seller wallet to receive payouts.`,
+- Add your bank account from your seller wallet to receive payouts.`,
   },
   {
     slug: "payments-refunds",
@@ -258,7 +258,7 @@ Business accounts support higher-volume selling and inventory tools.
 ## Registration
 - Choose **Business Sole Trader** or **Business Company** during seller tax registration.
 - Provide accurate company details and VAT number when applicable.
-- Complete Stripe Connect for payouts.
+- Complete bank account setup for payouts.
 
 Business sellers must comply with commercial selling regulations.`,
   },
@@ -450,7 +450,7 @@ Before receiving payouts, complete seller tax registration:
 - **Business Sole Trader** — self-employed business
 - **Business Company** — registered company
 
-Provide accurate details including address and tax identifiers where required. Then connect Stripe for payouts.`,
+Provide accurate details including address and tax identifiers where required. Then add your bank account for payouts.`,
   },
 ];
 

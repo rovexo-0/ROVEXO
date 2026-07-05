@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
+import { requireApiRole } from "@/lib/auth/session";
 import { resolveListingCategoryId } from "@/lib/categories/resolve-listing";
+import { resolveTransactionModeFromCategoryPathPayload } from "@/lib/transaction-mode/resolver";
+import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
 import {
   createSellerListing,
   getSellerListings,
@@ -24,11 +26,10 @@ const FILTERS: ListingFilter[] = [  "all",
 ];
 
 export async function GET(request: Request) {
-  const auth = await requireApiAuth();
+  // requireApiRole authenticates and authorizes in a single pass, so we avoid a
+  // second getUser()/profile round-trip that a separate requireApiAuth would add.
+  const auth = await requireApiRole(["seller", "business", "admin"]);
   if (auth instanceof NextResponse) return auth;
-
-  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
-  if (roleCheck instanceof NextResponse) return roleCheck;
 
   const { searchParams } = new URL(request.url);
   const filterParam = searchParams.get("filter") ?? "all";
@@ -41,11 +42,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiAuth();
+  const auth = await requireApiRole(["seller", "business", "admin"]);
   if (auth instanceof NextResponse) return auth;
-
-  const roleCheck = await requireApiRole(["seller", "business", "admin"]);
-  if (roleCheck instanceof NextResponse) return roleCheck;
 
   try {
     const body = createListingSchema.parse(await request.json());
@@ -76,6 +74,9 @@ export async function POST(request: Request) {
       }
     }
 
+    const transactionMode = resolveTransactionModeFromCategoryPathPayload(body.categoryPath);
+    const directContact = isDirectContactMode(transactionMode);
+
     const listing = await createSellerListing({
       sellerId: auth.user.id,
       title: body.title,
@@ -86,11 +87,12 @@ export async function POST(request: Request) {
       condition: body.condition,
       price: body.price,
       acceptOffers: body.acceptOffers,
-      freeDelivery: body.freeDelivery,
-      shippingMethod: body.shippingMethod,
-      shippingPrice: body.shippingPrice,
+      freeDelivery: directContact ? false : body.freeDelivery,
+      shippingMethod: directContact ? "collection_only" : body.shippingMethod,
+      shippingPrice: directContact ? null : body.shippingPrice,
       categoryId,
-      deliveryCarriers: body.deliveryCarriers,
+      deliveryCarriers: directContact ? undefined : body.deliveryCarriers,
+      parcelSize: directContact ? undefined : body.parcelSize,
       status: body.status ?? "published",
       listingType: body.listingType,
       auctionStartPrice: body.auctionStartPrice,

@@ -1,7 +1,8 @@
 import { deliveryCarriersForMethod } from "@/lib/sell/delivery";
 import { clampInventory } from "@/lib/sell/inventory";
 import { buildPublishDescription } from "@/lib/sell/publish-description";
-import type { SellListingDraft, SellPhoto } from "@/features/sell/types";
+import { formatAttributeNote } from "@/lib/sell/attribute-engine";
+import type { ParcelSize, SellListingDraft, SellPhoto } from "@/features/sell/types";
 
 /** Default low-stock alert when the sell form does not expose that field. */
 export const LISTING_DEFAULT_LOW_STOCK_ALERT = 5;
@@ -19,6 +20,7 @@ export type ListingPublishPayload = {
   shippingMethod: SellListingDraft["shippingMethod"];
   shippingPrice?: number;
   deliveryCarriers: string[];
+  parcelSize?: ParcelSize;
   categoryPath: {
     categorySlug: string;
     subcategorySlug: string;
@@ -56,7 +58,9 @@ export function buildListingPublishPayload(
 
   const payload: ListingPublishPayload = {
     title: draft.title.trim(),
-    description: buildPublishDescription(draft.title, draft.description, draft.material),
+    description:
+      buildPublishDescription(draft.title, draft.description, draft.material) +
+      formatAttributeNote(draft.attributes),
     condition: draft.condition,
     price: parsePublishPrice(draft.price),
     acceptOffers: draft.acceptOffers,
@@ -88,6 +92,7 @@ export function buildListingPublishPayload(
   if (draft.color.trim()) payload.color = draft.color.trim();
   if (draft.size.trim()) payload.size = draft.size.trim();
   if (draft.freeDelivery) payload.shippingPrice = 0;
+  if (draft.parcelSize) payload.parcelSize = draft.parcelSize;
 
   return payload;
 }

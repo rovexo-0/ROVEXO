@@ -35,6 +35,7 @@ const createSchema = z.object({
       urls: z.array(z.string().url()).optional(),
       fileName: z.string().max(200).optional(),
       fileContent: z.string().max(5_000_000).optional(),
+      fileEncoding: z.enum(["utf8", "base64"]).optional(),
       fileStoragePath: z.string().max(500).optional(),
       storeUrl: z.string().max(500).optional(),
       apiCredentialsRef: z.string().max(100).optional(),

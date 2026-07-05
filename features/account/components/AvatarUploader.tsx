@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
@@ -16,6 +17,7 @@ type AvatarUploaderProps = {
 const CROP_SIZE = 280;
 
 export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderProps) {
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -122,6 +124,7 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
       onUpdated(payload.avatarUrl);
       setPreview(null);
       setSourceImage(null);
+      router.refresh();
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Upload failed.");
     } finally {
@@ -141,6 +144,7 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
       onUpdated(null);
       setPreview(null);
       setSourceImage(null);
+      router.refresh();
     } catch (removeError) {
       setError(removeError instanceof Error ? removeError.message : "Unable to remove avatar.");
     } finally {

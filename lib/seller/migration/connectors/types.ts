@@ -44,6 +44,9 @@ export type ConnectorConnectInput = {
   refreshToken?: string;
   fileName?: string;
   fileContent?: string;
+  expiresAt?: string;
+  scopes?: string;
+  connectedAt?: string;
   settings?: Record<string, string | boolean | number>;
 };
 

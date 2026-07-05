@@ -10,6 +10,7 @@ import { buildOrderReceiptUrl, generateInvoiceNumber } from "@/lib/invoices/rece
 import { calculateSellerNetAmount } from "@/lib/wallet/sales";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
+import { assertMarketplacePurchaseAllowedForProductSlug } from "@/lib/transaction-mode/validate";
 
 const RESERVATION_MINUTES = 30;
 
@@ -51,6 +52,11 @@ export async function createOrderCheckoutSession(
     return { error: "Product not found." };
   }
 
+  const purchaseCheck = await assertMarketplacePurchaseAllowedForProductSlug(input.productSlug);
+  if (!purchaseCheck.allowed) {
+    return { error: purchaseCheck.error };
+  }
+
   if (product.seller_id === input.buyerId) {
     return { error: "You cannot purchase your own listing." };
   }
@@ -76,7 +82,10 @@ export async function createOrderCheckoutSession(
 
   const deliveryCarrier = getDeliveryCarrier(input.deliveryOption);
   const listingOffersFreeDelivery = product.shipping_price === 0;
-  const deliveryPrice = getDeliveryPrice(input.deliveryOption, { listingOffersFreeDelivery });
+  const deliveryPrice = getDeliveryPrice(input.deliveryOption, {
+    listingOffersFreeDelivery,
+    listingShippingPrice: product.shipping_price != null ? Number(product.shipping_price) : null,
+  });
   const totals = calculateOrderTotals(Number(product.price), deliveryPrice);
   const { platformFee, sellerAmount } = calculateSellerNetAmount(totals.itemPrice);
   const reservedUntil = new Date(Date.now() + RESERVATION_MINUTES * 60 * 1000).toISOString();

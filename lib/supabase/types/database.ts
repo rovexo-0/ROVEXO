@@ -708,6 +708,7 @@ export type Database = {
           seo_title: string | null
           slug: string
           sort_order: number
+          transaction_mode: Database["public"]["Enums"]["transaction_mode"]
         }
         Insert: {
           created_at?: string
@@ -721,6 +722,7 @@ export type Database = {
           seo_title?: string | null
           slug: string
           sort_order?: number
+          transaction_mode?: Database["public"]["Enums"]["transaction_mode"]
         }
         Update: {
           created_at?: string
@@ -734,6 +736,7 @@ export type Database = {
           seo_title?: string | null
           slug?: string
           sort_order?: number
+          transaction_mode?: Database["public"]["Enums"]["transaction_mode"]
         }
         Relationships: [
           {
@@ -2587,6 +2590,7 @@ export type Database = {
           moderation_status: Database["public"]["Enums"]["moderation_decision"]
           moderation_summary: string
           original_price: number | null
+          parcel_size: string | null
           price: number
           promotion_score: number
           rating: number
@@ -2636,6 +2640,7 @@ export type Database = {
           moderation_status?: Database["public"]["Enums"]["moderation_decision"]
           moderation_summary?: string
           original_price?: number | null
+          parcel_size?: string | null
           price: number
           promotion_score?: number
           rating?: number
@@ -2685,6 +2690,7 @@ export type Database = {
           moderation_status?: Database["public"]["Enums"]["moderation_decision"]
           moderation_summary?: string
           original_price?: number | null
+          parcel_size?: string | null
           price?: number
           promotion_score?: number
           rating?: number
@@ -4287,6 +4293,8 @@ export type Database = {
       }
       withdraw_methods: {
         Row: {
+          account_holder_name: string | null
+          account_number: string | null
           connected: boolean
           created_at: string
           id: string
@@ -4294,9 +4302,12 @@ export type Database = {
           label: string
           last_digits: string
           provider: Database["public"]["Enums"]["withdraw_provider"]
+          sort_code: string | null
           user_id: string
         }
         Insert: {
+          account_holder_name?: string | null
+          account_number?: string | null
           connected?: boolean
           created_at?: string
           id?: string
@@ -4304,9 +4315,12 @@ export type Database = {
           label: string
           last_digits: string
           provider: Database["public"]["Enums"]["withdraw_provider"]
+          sort_code?: string | null
           user_id: string
         }
         Update: {
+          account_holder_name?: string | null
+          account_number?: string | null
           connected?: boolean
           created_at?: string
           id?: string
@@ -4314,6 +4328,7 @@ export type Database = {
           label?: string
           last_digits?: string
           provider?: Database["public"]["Enums"]["withdraw_provider"]
+          sort_code?: string | null
           user_id?: string
         }
         Relationships: [
@@ -4441,6 +4456,7 @@ export type Database = {
         | "completed"
         | "cancelled"
       product_status: "draft" | "published" | "paused" | "sold" | "deleted"
+      transaction_mode: "MARKETPLACE" | "DIRECT_CONTACT"
       protection_case_outcome:
         | "pending"
         | "refund_full"
@@ -4708,6 +4724,7 @@ export const Constants = {
         "cancelled",
       ],
       product_status: ["draft", "published", "paused", "sold", "deleted"],
+      transaction_mode: ["MARKETPLACE", "DIRECT_CONTACT"],
       protection_case_outcome: [
         "pending",
         "refund_full",

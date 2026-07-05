@@ -10,7 +10,7 @@ import {
   ORDER_STATUS_ENGINE,
   ORDER_WORKFLOW_VALIDATION,
 } from "@/lib/enterprise-marketplace-completion-engine/registry";
-import { createCheck, fileExists, labelize, passStatus, premiumStylesActive, readSource } from "@/lib/enterprise-marketplace-completion-engine/scan-utils";
+import { createCheck, fileExists, labelize, passStatus, readSource } from "@/lib/enterprise-marketplace-completion-engine/scan-utils";
 import type {
   CompletionValidationItem,
   MarketplaceCompletionScanResult,

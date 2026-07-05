@@ -1,4 +1,4 @@
-import { resolveCategoryIdBySlugPath } from "@/lib/categories/server";
+import { resolveOrCreateCategoryIdBySlugPath } from "@/lib/categories/server";
 import type { FlatCategoryPath } from "@/lib/categories/types";
 
 export type CategoryPathPayload = {
@@ -14,7 +14,7 @@ export async function resolveListingCategoryId(
   if (!categoryPath) return null;
 
   if (categoryPath.categorySlugs?.length) {
-    return resolveCategoryIdBySlugPath(categoryPath.categorySlugs);
+    return resolveOrCreateCategoryIdBySlugPath(categoryPath.categorySlugs);
   }
 
   const slugs = [
@@ -23,7 +23,7 @@ export async function resolveListingCategoryId(
     ...(categoryPath.childCategorySlug ? [categoryPath.childCategorySlug] : []),
   ];
 
-  return resolveCategoryIdBySlugPath(slugs);
+  return resolveOrCreateCategoryIdBySlugPath(slugs);
 }
 
 export function categorySlugsFromFlatPath(flat: FlatCategoryPath): string[] {

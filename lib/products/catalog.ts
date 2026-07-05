@@ -1,5 +1,6 @@
 export {
   countSearchProducts,
+  getHomepageFeed,
   getProductBySlug,
   getProductsBySection,
   getSimilarProducts,

@@ -6,7 +6,13 @@ const LOOP_COPIES = 3;
 const AUTO_SCROLL_PX_PER_FRAME = 0.5;
 const RESUME_DELAY_MS = 480;
 const DRAG_THRESHOLD_PX = 4;
+// A touch must travel this far and be more horizontal than vertical before the
+// carousel claims the gesture. Below this, the browser keeps the touch so
+// vertical page scrolling stays smooth and always takes priority on iOS Safari.
+const DIRECTION_LOCK_THRESHOLD_PX = 12;
 const MOBILE_MAX_WIDTH_PX = 1023;
+
+type GestureAxis = "none" | "horizontal" | "vertical";
 
 type UseInfiniteCarouselOptions = {
   itemCount: number;
@@ -51,7 +57,8 @@ export function useInfiniteCarousel({
   const isDragging = useRef(false);
   const dragMovedRef = useRef(false);
   const pointerIdRef = useRef<number | null>(null);
-  const dragStartRef = useRef({ x: 0, scrollLeft: 0 });
+  const dragStartRef = useRef({ x: 0, y: 0, scrollLeft: 0 });
+  const gestureAxisRef = useRef<GestureAxis>("none");
   const scrollSampleRef = useRef({ scrollLeft: 0, time: 0 });
   const velocityRef = useRef(0);
   const initializedRef = useRef(false);
@@ -232,17 +239,16 @@ export function useInfiniteCarousel({
     return () => scroller.removeEventListener("wheel", handleWheel);
   }, [normalizeScroll, pause, scheduleResume]);
 
-  const onPointerDown = useCallback(
-    (event: React.PointerEvent<HTMLDivElement>) => {
-      if (event.pointerType === "mouse" && event.button !== 0) return;
-      const scroller = scrollerRef.current;
-      if (!scroller) return;
-      pause();
+  const engageHorizontalDrag = useCallback(
+    (scroller: HTMLDivElement, event: React.PointerEvent<HTMLDivElement>) => {
+      gestureAxisRef.current = "horizontal";
       isDragging.current = true;
-      dragMovedRef.current = false;
-      pointerIdRef.current = event.pointerId;
-      velocityRef.current = 0;
-      dragStartRef.current = { x: event.clientX, scrollLeft: scroller.scrollLeft };
+      // Re-anchor to the current point so drag begins with zero delta (no jump).
+      dragStartRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+        scrollLeft: scroller.scrollLeft,
+      };
       scrollSampleRef.current = { scrollLeft: scroller.scrollLeft, time: performance.now() };
       scroller.classList.add("premium-infinite--dragging");
       try {
@@ -251,14 +257,66 @@ export function useInfiniteCarousel({
         // ignore
       }
     },
+    [],
+  );
+
+  const onPointerDown = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      const scroller = scrollerRef.current;
+      if (!scroller) return;
+      pause();
+      dragMovedRef.current = false;
+      pointerIdRef.current = event.pointerId;
+      velocityRef.current = 0;
+      dragStartRef.current = { x: event.clientX, y: event.clientY, scrollLeft: scroller.scrollLeft };
+      scrollSampleRef.current = { scrollLeft: scroller.scrollLeft, time: performance.now() };
+
+      // Stay undecided for every input type and DO NOT capture the pointer yet.
+      // Capturing on pointer-down retargets the subsequent click to the scroller,
+      // which swallows card navigation on desktop (mouse), and it also steals
+      // vertical page scrolling on touch. We only capture once onPointerMove
+      // detects an actual drag, so a plain click/tap always reaches the card link.
+      gestureAxisRef.current = "none";
+      isDragging.current = false;
+    },
     [pause],
   );
 
   const onPointerMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
-      if (!isDragging.current || pointerIdRef.current !== event.pointerId) return;
+      if (pointerIdRef.current !== event.pointerId) return;
       const scroller = scrollerRef.current;
       if (!scroller) return;
+
+      // Resolve gesture direction once movement clears the lock threshold.
+      if (gestureAxisRef.current === "none") {
+        const dx = event.clientX - dragStartRef.current.x;
+        const dy = event.clientY - dragStartRef.current.y;
+        const absX = Math.abs(dx);
+        const absY = Math.abs(dy);
+        if (event.pointerType === "mouse") {
+          // Mouse never competes with page scroll; engage as soon as the press
+          // turns into a drag. Below the threshold it stays a plain click so the
+          // card link navigates normally.
+          if (absX < DRAG_THRESHOLD_PX && absY < DRAG_THRESHOLD_PX) return;
+          engageHorizontalDrag(scroller, event);
+        } else {
+          if (absX < DIRECTION_LOCK_THRESHOLD_PX && absY < DIRECTION_LOCK_THRESHOLD_PX) {
+            return;
+          }
+          if (absY >= absX) {
+            // Vertical intent — release the gesture to the browser for page scroll.
+            gestureAxisRef.current = "vertical";
+            scheduleResume();
+            return;
+          }
+          engageHorizontalDrag(scroller, event);
+        }
+      }
+
+      if (gestureAxisRef.current !== "horizontal" || !isDragging.current) return;
+
       const delta = event.clientX - dragStartRef.current.x;
       if (Math.abs(delta) > DRAG_THRESHOLD_PX) dragMovedRef.current = true;
       scroller.scrollLeft = dragStartRef.current.scrollLeft - delta;
@@ -272,7 +330,7 @@ export function useInfiniteCarousel({
       }
       scrollSampleRef.current = { scrollLeft: scroller.scrollLeft, time: now };
     },
-    [normalizeScroll],
+    [engageHorizontalDrag, normalizeScroll, scheduleResume],
   );
 
   const releasePointer = useCallback(
@@ -280,9 +338,17 @@ export function useInfiniteCarousel({
       if (pointerIdRef.current !== event.pointerId) return;
       const scroller = scrollerRef.current;
       if (scroller?.hasPointerCapture(event.pointerId)) scroller.releasePointerCapture(event.pointerId);
+      const wasHorizontalDrag = gestureAxisRef.current === "horizontal" && isDragging.current;
       isDragging.current = false;
       pointerIdRef.current = null;
+      gestureAxisRef.current = "none";
       scroller?.classList.remove("premium-infinite--dragging");
+
+      if (!wasHorizontalDrag) {
+        scheduleResume();
+        return;
+      }
+
       normalizeScroll();
 
       if (enableMomentum && Math.abs(velocityRef.current) > 0.35) {

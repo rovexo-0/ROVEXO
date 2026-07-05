@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useMigrationPublishPoll } from "@/features/seller/migration/hooks/use-migration-publish-poll";
+import { IMPORT_WIZARD_PATH } from "@/lib/seller/migration/config";
 import type { MigrationJob, PublishAction } from "@/lib/seller/migration/types";
 
 type MigrationBulkPublishPanelProps = {
@@ -219,7 +220,7 @@ export function MigrationBulkPublishPanel({
         </a>
         {!compact ? (
           <Link
-            href={`/seller/migration/${localJob.id}`}
+            href={`${IMPORT_WIZARD_PATH}?job=${encodeURIComponent(localJob.id)}`}
             className="text-xs font-medium text-primary underline"
           >
             Review items &amp; categories

@@ -1,24 +1,20 @@
-import { MissionControlCenterV2 } from "@/features/super-admin/mission-control/MissionControlCenterV2";
-import { getMissionControlV2PageDataFromSnapshot } from "@/lib/mission-control-engine/reader";
-import { getMissionControlSnapshot } from "@/lib/super-admin/mission-control/snapshot";
+import { CommandCenterLiveProvider } from "@/features/super-admin/command-center-v1/CommandCenterLiveProvider";
+import { CommandCenterV1Live } from "@/features/super-admin/command-center-v1/CommandCenterV1";
+import { getCommandCenterV1Snapshot } from "@/lib/super-admin/command-center-v1";
 
 export default async function SuperAdminHomePage() {
-  const snapshot = await getMissionControlSnapshot();
-  const { context, sections, quickActions } = await getMissionControlV2PageDataFromSnapshot(snapshot);
+  const snapshot = await getCommandCenterV1Snapshot();
 
   return (
-    <MissionControlCenterV2
-      snapshot={snapshot}
-      context={context}
-      sections={sections}
-      quickActions={quickActions}
-    />
+    <CommandCenterLiveProvider initialSnapshot={snapshot}>
+      <CommandCenterV1Live />
+    </CommandCenterLiveProvider>
   );
 }
 
 export async function generateMetadata() {
   return {
-    title: "Mission Control | ROVEXO",
+    title: "Command Center | ROVEXO Super Admin",
     robots: { index: false, follow: false },
   };
 }

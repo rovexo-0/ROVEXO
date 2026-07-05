@@ -12,10 +12,9 @@ import {
   OMEGA_GLOBAL_INTEGRITY_CHECKS,
   PLATFORM_VALIDATION_DOMAINS,
 } from "@/lib/enterprise-marketplace-completion-engine/registry";
-import { createCheck, fileExists, labelize, passStatus, premiumStylesActive, readSource } from "@/lib/enterprise-marketplace-completion-engine/scan-utils";
+import { fileExists, labelize, passStatus, premiumStylesActive, readSource } from "@/lib/enterprise-marketplace-completion-engine/scan-utils";
 import type {
   CompletionStatus,
-  CompletionValidationItem,
   DeliveryManagementItem,
   DeliveryZeroDefectPolicyResult,
   EnterpriseDeliveryResult,
@@ -29,7 +28,6 @@ import type {
   InfrastructureValidationResult,
   MarketplaceCompletionScanResult,
   PlatformValidationResult,
-  SafeOptimizationProposal,
 } from "@/lib/enterprise-marketplace-completion-engine/types";
 
 function scanDeliveryManagement(scan: MarketplaceCompletionScanResult): DeliveryManagementItem[] {
@@ -69,7 +67,6 @@ function scanDeliveryManagement(scan: MarketplaceCompletionScanResult): Delivery
 }
 
 function scanFeatureDiscovery(scan: MarketplaceCompletionScanResult): FeatureDiscoveryResult[] {
-  const hasUi = fileExists("components/ui/Button.tsx");
   const hasMiddleware = fileExists("middleware.ts");
   const hasApi = fileExists("app/api/search/route.ts");
   const hasDb = fileExists("lib/supabase/middleware.ts");
@@ -104,7 +101,7 @@ function scanFeatureDiscovery(scan: MarketplaceCompletionScanResult): FeatureDis
   });
 }
 
-function scanPlatformValidation(scan: MarketplaceCompletionScanResult): PlatformValidationResult[] {
+function scanPlatformValidation(): PlatformValidationResult[] {
   return PLATFORM_VALIDATION_DOMAINS.map((domain) => {
     const pass = fileExists(domain.pageRef);
     return {
@@ -367,7 +364,7 @@ function buildFinalReleaseGate(scan: MarketplaceCompletionScanResult, criticalDe
 export function runEnterpriseDeliveryScan(scan: MarketplaceCompletionScanResult): EnterpriseDeliveryResult {
   const management = scanDeliveryManagement(scan);
   const discovery = scanFeatureDiscovery(scan);
-  const platform = scanPlatformValidation(scan);
+  const platform = scanPlatformValidation();
   const globalUi = scanGlobalUiValidation(scan);
   const globalUx = scanGlobalUxValidation(scan);
   const marketplace = scanGlobalMarketplaceValidation(scan);

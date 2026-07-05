@@ -449,8 +449,9 @@ describe("templates and engine state", () => {
   });
 
   it("finds workflow by id", () => {
-    const wf = createDefaultWorkflows()[0]!;
-    expect(findWorkflow(createDefaultWorkflows(), wf.id)?.id).toBe(wf.id);
+    const workflows = createDefaultWorkflows();
+    const wf = workflows[0]!;
+    expect(findWorkflow(workflows, wf.id)?.id).toBe(wf.id);
   });
 
   it("upserts workflow", () => {

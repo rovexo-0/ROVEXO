@@ -51,7 +51,10 @@ export const ListingTitleField = memo(function ListingTitleField({
   const [showFieldValidation, setShowFieldValidation] = useState(false);
   const localTitleRef = useRef(localTitle);
   const isTypingRef = useRef(false);
-  localTitleRef.current = localTitle;
+
+  useEffect(() => {
+    localTitleRef.current = localTitle;
+  }, [localTitle]);
 
   const idleSchedulerRef = useRef(
     createTitleIdleScheduler(
@@ -65,12 +68,13 @@ export const ListingTitleField = memo(function ListingTitleField({
   );
 
   useEffect(() => {
+    const idleScheduler = idleSchedulerRef.current;
     if (flushIdleCommit) {
-      flushIdleCommit.current = () => idleSchedulerRef.current.flush();
+      flushIdleCommit.current = () => idleScheduler.flush();
     }
     return () => {
       if (flushIdleCommit) flushIdleCommit.current = null;
-      idleSchedulerRef.current.cancel();
+      idleScheduler.cancel();
     };
   }, [flushIdleCommit]);
 

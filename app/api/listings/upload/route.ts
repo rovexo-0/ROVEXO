@@ -65,14 +65,19 @@ export async function POST(request: Request) {
 
     const admin = createAdminClient();
 
+    // Product image filenames are unique + immutable (timestamp + random id), so
+    // they can be cached aggressively by the CDN and browsers for a year.
+    const cacheControl = "31536000";
     const [fullUpload, thumbUpload] = await Promise.all([
       admin.storage.from("products").upload(fullPath, fullBuffer, {
         contentType,
         upsert: true,
+        cacheControl,
       }),
       admin.storage.from("products").upload(thumbPath, thumbnailBuffer, {
         contentType,
         upsert: true,
+        cacheControl,
       }),
     ]);
 

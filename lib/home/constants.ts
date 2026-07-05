@@ -143,17 +143,6 @@ export const HOME_HERO_BANNERS: HomeHeroBannerSlide[] = [
     image: heroCampaignImage("zero-fees"),
   },
   {
-    id: "verified-businesses",
-    title: "Verified Businesses",
-    subtitle: "Professional storefronts, warehouses and suppliers.",
-    cta: "Browse directory",
-    href: "/business/directory",
-    theme: "blue",
-    icon: "services",
-    categoryKey: "services",
-    image: heroCampaignImage("verified-businesses"),
-  },
-  {
     id: "buy-securely",
     title: "Buyer Protection",
     subtitle: "Shield, verified sellers, safe delivery on every order.",
@@ -202,7 +191,7 @@ export const HOME_HERO_BANNERS: HomeHeroBannerSlide[] = [
     title: "Grow Your Business",
     subtitle: "Reach buyers across the UK with verified storefronts and analytics.",
     cta: "Open store",
-    href: "/business/center",
+    href: "/business/dashboard",
     theme: "violet",
     icon: "services",
     categoryKey: "services",
@@ -211,13 +200,6 @@ export const HOME_HERO_BANNERS: HomeHeroBannerSlide[] = [
 ];
 
 export const HOME_SECONDARY_BANNERS: HomeSecondaryBanner[] = [
-  {
-    id: "bring-items",
-    title: "Bring Your Items",
-    subtitle: "Import your entire store in minutes.",
-    cta: "Start import",
-    href: "/import-wizard",
-  },
   {
     id: "start-selling",
     title: "Start Selling",

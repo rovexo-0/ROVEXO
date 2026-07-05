@@ -5,7 +5,6 @@ import { useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { cn } from "@/lib/cn";
-import { SECURITY_ENGINE_MODULES } from "@/lib/security-engine/registry";
 import type {
   SecurityEngineAnalytics,
   SecurityEngineContext,

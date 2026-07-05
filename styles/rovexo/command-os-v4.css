@@ -1,0 +1,178 @@
+/* ROVEXO Command OS Enterprise v4.0 */
+
+.cos-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+}
+
+.cos-panel__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.cos-note {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.cos-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--ds-space-3);
+}
+
+.cos-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-1);
+  padding: var(--ds-space-4);
+  border-radius: var(--ds-radius-lg);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.cos-stat strong {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.cos-stat span {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--ds-space-3);
+}
+
+.cos-module-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
+  padding: var(--ds-space-4);
+  border-radius: var(--ds-radius-lg);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-elevated);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.cos-module-card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+.cos-module-card__icon {
+  font-size: 1.5rem;
+}
+
+.cos-module-card p,
+.cos-module-card__caps {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+}
+
+.cos-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--ds-space-3);
+}
+
+.cos-metric {
+  padding: var(--ds-space-3);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.cos-metric span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.cos-metric strong {
+  display: block;
+  font-size: 1.25rem;
+  margin-top: var(--ds-space-1);
+}
+
+.cos-twin-grid,
+.cos-health-grid,
+.cos-ops-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--ds-space-3);
+}
+
+.cos-twin-node,
+.cos-health-card,
+.cos-op-card {
+  padding: var(--ds-space-4);
+  border-radius: var(--ds-radius-lg);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-elevated);
+}
+
+.cos-twin-node__category {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+}
+
+.cos-op-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
+}
+
+.cos-op-card--critical {
+  border-color: color-mix(in srgb, var(--color-danger) 35%, transparent);
+}
+
+.cos-search-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cos-search-item {
+  display: block;
+  padding: var(--ds-space-3);
+  border-radius: var(--ds-radius-md);
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-elevated);
+}
+
+.cos-search-item span {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.cos-link {
+  font-size: 0.8125rem;
+  color: var(--color-accent);
+}
+
+.cos-status--healthy {
+  color: var(--color-success);
+}
+
+.cos-status--warning {
+  color: var(--color-warning);
+}
+
+.cos-status--critical {
+  color: var(--color-danger);
+}

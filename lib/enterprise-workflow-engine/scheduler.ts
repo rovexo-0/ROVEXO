@@ -14,7 +14,6 @@ export function computeNextCronRun(cron: string, from = new Date()): string {
 }
 
 export function createSchedule(workflowId: string, cron: string, timezone = "UTC"): WorkflowSchedule {
-  const now = new Date().toISOString();
   return {
     id: `sched-${workflowId}-${Date.now()}`,
     workflowId,

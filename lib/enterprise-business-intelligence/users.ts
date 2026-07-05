@@ -1,4 +1,4 @@
-import type { LeaderboardEntry, UserAnalytics } from "@/lib/enterprise-business-intelligence/types";
+import type { UserAnalytics } from "@/lib/enterprise-business-intelligence/types";
 
 export function createDefaultUserAnalytics(): UserAnalytics {
   return {

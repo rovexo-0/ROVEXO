@@ -71,7 +71,6 @@ export function filterEnabledBuilders(
 
 export function filterEnabledCanvasElements(
   elements: VisualCmsEngineDocument["canvasElements"],
-  config: VisualCmsEngineDocument,
 ) {
   return elements.filter((e) => e.enabled);
 }

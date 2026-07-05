@@ -4,13 +4,14 @@ import { usePageBack } from "@/hooks/navigation/usePageBack";
 import { IconButton } from "@/components/ui/IconButton";
 import { cn } from "@/lib/cn";
 import { transitionNormal } from "@/components/ui/tokens";
-import { BackIcon, HeartIcon } from "@/features/product-detail/icons";
+import { BackIcon, HeartIcon, ShareIcon } from "@/features/product-detail/icons";
 
 type ProductDetailScrollHeaderProps = {
   visible: boolean;
   title: string;
   isSaved: boolean;
   onSave: () => void;
+  onShare: () => void;
 };
 
 export function ProductDetailScrollHeader({
@@ -18,6 +19,7 @@ export function ProductDetailScrollHeader({
   title,
   isSaved,
   onSave,
+  onShare,
 }: ProductDetailScrollHeaderProps) {
   const back = usePageBack({ backHref: "/", backLabel: "Home" });
 
@@ -45,6 +47,10 @@ export function ProductDetailScrollHeader({
           className={cn(isSaved && "text-danger")}
         >
           <HeartIcon filled={isSaved} className="h-5 w-5" />
+        </IconButton>
+
+        <IconButton label="Share item" variant="ghost" size="md" onClick={onShare}>
+          <ShareIcon className="h-5 w-5" />
         </IconButton>
       </div>
     </header>

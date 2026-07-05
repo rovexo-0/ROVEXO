@@ -1,30 +1,45 @@
 import type { AppearanceMode } from "@/lib/settings/types";
 
-export function resolveDarkMode(appearanceMode: AppearanceMode, systemPrefersDark: boolean): boolean {
-  if (appearanceMode === "dark") return true;
-  if (appearanceMode === "light") return false;
-  return systemPrefersDark;
+/** localStorage key holding the user's appearance MODE ("light"|"dark"|"system"). */
+export const THEME_STORAGE_KEY = "rovexo-theme";
+
+export function systemPrefersDark(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
 }
 
+export function resolveDarkMode(appearanceMode: AppearanceMode, systemPrefers: boolean): boolean {
+  if (appearanceMode === "dark") return true;
+  if (appearanceMode === "light") return false;
+  return systemPrefers;
+}
+
+/** Resolve a mode to the concrete theme currently in effect. */
+export function resolveTheme(appearanceMode: AppearanceMode): "light" | "dark" {
+  return resolveDarkMode(appearanceMode, systemPrefersDark()) ? "dark" : "light";
+}
+
+/** Apply a mode to <html data-theme> and return the resolved theme. */
+export function applyTheme(appearanceMode: AppearanceMode): "light" | "dark" {
+  const resolved = resolveTheme(appearanceMode);
+  if (typeof document !== "undefined") {
+    document.documentElement.dataset.theme = resolved;
+  }
+  return resolved;
+}
+
+/* ── Backward-compatible wrappers (single underlying implementation) ── */
+
 export function applyAppearanceMode(appearanceMode: AppearanceMode) {
-  if (typeof document === "undefined") return;
-
-  const prefersDark =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-  const dark = resolveDarkMode(appearanceMode, prefersDark);
-  document.documentElement.dataset.theme = dark ? "dark" : "light";
+  applyTheme(appearanceMode);
 }
 
 export function syncThemeFromSettings(input: {
   appearanceMode: AppearanceMode;
-  darkMode: boolean;
+  darkMode?: boolean;
 }) {
-  if (input.appearanceMode === "system") {
-    applyAppearanceMode("system");
-    return;
-  }
-  if (typeof document === "undefined") return;
-  document.documentElement.dataset.theme = input.darkMode ? "dark" : "light";
+  applyTheme(input.appearanceMode);
 }

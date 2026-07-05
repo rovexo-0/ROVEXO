@@ -17,10 +17,6 @@ function passStatus(): CompletionStatus {
   return "pass";
 }
 
-function labelize(value: string): string {
-  return value.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-}
-
 const TRIGGER_TO_EXECUTION: Partial<Record<ContinuousImprovementTrigger, ExecutionTrigger>> = {
   commit: "full-scan",
   merge: "full-scan",
@@ -121,11 +117,6 @@ export function describeFinalCompletionRules(): FinalCompletionRuleResult[] {
     globalPass: completionScan.globalUiPass,
     launchPass: completionScan.launchReadinessPass,
   });
-  const consistency = runMarketplaceConsistencyScan({
-    globalPass: completionScan.globalUiPass,
-    homepagePass: completionScan.homepagePass,
-  });
-  const health = buildEnterpriseHealthScores({ completionScan, intelligence, consistency });
   const activeBlockers = completionScan.blockers.filter((b) => b.active).length;
 
   const rules: { id: FinalCompletionRule; label: string; pass: boolean }[] = [

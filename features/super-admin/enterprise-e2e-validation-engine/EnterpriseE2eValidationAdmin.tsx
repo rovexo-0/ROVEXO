@@ -3,7 +3,6 @@
 import { useCallback, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/cn";
 import { getRelatedModuleHref } from "@/lib/enterprise-architecture/registry";
 import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { E2E_VALIDATION_MODULE_DESCRIPTOR } from "@/lib/enterprise-e2e-validation-engine/descriptor";

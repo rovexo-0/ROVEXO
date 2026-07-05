@@ -11,10 +11,6 @@ function passStatus(): CompletionStatus {
   return "pass";
 }
 
-function labelize(value: string): string {
-  return value.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-}
-
 function fileExists(relativePath: string): boolean {
   return existsSync(path.join(process.cwd(), relativePath));
 }

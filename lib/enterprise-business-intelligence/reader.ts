@@ -11,7 +11,7 @@ export async function getBiSnapshot(tab: BiTab = "dashboard"): Promise<BiSnapsho
   const flags = live.featureFlags;
   const enabled = flags.enterprise_business_intelligence_v1 !== false;
   const state = { kpis, financial, marketplace, userAnalytics, traffic, forecasts, reports };
-  const dashboard = buildExecutiveDashboard(state, settings);
+  const dashboard = buildExecutiveDashboard(state);
   const history = await biConfigLifecycle.getHistory();
   const healthScore = enabled ? dashboard.platformHealth : 0;
 

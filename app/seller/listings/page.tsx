@@ -20,18 +20,19 @@ type SellerListingsRouteProps = {
 };
 
 export default async function SellerListingsRoute({ searchParams }: SellerListingsRouteProps) {
-  const profile = await getProfile();
-  if (!profile.isSeller) {
-    redirect("/account");
-  }
-
   const params = await searchParams;
   const filterParam = params.filter ?? "all";
   const filter = FILTERS.includes(filterParam as ListingFilter)
     ? (filterParam as ListingFilter)
     : "all";
 
-  const data = await fetchSellerListings(filter);
+  // Overlap the profile check with the listings query. fetchSellerListings is
+  // scoped to the authenticated user's own listings, so fetching before the
+  // isSeller redirect leaks nothing and removes a sequential round-trip chain.
+  const [profile, data] = await Promise.all([getProfile(), fetchSellerListings(filter)]);
+  if (!profile.isSeller) {
+    redirect("/account");
+  }
 
   return (
     <Suspense>

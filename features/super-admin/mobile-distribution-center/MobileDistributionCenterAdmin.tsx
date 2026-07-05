@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
-import { SuperAdminMobileLogo } from "@/features/super-admin/mobile-distribution-center/SuperAdminMobileLogo";
 import { buildQrSvg } from "@/lib/mobile-distribution-center-engine/timeline";
 import {
   MOBILE_BIOMETRIC_ACTIONS,
@@ -79,7 +78,6 @@ export function MobileDistributionCenterAdmin({
   const [isPending, startTransition] = useTransition();
 
   const qrSvg = useMemo(() => buildQrSvg(JSON.stringify(snapshot.qrInstall)), [snapshot.qrInstall]);
-  const unreadCount = snapshot.notifications.filter((n) => !n.read).length;
   const installLabel = MOBILE_INSTALL_STATUS_LABELS.find((s) => s.id === snapshot.installStatus)?.label ?? snapshot.installStatus;
 
   const filteredDevices = useMemo(() => {

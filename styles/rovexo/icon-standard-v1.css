@@ -1,0 +1,43 @@
+/**
+ * ROVEXO Global Icon Standard v1.0
+ * Mandatory clean icon presentation — no decorative backgrounds or borders.
+ */
+
+.rovexo-icon,
+.rovexo-icon--glass,
+.rovexo-icon--standard {
+  display: block;
+  flex-shrink: 0;
+  object-fit: contain;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* Clean icon slots — layout only, no decorative plates */
+.home-v1-category-tile__slot,
+.rx-category-tile__container,
+.seller-icon-slot,
+[class*="__icon-slot"],
+[class*="icon-slot"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove hover/active decorative transforms on icon containers */
+.rx-category-tile:hover .rx-category-tile__container,
+.rx-category-tile:active .rx-category-tile__container {
+  transform: none;
+  box-shadow: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-category-tile__container {
+    transition: none;
+  }
+}

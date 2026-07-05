@@ -1,3 +1,4 @@
+import { resolveTransactionModeForRootSlug } from "@/lib/transaction-mode/defaults";
 import { taxonomyStats, categoryTree } from "@/lib/categories/enterprise";
 import type { AdminCategory } from "@/lib/categories/admin";
 import {
@@ -99,6 +100,7 @@ function buildTreeNodesFromEnterprise(): CategoryTreeNode[] {
     isFavorite: i === 0,
     colorTag: i % 3 === 0 ? "primary" : undefined,
     lastModifiedAt: new Date(Date.now() - i * 86400000).toISOString(),
+    transactionMode: root.transactionMode ?? resolveTransactionModeForRootSlug(root.slug),
   }));
 }
 
@@ -122,6 +124,7 @@ export function buildTreeNodesFromDb(categories: AdminCategory[]): CategoryTreeN
       isPinned: false,
       isFavorite: false,
       lastModifiedAt: new Date().toISOString(),
+      transactionMode: cat.transactionMode,
     };
   });
 }

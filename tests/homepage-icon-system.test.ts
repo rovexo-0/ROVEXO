@@ -5,13 +5,9 @@ import { describe, expect, it } from "vitest";
 const HOME_FILES = [
   "components/home/RovexoHomePage.tsx",
   "components/home/RovexoCategoryCard.tsx",
-  "components/home/RovexoHeader.tsx",
-  "components/home/RovexoSearchBar.tsx",
-  "components/home/RovexoBanner.tsx",
-  "components/home/RovexoFooterNavigation.tsx",
-  "components/home/RovexoListingCard.tsx",
-  "components/home/RovexoAllListingsCard.tsx",
-  "components/home/RovexoBusinessCard.tsx",
+  "components/home/RovexoAllListings.tsx",
+  "components/ui/ListingCard.tsx",
+  "components/Header.tsx",
 ];
 
 function walkIcons(dir: string, files: string[] = []): string[] {
@@ -45,7 +41,7 @@ describe("RovexoHomePage — Premium 3D Glass icon system", () => {
   it("uses frameless category slots without holder graphics", () => {
     const css = readFileSync(join(process.cwd(), "styles/rovexo-homepage.css"), "utf8");
     expect(css).toContain(".home-v1-category-tile__slot");
-    expect(css).toContain("width: 60px");
+    expect(css).toContain("--rx-cat-icon: clamp(60px");
     expect(css).toContain("width: 44px");
     expect(css).not.toContain(".home-v1-category-tile__box");
     expect(css).toContain(".rovexo-icon");

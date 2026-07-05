@@ -17,7 +17,6 @@ import {
 } from "@/lib/enterprise-marketplace-completion-engine/registry";
 import { createCheck, fileExists, labelize, passStatus, premiumStylesActive, readSource } from "@/lib/enterprise-marketplace-completion-engine/scan-utils";
 import type {
-  BuyerAutoRepairProposal,
   BuyerCertificationScoreCard,
   BuyerCompletionResult,
   BuyerDomainScanResult,

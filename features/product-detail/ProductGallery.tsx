@@ -13,6 +13,7 @@ type ProductGalleryProps = {
 
 export function ProductGallery({ images, title, className }: ProductGalleryProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const lightboxScrollerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
@@ -31,12 +32,31 @@ export function ProductGallery({ images, title, className }: ProductGalleryProps
     setActiveIndex(Math.min(Math.max(index, 0), images.length - 1));
   }, [images.length]);
 
+  const handleLightboxScroll = useCallback(() => {
+    const node = lightboxScrollerRef.current;
+    if (!node || node.clientWidth === 0) return;
+    const index = Math.round(node.scrollLeft / node.clientWidth);
+    setActiveIndex(Math.min(Math.max(index, 0), images.length - 1));
+  }, [images.length]);
+
+  const scrollLightboxTo = useCallback((index: number) => {
+    const node = lightboxScrollerRef.current;
+    if (!node) return;
+    const clamped = Math.min(Math.max(index, 0), images.length - 1);
+    node.scrollTo({ left: clamped * node.clientWidth, behavior: "smooth" });
+  }, [images.length]);
+
   useEffect(() => {
     if (!lightboxOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setLightboxOpen(false);
-      if (event.key === "ArrowRight") setActiveIndex((current) => Math.min(current + 1, images.length - 1));
-      if (event.key === "ArrowLeft") setActiveIndex((current) => Math.max(current - 1, 0));
+      if (event.key === "Escape") {
+        setLightboxOpen(false);
+        return;
+      }
+      const node = lightboxScrollerRef.current;
+      const current = node && node.clientWidth ? Math.round(node.scrollLeft / node.clientWidth) : 0;
+      if (event.key === "ArrowRight") scrollLightboxTo(current + 1);
+      if (event.key === "ArrowLeft") scrollLightboxTo(current - 1);
     };
     document.addEventListener("keydown", onKeyDown);
     document.body.style.overflow = "hidden";
@@ -44,7 +64,16 @@ export function ProductGallery({ images, title, className }: ProductGalleryProps
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
     };
-  }, [images.length, lightboxOpen]);
+  }, [lightboxOpen, scrollLightboxTo]);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const node = lightboxScrollerRef.current;
+    if (!node) return;
+    // Jump straight to the tapped image when the viewer opens.
+    node.scrollTo({ left: activeIndex * node.clientWidth });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightboxOpen]);
 
   if (images.length === 0) {
     return (
@@ -61,7 +90,7 @@ export function ProductGallery({ images, title, className }: ProductGalleryProps
           ref={scrollerRef}
           onScroll={handleScroll}
           aria-label={`${title} image gallery`}
-          className="relative flex-1 snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="relative flex flex-1 snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {images.map((image, index) => (
             <button
@@ -83,6 +112,7 @@ export function ProductGallery({ images, title, className }: ProductGalleryProps
                 fill
                 priority={index === 0}
                 sizes="100vw"
+                quality={90}
                 className="object-cover transition-transform duration-200 hover:scale-[1.02]"
                 draggable={false}
               />
@@ -122,13 +152,13 @@ export function ProductGallery({ images, title, className }: ProductGalleryProps
 
       {lightboxOpen && (
         <div
-          className="fixed inset-0 z-[250] flex flex-col bg-black/95"
+          className="fixed inset-0 z-[250] flex flex-col bg-black"
           role="dialog"
           aria-modal="true"
           aria-label={`${title} fullscreen gallery`}
         >
-          <div className="flex items-center justify-between px-ds-4 py-ds-3 pt-[max(env(safe-area-inset-top),12px)]">
-            <p className="text-sm font-medium text-white">
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between px-ds-4 py-ds-3 pt-[max(env(safe-area-inset-top),12px)]">
+            <p aria-live="polite" className="text-sm font-medium text-white">
               {activeIndex + 1} / {images.length}
             </p>
             <button
@@ -136,49 +166,38 @@ export function ProductGallery({ images, title, className }: ProductGalleryProps
               aria-label="Close gallery"
               onClick={() => setLightboxOpen(false)}
               className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-ds-full text-white hover:bg-white/10",
+                "pointer-events-auto flex h-11 w-11 items-center justify-center rounded-ds-full text-white hover:bg-white/10",
                 focusRing,
               )}
             >
-              ×
+              <svg viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" className="h-6 w-6" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6 6 18" />
+              </svg>
             </button>
           </div>
 
-          <div className="relative flex flex-1 items-center justify-center px-ds-2">
-            {images.length > 1 && (
-              <button
-                type="button"
-                aria-label="Previous photo"
-                disabled={activeIndex === 0}
-                onClick={() => setActiveIndex((current) => Math.max(current - 1, 0))}
-                className="absolute left-ds-2 z-10 flex h-10 w-10 items-center justify-center rounded-ds-full bg-white/10 text-white disabled:opacity-30"
+          <div
+            ref={lightboxScrollerRef}
+            onScroll={handleLightboxScroll}
+            aria-label={`${title} fullscreen image`}
+            className="flex flex-1 snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {images.map((image, index) => (
+              <div
+                key={`fullscreen-${image}-${index}`}
+                className="relative h-full w-full shrink-0 snap-center snap-always"
               >
-                ‹
-              </button>
-            )}
-
-            <div className="relative h-full w-full max-w-3xl">
-              <Image
-                src={images[activeIndex] ?? images[0]}
-                alt={`${title} — photo ${activeIndex + 1}`}
-                fill
-                sizes="100vw"
-                className="object-contain"
-                priority
-              />
-            </div>
-
-            {images.length > 1 && (
-              <button
-                type="button"
-                aria-label="Next photo"
-                disabled={activeIndex === images.length - 1}
-                onClick={() => setActiveIndex((current) => Math.min(current + 1, images.length - 1))}
-                className="absolute right-ds-2 z-10 flex h-10 w-10 items-center justify-center rounded-ds-full bg-white/10 text-white disabled:opacity-30"
-              >
-                ›
-              </button>
-            )}
+                <Image
+                  src={image}
+                  alt={`${title} — photo ${index + 1}`}
+                  fill
+                  sizes="100vw"
+                  quality={90}
+                  className="object-contain"
+                  priority={index === activeIndex}
+                />
+              </div>
+            ))}
           </div>
         </div>
       )}

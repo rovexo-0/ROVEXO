@@ -2,7 +2,6 @@ import { test, expect, type Page } from "@playwright/test";
 import fs from "fs";
 import path from "path";
 import os from "os";
-import { loadDotEnvFiles } from "../scripts/playwright-env.mjs";
 import { createAdminClient } from "../lib/supabase/admin";
 import { signInWithSessionCookies } from "./helpers/auth";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -103,16 +102,24 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
   }
 
   async function ensureCategorySelected(page: Page) {
-    const categoryButton = page.getByRole("button", { name: /select category/i });
+    const categoryButton = page.getByRole("button", { name: /select category|^category$/i });
     if (await categoryButton.isVisible().catch(() => false)) {
       await categoryButton.click();
     }
 
+    const searchInput = page.getByRole("searchbox", { name: /search categories/i });
+    if (await searchInput.isVisible().catch(() => false)) {
+      await searchInput.fill("sofa");
+      const suggestion = page.getByRole("button").filter({ hasText: /sofa/i }).first();
+      await expect(suggestion).toBeVisible({ timeout: 10_000 });
+      await suggestion.click();
+      return;
+    }
+
     for (let level = 0; level < 3; level += 1) {
-      const chips = page.locator(".flex.flex-wrap.gap-ds-2").first().getByRole("button");
-      const count = await chips.count();
-      if (count === 0) break;
-      await chips.first().click();
+      const row = page.getByRole("button").filter({ hasText: /.+/ }).first();
+      if (!(await row.isVisible().catch(() => false))) break;
+      await row.click();
       await page.waitForTimeout(200);
     }
   }

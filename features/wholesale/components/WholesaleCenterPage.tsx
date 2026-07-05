@@ -33,7 +33,7 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
             <QuickNav href="/plans" label="Wholesale plans" />
             <QuickNav href="/help/category/wholesale" label="Wholesale help" />
             <QuickNav href="/trust#verification" label="Verification" />
-            <QuickNav href="/business/center" label="Business center" />
+            <QuickNav href="/business/dashboard" label="Business dashboard" />
           </section>
         }
       />

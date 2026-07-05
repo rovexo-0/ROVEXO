@@ -47,16 +47,15 @@ import type { HomepageEngineeringScanResult } from "@/lib/homepage-engineering-d
 const SECTION_COMPONENT_REFS: Record<string, string> = {
   "premium-header": "BetaAppShell / HomePageShell",
   "search-bar": "HeaderSearchBar",
-  "category-rail": "HomeCategoryRail",
-  "bring-items": "BringYourItemsBanner",
-  "featured-listings": "FeaturedListingsSection",
-  "recommended-listings": "HomeProductSection (recommended)",
-  "new-listings": "HomeProductSection (new)",
-  "latest-listings": "HomeProductSection (latest)",
-  "popular-categories": "HomeCategoryRail (canonical — grid retired)",
+  "category-rail": "RovexoCategoryRail",
+  "featured-listings": "RovexoAllListings (ranked badges only)",
+  "recommended-listings": "RovexoAllListings (ranked badges only)",
+  "new-listings": "RovexoAllListings (ranked badges only)",
+  "latest-listings": "RovexoAllListings (ranked badges only)",
+  "popular-categories": "RovexoCategoryRail",
   "sponsored-sections": "VisualSection sponsored",
-  "trending-listings": "HomeTrendingListingsSection",
-  "all-listings": "HomeAllListingsSection",
+  "trending-listings": "RovexoAllListings (ranked badges only)",
+  "all-listings": "RovexoAllListings",
   "auction-preview": "LiveAuctionsSection",
   footer: "Homepage footer hidden on launch",
   "bottom-navigation": "BetaAppShell bottom nav",
@@ -324,10 +323,6 @@ function createCertificationRuns(): CertificationRun[] {
       triggeredBy: "omega-quality-assurance-center",
     },
   ];
-}
-
-function createFailures(): CertificationFailure[] {
-  return [];
 }
 
 function createReports(): HomepageCertificationReport[] {

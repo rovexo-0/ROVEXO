@@ -10,7 +10,6 @@ import { InventoryOverviewSection } from "@/features/business/dashboard/componen
 import type { BusinessDashboardData } from "@/lib/business/types";
 
 const QUICK_ACTIONS = [
-  { href: "/business/center", label: "Business Center", subtitle: "Hub for B2B tools" },
   { href: "/sell", label: "Add Product", subtitle: "Create a listing" },
   { href: "/business/inventory", label: "Inventory", subtitle: "SKU & stock management" },
   { href: "/business/analytics", label: "Analytics", subtitle: "Insights & reports" },

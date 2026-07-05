@@ -10,11 +10,13 @@ import type { CheckoutFormController } from "@/features/checkout/hooks/use-check
 type CheckoutDeliverySectionProps = {
   form: CheckoutFormController;
   listingOffersFreeDelivery?: boolean;
+  listingShippingPrice?: number | null;
 };
 
 export function CheckoutDeliverySection({
   form,
   listingOffersFreeDelivery = false,
+  listingShippingPrice = null,
 }: CheckoutDeliverySectionProps) {
   const { draft, updateDraft } = form;
 
@@ -31,7 +33,10 @@ export function CheckoutDeliverySection({
       <Card padding="md" className="flex flex-col gap-ds-3">
         {DELIVERY_OPTIONS.map((option) => {
           const selected = draft.deliveryOption === option.id;
-          const optionPrice = getDeliveryPrice(option.id, { listingOffersFreeDelivery });
+          const optionPrice = getDeliveryPrice(option.id, {
+            listingOffersFreeDelivery,
+            listingShippingPrice,
+          });
 
           return (
             <label
@@ -55,12 +60,16 @@ export function CheckoutDeliverySection({
                   <span className="text-sm font-semibold text-text-primary">{option.label}</span>
                   {optionPrice === 0 ? (
                     <span className="shrink-0 text-sm font-semibold text-primary">Free</span>
-                  ) : (
+                  ) : optionPrice != null ? (
                     <Price
                       amount={optionPrice}
                       size="sm"
                       className="shrink-0 [&_span]:font-semibold [&_span]:text-text-primary"
                     />
+                  ) : (
+                    <span className="shrink-0 text-xs font-medium text-text-secondary">
+                      Price at dispatch
+                    </span>
                   )}
                 </span>
                 <span className="mt-0.5 block text-xs text-text-secondary">{option.eta}</span>

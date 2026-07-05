@@ -82,6 +82,7 @@ export default async function globalSetup() {
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN ?? "placeholder",
     CRON_SECRET: process.env.CRON_SECRET ?? "placeholder",
     PLAYWRIGHT_E2E: "1",
+    ROVEXO_HOMEPAGE_DEMO: "1",
     NODE_ENV: "production",
   };
 

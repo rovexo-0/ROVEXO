@@ -6,6 +6,7 @@ import {
   type CategoryFilterDefinition,
 } from "@/lib/categories/filters";
 import { getCategoryIcon } from "@/lib/categories/visuals";
+import type { TransactionMode } from "@/lib/transaction-mode/types";
 
 export type AdminCategory = {
   id: string;
@@ -18,6 +19,7 @@ export type AdminCategory = {
   seoTitle: string | null;
   seoDescription: string | null;
   isActive: boolean;
+  transactionMode: TransactionMode;
 };
 
 export type AdminCategoryFilter = {
@@ -42,6 +44,7 @@ type CategoryRow = {
   seo_title?: string | null;
   seo_description?: string | null;
   is_active?: boolean;
+  transaction_mode?: TransactionMode;
 };
 
 function mapCategory(row: CategoryRow): AdminCategory {
@@ -56,6 +59,7 @@ function mapCategory(row: CategoryRow): AdminCategory {
     seoTitle: row.seo_title ?? null,
     seoDescription: row.seo_description ?? null,
     isActive: row.is_active ?? true,
+    transactionMode: row.transaction_mode ?? "MARKETPLACE",
   };
 }
 
@@ -63,7 +67,9 @@ export async function listAdminCategories(): Promise<AdminCategory[]> {
   const admin = createAdminClient();
   const { data } = await admin
     .from("categories")
-    .select("id, name, slug, parent_id, path_label, sort_order, icon, seo_title, seo_description, is_active")
+    .select(
+      "id, name, slug, parent_id, path_label, sort_order, icon, seo_title, seo_description, is_active, transaction_mode",
+    )
     .order("sort_order", { ascending: true });
 
   return ((data as CategoryRow[] | null) ?? []).map(mapCategory);
@@ -73,7 +79,9 @@ export async function getAdminCategory(id: string): Promise<AdminCategory | null
   const admin = createAdminClient();
   const { data } = await admin
     .from("categories")
-    .select("id, name, slug, parent_id, path_label, sort_order, icon, seo_title, seo_description, is_active")
+    .select(
+      "id, name, slug, parent_id, path_label, sort_order, icon, seo_title, seo_description, is_active, transaction_mode",
+    )
     .eq("id", id)
     .maybeSingle();
 
@@ -103,7 +111,9 @@ export async function createAdminCategory(input: {
       seo_title: input.seoTitle ?? null,
       seo_description: input.seoDescription ?? null,
     })
-    .select("id, name, slug, parent_id, path_label, sort_order, icon, seo_title, seo_description, is_active")
+    .select(
+      "id, name, slug, parent_id, path_label, sort_order, icon, seo_title, seo_description, is_active, transaction_mode",
+    )
     .single();
 
   if (error || !data) return null;
@@ -122,6 +132,7 @@ export async function updateAdminCategory(
     seoTitle: string | null;
     seoDescription: string | null;
     isActive: boolean;
+    transactionMode: TransactionMode;
   }>,
 ): Promise<AdminCategory | null> {
   const admin = createAdminClient();
@@ -135,12 +146,15 @@ export async function updateAdminCategory(
   if (input.seoTitle !== undefined) updates.seo_title = input.seoTitle;
   if (input.seoDescription !== undefined) updates.seo_description = input.seoDescription;
   if (input.isActive !== undefined) updates.is_active = input.isActive;
+  if (input.transactionMode !== undefined) updates.transaction_mode = input.transactionMode;
 
   const { data } = await admin
     .from("categories")
     .update(updates)
     .eq("id", id)
-    .select("id, name, slug, parent_id, path_label, sort_order, icon, seo_title, seo_description, is_active")
+    .select(
+      "id, name, slug, parent_id, path_label, sort_order, icon, seo_title, seo_description, is_active, transaction_mode",
+    )
     .single();
 
   return data ? mapCategory(data as CategoryRow) : null;

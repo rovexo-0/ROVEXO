@@ -17,12 +17,13 @@ describe("Home page hydration safety", () => {
   });
 
   it("defers header height measurement to layout effects", () => {
-    const scrollSource = readSource("components/home/MobileHeaderScrollContext.tsx");
+    const scrollSource = readSource("components/home/RovexoMobileHeaderScrollContext.tsx");
     const headerSource = readSource("components/Header.tsx");
 
     expect(scrollSource).toContain("useLayoutEffect");
     expect(scrollSource).toContain("setHeaderElement");
     expect(scrollSource).not.toContain("headerElementRef");
+    expect(scrollSource).not.toContain("suppressHydrationWarning");
     expect(headerSource).toContain("useLayoutEffect");
     expect(headerSource).toContain("headerRef");
     expect(headerSource).not.toContain("setHeaderRef");
@@ -32,8 +33,10 @@ describe("Home page hydration safety", () => {
     const source = readSource("components/home/RovexoHomePage.tsx");
 
     expect(source).not.toContain("<Suspense");
-    expect(source).not.toContain("HomeHeroBannerEngine");
     expect(source).not.toContain("HeroCategorySyncProvider");
     expect(source).toContain("home-v1-main");
+    expect(source).not.toContain("HomeHeroBannerEngine");
+    expect(source).not.toContain("RovexoBanner");
+    expect(source).toContain("RovexoAllListings");
   });
 });

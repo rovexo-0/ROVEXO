@@ -4,7 +4,6 @@ import { getDiscoveredModuleV2 } from "@/lib/enterprise-module-registry-v2/disco
 import {
   computeOverallRiskScore,
   generateDeploymentAiInsights,
-  shouldRecommendRollback,
 } from "@/lib/enterprise-deployment-center/ai-integration";
 import {
   canPerformDeploymentAction,

@@ -5,9 +5,8 @@ import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Button } from "@/components/ui/Button";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { IconButton } from "@/components/ui/IconButton";
-import { ProductCard } from "@/components/ui/ProductCard";
+import { ListingCard } from "@/components/ui/ListingCard";
 import { cn } from "@/lib/cn";
-import { productToCardProps } from "@/lib/products/card";
 import { focusRing } from "@/components/ui/tokens";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SavedEmptyState } from "@/features/saved/components/SavedEmptyState";
@@ -222,7 +221,6 @@ export function SavedPage({ initialItems }: SavedPageProps) {
           <div className="rx-listing-grid">
             {visibleItems.map((item) => {
               const selected = selectedSlugs.includes(item.product.slug);
-              const cardProps = productToCardProps(item.product);
 
               return (
                 <div
@@ -249,8 +247,11 @@ export function SavedPage({ initialItems }: SavedPageProps) {
                   )}
 
                   <div className={cn(editMode && "pointer-events-none")}>
-                    <ProductCard
-                      {...cardProps}
+                    <ListingCard
+                      product={item.product}
+                      variant="grid"
+                      surface="saved"
+                      favoriteMode="controlled"
                       isFavorite
                       onFavorite={() => {
                         if (!editMode) void removeItem(item.product.slug);

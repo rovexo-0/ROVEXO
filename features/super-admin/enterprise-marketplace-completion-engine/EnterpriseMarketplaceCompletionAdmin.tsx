@@ -68,19 +68,33 @@ export function EnterpriseMarketplaceCompletionAdmin({
   useEffect(() => {
     if (!loadSnapshotOnMount) return;
     let cancelled = false;
-    void refresh()
-      .catch(() => {
-        if (!cancelled) {
-          setMessage("Unable to load marketplace completion snapshot. Use Validate to run certification scans.");
+
+    const loadSnapshot = async () => {
+      try {
+        const response = await fetch(MARKETPLACE_COMPLETION_MODULE_DESCRIPTOR.api.v1Snapshot);
+        const data = (await response.json()) as { marketplaceCompletion?: MarketplaceCompletionSnapshot };
+        if (!cancelled && data.marketplaceCompletion) {
+          const nextSnapshot = data.marketplaceCompletion;
+          startTransition(() => setSnapshot(nextSnapshot));
         }
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoadingSnapshot(false);
-      });
+      } catch {
+        if (!cancelled) {
+          startTransition(() =>
+            setMessage("Unable to load marketplace completion snapshot. Use Validate to run certification scans."),
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          startTransition(() => setIsLoadingSnapshot(false));
+        }
+      }
+    };
+
+    void loadSnapshot();
     return () => {
       cancelled = true;
     };
-  }, [loadSnapshotOnMount, refresh]);
+  }, [loadSnapshotOnMount]);
 
   const runAction = useCallback((action: string, payload?: Record<string, unknown>) => {
     startTransition(async () => {

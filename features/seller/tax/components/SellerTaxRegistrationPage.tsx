@@ -81,7 +81,7 @@ export function SellerTaxRegistrationPage({
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Seller tax registration</h1>
           <p className="mt-ds-2 text-sm text-text-secondary">
-            Register your seller type and connect Stripe to receive payouts.
+            Register your seller type and add your bank account to receive payouts.
           </p>
         </div>
 
@@ -148,7 +148,7 @@ export function SellerTaxRegistrationPage({
             {error ? <p className="text-sm text-danger">{error}</p> : null}
 
             <Button disabled={saving} onClick={() => void save()}>
-              Save and connect Stripe
+              Save and set up payouts
             </Button>
 
             {connectUrl ? (
@@ -156,7 +156,7 @@ export function SellerTaxRegistrationPage({
                 href={connectUrl}
                 className="inline-flex min-h-ds-7 items-center justify-center rounded-ds-full border border-border px-ds-5 text-sm font-medium"
               >
-                Continue Stripe Connect
+                Continue bank setup
               </a>
             ) : null}
           </div>

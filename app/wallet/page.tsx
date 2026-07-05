@@ -1,12 +1,6 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { WalletEngineHub } from "@/features/wallet-engine/WalletEngineHub";
+import { WalletOverview } from "@/features/wallet/components/WalletOverview";
 import { fetchWalletData } from "@/lib/wallet/queries";
-import { WALLET_ENGINE_MODULES } from "@/lib/wallet-engine/registry";
-import {
-  getPublicWalletEngineConfig,
-  getWalletEngineAnalyticsForUser,
-  getWalletEngineContext,
-} from "@/lib/wallet-engine/reader";
 import { fetchProfile } from "@/lib/profile/queries";
 import { syncConnectAccountBySellerId } from "@/lib/stripe/connect";
 import { redirect } from "next/navigation";
@@ -27,28 +21,18 @@ export default async function WalletRoute({ searchParams }: WalletRouteProps) {
     await syncConnectAccountBySellerId(profile.id);
   }
 
-  const [data, config, context, analytics] = await Promise.all([
-    fetchWalletData(),
-    getPublicWalletEngineConfig(),
-    getWalletEngineContext(profile.id, "seller"),
-    getWalletEngineAnalyticsForUser(profile.id),
-  ]);
+  const data = await fetchWalletData();
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <WalletEngineHub
-        profile={profile}
+      <WalletOverview
         data={data}
-        config={config}
-        context={context}
-        modules={WALLET_ENGINE_MODULES}
-        analytics={analytics}
         backHref="/seller/dashboard"
         connectMessage={
           params.connect === "success"
-            ? "Stripe Connect setup saved. Payouts will transfer automatically after each hold period."
+            ? "Bank account setup saved. Payouts will be sent automatically after each hold period."
             : params.connect === "refresh"
-              ? "Continue Stripe Connect setup to receive automatic payouts."
+              ? "Finish setting up your bank account to receive automatic payouts."
               : undefined
         }
       />

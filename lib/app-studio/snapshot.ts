@@ -20,15 +20,15 @@ function enrichModules(
   modules: typeof APP_STUDIO_MODULES,
   missionControl: Awaited<ReturnType<typeof getMissionControlSnapshot>>,
 ): AppStudioPlatformModule[] {
-  return modules.map((module) => {
+  return modules.map((mod) => {
     const service = missionControl.services.find(
-      (item) => item.id === module.id || item.label.toLowerCase() === module.label.toLowerCase(),
+      (item) => item.id === mod.id || item.label.toLowerCase() === mod.label.toLowerCase(),
     );
-    if (!service) return module;
+    if (!service) return mod;
     return {
-      ...module,
+      ...mod,
       health: mapServiceStatus(service.status),
-      performanceScore: service.status === "online" ? module.performanceScore : Math.max(60, module.performanceScore - 20),
+      performanceScore: service.status === "online" ? mod.performanceScore : Math.max(60, mod.performanceScore - 20),
     };
   });
 }

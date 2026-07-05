@@ -5,7 +5,7 @@ import {
   getShopifyProductCount,
   verifyShopifyConnection,
 } from "@/lib/seller/migration/connectors/api/shopify-client";
-import { loadConnectorCredentials } from "@/lib/seller/migration/connectors/credentials";
+import { loadConnectorCredentialsWithRefresh } from "@/lib/seller/marketplace/oauth/token-manager";
 import type { ConnectorConnectInput, ConnectorDefinition } from "@/lib/seller/migration/connectors/types";
 import type { MigrationConnectorInput } from "@/lib/seller/migration/engine/types";
 
@@ -59,12 +59,12 @@ export function createShopifyConnector(definition: ConnectorDefinition): BaseUni
       if (!(await hasLiveApiCredentials(input.sellerId, input.platform))) {
         return 0;
       }
-      const credentials = await loadConnectorCredentials(input.sellerId, input.platform);
+      const credentials = await loadConnectorCredentialsWithRefresh(input.sellerId, input.platform);
       if (!credentials?.accessToken || !credentials.storeUrl) return 0;
       return getShopifyProductCount(credentials.storeUrl, credentials.accessToken);
     },
     fetchListings: async (input: MigrationConnectorInput) => {
-      const credentials = await loadConnectorCredentials(input.sellerId, input.platform);
+      const credentials = await loadConnectorCredentialsWithRefresh(input.sellerId, input.platform);
       if (!credentials?.accessToken || !credentials.storeUrl) {
         throw new ConnectorApiError("Shopify connector is not connected.", 401);
       }

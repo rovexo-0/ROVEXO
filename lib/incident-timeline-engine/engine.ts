@@ -4,7 +4,6 @@ import { auditIncidentTimelineAction, canPerformTimelineExport } from "@/lib/inc
 import {
   INCIDENT_TIMELINE_EXPORTS_KEY,
   INCIDENT_TIMELINE_RECORDS_KEY,
-  INCIDENT_TIMELINE_SETTINGS_KEY,
 } from "@/lib/incident-timeline-engine/keys";
 import { INCIDENT_TIMELINE_EXPORT_TYPES } from "@/lib/incident-timeline-engine/registry";
 import type {

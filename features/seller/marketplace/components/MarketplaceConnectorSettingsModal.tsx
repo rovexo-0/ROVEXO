@@ -59,10 +59,22 @@ export function MarketplaceConnectorSettingsModal({
 
   if (!open || !provider) return null;
 
-  const needsStoreUrl = provider.capabilities.apiImport || provider.authenticationType === "oauth2";
+  const needsOAuth = provider.authenticationType === "oauth2";
+  const needsStoreUrl =
+    provider.id === "shopify" ||
+    (provider.capabilities.apiImport && !needsOAuth);
   const needsApiKey = provider.authenticationType === "api_key";
-  const needsToken = provider.authenticationType === "bearer_token" || provider.authenticationType === "oauth2";
+  const needsToken = provider.authenticationType === "bearer_token";
   const needsFile = provider.capabilities.fileImport;
+
+  const handleOAuthConnect = () => {
+    const returnTo = `/seller/connectors`;
+    const shopParam =
+      provider.id === "shopify" && storeUrl.trim()
+        ? `&shop=${encodeURIComponent(storeUrl.trim())}`
+        : "";
+    window.location.href = `/api/seller/marketplace/oauth/${provider.id}/authorize?returnTo=${encodeURIComponent(returnTo)}${shopParam}`;
+  };
 
   const handleConnect = async () => {
     setSubmitting(true);
@@ -133,6 +145,11 @@ export function MarketplaceConnectorSettingsModal({
         ) : null}
 
         <div className="mt-ds-4 flex flex-col gap-ds-3">
+          {needsOAuth ? (
+            <Button fullWidth disabled={submitting} onClick={handleOAuthConnect}>
+              Connect with {provider.name}
+            </Button>
+          ) : null}
           {needsStoreUrl ? (
             <label className="flex flex-col gap-ds-1 text-sm">
               <span className="text-text-secondary">Store URL</span>

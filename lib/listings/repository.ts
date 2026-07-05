@@ -8,6 +8,8 @@ import { formatPromotionRemaining, isPromotionActive } from "@/lib/promotions/fo
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { scanListingBeforePublish } from "@/lib/moderation/scan-listing";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { resolveTransactionModeMapForCategoryIds } from "@/lib/transaction-mode/server";
+import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
 import type {
   CreateListingInput,
   ListingFilter,
@@ -57,7 +59,7 @@ function mapImages(rows: Tables<"product_images">[] | undefined): ListingImage[]
     }));
 }
 
-function mapSellerListing(row: ProductRow): SellerListing {
+function mapSellerListing(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MODE): SellerListing {
   const images = mapImages(row.product_images);
   const primary = images.find((image) => image.isPrimary) ?? images[0];
 
@@ -71,6 +73,7 @@ function mapSellerListing(row: ProductRow): SellerListing {
     brandId: row.brand_id,
     categoryId: row.category_id,
     categoryPath: row.categories?.path_label ?? null,
+    transactionMode,
     color: row.color,
     size: row.size,
     condition: row.condition,
@@ -104,7 +107,19 @@ function mapSellerListing(row: ProductRow): SellerListing {
   };
 }
 
-function mapProductRow(row: ProductRow): Product {
+async function attachSellerListingModes(listings: SellerListing[]): Promise<SellerListing[]> {
+  const modeMap = await resolveTransactionModeMapForCategoryIds(
+    listings.map((listing) => listing.categoryId),
+  );
+  return listings.map((listing) => ({
+    ...listing,
+    transactionMode: listing.categoryId
+      ? (modeMap.get(listing.categoryId) ?? DEFAULT_TRANSACTION_MODE)
+      : DEFAULT_TRANSACTION_MODE,
+  }));
+}
+
+function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MODE): Product {
   const images = mapImages(row.product_images);
   const primary = images.find((image) => image.isPrimary) ?? images[0];
 
@@ -127,7 +142,42 @@ function mapProductRow(row: ProductRow): Product {
     sections: (row.sections ?? []) as ProductSection[],
     isFeatured: isPromotionActive(row.featured_until),
     isBumped: isPromotionActive(row.bumped_until),
+    categoryId: row.category_id ?? null,
+    transactionMode,
   };
+}
+
+const PRODUCT_LIST_SELECT = `*, profiles!products_seller_id_fkey ( full_name, avatar_url, verified ), product_images (*), brands ( name )`;
+
+/**
+ * Newest published listings, strictly ordered by recency. Reuses the shared
+ * product mapper so search discovery, the marketplace grid, and the API all
+ * resolve identical product shapes. Intentionally recency-only (no promotion
+ * weighting) so "Recent Listings" means exactly what it says.
+ */
+export async function getRecentPublishedListings(limit = 8): Promise<Product[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("products")
+    .select(PRODUCT_LIST_SELECT)
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(Math.max(1, limit));
+
+  const mapped = ((data as ProductRow[] | null) ?? []).map((row) => mapProductRow(row));
+  return attachTransactionModes(mapped);
+}
+
+async function attachTransactionModes(products: Product[]): Promise<Product[]> {
+  const modeMap = await resolveTransactionModeMapForCategoryIds(
+    products.map((product) => product.categoryId),
+  );
+  return products.map((product) => ({
+    ...product,
+    transactionMode: product.categoryId
+      ? (modeMap.get(product.categoryId) ?? DEFAULT_TRANSACTION_MODE)
+      : DEFAULT_TRANSACTION_MODE,
+  }));
 }
 
 export async function getSellerListings(
@@ -152,7 +202,7 @@ export async function getSellerListings(
     return [];
   }
 
-  let listings = (data as ProductRow[]).map(mapSellerListing);
+  let listings = (data as ProductRow[]).map((row) => mapSellerListing(row));
 
   switch (filter) {
     case "draft":
@@ -187,7 +237,7 @@ export async function getSellerListings(
       break;
   }
 
-  return listings;
+  return attachSellerListingModes(listings);
 }
 
 async function resolveBrandId(brandName?: string): Promise<string | null> {
@@ -200,11 +250,29 @@ async function resolveBrandId(brandName?: string): Promise<string | null> {
   return data as string;
 }
 
+async function storageObjectExists(
+  admin: ReturnType<typeof createAdminClient>,
+  path: string,
+): Promise<boolean> {
+  const slash = path.lastIndexOf("/");
+  const dir = slash >= 0 ? path.slice(0, slash) : "";
+  const name = slash >= 0 ? path.slice(slash + 1) : path;
+  const { data } = await admin.storage.from("products").list(dir, { search: name, limit: 100 });
+  return Boolean(data?.some((entry) => entry.name === name));
+}
+
+/**
+ * Materializes a listing image at its final product-folder path. Returns null
+ * (rather than a dangling reference) when the image cannot be placed there, so
+ * the caller never persists a product_images row that points at a missing
+ * storage object — the previous implementation ignored the copy() result and
+ * removed the temp source unconditionally, producing permanently broken images.
+ */
 async function moveImageToProductFolder(
   image: ListingImageInput,
   sellerId: string,
   productId: string,
-): Promise<ListingImageInput> {
+): Promise<ListingImageInput | null> {
   if (!image.storagePath.startsWith(`${sellerId}/`)) {
     throw new Error("Invalid image storage path.");
   }
@@ -219,19 +287,35 @@ async function moveImageToProductFolder(
   const oldThumbPath = image.storagePath.replace(/\.jpg$/, "-thumb.jpg");
   const newThumbPath = newPath.replace(/\.jpg$/, "-thumb.jpg");
 
-  await admin.storage.from("products").copy(image.storagePath, newPath);
-  await admin.storage.from("products").copy(oldThumbPath, newThumbPath);
+  const { error: copyError } = await admin.storage.from("products").copy(image.storagePath, newPath);
 
-  const pathsToRemove = [image.storagePath, oldThumbPath];
-  await admin.storage.from("products").remove(pathsToRemove);
+  if (copyError) {
+    // Copy can fail if the temp source no longer exists (e.g. a persisted draft
+    // re-published after temp cleanup). Treat as success only if the object is
+    // already present at the destination (idempotent re-publish); otherwise skip
+    // this image so we never create a dangling reference.
+    const alreadyThere = await storageObjectExists(admin, newPath);
+    if (!alreadyThere) {
+      console.error("[moveImageToProductFolder] skipping image with missing source", {
+        storagePath: image.storagePath,
+        code: copyError.message,
+      });
+      return null;
+    }
+  }
 
-  const moved = {
+  // Thumbnail is best-effort; a missing thumbnail must not break publishing.
+  await admin.storage.from("products").copy(oldThumbPath, newThumbPath).catch(() => undefined);
+
+  // Only remove the temp sources now that the destination is confirmed present.
+  await admin.storage.from("products").remove([image.storagePath, oldThumbPath]).catch(() => undefined);
+
+  return {
     ...image,
     url: getPublicStorageUrl("products", newPath),
     thumbnailUrl: getPublicStorageUrl("products", newThumbPath),
     storagePath: newPath,
   };
-  return moved;
 }
 
 async function insertProductImages(
@@ -240,9 +324,16 @@ async function insertProductImages(
   images: ListingImageInput[],
 ): Promise<void> {
   const supabase = await createClient();
-  const normalized = await Promise.all(
+  const moved = await Promise.all(
     images.map((image) => moveImageToProductFolder(image, sellerId, productId)),
   );
+  const normalized = moved.filter((image): image is ListingImageInput => image !== null);
+
+  if (normalized.length === 0) {
+    // No image could be materialized — persist none rather than broken rows.
+    // The listing falls back to the product image placeholder.
+    return;
+  }
 
   const { error } = await supabase
     .from("product_images")
@@ -294,10 +385,13 @@ export async function getSellerListingById(
       return null;
     }
 
-    return mapSellerListing(fallbackData as ProductRow);
+    const listing = mapSellerListing(fallbackData as ProductRow);
+    return (await attachSellerListingModes([listing]))[0] ?? null;
   }
 
-  return data ? mapSellerListing(data as ProductRow) : null;
+  if (!data) return null;
+  const listing = mapSellerListing(data as ProductRow);
+  return (await attachSellerListingModes([listing]))[0] ?? null;
 }
 
 export async function createSellerListing(
@@ -315,56 +409,69 @@ export async function createSellerListing(
   const isAuction = input.listingType === "auction";
   const auctionStart = input.auctionStartPrice ?? input.price;
 
+  const productInsert = {
+    seller_id: input.sellerId,
+    slug,
+    title: input.title,
+    description: input.description,
+    location_city: input.locationCity?.trim() || null,
+    brand_id: brandId,
+    category_id: input.categoryId,
+    color: input.color,
+    size: input.size,
+    condition: input.condition,
+    price: isAuction ? (input.price > auctionStart ? input.price : auctionStart) : input.price,
+    accept_offers: isAuction ? input.price > auctionStart : input.acceptOffers,
+    delivery_carriers: input.deliveryCarriers ?? ["Royal Mail", "Evri"],
+    shipping_method: input.shippingMethod ?? "delivery_available",
+    shipping_price: input.shippingPrice ?? (input.freeDelivery ? 0 : null),
+    parcel_size: input.parcelSize ?? null,
+    status,
+    stock,
+    sku: input.inventory?.sku,
+    low_stock_alert: input.inventory?.lowStockAlert ?? 5,
+    sections,
+    listing_type: input.listingType ?? "fixed",
+    auction_start_price: isAuction ? auctionStart : null,
+    auction_starts_at: isAuction ? new Date().toISOString() : null,
+    auction_ends_at: isAuction ? input.auctionEndsAt ?? null : null,
+    reserve_price: isAuction ? input.reservePrice ?? null : null,
+    current_bid: isAuction ? auctionStart : null,
+    bid_count: isAuction ? 0 : undefined,
+  };
+
   const { data: product, error } = await supabase
     .from("products")
-    .insert({
-      seller_id: input.sellerId,
-      slug,
-      title: input.title,
-      description: input.description,
-      location_city: input.locationCity?.trim() || null,
-      brand_id: brandId,
-      category_id: input.categoryId,
-      color: input.color,
-      size: input.size,
-      condition: input.condition,
-      price: isAuction ? (input.price > auctionStart ? input.price : auctionStart) : input.price,
-      accept_offers: isAuction ? input.price > auctionStart : input.acceptOffers,
-      delivery_carriers: input.deliveryCarriers ?? ["Royal Mail", "Evri"],
-      shipping_method: input.shippingMethod ?? "delivery_available",
-      shipping_price: input.shippingPrice ?? (input.freeDelivery ? 0 : null),
-      status,
-      stock,
-      sku: input.inventory?.sku,
-      low_stock_alert: input.inventory?.lowStockAlert ?? 5,
-      sections,
-      listing_type: input.listingType ?? "fixed",
-      auction_start_price: isAuction ? auctionStart : null,
-      auction_starts_at: isAuction ? new Date().toISOString() : null,
-      auction_ends_at: isAuction ? input.auctionEndsAt ?? null : null,
-      reserve_price: isAuction ? input.reservePrice ?? null : null,
-      current_bid: isAuction ? auctionStart : null,
-      bid_count: isAuction ? 0 : undefined,
-    })
+    .insert(productInsert)
     .select("id")
     .single();
 
   if (error || !product) {
+    console.error("[createSellerListing] product insert failed", {
+      code: error?.code,
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+    });
     return null;
   }
 
-  await insertProductImages(product.id, input.sellerId, input.images);
-
-  if (status === "published") {
-    await scanListingBeforePublish({
-      sellerId: input.sellerId,
-      productId: product.id,
-      title: input.title,
-      description: input.description,
-      brand: input.brand,
-      imageNames: input.images.map((image) => image.storagePath || image.url),
-    });
-  }
+  // Image insertion and the pre-publish moderation scan are independent (the scan
+  // reads image *names* from the input, not the freshly inserted rows), so run
+  // them concurrently instead of serializing two round-trip chains.
+  await Promise.all([
+    insertProductImages(product.id, input.sellerId, input.images),
+    status === "published"
+      ? scanListingBeforePublish({
+          sellerId: input.sellerId,
+          productId: product.id,
+          title: input.title,
+          description: input.description,
+          brand: input.brand,
+          imageNames: input.images.map((image) => image.storagePath || image.url),
+        })
+      : Promise.resolve(),
+  ]);
 
   return getSellerListingById(input.sellerId, product.id);
 }
@@ -406,6 +513,7 @@ export async function updateSellerListing(
     ...(input.shippingMethod !== undefined && { shipping_method: input.shippingMethod }),
     ...(input.shippingPrice !== undefined && { shipping_price: input.shippingPrice }),
     ...(input.freeDelivery === true && { shipping_price: 0 }),
+    ...(input.parcelSize !== undefined && { parcel_size: input.parcelSize }),
   };
 
   if (Object.keys(patch).length > 0) {
@@ -416,6 +524,12 @@ export async function updateSellerListing(
       .eq("seller_id", sellerId);
 
     if (updateError) {
+      console.error("[updateSellerListing] product update failed", {
+        code: updateError.code,
+        message: updateError.message,
+        details: updateError.details,
+        hint: updateError.hint,
+      });
       return null;
     }
   }
@@ -702,7 +816,8 @@ export async function searchListings(
   }
 
   const { data, count } = await query.range(from, to);
-  const items = ((data as ProductRow[] | null) ?? []).map(mapProductRow);
+  const mapped = ((data as ProductRow[] | null) ?? []).map((row) => mapProductRow(row));
+  const items = await attachTransactionModes(mapped);
 
   return {
     items,

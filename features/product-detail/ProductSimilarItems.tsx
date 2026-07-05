@@ -1,5 +1,4 @@
-import { ProductCard } from "@/components/ui/ProductCard";
-import { productToCardProps } from "@/lib/products/card";
+import { ListingCard } from "@/components/ui/ListingCard";
 import type { Product } from "@/lib/products/types";
 
 type ProductSimilarItemsProps = {
@@ -22,7 +21,7 @@ export function ProductSimilarItems({ products }: ProductSimilarItemsProps) {
         aria-label="Similar listings"
       >
         {products.map((product) => (
-          <ProductCard key={product.id} {...productToCardProps(product)} />
+          <ListingCard key={product.id} product={product} variant="carousel" surface="similar" />
         ))}
       </div>
     </section>

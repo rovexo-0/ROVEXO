@@ -199,5 +199,5 @@ export function discoverEnterpriseModulesV2(): EnterpriseModuleV2Descriptor[] {
 }
 
 export function getDiscoveredModuleV2(moduleId: string): EnterpriseModuleV2Descriptor | undefined {
-  return discoverEnterpriseModulesV2().find((module) => module.moduleId === moduleId);
+  return discoverEnterpriseModulesV2().find((mod) => mod.moduleId === moduleId);
 }

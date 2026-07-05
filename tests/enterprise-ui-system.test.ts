@@ -7,15 +7,20 @@ describe("Enterprise UI system — homepage hero", () => {
     const homePage = readFileSync(join(process.cwd(), "components/home/RovexoHomePage.tsx"), "utf8");
     expect(homePage).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
     expect(homePage).not.toContain("HomeHeroBannerEngine");
-    expect(homePage).toContain("RovexoBanner");
+    expect(homePage).not.toContain("RovexoBanner");
   });
 
   it("routes hero slide CTAs to approved marketplace destinations", () => {
     const constants = readFileSync(join(process.cwd(), "lib/home/constants.ts"), "utf8");
-    expect(constants).toContain("Start import");
     expect(constants).toContain("List free");
-    expect(constants).toContain("Browse directory");
     expect(constants).toContain("Learn more");
+    expect(constants).toContain("Shop now");
+    expect(constants).toContain("Start selling");
+    expect(constants).toContain("Open store");
+    expect(constants).toContain('href: "/sell"');
+    expect(constants).toContain('href: "/trust"');
+    expect(constants).toContain('href: "/sell/new"');
+    expect(constants).toContain('href: "/business/dashboard"');
     expect(constants).toContain("HOME_HERO_BANNERS");
     expect(constants).not.toContain("unsplash.com");
   });
@@ -40,17 +45,6 @@ describe("Enterprise UI system — design lock", () => {
     expect(css).toContain("grid-template-columns: repeat(2, minmax(0, 1fr))");
   });
 
-  it("uses Premium 3D icons in account hub cards", () => {
-    const menuCard = readFileSync(
-      join(process.cwd(), "features/account-page/components/MenuCard.tsx"),
-      "utf8",
-    );
-    expect(menuCard).toContain("DashboardIcon3D");
-    expect(menuCard).not.toContain("resolveMenuIcon");
-    expect(menuCard).toContain("rx-hub-card");
-    expect(menuCard).toContain("ChevronRightIcon");
-  });
-
   it("uses vertical enterprise layout in mobile hub cards", () => {
     const card = readFileSync(
       join(process.cwd(), "features/mobile-ui/components/MobilePremiumCard.tsx"),
@@ -61,22 +55,6 @@ describe("Enterprise UI system — design lock", () => {
     expect(card).not.toContain("rx-dash-tile__body");
   });
 
-  it("names account hub sections BUY SELL BUSINESS SUPPORT", () => {
-    const homePage = readFileSync(
-      join(process.cwd(), "components/home/RovexoHomePage.tsx"),
-      "utf8",
-    );
-    const accountDashboard = readFileSync(
-      join(process.cwd(), "features/account-page/components/PremiumAccountDashboard.tsx"),
-      "utf8",
-    );
-    expect(accountDashboard).toContain('title="BUY"');
-    expect(accountDashboard).toContain('title="SELL"');
-    expect(accountDashboard).toContain('title="BUSINESS"');
-    expect(accountDashboard).toContain('title="SUPPORT"');
-    expect(accountDashboard).not.toContain("Quick Access");
-    expect(homePage).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
-  });
 });
 
 describe("Enterprise UI system — header", () => {

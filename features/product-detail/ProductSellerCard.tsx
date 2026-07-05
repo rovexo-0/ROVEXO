@@ -37,29 +37,33 @@ export function ProductSellerCard({
       <h2 className="mb-ds-3 text-sm font-semibold uppercase tracking-wide text-text-muted">
         Seller
       </h2>
-      <Link
-        href={profileHref}
-        className={cn("flex items-center gap-ds-3 rounded-ds-lg p-ds-1", transitionFast, focusRing)}
-      >
-        <Avatar src={sellerAvatar} alt={sellerName} name={sellerName} size="lg" />
+      {/* Avatar and name link to the profile. The trust chip is a sibling (not
+          nested) because it is itself a link to /trust — nesting <a> in <a>
+          produces invalid HTML and a hydration mismatch. */}
+      <div className={cn("flex items-center gap-ds-3 rounded-ds-lg p-ds-1", transitionFast)}>
+        <Link href={profileHref} aria-label={sellerName} className={cn("shrink-0 rounded-ds-lg", focusRing)}>
+          <Avatar src={sellerAvatar} alt={sellerName} name={sellerName} size="lg" />
+        </Link>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold text-text-primary">{sellerName}</p>
-          {sellerUsername && (
-            <p className="truncate text-sm text-text-secondary">@{sellerUsername}</p>
-          )}
-          <div className="mt-ds-1">
-            <Rating value={rating} reviewCount={reviewCount} size="sm" />
-          </div>
-          <p className="mt-ds-1 text-xs text-text-secondary">
-            {salesCount.toLocaleString()} sales
-          </p>
+          <Link href={profileHref} className={cn("block rounded-ds-lg", transitionFast, focusRing)}>
+            <p className="truncate font-semibold text-text-primary">{sellerName}</p>
+            {sellerUsername && (
+              <p className="truncate text-sm text-text-secondary">@{sellerUsername}</p>
+            )}
+            <div className="mt-ds-1">
+              <Rating value={rating} reviewCount={reviewCount} size="sm" />
+            </div>
+            <p className="mt-ds-1 text-xs text-text-secondary">
+              {salesCount.toLocaleString()} sales
+            </p>
+          </Link>
           {sellerTrust && (
             <div className="mt-ds-2">
               <TrustListingBadge summary={sellerTrust} />
             </div>
           )}
         </div>
-      </Link>
+      </div>
       <div className="mt-ds-4 flex flex-col gap-ds-2">
         <Link
           href={profileHref}

@@ -2,7 +2,6 @@
 
 import { forwardRef, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import styles from "@/components/home/RovexoAllListingsGrid.module.css";
 
 type RovexoAllListingsGridProps = {
   children: ReactNode;
@@ -12,7 +11,11 @@ type RovexoAllListingsGridProps = {
 export const RovexoAllListingsGrid = forwardRef<HTMLDivElement, RovexoAllListingsGridProps>(
   function RovexoAllListingsGrid({ children, className }, ref) {
     return (
-      <div ref={ref} className={cn(styles.grid, className)}>
+      <div
+        ref={ref}
+        data-homepage-listing-container="grid"
+        className={cn("home-v1-listing-grid-lock", className)}
+      >
         {children}
       </div>
     );

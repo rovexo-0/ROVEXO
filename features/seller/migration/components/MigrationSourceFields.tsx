@@ -1,14 +1,13 @@
 "use client";
 
 import type { MigrationImportMethodId } from "@/lib/seller/migration/types";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 
 export type MigrationSourceInput = {
   storeUrl: string;
   sourceUrls: string;
   fileName: string | null;
   fileContent: string | null;
+  fileEncoding?: "utf8" | "base64";
 };
 
 type MigrationSourceFieldsProps = {
@@ -28,38 +27,33 @@ export function MigrationSourceFields({ importMethod, value, onChange }: Migrati
   const showFile = FILE_METHODS.has(importMethod);
 
   if (!showStoreUrl && !showUrls && !showFile) {
-    return (
-      <div className="rounded-ds-lg border border-border bg-white px-ds-4 py-ds-3">
-        <p className="text-sm text-text-secondary">
-          API credentials for this method are configured in Marketplace Connectors. You can continue to preview and run the import.
-        </p>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="flex flex-col gap-ds-3 rounded-ds-lg border border-border bg-white p-ds-4">
+    <div className="byi-source">
       <div>
-        <h3 className="text-sm font-semibold text-text-primary">Import source</h3>
-        <p className="mt-ds-1 text-xs text-text-secondary">Provide the data ROVEXO should import.</p>
+        <h3 className="byi-source__label">Import source</h3>
+        <p className="byi-source__help">Provide the data ROVEXO should import.</p>
       </div>
 
       {showStoreUrl ? (
         <label className="flex flex-col gap-ds-1.5">
-          <span className="text-sm font-medium text-text-primary">Store URL</span>
+          <span className="byi-source__label">Store URL</span>
           <input
             type="url"
             value={value.storeUrl}
             onChange={(event) => onChange({ storeUrl: event.target.value })}
             placeholder="https://your-store.example.com"
-            className={cn("rx-input min-h-ds-7 w-full rounded-ds-sm px-ds-3 py-ds-2 text-sm", focusRing)}
+            className="byi-input"
+            autoComplete="url"
           />
         </label>
       ) : null}
 
       {showUrls ? (
         <label className="flex flex-col gap-ds-1.5">
-          <span className="text-sm font-medium text-text-primary">
+          <span className="byi-source__label">
             {importMethod === "single_url" ? "Listing URL" : "Listing URLs"}
           </span>
           <textarea
@@ -71,36 +65,50 @@ export function MigrationSourceFields({ importMethod, value, onChange }: Migrati
                 ? "https://marketplace.example.com/listing/123"
                 : "One URL per line"
             }
-            className={cn("rx-input w-full rounded-ds-sm px-ds-3 py-ds-2 text-sm", focusRing)}
+            className="byi-textarea"
           />
         </label>
       ) : null}
 
       {showFile ? (
         <label className="flex flex-col gap-ds-1.5">
-          <span className="text-sm font-medium text-text-primary">Import file</span>
+          <span className="byi-source__label">Import file</span>
           <input
             type="file"
             accept={importMethod === "csv" ? ".csv" : importMethod === "xlsx" ? ".xlsx,.xls" : ".xml"}
             onChange={(event) => {
               const file = event.target.files?.[0];
               if (!file) {
-                onChange({ fileName: null, fileContent: null });
+                onChange({ fileName: null, fileContent: null, fileEncoding: undefined });
                 return;
               }
+              const isXlsx = importMethod === "xlsx";
               const reader = new FileReader();
               reader.onload = () => {
+                if (isXlsx && typeof reader.result === "string") {
+                  const base64 = reader.result.includes(",")
+                    ? reader.result.split(",")[1] ?? ""
+                    : reader.result;
+                  onChange({
+                    fileName: file.name,
+                    fileContent: base64,
+                    fileEncoding: "base64",
+                  });
+                  return;
+                }
                 onChange({
                   fileName: file.name,
                   fileContent: typeof reader.result === "string" ? reader.result : null,
+                  fileEncoding: "utf8",
                 });
               };
-              reader.readAsText(file);
+              if (isXlsx) reader.readAsDataURL(file);
+              else reader.readAsText(file);
             }}
-            className={cn("text-sm text-text-secondary", focusRing)}
+            className="text-sm text-text-secondary"
           />
           {value.fileName ? (
-            <p className="text-xs text-text-secondary">Selected: {value.fileName}</p>
+            <p className="byi-source__help">Selected: {value.fileName}</p>
           ) : null}
         </label>
       ) : null}
@@ -130,7 +138,23 @@ export function buildMigrationInputPayload(
   if (source.fileContent && source.fileName) {
     input.fileName = source.fileName;
     input.fileContent = source.fileContent;
+    if (source.fileEncoding) input.fileEncoding = source.fileEncoding;
   }
 
   return Object.keys(input).length > 0 ? input : undefined;
+}
+
+export function hasMigrationSourceInput(
+  importMethod: MigrationImportMethodId,
+  source: MigrationSourceInput,
+): boolean {
+  if (importMethod === "store_import") return source.storeUrl.trim().length > 0;
+  if (FILE_METHODS.has(importMethod)) return Boolean(source.fileName && source.fileContent);
+  if (URL_METHODS.has(importMethod)) {
+    return source.sourceUrls
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .some(Boolean);
+  }
+  return true;
 }

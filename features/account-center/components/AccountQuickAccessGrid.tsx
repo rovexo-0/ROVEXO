@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { getQuickAccessIcon } from "@/lib/account-center/tile-icons";
 import { AvatarUploader } from "@/features/account/components/AvatarUploader";
-import { NotificationBadge } from "@/features/account-page/components/NotificationBadge";
+import { NotificationBadge } from "@/features/account-center/components/NotificationBadge";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
 import type { AccountQuickAccessModule } from "@/lib/account-center/modules";

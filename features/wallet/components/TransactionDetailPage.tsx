@@ -67,7 +67,7 @@ export function TransactionDetailPage({ profile, transaction, transactionContext
                 Order {transaction.orderNumber}
               </p>
               <div className="mt-ds-2 flex flex-wrap items-center gap-ds-2">
-                <Price amount={amount} size="md" />
+                <Price amount={amount} size="md" currency="GBP" locale="en-GB" />
                 <TransactionStatusBadge status={transaction.status} />
               </div>
             </div>
@@ -86,32 +86,19 @@ export function TransactionDetailPage({ profile, transaction, transactionContext
           )}
           {transaction.feeAmount != null && (
             <div className="border-t border-border">
-              <DetailRow label="Fee" value={`€${transaction.feeAmount.toFixed(2)}`} />
+              <DetailRow label="Fee" value={`£${transaction.feeAmount.toFixed(2)}`} />
             </div>
           )}
-          {transaction.description && (
+          {transaction.description && !transaction.description.includes("pi:") && (
             <div className="border-t border-border">
               <DetailRow label="Reference" value={transaction.description} />
-            </div>
-          )}
-          {transaction.type === "promotion" && transaction.description?.includes("pi:") && (
-            <div className="border-t border-border">
-              <DetailRow
-                label="Stripe Payment"
-                value={transaction.description.match(/pi:([^|]+)/)?.[1] ?? "—"}
-              />
-            </div>
-          )}
-          {transaction.stripeTransferId && (
-            <div className="border-t border-border">
-              <DetailRow label="Stripe transfer" value={transaction.stripeTransferId} />
             </div>
           )}
           {pendingDays != null && transaction.status === "pending" && (
             <div className="border-t border-border">
               <DetailRow
                 label="Payout"
-                value={`Transfers after hold (${pendingDays} ${pendingDays === 1 ? "day" : "days"})`}
+                value={`Available after hold (${pendingDays} ${pendingDays === 1 ? "day" : "days"})`}
               />
             </div>
           )}

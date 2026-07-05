@@ -54,6 +54,12 @@ export async function persistSellDraftSnapshot(refs: PersistableDraftRefs): Prom
     title: refs.pendingTitleRef.current,
     description: refs.pendingDescriptionRef.current,
   });
-  await saveDraftPhotos(draft.photos);
+  try {
+    await saveDraftPhotos(draft.photos);
+  } catch (error) {
+    sellInputDiag("persist.snapshot.error", {
+      message: error instanceof Error ? error.message : "unknown",
+    });
+  }
   sellInputDiag("persist.snapshot.done");
 }

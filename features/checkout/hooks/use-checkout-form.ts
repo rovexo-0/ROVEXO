@@ -18,9 +18,12 @@ export function useCheckoutForm(product: ProductDetail, initialDraft: CheckoutDr
     () =>
       calculateOrderTotals(
         product.price,
-        getDeliveryPrice(draft.deliveryOption, { listingOffersFreeDelivery: product.freeDelivery }),
+        getDeliveryPrice(draft.deliveryOption, {
+          listingOffersFreeDelivery: product.freeDelivery,
+          listingShippingPrice: product.shippingPrice ?? null,
+        }),
       ),
-    [draft.deliveryOption, product.freeDelivery, product.price],
+    [draft.deliveryOption, product.freeDelivery, product.price, product.shippingPrice],
   );
 
   const updateDraft = useCallback((patch: Partial<CheckoutDraft>) => {

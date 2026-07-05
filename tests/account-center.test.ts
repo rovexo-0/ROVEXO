@@ -39,7 +39,7 @@ describe("Account Center modules", () => {
     expect(ACCOUNT_QUICK_ACCESS.find((entry) => entry.id === "buyer")?.href).toBe("/buyer");
     expect(ACCOUNT_QUICK_ACCESS.find((entry) => entry.id === "seller")?.href).toBe("/seller");
     expect(ACCOUNT_QUICK_ACCESS.find((entry) => entry.id === "business")?.href).toBe(
-      "/business/center",
+      "/business/dashboard",
     );
     expect(ACCOUNT_QUICK_ACCESS.find((entry) => entry.id === "account")?.href).toBe(
       "/account/settings",
@@ -54,7 +54,7 @@ describe("Account Center modules", () => {
   });
 
   it("seller module lists Bring Your Item without hub self-link", () => {
-    const hrefs = getSellerModuleTiles(profile).map((tile) => tile.href);
+    const hrefs = getSellerModuleTiles().map((tile) => tile.href);
     expect(hrefs).toContain("/import");
     expect(hrefs).toContain("/sell");
     expect(hrefs).not.toContain("/seller");

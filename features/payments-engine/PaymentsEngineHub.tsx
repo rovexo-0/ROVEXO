@@ -61,7 +61,7 @@ export function PaymentsEngineHub({
             {config.marketplaceVersion} · {config.primaryCountry} · {config.currency}
           </p>
           <p className="text-sm text-text-muted">
-            {context.stripeConfigured ? "Stripe connected" : "Stripe pending"} · {context.savedMethodsCount} saved methods ·{" "}
+            {context.stripeConfigured ? "Payments active" : "Payments setup pending"} · {context.savedMethodsCount} saved methods ·{" "}
             {context.protectionStatus.replace(/-/g, " ")}
           </p>
         </header>

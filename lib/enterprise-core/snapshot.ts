@@ -119,12 +119,12 @@ function buildDeveloperTools(): EnterpriseCoreDeveloperTool[] {
 function enrichRegistry(
   missionControl: Awaited<ReturnType<typeof getMissionControlSnapshot>>,
 ): EnterpriseCoreSnapshot["registry"] {
-  return ENTERPRISE_CORE_REGISTRY.map((module) => {
+  return ENTERPRISE_CORE_REGISTRY.map((mod) => {
     const service = missionControl.services.find(
-      (item) => item.id.includes(module.id.split("-")[0]) || item.label.toLowerCase().includes(module.label.toLowerCase().split(" ")[0]),
+      (item) => item.id.includes(mod.id.split("-")[0]) || item.label.toLowerCase().includes(mod.label.toLowerCase().split(" ")[0]),
     );
-    if (!service) return module;
-    return { ...module, health: mapServiceStatus(service.status) };
+    if (!service) return mod;
+    return { ...mod, health: mapServiceStatus(service.status) };
   });
 }
 

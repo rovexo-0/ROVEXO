@@ -53,7 +53,7 @@ describe("Sell module hydration safety", () => {
     expect(source).toContain("sellDebug");
   });
 
-  it("uses a script-free ThemeProvider for forced light theme", () => {
+  it("keeps ThemeProvider script-free (anti-flash script lives in the document head)", () => {
     const source = readSource("components/providers/ThemeProvider.tsx");
     expect(source).not.toMatch(/from [\"']next-themes[\"']/);
     expect(source).not.toContain("<script");

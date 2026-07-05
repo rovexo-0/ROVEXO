@@ -28,6 +28,12 @@ export type EnterpriseModuleApiPaths = {
   /** Version-ready paths */
   v1Snapshot: string;
   v1Action: string;
+  /** Optional extended staff/comms endpoints */
+  messages?: string;
+  calls?: string;
+  files?: string;
+  offline?: string;
+  push?: string;
 };
 
 export type EnterpriseModuleConfigKeys = {

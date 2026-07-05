@@ -3,6 +3,7 @@ import {
   createListingThumbnail,
   validateClientImage,
 } from "@/lib/storage/client-images";
+import { safeRandomUUID } from "@/lib/uuid";
 
 export type UploadedImageResult = {
   url: string;
@@ -22,7 +23,7 @@ export async function uploadListingImage(input: {
   validateClientImage(input.file);
   const compressed = await compressListingImage(input.file);
   const thumbnail = await createListingThumbnail(compressed);
-  const sessionId = input.sessionId ?? crypto.randomUUID();
+  const sessionId = input.sessionId ?? safeRandomUUID();
   const maxRetries = input.maxRetries ?? 3;
 
   let lastError: Error | null = null;

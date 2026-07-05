@@ -12,27 +12,27 @@ export type EnterpriseNavItem = {
 
 export function buildEnterprisePrimaryNavItems(): EnterpriseNavItem[] {
   return listEnterpriseModuleDescriptors()
-    .filter((module) => module.autoRegister)
-    .map((module) => ({
-      href: module.baseHref,
-      label: module.label,
-      description: module.description,
-      icon: module.icon,
+    .filter((descriptor) => descriptor.autoRegister)
+    .map((descriptor) => ({
+      href: descriptor.baseHref,
+      label: descriptor.label,
+      description: descriptor.description,
+      icon: descriptor.icon,
     }));
 }
 
 export function buildEnterpriseNavItem(moduleId: string): EnterpriseNavItem | undefined {
-  const module = getEnterpriseModuleDescriptor(moduleId);
-  if (!module) return undefined;
+  const descriptor = getEnterpriseModuleDescriptor(moduleId);
+  if (!descriptor) return undefined;
   return {
-    href: module.baseHref,
-    label: module.label,
-    description: module.description,
-    icon: module.icon,
+    href: descriptor.baseHref,
+    label: descriptor.label,
+    description: descriptor.description,
+    icon: descriptor.icon,
   };
 }
 
 export function resolveModuleRouteHref(moduleId: string, routeId: string): string | undefined {
-  const module = getEnterpriseModuleDescriptor(moduleId);
-  return module?.routes.find((route) => route.id === routeId)?.href;
+  const descriptor = getEnterpriseModuleDescriptor(moduleId);
+  return descriptor?.routes.find((route) => route.id === routeId)?.href;
 }

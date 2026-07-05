@@ -31,6 +31,7 @@ export const TREE_FEATURES = [
 export const EDITOR_FIELDS = [
   "name",
   "slug",
+  "transaction-mode",
   "description",
   "rich-text",
   "icon",

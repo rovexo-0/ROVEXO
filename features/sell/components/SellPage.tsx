@@ -6,6 +6,7 @@ import type { SellListingDraft } from "@/features/sell/types";
 import { getListingValidationErrors } from "@/features/sell/types";
 import { FieldError } from "@/features/sell/components/FieldError";
 import { ListingForm } from "@/features/sell/components/ListingForm";
+import { ItemConditionSelector } from "@/features/sell/components/ItemConditionSelector";
 import { OptionalCard } from "@/features/sell/components/OptionalCard";
 import { PhotoUploader } from "@/features/sell/components/PhotoUploader";
 import { StickyPublishButton } from "@/features/sell/components/StickyPublishButton";
@@ -53,6 +54,7 @@ function SellPageInner() {
         <PhotoUploader />
         <PhotoValidationError />
         <ListingForm />
+        <ItemConditionSelector />
         <OptionalCard />
 
         {formError ? (

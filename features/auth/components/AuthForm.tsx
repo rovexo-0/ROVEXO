@@ -73,6 +73,8 @@ export function AuthForm({
           fullWidth
           size="lg"
           disabled={pending}
+          aria-busy={pending}
+          data-testid="auth-submit"
           className="mt-ds-1 min-h-[50px] rounded-ds-xl text-[17px] font-semibold shadow-ds-medium"
         >
           {pending ? (

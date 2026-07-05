@@ -9,11 +9,10 @@ import {
   RELEASE_READINESS_CHECKS,
   RELEASE_SUCCESS_CRITERIA,
 } from "@/lib/enterprise-marketplace-completion-engine/registry";
-import { createCheck, fileExists, labelize, passStatus, premiumStylesActive, readSource } from "@/lib/enterprise-marketplace-completion-engine/scan-utils";
+import { createCheck, fileExists, labelize, passStatus, premiumStylesActive } from "@/lib/enterprise-marketplace-completion-engine/scan-utils";
 import type {
   AutonomousExecutionReleaseResult,
   CompletionStatus,
-  CompletionValidationItem,
   ExecutionBoardItem,
   ExecutionModuleProgress,
   FeatureCompletionResult,
@@ -62,20 +61,20 @@ function scanExecutionBoard(scan: MarketplaceCompletionScanResult): ExecutionBoa
 }
 
 function scanModuleProgress(scan: MarketplaceCompletionScanResult): ExecutionModuleProgress[] {
-  return EXECUTION_MODULE_TRACKING.map((module) => {
-    const pageComplete = fileExists(module.pageRef);
-    const registryModule = scan.modules.find((m) => m.moduleId === module.id || m.pageRef === module.pageRef);
+  return EXECUTION_MODULE_TRACKING.map((mod) => {
+    const pageComplete = fileExists(mod.pageRef);
+    const registryModule = scan.modules.find((m) => m.moduleId === mod.id || m.pageRef === mod.pageRef);
     const complete = pageComplete && (registryModule?.complete ?? pageComplete);
     const passPercent = complete ? 100 : 0;
     return {
-      id: `exec-module-${module.id}`,
-      moduleId: module.id,
-      label: module.label,
-      pageRef: module.pageRef,
+      id: `exec-module-${mod.id}`,
+      moduleId: mod.id,
+      label: mod.label,
+      pageRef: mod.pageRef,
       status: complete ? passStatus() : "fail",
       passPercent,
       complete,
-      message: complete ? `${module.label} enterprise certified` : `${module.label} implementation pending`,
+      message: complete ? `${mod.label} enterprise certified` : `${mod.label} implementation pending`,
     };
   });
 }
@@ -86,8 +85,8 @@ function scanFeatureCompletion(scan: MarketplaceCompletionScanResult): FeatureCo
   const hasApi = fileExists("app/api/search/route.ts");
   const hasDb = fileExists("lib/supabase/middleware.ts");
 
-  return EXECUTION_MODULE_TRACKING.map((module) => {
-    const pageComplete = fileExists(module.pageRef);
+  return EXECUTION_MODULE_TRACKING.map((mod) => {
+    const pageComplete = fileExists(mod.pageRef);
     const checks = FEATURE_COMPLETION_CHECKS.map((check) => {
       let pass = pageComplete && scan.launchReadinessPass;
       if (check.includes("ui")) pass = pageComplete && hasUi;
@@ -102,18 +101,18 @@ function scanFeatureCompletion(scan: MarketplaceCompletionScanResult): FeatureCo
       if (check.includes("infrastructure")) pass = scan.launchReadinessPass;
       if (check.includes("documentation")) pass = fileExists(".env.example");
       if (check.includes("testing")) pass = scan.passPercent >= 100;
-      return createCheck(`feature-${module.id}`, check, pass, pass ? `${labelize(check)} verified` : `${labelize(check)} pending`);
+      return createCheck(`feature-${mod.id}`, check, pass, pass ? `${labelize(check)} verified` : `${labelize(check)} pending`);
     });
     const clear = checks.filter((c) => c.status === "pass").length;
     const passPercent = Math.round((clear / checks.length) * 10000) / 100;
     return {
-      id: `feature-module-${module.id}`,
-      moduleId: module.id,
-      label: module.label,
+      id: `feature-module-${mod.id}`,
+      moduleId: mod.id,
+      label: mod.label,
       passPercent,
       status: passPercent >= 100 ? passStatus() : "fail",
       checks,
-      message: passPercent >= 100 ? `${module.label} feature complete` : `${module.label} features incomplete`,
+      message: passPercent >= 100 ? `${mod.label} feature complete` : `${mod.label} features incomplete`,
     };
   });
 }
@@ -146,7 +145,6 @@ function scanImplementationControl(scan: MarketplaceCompletionScanResult): Imple
 
 function buildQualityDashboard(scan: MarketplaceCompletionScanResult, modules: ExecutionModuleProgress[]): QualityDashboardMetricResult[] {
   const modulePercent = (id: string) => modules.find((m) => m.moduleId === id)?.passPercent ?? scan.passPercent;
-  const homeContent = readSource("components/home/HomeContent.tsx");
   const listingPercent = Math.round((modulePercent("listing-create") + modulePercent("listing-edit") + modulePercent("listing-publish") + modulePercent("listing-details")) / 4);
 
   const values: Record<(typeof QUALITY_DASHBOARD_METRICS)[number], number> = {

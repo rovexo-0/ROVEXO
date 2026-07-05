@@ -1,12 +1,24 @@
 import type { CategoryNode } from "@/lib/categories/types";
 import { getCategoryIcon } from "@/lib/categories/visuals";
+import { resolveTransactionModeForRootSlug } from "@/lib/transaction-mode/defaults";
+import type { TransactionMode } from "@/lib/transaction-mode/types";
 
 export type CatalogItem = readonly [name: string, slug: string];
+
+/** Product-type group under a subcategory (enables 4+ level paths). */
+export type ProductGroupDef = {
+  name: string;
+  slug: string;
+  items: readonly CatalogItem[];
+};
 
 export type DepartmentDef = {
   name: string;
   slug: string;
-  items: readonly CatalogItem[];
+  /** Flat product types directly under the subcategory (3-level paths). */
+  items?: readonly CatalogItem[];
+  /** Nested product-type groups (4-level paths: category > subcategory > group > type). */
+  groups?: readonly ProductGroupDef[];
   brands?: readonly string[];
 };
 
@@ -47,25 +59,46 @@ function brandLeaves(prefix: string, brands: readonly string[]): CategoryNode[] 
 
 export function buildDepartmentNode(sectorId: string, department: DepartmentDef): CategoryNode {
   const prefix = `${sectorId}-${department.slug}`;
-  const itemNodes = leaves(prefix, department.items);
-  const brandNodes = department.brands?.length ? brandLeaves(`${prefix}-brands`, department.brands) : [];
+  const children: CategoryNode[] = [];
 
-  if (brandNodes.length) {
-    return branch(prefix, department.name, department.slug, [
-      ...itemNodes,
-      branch(`${prefix}-brands`, "By Brand", "by-brand", brandNodes),
-    ]);
+  if (department.items?.length) {
+    children.push(...leaves(prefix, department.items));
   }
 
-  return branch(prefix, department.name, department.slug, itemNodes);
+  if (department.groups?.length) {
+    for (const group of department.groups) {
+      const groupPrefix = `${prefix}-${group.slug}`;
+      children.push(branch(groupPrefix, group.name, group.slug, leaves(groupPrefix, group.items)));
+    }
+  }
+
+  if (department.brands?.length) {
+    children.push(
+      branch(`${prefix}-brands`, "By Brand", "by-brand", brandLeaves(`${prefix}-brands`, department.brands)),
+    );
+  }
+
+  return branch(prefix, department.name, department.slug, children);
+}
+
+function stampInheritedTransactionMode(node: CategoryNode, mode: TransactionMode): CategoryNode {
+  return {
+    ...node,
+    transactionMode: mode,
+    children: node.children?.map((child) => stampInheritedTransactionMode(child, mode)),
+  };
 }
 
 export function buildSectorNode(sector: SectorDef): CategoryNode {
-  return branch(
-    sector.id,
-    sector.name,
-    sector.slug,
-    sector.departments.map((department) => buildDepartmentNode(sector.id, department)),
+  const mode = resolveTransactionModeForRootSlug(sector.slug);
+  return stampInheritedTransactionMode(
+    branch(
+      sector.id,
+      sector.name,
+      sector.slug,
+      sector.departments.map((department) => buildDepartmentNode(sector.id, department)),
+    ),
+    mode,
   );
 }
 

@@ -1,17 +1,13 @@
 "use client";
 
 import { useRef } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { Price } from "@/components/ui/Price";
-import { cn } from "@/lib/cn";
-import { productToCardProps } from "@/lib/products/card";
 import type { Product } from "@/lib/products/types";
-import { focusRing, transitionFast } from "@/components/ui/tokens";
+import { SearchResultCard } from "@/features/search/components/SearchResultCard";
 import { useIntersectionWhenVisible } from "@/lib/performance/hooks";
 
 type ProductResultsProps = {
   items: Product[];
+  query: string;
   activeIndex: number;
   navOffset: number;
   hasMore: boolean;
@@ -23,6 +19,7 @@ type ProductResultsProps = {
 
 export function ProductResults({
   items,
+  query,
   activeIndex,
   navOffset,
   hasMore,
@@ -45,40 +42,17 @@ export function ProductResults({
     <>
       <ul className="flex flex-col gap-ds-2" role="listbox" aria-label="Products">
         {items.map((product, index) => {
-          const props = productToCardProps(product);
           const navIndex = navOffset + index;
-          const isActive = activeIndex === navIndex;
-
           return (
-            <li key={product.id}>
-              <Link
-                href={props.href}
-                role="option"
-                aria-selected={isActive}
-                onClick={onNavigate}
-                onMouseEnter={() => onHoverIndex(navIndex)}
-                className={cn(
-                  "rx-menu-row rx-glass flex min-h-ds-7 items-center gap-ds-3 rounded-ds-lg p-ds-2",
-                  focusRing,
-                  transitionFast,
-                  isActive && "border-primary/30 bg-surface-muted",
-                )}
-              >
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-                  <Image
-                    src={props.imageUrl}
-                    alt={props.title}
-                    fill
-                    className="object-cover"
-                    sizes="56px"
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-text-primary">{props.title}</p>
-                  <Price amount={props.price} size="sm" />
-                </div>
-              </Link>
-            </li>
+            <SearchResultCard
+              key={product.id}
+              product={product}
+              query={query}
+              elementId={`search-nav-item-${navIndex}`}
+              isActive={activeIndex === navIndex}
+              onHover={() => onHoverIndex(navIndex)}
+              onNavigate={onNavigate}
+            />
           );
         })}
       </ul>

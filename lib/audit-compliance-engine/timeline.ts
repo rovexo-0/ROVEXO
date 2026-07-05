@@ -41,20 +41,20 @@ export function buildModuleAuditResults(input: {
   const { config, errorCount, healthStatus } = input;
   const healthPenalty = healthStatus === "unhealthy" ? 15 : healthStatus === "degraded" ? 8 : 0;
 
-  return AUDIT_COMPLIANCE_MODULES.filter((module) => config.modules[module.id]).map((module, index) => {
+  return AUDIT_COMPLIANCE_MODULES.filter((mod) => config.modules[mod.id]).map((mod, index) => {
     const base = 92 - (index % 5);
     const score = moduleScore(base, errorCount + healthPenalty);
     const issues = score < 70 ? 2 : score < 85 ? 1 : 0;
     const warnings = score < 90 ? 1 : 0;
     return {
-      id: module.id,
-      label: module.label,
-      icon: module.icon,
+      id: mod.id,
+      label: mod.label,
+      icon: mod.icon,
       score,
       status: severityFromScore(score),
       issues,
       warnings,
-      href: module.href,
+      href: mod.href,
     };
   });
 }

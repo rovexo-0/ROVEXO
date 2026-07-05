@@ -34,7 +34,7 @@ export function createDefaultBiState(): BiState {
   };
 }
 
-export function buildExecutiveDashboard(state: BiState, settings: BiSettings): ExecutiveDashboard {
+export function buildExecutiveDashboard(state: BiState): ExecutiveDashboard {
   const revenue = totalRevenue(state.financial);
   const profit = netProfit(state.financial);
   const orders = state.kpis.find((k) => k.label === "Orders")?.value ?? 0;

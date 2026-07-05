@@ -1,56 +1,63 @@
 "use client";
 
-import { Card } from "@/components/ui/Card";
-import { MIGRATION_PLATFORMS } from "@/lib/seller/migration/constants";
+import { BRING_YOUR_ITEM_PLATFORM_FLOWS } from "@/lib/bring-your-item/platform-flow";
 import type { MigrationPlatformId } from "@/lib/seller/migration/types";
 import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 
 type MigrationPlatformStepProps = {
   selected: MigrationPlatformId | null;
   onSelect: (platform: MigrationPlatformId) => void;
+  connectedPlatformIds?: ReadonlySet<string>;
 };
 
-export function MigrationPlatformStep({ selected, onSelect }: MigrationPlatformStepProps) {
+export function MigrationPlatformStep({
+  selected,
+  onSelect,
+  connectedPlatformIds,
+}: MigrationPlatformStepProps) {
   return (
-    <div className="flex flex-col gap-ds-3">
+    <div className="byi-panel__body flex flex-col gap-ds-3">
       <div>
-        <h2 className="text-base font-semibold text-text-primary">Choose platform</h2>
-        <p className="mt-ds-1 text-sm text-text-secondary">
-          Select where your listings live today. Connectors will plug in here later.
+        <h2 className="byi-section-title">Choose marketplace</h2>
+        <p className="byi-section-subtitle">
+          Tap where your listings live today. The next step connects and imports in one flow.
         </p>
       </div>
-      <ul className="grid max-h-[28rem] grid-cols-2 gap-ds-2 overflow-y-auto sm:grid-cols-3" role="listbox" aria-label="Supported platforms">
-        {MIGRATION_PLATFORMS.map((platform) => {
+      <ul className="byi-platform-grid" role="listbox" aria-label="Supported marketplaces">
+        {BRING_YOUR_ITEM_PLATFORM_FLOWS.map((platform) => {
           const isSelected = selected === platform.id;
+          const isConnected = connectedPlatformIds?.has(platform.id) ?? false;
+          const isSoon = platform.connectMode === "coming_soon";
+
           return (
             <li key={platform.id}>
               <button
                 type="button"
                 role="option"
                 aria-selected={isSelected}
+                disabled={isSoon}
                 onClick={() => onSelect(platform.id)}
                 className={cn(
-                  "rx-surface-card flex w-full flex-col items-start gap-ds-2 p-ds-3 text-left",
-                  isSelected && "ring-2 ring-primary",
-                  focusRing,
+                  "byi-platform-tile",
+                  isSelected && "byi-platform-tile--selected",
                 )}
               >
-                <span className="text-2xl" aria-hidden>
+                <span className="byi-platform-tile__icon" aria-hidden>
                   {platform.icon}
                 </span>
-                <span className="text-sm font-semibold text-text-primary">{platform.name}</span>
+                <span className="byi-platform-tile__name">{platform.name}</span>
+                {isConnected ? (
+                  <span className="byi-badge byi-badge--connected">Connected</span>
+                ) : null}
+                {isSoon ? <span className="byi-badge byi-badge--soon">Coming soon</span> : null}
               </button>
             </li>
           );
         })}
       </ul>
-      <Card padding="sm" className="border-dashed border-primary/25 bg-primary/5">
-        <p className="text-xs text-text-secondary">
-          Architecture ready for Facebook Marketplace, eBay, Amazon, Etsy, Vinted, Shopify, WooCommerce,
-          and additional marketplaces.
-        </p>
-      </Card>
+      <p className="byi-hint">
+        eBay, Etsy, and Shopify use secure OAuth. Paste a listing link or upload CSV when supported.
+      </p>
     </div>
   );
 }

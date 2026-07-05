@@ -1,6 +1,6 @@
 import { categoryTree } from "@/lib/categories/tree";
 import type { CategoryNode, CategoryPath, FlatCategoryPath } from "@/lib/categories/types";
-import { flatPathFromSegments } from "@/lib/categories/types";
+import { flatPathFromSegments, CATEGORY_PATH_SEPARATOR } from "@/lib/categories/types";
 import {
   collectLeafPaths,
   findNodeBySlugPath,
@@ -10,7 +10,7 @@ import {
 function buildPathLabel(path: CategoryPath): string {
   const parts = [path.category.name, path.subcategory.name];
   if (path.childCategory) parts.push(path.childCategory.name);
-  return parts.join(" › ");
+  return parts.join(CATEGORY_PATH_SEPARATOR);
 }
 
 function walkLegacyPaths(

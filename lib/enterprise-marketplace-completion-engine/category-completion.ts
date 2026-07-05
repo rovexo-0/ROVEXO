@@ -15,7 +15,6 @@ import {
 import { createCheck, fileExists, labelize, passStatus, premiumStylesActive, readSource } from "@/lib/enterprise-marketplace-completion-engine/scan-utils";
 import type {
   AiCategoryValidationItem,
-  CategoryAutoRepairProposal,
   CategoryCertificationScoreCard,
   CategoryCompletionResult,
   CategoryDomainScanResult,
@@ -24,7 +23,7 @@ import type {
   MarketplaceCompletionScanResult,
 } from "@/lib/enterprise-marketplace-completion-engine/types";
 
-function scanGlobalDomains(scan: MarketplaceCompletionScanResult): CategoryDomainScanResult[] {
+function scanGlobalDomains(): CategoryDomainScanResult[] {
   return GLOBAL_CATEGORY_SCAN_DOMAINS.map((domain) => {
     const pass = fileExists(domain.ref);
     return {
@@ -119,7 +118,7 @@ function scanListingSync(scan: MarketplaceCompletionScanResult): CompletionValid
   });
 }
 
-function scanAiCategoryEngine(scan: MarketplaceCompletionScanResult): AiCategoryValidationItem[] {
+function scanAiCategoryEngine(): AiCategoryValidationItem[] {
   const aiCategory = readSource("lib/taxonomies/ai-category.ts");
   const learning = fileExists("lib/sell/category-detection-learning.ts");
   const proDetection = fileExists("lib/sell/category-detection-pro.ts");
@@ -288,12 +287,12 @@ function buildPassConditions(
 
 export function runCategoryCompletionScan(scan: MarketplaceCompletionScanResult): CategoryCompletionResult {
   const homeContent = readSource("components/home/HomeContent.tsx");
-  const domains = scanGlobalDomains(scan);
+  const domains = scanGlobalDomains();
   const integrity = scanIntegrity(homeContent, scan);
   const homepageSync = scanHomepageSync(homeContent, scan);
   const searchSync = scanSearchSync(scan);
   const listingSync = scanListingSync(scan);
-  const aiCategoryEngine = scanAiCategoryEngine(scan);
+  const aiCategoryEngine = scanAiCategoryEngine();
   const seo = scanSeo(scan);
   const buttonValidation = scanButtonValidation(scan);
   const databaseValidation = scanDatabaseValidation(scan);

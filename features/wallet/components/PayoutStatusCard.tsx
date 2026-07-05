@@ -16,7 +16,7 @@ export function PayoutStatusCard({ paidOutBalance, payoutsEnabled }: PayoutStatu
       <div className="flex flex-col gap-ds-4">
         <div className="flex items-start justify-between gap-ds-3">
           <div>
-            <p className="text-sm font-medium text-text-secondary">Paid out to Stripe</p>
+            <p className="text-sm font-medium text-text-secondary">Paid out to your bank</p>
             <p className="mt-ds-2 text-3xl font-bold tabular-nums text-text-primary">
               <AnimatedCounter
                 value={Math.round(paidOutBalance * 100)}
@@ -30,8 +30,8 @@ export function PayoutStatusCard({ paidOutBalance, payoutsEnabled }: PayoutStatu
         </div>
 
         <p className="text-sm text-text-secondary">
-          After each order is confirmed and the hold period ends, ROVEXO automatically transfers
-          your earnings to Stripe Connect. Stripe Express then deposits to your bank.
+          After each order is confirmed and the hold period ends, ROVEXO automatically sends
+          your earnings to your bank account.
         </p>
       </div>
     </Card>

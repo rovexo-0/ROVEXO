@@ -16,7 +16,6 @@ import {
 import { createCheck, fileExists, labelize, passStatus, premiumStylesActive, readSource } from "@/lib/enterprise-marketplace-completion-engine/scan-utils";
 import type {
   CompletionValidationItem,
-  HomepageAutoRepairProposal,
   HomepageCertificationScoreCard,
   HomepageCompletionResult,
   HomepageComponentScanResult,
@@ -24,7 +23,7 @@ import type {
   MarketplaceCompletionScanResult,
 } from "@/lib/enterprise-marketplace-completion-engine/types";
 
-function scanGlobalComponents(scan: MarketplaceCompletionScanResult): HomepageComponentScanResult[] {
+function scanGlobalComponents(): HomepageComponentScanResult[] {
   return GLOBAL_HOMEPAGE_SCAN_COMPONENTS.map((component) => {
     const pass = fileExists(component.ref);
     return {
@@ -116,7 +115,7 @@ function scanFeaturedContent(homeContent: string, scan: MarketplaceCompletionSca
     "trending-listings": "components/home/HomeTrendingListingsSection.tsx",
     "sponsored-listings": "components/home/HomePromoBanner.tsx",
     "business-promotions": "components/home/BusinessSpotlightSection.tsx",
-    "banner-rotation": "components/home/BringYourItemsBanner.tsx",
+    "banner-rotation": "components/home/RovexoHomePage.tsx",
     "carousel-behaviour": "components/home/HomeAllListingsSection.tsx",
     "lazy-loading": "components/home/ProductGridSkeleton.tsx",
   };
@@ -125,7 +124,7 @@ function scanFeaturedContent(homeContent: string, scan: MarketplaceCompletionSca
     const ref = refs[check];
     let pass = ref ? fileExists(ref) : homeContent.length > 0;
     if (check.includes("carousel") || check.includes("lazy")) pass = pass && scan.globalUiPass;
-    if (check.includes("banner")) pass = homeContent.includes("BringYourItemsBanner");
+    if (check.includes("banner")) pass = !homeContent.includes("RovexoBanner") && !homeContent.includes("BringYourItemsBanner");
     return createCheck("homepage-featured", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
@@ -236,7 +235,7 @@ function buildPassConditions(scan: MarketplaceCompletionScanResult, homeContent:
 
 export function runHomepageCompletionScan(scan: MarketplaceCompletionScanResult): HomepageCompletionResult {
   const homeContent = readSource("components/home/HomeContent.tsx");
-  const components = scanGlobalComponents(scan);
+  const components = scanGlobalComponents();
   const visualIntegrity = scanVisualIntegrity(homeContent, scan);
   const searchArea = scanSearchArea(scan);
   const categoryValidation = scanCategoryValidation(homeContent, scan);

@@ -8,6 +8,7 @@ import { listMigrationProviders } from "@/lib/seller/migration/providers/registr
 import {
   MIGRATION_IMPORT_METHODS,
   MIGRATION_PLATFORMS,
+  MIGRATION_WIZARD_STEPS,
 } from "@/lib/seller/migration/constants";
 import { IMPORT_WIZARD_PATH, MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
 import { buildPreviewItems } from "@/lib/seller/migration/preview";
@@ -22,6 +23,7 @@ describe("store migration module", () => {
   it("lists supported platforms and import methods", () => {
     expect(MIGRATION_PLATFORMS.length).toBeGreaterThanOrEqual(25);
     expect(MIGRATION_IMPORT_METHODS.length).toBe(8);
+    expect(MIGRATION_WIZARD_STEPS.length).toBe(3);
     expect(listMigrationProviders().length).toBeGreaterThanOrEqual(25);
   });
 

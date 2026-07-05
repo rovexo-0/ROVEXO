@@ -44,7 +44,7 @@ function sampleSnapshot(overrides: Partial<BiSnapshot> = {}): BiSnapshot {
   const settings = createDefaultBiSettings();
   return {
     tab: "dashboard",
-    dashboard: buildExecutiveDashboard(state, settings),
+    dashboard: buildExecutiveDashboard(state),
     kpis: state.kpis,
     financial: state.financial,
     marketplace: state.marketplace,
@@ -99,14 +99,14 @@ describe("enterprise bi descriptor", () => {
 
 describe("executive dashboard", () => {
   it("builds dashboard", () => {
-    const dashboard = buildExecutiveDashboard(createDefaultBiState(), createDefaultBiSettings());
+    const dashboard = buildExecutiveDashboard(createDefaultBiState());
     expect(dashboard.revenue).toBeGreaterThan(0);
     expect(dashboard.gmv).toBeGreaterThan(dashboard.orders);
     expect(dashboard.platformHealth).toBeGreaterThan(0);
   });
 
   it("includes conversion rate", () => {
-    const dashboard = buildExecutiveDashboard(createDefaultBiState(), createDefaultBiSettings());
+    const dashboard = buildExecutiveDashboard(createDefaultBiState());
     expect(dashboard.conversionRate).toBeGreaterThan(0);
   });
 

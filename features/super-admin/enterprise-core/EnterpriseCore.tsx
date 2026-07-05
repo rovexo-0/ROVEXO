@@ -189,17 +189,17 @@ function GlobalSearchPanel({ categories }: { categories: readonly string[] }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<EnterpriseCoreSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const trimmedQuery = query.trim();
+  const shouldSearch = trimmedQuery.length >= 2;
+  const visibleResults = shouldSearch ? results : [];
 
   useEffect(() => {
-    if (query.trim().length < 2) {
-      setResults([]);
-      return;
-    }
+    if (!shouldSearch) return;
     const controller = new AbortController();
     const timer = window.setTimeout(async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/super-admin/enterprise-core?q=${encodeURIComponent(query.trim())}`, {
+        const response = await fetch(`/api/super-admin/enterprise-core?q=${encodeURIComponent(trimmedQuery)}`, {
           signal: controller.signal,
         });
         const data = (await response.json()) as { results?: EnterpriseCoreSearchResult[] };
@@ -214,7 +214,7 @@ function GlobalSearchPanel({ categories }: { categories: readonly string[] }) {
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [query]);
+  }, [shouldSearch, trimmedQuery]);
 
   return (
     <section className="rx-surface-card rounded-ds-xl p-ds-5">
@@ -233,7 +233,7 @@ function GlobalSearchPanel({ categories }: { categories: readonly string[] }) {
       </div>
       {loading ? <p className="text-sm text-text-muted">Searching…</p> : null}
       <div className="ec-list">
-        {results.map((result) => (
+        {visibleResults.map((result) => (
           <Link key={`${result.category}-${result.id}`} href={result.href} className="ec-list__row ec-list__row--link">
             <div>
               <p className="font-semibold">{result.title}</p>

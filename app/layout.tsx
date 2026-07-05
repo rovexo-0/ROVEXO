@@ -26,6 +26,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+/**
+ * Pre-paint theme resolution — runs before the body renders so dark/system
+ * users never see a light flash. Reads the persisted appearance MODE and sets
+ * <html data-theme>. Kept tiny and dependency-free; failures are swallowed so a
+ * missing localStorage never blocks paint. Pairs with suppressHydrationWarning.
+ */
+const THEME_INIT_SCRIPT = `(function(){try{var m=localStorage.getItem("rovexo-theme")||"light";var d=m==="dark"||(m==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute("data-theme",d?"dark":"light");}catch(e){}})();`;
+
+// Pre-paint locale sync: applies the stored locale to <html lang/dir> before
+// hydration so language and text direction (incl. RTL) never flash on first paint.
+const LOCALE_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("rovexo-locale");if(!c||!/^[a-z]{2}-[A-Z]{2}$/.test(c))return;var el=document.documentElement;el.setAttribute("lang",c);el.setAttribute("dir",c==="ar-SA"?"rtl":"ltr");}catch(e){}})();`;
+
 export const metadata: Metadata = {
   metadataBase: new URL(getAppUrl()),
   title: {
@@ -89,6 +101,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
     >
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: LOCALE_INIT_SCRIPT }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}

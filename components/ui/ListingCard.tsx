@@ -1,69 +1,146 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, type KeyboardEvent, type SyntheticEvent } from "react";
-import { Badge } from "@/components/ui/Badge";
-import { Price } from "@/components/ui/Price";
+import Link from "next/link";
+import { memo, useCallback, useEffect, useMemo, useState, type SyntheticEvent } from "react";
+import { RovexoIcon } from "@/components/icons/RovexoIcon";
+import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
+import { ShareListingSheet } from "@/components/share/ShareListingSheet";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
-import { cn } from "@/lib/cn";
 import { trackPromotionEvent } from "@/components/promotions/PromotionAnalyticsBeacon";
 import { trackSaveListing } from "@/lib/analytics/marketplace-events";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
-import { ShareListingSheet } from "@/components/share/ShareListingSheet";
-import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
 import { getActiveMarket } from "@/lib/seo/markets";
-import { formatPublishedTime } from "@/lib/home/format-published-time";
-import { focusRing, transitionNormal, transitionSpring } from "@/components/ui/tokens";
+import { RovexoIcons } from "@/lib/icons";
+import { cn } from "@/lib/cn";
+import type { Product } from "@/lib/products/types";
+import { resolveHomepagePromotionBadge } from "@/lib/homepage/feed-ranking";
+import styles from "@/components/ui/ListingCard.module.css";
 
-export type ListingCardProps = {
-  title: string;
-  href: string;
-  imageUrl: string;
-  imageAlt?: string;
-  price: number;
-  originalPrice?: number | null;
-  condition?: string;
-  publishedAt?: string | null;
-  premiumMeta?: boolean;
-  views?: number;
-  productId?: string;
-  slug?: string;
-  productSlug?: string;
-  promotionSurface?: "homepage" | "search" | "category" | "listing" | "seller";
-  isFeatured?: boolean;
-  isBumped?: boolean;
-  isNew?: boolean;
-  location?: string;
-  rating?: number;
-  reviewCount?: number;
-  listingType?: string;
-  sellerVerified?: boolean;
-  auctionEndsAt?: string | null;
-  auctionCurrentBid?: number | null;
-  isFavorite?: boolean;
-  onFavorite?: () => void;
-  /** Use persisted home watchlist when slug is available. */
-  useHomeWatchlist?: boolean;
-  showShare?: boolean;
-  imageFit?: "cover" | "contain";
-  imageSizes?: string;
-  imageQuality?: number;
-  className?: string;
-};
+/**
+ * ROVEXO canonical listing card — the single source of truth for every product
+ * listing surface (homepage rails, search, category, seller/store, saved,
+ * similar, recently viewed, and any future grid or carousel).
+ *
+ * The card is entirely configuration-driven: every surface renders THIS
+ * component with different flags. New features (verified, delivery, finance,
+ * AI score, auction timer, boost, sponsored, ...) must be added as additive
+ * props here — never as a new card component.
+ */
 
-function HeartIcon({ className, filled }: { className?: string; filled?: boolean }) {
-  return (
-    <Fluency3DIcon
-      icon={filled ? "feature-heart-filled" : "feature-heart"}
-      size={20}
-      className={className}
-    />
-  );
+export type ListingCardVariant = "grid" | "carousel";
+
+export type ListingCardSurface =
+  | "homepage"
+  | "search"
+  | "category"
+  | "listing"
+  | "seller"
+  | "store"
+  | "saved"
+  | "similar"
+  | "recently-viewed";
+
+type PromotionSurface = "homepage" | "search" | "category" | "listing" | "seller";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Promotion analytics only accepts real persisted products (UUID ids). Demo
+ *  and enriched homepage placeholders use non-UUID ids and must be skipped. */
+function isTrackableProductId(id: string): boolean {
+  return UUID_RE.test(id);
 }
 
-function ShareIcon({ className }: { className?: string }) {
-  return <Fluency3DIcon icon="feature-share" size={20} className={className} />;
+/** Maps any listing surface onto the promotion-analytics surface enum. */
+function toPromotionSurface(surface: ListingCardSurface): PromotionSurface {
+  switch (surface) {
+    case "homepage":
+    case "search":
+    case "category":
+    case "listing":
+    case "seller":
+      return surface;
+    default:
+      return "search";
+  }
+}
+
+/** Single responsive hint for every layout preset — does not change rendered box geometry. */
+const DEFAULT_IMAGE_SIZES =
+  "(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 220px";
+
+export interface ListingCardProps {
+  /** Single data source. The card derives everything it renders from here. */
+  product: Product;
+  /**
+   * Layout preset for the parent container (rail scroller vs grid). Does not
+   * change any visual styling inside the card — containers own scroll/wrap only.
+   */
+  variant?: ListingCardVariant;
+  /** Analytics / promotion context for the surface rendering the card. */
+  surface?: ListingCardSurface;
+  /**
+   * Whether this card should record a promotion impression. Duplicated carousel
+   * copies pass `false` so a single product is not counted multiple times.
+   */
+  trackImpressions?: boolean;
+  /** Eagerly load this card's image (used for above-the-fold LCP elements). */
+  priority?: boolean;
+  /** Override the responsive `sizes` attribute for the image. */
+  imageSizes?: string;
+  /** Override link destination (e.g. business store search). */
+  href?: string;
+  /** Override rendered price text while preserving price row layout. */
+  priceLabel?: string;
+  /** Override status badge label (badge text/color may differ per listing data). */
+  statusBadgeLabel?: string;
+  className?: string;
+
+  // ---- Additive feature toggles (defaults are sensible for all surfaces) ----
+  showFavorite?: boolean;
+  showShare?: boolean;
+  showSeller?: boolean;
+  showRating?: boolean;
+  showViews?: boolean;
+  showBuyerProtection?: boolean;
+  showCondition?: boolean;
+  /**
+   * Where the condition label renders:
+   * - "badge": overlaid on the image (default, used by grid surfaces).
+   * - "meta": inline in the metadata row (used by the homepage hierarchy).
+   */
+  conditionPlacement?: "badge" | "meta";
+  showStatusBadge?: boolean;
+  showPhotoCount?: boolean;
+
+  // ---- Favourite behaviour ----
+  /**
+   * "watchlist" persists the favourite via the shared product watchlist.
+   * "controlled" defers to `isFavorite` / `onFavorite` (e.g. the Saved page).
+   */
+  favoriteMode?: "watchlist" | "controlled";
+  isFavorite?: boolean;
+  onFavorite?: () => void;
+}
+
+function formatPrice(amount: number): string {
+  return `£${amount.toLocaleString()}`;
+}
+
+function formatViews(views?: number): string {
+  const value = views ?? 0;
+  if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+  return String(value);
+}
+
+function formatRating(rating: number): string {
+  return rating > 0 ? rating.toFixed(1) : "New";
+}
+
+function formatCondition(condition?: string): string | null {
+  if (!condition?.trim()) return null;
+  const clean = condition.replace(/[_-]+/g, " ").trim();
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
 }
 
 function formatCountdown(endsAt: string | null | undefined): string | null {
@@ -76,69 +153,118 @@ function formatCountdown(endsAt: string | null | undefined): string | null {
   return `${hours}h ${minutes}m`;
 }
 
-export function ListingCard({
-  title,
-  href,
-  imageUrl,
-  imageAlt,
-  price,
-  originalPrice,
-  condition,
-  publishedAt,
-  premiumMeta = false,
-  views,
-  productId,
-  slug,
-  productSlug,
-  promotionSurface = "search",
-  isFeatured = false,
-  isBumped = false,
-  isNew = false,
-  location,
-  rating,
-  reviewCount,
-  listingType,
-  sellerVerified = false,
-  auctionEndsAt,
-  auctionCurrentBid,
+type StatusBadge = {
+  label: string;
+  tone: "featured" | "boost" | "premium" | "new" | "auction" | "verified" | "business";
+};
+
+function resolveStatusBadge(product: Product): StatusBadge | null {
+  if (product.listingType === "auction") return { label: "Auction", tone: "auction" };
+  const homepageBadge = resolveHomepagePromotionBadge(product);
+  if (homepageBadge) return homepageBadge;
+  return null;
+}
+
+function CameraIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden className={className}>
+      <path
+        d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.2l.9-1.4A1 1 0 0 1 9.4 4h5.2a1 1 0 0 1 .84.46L16.3 6h1.2A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8Z"
+        fill="currentColor"
+      />
+      <circle cx="12" cy="12.5" r="3.1" fill="#fff" />
+    </svg>
+  );
+}
+
+function HeartIcon({ className, filled }: { className?: string; filled?: boolean }) {
+  // Inline SVG (not a 3D image) so the disc's `color` controls the heart:
+  // dark outline when inactive, solid bright red when saved — always readable.
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      aria-hidden
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth={filled ? 0 : 2.2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+    </svg>
+  );
+}
+
+function ShareIcon({ className }: { className?: string }) {
+  return <Fluency3DIcon icon="feature-share" size={18} className={className} />;
+}
+
+export const ListingCard = memo(function ListingCard({
+  product,
+  variant = "grid",
+  surface = "search",
+  trackImpressions = true,
+  priority = false,
+  imageSizes,
+  className,
+  href: hrefOverride,
+  priceLabel,
+  statusBadgeLabel,
+  showFavorite = true,
+  showShare = false,
+  showSeller = true,
+  showRating = true,
+  showViews = true,
+  showBuyerProtection = true,
+  showCondition = true,
+  conditionPlacement = "badge",
+  showStatusBadge = true,
+  showPhotoCount = true,
+  favoriteMode = "watchlist",
   isFavorite: isFavoriteProp,
   onFavorite,
-  useHomeWatchlist = false,
-  showShare = true,
-  imageFit = "cover",
-  imageSizes = "182px",
-  imageQuality,
-  className,
 }: ListingCardProps) {
-  const router = useRouter();
-  const resolvedSlug = slug ?? productSlug ?? href.replace(/^\/listing\//, "").split("?")[0] ?? "";
-  const watchlistSlug = productSlug ?? resolvedSlug;
-  const { isSaved, toggle: toggleWatchlist } = useProductWatchlist(useHomeWatchlist ? watchlistSlug : "");
-  const [isFavoriteInternal, setIsFavoriteInternal] = useState(false);
+  void variant;
+  const href = hrefOverride ?? `/listing/${product.slug}`;
+  const promotionSurface = toPromotionSurface(surface);
+  const isPromoted =
+    Boolean(product.isFeatured || product.isBumped) && isTrackableProductId(product.id);
+
+  const { isSaved, toggle: toggleWatchlist } = useProductWatchlist(
+    favoriteMode === "watchlist" ? product.slug : "",
+  );
   const [heartAnimating, setHeartAnimating] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
-  const isFavorite = useHomeWatchlist ? isSaved : (isFavoriteProp ?? isFavoriteInternal);
-  const isAuction = listingType === "auction";
-  const countdown = formatCountdown(auctionEndsAt);
-  const displayPrice = isAuction && auctionCurrentBid != null ? auctionCurrentBid : price;
-  const showRating = rating != null && rating > 0;
-  const showViews = views != null;
-  const showStats = !premiumMeta && (showRating || showViews || (isAuction && countdown));
-  const publishedLabel = formatPublishedTime(publishedAt);
-  const showPremiumMeta = premiumMeta && (condition || location || publishedLabel);
+  const isFavorite = favoriteMode === "watchlist" ? isSaved : Boolean(isFavoriteProp);
+
+  const isAuction = product.listingType === "auction";
+  const countdown = isAuction ? formatCountdown(product.auctionEndsAt) : null;
+  const displayPrice =
+    isAuction && product.auctionCurrentBid != null ? product.auctionCurrentBid : product.price;
+  const statusBadge = useMemo(() => {
+    if (statusBadgeLabel) return { label: statusBadgeLabel, tone: "featured" as const };
+    return resolveStatusBadge(product);
+  }, [product, statusBadgeLabel]);
+  const photoCount = product.imageCount ?? 0;
+  const sellerHandle = product.sellerUsername
+    ? `@${product.sellerUsername}`
+    : product.sellerName;
+  const conditionLabel = showCondition ? formatCondition(product.condition) : null;
+  const conditionOnImage = conditionPlacement === "badge" && conditionLabel;
+  const conditionInMeta = conditionPlacement === "meta" && conditionLabel;
 
   useEffect(() => {
-    if (!productId || (!isFeatured && !isBumped)) return;
-    trackPromotionEvent(productId, "impression", promotionSurface);
-  }, [isBumped, isFeatured, productId, promotionSurface]);
+    if (!isPromoted || !trackImpressions) return;
+    trackPromotionEvent(product.id, "impression", promotionSurface);
+  }, [isPromoted, trackImpressions, product.id, promotionSurface]);
 
-  const openProduct = useCallback(() => {
-    if (productId && (isFeatured || isBumped)) {
-      trackPromotionEvent(productId, "click", promotionSurface);
+  const handleNavigate = useCallback(() => {
+    if (isPromoted) {
+      trackPromotionEvent(product.id, "click", promotionSurface);
     }
-    router.push(href);
-  }, [href, isBumped, isFeatured, productId, promotionSurface, router]);
+  }, [isPromoted, product.id, promotionSurface]);
 
   const toggleFavorite = useCallback(
     (event: SyntheticEvent) => {
@@ -146,201 +272,177 @@ export function ListingCard({
       event.stopPropagation();
       const willSave = !isFavorite;
 
-      if (useHomeWatchlist) {
+      if (favoriteMode === "watchlist") {
         void toggleWatchlist();
-        if (willSave && productId) {
+        if (willSave) {
           const { currency } = getActiveMarket();
           trackGaEvent("add_to_favorites", {
-            item_id: productId,
-            item_name: title,
+            item_id: product.id,
+            item_name: product.title,
             currency,
           });
         }
-      } else if (onFavorite) {
-        onFavorite();
-        if (willSave && productId) {
-          const { currency } = getActiveMarket();
-          trackSaveListing({ itemId: productId, itemName: title, currency });
-        }
       } else {
-        setIsFavoriteInternal(willSave);
-        if (willSave && productId) {
+        onFavorite?.();
+        if (willSave) {
           const { currency } = getActiveMarket();
-          trackSaveListing({ itemId: productId, itemName: title, currency });
+          trackSaveListing({ itemId: product.id, itemName: product.title, currency });
         }
       }
 
       setHeartAnimating(true);
-      window.setTimeout(() => setHeartAnimating(false), 180);
+      window.setTimeout(() => setHeartAnimating(false), 200);
     },
-    [isFavorite, onFavorite, productId, title, toggleWatchlist, useHomeWatchlist],
+    [favoriteMode, isFavorite, onFavorite, product.id, product.title, toggleWatchlist],
   );
 
-  const handleCardKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLElement>) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        openProduct();
-      }
-    },
-    [openProduct],
-  );
+  const openShare = useCallback((event: SyntheticEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setShareOpen(true);
+  }, []);
 
   return (
-    <div
-      data-listing-card-version="rovexo-v1"
-      tabIndex={0}
-      aria-label={title}
-      onClick={openProduct}
-      onKeyDown={handleCardKeyDown}
-      className={cn(
-        "rx-listing-card rx-listing-card group cursor-pointer",
-        transitionNormal,
-        isFeatured && "ring-2 ring-warning/35",
-        isBumped && !isFeatured && "ring-2 ring-success/30",
-        focusRing,
-        className,
-      )}
+    <article
+      className={cn(styles.card, className)}
+      data-listing-card="rovexo"
     >
-      <div className="rx-listing-card__media rx-listing-card__image">
-        <Image
-          src={imageUrl}
-          alt={imageAlt ?? title}
-          fill
-          loading="lazy"
-          sizes={imageSizes}
-          quality={imageQuality}
-          className={cn(imageFit === "contain" ? "object-contain" : "object-cover", transitionNormal)}
-        />
+      <Link href={href} className={styles.link} aria-label={product.title} onClick={handleNavigate}>
+        <div className={styles.media}>
+          <Image
+            src={product.imageUrl}
+            alt={product.title}
+            fill
+            priority={priority}
+            loading={priority ? undefined : "lazy"}
+            sizes={imageSizes ?? DEFAULT_IMAGE_SIZES}
+            className={styles.image}
+          />
 
-        <div className="rx-listing-card__badges absolute left-1.5 top-1.5 flex max-w-[calc(100%-2.75rem)] flex-wrap gap-0.5">
-          {isFeatured ? (
-            <Badge variant="warning" className="rx-listing-card__badge rx-listing-card__badge px-1 py-0.5 text-[9px] leading-none uppercase">
-              Featured
-            </Badge>
+          {showStatusBadge && statusBadge ? (
+            <span className={cn(styles.statusBadge, styles[`status_${statusBadge.tone}`])}>
+              {statusBadge.label}
+            </span>
           ) : null}
-          {isNew ? (
-            <Badge variant="success" className="rx-listing-card__badge rx-listing-card__badge px-1 py-0.5 text-[9px] leading-none uppercase">
-              NEW
-            </Badge>
+
+          {conditionOnImage ? (
+            <span className={styles.conditionBadge}>{conditionLabel}</span>
           ) : null}
-          {isBumped && !isFeatured ? (
-            <Badge variant="danger" className="rx-listing-card__badge rx-listing-card__badge px-1 py-0.5 text-[9px] leading-none uppercase">
-              Hot
-            </Badge>
-          ) : null}
-          {isAuction ? (
-            <Badge variant="danger" className="rx-listing-card__badge rx-listing-card__badge px-1 py-0.5 text-[9px] leading-none uppercase">
-              Auction
-            </Badge>
-          ) : null}
-          {sellerVerified ? (
-            <Badge
-              variant="primary"
-              className="rx-listing-card__badge rx-listing-card__badge--verified rx-listing-card__badge rx-listing-card__badge--verified px-1 py-0.5 text-[8px] leading-none uppercase"
-            >
-              Verified
-            </Badge>
+
+          {showPhotoCount && photoCount > 1 ? (
+            <span className={styles.photoCount} aria-label={`${photoCount} photos`}>
+              <CameraIcon className={styles.photoCountIcon} />
+              {photoCount}
+            </span>
           ) : null}
         </div>
 
+        <div className={styles.body}>
+          <div className={styles.bodyStack}>
+            <p className={styles.title}>{product.title}</p>
+
+            <div className={styles.priceRow}>
+              <span className={styles.price}>{priceLabel ?? formatPrice(displayPrice)}</span>
+              {product.originalPrice && product.originalPrice > displayPrice ? (
+                <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}</span>
+              ) : null}
+            </div>
+
+            {showBuyerProtection ? (
+              <span className={styles.protection}>
+                <RovexoIcon icon={RovexoIcons.security.shield} size={13} className={styles.protectionIcon} />
+                Buyer Protection
+              </span>
+            ) : null}
+
+            {showSeller ? (
+              <div className={styles.seller}>
+                <span className={styles.sellerAvatar}>
+                  {product.sellerAvatar ? (
+                    <Image
+                      src={product.sellerAvatar}
+                      alt=""
+                      width={20}
+                      height={20}
+                      className={styles.sellerAvatarImg}
+                    />
+                  ) : (
+                    <span className={styles.sellerAvatarFallback} aria-hidden>
+                      {product.sellerName.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </span>
+                <span className={styles.sellerName}>{sellerHandle}</span>
+                {showRating ? (
+                  <span className={styles.sellerRating} aria-label={`Rating ${formatRating(product.rating)}`}>
+                    <RovexoIcon
+                      icon={RovexoIcons.actions.star}
+                      size={13}
+                      className={styles.sellerRatingIcon}
+                    />
+                    {formatRating(product.rating)}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+
+          {conditionInMeta || showViews || countdown ? (
+            <div className={styles.metaRow}>
+              {conditionInMeta ? (
+                <span className={styles.metaCondition}>{conditionLabel}</span>
+              ) : null}
+              <span className={styles.metaRight}>
+                {showViews ? (
+                  <span className={styles.views} aria-label={`${formatViews(product.views)} views`}>
+                    <RovexoIcon icon={RovexoIcons.actions.eye} size={14} className={styles.metaIcon} />
+                    {formatViews(product.views)}
+                  </span>
+                ) : null}
+                {countdown ? <span className={styles.countdown}>{countdown}</span> : null}
+              </span>
+            </div>
+          ) : null}
+        </div>
+      </Link>
+
+      {showFavorite ? (
         <button
           type="button"
-          aria-label={isFavorite ? "Remove from watchlist" : "Add to watchlist"}
+          aria-label={isFavorite ? "Remove from wishlist" : "Add to wishlist"}
           aria-pressed={isFavorite}
           onClick={toggleFavorite}
           className={cn(
-            "rx-listing-card__action rx-listing-card__action--heart rx-listing-card__heart absolute flex items-center justify-center",
-            focusRing,
-            transitionSpring,
-            isFavorite && "text-danger",
-            heartAnimating && "is-animating",
+            styles.favorite,
+            isFavorite && styles.favoriteActive,
+            heartAnimating && styles.favoriteAnimating,
           )}
         >
-          <HeartIcon filled={isFavorite} className="h-4 w-4" />
+          <HeartIcon filled={isFavorite} className={styles.favoriteIcon} />
         </button>
+      ) : null}
 
-        {showShare && resolvedSlug ? (
-          <button
-            type="button"
-            aria-label="Share listing"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              setShareOpen(true);
-            }}
-            className={cn(
-              "rx-listing-card__action rx-listing-card__action--share rx-listing-card__share absolute flex items-center justify-center",
-              focusRing,
-              transitionSpring,
-            )}
-          >
-            <ShareIcon className="h-3.5 w-3.5" />
-          </button>
-        ) : null}
-      </div>
+      {showShare ? (
+        <button
+          type="button"
+          aria-label="Share listing"
+          onClick={openShare}
+          className={styles.share}
+        >
+          <ShareIcon className={styles.shareIcon} />
+        </button>
+      ) : null}
 
-      <div className="rx-listing-card__body rx-listing-card__body">
-        <p className="rx-listing-card__title rx-listing-card__title">{title}</p>
-
-        <Price
-          amount={displayPrice}
-          originalAmount={originalPrice}
-          size="sm"
-          className="rx-listing-card__price rx-listing-card__price gap-0.5"
-        />
-
-        {showPremiumMeta ? (
-          <div className="rx-listing-card__meta">
-            {condition ? <span className="rx-listing-card__meta-item">{condition}</span> : null}
-            {location ? <span className="rx-listing-card__meta-item">{location}</span> : null}
-            {publishedLabel ? (
-              <span className="rx-listing-card__meta-item">{publishedLabel}</span>
-            ) : null}
-          </div>
-        ) : null}
-
-        {showStats ? (
-          <div className="rx-listing-card__stats rx-listing-card__stats">
-            {showRating ? (
-              <span className="rx-listing-card__stat rx-listing-card__stat">
-                <span aria-hidden>⭐</span>
-                {rating!.toFixed(1)}
-                {reviewCount != null && reviewCount > 0 ? ` (${reviewCount})` : ""}
-              </span>
-            ) : null}
-            {showViews ? (
-              <span className="rx-listing-card__stat rx-listing-card__stat">
-                <span aria-hidden>👁</span>
-                {views}
-              </span>
-            ) : null}
-            {isAuction && countdown ? (
-              <span className="rx-listing-card__stat rx-listing-card__stat--urgent rx-listing-card__stat rx-listing-card__stat--urgent">
-                {countdown}
-              </span>
-            ) : null}
-          </div>
-        ) : null}
-
-        {!premiumMeta && location ? (
-          <p className="rx-listing-card__location rx-listing-card__location">
-            <span aria-hidden>📍</span>
-            {location}
-          </p>
-        ) : null}
-      </div>
-
-      {showShare && resolvedSlug ? (
+      {showShare ? (
         <ShareListingSheet
           open={shareOpen}
           onClose={() => setShareOpen(false)}
-          title={title}
-          slug={resolvedSlug}
-          productId={productId}
+          title={product.title}
+          slug={product.slug}
+          productId={product.id}
           price={displayPrice}
         />
       ) : null}
-    </div>
+    </article>
   );
-}
+});

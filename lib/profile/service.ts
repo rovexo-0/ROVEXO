@@ -99,8 +99,10 @@ export async function updateProfileDetails(
 }
 
 export async function updateAvatarUrl(userId: string, avatarUrl: string | null): Promise<void> {
-  const supabase = await createClient();
-  const { error } = await supabase
+  // Service-role write: the caller is already authenticated and scoped to their
+  // own id, so this must not silently fail on a profiles RLS edge case.
+  const admin = createAdminClient();
+  const { error } = await admin
     .from("profiles")
     .update({ avatar_url: avatarUrl })
     .eq("id", userId);

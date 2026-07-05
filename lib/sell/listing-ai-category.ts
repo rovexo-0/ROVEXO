@@ -31,7 +31,7 @@ export function categoryDetectionFromAiAnalysis(
     };
   }
 
-  return detectCategoryFromTitle(title, description, analysis.labels.map((label) => ({ description: label })));
+  return detectCategoryFromTitle(title, description);
 }
 
 export function applyAiAnalysisFields(

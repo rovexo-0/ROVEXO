@@ -36,6 +36,7 @@ const SUPER_ADMIN_ROUTE_PREFIXES = [
   "/admin",
   "/super-admin",
   "/dashboard",
+  "/staff",
 ];
 
 const AUTH_BYPASS_PREFIXES = ["/auth/callback", "/auth/signout"];
@@ -114,6 +115,17 @@ export async function updateSession(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
+    // Resolve the profile role at most once per request. Several checks below
+    // need it; previously each issued its own profiles query, adding a
+    // redundant round-trip on every protected navigation.
+    let cachedRole: UserRole | null | undefined;
+    const resolveRole = async (): Promise<UserRole | null> => {
+      if (cachedRole === undefined) {
+        cachedRole = user ? await getProfileRole(supabase, user.id) : null;
+      }
+      return cachedRole;
+    };
+
     const pathname = request.nextUrl.pathname;
 
     if (pathname.startsWith("/auctions/") && pathname !== "/auctions") {
@@ -152,7 +164,7 @@ export async function updateSession(request: NextRequest) {
     }
 
     if (user && isProtected && !isApiRoute) {
-      const role = await getProfileRole(supabase, user.id);
+      const role = await resolveRole();
       if (!role) {
         const signoutUrl = request.nextUrl.clone();
         signoutUrl.pathname = "/auth/signout";
@@ -165,7 +177,7 @@ export async function updateSession(request: NextRequest) {
     // /login and /register are never redirected here — see redirectIfAuthenticated().
 
     if (user && isVerifyEmailPath && user.email_confirmed_at) {
-      const role = await getProfileRole(supabase, user.id);
+      const role = await resolveRole();
       if (role) {
         const homeUrl = request.nextUrl.clone();
         homeUrl.pathname = AUTHENTICATED_HOME;
@@ -183,24 +195,54 @@ export async function updateSession(request: NextRequest) {
       return applyPendingCookies(NextResponse.redirect(loginUrl), pendingCookies);
     }
 
+    // Only resolve the role for admin-scoped paths. Ordinary authenticated
+    // navigations (homepage, most API routes) must not pay for a role query here.
     if (user) {
-      const role = await getProfileRole(supabase, user.id);
+      const isSuperAdminApi = pathname.startsWith("/api/super-admin/");
+      const isAdminApi = pathname.startsWith("/api/admin/");
+      const isStaffApi = pathname.startsWith("/api/staff-enterprise/");
+      const isStaffPage = !isApiRoute && (pathname === "/staff" || pathname.startsWith("/staff/"));
+      const isSuperAdminPage =
+        !isApiRoute && matchesRoutePrefix(pathname, SUPER_ADMIN_ROUTE_PREFIXES);
 
-      if (pathname.startsWith("/api/super-admin/") && role !== "super_admin") {
-        return forbiddenApiResponse();
-      }
+      if (isSuperAdminApi || isAdminApi || isSuperAdminPage || isStaffApi || isStaffPage) {
+        const role = await resolveRole();
 
-      if (
-        pathname.startsWith("/api/admin/") &&
-        role !== "super_admin" &&
-        role !== "admin"
-      ) {
-        return forbiddenApiResponse();
-      }
+        if (isSuperAdminApi && role !== "super_admin") {
+          return forbiddenApiResponse();
+        }
 
-      if (!isApiRoute && matchesRoutePrefix(pathname, SUPER_ADMIN_ROUTE_PREFIXES)) {
-        if (role !== "super_admin") {
+        if (isAdminApi && role !== "super_admin" && role !== "admin") {
+          return forbiddenApiResponse();
+        }
+
+        if (isSuperAdminPage && role !== "super_admin") {
           return forbiddenPageRedirect(request, pendingCookies);
+        }
+
+        if (isStaffApi || isStaffPage) {
+          if (role === "super_admin") {
+            return applyPendingCookies(supabaseResponse, pendingCookies);
+          }
+
+          const admin = createServerClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {
+            cookies: {
+              getAll: () => request.cookies.getAll(),
+              setAll: () => undefined,
+            },
+          });
+
+          const { data: staffProfile } = await admin
+            .from("staff_profiles" as never)
+            .select("id, status")
+            .eq("profile_id", user.id)
+            .maybeSingle();
+
+          const staff = staffProfile as { id: string; status: string } | null;
+          if (!staff || staff.status !== "active") {
+            if (isStaffApi) return forbiddenApiResponse();
+            return forbiddenPageRedirect(request, pendingCookies);
+          }
         }
       }
     }

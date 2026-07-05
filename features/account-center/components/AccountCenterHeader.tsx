@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AccountCenterBackButton } from "@/features/account-center/components/AccountCenterBackButton";
-import { NotificationBadge } from "@/features/account-page/components/NotificationBadge";
+import { NotificationBadge } from "@/features/account-center/components/NotificationBadge";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";

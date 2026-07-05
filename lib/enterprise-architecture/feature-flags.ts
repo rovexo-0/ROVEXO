@@ -12,10 +12,10 @@ export function isFeatureEnabled(
   flagId: string,
   liveFlags: Record<string, boolean> | undefined,
 ): boolean {
-  const module = getEnterpriseModuleDescriptor(moduleId);
-  if (!module) return false;
+  const descriptor = getEnterpriseModuleDescriptor(moduleId);
+  if (!descriptor) return false;
 
-  const definition = module.featureFlags.find((flag) => flag.id === flagId);
+  const definition = descriptor.featureFlags.find((flag) => flag.id === flagId);
   if (!definition) return false;
 
   if (liveFlags && flagId in liveFlags) return liveFlags[flagId]!;
@@ -23,11 +23,11 @@ export function isFeatureEnabled(
 }
 
 export function mergeFeatureFlags(
-  module: EnterpriseModuleDescriptor,
+  descriptor: EnterpriseModuleDescriptor,
   overrides: Record<string, boolean> | undefined,
 ): Record<string, boolean> {
   return {
-    ...createDefaultFeatureFlags(module.featureFlags),
+    ...createDefaultFeatureFlags(descriptor.featureFlags),
     ...overrides,
   };
 }

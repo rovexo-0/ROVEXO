@@ -1,6 +1,14 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { getLocaleOption, localeDirection, localeToHtmlLang, type LocaleCode } from "@/lib/i18n/config";
 
 type LocaleContextValue = {
@@ -15,6 +23,7 @@ type LocaleContextValue = {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 const STORAGE_KEY = "rovexo-locale";
+const LOCALE_CHANGE_EVENT = "rovexo-locale-change";
 
 function readStoredLocale(): LocaleCode {
   if (typeof window === "undefined") return "en-GB";
@@ -23,8 +32,26 @@ function readStoredLocale(): LocaleCode {
   return "en-GB";
 }
 
+function subscribeLocale(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(LOCALE_CHANGE_EVENT, callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener(LOCALE_CHANGE_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+function notifyLocaleChange() {
+  window.dispatchEvent(new Event(LOCALE_CHANGE_EVENT));
+}
+
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [localeCode, setLocaleCodeState] = useState<LocaleCode>(readStoredLocale);
+  const localeCode = useSyncExternalStore(
+    subscribeLocale,
+    readStoredLocale,
+    (): LocaleCode => "en-GB",
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,9 +67,9 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
         if (!response.ok) return;
         const payload = (await response.json()) as { settings?: { localeCode?: LocaleCode } };
         const code = payload.settings?.localeCode;
-        if (!cancelled && code && getLocaleOption(code)) {
-          setLocaleCodeState(code);
+        if (!cancelled && code && getLocaleOption(code) && code !== readStoredLocale()) {
           window.localStorage.setItem(STORAGE_KEY, code);
+          notifyLocaleChange();
           document.documentElement.lang = localeToHtmlLang(code);
         }
       } finally {
@@ -55,9 +82,9 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const applyLocale = useCallback((code: LocaleCode) => {
-    setLocaleCodeState(code);
     window.localStorage.setItem(STORAGE_KEY, code);
     document.documentElement.lang = localeToHtmlLang(code);
+    notifyLocaleChange();
   }, []);
 
   const setLocaleCode = useCallback(
