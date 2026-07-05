@@ -15,6 +15,7 @@ import {
   BlockedIcon,
   LockIcon,
   PrivacyIcon,
+  ShippingIcon,
 } from "@/features/settings/icons";
 import { getNavLinkIcon } from "@/lib/navigation/link-icons";
 import { profileUpdateSchema, type ProfileUpdateInput } from "@/lib/account/schemas";
