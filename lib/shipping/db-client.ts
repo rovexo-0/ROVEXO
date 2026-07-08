@@ -4,7 +4,9 @@ type ShippingTable =
   | "shipping_records"
   | "shipping_labels_v1"
   | "shipping_tracking_events"
-  | "shipping_quotes";
+  | "shipping_quotes"
+  | "parcel2go_webhook_events"
+  | "shipment_parcels";
 
 type UntypedQueryResult = {
   data: unknown;
@@ -21,7 +23,12 @@ type UntypedQuery = PromiseLike<UntypedQueryResult> & {
     options?: { onConflict?: string },
   ) => UntypedQuery;
   eq: (column: string, value: unknown) => UntypedQuery;
+  not: (column: string, operator: string, value: unknown) => UntypedQuery;
+  in: (column: string, values: unknown[]) => UntypedQuery;
+  ilike: (column: string, pattern: string) => UntypedQuery;
+  or: (filters: string) => UntypedQuery;
   order: (column: string, options?: { ascending?: boolean }) => UntypedQuery;
+  limit: (count: number) => UntypedQuery;
   maybeSingle: () => Promise<UntypedQueryResult>;
   single: () => Promise<UntypedQueryResult>;
 };

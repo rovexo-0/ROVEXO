@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { Card } from "@/components/ui/Card";
+import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { Price } from "@/components/ui/Price";
 import { OrderRoleBadge } from "@/features/orders/components/OrderRoleBadge";
 import { OrderStatusBadge } from "@/features/orders/components/OrderStatusBadge";
@@ -40,15 +40,12 @@ export function OrderProductCardContent({
   return (
     <Card padding="none" className="overflow-hidden">
       <div className="flex gap-ds-4 p-ds-4">
-        <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-          <Image
-            src={order.product.imageUrl}
-            alt={order.product.title}
-            fill
-            className="object-cover"
-            sizes="80px"
-          />
-        </div>
+        <ProductRowImage
+          src={order.product.imageUrl}
+          alt={order.product.title}
+          containerClassName="h-24 w-20 shrink-0 rounded-ds-md"
+          sizes="80px"
+        />
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-ds-2">

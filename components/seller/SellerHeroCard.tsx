@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { Avatar } from "@/components/ui/Avatar";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { RovexoIcons } from "@/lib/icons";
 import { useSellerDashboard } from "@/hooks/seller";
@@ -21,7 +21,7 @@ export function SellerHeroCard() {
       <div className="seller-hero__top">
         <div className="seller-hero__avatar">
           {profile.avatarUrl ? (
-            <Image src={profile.avatarUrl} alt="" width={88} height={88} className="h-full w-full object-cover" />
+            <Avatar src={profile.avatarUrl} alt={profile.fullName} name={profile.fullName} size="xl" className="h-full w-full" />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-[#ecfdf5] text-2xl font-bold text-[#0f766e]">
               {data.storeName.charAt(0)}

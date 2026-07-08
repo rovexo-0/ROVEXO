@@ -1,0 +1,17 @@
+/**
+ * ROVEXO Canonical Homepage — global shell only.
+ * All section layout lives in CSS modules under components/homepage/canonical/.
+ */
+
+.rovexo-page-home {
+  background: var(--ds-color-background);
+  color: var(--ds-color-text-primary);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+[data-hp-listing-card="official"] {
+  width: 100%;
+  min-width: 0;
+}

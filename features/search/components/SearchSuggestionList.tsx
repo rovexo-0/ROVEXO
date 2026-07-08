@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { RovexoIcon } from "@/components/icons/RovexoIcon";
+import { RovexoIcons } from "@/lib/icons/icons";
 import { cn } from "@/lib/cn";
 import type { Product } from "@/lib/products/types";
 import type { SearchResults } from "@/features/search/types";
@@ -19,10 +21,10 @@ type SearchSuggestionListProps = {
   maxProducts?: number;
 };
 
-const ICONS = {
-  category: "📂",
-  brand: "🏷",
-  location: "📍",
+const SUGGESTION_ICONS = {
+  category: RovexoIcons.dashboard.categories,
+  brand: RovexoIcons.seller.listings,
+  location: RovexoIcons.dashboard.addresses,
 } as const;
 
 type SuggestionRow =
@@ -113,8 +115,8 @@ export function SearchSuggestionList({
                 isActive && "bg-secondary ring-2 ring-primary/20",
               )}
             >
-              <span aria-hidden className="w-6 shrink-0 text-center">
-                {ICONS[row.kind]}
+              <span aria-hidden className="flex w-6 shrink-0 justify-center">
+                <RovexoIcon icon={SUGGESTION_ICONS[row.kind]} size={20} />
               </span>
               <span className="truncate">{highlightMatch(row.title, query)}</span>
             </Link>

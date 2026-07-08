@@ -5,12 +5,15 @@ import { recordCronJobRun } from "@/lib/ops/production-status";
 import { activateScheduledPromotions, refreshExpiredPromotions } from "@/lib/promotions/service";
 import { cleanupExpiredOrders } from "@/lib/orders/cleanup";
 import { sendQueuedEmails } from "@/lib/email/service";
-import { releaseSellerPendingBalances } from "@/lib/wallet/sales";
+import { CommerceEngine } from "@/lib/commerce-engine";
+import { ResolutionEngine } from "@/lib/resolution-engine";
 
 export type MaintenanceResult = {
   expiredOrders: number;
   /** Automatic Connect transfers completed this run. */
   walletReleased: number;
+  /** Resolution cases processed automatically this run. */
+  resolutionProcessed: number;
   payoutsTransferred: number;
   cartItemsRemoved: number;
   promotionsRefreshed: boolean;
@@ -28,7 +31,9 @@ export async function runProductionMaintenance(): Promise<MaintenanceResult> {
     await refreshExpiredPromotions();
     const scheduledPromotionsActivated = await activateScheduledPromotions();
     const expiredOrders = await cleanupExpiredOrders();
-    const walletReleased = await releaseSellerPendingBalances();
+    // Commerce Engine auto-release worker (spec §10): Delivered + 24h, no claims.
+    const walletReleased = await CommerceEngine.releaseEligiblePendingBalances();
+    const resolutionProcessed = await ResolutionEngine.processPendingCases();
     const cartItemsRemoved = await cleanupAbandonedCartItems();
     const emailResult = await sendQueuedEmails(50);
     const savedSearchResult = await processSavedSearchNotifications();
@@ -38,6 +43,7 @@ export async function runProductionMaintenance(): Promise<MaintenanceResult> {
     const result = {
       expiredOrders,
       walletReleased,
+      resolutionProcessed,
       payoutsTransferred: walletReleased,
       cartItemsRemoved,
       promotionsRefreshed: true,

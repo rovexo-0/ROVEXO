@@ -42,7 +42,7 @@ export const GLOBAL_SCREEN_REGISTRY = [
   { id: "wallet", domain: "marketplace", label: "Wallet", route: "/wallet", componentRef: "WalletPage" },
   { id: "orders", domain: "marketplace", label: "Orders", route: "/account/orders", componentRef: "OrdersListPage" },
   { id: "shipping", domain: "marketplace", label: "Shipping", route: "/account/seller/shipping", componentRef: "SellerShippingPage" },
-  { id: "buyer-protection", domain: "marketplace", label: "Buyer Protection", route: "/trust", componentRef: "TrustPage" },
+  { id: "buyer-protection", domain: "marketplace", label: "Purchase Protection", route: "/trust", componentRef: "TrustPage" },
   { id: "buyer-dashboard", domain: "buyer", label: "Buyer Dashboard", route: "/account", componentRef: "AccountDashboard" },
   { id: "messages", domain: "buyer", label: "Messages", route: "/messages", componentRef: "MessagesEngineHub" },
   { id: "notifications", domain: "buyer", label: "Notifications", route: "/notifications", componentRef: "NotificationsEngineHub" },

@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoryPageView } from "@/features/categories/components/CategoryPageView";
 import { resolveCategoryPage } from "@/lib/categories/server";
-import { searchListings } from "@/lib/listings/repository";
+import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import { breadcrumbJsonLd, categoryJsonLd } from "@/lib/seo/json-ld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const title = category.seoTitle ?? `${category.node.name} for Sale UK`;
   const description =
     category.seoDescription ??
-    `Shop ${category.node.name} on ROVEXO. Browse verified UK sellers with buyer protection and secure checkout.`;
+    `Shop ${category.node.name} on ROVEXO. Browse verified UK sellers with purchase protection and secure checkout.`;
 
   return buildPageMetadata({
     title,
@@ -43,7 +43,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const results = await searchListings({
+  const results = await getEligibleListings({
+    surface: "category",
     categoryIds: category.categoryIds.length ? category.categoryIds : undefined,
     categorySlugPath: category.categoryIds.length ? undefined : slug,
     page: 1,
@@ -52,7 +53,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   const description =
     category.seoDescription ??
-    `Shop ${category.node.name} on ROVEXO. Browse verified UK sellers with buyer protection and secure checkout.`;
+    `Shop ${category.node.name} on ROVEXO. Browse verified UK sellers with purchase protection and secure checkout.`;
 
   return (
     <BetaAppShell bottomNavTab="search">

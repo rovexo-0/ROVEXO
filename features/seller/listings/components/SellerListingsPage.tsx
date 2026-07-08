@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
@@ -71,7 +71,7 @@ function ListingRow({
     <div className="flex min-h-[96px] flex-col gap-ds-2 px-ds-4 py-ds-3">
       <div className="flex items-center gap-ds-3">
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-          <Image
+          <SafeImage
             src={listing.thumbnailUrl ?? listing.imageUrl}
             alt={listing.title}
             fill

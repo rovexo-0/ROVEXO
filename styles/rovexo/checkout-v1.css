@@ -1,0 +1,440 @@
+/**
+ * ROVEXO Checkout v1.0 — canonical pixel-perfect stepped checkout UI.
+ */
+.ckt-v1 {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.ckt-v1__main {
+  width: min(100%, 480px);
+  margin: 0 auto;
+  padding: 0 16px calc(140px + env(safe-area-inset-bottom));
+}
+
+.ckt-v1__stepper {
+  width: min(100%, 480px);
+  margin: 0 auto;
+  padding: 12px 16px 4px;
+}
+
+.ckt-v1__stepper-list {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ckt-v1__stepper-item {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.ckt-v1__stepper-node-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 72px;
+}
+
+.ckt-v1__stepper-node {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.ckt-v1__stepper-node--upcoming {
+  border: 2px solid #d1d5db;
+  color: #9ca3af;
+  background: #fff;
+}
+
+.ckt-v1__stepper-node--active {
+  border: 2px solid var(--ds-color-primary);
+  color: #fff;
+  background: var(--ds-color-primary);
+}
+
+.ckt-v1__stepper-node--complete {
+  border: 2px solid var(--ds-color-primary);
+  color: #fff;
+  background: var(--ds-color-primary);
+}
+
+.ckt-v1__stepper-node svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ckt-v1__stepper-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ds-color-text-secondary);
+}
+
+.ckt-v1__stepper-line {
+  position: absolute;
+  top: 14px;
+  left: calc(50% + 20px);
+  right: calc(-50% + 20px);
+  height: 2px;
+  background: #e5e7eb;
+}
+
+.ckt-v1__step {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 8px;
+}
+
+.ckt-v1__section-title {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ds-color-text-primary);
+}
+
+.ckt-v1__optional {
+  font-weight: 500;
+  color: var(--ds-color-text-secondary);
+}
+
+.ckt-v1__card {
+  border: 1px solid var(--ds-color-border);
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.ckt-v1__card--list {
+  display: flex;
+  flex-direction: column;
+}
+
+.ckt-v1__row-button {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ckt-v1__row-button svg {
+  width: 18px;
+  height: 18px;
+  color: var(--ds-color-text-muted);
+}
+
+.ckt-v1__row-copy {
+  min-width: 0;
+}
+
+.ckt-v1__row-label {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--ds-color-text-secondary);
+}
+
+.ckt-v1__row-value {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ds-color-text-primary);
+}
+
+.ckt-v1__row-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--ds-color-text-secondary);
+}
+
+.ckt-v1__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.ckt-v1__label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ds-color-text-primary);
+}
+
+.ckt-v1__field {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--ds-color-border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 0.875rem;
+}
+
+.ckt-v1__inline-action {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ds-color-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ckt-v1__shipping-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 28px;
+  border-radius: 6px;
+  background: #0b1f4d;
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 800;
+}
+
+.ckt-v1__shipping-price {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ds-color-text-primary);
+}
+
+.ckt-v1__shipping-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+}
+
+.ckt-v1__shipping-option {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--ds-color-border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.ckt-v1__shipping-option--selected {
+  border-color: var(--ds-color-primary);
+  background: rgb(111 63 245 / 0.06);
+}
+
+.ckt-v1__shipping-copy {
+  min-width: 0;
+}
+
+.ckt-v1__shipping-title {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.ckt-v1__shipping-subtitle {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: var(--ds-color-text-secondary);
+}
+
+.ckt-v1__notes {
+  width: 100%;
+  min-height: 108px;
+  padding: 14px 16px;
+  border: 1px solid var(--ds-color-border);
+  border-radius: 14px;
+  background: #f8fafc;
+  font-size: 0.875rem;
+  resize: vertical;
+}
+
+.ckt-v1__pay-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+
+.ckt-v1__pay-option--divider {
+  border-top: 1px solid var(--ds-color-border);
+}
+
+.ckt-v1__pay-leading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ckt-v1__pay-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.ckt-v1__pay-brand--visa {
+  color: #1a1f71;
+}
+
+.ckt-v1__pay-brand--apple {
+  font-weight: 700;
+}
+
+.ckt-v1__pay-brand--google {
+  font-weight: 700;
+  color: #4285f4;
+}
+
+.ckt-v1__pay-detail {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ds-color-text-primary);
+}
+
+.ckt-v1__radio {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ds-color-primary);
+}
+
+.ckt-v1__summary-lines {
+  padding: 14px 16px;
+}
+
+.ckt-v1__summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 0.875rem;
+  color: var(--ds-color-text-secondary);
+}
+
+.ckt-v1__summary-row span:last-child {
+  color: var(--ds-color-text-primary);
+  font-weight: 600;
+}
+
+.ckt-v1__summary-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ds-color-border);
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+
+.ckt-v1__summary-total span:last-child {
+  color: var(--ds-color-primary);
+}
+
+.ckt-v1__review-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ckt-v1__review-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--ds-color-border);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.ckt-v1__review-label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ds-color-text-secondary);
+}
+
+.ckt-v1__review-value {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ds-color-text-primary);
+}
+
+.ckt-v1__review-subvalue {
+  margin: 2px 0 0;
+  font-size: 0.8125rem;
+  color: var(--ds-color-text-secondary);
+}
+
+.ckt-v1__change {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ds-color-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ckt-v1__footer {
+  position: fixed;
+  inset-inline: 0;
+  bottom: calc(56px + env(safe-area-inset-bottom));
+  z-index: 50;
+  padding: 12px 16px;
+  border-top: 1px solid var(--ds-color-border);
+  background: rgb(255 255 255 / 0.96);
+  backdrop-filter: blur(10px);
+}
+
+.ckt-v1__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 448px);
+  min-height: 52px;
+  margin: 0 auto;
+  border: none;
+  border-radius: 12px;
+  background: var(--ds-color-primary);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ckt-v1__cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

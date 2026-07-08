@@ -24,10 +24,10 @@ export type SellPhoto = {
 export type ListingType = "fixed" | "auction" | "live";
 
 /** Maximum photos per listing (also enforced server-side in the API schema). */
-export const SELL_PHOTO_MAX = 20;
+export const SELL_PHOTO_MAX = 8;
 
 /** Parcel size drives automatic shipping labels and courier pricing. */
-export const PARCEL_SIZES = ["small", "medium", "large", "xl"] as const;
+export const PARCEL_SIZES = ["small", "medium", "large", "xl", "custom"] as const;
 export type ParcelSize = (typeof PARCEL_SIZES)[number];
 
 export type ParcelSizeOption = {
@@ -58,6 +58,11 @@ export const PARCEL_SIZE_OPTIONS: ParcelSizeOption[] = [
     id: "xl",
     label: "Extra Large",
     description: "Bulky items — small furniture, large appliances, oversized parcels.",
+  },
+  {
+    id: "custom",
+    label: "Custom",
+    description: "Non-standard size — we'll calculate courier pricing at checkout.",
   },
 ];
 

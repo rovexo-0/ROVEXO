@@ -54,7 +54,7 @@ export function AiPerformanceSection({ performance }: { performance: Performance
       </div>
 
       <div className="mt-ds-4 grid gap-ds-3 lg:grid-cols-3">
-        <MetricChart title="API Latency" values={performance.history.apiLatency} color="rgba(37,99,235,0.75)" />
+        <MetricChart title="API Latency" values={performance.history.apiLatency} color="rgba(147,51,234,0.75)" />
         <MetricChart title="Requests" values={performance.history.requests} color="rgba(16,185,129,0.75)" />
         <MetricChart title="Errors" values={performance.history.errors} color="rgba(239,68,68,0.75)" />
       </div>

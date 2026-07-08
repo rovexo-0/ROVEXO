@@ -9,6 +9,7 @@ import {
   getSellerListings,
 } from "@/lib/listings/repository";
 import { revalidatePublishedListing } from "@/lib/listings/revalidate-published-listing";
+import { syncProfileVerifiedOnPublish } from "@/lib/profile/sync-verified";
 import {
   createListingSchema,
   formatListingApiValidationError,
@@ -23,6 +24,8 @@ const FILTERS: ListingFilter[] = [  "all",
   "out_of_stock",
   "low_stock",
   "published",
+  "pending",
+  "expired",
 ];
 
 export async function GET(request: Request) {
@@ -113,11 +116,7 @@ export async function POST(request: Request) {
     }
 
     if (auth.user.email_confirmed_at) {
-      await auth.supabase
-        .from("profiles")
-        .update({ verified: true })
-        .eq("id", auth.user.id)
-        .eq("verified", false);
+      await syncProfileVerifiedOnPublish(auth.user.id, auth.user.email_confirmed_at);
     }
 
     revalidatePublishedListing(listing.slug);

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -75,19 +75,12 @@ export function SellerReviewCenterPage() {
               <Link key={reviewCase.id} href={`/seller/review-center/${reviewCase.id}`}>
                 <Card padding="none" className="rx-glass rx-depth-2 overflow-hidden transition hover:shadow-md">
                   <div className="flex gap-ds-4 p-ds-4">
-                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-ds-lg bg-surface-muted">
-                      {reviewCase.productImageUrl ? (
-                        <Image
-                          src={reviewCase.productImageUrl}
-                          alt=""
-                          fill
-                          className="object-cover"
-                          sizes="80px"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-2xl">📦</div>
-                      )}
-                    </div>
+                    <ProductRowImage
+                      src={reviewCase.productImageUrl}
+                      alt={reviewCase.productTitle}
+                      containerClassName="h-20 w-20 shrink-0 rounded-ds-lg"
+                      sizes="80px"
+                    />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-ds-2">
                         <ReviewStatusBadge status={reviewCase.status} label={reviewCase.statusLabel} />

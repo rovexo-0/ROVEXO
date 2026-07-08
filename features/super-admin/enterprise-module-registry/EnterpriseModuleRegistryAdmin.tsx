@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { cn } from "@/lib/cn";
@@ -179,7 +180,7 @@ export function EnterpriseModuleRegistryAdmin({
             {filteredModules.slice(0, activeTab === "modules" ? 100 : 12).map((module) => (
               <article key={module.moduleId} className="emr-module-card">
                 <div className="emr-module-card__head">
-                  <span>{module.icon}</span>
+                  <ModuleIcon id={module.moduleId} href={module.routes[0]?.href} />
                   <div>
                     <strong>{module.moduleName}</strong>
                     <small>{module.moduleId}</small>

@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { TrustAnalytics } from "@/components/account/TrustAnalytics";
 import { StatisticsRow } from "@/components/account/StatisticsRow";
 import { AccountAvatarSheet } from "@/features/account-center/components/AccountQuickAccessGrid";
 import { SuperAdminBadge } from "@/features/auth/components/SuperAdminBadge";
+import { BusinessBadge } from "@/components/ui/BusinessBadge";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { buildAccountProfileView } from "@/lib/account-center/derive";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
+import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import type { TrustDashboardData } from "@/lib/trust/types";
 import type { UserProfile } from "@/lib/profile/types";
 
@@ -96,6 +98,9 @@ function RatingStars({ rounded }: { rounded: number }) {
  */
 export function ProfileCard({ profile, trustData }: ProfileCardProps) {
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl ?? null);
+  const normalizedAvatar = normalizeAvatarUrl(avatarUrl);
+  const [failedAvatar, setFailedAvatar] = useState<string | null>(null);
+  const avatarBroken = failedAvatar === normalizedAvatar;
   const [sheetOpen, setSheetOpen] = useState(false);
   const view = buildAccountProfileView(profile, trustData);
 
@@ -119,8 +124,16 @@ export function ProfileCard({ profile, trustData }: ProfileCardProps) {
                 className={cn("acx-profile__avatar", focusRing)}
                 aria-label="Change profile photo"
               >
-                {avatarUrl ? (
-                  <Image src={avatarUrl} alt="" width={140} height={140} className="h-full w-full object-cover" />
+                {avatarUrl && !avatarBroken ? (
+                  <SafeImage
+                    src={normalizedAvatar}
+                    alt=""
+                    width={140}
+                    height={140}
+                    fallback="hide"
+                    onError={() => setFailedAvatar(normalizedAvatar)}
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <span className="acx-profile__initials">{initials}</span>
                 )}
@@ -142,6 +155,7 @@ export function ProfileCard({ profile, trustData }: ProfileCardProps) {
             <div className="acx-profile__handle">
               <span className="acx-profile__username">@{profile.username}</span>
               {profile.isSuperAdmin ? <SuperAdminBadge /> : null}
+              {profile.accountType === "business" ? <BusinessBadge compact /> : null}
               {profile.verified ? (
                 <span className="acx-profile__verified">
                   <VerifiedGlyph />

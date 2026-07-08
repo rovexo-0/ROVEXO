@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Avatar } from "@/components/ui/Avatar";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { RovexoIcons } from "@/lib/icons";
 import { useBuyerDashboard } from "@/hooks/buyer";
@@ -13,9 +13,9 @@ export function BuyerProfileCard() {
     <div className="buyer-hero__top">
       <div className="buyer-hero__avatar">
         {profile.avatarUrl ? (
-          <Image src={profile.avatarUrl} alt="" width={88} height={88} className="h-full w-full object-cover" />
+          <Avatar src={profile.avatarUrl} alt={profile.fullName} name={profile.fullName} size="xl" className="h-full w-full" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-[#eff6ff] text-2xl font-bold text-[#2563eb]">
+          <div className="flex h-full w-full items-center justify-center bg-[rgb(147 51 234 / 0.08)] text-2xl font-bold text-[var(--ds-color-primary)]">
             {profile.fullName.charAt(0)}
           </div>
         )}

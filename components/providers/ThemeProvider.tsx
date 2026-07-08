@@ -6,7 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import type { AppearanceMode } from "@/lib/settings/types";
@@ -32,6 +32,7 @@ type ThemeContextValue = {
 
 const THEMES: ThemeName[] = ["light", "dark", "system"];
 const DEFAULT_THEME: ThemeName = "light";
+const THEME_CHANGE_EVENT = "rovexo-theme-change";
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
@@ -55,6 +56,35 @@ function readStoredTheme(fallback: ThemeName): ThemeName {
   return fallback;
 }
 
+function subscribeTheme(callback: () => void) {
+  if (typeof window === "undefined") return () => undefined;
+  window.addEventListener(THEME_CHANGE_EVENT, callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener(THEME_CHANGE_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+function notifyThemeChange() {
+  window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
+}
+
+function subscribeSystemTheme(callback: () => void) {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return () => undefined;
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
+function getSystemThemeSnapshot(): "light" | "dark" {
+  return systemPrefersDark() ? "dark" : "light";
+}
+
+function getServerSystemThemeSnapshot(): "light" | "dark" {
+  return "light";
+}
+
 function persistToAccount(mode: ThemeName): void {
   // Best-effort DB sync; ignored for signed-out users (401) or offline.
   void fetch("/api/settings", {
@@ -75,42 +105,37 @@ function persistToAccount(mode: ThemeName): void {
  * not in the React tree (avoids React 19 hydration warnings).
  */
 export function ThemeProvider({ children, defaultTheme = DEFAULT_THEME }: ThemeProviderProps) {
-  // Lazy initializers keep render pure (SSR → defaults; client → stored value),
-  // matching the app's LocaleProvider pattern and avoiding setState-in-effect.
-  const [theme, setThemeState] = useState<ThemeName>(() => readStoredTheme(defaultTheme));
-  const [systemTheme, setSystemTheme] = useState<"light" | "dark">(() =>
-    systemPrefersDark() ? "dark" : "light",
+  const theme = useSyncExternalStore(
+    subscribeTheme,
+    () => readStoredTheme(defaultTheme),
+    () => defaultTheme,
   );
 
-  // resolvedTheme is derived, not stored — no synchronisation needed.
+  const systemTheme = useSyncExternalStore(
+    subscribeSystemTheme,
+    getSystemThemeSnapshot,
+    getServerSystemThemeSnapshot,
+  );
+
   const resolvedTheme: "light" | "dark" = theme === "system" ? systemTheme : theme;
 
   const applyLocal = useCallback((next: ThemeName) => {
-    setThemeState(next);
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, next);
     } catch {
       /* ignore */
     }
     applyTheme(next);
+    notifyThemeChange();
   }, []);
 
-  // Reflect the current preference on <html> after mount (DOM side effect only).
   useEffect(() => {
     applyTheme(theme);
   }, [theme]);
 
-  // Follow the OS while "system" is selected.
   useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => {
-      setSystemTheme(media.matches ? "dark" : "light");
-      if (theme === "system") applyTheme("system");
-    };
-    media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
-  }, [theme]);
+    if (theme === "system") applyTheme("system");
+  }, [theme, systemTheme]);
 
   const setTheme = useCallback(
     (next: ThemeName) => {

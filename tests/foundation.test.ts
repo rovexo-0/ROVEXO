@@ -83,7 +83,7 @@ describe("protected route prefixes", () => {
       fs.readFile("lib/auth/guest-redirect.ts", "utf8"),
     );
     expect(login).toContain("redirectIfAuthenticated");
-    expect(guard).toContain("AUTHENTICATED_HOME");
+    expect(guard).toContain("redirectPathForRole");
   });
 
   it("writes cleared auth cookies onto the signout redirect response", async () => {

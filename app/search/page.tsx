@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import Header from "@/components/Header";
+import "@/styles/rovexo/header-v2.css";
+import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
 import { SearchLandingClient } from "@/features/search/components/SearchLandingClient";
@@ -42,7 +43,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   if (hasQuery) {
     return (
       <BetaAppShell bottomNavTab="search">
-        <Header />
+        <RovexoHeaderV2 />
         <main className="px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
           <Suspense fallback={<ProductGridSkeleton count={8} />}>
             <SearchResultsView />
@@ -59,8 +60,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   ]);
 
   return (
-    <>
-      <Header />
+    <BetaAppShell bottomNavTab="search">
+      <RovexoHeaderV2 />
       <Suspense fallback={<div className="srch-hub p-ds-5">Loading search…</div>}>
         <SearchEngineHub
           config={config}
@@ -70,6 +71,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           landing={<SearchLandingClient />}
         />
       </Suspense>
-    </>
+    </BetaAppShell>
   );
 }

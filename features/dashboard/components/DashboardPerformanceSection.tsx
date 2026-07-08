@@ -31,7 +31,7 @@ function buildPath(values: number[], width: number, height: number): string {
 
 function formatTotal(value: number, format?: "currency" | "number"): string {
   if (format === "currency") return formatCurrency(value);
-  return value.toLocaleString();
+  return value.toLocaleString("en-GB");
 }
 
 export function DashboardPerformanceSection({

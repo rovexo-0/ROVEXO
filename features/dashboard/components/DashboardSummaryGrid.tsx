@@ -13,7 +13,7 @@ type DashboardSummaryGridProps = {
 
 function formatSummaryValue(value: number, format?: DashboardSummaryCard["format"]): string {
   if (format === "currency") return formatCurrency(value / 100);
-  return value.toLocaleString();
+  return value.toLocaleString("en-GB");
 }
 
 function SummaryCard({ label, value, format }: DashboardSummaryCard) {

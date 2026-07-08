@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { ALL_UK_LOCATIONS, findLocationBySlug, getLocationChildren } from "@/lib/seo/locations/uk";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { localBusinessJsonLd } from "@/lib/seo/json-ld";
-import { searchListings } from "@/lib/listings/repository";
+import { getEligibleListings } from "@/lib/listings/eligible-listings";
 
 type LocalPageProps = {
   params: Promise<{ location: string }>;
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: LocalPageProps): Promise<Meta
 
   return buildPageMetadata({
     title: `Buy & Sell in ${location.name} | ROVEXO`,
-    description: `Discover local listings in ${location.name} on ROVEXO. Buy and sell with buyer protection across the UK.`,
+    description: `Discover local listings in ${location.name} on ROVEXO. Buy and sell with purchase protection across the UK.`,
     path: `/l/${slug}`,
   });
 }
@@ -31,7 +31,7 @@ export default async function LocalLandingPage({ params }: LocalPageProps) {
   if (!location) notFound();
 
   const children = getLocationChildren(slug);
-  const results = await searchListings({ page: 1, pageSize: 12 });
+  const results = await getEligibleListings({ surface: "search", page: 1, pageSize: 12 });
   const jsonLd = localBusinessJsonLd({
     name: `ROVEXO ${location.name}`,
     locationName: location.name,

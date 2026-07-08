@@ -1,10 +1,12 @@
 import { Price } from "@/components/ui/Price";
 import { Card } from "@/components/ui/Card";
+import { SHIPPING_INCLUDED_LABEL } from "@/lib/checkout/delivery";
 import type { OrderTotals } from "@/lib/orders/types";
 
 type OrderSummaryProps = {
   totals: OrderTotals;
   title?: string;
+  listingOffersFreeDelivery?: boolean;
 };
 
 function SummaryRow({
@@ -34,15 +36,47 @@ function SummaryRow({
   );
 }
 
-export function OrderSummary({ totals, title = "Order Summary" }: OrderSummaryProps) {
+function DeliverySummaryRow({
+  totals,
+  listingOffersFreeDelivery = false,
+}: {
+  totals: OrderTotals;
+  listingOffersFreeDelivery?: boolean;
+}) {
+  if (totals.deliveryPending) {
+    return (
+      <div className="flex items-center justify-between gap-ds-3 text-sm">
+        <span className="text-text-secondary">Shipping</span>
+        <span className="text-sm font-medium text-text-muted">Calculated at checkout</span>
+      </div>
+    );
+  }
+
+  if (listingOffersFreeDelivery) {
+    return (
+      <div className="flex items-center justify-between gap-ds-3 text-sm">
+        <span className="text-text-secondary">Shipping</span>
+        <span className="text-sm font-semibold text-primary">{SHIPPING_INCLUDED_LABEL}</span>
+      </div>
+    );
+  }
+
+  return <SummaryRow label="Shipping" amount={totals.delivery} />;
+}
+
+export function OrderSummary({
+  totals,
+  title = "Order Summary",
+  listingOffersFreeDelivery = false,
+}: OrderSummaryProps) {
   return (
     <Card padding="lg" className="flex flex-col gap-ds-4">
       <h2 className="text-base font-semibold text-text-primary">{title}</h2>
 
       <div className="flex flex-col gap-ds-3">
         <SummaryRow label="Item" amount={totals.itemPrice} />
-        <SummaryRow label="Delivery" amount={totals.delivery} />
-        <SummaryRow label="Buyer Protection Fee" amount={totals.protectedFee} />
+        <DeliverySummaryRow totals={totals} listingOffersFreeDelivery={listingOffersFreeDelivery} />
+        <SummaryRow label="Platform Fee" amount={totals.platformFee} />
       </div>
 
       <div className="border-t border-border pt-ds-4">

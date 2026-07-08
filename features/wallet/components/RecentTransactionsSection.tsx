@@ -1,7 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
-import { Price } from "@/components/ui/Price";
+import { ProductRowImage } from "@/components/ui/ProductRowImage";import { Price } from "@/components/ui/Price";
 import { TransactionStatusBadge } from "@/features/wallet/components/TransactionStatusBadge";
 import { ChevronRightIcon } from "@/features/dashboard/icons";
 import { formatWalletDate } from "@/lib/wallet/utils";
@@ -18,16 +17,12 @@ function TransactionRow({ transaction }: { transaction: WalletTransaction }) {
   return (
     <Link href={`/seller/wallet/transactions/${transaction.id}`} className="block">
       <div className="flex min-h-[72px] items-center gap-ds-3 px-ds-4 py-ds-3">
-        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-          <Image
-            src={transaction.productImageUrl}
-            alt={transaction.productTitle}
-            fill
-            className="object-cover"
-            sizes="56px"
-          />
-        </div>
-
+        <ProductRowImage
+          src={transaction.productImageUrl}
+          alt={transaction.productTitle}
+          containerClassName="h-14 w-14 shrink-0 rounded-ds-md"
+          sizes="56px"
+        />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-text-primary">
             {transaction.productTitle}

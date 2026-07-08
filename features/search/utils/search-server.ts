@@ -1,7 +1,7 @@
 import {
   getRecentPublishedListings,
-  searchListings as searchListingsRepo,
 } from "@/lib/listings/repository";
+import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import { getCategoryBreadcrumbMap } from "@/lib/categories/server";
 import { getTrendingSearches } from "@/lib/search/trending";
 import {
@@ -113,7 +113,8 @@ export async function searchAll(
   }
 
   const [{ items: products, hasMore }, profileMatches, brands] = await Promise.all([
-    searchListingsRepo({
+    getEligibleListings({
+      surface: "search",
       query: normalized,
       page,
       pageSize: productLimit,

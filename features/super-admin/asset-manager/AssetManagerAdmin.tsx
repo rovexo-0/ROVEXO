@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState, useTransition } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import type { AssetManagerEngineSnapshot } from "@/lib/asset-manager-engine/types";
@@ -155,7 +155,7 @@ export function AssetManagerAdmin({ initialSnapshot, defaultTab = "overview" }: 
               <div key={asset.id} className="ea-card">
                 <div className="am-asset-card__preview">
                   {asset.src.startsWith("/") ? (
-                    <Image src={asset.src} alt={asset.name} width={120} height={80} className="am-asset-card__img" />
+                    <SafeImage src={asset.src} alt={asset.name} width={120} height={80} className="am-asset-card__img" />
                   ) : (
                     <span>{asset.format.toUpperCase()}</span>
                   )}

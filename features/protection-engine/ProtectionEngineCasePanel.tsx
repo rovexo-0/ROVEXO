@@ -13,7 +13,7 @@ export function ProtectionEngineCasePanel({ context }: ProtectionEngineCasePanel
     <section className="bp-panel mb-ds-4">
       <div className="bp-panel__head">
         <div>
-          <p className="bp-hub__eyebrow">Buyer Protection Engine</p>
+          <p className="bp-hub__eyebrow">Purchase Protection</p>
           <p className="text-sm text-text-secondary">
             {summary.enterpriseStatus.replace(/-/g, " ")} · {evidenceCount} evidence files
           </p>

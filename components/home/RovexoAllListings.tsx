@@ -3,10 +3,10 @@
 import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { HOMEPAGE_LISTING_CARD_PROPS } from "@/components/home/constants";
+import { HomeListingCardSkeletonGrid } from "@/components/home/HomeListingCardSkeleton";
 import { RovexoAllListingsGrid } from "@/components/home/RovexoAllListingsGrid";
 import gridStyles from "@/components/home/RovexoAllListingsGrid.module.css";
 import { useMarketplaceFeedColumns } from "@/components/home/hooks/useMarketplaceFeedColumns";
-import { useVirtualizedFeedWindow } from "@/components/home/hooks/useVirtualizedFeedWindow";
 import { HOMEPAGE_DEMO_PRODUCTS } from "@/lib/homepage/demo-data";
 import { isClosedBetaHomepageMode } from "@/lib/homepage/config";
 import type { Product, ProductsPage } from "@/lib/products/types";
@@ -32,18 +32,11 @@ const STATIC_DEMO_FALLBACK =
 export const RovexoAllListings = memo(function RovexoAllListings({
   initialPage,
 }: RovexoAllListingsProps) {
-  const [items, setItems] = useState<Product[]>(
-    initialPage.items.length > 0
-      ? initialPage.items
-      : STATIC_DEMO_FALLBACK
-        ? HOMEPAGE_DEMO_PRODUCTS.slice(0, 12)
-        : [],
-  );
+  const [items, setItems] = useState<Product[]>(initialPage.items);
   const [page, setPage] = useState(initialPage.page);
-  const [hasMore, setHasMore] = useState(
-    initialPage.hasMore || (initialPage.items.length === 0 && STATIC_DEMO_FALLBACK),
-  );
-  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(initialPage.hasMore);
+  const [loading, setLoading] = useState(initialPage.items.length === 0);
+  const [bootstrapped, setBootstrapped] = useState(initialPage.items.length > 0);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
   const demoOffsetRef = useRef(0);
@@ -53,9 +46,6 @@ export const RovexoAllListings = memo(function RovexoAllListings({
     () => Math.max(0, Math.floor(items.length * 0.75) - 1),
     [items.length],
   );
-
-  const feedWindow = useVirtualizedFeedWindow(items.length, columnCount, gridRef);
-  void feedWindow;
 
   const appendDemoPage = useCallback(() => {
     const nextSlice: Product[] = [];
@@ -73,6 +63,7 @@ export const RovexoAllListings = memo(function RovexoAllListings({
     demoOffsetRef.current += nextSlice.length;
     setItems((current) => mergeUniqueProducts(current, nextSlice));
     setHasMore(true);
+    setBootstrapped(true);
   }, []);
 
   const loadMore = useCallback(async () => {
@@ -81,18 +72,18 @@ export const RovexoAllListings = memo(function RovexoAllListings({
     setLoading(true);
     try {
       if (!hasMore) {
-        appendDemoPage();
+        if (STATIC_DEMO_FALLBACK) appendDemoPage();
         return;
       }
 
-      const nextPage = page + 1;
+      const nextPage = items.length === 0 ? 1 : page + 1;
       const response = await fetch(`/api/homepage/feed?page=${nextPage}`, {
         cache: "no-store",
       });
 
       if (!response.ok) {
         if (STATIC_DEMO_FALLBACK) appendDemoPage();
-        setHasMore(false);
+        else setHasMore(false);
         return;
       }
 
@@ -107,14 +98,35 @@ export const RovexoAllListings = memo(function RovexoAllListings({
       setItems((current) => mergeUniqueProducts(current, payload.items));
       setPage(payload.page);
       setHasMore(payload.hasMore);
+      setBootstrapped(true);
     } finally {
       setLoading(false);
     }
   }, [appendDemoPage, hasMore, loading, page]);
 
   useEffect(() => {
+    if (bootstrapped) return;
+
+    if (initialPage.items.length > 0) {
+      setBootstrapped(true);
+      setLoading(false);
+      return;
+    }
+
+    if (STATIC_DEMO_FALLBACK) {
+      setItems(HOMEPAGE_DEMO_PRODUCTS.slice(0, 12));
+      setHasMore(true);
+      setBootstrapped(true);
+      setLoading(false);
+      return;
+    }
+
+    void loadMore();
+  }, [bootstrapped, initialPage.items.length, loadMore]);
+
+  useEffect(() => {
     const node = sentinelRef.current;
-    if (!node) return;
+    if (!node || !bootstrapped) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -127,7 +139,11 @@ export const RovexoAllListings = memo(function RovexoAllListings({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [items.length, loadTriggerIndex, loadMore]);
+  }, [bootstrapped, items.length, loadTriggerIndex, loadMore]);
+
+  if (!loading && items.length === 0 && bootstrapped) {
+    return null;
+  }
 
   return (
     <section
@@ -135,22 +151,26 @@ export const RovexoAllListings = memo(function RovexoAllListings({
       aria-label="Marketplace listings"
       className="home-v1-listing-section home-v1-all-listings"
     >
-      <RovexoAllListingsGrid ref={gridRef}>
-        {items.map((product, index) => (
-          <Fragment key={product.id}>
-            <ListingCard
-              product={product}
-              variant="grid"
-              {...HOMEPAGE_LISTING_CARD_PROPS}
-            />
-            {index === loadTriggerIndex ? (
-              <div ref={sentinelRef} className={gridStyles.sentinel} aria-hidden />
-            ) : null}
-          </Fragment>
-        ))}
+      <RovexoAllListingsGrid ref={gridRef} columns={columnCount}>
+        {loading && items.length === 0 ? (
+          <HomeListingCardSkeletonGrid count={4} />
+        ) : (
+          items.map((product, index) => (
+            <Fragment key={product.id}>
+              <ListingCard
+                product={product}
+                variant="grid"
+                priority={index < 2}
+                {...HOMEPAGE_LISTING_CARD_PROPS}
+              />
+              {index === loadTriggerIndex ? (
+                <div ref={sentinelRef} className={gridStyles.sentinel} aria-hidden />
+              ) : null}
+            </Fragment>
+          ))
+        )}
+        {loading && items.length > 0 ? <HomeListingCardSkeletonGrid count={2} /> : null}
       </RovexoAllListingsGrid>
-
-      {loading ? <p className="home-v1-all-listings__loading" aria-live="polite" /> : null}
     </section>
   );
 });

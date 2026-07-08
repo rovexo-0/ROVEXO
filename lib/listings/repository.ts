@@ -5,9 +5,11 @@ import type { Product, ProductSection } from "@/lib/products/types";
 import { buildProductImagePath } from "@/lib/storage/server-images";
 import { getPublicStorageUrl } from "@/lib/storage/upload";
 import { formatPromotionRemaining, isPromotionActive } from "@/lib/promotions/format";
+import { HomepageEligibility } from "@/lib/homepage/homepage-eligibility";
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { scanListingBeforePublish } from "@/lib/moderation/scan-listing";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { resolveTransactionModeMapForCategoryIds } from "@/lib/transaction-mode/server";
 import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
 import type {
@@ -24,7 +26,10 @@ import type {
 const PAGE_SIZE = 8;
 
 type ProductRow = Tables<"products"> & {
-  profiles?: Pick<Tables<"profiles">, "full_name" | "avatar_url" | "verified"> | null;
+  profiles?: Pick<
+    Tables<"profiles">,
+    "full_name" | "avatar_url" | "verified" | "username" | "email" | "account_status" | "role"
+  > | null;
   product_images?: Tables<"product_images">[];
   brands?: Pick<Tables<"brands">, "name"> | null;
   categories?: Pick<Tables<"categories">, "path_label"> | null;
@@ -62,6 +67,11 @@ function mapImages(rows: Tables<"product_images">[] | undefined): ListingImage[]
 function mapSellerListing(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MODE): SellerListing {
   const images = mapImages(row.product_images);
   const primary = images.find((image) => image.isPrimary) ?? images[0];
+  const auctionEndsAt = row.auction_ends_at;
+  const isAuctionExpired =
+    row.listing_type === "auction" &&
+    Boolean(auctionEndsAt) &&
+    new Date(auctionEndsAt as string).getTime() < Date.now();
 
   return {
     id: row.id,
@@ -80,6 +90,9 @@ function mapSellerListing(row: ProductRow, transactionMode = DEFAULT_TRANSACTION
     price: Number(row.price),
     acceptOffers: row.accept_offers,
     status: row.status,
+    moderationStatus: row.moderation_status ?? null,
+    listingType: row.listing_type ?? "fixed",
+    auctionEndsAt: row.auction_ends_at ?? null,
     stock: row.stock,
     shippingMethod: row.shipping_method ?? null,
     shippingPrice: row.shipping_price != null ? Number(row.shipping_price) : null,
@@ -104,6 +117,7 @@ function mapSellerListing(row: ProductRow, transactionMode = DEFAULT_TRANSACTION
     isFeatured: isPromotionActive(row.featured_until),
     bumpRemainingLabel: formatPromotionRemaining(row.bumped_until),
     featureRemainingLabel: formatPromotionRemaining(row.featured_until),
+    isAuctionExpired,
   };
 }
 
@@ -132,8 +146,15 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     condition: row.condition,
     brand: row.brands?.name,
     sellerName: row.profiles?.full_name ?? "Seller",
-    sellerAvatar: row.profiles?.avatar_url,
+    sellerAvatar: normalizeAvatarUrl(row.profiles?.avatar_url) ?? undefined,
     sellerVerified: row.profiles?.verified ?? false,
+    sellerEmail: row.profiles?.email ?? null,
+    sellerUsername: row.profiles?.username ?? null,
+    sellerAccountStatus: row.profiles?.account_status ?? null,
+    sellerRole: row.profiles?.role ?? null,
+    moderationStatus: row.moderation_status ?? null,
+    description: row.description ?? undefined,
+    imageCount: images.length,
     rating: Number(row.rating),
     reviewCount: row.review_count,
     views: row.views,
@@ -147,7 +168,7 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
   };
 }
 
-const PRODUCT_LIST_SELECT = `*, profiles!products_seller_id_fkey ( full_name, avatar_url, verified ), product_images (*), brands ( name )`;
+const PRODUCT_LIST_SELECT = `*, profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username, email, account_status, role ), product_images (*), brands ( name )`;
 
 /**
  * Newest published listings, strictly ordered by recency. Reuses the shared
@@ -164,7 +185,9 @@ export async function getRecentPublishedListings(limit = 8): Promise<Product[]> 
     .order("created_at", { ascending: false })
     .limit(Math.max(1, limit));
 
-  const mapped = ((data as ProductRow[] | null) ?? []).map((row) => mapProductRow(row));
+  const mapped = HomepageEligibility.filterEligibleRows((data as ProductRow[] | null) ?? []).map(
+    (row) => mapProductRow(row),
+  );
   return attachTransactionModes(mapped);
 }
 
@@ -218,6 +241,17 @@ export async function getSellerListings(
       listings = listings.filter(
         (listing) => listing.status === "published" && listing.stock > 0,
       );
+      break;
+    case "pending":
+      listings = listings.filter(
+        (listing) =>
+          listing.moderationStatus === "pending" ||
+          listing.moderationStatus === "blocked" ||
+          (listing.status === "paused" && listing.moderationStatus !== "approved"),
+      );
+      break;
+    case "expired":
+      listings = listings.filter((listing) => listing.isAuctionExpired);
       break;
     case "out_of_stock":
       listings = listings.filter(
@@ -330,9 +364,7 @@ async function insertProductImages(
   const normalized = moved.filter((image): image is ListingImageInput => image !== null);
 
   if (normalized.length === 0) {
-    // No image could be materialized — persist none rather than broken rows.
-    // The listing falls back to the product image placeholder.
-    return;
+    throw new Error("Unable to save listing images. Please re-upload your photos and try again.");
   }
 
   const { error } = await supabase
@@ -459,19 +491,26 @@ export async function createSellerListing(
   // Image insertion and the pre-publish moderation scan are independent (the scan
   // reads image *names* from the input, not the freshly inserted rows), so run
   // them concurrently instead of serializing two round-trip chains.
-  await Promise.all([
-    insertProductImages(product.id, input.sellerId, input.images),
-    status === "published"
-      ? scanListingBeforePublish({
-          sellerId: input.sellerId,
-          productId: product.id,
-          title: input.title,
-          description: input.description,
-          brand: input.brand,
-          imageNames: input.images.map((image) => image.storagePath || image.url),
-        })
-      : Promise.resolve(),
-  ]);
+  try {
+    await Promise.all([
+      insertProductImages(product.id, input.sellerId, input.images),
+      status === "published"
+        ? scanListingBeforePublish({
+            sellerId: input.sellerId,
+            productId: product.id,
+            title: input.title,
+            description: input.description,
+            brand: input.brand,
+            imageNames: input.images.map((image) => image.storagePath || image.url),
+          })
+        : Promise.resolve(),
+    ]);
+  } catch (error) {
+    const admin = createAdminClient();
+    await admin.from("products").update({ status: "deleted" }).eq("id", product.id);
+    console.error("[createSellerListing] post-insert failed; listing rolled back", error);
+    return null;
+  }
 
   return getSellerListingById(input.sellerId, product.id);
 }
@@ -587,25 +626,112 @@ export async function updateSellerListing(
   return getSellerListingById(sellerId, productId);
 }
 
+type ListingDeletionTarget = {
+  id: string;
+  slug: string;
+  sellerId: string;
+  storagePaths: string[];
+};
+
+/**
+ * Canonical per-listing permanent delete — the single application delete flow
+ * used by both the seller "Delete" action and the Super Admin bulk tool.
+ *
+ * The database enforces `ON DELETE CASCADE` on all product-referencing tables
+ * (product_images, cart_items, saved_items, recently_viewed, offers, bids,
+ * reviews, listing_promotions, promotion_analytics_events, …) and
+ * `ON DELETE SET NULL` on order history links (order_items, conversations,
+ * moderation_queue), so a single hard delete of the product row removes all
+ * child rows with zero orphans. We additionally purge storage objects and any
+ * notifications that deep-link to the listing.
+ *
+ * The delete runs through the service-role client so the FK cascade can remove
+ * rows owned by other users (e.g. buyers' cart/saved entries) regardless of RLS.
+ */
+async function purgeListingRecord(target: ListingDeletionTarget): Promise<boolean> {
+  const admin = createAdminClient();
+
+  // Remove every stored image object (originals + thumbnails) for the listing.
+  await deleteStoragePaths(target.storagePaths);
+  await deleteStorageFolder(`${target.sellerId}/${target.id}`);
+
+  // Purge notifications that deep-link to this listing (no product_id column).
+  await admin.from("notifications").delete().like("href", `%/listing/${target.slug}%`);
+
+  // Hard delete the product row — cascades all child records atomically.
+  const { error } = await admin.from("products").delete().eq("id", target.id);
+
+  return !error;
+}
+
+/**
+ * Permanently deletes a single listing owned by the caller. Ownership is
+ * verified with the caller's session client before the cascade runs.
+ */
 export async function deleteSellerListing(
   sellerId: string,
   productId: string,
 ): Promise<boolean> {
-  const supabase = await createClient();
   const listing = await getSellerListingById(sellerId, productId);
   if (!listing) return false;
 
-  const storagePaths = listing.images.map((image) => image.storagePath).filter(Boolean);
-  await deleteStoragePaths(storagePaths);
+  return purgeListingRecord({
+    id: listing.id,
+    slug: listing.slug,
+    sellerId,
+    storagePaths: listing.images.map((image) => image.storagePath).filter(Boolean),
+  });
+}
 
-  await supabase.from("product_images").delete().eq("product_id", productId);
-  await supabase
+export type DeleteAllListingsReport = {
+  total: number;
+  deleted: number;
+  failed: number;
+  remaining: number;
+};
+
+/**
+ * Super Admin bulk delete — permanently removes EVERY listing regardless of
+ * owner or status by running each one through the canonical per-listing purge
+ * flow (no direct SQL truncation). Returns a report for validation.
+ */
+export async function deleteAllListingsAsAdmin(): Promise<DeleteAllListingsReport> {
+  const admin = createAdminClient();
+
+  const { data, error } = await admin
     .from("products")
-    .update({ status: "deleted" as ProductStatus })
-    .eq("id", productId)
-    .eq("seller_id", sellerId);
+    .select("id, slug, seller_id, product_images ( storage_path )");
 
-  return true;
+  if (error || !data) {
+    return { total: 0, deleted: 0, failed: 0, remaining: -1 };
+  }
+
+  let deleted = 0;
+  let failed = 0;
+
+  for (const row of data as Array<{
+    id: string;
+    slug: string;
+    seller_id: string;
+    product_images?: Array<{ storage_path: string | null }> | null;
+  }>) {
+    const ok = await purgeListingRecord({
+      id: row.id,
+      slug: row.slug,
+      sellerId: row.seller_id,
+      storagePaths: (row.product_images ?? [])
+        .map((image) => image.storage_path ?? "")
+        .filter(Boolean),
+    });
+    if (ok) deleted += 1;
+    else failed += 1;
+  }
+
+  const { count } = await admin
+    .from("products")
+    .select("id", { count: "exact", head: true });
+
+  return { total: data.length, deleted, failed, remaining: count ?? 0 };
 }
 
 export async function duplicateSellerListing(
@@ -716,7 +842,7 @@ export async function searchListings(
   let query = supabase
     .from("products")
     .select(
-      `*, profiles!products_seller_id_fkey ( full_name, avatar_url, verified ), product_images (*), brands ( name )`,
+      `*, profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username, email, account_status, role ), product_images (*), brands ( name )`,
       { count: "exact" },
     )
     .eq("status", "published");
@@ -753,6 +879,10 @@ export async function searchListings(
 
   if (options.sellerId) {
     query = query.eq("seller_id", options.sellerId);
+  }
+
+  if (options.excludeSlug) {
+    query = query.neq("slug", options.excludeSlug);
   }
 
   if (options.categoryIds?.length) {
@@ -838,7 +968,8 @@ export async function searchListings(
   }
 
   const { data, count } = await query.range(from, to);
-  const mapped = ((data as ProductRow[] | null) ?? []).map((row) => mapProductRow(row));
+  const rows = HomepageEligibility.filterEligibleRows((data as ProductRow[] | null) ?? []);
+  const mapped = rows.map((row) => mapProductRow(row));
   const items = await attachTransactionModes(mapped);
 
   return {

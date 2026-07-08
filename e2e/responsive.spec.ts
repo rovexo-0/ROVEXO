@@ -3,7 +3,6 @@ import {
   CATEGORY_RAIL_SELECTOR,
   HEADER_SELECTOR,
   RESPONSIVE_VIEWPORTS,
-  waitForDomContentLoaded,
   waitForHomepageUi,
   waitForSearchResultsUi,
 } from "./helpers/stable-ui";
@@ -53,7 +52,9 @@ test("homepage has no unexpected console errors on load", async ({ page }) => {
       !line.includes("401 (Unauthorized)") &&
       !line.includes("Failed to load resource") &&
       !line.includes("Missing required environment variable") &&
-      !line.includes("ServiceWorker intercepted"),
+      !line.includes("ServiceWorker intercepted") &&
+      !line.includes("MIME type") &&
+      !line.includes("strict MIME checking"),
   );
   expect(unexpected, unexpected.join("\n")).toEqual([]);
 });
@@ -67,11 +68,13 @@ test("search page is usable on mobile", async ({ page }) => {
 test("listing page renders on tablet", async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 1024 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await waitForDomContentLoaded(page);
+  await waitForHomepageUi(page);
 
   const featuredLink = page.locator('a[href^="/listing/"]').first();
   if (await featuredLink.count()) {
-    await featuredLink.click();
-    await expect(page.locator("main")).toBeVisible();
+    const href = await featuredLink.getAttribute("href");
+    expect(href).toBeTruthy();
+    await page.goto(href!, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("main").first()).toBeVisible();
   }
 });

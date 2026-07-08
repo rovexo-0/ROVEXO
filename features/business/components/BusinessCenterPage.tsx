@@ -5,22 +5,23 @@ import { ResponsiveShell } from "@/features/mobile-ui";
 import type { UserProfile } from "@/lib/profile/types";
 import { Badge } from "@/components/ui/Badge";
 import Link from "next/link";
+import { HubSectionIcon } from "@/components/icons/HubSectionIcon";
 import { Card } from "@/components/ui/Card";
 
 function buildBusinessSections(storeSlug: string) {
   return [
-    { title: "Business Dashboard", description: "Overview, revenue, orders, and performance", href: "/business/dashboard", icon: "📊" },
-    { title: "Inventory", description: "SKU management and stock levels", href: "/business/inventory", icon: "📦" },
-    { title: "Analytics", description: "Business insights and reports", href: "/business/analytics", icon: "📈" },
-    { title: "Company Profile", description: "Store page and business branding", href: `/store/${storeSlug}`, icon: "🏪" },
-    { title: "Business Directory", description: "Discover verified business stores", href: "/business/directory", icon: "📇" },
-    { title: "Wholesale Center", description: "MOQ, bulk pricing, and RFQ", href: "/wholesale", icon: "🏭" },
-    { title: "Verification", description: "Business and trade verification", href: "/trust#verification", icon: "✅" },
-    { title: "Trust Score", description: "Business reputation and trust history", href: "/trust", icon: "⭐" },
-    { title: "Marketing", description: "Promotions and featured listings", href: "/seller/listings", icon: "📣" },
-    { title: "Messages", description: "Leads and buyer conversations", href: "/messages", icon: "💬" },
-    { title: "Subscriptions", description: "Business and wholesale plans", href: "/plans", icon: "💳" },
-    { title: "Help Center", description: "Business help and guided troubleshooting", href: "/help/category/business-accounts", icon: "🎧" },
+    { title: "Business Dashboard", description: "Overview, revenue, orders, and performance", href: "/business/dashboard" },
+    { title: "Inventory", description: "SKU management and stock levels", href: "/business/inventory" },
+    { title: "Analytics", description: "Business insights and reports", href: "/business/analytics" },
+    { title: "Company Profile", description: "Store page and business branding", href: `/store/${storeSlug}` },
+    { title: "Business Directory", description: "Discover verified business stores", href: "/business/directory" },
+    { title: "Wholesale Center", description: "MOQ, bulk pricing, and RFQ", href: "/wholesale" },
+    { title: "Verification", description: "Business and trade verification", href: "/trust#verification" },
+    { title: "Trust Score", description: "Business reputation and trust history", href: "/trust" },
+    { title: "Marketing", description: "Promotions and featured listings", href: "/seller/listings" },
+    { title: "Messages", description: "Leads and buyer conversations", href: "/messages" },
+    { title: "Subscriptions", description: "Business and wholesale plans", href: "/plans" },
+    { title: "Help Center", description: "Business help and guided troubleshooting", href: "/help/category/business-accounts" },
   ] as const;
 }
 
@@ -83,7 +84,7 @@ export function BusinessCenterPage({
             {sections.map((section) => (
               <Link key={section.href} href={section.href}>
                 <Card padding="md" interactive className="h-full">
-                  <p className="text-xl">{section.icon}</p>
+                  <HubSectionIcon href={section.href} />
                   <p className="mt-ds-2 font-semibold text-text-primary">{section.title}</p>
                   <p className="mt-ds-1 text-sm text-text-secondary">{section.description}</p>
                 </Card>

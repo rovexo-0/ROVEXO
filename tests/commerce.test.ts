@@ -1,28 +1,37 @@
 import { describe, expect, it } from "vitest";
-import { calculateOrderTotals, calculateProtectedFee } from "@/lib/orders/pricing";
-import { calculateSellerNetAmount, PLATFORM_FEE_RATE } from "@/lib/wallet/sales";
+import { calculateOrderTotals, calculatePlatformFee, PLATFORM_FEE_RATE } from "@/lib/orders/pricing";
+import { calculateSellerNetAmount } from "@/lib/wallet/sales";
 import { isPurchasable } from "@/lib/inventory/service";
 import { canPerformOrderAction } from "@/lib/orders/role";
 import type { Order } from "@/lib/orders/types";
 
 describe("order pricing", () => {
-  it("calculates buyer protection within bounds", () => {
-    expect(calculateProtectedFee(10)).toBe(0.99);
-    expect(calculateProtectedFee(500)).toBe(9.99);
+  it("uses a single platform fee at 5.5% within bounds", () => {
+    expect(PLATFORM_FEE_RATE).toBe(0.055);
+    expect(calculatePlatformFee(10)).toBe(0.99);
+    expect(calculatePlatformFee(500)).toBe(9.99);
   });
 
   it("calculates checkout totals", () => {
     const totals = calculateOrderTotals(50, 4.99);
-    expect(totals.total).toBe(57.49);
+    expect(totals.platformFee).toBe(2.75);
+    expect(totals.total).toBe(57.74);
+    expect(totals.deliveryPending).toBe(false);
+  });
+
+  it("excludes unresolved delivery from checkout total", () => {
+    const totals = calculateOrderTotals(50, null);
+    expect(totals.deliveryPending).toBe(true);
+    expect(totals.delivery).toBe(0);
+    expect(totals.total).toBe(52.75);
   });
 });
 
 describe("seller wallet math", () => {
-  it("applies platform fee", () => {
+  it("pays the seller the full item price (single buyer-paid platform fee)", () => {
     const { platformFee, sellerAmount } = calculateSellerNetAmount(100);
-    expect(platformFee).toBe(5);
-    expect(sellerAmount).toBe(95);
-    expect(PLATFORM_FEE_RATE).toBe(0.05);
+    expect(platformFee).toBe(5.5);
+    expect(sellerAmount).toBe(100);
   });
 });
 
@@ -49,7 +58,7 @@ describe("order action authorization", () => {
     },
     buyer: { id: "buyer", name: "Buyer" },
     seller: { id: "seller", name: "Seller" },
-    totals: { itemPrice: 10, protectedFee: 0.99, delivery: 4.99, total: 15.98 },
+    totals: { itemPrice: 10, platformFee: 0.99, delivery: 4.99, total: 15.98 },
     deliveryCarrier: "Royal Mail",
     createdAt: new Date().toISOString(),
     disputesDisabled: false,

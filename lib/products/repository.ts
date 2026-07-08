@@ -5,6 +5,10 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { Tables } from "@/lib/supabase/types/database";
 import { searchListings as searchListingsRepo } from "@/lib/listings/repository";
 import { compareHomepageFeedProducts, computeHomepagePriorityScore } from "@/lib/homepage/feed-ranking";
+import {
+  buildShowcaseSellerSections,
+  type ShowcaseSellerSection,
+} from "@/lib/homepage/showcase-sellers";
 import { HomepageEligibility } from "@/lib/homepage/homepage-eligibility";
 import { isPromotionActive } from "@/lib/promotions/format";
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
@@ -106,20 +110,6 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
   };
 }
 
-function rowToHomepageInput(row: ProductRow) {
-  return HomepageEligibility.fromRow({
-    slug: row.slug,
-    title: row.title,
-    description: row.description,
-    status: row.status,
-    price: Number(row.price),
-    category_id: row.category_id,
-    moderation_status: row.moderation_status,
-    profiles: row.profiles,
-    product_images: row.product_images,
-  });
-}
-
 async function attachTransactionModes<T extends Product>(products: T[]): Promise<T[]> {
   const modeMap = await resolveTransactionModeMapForCategoryIds(
     products.map((product) => product.categoryId),
@@ -201,6 +191,7 @@ function mapProductDetail(row: ProductRow, transactionMode = DEFAULT_TRANSACTION
     freeDelivery: row.shipping_price === 0,
     shippingPrice: row.shipping_price != null ? Number(row.shipping_price) : null,
     salesCount: Math.max(1, row.review_count),
+    sellerFollowerCount: 0,
     stock: row.stock,
     availability: productAvailability(row.stock, row.low_stock_alert),
     sellerId: row.seller_id,
@@ -351,7 +342,7 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
     }
 
     for (const row of batch) {
-      if (HomepageEligibility.isEligible(rowToHomepageInput(row))) {
+      if (HomepageEligibility.isRowEligible(row)) {
         eligibleRows.push(row);
         if (eligibleRows.length >= pageSize) break;
       }
@@ -385,6 +376,43 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
   };
 }
 
+/** Paid Showcase sellers — one horizontal section per seller with active feature promotion. */
+export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection[]> {
+  if (!isSupabaseConfigured()) {
+    return [];
+  }
+
+  void refreshExpiredPromotions();
+
+  const supabase = await createClient();
+  const now = new Date().toISOString();
+  const { data, error } = await supabase
+    .from("products")
+    .select(PRODUCT_SELECT)
+    .eq("status", "published")
+    .gt("featured_until", now)
+    .order("promotion_score", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(72);
+
+  if (error || !data?.length) {
+    return [];
+  }
+
+  const rows = HomepageEligibility.filterEligibleRows(data as ProductRow[]);
+  const mapped = rows.map((row) => mapProductRow(row));
+  const withModes = await attachTransactionModes(mapped);
+  const enriched = await enrichProductsWithTrust(withModes);
+  const ranked = enriched
+    .map((product) => ({
+      ...product,
+      homepagePriorityScore: computeHomepagePriorityScore(product),
+    }))
+    .sort(compareHomepageFeedProducts);
+
+  return buildShowcaseSellerSections(ranked);
+}
+
 // Wrapped in React.cache so the listing page's generateMetadata() and the page
 // component share a single query per request instead of fetching the product
 // twice (a duplicate DB round-trip on every listing view).
@@ -416,7 +444,19 @@ export const getProductBySlug = cache(async function getProductBySlug(
     }
   }
 
-  return mapProductDetail(row, mode);
+  const detail = mapProductDetail(row, mode);
+
+  const admin = createAdminClient();
+  const { data: sellerProfile } = await admin
+    .from("seller_profiles")
+    .select("follower_count")
+    .eq("id", row.seller_id)
+    .maybeSingle();
+
+  return {
+    ...detail,
+    sellerFollowerCount: sellerProfile?.follower_count ?? 0,
+  };
 });
 
 export async function getSimilarProducts(slug: string, limit = 8): Promise<Product[]> {
@@ -431,20 +471,17 @@ export async function getSimilarProducts(slug: string, limit = 8): Promise<Produ
     return [];
   }
 
-  let query = supabase
-    .from("products")
-    .select(PRODUCT_SELECT)
-    .eq("status", "published")
-    .neq("slug", slug)
-    .limit(limit);
-
-  if (current.category_id) {
-    query = query.eq("category_id", current.category_id);
-  }
-
-  const { data } = await query;
-  const mapped = (data as ProductRow[] | null)?.map((row) => mapProductRow(row)) ?? [];
-  return attachTransactionModes(mapped);
+  // Route through the canonical eligibility resolver so Similar Items obeys the
+  // exact same public-visibility rules as Homepage/Search/Category.
+  const { getEligibleListings } = await import("@/lib/listings/eligible-listings");
+  const result = await getEligibleListings({
+    surface: "similar",
+    excludeSlug: slug,
+    categoryIds: current.category_id ? [current.category_id] : undefined,
+    page: 1,
+    pageSize: limit,
+  });
+  return result.items;
 }
 
 export async function searchProducts(query: string, page = 1, pageSize = PAGE_SIZE) {

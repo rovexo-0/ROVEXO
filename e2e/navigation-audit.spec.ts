@@ -24,15 +24,40 @@ const VIEWPORTS = [
 test.describe("Navigation audit — bottom navigation", () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
+    // Next.js dev indicator portal can cover bottom-nav taps during local E2E.
+    await page.addInitScript(() => {
+      const removeDevPortal = () => {
+        document.querySelectorAll("nextjs-portal").forEach((node) => node.remove());
+      };
+      removeDevPortal();
+      new MutationObserver(removeDevPortal).observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+      });
+    });
   });
 
   for (const item of BOTTOM_NAV_ROUTES) {
     test(`${item.tab} tab navigates to ${item.href}`, async ({ page }) => {
-      await page.goto("/", { waitUntil: "domcontentloaded" });
-      await waitForHomepageUi(page);
+      if (item.tab === "Home") {
+        await page.goto("/search", { waitUntil: "domcontentloaded" });
+      } else {
+        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await waitForHomepageUi(page);
+      }
 
       const nav = page.getByRole("navigation", { name: /mobile navigation|main navigation/i });
-      await nav.getByRole("link", { name: item.aria }).click();
+      await expect(nav).toBeVisible();
+      const navLink = nav.getByRole("link", { name: item.aria });
+
+      if (item.tab === "Home") {
+        await Promise.all([
+          page.waitForURL((url) => url.pathname === "/"),
+          navLink.evaluate((node) => (node as HTMLAnchorElement).click()),
+        ]);
+      } else {
+        await navLink.click();
+      }
 
       if (item.authRedirect) {
         await expect(page).toHaveURL(/\/login/);

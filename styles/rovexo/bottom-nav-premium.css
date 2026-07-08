@@ -6,11 +6,11 @@
 [data-bottom-nav="2026"] {
   --rx-bottom-nav-height: 80px;
   --rx-bottom-nav-radius: 24px;
-  --rx-bottom-nav-sell-size: 56px;
+  --rx-bottom-nav-sell-size: 64px;
   --rx-bottom-nav-sell-float: 12px;
   --rx-bottom-nav-label-size: 12px;
   --rx-bottom-nav-inactive: #6b7280;
-  --rx-bottom-nav-active: #2563eb;
+  --rx-bottom-nav-active: var(--ds-color-primary);
 }
 
 /* Edge-to-edge white bar anchored to the bottom, only the top corners rounded.
@@ -101,14 +101,14 @@
   margin-bottom: 0;
   border-radius: 9999px;
   background: var(--ds-gradient-primary);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.32);
+  box-shadow: 0 8px 20px rgba(147, 51, 234, 0.32);
   transform: translate3d(0, calc(-1 * var(--rx-bottom-nav-sell-float)), 0);
   transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
 
 [data-bottom-nav="2026"] .rx-bottom-nav-sell::after {
-  box-shadow: 0 0 22px rgba(37, 99, 235, 0.32);
+  box-shadow: 0 0 22px rgba(147, 51, 234, 0.32);
   opacity: 0.7;
 }
 

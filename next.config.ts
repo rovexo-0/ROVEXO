@@ -39,6 +39,15 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ["lucide-react", "react-hook-form", "@hookform/resolvers"],
+    // Windows/Turbopack production hardening: the compile phase writes all SSR
+    // chunks up front, but during "Generating static pages" a parallel worker can
+    // transiently fail to require() an already-emitted chunk (Windows file-handle
+    // / antivirus locking), surfacing as a ChunkLoadError / MODULE_NOT_FOUND on a
+    // chunk that exists on disk. Retrying the affected page lets the worker read
+    // the now-unlocked file. Capping pages-per-worker reduces concurrent file
+    // contention so the race is far less likely to occur in the first place.
+    staticGenerationRetryCount: 3,
+    staticGenerationMaxConcurrency: 6,
   },
   ...(isProduction
     ? {
@@ -79,6 +88,12 @@ const nextConfig: NextConfig = {
         protocol: "https" as const,
         hostname,
       })),
+      // Demo-environment avatars (search overlays, seller cards in E2E/demo mode).
+      {
+        protocol: "https" as const,
+        hostname: "api.dicebear.com",
+        pathname: "/7.x/**",
+      },
     ],
   },
   async redirects() {

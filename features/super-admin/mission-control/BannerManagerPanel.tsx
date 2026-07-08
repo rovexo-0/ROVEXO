@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { useCallback, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { ResponsivePreviewFrame } from "@/features/super-admin/mission-control/ResponsivePreviewFrame";
@@ -75,7 +75,7 @@ export function BannerManagerPanel({ initialConfig }: BannerManagerPanelProps) {
             <h3 className="text-lg font-semibold">{selected.title}</h3>
             {selected.image ? (
               <div className="mc-banner-preview">
-                <Image src={selected.image} alt="" width={640} height={360} className="mc-banner-preview__image" />
+                <SafeImage src={selected.image} alt="" width={640} height={360} className="mc-banner-preview__image" />
               </div>
             ) : null}
             <div className="mc-builder__actions">

@@ -1,0 +1,41 @@
+/**
+ * ROVEXO Canonical Homepage — responsive engine tokens.
+ * Design reference: iPhone portrait; scales proportionally on every viewport.
+ */
+
+.rovexo-page-home {
+  --hp-shell-max: min(90rem, 100%);
+  --hp-shell-pad: clamp(12px, 3.2vw, 32px);
+  --hp-section-gap: clamp(12px, 2.4vw, 24px);
+  --hp-grid-gap: clamp(10px, 2.8vw, 20px);
+
+  /* Listing card reference proportions (160×340, image ~65%) */
+  --hp-listing-aspect: 160 / 340;
+  --hp-listing-img-ratio: 0.647;
+  --hp-listing-body-ratio: 0.353;
+  --hp-listing-ref-w: 160px;
+  --hp-listing-ref-h: 340px;
+  --hp-listing-ref-img: 220px;
+  --hp-listing-ref-body: 120px;
+
+  /* Featured store card reference (112×206) */
+  --hp-store-card-aspect: 112 / 206;
+  --hp-store-card-ref-w: 112px;
+  --hp-store-card-ref-h: 206px;
+  --hp-store-card-gap: clamp(10px, 2.5vw, 16px);
+  --hp-store-visible-cards: 3;
+}
+
+@media (min-width: 640px) {
+  .rovexo-page-home {
+    --hp-store-card-ref-w: 120px;
+    --hp-store-card-ref-h: 221px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rovexo-page-home {
+    --hp-store-card-ref-w: 128px;
+    --hp-store-card-ref-h: 236px;
+  }
+}

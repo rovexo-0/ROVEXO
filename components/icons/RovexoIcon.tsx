@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
 import { resolveRovexoIconSrc } from "@/lib/icons/icons";
 import { resolveRovexoIconSize, type RovexoIconVariant } from "@/lib/icons/sizes";
@@ -35,13 +35,14 @@ export function RovexoIcon({
   const glass = isGlassIconMode();
 
   return (
-    <Image
+    <SafeImage
       src={src}
       alt={alt}
       width={px}
       height={px}
       priority={priority}
       unoptimized
+      fallback="hide"
       aria-hidden={alt ? undefined : true}
       className={cn(
         "rovexo-icon shrink-0 object-contain",

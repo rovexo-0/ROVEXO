@@ -27,8 +27,34 @@ describe("My Account rendering safety", () => {
 
   it("acx-grid avoids grid-auto-rows: 1fr (Android grid compositor bug)", () => {
     const css = readSource("styles/rovexo/account-2026.css");
-    const gridBlock = css.slice(css.indexOf(".acx-grid {"), css.indexOf(".acx-card-motion"));
+    const gridBlock = css.slice(css.indexOf(".acx-grid {"), css.indexOf(".acx-card {"));
     expect(gridBlock).not.toContain("grid-auto-rows");
+  });
+
+  it("acx-card styles avoid transform (Android ghost-layer bug)", () => {
+    const css = readSource("styles/rovexo/account-2026.css");
+    const cardBlock = css.slice(css.indexOf(".acx-card {"), css.indexOf(".acx-card__tile {"));
+    expect(cardBlock).not.toMatch(/transform\s*:/);
+  });
+
+  it("MyAccountCard uses static accent classes, not inline color-mix", () => {
+    const source = readSource("components/account/MyAccountCard.tsx");
+    expect(source).not.toMatch(/color-mix\s*\(/);
+    expect(source).not.toContain("acx-card-motion");
+    expect(source).toContain("acx-card__tile--");
+  });
+
+  it("Import tile uses dedicated import icon, not listings", () => {
+    const nav = readSource("components/account/account-nav.ts");
+    expect(nav).toMatch(/id: "import"[\s\S]*?icon: "import"/);
+    const icons = readSource("components/account/AccountIcons.tsx");
+    expect(icons).toContain('"import"');
+  });
+
+  it("TrustAnalytics avoids overlapping SVG segment circles", () => {
+    const source = readSource("components/account/TrustAnalytics.tsx");
+    expect(source).not.toMatch(/segments\.map/);
+    expect(source).not.toMatch(/transform="rotate/);
   });
 
   it("MyAccountGrid gates Super Admin Command Center by role", () => {

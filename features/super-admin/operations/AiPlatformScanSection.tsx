@@ -51,7 +51,7 @@ export function AiPlatformScanSection({ snapshot, onScanned }: AiPlatformScanSec
         </div>
         <Button
           size="lg"
-          className="min-h-12 min-w-[180px] rounded-ds-xl bg-gradient-to-r from-primary to-blue-700 shadow-[0_12px_32px_rgba(37,99,235,0.35)]"
+          className="min-h-12 min-w-[180px] rounded-ds-xl bg-gradient-to-r from-primary to-purple-700 shadow-[0_12px_32px_rgba(147,51,234,0.35)]"
           onClick={() => void runScan()}
           disabled={scanning}
         >

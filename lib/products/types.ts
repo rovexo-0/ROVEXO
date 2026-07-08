@@ -59,6 +59,7 @@ export type ProductDetail = Product & {
   images: string[];
   description: string;
   salesCount: number;
+  sellerFollowerCount: number;
   deliveryCarriers: DeliveryCarrier[];
   freeDelivery?: boolean;
   shippingPrice?: number | null;

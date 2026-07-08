@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { ResponsivePreviewFrame } from "@/features/super-admin/mission-control/ResponsivePreviewFrame";
@@ -257,7 +257,7 @@ export function VisualCmsAdmin({ initialSnapshot, defaultTab = "overview" }: Vis
             {filteredAssets.map((asset) => (
               <div key={asset.id} className="ea-card">
                 <div className="vcms-asset-card__preview">
-                  <Image src={asset.src} alt={asset.name} width={120} height={80} className="vcms-asset-card__img" />
+                  <SafeImage src={asset.src} alt={asset.name} width={120} height={80} className="vcms-asset-card__img" />
                 </div>
                 <strong>{asset.name}</strong>
                 <span>{asset.folder} · {asset.format.toUpperCase()}</span>

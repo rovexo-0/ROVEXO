@@ -342,7 +342,7 @@
 }
 
 .mdc-badge--green { background: color-mix(in srgb, #22c55e 15%, transparent); color: #15803d; }
-.mdc-badge--blue { background: color-mix(in srgb, #3b82f6 15%, transparent); color: #1d4ed8; }
+.mdc-badge--blue { background: color-mix(in srgb, #a855f7 15%, transparent); color: var(--ds-color-accent); }
 .mdc-badge--yellow { background: color-mix(in srgb, #eab308 15%, transparent); color: #a16207; }
 .mdc-badge--gray { background: color-mix(in srgb, #6b7280 15%, transparent); color: #4b5563; }
 
@@ -392,7 +392,7 @@
 }
 
 .mdc-live--green .mdc-live-dot, .mdc-live-dot.mdc-live--green { background: #22c55e; }
-.mdc-live--blue .mdc-live-dot, .mdc-live-dot.mdc-live--blue { background: #3b82f6; }
+.mdc-live--blue .mdc-live-dot, .mdc-live-dot.mdc-live--blue { background: #a855f7; }
 .mdc-live--yellow .mdc-live-dot, .mdc-live-dot.mdc-live--yellow { background: #eab308; }
 .mdc-live--red .mdc-live-dot, .mdc-live-dot.mdc-live--red { background: #ef4444; }
 .mdc-live--gray .mdc-live-dot, .mdc-live-dot.mdc-live--gray { background: #9ca3af; }
@@ -752,7 +752,7 @@
 }
 
 .mdc-release--beta {
-  border-color: color-mix(in srgb, #3b82f6 40%, var(--ds-color-border));
+  border-color: color-mix(in srgb, #a855f7 40%, var(--ds-color-border));
 }
 
 .mdc-release__head {

@@ -1,66 +1,45 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
-import { useDocumentVisible } from "@/lib/performance/hooks";
-import { throttle } from "@/lib/performance/throttle";
-import { Badge } from "@/components/ui/Badge";
-import { Price } from "@/components/ui/Price";
-import { cn } from "@/lib/cn";
-import { normalizeCondition } from "@/lib/products/utils";
-import type { Product, ProductDetail } from "@/lib/products/types";
-import { transitionSlow } from "@/components/ui/tokens";
+import { useEffect, useState } from "react";
 import { RecordRecentlyViewed } from "@/features/launch/components/RecordRecentlyViewed";
-import { ShareListingSheet } from "@/components/share/ShareListingSheet";
-import { ProductActionBar } from "@/features/product-detail/ProductActionBar";
-import { ProductBuyerProtection } from "@/features/product-detail/ProductBuyerProtection";
-import { ProductDelivery } from "@/features/product-detail/ProductDelivery";
-import { ProductDescription } from "@/features/product-detail/ProductDescription";
-import { ProductDetailScrollHeader } from "@/features/product-detail/ProductDetailScrollHeader";
-import { ProductDetailTopBar } from "@/features/product-detail/ProductDetailTopBar";
-import { ProductEngagementRow } from "@/features/product-detail/ProductEngagementRow";
-import { ProductGallery } from "@/features/product-detail/ProductGallery";
+import { AddedToCartToast } from "@/features/product-detail/AddedToCartToast";
+import { ProductActionBarV1 } from "@/features/product-detail/ProductActionBarV1";
+import { ProductConditionCard } from "@/features/product-detail/ProductConditionCard";
+import { ProductDescriptionV1 } from "@/features/product-detail/ProductDescriptionV1";
+import { ProductDetailBadges } from "@/features/product-detail/ProductDetailBadges";
+import { ProductGalleryV1 } from "@/features/product-detail/ProductGalleryV1";
+import { ProductRecentlyViewed } from "@/features/product-detail/ProductRecentlyViewed";
+import { ProductShippingCard } from "@/features/product-detail/ProductShippingCard";
 import { ProductSimilarItems } from "@/features/product-detail/ProductSimilarItems";
-import { ProductSellerCard } from "@/features/product-detail/ProductSellerCard";
-import { ProductReportDialog } from "@/features/product-detail/ProductReportDialog";
-import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
-import type { CategoryBreadcrumb } from "@/lib/categories/navigation";
-import type { PublicTrustSummary } from "@/lib/trust/types";
+import { ProductStoreSection } from "@/features/product-detail/ProductStoreSection";
+import { formatListingPrice, formatListingPriceIncl } from "@/lib/listing-card/format";
+import { resolveProductSubtitle } from "@/lib/product-detail/format";
+import type { Product, ProductDetail } from "@/lib/products/types";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 import { getActiveMarket } from "@/lib/seo/markets";
 import { getTransactionCapabilities } from "@/lib/transaction-mode/capabilities";
+import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
+import { ShieldCheck } from "lucide-react";
 
 type ProductDetailPageProps = {
   product: ProductDetail;
   similarProducts: Product[];
-  initialIsSaved?: boolean;
-  breadcrumbs?: CategoryBreadcrumb[];
-  sellerTrust?: PublicTrustSummary | null;
 };
 
-const COLLAPSE_OFFSET = 120;
-
-function triggerHapticFeedback() {
-  if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-    navigator.vibrate(10);
-  }
-}
-
-export function ProductDetailPage({
-  product,
-  similarProducts,
-  initialIsSaved = false,
-  breadcrumbs = [],
-  sellerTrust,
-}: ProductDetailPageProps) {
+export function ProductDetailPage({ product, similarProducts }: ProductDetailPageProps) {
   const router = useRouter();
-  const visible = useDocumentVisible();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isSaved, setIsSaved] = useState(initialIsSaved);
-  const [cartMessage, setCartMessage] = useState<string | null>(null);
+  const { refresh: refreshBadges } = useRealtimeNotifications();
+  const [cartToastOpen, setCartToastOpen] = useState(false);
+  const [cartError, setCartError] = useState<string | null>(null);
   const capabilities = getTransactionCapabilities(product.transactionMode);
   const isPurchasable =
     capabilities.buyNow && product.availability !== "out_of_stock" && product.stock > 0;
+  const subtitle = resolveProductSubtitle(product);
+  const amount =
+    product.listingType === "auction" && product.auctionCurrentBid != null
+      ? product.auctionCurrentBid
+      : product.price;
 
   useEffect(() => {
     const { currency } = getActiveMarket();
@@ -72,174 +51,62 @@ export function ProductDetailPage({
     });
   }, [product.id, product.price, product.title]);
 
-  useEffect(() => {
-    if (!visible) return;
-
-    const onScroll = throttle(() => {
-      setIsCollapsed(window.scrollY > COLLAPSE_OFFSET);
-    }, 16);
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [visible]);
-
-  const toggleSave = useCallback(() => {
-    const nextSaved = !isSaved;
-    setIsSaved(nextSaved);
-
-    if (nextSaved) {
-      triggerHapticFeedback();
-      const { currency } = getActiveMarket();
-      trackGaEvent("add_to_favorites", {
-        item_id: product.id,
-        item_name: product.title,
-        currency,
-      });
-      void fetch("/api/saved", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productSlug: product.slug }),
-      }).catch(() => setIsSaved(!nextSaved));
-    } else {
-      void fetch("/api/saved", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productSlugs: [product.slug] }),
-      }).catch(() => setIsSaved(!nextSaved));
-    }
-  }, [isSaved, product.id, product.slug, product.title]);
-
-  const [shareOpen, setShareOpen] = useState(false);
-
-  const openShare = useCallback(() => {
-    setShareOpen(true);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-background text-text-primary">
+    <div className="pd-v1" data-pd-detail-version="v1.1">
       <RecordRecentlyViewed productSlug={product.slug} />
-      <ProductDetailScrollHeader
-        visible={isCollapsed}
-        title={product.title}
-        isSaved={isSaved}
-        onSave={toggleSave}
-        onShare={openShare}
-      />
+      <div className="pd-v1__shell">
+        <ProductGalleryV1 images={product.images} title={product.title} />
 
-      {/* Outer wrapper is NOT clipped, so the overlay action buttons (and their
-          shadows) render fully. Only the gallery itself keeps overflow-hidden
-          for the collapse animation. */}
-      <div className="relative">
-        <div
-          className={cn(
-            "relative overflow-hidden",
-            transitionSlow,
-            isCollapsed ? "max-h-0 opacity-0" : "h-[45vh] opacity-100",
-          )}
-        >
-          <ProductGallery images={product.images} title={product.title} className="h-full" />
-        </div>
+        <main className="pd-v1__main">
+          <section aria-labelledby="pd-product-title">
+            <h1 id="pd-product-title" className="pd-v1__title">
+              {product.title}
+            </h1>
+            {subtitle ? <p className="pd-v1__subtitle">{subtitle}</p> : null}
 
-        {!isCollapsed && <ProductDetailTopBar />}
+            <p className="pd-v1__price">{formatListingPrice(amount)}</p>
+            {capabilities.buyNow ? (
+              <p className="pd-v1__price-incl">
+                <span>{formatListingPriceIncl(amount)}</span>
+                <ShieldCheck width={14} height={14} strokeWidth={2.25} aria-hidden />
+              </p>
+            ) : null}
+
+            <ProductDetailBadges product={product} />
+
+            {capabilities.addToCart && cartError ? (
+              <p className="pd-v1__cart-message" role="alert">
+                {cartError}
+              </p>
+            ) : null}
+          </section>
+
+          <ProductDescriptionV1 description={product.description} />
+
+          {product.condition ? <ProductConditionCard condition={product.condition} /> : null}
+
+          {capabilities.shipping ? <ProductShippingCard product={product} /> : null}
+
+          <ProductStoreSection product={product} />
+
+          <ProductSimilarItems products={similarProducts} categoryId={product.categoryId} />
+
+          <ProductRecentlyViewed currentSlug={product.slug} />
+        </main>
       </div>
 
-      <ShareListingSheet
-        open={shareOpen}
-        onClose={() => setShareOpen(false)}
-        title={product.title}
-        slug={product.slug}
-        productId={product.id}
-        price={product.price}
-        imageUrl={product.images[0]}
-      />
-
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 pt-ds-3 pb-[calc(84px+env(safe-area-inset-bottom))]">
-        {breadcrumbs.length > 0 && <Breadcrumbs items={breadcrumbs} />}
-
-        <section aria-labelledby="product-info-heading" className="flex flex-col gap-ds-2">
-          <h2 id="product-info-heading" className="sr-only">
-            Product information
-          </h2>
-
-          <Price
-            amount={product.price}
-            size="lg"
-            className="[&>span:first-child]:text-3xl [&>span:first-child]:font-extrabold [&>span:first-child]:tracking-tight"
-          />
-
-          {product.condition && (
-            <Badge variant="success" className="w-fit px-ds-3 py-ds-1 text-xs">
-              {normalizeCondition(product.condition)}
-            </Badge>
-          )}
-
-          {capabilities.buyNow && !isPurchasable && (
-            <Badge variant="danger" className="w-fit px-ds-3 py-ds-1 text-xs">
-              Out of Stock
-            </Badge>
-          )}
-
-          {capabilities.addToCart && cartMessage && (
-            <p className="text-sm font-medium text-primary">{cartMessage}</p>
-          )}
-
-          <h1 className="line-clamp-2 text-xl font-semibold leading-snug text-text-primary">
-            {product.title}
-          </h1>
-
-          <ProductEngagementRow
-            views={product.views ?? 0}
-            saves={product.likes ?? 0}
-          />
-        </section>
-
-        {capabilities.buyerProtection && <ProductBuyerProtection itemPrice={product.price} />}
-
-        <ProductDescription description={product.description} />
-
-        {capabilities.shipping && (
-          <ProductDelivery carriers={product.deliveryCarriers} freeDelivery={product.freeDelivery} />
-        )}
-
-        <ProductSellerCard
-          sellerId={product.sellerId}
-          sellerName={product.sellerName}
-          sellerUsername={product.sellerUsername}
-          sellerAvatar={product.sellerAvatar}
-          sellerVerified={product.sellerVerified}
-          rating={product.rating}
-          reviewCount={product.reviewCount}
-          salesCount={product.salesCount}
-          sellerTrust={sellerTrust}
-        />
-
-        <div className="flex justify-end">
-          <ProductReportDialog productSlug={product.slug} />
-        </div>
-
-        <ProductSimilarItems products={similarProducts} />
-      </main>
-
-      <ProductActionBar
+      <ProductActionBarV1
         transactionMode={product.transactionMode}
         disabled={!isPurchasable}
-        onMessage={() => {
+        onContact={() => {
           void fetch("/api/messages", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ productSlug: product.slug }),
           })
             .then(async (response) => {
-              const payload = (await response.json()) as {
-                href?: string;
-                error?: string;
-              };
-              if (payload.href) {
-                router.push(payload.href);
-                return;
-              }
-              router.push("/messages");
+              const payload = (await response.json()) as { href?: string };
+              router.push(payload.href ?? "/messages");
             })
             .catch(() => router.push("/messages"));
         }}
@@ -254,19 +121,21 @@ export function ProductDetailPage({
                   .then(async (response) => {
                     const payload = (await response.json()) as { success?: boolean; error?: string };
                     if (payload.success) {
-                      setCartMessage("Added to cart.");
-                    } else {
-                      setCartMessage(payload.error ?? "Unable to add to cart.");
+                      setCartError(null);
+                      setCartToastOpen(true);
+                      void refreshBadges();
+                      return;
                     }
+                    setCartError(payload.error ?? "Unable to add to cart.");
                   })
-                  .catch(() => setCartMessage("Unable to add to cart."));
+                  .catch(() => setCartError("Unable to add to cart."));
               }
             : undefined
         }
-        onBuy={
-          capabilities.checkout ? () => router.push(`/checkout/${product.slug}`) : undefined
-        }
+        onBuy={capabilities.checkout ? () => router.push(`/checkout/${product.slug}`) : undefined}
       />
+
+      <AddedToCartToast open={cartToastOpen} onDismiss={() => setCartToastOpen(false)} />
     </div>
   );
 }

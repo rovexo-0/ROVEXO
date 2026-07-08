@@ -9,7 +9,7 @@ export default async function SuperAdminOrdersEnginePage() {
     <>
       <SuperAdminPageHeader
         title="Orders Engine"
-        description="Enterprise order management — lifecycle, integrations, notifications, analytics, and buyer protection."
+        description="Enterprise order management — lifecycle, integrations, notifications, analytics, and purchase protection."
       />
       <OrdersEngineAdmin initialSnapshot={snapshot} />
     </>

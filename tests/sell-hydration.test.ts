@@ -28,8 +28,8 @@ describe("Sell module hydration safety", () => {
     expect(source).not.toMatch(/useRef\(crypto\.randomUUID\(\)\)/);
   });
 
-  it("keeps ListingForm free of browser APIs during render", () => {
-    const source = readSource("features/sell/components/ListingForm.tsx");
+  it("keeps SellTitleBlock free of browser APIs during render", () => {
+    const source = readSource("features/sell/ui/SellTitleBlock.tsx");
     expect(source).not.toContain("window.");
     expect(source).not.toContain("document.");
     expect(source).not.toContain("localStorage");
@@ -69,7 +69,7 @@ describe("Sell module hydration safety", () => {
   });
 
   it("uses deterministic server/client snapshots for publish button state", () => {
-    const source = readSource("features/sell/components/StickyPublishButton.tsx");
+    const source = readSource("features/sell/ui/SellPublishBar.tsx");
     expect(source).toContain("useSyncExternalStore");
     expect(source).toContain("getPendingTextSnapshot");
   });

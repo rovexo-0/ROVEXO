@@ -51,7 +51,7 @@ describe("payments engine", () => {
       product: { title: "Test Item" },
       buyer: { name: "Buyer" },
       seller: { name: "Seller" },
-      totals: { itemPrice: 100, protectedFee: 5, delivery: 10, total: 115 },
+      totals: { itemPrice: 100, platformFee: 5, delivery: 10, total: 115 },
       createdAt: "2026-06-01T00:00:00Z",
       paidAt: "2026-06-01T01:00:00Z",
     } as Order;
@@ -59,7 +59,7 @@ describe("payments engine", () => {
     const summary = mapOrderToPaymentSummary(order);
     expect(summary.grandTotal).toBe(115);
     expect(summary.status).toBe("protected");
-    expect(summary.platformFee).toBe(5);
+    expect(summary.platformFee).toBe(5.5);
   });
 
   it("builds payment timeline from order status", () => {
@@ -78,12 +78,12 @@ describe("payments engine", () => {
       {
         id: "1",
         status: "completed",
-        totals: { itemPrice: 100, protectedFee: 5, delivery: 0, total: 105 },
+        totals: { itemPrice: 100, platformFee: 5, delivery: 0, total: 105 },
       },
       {
         id: "2",
         status: "awaiting_payment",
-        totals: { itemPrice: 50, protectedFee: 0, delivery: 0, total: 50 },
+        totals: { itemPrice: 50, platformFee: 0, delivery: 0, total: 50 },
       },
     ] as Order[];
 

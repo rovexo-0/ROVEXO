@@ -1,0 +1,16 @@
+{
+  "account": {
+    "menuRows": 0,
+    "rowsWithoutTrailingSlot": true,
+    "hasProfile": false,
+    "rowHeightPx": 0,
+    "iconSizePx": 0,
+    "menuTitleFontPx": 0,
+    "overflowPx": 0
+  },
+  "cart": {
+    "hasCheckout": false,
+    "overflowPx": 0
+  },
+  "authGated": true
+}

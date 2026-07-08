@@ -23,7 +23,7 @@ const USER_MESSAGES: Partial<Record<ModerationCategory, string>> = {
   scam: "This content may be a scam attempt. Keep payments and communication on ROVEXO.",
   duplicate: "This looks similar to another listing you already have. Duplicate listings are not allowed.",
   off_platform_payment: "Payments must stay on ROVEXO checkout to protect buyers and sellers.",
-  contact_info: "Sharing phone numbers, emails, or external contact details reduces buyer protection.",
+  contact_info: "Sharing phone numbers, emails, or external contact details reduces purchase protection.",
   external_links: "External links to complete payment or contact outside ROVEXO are not allowed.",
   whatsapp: "Please keep communication on ROVEXO Messages instead of WhatsApp.",
   telegram: "Please keep communication on ROVEXO Messages instead of Telegram.",

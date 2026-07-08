@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { SellPage } from "@/features/sell/components/SellPage";
+import { SellScreen } from "@/features/sell/ui/SellScreen";
 import { requireAuthContext } from "@/lib/auth/session";
 import { sellerListingToDraft } from "@/lib/listings/draft-mapper";
 import { getSellerListingById } from "@/lib/listings/repository";
@@ -26,7 +26,7 @@ export default async function EditListingRoute({ params }: EditListingRouteProps
   const initialDraft = await sellerListingToDraft(listing);
 
   return (
-    <SellPage
+    <SellScreen
       editListingId={listing.id}
       initialDraft={initialDraft}
     />

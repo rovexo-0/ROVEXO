@@ -224,7 +224,7 @@
   text-transform: uppercase;
 }
 
-.as-severity-pill--info { background: color-mix(in srgb, #3b82f6 15%, transparent); color: #2563eb; }
+.as-severity-pill--info { background: color-mix(in srgb, #a855f7 15%, transparent); color: var(--ds-color-primary); }
 .as-severity-pill--success { background: color-mix(in srgb, #22c55e 15%, transparent); color: #16a34a; }
 .as-severity-pill--warning { background: color-mix(in srgb, #eab308 15%, transparent); color: #ca8a04; }
 .as-severity-pill--high { background: color-mix(in srgb, #f97316 15%, transparent); color: #ea580c; }

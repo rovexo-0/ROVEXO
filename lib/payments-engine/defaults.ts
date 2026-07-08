@@ -4,7 +4,7 @@ import {
   PAYMENTS_ENGINE_PAYOUT_METHODS,
   PAYMENTS_ENGINE_PROVIDERS,
 } from "@/lib/payments-engine/registry";
-import { PLATFORM_FEE_RATE } from "@/lib/wallet/sales";
+import { PLATFORM_FEE_RATE } from "@/lib/orders/pricing";
 import type { PaymentsEngineDocument, PaymentsEngineHistoryEntry } from "@/lib/payments-engine/types";
 
 const now = () => new Date().toISOString();

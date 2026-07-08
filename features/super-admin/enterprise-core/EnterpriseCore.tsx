@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import Link from "next/link";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { ENTERPRISE_CORE_SEARCH_CATEGORIES } from "@/lib/enterprise-core/registry";
@@ -169,7 +170,7 @@ function RegistryPanel({ modules }: { modules: EnterpriseCoreSnapshot["registry"
       {modules.map((module) => (
         <div key={module.id} className="ec-card">
           <div className="ec-card__head">
-            <span className="ec-card__icon">{module.icon}</span>
+            <span className="ec-card__icon"><ModuleIcon href={module.href} id={module.id} /></span>
             <div>
               <p className="font-semibold">{module.label}</p>
               <p className="text-xs text-text-muted">v{module.version} · {module.category}</p>

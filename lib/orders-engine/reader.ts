@@ -49,7 +49,7 @@ export function mapOrderToSummary(order: Order, currency = "GBP"): OrdersEngineO
     currency,
     createdAt: order.createdAt,
     trackingNumber: order.trackingNumber,
-    protectionStatus: mapProtectionStatus(order.status, order.totals.protectedFee),
+    protectionStatus: mapProtectionStatus(order.status, order.totals.platformFee),
     walletStatus: mapWalletStatus(order.status),
     filterTags: mapOrderStatusToFilters(order.status),
   };

@@ -5,7 +5,7 @@
 .ai-ops-hero {
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--ds-glass-bg, #fff) 92%, rgb(37 99 235 / 8%)),
+    color-mix(in srgb, var(--ds-glass-bg, #fff) 92%, rgb(147 51 234 / 8%)),
     color-mix(in srgb, var(--ds-glass-bg, #fff) 88%, rgb(59 130 246 / 6%))
   );
   box-shadow: var(--ds-depth-3, 0 20px 50px rgb(15 23 42 / 10%));
@@ -20,7 +20,7 @@
   position: absolute;
   inset: -12px -8px auto;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgb(37 99 235 / 20%), transparent);
+  background: linear-gradient(90deg, transparent, rgb(147 51 234 / 20%), transparent);
   pointer-events: none;
 }
 
@@ -33,7 +33,7 @@
 .ai-ops-assistant {
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--ds-glass-bg, #fff) 95%, rgb(37 99 235 / 6%)),
+    color-mix(in srgb, var(--ds-glass-bg, #fff) 95%, rgb(147 51 234 / 6%)),
     var(--ds-glass-bg, #fff)
   );
 }
@@ -52,7 +52,7 @@
 [data-theme="dark"] .ai-ops-hero {
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--ds-glass-bg, #0f172a) 92%, rgb(37 99 235 / 12%)),
+    color-mix(in srgb, var(--ds-glass-bg, #0f172a) 92%, rgb(147 51 234 / 12%)),
     color-mix(in srgb, var(--ds-glass-bg, #0f172a) 88%, rgb(30 64 175 / 10%))
   );
 }

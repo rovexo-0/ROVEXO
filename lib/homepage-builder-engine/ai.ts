@@ -53,7 +53,7 @@ export function suggestSectionsForGoal(goal: "conversion" | "seo" | "engagement"
 export function generateBannerContent(prompt: string): { title: string; subtitle: string; cta: string } {
   return {
     title: prompt.slice(0, 60) || "Discover Premium Marketplace Deals",
-    subtitle: "Curated listings, trusted sellers, and enterprise-grade buyer protection.",
+    subtitle: "Curated listings, trusted sellers, and enterprise-grade purchase protection.",
     cta: "Shop Now",
   };
 }

@@ -75,7 +75,7 @@ export function ProtectionEngineAdmin({ initialSnapshot }: ProtectionEngineAdmin
   return (
     <EnterpriseEngineAdminShell
       moduleId="protection-engine"
-      eyebrow="Buyer Protection Engine"
+      eyebrow="Purchase Protection Engine"
       subtitle={`Enterprise trust & dispute system · ${draft.marketplaceVersion} · ${draft.primaryCountry} · ${draft.currency}`}
       tabs={TABS}
       activeTab={activeTab}

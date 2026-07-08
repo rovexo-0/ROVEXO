@@ -8,7 +8,7 @@ export default async function SuperAdminProtectionEnginePage() {
   return (
     <>
       <SuperAdminPageHeader
-        title="Buyer Protection Engine"
+        title="Purchase Protection Engine"
         description="Enterprise trust and dispute system — cases, evidence, resolutions, abuse detection, and integrations."
       />
       <ProtectionEngineAdmin initialSnapshot={snapshot} />
@@ -18,7 +18,7 @@ export default async function SuperAdminProtectionEnginePage() {
 
 export async function generateMetadata() {
   return {
-    title: "Buyer Protection Engine | ROVEXO",
+    title: "Purchase Protection Engine | ROVEXO",
     robots: { index: false, follow: false },
   };
 }

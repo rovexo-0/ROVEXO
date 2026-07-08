@@ -27,12 +27,12 @@ export const HELP_CONTENT_REQUIREMENTS: HelpContentRequirement[] = [
   },
   {
     featureId: "buyer-protection",
-    featureName: "Buyer Protection",
+    featureName: "Purchase Protection",
     requiredTopicSlug: "buyer",
     requiredArticleSlug: "buying-buyer-protection",
     requiredTree: true,
     requiredFaq: true,
-    requiredKeywords: ["buyer protection", "refund", "dispute"],
+    requiredKeywords: ["purchase protection", "refund", "dispute"],
     requiredPolicyHref: "/help/buying-buyer-protection",
   },
   {

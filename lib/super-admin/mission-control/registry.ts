@@ -14,7 +14,7 @@ export const MISSION_CONTROL_MODULES: MissionControlModule[] = [
   { id: "shipping", label: "Shipping Engine", description: "Logistics foundation", href: "/super-admin/shipping-engine", icon: "🚚", category: "commerce" },
   { id: "payments", label: "Payments", description: "Transactions & Stripe", href: "/super-admin/payments", icon: "💳", category: "commerce" },
   { id: "payments-engine", label: "Payments Engine", description: "Payment orchestration", href: "/super-admin/payments-engine", icon: "💳", category: "commerce" },
-  { id: "protection-engine", label: "Buyer Protection Engine", description: "Trust and dispute system", href: "/super-admin/protection-engine", icon: "🛡️", category: "commerce" },
+  { id: "protection-engine", label: "Purchase Protection Engine", description: "Trust and dispute system", href: "/super-admin/protection-engine", icon: "🛡️", category: "commerce" },
   { id: "messages-engine", label: "Messages Engine", description: "Enterprise communication system", href: "/super-admin/messages-engine", icon: "💬", category: "people" },
   { id: "notifications-engine", label: "Notifications Engine", description: "Real-time event delivery platform", href: "/super-admin/notifications-engine", icon: "🔔", category: "platform" },
   { id: "analytics-engine", label: "Analytics Engine", description: "Enterprise business intelligence", href: "/super-admin/analytics-engine", icon: "📊", category: "insights" },

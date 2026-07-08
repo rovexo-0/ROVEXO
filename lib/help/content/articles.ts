@@ -7,7 +7,7 @@ import {
 
 export const HELP_CATEGORIES: Array<{ id: HelpCategory; label: string; description: string }> = [
   { id: "account", label: "Account", description: "Sign in, security, and profile settings" },
-  { id: "buying", label: "Buying", description: "Browse, purchase, and buyer protection" },
+  { id: "buying", label: "Buying", description: "Browse, purchase, and purchase protection" },
   { id: "selling", label: "Selling", description: "List items and manage inventory" },
   { id: "payments", label: "Payments", description: "Checkout, payouts, and refunds" },
   { id: "delivery", label: "Delivery", description: "Shipping, tracking, and delivery options" },
@@ -72,7 +72,7 @@ If you do not receive the email within a few minutes, check spam folders or cont
 ## Checkout
 - Tap **Buy now** on the listing page.
 - Choose delivery and complete payment securely through ROVEXO checkout.
-- Keep all communication on ROVEXO Messages for buyer protection.
+- Keep all communication on ROVEXO Messages for purchase protection.
 
 ## After purchase
 - Track your order from **Orders** in your profile.
@@ -80,13 +80,13 @@ If you do not receive the email within a few minutes, check spam folders or cont
   },
   {
     slug: "buying-buyer-protection",
-    title: "Buyer protection on ROVEXO",
+    title: "Purchase protection on ROVEXO",
     category: "buying",
     summary: "How ROVEXO protects your purchase.",
     keywords: ["protection", "refund", "dispute", "safe"],
-    content: `# Buyer protection
+    content: `# Purchase protection
 
-ROVEXO checkout includes buyer protection on eligible purchases.
+ROVEXO checkout includes purchase protection on eligible purchases.
 
 ## Covered issues
 - Item not received
@@ -160,7 +160,7 @@ Listings with clear photos sell faster and receive fewer disputes.`,
 - Sellers may cancel if an item is unavailable; buyers receive a full refund.
 
 ## After delivery
-- Refunds depend on the issue and buyer protection eligibility.
+- Refunds depend on the issue and purchase protection eligibility.
 - Submit a support request with photos and your order number.
 
 Refunds return to the original payment method when approved.`,

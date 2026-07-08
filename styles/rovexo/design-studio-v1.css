@@ -102,7 +102,7 @@
   margin-top: auto;
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #2563eb;
+  color: var(--ds-color-primary);
   text-decoration: none;
 }
 
@@ -471,7 +471,7 @@
 
 .ds1-finding--info {
   border-color: #bfdbfe;
-  background: #eff6ff;
+  background: rgb(147 51 234 / 0.08);
 }
 
 .ds1-search-bar {

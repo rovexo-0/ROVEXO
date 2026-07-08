@@ -9,6 +9,62 @@ import {
   fetchCommandCenterProductionSections,
 } from "@/lib/super-admin/command-center-v1/production-data";
 import { buildNocCriticalAlerts, buildNocHealthScores } from "@/lib/super-admin/noc-v1";
+import { buildCommandCenterV2Extensions } from "@/lib/super-admin/command-center-v2/build-v2-extensions";
+import { fetchCategoryPerformance, countReviews } from "@/lib/super-admin/command-center-v1/queries";
+import { isParcel2GoConfigured } from "@/src/services/shipping/env";
+import { parcel2GoProvider } from "@/src/services/shipping/parcel2go/provider";
+import { getAuthContext } from "@/lib/auth/session";
+import type { CommandCenterAdminIdentity } from "@/lib/super-admin/command-center-v1/types";
+
+const ROLE_LABELS: Record<string, string> = {
+  super_admin: "Super Admin",
+  admin: "Administrator",
+  business: "Business",
+  seller: "Seller",
+  buyer: "Buyer",
+};
+
+function toInitials(name: string, email: string): string {
+  const source = name.trim() || email.trim();
+  const parts = source.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return source.slice(0, 2).toUpperCase();
+}
+
+async function resolveAdminIdentity(): Promise<CommandCenterAdminIdentity> {
+  const fallback: CommandCenterAdminIdentity = {
+    name: "Super Admin",
+    email: "",
+    initials: "SA",
+    roleLabel: "Super Admin",
+    avatarUrl: null,
+  };
+
+  try {
+    const context = await getAuthContext();
+    if (!context) return fallback;
+
+    const { data: profile } = await context.supabase
+      .from("profiles")
+      .select("full_name, email, avatar_url, role")
+      .eq("id", context.user.id)
+      .maybeSingle();
+
+    const email = profile?.email ?? context.user.email ?? "";
+    const name = profile?.full_name?.trim() || email || "Super Admin";
+    const role = (profile?.role ?? context.role ?? "super_admin") as string;
+
+    return {
+      name,
+      email,
+      initials: toInitials(name, email),
+      roleLabel: ROLE_LABELS[role] ?? "Administrator",
+      avatarUrl: profile?.avatar_url ?? null,
+    };
+  } catch {
+    return fallback;
+  }
+}
 import type {
   CommandCenterActivityEvent,
   CommandCenterCountryMarker,
@@ -112,11 +168,16 @@ function buildNotifications(input: {
 export async function getCommandCenterV1Snapshot(): Promise<CommandCenterV1Snapshot> {
   const dashboard = await getSuperAdminDashboardData();
 
-  const [auditLogs, liveAnalytics, productionData, charts] = await Promise.all([
+  const [auditLogs, liveAnalytics, productionData, charts, categories, parcel2GoHealth, reviewCount, admin] =
+    await Promise.all([
     listAuditTimeline(20),
     getLiveAnalyticsCenterSnapshot().catch(() => null),
     fetchCommandCenterProductionSections(dashboard),
     fetchCommandCenterProductionCharts(dashboard),
+    fetchCategoryPerformance(8),
+    isParcel2GoConfigured() ? parcel2GoProvider.healthCheck().catch(() => null) : Promise.resolve(null),
+    countReviews(),
+    resolveAdminIdentity(),
   ]);
   const sections = buildCommandCenterSections(productionData.sections);
   const generatedAt = new Date().toISOString();
@@ -170,6 +231,18 @@ export async function getCommandCenterV1Snapshot(): Promise<CommandCenterV1Snaps
     percentage: country.percentage,
   }));
 
+  const v2 = buildCommandCenterV2Extensions({
+    dashboard,
+    sections: productionData.sections,
+    charts,
+    liveAnalytics,
+    categories,
+    parcel2GoHealth,
+    shippoHealth: productionData.shippoHealth,
+    totalReviews: reviewCount,
+    admin,
+  });
+
   return {
     generatedAt,
     platformStatus: dashboard.operations.health.status,
@@ -196,5 +269,6 @@ export async function getCommandCenterV1Snapshot(): Promise<CommandCenterV1Snaps
       platformStatus: dashboard.operations.health.status,
     }),
     quickActions: [...COMMAND_CENTER_QUICK_ACTIONS],
+    v2,
   };
 }

@@ -6,7 +6,7 @@ export type TopicSeed = Pick<HelpTopic, "slug" | "label" | "description" | "icon
 export const TOPIC_SEEDS: TopicSeed[] = [
   { slug: "account", label: "Account", description: "Profile, settings, and account access", icon: "👤", group: "Account & Security", keywords: ["account", "profile", "settings"] },
   { slug: "authentication", label: "Authentication", description: "Sign in, passwords, and verification codes", icon: "🔐", group: "Account & Security", keywords: ["login", "password", "sign in"] },
-  { slug: "buyer", label: "Buyer", description: "Buying, checkout, and buyer protection", icon: "🛒", group: "Marketplace", keywords: ["buy", "purchase", "checkout"] },
+  { slug: "buyer", label: "Buyer", description: "Buying, checkout, and purchase protection", icon: "🛒", group: "Marketplace", keywords: ["buy", "purchase", "checkout"] },
   { slug: "seller", label: "Seller", description: "Selling, listings, and seller tools", icon: "🏷️", group: "Marketplace", keywords: ["sell", "listing", "seller"] },
   { slug: "business-accounts", label: "Business Accounts", description: "Business selling and company profiles", icon: "🏢", group: "Business", keywords: ["business", "company", "vat"] },
   { slug: "wholesale", label: "Wholesale", description: "Bulk orders, MOQ, and B2B trade", icon: "📦", group: "Business", keywords: ["wholesale", "bulk", "moq", "rfq"] },
@@ -23,7 +23,7 @@ export const TOPIC_SEEDS: TopicSeed[] = [
   { slug: "reports", label: "Reports & Appeals", description: "Report content, scams, and appeals", icon: "🚩", group: "Trust & Safety", keywords: ["report", "appeal", "scam"] },
   { slug: "shipping", label: "Shipping", description: "Shipping methods and delivery help", icon: "🚚", group: "Marketplace", keywords: ["shipping", "delivery", "postage"] },
   { slug: "returns", label: "Returns", description: "Return requests and seller returns", icon: "↩️", group: "Marketplace", keywords: ["return", "send back"] },
-  { slug: "refunds", label: "Refunds", description: "Refund requests and buyer protection", icon: "💸", group: "Marketplace", keywords: ["refund", "money back"] },
+  { slug: "refunds", label: "Refunds", description: "Refund requests and purchase protection", icon: "💸", group: "Marketplace", keywords: ["refund", "money back"] },
   { slug: "subscriptions", label: "Subscriptions", description: "Seller and business subscription plans", icon: "🔄", group: "Monetization", keywords: ["subscription", "plan", "premium"] },
   { slug: "promoted-listings", label: "Promoted Listings", description: "Promote listings for more visibility", icon: "📣", group: "Monetization", keywords: ["promoted", "advertise"] },
   { slug: "featured-listings", label: "Featured Listings", description: "Featured placement on ROVEXO", icon: "✨", group: "Monetization", keywords: ["featured", "highlight"] },

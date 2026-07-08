@@ -3,7 +3,7 @@ import { FINANCIAL_METRICS } from "@/lib/enterprise-business-intelligence/regist
 
 const LABELS: Record<FinancialMetric, string> = {
   revenue: "Total Revenue",
-  "buyer-protection-fees": "Buyer Protection Fees",
+  "buyer-protection-fees": "Platform Fees",
   subscriptions: "Subscriptions",
   advertising: "Advertising",
   "featured-listings": "Featured Listings",

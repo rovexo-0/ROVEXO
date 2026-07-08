@@ -12,7 +12,7 @@ export const SECURITY_ENGINE_MODULES: SecurityEngineModule[] = [
   { id: "orders", label: "Orders Integration", icon: "📦", description: "Order security events", href: "/orders" },
   { id: "payments", label: "Payments Integration", icon: "💳", description: "Payment fraud monitoring", href: "/payments" },
   { id: "wallet", label: "Wallet Integration", icon: "👛", description: "Withdrawal security", href: "/wallet" },
-  { id: "protection", label: "Buyer Protection Integration", icon: "🛡️", description: "Dispute and case security", href: "/protection" },
+  { id: "protection", label: "Purchase Protection Integration", icon: "🛡️", description: "Dispute and case security", href: "/protection" },
   { id: "messages", label: "Messages Integration", icon: "💬", description: "Conversation moderation", href: "/messages" },
   { id: "notifications", label: "Notifications Integration", icon: "🔔", description: "Security alerts delivery", href: "/notifications" },
   { id: "analytics", label: "Analytics Integration", icon: "📈", description: "Security metrics and reporting", href: "/analytics" },

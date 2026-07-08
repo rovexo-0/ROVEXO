@@ -75,8 +75,8 @@ export const HOMEPAGE_PRODUCTION_GATES = [
 ] as const;
 
 export const PREMIUM_HOME_STACK = [
-  "RovexoCategoryRail",
-  "RovexoAllListings",
+  "RovexoHeaderV2",
+  "CanonicalHomepage",
 ] as const;
 
 export const LEGACY_HOME_IMPORTS = [
@@ -97,9 +97,9 @@ export const LEGACY_HOME_IMPORTS = [
 
 export const HOMEPAGE_SOURCE_FILES = {
   page: "app/page.tsx",
-  homeContent: "components/home/RovexoHomePage.tsx",
-  categoryRail: "components/home/RovexoCategoryRail.tsx",
-  header: "components/Header.tsx",
+  homeContent: "components/homepage/canonical/CanonicalHomepage.tsx",
+  categoryRail: "components/homepage/canonical/CanonicalCategoryRail.tsx",
+  header: "components/header/RovexoHeaderV2.tsx",
   betaShell: "components/beta/BetaAppShell.tsx",
   categoryGrid: "components/home/CategoryGridSection.tsx",
 } as const;

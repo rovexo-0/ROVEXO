@@ -1,3 +1,4 @@
+import type { ParcelSize } from "@/features/sell/types";
 import type { ProductStatus } from "@/lib/supabase/types/database";
 
 export type ListingFilter =
@@ -7,7 +8,9 @@ export type ListingFilter =
   | "sold"
   | "out_of_stock"
   | "low_stock"
-  | "published";
+  | "published"
+  | "pending"
+  | "expired";
 
 export type ListingImageInput = {
   url: string;
@@ -38,6 +41,9 @@ export type SellerListing = {
   price: number;
   acceptOffers: boolean;
   status: ProductStatus;
+  moderationStatus: string | null;
+  listingType: string;
+  auctionEndsAt: string | null;
   stock: number;
   shippingMethod: import("@/lib/shipping/carriers").ShippingMethod | null;
   shippingPrice: number | null;
@@ -62,6 +68,8 @@ export type SellerListing = {
   isFeatured: boolean;
   bumpRemainingLabel: string | null;
   featureRemainingLabel: string | null;
+  /** Server-computed so client tabs/labels never call Date.now() during render. */
+  isAuctionExpired: boolean;
 };
 
 export type CreateListingInput = {
@@ -80,7 +88,7 @@ export type CreateListingInput = {
   shippingPrice?: number | null;
   categoryId?: string | null;
   deliveryCarriers?: string[];
-  parcelSize?: "small" | "medium" | "large" | "xl" | null;
+  parcelSize?: ParcelSize | null;
   status?: ProductStatus;
   listingType?: "fixed" | "auction";
   auctionStartPrice?: number;
@@ -117,6 +125,27 @@ export type SearchListingsOptions = {
   sort?: "newest" | "price_asc" | "price_desc";
   page?: number;
   pageSize?: number;
+  /** Exclude a specific listing by slug (used by Similar Items). */
+  excludeSlug?: string;
+};
+
+/**
+ * Surfaces that render the public marketplace. Every one of these MUST resolve
+ * its listings through the canonical `getEligibleListings()` so visibility rules
+ * never diverge between pages.
+ */
+export type EligibleListingsSurface =
+  | "homepage"
+  | "search"
+  | "category"
+  | "seller"
+  | "similar"
+  | "recommended"
+  | "featured"
+  | "recent";
+
+export type EligibleListingsOptions = SearchListingsOptions & {
+  surface?: EligibleListingsSurface;
 };
 
 export type SearchListingsResult = {

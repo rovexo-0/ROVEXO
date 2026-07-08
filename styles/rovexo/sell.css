@@ -1,23 +1,24 @@
 /* ROVEXO v1.0 — Sell flow premium presentation */
 
 .sell-page-v1 {
-  background: #ffffff;
+  background: var(--ds-color-background);
 }
 
 .sell-page-v1 .rx-form-section {
   padding: var(--ds-space-5);
   border-radius: var(--ds-radius-xl);
-  border: 1px solid #eeeeee;
-  background: #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
+  box-shadow: var(--ds-shadow-soft);
 }
 
 .sell-page-v1 .rx-input {
   min-height: 48px;
   border-radius: var(--ds-radius-md);
   font-size: var(--ds-font-body-size);
-  background: #f8fafc;
-  border: 1px solid #eeeeee;
+  background: var(--ds-color-surface-muted);
+  border: 1px solid var(--ds-color-border);
+  color: var(--ds-color-text-primary);
 }
 
 .sell-page-v1 .rx-input:focus {
@@ -27,8 +28,8 @@
 .sell-page-v1 .rx-upload {
   min-height: 120px;
   border-radius: var(--ds-radius-xl);
-  border: 2px dashed #d1d5db;
-  background: #fafafa;
+  border: 2px dashed var(--ds-color-border-strong);
+  background: var(--ds-color-surface-muted);
   color: var(--ds-color-text-primary);
   transition:
     border-color var(--ds-duration-fast) var(--ds-ease),
@@ -37,17 +38,17 @@
 }
 
 .sell-page-v1 .rx-upload:hover {
-  border-color: color-mix(in srgb, var(--ds-color-primary) 40%, #d1d5db);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  border-color: color-mix(in srgb, var(--ds-color-primary) 40%, var(--ds-color-border-strong));
+  box-shadow: var(--ds-shadow-soft);
   transform: translateY(-1px);
 }
 
 .sell-page-v1 .rx-footer-bar {
   border-radius: var(--ds-radius-xl) var(--ds-radius-xl) 0 0;
-  border: 1px solid #eeeeee;
+  border: 1px solid var(--ds-color-border);
   border-bottom: none;
-  background: #ffffff;
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+  background: var(--ds-color-surface);
+  box-shadow: var(--ds-shadow-medium);
 }
 
 .sell-page-v1 .rx-footer-bar--sticky {
@@ -67,13 +68,13 @@
 .sell-page-v1 .sell-condition-chip {
   min-height: 44px;
   border-radius: var(--ds-radius-full);
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
   padding: 0 var(--ds-space-4);
   font-size: var(--ds-font-caption-size);
   font-weight: 650;
   color: var(--ds-color-text-secondary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--ds-shadow-soft);
   transition:
     border-color var(--ds-duration-fast) var(--ds-ease),
     color var(--ds-duration-fast) var(--ds-ease),
@@ -129,4 +130,46 @@
 
 .sell-page-v1 .rx-upload:hover {
   transform: none;
+}
+
+/* ── Success screen (Your item is live!) ───────────────────────────── */
+.sell-page-v1 .sell-success {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ds-space-6) var(--ds-space-5)
+    max(env(safe-area-inset-bottom), var(--ds-space-6));
+  padding-top: max(env(safe-area-inset-top), var(--ds-space-6));
+  overflow: hidden;
+  text-align: center;
+  background:
+    radial-gradient(
+      120% 90% at 50% 0%,
+      color-mix(in srgb, var(--ds-color-primary) 82%, #ffffff) 0%,
+      var(--ds-color-primary) 45%,
+      color-mix(in srgb, var(--ds-color-primary) 78%, #1a052e) 100%
+    );
+}
+
+.sell-page-v1 .sell-success__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sell-page-v1 .sell-success__check {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: var(--ds-radius-full);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  color: #ffffff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
 }

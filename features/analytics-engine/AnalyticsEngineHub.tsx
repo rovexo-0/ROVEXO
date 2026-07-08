@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { cn } from "@/lib/cn";
@@ -68,7 +69,7 @@ export function AnalyticsEngineHub({ config, context, modules, analytics }: Anal
               <MetricCard label="Gross revenue" value={formatCurrency(context.financial.grossRevenue)} />
               <MetricCard label="Net revenue" value={formatCurrency(context.financial.netRevenue)} />
               <MetricCard label="Platform fees" value={formatCurrency(context.financial.platformFees)} />
-              <MetricCard label="Protection revenue" value={formatCurrency(context.financial.buyerProtectionRevenue)} />
+              <MetricCard label="Platform fees" value={formatCurrency(context.financial.buyerProtectionRevenue)} />
               <MetricCard label="Refunds" value={formatCurrency(context.financial.refunds)} />
               <MetricCard label="Withdrawals" value={formatCurrency(context.financial.withdrawals)} />
               <MetricCard label="Seller earnings" value={formatCurrency(context.financial.sellerEarnings)} />
@@ -114,7 +115,7 @@ export function AnalyticsEngineHub({ config, context, modules, analytics }: Anal
             <div className="ae-module-grid">
               {modules.map((module) => (
                 <Link key={module.id} href={module.href} className="ae-module-card">
-                  <span>{module.icon}</span>
+                  <ModuleIcon href={module.href} id={module.id} />
                   <div>
                     <p className="font-semibold">{module.label}</p>
                     <p className="text-xs text-text-secondary">{module.description}</p>
@@ -168,7 +169,7 @@ export function AnalyticsEngineHub({ config, context, modules, analytics }: Anal
               <div className="ae-module-grid">
                 {modules.slice(2, 10).map((module) => (
                   <Link key={module.id} href={module.href} className="ae-module-card">
-                    <span>{module.icon}</span>
+                    <ModuleIcon href={module.href} id={module.id} />
                     <span className="font-semibold">{module.label}</span>
                   </Link>
                 ))}

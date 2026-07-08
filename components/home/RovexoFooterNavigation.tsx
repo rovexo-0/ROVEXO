@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { usePathname } from "next/navigation";
 import { type MouseEvent, useEffect, useState } from "react";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { useRovexoMobileHeaderScrollContext } from "@/components/home/RovexoMobileHeaderScrollContext";
 import { RovexoIcons } from "@/lib/icons";
+import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { resolveBottomNavGlassIcon } from "@/lib/icons/resolve";
 import { cn } from "@/lib/cn";
 import { useSearchOverlayOptional } from "@/features/search/client";
@@ -87,15 +88,18 @@ function AccountNavAvatar({ isActive }: { isActive: boolean }) {
   }, []);
 
   if (avatarUrl) {
-    return (
-      <Image
-        src={avatarUrl}
-        alt={name}
-        width={28}
-        height={28}
-        className={cn("home-v1-bottom-nav__avatar", isActive && "ring-2 ring-primary")}
-      />
-    );
+    const imageSrc = normalizeAvatarUrl(avatarUrl);
+    if (imageSrc) {
+      return (
+        <SafeImage
+          src={imageSrc}
+          alt={name}
+          width={28}
+          height={28}
+          className={cn("home-v1-bottom-nav__avatar", isActive && "ring-2 ring-primary")}
+        />
+      );
+    }
   }
 
   const initials = name

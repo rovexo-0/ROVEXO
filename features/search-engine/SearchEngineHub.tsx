@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { cn } from "@/lib/cn";
@@ -139,7 +140,7 @@ export function SearchEngineHub({ config, context, modules, analytics, landing }
             <div className="srch-module-grid">
               {modules.map((module) => (
                 <Link key={module.id} href={module.href} className="srch-module-card">
-                  <span>{module.icon}</span>
+                  <ModuleIcon href={module.href} id={module.id} />
                   <div>
                     <p className="font-semibold">{module.label}</p>
                     <p className="text-xs text-text-secondary">{module.description}</p>

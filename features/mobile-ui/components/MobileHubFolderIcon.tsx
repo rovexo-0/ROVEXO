@@ -12,7 +12,7 @@ type MobileHubFolderIconProps = {
 };
 
 const HUB_ACCENTS: Record<MobilePrimaryHubId, { from: string; to: string }> = {
-  buy: { from: "#60a5fa", to: "#1d4ed8" },
+  buy: { from: "#60a5fa", to: "var(--ds-color-accent)" },
   sell: { from: "#34d399", to: "#047857" },
   business: { from: "#a78bfa", to: "#5b21b6" },
   support: { from: "#fbbf24", to: "#b45309" },

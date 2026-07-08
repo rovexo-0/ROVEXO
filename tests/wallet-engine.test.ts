@@ -20,8 +20,8 @@ describe("wallet engine", () => {
     expect(doc.walletTypes.some((t) => t.id === "seller" && t.enabled)).toBe(true);
     expect(doc.integrations.ordersEngine).toBe(true);
     expect(doc.integrations.buyerProtection).toBe(true);
-    expect(doc.holdPeriodHours).toBe(36);
-    expect(doc.platformFeeRate).toBe(0.05);
+    expect(doc.holdPeriodHours).toBe(24);
+    expect(doc.platformFeeRate).toBe(0.055);
   });
 
   it("registers all core wallet modules", () => {

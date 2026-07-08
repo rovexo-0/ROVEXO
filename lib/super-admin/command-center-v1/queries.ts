@@ -84,7 +84,8 @@ export async function countTableRows(
     | "platform_analytics_events"
     | "protection_cases"
     | "cron_job_runs"
-    | "live_visitor_sessions",
+    | "live_visitor_sessions"
+    | "reviews",
   filters?: (query: ReturnType<ReturnType<typeof createAdminClient>["from"]>) => ReturnType<
     ReturnType<typeof createAdminClient>["from"]
   >,
@@ -424,4 +425,77 @@ export function bucketAnalyticsValuesByHour(
     rows.map((row) => ({ createdAt: row.recordedAt, value: row.value })),
     bucketCount,
   );
+}
+
+export type CategoryPerformanceRow = {
+  id: string;
+  name: string;
+  listings: number;
+  sold: number;
+  revenue: number;
+};
+
+export async function fetchCategoryPerformance(limit = 8): Promise<CategoryPerformanceRow[]> {
+  try {
+    const admin = createAdminClient();
+    const { data: categories } = await admin.from("categories").select("id, name").limit(500);
+    if (!categories?.length) return [];
+
+    const { data: products } = await admin
+      .from("products")
+      .select("category_id, status")
+      .not("category_id", "is", null)
+      .in("status", ["published", "sold", "paused"]);
+
+    const listingCounts = new Map<string, number>();
+    const soldCounts = new Map<string, number>();
+    for (const product of products ?? []) {
+      if (!product.category_id) continue;
+      listingCounts.set(product.category_id, (listingCounts.get(product.category_id) ?? 0) + 1);
+      if (product.status === "sold") {
+        soldCounts.set(product.category_id, (soldCounts.get(product.category_id) ?? 0) + 1);
+      }
+    }
+
+    const { data: items } = await admin
+      .from("order_items")
+      .select("product_id, price, quantity, orders!inner(status)")
+      .in("orders.status", ["completed", "awaiting_shipment", "shipped", "delivered"]);
+
+    const productIds = [...new Set((items ?? []).map((item) => item.product_id).filter(Boolean))] as string[];
+    const { data: productCategories } = productIds.length
+      ? await admin.from("products").select("id, category_id").in("id", productIds)
+      : { data: [] as Array<{ id: string; category_id: string | null }> };
+
+    const productCategoryMap = new Map(
+      (productCategories ?? []).map((product) => [product.id, product.category_id]),
+    );
+    const revenueByCategory = new Map<string, number>();
+
+    for (const item of items ?? []) {
+      if (!item.product_id) continue;
+      const categoryId = productCategoryMap.get(item.product_id);
+      if (!categoryId) continue;
+      const lineTotal = Number(item.price) * Number(item.quantity);
+      revenueByCategory.set(categoryId, (revenueByCategory.get(categoryId) ?? 0) + lineTotal);
+    }
+
+    return categories
+      .map((category) => ({
+        id: category.id,
+        name: category.name,
+        listings: listingCounts.get(category.id) ?? 0,
+        sold: soldCounts.get(category.id) ?? 0,
+        revenue: revenueByCategory.get(category.id) ?? 0,
+      }))
+      .filter((row) => row.listings > 0 || row.sold > 0 || row.revenue > 0)
+      .sort((a, b) => b.revenue - a.revenue || b.listings - a.listings)
+      .slice(0, limit);
+  } catch {
+    return [];
+  }
+}
+
+export async function countReviews(): Promise<number> {
+  return countTableRows("reviews");
 }

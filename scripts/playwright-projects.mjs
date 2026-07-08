@@ -79,8 +79,65 @@ export function buildAndroidSellProject() {
 }
 
 /**
- * All projects: installed desktop browsers + dedicated Android sell project.
+ * All projects: installed desktop browsers + mobile/tablet certification matrix.
  */
 export function buildAllProjects() {
-  return [...buildDesktopProjects(), buildAndroidSellProject()];
+  const desktop = buildDesktopProjects();
+
+  const mobileAndTablet = [];
+
+  if (isBrowserInstalled(chromium)) {
+    mobileAndTablet.push(
+      {
+        name: "edge-chromium",
+        testIgnore: /sell-android\.spec\.ts/,
+        use: { ...devices["Desktop Edge"] },
+      },
+      {
+        name: "iphone-safari",
+        testIgnore: /sell-android\.spec\.ts/,
+        use: { ...devices["iPhone 14"] },
+      },
+      {
+        name: "iphone-chrome",
+        testIgnore: /sell-android\.spec\.ts/,
+        use: {
+          ...devices["iPhone 14"],
+          userAgent:
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.6099.119 Mobile/15E148 Safari/604.1",
+        },
+      },
+      {
+        name: "samsung-internet",
+        testIgnore: /sell-android\.spec\.ts/,
+        use: {
+          ...devices["Galaxy S9+"],
+          userAgent:
+            "Mozilla/5.0 (Linux; Android 13; SAMSUNG SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.5790.166 Mobile Safari/537.36",
+        },
+      },
+      {
+        name: "tablet-ipad-portrait",
+        testIgnore: /sell-android\.spec\.ts/,
+        use: { ...devices["iPad Pro 11"] },
+      },
+      {
+        name: "tablet-ipad-landscape",
+        testIgnore: /sell-android\.spec\.ts/,
+        use: {
+          ...devices["iPad Pro 11 landscape"],
+        },
+      },
+      {
+        name: "desktop-wide",
+        testIgnore: /sell-android\.spec\.ts/,
+        use: {
+          viewport: { width: 1440, height: 900 },
+          userAgent: devices["Desktop Chrome"].userAgent,
+        },
+      },
+    );
+  }
+
+  return [...desktop, ...mobileAndTablet, buildAndroidSellProject()];
 }

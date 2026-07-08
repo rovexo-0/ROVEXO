@@ -1,10 +1,10 @@
-import type { PaymentMethodId } from "@/lib/checkout/payment";
-
 export type CheckoutView = "checkout" | "success";
 
+export type CheckoutStep = "delivery" | "payment" | "review";
+
 export type CheckoutDraft = {
-  deliveryOption: "standard" | "express";
-  paymentMethod: PaymentMethodId;
+  deliveryOption: string;
+  paymentMethod: import("@/lib/checkout/payment").PaymentMethodId;
   recipientName: string;
   addressLine: string;
   postcode: string;
@@ -15,10 +15,10 @@ export type CheckoutDraft = {
 
 export function createCheckoutDraft(
   address: Pick<CheckoutDraft, "recipientName" | "addressLine" | "postcode" | "country" | "addressId">,
-  paymentMethod: PaymentMethodId,
+  paymentMethod: CheckoutDraft["paymentMethod"],
 ): CheckoutDraft {
   return {
-    deliveryOption: "standard",
+    deliveryOption: "",
     paymentMethod,
     acceptedReturnPolicy: false,
     ...address,

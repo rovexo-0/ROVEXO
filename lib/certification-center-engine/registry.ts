@@ -14,7 +14,7 @@ export const CERTIFICATION_MODULES: { id: CertificationModuleId; label: string; 
   { id: "shipping-engine", label: "Shipping Engine", icon: "🚚", href: "/super-admin/shipping-engine" },
   { id: "wallet-engine", label: "Wallet Engine", icon: "💰", href: "/super-admin/wallet-engine" },
   { id: "payments-engine", label: "Payments Engine", icon: "💳", href: "/super-admin/payments-engine" },
-  { id: "protection-engine", label: "Buyer Protection Engine", icon: "🛡️", href: "/super-admin/protection-engine" },
+  { id: "protection-engine", label: "Purchase Protection Engine", icon: "🛡️", href: "/super-admin/protection-engine" },
   { id: "messages-engine", label: "Messages Engine", icon: "💬", href: "/super-admin/messages-engine" },
   { id: "notifications-engine", label: "Notifications Engine", icon: "🔔", href: "/super-admin/notifications-engine" },
   { id: "analytics-engine", label: "Analytics Engine", icon: "📊", href: "/super-admin/analytics-engine" },

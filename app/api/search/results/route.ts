@@ -1,6 +1,6 @@
 import { filtersToSearchOptions, parseSearchFilters } from "@/features/search/utils/filters";
 import { jsonWithCache } from "@/lib/api/cache-headers";
-import { searchListings } from "@/lib/listings/repository";
+import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 
 export async function GET(request: Request) {
@@ -13,6 +13,6 @@ export async function GET(request: Request) {
   const filters = parseSearchFilters(searchParams);
   const options = filtersToSearchOptions(filters, query, Number.isFinite(page) ? page : 1);
 
-  const results = await searchListings(options);
+  const results = await getEligibleListings({ surface: "search", ...options });
   return jsonWithCache(results, "public-short");
 }

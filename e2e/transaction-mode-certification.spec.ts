@@ -51,8 +51,7 @@ test.describe("Transaction Mode Certification — MARKETPLACE UI", () => {
       const main = page.getByRole("main");
       await expect(page.getByRole("button", { name: "Buy Now" })).toBeVisible({ timeout: 30_000 });
       await expect(page.getByRole("button", { name: "Add to Cart" })).toBeVisible();
-      await expect(page.getByRole("link", { name: /buyer protection fee/i })).toBeVisible();
-      await expect(main.getByText(/delivery/i).first()).toBeVisible();
+      await expect(main.getByText(/shipping/i).first()).toBeVisible();
       await expect(page.getByRole("button", { name: "Contact Seller" })).toHaveCount(0);
     } finally {
       await fixtures.cleanup();

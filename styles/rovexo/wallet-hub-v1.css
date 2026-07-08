@@ -1,0 +1,244 @@
+/**
+ * Wallet hub — official ROVEXO UI reference v1.
+ */
+.wallet-hub__header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: max(env(safe-area-inset-top), 8px) 12px 8px;
+  background: rgb(255 255 255 / 0.96);
+  border-bottom: 1px solid var(--ds-color-border);
+  backdrop-filter: blur(10px);
+}
+
+.wallet-hub__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: var(--ds-color-text-primary);
+  text-decoration: none;
+}
+
+.wallet-hub__title {
+  margin: 0;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ds-color-text-primary);
+}
+
+.wallet-hub__header-spacer {
+  width: 44px;
+}
+
+.wallet-hub {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: min(100%, 480px);
+  margin-inline: auto;
+  padding: 16px 16px calc(84px + env(safe-area-inset-bottom));
+}
+
+.wallet-hub__notice {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid rgb(147 51 234 / 0.2);
+  border-radius: 12px;
+  background: rgb(147 51 234 / 0.06);
+  font-size: 0.875rem;
+  color: var(--ds-color-text-primary);
+}
+
+.wallet-hub__balance-card {
+  padding: 16px;
+  border: 1px solid var(--ds-color-border);
+  border-radius: 14px;
+  background: var(--ds-color-surface);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+}
+
+.wallet-hub__balance-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wallet-hub__label {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ds-color-text-secondary);
+}
+
+.wallet-hub__balance {
+  margin: 4px 0 0;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ds-color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.wallet-hub__withdraw {
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1.5px solid var(--ds-color-primary);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ds-color-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wallet-hub__withdraw:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.wallet-hub__stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ds-color-border);
+}
+
+.wallet-hub__stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wallet-hub__stat-label {
+  font-size: 0.875rem;
+  color: var(--ds-color-text-secondary);
+}
+
+.wallet-hub__stat-value {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--ds-color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.wallet-hub__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.wallet-hub__section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ds-color-text-primary);
+}
+
+.wallet-hub__section-link {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ds-color-primary);
+  text-decoration: none;
+}
+
+.wallet-hub__txn-card {
+  overflow: hidden;
+  border: 1px solid var(--ds-color-border);
+  border-radius: 14px;
+  background: var(--ds-color-surface);
+}
+
+.wallet-hub__empty {
+  margin: 0;
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--ds-color-text-secondary);
+}
+
+.wallet-hub__txn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--ds-color-border);
+  text-decoration: none;
+  color: inherit;
+}
+
+.wallet-hub__txn:last-child {
+  border-bottom: none;
+}
+
+.wallet-hub__txn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--ds-color-surface-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ds-color-text-secondary);
+  flex-shrink: 0;
+}
+
+.wallet-hub__txn-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.wallet-hub__txn-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ds-color-text-primary);
+}
+
+.wallet-hub__txn-sub {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--ds-color-text-secondary);
+}
+
+.wallet-hub__txn-amount {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.wallet-hub__amount--in {
+  color: var(--ds-color-success);
+}
+
+.wallet-hub__amount--out {
+  color: var(--ds-color-danger);
+}
+
+.wallet-hub__txn-chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--ds-color-text-muted);
+  flex-shrink: 0;
+}

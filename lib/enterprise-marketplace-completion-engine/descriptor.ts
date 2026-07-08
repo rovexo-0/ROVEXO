@@ -84,7 +84,7 @@ export const MARKETPLACE_COMPLETION_MODULE_DESCRIPTOR: EnterpriseModuleDescripto
     { id: "listing_publish_validation_enabled", label: "Listing Publish Validation", description: "Validate draft, preview, publish, image upload and AI listing assistant", defaultEnabled: true },
     { id: "listing_certification_enabled", label: "Listing Certification", description: "10-score Enterprise Listing certification gate", defaultEnabled: true },
     { id: "buyer_completion_enabled", label: "Buyer Journey Program", description: "Prompt 079 — Launch Priority #5 Enterprise Buyer Journey certification", defaultEnabled: true },
-    { id: "buyer_checkout_validation_enabled", label: "Buyer Checkout Validation", description: "Validate cart, checkout, orders, tracking and buyer protection", defaultEnabled: true },
+    { id: "buyer_checkout_validation_enabled", label: "Buyer Checkout Validation", description: "Validate cart, checkout, orders, tracking and purchase protection", defaultEnabled: true },
     { id: "buyer_certification_enabled", label: "Buyer Certification", description: "10-score Enterprise Buyer Journey certification gate", defaultEnabled: true },
     { id: "checkout_completion_enabled", label: "Checkout Completion Program", description: "Prompt 082 — Launch Priority #8 Enterprise Checkout certification", defaultEnabled: true },
     { id: "checkout_payment_validation_enabled", label: "Checkout Payment Validation", description: "Validate Stripe, wallets, cards, retry and refund flows", defaultEnabled: true },

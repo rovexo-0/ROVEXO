@@ -8,11 +8,15 @@ import type { UserProfile } from "@/lib/profile/types";
 
 export type BusinessCompanyInfo = {
   companyName: string;
-  companyLogoUrl: string;
+  companyLogoUrl: string | null;
   storeSlug: string;
   rating: number;
   reviewCount: number;
   activeListings: number;
+  verifiedBusiness?: boolean;
+  verifiedWholesale?: boolean;
+  verifiedManufacturer?: boolean;
+  verifiedSupplier?: boolean;
 };
 
 export type BusinessDashboardData = {

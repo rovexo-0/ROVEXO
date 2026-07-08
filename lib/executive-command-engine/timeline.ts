@@ -187,7 +187,7 @@ function buildBusiness(ctx: ExecutiveLiveContext): ExecutiveBusinessOverview {
     completedOrders: liveNumberMetric("Completed Orders", dashboard ? dashboard.orders.completed : operations?.platform.completedOrders ?? null),
     pendingOrders: liveNumberMetric("Pending Orders", pendingOrders),
     buyerProtectionRevenue: liveNumberMetric(
-      "Buyer Protection Revenue",
+      "Platform Fee Revenue",
       ctx.protectionFee24h,
       undefined,
       (n) => `£${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
@@ -291,7 +291,7 @@ export function buildExecutiveOriRecommendations(ctx: ExecutiveLiveContext, inci
     recommendations.push({
       id: "ori-p2-protection",
       priority: 2,
-      title: "Review open buyer protection cases",
+      title: "Review open purchase protection cases",
       recommendedActions: `Triage ${ctx.dashboard.operations.platform.openProtectionCases} open protection case(s) via Protection Engine.`,
       estimatedImpact: "Medium — improves trust and resolution time",
       estimatedRisk: "Unresolved cases increase dispute exposure",

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageBack } from "@/components/navigation/PageBack";
 import { Avatar } from "@/components/ui/Avatar";
+import { BusinessBadge, resolveBusinessBadgeKinds } from "@/components/ui/BusinessBadge";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import type { BusinessDirectoryEntry } from "@/lib/business/directory";
@@ -36,10 +37,14 @@ export function BusinessDirectoryPage({ companies }: BusinessDirectoryPageProps)
                   <p className="mt-ds-3 line-clamp-2 text-sm text-text-secondary">{company.description}</p>
                 ) : null}
                 <div className="mt-ds-3 flex flex-wrap gap-ds-2">
-                  {company.verifiedBusiness ? <Badge>Verified Business</Badge> : null}
-                  {company.verifiedWholesale ? <Badge>Wholesale</Badge> : null}
-                  {company.verifiedManufacturer ? <Badge>Manufacturer</Badge> : null}
-                  {company.verifiedSupplier ? <Badge>Supplier</Badge> : null}
+                  {resolveBusinessBadgeKinds({
+                    verifiedBusiness: company.verifiedBusiness,
+                    verifiedWholesale: company.verifiedWholesale,
+                    verifiedManufacturer: company.verifiedManufacturer,
+                    verifiedSupplier: company.verifiedSupplier,
+                  }).map((kind) => (
+                    <BusinessBadge key={kind} kind={kind} compact />
+                  ))}
                   <Badge>Trust {company.trustScore}</Badge>
                 </div>
               </Card>

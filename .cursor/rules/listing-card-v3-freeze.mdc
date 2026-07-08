@@ -1,0 +1,45 @@
+---
+description: Homepage Listing Card v3.0 is UI-frozen — bug fixes only, zero visual drift
+globs: components/ui/ListingCard.tsx,components/ui/ListingCard.module.css
+alwaysApply: false
+---
+
+# Homepage Listing Card v3.0 — UI FREEZE
+
+**STATUS: UI LOCK | FROZEN | SINGLE SOURCE OF TRUTH**
+
+The Homepage Listing Card is frozen. Every standard homepage listing uses this component.
+
+## Frozen (0px tolerance)
+
+- Card: **160×260px**, radius **16px**, border **1px #E8E8E8**, shadow **0 2px 8px rgba(0,0,0,.04)**
+- Image: **160×160px**, `object-fit: cover`, radius **16px 16px 0 0**, **no overlays**
+- Favourite: **28×28px**, top/right **8px**, heart **16px**, `#374151`
+- Content: **100px**, padding **12px**
+- Price: **18px / 700**, lh **22px**, ROVEXO purple, single line
+- Title: **16px / 600**, lh **22px**, **one line** (`nowrap` + ellipsis)
+- Stats row: **20px**, star/eye **14px**, text **13px / 600**
+
+## Allowed changes
+
+- Broken image loading
+- Click / favourite behaviour
+- Rating / views calculation
+- Accessibility
+- Performance
+- Responsive **bugs** (must not alter frozen pixels)
+
+## Prohibited
+
+- Redesign, refactor, resize, new badges/ribbons
+- Seller, location, buyer protection, condition, meta rows
+- Font/layout/spacing/icon changes
+- “Optimisations” that change appearance
+
+## Reference
+
+- Screenshots: `reports/module-1/listing-card-v3/card-desktop.png`, `card-mobile.png`
+- Freeze doc: `reports/module-1/listing-card-v3/UI_FREEZE.md`
+- Tests: `tests/listing-card-v3-ui-freeze.test.ts`
+
+If another file changes this card’s appearance, **STOP and report the conflict**.

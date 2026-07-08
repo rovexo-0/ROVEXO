@@ -23,16 +23,64 @@ export function runProductionBuild(env = process.env) {
   });
 }
 
+function buildContainsMessagesV1(cwd = process.cwd()) {
+  const manifestPath = path.join(cwd, ".next", "server", "app", "messages", "page_client-reference-manifest.js");
+  if (!fs.existsSync(manifestPath)) return false;
+  return fs.readFileSync(manifestPath, "utf8").includes("MessagesInboxV1");
+}
+
+function removeProductionBuild(cwd = process.cwd()) {
+  const nextDir = path.join(cwd, ".next");
+  if (fs.existsSync(nextDir)) {
+    fs.rmSync(nextDir, { recursive: true, force: true });
+  }
+}
+
 /**
  * Ensure `.next/BUILD_ID` exists before `next start` is launched.
+ * Rebuilds when canonical UI sources are newer than the last build, or when the
+ * existing build still serves the pre-v1 messages route.
  */
 export function ensureProductionBuild(webServerEnv) {
   loadDotEnvFiles();
-  if (hasProductionBuild()) {
-    return;
+  const staleSources = [
+    "features/account-center/components/AccountCenterHome.tsx",
+    "styles/rovexo/account-hub-v1.css",
+    "styles/rovexo/account-module-v1.css",
+    "app/account/page.tsx",
+    "features/account-module/components/ProfileViewV1.tsx",
+    "features/account-module/components/SellerListingsV1.tsx",
+    "features/account-module/components/OrdersV1.tsx",
+    "features/account-module/components/SavedItemsV1.tsx",
+    "features/account-module/components/SettingsV1.tsx",
+    "features/messages/components/MessagesInboxV1.tsx",
+    "features/messages/components/ChatPage.tsx",
+    "styles/rovexo/messages-v1.css",
+    "app/messages/page.tsx",
+    "features/notifications/components/NotificationsInboxV1.tsx",
+    "styles/rovexo/notifications-v1.css",
+    "app/notifications/page.tsx",
+  ];
+  const buildIdPath = path.join(process.cwd(), ".next", "BUILD_ID");
+  const buildMtime = fs.existsSync(buildIdPath) ? fs.statSync(buildIdPath).mtimeMs : 0;
+  const sourceIsNewer = staleSources.some((rel) => {
+    const abs = path.join(process.cwd(), rel);
+    return fs.existsSync(abs) && fs.statSync(abs).mtimeMs > buildMtime;
+  });
+  const messagesRoute = path.join(process.cwd(), "app", "messages", "page.tsx");
+  const messagesRouteUsesV1 =
+    fs.existsSync(messagesRoute) && fs.readFileSync(messagesRoute, "utf8").includes("MessagesInboxV1");
+  const buildIsStaleForMessages = messagesRouteUsesV1 && hasProductionBuild() && !buildContainsMessagesV1();
+
+  if (!hasProductionBuild() || sourceIsNewer || buildIsStaleForMessages) {
+    if (buildIsStaleForMessages) {
+      console.log("[playwright] Stale messages build detected — clearing .next and rebuilding…");
+      removeProductionBuild();
+    } else {
+      console.log("[playwright] Running next build…");
+    }
+    runProductionBuild(webServerEnv);
   }
-  console.log("[playwright] No production build found — running next build…");
-  runProductionBuild(webServerEnv);
 }
 
 /**

@@ -63,8 +63,9 @@ function scanLegacyViolations(homeContent: string, header: string): string[] {
   return violations;
 }
 
-function scanPremiumStack(homeContent: string): boolean {
-  return PREMIUM_HOME_STACK.every((component) => homeContent.includes(component));
+function scanPremiumStack(homeContent: string, header: string, page: string): boolean {
+  const combined = `${homeContent}\n${header}\n${page}`;
+  return PREMIUM_HOME_STACK.every((component) => combined.includes(component));
 }
 
 function scanComponentRegistry(
@@ -80,32 +81,34 @@ function scanComponentRegistry(
   const refs: Record<string, { label: string; sourceRef: string; complete: boolean; message: string }> = {
     "premium-header": {
       label: "Header",
-      sourceRef: "components/Header.tsx",
+      sourceRef: "components/header/RovexoHeaderV2.tsx",
       complete:
-        header.includes("HeaderSearchBar") &&
-        (page.includes("<Header") || page.includes('variant="homepage"')),
-      message: "Premium header with integrated search",
+        header.includes('data-header-version="rovexo-v2"') &&
+        (page.includes("<RovexoHeaderV2") || page.includes("RovexoHeaderV2")),
+      message: "Canonical Header V2 with integrated search",
     },
     "safe-area": {
       label: "Safe Area",
-      sourceRef: "styles/rovexo/header-premium.css",
-      complete: true,
+      sourceRef: "styles/rovexo/homepage-header.css",
+      complete: readSource("styles/rovexo/homepage-header.css").includes("safe-area-inset-top"),
       message: "env(safe-area-inset-top) on header",
     },
     "search-bar": {
       label: "Search",
-      sourceRef: "components/header/HeaderSearchBar.tsx",
-      complete: header.includes("HeaderSearchBar") && !header.includes("HeaderCategoryBar"),
-      message: "Canonical pill search in header row",
+      sourceRef: "components/header/RovexoHeaderV2.tsx",
+      complete:
+        header.includes("HomepageSearchField") &&
+        readSource("components/home/HomepageSearchField.tsx").includes("Search products"),
+      message: "Integrated search in Header V2",
     },
     "category-rail": {
       label: "Category Rail",
-      sourceRef: "components/home/RovexoCategoryRail.tsx",
+      sourceRef: "components/homepage/canonical/CanonicalCategoryRail.tsx",
       complete:
-        homeContent.includes("RovexoCategoryRail") &&
+        homeContent.includes("CanonicalCategoryRail") &&
         publishedIds.has("category-rail") &&
         !homeContent.includes("HeaderCategoryBar"),
-      message: "Single canonical RovexoCategoryRail",
+      message: "Single canonical category rail",
     },
     "category-grid": {
       label: "Category Grid",
@@ -115,13 +118,17 @@ function scanComponentRegistry(
     },
     "all-listings": {
       label: "All Listings",
-      sourceRef: "components/home/RovexoAllListings.tsx",
+      sourceRef: "components/homepage/canonical/CanonicalMarketplaceFeed.tsx",
       complete:
-        homeContent.includes("RovexoAllListings") &&
+        homeContent.includes("CanonicalMarketplaceFeed") &&
         publishedIds.has("all-listings") &&
+        !homeContent.includes("HomepageV4ListingRail") &&
         !homeContent.includes("RovexoFeaturedListings") &&
-        !homeContent.includes("RovexoBusinesses"),
-      message: "Single canonical infinite All Listings feed",
+        !homeContent.includes("RovexoBusinesses") &&
+        !homeContent.includes("Recommended") &&
+        !homeContent.includes("Newest") &&
+        !homeContent.includes("Boosted"),
+      message: "Single infinite marketplace feed — no duplicate listing sections",
     },
     footer: {
       label: "Footer",
@@ -255,7 +262,7 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
   const integrityPass = isHomepageIntegrityPass(integrityScan) && isGlobalUiIntegrityPass(globalScan);
 
   const legacyViolations = scanLegacyViolations(homeContent, header);
-  const premiumStackComplete = scanPremiumStack(homeContent);
+  const premiumStackComplete = scanPremiumStack(homeContent, header, page);
   const components = scanComponentRegistry(homeContent, page, header, betaShell, categoryGrid);
   const completeComponents = components.filter((c) => c.complete).length;
   const completionPercent = Math.round((completeComponents / components.length) * 10000) / 100;
@@ -266,13 +273,23 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
     page.includes("twitter") &&
     page.includes("homePageJsonLd");
 
+  const profileLink = readSource("components/header/HeaderProfileLink.tsx");
+  const hasAccountNav =
+    header.includes("/account/settings") ||
+    header.includes('href="/account"') ||
+    (header.includes("HeaderProfileLink") &&
+      (profileLink.includes('href="/account"') || profileLink.includes("/account/settings")));
+
   const navigationIntegrityScore =
-    header.includes("HeaderSearchBar") &&
+    header.includes("HomepageSearchField") &&
     header.includes("/messages") &&
     header.includes("/notifications") &&
+    hasAccountNav &&
     !header.includes("HeaderCategoryBar") &&
     !homeContent.includes("HeaderCategoryBar") &&
-    homeContent.includes("RovexoCategoryRail")
+    homeContent.includes("CanonicalCategoryRail") &&
+    !homeContent.includes("HomepageV3") &&
+    !homeContent.includes("hp3-")
       ? 100
       : 0;
 

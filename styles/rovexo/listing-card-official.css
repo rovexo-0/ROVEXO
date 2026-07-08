@@ -1,0 +1,29 @@
+/**
+ * ROVEXO Official Listing Card — design tokens (SSOT).
+ * Reference proportions: image ~65%, 16px body padding, premium shadow.
+ */
+
+:root {
+  --rx-listing-radius: var(--ds-radius-md);
+  --rx-listing-pad: var(--ds-space-4);
+  --rx-listing-gap: var(--ds-space-1);
+  --rx-listing-gap-md: var(--ds-space-2);
+  --rx-listing-image-ratio: 160 / 220;
+  --rx-listing-save-size: 32px;
+  --rx-listing-save-inset: var(--ds-space-3);
+  --rx-listing-seller-size: 22px;
+  --rx-listing-title-size: var(--ds-font-body-size);
+  --rx-listing-title-weight: 700;
+  --rx-listing-condition-size: var(--ds-font-caption-size);
+  --rx-listing-price-size: 1.125rem;
+  --rx-listing-bp-size: var(--ds-font-caption-size);
+  --rx-listing-footer-size: var(--ds-font-caption-size);
+  --rx-listing-border: var(--ds-color-border);
+  --rx-listing-shadow: var(--ds-shadow-soft);
+  --rx-listing-shadow-hover: var(--ds-shadow-medium);
+  --rx-listing-motion: var(--ds-duration-fast) var(--ds-ease);
+}
+
+[data-listing-card="rovexo"] {
+  --hp-listing-aspect: auto;
+}

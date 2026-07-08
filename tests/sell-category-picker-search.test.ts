@@ -60,6 +60,18 @@ describe("category picker search (database-only, no AI)", () => {
     expect(names).toEqual(expect.arrayContaining(["Home & Garden", "Home Textiles"]));
   });
 
+  it("produces globally unique render keys for hierarchical suggestions", () => {
+    // Regression: hierarchical results (root → branch → leaf) share the same
+    // leaf path, so the picker key must include matchDepth to stay unique.
+    for (const query of ["iph", "tent", "board games", "pillow"]) {
+      const keys = searchCategoryPicker(query).map(
+        (result) =>
+          `${result.path.segments.map((segment) => segment.slug).join("/")}#${result.matchDepth}`,
+      );
+      expect(new Set(keys).size, `duplicate render key for "${query}"`).toBe(keys.length);
+    }
+  });
+
   it("debounces-friendly search completes quickly", () => {
     warmCategoryPickerIndex();
     const start = performance.now();

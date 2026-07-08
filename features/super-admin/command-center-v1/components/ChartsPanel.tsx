@@ -9,7 +9,7 @@ import { LiveStatusBadge } from "@/features/super-admin/command-center-v1/compon
 
 const TONE_STROKE: Record<CommandCenterChartSeries["tone"], string> = {
   healthy: "#16a34a",
-  info: "#2563eb",
+  info: "var(--ds-color-primary)",
   warning: "#ea580c",
   critical: "#dc2626",
   analytics: "#7c3aed",

@@ -13,7 +13,7 @@
   --seller-shadow-card: 0 4px 14px rgba(0, 0, 0, 0.08);
   --seller-text: #111111;
   --seller-muted: #6b7280;
-  --seller-primary: #2563eb;
+  --seller-primary: var(--ds-color-primary);
   --seller-accent: #0f766e;
   --seller-danger: #dc2626;
   --seller-danger-bg: #fef2f2;

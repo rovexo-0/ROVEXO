@@ -2,8 +2,12 @@ import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { cn } from "@/lib/cn";
 import { OrdersEngineOrderPanel } from "@/features/orders-engine/OrdersEngineOrderPanel";
+import { BuyerOrderDetailCanonical } from "@/features/orders/components/BuyerOrderDetailCanonical";
 import { OrderDetailView } from "@/features/orders/components/OrderDetailView";
 import { resolveOrderViewRole } from "@/lib/orders/role";
+import type { BuyerCommerceOrderView, SellerShipmentView } from "@/lib/commerce/read-model";
+import type { OrderEscrowState } from "@/lib/commerce-engine/read-model";
+import type { OrderResolutionSummary } from "@/lib/resolution-engine/types";
 import type { OrdersEngineOrderContext } from "@/lib/orders-engine/types";
 import type { Order } from "@/lib/orders/types";
 
@@ -14,6 +18,11 @@ type OrderDetailPageShellProps = {
   showBottomNav?: boolean;
   bottomNavTab?: "account" | "sell";
   orderContext?: OrdersEngineOrderContext;
+  escrowState?: OrderEscrowState | null;
+  resolutionSummary?: OrderResolutionSummary | null;
+  commerceView?: BuyerCommerceOrderView;
+  sellerShipment?: SellerShipmentView;
+  showSuccessBanner?: boolean;
 };
 
 export function OrderDetailPageShell({
@@ -23,13 +32,19 @@ export function OrderDetailPageShell({
   showBottomNav = true,
   bottomNavTab = "account",
   orderContext,
+  escrowState,
+  resolutionSummary,
+  commerceView,
+  sellerShipment,
+  showSuccessBanner = false,
 }: OrderDetailPageShellProps) {
   const view = resolveOrderViewRole(order, userId);
   const isCompleted = view === "buyer" && order.status === "completed";
+  const isBuyerCanonical = view === "buyer" && commerceView != null;
 
   return (
     <BetaAppShell bottomNavTab={showBottomNav ? bottomNavTab : undefined} showBottomNav={showBottomNav}>
-      {!isCompleted && <BetaPageHeader title="Order Details" backHref={backHref} />}
+      {!isCompleted ? <BetaPageHeader title="Order Details" backHref={backHref} /> : null}
 
       <main
         className={cn(
@@ -40,7 +55,23 @@ export function OrderDetailPageShell({
         )}
       >
         {orderContext && !isCompleted ? <OrdersEngineOrderPanel context={orderContext} /> : null}
-        <OrderDetailView initialOrder={order} userId={userId} />
+        {isBuyerCanonical ? (
+          <BuyerOrderDetailCanonical
+            initialOrder={order}
+            commerce={commerceView}
+            escrowState={escrowState ?? undefined}
+            resolutionSummary={resolutionSummary ?? undefined}
+            showSuccessBanner={showSuccessBanner}
+          />
+        ) : (
+          <OrderDetailView
+            initialOrder={order}
+            userId={userId}
+            escrowState={escrowState ?? undefined}
+            resolutionSummary={resolutionSummary ?? undefined}
+            sellerShipment={sellerShipment}
+          />
+        )}
       </main>
     </BetaAppShell>
   );

@@ -44,7 +44,7 @@
 .rx-page-home .rx-premium-product-card .rx-listing-card__price > span:first-child {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--ds-color-primary);
 }
 
 .rx-page-home .rx-premium-product-card .rx-listing-card__meta {
@@ -311,7 +311,7 @@
 .rx-home-auction-card__progress-bar {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+  background: linear-gradient(90deg, var(--ds-color-primary) 0%, #60a5fa 100%);
   transition: width 180ms ease;
 }
 
@@ -364,7 +364,7 @@
 .rx-home-auction-card__price-value span {
   font-size: 1.125rem !important;
   font-weight: 700 !important;
-  color: #2563eb !important;
+  color: var(--ds-color-primary) !important;
 }
 
 [data-theme="dark"] .rx-home-auction-card {

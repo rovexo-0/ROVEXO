@@ -14,6 +14,8 @@ export type CartItem = {
   quantity: number;
   stock: number;
   available: boolean;
+  variation?: string | null;
+  sellerName?: string | null;
 };
 
 export type CartSummary = {
@@ -33,6 +35,9 @@ const CART_SELECT = `
     price,
     stock,
     status,
+    condition,
+    seller_id,
+    profiles!products_seller_id_fkey ( full_name, username ),
     product_images ( url, is_primary, sort_order )
   )
 `;
@@ -48,6 +53,8 @@ function mapCartRow(row: {
     price: number;
     stock: number;
     status: string;
+    condition?: string | null;
+    profiles?: { full_name: string | null; username: string | null } | null;
     product_images?: Array<{ url: string; is_primary: boolean; sort_order: number }>;
   } | null;
 }): CartItem | null {
@@ -59,6 +66,12 @@ function mapCartRow(row: {
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
 
+  const variation = row.products.condition?.replace(/[_-]+/g, " ").trim() || null;
+  const sellerName =
+    row.products.profiles?.full_name?.trim() ||
+    row.products.profiles?.username?.trim() ||
+    null;
+
   return {
     id: row.id,
     productId: row.products.id,
@@ -69,6 +82,8 @@ function mapCartRow(row: {
     quantity: row.quantity,
     stock: row.products.stock,
     available: isPurchasable(row.products.stock, row.products.status),
+    variation,
+    sellerName,
   };
 }
 

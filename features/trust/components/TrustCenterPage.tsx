@@ -12,6 +12,7 @@ import { TrustTierBadge } from "@/features/trust/components/TrustTierBadge";
 import type { TrustDashboardData } from "@/lib/trust/types";
 import { TRUST_CENTER_SECTIONS, VERIFICATION_TYPES } from "@/lib/trust/types";
 import { getTrustHubSections } from "@/lib/mobile-ui/hubs";
+import { HubSectionIcon } from "@/components/icons/HubSectionIcon";
 import { cn } from "@/lib/cn";
 
 type TrustCenterPageProps = {
@@ -24,7 +25,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
       <p className="text-sm font-medium text-primary">ROVEXO Trust Center</p>
       <h1 className="mt-ds-2 text-2xl font-bold text-text-primary lg:text-3xl">Trust & Safety</h1>
       <p className="mt-ds-2 max-w-2xl text-sm text-text-secondary">
-        Buyer protection, seller protection, verification, disputes, and community safety.
+        Purchase protection, seller protection, verification, disputes, and community safety.
       </p>
     </section>
   );
@@ -84,7 +85,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
               {TRUST_CENTER_SECTIONS.map((section) => (
                 <Link key={section.id} href={section.href}>
                   <Card padding="md" interactive className="h-full">
-                    <p className="text-xl">{section.icon}</p>
+                    <HubSectionIcon trustSectionId={section.id} />
                     <p className="mt-ds-2 font-semibold text-text-primary">{section.title}</p>
                     <p className="mt-ds-1 text-sm text-text-secondary">{section.description}</p>
                   </Card>

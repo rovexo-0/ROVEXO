@@ -87,7 +87,7 @@ export function resolveProgrammaticPage(segments: string[]): ProgrammaticPage | 
     return {
       type: "category-location",
       title: `${categoryName} in ${location.name}`,
-      description: `Find ${categoryName.toLowerCase()} in ${location.name} on ROVEXO. Buy and sell with buyer protection and secure checkout.`,
+      description: `Find ${categoryName.toLowerCase()} in ${location.name} on ROVEXO. Buy and sell with purchase protection and secure checkout.`,
       path: `/browse/${[...segments.slice(0, index), location.slug].join("/")}`,
       categorySlugs,
       locationSlug: location.slug,
@@ -128,7 +128,7 @@ export function resolveProgrammaticPage(segments: string[]): ProgrammaticPage | 
   return {
     type: "category-brand",
     title: `${brand} ${categoryName}`,
-    description: `Buy and sell ${brand} ${categoryName.toLowerCase()} on ROVEXO. Trusted UK marketplace with buyer protection.`,
+    description: `Buy and sell ${brand} ${categoryName.toLowerCase()} on ROVEXO. Trusted UK marketplace with purchase protection.`,
     path: `/browse/${segments.join("/")}`,
     categorySlugs,
     brand,
@@ -142,7 +142,7 @@ function buildCategoryPage(categorySlugs: string[], path: string): ProgrammaticP
   return {
     type: "category",
     title: name,
-    description: `Shop ${name.toLowerCase()} on ROVEXO. Browse listings from verified UK sellers with buyer protection.`,
+    description: `Shop ${name.toLowerCase()} on ROVEXO. Browse listings from verified UK sellers with purchase protection.`,
     path,
     categorySlugs,
     canonicalCategoryPath: buildCategoryPath(categorySlugs),

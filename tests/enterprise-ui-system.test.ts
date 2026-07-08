@@ -58,20 +58,24 @@ describe("Enterprise UI system — design lock", () => {
 });
 
 describe("Enterprise UI system — header", () => {
-  it("uses R logo mark and official production header icons", () => {
-    const header = readFileSync(join(process.cwd(), "components/Header.tsx"), "utf8");
-    expect(header).toContain("RovexoHeaderMark");
+  it("uses official ROVEXO wordmark and production header icons on homepage", () => {
+    const header = readFileSync(join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
+    expect(header).toContain("ROVEXO");
     expect(header).toContain("RovexoIcon");
     expect(header).toContain("RovexoIcons.chat.messages");
     expect(header).toContain("RovexoIcons.notifications.bell");
-    expect(header).not.toContain("MessagesMenuIcon");
-    expect(header).not.toContain("DashboardIcon3D");
+    expect(header).toContain("RovexoIcons.settings.settings");
   });
 
-  it("uses official production search icon in header search bar", () => {
-    const searchBar = readFileSync(join(process.cwd(), "components/header/HeaderSearchBar.tsx"), "utf8");
-    expect(searchBar).toContain("RovexoIcon");
-    expect(searchBar).toContain("RovexoIcons.navigation.search");
-    expect(searchBar).not.toContain("BottomNavIcon3D");
+  it("uses debounced inline search on the homepage header", () => {
+    const header = readFileSync(join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
+    const searchField = readFileSync(join(process.cwd(), "components/home/HomepageSearchField.tsx"), "utf8");
+    expect(header).toContain("HomepageSearchField");
+    expect(searchField).toContain("RovexoIcon");
+    expect(searchField).toContain("RovexoIcons.navigation.search");
+    expect(searchField).toContain("size={20}");
+    expect(searchField).toContain("useDebouncedValue");
+    expect(searchField).not.toContain("BottomNavIcon3D");
+    expect(searchField).not.toContain("camera");
   });
 });

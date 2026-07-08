@@ -93,7 +93,7 @@
   font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.12);
 }
 
 .rx-home-polish .rx-listing-carousel {
@@ -175,7 +175,7 @@
   height: 64px;
   border-radius: 18px;
   background: var(--ds-color-surface);
-  box-shadow: 0 8px 20px rgb(37 99 235 / 0.12);
+  box-shadow: 0 8px 20px rgb(147 51 234 / 0.12);
 }
 
 .rx-home-polish .rx-auctions-compact__copy {

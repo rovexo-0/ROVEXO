@@ -72,9 +72,12 @@ describe("Buyer Dashboard v1.0 — single source of truth", () => {
     expect(page).toContain("AccountCenterModulePage");
   });
 
-  it("does not modify the frozen homepage", () => {
-    const homePage = readFileSync(join(process.cwd(), "components/home/RovexoHomePage.tsx"), "utf8");
-    expect(homePage).toContain("RovexoCategoryRail");
+  it("does not modify the frozen homepage V4 stack", () => {
+    const homePage = readFileSync(join(process.cwd(), "components/homepage/canonical/CanonicalHomepage.tsx"), "utf8");
+    const header = readFileSync(join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
+    expect(homePage).toContain("CanonicalMarketplaceFeed");
+    expect(homePage).toContain("CanonicalCategoryRail");
+    expect(header).toContain('data-header-version="rovexo-v2"');
     expect(existsSync(join(process.cwd(), "app/page.tsx"))).toBe(true);
   });
 });

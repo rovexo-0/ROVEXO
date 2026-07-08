@@ -1,22 +1,19 @@
 "use client";
 
-import { ProfileCard } from "@/components/account/ProfileCard";
-import { MyAccountGrid } from "@/components/account/MyAccountGrid";
-import type { TrustDashboardData } from "@/lib/trust/types";
+import { AccountHubProfile } from "@/features/account-center/components/AccountHubProfile";
+import { AccountMenuList } from "@/features/account-center/components/AccountMenuList";
 import type { UserProfile } from "@/lib/profile/types";
 
 type AccountCenterHomeProps = {
   profile: UserProfile;
-  trustData?: TrustDashboardData;
+  walletBalance?: number | null;
 };
 
-export function AccountCenterHome({ profile, trustData }: AccountCenterHomeProps) {
+export function AccountCenterHome({ profile, walletBalance = null }: AccountCenterHomeProps) {
   return (
-    <div className="acx-page">
-      <div className="acx-page__container">
-        {trustData ? <ProfileCard profile={profile} trustData={trustData} /> : null}
-        <MyAccountGrid role={profile.role} />
-      </div>
+    <div className="ac-hub" data-ac-hub-version="v1.3">
+      <AccountHubProfile profile={profile} />
+      <AccountMenuList walletBalance={walletBalance} />
     </div>
   );
 }

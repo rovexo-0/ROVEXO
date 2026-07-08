@@ -61,7 +61,7 @@ describe("auctions coming soon", () => {
     expect(content).toContain("Instant Bid Updates");
     expect(content).toContain("Watch Auctions");
     expect(content).toContain("Live Notifications");
-    expect(content).toContain("Buyer Protection");
+    expect(content).toContain("Purchase Protection");
     expect(content).toContain("Verified Sellers");
     expect(content).toContain("Win Unique Items");
     expect(content).toContain("Premium Marketplace Experience");

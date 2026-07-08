@@ -2783,7 +2783,7 @@ export const BUYER_PASS_CONDITIONS = [
 export const GLOBAL_CHECKOUT_SCAN_DOMAINS = [
   { id: "cart", label: "Cart", ref: "app/cart/page.tsx" },
   { id: "checkout", label: "Checkout", ref: "app/checkout/[slug]/page.tsx" },
-  { id: "buyer-protection", label: "Buyer Protection", ref: "features/checkout/components/CheckoutReturnPolicy.tsx" },
+  { id: "buyer-protection", label: "Purchase Protection", ref: "features/checkout/components/CheckoutReturnPolicy.tsx" },
   { id: "delivery-address", label: "Delivery Address", ref: "features/checkout/components/CheckoutAddressCard.tsx" },
   { id: "billing-address", label: "Billing Address", ref: "lib/checkout/address.ts" },
   { id: "delivery-method", label: "Delivery Method", ref: "features/checkout/components/CheckoutDeliverySection.tsx" },
@@ -3047,7 +3047,7 @@ export const GLOBAL_SHIPPING_SCAN_DOMAINS = [
   { id: "delivery-estimates", label: "Delivery Estimates", ref: "lib/shipping/carriers.ts" },
   { id: "shipping-zones", label: "Shipping Zones", ref: "lib/shipping-engine/defaults.ts" },
   { id: "shipping-prices", label: "Shipping Prices", ref: "lib/seller/shipping-settings.ts" },
-  { id: "buyer-protection-shipping", label: "Buyer Protection Shipping", ref: "app/protection/page.tsx" },
+  { id: "buyer-protection-shipping", label: "Purchase Protection Shipping", ref: "app/protection/page.tsx" },
   { id: "lost-parcel-workflow", label: "Lost Parcel Workflow", ref: "lib/protection-engine/registry.ts" },
   { id: "damaged-parcel-workflow", label: "Damaged Parcel Workflow", ref: "lib/protection-engine/registry.ts" },
   { id: "returns-workflow", label: "Returns Workflow", ref: "features/orders/components/IssueResolutionLink.tsx" },

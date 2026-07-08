@@ -4,6 +4,7 @@ import { useCallback, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseEngineAdminShell } from "@/features/super-admin/components/premium/EnterpriseEngineAdminShell";
+import { Parcel2GoLivePanel } from "@/features/super-admin/shipping-engine/Parcel2GoLivePanel";
 import { cn } from "@/lib/cn";
 import type { ShippingEngineDocument, ShippingEngineHistoryEntry, ShippingEngineSnapshot } from "@/lib/shipping-engine/types";
 
@@ -11,18 +12,19 @@ type ShippingEngineAdminProps = {
   initialSnapshot: ShippingEngineSnapshot;
 };
 
-type AdminTab = "methods" | "zones" | "rules" | "carriers" | "returns" | "tracking" | "notifications" | "analytics" | "protection" | "history";
+type AdminTab = "methods" | "zones" | "rules" | "carriers" | "parcel2go" | "returns" | "tracking" | "notifications" | "analytics" | "protection" | "history";
 
 const TABS: { id: AdminTab; label: string }[] = [
   { id: "methods", label: "Methods" },
   { id: "zones", label: "Zones" },
   { id: "rules", label: "Rules" },
   { id: "carriers", label: "Carriers" },
+  { id: "parcel2go", label: "Parcel2Go Live" },
   { id: "returns", label: "Returns" },
   { id: "tracking", label: "Tracking" },
   { id: "notifications", label: "Notifications" },
   { id: "analytics", label: "Analytics" },
-  { id: "protection", label: "Buyer Protection" },
+  { id: "protection", label: "Purchase Protection" },
   { id: "history", label: "History" },
 ];
 
@@ -104,6 +106,7 @@ export function ShippingEngineAdmin({ initialSnapshot }: ShippingEngineAdminProp
       {activeTab === "carriers" ? (
         <AdminList title="Carrier Settings (integration-ready)" items={draft.carriers.map((c) => ({ name: c.name, meta: c.integrationReady ? "Integration ready" : "Architecture prepared", enabled: c.enabled }))} />
       ) : null}
+      {activeTab === "parcel2go" ? <Parcel2GoLivePanel /> : null}
       {activeTab === "returns" ? (
         <AdminList title="Return Rules" items={draft.returnRules.map((r) => ({ name: r.label, meta: r.autoApprovalDays ? `${r.autoApprovalDays} day auto-approval` : "Manual approval", enabled: r.enabled }))} />
       ) : null}
@@ -118,7 +121,7 @@ export function ShippingEngineAdmin({ initialSnapshot }: ShippingEngineAdminProp
       ) : null}
       {activeTab === "protection" ? (
         <section className="ea-panel">
-          <h2 className="ea-panel__title">Buyer Protection Integration</h2>
+          <h2 className="ea-panel__title">Purchase Protection Integration</h2>
           <div className="ea-chip-row">
             <span className={cn("ea-chip", draft.buyerProtection.enabled && "ea-chip--active")}>Protection enabled</span>
             <span className={cn("ea-chip", draft.buyerProtection.fundsProtectedUntilDeliveryConfirmed && "ea-chip--active")}>Funds protected until confirmation</span>

@@ -32,7 +32,7 @@ export type MarketplaceAssistantResponse = {
 
 const PERSONA_SUGGESTIONS: Record<AssistantPersona, Array<{ label: string; href: string }>> = {
   buyer: [
-    { label: "Buyer protection", href: "/help/category/buyer" },
+    { label: "Purchase protection", href: "/help/category/buyer" },
     { label: "Track an order", href: "/help/category/orders" },
     { label: "Trust Center", href: "/trust" },
   ],

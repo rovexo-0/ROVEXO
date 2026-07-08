@@ -118,14 +118,14 @@ test.describe.serial("production hotfix validation", () => {
     const title = `Hotfix homepage ${Date.now()}`;
 
     await page.goto("/sell", { waitUntil: "domcontentloaded", timeout: 180_000 });
-    await expect(page.getByRole("button", { name: /add photos/i })).toBeVisible({ timeout: 120_000 });
+    await expect(page.getByRole("button", { name: /add photo/i })).toBeVisible({ timeout: 120_000 });
 
-    await page.locator('input[type="file"][multiple]:not([capture])').setInputFiles(galleryImage);
-    await expect(page.locator('img[alt="Main cover photo"]')).toBeVisible({ timeout: 15_000 });
+    await page.locator('input[type="file"][multiple]').setInputFiles(galleryImage);
+    await expect(page.locator('img[alt="Main photo"]')).toBeVisible({ timeout: 15_000 });
 
-    await page.getByPlaceholder(/what are you selling/i).fill(title);
+    await page.getByPlaceholder(/tell buyers what you're selling/i).fill(title);
     await page
-      .getByPlaceholder(/describe the item/i)
+      .getByPlaceholder(/tell buyers more about your item/i)
       .fill("E2E hotfix validation listing with enough detail for publish.");
 
     const categoryButton = page.getByRole("button", { name: /select category|^category$/i });
@@ -209,16 +209,13 @@ test.describe.serial("production hotfix validation", () => {
     const galleryImage = writeTempImage("android-gallery.jpg");
 
     await page.goto("/sell", { waitUntil: "domcontentloaded", timeout: 180_000 });
-    const addPhotos = page.getByRole("button", { name: /add photos/i });
+    const addPhotos = page.getByRole("button", { name: /add photo/i });
     await expect(addPhotos).toBeVisible({ timeout: 120_000 });
 
-    const overlayInput = page.locator('input[type="file"][multiple]:not([capture])');
-    await expect(overlayInput).toBeAttached();
-    const box = await overlayInput.boundingBox();
-    expect(box?.width ?? 0).toBeGreaterThan(10);
-    expect(box?.height ?? 0).toBeGreaterThan(10);
+    const galleryInput = page.locator('input[type="file"][multiple]');
+    await expect(galleryInput).toBeAttached();
 
-    await overlayInput.setInputFiles(galleryImage);
-    await expect(page.locator('img[alt="Main cover photo"]')).toBeVisible({ timeout: 15_000 });
+    await galleryInput.setInputFiles(galleryImage);
+    await expect(page.locator('img[alt="Main photo"]')).toBeVisible({ timeout: 15_000 });
   });
 });

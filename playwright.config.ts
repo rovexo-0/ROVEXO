@@ -5,14 +5,17 @@ import { loadDotEnvFiles } from "./scripts/playwright-env.mjs";
 // Load local secrets (Supabase, Stripe, etc.) for the dev server and integration tests.
 loadDotEnvFiles();
 
-const managedE2EPort = "3025";
-const port = process.env.PLAYWRIGHT_ALLOW_REMOTE === "1"
-  ? (process.env.PLAYWRIGHT_PORT ?? managedE2EPort)
-  : managedE2EPort;
+// Fixed managed port — do not inherit PLAYWRIGHT_PORT from the shell or .env.local.
+const managedE2EPort = "13025";
+const port =
+  process.env.PLAYWRIGHT_ALLOW_REMOTE === "1"
+    ? (process.env.PLAYWRIGHT_PORT ?? managedE2EPort)
+    : managedE2EPort;
 // Always target the managed local E2E server (ignore PLAYWRIGHT_BASE_URL / SKIP from .env.local).
 const localBaseURL = `http://127.0.0.1:${port}`;
 const baseURL = localBaseURL;
-const useManagedWebServer = process.env.PLAYWRIGHT_ALLOW_REMOTE !== "1";
+// Always use the managed local E2E server unless explicitly skipped (ignore shell PLAYWRIGHT_ALLOW_REMOTE).
+const useManagedWebServer = process.env.PLAYWRIGHT_SKIP_WEBSERVER !== "1";
 const isCI = Boolean(process.env.CI);
 
 const webServerEnvObj: Record<string, string> = {
@@ -57,6 +60,8 @@ export default defineConfig({
   reporter: isCI ? [["github"], ["html", { open: "never" }], ["list"]] : "list",
   use: {
     baseURL,
+    // Prevent stale navigate HTML from public/sw.js during layout E2E.
+    serviceWorkers: "block",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "retain-on-failure",

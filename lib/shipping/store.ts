@@ -19,6 +19,8 @@ import {
   type UkCarrier,
 } from "@/lib/shipping/carriers";
 import { createOrderShipment, getOrderShipment } from "@/lib/shipping/service";
+import { attachLabelToParcel, createShipmentParcel, listShipmentParcelsForOrder } from "@/lib/shipping/parcels-repository";
+import type { ShipmentParcel } from "@/lib/shipping/types";
 
 type RecordRow = {
   id: string;
@@ -103,6 +105,7 @@ function mapRecord(
   label: LabelRow | null,
   events: EventRow[],
   quotes: QuoteRow[],
+  parcels: ShipmentParcel[],
 ): ShippingRecord {
   return {
     id: row.id,
@@ -115,6 +118,7 @@ function mapRecord(
     deliveryAddress: row.delivery_address,
     pricing: mapPricing(quotes, row.selected_quote_id),
     label: mapLabel(label),
+    parcels,
     trackingEvents: events.map((event) => ({
       id: event.id,
       status: event.status,
@@ -140,10 +144,13 @@ export async function getShippingRecord(orderId: string): Promise<ShippingRecord
   if (!row) return null;
 
   const recordRow = row as unknown as RecordRow;
+  const parcels = await listShipmentParcelsForOrder(orderId);
   const labelResult = await admin
     .from("shipping_labels_v1")
     .select("*")
     .eq("shipping_record_id", recordRow.id)
+    .order("parcel_number", { ascending: true })
+    .limit(1)
     .maybeSingle();
   const eventsResult = (await admin
     .from("shipping_tracking_events")
@@ -161,6 +168,7 @@ export async function getShippingRecord(orderId: string): Promise<ShippingRecord
     (labelResult.data as LabelRow | null) ?? null,
     eventsResult.data ?? [],
     quotesResult.data ?? [],
+    parcels,
   );
 }
 
@@ -345,26 +353,36 @@ export async function saveShippingQuotes(input: {
 
 export async function saveShippingLabel(input: {
   orderId: string;
+  parcelId?: string;
   label: ShippingLabelArtifact;
   internalPlatformFeePence: number;
 }): Promise<ShippingRecord | null> {
   const record = await ensureShippingRecord({ orderId: input.orderId });
   if (!record) return null;
 
-  const admin = createShippingAdminClient();
-  await admin.from("shipping_labels_v1").upsert(
-    {
-      shipping_record_id: record.id,
-      tracking_number: input.label.trackingNumber,
-      barcode: input.label.barcode,
-      qr_payload: input.label.qrPayload,
-      pdf_storage_path: input.label.pdfUrl,
+  let parcelId = input.parcelId;
+  if (!parcelId) {
+    const parcels = await listShipmentParcelsForOrder(input.orderId);
+    parcelId = parcels[0]?.id;
+  }
+  if (!parcelId) {
+    const created = await createShipmentParcel({ orderId: input.orderId });
+    parcelId = created?.id;
+  }
+  if (!parcelId) return null;
+
+  await attachLabelToParcel({
+    parcelId,
+    shippingRecordId: record.id,
+    label: {
+      trackingNumber: input.label.trackingNumber,
       carrier: String(input.label.carrier),
-      label_status: input.label.status,
-      internal_platform_fee_pence: input.internalPlatformFeePence,
+      pdfUrl: input.label.pdfUrl,
+      labelUrl: input.label.pdfUrl,
+      status: input.label.status,
     },
-    { onConflict: "shipping_record_id" },
-  );
+    internalPlatformFeePence: input.internalPlatformFeePence,
+  });
 
   return getShippingRecord(input.orderId);
 }

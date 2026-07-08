@@ -1,6 +1,6 @@
 /** Background sell work — never runs synchronously on keystrokes. */
 export const sellBackgroundPolicy = {
-  categorySuggestEnabled: true,
+  categorySuggestEnabled: false,
   /** Debounce before category / AI suggestion work (ms). */
   categoryDebounceMs: 1000,
   photoAiEnabled: false,

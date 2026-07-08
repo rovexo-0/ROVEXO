@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { cn } from "@/lib/cn";
@@ -129,7 +130,7 @@ export function AiEngineHub({ config, context, modules, analytics }: AiEngineHub
             <div className="aie-module-grid">
               {modules.map((module) => (
                 <Link key={module.id} href={module.href} className="aie-module-card">
-                  <span>{module.icon}</span>
+                  <ModuleIcon href={module.href} id={module.id} />
                   <div>
                     <p className="font-semibold">{module.label}</p>
                     <p className="text-xs text-text-secondary">{module.description}</p>

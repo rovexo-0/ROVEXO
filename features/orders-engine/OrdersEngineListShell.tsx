@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { useMemo, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
@@ -134,7 +135,7 @@ export function OrdersEngineListShell({
           <div className="oe-module-grid">
             {modules.slice(4).map((module) => (
               <Link key={module.id} href={module.href} className="oe-module-card">
-                <span>{module.icon}</span>
+                <ModuleIcon href={module.href} id={module.id} />
                 <span className="font-semibold">{module.label}</span>
               </Link>
             ))}

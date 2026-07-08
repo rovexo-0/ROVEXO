@@ -1,0 +1,63 @@
+---
+description: ROVEXO v1.0 — never render broken images; SafeImage is mandatory
+globs: **/*.{tsx,ts}
+alwaysApply: true
+---
+
+# ROVEXO Image Safety — Canonical UI Rule (v1.0)
+
+**STATUS: PERMANENT | MANDATORY | PLATFORM-WIDE**
+
+The platform must **never** display broken image icons, browser default missing-image
+glyphs, or `next/image` runtime errors from invalid sources.
+
+## Single entry point
+
+All UI imagery must render through **`SafeImage`** (`components/ui/SafeImage.tsx`)
+or **`Avatar`** (`components/ui/Avatar.tsx` for user avatars).
+
+❌ **Never** import `next/image` outside `SafeImage.tsx`.
+
+```tsx
+// ❌ BAD — raw next/image with possibly empty/404 URL
+import Image from "next/image";
+<Image src={product.imageUrl} alt={product.title} fill />
+
+// ✅ GOOD — validated source + runtime onError fallback
+import { SafeImage } from "@/components/ui/SafeImage";
+<SafeImage src={product.imageUrl} alt={product.title} fill />
+```
+
+## Validation before render
+
+Use `isRenderableImageSrc()` from `@/lib/media/is-valid-image-src` when filtering
+arrays (galleries, carousels) or mapping data before it reaches the UI.
+
+Never pass `src=""`, `src={null}`, `src={undefined}`, or placeholder URLs to
+`next/image`.
+
+## Missing / broken images
+
+| Case | Behaviour |
+|------|-----------|
+| Valid URL | Render normally via `SafeImage` → `next/image` |
+| Missing / invalid URL | Official ROVEXO placeholder (`/placeholder-product.svg`) via plain `<img>` |
+| Runtime load failure (404, expired) | Swap to placeholder via `onError` |
+| Avatars | Use `Avatar` — initials fallback, `onError` hides broken photo |
+| Decorative icons with known static paths | `SafeImage` with `fallback="hide"` |
+
+The placeholder **must** use a plain `<img>` (not `next/image`) because the Next
+optimizer rejects local SVG unless `dangerouslyAllowSVG` is enabled.
+
+## Prohibited
+
+- Browser broken-image icons anywhere on the platform
+- `src=""` or dynamic src without validation
+- Patching with CSS `display:none` on broken images instead of fixing the source
+- New direct `next/image` imports in feature/page/component code
+
+## Enforcement
+
+- Vitest: `tests/image-safety-canonical.test.ts` scans the codebase for rogue
+  `next/image` usage and asserts validation helpers.
+- Listing Card freeze allows **broken image loading fixes only** — use `SafeImage`.

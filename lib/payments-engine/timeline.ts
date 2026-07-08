@@ -38,8 +38,8 @@ export function mapOrderStatusToFilters(status: OrderStatus): PaymentsEngineFilt
   return map[status];
 }
 
-export function mapProtectionStatus(status: OrderStatus, protectedFee: number): PaymentsEngineProtectionStatus {
-  if (protectedFee <= 0) return "protected";
+export function mapProtectionStatus(status: OrderStatus, platformFee: number): PaymentsEngineProtectionStatus {
+  if (platformFee <= 0) return "protected";
   if (status === "issue_open") return "disputed";
   if (status === "completed") return "released";
   if (["awaiting_shipment", "shipped", "delivered"].includes(status)) return "active";
@@ -59,7 +59,7 @@ export function mapOrderToPaymentSummary(order: Order, currency = "GBP"): Paymen
     currency,
     subtotal: order.totals.itemPrice,
     shipping: order.totals.delivery,
-    buyerProtectionFee: order.totals.protectedFee,
+    buyerProtectionFee: order.totals.platformFee,
     platformFee,
     discount: 0,
     tax: 0,
@@ -69,7 +69,7 @@ export function mapOrderToPaymentSummary(order: Order, currency = "GBP"): Paymen
     productTitle: order.product.title,
     createdAt: order.createdAt,
     completedAt: order.completedAt,
-    protectionStatus: mapProtectionStatus(order.status, order.totals.protectedFee),
+    protectionStatus: mapProtectionStatus(order.status, order.totals.platformFee),
     filterTags: mapOrderStatusToFilters(order.status),
   };
 }

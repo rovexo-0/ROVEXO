@@ -9,7 +9,7 @@ export default async function SuperAdminWalletEnginePage() {
     <>
       <SuperAdminPageHeader
         title="Wallet Engine"
-        description="Enterprise digital wallet — balances, payouts, transactions, integrations, and buyer protection."
+        description="Enterprise digital wallet — balances, payouts, transactions, integrations, and purchase protection."
       />
       <WalletEngineAdmin initialSnapshot={snapshot} />
     </>

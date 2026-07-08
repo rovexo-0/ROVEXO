@@ -7,7 +7,7 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 export const metadata: Metadata = buildPageMetadata({
   title: "Live Auctions",
   description:
-    "Live Auctions are coming soon to ROVEXO. Get notified when real-time bidding, watchlists, and buyer protection launch.",
+    "Live Auctions are coming soon to ROVEXO. Get notified when real-time bidding, watchlists, and purchase protection launch.",
   path: "/auctions",
 });
 

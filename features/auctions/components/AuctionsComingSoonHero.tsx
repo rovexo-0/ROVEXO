@@ -20,17 +20,17 @@ export const AuctionsComingSoonHero = memo(function AuctionsComingSoonHero({
       >
         <defs>
           <linearGradient id="as-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#eff6ff" />
+            <stop offset="0%" stopColor="rgb(147 51 234 / 0.08)" />
             <stop offset="45%" stopColor="#e0e7ff" />
             <stop offset="100%" stopColor="#ede9fe" />
           </linearGradient>
           <linearGradient id="as-glow" x1="50%" y1="0%" x2="50%" y2="100%">
-            <stop offset="0%" stopColor="#2563eb" stopOpacity="0.28" />
+            <stop offset="0%" stopColor="var(--ds-color-primary)" stopOpacity="0.28" />
             <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="as-blue" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#2563eb" />
+            <stop offset="0%" stopColor="#a855f7" />
+            <stop offset="100%" stopColor="var(--ds-color-primary)" />
           </linearGradient>
           <linearGradient id="as-purple" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#8b5cf6" />
@@ -50,7 +50,7 @@ export const AuctionsComingSoonHero = memo(function AuctionsComingSoonHero({
 
         <g filter="url(#as-sh)">
           <rect x="88" y="210" width="150" height="130" rx="18" fill="#f8fafc" />
-          <text x="118" y="252" fill="#2563eb" fontFamily="Segoe UI, Arial, sans-serif" fontSize="18" fontWeight="800">
+          <text x="118" y="252" fill="var(--ds-color-primary)" fontFamily="Segoe UI, Arial, sans-serif" fontSize="18" fontWeight="800">
             ROVEXO
           </text>
           <rect x="108" y="268" width="110" height="8" rx="4" fill="#cbd5e1" />

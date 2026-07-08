@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HomeCategoryIconImage } from "@/components/home/HomeCategoryIconImage";
+import { CategoryCompactIcon } from "@/features/categories/components/CategoryCompactIcon";
 import { resolveCategoryIconType } from "@/lib/home/category-icons";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
@@ -26,7 +26,7 @@ export function CategoryCompactCard({
       href={href ?? `/category/${slug}`}
       className={cn("rx-category-card", focusRing, className)}
     >
-      <HomeCategoryIconImage type={iconType} />
+      <CategoryCompactIcon type={iconType} />
       <span className="rx-category-card__text">
         <span className="rx-category-card__title">{name}</span>
         <span className="rx-category-card__subtitle">{subtitle}</span>

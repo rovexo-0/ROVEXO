@@ -1,0 +1,58 @@
+---
+description: ROVEXO Super Admin Command Center architecture (Single Source of Truth)
+globs:
+  - app/super-admin/**
+  - app/api/super-admin/**
+  - lib/super-admin/**
+  - features/super-admin/**
+alwaysApply: false
+---
+
+# ROVEXO Super Admin Architecture
+
+## Single account, single super admin
+
+- One platform role: `super_admin` (singleton enforced in DB).
+- Route: `/super-admin` — Mission Control v2 is the home dashboard.
+- Legacy `/admin/*` redirects to `/super-admin`. Do not add parallel admin stacks.
+
+## Canonical module registry
+
+SSOT: `lib/super-admin/command-center/registry.ts`
+
+- Every Super Admin module must be registered here with `id`, `href`, `category`, `status`.
+- Do not add duplicate “basic” pages when an enterprise engine exists.
+
+## Canonical commerce routes
+
+| Domain | Canonical route |
+|--------|-----------------|
+| Listings / moderation | `/super-admin/moderation` |
+| Orders | `/super-admin/orders-engine` |
+| Payments | `/super-admin/payments-engine` |
+| Wallet | `/super-admin/wallet-engine` |
+| Shipping | `/super-admin/shipping-engine` |
+
+Legacy paths (`/super-admin/listings`, `/orders`, `/payments`) redirect to canonical routes.
+
+## Database Command Center
+
+SSOT: `lib/super-admin/database-health/`
+
+- Production UI: `/super-admin/database`
+- API: `/api/super-admin/database`
+- Read-only: migrations list, core table counts, storage buckets, connection health.
+- No arbitrary SQL execution in production UI.
+
+## API & auth
+
+- All `/api/super-admin/*` routes require `requireApiSuperAdmin()`.
+- Mutations must call `auditSuperAdminAction()`.
+- Prefer enterprise engine pattern: `reader.ts` + `engine.ts` + descriptor in `lib/enterprise-architecture/registry.ts`.
+
+## Do not
+
+- ❌ Create duplicate nav registries without updating `command-center/registry.ts`
+- ❌ Add new basic list pages when an engine module exists
+- ❌ Bypass RLS with client-side Supabase for admin operations
+- ❌ Expose service-role keys or raw SQL consoles in production

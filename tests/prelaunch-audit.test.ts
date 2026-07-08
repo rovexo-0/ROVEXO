@@ -65,12 +65,14 @@ describe("Pre-launch production config", () => {
     expect(source).not.toMatch(/sellerId: input\.sellerId/);
   });
 
-  it("gates seller orders routes to sellers", () => {
-    for (const route of ["app/seller/orders/page.tsx", "app/seller/orders/[id]/page.tsx"]) {
-      const source = readFileSync(path.join(process.cwd(), route), "utf8");
-      expect(source).toContain("profile.isSeller");
-      expect(source).toContain('redirect("/account")');
-    }
+  it("requires authenticated profile for seller orders routes (unified account)", () => {
+    const listSource = readFileSync(path.join(process.cwd(), "app/seller/orders/page.tsx"), "utf8");
+    expect(listSource).toContain("getProfile()");
+    expect(listSource).toContain("fetchOrdersForUser");
+
+    const detailSource = readFileSync(path.join(process.cwd(), "app/seller/orders/[id]/page.tsx"), "utf8");
+    expect(detailSource).toContain("getProfile()");
+    expect(detailSource).toContain("fetchOrderForUser");
   });
 
   it("blocks checkout when seller is on vacation", () => {

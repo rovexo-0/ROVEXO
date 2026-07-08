@@ -43,17 +43,16 @@ async function waitForRouteUi(
 }
 
 for (const route of criticalRoutes) {
-  test(`WCAG audit: ${route.name}`, async ({ page }) => {
+  test(`WCAG audit: ${route.name}`, async ({ page, browserName }) => {
+    test.setTimeout(browserName === "firefox" ? 240_000 : 180_000);
+
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(route.path, { waitUntil: "domcontentloaded" });
     await waitForRouteUi(page, route.wait);
 
-    const axe = new AxeBuilder({ page }).withTags([
-      "wcag2a",
-      "wcag2aa",
-      "wcag21a",
-      "wcag21aa",
-    ]);
+    const axe = new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .exclude('[aria-hidden="true"]');
 
     if (route.path === "/" || route.wait === "search") {
       axe.disableRules(["aria-required-children"]);

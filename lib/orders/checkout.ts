@@ -1,5 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getDeliveryCarrier, getDeliveryPrice, type DeliveryOptionId } from "@/lib/checkout/delivery";
+import { getDeliveryCarrierFromQuote, getDeliveryPrice } from "@/lib/checkout/delivery";
+import {
+  fetchCheckoutCarrierQuotes,
+  findCheckoutCarrierQuote,
+  resolveLiveDeliveryPrice,
+} from "@/lib/checkout/shipping-quotes.server";
 import { isPurchasable, releaseProductInventory, reserveProductInventory } from "@/lib/inventory/service";
 import { notifyOrderPaid, notifyOrderCancelled } from "@/lib/orders/notifications";
 import { onOrderCancelled } from "@/lib/trust/events";
@@ -8,6 +13,7 @@ import { getOrderById } from "@/lib/orders/store";
 import type { Order } from "@/lib/orders/types";
 import { buildOrderReceiptUrl, generateInvoiceNumber } from "@/lib/invoices/receipt";
 import { calculateSellerNetAmount } from "@/lib/wallet/sales";
+import { openEscrowForOrder } from "@/lib/commerce-engine";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
 import { assertMarketplacePurchaseAllowedForProductSlug } from "@/lib/transaction-mode/validate";
@@ -19,8 +25,9 @@ export const ORDER_CHECKOUT_RESERVATION_MINUTES = RESERVATION_MINUTES;
 type CheckoutInput = {
   buyerId: string;
   productSlug: string;
-  deliveryOption: DeliveryOptionId;
+  deliveryOption: string;
   shippingAddressId?: string;
+  shippingQuoteId?: string | null;
 };
 
 type CheckoutResult =
@@ -80,12 +87,51 @@ export async function createOrderCheckoutSession(
     return { error: reserved.error ?? "Unable to reserve inventory." };
   }
 
-  const deliveryCarrier = getDeliveryCarrier(input.deliveryOption);
   const listingOffersFreeDelivery = product.shipping_price === 0;
-  const deliveryPrice = getDeliveryPrice(input.deliveryOption, {
+  let deliveryPrice = getDeliveryPrice({
     listingOffersFreeDelivery,
     listingShippingPrice: product.shipping_price != null ? Number(product.shipping_price) : null,
   });
+  let deliveryCarrier = getDeliveryCarrierFromQuote(null);
+
+  if (input.shippingQuoteId && input.shippingAddressId) {
+    const { data: shippingAddress } = await admin
+      .from("shipping_addresses")
+      .select("recipient_name, address_line, postcode, country")
+      .eq("id", input.shippingAddressId)
+      .maybeSingle();
+
+    if (shippingAddress) {
+      const livePrice = await resolveLiveDeliveryPrice({
+        productSlug: input.productSlug,
+        shippingQuoteId: input.shippingQuoteId,
+        recipientName: shippingAddress.recipient_name,
+        addressLine: shippingAddress.address_line,
+        postcode: shippingAddress.postcode,
+        country: shippingAddress.country,
+      });
+
+      if (livePrice != null) {
+        deliveryPrice = livePrice;
+        const { options } = await fetchCheckoutCarrierQuotes({
+          productSlug: input.productSlug,
+          recipientName: shippingAddress.recipient_name,
+          addressLine: shippingAddress.address_line,
+          postcode: shippingAddress.postcode,
+          country: shippingAddress.country,
+        });
+        deliveryCarrier = getDeliveryCarrierFromQuote(
+          findCheckoutCarrierQuote(options, input.shippingQuoteId ?? ""),
+        );
+      }
+    }
+  }
+
+  if (!listingOffersFreeDelivery && deliveryPrice == null) {
+    await releaseProductInventory(product.id, 1);
+    return { error: "Unable to retrieve shipping price." };
+  }
+
   const totals = calculateOrderTotals(Number(product.price), deliveryPrice);
   const { platformFee, sellerAmount } = calculateSellerNetAmount(totals.itemPrice);
   const reservedUntil = new Date(Date.now() + RESERVATION_MINUTES * 60 * 1000).toISOString();
@@ -104,7 +150,7 @@ export async function createOrderCheckoutSession(
       status: "awaiting_payment",
       delivery_carrier: deliveryCarrier,
       item_price: totals.itemPrice,
-      protected_fee: totals.protectedFee,
+      protected_fee: totals.platformFee,
       delivery_fee: totals.delivery,
       total: totals.total,
       platform_fee: platformFee,
@@ -198,8 +244,8 @@ export async function createOrderCheckoutSession(
       quantity: 1,
       price_data: {
         currency: "gbp",
-        unit_amount: Math.round(totals.protectedFee * 100),
-        product_data: { name: "Buyer Protection" },
+        unit_amount: Math.round(totals.platformFee * 100),
+        product_data: { name: "Platform Fee" },
       },
     },
   ];
@@ -276,6 +322,7 @@ export async function fulfillOrderFromStripeSession(session: {
       buyer_id,
       seller_id,
       item_price,
+      delivery_fee,
       stripe_session_id,
       order_items ( product_id, title, image_url, quantity )
     `,
@@ -333,6 +380,20 @@ export async function fulfillOrderFromStripeSession(session: {
         seller_payout: sellerAmount,
       })
       .eq("id", orderId);
+
+    // Commerce Engine — open escrow: seller money enters PENDING, buyer-paid
+    // shipping is reserved. This is an overlay only; Stripe already collected.
+    await openEscrowForOrder({
+      orderId,
+      orderNumber: order.order_number,
+      sellerId: order.seller_id,
+      buyerId: order.buyer_id,
+      productTitle: item.title,
+      productImageUrl: item.image_url,
+      itemPrice: Number(order.item_price),
+      deliveryFee: Number(order.delivery_fee ?? 0),
+      stripePaymentIntentId: paymentIntentId,
+    });
   }
 
   const [{ data: buyerProfile }, { data: sellerProfile }] = await Promise.all([

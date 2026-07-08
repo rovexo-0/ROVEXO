@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { SellerSection } from "@/components/seller/SellerSection";
 import { useSellerDashboard } from "@/hooks/seller";
 import { formatCurrency } from "@/lib/wallet/utils";
@@ -24,7 +24,7 @@ export function SellerAnalyticsCard() {
       </div>
       {analytics.topListings.slice(0, 3).map((listing) => (
         <div key={listing.id} className="seller-list-row">
-          <Image src={listing.imageUrl} alt="" width={48} height={48} className="rounded-xl object-cover" />
+          <SafeImage src={listing.imageUrl} alt="" width={48} height={48} className="rounded-xl object-cover" />
           <div className="min-w-0">
             <p className="seller-list-row__title">{listing.title}</p>
             <p className="seller-list-row__meta">{formatCurrency(listing.revenue)} · {listing.orders} orders</p>

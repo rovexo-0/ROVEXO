@@ -1,0 +1,64 @@
+{
+  "audit": {
+    "version": "v1.1",
+    "headerPresent": false,
+    "galleryIsFirst": true,
+    "galleryTop": -715,
+    "shellTop": -715,
+    "galleryBadgePresent": false,
+    "counterText": "1 / 8",
+    "thumbCount": 8,
+    "actionButtons": [
+      "Add to Cart",
+      "Buy Now"
+    ],
+    "similarListingVersion": "official-2.1",
+    "overflowPx": 0
+  },
+  "report": [
+    {
+      "label": "product detail v1.1",
+      "pass": true
+    },
+    {
+      "label": "no sticky header",
+      "pass": true
+    },
+    {
+      "label": "gallery is first",
+      "pass": true
+    },
+    {
+      "label": "gallery starts at top",
+      "pass": true
+    },
+    {
+      "label": "no gallery promotion badge",
+      "pass": true
+    },
+    {
+      "label": "image counter",
+      "pass": true
+    },
+    {
+      "label": "thumbnails",
+      "pass": true
+    },
+    {
+      "label": "add to cart",
+      "pass": true
+    },
+    {
+      "label": "buy now",
+      "pass": true
+    },
+    {
+      "label": "similar listing card",
+      "pass": true
+    },
+    {
+      "label": "no horizontal overflow",
+      "pass": true
+    }
+  ]
+}

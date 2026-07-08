@@ -2,6 +2,7 @@ import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/env";
+import { getMarketplacePricingSettings } from "@/lib/promotions/marketplace-pricing";
 import {
   BUMP_COOLDOWN_HOURS,
   computeEndsAt,
@@ -114,8 +115,9 @@ export async function createPendingPromotion(
   durationId: string,
   amountCents: number,
 ): Promise<ListingPromotionRecord | null> {
+  const pricing = await getMarketplacePricingSettings();
   const endsAt = computeEndsAt(type, durationId);
-  const duration = getPromotionDuration(type, durationId);
+  const duration = getPromotionDuration(type, durationId, pricing);
   if (!endsAt || !duration) return null;
 
   const supabase = await createClient();
@@ -140,7 +142,8 @@ export async function createPendingPromotion(
 export async function applyListingPromotion(
   input: ApplyPromotionInput,
 ): Promise<{ success: boolean; endsAt?: string; error?: string }> {
-  const duration = getPromotionDuration(input.type, input.durationId);
+  const pricing = await getMarketplacePricingSettings();
+  const duration = getPromotionDuration(input.type, input.durationId, pricing);
   if (!duration) {
     return { success: false, error: "Invalid promotion duration." };
   }
@@ -328,7 +331,8 @@ export async function createPromotionCheckoutSession(input: {
   durationId: string;
   scheduledStartAt?: string | null;
 }): Promise<{ url: string } | { error: string }> {
-  const duration = getPromotionDuration(input.type, input.durationId);
+  const pricing = await getMarketplacePricingSettings();
+  const duration = getPromotionDuration(input.type, input.durationId, pricing);
   if (!duration) {
     return { error: "Invalid promotion duration." };
   }
@@ -399,7 +403,7 @@ export async function createPromotionCheckoutSession(input: {
 
   const stripe = getStripeClient();
   const baseUrl = getAppBaseUrl();
-  const label = input.type === "bump" ? "Bump listing" : "Feature listing";
+  const label = input.type === "bump" ? "Bump listing" : "Showcase listing";
 
   const session = await stripe.checkout.sessions.create(
     {

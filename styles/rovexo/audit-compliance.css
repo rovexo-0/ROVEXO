@@ -201,8 +201,8 @@
 }
 
 .ac-badge--information {
-  background: color-mix(in srgb, #3b82f6 18%, transparent);
-  color: #1d4ed8;
+  background: color-mix(in srgb, #a855f7 18%, transparent);
+  color: var(--ds-color-accent);
 }
 
 .ac-badge--warning {

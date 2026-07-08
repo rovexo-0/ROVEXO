@@ -27,7 +27,7 @@ export function CheckoutSuccessView({ form }: CheckoutSuccessViewProps) {
 
       <div className="mt-ds-8 flex w-full max-w-sm flex-col gap-ds-3">
         {order && (
-          <Link href={`/orders/${order.id}`} className="block w-full">
+          <Link href={`/orders/${order.id}?placed=1`} className="block w-full">
             <Button variant="primary" fullWidth size="lg" className="min-h-ds-7 rounded-ds-lg text-base">
               View Order
             </Button>

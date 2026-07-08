@@ -17,7 +17,7 @@ export const REGISTRY_V2_CATEGORIES: Array<{ id: RegistryV2Category; label: stri
   { id: "shipping", label: "Shipping" },
   { id: "wallet", label: "Wallet" },
   { id: "payments", label: "Payments" },
-  { id: "buyer-protection", label: "Buyer Protection" },
+  { id: "buyer-protection", label: "Purchase Protection" },
   { id: "messages", label: "Messages" },
   { id: "notifications", label: "Notifications" },
   { id: "ai", label: "AI" },

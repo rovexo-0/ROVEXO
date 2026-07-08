@@ -33,8 +33,8 @@ export default async function ProtectionRoute() {
 
 export async function generateMetadata() {
   return {
-    title: "Buyer Protection | ROVEXO",
-    description: "ROVEXO Buyer Protection Engine — dispute centre, evidence, fund protection, and analytics.",
+    title: "Purchase Protection | ROVEXO",
+    description: "ROVEXO Purchase Protection Engine — dispute centre, evidence, fund protection, and analytics.",
     robots: { index: false, follow: false },
   };
 }

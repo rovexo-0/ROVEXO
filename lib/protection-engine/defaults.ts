@@ -9,7 +9,7 @@ import type { ProtectionEngineDocument, ProtectionEngineHistoryEntry } from "@/l
 
 const now = () => new Date().toISOString();
 
-export function createDefaultProtectionEngineDocument(label = "ROVEXO Buyer Protection Engine"): ProtectionEngineDocument {
+export function createDefaultProtectionEngineDocument(label = "ROVEXO Purchase Protection Engine"): ProtectionEngineDocument {
   return {
     version: 1,
     updatedAt: now(),
@@ -65,7 +65,7 @@ export function createDefaultProtectionEngineDocument(label = "ROVEXO Buyer Prot
       "Multi-Currency Protection",
       "Business Protection",
       "Auction Protection",
-      "Premium Buyer Protection",
+      "Premium Purchase Protection",
     ],
     auditLog: [],
   };
@@ -94,6 +94,8 @@ function createDefaultNotifications(): ProtectionEngineDocument["notifications"]
   ];
 }
 
-export const PROTECTION_FEE_RATE = 0.05;
-export const MIN_PROTECTION_FEE = 0.99;
-export const MAX_PROTECTION_FEE = 9.99;
+export {
+  PLATFORM_FEE_RATE as PROTECTION_FEE_RATE,
+  MIN_PLATFORM_FEE as MIN_PROTECTION_FEE,
+  MAX_PLATFORM_FEE as MAX_PROTECTION_FEE,
+} from "@/lib/orders/pricing";

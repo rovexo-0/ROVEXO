@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { SellerEmptyState } from "@/components/seller/SellerEmptyState";
 import { SellerSection } from "@/components/seller/SellerSection";
@@ -17,7 +17,7 @@ export function SellerDraftsCard() {
         <div className="seller-scroll">
           {data.draftListings.map((listing) => (
             <Link key={listing.id} href={`/seller/listings/${listing.id}/edit`} className="seller-draft-card">
-              <Image src={listing.imageUrl} alt="" width={170} height={110} className="seller-draft-card__image" />
+              <SafeImage src={listing.imageUrl} alt="" width={170} height={110} className="seller-draft-card__image" />
               <div className="seller-draft-card__body">
                 <p className="seller-draft-card__title">{listing.title}</p>
               </div>

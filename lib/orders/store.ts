@@ -5,7 +5,9 @@ import { cancelPendingOrder } from "@/lib/orders/checkout";
 import { notifyOrderDelivered, notifyOrderShipped, notifyOrderRefunded } from "@/lib/orders/notifications";
 import { releaseProductInventory } from "@/lib/inventory/service";
 import type { DeliveryCarrier } from "@/lib/products/types";
-import { refundSellerForOrder, creditSellerForOrder } from "@/lib/wallet/sales";
+import { CommerceEngine, onOrderDelivered, openEscrowForOrder, releaseOrderNow } from "@/lib/commerce-engine";
+import { onShippingRecordStatusChanged } from "@/lib/commerce-engine/shipping-hooks.server";
+import { onBuyerConfirmed } from "@/lib/resolution-engine/hooks.server";
 import { createProtectionCase } from "@/lib/protection/service";
 import { onOrderCompleted, onOrderRefunded, onShipmentDelivered } from "@/lib/trust/events";
 import type {
@@ -61,7 +63,7 @@ function mapOrderRow(row: OrderRow): Order {
     seller: { id: row.seller.id, name: row.seller.full_name },
     totals: {
       itemPrice: Number(row.item_price),
-      protectedFee: Number(row.protected_fee),
+      platformFee: Number(row.protected_fee),
       delivery: Number(row.delivery_fee),
       total: Number(row.total),
     },
@@ -144,6 +146,8 @@ export async function applyOrderAction(
       return existing;
     }
 
+    await onShippingRecordStatusChanged({ orderId: id, status: "collected" });
+
     const admin = createAdminClient();
     const { data: buyerProfile } = await admin
       .from("profiles")
@@ -200,6 +204,9 @@ export async function applyOrderAction(
       onTime,
     });
 
+    // Commerce Engine — start the delivered + 24h auto-release timer.
+    await onOrderDelivered({ orderId: id, deliveredAt: deliveredAt.toISOString() });
+
     return getOrderById(id);
   }
 
@@ -238,7 +245,14 @@ export async function applyOrderAction(
       await releaseProductInventory(item.product_id, item.quantity ?? 1);
     }
 
-    await refundSellerForOrder(id, existing.seller.id);
+    await CommerceEngine.refundSeller({
+      orderId: id,
+      sellerId: existing.seller.id,
+      buyerId: existing.buyer.id,
+      refundType: "full",
+      amount: Number(orderRow?.total ?? existing.totals.total),
+      reason: "order_refund",
+    });
 
     const [{ data: buyerProfile }, { data: sellerProfile }] = await Promise.all([
       admin.from("profiles").select("email").eq("id", existing.buyer.id).maybeSingle(),
@@ -292,15 +306,20 @@ export async function applyOrderAction(
     )?.[0];
 
     if (orderRow && item) {
-      await creditSellerForOrder({
+      // Escrow was opened at payment; ensure it exists (idempotent), then
+      // release immediately because the buyer confirmed delivery (spec §3).
+      await openEscrowForOrder({
         orderId: id,
         orderNumber: orderRow.order_number,
         sellerId: orderRow.seller_id,
+        buyerId: existing.buyer.id,
         productTitle: item.title,
         productImageUrl: item.image_url,
         itemPrice: Number(orderRow.item_price),
         stripePaymentIntentId: orderRow.stripe_payment_intent_id,
       });
+      await releaseOrderNow(id);
+      await onBuyerConfirmed({ orderId: id });
     }
 
     void onOrderCompleted({

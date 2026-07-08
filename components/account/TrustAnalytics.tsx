@@ -22,27 +22,20 @@ const SEGMENT_COLORS = {
   negative: "#EF4444",
 } as const;
 
+function scoreStrokeColor(score: number): string {
+  if (score >= 80) return SEGMENT_COLORS.positive;
+  if (score >= 60) return SEGMENT_COLORS.neutral;
+  return SEGMENT_COLORS.negative;
+}
+
 /**
- * Circular trust ring: the sentiment breakdown (positive / neutral / negative)
- * renders as proportional arc segments with the trust score in the centre, plus
- * a colour-coded legend. Links to the Trust Centre.
+ * Circular trust ring with a single score arc (no overlapping segment circles).
+ * Sentiment breakdown lives in the legend only — stacked SVG stroke arcs with
+ * rotate transforms cause Android Chrome repaint ghosts during scroll.
  */
 export function TrustAnalytics({ score, sentiment }: TrustAnalyticsProps) {
-  const total = sentiment.positive + sentiment.neutral + sentiment.negative || 1;
-  const order: (keyof TrustSentiment)[] = ["positive", "neutral", "negative"];
-
-  let cumulative = 0;
-  const segments = order.map((key) => {
-    const fraction = sentiment[key] / total;
-    const seg = {
-      key,
-      color: SEGMENT_COLORS[key],
-      dash: fraction * C,
-      offset: -cumulative * C,
-    };
-    cumulative += fraction;
-    return seg;
-  });
+  const clampedScore = Math.min(100, Math.max(0, score));
+  const scoreArc = (clampedScore / 100) * C;
 
   return (
     <Link
@@ -55,23 +48,19 @@ export function TrustAnalytics({ score, sentiment }: TrustAnalyticsProps) {
       <div className="acx-trust__ring-wrap">
         <svg className="acx-trust__ring" viewBox="0 0 120 120" role="img" aria-hidden>
           <circle cx="60" cy="60" r={R} fill="none" stroke="#eef1f6" strokeWidth="12" />
-          {segments.map((seg) =>
-            seg.dash > 0 ? (
-              <circle
-                key={seg.key}
-                cx="60"
-                cy="60"
-                r={R}
-                fill="none"
-                stroke={seg.color}
-                strokeWidth="12"
-                strokeLinecap="round"
-                strokeDasharray={`${Math.max(seg.dash - 3, 0)} ${C}`}
-                strokeDashoffset={seg.offset}
-                transform="rotate(-90 60 60)"
-              />
-            ) : null,
-          )}
+          {scoreArc > 0 ? (
+            <circle
+              cx="60"
+              cy="60"
+              r={R}
+              fill="none"
+              stroke={scoreStrokeColor(clampedScore)}
+              strokeWidth="12"
+              strokeLinecap="round"
+              strokeDasharray={`${scoreArc} ${C}`}
+              strokeDashoffset={C / 4}
+            />
+          ) : null}
         </svg>
         <div className="acx-trust__center">
           <span className="acx-trust__score">{score}</span>

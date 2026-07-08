@@ -8,13 +8,13 @@ import { expect, type Page } from "@playwright/test";
 
 /** Canonical homepage landmarks — keep in sync with RovexoHomePage composition. */
 
-export const HOMEPAGE_MAIN_SELECTOR = "main.home-v1-main";
+export const HOMEPAGE_MAIN_SELECTOR = 'main[data-hp-homepage="canonical"]';
 
-export const CATEGORY_RAIL_SELECTOR = 'section[aria-label="Categories"]';
+export const CATEGORY_RAIL_SELECTOR = 'nav[aria-label="Categories"]';
 
 export const ALL_LISTINGS_SELECTOR = '[data-homepage-listing-container="grid"]';
 
-export const LISTING_CARD_SELECTOR = '[data-listing-card="rovexo"]';
+export const LISTING_CARD_SELECTOR = '[data-hp-listing-card="official"]';
 
 
 
@@ -24,11 +24,23 @@ export const RESPONSIVE_VIEWPORTS = [
 
   { name: "iphone-15", label: "iPhone 15", width: 393, height: 852 },
 
-  { name: "pixel-7", label: "Pixel 7", width: 412, height: 915 },
+  { name: "iphone-pro-max", label: "iPhone Pro Max", width: 440, height: 956 },
+
+  { name: "android-small", label: "Android Small", width: 360, height: 780 },
+
+  { name: "android-medium", label: "Pixel 7", width: 412, height: 915 },
+
+  { name: "android-large", label: "Android Large", width: 480, height: 1014 },
+
+  { name: "foldable", label: "Foldable", width: 717, height: 512 },
 
   { name: "ipad", label: "iPad", width: 768, height: 1024 },
 
-  { name: "desktop", label: "Desktop", width: 1280, height: 800 },
+  { name: "laptop", label: "Laptop", width: 1280, height: 800 },
+
+  { name: "desktop", label: "Desktop", width: 1440, height: 900 },
+
+  { name: "ultrawide", label: "UltraWide", width: 2560, height: 1080 },
 
 ] as const;
 
@@ -82,7 +94,7 @@ async function waitForSearchResultsResponse(page: Page): Promise<void> {
 
 
 
-export const HEADER_SELECTOR = '[data-header-version="rovexo-v1"]';
+export const HEADER_SELECTOR = '[data-header-version="rovexo-v2"]';
 
 
 
@@ -92,7 +104,7 @@ export async function waitForHomepageUi(page: Page): Promise<void> {
 
   await expect(page.locator(HEADER_SELECTOR).first()).toBeVisible();
 
-  await expect(page.locator('#header-search, [data-header-search="bar"]').first()).toBeVisible();
+  await expect(page.locator('#rx-h2-search, [data-header-search="field"]').first()).toBeVisible();
 
   await expect(page.locator(HOMEPAGE_MAIN_SELECTOR).first()).toBeVisible();
 

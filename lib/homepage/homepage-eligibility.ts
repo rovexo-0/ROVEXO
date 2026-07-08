@@ -240,23 +240,7 @@ export const HomepageEligibility = {
     };
   },
 
-  fromRow(row: {
-    slug: string;
-    title: string;
-    description: string | null;
-    status: string;
-    price: number;
-    category_id: string | null;
-    moderation_status: string | null;
-    profiles: {
-      email: string | null;
-      username: string | null;
-      verified: boolean | null;
-      account_status: string | null;
-      role: string | null;
-    } | null;
-    product_images: Array<{ url?: string | null; thumbnail_url?: string | null }> | null;
-  }): HomepageListingInput {
+  fromRow(row: EligibilityRow): HomepageListingInput {
     const images = (row.product_images ?? [])
       .map((image) => image.thumbnail_url ?? image.url)
       .filter(Boolean) as string[];
@@ -283,6 +267,39 @@ export const HomepageEligibility = {
   filterProducts<T extends Product>(products: T[]): T[] {
     return products.filter((product) => HomepageEligibility.isEligible(HomepageEligibility.fromProduct(product)));
   },
+
+  /**
+   * Canonical raw-row eligibility gate. Every marketplace surface (homepage,
+   * search, category, seller store, similar, recent) must run product rows
+   * through THIS function so public visibility rules never diverge. Accepts the
+   * shared `products` row shape (with joined `profiles` + `product_images`).
+   */
+  isRowEligible(row: EligibilityRow): boolean {
+    return HomepageEligibility.isEligible(HomepageEligibility.fromRow(row));
+  },
+
+  filterEligibleRows<T extends EligibilityRow>(rows: T[]): T[] {
+    return rows.filter((row) => HomepageEligibility.isRowEligible(row));
+  },
+};
+
+/** Shared product-row shape consumed by every eligibility check. */
+export type EligibilityRow = {
+  slug: string;
+  title: string;
+  description: string | null;
+  status: string;
+  price: number | string;
+  category_id: string | null;
+  moderation_status: string | null;
+  profiles?: {
+    email?: string | null;
+    username?: string | null;
+    verified?: boolean | null;
+    account_status?: string | null;
+    role?: string | null;
+  } | null;
+  product_images?: Array<{ url?: string | null; thumbnail_url?: string | null }> | null;
 };
 
 export { isClosedBetaHomepageMode, resolveHomepageMode };

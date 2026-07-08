@@ -17,9 +17,9 @@ export function CheckoutReturnPolicy({ form }: CheckoutReturnPolicyProps) {
 
   return (
     <Card padding="lg" className="">
-      <h2 className="text-base font-semibold text-text-primary">Returns & buyer protection</h2>
+      <h2 className="text-base font-semibold text-text-primary">Returns & purchase protection</h2>
       <p className="mt-ds-2 text-sm text-text-secondary">
-        Eligible purchases include ROVEXO Buyer Protection. You may open a case within{" "}
+        Eligible purchases include ROVEXO Purchase Protection. You may open a case within{" "}
         {RETURN_WINDOW_DAYS} days of delivery if an item is not as described.{" "}
         <Link href="/help/buying-buyer-protection" className="font-medium text-primary underline">
           Read the full policy
@@ -40,7 +40,7 @@ export function CheckoutReturnPolicy({ form }: CheckoutReturnPolicyProps) {
           className="mt-0.5 h-4 w-4 rounded border-border text-primary"
         />
         <span className="text-sm text-text-primary">
-          I understand the return window, buyer protection fee, and resolution process.
+          I understand the return window, platform fee, and resolution process.
         </span>
       </label>
     </Card>

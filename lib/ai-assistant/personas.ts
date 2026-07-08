@@ -12,8 +12,8 @@ export const ASSISTANT_PERSONAS: PersonaProfile[] = [
   {
     id: "buyer",
     label: "Buyer Assistant",
-    description: "Checkout, orders, returns, and buyer protection",
-    greeting: "I can help with buying, orders, refunds, and buyer protection.",
+    description: "Checkout, orders, returns, and purchase protection",
+    greeting: "I can help with buying, orders, refunds, and purchase protection.",
     focusAreas: ["orders", "buyer", "refunds", "shipping", "payments"],
   },
   {

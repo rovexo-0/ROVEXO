@@ -7,7 +7,7 @@ import { ResolutionCentreView } from "@/features/resolution/components/Resolutio
 export const metadata: Metadata = {
   ...privatePageMetadata,
   title: "Resolution Centre",
-  description: "Manage refund requests, returns, and buyer protection cases on ROVEXO.",
+  description: "Manage refund requests, returns, and purchase protection cases on ROVEXO.",
 };
 
 export default async function ResolutionCentrePage() {

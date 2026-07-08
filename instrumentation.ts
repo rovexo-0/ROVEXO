@@ -3,4 +3,7 @@ export async function register() {
 
   const { validateShippoEnvironmentOnStartup } = await import("@/lib/shipping/env");
   validateShippoEnvironmentOnStartup();
+
+  const { validateParcel2GoEnvironmentOnStartup } = await import("@/src/services/shipping/env");
+  validateParcel2GoEnvironmentOnStartup();
 }

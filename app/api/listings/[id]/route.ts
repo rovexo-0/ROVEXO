@@ -8,6 +8,7 @@ import {
   updateSellerListing,
 } from "@/lib/listings/repository";
 import { revalidatePublishedListing } from "@/lib/listings/revalidate-published-listing";
+import { syncProfileVerifiedOnPublish } from "@/lib/profile/sync-verified";
 import { clampInventory, isInventoryValid } from "@/lib/sell/inventory";
 import { sanitizeListingLocationCity } from "@/lib/sell/listing-location";
 import {
@@ -100,6 +101,10 @@ export async function PATCH(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Listing not found." }, { status: 404 });
     }
 
+    if (listing.status === "published" && auth.user.email_confirmed_at) {
+      await syncProfileVerifiedOnPublish(auth.user.id, auth.user.email_confirmed_at);
+    }
+
     revalidatePublishedListing(listing.slug);
 
     return NextResponse.json({ listing });
@@ -122,10 +127,15 @@ export async function DELETE(_request: Request, context: RouteContext) {
   if (roleCheck instanceof NextResponse) return roleCheck;
 
   const { id } = await context.params;
+  const existing = await getSellerListingById(auth.user.id, id);
   const deleted = await deleteSellerListing(auth.user.id, id);
 
   if (!deleted) {
     return NextResponse.json({ error: "Listing not found." }, { status: 404 });
+  }
+
+  if (existing?.slug) {
+    revalidatePublishedListing(existing.slug);
   }
 
   return NextResponse.json({ success: true });

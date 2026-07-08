@@ -97,7 +97,7 @@ function scanOrder(scan: MarketplaceCompletionScanResult): CompletionValidationI
     if (check === "prices" || check === "grand-total") pass = pricing.length > 0;
     if (check === "discounts") pass = fileExists("app/api/promotions/checkout/route.ts");
     if (check === "buyer-protection") pass = fileExists("features/checkout/components/CheckoutReturnPolicy.tsx");
-    if (check === "vat") pass = pricing.includes("protectedFee") || pricing.includes("calculateOrderTotals");
+    if (check === "vat") pass = pricing.includes("platformFee") || pricing.includes("calculateOrderTotals");
     if (check === "shipping-cost") pass = fileExists("lib/checkout/delivery.ts");
     if (check === "invoice" || check === "order-number") pass = fileExists("app/api/orders/[id]/receipt/route.ts");
     if (check === "grand-total") pass = orderSummary.length > 0;

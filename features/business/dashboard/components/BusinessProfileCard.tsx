@@ -1,10 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Badge } from "@/components/ui/Badge";
+import { Avatar } from "@/components/ui/Avatar";
+import { BusinessBadge, resolveBusinessBadgeKinds } from "@/components/ui/BusinessBadge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Rating } from "@/components/ui/Rating";
-import { VerifiedIcon } from "@/features/product-detail/icons";
 import type { BusinessCompanyInfo } from "@/lib/business/types";
 
 type BusinessProfileCardProps = {
@@ -12,28 +11,36 @@ type BusinessProfileCardProps = {
 };
 
 export function BusinessProfileCard({ company }: BusinessProfileCardProps) {
+  const badgeKinds = resolveBusinessBadgeKinds({
+    verifiedBusiness: company.verifiedBusiness,
+    verifiedWholesale: company.verifiedWholesale,
+    verifiedManufacturer: company.verifiedManufacturer,
+    verifiedSupplier: company.verifiedSupplier,
+  });
+
   return (
     <Card padding="md" className="">
       <div className="flex items-start gap-ds-3">
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-ds-lg bg-surface-muted">
-          <Image
-            src={company.companyLogoUrl}
-            alt={`${company.companyName} logo`}
-            fill
-            className="object-cover"
-            sizes="64px"
-          />
-        </div>
+        <Avatar
+          src={company.companyLogoUrl}
+          alt={`${company.companyName} logo`}
+          name={company.companyName}
+          size="lg"
+          className="shrink-0 rounded-ds-lg"
+        />
 
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-base font-semibold text-text-primary">
             {company.companyName}
           </h2>
 
-          <Badge variant="success" className="mt-ds-2 gap-ds-1">
-            <VerifiedIcon className="h-3.5 w-3.5" />
-            Verified Business
-          </Badge>
+          {badgeKinds.length > 0 ? (
+            <div className="mt-ds-2 flex flex-wrap gap-1">
+              {badgeKinds.map((kind) => (
+                <BusinessBadge key={kind} kind={kind} compact />
+              ))}
+            </div>
+          ) : null}
 
           <div className="mt-ds-2">
             <Rating value={company.rating} reviewCount={company.reviewCount} size="sm" />

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
@@ -41,7 +41,7 @@ export function ConversationCard({ conversation }: ConversationCardProps) {
 
           <div className="flex shrink-0 flex-col items-end gap-ds-2">
             <div className="relative h-11 w-11 overflow-hidden rounded-ds-md bg-surface-muted">
-              <Image
+              <SafeImage
                 src={product.imageUrl}
                 alt={product.title}
                 fill

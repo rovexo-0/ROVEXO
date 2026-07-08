@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { memo, useCallback, useRef, useState } from "react";
 import { HOME_PROMO_SLIDES } from "@/lib/home/constants";
@@ -55,7 +55,7 @@ export const HomePromoBanner = memo(function HomePromoBanner({ className }: { cl
         )}
       >
         <div className="relative aspect-[2.35/1] w-full sm:aspect-[2.6/1]">
-          <Image
+          <SafeImage
             src={getCategoryImageUrl(slide.categorySlug)}
             alt=""
             fill

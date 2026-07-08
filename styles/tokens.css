@@ -3,11 +3,12 @@
 :root {
   color-scheme: light;
 
-  /* ── Color — Light (elegant white, soft blue accents) ── */
-  --ds-color-primary: #2563eb;
-  --ds-color-primary-foreground: #f8fafc;
-  --ds-color-accent: #1d4ed8;
-  --ds-color-accent-foreground: #f8fafc;
+  /* ── Color — Light (white background, black text, purple accent) ── */
+  --ds-color-brand-purple: #9333ea;
+  --ds-color-primary: #9333ea;
+  --ds-color-primary-foreground: #faf5ff;
+  --ds-color-accent: #7c3aed;
+  --ds-color-accent-foreground: #faf5ff;
   --ds-color-secondary: #eef2f8;
   --ds-color-secondary-foreground: #1e293b;
   --ds-color-success: #059669;
@@ -25,31 +26,31 @@
   --ds-color-text-primary: #0f172a;
   --ds-color-text-secondary: #64748b;
   --ds-color-text-muted: #64748b;
-  --ds-color-ring: #2563eb;
+  --ds-color-ring: #9333ea;
   --ds-color-star: #fbbf24;
   --ds-color-overlay: rgb(248 250 252 / 0.88);
-  --ds-color-primary-deep: #1e40af;
+  --ds-color-primary-deep: #6d28d9;
   --ds-gradient-primary: linear-gradient(
     135deg,
-    #3b82f6 0%,
-    #2563eb 52%,
-    #1d4ed8 100%
+    #a855f7 0%,
+    #9333ea 52%,
+    #7c3aed 100%
   );
   --ds-gradient-accent: linear-gradient(
     135deg,
-    rgb(37 99 235 / 0.14) 0%,
-    rgb(29 78 216 / 0.06) 100%
+    rgb(147 51 234 / 0.14) 0%,
+    rgb(124 58 237 / 0.06) 100%
   );
   --ds-gradient-hero: linear-gradient(
     145deg,
     #0f172a 0%,
-    #1e3a8a 38%,
-    #2563eb 72%,
-    #3b82f6 100%
+    #3b0764 38%,
+    #9333ea 72%,
+    #a855f7 100%
   );
   --ds-gradient-page: radial-gradient(
     ellipse 120% 80% at 50% -20%,
-    rgb(37 99 235 / 0.1),
+    rgb(147 51 234 / 0.1),
     transparent 58%
   );
 
@@ -111,8 +112,8 @@
   /* ── Shadows — soft, premium, layered ── */
   --ds-shadow-soft: 0 1px 2px rgb(15 23 42 / 0.04), 0 6px 16px rgb(15 23 42 / 0.05);
   --ds-shadow-medium: 0 2px 4px rgb(15 23 42 / 0.05), 0 12px 28px rgb(15 23 42 / 0.08);
-  --ds-shadow-floating: 0 8px 24px rgb(15 23 42 / 0.1), 0 24px 48px rgb(37 99 235 / 0.08);
-  --ds-shadow-premium: 0 16px 40px rgb(15 23 42 / 0.12), 0 4px 12px rgb(37 99 235 / 0.1);
+  --ds-shadow-floating: 0 8px 24px rgb(15 23 42 / 0.1), 0 24px 48px rgb(147 51 234 / 0.08);
+  --ds-shadow-premium: 0 16px 40px rgb(15 23 42 / 0.12), 0 4px 12px rgb(147 51 234 / 0.1);
 
   /* ── Animation — smooth easing only ── */
   --ds-duration-fast: 180ms;
@@ -129,10 +130,11 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --ds-color-primary: #3b82f6;
-  --ds-color-primary-foreground: #f8fafc;
-  --ds-color-accent: #60a5fa;
-  --ds-color-accent-foreground: #0b1120;
+  --ds-color-brand-purple: #a855f7;
+  --ds-color-primary: #a855f7;
+  --ds-color-primary-foreground: #faf5ff;
+  --ds-color-accent: #9333ea;
+  --ds-color-accent-foreground: #faf5ff;
   --ds-color-secondary: #1e293b;
   --ds-color-secondary-foreground: #e2e8f0;
   --ds-color-success: #34d399;
@@ -150,31 +152,31 @@
   --ds-color-text-primary: #f1f5f9;
   --ds-color-text-secondary: #a3b1c6;
   --ds-color-text-muted: #94a3b8;
-  --ds-color-ring: #60a5fa;
+  --ds-color-ring: #a855f7;
   --ds-color-star: #fbbf24;
   --ds-color-overlay: rgb(2 6 23 / 0.74);
-  --ds-color-primary-deep: #1d4ed8;
+  --ds-color-primary-deep: #7c3aed;
   --ds-gradient-primary: linear-gradient(
     135deg,
-    #3b82f6 0%,
-    #2563eb 52%,
-    #1d4ed8 100%
+    #c084fc 0%,
+    #a855f7 52%,
+    #9333ea 100%
   );
   --ds-gradient-accent: linear-gradient(
     135deg,
-    rgb(59 130 246 / 0.22) 0%,
-    rgb(29 78 216 / 0.08) 100%
+    rgb(168 85 247 / 0.22) 0%,
+    rgb(124 58 237 / 0.08) 100%
   );
   --ds-gradient-hero: linear-gradient(
     145deg,
     #020617 0%,
-    #0b2447 38%,
-    #1d4ed8 74%,
-    #2563eb 100%
+    #3b0764 38%,
+    #7c3aed 74%,
+    #9333ea 100%
   );
   --ds-gradient-page: radial-gradient(
     ellipse 120% 80% at 50% -20%,
-    rgb(37 99 235 / 0.16),
+    rgb(147 51 234 / 0.16),
     transparent 58%
   );
 
@@ -187,10 +189,10 @@
 [data-theme="light"] {
   color-scheme: light;
 
-  --ds-color-primary: #2563eb;
-  --ds-color-primary-foreground: #f8fafc;
-  --ds-color-accent: #1d4ed8;
-  --ds-color-accent-foreground: #f8fafc;
+  --ds-color-primary: #9333ea;
+  --ds-color-primary-foreground: #faf5ff;
+  --ds-color-accent: #7c3aed;
+  --ds-color-accent-foreground: #faf5ff;
   --ds-color-secondary: #eef2f8;
   --ds-color-secondary-foreground: #1e293b;
   --ds-color-success: #059669;
@@ -208,36 +210,36 @@
   --ds-color-text-primary: #0f172a;
   --ds-color-text-secondary: #64748b;
   --ds-color-text-muted: #64748b;
-  --ds-color-ring: #2563eb;
+  --ds-color-ring: #9333ea;
   --ds-color-star: #fbbf24;
   --ds-color-overlay: rgb(248 250 252 / 0.88);
-  --ds-color-primary-deep: #1e40af;
+  --ds-color-primary-deep: #6d28d9;
   --ds-gradient-primary: linear-gradient(
     135deg,
-    #3b82f6 0%,
-    #2563eb 52%,
-    #1d4ed8 100%
+    #a855f7 0%,
+    #9333ea 52%,
+    #7c3aed 100%
   );
   --ds-gradient-accent: linear-gradient(
     135deg,
-    rgb(37 99 235 / 0.14) 0%,
-    rgb(29 78 216 / 0.06) 100%
+    rgb(147 51 234 / 0.14) 0%,
+    rgb(124 58 237 / 0.06) 100%
   );
   --ds-gradient-hero: linear-gradient(
     145deg,
     #0f172a 0%,
-    #1e3a8a 38%,
-    #2563eb 72%,
-    #3b82f6 100%
+    #3b0764 38%,
+    #9333ea 72%,
+    #a855f7 100%
   );
   --ds-gradient-page: radial-gradient(
     ellipse 120% 80% at 50% -20%,
-    rgb(37 99 235 / 0.1),
+    rgb(147 51 234 / 0.1),
     transparent 58%
   );
 
   --ds-shadow-soft: 0 1px 2px rgb(15 23 42 / 0.04), 0 6px 16px rgb(15 23 42 / 0.05);
   --ds-shadow-medium: 0 2px 4px rgb(15 23 42 / 0.05), 0 12px 28px rgb(15 23 42 / 0.08);
-  --ds-shadow-floating: 0 8px 24px rgb(15 23 42 / 0.1), 0 24px 48px rgb(37 99 235 / 0.08);
-  --ds-shadow-premium: 0 16px 40px rgb(15 23 42 / 0.12), 0 4px 12px rgb(37 99 235 / 0.1);
+  --ds-shadow-floating: 0 8px 24px rgb(15 23 42 / 0.1), 0 24px 48px rgb(147 51 234 / 0.08);
+  --ds-shadow-premium: 0 16px 40px rgb(15 23 42 / 0.12), 0 4px 12px rgb(147 51 234 / 0.1);
 }

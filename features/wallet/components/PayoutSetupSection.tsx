@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { RovexoIcon } from "@/components/icons/RovexoIcon";
+import { RovexoIcons } from "@/lib/icons/icons";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -40,9 +42,9 @@ export function PayoutSetupSection({ connectStatus }: PayoutSetupSectionProps) {
         <div className="flex min-h-[72px] items-center gap-ds-3">
           <div
             aria-hidden="true"
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-ds-lg bg-surface-muted text-xl text-text-secondary"
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-ds-lg bg-surface-muted"
           >
-            🏦
+            <RovexoIcon icon={RovexoIcons.payments.payment} variant="category" />
           </div>
 
           <div className="min-w-0 flex-1">

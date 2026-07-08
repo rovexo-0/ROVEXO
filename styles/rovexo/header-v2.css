@@ -1,0 +1,200 @@
+/**
+ * ROVEXO Header V2 — canonical shell (Homepage, Search, Sell, My Account)
+ */
+
+.rx-h2 {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: #ffffff;
+  border-bottom: 1px solid var(--ds-color-border);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+}
+
+.rx-h2--scrolled {
+  border-bottom-color: var(--ds-color-border);
+}
+
+.rx-h2__inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 64px;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 32px;
+  box-sizing: border-box;
+}
+
+.rx-h2__logo {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  height: 40px;
+  text-decoration: none;
+  color: var(--ds-color-text-primary);
+}
+
+.rx-h2__logo-text {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.rx-h2__search {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.rx-h2__search--hidden {
+  flex: 1;
+}
+
+.rx-h2-search.homepage-search {
+  width: 100%;
+}
+
+.rx-h2-search .homepage-search__control {
+  min-height: 48px;
+  border-radius: 24px;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
+  box-shadow: none;
+  padding-left: 16px;
+}
+
+.rx-h2-search .homepage-search__icon {
+  width: 20px;
+  height: 20px;
+}
+
+.rx-h2-search .homepage-search__input {
+  font-size: 14px;
+}
+
+.rx-h2-search .homepage-search__control:focus-within {
+  border-color: var(--ds-color-primary);
+  box-shadow: none;
+}
+
+.rx-h2__actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0;
+}
+
+.rx-h2__action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  color: #64748b;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  transition: color 120ms ease;
+}
+
+.rx-h2__action:hover,
+.rx-h2__action:focus-visible,
+.rx-h2__action[aria-current="page"] {
+  color: var(--ds-color-primary);
+}
+
+.rx-h2__action--messages {
+  margin-inline-end: 20px;
+}
+
+.rx-h2__action--notifications {
+  margin-inline-end: 24px;
+}
+
+.rx-h2__action-icon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.rx-h2__lucide {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  stroke: currentColor;
+  fill: none;
+}
+
+.rx-h2__badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+.rx-h2__account {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+.rx-h2__account-avatar {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--ds-color-border);
+}
+
+@media (max-width: 767px) {
+  .rx-h2__logo-text {
+    font-size: 16px;
+  }
+
+  .rx-h2__inner {
+    gap: 8px;
+    height: 56px;
+    padding-inline: 20px;
+  }
+
+  .rx-h2__action {
+    width: 44px;
+    height: 44px;
+  }
+
+  .rx-h2__account {
+    width: 44px;
+    height: 44px;
+  }
+
+  .rx-h2__action--messages {
+    margin-inline-end: 12px;
+  }
+
+  .rx-h2__action--notifications {
+    margin-inline-end: 16px;
+  }
+}
+
+[data-theme="dark"] .rx-h2 {
+  background: var(--ds-color-background);
+}
+
+@import "./homepage-header.css";
+
+.rx-h2-search .homepage-search__suggestions {
+  z-index: 110;
+  border-radius: 16px;
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
 
 export type PremiumNavIconType = "home" | "search" | "sell" | "saved" | "account";
@@ -20,7 +20,7 @@ type PremiumNavIconProps = {
  */
 export function PremiumNavIcon({ type, size = 28, className, priority = false }: PremiumNavIconProps) {
   return (
-    <Image
+    <SafeImage
       src={`/icons/premium/nav/${type}.webp`}
       alt=""
       aria-hidden
@@ -28,6 +28,7 @@ export function PremiumNavIcon({ type, size = 28, className, priority = false }:
       height={size}
       unoptimized
       priority={priority}
+      fallback="hide"
       draggable={false}
       className={cn("rovexo-icon shrink-0 object-contain", className)}
       style={{ width: size, height: size }}

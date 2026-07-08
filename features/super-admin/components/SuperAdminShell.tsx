@@ -3,10 +3,26 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
+import {
+  BarChart3,
+  ChevronLeft,
+  CreditCard,
+  Hexagon,
+  LayoutDashboard,
+  Mail,
+  Package,
+  Radio,
+  Scale,
+  Settings,
+  Shield,
+  Star,
+  Tag,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/cn";
-import { SUPER_ADMIN_NAV } from "@/lib/super-admin/nav";
+import { COMMAND_CENTER_SIDEBAR_NAV } from "@/lib/super-admin/nav";
 import { buildSuperAdminBreadcrumbs, isOmegaReadyPath } from "@/lib/super-admin/premium";
-import { SuperAdminBadge } from "@/features/auth/components/SuperAdminBadge";
 import {
   SuperAdminBreadcrumbs,
   SuperAdminCommandPalette,
@@ -14,144 +30,169 @@ import {
   useSuperAdminCommandPalette,
 } from "@/features/super-admin/components/premium";
 import { focusRing } from "@/components/ui/tokens";
-import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
-import { resolveSuperAdminIconKey } from "@/lib/icons/fluency-3d-registry";
 
 type SuperAdminShellProps = {
   children: ReactNode;
 };
 
-function NavSection({
-  section,
+const SIDEBAR_ICONS: Record<string, LucideIcon> = {
+  "layout-dashboard": LayoutDashboard,
+  radio: Radio,
+  users: Users,
+  tag: Tag,
+  package: Package,
+  "credit-card": CreditCard,
+  mail: Mail,
+  scale: Scale,
+  star: Star,
+  "bar-chart-3": BarChart3,
+  shield: Shield,
+  settings: Settings,
+  hexagon: Hexagon,
+};
+
+function CommandCenterSidebar({
   pathname,
+  collapsed,
   onNavigate,
+  onToggleCollapse,
 }: {
-  section: (typeof SUPER_ADMIN_NAV)[number];
   pathname: string;
+  collapsed: boolean;
   onNavigate: () => void;
+  onToggleCollapse: () => void;
 }) {
-  const isDevelopment = section.id === "development";
-  const sectionActive = isDevelopment && pathname.startsWith("/super-admin/development");
-  const [collapsed, setCollapsed] = useState(isDevelopment && !sectionActive);
-
   return (
-    <div className="sa-premium-section">
-      <div className="sa-premium-section__title">
-        <span>{section.title}</span>
-        {section.collapsible ? (
-          <button
-            type="button"
-            className={cn("sa-premium-section__toggle", focusRing)}
-            onClick={() => setCollapsed((open) => !open)}
-            aria-expanded={!collapsed}
-          >
-            {collapsed ? "Show" : "Hide"}
-          </button>
-        ) : null}
+    <nav className={cn("cc2-sidebar__nav", collapsed && "cc2-sidebar__nav--collapsed")} aria-label="Super Admin">
+      <div className="cc2-sidebar__brand">
+        <strong>ROVEXO</strong>
       </div>
-      {!collapsed ? (
-        <ul className="space-y-ds-1">
-          {section.items.map((item) => {
-            const active =
-              item.href === "/super-admin"
-                ? pathname === "/super-admin"
-                : pathname === item.href || pathname.startsWith(`${item.href}/`);
+      <ul className="cc2-sidebar__list">
+        {COMMAND_CENTER_SIDEBAR_NAV.map((item) => {
+          const Icon = SIDEBAR_ICONS[item.icon ?? ""] ?? LayoutDashboard;
+          const active =
+            item.href === "/super-admin"
+              ? pathname === "/super-admin"
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={cn("sa-premium-nav-link", active && "sa-premium-nav-link--active", focusRing)}
-                  onClick={onNavigate}
-                  aria-current={active ? "page" : undefined}
-                >
-                  <Fluency3DIcon icon={resolveSuperAdminIconKey(item.href)} size={20} className="mt-0.5 shrink-0" />
-                  <span>
-                    <span className="sa-premium-nav-link__label">{item.label}</span>
-                    {item.description ? (
-                      <span className="sa-premium-nav-link__desc">{item.description}</span>
-                    ) : null}
+          return (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className={cn("cc2-sidebar__link", active && "cc2-sidebar__link--active", focusRing)}
+                onClick={onNavigate}
+                aria-current={active ? "page" : undefined}
+                title={collapsed ? item.label : undefined}
+              >
+                <Icon size={18} className="cc2-sidebar__icon" />
+                {!collapsed ? (
+                  <span className="cc2-sidebar__label">
+                    {item.label}
+                    {item.description === "LIVE" ? <span className="cc2-sidebar__live">LIVE</span> : null}
                   </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
-    </div>
+                ) : null}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="cc2-sidebar__footer">
+        <Link href="/super-admin/observability/omega" className="cc2-sidebar__omega" onClick={onNavigate}>
+          <Hexagon size={20} />
+          {!collapsed ? (
+            <span>
+              <strong>OMEGA / SENTINEL</strong>
+              <small>System Guardian</small>
+            </span>
+          ) : null}
+        </Link>
+        <button type="button" className="cc2-sidebar__collapse" onClick={onToggleCollapse}>
+          <ChevronLeft size={16} className={collapsed ? "is-flipped" : undefined} />
+          {!collapsed ? <span>Collapse</span> : null}
+        </button>
+      </div>
+    </nav>
   );
 }
 
 export function SuperAdminShell({ children }: SuperAdminShellProps) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const commandPalette = useSuperAdminCommandPalette();
   const isMissionControlHome = pathname === "/super-admin";
   const breadcrumbs = useMemo(() => buildSuperAdminBreadcrumbs(pathname), [pathname]);
   const omegaReady = isOmegaReadyPath(pathname);
 
   return (
-    <div className="sa-premium-shell rx-page min-h-screen bg-background text-text-primary">
-      <header className="sa-premium-header">
-        <div className="sa-premium-header__inner">
-          <div className="sa-premium-header__brand">
-            <div className="flex flex-wrap items-center gap-ds-2">
-              <p className="sa-premium-header__eyebrow">
-                {isMissionControlHome ? "Mission Control" : "ROVEXO Super Admin"}
-              </p>
-              <SuperAdminBadge compact />
-              {omegaReady ? <SuperAdminStatusBadge label="Ready" status="healthy" omega /> : null}
+    <div
+      className={cn(
+        "sa-premium-shell rx-page min-h-screen text-text-primary",
+        isMissionControlHome ? "cc2-shell cc2-shell--home" : "bg-background",
+      )}
+    >
+      {!isMissionControlHome ? (
+        <header className="sa-premium-header">
+          <div className="sa-premium-header__inner">
+            <div className="sa-premium-header__brand">
+              <div className="flex flex-wrap items-center gap-ds-2">
+                <p className="sa-premium-header__eyebrow">ROVEXO Super Admin</p>
+                {omegaReady ? <SuperAdminStatusBadge label="Ready" status="healthy" omega /> : null}
+              </div>
+              <p className="sa-premium-header__subtitle">Enterprise control center — Premium 2026</p>
             </div>
-            <p className="sa-premium-header__subtitle">
-              {isMissionControlHome
-                ? "Central operating system for the marketplace"
-                : "Enterprise control center — Premium 2026"}
-            </p>
+            <div className="sa-premium-header__actions">
+              <button
+                type="button"
+                className={cn("sa-premium-search-trigger", focusRing)}
+                onClick={() => commandPalette.setOpen(true)}
+                aria-label="Open command palette"
+              >
+                <span>Search modules & pages</span>
+                <span className="sa-premium-kbd">Ctrl K</span>
+              </button>
+              <button
+                type="button"
+                className={cn("rounded-ds-md border border-border px-ds-3 py-ds-2 text-sm font-medium lg:hidden", focusRing)}
+                onClick={() => setMobileOpen((open) => !open)}
+                aria-expanded={mobileOpen}
+              >
+                Menu
+              </button>
+            </div>
           </div>
-          <div className="sa-premium-header__actions">
+        </header>
+      ) : null}
+
+      <div className={cn("cc2-layout", sidebarCollapsed && "cc2-layout--collapsed")}>
+        <aside
+          className={cn(
+            "cc2-sidebar",
+            !mobileOpen && "cc2-sidebar--closed",
+            sidebarCollapsed && "cc2-sidebar--collapsed",
+          )}
+        >
+          <CommandCenterSidebar
+            pathname={pathname}
+            collapsed={sidebarCollapsed}
+            onNavigate={() => setMobileOpen(false)}
+            onToggleCollapse={() => setSidebarCollapsed((value) => !value)}
+          />
+          {isMissionControlHome ? (
             <button
               type="button"
-              className={cn("sa-premium-search-trigger", focusRing)}
-              onClick={() => commandPalette.setOpen(true)}
-              aria-label="Open command palette"
-            >
-              <span>Search modules & pages</span>
-              <span className="sa-premium-kbd">Ctrl K</span>
-            </button>
-            <Link href="/super-admin/search" className={cn("hidden text-sm font-medium text-text-secondary hover:text-primary sm:inline", focusRing)}>
-              Global Search
-            </Link>
-            <Link href="/" className={cn("hidden text-sm font-medium text-text-secondary hover:text-primary sm:inline", focusRing)}>
-              Marketplace
-            </Link>
-            <button
-              type="button"
-              className={cn("rounded-ds-md border border-border px-ds-3 py-ds-2 text-sm font-medium lg:hidden", focusRing)}
+              className="cc2-sidebar__mobile-toggle lg:hidden"
               onClick={() => setMobileOpen((open) => !open)}
               aria-expanded={mobileOpen}
             >
               Menu
             </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="sa-premium-layout">
-        <aside className={cn("sa-premium-sidebar", !mobileOpen && "sa-premium-sidebar--closed lg:block")}>
-          <nav className="sa-premium-sidebar__nav" aria-label="Super Admin">
-            {SUPER_ADMIN_NAV.map((section) => (
-              <NavSection
-                key={section.id}
-                section={section}
-                pathname={pathname}
-                onNavigate={() => setMobileOpen(false)}
-              />
-            ))}
-          </nav>
+          ) : null}
         </aside>
 
-        <main className="sa-premium-main">
-          <SuperAdminBreadcrumbs items={breadcrumbs} />
+        <main className={cn("cc2-main", isMissionControlHome && "cc2-main--home")}>
+          {!isMissionControlHome ? <SuperAdminBreadcrumbs items={breadcrumbs} /> : null}
           {children}
         </main>
       </div>

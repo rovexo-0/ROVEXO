@@ -1,0 +1,10 @@
+PASS — max 3 cards
+PASS — title 28px
+PASS — title weight 700
+PASS — card width 140px
+PASS — card no shadow
+PASS — image 140px
+PASS — pin 32px
+PASS — price 18px/700
+PASS — incl 15px
+PASS — view store 16px

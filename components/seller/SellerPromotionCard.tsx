@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SellerSection } from "@/components/seller/SellerSection";
+import { Button } from "@/components/ui/Button";
 import { useSellerDashboard } from "@/hooks/seller";
 
 export function SellerPromotionCard() {
@@ -9,7 +10,7 @@ export function SellerPromotionCard() {
   const { promotion } = data;
 
   return (
-    <SellerSection id="seller-promotion" title="Promotion" href="/seller/listings">
+    <SellerSection id="seller-promotion" title="Promotional Tools" href="/plans">
       <div className="seller-card">
         <div className="seller-metric-grid">
           <div className="seller-metric"><p className="seller-metric__value">{promotion.featuredCount}</p><p className="seller-metric__label">Featured</p></div>
@@ -17,9 +18,14 @@ export function SellerPromotionCard() {
           <div className="seller-metric"><p className="seller-metric__value">{promotion.campaignStatus}</p><p className="seller-metric__label">Campaign</p></div>
           <div className="seller-metric"><p className="seller-metric__value">{promotion.activeCount}</p><p className="seller-metric__label">Active promos</p></div>
         </div>
-        <p className="seller-promotion__note">
-          Promote Engine ready — boost and featured hooks only.
+        <p className="seller-promotion__note text-text-secondary">
+          Feature listings, run bumps, and manage promotion spend from one place.
         </p>
+        <Link href="/plans" className="mt-ds-3 block">
+          <Button variant="secondary" fullWidth size="md">
+            Open promotional tools
+          </Button>
+        </Link>
       </div>
       {promotion.active.slice(0, 2).map((item) => (
         <Link key={`${item.productId}-${item.type}`} href="/seller/listings" className="seller-list-row">

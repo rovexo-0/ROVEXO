@@ -13,10 +13,10 @@ describe("Super Admin Command Center v1.0", () => {
     expect(snapshotSource).toContain("getSuperAdminDashboardData");
   });
 
-  it("wires home page to Command Center v1 live provider", () => {
+  it("wires home page to Command Center v2 live provider", () => {
     const pageSource = readFileSync(join(process.cwd(), "app/super-admin/page.tsx"), "utf8");
     expect(pageSource).toContain("CommandCenterLiveProvider");
-    expect(pageSource).toContain("CommandCenterV1Live");
+    expect(pageSource).toContain("CommandCenterV2Live");
     expect(pageSource).toContain("getCommandCenterV1Snapshot");
   });
 
@@ -119,8 +119,23 @@ describe("Super Admin Command Center v1.0", () => {
     expect(uiSource).toContain("CriticalAlertsBar");
   });
 
-  it("loads command center v1 styles", () => {
+  it("loads command center v1 and v2 styles", () => {
     const styles = readFileSync(join(process.cwd(), "styles/rovexo/index.css"), "utf8");
     expect(styles).toContain("command-center-v1.css");
+    expect(styles).toContain("command-center-v2.css");
+  });
+
+  it("extends snapshot with v2 enterprise view model", () => {
+    const typesSource = readFileSync(
+      join(process.cwd(), "lib/super-admin/command-center-v1/types.ts"),
+      "utf8",
+    );
+    expect(typesSource).toContain("CommandCenterV2Extensions");
+    const snapshotSource = readFileSync(
+      join(process.cwd(), "lib/super-admin/command-center-v1/snapshot.ts"),
+      "utf8",
+    );
+    expect(snapshotSource).toContain("buildCommandCenterV2Extensions");
+    expect(snapshotSource).toContain("fetchCategoryPerformance");
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 
+
 import { PageBack } from "@/components/navigation/PageBack";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -96,9 +97,7 @@ export function DecisionTreeWizard({ tree }: DecisionTreeWizardProps) {
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-ds-6 px-ds-4 py-ds-6">
       <div>
         <PageBack variant="text" backHref="/help" backLabel="Help Centre" className="mb-ds-3" />
-        <p className="mt-ds-3 text-sm text-text-muted">
-          {topic?.icon} {topic?.label}
-        </p>
+        <p className="mt-ds-3 text-sm text-text-muted">{topic?.label}</p>
         <h1 className="mt-ds-1 text-2xl font-bold text-text-primary">{tree.title}</h1>
         <p className="mt-ds-2 text-sm text-text-secondary">
           Interactive guided troubleshooting — select the option that best matches your issue.

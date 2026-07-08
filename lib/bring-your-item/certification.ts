@@ -87,7 +87,11 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
   const migrationCenter = readSource(rootDir, "features/seller/migration/components/MigrationCenterPage.tsx");
   const wizardHook = readSource(rootDir, "features/seller/migration/hooks/use-migration-wizard.ts");
   const sellProvider = readSource(rootDir, "features/sell/context/SellProvider.tsx");
-  const listingForm = readSource(rootDir, "features/sell/components/ListingForm.tsx");
+  const listingForm = [
+    readSource(rootDir, "features/sell/ui/SellTitleBlock.tsx"),
+    readSource(rootDir, "features/sell/ui/SellPricingBlock.tsx"),
+    readSource(rootDir, "features/sell/ui/SellShippingBlock.tsx"),
+  ].join("\n");
   const photoUploader = readSource(rootDir, "features/sell/components/PhotoUploader.tsx");
   const categoryPicker = readSource(rootDir, "features/sell/components/CategoryTreePicker.tsx");
   const aiCategory = readSource(rootDir, "lib/sell/listing-ai-category.ts");
@@ -188,7 +192,7 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
     ]),
     step("responsive", "Responsive Certification", [
       { id: "e2e-routes", label: "E2E responsive route coverage", pass: masterQa.includes("/import") && masterQa.includes("/sell") },
-      { id: "safe-area", label: "Safe area insets", pass: readSource(rootDir, "features/sell/components/SellPage.tsx").includes("safe-area") },
+      { id: "safe-area", label: "Safe area insets", pass: readSource(rootDir, "features/sell/ui/SellScreen.tsx").includes("safe-area") },
       { id: "mobile-nav", label: "Mobile navigation module", pass: existsSync(join(rootDir, "styles/rovexo/bottom-nav-premium.css")) },
     ]),
     step("performance", "Performance", [

@@ -36,7 +36,7 @@ export function RovexoHeaderMark({ className }: { className?: string }) {
 function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("font-extrabold tracking-tight text-text-primary", className)}>
-      ROV<span className="text-primary">EXO</span>
+      ROV<span className="text-primary">X</span>O
     </span>
   );
 }

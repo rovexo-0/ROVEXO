@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
 import { Avatar } from "@/components/ui/Avatar";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -105,7 +105,7 @@ export function SearchResultCard({
       />
 
       <div className="pointer-events-none relative z-10 h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl bg-surface-muted">
-        <Image
+        <SafeImage
           src={props.imageUrl}
           alt=""
           fill

@@ -7,7 +7,7 @@ import type { CategoryPageData } from "@/lib/categories/server";
 import type { Product } from "@/lib/products/types";
 import { InternalLinksSection } from "@/features/seo/components/InternalLinksSection";
 import { popularBrowseLinks, relatedCategoryLinks } from "@/lib/seo/internal-links";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 type CategoryPageViewProps = {
   category: CategoryPageData;
@@ -30,7 +30,7 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
 
       <section className="relative overflow-hidden rounded-ds-xl bg-secondary">
         <div className="relative aspect-[21/9] min-h-[140px] w-full md:min-h-[200px]">
-          <Image
+          <SafeImage
             src={imageUrl}
             alt={`${node.name} category on ROVEXO`}
             fill

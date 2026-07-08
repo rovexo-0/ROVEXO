@@ -8,7 +8,7 @@ export const PLATFORM_STUDIO_MODULES: PlatformStudioModule[] = [
   { id: "business", label: "Business", icon: "🏢", category: "people", href: "/super-admin/businesses", builders: ["forms", "workflows", "dashboards", "pages"] },
   { id: "shipping", label: "Shipping", icon: "🚚", category: "commerce", href: "/super-admin/shipping-engine", builders: ["workflows", "automations", "database"] },
   { id: "payments", label: "Payments Engine", icon: "💳", category: "commerce", href: "/super-admin/payments-engine", builders: ["workflows", "automations", "database", "permissions"] },
-  { id: "protection", label: "Buyer Protection", icon: "🛡️", category: "commerce", href: "/super-admin/protection-engine", builders: ["workflows", "automations", "database"] },
+  { id: "protection", label: "Purchase Protection", icon: "🛡️", category: "commerce", href: "/super-admin/protection-engine", builders: ["workflows", "automations", "database"] },
   { id: "wallet", label: "Wallet Engine", icon: "💰", category: "commerce", href: "/super-admin/wallet-engine", builders: ["workflows", "dashboards", "automations"] },
   { id: "orders", label: "Orders", icon: "📋", category: "commerce", href: "/super-admin/orders-engine", builders: ["workflows", "dashboards", "automations", "database"] },
   { id: "orders-legacy", label: "Order Queue", icon: "📦", category: "commerce", href: "/super-admin/orders", builders: ["workflows", "dashboards", "automations", "database"] },

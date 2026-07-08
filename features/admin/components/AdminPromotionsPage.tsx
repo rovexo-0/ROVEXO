@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { useCallback, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -165,7 +165,7 @@ export function AdminPromotionsPage({
                 <div className="flex flex-col gap-ds-4 lg:flex-row lg:items-center">
                   <div className="flex min-w-0 flex-1 items-center gap-ds-3">
                     <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-                      <Image
+                      <SafeImage
                         src={promotion.productImageUrl}
                         alt={promotion.productTitle}
                         fill

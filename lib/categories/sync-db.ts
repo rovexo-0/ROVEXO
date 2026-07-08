@@ -46,7 +46,7 @@ async function upsertNode(
     sort_order: sortOrder,
     icon: node.icon ?? getCategoryIcon(node.slug),
     seo_title: `${node.name} for Sale UK | ROVEXO`,
-    seo_description: `Buy and sell ${node.name.toLowerCase()} on ROVEXO. Verified sellers, buyer protection, and secure checkout across the UK.`,
+    seo_description: `Buy and sell ${node.name.toLowerCase()} on ROVEXO. Verified sellers, purchase protection, and secure checkout across the UK.`,
     is_active: true,
     transaction_mode: node.transactionMode ?? inheritedMode,
   };

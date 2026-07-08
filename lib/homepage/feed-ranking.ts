@@ -68,10 +68,10 @@ export function resolveHomepagePromotionBadge(product: Product): HomepagePromoti
   if (product.isFeatured) return { label: "Featured", tone: "featured" };
   if (isNewListing(product)) return { label: "New", tone: "new" };
   if (isBusinessListing(product) && product.sellerVerified) {
-    return { label: "Verified", tone: "verified" };
+    return { label: "Verified Store", tone: "verified" };
   }
-  if (isBusinessListing(product)) return { label: "Business", tone: "business" };
-  if (product.sellerVerified) return { label: "Verified", tone: "verified" };
+  if (isBusinessListing(product)) return { label: "Verified Store", tone: "verified" };
+  if (product.sellerVerified) return { label: "Verified Store", tone: "verified" };
   return null;
 }
 

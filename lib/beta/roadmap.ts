@@ -197,11 +197,11 @@ export const BETA_MODULES = [
   },
   {
     id: "payments-buyer-protection",
-    name: "Buyer Protection Fee",
+    name: "Platform Fee",
     route: "/listing/[slug]",
     area: "payments",
     status: "complete",
-    description: "Protected purchase fee shown on PDP and checkout.",
+    description: "Platform fee shown on PDP and checkout.",
   },
   {
     id: "payments-release",

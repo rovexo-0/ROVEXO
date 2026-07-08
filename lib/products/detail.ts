@@ -13,7 +13,7 @@ const GALLERY_BY_SLUG: Record<string, string[]> = {
 
 const DESCRIPTION_BY_SLUG: Record<string, string> = {
   "nike-air-max-90":
-    "Classic Nike Air Max 90 in white and blue. Worn twice with minimal creasing on the toe box. Clean midsole with no yellowing. Original box and spare laces included. Size UK 9 / EU 44. Ships within 24 hours with tracked delivery and buyer protection on every order.",
+    "Classic Nike Air Max 90 in white and blue. Worn twice with minimal creasing on the toe box.\n\n• Premium leather and mesh upper\n• Visible Air cushioning in the heel\n• Rubber outsole with durable traction\n• Original box and spare laces included\n\nComes with original box and charging cable.",
 };
 
 function buildGallery(product: Product): string[] {
@@ -47,6 +47,8 @@ export function toProductDetail(product: Product): ProductDetail {
     images: buildGallery(product),
     description: buildDescription(product),
     salesCount: Math.max(1, Math.round(product.reviewCount * 0.65)),
+    sellerFollowerCount: Math.max(128, Math.round(product.reviewCount * 14)),
+    freeDelivery: product.price >= 50,
     deliveryCarriers: DEFAULT_CARRIERS,
     sellerVerified: product.sellerVerified ?? product.rating >= 4.8,
     stock: 1,

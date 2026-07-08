@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PageBack } from "@/components/navigation/PageBack";
 import { Card } from "@/components/ui/Card";
-import { HelpMobileNav } from "@/features/help/components/HelpMobileNav";
+import { HelpQuickLinks } from "@/features/help/components/HelpQuickLinks";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
 import type { HelpPolicyEntry } from "@/lib/help/policies";
@@ -21,9 +21,7 @@ export function HelpPoliciesPage({ policies }: HelpPoliciesPageProps) {
         </p>
       </div>
 
-      <div className="mhub-mobile">
-        <HelpMobileNav />
-      </div>
+      <HelpQuickLinks />
 
       <div className="mhub-mobile">
         <div className="mhub-grid">

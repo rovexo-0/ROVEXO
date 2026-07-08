@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { Price } from "@/components/ui/Price";
 import { normalizeCondition } from "@/lib/products/utils";
 import type { ProductDetail } from "@/lib/products/types";
@@ -13,15 +13,12 @@ export function CheckoutProductCard({ product }: CheckoutProductCardProps) {
   return (
     <Card padding="none" className="overflow-hidden">
       <div className="flex gap-ds-3 p-ds-4">
-        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-          <Image
-            src={product.imageUrl}
-            alt={product.title}
-            fill
-            className="object-cover"
-            sizes="80px"
-          />
-        </div>
+        <ProductRowImage
+          src={product.imageUrl}
+          alt={product.title}
+          containerClassName="h-20 w-20 shrink-0 rounded-ds-md"
+          sizes="80px"
+        />
 
         <div className="min-w-0 flex-1">
           {product.condition && (

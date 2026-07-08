@@ -43,11 +43,15 @@ export async function getBusinessDashboardData(userId?: string): Promise<Busines
     profile,
     company: {
       companyName: businessAccount?.business_name ?? profile.fullName,
-      companyLogoUrl: profile.avatarUrl ?? "",
+      companyLogoUrl: profile.avatarUrl ?? null,
       storeSlug: profile.username,
       rating: 4.8,
       reviewCount: stats?.sales ?? 0,
       activeListings: stats?.listings ?? 0,
+      verifiedBusiness: Boolean(businessAccount?.verified_business),
+      verifiedWholesale: Boolean(businessAccount?.verified_wholesale),
+      verifiedManufacturer: Boolean(businessAccount?.verified_manufacturer),
+      verifiedSupplier: Boolean(businessAccount?.verified_supplier),
     },
     todaySummary: [
       { label: "Revenue", value: Math.round(revenue * 100), format: "currency" },

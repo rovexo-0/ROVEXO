@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { Button } from "@/components/ui/Button";
 import { ResponsivePreviewFrame } from "@/features/super-admin/mission-control/ResponsivePreviewFrame";
 import { cn } from "@/lib/cn";
@@ -373,7 +374,7 @@ function ModuleGrid({
           className={cn("ps-module-card", selectedModule === module.id && "ps-module-card--active")}
           onClick={() => onSelect(module.id)}
         >
-          <span className="ps-module-card__icon">{module.icon}</span>
+          <span className="ps-module-card__icon"><ModuleIcon href={module.href} id={module.id} /></span>
           <span className="ps-module-card__title">{module.label}</span>
           <span className="ps-module-card__meta">{module.builders.join(" · ")}</span>
           {module.href ? (

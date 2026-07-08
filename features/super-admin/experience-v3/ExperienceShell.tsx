@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { cn } from "@/lib/cn";
@@ -293,7 +294,7 @@ export function ExperienceShell({ initialSnapshot, defaultTab }: ExperienceShell
             <article key={module.id} className="ds1-module-card">
               <div className="ds1-module-card__head">
                 <span className="ds1-module-card__order">{String(module.order).padStart(2, "0")}</span>
-                <span className="ds1-module-card__icon" aria-hidden>{module.icon}</span>
+                <span className="ds1-module-card__icon" aria-hidden><ModuleIcon href={module.href} id={module.id} /></span>
                 <div><h3 className="ds1-module-card__title">{module.label}</h3><p className="ds1-module-card__desc">{module.description}</p></div>
               </div>
               <Link href={module.href} className="ds1-module-card__link">Open {module.label}</Link>

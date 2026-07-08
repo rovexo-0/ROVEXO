@@ -1,3 +1,10 @@
+import {
+  DEFAULT_MARKETPLACE_PRICING,
+  marketplacePricingToBumpOptions,
+  marketplacePricingToFeatureOptions,
+  type MarketplacePricingSettings,
+} from "@/lib/promotions/marketplace-pricing";
+
 export type PromotionType = "bump" | "feature";
 
 export type BumpDurationId = "24h" | "3d" | "7d";
@@ -21,11 +28,10 @@ export type FeatureDurationOption = PromotionDurationOption & {
   days: number;
 };
 
-export const BUMP_DURATIONS: BumpDurationOption[] = [
-  { id: "24h", label: "24 hours", hours: 24, priceCents: 199, priceLabel: "£1.99" },
-  { id: "3d", label: "3 days", hours: 72, priceCents: 499, priceLabel: "£4.99" },
-  { id: "7d", label: "7 days", hours: 168, priceCents: 999, priceLabel: "£9.99" },
-];
+/** Default boost tiers — overridden at runtime by Super Admin marketplace pricing. */
+export const BUMP_DURATIONS: BumpDurationOption[] = marketplacePricingToBumpOptions(
+  DEFAULT_MARKETPLACE_PRICING,
+);
 
 /** Minimum hours between bumps on the same listing. */
 export const BUMP_COOLDOWN_HOURS = 1;
@@ -33,25 +39,43 @@ export const BUMP_COOLDOWN_HOURS = 1;
 /** Maximum bump purchases per seller per rolling 24 hours. */
 export const MAX_BUMPS_PER_DAY = 10;
 
-export const FEATURE_DURATIONS: FeatureDurationOption[] = [
-  { id: "7d", label: "7 days", days: 7, priceCents: 999, priceLabel: "£9.99" },
-  { id: "14d", label: "14 days", days: 14, priceCents: 1499, priceLabel: "£14.99" },
-  { id: "30d", label: "30 days", days: 30, priceCents: 2499, priceLabel: "£24.99" },
-];
+/** Default Showcase / feature tier — overridden at runtime by Super Admin marketplace pricing. */
+export const FEATURE_DURATIONS: FeatureDurationOption[] = marketplacePricingToFeatureOptions(
+  DEFAULT_MARKETPLACE_PRICING,
+);
 
-export function getBumpDuration(id: string): BumpDurationOption | null {
-  return BUMP_DURATIONS.find((option) => option.id === id) ?? null;
+export function getBumpDurations(
+  pricing: MarketplacePricingSettings = DEFAULT_MARKETPLACE_PRICING,
+): BumpDurationOption[] {
+  return marketplacePricingToBumpOptions(pricing);
 }
 
-export function getFeatureDuration(id: string): FeatureDurationOption | null {
-  return FEATURE_DURATIONS.find((option) => option.id === id) ?? null;
+export function getFeatureDurations(
+  pricing: MarketplacePricingSettings = DEFAULT_MARKETPLACE_PRICING,
+): FeatureDurationOption[] {
+  return marketplacePricingToFeatureOptions(pricing);
+}
+
+export function getBumpDuration(
+  id: string,
+  pricing: MarketplacePricingSettings = DEFAULT_MARKETPLACE_PRICING,
+): BumpDurationOption | null {
+  return getBumpDurations(pricing).find((option) => option.id === id) ?? null;
+}
+
+export function getFeatureDuration(
+  id: string,
+  pricing: MarketplacePricingSettings = DEFAULT_MARKETPLACE_PRICING,
+): FeatureDurationOption | null {
+  return getFeatureDurations(pricing).find((option) => option.id === id) ?? null;
 }
 
 export function getPromotionDuration(
   type: PromotionType,
   durationId: string,
+  pricing: MarketplacePricingSettings = DEFAULT_MARKETPLACE_PRICING,
 ): BumpDurationOption | FeatureDurationOption | null {
-  return type === "bump" ? getBumpDuration(durationId) : getFeatureDuration(durationId);
+  return type === "bump" ? getBumpDuration(durationId, pricing) : getFeatureDuration(durationId, pricing);
 }
 
 export function computeEndsAt(type: PromotionType, durationId: string, from = new Date()): Date | null {

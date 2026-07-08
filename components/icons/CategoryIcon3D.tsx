@@ -36,19 +36,19 @@ function IconDefs({ p }: IconPaint) {
     <defs>
       <linearGradient id={`${p}-top`} x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#93c5fd" />
-        <stop offset="100%" stopColor="#2563eb" />
+        <stop offset="100%" stopColor="var(--ds-color-primary)" />
       </linearGradient>
       <linearGradient id={`${p}-front`} x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor="#60a5fa" />
-        <stop offset="100%" stopColor="#1d4ed8" />
+        <stop offset="100%" stopColor="var(--ds-color-accent)" />
       </linearGradient>
       <linearGradient id={`${p}-side`} x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor="#1e40af" />
-        <stop offset="100%" stopColor="#1e3a8a" />
+        <stop offset="0%" stopColor="var(--ds-color-primary-deep)" />
+        <stop offset="100%" stopColor="#3b0764" />
       </linearGradient>
       <linearGradient id={`${p}-accent`} x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stopColor="#dbeafe" />
-        <stop offset="100%" stopColor="#3b82f6" />
+        <stop offset="100%" stopColor="#a855f7" />
       </linearGradient>
       <linearGradient id={`${p}-shine`} x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor="#ffffff" stopOpacity="0.7" />
@@ -56,7 +56,7 @@ function IconDefs({ p }: IconPaint) {
       </linearGradient>
       <filter id={`${p}-shadow`} x="-25%" y="-25%" width="150%" height="150%">
         <feDropShadow dx="0" dy="1.75" stdDeviation="1.35" floodColor="#0f172a" floodOpacity="0.28" />
-        <feDropShadow dx="0" dy="0" stdDeviation="1.2" floodColor="#3b82f6" floodOpacity="0.22" />
+        <feDropShadow dx="0" dy="0" stdDeviation="1.2" floodColor="#a855f7" floodOpacity="0.22" />
       </filter>
     </defs>
   );

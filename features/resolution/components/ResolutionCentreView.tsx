@@ -72,7 +72,7 @@ export function ResolutionDesktopContent({ buyerCases, sellerCases }: Resolution
     <>
       <h1 className="text-2xl font-bold">Resolution Centre</h1>
       <p className="mt-ds-2 text-sm text-text-secondary">
-        Buyer protection and seller protection cases with evidence, timeline, and appeals.
+        Purchase protection and seller protection cases with evidence, timeline, and appeals.
       </p>
 
       <section className="mt-ds-6 space-y-ds-3">

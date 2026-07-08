@@ -2,7 +2,8 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { Button } from "@/components/ui/Button";
 import { ResponsivePreviewFrame } from "@/features/super-admin/mission-control/ResponsivePreviewFrame";
 import { MenuBuilderPanel } from "@/features/super-admin/platform-visual/MenuBuilderPanel";
@@ -322,7 +323,7 @@ export function ThemeStudioPro({ initialDraft, initialHistory }: ThemeStudioProP
             <div className="tsp-panel__list">
               {STUDIO_COMPONENT_LIBRARY.map((component) => (
                 <button key={component.id} type="button" className="tsp-library-item" onClick={() => addComponent(component.id)}>
-                  <span aria-hidden>{component.icon}</span>
+                  <span aria-hidden><ModuleIcon id={component.id} size={18} /></span>
                   <span>{component.label}</span>
                 </button>
               ))}
@@ -331,7 +332,7 @@ export function ThemeStudioPro({ initialDraft, initialHistory }: ThemeStudioProP
             <div className="tsp-panel__modules">
               {STUDIO_MODULE_REGISTRY.map((module) => (
                 <div key={module.id} className="tsp-module-chip">
-                  <span>{module.icon}</span>
+                  <ModuleIcon id={module.id} size={18} />
                   <span>{module.label}</span>
                 </div>
               ))}
@@ -478,7 +479,7 @@ export function ThemeStudioPro({ initialDraft, initialHistory }: ThemeStudioProP
             <div className="tsp-template-grid">
               {STUDIO_TEMPLATE_LIBRARY.map((template) => (
                 <div key={template.id} className="tsp-template-card">
-                  <span className="tsp-template-card__icon">{template.icon}</span>
+                  <span className="tsp-template-card__icon"><ModuleIcon id={template.id} size={24} /></span>
                   <p className="font-semibold">{template.label}</p>
                   <p className="text-sm text-text-secondary">{template.description}</p>
                 </div>
@@ -498,7 +499,7 @@ export function ThemeStudioPro({ initialDraft, initialHistory }: ThemeStudioProP
               {filteredAssets.map((asset) => (
                 <div key={asset.id} className="tsp-asset-card">
                   <div className="tsp-asset-card__preview">
-                    <Image src={asset.src} alt={asset.name} width={120} height={80} className="object-cover" />
+                    <SafeImage src={asset.src} alt={asset.name} width={120} height={80} className="object-cover" />
                   </div>
                   <p className="font-semibold">{asset.name}</p>
                   <p className="text-xs text-text-secondary">{asset.folder} · {asset.format.toUpperCase()}</p>

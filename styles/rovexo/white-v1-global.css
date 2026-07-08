@@ -111,7 +111,7 @@ body {
 [data-theme="light"] .text-primary,
 [data-theme="light"] a.text-primary,
 [data-theme="light"] .home-v1-listing-section__view-all {
-  color: #2563eb !important;
+  color: var(--ds-color-primary) !important;
 }
 
 .home-v1-bring-your-item__cta-link,
@@ -155,12 +155,12 @@ body {
 
 /* Bottom nav active state (accent — theme-agnostic) */
 .home-v1-bottom-nav__item[aria-current="page"] svg {
-  color: #2563eb;
+  color: var(--ds-color-primary);
 }
 
 /* Badges (accent — theme-agnostic) */
 .header-action-2026 [aria-hidden].rounded-ds-full,
 [class*="badge"] {
-  background-color: #2563eb;
+  background-color: var(--ds-color-primary);
   color: #ffffff;
 }

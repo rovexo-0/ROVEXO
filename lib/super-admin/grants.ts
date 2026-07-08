@@ -6,7 +6,7 @@ import { createOrderStripeRefund } from "@/lib/stripe/refunds";
 import { releaseProductInventory } from "@/lib/inventory/service";
 import { notifyOrderRefunded } from "@/lib/orders/notifications";
 import { onOrderRefunded } from "@/lib/trust/events";
-import { refundSellerForOrder } from "@/lib/wallet/sales";
+import { CommerceEngine } from "@/lib/commerce-engine";
 
 export async function grantPromotion(input: {
   actorId: string;
@@ -148,7 +148,15 @@ export async function refundOrderPayment(input: {
     await releaseProductInventory(item.product_id, item.quantity ?? 1);
   }
 
-  await refundSellerForOrder(input.orderId, order.seller_id);
+  await CommerceEngine.refundSeller({
+    orderId: input.orderId,
+    sellerId: order.seller_id,
+    buyerId: order.buyer_id,
+    refundType: "full",
+    amount: Number(orderRow?.total ?? order.total),
+    reason: "admin_refund",
+    actorId: input.actorId,
+  });
 
   const [{ data: buyerProfile }, { data: sellerProfile }] = await Promise.all([
     admin.from("profiles").select("email").eq("id", order.buyer_id).maybeSingle(),

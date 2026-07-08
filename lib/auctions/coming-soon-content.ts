@@ -3,7 +3,7 @@ export const AUCTIONS_COMING_SOON_FEATURES = [
   { icon: "⚡", label: "Instant Bid Updates" },
   { icon: "❤️", label: "Watch Auctions" },
   { icon: "🔔", label: "Live Notifications" },
-  { icon: "🛡", label: "Buyer Protection" },
+  { icon: "🛡", label: "Purchase Protection" },
   { icon: "⭐", label: "Verified Sellers" },
   { icon: "🏆", label: "Win Unique Items" },
   { icon: "🚀", label: "Premium Marketplace Experience" },
@@ -19,8 +19,8 @@ export const AUCTIONS_LEARN_MORE_ITEMS = [
     description: "Automatic time extensions prevent last-second snipes so every bidder gets a fair chance.",
   },
   {
-    title: "Buyer Protection",
-    description: "Every winning bid is covered by ROVEXO buyer protection and secure checkout.",
+    title: "Purchase Protection",
+    description: "Every winning bid is covered by ROVEXO purchase protection and secure checkout.",
   },
   {
     title: "Seller Verification",

@@ -1,0 +1,23 @@
+Homepage Hydration Console Audit
+================================
+URL: http://127.0.0.1:3033/
+Date: 2026-07-06
+
+HYDRATION ERRORS: 0
+HYDRATION WARNINGS: 0
+
+Patterns checked:
+- hydration failed
+- hydration mismatch
+- did not match
+- server rendered html
+- React minified errors #418/#423/#425
+
+Desktop viewport (1440×900): PASS
+Mobile viewport (390×844): PASS
+
+Non-hydration console noise (expected, unauthenticated):
+- 401 Unauthorized — profile/badge API fetches
+- 429 Too Many Requests — rate-limited analytics
+
+These are network errors, NOT React hydration mismatches.

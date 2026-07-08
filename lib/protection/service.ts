@@ -1,6 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/types/database";
 import { onProtectionResolved } from "@/lib/trust/events";
+import { holdForClaim, releaseHoldForClaim, emitCommerceEvent } from "@/lib/commerce-engine";
+import { onProtectionCaseOpened } from "@/lib/resolution-engine/hooks.server";
 
 export type ProtectionCaseType = "refund" | "return" | "dispute" | "appeal";
 export type ProtectionCaseStatus =
@@ -184,6 +186,28 @@ export async function createProtectionCase(input: {
   });
 
   await admin.from("orders").update({ status: "issue_open" }).eq("id", input.orderId);
+
+  // Commerce Engine — move seller escrow to ON_HOLD; blocks any auto-payout.
+  await holdForClaim({
+    orderId: input.orderId,
+    reason: input.reason,
+    claimType: input.caseType,
+  });
+  if (input.caseType === "return") {
+    await emitCommerceEvent({
+      event: "REFUND_STARTED",
+      orderId: input.orderId,
+      userId: input.buyerId,
+      rule: "return_requested",
+      result: "on_hold",
+    });
+  }
+
+  void onProtectionCaseOpened({
+    orderId: input.orderId,
+    protectionCaseId: caseRecord.id,
+    caseType: input.caseType,
+  });
 
   return caseRecord;
 }
@@ -371,6 +395,25 @@ export async function resolveProtectionCase(input: {
     sellerId: String(data.seller_id),
     outcome: input.outcome,
   });
+
+  // Commerce Engine — a seller-favour resolution (no refund) unblocks escrow so
+  // the delivered + 24h auto-release can proceed. Buyer-favour / refunds keep
+  // the funds held (the refund flow reverses them).
+  const sellerFavour =
+    input.outcome === "seller_favour" ||
+    input.outcome === "no_action" ||
+    input.outcome === "return_rejected";
+  if (sellerFavour) {
+    await releaseHoldForClaim({ orderId: String(data.order_id) });
+  } else {
+    await emitCommerceEvent({
+      event: "REFUND_COMPLETED",
+      orderId: String(data.order_id),
+      userId: String(data.seller_id),
+      rule: "claim_resolved",
+      result: input.outcome,
+    });
+  }
 
   return mapCase(data as CaseRow);
 }

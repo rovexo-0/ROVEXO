@@ -61,13 +61,13 @@ describe("orders engine", () => {
         id: "1",
         status: "completed",
         createdAt: new Date().toISOString(),
-        totals: { total: 100, protectedFee: 5 },
+        totals: { total: 100, platformFee: 5 },
       },
       {
         id: "2",
         status: "cancelled",
         createdAt: new Date().toISOString(),
-        totals: { total: 50, protectedFee: 0 },
+        totals: { total: 50, platformFee: 0 },
       },
     ] as Order[];
 

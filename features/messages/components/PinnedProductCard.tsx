@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
@@ -16,7 +16,7 @@ export function PinnedProductCard({ product }: PinnedProductCardProps) {
       <Card padding="sm" interactive className="">
         <div className="flex items-center gap-ds-3">
           <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-            <Image
+            <SafeImage
               src={product.imageUrl}
               alt={product.title}
               fill

@@ -1,0 +1,33 @@
+---
+description: Homepage Listing Card v4.0 — image-first UI lock (160×340, 220px image)
+globs: components/ui/ListingCard.tsx,components/ui/ListingCard.module.css
+alwaysApply: false
+---
+
+# Homepage Listing Card v4.0 — UI LOCK
+
+**STATUS: UI LOCK | FROZEN | SINGLE SOURCE OF TRUTH**
+
+Premium image-first proportions. Architecture and behavior unchanged from v3.
+
+## Frozen dimensions
+
+- Card: **160×340px**, radius **16px**
+- Image: **160×220px** (~65%), `object-fit: cover`, radius **16px 16px 0 0**
+- Content: **120px**, padding **10px**
+- Favourite: **28×28**, top/right **10px**, heart **16px**
+- Price: **18px / 700**, margin-bottom **6px**
+- Title: **16px / 600**, single line, margin-bottom **6px**
+- Footer: **20px**, rating/views **13px**, icons **14px**
+
+## Allowed
+
+Bug fixes only — image loading, click, favourite, rating, views, a11y, perf.
+
+## Prohibited
+
+Width changes, layout redesign, footer/rating/views/favourite redesign, homepage grid changes.
+
+## Reference
+
+`reports/module-1/listing-card-v4/`

@@ -64,13 +64,13 @@ function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidati
     wishlist: "app/saved/page.tsx",
     "recently-viewed": "components/home/HomeRecentlyViewedCarousel.tsx",
     "product-details": "features/product-detail/ProductDetailPage.tsx",
-    "share-listing": "features/product-detail/ProductEngagementRow.tsx",
-    "report-listing": "features/product-detail/ProductReportDialog.tsx",
-    "contact-seller": "features/product-detail/ProductSellerCard.tsx",
+    "share-listing": "components/share/ShareListingSheet.tsx",
+    "report-listing": "app/api/listings/report/route.ts",
+    "contact-seller": "features/product-detail/ProductStoreSection.tsx",
     cart: "app/cart/page.tsx",
     checkout: "features/checkout/components/CheckoutPage.tsx",
     payment: "app/account/payment-methods/page.tsx",
-    "buyer-protection": "features/product-detail/ProductBuyerProtection.tsx",
+    "buyer-protection": "features/product-detail/ProductDetailPage.tsx",
     "order-confirmation": "features/checkout/components/CheckoutSuccessView.tsx",
     "order-tracking": "features/orders/components/OrderTrackingCard.tsx",
     delivery: "features/orders/components/DeliveryStatusCard.tsx",
@@ -124,14 +124,20 @@ function scanProductPage(scan: MarketplaceCompletionScanResult): CompletionValid
 
   return BUYER_PRODUCT_PAGE_VALIDATION.map((check) => {
     let pass = detail.length > 0 && fileExists("app/listing/[slug]/page.tsx");
-    if (check.includes("image") || check === "gallery" || check === "zoom") pass = fileExists("features/product-detail/ProductGallery.tsx");
-    if (check === "description") pass = fileExists("features/product-detail/ProductDescription.tsx");
-    if (check.includes("seller")) pass = fileExists("features/product-detail/ProductSellerCard.tsx");
+    if (check.includes("image") || check === "gallery" || check === "zoom") {
+      pass = fileExists("features/product-detail/ProductGalleryV1.tsx");
+    }
+    if (check === "description") pass = fileExists("features/product-detail/ProductDescriptionV1.tsx");
+    if (check.includes("seller")) pass = fileExists("features/product-detail/ProductStoreSection.tsx");
     if (check.includes("business")) pass = fileExists("app/business/directory/page.tsx");
-    if (check.includes("buyer-protection")) pass = fileExists("features/product-detail/ProductBuyerProtection.tsx");
-    if (check.includes("shipping") || check.includes("returns")) pass = fileExists("features/product-detail/ProductDelivery.tsx");
+    if (check.includes("buyer-protection")) {
+      pass = detail.includes("formatListingPriceIncl");
+    }
+    if (check.includes("shipping")) pass = fileExists("features/product-detail/ProductShippingCard.tsx");
+    if (check.includes("returns")) pass = fileExists("features/checkout/components/CheckoutReturnPolicy.tsx");
     if (check.includes("review") || check.includes("related")) pass = fileExists("features/product-detail/ProductSimilarItems.tsx");
-    if (check.includes("share") || check.includes("wishlist")) pass = fileExists("features/product-detail/ProductEngagementRow.tsx");
+    if (check.includes("share")) pass = fileExists("components/share/ShareListingSheet.tsx");
+    if (check.includes("wishlist")) pass = fileExists("app/saved/page.tsx");
     if (check.includes("attribute") || check.includes("compatibility")) pass = detail.length > 0;
     return createCheck("buyer-product-page", check, pass && buyerFoundationReady(scan), pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
@@ -202,7 +208,11 @@ function scanButtons(scan: MarketplaceCompletionScanResult): CompletionValidatio
     if (check.includes("track") || check.includes("confirm-delivery") || check.includes("dispute")) {
       pass = fileExists("features/orders/components/OrderActionsCard.tsx");
     }
-    if (check.includes("contact-seller")) pass = fileExists("features/product-detail/ProductSellerCard.tsx");
+    if (check.includes("contact-seller")) {
+      pass =
+        fileExists("features/product-detail/ProductActionBarV1.tsx") &&
+        readSource("features/product-detail/ProductDetailPage.tsx").includes("onContact");
+    }
     if (check === "review") pass = fileExists("features/orders/components/OrderReviewCard.tsx");
     if (check === "settings") pass = fileExists("app/account/settings/page.tsx");
     if (check === "support") pass = fileExists("app/support/page.tsx");
@@ -220,7 +230,11 @@ function scanDatabase(scan: MarketplaceCompletionScanResult): CompletionValidati
     if (check.includes("saved-searches")) pass = fileExists("features/search/components/SavedSearchesPanel.tsx");
     if (check.includes("notification")) pass = fileExists("app/api/notifications/route.ts");
     if (check.includes("payment")) pass = fileExists("app/account/payment-methods/page.tsx");
-    if (check.includes("buyer-protection")) pass = fileExists("features/product-detail/ProductBuyerProtection.tsx");
+    if (check.includes("buyer-protection")) {
+      pass =
+        fileExists("features/checkout/components/CheckoutReturnPolicy.tsx") ||
+        readSource("features/product-detail/ProductDetailPage.tsx").includes("formatListingPriceIncl");
+    }
     return createCheck("buyer-database", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
@@ -235,7 +249,11 @@ function scanOmegaGlobal(scan: MarketplaceCompletionScanResult): CompletionValid
     if (check.includes("wishlist")) pass = fileExists("app/saved/page.tsx");
     if (check.includes("saved-search")) pass = fileExists("features/search/components/SavedSearchesPanel.tsx");
     if (check.includes("notification")) pass = fileExists("app/notifications/page.tsx");
-    if (check.includes("buyer-protection")) pass = fileExists("features/product-detail/ProductBuyerProtection.tsx");
+    if (check.includes("buyer-protection")) {
+      pass =
+        fileExists("features/checkout/components/CheckoutReturnPolicy.tsx") ||
+        readSource("features/product-detail/ProductDetailPage.tsx").includes("formatListingPriceIncl");
+    }
     if (check.includes("tracking")) pass = fileExists("features/orders/components/OrderTrackingCard.tsx");
     if (check.includes("review")) pass = fileExists("features/orders/components/OrderReviewCard.tsx");
     if (check.includes("responsive")) pass = premiumStylesActive();
@@ -251,7 +269,7 @@ function scanAccessibility(scan: MarketplaceCompletionScanResult): CompletionVal
   return [
     createCheck("buyer-accessibility", "checkout-labels", checkout.length > 0, "Checkout labels PASS"),
     createCheck("buyer-accessibility", "cart-controls", cart.length > 0, "Cart controls PASS"),
-    createCheck("buyer-accessibility", "product-gallery-alt", readSource("features/product-detail/ProductGallery.tsx").includes("alt"), "Product gallery alt PASS"),
+    createCheck("buyer-accessibility", "product-gallery-alt", readSource("features/product-detail/ProductGalleryV1.tsx").includes("alt"), "Product gallery alt PASS"),
     createCheck("buyer-accessibility", "focus-states", fileExists("components/ui/tokens.ts"), "Focus states PASS"),
   ].map((item) => ({
     ...item,
@@ -321,7 +339,9 @@ function buildPassConditions(
     "orders-pass": fileExists("app/account/orders/page.tsx"),
     "tracking-pass": fileExists("features/orders/components/OrderTrackingCard.tsx"),
     "notifications-pass": fileExists("app/notifications/page.tsx"),
-    "buyer-protection-pass": fileExists("features/product-detail/ProductBuyerProtection.tsx"),
+    "buyer-protection-pass":
+      fileExists("features/checkout/components/CheckoutReturnPolicy.tsx") &&
+      readSource("features/product-detail/ProductDetailPage.tsx").includes("formatListingPriceIncl"),
     "performance-pass": scan.homepagePass,
     "accessibility-pass": scan.globalUiPass,
     "security-pass": fileExists("app/account/security/page.tsx"),

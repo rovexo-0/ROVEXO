@@ -1,0 +1,16 @@
+{
+  "version": "v1.1",
+  "headerPresent": false,
+  "galleryIsFirst": true,
+  "galleryTop": -715,
+  "shellTop": -715,
+  "galleryBadgePresent": false,
+  "counterText": "1 / 8",
+  "thumbCount": 8,
+  "actionButtons": [
+    "Add to Cart",
+    "Buy Now"
+  ],
+  "similarListingVersion": "official-2.1",
+  "overflowPx": 0
+}

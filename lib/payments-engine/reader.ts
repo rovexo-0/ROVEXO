@@ -54,7 +54,7 @@ export async function getPaymentsEngineContext(userId: string): Promise<Payments
     .slice(0, 5)
     .map((order) => mapOrderToPaymentSummary(order, config.currency));
 
-  const protectionStatuses = paidOrders.map((o) => mapProtectionStatus(o.status, o.totals.protectedFee));
+  const protectionStatuses = paidOrders.map((o) => mapProtectionStatus(o.status, o.totals.platformFee));
   const protectionStatus =
     protectionStatuses.includes("disputed") ? "disputed" :
     protectionStatuses.includes("active") ? "active" :
@@ -135,7 +135,7 @@ export function computePaymentsAnalytics(orders: Order[]): PaymentsEngineAnalyti
 
   const revenue = paidOrders.reduce((sum, o) => sum + o.totals.total, 0);
   const platformFees = paidOrders.reduce((sum, o) => sum + calculateSellerNetAmount(o.totals.itemPrice).platformFee, 0);
-  const protectionFees = paidOrders.reduce((sum, o) => sum + o.totals.protectedFee, 0);
+  const protectionFees = paidOrders.reduce((sum, o) => sum + o.totals.platformFee, 0);
 
   return {
     revenue,

@@ -1,0 +1,50 @@
+---
+description: ROVEXO unified account architecture — one account buys and sells (no separate buyer/seller accounts)
+alwaysApply: true
+---
+
+# ROVEXO Account Architecture (Single Source of Truth)
+
+ROVEXO has **one unified user account**. There are no separate Buyer or Seller
+accounts. Role is derived from the **action**, not the account:
+
+- Buy an item → acts as Buyer
+- Publish a listing → acts as Seller
+- The same account does both, interchangeably. Buyer = Seller = Buyer.
+
+## Account types
+Exactly two, and **both can buy and sell**:
+1. **Personal Account**
+2. **Verified Business Account** (can buy, sell, receive payments, manage orders)
+
+There is no "buy-only" / "sell-only" account. Any user may request Business
+status; it is granted only after ROVEXO verification, and the account keeps the
+**same unified identity** while gaining Business features.
+
+## UI / UX rules (mandatory)
+- ❌ Never create, imply, or require separate Buyer and Seller accounts.
+- ❌ Never require "switching accounts" or creating another account to sell.
+- ❌ Never duplicate profile data across roles.
+- ✅ Always one unified account; features appear by permission/action.
+- ✅ Navigation, dashboards, menus, permissions, and settings must reflect the
+  unified model. Avoid wording/workflows implying Buyer and Seller are different
+  account types.
+
+```tsx
+// ❌ BAD — implies separate accounts / account switching
+<Link href="/seller/signup">Create a seller account</Link>
+<Button onClick={switchToSellerAccount}>Switch to selling account</Button>
+
+// ✅ GOOD — same account, action-based capability
+<Link href="/sell">Start selling</Link>
+<Button onClick={requestBusinessVerification}>Get verified as a business</Button>
+```
+
+Buyer/seller **dashboards or views** are fine as action-oriented surfaces of the
+one account (e.g. "Selling" and "Buying" areas) — just never as separate logins,
+identities, or profiles.
+
+## Legal
+ROVEXO is a marketplace platform. Each seller/business is responsible for their
+own legal, tax, accounting, licensing, and reporting obligations. The platform
+does not replace those responsibilities.

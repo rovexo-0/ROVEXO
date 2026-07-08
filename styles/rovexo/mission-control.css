@@ -258,7 +258,7 @@
   border-radius: 999px;
 }
 
-.mc-priority-legend__dot--blue { background: #2563eb; }
+.mc-priority-legend__dot--blue { background: var(--ds-color-primary); }
 .mc-priority-legend__dot--green { background: #16a34a; }
 .mc-priority-legend__dot--yellow { background: #ca8a04; }
 .mc-priority-legend__dot--orange { background: #ea580c; }
@@ -560,7 +560,7 @@
 }
 
 .mc-manager__state-pill--live { color: var(--ds-color-success); }
-.mc-manager__state-pill--beta { color: #2563eb; }
+.mc-manager__state-pill--beta { color: var(--ds-color-primary); }
 .mc-manager__state-pill--coming-soon { color: var(--ds-color-warning); }
 .mc-manager__state-pill--maintenance { color: var(--ds-color-danger); }
 

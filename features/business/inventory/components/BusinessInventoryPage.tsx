@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -35,15 +35,12 @@ const STATUS_VARIANTS: Record<InventoryStatus, "success" | "warning" | "danger">
 function InventoryRow({ item }: { item: InventoryItem }) {
   return (
     <div className="flex min-h-[72px] items-center gap-ds-3 px-ds-4 py-ds-3">
-      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-        <Image
-          src={item.imageUrl}
-          alt={item.title}
-          fill
-          className="object-cover"
-          sizes="56px"
-        />
-      </div>
+      <ProductRowImage
+        src={item.imageUrl}
+        alt={item.title}
+        containerClassName="relative h-14 w-14 shrink-0 rounded-ds-md"
+        sizes="56px"
+      />
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-text-primary">{item.title}</p>

@@ -118,7 +118,7 @@ export const HERO_CAMPAIGN_BRIEFS: Record<HeroCampaignId, string> = {
   "move-store": "Move entire store — shipping boxes, devices, marketplace packages, studio photography",
   "zero-fees": "Zero listing fees — premium price tag, cart, gift box, minimal studio",
   "verified-businesses": "Verified businesses — storefront, team, professional marketplace",
-  "buy-securely": "Buyer protection — shield, secure checkout, trust photography",
+  "buy-securely": "Purchase protection — shield, secure checkout, trust photography",
   "fast-delivery": "Fast delivery — van, packages, urban shipping, photorealistic",
   "electronics-deals": "Local marketplace — street market, community shopping, lifestyle",
   "home-garden": "Sell in minutes — mobile listing, seller with phone, quick commerce",

@@ -1,6 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import { OrderDetailPageShell } from "@/features/orders/components/OrderDetailPageShell";
 import { fetchOrderForUser, getOrderViewRole } from "@/lib/orders/queries";
+import { getOrderEscrowState } from "@/lib/commerce-engine/read-model";
+import { getSellerShipmentView } from "@/lib/commerce/read-model";
+import { getOrderResolutionSummary } from "@/lib/resolution-engine";
 import { getProfile } from "@/lib/profile/data";
 
 type SellerOrderDetailRouteProps = {
@@ -21,12 +24,21 @@ export default async function SellerOrderDetailRoute({ params }: SellerOrderDeta
     notFound();
   }
 
+  const [escrowState, resolutionSummary, sellerShipment] = await Promise.all([
+    getOrderEscrowState(id),
+    getOrderResolutionSummary(id),
+    getSellerShipmentView(order),
+  ]);
+
   return (
     <OrderDetailPageShell
       order={order}
       userId={profile.id}
       backHref="/seller/orders"
       showBottomNav={false}
+      escrowState={escrowState}
+      resolutionSummary={resolutionSummary}
+      sellerShipment={sellerShipment}
     />
   );
 }

@@ -49,7 +49,7 @@ function buildProtectionSummary(orders: Order[]): BuyerProtectionSummary {
   const activeClaims = orders.filter((order) => order.status === "issue_open").length;
   return {
     status: activeClaims > 0 ? "claim_in_progress" : "protected",
-    coverageLabel: "ROVEXO Buyer Protection",
+    coverageLabel: "ROVEXO Purchase Protection",
     activeClaims,
     refundsEnabled: true,
     href: "/resolution",

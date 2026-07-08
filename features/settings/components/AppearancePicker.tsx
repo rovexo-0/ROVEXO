@@ -5,9 +5,8 @@ import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 
 const OPTIONS: { id: AppearanceMode; label: string; description: string }[] = [
-  { id: "light", label: "Light", description: "Always use light theme" },
-  { id: "dark", label: "Dark", description: "Always use dark theme" },
-  { id: "system", label: "System", description: "Match your device setting" },
+  { id: "light", label: "White", description: "Light background with purple accent" },
+  { id: "dark", label: "Black", description: "Dark background with purple accent" },
 ];
 
 type AppearancePickerProps = {
@@ -19,7 +18,7 @@ export function AppearancePicker({ value, onChange }: AppearancePickerProps) {
   return (
     <fieldset className="flex flex-col gap-ds-2">
       <legend className="text-sm font-medium text-text-primary">Appearance</legend>
-      <div className="grid gap-ds-2 sm:grid-cols-3">
+      <div className="grid gap-ds-2 sm:grid-cols-2">
         {OPTIONS.map((option) => (
           <button
             key={option.id}

@@ -212,7 +212,9 @@ function buildPassConditions(scan: MarketplaceCompletionScanResult, homeContent:
   const mapping: Record<(typeof HOMEPAGE_PASS_CONDITIONS)[number], boolean> = {
     "no-duplicate-categories": hasRail && noLegacyGrid,
     "no-duplicate-homepage-sections": noLegacyGrid && scan.globalUiPass,
-    "no-empty-space-above-search": readSource("components/Header.tsx").includes("HeaderSearchBar") && scan.homepagePass,
+    "no-empty-space-above-search":
+      readSource("components/homepage-v4/HomepageV4Search.tsx").includes("HomepageSearchField") &&
+      scan.homepagePass,
     "all-buttons-functional": fileExists("components/ui/Button.tsx"),
     "all-routes-functional": fileExists("middleware.ts"),
     "all-widgets-functional": fileExists("components/home/HomeContent.tsx"),

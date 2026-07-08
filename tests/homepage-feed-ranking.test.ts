@@ -126,7 +126,7 @@ describe("Homepage feed ranking v2.0", () => {
 
 
 
-describe("Homepage single feed architecture", () => {
+describe("Homepage V4 section architecture", () => {
 
   function readSource(relativePath: string): string {
 
@@ -136,27 +136,35 @@ describe("Homepage single feed architecture", () => {
 
 
 
-  it("uses one server fetch and one feed component on the homepage", () => {
+  it("uses featured + feed fetches only on the homepage", () => {
 
     const page = readSource("app/page.tsx");
 
-    const homePage = readSource("components/home/RovexoHomePage.tsx");
+    const homePage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
 
 
 
     expect(page).toContain("fetchHomepageFeed");
 
-    expect(page).toContain("resolveHomepageFeedItems");
+    expect(page).toContain("resolveHomepageV4Sections");
 
-    expect(page).not.toContain("enrichHomepageData");
+    expect(page).toContain('fetchProducts("recommended"');
 
     expect(page).not.toContain('fetchProducts("popular"');
 
-    expect(homePage).toContain("RovexoAllListings");
+    expect(page).not.toContain('fetchProducts("new"');
 
-    expect(homePage).not.toContain("RovexoFeaturedListings");
+    expect(page).not.toContain('fetchProducts("trending"');
 
-    expect(homePage).not.toContain("RovexoBusinesses");
+    expect(homePage).toContain("CanonicalMarketplaceFeed");
+    expect(homePage).toContain("FeaturedStoreSection");
+    expect(homePage).not.toContain("HomepageV4Featured");
+
+    expect(homePage).not.toContain("Recommended");
+
+    expect(homePage).not.toContain("Newest");
+
+    expect(homePage).not.toContain("Boosted");
 
   });
 
@@ -166,13 +174,13 @@ describe("Homepage single feed architecture", () => {
 
     const route = readSource("app/api/homepage/feed/route.ts");
 
-    const allListings = readSource("components/home/RovexoAllListings.tsx");
+    const feed = readSource("components/homepage/canonical/CanonicalMarketplaceFeed.tsx");
 
 
 
     expect(route).toContain("getHomepageFeed");
 
-    expect(allListings).toContain("/api/homepage/feed?page=");
+    expect(feed).toContain("/api/homepage/feed?page=");
 
   });
 

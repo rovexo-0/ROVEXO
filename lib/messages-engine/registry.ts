@@ -7,7 +7,7 @@ export const MESSAGES_ENGINE_MODULES: MessagesEngineModule[] = [
   { id: "orders", label: "Orders Integration", icon: "📦", description: "Order chat, timeline, and refund updates", href: "/orders" },
   { id: "listings", label: "Listings Integration", icon: "🏷️", description: "Listing chat, offers, and product cards", href: "/search" },
   { id: "shipping", label: "Shipping Integration", icon: "🚚", description: "Tracking and delivery notifications", href: "/shipping" },
-  { id: "protection", label: "Buyer Protection Integration", icon: "🛡️", description: "Case chat and evidence sharing", href: "/protection" },
+  { id: "protection", label: "Purchase Protection Integration", icon: "🛡️", description: "Case chat and evidence sharing", href: "/protection" },
   { id: "moderation", label: "Moderation", icon: "⚖️", description: "Reports, spam detection, and admin review", href: "/messages?tab=moderation" },
   { id: "analytics", label: "Analytics", icon: "📈", description: "Response time and conversation metrics", href: "/messages?tab=analytics" },
 ];

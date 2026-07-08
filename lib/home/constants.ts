@@ -81,7 +81,7 @@ export type HomePromoSlide = {
 export const HOME_PROMO_SLIDES: HomePromoSlide[] = [
   {
     id: "protection",
-    title: "Buyer protection on every order",
+    title: "Purchase protection on every order",
     subtitle: "Shop with verified sellers and secure checkout.",
     href: "/trust",
     categorySlug: "fashion",
@@ -101,7 +101,7 @@ export const HOME_PROMO_SLIDES: HomePromoSlide[] = [
     subtitle: "Discover verified listings with top ratings.",
     href: "/search?q=&deals=1",
     categorySlug: "vehicles",
-    accent: "from-sky-600 via-primary to-blue-700",
+    accent: "from-violet-600 via-primary to-purple-700",
   },
 ];
 
@@ -144,7 +144,7 @@ export const HOME_HERO_BANNERS: HomeHeroBannerSlide[] = [
   },
   {
     id: "buy-securely",
-    title: "Buyer Protection",
+    title: "Purchase Protection",
     subtitle: "Shield, verified sellers, safe delivery on every order.",
     cta: "Learn more",
     href: "/trust",
@@ -209,7 +209,7 @@ export const HOME_SECONDARY_BANNERS: HomeSecondaryBanner[] = [
   },
   {
     id: "buyer-protection",
-    title: "Buyer Protection",
+    title: "Purchase Protection",
     subtitle: "Secure checkout on every order.",
     cta: "Learn more",
     href: "/trust",

@@ -5,16 +5,36 @@
  * Cross-platform (Windows + Unix).
  */
 import { spawn } from "node:child_process";
+import net from "node:net";
 import { loadDotEnvFiles, resolvePackageManager } from "./playwright-env.mjs";
 import { ensureProductionBuild } from "./playwright-webserver.mjs";
 
 loadDotEnvFiles();
 
-const port = process.argv[2] ?? process.env.PLAYWRIGHT_PORT ?? "3025";
+const port = process.argv[2] ?? process.env.PLAYWRIGHT_PORT ?? "13025";
 const pm = resolvePackageManager();
 
-const webServerEnv = {
-  NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-RNEMD5BT0S",
+function assertPortFree(listenPort) {
+  return new Promise((resolve, reject) => {
+    const tester = net
+      .createServer()
+      .once("error", (error) => {
+        if (error && typeof error === "object" && "code" in error && error.code === "EADDRINUSE") {
+          reject(
+            new Error(
+              `[playwright] Port ${listenPort} is already in use. Stop the stale server or set PLAYWRIGHT_PORT.`,
+            ),
+          );
+          return;
+        }
+        reject(error);
+      })
+      .once("listening", () => tester.close(() => resolve()))
+      .listen(Number(listenPort), "127.0.0.1");
+  });
+}
+
+const webServerEnv = {  NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-RNEMD5BT0S",
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://placeholder.supabase.co",
   NEXT_PUBLIC_SUPABASE_ANON_KEY:
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
@@ -36,6 +56,7 @@ const webServerEnv = {
   NODE_ENV: "production",
 };
 
+await assertPortFree(port);
 ensureProductionBuild(webServerEnv);
 
 const child = spawn(`${pm} run start -- -p ${port}`, {

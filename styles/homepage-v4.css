@@ -1,0 +1,636 @@
+/**
+ * ROVEXO Homepage Mobile v1.0 — premium mobile-first layout.
+ * ListingCard dimensions owned by ListingCard.module.css (SSOT).
+ */
+
+.rovexo-page-home {
+  background: var(--ds-color-background);
+  color: var(--ds-color-text-primary);
+  width: 100%;
+  overflow-x: clip;
+}
+
+/* ── Layout tokens ── */
+
+.rx4 {
+  --rx4-section-gap: 16px;
+  --rx4-card-w: 160px;
+  --rx4-card-gap: 12px;
+  --rx4-card-row-gap: 12px;
+  --rx4-card-media: 220px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 68rem;
+  margin-inline: auto;
+  padding-inline: 16px;
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--rx4-section-gap);
+}
+
+@media (min-width: 1024px) {
+  .rx4 {
+    --rx4-section-gap: 24px;
+    --rx4-card-gap: 16px;
+    --rx4-card-row-gap: 20px;
+    padding-inline: 16px;
+  }
+}
+
+.rx4-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ds-color-text-secondary);
+}
+
+/* ── Header ── */
+
+.rx4-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: color-mix(in srgb, var(--ds-color-background) 94%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--ds-color-border);
+}
+
+.rx4-topbar--elevated {
+  box-shadow: 0 2px 16px color-mix(in srgb, var(--ds-color-text-primary) 5%, transparent);
+}
+
+.rx4-topbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-space-2);
+  min-height: 48px;
+  max-width: 68rem;
+  margin-inline: auto;
+  padding: 4px var(--ds-space-4);
+}
+
+@media (min-width: 1024px) {
+  .rx4-topbar__inner {
+    min-height: 52px;
+    padding-inline: var(--ds-space-5);
+  }
+}
+
+.rx4-wordmark {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.rx4-wordmark__text {
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  background: linear-gradient(
+    105deg,
+    var(--ds-color-text-primary) 0%,
+    var(--ds-color-primary) 55%,
+    var(--ds-color-text-primary) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.rx4-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 36px;
+}
+
+.rx4-topbar__profile {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+}
+
+.rx4-topbar__avatar {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--ds-color-border);
+}
+
+/* ── Search ── */
+
+.rx4-search {
+  margin: 0;
+}
+
+.rx4-search__field.homepage-search {
+  width: 100%;
+}
+
+.rx4-search .homepage-search__control {
+  min-height: 44px;
+  border-radius: var(--ds-radius-full);
+  border: none;
+  background: var(--ds-color-surface-muted);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ds-color-border) 75%, transparent);
+}
+
+.rx4-search .homepage-search__control:focus-within {
+  box-shadow:
+    inset 0 0 0 2px var(--ds-color-primary),
+    0 0 0 3px color-mix(in srgb, var(--ds-color-primary) 10%, transparent);
+}
+
+/* ── Category chips ── */
+
+.rx4-cats {
+  margin: 0;
+  height: 36px;
+}
+
+.rx4-cats__track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding-inline: 0;
+}
+
+.rx4-cats__track::-webkit-scrollbar {
+  display: none;
+}
+
+.rx4-cats__chip {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  min-width: 0;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: var(--ds-color-surface);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ds-color-text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.rx4-cats__chip:active {
+  transform: scale(0.98);
+}
+
+/* ── Bring your item (primary CTA) ── */
+
+.rx4-import {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 72px;
+  min-height: 72px;
+  padding: 0 20px;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ds-color-primary) 92%, #ffffff) 0%,
+    var(--ds-color-primary) 48%,
+    color-mix(in srgb, var(--ds-color-primary) 78%, #312e81) 100%
+  );
+  border: none;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--ds-color-primary) 28%, transparent);
+}
+
+[data-theme="dark"] .rx4-import {
+  box-shadow: none;
+}
+
+.rx4-import__content {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  min-width: 0;
+}
+
+.rx4-import__icon {
+  flex-shrink: 0;
+  opacity: 0.95;
+}
+
+.rx4-import__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+.rx4-import__hint {
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 1.25;
+  color: rgb(255 255 255 / 0.82);
+}
+
+.rx4-import__action {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  min-height: 52px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ds-color-primary) 92%, #fff) 0%,
+    var(--ds-color-primary) 100%
+  );
+  color: var(--ds-color-primary-foreground);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+/* ── Featured seller V2 ── */
+
+.rx-fs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rx-fs__seller {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 36px;
+}
+
+.rx-fs__profile {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.rx-fs__avatar {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--ds-color-surface-muted);
+}
+
+.rx-fs__avatar-fallback {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ds-color-primary);
+}
+
+.rx-fs__meta {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rx-fs__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ds-color-text-primary);
+}
+
+.rx-fs__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--ds-color-text-secondary);
+}
+
+.rx-fs__carousel {
+  display: flex;
+  align-items: stretch;
+  gap: var(--rx4-card-gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  margin-inline: -16px;
+  padding-inline: 16px;
+}
+
+.rx-fs__carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.rx-fs__slide {
+  flex: 0 0 var(--rx4-card-w);
+  width: var(--rx4-card-w);
+  scroll-snap-align: start;
+}
+
+.rx-card--slide {
+  width: var(--rx4-card-w);
+}
+
+/* ── Featured seller (legacy showcase — unused) ── */
+
+.rx4-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-3);
+  border-radius: var(--ds-radius-lg);
+  background: var(--ds-color-surface-muted);
+}
+
+.rx4-showcase__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
+}
+
+.rx4-showcase__seller {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-space-2);
+  min-height: 40px;
+}
+
+.rx4-showcase__profile {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: var(--ds-space-2);
+  text-decoration: none;
+  color: inherit;
+}
+
+.rx4-showcase__avatar {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--ds-radius-full);
+  background: var(--ds-color-surface);
+}
+
+.rx4-showcase__avatar-fallback {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ds-color-primary);
+}
+
+.rx4-showcase__meta {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rx4-showcase__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ds-color-text-primary);
+}
+
+.rx4-showcase__stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-space-1);
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--ds-color-text-secondary);
+}
+
+.rx4-showcase__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ── Carousel ── */
+
+.rx4-carousel {
+  --rx4-card-w: 160px;
+  display: flex;
+  align-items: stretch;
+  gap: var(--rx4-card-gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  margin-inline: -16px;
+  padding-inline: 16px;
+}
+
+.rx4-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.rx4-carousel__slide {
+  flex: 0 0 var(--rx4-card-w);
+  width: var(--rx4-card-w);
+  scroll-snap-align: start;
+}
+
+.rx4-card--carousel {
+  width: var(--rx4-card-w);
+}
+
+/* ── Featured listings (no section title) ── */
+
+.rx4-featured {
+  display: block;
+}
+
+/* ── Marketplace feed (no section title) ── */
+
+.rx4-feed {
+  display: block;
+}
+
+.rx-fs__title {
+  margin: 0 0 4px;
+}
+
+.rx4-feed__grid {
+  --rx4-grid-cols: 2;
+  display: grid;
+  grid-template-columns: repeat(var(--rx4-grid-cols, 2), minmax(0, 1fr));
+  column-gap: var(--rx4-card-gap);
+  row-gap: var(--rx4-card-row-gap);
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .rx4-feed__grid {
+    --rx4-grid-cols: 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rx4-feed__grid {
+    --rx4-grid-cols: 4;
+  }
+}
+
+@media (min-width: 1440px) {
+  .rx4-feed__grid {
+    --rx4-grid-cols: 5;
+  }
+}
+
+.rx4-feed__sentinel {
+  grid-column: 1 / -1;
+  height: 1px;
+}
+
+/* ── Listing card — SSOT: ListingCard.module.css (160×340, image 220px) ── */
+
+.rx4 [data-listing-card="rovexo"] {
+  margin-inline: auto;
+}
+
+/* ── Skeleton (initial load only) ── */
+
+.rx4-skeleton {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 160px;
+  height: 340px;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid #ececec;
+  background: var(--ds-color-surface);
+}
+
+.rx4-skeleton__media {
+  height: 220px;
+  flex-shrink: 0;
+  background: var(--ds-color-surface-muted);
+  animation: rx4-pulse 1.5s ease-in-out infinite;
+}
+
+.rx4-skeleton__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+  padding: 10px;
+}
+
+.rx4-skeleton__line {
+  border-radius: var(--ds-radius-sm);
+  background: var(--ds-color-surface-muted);
+  animation: rx4-pulse 1.5s ease-in-out infinite;
+}
+
+.rx4-skeleton__line--price {
+  height: 15px;
+  width: 38%;
+}
+
+.rx4-skeleton__line--title {
+  height: 12px;
+  width: 86%;
+}
+
+.rx4-skeleton__line--meta {
+  height: 10px;
+  width: 48%;
+  margin-top: auto;
+}
+
+@keyframes rx4-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+[data-theme="dark"] .rx4-topbar,
+[data-theme="dark"] .rx4 {
+  background: var(--ds-color-background);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx4-cats__track,
+  .rx4-carousel {
+    scroll-behavior: auto;
+  }
+
+  .rx4-skeleton__media,
+  .rx4-skeleton__line {
+    animation: none;
+  }
+}
+
+@import "./rovexo/homepage-header.css";
+
+.rx4-search .homepage-search__suggestions {
+  z-index: 90;
+  border-radius: var(--ds-radius-lg);
+}

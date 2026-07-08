@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { cn } from "@/lib/cn";
@@ -51,16 +52,16 @@ export function ProtectionEngineHub({
 
   return (
     <BetaAppShell bottomNavTab="account">
-      <BetaPageHeader title="Buyer Protection" backHref="/account" />
+      <BetaPageHeader title="Purchase Protection" backHref="/account" />
 
       <main className="bp-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
         <header className="bp-hub__intro">
-          <p className="bp-hub__eyebrow">Buyer Protection Engine</p>
+          <p className="bp-hub__eyebrow">Purchase Protection</p>
           <p className="text-sm text-text-secondary">
             {config.marketplaceVersion} · {config.primaryCountry} · {config.currency}
           </p>
           <p className="text-sm text-text-muted">
-            {context.protectionPhase.replace(/-/g, " ")} · Fee {(context.protectionRate * 100).toFixed(0)}% ·{" "}
+            {context.protectionPhase.replace(/-/g, " ")} · Platform Fee{" "}
             {formatCurrency(context.minProtectionFee)}–{formatCurrency(context.maxProtectionFee)}
           </p>
         </header>
@@ -144,7 +145,7 @@ export function ProtectionEngineHub({
           <div className="bp-module-grid">
             {modules.slice(3).map((module) => (
               <Link key={module.id} href={module.href} className="bp-module-card">
-                <span>{module.icon}</span>
+                <ModuleIcon href={module.href} id={module.id} />
                 <span className="font-semibold">{module.label}</span>
               </Link>
             ))}

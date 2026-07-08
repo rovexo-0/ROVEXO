@@ -10,11 +10,11 @@ export type FeatureExplanation = {
 export const MARKETPLACE_FEATURES: FeatureExplanation[] = [
   {
     id: "buyer-protection",
-    title: "Buyer Protection",
+    title: "Purchase Protection",
     summary: "Secure checkout with dispute support through the resolution center.",
     href: "/help/category/buyer",
     helpTopicSlug: "buyer",
-    keywords: ["buyer protection", "secure checkout"],
+    keywords: ["purchase protection", "secure checkout"],
   },
   {
     id: "withdrawals",

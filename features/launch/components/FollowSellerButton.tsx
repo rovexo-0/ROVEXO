@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/Button";
 
 type FollowSellerButtonProps = {
   sellerId: string;
+  compact?: boolean;
 };
 
-export function FollowSellerButton({ sellerId }: FollowSellerButtonProps) {
+export function FollowSellerButton({ sellerId, compact = false }: FollowSellerButtonProps) {
   const [following, setFollowing] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -33,8 +34,14 @@ export function FollowSellerButton({ sellerId }: FollowSellerButtonProps) {
   };
 
   return (
-    <Button variant="secondary" disabled={busy} onClick={() => void toggle()}>
-      {following ? "Following" : "Follow seller"}
+    <Button
+      variant="secondary"
+      size={compact ? "sm" : "md"}
+      disabled={busy}
+      onClick={() => void toggle()}
+      className={compact ? "shrink-0 px-ds-3" : undefined}
+    >
+      {following ? "Following" : compact ? "Follow" : "Follow seller"}
     </Button>
   );
 }

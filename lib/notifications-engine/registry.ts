@@ -9,7 +9,7 @@ export const NOTIFICATIONS_ENGINE_MODULES: NotificationsEngineModule[] = [
   { id: "payments", label: "Payments Integration", icon: "💳", description: "Payment and refund alerts", href: "/payments" },
   { id: "shipping", label: "Shipping Integration", icon: "🚚", description: "Tracking and delivery updates", href: "/shipping" },
   { id: "wallet", label: "Wallet Integration", icon: "👛", description: "Balance and withdrawal alerts", href: "/wallet" },
-  { id: "protection", label: "Buyer Protection Integration", icon: "🛡️", description: "Case and resolution alerts", href: "/protection" },
+  { id: "protection", label: "Purchase Protection Integration", icon: "🛡️", description: "Case and resolution alerts", href: "/protection" },
   { id: "analytics", label: "Analytics", icon: "📈", description: "Delivery, open rate, and performance", href: "/notifications?tab=analytics" },
 ];
 
@@ -59,7 +59,7 @@ export const NOTIFICATIONS_ENGINE_EVENTS = [
   { id: "payment-authorized", label: "Payment Authorized" },
   { id: "payment-failed", label: "Payment Failed" },
   { id: "refund-issued", label: "Refund Issued" },
-  { id: "protection-activated", label: "Buyer Protection Activated" },
+  { id: "protection-activated", label: "Purchase Protection Activated" },
   { id: "case-opened", label: "Case Opened" },
   { id: "shipping-label-created", label: "Shipping Label Created" },
   { id: "parcel-collected", label: "Parcel Collected" },
@@ -110,7 +110,7 @@ export const NOTIFICATIONS_ENGINE_BADGE_SURFACES = [
   { id: "wallet", label: "Wallet", color: "purple" as const },
   { id: "notifications", label: "Notifications", color: "orange" as const },
   { id: "saved", label: "Saved Items", color: "blue" as const },
-  { id: "protection", label: "Buyer Protection", color: "red" as const },
+  { id: "protection", label: "Purchase Protection", color: "red" as const },
   { id: "support", label: "Support", color: "green" as const },
   { id: "account", label: "Account", color: "blue" as const },
   { id: "super-admin", label: "Super Admin", color: "critical-flash" as const },

@@ -9,7 +9,7 @@ import type { Product } from "@/lib/products/types";
 import { getCategoryImageUrl } from "@/lib/categories/visuals";
 import { TrustPublicSummary } from "@/features/trust/components/TrustPublicSummary";
 import type { PublicTrustSummary } from "@/lib/trust/types";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 
 type ProStorePageProps = {
   storeName: string;
@@ -51,7 +51,7 @@ export function ProStorePage({
       <main className="pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
         <section className="relative">
           <div className="relative aspect-[21/9] min-h-[160px] w-full">
-            <Image
+            <SafeImage
               src={getCategoryImageUrl("business")}
               alt=""
               fill

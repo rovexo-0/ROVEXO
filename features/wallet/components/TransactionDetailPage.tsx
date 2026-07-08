@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Card } from "@/components/ui/Card";
+import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { Price } from "@/components/ui/Price";
 import { WalletEngineTransactionPanel } from "@/features/wallet-engine/WalletEngineTransactionPanel";
 import { TransactionStatusBadge } from "@/features/wallet/components/TransactionStatusBadge";
@@ -49,15 +49,12 @@ export function TransactionDetailPage({ profile, transaction, transactionContext
         {transactionContext ? <WalletEngineTransactionPanel context={transactionContext} /> : null}
         <Card padding="md" className="">
           <div className="flex items-start gap-ds-3">
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-ds-lg bg-surface-muted">
-              <Image
-                src={transaction.productImageUrl}
-                alt={transaction.productTitle}
-                fill
-                className="object-cover"
-                sizes="64px"
-              />
-            </div>
+            <ProductRowImage
+              src={transaction.productImageUrl}
+              alt={transaction.productTitle}
+              containerClassName="h-16 w-16 shrink-0 rounded-ds-lg"
+              sizes="64px"
+            />
 
             <div className="min-w-0 flex-1">
               <h2 className="truncate text-base font-semibold text-text-primary">

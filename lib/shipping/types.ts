@@ -12,7 +12,7 @@ export const PARCEL_TIERS = [
 export type ParcelTier = (typeof PARCEL_TIERS)[number];
 
 /** Legacy sell-flow parcel sizes — mapped to canonical tiers via `lib/shipping/parcels`. */
-export const LEGACY_PARCEL_SIZES = ["small", "medium", "large", "xl"] as const;
+export const LEGACY_PARCEL_SIZES = ["small", "medium", "large", "xl", "custom"] as const;
 export type LegacyParcelSize = (typeof LEGACY_PARCEL_SIZES)[number];
 
 /** Canonical shipping lifecycle states */
@@ -117,7 +117,38 @@ export type ShippingRecord = {
   deliveryAddress: ShippingAddress | null;
   pricing: ShippingPricing | null;
   label: ShippingLabelArtifact | null;
+  parcels: ShipmentParcel[];
   trackingEvents: ShippingTrackingEvent[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ShipmentParcelLabel = {
+  id: string;
+  pdfUrl: string | null;
+  labelUrl: string | null;
+  status: "pending" | "ready" | "void";
+};
+
+export type ShipmentParcel = {
+  id: string;
+  shippingRecordId: string;
+  parcelNumber: number;
+  totalParcels: number;
+  weightKg: number | null;
+  dimensions: {
+    lengthCm: number | null;
+    widthCm: number | null;
+    heightCm: number | null;
+  } | null;
+  carrier: string | null;
+  shippingService: string | null;
+  trackingNumber: string | null;
+  trackingUrl: string | null;
+  status: ShippingStatus;
+  productItemIds: string[];
+  estimatedDeliveryAt: string | null;
+  label: ShipmentParcelLabel | null;
   createdAt: string;
   updatedAt: string;
 };

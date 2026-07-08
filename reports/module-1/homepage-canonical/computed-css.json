@@ -1,0 +1,27 @@
+{
+  "homepageVersion": "1.0",
+  "listingVersion": "official-2.1",
+  "storesVersion": "canonical-1.0",
+  "storesTitle": null,
+  "overflowPx": 0,
+  "card": {
+    "w": 200,
+    "h": 438
+  },
+  "image": {
+    "w": 198,
+    "h": 272
+  },
+  "imagePct": 62,
+  "imageAspect": 0.727,
+  "hasProtection": true,
+  "hasFooter": true,
+  "bodyPadding": "16px",
+  "gridGap": "12.32px",
+  "storeCard": {
+    "w": 112,
+    "h": 206
+  },
+  "byiH": 72,
+  "sameRow": true
+}

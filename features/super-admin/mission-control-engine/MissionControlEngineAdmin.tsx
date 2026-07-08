@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState, useTransition } from "react";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseEngineAdminShell } from "@/features/super-admin/components/premium/EnterpriseEngineAdminShell";
 import type {
@@ -138,7 +139,10 @@ export function MissionControlEngineAdmin({ initialSnapshot }: MissionControlEng
             return (
               <label key={section.id} className="mc2-admin__toggle-row">
                 <span>
-                  {section.icon} {section.label}
+                  <span className="inline-flex items-center gap-ds-2">
+                    <ModuleIcon href={section.href} id={section.id} size={20} />
+                    {section.label}
+                  </span>
                 </span>
                 <input type="checkbox" checked={enabled} onChange={() => toggleSection(section.id)} />
               </label>

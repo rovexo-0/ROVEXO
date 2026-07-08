@@ -1,10 +1,18 @@
 import "server-only";
 
+import { isParcel2GoConfigured } from "@/src/services/shipping/env";
+import { parcel2GoAdapter } from "@/lib/shipping/pricing/parcel2go-adapter";
 import { shippoAdapter } from "@/lib/shipping/pricing/shippo-adapter";
+import { isShippoConfigured } from "@/lib/shipping/env";
 import type { ShippingProvider, ShippingQuoteRequest, ShippingQuoteResponse } from "@/lib/shipping/pricing/provider";
 import type { ShippingPricing, ShippingQuote } from "@/lib/shipping/types";
 
-const providers: ShippingProvider[] = [shippoAdapter];
+function activeProviders(): ShippingProvider[] {
+  const providers: ShippingProvider[] = [];
+  if (isParcel2GoConfigured()) providers.push(parcel2GoAdapter);
+  if (isShippoConfigured()) providers.push(shippoAdapter);
+  return providers;
+}
 
 function markRecommendations(quotes: ShippingQuote[]): ShippingQuote[] {
   if (quotes.length === 0) return quotes;
@@ -26,6 +34,7 @@ function markRecommendations(quotes: ShippingQuote[]): ShippingQuote[] {
 }
 
 export async function fetchShippingQuotesServer(request: ShippingQuoteRequest): Promise<ShippingPricing> {
+  const providers = activeProviders();
   const responses: ShippingQuoteResponse[] = await Promise.all(
     providers.map((provider) => provider.getQuotes(request)),
   );
@@ -42,7 +51,7 @@ export async function fetchShippingQuotesServer(request: ShippingQuoteRequest): 
 }
 
 export function getConfiguredProvidersServer(): { id: string; name: string; configured: boolean }[] {
-  return providers.map((provider) => ({
+  return activeProviders().map((provider) => ({
     id: provider.id,
     name: provider.name,
     configured: provider.isConfigured(),
@@ -50,5 +59,6 @@ export function getConfiguredProvidersServer(): { id: string; name: string; conf
 }
 
 export function getPrimaryProviderServer(): ShippingProvider {
+  if (isParcel2GoConfigured()) return parcel2GoAdapter;
   return shippoAdapter;
 }

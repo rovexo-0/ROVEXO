@@ -315,12 +315,23 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
       selected.map(async (file) => {
         try {
           validateClientImage(file);
-          const compressed = await compressListingImage(file);
-          const thumbnail = await createListingThumbnail(compressed);
+          let compressed = file;
+          let previewSource = file;
+
+          try {
+            compressed = await compressListingImage(file);
+            previewSource = await createListingThumbnail(compressed);
+          } catch {
+            // Mobile browsers and some test environments can fail web-worker compression;
+            // still show the photo using the original file so publish is not blocked.
+            compressed = file;
+            previewSource = file;
+          }
+
           return {
             id: safeRandomUUID(),
             file: compressed,
-            previewUrl: URL.createObjectURL(thumbnail),
+            previewUrl: URL.createObjectURL(previewSource),
             uploaded: false,
           } satisfies SellPhoto;
         } catch (error) {

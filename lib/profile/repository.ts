@@ -3,6 +3,7 @@ import type { Tables } from "@/lib/supabase/types/database";
 import type { UserProfile } from "@/lib/profile/types";
 import type { AccountType } from "@/lib/profile/account";
 import { isAdmin, isSellerRole, isSuperAdmin } from "@/lib/auth/session";
+import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 
 /** Columns granted to authenticated users (see prelaunch_security migration). */
 const PROFILE_READ_COLUMNS =
@@ -43,7 +44,7 @@ function mapProfileRow(
     fullName: profile.full_name,
     username: profile.username,
     email: profile.email,
-    avatarUrl: profile.avatar_url,
+    avatarUrl: normalizeAvatarUrl(profile.avatar_url),
     verified: profile.verified,
     memberSince: formatMemberSince(profile.created_at),
     role: profile.role,

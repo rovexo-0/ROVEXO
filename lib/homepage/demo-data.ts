@@ -1,5 +1,9 @@
 import type { RovexoBusiness } from "@/components/home/constants";
-import type { Product, ProductsPage } from "@/lib/products/types";
+import type { Product, ProductsPage, ProductDetail } from "@/lib/products/types";
+import {
+  buildShowcaseSellerSections,
+  type ShowcaseSellerSection,
+} from "@/lib/homepage/showcase-sellers";
 import {
   compareHomepageFeedProducts,
   computeHomepagePriorityScore,
@@ -419,6 +423,164 @@ function mergeProducts(
 ): Product[] {
   const merged = uniqueById([...primary, ...preferred, ...fallback, ...HOMEPAGE_DEMO_PRODUCTS]);
   return merged.slice(0, min);
+}
+
+/** Dedicated Showcase sellers for visual certification when live DB has no featured placements. */
+export const HOMEPAGE_DEMO_SHOWCASE_PRODUCTS: Product[] = [
+  baseDemoProduct({
+    id: "showcase-demo-1",
+    slug: "showcase-demo-techvault-phone",
+    sellerId: "showcase-seller-techvault",
+    sellerName: "TechVault Pro",
+    sellerUsername: "techvault-pro",
+    sellerAvatar: demoImage("business-01.jpg"),
+    sellerTier: "business",
+    title: "iPhone 15 Pro 256GB Natural Titanium",
+    price: 899,
+    brand: "Phones",
+    imageUrl: demoImage("phone-01.jpg"),
+    isFeatured: true,
+    views: 1204,
+    rating: 4.9,
+    reviewCount: 186,
+  }),
+  baseDemoProduct({
+    id: "showcase-demo-1b",
+    slug: "showcase-demo-techvault-headphones",
+    sellerId: "showcase-seller-techvault",
+    sellerName: "TechVault Pro",
+    sellerUsername: "techvault-pro",
+    sellerAvatar: demoImage("business-01.jpg"),
+    sellerTier: "business",
+    title: "Sony WH-1000XM5 Noise Cancelling",
+    price: 249,
+    brand: "Electronics",
+    imageUrl: demoImage("headphones-01.jpg"),
+    isFeatured: true,
+    views: 802,
+  }),
+  baseDemoProduct({
+    id: "showcase-demo-2",
+    slug: "showcase-demo-luxe-watch",
+    sellerId: "showcase-seller-luxe",
+    sellerName: "Luxe Collective",
+    sellerUsername: "luxe-collective",
+    sellerAvatar: demoImage("business-02.jpg"),
+    sellerTier: "premium",
+    title: "Certified Pre-Owned Luxury Chronograph",
+    price: 3200,
+    brand: "Luxury",
+    imageUrl: demoImage("watch-01.jpg"),
+    isFeatured: true,
+    listingType: "luxury",
+    views: 534,
+    rating: 5,
+    reviewCount: 88,
+  }),
+  baseDemoProduct({
+    id: "showcase-demo-2b",
+    slug: "showcase-demo-luxe-handbag",
+    sellerId: "showcase-seller-luxe",
+    sellerName: "Luxe Collective",
+    sellerUsername: "luxe-collective",
+    sellerAvatar: demoImage("business-02.jpg"),
+    sellerTier: "premium",
+    title: "Designer Leather Crossbody Bag",
+    price: 420,
+    brand: "Fashion",
+    imageUrl: demoImage("handbag-01.jpg"),
+    isFeatured: true,
+    views: 291,
+  }),
+  baseDemoProduct({
+    id: "showcase-demo-3",
+    slug: "showcase-demo-gamegrid-ps5",
+    sellerId: "showcase-seller-gamegrid",
+    sellerName: "GameGrid Store",
+    sellerUsername: "gamegrid-store",
+    sellerAvatar: demoImage("business-06.jpg"),
+    sellerTier: "business",
+    title: "PlayStation 5 Console Disc Edition",
+    price: 429,
+    brand: "Gaming",
+    imageUrl: demoImage("ps5-01.jpg"),
+    isFeatured: true,
+    views: 991,
+    rating: 4.8,
+    reviewCount: 142,
+  }),
+];
+
+export function resolveShowcaseSections(
+  fromDb: ShowcaseSellerSection[],
+  feedItems: Product[],
+): ShowcaseSellerSection[] {
+  if (fromDb.length > 0) return fromDb;
+
+  const fromFeed = buildShowcaseSellerSections(feedItems);
+  if (fromFeed.length > 0) return fromFeed;
+
+  if (!HOMEPAGE_DEMO_ENABLED) return [];
+
+  return buildShowcaseSellerSections(HOMEPAGE_DEMO_SHOWCASE_PRODUCTS);
+}
+
+const DEMO_LISTING_GALLERY_SEEDS = [
+  "phone-01.jpg",
+  "headphones-01.jpg",
+  "laptop-01.jpg",
+  "watch-01.jpg",
+  "shoes-01.jpg",
+  "jacket-01.jpg",
+  "handbag-01.jpg",
+  "tv-01.jpg",
+] as const;
+
+function demoGalleryImages(): string[] {
+  return DEMO_LISTING_GALLERY_SEEDS.map((seed) => demoImage(seed));
+}
+
+function findDemoCatalogProduct(slug: string): Product | undefined {
+  return [...HOMEPAGE_DEMO_PRODUCTS, ...HOMEPAGE_DEMO_SHOWCASE_PRODUCTS].find(
+    (item) => item.slug === slug,
+  );
+}
+
+export function resolveDemoProductDetail(slug: string): ProductDetail | null {
+  if (!HOMEPAGE_DEMO_ENABLED) return null;
+  const product = findDemoCatalogProduct(slug);
+  if (!product) return null;
+
+  return {
+    ...product,
+    images: demoGalleryImages(),
+    description: `Buy ${product.title} on ROVEXO with purchase protection and verified sellers.`,
+    salesCount: product.reviewCount ?? 0,
+    sellerFollowerCount: 128,
+    deliveryCarriers: ["Royal Mail", "Evri", "DPD"],
+    freeDelivery: false,
+    shippingPrice: 4.99,
+    stock: 3,
+    availability: "in_stock",
+    sellerId: product.sellerId ?? product.id,
+    transactionMode: "MARKETPLACE",
+  };
+}
+
+/** Pad demo listing galleries for visual certification when live rows have few photos. */
+export function enrichDemoProductDetail(slug: string, detail: ProductDetail | null): ProductDetail | null {
+  const demo = resolveDemoProductDetail(slug);
+  if (!demo) return detail;
+  if (!detail) return demo;
+  if ((detail.images?.length ?? 0) >= 2) return detail;
+  return { ...detail, images: demo.images };
+}
+
+export function resolveDemoSimilarProducts(slug: string, limit = 8): Product[] {
+  if (!HOMEPAGE_DEMO_ENABLED) return [];
+  return [...HOMEPAGE_DEMO_PRODUCTS, ...HOMEPAGE_DEMO_SHOWCASE_PRODUCTS]
+    .filter((product) => product.slug !== slug)
+    .slice(0, limit);
 }
 
 function mergeBusinesses(primary: RovexoBusiness[], fallback: RovexoBusiness[]): RovexoBusiness[] {

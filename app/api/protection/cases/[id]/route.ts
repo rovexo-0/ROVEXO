@@ -4,7 +4,6 @@ import {
   addProtectionEvidence,
   getProtectionCase,
   listProtectionCaseEvents,
-  resolveProtectionCase,
   submitCaseAppeal,
 } from "@/lib/protection/service";
 
@@ -59,23 +58,13 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   if (body.action === "resolve" && isPlatformAdminRole(role ?? "buyer")) {
-    const updated = await resolveProtectionCase({
-      caseId: id,
-      adminId: auth.user.id,
-      outcome: body.outcome as
-        | "refund_full"
-        | "refund_partial"
-        | "return_accepted"
-        | "return_rejected"
-        | "no_action"
-        | "buyer_favour"
-        | "seller_favour",
-      notes: String(body.notes ?? ""),
-      refundAmount: typeof body.refundAmount === "number" ? body.refundAmount : undefined,
-    });
-    return updated
-      ? NextResponse.json({ case: updated })
-      : NextResponse.json({ error: "Failed to resolve case." }, { status: 500 });
+    return NextResponse.json(
+      {
+        error:
+          "Manual resolution is disabled. The Resolution Engine processes all cases automatically.",
+      },
+      { status: 410 },
+    );
   }
 
   if (body.action === "evidence" && typeof body.fileUrl === "string" && typeof body.fileName === "string") {

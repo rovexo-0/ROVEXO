@@ -7,36 +7,48 @@ function readSource(relativePath: string): string {
 }
 
 describe("Home page hydration safety", () => {
-  it("uses approved RovexoCategoryRail on the homepage", () => {
-    const homePage = readSource("components/home/RovexoHomePage.tsx");
-    const categoryRail = readSource("components/home/RovexoCategoryRail.tsx");
+  it("uses CanonicalCategoryRail in the homepage main column", () => {
+    const homePage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
+    const categoryRail = readSource("components/homepage/canonical/CanonicalCategoryRail.tsx");
 
-    expect(homePage).toContain("RovexoCategoryRail");
-    expect(homePage).not.toContain("CategoryGridSection");
-    expect(categoryRail).toContain("home-v1-category");
+    expect(homePage).toContain("CanonicalCategoryRail");
+    expect(categoryRail).toContain("css.rail");
   });
 
   it("defers header height measurement to layout effects", () => {
     const scrollSource = readSource("components/home/RovexoMobileHeaderScrollContext.tsx");
-    const headerSource = readSource("components/Header.tsx");
+    const headerSource = readSource("components/header/RovexoHeaderV2.tsx");
 
     expect(scrollSource).toContain("useLayoutEffect");
-    expect(scrollSource).toContain("setHeaderElement");
-    expect(scrollSource).not.toContain("headerElementRef");
-    expect(scrollSource).not.toContain("suppressHydrationWarning");
     expect(headerSource).toContain("useLayoutEffect");
     expect(headerSource).toContain("headerRef");
-    expect(headerSource).not.toContain("setHeaderRef");
   });
 
-  it("keeps the v1 homepage sections statically composed", () => {
-    const source = readSource("components/home/RovexoHomePage.tsx");
+  it("keeps HomepageSearchField hydration-safe with stable SSR markup", () => {
+    const search = readSource("components/home/HomepageSearchField.tsx");
+    const hydratedHook = readSource("lib/react/use-client-hydrated.ts");
+
+    expect(search).toContain("useClientHydrated");
+    expect(hydratedHook).toContain("useSyncExternalStore");
+    expect(search).not.toContain("Date.now()");
+    expect(search).not.toContain("Math.random()");
+    expect(search).not.toContain("crypto.randomUUID");
+    expect(search).not.toContain("typeof window");
+    expect(search).toContain('inputId: string');
+    expect(search).toContain('role={hydrated ? "combobox" : "searchbox"}');
+  });
+
+  it("formats listing prices with a stable locale during SSR", () => {
+    const card = readSource("components/ui/ListingCard.tsx");
+    expect(card).toContain('toLocaleString("en-GB")');
+  });
+
+  it("keeps the canonical homepage sections statically composed", () => {
+    const source = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
 
     expect(source).not.toContain("<Suspense");
-    expect(source).not.toContain("HeroCategorySyncProvider");
-    expect(source).toContain("home-v1-main");
-    expect(source).not.toContain("HomeHeroBannerEngine");
-    expect(source).not.toContain("RovexoBanner");
-    expect(source).toContain("RovexoAllListings");
+    expect(source).toContain('data-hp-homepage="canonical"');
+    expect(source).toContain("CanonicalMarketplaceFeed");
+    expect(source).not.toContain("HomepageV3");
   });
 });

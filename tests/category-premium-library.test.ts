@@ -24,11 +24,7 @@ describe("ROVEXO premium category asset library", () => {
     }
   });
 
-  it("renders premium homepage categories with approved 3D assets", () => {
-    const source = readFileSync(
-      path.join(process.cwd(), "components/home/HomeCategoryIconImage.tsx"),
-      "utf8",
-    );
+  it("renders homepage categories as text-only capsules", () => {
     const railSource = readFileSync(
       path.join(process.cwd(), "components/home/RovexoCategoryRail.tsx"),
       "utf8",
@@ -39,13 +35,10 @@ describe("ROVEXO premium category asset library", () => {
       "utf8",
     );
 
-    expect(source).toContain('variant === "premium"');
-    expect(source).toContain("<picture>");
-    expect(source).toContain("rx-category-render__img");
-    expect(source).toContain("PremiumCategoryRenderMissing");
-    expect(source).not.toContain("rx-category-icon-3d--premium");
-    expect(cardSource).toContain("home-v1-category-tile");
-    expect(railSource).toContain("useInfiniteCarousel");
+    expect(cardSource).toContain("home-v1-category-capsule");
+    expect(cardSource).not.toContain("<picture");
+    expect(railSource).toContain("home-v1-category-track__set");
+    expect(railSource).not.toContain("useInfiniteCarousel");
     expect(railSource).toContain('aria-label="Categories"');
   });
 });

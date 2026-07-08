@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ProgrammaticPageView } from "@/features/seo/components/ProgrammaticPageView";
-import { searchListings } from "@/lib/listings/repository";
+import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import {
   programmaticPageJsonLd,
   programmaticPageMetadata,
@@ -30,7 +30,8 @@ export default async function BrowsePage({ params }: BrowsePageProps) {
   if (!page) notFound();
 
   const query = buildProgrammaticSearchQuery(page);
-  const results = await searchListings({
+  const results = await getEligibleListings({
+    surface: "category",
     categorySlugPath: query.categorySlugPath,
     brand: query.brand,
     conditions: query.conditions,

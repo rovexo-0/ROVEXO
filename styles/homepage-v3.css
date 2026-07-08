@@ -1,0 +1,506 @@
+/**
+ * ROVEXO Homepage V3.0 — complete visual layer (SSOT)
+ * Replaces deprecated home-v1 / rovexo-homepage.css on the / route.
+ */
+
+.rovexo-page-home {
+  background: var(--ds-color-background);
+  color: var(--ds-color-text-primary);
+  width: 100%;
+  overflow-x: clip;
+}
+
+/* ── Layout tokens ── */
+
+.hp3 {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding-inline: var(--ds-space-4);
+  padding-bottom: calc(84px + var(--ds-space-5) + env(safe-area-inset-bottom, 0px));
+  --hp3-gap-x: var(--ds-space-3);
+  --hp3-gap-y: var(--ds-space-5);
+  --hp3-grid-columns: 2;
+  --hp3-card-h: 300px;
+  --hp3-card-media-h: 190px;
+  --hp3-card-body-h: 110px;
+  --hp3-card-radius: var(--ds-radius-lg);
+  --hp3-card-shadow: var(--ds-shadow-soft);
+  --hp3-card-border: 1px solid var(--ds-color-border);
+  --hp3-card-w: calc((100% - var(--hp3-gap-x)) / 2);
+}
+
+.hp3 > * + * {
+  margin-top: var(--ds-space-4);
+}
+
+@media (min-width: 768px) {
+  .hp3 {
+    --hp3-grid-columns: 3;
+    --hp3-card-w: calc((100% - (2 * var(--hp3-gap-x))) / 3);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hp3 {
+    --hp3-grid-columns: 4;
+    max-width: 960px;
+    margin-inline: auto;
+    --hp3-card-w: calc((100% - (3 * var(--hp3-gap-x))) / 4);
+  }
+}
+
+@media (min-width: 1440px) {
+  .hp3 {
+    --hp3-grid-columns: 5;
+    max-width: 1200px;
+    --hp3-card-w: calc((100% - (4 * var(--hp3-gap-x))) / 5);
+  }
+}
+
+/* ── Header ── */
+
+.hp3-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--ds-color-background);
+  border-bottom: 1px solid transparent;
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.hp3-header--scrolled {
+  border-bottom-color: var(--ds-color-border);
+  box-shadow: var(--ds-shadow-soft);
+}
+
+.hp3-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-space-3);
+  min-height: 64px;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: var(--ds-space-4);
+}
+
+@media (min-width: 768px) {
+  .hp3-header__inner {
+    min-height: 68px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hp3-header__inner {
+    min-height: 72px;
+  }
+}
+
+.hp3-wordmark {
+  display: inline-flex;
+  color: var(--ds-color-text-primary);
+}
+
+.hp3-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-1);
+}
+
+.hp3-header__profile {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+.hp3-header__avatar {
+  border: 1px solid var(--ds-color-border);
+}
+
+/* ── Search (wraps field in main column) ── */
+
+.hp3-search {
+  margin-top: 0;
+}
+
+.hp3-search__field.homepage-search {
+  width: 100%;
+}
+
+.hp3-search .homepage-search__control {
+  min-height: 44px;
+  border-color: var(--ds-color-border);
+  background: var(--ds-color-surface);
+}
+
+/* ── Categories ── */
+
+.hp3-categories__scroller {
+  display: flex;
+  gap: var(--ds-space-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.hp3-categories__scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.hp3-categories__chip {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  min-height: 36px;
+  padding: 8px 16px;
+  border-radius: var(--ds-radius-full);
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ds-color-text-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.hp3-categories__chip:active {
+  transform: scale(0.98);
+}
+
+/* ── Bring your item ── */
+
+.hp3-bring-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-space-3);
+  padding: var(--ds-space-4);
+  border-radius: var(--ds-radius-lg);
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface-muted);
+}
+
+.hp3-bring-item__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ds-color-text-primary);
+}
+
+.hp3-bring-item__subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--ds-color-text-secondary);
+}
+
+.hp3-bring-item__cta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--ds-space-4);
+  border-radius: var(--ds-radius-full);
+  background: var(--ds-color-primary);
+  color: var(--ds-color-primary-foreground);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ── Section head ── */
+
+.hp3-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-space-3);
+  margin-bottom: var(--ds-space-3);
+}
+
+.hp3-section__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ds-color-text-primary);
+}
+
+.hp3-section__view-all {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ds-color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* ── Showcase stack ── */
+
+.hp3-showcase-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-5);
+}
+
+.hp3-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-3);
+}
+
+/* ── Seller row ── */
+
+.hp3-seller-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ds-space-3);
+  min-height: 44px;
+}
+
+.hp3-seller-row__link {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: var(--ds-space-3);
+  text-decoration: none;
+  color: inherit;
+}
+
+.hp3-seller-row__avatar {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--ds-radius-full);
+  background: var(--ds-color-surface-muted);
+}
+
+.hp3-seller-row__avatar-fallback {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ds-color-primary);
+}
+
+.hp3-seller-row__meta {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hp3-seller-row__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ds-color-text-primary);
+}
+
+.hp3-seller-row__stats {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  font-size: 12px;
+  color: var(--ds-color-text-secondary);
+}
+
+.hp3-seller-row__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Horizontal rail ── */
+
+.hp3-rail {
+  display: flex;
+  align-items: stretch;
+  gap: var(--hp3-gap-x);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.hp3-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.hp3-rail__card {
+  flex: 0 0 var(--hp3-card-w);
+  width: var(--hp3-card-w);
+}
+
+.hp3-card--rail {
+  height: var(--hp3-card-h);
+}
+
+/* ── Marketplace grid ── */
+
+.hp3-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--hp3-grid-columns, 2), minmax(0, 1fr));
+  column-gap: var(--hp3-gap-x);
+  row-gap: var(--hp3-gap-y);
+  width: 100%;
+}
+
+.hp3-grid__sentinel {
+  grid-column: 1 / -1;
+  height: 1px;
+  width: 100%;
+}
+
+/* ── Listing card lock (homepage V3) ── */
+
+.hp3 [data-listing-card="rovexo"] {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: var(--hp3-card-h);
+  min-height: var(--hp3-card-h);
+  max-height: var(--hp3-card-h);
+  overflow: hidden;
+  border-radius: var(--hp3-card-radius);
+  border: var(--hp3-card-border);
+  background: var(--ds-color-surface);
+  box-shadow: var(--hp3-card-shadow);
+}
+
+.hp3 [data-listing-card="rovexo"] [class*="media"] {
+  height: var(--hp3-card-media-h);
+  min-height: var(--hp3-card-media-h);
+  max-height: var(--hp3-card-media-h);
+  aspect-ratio: auto;
+  border-radius: var(--hp3-card-radius) var(--hp3-card-radius) 0 0;
+}
+
+.hp3 [data-listing-card="rovexo"] [class*="body"] {
+  flex: 0 0 var(--hp3-card-body-h);
+  height: var(--hp3-card-body-h);
+  max-height: var(--hp3-card-body-h);
+  padding: var(--ds-space-2) var(--ds-space-3);
+}
+
+.hp3 [data-listing-card="rovexo"] [class*="title"] {
+  -webkit-line-clamp: 2;
+  min-height: 2.5em;
+  max-height: 2.5em;
+  font-size: 13px;
+}
+
+.hp3 [data-listing-card="rovexo"] [class*="price"] {
+  font-size: 17px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.hp3 [data-listing-card="rovexo"] [class*="protection"],
+.hp3 [data-listing-card="rovexo"] [class*="protectionMeta"] {
+  display: none !important;
+}
+
+.hp3 [data-listing-card="rovexo"] [class*="favorite"] {
+  top: var(--ds-space-2);
+  right: var(--ds-space-2);
+  width: 44px;
+  height: 44px;
+}
+
+/* ── Skeleton ── */
+
+.hp3-skeleton {
+  display: flex;
+  flex-direction: column;
+  height: var(--hp3-card-h);
+  overflow: hidden;
+  border-radius: var(--hp3-card-radius);
+  border: var(--hp3-card-border);
+  background: var(--ds-color-surface);
+}
+
+.hp3-skeleton__media {
+  height: var(--hp3-card-media-h);
+  background: var(--ds-color-surface-muted);
+  animation: hp3-pulse 1.4s ease-in-out infinite;
+}
+
+.hp3-skeleton__body {
+  display: flex;
+  flex: 0 0 var(--hp3-card-body-h);
+  flex-direction: column;
+  gap: var(--ds-space-2);
+  padding: var(--ds-space-2) var(--ds-space-3);
+}
+
+.hp3-skeleton__line {
+  border-radius: var(--ds-radius-sm);
+  background: var(--ds-color-surface-muted);
+  animation: hp3-pulse 1.4s ease-in-out infinite;
+}
+
+.hp3-skeleton__line--price {
+  height: 17px;
+  width: 42%;
+}
+
+.hp3-skeleton__line--title {
+  height: 13px;
+  width: 92%;
+}
+
+.hp3-skeleton__line--title2 {
+  height: 13px;
+  width: 72%;
+}
+
+.hp3-skeleton__line--meta {
+  height: 11px;
+  width: 55%;
+  margin-top: auto;
+}
+
+@keyframes hp3-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+[data-theme="dark"] .hp3-header,
+[data-theme="dark"] .hp3 {
+  background: var(--ds-color-background);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hp3-skeleton__media,
+  .hp3-skeleton__line {
+    animation: none;
+  }
+}
+
+/* Search field styles (inline in V3 main — not in sticky header) */
+@import "./rovexo/homepage-header.css";
+
+.hp3-search .homepage-search__suggestions {
+  z-index: 90;
+}

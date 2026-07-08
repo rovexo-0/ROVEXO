@@ -54,7 +54,7 @@ export const HeaderCategoryBar = memo(function HeaderCategoryBar({
                     transitionNormal,
                     focusRing,
                     isActive
-                      ? "border border-transparent bg-[image:var(--ds-gradient-primary)] text-primary-foreground shadow-[0_4px_14px_rgba(37,99,235,0.22)]"
+                      ? "border border-transparent bg-[image:var(--ds-gradient-primary)] text-primary-foreground shadow-[0_4px_14px_rgba(147,51,234,0.22)]"
                       : "border border-[#eef2f7] bg-white text-text-secondary shadow-[0_2px_8px_rgba(15,23,42,0.04)] hover:border-primary/25 hover:text-primary",
                   )}
                 >

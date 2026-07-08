@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { cn } from "@/lib/cn";
 import type { ShippingEngineDocument, ShippingEngineModule } from "@/lib/shipping-engine/types";
 
@@ -51,7 +52,7 @@ export function ShippingEngineHub({ config, modules, orders }: ShippingEngineHub
         </div>
         {config.buyerProtection.enabled ? (
           <div className="se-protection-banner">
-            <p className="font-semibold">Buyer Protection active</p>
+            <p className="font-semibold">Purchase Protection active</p>
             <p className="text-sm text-text-secondary">
               Funds remain protected until delivery confirmation or platform resolution.
             </p>
@@ -87,7 +88,7 @@ export function ShippingEngineHub({ config, modules, orders }: ShippingEngineHub
           <div className="se-module-grid">
             {modules.map((module) => (
               <Link key={module.id} href={module.href} className="se-module-card">
-                <span className="se-module-card__icon">{module.icon}</span>
+                <span className="se-module-card__icon"><ModuleIcon href={module.href} id={module.id} /></span>
                 <p className="font-semibold">{module.label}</p>
                 <p className="text-sm text-text-secondary">{module.description}</p>
               </Link>

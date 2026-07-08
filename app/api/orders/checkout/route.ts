@@ -3,7 +3,6 @@ import { requireApiAuth } from "@/lib/auth/session";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 import { createOrderCheckoutSession } from "@/lib/orders/checkout";
 import { getOrderById } from "@/lib/orders/store";
-import type { DeliveryOptionId } from "@/lib/checkout/delivery";
 
 export async function POST(request: Request) {
   const limited = await enforceRateLimit(request, "orders-checkout", 10, 60_000);
@@ -17,8 +16,9 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       productSlug?: string;
-      deliveryOption?: DeliveryOptionId;
+      deliveryOption?: string;
       shippingAddressId?: string;
+      shippingQuoteId?: string | null;
     };
 
     if (!body.productSlug) {
@@ -28,8 +28,9 @@ export async function POST(request: Request) {
     const result = await createOrderCheckoutSession({
       buyerId: auth.user.id,
       productSlug: body.productSlug,
-      deliveryOption: body.deliveryOption ?? "standard",
+      deliveryOption: body.deliveryOption ?? "",
       shippingAddressId: body.shippingAddressId,
+      shippingQuoteId: body.shippingQuoteId ?? null,
     });
 
     if ("error" in result) {

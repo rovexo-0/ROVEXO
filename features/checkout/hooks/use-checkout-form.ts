@@ -1,34 +1,128 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import { getDeliveryPrice } from "@/lib/checkout/delivery";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  getDeliveryPrice,
+  pickDefaultShippingQuote,
+  resolveLiveDeliveryQuotes,
+} from "@/lib/checkout/delivery";
+import type { CheckoutCarrierQuote } from "@/lib/checkout/types";
 import { calculateOrderTotals } from "@/lib/orders/pricing";
 import type { Order } from "@/lib/orders/types";
 import type { ProductDetail } from "@/lib/products/types";
 import type { CheckoutDraft, CheckoutView } from "@/features/checkout/types";
 
-export function useCheckoutForm(product: ProductDetail, initialDraft: CheckoutDraft) {
+function hasCompleteAddress(draft: CheckoutDraft): boolean {
+  return (
+    draft.recipientName.trim().length > 0 &&
+    draft.addressLine.trim().length > 0 &&
+    draft.postcode.trim().length > 0 &&
+    draft.country.trim().length > 0
+  );
+}
+
+export function useCheckoutForm(
+  product: ProductDetail,
+  initialDraft: CheckoutDraft,
+  options?: { liveShippingEnabled?: boolean },
+) {
+  const liveShippingEnabled = options?.liveShippingEnabled ?? true;
   const [view, setView] = useState<CheckoutView>("checkout");
   const [draft, setDraft] = useState<CheckoutDraft>(initialDraft);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [shippingQuotes, setShippingQuotes] = useState<CheckoutCarrierQuote[]>([]);
+  const [shippingQuotesLoading, setShippingQuotesLoading] = useState(false);
+  const [liveQuotesAttempted, setLiveQuotesAttempted] = useState(false);
+  const [livePricingAvailable, setLivePricingAvailable] = useState(liveShippingEnabled);
+
+  const addressReady = hasCompleteAddress(draft);
+  const shouldFetchLiveQuotes = !product.freeDelivery && addressReady;
+  const activeShippingQuotes = useMemo(
+    () => (shouldFetchLiveQuotes ? shippingQuotes : []),
+    [shouldFetchLiveQuotes, shippingQuotes],
+  );
+  const quotesAttempted = shouldFetchLiveQuotes ? liveQuotesAttempted : false;
+
+  const selectedQuote = useMemo(
+    () => activeShippingQuotes.find((quote) => quote.id === draft.deliveryOption) ?? null,
+    [activeShippingQuotes, draft.deliveryOption],
+  );
 
   const totals = useMemo(
     () =>
       calculateOrderTotals(
         product.price,
-        getDeliveryPrice(draft.deliveryOption, {
+        getDeliveryPrice({
           listingOffersFreeDelivery: product.freeDelivery,
           listingShippingPrice: product.shippingPrice ?? null,
+          selectedQuote,
+          liveQuotesAttempted: quotesAttempted,
         }),
       ),
-    [draft.deliveryOption, product.freeDelivery, product.price, product.shippingPrice],
+    [
+      quotesAttempted,
+      product.freeDelivery,
+      product.price,
+      product.shippingPrice,
+      selectedQuote,
+    ],
   );
 
   const updateDraft = useCallback((patch: Partial<CheckoutDraft>) => {
     setDraft((current) => ({ ...current, ...patch }));
   }, []);
+
+  useEffect(() => {
+    if (!shouldFetchLiveQuotes) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void resolveLiveDeliveryQuotes({
+      productSlug: product.slug,
+      recipientName: draft.recipientName,
+      addressLine: draft.addressLine,
+      postcode: draft.postcode,
+      country: draft.country,
+    })
+      .then((result) => {
+        if (cancelled) return;
+        setLiveQuotesAttempted(true);
+        setLivePricingAvailable(result.live);
+        setShippingQuotes(result.options);
+        const defaultQuote = pickDefaultShippingQuote(result.options);
+        setDraft((current) => ({
+          ...current,
+          deliveryOption: defaultQuote?.id ?? current.deliveryOption,
+        }));
+      })
+      .finally(() => {
+        if (!cancelled) setShippingQuotesLoading(false);
+      });
+
+    queueMicrotask(() => {
+      if (!cancelled) setShippingQuotesLoading(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    draft.addressLine,
+    draft.country,
+    draft.postcode,
+    draft.recipientName,
+    product.slug,
+    shouldFetchLiveQuotes,
+  ]);
+
+  const deliveryResolved =
+    product.freeDelivery ||
+    selectedQuote != null ||
+    (product.shippingPrice != null && product.shippingPrice >= 0);
 
   const canPay =
     product.availability !== "out_of_stock" &&
@@ -36,7 +130,10 @@ export function useCheckoutForm(product: ProductDetail, initialDraft: CheckoutDr
     draft.recipientName.trim().length > 0 &&
     draft.addressLine.trim().length > 0 &&
     draft.postcode.trim().length > 0 &&
-    draft.country.trim().length > 0;
+    draft.country.trim().length > 0 &&
+    deliveryResolved &&
+    (product.freeDelivery || quotesAttempted) &&
+    !shippingQuotesLoading;
 
   const placeOrder = useCallback(async () => {
     if (!canPay || isSubmitting) return;
@@ -79,6 +176,7 @@ export function useCheckoutForm(product: ProductDetail, initialDraft: CheckoutDr
           productSlug: product.slug,
           deliveryOption: draft.deliveryOption,
           shippingAddressId,
+          shippingQuoteId: selectedQuote?.id ?? null,
         }),
       });
 
@@ -113,7 +211,7 @@ export function useCheckoutForm(product: ProductDetail, initialDraft: CheckoutDr
     } finally {
       setIsSubmitting(false);
     }
-  }, [canPay, draft, isSubmitting, product.slug, updateDraft]);
+  }, [canPay, draft, isSubmitting, product.slug, selectedQuote, updateDraft]);
 
   return {
     view,
@@ -123,6 +221,11 @@ export function useCheckoutForm(product: ProductDetail, initialDraft: CheckoutDr
     isSubmitting,
     canPay,
     errorMessage,
+    shippingQuotes: activeShippingQuotes,
+    shippingQuotesLoading,
+    liveQuotesAttempted: quotesAttempted,
+    liveShippingEnabled: livePricingAvailable,
+    selectedQuote,
     updateDraft,
     placeOrder,
     setSuccessOrder: setOrder,

@@ -15,8 +15,6 @@ type ProtectionCaseActionsProps = {
 export function ProtectionCaseActions({ caseId, status, isAdmin }: ProtectionCaseActionsProps) {
   const router = useRouter();
   const [reason, setReason] = useState("");
-  const [notes, setNotes] = useState("");
-  const [outcome, setOutcome] = useState("refund_full");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,28 +36,6 @@ export function ProtectionCaseActions({ caseId, status, isAdmin }: ProtectionCas
       router.refresh();
     } catch {
       setError("Unable to submit appeal. Try again.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function resolveCase() {
-    setBusy(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/protection/cases/${caseId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "resolve",
-          outcome,
-          notes: notes.trim() || "Admin resolution",
-        }),
-      });
-      if (!response.ok) throw new Error("Resolve failed");
-      router.refresh();
-    } catch {
-      setError("Unable to resolve case.");
     } finally {
       setBusy(false);
     }
@@ -87,34 +63,15 @@ export function ProtectionCaseActions({ caseId, status, isAdmin }: ProtectionCas
         </div>
       )}
 
-      {isAdmin && status !== "closed" && (
-        <div className="space-y-ds-3">
-          <label className="block text-sm font-medium">Resolution outcome</label>
-          <select
-            value={outcome}
-            onChange={(event) => setOutcome(event.target.value)}
-            className="rx-input w-full px-ds-3 py-ds-2 text-sm"
-          >
-            <option value="refund_full">Full refund (buyer favour)</option>
-            <option value="refund_partial">Partial refund</option>
-            <option value="return_accepted">Return accepted</option>
-            <option value="return_rejected">Return rejected (seller favour)</option>
-            <option value="no_action">No action</option>
-            <option value="buyer_favour">Buyer favour</option>
-            <option value="seller_favour">Seller favour</option>
-          </select>
-          <textarea
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
-            rows={3}
-            placeholder="Admin notes"
-            className="rx-input w-full px-ds-3 py-ds-2 text-sm"
-          />
-          <Button disabled={busy} onClick={() => void resolveCase()}>
-            Resolve case
-          </Button>
-        </div>
-      )}
+      {isAdmin && status !== "closed" ? (
+        <p className="text-sm text-text-secondary">
+          Cases resolve automatically via the Resolution Engine. Use{" "}
+          <a href="/super-admin/resolution-engine" className="font-medium text-text-primary underline">
+            Resolution monitor
+          </a>{" "}
+          to view automation stats and audit logs.
+        </p>
+      ) : null}
 
       {error && <p className="text-sm text-danger">{error}</p>}
     </Card>

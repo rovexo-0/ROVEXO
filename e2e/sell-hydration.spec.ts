@@ -4,6 +4,7 @@ const HYDRATION_PATTERNS = [
   /hydration failed/i,
   /hydration mismatch/i,
   /did not match/i,
+  /server rendered html/i,
   /Encountered a script tag while rendering React component/i,
 ];
 
@@ -11,8 +12,9 @@ function attachConsoleGuards(page: import("@playwright/test").Page) {
   const errors: string[] = [];
 
   page.on("console", (message) => {
-    if (message.type() !== "error") return;
-    errors.push(message.text());
+    const type = message.type();
+    if (type !== "error" && type !== "warning") return;
+    errors.push(`[${type}] ${message.text()}`);
   });
 
   page.on("pageerror", (error) => {
@@ -53,6 +55,7 @@ test.describe("SSR / hydration stabilization", () => {
 
     await page.goto("/", { waitUntil: "domcontentloaded", timeout: 60_000 });
     await expect(page.locator("body")).toBeVisible();
+    await page.waitForTimeout(2500);
 
     assertCleanConsole(errors);
   });
@@ -63,6 +66,7 @@ test.describe("SSR / hydration stabilization", () => {
     await page.setViewportSize({ width: 412, height: 915 });
     await page.goto("/", { waitUntil: "domcontentloaded", timeout: 60_000 });
     await expect(page.locator("body")).toBeVisible();
+    await page.waitForTimeout(2500);
 
     assertCleanConsole(errors);
   });

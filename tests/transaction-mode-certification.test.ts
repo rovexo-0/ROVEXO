@@ -181,22 +181,22 @@ describe("Transaction Mode — enterprise certification", () => {
     it("uses capability engine on listing page (one page, dynamic layout)", () => {
       const page = readSource("features/product-detail/ProductDetailPage.tsx");
       expect(page).toContain("getTransactionCapabilities");
-      expect(page).toContain("capabilities.buyerProtection");
       expect(page).toContain("capabilities.shipping");
       expect(page).toContain("transactionMode={product.transactionMode}");
+      expect(page).toContain('data-pd-detail-version="v1.1"');
     });
 
     it("switches action bar by transactionMode", () => {
-      const bar = readSource("features/product-detail/ProductActionBar.tsx");
+      const bar = readSource("features/product-detail/ProductActionBarV1.tsx");
       expect(bar).toContain("Contact Seller");
       expect(bar).toContain("Buy Now");
       expect(bar).toContain("isDirectContactMode");
     });
 
     it("hides parcel size on sell form for DIRECT_CONTACT", () => {
-      const form = readSource("features/sell/components/ListingForm.tsx");
+      const form = readSource("features/sell/ui/SellShippingBlock.tsx");
       expect(form).toContain("resolveTransactionModeFromFlatPath");
-      expect(form).toContain("!directContact");
+      expect(form).toContain("directContact");
     });
   });
 

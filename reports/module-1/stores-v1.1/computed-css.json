@@ -1,0 +1,185 @@
+{
+  "cardCount": 2,
+  "title": {
+    "fontSize": "32px",
+    "fontWeight": "800",
+    "letterSpacing": "-0.4px",
+    "lineHeight": "36.8px",
+    "width": "408px",
+    "height": "36.7969px",
+    "padding": "0px 16px 0px 16px",
+    "margin": "0px 0px 24px 0px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "rect": {
+      "w": 408,
+      "h": 37,
+      "x": 16
+    }
+  },
+  "header": {
+    "fontSize": "15px",
+    "fontWeight": "400",
+    "letterSpacing": "-0.075px",
+    "lineHeight": "23.25px",
+    "width": "408px",
+    "height": "44px",
+    "padding": "0px 16px 0px 16px",
+    "margin": "0px 0px 0px 0px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "rect": {
+      "w": 408,
+      "h": 44,
+      "x": 16
+    }
+  },
+  "visit": {
+    "fontSize": "15px",
+    "fontWeight": "700",
+    "letterSpacing": "-0.075px",
+    "lineHeight": "15px",
+    "width": "111.297px",
+    "height": "40px",
+    "padding": "0px 20px 0px 20px",
+    "margin": "0px 0px 0px 0px",
+    "borderRadius": "20px",
+    "boxShadow": "none",
+    "rect": {
+      "w": 111,
+      "h": 40,
+      "x": 297
+    }
+  },
+  "viewStore": {
+    "fontSize": "15px",
+    "fontWeight": "600",
+    "letterSpacing": "-0.075px",
+    "lineHeight": "18.75px",
+    "width": "88.5625px",
+    "height": "18.75px",
+    "padding": "0px 0px 0px 0px",
+    "margin": "8px 159.719px 4px 159.719px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "rect": {
+      "w": 89,
+      "h": 19,
+      "x": 176
+    }
+  },
+  "rail": {
+    "fontSize": "15px",
+    "fontWeight": "400",
+    "letterSpacing": "-0.075px",
+    "lineHeight": "23.25px",
+    "width": "408px",
+    "height": "244px",
+    "padding": "12px 107.391px 8px 16px",
+    "margin": "0px 0px 0px 0px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "rect": {
+      "w": 408,
+      "h": 244,
+      "x": 16
+    }
+  },
+  "storeCard": {
+    "width": "116px",
+    "minHeight": "168px",
+    "background": "rgba(0, 0, 0, 0)",
+    "boxShadow": "none"
+  },
+  "image": {
+    "fontSize": "15px",
+    "fontWeight": "400",
+    "letterSpacing": "-0.075px",
+    "lineHeight": "23.25px",
+    "width": "116px",
+    "height": "116px",
+    "padding": "0px 0px 0px 0px",
+    "margin": "0px 0px 0px 0px",
+    "borderRadius": "12px",
+    "boxShadow": "none",
+    "rect": {
+      "w": 116,
+      "h": 116,
+      "x": 32
+    }
+  },
+  "pin": {
+    "fontSize": "15px",
+    "fontWeight": "400",
+    "letterSpacing": "-0.075px",
+    "lineHeight": "23.25px",
+    "width": "28px",
+    "height": "28px",
+    "padding": "0px 0px 0px 0px",
+    "margin": "0px 0px 0px 0px",
+    "borderRadius": "50%",
+    "boxShadow": "rgba(0, 0, 0, 0.1) 0px 1px 3px 0px",
+    "rect": {
+      "w": 28,
+      "h": 28,
+      "x": 114
+    }
+  },
+  "productTitle": {
+    "fontSize": "14px",
+    "fontWeight": "600",
+    "letterSpacing": "-0.075px",
+    "lineHeight": "18px",
+    "width": "116px",
+    "height": "36px",
+    "padding": "0px 0px 0px 0px",
+    "margin": "8px 0px 0px 0px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "rect": {
+      "w": 116,
+      "h": 36,
+      "x": 32
+    }
+  },
+  "price": {
+    "fontSize": "18px",
+    "fontWeight": "700",
+    "letterSpacing": "-0.075px",
+    "lineHeight": "22px",
+    "width": "116px",
+    "height": "22px",
+    "padding": "0px 0px 0px 0px",
+    "margin": "6px 0px 0px 0px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "rect": {
+      "w": 116,
+      "h": 22,
+      "x": 32
+    }
+  },
+  "total": {
+    "fontSize": "16px",
+    "fontWeight": "600",
+    "letterSpacing": "-0.075px",
+    "lineHeight": "20px",
+    "width": "116px",
+    "height": "20px",
+    "padding": "0px 0px 0px 0px",
+    "margin": "0px 0px 0px 0px",
+    "borderRadius": "0px",
+    "boxShadow": "none",
+    "rect": {
+      "w": 116,
+      "h": 20,
+      "x": 32
+    }
+  },
+  "peek": {
+    "fullCardsVisible": 0,
+    "thirdCardVisibleRatio": 0,
+    "railWidth": 408,
+    "sectionWidth": 408
+  }
+}

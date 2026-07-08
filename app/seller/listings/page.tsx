@@ -1,18 +1,21 @@
 import { Suspense } from "react";
-import { SellerListingsPage } from "@/features/seller/listings/components/SellerListingsPage";
+import { SellerListingsV1 } from "@/features/account-module/components/SellerListingsV1";
 import type { ListingFilter } from "@/lib/listings/types";
 import { fetchSellerListings } from "@/lib/seller/listings-queries";
-import { redirect } from "next/navigation";
 import { getProfile } from "@/lib/profile/data";
+
+export const dynamic = "force-dynamic";
 
 const FILTERS: ListingFilter[] = [
   "all",
+  "published",
+  "pending",
+  "sold",
   "draft",
   "paused",
-  "sold",
+  "expired",
   "out_of_stock",
   "low_stock",
-  "published",
 ];
 
 type SellerListingsRouteProps = {
@@ -26,17 +29,18 @@ export default async function SellerListingsRoute({ searchParams }: SellerListin
     ? (filterParam as ListingFilter)
     : "all";
 
-  // Overlap the profile check with the listings query. fetchSellerListings is
-  // scoped to the authenticated user's own listings, so fetching before the
-  // isSeller redirect leaks nothing and removes a sequential round-trip chain.
-  const [profile, data] = await Promise.all([getProfile(), fetchSellerListings(filter)]);
-  if (!profile.isSeller) {
-    redirect("/account");
-  }
+  await getProfile();
+  const data = await fetchSellerListings(filter);
 
   return (
-    <Suspense>
-      <SellerListingsPage data={data} />
+    <Suspense
+      fallback={
+        <div className="acm" data-listings-version="v1.0" style={{ padding: 24 }}>
+          <p>Loading listings…</p>
+        </div>
+      }
+    >
+      <SellerListingsV1 data={data} />
     </Suspense>
   );
 }

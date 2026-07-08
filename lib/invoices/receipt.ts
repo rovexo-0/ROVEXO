@@ -11,10 +11,8 @@ export function buildReceiptHtml(input: {
   invoiceNumber: string;
   itemTitle: string;
   itemPrice: number;
-  protectedFee: number;
-  deliveryFee: number;
   platformFee: number;
-  sellerPayout: number;
+  deliveryFee: number;
   total: number;
   paidAt: string;
 }): string {
@@ -39,10 +37,8 @@ export function buildReceiptHtml(input: {
     <table>
       <tr><th>Item</th><th>Amount</th></tr>
       <tr><td>${input.itemTitle}</td><td>£${input.itemPrice.toFixed(2)}</td></tr>
-      <tr><td>Buyer protection</td><td>£${input.protectedFee.toFixed(2)}</td></tr>
       <tr><td>Delivery</td><td>£${input.deliveryFee.toFixed(2)}</td></tr>
-      <tr><td>Platform fee</td><td>£${input.platformFee.toFixed(2)}</td></tr>
-      <tr><td>Seller payout</td><td>£${input.sellerPayout.toFixed(2)}</td></tr>
+      <tr><td>Platform Fee</td><td>£${input.platformFee.toFixed(2)}</td></tr>
       <tr class="total"><td>Total paid</td><td>£${input.total.toFixed(2)}</td></tr>
     </table>
   </body>

@@ -2,6 +2,7 @@
 
 import { useCallback, useState, useTransition } from "react";
 import Link from "next/link";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { Button } from "@/components/ui/Button";
 import { AppStudioSimulator } from "@/features/super-admin/app-studio/AppStudioSimulator";
 import { cn } from "@/lib/cn";
@@ -167,7 +168,7 @@ function OverviewGrid({ modules }: { modules: AppStudioPlatformModule[] }) {
       {modules.map((module) => (
         <div key={module.id} className="as-overview-card">
           <div className="as-overview-card__head">
-            <span className="as-overview-card__icon">{module.icon}</span>
+            <span className="as-overview-card__icon"><ModuleIcon id={module.id} href={module.href} /></span>
             <div>
               <p className="as-overview-card__title">{module.label}</p>
               <p className="as-overview-card__meta">v{module.version} · {module.status}</p>
@@ -203,7 +204,10 @@ function ModuleBuilderPanel({ modules }: { modules: AppStudioSnapshot["draft"]["
           <div key={module.id} className="as-list__row">
             <div>
               <p className="font-semibold">
-                {module.icon} {module.name}
+                <span className="inline-flex items-center gap-ds-1">
+                  <ModuleIcon id={module.id} href={module.route} size={18} />
+                  {module.name}
+                </span>
               </p>
               <p className="text-sm text-text-secondary">{module.description ?? module.route}</p>
               <p className="text-xs text-text-muted">
@@ -264,8 +268,8 @@ function NavigationPanel({ navigation }: { navigation: AppStudioSnapshot["draft"
               <p className="font-semibold">{section.label}</p>
               <p className="text-xs text-text-muted mb-ds-2">{section.items.length} items</p>
               {section.items.slice(0, 4).map((item) => (
-                <p key={item.id} className="text-sm text-text-secondary">
-                  {item.icon ? `${item.icon} ` : ""}
+                <p key={item.id} className="flex items-center gap-ds-2 text-sm text-text-secondary">
+                  <ModuleIcon id={item.id} href={item.href} size={18} />
                   {item.label}
                   {item.badge ? ` (${item.badge})` : ""}
                 </p>

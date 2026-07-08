@@ -9,10 +9,11 @@ type ProfileMenuRowProps = {
   title: string;
   subtitle?: string;
   href?: string;
-  icon: ReactNode;
+  icon?: ReactNode;
   badge?: number;
   id?: string;
   iconClassName?: string;
+  showChevron?: boolean;
 };
 
 export function ProfileMenuRow({
@@ -23,12 +24,15 @@ export function ProfileMenuRow({
   badge,
   id,
   iconClassName,
+  showChevron = true,
 }: ProfileMenuRowProps) {
   const content = (
     <>
-      <PremiumIcon size="sm" className={iconClassName} label={title}>
-        {icon}
-      </PremiumIcon>
+      {icon ? (
+        <PremiumIcon size="sm" className={iconClassName} label={title}>
+          {icon}
+        </PremiumIcon>
+      ) : null}
 
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold text-text-primary">{title}</span>
@@ -37,19 +41,22 @@ export function ProfileMenuRow({
         )}
       </span>
 
-      <span className="flex shrink-0 items-center gap-ds-2">
-        {badge != null && badge > 0 && (
-          <span className="inline-flex min-h-5 min-w-5 items-center justify-center rounded-ds-full bg-danger px-ds-1 text-[0.625rem] font-bold text-danger-foreground">
-            {badge > 99 ? "99+" : badge}
-          </span>
-        )}
-        <ChevronRightIcon className="h-4 w-4 text-text-muted" />
-      </span>
+      {(badge != null && badge > 0) || showChevron ? (
+        <span className="flex shrink-0 items-center gap-ds-2">
+          {badge != null && badge > 0 ? (
+            <span className="inline-flex min-h-5 min-w-5 items-center justify-center rounded-ds-full bg-danger px-ds-1 text-[0.625rem] font-bold text-danger-foreground">
+              {badge > 99 ? "99+" : badge}
+            </span>
+          ) : null}
+          {showChevron ? <ChevronRightIcon className="h-4 w-4 text-text-muted" /> : null}
+        </span>
+      ) : null}
     </>
   );
 
   const rowClassName = cn(
-    "rx-menu-row flex min-h-[56px] w-full items-center gap-ds-3 px-ds-4 py-ds-2",
+    "rx-menu-row flex min-h-[56px] w-full items-center px-ds-4 py-ds-2",
+    icon ? "gap-ds-3" : "gap-0",
     transitionFast,
     focusRing,
   );

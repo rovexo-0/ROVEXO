@@ -4,6 +4,8 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { memo, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
+import { RovexoIcon } from "@/components/icons/RovexoIcon";
+import { resolveAuctionFeatureIcon } from "@/lib/icons/auction-feature-icons";
 import Header from "@/components/Header";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { HomePageShell } from "@/components/home/HomePageShell";
@@ -142,7 +144,7 @@ export const AuctionsComingSoonPage = memo(function AuctionsComingSoonPage({
                 {AUCTIONS_COMING_SOON_FEATURES.map((feature) => (
                   <li key={feature.label} className="auctions-soon-feature-card">
                     <span className="auctions-soon-feature-card__icon" aria-hidden>
-                      {feature.icon}
+                      <RovexoIcon icon={resolveAuctionFeatureIcon(feature.label)} variant="category" />
                     </span>
                     <span className="auctions-soon-feature-card__label">{feature.label}</span>
                   </li>

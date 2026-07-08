@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { cn } from "@/lib/cn";
@@ -87,7 +88,6 @@ export function PaymentsEngineHub({
               <MetricCard label="Failed" value={analytics.failedPayments} />
               <MetricCard label="Avg transaction" value={formatCurrency(analytics.averageTransaction)} />
               <MetricCard label="Platform fees" value={formatCurrency(analytics.platformFees)} />
-              <MetricCard label="Protection fees" value={formatCurrency(analytics.buyerProtectionFees)} />
               <MetricCard label="Refund rate" value={`${(analytics.refundRate * 100).toFixed(1)}%`} />
             </div>
           </section>
@@ -138,7 +138,7 @@ export function PaymentsEngineHub({
           <div className="pe-module-grid">
             {modules.slice(4).map((module) => (
               <Link key={module.id} href={module.href} className="pe-module-card">
-                <span>{module.icon}</span>
+                <ModuleIcon href={module.href} id={module.id} />
                 <span className="font-semibold">{module.label}</span>
               </Link>
             ))}

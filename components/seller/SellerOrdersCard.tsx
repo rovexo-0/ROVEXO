@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { SellerEmptyState } from "@/components/seller/SellerEmptyState";
 import { SellerSection } from "@/components/seller/SellerSection";
@@ -27,7 +27,7 @@ export function SellerOrdersCard() {
         <SellerEmptyState title="No orders yet" message="New seller orders will appear here." />
       ) : (
         <Link href={`/seller/orders/${order.id}`} className="seller-list-row">
-          <Image src={order.product.imageUrl} alt="" width={56} height={56} className="rounded-2xl object-cover" />
+          <SafeImage src={order.product.imageUrl} alt="" width={56} height={56} className="rounded-2xl object-cover" />
           <div className="min-w-0">
             <p className="seller-list-row__title">{order.product.title}</p>
             <p className="seller-list-row__meta">Order {order.orderNumber} · {order.status.replaceAll("_", " ")}</p>

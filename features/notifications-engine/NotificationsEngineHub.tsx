@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { NotificationCenter } from "@/features/notifications/components/NotificationCenter";
 import { cn } from "@/lib/cn";
 import { NOTIFICATIONS_ENGINE_FILTERS } from "@/lib/notifications-engine/registry";
@@ -182,7 +183,7 @@ export function NotificationsEngineHub({
             <div className="ne-module-grid">
               {modules.slice(3).map((module) => (
                 <Link key={module.id} href={module.href} className="ne-module-card">
-                  <span>{module.icon}</span>
+                  <ModuleIcon href={module.href} id={module.id} />
                   <span className="font-semibold">{module.label}</span>
                 </Link>
               ))}

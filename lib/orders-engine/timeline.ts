@@ -35,8 +35,8 @@ export function mapOrderStatusToFilters(status: OrderStatus): OrdersEngineFilter
   return map[status];
 }
 
-export function mapProtectionStatus(status: OrderStatus, protectedFee: number): OrdersEngineProtectionStatus {
-  if (protectedFee <= 0) return "protected";
+export function mapProtectionStatus(status: OrderStatus, platformFee: number): OrdersEngineProtectionStatus {
+  if (platformFee <= 0) return "protected";
   if (status === "issue_open") return "disputed";
   if (status === "completed") return "released";
   if (status === "delivered") return "waiting-confirmation";

@@ -8,7 +8,6 @@
  * validation flow — it is purely a UI + serialisation layer.
  */
 
-import type { SelectionOption } from "@/features/sell/components/SelectionScreen";
 import type { FlatCategoryPath } from "@/lib/categories/types";
 import type { SellListingDraft } from "@/features/sell/types";
 import {
@@ -17,6 +16,7 @@ import {
   COLOUR_OPTIONS,
   MATERIAL_OPTIONS,
   SIZE_OPTIONS,
+  type SelectionOption,
 } from "@/lib/sell/attribute-options";
 import { MARKETPLACE_CONDITIONS_BY_VERTICAL } from "@/lib/categories/enterprise/conditions";
 
@@ -117,7 +117,7 @@ const WARRANTY_OPTIONS = toOptions([
 
 const ELECTRONICS_SLUGS = new Set(["electronics", "phones", "computers", "gaming", "tv-audio"]);
 
-function conditionOptionsForCategorySlug(slug: string | undefined): SelectionOption[] {
+export function conditionOptionsForCategorySlug(slug: string | undefined): SelectionOption[] {
   if (slug === "vehicles") return toOptions([...MARKETPLACE_CONDITIONS_BY_VERTICAL.vehicles]);
   if (slug && ELECTRONICS_SLUGS.has(slug)) {
     return toOptions([...MARKETPLACE_CONDITIONS_BY_VERTICAL.electronics]);
@@ -398,6 +398,13 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     options: toOptions([...MARKETPLACE_CONDITIONS_BY_VERTICAL.default]),
     placeholder: "Select condition",
   },
+  measurements: {
+    id: "measurements",
+    label: "Measurements",
+    input: "text",
+    target: { kind: "map" },
+    placeholder: "e.g. Chest 52cm, Length 70cm",
+  },
   fit: {
     id: "fit",
     label: "Fit",
@@ -436,9 +443,9 @@ const DEFAULT_ATTRIBUTE_IDS = ["brand", "size", "colour", "material"] as const;
 
 /** Category (top-level slug) → ordered attribute ids. Unknown → default set. */
 const CATEGORY_ATTRIBUTE_IDS: Record<string, string[]> = {
-  "mens-fashion": ["brand", "size", "colour", "material", "condition", "style", "pattern", "fit", "gender", "season"],
-  "womens-fashion": ["brand", "size", "colour", "material", "condition", "style", "pattern", "fit", "gender", "season"],
-  "kids-fashion": ["brand", "size", "colour", "material", "condition", "style", "pattern", "gender", "season"],
+  "mens-fashion": ["brand", "size", "measurements", "condition", "colour", "material", "style", "pattern", "fit", "gender", "season"],
+  "womens-fashion": ["brand", "size", "measurements", "condition", "colour", "material", "style", "pattern", "fit", "gender", "season"],
+  "kids-fashion": ["brand", "size", "measurements", "condition", "colour", "material", "style", "pattern", "gender", "season"],
   shoes: ["brand", "size", "colour", "material", "style", "condition"],
   sports: ["brand", "size", "colour", "material", "condition"],
   jewellery: ["brand", "material", "colour", "collection", "condition"],

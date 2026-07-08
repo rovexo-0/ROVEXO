@@ -29,6 +29,7 @@ export function AuthShell({ children, className }: AuthShellProps) {
         className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-surface-muted/50 to-transparent"
       />
       <MotionDiv
+        role="main"
         className="rx-surface-card rx-depth-3 relative z-10 my-auto w-full max-w-[420px] shrink-0 rounded-ds-2xl p-ds-6 sm:p-ds-8"
         style={{ animation: "none" }}
       >

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { DashboardIcon3D, resolveDashboardIconType, type DashboardIconType } from "@/components/icons/DashboardIcon3D";
+import { DashboardIcon3D, type DashboardIconType } from "@/components/icons/DashboardIcon3D";
+import { resolveDashboardIconType } from "@/lib/icons/resolve-dashboard-icon-type";
 import { Card } from "@/components/ui/Card";
 import { PremiumIcon } from "@/components/icons/PremiumIcon";
 import { DashboardGrid } from "@/features/dashboard/components/DashboardGrid";

@@ -13,18 +13,17 @@ describe("Hero banner category synchronization", () => {
 
   it("wires hero sync with the canonical category rail", () => {
     const homePage = readFileSync(
-      path.join(process.cwd(), "components/home/RovexoHomePage.tsx"),
+      path.join(process.cwd(), "components/homepage/canonical/CanonicalHomepage.tsx"),
       "utf8",
     );
     const categoryRail = readFileSync(
-      path.join(process.cwd(), "components/home/RovexoCategoryRail.tsx"),
+      path.join(process.cwd(), "components/homepage/canonical/CanonicalCategoryRail.tsx"),
       "utf8",
     );
 
-    expect(homePage).toContain("RovexoCategoryRail");
-    expect(homePage).not.toContain("HomeHeroBannerEngine");
+    expect(homePage).toContain("CanonicalCategoryRail");
     expect(homePage).not.toContain("RovexoBanner");
-    expect(categoryRail).not.toContain("HeaderCategoryBar");
+    expect(categoryRail).toContain("css.chip");
   });
 
   it("uses local hero campaign assets with AVIF and WebP support", () => {

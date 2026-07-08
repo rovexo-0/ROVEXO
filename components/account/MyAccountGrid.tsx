@@ -15,7 +15,7 @@ export function MyAccountGrid({ role }: { role: UserRole }) {
   return (
     <section className="acx-section" aria-labelledby="acx-account-title">
       <h2 id="acx-account-title" className="acx-section__title">
-        My Account
+        Menu
       </h2>
       {showSuperAdmin ? (
         <div className="acx-grid acx-grid--super-admin" style={{ marginBottom: "1rem" }}>
@@ -23,7 +23,7 @@ export function MyAccountGrid({ role }: { role: UserRole }) {
             label={SUPER_ADMIN_ACCOUNT_NAV_ITEM.label}
             href={SUPER_ADMIN_ACCOUNT_NAV_ITEM.href}
             icon={SUPER_ADMIN_ACCOUNT_NAV_ITEM.icon}
-            color={SUPER_ADMIN_ACCOUNT_NAV_ITEM.color}
+            accent={SUPER_ADMIN_ACCOUNT_NAV_ITEM.accent}
           />
         </div>
       ) : null}
@@ -34,7 +34,7 @@ export function MyAccountGrid({ role }: { role: UserRole }) {
             label={item.label}
             href={item.href}
             icon={item.icon}
-            color={item.color}
+            accent={item.accent}
           />
         ))}
       </div>

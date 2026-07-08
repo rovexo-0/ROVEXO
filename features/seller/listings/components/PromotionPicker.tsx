@@ -7,6 +7,8 @@ import { cn } from "@/lib/cn";
 import {
   BUMP_DURATIONS,
   FEATURE_DURATIONS,
+  type BumpDurationOption,
+  type FeatureDurationOption,
   type PromotionType,
 } from "@/lib/promotions/config";
 import { focusRing } from "@/components/ui/tokens";
@@ -31,12 +33,28 @@ export function PromotionPicker({
   const cancelRef = useRef<HTMLButtonElement>(null);
   const [scheduleEnabled, setScheduleEnabled] = useState(false);
   const [scheduledStartAt, setScheduledStartAt] = useState("");
-  const options = type === "bump" ? BUMP_DURATIONS : FEATURE_DURATIONS;
-  const title = type === "bump" ? "Bump listing" : "Feature listing";
+  const [boostOptions, setBoostOptions] = useState<BumpDurationOption[]>(BUMP_DURATIONS);
+  const [showcaseOptions, setShowcaseOptions] = useState<FeatureDurationOption[]>(FEATURE_DURATIONS);
+  const options = type === "bump" ? boostOptions : showcaseOptions;
+  const title = type === "bump" ? "Bump listing" : "Showcase listing";
   const description =
     type === "bump"
       ? "Move your listing to the top of search results for the selected duration."
-      : "Highlight your listing as Featured on the homepage and in search.";
+      : "Highlight your listing in a dedicated Showcase section on the homepage.";
+
+  useEffect(() => {
+    if (!open) return;
+    void fetch("/api/promotions/pricing")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload: { boost?: BumpDurationOption[]; showcase?: FeatureDurationOption[] } | null) => {
+        if (payload?.boost?.length) setBoostOptions(payload.boost);
+        if (payload?.showcase?.length) setShowcaseOptions(payload.showcase);
+      })
+      .catch(() => {
+        setBoostOptions(BUMP_DURATIONS);
+        setShowcaseOptions(FEATURE_DURATIONS);
+      });
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;

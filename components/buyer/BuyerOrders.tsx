@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { BuyerEmptyState } from "@/components/buyer/BuyerEmptyState";
 import { BuyerSection } from "@/components/buyer/BuyerSection";
@@ -28,7 +28,7 @@ export function BuyerOrders() {
       ) : (
         <article className="buyer-order-active">
           <div className="buyer-order-active__row">
-            <Image
+            <SafeImage
               src={order.product.imageUrl}
               alt=""
               width={96}

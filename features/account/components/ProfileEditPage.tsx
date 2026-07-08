@@ -10,14 +10,6 @@ import { AvatarUploader } from "@/features/account/components/AvatarUploader";
 import { EmailChangeForm } from "@/features/account/components/EmailChangeForm";
 import { PasswordChangeForm } from "@/features/account/components/PasswordChangeForm";
 import { ProfileMenuRow } from "@/features/profile/components/ProfileMenuRow";
-import { NotificationsMenuIcon } from "@/features/profile/icons";
-import {
-  BlockedIcon,
-  LockIcon,
-  PrivacyIcon,
-  ShippingIcon,
-} from "@/features/settings/icons";
-import { getNavLinkIcon } from "@/lib/navigation/link-icons";
 import { profileUpdateSchema, type ProfileUpdateInput } from "@/lib/account/schemas";
 import type { ProfileDetails } from "@/lib/profile/service";
 import { cn } from "@/lib/cn";
@@ -218,14 +210,14 @@ export function ProfileEditPage({ initialProfile }: ProfileEditPageProps) {
             title="Addresses"
             subtitle="Shipping and billing"
             href="/account/addresses"
-            icon={<ShippingIcon className="h-5 w-5" />}
+            showChevron={false}
           />
           <div className="border-t border-border">
             <ProfileMenuRow
               title="Language"
               subtitle="Display language"
               href="/account/preferences/language"
-              icon={getNavLinkIcon("/account/preferences/language")}
+              showChevron={false}
             />
           </div>
           <div className="border-t border-border">
@@ -233,7 +225,7 @@ export function ProfileEditPage({ initialProfile }: ProfileEditPageProps) {
               title="Security"
               subtitle="Password, two-factor, sessions"
               href="/account/security"
-              icon={<LockIcon className="h-5 w-5" />}
+              showChevron={false}
             />
           </div>
           <div className="border-t border-border">
@@ -241,7 +233,7 @@ export function ProfileEditPage({ initialProfile }: ProfileEditPageProps) {
               title="Privacy"
               subtitle="Visibility and marketing"
               href="/account/privacy"
-              icon={<PrivacyIcon className="h-5 w-5" />}
+              showChevron={false}
             />
           </div>
           <div className="border-t border-border">
@@ -249,7 +241,7 @@ export function ProfileEditPage({ initialProfile }: ProfileEditPageProps) {
               title="Blocked users"
               subtitle="Manage blocked accounts"
               href="/account/blocked-users"
-              icon={<BlockedIcon className="h-5 w-5" />}
+              showChevron={false}
             />
           </div>
           <div className="border-t border-border">
@@ -257,7 +249,7 @@ export function ProfileEditPage({ initialProfile }: ProfileEditPageProps) {
               title="Buyer preferences"
               subtitle="Alerts and recommendations"
               href="/account/buyer/preferences"
-              icon={<PrivacyIcon className="h-5 w-5" />}
+              showChevron={false}
             />
           </div>
           <div className="border-t border-border">
@@ -265,7 +257,7 @@ export function ProfileEditPage({ initialProfile }: ProfileEditPageProps) {
               title="Notification preferences"
               subtitle="Push and email alerts"
               href="/notifications/settings"
-              icon={<NotificationsMenuIcon className="h-5 w-5" />}
+              showChevron={false}
             />
           </div>
         </nav>

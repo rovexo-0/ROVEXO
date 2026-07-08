@@ -7,7 +7,7 @@ export const ORDERS_ENGINE_MODULES: OrdersEngineModule[] = [
   { id: "timeline", label: "Order Timeline", icon: "🕒", description: "Complete transaction lifecycle", href: "/orders?tab=timeline" },
   { id: "shipping", label: "Shipping Integration", icon: "🚚", description: "Shipping Engine connection", href: "/shipping" },
   { id: "wallet", label: "Wallet Engine", icon: "👛", description: "Balances, payouts, and ledger", href: "/wallet" },
-  { id: "protection", label: "Buyer Protection", icon: "🛡️", description: "Trust, disputes, and fund protection", href: "/protection" },
+  { id: "protection", label: "Purchase Protection", icon: "🛡️", description: "Trust, disputes, and fund protection", href: "/protection" },
   { id: "returns", label: "Returns", icon: "↩️", description: "Return requests and refunds", href: "/orders?tab=returns" },
   { id: "analytics", label: "Analytics", icon: "📈", description: "Order metrics and performance", href: "/orders?tab=analytics" },
 ];

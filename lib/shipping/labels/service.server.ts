@@ -9,6 +9,12 @@ export type LabelGenerationResult = {
   label: ShippingLabelArtifact;
   /** Server-side only — never sent to clients */
   internalPlatformFeePence: number;
+  parcel2Go?: {
+    orderId: string;
+    orderLineId: string | null;
+    orderLineHmac: string | null;
+    serviceCode: string | null;
+  };
 };
 
 export async function generateShippingLabel(
@@ -43,5 +49,13 @@ export async function generateShippingLabel(
       status: "ready",
     },
     internalPlatformFeePence: platformFeePence,
+    parcel2Go: response.parcel2GoOrderId
+      ? {
+          orderId: response.parcel2GoOrderId,
+          orderLineId: response.parcel2GoOrderLineId ?? null,
+          orderLineHmac: response.parcel2GoOrderLineHmac ?? null,
+          serviceCode: response.serviceCode ?? null,
+        }
+      : undefined,
   };
 }

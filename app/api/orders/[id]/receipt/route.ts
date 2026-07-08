@@ -14,7 +14,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const { data: order } = await admin
     .from("orders")
     .select(
-      "id, order_number, invoice_number, item_price, protected_fee, delivery_fee, platform_fee, seller_payout, total, paid_at, buyer_id, seller_id, order_items ( title )",
+      "id, order_number, invoice_number, item_price, protected_fee, delivery_fee, total, paid_at, buyer_id, seller_id, order_items ( title )",
     )
     .eq("id", id)
     .maybeSingle();
@@ -35,10 +35,8 @@ export async function GET(_request: Request, context: RouteContext) {
     invoiceNumber: order.invoice_number ?? `INV-${order.order_number}`,
     itemTitle,
     itemPrice: Number(order.item_price),
-    protectedFee: Number(order.protected_fee),
+    platformFee: Number(order.protected_fee),
     deliveryFee: Number(order.delivery_fee),
-    platformFee: Number(order.platform_fee),
-    sellerPayout: Number(order.seller_payout),
     total: Number(order.total),
     paidAt: order.paid_at ?? new Date().toISOString(),
   });

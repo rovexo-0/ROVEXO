@@ -9,6 +9,7 @@
 import type { ReactElement } from "react";
 
 export type AccountIconName =
+  | "profile"
   | "orders"
   | "saved"
   | "listings"
@@ -18,6 +19,7 @@ export type AccountIconName =
   | "settings"
   | "help"
   | "reviews"
+  | "import"
   | "shipping"
   | "returns"
   | "notifications"
@@ -37,6 +39,15 @@ const base = {
   strokeLinejoin: "round" as const,
   "aria-hidden": true,
 };
+
+function Profile({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+    </svg>
+  );
+}
 
 function Orders({ className }: IconProps) {
   return (
@@ -122,6 +133,16 @@ function Reviews({ className }: IconProps) {
   );
 }
 
+function Import({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 4v9" />
+      <path d="M8.5 10.5 12 14l3.5-3.5" />
+      <path d="M4 14v3.5A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5V14" />
+    </svg>
+  );
+}
+
 function Shipping({ className }: IconProps) {
   return (
     <svg {...base} className={className}>
@@ -192,6 +213,7 @@ function Support({ className }: IconProps) {
 }
 
 const ICONS: Record<AccountIconName, (props: IconProps) => ReactElement> = {
+  profile: Profile,
   orders: Orders,
   saved: Saved,
   listings: Listings,
@@ -201,6 +223,7 @@ const ICONS: Record<AccountIconName, (props: IconProps) => ReactElement> = {
   settings: Settings,
   help: Help,
   reviews: Reviews,
+  import: Import,
   shipping: Shipping,
   returns: Returns,
   notifications: Notifications,

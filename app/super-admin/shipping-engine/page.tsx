@@ -9,7 +9,7 @@ export default async function SuperAdminShippingEnginePage() {
     <>
       <SuperAdminPageHeader
         title="Shipping Engine"
-        description="Configure shipping methods, zones, rules, carriers, tracking, returns, notifications, and buyer protection integration."
+        description="Configure shipping methods, zones, rules, carriers, tracking, returns, notifications, and purchase protection integration."
       />
       <ShippingEngineAdmin initialSnapshot={snapshot} />
     </>

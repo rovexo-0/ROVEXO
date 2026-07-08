@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SELL_PHOTO_MAX } from "@/features/sell/types";
 import { LISTING_DEFAULT_LOW_STOCK_ALERT } from "@/lib/sell/build-listing-publish-payload";
 
 const imageSchema = z.object({
@@ -29,7 +30,7 @@ export const createListingSchema = z.object({
   shippingMethod: z.enum(["collection_only", "local_delivery", "delivery_available"]).optional(),
   shippingPrice: z.number().nonnegative().nullish(),
   deliveryCarriers: z.array(z.string()).optional(),
-  parcelSize: z.enum(["small", "medium", "large", "xl"]).optional(),
+  parcelSize: z.enum(["small", "medium", "large", "xl", "custom"]).optional(),
   status: z.enum(["draft", "published"]).optional(),
   categoryPath: z
     .object({
@@ -43,7 +44,7 @@ export const createListingSchema = z.object({
     stock: 1,
     lowStockAlert: LISTING_DEFAULT_LOW_STOCK_ALERT,
   }),
-  images: z.array(imageSchema).min(1).max(20),
+  images: z.array(imageSchema).min(1).max(SELL_PHOTO_MAX),
   listingType: z.enum(["fixed", "auction"]).optional(),
   auctionStartPrice: z.number().positive().optional(),
   reservePrice: z.number().positive().nullable().optional(),
@@ -73,10 +74,10 @@ export const updateListingSchema = z.object({
     .nullable()
     .optional(),
   inventory: inventorySchema.optional(),
-  images: z.array(imageSchema).min(1).max(20).optional(),
+  images: z.array(imageSchema).min(1).max(SELL_PHOTO_MAX).optional(),
   removeImageIds: z.array(z.string()).optional(),
   deliveryCarriers: z.array(z.string()).optional(),
-  parcelSize: z.enum(["small", "medium", "large", "xl"]).optional(),
+  parcelSize: z.enum(["small", "medium", "large", "xl", "custom"]).optional(),
 });
 
 export function formatListingApiValidationError(error: z.ZodError): string {

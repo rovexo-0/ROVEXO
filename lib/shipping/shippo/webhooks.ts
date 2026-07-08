@@ -1,6 +1,7 @@
 import "server-only";
 
 import { findShippingRecordByTrackingNumber, updateShippingRecordStatus } from "@/lib/shipping/store";
+import { onShippingRecordStatusChanged } from "@/lib/commerce-engine/shipping-hooks.server";
 import { getShippoWebhookToken, isShippoConfigured } from "@/lib/shipping/env";
 import { ShippoError } from "@/lib/shipping/shippo/errors";
 import { mapShippoCarrierToken, mapShippoTrackingStatus } from "@/lib/shipping/shippo/status-mapper";
@@ -67,6 +68,7 @@ async function handleTrackUpdated(event: ShippoWebhookEvent): Promise<{ handled:
     title: `Carrier update: ${status.replace(/_/g, " ")}`,
     description: latestEvent?.status_details ?? undefined,
   });
+  await onShippingRecordStatusChanged({ orderId: record.orderId, status });
 
   return { handled: true, message: `Updated order ${record.orderId} to ${status}` };
 }
@@ -92,6 +94,7 @@ async function handleTransactionEvent(event: ShippoWebhookEvent): Promise<{ hand
       title: "Shipping label created",
       description: `Shippo label ready for ${trackingNumber}.`,
     });
+    await onShippingRecordStatusChanged({ orderId: record.orderId, status: "collected" });
     return { handled: true, message: `Label transaction recorded for order ${record.orderId}` };
   }
 

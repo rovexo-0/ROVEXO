@@ -1,13 +1,15 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { RovexoIcon } from "@/components/icons/RovexoIcon";
+import { RovexoIcons } from "@/lib/icons/icons";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { Button } from "@/components/ui/Button";
 import { buttonSizes, buttonVariants } from "@/components/ui/variants";
 import { Card } from "@/components/ui/Card";
+import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { Price } from "@/components/ui/Price";
 import { cn } from "@/lib/cn";
 import { AnimatedCounter } from "@/features/dashboard/components/AnimatedCounter";
@@ -99,7 +101,8 @@ export function WalletOverview({
               />
             </p>
             <p className="wallet-overview__desc">
-              Funds become available after the Buyer Protection period ends.
+              Funds are held in escrow and released to your bank automatically 24
+              hours after delivery — unless a claim is opened.
             </p>
           </div>
         </Card>
@@ -110,9 +113,9 @@ export function WalletOverview({
             <div className="flex min-w-0 items-center gap-ds-3">
               <span
                 aria-hidden="true"
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-ds-lg bg-surface-muted text-xl"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-ds-lg bg-surface-muted"
               >
-                🏦
+                <RovexoIcon icon={RovexoIcons.payments.payment} variant="category" />
               </span>
               <div className="min-w-0">
                 <p className="wallet-overview__label">Bank Account</p>
@@ -199,15 +202,12 @@ function TransactionRow({ transaction }: { transaction: WalletTransaction }) {
       href={`/seller/wallet/transactions/${transaction.id}`}
       className="flex min-h-[64px] items-center gap-ds-3 px-ds-5 py-ds-3 transition-colors hover:bg-surface-muted/60"
     >
-      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-        <Image
-          src={transaction.productImageUrl}
-          alt={transaction.productTitle}
-          fill
-          className="object-cover"
-          sizes="48px"
-        />
-      </div>
+      <ProductRowImage
+        src={transaction.productImageUrl}
+        alt={transaction.productTitle}
+        containerClassName="h-12 w-12 shrink-0 rounded-ds-md"
+        sizes="48px"
+      />
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-text-primary">

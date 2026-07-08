@@ -4,7 +4,8 @@ import {
   WALLET_ENGINE_PAYOUT_METHODS,
   WALLET_ENGINE_TRANSACTION_TYPES,
 } from "@/lib/wallet-engine/registry";
-import { PLATFORM_FEE_RATE, PENDING_HOLD_HOURS } from "@/lib/wallet/sales";
+import { PLATFORM_FEE_RATE } from "@/lib/orders/pricing";
+import { DELIVERED_RELEASE_HOURS } from "@/lib/commerce-engine/escrow-constants";
 import type { WalletEngineDocument, WalletEngineHistoryEntry } from "@/lib/wallet-engine/types";
 
 const now = () => new Date().toISOString();
@@ -59,7 +60,7 @@ export function createDefaultWalletEngineDocument(label = "ROVEXO Wallet Engine"
       trackingStatus: true,
       returns: true,
     },
-    holdPeriodHours: PENDING_HOLD_HOURS,
+    holdPeriodHours: DELIVERED_RELEASE_HOURS,
     platformFeeRate: PLATFORM_FEE_RATE,
     futureReady: [
       "Multi-Currency",

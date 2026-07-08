@@ -163,20 +163,18 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     await signIn(page, tempUser!, baseURL!);
 
     await page.goto("/sell", { waitUntil: "domcontentloaded", timeout: 180_000 });
-    await expect(page.getByRole("button", { name: /add photos/i })).toBeVisible({ timeout: 120_000 });
+    await expect(page.getByRole("button", { name: /add photo/i })).toBeVisible({ timeout: 120_000 });
 
-    const galleryInput = page.locator('input[type="file"][multiple]:not([capture])');
-    const cameraInput = page.locator('input[type="file"][capture="environment"]');
-    await galleryInput.setInputFiles(galleryImage);
-    await expect(page.locator('img[alt="Main cover photo"]')).toBeVisible({ timeout: 15_000 });
-
-    await cameraInput.setInputFiles(cameraImage);
+    // Single native picker input handles gallery + camera; set multiple files at once.
+    const galleryInput = page.locator('input[type="file"][multiple]');
+    await galleryInput.setInputFiles([galleryImage, cameraImage]);
+    await expect(page.locator('img[alt="Main photo"]')).toBeVisible({ timeout: 15_000 });
     await expect(page.locator("[data-photo-index]")).toHaveCount(2, { timeout: 15_000 });
 
     const title = `Vintage phone ${Date.now()}`;
-    await page.getByPlaceholder(/what are you selling/i).fill(title);
+    await page.getByPlaceholder(/tell buyers what you're selling/i).fill(title);
     await page
-      .getByPlaceholder(/describe the item/i)
+      .getByPlaceholder(/tell buyers more about your item/i)
       .fill("A test listing created by Playwright E2E automation. Solid condition.");
 
     await page.waitForTimeout(500);
@@ -184,11 +182,11 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
 
     await page.getByPlaceholder("0.00").fill("19.99");
 
-    const publishBtn = page.getByRole("button", { name: /^publish$/i });
+    const publishBtn = page.getByRole("button", { name: /^continue$/i });
     await expect(publishBtn).toBeEnabled({ timeout: 15_000 });
     await publishBtn.click();
 
-    await expect(page.getByRole("heading", { name: /congratulations/i })).toBeVisible({
+    await expect(page.getByRole("heading", { name: /your item is live/i })).toBeVisible({
       timeout: 120_000,
     });
     await expect(page.getByText(/published successfully/i).first()).toBeVisible();
@@ -217,7 +215,7 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     expect(imagesRes.error).toBeNull();
     expect((imagesRes.data ?? []).length).toBeGreaterThan(0);
 
-    await page.getByRole("link", { name: /my listings/i }).click();
+    await page.getByRole("link", { name: /go to my listings/i }).click();
     await expect(page).toHaveURL(/\/seller\/listings/, { timeout: 30_000 });
     await expect(page.getByText(title)).toBeVisible({ timeout: 30_000 });
   });

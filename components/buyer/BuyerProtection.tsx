@@ -11,7 +11,7 @@ export function BuyerProtection() {
   const { protection } = data;
 
   return (
-    <BuyerSection id="buyer-protection" title="Buyer protection" href={protection.href}>
+    <BuyerSection id="buyer-protection" title="Purchase protection" href={protection.href}>
       <Link href={protection.href} className="buyer-protection">
         <RovexoIcon icon={RovexoIcons.security.shield} variant="category" />
         <h3 className="buyer-protection__title">{protection.coverageLabel}</h3>

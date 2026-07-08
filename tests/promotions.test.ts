@@ -14,25 +14,26 @@ import {
 } from "@/lib/promotions/format";
 
 describe("promotion config", () => {
-  it("defines bump and feature pricing", () => {
-    expect(BUMP_DURATIONS).toHaveLength(3);
-    expect(FEATURE_DURATIONS).toHaveLength(3);
-    expect(getPromotionDuration("bump", "24h")?.priceCents).toBe(199);
-    expect(getPromotionDuration("feature", "7d")?.priceCents).toBe(999);
+  it("defines bump and showcase pricing defaults", () => {
+    expect(BUMP_DURATIONS).toHaveLength(2);
+    expect(FEATURE_DURATIONS).toHaveLength(1);
+    expect(getPromotionDuration("bump", "3d")?.priceCents).toBe(100);
+    expect(getPromotionDuration("bump", "7d")?.priceCents).toBe(200);
+    expect(getPromotionDuration("feature", "7d")?.priceCents).toBe(550);
+  });
+
+  it("computes end dates from duration ids", () => {
+    const start = new Date("2026-01-01T12:00:00Z");
+    const bumpEnd = computeEndsAt("bump", "3d", start);
+    expect(bumpEnd?.getTime()).toBe(start.getTime() + 72 * 60 * 60 * 1000);
+
+    const featureEnd = computeEndsAt("feature", "7d", start);
+    expect(featureEnd?.getUTCDate()).toBe(8);
   });
 
   it("enforces bump limits configuration", () => {
     expect(BUMP_COOLDOWN_HOURS).toBeGreaterThan(0);
     expect(MAX_BUMPS_PER_DAY).toBeGreaterThan(0);
-  });
-
-  it("computes end dates from duration ids", () => {
-    const start = new Date("2026-01-01T12:00:00Z");
-    const bumpEnd = computeEndsAt("bump", "24h", start);
-    expect(bumpEnd?.getTime()).toBe(start.getTime() + 24 * 60 * 60 * 1000);
-
-    const featureEnd = computeEndsAt("feature", "7d", start);
-    expect(featureEnd?.getUTCDate()).toBe(8);
   });
 });
 

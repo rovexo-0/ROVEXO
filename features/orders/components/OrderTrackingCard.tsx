@@ -14,6 +14,7 @@ export function OrderTrackingCard({ order }: OrderTrackingCardProps) {
       record={null}
       carrier={order.deliveryCarrier}
       trackingNumber={order.trackingNumber}
+      orderId={order.id}
     />
   );
 }

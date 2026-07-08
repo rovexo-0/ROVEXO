@@ -4,8 +4,7 @@ import Link from "next/link";
 import { PageBack } from "@/components/navigation/PageBack";
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/Card";
-import { HelpMobileNav } from "@/features/help/components/HelpMobileNav";
-import { ResponsiveShell } from "@/features/mobile-ui";
+import { HelpQuickLinks } from "@/features/help/components/HelpQuickLinks";
 import { listHelpFaqs, searchHelpFaqs } from "@/lib/help/faq";
 
 export function HelpFaqPage() {
@@ -28,7 +27,7 @@ export function HelpFaqPage() {
         />
       </div>
 
-      <ResponsiveShell mobile={<HelpMobileNav />} desktop={null} />
+      <HelpQuickLinks />
 
       <div className="space-y-ds-3">
         {faqs.map((faq) => (

@@ -101,7 +101,7 @@ test.describe.serial("Buyer Dashboard v1.0 — authenticated", () => {
     const response = await page.goto("/buyer", { waitUntil: "domcontentloaded" });
     expect(response?.status()).toBeLessThan(500);
     await waitForBuyerDashboardUi(page);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/E2E Buyer/i);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Buying");
   });
 
   for (const viewport of BUYER_PROTOCOL_VIEWPORTS) {
@@ -114,7 +114,7 @@ test.describe.serial("Buyer Dashboard v1.0 — authenticated", () => {
       await waitForBuyerDashboardUi(page);
       await assertNoHorizontalOverflow(page);
 
-      const pageBox = await page.locator(".buyer-page").boundingBox();
+      const pageBox = await page.locator(".account-center").boundingBox();
       expect(pageBox?.width).toBeGreaterThan(0);
     });
   }
@@ -128,35 +128,40 @@ test.describe.serial("Buyer Dashboard v1.0 — authenticated", () => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto("/buyer", { waitUntil: "domcontentloaded" });
       await waitForBuyerDashboardUi(page);
-      await expect(page.locator(".buyer-header")).toBeVisible();
+      await expect(page.locator(".account-center-header")).toBeVisible();
     });
   }
 
-  test("header navigation links are present", async ({ page, baseURL }) => {
+  test("module header actions are present", async ({ page, baseURL }) => {
     test.skip(!tempBuyer || !baseURL, "Temp buyer was not created");
 
     await signIn(page, tempBuyer!, baseURL!);
     await page.goto("/buyer", { waitUntil: "domcontentloaded" });
     await waitForBuyerDashboardUi(page);
 
-    await expect(page.getByRole("link", { name: "Messages" })).toHaveAttribute("href", "/messages");
-    await expect(page.getByRole("link", { name: "Notifications" })).toHaveAttribute(
+    const header = page.locator(".account-center-header");
+
+    await expect(header.getByRole("link", { name: "Notifications" })).toHaveAttribute(
       "href",
       "/notifications",
     );
-    await expect(page.getByRole("link", { name: "Settings" })).toHaveAttribute(
+    await expect(header.getByRole("link", { name: "Settings" })).toHaveAttribute(
       "href",
       "/account/settings",
     );
+    await expect(page.getByRole("link", { name: "Messages" })).toHaveAttribute("href", "/messages");
   });
 
-  test("logout link targets sign-out", async ({ page, baseURL }) => {
+  test("buying module tiles link to buyer tools", async ({ page, baseURL }) => {
     test.skip(!tempBuyer || !baseURL, "Temp buyer was not created");
 
     await signIn(page, tempBuyer!, baseURL!);
     await page.goto("/buyer", { waitUntil: "domcontentloaded" });
     await waitForBuyerDashboardUi(page);
 
-    await expect(page.getByRole("link", { name: /log out/i })).toHaveAttribute("href", "/auth/signout");
+    const tiles = page.locator(".account-center-tile");
+
+    await expect(tiles.filter({ hasText: "Orders" }).first()).toHaveAttribute("href", "/orders");
+    await expect(tiles.filter({ hasText: "Saved" }).first()).toHaveAttribute("href", "/saved");
   });
 });

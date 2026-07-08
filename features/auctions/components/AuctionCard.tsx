@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { useCallback } from "react";
 import { Avatar } from "@/components/ui/Avatar";
@@ -48,7 +48,7 @@ export function AuctionCard({ auction, variant = "default", className }: Auction
       <article className={cn("auctions-featured-card", className)}>
         <Link href={href} className={cn("block", focusRing)}>
           <div className="auctions-featured-card__image">
-            <Image src={auction.imageUrl} alt={auction.title} fill sizes="320px" className="object-cover" />
+            <SafeImage src={auction.imageUrl} alt={auction.title} fill sizes="320px" className="object-cover" />
           </div>
         </Link>
         <div className="auctions-featured-card__body">
@@ -84,7 +84,7 @@ export function AuctionCard({ auction, variant = "default", className }: Auction
     <article className={cn("rx-auction-card", className)}>
       <Link href={href} className={cn("block", focusRing)}>
         <div className="rx-auction-card__image">
-          <Image src={auction.imageUrl} alt={auction.title} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" />
+          <SafeImage src={auction.imageUrl} alt={auction.title} fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" />
           {auction.isFeatured ? (
             <Badge variant="primary" className="absolute left-3 top-3">
               Featured

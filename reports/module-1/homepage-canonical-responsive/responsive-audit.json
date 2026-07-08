@@ -1,0 +1,1052 @@
+[
+  {
+    "viewport": "iphone-se",
+    "label": "iPhone SE",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 170,
+        "h": 398
+      },
+      "imagePct": 58,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 112,
+        "h": 206
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 72,
+      "gridCols": 2,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 375
+    }
+  },
+  {
+    "viewport": "iphone-13",
+    "label": "iPhone 13",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 177,
+        "h": 407
+      },
+      "imagePct": 59,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 112,
+        "h": 206
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 72,
+      "gridCols": 2,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 390
+    }
+  },
+  {
+    "viewport": "iphone-15",
+    "label": "iPhone 15",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 178,
+        "h": 409
+      },
+      "imagePct": 59,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 112,
+        "h": 206
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 72,
+      "gridCols": 2,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 393
+    }
+  },
+  {
+    "viewport": "iphone-16",
+    "label": "iPhone 16",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 178,
+        "h": 409
+      },
+      "imagePct": 59,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 112,
+        "h": 206
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 72,
+      "gridCols": 2,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 393
+    }
+  },
+  {
+    "viewport": "iphone-pro-max",
+    "label": "iPhone Pro Max",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 200,
+        "h": 438
+      },
+      "imagePct": 62,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 112,
+        "h": 206
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 72,
+      "gridCols": 2,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 440
+    }
+  },
+  {
+    "viewport": "android-small",
+    "label": "Android Small",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 163,
+        "h": 388
+      },
+      "imagePct": 57,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 112,
+        "h": 206
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 72,
+      "gridCols": 2,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 360
+    }
+  },
+  {
+    "viewport": "android-medium",
+    "label": "Android Medium",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 187,
+        "h": 421
+      },
+      "imagePct": 60,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 112,
+        "h": 206
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 72,
+      "gridCols": 2,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 412
+    }
+  },
+  {
+    "viewport": "android-large",
+    "label": "Android Large",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 218,
+        "h": 463
+      },
+      "imagePct": 64,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 112,
+        "h": 206
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 72,
+      "gridCols": 2,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 480
+    }
+  },
+  {
+    "viewport": "foldable",
+    "label": "Foldable",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 210,
+        "h": 453
+      },
+      "imagePct": 63,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 120,
+        "h": 221
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 88,
+      "gridCols": 3,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 717
+    }
+  },
+  {
+    "viewport": "tablet",
+    "label": "Tablet",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 226,
+        "h": 475
+      },
+      "imagePct": 65,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 120,
+        "h": 221
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 88,
+      "gridCols": 3,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 768
+    }
+  },
+  {
+    "viewport": "ipad",
+    "label": "iPad",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 243,
+        "h": 497
+      },
+      "imagePct": 67,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 120,
+        "h": 221
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 88,
+      "gridCols": 3,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 820
+    }
+  },
+  {
+    "viewport": "laptop",
+    "label": "Laptop",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 289,
+        "h": 546
+      },
+      "imagePct": 72,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 136,
+        "h": 250
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 88,
+      "gridCols": 4,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 1280
+    }
+  },
+  {
+    "viewport": "desktop",
+    "label": "Desktop",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 259,
+        "h": 521
+      },
+      "imagePct": 68,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 136,
+        "h": 250
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 88,
+      "gridCols": 5,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 1440
+    }
+  },
+  {
+    "viewport": "ultrawide",
+    "label": "UltraWide",
+    "pass": true,
+    "checks": [
+      [
+        "canonical homepage",
+        true
+      ],
+      [
+        "official listing",
+        true
+      ],
+      [
+        "no horizontal overflow",
+        true
+      ],
+      [
+        "image aspect 160:220",
+        true
+      ],
+      [
+        "image dominant",
+        true
+      ],
+      [
+        "buyer protection line",
+        true
+      ],
+      [
+        "seller footer",
+        true
+      ],
+      [
+        "store aspect ~112:206",
+        true
+      ],
+      [
+        "BYI min 72px",
+        true
+      ],
+      [
+        "grid columns",
+        true
+      ],
+      [
+        "mobile 2-col row",
+        true
+      ]
+    ],
+    "audit": {
+      "homepageVersion": "1.0",
+      "listingVersion": "official-2.1",
+      "card": {
+        "w": 213,
+        "h": 456
+      },
+      "imagePct": 64,
+      "imageAspect": 0.727,
+      "refImageAspect": 0.727,
+      "hasProtection": true,
+      "hasFooter": true,
+      "storeCard": {
+        "w": 136,
+        "h": 250
+      },
+      "storeAspect": 0.544,
+      "refStoreAspect": 0.544,
+      "byiH": 88,
+      "gridCols": 6,
+      "sameRow": true,
+      "overflowPx": 0,
+      "docWidth": 2560
+    }
+  }
+]

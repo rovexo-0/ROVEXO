@@ -1,19 +1,25 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { processAutomaticSellerPayouts } from "@/lib/stripe/payouts";
+import { calculatePlatformFee } from "@/lib/orders/pricing";
 
-export const PLATFORM_FEE_RATE = 0.05;
 export const PENDING_HOLD_HOURS = 36;
 
 function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+/**
+ * Single platform fee model: the seller receives the full item price. The only
+ * fee on the platform is the buyer-paid Platform Fee (5.5%), returned here as
+ * `platformFee` for order-level revenue reporting — it is never deducted from
+ * the seller.
+ */
 export function calculateSellerNetAmount(itemPrice: number): {
   platformFee: number;
   sellerAmount: number;
 } {
-  const platformFee = roundMoney(itemPrice * PLATFORM_FEE_RATE);
-  const sellerAmount = roundMoney(itemPrice - platformFee);
+  const platformFee = calculatePlatformFee(itemPrice);
+  const sellerAmount = roundMoney(itemPrice);
   return { platformFee, sellerAmount };
 }
 
@@ -64,14 +70,16 @@ export async function creditSellerForOrder(input: {
     return;
   }
 
-  const { platformFee, sellerAmount } = calculateSellerNetAmount(input.itemPrice);
-  const payoutAvailableAt = new Date(Date.now() + PENDING_HOLD_HOURS * 60 * 60 * 1000);
+  const { sellerAmount } = calculateSellerNetAmount(input.itemPrice);
+  // Release timer is set by Commerce Engine when the order is delivered (+24h).
+  // Until then, settlement gates block payout regardless of this column.
+  const payoutAvailableAt: string | null = null;
 
   await admin
     .from("wallets")
     .update({
       pending_balance: roundMoney(Number(wallet.pending_balance) + sellerAmount),
-      pending_available_at: payoutAvailableAt.toISOString(),
+      ...(payoutAvailableAt ? { pending_available_at: payoutAvailableAt } : {}),
     })
     .eq("id", wallet.id);
 
@@ -84,10 +92,10 @@ export async function creditSellerForOrder(input: {
     product_title: input.productTitle,
     product_image_url: input.productImageUrl,
     amount: sellerAmount,
-    fee_amount: platformFee,
+    fee_amount: 0,
     status: "pending",
     type: "sale",
-    payout_available_at: payoutAvailableAt.toISOString(),
+    payout_available_at: payoutAvailableAt,
     description: `order:${input.orderId}${piSuffix}`,
   });
 }

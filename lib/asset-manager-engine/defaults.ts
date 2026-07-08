@@ -17,7 +17,7 @@ export function createDefaultAssetBrandKit(): AssetBrandKit {
     favicon: "/favicon.ico",
     appIcon: "/icon.png",
     socialLogo: "/icon.png",
-    brandColors: ["#2563eb", "#0f172a", "#ffffff"],
+    brandColors: ["var(--ds-color-primary)", "#0f172a", "#ffffff"],
     typography: { heading: "var(--ds-font-sans)", body: "var(--ds-font-sans)" },
     guidelines: "ROVEXO premium design system v1 — production assets only.",
   };

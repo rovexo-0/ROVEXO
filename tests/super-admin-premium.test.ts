@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { ENTERPRISE_DEVELOPMENT_MODULE_DESCRIPTOR } from "@/lib/enterprise-development-center/descriptor";
 import { buildDevelopmentNavSection } from "@/lib/super-admin/nav";
 import { buildSuperAdminBreadcrumbs } from "@/lib/super-admin/premium/breadcrumbs";
 import {
@@ -67,16 +66,11 @@ describe("page readiness", () => {
 });
 
 describe("development navigation", () => {
-  it("builds descriptor-driven development section", () => {
+  it("returns collapsed development section under Module 2 simplification", () => {
     const section = buildDevelopmentNavSection();
     expect(section.id).toBe("development");
-    expect(section.items.length).toBe(ENTERPRISE_DEVELOPMENT_MODULE_DESCRIPTOR.routes.length);
-    expect(section.items[0]?.href).toBe("/super-admin/development");
-  });
-
-  it("uses development module icon", () => {
-    const section = buildDevelopmentNavSection();
-    expect(section.items.every((item) => item.icon === ENTERPRISE_DEVELOPMENT_MODULE_DESCRIPTOR.icon)).toBe(true);
+    expect(section.collapsible).toBe(true);
+    expect(section.items).toEqual([]);
   });
 });
 

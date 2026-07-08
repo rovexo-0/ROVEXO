@@ -1,0 +1,33 @@
+{
+  "card": {
+    "w": 168,
+    "h": 320,
+    "imgPct": 69
+  },
+  "img": {
+    "w": 168,
+    "h": 220
+  },
+  "val": {
+    "fontSize": "17px",
+    "fontWeight": "600"
+  },
+  "name": {
+    "fontSize": "15px",
+    "height": "42px"
+  },
+  "end": {
+    "h": 22
+  },
+  "pin": {
+    "w": 40,
+    "shadow": "none"
+  },
+  "legacy": {
+    "hasOldR2": false,
+    "hasOldLc": false,
+    "hasPriceClass": false,
+    "hasTitleClass": false,
+    "hasFavoriteClass": false
+  }
+}

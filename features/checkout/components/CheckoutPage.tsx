@@ -5,15 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
-import { CheckoutAddressCard } from "@/features/checkout/components/CheckoutAddressCard";
-import { CheckoutDeliverySection } from "@/features/checkout/components/CheckoutDeliverySection";
-import { CheckoutPageHeader } from "@/features/checkout/components/CheckoutPageHeader";
-import { CheckoutPayFooter } from "@/features/checkout/components/CheckoutPayFooter";
-import { CheckoutPaymentMethodCard } from "@/features/checkout/components/CheckoutPaymentMethodCard";
 import { CheckoutProcessingOverlay } from "@/features/checkout/components/CheckoutProcessingOverlay";
-import { CheckoutProductCard } from "@/features/checkout/components/CheckoutProductCard";
 import { CheckoutSuccessView } from "@/features/checkout/components/CheckoutSuccessView";
-import { OrderSummary } from "@/features/checkout/components/OrderSummary";
+import { CheckoutWizardV1 } from "@/features/checkout/components/CheckoutWizardV1";
 import { useCheckoutForm } from "@/features/checkout/hooks/use-checkout-form";
 import type { CheckoutDraft } from "@/features/checkout/types";
 import type { Order } from "@/lib/orders/types";
@@ -24,13 +18,20 @@ import { getActiveMarket } from "@/lib/seo/markets";
 type CheckoutPageProps = {
   product: ProductDetail;
   initialDraft: CheckoutDraft;
+  liveShippingEnabled?: boolean;
+  buyerPhone?: string | null;
 };
 
-export function CheckoutPage({ product, initialDraft }: CheckoutPageProps) {
+export function CheckoutPage({
+  product,
+  initialDraft,
+  liveShippingEnabled = true,
+  buyerPhone = null,
+}: CheckoutPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const form = useCheckoutForm(product, initialDraft);
-  const { view, totals, order, isSubmitting, canPay, placeOrder, errorMessage, setSuccessOrder, setView } = form;
+  const form = useCheckoutForm(product, initialDraft, { liveShippingEnabled });
+  const { view, order, isSubmitting, errorMessage, setSuccessOrder, setView } = form;
   const isSuccess = view === "success";
   const purchaseTrackedRef = useRef(false);
 
@@ -93,15 +94,11 @@ export function CheckoutPage({ product, initialDraft }: CheckoutPageProps) {
   }, [product.slug, router, searchParams, setSuccessOrder, setView]);
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      {!isSuccess && <CheckoutPageHeader backHref={`/listing/${product.slug}`} />}
-
+    <BetaAppShell showBottomNav={!isSuccess} className="checkout-v1-shell">
       <main
         className={cn(
-          "mx-auto flex w-full max-w-2xl flex-col",
-          isSuccess
-            ? "min-h-[100dvh] justify-center px-ds-4 py-ds-6"
-            : "gap-ds-5 px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]",
+          isSuccess &&
+            "mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col justify-center px-ds-4 py-ds-6",
         )}
       >
         {isSuccess ? (
@@ -109,39 +106,23 @@ export function CheckoutPage({ product, initialDraft }: CheckoutPageProps) {
         ) : (
           <>
             {product.availability === "out_of_stock" || product.stock <= 0 ? (
-              <Card padding="sm" className="border-danger/30 bg-danger/5">
+              <Card padding="sm" className="mx-auto mb-4 mt-4 max-w-2xl border-danger/30 bg-danger/5">
                 <p className="text-sm font-medium text-danger">This item is out of stock.</p>
               </Card>
             ) : null}
 
-            {errorMessage && (
-              <Card padding="sm" className="border-danger/30 bg-danger/5">
+            {errorMessage ? (
+              <Card padding="sm" className="mx-auto mb-4 mt-4 max-w-2xl border-danger/30 bg-danger/5">
                 <p className="text-sm font-medium text-danger">{errorMessage}</p>
               </Card>
-            )}
+            ) : null}
 
-            <CheckoutProductCard product={product} />
-            <CheckoutDeliverySection
-              form={form}
-              listingOffersFreeDelivery={product.freeDelivery}
-              listingShippingPrice={product.shippingPrice ?? null}
-            />
-            <CheckoutAddressCard form={form} />
-            <CheckoutPaymentMethodCard form={form} />
-            <OrderSummary totals={totals} />
+            <CheckoutWizardV1 product={product} form={form} buyerPhone={buyerPhone} />
           </>
         )}
       </main>
 
-      {!isSuccess && (
-        <CheckoutPayFooter
-          disabled={!canPay}
-          loading={isSubmitting}
-          onPay={() => void placeOrder()}
-        />
-      )}
-
-      {isSubmitting && <CheckoutProcessingOverlay />}
+      {isSubmitting ? <CheckoutProcessingOverlay /> : null}
     </BetaAppShell>
   );
 }

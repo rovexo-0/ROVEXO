@@ -35,10 +35,8 @@ describe("homepage engineering director registry", () => {
   });
 
   it("defines premium home stack", () => {
-    expect(PREMIUM_HOME_STACK).toContain("RovexoCategoryRail");
-    expect(PREMIUM_HOME_STACK).toContain("RovexoAllListings");
-    expect(PREMIUM_HOME_STACK).not.toContain("RovexoBanner");
-    expect(PREMIUM_HOME_STACK).not.toContain("CategoryGridSection");
+    expect(PREMIUM_HOME_STACK).toContain("RovexoHeaderV2");
+    expect(PREMIUM_HOME_STACK).toContain("CanonicalHomepage");
   });
 });
 

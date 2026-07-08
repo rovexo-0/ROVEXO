@@ -1,0 +1,135 @@
+[
+  {
+    "depth": 0,
+    "tag": "article",
+    "part": null,
+    "rxCard": "true",
+    "version": "2.0"
+  },
+  {
+    "depth": 1,
+    "tag": "a",
+    "part": "nav",
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 2,
+    "tag": "div",
+    "part": "img",
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 3,
+    "tag": "img",
+    "part": null,
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 3,
+    "tag": "span",
+    "part": "tag",
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 2,
+    "tag": "div",
+    "part": "body",
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 3,
+    "tag": "span",
+    "part": "val",
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 3,
+    "tag": "p",
+    "part": "name",
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 3,
+    "tag": "p",
+    "part": "hint",
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 2,
+    "tag": "div",
+    "part": "end",
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 3,
+    "tag": "span",
+    "part": "score",
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 4,
+    "tag": "svg",
+    "part": null,
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 5,
+    "tag": "path",
+    "part": null,
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 3,
+    "tag": "span",
+    "part": "reach",
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 4,
+    "tag": "svg",
+    "part": null,
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 5,
+    "tag": "path",
+    "part": null,
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 1,
+    "tag": "button",
+    "part": "pin",
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 2,
+    "tag": "svg",
+    "part": null,
+    "rxCard": null,
+    "version": null
+  },
+  {
+    "depth": 3,
+    "tag": "path",
+    "part": null,
+    "rxCard": null,
+    "version": null
+  }
+]

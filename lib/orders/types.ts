@@ -18,9 +18,11 @@ export type OrderParty = {
 
 export type OrderTotals = {
   itemPrice: number;
-  protectedFee: number;
+  platformFee: number;
   delivery: number;
   total: number;
+  /** True while checkout is waiting for a live shipping quote (not persisted on orders). */
+  deliveryPending?: boolean;
 };
 
 export type OrderProduct = {

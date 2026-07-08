@@ -1,16 +1,22 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { RvxTopBar, RvxTopBarIconLink } from "@/components/header/RvxTopBar";
+import { BagLineIcon, SearchLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Price } from "@/components/ui/Price";
 import { cn } from "@/lib/cn";
-import { STANDARD_DELIVERY_COST } from "@/lib/orders/pricing";
+import { focusRing } from "@/components/ui/tokens";
+import { formatListingPrice } from "@/lib/listing-card/format";
+import {
+  calculatePlatformFee,
+  FREE_DELIVERY_THRESHOLD,
+  STANDARD_DELIVERY_COST,
+} from "@/lib/orders/pricing";
 import type { CartSummary } from "@/lib/cart/store";
+import { Trash2 } from "lucide-react";
 
 type CartPageProps = {
   cart: CartSummary;
@@ -31,6 +37,7 @@ export function CartPage({ cart }: CartPageProps) {
     () => new Set(cart.items.filter((item) => item.available).map((item) => item.id)),
   );
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
 
   const refresh = useCallback(() => router.refresh(), [router]);
 
@@ -39,17 +46,31 @@ export function CartPage({ cart }: CartPageProps) {
     [cart.items, selectedIds],
   );
 
-  const availableItems = useMemo(() => cart.items.filter((item) => item.available), [cart.items]);
+  const selectedCount = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const subtotal = useMemo(
     () => selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [selectedItems],
   );
 
-  const shipping = selectedItems.length > 0 ? STANDARD_DELIVERY_COST : 0;
-  const grandTotal = subtotal + shipping;
+  const delivery =
+    selectedItems.length === 0
+      ? 0
+      : subtotal >= FREE_DELIVERY_THRESHOLD
+        ? 0
+        : STANDARD_DELIVERY_COST;
 
-  const allSelected = availableItems.length > 0 && availableItems.every((item) => selectedIds.has(item.id));
+  const platformFee = useMemo(
+    () =>
+      selectedItems.reduce(
+        (sum, item) => sum + calculatePlatformFee(item.price) * item.quantity,
+        0,
+      ),
+    [selectedItems],
+  );
+
+  const total = subtotal + delivery + platformFee;
+  const checkoutItem = selectedItems.find((item) => item.available);
 
   const toggleItem = (id: string) => {
     setSelectedIds((current) => {
@@ -58,14 +79,6 @@ export function CartPage({ cart }: CartPageProps) {
       else next.add(id);
       return next;
     });
-  };
-
-  const toggleAll = () => {
-    if (allSelected) {
-      setSelectedIds(new Set());
-      return;
-    }
-    setSelectedIds(new Set(availableItems.map((item) => item.id)));
   };
 
   const updateQuantity = async (slug: string, quantity: number, itemId: string) => {
@@ -93,127 +106,194 @@ export function CartPage({ cart }: CartPageProps) {
     }
   };
 
-  const checkoutItem = selectedItems.find((item) => item.available);
+  const proceedToCheckout = () => {
+    if (!checkoutItem) return;
+    router.push(`/checkout/${checkoutItem.slug}`);
+  };
 
   return (
-    <BetaAppShell>
-      <BetaPageHeader title="Shopping cart" backHref="/" />
+    <BetaAppShell className="cart-v1-shell">
+      <div className="cart-v1" data-cart-version="v1.0">
+        <RvxTopBar>
+          <RvxTopBarIconLink href="/search" label="Search">
+            <SearchLineIcon />
+          </RvxTopBarIconLink>
+          <RvxTopBarIconLink href="/cart" label="Cart" badge={cart.itemCount}>
+            <BagLineIcon />
+          </RvxTopBarIconLink>
+        </RvxTopBar>
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-4 pb-[calc(120px+env(safe-area-inset-bottom))]">
-        {cart.items.length === 0 ? (
-          <EmptyState
-            title="Your cart is empty"
-            description="Add items from listings to checkout securely on ROVEXO."
-            actionLabel="Continue shopping"
-            actionHref="/"
-          />
-        ) : (
-          <>
-            <div className="flex items-center justify-between gap-ds-3">
-              <button
-                type="button"
-                onClick={toggleAll}
-                className="text-sm font-semibold text-primary"
-              >
-                {allSelected ? "Unselect all" : "Select all"}
-              </button>
-              <p className="text-sm text-text-secondary">{cart.itemCount} items</p>
-            </div>
+        <div className="cart-v1__title-row">
+          <h1 className="cart-v1__title">Your Cart ({cart.itemCount})</h1>
+          {cart.items.length > 0 ? (
+            <button
+              type="button"
+              className="cart-v1__edit"
+              onClick={() => setEditMode((value) => !value)}
+            >
+              {editMode ? "Done" : "Edit"}
+            </button>
+          ) : (
+            <span aria-hidden className="cart-v1__edit-spacer" />
+          )}
+        </div>
 
-            {cart.items.map((item) => {
-              const isSelected = selectedIds.has(item.id);
-              const maxQty = Math.min(item.stock, 100);
-              return (
-                <Card
-                  key={item.id}
-                  padding="md"
-                  className={cn(
-                    "flex gap-ds-3 transition-opacity",
-                    !item.available && "opacity-60",
-                    busyId === item.id && "pointer-events-none opacity-70",
-                  )}
-                >
-                  <label className="flex shrink-0 items-start pt-1">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      disabled={!item.available}
-                      onChange={() => toggleItem(item.id)}
-                      className="h-4 w-4 rounded border-border text-primary"
-                      aria-label={`Select ${item.title}`}
-                    />
-                  </label>
-                  <div className="h-20 w-20 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.imageUrl} alt="" className="h-full w-full object-cover" />
-                  </div>
-                  <div className="flex min-w-0 flex-1 flex-col gap-ds-2">
-                    <p className="truncate text-sm font-semibold text-text-primary">{item.title}</p>
-                    <Price amount={item.price} size="sm" />
-                    {!item.available ? (
-                      <p className="text-xs font-medium text-danger">Out of stock</p>
-                    ) : (
-                      <div className="flex flex-wrap items-center gap-ds-2">
-                        <label className="sr-only" htmlFor={`qty-${item.id}`}>
-                          Quantity for {item.title}
-                        </label>
-                        <select
-                          id={`qty-${item.id}`}
-                          value={item.quantity}
-                          onChange={(event) =>
-                            void updateQuantity(item.slug, Number(event.target.value), item.id)
-                          }
-                          className="rounded-ds-md border border-border bg-surface px-ds-2 py-ds-1 text-sm"
-                        >
-                          {Array.from({ length: maxQty }, (_, index) => index + 1).map((qty) => (
-                            <option key={qty} value={qty}>
-                              Qty {qty}
-                            </option>
-                          ))}
-                        </select>
-                        <span className="text-xs text-text-muted">
-                          Line total <Price amount={item.price * item.quantity} size="xs" className="inline" />
-                        </span>
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      className="w-fit text-xs font-semibold text-text-muted hover:text-danger"
-                      onClick={() => void removeItem(item.slug, item.id)}
+        <main className="cart-v1__main">
+          {cart.items.length === 0 ? (
+            <EmptyState
+              title="Your cart is empty"
+              description="Add items from listings to checkout securely on ROVEXO."
+              actionLabel="Continue shopping"
+              actionHref="/"
+            />
+          ) : (
+            <>
+              <ul className="cart-v1__items">
+                {cart.items.map((item) => {
+                  const isSelected = selectedIds.has(item.id);
+                  const maxQty = Math.min(item.stock, 99);
+                  const lineTotal = item.price * item.quantity;
+
+                  return (
+                    <li
+                      key={item.id}
+                      className={cn(
+                        "cart-v1__item",
+                        !item.available && "cart-v1__item--disabled",
+                        busyId === item.id && "cart-v1__item--busy",
+                      )}
                     >
-                      Remove
-                    </button>
-                  </div>
-                </Card>
-              );
-            })}
+                      <div className="cart-v1__thumb">
+                        <SafeImage src={item.imageUrl} alt="" fill sizes="88px" className="object-cover" />
+                      </div>
 
-            <Card padding="lg" className="flex flex-col gap-ds-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-text-secondary">Subtotal ({selectedItems.length} selected)</span>
-                <Price amount={subtotal} size="sm" />
+                      <div className="cart-v1__item-body">
+                        <div className="cart-v1__item-head">
+                          <div className="cart-v1__item-copy">
+                            <p className="cart-v1__item-title">{item.title}</p>
+                            <p className="cart-v1__item-price">{formatListingPrice(item.price)}</p>
+                            {item.sellerName ? (
+                              <p className="cart-v1__item-seller">{item.sellerName}</p>
+                            ) : null}
+                            {item.available ? (
+                              <p className="cart-v1__item-stock">In stock</p>
+                            ) : (
+                              <p className="cart-v1__oos">Out of stock</p>
+                            )}
+                          </div>
+
+                          <button
+                            type="button"
+                            className={cn(
+                              "cart-v1__select",
+                              isSelected && "cart-v1__select--on",
+                              focusRing,
+                            )}
+                            aria-label={`${isSelected ? "Deselect" : "Select"} ${item.title}`}
+                            aria-pressed={isSelected}
+                            disabled={!item.available}
+                            onClick={() => toggleItem(item.id)}
+                          >
+                            {isSelected ? (
+                              <svg viewBox="0 0 20 20" fill="none" aria-hidden>
+                                <path
+                                  d="M5 10.5 8.5 14 15 7"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            ) : null}
+                          </button>
+                        </div>
+
+                        {item.available ? (
+                          <div className="cart-v1__qty-row">
+                            <button
+                              type="button"
+                              className="cart-v1__delete"
+                              aria-label={`Remove ${item.title}`}
+                              onClick={() => void removeItem(item.slug, item.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+
+                            <div className="cart-v1__qty">
+                              <button
+                                type="button"
+                                aria-label="Decrease quantity"
+                                disabled={item.quantity <= 1}
+                                onClick={() => void updateQuantity(item.slug, item.quantity - 1, item.id)}
+                              >
+                                −
+                              </button>
+                              <span aria-live="polite">{item.quantity}</span>
+                              <button
+                                type="button"
+                                aria-label="Increase quantity"
+                                disabled={item.quantity >= maxQty}
+                                onClick={() => void updateQuantity(item.slug, item.quantity + 1, item.id)}
+                              >
+                                +
+                              </button>
+                            </div>
+
+                            <p className="cart-v1__line-total">{formatListingPrice(lineTotal)}</p>
+                          </div>
+                        ) : null}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <div className="cart-v1__platform-fee" role="group" aria-label="Platform Fee">
+                <span className="cart-v1__platform-fee-icon" aria-hidden>
+                  <ShieldLineIcon />
+                </span>
+                <span className="cart-v1__platform-fee-label">Platform Fee</span>
+                <button
+                  type="button"
+                  className="cart-v1__info"
+                  aria-label="About platform fee"
+                >
+                  i
+                </button>
+                <span className="cart-v1__platform-fee-amount">{formatListingPrice(platformFee)}</span>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-text-secondary">Shipping</span>
-                <Price amount={shipping} size="sm" />
-              </div>
-              <div className="flex items-center justify-between border-t border-border pt-ds-3 text-base font-semibold">
-                <span>Grand total</span>
-                <Price amount={grandTotal} size="sm" />
-              </div>
-              <Button
-                variant="primary"
-                fullWidth
-                size="lg"
-                disabled={!checkoutItem}
-                onClick={() => checkoutItem && router.push(`/checkout/${checkoutItem.slug}`)}
-              >
-                {checkoutItem ? "Proceed to checkout" : "Select items to checkout"}
-              </Button>
-            </Card>
-          </>
-        )}
-      </main>
+
+              <section className="cart-v1__summary" aria-label="Order summary">
+                <div className="cart-v1__summary-row">
+                  <span>Items ({selectedCount})</span>
+                  <span>{formatListingPrice(subtotal)}</span>
+                </div>
+                <div className="cart-v1__summary-row">
+                  <span>Shipping</span>
+                  <span>{formatListingPrice(delivery)}</span>
+                </div>
+                <div className="cart-v1__summary-total">
+                  <span>Total</span>
+                  <span>{formatListingPrice(total)}</span>
+                </div>
+              </section>
+            </>
+          )}
+        </main>
+
+        {cart.items.length > 0 ? (
+          <div className="cart-v1__footer">
+            <button
+              type="button"
+              className="cart-v1__checkout"
+              disabled={!checkoutItem}
+              onClick={proceedToCheckout}
+            >
+              Proceed to Checkout
+            </button>
+          </div>
+        ) : null}
+      </div>
     </BetaAppShell>
   );
 }

@@ -4,30 +4,42 @@ import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { PublishedCheckmark } from "@/features/sell/components/PublishedCheckmark";
-import { AddTrackingCard } from "@/features/orders/components/AddTrackingCard";
+import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
 import { IssueResolutionLink } from "@/features/orders/components/IssueResolutionLink";
-import { ShippingLabelCard } from "@/features/orders/components/ShippingLabelCard";
 import { DeliveryStatusCard } from "@/features/orders/components/DeliveryStatusCard";
 import { OrderActionsCard } from "@/features/orders/components/OrderActionsCard";
-import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
-import { SellerFulfillmentCard } from "@/features/orders/components/SellerFulfillmentCard";
+import { SellerOrderFulfillment } from "@/features/orders/components/SellerOrderFulfillment";
 import { OrderProductCard } from "@/features/orders/components/OrderProductCard";
-import { OrderTrackingCard } from "@/features/orders/components/OrderTrackingCard";
-import { OrderSummary } from "@/features/checkout/components/OrderSummary";
+import { OrderSummaryTotals } from "@/features/commerce-ui/components/OrderSummaryTotals";
+import { mapOrderToCommerceTotals } from "@/lib/commerce/read-model";
+import type { SellerShipmentView } from "@/lib/commerce/read-model";
+import { EscrowReleaseCard } from "@/features/commerce/components/EscrowReleaseCard";
+import { ResolutionStatusCard } from "@/features/commerce/components/ResolutionStatusCard";
 import {
   canConfirmDelivery,
   getDeliveryStages,
   isOrderClosed,
 } from "@/lib/orders/delivery";
 import { resolveOrderViewRole } from "@/lib/orders/role";
+import type { OrderEscrowState } from "@/lib/commerce-engine/read-model";
+import type { OrderResolutionSummary } from "@/lib/resolution-engine/types";
 import type { Order } from "@/lib/orders/types";
 
 type OrderDetailViewProps = {
   initialOrder: Order;
   userId: string;
+  escrowState?: OrderEscrowState;
+  resolutionSummary?: OrderResolutionSummary;
+  sellerShipment?: SellerShipmentView;
 };
 
-export function OrderDetailView({ initialOrder, userId }: OrderDetailViewProps) {
+export function OrderDetailView({
+  initialOrder,
+  userId,
+  escrowState,
+  resolutionSummary,
+  sellerShipment,
+}: OrderDetailViewProps) {
   const [order, setOrder] = useState(initialOrder);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const view = resolveOrderViewRole(order, userId);
@@ -73,7 +85,7 @@ export function OrderDetailView({ initialOrder, userId }: OrderDetailViewProps) 
           </h2>
 
           <p className="mt-ds-2 text-sm text-text-secondary">
-            Funds enter a 36-hour buyer protection hold, then release to the seller.
+            Seller funds release automatically 24 hours after delivery, unless a claim is opened.
           </p>
 
           {order.disputesDisabled && (
@@ -88,11 +100,20 @@ export function OrderDetailView({ initialOrder, userId }: OrderDetailViewProps) 
 
   return (
     <div className="flex flex-col gap-ds-5">
-      <OrderProductCard order={order} userId={userId} />
-
-      {stages.length > 0 && (
-        <DeliveryStatusCard stages={stages} carrier={order.deliveryCarrier} />
+      {view === "seller" && sellerShipment ? (
+        <SellerOrderFulfillment
+          order={order}
+          userId={userId}
+          shipment={sellerShipment}
+          onOrderUpdated={setOrder}
+        />
+      ) : (
+        <OrderProductCard order={order} userId={userId} />
       )}
+
+      {stages.length > 0 && view === "buyer" ? (
+        <DeliveryStatusCard stages={stages} carrier={order.deliveryCarrier} />
+      ) : null}
 
       {order.status === "awaiting_payment" && (
         <Card padding="lg" className="">
@@ -100,21 +121,13 @@ export function OrderDetailView({ initialOrder, userId }: OrderDetailViewProps) 
         </Card>
       )}
 
-      <OrderTrackingCard order={order} />
+      <OrderSummaryTotals totals={mapOrderToCommerceTotals(order.totals)} title="Order Summary" />
 
-      <OrderSummary totals={order.totals} title="Payment summary" />
+      {escrowState && view ? <EscrowReleaseCard escrow={escrowState} view={view} /> : null}
 
-      {view === "seller" && (
-        <ShippingLabelCard order={order} />
-      )}
-
-      {view === "seller" && (
-        <AddTrackingCard order={order} onAdded={setOrder} />
-      )}
-
-      {view === "seller" && (
-        <SellerFulfillmentCard order={order} onUpdated={setOrder} />
-      )}
+      {resolutionSummary && view ? (
+        <ResolutionStatusCard resolution={resolutionSummary} view={view} />
+      ) : null}
 
       <OrderActionsCard order={order} view={view} />
 

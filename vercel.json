@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/migration/publish",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/shipping/tracking",
+      "schedule": "0 2 * * *"
     }
   ],
   "headers": [

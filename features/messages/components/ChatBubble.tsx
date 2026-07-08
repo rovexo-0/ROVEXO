@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
 import { MessageStatusIcon } from "@/features/messages/icons";
 import { formatMessageTime } from "@/lib/messages/utils";
@@ -24,7 +24,7 @@ export function ChatBubble({ message }: ChatBubbleProps) {
         >
           {message.kind === "photo" ? (
             <div className="relative h-40 w-56 max-w-full overflow-hidden rounded-ds-md">
-              <Image src={message.content} alt="Shared photo" fill className="object-cover" sizes="224px" />
+              <SafeImage src={message.content} alt="Shared photo" fill className="object-cover" sizes="224px" />
             </div>
           ) : (
             <p className="break-words">{message.content}</p>

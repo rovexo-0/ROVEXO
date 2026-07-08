@@ -1,6 +1,8 @@
 "use client";
 
+import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { BRING_YOUR_ITEM_PLATFORM_FLOWS } from "@/lib/bring-your-item/platform-flow";
+import { resolveMigrationPlatformIcon } from "@/lib/icons/migration-platform-icons";
 import type { MigrationPlatformId } from "@/lib/seller/migration/types";
 import { cn } from "@/lib/cn";
 
@@ -43,7 +45,7 @@ export function MigrationPlatformStep({
                 )}
               >
                 <span className="byi-platform-tile__icon" aria-hidden>
-                  {platform.icon}
+                  <RovexoIcon icon={resolveMigrationPlatformIcon(platform.id)} variant="category" />
                 </span>
                 <span className="byi-platform-tile__name">{platform.name}</span>
                 {isConnected ? (

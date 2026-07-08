@@ -37,7 +37,7 @@
   align-items: center;
   border-radius: var(--ds-radius-full);
   border: 1px solid color-mix(in srgb, var(--ds-color-primary) 22%, transparent);
-  background: linear-gradient(135deg, rgb(37 99 235 / 0.08), rgb(124 58 237 / 0.08));
+  background: linear-gradient(135deg, rgb(147 51 234 / 0.08), rgb(124 58 237 / 0.08));
   padding: var(--ds-space-1) var(--ds-space-3);
   font-size: 0.6875rem;
   font-weight: 650;
@@ -78,11 +78,11 @@
   aspect-ratio: 640 / 420;
   border-radius: var(--ds-radius-xl);
   overflow: hidden;
-  box-shadow: 0 12px 36px rgb(37 99 235 / 0.12);
+  box-shadow: 0 12px 36px rgb(147 51 234 / 0.12);
 }
 
 .auctions-soon-hero--loading {
-  background: linear-gradient(135deg, #eff6ff 0%, #ede9fe 100%);
+  background: linear-gradient(135deg, rgb(147 51 234 / 0.08) 0%, #ede9fe 100%);
   animation: auctions-soon-pulse 1.4s ease-in-out infinite;
 }
 

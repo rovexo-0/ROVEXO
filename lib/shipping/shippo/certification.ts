@@ -86,6 +86,7 @@ export function runShippoProductionCertification(
   const webhookRoute = readSource(rootDir, "app/api/webhooks/shippo/route.ts");
   const healthRoute = readSource(rootDir, "app/api/shipping/shippo/health/route.ts");
   const checkoutDelivery = readSource(rootDir, "lib/checkout/delivery.ts");
+  const checkoutPage = readSource(rootDir, "app/checkout/[slug]/page.tsx");
   const checkoutRoute = readSource(rootDir, "app/api/orders/checkout/route.ts");
   const productionData = readSource(rootDir, "lib/super-admin/command-center-v1/production-data.ts");
   const envExample = readSource(rootDir, ".env.example");
@@ -296,7 +297,9 @@ export function runShippoProductionCertification(
       {
         id: "provider-config",
         label: "Configured provider detection",
-        pass: checkoutDelivery.includes("isLiveShippingPricingAvailable"),
+        pass:
+          checkoutDelivery.includes("resolveLiveDeliveryQuotes") &&
+          checkoutPage.includes("isShippoConfigured"),
       },
     ]),
     step("seller-shipping", "Seller Dashboard", [

@@ -8,7 +8,7 @@ export const WALLET_ENGINE_MODULES: WalletEngineModule[] = [
   { id: "withdrawals", label: "Withdrawals", icon: "💸", description: "Payout status and history", href: "/wallet?tab=withdrawals" },
   { id: "orders", label: "Orders Integration", icon: "📦", description: "Order timeline and completion", href: "/orders" },
   { id: "shipping", label: "Shipping Integration", icon: "🚚", description: "Delivery confirmation and returns", href: "/shipping" },
-  { id: "protection", label: "Buyer Protection", icon: "🛡️", description: "Protected funds and disputes", href: "/protection" },
+  { id: "protection", label: "Purchase Protection", icon: "🛡️", description: "Protected funds and disputes", href: "/protection" },
   { id: "analytics", label: "Analytics", icon: "📈", description: "Revenue and payout metrics", href: "/wallet?tab=analytics" },
 ];
 

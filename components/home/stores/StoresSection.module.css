@@ -1,0 +1,47 @@
+/**
+ * ROVEXO Homepage Featured Store — mobile v1.0.
+ * No section title. 3-card carousel peek.
+ */
+
+.section {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 0 4px;
+  background: #ffffff;
+}
+
+.rail {
+  --store-card-w: 112px;
+  --store-card-gap: 12px;
+  --store-peek-visible: calc(var(--store-card-w) * 3 + var(--store-card-gap) * 2);
+
+  display: flex;
+  gap: var(--store-card-gap);
+  margin: 0;
+  padding: 8px 0 0;
+  padding-right: calc(100% - var(--store-peek-visible));
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+.slide {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding-bottom: 8px;
+  }
+}
+

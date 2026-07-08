@@ -3,6 +3,7 @@ export {
   getHomepageFeed,
   getProductBySlug,
   getProductsBySection,
+  getShowcaseSellerSections,
   getSimilarProducts,
   searchProducts,
 } from "@/lib/products/repository";

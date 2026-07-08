@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { Card } from "@/components/ui/Card";
 import { formatAnalyticsCurrency } from "@/lib/analytics/utils";
 import type { AnalyticsTopProduct } from "@/lib/analytics/types";
@@ -23,7 +23,7 @@ export function AnalyticsTopProductsSection({ title, products }: AnalyticsTopPro
           >
             <div className="flex min-h-[72px] items-center gap-ds-3 px-ds-4 py-ds-3">
               <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-                <Image
+                <SafeImage
                   src={product.imageUrl}
                   alt={product.title}
                   fill

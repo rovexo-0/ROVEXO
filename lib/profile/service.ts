@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ProfileUpdateInput } from "@/lib/account/schemas";
 import { sanitizeOptionalText, sanitizeText } from "@/lib/account/sanitize";
+import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 
 export type ProfileDetails = {
   id: string;
@@ -38,7 +39,7 @@ export async function getProfileDetails(userId: string): Promise<ProfileDetails 
     role: profile.role,
     fullName: profile.full_name,
     username: profile.username,
-    avatarUrl: profile.avatar_url,
+    avatarUrl: normalizeAvatarUrl(profile.avatar_url),
     phone: profile.phone ?? null,
     verified: profile.verified,
     bio: seller?.bio ?? null,

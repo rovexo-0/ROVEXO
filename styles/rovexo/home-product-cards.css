@@ -103,7 +103,7 @@
   font-size: 1.125rem;
   font-weight: 700;
   letter-spacing: -0.03em;
-  color: #2563eb;
+  color: var(--ds-color-primary);
 }
 
 .rx-page-home .rx-home-polish .rx-listing-card__stat,
@@ -152,7 +152,7 @@
 
 .rx-page-home .rx-home-polish .rx-listing-card__heart.is-animating {
   transform: scale(1.18);
-  box-shadow: 0 0 0 4px rgb(37 99 235 / 0.16);
+  box-shadow: 0 0 0 4px rgb(147 51 234 / 0.16);
 }
 
 .rx-page-home .rx-home-polish .rx-listing-card:active {

@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { PageBack } from "@/components/navigation/PageBack";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
 import { ReviewStatusBadge } from "@/features/seller/review-center/components/ReviewStatusBadge";
 import { ReviewTimeline } from "@/features/seller/review-center/components/ReviewTimeline";
@@ -113,11 +113,12 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
                 <ReviewStatusBadge status={reviewCase.status} label={reviewCase.statusLabel} />
               </div>
             </div>
-            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-ds-lg bg-surface-muted">
-              {reviewCase.productImageUrl ? (
-                <Image src={reviewCase.productImageUrl} alt="" fill className="object-cover" sizes="64px" />
-              ) : null}
-            </div>
+            <ProductRowImage
+              src={reviewCase.productImageUrl}
+              alt={reviewCase.productTitle}
+              containerClassName="h-16 w-16 shrink-0 rounded-ds-lg"
+              sizes="64px"
+            />
           </div>
 
           <Card padding="lg" className="rx-glass rx-depth-2">

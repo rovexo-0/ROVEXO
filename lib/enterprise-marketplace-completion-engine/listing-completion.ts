@@ -58,7 +58,7 @@ function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidati
     if (check.includes("draft") || check.includes("resume") || check.includes("auto-save")) pass = draftStorage && wizard.includes("saveSellDraft");
     if (check === "edit") pass = fileExists("app/seller/listings/[id]/edit/page.tsx");
     if (check === "duplicate") pass = fileExists("app/api/listings/[id]/duplicate/route.ts");
-    if (check === "preview") pass = fileExists("features/sell/components/steps/SellPublishedStep.tsx");
+    if (check === "preview") pass = fileExists("features/sell/ui/SellSuccessScreen.tsx");
     if (check === "publish") pass = wizard.includes("publishListing");
     if (check.includes("pause") || check.includes("archive") || check.includes("delete") || check.includes("republish")) {
       pass = fileExists("app/api/listings/[id]/status/route.ts");
@@ -153,7 +153,7 @@ function scanLiveValidation(scan: MarketplaceCompletionScanResult): CompletionVa
 }
 
 function scanPreviewEngine(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const sellPage = readSource("features/sell/components/SellPage.tsx");
+  const sellPage = readSource("features/sell/ui/SellScreen.tsx");
   const productCard = fileExists("components/ui/ProductCard.tsx");
 
   return LISTING_PREVIEW_VALIDATION.map((check) => {
@@ -164,7 +164,7 @@ function scanPreviewEngine(scan: MarketplaceCompletionScanResult): CompletionVal
     if (check.includes("marketplace") || check.includes("search") || check.includes("featured")) pass = productCard;
     if (check.includes("category")) pass = fileExists("lib/listings/category-path.ts");
     if (check.includes("seo")) pass = fileExists("app/listing/[slug]/page.tsx");
-    if (check.includes("published")) pass = fileExists("features/sell/components/steps/SellPublishedStep.tsx");
+    if (check.includes("published")) pass = fileExists("features/sell/ui/SellSuccessScreen.tsx");
     return createCheck("listing-preview", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
@@ -189,7 +189,7 @@ function scanPublishValidation(scan: MarketplaceCompletionScanResult): Completio
 }
 
 function scanButtonValidation(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const sellPage = readSource("features/sell/components/SellPage.tsx");
+  const sellPage = readSource("features/sell/ui/SellScreen.tsx");
   const footer = readSource("features/sell/components/SellPublishFooter.tsx");
   const header = fileExists("features/sell/components/SellPageHeader.tsx");
 
@@ -230,7 +230,7 @@ function scanOmegaGlobal(scan: MarketplaceCompletionScanResult): CompletionValid
     let pass = foundation && scan.globalUiPass;
     if (check.includes("publish")) pass = fileExists("app/api/listings/route.ts");
     if (check.includes("draft")) pass = fileExists("lib/sell/draft-storage.ts");
-    if (check.includes("preview")) pass = fileExists("features/sell/components/steps/SellPublishedStep.tsx");
+    if (check.includes("preview")) pass = fileExists("features/sell/ui/SellSuccessScreen.tsx");
     if (check.includes("image-upload")) pass = fileExists("app/api/listings/upload/route.ts");
     if (check.includes("validation")) pass = readSource("features/sell/types.ts").includes("getListingValidationErrors");
     if (check.includes("category-mapping")) pass = fileExists("lib/listings/category-path.ts");
@@ -320,7 +320,7 @@ function buildPassConditions(
   const mapping: Record<(typeof LISTING_PASS_CONDITIONS)[number], boolean> = {
     "create-pass": fileExists("app/sell/page.tsx") && foundation,
     "draft-pass": fileExists("lib/sell/draft-storage.ts"),
-    "preview-pass": fileExists("features/sell/components/steps/SellPublishedStep.tsx"),
+    "preview-pass": fileExists("features/sell/ui/SellSuccessScreen.tsx"),
     "publish-pass": readSource("features/sell/hooks/use-sell-wizard.ts").includes("publishListing"),
     "image-upload-pass": fileExists("app/api/listings/upload/route.ts"),
     "ai-validation-pass": fileExists("lib/sell/category-detection-pro.ts"),

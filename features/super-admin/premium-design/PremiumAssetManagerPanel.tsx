@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState, useTransition } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import type { PremiumAssetInventory, PremiumAssetRecord } from "@/lib/super-admin/premium-design/inventory";
@@ -132,7 +132,7 @@ function AssetRow({ asset }: { asset: PremiumAssetRecord }) {
 
   return (
     <li className="flex items-center gap-ds-4 px-ds-5 py-ds-3">
-      <Image src={preview} alt="" width={48} height={48} className="h-12 w-12 rounded-ds-md object-contain bg-white" />
+      <SafeImage src={preview} alt="" width={48} height={48} className="h-12 w-12 rounded-ds-md object-contain bg-white" />
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium capitalize text-text-primary">{asset.label}</p>
         <p className="truncate text-xs text-text-muted">{asset.sourcePath}</p>

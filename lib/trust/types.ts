@@ -136,7 +136,7 @@ export type TrustCenterData = {
 
 export const TRUST_CENTER_SECTIONS: TrustCenterSection[] = [
   { id: "score", title: "Trust Score", description: "Your marketplace reputation score", href: "/trust#score", icon: "⭐" },
-  { id: "buyer-protection", title: "Buyer Protection", description: "Secure checkout and dispute support", href: "/help/category/buyer", icon: "🛡️" },
+  { id: "buyer-protection", title: "Purchase Protection", description: "Secure checkout and dispute support", href: "/help/category/buyer", icon: "🛡️" },
   { id: "seller-protection", title: "Seller Protection", description: "Payout security and seller policies", href: "/help/category/seller", icon: "🏷️" },
   { id: "business-protection", title: "Business Protection", description: "B2B trade protection and verification", href: "/help/category/business-accounts", icon: "🏢" },
   { id: "verification", title: "Verification", description: "Identity, business, and payment verification", href: "/trust#verification", icon: "✅" },

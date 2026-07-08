@@ -23,7 +23,7 @@ export const MISSION_CONTROL_ENGINE_SECTIONS: MissionControlEngineSection[] = [
   { id: "shipping-center", label: "Shipping Center", icon: "🚚", description: "Logistics foundation", href: "/super-admin/shipping-engine", group: "commerce" },
   { id: "wallet-center", label: "Wallet Center", icon: "💰", description: "Digital wallet system", href: "/super-admin/wallet-engine", group: "commerce" },
   { id: "payments-center", label: "Payments Center", icon: "💳", description: "Payment orchestration", href: "/super-admin/payments-engine", group: "commerce" },
-  { id: "protection-center", label: "Buyer Protection Center", icon: "🛡️", description: "Trust and disputes", href: "/super-admin/protection-engine", group: "commerce" },
+  { id: "protection-center", label: "Purchase Protection Center", icon: "🛡️", description: "Trust and disputes", href: "/super-admin/protection-engine", group: "commerce" },
   { id: "messages-center", label: "Messages Center", icon: "💬", description: "Communication platform", href: "/super-admin/messages-engine", group: "enterprise" },
   { id: "notifications-center", label: "Notifications Center", icon: "🔔", description: "Event delivery platform", href: "/super-admin/notifications-engine", group: "enterprise" },
   { id: "security-center", label: "Security Center", icon: "🔒", description: "Security and compliance", href: "/super-admin/security-engine", group: "enterprise" },

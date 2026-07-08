@@ -91,7 +91,7 @@
   align-items: center;
   justify-content: center;
   isolation: isolate;
-  background: linear-gradient(135deg, #0b1a3a 0%, #12275c 46%, #1e3a8a 100%);
+  background: linear-gradient(135deg, #0b1a3a 0%, #12275c 46%, #3b0764 100%);
   box-shadow: 0 18px 48px rgba(16, 42, 110, 0.35);
 }
 
@@ -193,7 +193,7 @@
   display: inline-flex;
   width: 72px;
   height: 72px;
-  filter: drop-shadow(0 12px 26px rgba(37, 99, 235, 0.55));
+  filter: drop-shadow(0 12px 26px rgba(147, 51, 234, 0.55));
   animation: ac2-float 5s ease-in-out infinite;
 }
 
@@ -698,7 +698,7 @@
  * grid and two-column card never collapse inside the mobile shell.
  * ===================================================================== */
 .acx-page {
-  --acx-blue: #2563eb;
+  --acx-blue: var(--ds-color-primary);
   --acx-green: #22c55e;
   --acx-orange: #f59e0b;
   --acx-purple: #7c3aed;
@@ -757,11 +757,10 @@
   color: var(--acx-primary-text);
   border: 1px solid rgba(15, 23, 42, 0.06);
   box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
-  transition: transform 0.2s var(--acx-ease), box-shadow 0.2s var(--acx-ease);
+  transition: box-shadow 0.2s var(--acx-ease);
 }
 
 .acx-card-profile__btn:hover {
-  transform: translateY(-1px);
   box-shadow: 0 10px 24px rgba(16, 24, 40, 0.12);
 }
 
@@ -788,6 +787,12 @@
   align-items: center;
 }
 
+@media (max-width: 400px) {
+  .acx-card-profile__cols {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- Profile identity ---------- */
 .acx-profile {
   display: flex;
@@ -812,12 +817,7 @@
   overflow: hidden;
   border: 3px solid var(--acx-blue);
   background: #eef4ff;
-  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.18);
-  transition: transform 0.2s var(--acx-ease);
-}
-
-.acx-profile__avatar:hover {
-  transform: scale(1.02);
+  box-shadow: 0 8px 22px rgba(147, 51, 234, 0.18);
 }
 
 .acx-profile__initials {
@@ -844,7 +844,7 @@
   background: var(--acx-blue);
   color: #ffffff;
   border: 2.5px solid #ffffff;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.28);
 }
 
 .acx-profile__camera svg {
@@ -883,7 +883,7 @@
   font-size: clamp(10px, 3vw, 12px);
   font-weight: 600;
   color: var(--acx-blue);
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(147, 51, 234, 0.1);
 }
 
 .acx-profile__verified svg {
@@ -948,7 +948,6 @@
 .acx-trust__ring {
   width: 100%;
   height: 100%;
-  transform: rotate(0deg);
 }
 
 .acx-trust__center {
@@ -1059,14 +1058,9 @@
   gap: clamp(8px, 2.8vw, 20px);
 }
 
-.acx-card-motion {
-  display: flex;
-  min-width: 0;
-}
-
 .acx-card {
   display: flex;
-  flex: 1;
+  min-width: 0;
   width: 100%;
   flex-direction: column;
   align-items: center;
@@ -1079,13 +1073,12 @@
   border: 1px solid rgba(15, 23, 42, 0.04);
   box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
   text-decoration: none;
-  transition:
-    box-shadow 0.25s var(--acx-ease),
-    transform 0.2s var(--acx-ease);
+  transition: box-shadow 0.25s var(--acx-ease);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .acx-card:active {
-  transform: scale(0.98);
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
 }
 
 .acx-card:hover {
@@ -1099,6 +1092,41 @@
   height: clamp(46px, 15vw, 80px);
   border-radius: clamp(14px, 4vw, 20px);
   flex-shrink: 0;
+}
+
+.acx-card__tile--blue {
+  background-color: #eff4ff;
+  color: var(--acx-blue);
+}
+
+.acx-card__tile--green {
+  background-color: #eefbf3;
+  color: var(--acx-green);
+}
+
+.acx-card__tile--orange {
+  background-color: #fff8eb;
+  color: var(--acx-orange);
+}
+
+.acx-card__tile--purple {
+  background-color: #f3effe;
+  color: var(--acx-purple);
+}
+
+.acx-card__tile--red {
+  background-color: #fdeeee;
+  color: var(--acx-red);
+}
+
+.acx-card__tile--gray {
+  background-color: #f3f4f6;
+  color: var(--acx-gray);
+}
+
+.acx-card__tile--slate {
+  background-color: #eef0f2;
+  color: #0f172a;
 }
 
 .acx-card__icon {
@@ -1117,11 +1145,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .acx-card,
-  .acx-card-profile__btn,
-  .acx-profile__avatar {
+  .acx-card-profile__btn {
     transition: none;
-  }
-  .acx-card:active {
-    transform: none;
   }
 }

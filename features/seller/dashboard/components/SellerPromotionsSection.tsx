@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { formatPromotionRemaining } from "@/lib/promotions/format";
 import { PromotionRenewButton } from "@/features/seller/dashboard/components/PromotionRenewButton";
 import { getPromotionDuration } from "@/lib/promotions/config";
@@ -88,21 +88,18 @@ export function SellerPromotionsSection({
                 href={`/seller/listings/${promotion.productId}/edit`}
                 className="flex items-center gap-ds-3 px-ds-4 py-ds-3"
               >
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-                  <Image
-                    src={promotion.imageUrl}
-                    alt={promotion.title}
-                    fill
-                    className="object-cover"
-                    sizes="48px"
-                  />
-                </div>
+                <ProductRowImage
+                  src={promotion.imageUrl}
+                  alt={promotion.title}
+                  containerClassName="h-12 w-12 shrink-0 rounded-ds-md"
+                  sizes="48px"
+                />
 
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-text-primary">{promotion.title}</p>
                   <div className="mt-1 flex flex-wrap gap-2">
                     <Badge variant={promotion.type === "bump" ? "success" : "warning"}>
-                      {promotion.type === "bump" ? "🚀 Bumped" : "⭐ Featured"}
+                      {promotion.type === "bump" ? "Bumped" : "Featured"}
                     </Badge>
                     <Badge variant="default">
                       {formatPromotionRemaining(promotion.endsAt) ?? "Expiring soon"}
@@ -131,15 +128,12 @@ export function SellerPromotionsSection({
             return (
               <div key={item.id} className={index > 0 ? "border-t border-border" : undefined}>
                 <div className="flex items-center gap-ds-3 px-ds-4 py-ds-3">
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
-                    <Image
-                      src={item.productImageUrl}
-                      alt={item.productTitle}
-                      fill
-                      className="object-cover"
-                      sizes="48px"
-                    />
-                  </div>
+                  <ProductRowImage
+                    src={item.productImageUrl}
+                    alt={item.productTitle}
+                    containerClassName="h-12 w-12 shrink-0 rounded-ds-md"
+                    sizes="48px"
+                  />
 
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-text-primary">

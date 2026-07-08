@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import type { MissionControlModule } from "@/lib/super-admin/mission-control/types";
@@ -22,7 +23,7 @@ export function MissionControlShortcutGrid({ modules, limit }: MissionControlSho
           className={cn("mc-shortcut-card", focusRing)}
         >
           <span className="mc-shortcut-card__icon" aria-hidden>
-            {module.icon}
+            <ModuleIcon href={module.href} id={module.id} size={28} />
           </span>
           <span className="mc-shortcut-card__body">
             <span className="mc-shortcut-card__title">{module.label}</span>

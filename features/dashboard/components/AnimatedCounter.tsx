@@ -12,7 +12,7 @@ type AnimatedCounterProps = {
 export const AnimatedCounter = memo(function AnimatedCounter({
   value,
   duration = 700,
-  format = (next) => next.toLocaleString(),
+  format = (next) => next.toLocaleString("en-GB"),
 }: AnimatedCounterProps) {
   const [displayValue, setDisplayValue] = useState(0);
   const visible = useDocumentVisible();

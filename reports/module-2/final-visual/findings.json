@@ -1,0 +1,314 @@
+[
+  {
+    "area": "Infrastructure",
+    "id": "server",
+    "status": "PASS",
+    "detail": "http://127.0.0.1:3025 → 200"
+  },
+  {
+    "area": "Homepage White",
+    "id": "purple-accent",
+    "status": "PASS",
+    "detail": "primary=#9333ea"
+  },
+  {
+    "area": "Homepage White",
+    "id": "category-horizontal-scroll",
+    "status": "PASS",
+    "detail": "Category scroller present"
+  },
+  {
+    "area": "Homepage White",
+    "id": "category-text-only",
+    "status": "PASS",
+    "detail": "category images=0"
+  },
+  {
+    "area": "Homepage White",
+    "id": "no-camera-icon",
+    "status": "PASS",
+    "detail": "camera controls=0"
+  },
+  {
+    "area": "Homepage White",
+    "id": "listing-cards",
+    "status": "PASS",
+    "detail": "cards=13"
+  },
+  {
+    "area": "Homepage White",
+    "id": "view-counter",
+    "status": "PASS",
+    "detail": "View label on card"
+  },
+  {
+    "area": "Homepage White",
+    "id": "favourite",
+    "status": "PASS",
+    "detail": "Wishlist control"
+  },
+  {
+    "area": "Homepage White",
+    "id": "showcase-badge",
+    "status": "PASS",
+    "detail": "Showcase badge on featured cards when data present"
+  },
+  {
+    "area": "Homepage Black",
+    "id": "dark-theme",
+    "status": "PASS",
+    "detail": "data-theme=dark"
+  },
+  {
+    "area": "Homepage Black",
+    "id": "dark-background",
+    "status": "PASS",
+    "detail": "body bg=rgb(11, 17, 32)"
+  },
+  {
+    "area": "Showcase",
+    "id": "section-present",
+    "status": "PASS",
+    "detail": "Showcase section on homepage"
+  },
+  {
+    "area": "Showcase",
+    "id": "seller-avatar",
+    "status": "PASS",
+    "detail": "Avatar"
+  },
+  {
+    "area": "Showcase",
+    "id": "seller-name",
+    "status": "PASS",
+    "detail": "Seller name"
+  },
+  {
+    "area": "Showcase",
+    "id": "follow-button",
+    "status": "PASS",
+    "detail": "Follow button"
+  },
+  {
+    "area": "Showcase",
+    "id": "horizontal-listings",
+    "status": "PASS",
+    "detail": "Horizontal listing cards"
+  },
+  {
+    "area": "Showcase",
+    "id": "seller-profile",
+    "status": "PASS",
+    "detail": "/user/luxe-collective"
+  },
+  {
+    "area": "Sell",
+    "id": "single-upload-card",
+    "status": "PASS",
+    "detail": "Single upload card"
+  },
+  {
+    "area": "Sell",
+    "id": "gallery-input",
+    "status": "PASS",
+    "detail": "Native file input for gallery"
+  },
+  {
+    "area": "Sell",
+    "id": "multiple-selection",
+    "status": "PASS",
+    "detail": "multiple="
+  },
+  {
+    "area": "Sell",
+    "id": "max-8-label",
+    "status": "PASS",
+    "detail": "8 photo cap shown"
+  },
+  {
+    "area": "Sell",
+    "id": "eight-photos",
+    "status": "PASS",
+    "detail": "thumbnails=8"
+  },
+  {
+    "area": "Sell",
+    "id": "horizontal-preview",
+    "status": "PASS",
+    "detail": "Horizontal thumbnail strip after upload"
+  },
+  {
+    "area": "Sell",
+    "id": "numbered-slots",
+    "status": "PASS",
+    "detail": "index badges=8"
+  },
+  {
+    "area": "Review Listing",
+    "id": "listing-route",
+    "status": "PASS",
+    "detail": "http://127.0.0.1:3025/listing/demo-iphone-15-pro"
+  },
+  {
+    "area": "Review Listing",
+    "id": "horizontal-slider",
+    "status": "PASS",
+    "detail": "Product gallery scroller"
+  },
+  {
+    "area": "Review Listing",
+    "id": "swipe-scroll",
+    "status": "PASS",
+    "detail": "scroll 0→1440"
+  },
+  {
+    "area": "Business",
+    "id": "dashboard",
+    "status": "PASS",
+    "detail": "Business dashboard loads"
+  },
+  {
+    "area": "Business",
+    "id": "badge-component",
+    "status": "PASS",
+    "detail": "Business copy/badge visible"
+  },
+  {
+    "area": "Promotion",
+    "id": "3d-price",
+    "status": "PASS",
+    "detail": "3 days £1"
+  },
+  {
+    "area": "Promotion",
+    "id": "7d-price",
+    "status": "PASS",
+    "detail": "7 days £2"
+  },
+  {
+    "area": "Promotion",
+    "id": "showcase-price",
+    "status": "PASS",
+    "detail": "Showcase £5.50"
+  },
+  {
+    "area": "Super Admin",
+    "id": "no-duplicate-nav",
+    "status": "PASS",
+    "detail": "links=16 unique=16"
+  },
+  {
+    "area": "Super Admin",
+    "id": "nav-/super-admin/users",
+    "status": "PASS",
+    "detail": "/super-admin/users"
+  },
+  {
+    "area": "Super Admin",
+    "id": "nav-/super-admin/moderation",
+    "status": "PASS",
+    "detail": "/super-admin/moderation"
+  },
+  {
+    "area": "Super Admin",
+    "id": "nav-/super-admin/orders-engine",
+    "status": "PASS",
+    "detail": "/super-admin/orders-engine"
+  },
+  {
+    "area": "Super Admin",
+    "id": "nav-/super-admin/payments-engine",
+    "status": "PASS",
+    "detail": "/super-admin/payments-engine"
+  },
+  {
+    "area": "Super Admin",
+    "id": "nav-/super-admin/promotions",
+    "status": "PASS",
+    "detail": "/super-admin/promotions"
+  },
+  {
+    "area": "Super Admin",
+    "id": "nav-/super-admin/pricing",
+    "status": "PASS",
+    "detail": "/super-admin/pricing"
+  },
+  {
+    "area": "Super Admin",
+    "id": "nav-/super-admin/theme-manager",
+    "status": "PASS",
+    "detail": "/super-admin/theme-manager"
+  },
+  {
+    "area": "Super Admin",
+    "id": "nav-/super-admin/monitoring",
+    "status": "PASS",
+    "detail": "/super-admin/monitoring"
+  },
+  {
+    "area": "Super Admin",
+    "id": "routes-open",
+    "status": "PASS",
+    "detail": "8 routes OK"
+  },
+  {
+    "area": "Theme Engine",
+    "id": "page-loads",
+    "status": "PASS",
+    "detail": "Theme manager reachable"
+  },
+  {
+    "area": "Branding",
+    "id": "rovexo-wordmark",
+    "status": "PASS",
+    "detail": "ROVEXO brand visible on homepage"
+  },
+  {
+    "area": "Branding",
+    "id": "purple-x",
+    "status": "PASS",
+    "detail": "Primary token #9333ea"
+  },
+  {
+    "area": "Branding",
+    "id": "favicon",
+    "status": "PASS",
+    "detail": "public/favicon.svg"
+  },
+  {
+    "area": "Branding",
+    "id": "app-icon",
+    "status": "PASS",
+    "detail": "PWA icon"
+  },
+  {
+    "area": "Responsive",
+    "id": "android",
+    "status": "PASS",
+    "detail": "Pixel 7 viewport screenshot"
+  },
+  {
+    "area": "Responsive",
+    "id": "iphone",
+    "status": "PASS",
+    "detail": "iPhone 14 WebKit screenshot"
+  },
+  {
+    "area": "Responsive",
+    "id": "desktop",
+    "status": "PASS",
+    "detail": "1440px desktop screenshot"
+  },
+  {
+    "area": "Performance",
+    "id": "console-clean",
+    "status": "PASS",
+    "detail": "No hydration/overflow console errors"
+  },
+  {
+    "area": "Responsive",
+    "id": "tablet",
+    "status": "PASS",
+    "detail": "iPad viewport verified"
+  }
+]

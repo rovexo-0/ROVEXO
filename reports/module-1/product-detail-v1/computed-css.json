@@ -1,0 +1,21 @@
+{
+  "version": "v1.0",
+  "brandPurpleX": "rgb(147, 51, 234)",
+  "galleryBadgePresent": false,
+  "counterText": "1 / 8",
+  "thumbCount": 8,
+  "actionButtons": [
+    "Add to Cart",
+    "Buy Now"
+  ],
+  "sectionOrder": [
+    "iPhone 15 Pro 256GB Natural Titanium",
+    "Description",
+    "Condition",
+    "pd-v1__card pd-v1__shipping",
+    "ROVEXO Seller",
+    "Similar items"
+  ],
+  "similarListingVersion": "official-2.1",
+  "overflowPx": 0
+}

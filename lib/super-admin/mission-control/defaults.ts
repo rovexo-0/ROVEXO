@@ -65,7 +65,7 @@ export function createDefaultFeatureToggles(): MissionControlFeatureToggle[] {
     { id: "wholesale", label: "Wholesale", description: "B2B wholesale directory and RFQ", enabled: true, state: "live", version: "1.2" },
     { id: "voice-search", label: "Voice Search", description: "Voice-assisted search on mobile", enabled: false, state: "beta", version: "0.9" },
     { id: "import-wizard", label: "Store Import", description: "Seller migration wizard", enabled: true, state: "live", version: "1.4" },
-    { id: "buyer-protection", label: "Buyer Protection", description: "Trust and resolution centre", enabled: true, state: "live", version: "1.0" },
+    { id: "buyer-protection", label: "Purchase Protection", description: "Trust and resolution centre", enabled: true, state: "live", version: "1.0" },
     { id: "business-directory", label: "Business Directory", description: "Verified business storefronts", enabled: true, state: "live", version: "1.1" },
   ];
 }

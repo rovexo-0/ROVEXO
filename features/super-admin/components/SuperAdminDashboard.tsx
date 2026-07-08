@@ -1,5 +1,6 @@
 "use client";
 
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { MobileHubSections, ResponsiveShell } from "@/features/mobile-ui";
@@ -211,8 +212,8 @@ export function SuperAdminDashboard({ data }: SuperAdminDashboardProps) {
                   )}
                 >
                   <div className="flex items-center gap-ds-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-ds-lg bg-primary/10 text-xl">
-                      {item.icon}
+                    <span className="flex h-11 w-11 items-center justify-center rounded-ds-lg bg-primary/10">
+                      <ModuleIcon href={item.href} size={28} />
                     </span>
                     <div>
                       <p className="font-semibold text-text-primary">{item.label}</p>

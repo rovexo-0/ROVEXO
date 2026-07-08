@@ -39,7 +39,7 @@ export function LiveWorldMap({ countries }: LiveWorldMapProps) {
         </p>
       </header>
 
-      <div className="live-analytics-map relative overflow-hidden rounded-ds-xl border border-border/50 bg-gradient-to-b from-sky-50 to-blue-100/60">
+      <div className="live-analytics-map relative overflow-hidden rounded-ds-xl border border-border/50 bg-gradient-to-b from-violet-50 to-purple-100/60">
         <svg viewBox="0 0 100 50" className="h-auto w-full" role="img" aria-label="World visitor map">
           <defs>
             <radialGradient id="live-map-glow">

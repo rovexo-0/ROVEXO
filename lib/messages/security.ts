@@ -33,5 +33,5 @@ export function inspectMessageContent(content: string): MessageSecurityWarning {
 
 export function buildAutoReplyWarning(warning: string | null): string | null {
   if (!warning) return null;
-  return `${warning} Keep payments and communication on ROVEXO for buyer protection.`;
+  return `${warning} Keep payments and communication on ROVEXO for purchase protection.`;
 }

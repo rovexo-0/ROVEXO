@@ -9,7 +9,7 @@ type PlatformOperatorFooterNoticeProps = {
 export function PlatformOperatorFooterNotice({ className }: PlatformOperatorFooterNoticeProps) {
   return (
     <p className={cn("text-center text-sm text-gray-500 sm:text-left", className)}>
-      <Link href="/legal" className="hover:text-[#2563eb] hover:underline">
+      <Link href="/legal" className="hover:text-[var(--ds-color-primary)] hover:underline">
         {PLATFORM_OPERATOR_NOTICE}
       </Link>
     </p>

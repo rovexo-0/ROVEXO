@@ -1,5 +1,9 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
+import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 
 export type AvatarSize = "sm" | "md" | "lg" | "xl" | "header" | "nav";
 
@@ -32,6 +36,11 @@ function getInitials(name: string): string {
 export function Avatar({ src, alt, name, size = "md", className }: AvatarProps) {
   const styles = sizeStyles[size];
   const initials = name ? getInitials(name) : alt.slice(0, 1).toUpperCase();
+  const imageSrc = normalizeAvatarUrl(src);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const broken = failedSrc === imageSrc;
+
+  const showImage = Boolean(imageSrc) && !broken;
 
   return (
     <span
@@ -41,13 +50,15 @@ export function Avatar({ src, alt, name, size = "md", className }: AvatarProps) 
         className,
       )}
     >
-      {src ? (
-        <Image
-          src={src}
+      {showImage ? (
+        <SafeImage
+          src={imageSrc}
           alt={alt}
           fill
           sizes={`${styles.image}px`}
           className="object-cover"
+          fallback="hide"
+          onError={() => setFailedSrc(imageSrc)}
         />
       ) : (
         <span

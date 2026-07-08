@@ -1,0 +1,137 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { cn } from "@/lib/cn";
+import { sellPanel, focusRing } from "@/features/sell/ui/sell-classes";
+import { SellRowsCard, SellCompactRow, SellToggle, SellInlineError, SellPanelHeader } from "@/features/sell/ui/SellPrimitives";
+import { useSell } from "@/features/sell/context/SellProvider";
+import { getListingValidationErrors, PARCEL_SIZE_OPTIONS, type ParcelSize } from "@/features/sell/types";
+import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
+import { resolveTransactionModeFromFlatPath } from "@/lib/transaction-mode/resolver";
+
+function ParcelPicker({
+  value,
+  onClose,
+  onSelect,
+}: {
+  value: ParcelSize | null;
+  onClose: () => void;
+  onSelect: (size: ParcelSize) => void;
+}) {
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
+
+  // One tap selects and closes — no confirm step (Vinted-style simplicity).
+  const choose = (size: ParcelSize) => {
+    onSelect(size);
+    onClose();
+  };
+
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Select parcel size" className={sellPanel}>
+      <SellPanelHeader title="Parcel size" onBack={onClose} />
+
+      <div className="flex-1 overflow-y-auto px-ds-4 pt-ds-3" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 16px)" }}>
+        <p className="px-ds-1 pb-ds-3 text-sm text-text-secondary">
+          Choose the closest size so buyers get accurate shipping and automatic labels.
+        </p>
+        <ul className="flex flex-col gap-ds-2" role="radiogroup" aria-label="Parcel size">
+          {PARCEL_SIZE_OPTIONS.filter((option) => option.id !== "custom").map((option) => {
+            const active = value === option.id;
+            return (
+              <li key={option.id}>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => choose(option.id)}
+                  className={cn(
+                    "flex min-h-[64px] w-full items-start gap-ds-3 rounded-ds-md border-2 p-ds-4 text-left transition-colors active:bg-surface-muted",
+                    active ? "border-primary bg-primary/5" : "border-border bg-surface-muted/40",
+                    focusRing,
+                  )}
+                >
+                  <span className={cn("mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-ds-full border-2", active ? "border-primary" : "border-border")} aria-hidden>
+                    {active ? <span className="h-3 w-3 rounded-ds-full bg-primary" /> : null}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-ds-2">
+                      <span className="text-base font-semibold text-text-primary">{option.label}</span>
+                      {option.recommended ? (
+                        <span className="rounded-ds-sm bg-primary/10 px-ds-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-primary">Recommended</span>
+                      ) : null}
+                    </span>
+                    <span className="mt-0.5 block text-sm text-text-secondary">{option.description}</span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export function SellShippingBlock() {
+  const { draft, updateDraft, showValidation } = useSell();
+  const [parcelOpen, setParcelOpen] = useState(false);
+
+  const errors = useMemo(
+    () => getListingValidationErrors(draft, { mode: "quick", showErrors: showValidation }),
+    [draft, showValidation],
+  );
+
+  const directContact = draft.categoryPath
+    ? isDirectContactMode(resolveTransactionModeFromFlatPath(draft.categoryPath))
+    : false;
+
+  if (directContact) {
+    return (
+      <SellRowsCard aria-label="Shipping">
+        <p className="px-ds-4 py-ds-3 text-sm text-text-secondary">
+          Arranged directly between buyer and seller — no postage required.
+        </p>
+      </SellRowsCard>
+    );
+  }
+
+  const parcelLabel = PARCEL_SIZE_OPTIONS.find((option) => option.id === draft.parcelSize)?.label ?? "";
+
+  return (
+    <div className="flex flex-col gap-ds-1">
+      <SellRowsCard aria-label="Shipping">
+        <div className="flex items-center justify-between gap-ds-3 px-ds-4 py-ds-3">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-text-primary">Free postage</p>
+            <p className="text-xs text-text-muted">{draft.freeDelivery ? "Buyer pays £0.00" : "Buyer pays for postage"}</p>
+          </div>
+          <SellToggle checked={draft.freeDelivery} onChange={(freeDelivery) => updateDraft({ freeDelivery })} label="Free postage" />
+        </div>
+
+        <SellCompactRow
+          label="Parcel size"
+          value={parcelLabel}
+          placeholder="Select parcel size"
+          hasError={Boolean(errors.parcelSize)}
+          onClick={() => setParcelOpen(true)}
+          ariaLabel="Select parcel size"
+        />
+      </SellRowsCard>
+      <SellInlineError message={errors.parcelSize} />
+
+      {parcelOpen ? (
+        <ParcelPicker
+          value={draft.parcelSize}
+          onClose={() => setParcelOpen(false)}
+          onSelect={(size) => updateDraft({ parcelSize: size })}
+        />
+      ) : null}
+    </div>
+  );
+}

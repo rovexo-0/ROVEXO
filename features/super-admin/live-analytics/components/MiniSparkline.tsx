@@ -9,7 +9,7 @@ type MiniSparklineProps = {
 export function MiniSparkline({
   value,
   max,
-  color = "rgba(37, 99, 235, 0.85)",
+  color = "rgba(147, 51, 234, 0.85)",
 }: MiniSparklineProps) {
   const width = Math.max(8, (value / Math.max(max, 1)) * 100);
 

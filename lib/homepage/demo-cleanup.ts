@@ -42,7 +42,7 @@ function productionDescription(title: string): string {
   const cleanTitle = title.replace(/\s+—\s+Item\s+\d+$/, "").trim();
   return [
     `${cleanTitle} in excellent condition, ready to ship across the UK.`,
-    "Verified ROVEXO seller with secure checkout, tracked delivery, and buyer protection.",
+    "Verified ROVEXO seller with secure checkout, tracked delivery, and purchase protection.",
     "Photos show the actual item. Message the seller for combined postage or collection.",
   ].join(" ");
 }

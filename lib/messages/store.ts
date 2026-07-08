@@ -4,6 +4,7 @@ import type { Tables, TablesUpdate } from "@/lib/supabase/types/database";
 import { inspectMessageContent, buildAutoReplyWarning } from "@/lib/messages/security";
 import { dispatchNotification } from "@/lib/notifications/dispatch";
 import type { ChatMessage, Conversation, ProductListingStatus } from "@/lib/messages/types";
+import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 
 type ConversationRow = Tables<"conversations"> & {
   products: Pick<Tables<"products">, "slug" | "title" | "price" | "condition" | "status"> & {
@@ -56,7 +57,7 @@ function mapConversation(row: ConversationRow, viewerId: string): Conversation {
     participant: {
       id: participant.id,
       name: participant.full_name,
-      avatarUrl: participant.avatar_url,
+      avatarUrl: normalizeAvatarUrl(participant.avatar_url) ?? undefined,
       role: isBuyer ? "seller" : "buyer",
       online: false,
       lastSeen: undefined,

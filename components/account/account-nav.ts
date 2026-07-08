@@ -8,43 +8,49 @@
 
 import type { AccountIconName } from "@/components/account/AccountIcons";
 
+/** Precomputed pastel washes — avoids inline `color-mix()` compositor layers on Android. */
+export type AccountTileAccent =
+  | "blue"
+  | "green"
+  | "orange"
+  | "purple"
+  | "red"
+  | "gray"
+  | "slate";
+
 export type AccountNavItem = {
   id: string;
   label: string;
   href: string;
   icon: AccountIconName;
-  /** Accent colour (spec palette) applied to the glyph + pastel tile. */
+  /** Accent colour (spec palette) applied to the glyph. */
   color: string;
+  /** Static tile wash + glyph colour via `.acx-card__tile--{accent}`. */
+  accent: AccountTileAccent;
 };
 
-// Spec palette
-const BLUE = "#2563EB";
+// Spec palette — primary accent uses official ROVEXO purple
+const PRIMARY = "#9333EA";
 const GREEN = "#22C55E";
 const ORANGE = "#F59E0B";
 const PURPLE = "#7C3AED";
 const RED = "#EF4444";
 const GRAY = "#6B7280";
 
+/** Simplified account menu — grouped essentials, no duplicate hubs. */
 export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
-  { id: "orders", label: "My Orders", href: "/orders", icon: "orders", color: PURPLE },
-  { id: "saved", label: "Saved Items", href: "/saved", icon: "saved", color: RED },
-  { id: "listings", label: "My Listings", href: "/seller/listings", icon: "listings", color: PURPLE },
-  { id: "messages", label: "Messages", href: "/messages", icon: "messages", color: BLUE },
-  // Row 2
-  { id: "wallet", label: "Wallet", href: "/account/wallet", icon: "wallet", color: ORANGE },
-  { id: "business", label: "Business", href: "/business/dashboard", icon: "business", color: BLUE },
-  { id: "settings", label: "Settings", href: "/account/settings", icon: "settings", color: GRAY },
-  { id: "help", label: "Help", href: "/help", icon: "help", color: BLUE },
-  // Row 3
-  { id: "reviews", label: "Reviews", href: "/seller/review-center", icon: "reviews", color: ORANGE },
-  { id: "import", label: "Import", href: "/import", icon: "listings", color: GREEN },
-  { id: "returns", label: "Returns", href: "/orders?tab=returns", icon: "returns", color: RED },
-  { id: "notifications", label: "Notifications", href: "/notifications", icon: "notifications", color: BLUE },
-  // Row 4
-  { id: "security", label: "Security", href: "/account/security", icon: "security", color: BLUE },
-  { id: "following", label: "Buying", href: "/buyer", icon: "following", color: PURPLE },
-  { id: "payment", label: "Payment Methods", href: "/account/payment-methods", icon: "payment", color: BLUE },
-  { id: "support", label: "Support Center", href: "/support", icon: "support", color: GREEN },
+  { id: "orders", label: "My Orders", href: "/orders", icon: "orders", color: PURPLE, accent: "purple" },
+  { id: "saved", label: "Saved Items", href: "/saved", icon: "saved", color: RED, accent: "red" },
+  { id: "listings", label: "My Listings", href: "/seller/listings", icon: "listings", color: PURPLE, accent: "purple" },
+  { id: "messages", label: "Messages", href: "/messages", icon: "messages", color: PRIMARY, accent: "blue" },
+  { id: "wallet", label: "Wallet", href: "/account/wallet", icon: "wallet", color: ORANGE, accent: "orange" },
+  { id: "business", label: "Business", href: "/business/dashboard", icon: "business", color: PRIMARY, accent: "blue" },
+  { id: "security", label: "Security", href: "/account/security", icon: "security", color: PRIMARY, accent: "blue" },
+  { id: "settings", label: "Settings", href: "/account/settings", icon: "settings", color: GRAY, accent: "gray" },
+  { id: "notifications", label: "Notifications", href: "/notifications", icon: "notifications", color: PRIMARY, accent: "blue" },
+  { id: "help", label: "Help", href: "/help", icon: "help", color: PRIMARY, accent: "blue" },
+  { id: "payment", label: "Payment Methods", href: "/account/payment-methods", icon: "payment", color: PRIMARY, accent: "blue" },
+  { id: "returns", label: "Returns", href: "/orders?tab=returns", icon: "returns", color: RED, accent: "red" },
 ] as const;
 
 /** Super Admin only — not part of the public 16-tile grid spec. */
@@ -54,4 +60,5 @@ export const SUPER_ADMIN_ACCOUNT_NAV_ITEM: AccountNavItem = {
   href: "/super-admin",
   icon: "security",
   color: "#0F172A",
+  accent: "slate",
 };

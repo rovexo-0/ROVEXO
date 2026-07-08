@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { useMemo, useState } from "react";
 import { MissionControlAutoRefresh } from "@/features/super-admin/mission-control/MissionControlAutoRefresh";
 import { MissionControlLiveCounters } from "@/features/super-admin/mission-control/MissionControlLiveCounters";
@@ -271,7 +272,7 @@ function ModuleSections({ sections }: { sections: MissionControlEngineSection[] 
               {items.map((section) => (
                 <Link key={section.id} href={section.href} className="mc2-module-card">
                   <span className="mc2-module-card__icon" aria-hidden>
-                    {section.icon}
+                    <ModuleIcon href={section.href} id={section.id} />
                   </span>
                   <span className="mc2-module-card__body">
                     <span className="mc2-module-card__title">

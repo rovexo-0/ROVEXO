@@ -8,7 +8,7 @@ export const OPERATIONS_PLATFORM_SERVICES: Omit<OperationsPlatformService, "stat
   { id: "orders", label: "Orders", icon: "📦", href: "/super-admin/orders-engine" },
   { id: "wallet", label: "Wallet", icon: "💰", href: "/super-admin/wallet-engine" },
   { id: "payments", label: "Payments", icon: "💳", href: "/super-admin/payments-engine" },
-  { id: "protection", label: "Buyer Protection", icon: "🛡️", href: "/super-admin/protection-engine" },
+  { id: "protection", label: "Purchase Protection", icon: "🛡️", href: "/super-admin/protection-engine" },
   { id: "shipping", label: "Shipping", icon: "🚚", href: "/super-admin/shipping-engine" },
   { id: "messages", label: "Messages", icon: "💬", href: "/super-admin/messages-engine" },
   { id: "notifications", label: "Notifications", icon: "🔔", href: "/super-admin/notifications-engine" },

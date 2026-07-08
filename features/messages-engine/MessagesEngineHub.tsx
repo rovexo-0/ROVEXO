@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { ConversationCard } from "@/features/messages/components/ConversationCard";
@@ -121,7 +122,7 @@ export function MessagesEngineHub({
             <section className="me-comm-banner">
               <p className="font-semibold">Secure marketplace communication between buyers, sellers, and administrators.</p>
               <p className="mt-ds-2 text-sm text-text-secondary">
-                Real-time messaging · Attachments · Order & shipping integration · Buyer protection case chat
+                Real-time messaging · Attachments · Order & shipping integration · Purchase protection case chat
               </p>
             </section>
             <section className="me-panel">
@@ -142,7 +143,7 @@ export function MessagesEngineHub({
               <div className="me-module-grid">
                 {modules.slice(3).map((module) => (
                   <Link key={module.id} href={module.href} className="me-module-card">
-                    <span>{module.icon}</span>
+                    <ModuleIcon href={module.href} id={module.id} />
                     <span className="font-semibold">{module.label}</span>
                   </Link>
                 ))}

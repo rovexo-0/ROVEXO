@@ -123,7 +123,7 @@ export const DEMO_USERS: DemoUserDefinition[] = [
 ];
 
 export function demoAvatarUrl(seed: string): string {
-  return `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(seed)}`;
+  return `https://api.dicebear.com/7.x/shapes/png?seed=${encodeURIComponent(seed)}`;
 }
 
 export function resolveDemoSeedPassword(): string {  return process.env.DEMO_SEED_PASSWORD?.trim() || DEMO_DEFAULT_PASSWORD;

@@ -57,6 +57,7 @@ const LEGACY_TO_TIER: Record<LegacyParcelSize, ParcelTier> = {
   medium: "medium_parcel",
   large: "large_parcel",
   xl: "xl_parcel",
+  custom: "xl_parcel",
 };
 
 const CATEGORY_TIER_HINTS: Record<string, ParcelTier> = {
@@ -184,6 +185,22 @@ export function mapTierToLegacySize(tier: ParcelTier): LegacyParcelSize {
 
 export function parcelTierLabel(tier: ParcelTier): string {
   return PARCEL_TIER_OPTIONS.find((option) => option.id === tier)?.label ?? tier;
+}
+
+/**
+ * Representative shippable dimensions/weight for a parcel tier. Used to build
+ * real Parcel2Go quote/shipment payloads instead of hardcoded values.
+ * Weight is a conservative mid-point of the tier so pricing stays accurate.
+ */
+export function parcelTierToDimensions(tier: ParcelTier): ParcelDimensions {
+  const option = PARCEL_TIER_OPTIONS.find((entry) => entry.id === tier) ?? PARCEL_TIER_OPTIONS[2]!;
+  const { maxDimensionsCm, maxWeightKg } = option;
+  return {
+    weightKg: Math.max(0.1, Math.round(maxWeightKg * 0.5 * 100) / 100),
+    lengthCm: maxDimensionsCm.length,
+    widthCm: maxDimensionsCm.width,
+    heightCm: maxDimensionsCm.height,
+  };
 }
 
 export function isParcelTier(value: string): value is ParcelTier {

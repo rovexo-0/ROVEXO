@@ -32,38 +32,6 @@
     "theme": "dark"
   },
   {
-    "file": "pages/hero__desktop__light.png",
-    "id": "hero",
-    "label": "Hero",
-    "device": "desktop",
-    "deviceLabel": "Desktop",
-    "theme": "light"
-  },
-  {
-    "file": "pages/hero__desktop__dark.png",
-    "id": "hero",
-    "label": "Hero",
-    "device": "desktop",
-    "deviceLabel": "Desktop",
-    "theme": "dark"
-  },
-  {
-    "file": "pages/hero__iphone__light.png",
-    "id": "hero",
-    "label": "Hero",
-    "device": "iphone",
-    "deviceLabel": "iPhone",
-    "theme": "light"
-  },
-  {
-    "file": "pages/hero__iphone__dark.png",
-    "id": "hero",
-    "label": "Hero",
-    "device": "iphone",
-    "deviceLabel": "iPhone",
-    "theme": "dark"
-  },
-  {
     "file": "pages/categories__desktop__light.png",
     "id": "categories",
     "label": "Categories",

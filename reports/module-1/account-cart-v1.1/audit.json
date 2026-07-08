@@ -1,0 +1,13 @@
+{
+  "account": {
+    "menuRows": 0,
+    "rowsWithoutTrailingSlot": true,
+    "hasProfile": false,
+    "overflowPx": 0
+  },
+  "cart": {
+    "hasCheckout": false,
+    "overflowPx": 0
+  },
+  "authGated": true
+}

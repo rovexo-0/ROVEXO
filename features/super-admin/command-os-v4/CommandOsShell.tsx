@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
 import { cn } from "@/lib/cn";
@@ -159,7 +160,7 @@ export function CommandOsShell({ initialSnapshot, defaultTab }: CommandOsShellPr
           <div className="cos-grid">
             {COMMAND_OS_ROOT_MODULES.slice(0, 12).map((mod) => (
               <Link key={mod.id} href={mod.href} className="cos-module-card">
-                <span className="cos-module-card__icon">{mod.icon}</span>
+                <span className="cos-module-card__icon"><ModuleIcon href={mod.href} id={mod.id} /></span>
                 <strong>{mod.label}</strong>
                 <p>{mod.description}</p>
               </Link>
@@ -236,7 +237,7 @@ export function CommandOsShell({ initialSnapshot, defaultTab }: CommandOsShellPr
           <div className="cos-grid">
             {COMMAND_OS_ROOT_MODULES.map((mod) => (
               <Link key={mod.id} href={mod.href} className="cos-module-card">
-                <span className="cos-module-card__icon">{mod.icon}</span>
+                <span className="cos-module-card__icon"><ModuleIcon href={mod.href} id={mod.id} /></span>
                 <strong>{mod.label}</strong>
                 <p>{mod.description}</p>
                 <span className="cos-module-card__caps">{mod.capabilities.slice(0, 4).join(" · ")}</span>

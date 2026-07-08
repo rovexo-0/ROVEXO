@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { BuyerEmptyState } from "@/components/buyer/BuyerEmptyState";
 import { BuyerSection } from "@/components/buyer/BuyerSection";
@@ -17,7 +17,7 @@ export function BuyerOrderHistory() {
         <div className="buyer-scroll">
           {data.orderHistory.map((order) => (
             <Link key={order.id} href={`/orders/${order.id}`} className="buyer-order-history-card">
-              <Image
+              <SafeImage
                 src={order.product.imageUrl}
                 alt=""
                 width={170}

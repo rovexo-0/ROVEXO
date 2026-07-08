@@ -12,9 +12,9 @@ export const BUYER_PROTOCOL_VIEWPORTS = [
 
 export async function waitForBuyerDashboardUi(page: Page): Promise<void> {
   await page.waitForLoadState("domcontentloaded");
-  await expect(page.locator(".buyer-page")).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator(".buyer-header")).toBeVisible();
-  await expect(page.getByRole("region", { name: "Buyer profile" })).toBeVisible();
+  await expect(page.locator(".account-center")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { level: 1, name: "Buying" })).toBeVisible();
+    await expect(page.locator(".account-center-tile").filter({ hasText: "Orders" }).first()).toBeVisible();
 }
 
 export async function assertNoHorizontalOverflow(page: Page): Promise<void> {

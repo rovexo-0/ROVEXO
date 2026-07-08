@@ -1,30 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const COLUMN_QUERIES = [
-  { query: "(min-width: 1440px)", columns: 5 },
-  { query: "(min-width: 1024px)", columns: 4 },
-  { query: "(min-width: 768px)", columns: 3 },
-] as const;
+import {
+  HP_FEED_COLUMN_QUERIES,
+  HP_FEED_DEFAULT_COLUMNS,
+  matchFeedColumnsFromMedia,
+} from "@/lib/homepage/canonical-responsive";
 
 export function useMarketplaceFeedColumns(): number {
-  const [columns, setColumns] = useState(2);
+  const [columns, setColumns] = useState(HP_FEED_DEFAULT_COLUMNS);
 
   useEffect(() => {
-    const media = COLUMN_QUERIES.map(({ query, columns: cols }) => ({
+    const media = HP_FEED_COLUMN_QUERIES.map(({ query, columns: cols }) => ({
       mql: window.matchMedia(query),
       columns: cols,
     }));
 
     const sync = () => {
-      for (const entry of media) {
-        if (entry.mql.matches) {
-          setColumns(entry.columns);
-          return;
-        }
-      }
-      setColumns(2);
+      setColumns(matchFeedColumnsFromMedia());
     };
 
     sync();

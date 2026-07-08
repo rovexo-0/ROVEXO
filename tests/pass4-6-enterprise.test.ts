@@ -12,7 +12,7 @@ describe("pass 4-6 enterprise systems", () => {
   it("pass 4: supports persona assistants and platform navigation", () => {
     expect(ASSISTANT_PERSONAS.length).toBe(5);
     expect(findNavigationTarget("open my wallet")?.href).toBe("/seller/wallet");
-    expect(explainFeature("buyer protection")?.id).toBe("buyer-protection");
+    expect(explainFeature("purchase protection")?.id).toBe("buyer-protection");
 
     const response = askMarketplaceAssistant("how do I promote listings", {
       pathname: "/seller/listings",

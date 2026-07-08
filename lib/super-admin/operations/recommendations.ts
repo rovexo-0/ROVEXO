@@ -103,7 +103,7 @@ export function buildAiRecommendations(input: {
     category: "Accessibility improvements",
     estimatedGain: "WCAG 2.2 AA compliance",
     difficulty: "low",
-    filesAffected: ["features/sell/components/ListingForm.tsx"],
+    filesAffected: ["features/sell/ui/SellScreen.tsx"],
     detail: "Verify keyboard trap-free category picker and visible focus rings.",
   });
 

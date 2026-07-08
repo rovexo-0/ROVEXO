@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { EnterpriseAdminShell } from "@/features/super-admin/components/premium";
@@ -147,7 +148,7 @@ export function AuditComplianceCenterAdmin({
           <div className="ac-module-grid">
             {(searchResults?.modules ?? snapshot.modules).map((module) => (
               <Link key={module.id} href={module.href ?? "/super-admin/audit"} className="ea-card">
-                <span>{module.icon}</span>
+                <ModuleIcon href={module.href} id={module.id} />
                 <strong>{module.label}</strong>
                 <span>{module.score}%</span>
                 <span className={cn("ac-badge", STATUS_CLASS[module.status])}>{module.status}</span>

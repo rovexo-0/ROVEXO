@@ -37,7 +37,7 @@ export function programmaticPageJsonLd(page: ProgrammaticPage) {
           name: `Where can I buy ${page.title.toLowerCase()} on ROVEXO?`,
           acceptedAnswer: {
             "@type": "Answer",
-            text: `Browse ${page.title.toLowerCase()} listings on ROVEXO with buyer protection and secure checkout.`,
+            text: `Browse ${page.title.toLowerCase()} listings on ROVEXO with purchase protection and secure checkout.`,
           },
         },
         {
@@ -45,7 +45,7 @@ export function programmaticPageJsonLd(page: ProgrammaticPage) {
           name: `Is it safe to buy ${page.title.toLowerCase()} on ROVEXO?`,
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Yes. ROVEXO offers buyer protection, verified sellers, and secure payments on eligible purchases.",
+            text: "Yes. ROVEXO offers purchase protection, verified sellers, and secure payments on eligible purchases.",
           },
         },
       ],
