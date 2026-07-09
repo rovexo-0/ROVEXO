@@ -18,8 +18,8 @@ import { connectMarketplaceCredentials } from "@/lib/seller/marketplace/credenti
 import { isOAuthPlatformConfigured } from "@/lib/seller/marketplace/oauth/env";
 
 function sanitizeReturnTo(returnTo: string | null | undefined): string {
-  if (!returnTo || !returnTo.startsWith("/")) return "/import";
-  if (returnTo.startsWith("//")) return "/import";
+  if (!returnTo || !returnTo.startsWith("/")) return "/account/bring-your-item";
+  if (returnTo.startsWith("//")) return "/account/bring-your-item";
   return returnTo;
 }
 

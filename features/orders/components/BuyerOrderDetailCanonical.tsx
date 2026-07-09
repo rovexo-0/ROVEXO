@@ -13,7 +13,7 @@ import {
   canConfirmDelivery,
   isOrderClosed,
 } from "@/lib/orders/delivery";
-import type { BuyerCommerceOrderView } from "@/lib/commerce/read-model";
+import type { BuyerCommerceOrderView } from "@/lib/commerce/view-types";
 import type { OrderEscrowState } from "@/lib/commerce-engine/read-model";
 import type { OrderResolutionSummary } from "@/lib/resolution-engine/types";
 import type { Order } from "@/lib/orders/types";
@@ -83,7 +83,6 @@ export function BuyerOrderDetailCanonical({
   }
 
   const showBuyerConfirm = canConfirmDelivery(order.status, order.disputesDisabled);
-  const trackingHref = `/orders/${order.id}/tracking`;
 
   return (
     <div className="flex flex-col gap-ds-5">
@@ -91,10 +90,7 @@ export function BuyerOrderDetailCanonical({
         meta={commerce.meta}
         items={commerce.items}
         totals={commerce.totals}
-        parcelCount={commerce.parcelCount}
-        shipmentReady={commerce.shipmentReady}
-        trackingHref={trackingHref}
-        parcels={commerce.parcels}
+        sellerShipments={commerce.sellerShipments}
         backHref="/orders"
         showSuccessBanner={showSuccessBanner}
         embedded

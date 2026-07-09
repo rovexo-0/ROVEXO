@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { NotificationsBellLink } from "@/components/header/NotificationsBellLink";
-import { RvxTopBar, RvxTopBarIconLink } from "@/components/header/RvxTopBar";
-import { ComposeLineIcon, SearchLineIcon } from "@/components/icons/RvxLineIcons";
+import { PageBack } from "@/components/navigation/PageBack";
+import { ComposeLineIcon } from "@/components/icons/RvxLineIcons";
 import { Avatar } from "@/components/ui/Avatar";
 import { MessagesEmptyState } from "@/features/messages/components/MessagesEmptyState";
 import { formatMessageTime } from "@/lib/messages/utils";
@@ -91,14 +90,8 @@ export function MessagesInboxV1({ initialConversations = [] }: MessagesInboxV1Pr
   return (
     <BetaAppShell className="msg-v1-shell">
       <div className="msg-v1" data-messages-version="v1.0">
-        <RvxTopBar>
-          <RvxTopBarIconLink href="/search" label="Search">
-            <SearchLineIcon />
-          </RvxTopBarIconLink>
-          <NotificationsBellLink />
-        </RvxTopBar>
-
         <div className="msg-v1__titlebar">
+          <PageBack backHref="/account" backLabel="My Account" preferHistory className="msg-v1__back" />
           <h1 className="msg-v1__title">Messages</h1>
           <Link href="/search" className="msg-v1__compose" aria-label="Start a new conversation">
             <ComposeLineIcon />

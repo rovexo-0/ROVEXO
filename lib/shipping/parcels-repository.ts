@@ -2,7 +2,7 @@ import "server-only";
 
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { ensureShippingRecord } from "@/lib/shipping/store";
-import type { ShipmentParcel, ShipmentParcelLabel, ShippingStatus } from "@/lib/shipping/types";
+import type { ShipmentParcel, ShipmentParcelLabel, ShippingStatus, ParcelOperation } from "@/lib/shipping/types";
 
 type ParcelRow = {
   id: string;
@@ -19,6 +19,9 @@ type ParcelRow = {
   tracking_url: string | null;
   status: ShippingStatus;
   product_item_ids: string[] | null;
+  insurance_enabled: boolean | null;
+  insurance_value_gbp: number | null;
+  parcel_operation: ParcelOperation | null;
   estimated_delivery_at: string | null;
   created_at: string;
   updated_at: string;
@@ -57,6 +60,9 @@ function mapParcelRow(row: ParcelRow, label: LabelRow | null): ShipmentParcel {
     trackingUrl: row.tracking_url,
     status: row.status,
     productItemIds: row.product_item_ids ?? [],
+    insuranceEnabled: row.insurance_enabled ?? false,
+    insuranceValueGbp: row.insurance_value_gbp,
+    operation: row.parcel_operation,
     estimatedDeliveryAt: row.estimated_delivery_at,
     label: label
       ? {
@@ -160,6 +166,8 @@ export async function createShipmentParcel(input: {
   heightCm?: number | null;
   carrier?: string | null;
   shippingService?: string | null;
+  insuranceEnabled?: boolean;
+  insuranceValueGbp?: number | null;
 }): Promise<ShipmentParcel | null> {
   const record = await ensureShippingRecord({ orderId: input.orderId });
   if (!record) return null;
@@ -189,6 +197,8 @@ export async function createShipmentParcel(input: {
       carrier: input.carrier ?? null,
       shipping_service: input.shippingService ?? null,
       product_item_ids: input.productItemIds ?? [],
+      insurance_enabled: input.insuranceEnabled ?? false,
+      insurance_value_gbp: input.insuranceValueGbp ?? null,
       status: "preparing",
     })
     .select("*")
@@ -213,6 +223,9 @@ export async function updateShipmentParcel(
     trackingUrl: string | null;
     status: ShippingStatus;
     productItemIds: string[];
+    insuranceEnabled: boolean;
+    insuranceValueGbp: number | null;
+    operation: ParcelOperation | null;
   }>,
 ): Promise<ShipmentParcel | null> {
   const admin = createShippingAdminClient();
@@ -228,6 +241,9 @@ export async function updateShipmentParcel(
   if (patch.trackingUrl !== undefined) payload.tracking_url = patch.trackingUrl;
   if (patch.status !== undefined) payload.status = patch.status;
   if (patch.productItemIds !== undefined) payload.product_item_ids = patch.productItemIds;
+  if (patch.insuranceEnabled !== undefined) payload.insurance_enabled = patch.insuranceEnabled;
+  if (patch.insuranceValueGbp !== undefined) payload.insurance_value_gbp = patch.insuranceValueGbp;
+  if (patch.operation !== undefined) payload.parcel_operation = patch.operation;
 
   if (Object.keys(payload).length === 0) return getShipmentParcelById(parcelId);
 
@@ -253,6 +269,7 @@ export async function deleteShipmentParcel(parcelId: string): Promise<boolean> {
 export async function attachLabelToParcel(input: {
   parcelId: string;
   shippingRecordId: string;
+  providerId?: string;
   label: {
     trackingNumber: string | null;
     carrier: string;
@@ -269,6 +286,7 @@ export async function attachLabelToParcel(input: {
   const labelPayload = {
     shipping_record_id: input.shippingRecordId,
     shipment_parcel_id: input.parcelId,
+    provider: input.providerId ?? "parcel2go",
     parcel_number: parcel.parcelNumber,
     total_parcels: parcel.totalParcels,
     tracking_number: input.label.trackingNumber,
@@ -305,4 +323,22 @@ export async function attachLabelToParcel(input: {
     .eq("id", input.parcelId);
 
   return getShipmentParcelById(input.parcelId);
+}
+
+const OPERATION_STATUS: Record<ParcelOperation, ShippingStatus> = {
+  return: "returned",
+  lost: "lost",
+  damaged: "failed",
+  claim: "preparing",
+};
+
+export async function applyParcelOperation(
+  parcelId: string,
+  operation: ParcelOperation,
+): Promise<ShipmentParcel | null> {
+  const status = OPERATION_STATUS[operation];
+  return updateShipmentParcel(parcelId, {
+    operation,
+    status,
+  });
 }

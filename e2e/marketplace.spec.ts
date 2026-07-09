@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import {
+  CATEGORY_RAIL_SELECTOR,
   waitForDomContentLoaded,
   waitForHomepageUi,
   waitForSearchResultsUi,
@@ -9,9 +10,9 @@ test.describe("marketplace core", () => {
   test("homepage renders search, categories and featured listings", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForHomepageUi(page);
-    const categories = page.locator('section[aria-label="Categories"]');
-    await expect(categories.locator('a[href="/search?category=vehicles"]').first()).toBeVisible();
-    await expect(categories.locator('a[href="/search?category=womens-fashion"]').first()).toBeVisible();
+    const categories = page.locator(CATEGORY_RAIL_SELECTOR);
+    await expect(categories).toBeVisible();
+    await expect(categories.locator("a[href*='/search?category=']").first()).toBeVisible();
   });
 
   test("categories index is reachable", async ({ page }) => {

@@ -5,6 +5,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AccountPageShell } from "@/features/account/components/AccountPageShell";
 import { Button } from "@/components/ui/Button";
+import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
 import { BUYER_REGIONS } from "@/lib/account/countries";
 import { buyerPreferencesSchema, type BuyerPreferencesInput } from "@/lib/account/schemas";
 import { cn } from "@/lib/cn";
@@ -34,7 +35,7 @@ export function AccountBuyerPreferencesPage() {
       orderUpdatesPush: true,
       orderUpdatesEmail: true,
       showRecommendations: true,
-      region: "Ireland",
+      region: UK_DEFAULT_COUNTRY,
       preferredCategorySlugs: [],
     },
   });

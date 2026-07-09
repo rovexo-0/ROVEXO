@@ -1,6 +1,7 @@
 import type { UserProfile } from "@/lib/profile/types";
 import { SUPER_ADMIN_PRIMARY_NAV } from "@/lib/super-admin/nav";
 import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
+import { filterBringYourItemNavLinks } from "@/lib/bring-your-item/release";
 
 export type NavLink = {
   href: string;
@@ -21,12 +22,12 @@ export const BUYER_NAV: NavLink[] = [
 ];
 
 export const SELLER_NAV: NavLink[] = [
-  { href: "/seller", label: "Seller Dashboard", subtitle: "Performance & overview" },
+  { href: "/seller", label: "Selling", subtitle: "Performance & overview" },
   { href: "/seller/listings", label: "My Listings", subtitle: "Manage inventory" },
   { href: "/seller/review-center", label: "Review Center", subtitle: "Listings under moderation" },
-  { href: "/seller/orders", label: "Seller Orders", subtitle: "Fulfillment & shipping" },
-  { href: "/seller/wallet", label: "Wallet", subtitle: "Balance & withdrawals" },
-  { href: "/seller/analytics", label: "Seller Analytics", subtitle: "Views, sales & trends" },
+  { href: "/seller/orders", label: "Selling Orders", subtitle: "Fulfillment & shipping" },
+  { href: "/wallet", label: "Wallet", subtitle: "Balance & withdrawals" },
+  { href: "/seller/analytics", label: "Analytics", subtitle: "Views, sales & trends" },
   { href: MIGRATION_CENTER_PATH, label: "Bring Your Items", subtitle: "Import your entire store" },
   { href: "/seller/connectors", label: "Marketplace Connectors", subtitle: "Connect external stores" },
   { href: "/seller/trust", label: "Trust Score", subtitle: "Reputation & improvements" },
@@ -36,7 +37,7 @@ export const SELLER_NAV: NavLink[] = [
 ];
 
 export const BUSINESS_NAV: NavLink[] = [
-  { href: "/business/dashboard", label: "Business Dashboard", subtitle: "Revenue & orders" },
+  { href: "/business/dashboard", label: "Business tools", subtitle: "Revenue & orders" },
   { href: "/business/inventory", label: "Inventory", subtitle: "SKU & stock management" },
   { href: "/business/analytics", label: "Business Analytics", subtitle: "Insights & reports" },
   { href: "/business/directory", label: "Business Directory", subtitle: "Verified companies" },
@@ -70,7 +71,7 @@ export const ADMIN_NAV: NavLink[] = [
   { href: "/admin/analytics", label: "Platform Analytics", subtitle: "Cross-platform metrics" },
   { href: "/admin/help", label: "Help Admin", subtitle: "Help centre analytics" },
   { href: "/admin/trust", label: "Trust Admin", subtitle: "Verification queue" },
-  { href: "/admin/business", label: "Business Admin", subtitle: "Business accounts" },
+  { href: "/admin/business", label: "Business Admin", subtitle: "Verified business profiles" },
   { href: "/admin/wholesale", label: "Wholesale Admin", subtitle: "Wholesale trade accounts" },
   { href: "/admin/monetization", label: "Monetization", subtitle: "Revenue & subscriptions" },
   { href: "/admin/orders", label: "Admin Orders", subtitle: "Order management" },
@@ -93,15 +94,12 @@ export const HELP_NAV: NavLink[] = [
 
 export function getNavigationSections(profile: UserProfile) {
   const sections: Array<{ id: string; title: string; links: NavLink[] }> = [
-    { id: "buyer", title: "Buyer Dashboard", links: BUYER_NAV },
+    { id: "buying", title: "Buying", links: BUYER_NAV },
+    { id: "selling", title: "Selling", links: filterBringYourItemNavLinks(SELLER_NAV) },
   ];
 
-  if (profile.isSeller) {
-    sections.push({ id: "seller", title: "Seller Dashboard", links: SELLER_NAV });
-  }
-
-  if (profile.accountType === "business" || profile.isAdmin) {
-    sections.push({ id: "business", title: "Business Dashboard", links: BUSINESS_NAV });
+  if (profile.capabilities.hasBusinessVerification || profile.isAdmin) {
+    sections.push({ id: "business", title: "Business tools", links: BUSINESS_NAV });
   }
 
   sections.push({ id: "shared", title: "Account", links: SHARED_NAV });

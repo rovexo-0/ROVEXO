@@ -8,7 +8,7 @@ export const TOPIC_SEEDS: TopicSeed[] = [
   { slug: "authentication", label: "Authentication", description: "Sign in, passwords, and verification codes", icon: "🔐", group: "Account & Security", keywords: ["login", "password", "sign in"] },
   { slug: "buyer", label: "Buyer", description: "Buying, checkout, and purchase protection", icon: "🛒", group: "Marketplace", keywords: ["buy", "purchase", "checkout"] },
   { slug: "seller", label: "Seller", description: "Selling, listings, and seller tools", icon: "🏷️", group: "Marketplace", keywords: ["sell", "listing", "seller"] },
-  { slug: "business-accounts", label: "Business Accounts", description: "Business selling and company profiles", icon: "🏢", group: "Business", keywords: ["business", "company", "vat"] },
+  { slug: "business-accounts", label: "Business verification", description: "Business selling and company profiles", icon: "🏢", group: "Business", keywords: ["business", "company", "vat"] },
   { slug: "wholesale", label: "Wholesale", description: "Bulk orders, MOQ, and B2B trade", icon: "📦", group: "Business", keywords: ["wholesale", "bulk", "moq", "rfq"] },
   { slug: "manufacturers", label: "Manufacturers", description: "Verified manufacturers and production", icon: "🏭", group: "Business", keywords: ["manufacturer", "production"] },
   { slug: "suppliers", label: "Suppliers", description: "Verified suppliers and sourcing", icon: "🔗", group: "Business", keywords: ["supplier", "sourcing"] },

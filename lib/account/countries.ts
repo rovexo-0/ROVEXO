@@ -7,16 +7,16 @@ export type SupportedCountry = {
 
 export const SUPPORTED_COUNTRIES: SupportedCountry[] = [
   {
-    code: "IE",
-    name: "Ireland",
-    postcodePattern: /^[A-Z]\d{2}\s?[A-Z0-9]{4}$/i,
-    postcodeExample: "D02 X285",
-  },
-  {
     code: "GB",
     name: "United Kingdom",
     postcodePattern: /^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i,
     postcodeExample: "SW1A 1AA",
+  },
+  {
+    code: "IE",
+    name: "Ireland",
+    postcodePattern: /^[A-Z]\d{2}\s?[A-Z0-9]{4}$/i,
+    postcodeExample: "D02 X285",
   },
   {
     code: "DE",

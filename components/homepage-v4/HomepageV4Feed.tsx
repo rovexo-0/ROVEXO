@@ -47,7 +47,7 @@ export const HomepageV4Feed = memo(function HomepageV4Feed({
   const reserved = useMemo(() => new Set(reservedIds), [reservedIds]);
   const seedItems = useMemo(
     () => resolveSeedItems(initialPage, reserved),
-    [initialPage.items, reserved],
+    [initialPage, reserved],
   );
 
   const [items, setItems] = useState<Product[]>(seedItems);

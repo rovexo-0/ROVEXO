@@ -36,6 +36,8 @@ export const ParcelCard = memo(function ParcelCard({
     heightCm: parcel.dimensions?.heightCm?.toString() ?? "",
     carrier: parcel.carrier ?? String(order.deliveryCarrier),
     shippingService: parcel.shippingService ?? "",
+    insuranceEnabled: parcel.insuranceEnabled,
+    insuranceValueGbp: parcel.insuranceValueGbp?.toString() ?? "",
   });
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -58,6 +60,8 @@ export const ParcelCard = memo(function ParcelCard({
           carrier: draft.carrier,
           shippingService: draft.shippingService || null,
           productItemIds: [order.product.id],
+          insuranceEnabled: draft.insuranceEnabled,
+          insuranceValueGbp: draft.insuranceValueGbp ? Number(draft.insuranceValueGbp) : null,
         }),
       });
       const payload = (await response.json()) as { parcel?: ShipmentParcel; error?: string };
@@ -77,7 +81,7 @@ export const ParcelCard = memo(function ParcelCard({
     setError(null);
     try {
       await saveParcel();
-      const response = await fetch("/api/shipping/parcel2go/labels", {
+      const response = await fetch("/api/shipping/labels", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: order.id, parcelId: parcel.id }),
@@ -199,6 +203,32 @@ export const ParcelCard = memo(function ParcelCard({
             disabled={hasLabel}
           />
         </label>
+        <label className="col-span-2 flex items-center gap-ds-2">
+          <input
+            type="checkbox"
+            className="h-4 w-4 rounded border-border"
+            checked={draft.insuranceEnabled}
+            onChange={(event) =>
+              setDraft((current) => ({ ...current, insuranceEnabled: event.target.checked }))
+            }
+            disabled={hasLabel}
+          />
+          {fieldLabel("Add shipping insurance")}
+        </label>
+        {draft.insuranceEnabled ? (
+          <label className="col-span-2 flex flex-col gap-ds-1">
+            {fieldLabel("Insurance value (£)")}
+            <Input
+              value={draft.insuranceValueGbp}
+              onChange={(event) =>
+                setDraft((current) => ({ ...current, insuranceValueGbp: event.target.value }))
+              }
+              inputMode="decimal"
+              placeholder="0.00"
+              disabled={hasLabel}
+            />
+          </label>
+        ) : null}
       </div>
 
       {parcel.trackingNumber ? (

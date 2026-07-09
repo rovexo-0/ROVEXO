@@ -59,9 +59,9 @@ for (const device of DEVICES) {
       clip: { x: 0, y: 0, width: device.width, height: Math.min(device.height, 220) },
     });
 
-    // Homepage variant focuses on search + BYI; logo mark lives on the default header chrome.
-    await page.goto("/categories", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /all categories/i })).toBeVisible();
+    // Logo mark: use search route (RovexoHeaderV2) — categories still uses legacy header chrome.
+    await page.goto("/search", { waitUntil: "domcontentloaded" });
+    await expect(page.locator('[data-header-version="rovexo-v2"]').first()).toBeVisible();
     await settleUi(page, 400);
 
     const mark = page.getByRole("link", { name: "ROVEXO Home" });

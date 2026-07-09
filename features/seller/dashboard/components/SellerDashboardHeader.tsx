@@ -10,8 +10,8 @@ type SellerDashboardHeaderProps = {
 export function SellerDashboardHeader({ profile }: SellerDashboardHeaderProps) {
   return (
     <DashboardHeader
-      title="Seller Dashboard"
-      menuLabel="Seller menu"
+      title="Selling"
+      menuLabel="Selling menu"
       profile={profile}
       defaultHub="sell"
     />

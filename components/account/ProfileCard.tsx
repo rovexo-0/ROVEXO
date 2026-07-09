@@ -155,7 +155,7 @@ export function ProfileCard({ profile, trustData }: ProfileCardProps) {
             <div className="acx-profile__handle">
               <span className="acx-profile__username">@{profile.username}</span>
               {profile.isSuperAdmin ? <SuperAdminBadge /> : null}
-              {profile.accountType === "business" ? <BusinessBadge compact /> : null}
+              {profile.capabilities.hasBusinessVerification ? <BusinessBadge compact /> : null}
               {profile.verified ? (
                 <span className="acx-profile__verified">
                   <VerifiedGlyph />

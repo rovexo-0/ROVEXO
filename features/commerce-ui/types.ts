@@ -52,7 +52,10 @@ export type CommerceParcelTimelineEvent = {
   done: boolean;
 };
 
+export type ParcelOperation = "return" | "claim" | "lost" | "damaged";
+
 export type CommerceParcel = {
+  id: string;
   /** 1-based parcel position within the order. */
   index: number;
   /** Total parcels in the order — always rendered as "Parcel X of Y". */
@@ -63,7 +66,21 @@ export type CommerceParcel = {
   /** Pre-formatted estimated delivery date, e.g. "6 May 2025". */
   estimatedDelivery: string | null;
   trackingUrl?: string | null;
+  /** Products allocated to this parcel — never mixed across parcels. */
+  items: CommerceLineItem[];
+  /** Active parcel-level operation, independent of carrier tracking status. */
+  operation: ParcelOperation | null;
   timeline?: CommerceParcelTimelineEvent[];
+};
+
+/** One seller's shipment group — parcels from different sellers are never mixed. */
+export type CommerceSellerShipment = {
+  sellerId: string;
+  sellerName: string;
+  parcelCount: number;
+  shipmentReady: boolean;
+  parcels: CommerceParcel[];
+  trackingHref: string;
 };
 
 export type OrderPaymentStatus = "paid" | "pending" | "refunded";

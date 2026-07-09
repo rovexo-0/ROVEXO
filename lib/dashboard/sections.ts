@@ -1,5 +1,6 @@
 import type { MobileBadgeKey, MobileTile } from "@/lib/mobile-ui/types";
 import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
+import { filterBringYourItemTiles } from "@/lib/bring-your-item/release";
 
 function tile(
   href: string,
@@ -31,8 +32,8 @@ export const BUYER_TOOLS_TILES: MobileTile[] = [
 ];
 
 export function getSellerDashboardTiles(): MobileTile[] {
-  return [
-    tile("/seller", "Seller Dashboard", "Performance & overview"),
+  return filterBringYourItemTiles([
+    tile("/seller", "Selling", "Performance & overview"),
     tile("/seller/listings", "My Listings", "Manage inventory"),
     tile("/seller/orders", "Seller Orders", "Fulfillment & shipping", "orders"),
     tile("/seller/wallet", "Wallet", "Balance & withdrawals", "wallet-payout"),
@@ -43,7 +44,7 @@ export function getSellerDashboardTiles(): MobileTile[] {
     tile("/seller/tax", "Tax Registration", "VAT & tax settings"),
     tile("/sell", "Sell Item", "Create a new listing"),
     tile("/sell/new", "Publish Listing", "Listing creation wizard"),
-  ];
+  ]);
 }
 
 export const ACCOUNT_DASHBOARD_TILES: MobileTile[] = [

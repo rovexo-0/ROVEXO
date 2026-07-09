@@ -54,8 +54,8 @@ function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidati
     if (check === "payment-verification") pass = fileExists("lib/stripe/webhook-handler.ts");
     if (check === "invoice-generation") pass = fileExists("app/api/orders/[id]/receipt/route.ts");
     if (check === "seller-notification") pass = fileExists("lib/orders/notifications.ts");
-    if (check === "shipping-creation") pass = fileExists("features/orders/components/ShippingLabelCard.tsx");
-    if (check === "tracking-assignment") pass = fileExists("features/orders/components/AddTrackingCard.tsx");
+    if (check === "shipping-creation") pass = fileExists("features/shipping/components/ShipmentWizard.tsx");
+    if (check === "tracking-assignment") pass = fileExists("features/shipping/components/ParcelCard.tsx");
     if (check === "delivery-confirmation") pass = fileExists("features/orders/components/OrderActionsCard.tsx");
     if (check === "completion") pass = readSource("lib/orders/status.ts").includes("completed");
     if (check === "archive") pass = fileExists("lib/orders/cleanup.ts");
@@ -67,7 +67,7 @@ function scanBuyer(scan: MarketplaceCompletionScanResult): CompletionValidationI
   return ORDER_BUYER_VALIDATION.map((check) => {
     let pass = orderFoundationReady(scan);
     if (check === "order-history") pass = fileExists("app/account/orders/page.tsx");
-    if (check === "tracking") pass = fileExists("features/orders/components/OrderTrackingCard.tsx");
+    if (check === "tracking") pass = fileExists("features/commerce-ui/views/TrackingView.tsx");
     if (check === "invoices") pass = fileExists("app/api/orders/[id]/receipt/route.ts");
     if (check === "returns" || check === "refund-requests") pass = fileExists("features/orders/components/IssueResolutionLink.tsx");
     if (check === "buyer-protection") pass = fileExists("app/protection/page.tsx");
@@ -81,8 +81,8 @@ function scanSeller(scan: MarketplaceCompletionScanResult): CompletionValidation
     let pass = orderFoundationReady(scan);
     if (check === "order-queue") pass = fileExists("app/seller/orders/page.tsx");
     if (check === "packing") pass = fileExists("features/orders/components/SellerFulfillmentCard.tsx");
-    if (check === "dispatch") pass = fileExists("features/orders/components/ShippingLabelCard.tsx");
-    if (check === "tracking-update") pass = fileExists("features/orders/components/AddTrackingCard.tsx");
+    if (check === "dispatch") pass = fileExists("features/shipping/components/ShipmentWizard.tsx");
+    if (check === "tracking-update") pass = fileExists("features/shipping/components/ParcelCard.tsx");
     if (check === "order-completion") pass = fileExists("features/orders/components/OrderActionsCard.tsx");
     if (check === "returns" || check === "disputes") pass = fileExists("features/orders/components/IssueResolutionLink.tsx");
     return createCheck("order-seller", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
@@ -123,7 +123,7 @@ function scanDatabase(scan: MarketplaceCompletionScanResult): CompletionValidati
     if (check === "orders") pass = fileExists("lib/orders/store.ts");
     if (check === "invoices") pass = fileExists("app/api/orders/[id]/receipt/route.ts");
     if (check === "order-items") pass = readSource("lib/orders/types.ts").includes("OrderProduct");
-    if (check === "tracking") pass = fileExists("features/orders/components/OrderTrackingCard.tsx");
+    if (check === "tracking") pass = fileExists("features/commerce-ui/views/TrackingView.tsx");
     if (check === "returns" || check === "disputes") pass = fileExists("features/orders/components/IssueResolutionLink.tsx");
     if (check === "refunds") pass = fileExists("lib/stripe/refunds.ts");
     if (check === "audit-logs") pass = fileExists("lib/orders-engine/audit.ts");
@@ -186,7 +186,7 @@ function buildCertificationScores(scan: MarketplaceCompletionScanResult, passPer
   };
   const values: Record<(typeof ORDER_CERTIFICATION_SCORES)[number], number> = {
     "order-integrity": passPercent,
-    tracking: fileExists("features/orders/components/OrderTrackingCard.tsx") ? 100 : 85,
+    tracking: fileExists("features/commerce-ui/views/TrackingView.tsx") ? 100 : 85,
     workflow: fileExists("lib/orders-engine/timeline.ts") ? 100 : 90,
     security: fileExists("lib/orders/role.ts") ? 100 : 90,
     performance: scan.checkoutCompletionPass ? 100 : 90,
@@ -211,7 +211,7 @@ function buildPassConditions(
 ): OrderPassConditionResult[] {
   const mapping: Record<(typeof ORDER_PASS_CONDITIONS)[number], boolean> = {
     "order-creation-pass": fileExists("lib/orders/checkout.ts") && fileExists("app/api/orders/route.ts"),
-    "tracking-pass": fileExists("features/orders/components/OrderTrackingCard.tsx"),
+    "tracking-pass": fileExists("features/commerce-ui/views/TrackingView.tsx"),
     "invoices-pass": fileExists("app/api/orders/[id]/receipt/route.ts"),
     "returns-pass": fileExists("features/orders/components/IssueResolutionLink.tsx"),
     "refund-workflow-pass": fileExists("lib/stripe/refunds.ts"),

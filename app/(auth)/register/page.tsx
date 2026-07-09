@@ -9,7 +9,7 @@ export default async function RegisterPage() {
   return (
     <AuthForm
       title="Create your account"
-      description="Join ROVEXO to buy, sell, and manage your marketplace activity."
+      description="Create your ROVEXO account with email and password. Complete your profile anytime after signing up."
       action={signUp}
       submitLabel="Create Account"
       footer={

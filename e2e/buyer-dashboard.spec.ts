@@ -114,7 +114,7 @@ test.describe.serial("Buyer Dashboard v1.0 — authenticated", () => {
       await waitForBuyerDashboardUi(page);
       await assertNoHorizontalOverflow(page);
 
-      const pageBox = await page.locator(".account-center").boundingBox();
+      const pageBox = await page.locator("main .account-center").first().boundingBox();
       expect(pageBox?.width).toBeGreaterThan(0);
     });
   }
@@ -128,7 +128,7 @@ test.describe.serial("Buyer Dashboard v1.0 — authenticated", () => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto("/buyer", { waitUntil: "domcontentloaded" });
       await waitForBuyerDashboardUi(page);
-      await expect(page.locator(".account-center-header")).toBeVisible();
+      await expect(page.locator("main .account-center-header").first()).toBeVisible();
     });
   }
 
@@ -139,7 +139,7 @@ test.describe.serial("Buyer Dashboard v1.0 — authenticated", () => {
     await page.goto("/buyer", { waitUntil: "domcontentloaded" });
     await waitForBuyerDashboardUi(page);
 
-    const header = page.locator(".account-center-header");
+    const header = page.locator("main .account-center-header").first();
 
     await expect(header.getByRole("link", { name: "Notifications" })).toHaveAttribute(
       "href",

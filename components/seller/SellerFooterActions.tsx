@@ -9,8 +9,8 @@ export function SellerFooterActions() {
       <Link href="/sell/new" className="seller-footer-actions__link">
         Add listing
       </Link>
-      <Link href="/buyer" className="seller-footer-actions__link seller-footer-actions__link--muted">
-        Switch to buyer dashboard
+      <Link href="/orders" className="seller-footer-actions__link seller-footer-actions__link--muted">
+        Orders
       </Link>
       <RovexoSignOutLink />
     </div>

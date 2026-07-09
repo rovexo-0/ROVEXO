@@ -33,7 +33,7 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
             <QuickNav href="/plans" label="Wholesale plans" />
             <QuickNav href="/help/category/wholesale" label="Wholesale help" />
             <QuickNav href="/trust#verification" label="Verification" />
-            <QuickNav href="/business/dashboard" label="Business dashboard" />
+            <QuickNav href="/business/dashboard" label="Business tools" />
           </section>
         }
       />
@@ -58,7 +58,7 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
             <p className="mt-ds-4 text-sm text-text-secondary">
               No wholesale account yet.{" "}
               <Link href="/business/dashboard" className="text-primary underline">
-                Set up from Business Dashboard
+                Set up from Business tools
               </Link>
             </p>
           )}

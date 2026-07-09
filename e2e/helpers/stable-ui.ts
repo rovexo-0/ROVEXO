@@ -102,9 +102,24 @@ export async function waitForHomepageUi(page: Page): Promise<void> {
 
   await waitForDomContentLoaded(page);
 
-  await expect(page.locator(HEADER_SELECTOR).first()).toBeVisible();
+  await page.evaluate(() => window.scrollTo(0, 0));
 
-  await expect(page.locator('#rx-h2-search, [data-header-search="field"]').first()).toBeVisible();
+  await page.waitForTimeout(300);
+
+  const header = page.locator('[data-header-version="rovexo-v2"]').first();
+  await expect(header).toBeVisible();
+  await page.waitForFunction(() => {
+    const el = document.querySelector('[data-header-version="rovexo-v2"]');
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
+    return rect.top >= -1 && rect.height > 0;
+  });
+
+  const searchControl = page
+    .locator(".rx-h2__search .homepage-search__control, [data-header-search='bar']")
+    .first();
+  await searchControl.scrollIntoViewIfNeeded();
+  await expect(searchControl).toBeVisible();
 
   await expect(page.locator(HOMEPAGE_MAIN_SELECTOR).first()).toBeVisible();
 
@@ -153,34 +168,63 @@ export async function waitForSearchEmptyState(page: Page): Promise<void> {
 
 
 export async function waitForSearchOverlayUi(page: Page): Promise<void> {
+  const overlay = page.locator("#search-overlay-results");
+  const homepageSuggestions = page.locator(".homepage-search__suggestions").first();
 
-  await expect(page.locator("#search-overlay-results")).toBeVisible();
+  if (page.url().includes("/search")) {
+    await expect(overlay).toBeVisible();
+  } else {
+    await expect(overlay.or(homepageSuggestions)).toBeVisible();
+  }
 
   await page.waitForTimeout(300);
-
 }
 
+export async function dismissSearchDialogIfOpen(page: Page): Promise<void> {
+  const searchDialog = page.getByRole("dialog", { name: "Search" });
+  if (!(await searchDialog.isVisible().catch(() => false))) return;
 
+  const panelClose = searchDialog.getByRole("button", { name: "Close", exact: true });
+  if (await panelClose.isVisible().catch(() => false)) {
+    await panelClose.click();
+  } else {
+    await page.keyboard.press("Escape");
+  }
+
+  await expect(searchDialog).toBeHidden({ timeout: 5_000 });
+}
 
 export async function openSearchOverlay(page: Page): Promise<void> {
-  await page.locator('[data-header-search="bar"]').first().click();
+  const onSearchRoute = page.url().includes("/search");
+  const field = page.locator('#rx-h2-search, [data-header-search="field"]').first();
+  const bar = page.locator('[data-header-search="bar"]').first();
+
+  if (onSearchRoute && (await bar.isVisible().catch(() => false))) {
+    await bar.click();
+    await waitForSearchOverlayUi(page);
+    return;
+  }
+
+  if (await field.isVisible().catch(() => false)) {
+    await field.click();
+    await expect(field).toBeFocused();
+    return;
+  }
+
+  await bar.click();
   await waitForSearchOverlayUi(page);
 }
 
 
 
 export async function waitForSearchSuggestions(page: Page, query: string): Promise<void> {
-
-  const input = page.locator('input[type="search"]').first();
-
+  const input = page.locator('#rx-h2-search, input[type="search"]').first();
   await expect(input).toBeVisible();
-
   await input.fill(query);
-
   await page.waitForTimeout(400);
-
-  await expect(page.locator("#search-overlay-results")).toBeVisible();
-
+  const overlay = page.locator("#search-overlay-results");
+  const homepageListbox = page.locator(".homepage-search__suggestions [role='option']").first();
+  await expect(overlay.or(homepageListbox)).toBeVisible({ timeout: 10_000 });
 }
 
 

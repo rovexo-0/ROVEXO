@@ -3,6 +3,8 @@ import { jsonWithCache } from "@/lib/api/cache-headers";
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const limited = await enforceRateLimit(request, "search-results", 120, 60_000);
   if (limited) return limited;
@@ -14,5 +16,5 @@ export async function GET(request: Request) {
   const options = filtersToSearchOptions(filters, query, Number.isFinite(page) ? page : 1);
 
   const results = await getEligibleListings({ surface: "search", ...options });
-  return jsonWithCache(results, "public-short");
+  return jsonWithCache(results, "no-store");
 }

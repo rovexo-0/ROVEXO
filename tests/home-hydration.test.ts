@@ -39,8 +39,10 @@ describe("Home page hydration safety", () => {
   });
 
   it("formats listing prices with a stable locale during SSR", () => {
+    const format = readSource("lib/listing-card/format.ts");
+    expect(format).toContain('toLocaleString("en-GB")');
     const card = readSource("components/ui/ListingCard.tsx");
-    expect(card).toContain('toLocaleString("en-GB")');
+    expect(card).toContain("formatListingPrice");
   });
 
   it("keeps the canonical homepage sections statically composed", () => {

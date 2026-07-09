@@ -11,7 +11,7 @@ import { OrderSummaryTotals } from "@/features/commerce-ui/components/OrderSumma
 import type {
   CommerceLineItem,
   CommerceOrderMeta,
-  CommerceParcel,
+  CommerceSellerShipment,
   CommerceTotals,
 } from "@/features/commerce-ui/types";
 
@@ -19,12 +19,12 @@ type OrderDetailsViewProps = {
   meta: CommerceOrderMeta;
   items: CommerceLineItem[];
   totals: CommerceTotals;
-  /** Total parcels the seller created after payment. */
-  parcelCount: number;
-  /** True once carrier labels exist. */
-  shipmentReady: boolean;
-  trackingHref: string;
-  parcels?: CommerceParcel[];
+  /** Shipments grouped by seller — parcels from different sellers are never mixed. */
+  sellerShipments: CommerceSellerShipment[];
+  /** @deprecated Use sellerShipments — kept for preview mocks. */
+  parcelCount?: number;
+  shipmentReady?: boolean;
+  trackingHref?: string;
   backHref?: string;
   showSuccessBanner?: boolean;
   /** When true, omits the page header (used inside account shell). */
@@ -35,22 +35,36 @@ type OrderDetailsViewProps = {
 /**
  * Canonical Order Details UI (UI LOCK).
  *
- * After payment the buyer sees order summary, shipment status and parcel count
- * (never "Label 1/2"). Before labels exist the shipment reads "Preparing Shipment".
+ * After payment the buyer sees order summary and per-seller shipment groups.
+ * Parcels from different sellers are never mixed in one shipment card.
  */
 export function OrderDetailsView({
   meta,
   items,
   totals,
+  sellerShipments,
   parcelCount,
   shipmentReady,
   trackingHref,
-  parcels = [],
   backHref = "/orders",
   showSuccessBanner = true,
   embedded = false,
   className,
 }: OrderDetailsViewProps) {
+  const shipments =
+    sellerShipments.length > 0
+      ? sellerShipments
+      : [
+          {
+            sellerId: "default",
+            sellerName: "Seller",
+            parcelCount: parcelCount ?? 0,
+            shipmentReady: shipmentReady ?? false,
+            parcels: [],
+            trackingHref: trackingHref ?? "#",
+          },
+        ];
+
   return (
     <div className={cn("flex min-h-full flex-col bg-background", className)}>
       {embedded ? null : <CommercePageHeader title="Order Details" backHref={backHref} />}
@@ -66,12 +80,16 @@ export function OrderDetailsView({
         <OrderStatusCard meta={meta} />
         <OrderItemsPreviewCard items={items} />
 
-        <ShipmentCard
-          parcelCount={parcelCount}
-          ready={shipmentReady}
-          href={trackingHref}
-          parcels={parcels}
-        />
+        {shipments.map((shipment) => (
+          <ShipmentCard
+            key={shipment.sellerId}
+            sellerName={shipment.sellerName}
+            parcelCount={shipment.parcelCount}
+            ready={shipment.shipmentReady}
+            href={shipment.trackingHref}
+            parcels={shipment.parcels}
+          />
+        ))}
 
         <OrderSummaryTotals totals={totals} title="Order Summary" />
       </div>

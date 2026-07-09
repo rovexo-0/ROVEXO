@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import { BUSINESS_DASHBOARD_ROUTE } from "@/lib/navigation/routes";
 import type { UserRole } from "@/lib/supabase/types/database";
 
 const AUTH_ROUTE_PREFIXES = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email"];
@@ -37,8 +36,6 @@ export function sanitizeNextPath(
 
 export function redirectPathForRole(role: UserRole): string {
   if (role === "super_admin") return "/super-admin";
-  if (role === "business") return BUSINESS_DASHBOARD_ROUTE;
-  if (role === "seller" || role === "admin") return "/seller";
   return "/account";
 }
 

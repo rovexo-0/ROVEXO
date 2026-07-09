@@ -11,7 +11,7 @@ import { auditPermissions } from "@/lib/security/permissions-audit";
 describe("pass 4-6 enterprise systems", () => {
   it("pass 4: supports persona assistants and platform navigation", () => {
     expect(ASSISTANT_PERSONAS.length).toBe(5);
-    expect(findNavigationTarget("open my wallet")?.href).toBe("/seller/wallet");
+    expect(findNavigationTarget("open my wallet")?.href).toBe("/wallet");
     expect(explainFeature("purchase protection")?.id).toBe("buyer-protection");
 
     const response = askMarketplaceAssistant("how do I promote listings", {

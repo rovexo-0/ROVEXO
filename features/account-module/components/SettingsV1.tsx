@@ -2,21 +2,17 @@
 
 import Link from "next/link";
 import {
-  BankLineIcon,
   ChevronRightLineIcon,
-  CreditCardLineIcon,
   DocumentLineIcon,
   GlobeLineIcon,
   HeadsetLineIcon,
   LockLineIcon,
-  MailLineIcon,
   MoonLineIcon,
-  PhoneLineIcon,
-  PoundLineIcon,
   ShieldLineIcon,
   UserLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import { AccountModuleShell } from "@/features/account-module/components/AccountModuleShell";
+import { DeleteAccountFlow } from "@/features/account-module/components/DeleteAccountFlow";
 
 type SettingsRow = {
   label: string;
@@ -32,45 +28,49 @@ type SettingsSection = {
 
 const SECTIONS: SettingsSection[] = [
   {
-    title: "Account",
+    title: "Personal Information",
+    rows: [{ label: "Edit Profile", href: "/account/profile/edit", icon: <UserLineIcon /> }],
+  },
+  {
+    title: "Security",
     rows: [
-      { label: "Edit Profile", href: "/account/profile/edit", icon: <UserLineIcon /> },
-      { label: "Change Email", href: "/account/profile/edit", icon: <MailLineIcon /> },
-      { label: "Change Password", href: "/account/security", icon: <LockLineIcon /> },
-      { label: "Change Phone", href: "/account/profile/edit", icon: <PhoneLineIcon /> },
+      { label: "Password", href: "/account/security", icon: <LockLineIcon /> },
+      { label: "Two-Factor Authentication", href: "/account/security", icon: <ShieldLineIcon /> },
     ],
   },
   {
-    title: "Payments",
-    rows: [
-      { label: "Bank Account", href: "/wallet", icon: <BankLineIcon /> },
-      { label: "Payment Methods", href: "/account/payment-methods", icon: <CreditCardLineIcon /> },
-    ],
+    title: "Privacy",
+    rows: [{ label: "Privacy", href: "/account/privacy", icon: <ShieldLineIcon /> }],
   },
   {
-    title: "Preferences",
+    title: "Notifications",
+    rows: [{ label: "Notifications", href: "/notifications/settings", icon: <ShieldLineIcon /> }],
+  },
+  {
+    title: "Language",
     rows: [
       { label: "Language", href: "/account/preferences/language", icon: <GlobeLineIcon />, value: "English" },
-      { label: "Currency", href: "/account/preferences/currency", icon: <PoundLineIcon />, value: "GBP (£)" },
-      { label: "Country", href: "/account/addresses", icon: <GlobeLineIcon />, value: "United Kingdom" },
+    ],
+  },
+  {
+    title: "Appearance",
+    rows: [
       { label: "Theme", href: "/account/preferences/appearance", icon: <MoonLineIcon />, value: "Light" },
     ],
   },
   {
-    title: "Support",
+    title: "Help & Support",
     rows: [
-      { label: "Help Centre", href: "/support", icon: <HeadsetLineIcon /> },
-      { label: "Contact Support", href: "/support", icon: <HeadsetLineIcon /> },
-      { label: "Terms & Conditions", href: "/help/policies", icon: <DocumentLineIcon /> },
-      { label: "Privacy Policy", href: "/account/privacy", icon: <ShieldLineIcon /> },
+      { label: "Help Centre", href: "/help", icon: <HeadsetLineIcon /> },
+      { label: "About ROVEXO", href: "/help/policies", icon: <DocumentLineIcon /> },
     ],
   },
 ];
 
 export function SettingsV1() {
   return (
-    <AccountModuleShell title="Settings" backHref="/account" version="v1.0">
-      <div className="acm-settings" data-settings-version="v1.0">
+    <AccountModuleShell title="Settings" backHref="/account" version="v1.1">
+      <div className="acm-settings" data-settings-version="v1.1">
         {SECTIONS.map((section) => (
           <section key={section.title} className="acm-settings__section">
             <h2 className="acm-settings__heading">{section.title}</h2>
@@ -90,6 +90,7 @@ export function SettingsV1() {
             </div>
           </section>
         ))}
+        <DeleteAccountFlow />
       </div>
     </AccountModuleShell>
   );

@@ -2,22 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PageBack } from "@/components/navigation/PageBack";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { PlansMobileNav } from "@/features/monetization/components/PlansMobileNav";
-import { ResponsiveShell } from "@/features/mobile-ui";
-import type { UserProfile } from "@/lib/profile/types";
 import type { MonetizationPlan, MonetizationProduct, MonetizationSubscription } from "@/lib/monetization/types";
 
 type PlansPageProps = {
   plans: MonetizationPlan[];
   products: MonetizationProduct[];
   subscription: MonetizationSubscription | null;
-  profile: UserProfile;
 };
 
-export function PlansPage({ plans, products, subscription, profile }: PlansPageProps) {
+export function PlansPage({ plans, products, subscription }: PlansPageProps) {
   const router = useRouter();
   const [busySlug, setBusySlug] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -61,9 +58,10 @@ export function PlansPage({ plans, products, subscription, profile }: PlansPageP
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-ds-8 px-ds-4 py-ds-6">
       <section>
+        <PageBack backHref="/account" backLabel="My Account" preferHistory className="mb-ds-2" />
         <h1 className="text-3xl font-bold text-text-primary">Plans & Premium</h1>
         <p className="mt-ds-2 text-sm text-text-secondary">
-          Subscriptions, promoted listings, verified badges, premium AI, and business tools.
+          Choose a subscription or add-on that fits how you buy and sell on ROVEXO.
         </p>
         {subscription ? (
           <div className="mt-ds-3 flex flex-wrap items-center gap-ds-3">
@@ -77,8 +75,6 @@ export function PlansPage({ plans, products, subscription, profile }: PlansPageP
         ) : null}
         {error ? <p className="mt-ds-2 text-sm text-red-600">{error}</p> : null}
       </section>
-
-      <ResponsiveShell mobile={<PlansMobileNav profile={profile} />} desktop={null} />
 
       <section>
         <h2 className="text-lg font-semibold">Subscription plans</h2>

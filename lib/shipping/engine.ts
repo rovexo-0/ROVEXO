@@ -1,3 +1,5 @@
+import "server-only";
+
 import { validateUkShippingAddress } from "@/lib/shipping/addresses";
 import { buildDraftLabel } from "@/lib/shipping/labels/draft";
 import { detectParcelTier, parcelTierLabel } from "@/lib/shipping/parcels";

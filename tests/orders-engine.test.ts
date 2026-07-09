@@ -24,8 +24,8 @@ describe("orders engine", () => {
 
   it("registers all core orders modules", () => {
     const ids = ORDERS_ENGINE_MODULES.map((m) => m.id);
-    expect(ids).toContain("buyer-dashboard");
-    expect(ids).toContain("seller-dashboard");
+    expect(ids).toContain("buyer-orders");
+    expect(ids).toContain("selling-orders");
     expect(ids).toContain("shipping");
     expect(ids).toContain("protection");
   });

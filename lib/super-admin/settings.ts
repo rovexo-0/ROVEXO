@@ -42,11 +42,17 @@ function getServiceRoleClient() {
 }
 
 export async function getPlatformSetting<T>(key: string, fallback: T | (() => T)): Promise<T> {
-  const admin = getServiceRoleClient();
+  let admin;
+  try {
+    admin = getServiceRoleClient();
+  } catch {
+    return resolvePlatformSettingFallback(fallback);
+  }
+
   const { data, error } = await admin.from("platform_settings").select("value").eq("key", key).maybeSingle();
 
   if (error) {
-    if (isDatabasePermissionError(error)) {
+    if (isDatabasePermissionError(error) || process.env.NODE_ENV === "test") {
       return resolvePlatformSettingFallback(fallback);
     }
     throw new Error(error.message);

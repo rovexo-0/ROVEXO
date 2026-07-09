@@ -2,6 +2,9 @@ import type { MetadataRoute } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { flattenCategoryPaths } from "@/lib/categories/queries";
 import { getAllHelpArticles } from "@/lib/help/content/articles";
+import { getAllCollectionSlugs } from "@/lib/seo/engine/collections";
+import { getStaticDiscoverySlugs } from "@/lib/seo/engine/discovery";
+import { getLocationCategoryStaticParams } from "@/lib/seo/engine/routing";
 import { ALL_UK_LOCATIONS } from "@/lib/seo/locations/uk";
 import { CATEGORY_ALIASES } from "@/lib/seo/programmatic/aliases";
 import { getAppUrl } from "@/lib/supabase/env";
@@ -124,6 +127,69 @@ export function buildBlogSitemapEntries(): MetadataRoute.Sitemap {
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));
+}
+
+export function buildDiscoverSitemapEntries(): MetadataRoute.Sitemap {
+  return getStaticDiscoverySlugs().map((slug) => ({
+    url: `${baseUrl()}/discover/${slug}`,
+    changeFrequency: "daily" as const,
+    priority: 0.72,
+  }));
+}
+
+export function buildCollectionsSitemapEntries(): MetadataRoute.Sitemap {
+  return getAllCollectionSlugs().map((slug) => ({
+    url: `${baseUrl()}/collections/${slug}`,
+    changeFrequency: "daily" as const,
+    priority: 0.72,
+  }));
+}
+
+export function buildTrendsSitemapEntries(): MetadataRoute.Sitemap {
+  return getStaticDiscoverySlugs()
+    .filter((slug) => slug.includes("trending"))
+    .map((slug) => ({
+      url: `${baseUrl()}/discover/${slug}`,
+      changeFrequency: "hourly" as const,
+      priority: 0.74,
+    }));
+}
+
+export async function buildBrandSitemapEntries(limit = 500): Promise<MetadataRoute.Sitemap> {
+  const { fetchBrandsWithListings } = await import("@/lib/seo/engine/brands");
+  const brands = await fetchBrandsWithListings(limit);
+  return brands.map((brand) => ({
+    url: `${baseUrl()}/brand/${brand.slug}`,
+    changeFrequency: "weekly" as const,
+    priority: 0.68,
+  }));
+}
+
+export function buildLocationCategorySitemapEntries(): MetadataRoute.Sitemap {
+  const combos = getLocationCategoryStaticParams(500);
+  return combos.map(({ location, category }) => ({
+    url: `${baseUrl()}/l/${location}/${category.join("/")}`,
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+}
+
+export function buildBrowseComboSitemapEntries(): MetadataRoute.Sitemap {
+  const cities = ALL_UK_LOCATIONS.filter((location) => location.type === "city").slice(0, 30);
+  const aliases = Object.keys(CATEGORY_ALIASES).slice(0, 12);
+  const entries: MetadataRoute.Sitemap = [];
+
+  for (const alias of aliases) {
+    for (const city of cities) {
+      entries.push({
+        url: `${baseUrl()}/browse/${alias}/${city.slug}`,
+        changeFrequency: "weekly",
+        priority: 0.7,
+      });
+    }
+  }
+
+  return entries;
 }
 
 export async function buildImageSitemapEntries(limit = 2000): Promise<MetadataRoute.Sitemap> {

@@ -36,7 +36,7 @@ export function SellerReviewCenterPage() {
       <main className="mx-auto w-full max-w-2xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
         <DashboardShell>
           <div>
-            <p className="text-sm text-text-secondary">Seller Dashboard</p>
+            <p className="text-sm text-text-secondary">Selling</p>
             <h1 className="mt-ds-1 text-2xl font-semibold text-text-primary">Review Center</h1>
             <p className="mt-ds-2 text-sm text-text-secondary">
               Listings under moderation review. Hidden from public search until resolved.

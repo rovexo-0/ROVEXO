@@ -78,8 +78,8 @@ for (const route of criticalRoutes) {
 
 test("touch targets meet minimum size on default header actions", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/categories", { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: /all categories/i })).toBeVisible();
+  await page.goto("/search?q=phone", { waitUntil: "domcontentloaded" });
+  await waitForSearchResultsUi(page);
 
   const header = page.locator(HEADER_SELECTOR).first();
   const messages = header.getByRole("link", { name: "Messages" });

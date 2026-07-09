@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/Card";
 
 function buildBusinessSections(storeSlug: string) {
   return [
-    { title: "Business Dashboard", description: "Overview, revenue, orders, and performance", href: "/business/dashboard" },
+    { title: "Business tools", description: "Overview, revenue, orders, and performance", href: "/business/dashboard" },
     { title: "Inventory", description: "SKU management and stock levels", href: "/business/inventory" },
     { title: "Analytics", description: "Business insights and reports", href: "/business/analytics" },
     { title: "Company Profile", description: "Store page and business branding", href: `/store/${storeSlug}` },

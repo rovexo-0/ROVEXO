@@ -2920,7 +2920,7 @@ export const GLOBAL_ORDER_SCAN_DOMAINS = [
   { id: "pending-orders", label: "Pending Orders", ref: "app/api/orders/route.ts" },
   { id: "paid-orders", label: "Paid Orders", ref: "lib/orders/checkout.ts" },
   { id: "processing-orders", label: "Processing Orders", ref: "features/orders/components/SellerFulfillmentCard.tsx" },
-  { id: "packed-orders", label: "Packed Orders", ref: "features/orders/components/ShippingLabelCard.tsx" },
+  { id: "packed-orders", label: "Packed Orders", ref: "features/shipping/components/ShipmentWizard.tsx" },
   { id: "shipped-orders", label: "Shipped Orders", ref: "lib/orders/status.ts" },
   { id: "delivered-orders", label: "Delivered Orders", ref: "features/orders/components/DeliveryStatusCard.tsx" },
   { id: "completed-orders", label: "Completed Orders", ref: "lib/orders/types.ts" },
@@ -3036,9 +3036,9 @@ export const ORDER_PASS_CONDITIONS = [
 ] as const;
 
 export const GLOBAL_SHIPPING_SCAN_DOMAINS = [
-  { id: "shipping-labels", label: "Shipping Labels", ref: "features/orders/components/ShippingLabelCard.tsx" },
+  { id: "shipping-labels", label: "Shipping Labels", ref: "features/shipping/components/ParcelCard.tsx" },
   { id: "carrier-integration", label: "Carrier Integration", ref: "lib/shipping/carriers.ts" },
-  { id: "tracking-numbers", label: "Tracking Numbers", ref: "features/orders/components/AddTrackingCard.tsx" },
+  { id: "tracking-numbers", label: "Tracking Numbers", ref: "features/shipping/components/ParcelCard.tsx" },
   { id: "collection-points", label: "Collection Points", ref: "lib/shipping-engine/defaults.ts" },
   { id: "home-delivery", label: "Home Delivery", ref: "lib/checkout/delivery.ts" },
   { id: "international-shipping", label: "International Shipping", ref: "lib/seller/shipping-settings.ts" },

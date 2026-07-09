@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import {
   captureSafely,
   captureViewportScreenshot,
@@ -8,7 +8,6 @@ import {
   settleUi,
   waitForHomepageUi,
   waitForSearchEmptyState,
-  waitForSearchOverlayUi,
   waitForSearchResultsUi,
   waitForSearchSuggestions,
 } from "./helpers/stable-ui";
@@ -93,9 +92,12 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
   });
 }
 
-test("search overlay opens from search route", async ({ page, browserName }) => {
+test("search field is interactive on search route", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "Screenshots are captured on Chromium only");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/search", { waitUntil: "domcontentloaded" });
-  await waitForSearchOverlayUi(page);
+  const overlayInput = page.getByPlaceholder(/search products, brands or sellers/i);
+  await expect(overlayInput).toBeVisible({ timeout: 15_000 });
+  await overlayInput.click();
+  await expect(overlayInput).toBeFocused();
 });

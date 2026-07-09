@@ -13,30 +13,27 @@ import { useRealtimeNotifications } from "@/features/notifications/components/Re
 import { resolveHrefBadge } from "@/lib/notifications/badge-counts";
 import { resolveMobileBadge } from "@/features/mobile-ui/hooks/use-mobile-badges";
 import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
-import type { UserProfile } from "@/lib/profile/types";
 import { cn } from "@/lib/cn";
 
 type AccountCenterModulePageProps = {
   moduleId: AccountCenterModuleId;
-  profile: UserProfile;
   description?: string;
   showLogout?: boolean;
 };
 
 export function AccountCenterModulePage({
   moduleId,
-  profile,
   showLogout = false,
 }: AccountCenterModulePageProps) {
   const meta = getModuleMeta(moduleId);
-  const tiles = getModuleTiles(moduleId, profile);
+  const tiles = getModuleTiles(moduleId);
   const { badgeCounts, mobileBadges } = useRealtimeNotifications();
 
   const resolveBadge = (href: string, key?: MobileBadgeKey) =>
     badgeCounts ? resolveHrefBadge(href, badgeCounts) : resolveMobileBadge(key, mobileBadges);
 
   return (
-    <div className={cn("account-center", moduleId === "seller" && "account-center--seller")}>
+    <div className={cn("account-center", moduleId === "selling" && "account-center--seller")}>
       <div className="account-center__container">
         <AccountCenterHeader
           title={meta.title}
@@ -49,7 +46,7 @@ export function AccountCenterModulePage({
         <AccountModuleTileGrid
           tiles={tiles}
           resolveBadge={resolveBadge}
-          variant={moduleId === "seller" ? "seller" : "default"}
+          variant={moduleId === "selling" ? "seller" : "default"}
         />
 
         {showLogout ? (

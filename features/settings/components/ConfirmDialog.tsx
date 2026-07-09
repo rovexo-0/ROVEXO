@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
@@ -12,6 +12,9 @@ type ConfirmDialogProps = {
   description: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  destructive?: boolean;
+  confirmDisabled?: boolean;
+  children?: ReactNode;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -22,6 +25,9 @@ export function ConfirmDialog({
   description,
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
+  destructive = false,
+  confirmDisabled = false,
+  children,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -68,13 +74,15 @@ export function ConfirmDialog({
         <p id="confirm-dialog-description" className="mt-ds-2 text-sm text-text-secondary">
           {description}
         </p>
+        {children}
 
         <div className="mt-ds-4 flex flex-col gap-ds-2">
           <Button
             variant="outline"
             fullWidth
             size="md"
-            className="min-h-ds-7 rounded-ds-lg text-danger"
+            disabled={confirmDisabled}
+            className={cn("min-h-ds-7 rounded-ds-lg", destructive && "text-danger")}
             onClick={onConfirm}
           >
             {confirmLabel}

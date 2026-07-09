@@ -1,6 +1,9 @@
 import { flattenCategoryPaths } from "@/lib/categories/queries";
 import { categoryTree } from "@/lib/categories/tree";
 import { collectLeafPaths } from "@/lib/categories/navigation";
+import { SEO_ENGINE_VERSION } from "@/lib/seo/engine/config";
+import { getStaticDiscoverySlugs } from "@/lib/seo/engine/discovery";
+import { getAllCollectionSlugs } from "@/lib/seo/engine/collections";
 import { ALL_UK_LOCATIONS } from "@/lib/seo/locations/uk";
 import { CATEGORY_ALIASES } from "@/lib/seo/programmatic/aliases";
 import { getAppUrl } from "@/lib/supabase/env";
@@ -23,11 +26,14 @@ export type SeoAuditIssue = {
 export type SeoAuditReport = {
   generatedAt: string;
   score: number;
+  engineVersion: string;
   issues: SeoAuditIssue[];
   stats: {
     categoryPages: number;
     browsePages: number;
     locationPages: number;
+    discoveryPages: number;
+    collectionPages: number;
     sitemapSegments: number;
     indexableRoutes: number;
   };
@@ -39,7 +45,9 @@ export function runSeoAudit(): SeoAuditReport {
   const flatPaths = flattenCategoryPaths();
   const browsePages = Object.keys(CATEGORY_ALIASES).length;
   const locationPages = ALL_UK_LOCATIONS.length;
-  const sitemapSegments = 8;
+  const discoveryPages = getStaticDiscoverySlugs().length;
+  const collectionPages = getAllCollectionSlugs().length;
+  const sitemapSegments = 12;
 
   if (categoryTree.length < 50) {
     issues.push({
@@ -92,13 +100,16 @@ export function runSeoAudit(): SeoAuditReport {
   return {
     generatedAt: new Date().toISOString(),
     score,
+    engineVersion: SEO_ENGINE_VERSION,
     issues,
     stats: {
       categoryPages: leafPaths.length,
       browsePages,
       locationPages,
+      discoveryPages,
+      collectionPages,
       sitemapSegments,
-      indexableRoutes: leafPaths.length + browsePages + locationPages,
+      indexableRoutes: leafPaths.length + browsePages + locationPages + discoveryPages + collectionPages,
     },
   };
 }
@@ -112,6 +123,10 @@ export function sitemapIndexUrls(): string[] {
     `${base}/sitemap/products.xml`,
     `${base}/sitemap/sellers.xml`,
     `${base}/sitemap/business.xml`,
+    `${base}/sitemap/brands.xml`,
+    `${base}/sitemap/discover.xml`,
+    `${base}/sitemap/collections.xml`,
+    `${base}/sitemap/trends.xml`,
     `${base}/sitemap/blog.xml`,
     `${base}/sitemap/images.xml`,
   ];

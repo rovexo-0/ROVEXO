@@ -6,6 +6,7 @@ import { Bell, MessageSquare } from "lucide-react";
 import { HomepageSearchField } from "@/components/home/HomepageSearchField";
 import { HeaderV2IconLink } from "@/components/header/HeaderV2IconLink";
 import { HeaderProfileLink } from "@/components/header/HeaderProfileLink";
+import { HomepageHeaderShareButton } from "@/components/header/HomepageHeaderShareButton";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { useHeaderBadges } from "@/features/header/hooks/use-header-badges";
 import { cn } from "@/lib/cn";
@@ -15,6 +16,8 @@ export type RovexoHeaderV2Props = {
   showSearch?: boolean;
   unreadNotifications?: number;
   unreadMessages?: number;
+  /** Homepage only — replaces Account/Avatar with Share. */
+  replaceAccountWithShare?: boolean;
 };
 
 const HEADER_LUCIDE_ICON = {
@@ -27,6 +30,7 @@ function RovexoHeaderV2({
   showSearch = true,
   unreadNotifications: unreadNotificationsProp = 0,
   unreadMessages: unreadMessagesProp = 0,
+  replaceAccountWithShare = false,
 }: RovexoHeaderV2Props) {
   const scroll = useMobileHeaderScrollContext();
   const registerHeader = scroll?.registerHeader;
@@ -59,6 +63,7 @@ function RovexoHeaderV2({
     <header
       ref={headerRef}
       data-header-version="rovexo-v2"
+      data-header-share={replaceAccountWithShare ? "homepage" : undefined}
       className={cn(
         "rx-h2",
         isScrolled && "rx-h2--scrolled",
@@ -97,10 +102,14 @@ function RovexoHeaderV2({
           >
             <Bell {...HEADER_LUCIDE_ICON} className="rx-h2__lucide" />
           </HeaderV2IconLink>
-          <HeaderProfileLink
-            className="rx-h2__account"
-            avatarClassName="rx-h2__account-avatar"
-          />
+          {replaceAccountWithShare ? (
+            <HomepageHeaderShareButton className="rx-h2__share" />
+          ) : (
+            <HeaderProfileLink
+              className="rx-h2__account"
+              avatarClassName="rx-h2__account-avatar"
+            />
+          )}
         </div>
       </div>
     </header>

@@ -24,26 +24,35 @@ const siteUrl = getAppUrl();
 
 export const revalidate = 60;
 
+const HOMEPAGE_OG_TITLE = "ROVEXO – Buy & Sell with Confidence";
+const HOMEPAGE_OG_DESCRIPTION =
+  "Discover thousands of products from trusted sellers across the UK.";
+const HOMEPAGE_OG_IMAGE = {
+  url: "/brand/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: "ROVEXO marketplace",
+} as const;
+
 export const metadata: Metadata = {
-  title: "ROVEXO · Buy and sell with purchase protection",
-  description:
-    "Browse all listings on ROVEXO — promoted and organic listings in one marketplace feed with purchase protection and verified sellers.",
+  title: HOMEPAGE_OG_TITLE,
+  description: HOMEPAGE_OG_DESCRIPTION,
   alternates: {
     canonical: siteUrl,
   },
   openGraph: {
-    title: "ROVEXO · The modern marketplace",
-    description: "Buy and sell with purchase protection, verified sellers, and secure checkout.",
+    title: HOMEPAGE_OG_TITLE,
+    description: HOMEPAGE_OG_DESCRIPTION,
     type: "website",
     url: siteUrl,
     siteName: "ROVEXO",
-    images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "ROVEXO marketplace" }],
+    images: [HOMEPAGE_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ROVEXO · The modern marketplace",
-    description: "Buy and sell with purchase protection, verified sellers, and secure checkout.",
-    images: ["/brand/og-image.png"],
+    title: HOMEPAGE_OG_TITLE,
+    description: HOMEPAGE_OG_DESCRIPTION,
+    images: [HOMEPAGE_OG_IMAGE.url],
   },
 };
 
@@ -88,7 +97,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <HomePageShell header={showHeader ? <RovexoHeaderV2 /> : null} bottomNav={null}>
+      <HomePageShell
+        header={showHeader ? <RovexoHeaderV2 replaceAccountWithShare /> : null}
+        bottomNav={null}
+      >
         <CanonicalHomepage {...sections} />
       </HomePageShell>
     </BetaAppShell>

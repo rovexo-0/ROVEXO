@@ -10,8 +10,8 @@ type BusinessDashboardHeaderProps = {
 export function BusinessDashboardHeader({ profile }: BusinessDashboardHeaderProps) {
   return (
     <DashboardHeader
-      title="Business Dashboard"
-      menuLabel="Business menu"
+      title="Business tools"
+      menuLabel="Business tools"
       profile={profile}
       defaultHub="business"
     />

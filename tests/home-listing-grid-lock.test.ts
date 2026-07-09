@@ -1,23 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 
 import { join } from "node:path";
 
 function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
-}
-
-function walkTsxFiles(dir: string, files: string[] = []): string[] {
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    if (statSync(full).isDirectory()) {
-      if (entry !== "hooks") walkTsxFiles(full, files);
-      continue;
-    }
-    if (entry.endsWith(".tsx")) files.push(full);
-  }
-  return files;
 }
 
 const FORBIDDEN_HOMEPAGE_CARD_NAMES = [

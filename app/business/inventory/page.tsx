@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 export default async function BusinessInventoryRoute() {
   const profile = await getBusinessProfile();
 
-  if (profile.accountType !== "business") {
+  if (!profile.capabilities.hasBusinessVerification) {
     redirect("/account");
   }
 

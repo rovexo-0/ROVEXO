@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { BackIcon, ChevronRightIcon } from "@/features/product-detail/icons";
+import { PageBack } from "@/components/navigation/PageBack";
+import { ChevronRightIcon } from "@/features/product-detail/icons";
 import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 import { formatCurrency, formatWalletDate } from "@/lib/wallet/utils";
 import type { SellerCommerceSummary } from "@/lib/commerce-engine/read-model";
 import type { WalletData, WalletTransaction } from "@/lib/wallet/types";
@@ -80,10 +80,8 @@ export function WalletHubV1({ data, commerceSummary, backHref = "/account", conn
   return (
     <BetaAppShell bottomNavTab="account">
       <header className="wallet-hub__header">
-        <Link href={backHref} className={cn("wallet-hub__back", focusRing)} aria-label="Back to My Account">
-          <BackIcon className="h-5 w-5" />
-        </Link>
-        <h1 className="wallet-hub__title">My Account</h1>
+        <PageBack backHref={backHref} backLabel="My Account" preferHistory className="wallet-hub__back" />
+        <h1 className="wallet-hub__title">Wallet</h1>
         <span className="wallet-hub__header-spacer" aria-hidden />
       </header>
 
@@ -143,6 +141,38 @@ export function WalletHubV1({ data, commerceSummary, backHref = "/account", conn
               <span className="wallet-hub__stat-label">Total earnings</span>
               <span className="wallet-hub__stat-value">{formatCurrency(data.monthSummary.revenue.value)}</span>
             </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="wallet-manage-title">
+          <h2 id="wallet-manage-title" className="wallet-hub__section-title">
+            Manage
+          </h2>
+          <div className="wallet-hub__txn-card">
+            <Link href="/seller/wallet/withdraw" className="wallet-hub__manage-row">
+              <span>Withdraw</span>
+              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
+            </Link>
+            <Link href="/wallet" className="wallet-hub__manage-row">
+              <span>Bank Accounts</span>
+              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
+            </Link>
+            <Link href="/wallet" className="wallet-hub__manage-row">
+              <span>Transactions</span>
+              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
+            </Link>
+            <Link href="/wallet" className="wallet-hub__manage-row">
+              <span>Payout History</span>
+              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
+            </Link>
+            <Link href="/account/payment-methods" className="wallet-hub__manage-row">
+              <span>Payment Methods</span>
+              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
+            </Link>
+            <Link href="/wallet" className="wallet-hub__manage-row">
+              <span>Statements</span>
+              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
+            </Link>
           </div>
         </section>
 

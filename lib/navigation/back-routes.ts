@@ -19,26 +19,27 @@ export type BackRouteConfig = {
 };
 
 const EXACT_BACK_ROUTES: Record<string, BackRouteConfig> = {
-  "/import": { parentHref: "/account", label: "My Account" },
-  "/seller/migration": { parentHref: "/import", label: "Import" },
-  "/seller/connectors": { parentHref: "/import", label: "Import" },
-  "/seller/listings": { parentHref: "/seller", label: "Seller Dashboard" },
-  "/seller/orders": { parentHref: "/seller", label: "Seller Dashboard" },
-  "/seller/wallet": { parentHref: "/seller", label: "Seller Dashboard" },
-  "/seller/analytics": { parentHref: "/seller", label: "Seller Dashboard" },
-  "/seller/tax": { parentHref: "/seller", label: "Seller Dashboard" },
-  "/seller/trust": { parentHref: "/seller", label: "Seller Dashboard" },
-  "/seller/review-center": { parentHref: "/seller", label: "Seller Dashboard" },
-  "/sell": { parentHref: "/seller", label: "Seller Dashboard" },
-  "/orders": { parentHref: "/buyer", label: "Buyer Dashboard" },
-  "/cart": { parentHref: "/buyer", label: "Buyer Dashboard" },
+  "/account/bring-your-item": { parentHref: "/account", label: "My Account" },
+  "/import": { parentHref: "/account/bring-your-item", label: "Bring Your Item" },
+  "/seller/migration": { parentHref: "/account/bring-your-item", label: "Bring Your Item" },
+  "/seller/connectors": { parentHref: "/account/bring-your-item", label: "Bring Your Item" },
+  "/seller/listings": { parentHref: "/seller", label: "Selling" },
+  "/seller/orders": { parentHref: "/seller", label: "Selling" },
+  "/seller/wallet": { parentHref: "/wallet", label: "Wallet" },
+  "/seller/analytics": { parentHref: "/seller", label: "Selling" },
+  "/seller/tax": { parentHref: "/seller", label: "Selling" },
+  "/seller/trust": { parentHref: "/seller", label: "Selling" },
+  "/seller/review-center": { parentHref: "/seller", label: "Selling" },
+  "/sell": { parentHref: "/seller", label: "Selling" },
+  "/orders": { parentHref: "/account", label: "My Account" },
+  "/wallet": { parentHref: "/account", label: "My Account" },
   "/messages": { parentHref: "/account", label: "Account" },
   "/notifications": { parentHref: "/account", label: "Account" },
   "/trust": { parentHref: "/account", label: "Account" },
   "/resolution": { parentHref: "/account", label: "Account" },
   "/assistant": { parentHref: "/help", label: "Help" },
   "/plans": { parentHref: "/account", label: "Account" },
-  "/wholesale": { parentHref: "/business/dashboard", label: "Business Dashboard" },
+  "/wholesale": { parentHref: "/business/dashboard", label: "Business tools" },
   "/support": { parentHref: "/help", label: "Help" },
   "/legal": { parentHref: "/", label: "Home" },
   "/help/buying-buyer-protection": { parentHref: "/buyer", label: "Buyer" },
@@ -53,9 +54,11 @@ const EXACT_BACK_ROUTES: Record<string, BackRouteConfig> = {
   "/account/privacy": { parentHref: "/account/settings", label: "Settings" },
   "/account/seller/shipping": { parentHref: "/account/settings", label: "Settings" },
   "/account/blocked-users": { parentHref: "/account/settings", label: "Settings" },
-  "/business/inventory": { parentHref: "/business/dashboard", label: "Business Dashboard" },
-  "/business/analytics": { parentHref: "/business/dashboard", label: "Business Dashboard" },
-  "/business/directory": { parentHref: "/business/dashboard", label: "Business Dashboard" },
+  "/business/inventory": { parentHref: "/business/dashboard", label: "Business tools" },
+  "/business/analytics": { parentHref: "/business/dashboard", label: "Business tools" },
+  "/business/directory": { parentHref: "/business/dashboard", label: "Business tools" },
+  "/account/verification": { parentHref: "/account", label: "My Account" },
+  "/account/ideas": { parentHref: "/account", label: "My Account" },
 };
 
 function normalizePathname(pathname: string): string {
@@ -80,10 +83,10 @@ export function resolveBackRoute(pathname: string): BackRouteConfig | null {
   }
 
   if (normalized.startsWith("/import/")) {
-    return { parentHref: "/import", label: "Import" };
+    return { parentHref: "/account/bring-your-item", label: "Bring Your Item" };
   }
   if (normalized.startsWith("/seller/migration/")) {
-    return { parentHref: "/import", label: "Import" };
+    return { parentHref: "/account/bring-your-item", label: "Bring Your Item" };
   }
   if (normalized.startsWith("/seller/listings/") && normalized.endsWith("/edit")) {
     return { parentHref: "/seller/listings", label: "My Listings" };

@@ -43,13 +43,21 @@ import {
   hrefMatchesAppRoute,
   normalizeHref,
 } from "@/lib/navigation/route-inventory";
+import { ROVEXO_ACCOUNT_KIND, resolveAccountCapabilities } from "@/lib/profile/account";
 import type { UserProfile } from "@/lib/profile/types";
 
 const profile = {
   isSeller: true,
   isAdmin: true,
   isSuperAdmin: true,
-  accountType: "business",
+  accountKind: ROVEXO_ACCOUNT_KIND,
+  accountType: ROVEXO_ACCOUNT_KIND,
+  capabilities: resolveAccountCapabilities({
+    role: "business",
+    verified: true,
+    hasSellerProfile: true,
+    hasBusinessAccount: true,
+  }),
 } as UserProfile;
 
 function collectNavHrefs(): string[] {

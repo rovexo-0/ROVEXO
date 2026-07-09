@@ -26,9 +26,9 @@ export const ASSISTANT_PERSONAS: PersonaProfile[] = [
   {
     id: "business",
     label: "Business Assistant",
-    description: "Business dashboard, verification, and B2B tools",
-    greeting: "I can help with business accounts, verification, leads, and analytics.",
-    focusAreas: ["business-accounts", "verification", "request-quote"],
+    description: "Business tools, verification, and B2B features",
+    greeting: "I can help with business verification, leads, and analytics.",
+    focusAreas: ["business-verification", "verification", "request-quote"],
   },
   {
     id: "wholesale",

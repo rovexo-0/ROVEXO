@@ -7,16 +7,15 @@ import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
 export const metadata = {
   ...privatePageMetadata,
-  title: "Buyer · ROVEXO",
-  description: "Orders, messages, saved items, and buyer tools.",
+  title: "Buying · ROVEXO",
+  description: "Orders, messages, saved items, and marketplace tools.",
 };
 
-async function BuyerModuleContent() {
-  const profile = await fetchProfile();
+async function BuyingModuleContent() {
+  await fetchProfile();
   return (
     <AccountCenterModulePage
-      moduleId="buyer"
-      profile={profile}
+      moduleId="buying"
       description="Orders, saved items, trust, and discovery."
     />
   );
@@ -27,7 +26,7 @@ export default function BuyerPage() {
     <BetaAppShell bottomNavTab="account" className="account-center-shell">
       <main className="mx-auto w-full max-w-[480px] pb-[calc(84px+env(safe-area-inset-bottom))]">
         <Suspense fallback={<AccountModuleSkeleton />}>
-          <BuyerModuleContent />
+          <BuyingModuleContent />
         </Suspense>
       </main>
     </BetaAppShell>

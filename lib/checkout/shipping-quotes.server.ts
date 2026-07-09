@@ -11,7 +11,7 @@ import { ShippingService } from "@/lib/shipping/engine";
 import type { UkCarrier } from "@/lib/shipping/carriers";
 import type { ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
 
-import type { CheckoutCarrierQuote } from "@/lib/checkout/types";
+import type { CheckoutCarrierQuote, CheckoutShippingQuoteReason } from "@/lib/checkout/types";
 
 export type { CheckoutCarrierQuote };
 
@@ -116,9 +116,9 @@ export async function fetchCheckoutCarrierQuotes(input: {
   addressLine: string;
   postcode: string;
   country: string;
-}): Promise<{ live: boolean; options: CheckoutCarrierQuote[] }> {
+}): Promise<{ live: boolean; options: CheckoutCarrierQuote[]; reason?: CheckoutShippingQuoteReason | null }> {
   if (!isParcel2GoConfigured() && !isShippoConfigured()) {
-    return { live: false, options: [] };
+    return { live: false, options: [], reason: "provider_unavailable" };
   }
 
   const admin = createAdminClient();
@@ -137,7 +137,7 @@ export async function fetchCheckoutCarrierQuotes(input: {
 
   const collection = await resolveSellerCollectionAddress(product.seller_id, sellerName);
   if (!collection) {
-    return { live: true, options: [] };
+    return { live: true, options: [], reason: "seller_dispatch_not_ready" };
   }
 
   const deliveryDraft = toShippingAddress({
@@ -152,7 +152,7 @@ export async function fetchCheckoutCarrierQuotes(input: {
   const deliveryValidated = ShippingService.validateAddress(deliveryDraft);
 
   if (!collectionValidated.valid || !deliveryValidated.valid) {
-    return { live: true, options: [] };
+    return { live: true, options: [], reason: "address_incomplete" };
   }
 
   const pricing = await fetchShippingQuotesServer({
@@ -165,6 +165,10 @@ export async function fetchCheckoutCarrierQuotes(input: {
   return {
     live: pricing.providerAvailable,
     options: pickCheapestPerCarrier(pricing.quotes),
+    reason:
+      pricing.quotes.length === 0 && !pricing.providerAvailable
+        ? "provider_unavailable"
+        : null,
   };
 }
 

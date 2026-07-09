@@ -4,6 +4,7 @@ import path from "path";
 import os from "os";
 import { createAdminClient } from "../lib/supabase/admin";
 import { signInWithSessionCookies } from "./helpers/auth";
+import { sellPhotoInput, fillSellDescription, publishSellListing } from "./helpers/sell";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../lib/supabase/types/database";
 
@@ -166,25 +167,23 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     await expect(page.getByRole("button", { name: /add photo/i })).toBeVisible({ timeout: 120_000 });
 
     // Single native picker input handles gallery + camera; set multiple files at once.
-    const galleryInput = page.locator('input[type="file"][multiple]');
-    await galleryInput.setInputFiles([galleryImage, cameraImage]);
-    await expect(page.locator('img[alt="Main photo"]')).toBeVisible({ timeout: 15_000 });
+    await uploadSellPhoto(page, galleryImage);
+    await sellPhotoInput(page).setInputFiles(cameraImage);
     await expect(page.locator("[data-photo-index]")).toHaveCount(2, { timeout: 15_000 });
 
     const title = `Vintage phone ${Date.now()}`;
     await page.getByPlaceholder(/tell buyers what you're selling/i).fill(title);
-    await page
-      .getByPlaceholder(/tell buyers more about your item/i)
-      .fill("A test listing created by Playwright E2E automation. Solid condition.");
+    await fillSellDescription(
+      page,
+      "A test listing created by Playwright E2E automation. Solid condition.",
+    );
 
     await page.waitForTimeout(500);
     await ensureCategorySelected(page);
 
     await page.getByPlaceholder("0.00").fill("19.99");
 
-    const publishBtn = page.getByRole("button", { name: /^continue$/i });
-    await expect(publishBtn).toBeEnabled({ timeout: 15_000 });
-    await publishBtn.click();
+    await publishSellListing(page);
 
     await expect(page.getByRole("heading", { name: /your item is live/i })).toBeVisible({
       timeout: 120_000,

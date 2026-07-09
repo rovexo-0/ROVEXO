@@ -1,0 +1,51 @@
+---
+description: ROVEXO Shipping Engine v1.0 — Parcel2Go primary, Shippo fallback (UI LOCK)
+globs: lib/shipping/providers/**,lib/shipping/pricing/**,lib/shipping/labels/**,lib/shipping/server.ts,lib/shipping/label-generation.server.ts,app/api/shipping/labels/**,features/shipping/components/ShipmentWizard.tsx,features/shipping/components/ParcelCard.tsx
+alwaysApply: false
+---
+
+# ROVEXO Shipping Engine v1.0 — Canonical Architecture (UI LOCK)
+
+**STATUS: UI LOCK | FROZEN | SINGLE SOURCE OF TRUTH**
+
+## Provider hierarchy (mandatory)
+
+```
+ShippingEngine (router)
+  ↓
+Parcel2GoAdapter  — Priority 1 (PRIMARY)
+  ↓
+ShippoAdapter     — Priority 2 (FALLBACK ONLY)
+```
+
+- ONE shipping engine — `lib/shipping/providers/router.ts`
+- Every quote/label operation tries **Parcel2Go FIRST**
+- Shippo activates ONLY on: API unavailable, timeout, carrier/service unavailable, or super-admin manual fallback
+- Platform code must never hardcode provider selection outside the router
+
+## Buyer rules
+
+- Checkout is **financial only** — Products, Shipping, Platform Fee, Total
+- Never show label count, parcel count, carrier, tracking, or provider at checkout
+- Buyer sees **Parcel X of Y** — never labels
+
+## Seller rules
+
+- Shipment Wizard → Parcels → Generate Label via `/api/shipping/labels` (provider-agnostic)
+- Unlimited parcels per shipment
+
+## Allowed
+
+- Bug fixes, provider API updates, fallback logging, health monitoring
+- Super-admin provider status panels
+
+## Prohibited
+
+- Parallel shipping flows or duplicate label APIs
+- Direct Shippo usage outside fallback router path
+- Provider names exposed to buyers
+- Bypassing Parcel2Go without logged fallback event
+
+## Reference
+
+`lib/shipping/providers/router.ts` — canonical entry point

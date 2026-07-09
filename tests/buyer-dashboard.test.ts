@@ -38,11 +38,11 @@ const REQUIRED_COMPONENT_FILES = [
   "components/buyer/BuyerErrorState.tsx",
 ];
 
-describe("Buyer Dashboard v1.0 — single source of truth", () => {
+describe("Buying activity surface v1.0 — single source of truth", () => {
   it("uses the official Account Center buyer module", () => {
     const page = readFileSync(join(process.cwd(), "app/buyer/page.tsx"), "utf8");
     expect(page).toContain("AccountCenterModulePage");
-    expect(page).toContain('moduleId="buyer"');
+    expect(page).toContain('moduleId="buying"');
     expect(page).not.toContain("BuyerDashboardV2");
   });
 

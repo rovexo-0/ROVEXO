@@ -31,7 +31,6 @@ export type AccountNavItem = {
 
 // Spec palette — primary accent uses official ROVEXO purple
 const PRIMARY = "#9333EA";
-const GREEN = "#22C55E";
 const ORANGE = "#F59E0B";
 const PURPLE = "#7C3AED";
 const RED = "#EF4444";
@@ -44,7 +43,7 @@ export const ACCOUNT_NAV_ITEMS: readonly AccountNavItem[] = [
   { id: "listings", label: "My Listings", href: "/seller/listings", icon: "listings", color: PURPLE, accent: "purple" },
   { id: "messages", label: "Messages", href: "/messages", icon: "messages", color: PRIMARY, accent: "blue" },
   { id: "wallet", label: "Wallet", href: "/account/wallet", icon: "wallet", color: ORANGE, accent: "orange" },
-  { id: "business", label: "Business", href: "/business/dashboard", icon: "business", color: PRIMARY, accent: "blue" },
+  { id: "ideas", label: "ROVEXO Ideas", href: "/account/ideas", icon: "ideas", color: ORANGE, accent: "orange" },
   { id: "security", label: "Security", href: "/account/security", icon: "security", color: PRIMARY, accent: "blue" },
   { id: "settings", label: "Settings", href: "/account/settings", icon: "settings", color: GRAY, accent: "gray" },
   { id: "notifications", label: "Notifications", href: "/notifications", icon: "notifications", color: PRIMARY, accent: "blue" },

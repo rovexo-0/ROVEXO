@@ -15,7 +15,7 @@ import {
 } from "@/lib/auth/rate-limit";
 import { sendPasswordResetEmail } from "@/lib/email/service";
 import { getAppUrl } from "@/lib/supabase/env";
-import { redirectPathForRole, redirectAfterSignIn, sanitizeNextPath } from "@/lib/auth/redirects";
+import { redirectAfterSignIn, sanitizeNextPath } from "@/lib/auth/redirects";
 import { queueGaEvents, type QueuedGaEvent } from "@/lib/analytics/queue-ga-event";
 import { mapAuthErrorMessage } from "@/lib/auth/errors";
 import { applySessionPersistence } from "@/lib/auth/session-cookies";
@@ -23,14 +23,6 @@ import { applySessionPersistence } from "@/lib/auth/session-cookies";
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-  fullName: z.string().min(2).max(100),
-  username: z
-    .string()
-    .min(3)
-    .max(30)
-    .regex(/^[a-z0-9_]+$/),
-  role: z.enum(["buyer", "seller", "business"]).default("buyer"),
-  businessName: z.string().optional(),
 });
 
 const loginSchema = z.object({
@@ -72,10 +64,6 @@ export async function signUp(
   const parsed = registerSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
-    fullName: formData.get("fullName"),
-    username: String(formData.get("username") ?? "").toLowerCase(),
-    role: formData.get("role") ?? "buyer",
-    businessName: formData.get("businessName") || undefined,
   });
 
   if (!parsed.success) {
@@ -88,31 +76,14 @@ export async function signUp(
     return { error: "Too many registration attempts. Please try again later." };
   }
 
-  const { email, password, fullName, username, role, businessName } = parsed.data;
+  const { email, password } = parsed.data;
   const supabase = await createClient();
-
-  const { data: existingUsername } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("username", username)
-    .maybeSingle();
-
-  if (existingUsername) {
-    await recordAuthRateLimitFailure("register", ip);
-    return { error: "Username is already taken." };
-  }
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       emailRedirectTo: authCallbackUrl("/account"),
-      data: {
-        full_name: fullName,
-        username,
-        role,
-        business_name: businessName,
-      },
     },
   });
 
@@ -134,19 +105,13 @@ export async function signUp(
   await clearAuthRateLimit("register", ip);
 
   const queuedEvents: QueuedGaEvent[] = [
-    { name: "register", params: { method: "email", role } },
+    { name: "register", params: { method: "email" } },
     { name: "sign_up", params: { method: "email" } },
   ];
-  if (role === "seller" || role === "business") {
-    queuedEvents.push({
-      name: "seller_registration",
-      params: { account_type: role },
-    });
-  }
   await queueGaEvents(queuedEvents);
 
   if (data.session) {
-    redirect(redirectPathForRole(role));
+    redirect("/account");
   }
 
   redirect("/verify-email?email=" + encodeURIComponent(email));

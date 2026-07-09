@@ -4341,6 +4341,50 @@ export type Database = {
           },
         ]
       }
+      rovexo_ideas: {
+        Row: {
+          admin_notes: string
+          body: string
+          created_at: string
+          id: string
+          screenshot_url: string | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string
+          body: string
+          created_at?: string
+          id?: string
+          screenshot_url?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string
+          body?: string
+          created_at?: string
+          id?: string
+          screenshot_url?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rovexo_ideas_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

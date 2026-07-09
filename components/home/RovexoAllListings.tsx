@@ -102,7 +102,7 @@ export const RovexoAllListings = memo(function RovexoAllListings({
     } finally {
       setLoading(false);
     }
-  }, [appendDemoPage, hasMore, loading, page]);
+  }, [appendDemoPage, hasMore, loading, page, items.length]);
 
   useEffect(() => {
     if (bootstrapped) return;

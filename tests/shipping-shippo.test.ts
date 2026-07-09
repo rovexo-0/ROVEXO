@@ -7,7 +7,7 @@ import {
   toShippoAddress,
 } from "@/lib/shipping/pricing/shippo-mappers";
 import { shippoAdapter } from "@/lib/shipping/pricing/shippo-adapter";
-import { getPrimaryProviderServer } from "@/lib/shipping/pricing/service.server";
+import { getPrimaryProviderServer } from "@/lib/shipping/providers/router";
 import { ShippoError, isShippoError, toShippoError } from "@/lib/shipping/shippo/errors";
 import { mapShippoTrackingStatus } from "@/lib/shipping/shippo/status-mapper";
 import { ShippoService } from "@/lib/shipping/shippo/service";
@@ -254,11 +254,19 @@ describe("Shippo Integration v1.0", () => {
     expect(response.reason).toBe("provider_not_configured");
   });
 
-  it("uses GoShippo as the sole primary provider", () => {
-    expect(getPrimaryProviderServer().id).toBe("shippo");
+  it("uses Parcel2Go as primary provider when configured", () => {
+    process.env.PARCEL2GO_CLIENT_ID = "p2g";
+    process.env.PARCEL2GO_CLIENT_SECRET = "secret";
+    process.env.PARCEL2GO_AUTH_URL = "https://auth.test";
+    process.env.PARCEL2GO_API_URL = "https://api.test";
 
+    expect(getPrimaryProviderServer().id).toBe("parcel2go");
+  });
+
+  it("keeps Shippo as fallback-only adapter", () => {
+    expect(shippoAdapter.id).toBe("shippo");
     process.env.SHIPPO_API_KEY = "shippo_test_key";
-    expect(getPrimaryProviderServer().id).toBe("shippo");
+    expect(shippoAdapter.isConfigured()).toBe(true);
   });
 
   it("maps UK addresses and Shippo rates into shipping quotes", () => {
@@ -324,6 +332,15 @@ describe("Shippo Integration v1.0", () => {
 
   it("handles track_updated webhooks", async () => {
     process.env.SHIPPO_API_KEY = "shippo_test_key";
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://rovexo-test.supabase.co");
+    vi.stubEnv(
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJvbGUiOiJzZXJ2aWNlX3JvbGUifQ.test",
+    );
+    vi.stubEnv(
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJvbGUiOiJhbm9uIn0.test",
+    );
 
     const store = await import("@/lib/shipping/store");
     const findSpy = vi.spyOn(store, "findShippingRecordByTrackingNumber").mockResolvedValue({
@@ -337,11 +354,29 @@ describe("Shippo Integration v1.0", () => {
       deliveryAddress: null,
       pricing: null,
       label: null,
+      parcels: [],
       trackingEvents: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
     const updateSpy = vi.spyOn(store, "updateShippingRecordStatus").mockResolvedValue(null);
+    const admin = await import("@/lib/supabase/admin");
+    const adminChain = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      limit: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+      single: vi.fn().mockResolvedValue({ data: null, error: null }),
+      update: vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ error: null }),
+      }),
+      insert: vi.fn().mockResolvedValue({ error: null }),
+    };
+    const adminSpy = vi
+      .spyOn(admin, "createAdminClient")
+      .mockReturnValue({ from: vi.fn().mockReturnValue(adminChain) } as never);
 
     const result = await handleShippoWebhookEvent({
       event: "track_updated",
@@ -360,6 +395,7 @@ describe("Shippo Integration v1.0", () => {
 
     findSpy.mockRestore();
     updateSpy.mockRestore();
+    adminSpy.mockRestore();
   });
 
   it("registers Shippo API routes", async () => {

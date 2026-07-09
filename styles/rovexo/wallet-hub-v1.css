@@ -188,6 +188,24 @@
   border-bottom: none;
 }
 
+.wallet-hub__manage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ds-color-border);
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.wallet-hub__manage-row:last-child {
+  border-bottom: none;
+}
+
 .wallet-hub__txn-icon {
   display: inline-flex;
   align-items: center;

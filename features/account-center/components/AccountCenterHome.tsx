@@ -11,9 +11,9 @@ type AccountCenterHomeProps = {
 
 export function AccountCenterHome({ profile, walletBalance = null }: AccountCenterHomeProps) {
   return (
-    <div className="ac-hub" data-ac-hub-version="v1.3">
+    <div className="ac-hub" data-ac-hub-version="v1.4">
       <AccountHubProfile profile={profile} />
-      <AccountMenuList walletBalance={walletBalance} />
+      <AccountMenuList profile={profile} walletBalance={walletBalance} />
     </div>
   );
 }

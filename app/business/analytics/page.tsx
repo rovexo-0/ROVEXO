@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 export default async function BusinessAnalyticsRoute() {
   const profile = await getBusinessProfile();
 
-  if (profile.accountType !== "business") {
+  if (!profile.capabilities.hasBusinessVerification) {
     redirect("/account");
   }
 

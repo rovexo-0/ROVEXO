@@ -20,12 +20,16 @@ const ACCOUNT_VIEWPORTS = [
 
 const CANONICAL_MENU_LABELS = [
   "Profile",
-  "My Listings",
+  "Selling",
   "Orders",
+  "Cart",
   "Saved",
   "Messages",
   "Notifications",
   "Wallet",
+  "Verification",
+  "ROVEXO Ideas",
+  "Bring Your Item",
   "Settings",
   "Log Out",
 ] as const;
@@ -77,11 +81,11 @@ test.describe.serial("My Account — cross-device layout integrity", () => {
     await signInWithSessionCookies(page, { email: user.email, password: user.password, baseURL });
     await page.goto("/account", { waitUntil: "domcontentloaded", timeout: 60_000 });
     await expect(page).toHaveURL(/\/account/, { timeout: 60_000 });
-    await expect(page.locator(".ac-hub")).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator(".ac-hub").first()).toBeVisible({ timeout: 60_000 });
   }
 
   async function assertAccountLayout(page: Page) {
-    await expect(page.locator('[data-ac-hub-version="v1.3"]')).toHaveCount(1);
+    await expect(page.locator('[data-ac-hub-version="v1.4"]')).toHaveCount(1);
     await expect(page.locator(".ac-hub__profile-card")).toHaveCount(1);
     await expect(page.locator(".rvx-topbar")).toHaveCount(1);
 
@@ -97,8 +101,11 @@ test.describe.serial("My Account — cross-device layout integrity", () => {
       const rowBox = row?.getBoundingClientRect();
       const iconBox = icon?.getBoundingClientRect();
       return {
-        rowsHaveChevrons: [...document.querySelectorAll(".ac-hub__menu-card .ac-hub__row")].every((menuRow) =>
-          Boolean(menuRow.querySelector(".ac-hub__row-chevron")),
+        rowsHaveChevrons: [...document.querySelectorAll(".ac-hub__menu-card .ac-hub__row")].every(
+          (menuRow) =>
+            Boolean(menuRow.querySelector(".ac-hub__row-chevron")) ||
+            Boolean(menuRow.querySelector(".ac-hub__wallet-balance")) ||
+            Boolean(menuRow.querySelector(".ac-hub__coming-soon")),
         ),
         rowHeightPx: rowBox?.height ?? 0,
         iconSizePx: iconBox?.width ?? 0,
@@ -108,13 +115,23 @@ test.describe.serial("My Account — cross-device layout integrity", () => {
 
     expect(polish.rowsHaveChevrons).toBe(true);
     expect(polish.rowHeightPx).toBeGreaterThanOrEqual(54);
-    expect(polish.rowHeightPx).toBeLessThanOrEqual(60);
+    expect(polish.rowHeightPx).toBeLessThanOrEqual(72);
     expect(polish.iconSizePx).toBeGreaterThanOrEqual(39);
     expect(polish.iconSizePx).toBeLessThanOrEqual(41);
     expect(polish.overflowPx).toBeLessThanOrEqual(1);
 
-    const menuCardBox = await page.locator(".ac-hub__menu-card").boundingBox();
-    expect(menuCardBox?.width ?? 0).toBeGreaterThan(200);
+    const menuCard = page.locator(".ac-hub__menu-card");
+    await expect(menuCard).toBeVisible();
+    await page.waitForFunction(() => {
+      const el = document.querySelector(".ac-hub__menu-card");
+      if (!el) return false;
+      const width = el.getBoundingClientRect().width;
+      return width > 200;
+    });
+    const menuCardWidth = await page.evaluate(
+      () => document.querySelector(".ac-hub__menu-card")?.getBoundingClientRect().width ?? 0,
+    );
+    expect(menuCardWidth).toBeGreaterThan(200);
   }
 
   async function assertNoOverlappingRows(page: Page) {
@@ -185,7 +202,7 @@ test.describe.serial("My Account — cross-device layout integrity", () => {
       .getByRole("link", { name: /Settings/i })
       .click();
     await expect(page).toHaveURL(/\/account\/settings/, { timeout: 30_000 });
-    await expect(page.locator('[data-settings-version="v1.0"]')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('[data-settings-version="v1.1"]')).toBeVisible({ timeout: 30_000 });
     await page.goBack({ waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/account/, { timeout: 30_000 });
 

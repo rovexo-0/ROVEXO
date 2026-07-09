@@ -72,7 +72,7 @@ function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidati
     payment: "app/account/payment-methods/page.tsx",
     "buyer-protection": "features/product-detail/ProductDetailPage.tsx",
     "order-confirmation": "features/checkout/components/CheckoutSuccessView.tsx",
-    "order-tracking": "features/orders/components/OrderTrackingCard.tsx",
+    "order-tracking": "features/commerce-ui/views/TrackingView.tsx",
     delivery: "features/orders/components/DeliveryStatusCard.tsx",
     "order-completion": "features/orders/components/OrderDetailView.tsx",
     review: "features/orders/components/OrderReviewCard.tsx",
@@ -175,7 +175,7 @@ function scanCheckout(scan: MarketplaceCompletionScanResult): CompletionValidati
 function scanOrders(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return BUYER_ORDER_VALIDATION.map((check) => {
     let pass = fileExists("app/account/orders/page.tsx") && buyerFoundationReady(scan);
-    if (check.includes("tracking")) pass = fileExists("features/orders/components/OrderTrackingCard.tsx");
+    if (check.includes("tracking")) pass = fileExists("features/commerce-ui/views/TrackingView.tsx");
     if (check.includes("delivery")) pass = fileExists("features/orders/components/DeliveryStatusCard.tsx");
     if (check.includes("invoice") || check.includes("receipt")) pass = fileExists("app/api/orders/[id]/receipt/route.ts");
     if (check.includes("status") || check.includes("confirmation")) pass = fileExists("features/orders/components/OrderDetailView.tsx");
@@ -254,7 +254,7 @@ function scanOmegaGlobal(scan: MarketplaceCompletionScanResult): CompletionValid
         fileExists("features/checkout/components/CheckoutReturnPolicy.tsx") ||
         readSource("features/product-detail/ProductDetailPage.tsx").includes("formatListingPriceIncl");
     }
-    if (check.includes("tracking")) pass = fileExists("features/orders/components/OrderTrackingCard.tsx");
+    if (check.includes("tracking")) pass = fileExists("features/commerce-ui/views/TrackingView.tsx");
     if (check.includes("review")) pass = fileExists("features/orders/components/OrderReviewCard.tsx");
     if (check.includes("responsive")) pass = premiumStylesActive();
     if (check.includes("orphan")) pass = fileExists("app/api/account/sessions/route.ts");
@@ -337,7 +337,7 @@ function buildPassConditions(
     "cart-pass": fileExists("app/cart/page.tsx") && fileExists("app/api/cart/route.ts"),
     "checkout-pass": fileExists("features/checkout/components/CheckoutPage.tsx"),
     "orders-pass": fileExists("app/account/orders/page.tsx"),
-    "tracking-pass": fileExists("features/orders/components/OrderTrackingCard.tsx"),
+    "tracking-pass": fileExists("features/commerce-ui/views/TrackingView.tsx"),
     "notifications-pass": fileExists("app/notifications/page.tsx"),
     "buyer-protection-pass":
       fileExists("features/checkout/components/CheckoutReturnPolicy.tsx") &&

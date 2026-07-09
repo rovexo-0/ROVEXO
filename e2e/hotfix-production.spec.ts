@@ -5,6 +5,7 @@ import path from "path";
 import { createAdminClient } from "../lib/supabase/admin";
 import { signInWithSessionCookies } from "./helpers/auth";
 import { ALL_LISTINGS_SELECTOR, waitForHomepageUi } from "./helpers/stable-ui";
+import { fillSellDescription, publishSellListing, uploadSellPhoto } from "./helpers/sell";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../lib/supabase/types/database";
 
@@ -120,13 +121,9 @@ test.describe.serial("production hotfix validation", () => {
     await page.goto("/sell", { waitUntil: "domcontentloaded", timeout: 180_000 });
     await expect(page.getByRole("button", { name: /add photo/i })).toBeVisible({ timeout: 120_000 });
 
-    await page.locator('input[type="file"][multiple]').setInputFiles(galleryImage);
-    await expect(page.locator('img[alt="Main photo"]')).toBeVisible({ timeout: 15_000 });
-
+    await uploadSellPhoto(page, galleryImage);
     await page.getByPlaceholder(/tell buyers what you're selling/i).fill(title);
-    await page
-      .getByPlaceholder(/tell buyers more about your item/i)
-      .fill("E2E hotfix validation listing with enough detail for publish.");
+    await fillSellDescription(page, "E2E hotfix validation listing with enough detail for publish.");
 
     const categoryButton = page.getByRole("button", { name: /select category|^category$/i });
     if (await categoryButton.isVisible().catch(() => false)) {
@@ -139,8 +136,7 @@ test.describe.serial("production hotfix validation", () => {
     }
 
     await page.getByPlaceholder("0.00").fill("29.99");
-    await page.getByRole("button", { name: /^publish$/i }).click();
-    await expect(page.getByText(/published successfully/i).first()).toBeVisible({ timeout: 120_000 });
+    await publishSellListing(page);
 
     const { data: row } = await admin
       .from("products")
@@ -168,33 +164,33 @@ test.describe.serial("production hotfix validation", () => {
     test.skip(!buyerUser || !baseURL, "Temp buyer not available");
 
     await signIn(page, buyerUser!, baseURL!);
-    await page.goto("/import?platform=ebay", { waitUntil: "domcontentloaded", timeout: 60_000 });
-    await expect(page).toHaveURL(/\/import/, { timeout: 30_000 });
-    await expect(page.getByRole("button", { name: /connect with ebay/i })).toBeVisible({
+    await page.goto("/account/bring-your-item?platform=ebay", { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await expect(page).toHaveURL(/\/account\/bring-your-item/, { timeout: 30_000 });
+    await expect(page.getByRole("button", { name: /connect ebay/i })).toBeVisible({
       timeout: 30_000,
     });
 
     const navigationPromise = page.waitForURL(
       (url) =>
         url.hostname.includes("ebay.com") ||
-        (url.pathname.includes("/import") && url.searchParams.has("oauth")) ||
+        (url.pathname.includes("/account/bring-your-item") && url.searchParams.has("oauth")) ||
         url.pathname.includes("/login"),
       { timeout: 30_000 },
     );
 
-    await page.getByRole("button", { name: /connect with ebay/i }).click();
+    await page.getByRole("button", { name: /connect ebay/i }).click();
     await navigationPromise;
 
     const finalUrl = page.url();
     const finalPath = new URL(finalUrl).pathname;
     expect(finalPath, "Must not redirect to homepage").not.toBe("/");
 
-    const onImport = finalUrl.includes("/import");
+    const onBringYourItem = finalUrl.includes("/account/bring-your-item");
     const onEbay = finalUrl.includes("ebay.com");
     const onLogin = finalUrl.includes("/login");
-    expect(onImport || onEbay || onLogin, `Unexpected redirect: ${finalUrl}`).toBe(true);
+    expect(onBringYourItem || onEbay || onLogin, `Unexpected redirect: ${finalUrl}`).toBe(true);
 
-    if (onImport) {
+    if (onBringYourItem) {
       expect(finalUrl).toMatch(/platform=ebay/);
     }
     if (onEbay) {
@@ -209,13 +205,7 @@ test.describe.serial("production hotfix validation", () => {
     const galleryImage = writeTempImage("android-gallery.jpg");
 
     await page.goto("/sell", { waitUntil: "domcontentloaded", timeout: 180_000 });
-    const addPhotos = page.getByRole("button", { name: /add photo/i });
-    await expect(addPhotos).toBeVisible({ timeout: 120_000 });
-
-    const galleryInput = page.locator('input[type="file"][multiple]');
-    await expect(galleryInput).toBeAttached();
-
-    await galleryInput.setInputFiles(galleryImage);
-    await expect(page.locator('img[alt="Main photo"]')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("button", { name: /add photo/i })).toBeVisible({ timeout: 120_000 });
+    await uploadSellPhoto(page, galleryImage);
   });
 });

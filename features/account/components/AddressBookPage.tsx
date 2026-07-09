@@ -8,6 +8,7 @@ import { PageBack } from "@/components/navigation/PageBack";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { addressInputSchema, type AddressInput } from "@/lib/account/schemas";
+import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
 import { SUPPORTED_COUNTRIES } from "@/lib/account/countries";
 import type { UserAddress } from "@/lib/addresses/repository";
 import { cn } from "@/lib/cn";
@@ -42,7 +43,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
       addressLine2: "",
       city: "",
       postcode: "",
-      country: "Ireland",
+      country: UK_DEFAULT_COUNTRY,
       addressType: activeType,
       isDefault: false,
     },
@@ -70,7 +71,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
       addressLine2: "",
       city: "",
       postcode: "",
-      country: "Ireland",
+      country: UK_DEFAULT_COUNTRY,
       addressType: type,
       isDefault: false,
     });
@@ -112,7 +113,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
       addressLine2: "",
       city: "",
       postcode: "",
-      country: "Ireland",
+      country: UK_DEFAULT_COUNTRY,
       addressType: activeType,
       isDefault: false,
     });

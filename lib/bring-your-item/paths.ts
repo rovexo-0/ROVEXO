@@ -1,4 +1,9 @@
-import { IMPORT_WIZARD_PATH } from "@/lib/seller/migration/config";
+/** Canonical My Account entry for Bring Your Item (eBay import). */
+export const BRING_YOUR_ITEM_PATH = "/account/bring-your-item" as const;
 
-/** Canonical entry for Bring Your Item / store import (import wizard). */
-export const BRING_YOUR_ITEM_PATH = IMPORT_WIZARD_PATH;
+/** Legacy migration routes — redirect to {@link BRING_YOUR_ITEM_PATH}. */
+export const LEGACY_BRING_YOUR_ITEM_PATHS = [
+  "/import",
+  "/bring-your-item",
+  "/seller/migration",
+] as const;

@@ -14,7 +14,7 @@ function redirectImportOAuthError(
   code: "auth_required" | "forbidden" | "unconfigured",
 ): NextResponse {
   const origin = new URL(request.url).origin;
-  const safeReturn = returnTo?.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/import";
+  const safeReturn = returnTo?.startsWith("/") && !returnTo.startsWith("//") ? returnTo : "/account/bring-your-item";
   const target = new URL(safeReturn, origin);
   target.searchParams.set("oauth", code);
   return NextResponse.redirect(target);

@@ -1,8 +1,13 @@
 import type { MetadataRoute } from "next";
 import {
   buildBlogSitemapEntries,
+  buildBrandSitemapEntries,
+  buildBrowseComboSitemapEntries,
   buildBusinessSitemapEntries,
   buildCategorySitemapEntries,
+  buildCollectionsSitemapEntries,
+  buildTrendsSitemapEntries,
+  buildDiscoverSitemapEntries,
   buildImageSitemapEntries,
   buildLocationSitemapEntries,
   buildProductSitemapEntries,
@@ -19,6 +24,10 @@ export async function generateSitemaps() {
     { id: "products" },
     { id: "sellers" },
     { id: "business" },
+    { id: "brands" },
+    { id: "discover" },
+    { id: "collections" },
+    { id: "trends" },
     { id: "blog" },
     { id: "images" },
   ];
@@ -31,7 +40,7 @@ export default async function sitemap(props: { id: Promise<string> }): Promise<M
     case "static":
       return buildStaticSitemapEntries();
     case "categories":
-      return buildCategorySitemapEntries();
+      return [...buildCategorySitemapEntries(), ...buildBrowseComboSitemapEntries()];
     case "locations":
       return buildLocationSitemapEntries();
     case "products":
@@ -40,6 +49,14 @@ export default async function sitemap(props: { id: Promise<string> }): Promise<M
       return buildSellerSitemapEntries();
     case "business":
       return buildBusinessSitemapEntries();
+    case "brands":
+      return buildBrandSitemapEntries();
+    case "discover":
+      return buildDiscoverSitemapEntries();
+    case "collections":
+      return buildCollectionsSitemapEntries();
+    case "trends":
+      return buildTrendsSitemapEntries();
     case "blog":
       return buildBlogSitemapEntries();
     case "images":

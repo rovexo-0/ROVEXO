@@ -13,13 +13,10 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function SellerMigrationRoute() {
   if (!isStoreMigrationEnabled()) {
-    redirect("/seller");
-  }
-
-  const profile = await getProfile();
-  if (!profile.isSeller) {
     redirect("/account");
   }
+
+  await getProfile();
 
   redirect(MIGRATION_CENTER_PATH);
 }

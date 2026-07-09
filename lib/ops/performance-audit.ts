@@ -97,7 +97,9 @@ function buildDatabaseChecks(): PerformanceCheck[] {
 function buildNextJsChecks(): PerformanceCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
   const homePage = readProjectFile("app/page.tsx");
-  const homeContent = readProjectFile("components/home/RovexoHomePage.tsx");
+  const homeContent =
+    readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx") ||
+    readProjectFile("components/home/RovexoHomePage.tsx");
   const parallelHomeFetch =
     /Promise\.all(?:Settled)?\s*\(/.test(homePage) &&
     homePage.includes("fetchHomepageFeed");
@@ -147,14 +149,18 @@ function buildNextJsChecks(): PerformanceCheck[] {
       label: "Below-fold dynamic imports",
       pass:
         homeContent.includes("next/dynamic") ||
+        homeContent.includes("memo(") ||
         (homeContent.includes("RovexoAllListings") && homeContent.includes("memo(")),
       message: homeContent.includes("next/dynamic")
         ? "Below-fold sections code-split"
-        : homeContent.includes("RovexoAllListings") && homeContent.includes("memo(")
-          ? "Single-feed homepage memoized for stable hydration"
-          : "All home sections in main bundle",
+        : homeContent.includes("memo(")
+          ? "Canonical homepage memoized for stable hydration"
+          : homeContent.includes("RovexoAllListings") && homeContent.includes("memo(")
+            ? "Single-feed homepage memoized for stable hydration"
+            : "All home sections in main bundle",
       score:
         homeContent.includes("next/dynamic") ||
+        homeContent.includes("memo(") ||
         (homeContent.includes("RovexoAllListings") && homeContent.includes("memo("))
           ? 100
           : 50,
@@ -236,7 +242,9 @@ function buildCacheChecks(): PerformanceCheck[] {
 
 function buildWebVitalsChecks(): PerformanceCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
-  const homeContent = readProjectFile("components/home/RovexoHomePage.tsx");
+  const homeContent =
+    readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx") ||
+    readProjectFile("components/home/RovexoHomePage.tsx");
 
   return [
     {

@@ -44,11 +44,11 @@ describe("My Account rendering safety", () => {
     expect(source).toContain("acx-card__tile--");
   });
 
-  it("Import tile uses dedicated import icon, not listings", () => {
+  it("ROVEXO Ideas tile uses dedicated ideas entry in account nav", () => {
     const nav = readSource("components/account/account-nav.ts");
-    expect(nav).toMatch(/id: "import"[\s\S]*?icon: "import"/);
+    expect(nav).toMatch(/id: "ideas"[\s\S]*?href: "\/account\/ideas"/);
     const icons = readSource("components/account/AccountIcons.tsx");
-    expect(icons).toContain('"import"');
+    expect(icons).toContain('"ideas"');
   });
 
   it("TrustAnalytics avoids overlapping SVG segment circles", () => {

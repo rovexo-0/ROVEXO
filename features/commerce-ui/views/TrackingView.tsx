@@ -5,13 +5,16 @@ import { InfoBannerCard } from "@/features/commerce-ui/components/InfoBannerCard
 import { OrderContextCard } from "@/features/commerce-ui/components/OrderContextCard";
 import { ParcelTrackingCard } from "@/features/commerce-ui/components/ParcelTrackingCard";
 import { NeedHelpCard } from "@/features/commerce-ui/components/NeedHelpCard";
-import type { CommerceParcel } from "@/features/commerce-ui/types";
+import type { CommerceSellerShipment } from "@/features/commerce-ui/types";
 
 type TrackingViewProps = {
   orderNumber: string;
   itemCount: number;
-  sellerName: string;
-  parcels: CommerceParcel[];
+  /** @deprecated Use sellerShipments */
+  sellerName?: string;
+  /** Shipments grouped by seller — parcels from different sellers are never mixed. */
+  sellerShipments: CommerceSellerShipment[];
+  orderId?: string;
   orderHref: string;
   backHref?: string;
   className?: string;
@@ -20,18 +23,20 @@ type TrackingViewProps = {
 /**
  * Canonical Tracking UI (UI LOCK).
  *
- * Each parcel is an independent card titled "Parcel X of Y". The buyer clearly
- * sees one order with multiple parcels tracked separately.
+ * Parcels are grouped by seller. Each parcel is an independent card titled
+ * "Parcel X of Y" with its own product allocation and timeline.
  */
 export function TrackingView({
   orderNumber,
   itemCount,
-  sellerName,
-  parcels,
+  sellerShipments,
+  orderId,
   orderHref,
   backHref = "/orders",
   className,
 }: TrackingViewProps) {
+  const primarySeller = sellerShipments[0]?.sellerName ?? "Seller";
+
   return (
     <div className={cn("flex min-h-full flex-col bg-background", className)}>
       <CommercePageHeader title="Tracking" backHref={backHref} />
@@ -47,12 +52,24 @@ export function TrackingView({
         <OrderContextCard
           orderNumber={orderNumber}
           itemCount={itemCount}
-          sellerName={sellerName}
+          sellerName={primarySeller}
           orderHref={orderHref}
         />
 
-        {parcels.map((parcel) => (
-          <ParcelTrackingCard key={`${parcel.index}-${parcel.trackingNumber ?? "pending"}`} parcel={parcel} />
+        {sellerShipments.map((shipment) => (
+          <section key={shipment.sellerId} className="flex flex-col gap-ds-4">
+            <h2 className="text-sm font-semibold text-text-primary">
+              Shipment from {shipment.sellerName}
+            </h2>
+            {shipment.parcels.map((parcel) => (
+              <ParcelTrackingCard
+                key={parcel.id}
+                parcel={parcel}
+                orderId={orderId}
+                showOperations={Boolean(orderId)}
+              />
+            ))}
+          </section>
         ))}
 
         <NeedHelpCard />

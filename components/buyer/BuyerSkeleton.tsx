@@ -1,6 +1,6 @@
 export function BuyerSkeleton() {
   return (
-    <div className="buyer-page" aria-busy="true" aria-label="Loading buyer dashboard">
+    <div className="buyer-page" aria-busy="true" aria-label="Loading buying tools">
       <div className="buyer-skeleton" style={{ height: 64 }} />
       <div className="buyer-skeleton" style={{ height: 180, borderRadius: 28 }} />
       <div className="buyer-quick-grid">

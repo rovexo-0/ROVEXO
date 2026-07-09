@@ -36,11 +36,11 @@ export const LabelCard = memo(function LabelCard({ order, record }: LabelCardPro
   const pdfUrl = label.pdfUrl;
   const hasCarrierLabel = Boolean(pdfUrl && label.trackingNumber);
 
-  async function generateParcel2GoLabel() {
+  async function generateLabel() {
     setIsGenerating(true);
     setError(null);
     try {
-      const response = await fetch("/api/shipping/parcel2go/labels", {
+      const response = await fetch("/api/shipping/labels", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: order.id }),
@@ -50,11 +50,11 @@ export const LabelCard = memo(function LabelCard({ order, record }: LabelCardPro
         record?: ShippingRecord | null;
       };
       if (!response.ok) {
-        throw new Error(payload.error ?? "Unable to generate Parcel2Go label.");
+        throw new Error(payload.error ?? "Unable to generate shipping label.");
       }
       if (payload.record) setLocalRecord(payload.record);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to generate Parcel2Go label.");
+      setError(err instanceof Error ? err.message : "Unable to generate shipping label.");
     } finally {
       setIsGenerating(false);
     }
@@ -88,8 +88,8 @@ export const LabelCard = memo(function LabelCard({ order, record }: LabelCardPro
         <h2 className="text-base font-semibold text-text-primary">Shipping label</h2>
         <p className="mt-ds-1 text-sm text-text-secondary">
           {hasCarrierLabel
-            ? "Your Parcel2Go label is ready. Download the PDF and attach it to your parcel."
-            : "Generate a carrier label via Parcel2Go, or print a draft label for manual dispatch."}
+            ? "Your carrier label is ready. Download the PDF and attach it to your parcel."
+            : "Generate a carrier label, or print a draft label for manual dispatch."}
         </p>
       </div>
 
@@ -119,8 +119,8 @@ export const LabelCard = memo(function LabelCard({ order, record }: LabelCardPro
 
       <div className="flex flex-col gap-ds-2">
         {!hasCarrierLabel ? (
-          <Button variant="primary" fullWidth disabled={isGenerating} onClick={() => void generateParcel2GoLabel()}>
-            {isGenerating ? "Generating label…" : "Generate Parcel2Go label"}
+          <Button variant="primary" fullWidth disabled={isGenerating} onClick={() => void generateLabel()}>
+            {isGenerating ? "Generating label…" : "Generate Label"}
           </Button>
         ) : null}
 

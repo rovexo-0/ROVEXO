@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
-
 import { readFileSync } from "node:fs";
-
 import path from "node:path";
-
 import { ROVEXO_LOGO_DIMENSIONS } from "@/components/brand/RovexoLogo";
+import { HOMEPAGE_SHARE } from "@/lib/share/homepage";
 
 describe("official header design", () => {
   it("uses compact integrated control height for mobile shell", () => {
@@ -21,7 +19,7 @@ describe("official header design", () => {
     expect(source).toContain('role="search"');
   });
 
-  it("keeps logo, integrated search, messages, notifications and account on the header row", () => {
+  it("keeps logo, integrated search, messages, notifications; homepage can replace account with share", () => {
     const source = readFileSync(path.join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
 
     expect(source).toContain("HomepageSearchField");
@@ -32,6 +30,8 @@ describe("official header design", () => {
     expect(source).toContain("MessageSquare");
     expect(source).toContain("Bell");
     expect(source).toContain("HeaderProfileLink");
+    expect(source).toContain("HomepageHeaderShareButton");
+    expect(source).toContain("replaceAccountWithShare");
   });
 
   it("mounts category rail in the homepage main column (search lives in header)", () => {
@@ -46,9 +46,33 @@ describe("official header design", () => {
     expect(homePage).not.toContain("CanonicalBringYourItem");
   });
 
-  it("routes the homepage through RovexoHeaderV2", () => {
+  it("routes the homepage through RovexoHeaderV2 with Share replacing Account", () => {
     const page = readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
     expect(page).toContain("RovexoHeaderV2");
+    expect(page).toContain("replaceAccountWithShare");
     expect(page).not.toContain("HomepageV3Header");
+    expect(page).toContain("openGraph");
+    expect(page).toContain("twitter");
+    expect(page).toContain("canonical");
+  });
+
+  it("defines homepage share payload for Web Share and fallback channels", () => {
+    expect(HOMEPAGE_SHARE.title).toBe("ROVEXO – Buy & Sell with Confidence");
+    expect(HOMEPAGE_SHARE.text).toContain("trusted sellers");
+    expect(HOMEPAGE_SHARE.url).toBe("https://www.rovexo.co.uk");
+
+    const button = readFileSync(
+      path.join(process.cwd(), "components/header/HomepageHeaderShareButton.tsx"),
+      "utf8",
+    );
+    expect(button).toContain('aria-label="Share"');
+    expect(button).toContain("navigator.share");
+    expect(button).toContain("Link copied");
+    expect(button).toContain("WhatsApp");
+    expect(button).toContain("Facebook");
+    expect(button).toContain("Messenger");
+    expect(button).toContain("Telegram");
+    expect(button).toContain("Email");
+    expect(button).toContain("More Apps");
   });
 });

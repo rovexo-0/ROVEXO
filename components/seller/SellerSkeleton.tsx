@@ -1,6 +1,6 @@
 export function SellerSkeleton() {
   return (
-    <div className="seller-page" aria-busy="true" aria-label="Loading seller dashboard">
+    <div className="seller-page" aria-busy="true" aria-label="Loading selling workspace">
       <div className="seller-skeleton" style={{ height: 64 }} />
       <div className="seller-skeleton" style={{ height: 180, borderRadius: 28 }} />
       <div className="seller-quick-grid">

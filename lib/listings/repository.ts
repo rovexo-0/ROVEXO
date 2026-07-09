@@ -25,6 +25,19 @@ import type {
 
 const PAGE_SIZE = 8;
 
+function applyTextSearchFilter<T extends { ilike: (column: string, pattern: string) => T }>(
+  query: T,
+  term: string,
+): T {
+  const words = term.trim().split(/\s+/).filter(Boolean);
+  let next = query;
+  for (const word of words) {
+    const escaped = word.replace(/[%_\\]/g, "\\$&");
+    next = next.ilike("title", `%${escaped}%`);
+  }
+  return next;
+}
+
 type ProductRow = Tables<"products"> & {
   profiles?: Pick<
     Tables<"profiles">,
@@ -849,32 +862,7 @@ export async function searchListings(
 
   if (options.query?.trim()) {
     const term = options.query.trim();
-    const { data: brandMatches } = await supabase
-      .from("brands")
-      .select("id")
-      .ilike("name", `%${term}%`);
-    const brandIds = brandMatches?.map((brand) => brand.id) ?? [];
-
-    const { data: sellerMatches } = await supabase
-      .from("profiles")
-      .select("id")
-      .or(`full_name.ilike.%${term}%,username.ilike.%${term}%`);
-    const sellerIds = sellerMatches?.map((seller) => seller.id) ?? [];
-
-    const filters = [
-      `title.ilike.%${term}%`,
-      `description.ilike.%${term}%`,
-      `condition.ilike.%${term}%`,
-    ];
-
-    if (brandIds.length) {
-      filters.push(`brand_id.in.(${brandIds.join(",")})`);
-    }
-    if (sellerIds.length) {
-      filters.push(`seller_id.in.(${sellerIds.join(",")})`);
-    }
-
-    query = query.or(filters.join(","));
+    query = applyTextSearchFilter(query, term);
   }
 
   if (options.sellerId) {

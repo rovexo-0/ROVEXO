@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { requireApiAuth } from "@/lib/auth/session";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
-import { generateParcel2GoLabelForOrder } from "@/lib/shipping/parcel2go-label.server";
+import { generateShippingLabelForOrder } from "@/lib/shipping/label-generation.server";
 import { getParcel2GoLabelSignedUrl } from "@/lib/shipping/parcel2go-label-storage.server";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { isParcel2GoConfigured } from "@/src/services/shipping/env";
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid label request." }, { status: 400 });
   }
 
-  const result = await generateParcel2GoLabelForOrder(
+  const result = await generateShippingLabelForOrder(
     parsed.data.orderId,
     auth.user.id,
     parsed.data.parcelId,

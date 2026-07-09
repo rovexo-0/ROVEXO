@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
 import { AuthFieldGroup } from "@/features/auth/components/AuthFieldGroup";
 import { AuthField } from "@/features/auth/components/AuthField";
-import { AuthSelect } from "@/features/auth/components/AuthSelect";
 import { AUTH_EMAIL_PLACEHOLDER } from "@/lib/email/constants";
 
 function passwordStrength(password: string): { score: number; label: string } {
@@ -24,50 +23,12 @@ function passwordStrength(password: string): { score: number; label: string } {
 }
 
 export function RegisterFields() {
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  const usernameValid = /^[a-z0-9_]{3,30}$/.test(username);
-  const usernameHint =
-    username.length === 0
-      ? "Lowercase letters, numbers, and underscores only"
-      : usernameValid
-        ? "Username format looks good"
-        : "Use 3–30 characters: lowercase letters, numbers, underscores";
-
   const strength = useMemo(() => passwordStrength(password), [password]);
 
   return (
     <>
       <AuthFieldGroup>
-        <AuthField label="Full name" name="fullName" autoComplete="name" placeholder="Jane Smith" />
-        <div className="border-b border-border/70 px-ds-4 py-ds-3 last:border-b-0">
-          <label className="flex flex-col gap-ds-1">
-            <span className="text-xs font-medium uppercase tracking-wide text-text-secondary">
-              Username
-            </span>
-            <input
-              name="username"
-              autoComplete="username"
-              required
-              placeholder="yourname"
-              minLength={3}
-              maxLength={30}
-              pattern="[a-z0-9_]+"
-              value={username}
-              onChange={(event) => setUsername(event.target.value.trim().toLowerCase())}
-              className="min-h-[44px] w-full border-0 bg-transparent p-0 text-[17px] text-text-primary outline-none placeholder:text-text-muted"
-            />
-          </label>
-          <p
-            className={cn(
-              "mt-ds-1 text-xs",
-              username.length > 0 && !usernameValid ? "text-danger" : "text-text-secondary",
-            )}
-          >
-            {usernameHint}
-          </p>
-        </div>
         <AuthField
           label="Email"
           name="email"
@@ -115,23 +76,11 @@ export function RegisterFields() {
             <p className="mt-ds-1 text-xs text-text-secondary">At least 8 characters</p>
           )}
         </div>
-        <AuthSelect
-          label="Account type"
-          name="role"
-          defaultValue="buyer"
-          options={[
-            { value: "buyer", label: "Buyer" },
-            { value: "seller", label: "Seller" },
-            { value: "business", label: "Business" },
-          ]}
-        />
-        <AuthField
-          label="Business name"
-          name="businessName"
-          required={false}
-          placeholder="Optional — required for business accounts"
-        />
       </AuthFieldGroup>
+
+      <p className="mt-ds-3 text-center text-xs text-text-secondary">
+        You can complete your profile after creating your ROVEXO account.
+      </p>
     </>
   );
 }

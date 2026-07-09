@@ -6,7 +6,7 @@ import {
   pickDefaultShippingQuote,
   resolveLiveDeliveryQuotes,
 } from "@/lib/checkout/delivery";
-import type { CheckoutCarrierQuote } from "@/lib/checkout/types";
+import type { CheckoutCarrierQuote, CheckoutShippingQuoteReason } from "@/lib/checkout/types";
 import { calculateOrderTotals } from "@/lib/orders/pricing";
 import type { Order } from "@/lib/orders/types";
 import type { ProductDetail } from "@/lib/products/types";
@@ -27,6 +27,7 @@ export function useCheckoutForm(
   options?: { liveShippingEnabled?: boolean },
 ) {
   const liveShippingEnabled = options?.liveShippingEnabled ?? true;
+  const liveShippingActive = liveShippingEnabled;
   const [view, setView] = useState<CheckoutView>("checkout");
   const [draft, setDraft] = useState<CheckoutDraft>(initialDraft);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,15 +36,22 @@ export function useCheckoutForm(
   const [shippingQuotes, setShippingQuotes] = useState<CheckoutCarrierQuote[]>([]);
   const [shippingQuotesLoading, setShippingQuotesLoading] = useState(false);
   const [liveQuotesAttempted, setLiveQuotesAttempted] = useState(false);
-  const [livePricingAvailable, setLivePricingAvailable] = useState(liveShippingEnabled);
+  const [livePricingAvailable, setLivePricingAvailable] = useState(liveShippingActive);
+  const [quotesRefreshKey, setQuotesRefreshKey] = useState(0);
+  const [shippingQuoteReason, setShippingQuoteReason] = useState<CheckoutShippingQuoteReason | null>(
+    null,
+  );
 
   const addressReady = hasCompleteAddress(draft);
-  const shouldFetchLiveQuotes = !product.freeDelivery && addressReady;
+  const shouldFetchLiveQuotes =
+    liveShippingActive && !product.freeDelivery && addressReady;
   const activeShippingQuotes = useMemo(
     () => (shouldFetchLiveQuotes ? shippingQuotes : []),
     [shouldFetchLiveQuotes, shippingQuotes],
   );
-  const quotesAttempted = shouldFetchLiveQuotes ? liveQuotesAttempted : false;
+  const quotesAttempted = shouldFetchLiveQuotes ? liveQuotesAttempted : true;
+  const hasListingShippingPrice =
+    product.shippingPrice != null && product.shippingPrice >= 0;
 
   const selectedQuote = useMemo(
     () => activeShippingQuotes.find((quote) => quote.id === draft.deliveryOption) ?? null,
@@ -74,6 +82,13 @@ export function useCheckoutForm(
     setDraft((current) => ({ ...current, ...patch }));
   }, []);
 
+  const retryShippingQuotes = useCallback(() => {
+    setLiveQuotesAttempted(false);
+    setShippingQuotes([]);
+    setShippingQuoteReason(null);
+    setQuotesRefreshKey((current) => current + 1);
+  }, []);
+
   useEffect(() => {
     if (!shouldFetchLiveQuotes) {
       return;
@@ -93,6 +108,7 @@ export function useCheckoutForm(
         setLiveQuotesAttempted(true);
         setLivePricingAvailable(result.live);
         setShippingQuotes(result.options);
+        setShippingQuoteReason(result.reason ?? null);
         const defaultQuote = pickDefaultShippingQuote(result.options);
         setDraft((current) => ({
           ...current,
@@ -116,13 +132,22 @@ export function useCheckoutForm(
     draft.postcode,
     draft.recipientName,
     product.slug,
+    quotesRefreshKey,
     shouldFetchLiveQuotes,
   ]);
 
   const deliveryResolved =
+    product.freeDelivery || selectedQuote != null || hasListingShippingPrice;
+
+  const shippingBlocked =
+    shippingQuoteReason === "seller_dispatch_not_ready" &&
+    !hasListingShippingPrice &&
+    !product.freeDelivery;
+
+  const shippingStepComplete =
     product.freeDelivery ||
     selectedQuote != null ||
-    (product.shippingPrice != null && product.shippingPrice >= 0);
+    (hasListingShippingPrice && quotesAttempted);
 
   const canPay =
     product.availability !== "out_of_stock" &&
@@ -132,7 +157,8 @@ export function useCheckoutForm(
     draft.postcode.trim().length > 0 &&
     draft.country.trim().length > 0 &&
     deliveryResolved &&
-    (product.freeDelivery || quotesAttempted) &&
+    shippingStepComplete &&
+    !shippingBlocked &&
     !shippingQuotesLoading;
 
   const placeOrder = useCallback(async () => {
@@ -226,6 +252,8 @@ export function useCheckoutForm(
     liveQuotesAttempted: quotesAttempted,
     liveShippingEnabled: livePricingAvailable,
     selectedQuote,
+    shippingQuoteReason,
+    retryShippingQuotes,
     updateDraft,
     placeOrder,
     setSuccessOrder: setOrder,

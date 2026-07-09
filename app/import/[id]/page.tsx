@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import { IMPORT_WIZARD_PATH, isStoreMigrationEnabled } from "@/lib/seller/migration/config";
+import { BRING_YOUR_ITEM_PATH } from "@/lib/bring-your-item/paths";
+import { isStoreMigrationEnabled } from "@/lib/seller/migration/config";
 import { getMigrationJobForSeller } from "@/lib/seller/migration/repository";
 import { getProfile } from "@/lib/profile/data";
 
@@ -7,22 +8,18 @@ type PageProps = {
   params: Promise<{ id: string }>;
 };
 
-/** Legacy job detail path — inline engine lives at /import?job={id}. */
+/** Legacy job detail path — inline engine lives at /account/bring-your-item?job={id}. */
 export default async function ImportJobRoute({ params }: PageProps) {
   if (!isStoreMigrationEnabled()) {
-    redirect("/seller");
-  }
-
-  const profile = await getProfile();
-  if (!profile.isSeller) {
     redirect("/account");
   }
 
+  const profile = await getProfile();
   const { id } = await params;
   const job = await getMigrationJobForSeller(profile.id, id);
   if (!job) {
-    redirect(IMPORT_WIZARD_PATH);
+    redirect(BRING_YOUR_ITEM_PATH);
   }
 
-  redirect(`${IMPORT_WIZARD_PATH}?job=${id}`);
+  redirect(`${BRING_YOUR_ITEM_PATH}?job=${id}`);
 }

@@ -11,8 +11,8 @@ import { OrderActionsCard } from "@/features/orders/components/OrderActionsCard"
 import { SellerOrderFulfillment } from "@/features/orders/components/SellerOrderFulfillment";
 import { OrderProductCard } from "@/features/orders/components/OrderProductCard";
 import { OrderSummaryTotals } from "@/features/commerce-ui/components/OrderSummaryTotals";
-import { mapOrderToCommerceTotals } from "@/lib/commerce/read-model";
-import type { SellerShipmentView } from "@/lib/commerce/read-model";
+import { mapOrderToCommerceTotals } from "@/lib/commerce/mappers";
+import type { SellerShipmentView } from "@/lib/commerce/view-types";
 import { EscrowReleaseCard } from "@/features/commerce/components/EscrowReleaseCard";
 import { ResolutionStatusCard } from "@/features/commerce/components/ResolutionStatusCard";
 import {
@@ -79,20 +79,16 @@ export function OrderDetailView({
           aria-labelledby="order-complete-heading"
         >
           <PublishedCheckmark />
-
           <h2 id="order-complete-heading" className="mt-ds-6 text-xl font-semibold text-text-primary">
             Thank you!
           </h2>
-
           <p className="mt-ds-2 text-sm text-text-secondary">
             Seller funds release automatically 24 hours after delivery, unless a claim is opened.
           </p>
-
-          {order.disputesDisabled && (
+          {order.disputesDisabled ? (
             <p className="mt-ds-1 text-xs text-text-muted">Further disputes are disabled for this order.</p>
-          )}
+          ) : null}
         </section>
-
         <OrderReviewCard orderId={order.id} sellerName={order.seller.name} />
       </div>
     );
@@ -115,11 +111,11 @@ export function OrderDetailView({
         <DeliveryStatusCard stages={stages} carrier={order.deliveryCarrier} />
       ) : null}
 
-      {order.status === "awaiting_payment" && (
-        <Card padding="lg" className="">
+      {order.status === "awaiting_payment" ? (
+        <Card padding="lg">
           <p className="text-sm text-text-secondary">Awaiting payment from buyer.</p>
         </Card>
-      )}
+      ) : null}
 
       <OrderSummaryTotals totals={mapOrderToCommerceTotals(order.totals)} title="Order Summary" />
 
@@ -131,10 +127,9 @@ export function OrderDetailView({
 
       <OrderActionsCard order={order} view={view} />
 
-      {showBuyerConfirm && (
+      {showBuyerConfirm ? (
         <Card padding="lg" className="flex flex-col gap-ds-4">
           <h2 className="text-base font-semibold text-text-primary">Confirm Everything OK</h2>
-
           <div className="flex flex-col gap-ds-3">
             <Button
               variant="primary"
@@ -146,7 +141,6 @@ export function OrderDetailView({
             >
               Confirm Everything OK
             </Button>
-
             <Button
               variant="outline"
               fullWidth
@@ -159,10 +153,10 @@ export function OrderDetailView({
             </Button>
           </div>
         </Card>
-      )}
+      ) : null}
 
-      {order.status === "issue_open" && (
-        <Card padding="lg" className="">
+      {order.status === "issue_open" ? (
+        <Card padding="lg">
           <h2 className="text-base font-semibold text-text-primary">Issue Open</h2>
           <p className="mt-ds-2 text-sm text-text-secondary">
             {view === "buyer"
@@ -171,7 +165,7 @@ export function OrderDetailView({
           </p>
           <IssueResolutionLink orderId={order.id} className="mt-ds-4" />
         </Card>
-      )}
+      ) : null}
     </div>
   );
 }

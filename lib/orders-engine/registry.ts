@@ -1,9 +1,9 @@
 import type { OrdersEngineFilterId, OrdersEngineModule } from "@/lib/orders-engine/types";
 
 export const ORDERS_ENGINE_MODULES: OrdersEngineModule[] = [
-  { id: "buyer-dashboard", label: "Buyer Dashboard", icon: "🛍️", description: "Timeline, tracking, protection, returns", href: "/orders" },
-  { id: "seller-dashboard", label: "Seller Dashboard", icon: "🏷️", description: "Incoming orders, dispatch, payouts", href: "/seller/orders" },
-  { id: "business-dashboard", label: "Business Dashboard", icon: "🏢", description: "Order queue and bulk processing", href: "/business/dashboard" },
+  { id: "buyer-orders", label: "Orders", icon: "🛍️", description: "Timeline, tracking, protection, returns", href: "/orders" },
+  { id: "selling-orders", label: "Selling Orders", icon: "🏷️", description: "Incoming orders, dispatch, payouts", href: "/seller/orders" },
+  { id: "business-orders", label: "Business Orders", icon: "🏢", description: "Order queue and bulk processing", href: "/business/dashboard" },
   { id: "timeline", label: "Order Timeline", icon: "🕒", description: "Complete transaction lifecycle", href: "/orders?tab=timeline" },
   { id: "shipping", label: "Shipping Integration", icon: "🚚", description: "Shipping Engine connection", href: "/shipping" },
   { id: "wallet", label: "Wallet Engine", icon: "👛", description: "Balances, payouts, and ledger", href: "/wallet" },

@@ -8,7 +8,7 @@ import {
   updateShipmentParcel,
 } from "@/lib/shipping/parcels-repository";
 import { fetchOrderForUser, getOrderViewRole } from "@/lib/orders/queries";
-import { SHIPPING_STATUSES } from "@/lib/shipping/types";
+import { SHIPPING_STATUSES, PARCEL_OPERATIONS } from "@/lib/shipping/types";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +22,9 @@ const patchSchema = z.object({
   trackingNumber: z.string().trim().optional().nullable(),
   productItemIds: z.array(z.string()).optional(),
   status: z.enum(SHIPPING_STATUSES).optional(),
+  insuranceEnabled: z.boolean().optional(),
+  insuranceValueGbp: z.number().positive().optional().nullable(),
+  operation: z.enum(PARCEL_OPERATIONS).optional().nullable(),
 });
 
 type RouteParams = { params: Promise<{ id: string; parcelId: string }> };

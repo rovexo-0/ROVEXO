@@ -5,6 +5,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
+  ALL_LISTINGS_SELECTOR,
   CATEGORY_RAIL_SELECTOR,
   settleUi,
   waitForHomepageUi,
@@ -27,7 +28,7 @@ const DEVICES: Device[] = [
 const SECTIONS = [
   { id: "homepage", label: "Homepage", crop: "full" as const },
   { id: "categories", label: "Category Rail", crop: "categories" as const },
-  { id: "all-listings", label: "Listing Grid", crop: "listing-section" as const, sectionId: "home-v1-all-listings" },
+  { id: "all-listings", label: "Listing Grid", crop: "listing-section" as const },
 ] as const;
 
 type ManifestEntry = {
@@ -81,7 +82,7 @@ for (const section of SECTIONS) {
         await expect(rail).toBeVisible();
         await rail.screenshot({ path: filePath });
       } else if (section.crop === "listing-section") {
-        const block = page.locator(`#${section.sectionId}`);
+        const block = page.locator(ALL_LISTINGS_SELECTOR).first();
         await block.scrollIntoViewIfNeeded();
         await expect(block).toBeVisible();
         await block.screenshot({ path: filePath });

@@ -1,4 +1,5 @@
 import type { BuyerPreferencesInput } from "@/lib/account/schemas";
+import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
 import { createClient } from "@/lib/supabase/server";
 
 export type BuyerPreferences = BuyerPreferencesInput;
@@ -8,7 +9,7 @@ const DEFAULTS: BuyerPreferences = {
   orderUpdatesPush: true,
   orderUpdatesEmail: true,
   showRecommendations: true,
-  region: "Ireland",
+  region: UK_DEFAULT_COUNTRY,
   preferredCategorySlugs: [],
 };
 

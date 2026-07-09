@@ -26,7 +26,7 @@ export async function getProfile(): Promise<UserProfile> {
 export async function getBusinessProfile(): Promise<UserProfile> {
   const profile = await getProfile();
 
-  if (profile.accountType !== "business") {
+  if (!profile.capabilities.hasBusinessVerification) {
     redirect("/account");
   }
 

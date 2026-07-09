@@ -21,7 +21,7 @@ export const ACCOUNT_QUICK_ACCESS_PREMIUM: readonly AccountQuickAccessItem[] = [
   { id: "listings", label: "My Listings", href: "/seller/listings", icon: "listings" },
   { id: "messages", label: "Messages", href: "/messages", icon: "messages" },
   { id: "wallet", label: "Wallet", href: "/account/wallet", icon: "wallet" },
-  { id: "business", label: "Business", href: "/business/dashboard", icon: "business" },
+  { id: "ideas", label: "ROVEXO Ideas", href: "/account/ideas", icon: "help" },
   { id: "settings", label: "Settings", href: "/account/settings", icon: "settings" },
   { id: "help", label: "Help", href: "/help", icon: "help" },
 ] as const;

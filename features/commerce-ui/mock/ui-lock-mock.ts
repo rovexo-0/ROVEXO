@@ -3,6 +3,7 @@ import type {
   CommerceOrderMeta,
   CommerceParcel,
   CommerceSellerGroup,
+  CommerceSellerShipment,
   CommerceTotals,
 } from "@/features/commerce-ui/types";
 
@@ -50,6 +51,7 @@ export const MOCK_ORDER_META: CommerceOrderMeta = {
 
 export const MOCK_PARCELS: CommerceParcel[] = [
   {
+    id: "parcel-1",
     index: 1,
     totalParcels: 2,
     status: "in_transit",
@@ -57,8 +59,11 @@ export const MOCK_PARCELS: CommerceParcel[] = [
     trackingNumber: "H00A1B2C3D4E5F6",
     estimatedDelivery: "6 May 2025",
     trackingUrl: "https://www.evri.com/track/parcel/H00A1B2C3D4E5F6",
+    items: [MOCK_LINE_ITEMS[0]!],
+    operation: null,
   },
   {
+    id: "parcel-2",
     index: 2,
     totalParcels: 2,
     status: "preparing",
@@ -66,6 +71,19 @@ export const MOCK_PARCELS: CommerceParcel[] = [
     trackingNumber: "H00G7H8I9J0K1L2",
     estimatedDelivery: "7 May 2025",
     trackingUrl: null,
+    items: [MOCK_LINE_ITEMS[1]!],
+    operation: null,
+  },
+];
+
+export const MOCK_SELLER_SHIPMENTS: CommerceSellerShipment[] = [
+  {
+    sellerId: "seller-techgear",
+    sellerName: "TechGear",
+    parcelCount: 2,
+    shipmentReady: true,
+    parcels: MOCK_PARCELS,
+    trackingHref: "/ui-lock/commerce/tracking",
   },
 ];
 

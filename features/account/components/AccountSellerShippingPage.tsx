@@ -10,6 +10,7 @@ import {
   type SellerShippingSettingsFormInput,
   type SellerShippingSettingsInput,
 } from "@/lib/account/schemas";
+import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 
@@ -33,7 +34,7 @@ export function AccountSellerShippingPage() {
       baseShippingCost: 0,
       freeShippingThreshold: null,
       defaultCarrier: "Royal Mail",
-      shipsTo: "Ireland",
+      shipsTo: UK_DEFAULT_COUNTRY,
       localPickupEnabled: false,
       internationalShippingEnabled: false,
       returnPolicyDays: 14,

@@ -4,7 +4,7 @@ import { memo } from "react";
 import { Card } from "@/components/ui/Card";
 import { CommerceStatusBadge } from "@/features/commerce-ui/components/CommerceStatusBadge";
 import { parcelStatusMeta } from "@/features/commerce-ui/lib/status";
-import { shippingStatusLabel } from "@/lib/shipping";
+import { shippingStatusLabel } from "@/lib/shipping/status";
 import type { ShipmentParcel, ShippingRecord } from "@/lib/shipping/types";
 
 type ShipmentSummaryProps = {

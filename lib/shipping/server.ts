@@ -1,7 +1,7 @@
 import "server-only";
 
 import { generateShippingLabel } from "@/lib/shipping/labels/service.server";
-import { fetchShippingQuotesServer } from "@/lib/shipping/pricing/service.server";
+import { fetchShippingQuotesRouted } from "@/lib/shipping/providers/router";
 import { isParcel2GoQuoteId } from "@/lib/shipping/pricing/parcel2go-mappers";
 import { saveParcel2GoLabel, saveParcel2GoShipment } from "@/lib/shipping/parcel2go-store";
 import { persistParcel2GoLabelPdf } from "@/lib/shipping/parcel2go-label-storage.server";
@@ -10,33 +10,31 @@ import { debitShippingReserveForLabel } from "@/lib/commerce-engine/shipping-res
 import type { ShippingLabelRequest, ShippingQuoteRequest } from "@/lib/shipping/pricing/provider";
 
 export async function fetchOrderShippingQuotes(orderId: string, request: ShippingQuoteRequest) {
-  const pricing = await fetchShippingQuotesServer(request);
+  const pricing = await fetchShippingQuotesRouted(request);
   await saveShippingQuotes({ orderId, pricing });
   return pricing;
 }
 
 export async function generateOrderShippingLabel(orderId: string, request: ShippingLabelRequest) {
-  const { label, internalPlatformFeePence, parcel2Go } = await generateShippingLabel(request);
+  const { label, internalPlatformFeePence, parcel2Go, providerId } = await generateShippingLabel(request);
   const record = await saveShippingLabel({
     orderId,
     parcelId: request.parcelId,
     label,
     internalPlatformFeePence,
+    providerId,
   });
 
-  // Commerce Engine — draw the label cost down from the internal Reserved
-  // Shipping Wallet. This is a ledger overlay only; Parcel2Go prepay/OAuth are
-  // untouched (the label was already purchased through the provider above).
   if (label.trackingNumber) {
     await debitShippingReserveForLabel({
       orderId,
-      provider: isParcel2GoQuoteId(request.quoteId) ? "parcel2go" : "shippo",
+      provider: providerId,
       carrier: label.carrier,
       reference: label.trackingNumber,
     });
   }
 
-  if (isParcel2GoQuoteId(request.quoteId) && label.trackingNumber && parcel2Go?.orderId) {
+  if (providerId === "parcel2go" && isParcel2GoQuoteId(request.quoteId) && label.trackingNumber && parcel2Go?.orderId) {
     await saveParcel2GoShipment({
       orderId,
       shipment: {

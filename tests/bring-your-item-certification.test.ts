@@ -155,18 +155,18 @@ describe("Bring Your Item — Phase 3 OAuth certification", () => {
 });
 
 describe("Bring Your Item — Phase 4 SSOT certification", () => {
-  it("uses /import as the canonical entry and redirects legacy seller migration routes", () => {
+  it("uses /account/bring-your-item as the canonical entry and redirects legacy seller migration routes", () => {
     expect(BRING_YOUR_ITEM_PATH).toBe(IMPORT_WIZARD_PATH);
-    expect(IMPORT_WIZARD_PATH).toBe("/import");
+    expect(IMPORT_WIZARD_PATH).toBe("/account/bring-your-item");
 
     const legacyPage = readSource("app/seller/migration/page.tsx");
-    const legacyJob = readSource("app/seller/migration/[id]/page.tsx");
+    const legacyJob = readSource("app/import/[id]/page.tsx");
     expect(legacyPage).toContain(`redirect(MIGRATION_CENTER_PATH)`);
-    expect(legacyJob).toContain("redirect(`${IMPORT_WIZARD_PATH}/${id}`)");
+    expect(legacyJob).toContain("BRING_YOUR_ITEM_PATH");
     expect(LEGACY_MIGRATION_CENTER_PATH).toBe("/seller/migration");
   });
 
-  it("routes job detail links through inline /import?job=", () => {
+  it("routes job detail links through inline /account/bring-your-item?job=", () => {
     const history = readSource("features/seller/migration/components/SellerMigrationHistorySection.tsx");
     expect(history).toContain("MIGRATION_CENTER_PATH");
     expect(history).toContain("?job=");

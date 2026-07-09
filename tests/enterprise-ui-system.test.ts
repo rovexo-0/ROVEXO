@@ -61,10 +61,11 @@ describe("Enterprise UI system — header", () => {
   it("uses official ROVEXO wordmark and production header icons on homepage", () => {
     const header = readFileSync(join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     expect(header).toContain("ROVEXO");
-    expect(header).toContain("RovexoIcon");
-    expect(header).toContain("RovexoIcons.chat.messages");
-    expect(header).toContain("RovexoIcons.notifications.bell");
-    expect(header).toContain("RovexoIcons.settings.settings");
+    expect(header).toContain("lucide-react");
+    expect(header).toContain("MessageSquare");
+    expect(header).toContain("Bell");
+    expect(header).toContain("HeaderProfileLink");
+    expect(header).toContain("HomepageHeaderShareButton");
   });
 
   it("uses debounced inline search on the homepage header", () => {

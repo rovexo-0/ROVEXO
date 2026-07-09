@@ -77,7 +77,9 @@ export function resolveBusinessBadgeKinds(input: {
 
   if (
     kinds.length === 0 &&
-    (input.accountType === "business" || input.sellerTier === "business")
+    (input.accountType === "account" ||
+      input.accountType === "business" ||
+      input.sellerTier === "business")
   ) {
     kinds.push("business");
   }

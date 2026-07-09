@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { Card } from "@/components/ui/Card";
@@ -12,6 +13,7 @@ import {
 } from "@/features/profile/components/SellerReviewsSection";
 import { TrustPublicSummary } from "@/features/trust/components/TrustPublicSummary";
 import { getPublicTrustSummary } from "@/lib/trust/service";
+import { sellerPageMetadata, sellerProfilePageJsonLd } from "@/lib/seo/engine";
 
 type PageProps = {
   params: Promise<{ username: string }>;
@@ -30,8 +32,22 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
     getPublicTrustSummary(profile.id),
   ]);
 
+  const jsonLd = sellerProfilePageJsonLd({
+    name: profile.fullName,
+    username: profile.username,
+    products: profile.listings,
+    rating: profile.rating,
+    reviewCount: profile.reviewCount,
+  });
+
   return (
     <BetaAppShell>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([jsonLd.profile, jsonLd.itemList].filter(Boolean)),
+        }}
+      />
       <BetaPageHeader title={profile.fullName} backHref="/search" />
 
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]">
@@ -71,15 +87,16 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
   );
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { username } = await params;
   const profile = await getPublicSellerProfile(username);
   if (!profile) {
-    return { title: "Seller not found | ROVEXO" };
+    return { title: "Seller not found | ROVEXO", robots: { index: false, follow: false } };
   }
 
-  return {
-    title: `${profile.fullName} (@${profile.username}) | ROVEXO`,
-    description: `Shop listings from ${profile.fullName} on ROVEXO.`,
-  };
+  return sellerPageMetadata({
+    fullName: profile.fullName,
+    username: profile.username,
+    listingCount: profile.listingCount,
+  });
 }

@@ -36,8 +36,8 @@ describe("Enterprise UI — seller CTA routes", () => {
     expect(hrefFor(sellHub, "Publish Listing")).toBe("/sell/new");
     expect(hrefFor(sellerDash, "Publish Listing")).toBe("/sell/new");
     expect(hrefFor(sellerDash, "Sell Item")).toBe("/sell");
-    expect(hrefFor(sellHub, "Seller Dashboard")).toBe("/seller");
-    expect(hrefFor(sellerDash, "Seller Dashboard")).toBe("/seller");
+    expect(hrefFor(sellHub, "Selling")).toBe("/seller");
+    expect(hrefFor(sellerDash, "Selling")).toBe("/seller");
     expect(hrefFor(sellHub, "My Listings")).toBe("/seller/listings");
     expect(hrefFor(sellerDash, "My Listings")).toBe("/seller/listings");
     expect(hrefFor(sellHub, "Marketplace Connectors")).toBe(MARKETPLACE_CONNECTORS_PATH);

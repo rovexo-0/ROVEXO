@@ -38,11 +38,11 @@ const PERSONA_SUGGESTIONS: Record<AssistantPersona, Array<{ label: string; href:
   ],
   seller: [
     { label: "Withdraw help", href: "/help/category/withdraw" },
-    { label: "Seller dashboard", href: "/seller" },
+    { label: "Selling workspace", href: "/seller" },
     { label: "Promote listings", href: "/seller/listings" },
   ],
   business: [
-    { label: "Business dashboard", href: "/business/dashboard" },
+    { label: "Business tools", href: "/business/dashboard" },
     { label: "Business verification", href: "/trust#verification" },
     { label: "Business directory", href: "/business/directory" },
   ],
@@ -61,7 +61,7 @@ const PERSONA_SUGGESTIONS: Record<AssistantPersona, Array<{ label: string; href:
 export function inferAssistantPersona(pathname: string, accountType?: string): AssistantPersona {
   if (pathname.startsWith("/admin")) return "admin";
   if (pathname.startsWith("/wholesale") || accountType === "wholesale") return "wholesale";
-  if (pathname.startsWith("/business") || accountType === "business") return "business";
+  if (pathname.startsWith("/business") || accountType === "account") return "business";
   if (pathname.startsWith("/seller") || pathname.startsWith("/sell")) return "seller";
   return "buyer";
 }

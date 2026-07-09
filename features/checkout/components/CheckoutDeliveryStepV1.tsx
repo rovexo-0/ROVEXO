@@ -7,7 +7,9 @@ import { focusRing } from "@/components/ui/tokens";
 import { formatListingPrice } from "@/lib/listing-card/format";
 import {
   getDeliveryPrice,
+  resolveCheckoutShippingMessage,
   SHIPPING_INCLUDED_LABEL,
+  shouldShowUnavailableShippingPrice,
   UNAVAILABLE_SHIPPING_PRICE_LABEL,
 } from "@/lib/checkout/delivery";
 import type { CheckoutFormController } from "@/features/checkout/hooks/use-checkout-form";
@@ -38,6 +40,8 @@ export function CheckoutDeliveryStepV1({
     liveQuotesAttempted,
     liveShippingEnabled,
     selectedQuote,
+    retryShippingQuotes,
+    shippingQuoteReason,
   } = form;
 
   const [editingAddress, setEditingAddress] = useState(false);
@@ -55,18 +59,33 @@ export function CheckoutDeliveryStepV1({
     liveQuotesAttempted: liveQuotesAttempted || !liveShippingEnabled,
   });
 
+  const shippingUnavailable = shouldShowUnavailableShippingPrice({
+    listingOffersFreeDelivery,
+    listingShippingPrice,
+    liveQuotesAttempted,
+    liveQuotesLoading: shippingQuotesLoading,
+    selectedQuote,
+  });
+
+  const userShippingMessage = resolveCheckoutShippingMessage(shippingQuoteReason);
+
   const shippingTitle = "Shipping";
   const shippingSubtitle = selectedQuote
     ? selectedQuote.eta
     : listingOffersFreeDelivery
       ? SHIPPING_INCLUDED_LABEL
-      : "2-3 working days";
+      : shippingQuotesLoading
+        ? "Fetching live rates…"
+        : "2-3 working days";
 
   const shippingPriceLabel = listingOffersFreeDelivery
     ? SHIPPING_INCLUDED_LABEL
-    : staticDeliveryPrice == null
-      ? UNAVAILABLE_SHIPPING_PRICE_LABEL
-      : formatListingPrice(staticDeliveryPrice);
+    : shippingQuotesLoading
+      ? "Loading…"
+      : staticDeliveryPrice == null
+        ? userShippingMessage ??
+          (shippingUnavailable ? UNAVAILABLE_SHIPPING_PRICE_LABEL : "Calculated at checkout")
+        : formatListingPrice(staticDeliveryPrice);
 
   const formattedAddress = [
     draft.addressLine,
@@ -220,6 +239,15 @@ export function CheckoutDeliveryStepV1({
             </button>
           )}
         </div>
+        {shippingUnavailable ? (
+          <button
+            type="button"
+            className={cn("ckt-v1__inline-action", focusRing)}
+            onClick={retryShippingQuotes}
+          >
+            Retry shipping quote
+          </button>
+        ) : null}
       </section>
 
       <section className="ckt-v1__section" aria-labelledby="ckt-order-notes">

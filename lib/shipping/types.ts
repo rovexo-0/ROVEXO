@@ -130,6 +130,9 @@ export type ShipmentParcelLabel = {
   status: "pending" | "ready" | "void";
 };
 
+export const PARCEL_OPERATIONS = ["return", "claim", "lost", "damaged"] as const;
+export type ParcelOperation = (typeof PARCEL_OPERATIONS)[number];
+
 export type ShipmentParcel = {
   id: string;
   shippingRecordId: string;
@@ -147,6 +150,9 @@ export type ShipmentParcel = {
   trackingUrl: string | null;
   status: ShippingStatus;
   productItemIds: string[];
+  insuranceEnabled: boolean;
+  insuranceValueGbp: number | null;
+  operation: ParcelOperation | null;
   estimatedDeliveryAt: string | null;
   label: ShipmentParcelLabel | null;
   createdAt: string;

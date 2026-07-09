@@ -8,9 +8,8 @@ export type TileIconStyle = {
 };
 
 const QUICK_ACCESS_ICONS: Record<AccountCenterModuleId, TileIconStyle> = {
-  buyer: { emoji: "🛍️", background: "rgb(147 51 234 / 0.08)" },
-  seller: { emoji: "🏪", background: "#f0fdf4" },
-  business: { emoji: "🏢", background: "#faf5ff" },
+  buying: { emoji: "🛍️", background: "rgb(147 51 234 / 0.08)" },
+  selling: { emoji: "🏪", background: "#f0fdf4" },
   account: { emoji: "👤", background: "#fff7ed" },
 };
 
@@ -79,7 +78,7 @@ export function getTileIcon(href: string, label?: string): TileIconStyle {
 
   if (href.startsWith("/store/")) return { emoji: "🏪", background: "rgb(147 51 234 / 0.08)" };
   if (href.startsWith("/help/")) return { emoji: "📖", background: "#f8fafc" };
-  if (href.startsWith("/seller/migration") || href.startsWith("/import")) {
+  if (href.startsWith("/seller/migration") || href.startsWith("/import") || href.startsWith("/account/bring-your-item")) {
     return HREF_ICONS[MIGRATION_CENTER_PATH]!;
   }
 

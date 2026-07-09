@@ -24,7 +24,7 @@ describe("enterprise admin shell migration", () => {
   it("wraps all 40 super admin modules in unified shell", () => {
     const adminDir = path.join(process.cwd(), "features/super-admin");
     const files = listAdminFiles(adminDir);
-    expect(files.length).toBe(51);
+    expect(files.length).toBe(52);
 
     for (const file of files) {
       const content = fs.readFileSync(file, "utf8");

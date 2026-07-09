@@ -5,7 +5,6 @@
  */
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { chromium, webkit, devices } from "playwright";
 import { createServerClient } from "@supabase/ssr";
 
@@ -338,7 +337,6 @@ async function verifySuperAdmin(page) {
     await page.waitForTimeout(400);
   }
 
-  const navLinks = await page.locator("a.sa-premium-nav-link").allTextContents();
   const hrefs = await page.locator("a.sa-premium-nav-link").evaluateAll((els) =>
     els.map((a) => a.getAttribute("href")).filter(Boolean),
   );
@@ -403,7 +401,6 @@ async function verifyBranding(browser) {
 async function main() {
   const chromiumBrowser = await chromium.launch();
   const webkitBrowser = await webkit.launch();
-  const { hostname } = new URL(base);
 
   // Health check
   try {

@@ -1,14 +1,17 @@
 import "server-only";
 
 import { applyInternalLabelFee } from "@/lib/shipping/labels/fee";
-import { getPrimaryProviderServer } from "@/lib/shipping/pricing/service.server";
+import { createShippingLabelRouted } from "@/lib/shipping/providers/router";
 import type { ShippingLabelRequest } from "@/lib/shipping/pricing/provider";
 import type { ShippingLabelArtifact } from "@/lib/shipping/types";
+import type { ShippingProviderId } from "@/lib/shipping/providers/types";
 
 export type LabelGenerationResult = {
   label: ShippingLabelArtifact;
   /** Server-side only — never sent to clients */
   internalPlatformFeePence: number;
+  providerId: ShippingProviderId;
+  usedFallback: boolean;
   parcel2Go?: {
     orderId: string;
     orderLineId: string | null;
@@ -20,8 +23,7 @@ export type LabelGenerationResult = {
 export async function generateShippingLabel(
   request: ShippingLabelRequest,
 ): Promise<LabelGenerationResult> {
-  const provider = getPrimaryProviderServer();
-  const response = await provider.createLabel(request);
+  const response = await createShippingLabelRouted(request);
 
   if (!response.available) {
     return {
@@ -34,6 +36,8 @@ export async function generateShippingLabel(
         status: "pending",
       },
       internalPlatformFeePence: 0,
+      providerId: response.providerId,
+      usedFallback: response.usedFallback,
     };
   }
 
@@ -49,6 +53,8 @@ export async function generateShippingLabel(
       status: "ready",
     },
     internalPlatformFeePence: platformFeePence,
+    providerId: response.providerId,
+    usedFallback: response.usedFallback,
     parcel2Go: response.parcel2GoOrderId
       ? {
           orderId: response.parcel2GoOrderId,

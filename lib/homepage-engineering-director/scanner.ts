@@ -274,17 +274,23 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
     page.includes("homePageJsonLd");
 
   const profileLink = readSource("components/header/HeaderProfileLink.tsx");
+  const homepageShare = readSource("components/header/HomepageHeaderShareButton.tsx");
   const hasAccountNav =
     header.includes("/account/settings") ||
     header.includes('href="/account"') ||
     (header.includes("HeaderProfileLink") &&
       (profileLink.includes('href="/account"') || profileLink.includes("/account/settings")));
+  const hasHomepageShare =
+    header.includes("replaceAccountWithShare") &&
+    header.includes("HomepageHeaderShareButton") &&
+    homepageShare.includes('aria-label="Share"');
 
   const navigationIntegrityScore =
     header.includes("HomepageSearchField") &&
     header.includes("/messages") &&
     header.includes("/notifications") &&
     hasAccountNav &&
+    hasHomepageShare &&
     !header.includes("HeaderCategoryBar") &&
     !homeContent.includes("HeaderCategoryBar") &&
     homeContent.includes("CanonicalCategoryRail") &&

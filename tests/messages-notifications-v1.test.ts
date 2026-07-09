@@ -18,7 +18,7 @@ describe("Messages + Notifications canonical UI v1.0", () => {
     expect(route).toContain('dynamic = "force-dynamic"');
     expect(route).not.toContain("fetchConversations");
     expect(inbox).toContain('data-messages-version="v1.0"');
-    expect(inbox).toContain("RvxTopBar");
+    expect(inbox).toContain("PageBack");
     expect(inbox).toContain('className="msg-v1__title"');
     expect(inbox).toContain("msg-row");
     expect(css).toContain(".msg-v1");

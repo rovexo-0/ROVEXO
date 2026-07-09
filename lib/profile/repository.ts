@@ -1,7 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/lib/supabase/types/database";
 import type { UserProfile } from "@/lib/profile/types";
-import type { AccountType } from "@/lib/profile/account";
+import {
+  resolveAccountCapabilities,
+  resolveRovexoAccountKind,
+} from "@/lib/profile/account";
 import { isAdmin, isSellerRole, isSuperAdmin } from "@/lib/auth/session";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 
@@ -32,12 +35,21 @@ type SellerProfileStatsRow = Pick<
 function mapProfileRow(
   profile: ProfileReadRow,
   sellerProfile: SellerProfileStatsRow | null,
+  hasBusinessAccount: boolean,
   unreadMessages: number,
   unreadNotifications: number,
 ): UserProfile {
-  const accountType: AccountType =
-    profile.role === "admin" ? "business" : (profile.role as AccountType);
-  const seller = isSellerRole(profile.role);
+  const accountKind = resolveRovexoAccountKind(profile.role);
+  const capabilityInput = {
+    role: profile.role,
+    verified: profile.verified,
+    hasSellerProfile: Boolean(sellerProfile),
+    hasBusinessAccount,
+    listingCount: sellerProfile?.listing_count ?? 0,
+    username: profile.username,
+  };
+  const capabilities = resolveAccountCapabilities(capabilityInput);
+  const selling = capabilities.canSell;
 
   return {
     id: profile.id,
@@ -48,8 +60,10 @@ function mapProfileRow(
     verified: profile.verified,
     memberSince: formatMemberSince(profile.created_at),
     role: profile.role,
-    accountType,
-    isSeller: seller,
+    accountKind,
+    accountType: accountKind,
+    capabilities,
+    isSeller: selling,
     isAdmin: isAdmin(profile.role),
     isSuperAdmin: isSuperAdmin(profile.role),
     sellerStats: sellerProfile
@@ -114,13 +128,14 @@ export async function fetchProfileByUserId(userId: string): Promise<UserProfile 
 
   const email = user?.id === userId ? (user.email ?? "") : "";
 
-  const [{ data: sellerProfile }, unreadMessages, { count: unreadNotifications }] =
+  const [{ data: sellerProfile }, { data: businessAccount }, unreadMessages, { count: unreadNotifications }] =
     await Promise.all([
       supabase
         .from("seller_profiles")
         .select(SELLER_PROFILE_READ_COLUMNS)
         .eq("id", userId)
         .maybeSingle(),
+      supabase.from("business_accounts").select("id").eq("id", userId).maybeSingle(),
       countUnreadMessages(userId, profile.role),
       supabase
         .from("notifications")
@@ -132,6 +147,7 @@ export async function fetchProfileByUserId(userId: string): Promise<UserProfile 
   return mapProfileRow(
     { ...profile, email },
     sellerProfile,
+    Boolean(businessAccount),
     unreadMessages,
     unreadNotifications ?? 0,
   );

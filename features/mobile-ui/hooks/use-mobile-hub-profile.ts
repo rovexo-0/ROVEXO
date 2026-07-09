@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { UserProfile } from "@/lib/profile/types";
 import type { UserRole } from "@/lib/supabase/types/database";
-import type { AccountType } from "@/lib/profile/account";
+import { ROVEXO_ACCOUNT_KIND, resolveAccountCapabilities, resolveRovexoAccountKind } from "@/lib/profile/account";
 
 export const GUEST_MOBILE_PROFILE: UserProfile = {
   id: "",
@@ -13,21 +13,20 @@ export const GUEST_MOBILE_PROFILE: UserProfile = {
   verified: false,
   memberSince: "",
   role: "buyer",
-  accountType: "buyer",
+  accountKind: ROVEXO_ACCOUNT_KIND,
+  accountType: ROVEXO_ACCOUNT_KIND,
+  capabilities: resolveAccountCapabilities({
+    role: "buyer",
+    verified: false,
+    hasSellerProfile: false,
+    hasBusinessAccount: false,
+  }),
   isSeller: false,
   isAdmin: false,
   isSuperAdmin: false,
   unreadMessages: 0,
   unreadNotifications: 0,
 };
-
-function roleToAccountType(role: UserRole): AccountType {
-  if (role === "super_admin") return "super_admin";
-  if (role === "admin") return "admin";
-  if (role === "seller") return "seller";
-  if (role === "business") return "business";
-  return "buyer";
-}
 
 function mapRoleToProfile(
   data: {
@@ -38,7 +37,14 @@ function mapRoleToProfile(
     avatarUrl: string | null;
   },
 ): UserProfile {
-  const accountType = roleToAccountType(data.role);
+  const accountKind = resolveRovexoAccountKind(data.role);
+  const capabilities = resolveAccountCapabilities({
+    role: data.role,
+    verified: false,
+    hasSellerProfile: false,
+    hasBusinessAccount: data.role === "business",
+  });
+
   return {
     id: data.id,
     fullName: data.fullName,
@@ -48,14 +54,12 @@ function mapRoleToProfile(
     verified: false,
     memberSince: "",
     role: data.role,
-    accountType,
-    isSeller:
-      accountType === "seller" ||
-      accountType === "business" ||
-      accountType === "admin" ||
-      accountType === "super_admin",
-    isAdmin: accountType === "admin" || accountType === "super_admin",
-    isSuperAdmin: accountType === "super_admin",
+    accountKind,
+    accountType: accountKind,
+    capabilities,
+    isSeller: capabilities.canSell,
+    isAdmin: accountKind === "admin" || accountKind === "super_admin",
+    isSuperAdmin: accountKind === "super_admin",
     unreadMessages: 0,
     unreadNotifications: 0,
   };

@@ -33,6 +33,7 @@ export const PRICE_RANGE_SLUGS: Record<string, { min?: number; max?: number; lab
   "100-250": { min: 100, max: 250, label: "£100 – £250" },
   "250-500": { min: 250, max: 500, label: "£250 – £500" },
   "500-1000": { min: 500, max: 1000, label: "£500 – £1,000" },
+  "under-500": { max: 500, label: "Under £500" },
   "over-1000": { min: 1000, label: "Over £1,000" },
 };
 

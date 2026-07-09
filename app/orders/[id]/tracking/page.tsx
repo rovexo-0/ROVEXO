@@ -25,8 +25,8 @@ export default async function OrderTrackingRoute({ params }: OrderTrackingRouteP
       <TrackingView
         orderNumber={commerce.meta.orderNumber}
         itemCount={commerce.meta.itemCount}
-        sellerName={commerce.sellerName}
-        parcels={commerce.parcels}
+        sellerShipments={commerce.sellerShipments}
+        orderId={order.id}
         orderHref={`/orders/${order.id}`}
         backHref={`/orders/${order.id}`}
       />

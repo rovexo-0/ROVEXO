@@ -13,7 +13,6 @@ import { formatListingPrice } from "@/lib/listing-card/format";
 import {
   calculatePlatformFee,
   FREE_DELIVERY_THRESHOLD,
-  STANDARD_DELIVERY_COST,
 } from "@/lib/orders/pricing";
 import type { CartSummary } from "@/lib/cart/store";
 import { Trash2 } from "lucide-react";
@@ -53,12 +52,15 @@ export function CartPage({ cart }: CartPageProps) {
     [selectedItems],
   );
 
-  const delivery =
+  const shippingIsFree =
+    selectedItems.length > 0 && subtotal >= FREE_DELIVERY_THRESHOLD;
+
+  const shippingLabel =
     selectedItems.length === 0
-      ? 0
-      : subtotal >= FREE_DELIVERY_THRESHOLD
-        ? 0
-        : STANDARD_DELIVERY_COST;
+      ? "—"
+      : shippingIsFree
+        ? "Free"
+        : "Calculated at checkout";
 
   const platformFee = useMemo(
     () =>
@@ -69,7 +71,7 @@ export function CartPage({ cart }: CartPageProps) {
     [selectedItems],
   );
 
-  const total = subtotal + delivery + platformFee;
+  const total = subtotal + platformFee;
   const checkoutItem = selectedItems.find((item) => item.available);
 
   const toggleItem = (id: string) => {
@@ -270,7 +272,9 @@ export function CartPage({ cart }: CartPageProps) {
                 </div>
                 <div className="cart-v1__summary-row">
                   <span>Shipping</span>
-                  <span>{formatListingPrice(delivery)}</span>
+                  <span className={shippingLabel === "Calculated at checkout" ? "cart-v1__shipping-pending" : undefined}>
+                    {shippingLabel}
+                  </span>
                 </div>
                 <div className="cart-v1__summary-total">
                   <span>Total</span>

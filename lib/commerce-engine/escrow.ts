@@ -17,7 +17,6 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { creditSellerForOrder as walletCreditSellerForOrder } from "@/lib/wallet/sales";
 import { recordEscrowEvent } from "@/lib/commerce-engine/ledger";
-import { recordCommerceAudit } from "@/lib/commerce-engine/audit";
 import { emitCommerceEvent } from "@/lib/commerce-engine/events";
 import { reserveShippingForOrder } from "@/lib/commerce-engine/shipping-reserve";
 import { calculateSellerNetAmount } from "@/lib/wallet/sales";

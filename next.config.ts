@@ -105,6 +105,8 @@ const nextConfig: NextConfig = {
       { source: "/account/wallet", destination: "/seller/wallet", permanent: true },
       { source: "/account/wallet/:path*", destination: "/seller/wallet/:path*", permanent: true },
       { source: "/item/:slug", destination: "/listing/:slug", permanent: true },
+      { source: "/products/:slug", destination: "/listing/:slug", permanent: true },
+      { source: "/product/:slug", destination: "/listing/:slug", permanent: true },
       { source: "/cars", destination: "/browse/cars", permanent: true },
       { source: "/cars/:path*", destination: "/browse/cars/:path*", permanent: true },
       { source: "/phones", destination: "/browse/phones", permanent: true },

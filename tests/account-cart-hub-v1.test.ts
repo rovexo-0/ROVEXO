@@ -12,16 +12,20 @@ describe("Account + Cart canonical UI v1", () => {
     const menu = readSource("lib/account-center/canonical-menu.ts");
     const css = readSource("styles/rovexo/account-hub-v1.css");
 
-    expect(home).toContain('data-ac-hub-version="v1.3"');
+    expect(home).toContain('data-ac-hub-version="v1.4"');
     expect(home).toContain("AccountHubProfile");
     expect(home).toContain("AccountMenuList");
     expect(menu).toContain("Profile");
-    expect(menu).toContain("My Listings");
+    expect(menu).toContain("Selling");
+    expect(menu).toContain("Cart");
+    expect(menu).toContain("Verification");
+    expect(menu).toContain("ROVEXO Ideas");
     expect(menu).toContain("Log Out");
     expect(css).toContain(".ac-hub__menu-card");
     expect(css).toContain(".ac-hub__row-chevron");
     expect(css).toContain(".ac-hub__profile-card");
     expect(css).toContain(".ac-hub__wallet-balance");
+    expect(css).toContain(".ac-hub__submenu");
   });
 
   it("uses list rows instead of legacy account grid on hub", () => {
@@ -43,6 +47,7 @@ describe("Account + Cart canonical UI v1", () => {
     expect(wallet).toContain('data-wallet-hub-version="v1.0"');
     expect(wallet).toContain("Available Balance");
     expect(wallet).toContain("Recent Transactions");
+    expect(wallet).toContain("Payment Methods");
     expect(wallet).toContain("wallet-hub__amount--in");
     expect(wallet).toContain("wallet-hub__amount--out");
     expect(page).toContain("WalletHubV1");
@@ -99,6 +104,7 @@ describe("My Account module v1.0", () => {
     expect(readSource("app/orders/page.tsx")).toContain("OrdersV1");
     expect(readSource("app/saved/page.tsx")).toContain("SavedItemsV1");
     expect(readSource("app/account/settings/page.tsx")).toContain("SettingsV1");
+    expect(readSource("app/account/verification/page.tsx")).toContain("VerificationHubV1");
     expect(readSource("styles/rovexo/account-module-v1.css")).toContain(".acm-tabs");
     expect(readSource("styles/rovexo/account-module-v1.css")).toContain(".acm-saved-grid");
   });

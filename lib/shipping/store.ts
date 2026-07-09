@@ -1,3 +1,5 @@
+import "server-only";
+
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { detectParcelTier, mapLegacyParcelSize } from "@/lib/shipping/parcels";
@@ -356,6 +358,7 @@ export async function saveShippingLabel(input: {
   parcelId?: string;
   label: ShippingLabelArtifact;
   internalPlatformFeePence: number;
+  providerId?: string;
 }): Promise<ShippingRecord | null> {
   const record = await ensureShippingRecord({ orderId: input.orderId });
   if (!record) return null;
@@ -374,6 +377,7 @@ export async function saveShippingLabel(input: {
   await attachLabelToParcel({
     parcelId,
     shippingRecordId: record.id,
+    providerId: input.providerId ?? "parcel2go",
     label: {
       trackingNumber: input.label.trackingNumber,
       carrier: String(input.label.carrier),

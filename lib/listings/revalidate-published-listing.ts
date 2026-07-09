@@ -21,6 +21,11 @@ export function revalidatePublishedListing(slug?: string | null): void {
   // Browse + location landing trees.
   revalidatePath("/browse/[...segments]", "page");
   revalidatePath("/l/[location]", "page");
+  revalidatePath("/l/[location]/[...category]", "page");
+  revalidatePath("/brand/[slug]", "page");
+  revalidatePath("/discover/[slug]", "page");
+  revalidatePath("/collections/[slug]", "page");
+  revalidatePath("/trends/[slug]", "page");
 
   if (slug) {
     revalidatePath(`/listing/${slug}`);

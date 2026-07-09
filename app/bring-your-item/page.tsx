@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import { IMPORT_WIZARD_PATH } from "@/lib/seller/migration/config";
+import { BRING_YOUR_ITEM_PATH } from "@/lib/bring-your-item/paths";
 
-/** Legacy alias — forwards to the import wizard. */
+/** Legacy alias — forwards to the canonical My Account Bring Your Item page. */
 export default function BringYourItemRedirectPage() {
-  redirect(IMPORT_WIZARD_PATH);
+  redirect(BRING_YOUR_ITEM_PATH);
 }

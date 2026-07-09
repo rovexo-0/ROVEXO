@@ -1,42 +1,35 @@
 import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
 import { MARKETPLACE_CONNECTORS_PATH } from "@/lib/seller/marketplace/config";
+import { filterBringYourItemTiles } from "@/lib/bring-your-item/release";
 import type { MobileBadgeKey, MobileTile } from "@/lib/mobile-ui/types";
-import type { UserProfile } from "@/lib/profile/types";
 
-export type AccountCenterModuleId = "buyer" | "seller" | "business" | "account";
+export type AccountCenterModuleId = "buying" | "selling" | "account";
 
 export type AccountQuickAccessModule = {
   id: AccountCenterModuleId;
   href: string;
   title: string;
   subtitle: string;
-  icon: "buyer" | "seller" | "business" | "account";
+  icon: "buying" | "selling" | "account";
   badgeKeys?: MobileBadgeKey[];
 };
 
 export const ACCOUNT_QUICK_ACCESS: AccountQuickAccessModule[] = [
   {
-    id: "buyer",
-    href: "/buyer",
+    id: "buying",
+    href: "/orders",
     title: "Buying",
     subtitle: "Orders, saved & discovery",
-    icon: "buyer",
+    icon: "buying",
     badgeKeys: ["orders", "cart", "messages", "notifications", "saved"],
   },
   {
-    id: "seller",
+    id: "selling",
     href: "/seller",
     title: "Selling",
     subtitle: "Listings, wallet & analytics",
-    icon: "seller",
+    icon: "selling",
     badgeKeys: ["orders", "wallet-payout"],
-  },
-  {
-    id: "business",
-    href: "/business/dashboard",
-    title: "Business",
-    subtitle: "B2B, wholesale & directory",
-    icon: "business",
   },
   {
     id: "account",
@@ -56,17 +49,16 @@ function tile(
   return { href, label, subtitle, badge };
 }
 
-/** Buyer module — spec §10. */
-export function getBuyerModuleTiles(): MobileTile[] {
+export function getBuyingModuleTiles(): MobileTile[] {
   return [
     tile("/orders", "Orders", "Track purchases", "orders"),
-    tile("/messages", "Messages", "Buyer & seller chats", "messages"),
+    tile("/messages", "Messages", "Marketplace chats", "messages"),
     tile("/saved", "Saved", "Items you saved", "saved"),
     tile("/notifications", "Notifications", "Alerts & activity", "notifications"),
     tile("/support", "Support", "Help from our team"),
     tile("/trust", "Trust Centre", "Score, safety & verification"),
     tile("/resolution", "Resolution Centre", "Disputes, returns & claims"),
-    tile("/plans", "Premium", "Subscriptions & buyer perks"),
+    tile("/plans", "Premium", "Subscriptions & perks"),
     tile("/search", "Search", "Find anything"),
     tile("/categories", "Browse", "Explore the marketplace"),
     tile("/auctions", "Auctions", "Live bidding"),
@@ -74,9 +66,8 @@ export function getBuyerModuleTiles(): MobileTile[] {
   ];
 }
 
-/** Seller module — spec §11. */
-export function getSellerModuleTiles(): MobileTile[] {
-  return [
+export function getSellingModuleTiles(): MobileTile[] {
+  return filterBringYourItemTiles([
     tile("/seller/listings", "Listings", "Manage inventory"),
     tile("/seller/orders", "Orders", "Fulfillment & shipping", "orders"),
     tile("/wallet", "Wallet", "Balance & payouts", "wallet-payout"),
@@ -86,32 +77,10 @@ export function getSellerModuleTiles(): MobileTile[] {
     tile(MIGRATION_CENTER_PATH, "Bring Your Item", "Import your store"),
     tile("/plans", "Promotions", "Boost & premium tools"),
     tile("/seller/tax", "Tax", "VAT & registration"),
-    tile("/support", "Support", "Seller help"),
-  ];
+    tile("/support", "Support", "Selling help"),
+  ]);
 }
 
-/** Business module — spec §12. */
-export function getBusinessModuleTiles(profile: UserProfile): MobileTile[] {
-  const tiles: MobileTile[] = [
-    tile("/business/dashboard", "Company Dashboard", "Revenue & orders"),
-    tile("/wholesale", "B2B", "Trade & bulk orders"),
-    tile("/wholesale", "Wholesale", "MOQ & bulk pricing"),
-    tile("/business/center", "Leads", "B2B opportunities"),
-    tile("/orders", "Invoices", "Orders & receipts", "orders"),
-    tile("/seller/tax", "VAT", "Tax & registration"),
-    tile("/business/analytics", "Analytics", "Insights & reports"),
-    tile("/business/directory", "Directory", "Verified companies"),
-    tile("/account/settings", "Company Settings", "Access & permissions"),
-  ];
-
-  if (profile.username) {
-    tiles.unshift(tile(`/store/${profile.username}`, "Business Profile", "Public store page"));
-  }
-
-  return tiles;
-}
-
-/** Account module — spec §13. */
 export function getAccountModuleTiles(): MobileTile[] {
   return [
     tile("/account/profile", "Profile", "Name, avatar & email"),
@@ -121,6 +90,7 @@ export function getAccountModuleTiles(): MobileTile[] {
     tile("/account/preferences/language", "Language", "Locale & region"),
     tile("/notifications/settings", "Notifications", "Push & email", "notifications"),
     tile("/account/preferences/appearance", "Appearance", "Theme & display"),
+    tile("/account/ideas", "ROVEXO Ideas", "Suggest improvements"),
     tile("/help", "Help", "Guides & troubleshooting"),
     tile("/account/privacy", "Privacy", "Visibility & marketing"),
   ];
@@ -132,25 +102,21 @@ export function getModuleMeta(id: AccountCenterModuleId): {
   backLabel: string;
 } {
   switch (id) {
-    case "buyer":
+    case "buying":
       return { title: "Buying", backHref: "/account", backLabel: "My Account" };
-    case "seller":
+    case "selling":
       return { title: "Selling", backHref: "/account", backLabel: "My Account" };
-    case "business":
-      return { title: "Business", backHref: "/account", backLabel: "My Account" };
     case "account":
       return { title: "Account", backHref: "/account", backLabel: "My Account" };
   }
 }
 
-export function getModuleTiles(id: AccountCenterModuleId, profile: UserProfile): MobileTile[] {
+export function getModuleTiles(id: AccountCenterModuleId): MobileTile[] {
   switch (id) {
-    case "buyer":
-      return getBuyerModuleTiles();
-    case "seller":
-      return getSellerModuleTiles();
-    case "business":
-      return getBusinessModuleTiles(profile);
+    case "buying":
+      return getBuyingModuleTiles();
+    case "selling":
+      return getSellingModuleTiles();
     case "account":
       return getAccountModuleTiles();
   }

@@ -79,7 +79,7 @@ export function MarketplaceConnectorsPage() {
         <StickyPageHeader>
           <div className="flex items-center gap-ds-2">
             <IconButton
-              label="Back to seller dashboard"
+              label="Back to Selling"
               onClick={() => router.push("/seller")}
               className={focusRing}
             >

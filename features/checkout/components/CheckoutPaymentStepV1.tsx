@@ -9,7 +9,7 @@ import {
   type PaymentMethodId,
 } from "@/lib/checkout/payment";
 import { OrderSummaryTotals } from "@/features/commerce-ui/components/OrderSummaryTotals";
-import { mapOrderToCommerceTotals } from "@/lib/commerce/read-model";
+import { mapOrderToCommerceTotals } from "@/lib/commerce/mappers";
 import type { CheckoutFormController } from "@/features/checkout/hooks/use-checkout-form";
 import type { OrderTotals } from "@/lib/orders/types";
 

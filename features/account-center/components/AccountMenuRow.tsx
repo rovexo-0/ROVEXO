@@ -15,6 +15,7 @@ type AccountMenuRowProps = {
   destructive?: boolean;
   onClick?: () => void;
   disabled?: boolean;
+  comingSoon?: boolean;
 };
 
 export function AccountMenuRow({
@@ -28,6 +29,7 @@ export function AccountMenuRow({
   destructive = false,
   onClick,
   disabled = false,
+  comingSoon = false,
 }: AccountMenuRowProps) {
   const content = (
     <>
@@ -53,7 +55,12 @@ export function AccountMenuRow({
     </>
   );
 
-  const rowClassName = cn("ac-hub__row", transitionFast, focusRing);
+  const rowClassName = cn(
+    "ac-hub__row",
+    transitionFast,
+    focusRing,
+    comingSoon && "ac-hub__row--coming-soon",
+  );
 
   if (href) {
     return (

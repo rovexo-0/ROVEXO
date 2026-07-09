@@ -11,7 +11,7 @@ import {
 } from "@/lib/checkout/payment";
 import { SellerSummaryCard } from "@/features/commerce-ui/components/SellerSummaryCard";
 import { OrderSummaryTotals } from "@/features/commerce-ui/components/OrderSummaryTotals";
-import { mapOrderToCommerceTotals, mapProductToCheckoutSellerGroup } from "@/lib/commerce/read-model";
+import { mapOrderToCommerceTotals, mapProductToCheckoutSellerGroup } from "@/lib/commerce/mappers";
 import type { CheckoutFormController } from "@/features/checkout/hooks/use-checkout-form";
 import type { CheckoutStep } from "@/features/checkout/types";
 import type { OrderTotals } from "@/lib/orders/types";

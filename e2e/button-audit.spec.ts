@@ -2,8 +2,8 @@ import { test, expect, type Locator, type Page } from "@playwright/test";
 import {
   ACCOUNT_QUICK_ACCESS,
   getAccountModuleTiles,
-  getBuyerModuleTiles,
-  getSellerModuleTiles,
+  getBuyingModuleTiles,
+  getSellingModuleTiles,
 } from "../lib/account-center/modules";
 import { waitForHomepageUi } from "./helpers/stable-ui";
 
@@ -57,12 +57,12 @@ const GUEST_HUB_PROBES: ButtonProbe[] = [
     path: module.href,
     expectLogin: true,
   })),
-  ...getBuyerModuleTiles().map((tile) => ({
+  ...getBuyingModuleTiles().map((tile) => ({
     name: `Buyer tile — ${tile.label}`,
     path: tile.href,
     expectLogin: expectsGuestLogin(tile.href),
   })),
-  ...getSellerModuleTiles().map((tile) => ({
+  ...getSellingModuleTiles().map((tile) => ({
     name: `Seller tile — ${tile.label}`,
     path: tile.href,
     expectLogin: expectsGuestLogin(tile.href),
@@ -70,7 +70,7 @@ const GUEST_HUB_PROBES: ButtonProbe[] = [
 ];
 
 const PUBLIC_ACTION_PROBES: ButtonProbe[] = [
-  { name: "Homepage — Import Listings CTA", path: "/", control: { role: "link", name: /import listings/i } },
+  { name: "Homepage — Sell navigation", path: "/", control: { role: "link", name: /^sell$/i } },
   { name: "Login — Submit", path: "/login", control: { role: "button", name: /sign in|log in/i } },
   { name: "Register — Submit", path: "/register", control: { role: "button", name: /create account|register/i } },
   { name: "Forgot password — Submit", path: "/forgot-password", control: { role: "button", name: /reset|send/i } },
@@ -83,7 +83,7 @@ async function expectActionControlReady(
   path: string,
 ): Promise<void> {
   if (path === "/register") {
-    await expect(page.getByRole("textbox", { name: "Username" })).toBeVisible();
+    await expect(page.getByRole("textbox", { name: /email/i })).toBeVisible();
   }
 
   await target.scrollIntoViewIfNeeded();

@@ -5,8 +5,8 @@ import { ProductDetailPage } from "@/features/product-detail/ProductDetailPage";
 import { incrementProductViews } from "@/lib/listings/repository";
 import { fetchProductBySlug, fetchSimilarProducts } from "@/lib/products/queries";
 import { getCategoryBreadcrumbsForProduct } from "@/lib/categories/server";
+import { productPageMetadata } from "@/lib/seo/engine";
 import { productJsonLd } from "@/lib/seo/json-ld";
-import { getAppUrl } from "@/lib/supabase/env";
 
 type ListingPageProps = {
   params: Promise<{ slug: string }>;
@@ -19,31 +19,15 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   const product = await fetchProductBySlug(slug);
 
   if (!product) {
-    return { title: "Listing not found · ROVEXO" };
+    return { title: "Listing not found · ROVEXO", robots: { index: false, follow: false } };
   }
 
-  const title = `${product.title} · ROVEXO`;
-  const description = product.description.slice(0, 160) || `Buy ${product.title} on ROVEXO.`;
-  const canonical = `${getAppUrl()}/listing/${slug}`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical },
-    openGraph: {
-      title,
-      description,
-      url: canonical,
-      images: product.images[0] ? [{ url: product.images[0] }] : undefined,
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: product.images[0] ? [product.images[0]] : undefined,
-    },
-  };
+  return productPageMetadata({
+    title: product.title,
+    description: product.description,
+    slug,
+    imageUrl: product.images[0],
+  });
 }
 
 export default async function ListingPage({ params }: ListingPageProps) {

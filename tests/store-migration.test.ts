@@ -17,7 +17,7 @@ import { MIGRATION_BATCH_SIZE } from "@/lib/seller/migration/engine/config";
 describe("store migration module", () => {
   it("defines migration center route", () => {
     expect(MIGRATION_CENTER_PATH).toBe(IMPORT_WIZARD_PATH);
-    expect(MIGRATION_CENTER_PATH).toBe("/import");
+    expect(MIGRATION_CENTER_PATH).toBe("/account/bring-your-item");
   });
 
   it("lists supported platforms and import methods", () => {

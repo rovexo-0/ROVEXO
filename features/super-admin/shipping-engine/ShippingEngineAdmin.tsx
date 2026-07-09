@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { EnterpriseEngineAdminShell } from "@/features/super-admin/components/premium/EnterpriseEngineAdminShell";
 import { Parcel2GoLivePanel } from "@/features/super-admin/shipping-engine/Parcel2GoLivePanel";
+import { ShippingProvidersPanel } from "@/features/super-admin/shipping-engine/ShippingProvidersPanel";
 import { cn } from "@/lib/cn";
 import type { ShippingEngineDocument, ShippingEngineHistoryEntry, ShippingEngineSnapshot } from "@/lib/shipping-engine/types";
 
@@ -12,13 +13,14 @@ type ShippingEngineAdminProps = {
   initialSnapshot: ShippingEngineSnapshot;
 };
 
-type AdminTab = "methods" | "zones" | "rules" | "carriers" | "parcel2go" | "returns" | "tracking" | "notifications" | "analytics" | "protection" | "history";
+type AdminTab = "methods" | "zones" | "rules" | "carriers" | "providers" | "parcel2go" | "returns" | "tracking" | "notifications" | "analytics" | "protection" | "history";
 
 const TABS: { id: AdminTab; label: string }[] = [
   { id: "methods", label: "Methods" },
   { id: "zones", label: "Zones" },
   { id: "rules", label: "Rules" },
   { id: "carriers", label: "Carriers" },
+  { id: "providers", label: "Providers" },
   { id: "parcel2go", label: "Parcel2Go Live" },
   { id: "returns", label: "Returns" },
   { id: "tracking", label: "Tracking" },
@@ -106,6 +108,7 @@ export function ShippingEngineAdmin({ initialSnapshot }: ShippingEngineAdminProp
       {activeTab === "carriers" ? (
         <AdminList title="Carrier Settings (integration-ready)" items={draft.carriers.map((c) => ({ name: c.name, meta: c.integrationReady ? "Integration ready" : "Architecture prepared", enabled: c.enabled }))} />
       ) : null}
+      {activeTab === "providers" ? <ShippingProvidersPanel /> : null}
       {activeTab === "parcel2go" ? <Parcel2GoLivePanel /> : null}
       {activeTab === "returns" ? (
         <AdminList title="Return Rules" items={draft.returnRules.map((r) => ({ name: r.label, meta: r.autoApprovalDays ? `${r.autoApprovalDays} day auto-approval` : "Manual approval", enabled: r.enabled }))} />

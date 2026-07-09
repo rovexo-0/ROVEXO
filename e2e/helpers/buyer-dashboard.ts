@@ -12,7 +12,7 @@ export const BUYER_PROTOCOL_VIEWPORTS = [
 
 export async function waitForBuyerDashboardUi(page: Page): Promise<void> {
   await page.waitForLoadState("domcontentloaded");
-  await expect(page.locator(".account-center")).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator("main .account-center").first()).toBeVisible({ timeout: 30_000 });
   await expect(page.getByRole("heading", { level: 1, name: "Buying" })).toBeVisible();
     await expect(page.locator(".account-center-tile").filter({ hasText: "Orders" }).first()).toBeVisible();
 }

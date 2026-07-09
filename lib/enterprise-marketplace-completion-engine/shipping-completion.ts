@@ -45,7 +45,7 @@ function scanPlatform(scan: MarketplaceCompletionScanResult): CompletionValidati
 
   return SHIPPING_PLATFORM_VALIDATION.map((check) => {
     let pass = shippingFoundationReady(scan);
-    if (check === "shipping-labels") pass = fileExists("features/orders/components/ShippingLabelCard.tsx");
+    if (check === "shipping-labels") pass = fileExists("features/shipping/components/ParcelCard.tsx");
     if (check === "carrier-integration") pass = carriers.includes("UK_CARRIERS");
     if (check === "tracking-numbers") pass = carriers.includes("isValidTrackingNumber");
     if (check === "collection-points") pass = shippingDefaults.includes("collection");
@@ -95,7 +95,7 @@ function scanSecurity(scan: MarketplaceCompletionScanResult): CompletionValidati
 
 function scanAccessibility(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const hub = readSource("features/shipping/ShippingEngineHub.tsx");
-  const tracking = readSource("features/orders/components/OrderTrackingCard.tsx");
+  const tracking = readSource("features/commerce-ui/views/TrackingView.tsx");
 
   return [
     createCheck("shipping-accessibility", "shipping-hub-structure", hub.length > 0, "Shipping hub structure PASS"),
@@ -133,7 +133,7 @@ function buildCertificationScores(scan: MarketplaceCompletionScanResult, passPer
   };
   const values: Record<(typeof SHIPPING_CERTIFICATION_SCORES)[number], number> = {
     shipping: passPercent,
-    tracking: fileExists("features/orders/components/OrderTrackingCard.tsx") ? 100 : 85,
+    tracking: fileExists("features/commerce-ui/views/TrackingView.tsx") ? 100 : 85,
     carrier: fileExists("lib/shipping/carriers.ts") ? 100 : 85,
     performance: scan.orderCompletionPass ? 100 : 90,
     security: fileExists("lib/shipping/service.ts") ? 100 : 90,
@@ -158,7 +158,7 @@ function buildPassConditions(
 ): ShippingPassConditionResult[] {
   const mapping: Record<(typeof SHIPPING_PASS_CONDITIONS)[number], boolean> = {
     "shipping-pass": fileExists("app/shipping/page.tsx") && fileExists("lib/shipping/service.ts"),
-    "tracking-pass": fileExists("features/orders/components/OrderTrackingCard.tsx"),
+    "tracking-pass": fileExists("features/commerce-ui/views/TrackingView.tsx"),
     "returns-pass": fileExists("features/orders/components/IssueResolutionLink.tsx"),
     "carrier-pass": fileExists("lib/shipping/carriers.ts"),
     "notifications-pass": fileExists("lib/orders/notifications.ts"),

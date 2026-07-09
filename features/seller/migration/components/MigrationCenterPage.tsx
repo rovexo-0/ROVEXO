@@ -17,6 +17,7 @@ import {
   resolveImportErrorRecovery,
   resolveOAuthWizardError,
 } from "@/lib/bring-your-item";
+import { BRING_YOUR_ITEM_PATH } from "@/lib/bring-your-item/paths";
 import type { MigrationPlatformId } from "@/lib/seller/migration/types";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
@@ -146,7 +147,7 @@ export function MigrationCenterPage() {
 
   const handleConnectOAuth = useCallback(() => {
     if (!platform) return;
-    const returnTo = `/import?platform=${platform}`;
+    const returnTo = `${BRING_YOUR_ITEM_PATH}?platform=${platform}`;
     const params = new URLSearchParams({ returnTo });
     if (platform === "shopify" && source.storeUrl.trim()) {
       params.set("shop", source.storeUrl.trim());

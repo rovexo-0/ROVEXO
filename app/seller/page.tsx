@@ -6,17 +6,16 @@ import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
 export const metadata = {
   ...privatePageMetadata,
-  title: "Seller · ROVEXO",
-  description: "Listings, orders, wallet, analytics, and seller tools.",
+  title: "Selling · ROVEXO",
+  description: "Listings, orders, wallet, analytics, and selling tools.",
 };
 
-async function SellerModuleContent() {
-  const profile = await getProfile();
+async function SellingModuleContent() {
+  await getProfile();
 
   return (
     <AccountCenterModulePage
-      moduleId="seller"
-      profile={profile}
+      moduleId="selling"
       description="Listings, fulfillment, wallet, and growth tools."
     />
   );
@@ -27,7 +26,7 @@ export default function SellerPage() {
     <BetaAppShell bottomNavTab="sell" className="account-center-shell">
       <main className="mx-auto w-full max-w-[480px] pb-[calc(84px+env(safe-area-inset-bottom))]">
         <Suspense fallback={null}>
-          <SellerModuleContent />
+          <SellingModuleContent />
         </Suspense>
       </main>
     </BetaAppShell>

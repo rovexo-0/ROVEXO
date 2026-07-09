@@ -4,8 +4,10 @@ import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import type { CommerceParcel } from "@/features/commerce-ui/types";
+import { ParcelProductsList } from "@/features/commerce-ui/components/ParcelProductsList";
 
 type ShipmentCardProps = {
+  sellerName?: string;
   /** Number of parcels the seller created after payment. */
   parcelCount: number;
   /** True once carrier labels exist and tracking is available. */
@@ -23,6 +25,7 @@ type ShipmentCardProps = {
  * and links through to per-parcel tracking.
  */
 export function ShipmentCard({
+  sellerName,
   parcelCount,
   ready,
   href,
@@ -48,7 +51,9 @@ export function ShipmentCard({
         </span>
 
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-text-primary">Shipment</p>
+          <p className="text-sm font-semibold text-text-primary">
+            {sellerName ? `Shipment from ${sellerName}` : "Shipment"}
+          </p>
           {!ready ? (
             <p className="mt-ds-1 text-xs font-medium text-text-secondary">Preparing Shipment</p>
           ) : null}
@@ -61,19 +66,22 @@ export function ShipmentCard({
       {ready && parcels.length > 0 ? (
         <ul className="divide-y divide-border border-t border-border">
           {parcels.map((parcel) => (
-            <li key={`${parcel.index}-${parcel.trackingNumber ?? "pending"}`}>
+            <li key={parcel.id}>
               <Link
                 href={href}
                 className={cn(
-                  "flex items-center justify-between gap-ds-3 px-ds-4 py-ds-3 text-sm hover:bg-surface-muted/60",
+                  "flex flex-col gap-ds-3 px-ds-4 py-ds-3 hover:bg-surface-muted/60",
                   focusRing,
                   transitionFast,
                 )}
               >
-                <span className="font-medium text-text-primary">
-                  Parcel {parcel.index} of {parcel.totalParcels}
-                </span>
-                <ChevronRight className="h-4 w-4 shrink-0 text-text-muted" aria-hidden />
+                <div className="flex items-center justify-between gap-ds-3">
+                  <span className="font-medium text-text-primary">
+                    Parcel {parcel.index} of {parcel.totalParcels}
+                  </span>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-text-muted" aria-hidden />
+                </div>
+                <ParcelProductsList items={parcel.items} />
               </Link>
             </li>
           ))}

@@ -28,5 +28,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     live: result.live,
     options: result.options,
+    reason: result.reason ?? null,
   });
 }

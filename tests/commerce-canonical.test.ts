@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildSellerShipments,
   getUiParcelsFromOrder,
   isShipmentReady,
   mapOrderToCommerceTotals,
   mapOrderToMeta,
   mapParcelModelToUi,
+  mapShipmentParcelsToUi,
 } from "@/lib/commerce/mappers";
+import { buildCanonicalShipmentTimeline } from "@/features/commerce-ui/lib/shipment-timeline";
 import type { Order } from "@/lib/orders/types";
 import type { ShippingRecord } from "@/lib/shipping/types";
 
@@ -104,10 +107,79 @@ describe("commerce canonical mappers", () => {
       dimensions: null,
       shippingService: null,
       timeline: [],
-    }).index).toBe(2);
+    }, [{ id: "prod-1", title: "Luxury Duvet", quantity: 1, price: 375, imageUrl: null }], "parcel-2").index).toBe(2);
+  });
+
+  it("builds canonical shipment timeline with eight steps", () => {
+    const timeline = buildCanonicalShipmentTimeline({
+      currentStatus: "in_transit",
+      parcelId: "p1",
+      fallbackOccurredAt: baseRecord.createdAt,
+    });
+    expect(timeline.map((step) => step.title)).toEqual([
+      "Order Confirmed",
+      "Preparing Shipment",
+      "Labels Created",
+      "Collected",
+      "In Transit",
+      "Out for Delivery",
+      "Delivered",
+    ]);
+    expect(timeline.find((step) => step.title === "In Transit")?.current).toBe(true);
+  });
+
+  it("groups parcels by seller without mixing", () => {
+    const parcels = getUiParcelsFromOrder(baseOrder, {
+      ...baseRecord,
+      status: "in_transit",
+      trackingNumber: "TRACK1",
+      label: {
+        trackingNumber: "TRACK1",
+        barcode: null,
+        qrPayload: null,
+        pdfUrl: null,
+        carrier: "Evri",
+        status: "ready",
+      },
+    });
+    const groups = buildSellerShipments(baseOrder, parcels, "/orders/order-1/tracking");
+    expect(groups).toHaveLength(1);
+    expect(groups[0]?.sellerId).toBe("seller-1");
+    expect(groups[0]?.parcels).toHaveLength(1);
+    expect(groups[0]?.parcels[0]?.items[0]?.title).toBe("Luxury Duvet");
+  });
+
+  it("maps shipment parcels with product allocation", () => {
+    const ui = mapShipmentParcelsToUi(baseOrder, baseRecord, [
+      {
+        id: "p1",
+        shippingRecordId: "ship-1",
+        parcelNumber: 1,
+        totalParcels: 1,
+        weightKg: 1,
+        dimensions: null,
+        carrier: "Evri",
+        shippingService: "Standard",
+        trackingNumber: "T1",
+        trackingUrl: null,
+        status: "in_transit",
+        productItemIds: ["prod-1"],
+        insuranceEnabled: false,
+        insuranceValueGbp: null,
+        operation: null,
+        estimatedDeliveryAt: null,
+        label: null,
+        createdAt: baseRecord.createdAt,
+        updatedAt: baseRecord.updatedAt,
+      },
+    ]);
+    expect(ui[0]?.items).toHaveLength(1);
+    expect(ui[0]?.items[0]?.id).toBe("prod-1");
   });
 
   it("maps order meta with paid status after payment", () => {
     const meta = mapOrderToMeta(baseOrder);
     expect(meta.paymentStatus).toBe("paid");
-    expect(meta.orderNumber).toBe("RVX-1001"
+    expect(meta.orderNumber).toBe("RVX-1001");
+  });
+});

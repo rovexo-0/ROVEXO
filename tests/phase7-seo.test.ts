@@ -33,8 +33,9 @@ describe("enterprise SEO engine", () => {
   it("reports sitemap segments and audit score", () => {
     const report = runSeoAudit();
     expect(report.score).toBeGreaterThanOrEqual(80);
-    expect(report.stats.sitemapSegments).toBe(8);
-    expect(sitemapIndexUrls().length).toBe(8);
+    expect(report.stats.sitemapSegments).toBe(12);
+    expect(sitemapIndexUrls().length).toBe(12);
+    expect(report.engineVersion).toBe("4.0.0");
     expect(report.stats.categoryPages).toBe(1113);
     expect(report.stats.locationPages).toBeGreaterThanOrEqual(100);
   });

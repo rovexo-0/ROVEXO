@@ -9,11 +9,15 @@ import { buttonSizes, buttonVariants } from "@/components/ui/variants";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { CommerceStatusBadge } from "@/features/commerce-ui/components/CommerceStatusBadge";
+import { ParcelProductsList } from "@/features/commerce-ui/components/ParcelProductsList";
+import { ParcelOperations } from "@/features/commerce-ui/components/ParcelOperations";
 import { parcelStatusMeta } from "@/features/commerce-ui/lib/status";
 import type { CommerceParcel, CommerceParcelTimelineEvent } from "@/features/commerce-ui/types";
 
 type ParcelTrackingCardProps = {
   parcel: CommerceParcel;
+  orderId?: string;
+  showOperations?: boolean;
   className?: string;
 };
 
@@ -76,7 +80,12 @@ function ParcelTimeline({ items }: { items: CommerceParcelTimelineEvent[] }) {
  * always titled "Parcel X of Y" so the buyer understands one order can arrive as
  * multiple independently tracked parcels.
  */
-export function ParcelTrackingCard({ parcel, className }: ParcelTrackingCardProps) {
+export function ParcelTrackingCard({
+  parcel,
+  orderId,
+  showOperations = false,
+  className,
+}: ParcelTrackingCardProps) {
   const [copied, setCopied] = useState(false);
   const status = parcelStatusMeta(parcel.status);
 
@@ -102,6 +111,8 @@ export function ParcelTrackingCard({ parcel, className }: ParcelTrackingCardProp
         </p>
         <CommerceStatusBadge tone={status.tone}>{status.label}</CommerceStatusBadge>
       </div>
+
+      <ParcelProductsList items={parcel.items} />
 
       {parcel.trackingNumber ? (
         <div>
@@ -163,6 +174,14 @@ export function ParcelTrackingCard({ parcel, className }: ParcelTrackingCardProp
           View Tracking Details
         </Button>
       )}
+
+      {showOperations && orderId ? (
+        <ParcelOperations
+          orderId={orderId}
+          parcelId={parcel.id}
+          activeOperation={parcel.operation}
+        />
+      ) : null}
     </Card>
   );
 }

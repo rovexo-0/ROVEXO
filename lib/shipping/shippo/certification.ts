@@ -117,11 +117,11 @@ export function runShippoProductionCertification(
       },
       {
         id: "sole-provider",
-        label: "GoShippo is sole primary provider",
+        label: "Parcel2Go primary with Shippo fallback routing",
         pass:
+          providerServer.includes("parcel2GoAdapter") &&
           providerServer.includes("shippoAdapter") &&
-          shippoAdapter.includes('id = "shippo"') &&
-          providerServer.includes("[shippoAdapter]"),
+          providerServer.includes("fetchShippingQuotesRouted"),
       },
     ]),
     step("live-token", "Live Token", [
@@ -217,7 +217,7 @@ export function runShippoProductionCertification(
       {
         id: "label-service",
         label: "Server label generation service",
-        pass: shippoService.includes("generateLabel") && labelsService.includes("createLabel"),
+        pass: shippoService.includes("generateLabel") && labelsService.includes("generateShippingLabel"),
       },
       {
         id: "label-ui",

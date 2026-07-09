@@ -86,7 +86,7 @@ test.describe.serial("Messages + Notifications v1.0 — canonical layout", () =>
       `Expected messages v1 shell. Body text: ${bodyText.slice(0, 200)}`,
     ).toBeVisible({ timeout: 60_000 });
     await expect(page.getByRole("heading", { name: "Messages", exact: true })).toHaveCount(1);
-    await expect(page.locator(".rvx-topbar")).toHaveCount(1);
+    await expect(page.getByRole("button", { name: "My Account" })).toHaveCount(1);
     await expect(page.locator(".msg-v1__compose")).toHaveCount(1);
     await expect(page.locator('[data-bottom-nav="2026"]')).toHaveCount(1);
     await assertNoHorizontalOverflow(page);

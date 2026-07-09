@@ -12,7 +12,7 @@ export default async function AdminBusinessPage() {
       <h2 className="text-xl font-semibold">Business Ecosystem</h2>
       <div className="grid gap-ds-4 sm:grid-cols-2">
         <Card padding="lg" className="">
-          <p className="text-sm text-text-secondary">Business accounts</p>
+          <p className="text-sm text-text-secondary">Verified businesses</p>
           <p className="mt-ds-1 text-2xl font-bold">{businessAccounts ?? 0}</p>
         </Card>
       </div>

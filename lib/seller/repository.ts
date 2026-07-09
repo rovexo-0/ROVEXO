@@ -7,6 +7,7 @@ import type { Order } from "@/lib/orders/types";
 import { getSellerAnalyticsData } from "@/lib/analytics/store";
 import { getSellerDashboardData } from "@/lib/seller/dashboard";
 import { getSellerShippingSettings } from "@/lib/seller/shipping-settings";
+import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
 import { getTrustDashboardData } from "@/lib/trust/service";
 import { getWalletData } from "@/lib/wallet/store";
 import type { UserProfile } from "@/lib/profile/types";
@@ -219,7 +220,7 @@ export async function fetchSellerDashboardRepository(
     baseShippingCost: 0,
     freeShippingThreshold: null,
     defaultCarrier: "Royal Mail",
-    shipsTo: "Ireland",
+    shipsTo: UK_DEFAULT_COUNTRY,
     localPickupEnabled: false,
     internationalShippingEnabled: false,
     returnPolicyDays: 14,

@@ -14,7 +14,7 @@ export function BusinessDirectoryPage({ companies }: BusinessDirectoryPageProps)
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-ds-8 px-ds-4 py-ds-6">
       <section>
-        <PageBack variant="text" backHref="/business/dashboard" backLabel="Business Dashboard" className="mb-ds-3" />
+        <PageBack variant="text" backHref="/business/dashboard" backLabel="Business tools" className="mb-ds-3" />
         <h1 className="mt-ds-3 text-3xl font-bold text-text-primary">Business Directory</h1>
         <p className="mt-ds-2 text-sm text-text-secondary">
           Verified companies, manufacturers, suppliers, and wholesale partners.

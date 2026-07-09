@@ -6,6 +6,7 @@ import {
 import { SUPER_ADMIN_NAV } from "@/lib/super-admin/nav";
 import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
 import { MARKETPLACE_CONNECTORS_PATH } from "@/lib/seller/marketplace/config";
+import { filterBringYourItemTiles } from "@/lib/bring-your-item/release";
 import type { UserProfile } from "@/lib/profile/types";
 import type {
   MobileHubContext,
@@ -61,17 +62,18 @@ export function getBuyHubTiles(): MobileTile[] {
 
 /** ROVEXO v1.0 — Sell Hub (design system locked). */
 export function getSellHubTiles(profile: UserProfile): MobileTile[] {
-  return [
-    tile("/seller", "Seller Dashboard", profile.isSeller ? "Performance & overview" : "Preview seller tools"),
+  void profile;
+  return filterBringYourItemTiles([
+    tile("/seller", "Selling", "Performance & overview"),
     tile("/seller/listings", "My Listings", "Manage inventory"),
-    tile("/seller/orders", "Seller Orders", "Fulfillment & shipping", "orders"),
-    tile("/seller/wallet", "Wallet", "Balance & withdrawals", "wallet-payout"),
+    tile("/seller/orders", "Selling Orders", "Fulfillment & shipping", "orders"),
+    tile("/wallet", "Wallet", "Balance & withdrawals", "wallet-payout"),
     tile("/seller/analytics", "Analytics", "Views, sales & trends"),
     tile(MIGRATION_CENTER_PATH, "Bring Your Items", "Import your entire store"),
     tile("/sell/new", "Publish Listing", "Step-by-step listing"),
     tile(MARKETPLACE_CONNECTORS_PATH, "Marketplace Connectors", "Connect external stores"),
     tile("/seller/tax", "Tax", "VAT & registration"),
-  ];
+  ]);
 }
 
 /** ROVEXO v1.0 — Business Hub (design system locked). */
@@ -80,7 +82,7 @@ export function getBusinessHubTiles(profile: UserProfile, context?: MobileHubCon
     ...(context?.storeSlug
       ? [tile(`/store/${context.storeSlug}`, "Company profile", "Public store page")]
       : []),
-    tile("/business/dashboard", "Dashboard", "Revenue & orders"),
+    tile("/business/dashboard", "Business tools", "Revenue & orders"),
     tile("/wholesale", "Wholesale", "MOQ, RFQ & bulk pricing"),
     tile("/business/analytics", "Analytics", "Insights & reports"),
     tile("/business/directory", "Directory", "Verified companies"),

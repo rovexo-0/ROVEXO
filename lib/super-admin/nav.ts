@@ -21,6 +21,8 @@ export const COMMAND_CENTER_SIDEBAR_NAV: SuperAdminNavItem[] = [
   { href: "/super-admin/messages-engine", label: "Messages", icon: "mail" },
   { href: "/super-admin/protection-engine", label: "Disputes", icon: "scale" },
   { href: "/super-admin/reviews", label: "Reviews", icon: "star" },
+  { href: "/super-admin/rovexo-ideas", label: "ROVEXO Ideas", icon: "lightbulb" },
+  { href: "/super-admin/command-os", label: "Command OS", icon: "terminal" },
   { href: "/super-admin/analytics-engine", label: "Analytics", icon: "bar-chart-3" },
   { href: "/super-admin/security-engine", label: "Security", icon: "shield" },
   { href: "/super-admin/platform", label: "Settings", icon: "settings" },
@@ -29,13 +31,15 @@ export const COMMAND_CENTER_SIDEBAR_NAV: SuperAdminNavItem[] = [
 
 export const SUPER_ADMIN_PRIMARY_NAV: SuperAdminNavItem[] = [
 
+  { href: "/super-admin", label: "Mission Control", description: "Platform overview", icon: "🎯" },
+
   { href: "/super-admin/users", label: "Users", description: "Accounts & sessions", icon: "👤" },
 
   { href: "/super-admin/moderation", label: "Listings", description: "Moderation & marketplace listings", icon: "🏷️" },
 
   { href: "/super-admin/orders-engine", label: "Orders", description: "Order lifecycle", icon: "📦" },
 
-  { href: "/super-admin/businesses", label: "Business", description: "Verified business accounts", icon: "🏢" },
+  { href: "/super-admin/businesses", label: "Business verification", description: "Verified business profiles", icon: "🏢" },
 
   { href: "/super-admin/payments-engine", label: "Payments", description: "Payments & payouts", icon: "💳" },
 
@@ -56,6 +60,14 @@ export const SUPER_ADMIN_PRIMARY_NAV: SuperAdminNavItem[] = [
   { href: "/super-admin/mobile-distribution", label: "Mobile App", description: "Android & iOS distribution", icon: "📱" },
 
   { href: "/super-admin/analytics", label: "Analytics", description: "Platform metrics", icon: "📈" },
+
+  { href: "/super-admin/organic-growth", label: "Organic Growth", description: "Discovery, trends & acquisition", icon: "🌱" },
+
+  { href: "/super-admin/marketplace-os", label: "Marketplace OS", description: "Central orchestration layer", icon: "⚙️" },
+
+  { href: "/super-admin/marketplace-intelligence", label: "Marketplace Intelligence", description: "Health, quality & ranking", icon: "📊" },
+
+  { href: "/super-admin/seo", label: "SEO Platform", description: "Technical SEO & crawl health", icon: "🔍" },
 
   { href: "/super-admin/platform", label: "Settings", description: "Platform configuration", icon: "⚙️" },
 

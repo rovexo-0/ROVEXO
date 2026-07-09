@@ -4,7 +4,7 @@ import { getPublicSellerProfile } from "@/lib/profile/public";
 import { ProStorePage } from "@/features/store/components/ProStorePage";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicTrustSummary } from "@/lib/trust/service";
-import { getAppUrl } from "@/lib/supabase/env";
+import { storePageJsonLd, storePageMetadata } from "@/lib/seo/engine";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -56,23 +56,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const store = await getBusinessStore(slug);
   if (!store) {
-    return { title: "Store not found · ROVEXO" };
+    return { title: "Store not found · ROVEXO", robots: { index: false, follow: false } };
   }
 
   const name = store.business?.business_name ?? store.profile.full_name;
-  const canonical = `${getAppUrl()}/store/${slug}`;
-
-  return {
-    title: `${name} · ROVEXO Store`,
-    description: `Shop ${name} on ROVEXO. ${store.listingCount} listings and verified business seller.`,
-    alternates: { canonical },
-    openGraph: {
-      title: `${name} · ROVEXO Store`,
-      description: `Featured products from ${name}.`,
-      url: canonical,
-      type: "website",
-    },
-  };
+  return storePageMetadata({
+    name,
+    slug,
+    listingCount: store.listingCount,
+    avatarUrl: store.profile.avatar_url,
+  });
 }
 
 export default async function ProStoreRoute({ params }: PageProps) {
@@ -88,22 +81,39 @@ export default async function ProStoreRoute({ params }: PageProps) {
   }
 
   const trustSummary = await getPublicTrustSummary(store.profile.id);
+  const storeName = store.business?.business_name ?? store.profile.full_name;
+  const jsonLd = storePageJsonLd({
+    name: storeName,
+    slug: store.profile.username ?? slug,
+    description: store.sellerProfile?.bio ?? undefined,
+    products: store.listings,
+    rating: store.rating,
+    reviewCount: store.reviewCount,
+  });
 
   return (
-    <ProStorePage
-      storeName={store.business?.business_name ?? store.profile.full_name}
-      username={store.profile.username}
-      avatarUrl={store.profile.avatar_url}
-      verified={store.profile.verified}
-      bio={store.sellerProfile?.bio ?? null}
-      website={store.business?.website ?? null}
-      rating={store.rating}
-      reviewCount={store.reviewCount}
-      followerCount={store.sellerProfile?.follower_count ?? 0}
-      listingCount={store.listingCount}
-      salesCount={store.salesCount}
-      listings={store.listings}
-      sellerTrust={trustSummary}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([jsonLd.store, jsonLd.itemList].filter(Boolean)),
+        }}
+      />
+      <ProStorePage
+        storeName={store.business?.business_name ?? store.profile.full_name}
+        username={store.profile.username}
+        avatarUrl={store.profile.avatar_url}
+        verified={store.profile.verified}
+        bio={store.sellerProfile?.bio ?? null}
+        website={store.business?.website ?? null}
+        rating={store.rating}
+        reviewCount={store.reviewCount}
+        followerCount={store.sellerProfile?.follower_count ?? 0}
+        listingCount={store.listingCount}
+        salesCount={store.salesCount}
+        listings={store.listings}
+        sellerTrust={trustSummary}
+      />
+    </>
   );
 }

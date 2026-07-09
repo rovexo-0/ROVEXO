@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { formatGBP } from "@/features/commerce-ui/lib/format";
 import { parcelStatusMeta } from "@/features/commerce-ui/lib/status";
+import { buildCanonicalShipmentTimeline } from "@/features/commerce-ui/lib/shipment-timeline";
 import { MOCK_PARCELS, MOCK_TOTALS } from "@/features/commerce-ui/mock/ui-lock-mock";
 
 describe("commerce-ui — format", () => {
@@ -31,5 +32,17 @@ describe("commerce-ui — checkout totals", () => {
       MOCK_TOTALS.total,
       2,
     );
+  });
+});
+
+describe("commerce-ui — canonical timeline", () => {
+  it("lists all canonical steps through delivered", () => {
+    const timeline = buildCanonicalShipmentTimeline({
+      currentStatus: "labels_created",
+      parcelId: "mock",
+      fallbackOccurredAt: "2025-05-02T08:41:00.000Z",
+    });
+    expect(timeline.some((step) => step.title === "Labels Created" && step.current)).toBe(true);
+    expect(timeline.some((step) => step.title === "Returned")).toBe(false);
   });
 });

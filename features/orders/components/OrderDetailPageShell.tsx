@@ -5,7 +5,7 @@ import { OrdersEngineOrderPanel } from "@/features/orders-engine/OrdersEngineOrd
 import { BuyerOrderDetailCanonical } from "@/features/orders/components/BuyerOrderDetailCanonical";
 import { OrderDetailView } from "@/features/orders/components/OrderDetailView";
 import { resolveOrderViewRole } from "@/lib/orders/role";
-import type { BuyerCommerceOrderView, SellerShipmentView } from "@/lib/commerce/read-model";
+import type { BuyerCommerceOrderView, SellerShipmentView } from "@/lib/commerce/view-types";
 import type { OrderEscrowState } from "@/lib/commerce-engine/read-model";
 import type { OrderResolutionSummary } from "@/lib/resolution-engine/types";
 import type { OrdersEngineOrderContext } from "@/lib/orders-engine/types";

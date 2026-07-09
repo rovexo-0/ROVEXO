@@ -67,7 +67,6 @@ async function main() {
     const bodyRect = el.querySelector('[data-rx-part="body"]')?.getBoundingClientRect();
     const titleRect = el.querySelector('[data-rx-part="name"]')?.getBoundingClientRect();
     const endRect = el.querySelector('[data-rx-part="end"]')?.getBoundingClientRect();
-    const pinRect = el.querySelector('[data-rx-part="pin"]')?.getBoundingClientRect();
     const pinSvg = el.querySelector('[data-rx-part="pin"] svg');
     const pinSvgRect = pinSvg?.getBoundingClientRect();
     const tag = el.querySelector('[data-rx-part="tag"]');

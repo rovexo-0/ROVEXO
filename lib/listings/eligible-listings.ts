@@ -1,6 +1,7 @@
 import { searchListings } from "@/lib/listings/repository";
 import type {
   EligibleListingsOptions,
+  SearchListingsOptions,
   SearchListingsResult,
 } from "@/lib/listings/types";
 import type { Product } from "@/lib/products/types";
@@ -22,7 +23,8 @@ import type { Product } from "@/lib/products/types";
 export async function getEligibleListings(
   options: EligibleListingsOptions = {},
 ): Promise<SearchListingsResult> {
-  const { surface: _surface, ...searchOptions } = options;
+  const searchOptions: SearchListingsOptions = { ...options };
+  delete (searchOptions as EligibleListingsOptions).surface;
   return searchListings(searchOptions);
 }
 

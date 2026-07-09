@@ -6,7 +6,8 @@ type ShippingTable =
   | "shipping_tracking_events"
   | "shipping_quotes"
   | "parcel2go_webhook_events"
-  | "shipment_parcels";
+  | "shipment_parcels"
+  | "shipping_fallback_events";
 
 type UntypedQueryResult = {
   data: unknown;

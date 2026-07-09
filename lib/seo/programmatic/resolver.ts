@@ -12,6 +12,7 @@ export type ProgrammaticPageType =
   | "category"
   | "category-location"
   | "category-brand"
+  | "category-brand-location"
   | "category-condition"
   | "category-price"
   | "location"
@@ -80,58 +81,83 @@ export function resolveProgrammaticPage(segments: string[]): ProgrammaticPage | 
     return buildCategoryPage(categorySlugs, `/browse/${segments.join("/")}`);
   }
 
-  const next = remaining[0]!;
-  const location = findLocationBySlug(next);
-  if (location) {
-    const categoryName = categoryPath[categoryPath.length - 1]!.name;
-    return {
-      type: "category-location",
-      title: `${categoryName} in ${location.name}`,
-      description: `Find ${categoryName.toLowerCase()} in ${location.name} on ROVEXO. Buy and sell with purchase protection and secure checkout.`,
-      path: `/browse/${[...segments.slice(0, index), location.slug].join("/")}`,
-      categorySlugs,
-      locationSlug: location.slug,
-      locationName: location.name,
-      canonicalCategoryPath: buildCategoryPath(categorySlugs),
-    };
+  let brand: string | undefined;
+  let locationSlug: string | undefined;
+  let locationName: string | undefined;
+  let condition: string | undefined;
+  let priceRange: ProgrammaticPage["priceRange"];
+  let cursor = 0;
+
+  while (cursor < remaining.length) {
+    const segment = remaining[cursor]!.toLowerCase();
+
+    if (!locationSlug) {
+      const location = findLocationBySlug(segment);
+      if (location) {
+        locationSlug = location.slug;
+        locationName = location.name;
+        cursor += 1;
+        continue;
+      }
+    }
+
+    if (!condition && CONDITION_SLUGS.has(segment)) {
+      condition = segment;
+      cursor += 1;
+      continue;
+    }
+
+    if (!priceRange) {
+      const range = PRICE_RANGE_SLUGS[segment];
+      if (range) {
+        priceRange = range;
+        cursor += 1;
+        continue;
+      }
+    }
+
+    if (!brand) {
+      brand = slugToTitle(segment);
+      cursor += 1;
+      continue;
+    }
+
+    break;
   }
 
-  if (CONDITION_SLUGS.has(next)) {
-    const categoryName = categoryPath[categoryPath.length - 1]!.name;
-    return {
-      type: "category-condition",
-      title: `${slugToTitle(next)} ${categoryName}`,
-      description: `Shop ${slugToTitle(next).toLowerCase()} ${categoryName.toLowerCase()} on ROVEXO with verified sellers.`,
-      path: `/browse/${segments.join("/")}`,
-      categorySlugs,
-      condition: next,
-      canonicalCategoryPath: buildCategoryPath(categorySlugs),
-    };
-  }
-
-  const priceRange = PRICE_RANGE_SLUGS[next];
-  if (priceRange) {
-    const categoryName = categoryPath[categoryPath.length - 1]!.name;
-    return {
-      type: "category-price",
-      title: `${categoryName} ${priceRange.label}`,
-      description: `Browse ${categoryName.toLowerCase()} ${priceRange.label.toLowerCase()} on ROVEXO.`,
-      path: `/browse/${segments.join("/")}`,
-      categorySlugs,
-      priceRange,
-      canonicalCategoryPath: buildCategoryPath(categorySlugs),
-    };
-  }
-
-  const brand = slugToTitle(next);
   const categoryName = categoryPath[categoryPath.length - 1]!.name;
+  const titleParts = [
+    condition ? slugToTitle(condition) : null,
+    brand ?? null,
+    categoryName,
+    locationName ? `in ${locationName}` : null,
+    priceRange?.label ?? null,
+  ].filter(Boolean);
+
+  const type: ProgrammaticPageType =
+    brand && locationName
+      ? "category-brand-location"
+      : locationName
+        ? "category-location"
+        : brand
+          ? "category-brand"
+          : condition
+            ? "category-condition"
+            : priceRange
+              ? "category-price"
+              : "category";
+
   return {
-    type: "category-brand",
-    title: `${brand} ${categoryName}`,
-    description: `Buy and sell ${brand} ${categoryName.toLowerCase()} on ROVEXO. Trusted UK marketplace with purchase protection.`,
+    type,
+    title: titleParts.join(" "),
+    description: `Shop ${titleParts.join(" ").toLowerCase()} on ROVEXO. Verified UK sellers with purchase protection.`,
     path: `/browse/${segments.join("/")}`,
     categorySlugs,
+    locationSlug,
+    locationName,
     brand,
+    condition,
+    priceRange,
     canonicalCategoryPath: buildCategoryPath(categorySlugs),
   };
 }
@@ -155,6 +181,7 @@ export function buildProgrammaticSearchQuery(page: ProgrammaticPage): {
   conditions?: string[];
   minPrice?: number;
   maxPrice?: number;
+  locationCity?: string;
 } {
   return {
     categorySlugPath: page.categorySlugs,
@@ -162,5 +189,6 @@ export function buildProgrammaticSearchQuery(page: ProgrammaticPage): {
     conditions: page.condition ? [slugToTitle(page.condition)] : undefined,
     minPrice: page.priceRange?.min,
     maxPrice: page.priceRange?.max,
+    locationCity: page.locationName,
   };
 }

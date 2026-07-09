@@ -77,7 +77,7 @@ export function BusinessInventoryPage({ data }: BusinessInventoryPageProps) {
         >
           <Link
             href="/business/dashboard"
-            aria-label="Back to Business Dashboard"
+            aria-label="Back to Business tools"
             className={cn(
               "inline-flex min-h-ds-7 min-w-ds-7 items-center justify-center justify-self-start rounded-ds-md text-text-primary",
               focusRing,

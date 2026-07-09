@@ -82,7 +82,7 @@ function step(
 }
 
 export function runBringYourItemCertification(rootDir: string = process.cwd()): BringYourItemCertificationReport {
-  const importPage = readSource(rootDir, "app/import/page.tsx");
+  const legacyImportPage = readSource(rootDir, "app/import/page.tsx");
   const headerCta = readSource(rootDir, "components/header/HeaderBringYourItemCta.tsx");
   const migrationCenter = readSource(rootDir, "features/seller/migration/components/MigrationCenterPage.tsx");
   const wizardHook = readSource(rootDir, "features/seller/migration/hooks/use-migration-wizard.ts");
@@ -111,13 +111,13 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
 
   const steps: BringYourItemCertificationStep[] = [
     step("step-1-open", "STEP 1 — Open Bring Your Item", [
-      { id: "canonical-path", label: "Canonical entry /import", pass: BRING_YOUR_ITEM_PATH === IMPORT_WIZARD_PATH && IMPORT_WIZARD_PATH === "/import" },
-      { id: "import-route", label: "Import wizard route exists", pass: importPage.includes("MigrationCenterPage") },
+      { id: "canonical-path", label: "Canonical entry /account/bring-your-item", pass: BRING_YOUR_ITEM_PATH === IMPORT_WIZARD_PATH && IMPORT_WIZARD_PATH === "/account/bring-your-item" },
+      { id: "import-route", label: "Account Bring Your Item route exists", pass: readSource(rootDir, "app/account/bring-your-item/page.tsx").includes("BringYourItemPage") && legacyImportPage.includes("BRING_YOUR_ITEM_PATH") },
       { id: "header-cta", label: "Header CTA links to import", pass: headerCta.includes("BRING_YOUR_ITEM_PATH") },
       { id: "styles", label: "Dedicated BYI styles loaded", pass: readSource(rootDir, "styles/rovexo/index.css").includes("bring-your-item.css") },
     ]),
     step("step-2-auth", "STEP 2 — Authentication", [
-      { id: "seller-gate", label: "Import requires authenticated profile", pass: importPage.includes("getProfile()") && !importPage.includes("isSeller") },
+      { id: "seller-gate", label: "Import requires authenticated profile", pass: readSource(rootDir, "app/account/bring-your-item/page.tsx").includes("getProfile()") },
       { id: "oauth-server", label: "OAuth server-only", pass: oauthService.includes('"server-only"') },
       { id: "oauth-platforms", label: "OAuth platforms configured", pass: OAUTH_PLATFORM_IDS.length >= 3 },
       { id: "listings-auth", label: "Listings API validates session", pass: listingsApi.includes("requireApi") || listingsApi.includes("getSession") },
@@ -191,7 +191,7 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
       { id: "platform-ready", label: "Platform readiness rules", pass: isPlatformImportReady("ebay", { connected: true, hasSourceInput: false }) && resolveDefaultImportMethod("csv") === "csv" },
     ]),
     step("responsive", "Responsive Certification", [
-      { id: "e2e-routes", label: "E2E responsive route coverage", pass: masterQa.includes("/import") && masterQa.includes("/sell") },
+      { id: "e2e-routes", label: "E2E responsive route coverage", pass: (masterQa.includes("/import") || masterQa.includes("/account/bring-your-item")) && masterQa.includes("/sell") },
       { id: "safe-area", label: "Safe area insets", pass: readSource(rootDir, "features/sell/ui/SellScreen.tsx").includes("safe-area") },
       { id: "mobile-nav", label: "Mobile navigation module", pass: existsSync(join(rootDir, "styles/rovexo/bottom-nav-premium.css")) },
     ]),
@@ -208,7 +208,7 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
     ]),
     step("final", "Final Certification Gate", [
       { id: "phases-1-4", label: "Phases 1–4 frozen architecture", pass: MIGRATION_WIZARD_STEPS.map((s) => s.label).join(",") === "Marketplace,Connect,Import" },
-      { id: "ssot-import", label: "SSOT import path", pass: BRING_YOUR_ITEM_PATH === "/import" },
+      { id: "ssot-import", label: "SSOT import path", pass: BRING_YOUR_ITEM_PATH === "/account/bring-your-item" },
       { id: "zero-critical-wiring", label: "Core workflow wiring complete", pass: true },
     ]),
   ];

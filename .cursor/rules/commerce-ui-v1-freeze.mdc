@@ -1,0 +1,39 @@
+---
+description: Checkout, Order Details & Tracking — Canonical Commerce UI v1.0 (UI LOCK)
+globs: features/commerce-ui/views/*.tsx,features/commerce-ui/components/Checkout*.tsx,features/commerce-ui/components/Order*.tsx,features/commerce-ui/components/Shipment*.tsx,features/commerce-ui/components/Parcel*.tsx,features/commerce-ui/components/OrderSummaryTotals.tsx,features/commerce-ui/components/SellerSummaryCard.tsx,features/commerce-ui/components/CommercePageHeader.tsx,features/commerce-ui/components/CommerceStatusBadge.tsx,features/commerce-ui/components/InfoBannerCard.tsx,features/commerce-ui/components/NeedHelpCard.tsx,features/commerce-ui/lib/format.ts,features/commerce-ui/lib/status.ts,features/commerce-ui/lib/shipment-timeline.ts,features/commerce-ui/types.ts
+alwaysApply: false
+---
+
+# Canonical Commerce UI v1.0 — UI LOCK
+
+**STATUS: UI LOCK | FROZEN | SINGLE SOURCE OF TRUTH**
+
+Frozen surfaces: **Checkout** (financial only), **Order Details** (post-payment), **Tracking**.
+
+## Hierarchy (mandatory)
+
+`Order → Seller → Shipment → Parcel → Label`
+
+- Checkout shows **Products, Shipping, Platform Fee, Total** only — no parcel count, carriers, or logistics.
+- Order Details groups shipments **by seller** — never mix parcels from different sellers.
+- Always **"Parcel X of Y"** — never "Label 1/2".
+- Each parcel owns its **product allocation** visible to the buyer.
+- Canonical timeline: Order Confirmed → Preparing Shipment → Labels Created → Collected → In Transit → Out For Delivery → Delivered → Returned.
+- Parcel operations (Return, Claim, Lost, Damaged) are **independent per parcel**.
+
+## Allowed
+
+- Bug fixes (image loading via `SafeImage`, a11y, data wiring, broken tracking links).
+- Backend/API fixes that do not change frozen layout or copy structure.
+
+## Prohibited
+
+- Checkout layout or totals row changes (no Buyer Protection label, no fee %).
+- Mixing seller parcels in one shipment card.
+- Renaming "Parcel X of Y" to label-centric wording.
+- Removing per-parcel product allocation or canonical timeline steps.
+- New direct `next/image` imports in frozen components.
+
+## Reference
+
+`app/ui-lock/commerce/page.tsx` — side-by-side preview of all three screens.

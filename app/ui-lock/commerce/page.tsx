@@ -6,9 +6,8 @@ import { TrackingView } from "@/features/commerce-ui/views/TrackingView";
 import {
   MOCK_LINE_ITEMS,
   MOCK_ORDER_META,
-  MOCK_PARCELS,
-  MOCK_PARCEL_COUNT,
   MOCK_SELLER_GROUP,
+  MOCK_SELLER_SHIPMENTS,
   MOCK_TOTALS,
 } from "@/features/commerce-ui/mock/ui-lock-mock";
 
@@ -49,9 +48,7 @@ export default function CommerceUiLockPreviewPage() {
             meta={MOCK_ORDER_META}
             items={MOCK_LINE_ITEMS}
             totals={MOCK_TOTALS}
-            parcelCount={MOCK_PARCEL_COUNT}
-            shipmentReady
-            trackingHref="/ui-lock/commerce/tracking"
+            sellerShipments={MOCK_SELLER_SHIPMENTS}
           />
           <BottomNavigation active="account" visible />
         </PhoneFrame>
@@ -60,8 +57,7 @@ export default function CommerceUiLockPreviewPage() {
           <TrackingView
             orderNumber={MOCK_ORDER_META.orderNumber}
             itemCount={MOCK_ORDER_META.itemCount}
-            sellerName={MOCK_SELLER_GROUP.sellerName}
-            parcels={MOCK_PARCELS}
+            sellerShipments={MOCK_SELLER_SHIPMENTS}
             orderHref="/ui-lock/commerce/order"
           />
           <BottomNavigation active="account" visible />

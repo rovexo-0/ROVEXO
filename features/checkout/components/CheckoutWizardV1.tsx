@@ -29,7 +29,16 @@ export function CheckoutWizardV1({ product, form, buyerPhone }: CheckoutWizardV1
     shippingQuotesLoading,
     liveQuotesAttempted,
     selectedQuote,
+    shippingQuoteReason,
   } = form;
+
+  const hasListingShippingPrice =
+    product.shippingPrice != null && product.shippingPrice >= 0;
+
+  const shippingBlocked =
+    shippingQuoteReason === "seller_dispatch_not_ready" &&
+    !hasListingShippingPrice &&
+    !product.freeDelivery;
 
   const addressComplete = useMemo(
     () =>
@@ -41,14 +50,13 @@ export function CheckoutWizardV1({ product, form, buyerPhone }: CheckoutWizardV1
   );
 
   const deliveryResolved =
-    product.freeDelivery ||
-    selectedQuote != null ||
-    (product.shippingPrice != null && product.shippingPrice >= 0);
+    product.freeDelivery || selectedQuote != null || hasListingShippingPrice;
 
   const canContinueDelivery =
     addressComplete &&
     deliveryResolved &&
-    (product.freeDelivery || liveQuotesAttempted) &&
+    (product.freeDelivery || liveQuotesAttempted || hasListingShippingPrice) &&
+    !shippingBlocked &&
     !shippingQuotesLoading;
 
   const footerLabel =

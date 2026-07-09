@@ -1,4 +1,4 @@
-import type { AccountType } from "@/lib/profile/account";
+import type { AccountCapabilities, AccountType, RovexoAccountKind } from "@/lib/profile/account";
 import type { UserRole } from "@/lib/supabase/types/database";
 
 export type SellerStats = {
@@ -16,7 +16,12 @@ export type UserProfile = {
   verified: boolean;
   memberSince: string;
   role: UserRole;
+  /** Unified ROVEXO account kind — marketplace users are always `"account"`. */
+  accountKind: RovexoAccountKind;
+  /** @deprecated Use accountKind — kept for backward compatibility. */
   accountType: AccountType;
+  capabilities: AccountCapabilities;
+  /** Whether this account has selling tools unlocked (activity or verification). */
   isSeller: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;

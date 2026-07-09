@@ -1,4 +1,5 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { applySeoRouting } from "@/lib/seo/engine/middleware-handler";
 import { updateSession } from "@/lib/supabase/middleware";
 
 const STAFF_HOSTS = new Set(
@@ -9,6 +10,9 @@ const STAFF_HOSTS = new Set(
 );
 
 export async function middleware(request: NextRequest) {
+  const seoResponse = await applySeoRouting(request);
+  if (seoResponse) return seoResponse;
+
   const host = request.headers.get("host")?.split(":")[0]?.toLowerCase();
   if (host && STAFF_HOSTS.has(host) && request.nextUrl.pathname === "/") {
     const url = request.nextUrl.clone();

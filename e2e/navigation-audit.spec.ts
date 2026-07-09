@@ -46,7 +46,7 @@ test.describe("Navigation audit — bottom navigation", () => {
         await waitForHomepageUi(page);
       }
 
-      const nav = page.getByRole("navigation", { name: /mobile navigation|main navigation/i });
+      const nav = page.getByRole("navigation", { name: /mobile navigation|main navigation/i }).first();
       await expect(nav).toBeVisible();
       const navLink = nav.getByRole("link", { name: item.aria });
 
@@ -72,21 +72,24 @@ test.describe("Navigation audit — bottom navigation", () => {
   test("bottom navigation is visible on homepage", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForHomepageUi(page);
-    await expect(page.getByRole("navigation", { name: /mobile navigation|main navigation/i })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: /mobile navigation|main navigation/i }).first()).toBeVisible();
   });
 });
 
 test.describe("Navigation audit — header chrome", () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    // Default header variant (not homepage) exposes Messages / Notifications / profile actions.
-    await page.goto("/categories", { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: /all categories/i })).toBeVisible();
+    await page.goto("/search", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: /search rovexo|results for/i })).toBeVisible();
   });
 
   test("logo returns to homepage", async ({ page }) => {
-    await page.goto("/categories", { waitUntil: "domcontentloaded" });
-    await page.getByRole("link", { name: "ROVEXO Home" }).click();
+    // Search landing auto-opens the full-screen overlay; use results view so the header logo is reachable.
+    await page.goto("/search?q=phone", { waitUntil: "domcontentloaded" });
+    await expect(page.getByRole("heading", { name: /results for/i })).toBeVisible();
+    const logo = page.locator('header[data-header-version="rovexo-v2"] a[aria-label="ROVEXO Home"]');
+    await expect(logo).toBeVisible();
+    await Promise.all([page.waitForURL("/", { timeout: 15_000 }), logo.click()]);
     await expect(page).toHaveURL("/");
   });
 

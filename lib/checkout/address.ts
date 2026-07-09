@@ -1,4 +1,5 @@
 import type { UserProfile } from "@/lib/profile/types";
+import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
 import { getDefaultAddress } from "@/lib/addresses/repository";
 
 export type CheckoutAddress = {
@@ -30,6 +31,6 @@ export async function getDefaultCheckoutAddress(profile: UserProfile): Promise<C
     recipientName: profile.fullName,
     addressLine: "",
     postcode: "",
-    country: "Ireland",
+    country: UK_DEFAULT_COUNTRY,
   };
 }

@@ -13,7 +13,7 @@ export const HELP_CATEGORIES: Array<{ id: HelpCategory; label: string; descripti
   { id: "delivery", label: "Delivery", description: "Shipping, tracking, and delivery options" },
   { id: "chat", label: "Chat", description: "Messaging buyers and sellers safely" },
   { id: "pro-seller", label: "Pro Seller", description: "Analytics, promotions, and growth tools" },
-  { id: "business-accounts", label: "Business Accounts", description: "Business registration and inventory" },
+  { id: "business-accounts", label: "Business verification", description: "Company verification and inventory" },
   { id: "safety", label: "Safety", description: "Stay safe on ROVEXO" },
   { id: "ai-moderation", label: "AI Moderation", description: "How automated review works" },
   { id: "prohibited-items", label: "Prohibited Items", description: "Items not allowed on ROVEXO" },
@@ -215,13 +215,13 @@ Contact the seller through Messages if tracking stalls.`,
   },
   {
     slug: "pro-seller-dashboard",
-    title: "Pro Seller dashboard",
+    title: "Pro Selling workspace",
     category: "pro-seller",
     summary: "Track sales, analytics, and promotions.",
-    keywords: ["dashboard", "analytics", "sales", "pro"],
-    content: `# Pro Seller dashboard
+    keywords: ["selling", "analytics", "sales", "pro"],
+    content: `# Pro Selling workspace
 
-Your seller dashboard shows:
+Your Selling workspace shows:
 - Daily sales and order counts
 - Revenue and conversion trends
 - Active featured listings and bumps
@@ -247,20 +247,20 @@ Promotions expire automatically. You receive a notification when a promotion end
   },
   {
     slug: "business-accounts-setup",
-    title: "Business accounts",
+    title: "Business verification",
     category: "business-accounts",
-    summary: "Register as a business seller on ROVEXO.",
+    summary: "Verify your business on ROVEXO.",
     keywords: ["business", "company", "inventory", "vat"],
-    content: `# Business accounts
+    content: `# Business verification
 
-Business accounts support higher-volume selling and inventory tools.
+Verified business information unlocks higher-volume selling and inventory tools on your ROVEXO account.
 
-## Registration
-- Choose **Business Sole Trader** or **Business Company** during seller tax registration.
+## Verification
+- Choose **Business Sole Trader** or **Business Company** during tax registration.
 - Provide accurate company details and VAT number when applicable.
 - Complete bank account setup for payouts.
 
-Business sellers must comply with commercial selling regulations.`,
+Verified businesses must comply with commercial selling regulations.`,
   },
   {
     slug: "safety-tips",

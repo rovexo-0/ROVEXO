@@ -5,13 +5,15 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useMigrationPublishPoll } from "@/features/seller/migration/hooks/use-migration-publish-poll";
-import { IMPORT_WIZARD_PATH } from "@/lib/seller/migration/config";
+import { BRING_YOUR_ITEM_PATH } from "@/lib/bring-your-item/paths";
 import type { MigrationJob, PublishAction } from "@/lib/seller/migration/types";
 
 type MigrationBulkPublishPanelProps = {
   job: MigrationJob;
   onJobUpdate?: (job: MigrationJob) => void;
   compact?: boolean;
+  /** Minimal v1.0 — single Publish action and progress only. */
+  minimal?: boolean;
 };
 
 function formatEta(seconds: number | null | undefined): string {
@@ -24,6 +26,7 @@ export function MigrationBulkPublishPanel({
   job,
   onJobUpdate,
   compact = false,
+  minimal = false,
 }: MigrationBulkPublishPanelProps) {
   const [localJob, setLocalJob] = useState(job);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -93,7 +96,7 @@ export function MigrationBulkPublishPanel({
 
   return (
     <div className="flex flex-col gap-ds-4">
-      {!compact ? (
+      {!compact && !minimal ? (
         <div>
           <h3 className="text-sm font-semibold text-text-primary">Bulk publish</h3>
           <p className="mt-ds-1 text-xs text-text-secondary">
@@ -110,39 +113,41 @@ export function MigrationBulkPublishPanel({
       ) : null}
 
       {isPublishing && progress ? (
-        <Card padding="md" className="border-primary/20">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium capitalize text-text-primary">
-              {localJob.publishStatus.replace("_", " ")}
-            </span>
-            <span className="text-text-secondary">{formatEta(progress.etaSeconds)}</span>
-          </div>
-          <div
-            className="mt-ds-3 h-2 overflow-hidden rounded-ds-full bg-surface"
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={progress.progressPercent}
-          >
+        minimal ? null : (
+          <Card padding="md" className="border-primary/20">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium capitalize text-text-primary">
+                {localJob.publishStatus.replace("_", " ")}
+              </span>
+              <span className="text-text-secondary">{formatEta(progress.etaSeconds)}</span>
+            </div>
             <div
-              className="h-full rounded-ds-full bg-primary transition-[width] duration-500"
-              style={{ width: `${progress.progressPercent}%` }}
-            />
-          </div>
-          <dl className="mt-ds-3 grid grid-cols-2 gap-ds-2 text-xs sm:grid-cols-4">
-            <MiniStat label="Validated" value={progress.validated} />
-            <MiniStat label="Images" value={progress.imagesProcessed} />
-            <MiniStat label="Categories" value={progress.categoriesMapped} />
-            <MiniStat label="Published" value={progress.published} />
-            <MiniStat label="Skipped" value={progress.skipped} />
-            <MiniStat label="Errors" value={progress.errors} />
-            <MiniStat label="Speed/min" value={progress.speedPerMinute} />
-            <MiniStat label="Remaining" value={progress.remaining} />
-          </dl>
-        </Card>
+              className="mt-ds-3 h-2 overflow-hidden rounded-ds-full bg-surface"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={progress.progressPercent}
+            >
+              <div
+                className="h-full rounded-ds-full bg-primary transition-[width] duration-500"
+                style={{ width: `${progress.progressPercent}%` }}
+              />
+            </div>
+            <dl className="mt-ds-3 grid grid-cols-2 gap-ds-2 text-xs sm:grid-cols-4">
+              <MiniStat label="Validated" value={progress.validated} />
+              <MiniStat label="Images" value={progress.imagesProcessed} />
+              <MiniStat label="Categories" value={progress.categoriesMapped} />
+              <MiniStat label="Published" value={progress.published} />
+              <MiniStat label="Skipped" value={progress.skipped} />
+              <MiniStat label="Errors" value={progress.errors} />
+              <MiniStat label="Speed/min" value={progress.speedPerMinute} />
+              <MiniStat label="Remaining" value={progress.remaining} />
+            </dl>
+          </Card>
+        )
       ) : null}
 
-      {finalReport && localJob.publishStatus === "completed" ? (
+      {finalReport && localJob.publishStatus === "completed" && !minimal ? (
         <Card padding="md" className="border-success/30 bg-success/5">
           <p className="text-sm font-semibold text-success">Publishing complete</p>
           <dl className="mt-ds-3 grid grid-cols-2 gap-ds-2 text-xs sm:grid-cols-4">
@@ -152,7 +157,7 @@ export function MigrationBulkPublishPanel({
             <MiniStat label="Success rate" value={`${finalReport.successRate}%`} />
           </dl>
         </Card>
-      ) : importReport && localJob.publishStatus === "idle" ? (
+      ) : importReport && localJob.publishStatus === "idle" && !minimal ? (
         <Card padding="md" className="border-border">
           <dl className="grid grid-cols-2 gap-ds-2 text-xs sm:grid-cols-4">
             <MiniStat label="Imported" value={importReport.imported} />
@@ -163,70 +168,82 @@ export function MigrationBulkPublishPanel({
         </Card>
       ) : null}
 
-      <div className="flex flex-wrap gap-ds-2">
+      {minimal ? (
         <Button
-          size="sm"
-          disabled={isSubmitting || isPublishing}
+          fullWidth
+          disabled={isSubmitting || isPublishing || localJob.publishStatus === "completed"}
           onClick={() => void runAction("publish_all")}
         >
-          Publish all
+          {isPublishing ? "Publishing…" : localJob.publishStatus === "completed" ? "Published" : "Publish"}
         </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={isSubmitting || isPublishing}
-          onClick={() => void runAction("save_all_draft")}
-        >
-          Save all as draft
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={isSubmitting || isPublishing}
-          onClick={() => void runAction("retry_failed")}
-        >
-          Retry failed
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={isSubmitting}
-          onClick={() => void runAction("cancel_pending")}
-        >
-          Cancel pending
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={isSubmitting}
-          onClick={() => void runAction("delete_drafts")}
-        >
-          Delete drafts
-        </Button>
-      </div>
+      ) : (
+        <div className="flex flex-wrap gap-ds-2">
+          <Button
+            size="sm"
+            disabled={isSubmitting || isPublishing}
+            onClick={() => void runAction("publish_all")}
+          >
+            Publish all
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={isSubmitting || isPublishing}
+            onClick={() => void runAction("save_all_draft")}
+          >
+            Save all as draft
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={isSubmitting || isPublishing}
+            onClick={() => void runAction("retry_failed")}
+          >
+            Retry failed
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={isSubmitting}
+            onClick={() => void runAction("cancel_pending")}
+          >
+            Cancel pending
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={isSubmitting}
+            onClick={() => void runAction("delete_drafts")}
+          >
+            Delete drafts
+          </Button>
+        </div>
+      )}
 
-      <div className="flex flex-wrap gap-ds-2">
-        <a
-          href={`/api/seller/migration/${localJob.id}/report.csv`}
-          className="text-xs font-medium text-primary underline"
-        >
-          Download CSV report
-        </a>
-        <a
-          href={`/api/seller/migration/${localJob.id}/report.json`}
-          className="text-xs font-medium text-primary underline"
-        >
-          Download JSON report
-        </a>
-        {!compact ? (
-          <Link
-            href={`${IMPORT_WIZARD_PATH}?job=${encodeURIComponent(localJob.id)}`}
+      {!minimal ? (
+        <div className="flex flex-wrap gap-ds-2">
+          <a
+            href={`/api/seller/migration/${localJob.id}/report.csv`}
             className="text-xs font-medium text-primary underline"
           >
-            Review items &amp; categories
-          </Link>
-        ) : null}
-      </div>
+            Download CSV report
+          </a>
+          <a
+            href={`/api/seller/migration/${localJob.id}/report.json`}
+            className="text-xs font-medium text-primary underline"
+          >
+            Download JSON report
+          </a>
+          {!compact ? (
+            <Link
+              href={`${BRING_YOUR_ITEM_PATH}?job=${encodeURIComponent(localJob.id)}`}
+              className="text-xs font-medium text-primary underline"
+            >
+              Review items &amp; categories
+            </Link>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

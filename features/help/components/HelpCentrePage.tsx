@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { useMemo, useState } from "react";
 
+import { PageBack } from "@/components/navigation/PageBack";
 import { HelpAssistant } from "@/features/help/components/HelpAssistant";
 
 import { HelpQuickLinks, HelpTextCard } from "@/features/help/components/HelpQuickLinks";
@@ -43,15 +44,15 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
 
     <section className="mhub-hero lg:rounded-ds-xl lg:bg-gradient-to-br lg:from-primary/10 lg:via-surface lg:to-surface lg:p-ds-6">
 
-      <p className="text-sm font-medium text-primary">ROVEXO Help Center</p>
+      <p className="text-sm font-medium text-primary">ROVEXO Help Centre</p>
 
       <h1 className="mt-ds-2 text-2xl font-bold text-text-primary lg:text-3xl">
 
-        Welcome to ROVEXO Help Center
+        How can we help?
 
       </h1>
 
-      <p className="mt-ds-2 text-base text-text-secondary">How can we help you today?</p>
+      <p className="mt-ds-2 text-base text-text-secondary">Search guides, FAQs, and policies.</p>
 
       <label className="sr-only" htmlFor="help-search">
 
@@ -82,6 +83,8 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
   return (
 
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-ds-6 px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
+
+      <PageBack backHref="/account" backLabel="My Account" preferHistory />
 
       {hero}
 

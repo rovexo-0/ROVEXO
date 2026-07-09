@@ -41,11 +41,11 @@ const REQUIRED_COMPONENTS = [
   "SellerFooterActions",
 ];
 
-describe("Seller Dashboard v1.0 — single source of truth", () => {
+describe("Selling workspace v1.0 — single source of truth", () => {
   it("uses the official /seller route with Account Center module", () => {
     const page = readFileSync(join(process.cwd(), "app/seller/page.tsx"), "utf8");
     expect(page).toContain("AccountCenterModulePage");
-    expect(page).toContain('moduleId="seller"');
+    expect(page).toContain('moduleId="selling"');
     expect(page).not.toContain("SellerDashboardV2");
   });
 

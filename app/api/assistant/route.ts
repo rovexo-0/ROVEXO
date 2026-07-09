@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { askMarketplaceAssistant, inferAssistantPersona } from "@/lib/ai-assistant/marketplace";
-import { getAuthContext, getUserRole } from "@/lib/auth/session";
+import { getAuthContext } from "@/lib/auth/session";
+import { ROVEXO_ACCOUNT_KIND } from "@/lib/profile/account";
 import { getUserSubscription, userHasPremiumFeature } from "@/lib/monetization/service";
 
 const schema = z.object({
@@ -15,8 +16,7 @@ export async function POST(request: Request) {
     const body = schema.parse(await request.json());
     const auth = await getAuthContext();
     const pathname = body.pathname ?? "/";
-    const role = auth ? await getUserRole(auth.user.id) : null;
-    const persona = body.persona ?? inferAssistantPersona(pathname, role ?? undefined);
+    const persona = body.persona ?? inferAssistantPersona(pathname, auth ? ROVEXO_ACCOUNT_KIND : undefined);
     const subscription = auth ? await getUserSubscription(auth.user.id) : null;
     const premiumAi = userHasPremiumFeature(subscription, "premium_ai");
 
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       pathname,
       persona,
       userId: auth?.user.id,
-      accountType: role ?? undefined,
+      accountType: auth ? ROVEXO_ACCOUNT_KIND : undefined,
       premiumAi,
     });
 

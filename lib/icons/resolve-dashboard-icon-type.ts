@@ -42,7 +42,7 @@ export function resolveDashboardIconType(href: string): DashboardIconType {
   if (href.startsWith("/messages")) return "messages";
   if (href.startsWith("/notifications")) return "notifications";
   if (href.startsWith("/settings") || href.startsWith("/account/settings") || href === "/legal") return "settings";
-  if (href.startsWith("/import") || href.startsWith("/seller/migration") || href.startsWith("/seller/connectors")) return "listings";
+  if (href.startsWith("/import") || href.startsWith("/account/bring-your-item") || href.startsWith("/seller/migration") || href.startsWith("/seller/connectors")) return "listings";
   if (href.startsWith("/seller/listings") || href.startsWith("/sell")) return "listings";
   if (href.startsWith("/seller/wallet") || href === "/plans") return "wallet";
   if (href.includes("analytics")) return "analytics";

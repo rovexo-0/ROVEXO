@@ -2,7 +2,7 @@
 
 import { SellerFulfillmentCard } from "@/features/orders/components/SellerFulfillmentCard";
 import { ShipmentWizard } from "@/features/shipping/components/ShipmentWizard";
-import type { SellerShipmentView } from "@/lib/commerce/read-model";
+import type { SellerShipmentView } from "@/lib/commerce/view-types";
 import type { Order } from "@/lib/orders/types";
 
 type SellerOrderFulfillmentProps = {

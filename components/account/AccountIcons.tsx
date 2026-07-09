@@ -26,7 +26,10 @@ export type AccountIconName =
   | "security"
   | "following"
   | "payment"
-  | "support";
+  | "support"
+  | "cart"
+  | "verification"
+  | "ideas";
 
 type IconProps = { className?: string };
 
@@ -212,6 +215,35 @@ function Support({ className }: IconProps) {
   );
 }
 
+function Cart({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="9" cy="20" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="18" cy="20" r="1.4" fill="currentColor" stroke="none" />
+      <path d="M3 3h2.2l1.4 9.4a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 1.9-1.4L20 7H6.2" />
+    </svg>
+  );
+}
+
+function Verification({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 3.5l7 2.6v5c0 4.4-3 8-7 9.4-4-1.4-7-5-7-9.4v-5l7-2.6z" />
+      <path d="M9 12l2 2 4-4.2" />
+    </svg>
+  );
+}
+
+function Ideas({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M9 18h6" />
+      <path d="M10 22h4" />
+      <path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z" />
+    </svg>
+  );
+}
+
 const ICONS: Record<AccountIconName, (props: IconProps) => ReactElement> = {
   profile: Profile,
   orders: Orders,
@@ -231,6 +263,9 @@ const ICONS: Record<AccountIconName, (props: IconProps) => ReactElement> = {
   following: Following,
   payment: Payment,
   support: Support,
+  cart: Cart,
+  verification: Verification,
+  ideas: Ideas,
 };
 
 export function AccountIcon({ name, className }: { name: AccountIconName; className?: string }) {

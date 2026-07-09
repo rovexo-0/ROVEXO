@@ -3,8 +3,11 @@ import type {
   CommerceOrderMeta,
   CommerceParcel,
   CommerceSellerGroup,
+  CommerceSellerShipment,
   CommerceTotals,
+  ParcelOperation,
 } from "@/features/commerce-ui/types";
+import { buildCanonicalShipmentTimeline } from "@/features/commerce-ui/lib/shipment-timeline";
 import { mapShippingStatusToParcelStatus } from "@/features/commerce-ui/lib/status";
 import type { ShippingRecord, ShipmentParcel, ShippingStatus } from "@/lib/shipping/types";
 import type { Order, OrderTotals } from "@/lib/orders/types";
@@ -62,7 +65,13 @@ function mapRecordStatusToShipmentStatus(
   status: ShippingStatus,
   hasLabels: boolean,
   orderPaid: boolean,
+  operation?: ParcelOperation | null,
 ): ShipmentStatus {
+  if (operation === "claim") return "claim_open";
+  if (operation === "damaged") return "damaged";
+  if (operation === "lost") return "lost";
+  if (operation === "return") return "returned";
+
   if (!orderPaid) return "order_confirmed";
   if (!hasLabels && status === "preparing") return "preparing_shipment";
   if (hasLabels && status === "preparing") return "labels_created";
@@ -87,6 +96,55 @@ function mapRecordStatusToShipmentStatus(
     default:
       return hasLabels ? "labels_created" : "preparing_shipment";
   }
+}
+
+function mapParcelProductItems(order: Order, productItemIds: string[]): CommerceLineItem[] {
+  const lineItems = mapOrderToLineItems(order);
+  if (productItemIds.length === 0) return lineItems;
+  return lineItems.filter((item) => productItemIds.includes(item.id));
+}
+
+function resolveParcelShipmentStatus(
+  parcel: ShipmentParcel,
+  order: Order,
+): ShipmentStatus {
+  const hasLabel = Boolean(parcel.label?.status === "ready" || parcel.trackingNumber);
+  return mapRecordStatusToShipmentStatus(
+    parcel.status,
+    hasLabel,
+    Boolean(order.paidAt),
+    parcel.operation,
+  );
+}
+
+export function buildSellerShipments(
+  order: Order,
+  parcels: CommerceParcel[],
+  trackingHref: string,
+): CommerceSellerShipment[] {
+  if (parcels.length === 0) {
+    return [
+      {
+        sellerId: order.seller.id,
+        sellerName: order.seller.name,
+        parcelCount: 0,
+        shipmentReady: false,
+        parcels: [],
+        trackingHref,
+      },
+    ];
+  }
+
+  return [
+    {
+      sellerId: order.seller.id,
+      sellerName: order.seller.name,
+      parcelCount: parcels.length,
+      shipmentReady: isShipmentReady(parcels),
+      parcels,
+      trackingHref,
+    },
+  ];
 }
 
 function buildTimeline(
@@ -308,8 +366,14 @@ export function mapOrderToCommerceModel(
   };
 }
 
-export function mapParcelModelToUi(parcel: CommerceParcelModel): CommerceParcel {
+export function mapParcelModelToUi(
+  parcel: CommerceParcelModel,
+  items: CommerceLineItem[] = [],
+  parcelId = "legacy",
+  operation: ParcelOperation | null = null,
+): CommerceParcel {
   return {
+    id: parcelId,
     index: parcel.parcelNumber,
     totalParcels: parcel.totalParcels,
     status: mapShippingStatusToParcelStatus(parcel.status),
@@ -317,6 +381,8 @@ export function mapParcelModelToUi(parcel: CommerceParcelModel): CommerceParcel 
     trackingNumber: parcel.trackingNumber,
     estimatedDelivery: parcel.estimatedDelivery,
     trackingUrl: parcel.trackingUrl,
+    items,
+    operation,
     timeline: parcel.timeline.map((event) => ({
       id: event.id,
       title: event.title,
@@ -334,14 +400,11 @@ export function mapShipmentParcelsToUi(
   parcels: ShipmentParcel[],
 ): CommerceParcel[] {
   return parcels.map((parcel) => {
-    const hasLabel = Boolean(parcel.label?.status === "ready" || parcel.trackingNumber);
-    const shipmentStatus = mapRecordStatusToShipmentStatus(
-      parcel.status,
-      hasLabel,
-      Boolean(order.paidAt),
-    );
+    const shipmentStatus = resolveParcelShipmentStatus(parcel, order);
+    const items = mapParcelProductItems(order, parcel.productItemIds);
 
     return {
+      id: parcel.id,
       index: parcel.parcelNumber,
       totalParcels: parcel.totalParcels,
       status: mapShippingStatusToParcelStatus(shipmentStatus),
@@ -349,16 +412,13 @@ export function mapShipmentParcelsToUi(
       trackingNumber: parcel.trackingNumber,
       estimatedDelivery: formatDeliveryDate(parcel.estimatedDeliveryAt),
       trackingUrl: parcel.trackingUrl,
-      timeline: record
-        ? buildTimeline(record, shipmentStatus).map((event) => ({
-            id: `${parcel.id}-${event.id}`,
-            title: event.title,
-            description: event.description,
-            occurredAt: event.occurredAt,
-            current: event.current,
-            done: event.done,
-          }))
-        : [],
+      items,
+      operation: parcel.operation,
+      timeline: buildCanonicalShipmentTimeline({
+        currentStatus: shipmentStatus,
+        parcelId: parcel.id,
+        fallbackOccurredAt: parcel.updatedAt ?? record?.updatedAt ?? order.paidAt ?? order.createdAt,
+      }),
     };
   });
 }
@@ -375,7 +435,34 @@ export function getUiParcelsFromOrder(
 
   const shipment = mapShipmentModel(order, record, labels, recordRow);
   if (!shipment) return [];
-  return shipment.parcels.map(mapParcelModelToUi);
+  const items = mapOrderToLineItems(order);
+  return shipment.parcels.map((parcel) =>
+    mapParcelModelToUi(parcel, items, `${order.id}-parcel-${parcel.parcelNumber}`),
+  );
+}
+
+export function mapProductToCheckoutSellerGroup(input: {
+  sellerId: string;
+  sellerName: string;
+  productId: string;
+  title: string;
+  price: number;
+  imageUrl: string | null;
+  quantity?: number;
+}) {
+  return {
+    sellerId: input.sellerId,
+    sellerName: input.sellerName,
+    items: [
+      {
+        id: input.productId,
+        title: input.title,
+        quantity: input.quantity ?? 1,
+        price: input.price,
+        imageUrl: input.imageUrl,
+      },
+    ],
+  };
 }
 
 export function isShipmentReady(parcels: CommerceParcel[]): boolean {
