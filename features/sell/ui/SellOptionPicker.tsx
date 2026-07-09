@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/Button";
+import { ModalContainer } from "@/components/ui/ModalContainer";
+import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { sellPanel, focusRing } from "@/features/sell/ui/sell-classes";
 import { SellPanelHeader } from "@/features/sell/ui/SellPrimitives";
 import type { SelectionOption } from "@/lib/sell/attribute-options";
@@ -63,19 +65,6 @@ export function SellOptionPicker({
 }: SellOptionPickerProps) {
   const [selected, setSelected] = useState<string[]>(() => [...value]);
   const [query, setQuery] = useState("");
-
-  useEffect(() => {
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = previous;
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [onClose]);
 
   const allOptions = useMemo<SelectionOption[]>(() => {
     const known = new Set(options.map((option) => option.id));
@@ -167,7 +156,8 @@ export function SellOptionPicker({
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-label={title} className={sellPanel}>
+    <ModalContainer open onClose={onClose} variant="fullscreen" zIndex={200} ariaLabel={title}>
+      <div className={sellPanel}>
       <SellPanelHeader title={title} onBack={onClose} />
 
       {searchable ? (
@@ -187,7 +177,7 @@ export function SellOptionPicker({
         </div>
       ) : null}
 
-      <div className="flex-1 overflow-y-auto px-ds-4 pt-ds-3" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 16px)" }}>
+      <div className={cn(RX_MODAL_BODY, "px-ds-4 pt-ds-3")}>
         {layout === "grid" ? (
           <div className="grid grid-cols-3 gap-ds-2" role={mode === "single" ? "radiogroup" : "group"} aria-label={title}>
             {filtered.map(renderGridCell)}
@@ -235,6 +225,7 @@ export function SellOptionPicker({
           </Button>
         </div>
       ) : null}
-    </div>
+      </div>
+    </ModalContainer>
   );
 }

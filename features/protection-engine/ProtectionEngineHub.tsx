@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useMemo, useState } from "react";
 import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -54,7 +55,7 @@ export function ProtectionEngineHub({
     <BetaAppShell bottomNavTab="account">
       <BetaPageHeader title="Purchase Protection" backHref="/account" />
 
-      <main className="bp-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="bp-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 ">
         <header className="bp-hub__intro">
           <p className="bp-hub__eyebrow">Purchase Protection</p>
           <p className="text-sm text-text-secondary">
@@ -150,7 +151,7 @@ export function ProtectionEngineHub({
             ))}
           </div>
         </section>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

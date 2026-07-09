@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ModalContainer } from "@/components/ui/ModalContainer";
 import { getQuickAccessIcon } from "@/lib/account-center/tile-icons";
 import { AvatarUploader } from "@/features/account/components/AvatarUploader";
 import { NotificationBadge } from "@/features/account-center/components/NotificationBadge";
@@ -75,26 +76,23 @@ export function AccountAvatarSheet({
   avatarUrl: string | null;
   onUpdated: (url: string | null) => void;
 }) {
-  if (!open) return null;
-
   return (
-    <div
-      className="account-center-avatar-sheet"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Change profile photo"
-      onClick={onClose}
+    <ModalContainer
+      open={open}
+      onClose={onClose}
+      variant="sheet"
+      zIndex={100}
+      ariaLabel="Change profile photo"
+      panelClassName="account-center-avatar-sheet__panel"
     >
-      <div className="account-center-avatar-sheet__panel" onClick={(event) => event.stopPropagation()}>
-        <AvatarUploader
-          name={name}
-          avatarUrl={avatarUrl}
-          onUpdated={(url) => {
-            onUpdated(url);
-            onClose();
-          }}
-        />
-      </div>
-    </div>
+      <AvatarUploader
+        name={name}
+        avatarUrl={avatarUrl}
+        onUpdated={(url) => {
+          onUpdated(url);
+          onClose();
+        }}
+      />
+    </ModalContainer>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -165,7 +166,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-6 px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-6 px-ds-4 py-ds-6 ">
         <div>
           <PageBack variant="text" backHref="/account/settings" backLabel="Settings" className="mb-ds-3" />
           <h1 className="text-2xl font-bold text-text-primary">Address book</h1>
@@ -285,7 +286,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
           </div>
           {message ? <p className="text-sm text-text-secondary">{message}</p> : null}
         </form>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

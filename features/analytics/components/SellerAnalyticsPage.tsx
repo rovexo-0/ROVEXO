@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { DashboardPerformanceSection } from "@/features/dashboard/components/DashboardPerformanceSection";
 const AnalyticsDoughnutChart = dynamic(
@@ -41,7 +42,7 @@ export function SellerAnalyticsPage({
         onRangeChange={(nextRange) => void changeRange(nextRange)}
       />
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 ">
         {loading && (
           <p className="sr-only" aria-live="polite">
             Updating analytics
@@ -78,7 +79,7 @@ export function SellerAnalyticsPage({
           topProducts={data.topProducts}
           extraRows={buildSellerExportExtras(data)}
         />
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

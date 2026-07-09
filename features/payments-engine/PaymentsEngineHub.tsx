@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useMemo, useState } from "react";
 import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -55,7 +56,7 @@ export function PaymentsEngineHub({
     <BetaAppShell bottomNavTab="account">
       <BetaPageHeader title="Payments" backHref="/account" />
 
-      <main className="pe-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="pe-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 ">
         <header className="pe-hub__intro">
           <p className="pe-hub__eyebrow">Payments Engine</p>
           <p className="text-sm text-text-secondary">
@@ -144,7 +145,7 @@ export function PaymentsEngineHub({
             ))}
           </div>
         </section>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

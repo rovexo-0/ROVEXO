@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Card } from "@/components/ui/Card";
 import { SUPPORT_SUCCESS_MESSAGE } from "@/lib/support/types";
 
@@ -12,7 +13,7 @@ type SupportSuccessPageProps = {
 export function SupportSuccessPage({ ticketNumber }: SupportSuccessPageProps) {
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-8">
+      <HubPageMain withBottomNav={false} className="py-ds-8">
         <Card padding="lg" className="">
           <h1 className="text-xl font-semibold text-text-primary">{SUPPORT_SUCCESS_MESSAGE.title}</h1>
           {ticketNumber ? (
@@ -27,7 +28,7 @@ export function SupportSuccessPage({ ticketNumber }: SupportSuccessPageProps) {
             Back to Help Centre
           </Link>
         </Card>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

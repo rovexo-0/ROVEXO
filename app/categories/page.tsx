@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import Header from "@/components/Header";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoriesMobileNav } from "@/features/categories/components/CategoriesMobileNav";
@@ -21,7 +22,7 @@ export default function CategoriesIndexPage() {
   return (
     <BetaAppShell bottomNavTab="search">
       <Header />
-      <main className="rx-category-index mx-auto flex w-full max-w-7xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))] pt-[calc(7.5rem+env(safe-area-inset-top))]">
+      <HubPageMain className="rx-category-index mx-auto flex w-full max-w-7xl flex-col gap-ds-4 px-ds-4 py-ds-5  pt-[calc(7.5rem+env(safe-area-inset-top))]">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">All categories</h1>
           <p className="mt-ds-1 text-sm text-text-secondary">
@@ -41,7 +42,7 @@ export default function CategoriesIndexPage() {
             />
           ))}
         </div>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

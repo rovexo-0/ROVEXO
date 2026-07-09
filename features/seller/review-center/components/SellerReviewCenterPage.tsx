@@ -1,6 +1,7 @@
 "use client";
 
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -33,7 +34,7 @@ export function SellerReviewCenterPage() {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto w-full max-w-2xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-2xl bg-background px-5 py-5 ">
         <DashboardShell>
           <div>
             <p className="text-sm text-text-secondary">Selling</p>
@@ -97,7 +98,7 @@ export function SellerReviewCenterPage() {
             ))}
           </div>
         </DashboardShell>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

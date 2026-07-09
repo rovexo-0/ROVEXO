@@ -1,7 +1,8 @@
 "use client";
 
-import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
+import { memo, useCallback, useId, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { ModalContainer } from "@/components/ui/ModalContainer";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
 import { focusRing } from "@/features/sell/ui/sell-classes";
 import { useSell } from "@/features/sell/context/SellProvider";
@@ -114,20 +115,6 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
   };
 
   const previewPhoto = previewId ? photos.find((photo) => photo.id === previewId) ?? null : null;
-
-  useEffect(() => {
-    if (!previewPhoto) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setPreviewId(null);
-    };
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = previous;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [previewPhoto]);
 
   const tileBase =
     "relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-ds-lg";
@@ -264,32 +251,31 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
         </p>
       ) : null}
 
-      {previewPhoto ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Photo preview"
-          className="fixed inset-0 z-[210] flex items-center justify-center bg-black/90 p-ds-4"
+      <ModalContainer
+        open={Boolean(previewPhoto)}
+        onClose={() => setPreviewId(null)}
+        variant="lightbox"
+        zIndex={210}
+        ariaLabel="Photo preview"
+      >
+        <button
+          type="button"
+          aria-label="Close preview"
           onClick={() => setPreviewId(null)}
+          className={cn("absolute right-ds-4 top-[max(env(safe-area-inset-top),1rem)] z-10 grid h-11 w-11 place-items-center rounded-ds-full bg-white/10 text-white", focusRing)}
         >
-          <button
-            type="button"
-            aria-label="Close preview"
-            onClick={() => setPreviewId(null)}
-            className={cn("absolute right-ds-4 top-[max(env(safe-area-inset-top),1rem)] grid h-11 w-11 place-items-center rounded-ds-full bg-white/10 text-white", focusRing)}
-          >
-            <CloseIcon className="h-6 w-6" />
-          </button>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <CloseIcon className="h-6 w-6" />
+        </button>
+        {previewPhoto ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={previewPhoto.url ?? previewPhoto.previewUrl}
             alt="Photo preview"
             className="max-h-full max-w-full rounded-ds-lg object-contain"
             decoding="async"
-            onClick={(event) => event.stopPropagation()}
           />
-        </div>
-      ) : null}
+        ) : null}
+      </ModalContainer>
     </section>
   );
 });

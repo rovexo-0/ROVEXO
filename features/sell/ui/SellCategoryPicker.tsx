@@ -2,6 +2,8 @@
 
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { ModalContainer } from "@/components/ui/ModalContainer";
+import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { sellPanel, focusRing } from "@/features/sell/ui/sell-classes";
 import { categoryTree } from "@/lib/categories/tree";
 import { loadCategoriesWithRecovery } from "@/lib/categories/category-loader";
@@ -141,15 +143,6 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
     return () => window.clearTimeout(handle);
   }, [query]);
 
-  useEffect(() => {
-    if (!open) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [open]);
-
   const searchResults = useMemo<CategoryPickerResult[]>(
     () => (debouncedQuery.trim().length >= 2 ? searchCategoryPicker(debouncedQuery) : []),
     [debouncedQuery],
@@ -201,7 +194,14 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Select a category" className={sellPanel}>
+    <ModalContainer
+      open={open}
+      onClose={close}
+      variant="fullscreen"
+      zIndex={200}
+      ariaLabel="Select a category"
+    >
+      <div className={sellPanel}>
       <header
         className="flex items-center gap-ds-2 border-b border-border px-ds-2 pb-ds-3"
         style={{ paddingTop: "max(env(safe-area-inset-top), 12px)" }}
@@ -232,7 +232,7 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
         </div>
       </div>
 
-      <div ref={bodyRef} className="flex-1 overflow-y-auto px-ds-4 pt-ds-3" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 16px)" }}>
+      <div ref={bodyRef} className={cn(RX_MODAL_BODY, "px-ds-4 pt-ds-3")}>
         {isSearching ? (
           searchResults.length === 0 ? (
             <p className="px-ds-1 py-ds-6 text-center text-sm text-text-muted">No categories found. Try a different word.</p>
@@ -284,6 +284,7 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
           </>
         )}
       </div>
-    </div>
+      </div>
+    </ModalContainer>
   );
 }

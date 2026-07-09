@@ -1,4 +1,5 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { OrderListItem } from "@/features/orders/components/OrderListItem";
@@ -27,7 +28,7 @@ export function OrdersListPage({
     <BetaAppShell bottomNavTab={showBottomNav ? bottomNavTab : undefined} showBottomNav={showBottomNav}>
       <BetaPageHeader title={title} backHref={backHref} />
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 ">
         {orders.length === 0 ? (
           <EmptyState
             premiumIllustrationId="orders"
@@ -39,7 +40,7 @@ export function OrdersListPage({
         ) : (
           orders.map((order) => <OrderListItem key={order.id} order={order} userId={userId} />)
         )}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

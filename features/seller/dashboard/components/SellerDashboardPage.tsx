@@ -1,4 +1,5 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { DashboardPerformanceSection } from "@/features/dashboard/components/DashboardPerformanceSection";
@@ -34,7 +35,7 @@ type SellerDashboardPageProps = {
 export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto w-full max-w-2xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-2xl bg-background px-5 py-5 ">
         <DashboardShell>
           <SellerDashboardHeader profile={data.profile} />
         <SellerProfileCard
@@ -103,7 +104,7 @@ export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
 
         <DashboardRecentOrdersSection orders={data.recentOrders} viewAllHref="/seller/orders" />
         </DashboardShell>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

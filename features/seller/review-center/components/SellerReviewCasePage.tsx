@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useEffect, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { PageBack } from "@/components/navigation/PageBack";
@@ -79,9 +80,9 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
   if (loading) {
     return (
       <BetaAppShell showBottomNav={false}>
-        <main className="mx-auto w-full max-w-2xl px-5 py-5">
+        <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-2xl px-5 py-5">
           <p className="text-sm text-text-secondary">Loading review case…</p>
-        </main>
+        </HubPageMain>
       </BetaAppShell>
     );
   }
@@ -89,12 +90,12 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
   if (error && !reviewCase) {
     return (
       <BetaAppShell showBottomNav={false}>
-        <main className="mx-auto w-full max-w-2xl px-5 py-5">
+        <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-2xl px-5 py-5">
           <p className="text-sm text-danger">{error}</p>
           <Link href="/seller/review-center" className="mt-ds-3 inline-block text-sm text-primary">
             Back to Review Center
           </Link>
-        </main>
+        </HubPageMain>
       </BetaAppShell>
     );
   }
@@ -103,7 +104,7 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto w-full max-w-2xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-2xl bg-background px-5 py-5 ">
         <DashboardShell>
           <div className="flex items-start justify-between gap-ds-3">
             <div>
@@ -204,7 +205,7 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
             </Card>
           ) : null}
         </DashboardShell>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

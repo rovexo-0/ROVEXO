@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useState } from "react";
 import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -29,7 +30,7 @@ export function SearchEngineHub({ config, context, modules, analytics, landing }
 
   return (
     <BetaAppShell bottomNavTab="search">
-      <main className="srch-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="srch-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 ">
         <header className="srch-hub__intro">
           <p className="srch-hub__eyebrow">Search Engine</p>
           <p className="text-sm text-text-secondary">
@@ -174,7 +175,7 @@ export function SearchEngineHub({ config, context, modules, analytics, landing }
             {landing ? <div className="srch-landing">{landing}</div> : null}
           </>
         )}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

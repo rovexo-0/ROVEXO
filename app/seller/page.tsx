@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { AccountCenterModulePage } from "@/features/account-center/components/AccountCenterModulePage";
 import { getProfile } from "@/lib/profile/data";
@@ -24,11 +25,11 @@ async function SellingModuleContent() {
 export default function SellerPage() {
   return (
     <BetaAppShell bottomNavTab="sell" className="account-center-shell">
-      <main className="mx-auto w-full max-w-[480px] pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="mx-auto w-full max-w-[480px] ">
         <Suspense fallback={null}>
           <SellingModuleContent />
         </Suspense>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

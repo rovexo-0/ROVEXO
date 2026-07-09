@@ -1,6 +1,7 @@
 "use client";
 
 import { SafeImage } from "@/components/ui/SafeImage";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
@@ -363,7 +364,7 @@ export function SellerListingsPage({ data }: { data: SellerListingsData }) {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-ds-4 py-ds-4 ">
         {(promotionMessage || checkoutError) && (
           <Card padding="sm" className="border-primary/30 bg-primary/5">
             <p className="text-sm font-medium text-primary">{promotionMessage ?? checkoutError}</p>
@@ -423,7 +424,7 @@ export function SellerListingsPage({ data }: { data: SellerListingsData }) {
             ))
           )}
         </Card>
-      </main>
+      </HubPageMain>
 
       <PromotionPicker
         open={promotionTarget !== null}

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { AccountModuleBackHeader } from "@/features/account-module/components/AccountModuleBackHeader";
 
 type AccountModuleShellProps = {
@@ -23,7 +24,9 @@ export function AccountModuleShell({
     <BetaAppShell bottomNavTab="account" className={className ?? "acm-shell"}>
       <div className="acm" data-account-module-version={version}>
         <AccountModuleBackHeader title={title} backHref={backHref} rightAction={rightAction} />
-        {children}
+        <ScrollContainer withBottomNav className="acm__scroll">
+          {children}
+        </ScrollContainer>
       </div>
     </BetaAppShell>
   );

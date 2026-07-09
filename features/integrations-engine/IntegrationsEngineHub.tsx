@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useState } from "react";
 import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -30,7 +31,7 @@ export function IntegrationsEngineHub({ config, context, modules, analytics }: I
     <BetaAppShell bottomNavTab="account">
       <BetaPageHeader title="Integrations" backHref="/account" />
 
-      <main className="integ-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="integ-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 ">
         <header className="integ-hub__intro">
           <p className="integ-hub__eyebrow">Integrations Engine</p>
           <p className="text-sm text-text-secondary">
@@ -158,7 +159,7 @@ export function IntegrationsEngineHub({ config, context, modules, analytics }: I
             </section>
           </>
         )}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

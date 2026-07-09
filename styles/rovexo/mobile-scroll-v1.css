@@ -1,0 +1,195 @@
+/**
+ * ROVEXO Mobile Scroll Standard v1
+ * One global scrolling model for pages, modals, sheets, and full-screen overlays.
+ */
+
+/* ── Page shell ──────────────────────────────────────────────────── */
+.rx-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.rx-scroll-page {
+  width: 100%;
+  max-width: 100%;
+  flex: 1 1 auto;
+  overflow-x: clip;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-bottom: calc(var(--bottom-nav-shell-height, 84px) + env(safe-area-inset-bottom, 0px));
+}
+
+.rx-scroll-page--with-nav {
+  padding-bottom: calc(var(--bottom-nav-shell-height, 84px) + env(safe-area-inset-bottom, 0px));
+}
+
+.rx-scroll-page--no-nav {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--ds-space-4, 1rem));
+}
+
+.rx-scroll-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--ds-space-3, 0.75rem));
+}
+
+/* ── Modal / bottom sheet shell ──────────────────────────────────── */
+.rx-modal-shell {
+  position: fixed;
+  inset: 0;
+  z-index: var(--rx-modal-z, 100);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: var(--ds-space-4, 1rem);
+  padding-top: max(env(safe-area-inset-top, 0px), var(--ds-space-4, 1rem));
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--ds-space-4, 1rem));
+  padding-left: max(env(safe-area-inset-left, 0px), var(--ds-space-4, 1rem));
+  padding-right: max(env(safe-area-inset-right, 0px), var(--ds-space-4, 1rem));
+  pointer-events: none;
+}
+
+.rx-modal-shell > * {
+  pointer-events: auto;
+}
+
+@media (min-width: 640px) {
+  .rx-modal-shell {
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.rx-modal-shell__backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+}
+
+.rx-modal-shell__panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 28rem;
+  max-height: min(
+    92dvh,
+    calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 2rem)
+  );
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  border-radius: var(--ds-radius-premium, 1rem) var(--ds-radius-premium, 1rem) 0 0;
+}
+
+@media (min-width: 640px) {
+  .rx-modal-shell__panel {
+    border-radius: var(--ds-radius-premium, 1rem);
+  }
+}
+
+/* Full-screen overlay (search, sell pickers) */
+.rx-modal-shell-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: var(--rx-modal-z, 100);
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background: var(--ds-color-background);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.rx-modal-shell-fullscreen__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--ds-space-4, 1rem));
+}
+
+/* Centered blocking overlay (processing, filters) */
+.rx-modal-shell-centered {
+  position: fixed;
+  inset: 0;
+  z-index: var(--rx-modal-z, 100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(env(safe-area-inset-top, 0px), var(--ds-space-4, 1rem));
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--ds-space-4, 1rem));
+  padding-left: max(env(safe-area-inset-left, 0px), var(--ds-space-4, 1rem));
+  padding-right: max(env(safe-area-inset-right, 0px), var(--ds-space-4, 1rem));
+}
+
+.rx-modal-shell-centered__backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--ds-color-background, #fff) 35%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.rx-modal-shell-centered__panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 28rem;
+  max-height: min(
+    92dvh,
+    calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 2rem)
+  );
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Full-screen media lightbox */
+.rx-modal-shell-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--rx-modal-z, 100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(env(safe-area-inset-top, 0px), var(--ds-space-4, 1rem));
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--ds-space-4, 1rem));
+  padding-left: max(env(safe-area-inset-left, 0px), var(--ds-space-4, 1rem));
+  padding-right: max(env(safe-area-inset-right, 0px), var(--ds-space-4, 1rem));
+  background: rgb(0 0 0 / 0.9);
+}
+
+.rx-modal-shell-lightbox__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  max-height: 100%;
+  max-width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+body.rx-scroll-locked {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
+/* Keyboard: keep focused fields visible */
+input:not([type="hidden"]):not([disabled]),
+textarea:not([disabled]),
+select:not([disabled]),
+[contenteditable="true"] {
+  scroll-margin-bottom: calc(var(--bottom-nav-shell-height, 84px) + env(safe-area-inset-bottom, 0px) + 1rem);
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 1rem);
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useMemo, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoryChip } from "@/components/ui/CategoryChip";
@@ -95,7 +96,7 @@ export function NotificationsPage({ initialNotifications }: NotificationsPagePro
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-ds-4 py-ds-4 ">
         {showEmpty ? (
           <NotificationsEmptyState />
         ) : showFilteredEmpty ? (
@@ -118,7 +119,7 @@ export function NotificationsPage({ initialNotifications }: NotificationsPagePro
             </SwipeableNotificationRow>
           ))
         )}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

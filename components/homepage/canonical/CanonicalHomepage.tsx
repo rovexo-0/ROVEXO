@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useMemo } from "react";
+import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import type { HomepageV4Sections } from "@/lib/homepage/v4-data";
 import { CanonicalCategoryRail } from "@/components/homepage/canonical/CanonicalCategoryRail";
 import { FeaturedStoreSection } from "@/components/homepage/canonical/featured-store/FeaturedStoreSection";
@@ -25,14 +26,10 @@ export const CanonicalHomepage = memo(function CanonicalHomepage({
   }, [showcases]);
 
   return (
-    <main
-      className={css.hpCanonical}
-      data-hp-homepage="canonical"
-      data-hp-homepage-version="ui-lock-1.0"
-    >
+    <ScrollContainer withBottomNav className={css.hpCanonical} data-hp-homepage="canonical" data-hp-homepage-version="ui-lock-1.0">
       <CanonicalCategoryRail />
       <FeaturedStoreSection sections={showcases} />
       <CanonicalMarketplaceFeed initialPage={feed} reservedIds={reservedIds} />
-    </main>
+    </ScrollContainer>
   );
 });

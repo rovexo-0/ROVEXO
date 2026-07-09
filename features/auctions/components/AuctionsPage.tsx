@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import Header from "@/components/Header";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { HomePageShell } from "@/components/home/HomePageShell";
+import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { AuctionCard } from "@/features/auctions/components/AuctionCard";
 import { AuctionsCategoryGrid } from "@/features/auctions/components/AuctionsCategoryGrid";
 import { AuctionsEmptyState } from "@/features/auctions/components/AuctionsEmptyState";
@@ -88,7 +89,7 @@ export function AuctionsPage({ initialData }: AuctionsPageProps) {
   return (
     <BetaAppShell bottomNavTab="home">
       <HomePageShell header={<Header />} bottomNav={null}>
-        <main className="auctions-page flex flex-col gap-ds-3 pb-[calc(var(--ds-space-7)+env(safe-area-inset-bottom))]">
+        <ScrollContainer withBottomNav className="auctions-page flex flex-col gap-ds-3">
           <header className="px-ds-4 pt-ds-2">
             <h1 className="text-2xl font-bold tracking-tight text-text-primary">
               🏆 Live Auctions
@@ -195,7 +196,7 @@ export function AuctionsPage({ initialData }: AuctionsPageProps) {
               ) : null}
             </>
           )}
-        </main>
+        </ScrollContainer>
       </HomePageShell>
     </BetaAppShell>
   );

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/features/sell/ui/sell-classes";
 import type { SellListingDraft } from "@/features/sell/types";
@@ -68,7 +69,7 @@ function SellScreenInner() {
     <>
       <SellTopBar title="Sell an item" />
       {/* Horizontal padding respects device safe-area insets (notches / landscape). */}
-      <main className="mx-auto flex min-h-full w-full max-w-2xl flex-col gap-ds-4 py-ds-4 px-[max(env(safe-area-inset-left),var(--ds-space-4))]">
+      <ScrollContainer withBottomNav={false} className="mx-auto flex max-w-2xl flex-col gap-ds-4 py-ds-4 px-[max(env(safe-area-inset-left),var(--ds-space-4))]">
         <SellPhotoRail />
         <SellTitleBlock />
         <SellCategoryBlock />
@@ -85,7 +86,7 @@ function SellScreenInner() {
         ) : null}
 
         <SellPublishBar />
-      </main>
+      </ScrollContainer>
     </>
   );
 }

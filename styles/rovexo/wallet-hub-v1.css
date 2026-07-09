@@ -45,7 +45,7 @@
   gap: 20px;
   width: min(100%, 480px);
   margin-inline: auto;
-  padding: 16px 16px calc(84px + env(safe-area-inset-bottom));
+  padding: 16px;
 }
 
 .wallet-hub__notice {

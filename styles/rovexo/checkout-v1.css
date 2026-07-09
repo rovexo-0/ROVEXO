@@ -3,6 +3,7 @@
  */
 .ckt-v1 {
   min-height: 100vh;
+  min-height: 100dvh;
   background: #ffffff;
 }
 
@@ -410,7 +411,7 @@
 .ckt-v1__footer {
   position: fixed;
   inset-inline: 0;
-  bottom: calc(56px + env(safe-area-inset-bottom));
+  bottom: calc(var(--bottom-nav-shell-height, 84px) + env(safe-area-inset-bottom));
   z-index: 50;
   padding: 12px 16px;
   border-top: 1px solid var(--ds-color-border);

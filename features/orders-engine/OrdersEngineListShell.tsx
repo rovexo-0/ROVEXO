@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { useMemo, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -62,7 +63,7 @@ export function OrdersEngineListShell({
     <BetaAppShell bottomNavTab="account">
       <BetaPageHeader title="Orders" backHref="/account" />
 
-      <main className="oe-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="oe-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 ">
         <header className="oe-hub__intro">
           <p className="oe-hub__eyebrow">Orders Engine</p>
           <p className="text-sm text-text-secondary">
@@ -141,7 +142,7 @@ export function OrdersEngineListShell({
             ))}
           </div>
         </section>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

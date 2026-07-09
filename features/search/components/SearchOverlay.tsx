@@ -10,6 +10,8 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/cn";
+import { ModalContainer } from "@/components/ui/ModalContainer";
+import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { SearchLocationFilter } from "@/features/search/components/SearchLocationFilter";
 import { SearchResultsEmpty } from "@/features/search/components/SearchResultsEmpty";
@@ -136,12 +138,8 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
 
     initialize();
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
     return () => {
       window.cancelAnimationFrame(frame);
-      document.body.style.overflow = previousOverflow;
     };
   }, []);
 
@@ -149,18 +147,6 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
     setVisible(false);
     window.setTimeout(onClose, SEARCH_TRANSITION_MS);
   }
-
-  useEffect(() => {
-    function handleKeyDownGlobal(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setVisible(false);
-        window.setTimeout(onClose, SEARCH_TRANSITION_MS);
-      }
-    }
-
-    document.addEventListener("keydown", handleKeyDownGlobal);
-    return () => document.removeEventListener("keydown", handleKeyDownGlobal);
-  }, [onClose]);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -204,28 +190,22 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
   const sellerOffset = 0;
 
   return createPortal(
-    <div
+    <ModalContainer
+      open={mounted}
+      onClose={handleClose}
+      variant="fullscreen"
+      zIndex={100}
+      ariaLabel="Search"
       className={cn(
-        "fixed inset-0 z-[100] flex flex-col",
         transitionFast,
         visible ? "opacity-100" : "pointer-events-none opacity-0",
       )}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Search"
     >
-      <button
-        type="button"
-        aria-label="Close search"
-        onClick={handleClose}
-        className={cn("absolute inset-0 bg-background/70 backdrop-blur-sm", transitionFast)}
-      />
-
         <div
           ref={panelRef}
           onKeyDown={handleKeyDown}
           className={cn(
-            "rx-glass rx-depth-3 relative mx-auto flex h-full w-full max-w-2xl flex-col overflow-hidden will-change-transform",
+            "rx-glass rx-depth-3 relative mx-auto flex h-full min-h-0 w-full max-w-2xl flex-1 flex-col overflow-hidden will-change-transform",
             transitionFast,
             visible ? "translate-y-0" : "translate-y-2",
           )}
@@ -284,7 +264,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
 
         <div
           id="search-overlay-results"
-          className="min-h-[12rem] flex-1 overflow-y-auto pb-[max(env(safe-area-inset-bottom),var(--ds-space-4))]"
+          className={cn(RX_MODAL_BODY, "min-h-[12rem] px-ds-4")}
         >
           {(isDebouncing || isLoading) && hasQuery && <LoadingSkeleton />}
 
@@ -446,7 +426,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
           )}
         </div>
       </div>
-    </div>,
+    </ModalContainer>,
     document.body,
   );
 }

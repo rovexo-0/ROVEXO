@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { ModalContainer } from "@/components/ui/ModalContainer";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import type { MarketplaceProviderView } from "@/lib/seller/marketplace/types";
@@ -111,21 +111,13 @@ export function MarketplaceConnectorSettingsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-end justify-center px-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))] sm:items-center">
-      <button
-        type="button"
-        aria-label="Close settings"
-        className="absolute inset-0 rx-sheet-overlay"
-        onClick={onClose}
-      />
-
-      <Card
-        padding="lg"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="connector-settings-title"
-        className="rx-sheet relative max-h-[85vh] w-full max-w-md overflow-y-auto"
-      >
+    <ModalContainer
+      open={open}
+      onClose={onClose}
+      zIndex={120}
+      ariaLabelledBy="connector-settings-title"
+      panelClassName="p-ds-5"
+    >
         <div className="flex items-start gap-ds-3">
           <span className="text-2xl" aria-hidden>
             {provider.logo}
@@ -262,7 +254,6 @@ export function MarketplaceConnectorSettingsModal({
             Close
           </button>
         </div>
-      </Card>
-    </div>
+    </ModalContainer>
   );
 }

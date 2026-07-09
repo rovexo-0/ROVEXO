@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { CheckoutDeliveryStepV1 } from "@/features/checkout/components/CheckoutDeliveryStepV1";
 import { CheckoutPageHeader } from "@/features/checkout/components/CheckoutPageHeader";
 import { CheckoutPaymentStepV1 } from "@/features/checkout/components/CheckoutPaymentStepV1";
@@ -100,7 +101,7 @@ export function CheckoutWizardV1({ product, form, buyerPhone }: CheckoutWizardV1
 
       <CheckoutStepper step={step} />
 
-      <main className="ckt-v1__main">
+      <ScrollContainer as="main" withBottomNav={false} className="ckt-v1__main">
         {step === "delivery" ? (
           <CheckoutDeliveryStepV1
             form={form}
@@ -123,7 +124,7 @@ export function CheckoutWizardV1({ product, form, buyerPhone }: CheckoutWizardV1
             onChangeStep={setStep}
           />
         ) : null}
-      </main>
+      </ScrollContainer>
 
       <div className="ckt-v1__footer">
         <button

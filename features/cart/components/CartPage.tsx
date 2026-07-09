@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { RvxTopBar, RvxTopBarIconLink } from "@/components/header/RvxTopBar";
 import { BagLineIcon, SearchLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -140,7 +141,7 @@ export function CartPage({ cart }: CartPageProps) {
           )}
         </div>
 
-        <main className="cart-v1__main">
+        <ScrollContainer as="main" withBottomNav={false} className="cart-v1__main">
           {cart.items.length === 0 ? (
             <EmptyState
               title="Your cart is empty"
@@ -283,7 +284,7 @@ export function CartPage({ cart }: CartPageProps) {
               </section>
             </>
           )}
-        </main>
+        </ScrollContainer>
 
         {cart.items.length > 0 ? (
           <div className="cart-v1__footer">

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { SELLER_REGISTRATION_OPTIONS, type SellerRegistrationType } from "@/lib/seller/tax/types";
@@ -77,7 +78,7 @@ export function SellerTaxRegistrationPage({
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-6">
+      <HubPageMain withBottomNav={false}>
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Seller tax registration</h1>
           <p className="mt-ds-2 text-sm text-text-secondary">
@@ -161,7 +162,7 @@ export function SellerTaxRegistrationPage({
             ) : null}
           </div>
         </Card>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

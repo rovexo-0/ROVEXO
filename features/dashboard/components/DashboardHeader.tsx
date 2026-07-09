@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { IconButton } from "@/components/ui/IconButton";
+import { ModalBody, ModalContainer } from "@/components/ui/ModalContainer";
 import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
 import { MobileHubNavigator } from "@/features/mobile-ui";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
@@ -57,24 +58,24 @@ export function DashboardHeader({
         </div>
       </header>
 
-      {menuOpen ? (
-        <div className="rx-sheet-overlay fixed inset-0 z-[100] overflow-y-auto px-5 pt-[calc(72px+env(safe-area-inset-top))] pb-6">
-          <button
-            type="button"
-            aria-label="Close menu"
-            className="absolute inset-0"
-            onClick={() => setMenuOpen(false)}
-          />
+      <ModalContainer
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        variant="fullscreen"
+        zIndex={100}
+        ariaLabel={menuLabel}
+        className="bg-overlay"
+      >
+        <ModalBody className="px-5 pt-[calc(72px+env(safe-area-inset-top))] pb-6">
           <div
             className="relative mx-auto mt-3 max-w-2xl"
-            role="dialog"
-            aria-label={menuLabel}
+            role="presentation"
             onClick={() => setMenuOpen(false)}
           >
             <MobileHubNavigator profile={profile} defaultHub={defaultHub} />
           </div>
-        </div>
-      ) : null}
+        </ModalBody>
+      </ModalContainer>
     </>
   );
 }

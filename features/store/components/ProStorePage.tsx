@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import Header from "@/components/Header";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Avatar } from "@/components/ui/Avatar";
@@ -48,7 +49,7 @@ export function ProStorePage({
   return (
     <BetaAppShell>
       <Header />
-      <main className="pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
+      <HubPageMain className="">
         <section className="relative">
           <div className="relative aspect-[21/9] min-h-[160px] w-full">
             <SafeImage
@@ -132,7 +133,7 @@ export function ProStorePage({
             )}
           </section>
         </div>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

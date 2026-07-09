@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -75,7 +76,7 @@ export function MarketplaceConnectorsPage() {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto w-full max-w-4xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-4xl bg-background px-5 py-5 ">
         <StickyPageHeader>
           <div className="flex items-center gap-ds-2">
             <IconButton
@@ -162,7 +163,7 @@ export function MarketplaceConnectorsPage() {
           onConnect={connectProvider}
           onAction={runAction}
         />
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

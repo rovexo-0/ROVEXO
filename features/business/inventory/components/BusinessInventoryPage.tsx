@@ -1,6 +1,7 @@
 "use client";
 
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -92,7 +93,7 @@ export function BusinessInventoryPage({ data }: BusinessInventoryPageProps) {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-ds-4 py-ds-4 ">
         <p className="text-sm text-text-secondary">{data.company.companyName}</p>
 
         <WholesalePricingManager />
@@ -110,7 +111,7 @@ export function BusinessInventoryPage({ data }: BusinessInventoryPageProps) {
             ))
           )}
         </Card>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

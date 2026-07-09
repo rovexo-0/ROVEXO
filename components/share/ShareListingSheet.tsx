@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PremiumIcon } from "@/components/icons/PremiumIcon";
+import { ModalContainer } from "@/components/ui/ModalContainer";
 import { cn } from "@/lib/cn";
 import { getListingShareUrl, getFacebookShareUrl } from "@/lib/share/listing-url";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -100,7 +101,6 @@ const channels: ShareChannel[] = [
 
 export function ShareListingSheet({ open, onClose, title, slug, productId, price }: ShareListingSheetProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
   const shareUrl = getListingShareUrl(slug);
 
   useEffect(() => {
@@ -178,26 +178,14 @@ export function ShareListingSheet({ open, onClose, title, slug, productId, price
     window.location.href = facebookUrl;
   }, [onClose, productId, price, shareUrl, title]);
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center" role="presentation">
-      <button
-        type="button"
-        aria-label="Close share menu"
-        className="absolute inset-0 rx-sheet-overlay"
-        onClick={onClose}
-      />
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="share-listing-title"
-        className={cn(
-          "rx-sheet relative z-10 w-full max-w-md rounded-t-ds-xl p-ds-5 sm:rounded-ds-xl rx-enter",
-          transitionFast,
-        )}
-      >
+    <ModalContainer
+      open={open}
+      onClose={onClose}
+      zIndex={200}
+      ariaLabelledBy="share-listing-title"
+      panelClassName={cn("rounded-t-ds-xl p-ds-5 sm:rounded-ds-xl rx-enter", transitionFast)}
+    >
         <div className="mb-ds-4 flex items-start justify-between gap-ds-3">
           <div>
             <h2 id="share-listing-title" className="text-lg font-semibold text-text-primary">
@@ -293,7 +281,6 @@ export function ShareListingSheet({ open, onClose, title, slug, productId, price
             {feedback}
           </p>
         ) : null}
-      </div>
-    </div>
+    </ModalContainer>
   );
 }

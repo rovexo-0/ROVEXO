@@ -1,5 +1,6 @@
 import { cn } from "@/lib/cn";
 import { MotionDiv } from "@/components/ui/motion";
+import { RX_SCROLL_PAGE, RX_SCROLL_PAGE_NO_NAV } from "@/lib/mobile-ui/scroll-standard";
 
 type AuthShellProps = {
   children: React.ReactNode;
@@ -10,7 +11,9 @@ export function AuthShell({ children, className }: AuthShellProps) {
   return (
     <div
       className={cn(
-        "relative flex min-h-[100dvh] flex-col items-center justify-center overflow-x-hidden overflow-y-auto rx-page bg-background px-ds-4",
+        RX_SCROLL_PAGE,
+        RX_SCROLL_PAGE_NO_NAV,
+        "relative flex min-h-[100dvh] flex-col items-center justify-center overflow-x-hidden rx-page bg-background px-ds-4",
         "pb-[max(env(safe-area-inset-bottom),var(--ds-space-8))]",
         "pt-[max(env(safe-area-inset-top),var(--ds-space-8))]",
         className,

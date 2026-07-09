@@ -15,8 +15,8 @@ export const sellCard =
 export const sellInput =
   "rx-input min-h-ds-7 w-full rounded-ds-md border border-border bg-surface px-ds-3 py-ds-2 text-sm text-text-primary outline-none placeholder:text-text-muted";
 
-/** Full-screen overlay panel (category / attribute / parcel pickers). */
-export const sellPanel = "fixed inset-0 z-[200] flex flex-col bg-surface";
+/** Inner layout for full-screen sell pickers inside ModalContainer. */
+export const sellPanel = "flex min-h-0 flex-1 flex-col bg-surface";
 
 export function sellInvalid(hasError: boolean): string {
   return cn(hasError && "border-danger/60 ring-1 ring-danger/40");

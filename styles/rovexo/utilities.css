@@ -304,7 +304,8 @@
 
 .rx-form-section {
   position: relative;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
   border-radius: var(--ds-radius-premium);
   border: 1px solid var(--ds-glass-border);
   background: var(--ds-glass-bg);

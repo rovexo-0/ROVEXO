@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import type { Metadata } from "next";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
@@ -50,7 +51,7 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
       />
       <BetaPageHeader title={profile.fullName} backHref="/search" />
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 ">
         <Card padding="lg" className="">
           <h1 className="text-xl font-semibold text-text-primary">{profile.fullName}</h1>
           <p className="mt-ds-1 text-sm text-text-secondary">@{profile.username}</p>
@@ -82,7 +83,7 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
         )}
 
         <SellerReviewsSection sellerId={profile.id} reviews={reviews} />
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

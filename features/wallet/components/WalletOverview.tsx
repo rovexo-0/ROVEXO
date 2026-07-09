@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { RovexoIcons } from "@/lib/icons/icons";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
+import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { Button } from "@/components/ui/Button";
 import { buttonSizes, buttonVariants } from "@/components/ui/variants";
 import { Card } from "@/components/ui/Card";
@@ -54,7 +55,7 @@ export function WalletOverview({
     <>
       <BetaPageHeader title="Wallet" backHref={backHref} />
 
-      <main className="wallet-overview">
+      <ScrollContainer withBottomNav={false} className="wallet-overview">
         {connectMessage ? (
           <p
             role="status"
@@ -179,7 +180,7 @@ export function WalletOverview({
             Help Center
           </Link>
         </div>
-      </main>
+      </ScrollContainer>
 
       <BankAccountForm
         open={bankFormOpen}

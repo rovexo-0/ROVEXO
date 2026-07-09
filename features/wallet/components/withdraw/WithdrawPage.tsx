@@ -1,6 +1,7 @@
 "use client";
 
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { WalletHeader } from "@/features/wallet/components/WalletHeader";
@@ -50,12 +51,12 @@ export function WithdrawPage({ profile, data }: WithdrawPageProps) {
         />
       )}
 
-      <main
+      <HubPageMain withBottomNav={false}
         className={cn(
           "mx-auto flex w-full max-w-2xl flex-col",
           isSuccess
             ? "min-h-[100dvh] justify-center px-ds-4 py-ds-6"
-            : "gap-ds-5 px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]",
+            : "gap-ds-5 px-ds-4 py-ds-4 ",
         )}
       >
         {isSuccess ? (
@@ -72,7 +73,7 @@ export function WithdrawPage({ profile, data }: WithdrawPageProps) {
             )}
           </>
         )}
-      </main>
+      </HubPageMain>
 
       {!isSuccess && (
         <footer className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface/95 px-ds-4 py-ds-3 pb-[calc(12px+env(safe-area-inset-bottom))] backdrop-blur-xl">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useMemo, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Button } from "@/components/ui/Button";
@@ -201,10 +202,10 @@ export function NotificationCenter({ initialNotifications }: NotificationCenterP
         </div>
       </header>
 
-      <main
+      <HubPageMain withBottomNav={false}
         className={cn(
           "mx-auto flex w-full max-w-2xl flex-col gap-5 bg-white px-5 py-5",
-          "pb-[calc(20px+env(safe-area-inset-bottom))]",
+          "",
         )}
       >
         {showEmpty ? (
@@ -227,7 +228,7 @@ export function NotificationCenter({ initialNotifications }: NotificationCenterP
               readSections.map((section) => renderSection(section.label, section.items))}
           </>
         )}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

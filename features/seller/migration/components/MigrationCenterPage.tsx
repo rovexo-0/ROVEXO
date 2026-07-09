@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -183,7 +184,7 @@ export function MigrationCenterPage() {
 
   return (
     <BetaAppShell showBottomNav={false} bottomNavTab="account">
-      <main className="account-center-shell mx-auto w-full max-w-[480px] bg-background px-ds-4 py-ds-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="account-center-shell mx-auto w-full max-w-[480px] bg-background px-ds-4 py-ds-5 ">
         <StickyPageHeader>
           <div className="flex items-center gap-ds-2">
             <PageBack backHref="/account" backLabel="My Account" />
@@ -282,7 +283,7 @@ export function MigrationCenterPage() {
             Back to dashboard
           </Link>
         ) : null}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

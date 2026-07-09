@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useState } from "react";
 import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -30,7 +31,7 @@ export function SecurityEngineHub({ config, context, modules, analytics }: Secur
     <BetaAppShell bottomNavTab="account">
       <BetaPageHeader title="Security" backHref="/account" />
 
-      <main className="sec-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="sec-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 ">
         <header className="sec-hub__intro">
           <p className="sec-hub__eyebrow">Security Engine</p>
           <p className="text-sm text-text-secondary">
@@ -175,7 +176,7 @@ export function SecurityEngineHub({ config, context, modules, analytics }: Secur
             </section>
           </>
         )}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

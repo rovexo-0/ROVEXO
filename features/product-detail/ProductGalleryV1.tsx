@@ -1,6 +1,7 @@
 "use client";
 
 import { SafeImage, isRenderableImageSrc } from "@/components/ui/SafeImage";
+import { ModalContainer } from "@/components/ui/ModalContainer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
@@ -180,10 +181,8 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
     };
 
     document.addEventListener("keydown", onKeyDown);
-    document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = "";
     };
   }, [activeIndex, lightboxOpen, scrollLightboxTo]);
 
@@ -258,13 +257,14 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
         ) : null}
       </section>
 
-      {lightboxOpen ? (
-        <div
-          className="pd-v1__lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`${title} fullscreen gallery`}
-        >
+      <ModalContainer
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        variant="lightbox"
+        zIndex={250}
+        ariaLabel={`${title} fullscreen gallery`}
+        panelClassName="pd-v1__lightbox"
+      >
           <div className="pd-v1__lightbox-chrome">
             <p aria-live="polite" className="pd-v1__lightbox-count">
               {activeIndex + 1} / {images.length}
@@ -325,8 +325,7 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
               </div>
             ))}
           </div>
-        </div>
-      ) : null}
+      </ModalContainer>
     </>
   );
 }

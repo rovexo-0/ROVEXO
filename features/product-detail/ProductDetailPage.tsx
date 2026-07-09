@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { RecordRecentlyViewed } from "@/features/launch/components/RecordRecentlyViewed";
 import { AddedToCartToast } from "@/features/product-detail/AddedToCartToast";
 import { ProductActionBarV1 } from "@/features/product-detail/ProductActionBarV1";
@@ -57,7 +58,7 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
       <div className="pd-v1__shell">
         <ProductGalleryV1 images={product.images} title={product.title} />
 
-        <main className="pd-v1__main">
+        <ScrollContainer withBottomNav className="pd-v1__main">
           <section aria-labelledby="pd-product-title">
             <h1 id="pd-product-title" className="pd-v1__title">
               {product.title}
@@ -92,7 +93,7 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
           <ProductSimilarItems products={similarProducts} categoryId={product.categoryId} />
 
           <ProductRecentlyViewed currentSlug={product.slug} />
-        </main>
+        </ScrollContainer>
       </div>
 
       <ProductActionBarV1

@@ -1,4 +1,5 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { DashboardPerformanceSection } from "@/features/dashboard/components/DashboardPerformanceSection";
 import { DashboardQuickActionsGrid } from "@/features/dashboard/components/DashboardQuickActionsGrid";
 import { DashboardRecentOrdersSection } from "@/features/dashboard/components/DashboardRecentOrdersSection";
@@ -27,7 +28,7 @@ type BusinessDashboardPageProps = {
 export function BusinessDashboardPage({ data }: BusinessDashboardPageProps) {
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto w-full max-w-2xl bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-2xl bg-background px-5 py-5 ">
         <DashboardShell>
           <BusinessDashboardHeader profile={data.profile} />
         <BusinessProfileCard company={data.company} />
@@ -42,7 +43,7 @@ export function BusinessDashboardPage({ data }: BusinessDashboardPageProps) {
 
         <DashboardRecentOrdersSection orders={data.recentOrders} viewAllHref="/seller/orders" />
         </DashboardShell>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

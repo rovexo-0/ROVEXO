@@ -16,8 +16,13 @@
   max-width: 640px;
   margin: 0 auto;
   min-height: 100vh;
-  padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  min-height: 100dvh;
   background: #ffffff;
+}
+
+.acm__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* ── Back header ─────────────────────────────────────────────────── */

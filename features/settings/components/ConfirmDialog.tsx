@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { ModalContainer } from "@/components/ui/ModalContainer";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 
@@ -52,54 +52,44 @@ export function ConfirmDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-end justify-center px-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))] sm:items-center">
-      <button
-        type="button"
-        aria-label="Close dialog"
-        className="absolute inset-0 rx-sheet-overlay"
-        onClick={onCancel}
-      />
+    <ModalContainer
+      open={open}
+      onClose={onCancel}
+      zIndex={120}
+      ariaLabelledBy="confirm-dialog-title"
+      panelClassName="p-ds-5"
+    >
+      <h2 id="confirm-dialog-title" className="text-base font-semibold text-text-primary">
+        {title}
+      </h2>
+      <p id="confirm-dialog-description" className="mt-ds-2 text-sm text-text-secondary">
+        {description}
+      </p>
+      {children}
 
-      <Card
-        padding="md"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirm-dialog-title"
-        aria-describedby="confirm-dialog-description"
-        className="rx-sheet relative w-full max-w-sm"
-      >
-        <h2 id="confirm-dialog-title" className="text-base font-semibold text-text-primary">
-          {title}
-        </h2>
-        <p id="confirm-dialog-description" className="mt-ds-2 text-sm text-text-secondary">
-          {description}
-        </p>
-        {children}
-
-        <div className="mt-ds-4 flex flex-col gap-ds-2">
-          <Button
-            variant="outline"
-            fullWidth
-            size="md"
-            disabled={confirmDisabled}
-            className={cn("min-h-ds-7 rounded-ds-lg", destructive && "text-danger")}
-            onClick={onConfirm}
-          >
-            {confirmLabel}
-          </Button>
-          <button
-            ref={cancelRef}
-            type="button"
-            onClick={onCancel}
-            className={cn(
-              "min-h-ds-7 rounded-ds-lg px-ds-4 py-ds-3 text-sm font-semibold text-text-primary",
-              focusRing,
-            )}
-          >
-            {cancelLabel}
-          </button>
-        </div>
-      </Card>
-    </div>
+      <div className="mt-ds-4 flex flex-col gap-ds-2">
+        <Button
+          variant="outline"
+          fullWidth
+          size="md"
+          disabled={confirmDisabled}
+          className={cn("min-h-ds-7 rounded-ds-lg", destructive && "text-danger")}
+          onClick={onConfirm}
+        >
+          {confirmLabel}
+        </Button>
+        <button
+          ref={cancelRef}
+          type="button"
+          onClick={onCancel}
+          className={cn(
+            "min-h-ds-7 rounded-ds-lg px-ds-4 py-ds-3 text-sm font-semibold text-text-primary",
+            focusRing,
+          )}
+        >
+          {cancelLabel}
+        </button>
+      </div>
+    </ModalContainer>
   );
 }

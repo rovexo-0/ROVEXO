@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { loadStripe, type Stripe, type StripeElements } from "@stripe/stripe-js";
 import { Button } from "@/components/ui/Button";
+import { ModalContainer } from "@/components/ui/ModalContainer";
 import { getStripePublishableKey, isStripePublishableKeyConfigured } from "@/lib/stripe/client";
 
 type CardSetupSheetProps = {
@@ -28,6 +29,7 @@ function CardSetupStripeFields({ clientSecret, onClose, onComplete }: CardSetupS
 
   useEffect(() => {
     let cancelled = false;
+    let mountContainer: HTMLDivElement | null = null;
 
     void (async () => {
       if (!isStripePublishableKeyConfigured()) {
@@ -55,6 +57,7 @@ function CardSetupStripeFields({ clientSecret, onClose, onComplete }: CardSetupS
       const paymentElement = elements.create("payment");
       const container = containerRef.current;
       if (!container) return;
+      mountContainer = container;
       container.innerHTML = "";
       paymentElement.mount(container);
       if (!cancelled) setReady(true);
@@ -64,9 +67,8 @@ function CardSetupStripeFields({ clientSecret, onClose, onComplete }: CardSetupS
       cancelled = true;
       stripeRef.current = null;
       elementsRef.current = null;
-      const container = containerRef.current;
-      if (container) {
-        container.innerHTML = "";
+      if (mountContainer) {
+        mountContainer.innerHTML = "";
       }
     };
   }, [clientSecret]);
@@ -129,32 +131,26 @@ function CardSetupStripeFields({ clientSecret, onClose, onComplete }: CardSetupS
 }
 
 export function CardSetupSheet({ open, clientSecret, onClose, onComplete }: CardSetupSheetProps) {
-  if (!open) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-[240] flex items-end justify-center bg-black/50 p-ds-4 sm:items-center"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Add card"
-      onClick={onClose}
+    <ModalContainer
+      open={open}
+      onClose={onClose}
+      zIndex={240}
+      ariaLabel="Add card"
+      panelClassName="w-full max-w-md rounded-t-ds-xl bg-surface p-ds-5 shadow-ds-floating sm:rounded-ds-xl"
+      onBackdropClick={onClose}
     >
-      <div
-        className="w-full max-w-md rounded-t-ds-xl bg-surface p-ds-5 shadow-ds-floating sm:rounded-ds-xl"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <h2 className="text-lg font-semibold text-text-primary">Add card</h2>
-        <p className="mt-ds-1 text-sm text-text-secondary">
-          Your card is saved securely with Stripe for faster checkout.
-        </p>
+      <h2 className="text-lg font-semibold text-text-primary">Add card</h2>
+      <p className="mt-ds-1 text-sm text-text-secondary">
+        Your card is saved securely with Stripe for faster checkout.
+      </p>
 
-        <CardSetupStripeFields
-          key={clientSecret}
-          clientSecret={clientSecret}
-          onClose={onClose}
-          onComplete={onComplete}
-        />
-      </div>
-    </div>
+      <CardSetupStripeFields
+        key={clientSecret}
+        clientSecret={clientSecret}
+        onClose={onClose}
+        onComplete={onComplete}
+      />
+    </ModalContainer>
   );
 }

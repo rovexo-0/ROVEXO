@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useMemo, useState } from "react";
 import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -103,7 +104,7 @@ export function MessagesEngineHub({
         </div>
       </header>
 
-      <main className="me-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="me-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-4 ">
         {tab === "analytics" ? (
           <section className="me-panel">
             <div className="me-analytics-grid">
@@ -195,7 +196,7 @@ export function MessagesEngineHub({
             ) : null}
           </>
         )}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

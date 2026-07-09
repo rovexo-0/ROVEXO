@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -151,7 +152,7 @@ function AuctionSellPageContent() {
   if (publishedSlug) {
     return (
       <BetaAppShell showBottomNav={false}>
-        <main className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col items-center justify-center px-ds-4 py-ds-6">
+        <HubPageMain withBottomNav={false} className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col items-center justify-center px-ds-4 py-ds-6">
           <PublishedCheckmark />
           <h2 className="mt-ds-6 text-xl font-semibold text-text-primary">Your auction is live.</h2>
           <div className="mt-ds-8 flex w-full max-w-sm flex-col gap-ds-3">
@@ -166,14 +167,14 @@ function AuctionSellPageContent() {
               </Button>
             </Link>
           </div>
-        </main>
+        </HubPageMain>
       </BetaAppShell>
     );
   }
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-4 ">
         <header>
           <h1 className="text-xl font-bold text-text-primary">Start Auction</h1>
           <p className="mt-1 text-sm text-text-secondary">
@@ -323,7 +324,7 @@ function AuctionSellPageContent() {
         )}
 
         <FieldError message={publishError ?? undefined} />
-      </main>
+      </HubPageMain>
 
       <div className="rx-footer-bar fixed inset-x-0 bottom-0 z-[110]">
         <div className="mx-auto max-w-2xl px-ds-4 py-ds-3 pb-[max(env(safe-area-inset-bottom),var(--ds-space-3))]">

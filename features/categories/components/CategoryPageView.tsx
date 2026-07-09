@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { CategoryChip } from "@/components/ui/CategoryChip";
@@ -25,7 +26,7 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
   ];
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-col gap-ds-6 px-ds-4 py-ds-5 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))] pt-[calc(7.5rem+env(safe-area-inset-top))]">
+    <HubPageMain className="mx-auto flex w-full max-w-7xl flex-col gap-ds-6 px-ds-4 py-ds-5  pt-[calc(7.5rem+env(safe-area-inset-top))]">
       <Breadcrumbs items={breadcrumbs} />
 
       <section className="relative overflow-hidden rounded-ds-xl bg-secondary">
@@ -93,6 +94,6 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
       </section>
 
       <InternalLinksSection groups={internalLinkGroups} />
-    </main>
+    </HubPageMain>
   );
 }

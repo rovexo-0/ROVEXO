@@ -1,7 +1,8 @@
 "use client";
 
-import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
+import { memo, useCallback, useId, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { ModalContainer } from "@/components/ui/ModalContainer";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
 import { focusRing } from "@/components/ui/tokens";import { useSell } from "@/features/sell/context/SellProvider";
 import { SELL_PHOTO_MAX } from "@/features/sell/types";
@@ -120,20 +121,6 @@ export const PhotoUploader = memo(function PhotoUploader() {
   );
 
   const previewPhoto = previewId ? photos.find((photo) => photo.id === previewId) ?? null : null;
-
-  useEffect(() => {
-    if (!previewPhoto) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setPreviewId(null);
-    };
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [previewPhoto]);
 
   return (
     <section aria-label="Photos" className={cn("rx-form-section", styles.card)}>
@@ -266,32 +253,31 @@ export const PhotoUploader = memo(function PhotoUploader() {
         </p>
       )}
 
-      {previewPhoto ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Photo preview"
-          className={styles.previewOverlay}
+      <ModalContainer
+        open={Boolean(previewPhoto)}
+        onClose={() => setPreviewId(null)}
+        variant="lightbox"
+        zIndex={210}
+        ariaLabel="Photo preview"
+      >
+        <button
+          type="button"
+          aria-label="Close preview"
+          className={cn(styles.previewClose, focusRing)}
           onClick={() => setPreviewId(null)}
         >
-          <button
-            type="button"
-            aria-label="Close preview"
-            className={cn(styles.previewClose, focusRing)}
-            onClick={() => setPreviewId(null)}
-          >
-            <CloseIcon className="h-6 w-6" />
-          </button>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <CloseIcon className="h-6 w-6" />
+        </button>
+        {previewPhoto ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img
             src={previewPhoto.url ?? previewPhoto.previewUrl}
             alt="Photo preview"
             className={styles.previewImage}
             decoding="async"
-            onClick={(event) => event.stopPropagation()}
           />
-        </div>
-      ) : null}
+        ) : null}
+      </ModalContainer>
     </section>
   );
 });

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
 import { Badge } from "@/components/ui/Badge";
@@ -41,7 +42,7 @@ export function BetaModulePlaceholder({
     <BetaAppShell bottomNavTab={bottomNavTab} showBottomNav={showBottomNav}>
       <BetaPageHeader title={betaModule.name} backHref={backHref} />
 
-      <main className="mx-auto w-full max-w-2xl px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
+      <HubPageMain className="mx-auto w-full max-w-2xl px-ds-4 py-ds-6 ">
         <Card padding="lg" className="shadow-ds-medium">
           <div className="mb-ds-4 flex flex-wrap items-center gap-ds-2">
             <Badge variant="primary">Beta v{BETA_VERSION}</Badge>
@@ -56,7 +57,7 @@ export function BetaModulePlaceholder({
             <span className="font-medium text-text-secondary">ROADMAP.md</span>.
           </p>
         </Card>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

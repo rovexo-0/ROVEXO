@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Button } from "@/components/ui/Button";
 import { CategoryChip } from "@/components/ui/CategoryChip";
@@ -203,7 +204,7 @@ export function SavedPage({ initialItems }: SavedPageProps) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="mx-auto w-full max-w-2xl px-ds-4 py-ds-4 ">
         {items.length === 0 ? (
           <SavedEmptyState />
         ) : visibleItems.length === 0 ? (
@@ -272,7 +273,7 @@ export function SavedPage({ initialItems }: SavedPageProps) {
             })}
           </div>
         )}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

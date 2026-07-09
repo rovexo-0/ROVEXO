@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
+import { ModalContainer } from "@/components/ui/ModalContainer";
+import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { sellPanel, focusRing } from "@/features/sell/ui/sell-classes";
 import { SellRowsCard, SellCompactRow, SellToggle, SellInlineError, SellPanelHeader } from "@/features/sell/ui/SellPrimitives";
 import { useSell } from "@/features/sell/context/SellProvider";
@@ -18,25 +20,17 @@ function ParcelPicker({
   onClose: () => void;
   onSelect: (size: ParcelSize) => void;
 }) {
-  useEffect(() => {
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, []);
-
-  // One tap selects and closes — no confirm step (Vinted-style simplicity).
   const choose = (size: ParcelSize) => {
     onSelect(size);
     onClose();
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Select parcel size" className={sellPanel}>
+    <ModalContainer open onClose={onClose} variant="fullscreen" zIndex={200} ariaLabel="Select parcel size">
+      <div className={sellPanel}>
       <SellPanelHeader title="Parcel size" onBack={onClose} />
 
-      <div className="flex-1 overflow-y-auto px-ds-4 pt-ds-3" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 16px)" }}>
+      <div className={cn(RX_MODAL_BODY, "px-ds-4 pt-ds-3")}>
         <p className="px-ds-1 pb-ds-3 text-sm text-text-secondary">
           Choose the closest size so buyers get accurate shipping and automatic labels.
         </p>
@@ -74,7 +68,8 @@ function ParcelPicker({
           })}
         </ul>
       </div>
-    </div>
+      </div>
+    </ModalContainer>
   );
 }
 

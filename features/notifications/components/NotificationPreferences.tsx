@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import Link from "next/link";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { IconButton } from "@/components/ui/IconButton";
@@ -77,7 +78,7 @@ export function NotificationPreferencesPage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-5 bg-background px-5 py-5 pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-5 bg-background px-5 py-5 ">
         {saving ? (
           <p className="sr-only" aria-live="polite">
             Saving preferences
@@ -157,7 +158,7 @@ export function NotificationPreferencesPage() {
           <span className="text-sm font-semibold text-text-primary">Push & email settings</span>
           <span className="text-xs text-text-secondary">Advanced delivery options</span>
         </Link>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

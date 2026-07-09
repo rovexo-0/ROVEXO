@@ -1,4 +1,5 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Card } from "@/components/ui/Card";
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { Price } from "@/components/ui/Price";
@@ -45,7 +46,7 @@ export function TransactionDetailPage({ profile, transaction, transactionContext
         unreadNotifications={profile.unreadNotifications}
       />
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 ">
         {transactionContext ? <WalletEngineTransactionPanel context={transactionContext} /> : null}
         <Card padding="md" className="">
           <div className="flex items-start gap-ds-3">
@@ -100,7 +101,7 @@ export function TransactionDetailPage({ profile, transaction, transactionContext
             </div>
           )}
         </Card>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

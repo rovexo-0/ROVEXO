@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Share2 } from "lucide-react";
+import { ModalContainer } from "@/components/ui/ModalContainer";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import {
@@ -101,18 +102,8 @@ export function HomepageHeaderShareButton({ className }: { className?: string })
 
   useEffect(() => {
     if (!modalOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeModal();
-    };
-    document.addEventListener("keydown", onKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     dialogRef.current?.querySelector<HTMLElement>("button, a")?.focus();
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [modalOpen, closeModal]);
+  }, [modalOpen]);
 
   const channels: ShareChannel[] = [
     {
@@ -191,27 +182,15 @@ export function HomepageHeaderShareButton({ className }: { className?: string })
         </p>
       ) : null}
 
-      {modalOpen ? (
-        <div
-          className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center"
-          role="presentation"
-        >
-          <button
-            type="button"
-            aria-label="Close share menu"
-            className="absolute inset-0 bg-black/40"
-            onClick={closeModal}
-          />
-          <div
-            ref={dialogRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            className={cn(
-              "relative z-10 w-full max-w-md rounded-t-ds-xl bg-surface p-ds-5 shadow-lg sm:rounded-ds-xl",
-              transitionFast,
-            )}
-          >
+      <ModalContainer
+        open={modalOpen}
+        onClose={closeModal}
+        variant="sheet"
+        zIndex={200}
+        ariaLabelledBy={titleId}
+        panelClassName="relative w-full max-w-md rounded-t-ds-xl bg-surface p-ds-5 shadow-lg sm:rounded-ds-xl"
+      >
+          <div ref={dialogRef}>
             <div className="mb-ds-4 flex items-start justify-between gap-ds-3">
               <div>
                 <h2 id={titleId} className="text-lg font-semibold text-text-primary">
@@ -271,8 +250,7 @@ export function HomepageHeaderShareButton({ className }: { className?: string })
               )}
             </div>
           </div>
-        </div>
-      ) : null}
+      </ModalContainer>
     </>
   );
 }

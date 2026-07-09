@@ -1,4 +1,5 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Card } from "@/components/ui/Card";
 import { MobileHubNavigator } from "@/features/mobile-ui";
 import { ResponsiveShell } from "@/features/mobile-ui";
@@ -125,12 +126,12 @@ export function ResolutionDesktopContent({ buyerCases, sellerCases }: Resolution
 export function ResolutionCentreView({ buyerCases, sellerCases }: ResolutionMobileContentProps) {
   return (
     <BetaAppShell bottomNavTab="account">
-      <main className="mx-auto max-w-3xl px-ds-4 py-ds-6 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="mx-auto max-w-3xl px-ds-4 py-ds-6 ">
         <ResponsiveShell
           mobile={<ResolutionMobileContent buyerCases={buyerCases} sellerCases={sellerCases} />}
           desktop={<ResolutionDesktopContent buyerCases={buyerCases} sellerCases={sellerCases} />}
         />
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { PageBack } from "@/components/navigation/PageBack";
 import { ChevronRightIcon } from "@/features/product-detail/icons";
 import { cn } from "@/lib/cn";
@@ -85,7 +86,7 @@ export function WalletHubV1({ data, commerceSummary, backHref = "/account", conn
         <span className="wallet-hub__header-spacer" aria-hidden />
       </header>
 
-      <main className="wallet-hub" data-wallet-hub-version="v1.0">
+      <ScrollContainer withBottomNav className="wallet-hub" data-wallet-hub-version="v1.0">
         {connectMessage ? <p className="wallet-hub__notice">{connectMessage}</p> : null}
 
         <section className="wallet-hub__balance-card" aria-labelledby="wallet-available-label">
@@ -198,7 +199,7 @@ export function WalletHubV1({ data, commerceSummary, backHref = "/account", conn
             )}
           </div>
         </section>
-      </main>
+      </ScrollContainer>
     </BetaAppShell>
   );
 }

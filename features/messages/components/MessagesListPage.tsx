@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { IconButton } from "@/components/ui/IconButton";
@@ -75,7 +76,7 @@ export function MessagesListPage({ conversations }: MessagesListPageProps) {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-ds-4 py-ds-4 ">
         {visibleConversations.length === 0 ? (
           <MessagesEmptyState />
         ) : (
@@ -83,7 +84,7 @@ export function MessagesListPage({ conversations }: MessagesListPageProps) {
             <ConversationCard key={conversation.id} conversation={conversation} />
           ))
         )}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

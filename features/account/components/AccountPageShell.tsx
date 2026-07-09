@@ -1,4 +1,5 @@
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { PageBack } from "@/components/navigation/PageBack";
 import { cn } from "@/lib/cn";
 
@@ -21,9 +22,9 @@ export function AccountPageShell({
 }: AccountPageShellProps) {
   return (
     <BetaAppShell showBottomNav={false}>
-      <main
+      <HubPageMain withBottomNav={false}
         className={cn(
-          "mx-auto flex w-full max-w-2xl flex-col gap-ds-6 bg-white px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]",
+          "mx-auto flex w-full max-w-2xl flex-col gap-ds-6 bg-white px-ds-4 py-ds-6 ",
           className,
         )}
       >
@@ -33,7 +34,7 @@ export function AccountPageShell({
           {subtitle ? <p className="mt-ds-1 text-sm text-text-secondary">{subtitle}</p> : null}
         </div>
         {children}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

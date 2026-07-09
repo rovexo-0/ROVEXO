@@ -108,6 +108,11 @@ export function buildAllProjects() {
         },
       },
       {
+        name: "chrome-android",
+        testMatch: /mobile-scroll-standard\.spec\.ts/,
+        use: { ...devices["Pixel 7"] },
+      },
+      {
         name: "samsung-internet",
         testIgnore: /sell-android\.spec\.ts/,
         use: {

@@ -3,6 +3,7 @@
 import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ModalContainer } from "@/components/ui/ModalContainer";
 import type { ResolvedPromotionCatalogEntry } from "@/lib/promotions/catalog";
 import type { SellerListing } from "@/lib/listings/types";
 
@@ -29,17 +30,6 @@ export function PromotionListingPicker({
     if (!open) return;
     cancelRef.current?.focus();
   }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
 
   const startCheckout = useCallback(
     async (listingId: string) => {
@@ -85,20 +75,20 @@ export function PromotionListingPicker({
     [entry],
   );
 
-  if (!open || !entry) return null;
+  if (!entry) return null;
 
   return (
-    <div className="promo-v1-modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <div
-        className="promo-v1-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="promo-listing-picker-title"
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <h2 id="promo-listing-picker-title" className="promo-v1-modal__title">
-          Select a listing for {entry.title}
-        </h2>
+    <ModalContainer
+      open={open}
+      onClose={onClose}
+      variant="sheet"
+      zIndex={120}
+      ariaLabelledBy="promo-listing-picker-title"
+      panelClassName="promo-v1-modal"
+    >
+      <h2 id="promo-listing-picker-title" className="promo-v1-modal__title">
+        Select a listing for {entry.title}
+      </h2>
         <p className="promo-v1-modal__empty">
           Choose a published listing to continue with {entry.title.toLowerCase()}.
         </p>
@@ -144,7 +134,6 @@ export function PromotionListingPicker({
             Cancel
           </button>
         </div>
-      </div>
-    </div>
+    </ModalContainer>
   );
 }

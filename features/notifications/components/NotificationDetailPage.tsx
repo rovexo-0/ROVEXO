@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { notFound } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Button } from "@/components/ui/Button";
@@ -37,7 +38,7 @@ export async function NotificationDetailPage({ id }: NotificationDetailPageProps
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-2xl px-ds-4 py-ds-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
+      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-2xl px-ds-4 py-ds-4 ">
         <Card padding="lg" className="flex flex-col gap-ds-4">
           <div className="flex items-start gap-ds-3">
             <span
@@ -70,7 +71,7 @@ export async function NotificationDetailPage({ id }: NotificationDetailPageProps
             </Link>
           )}
         </Card>
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useState } from "react";
 import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -30,7 +31,7 @@ export function AiEngineHub({ config, context, modules, analytics }: AiEngineHub
     <BetaAppShell bottomNavTab="account">
       <BetaPageHeader title="AI" backHref="/account" />
 
-      <main className="aie-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="aie-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 ">
         <header className="aie-hub__intro">
           <p className="aie-hub__eyebrow">AI Engine</p>
           <p className="text-sm text-text-secondary">
@@ -172,7 +173,7 @@ export function AiEngineHub({ config, context, modules, analytics }: AiEngineHub
             </section>
           </>
         )}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

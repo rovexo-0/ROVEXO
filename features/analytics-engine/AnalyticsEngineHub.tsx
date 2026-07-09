@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useState } from "react";
 import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
@@ -30,7 +31,7 @@ export function AnalyticsEngineHub({ config, context, modules, analytics }: Anal
     <BetaAppShell bottomNavTab="account">
       <BetaPageHeader title="Analytics" backHref="/account" />
 
-      <main className="ae-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <HubPageMain className="ae-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 ">
         <header className="ae-hub__intro">
           <p className="ae-hub__eyebrow">Analytics Engine</p>
           <p className="text-sm text-text-secondary">
@@ -185,7 +186,7 @@ export function AnalyticsEngineHub({ config, context, modules, analytics }: Anal
             </section>
           </>
         )}
-      </main>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

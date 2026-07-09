@@ -462,28 +462,8 @@
   border: 1px solid var(--ds-color-border);
 }
 
-.promo-v1-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 16px;
-  padding-bottom: calc(16px + env(safe-area-inset-bottom));
-  background: rgb(15 23 42 / 0.45);
-}
-
-@media (min-width: 640px) {
-  .promo-v1-modal-backdrop {
-    align-items: center;
-  }
-}
-
 .promo-v1-modal {
   width: min(100%, 480px);
-  max-height: min(80vh, 640px);
-  overflow: auto;
   border-radius: 16px;
   background: var(--ds-color-surface);
   border: 1px solid var(--ds-color-border);

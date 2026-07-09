@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Suspense } from "react";
 import "@/styles/rovexo/header-v2.css";
 import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
@@ -44,11 +45,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     return (
       <BetaAppShell bottomNavTab="search">
         <RovexoHeaderV2 />
-        <main className="px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
+        <HubPageMain className="px-ds-4 py-ds-6 ">
           <Suspense fallback={<ProductGridSkeleton count={8} />}>
             <SearchResultsView />
           </Suspense>
-        </main>
+        </HubPageMain>
       </BetaAppShell>
     );
   }
