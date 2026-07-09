@@ -13,6 +13,14 @@ describe("enterprise security headers", () => {
     expect(keys).toContain("Cross-Origin-Opener-Policy");
   });
 
+  it("allows Stripe.js and Elements in production CSP", () => {
+    const csp = buildSecurityHeaders(true).find((header) => header.key === "Content-Security-Policy")?.value;
+    expect(csp).toContain("https://js.stripe.com");
+    expect(csp).toContain("https://*.js.stripe.com");
+    expect(csp).toContain("https://merchant-ui-api.stripe.com");
+    expect(csp).toContain("https://hooks.stripe.com");
+  });
+
   it("validates production header configuration", () => {
     const result = validateSecurityHeaderConfiguration(true);
     expect(result.pass).toBe(true);

@@ -4,12 +4,12 @@ const isProduction = process.env.NODE_ENV === "production";
 
 export const PRODUCTION_CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://*.js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://www.google-analytics.com https://region1.google-analytics.com https://nominatim.openstreetmap.org",
-  "frame-src https://checkout.stripe.com https://js.stripe.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://merchant-ui-api.stripe.com https://www.google-analytics.com https://region1.google-analytics.com https://nominatim.openstreetmap.org",
+  "frame-src https://checkout.stripe.com https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com",
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
