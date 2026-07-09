@@ -1,16 +1,13 @@
 import type { OrderTotals } from "@/lib/orders/types";
 
-/** Central platform fee engine — the single user-facing fee (5.5%). */
+/** Central platform fee engine — single user-facing fee (5.5% of product subtotal). */
 export const PLATFORM_FEE_RATE = 0.055;
-export const MIN_PLATFORM_FEE = 0.99;
-export const MAX_PLATFORM_FEE = 9.99;
 export const STANDARD_DELIVERY_COST = 4.99;
 export const FREE_DELIVERY_THRESHOLD = 50;
 
+/** PlatformFee = round(ProductSubtotal * 0.055, 2). No min/max cap. Shipping excluded. */
 export function calculatePlatformFee(itemPrice: number): number {
-  const raw = itemPrice * PLATFORM_FEE_RATE;
-  const clamped = Math.min(MAX_PLATFORM_FEE, Math.max(MIN_PLATFORM_FEE, raw));
-  return Math.round(clamped * 100) / 100;
+  return Math.round(itemPrice * PLATFORM_FEE_RATE * 100) / 100;
 }
 
 export function calculateOrderTotals(itemPrice: number, delivery: number | null = null): OrderTotals {

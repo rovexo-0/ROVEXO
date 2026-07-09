@@ -6,7 +6,7 @@ import {
 } from "@/lib/protection/service";
 import type { ProtectionCase } from "@/lib/protection/service";
 import { readLiveProtectionEngineDocument, getProtectionEngineSnapshotForAdmin } from "@/lib/protection-engine/engine";
-import { MAX_PROTECTION_FEE, MIN_PROTECTION_FEE, PROTECTION_FEE_RATE } from "@/lib/protection-engine/defaults";
+import { PROTECTION_FEE_RATE } from "@/lib/protection-engine/defaults";
 import { PROTECTION_ENGINE_MODULES } from "@/lib/protection-engine/registry";
 import {
   buildCaseTimeline,
@@ -63,8 +63,6 @@ export async function getProtectionEngineContext(userId: string): Promise<Protec
     buyerCaseCount: buyerCases.length,
     sellerCaseCount: sellerCases.length,
     openCaseCount: openCases.length,
-    minProtectionFee: MIN_PROTECTION_FEE,
-    maxProtectionFee: MAX_PROTECTION_FEE,
     protectionRate: PROTECTION_FEE_RATE,
     recentCases: summaries.slice(0, 5),
   };

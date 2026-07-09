@@ -49,6 +49,8 @@ export type Shipment = {
   providerReference?: string | null;
   orderLineId?: string | null;
   orderLineIdHmac?: string | null;
+  /** Parcel2Go order Hash required for some payment endpoints. */
+  paymentHash?: string | null;
   status: ShipmentStatus;
   trackingNumber: string | null;
   carrier: string | null;
@@ -122,6 +124,7 @@ export type CreateOrderRequest = {
 export type PayOrderRequest = {
   shipmentId: string;
   paymentMethod: "prepay" | "card" | "on_account";
+  paymentHash?: string;
 };
 
 export type GetLabelsRequest = {

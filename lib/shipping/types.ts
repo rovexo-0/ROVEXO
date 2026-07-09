@@ -76,6 +76,7 @@ export type ShippingQuote = {
   pricePence: number;
   currency: "GBP";
   estimatedDays: { min: number; max: number };
+  estimatedDeliveryAt?: string | null;
   recommended?: "cheapest" | "fastest";
   expiresAt?: string;
 };

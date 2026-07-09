@@ -13,15 +13,16 @@ export type PaymentMethodOption = {
 
 export const PAYPAL_ENABLED = true;
 
-export const SAVED_CARD_DETAIL = "Visa ending 4242";
-
 export function getAvailablePaymentMethods(options?: {
   isIOS?: boolean;
   isAndroid?: boolean;
+  savedCardDetail?: string | null;
 }): PaymentMethodOption[] {
-  const methods: PaymentMethodOption[] = [
-    { id: "saved_card", label: "Saved Card", detail: SAVED_CARD_DETAIL },
-  ];
+  const methods: PaymentMethodOption[] = [];
+
+  if (options?.savedCardDetail) {
+    methods.push({ id: "saved_card", label: "Saved Card", detail: options.savedCardDetail });
+  }
 
   if (options?.isIOS) {
     methods.push({ id: "apple_pay", label: "Apple Pay" });
@@ -43,6 +44,7 @@ export function getAvailablePaymentMethods(options?: {
 export function getDefaultPaymentMethod(options?: {
   isIOS?: boolean;
   isAndroid?: boolean;
+  savedCardDetail?: string | null;
 }): PaymentMethodId {
   const methods = getAvailablePaymentMethods(options);
   return methods[0]?.id ?? "card";
@@ -50,9 +52,10 @@ export function getDefaultPaymentMethod(options?: {
 
 export function getPaymentMethodLabel(
   methodId: PaymentMethodId,
-  options?: { isIOS?: boolean; isAndroid?: boolean },
+  options?: { isIOS?: boolean; isAndroid?: boolean; savedCardDetail?: string | null },
 ): string {
-  const method = getAvailablePaymentMethods(options).find((item) => item.id === methodId);
+  const methods = getAvailablePaymentMethods(options);
+  const method = methods.find((item) => item.id === methodId);
   if (!method) return "Credit / Debit Card";
   return method.detail ? `${method.label} · ${method.detail}` : method.label;
 }

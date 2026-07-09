@@ -19,6 +19,15 @@ import { PARCEL2GO_API_PATHS } from "@/src/services/shipping/parcel2go/types";
 import { ShipmentError } from "@/src/services/shipping/errors";
 import type { CreateOrderRequest, PayOrderRequest, Shipment } from "@/src/services/shipping/types";
 
+/** Parcel2Go order API expects YYYY-MM-DD. Never use Date parsing — it shifts local timestamps. */
+function normalizeParcel2GoCollectionDate(value: string): string {
+  const trimmed = value.trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  const datePrefix = trimmed.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (datePrefix) return datePrefix[1]!;
+  return trimmed.slice(0, 10);
+}
+
 export async function createParcel2GoOrder(
   client: Parcel2GoClient,
   request: CreateOrderRequest,
@@ -30,7 +39,9 @@ export async function createParcel2GoOrder(
 
   const itemId = randomUUID();
   const parcelId = randomUUID();
-  const collectionDate = quote.collectionDate ?? new Date().toISOString();
+  const collectionDate = normalizeParcel2GoCollectionDate(
+    quote.collectionDate ?? new Date().toISOString(),
+  );
 
   const payload: Parcel2GoApiCreateOrderRequest = {
     Items: [
@@ -40,16 +51,20 @@ export async function createParcel2GoOrder(
         Service: quote.serviceSlug,
         Reference: request.reference,
         CollectionAddress: mapAddressToParcel2Go(request.collectionAddress),
-        Parcels: request.parcels.map((parcel) => ({
-          Id: parcelId,
-          EstimatedValue: request.insuranceValueGbp ?? parcel.valueGbp ?? 0,
-          Weight: parcel.weightKg,
-          Length: parcel.lengthCm,
-          Width: parcel.widthCm,
-          Height: parcel.heightCm,
-          ContentsSummary: request.reference,
-          DeliveryAddress: mapAddressToParcel2Go(request.deliveryAddress),
-        })),
+        Parcels: request.parcels.map((parcel) => {
+          const declaredValue = request.insuranceValueGbp ?? parcel.valueGbp ?? 0;
+          return {
+            Id: parcelId,
+            Value: declaredValue,
+            EstimatedValue: declaredValue,
+            Weight: parcel.weightKg,
+            Length: parcel.lengthCm,
+            Width: parcel.widthCm,
+            Height: parcel.heightCm,
+            ContentsSummary: request.reference,
+            DeliveryAddress: mapAddressToParcel2Go(request.deliveryAddress),
+          };
+        }),
       },
     ],
     CustomerDetails: customerDetailsFromAddress({
@@ -90,7 +105,10 @@ export async function payParcel2GoOrder(
 
   try {
     const response = await client.post<Parcel2GoApiPayOrderResponse>(
-      PARCEL2GO_API_PATHS.payWithPrepay(request.shipmentId),
+      PARCEL2GO_API_PATHS.payWithPrepay(
+        request.shipmentId,
+        request.paymentHash ?? existingShipment?.paymentHash ?? undefined,
+      ),
       undefined,
       { retryable: false },
     );

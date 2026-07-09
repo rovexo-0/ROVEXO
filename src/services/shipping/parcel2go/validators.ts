@@ -71,6 +71,10 @@ export function validateCreateOrderRequest(request: CreateOrderRequest): void {
   validateAddress(request.collectionAddress, "collectionAddress");
   validateAddress(request.deliveryAddress, "deliveryAddress");
 
+  if (!request.collectionAddress.phone?.trim()) {
+    throw new ValidationError("collectionAddress.phone is required for Parcel2Go orders");
+  }
+
   if (!request.parcels.length) {
     throw new ValidationError("At least one parcel is required");
   }

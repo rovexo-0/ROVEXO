@@ -37,7 +37,7 @@ export async function normalizeImageFile(file: File): Promise<File> {
   let bitmap: ImageBitmap | null = null;
 
   try {
-    bitmap = await createImageBitmap(file);
+    bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
     const canvas = document.createElement("canvas");
     canvas.width = bitmap.width;
     canvas.height = bitmap.height;

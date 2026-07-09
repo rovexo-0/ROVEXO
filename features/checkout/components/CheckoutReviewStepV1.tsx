@@ -7,8 +7,9 @@ import { focusRing } from "@/components/ui/tokens";
 import { formatListingPrice } from "@/lib/listing-card/format";
 import {
   getPaymentMethodLabel,
-  SAVED_CARD_DETAIL,
 } from "@/lib/checkout/payment";
+import { useSavedPaymentMethods } from "@/lib/checkout/use-saved-payment-methods";
+import { formatSavedCardDetail } from "@/lib/payments/format";
 import { SellerSummaryCard } from "@/features/commerce-ui/components/SellerSummaryCard";
 import { OrderSummaryTotals } from "@/features/commerce-ui/components/OrderSummaryTotals";
 import { mapOrderToCommerceTotals, mapProductToCheckoutSellerGroup } from "@/lib/commerce/mappers";
@@ -46,9 +47,15 @@ export function CheckoutReviewStepV1({
 }: CheckoutReviewStepV1Props) {
   const { draft } = form;
   const [{ isIOS, isAndroid }] = useState(detectMobilePlatform);
+  const { defaultMethod } = useSavedPaymentMethods();
+  const savedCardDetail = defaultMethod ? formatSavedCardDetail(defaultMethod) : null;
 
   const shippingPrice = product.freeDelivery ? 0 : totals.delivery;
-  const paymentLabel = getPaymentMethodLabel(draft.paymentMethod, { isIOS, isAndroid });
+  const paymentLabel = getPaymentMethodLabel(draft.paymentMethod, {
+    isIOS,
+    isAndroid,
+    savedCardDetail,
+  });
   const sellerGroup = mapProductToCheckoutSellerGroup({
     sellerId: product.sellerId ?? product.id,
     sellerName: product.sellerName,
@@ -103,8 +110,8 @@ export function CheckoutReviewStepV1({
             <div>
               <p className="ckt-v1__review-label">Payment Method</p>
               <p className="ckt-v1__review-value">{paymentLabel}</p>
-              {draft.paymentMethod === "saved_card" ? (
-                <p className="ckt-v1__review-subvalue">{SAVED_CARD_DETAIL}</p>
+              {draft.paymentMethod === "saved_card" && savedCardDetail ? (
+                <p className="ckt-v1__review-subvalue">{savedCardDetail}</p>
               ) : null}
             </div>
             <button

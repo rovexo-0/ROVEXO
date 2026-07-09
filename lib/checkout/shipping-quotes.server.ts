@@ -12,8 +12,7 @@ import type { UkCarrier } from "@/lib/shipping/carriers";
 import type { ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
 
 import type { CheckoutCarrierQuote, CheckoutShippingQuoteReason } from "@/lib/checkout/types";
-
-export type { CheckoutCarrierQuote };
+import { formatCheckoutDeliveryEta } from "@/lib/shipping/delivery-estimate";
 
 function inferCity(addressLine: string, postcode: string): string {
   const segments = addressLine.split(",").map((part) => part.trim()).filter(Boolean);
@@ -72,9 +71,17 @@ async function resolveSellerCollectionAddress(
 }
 
 function formatEta(quote: ShippingQuote): string {
-  const { min, max } = quote.estimatedDays;
-  if (min === max) return `${min} day${min === 1 ? "" : "s"}`;
-  return `${min}–${max} days`;
+  const transitDays =
+    quote.estimatedDays.min > 0 && quote.estimatedDays.min === quote.estimatedDays.max
+      ? quote.estimatedDays.min
+      : quote.estimatedDays.min > 0
+        ? quote.estimatedDays.min
+        : null;
+
+  return formatCheckoutDeliveryEta({
+    estimatedDeliveryAt: quote.estimatedDeliveryAt,
+    transitDays,
+  });
 }
 
 function pickCheapestPerCarrier(quotes: ShippingQuote[]): CheckoutCarrierQuote[] {
@@ -129,7 +136,7 @@ export async function fetchCheckoutCarrierQuotes(input: {
     .maybeSingle();
 
   if (!product?.seller_id) {
-    return { live: true, options: [] };
+    return { live: true, options: [], reason: "product_unavailable" };
   }
 
   const sellerName =
@@ -162,13 +169,20 @@ export async function fetchCheckoutCarrierQuotes(input: {
     preferredCarriers: CHECKOUT_CARRIERS,
   });
 
+  const options = pickCheapestPerCarrier(pricing.quotes);
+  let reason: CheckoutShippingQuoteReason | null = null;
+  if (options.length === 0) {
+    if (pricing.quotes.length > 0) {
+      reason = "no_supported_carriers";
+    } else if (!pricing.providerAvailable) {
+      reason = "provider_unavailable";
+    }
+  }
+
   return {
     live: pricing.providerAvailable,
-    options: pickCheapestPerCarrier(pricing.quotes),
-    reason:
-      pricing.quotes.length === 0 && !pricing.providerAvailable
-        ? "provider_unavailable"
-        : null,
+    options,
+    reason,
   };
 }
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useId, useState, useTransition } from "react";
 import { AccountModuleShell } from "@/features/account-module/components/AccountModuleShell";
+import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
 
@@ -9,10 +10,11 @@ export function RovexoIdeasPage() {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [screenshotName, setScreenshotName] = useState<string | null>(null);
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const fileRef = useRef<HTMLInputElement>(null);
+  const screenshotInputId = useId();
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -23,9 +25,8 @@ export function RovexoIdeasPage() {
       const formData = new FormData();
       formData.set("subject", subject);
       formData.set("body", body);
-      const file = fileRef.current?.files?.[0];
-      if (file) {
-        formData.set("screenshot", file);
+      if (screenshotFile) {
+        formData.set("screenshot", screenshotFile);
       }
 
       const response = await fetch("/api/account/ideas", {
@@ -42,9 +43,7 @@ export function RovexoIdeasPage() {
       setSubject("");
       setBody("");
       setScreenshotName(null);
-      if (fileRef.current) {
-        fileRef.current.value = "";
-      }
+      setScreenshotFile(null);
       setMessage("Thank you. Your suggestion was sent privately to the ROVEXO Team.");
     });
   };
@@ -88,26 +87,21 @@ export function RovexoIdeasPage() {
 
           <div className="acm-ideas__field">
             <span className="acm-ideas__label">Add Screenshot (Optional)</span>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="sr-only"
-              id="rovexo-idea-screenshot"
+            <NativeImageFileInput
+              id={screenshotInputId}
               disabled={isPending}
-              onChange={(event) => {
-                const file = event.target.files?.[0];
+              onFilesSelected={(files) => {
+                const file = files[0] ?? null;
+                setScreenshotFile(file);
                 setScreenshotName(file?.name ?? null);
               }}
             />
-            <button
-              type="button"
-              className={cn("acm-ideas__attach", focusRing)}
-              disabled={isPending}
-              onClick={() => fileRef.current?.click()}
+            <label
+              htmlFor={screenshotInputId}
+              className={cn("acm-ideas__attach", focusRing, isPending && "pointer-events-none opacity-50")}
             >
               📎 {screenshotName ?? "Choose image"}
-            </button>
+            </label>
           </div>
 
           {error ? <p className="acm-ideas__error">{error}</p> : null}

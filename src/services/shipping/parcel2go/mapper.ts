@@ -9,6 +9,9 @@ import type {
   TrackingStatus,
 } from "@/src/services/shipping/types";
 import { encodeParcel2GoQuoteId } from "@/src/services/shipping/parcel2go/quote-id";
+import {
+  transitDaysBetweenIsoDates,
+} from "@/lib/shipping/delivery-estimate";
 import type {
   Parcel2GoApiAddress,
   Parcel2GoApiCreateOrderResponse,
@@ -26,19 +29,28 @@ const COUNTRY_CODE_MAP: Record<string, string> = {
   gbr: "GBR",
 };
 
-function splitName(fullName: string): { forename: string; surname: string } {
-  const parts = fullName.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return { forename: "ROVEXO", surname: "User" };
-  if (parts.length === 1) return { forename: parts[0]!, surname: "User" };
-  return { forename: parts[0]!, surname: parts.slice(1).join(" ") };
+const COUNTRY_ISO2_MAP: Record<string, string> = {
+  GBR: "GB",
+};
+
+/** Parcel2Go orders use ISO-3 on CountryIsoCode per official API docs. */
+const COUNTRY_ISO_FOR_ORDERS_MAP: Record<string, string> = {
+  GBR: "GBR",
+};
+
+const COUNTRY_ID_MAP: Record<string, number> = {
+  GBR: 0,
+};
+
+/** Parcel2Go orders require ISO alpha-3 on CollectionAddress/DeliveryAddress. */
+export function mapCountryIsoCodeToParcel2Go(country: string): string {
+  const alpha3 = mapCountryToParcel2Go(country);
+  return COUNTRY_ISO_FOR_ORDERS_MAP[alpha3] ?? alpha3;
 }
 
-function estimateDaysFromDate(isoDate: string | null | undefined): number | null {
-  if (!isoDate) return null;
-  const target = new Date(isoDate).getTime();
-  if (!Number.isFinite(target)) return null;
-  const diffMs = target - Date.now();
-  return Math.max(1, Math.ceil(diffMs / (24 * 60 * 60 * 1000)));
+function mapCountryIdToParcel2Go(country: string): number | undefined {
+  const alpha3 = mapCountryToParcel2Go(country);
+  return COUNTRY_ID_MAP[alpha3];
 }
 
 export function mapCountryToParcel2Go(country: string): string {
@@ -49,6 +61,8 @@ export function mapCountryToParcel2Go(country: string): string {
 export function mapAddressToParcel2Go(address: ShippingAddress): Parcel2GoApiAddress {
   const [property, ...rest] = address.line1.trim().split(/\s+/);
   const street = rest.length > 0 ? rest.join(" ") : address.line1;
+  const country = mapCountryToParcel2Go(address.country);
+  const countryId = mapCountryIdToParcel2Go(address.country);
 
   return {
     ContactName: address.fullName,
@@ -57,15 +71,46 @@ export function mapAddressToParcel2Go(address: ShippingAddress): Parcel2GoApiAdd
     Street2: address.line2,
     Town: address.city,
     Postcode: address.postcode,
-    Country: mapCountryToParcel2Go(address.country),
+    Country: country,
+    CountryIsoCode: mapCountryIsoCodeToParcel2Go(address.country),
+    ...(countryId !== undefined ? { CountryId: countryId } : {}),
     Phone: address.phone,
     Email: address.email,
   };
 }
 
+function splitName(fullName: string): { forename: string; surname: string } {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return { forename: "ROVEXO", surname: "User" };
+  if (parts.length === 1) return { forename: parts[0]!, surname: "User" };
+  return { forename: parts[0]!, surname: parts.slice(1).join(" ") };
+}
+
+function estimateDaysFromDate(isoDate: string | null | undefined): number | null {
+  if (!isoDate?.trim()) return null;
+  const delivery = parseDateOnlyUtc(isoDate);
+  if (!delivery) return null;
+  const today = new Date();
+  const todayUtc = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 12, 0, 0),
+  );
+  const diffMs = delivery.getTime() - todayUtc.getTime();
+  return Math.max(1, Math.ceil(diffMs / (24 * 60 * 60 * 1000)));
+}
+
+function parseDateOnlyUtc(value: string): Date | null {
+  const trimmed = value.trim();
+  const match = trimmed.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (!match) return null;
+  const parsed = new Date(`${match[1]}T12:00:00.000Z`);
+  return Number.isFinite(parsed.getTime()) ? parsed : null;
+}
+
 export function mapParcel2GoQuoteToRate(quote: Parcel2GoApiQuote, index: number): ShippingRate {
   const serviceSlug = quote.Service?.Slug ?? `service-${index}`;
-  const estimatedDays = estimateDaysFromDate(quote.EstimatedDeliveryDate);
+  const estimatedDays =
+    transitDaysBetweenIsoDates(quote.Collection, quote.EstimatedDeliveryDate) ??
+    estimateDaysFromDate(quote.EstimatedDeliveryDate);
 
   return {
     id: encodeParcel2GoQuoteId(quote),
@@ -152,7 +197,8 @@ export function mapParcel2GoCreateOrderToShipment(
     providerOrderId: response.OrderId ?? "unknown",
     providerReference: reference,
     orderLineId: firstLine?.OrderLineId ?? null,
-    orderLineIdHmac: firstLine?.OrderLineIdHmac ?? null,
+    orderLineIdHmac: firstLine?.OrderLineIdHmac ?? firstLine?.Hash ?? null,
+    paymentHash: response.Hash ?? null,
     status: "pending_payment",
     trackingNumber: null,
     carrier: null,

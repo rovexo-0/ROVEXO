@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 import {
   getAvailablePaymentMethods,
   getPaymentMethodLabel,
-  SAVED_CARD_DETAIL,
   type PaymentMethodId,
 } from "@/lib/checkout/payment";
+import { useSavedPaymentMethods } from "@/lib/checkout/use-saved-payment-methods";
+import { formatSavedCardDetail, formatSavedCardMask } from "@/lib/payments/format";
 import { OrderSummaryTotals } from "@/features/commerce-ui/components/OrderSummaryTotals";
 import { mapOrderToCommerceTotals } from "@/lib/commerce/mappers";
 import type { CheckoutFormController } from "@/features/checkout/hooks/use-checkout-form";
@@ -42,17 +43,28 @@ function PaymentBrand({ methodId }: { methodId: PaymentMethodId }) {
   return <span className="ckt-v1__pay-brand">PayPal</span>;
 }
 
-function paymentDetail(methodId: PaymentMethodId): string | null {
-  if (methodId === "saved_card") return "**** **** **** 4242";
-  return null;
-}
-
 export function CheckoutPaymentStepV1({ form, totals }: CheckoutPaymentStepV1Props) {
   const { draft, updateDraft } = form;
   const [{ isIOS, isAndroid }] = useState(detectMobilePlatform);
-  const methods = getAvailablePaymentMethods({ isIOS, isAndroid }).filter(
+  const { defaultMethod } = useSavedPaymentMethods();
+  const savedCardDetail = defaultMethod ? formatSavedCardDetail(defaultMethod) : null;
+
+  const methods = getAvailablePaymentMethods({ isIOS, isAndroid, savedCardDetail }).filter(
     (method) => method.id !== "paypal",
   );
+
+  useEffect(() => {
+    if (defaultMethod && draft.paymentMethod !== "saved_card") {
+      updateDraft({ paymentMethod: "saved_card" });
+    }
+  }, [defaultMethod, draft.paymentMethod, updateDraft]);
+
+  const paymentDetail = (methodId: PaymentMethodId): string | null => {
+    if (methodId === "saved_card" && defaultMethod) {
+      return formatSavedCardMask(defaultMethod);
+    }
+    return null;
+  };
 
   return (
     <div className="ckt-v1__step">
@@ -103,8 +115,9 @@ export function CheckoutPaymentStepV1({ form, totals }: CheckoutPaymentStepV1Pro
       </section>
 
       <p className="sr-only">
-        Selected payment method: {getPaymentMethodLabel(draft.paymentMethod, { isIOS, isAndroid })}
-        {SAVED_CARD_DETAIL ? ` ${SAVED_CARD_DETAIL}` : ""}
+        Selected payment method:{" "}
+        {getPaymentMethodLabel(draft.paymentMethod, { isIOS, isAndroid, savedCardDetail })}
+        {savedCardDetail ? ` ${savedCardDetail}` : ""}
       </p>
     </div>
   );

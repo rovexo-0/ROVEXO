@@ -80,7 +80,10 @@ export function mapShippoRateToQuote(rate: ShippoRate): ShippingQuote | null {
 
   const currency = (rate.currency ?? "GBP").toUpperCase();
   const pricePence = Math.round(amount * 100);
-  const estimatedDays = rate.estimated_days ?? 2;
+  const days =
+    rate.estimated_days != null && Number.isFinite(rate.estimated_days) && rate.estimated_days > 0
+      ? rate.estimated_days
+      : null;
 
   return {
     id: `${SHIPPO_QUOTE_PREFIX}${rate.object_id}`,
@@ -90,8 +93,8 @@ export function mapShippoRateToQuote(rate: ShippoRate): ShippingQuote | null {
     pricePence,
     currency: currency === "GBP" ? "GBP" : "GBP",
     estimatedDays: {
-      min: Math.max(1, estimatedDays),
-      max: Math.max(estimatedDays + 1, estimatedDays),
+      min: days ?? 0,
+      max: days ?? 0,
     },
     expiresAt: rate.object_created ?? undefined,
   };

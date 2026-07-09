@@ -87,6 +87,8 @@ export type Parcel2GoApiCreateOrderRequest = {
 
 export type Parcel2GoApiOrderLineMap = {
   OrderLineIdHmac?: string;
+  /** Live API returns Hash instead of OrderLineIdHmac on some responses. */
+  Hash?: string;
   OrderLineId?: string;
   ItemId?: string;
 };
@@ -96,6 +98,7 @@ export type Parcel2GoApiCreateOrderResponse = {
   TotalPrice?: number;
   TotalVat?: number;
   TotalPriceExVat?: number;
+  Hash?: string;
   Links?: {
     payment?: string;
     PayWithPrePay?: string;
@@ -142,7 +145,11 @@ export type Parcel2GoApiTrackingResponse = {
 export const PARCEL2GO_API_PATHS = {
   quotes: "/api/quotes",
   orders: "/api/orders",
-  payWithPrepay: (orderId: string) => `/api/orders/${encodeURIComponent(orderId)}/paywithprepay`,
+  payWithPrepay: (orderId: string, hash?: string) => {
+    const path = `/api/orders/${encodeURIComponent(orderId)}/paywithprepay`;
+    if (!hash) return path;
+    return `${path}?hash=${encodeURIComponent(hash)}`;
+  },
   label: (orderLineIdHmac: string) =>
     `/api/labels/${encodeURIComponent(orderLineIdHmac)}`,
   tracking: (reference: string) => `/api/tracking/${encodeURIComponent(reference)}`,

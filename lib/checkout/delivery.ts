@@ -22,6 +22,9 @@ export function resolveCheckoutShippingMessage(
   if (!reason) return null;
   if (reason === "seller_dispatch_not_ready") return SELLER_DISPATCH_NOT_READY_LABEL;
   if (reason === "address_incomplete") return SHIPPING_ADDRESS_INCOMPLETE_LABEL;
+  if (reason === "no_supported_carriers" || reason === "product_unavailable") {
+    return SHIPPING_PROVIDER_UNAVAILABLE_LABEL;
+  }
   return SHIPPING_PROVIDER_UNAVAILABLE_LABEL;
 }
 

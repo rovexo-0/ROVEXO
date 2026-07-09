@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { requireApiAuth } from "@/lib/auth/session";
+import { logPaymentSetupError, paymentSetupErrorMessage } from "@/lib/payments/errors";
+import { readJsonObjectBody } from "@/lib/payments/request-body";
 import {
   completePaymentMethodSetup,
-  createPaymentMethodSetupSession,
+  completePaymentMethodSetupIntent,
+  createPaymentMethodSetupIntent,
   listPaymentMethods,
 } from "@/lib/payments/repository";
+import { isStripeConfigured } from "@/lib/stripe/server";
 
 export async function GET() {
   const auth = await requireApiAuth();
@@ -12,8 +16,14 @@ export async function GET() {
     return auth;
   }
 
-  const methods = await listPaymentMethods(auth.user.id);
-  return NextResponse.json({ methods });
+  try {
+    const methods = await listPaymentMethods(auth.user.id);
+    return NextResponse.json({ methods });
+  } catch (error) {
+    logPaymentSetupError("GET /api/payment-methods", error);
+    const { message, status, code } = paymentSetupErrorMessage(error);
+    return NextResponse.json({ error: message, code }, { status });
+  }
 }
 
 export async function POST(request: Request) {
@@ -23,20 +33,43 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = (await request.json()) as { action?: string; sessionId?: string };
+    if (!isStripeConfigured()) {
+      return NextResponse.json(
+        {
+          error: "Stripe is not configured on the server. Set STRIPE_SECRET_KEY in production.",
+          code: "stripe_not_configured",
+        },
+        { status: 503 },
+      );
+    }
 
-    if (body.action === "complete_setup" && body.sessionId) {
+    const body = await readJsonObjectBody(request);
+    const action = typeof body.action === "string" ? body.action : "create_setup_intent";
+
+    if (action === "complete_setup" && typeof body.sessionId === "string") {
       const method = await completePaymentMethodSetup(auth.user.id, body.sessionId);
+      if (!method) {
+        return NextResponse.json(
+          { error: "Stripe checkout did not return a saved card.", code: "payment_method_missing" },
+          { status: 400 },
+        );
+      }
       return NextResponse.json({ method });
     }
 
-    const url = await createPaymentMethodSetupSession(auth.user.id);
-    if (!url) {
-      return NextResponse.json({ error: "Stripe is not configured." }, { status: 503 });
+    if (action === "complete_setup_intent" && typeof body.setupIntentId === "string") {
+      const method = await completePaymentMethodSetupIntent(auth.user.id, body.setupIntentId);
+      return NextResponse.json({ method });
     }
 
-    return NextResponse.json({ url });
-  } catch {
-    return NextResponse.json({ error: "Unable to start card setup." }, { status: 500 });
+    const setup = await createPaymentMethodSetupIntent(auth.user.id);
+    return NextResponse.json({
+      clientSecret: setup.clientSecret,
+      setupIntentId: setup.setupIntentId,
+    });
+  } catch (error) {
+    logPaymentSetupError("POST /api/payment-methods", error);
+    const { message, status, code } = paymentSetupErrorMessage(error);
+    return NextResponse.json({ error: message, code }, { status });
   }
 }

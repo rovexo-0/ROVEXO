@@ -7,6 +7,8 @@ import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { PageBack } from "@/components/navigation/PageBack";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { CardSetupSheet } from "@/features/account/components/CardSetupSheet";
+import { cn } from "@/lib/cn";
 import type { SavedPaymentMethod } from "@/lib/payments/repository";
 import type { UserProfile } from "@/lib/profile/types";
 
@@ -19,11 +21,19 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
   const [methods, setMethods] = useState<SavedPaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
+  const [setupOpen, setSetupOpen] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [startingSetup, setStartingSetup] = useState(false);
 
   const loadMethods = async () => {
     const response = await fetch("/api/payment-methods");
-    const payload = (await response.json()) as { methods: SavedPaymentMethod[] };
-    setMethods(payload.methods ?? []);
+    const payload = (await response.json()) as { methods?: SavedPaymentMethod[]; error?: string };
+    if (!response.ok) {
+      setMessage(payload.error ?? `Unable to load cards (HTTP ${response.status}).`);
+      setMethods([]);
+    } else {
+      setMethods(payload.methods ?? []);
+    }
     setLoading(false);
   };
 
@@ -34,18 +44,21 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
 
     void (async () => {
       if (setupSuccess) {
-        await fetch("/api/payment-methods", {
+        const completeResponse = await fetch("/api/payment-methods", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action: "complete_setup", sessionId }),
         });
+        if (!completeResponse.ok) {
+          const payload = (await completeResponse.json()) as { error?: string };
+          if (!cancelled) {
+            setMessage(payload.error ?? `Unable to save card (HTTP ${completeResponse.status}).`);
+          }
+        }
       }
 
-      const response = await fetch("/api/payment-methods");
       if (cancelled) return;
-      const payload = (await response.json()) as { methods: SavedPaymentMethod[] };
-      setMethods(payload.methods ?? []);
-      setLoading(false);
+      await loadMethods();
     })();
 
     return () => {
@@ -55,26 +68,71 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
 
   const addCard = async () => {
     setMessage(null);
-    const response = await fetch("/api/payment-methods", { method: "POST" });
-    const payload = (await response.json()) as { url?: string; error?: string };
-    if (!response.ok || !payload.url) {
-      setMessage(payload.error ?? "Unable to start card setup.");
-      return;
+    setStartingSetup(true);
+
+    try {
+      const response = await fetch("/api/payment-methods", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create_setup_intent" }),
+      });
+      const payload = (await response.json()) as {
+        clientSecret?: string;
+        error?: string;
+        code?: string;
+      };
+
+      if (!response.ok || !payload.clientSecret) {
+        const detail = payload.error ?? `Card setup failed (HTTP ${response.status}).`;
+        setMessage(payload.code ? `${detail} [${payload.code}]` : detail);
+        return;
+      }
+
+      setClientSecret(payload.clientSecret);
+      setSetupOpen(true);
+    } catch {
+      setMessage("Network error while starting card setup. Check your connection and try again.");
+    } finally {
+      setStartingSetup(false);
     }
-    window.location.href = payload.url;
+  };
+
+  const completeSetupIntent = async (setupIntentId: string) => {
+    const response = await fetch("/api/payment-methods", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "complete_setup_intent", setupIntentId }),
+    });
+    const payload = (await response.json()) as { method?: SavedPaymentMethod; error?: string; code?: string };
+    if (!response.ok || !payload.method) {
+      const detail = payload.error ?? `Unable to save card (HTTP ${response.status}).`;
+      throw new Error(payload.code ? `${detail} [${payload.code}]` : detail);
+    }
+    await loadMethods();
+    setMessage("Card saved.");
   };
 
   const removeCard = async (id: string) => {
-    await fetch(`/api/payment-methods/${id}`, { method: "DELETE" });
+    const response = await fetch(`/api/payment-methods/${id}`, { method: "DELETE" });
+    if (!response.ok) {
+      const payload = (await response.json()) as { error?: string };
+      setMessage(payload.error ?? `Unable to remove card (HTTP ${response.status}).`);
+      return;
+    }
     await loadMethods();
   };
 
   const setDefault = async (id: string) => {
-    await fetch(`/api/payment-methods/${id}`, {
+    const response = await fetch(`/api/payment-methods/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "set_default" }),
     });
+    if (!response.ok) {
+      const payload = (await response.json()) as { error?: string };
+      setMessage(payload.error ?? `Unable to update default card (HTTP ${response.status}).`);
+      return;
+    }
     await loadMethods();
   };
 
@@ -120,10 +178,20 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
               </article>
             ))}
           </div>
-          <Button type="button" variant="primary" className="mt-ds-4" onClick={() => void addCard()}>
-            Add card
+          <Button
+            type="button"
+            variant="primary"
+            className="mt-ds-4"
+            onClick={() => void addCard()}
+            disabled={startingSetup}
+          >
+            {startingSetup ? "Starting…" : "Add card"}
           </Button>
-          {message ? <p className="mt-ds-2 text-sm text-danger">{message}</p> : null}
+          {message ? (
+            <p className={cn("mt-ds-2 text-sm", message === "Card saved." ? "text-success" : "text-danger")}>
+              {message}
+            </p>
+          ) : null}
         </section>
 
         {profile.isSeller ? (
@@ -138,6 +206,18 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
           </section>
         ) : null}
       </main>
+
+      {clientSecret ? (
+        <CardSetupSheet
+          open={setupOpen}
+          clientSecret={clientSecret}
+          onClose={() => {
+            setSetupOpen(false);
+            setClientSecret(null);
+          }}
+          onComplete={completeSetupIntent}
+        />
+      ) : null}
     </BetaAppShell>
   );
 }

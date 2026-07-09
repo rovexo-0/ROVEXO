@@ -65,7 +65,13 @@ export class Parcel2GoAdapter implements ShippingProvider {
 
       return { available: true, quotes: mapped };
     } catch (error) {
-      console.error("[shipping/parcel2go] Quote request failed:", error);
+      const statusCode = isShippingError(error) ? error.statusCode : undefined;
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("[shipping/parcel2go] Quote request failed:", {
+        statusCode,
+        message,
+        code: isShippingError(error) ? error.code : undefined,
+      });
       if (isShippingError(error) && error.code === "validation") {
         return { available: false, quotes: [], reason: "invalid_address" };
       }

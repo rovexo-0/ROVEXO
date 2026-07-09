@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
+import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
+import { buttonSizes, buttonVariants } from "@/components/ui/variants";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 
@@ -18,7 +20,7 @@ const CROP_SIZE = 280;
 
 export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderProps) {
   const router = useRouter();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const pickerId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [sourceImage, setSourceImage] = useState<HTMLImageElement | null>(null);
@@ -51,10 +53,8 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
     ctx.restore();
   }, [offset, scale, sourceImage]);
 
-  const openPicker = () => inputRef.current?.click();
-
-  const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const onFileChange = async (files: FileList) => {
+    const file = files[0];
     if (!file) return;
 
     setError(null);
@@ -71,7 +71,6 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
       setPreview(objectUrl);
     };
     image.src = objectUrl;
-    event.target.value = "";
   };
 
   const onPointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -155,14 +154,13 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
   return (
     <div className="flex flex-col items-center gap-ds-4">
       {!preview ? (
-        <button
-          type="button"
-          onClick={openPicker}
-          className={cn("rounded-ds-full", focusRing)}
+        <label
+          htmlFor={pickerId}
+          className={cn("rounded-ds-full", focusRing, busy && "pointer-events-none opacity-50")}
           aria-label="Change profile photo"
         >
           <Avatar name={name} alt={name} src={avatarUrl} size="xl" />
-        </button>
+        </label>
       ) : (
         <div className="flex flex-col items-center gap-ds-3">
           <canvas
@@ -191,20 +189,22 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
         </div>
       )}
 
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
-        className="sr-only"
-        onChange={(event) => void onFileChange(event)}
-      />
+      <NativeImageFileInput id={pickerId} disabled={busy} onFilesSelected={(files) => void onFileChange(files)} />
 
       <div className="flex flex-wrap justify-center gap-ds-2">
         {!preview ? (
           <>
-            <Button type="button" variant="secondary" onClick={openPicker} disabled={busy}>
+            <label
+              htmlFor={pickerId}
+              className={cn(
+                buttonVariants.secondary,
+                buttonSizes.md,
+                focusRing,
+                busy && "pointer-events-none opacity-50",
+              )}
+            >
               Upload photo
-            </Button>
+            </label>
             {avatarUrl ? (
               <Button type="button" variant="ghost" onClick={() => void removeAvatar()} disabled={busy}>
                 Remove

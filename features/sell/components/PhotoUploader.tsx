@@ -1,20 +1,14 @@
 "use client";
 
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
-import { useSell } from "@/features/sell/context/SellProvider";
+import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
+import { focusRing } from "@/components/ui/tokens";import { useSell } from "@/features/sell/context/SellProvider";
 import { SELL_PHOTO_MAX } from "@/features/sell/types";
 import styles from "@/features/sell/components/PhotoUploader.module.css";
 
 const LONG_PRESS_MS = 450;
 const MOVE_CANCEL_PX = 12;
-// Plain `image/*` is the most compatible value across Android Chrome/Edge,
-// iOS Safari/Chrome and desktop. On mobile the native picker automatically
-// offers a "Take Photo" tile (camera) as its first option — no `capture`
-// attribute is used, so a single tap opens the full native picker.
-const GALLERY_ACCEPT = "image/*";
-
 function PlusIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" aria-hidden>
@@ -42,9 +36,8 @@ export const PhotoUploader = memo(function PhotoUploader() {
     uploadProgress,
   } = useSell();
 
-  const galleryInputRef = useRef<HTMLInputElement>(null);
-  const longPressTimerRef = useRef<number | null>(null);
-  const touchDragIndexRef = useRef<number | null>(null);
+  const pickerId = useId();
+  const longPressTimerRef = useRef<number | null>(null);  const touchDragIndexRef = useRef<number | null>(null);
   const touchStartRef = useRef<{ x: number; y: number; index: number } | null>(null);
 
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -52,24 +45,11 @@ export const PhotoUploader = memo(function PhotoUploader() {
   const [previewId, setPreviewId] = useState<string | null>(null);
 
   const handleFilesSelected = useCallback(
-    (files: FileList | null) => {
-      if (files?.length) void addPhotos(files);
+    (files: FileList) => {
+      void addPhotos(files);
     },
     [addPhotos],
   );
-
-  const handleGalleryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleFilesSelected(event.target.files);
-    event.target.value = "";
-  };
-
-  const openPicker = useCallback(() => {
-    const input = galleryInputRef.current;
-    if (!input) return;
-    input.value = "";
-    input.click();
-  }, []);
-
   const clearLongPress = useCallback(() => {
     if (longPressTimerRef.current !== null) {
       window.clearTimeout(longPressTimerRef.current);
@@ -134,9 +114,9 @@ export const PhotoUploader = memo(function PhotoUploader() {
       event.preventDefault();
       if (photos.length >= SELL_PHOTO_MAX) return;
       const files = event.dataTransfer.files;
-      if (files?.length) handleFilesSelected(files);
+      if (files?.length) void addPhotos(files);
     },
-    [handleFilesSelected, photos.length],
+    [addPhotos, photos.length],
   );
 
   const previewPhoto = previewId ? photos.find((photo) => photo.id === previewId) ?? null : null;
@@ -176,29 +156,22 @@ export const PhotoUploader = memo(function PhotoUploader() {
         </div>
       ) : null}
 
-      {/* Single native picker input — provides gallery + camera ("Take Photo"). */}
-      <input
-        ref={galleryInputRef}
-        type="file"
-        accept={GALLERY_ACCEPT}
+      <NativeImageFileInput
+        id={pickerId}
         multiple
         className={styles.hiddenFileInput}
-        onChange={handleGalleryChange}
-        tabIndex={-1}
-        aria-hidden
+        onFilesSelected={handleFilesSelected}
       />
 
       {photos.length === 0 ? (
-        <button
-          type="button"
-          onClick={openPicker}
+        <label
+          htmlFor={pickerId}
           className={cn(styles.emptyCard, focusRing)}
           aria-label="Add photo"
         >
           <PlusIcon className={styles.emptyCardIcon} />
           <span>Add Photo</span>
-        </button>
-      ) : (
+        </label>      ) : (
         <div
           className={styles.gallery}
           onTouchMove={handleTouchMove}
@@ -272,17 +245,15 @@ export const PhotoUploader = memo(function PhotoUploader() {
           ))}
 
           {canAddPhotos ? (
-            <button
-              type="button"
-              onClick={openPicker}
+            <label
+              htmlFor={pickerId}
               className={cn(styles.addTile, focusRing)}
               aria-label="Add photo"
             >
               <PlusIcon className={styles.addTileIcon} />
               <span>Add Photo</span>
-            </button>
-          ) : null}
-        </div>
+            </label>
+          ) : null}        </div>
       )}
 
       {isFull ? (

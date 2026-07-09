@@ -1,5 +1,6 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { PaymentSetupError } from "@/lib/payments/errors";
 import { getStripeClient, getAppBaseUrl, isStripeConfigured } from "@/lib/stripe/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type SavedPaymentMethod = {
   id: string;
@@ -127,6 +128,84 @@ export async function syncPaymentMethodFromStripe(
 
   if (error) throw error;
   return mapRow(data as PaymentMethodRow);
+}
+
+export async function createPaymentMethodSetupIntent(
+  userId: string,
+): Promise<{ clientSecret: string; setupIntentId: string }> {
+  if (!isStripeConfigured()) {
+    throw new PaymentSetupError(
+      "Stripe is not configured on the server. Set STRIPE_SECRET_KEY.",
+      503,
+      "stripe_not_configured",
+    );
+  }
+
+  const customerId = await ensureStripeCustomer(userId);
+  if (!customerId) {
+    throw new PaymentSetupError(
+      "Could not create a Stripe customer for your account. Check your profile email.",
+      500,
+      "stripe_customer_missing",
+    );
+  }
+
+  const stripe = getStripeClient();
+  const setupIntent = await stripe.setupIntents.create({
+    customer: customerId,
+    payment_method_types: ["card"],
+    usage: "off_session",
+    metadata: { userId },
+  });
+
+  if (!setupIntent.client_secret) {
+    throw new PaymentSetupError(
+      "Stripe did not return a client secret for card setup.",
+      502,
+      "stripe_client_secret_missing",
+    );
+  }
+
+  return {
+    clientSecret: setupIntent.client_secret,
+    setupIntentId: setupIntent.id,
+  };
+}
+
+export async function completePaymentMethodSetupIntent(
+  userId: string,
+  setupIntentId: string,
+): Promise<SavedPaymentMethod> {
+  const stripe = getStripeClient();
+  const setupIntent = await stripe.setupIntents.retrieve(setupIntentId);
+
+  if (setupIntent.metadata?.userId && setupIntent.metadata.userId !== userId) {
+    throw new PaymentSetupError("This card setup session belongs to another account.", 403, "forbidden");
+  }
+
+  if (setupIntent.status !== "succeeded") {
+    throw new PaymentSetupError(
+      `Card setup is not complete (${setupIntent.status ?? "unknown"}).`,
+      400,
+      "setup_incomplete",
+    );
+  }
+
+  const paymentMethodId =
+    typeof setupIntent.payment_method === "string"
+      ? setupIntent.payment_method
+      : setupIntent.payment_method?.id ?? null;
+
+  if (!paymentMethodId) {
+    throw new PaymentSetupError("Stripe did not return a saved payment method.", 400, "payment_method_missing");
+  }
+
+  const customerId = await ensureStripeCustomer(userId);
+  if (customerId) {
+    await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId }).catch(() => undefined);
+  }
+
+  return syncPaymentMethodFromStripe(userId, paymentMethodId);
 }
 
 export async function createPaymentMethodSetupSession(userId: string): Promise<string | null> {

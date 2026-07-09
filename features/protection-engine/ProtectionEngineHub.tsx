@@ -61,8 +61,7 @@ export function ProtectionEngineHub({
             {config.marketplaceVersion} · {config.primaryCountry} · {config.currency}
           </p>
           <p className="text-sm text-text-muted">
-            {context.protectionPhase.replace(/-/g, " ")} · Platform Fee{" "}
-            {formatCurrency(context.minProtectionFee)}–{formatCurrency(context.maxProtectionFee)}
+            {context.protectionPhase.replace(/-/g, " ")} · Platform Fee {(context.protectionRate * 100).toFixed(1)}% of item price
           </p>
         </header>
 

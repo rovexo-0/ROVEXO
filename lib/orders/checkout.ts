@@ -16,6 +16,7 @@ import { calculateSellerNetAmount } from "@/lib/wallet/sales";
 import { openEscrowForOrder } from "@/lib/commerce-engine";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
+import { ensureStripeCustomer } from "@/lib/payments/repository";
 import { assertMarketplacePurchaseAllowedForProductSlug } from "@/lib/transaction-mode/validate";
 
 const RESERVATION_MINUTES = 30;
@@ -215,11 +216,7 @@ export async function createOrderCheckoutSession(
   }
 
   const stripe = getStripeClient();
-  const { data: buyerProfile } = await admin
-    .from("profiles")
-    .select("email")
-    .eq("id", input.buyerId)
-    .maybeSingle();
+  const customerId = await ensureStripeCustomer(input.buyerId);
 
   const lineItems: Array<{
     quantity: number;
@@ -266,7 +263,7 @@ export async function createOrderCheckoutSession(
     {
       mode: "payment",
       payment_method_types: ["card"],
-      customer_email: buyerProfile?.email ?? undefined,
+      ...(customerId ? { customer: customerId } : {}),
       line_items: lineItems,
       metadata: {
         checkoutType: "order",

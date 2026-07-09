@@ -11,7 +11,9 @@ export type CheckoutCarrierQuote = {
 export type CheckoutShippingQuoteReason =
   | "seller_dispatch_not_ready"
   | "address_incomplete"
-  | "provider_unavailable";
+  | "provider_unavailable"
+  | "no_supported_carriers"
+  | "product_unavailable";
 
 export type CheckoutShippingQuotesResult = {
   live: boolean;

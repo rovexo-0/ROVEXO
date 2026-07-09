@@ -1,18 +1,14 @@
 "use client";
 
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
 import { focusRing } from "@/features/sell/ui/sell-classes";
 import { useSell } from "@/features/sell/context/SellProvider";
 import { SELL_PHOTO_MAX } from "@/features/sell/types";
 
 const LONG_PRESS_MS = 400;
 const MOVE_CANCEL_PX = 12;
-// Plain image/* is the most compatible accept value across iOS Safari/Chrome,
-// Android Chrome, Samsung Internet and desktop. On mobile the native picker
-// surfaces "Take Photo" (camera) as its first tile automatically — no capture
-// attribute, so a single tap opens the full gallery + camera picker.
-const ACCEPT = "image/*";
 
 function PlusIcon({ className }: { className?: string }) {
   return (
@@ -41,8 +37,8 @@ function CloseIcon({ className }: { className?: string }) {
 
 export const SellPhotoRail = memo(function SellPhotoRail() {
   const { draft, addPhotos, removePhoto, reorderPhotos, retryPhotoUpload, isPublishing, uploadProgress } = useSell();
+  const pickerId = useId();
 
-  const inputRef = useRef<HTMLInputElement>(null);
   const longPressTimer = useRef<number | null>(null);
   const touchDragIndex = useRef<number | null>(null);
   const touchStart = useRef<{ x: number; y: number; index: number } | null>(null);
@@ -54,17 +50,12 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
   const photos = draft.photos;
   const canAdd = photos.length < SELL_PHOTO_MAX;
 
-  const openPicker = useCallback(() => {
-    const input = inputRef.current;
-    if (!input) return;
-    input.value = "";
-    input.click();
-  }, []);
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files?.length) void addPhotos(event.target.files);
-    event.target.value = "";
-  };
+  const handleFilesSelected = useCallback(
+    (files: FileList) => {
+      void addPhotos(files);
+    },
+    [addPhotos],
+  );
 
   const clearLongPress = useCallback(() => {
     if (longPressTimer.current !== null) {
@@ -159,21 +150,11 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
         </div>
       ) : null}
 
-      <input
-        ref={inputRef}
-        type="file"
-        accept={ACCEPT}
-        multiple
-        onChange={handleChange}
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden
-      />
+      <NativeImageFileInput id={pickerId} multiple onFilesSelected={handleFilesSelected} />
 
       {photos.length === 0 ? (
-        <button
-          type="button"
-          onClick={openPicker}
+        <label
+          htmlFor={pickerId}
           aria-label="Add photo"
           className={cn(
             "flex min-h-[8rem] w-full flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-dashed border-primary/40 bg-primary/5 text-primary transition-colors active:bg-primary/10",
@@ -183,7 +164,7 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
           <CameraIcon className="h-7 w-7" />
           <span className="text-sm font-semibold">Add Photo</span>
           <span className="text-xs font-normal text-text-muted">Maximum {SELL_PHOTO_MAX} photos</span>
-        </button>
+        </label>
       ) : (
         <div
           className="-mx-ds-1 flex gap-ds-2 overflow-x-auto px-ds-1 pb-ds-1"
@@ -259,9 +240,8 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
           ))}
 
           {canAdd ? (
-            <button
-              type="button"
-              onClick={openPicker}
+            <label
+              htmlFor={pickerId}
               aria-label="Add photo"
               className={cn(
                 tileBase,
@@ -271,7 +251,7 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
             >
               <PlusIcon className="h-6 w-6" />
               <span className="text-xs font-semibold">Add Photo</span>
-            </button>
+            </label>
           ) : null}
         </div>
       )}

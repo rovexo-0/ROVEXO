@@ -94,8 +94,4 @@ function createDefaultNotifications(): ProtectionEngineDocument["notifications"]
   ];
 }
 
-export {
-  PLATFORM_FEE_RATE as PROTECTION_FEE_RATE,
-  MIN_PLATFORM_FEE as MIN_PROTECTION_FEE,
-  MAX_PLATFORM_FEE as MAX_PROTECTION_FEE,
-} from "@/lib/orders/pricing";
+export { PLATFORM_FEE_RATE as PROTECTION_FEE_RATE } from "@/lib/orders/pricing";

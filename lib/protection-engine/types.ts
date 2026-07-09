@@ -213,8 +213,6 @@ export type ProtectionEngineContext = {
   buyerCaseCount: number;
   sellerCaseCount: number;
   openCaseCount: number;
-  minProtectionFee: number;
-  maxProtectionFee: number;
   protectionRate: number;
   recentCases: ProtectionEngineCaseSummary[];
 };

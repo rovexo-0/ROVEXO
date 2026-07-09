@@ -60,15 +60,21 @@ async function parseApiError(response: Response): Promise<string> {
       title?: string;
       detail?: string;
       message?: string;
+      Message?: string;
       error?: string;
-      errors?: Array<{ message?: string }>;
+      errors?: Array<{ message?: string; Error?: string }>;
+      Errors?: Array<{ Error?: string; message?: string }>;
     };
 
-    const nested = payload.errors?.map((item) => item.message).filter(Boolean).join("; ");
+    const parcel2GoErrors = payload.Errors?.map((item) => item.Error).filter(Boolean).join("; ");
+    const nested =
+      parcel2GoErrors ||
+      payload.errors?.map((item) => item.message ?? item.Error).filter(Boolean).join("; ");
     return (
       nested ||
       payload.detail ||
       payload.message ||
+      payload.Message ||
       payload.title ||
       payload.error ||
       response.statusText
