@@ -97,6 +97,7 @@ export async function listSendcloudShippingMethods(input: {
   toCountry: string;
   toPostalCode: string;
   fromPostalCode: string;
+  fromCountry?: string;
   isReturn?: boolean;
 }): Promise<SendcloudShippingMethod[]> {
   const response = await sendcloudRequest<{ shipping_methods?: SendcloudShippingMethod[] }>(
@@ -107,6 +108,7 @@ export async function listSendcloudShippingMethods(input: {
         to_country: input.toCountry,
         to_postal_code: input.toPostalCode,
         from_postal_code: input.fromPostalCode,
+        from_country: input.fromCountry,
         is_return: input.isReturn ?? false,
       },
     },

@@ -4,9 +4,10 @@ import { isSendcloudConfigured } from "@/lib/shipping/env";
 import {
   buildSendcloudParcelPayload,
   mapSendcloudMethodToQuote,
+  normalizeCountryCode,
   parseSendcloudQuoteId,
+  parcelSpecFromTier,
 } from "@/lib/shipping/pricing/sendcloud-mappers";
-import { parcelSpecFromTier } from "@/lib/shipping/pricing/sendcloud-mappers";
 import {
   checkSendcloudApiHealth,
   createSendcloudParcel,
@@ -73,9 +74,10 @@ export const SendcloudService = {
 
     const spec = parcelSpecFromTier(input.parcelTier, input.weightKg);
     const methods = await listSendcloudShippingMethods({
-      toCountry: input.deliveryAddress.country,
+      toCountry: normalizeCountryCode(input.deliveryAddress.country),
       toPostalCode: input.deliveryAddress.postcode,
       fromPostalCode: input.collectionAddress.postcode,
+      fromCountry: normalizeCountryCode(input.collectionAddress.country),
     });
 
     const filtered = methods.filter((method) => {
