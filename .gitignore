@@ -57,3 +57,6 @@ next-env.d.ts
 /prod-fix.log
 /prod-reg.log
 /regression-report.log
+
+# Local archived work
+_wip/
