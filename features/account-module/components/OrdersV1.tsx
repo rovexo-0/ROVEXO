@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { AccountModuleShell } from "@/features/account-module/components/AccountModuleShell";
 import { useClientHydrated } from "@/lib/react/use-client-hydrated";
 import type { Order, OrderStatus } from "@/lib/orders/types";
+import { getBuyerOrderListRefundLabel } from "@/lib/orders/refund-status";
 import { formatCurrency } from "@/lib/wallet/utils";
 
 type OrderTab = "all" | "to_pay" | "to_ship" | "shipped" | "delivered";
@@ -38,6 +39,18 @@ function statusLabel(status: OrderStatus): string {
     cancelled: "Cancelled",
   };
   return labels[status];
+}
+
+function orderListLabel(order: Order): string {
+  return getBuyerOrderListRefundLabel(order) ?? statusLabel(order.status);
+}
+
+function orderListStatusClass(order: Order): string {
+  const refundLabel = getBuyerOrderListRefundLabel(order);
+  if (refundLabel === "Refunded") return "acm-badge acm-badge--delivered";
+  if (refundLabel === "Refund in progress") return "acm-badge acm-badge--to-pay";
+  if (refundLabel === "Refund failed") return "acm-badge acm-badge--draft";
+  return statusClass(order.status);
 }
 
 function statusClass(status: OrderStatus): string {
@@ -120,8 +133,8 @@ export function OrdersV1({ orders }: OrdersV1Props) {
                   <p className="acm-order__title">{order.product.title}</p>
                   <p className="acm-order__price">{formatCurrency(order.totals.total)}</p>
                 </div>
-                <span className={`acm-order__status ${statusClass(order.status)}`}>
-                  {statusLabel(order.status)}
+                <span className={`acm-order__status ${orderListStatusClass(order)}`}>
+                  {orderListLabel(order)}
                 </span>
               </div>
             </Link>
