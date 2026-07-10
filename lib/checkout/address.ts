@@ -3,7 +3,7 @@ import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
 import { getDefaultAddress } from "@/lib/addresses/repository";
 
 export type CheckoutAddress = {
-  id?: string;
+  addressId?: string;
   recipientName: string;
   addressLine: string;
   addressLine2?: string | null;
@@ -17,7 +17,7 @@ export async function getDefaultCheckoutAddress(profile: UserProfile): Promise<C
 
   if (saved) {
     return {
-      id: saved.id,
+      addressId: saved.id,
       recipientName: saved.recipientName,
       addressLine: saved.addressLine,
       addressLine2: saved.addressLine2,

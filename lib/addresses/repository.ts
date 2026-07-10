@@ -77,11 +77,11 @@ export async function getDefaultAddress(
   return data ? mapRow(data as AddressRow) : null;
 }
 
-async function findDuplicateAddress(
+async function findMatchingUserAddress(
   userId: string,
   input: AddressInput,
   exceptId?: string,
-): Promise<boolean> {
+): Promise<UserAddress | null> {
   const supabase = await createClient();
   const addressType = input.addressType ?? "shipping";
   const normalizedLine = sanitizeText(input.addressLine).toLowerCase();
@@ -89,45 +89,24 @@ async function findDuplicateAddress(
 
   const { data } = await supabase
     .from("shipping_addresses")
-    .select("id, address_line, postcode")
+    .select("*")
     .eq("user_id", userId)
     .eq("address_type", addressType);
 
-  return (data ?? []).some((row) => {
+  const match = (data ?? []).find((row) => {
     if (exceptId && row.id === exceptId) return false;
     return (
       sanitizeText(row.address_line).toLowerCase() === normalizedLine &&
       sanitizeText(row.postcode).toLowerCase() === normalizedPostcode
     );
   });
+
+  return match ? mapRow(match as AddressRow) : null;
 }
 
-async function clearDefaultAddresses(
-  userId: string,
-  addressType: "shipping" | "billing",
-  exceptId?: string,
-) {
-  const supabase = await createClient();
-  let query = supabase
-    .from("shipping_addresses")
-    .update({ is_default: false })
-    .eq("user_id", userId)
-    .eq("address_type", addressType);
-
-  if (exceptId) {
-    query = query.neq("id", exceptId);
-  }
-
-  await query;
-}
-
-export async function createUserAddress(userId: string, input: AddressInput): Promise<UserAddress> {
+async function insertUserAddress(userId: string, input: AddressInput): Promise<UserAddress> {
   const supabase = await createClient();
   const addressType = input.addressType ?? "shipping";
-
-  if (await findDuplicateAddress(userId, input)) {
-    throw new Error("This address is already saved.");
-  }
 
   if (input.isDefault) {
     await clearDefaultAddresses(userId, addressType);
@@ -153,6 +132,50 @@ export async function createUserAddress(userId: string, input: AddressInput): Pr
   return mapRow(data as AddressRow);
 }
 
+/** Checkout delivery step: reuse an existing user address or create one — never throws on duplicate. */
+export async function resolveCheckoutShippingAddress(
+  userId: string,
+  input: AddressInput,
+): Promise<UserAddress> {
+  const addressType = input.addressType ?? "shipping";
+  const existing = await findMatchingUserAddress(userId, input);
+  if (existing) {
+    if (input.isDefault && !existing.isDefault) {
+      return setDefaultAddress(userId, existing.id);
+    }
+    return existing;
+  }
+
+  return insertUserAddress(userId, input);
+}
+
+async function clearDefaultAddresses(
+  userId: string,
+  addressType: "shipping" | "billing",
+  exceptId?: string,
+) {
+  const supabase = await createClient();
+  let query = supabase
+    .from("shipping_addresses")
+    .update({ is_default: false })
+    .eq("user_id", userId)
+    .eq("address_type", addressType);
+
+  if (exceptId) {
+    query = query.neq("id", exceptId);
+  }
+
+  await query;
+}
+
+export async function createUserAddress(userId: string, input: AddressInput): Promise<UserAddress> {
+  if (await findMatchingUserAddress(userId, input)) {
+    throw new Error("This address is already saved.");
+  }
+
+  return insertUserAddress(userId, input);
+}
+
 export async function updateUserAddress(
   userId: string,
   addressId: string,
@@ -161,7 +184,8 @@ export async function updateUserAddress(
   const supabase = await createClient();
   const addressType = input.addressType ?? "shipping";
 
-  if (await findDuplicateAddress(userId, input, addressId)) {
+  const duplicate = await findMatchingUserAddress(userId, input, addressId);
+  if (duplicate) {
     throw new Error("This address is already saved.");
   }
 

@@ -31,6 +31,7 @@ export function useCheckoutForm(
   const [view, setView] = useState<CheckoutView>("checkout");
   const [draft, setDraft] = useState<CheckoutDraft>(initialDraft);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResolvingAddress, setIsResolvingAddress] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [shippingQuotes, setShippingQuotes] = useState<CheckoutCarrierQuote[]>([]);
@@ -161,6 +162,45 @@ export function useCheckoutForm(
     !shippingBlocked &&
     !shippingQuotesLoading;
 
+  const resolveDeliveryAddress = useCallback(async (): Promise<boolean> => {
+    if (draft.addressId) {
+      return true;
+    }
+
+    setIsResolvingAddress(true);
+    setErrorMessage(null);
+
+    try {
+      const response = await fetch("/api/checkout/shipping-address", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recipientName: draft.recipientName,
+          addressLine: draft.addressLine,
+          postcode: draft.postcode,
+          country: draft.country,
+        }),
+      });
+      const payload = (await response.json()) as {
+        addressId?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !payload.addressId) {
+        setErrorMessage(payload.error ?? "Unable to confirm delivery address.");
+        return false;
+      }
+
+      updateDraft({ addressId: payload.addressId });
+      return true;
+    } catch {
+      setErrorMessage("Unable to confirm delivery address.");
+      return false;
+    } finally {
+      setIsResolvingAddress(false);
+    }
+  }, [draft.addressId, draft.addressLine, draft.country, draft.postcode, draft.recipientName, updateDraft]);
+
   const placeOrder = useCallback(async () => {
     if (!canPay || isSubmitting) return;
 
@@ -168,31 +208,10 @@ export function useCheckoutForm(
     setErrorMessage(null);
 
     try {
-      let shippingAddressId = draft.addressId;
-
+      const shippingAddressId = draft.addressId;
       if (!shippingAddressId) {
-        const addressResponse = await fetch("/api/addresses", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            recipientName: draft.recipientName,
-            addressLine: draft.addressLine,
-            postcode: draft.postcode,
-            country: draft.country,
-            addressType: "shipping",
-            isDefault: true,
-          }),
-        });
-        const addressPayload = (await addressResponse.json()) as {
-          address?: { id: string };
-          error?: string;
-        };
-        if (!addressResponse.ok || !addressPayload.address?.id) {
-          setErrorMessage(addressPayload.error ?? "Unable to save shipping address.");
-          return;
-        }
-        shippingAddressId = addressPayload.address.id;
-        updateDraft({ addressId: shippingAddressId });
+        setErrorMessage("Delivery address is required. Return to Delivery and continue again.");
+        return;
       }
 
       const response = await fetch("/api/orders/checkout", {
@@ -237,7 +256,7 @@ export function useCheckoutForm(
     } finally {
       setIsSubmitting(false);
     }
-  }, [canPay, draft, isSubmitting, product.slug, selectedQuote, updateDraft]);
+  }, [canPay, draft.addressId, draft.deliveryOption, isSubmitting, product.slug, selectedQuote]);
 
   return {
     view,
@@ -245,6 +264,7 @@ export function useCheckoutForm(
     totals,
     order,
     isSubmitting,
+    isResolvingAddress,
     canPay,
     errorMessage,
     shippingQuotes: activeShippingQuotes,
@@ -255,6 +275,7 @@ export function useCheckoutForm(
     shippingQuoteReason,
     retryShippingQuotes,
     updateDraft,
+    resolveDeliveryAddress,
     placeOrder,
     setSuccessOrder: setOrder,
     setView,

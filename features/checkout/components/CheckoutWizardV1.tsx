@@ -26,6 +26,8 @@ export function CheckoutWizardV1({ product, form, buyerPhone }: CheckoutWizardV1
     totals,
     canPay,
     isSubmitting,
+    isResolvingAddress,
+    resolveDeliveryAddress,
     placeOrder,
     shippingQuotesLoading,
     liveQuotesAttempted,
@@ -58,7 +60,8 @@ export function CheckoutWizardV1({ product, form, buyerPhone }: CheckoutWizardV1
     deliveryResolved &&
     (product.freeDelivery || liveQuotesAttempted || hasListingShippingPrice) &&
     !shippingBlocked &&
-    !shippingQuotesLoading;
+    !shippingQuotesLoading &&
+    !isResolvingAddress;
 
   const footerLabel =
     step === "delivery"
@@ -82,7 +85,12 @@ export function CheckoutWizardV1({ product, form, buyerPhone }: CheckoutWizardV1
 
   const handlePrimary = () => {
     if (step === "delivery") {
-      setStep("payment");
+      void (async () => {
+        const resolved = await resolveDeliveryAddress();
+        if (resolved) {
+          setStep("payment");
+        }
+      })();
       return;
     }
     if (step === "payment") {
@@ -133,7 +141,7 @@ export function CheckoutWizardV1({ product, form, buyerPhone }: CheckoutWizardV1
           disabled={footerDisabled}
           onClick={handlePrimary}
         >
-          {step === "review" && isSubmitting ? "Placing order…" : footerLabel}
+          {step === "review" && isSubmitting ? "Placing order…" : step === "delivery" && isResolvingAddress ? "Confirming address…" : footerLabel}
         </button>
       </div>
     </div>

@@ -111,7 +111,9 @@ export function CheckoutDeliveryStepV1({
                   type="text"
                   className={cn(fieldClassName, focusRing)}
                   value={draft.recipientName}
-                  onChange={(event) => updateDraft({ recipientName: event.target.value })}
+                  onChange={(event) =>
+                    updateDraft({ recipientName: event.target.value, addressId: undefined })
+                  }
                 />
               </label>
               <label className="ckt-v1__label">
@@ -130,7 +132,9 @@ export function CheckoutDeliveryStepV1({
                   type="text"
                   className={cn(fieldClassName, focusRing)}
                   value={draft.addressLine}
-                  onChange={(event) => updateDraft({ addressLine: event.target.value })}
+                  onChange={(event) =>
+                    updateDraft({ addressLine: event.target.value, addressId: undefined })
+                  }
                 />
               </label>
               <label className="ckt-v1__label">
@@ -139,7 +143,9 @@ export function CheckoutDeliveryStepV1({
                   type="text"
                   className={cn(fieldClassName, focusRing)}
                   value={draft.postcode}
-                  onChange={(event) => updateDraft({ postcode: event.target.value })}
+                  onChange={(event) =>
+                    updateDraft({ postcode: event.target.value, addressId: undefined })
+                  }
                 />
               </label>
               <label className="ckt-v1__label">
@@ -148,7 +154,9 @@ export function CheckoutDeliveryStepV1({
                   type="text"
                   className={cn(fieldClassName, focusRing)}
                   value={draft.country}
-                  onChange={(event) => updateDraft({ country: event.target.value })}
+                  onChange={(event) =>
+                    updateDraft({ country: event.target.value, addressId: undefined })
+                  }
                 />
               </label>
               <button
