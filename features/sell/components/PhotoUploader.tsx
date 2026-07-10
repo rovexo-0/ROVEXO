@@ -1,10 +1,11 @@
 "use client";
 
-import { memo, useCallback, useId, useRef, useState } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
-import { focusRing } from "@/components/ui/tokens";import { useSell } from "@/features/sell/context/SellProvider";
+import { focusRing } from "@/components/ui/tokens";
+import { useSell } from "@/features/sell/context/SellProvider";
 import { SELL_PHOTO_MAX } from "@/features/sell/types";
 import styles from "@/features/sell/components/PhotoUploader.module.css";
 
@@ -37,8 +38,8 @@ export const PhotoUploader = memo(function PhotoUploader() {
     uploadProgress,
   } = useSell();
 
-  const pickerId = useId();
-  const longPressTimerRef = useRef<number | null>(null);  const touchDragIndexRef = useRef<number | null>(null);
+  const longPressTimerRef = useRef<number | null>(null);
+  const touchDragIndexRef = useRef<number | null>(null);
   const touchStartRef = useRef<{ x: number; y: number; index: number } | null>(null);
 
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -143,22 +144,16 @@ export const PhotoUploader = memo(function PhotoUploader() {
         </div>
       ) : null}
 
-      <NativeImageFileInput
-        id={pickerId}
-        multiple
-        className={styles.hiddenFileInput}
-        onFilesSelected={handleFilesSelected}
-      />
-
       {photos.length === 0 ? (
         <label
-          htmlFor={pickerId}
           className={cn(styles.emptyCard, focusRing)}
           aria-label="Add photo"
         >
-          <PlusIcon className={styles.emptyCardIcon} />
-          <span>Add Photo</span>
-        </label>      ) : (
+          <NativeImageFileInput placement="overlay" multiple onFilesSelected={handleFilesSelected} />
+          <PlusIcon className={cn(styles.emptyCardIcon, "pointer-events-none")} />
+          <span className="pointer-events-none">Add Photo</span>
+        </label>
+      ) : (
         <div
           className={styles.gallery}
           onTouchMove={handleTouchMove}
@@ -233,12 +228,12 @@ export const PhotoUploader = memo(function PhotoUploader() {
 
           {canAddPhotos ? (
             <label
-              htmlFor={pickerId}
               className={cn(styles.addTile, focusRing)}
               aria-label="Add photo"
             >
-              <PlusIcon className={styles.addTileIcon} />
-              <span>Add Photo</span>
+              <NativeImageFileInput placement="overlay" multiple onFilesSelected={handleFilesSelected} />
+              <PlusIcon className={cn(styles.addTileIcon, "pointer-events-none")} />
+              <span className="pointer-events-none">Add Photo</span>
             </label>
           ) : null}        </div>
       )}

@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 import {
   NATIVE_IMAGE_ACCEPT,
   nativeImageFileInputClassName,
+  nativeImageFileInputOverlayClassName,
   type NativeImageFileInputProps,
 } from "@/lib/media/native-image-picker";
 
@@ -14,6 +15,7 @@ export function NativeImageFileInput({
   accept = NATIVE_IMAGE_ACCEPT,
   disabled = false,
   className,
+  placement = "associated",
   onFilesSelected,
 }: NativeImageFileInputProps) {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -31,9 +33,10 @@ export function NativeImageFileInput({
       multiple={multiple}
       disabled={disabled}
       onChange={handleChange}
-      className={cn(nativeImageFileInputClassName, className)}
-      tabIndex={-1}
-      aria-hidden
+      className={cn(
+        placement === "overlay" ? nativeImageFileInputOverlayClassName : nativeImageFileInputClassName,
+        className,
+      )}
     />
   );
 }

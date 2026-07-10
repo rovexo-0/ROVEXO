@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useId, useRef, useState } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
@@ -38,7 +38,6 @@ function CloseIcon({ className }: { className?: string }) {
 
 export const SellPhotoRail = memo(function SellPhotoRail() {
   const { draft, addPhotos, removePhoto, reorderPhotos, retryPhotoUpload, isPublishing, uploadProgress } = useSell();
-  const pickerId = useId();
 
   const longPressTimer = useRef<number | null>(null);
   const touchDragIndex = useRef<number | null>(null);
@@ -137,20 +136,18 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
         </div>
       ) : null}
 
-      <NativeImageFileInput id={pickerId} multiple onFilesSelected={handleFilesSelected} />
-
       {photos.length === 0 ? (
         <label
-          htmlFor={pickerId}
           aria-label="Add photo"
           className={cn(
-            "flex min-h-[8rem] w-full flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-dashed border-primary/40 bg-primary/5 text-primary transition-colors active:bg-primary/10",
+            "relative flex min-h-[8rem] w-full touch-manipulation flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-dashed border-primary/40 bg-primary/5 text-primary transition-colors active:bg-primary/10",
             focusRing,
           )}
         >
-          <CameraIcon className="h-7 w-7" />
-          <span className="text-sm font-semibold">Add Photo</span>
-          <span className="text-xs font-normal text-text-muted">Maximum {SELL_PHOTO_MAX} photos</span>
+          <NativeImageFileInput placement="overlay" multiple onFilesSelected={handleFilesSelected} />
+          <CameraIcon className="pointer-events-none h-7 w-7" />
+          <span className="pointer-events-none text-sm font-semibold">Add Photo</span>
+          <span className="pointer-events-none text-xs font-normal text-text-muted">Maximum {SELL_PHOTO_MAX} photos</span>
         </label>
       ) : (
         <div
@@ -228,16 +225,16 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
 
           {canAdd ? (
             <label
-              htmlFor={pickerId}
               aria-label="Add photo"
               className={cn(
                 tileBase,
-                "flex-col gap-1 border-2 border-dashed border-primary/40 bg-primary/5 text-primary",
+                "touch-manipulation flex-col gap-1 border-2 border-dashed border-primary/40 bg-primary/5 text-primary",
                 focusRing,
               )}
             >
-              <PlusIcon className="h-6 w-6" />
-              <span className="text-xs font-semibold">Add Photo</span>
+              <NativeImageFileInput placement="overlay" multiple onFilesSelected={handleFilesSelected} />
+              <PlusIcon className="pointer-events-none h-6 w-6" />
+              <span className="pointer-events-none text-xs font-semibold">Add Photo</span>
             </label>
           ) : null}
         </div>
