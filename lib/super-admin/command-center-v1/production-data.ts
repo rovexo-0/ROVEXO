@@ -1,8 +1,8 @@
 import { getLiveAnalyticsCenterSnapshot } from "@/lib/analytics/live-center/service";
 import { isGoogleAnalyticsEnabled } from "@/lib/analytics/ga4-config";
 import type { HealthStatus } from "@/lib/ops/health";
-import { ShippoService } from "@/lib/shipping/shippo/service";
-import type { ShippoHealthResult } from "@/lib/shipping/shippo/types";
+import { SendcloudService } from "@/lib/shipping/sendcloud/service";
+import type { SendcloudHealthResult } from "@/lib/shipping/sendcloud/types";
 import { getSuperAdminDashboardData } from "@/lib/super-admin/dashboard";
 import { getDatabaseHealthSnapshot } from "@/lib/super-admin/database-health/snapshot";
 import {
@@ -67,7 +67,7 @@ export type CommandCenterProductionSections = {
 
 export type CommandCenterProductionData = {
   sections: CommandCenterProductionSections;
-  shippoHealth: ShippoHealthResult;
+  sendcloudHealth: SendcloudHealthResult;
   databaseMigrationPending: boolean;
 };
 
@@ -92,19 +92,19 @@ export async function fetchCommandCenterProductionSections(
   const since24h = hoursAgoIso(24);
   const since30d = hoursAgoIso(24 * 30);
 
-  const [liveAnalytics, database, shippoHealth] = await Promise.all([
+  const [liveAnalytics, database, sendcloudHealth] = await Promise.all([
     getLiveAnalyticsCenterSnapshot().catch(() => null),
     getDatabaseHealthSnapshot(),
-    ShippoService.checkHealth(),
+    SendcloudService.checkHealth(),
   ]);
 
   const { metrics, operations, orders, monetization, promotionStats } = dashboard;
   const platform = operations.platform;
   const checks = operations.health.checks;
-  const shippoConfigured = ShippoService.isConfigured();
+  const sendcloudConfigured = SendcloudService.isConfigured();
   const stripeConfigured = Boolean(process.env.STRIPE_SECRET_KEY?.trim());
-  const shippoHealthy = shippoHealth.status === "healthy";
-  const webhookConfigured = Boolean(process.env.SHIPPO_WEBHOOK_TOKEN?.trim());
+  const sendcloudHealthy = sendcloudHealth.status === "healthy";
+  const webhookConfigured = Boolean(process.env.SENDCLOUD_WEBHOOK_SECRET?.trim());
   const databaseMigrationPending =
     database.migrations.files.filter((file) => file.applied === false).length > 0;
 
@@ -351,25 +351,25 @@ export async function fetchCommandCenterProductionSections(
       processing: pendingOrders,
     },
     shipping: {
-      goShippoApiStatus: mapHealthLabel(
-        shippoHealth.status === "healthy"
+      sendcloudApiStatus: mapHealthLabel(
+        sendcloudHealth.status === "healthy"
           ? "healthy"
-          : shippoHealth.status === "degraded"
+          : sendcloudHealth.status === "degraded"
             ? "degraded"
             : "unhealthy",
       ),
-      liveApiKeyStatus: shippoConfigured ? "Valid" : "Missing",
-      authenticationStatus: shippoConfigured
-        ? shippoHealth.status === "unhealthy"
+      liveApiKeyStatus: sendcloudConfigured ? "Valid" : "Missing",
+      authenticationStatus: sendcloudConfigured
+        ? sendcloudHealth.status === "unhealthy"
           ? "Failed"
           : "Authenticated"
         : "Not configured",
       webhookStatus: webhookConfigured ? "Configured" : "Not configured",
-      apiLatency: shippoHealth.latencyMs,
+      apiLatency: sendcloudHealth.latencyMs,
       apiAvailability:
-        shippoHealth.status === "healthy"
+        sendcloudHealth.status === "healthy"
           ? "Available"
-          : shippoHealth.status === "degraded"
+          : sendcloudHealth.status === "degraded"
             ? "Degraded"
             : "Unavailable",
       failedRequests: failedShippingOrders,
@@ -387,12 +387,12 @@ export async function fetchCommandCenterProductionSections(
       labelsGenerated: labelsToday,
       packagesCollected: shippedOrders,
       failed: failedShippingOrders,
-      royalMail: carrierHealthStatus(royalMailOrders, shippoConfigured, shippoHealthy),
-      evri: carrierHealthStatus(evriOrders, shippoConfigured, shippoHealthy),
-      dpd: carrierHealthStatus(dpdOrders, shippoConfigured, shippoHealthy),
-      ups: carrierHealthStatus(upsOrders, shippoConfigured, shippoHealthy),
-      fedEx: carrierHealthStatus(fedexOrders, shippoConfigured, shippoHealthy),
-      dhl: carrierHealthStatus(dhlOrders, shippoConfigured, shippoHealthy),
+      royalMail: carrierHealthStatus(royalMailOrders, sendcloudConfigured, sendcloudHealthy),
+      evri: carrierHealthStatus(evriOrders, sendcloudConfigured, sendcloudHealthy),
+      dpd: carrierHealthStatus(dpdOrders, sendcloudConfigured, sendcloudHealthy),
+      ups: carrierHealthStatus(upsOrders, sendcloudConfigured, sendcloudHealthy),
+      fedEx: carrierHealthStatus(fedexOrders, sendcloudConfigured, sendcloudHealthy),
+      dhl: carrierHealthStatus(dhlOrders, sendcloudConfigured, sendcloudHealthy),
     },
     users: {
       totalUsers: metrics.totalUsers,
@@ -580,7 +580,7 @@ export async function fetchCommandCenterProductionSections(
       cronJobs: cronRunsToday,
     },
     },
-    shippoHealth,
+    sendcloudHealth,
     databaseMigrationPending,
   };
 }

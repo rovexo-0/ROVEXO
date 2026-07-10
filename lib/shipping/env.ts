@@ -1,28 +1,52 @@
 import "server-only";
 
-const SHIPPO_ENV_KEY = "SHIPPO_API_KEY";
+const PUBLIC_KEY_ENV = "SENDCLOUD_PUBLIC_KEY";
+const SECRET_KEY_ENV = "SENDCLOUD_SECRET_KEY";
+const WEBHOOK_SECRET_ENV = "SENDCLOUD_WEBHOOK_SECRET";
+const BASE_URL_ENV = "SENDCLOUD_BASE_URL";
 
-export function isShippoConfigured(): boolean {
-  return Boolean(process.env[SHIPPO_ENV_KEY]?.trim());
+export const SENDCLOUD_DEFAULT_BASE_URL = "https://panel.sendcloud.sc/api/v2";
+
+export function isSendcloudConfigured(): boolean {
+  return Boolean(
+    process.env[PUBLIC_KEY_ENV]?.trim() && process.env[SECRET_KEY_ENV]?.trim(),
+  );
 }
 
 /** Server-side only — never import from client components. */
-export function getShippoApiKey(): string {
-  const apiKey = process.env[SHIPPO_ENV_KEY]?.trim();
-  if (!apiKey) {
+export function getSendcloudPublicKey(): string {
+  const key = process.env[PUBLIC_KEY_ENV]?.trim();
+  if (!key) {
     throw new Error(
-      "SHIPPO_API_KEY is not configured. Set it in .env.local (local development) or Vercel environment variables (production). Never expose this key to the browser.",
+      "SENDCLOUD_PUBLIC_KEY is not configured. Set it in .env.local or Vercel environment variables.",
     );
   }
-  return apiKey;
+  return key;
 }
 
-/** Optional webhook verification token — server-side only. */
-export function getShippoWebhookToken(): string | null {
-  return process.env.SHIPPO_WEBHOOK_TOKEN?.trim() || null;
+/** Server-side only — never import from client components. */
+export function getSendcloudSecretKey(): string {
+  const key = process.env[SECRET_KEY_ENV]?.trim();
+  if (!key) {
+    throw new Error(
+      "SENDCLOUD_SECRET_KEY is not configured. Set it in .env.local or Vercel environment variables.",
+    );
+  }
+  return key;
 }
 
-function shouldSkipShippoStartupValidation(): boolean {
+export function getSendcloudBaseUrl(): string {
+  const configured = process.env[BASE_URL_ENV]?.trim();
+  if (!configured) return SENDCLOUD_DEFAULT_BASE_URL;
+  return configured.replace(/\/+$/, "");
+}
+
+/** Optional webhook verification secret — server-side only. */
+export function getSendcloudWebhookSecret(): string | null {
+  return process.env[WEBHOOK_SECRET_ENV]?.trim() || null;
+}
+
+function shouldSkipSendcloudStartupValidation(): boolean {
   return (
     process.env.VITEST === "true" ||
     process.env.NODE_ENV === "test" ||
@@ -31,16 +55,16 @@ function shouldSkipShippoStartupValidation(): boolean {
 }
 
 /**
- * Validates Shippo configuration when the Node.js server starts.
+ * Validates Sendcloud configuration when the Node.js server starts.
  * Production fails fast; development logs a warning so local work can continue.
  */
-export function validateShippoEnvironmentOnStartup(): void {
-  if (shouldSkipShippoStartupValidation()) return;
+export function validateSendcloudEnvironmentOnStartup(): void {
+  if (shouldSkipSendcloudStartupValidation()) return;
 
-  if (isShippoConfigured()) return;
+  if (isSendcloudConfigured()) return;
 
   const message =
-    "SHIPPO_API_KEY is not configured. Add SHIPPO_API_KEY to .env.local (local) or Vercel environment variables (production). All Shippo requests are server-side only — never expose this key to the frontend.";
+    "Sendcloud is not configured. Set SENDCLOUD_PUBLIC_KEY and SENDCLOUD_SECRET_KEY in .env.local (local) or Vercel environment variables (production). All Sendcloud requests are server-side only.";
 
   if (process.env.NODE_ENV === "production") {
     throw new Error(message);

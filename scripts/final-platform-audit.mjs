@@ -96,7 +96,7 @@ Runtime wiring: \`createPromotionCheckoutSession\` loads \`getMarketplacePricing
 | Check | Result |
 |-------|--------|
 | Seller-paid / free delivery copy | PASS — unified **Shipping included** label |
-| Live Shippo rates at checkout | Conditional — requires Shippo env keys |
+| Live Sendcloud rates at checkout | Conditional — requires Sendcloud env keys |
 | Conflicting dispatch pricing copy | PASS — removed from buyer checkout surfaces |
 
 ## UI / UX simplification

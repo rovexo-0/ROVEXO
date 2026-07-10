@@ -194,7 +194,7 @@ export const CommerceEngine = {
   releaseOrderNow,
   releaseEligiblePendingBalances,
   releaseEligibleOrders,
-  // Shipping reserve (internal ledger; Parcel2Go untouched)
+  // Shipping reserve (internal ledger; Sendcloud untouched)
   reserveShipping: reserveShippingForOrder,
   debitShippingReserveForLabel,
   // Read models (dashboards)

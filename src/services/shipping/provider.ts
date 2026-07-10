@@ -13,7 +13,7 @@ import type {
   TrackingStatus,
 } from "@/src/services/shipping/types";
 
-/** Pluggable shipping provider contract for Parcel2Go and future carriers. */
+/** Pluggable shipping provider contract for Sendcloud and future carriers. */
 export interface ShippingProvider {
   readonly id: ShippingProviderId;
   readonly name: string;

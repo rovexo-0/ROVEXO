@@ -11,11 +11,8 @@ export type LabelGenerationResult = {
   /** Server-side only — never sent to clients */
   internalPlatformFeePence: number;
   providerId: ShippingProviderId;
-  usedFallback: boolean;
-  parcel2Go?: {
-    orderId: string;
-    orderLineId: string | null;
-    orderLineHmac: string | null;
+  sendcloud?: {
+    parcelId: number;
     serviceCode: string | null;
   };
 };
@@ -37,7 +34,6 @@ export async function generateShippingLabel(
       },
       internalPlatformFeePence: 0,
       providerId: response.providerId,
-      usedFallback: response.usedFallback,
     };
   }
 
@@ -54,12 +50,9 @@ export async function generateShippingLabel(
     },
     internalPlatformFeePence: platformFeePence,
     providerId: response.providerId,
-    usedFallback: response.usedFallback,
-    parcel2Go: response.parcel2GoOrderId
+    sendcloud: response.sendcloudParcelId
       ? {
-          orderId: response.parcel2GoOrderId,
-          orderLineId: response.parcel2GoOrderLineId ?? null,
-          orderLineHmac: response.parcel2GoOrderLineHmac ?? null,
+          parcelId: response.sendcloudParcelId,
           serviceCode: response.serviceCode ?? null,
         }
       : undefined,

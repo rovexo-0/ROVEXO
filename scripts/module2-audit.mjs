@@ -62,7 +62,7 @@ Generated: ${new Date().toISOString()}
 
 ## Objective
 
-Platform simplification + UX unification without changing database schema, auth, APIs, Stripe, Shippo, checkout, orders, messages, security, or permissions.
+Platform simplification + UX unification without changing database schema, auth, APIs, Stripe, Sendcloud, checkout, orders, messages, security, or permissions.
 
 ## Validation gates
 
@@ -82,8 +82,8 @@ ${module2Signals.map((s) => `- [${s.pass ? "x" : " "}] ${s.id}`).join("\n")}
 
 - No database schema changes
 - No Supabase auth changes
-- No Stripe / Shippo / checkout / order API changes
-- Shippo live certification deferred per spec
+- No Stripe / Sendcloud / checkout / order API changes
+- Sendcloud live certification deferred per spec
 - No commit / push / deploy
 
 ## Screenshots
@@ -104,7 +104,7 @@ ${gates.filter((g) => g.label.includes("Vitest") || g.label.includes("TypeScript
 ## Known pre-existing risks
 
 - Business dashboard server errors for some business users (unchanged)
-- Shippo live quotes require env + seller shipping address (deferred)
+- Sendcloud live quotes require env + seller shipping address (deferred)
 - Enterprise super-admin routes remain reachable by URL; nav simplified only
 
 ## Regressions introduced

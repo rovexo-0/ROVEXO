@@ -85,7 +85,7 @@ describe("ROVEXO Shipping Engine v1.0", () => {
     }
   });
 
-  it("returns no live quotes on the client facade when Shippo is not configured", async () => {
+  it("returns no live quotes on the client facade when Sendcloud is not configured", async () => {
     const pricing = await fetchShippingQuotes({
       parcelTier: "medium_parcel",
       collectionAddress: sampleAddress,

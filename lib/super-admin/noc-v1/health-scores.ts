@@ -1,5 +1,5 @@
 import type { HealthCheckResult, HealthStatus } from "@/lib/ops/health-types";
-import type { ShippoHealthResult } from "@/lib/shipping/shippo/types";
+import type { SendcloudHealthResult } from "@/lib/shipping/sendcloud/types";
 import type { NocHealthCard, NocHealthStatus } from "@/lib/super-admin/noc-v1/types";
 
 function clampScore(value: number): number {
@@ -53,9 +53,9 @@ export type BuildNocHealthScoresInput = {
     redis: HealthCheckResult;
     cron: HealthCheckResult;
   };
-  shippoHealth: ShippoHealthResult;
+  sendcloudHealth: SendcloudHealthResult;
   stripeConfigured: boolean;
-  shippoConfigured: boolean;
+  sendcloudConfigured: boolean;
   pendingModeration: number;
   totalListings: number;
   failedPayments24h: number;
@@ -79,11 +79,11 @@ export function buildNocHealthScores(input: BuildNocHealthScoresInput): NocHealt
   const redisScore = scoreFromCheck(input.checks.redis);
   const cronScore = scoreFromCheck(input.checks.cron);
 
-  const shippoScore = !input.shippoConfigured
+  const sendcloudScore = !input.sendcloudConfigured
     ? 50
-    : input.shippoHealth.status === "healthy"
-      ? clampScore(96 - Math.min(40, input.shippoHealth.latencyMs / 50))
-      : input.shippoHealth.status === "degraded"
+    : input.sendcloudHealth.status === "healthy"
+      ? clampScore(96 - Math.min(40, input.sendcloudHealth.latencyMs / 50))
+      : input.sendcloudHealth.status === "degraded"
         ? 62
         : 18;
 
@@ -93,7 +93,7 @@ export function buildNocHealthScores(input: BuildNocHealthScoresInput): NocHealt
     96 -
       moderationRatio * 120 -
       (input.failedShippingOrders > 0 ? 8 : 0) -
-      (input.labelsToday === 0 && input.shippoConfigured ? 4 : 0),
+      (input.labelsToday === 0 && input.sendcloudConfigured ? 4 : 0),
   );
 
   const securityScore = clampScore(100 - input.authErrors24h * 3 - input.securityErrors24h * 4);
@@ -106,7 +106,7 @@ export function buildNocHealthScores(input: BuildNocHealthScoresInput): NocHealt
 
   const shippingDenominator = Math.max(1, input.labelsToday + input.failedShippingOrders);
   const shippingScore = clampScore(
-    shippoScore - (input.failedShippingOrders / shippingDenominator) * 30,
+    sendcloudScore - (input.failedShippingOrders / shippingDenominator) * 30,
   );
 
   const aiScore =
@@ -149,8 +149,8 @@ export function buildNocHealthScores(input: BuildNocHealthScoresInput): NocHealt
       "shipping",
       "Shipping Health",
       shippingScore,
-      input.shippoHealth.message,
-      { maintenance: !input.shippoConfigured, offline: input.shippoHealth.status === "unhealthy" },
+      input.sendcloudHealth.message,
+      { maintenance: !input.sendcloudConfigured, offline: input.sendcloudHealth.status === "unhealthy" },
     ),
     card("database", "Database Health", databaseScore, input.checks.database.message),
     card("api", "API Health", apiScore, `${input.checks.api.latencyMs}ms latency`),

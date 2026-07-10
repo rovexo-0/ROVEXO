@@ -149,7 +149,7 @@ export function CommandOsShell({ initialSnapshot, defaultTab }: CommandOsShellPr
               <span>Bring Your Item</span>
             </article>
             <article className="cos-stat">
-              <strong className={statusClass(snapshot.certifications.shippoProduction)}>Shippo</strong>
+              <strong className={statusClass(snapshot.certifications.sendcloudProduction)}>Sendcloud</strong>
               <span>Shipping Cert</span>
             </article>
           </div>

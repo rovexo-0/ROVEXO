@@ -1,5 +1,5 @@
 /**
- * Delivery estimate helpers — Parcel2Go provides Collection + EstimatedDeliveryDate.
+ * Delivery estimate helpers — Sendcloud provides lead-time and estimated delivery dates.
  * No separate transitDays field on the quote API.
  */
 
@@ -17,7 +17,7 @@ export function parseDateOnlyUtc(value: string | null | undefined): Date | null 
   return Number.isFinite(parsed.getTime()) ? parsed : null;
 }
 
-/** Transit days from collection date to estimated delivery date (Parcel2Go quote fields). */
+/** Transit days from collection date to estimated delivery date (Sendcloud quote fields). */
 export function transitDaysBetweenIsoDates(
   collectionIso: string | null | undefined,
   deliveryIso: string | null | undefined,
@@ -47,7 +47,7 @@ export function formatTransitDaysLabel(days: number | null | undefined): string 
 }
 
 /**
- * Checkout ETA — prefer Parcel2Go EstimatedDeliveryDate; fall back to exact transit days only.
+ * Checkout ETA — prefer Sendcloud estimated delivery date; fall back to exact transit days only.
  * Never fabricates a min–max range.
  */
 export function formatCheckoutDeliveryEta(input: {

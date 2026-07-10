@@ -38,7 +38,7 @@ const businessCard = readFileSync(
 
 const shippingCert =
   !delivery.includes("getConfiguredProviders") &&
-  checkoutPage.includes("isShippoConfigured") &&
+  checkoutPage.includes("isSendcloudConfigured") &&
   delivery.includes("SHIPPING_INCLUDED_LABEL");
 
 const businessCert = businessCard.includes("Avatar") && !businessCard.includes("<Image");
@@ -106,10 +106,10 @@ ${criticalIssues.length ? criticalIssues.join("\n") : "_None — all automated g
 
 ## Shipping audit
 
-- Root cause fixed: client checkout no longer gates live Shippo quotes on \`process.env.SHIPPO_API_KEY\` (server-only).
-- Server passes \`liveShippingEnabled={isShippoConfigured()}\` from \`app/checkout/[slug]/page.tsx\`.
+- Root cause fixed: client checkout no longer gates live Sendcloud quotes on \`process.env.SENDCLOUD_PUBLIC_KEY\` (server-only).
+- Server passes \`liveShippingEnabled={isSendcloudConfigured()}\` from \`app/checkout/[slug]/page.tsx\`.
 - Seller-paid listings display **Shipping included** — no conflicting dispatch pricing copy.
-- Live carrier rates: shown when Shippo is configured and seller dispatch address exists.
+- Live carrier rates: shown when Sendcloud is configured and seller dispatch address exists.
 
 ## Business audit
 
@@ -148,7 +148,7 @@ const audits = [
   ["PERFORMANCE_AUDIT.md", "Lazy loading on listing images, virtualized homepage feed, React cache on promotions refresh."],
   ["BRAND_AUDIT.md", "Purple X wordmark, RX icon, tokens white/black themes, generate:brand assets."],
   ["ACCESSIBILITY_AUDIT.md", "Touch targets 48px header, aria labels on gallery/checkout, focus rings on interactive elements."],
-  ["SECURITY_AUDIT.md", "Shippo key server-only, super-admin pricing behind requireApiSuperAdmin, no schema changes."],
+  ["SECURITY_AUDIT.md", "Sendcloud keys server-only, super-admin pricing behind requireApiSuperAdmin, no schema changes."],
   ["REGRESSION_AUDIT.md", "Vitest 2262/2262 pass. Module 1+2 surfaces preserved."],
   ["SHIPPING_AUDIT.md", "Client gate removed; live quotes via /api/checkout/shipping-quotes; shipping included copy unified."],
   ["MARKETPLACE_AUDIT.md", "Unified account model, showcase sections, configurable promotion pricing."],

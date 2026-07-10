@@ -8,16 +8,20 @@ export async function fetchShippingQuotes(request: ShippingQuoteRequest): Promis
     quotes: [],
     selectedQuoteId: null,
     currency: "GBP",
-    providerAvailable: Boolean(process.env.SHIPPO_API_KEY?.trim()),
+    providerAvailable: Boolean(
+      process.env.SENDCLOUD_PUBLIC_KEY?.trim() && process.env.SENDCLOUD_SECRET_KEY?.trim(),
+    ),
   };
 }
 
 export function getConfiguredProviders(): { id: string; name: string; configured: boolean }[] {
   return [
     {
-      id: "shippo",
-      name: "GoShippo",
-      configured: Boolean(process.env.SHIPPO_API_KEY?.trim()),
+      id: "sendcloud",
+      name: "Sendcloud",
+      configured: Boolean(
+        process.env.SENDCLOUD_PUBLIC_KEY?.trim() && process.env.SENDCLOUD_SECRET_KEY?.trim(),
+      ),
     },
   ];
 }

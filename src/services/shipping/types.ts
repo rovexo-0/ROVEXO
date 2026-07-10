@@ -49,7 +49,7 @@ export type Shipment = {
   providerReference?: string | null;
   orderLineId?: string | null;
   orderLineIdHmac?: string | null;
-  /** Parcel2Go order Hash required for some payment endpoints. */
+  /** Sendcloud order reference required for some payment endpoints. */
   paymentHash?: string | null;
   status: ShipmentStatus;
   trackingNumber: string | null;
@@ -117,7 +117,7 @@ export type CreateOrderRequest = {
   parcels: ParcelDimensions[];
   insuranceValueGbp?: number;
   customerEmail?: string;
-  /** Idempotency key so the same order cannot create two Parcel2Go shipments. */
+  /** Idempotency key so the same order cannot create two Sendcloud shipments. */
   idempotencyKey?: string;
 };
 
@@ -152,7 +152,7 @@ export type ShippingHealthCheck = {
   durationMs?: number;
 };
 
-export type Parcel2GoEnvironment = "production" | "sandbox" | "unknown";
+export type SendcloudEnvironment = "production" | "sandbox" | "unknown";
 
 export type ShippingHealthResult = {
   provider: string;
@@ -165,7 +165,7 @@ export type ShippingHealthResult = {
   tokenValid: boolean;
   tokenExpiresAt: string | null;
   apiReachable: boolean;
-  environment: Parcel2GoEnvironment;
+  environment: SendcloudEnvironment;
   authUrl: string | null;
   apiUrl: string | null;
   latencyMs: number;
@@ -173,4 +173,4 @@ export type ShippingHealthResult = {
   message?: string;
 };
 
-export type ShippingProviderId = "parcel2go" | "royal-mail" | "inpost" | "dpd" | "ups";
+export type ShippingProviderId = "sendcloud" | "royal-mail" | "inpost" | "dpd" | "ups";

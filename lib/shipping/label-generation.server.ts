@@ -8,7 +8,7 @@ import type { ShippingAddress } from "@/lib/shipping/types";
 
 /**
  * Canonical label generation — provider-agnostic entry point.
- * Routes through ShippingEngine (Parcel2Go primary, Shippo fallback).
+ * Routes through ShippingEngine (Sendcloud).
  */
 export async function generateShippingLabelForOrder(
   orderId: string,
@@ -108,4 +108,3 @@ async function resolveOrderDeliveryAddress(
 }
 
 /** @deprecated Use generateShippingLabelForOrder */
-export const generateParcel2GoLabelForOrder = generateShippingLabelForOrder;

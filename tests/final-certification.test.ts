@@ -6,16 +6,16 @@ describe("shipping certification checkout wiring", () => {
   it("does not gate live quotes on server env vars in the client bundle", () => {
     const delivery = readFileSync(path.join(process.cwd(), "lib/checkout/delivery.ts"), "utf8");
     expect(delivery).not.toContain("getConfiguredProviders");
-    expect(delivery).not.toContain("SHIPPO_API_KEY");
+    expect(delivery).not.toContain("SENDCLOUD_PUBLIC_KEY");
     expect(delivery).toContain("resolveLiveDeliveryQuotes");
   });
 
-  it("passes server-side Shippo configuration into checkout", () => {
+  it("passes server-side Sendcloud configuration into checkout", () => {
     const checkoutPage = readFileSync(
       path.join(process.cwd(), "app/checkout/[slug]/page.tsx"),
       "utf8",
     );
-    expect(checkoutPage).toContain("isShippoConfigured");
+    expect(checkoutPage).toContain("isSendcloudConfigured");
     expect(checkoutPage).toContain("liveShippingEnabled");
   });
 

@@ -965,7 +965,7 @@ Frozen modules are production-certified. Changes require formal unfreeze approva
 | Styling | Tailwind CSS + CSS modules + `styles/tokens.css` |
 | Database | Supabase (PostgreSQL) |
 | Payments | Stripe |
-| Shipping | Shippo |
+| Shipping | Sendcloud |
 | Auth | Supabase Auth |
 
 ### File organization
@@ -1124,7 +1124,7 @@ Module 0 (this document) is accepted when:
 | 6 | Future modules roadmap included | ✅ |
 | 7 | Acceptance criteria section included | ✅ |
 | 8 | Document defines standards only — no page redesigns | ✅ |
-| 9 | No database, API, auth, Stripe, Shippo, or checkout logic modified | ✅ |
+| 9 | No database, API, auth, Stripe, Sendcloud, or checkout logic modified | ✅ |
 | 10 | No commit, push, or deploy performed | ✅ |
 
 ### Review checklist for approvers

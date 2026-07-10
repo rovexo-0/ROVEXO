@@ -20,7 +20,7 @@ export function CommerceEscrowAdmin({ overview }: CommerceEscrowAdminProps) {
         <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Commerce Engine</p>
         <h2 className="text-lg font-semibold text-text-primary">Escrow & settlement</h2>
         <p className="mt-ds-1 text-sm text-text-secondary">
-          Internal marketplace money state. Stripe and Parcel2Go rails are unchanged.
+          Internal marketplace money state. Stripe and Sendcloud rails are unchanged.
         </p>
       </header>
       <div className="grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-5">

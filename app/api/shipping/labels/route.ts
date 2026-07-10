@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireApiAuth } from "@/lib/auth/session";
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 import { generateShippingLabelForOrder } from "@/lib/shipping/label-generation.server";
-import { getParcel2GoLabelSignedUrl } from "@/lib/shipping/parcel2go-label-storage.server";
+import { getShippingLabelSignedUrl } from "@/lib/shipping/label-storage.server";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { activeProviders } from "@/lib/shipping/pricing/service.server";
 
@@ -18,7 +18,7 @@ const bodySchema = z.object({
 
 /**
  * Canonical shipping label API — provider-agnostic.
- * Routes through ShippingEngine (Parcel2Go primary, Shippo fallback).
+ * Routes through ShippingEngine (Sendcloud).
  */
 export async function GET(request: Request) {
   const auth = await requireApiAuth();
@@ -70,7 +70,7 @@ export async function GET(request: Request) {
   }
 
   const signedUrl = label.label_storage_path
-    ? await getParcel2GoLabelSignedUrl(label.label_storage_path)
+    ? await getShippingLabelSignedUrl(label.label_storage_path)
     : label.label_url;
 
   return NextResponse.json({
@@ -78,7 +78,7 @@ export async function GET(request: Request) {
     pdfUrl: signedUrl,
     trackingNumber: label.tracking_number,
     carrier: label.carrier,
-    provider: label.provider ?? "parcel2go",
+    provider: label.provider ?? "sendcloud",
   });
 }
 

@@ -90,7 +90,7 @@ export type CommandOsSnapshot = {
   oneClickOperations: CommandOsOneClickOperation[];
   certifications: {
     bringYourItem: "pass" | "pending";
-    shippoProduction: "pass" | "pending";
+    sendcloudProduction: "pass" | "pending";
     releaseGateOpen: boolean;
   };
 };

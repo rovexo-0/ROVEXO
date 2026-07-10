@@ -46,6 +46,7 @@
     "scripts/verify-env.ts",
     "ROVEXO",
     "archive",
+    "_wip",
     "apps/rovexo-staff"
   ]
 }

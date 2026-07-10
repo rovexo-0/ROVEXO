@@ -11,8 +11,8 @@ import {
 import { buildNocCriticalAlerts, buildNocHealthScores } from "@/lib/super-admin/noc-v1";
 import { buildCommandCenterV2Extensions } from "@/lib/super-admin/command-center-v2/build-v2-extensions";
 import { fetchCategoryPerformance, countReviews } from "@/lib/super-admin/command-center-v1/queries";
-import { isParcel2GoConfigured } from "@/src/services/shipping/env";
-import { parcel2GoProvider } from "@/src/services/shipping/parcel2go/provider";
+import { SendcloudService } from "@/lib/shipping/sendcloud/service";
+import { isSendcloudConfigured } from "@/lib/shipping/env";
 import { getAuthContext } from "@/lib/auth/session";
 import type { CommandCenterAdminIdentity } from "@/lib/super-admin/command-center-v1/types";
 
@@ -168,14 +168,14 @@ function buildNotifications(input: {
 export async function getCommandCenterV1Snapshot(): Promise<CommandCenterV1Snapshot> {
   const dashboard = await getSuperAdminDashboardData();
 
-  const [auditLogs, liveAnalytics, productionData, charts, categories, parcel2GoHealth, reviewCount, admin] =
+  const [auditLogs, liveAnalytics, productionData, charts, categories, , reviewCount, admin] =
     await Promise.all([
     listAuditTimeline(20),
     getLiveAnalyticsCenterSnapshot().catch(() => null),
     fetchCommandCenterProductionSections(dashboard),
     fetchCommandCenterProductionCharts(dashboard),
     fetchCategoryPerformance(8),
-    isParcel2GoConfigured() ? parcel2GoProvider.healthCheck().catch(() => null) : Promise.resolve(null),
+    isSendcloudConfigured() ? SendcloudService.checkHealth().catch(() => null) : Promise.resolve(null),
     countReviews(),
     resolveAdminIdentity(),
   ]);
@@ -186,9 +186,9 @@ export async function getCommandCenterV1Snapshot(): Promise<CommandCenterV1Snaps
   const healthCards = buildNocHealthScores({
     platformStatus: dashboard.operations.health.status,
     checks,
-    shippoHealth: productionData.shippoHealth,
+    sendcloudHealth: productionData.sendcloudHealth,
     stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY?.trim()),
-    shippoConfigured: productionData.shippoHealth.configured,
+    sendcloudConfigured: productionData.sendcloudHealth.configured,
     pendingModeration: dashboard.operations.platform.pendingModeration,
     totalListings: dashboard.metrics.totalListings,
     failedPayments24h: Number(productionData.sections.payments.failedPayments ?? 0),
@@ -206,8 +206,8 @@ export async function getCommandCenterV1Snapshot(): Promise<CommandCenterV1Snaps
   const criticalAlerts = buildNocCriticalAlerts({
     generatedAt,
     checks,
-    shippoHealth: productionData.shippoHealth,
-    shippoConfigured: productionData.shippoHealth.configured,
+    sendcloudHealth: productionData.sendcloudHealth,
+    sendcloudConfigured: productionData.sendcloudHealth.configured,
     stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY?.trim()),
     failedPayments24h: Number(productionData.sections.payments.failedPayments ?? 0),
     authErrors24h: Number(productionData.sections.security.failedLogins ?? 0),
@@ -237,8 +237,7 @@ export async function getCommandCenterV1Snapshot(): Promise<CommandCenterV1Snaps
     charts,
     liveAnalytics,
     categories,
-    parcel2GoHealth,
-    shippoHealth: productionData.shippoHealth,
+    sendcloudHealth: productionData.sendcloudHealth,
     totalReviews: reviewCount,
     admin,
   });

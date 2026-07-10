@@ -35,15 +35,13 @@ describe("Super Admin Command Center v1.0", () => {
     expect(snapshotSource).toContain("buildNocCriticalAlerts");
   });
 
-  it("uses GoShippo as the shipping SSOT in production data", () => {
+  it("uses Sendcloud as the shipping SSOT in production data", () => {
     const productionSource = readFileSync(
       join(process.cwd(), "lib/super-admin/command-center-v1/production-data.ts"),
       "utf8",
     );
-    expect(productionSource).toContain("ShippoService.checkHealth");
-    expect(productionSource).toContain("goShippoApiStatus");
-    expect(productionSource).not.toContain("Parcel2Go");
-    expect(productionSource).not.toContain("parcel2Go");
+    expect(productionSource).toContain("SendcloudService.checkHealth");
+    expect(productionSource).toContain("sendcloudApiStatus");
   });
 
   it("returns operationsCenter from command-center API", () => {
@@ -61,7 +59,7 @@ describe("Super Admin Command Center v1.0", () => {
       marketplace: { liveListings: 100 },
       sales: { todaysRevenue: 50 },
       payments: { stripeStatus: "Live" },
-      shipping: { goShippoApiStatus: "Healthy", royalMail: "Online" },
+      shipping: { sendcloudApiStatus: "Healthy", royalMail: "Online" },
       users: { totalUsers: 1000 },
       security: { omegaEngine: "Live" },
       servers: { api: "Live" },

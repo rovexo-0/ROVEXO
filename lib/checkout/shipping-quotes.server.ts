@@ -3,10 +3,8 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CHECKOUT_CARRIERS } from "@/lib/checkout/delivery";
 import { fetchShippingQuotesServer } from "@/lib/shipping/pricing/service.server";
-import { isParcel2GoQuoteId } from "@/lib/shipping/pricing/parcel2go-mappers";
-import { parseShippoQuoteId } from "@/lib/shipping/pricing/shippo-mappers";
-import { isParcel2GoConfigured } from "@/src/services/shipping/env";
-import { isShippoConfigured } from "@/lib/shipping/env";
+import { isSendcloudQuoteId } from "@/lib/shipping/pricing/sendcloud-mappers";
+import { isSendcloudConfigured } from "@/lib/shipping/env";
 import { ShippingService } from "@/lib/shipping/engine";
 import type { UkCarrier } from "@/lib/shipping/carriers";
 import type { ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
@@ -124,7 +122,7 @@ export async function fetchCheckoutCarrierQuotes(input: {
   postcode: string;
   country: string;
 }): Promise<{ live: boolean; options: CheckoutCarrierQuote[]; reason?: CheckoutShippingQuoteReason | null }> {
-  if (!isParcel2GoConfigured() && !isShippoConfigured()) {
+  if (!isSendcloudConfigured()) {
     return { live: false, options: [], reason: "provider_unavailable" };
   }
 
@@ -195,7 +193,7 @@ export async function resolveLiveDeliveryPrice(input: {
   country: string;
 }): Promise<number | null> {
   const quoteId = input.shippingQuoteId;
-  if (!isParcel2GoQuoteId(quoteId) && !parseShippoQuoteId(quoteId)) return null;
+  if (!isSendcloudQuoteId(quoteId)) return null;
 
   const { options } = await fetchCheckoutCarrierQuotes(input);
   const match = findCheckoutCarrierQuote(options, input.shippingQuoteId);

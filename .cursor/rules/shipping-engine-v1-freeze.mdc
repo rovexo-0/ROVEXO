@@ -1,5 +1,5 @@
 ---
-description: ROVEXO Shipping Engine v1.0 — Parcel2Go primary, Shippo fallback (UI LOCK)
+description: ROVEXO Shipping Engine v1.0 — Sendcloud (UI LOCK)
 globs: lib/shipping/providers/**,lib/shipping/pricing/**,lib/shipping/labels/**,lib/shipping/server.ts,lib/shipping/label-generation.server.ts,app/api/shipping/labels/**,features/shipping/components/ShipmentWizard.tsx,features/shipping/components/ParcelCard.tsx
 alwaysApply: false
 ---
@@ -13,14 +13,11 @@ alwaysApply: false
 ```
 ShippingEngine (router)
   ↓
-Parcel2GoAdapter  — Priority 1 (PRIMARY)
-  ↓
-ShippoAdapter     — Priority 2 (FALLBACK ONLY)
+SendcloudAdapter  — sole production provider
 ```
 
 - ONE shipping engine — `lib/shipping/providers/router.ts`
-- Every quote/label operation tries **Parcel2Go FIRST**
-- Shippo activates ONLY on: API unavailable, timeout, carrier/service unavailable, or super-admin manual fallback
+- Every quote/label operation routes through **Sendcloud**
 - Platform code must never hardcode provider selection outside the router
 
 ## Buyer rules
@@ -36,15 +33,15 @@ ShippoAdapter     — Priority 2 (FALLBACK ONLY)
 
 ## Allowed
 
-- Bug fixes, provider API updates, fallback logging, health monitoring
+- Bug fixes, provider API updates, health monitoring
 - Super-admin provider status panels
 
 ## Prohibited
 
 - Parallel shipping flows or duplicate label APIs
-- Direct Shippo usage outside fallback router path
+- Direct Sendcloud usage outside the router path
 - Provider names exposed to buyers
-- Bypassing Parcel2Go without logged fallback event
+- Duplicate or parallel shipping provider integrations
 
 ## Reference
 

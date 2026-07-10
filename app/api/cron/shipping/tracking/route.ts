@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { authorizeCronRequest } from "@/lib/cron/auth";
-import { syncParcel2GoTrackingBatch } from "@/lib/shipping/parcel2go-tracking-sync.server";
+import { syncSendcloudTrackingBatch } from "@/lib/shipping/sendcloud-tracking-sync.server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -11,7 +11,7 @@ async function handleCron(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const result = await syncParcel2GoTrackingBatch();
+  const result = await syncSendcloudTrackingBatch();
   return NextResponse.json({ success: true, ...result });
 }
 

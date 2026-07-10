@@ -30,7 +30,7 @@ export const TrackingCard = memo(function TrackingCard({
 
   const trackingUrl = getTrackingUrl(resolvedCarrier as DeliveryCarrier, resolvedTracking);
 
-  async function refreshParcel2GoTracking() {
+  async function refreshSendcloudTracking() {
     if (!orderId) return;
     setIsRefreshing(true);
     setRefreshError(null);
@@ -39,7 +39,7 @@ export const TrackingCard = memo(function TrackingCard({
         orderId,
         trackingNumber: resolvedTracking ?? "",
       });
-      const response = await fetch(`/api/shipping/parcel2go/tracking?${params.toString()}`);
+      const response = await fetch(`/api/shipping/sendcloud/tracking?${params.toString()}`);
       if (!response.ok) {
         const payload = (await response.json()) as { error?: string };
         throw new Error(payload.error ?? "Unable to refresh tracking.");
@@ -77,8 +77,8 @@ export const TrackingCard = memo(function TrackingCard({
           Open carrier tracking
         </a>
         {orderId ? (
-          <Button variant="secondary" fullWidth disabled={isRefreshing} onClick={() => void refreshParcel2GoTracking()}>
-            {isRefreshing ? "Refreshing…" : "Refresh Parcel2Go tracking"}
+          <Button variant="secondary" fullWidth disabled={isRefreshing} onClick={() => void refreshSendcloudTracking()}>
+            {isRefreshing ? "Refreshing…" : "Refresh tracking"}
           </Button>
         ) : null}
       </div>

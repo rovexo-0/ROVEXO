@@ -131,7 +131,7 @@ const MODULES: CommandCenterModule[] = [
   {
     id: "shipping-engine",
     label: "Shipping Management",
-    description: "GoShippo, labels, tracking, delivery analytics",
+    description: "Sendcloud, labels, tracking, delivery analytics",
     href: "/super-admin/shipping-engine",
     category: "shipping",
     status: "live",

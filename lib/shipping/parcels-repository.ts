@@ -286,7 +286,7 @@ export async function attachLabelToParcel(input: {
   const labelPayload = {
     shipping_record_id: input.shippingRecordId,
     shipment_parcel_id: input.parcelId,
-    provider: input.providerId ?? "parcel2go",
+    provider: input.providerId ?? "sendcloud",
     parcel_number: parcel.parcelNumber,
     total_parcels: parcel.totalParcels,
     tracking_number: input.label.trackingNumber,

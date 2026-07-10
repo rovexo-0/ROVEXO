@@ -137,9 +137,9 @@ export function buildCommandCenterSections(input: SectionInput): CommandCenterSe
     {
       id: "shipping",
       title: "Shipping",
-      subtitle: "GoShippo — live shipping operations",
+      subtitle: "Sendcloud — live shipping operations",
       metrics: sectionMetrics(input.shipping, {
-        goShippoApiStatus: "/super-admin/shipping-engine",
+        sendcloudApiStatus: "/super-admin/shipping-engine",
         labelsGeneratedToday: "/super-admin/shipping-engine",
         packagesInTransit: "/super-admin/shipping-engine",
         deliveredToday: "/super-admin/shipping-engine",

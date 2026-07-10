@@ -260,7 +260,7 @@ function CommandCenterV2Body({ snapshot }: { snapshot: CommandCenterV1Snapshot }
           <header className="cc2-panel__header">
             <h2>Shipping Overview</h2>
             <span className={cn("cc2-status-chip", v2.shipping.connected ? "is-online" : "is-warning")}>
-              Parcel2Go · {v2.shipping.statusLabel}
+              Sendcloud · {v2.shipping.statusLabel}
             </span>
           </header>
           <div className="cc2-shipping-grid">

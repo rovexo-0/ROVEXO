@@ -126,10 +126,14 @@ const ENV_SPECS: EnvSpec[] = [
     validate: (value) => (value.length >= 16 ? null : "CRON_SECRET should be at least 16 characters"),
   },
   {
-    key: "SHIPPO_API_KEY",
+    key: "SENDCLOUD_PUBLIC_KEY",
     group: "Shipping",
     required: false,
-    validate: (value) => (value.startsWith("shippo_") ? null : "Shippo API keys typically start with shippo_"),
+  },
+  {
+    key: "SENDCLOUD_SECRET_KEY",
+    group: "Shipping",
+    required: false,
   },
   {
     key: "NEXT_PUBLIC_GA_MEASUREMENT_ID",

@@ -216,7 +216,7 @@ describe("Bring Your Item — Official Certification Phase", () => {
 
   it("achieves ≥95% score with zero critical blockers", () => {
     expect(report.score).toBeGreaterThanOrEqual(95);
-    const criticalBlockers = report.blockers.filter((b) => !b.includes("Live token configured"));
+    const criticalBlockers = report.blockers.filter((b) => !b.includes("Live keys configured"));
     expect(criticalBlockers).toEqual([]);
     expect(report.pass).toBe(true);
   });
@@ -255,10 +255,10 @@ describe("Bring Your Item — Official Certification Phase", () => {
     expect(report.steps.find((s) => s.id === "step-8-shipping")?.pass).toBe(true);
   });
 
-  it("passes Shippo integration wiring (live token optional at CI)", () => {
-    const shippo = report.steps.find((s) => s.id === "shippo");
-    expect(shippo).toBeDefined();
-    const wiringChecks = shippo!.checks.filter((c) => c.id !== "live-token");
+  it("passes Sendcloud integration wiring (live keys optional at CI)", () => {
+    const sendcloud = report.steps.find((s) => s.id === "sendcloud");
+    expect(sendcloud).toBeDefined();
+    const wiringChecks = sendcloud!.checks.filter((c) => c.id !== "live-token");
     expect(wiringChecks.every((c) => c.pass)).toBe(true);
   });
 
@@ -273,7 +273,7 @@ describe("Bring Your Item — Official Certification Phase", () => {
   });
 
   it("defines next release phases", () => {
-    expect(report.nextPhase).toContain("Shippo Production Certification");
+    expect(report.nextPhase).toContain("Sendcloud Production Certification");
     expect(report.nextPhase).toContain("Official Public Launch");
   });
 });

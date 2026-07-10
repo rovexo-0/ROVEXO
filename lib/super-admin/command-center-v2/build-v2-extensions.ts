@@ -1,7 +1,6 @@
 import type { LiveAnalyticsSnapshot } from "@/lib/analytics/live-center/types";
 import type { HealthStatus } from "@/lib/ops/health";
-import type { ShippoHealthResult } from "@/lib/shipping/shippo/types";
-import type { ShippingHealthResult } from "@/src/services/shipping/types";
+import type { SendcloudHealthResult } from "@/lib/shipping/sendcloud/types";
 import type { SuperAdminDashboardData } from "@/lib/super-admin/dashboard";
 import type {
   CommandCenterAdminIdentity,
@@ -15,7 +14,7 @@ const SERVICE_DIAGNOSTICS_HREF: Record<string, string> = {
   sentinel: "/super-admin/security-engine",
   database: "/super-admin/database",
   api: "/super-admin/observability/monitoring",
-  parcel2go: "/super-admin/shipping-engine",
+  sendcloud: "/super-admin/shipping-engine",
   stripe: "/super-admin/payments-engine",
   queue: "/super-admin/observability/monitoring",
   cron: "/super-admin/monitoring",
@@ -60,8 +59,7 @@ export function buildCommandCenterV2Extensions(input: {
   charts: CommandCenterChartSeries[];
   liveAnalytics: LiveAnalyticsSnapshot | null;
   categories: CategoryPerformanceRow[];
-  parcel2GoHealth: ShippingHealthResult | null;
-  shippoHealth: ShippoHealthResult;
+  sendcloudHealth: SendcloudHealthResult;
   totalReviews: number;
   admin: CommandCenterAdminIdentity;
 }): CommandCenterV2Extensions {
@@ -71,15 +69,14 @@ export function buildCommandCenterV2Extensions(input: {
     charts,
     liveAnalytics,
     categories,
-    parcel2GoHealth,
-    shippoHealth,
+    sendcloudHealth,
     totalReviews,
     admin,
   } = input;
   const { metrics, operations, orders } = dashboard;
   const checks = operations.health.checks;
   const stripeConfigured = Boolean(process.env.STRIPE_SECRET_KEY?.trim());
-  const parcel2GoConfigured = parcel2GoHealth !== null;
+  const sendcloudConfigured = sendcloudHealth.configured;
 
   const usersSparkline = chartPoints(charts, "users");
   const trafficSparkline = chartPoints(charts, "traffic");
@@ -92,8 +89,8 @@ export function buildCommandCenterV2Extensions(input: {
   const sentinelState = mapHealthToServiceState(checks.api.status);
   const databaseState = mapHealthToServiceState(checks.database.status);
   const apiState = mapHealthToServiceState(checks.api.status);
-  const parcel2GoState = parcel2GoConfigured
-    ? mapHealthToServiceState(parcel2GoHealth?.status ?? "unhealthy", true)
+  const sendcloudState = sendcloudConfigured
+    ? mapHealthToServiceState(sendcloudHealth.status === "healthy" ? "healthy" : sendcloudHealth.status === "degraded" ? "degraded" : "unhealthy", true)
     : "error";
   const stripeState = mapHealthToServiceState(checks.stripe.status, stripeConfigured);
   const queueState = mapHealthToServiceState(checks.redis.status);
@@ -137,10 +134,7 @@ export function buildCommandCenterV2Extensions(input: {
   const ordersToday = num(sections.sales.ordersToday);
   const avgOrderValue = ordersToday > 0 ? Math.round((revenueToday / ordersToday) * 100) / 100 : 0;
 
-  const shippingConnected =
-    shippoHealth.configured || parcel2GoConfigured
-      ? shippoHealth.status === "healthy" || parcel2GoHealth?.status === "healthy"
-      : false;
+  const shippingConnected = sendcloudConfigured && sendcloudHealth.status === "healthy";
 
   return {
     services: [
@@ -177,16 +171,16 @@ export function buildCommandCenterV2Extensions(input: {
         href: SERVICE_DIAGNOSTICS_HREF.api,
       },
       {
-        id: "parcel2go",
-        label: "PARCEL2GO",
-        state: parcel2GoState,
-        statusLabel: parcel2GoConfigured
-          ? parcel2GoState === "online"
+        id: "sendcloud",
+        label: "SENDCLOUD",
+        state: sendcloudState,
+        statusLabel: sendcloudConfigured
+          ? sendcloudState === "online"
             ? "CONNECTED"
-            : serviceStatusLabel(parcel2GoState)
+            : serviceStatusLabel(sendcloudState)
           : "ERROR",
-        detail: parcel2GoConfigured ? "OAuth" : "Not configured",
-        href: SERVICE_DIAGNOSTICS_HREF.parcel2go,
+        detail: sendcloudConfigured ? `${sendcloudHealth.latencyMs} ms` : "Not configured",
+        href: SERVICE_DIAGNOSTICS_HREF.sendcloud,
       },
       {
         id: "stripe",
@@ -318,10 +312,10 @@ export function buildCommandCenterV2Extensions(input: {
         statusLabel: stripeState === "online" ? "Operational" : serviceStatusLabel(stripeState),
       },
       {
-        id: "parcel2go",
-        label: "Parcel2Go",
-        status: parcel2GoState,
-        statusLabel: parcel2GoState === "online" ? "Operational" : serviceStatusLabel(parcel2GoState),
+        id: "sendcloud",
+        label: "Sendcloud",
+        status: sendcloudState,
+        statusLabel: sendcloudState === "online" ? "Operational" : serviceStatusLabel(sendcloudState),
       },
       {
         id: "stripe",
@@ -433,7 +427,7 @@ export function buildCommandCenterV2Extensions(input: {
     },
     shipping: {
       connected: shippingConnected,
-      statusLabel: shippingConnected ? "CONNECTED" : parcel2GoConfigured || shippoHealth.configured ? "WARNING" : "OFFLINE",
+      statusLabel: shippingConnected ? "CONNECTED" : sendcloudConfigured ? "WARNING" : "OFFLINE",
       stats: [
         { id: "in-transit", label: "In Transit", value: num(sections.shipping.inTransit), tone: "online" },
         { id: "delivered", label: "Delivered", value: num(sections.shipping.delivered), tone: "online" },

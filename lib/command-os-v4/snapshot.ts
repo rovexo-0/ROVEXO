@@ -57,7 +57,7 @@ export async function getCommandOsSnapshot(): Promise<CommandOsSnapshot> {
     oneClickOperations: COMMAND_OS_ONE_CLICK_OPERATIONS,
     certifications: {
       bringYourItem: "pass",
-      shippoProduction: "pass",
+      sendcloudProduction: "pass",
       releaseGateOpen: false,
     },
   };

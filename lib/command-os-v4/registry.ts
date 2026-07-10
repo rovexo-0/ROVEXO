@@ -104,7 +104,7 @@ export const COMMAND_OS_ROOT_MODULES: CommandOsRootModule[] = [
   {
     id: "shipping-os",
     label: "Shipping OS",
-    description: "GoShippo labels, tracking, carriers, delivery, returns, rate engine",
+    description: "Sendcloud labels, tracking, carriers, delivery, returns, rate engine",
     icon: "🚚",
     href: "/super-admin/shipping-engine",
     status: "live",

@@ -26,7 +26,7 @@ export type ShippingLabelRequest = {
   declaredValueGbp?: number;
   parcelId?: string;
   parcelNumber?: number;
-  /** Idempotency key so the same parcel cannot create two Parcel2Go shipments. */
+  /** Idempotency key so the same parcel cannot create duplicate shipments. */
   idempotencyKey?: string;
 };
 
@@ -38,14 +38,12 @@ export type ShippingLabelResponse = {
   pdfUrl: string | null;
   carrier: UkCarrier | string | null;
   reason?: "provider_not_configured" | "quote_expired";
-  /** Parcel2Go provider metadata — used for DB persistence and webhook mapping. */
-  parcel2GoOrderId?: string | null;
-  parcel2GoOrderLineId?: string | null;
-  parcel2GoOrderLineHmac?: string | null;
+  /** Sendcloud provider metadata — used for DB persistence and webhook mapping. */
+  sendcloudParcelId?: number | null;
   serviceCode?: string | null;
 };
 
-/** Provider contract — GoShippo and future carriers implement this interface. */
+/** Provider contract — Sendcloud implements this interface. */
 export interface ShippingProvider {
   readonly id: string;
   readonly name: string;

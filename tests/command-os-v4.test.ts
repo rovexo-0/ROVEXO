@@ -73,7 +73,6 @@ describe("ROVEXO Command OS Enterprise v4.0", () => {
   it("keeps certification engines server-side in actions module", () => {
     const actions = readSource("lib/command-os-v4/actions.ts");
     expect(actions).toContain("runBringYourItemCertification");
-    expect(actions).toContain("runShippoProductionCertification");
     expect(actions).toContain('"server-only"');
   });
 });

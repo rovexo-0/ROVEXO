@@ -10,7 +10,7 @@ import { parseBringYourItemWizardQuery } from "@/lib/bring-your-item/wizard-quer
 import { MIGRATION_WIZARD_STEPS } from "@/lib/seller/migration/constants";
 import { IMPORT_WIZARD_PATH } from "@/lib/seller/migration/config";
 import { OAUTH_PLATFORM_IDS } from "@/lib/seller/marketplace/oauth/types";
-import { isShippoConfigured } from "@/lib/shipping/env";
+import { isSendcloudConfigured } from "@/lib/shipping/env";
 
 export type BringYourItemCertificationStepId =
   | "step-1-open"
@@ -21,7 +21,7 @@ export type BringYourItemCertificationStepId =
   | "step-6-media"
   | "step-7-location"
   | "step-8-shipping"
-  | "shippo"
+  | "sendcloud"
   | "publishing"
   | "buyer"
   | "seller"
@@ -58,7 +58,7 @@ export type BringYourItemCertificationReport = {
 };
 
 const NEXT_PHASE = [
-  "Shippo Production Certification",
+  "Sendcloud Production Certification",
   "Real User Production E2E",
   "Closed Beta Validation",
   "Bug Remediation",
@@ -98,9 +98,9 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
   const publishPayload = readSource(rootDir, "lib/sell/build-listing-publish-payload.ts");
   const listingSchema = readSource(rootDir, "lib/sell/listing-api-schema.ts");
   const transactionMigration = readSource(rootDir, "supabase/migrations/20250704100001_transaction_mode.sql");
-  const shippoService = readSource(rootDir, "lib/shipping/shippo/service.ts");
-  const shippoWebhooks = readSource(rootDir, "lib/shipping/shippo/webhooks.ts");
-  const shippoClient = readSource(rootDir, "lib/shipping/pricing/shippo-client.ts");
+  const sendcloudService = readSource(rootDir, "lib/shipping/sendcloud/service.ts");
+  const sendcloudWebhooks = readSource(rootDir, "lib/shipping/sendcloud/webhooks.ts");
+  const sendcloudClient = readSource(rootDir, "lib/shipping/sendcloud/client.ts");
   const listingsApi = readSource(rootDir, "app/api/listings/route.ts");
   const persistDraft = readSource(rootDir, "lib/sell/persist-sell-draft.ts");
   const oauthService = readSource(rootDir, "lib/seller/marketplace/oauth/service.ts");
@@ -156,19 +156,19 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
     step("step-8-shipping", "STEP 8 — Shipping", [
       { id: "parcel-size", label: "Parcel size selection", pass: listingForm.includes("parcelSize") && publishPayload.includes("parcelSize") },
       { id: "shipping-method", label: "Shipping method on draft", pass: sellTypes.includes("shippingMethod") },
-      { id: "shippo-service", label: "Shippo service integration", pass: shippoService.includes("ShippoService") || shippoService.includes("checkHealth") },
+      { id: "sendcloud-service", label: "Sendcloud service integration", pass: sendcloudService.includes("SendcloudService") || sendcloudService.includes("checkHealth") },
     ]),
-    step("shippo", "Shippo Integration", [
-      { id: "health-check", label: "Shippo health check API", pass: shippoService.includes("checkHealth") && shippoClient.includes("checkShippoApiHealth") },
-      { id: "rates-labels", label: "Rates and label purchase", pass: shippoClient.includes("createShippoShipment") || shippoClient.includes("purchaseShippoLabel") },
-      { id: "tracking", label: "Tracking support", pass: shippoClient.includes("getShippoTrack") || shippoService.includes("getTracking") },
-      { id: "webhooks", label: "Webhook handler", pass: shippoWebhooks.includes("x-shippo-webhook-token") || shippoWebhooks.includes("webhook") },
-      { id: "env-token", label: "Shippo env documented", pass: envExample.includes("SHIPPO") },
+    step("sendcloud", "Sendcloud Integration", [
+      { id: "health-check", label: "Sendcloud health check API", pass: sendcloudService.includes("checkHealth") && sendcloudClient.includes("checkSendcloudApiHealth") },
+      { id: "rates-labels", label: "Rates and label purchase", pass: sendcloudClient.includes("listSendcloudShippingMethods") || sendcloudClient.includes("createSendcloudParcel") },
+      { id: "tracking", label: "Tracking support", pass: sendcloudClient.includes("getSendcloudTracking") || sendcloudService.includes("getTracking") },
+      { id: "webhooks", label: "Webhook handler", pass: sendcloudWebhooks.includes("sendcloud-signature") || sendcloudWebhooks.includes("webhook") },
+      { id: "env-token", label: "Sendcloud env documented", pass: envExample.includes("SENDCLOUD") },
       {
         id: "live-token",
-        label: "Live token configured (runtime)",
-        pass: isShippoConfigured(),
-        note: isShippoConfigured() ? "SHIPPO_API_KEY present" : "Set SHIPPO_API_KEY for production E2E",
+        label: "Live keys configured (runtime)",
+        pass: isSendcloudConfigured(),
+        note: isSendcloudConfigured() ? "SENDCLOUD keys present" : "Set SENDCLOUD_PUBLIC_KEY and SENDCLOUD_SECRET_KEY for production E2E",
       },
     ]),
     step("publishing", "Publishing", [
@@ -220,7 +220,7 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
   const passedChecks = steps.reduce((sum, s) => sum + s.checks.filter((c) => c.pass).length, 0);
   const score = totalChecks === 0 ? 0 : Math.round((passedChecks / totalChecks) * 100);
 
-  const criticalBlockers = blockers.filter((b) => !b.includes("Live token configured"));
+  const criticalBlockers = blockers.filter((b) => !b.includes("Live keys configured"));
 
   return {
     version: "1.0.0",

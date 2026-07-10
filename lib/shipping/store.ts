@@ -377,7 +377,7 @@ export async function saveShippingLabel(input: {
   await attachLabelToParcel({
     parcelId,
     shippingRecordId: record.id,
-    providerId: input.providerId ?? "parcel2go",
+    providerId: input.providerId ?? "sendcloud",
     label: {
       trackingNumber: input.label.trackingNumber,
       carrier: String(input.label.carrier),

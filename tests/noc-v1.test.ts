@@ -16,14 +16,14 @@ describe("Super Admin NOC v1.0", () => {
         redis: healthyCheck,
         cron: healthyCheck,
       },
-      shippoHealth: {
+      sendcloudHealth: {
         configured: true,
         status: "healthy",
         latencyMs: 80,
-        message: "Shippo API reachable",
+        message: "Sendcloud API reachable",
       },
       stripeConfigured: true,
-      shippoConfigured: true,
+      sendcloudConfigured: true,
       pendingModeration: 2,
       totalListings: 200,
       failedPayments24h: 0,
@@ -65,13 +65,13 @@ describe("Super Admin NOC v1.0", () => {
         stripe: unhealthyCheck,
         redis: unhealthyCheck,
       },
-      shippoHealth: {
+      sendcloudHealth: {
         configured: true,
         status: "unhealthy",
         latencyMs: 0,
         message: "Authentication failed",
       },
-      shippoConfigured: true,
+      sendcloudConfigured: true,
       stripeConfigured: true,
       failedPayments24h: 12,
       authErrors24h: 30,
@@ -84,12 +84,12 @@ describe("Super Admin NOC v1.0", () => {
 
     expect(alerts.some((alert) => alert.title === "API Down")).toBe(true);
     expect(alerts.some((alert) => alert.title === "Database Down")).toBe(true);
-    expect(alerts.some((alert) => alert.title === "GoShippo Failure")).toBe(true);
+    expect(alerts.some((alert) => alert.title === "Sendcloud Failure")).toBe(true);
     expect(alerts.some((alert) => alert.title === "High CPU")).toBe(true);
     expect(alerts.some((alert) => alert.title === "Memory Exhausted")).toBe(true);
   });
 
-  it("marks degraded Shippo as a warning alert", () => {
+  it("marks degraded Sendcloud as a warning alert", () => {
     const alerts = buildNocCriticalAlerts({
       generatedAt: new Date().toISOString(),
       checks: {
@@ -98,13 +98,13 @@ describe("Super Admin NOC v1.0", () => {
         stripe: healthyCheck,
         redis: healthyCheck,
       },
-      shippoHealth: {
+      sendcloudHealth: {
         configured: true,
         status: "degraded",
         latencyMs: 900,
         message: "High API latency",
       },
-      shippoConfigured: true,
+      sendcloudConfigured: true,
       stripeConfigured: true,
       failedPayments24h: 0,
       authErrors24h: 0,
@@ -115,6 +115,6 @@ describe("Super Admin NOC v1.0", () => {
       platformStatus: "degraded",
     });
 
-    expect(alerts.some((alert) => alert.title === "GoShippo Service Degraded")).toBe(true);
+    expect(alerts.some((alert) => alert.title === "Sendcloud Service Degraded")).toBe(true);
   });
 });

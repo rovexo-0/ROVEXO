@@ -189,7 +189,7 @@ export function parcelTierLabel(tier: ParcelTier): string {
 
 /**
  * Representative shippable dimensions/weight for a parcel tier. Used to build
- * real Parcel2Go quote/shipment payloads instead of hardcoded values.
+ * real Sendcloud quote/shipment payloads instead of hardcoded values.
  * Weight is a conservative mid-point of the tier so pricing stays accurate.
  */
 export function parcelTierToDimensions(tier: ParcelTier): ParcelDimensions {

@@ -6,7 +6,7 @@ import type { CarrierClaimRow } from "@/lib/resolution-engine/types";
 
 /**
  * Submit an internal carrier claim record.
- * Parcel2Go has no public claim API — this is ROVEXO ledger reconciliation only.
+ * Sendcloud has no public claim API — this is ROVEXO ledger reconciliation only.
  */
 export async function submitCarrierClaim(input: {
   orderId: string;
@@ -40,7 +40,7 @@ export async function submitCarrierClaim(input: {
       tracking_number: input.trackingNumber ?? null,
       claim_type: input.claimType,
       status: "submitted",
-      provider: "parcel2go",
+      provider: "sendcloud",
       external_reference: reference,
       amount_claimed: input.amountClaimed,
       metadata: { automated: true },
@@ -63,13 +63,13 @@ export async function submitCarrierClaim(input: {
     caseId: input.resolutionCaseId,
     action: "carrier_claim_submitted",
     decision: "submitted",
-    parcel2goResponse: { reference, note: "internal_ledger_only" },
+    sendcloudResponse: { reference, note: "internal_ledger_only" },
   });
 
   return data as CarrierClaimRow;
 }
 
-/** Auto-approve an internal carrier claim (rule-based; no P2G API call). */
+/** Auto-approve an internal carrier claim (rule-based; no Sendcloud API call). */
 export async function approveCarrierClaim(claimId: string, amountApproved: number): Promise<void> {
   const admin = createResolutionAdminClient();
   const now = new Date().toISOString();

@@ -2,8 +2,8 @@
  * Commerce Engine — Reserved Shipping Wallet (Phase 2).
  *
  * The Reserved Shipping Wallet is an INTERNAL ledger only. It is reconciled
- * against the (untouched) Parcel2Go prepay path — this module never calls
- * Parcel2Go and never modifies its OAuth / token / prepay flows.
+ * against the (untouched) Sendcloud label path — this module never calls
+ * Sendcloud and never modifies its API key / parcel creation flows.
  *
  * Flow:
  *   payment succeeds  → reserveShippingForOrder()   (buyer-paid delivery held)

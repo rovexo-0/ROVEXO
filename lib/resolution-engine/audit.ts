@@ -7,7 +7,7 @@ export async function recordAutomationLog(input: {
   ruleId?: string | null;
   decision?: string | null;
   stripeResponse?: Record<string, unknown> | null;
-  parcel2goResponse?: Record<string, unknown> | null;
+  sendcloudResponse?: Record<string, unknown> | null;
   metadata?: Record<string, unknown>;
 }): Promise<void> {
   try {
@@ -19,7 +19,7 @@ export async function recordAutomationLog(input: {
       rule_id: input.ruleId ?? null,
       decision: input.decision ?? null,
       stripe_response: input.stripeResponse ?? null,
-      parcel2go_response: input.parcel2goResponse ?? null,
+      sendcloud_response: input.sendcloudResponse ?? null,
       metadata: input.metadata ?? {},
     });
   } catch (error) {

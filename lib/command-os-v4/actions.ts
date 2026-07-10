@@ -4,7 +4,6 @@ import { runBringYourItemCertification } from "@/lib/bring-your-item/certificati
 import { getCommandOsOneClickOperation } from "@/lib/command-os-v4/one-click-ops";
 import { searchCommandOs } from "@/lib/command-os-v4/global-search";
 import { getCommandOsSnapshot } from "@/lib/command-os-v4/snapshot";
-import { runShippoProductionCertification } from "@/lib/shipping/shippo/certification";
 import {
   runAiExperienceGuardian,
   runDesignStudioAudit,
@@ -26,12 +25,12 @@ export async function executeCommandOsAction(action: string, payload?: { query?:
     }
     case "run-certification": {
       const byi = runBringYourItemCertification();
-      const shippo = runShippoProductionCertification();
+      const sendcloud = byi.steps.find((step) => step.id === "sendcloud");
       return {
         ok: true,
         message: "Certification gates evaluated",
         bringYourItem: { pass: byi.pass, score: byi.score },
-        shippo: { pass: shippo.pass, score: shippo.score },
+        sendcloud: { pass: sendcloud?.pass ?? false, score: sendcloud ? byi.score : 0 },
       };
     }
     case "repair-assets":

@@ -1,5 +1,5 @@
 import type { HealthCheckResult } from "@/lib/ops/health-types";
-import type { ShippoHealthResult } from "@/lib/shipping/shippo/types";
+import type { SendcloudHealthResult } from "@/lib/shipping/sendcloud/types";
 import type { NocCriticalAlert } from "@/lib/super-admin/noc-v1/types";
 
 export type BuildNocCriticalAlertsInput = {
@@ -10,8 +10,8 @@ export type BuildNocCriticalAlertsInput = {
     stripe: HealthCheckResult;
     redis: HealthCheckResult;
   };
-  shippoHealth: ShippoHealthResult;
-  shippoConfigured: boolean;
+  sendcloudHealth: SendcloudHealthResult;
+  sendcloudConfigured: boolean;
   stripeConfigured: boolean;
   failedPayments24h: number;
   authErrors24h: number;
@@ -68,29 +68,29 @@ export function buildNocCriticalAlerts(input: BuildNocCriticalAlertsInput): NocC
     });
   }
 
-  if (input.shippoConfigured && input.shippoHealth.status === "unhealthy") {
+  if (input.sendcloudConfigured && input.sendcloudHealth.status === "unhealthy") {
     alerts.push({
-      id: "goshippo-failure",
-      title: "GoShippo Failure",
-      message: input.shippoHealth.message,
+      id: "sendcloud-failure",
+      title: "Sendcloud Failure",
+      message: input.sendcloudHealth.message ?? "Sendcloud health check failed",
       severity: "critical",
       timestamp,
       href: "/super-admin/shipping-engine",
     });
-  } else if (input.shippoConfigured && input.shippoHealth.status === "degraded") {
+  } else if (input.sendcloudConfigured && input.sendcloudHealth.status === "degraded") {
     alerts.push({
-      id: "goshippo-degraded",
-      title: "GoShippo Service Degraded",
-      message: input.shippoHealth.message,
+      id: "sendcloud-degraded",
+      title: "Sendcloud Service Degraded",
+      message: input.sendcloudHealth.message ?? "Sendcloud health check failed",
       severity: "warning",
       timestamp,
       href: "/super-admin/shipping-engine",
     });
-  } else if (!input.shippoConfigured) {
+  } else if (!input.sendcloudConfigured) {
     alerts.push({
-      id: "goshippo-not-configured",
-      title: "GoShippo Failure",
-      message: "SHIPPO_API_KEY is not configured",
+      id: "sendcloud-not-configured",
+      title: "Sendcloud Not Configured",
+      message: "SENDCLOUD_PUBLIC_KEY / SENDCLOUD_SECRET_KEY are not configured",
       severity: "warning",
       timestamp,
       href: "/super-admin/shipping-engine",
