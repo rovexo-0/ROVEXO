@@ -1,6 +1,10 @@
 import type { SellerShippingSettingsInput } from "@/lib/account/schemas";
 import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
 import { sanitizeText } from "@/lib/account/sanitize";
+import {
+  DEFAULT_SELLER_LABEL_SIZE,
+  resolveSellerDefaultLabelSize,
+} from "@/lib/shipping/label-size";
 import { createClient } from "@/lib/supabase/server";
 
 export type SellerShippingSettings = SellerShippingSettingsInput;
@@ -11,6 +15,7 @@ const DEFAULTS: SellerShippingSettings = {
   baseShippingCost: 0,
   freeShippingThreshold: null,
   defaultCarrier: "Royal Mail",
+  defaultLabelSize: DEFAULT_SELLER_LABEL_SIZE,
   shipsTo: UK_DEFAULT_COUNTRY,
   localPickupEnabled: false,
   internationalShippingEnabled: false,
@@ -23,6 +28,7 @@ type SellerShippingRow = {
   base_shipping_cost: number;
   free_shipping_threshold: number | null;
   default_carrier: string;
+  default_label_size?: string | null;
   ships_to: string;
   local_pickup_enabled: boolean;
   international_shipping_enabled: boolean;
@@ -36,6 +42,7 @@ function mapRow(row: SellerShippingRow): SellerShippingSettings {
     baseShippingCost: Number(row.base_shipping_cost),
     freeShippingThreshold: row.free_shipping_threshold,
     defaultCarrier: row.default_carrier,
+    defaultLabelSize: resolveSellerDefaultLabelSize(row.default_label_size),
     shipsTo: row.ships_to,
     localPickupEnabled: row.local_pickup_enabled,
     internationalShippingEnabled: row.international_shipping_enabled,
@@ -68,6 +75,7 @@ export async function updateSellerShippingSettings(
       base_shipping_cost: input.baseShippingCost,
       free_shipping_threshold: input.freeShippingThreshold ?? null,
       default_carrier: sanitizeText(input.defaultCarrier),
+      default_label_size: input.defaultLabelSize,
       ships_to: sanitizeText(input.shipsTo),
       local_pickup_enabled: input.localPickupEnabled,
       international_shipping_enabled: input.internationalShippingEnabled,

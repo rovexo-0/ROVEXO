@@ -3464,6 +3464,7 @@ export type Database = {
           base_shipping_cost: number
           created_at: string
           default_carrier: string
+          default_label_size: string
           dispatch_time_days: number
           free_shipping_threshold: number | null
           handling_time_days: number
@@ -3478,6 +3479,7 @@ export type Database = {
           base_shipping_cost?: number
           created_at?: string
           default_carrier?: string
+          default_label_size?: string
           dispatch_time_days?: number
           free_shipping_threshold?: number | null
           handling_time_days?: number
@@ -3492,6 +3494,7 @@ export type Database = {
           base_shipping_cost?: number
           created_at?: string
           default_carrier?: string
+          default_label_size?: string
           dispatch_time_days?: number
           free_shipping_threshold?: number | null
           handling_time_days?: number

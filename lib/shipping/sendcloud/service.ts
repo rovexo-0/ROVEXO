@@ -24,6 +24,8 @@ import type {
   SendcloudTrackingResult,
 } from "@/lib/shipping/sendcloud/types";
 import type { ShippingAddress, ShippingQuote, ParcelTier } from "@/lib/shipping/types";
+import type { SellerDefaultLabelSize } from "@/lib/shipping/label-size";
+import { resolveSellerDefaultLabelSize } from "@/lib/shipping/label-size";
 
 function assertConfigured(): void {
   if (!isSendcloudConfigured()) {
@@ -115,6 +117,7 @@ export const SendcloudService = {
     deliveryAddress: ShippingAddress;
     orderNumber: string;
     declaredValueGbp?: number;
+    labelSize?: SellerDefaultLabelSize;
   }): Promise<SendcloudLabelResult> {
     assertConfigured();
 
@@ -134,10 +137,12 @@ export const SendcloudService = {
       }),
     );
 
+    const labelSize = resolveSellerDefaultLabelSize(input.labelSize);
+
     return {
       parcelId: parcel.id,
       trackingNumber: parcel.tracking_number?.trim() || null,
-      pdfUrl: extractSendcloudLabelUrl(parcel),
+      pdfUrl: extractSendcloudLabelUrl(parcel, labelSize),
       carrier: parcel.carrier?.code ? mapSendcloudCarrier(parcel.carrier.code) : null,
       serviceName: parcel.shipment?.name ?? null,
     };

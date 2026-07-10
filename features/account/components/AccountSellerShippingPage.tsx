@@ -11,6 +11,11 @@ import {
   type SellerShippingSettingsInput,
 } from "@/lib/account/schemas";
 import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
+import {
+  DEFAULT_SELLER_LABEL_SIZE,
+  SELLER_LABEL_SIZE_LABELS,
+  SELLER_LABEL_SIZES,
+} from "@/lib/shipping/label-size";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 
@@ -34,6 +39,7 @@ export function AccountSellerShippingPage() {
       baseShippingCost: 0,
       freeShippingThreshold: null,
       defaultCarrier: "Royal Mail",
+      defaultLabelSize: DEFAULT_SELLER_LABEL_SIZE,
       shipsTo: UK_DEFAULT_COUNTRY,
       localPickupEnabled: false,
       internationalShippingEnabled: false,
@@ -156,6 +162,24 @@ export function AccountSellerShippingPage() {
             <p className="text-xs text-danger">{errors.defaultCarrier.message}</p>
           ) : null}
         </div>
+
+        <fieldset>
+          <legend className="text-sm font-medium">Default label size</legend>
+          <p className="mt-ds-1 text-xs text-text-secondary">
+            4×6 thermal is recommended for Zebra, Rollo, Munbyn, and other label printers.
+          </p>
+          <div className="mt-ds-2 flex flex-col gap-ds-2">
+            {SELLER_LABEL_SIZES.map((size) => (
+              <label key={size} className="flex items-center gap-ds-2 text-sm">
+                <input type="radio" value={size} {...register("defaultLabelSize")} />
+                {SELLER_LABEL_SIZE_LABELS[size]}
+              </label>
+            ))}
+          </div>
+          {errors.defaultLabelSize ? (
+            <p className="text-xs text-danger">{errors.defaultLabelSize.message}</p>
+          ) : null}
+        </fieldset>
 
         <div>
           <label htmlFor="shipsTo" className="text-sm font-medium">

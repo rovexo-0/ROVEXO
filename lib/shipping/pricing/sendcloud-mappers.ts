@@ -1,4 +1,6 @@
 import type { UkCarrier } from "@/lib/shipping/carriers";
+import type { SellerDefaultLabelSize } from "@/lib/shipping/label-size";
+import { DEFAULT_SELLER_LABEL_SIZE } from "@/lib/shipping/label-size";
 import { PARCEL_TIER_OPTIONS } from "@/lib/shipping/parcels";
 import type { ParcelTier, ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
 import type { SendcloudParcelCreatePayload } from "@/lib/shipping/sendcloud/client";
@@ -140,16 +142,19 @@ export function buildSendcloudParcelPayload(input: {
   };
 }
 
-export function extractSendcloudLabelUrl(parcel: {
-  label?: { normal_printer?: string[]; label_printer?: string };
-  documents?: Array<{ type: string; link: string }>;
-}): string | null {
-  const docLabel = parcel.documents?.find((doc) => doc.type === "label")?.link;
-  if (docLabel) return docLabel;
+export function extractSendcloudLabelUrl(
+  parcel: {
+    label?: { normal_printer?: string[]; label_printer?: string };
+    documents?: Array<{ type: string; link: string }>;
+  },
+  labelSize: SellerDefaultLabelSize = DEFAULT_SELLER_LABEL_SIZE,
+): string | null {
+  const labelPrinter = parcel.label?.label_printer?.trim();
+  const normalPrinter = parcel.label?.normal_printer?.[0]?.trim();
 
-  const labelPrinter = parcel.label?.label_printer;
-  if (labelPrinter) return labelPrinter;
+  if (labelSize === "a4_pdf") {
+    return normalPrinter ?? labelPrinter ?? parcel.documents?.find((doc) => doc.type === "label")?.link ?? null;
+  }
 
-  const normalPrinter = parcel.label?.normal_printer?.[0];
-  return normalPrinter ?? null;
+  return labelPrinter ?? normalPrinter ?? parcel.documents?.find((doc) => doc.type === "label")?.link ?? null;
 }

@@ -10,7 +10,7 @@ import {
 describe("UK shipping carriers", () => {
   it("includes all required UK carriers", () => {
     const names = allCarrierNames();
-    for (const carrier of ["Royal Mail", "Evri", "DPD", "UPS", "FedEx", "Parcelforce", "InPost"]) {
+    for (const carrier of ["Royal Mail", "Evri", "DPD", "UPS", "FedEx", "Parcelforce", "InPost", "DHL"]) {
       expect(names).toContain(carrier);
     }
   });
@@ -30,7 +30,7 @@ describe("UK shipping carriers", () => {
   });
 
   it("defines typical delivery windows for each carrier", () => {
-    expect(UK_CARRIERS.length).toBe(7);
+    expect(UK_CARRIERS.length).toBe(8);
     expect(UK_CARRIERS.every((carrier) => carrier.trackingSupported)).toBe(true);
   });
 });

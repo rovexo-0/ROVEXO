@@ -1,4 +1,5 @@
 import type { UkCarrier } from "@/lib/shipping/carriers";
+import type { SellerDefaultLabelSize } from "@/lib/shipping/label-size";
 import type { ParcelTier, ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
 
 export type ShippingQuoteRequest = {
@@ -26,6 +27,8 @@ export type ShippingLabelRequest = {
   declaredValueGbp?: number;
   parcelId?: string;
   parcelNumber?: number;
+  /** Seller label format — Sendcloud label_printer (4×6) or normal_printer (A4). */
+  labelSize?: SellerDefaultLabelSize;
   /** Idempotency key so the same parcel cannot create duplicate shipments. */
   idempotencyKey?: string;
 };

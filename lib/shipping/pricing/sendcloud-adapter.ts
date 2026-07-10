@@ -82,6 +82,7 @@ export class SendcloudAdapter implements ShippingProvider {
         deliveryAddress: request.deliveryAddress,
         orderNumber: request.orderNumber,
         declaredValueGbp: request.declaredValueGbp,
+        labelSize: request.labelSize,
       });
 
       return {

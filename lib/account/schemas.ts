@@ -112,6 +112,11 @@ export const buyerPreferencesSchema = z.object({
 
 export type BuyerPreferencesInput = z.infer<typeof buyerPreferencesSchema>;
 
+import {
+  DEFAULT_SELLER_LABEL_SIZE,
+  SELLER_LABEL_SIZES,
+} from "@/lib/shipping/label-size";
+
 export const sellerShippingSettingsSchema = z.object({
   handlingTimeDays: z.coerce.number().int().min(0).max(30),
   dispatchTimeDays: z.coerce.number().int().min(0).max(30),
@@ -123,6 +128,7 @@ export const sellerShippingSettingsSchema = z.object({
       return Number.isFinite(parsed) ? parsed : null;
     }, z.number().min(0).max(99999).nullable()),
   defaultCarrier: z.string().trim().min(1).max(80),
+  defaultLabelSize: z.enum(SELLER_LABEL_SIZES).default(DEFAULT_SELLER_LABEL_SIZE),
   shipsTo: z.string().trim().min(1).max(120),
   localPickupEnabled: z.boolean(),
   internationalShippingEnabled: z.boolean(),

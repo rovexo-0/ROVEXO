@@ -2,6 +2,7 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateOrderShippingLabel } from "@/lib/shipping/server";
+import { getSellerShippingSettings } from "@/lib/seller/shipping-settings";
 import { getShippingRecord } from "@/lib/shipping/store";
 import { getShipmentParcelById, createShipmentParcel } from "@/lib/shipping/parcels-repository";
 import type { ShippingAddress } from "@/lib/shipping/types";
@@ -57,6 +58,8 @@ export async function generateShippingLabelForOrder(
     return { ok: false as const, error: "Shipping addresses are incomplete for label generation." };
   }
 
+  const sellerSettings = await getSellerShippingSettings(sellerId);
+
   const labelRecord = await generateOrderShippingLabel(orderId, {
     quoteId,
     orderId,
@@ -66,6 +69,7 @@ export async function generateShippingLabelForOrder(
     deliveryAddress,
     parcelId: parcel.id,
     parcelNumber: parcel.parcelNumber,
+    labelSize: sellerSettings.defaultLabelSize,
     idempotencyKey: `rovexo-order-${orderId}-parcel-${parcel.parcelNumber}`,
   });
 
