@@ -127,6 +127,7 @@ export async function openEscrowForOrder(input: {
       "[commerce-engine] openEscrowForOrder threw",
       error instanceof Error ? error.message : String(error),
     );
+    throw error;
   }
 }
 

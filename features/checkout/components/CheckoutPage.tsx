@@ -80,18 +80,26 @@ export function CheckoutPage({
         void fetch(`/api/orders/confirm?session_id=${encodeURIComponent(sessionId)}`)
           .then((response) => response.json())
           .then((payload: { success?: boolean; order?: Order }) => {
-            if (payload.success && payload.order) {
-              setSuccessOrder(payload.order);
-              setView("success");
+            const resolvedOrderId = payload.order?.id ?? orderId;
+            if (resolvedOrderId) {
+              router.replace(
+                payload.success
+                  ? `/orders/${resolvedOrderId}?placed=1`
+                  : `/orders/${resolvedOrderId}`,
+              );
+              return;
             }
             router.replace(`/checkout/${product.slug}`);
           });
-      } else {
-        setView("success");
-        router.replace(`/checkout/${product.slug}`);
+        return;
+      }
+
+      if (orderId) {
+        router.replace(`/orders/${orderId}?placed=1`);
+        return;
       }
     }
-  }, [product.slug, router, searchParams, setSuccessOrder, setView]);
+  }, [product.slug, router, searchParams]);
 
   return (
     <BetaAppShell showBottomNav={!isSuccess} className="checkout-v1-shell">

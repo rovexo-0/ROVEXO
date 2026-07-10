@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { OrderCheckoutConfirmation } from "@/features/orders/components/OrderCheckoutConfirmation";
 import { OrderDetailPageShell } from "@/features/orders/components/OrderDetailPageShell";
 import { fetchOrderForUser, getOrderViewRole } from "@/lib/orders/queries";
 import { getBuyerCommerceOrderView } from "@/lib/commerce/read-model";
@@ -33,16 +35,21 @@ export default async function BuyerOrderDetailRoute({
   ]);
 
   return (
-    <OrderDetailPageShell
-      order={order}
-      userId={profile.id}
-      backHref="/orders"
-      bottomNavTab="account"
-      orderContext={orderContext ?? undefined}
-      escrowState={escrowState}
-      resolutionSummary={resolutionSummary}
-      commerceView={commerce}
-      showSuccessBanner={placed === "1"}
-    />
+    <>
+      <Suspense fallback={null}>
+        <OrderCheckoutConfirmation orderId={id} />
+      </Suspense>
+      <OrderDetailPageShell
+        order={order}
+        userId={profile.id}
+        backHref="/orders"
+        bottomNavTab="account"
+        orderContext={orderContext ?? undefined}
+        escrowState={escrowState}
+        resolutionSummary={resolutionSummary}
+        commerceView={commerce}
+        showSuccessBanner={placed === "1"}
+      />
+    </>
   );
 }

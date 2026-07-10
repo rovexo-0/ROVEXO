@@ -6,18 +6,18 @@ import {
   resolveLiveDeliveryPrice,
 } from "@/lib/checkout/shipping-quotes.server";
 import { isPurchasable, releaseProductInventory, reserveProductInventory } from "@/lib/inventory/service";
-import { notifyOrderPaid, notifyOrderCancelled } from "@/lib/orders/notifications";
+import { notifyOrderCancelled } from "@/lib/orders/notifications";
 import { onOrderCancelled } from "@/lib/trust/events";
 import { calculateOrderTotals } from "@/lib/orders/pricing";
 import { getOrderById } from "@/lib/orders/store";
 import type { Order } from "@/lib/orders/types";
-import { buildOrderReceiptUrl, generateInvoiceNumber } from "@/lib/invoices/receipt";
+import { generateInvoiceNumber } from "@/lib/invoices/receipt";
 import { calculateSellerNetAmount } from "@/lib/wallet/sales";
-import { openEscrowForOrder } from "@/lib/commerce-engine";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
 import { ensureStripeCustomer } from "@/lib/payments/repository";
 import { assertMarketplacePurchaseAllowedForProductSlug } from "@/lib/transaction-mode/validate";
+import { completePaidOrderFulfillment } from "@/lib/orders/post-payment.server";
 
 const RESERVATION_MINUTES = 30;
 
@@ -182,10 +182,7 @@ export async function createOrderCheckoutSession(
   await admin.from("cart_items").delete().eq("user_id", input.buyerId).eq("product_id", product.id);
 
   const baseUrl = getAppBaseUrl();
-  const successQuery = new URLSearchParams({
-    order: "success",
-    order_id: orderRow.id,
-  });
+  const orderSuccessUrl = `${baseUrl}/orders/${orderRow.id}?placed=1`;
   const cancelQuery = new URLSearchParams({
     order: "cancelled",
     order_id: orderRow.id,
@@ -210,7 +207,7 @@ export async function createOrderCheckoutSession(
     const order = await getOrderById(orderRow.id);
     return {
       orderId: orderRow.id,
-      url: `${baseUrl}/checkout/${product.slug}?${successQuery.toString()}`,
+      url: orderSuccessUrl,
       order: order ?? undefined,
     };
   }
@@ -272,7 +269,7 @@ export async function createOrderCheckoutSession(
         sellerId: product.seller_id,
         productId: product.id,
       },
-      success_url: `${baseUrl}/checkout/${product.slug}?${successQuery.toString()}&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${orderSuccessUrl}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout/${product.slug}?${cancelQuery.toString()}`,
       expires_at: Math.floor(Date.now() / 1000) + RESERVATION_MINUTES * 60,
     },
@@ -308,33 +305,6 @@ export async function fulfillOrderFromStripeSession(session: {
     return { success: false, error: "Missing order metadata." };
   }
 
-  const admin = createAdminClient();
-  const { data: order } = await admin
-    .from("orders")
-    .select(
-      `
-      id,
-      order_number,
-      status,
-      buyer_id,
-      seller_id,
-      item_price,
-      delivery_fee,
-      stripe_session_id,
-      order_items ( product_id, title, image_url, quantity )
-    `,
-    )
-    .eq("id", orderId)
-    .maybeSingle();
-
-  if (!order) {
-    return { success: false, error: "Order not found." };
-  }
-
-  if (order.status !== "awaiting_payment") {
-    return { success: true };
-  }
-
   if (session.payment_status && session.payment_status !== "paid") {
     return { success: false, error: "Payment not completed." };
   }
@@ -344,70 +314,11 @@ export async function fulfillOrderFromStripeSession(session: {
       ? session.payment_intent
       : session.payment_intent?.id ?? null;
 
-  const now = new Date().toISOString();
-
-  await admin
-    .from("orders")
-    .update({
-      status: "awaiting_shipment",
-      paid_at: now,
-      stripe_session_id: session.id,
-      stripe_payment_intent_id: paymentIntentId,
-      reserved_until: null,
-      receipt_url: buildOrderReceiptUrl(orderId),
-    })
-    .eq("id", orderId)
-    .eq("status", "awaiting_payment");
-
-  const item = (
-    order.order_items as Array<{
-      product_id: string | null;
-      title: string;
-      image_url: string;
-      quantity: number;
-    }> | null
-  )?.[0];
-
-  if (item) {
-    const { platformFee, sellerAmount } = calculateSellerNetAmount(Number(order.item_price));
-    await admin
-      .from("orders")
-      .update({
-        platform_fee: platformFee,
-        seller_payout: sellerAmount,
-      })
-      .eq("id", orderId);
-
-    // Commerce Engine — open escrow: seller money enters PENDING, buyer-paid
-    // shipping is reserved. This is an overlay only; Stripe already collected.
-    await openEscrowForOrder({
-      orderId,
-      orderNumber: order.order_number,
-      sellerId: order.seller_id,
-      buyerId: order.buyer_id,
-      productTitle: item.title,
-      productImageUrl: item.image_url,
-      itemPrice: Number(order.item_price),
-      deliveryFee: Number(order.delivery_fee ?? 0),
-      stripePaymentIntentId: paymentIntentId,
-    });
-  }
-
-  const [{ data: buyerProfile }, { data: sellerProfile }] = await Promise.all([
-    admin.from("profiles").select("email").eq("id", order.buyer_id).maybeSingle(),
-    admin.from("profiles").select("email").eq("id", order.seller_id).maybeSingle(),
-  ]);
-
-  await notifyOrderPaid({
-    buyerId: order.buyer_id,
-    buyerEmail: buyerProfile?.email ?? "",
-    sellerId: order.seller_id,
-    sellerEmail: sellerProfile?.email ?? "",
-    orderNumber: order.order_number,
-    productTitle: item?.title ?? "Item",
+  return completePaidOrderFulfillment({
+    orderId,
+    stripeSessionId: session.id,
+    stripePaymentIntentId: paymentIntentId,
   });
-
-  return { success: true };
 }
 
 export async function cancelPendingOrder(

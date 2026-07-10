@@ -237,11 +237,8 @@ export function useCheckoutForm(
         return;
       }
 
-      if (payload.url?.includes("order=success")) {
-        if (payload.order) {
-          setOrder(payload.order);
-        }
-        setView("success");
+      if (payload.url?.includes("placed=1") || payload.url?.includes("order=success")) {
+        window.location.href = payload.url;
         return;
       }
 

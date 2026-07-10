@@ -67,7 +67,7 @@ export async function creditSellerForOrder(input: {
 
   const wallet = await ensureWallet(input.sellerId);
   if (!wallet) {
-    return;
+    throw new Error(`Seller wallet unavailable for user ${input.sellerId}.`);
   }
 
   const { sellerAmount } = calculateSellerNetAmount(input.itemPrice);
