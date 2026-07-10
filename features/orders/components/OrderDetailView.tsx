@@ -8,6 +8,7 @@ import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
 import { IssueResolutionLink } from "@/features/orders/components/IssueResolutionLink";
 import { DeliveryStatusCard } from "@/features/orders/components/DeliveryStatusCard";
 import { BuyerCancelOrderCard } from "@/features/orders/components/BuyerCancelOrderCard";
+import { RefundStatusCard } from "@/features/orders/components/RefundStatusCard";
 import { OrderActionsCard } from "@/features/orders/components/OrderActionsCard";
 import { SellerOrderFulfillment } from "@/features/orders/components/SellerOrderFulfillment";
 import { OrderProductCard } from "@/features/orders/components/OrderProductCard";
@@ -140,6 +141,8 @@ export function OrderDetailView({
           onCancelled={setOrder}
         />
       ) : null}
+
+      {view === "buyer" ? <RefundStatusCard order={order} /> : null}
 
       {showBuyerConfirm ? (
         <Card padding="lg" className="flex flex-col gap-ds-4">

@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { syncOrderRefundFromStripe } from "@/lib/orders/refund-lifecycle.server";
 
 function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
@@ -64,15 +65,15 @@ export async function reverseFailedStripeTransfer(transferId: string): Promise<b
 export async function syncStripeRefundFromCharge(input: {
   paymentIntentId: string;
   refundId: string;
+  amount?: number;
+  stripeStatus?: string | null;
+  failureReason?: string | null;
 }): Promise<void> {
-  const admin = createAdminClient();
-
-  await admin
-    .from("orders")
-    .update({
-      stripe_refund_id: input.refundId,
-      refunded_at: new Date().toISOString(),
-    })
-    .eq("stripe_payment_intent_id", input.paymentIntentId)
-    .is("stripe_refund_id", null);
+  await syncOrderRefundFromStripe({
+    paymentIntentId: input.paymentIntentId,
+    refundId: input.refundId,
+    amount: input.amount ?? 0,
+    stripeStatus: input.stripeStatus,
+    failureReason: input.failureReason,
+  });
 }

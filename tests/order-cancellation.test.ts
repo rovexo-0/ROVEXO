@@ -86,18 +86,27 @@ describe("order cancellation eligibility", () => {
 });
 
 describe("cancelled order timeline", () => {
-  it("marks paid, cancelled, and refunded events for buyer-cancelled refunds", () => {
+  it("marks paid, cancelled, refund initiated, and refund completed events", () => {
     const timeline = buildOrderTimeline({
       status: "cancelled",
       createdAt: "2026-07-01T10:00:00Z",
       paidAt: "2026-07-01T10:05:00Z",
       cancelledAt: "2026-07-01T11:00:00Z",
+      refundCreatedAt: "2026-07-01T11:00:30Z",
       refundedAt: "2026-07-01T11:01:00Z",
     });
 
+    expect(timeline.map((e) => e.id)).toEqual([
+      "created",
+      "paid",
+      "cancelled",
+      "refund-initiated",
+      "refunded",
+    ]);
     expect(timeline.find((e) => e.id === "created")?.done).toBe(true);
     expect(timeline.find((e) => e.id === "paid")?.done).toBe(true);
     expect(timeline.find((e) => e.id === "cancelled")?.done).toBe(true);
+    expect(timeline.find((e) => e.id === "refund-initiated")?.done).toBe(true);
     expect(timeline.find((e) => e.id === "refunded")?.current).toBe(true);
     expect(timeline.find((e) => e.id === "refunded")?.timestamp).toBe("2026-07-01T11:01:00Z");
   });

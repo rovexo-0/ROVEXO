@@ -10,9 +10,10 @@ import {
   evaluateBuyerCancellationEligibility,
 } from "@/lib/orders/cancellation";
 import {
-  notifyBuyerOrderCancelledWithRefund,
+  notifyOrderCancelled,
   notifySellerOrderCancelledByBuyer,
 } from "@/lib/orders/notifications";
+import { markOrderCancellationRequested } from "@/lib/orders/refund-lifecycle.server";
 import { createOrderStripeRefund } from "@/lib/stripe/refunds";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { listShipmentParcelsForOrder } from "@/lib/shipping/parcels-repository";
@@ -166,9 +167,6 @@ async function voidLocalShippingArtifacts(orderId: string): Promise<void> {
 
 async function markOrderCancelled(input: {
   orderId: string;
-  stripeRefundId?: string | null;
-  refundedAmount?: number | null;
-  refundedAt?: string | null;
 }): Promise<void> {
   const admin = createAdminClient();
   const now = new Date().toISOString();
@@ -179,9 +177,6 @@ async function markOrderCancelled(input: {
       status: "cancelled",
       cancelled_at: now,
       cancellation_reason: BUYER_CANCELLATION_REASON,
-      stripe_refund_id: input.stripeRefundId ?? null,
-      refunded_at: input.refundedAt ?? null,
-      refunded_amount: input.refundedAmount ?? null,
     })
     .eq("id", input.orderId);
 }
@@ -231,11 +226,11 @@ export async function cancelBuyerOrder(input: {
       admin.from("profiles").select("email").eq("id", context.sellerId).maybeSingle(),
     ]);
 
-    await notifyBuyerOrderCancelledWithRefund({
+    await notifyOrderCancelled({
       buyerId: context.buyerId,
       buyerEmail: buyerProfile?.email ?? "",
       orderNumber: context.orderNumber,
-      refunded: false,
+      reason: BUYER_CANCELLATION_REASON,
     });
     await notifySellerOrderCancelledByBuyer({
       sellerId: context.sellerId,
@@ -262,17 +257,14 @@ export async function cancelBuyerOrder(input: {
   }
 
   let stripeRefundId = context.stripeRefundId;
-  let refundedAmount: number | null = null;
-  let refundedAt: string | null = null;
 
   if (context.paidAt || context.stripePaymentIntentId) {
-    const refundResult = await createOrderStripeRefund(input.orderId);
+    await markOrderCancellationRequested(input.orderId);
+    const refundResult = await createOrderStripeRefund(input.orderId, { notifySeller: false });
     if ("error" in refundResult) {
       return { success: false, error: refundResult.error };
     }
     stripeRefundId = refundResult.refundId;
-    refundedAmount = refundResult.refundedAmount ?? context.total;
-    refundedAt = refundResult.refundedAt ?? new Date().toISOString();
   }
 
   await CommerceEngine.refundSeller({
@@ -292,12 +284,7 @@ export async function cancelBuyerOrder(input: {
   }
 
   await voidLocalShippingArtifacts(input.orderId);
-  await markOrderCancelled({
-    orderId: input.orderId,
-    stripeRefundId,
-    refundedAmount,
-    refundedAt,
-  });
+  await markOrderCancelled({ orderId: input.orderId });
 
   const admin = createAdminClient();
   const [{ data: buyerProfile }, { data: sellerProfile }] = await Promise.all([
@@ -305,18 +292,18 @@ export async function cancelBuyerOrder(input: {
     admin.from("profiles").select("email").eq("id", context.sellerId).maybeSingle(),
   ]);
 
-  await notifyBuyerOrderCancelledWithRefund({
+  await notifyOrderCancelled({
     buyerId: context.buyerId,
     buyerEmail: buyerProfile?.email ?? "",
     orderNumber: context.orderNumber,
-    refunded: Boolean(stripeRefundId),
-    amount: refundedAmount ?? context.total,
+    reason: BUYER_CANCELLATION_REASON,
   });
   await notifySellerOrderCancelledByBuyer({
     sellerId: context.sellerId,
     sellerEmail: sellerProfile?.email ?? "",
     orderNumber: context.orderNumber,
     productTitle: context.productTitle,
+    refundInitiated: Boolean(stripeRefundId),
   });
 
   return { success: true };

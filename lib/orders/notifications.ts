@@ -231,20 +231,144 @@ export async function notifySellerOrderCancelledByBuyer(input: {
   sellerEmail: string;
   orderNumber: string;
   productTitle: string;
+  refundInitiated?: boolean;
 }): Promise<void> {
+  const sellerBody = input.refundInitiated
+    ? `The buyer cancelled order ${input.orderNumber} for ${input.productTitle} before shipment. Refund initiated. No action required.`
+    : `The buyer cancelled order ${input.orderNumber} for ${input.productTitle} before shipment.`;
+
   await Promise.all([
     createNotification({
       userId: input.sellerId,
       type: "order",
       title: "Order cancelled by buyer",
-      subtitle: `${input.orderNumber} — ${input.productTitle}`,
+      subtitle: input.refundInitiated
+        ? `${input.orderNumber} — refund initiated`
+        : `${input.orderNumber} — ${input.productTitle}`,
       href: "/seller/orders",
     }),
     queueEmail({
       to: input.sellerEmail,
       subject: `Buyer cancelled order — ${input.orderNumber}`,
-      body: `The buyer cancelled order ${input.orderNumber} for ${input.productTitle} before shipment.`,
+      body: sellerBody,
       template: "seller_order_cancelled",
+      metadata: { orderNumber: input.orderNumber },
+    }),
+  ]);
+}
+
+export async function notifyRefundInitiated(input: {
+  buyerId: string;
+  buyerEmail: string;
+  orderNumber: string;
+  amount: number;
+  reference: string;
+}): Promise<void> {
+  const { emitSmartNotification } = await import("@/lib/notifications/events");
+  const amountLabel = `£${input.amount.toFixed(2)}`;
+  const body = `Your refund of ${amountLabel} has been successfully initiated. The money will be returned to your original payment method. Most refunds arrive within 3–5 business days. Some banks may take up to 10 business days.`;
+
+  await Promise.all([
+    emitSmartNotification({
+      userId: input.buyerId,
+      eventType: "refund",
+      idempotencyKey: `refund-initiated-${input.orderNumber}`,
+      notificationType: "order",
+      title: "Refund initiated",
+      subtitle: `Refund in progress — ${amountLabel}`,
+      href: "/orders",
+      detail: body,
+    }),
+    queueEmail({
+      to: input.buyerEmail,
+      subject: `Refund initiated — ${input.orderNumber}`,
+      body,
+      template: "refund_initiated",
+      metadata: { orderNumber: input.orderNumber, amount: String(input.amount), reference: input.reference },
+    }),
+  ]);
+}
+
+export async function notifyRefundCompleted(input: {
+  buyerId: string;
+  buyerEmail: string;
+  orderNumber: string;
+  amount: number;
+  reference: string;
+}): Promise<void> {
+  const { emitSmartNotification } = await import("@/lib/notifications/events");
+  const amountLabel = `£${input.amount.toFixed(2)}`;
+  const body = `Your refund of ${amountLabel} has been completed successfully. The funds have been returned to your original payment method. Reference: ${input.reference}.`;
+
+  await Promise.all([
+    emitSmartNotification({
+      userId: input.buyerId,
+      eventType: "refund",
+      idempotencyKey: `refund-completed-${input.orderNumber}`,
+      notificationType: "order",
+      title: "Refund completed",
+      subtitle: `${amountLabel} refunded`,
+      href: "/orders",
+      detail: body,
+    }),
+    queueEmail({
+      to: input.buyerEmail,
+      subject: `Refund completed — ${input.orderNumber}`,
+      body,
+      template: "refund_completed",
+      metadata: { orderNumber: input.orderNumber, amount: String(input.amount), reference: input.reference },
+    }),
+  ]);
+}
+
+export async function notifyRefundFailed(input: {
+  buyerId: string;
+  buyerEmail: string;
+  orderNumber: string;
+}): Promise<void> {
+  const { emitSmartNotification } = await import("@/lib/notifications/events");
+  const body =
+    "We were unable to complete your refund automatically. Our team has been notified. No further action is required from you.";
+
+  await Promise.all([
+    emitSmartNotification({
+      userId: input.buyerId,
+      eventType: "refund",
+      idempotencyKey: `refund-failed-${input.orderNumber}`,
+      notificationType: "order",
+      title: "Refund failed",
+      subtitle: input.orderNumber,
+      href: "/orders",
+      detail: body,
+    }),
+    queueEmail({
+      to: input.buyerEmail,
+      subject: `Refund failed — ${input.orderNumber}`,
+      body,
+      template: "refund_failed",
+      metadata: { orderNumber: input.orderNumber },
+    }),
+  ]);
+}
+
+export async function notifySellerRefundInitiated(input: {
+  sellerId: string;
+  sellerEmail: string;
+  orderNumber: string;
+}): Promise<void> {
+  await Promise.all([
+    createNotification({
+      userId: input.sellerId,
+      type: "order",
+      title: "Refund initiated",
+      subtitle: `${input.orderNumber} — buyer cancellation`,
+      href: "/seller/orders",
+    }),
+    queueEmail({
+      to: input.sellerEmail,
+      subject: `Refund initiated — ${input.orderNumber}`,
+      body: `The buyer cancelled order ${input.orderNumber}. Refund initiated. No action required.`,
+      template: "seller_refund_initiated",
       metadata: { orderNumber: input.orderNumber },
     }),
   ]);

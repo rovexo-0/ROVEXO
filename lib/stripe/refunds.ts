@@ -1,7 +1,11 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
+import { applyOrderRefundLifecycle } from "@/lib/orders/refund-lifecycle.server";
 
-export async function createOrderStripeRefund(orderId: string): Promise<
+export async function createOrderStripeRefund(
+  orderId: string,
+  options?: { notifySeller?: boolean },
+): Promise<
   | { refundId: string; refundedAmount?: number; refundedAt?: string; skipped?: boolean }
   | { error: string; skipped?: boolean }
 > {
@@ -26,31 +30,45 @@ export async function createOrderStripeRefund(orderId: string): Promise<
 
   if (!order.stripe_payment_intent_id) {
     if (!isStripeConfigured()) {
-      const refundedAt = new Date().toISOString();
-      await admin
-        .from("orders")
-        .update({
-          stripe_refund_id: `dev-refund-${orderId}`,
-          refunded_at: refundedAt,
-          refunded_amount: Number(order.total),
-        })
-        .eq("id", orderId);
-      return { refundId: `dev-refund-${orderId}`, refundedAmount: Number(order.total), refundedAt, skipped: true };
+      const refundId = `dev-refund-${orderId}`;
+      const refundedAmount = Number(order.total);
+      await applyOrderRefundLifecycle({
+        orderId,
+        refundId,
+        amount: refundedAmount,
+        stripeStatus: "succeeded",
+        paymentMethod: "Original payment method",
+        notifySeller: options?.notifySeller,
+      });
+      const { data: updated } = await admin.from("orders").select("refund_completed_at").eq("id", orderId).maybeSingle();
+      return {
+        refundId,
+        refundedAmount,
+        refundedAt: updated?.refund_completed_at ?? new Date().toISOString(),
+        skipped: true,
+      };
     }
     return { error: "No payment intent found for this order." };
   }
 
   if (!isStripeConfigured()) {
-    const refundedAt = new Date().toISOString();
-    await admin
-      .from("orders")
-      .update({
-        stripe_refund_id: `dev-refund-${orderId}`,
-        refunded_at: refundedAt,
-        refunded_amount: Number(order.total),
-      })
-      .eq("id", orderId);
-    return { refundId: `dev-refund-${orderId}`, refundedAmount: Number(order.total), refundedAt, skipped: true };
+    const refundId = `dev-refund-${orderId}`;
+    const refundedAmount = Number(order.total);
+    await applyOrderRefundLifecycle({
+      orderId,
+      refundId,
+      amount: refundedAmount,
+      stripeStatus: "succeeded",
+      paymentMethod: "Original payment method",
+      notifySeller: options?.notifySeller,
+    });
+    const { data: updated } = await admin.from("orders").select("refund_completed_at").eq("id", orderId).maybeSingle();
+    return {
+      refundId,
+      refundedAmount,
+      refundedAt: updated?.refund_completed_at ?? new Date().toISOString(),
+      skipped: true,
+    };
   }
 
   const stripe = getStripeClient();
@@ -64,17 +82,24 @@ export async function createOrderStripeRefund(orderId: string): Promise<
   );
 
   const refundedAmount = Math.round(refund.amount) / 100;
-  const refundedAt = new Date().toISOString();
+  const status = await applyOrderRefundLifecycle({
+    orderId,
+    refundId: refund.id,
+    amount: refundedAmount,
+    stripeStatus: refund.status,
+    paymentMethod: "Original payment method",
+    notifySeller: options?.notifySeller,
+  });
 
-  await admin
+  const { data: updated } = await admin
     .from("orders")
-    .update({
-      stripe_refund_id: refund.id,
-      refunded_at: refundedAt,
-      refunded_amount: refundedAmount,
-    })
+    .select("refund_completed_at")
     .eq("id", orderId)
-    .is("stripe_refund_id", null);
+    .maybeSingle();
 
-  return { refundId: refund.id, refundedAmount, refundedAt };
+  return {
+    refundId: refund.id,
+    refundedAmount,
+    refundedAt: status === "completed" ? updated?.refund_completed_at ?? new Date().toISOString() : undefined,
+  };
 }

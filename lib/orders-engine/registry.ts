@@ -20,8 +20,8 @@ export const ORDERS_ENGINE_LIFECYCLE_STAGES = [
 ] as const;
 
 export const ORDERS_ENGINE_TIMELINE_EVENTS = [
-  { id: "created", label: "Created" },
-  { id: "paid", label: "Paid" },
+  { id: "created", label: "Order Created" },
+  { id: "paid", label: "Payment Completed" },
   { id: "accepted", label: "Accepted" },
   { id: "packed", label: "Packed" },
   { id: "collected", label: "Collected" },
@@ -31,9 +31,10 @@ export const ORDERS_ENGINE_TIMELINE_EVENTS = [
   { id: "confirmed", label: "Confirmed" },
   { id: "completed", label: "Completed" },
   { id: "returned", label: "Returned" },
-  { id: "refunded", label: "Refunded" },
-  { id: "disputed", label: "Disputed" },
   { id: "cancelled", label: "Cancelled" },
+  { id: "refund-initiated", label: "Refund Initiated" },
+  { id: "refunded", label: "Refund Completed" },
+  { id: "disputed", label: "Disputed" },
 ] as const;
 
 export const ORDERS_ENGINE_FILTERS: { id: OrdersEngineFilterId; label: string }[] = [

@@ -61,6 +61,15 @@ export type Order = {
   cancellationReason?: string;
   refundedAt?: string;
   refundedAmount?: number;
+  stripeRefundId?: string;
+  refundStatus?: import("@/lib/orders/refund-status").OrderRefundStatus;
+  refundReference?: string;
+  refundCreatedAt?: string;
+  refundCompletedAt?: string;
+  refundFailureReason?: string;
+  refundPaymentMethod?: string;
+  refundEstimatedArrival?: string;
+  refundLastUpdated?: string;
   disputesDisabled: boolean;
 };
 

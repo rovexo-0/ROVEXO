@@ -28,7 +28,13 @@ async function syncRefundRecord(refund: Stripe.Refund): Promise<void> {
   if (!paymentIntentId || !refund.id) {
     return;
   }
-  await syncStripeRefundFromCharge({ paymentIntentId, refundId: refund.id });
+  await syncStripeRefundFromCharge({
+    paymentIntentId,
+    refundId: refund.id,
+    amount: Math.round(refund.amount) / 100,
+    stripeStatus: refund.status,
+    failureReason: refund.failure_reason ?? null,
+  });
 }
 
 async function cancelOrderByPaymentIntent(paymentIntentId: string): Promise<void> {
@@ -127,9 +133,15 @@ export async function processStripeWebhookEvent(event: Stripe.Event): Promise<vo
     case "charge.refunded": {
       const charge = event.data.object as Stripe.Charge;
       const paymentIntentId = paymentIntentIdFrom(charge.payment_intent);
-      const refundId = charge.refunds?.data[0]?.id;
-      if (paymentIntentId && refundId) {
-        await syncStripeRefundFromCharge({ paymentIntentId, refundId });
+      const refund = charge.refunds?.data[0];
+      if (paymentIntentId && refund?.id) {
+        await syncStripeRefundFromCharge({
+          paymentIntentId,
+          refundId: refund.id,
+          amount: Math.round(refund.amount) / 100,
+          stripeStatus: refund.status,
+          failureReason: refund.failure_reason ?? null,
+        });
       }
       break;
     }

@@ -60,12 +60,25 @@ type TimelineInput = {
   deliveredAt?: string;
   completedAt?: string;
   cancelledAt?: string;
+  refundCreatedAt?: string;
   refundedAt?: string;
   hasTracking?: boolean;
 };
 
+const CANCELLED_FLOW_EVENTS: OrdersEngineTimelineEventId[] = [
+  "created",
+  "paid",
+  "cancelled",
+  "refund-initiated",
+  "refunded",
+];
+
 function currentTimelineStage(input: TimelineInput): OrdersEngineTimelineEventId {
-  if (input.status === "cancelled") return input.refundedAt ? "refunded" : "cancelled";
+  if (input.status === "cancelled") {
+    if (input.refundedAt) return "refunded";
+    if (input.refundCreatedAt) return "refund-initiated";
+    return "cancelled";
+  }
   if (input.status === "issue_open") return "disputed";
   if (input.status === "completed") return "completed";
   if (input.status === "delivered") return "confirmed";
@@ -91,21 +104,23 @@ export function buildOrderTimeline(input: TimelineInput): OrdersEngineTimelineEv
     confirmed: input.deliveredAt,
     completed: input.completedAt,
     cancelled: input.cancelledAt,
-    refunded: input.refundedAt ?? input.cancelledAt,
+    "refund-initiated": input.refundCreatedAt,
+    refunded: input.refundedAt ?? input.refundCreatedAt,
   };
 
   function isEventDone(eventId: OrdersEngineTimelineEventId, index: number): boolean {
     if (isCancelledOrder) {
-      if (eventId === "cancelled") return Boolean(input.cancelledAt);
-      if (eventId === "refunded") return Boolean(input.refundedAt);
-      if (eventId === "paid") return Boolean(input.paidAt);
       if (eventId === "created") return true;
+      if (eventId === "paid") return Boolean(input.paidAt);
+      if (eventId === "cancelled") return Boolean(input.cancelledAt);
+      if (eventId === "refund-initiated") return Boolean(input.refundCreatedAt);
+      if (eventId === "refunded") return Boolean(input.refundedAt);
       return false;
     }
     return index <= currentIndex;
   }
 
-  return ORDERS_ENGINE_TIMELINE_EVENTS.map((event) => {
+  const events = ORDERS_ENGINE_TIMELINE_EVENTS.map((event) => {
     const index = TIMELINE_ORDER.indexOf(event.id);
     return {
       id: event.id,
@@ -115,6 +130,12 @@ export function buildOrderTimeline(input: TimelineInput): OrdersEngineTimelineEv
       current: event.id === current,
     };
   });
+
+  if (isCancelledOrder) {
+    return events.filter((event) => CANCELLED_FLOW_EVENTS.includes(event.id));
+  }
+
+  return events;
 }
 
 export function matchesFilter(status: OrderStatus, filter: OrdersEngineFilterId): boolean {

@@ -17,6 +17,7 @@ import type { BuyerCommerceOrderView } from "@/lib/commerce/view-types";
 import type { OrderEscrowState } from "@/lib/commerce-engine/read-model";
 import type { OrderResolutionSummary } from "@/lib/resolution-engine/types";
 import { BuyerCancelOrderCard } from "@/features/orders/components/BuyerCancelOrderCard";
+import { RefundStatusCard } from "@/features/orders/components/RefundStatusCard";
 import type { Order } from "@/lib/orders/types";
 
 type BuyerOrderDetailCanonicalProps = {
@@ -106,6 +107,8 @@ export function BuyerOrderDetailCanonical({
         canCancel={buyerCanCancel}
         onCancelled={setOrder}
       />
+
+      <RefundStatusCard order={order} />
 
       {resolutionSummary ? (
         <ResolutionStatusCard resolution={resolutionSummary} view="buyer" />

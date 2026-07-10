@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { Price } from "@/components/ui/Price";
 import { OrderRoleBadge } from "@/features/orders/components/OrderRoleBadge";
 import { OrderStatusBadge } from "@/features/orders/components/OrderStatusBadge";
 import { getCounterpartyName, getOrderDetailHref } from "@/lib/orders/status";
+import { getBuyerOrderListRefundLabel } from "@/lib/orders/refund-status";
 import { resolveOrderViewRole } from "@/lib/orders/role";
 import type { Order } from "@/lib/orders/types";
 
@@ -21,6 +23,7 @@ export function OrderListItem({ order, userId }: OrderListItemProps) {
 
   const counterpartyLabel = view === "buyer" ? "Seller" : "Buyer";
   const counterpartyName = getCounterpartyName(order, view);
+  const buyerRefundLabel = view === "buyer" ? getBuyerOrderListRefundLabel(order) : null;
 
   return (
     <Link href={getOrderDetailHref(order.id, view)} className="block">
@@ -36,7 +39,13 @@ export function OrderListItem({ order, userId }: OrderListItemProps) {
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-ds-2">
               <p className="text-xs font-medium text-text-secondary">#{order.orderNumber}</p>
-              <OrderStatusBadge status={order.status} />
+              {buyerRefundLabel ? (
+                <Badge variant={buyerRefundLabel === "Refunded" ? "success" : buyerRefundLabel === "Refund failed" ? "danger" : "warning"}>
+                  {buyerRefundLabel}
+                </Badge>
+              ) : (
+                <OrderStatusBadge status={order.status} />
+              )}
             </div>
 
             <OrderRoleBadge role={view} className="mt-ds-2" />

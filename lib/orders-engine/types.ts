@@ -32,9 +32,10 @@ export type OrdersEngineTimelineEventId =
   | "confirmed"
   | "completed"
   | "returned"
+  | "cancelled"
+  | "refund-initiated"
   | "refunded"
-  | "disputed"
-  | "cancelled";
+  | "disputed";
 
 export type OrdersEngineType =
   | "marketplace"

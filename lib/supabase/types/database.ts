@@ -2246,6 +2246,14 @@ export type Database = {
           receipt_url: string | null
           refunded_amount: number | null
           refunded_at: string | null
+          refund_status: string | null
+          refund_reference: string | null
+          refund_created_at: string | null
+          refund_completed_at: string | null
+          refund_failure_reason: string | null
+          refund_payment_method: string | null
+          refund_estimated_arrival: string | null
+          refund_last_updated: string | null
           reserved_until: string | null
           seller_id: string
           seller_payout: number
@@ -2282,6 +2290,14 @@ export type Database = {
           receipt_url?: string | null
           refunded_amount?: number | null
           refunded_at?: string | null
+          refund_status?: string | null
+          refund_reference?: string | null
+          refund_created_at?: string | null
+          refund_completed_at?: string | null
+          refund_failure_reason?: string | null
+          refund_payment_method?: string | null
+          refund_estimated_arrival?: string | null
+          refund_last_updated?: string | null
           reserved_until?: string | null
           seller_id: string
           seller_payout?: number
@@ -2318,6 +2334,14 @@ export type Database = {
           receipt_url?: string | null
           refunded_amount?: number | null
           refunded_at?: string | null
+          refund_status?: string | null
+          refund_reference?: string | null
+          refund_created_at?: string | null
+          refund_completed_at?: string | null
+          refund_failure_reason?: string | null
+          refund_payment_method?: string | null
+          refund_estimated_arrival?: string | null
+          refund_last_updated?: string | null
           reserved_until?: string | null
           seller_id?: string
           seller_payout?: number

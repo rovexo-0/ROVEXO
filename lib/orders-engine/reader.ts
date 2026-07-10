@@ -1,4 +1,4 @@
-import { listOrders } from "@/lib/orders/store";
+import { getOrderById, listOrders } from "@/lib/orders/store";
 import type { Order } from "@/lib/orders/types";
 import { readLiveOrdersEngineDocument, getOrdersEngineSnapshotForAdmin } from "@/lib/orders-engine/engine";
 import { ORDERS_ENGINE_MODULES } from "@/lib/orders-engine/registry";
@@ -56,8 +56,7 @@ export function mapOrderToSummary(order: Order, currency = "GBP"): OrdersEngineO
 }
 
 export async function getOrdersEngineOrderContext(orderId: string): Promise<OrdersEngineOrderContext | null> {
-  const orders = await listOrders();
-  const order = orders.find((item) => item.id === orderId);
+  const order = await getOrderById(orderId);
   if (!order) return null;
 
   const config = await readLiveOrdersEngineDocument();
@@ -70,7 +69,8 @@ export async function getOrdersEngineOrderContext(orderId: string): Promise<Orde
     deliveredAt: order.deliveredAt,
     completedAt: order.completedAt,
     cancelledAt: order.cancelledAt,
-    refundedAt: order.refundedAt,
+    refundCreatedAt: order.refundCreatedAt,
+    refundedAt: order.refundCompletedAt ?? order.refundedAt,
     hasTracking: Boolean(order.trackingNumber),
   });
 

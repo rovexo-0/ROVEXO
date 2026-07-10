@@ -38,7 +38,6 @@ async function fetchOrderRows(): Promise<OrderRow[]> {
   const { data } = await supabase
     .from("orders")
     .select(ORDER_SELECT)
-    .neq("status", "cancelled")
     .order("created_at", { ascending: false });
 
   return (data as OrderRow[] | null) ?? [];
@@ -78,6 +77,15 @@ function mapOrderRow(row: OrderRow): Order {
     cancellationReason: row.cancellation_reason ?? undefined,
     refundedAt: row.refunded_at ?? undefined,
     refundedAmount: row.refunded_amount != null ? Number(row.refunded_amount) : undefined,
+    stripeRefundId: row.stripe_refund_id ?? undefined,
+    refundStatus: (row.refund_status as Order["refundStatus"]) ?? undefined,
+    refundReference: row.refund_reference ?? undefined,
+    refundCreatedAt: row.refund_created_at ?? undefined,
+    refundCompletedAt: row.refund_completed_at ?? undefined,
+    refundFailureReason: row.refund_failure_reason ?? undefined,
+    refundPaymentMethod: row.refund_payment_method ?? undefined,
+    refundEstimatedArrival: row.refund_estimated_arrival ?? undefined,
+    refundLastUpdated: row.refund_last_updated ?? undefined,
     disputesDisabled: row.disputes_disabled,
   };
 }
