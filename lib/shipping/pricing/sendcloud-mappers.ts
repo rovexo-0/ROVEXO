@@ -3,24 +3,9 @@ import { PARCEL_TIER_OPTIONS } from "@/lib/shipping/parcels";
 import type { ParcelTier, ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
 import type { SendcloudParcelCreatePayload } from "@/lib/shipping/sendcloud/client";
 import type { SendcloudShippingMethod } from "@/lib/shipping/sendcloud/types";
-import { mapSendcloudCarrier } from "@/lib/shipping/sendcloud/status-mapper";
+import { mapSendcloudCarrierToUk } from "@/lib/shipping/sendcloud/carrier-aliases";
 
 export const SENDCLOUD_QUOTE_PREFIX = "sendcloud:";
-
-const SENDCLOUD_CARRIER_MAP: Record<string, UkCarrier> = {
-  royal_mail: "Royal Mail",
-  royalmail: "Royal Mail",
-  postnl: "Royal Mail",
-  hermes: "Evri",
-  hermes_uk: "Evri",
-  evri: "Evri",
-  dpd: "DPD",
-  dpd_uk: "DPD",
-  ups: "UPS",
-  fedex: "FedEx",
-  parcelforce: "Parcelforce",
-  inpost: "InPost",
-};
 
 export function normalizeCountryCode(country: string): string {
   const normalized = country.trim().toLowerCase();
@@ -93,9 +78,8 @@ export function toSendcloudAddress(address: ShippingAddress) {
   };
 }
 
-export function mapSendcloudMethodCarrier(carrier: string): UkCarrier | string {
-  const key = carrier.trim().toLowerCase().replace(/[\s-]+/g, "_");
-  return SENDCLOUD_CARRIER_MAP[key] ?? mapSendcloudCarrier(carrier);
+export function mapSendcloudMethodCarrier(carrier: string): UkCarrier | null {
+  return mapSendcloudCarrierToUk(carrier);
 }
 
 function countryPriceForGb(method: SendcloudShippingMethod): number | null {
@@ -114,12 +98,15 @@ export function mapSendcloudMethodToQuote(method: SendcloudShippingMethod): Ship
   const price = countryPriceForGb(method);
   if (price == null || !Number.isFinite(price)) return null;
 
+  const carrier = mapSendcloudMethodCarrier(method.carrier);
+  if (!carrier) return null;
+
   const estimatedDays = leadTimeDays(method);
 
   return {
     id: encodeSendcloudQuoteId(method.id),
     providerId: "sendcloud",
-    carrier: mapSendcloudMethodCarrier(method.carrier),
+    carrier,
     serviceName: method.name,
     pricePence: Math.round(price * 100),
     currency: "GBP",

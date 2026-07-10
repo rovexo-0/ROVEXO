@@ -1,24 +1,9 @@
 import type { UkCarrier } from "@/lib/shipping/carriers";
 import type { ShippingStatus } from "@/lib/shipping/types";
-
-const SENDCLOUD_CARRIER_MAP: Record<string, UkCarrier> = {
-  royal_mail: "Royal Mail",
-  royalmail: "Royal Mail",
-  postnl: "Royal Mail",
-  hermes: "Evri",
-  hermes_uk: "Evri",
-  evri: "Evri",
-  dpd: "DPD",
-  dpd_uk: "DPD",
-  ups: "UPS",
-  fedex: "FedEx",
-  parcelforce: "Parcelforce",
-  inpost: "InPost",
-};
+import { mapSendcloudCarrierToUk } from "@/lib/shipping/sendcloud/carrier-aliases";
 
 export function mapSendcloudCarrier(carrier: string): UkCarrier | string {
-  const key = carrier.trim().toLowerCase().replace(/[\s-]+/g, "_");
-  return SENDCLOUD_CARRIER_MAP[key] ?? carrier;
+  return mapSendcloudCarrierToUk(carrier) ?? carrier;
 }
 
 export function mapSendcloudTrackingStatus(statusMessage: string | undefined): ShippingStatus {

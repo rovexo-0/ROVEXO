@@ -5,7 +5,8 @@ export type UkCarrier =
   | "UPS"
   | "FedEx"
   | "Parcelforce"
-  | "InPost";
+  | "InPost"
+  | "DHL";
 
 export type ShippingMethod = "collection_only" | "local_delivery" | "delivery_available";
 
@@ -33,6 +34,7 @@ export const UK_CARRIERS: CarrierOption[] = [
   { id: "FedEx", label: "FedEx", trackingSupported: true, typicalDays: { min: 1, max: 4 } },
   { id: "Parcelforce", label: "Parcelforce", trackingSupported: true, typicalDays: { min: 1, max: 3 } },
   { id: "InPost", label: "InPost", trackingSupported: true, typicalDays: { min: 1, max: 3 } },
+  { id: "DHL", label: "DHL", trackingSupported: true, typicalDays: { min: 1, max: 4 } },
 ];
 
 export const SHIPPING_METHODS: { id: ShippingMethod; label: string; description: string }[] = [
