@@ -16,8 +16,17 @@ describe("order checkout success redirect", () => {
       "utf8",
     );
 
+    expect(page).toContain("confirmOrderCheckoutSession");
+    expect(page).toContain("session_id");
     expect(page).toContain("OrderCheckoutConfirmation");
     expect(confirmation).toContain("/api/orders/confirm");
     expect(confirmation).toContain("`/orders/${orderId}?placed=1`");
+  });
+
+  it("propagates fulfillment failures from Stripe webhooks", () => {
+    const webhook = readFileSync("lib/stripe/webhook-handler.ts", "utf8");
+    expect(webhook).toContain("if (!result.success)");
+    expect(webhook).toContain("completePaidOrderFulfillment");
+    expect(webhook).toContain("payment_intent.succeeded");
   });
 });

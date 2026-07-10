@@ -145,7 +145,9 @@ function pickSelectedQuoteId(
 
 async function ensureOrderShippingPipeline(order: PaidOrderRow): Promise<void> {
   const record = await ensureShippingRecord({ orderId: order.id });
-  if (!record) return;
+  if (!record) {
+    throw new Error(`Failed to create shipping record for order ${order.id}.`);
+  }
 
   const admin = createAdminClient();
   const [{ data: sellerProfile }, deliveryAddress] = await Promise.all([
@@ -198,13 +200,16 @@ async function ensureOrderShippingPipeline(order: PaidOrderRow): Promise<void> {
 
   const parcels = await listShipmentParcelsForOrder(order.id);
   if (parcels.length === 0) {
-    await createShipmentParcel({
+    const parcel = await createShipmentParcel({
       orderId: order.id,
       carrier: order.delivery_carrier,
       productItemIds: order.order_items
         .map((item) => item.product_id)
         .filter((id): id is string => Boolean(id)),
     });
+    if (!parcel) {
+      throw new Error(`Failed to create shipment parcel for order ${order.id}.`);
+    }
   }
 }
 
@@ -213,6 +218,20 @@ async function ensureOrderShippingPipeline(order: PaidOrderRow): Promise<void> {
  * Safe to call from Stripe webhooks, checkout confirmation, and retries.
  */
 export async function completePaidOrderFulfillment(input: {
+  orderId: string;
+  stripeSessionId?: string | null;
+  stripePaymentIntentId?: string | null;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    return await runCompletePaidOrderFulfillment(input);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("[orders/post-payment] fulfillment failed:", message);
+    return { success: false, error: message };
+  }
+}
+
+async function runCompletePaidOrderFulfillment(input: {
   orderId: string;
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
@@ -293,7 +312,7 @@ export async function completePaidOrderFulfillment(input: {
   });
 
   if (!(await sellerHasSaleTransaction(row.order_number, row.seller_id))) {
-    return { success: false, error: "Failed to open seller escrow." };
+    throw new Error("Failed to open seller escrow — pending wallet sale was not recorded.");
   }
 
   await ensureOrderShippingPipeline(row);

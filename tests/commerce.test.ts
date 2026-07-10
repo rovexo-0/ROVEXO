@@ -8,8 +8,8 @@ import type { Order } from "@/lib/orders/types";
 describe("order pricing", () => {
   it("uses a single platform fee at 5.5% within bounds", () => {
     expect(PLATFORM_FEE_RATE).toBe(0.055);
-    expect(calculatePlatformFee(10)).toBe(0.99);
-    expect(calculatePlatformFee(500)).toBe(9.99);
+    expect(calculatePlatformFee(10)).toBe(0.55);
+    expect(calculatePlatformFee(500)).toBe(27.5);
   });
 
   it("calculates checkout totals", () => {

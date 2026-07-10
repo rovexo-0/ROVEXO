@@ -19,5 +19,12 @@ describe("order post-payment pipeline", () => {
     expect(source).toContain("notifyOrderPaid");
     expect(source).toContain("sellerHasSaleTransaction");
     expect(source).toContain("PAID_ORDER_STATUSES");
+    expect(source).toContain("Failed to create shipping record");
+    expect(source).toContain("Failed to create shipment parcel");
+  });
+
+  it("fails loudly when escrow wallet credit is missing", () => {
+    const source = readFileSync("lib/orders/post-payment.server.ts", "utf8");
+    expect(source).toContain("throw new Error(\"Failed to open seller escrow");
   });
 });

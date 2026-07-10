@@ -2,6 +2,7 @@ import type Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logPaymentError, logStripeWebhookEvent } from "@/lib/ops/logger";
 import { cancelPendingOrder, fulfillOrderFromStripeSession } from "@/lib/orders/checkout";
+import { completePaidOrderFulfillment } from "@/lib/orders/post-payment.server";
 import { fulfillPromotionFromStripeSession } from "@/lib/promotions/service";
 import {
   fulfillSubscriptionFromStripeSession,
@@ -51,7 +52,10 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session):
   }
 
   if (session.metadata?.checkoutType === "order") {
-    await fulfillOrderFromStripeSession(session);
+    const result = await fulfillOrderFromStripeSession(session);
+    if (!result.success) {
+      throw new Error(result.error ?? "Order fulfillment failed after checkout.session.completed.");
+    }
     await recordPlatformAnalyticsEvent({ domain: "orders", metric: "checkout_completed" });
     return;
   }
@@ -92,19 +96,19 @@ export async function processStripeWebhookEvent(event: Stripe.Event): Promise<vo
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       const orderId = paymentIntent.metadata?.orderId;
       if (orderId) {
-        const admin = createAdminClient();
-        const { data: order } = await admin
-          .from("orders")
-          .select("id, status")
-          .eq("id", orderId)
-          .maybeSingle();
-
-        if (order?.status === "awaiting_payment") {
-          logStripeWebhookEvent("payment_intent.succeeded awaiting checkout.session.completed", {
-            orderId,
-            paymentIntentId: paymentIntent.id,
-          });
+        const result = await completePaidOrderFulfillment({
+          orderId,
+          stripePaymentIntentId: paymentIntent.id,
+        });
+        if (!result.success) {
+          throw new Error(
+            result.error ?? "Order fulfillment failed after payment_intent.succeeded.",
+          );
         }
+        logStripeWebhookEvent("payment_intent.succeeded fulfilled order", {
+          orderId,
+          paymentIntentId: paymentIntent.id,
+        });
       }
       break;
     }

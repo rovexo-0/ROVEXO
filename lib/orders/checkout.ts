@@ -269,6 +269,15 @@ export async function createOrderCheckoutSession(
         sellerId: product.seller_id,
         productId: product.id,
       },
+      payment_intent_data: {
+        metadata: {
+          checkoutType: "order",
+          orderId: orderRow.id,
+          buyerId: input.buyerId,
+          sellerId: product.seller_id,
+          productId: product.id,
+        },
+      },
       success_url: `${orderSuccessUrl}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout/${product.slug}?${cancelQuery.toString()}`,
       expires_at: Math.floor(Date.now() / 1000) + RESERVATION_MINUTES * 60,
