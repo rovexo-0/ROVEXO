@@ -64,7 +64,8 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     const order = await applyOrderAction(id, body.action, payload);
     return NextResponse.json({ order });
-  } catch {
-    return NextResponse.json({ error: "Unable to update order." }, { status: 500 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unable to update order.";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

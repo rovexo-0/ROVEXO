@@ -2,7 +2,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
 
 export async function createOrderStripeRefund(orderId: string): Promise<
-  { refundId: string } | { error: string; skipped?: boolean }
+  | { refundId: string; refundedAmount?: number; refundedAt?: string; skipped?: boolean }
+  | { error: string; skipped?: boolean }
 > {
   const admin = createAdminClient();
   const { data: order } = await admin
@@ -16,18 +17,40 @@ export async function createOrderStripeRefund(orderId: string): Promise<
   }
 
   if (order.stripe_refund_id) {
-    return { refundId: order.stripe_refund_id };
+    return {
+      refundId: order.stripe_refund_id,
+      refundedAmount: Number(order.total),
+      refundedAt: undefined,
+    };
   }
 
   if (!order.stripe_payment_intent_id) {
     if (!isStripeConfigured()) {
-      return { refundId: `dev-refund-${orderId}`, skipped: true };
+      const refundedAt = new Date().toISOString();
+      await admin
+        .from("orders")
+        .update({
+          stripe_refund_id: `dev-refund-${orderId}`,
+          refunded_at: refundedAt,
+          refunded_amount: Number(order.total),
+        })
+        .eq("id", orderId);
+      return { refundId: `dev-refund-${orderId}`, refundedAmount: Number(order.total), refundedAt, skipped: true };
     }
     return { error: "No payment intent found for this order." };
   }
 
   if (!isStripeConfigured()) {
-    return { refundId: `dev-refund-${orderId}`, skipped: true };
+    const refundedAt = new Date().toISOString();
+    await admin
+      .from("orders")
+      .update({
+        stripe_refund_id: `dev-refund-${orderId}`,
+        refunded_at: refundedAt,
+        refunded_amount: Number(order.total),
+      })
+      .eq("id", orderId);
+    return { refundId: `dev-refund-${orderId}`, refundedAmount: Number(order.total), refundedAt, skipped: true };
   }
 
   const stripe = getStripeClient();
@@ -40,14 +63,18 @@ export async function createOrderStripeRefund(orderId: string): Promise<
     { idempotencyKey: `order-refund-${orderId}` },
   );
 
+  const refundedAmount = Math.round(refund.amount) / 100;
+  const refundedAt = new Date().toISOString();
+
   await admin
     .from("orders")
     .update({
       stripe_refund_id: refund.id,
-      refunded_at: new Date().toISOString(),
+      refunded_at: refundedAt,
+      refunded_amount: refundedAmount,
     })
     .eq("id", orderId)
     .is("stripe_refund_id", null);
 
-  return { refundId: refund.id };
+  return { refundId: refund.id, refundedAmount, refundedAt };
 }

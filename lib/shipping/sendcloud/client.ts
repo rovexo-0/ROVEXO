@@ -181,3 +181,10 @@ export async function getSendcloudTracking(trackingNumber: string): Promise<Send
 
   return response.parcels?.[0] ?? null;
 }
+
+/** POST /parcels/{id}/cancel — cancel announced parcel or delete unannounced parcel. */
+export async function cancelSendcloudParcel(parcelId: number): Promise<void> {
+  await sendcloudRequest<{ status?: string; message?: string }>(`/parcels/${parcelId}/cancel`, {
+    method: "POST",
+  });
+}

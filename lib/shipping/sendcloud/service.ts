@@ -192,4 +192,14 @@ export const SendcloudService = {
         : [],
     };
   },
+
+  async cancelParcel(parcelId: number): Promise<void> {
+    assertConfigured();
+    const { cancelSendcloudParcel } = await import("@/lib/shipping/sendcloud/client");
+    try {
+      await cancelSendcloudParcel(parcelId);
+    } catch (error) {
+      throw toSendcloudError(error);
+    }
+  },
 };

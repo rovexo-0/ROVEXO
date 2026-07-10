@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createOrderStripeRefund } from "@/lib/stripe/refunds";
-import { cancelPendingOrder } from "@/lib/orders/checkout";
+import { cancelBuyerOrder } from "@/lib/orders/cancel-order.server";
 import { notifyOrderDelivered, notifyOrderShipped, notifyOrderRefunded } from "@/lib/orders/notifications";
 import { releaseProductInventory } from "@/lib/inventory/service";
 import type { DeliveryCarrier } from "@/lib/products/types";
@@ -74,6 +74,10 @@ function mapOrderRow(row: OrderRow): Order {
     shippedAt: row.shipped_at ?? undefined,
     deliveredAt: row.delivered_at ?? undefined,
     completedAt: row.completed_at ?? undefined,
+    cancelledAt: row.cancelled_at ?? undefined,
+    cancellationReason: row.cancellation_reason ?? undefined,
+    refundedAt: row.refunded_at ?? undefined,
+    refundedAmount: row.refunded_amount != null ? Number(row.refunded_amount) : undefined,
     disputesDisabled: row.disputes_disabled,
   };
 }
@@ -211,11 +215,13 @@ export async function applyOrderAction(
   }
 
   if (action === "cancel") {
-    if (existing.status !== "awaiting_payment") {
-      return existing;
+    const result = await cancelBuyerOrder({
+      orderId: id,
+      buyerId: existing.buyer.id,
+    });
+    if (!result.success) {
+      throw new Error(result.error ?? "Unable to cancel order.");
     }
-
-    await cancelPendingOrder(id, "Cancelled by user.", { initiatedBy: "buyer" });
     return getOrderById(id);
   }
 

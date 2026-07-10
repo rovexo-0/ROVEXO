@@ -69,6 +69,8 @@ export async function getOrdersEngineOrderContext(orderId: string): Promise<Orde
     shippedAt: order.shippedAt,
     deliveredAt: order.deliveredAt,
     completedAt: order.completedAt,
+    cancelledAt: order.cancelledAt,
+    refundedAt: order.refundedAt,
     hasTracking: Boolean(order.trackingNumber),
   });
 

@@ -270,6 +270,7 @@ export async function attachLabelToParcel(input: {
   parcelId: string;
   shippingRecordId: string;
   providerId?: string;
+  providerParcelId?: number | null;
   label: {
     trackingNumber: string | null;
     carrier: string;
@@ -298,6 +299,10 @@ export async function attachLabelToParcel(input: {
     carrier: input.label.carrier,
     label_status: input.label.status,
     internal_platform_fee_pence: input.internalPlatformFeePence ?? 0,
+    provider_parcel_id:
+      input.providerParcelId != null && input.providerParcelId > 0
+        ? String(input.providerParcelId)
+        : null,
     updated_at: new Date().toISOString(),
   };
 

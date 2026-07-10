@@ -168,3 +168,54 @@ export async function debitShippingReserveForLabel(input: {
     );
   }
 }
+
+/**
+ * Release unused buyer-paid shipping reserve when an order is cancelled pre-dispatch.
+ */
+export async function releaseShippingReserveForOrder(input: {
+  orderId: string;
+  correlationId?: string | null;
+}): Promise<void> {
+  try {
+    const reserve = await getReserve(input.orderId);
+    if (!reserve || reserve.status === "released" || reserve.status === "refunded") {
+      return;
+    }
+
+    const remaining = roundMoney(Number(reserve.reserved_amount) - Number(reserve.spent_amount));
+    const admin = createCommerceAdminClient();
+
+    await admin
+      .from("shipping_reserve")
+      .update({ status: "released" })
+      .eq("id", reserve.id);
+
+    if (remaining > 0) {
+      await admin.from("shipping_transactions").insert({
+        order_id: input.orderId,
+        reserve_id: reserve.id,
+        direction: "release",
+        amount: remaining,
+        currency: "GBP",
+        provider: reserve.provider ?? null,
+        correlation_id: input.correlationId ?? null,
+        metadata: { reason: "order_cancelled" },
+      });
+    }
+
+    await emitCommerceEvent({
+      event: "REFUND_COMPLETED",
+      orderId: input.orderId,
+      userId: reserve.seller_id,
+      amount: remaining,
+      rule: "release_shipping_reserve",
+      result: "released",
+    });
+  } catch (error) {
+    console.error(
+      "[commerce-engine] releaseShippingReserveForOrder threw",
+      error instanceof Error ? error.message : String(error),
+    );
+    throw error;
+  }
+}

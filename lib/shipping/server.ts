@@ -14,13 +14,14 @@ export async function fetchOrderShippingQuotes(orderId: string, request: Shippin
 }
 
 export async function generateOrderShippingLabel(orderId: string, request: ShippingLabelRequest) {
-  const { label, internalPlatformFeePence, providerId } = await generateShippingLabel(request);
+  const { label, internalPlatformFeePence, providerId, sendcloud } = await generateShippingLabel(request);
   const record = await saveShippingLabel({
     orderId,
     parcelId: request.parcelId,
     label,
     internalPlatformFeePence,
     providerId,
+    providerParcelId: sendcloud?.parcelId ?? null,
   });
 
   if (label.trackingNumber) {

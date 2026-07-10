@@ -59,11 +59,13 @@ type TimelineInput = {
   shippedAt?: string;
   deliveredAt?: string;
   completedAt?: string;
+  cancelledAt?: string;
+  refundedAt?: string;
   hasTracking?: boolean;
 };
 
 function currentTimelineStage(input: TimelineInput): OrdersEngineTimelineEventId {
-  if (input.status === "cancelled") return "cancelled";
+  if (input.status === "cancelled") return input.refundedAt ? "refunded" : "cancelled";
   if (input.status === "issue_open") return "disputed";
   if (input.status === "completed") return "completed";
   if (input.status === "delivered") return "confirmed";
@@ -78,6 +80,7 @@ const TIMELINE_ORDER: OrdersEngineTimelineEventId[] = ORDERS_ENGINE_TIMELINE_EVE
 export function buildOrderTimeline(input: TimelineInput): OrdersEngineTimelineEvent[] {
   const current = currentTimelineStage(input);
   const currentIndex = TIMELINE_ORDER.indexOf(current);
+  const isCancelledOrder = input.status === "cancelled";
 
   const timestamps: Partial<Record<OrdersEngineTimelineEventId, string | undefined>> = {
     created: input.createdAt,
@@ -87,7 +90,20 @@ export function buildOrderTimeline(input: TimelineInput): OrdersEngineTimelineEv
     delivered: input.deliveredAt,
     confirmed: input.deliveredAt,
     completed: input.completedAt,
+    cancelled: input.cancelledAt,
+    refunded: input.refundedAt ?? input.cancelledAt,
   };
+
+  function isEventDone(eventId: OrdersEngineTimelineEventId, index: number): boolean {
+    if (isCancelledOrder) {
+      if (eventId === "cancelled") return Boolean(input.cancelledAt);
+      if (eventId === "refunded") return Boolean(input.refundedAt);
+      if (eventId === "paid") return Boolean(input.paidAt);
+      if (eventId === "created") return true;
+      return false;
+    }
+    return index <= currentIndex;
+  }
 
   return ORDERS_ENGINE_TIMELINE_EVENTS.map((event) => {
     const index = TIMELINE_ORDER.indexOf(event.id);
@@ -95,7 +111,7 @@ export function buildOrderTimeline(input: TimelineInput): OrdersEngineTimelineEv
       id: event.id,
       label: event.label,
       timestamp: timestamps[event.id],
-      done: index <= currentIndex,
+      done: isEventDone(event.id, index),
       current: event.id === current,
     };
   });

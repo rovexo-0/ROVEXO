@@ -359,6 +359,7 @@ export async function saveShippingLabel(input: {
   label: ShippingLabelArtifact;
   internalPlatformFeePence: number;
   providerId?: string;
+  providerParcelId?: number | null;
 }): Promise<ShippingRecord | null> {
   const record = await ensureShippingRecord({ orderId: input.orderId });
   if (!record) return null;
@@ -378,6 +379,7 @@ export async function saveShippingLabel(input: {
     parcelId,
     shippingRecordId: record.id,
     providerId: input.providerId ?? "sendcloud",
+    providerParcelId: input.providerParcelId,
     label: {
       trackingNumber: input.label.trackingNumber,
       carrier: String(input.label.carrier),

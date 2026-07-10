@@ -1,4 +1,5 @@
 import type { Order, OrderViewRole } from "@/lib/orders/types";
+import { isBuyerCancellableOrderStatus } from "@/lib/orders/cancellation";
 
 export function resolveOrderViewRole(order: Order, userId: string): OrderViewRole | null {
   if (order.buyer.id === userId) return "buyer";
@@ -32,5 +33,12 @@ export function canPerformOrderAction(
     return SELLER_ACTIONS.has(action);
   }
 
-  return BUYER_ACTIONS.has(action);
+  if (role === "buyer") {
+    if (action === "cancel") {
+      return isBuyerCancellableOrderStatus(order.status);
+    }
+    return BUYER_ACTIONS.has(action);
+  }
+
+  return false;
 }

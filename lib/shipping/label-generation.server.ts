@@ -19,12 +19,16 @@ export async function generateShippingLabelForOrder(
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, order_number, seller_id, shipping_address_id")
+    .select("id, order_number, seller_id, shipping_address_id, status")
     .eq("id", orderId)
     .maybeSingle();
 
   if (!order || order.seller_id !== sellerId) {
     return { ok: false as const, error: "Order not found or access denied." };
+  }
+
+  if (order.status === "cancelled") {
+    return { ok: false as const, error: "Cancelled orders cannot generate labels." };
   }
 
   const record = await getShippingRecord(orderId);

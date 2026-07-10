@@ -16,6 +16,7 @@ import {
 import type { BuyerCommerceOrderView } from "@/lib/commerce/view-types";
 import type { OrderEscrowState } from "@/lib/commerce-engine/read-model";
 import type { OrderResolutionSummary } from "@/lib/resolution-engine/types";
+import { BuyerCancelOrderCard } from "@/features/orders/components/BuyerCancelOrderCard";
 import type { Order } from "@/lib/orders/types";
 
 type BuyerOrderDetailCanonicalProps = {
@@ -24,6 +25,7 @@ type BuyerOrderDetailCanonicalProps = {
   escrowState?: OrderEscrowState;
   resolutionSummary?: OrderResolutionSummary;
   showSuccessBanner?: boolean;
+  buyerCanCancel?: boolean;
 };
 
 export function BuyerOrderDetailCanonical({
@@ -32,6 +34,7 @@ export function BuyerOrderDetailCanonical({
   escrowState,
   resolutionSummary,
   showSuccessBanner = false,
+  buyerCanCancel = false,
 }: BuyerOrderDetailCanonicalProps) {
   const [order, setOrder] = useState(initialOrder);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -97,6 +100,12 @@ export function BuyerOrderDetailCanonical({
       />
 
       {escrowState ? <EscrowReleaseCard escrow={escrowState} view="buyer" /> : null}
+
+      <BuyerCancelOrderCard
+        order={order}
+        canCancel={buyerCanCancel}
+        onCancelled={setOrder}
+      />
 
       {resolutionSummary ? (
         <ResolutionStatusCard resolution={resolutionSummary} view="buyer" />

@@ -9,6 +9,7 @@ import { getBuyerCommerceOrderView } from "@/lib/commerce/read-model";
 import { getOrderEscrowState } from "@/lib/commerce-engine/read-model";
 import { getOrderResolutionSummary } from "@/lib/resolution-engine";
 import { getOrdersEngineOrderContext } from "@/lib/orders-engine/reader";
+import { getBuyerOrderCancellationEligibility } from "@/lib/orders/cancel-order.server";
 import { getProfile } from "@/lib/profile/data";
 
 type BuyerOrderDetailRouteProps = {
@@ -34,12 +35,14 @@ export default async function BuyerOrderDetailRoute({
     notFound();
   }
 
-  const [orderContext, commerce, escrowState, resolutionSummary] = await Promise.all([
-    getOrdersEngineOrderContext(id),
-    getBuyerCommerceOrderView(order),
-    getOrderEscrowState(id),
-    getOrderResolutionSummary(id),
-  ]);
+  const [orderContext, commerce, escrowState, resolutionSummary, cancellationEligibility] =
+    await Promise.all([
+      getOrdersEngineOrderContext(id),
+      getBuyerCommerceOrderView(order),
+      getOrderEscrowState(id),
+      getOrderResolutionSummary(id),
+      getBuyerOrderCancellationEligibility(id, profile.id),
+    ]);
 
   return (
     <>
@@ -56,6 +59,7 @@ export default async function BuyerOrderDetailRoute({
         resolutionSummary={resolutionSummary}
         commerceView={commerce}
         showSuccessBanner={placed === "1"}
+        buyerCanCancel={cancellationEligibility.canCancel}
       />
     </>
   );

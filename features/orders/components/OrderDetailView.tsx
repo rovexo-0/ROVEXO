@@ -7,6 +7,7 @@ import { PublishedCheckmark } from "@/features/sell/components/PublishedCheckmar
 import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
 import { IssueResolutionLink } from "@/features/orders/components/IssueResolutionLink";
 import { DeliveryStatusCard } from "@/features/orders/components/DeliveryStatusCard";
+import { BuyerCancelOrderCard } from "@/features/orders/components/BuyerCancelOrderCard";
 import { OrderActionsCard } from "@/features/orders/components/OrderActionsCard";
 import { SellerOrderFulfillment } from "@/features/orders/components/SellerOrderFulfillment";
 import { OrderProductCard } from "@/features/orders/components/OrderProductCard";
@@ -31,6 +32,8 @@ type OrderDetailViewProps = {
   escrowState?: OrderEscrowState;
   resolutionSummary?: OrderResolutionSummary;
   sellerShipment?: SellerShipmentView;
+  buyerCanCancel?: boolean;
+  buyerCancelReason?: string;
 };
 
 export function OrderDetailView({
@@ -39,6 +42,8 @@ export function OrderDetailView({
   escrowState,
   resolutionSummary,
   sellerShipment,
+  buyerCanCancel = false,
+  buyerCancelReason,
 }: OrderDetailViewProps) {
   const [order, setOrder] = useState(initialOrder);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -126,6 +131,15 @@ export function OrderDetailView({
       ) : null}
 
       <OrderActionsCard order={order} view={view} />
+
+      {view === "buyer" ? (
+        <BuyerCancelOrderCard
+          order={order}
+          canCancel={buyerCanCancel}
+          disabledReason={buyerCancelReason}
+          onCancelled={setOrder}
+        />
+      ) : null}
 
       {showBuyerConfirm ? (
         <Card padding="lg" className="flex flex-col gap-ds-4">

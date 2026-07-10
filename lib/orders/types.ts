@@ -57,6 +57,10 @@ export type Order = {
   shippedAt?: string;
   deliveredAt?: string;
   completedAt?: string;
+  cancelledAt?: string;
+  cancellationReason?: string;
+  refundedAt?: string;
+  refundedAmount?: number;
   disputesDisabled: boolean;
 };
 

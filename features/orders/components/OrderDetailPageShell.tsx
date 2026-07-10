@@ -24,6 +24,7 @@ type OrderDetailPageShellProps = {
   commerceView?: BuyerCommerceOrderView;
   sellerShipment?: SellerShipmentView;
   showSuccessBanner?: boolean;
+  buyerCanCancel?: boolean;
 };
 
 export function OrderDetailPageShell({
@@ -38,6 +39,7 @@ export function OrderDetailPageShell({
   commerceView,
   sellerShipment,
   showSuccessBanner = false,
+  buyerCanCancel = false,
 }: OrderDetailPageShellProps) {
   const view = resolveOrderViewRole(order, userId);
   const isCompleted = view === "buyer" && order.status === "completed";
@@ -64,6 +66,7 @@ export function OrderDetailPageShell({
             escrowState={escrowState ?? undefined}
             resolutionSummary={resolutionSummary ?? undefined}
             showSuccessBanner={showSuccessBanner}
+            buyerCanCancel={buyerCanCancel}
           />
         ) : (
           <OrderDetailView
@@ -72,6 +75,7 @@ export function OrderDetailPageShell({
             escrowState={escrowState ?? undefined}
             resolutionSummary={resolutionSummary ?? undefined}
             sellerShipment={sellerShipment}
+            buyerCanCancel={buyerCanCancel}
           />
         )}
       </HubPageMain>

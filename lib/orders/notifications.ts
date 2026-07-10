@@ -195,6 +195,61 @@ export async function notifyOrderCancelled(input: {
   ]);
 }
 
+export async function notifyBuyerOrderCancelledWithRefund(input: {
+  buyerId: string;
+  buyerEmail: string;
+  orderNumber: string;
+  refunded: boolean;
+  amount?: number;
+}): Promise<void> {
+  const body = input.refunded
+    ? `Your order ${input.orderNumber} has been cancelled and refunded${input.amount != null ? ` (£${input.amount.toFixed(2)})` : ""}.`
+    : `Your order ${input.orderNumber} has been cancelled.`;
+
+  await Promise.all([
+    createNotification({
+      userId: input.buyerId,
+      type: "order",
+      title: input.refunded ? "Order cancelled and refunded" : "Order cancelled",
+      subtitle: input.orderNumber,
+      href: "/orders",
+    }),
+    queueEmail({
+      to: input.buyerEmail,
+      subject: input.refunded
+        ? `Order cancelled and refunded — ${input.orderNumber}`
+        : `Order cancelled — ${input.orderNumber}`,
+      body,
+      template: "order_cancelled",
+      metadata: { orderNumber: input.orderNumber },
+    }),
+  ]);
+}
+
+export async function notifySellerOrderCancelledByBuyer(input: {
+  sellerId: string;
+  sellerEmail: string;
+  orderNumber: string;
+  productTitle: string;
+}): Promise<void> {
+  await Promise.all([
+    createNotification({
+      userId: input.sellerId,
+      type: "order",
+      title: "Order cancelled by buyer",
+      subtitle: `${input.orderNumber} — ${input.productTitle}`,
+      href: "/seller/orders",
+    }),
+    queueEmail({
+      to: input.sellerEmail,
+      subject: `Buyer cancelled order — ${input.orderNumber}`,
+      body: `The buyer cancelled order ${input.orderNumber} for ${input.productTitle} before shipment.`,
+      template: "seller_order_cancelled",
+      metadata: { orderNumber: input.orderNumber },
+    }),
+  ]);
+}
+
 export async function notifyPromotionPurchased(input: {
   sellerId: string;
   sellerEmail: string;

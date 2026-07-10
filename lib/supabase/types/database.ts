@@ -2226,6 +2226,8 @@ export type Database = {
       orders: {
         Row: {
           buyer_id: string
+          cancellation_reason: string | null
+          cancelled_at: string | null
           completed_at: string | null
           created_at: string
           delivered_at: string | null
@@ -2242,6 +2244,7 @@ export type Database = {
           platform_fee: number
           protected_fee: number
           receipt_url: string | null
+          refunded_amount: number | null
           refunded_at: string | null
           reserved_until: string | null
           seller_id: string
@@ -2259,6 +2262,8 @@ export type Database = {
         }
         Insert: {
           buyer_id: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           completed_at?: string | null
           created_at?: string
           delivered_at?: string | null
@@ -2275,6 +2280,7 @@ export type Database = {
           platform_fee?: number
           protected_fee?: number
           receipt_url?: string | null
+          refunded_amount?: number | null
           refunded_at?: string | null
           reserved_until?: string | null
           seller_id: string
@@ -2292,6 +2298,8 @@ export type Database = {
         }
         Update: {
           buyer_id?: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
           completed_at?: string | null
           created_at?: string
           delivered_at?: string | null
@@ -2308,6 +2316,7 @@ export type Database = {
           platform_fee?: number
           protected_fee?: number
           receipt_url?: string | null
+          refunded_amount?: number | null
           refunded_at?: string | null
           reserved_until?: string | null
           seller_id?: string
