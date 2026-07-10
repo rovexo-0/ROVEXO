@@ -137,18 +137,39 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
       ) : null}
 
       {photos.length === 0 ? (
-        <label
-          aria-label="Add photo"
-          className={cn(
-            "relative flex min-h-[8rem] w-full touch-manipulation flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-dashed border-primary/40 bg-primary/5 text-primary transition-colors active:bg-primary/10",
-            focusRing,
-          )}
-        >
-          <NativeImageFileInput placement="overlay" multiple onFilesSelected={handleFilesSelected} />
-          <CameraIcon className="pointer-events-none h-7 w-7" />
-          <span className="pointer-events-none text-sm font-semibold">Add Photo</span>
-          <span className="pointer-events-none text-xs font-normal text-text-muted">Maximum {SELL_PHOTO_MAX} photos</span>
-        </label>
+        <div className="flex flex-col gap-ds-2">
+          <label
+            aria-label="Add photo from gallery"
+            className={cn(
+              "relative flex min-h-[8rem] w-full touch-manipulation flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-dashed border-primary/40 bg-primary/5 text-primary transition-colors active:bg-primary/10",
+              focusRing,
+            )}
+          >
+            <NativeImageFileInput
+              intent="gallery"
+              placement="overlay"
+              multiple
+              onFilesSelected={handleFilesSelected}
+            />
+            <CameraIcon className="pointer-events-none h-7 w-7" />
+            <span className="pointer-events-none text-sm font-semibold">Add Photo</span>
+            <span className="pointer-events-none text-xs font-normal text-text-muted">
+              Maximum {SELL_PHOTO_MAX} photos
+            </span>
+          </label>
+
+          <label
+            aria-label="Take photo with camera"
+            className={cn(
+              "relative flex min-h-[44px] w-full touch-manipulation items-center justify-center gap-ds-2 rounded-ds-lg border border-border bg-surface text-sm font-semibold text-text-primary active:bg-surface-muted",
+              focusRing,
+            )}
+          >
+            <NativeImageFileInput intent="camera" placement="overlay" onFilesSelected={handleFilesSelected} />
+            <CameraIcon className="pointer-events-none h-5 w-5 text-primary" />
+            <span className="pointer-events-none">Take Photo</span>
+          </label>
+        </div>
       ) : (
         <div
           className="-mx-ds-1 flex gap-ds-2 overflow-x-auto px-ds-1 pb-ds-1"
@@ -224,18 +245,37 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
           ))}
 
           {canAdd ? (
-            <label
-              aria-label="Add photo"
-              className={cn(
-                tileBase,
-                "touch-manipulation flex-col gap-1 border-2 border-dashed border-primary/40 bg-primary/5 text-primary",
-                focusRing,
-              )}
-            >
-              <NativeImageFileInput placement="overlay" multiple onFilesSelected={handleFilesSelected} />
-              <PlusIcon className="pointer-events-none h-6 w-6" />
-              <span className="pointer-events-none text-xs font-semibold">Add Photo</span>
-            </label>
+            <>
+              <label
+                aria-label="Add photo from gallery"
+                className={cn(
+                  tileBase,
+                  "touch-manipulation flex-col gap-1 border-2 border-dashed border-primary/40 bg-primary/5 text-primary",
+                  focusRing,
+                )}
+              >
+                <NativeImageFileInput
+                  intent="gallery"
+                  placement="overlay"
+                  multiple
+                  onFilesSelected={handleFilesSelected}
+                />
+                <PlusIcon className="pointer-events-none h-6 w-6" />
+                <span className="pointer-events-none text-xs font-semibold">Add Photo</span>
+              </label>
+
+              <label
+                aria-label="Take photo with camera"
+                className={cn(
+                  tileBase,
+                  "touch-manipulation border border-border bg-surface text-primary",
+                  focusRing,
+                )}
+              >
+                <NativeImageFileInput intent="camera" placement="overlay" onFilesSelected={handleFilesSelected} />
+                <CameraIcon className="pointer-events-none h-6 w-6" />
+              </label>
+            </>
           ) : null}
         </div>
       )}

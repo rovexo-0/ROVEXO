@@ -19,6 +19,15 @@ function PlusIcon({ className }: { className?: string }) {
   );
 }
 
+function CameraIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" strokeWidth={1.75} stroke="currentColor" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" />
+    </svg>
+  );
+}
+
 function CloseIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" aria-hidden>
@@ -145,14 +154,24 @@ export const PhotoUploader = memo(function PhotoUploader() {
       ) : null}
 
       {photos.length === 0 ? (
-        <label
-          className={cn(styles.emptyCard, focusRing)}
-          aria-label="Add photo"
-        >
-          <NativeImageFileInput placement="overlay" multiple onFilesSelected={handleFilesSelected} />
-          <PlusIcon className={cn(styles.emptyCardIcon, "pointer-events-none")} />
-          <span className="pointer-events-none">Add Photo</span>
-        </label>
+        <div className={styles.emptyState}>
+          <label className={cn(styles.emptyCard, focusRing)} aria-label="Add photo from gallery">
+            <NativeImageFileInput
+              intent="gallery"
+              placement="overlay"
+              multiple
+              onFilesSelected={handleFilesSelected}
+            />
+            <PlusIcon className={cn(styles.emptyCardIcon, "pointer-events-none")} />
+            <span className="pointer-events-none">Add Photo</span>
+          </label>
+
+          <label className={cn(styles.takePhotoButton, focusRing)} aria-label="Take photo with camera">
+            <NativeImageFileInput intent="camera" placement="overlay" onFilesSelected={handleFilesSelected} />
+            <CameraIcon className={cn(styles.takePhotoIcon, "pointer-events-none")} />
+            <span className="pointer-events-none">Take Photo</span>
+          </label>
+        </div>
       ) : (
         <div
           className={styles.gallery}
@@ -227,14 +246,23 @@ export const PhotoUploader = memo(function PhotoUploader() {
           ))}
 
           {canAddPhotos ? (
-            <label
-              className={cn(styles.addTile, focusRing)}
-              aria-label="Add photo"
-            >
-              <NativeImageFileInput placement="overlay" multiple onFilesSelected={handleFilesSelected} />
-              <PlusIcon className={cn(styles.addTileIcon, "pointer-events-none")} />
-              <span className="pointer-events-none">Add Photo</span>
-            </label>
+            <>
+              <label className={cn(styles.addTile, focusRing)} aria-label="Add photo from gallery">
+                <NativeImageFileInput
+                  intent="gallery"
+                  placement="overlay"
+                  multiple
+                  onFilesSelected={handleFilesSelected}
+                />
+                <PlusIcon className={cn(styles.addTileIcon, "pointer-events-none")} />
+                <span className="pointer-events-none">Add Photo</span>
+              </label>
+
+              <label className={cn(styles.cameraTile, focusRing)} aria-label="Take photo with camera">
+                <NativeImageFileInput intent="camera" placement="overlay" onFilesSelected={handleFilesSelected} />
+                <CameraIcon className={cn(styles.addTileIcon, "pointer-events-none")} />
+              </label>
+            </>
           ) : null}        </div>
       )}
 

@@ -145,6 +145,13 @@
 }
 
 /* ── Empty state (single card) ─────────────────────────────────────── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
 .emptyCard {
   position: relative;
   display: flex;
@@ -152,7 +159,6 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 12px;
   width: 100%;
   min-height: 128px;
   border-radius: var(--ds-radius-lg);
@@ -168,6 +174,47 @@
 .emptyCardIcon {
   width: 28px;
   height: 28px;
+}
+
+.takePhotoButton {
+  position: relative;
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  border-radius: var(--ds-radius-lg);
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
+  color: var(--ds-color-text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.takePhotoIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--ds-color-primary);
+}
+
+.cameraTile {
+  position: relative;
+  flex: 0 0 auto;
+  width: 104px;
+  height: 104px;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 1px solid var(--ds-color-border);
+  background: var(--ds-color-surface);
+  color: var(--ds-color-primary);
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 /* ── Full-screen preview ───────────────────────────────────────────── */

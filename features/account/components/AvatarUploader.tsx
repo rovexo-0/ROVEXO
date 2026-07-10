@@ -189,7 +189,12 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
         </div>
       )}
 
-      <NativeImageFileInput id={pickerId} disabled={busy} onFilesSelected={(files) => void onFileChange(files)} />
+      <NativeImageFileInput
+        id={pickerId}
+        intent="any"
+        disabled={busy}
+        onFilesSelected={(files) => void onFileChange(files)}
+      />
 
       <div className="flex flex-wrap justify-center gap-ds-2">
         {!preview ? (
