@@ -51,6 +51,7 @@ describe("production optimization audit", () => {
     expect(report.healthScore).toBeGreaterThanOrEqual(85);
     expect(report.remainingWarnings).toEqual([
       "Home below-fold code splitting: Below-fold sections dynamically imported",
+      "Listing OpenGraph metadata: Product pages include OG + JSON-LD",
     ]);
     expect(report.checks.some((check) => check.id === "infra-dynamic-imports" && !check.pass)).toBe(true);
   });

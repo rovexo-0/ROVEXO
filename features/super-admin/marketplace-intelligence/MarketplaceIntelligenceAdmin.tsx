@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { EnterpriseAdminShell } from "@/features/super-admin/components/premium/EnterpriseAdminShell";
 import type { MarketplaceIntelligenceSnapshot } from "@/lib/marketplace-intelligence/types";
 import type { MarketplaceIntelligenceDocument } from "@/lib/marketplace-intelligence/types";
 
@@ -54,14 +55,13 @@ export function MarketplaceIntelligenceAdmin({
         : "danger";
 
   return (
-    <div className="space-y-ds-6">
-      <div className="flex flex-wrap items-center justify-between gap-ds-3">
-        <div>
-          <h2 className="text-xl font-semibold">Marketplace Intelligence</h2>
-          <p className="text-sm text-text-secondary">
-            v{snapshot.engineVersion} · deterministic rules engine · no AI
-          </p>
-        </div>
+    <EnterpriseAdminShell
+      moduleId="marketplace-intelligence"
+      eyebrow="Marketplace Intelligence"
+      title="Marketplace Intelligence"
+      description={`v${snapshot.engineVersion} · deterministic rules engine · no AI`}
+      message={message}
+      actions={
         <div className="flex gap-ds-2">
           <Button variant="secondary" onClick={refresh} disabled={busy}>
             Refresh
@@ -70,10 +70,9 @@ export function MarketplaceIntelligenceAdmin({
             Run Automation
           </Button>
         </div>
-      </div>
-
-      {message && <p className="text-sm text-text-secondary">{message}</p>}
-
+      }
+    >
+    <div className="space-y-ds-6">
       <div className="flex flex-wrap gap-ds-2">
         <Badge variant={healthVariant}>Marketplace {snapshot.marketplaceHealth.status}</Badge>
         <Badge variant="default">Score {snapshot.marketplaceHealth.score}/100</Badge>
@@ -198,5 +197,6 @@ export function MarketplaceIntelligenceAdmin({
         </ul>
       </Card>
     </div>
+    </EnterpriseAdminShell>
   );
 }

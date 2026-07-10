@@ -69,7 +69,7 @@ describe("Product Details UI v1.1", () => {
     const page = readSource("features/product-detail/ProductDetailPage.tsx");
     const shellBlock = page.slice(page.indexOf('<div className="pd-v1__shell">'));
 
-    expect(shellBlock.indexOf("<ProductGalleryV1")).toBeLessThan(shellBlock.indexOf("<main"));
+    expect(shellBlock.indexOf("<ProductGalleryV1")).toBeLessThan(shellBlock.indexOf('className="pd-v1__main"'));
   });
 
   it("keeps approved pricing and removes buyer protection section", () => {
@@ -83,7 +83,7 @@ describe("Product Details UI v1.1", () => {
 
   it("orders content sections per official reference", () => {
     const page = readSource("features/product-detail/ProductDetailPage.tsx");
-    const mainBlock = page.slice(page.indexOf("<main className=\"pd-v1__main\">"));
+    const mainBlock = page.slice(page.indexOf('className="pd-v1__main"'));
     const badgesIndex = mainBlock.indexOf("<ProductDetailBadges");
     const descriptionIndex = mainBlock.indexOf("<ProductDescriptionV1");
     const conditionIndex = mainBlock.indexOf("<ProductConditionCard");
