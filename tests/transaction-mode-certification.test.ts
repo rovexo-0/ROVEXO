@@ -194,7 +194,7 @@ describe("Transaction Mode — enterprise certification", () => {
     });
 
     it("hides parcel size on sell form for DIRECT_CONTACT", () => {
-      const form = readSource("features/sell/ui/SellShippingBlock.tsx");
+      const form = readSource("features/sell/ui/SellParcelBlock.tsx");
       expect(form).toContain("resolveTransactionModeFromFlatPath");
       expect(form).toContain("directContact");
     });

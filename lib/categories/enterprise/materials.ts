@@ -5,12 +5,12 @@
 export const MARKETPLACE_MATERIALS = [
   "Acrylic", "Aluminium", "Bamboo", "Brass", "Bronze", "Canvas", "Carbon Fiber", "Cashmere",
   "Ceramic", "Chrome", "Copper", "Corduroy", "Cotton", "Denim", "Down", "Elastane", "Faux Fur",
-  "Faux Leather", "Faux Suede", "Felt", "Fibreglass", "Glass", "Gold", "Hemp", "Jersey", "Jute",
-  "Latex", "Leather", "Linen", "Lycra", "Merino Wool", "Mesh", "Metal", "Microfibre", "Nylon",
-  "Organic Cotton", "Paper", "Plastic", "Platinum", "Polyester", "Polypropylene", "Porcelain",
-  "PVC", "Rayon", "Recycled Polyester", "Rubber", "Satin", "Silicone", "Silk", "Silver",
-  "Stainless Steel", "Steel", "Stone", "Suede", "Synthetic", "Tencel", "Titanium", "Tweed",
-  "Velvet", "Vinyl", "Viscose", "Wood", "Wool", "Zinc", "Other",
+  "Faux Leather", "Faux Suede", "Felt", "Fibreglass", "Foam", "Gel Foam", "Glass", "Gold", "Hemp",
+  "Jersey", "Jute", "Latex", "Leather", "Linen", "Lycra", "Memory Foam", "Merino Wool", "Mesh",
+  "Metal", "Microfibre", "Nylon", "Organic Cotton", "Paper", "Plastic", "Platinum", "Polyester",
+  "Polypropylene", "Porcelain", "PVC", "Rayon", "Recycled Polyester", "Rubber", "Satin", "Silicone",
+  "Silk", "Silver", "Stainless Steel", "Steel", "Stone", "Suede", "Synthetic", "Tencel", "Titanium",
+  "Tweed", "Velvet", "Vinyl", "Viscose", "Wood", "Wool", "Zinc", "Other",
 ] as const;
 
 export const FASHION_MATERIALS = [

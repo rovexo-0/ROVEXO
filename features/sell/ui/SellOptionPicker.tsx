@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
-import { Button } from "@/components/ui/Button";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { sellPanel, focusRing } from "@/features/sell/ui/sell-classes";
@@ -28,14 +27,6 @@ function normalize(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function CheckIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" strokeWidth={3} stroke="currentColor" className="h-3.5 w-3.5" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="m5 13 4 4L19 7" />
-    </svg>
-  );
-}
-
 function SearchIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" strokeWidth={1.75} stroke="currentColor" className="h-5 w-5 text-text-muted" aria-hidden>
@@ -45,9 +36,8 @@ function SearchIcon() {
 }
 
 /**
- * ROVEXO universal attribute selector — one reusable full-screen picker for
- * every listing attribute (Brand, Size, Colour, Material, …). Configuration is
- * fully prop-driven; the working selection seeds from `value` on mount.
+ * Fullscreen attribute selector — tap to select, auto-close, return to sell form.
+ * No Done / Apply / Save buttons. Scroll body is independent per page.
  */
 export function SellOptionPicker({
   title,
@@ -63,7 +53,6 @@ export function SellOptionPicker({
   onClose,
   onDone,
 }: SellOptionPickerProps) {
-  const [selected, setSelected] = useState<string[]>(() => [...value]);
   const [query, setQuery] = useState("");
 
   const allOptions = useMemo<SelectionOption[]>(() => {
@@ -90,26 +79,20 @@ export function SellOptionPicker({
     return allOptions.filter((option) => set.has(option.id));
   }, [allOptions, popularIds, trimmed]);
 
-  const isSelected = (id: string) => selected.includes(id);
-
-  const toggle = (id: string) => {
-    if (mode === "single") {
-      onDone([id]);
-      onClose();
-      return;
-    }
-    setSelected((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+  const select = (id: string) => {
+    onDone(mode === "multiple" ? [id] : [id]);
+    onClose();
   };
 
   const renderRow = (option: SelectionOption) => {
-    const active = isSelected(option.id);
+    const active = value.includes(option.id);
     return (
       <li key={option.id}>
         <button
           type="button"
-          role={mode === "single" ? "radio" : "checkbox"}
+          role="radio"
           aria-checked={active}
-          onClick={() => toggle(option.id)}
+          onClick={() => select(option.id)}
           className={cn(
             "flex min-h-[56px] w-full items-center gap-ds-3 rounded-ds-md border-2 px-ds-4 text-left transition-colors",
             active ? "border-primary bg-primary/5" : "border-border bg-surface-muted/40",
@@ -122,13 +105,12 @@ export function SellOptionPicker({
           <span className="min-w-0 flex-1 truncate text-base font-medium text-text-primary">{option.label}</span>
           <span
             className={cn(
-              "grid h-6 w-6 shrink-0 place-items-center border-2",
-              mode === "single" ? "rounded-ds-full" : "rounded-ds-sm",
+              "grid h-6 w-6 shrink-0 place-items-center rounded-ds-full border-2",
               active ? "border-primary bg-primary text-white" : "border-border",
             )}
             aria-hidden
           >
-            {mode === "single" ? (active ? <span className="h-2.5 w-2.5 rounded-ds-full bg-white" /> : null) : active ? <CheckIcon /> : null}
+            {active ? <span className="h-2.5 w-2.5 rounded-ds-full bg-white" /> : null}
           </span>
         </button>
       </li>
@@ -136,14 +118,14 @@ export function SellOptionPicker({
   };
 
   const renderGridCell = (option: SelectionOption) => {
-    const active = isSelected(option.id);
+    const active = value.includes(option.id);
     return (
       <button
         key={option.id}
         type="button"
-        role={mode === "single" ? "radio" : "checkbox"}
+        role="radio"
         aria-checked={active}
-        onClick={() => toggle(option.id)}
+        onClick={() => select(option.id)}
         className={cn(
           "grid min-h-[56px] place-items-center rounded-ds-md border-2 px-ds-2 text-center text-base font-semibold transition-colors",
           active ? "border-primary bg-primary/5 text-primary" : "border-border bg-surface-muted/40 text-text-primary",
@@ -157,74 +139,57 @@ export function SellOptionPicker({
 
   return (
     <ModalContainer open onClose={onClose} variant="fullscreen" zIndex={200} ariaLabel={title}>
-      <div className={sellPanel}>
-      <SellPanelHeader title={title} onBack={onClose} />
+      <div className={cn(sellPanel, "flex min-h-0 flex-1 flex-col")}>
+        <SellPanelHeader title={title} onBack={onClose} />
 
-      {searchable ? (
-        <div className="border-b border-border px-ds-4 py-ds-3">
-          <div className={cn("flex items-center gap-ds-2 rounded-ds-md bg-surface-muted px-ds-3", focusRing)}>
-            <SearchIcon />
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder={searchPlaceholder}
-              aria-label={searchPlaceholder}
-              autoComplete="off"
-              className="h-11 w-full flex-1 bg-transparent text-base text-text-primary outline-none placeholder:text-text-muted"
-            />
+        {searchable ? (
+          <div className="shrink-0 border-b border-border px-ds-4 py-ds-3">
+            <div className={cn("flex items-center gap-ds-2 rounded-ds-md bg-surface-muted px-ds-3", focusRing)}>
+              <SearchIcon />
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={searchPlaceholder}
+                aria-label={searchPlaceholder}
+                autoComplete="off"
+                className="h-11 w-full flex-1 bg-transparent text-base text-text-primary outline-none placeholder:text-text-muted"
+              />
+            </div>
           </div>
+        ) : null}
+
+        <div className={cn(RX_MODAL_BODY, "min-h-0 flex-1 overflow-y-auto overscroll-contain px-ds-4 pt-ds-3")}>
+          {layout === "grid" ? (
+            <div className="grid grid-cols-3 gap-ds-2 pb-ds-4" role="radiogroup" aria-label={title}>
+              {filtered.map(renderGridCell)}
+            </div>
+          ) : (
+            <>
+              {showCustom ? (
+                <ul className="mb-ds-3 flex flex-col gap-ds-2">{renderRow({ id: trimmed, label: `Use “${trimmed}”` })}</ul>
+              ) : null}
+
+              {popularOptions.length > 0 ? (
+                <>
+                  <p className="px-ds-1 pb-ds-2 pt-ds-1 text-xs font-semibold uppercase tracking-wide text-text-muted">Popular</p>
+                  <ul className="mb-ds-3 flex flex-col gap-ds-2" role="radiogroup" aria-label={`Popular ${title}`}>
+                    {popularOptions.map(renderRow)}
+                  </ul>
+                  <p className="px-ds-1 pb-ds-2 pt-ds-1 text-xs font-semibold uppercase tracking-wide text-text-muted">All</p>
+                </>
+              ) : null}
+
+              <ul className="flex flex-col gap-ds-2 pb-ds-4" role="radiogroup" aria-label={title}>
+                {filtered.map(renderRow)}
+              </ul>
+
+              {filtered.length === 0 && !showCustom ? (
+                <p className="px-ds-1 py-ds-6 text-center text-sm text-text-secondary">No matches found.</p>
+              ) : null}
+            </>
+          )}
         </div>
-      ) : null}
-
-      <div className={cn(RX_MODAL_BODY, "px-ds-4 pt-ds-3")}>
-        {layout === "grid" ? (
-          <div className="grid grid-cols-3 gap-ds-2" role={mode === "single" ? "radiogroup" : "group"} aria-label={title}>
-            {filtered.map(renderGridCell)}
-          </div>
-        ) : (
-          <>
-            {showCustom ? (
-              <ul className="mb-ds-3 flex flex-col gap-ds-2">{renderRow({ id: trimmed, label: `Use “${trimmed}”` })}</ul>
-            ) : null}
-
-            {popularOptions.length > 0 ? (
-              <>
-                <p className="px-ds-1 pb-ds-2 pt-ds-1 text-xs font-semibold uppercase tracking-wide text-text-muted">Popular</p>
-                <ul className="mb-ds-3 flex flex-col gap-ds-2" role={mode === "single" ? "radiogroup" : "group"} aria-label={`Popular ${title}`}>
-                  {popularOptions.map(renderRow)}
-                </ul>
-                <p className="px-ds-1 pb-ds-2 pt-ds-1 text-xs font-semibold uppercase tracking-wide text-text-muted">All</p>
-              </>
-            ) : null}
-
-            <ul className="flex flex-col gap-ds-2" role={mode === "single" ? "radiogroup" : "group"} aria-label={title}>
-              {filtered.map(renderRow)}
-            </ul>
-
-            {filtered.length === 0 && !showCustom ? (
-              <p className="px-ds-1 py-ds-6 text-center text-sm text-text-secondary">No matches found.</p>
-            ) : null}
-          </>
-        )}
-      </div>
-
-      {mode === "multiple" ? (
-        <div className="border-t border-border px-ds-4 py-ds-3" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 12px)" }}>
-          <Button
-            variant="primary"
-            fullWidth
-            size="lg"
-            className="min-h-ds-7 rounded-ds-lg text-base"
-            onClick={() => {
-              onDone(selected);
-              onClose();
-            }}
-          >
-            Done
-          </Button>
-        </div>
-      ) : null}
       </div>
     </ModalContainer>
   );

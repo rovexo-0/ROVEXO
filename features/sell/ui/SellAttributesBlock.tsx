@@ -7,10 +7,6 @@ import { SellNavRow } from "@/features/sell/ui/SellPrimitives";
 import { SellOptionPicker } from "@/features/sell/ui/SellOptionPicker";
 import { useSell } from "@/features/sell/context/SellProvider";
 import {
-  attributeArrayToString,
-  attributeStringToArray,
-} from "@/lib/sell/attribute-options";
-import {
   getAttributeDefsForCategory,
   isAttributeCompleted,
   readAttributeValue,
@@ -89,22 +85,6 @@ export function SellAttributesBlock() {
             );
           }
 
-          if (def.input === "select-multi") {
-            const values = attributeStringToArray(raw);
-            const hex = def.showSwatch && values[0] ? swatchFor(def, values[0]) : undefined;
-            return (
-              <SellNavRow
-                key={def.id}
-                label={def.label}
-                value={values.join(", ")}
-                placeholder={def.placeholder ?? `Select ${def.label.toLowerCase()}`}
-                onClick={() => setActiveId(def.id)}
-                recommended={recommended}
-                leading={hex ? <ColourDot hex={hex} /> : undefined}
-              />
-            );
-          }
-
           const singleSwatch = swatchFor(def, raw);
           return (
             <SellNavRow
@@ -124,27 +104,16 @@ export function SellAttributesBlock() {
         <SellOptionPicker
           title={activeDef.label}
           options={activeDef.options ?? []}
-          mode={activeDef.input === "select-multi" ? "multiple" : "single"}
+          mode="single"
           layout={activeDef.input === "grid-single" ? "grid" : "list"}
           searchable={activeDef.searchable}
           searchPlaceholder={activeDef.searchPlaceholder}
           popularIds={activeDef.popularIds}
           allowCustomFromSearch={activeDef.allowCustomFromSearch}
           showSwatch={activeDef.showSwatch}
-          value={
-            activeDef.input === "select-multi"
-              ? attributeStringToArray(readAttributeValue(draft, activeDef))
-              : readAttributeValue(draft, activeDef)
-                ? [readAttributeValue(draft, activeDef)]
-                : []
-          }
+          value={readAttributeValue(draft, activeDef) ? [readAttributeValue(draft, activeDef)] : []}
           onClose={() => setActiveId(null)}
-          onDone={(selected) =>
-            writeValue(
-              activeDef,
-              activeDef.input === "select-multi" ? attributeArrayToString(selected) : (selected[0] ?? ""),
-            )
-          }
+          onDone={(selected) => writeValue(activeDef, selected[0] ?? "")}
         />
       ) : null}
     </section>

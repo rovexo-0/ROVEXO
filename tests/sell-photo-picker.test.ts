@@ -42,18 +42,13 @@ describe("sell photo picker (Android / Samsung)", () => {
     expect(source).toContain("resolveNativeImageCapture");
   });
 
-  it("routes sell Add Photos to gallery and provides separate camera control", () => {
+  it("routes sell Add Photos to native gallery only", () => {
     const source = readSource("features/sell/ui/SellPhotoRail.tsx");
     expect(source).toContain('intent="gallery"');
-    expect(source).toContain('intent="camera"');
+    expect(source).not.toContain('intent="camera"');
     expect(source).toContain('placement="overlay"');
-    expect(source).toContain("<label");
-    expect(source).not.toContain("htmlFor=");
-    expect(source).not.toContain(".click()");
-    expect(source).toContain("multiple");
-    expect(source).toContain("touch-manipulation");
-    expect(source).toContain("Take Photo");
     expect(source).toContain("Add Photos");
+    expect(source).not.toContain("Take Photo");
   });
 
   it("routes auction sell through canonical photo rail", () => {

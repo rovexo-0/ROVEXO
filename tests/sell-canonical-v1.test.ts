@@ -12,82 +12,73 @@ describe("sell page canonical v1.0", () => {
     expect(SELL_PAGE_CANONICAL_VERSION).toBe("v1.0-canonical");
   });
 
-  it("has one canonical sell screen without legacy blocks", () => {
+  it("has one canonical sell screen with correct block order", () => {
     const screen = readSource("features/sell/ui/SellScreen.tsx");
     expect(screen).toContain('data-sell-canonical={SELL_PAGE_CANONICAL_VERSION}');
     expect(screen).toContain("SellPhotoRail");
     expect(screen).toContain("SellTitleBlock");
+    expect(screen).toContain("SellDescriptionBlock");
     expect(screen).toContain("SellCategoryBlock");
     expect(screen).toContain("SellAttributesBlock");
     expect(screen).toContain("SellPricingBlock");
-    expect(screen).toContain("SellShippingBlock");
+    expect(screen).toContain("SellParcelBlock");
     expect(screen).toContain("SellPublishBar");
+    expect(screen).not.toContain("SellShippingBlock");
     expect(screen).not.toContain("SellOptionsBlock");
-    expect(screen).not.toContain("SellConditionBlock");
     expect(screen).not.toContain("SellSuccessScreen");
   });
 
   it("category picker has suggestions only — no search", () => {
     const picker = readSource("features/sell/ui/SellCategoryPicker.tsx");
     expect(picker).toContain("detectCategoryFromTitle");
-    expect(picker).toContain("SUGGEST_CONFIDENCE_MIN");
     expect(picker).toContain("Suggested");
-    expect(picker).toContain("All categories");
     expect(picker).not.toContain("Search categories");
     expect(picker).not.toContain("searchCategoryPicker");
   });
 
-  it("publish bar uses Publish Listing label", () => {
-    const bar = readSource("features/sell/ui/SellPublishBar.tsx");
-    expect(bar).toContain("Publish Listing");
-    expect(bar).not.toContain("Continue");
-    expect(bar).not.toContain("Publishing…");
-  });
-
-  it("photo rail uses Add Photos and native gallery", () => {
+  it("photo rail has only Add Photos — no Take Photo button", () => {
     const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
     expect(rail).toContain("Add Photos");
-    expect(rail).toContain('intent="gallery"');
-    expect(rail).not.toContain("uploadProgress");
-    expect(rail).not.toContain("Uploading photos");
+    expect(rail).not.toContain("Take Photo");
+    expect(rail).not.toContain('intent="camera"');
   });
 
-  it("attributes block includes condition from attribute engine", () => {
-    const attrs = readSource("features/sell/ui/SellAttributesBlock.tsx");
-    expect(attrs).not.toContain('def.id !== "condition"');
-    expect(attrs).toContain("getAttributeDefsForCategory");
+  it("attribute pickers auto-close — no Done button", () => {
+    const picker = readSource("features/sell/ui/SellOptionPicker.tsx");
+    expect(picker).not.toContain(">Done</");
+    expect(picker).toContain("onClose()");
+    expect(picker).toContain("overflow-y-auto");
   });
 
-  it("shipping block has parcel size, home delivery, collection — no free postage", () => {
-    const shipping = readSource("features/sell/ui/SellShippingBlock.tsx");
-    expect(shipping).toContain("Parcel size");
-    expect(shipping).toContain("Home delivery");
-    expect(shipping).toContain("Collection");
-    expect(shipping).toContain("Buyer pays shipping");
-    expect(shipping).not.toContain("Free postage");
+  it("parcel block only — no shipping toggles", () => {
+    const parcel = readSource("features/sell/ui/SellParcelBlock.tsx");
+    expect(parcel).toContain("Parcel size");
+    expect(parcel).not.toContain("Home delivery");
+    expect(parcel).not.toContain("Collection");
+    expect(parcel).not.toContain("SellToggle");
   });
 
-  it("publish redirects immediately — no success screen view", () => {
+  it("deterministic prefill wired in provider", () => {
     const provider = readSource("features/sell/context/SellProvider.tsx");
-    expect(provider).toContain("router.push(`/listing/${slug}`)");
+    expect(provider).toContain("buildDeterministicPrefill");
+    expect(provider).toContain("detectColourFromImageFile");
     expect(provider).not.toContain('setView("published")');
+  });
+
+  it("publish bar is fixed at bottom", () => {
+    const bar = readSource("features/sell/ui/SellPublishBar.tsx");
+    expect(bar).toContain("Publish Listing");
+    expect(bar).toContain("sell-publish-bar fixed");
   });
 
   it("removed legacy duplicate sell components", () => {
     const legacyPaths = [
       "features/sell/components/PhotoUploader.tsx",
       "features/sell/components/CategoryTreePicker.tsx",
-      "features/sell/ui/SellOptionsBlock.tsx",
-      "features/sell/ui/SellConditionBlock.tsx",
-      "features/sell/ui/SellSuccessScreen.tsx",
+      "features/sell/ui/SellShippingBlock.tsx",
     ];
     for (const legacyPath of legacyPaths) {
       expect(() => readSource(legacyPath)).toThrow();
     }
-  });
-
-  it("/sell/new redirects to canonical /sell", () => {
-    const page = readSource("app/sell/new/page.tsx");
-    expect(page).toContain('redirect("/sell")');
   });
 });

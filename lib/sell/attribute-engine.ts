@@ -112,6 +112,7 @@ const WARRANTY_OPTIONS = toOptions([
   "Manufacturer Warranty",
   "Seller Warranty",
   "Extended Warranty",
+  "Lifetime Warranty",
   "Expired",
 ]);
 
@@ -149,21 +150,21 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
   colour: {
     id: "colour",
     label: "Colour",
-    input: "select-multi",
+    input: "select-single",
     target: { kind: "field", field: "color" },
     options: COLOUR_OPTIONS,
     showSwatch: true,
-    placeholder: "Select colours",
+    placeholder: "Select colour",
   },
   material: {
     id: "material",
     label: "Material",
-    input: "select-multi",
+    input: "select-single",
     target: { kind: "field", field: "material" },
     options: MATERIAL_OPTIONS,
     searchable: true,
     searchPlaceholder: "Search materials",
-    placeholder: "Select materials",
+    placeholder: "Select material",
   },
   style: {
     id: "style",
@@ -390,6 +391,47 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     placeholder: "e.g. 45 cm",
     inputMode: "numeric",
   },
+  shape: {
+    id: "shape",
+    label: "Shape",
+    input: "select-single",
+    target: { kind: "map" },
+    options: toOptions(["Standard", "Contour", "Wedge", "Body", "Travel", "U-Shaped", "Round", "Other"]),
+    placeholder: "Select shape",
+  },
+  firmness: {
+    id: "firmness",
+    label: "Firmness",
+    input: "select-single",
+    target: { kind: "map" },
+    options: toOptions(["Soft", "Medium", "Firm", "Extra Firm"]),
+    placeholder: "Select firmness",
+  },
+  coverMaterial: {
+    id: "coverMaterial",
+    label: "Cover Material",
+    input: "select-single",
+    target: { kind: "map" },
+    options: MATERIAL_OPTIONS,
+    searchable: true,
+    searchPlaceholder: "Search cover materials",
+    placeholder: "Select cover material",
+  },
+  features: {
+    id: "features",
+    label: "Features",
+    input: "text",
+    target: { kind: "map" },
+    placeholder: "e.g. Cooling, Hypoallergenic, Adjustable",
+  },
+  sim: {
+    id: "sim",
+    label: "SIM",
+    input: "select-single",
+    target: { kind: "map" },
+    options: toOptions(["Unlocked", "EE", "O2", "Vodafone", "Three", "Giffgaff", "eSIM"]),
+    placeholder: "Select SIM",
+  },
   condition: {
     id: "condition",
     label: "Condition",
@@ -453,7 +495,7 @@ const CATEGORY_ATTRIBUTE_IDS: Record<string, string[]> = {
   health: ["brand"],
   electronics: ["brand", "model", "colour", "storage", "display", "ram", "cpu", "gpu", "battery", "warranty", "condition"],
   computers: ["brand", "model", "processor", "cpu", "gpu", "ram", "storage", "screenSize", "display", "warranty", "condition"],
-  phones: ["brand", "model", "storage", "ram", "colour", "screenSize", "display", "network", "battery", "warranty", "condition"],
+  phones: ["brand", "model", "storage", "ram", "colour", "screenSize", "display", "network", "sim", "battery", "warranty", "condition"],
   gaming: ["brand", "model", "edition", "storage", "colour", "warranty", "condition"],
   vehicles: [
     "brand",
@@ -482,10 +524,31 @@ const CATEGORY_ATTRIBUTE_IDS: Record<string, string[]> = {
 
 const FURNITURE_ATTRIBUTE_IDS = ["material", "width", "height", "depth", "colour"] as const;
 const FURNITURE_SUBCATEGORY_SLUGS = new Set(["furniture", "home-textiles"]);
+const BEDDING_SUBCATEGORY_SLUGS = new Set(["bedding", "pillows", "duvets", "mattresses"]);
+const BEDDING_ATTRIBUTE_IDS = [
+  "brand",
+  "model",
+  "material",
+  "size",
+  "shape",
+  "firmness",
+  "coverMaterial",
+  "colour",
+  "condition",
+  "warranty",
+  "features",
+] as const;
 
 export function getAttributeDefsForCategory(categoryPath: FlatCategoryPath | null): AttributeDef[] {
   const slug = categoryPath?.categorySlug;
   const subSlug = categoryPath?.subcategorySlug;
+  const childSlug = categoryPath?.childCategorySlug;
+
+  if (slug === "home-garden" && (subSlug && BEDDING_SUBCATEGORY_SLUGS.has(subSlug) || childSlug && BEDDING_SUBCATEGORY_SLUGS.has(childSlug))) {
+    return BEDDING_ATTRIBUTE_IDS.map((id) => ATTRIBUTE_DEFS[id]).filter(
+      (def): def is AttributeDef => Boolean(def),
+    );
+  }
 
   if (slug === "home-garden" && subSlug && FURNITURE_SUBCATEGORY_SLUGS.has(subSlug)) {
     return FURNITURE_ATTRIBUTE_IDS.map((id) => ATTRIBUTE_DEFS[id]).filter(

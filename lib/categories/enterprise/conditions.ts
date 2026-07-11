@@ -4,19 +4,18 @@
 
 export const MARKETPLACE_CONDITIONS = [
   "New",
-  "New with tags",
+  "New (sealed)",
   "New without tags",
   "Like New",
   "Excellent",
   "Very Good",
   "Good",
   "Fair",
-  "Well Used",
   "For Parts",
-  "Not Working",
+  "Broken",
   "Refurbished",
-  "Vintage",
-  "Antique",
+  "Manufacturer Refurbished",
+  "Seller Refurbished",
 ] as const;
 
 export const VEHICLE_CONDITIONS = [

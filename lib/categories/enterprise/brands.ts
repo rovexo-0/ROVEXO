@@ -38,6 +38,14 @@ export const HOME_BRANDS = [
   "Beko", "Indesit", "Zanussi", "Bosch", "Siemens", "NEFF", "Grohe", "Hansgrohe",
 ] as const;
 
+export const PILLOW_BRANDS = [
+  "Derila", "Elviros", "BCOZZY", "Cabeau", "Mulisoft", "Tempur", "Silentnight", "Emma",
+  "Dunelm", "IKEA", "Simba", "Panda", "Eve", "Casper", "Dormeo", "Hypnos", "Sealy",
+  "Dreams", "John Lewis", "M&S", "The White Company", "Kally Sleep", "Nanu", "Levitex",
+  "Putnams", "Mediflow", "Coop Home Goods", "Beckham Hotel Collection", "Utopia Bedding",
+  "viewstar", "Cosy House", "Pharmedoc", "EPABO", "Weekender", "Bluewave", "Snuggle-Pedic",
+] as const;
+
 export const TOOL_BRANDS = [
   "Bosch", "DeWalt", "Makita", "Milwaukee", "Ryobi", "Black and Decker", "Festool",
   "Einhell", "Stanley", "Bahco", "Snap-on", "Metabo", "Hilti", "Worx", "Karcher",
@@ -68,6 +76,7 @@ export const MARKETPLACE_BRANDS = dedupeSorted([
   ...ELECTRONICS_BRANDS,
   ...FASHION_BRANDS,
   ...HOME_BRANDS,
+  ...PILLOW_BRANDS,
   ...TOOL_BRANDS,
   ...SPORTS_BRANDS,
   ...BABY_BRANDS,

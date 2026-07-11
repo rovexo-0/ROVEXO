@@ -167,7 +167,7 @@ export function SellCategoryPicker({ open, onClose, onSelect, title = "", descri
       zIndex={200}
       ariaLabel="Select a category"
     >
-      <div className={sellPanel}>
+      <div className={cn(sellPanel, "flex min-h-0 flex-1 flex-col")}>
         <header
           className="flex items-center gap-ds-2 border-b border-border px-ds-2 pb-ds-3"
           style={{ paddingTop: "max(env(safe-area-inset-top), 12px)" }}
@@ -178,7 +178,7 @@ export function SellCategoryPicker({ open, onClose, onSelect, title = "", descri
           <h1 className="min-w-0 flex-1 truncate text-lg font-semibold text-text-primary">{headerTitle}</h1>
         </header>
 
-        <div ref={bodyRef} className={cn(RX_MODAL_BODY, "px-ds-4 pt-ds-3")}>
+        <div ref={bodyRef} className={cn(RX_MODAL_BODY, "min-h-0 flex-1 overflow-y-auto overscroll-contain px-ds-4 pt-ds-3")}>
           {isRoot && suggestions.length > 0 ? (
             <>
               <p className="px-ds-1 pb-ds-2 text-xs font-semibold uppercase tracking-wide text-text-muted">Suggested</p>

@@ -131,7 +131,7 @@ export function createEmptyDraft(): SellListingDraft {
     // "medium" is the recommended default (see PARCEL_SIZE_OPTIONS). Parcel size
     // is optional at the API/DB layer, so a valid default keeps a new listing
     // genuinely complete without forcing an extra tap before publishing.
-    parcelSize: "medium",
+    parcelSize: null,
 
     listingType: "fixed",
 

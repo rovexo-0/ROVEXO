@@ -33,7 +33,10 @@ export function SellPublishBar() {
   const label = editListingId ? "Save changes" : "Publish Listing";
 
   return (
-    <div className="rx-footer-bar rx-footer-bar--sticky sticky bottom-0 z-[110] mt-auto w-full shrink-0">
+    <div
+      className="sell-publish-bar fixed inset-x-0 bottom-0 z-[110] border-t border-border bg-surface/95 backdrop-blur"
+      style={{ paddingBottom: "max(env(safe-area-inset-bottom), 12px)" }}
+    >
       <div className="mx-auto max-w-2xl px-ds-4 py-ds-3">
         <Button
           variant="primary"

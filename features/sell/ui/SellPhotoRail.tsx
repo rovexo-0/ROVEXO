@@ -19,15 +19,6 @@ function PlusIcon({ className }: { className?: string }) {
   );
 }
 
-function CameraIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" strokeWidth={1.75} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Z" />
-    </svg>
-  );
-}
-
 function CloseIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" aria-hidden>
@@ -128,39 +119,25 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
       </div>
 
       {photos.length === 0 ? (
-        <div className="flex flex-col gap-ds-2">
-          <label
-            aria-label="Add photo from gallery"
-            className={cn(
-              "relative flex min-h-[8rem] w-full touch-manipulation flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-dashed border-primary/40 bg-primary/5 text-primary transition-colors active:bg-primary/10",
-              focusRing,
-            )}
-          >
-            <NativeImageFileInput
-              intent="gallery"
-              placement="overlay"
-              multiple
-              onFilesSelected={handleFilesSelected}
-            />
-            <CameraIcon className="pointer-events-none h-7 w-7" />
-            <span className="pointer-events-none text-sm font-semibold">Add Photos</span>
-            <span className="pointer-events-none text-xs font-normal text-text-muted">
-              Maximum {SELL_PHOTO_MAX} photos
-            </span>
-          </label>
-
-          <label
-            aria-label="Take photo with camera"
-            className={cn(
-              "relative flex min-h-[44px] w-full touch-manipulation items-center justify-center gap-ds-2 rounded-ds-lg border border-border bg-surface text-sm font-semibold text-text-primary active:bg-surface-muted",
-              focusRing,
-            )}
-          >
-            <NativeImageFileInput intent="camera" placement="overlay" onFilesSelected={handleFilesSelected} />
-            <CameraIcon className="pointer-events-none h-5 w-5 text-primary" />
-            <span className="pointer-events-none">Take Photo</span>
-          </label>
-        </div>
+        <label
+          aria-label="Add Photos"
+          className={cn(
+            "relative flex min-h-[8rem] w-full touch-manipulation flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-dashed border-primary/40 bg-primary/5 text-primary transition-colors active:bg-primary/10",
+            focusRing,
+          )}
+        >
+          <NativeImageFileInput
+            intent="gallery"
+            placement="overlay"
+            multiple
+            onFilesSelected={handleFilesSelected}
+          />
+          <PlusIcon className="pointer-events-none h-7 w-7" />
+          <span className="pointer-events-none text-sm font-semibold">Add Photos</span>
+          <span className="pointer-events-none text-xs font-normal text-text-muted">
+            Maximum {SELL_PHOTO_MAX} photos
+          </span>
+        </label>
       ) : (
         <div
           className="-mx-ds-1 flex gap-ds-2 overflow-x-auto px-ds-1 pb-ds-1"
@@ -194,7 +171,7 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
               <button
                 type="button"
                 onClick={() => setPreviewId(photo.id)}
-                aria-label={index === 0 ? "Preview main photo" : `Preview photo ${index + 1}`}
+                aria-label={index === 0 ? "Preview cover photo" : `Preview photo ${index + 1}`}
                 className="h-full w-full"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -240,37 +217,23 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
           ))}
 
           {canAdd ? (
-            <>
-              <label
-                aria-label="Add photo from gallery"
-                className={cn(
-                  tileBase,
-                  "touch-manipulation flex-col gap-1 border-2 border-dashed border-primary/40 bg-primary/5 text-primary",
-                  focusRing,
-                )}
-              >
-                <NativeImageFileInput
-                  intent="gallery"
-                  placement="overlay"
-                  multiple
-                  onFilesSelected={handleFilesSelected}
-                />
-                <PlusIcon className="pointer-events-none h-6 w-6" />
-                <span className="pointer-events-none text-xs font-semibold">Add Photos</span>
-              </label>
-
-              <label
-                aria-label="Take photo with camera"
-                className={cn(
-                  tileBase,
-                  "touch-manipulation border border-border bg-surface text-primary",
-                  focusRing,
-                )}
-              >
-                <NativeImageFileInput intent="camera" placement="overlay" onFilesSelected={handleFilesSelected} />
-                <CameraIcon className="pointer-events-none h-6 w-6" />
-              </label>
-            </>
+            <label
+              aria-label="Add Photos"
+              className={cn(
+                tileBase,
+                "touch-manipulation flex-col gap-1 border-2 border-dashed border-primary/40 bg-primary/5 text-primary",
+                focusRing,
+              )}
+            >
+              <NativeImageFileInput
+                intent="gallery"
+                placement="overlay"
+                multiple
+                onFilesSelected={handleFilesSelected}
+              />
+              <PlusIcon className="pointer-events-none h-6 w-6" />
+              <span className="pointer-events-none text-xs font-semibold">Add Photos</span>
+            </label>
           ) : null}
         </div>
       )}

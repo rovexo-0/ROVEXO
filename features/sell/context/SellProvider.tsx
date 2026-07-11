@@ -22,6 +22,8 @@ import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
 import { safeRandomUUID } from "@/lib/uuid";
 import { compressListingImage, createListingThumbnail, validateClientImage } from "@/lib/storage/client-images";
 import { persistSellDraftSnapshot, persistSellDraftTextSync } from "@/lib/sell/persist-sell-draft";
+import { applyDeterministicPrefill, buildDeterministicPrefill } from "@/lib/sell/deterministic-prefill";
+import { detectColourFromImageFile } from "@/lib/sell/detect-colour-from-image";
 import { sellInputDiag } from "@/lib/sell/sell-input-diagnostics";
 import {
   initSellProfiler,
@@ -145,11 +147,20 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     };
   }, [editListingId, initialDraft]);
 
+  const runDeterministicPrefill = useCallback((base: SellListingDraft): SellListingDraft => {
+    const patch = buildDeterministicPrefill(base, base.categoryPath);
+    const merged = applyDeterministicPrefill(base, patch);
+    return Object.keys(merged).length > 0 ? { ...base, ...merged } : base;
+  }, []);
+
   const syncTitleToDraft = useCallback((title: string) => {
     sellProfileSyncText("title", title.length, "syncTitleToDraft");
     pendingTitleRef.current = title;
-    setDraft((current) => (current.title === title ? current : { ...current, title }));
-  }, []);
+    setDraft((current) => {
+      const next = current.title === title ? current : { ...current, title };
+      return runDeterministicPrefill(next);
+    });
+  }, [runDeterministicPrefill]);
 
   const syncDescriptionToDraft = useCallback(
     (description: string) => {
@@ -160,12 +171,12 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
       sellProfileSyncText("description", description.length, "syncDescriptionToDraft");
       pendingDescriptionRef.current = description;
       setDraft((current) =>
-        current.description === description ? current : { ...current, description },
+        current.description === description ? current : runDeterministicPrefill({ ...current, description }),
       );
       // Detection is title-driven only — typing/editing the description never
       // triggers analysis, keeping the Description field perfectly responsive.
     },
-    [],
+    [runDeterministicPrefill],
   );
 
   const flushPendingText = useCallback(() => {
@@ -344,10 +355,21 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     const added = incoming.filter((photo) => photo !== null) as SellPhoto[];
 
     if (added.length > 0) {
-      setDraft((current) => ({
-        ...current,
-        photos: [...current.photos, ...added].slice(0, SELL_PHOTO_MAX),
-      }));
+      setDraft((current) => {
+        const next = {
+          ...current,
+          photos: [...current.photos, ...added].slice(0, SELL_PHOTO_MAX),
+        };
+        return runDeterministicPrefill(next);
+      });
+
+      const firstFile = selected[0];
+      if (firstFile && !draftRef.current.color) {
+        void detectColourFromImageFile(firstFile).then((colour) => {
+          if (!colour) return;
+          setDraft((current) => (current.color ? current : { ...current, color: colour }));
+        });
+      }
     }
 
     if (failures.length > 0) {
@@ -357,7 +379,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
         variant: "error",
       });
     }
-  }, [pushToast]);
+  }, [pushToast, runDeterministicPrefill]);
 
   const removePhoto = useCallback(async (id: string) => {
     const photo = draftRef.current.photos.find((item) => item.id === id);
@@ -452,8 +474,8 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   }, []);
 
   const setCategoryPath = useCallback((categoryPath: FlatCategoryPath) => {
-    setDraft((current) => ({ ...current, categoryPath }));
-  }, []);
+    setDraft((current) => runDeterministicPrefill({ ...current, categoryPath }));
+  }, [runDeterministicPrefill]);
 
   const publishListing = useCallback(async () => {
     flushPendingText();

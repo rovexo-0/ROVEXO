@@ -90,7 +90,7 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
   const listingForm = [
     readSource(rootDir, "features/sell/ui/SellTitleBlock.tsx"),
     readSource(rootDir, "features/sell/ui/SellPricingBlock.tsx"),
-    readSource(rootDir, "features/sell/ui/SellShippingBlock.tsx"),
+    readSource(rootDir, "features/sell/ui/SellParcelBlock.tsx"),
   ].join("\n");
   const photoUploader = readSource(rootDir, "features/sell/ui/SellPhotoRail.tsx");
   const categoryPicker = readSource(rootDir, "features/sell/ui/SellCategoryPicker.tsx");
