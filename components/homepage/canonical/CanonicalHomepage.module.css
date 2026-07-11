@@ -10,7 +10,7 @@
 
   padding-inline: var(--hp-shell-pad, 16px);
 
-  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--bottom-nav-shell-height, 56px) + env(safe-area-inset-bottom, 0px));
 
   display: flex;
 
@@ -86,9 +86,9 @@
 
   border-radius: 999px;
 
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--ds-color-primary);
 
-  background: #ffffff;
+  background: var(--ds-color-primary);
 
   font-size: clamp(13px, 3.6vw, 14px);
 
@@ -96,11 +96,13 @@
 
   line-height: 1;
 
-  color: #111827;
+  color: #ffffff;
 
   text-decoration: none;
 
   white-space: nowrap;
+
+  box-shadow: 0 1px 6px rgb(147 51 234 / 0.18);
 
 }
 
@@ -124,63 +126,19 @@
 
   display: grid;
 
-  grid-template-columns: repeat(var(--hp-grid-cols, 2), minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   column-gap: var(--hp-grid-gap, 12px);
 
-  row-gap: var(--hp-grid-gap, 12px);
+  row-gap: 16px;
 
   width: 100%;
 
+  max-width: min(100%, 44rem);
+
+  margin-inline: auto;
+
   min-width: 0;
-
-}
-
-
-
-@media (min-width: 834px) {
-
-  .feedGrid {
-
-    --hp-grid-cols: 3;
-
-  }
-
-}
-
-
-
-@media (min-width: 1024px) {
-
-  .feedGrid {
-
-    --hp-grid-cols: 4;
-
-  }
-
-}
-
-
-
-@media (min-width: 1440px) {
-
-  .feedGrid {
-
-    --hp-grid-cols: 5;
-
-  }
-
-}
-
-
-
-@media (min-width: 1920px) {
-
-  .feedGrid {
-
-    --hp-grid-cols: 6;
-
-  }
 
 }
 
@@ -198,19 +156,7 @@
 
 .feedLoading {
 
-  grid-column: 1 / -1;
-
-  margin: 4px 0 0;
-
-  text-align: center;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  color: var(--ds-color-text-secondary);
-
-  animation: hpCanonicalPulse 1.5s ease-in-out infinite;
+  display: none;
 
 }
 

@@ -42,7 +42,7 @@ describe("sell photo picker (Android / Samsung)", () => {
     expect(source).toContain("resolveNativeImageCapture");
   });
 
-  it("routes sell Add Photo to gallery and provides separate camera control", () => {
+  it("routes sell Add Photos to gallery and provides separate camera control", () => {
     const source = readSource("features/sell/ui/SellPhotoRail.tsx");
     expect(source).toContain('intent="gallery"');
     expect(source).toContain('intent="camera"');
@@ -53,15 +53,15 @@ describe("sell photo picker (Android / Samsung)", () => {
     expect(source).toContain("multiple");
     expect(source).toContain("touch-manipulation");
     expect(source).toContain("Take Photo");
+    expect(source).toContain("Add Photos");
   });
 
-  it("uses gallery-first picker in auction PhotoUploader fallback", () => {
-    const source = readSource("features/sell/components/PhotoUploader.tsx");
-    expect(source).toContain('intent="gallery"');
-    expect(source).toContain('intent="camera"');
-    expect(source).toContain('placement="overlay"');
-    expect(source).not.toContain("htmlFor=");
-    expect(source).not.toContain(".click()");
+  it("routes auction sell through canonical photo rail", () => {
+    const source = readSource("features/auctions/sell/AuctionSellPage.tsx");
+    expect(source).toContain("SellPhotoRail");
+    expect(source).toContain("SellCategoryBlock");
+    expect(source).not.toContain("PhotoUploader");
+    expect(source).not.toContain("CategoryTreePicker");
   });
 
   it("overlay input covers the full label hit target", () => {

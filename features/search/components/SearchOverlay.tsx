@@ -9,40 +9,36 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
-import { SearchLocationFilter } from "@/features/search/components/SearchLocationFilter";
 import { SearchResultsEmpty } from "@/features/search/components/SearchResultsEmpty";
 import { SearchInputActions } from "@/features/search/components/SearchInputActions";
 import { SearchResultCard } from "@/features/search/components/SearchResultCard";
-import { SearchScopeChips } from "@/features/search/components/SearchScopeChips";
 import { SearchSuggestionList } from "@/features/search/components/SearchSuggestionList";
 import { LoadingSkeleton } from "@/features/search/components/LoadingSkeleton";
 import { ProductResults } from "@/features/search/components/ProductResults";
 import { RecentSearches } from "@/features/search/components/RecentSearches";
 import { SavedSearchesPanel } from "@/features/search/components/SavedSearchesPanel";
 import { SearchSection } from "@/features/search/components/SearchSection";
-import { SellerActions } from "@/features/search/components/SellerActions";
-import { SellerResults } from "@/features/search/components/SellerResults";
 import { TrendingSearches } from "@/features/search/components/TrendingSearches";
 import { useSearchKeyboard } from "@/features/search/hooks/use-search-keyboard";
 import { useSearchResults } from "@/features/search/hooks/use-search-results";
-import type { SearchFilterScope, SearchOverlayProps } from "@/features/search/types";
+import type { SearchOverlayProps } from "@/features/search/types";
 import { SEARCH_TRANSITION_MS } from "@/features/search/types";
+import {
+  captureHomepageScroll,
+  closeSearchAndReturnHome,
+  restoreHomepageScroll,
+} from "@/lib/navigation/homepage-scroll-restore";
 import {
   addSearchHistory,
   clearSearchHistory,
   getSearchHistory,
   removeSearchHistoryItem,
 } from "@/features/search/utils/history";
-import {
-  getSearchLocationMode,
-  resolveActiveLocationCity,
-  setSearchLocationMode,
-  type SearchLocationMode,
-} from "@/features/search/utils/location-preference";
 import { buildSearchNavItems } from "@/features/search/utils/keyboard-items";
 import { hasSearchResults } from "@/features/search/utils/search-client";
 
@@ -71,15 +67,14 @@ function LoadingSpinner({ className }: { className?: string }) {
   );
 }
 
-export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: SearchOverlayProps) {
+export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps) {
+  const router = useRouter();
   const inputId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
-  const [scope, setScope] = useState<SearchFilterScope>("products");
-  const [locationCity, setLocationCity] = useState<string | undefined>(undefined);
 
   const {
     query,
@@ -92,7 +87,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
     isTooShort,
     hasQuery,
     loadMoreProducts,
-  } = useSearchResults(initialQuery, locationCity);
+  } = useSearchResults(initialQuery);
 
   const applySearch = useCallback(
     (term: string) => {
@@ -130,8 +125,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
     const initialize = () => {
       setMounted(true);
       setHistory(getSearchHistory());
-      const mode = getSearchLocationMode();
-      setLocationCity(resolveActiveLocationCity(mode));
+      captureHomepageScroll();
       frame = window.requestAnimationFrame(() => setVisible(true));
       inputRef.current?.focus();
     };
@@ -145,7 +139,14 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
 
   function handleClose() {
     setVisible(false);
-    window.setTimeout(onClose, SEARCH_TRANSITION_MS);
+    window.setTimeout(() => {
+      onClose();
+      if (window.location.pathname.startsWith("/search")) {
+        closeSearchAndReturnHome((href) => router.push(href));
+        return;
+      }
+      restoreHomepageScroll();
+    }, SEARCH_TRANSITION_MS);
   }
 
   function handleSubmit(event: React.FormEvent) {
@@ -160,11 +161,6 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
 
   function handleRemoveHistory(term: string) {
     setHistory(removeSearchHistoryItem(term));
-  }
-
-  function handleLocationChange(mode: SearchLocationMode, city?: string) {
-    setSearchLocationMode(mode);
-    setLocationCity(mode === "current" || mode === "nearby" ? city : undefined);
   }
 
   if (!mounted) return null;
@@ -187,7 +183,6 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
   const idleRecentOffset = idleProductCount + idleTrendingCount;
 
   const productOffset = 0;
-  const sellerOffset = 0;
 
   return createPortal(
     <ModalContainer
@@ -253,13 +248,6 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
               <CloseIcon className="h-5 w-5" />
             </button>
           </form>
-
-          {isSeller && <SellerActions />}
-
-          <div className="mt-ds-3 flex flex-col gap-ds-3">
-            <SearchScopeChips active={scope} onChange={setScope} query={query} />
-            <SearchLocationFilter onChange={handleLocationChange} />
-          </div>
         </header>
 
         <div
@@ -340,52 +328,34 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
                 <SavedSearchesPanel currentQuery={query} onSelect={applySearch} />
               </SearchSection>
 
-              {scope === "sellers" && (results.sellers.length > 0 || results.users.length > 0) && (
-                <SearchSection title="Sellers">
-                  <SellerResults
-                    sellers={results.sellers}
-                    users={results.users}
+              <SearchSection title="Suggestions">
+                <SearchSuggestionList
+                  results={results}
+                  query={debouncedQuery}
+                  activeIndex={activeIndex}
+                  navOffset={productOffset}
+                  onHoverIndex={setActiveIndex}
+                  onNavigate={saveCurrentQuery}
+                />
+              </SearchSection>
+
+              {results.products.length > 5 && (
+                <SearchSection title="More products">
+                  <ProductResults
+                    items={results.products.slice(5)}
+                    query={debouncedQuery}
                     activeIndex={activeIndex}
-                    navOffset={sellerOffset}
+                    navOffset={productOffset + 5 + results.categories.length + results.brands.length + results.locations.length}
+                    hasMore={results.productsHasMore}
+                    isLoadingMore={isLoadingMore}
                     onHoverIndex={setActiveIndex}
                     onNavigate={saveCurrentQuery}
+                    onLoadMore={() => void loadMoreProducts()}
                   />
                 </SearchSection>
               )}
 
-              {scope === "products" && (
-                <>
-                  <SearchSection title="Suggestions">
-                    <SearchSuggestionList
-                      results={results}
-                      query={debouncedQuery}
-                      activeIndex={activeIndex}
-                      navOffset={productOffset}
-                      onHoverIndex={setActiveIndex}
-                      onNavigate={saveCurrentQuery}
-                    />
-                  </SearchSection>
-
-                  {results.products.length > 5 && (
-                    <SearchSection title="More products">
-                      <ProductResults
-                        items={results.products.slice(5)}
-                        query={debouncedQuery}
-                        activeIndex={activeIndex}
-                        navOffset={productOffset + 5 + results.categories.length + results.brands.length + results.locations.length}
-                        hasMore={results.productsHasMore}
-                        isLoadingMore={isLoadingMore}
-                        onHoverIndex={setActiveIndex}
-                        onNavigate={saveCurrentQuery}
-                        onLoadMore={() => void loadMoreProducts()}
-                      />
-                    </SearchSection>
-                  )}
-                </>
-              )}
-
-              {scope === "products" &&
-              results.products.length <= 5 &&
+              {results.products.length <= 5 &&
               results.productsHasMore &&
               results.products.length > 0 ? (
                 <div className="px-ds-4 py-ds-2">
@@ -400,10 +370,10 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
                 </div>
               ) : null}
 
-              {scope === "products" && hasSearchResults(results) ? (
+              {hasSearchResults(results) ? (
                 <div className="border-t border-border px-ds-4 py-ds-3">
                   <a
-                    href={`/search?q=${encodeURIComponent(debouncedQuery)}${locationCity ? `&location=${encodeURIComponent(locationCity)}` : ""}`}
+                    href={`/search?q=${encodeURIComponent(debouncedQuery)}`}
                     className="text-sm font-semibold text-primary"
                     onClick={saveCurrentQuery}
                   >
@@ -412,14 +382,7 @@ export function SearchOverlay({ initialQuery = "", isSeller = false, onClose }: 
                 </div>
               ) : null}
 
-              {scope === "sellers" &&
-                results.sellers.length === 0 &&
-                results.users.length === 0 &&
-                showNoResults && (
-                  <SearchResultsEmpty variant="no-results" query={debouncedQuery} entity="sellers" />
-                )}
-
-              {scope === "products" && showNoResults && (
+              {showNoResults && (
                 <SearchResultsEmpty variant="no-results" query={debouncedQuery} entity="products" />
               )}
             </>

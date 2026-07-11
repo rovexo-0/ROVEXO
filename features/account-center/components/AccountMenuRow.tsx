@@ -8,7 +8,7 @@ type AccountMenuRowProps = {
   title: string;
   subtitle?: string;
   href?: string;
-  icon: ReactNode;
+  icon: ReactNode | null;
   badge?: number;
   trailing?: ReactNode;
   id?: string;
@@ -16,6 +16,7 @@ type AccountMenuRowProps = {
   onClick?: () => void;
   disabled?: boolean;
   comingSoon?: boolean;
+  hideChevron?: boolean;
 };
 
 export function AccountMenuRow({
@@ -30,36 +31,38 @@ export function AccountMenuRow({
   onClick,
   disabled = false,
   comingSoon = false,
+  hideChevron = false,
 }: AccountMenuRowProps) {
   const content = (
     <>
       {icon}
-      <span className="ac-hub__row-copy">
-        <span className={cn("ac-hub__row-title", destructive && "ac-hub__row-title--danger")}>
+      <span className="ac-canonical__row-copy">
+        <span className={cn("ac-canonical__row-title", destructive && "ac-canonical__row-title--danger")}>
           <span className="truncate">{title}</span>
           {badge != null && badge > 0 ? (
-            <span className="ac-hub__row-badge" aria-label={`${badge} unread`}>
+            <span className="ac-canonical__row-badge" aria-label={`${badge} unread`}>
               {badge > 99 ? "99+" : badge}
             </span>
           ) : null}
         </span>
-        {subtitle ? <span className="ac-hub__row-subtitle">{subtitle}</span> : null}
+        {subtitle ? <span className="ac-canonical__row-subtitle">{subtitle}</span> : null}
       </span>
-      {trailing ? (
-        <span className="ac-hub__row-trailing">{trailing}</span>
-      ) : (
-        <span className="ac-hub__row-chevron" aria-hidden>
-          <ChevronRightLineIcon />
-        </span>
-      )}
+      <span className="ac-canonical__row-trailing-group">
+        {trailing ? <span className="ac-canonical__row-trailing">{trailing}</span> : null}
+        {!hideChevron ? (
+          <span className="ac-canonical__row-chevron" aria-hidden>
+            <ChevronRightLineIcon />
+          </span>
+        ) : null}
+      </span>
     </>
   );
 
   const rowClassName = cn(
-    "ac-hub__row",
+    "ac-canonical__row",
     transitionFast,
     focusRing,
-    comingSoon && "ac-hub__row--coming-soon",
+    comingSoon && "ac-canonical__row--coming-soon",
   );
 
   if (href) {

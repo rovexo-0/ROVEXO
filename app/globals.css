@@ -78,7 +78,7 @@ body {
   --header-search-height: 48px;
   --header-shell-height: 56px;
   --header-mobile-stack-height: 52px;
-  --bottom-nav-shell-height: 84px;
+  --bottom-nav-shell-height: 56px;
 }
 
 @media (min-width: 768px) {

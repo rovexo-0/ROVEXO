@@ -23,7 +23,7 @@ describe("Canonical Featured Store — homepage rebuild", () => {
 
     expect(sectionCss).toContain("--hp-store-visible");
     expect(sectionCss).toContain("container-name: hp-featured-store");
-    expect(tsx).toContain('data-hp-featured-store-version="ui-lock-1.0"');
+    expect(tsx).toContain('data-hp-featured-store-version="phase-2-module-01"');
     expect(tsx).toContain("StoreProfileCard");
     expect(tsx).not.toContain("STORES");
     expect(tsx).not.toContain("View Store");
@@ -39,14 +39,9 @@ describe("Canonical Featured Store — homepage rebuild", () => {
     expect(tsx).toContain("Visit Store");
   });
 
-  it("does not import ListingCard", () => {
-    const files = [
-      "components/homepage/canonical/featured-store/FeaturedStoreSection.tsx",
-      "components/homepage/canonical/featured-store/FeaturedStoreProductCard.tsx",
-      "components/homepage/canonical/featured-store/FeaturedStoreHeader.tsx",
-    ];
-    for (const file of files) {
-      expect(readSource(file)).not.toContain("ListingCard");
-    }
+  it("uses ListingCard in the featured store carousel", () => {
+    const section = readSource("components/homepage/canonical/featured-store/FeaturedStoreSection.tsx");
+    expect(section).toContain("ListingCard");
+    expect(section).toContain("HP_CANONICAL_LISTING_PROPS");
   });
 });

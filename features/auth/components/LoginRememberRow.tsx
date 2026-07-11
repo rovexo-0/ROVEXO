@@ -17,7 +17,7 @@ export function LoginRememberRow() {
         defaultChecked
         className="h-4 w-4 rounded border-border text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
       />
-      <span className="text-sm font-medium text-text-primary">Remember me on this device</span>
+      <span className="text-sm font-medium text-text-primary">Remember this device</span>
     </label>
   );
 }

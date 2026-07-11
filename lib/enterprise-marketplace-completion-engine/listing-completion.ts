@@ -58,7 +58,7 @@ function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidati
     if (check.includes("draft") || check.includes("resume") || check.includes("auto-save")) pass = draftStorage && wizard.includes("saveSellDraft");
     if (check === "edit") pass = fileExists("app/seller/listings/[id]/edit/page.tsx");
     if (check === "duplicate") pass = fileExists("app/api/listings/[id]/duplicate/route.ts");
-    if (check === "preview") pass = fileExists("features/sell/ui/SellSuccessScreen.tsx");
+    if (check === "preview") pass = fileExists("features/sell/ui/SellScreen.tsx");
     if (check === "publish") pass = wizard.includes("publishListing");
     if (check.includes("pause") || check.includes("archive") || check.includes("delete") || check.includes("republish")) {
       pass = fileExists("app/api/listings/[id]/status/route.ts");
@@ -76,7 +76,7 @@ function scanFields(scan: MarketplaceCompletionScanResult): CompletionValidation
     if (check === "title" || check === "description" || check === "condition" || check === "price") {
       pass = typesSource.includes(check === "price" ? "hasValidPrice" : check);
     }
-    if (check.includes("category") || check === "subcategory") pass = formSource.includes("CategoryTreePicker");
+    if (check.includes("category") || check === "subcategory") pass = formSource.includes("SellCategoryPicker") || fileExists("features/sell/ui/SellCategoryPicker.tsx");
     if (check.includes("brand") || check.includes("attribute") || check.includes("compatibility")) {
       pass = typesSource.includes("brand") || formSource.includes("brand");
     }
@@ -164,7 +164,7 @@ function scanPreviewEngine(scan: MarketplaceCompletionScanResult): CompletionVal
     if (check.includes("marketplace") || check.includes("search") || check.includes("featured")) pass = productCard;
     if (check.includes("category")) pass = fileExists("lib/listings/category-path.ts");
     if (check.includes("seo")) pass = fileExists("app/listing/[slug]/page.tsx");
-    if (check.includes("published")) pass = fileExists("features/sell/ui/SellSuccessScreen.tsx");
+    if (check.includes("published")) pass = readSource("features/sell/context/SellProvider.tsx").includes("router.push(`/listing/${slug}`)");
     return createCheck("listing-preview", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
 }
@@ -320,7 +320,7 @@ function buildPassConditions(
   const mapping: Record<(typeof LISTING_PASS_CONDITIONS)[number], boolean> = {
     "create-pass": fileExists("app/sell/page.tsx") && foundation,
     "draft-pass": fileExists("lib/sell/draft-storage.ts"),
-    "preview-pass": fileExists("features/sell/ui/SellSuccessScreen.tsx"),
+    "preview-pass": fileExists("features/sell/ui/SellScreen.tsx"),
     "publish-pass": readSource("features/sell/hooks/use-sell-wizard.ts").includes("publishListing"),
     "image-upload-pass": fileExists("app/api/listings/upload/route.ts"),
     "ai-validation-pass": fileExists("lib/sell/category-detection-pro.ts"),

@@ -14,18 +14,11 @@ describe("Bring Your Item — My Account minimal v1.0", () => {
     expect(IMPORT_WIZARD_PATH).toBe(BRING_YOUR_ITEM_PATH);
   });
 
-  it("exposes the module in My Account between Store and Settings", () => {
+  it("does not expose Bring Your Item in the hub menu (canonical selling entry points)", () => {
     const menu = readSource("lib/account-center/canonical-menu.ts");
-    const storeIndex = menu.indexOf('title: "Store"');
-    const byiIndex = menu.indexOf('title: "Bring Your Item"');
-    const settingsIndex = menu.indexOf('title: "Settings"');
-    expect(byiIndex).toBeGreaterThan(-1);
-    expect(settingsIndex).toBeGreaterThan(byiIndex);
-    if (storeIndex >= 0) {
-      expect(byiIndex).toBeGreaterThan(storeIndex);
-    }
-    expect(menu).toContain("isBringYourItemEnabled");
-    expect(menu).toContain("comingSoon");
+    expect(menu).not.toContain('title: "Bring Your Item"');
+    expect(menu).toContain('title: "Settings"');
+    expect(readSource("app/account/bring-your-item/page.tsx")).toContain("BringYourItemPage");
   });
 
   it("renders a minimal eBay-only account page", () => {

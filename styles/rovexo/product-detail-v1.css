@@ -650,6 +650,25 @@
   will-change: transform;
 }
 
+.pd-v1__report-row {
+  margin-top: var(--ds-space-3);
+}
+
+.pd-v1__report-link {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ds-color-text-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.pd-v1__report-link:hover {
+  color: var(--ds-color-primary);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pd-v1__thumb,
   .pd-v1__gallery-image,

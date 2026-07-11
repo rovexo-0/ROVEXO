@@ -137,7 +137,6 @@ export async function resolveCheckoutShippingAddress(
   userId: string,
   input: AddressInput,
 ): Promise<UserAddress> {
-  const addressType = input.addressType ?? "shipping";
   const existing = await findMatchingUserAddress(userId, input);
   if (existing) {
     if (input.isDefault && !existing.isDefault) {

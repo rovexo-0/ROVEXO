@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { requireApiRole } from "@/lib/auth/session";
+import { requireApiAuth } from "@/lib/auth/session";
 import { validateBankAccountInput } from "@/lib/wallet/bank-account";
 import { removeBankAccount, saveBankAccount } from "@/lib/wallet/store";
+import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
 
 export async function POST(request: Request) {
-  const auth = await requireApiRole(["seller", "business", "admin"]);
+  const auth = await requireApiAuth();
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -42,11 +43,13 @@ export async function POST(request: Request) {
     );
   }
 
+  await syncAutoVerifiedProfile(auth.user.id);
+
   return NextResponse.json({ success: true, method });
 }
 
 export async function DELETE() {
-  const auth = await requireApiRole(["seller", "business", "admin"]);
+  const auth = await requireApiAuth();
   if (auth instanceof NextResponse) {
     return auth;
   }
@@ -58,6 +61,8 @@ export async function DELETE() {
       { status: 500 },
     );
   }
+
+  await syncAutoVerifiedProfile(auth.user.id);
 
   return NextResponse.json({ success: true });
 }

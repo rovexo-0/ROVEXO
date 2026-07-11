@@ -22,7 +22,6 @@ import type { MosDocument, OrchestrationResult, MosSubsystemId } from "@/lib/mar
  * Orchestrates subsystems without replacing them.
  */
 export async function runMarketplaceOrchestration(document: MosDocument): Promise<OrchestrationResult> {
-  const start = Date.now();
   const thresholds = document.thresholds;
   const subsystemsCoordinated: MosSubsystemId[] = [];
 
@@ -90,7 +89,7 @@ export async function runMarketplaceOrchestration(document: MosDocument): Promis
 
   const intelThresholds = { ...DEFAULT_THRESHOLDS, minInventory: thresholds.minInventory };
 
-  const [priorities, balance, events, organic, seo, intelligence, opportunities] = await Promise.all([
+  const [priorities, balance, events, organic, seo, intelligence] = await Promise.all([
     assignMarketplacePriorities(thresholds),
     evaluateMarketplaceBalance(thresholds),
     detectMarketplaceEvents(state, thresholds),

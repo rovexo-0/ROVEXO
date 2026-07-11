@@ -14,6 +14,7 @@ import { ProductRecentlyViewed } from "@/features/product-detail/ProductRecently
 import { ProductShippingCard } from "@/features/product-detail/ProductShippingCard";
 import { ProductSimilarItems } from "@/features/product-detail/ProductSimilarItems";
 import { ProductStoreSection } from "@/features/product-detail/ProductStoreSection";
+import { ProductReportDialog } from "@/features/product-detail/ProductReportDialog";
 import { formatListingPrice, formatListingPriceIncl } from "@/lib/listing-card/format";
 import { resolveProductSubtitle } from "@/lib/product-detail/format";
 import type { Product, ProductDetail } from "@/lib/products/types";
@@ -83,6 +84,10 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
           </section>
 
           <ProductDescriptionV1 description={product.description} />
+
+          <div className="pd-v1__report-row px-ds-4">
+            <ProductReportDialog productSlug={product.slug} productTitle={product.title} />
+          </div>
 
           {product.condition ? <ProductConditionCard condition={product.condition} /> : null}
 

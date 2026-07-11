@@ -6,17 +6,7 @@ import { getProfile } from "@/lib/profile/data";
 
 export const dynamic = "force-dynamic";
 
-const FILTERS: ListingFilter[] = [
-  "all",
-  "published",
-  "pending",
-  "sold",
-  "draft",
-  "paused",
-  "expired",
-  "out_of_stock",
-  "low_stock",
-];
+const LISTING_FILTERS = ["published", "sold"] as const satisfies readonly ListingFilter[];
 
 type SellerListingsRouteProps = {
   searchParams: Promise<{ filter?: string }>;
@@ -24,10 +14,10 @@ type SellerListingsRouteProps = {
 
 export default async function SellerListingsRoute({ searchParams }: SellerListingsRouteProps) {
   const params = await searchParams;
-  const filterParam = params.filter ?? "all";
-  const filter = FILTERS.includes(filterParam as ListingFilter)
+  const filterParam = params.filter ?? "published";
+  const filter: ListingFilter = LISTING_FILTERS.includes(filterParam as (typeof LISTING_FILTERS)[number])
     ? (filterParam as ListingFilter)
-    : "all";
+    : "published";
 
   await getProfile();
   const data = await fetchSellerListings(filter);
@@ -35,7 +25,7 @@ export default async function SellerListingsRoute({ searchParams }: SellerListin
   return (
     <Suspense
       fallback={
-        <div className="acm" data-listings-version="v1.0" style={{ padding: 24 }}>
+        <div className="acm" data-listings-version="v2.0-final" style={{ padding: 24 }}>
           <p>Loading listings…</p>
         </div>
       }

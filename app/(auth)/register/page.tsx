@@ -8,13 +8,14 @@ export default async function RegisterPage() {
 
   return (
     <AuthForm
-      title="Create your account"
-      description="Create your ROVEXO account with email and password. Complete your profile anytime after signing up."
+      title="Join ROVEXO today 🚀"
+      description="Create your free account and start buying, selling and growing your business in minutes."
       action={signUp}
-      submitLabel="Create Account"
+      submitLabel="Create Free Account"
+      oauthDividerLabel="Continue with"
       footer={
         <p>
-          Already have an account? <AuthLink href="/login">Sign in</AuthLink>
+          Already have an account? <AuthLink href="/login">Sign In</AuthLink>
         </p>
       }
     >

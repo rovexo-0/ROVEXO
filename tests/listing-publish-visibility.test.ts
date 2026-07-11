@@ -9,9 +9,9 @@ function readSource(relativePath: string): string {
 describe("Listing publish visibility", () => {
   it("syncs verified profile via service role on publish", () => {
     const route = readSource("app/api/listings/route.ts");
-    const sync = readSource("lib/profile/sync-verified.ts");
+    const sync = readSource("lib/profile/auto-verified.ts");
 
-    expect(route).toContain("syncProfileVerifiedOnPublish");
+    expect(route).toContain("syncAutoVerifiedProfile");
     expect(route).not.toContain('.update({ verified: true })');
     expect(sync).toContain("createAdminClient");
   });

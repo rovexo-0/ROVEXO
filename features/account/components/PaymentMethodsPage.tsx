@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { HubPageMain } from "@/components/layout/HubPageMain";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { readReturnToParam } from "@/lib/navigation/return-to";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { PageBack } from "@/components/navigation/PageBack";
 import { Button } from "@/components/ui/Button";
@@ -18,7 +19,9 @@ type PaymentMethodsPageProps = {
 };
 
 export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const returnTo = readReturnToParam(searchParams);
   const [methods, setMethods] = useState<SavedPaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
@@ -111,6 +114,9 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
     }
     await loadMethods();
     setMessage("Card saved.");
+    if (returnTo) {
+      router.push(returnTo);
+    }
   };
 
   const removeCard = async (id: string) => {

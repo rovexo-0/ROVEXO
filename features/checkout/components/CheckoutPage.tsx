@@ -31,7 +31,7 @@ export function CheckoutPage({
   const router = useRouter();
   const searchParams = useSearchParams();
   const form = useCheckoutForm(product, initialDraft, { liveShippingEnabled });
-  const { view, order, isSubmitting, errorMessage, setSuccessOrder, setView } = form;
+  const { view, order, isSubmitting, errorMessage } = form;
   const isSuccess = view === "success";
   const purchaseTrackedRef = useRef(false);
 

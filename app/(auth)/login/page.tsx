@@ -25,18 +25,16 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <AuthForm
-      title="Welcome back"
-      description="Sign in to access your account, orders, and messages."
+      title="Welcome back 👋"
+      description="Great to see you again. Continue buying, selling and growing your ROVEXO journey."
       action={signIn}
       submitLabel="Sign In"
       initialError={initialError}
+      oauthNext={next}
       footer={
-        <div className="flex flex-col gap-ds-3">
-          <AuthLink href="/forgot-password">Forgot password?</AuthLink>
-          <p>
-            New to ROVEXO? <AuthLink href="/register">Create an account</AuthLink>
-          </p>
-        </div>
+        <p>
+          New to ROVEXO? <AuthLink href="/register">Create Free Account</AuthLink>
+        </p>
       }
     >
       {next ? <input type="hidden" name="next" value={next} /> : null}
@@ -56,7 +54,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           placeholder="Enter your password"
         />
       </AuthFieldGroup>
-      <LoginRememberRow />
+      <div className="flex items-center justify-between gap-ds-3">
+        <LoginRememberRow />
+        <AuthLink href="/forgot-password" className="shrink-0 text-sm">
+          Forgot Password
+        </AuthLink>
+      </div>
     </AuthForm>
   );
 }

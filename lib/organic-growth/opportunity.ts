@@ -80,7 +80,7 @@ export async function detectGrowthOpportunities(limit = 20): Promise<GrowthOppor
     });
   }
 
-  for (const [alias, slugs] of Object.entries(CATEGORY_ALIASES).slice(0, 8)) {
+  for (const [alias] of Object.entries(CATEGORY_ALIASES).slice(0, 8)) {
     try {
       const admin = createAdminClient();
       const { count } = await admin

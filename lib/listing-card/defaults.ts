@@ -16,8 +16,20 @@ export const LISTING_CARD_DEFAULT_PROPS = {
   buyerProtectionPlacement: "body",
 } as const satisfies Partial<ListingCardProps>;
 
+/** Phase 2 — approved compact homepage card (image-first, incl. total + shield, no fee copy). */
 export const LISTING_CARD_HOMEPAGE_PROPS = {
-  ...LISTING_CARD_DEFAULT_PROPS,
   surface: "homepage" as const,
-  showStatusBadge: true,
-} as const;
+  showFavorite: true,
+  showCondition: true,
+  showPlatformFee: false,
+  showBuyerProtection: true,
+  showSeller: false,
+  showRating: true,
+  showViews: false,
+  showShare: false,
+  showPhotoCount: false,
+  showStatusBadge: false,
+  showSubtitle: false,
+  conditionPlacement: "body",
+  buyerProtectionPlacement: "meta",
+} as const satisfies Partial<ListingCardProps>;

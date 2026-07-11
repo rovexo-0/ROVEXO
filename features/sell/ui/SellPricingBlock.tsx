@@ -3,7 +3,7 @@
 import { useId, useMemo } from "react";
 import { cn } from "@/lib/cn";
 import { sellInput, sellInvalid, focusRing } from "@/features/sell/ui/sell-classes";
-import { SellSection, SellStepper, SellInlineError } from "@/features/sell/ui/SellPrimitives";
+import { SellSection, SellInlineError } from "@/features/sell/ui/SellPrimitives";
 import { useSell } from "@/features/sell/context/SellProvider";
 import { getListingValidationErrors } from "@/features/sell/types";
 
@@ -17,10 +17,10 @@ export function SellPricingBlock() {
   );
 
   return (
-    <SellSection aria-label="Pricing">
+    <SellSection title="Price" aria-label="Price">
       <div className="flex flex-col gap-ds-1">
         <label htmlFor={priceId} className="px-ds-1 text-xs font-medium text-text-muted">
-          Price
+          Price <span className="text-destructive">*</span>
         </label>
         <input
           id={priceId}
@@ -35,10 +35,6 @@ export function SellPricingBlock() {
           className={cn(sellInput, focusRing, "min-h-ds-7 text-lg tabular-nums", sellInvalid(Boolean(errors.price)))}
         />
         <SellInlineError message={errors.price} />
-      </div>
-
-      <div className="border-t border-border pt-ds-3">
-        <SellStepper value={draft.stock} onChange={(stock) => updateDraft({ stock })} />
       </div>
     </SellSection>
   );

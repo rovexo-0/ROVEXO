@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type MouseEvent } from "react";
+import type { MouseEvent } from "react";
 import type { BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
-import { PremiumNavIcon } from "@/components/icons/PremiumNavIcon";
-import { Avatar } from "@/components/ui/Avatar";
+import { BottomNavV2Icon } from "@/components/ui/BottomNavV2Icon";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
 import { useSearchOverlayOptional } from "@/features/search/client";
@@ -32,9 +31,9 @@ type NavItem = {
 
 const defaultNavItems: NavItem[] = [
   { id: "home", label: "Home", href: "/", icon: "home" },
-  { id: "search", label: "Search", href: "/search", icon: "search" },
-  { id: "saved", label: "Saved", href: "/saved", icon: "saved" },
-  { id: "account", label: "Account", href: "/account", icon: "account" },
+  { id: "search", label: "Browse", href: "/search", icon: "search" },
+  { id: "saved", label: "Inbox", href: "/messages", icon: "saved" },
+  { id: "account", label: "Profile", href: "/account", icon: "account" },
 ];
 
 function mapMenuItems(items: MenuItemConfig[]): NavItem[] {
@@ -50,16 +49,18 @@ function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab
   if (active) return active;
   if (pathname.startsWith("/sell")) return "sell";
   if (pathname.startsWith("/search")) return "search";
-  if (pathname.startsWith("/saved")) return "saved";
+  if (pathname.startsWith("/messages")) return "saved";
+  if (pathname.startsWith("/saved")) return "account";
   if (pathname.startsWith("/account")) return "account";
   return "home";
 }
 
-function NavIcon({ type }: { type: BottomNavIconType }) {
-  return <PremiumNavIcon type={type} size={34} className="rx-bottom-nav-tab-icon" />;
+function NavIcon({ type, href, isActive }: { type: BottomNavIconType; href: string; isActive: boolean }) {
+  void isActive;
+  return <BottomNavV2Icon type={type} href={href} />;
 }
 
-/** White "+" glyph rendered inside the blue Sell FAB. */
+/** White "+" glyph inside the ROVEXO purple Sell FAB. */
 function SellPlusIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden className="rx-sell-plus">
@@ -93,58 +94,9 @@ function NavLink({
       className={cn("rx-bottom-nav-item", focusRing, transitionFast)}
     >
       <span className="rx-bottom-nav-icon-wrap">
-        <NavIcon type={item.icon} />
+        <NavIcon type={item.icon} href={item.href} isActive={isActive} />
       </span>
       <span className="rx-bottom-nav-item__label">{item.label}</span>
-    </Link>
-  );
-}
-
-function AccountNavLink({ isActive, accountItem }: { isActive: boolean; accountItem: NavItem }) {
-  const [profile, setProfile] = useState<{ name: string; avatarUrl: string | null } | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void fetch("/api/profile", { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload: { profile?: { fullName?: string; avatarUrl?: string | null } } | null) => {
-        if (!cancelled && payload?.profile) {
-          setProfile({
-            name: payload.profile.fullName ?? "Account",
-            avatarUrl: payload.profile.avatarUrl ?? null,
-          });
-        }
-      })
-      .catch(() => undefined);
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return (
-    <Link
-      href={accountItem.href}
-      aria-label={accountItem.label}
-      aria-current={isActive ? "page" : undefined}
-      data-active={isActive}
-      className={cn("rx-bottom-nav-item", focusRing, transitionFast)}
-    >
-      <span className="rx-bottom-nav-icon-wrap">
-        {profile ? (
-          <Avatar
-            src={profile.avatarUrl}
-            alt={profile.name}
-            name={profile.name}
-            size="nav"
-            className={cn(isActive && "ring-2 ring-primary")}
-          />
-        ) : (
-          <NavIcon type="account" />
-        )}
-      </span>
-      <span className="rx-bottom-nav-item__label">{accountItem.label}</span>
     </Link>
   );
 }
@@ -181,7 +133,8 @@ export function BottomNavigation({
 
   return (
     <nav
-      data-bottom-nav="2026"
+      data-bottom-nav="v2"
+      data-bottom-nav-version="v2-final"
       aria-label={ariaLabel}
       className={cn(
         "pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center",
@@ -189,7 +142,7 @@ export function BottomNavigation({
           "max-lg:transition-[transform,opacity] max-lg:duration-[250ms] max-lg:ease-in-out max-lg:will-change-[transform,opacity]",
         hasScrollBehavior &&
           !isChromeVisible &&
-          "max-lg:translate-y-[120px] max-lg:opacity-0 max-lg:pointer-events-none",
+          "max-lg:translate-y-[72px] max-lg:opacity-0 max-lg:pointer-events-none",
         className,
       )}
     >
@@ -238,7 +191,7 @@ export function BottomNavigation({
             <NavLink item={saved} isActive={activeTab === "saved"} />
           </li>
           <li>
-            <AccountNavLink isActive={activeTab === "account"} accountItem={account} />
+            <NavLink item={account} isActive={activeTab === "account"} />
           </li>
         </ul>
       </div>

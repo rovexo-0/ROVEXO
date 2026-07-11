@@ -30,8 +30,7 @@ export function SellPublishBar() {
     () => readCanPublish(draft, pendingTitleRef, pendingDescriptionRef),
   );
 
-  const label = editListingId ? "Save changes" : "Continue";
-  const loadingLabel = editListingId ? "Saving…" : "Publishing…";
+  const label = editListingId ? "Save changes" : "Publish Listing";
 
   return (
     <div className="rx-footer-bar rx-footer-bar--sticky sticky bottom-0 z-[110] mt-auto w-full shrink-0">
@@ -44,7 +43,7 @@ export function SellPublishBar() {
           disabled={!canPublish || isPublishing}
           onClick={() => void publishListing()}
         >
-          {isPublishing ? loadingLabel : label}
+          {label}
         </Button>
       </div>
     </div>

@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { sanitizeNextPath } from "@/lib/auth/redirects";
-
-async function markProfileVerified(userId: string) {
-  const supabase = await createClient();
-  await supabase.from("profiles").update({ verified: true }).eq("id", userId);
-}
+import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -39,8 +35,8 @@ export async function GET(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user?.email_confirmed_at) {
-    await markProfileVerified(user.id);
+  if (user?.id) {
+    await syncAutoVerifiedProfile(user.id);
   }
 
   return NextResponse.redirect(`${origin}${next}`);

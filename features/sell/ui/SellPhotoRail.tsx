@@ -37,7 +37,7 @@ function CloseIcon({ className }: { className?: string }) {
 }
 
 export const SellPhotoRail = memo(function SellPhotoRail() {
-  const { draft, addPhotos, removePhoto, reorderPhotos, retryPhotoUpload, isPublishing, uploadProgress } = useSell();
+  const { draft, addPhotos, removePhoto, reorderPhotos, retryPhotoUpload } = useSell();
 
   const longPressTimer = useRef<number | null>(null);
   const touchDragIndex = useRef<number | null>(null);
@@ -119,22 +119,13 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
     "relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-ds-lg";
 
   return (
-    <section aria-label="Photos" className="rx-form-section flex flex-col gap-ds-3 rounded-ds-lg border border-border bg-surface p-ds-4 shadow-ds-soft">
+    <section aria-label="Add Photos" className="rx-form-section flex flex-col gap-ds-3 rounded-ds-lg border border-border bg-surface p-ds-4 shadow-ds-soft">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-text-primary">Photos</h2>
+        <h2 className="text-sm font-semibold text-text-primary">Add Photos</h2>
         <span className="text-xs font-semibold tabular-nums text-text-muted" aria-live="polite">
           {photos.length} / {SELL_PHOTO_MAX}
         </span>
       </div>
-
-      {isPublishing && uploadProgress > 0 ? (
-        <div>
-          <div className="h-1.5 overflow-hidden rounded-ds-full bg-surface-muted">
-            <div className="h-full rounded-ds-full bg-primary transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
-          </div>
-          <p className="mt-ds-1 text-xs text-text-secondary">Uploading photos… {uploadProgress}%</p>
-        </div>
-      ) : null}
 
       {photos.length === 0 ? (
         <div className="flex flex-col gap-ds-2">
@@ -152,7 +143,7 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
               onFilesSelected={handleFilesSelected}
             />
             <CameraIcon className="pointer-events-none h-7 w-7" />
-            <span className="pointer-events-none text-sm font-semibold">Add Photo</span>
+            <span className="pointer-events-none text-sm font-semibold">Add Photos</span>
             <span className="pointer-events-none text-xs font-normal text-text-muted">
               Maximum {SELL_PHOTO_MAX} photos
             </span>
@@ -209,7 +200,7 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={photo.previewUrl}
-                  alt={index === 0 ? "Main photo" : `Listing photo ${index + 1}`}
+                  alt={index === 0 ? "Cover photo" : `Listing photo ${index + 1}`}
                   className="h-full w-full object-cover"
                   loading="lazy"
                   decoding="async"
@@ -219,9 +210,13 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
 
               {index === 0 ? (
                 <span className="absolute bottom-1 left-1 rounded-ds-sm bg-primary px-1.5 py-0.5 text-[0.625rem] font-semibold text-white">
-                  Main
+                  Cover
                 </span>
               ) : null}
+
+              <span className="absolute bottom-1 right-1 rounded-ds-sm bg-black/60 px-1.5 py-0.5 text-[0.625rem] font-semibold tabular-nums text-white">
+                {index + 1} / {SELL_PHOTO_MAX}
+              </span>
 
               <button
                 type="button"
@@ -261,7 +256,7 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
                   onFilesSelected={handleFilesSelected}
                 />
                 <PlusIcon className="pointer-events-none h-6 w-6" />
-                <span className="pointer-events-none text-xs font-semibold">Add Photo</span>
+                <span className="pointer-events-none text-xs font-semibold">Add Photos</span>
               </label>
 
               <label
@@ -283,7 +278,7 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
       {photos.length > 0 ? (
         <p className="text-xs text-text-muted" aria-live="polite">
           {canAdd
-            ? "Tap to preview · long-press or drag to reorder · first photo is your Main image."
+            ? "Tap to preview · long-press or drag to reorder · first photo is your cover image."
             : `Maximum ${SELL_PHOTO_MAX} photos reached.`}
         </p>
       ) : null}

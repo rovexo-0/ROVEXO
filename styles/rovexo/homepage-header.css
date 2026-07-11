@@ -278,6 +278,24 @@
   color: var(--ds-color-text-primary);
 }
 
+.homepage-search__camera {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ds-color-text-secondary);
+  flex-shrink: 0;
+}
+
+.homepage-search__camera:hover {
+  color: var(--ds-color-primary);
+  background: color-mix(in srgb, var(--ds-color-primary) 8%, transparent);
+}
+
 .homepage-search__spinner {
   display: inline-flex;
   width: 20px;

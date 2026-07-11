@@ -10,6 +10,11 @@ export function formatListingPriceIncl(amount: number): string {
   return `${formatListingPrice(total)} incl.`;
 }
 
+/** Homepage listing card — buyer-facing Platform Fee line only. */
+export function formatPlatformFeeLine(itemPrice: number): string {
+  return `${formatListingPrice(calculatePlatformFee(itemPrice))} Platform Fee`;
+}
+
 export function humanizeListingCondition(raw?: string): string | null {
   if (!raw?.trim()) return null;
   const text = raw.replace(/[_-]+/g, " ").trim();

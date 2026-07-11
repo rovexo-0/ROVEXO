@@ -69,6 +69,7 @@ export interface ListingCardProps {
   showRating?: boolean;
   showViews?: boolean;
   showBuyerProtection?: boolean;
+  showPlatformFee?: boolean;
   showCondition?: boolean;
   conditionPlacement?: "badge" | "meta" | "body";
   buyerProtectionPlacement?: "body" | "meta";
@@ -153,6 +154,7 @@ export const ListingCard = memo(function ListingCard({
   showRating = true,
   showViews = true,
   showBuyerProtection = true,
+  showPlatformFee = false,
   showCondition = true,
   showStatusBadge = false,
   favoriteMode = "watchlist",
@@ -160,6 +162,7 @@ export const ListingCard = memo(function ListingCard({
   onFavorite,
 }: ListingCardProps) {
   void variant;
+  void showPlatformFee;
 
   const url = hrefOverride ?? `/listing/${product.slug}`;
   const amount =
@@ -207,7 +210,9 @@ export const ListingCard = memo(function ListingCard({
     [favoriteMode, pinned, onFavorite, product.id, product.title, toggleSaved],
   );
 
-  const showFooter = showSeller || showRating || showViews;
+  const isHomepageCard = surface === "homepage";
+  const showFooter = !isHomepageCard && (showSeller || showRating || showViews);
+  const ratingEnd = surface === "homepage" && showRating && !showSeller && !showViews;
   const promotionBadge =
     showStatusBadge && surface === "homepage"
       ? statusBadgeLabel
@@ -217,14 +222,20 @@ export const ListingCard = memo(function ListingCard({
 
   return (
     <article
-      className={cn(css.root, className)}
+      className={cn(css.root, isHomepageCard && css.rootHomepage, className)}
       data-hp-listing-card="official"
-      data-hp-listing-version={LISTING_CARD_UI_VERSION}
+      data-hp-listing-version={isHomepageCard ? "homepage-rev-2" : LISTING_CARD_UI_VERSION}
       data-hp-listing-status={LISTING_CARD_UI_STATUS}
       data-listing-card="rovexo"
+      data-listing-surface={surface}
     >
-      <Link href={url} className={css.hitArea} aria-label={product.title} onClick={go}>
-        <figure className={css.visual}>
+      <Link
+        href={url}
+        className={cn(css.hitArea, isHomepageCard && css.hitAreaHomepage)}
+        aria-label={product.title}
+        onClick={go}
+      >
+        <figure className={cn(css.visual, isHomepageCard && css.visualHomepage)}>
           <SafeImage
             src={product.imageUrl}
             alt={product.title}
@@ -250,6 +261,31 @@ export const ListingCard = memo(function ListingCard({
           ) : null}
         </figure>
 
+        {isHomepageCard ? (
+          <div className={css.bodyHomepage}>
+            <h3 className={css.titleHomepage}>{product.title}</h3>
+            {showCondition && condition ? (
+              <p className={css.conditionHomepage}>{condition}</p>
+            ) : null}
+            <p className={css.priceHomepage}>{priceLabel ?? formatListingPrice(amount)}</p>
+            <div className={css.metaRowHomepage}>
+              {showBuyerProtection ? (
+                <span className={css.inclTotalHomepage}>
+                  <span>{formatListingPriceIncl(amount)}</span>
+                  <ShieldCheck className={css.inclShieldHomepage} strokeWidth={2.25} aria-hidden />
+                </span>
+              ) : (
+                <span className={css.inclSpacerHomepage} aria-hidden />
+              )}
+              {showRating ? (
+                <span className={css.ratingHomepage} aria-label={`Rating ${formatCardRating(product)}`}>
+                  <IconStar />
+                  <span className={css.ratingValueHomepage}>{formatCardRating(product)}</span>
+                </span>
+              ) : null}
+            </div>
+          </div>
+        ) : (
         <div className={css.body}>
           <h3 className={css.title}>{product.title}</h3>
           {showCondition && condition ? <p className={css.condition}>{condition}</p> : null}
@@ -264,24 +300,32 @@ export const ListingCard = memo(function ListingCard({
           {showFooter ? (
             <>
               <div className={css.divider} role="presentation" />
-              <div className={css.footer}>
-                <div className={css.footerLeft}>
-                  {showSeller ? (
-                    <Avatar
-                      src={product.sellerAvatar}
-                      alt={product.sellerName}
-                      name={product.sellerName}
-                      size="sm"
-                      className={css.sellerAvatar}
-                    />
-                  ) : null}
-                  {showRating ? (
-                    <span className={css.rating} aria-label={`Rating ${formatCardRating(product)}`}>
-                      <IconStar />
-                      <span className={css.ratingValue}>{formatCardRating(product)}</span>
-                    </span>
-                  ) : null}
-                </div>
+              <div className={cn(css.footer, ratingEnd && css.footerRatingEnd)}>
+                {!ratingEnd ? (
+                  <div className={css.footerLeft}>
+                    {showSeller ? (
+                      <Avatar
+                        src={product.sellerAvatar}
+                        alt={product.sellerName}
+                        name={product.sellerName}
+                        size="sm"
+                        className={css.sellerAvatar}
+                      />
+                    ) : null}
+                    {showRating ? (
+                      <span className={css.rating} aria-label={`Rating ${formatCardRating(product)}`}>
+                        <IconStar />
+                        <span className={css.ratingValue}>{formatCardRating(product)}</span>
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
+                {ratingEnd ? (
+                  <span className={css.rating} aria-label={`Rating ${formatCardRating(product)}`}>
+                    <IconStar />
+                    <span className={css.ratingValue}>{formatCardRating(product)}</span>
+                  </span>
+                ) : null}
                 {showViews ? (
                   <span className={css.views} aria-label={`${formatCardViews(product.views)} views`}>
                     <Eye className={css.viewsIcon} strokeWidth={2} aria-hidden />
@@ -292,6 +336,7 @@ export const ListingCard = memo(function ListingCard({
             </>
           ) : null}
         </div>
+        )}
       </Link>
 
       {showShare ? (
@@ -328,11 +373,11 @@ export function ListingCardSkeleton({ className }: { className?: string }) {
   );
 }
 
-export function ListingCardSkeletonGrid({ count = 4 }: { count?: number }) {
+export function ListingCardSkeletonGrid({ count = 4, className }: { count?: number; className?: string }) {
   return (
     <>
       {Array.from({ length: count }, (_, index) => (
-        <ListingCardSkeleton key={index} />
+        <ListingCardSkeleton key={index} className={className} />
       ))}
     </>
   );

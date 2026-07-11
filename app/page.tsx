@@ -18,6 +18,7 @@ import type { ProductsPage } from "@/lib/products/types";
 import type { ShowcaseSellerSection } from "@/lib/homepage/showcase-sellers";
 import { getAuthContext, getUserRole } from "@/lib/auth/session";
 import { getPlatformVisualConfig } from "@/lib/platform-visual/reader";
+import { HP_CANONICAL_BOTTOM_NAV } from "@/lib/homepage/canonical-nav";
 
 const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
 const siteUrl = getAppUrl();
@@ -92,13 +93,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     (visualConfig.shell.header.enabled && visualConfig.shell.header.published);
 
   return (
-    <BetaAppShell bottomNavTab="home" className="rovexo-page-home" visualConfig={visualConfig}>
+    <BetaAppShell
+      bottomNavTab="home"
+      className="rovexo-page-home"
+      visualConfig={visualConfig}
+      menuItems={HP_CANONICAL_BOTTOM_NAV}
+    >
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       <HomePageShell
-        header={showHeader ? <RovexoHeaderV2 replaceAccountWithShare /> : null}
+        header={showHeader ? <RovexoHeaderV2 layout="homepage" showSearch={false} /> : null}
         bottomNav={null}
       >
         <CanonicalHomepage {...sections} />

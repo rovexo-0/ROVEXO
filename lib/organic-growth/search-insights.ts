@@ -25,7 +25,7 @@ export type SearchInsightsReport = {
   recommendations: string[];
 };
 
-async function readRecentSearchQueries(limit = 50): Promise<Map<string, number>> {
+async function readRecentSearchQueries(): Promise<Map<string, number>> {
   const counts = new Map<string, number>();
   try {
     const admin = createAdminClient();

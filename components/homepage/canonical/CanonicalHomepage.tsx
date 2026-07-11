@@ -26,7 +26,7 @@ export const CanonicalHomepage = memo(function CanonicalHomepage({
   }, [showcases]);
 
   return (
-    <ScrollContainer withBottomNav className={css.hpCanonical} data-hp-homepage="canonical" data-hp-homepage-version="ui-lock-1.0">
+    <ScrollContainer withBottomNav className={css.hpCanonical} data-hp-homepage="canonical" data-hp-homepage-version="phase-2-refinement-01">
       <CanonicalCategoryRail />
       <FeaturedStoreSection sections={showcases} />
       <CanonicalMarketplaceFeed initialPage={feed} reservedIds={reservedIds} />

@@ -2,11 +2,12 @@
 
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Bell, MessageSquare } from "lucide-react";
+import { Bell } from "lucide-react";
 import { HomepageSearchField } from "@/components/home/HomepageSearchField";
 import { HeaderV2IconLink } from "@/components/header/HeaderV2IconLink";
 import { HeaderProfileLink } from "@/components/header/HeaderProfileLink";
 import { HomepageHeaderShareButton } from "@/components/header/HomepageHeaderShareButton";
+import { RovexoWordmark } from "@/components/brand/RovexoWordmark";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { useHeaderBadges } from "@/features/header/hooks/use-header-badges";
 import { cn } from "@/lib/cn";
@@ -15,8 +16,9 @@ import { focusRing } from "@/components/ui/tokens";
 export type RovexoHeaderV2Props = {
   showSearch?: boolean;
   unreadNotifications?: number;
-  unreadMessages?: number;
-  /** Homepage only — replaces Account/Avatar with Share. */
+  /** Homepage — logo row + search row below (no inline search). */
+  layout?: "default" | "homepage" | "account";
+  /** Non-homepage — replaces Account/Avatar with Share. */
   replaceAccountWithShare?: boolean;
 };
 
@@ -29,9 +31,13 @@ const HEADER_LUCIDE_ICON = {
 function RovexoHeaderV2({
   showSearch = true,
   unreadNotifications: unreadNotificationsProp = 0,
-  unreadMessages: unreadMessagesProp = 0,
+  layout = "default",
   replaceAccountWithShare = false,
 }: RovexoHeaderV2Props) {
+  const isHomepageLayout = layout === "homepage";
+  const isAccountLayout = layout === "account";
+  const isWordmarkLayout = isHomepageLayout || isAccountLayout;
+  const inlineSearch = showSearch && !isHomepageLayout && !isAccountLayout;
   const scroll = useMobileHeaderScrollContext();
   const registerHeader = scroll?.registerHeader;
   const isChromeVisible = scroll?.isVisible ?? true;
@@ -40,11 +46,9 @@ function RovexoHeaderV2({
   const [isScrolled, setIsScrolled] = useState(false);
 
   const liveBadges = useHeaderBadges({
-    unreadMessages: unreadMessagesProp,
     unreadNotifications: unreadNotificationsProp,
   });
 
-  const unreadMessages = Math.max(unreadMessagesProp, liveBadges.unreadMessages);
   const unreadNotifications = Math.max(unreadNotificationsProp, liveBadges.unreadNotifications);
 
   useLayoutEffect(() => {
@@ -66,34 +70,39 @@ function RovexoHeaderV2({
       data-header-share={replaceAccountWithShare ? "homepage" : undefined}
       className={cn(
         "rx-h2",
+        isHomepageLayout && "rx-h2--homepage",
+        isAccountLayout && "rx-h2--account",
         isScrolled && "rx-h2--scrolled",
         hasScrollBehavior &&
           "max-lg:transition-[transform,opacity] max-lg:duration-[200ms] max-lg:ease-out",
         hasScrollBehavior && !isChromeVisible && "max-lg:-translate-y-full max-lg:opacity-0",
       )}
     >
-      <div className="rx-h2__inner">
-        <Link href="/" aria-label="ROVEXO Home" className={cn("rx-h2__logo", focusRing)}>
-          <span className="rx-h2__logo-text">ROVEXO</span>
-        </Link>
+      <div className={cn("rx-h2__inner", isWordmarkLayout && "rx-h2__inner--row1")}>
+        {isWordmarkLayout ? (
+          <RovexoWordmark asLink className="rx-h2__wordmark" />
+        ) : (
+          <Link href="/" aria-label="ROVEXO Home" className={cn("rx-h2__logo", focusRing)}>
+            <span className="rx-h2__logo-text">ROVEXO</span>
+          </Link>
+        )}
 
-        {showSearch ? (
+        {inlineSearch ? (
           <div className="rx-h2__search">
             <HomepageSearchField inputId="rx-h2-search" className="rx-h2-search" />
           </div>
-        ) : (
+        ) : !isHomepageLayout && !isAccountLayout ? (
           <div className="rx-h2__search rx-h2__search--hidden" aria-hidden />
-        )}
+        ) : null}
 
-        <div className="rx-h2__actions" role="group" aria-label="Quick links">
-          <HeaderV2IconLink
-            href="/messages"
-            label="Messages"
-            badge={unreadMessages}
-            className="rx-h2__action--messages"
-          >
-            <MessageSquare {...HEADER_LUCIDE_ICON} className="rx-h2__lucide" />
-          </HeaderV2IconLink>
+        <div
+          className={cn(
+            "rx-h2__actions",
+            (isHomepageLayout || isAccountLayout) && "rx-h2__actions--homepage",
+          )}
+          role="group"
+          aria-label="Quick links"
+        >
           <HeaderV2IconLink
             href="/notifications"
             label="Notifications"
@@ -102,16 +111,22 @@ function RovexoHeaderV2({
           >
             <Bell {...HEADER_LUCIDE_ICON} className="rx-h2__lucide" />
           </HeaderV2IconLink>
-          {replaceAccountWithShare ? (
+          {!isWordmarkLayout && replaceAccountWithShare ? (
             <HomepageHeaderShareButton className="rx-h2__share" />
-          ) : (
+          ) : !isWordmarkLayout ? (
             <HeaderProfileLink
               className="rx-h2__account"
               avatarClassName="rx-h2__account-avatar"
             />
-          )}
+          ) : null}
         </div>
       </div>
+
+      {isHomepageLayout ? (
+        <div className="rx-h2__search-row">
+          <HomepageSearchField inputId="hp-canonical-search" className="rx-h2-search rx-h2-search--homepage" />
+        </div>
+      ) : null}
     </header>
   );
 }

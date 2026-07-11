@@ -3,7 +3,8 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ShowcaseSellerSection } from "@/lib/homepage/showcase-sellers";
 import { FeaturedStoreHeader } from "@/components/homepage/canonical/featured-store/FeaturedStoreHeader";
-import { FeaturedStoreProductCard } from "@/components/homepage/canonical/featured-store/FeaturedStoreProductCard";
+import { ListingCard } from "@/components/ui/ListingCard";
+import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import { StoreProfileCard } from "@/components/homepage/canonical/featured-store/StoreProfileCard";
 import css from "@/components/homepage/canonical/featured-store/FeaturedStore.module.css";
 
@@ -56,7 +57,7 @@ export const FeaturedStoreSection = memo(function FeaturedStoreSection({
       aria-label="Featured stores"
       className={css.block}
       data-hp-featured-store
-      data-hp-featured-store-version="ui-lock-1.0"
+      data-hp-featured-store-version="phase-2-module-01"
     >
       <div ref={profileRailRef} className={css.profileRail} role="list">
         {stores.map((section, index) => (
@@ -96,7 +97,12 @@ export const FeaturedStoreSection = memo(function FeaturedStoreSection({
           <div ref={productRailRef} className={css.carousel} role="list">
             {listings.map((product, index) => (
               <div key={product.id} role="listitem" className={css.carouselItem}>
-                <FeaturedStoreProductCard product={product} priority={index === 0} />
+                <ListingCard
+                  product={product}
+                  variant="grid"
+                  priority={index === 0}
+                  {...HP_CANONICAL_LISTING_PROPS}
+                />
               </div>
             ))}
           </div>

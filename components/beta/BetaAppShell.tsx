@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { BottomNavigation, type BottomNavTab } from "@/components/ui/BottomNavigation";
 import { RealtimeNotificationProvider } from "@/features/notifications/components/RealtimeNotificationProvider";
-import type { PlatformVisualConfig } from "@/lib/platform-visual/types";
+import type { MenuItemConfig, PlatformVisualConfig } from "@/lib/platform-visual/types";
 import { resolvePublishedMenuItems } from "@/lib/platform-visual/resolver";
 import { isSellFlowRoute } from "@/lib/navigation/sell-flow-routes";
 import { cn } from "@/lib/cn";
@@ -16,6 +16,7 @@ type BetaAppShellProps = {
   className?: string;
   initialUnreadCount?: number;
   visualConfig?: PlatformVisualConfig;
+  menuItems?: MenuItemConfig[];
 };
 
 export function BetaAppShell({
@@ -25,12 +26,13 @@ export function BetaAppShell({
   className,
   initialUnreadCount = 0,
   visualConfig,
+  menuItems: menuItemsOverride,
 }: BetaAppShellProps) {
   const pathname = usePathname() ?? "";
   const sellFlow = isSellFlowRoute(pathname);
-  const bottomNavItems = visualConfig
-    ? resolvePublishedMenuItems(visualConfig.menus, "bottomNav")
-    : undefined;
+  const bottomNavItems =
+    menuItemsOverride ??
+    (visualConfig ? resolvePublishedMenuItems(visualConfig.menus, "bottomNav") : undefined);
   const bottomNavVisible =
     !sellFlow &&
     showBottomNav &&

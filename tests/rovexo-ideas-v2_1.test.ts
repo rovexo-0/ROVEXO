@@ -13,11 +13,11 @@ describe("ROVEXO Ideas v2.1", () => {
     const menu = readSource("lib/account-center/canonical-menu.ts");
 
     expect(route).toContain("RovexoIdeasPage");
-    expect(page).toContain('data-rovexo-ideas-version="v2.1"');
-    expect(page).toContain("Send Suggestion");
-    expect(page).toContain("Add Screenshot");
+    expect(page).toContain('data-rovexo-ideas-version="v2.0-lock"');
+    expect(page).toContain("Submit Idea");
+    expect(page).toContain("New Idea");
     expect(page).not.toContain("vote");
-    expect(menu).toContain("ROVEXO Ideas");
+    expect(menu).toContain('title: "Ideas"');
     expect(menu).toContain("/account/ideas");
   });
 

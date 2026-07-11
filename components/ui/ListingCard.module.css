@@ -224,6 +224,14 @@
   min-height: var(--rx-listing-seller-size, 22px);
 }
 
+.footerRatingEnd {
+  justify-content: flex-end;
+}
+
+.footerRatingEnd .rating {
+  margin-left: auto;
+}
+
 .footerLeft {
   display: flex;
   align-items: center;
@@ -231,6 +239,7 @@
   min-width: 0;
   flex: 1;
 }
+
 
 .sellerAvatar {
   width: var(--rx-listing-seller-size, 22px) !important;
@@ -366,4 +375,150 @@
   .root:active {
     transform: scale(0.985);
   }
+}
+
+/* Homepage — compact image-first card (approved rev 2) */
+.rootHomepage {
+  aspect-ratio: 173 / 268;
+  height: auto;
+}
+
+.hitAreaHomepage {
+  display: grid;
+  grid-template-rows: minmax(0, 7.8fr) auto;
+  height: 100%;
+}
+
+.visualHomepage {
+  aspect-ratio: unset;
+  height: 100%;
+  min-height: 0;
+}
+
+.bodyHomepage {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  padding: 8px 10px 10px;
+}
+
+.titleHomepage {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: clamp(0.75rem, 3.8cqi, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ds-color-text-primary);
+}
+
+.conditionHomepage {
+  margin: 0;
+  font-size: clamp(0.625rem, 3cqi, 0.6875rem);
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--ds-color-text-secondary);
+}
+
+.priceHomepage {
+  margin: 2px 0 0;
+  font-size: clamp(1rem, 5.8cqi, 1.125rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ds-color-primary);
+}
+
+.metaRowHomepage {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+  min-height: 16px;
+}
+
+.platformFee {
+  margin: 0;
+  min-width: 0;
+  font-size: clamp(0.625rem, 3cqi, 0.6875rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ds-color-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.platformFeeSpacer {
+  flex: 1;
+}
+
+.inclTotalHomepage {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  font-size: clamp(0.625rem, 3cqi, 0.6875rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ds-color-primary);
+  white-space: nowrap;
+}
+
+.inclShieldHomepage {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--ds-color-primary);
+}
+
+.inclSpacerHomepage {
+  flex: 1;
+}
+
+.ratingHomepage {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.ratingValueHomepage {
+  font-size: clamp(0.625rem, 3cqi, 0.6875rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ds-color-text-primary);
+}
+
+.skeletonHomepage {
+  aspect-ratio: 173 / 268;
+  display: grid;
+  grid-template-rows: minmax(0, 7.8fr) auto;
+}
+
+.skeletonHomepage .skeletonMedia {
+  aspect-ratio: unset;
+  height: 100%;
+  min-height: 0;
+}
+
+.skeletonHomepage .skeletonBody {
+  gap: 4px;
+  padding: 8px 10px 10px;
+}
+
+.skeletonHomepage .skeletonLineProtection {
+  width: 48%;
+}
+
+.skeletonHomepage .skeletonDivider,
+.skeletonHomepage .skeletonLineFooter {
+  display: none;
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SellerReportDialog } from "@/features/product-detail/SellerReportDialog";
 import { isVerifiedStore } from "@/lib/product-detail/format";
 import type { ProductDetail } from "@/lib/products/types";
 
@@ -41,6 +42,10 @@ export function ProductStoreSection({ product }: ProductStoreSectionProps) {
       <Link href={profileHref} className="pd-v1__visit-store">
         Visit Store
       </Link>
+
+      <div className="pd-v1__report-row">
+        <SellerReportDialog sellerId={product.sellerId} sellerName={product.sellerName} />
+      </div>
     </section>
   );
 }

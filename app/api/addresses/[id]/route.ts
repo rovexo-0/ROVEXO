@@ -6,6 +6,7 @@ import {
   setDefaultAddress,
   updateUserAddress,
 } from "@/lib/addresses/repository";
+import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -33,6 +34,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     const address = await updateUserAddress(auth.user.id, id, parsed.data);
+    await syncAutoVerifiedProfile(auth.user.id);
     return NextResponse.json({ address });
   } catch (error) {
     return NextResponse.json(

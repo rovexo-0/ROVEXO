@@ -10,13 +10,13 @@ import { SellProvider, useSell } from "@/features/sell/context/SellProvider";
 import { SellPhotoRail } from "@/features/sell/ui/SellPhotoRail";
 import { SellTitleBlock } from "@/features/sell/ui/SellTitleBlock";
 import { SellCategoryBlock } from "@/features/sell/ui/SellCategoryBlock";
-import { SellConditionBlock } from "@/features/sell/ui/SellConditionBlock";
 import { SellAttributesBlock } from "@/features/sell/ui/SellAttributesBlock";
 import { SellPricingBlock } from "@/features/sell/ui/SellPricingBlock";
 import { SellShippingBlock } from "@/features/sell/ui/SellShippingBlock";
-import { SellOptionsBlock } from "@/features/sell/ui/SellOptionsBlock";
 import { SellPublishBar } from "@/features/sell/ui/SellPublishBar";
-import { SellSuccessScreen } from "@/features/sell/ui/SellSuccessScreen";
+
+/** Canonical sell page version — frozen after validation. */
+export const SELL_PAGE_CANONICAL_VERSION = "v1.0-canonical";
 
 type SellScreenProps = {
   editListingId?: string;
@@ -59,25 +59,18 @@ function SellTopBar({ title }: { title: string }) {
 }
 
 function SellScreenInner() {
-  const { view, formError } = useSell();
-
-  if (view === "published") {
-    return <SellSuccessScreen />;
-  }
+  const { formError } = useSell();
 
   return (
     <>
       <SellTopBar title="Sell an item" />
-      {/* Horizontal padding respects device safe-area insets (notches / landscape). */}
       <ScrollContainer withBottomNav={false} className="mx-auto flex max-w-2xl flex-col gap-ds-4 py-ds-4 px-[max(env(safe-area-inset-left),var(--ds-space-4))]">
         <SellPhotoRail />
         <SellTitleBlock />
         <SellCategoryBlock />
-        <SellConditionBlock />
         <SellAttributesBlock />
         <SellPricingBlock />
         <SellShippingBlock />
-        <SellOptionsBlock />
 
         {formError ? (
           <p className="rounded-ds-md border border-destructive/30 bg-destructive/10 px-ds-3 py-ds-2 text-sm text-destructive" role="alert">
@@ -95,7 +88,9 @@ export function SellScreen({ editListingId, initialDraft }: SellScreenProps) {
   return (
     <BetaAppShell showBottomNav={false} className="sell-page-v1">
       <SellProvider editListingId={editListingId} initialDraft={initialDraft}>
-        <SellScreenInner />
+        <div data-sell-canonical={SELL_PAGE_CANONICAL_VERSION}>
+          <SellScreenInner />
+        </div>
       </SellProvider>
     </BetaAppShell>
   );

@@ -1,109 +1,156 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { HubPageMain } from "@/components/layout/HubPageMain";
-import { Button } from "@/components/ui/Button";
+import { ScrollContainer } from "@/components/ui/ScrollContainer";
+import { PageBack } from "@/components/navigation/PageBack";
+import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
-import { WalletHeader } from "@/features/wallet/components/WalletHeader";
-import { WithdrawAmountStep } from "@/features/wallet/components/withdraw/WithdrawAmountStep";
-import { WithdrawMethodStep } from "@/features/wallet/components/withdraw/WithdrawMethodStep";
-import { WithdrawReviewStep } from "@/features/wallet/components/withdraw/WithdrawReviewStep";
-import { WithdrawSuccessView } from "@/features/wallet/components/withdraw/WithdrawSuccessView";
-import { useWithdrawFlow } from "@/features/wallet/hooks/use-withdraw-flow";
+import { formatCurrency, parseWithdrawAmount } from "@/lib/wallet/utils";
 import type { WalletData } from "@/lib/wallet/types";
-import type { UserProfile } from "@/lib/profile/types";
-
 type WithdrawPageProps = {
-  profile: UserProfile;
   data: WalletData;
 };
 
-function stepTitle(step: ReturnType<typeof useWithdrawFlow>["step"]): string {
-  switch (step) {
-    case "method":
-      return "Withdraw";
-    case "amount":
-      return "Enter Amount";
-    case "review":
-      return "Review";
-    case "success":
-      return "Withdraw";
-  }
-}
+export function WithdrawPage({ data }: WithdrawPageProps) {
+  const router = useRouter();
+  const { pushToast } = useToast();
+  const [amount, setAmount] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export function WithdrawPage({ profile, data }: WithdrawPageProps) {
-  const flow = useWithdrawFlow({
-    availableBalance: data.availableBalance,
-    methods: data.withdrawMethods,
-  });
+  const connectedMethod = useMemo(
+    () => data.withdrawMethods.find((method) => method.connected) ?? null,
+    [data.withdrawMethods],
+  );
 
-  const isSuccess = flow.step === "success";
-  const showInternalBack = !isSuccess && flow.step !== "method";
+  const parsedAmount = useMemo(
+    () => parseWithdrawAmount(amount, data.availableBalance),
+    [amount, data.availableBalance],
+  );
+
+  const handleWithdraw = async () => {
+    if (!connectedMethod || parsedAmount <= 0) return;
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/wallet/withdraw", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          methodId: connectedMethod.id,
+          amount: parsedAmount,
+        }),
+      });
+
+      if (!response.ok) {
+        setError("Unable to submit withdrawal. Please try again.");
+        return;
+      }
+
+      pushToast({
+        title: "Withdrawal request submitted.",
+        variant: "success",
+      });
+      router.push("/wallet");
+      router.refresh();
+    } catch {
+      setError("Unable to submit withdrawal. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      {!isSuccess && (
-        <WalletHeader
-          title={stepTitle(flow.step)}
-          backHref="/seller/wallet"
-          onBack={showInternalBack ? flow.goBack : undefined}
-          unreadNotifications={profile.unreadNotifications}
-        />
-      )}
+    <BetaAppShell bottomNavTab="account">
+      <header className="wallet-hub__header">
+        <PageBack backHref="/wallet" backLabel="Wallet" preferHistory className="wallet-hub__back" />
+        <h1 className="wallet-hub__title">Withdraw</h1>
+        <span className="wallet-hub__header-spacer" aria-hidden />
+      </header>
 
-      <HubPageMain withBottomNav={false}
-        className={cn(
-          "mx-auto flex w-full max-w-2xl flex-col",
-          isSuccess
-            ? "min-h-[100dvh] justify-center px-ds-4 py-ds-6"
-            : "gap-ds-5 px-ds-4 py-ds-4 ",
-        )}
-      >
-        {isSuccess ? (
-          <WithdrawSuccessView />
-        ) : (
-          <>
-            {flow.step === "method" && <WithdrawMethodStep flow={flow} />}
-            {flow.step === "amount" && <WithdrawAmountStep flow={flow} />}
-            {flow.step === "review" && <WithdrawReviewStep flow={flow} />}
-            {flow.error && (
-              <p className="text-sm text-danger" role="alert">
-                {flow.error}
-              </p>
-            )}
-          </>
-        )}
-      </HubPageMain>
+      <ScrollContainer withBottomNav className="wallet-hub wallet-hub--withdraw" data-wallet-withdraw-version="v2.0-02b">
+        <section className="wallet-hub__balance-card">
+          <p className="wallet-hub__label">Available Balance</p>
+          <p className="wallet-hub__balance">{formatCurrency(data.availableBalance)}</p>
+        </section>
 
-      {!isSuccess && (
-        <footer className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface/95 px-ds-4 py-ds-3 pb-[calc(12px+env(safe-area-inset-bottom))] backdrop-blur-xl">
-          <div className="mx-auto w-full max-w-2xl">
-            {flow.step === "review" ? (
-              <Button
-                variant="primary"
-                fullWidth
-                size="lg"
-                className="min-h-ds-7 rounded-ds-lg"
-                disabled={flow.isSubmitting}
-                onClick={() => void flow.confirmWithdraw()}
-              >
-                {flow.isSubmitting ? "Processing…" : "Confirm Withdrawal"}
-              </Button>
+        <section className="wallet-hub__bank-card" aria-labelledby="withdraw-bank-title">
+          <div className="wallet-hub__section-head">
+            <h2 id="withdraw-bank-title" className="wallet-hub__section-title">
+              Connected Bank
+            </h2>
+            <Link href="/account/settings/bank-account" className="wallet-hub__section-link">
+              {connectedMethod ? "Edit Bank" : "Add Bank"}
+            </Link>
+          </div>
+          <div className="wallet-hub__txn-card">
+            {connectedMethod ? (
+              <div className="wallet-hub__bank-row">
+                <p className="wallet-hub__bank-label">{connectedMethod.label}</p>
+                <p className="wallet-hub__bank-digits">•••• {connectedMethod.lastDigits}</p>
+              </div>
             ) : (
-              <Button
-                variant="primary"
-                fullWidth
-                size="lg"
-                className="min-h-ds-7 rounded-ds-lg"
-                disabled={!flow.canContinue}
-                onClick={flow.goNext}
-              >
-                Continue
-              </Button>
+              <p className="wallet-hub__empty">Connect a bank account to withdraw funds.</p>
             )}
           </div>
-        </footer>
-      )}
+        </section>
+
+        <section className="wallet-hub__withdraw-form" aria-labelledby="withdraw-amount-label">
+          <label htmlFor="withdraw-amount" id="withdraw-amount-label" className="wallet-hub__label">
+            Amount
+          </label>
+          <input
+            id="withdraw-amount"
+            type="text"
+            inputMode="decimal"
+            placeholder="0.00"
+            value={amount}
+            onChange={(event) => setAmount(event.target.value)}
+            className="wallet-hub__amount-input"
+          />
+
+          <button
+            type="button"
+            className="wallet-hub__withdraw-all"
+            onClick={() => setAmount(data.availableBalance.toFixed(2))}
+          >
+            Withdraw All
+          </button>
+
+          <p className="wallet-hub__receive">
+            You will receive <strong>{formatCurrency(parsedAmount > 0 ? parsedAmount : 0)}</strong>
+          </p>
+
+          {error ? (
+            <p className="wallet-hub__form-error" role="alert">
+              {error}
+            </p>
+          ) : null}
+        </section>
+      </ScrollContainer>
+
+      <footer className="wallet-hub__withdraw-footer">
+        <button
+          type="button"
+          className={cn("wallet-hub__submit", isSubmitting && "wallet-hub__submit--busy")}
+          disabled={isSubmitting || !connectedMethod || parsedAmount <= 0}
+          onClick={() => void handleWithdraw()}
+        >
+          {isSubmitting ? "Processing…" : "Withdraw to Bank Account"}
+        </button>
+        {!connectedMethod ? (
+          <p className="wallet-hub__footer-note">
+            <Link href="/account/settings/bank-account?returnTo=/wallet/withdraw">
+              Add your bank account in Settings
+            </Link>{" "}
+            before withdrawing.
+          </p>
+        ) : null}
+      </footer>
     </BetaAppShell>
   );
 }

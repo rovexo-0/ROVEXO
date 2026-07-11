@@ -5,36 +5,24 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { AccountModuleShell } from "@/features/account-module/components/AccountModuleShell";
-import { useClientHydrated } from "@/lib/react/use-client-hydrated";
 import type { Order, OrderStatus } from "@/lib/orders/types";
 import { getBuyerOrderListRefundLabel } from "@/lib/orders/refund-status";
 import { formatCurrency } from "@/lib/wallet/utils";
 
-type OrderTab = "all" | "to_pay" | "to_ship" | "shipped" | "delivered";
+type OrderTab = "bought" | "sold";
 
 const TABS: { id: OrderTab; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "to_pay", label: "To Pay" },
-  { id: "to_ship", label: "To Ship" },
-  { id: "shipped", label: "Shipped" },
-  { id: "delivered", label: "Delivered" },
+  { id: "bought", label: "Bought" },
+  { id: "sold", label: "Sold" },
 ];
-
-function mapTabStatus(tab: OrderTab): OrderStatus | null {
-  if (tab === "to_pay") return "awaiting_payment";
-  if (tab === "to_ship") return "awaiting_shipment";
-  if (tab === "shipped") return "shipped";
-  if (tab === "delivered") return "delivered";
-  return null;
-}
 
 function statusLabel(status: OrderStatus): string {
   const labels: Record<OrderStatus, string> = {
-    awaiting_payment: "To Pay",
-    awaiting_shipment: "To Ship",
+    awaiting_payment: "Awaiting payment",
+    awaiting_shipment: "Awaiting shipment",
     shipped: "Shipped",
     delivered: "Delivered",
-    issue_open: "Issue",
+    issue_open: "Issue open",
     completed: "Completed",
     cancelled: "Cancelled",
   };
@@ -61,38 +49,37 @@ function statusClass(status: OrderStatus): string {
   return "acm-badge acm-badge--draft";
 }
 
-function formatOrderDate(value: string, relative: boolean): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  if (!relative) {
-    return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+function trackingStatus(order: Order): string {
+  if (order.trackingNumber) {
+    if (order.status === "delivered" || order.status === "completed") return "Delivered";
+    if (order.status === "shipped") return "In transit";
+    return "Tracking added";
   }
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfYesterday = new Date(startOfToday);
-  startOfYesterday.setDate(startOfYesterday.getDate() - 1);
-  if (date >= startOfToday) return "Today";
-  if (date >= startOfYesterday) return "Yesterday";
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  if (order.status === "awaiting_shipment") return "Awaiting tracking";
+  if (order.status === "awaiting_payment") return "Awaiting payment";
+  if (order.status === "shipped") return "In transit";
+  if (order.status === "delivered" || order.status === "completed") return "Delivered";
+  if (order.status === "cancelled") return "Cancelled";
+  return "—";
+}
+
+function orderDetailHref(order: Order, tab: OrderTab): string {
+  return tab === "sold" ? `/seller/orders/${order.id}` : `/orders/${order.id}`;
 }
 
 type OrdersV1Props = {
-  orders: Order[];
+  boughtOrders: Order[];
+  soldOrders: Order[];
 };
 
-export function OrdersV1({ orders }: OrdersV1Props) {
+export function OrdersV1({ boughtOrders, soldOrders }: OrdersV1Props) {
   const searchParams = useSearchParams();
-  const hydrated = useClientHydrated();
-  const activeTab = (searchParams.get("tab") as OrderTab | null) ?? "all";
+  const activeTab = (searchParams.get("tab") as OrderTab | null) ?? "bought";
 
-  const visibleOrders = useMemo(() => {
-    const status = mapTabStatus(activeTab);
-    if (!status) return orders;
-    if (activeTab === "delivered") {
-      return orders.filter((order) => order.status === "delivered" || order.status === "completed");
-    }
-    return orders.filter((order) => order.status === status);
-  }, [activeTab, orders]);
+  const visibleOrders = useMemo(
+    () => (activeTab === "sold" ? soldOrders : boughtOrders),
+    [activeTab, boughtOrders, soldOrders],
+  );
 
   return (
     <AccountModuleShell title="Orders" backHref="/account" version="v1.0">
@@ -100,7 +87,7 @@ export function OrdersV1({ orders }: OrdersV1Props) {
         {TABS.map((tab) => (
           <Link
             key={tab.id}
-            href={tab.id === "all" ? "/orders" : `/orders?tab=${tab.id}`}
+            href={tab.id === "bought" ? "/orders" : `/orders?tab=${tab.id}`}
             role="tab"
             aria-selected={activeTab === tab.id}
             className={activeTab === tab.id ? "acm-tabs__tab acm-tabs__tab--active" : "acm-tabs__tab"}
@@ -116,30 +103,28 @@ export function OrdersV1({ orders }: OrdersV1Props) {
           <p className="acm-empty__text">Your purchases and sales will appear here.</p>
         </div>
       ) : (
-        <div>
+        <ul className="acm-list">
           {visibleOrders.map((order) => (
-            <Link key={order.id} href={`/orders/${order.id}`} className="acm-order">
-              <div className="acm-order__top">
-                <span className="acm-order__number">Order #{order.orderNumber}</span>
-                <time className="acm-order__date" dateTime={order.createdAt}>
-                  {formatOrderDate(order.createdAt, hydrated)}
-                </time>
-              </div>
-              <div className="acm-order__body">
-                <div className="acm-order__thumb">
+            <li key={order.id} className="acm-list__item">
+              <div className="acm-order-card">
+                <div className="acm-order-card__thumb">
                   <SafeImage src={order.product.imageUrl} alt="" fill sizes="56px" className="object-cover" />
                 </div>
-                <div className="acm-order__info">
-                  <p className="acm-order__title">{order.product.title}</p>
-                  <p className="acm-order__price">{formatCurrency(order.totals.total)}</p>
+                <div className="acm-order-card__body">
+                  <p className="acm-order-card__title">{order.product.title}</p>
+                  <p className="acm-order-card__price">{formatCurrency(order.totals.total)}</p>
+                  <div className="acm-order-card__status-row">
+                    <span className={orderListStatusClass(order)}>{orderListLabel(order)}</span>
+                    <span className="acm-order-card__tracking">{trackingStatus(order)}</span>
+                  </div>
                 </div>
-                <span className={`acm-order__status ${orderListStatusClass(order)}`}>
-                  {orderListLabel(order)}
-                </span>
+                <Link href={orderDetailHref(order, activeTab)} className="acm-order-card__open">
+                  Open
+                </Link>
               </div>
-            </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </AccountModuleShell>
   );

@@ -287,7 +287,7 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
 
   const navigationIntegrityScore =
     header.includes("HomepageSearchField") &&
-    header.includes("/messages") &&
+    !header.includes("/messages") &&
     header.includes("/notifications") &&
     hasAccountNav &&
     hasHomepageShare &&

@@ -115,7 +115,7 @@ export const SellTitleBlock = memo(function SellTitleBlock() {
     <SellSection title="About your item">
       <div className="flex flex-col gap-ds-1">
         <label htmlFor={titleId} className="px-ds-1 text-xs font-medium text-text-muted">
-          Title
+          Title <span className="text-destructive">*</span>
         </label>
         <input
           id={titleId}
@@ -148,7 +148,7 @@ export const SellTitleBlock = memo(function SellTitleBlock() {
 
       <div className="flex flex-col gap-ds-1">
         <label htmlFor={descId} className="px-ds-1 text-xs font-medium text-text-muted">
-          Description
+          Description <span className="text-destructive">*</span>
         </label>
         <textarea
           id={descId}

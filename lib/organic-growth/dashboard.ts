@@ -1,7 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ORGANIC_GROWTH_ENGINE_VERSION } from "@/lib/organic-growth/config";
 import { buildDiscoveryFeed } from "@/lib/organic-growth/discovery";
-import { detectGrowingTrends } from "@/lib/organic-growth/trends";
 import { buildSearchInsightsReport } from "@/lib/organic-growth/search-insights";
 import { detectGrowthOpportunities } from "@/lib/organic-growth/opportunity";
 import { buildSellerGrowthReport } from "@/lib/organic-growth/seller-growth";

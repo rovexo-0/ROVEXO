@@ -225,14 +225,9 @@ describe("Navigation audit — bottom navigation", () => {
       path.join(process.cwd(), "components/ui/BottomNavigation.tsx"),
       "utf8",
     );
-    const homeNav = readFileSync(
-      path.join(process.cwd(), "components/home/RovexoFooterNavigation.tsx"),
-      "utf8",
-    );
 
-    for (const route of ["/", "/search", "/sell", "/saved", "/account"]) {
+    for (const route of ["/", "/search", "/sell", "/messages", "/account"]) {
       expect(bottomNav).toContain(`"${route}"`);
-      expect(homeNav).toContain(`"${route}"`);
     }
   });
 

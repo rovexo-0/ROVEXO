@@ -6,9 +6,9 @@ import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Button } from "@/components/ui/Button";
-import { CategoryTreePicker } from "@/features/sell/components/CategoryTreePicker";
+import { SellPhotoRail } from "@/features/sell/ui/SellPhotoRail";
+import { SellCategoryBlock } from "@/features/sell/ui/SellCategoryBlock";
 import { FieldError } from "@/features/sell/components/FieldError";
-import { PhotoUploader } from "@/features/sell/components/PhotoUploader";
 import { PublishedCheckmark } from "@/features/sell/components/PublishedCheckmark";
 import { SellProvider, useSell } from "@/features/sell/context/SellProvider";
 import { createEmptyDraft, SELL_CONDITIONS } from "@/features/sell/types";
@@ -46,7 +46,7 @@ export function AuctionSellPage() {
 
 function AuctionSellPageContent() {
   const router = useRouter();
-  const { draft, updateDraft, setCategoryPath } = useSell();
+  const { draft, updateDraft } = useSell();
   const [durationDays, setDurationDays] = useState("7");
   const [startingBid, setStartingBid] = useState("");
   const [reservePrice, setReservePrice] = useState("");
@@ -196,7 +196,7 @@ function AuctionSellPageContent() {
           </section>
         ) : (
           <>
-            <PhotoUploader />
+            <SellPhotoRail />
 
             <section className="rx-form-section overflow-hidden rounded-ds-xl">
               <div className="flex flex-col gap-ds-2 px-ds-4 py-ds-3">
@@ -211,10 +211,7 @@ function AuctionSellPageContent() {
               </div>
 
               <div className="border-t border-border px-ds-4 py-ds-3">
-                <CategoryTreePicker
-                  value={draft.categoryPath?.pathLabel ?? null}
-                  onChange={setCategoryPath}
-                />
+                <SellCategoryBlock />
               </div>
 
               <div className="border-t border-border px-ds-4 py-ds-3">

@@ -1,9 +1,14 @@
+import { Suspense } from "react";
 import { AddressBookPage } from "@/features/account/components/AddressBookPage";
 
 export const metadata = {
-  title: "Address Book",
+  title: "Addresses",
 };
 
 export default function AccountAddressesRoute() {
-  return <AddressBookPage />;
+  return (
+    <Suspense fallback={<div className="p-ds-6 text-sm text-text-secondary">Loading addresses…</div>}>
+      <AddressBookPage />
+    </Suspense>
+  );
 }

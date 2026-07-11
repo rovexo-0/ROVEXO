@@ -19,7 +19,7 @@ describe("official header design", () => {
     expect(source).toContain('role="search"');
   });
 
-  it("keeps logo, integrated search, messages, notifications; homepage can replace account with share", () => {
+  it("keeps logo, integrated search, notifications only in header actions", () => {
     const source = readFileSync(path.join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
 
     expect(source).toContain("HomepageSearchField");
@@ -27,17 +27,20 @@ describe("official header design", () => {
     expect(source).not.toContain("/account/settings");
     expect(source).not.toContain("RovexoIcons.settings");
     expect(source).toContain("lucide-react");
-    expect(source).toContain("MessageSquare");
+    expect(source).not.toContain("MessageSquare");
+    expect(source).not.toContain('href="/messages"');
     expect(source).toContain("Bell");
     expect(source).toContain("HeaderProfileLink");
     expect(source).toContain("HomepageHeaderShareButton");
     expect(source).toContain("replaceAccountWithShare");
   });
 
-  it("mounts category rail in the homepage main column (search lives in header)", () => {
+  it("mounts category rail below header search on homepage", () => {
     const homePage = readFileSync(path.join(process.cwd(), "components/homepage/canonical/CanonicalHomepage.tsx"), "utf8");
+    const header = readFileSync(path.join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     expect(homePage).toContain("CanonicalCategoryRail");
     expect(homePage).not.toContain("HomepageV4Search");
+    expect(header).toContain("rx-h2__search-row");
   });
 
   it("no longer renders the Bring Your Item / Start Selling banner on the homepage", () => {
@@ -46,11 +49,14 @@ describe("official header design", () => {
     expect(homePage).not.toContain("CanonicalBringYourItem");
   });
 
-  it("routes the homepage through RovexoHeaderV2 with Share replacing Account", () => {
+  it("routes the homepage through RovexoHeaderV2 without header profile avatar", () => {
     const page = readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
+    const header = readFileSync(path.join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     expect(page).toContain("RovexoHeaderV2");
-    expect(page).toContain("replaceAccountWithShare");
+    expect(page).toContain('layout="homepage"');
+    expect(page).not.toContain("replaceAccountWithShare");
     expect(page).not.toContain("HomepageV3Header");
+    expect(header).toContain("!isHomepageLayout");
     expect(page).toContain("openGraph");
     expect(page).toContain("twitter");
     expect(page).toContain("canonical");

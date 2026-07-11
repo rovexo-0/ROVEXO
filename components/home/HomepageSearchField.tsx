@@ -8,7 +8,9 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
+import { Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { ImageSearchCamera } from "@/components/home/ImageSearchCamera";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { RovexoIcons } from "@/lib/icons";
 import { cn } from "@/lib/cn";
@@ -22,6 +24,8 @@ import {
 import { fetchSearchResults } from "@/features/search/utils/fetch-search";
 import { SEARCH_DEBOUNCE_MS, SEARCH_MIN_CHARS } from "@/features/search/types";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
+import { storeImageSearchQuery } from "@/lib/image-search/storage";
+import { captureHomepageScroll } from "@/lib/navigation/homepage-scroll-restore";
 
 export type HomepageSearchFieldProps = {
   /** Stable id required — must match between server and client markup. */
@@ -48,6 +52,7 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
   const [activeIndex, setActiveIndex] = useState(-1);
   const [remoteSuggestions, setRemoteSuggestions] = useState<SuggestionItem[]>([]);
   const [isFetching, setIsFetching] = useState(false);
+  const [imageSearchOpen, setImageSearchOpen] = useState(false);
 
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
   const trimmedQuery = query.trim();
@@ -140,6 +145,7 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
     if (!normalized) return;
     closePanel();
     inputRef.current?.blur();
+    captureHomepageScroll();
     router.push(`/search?q=${encodeURIComponent(normalized)}`);
   }
 
@@ -175,6 +181,12 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
     }
   }
 
+  function handleImageSearchCapture(dataUrl: string) {
+    storeImageSearchQuery(dataUrl);
+    setImageSearchOpen(false);
+    router.push("/search?visual=1");
+  }
+
   return (
     <div ref={containerRef} className={cn("homepage-search", className)}>
       <form action="/search" method="GET" role="search" onSubmit={handleSubmit} className="homepage-search__form">
@@ -199,7 +211,7 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
             type="search"
             name="q"
             value={query}
-            placeholder="Search products..."
+            placeholder="Search for items or members"
             autoComplete="off"
             enterKeyHint="search"
             role={hydrated ? "combobox" : "searchbox"}
@@ -259,7 +271,16 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
                   />
                 </svg>
               </button>
-            ) : null}
+            ) : (
+              <button
+                type="button"
+                aria-label="Image search"
+                className={cn("homepage-search__camera", focusRing, transitionFast)}
+                onClick={() => setImageSearchOpen(true)}
+              >
+                <Camera width={20} height={20} strokeWidth={1.75} aria-hidden />
+              </button>
+            )}
           </div>
         </div>
 
@@ -280,6 +301,7 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => {
                     closePanel();
+                    captureHomepageScroll();
                     router.push(item.href);
                   }}
                 >
@@ -290,6 +312,12 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
           </ul>
         ) : null}
       </form>
+
+      <ImageSearchCamera
+        open={imageSearchOpen}
+        onClose={() => setImageSearchOpen(false)}
+        onCapture={handleImageSearchCapture}
+      />
     </div>
   );
 }

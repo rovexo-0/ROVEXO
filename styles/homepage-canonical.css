@@ -1,6 +1,5 @@
 /**
- * ROVEXO Canonical Homepage — global shell only.
- * All section layout lives in CSS modules under components/homepage/canonical/.
+ * ROVEXO Canonical Homepage — refinement shell + listing overrides.
  */
 
 .rovexo-page-home {
@@ -14,4 +13,74 @@
 [data-hp-listing-card="official"] {
   width: 100%;
   min-width: 0;
+}
+
+/* Homepage header row 1 — compact actions (Messages + Notifications only) */
+.rovexo-page-home .rx-h2__inner--row1 .rx-h2__action {
+  width: 36px;
+  height: 36px;
+}
+
+/* Search row below header */
+.rovexo-page-home .rx-h2-search--homepage .homepage-search__input {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.rovexo-page-home .rx-h2-search--homepage .homepage-search__input::placeholder {
+  color: #94a3b8;
+}
+
+.rovexo-page-home .rx-h2-search--homepage .homepage-search__icon {
+  width: 18px;
+  height: 18px;
+  color: #94a3b8;
+}
+
+/* Category rail + feed spacing */
+[data-hp-homepage="canonical"] {
+  --hp-section-gap: 12px;
+  --hp-grid-gap: 10px;
+}
+
+/* Image-first listing cards */
+[data-hp-homepage="canonical"] [data-listing-card="rovexo"] {
+  --rx-listing-radius: 16px;
+  --rx-listing-save-inset: 8px;
+  --rx-listing-save-size: 28px;
+  border-color: rgb(15 23 42 / 0.05);
+  box-shadow: 0 1px 8px rgb(15 23 42 / 0.04);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 268px;
+}
+
+[data-hp-homepage="canonical"] [data-listing-card="rovexo"] .starIcon path {
+  fill: #f59e0b;
+}
+
+[data-hp-homepage="canonical"] [data-listing-card-skeleton="rovexo"] {
+  aspect-ratio: 173 / 268;
+  contain-intrinsic-size: auto 268px;
+  content-visibility: auto;
+}
+
+[data-hp-homepage="canonical"] [data-listing-card-skeleton="rovexo"] .skeletonMedia {
+  aspect-ratio: unset;
+  height: 78%;
+}
+
+[data-hp-homepage="canonical"] [data-listing-card-skeleton="rovexo"] .skeletonBody {
+  gap: 4px;
+  padding: 8px 10px 10px;
+}
+
+[data-hp-homepage="canonical"] [data-listing-card-skeleton="rovexo"] .skeletonDivider,
+[data-hp-homepage="canonical"] [data-listing-card-skeleton="rovexo"] .skeletonLineFooter {
+  display: none;
+}
+
+/* Homepage ends at listing grid */
+[data-hp-homepage="canonical"] [data-hp-platform-fee-banner],
+[data-hp-homepage="canonical"] .hp-platform-fee-banner {
+  display: none !important;
 }

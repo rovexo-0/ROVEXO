@@ -33,7 +33,7 @@ export const RX_SCROLL_PAGE_WITH_NAV = "rx-scroll-page--with-nav";
 export const RX_SCROLL_PAGE_NO_NAV = "rx-scroll-page--no-nav";
 
 /** Canonical bottom clearance — matches --bottom-nav-shell-height in globals.css */
-export const BOTTOM_NAV_CLEARANCE = "var(--bottom-nav-shell-height, 84px)";
+export const BOTTOM_NAV_CLEARANCE = "var(--bottom-nav-shell-height, 56px)";
 
 export const SAFE_AREA_BOTTOM = "env(safe-area-inset-bottom, 0px)";
 

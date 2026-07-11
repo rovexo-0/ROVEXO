@@ -64,23 +64,21 @@ describe("Bring Your Item release policy", () => {
     expect(isBringYourItemEnabled()).toBe(true);
   });
 
-  it("shows Coming Soon in My Account when disabled", () => {
+  it("is not listed on the canonical My Account hub (route remains available elsewhere)", () => {
     stubProductionDisabled();
 
     const byi = buildAccountMenu(baseProfile).find((item) => item.id === "bring-your-item");
-    expect(byi?.comingSoon).toBe(true);
-    expect(byi?.href).toBeUndefined();
-    expect(byi?.subtitle).toBe("Coming Soon");
+    expect(byi).toBeUndefined();
   });
 
-  it("exposes the live route in My Account when enabled", () => {
+  it("keeps the live route available when enabled outside the account hub menu", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_BRING_YOUR_ITEM_ENABLED", "true");
     vi.stubEnv("VITEST", "");
 
     const byi = buildAccountMenu(baseProfile).find((item) => item.id === "bring-your-item");
-    expect(byi?.comingSoon).toBeFalsy();
-    expect(byi?.href).toBe(BRING_YOUR_ITEM_PATH);
+    expect(byi).toBeUndefined();
+    expect(BRING_YOUR_ITEM_PATH).toBe("/account/bring-your-item");
   });
 
   it("hides BYI from public navigation surfaces when disabled", () => {

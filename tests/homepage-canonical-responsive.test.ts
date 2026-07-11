@@ -22,12 +22,12 @@ describe("canonical homepage responsive engine", () => {
   it("resolves feed columns across the device matrix", () => {
     expect(resolveFeedColumnCount(360)).toBe(HP_FEED_DEFAULT_COLUMNS);
     expect(resolveFeedColumnCount(390)).toBe(HP_FEED_DEFAULT_COLUMNS);
-    expect(resolveFeedColumnCount(640)).toBe(3);
-    expect(resolveFeedColumnCount(834)).toBe(3);
-    expect(resolveFeedColumnCount(1024)).toBe(4);
-    expect(resolveFeedColumnCount(1440)).toBe(5);
-    expect(resolveFeedColumnCount(1920)).toBe(6);
-    expect(resolveFeedColumnCount(2560)).toBe(6);
+    expect(resolveFeedColumnCount(640)).toBe(HP_FEED_DEFAULT_COLUMNS);
+    expect(resolveFeedColumnCount(834)).toBe(HP_FEED_DEFAULT_COLUMNS);
+    expect(resolveFeedColumnCount(1024)).toBe(HP_FEED_DEFAULT_COLUMNS);
+    expect(resolveFeedColumnCount(1440)).toBe(HP_FEED_DEFAULT_COLUMNS);
+    expect(resolveFeedColumnCount(1920)).toBe(HP_FEED_DEFAULT_COLUMNS);
+    expect(resolveFeedColumnCount(2560)).toBe(HP_FEED_DEFAULT_COLUMNS);
   });
 
   it("covers certification viewports", () => {

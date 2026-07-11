@@ -462,6 +462,22 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     setFormError(null);
     setUploadProgress(0);
 
+    try {
+      const gateResponse = await fetch(
+        `/api/account/profile-gate?intent=publish&returnTo=${encodeURIComponent(window.location.pathname)}`,
+      );
+      const gatePayload = (await gateResponse.json()) as { redirect?: string | null };
+      if (gatePayload.redirect) {
+        router.push(gatePayload.redirect);
+        setIsPublishing(false);
+        return;
+      }
+    } catch {
+      setFormError("Unable to verify your profile. Please try again.");
+      setIsPublishing(false);
+      return;
+    }
+
     const baseDraft = resolveEffectiveSellDraft(draftRef.current, {
       title: pendingTitleRef.current,
       description: pendingDescriptionRef.current,
@@ -521,7 +537,14 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
       });
 
       if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as { error?: string } | null;
+        const body = (await response.json().catch(() => null)) as {
+          error?: string;
+          redirect?: string;
+        } | null;
+        if (response.status === 428 && body?.redirect) {
+          router.push(body.redirect);
+          return;
+        }
         throw new Error(body?.error ?? "Unable to save listing.");
       }
 
@@ -539,13 +562,12 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
       }
 
       clearSellDraft();
-      setPublishedSlug(slug);
-      setView("published");
       pushToast({
-        title: "🎉 Congratulations!",
-        description: "Your listing has been published successfully.",
+        title: "Listing published",
+        description: "Your item is now live.",
         variant: "success",
       });
+      router.push(`/listing/${slug}`);
       router.refresh();
       trackGaEvent("listing_created", {
         item_id: result.listing?.id ?? slug,

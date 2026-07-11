@@ -9,6 +9,7 @@ import {
   listPaymentMethods,
 } from "@/lib/payments/repository";
 import { isStripeConfigured } from "@/lib/stripe/server";
+import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
 
 export async function GET() {
   const auth = await requireApiAuth();
@@ -54,11 +55,13 @@ export async function POST(request: Request) {
           { status: 400 },
         );
       }
+      await syncAutoVerifiedProfile(auth.user.id);
       return NextResponse.json({ method });
     }
 
     if (action === "complete_setup_intent" && typeof body.setupIntentId === "string") {
       const method = await completePaymentMethodSetupIntent(auth.user.id, body.setupIntentId);
+      await syncAutoVerifiedProfile(auth.user.id);
       return NextResponse.json({ method });
     }
 

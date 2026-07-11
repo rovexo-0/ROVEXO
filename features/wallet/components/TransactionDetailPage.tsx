@@ -18,6 +18,7 @@ type TransactionDetailPageProps = {
   profile: UserProfile;
   transaction: WalletTransaction;
   transactionContext?: WalletEngineTransactionContext;
+  backHref?: string;
 };
 
 function DetailRow({ label, value }: { label: string; value: string }) {
@@ -31,7 +32,12 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function TransactionDetailPage({ profile, transaction, transactionContext }: TransactionDetailPageProps) {
+export function TransactionDetailPage({
+  profile,
+  transaction,
+  transactionContext,
+  backHref = "/wallet",
+}: TransactionDetailPageProps) {
   const amount = Math.abs(transaction.amount);
   const pendingDays =
     transaction.payoutAvailableAt != null
@@ -42,7 +48,7 @@ export function TransactionDetailPage({ profile, transaction, transactionContext
     <BetaAppShell showBottomNav={false}>
       <WalletHeader
         title="Transaction Details"
-        backHref="/wallet"
+        backHref={backHref}
         unreadNotifications={profile.unreadNotifications}
       />
 

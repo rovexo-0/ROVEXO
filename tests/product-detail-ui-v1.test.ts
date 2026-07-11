@@ -17,6 +17,8 @@ const CANONICAL_PRODUCT_DETAIL_FILES = [
   "features/product-detail/ProductSimilarItems.tsx",
   "features/product-detail/ProductRecentlyViewed.tsx",
   "features/product-detail/ProductActionBarV1.tsx",
+  "features/product-detail/ProductReportDialog.tsx",
+  "features/product-detail/SellerReportDialog.tsx",
   "features/product-detail/AddedToCartToast.tsx",
   "features/product-detail/icons.tsx",
 ] as const;
@@ -32,7 +34,6 @@ const REMOVED_PRODUCT_DETAIL_FILES = [
   "features/product-detail/ProductDelivery.tsx",
   "features/product-detail/ProductEngagementRow.tsx",
   "features/product-detail/ProductBuyerProtection.tsx",
-  "features/product-detail/ProductReportDialog.tsx",
   "features/product-detail/GlassIconButton.tsx",
 ] as const;
 

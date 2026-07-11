@@ -57,7 +57,7 @@ const EXACT_BACK_ROUTES: Record<string, BackRouteConfig> = {
   "/business/inventory": { parentHref: "/business/dashboard", label: "Business tools" },
   "/business/analytics": { parentHref: "/business/dashboard", label: "Business tools" },
   "/business/directory": { parentHref: "/business/dashboard", label: "Business tools" },
-  "/account/verification": { parentHref: "/account", label: "My Account" },
+  "/account/verification": { parentHref: "/account/settings", label: "Settings" },
   "/account/ideas": { parentHref: "/account", label: "My Account" },
 };
 

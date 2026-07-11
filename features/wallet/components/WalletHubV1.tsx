@@ -1,31 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { PageBack } from "@/components/navigation/PageBack";
-import { ChevronRightIcon } from "@/features/product-detail/icons";
 import { cn } from "@/lib/cn";
 import { formatCurrency, formatWalletDate } from "@/lib/wallet/utils";
-import type { SellerCommerceSummary } from "@/lib/commerce-engine/read-model";
 import type { WalletData, WalletTransaction } from "@/lib/wallet/types";
 
 type WalletHubV1Props = {
   data: WalletData;
-  commerceSummary?: SellerCommerceSummary;
   backHref?: string;
   connectMessage?: string;
+  showStatements?: boolean;
 };
 
-const RECENT_LIMIT = 5;
+const RECENT_LIMIT = 8;
 
 function transactionLabel(transaction: WalletTransaction): string {
   if (transaction.type === "withdrawal") return "Withdrawal";
   if (transaction.type === "sale") return "Sale";
   if (transaction.type === "refund") return "Refund";
-  if (transaction.type === "fee") return "Fee";
+  if (transaction.type === "fee") return "Platform Fee";
   return transaction.type;
 }
 
@@ -35,10 +31,7 @@ function TransactionRow({ transaction }: { transaction: WalletTransaction }) {
   const prefix = positive ? "+" : "−";
 
   return (
-    <Link
-      href={`/seller/wallet/transactions/${transaction.id}`}
-      className="wallet-hub__txn"
-    >
+    <Link href={`/wallet/transactions/${transaction.id}`} className="wallet-hub__txn">
       <div className="wallet-hub__txn-icon" aria-hidden>
         {transaction.type === "withdrawal" ? "↗" : "£"}
       </div>
@@ -53,30 +46,17 @@ function TransactionRow({ transaction }: { transaction: WalletTransaction }) {
       <p className={cn("wallet-hub__txn-amount", amountClass)}>
         {prefix} {formatCurrency(Math.abs(transaction.amount))}
       </p>
-      <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
     </Link>
   );
 }
 
-export function WalletHubV1({ data, commerceSummary, backHref = "/account", connectMessage }: WalletHubV1Props) {
-  const router = useRouter();
-  const [withdrawing, setWithdrawing] = useState(false);
+export function WalletHubV1({
+  data,
+  backHref = "/account",
+  connectMessage,
+  showStatements = false,
+}: WalletHubV1Props) {
   const visible = data.transactions.slice(0, RECENT_LIMIT);
-
-  const handleWithdraw = async () => {
-    setWithdrawing(true);
-    try {
-      const response = await fetch("/api/wallet/connect", { method: "POST" });
-      const payload = (await response.json()) as { success?: boolean; url?: string; error?: string };
-      if (payload.url) {
-        window.location.href = payload.url;
-        return;
-      }
-      router.refresh();
-    } finally {
-      setWithdrawing(false);
-    }
-  };
 
   return (
     <BetaAppShell bottomNavTab="account">
@@ -86,105 +66,59 @@ export function WalletHubV1({ data, commerceSummary, backHref = "/account", conn
         <span className="wallet-hub__header-spacer" aria-hidden />
       </header>
 
-      <ScrollContainer withBottomNav className="wallet-hub" data-wallet-hub-version="v1.0">
+      <ScrollContainer withBottomNav className="wallet-hub" data-wallet-hub-version="v1.0-production">
         {connectMessage ? <p className="wallet-hub__notice">{connectMessage}</p> : null}
 
         <section className="wallet-hub__balance-card" aria-labelledby="wallet-available-label">
-          <div className="wallet-hub__balance-top">
-            <div>
-              <p id="wallet-available-label" className="wallet-hub__label">
-                Available Balance
-              </p>
-              <p className="wallet-hub__balance">{formatCurrency(data.availableBalance)}</p>
-            </div>
-            <button
-              type="button"
-              className="wallet-hub__withdraw"
-              disabled={withdrawing || data.availableBalance <= 0}
-              onClick={() => void handleWithdraw()}
-            >
-              Withdraw
-            </button>
-          </div>
-
-          <p className="wallet-hub__escrow-note">
-            Pending funds are held in escrow until delivery + 24 hours. Only available funds can be withdrawn.
+          <p id="wallet-available-label" className="wallet-hub__label">
+            Available Balance
           </p>
+          <p className="wallet-hub__balance">{formatCurrency(data.availableBalance)}</p>
 
-          <div className="wallet-hub__stats">
-            <div className="wallet-hub__stat">
-              <span className="wallet-hub__stat-label">Pending</span>
-              <span className="wallet-hub__stat-value">{formatCurrency(data.pendingBalance)}</span>
+          <div className="wallet-hub__earnings-grid">
+            <div>
+              <p className="wallet-hub__label">Pending</p>
+              <p className="wallet-hub__mini-balance">{formatCurrency(data.pendingBalance)}</p>
             </div>
-            <div className="wallet-hub__stat">
-              <span className="wallet-hub__stat-label">Available</span>
-              <span className="wallet-hub__stat-value">{formatCurrency(data.availableBalance)}</span>
+            <div>
+              <p className="wallet-hub__label">Withdrawable</p>
+              <p className="wallet-hub__mini-balance">{formatCurrency(data.availableBalance)}</p>
             </div>
-            <div className="wallet-hub__stat">
-              <span className="wallet-hub__stat-label">Paid out</span>
-              <span className="wallet-hub__stat-value">
-                {formatCurrency(commerceSummary?.paid ?? data.paidOutBalance)}
-              </span>
+            <div>
+              <p className="wallet-hub__label">Monthly Earnings</p>
+              <p className="wallet-hub__mini-balance">{formatCurrency(data.monthSummary.revenue.value)}</p>
             </div>
-            {commerceSummary && commerceSummary.onHold > 0 ? (
-              <div className="wallet-hub__stat">
-                <span className="wallet-hub__stat-label">On hold</span>
-                <span className="wallet-hub__stat-value">{formatCurrency(commerceSummary.onHold)}</span>
-              </div>
-            ) : null}
-            {commerceSummary && commerceSummary.shippingReserved > 0 ? (
-              <div className="wallet-hub__stat">
-                <span className="wallet-hub__stat-label">Shipping reserved</span>
-                <span className="wallet-hub__stat-value">{formatCurrency(commerceSummary.shippingReserved)}</span>
-              </div>
-            ) : null}
-            <div className="wallet-hub__stat">
-              <span className="wallet-hub__stat-label">Total earnings</span>
-              <span className="wallet-hub__stat-value">{formatCurrency(data.monthSummary.revenue.value)}</span>
+            <div>
+              <p className="wallet-hub__label">Lifetime Earnings</p>
+              <p className="wallet-hub__mini-balance">
+                {formatCurrency(data.paidOutBalance + data.availableBalance + data.pendingBalance)}
+              </p>
             </div>
           </div>
-        </section>
 
-        <section aria-labelledby="wallet-manage-title">
-          <h2 id="wallet-manage-title" className="wallet-hub__section-title">
-            Manage
-          </h2>
-          <div className="wallet-hub__txn-card">
-            <Link href="/seller/wallet/withdraw" className="wallet-hub__manage-row">
-              <span>Withdraw</span>
-              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
-            </Link>
-            <Link href="/wallet" className="wallet-hub__manage-row">
-              <span>Bank Accounts</span>
-              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
-            </Link>
-            <Link href="/wallet" className="wallet-hub__manage-row">
-              <span>Transactions</span>
-              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
-            </Link>
-            <Link href="/wallet" className="wallet-hub__manage-row">
-              <span>Payout History</span>
-              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
-            </Link>
-            <Link href="/account/payment-methods" className="wallet-hub__manage-row">
-              <span>Payment Methods</span>
-              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
-            </Link>
-            <Link href="/wallet" className="wallet-hub__manage-row">
-              <span>Statements</span>
-              <ChevronRightIcon className="wallet-hub__txn-chevron" aria-hidden />
-            </Link>
-          </div>
+          <Link
+            href="/wallet/withdraw"
+            className={cn(
+              "wallet-hub__withdraw wallet-hub__withdraw--primary",
+              data.availableBalance <= 0 && "wallet-hub__withdraw--disabled",
+            )}
+            aria-disabled={data.availableBalance <= 0}
+            onClick={(event) => {
+              if (data.availableBalance <= 0) event.preventDefault();
+            }}
+          >
+            Withdraw
+          </Link>
         </section>
 
         <section aria-labelledby="wallet-txn-title">
           <div className="wallet-hub__section-head">
             <h2 id="wallet-txn-title" className="wallet-hub__section-title">
-              Recent Transactions
+              Transactions
             </h2>
             {data.transactions.length > RECENT_LIMIT ? (
-              <Link href="/wallet" className="wallet-hub__section-link">
-                See all
+              <Link href="/wallet/transactions" className="wallet-hub__section-link">
+                View all
               </Link>
             ) : null}
           </div>
@@ -193,12 +127,31 @@ export function WalletHubV1({ data, commerceSummary, backHref = "/account", conn
             {visible.length === 0 ? (
               <p className="wallet-hub__empty">No transactions yet.</p>
             ) : (
-              visible.map((transaction) => (
-                <TransactionRow key={transaction.id} transaction={transaction} />
-              ))
+              visible.map((transaction) => <TransactionRow key={transaction.id} transaction={transaction} />)
             )}
           </div>
         </section>
+
+        {showStatements ? (
+          <section aria-labelledby="wallet-statements-title">
+            <div className="wallet-hub__section-head">
+              <h2 id="wallet-statements-title" className="wallet-hub__section-title">
+                Statements
+              </h2>
+              <Link href="/wallet/statements" className="wallet-hub__section-link">
+                Monthly
+              </Link>
+            </div>
+            <div className="wallet-hub__txn-card px-ds-4 py-ds-4">
+              <p className="text-sm text-text-secondary">
+                Monthly and annual seller statements with sales, fees, refunds, withdrawals, and PDF export.
+              </p>
+              <Link href="/wallet/statements/annual" className="mt-ds-3 inline-flex text-sm font-medium text-primary">
+                Annual Statements
+              </Link>
+            </div>
+          </section>
+        ) : null}
       </ScrollContainer>
     </BetaAppShell>
   );

@@ -2,26 +2,28 @@ import type { Metadata } from "next";
 import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Suspense } from "react";
 import "@/styles/rovexo/header-v2.css";
+import "@/styles/rovexo/search-results-v1.css";
 import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
-import { SearchLandingClient } from "@/features/search/components/SearchLandingClient";
 import { SearchResultsView } from "@/features/search/components/SearchResultsView";
-import { SearchEngineHub } from "@/features/search-engine/SearchEngineHub";
-import { SEARCH_ENGINE_MODULES } from "@/lib/search-engine/registry";
-import {
-  getPublicSearchEngineConfig,
-  getSearchEngineAnalytics,
-  getSearchEngineContext,
-} from "@/lib/search-engine/reader";
+import { ImageSearchView } from "@/features/search/components/ImageSearchView";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
 type SearchPageProps = {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; visual?: string; category?: string }>;
 };
 
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
-  const { q } = await searchParams;
+  const { q, visual, category } = await searchParams;
+  if (visual === "1") {
+    return buildPageMetadata({
+      title: "Image Search",
+      description: "Results similar to your photo",
+      path: "/search?visual=1",
+      noIndex: true,
+    });
+  }
   if (q?.trim()) {
     return buildPageMetadata({
       title: `Search results for “${q.trim()}”`,
@@ -30,48 +32,45 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
       noIndex: true,
     });
   }
+  if (category?.trim()) {
+    return buildPageMetadata({
+      title: `Browse ${category.trim()}`,
+      description: `Browse ${category.trim()} on ROVEXO.`,
+      path: `/search?category=${encodeURIComponent(category.trim())}`,
+      noIndex: true,
+    });
+  }
   return buildPageMetadata({
     title: "Search",
-    description: "Search products, categories, and sellers on ROVEXO.",
+    description: "Search products on ROVEXO.",
     path: "/search",
+    noIndex: true,
   });
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { q } = await searchParams;
-  const hasQuery = Boolean(q?.trim());
+  const { visual } = await searchParams;
+  const isImageSearch = visual === "1";
 
-  if (hasQuery) {
+  if (isImageSearch) {
     return (
       <BetaAppShell bottomNavTab="search">
         <RovexoHeaderV2 />
-        <HubPageMain className="px-ds-4 py-ds-6 ">
-          <Suspense fallback={<ProductGridSkeleton count={8} />}>
-            <SearchResultsView />
-          </Suspense>
+        <HubPageMain className="px-0 py-0">
+          <ImageSearchView />
         </HubPageMain>
       </BetaAppShell>
     );
   }
 
-  const [config, context, analytics] = await Promise.all([
-    getPublicSearchEngineConfig(),
-    getSearchEngineContext(),
-    getSearchEngineAnalytics(),
-  ]);
-
   return (
     <BetaAppShell bottomNavTab="search">
       <RovexoHeaderV2 />
-      <Suspense fallback={<div className="srch-hub p-ds-5">Loading search…</div>}>
-        <SearchEngineHub
-          config={config}
-          context={context}
-          modules={SEARCH_ENGINE_MODULES}
-          analytics={analytics}
-          landing={<SearchLandingClient />}
-        />
-      </Suspense>
+      <HubPageMain className="px-0 py-ds-4">
+        <Suspense fallback={<ProductGridSkeleton count={8} />}>
+          <SearchResultsView />
+        </Suspense>
+      </HubPageMain>
     </BetaAppShell>
   );
 }

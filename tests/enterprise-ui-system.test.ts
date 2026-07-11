@@ -62,7 +62,7 @@ describe("Enterprise UI system — header", () => {
     const header = readFileSync(join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     expect(header).toContain("ROVEXO");
     expect(header).toContain("lucide-react");
-    expect(header).toContain("MessageSquare");
+    expect(header).not.toContain("MessageSquare");
     expect(header).toContain("Bell");
     expect(header).toContain("HeaderProfileLink");
     expect(header).toContain("HomepageHeaderShareButton");
@@ -77,6 +77,7 @@ describe("Enterprise UI system — header", () => {
     expect(searchField).toContain("size={20}");
     expect(searchField).toContain("useDebouncedValue");
     expect(searchField).not.toContain("BottomNavIcon3D");
-    expect(searchField).not.toContain("camera");
+    expect(searchField).toContain("ImageSearchCamera");
+    expect(searchField).toContain('aria-label="Image search"');
   });
 });

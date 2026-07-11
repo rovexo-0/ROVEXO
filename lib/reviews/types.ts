@@ -8,6 +8,7 @@ export type Review = {
   comment: string | null;
   createdAt: string;
   reviewerName?: string;
+  reviewerAvatarUrl?: string | null;
 };
 
 export type CreateReviewInput = {

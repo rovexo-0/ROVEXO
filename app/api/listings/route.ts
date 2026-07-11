@@ -9,7 +9,8 @@ import {
   getSellerListings,
 } from "@/lib/listings/repository";
 import { revalidatePublishedListing } from "@/lib/listings/revalidate-published-listing";
-import { syncProfileVerifiedOnPublish } from "@/lib/profile/sync-verified";
+import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
+import { resolveProfileCompletionRedirect } from "@/lib/account/profile-completion";
 import {
   createListingSchema,
   formatListingApiValidationError,
@@ -80,6 +81,24 @@ export async function POST(request: Request) {
     const transactionMode = resolveTransactionModeFromCategoryPathPayload(body.categoryPath);
     const directContact = isDirectContactMode(transactionMode);
 
+    const publishStatus = body.status ?? "published";
+    if (publishStatus === "published") {
+      const completionRedirect = await resolveProfileCompletionRedirect(
+        auth.user.id,
+        "publish",
+        "/sell",
+      );
+      if (completionRedirect) {
+        return NextResponse.json(
+          {
+            error: "Add your bank account in Settings before publishing your first listing.",
+            redirect: completionRedirect,
+          },
+          { status: 428 },
+        );
+      }
+    }
+
     const listing = await createSellerListing({
       sellerId: auth.user.id,
       title: body.title,
@@ -115,9 +134,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unable to publish listing." }, { status: 500 });
     }
 
-    if (auth.user.email_confirmed_at) {
-      await syncProfileVerifiedOnPublish(auth.user.id, auth.user.email_confirmed_at);
-    }
+    await syncAutoVerifiedProfile(auth.user.id);
 
     revalidatePublishedListing(listing.slug);
 

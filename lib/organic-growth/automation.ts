@@ -22,7 +22,7 @@ export type AutomationRunResult = {
  * discovery pages, internal links, and priority rankings. No manual intervention.
  */
 export async function runOrganicGrowthAutomation(): Promise<AutomationRunResult> {
-  const [discovery, trends, insights, opportunities, sellerGrowth, seoOptimization, engagement] =
+  const [discovery, trends, , opportunities, , seoOptimization, engagement] =
     await Promise.all([
       buildDiscoveryFeed(),
       detectGrowingTrends(20),

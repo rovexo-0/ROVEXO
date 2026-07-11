@@ -9,7 +9,8 @@ import { useMemo, useState } from "react";
 import { PageBack } from "@/components/navigation/PageBack";
 import { HelpAssistant } from "@/features/help/components/HelpAssistant";
 
-import { HelpQuickLinks, HelpTextCard } from "@/features/help/components/HelpQuickLinks";
+import { HelpCentreCanonicalSection } from "@/features/help/components/HelpCentreCanonicalSection";
+import { HelpTextCard } from "@/features/help/components/HelpQuickLinks";
 
 import { ResponsiveShell } from "@/features/mobile-ui";
 
@@ -88,44 +89,19 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
 
       {hero}
 
+      <HelpCentreCanonicalSection />
+
       <HelpAssistant compact />
 
-
-
       <ResponsiveShell
-
         mobile={
-
-          !query.trim() ? (
-
-            <>
-
-              <HelpQuickLinks />
-
-              <MobileBrowseTopics />
-
-            </>
-
-          ) : (
-
-            <MobileSearchResults results={results} query={query} />
-
-          )
-
+          !query.trim() ? <MobileBrowseTopics /> : <MobileSearchResults results={results} query={query} />
         }
-
         desktop={
-
           <>
-
-            {!query.trim() ? <HelpQuickLinks /> : null}
-
             {query.trim() ? <DesktopSearchResults results={results} query={query} /> : <DesktopBrowseTopics />}
-
           </>
-
         }
-
       />
 
     </div>

@@ -20,10 +20,23 @@ import { queueGaEvents, type QueuedGaEvent } from "@/lib/analytics/queue-ga-even
 import { mapAuthErrorMessage } from "@/lib/auth/errors";
 import { applySessionPersistence } from "@/lib/auth/session-cookies";
 
-const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-});
+const registerSchema = z
+  .object({
+    firstName: z.string().trim().min(1, "First name is required."),
+    lastName: z.string().trim().min(1, "Last name is required."),
+    email: z.string().email(),
+    password: z.string().min(8),
+    confirmPassword: z.string().min(8),
+    terms: z.literal("on", { message: "Accept the Terms, Privacy Policy, and Cookie Policy." }),
+    gdpr: z.literal("on", {
+      message: "Confirm you understand how ROVEXO processes your personal data.",
+    }),
+    marketing: z.enum(["on", "off"]).optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -62,8 +75,14 @@ export async function signUp(
   formData: FormData,
 ): Promise<AuthActionState> {
   const parsed = registerSchema.safeParse({
+    firstName: formData.get("firstName"),
+    lastName: formData.get("lastName"),
     email: formData.get("email"),
     password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
+    terms: formData.get("terms"),
+    gdpr: formData.get("gdpr"),
+    marketing: formData.get("marketing") === "on" ? "on" : "off",
   });
 
   if (!parsed.success) {
@@ -76,13 +95,15 @@ export async function signUp(
     return { error: "Too many registration attempts. Please try again later." };
   }
 
-  const { email, password } = parsed.data;
+  const { email, password, firstName, lastName } = parsed.data;
+  const fullName = `${firstName} ${lastName}`.trim();
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
+      data: { full_name: fullName },
       emailRedirectTo: authCallbackUrl("/account"),
     },
   });
@@ -104,6 +125,17 @@ export async function signUp(
 
   await clearAuthRateLimit("register", ip);
 
+  const marketingOptIn = parsed.data.marketing === "on";
+  const admin = createAdminClient();
+  await admin.from("user_settings").upsert(
+    {
+      user_id: data.user.id,
+      marketing_emails: marketingOptIn,
+      email_notifications: true,
+    },
+    { onConflict: "user_id" },
+  );
+
   const queuedEvents: QueuedGaEvent[] = [
     { name: "register", params: { method: "email" } },
     { name: "sign_up", params: { method: "email" } },
@@ -115,6 +147,28 @@ export async function signUp(
   }
 
   redirect("/verify-email?email=" + encodeURIComponent(email));
+}
+
+export async function signInWithOAuthProvider(formData: FormData): Promise<void> {
+  const provider = formData.get("provider");
+  if (provider !== "google" && provider !== "apple") {
+    return;
+  }
+
+  const next = sanitizeNextPath(formData.get("next")?.toString());
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: authCallbackUrl(next),
+    },
+  });
+
+  if (error || !data.url) {
+    return;
+  }
+
+  redirect(data.url);
 }
 
 export async function signIn(

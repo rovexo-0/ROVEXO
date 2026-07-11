@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { Tables } from "@/lib/supabase/types/database";
 import { createNotification } from "@/lib/notifications/create";
 import { deliverNotificationChannels } from "@/lib/notifications/deliver";
 import {
@@ -6,7 +7,7 @@ import {
   resolveNotificationPriority,
   shouldSendForegroundPush,
 } from "@/lib/notifications/grouping";
-import type { Tables } from "@/lib/supabase/types/database";
+import { resolveSmartNotificationHref } from "@/lib/notifications/routing";
 
 type NotificationType = Tables<"notifications">["type"];
 
@@ -143,11 +144,24 @@ export async function emitSmartNotification(input: EmitSmartNotificationInput): 
     return false;
   }
 
+  const resolvedHref =
+    input.href ??
+    resolveSmartNotificationHref(input.eventType, {
+      orderId: typeof input.payload?.orderId === "string" ? input.payload.orderId : undefined,
+      offerId: typeof input.payload?.offerId === "string" ? input.payload.offerId : undefined,
+      productId: typeof input.payload?.productId === "string" ? input.payload.productId : undefined,
+      productSlug: typeof input.payload?.productSlug === "string" ? input.payload.productSlug : undefined,
+      transactionId:
+        typeof input.payload?.transactionId === "string" ? input.payload.transactionId : undefined,
+      conversationId:
+        typeof input.payload?.conversationId === "string" ? input.payload.conversationId : undefined,
+    });
+
   const priority = resolveNotificationPriority(input.eventType);
   const groupKey = buildNotificationGroupKey({
     userId: input.userId,
     type: input.notificationType,
-    href: input.href,
+    href: resolvedHref,
   });
   const silent = !shouldSendForegroundPush(priority);
 
@@ -156,7 +170,7 @@ export async function emitSmartNotification(input: EmitSmartNotificationInput): 
     type: input.notificationType,
     title: input.title,
     subtitle: input.subtitle,
-    href: input.href,
+    href: resolvedHref,
     detail: input.detail,
     avatarUrl: input.avatarUrl,
     avatarName: input.avatarName,
@@ -190,7 +204,7 @@ export async function emitSmartNotification(input: EmitSmartNotificationInput): 
     eventType: input.eventType,
     title: input.title,
     subtitle: input.subtitle,
-    href: input.href,
+    href: resolvedHref,
     priority,
     silent,
     groupKey,

@@ -107,6 +107,9 @@ export type SellListingDraft = {
 
   freeDelivery: boolean;
 
+  /** Buyer can collect in person (shown when category supports it). */
+  collectionEnabled: boolean;
+
   analysis: AiCameraAnalysisResult | null;
 };
 
@@ -159,6 +162,8 @@ export function createEmptyDraft(): SellListingDraft {
     stock: 1,
 
     freeDelivery: false,
+
+    collectionEnabled: false,
 
     analysis: null,
   };
@@ -237,7 +242,7 @@ export function getListingValidationErrors(
     ? isDirectContactMode(resolveTransactionModeFromFlatPath(draft.categoryPath))
     : false;
 
-  if (!directContact && !draft.parcelSize) {
+  if (!directContact && draft.shippingMethod !== "collection_only" && !draft.parcelSize) {
     errors.parcelSize = "Select a parcel size.";
   }
 

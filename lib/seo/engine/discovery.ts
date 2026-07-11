@@ -171,7 +171,7 @@ export function resolveDiscoveryPage(slug: string): DiscoveryPage | null {
   const modifierMatch = normalized.match(/^(used|new|refurbished|cheap|like-new)-(.+)$/);
   if (modifierMatch) {
     const [, modifier, productKey] = modifierMatch;
-    const { productSlug, locationSlug, locationName } = parseLocationSuffix(productKey!);
+    const { productSlug, locationName } = parseLocationSuffix(productKey!);
     const pattern = PRODUCT_PATTERNS[productSlug];
     if (!pattern) return null;
 

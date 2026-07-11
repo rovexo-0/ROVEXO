@@ -11,7 +11,7 @@ export async function evaluateCategoryHealth(
 
   try {
     const admin = createAdminClient();
-    for (const [alias, slugs] of Object.entries(CATEGORY_ALIASES).slice(0, 20)) {
+    for (const [alias] of Object.entries(CATEGORY_ALIASES).slice(0, 20)) {
       const searchTerm = alias.replace(/-/g, " ");
       const { count } = await admin
         .from("products")

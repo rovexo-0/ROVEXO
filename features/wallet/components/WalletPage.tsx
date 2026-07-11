@@ -1,21 +1,26 @@
 import { WalletHubV1 } from "@/features/wallet/components/WalletHubV1";
-import type { SellerCommerceSummary } from "@/lib/commerce-engine/read-model";
+import { buildMonthlyStatements, sellerHasStatements } from "@/lib/wallet/monthly-statements";
 import type { WalletData } from "@/lib/wallet/types";
 
 type WalletPageProps = {
   data: WalletData;
-  commerceSummary?: SellerCommerceSummary;
   backHref?: string;
   connectMessage?: string;
+  showStatements?: boolean;
 };
 
-export function WalletPage({ data, commerceSummary, backHref, connectMessage }: WalletPageProps) {
+export function WalletPage({ data, backHref, connectMessage, showStatements }: WalletPageProps) {
   return (
     <WalletHubV1
       data={data}
-      commerceSummary={commerceSummary}
       backHref={backHref}
       connectMessage={connectMessage}
+      showStatements={showStatements}
     />
   );
+}
+
+export async function resolveWalletShowStatements(userId: string): Promise<boolean> {
+  const statements = await buildMonthlyStatements(userId);
+  return sellerHasStatements(statements);
 }

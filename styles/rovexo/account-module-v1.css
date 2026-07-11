@@ -347,7 +347,14 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 20px;
+  flex: 1;
+  min-width: 0;
+  padding: 14px 0 14px 20px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.acm-listing__title-link {
   text-decoration: none;
   color: inherit;
 }
@@ -360,6 +367,7 @@
   overflow: hidden;
   border-radius: 12px;
   background: var(--ds-color-surface-muted);
+  display: block;
 }
 
 .acm-listing__body {
@@ -408,6 +416,253 @@
 .acm-listing__chevron svg {
   width: 18px;
   height: 18px;
+}
+
+.acm-inline-notice {
+  margin: 0;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  color: var(--ds-color-danger);
+}
+
+.acm-listing-menu {
+  position: relative;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.acm-listing-menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ds-color-text-primary);
+  cursor: pointer;
+}
+
+.acm-listing-menu__trigger:hover {
+  background: var(--ds-color-surface-muted);
+}
+
+.acm-listing-menu__icon {
+  width: 20px;
+  height: 20px;
+}
+
+.acm-listing-menu__panel {
+  position: absolute;
+  top: calc(100% - 4px);
+  right: 0;
+  z-index: 20;
+  min-width: 168px;
+  padding: 6px;
+  border: 1px solid rgb(15 23 42 / 0.08);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.12);
+}
+
+.acm-listing-menu__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ds-color-text-primary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.acm-listing-menu__item:hover {
+  background: var(--ds-color-surface-muted);
+}
+
+.acm-order-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+}
+
+.acm-order-card__thumb {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--ds-color-surface-muted);
+}
+
+.acm-order-card__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.acm-order-card__title {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ds-color-text-primary);
+}
+
+.acm-order-card__price {
+  margin: 2px 0 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ds-color-text-primary);
+}
+
+.acm-order-card__status-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.acm-order-card__tracking {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ds-color-text-secondary);
+}
+
+.acm-order-card__open {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1.5px solid var(--ds-color-primary);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ds-color-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 44px;
+  text-decoration: none;
+  text-align: center;
+}
+
+.acm-saved-feed {
+  padding: 16px 20px 24px;
+}
+
+.acm-saved-feed__item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.acm-saved-feed__fee {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ds-color-text-secondary);
+}
+
+.acm-saved-feed__sentinel {
+  grid-column: 1 / -1;
+  height: 1px;
+}
+
+.acm-reviews-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 24px 20px 16px;
+  text-align: center;
+}
+
+.acm-reviews-summary__stars {
+  display: inline-flex;
+  gap: 2px;
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.acm-reviews-summary__star {
+  color: #d1d5db;
+}
+
+.acm-reviews-summary__star--on {
+  color: #f59e0b;
+}
+
+.acm-reviews-summary__score {
+  margin: 4px 0 0;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ds-color-text-primary);
+}
+
+.acm-reviews-summary__total {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ds-color-text-secondary);
+}
+
+.acm-reviews-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.acm-reviews-item {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid rgb(15 23 42 / 0.06);
+}
+
+.acm-reviews-item__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.acm-reviews-item__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.acm-reviews-item__name {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ds-color-text-primary);
+}
+
+.acm-reviews-item__comment {
+  margin: 6px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--ds-color-text-primary);
+}
+
+.acm-reviews-item__date {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--ds-color-text-secondary);
 }
 
 /* ── Status badges ───────────────────────────────────────────────── */

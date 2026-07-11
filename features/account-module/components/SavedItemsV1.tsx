@@ -1,12 +1,14 @@
 "use client";
 
-import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
-import { useState } from "react";
-import { HeartLineIcon } from "@/components/icons/RvxLineIcons";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ListingCard } from "@/components/ui/ListingCard";
+import { LISTING_CARD_HOMEPAGE_PROPS } from "@/lib/listing-card/defaults";
+import { formatPlatformFeeLine } from "@/lib/listing-card/format";
 import { AccountModuleShell } from "@/features/account-module/components/AccountModuleShell";
 import type { SavedItem } from "@/lib/saved/types";
-import { formatCurrency } from "@/lib/wallet/utils";
+
+const PAGE_SIZE = 20;
 
 type SavedItemsV1Props = {
   initialItems: SavedItem[];
@@ -14,10 +16,10 @@ type SavedItemsV1Props = {
 
 export function SavedItemsV1({ initialItems }: SavedItemsV1Props) {
   const [items, setItems] = useState(initialItems);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const removeItem = async (slug: string, event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
+  const removeItem = useCallback(async (slug: string) => {
     const response = await fetch("/api/saved", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -26,7 +28,27 @@ export function SavedItemsV1({ initialItems }: SavedItemsV1Props) {
     if (!response.ok) return;
     const payload = (await response.json()) as { items: SavedItem[] };
     setItems(payload.items);
-  };
+    setVisibleCount(PAGE_SIZE);
+  }, []);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || visibleCount >= items.length) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setVisibleCount((current) => Math.min(current + PAGE_SIZE, items.length));
+        }
+      },
+      { rootMargin: "240px" },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [items.length, visibleCount]);
+
+  const visibleItems = items.slice(0, visibleCount);
 
   return (
     <AccountModuleShell title="Saved Items" backHref="/account" version="v1.0">
@@ -39,30 +61,24 @@ export function SavedItemsV1({ initialItems }: SavedItemsV1Props) {
           </Link>
         </div>
       ) : (
-        <div className="acm-saved-grid" data-saved-version="v1.0">
-          {items.map((item) => (
-            <Link key={item.productSlug} href={`/listing/${item.product.slug}`} className="acm-saved-card">
-              <div className="acm-saved-card__image-wrap">
-                <SafeImage
-                  src={item.product.imageUrl}
-                  alt={item.product.title}
-                  fill
-                  sizes="(max-width: 640px) 50vw, 200px"
-                  className="object-cover"
-                />
-                <button
-                  type="button"
-                  className="acm-saved-card__heart"
-                  aria-label={`Remove ${item.product.title} from saved`}
-                  onClick={(event) => void removeItem(item.productSlug, event)}
-                >
-                  <HeartLineIcon />
-                </button>
-              </div>
-              <p className="acm-saved-card__title">{item.product.title}</p>
-              <p className="acm-saved-card__price">{formatCurrency(item.product.price)}</p>
-            </Link>
+        <div className="rx-listing-grid acm-saved-feed" data-saved-version="v1.0">
+          {visibleItems.map((item) => (
+            <div key={item.productSlug} className="acm-saved-feed__item">
+              <ListingCard
+                product={item.product}
+                {...LISTING_CARD_HOMEPAGE_PROPS}
+                showStatusBadge={item.listingStatus === "sold"}
+                statusBadgeLabel="SOLD"
+                favoriteMode="controlled"
+                isFavorite
+                onFavorite={() => void removeItem(item.productSlug)}
+              />
+              <p className="acm-saved-feed__fee">{formatPlatformFeeLine(item.product.price)}</p>
+            </div>
           ))}
+          {visibleCount < items.length ? (
+            <div ref={sentinelRef} className="acm-saved-feed__sentinel" aria-hidden />
+          ) : null}
         </div>
       )}
     </AccountModuleShell>

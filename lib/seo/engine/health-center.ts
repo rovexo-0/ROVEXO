@@ -2,7 +2,6 @@ import { runSeoAudit, sitemapIndexUrls } from "@/lib/seo/audit";
 import { runSeoRegressionSuite } from "@/lib/seo/engine/regression";
 import { SEO_ENGINE_VERSION, SITEMAP_CHUNK_SIZE, PERFORMANCE_TARGETS } from "@/lib/seo/engine/config";
 import { estimateSitemapChunks } from "@/lib/seo/engine/crawl-budget";
-import { getAllCollectionSlugs } from "@/lib/seo/engine/collections";
 import { getStaticDiscoverySlugs } from "@/lib/seo/engine/discovery";
 import { getLongTailSlugCandidates } from "@/lib/seo/engine/long-tail";
 import { detectTrendSignals } from "@/lib/seo/engine/trends";

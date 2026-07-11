@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { SettingsV1 } from "@/features/account-module/components/SettingsV1";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
@@ -8,5 +9,9 @@ export const metadata = {
 };
 
 export default function AccountSettingsRoute() {
-  return <SettingsV1 />;
+  return (
+    <Suspense fallback={<div className="p-ds-6 text-sm text-text-secondary">Loading settings…</div>}>
+      <SettingsV1 />
+    </Suspense>
+  );
 }

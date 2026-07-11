@@ -1,150 +1,185 @@
-/* ROVEXO v1.0 — Premium bottom navigation (anchored white bar).
-   UI/UX only: identical routing, order (Home · Search · Sell · Saved · Account),
-   state and behaviour. This layer is scoped to [data-bottom-nav="2026"] so it wins
-   over the legacy glass base by specificity regardless of stylesheet order. */
+/* ROVEXO Bottom Navigation V2 — slim native bar (Preview lock).
+   UI only: routing, order, and behaviour unchanged. */
 
-[data-bottom-nav="2026"] {
-  --rx-bottom-nav-height: 80px;
-  --rx-bottom-nav-radius: 24px;
-  --rx-bottom-nav-sell-size: 64px;
-  --rx-bottom-nav-sell-float: 12px;
-  --rx-bottom-nav-label-size: 12px;
-  --rx-bottom-nav-inactive: #6b7280;
+[data-bottom-nav="v2"] {
+  --rx-bottom-nav-height: 50px;
+  --rx-bottom-nav-sell-size: 54px;
+  --rx-bottom-nav-sell-float: 7px;
+  --rx-bottom-nav-label-size: 10px;
+  --rx-bottom-nav-inactive: #111111;
   --rx-bottom-nav-active: var(--ds-color-primary);
+  --rx-bottom-nav-icon-size: 22px;
 }
 
-/* Edge-to-edge white bar anchored to the bottom, only the top corners rounded.
-   Height is a fixed 80px band; the iPhone home-indicator safe area is filled with
-   the same white below it via padding-bottom so there is never a transparent gap. */
-[data-bottom-nav="2026"] .rx-bottom-nav-shell {
+[data-bottom-nav="v2"] .rx-bottom-nav-shell {
   width: 100%;
   max-width: 100%;
   margin-inline: 0;
-  height: calc(var(--rx-bottom-nav-height) + env(safe-area-inset-bottom));
-  min-height: calc(var(--rx-bottom-nav-height) + env(safe-area-inset-bottom));
+  height: calc(var(--rx-bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  min-height: calc(var(--rx-bottom-nav-height) + env(safe-area-inset-bottom, 0px));
   padding: 0;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   border: 0;
   border-top: 1px solid #e5e7eb;
-  border-radius: var(--rx-bottom-nav-radius) var(--rx-bottom-nav-radius) 0 0;
+  border-radius: 0;
   background: #ffffff;
-  box-shadow: 0 -6px 24px rgb(15 23 42 / 0.08);
+  box-shadow: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   overflow: visible;
 }
 
-/* Neutralize the legacy glass gradient/glow pseudo-layers. */
-[data-bottom-nav="2026"] .rx-bottom-nav-shell::before,
-[data-bottom-nav="2026"] .rx-bottom-nav-shell::after {
+[data-bottom-nav="v2"] .rx-bottom-nav-shell::before,
+[data-bottom-nav="v2"] .rx-bottom-nav-shell::after {
   display: none;
 }
 
-[data-theme="dark"] [data-bottom-nav="2026"] .rx-bottom-nav-shell {
+[data-theme="dark"] [data-bottom-nav="v2"] .rx-bottom-nav-shell {
   border-top-color: rgb(255 255 255 / 0.08);
-  background: #121216;
-  box-shadow: 0 -6px 24px rgb(0 0 0 / 0.4);
+  background: #ffffff;
+  box-shadow: none;
 }
 
-/* Five equal columns (grid-template-columns: repeat(5, 1fr) from the base layer);
-   the interactive 80px band sits above the safe-area padding. */
-[data-bottom-nav="2026"] .rx-bottom-nav-grid {
+[data-bottom-nav="v2"] .rx-bottom-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   align-items: center;
   height: var(--rx-bottom-nav-height);
   min-height: var(--rx-bottom-nav-height);
-  padding: 0 6px;
+  padding: 0 2px;
+  margin: 0;
+  list-style: none;
 }
 
-[data-bottom-nav="2026"] .rx-bottom-nav-item {
+[data-bottom-nav="v2"] .rx-bottom-nav-item {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  min-width: 48px;
-  min-height: 48px;
+  gap: 0;
+  min-width: 44px;
+  min-height: 44px;
   width: auto;
   height: auto;
-  gap: 4px;
+  padding: 1px 0 0;
   color: var(--rx-bottom-nav-inactive);
-  transition:
-    color 180ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
+  text-decoration: none;
+  transition: color 120ms ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-[data-bottom-nav="2026"] .rx-bottom-nav-item[data-active="true"] {
+[data-bottom-nav="v2"] .rx-bottom-nav-item:not(.rx-bottom-nav-item--sell) {
+  justify-content: flex-end;
+  gap: 0;
+  padding: 0 0 2px;
+}
+
+[data-bottom-nav="v2"] .rx-bottom-nav-item[data-active="true"] {
   color: var(--rx-bottom-nav-active);
 }
 
-/* Label follows the item colour automatically (grey → ROVEXO blue when active). */
-[data-bottom-nav="2026"] .rx-bottom-nav-item__label {
+[data-bottom-nav="v2"] .rx-bottom-nav-item__label {
   font-size: var(--rx-bottom-nav-label-size);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: 0.01em;
-  transition: color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0;
+  color: #111111;
+  transition: color 120ms ease;
+  padding-bottom: 1px;
 }
 
-/* Locked spec: active = ROVEXO blue + slight icon scale (see icon stylesheet).
-   No dot indicator. */
-[data-bottom-nav="2026"] .rx-bottom-nav-item:not(.rx-bottom-nav-item--sell)[data-active="true"]::after {
-  display: none;
+[data-bottom-nav="v2"] .rx-bottom-nav-item:not(.rx-bottom-nav-item--sell) .rx-bottom-nav-item__label {
+  transform: translateY(-3px);
+  padding-bottom: 0;
 }
 
-/* Sell: 34px "+" inside a 56px circular ROVEXO-blue button, gently raised. */
-[data-bottom-nav="2026"] .rx-bottom-nav-item--sell {
+[data-bottom-nav="v2"] .rx-bottom-nav-item[data-active="true"] .rx-bottom-nav-item__label {
+  color: var(--rx-bottom-nav-active);
+}
+
+[data-bottom-nav="v2"] .rx-bottom-nav-item--sell .rx-bottom-nav-item__label {
+  color: #111111;
+}
+
+[data-bottom-nav="v2"] .rx-bottom-nav-item--sell[data-active="true"] .rx-bottom-nav-item__label {
+  color: var(--rx-bottom-nav-active);
+}
+
+[data-bottom-nav="v2"] .rx-bottom-nav-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 28px;
+  line-height: 0;
+}
+
+[data-bottom-nav="v2"] .rx-bottom-nav-item:not(.rx-bottom-nav-item--sell) .rx-bottom-nav-icon-wrap {
+  transform: translateY(-3px);
+}
+
+[data-bottom-nav="v2"] .rx-bottom-nav-v2-icon {
+  display: block;
+  width: var(--rx-bottom-nav-icon-size);
+  height: var(--rx-bottom-nav-icon-size);
+  flex-shrink: 0;
+  color: currentColor;
+  stroke: currentColor;
+}
+
+[data-bottom-nav="v2"] .rx-bottom-nav-item--sell {
   z-index: 2;
+  gap: 1px;
+  padding-top: 0;
 }
 
-[data-bottom-nav="2026"] .rx-bottom-nav-sell {
+[data-bottom-nav="v2"] .rx-bottom-nav-sell {
   z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: var(--rx-bottom-nav-sell-size);
   height: var(--rx-bottom-nav-sell-size);
   margin-bottom: 0;
   border-radius: 9999px;
-  background: var(--ds-gradient-primary);
-  box-shadow: 0 8px 20px rgba(147, 51, 234, 0.32);
+  background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%);
+  box-shadow: none;
   transform: translate3d(0, calc(-1 * var(--rx-bottom-nav-sell-float)), 0);
-  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
+  transition: transform 120ms ease, opacity 120ms ease;
 }
 
-[data-bottom-nav="2026"] .rx-bottom-nav-sell::after {
-  box-shadow: 0 0 22px rgba(147, 51, 234, 0.32);
-  opacity: 0.7;
+[data-bottom-nav="v2"] .rx-bottom-nav-sell::after {
+  display: none;
+}
+
+[data-bottom-nav="v2"] .rx-sell-plus {
+  display: block;
+  width: 22px;
+  height: 22px;
+  color: #ffffff;
+  filter: none;
+}
+
+[data-bottom-nav="v2"] .rx-bottom-nav-item:active:not(.rx-bottom-nav-item--sell) {
+  opacity: 0.72;
+}
+
+[data-bottom-nav="v2"] .rx-bottom-nav-item--sell:active .rx-bottom-nav-sell {
+  transform: translate3d(0, calc(-1 * var(--rx-bottom-nav-sell-float)), 0) scale(0.96);
+  opacity: 0.92;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  [data-bottom-nav="2026"] .rx-bottom-nav-sell:hover {
-    transform: translate3d(0, calc(-1 * var(--rx-bottom-nav-sell-float)), 0) scale(1.05);
+  [data-bottom-nav="v2"] .rx-bottom-nav-sell:hover {
+    transform: translate3d(0, calc(-1 * var(--rx-bottom-nav-sell-float)), 0);
   }
-}
-
-[data-bottom-nav="2026"] .rx-bottom-nav-sell:active,
-[data-bottom-nav="2026"] .rx-bottom-nav-item--sell:active .rx-bottom-nav-sell {
-  transform: translate3d(0, calc(-1 * var(--rx-bottom-nav-sell-float)), 0) scale(0.96);
-}
-
-[data-bottom-nav="2026"] .rx-bottom-nav-item:active:not(.rx-bottom-nav-item--sell) {
-  transform: scale(0.96);
-}
-
-[data-theme="dark"] [data-bottom-nav="2026"] .rx-bottom-nav-item {
-  --rx-bottom-nav-inactive: #9ca3af;
-}
-
-[data-theme="dark"] [data-bottom-nav="2026"] .rx-bottom-nav-item[data-active="true"] {
-  --rx-bottom-nav-active: #60a5fa;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-bottom-nav="2026"] .rx-bottom-nav-item,
-  [data-bottom-nav="2026"] .rx-bottom-nav-item:active,
-  [data-bottom-nav="2026"] .rx-bottom-nav-sell,
-  [data-bottom-nav="2026"] .rx-bottom-nav-sell:hover,
-  [data-bottom-nav="2026"] .rx-bottom-nav-sell:active {
+  [data-bottom-nav="v2"] .rx-bottom-nav-item,
+  [data-bottom-nav="v2"] .rx-bottom-nav-sell,
+  [data-bottom-nav="v2"] .rx-bottom-nav-item__label {
     transition: none;
-  }
-
-  [data-bottom-nav="2026"] .rx-bottom-nav-sell {
-    transform: translate3d(0, calc(-1 * var(--rx-bottom-nav-sell-float)), 0);
   }
 }

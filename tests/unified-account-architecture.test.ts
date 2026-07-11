@@ -126,6 +126,10 @@ describe("ROVEXO unified account architecture v1.0", () => {
 
     expect(fields).toContain('name="password"');
 
+    expect(fields).toContain('name="firstName"');
+
+    expect(fields).toContain('name="lastName"');
+
   });
 
 
@@ -156,16 +160,16 @@ describe("ROVEXO unified account architecture v1.0", () => {
 
 
 
-  it("builds the canonical My Account menu with Selling, Cart, Verification, ROVEXO Ideas, and Bring Your Item", () => {
+  it("builds the canonical My Account menu with Manage, Account, Community, and Support sections", () => {
     const menu = readFileSync(join(process.cwd(), "lib/account-center/canonical-menu.ts"), "utf8");
-    expect(menu).toContain("buildAccountMenu");
-    expect(menu).toContain('title: "Selling"');
-    expect(menu).toContain('title: "Cart"');
-    expect(menu).toContain('title: "Verification"');
-    expect(menu).toContain('title: "ROVEXO Ideas"');
-    expect(menu).toContain('title: "Bring Your Item"');
-    expect(menu).toContain("BRING_YOUR_ITEM_PATH");
-    expect(menu).toContain("buildSellingSubmenu");
+    expect(menu).toContain("buildAccountMenuSections");
+    expect(menu).toContain('title: "MANAGE"');
+    expect(menu).toContain('title: "My Listings"');
+    expect(menu).not.toContain('title: "Verification"');
+    expect(menu).toContain('title: "Ideas"');
+    expect(menu).toContain('title: "Help Centre"');
+    expect(menu).toContain('title: "Sign Out"');
+    expect(menu).not.toContain("buildSellingSubmenu(profile)");
   });
 
 });

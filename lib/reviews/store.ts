@@ -12,7 +12,7 @@ function mapReview(row: {
   rating: number;
   comment: string | null;
   created_at: string;
-  reviewer?: { full_name: string } | null;
+  reviewer?: { full_name: string; avatar_url?: string | null } | null;
 }): Review {
   return {
     id: row.id,
@@ -24,6 +24,7 @@ function mapReview(row: {
     comment: row.comment,
     createdAt: row.created_at,
     reviewerName: row.reviewer?.full_name,
+    reviewerAvatarUrl: row.reviewer?.avatar_url ?? null,
   };
 }
 
@@ -118,7 +119,7 @@ export async function listSellerReviews(
     .select(
       `
       *,
-      reviewer:profiles!reviews_reviewer_id_fkey ( full_name )
+      reviewer:profiles!reviews_reviewer_id_fkey ( full_name, avatar_url )
     `,
     )
     .eq("reviewee_id", sellerId)
@@ -128,7 +129,7 @@ export async function listSellerReviews(
   return (data ?? []).map((row) =>
     mapReview({
       ...row,
-      reviewer: row.reviewer as { full_name: string } | null,
+      reviewer: row.reviewer as { full_name: string; avatar_url?: string | null } | null,
     }),
   );
 }

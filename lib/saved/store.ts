@@ -40,6 +40,7 @@ function mapSavedRow(row: SavedRow): SavedItem {
     savedAt: row.saved_at,
     lastViewedAt: row.last_viewed_at ?? row.saved_at,
     categorySlug: row.products.categories?.slug ?? getProductCategorySlug(row.products.slug),
+    listingStatus: row.products.status,
     product,
   };
 }

@@ -4,7 +4,7 @@ import path from "path";
 import os from "os";
 import { createAdminClient } from "../lib/supabase/admin";
 import { signInWithSessionCookies } from "./helpers/auth";
-import { sellPhotoInput, fillSellDescription, publishSellListing } from "./helpers/sell";
+import { sellPhotoInput, fillSellDescription, publishSellListing, uploadSellPhoto } from "./helpers/sell";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../lib/supabase/types/database";
 
@@ -60,6 +60,22 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
 
     await admin.from("seller_profiles").upsert({ id: userId }, { onConflict: "id" });
 
+    const { error: bankError } = await admin.from("withdraw_methods").insert({
+      user_id: userId,
+      provider: "bank_account",
+      connected: true,
+      is_default: true,
+      label: "E2E Test Bank",
+      last_digits: "1234",
+      account_holder_name: "E2E Seller",
+      sort_code: "00-00-00",
+      account_number: "12345678",
+    });
+
+    if (bankError) {
+      throw new Error(`withdraw_methods insert failed: ${bankError.message}`);
+    }
+
     return { id: userId, email, password, username };
   }
 
@@ -74,6 +90,7 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
       }
 
       await admin.from("seller_profiles").delete().eq("id", userId);
+      await admin.from("withdraw_methods").delete().eq("user_id", userId);
       await admin.from("profiles").delete().eq("id", userId);
 
       try {
@@ -103,26 +120,23 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
   }
 
   async function ensureCategorySelected(page: Page) {
-    const categoryButton = page.getByRole("button", { name: /select category|^category$/i });
-    if (await categoryButton.isVisible().catch(() => false)) {
-      await categoryButton.click();
-    }
+    await page.getByRole("button", { name: /select category/i }).click();
+    await expect(page.getByRole("heading", { name: "Category" })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole("searchbox", { name: /search categories/i })).toHaveCount(0);
 
-    const searchInput = page.getByRole("searchbox", { name: /search categories/i });
-    if (await searchInput.isVisible().catch(() => false)) {
-      await searchInput.fill("sofa");
-      const suggestion = page.getByRole("button").filter({ hasText: /sofa/i }).first();
-      await expect(suggestion).toBeVisible({ timeout: 10_000 });
-      await suggestion.click();
+    if (await page.getByText("Suggested", { exact: true }).isVisible().catch(() => false)) {
+      await page.locator("ul").first().getByRole("button").first().click();
       return;
     }
 
-    for (let level = 0; level < 3; level += 1) {
-      const row = page.getByRole("button").filter({ hasText: /.+/ }).first();
-      if (!(await row.isVisible().catch(() => false))) break;
-      await row.click();
-      await page.waitForTimeout(200);
+    await page.getByRole("button", { name: /^Electronics$/i }).click();
+    await page.getByRole("button", { name: /^Phones$/i }).click();
+    const leaf = page.getByRole("button").filter({ hasText: /phone|mobile|smartphone/i }).first();
+    if (await leaf.isVisible().catch(() => false)) {
+      await leaf.click();
+      return;
     }
+    await page.getByRole("button").filter({ hasText: /.+/ }).nth(1).click();
   }
 
   test.beforeAll(async () => {
@@ -164,14 +178,14 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     await signIn(page, tempUser!, baseURL!);
 
     await page.goto("/sell", { waitUntil: "domcontentloaded", timeout: 180_000 });
-    await expect(page.getByRole("button", { name: /add photo/i })).toBeVisible({ timeout: 120_000 });
+    await expect(page.getByRole("region", { name: "Add Photos" })).toBeVisible({ timeout: 120_000 });
 
     // Single native picker input handles gallery + camera; set multiple files at once.
     await uploadSellPhoto(page, galleryImage);
     await sellPhotoInput(page).setInputFiles(cameraImage);
     await expect(page.locator("[data-photo-index]")).toHaveCount(2, { timeout: 15_000 });
 
-    const title = `Vintage phone ${Date.now()}`;
+    const title = `iPhone 15 Pro Max ${Date.now()}`;
     await page.getByPlaceholder(/tell buyers what you're selling/i).fill(title);
     await fillSellDescription(
       page,
@@ -185,10 +199,7 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
 
     await publishSellListing(page);
 
-    await expect(page.getByRole("heading", { name: /your item is live/i })).toBeVisible({
-      timeout: 120_000,
-    });
-    await expect(page.getByText(/published successfully/i).first()).toBeVisible();
+    await expect(page).toHaveURL(/\/listing\//, { timeout: 120_000 });
 
     const start = Date.now();
     let found: { id: string } | null = null;
@@ -214,7 +225,7 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     expect(imagesRes.error).toBeNull();
     expect((imagesRes.data ?? []).length).toBeGreaterThan(0);
 
-    await page.getByRole("link", { name: /go to my listings/i }).click();
+    await page.goto("/seller/listings", { waitUntil: "domcontentloaded", timeout: 30_000 });
     await expect(page).toHaveURL(/\/seller\/listings/, { timeout: 30_000 });
     await expect(page.getByText(title)).toBeVisible({ timeout: 30_000 });
   });

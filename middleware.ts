@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { applySeoRouting } from "@/lib/seo/engine/middleware-handler";
 import { updateSession } from "@/lib/supabase/middleware";
 

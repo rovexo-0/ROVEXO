@@ -18,14 +18,8 @@ export const HP_STORE_CARD_REF = {
   imageHeight: 118,
 } as const;
 
-/** Grid column breakpoints — largest match wins (sync with CanonicalHomepage.module.css). */
-export const HP_FEED_COLUMN_QUERIES = [
-  { query: "(min-width: 1920px)", columns: 6 },
-  { query: "(min-width: 1440px)", columns: 5 },
-  { query: "(min-width: 1024px)", columns: 4 },
-  { query: "(min-width: 834px)", columns: 3 },
-  { query: "(min-width: 640px)", columns: 3 },
-] as const;
+/** Phase 2 Module 01 — locked 2-column feed on every viewport. */
+export const HP_FEED_COLUMN_QUERIES = [] as const;
 
 export const HP_FEED_DEFAULT_COLUMNS = 2;
 
@@ -48,18 +42,10 @@ export const HP_RESPONSIVE_VIEWPORTS = [
 ] as const;
 
 export function resolveFeedColumnCount(viewportWidth: number): number {
-  for (const entry of HP_FEED_COLUMN_QUERIES) {
-    const minWidth = Number.parseInt(entry.query.match(/\d+/)?.[0] ?? "0", 10);
-    if (viewportWidth >= minWidth) return entry.columns;
-  }
+  void viewportWidth;
   return HP_FEED_DEFAULT_COLUMNS;
 }
 
 export function matchFeedColumnsFromMedia(): number {
-  if (typeof window === "undefined") return HP_FEED_DEFAULT_COLUMNS;
-
-  for (const { query, columns } of HP_FEED_COLUMN_QUERIES) {
-    if (window.matchMedia(query).matches) return columns;
-  }
   return HP_FEED_DEFAULT_COLUMNS;
 }

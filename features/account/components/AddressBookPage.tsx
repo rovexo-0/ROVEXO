@@ -1,6 +1,8 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { readReturnToParam } from "@/lib/navigation/return-to";
 import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +27,9 @@ const inputClassName = cn(
 );
 
 export function AddressBookPage({ initialType = "shipping" }: AddressBookPageProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = readReturnToParam(searchParams);
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeType, setActiveType] = useState<"shipping" | "billing">(initialType);
@@ -119,6 +124,10 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
       isDefault: false,
     });
     await loadAddresses(activeType);
+    if (returnTo) {
+      router.push(returnTo);
+      return;
+    }
     setMessage("Address saved.");
   });
 

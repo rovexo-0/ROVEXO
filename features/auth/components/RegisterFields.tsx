@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
+import { focusRing } from "@/components/ui/tokens";
 import { AuthFieldGroup } from "@/features/auth/components/AuthFieldGroup";
 import { AuthField } from "@/features/auth/components/AuthField";
 import { AUTH_EMAIL_PLACEHOLDER } from "@/lib/email/constants";
@@ -29,6 +31,18 @@ export function RegisterFields() {
   return (
     <>
       <AuthFieldGroup>
+        <AuthField
+          label="First Name"
+          name="firstName"
+          autoComplete="given-name"
+          placeholder="First name"
+        />
+        <AuthField
+          label="Last Name"
+          name="lastName"
+          autoComplete="family-name"
+          placeholder="Last name"
+        />
         <AuthField
           label="Email"
           name="email"
@@ -76,11 +90,73 @@ export function RegisterFields() {
             <p className="mt-ds-1 text-xs text-text-secondary">At least 8 characters</p>
           )}
         </div>
+        <AuthField
+          label="Confirm Password"
+          name="confirmPassword"
+          type="password"
+          autoComplete="new-password"
+          placeholder="Confirm your password"
+        />
       </AuthFieldGroup>
 
-      <p className="mt-ds-3 text-center text-xs text-text-secondary">
-        You can complete your profile after creating your ROVEXO account.
-      </p>
+      <label
+        className={cn(
+          "flex min-h-[44px] cursor-pointer items-start gap-ds-3 rounded-ds-lg border border-border/70 px-ds-4 py-ds-3",
+          focusRing,
+        )}
+      >
+        <input
+          type="checkbox"
+          name="terms"
+          required
+          className="mt-0.5 h-4 w-4 rounded border-border text-primary"
+        />
+        <span className="text-sm leading-relaxed text-text-secondary">
+          I agree to the{" "}
+          <Link href="/legal/terms-and-conditions" className="font-medium text-primary hover:opacity-80">
+            Terms
+          </Link>
+          ,{" "}
+          <Link href="/legal/privacy-policy" className="font-medium text-primary hover:opacity-80">
+            Privacy Policy
+          </Link>
+          , and{" "}
+          <Link href="/legal/cookie-policy" className="font-medium text-primary hover:opacity-80">
+            Cookie Policy
+          </Link>
+        </span>
+      </label>
+
+      <label
+        className={cn(
+          "flex min-h-[44px] cursor-pointer items-start gap-ds-3 rounded-ds-lg border border-border/70 px-ds-4 py-ds-3",
+          focusRing,
+        )}
+      >
+        <input
+          type="checkbox"
+          name="gdpr"
+          required
+          className="mt-0.5 h-4 w-4 rounded border-border text-primary"
+        />
+        <span className="text-sm leading-relaxed text-text-secondary">
+          I understand ROVEXO will process my personal data to provide the marketplace under UK GDPR.
+        </span>
+      </label>
+
+      <label
+        className={cn(
+          "flex min-h-[44px] cursor-pointer items-center gap-ds-3 rounded-ds-lg border border-border/70 px-ds-4 py-ds-3",
+          focusRing,
+        )}
+      >
+        <input
+          type="checkbox"
+          name="marketing"
+          className="h-4 w-4 rounded border-border text-primary"
+        />
+        <span className="text-sm text-text-secondary">Receive updates and offers</span>
+      </label>
     </>
   );
 }

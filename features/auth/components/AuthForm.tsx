@@ -3,7 +3,8 @@
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { AuthAlert } from "@/features/auth/components/AuthAlert";
-import { AuthLogo } from "@/features/auth/components/AuthLogo";
+import { AuthBrand } from "@/features/auth/components/AuthBrand";
+import { AuthOAuthButtons, AuthOAuthDivider } from "@/features/auth/components/AuthOAuthButtons";
 import { AuthSpinner } from "@/features/auth/components/AuthSpinner";
 import type { AuthActionState } from "@/lib/auth/actions";
 
@@ -17,6 +18,9 @@ type AuthFormProps = {
   initialError?: string;
   beforeSubmit?: (formData: FormData) => string | null;
   successContent?: React.ReactNode;
+  showOAuth?: boolean;
+  oauthNext?: string;
+  oauthDividerLabel?: string;
 };
 
 export function AuthForm({
@@ -29,6 +33,9 @@ export function AuthForm({
   initialError,
   beforeSubmit,
   successContent,
+  showOAuth = true,
+  oauthNext,
+  oauthDividerLabel,
 }: AuthFormProps) {
   const [state, formAction, pending] = useActionState(action, {});
   const [clientError, setClientError] = useState<string | null>(null);
@@ -36,15 +43,15 @@ export function AuthForm({
   const alertMessage = clientError ?? state.error ?? initialError;
 
   if (state.success && successContent) {
-    return <div className="flex w-full flex-col gap-ds-6">{successContent}</div>;
+    return <div className="flex w-full flex-col gap-ds-8">{successContent}</div>;
   }
 
   return (
-    <div className="flex w-full flex-col gap-ds-6">
-      <header className="flex flex-col items-center gap-ds-4 text-center">
-        <AuthLogo />
-        <div className="flex flex-col gap-ds-2">
-          <h1 className="text-2xl font-semibold tracking-tight text-text-primary">{title}</h1>
+    <div className="flex w-full flex-col gap-ds-8" data-auth-version="v1.0-legal-lock">
+      <header className="flex flex-col items-center gap-ds-6 text-center">
+        <AuthBrand />
+        <div className="flex max-w-[22rem] flex-col gap-ds-2">
+          <h1 className="text-[1.75rem] font-semibold tracking-tight text-text-primary">{title}</h1>
           <p className="text-[15px] leading-relaxed text-text-secondary">{description}</p>
         </div>
       </header>
@@ -61,7 +68,7 @@ export function AuthForm({
             setClientError(message);
           }
         }}
-        className="flex flex-col gap-ds-4"
+        className="flex flex-col gap-ds-5"
       >
         {alertMessage ? <AuthAlert message={alertMessage} variant="error" /> : null}
         {state.success ? <AuthAlert message={state.success} variant="success" /> : null}
@@ -75,7 +82,7 @@ export function AuthForm({
           disabled={pending}
           aria-busy={pending}
           data-testid="auth-submit"
-          className="mt-ds-1 min-h-[50px] rounded-ds-xl text-[17px] font-semibold shadow-ds-medium"
+          className="min-h-[52px] rounded-[16px] text-[17px] font-semibold shadow-ds-medium"
         >
           {pending ? (
             <span className="inline-flex items-center gap-ds-2">
@@ -87,6 +94,13 @@ export function AuthForm({
           )}
         </Button>
       </form>
+
+      {showOAuth ? (
+        <>
+          <AuthOAuthDivider label={oauthDividerLabel} />
+          <AuthOAuthButtons next={oauthNext} />
+        </>
+      ) : null}
 
       {footer ? (
         <footer className="text-center text-[15px] leading-relaxed text-text-secondary">

@@ -92,8 +92,8 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
     readSource(rootDir, "features/sell/ui/SellPricingBlock.tsx"),
     readSource(rootDir, "features/sell/ui/SellShippingBlock.tsx"),
   ].join("\n");
-  const photoUploader = readSource(rootDir, "features/sell/components/PhotoUploader.tsx");
-  const categoryPicker = readSource(rootDir, "features/sell/components/CategoryTreePicker.tsx");
+  const photoUploader = readSource(rootDir, "features/sell/ui/SellPhotoRail.tsx");
+  const categoryPicker = readSource(rootDir, "features/sell/ui/SellCategoryPicker.tsx");
   const aiCategory = readSource(rootDir, "lib/sell/listing-ai-category.ts");
   const publishPayload = readSource(rootDir, "lib/sell/build-listing-publish-payload.ts");
   const listingSchema = readSource(rootDir, "lib/sell/listing-api-schema.ts");
@@ -130,7 +130,7 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
       { id: "autosave", label: "Sell draft autosave", pass: persistDraft.includes("autosave") || sellProvider.includes("persistSellDraft") },
     ]),
     step("step-4-category", "STEP 4 — Category Selection", [
-      { id: "category-picker", label: "Category tree picker", pass: categoryPicker.includes("CategoryTreePicker") || categoryPicker.length > 100 },
+      { id: "category-picker", label: "Category picker", pass: categoryPicker.includes("SellCategoryPicker") },
       { id: "ai-category", label: "AI category mapping", pass: aiCategory.includes("listing-ai-category") || aiCategory.includes("analysis") },
       { id: "validation", label: "Category path in publish payload", pass: publishPayload.includes("categoryPath") },
       { id: "platform-flows", label: "Platform SSOT flows", pass: BRING_YOUR_ITEM_PLATFORM_FLOWS.length >= 7 },
@@ -143,7 +143,7 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
       { id: "required-validation", label: "Required field validation", pass: sellTypes.includes("isListingValid") && sellTypes.includes("getListingValidationErrors") },
     ]),
     step("step-6-media", "STEP 6 — Media Upload", [
-      { id: "photo-uploader", label: "Photo uploader component", pass: photoUploader.includes("PhotoUploader") || photoUploader.includes("addPhotos") },
+      { id: "photo-uploader", label: "Photo rail component", pass: photoUploader.includes("SellPhotoRail") || photoUploader.includes("addPhotos") },
       { id: "compression", label: "Image compression", pass: sellProvider.includes("compressListingImage") },
       { id: "reorder-delete", label: "Reorder and delete photos", pass: sellProvider.includes("reorderPhotos") && sellProvider.includes("removePhoto") },
       { id: "preview", label: "Photo preview URLs", pass: sellProvider.includes("thumbnailUrl") || photoUploader.includes("preview") },

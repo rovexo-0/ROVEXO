@@ -29,25 +29,43 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(cardCss).toContain("var(--ds-color-primary)");
   });
 
-  it("uses responsive homepage feed grid", () => {
+  it("locks homepage feed to two columns", () => {
     const homepage = readSource("components/homepage/canonical/CanonicalHomepage.module.css");
-    const responsive = readSource("styles/homepage-canonical-responsive.css");
 
-    expect(homepage).toContain("container-name: hp-feed");
-    expect(homepage).toContain("column-gap: var(--hp-grid-gap");
-    expect(responsive).toContain("--hp-grid-gap");
+    expect(homepage).toContain("grid-template-columns: repeat(2, minmax(0, 1fr))");
+    expect(homepage).not.toContain("--hp-grid-cols: 3");
   });
 
-  it("renders buyer protection and seller footer on homepage", () => {
+  it("uses purple category chips on homepage", () => {
+    const homepage = readSource("components/homepage/canonical/CanonicalHomepage.module.css");
+
+    expect(homepage).toContain("background: var(--ds-color-primary)");
+    expect(homepage).toContain("color: #ffffff");
+  });
+
+  it("uses phase 2 compact homepage listing props", () => {
     const card = readSource("components/ui/ListingCard.tsx");
     const defaults = readSource("lib/listing-card/defaults.ts");
 
-    expect(defaults).toContain("showStatusBadge: true");
+    expect(defaults).toContain("showStatusBadge: false");
+    expect(defaults).toContain("showPlatformFee: false");
     expect(defaults).toContain("showBuyerProtection: true");
-    expect(defaults).toContain("showSeller: true");
+    expect(defaults).toContain("showCondition: true");
+    expect(defaults).toContain("showSeller: false");
+    expect(defaults).toContain("showRating: true");
+    expect(card).toContain("bodyHomepage");
+    expect(card).toContain("metaRowHomepage");
     expect(card).toContain("formatListingPriceIncl");
-    expect(card).toContain("IconStar");
-    expect(card).toContain("sellerAvatar");
+    expect(card).toContain("inclShieldHomepage");
+    expect(card).toContain("ShieldCheck");
+    expect(card).not.toContain("formatPlatformFeeLine");
+  });
+
+  it("formats inclusive total for homepage cards", async () => {
+    const { formatListingPriceIncl } = await import("@/lib/listing-card/format");
+
+    expect(formatListingPriceIncl(20)).toBe("£21.10 incl.");
+    expect(formatListingPriceIncl(100)).toBe("£105.50 incl.");
   });
 
   it("formats card footer rating and views from listing data", async () => {
@@ -77,16 +95,56 @@ describe("Official Listing Card — homepage grid lock", () => {
     }
   });
 
-  it("uses canonical featured store with responsive carousel", () => {
+  it("uses canonical featured store with ListingCard carousel", () => {
     const store = readSource("components/homepage/canonical/featured-store/FeaturedStoreSection.tsx");
     const css = readSource("components/homepage/canonical/featured-store/FeaturedStore.module.css");
 
     expect(store).toContain("FeaturedStoreHeader");
-    expect(store).toContain("FeaturedStoreProductCard");
+    expect(store).toContain("ListingCard");
+    expect(store).toContain("HP_CANONICAL_LISTING_PROPS");
     expect(store).toContain("StoreProfileCard");
-    expect(store).toContain('data-hp-featured-store-version="ui-lock-1.0"');
+    expect(store).toContain('data-hp-featured-store-version="phase-2-module-01"');
     expect(css).toContain("--hp-store-card-ref-w");
-    expect(css).toContain("aspect-ratio: var(--hp-store-card-aspect");
+  });
+
+  it("places search below header on homepage", () => {
+    const header = readSource("components/header/RovexoHeaderV2.tsx");
+    const page = readSource("app/page.tsx");
+
+    expect(header).toContain('layout?: "default" | "homepage"');
+    expect(header).toContain("rx-h2__search-row");
+    expect(header).toContain("RovexoWordmark");
+    expect(page).toContain('layout="homepage"');
+  });
+
+  it("uses official ROVEXO wordmark colours", () => {
+    const wordmark = readSource("components/brand/RovexoWordmark.tsx");
+    const css = readSource("styles/rovexo/header-v2.css");
+
+    expect(wordmark).toContain("rx-wordmark__x");
+    expect(css).toContain("#111111");
+    expect(css).toContain("ds-color-primary");
+  });
+
+  it("uses canonical homepage bottom navigation labels", () => {
+    const nav = readSource("lib/homepage/canonical-nav.ts");
+    const page = readSource("app/page.tsx");
+
+    expect(nav).toContain('label: "Browse"');
+    expect(nav).toContain('label: "Inbox"');
+    expect(nav).toContain('label: "Profile"');
+    expect(nav).toContain('href: "/messages"');
+    expect(page).toContain("HP_CANONICAL_BOTTOM_NAV");
+  });
+
+  it("uses canonical search placeholder and camera control", () => {
+    const search = readSource("components/home/HomepageSearchField.tsx");
+    const header = readSource("components/header/RovexoHeaderV2.tsx");
+
+    expect(search).toContain("Search for items or members");
+    expect(search).toContain("homepage-search__camera");
+    expect(search).toContain("Camera");
+    expect(header).toContain("hp-canonical-search");
   });
 
   it("uses canonical homepage stack only", () => {
@@ -97,6 +155,6 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(homePage).toContain("FeaturedStoreSection");
     expect(homePage).toContain("CanonicalMarketplaceFeed");
     expect(homePage).not.toContain("HomepageV4Featured");
-    expect(homePage).toContain('data-hp-homepage="canonical"');
+    expect(homePage).toContain('data-hp-homepage-version="phase-2-refinement-01"');
   });
 });

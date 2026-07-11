@@ -1,5 +1,5 @@
-import { WalletPage } from "@/features/wallet/components/WalletPage";
-import { fetchWalletCommerceSummary, fetchWalletData } from "@/lib/wallet/queries";
+import { WalletPage, resolveWalletShowStatements } from "@/features/wallet/components/WalletPage";
+import { fetchWalletData } from "@/lib/wallet/queries";
 import { fetchProfile } from "@/lib/profile/queries";
 import { syncConnectAccountBySellerId } from "@/lib/stripe/connect";
 import { redirect } from "next/navigation";
@@ -21,13 +21,13 @@ export default async function WalletRoute({ searchParams }: WalletRouteProps) {
   }
 
   const data = await fetchWalletData();
-  const commerceSummary = await fetchWalletCommerceSummary();
+  const showStatements = await resolveWalletShowStatements(profile.id);
 
   return (
     <WalletPage
       data={data}
-      commerceSummary={commerceSummary}
       backHref="/account"
+      showStatements={showStatements}
       connectMessage={
         params.connect === "success"
           ? "Bank account setup saved. Payouts will be sent automatically after each hold period."

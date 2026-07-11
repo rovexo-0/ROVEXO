@@ -30,7 +30,7 @@ describe("Canonical Homepage — icon system", () => {
 
     const header = readFileSync(join(process.cwd(), HEADER_FILE), "utf8");
     expect(header).toContain("lucide-react");
-    expect(header).toContain("MessageSquare");
+    expect(header).not.toContain("MessageSquare");
     expect(header).toContain("Bell");
   });
 
