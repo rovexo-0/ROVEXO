@@ -32,6 +32,7 @@ export type Product = {
   sellerResponseRate?: number;
   location?: string;
   listingType?: string;
+  acceptOffers?: boolean;
   auctionEndsAt?: string | null;
   auctionCurrentBid?: number | null;
   rating: number;
@@ -69,6 +70,7 @@ export type ProductDetail = Product & {
   sellerUsername?: string | null;
   categoryId?: string | null;
   transactionMode: import("@/lib/transaction-mode/types").TransactionMode;
+  acceptOffers?: boolean;
 };
 
 export type ProductsPage = {

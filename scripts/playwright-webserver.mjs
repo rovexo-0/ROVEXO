@@ -44,7 +44,21 @@ function removeProductionBuild(cwd = process.cwd()) {
 export function ensureProductionBuild(webServerEnv) {
   loadDotEnvFiles();
   const staleSources = [
-    "features/account-center/components/AccountCenterHome.tsx",
+    "features/sell/types.ts",
+    "features/sell/context/SellProvider.tsx",
+    "lib/homepage/homepage-eligibility.ts",
+    "lib/profile/auto-verified.ts",
+    "features/sell/ui/SellScreen.tsx",
+    "features/sell/ui/SellProgressiveAttributes.tsx",
+    "lib/sell/sell-progressive-flow.ts",
+    "features/sell/ui/SellCategoryPicker.tsx",
+    "features/sell/ui/SellOptionPicker.tsx",
+    "features/sell/ui/SellParcelBlock.tsx",
+    "features/sell/ui/SellPhotoRail.tsx",
+    "components/navigation/CanonicalPageHeader.tsx",
+    "hooks/navigation/usePageBack.ts",
+    "lib/navigation/session-visit-depth.ts",
+    "features/sell/types.ts",
     "styles/rovexo/account-hub-v1.css",
     "styles/rovexo/account-module-v1.css",
     "app/account/page.tsx",

@@ -26,7 +26,20 @@ export type Ga4EventName =
   | "begin_checkout"
   | "seller_registration"
   | "listing_created"
-  | "chat_started";
+  | "chat_started"
+  | "add_to_cart"
+  | "make_offer"
+  | "share_listing_hub"
+  | "offer_opened"
+  | "offer_sent"
+  | "offer_accepted"
+  | "offer_declined"
+  | "checkout_started"
+  | "checkout_completed"
+  | "view_listing_hub"
+  | "shipping_label"
+  | "order_delivered"
+  | "wallet_released";
 
 export type Ga4EventParams = Record<string, string | number | boolean | undefined>;
 

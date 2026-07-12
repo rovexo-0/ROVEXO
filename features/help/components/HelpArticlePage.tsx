@@ -1,9 +1,10 @@
 "use client";
 
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
 import Link from "next/link";
-import { PageBack } from "@/components/navigation/PageBack";
 import { useEffect } from "react";
-import { Card } from "@/components/ui/Card";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+
 import { HelpAssistant } from "@/features/help/components/HelpAssistant";
 import { HelpResolutionPrompt } from "@/features/help/components/HelpResolutionPrompt";
 import { getHelpTopic } from "@/lib/help/content/topics";
@@ -38,85 +39,81 @@ export function HelpArticlePage({ article }: HelpArticlePageProps) {
   }, [article.slug, article.topic]);
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-ds-6 px-ds-4 py-ds-6">
-      <div>
-        <PageBack variant="text" backHref="/help" backLabel="Help Centre" className="mb-ds-2" />
-        {topic ? (
-          <Link
-            href={`/help/category/${topic.slug}`}
-            className="mt-ds-2 block text-sm text-text-muted hover:text-primary"
-          >
+    <AccountCanonicalShell title={article.title} backHref="/help" backLabel="Help Centre">
+      {topic ? (
+        <CanonicalInfoBlock variant="tip">
+          <Link href={`/help/category/${topic.slug}`} className="font-medium text-primary hover:opacity-80">
             Open {topic.label} guided troubleshooting
           </Link>
-        ) : null}
-        <h1 className="mt-ds-3 text-2xl font-bold text-text-primary">{article.title}</h1>
-        <p className="mt-ds-2 text-sm text-text-secondary">{sections.overview}</p>
-      </div>
+        </CanonicalInfoBlock>
+      ) : null}
 
-      <Card padding="lg" className="">
-        <div className="space-y-ds-5">
-          <section>
-            <h2 className="text-sm font-semibold text-text-primary">Overview</h2>
+      <CanonicalInfoBlock variant="description">{sections.overview}</CanonicalInfoBlock>
+
+      <CanonicalCard variant="medium">
+        <div className="flex flex-col gap-ds-5 p-ds-4">
+          <ArticleSection title="Overview">
             <div
-              className="prose-help mt-ds-2 text-sm text-text-secondary"
+              className="prose-help cds-menu-row__subtitle"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }}
             />
-          </section>
-          <SectionBlock title="Step-by-step guide" items={sections.steps} />
-          <SectionBlock title="Requirements" items={sections.requirements} />
-          <div>
-            <h2 className="text-sm font-semibold text-text-primary">Estimated processing time</h2>
-            <p className="mt-ds-1 text-sm text-text-secondary">{sections.processingTime}</p>
-          </div>
-          <SectionBlock title="Common mistakes" items={sections.commonMistakes} />
-          <SectionBlock title="Troubleshooting" items={sections.troubleshooting} />
-          <div>
-            <h2 className="text-sm font-semibold text-text-primary">Frequently asked questions</h2>
+          </ArticleSection>
+          <ArticleListSection title="Step-by-step guide" items={sections.steps} />
+          <ArticleListSection title="Requirements" items={sections.requirements} />
+          <ArticleSection title="Estimated processing time">
+            <p className="cds-menu-row__subtitle">{sections.processingTime}</p>
+          </ArticleSection>
+          <ArticleListSection title="Common mistakes" items={sections.commonMistakes} />
+          <ArticleListSection title="Troubleshooting" items={sections.troubleshooting} />
+          <ArticleSection title="Frequently asked questions">
             <div className="mt-ds-3 space-y-ds-2">
               {sections.faqs.map((faq) => (
-                <details key={faq.question} className="rounded-ds-lg border border-border px-ds-4 py-ds-3">
-                  <summary className="cursor-pointer text-sm font-medium text-text-primary">{faq.question}</summary>
-                  <p className="mt-ds-2 text-sm text-text-secondary">{faq.answer}</p>
+                <details key={faq.question} className="cds-card cds-card--sm p-ds-3">
+                  <summary className="cds-menu-row__title cursor-pointer">{faq.question}</summary>
+                  <p className="cds-menu-row__subtitle mt-ds-2">{faq.answer}</p>
                 </details>
               ))}
             </div>
-          </div>
-          <p className="text-xs text-text-muted">Last updated {article.lastUpdated ?? "2025-06-19"}</p>
+          </ArticleSection>
+          <p className="cds-field__hint">Last updated {article.lastUpdated ?? "2025-06-19"}</p>
         </div>
-      </Card>
+      </CanonicalCard>
 
       <HelpAssistant compact />
 
       {related.length ? (
-        <section>
-          <h2 className="text-lg font-semibold">Related articles</h2>
-          <ul className="mt-ds-3 space-y-ds-2">
+        <CanonicalSection title="Related articles">
+          <CanonicalCard variant="list">
             {related.map((entry) => (
-              <li key={entry.slug}>
-                <Link href={`/help/${entry.slug}`} className="text-sm text-primary hover:underline">
-                  {entry.title}
-                </Link>
-              </li>
+              <CanonicalMenuRow key={entry.slug} title={entry.title} href={`/help/${entry.slug}`} />
             ))}
-          </ul>
-        </section>
+          </CanonicalCard>
+        </CanonicalSection>
       ) : null}
 
       {article.topic ? <HelpResolutionPrompt topicSlug={article.topic} /> : null}
-    </div>
+    </AccountCanonicalShell>
   );
 }
 
-function SectionBlock({ title, items }: { title: string; items: string[] }) {
-  if (!items.length) return null;
+function ArticleSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="text-sm font-semibold text-text-primary">{title}</h2>
-      <ul className="mt-ds-2 list-disc space-y-ds-1 pl-ds-5 text-sm text-text-secondary">
+      <h3 className="cds-section__title">{title}</h3>
+      <div className="mt-ds-2">{children}</div>
+    </section>
+  );
+}
+
+function ArticleListSection({ title, items }: { title: string; items: string[] }) {
+  if (!items.length) return null;
+  return (
+    <ArticleSection title={title}>
+      <ul className="mt-ds-2 list-disc space-y-ds-1 pl-ds-5 cds-menu-row__subtitle">
         {items.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>
-    </section>
+    </ArticleSection>
   );
 }

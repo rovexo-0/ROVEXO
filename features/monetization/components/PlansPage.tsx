@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { PageBack } from "@/components/navigation/PageBack";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -56,11 +55,9 @@ export function PlansPage({ plans, products, subscription }: PlansPageProps) {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-ds-8 px-ds-4 py-ds-6">
+    <div className="flex flex-col gap-ds-8">
       <section>
-        <PageBack backHref="/account" backLabel="My Account" preferHistory className="mb-ds-2" />
-        <h1 className="text-3xl font-bold text-text-primary">Plans & Premium</h1>
-        <p className="mt-ds-2 text-sm text-text-secondary">
+        <p className="text-sm text-text-secondary">
           Choose a subscription or add-on that fits how you buy and sell on ROVEXO.
         </p>
         {subscription ? (

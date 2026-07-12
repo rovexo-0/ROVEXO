@@ -170,9 +170,9 @@ describe("sell listing validation", () => {
 
     expect(errors.photos).toBeTruthy();
     expect(errors.title).toBeTruthy();
-    expect(errors.description).toBeTruthy();
     expect(errors.category).toBeTruthy();
-    expect(draft.parcelSize).toBe("medium");
+    expect(draft.parcelSize).toBeNull();
+    expect(errors.parcelSize).toBeTruthy();
     expect(errors.price).toBeTruthy();
     expect(isListingValid(draft, { mode: "quick" })).toBe(false);
   });
@@ -191,6 +191,8 @@ describe("sell listing validation", () => {
     draft.title = "Maxi-Cosi Car Seat";
     draft.description = "Selling a car seat in good condition.";
     draft.categoryPath = resolveCategoryPathBySlugs(["baby", "pushchairs", "travel-systems"]);
+    draft.brand = "Maxi-Cosi";
+    draft.color = "Black";
     draft.condition = "Good";
     draft.price = "120";
     draft.shippingMethod = "delivery_available";

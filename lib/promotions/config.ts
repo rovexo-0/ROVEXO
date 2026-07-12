@@ -7,7 +7,7 @@ import {
 
 export type PromotionType = "bump" | "feature";
 
-export type BumpDurationId = "24h" | "3d" | "7d";
+export type BumpDurationId = "24h" | "3d" | "7d" | "14d" | "28d";
 export type FeatureDurationId = "7d" | "14d" | "30d";
 export type PromotionDurationId = BumpDurationId | FeatureDurationId;
 

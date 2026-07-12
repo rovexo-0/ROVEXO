@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
-import { PageBack } from "@/components/navigation/PageBack";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { formatCurrency, parseWithdrawAmount } from "@/lib/wallet/utils";
@@ -66,11 +66,7 @@ export function WithdrawPage({ data }: WithdrawPageProps) {
 
   return (
     <BetaAppShell bottomNavTab="account">
-      <header className="wallet-hub__header">
-        <PageBack backHref="/wallet" backLabel="Wallet" preferHistory className="wallet-hub__back" />
-        <h1 className="wallet-hub__title">Withdraw</h1>
-        <span className="wallet-hub__header-spacer" aria-hidden />
-      </header>
+      <CanonicalPageHeader title="Withdraw" backHref="/wallet" backLabel="Wallet" />
 
       <ScrollContainer withBottomNav className="wallet-hub wallet-hub--withdraw" data-wallet-withdraw-version="v2.0-02b">
         <section className="wallet-hub__balance-card">

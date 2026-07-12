@@ -188,8 +188,8 @@ describe("Transaction Mode — enterprise certification", () => {
 
     it("switches action bar by transactionMode", () => {
       const bar = readSource("features/product-detail/ProductActionBarV1.tsx");
-      expect(bar).toContain("Contact Seller");
-      expect(bar).toContain("Buy Now");
+      expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.contactSeller");
+      expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.buyNow");
       expect(bar).toContain("isDirectContactMode");
     });
 

@@ -26,6 +26,11 @@ export function evaluateLongTailExpansion(input: {
   duplicateRisk: number;
 }): LongTailExpansionDecision {
   const { page, listingCount, qualityScore, demand, duplicateRisk } = input;
+
+  if (!page) {
+    return { eligible: false, indexable: false, action: "ignore", reason: "page_not_found" };
+  }
+
   const isLongTail = page.facetTypes.length >= 2;
 
   if (!isLongTail) {

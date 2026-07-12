@@ -33,7 +33,9 @@ describe("Account + Cart canonical UI v1", () => {
   });
 
   it("hub menu rows include chevrons per canonical reference", () => {
-    const row = readSource("features/account-center/components/AccountMenuRow.tsx");
+    const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
+    const row = readSource("src/components/canonical/CanonicalMenuRow.tsx");
+    expect(menu).toContain("CanonicalMenuRow");
     expect(row).toContain("ChevronRightLineIcon");
   });
 
@@ -43,7 +45,7 @@ describe("Account + Cart canonical UI v1", () => {
     const withdraw = readSource("app/wallet/withdraw/page.tsx");
 
     expect(wallet).toContain('data-wallet-hub-version="v1.0-production"');
-    expect(wallet).toContain("Available Balance");
+    expect(wallet).toContain("SELLER_WALLET_COPY.availableBalance");
     expect(wallet).toContain("Transactions");
     expect(wallet).toContain("Annual Statements");
     expect(wallet).not.toContain("Pending Balance");
@@ -92,11 +94,11 @@ describe("Account + Cart canonical UI v1", () => {
 
 describe("My Account module v1.0", () => {
   it("locks profile view markers", () => {
-    const profile = readSource("features/account-module/components/ProfileViewV1.tsx");
+    const profile = readSource("features/account/components/ProfileEditPage.tsx");
     const route = readSource("app/account/profile/page.tsx");
-    expect(profile).toContain('data-profile-version="v1.0"');
-    expect(profile).toContain("Edit Profile");
-    expect(route).toContain("ProfileViewV1");
+    expect(profile).toContain("AccountCanonicalShell");
+    expect(profile).toContain("Personal Information");
+    expect(route).toContain("ProfileEditPage");
   });
 
   it("locks listings orders saved settings v1 routes", () => {

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { CanonicalInfoBlock, CanonicalModal } from "@/src/components/canonical";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { loadStripe, type Stripe, type StripeElements } from "@stripe/stripe-js";
-import { Button } from "@/components/ui/Button";
-import { ModalContainer } from "@/components/ui/ModalContainer";
+
 import { getStripePublishableKey, isStripePublishableKeyConfigured } from "@/lib/stripe/client";
 
 type CardSetupSheetProps = {
@@ -13,13 +13,7 @@ type CardSetupSheetProps = {
   onComplete: (setupIntentId: string) => Promise<void>;
 };
 
-type CardSetupStripeFieldsProps = {
-  clientSecret: string;
-  onClose: () => void;
-  onComplete: (setupIntentId: string) => Promise<void>;
-};
-
-function CardSetupStripeFields({ clientSecret, onClose, onComplete }: CardSetupStripeFieldsProps) {
+export function CardSetupSheet({ open, clientSecret, onClose, onComplete }: CardSetupSheetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const stripeRef = useRef<Stripe | null>(null);
   const elementsRef = useRef<StripeElements | null>(null);
@@ -28,6 +22,8 @@ function CardSetupStripeFields({ clientSecret, onClose, onComplete }: CardSetupS
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!open) return;
+
     let cancelled = false;
     let mountContainer: HTMLDivElement | null = null;
 
@@ -65,15 +61,16 @@ function CardSetupStripeFields({ clientSecret, onClose, onComplete }: CardSetupS
 
     return () => {
       cancelled = true;
+      setReady(false);
       stripeRef.current = null;
       elementsRef.current = null;
       if (mountContainer) {
         mountContainer.innerHTML = "";
       }
     };
-  }, [clientSecret]);
+  }, [clientSecret, open]);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     const stripe = stripeRef.current;
     const elements = elementsRef.current;
     if (!stripe || !elements) {
@@ -110,47 +107,27 @@ function CardSetupStripeFields({ clientSecret, onClose, onComplete }: CardSetupS
     } finally {
       setBusy(false);
     }
-  };
+  }, [onClose, onComplete]);
 
   return (
-    <>
-      <div ref={containerRef} className="mt-ds-4 min-h-[8rem]" />
-
-      {error ? <p className="mt-ds-3 text-sm text-danger">{error}</p> : null}
-
-      <div className="mt-ds-5 flex flex-wrap justify-end gap-ds-2">
-        <Button type="button" variant="ghost" onClick={onClose} disabled={busy}>
-          Cancel
-        </Button>
-        <Button type="button" variant="primary" onClick={() => void handleSave()} disabled={busy || !ready}>
-          {busy ? "Saving…" : "Save card"}
-        </Button>
-      </div>
-    </>
-  );
-}
-
-export function CardSetupSheet({ open, clientSecret, onClose, onComplete }: CardSetupSheetProps) {
-  return (
-    <ModalContainer
+    <CanonicalModal
       open={open}
+      variant="information"
+      title="Add card"
+      cancelLabel="Cancel"
+      confirmLabel={busy ? "Saving…" : "Save card"}
+      loading={busy}
+      confirmDisabled={busy || !ready}
       onClose={onClose}
-      zIndex={240}
-      ariaLabel="Add card"
-      panelClassName="w-full max-w-md rounded-t-ds-xl bg-surface p-ds-5 shadow-ds-floating sm:rounded-ds-xl"
-      onBackdropClick={onClose}
+      onConfirm={() => void handleSave()}
     >
-      <h2 className="text-lg font-semibold text-text-primary">Add card</h2>
-      <p className="mt-ds-1 text-sm text-text-secondary">
-        Your card is saved securely with Stripe for faster checkout.
-      </p>
-
-      <CardSetupStripeFields
-        key={clientSecret}
-        clientSecret={clientSecret}
-        onClose={onClose}
-        onComplete={onComplete}
-      />
-    </ModalContainer>
+      <div className="flex flex-col gap-ds-4">
+        <CanonicalInfoBlock variant="description">
+          Your card is saved securely with Stripe for faster checkout.
+        </CanonicalInfoBlock>
+        <div ref={containerRef} className="min-h-[8rem]" key={clientSecret} />
+        {error ? <CanonicalInfoBlock variant="error">{error}</CanonicalInfoBlock> : null}
+      </div>
+    </CanonicalModal>
   );
 }

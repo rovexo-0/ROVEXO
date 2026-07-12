@@ -382,11 +382,7 @@ export async function createPromotionCheckoutSession(input: {
       return { error: result.error ?? "Unable to apply promotion." };
     }
 
-    const params = new URLSearchParams({
-      promotion: "success",
-      type: input.type,
-    });
-    return { url: `${getAppBaseUrl()}/seller/listings?${params.toString()}` };
+    return { url: `${getAppBaseUrl()}/account/promotion-tools?promotion=success&type=${input.type}` };
   }
 
   const pending = await createPendingPromotion(
@@ -433,8 +429,8 @@ export async function createPromotionCheckoutSession(input: {
         amountCents: String(duration.priceCents),
         scheduledStartAt: input.scheduledStartAt ?? "",
       },
-      success_url: `${baseUrl}/seller/listings?promotion=success&type=${input.type}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/seller/listings?promotion=cancelled&promotion_id=${pending.id}`,
+      success_url: `${baseUrl}/account/promotion-tools?promotion=success&type=${input.type}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/account/promotion-tools?promotion=cancelled&promotion_id=${pending.id}`,
     },
     {
       idempotencyKey: `promo-checkout-${pending.id}`,

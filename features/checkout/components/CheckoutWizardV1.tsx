@@ -15,9 +15,17 @@ type CheckoutWizardV1Props = {
   product: ProductDetail;
   form: CheckoutFormController;
   buyerPhone?: string | null;
+  embedded?: boolean;
+  onClose?: () => void;
 };
 
-export function CheckoutWizardV1({ product, form, buyerPhone }: CheckoutWizardV1Props) {
+export function CheckoutWizardV1({
+  product,
+  form,
+  buyerPhone,
+  embedded = false,
+  onClose,
+}: CheckoutWizardV1Props) {
   const [step, setStep] = useState<CheckoutStep>("delivery");
   const [orderNotes, setOrderNotes] = useState("");
 
@@ -101,10 +109,16 @@ export function CheckoutWizardV1({ product, form, buyerPhone }: CheckoutWizardV1
   };
 
   return (
-    <div className="ckt-v1" data-checkout-version="v1.0">
+    <div className="ckt-v1" data-checkout-version="v1.0" data-checkout-embedded={embedded ? "true" : undefined}>
       <CheckoutPageHeader
-        backHref={step === "delivery" ? `/listing/${product.slug}` : undefined}
-        onBack={step === "delivery" ? undefined : handleBack}
+        backHref={step === "delivery" && !embedded ? `/listing/${product.slug}` : undefined}
+        onBack={
+          step === "delivery"
+            ? embedded
+              ? onClose
+              : undefined
+            : handleBack
+        }
       />
 
       <CheckoutStepper step={step} />

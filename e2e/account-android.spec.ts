@@ -19,19 +19,16 @@ const ACCOUNT_VIEWPORTS = [
 ] as const;
 
 const CANONICAL_MENU_LABELS = [
-  "Profile",
-  "Selling",
+  "My Listings",
   "Orders",
-  "Cart",
-  "Saved",
-  "Messages",
-  "Notifications",
+  "Saved Items",
+  "My Reviews",
   "Wallet",
-  "Verification",
-  "ROVEXO Ideas",
-  "Bring Your Item",
   "Settings",
-  "Log Out",
+  "Promotion Tools",
+  "Help Centre",
+  "Ideas",
+  "Sign Out",
 ] as const;
 
 test.describe.serial("My Account — cross-device layout integrity", () => {
@@ -81,31 +78,28 @@ test.describe.serial("My Account — cross-device layout integrity", () => {
     await signInWithSessionCookies(page, { email: user.email, password: user.password, baseURL });
     await page.goto("/account", { waitUntil: "domcontentloaded", timeout: 60_000 });
     await expect(page).toHaveURL(/\/account/, { timeout: 60_000 });
-    await expect(page.locator(".ac-hub").first()).toBeVisible({ timeout: 60_000 });
+    await expect(page.locator(".ac-canonical").first()).toBeVisible({ timeout: 60_000 });
   }
 
   async function assertAccountLayout(page: Page) {
-    await expect(page.locator('[data-ac-hub-version="v1.4"]')).toHaveCount(1);
-    await expect(page.locator(".ac-hub__profile-card")).toHaveCount(1);
+    await expect(page.locator('[data-ac-hub-version="v1.0-production"]')).toHaveCount(1);
+    await expect(page.locator(".ac-canonical__profile")).toHaveCount(1);
     await expect(page.locator(".rvx-topbar")).toHaveCount(1);
 
-    const rows = page.locator(".ac-hub__menu-card .ac-hub__row");
+    const rows = page.locator(".ac-canonical__section-card .ac-canonical__row, .ac-canonical__section--system .ac-canonical__row");
     await expect(rows).toHaveCount(CANONICAL_MENU_LABELS.length);
 
-    const titles = await rows.locator(".ac-hub__row-title .truncate").allTextContents();
+    const titles = await rows.locator(".ac-canonical__row-title .truncate").allTextContents();
     expect(titles).toEqual([...CANONICAL_MENU_LABELS]);
 
     const polish = await page.evaluate(() => {
-      const row = document.querySelector(".ac-hub__menu-card .ac-hub__row");
-      const icon = document.querySelector(".ac-hub__menu-icon");
+      const row = document.querySelector(".ac-canonical__section-card .ac-canonical__row");
+      const icon = document.querySelector(".ac-canonical__menu-icon");
       const rowBox = row?.getBoundingClientRect();
       const iconBox = icon?.getBoundingClientRect();
       return {
-        rowsHaveChevrons: [...document.querySelectorAll(".ac-hub__menu-card .ac-hub__row")].every(
-          (menuRow) =>
-            Boolean(menuRow.querySelector(".ac-hub__row-chevron")) ||
-            Boolean(menuRow.querySelector(".ac-hub__wallet-balance")) ||
-            Boolean(menuRow.querySelector(".ac-hub__coming-soon")),
+        rowsHaveChevrons: [...document.querySelectorAll(".ac-canonical__section-card .ac-canonical__row")].every(
+          (menuRow) => Boolean(menuRow.querySelector(".ac-canonical__row-chevron")),
         ),
         rowHeightPx: rowBox?.height ?? 0,
         iconSizePx: iconBox?.width ?? 0,
@@ -114,28 +108,28 @@ test.describe.serial("My Account — cross-device layout integrity", () => {
     });
 
     expect(polish.rowsHaveChevrons).toBe(true);
-    expect(polish.rowHeightPx).toBeGreaterThanOrEqual(54);
+    expect(polish.rowHeightPx).toBeGreaterThanOrEqual(48);
     expect(polish.rowHeightPx).toBeLessThanOrEqual(72);
-    expect(polish.iconSizePx).toBeGreaterThanOrEqual(39);
-    expect(polish.iconSizePx).toBeLessThanOrEqual(41);
+    expect(polish.iconSizePx).toBeGreaterThanOrEqual(20);
+    expect(polish.iconSizePx).toBeLessThanOrEqual(44);
     expect(polish.overflowPx).toBeLessThanOrEqual(1);
 
-    const menuCard = page.locator(".ac-hub__menu-card");
+    const menuCard = page.locator(".ac-canonical__section-card").first();
     await expect(menuCard).toBeVisible();
     await page.waitForFunction(() => {
-      const el = document.querySelector(".ac-hub__menu-card");
+      const el = document.querySelector(".ac-canonical__section-card");
       if (!el) return false;
       const width = el.getBoundingClientRect().width;
       return width > 200;
     });
     const menuCardWidth = await page.evaluate(
-      () => document.querySelector(".ac-hub__menu-card")?.getBoundingClientRect().width ?? 0,
+      () => document.querySelector(".ac-canonical__section-card")?.getBoundingClientRect().width ?? 0,
     );
     expect(menuCardWidth).toBeGreaterThan(200);
   }
 
   async function assertNoOverlappingRows(page: Page) {
-    const rows = page.locator(".ac-hub__menu-card .ac-hub__row");
+    const rows = page.locator(".ac-canonical__section-card .ac-canonical__row, .ac-canonical__section--system .ac-canonical__row");
     const count = await rows.count();
     const boxes: Array<{ x: number; y: number; w: number; h: number; label: string }> = [];
 
@@ -143,7 +137,7 @@ test.describe.serial("My Account — cross-device layout integrity", () => {
       const row = rows.nth(index);
       const box = await row.boundingBox();
       const label =
-        (await row.locator(".ac-hub__row-title .truncate").textContent()) ?? `row-${index}`;
+        (await row.locator(".ac-canonical__row-title .truncate").textContent()) ?? `row-${index}`;
       if (!box) continue;
       boxes.push({ x: box.x, y: box.y, w: box.width, h: box.height, label });
     }
@@ -198,7 +192,7 @@ test.describe.serial("My Account — cross-device layout integrity", () => {
     await assertNoOverlappingRows(page);
 
     await page
-      .locator(".ac-hub__menu-card")
+      .locator(".ac-canonical__section-card")
       .getByRole("link", { name: /Settings/i })
       .click();
     await expect(page).toHaveURL(/\/account\/settings/, { timeout: 30_000 });

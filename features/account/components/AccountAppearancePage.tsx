@@ -1,8 +1,10 @@
 "use client";
 
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
 import { useEffect, useRef, useState } from "react";
-import { AccountPageShell } from "@/features/account/components/AccountPageShell";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { AppearancePicker } from "@/features/settings/components/AppearancePicker";
+
 import { useTheme } from "@/components/providers/ThemeProvider";
 import type { AppSettings, AppearanceMode } from "@/lib/settings/types";
 
@@ -41,16 +43,13 @@ export function AccountAppearancePage() {
   };
 
   return (
-    <AccountPageShell
-      title="Appearance"
-      subtitle="Choose light, dark, or match your system."
-      backHref="/account/settings"
-      backLabel="Settings"
-    >
-      <section className="rx-surface-card p-ds-5">
-        <AppearancePicker value={theme} onChange={handleChange} />
-        {message ? <p className="mt-ds-3 text-sm text-text-secondary">{message}</p> : null}
-      </section>
-    </AccountPageShell>
+    <AccountCanonicalShell title="Appearance" backHref="/account/settings" backLabel="Settings">
+      <CanonicalSection title="Appearance">
+        <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
+          <AppearancePicker value={theme} onChange={handleChange} />
+          {message ? <CanonicalInfoBlock variant="description">{message}</CanonicalInfoBlock> : null}
+        </CanonicalCard>
+      </CanonicalSection>
+    </AccountCanonicalShell>
   );
 }

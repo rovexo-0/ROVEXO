@@ -1,1 +1,122 @@
-[]
+[
+  {
+    "file": "pages/homepage__desktop__light.png",
+    "id": "homepage",
+    "label": "Homepage",
+    "device": "desktop",
+    "deviceLabel": "Desktop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/homepage__laptop__light.png",
+    "id": "homepage",
+    "label": "Homepage",
+    "device": "laptop",
+    "deviceLabel": "Laptop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/homepage__tablet__light.png",
+    "id": "homepage",
+    "label": "Homepage",
+    "device": "tablet",
+    "deviceLabel": "Tablet",
+    "theme": "light"
+  },
+  {
+    "file": "pages/homepage__iphone__light.png",
+    "id": "homepage",
+    "label": "Homepage",
+    "device": "iphone",
+    "deviceLabel": "iPhone",
+    "theme": "light"
+  },
+  {
+    "file": "pages/homepage__android__light.png",
+    "id": "homepage",
+    "label": "Homepage",
+    "device": "android",
+    "deviceLabel": "Android",
+    "theme": "light"
+  },
+  {
+    "file": "pages/categories__desktop__light.png",
+    "id": "categories",
+    "label": "Category Rail",
+    "device": "desktop",
+    "deviceLabel": "Desktop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/categories__laptop__light.png",
+    "id": "categories",
+    "label": "Category Rail",
+    "device": "laptop",
+    "deviceLabel": "Laptop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/categories__tablet__light.png",
+    "id": "categories",
+    "label": "Category Rail",
+    "device": "tablet",
+    "deviceLabel": "Tablet",
+    "theme": "light"
+  },
+  {
+    "file": "pages/categories__iphone__light.png",
+    "id": "categories",
+    "label": "Category Rail",
+    "device": "iphone",
+    "deviceLabel": "iPhone",
+    "theme": "light"
+  },
+  {
+    "file": "pages/categories__android__light.png",
+    "id": "categories",
+    "label": "Category Rail",
+    "device": "android",
+    "deviceLabel": "Android",
+    "theme": "light"
+  },
+  {
+    "file": "pages/all-listings__desktop__light.png",
+    "id": "all-listings",
+    "label": "Listing Grid",
+    "device": "desktop",
+    "deviceLabel": "Desktop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/all-listings__laptop__light.png",
+    "id": "all-listings",
+    "label": "Listing Grid",
+    "device": "laptop",
+    "deviceLabel": "Laptop",
+    "theme": "light"
+  },
+  {
+    "file": "pages/all-listings__tablet__light.png",
+    "id": "all-listings",
+    "label": "Listing Grid",
+    "device": "tablet",
+    "deviceLabel": "Tablet",
+    "theme": "light"
+  },
+  {
+    "file": "pages/all-listings__iphone__light.png",
+    "id": "all-listings",
+    "label": "Listing Grid",
+    "device": "iphone",
+    "deviceLabel": "iPhone",
+    "theme": "light"
+  },
+  {
+    "file": "pages/all-listings__android__light.png",
+    "id": "all-listings",
+    "label": "Listing Grid",
+    "device": "android",
+    "deviceLabel": "Android",
+    "theme": "light"
+  }
+]

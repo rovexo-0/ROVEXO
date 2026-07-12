@@ -9,6 +9,8 @@ import {
   getSellerListings,
 } from "@/lib/listings/repository";
 import { revalidatePublishedListing } from "@/lib/listings/revalidate-published-listing";
+import { buildPublishSuccessPayload } from "@/lib/sell/publish-success";
+import { getAppUrl } from "@/lib/supabase/env";
 import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
 import { resolveProfileCompletionRedirect } from "@/lib/account/profile-completion";
 import {
@@ -138,7 +140,10 @@ export async function POST(request: Request) {
 
     revalidatePublishedListing(listing.slug);
 
-    return NextResponse.json({ listing });
+    const origin = getAppUrl().replace(/\/$/, "");
+    const publish = buildPublishSuccessPayload(listing, auth.user.id, origin);
+
+    return NextResponse.json({ listing, publish });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

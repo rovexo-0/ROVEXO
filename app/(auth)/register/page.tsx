@@ -1,10 +1,16 @@
+import { redirect } from "next/navigation";
 import { signUp } from "@/lib/auth/actions";
 import { redirectIfAuthenticated } from "@/lib/auth/guest-redirect";
 import { AuthForm, AuthLink } from "@/features/auth/components/AuthForm";
 import { RegisterFields } from "@/features/auth/components/RegisterFields";
+import { isPublicRegistrationEnabled } from "@/lib/launch-certification/private-mode";
 
 export default async function RegisterPage() {
   await redirectIfAuthenticated();
+
+  if (!isPublicRegistrationEnabled()) {
+    redirect("/login?certification=registration-disabled");
+  }
 
   return (
     <AuthForm

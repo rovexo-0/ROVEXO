@@ -206,6 +206,12 @@ export async function fetchSellerDashboardRepository(
         pendingBalance: 0,
         pendingAvailableAt: new Date().toISOString(),
         paidOutBalance: 0,
+        withdrawalSummary: {
+          processingTotal: 0,
+          processingCount: 0,
+          completedTotal: 0,
+          completedCount: 0,
+        },
         monthSummary: {
           revenue: { value: 0, changePercent: 0 },
           withdrawn: { value: 0, changePercent: 0 },

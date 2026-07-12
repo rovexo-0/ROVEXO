@@ -42,7 +42,7 @@ export function ModalContainer({
   ariaLabelledBy,
   className,
   panelClassName,
-  lockScroll = true,
+  lockScroll = variant === "sheet" || variant === "centered",
   onBackdropClick,
   scrollPanel = variant === "sheet" || variant === "centered",
 }: ModalContainerProps) {

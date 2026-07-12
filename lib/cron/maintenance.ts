@@ -3,6 +3,11 @@ import { processSavedSearchNotifications } from "@/lib/launch/saved-search-notif
 import { logCronEvent, logOpsEvent } from "@/lib/ops/logger";
 import { recordCronJobRun } from "@/lib/ops/production-status";
 import { activateScheduledPromotions, refreshExpiredPromotions } from "@/lib/promotions/service";
+import {
+  activateScheduledSellerPromotions,
+  notifySellerPromotionsExpiringSoon,
+  refreshExpiredSellerPromotions,
+} from "@/lib/promotions/seller-promotions";
 import { cleanupExpiredOrders } from "@/lib/orders/cleanup";
 import { sendQueuedEmails } from "@/lib/email/service";
 import { CommerceEngine } from "@/lib/commerce-engine";
@@ -18,6 +23,9 @@ export type MaintenanceResult = {
   cartItemsRemoved: number;
   promotionsRefreshed: boolean;
   scheduledPromotionsActivated: number;
+  sellerPromotionsExpired: number;
+  sellerPromotionsActivated: number;
+  promotionExpiryWarnings: number;
   savedSearchNotifications: number;
   emailsSent: number;
   emailsFailed: number;
@@ -30,6 +38,9 @@ export async function runProductionMaintenance(): Promise<MaintenanceResult> {
   try {
     await refreshExpiredPromotions();
     const scheduledPromotionsActivated = await activateScheduledPromotions();
+    const sellerPromotionsExpired = await refreshExpiredSellerPromotions();
+    const sellerPromotionsActivated = await activateScheduledSellerPromotions();
+    const promotionExpiryWarnings = await notifySellerPromotionsExpiringSoon();
     const expiredOrders = await cleanupExpiredOrders();
     // Commerce Engine auto-release worker (spec §10): Delivered + 24h, no claims.
     const walletReleased = await CommerceEngine.releaseEligiblePendingBalances();
@@ -48,6 +59,9 @@ export async function runProductionMaintenance(): Promise<MaintenanceResult> {
       cartItemsRemoved,
       promotionsRefreshed: true,
       scheduledPromotionsActivated,
+      sellerPromotionsExpired,
+      sellerPromotionsActivated,
+      promotionExpiryWarnings,
       savedSearchNotifications: savedSearchResult.notificationsSent,
       emailsSent: emailResult.sent,
       emailsFailed: emailResult.failed,

@@ -12,7 +12,6 @@ import { rotateShowcaseStores } from "@/lib/homepage/store-rotation";
 const DEMO_ENABLED = resolveHomepageMode() === "demo";
 const FEATURED_LIMIT = 12;
 const SHOWCASE_SELLER_LIMIT = 6;
-const SHOWCASE_LISTINGS_LIMIT = 12;
 
 export type HomepageV4Sections = {
   showcases: ShowcaseSellerSection[];
@@ -52,7 +51,7 @@ function resolveFeatured(page: ProductsPage, exclude: Set<string>): Product[] {
 function resolveShowcases(sections: ShowcaseSellerSection[]): ShowcaseSellerSection[] {
   return rotateShowcaseStores(sections)
     .map((section) => {
-      const listings = uniqueProducts(section.listings).slice(0, SHOWCASE_LISTINGS_LIMIT);
+      const listings = uniqueProducts(section.listings);
       if (listings.length === 0) return null;
       return { ...section, listings };
     })

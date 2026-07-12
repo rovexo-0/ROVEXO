@@ -1,23 +1,18 @@
 "use client";
 
+import { CanonicalButton, CanonicalInfoBlock, CanonicalInput } from "@/src/components/canonical";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/Button";
-import { emailChangeSchema, type EmailChangeInput } from "@/lib/account/schemas";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 
-const inputClassName = cn(
-  "w-full rounded-ds-lg border border-border bg-surface px-ds-3 py-ds-3 text-sm text-text-primary",
-  focusRing,
-);
+import { emailChangeSchema, type EmailChangeInput } from "@/lib/account/schemas";
 
 type EmailChangeFormProps = {
   currentEmail: string;
+  compact?: boolean;
 };
 
-export function EmailChangeForm({ currentEmail }: EmailChangeFormProps) {
+export function EmailChangeForm({ currentEmail, compact = false }: EmailChangeFormProps) {
   const [message, setMessage] = useState<string | null>(null);
   const {
     register,
@@ -47,23 +42,18 @@ export function EmailChangeForm({ currentEmail }: EmailChangeFormProps) {
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-ds-3" noValidate>
-      <div>
-        <label htmlFor="new-email" className="text-sm font-medium text-text-primary">
-          New email address
-        </label>
-        <input
-          id="new-email"
-          type="email"
-          autoComplete="email"
-          className={cn(inputClassName, "mt-ds-1")}
-          {...register("email")}
-        />
-        {errors.email ? <p className="text-xs text-danger">{errors.email.message}</p> : null}
-      </div>
-      <Button type="submit" variant="secondary" size="sm" disabled={isSubmitting}>
-        {isSubmitting ? "Sending…" : "Update email"}
-      </Button>
-      {message ? <p className="text-xs text-text-secondary">{message}</p> : null}
+      <CanonicalInput
+        id="new-email"
+        label={compact ? "Email" : "New email address"}
+        inputType="email"
+        autoComplete="email"
+        error={errors.email?.message}
+        {...register("email")}
+      />
+      <CanonicalButton type="submit" variant={compact ? "ghost" : "secondary"} loading={isSubmitting}>
+        {isSubmitting ? "Sending…" : compact ? "Update Email" : "Update email"}
+      </CanonicalButton>
+      {message ? <CanonicalInfoBlock variant="description">{message}</CanonicalInfoBlock> : null}
     </form>
   );
 }

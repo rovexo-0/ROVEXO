@@ -1,12 +1,12 @@
 "use client";
 
-import type { AppearanceMode } from "@/lib/settings/types";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 
-const OPTIONS: { id: AppearanceMode; label: string; description: string }[] = [
-  { id: "light", label: "White", description: "Light background with purple accent" },
-  { id: "dark", label: "Black", description: "Dark background with purple accent" },
+import { CanonicalRadioGroup } from "@/src/components/canonical";
+import type { AppearanceMode } from "@/lib/settings/types";
+
+const OPTIONS = [
+  { value: "light" as const, label: "White", description: "Light background with purple accent" },
+  { value: "dark" as const, label: "Black", description: "Dark background with purple accent" },
 ];
 
 type AppearancePickerProps = {
@@ -16,28 +16,13 @@ type AppearancePickerProps = {
 
 export function AppearancePicker({ value, onChange }: AppearancePickerProps) {
   return (
-    <fieldset className="flex flex-col gap-ds-2">
-      <legend className="text-sm font-medium text-text-primary">Appearance</legend>
-      <div className="grid gap-ds-2 sm:grid-cols-2">
-        {OPTIONS.map((option) => (
-          <button
-            key={option.id}
-            type="button"
-            onClick={() => onChange(option.id)}
-            aria-pressed={value === option.id}
-            className={cn(
-              "rounded-ds-lg border px-ds-3 py-ds-3 text-left",
-              value === option.id
-                ? "border-primary bg-primary/10"
-                : "border-border bg-surface",
-              focusRing,
-            )}
-          >
-            <p className="text-sm font-semibold text-text-primary">{option.label}</p>
-            <p className="mt-1 text-xs text-text-secondary">{option.description}</p>
-          </button>
-        ))}
-      </div>
-    </fieldset>
+    <CanonicalRadioGroup
+      name="appearance"
+      legend="Appearance"
+      value={value}
+      options={OPTIONS}
+      layout="cards"
+      onChange={onChange}
+    />
   );
 }

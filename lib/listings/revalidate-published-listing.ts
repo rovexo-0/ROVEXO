@@ -13,6 +13,8 @@ export function revalidatePublishedListing(slug?: string | null): void {
   revalidatePath("/", "layout");
   // My Listings.
   revalidatePath("/seller/listings");
+  // My Account hub stats (listings counter).
+  revalidatePath("/account");
   // Search results.
   revalidatePath("/search");
   // Category index + every nested category page (revalidate=300).

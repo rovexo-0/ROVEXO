@@ -15,6 +15,9 @@ import { PushSubscriptionManager } from "@/features/notifications/components/Pus
 import { ToastProvider } from "@/components/ui/Toast";
 import { organizationJsonLd } from "@/lib/seo/metadata";
 import { getAppUrl } from "@/lib/supabase/env";
+import { resolveLaunchPrivateModeRobots } from "@/lib/launch-certification/private-mode";
+
+const launchPrivateRobots = resolveLaunchPrivateModeRobots();
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -86,6 +89,7 @@ export const metadata: Metadata = {
   other: {
     "mobile-web-app-capable": "yes",
   },
+  ...(launchPrivateRobots ? { robots: launchPrivateRobots } : {}),
 };
 
 export default function RootLayout({

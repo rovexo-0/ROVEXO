@@ -36,7 +36,7 @@ describe("enterprise SEO engine", () => {
     expect(report.stats.sitemapSegments).toBe(12);
     expect(sitemapIndexUrls().length).toBe(12);
     expect(report.engineVersion).toBe("4.0.0");
-    expect(report.stats.categoryPages).toBe(1113);
+    expect(report.stats.categoryPages).toBe(buildCategorySitemapEntries().length);
     expect(report.stats.locationPages).toBeGreaterThanOrEqual(100);
   });
 

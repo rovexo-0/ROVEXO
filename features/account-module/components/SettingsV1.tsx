@@ -1,173 +1,74 @@
 "use client";
 
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import {
-  BankLineIcon,
-  ChevronRightLineIcon,
-  CreditCardLineIcon,
-  DocumentLineIcon,
-  GlobeLineIcon,
-  InfoLineIcon,
-  LockLineIcon,
-  LocationLineIcon,
-  ShieldLineIcon,
-  UserLineIcon,
-} from "@/components/icons/RvxLineIcons";
-import { AccountModuleShell } from "@/features/account-module/components/AccountModuleShell";
+import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
 import { DeleteAccountFlow } from "@/features/account-module/components/DeleteAccountFlow";
+import {
+  SettingsAccordion,
+  type SettingsAccordionGroup,
+} from "@/features/account-module/components/SettingsAccordion";
+import { CanonicalButton, CanonicalButtonLink, CanonicalCard, CanonicalSection } from "@/src/components/canonical";
 
-type SettingsRow = {
-  label: string;
-  href: string;
-  icon: React.ReactNode;
-  value?: string;
-};
-
-type SettingsSection = {
-  title: string;
-  rows: SettingsRow[];
-  footer?: React.ReactNode;
-};
-
-function buildSections(returnTo: string | null): SettingsSection[] {
+function buildAccordionGroups(returnTo: string | null): SettingsAccordionGroup[] {
   const withReturn = (href: string) =>
     returnTo ? `${href}?returnTo=${encodeURIComponent(returnTo)}` : href;
 
   return [
     {
+      id: "profile",
       title: "Profile",
-      rows: [{ label: "Profile", href: withReturn("/account/profile"), icon: <UserLineIcon /> }],
-    },
-    {
-      title: "Addresses",
-      rows: [{ label: "Addresses", href: withReturn("/account/addresses"), icon: <LocationLineIcon /> }],
-    },
-    {
-      title: "Payment Methods",
       rows: [
-        {
-          label: "Payment Methods",
-          href: withReturn("/account/payment-methods"),
-          icon: <CreditCardLineIcon />,
-        },
+        { label: "Profile", href: withReturn("/account/profile") },
+        { label: "Addresses", href: withReturn("/account/addresses") },
       ],
     },
     {
-      title: "Bank Account",
+      id: "payments",
+      title: "Payments",
       rows: [
-        {
-          label: "Bank Account",
-          href: withReturn("/account/settings/bank-account"),
-          icon: <BankLineIcon />,
-        },
+        { label: "Payment Methods", href: withReturn("/account/payment-methods") },
+        { label: "Bank Account", href: withReturn("/account/settings/bank-account") },
+        { label: "Tax Information", href: withReturn("/seller/tax") },
       ],
     },
     {
-      title: "Verification & Tax",
-      rows: [
-        {
-          label: "Identity Verification",
-          href: withReturn("/account/profile"),
-          icon: <ShieldLineIcon />,
-          value: "Automatic",
-        },
-        {
-          label: "Tax Information",
-          href: withReturn("/seller/tax"),
-          icon: <DocumentLineIcon />,
-        },
-      ],
-    },
-    {
+      id: "notifications",
       title: "Notifications",
       rows: [
-        {
-          label: "Notification Preferences",
-          href: withReturn("/notifications/settings"),
-          icon: <ShieldLineIcon />,
-        },
-        {
-          label: "Marketing Preferences",
-          href: withReturn("/account/privacy"),
-          icon: <ShieldLineIcon />,
-        },
+        { label: "Notification Preferences", href: withReturn("/notifications/settings") },
+        { label: "Marketing Preferences", href: withReturn("/account/privacy") },
       ],
     },
     {
+      id: "privacy-security",
       title: "Privacy & Security",
       rows: [
-        { label: "Privacy", href: withReturn("/account/privacy"), icon: <LockLineIcon /> },
-        { label: "Security", href: withReturn("/account/security"), icon: <LockLineIcon /> },
-        {
-          label: "Connected Accounts",
-          href: withReturn("/account/security"),
-          icon: <LockLineIcon />,
-        },
-        {
-          label: "Devices & Sessions",
-          href: withReturn("/account/security"),
-          icon: <LockLineIcon />,
-        },
-        {
-          label: "Blocked Users",
-          href: withReturn("/account/blocked-users"),
-          icon: <LockLineIcon />,
-        },
+        { label: "Privacy", href: withReturn("/account/privacy") },
+        { label: "Security", href: withReturn("/account/security") },
+        { label: "Connected Accounts", href: withReturn("/account/security") },
+        { label: "Devices & Sessions", href: withReturn("/account/security") },
+        { label: "Blocked Users", href: withReturn("/account/blocked-users") },
       ],
     },
     {
-      title: "Data & Cookies",
+      id: "preferences",
+      title: "Preferences",
       rows: [
-        {
-          label: "Cookie Preferences",
-          href: "/legal/cookie-policy",
-          icon: <DocumentLineIcon />,
-        },
-        {
-          label: "Download My Data",
-          href: withReturn("/support?category=data-export"),
-          icon: <DocumentLineIcon />,
-        },
-        {
-          label: "Delete My Data",
-          href: withReturn("/account/privacy"),
-          icon: <DocumentLineIcon />,
-        },
+        { label: "Language", href: withReturn("/account/preferences/language"), value: "English" },
+        { label: "Currency", href: withReturn("/account/preferences/currency"), value: "GBP" },
+        { label: "Accessibility", href: "/legal/accessibility-statement" },
       ],
     },
     {
-      title: "Regional",
-      rows: [
-        {
-          label: "Language",
-          href: withReturn("/account/preferences/language"),
-          icon: <GlobeLineIcon />,
-          value: "English",
-        },
-        {
-          label: "Currency",
-          href: withReturn("/account/preferences/currency"),
-          icon: <GlobeLineIcon />,
-          value: "GBP",
-        },
-        {
-          label: "Accessibility",
-          href: "/legal/accessibility-statement",
-          icon: <InfoLineIcon />,
-        },
-      ],
-    },
-    {
+      id: "legal",
       title: "Legal",
       rows: [
-        { label: "Legal Documents", href: "/legal", icon: <DocumentLineIcon /> },
-        { label: "Terms", href: "/legal/terms-and-conditions", icon: <DocumentLineIcon /> },
-        { label: "Privacy Policy", href: "/legal/privacy-policy", icon: <DocumentLineIcon /> },
-        { label: "Cookie Policy", href: "/legal/cookie-policy", icon: <DocumentLineIcon /> },
+        { label: "Legal Documents", href: "/legal" },
+        { label: "Terms", href: "/legal/terms-and-conditions" },
+        { label: "Privacy Policy", href: "/legal/privacy-policy" },
+        { label: "Cookie Policy", href: "/legal/cookie-policy" },
       ],
-      footer: <DeleteAccountFlow />,
     },
   ];
 }
@@ -175,33 +76,17 @@ function buildSections(returnTo: string | null): SettingsSection[] {
 export function SettingsV1() {
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("returnTo");
-  const sections = buildSections(returnTo);
+  const groups = buildAccordionGroups(returnTo);
 
   return (
-    <AccountModuleShell title="Settings" backHref="/account" version="v1.0-production">
-      <div className="acm-settings" data-settings-version="v1.0-production">
-        {sections.map((section) => (
-          <section key={section.title} className="acm-settings__section">
-            <h2 className="acm-settings__heading">{section.title}</h2>
-            <div className="acm-settings__card">
-              {section.rows.map((row) => (
-                <Link key={row.label} href={row.href} className="acm-settings__row">
-                  <span className="acm-settings__icon" aria-hidden>
-                    {row.icon}
-                  </span>
-                  <span className="acm-settings__label">{row.label}</span>
-                  {row.value ? <span className="acm-settings__value">{row.value}</span> : null}
-                  <span className="acm-settings__chevron" aria-hidden>
-                    <ChevronRightLineIcon />
-                  </span>
-                </Link>
-              ))}
-            </div>
-            {section.footer}
-          </section>
-        ))}
-      </div>
-    </AccountModuleShell>
+    <AccountCanonicalShell title="Settings" backHref="/account">
+      <AccountPageStack>
+        <SettingsAccordion groups={groups} />
+        <div className="mt-4 flex justify-center">
+          <DeleteAccountFlow standalone />
+        </div>
+      </AccountPageStack>
+    </AccountCanonicalShell>
   );
 }
 
@@ -215,11 +100,11 @@ export function SettingsBankAccountV1({
   const backHref = returnTo ? `/account/settings?returnTo=${encodeURIComponent(returnTo)}` : "/account/settings";
 
   return (
-    <AccountModuleShell title="Bank Account" backHref={backHref} version="v1.0-production">
-      <div className="acm-settings" data-settings-version="v1.0-production-bank">
+    <AccountCanonicalShell title="Bank Account" backHref={backHref}>
+      <AccountPageStack>
         <SettingsBankAccountPanel connected={connected} returnTo={returnTo} />
-      </div>
-    </AccountModuleShell>
+      </AccountPageStack>
+    </AccountCanonicalShell>
   );
 }
 
@@ -231,50 +116,39 @@ function SettingsBankAccountPanel({
   returnTo: string | null;
 }) {
   const [connected, setConnected] = useState(initialConnected);
-  const [open, setOpen] = useState(!initialConnected);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      <p className="mb-ds-4 px-ds-1 text-sm text-text-secondary">
-        {connected
-          ? "Your payout bank account is connected. Required only for your first listing or withdrawal."
-          : "Add your bank account when you are ready to sell or withdraw. Optional until then."}
-      </p>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="acm-settings__row w-full text-left"
-      >
-        <span className="acm-settings__icon" aria-hidden>
-          <BankLineIcon />
-        </span>
-        <span className="acm-settings__label">{connected ? "Edit Bank Account" : "Add Bank Account"}</span>
-        <span className="acm-settings__chevron" aria-hidden>
-          <ChevronRightLineIcon />
-        </span>
-      </button>
-      {connected ? (
-        <button
-          type="button"
-          className="acm-settings__row w-full text-left text-danger"
-          onClick={() => setOpen(true)}
-        >
-          <span className="acm-settings__label">Remove Bank Account</span>
-        </button>
-      ) : null}
+      <CanonicalSection title="Bank Account">
+        <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
+          {connected ? (
+            <p className="account-settings-empty">Bank account connected.</p>
+          ) : (
+            <p className="account-settings-empty">No bank account added.</p>
+          )}
+          <CanonicalButton type="button" fullWidth onClick={() => setOpen(true)}>
+            {connected ? "Manage Bank Account" : "Add Bank Account"}
+          </CanonicalButton>
+        </CanonicalCard>
+      </CanonicalSection>
+
       {returnTo ? (
-        <div className="mt-ds-6 px-ds-1">
-          <Link href={returnTo} className="text-sm font-medium text-primary hover:opacity-80">
-            Continue where you left off
-          </Link>
-        </div>
+        <CanonicalButtonLink href={returnTo} variant="ghost" className="mt-ds-2">
+          Continue where you left off
+        </CanonicalButtonLink>
       ) : null}
+
       <BankAccountModalLazy
         open={open}
         connected={connected}
         onClose={() => setOpen(false)}
         onSaved={() => {
           setConnected(true);
+          setOpen(false);
+        }}
+        onRemoved={() => {
+          setConnected(false);
           setOpen(false);
         }}
         returnTo={returnTo}
@@ -288,12 +162,14 @@ function BankAccountModalLazy({
   connected,
   onClose,
   onSaved,
+  onRemoved,
   returnTo,
 }: {
   open: boolean;
   connected: boolean;
   onClose: () => void;
   onSaved: () => void;
+  onRemoved: () => void;
   returnTo: string | null;
 }) {
   const [BankAccountForm, setBankAccountForm] = useState<
@@ -320,6 +196,7 @@ function BankAccountModalLazy({
           window.location.href = returnTo;
         }
       }}
+      onRemoved={onRemoved}
     />
   );
 }

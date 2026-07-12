@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Header from "@/components/Header";
+import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Card } from "@/components/ui/Card";
 import { ALL_UK_LOCATIONS, findLocationBySlug, getLocationChildren } from "@/lib/seo/locations/uk";
@@ -40,7 +40,7 @@ export default async function LocalLandingPage({ params }: LocalPageProps) {
 
   return (
     <BetaAppShell bottomNavTab="search">
-      <Header />
+      <RovexoHeaderV2 />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <main className="mx-auto max-w-6xl px-ds-4 py-ds-6">
         <h1 className="text-2xl font-bold">Marketplace in {location.name}</h1>

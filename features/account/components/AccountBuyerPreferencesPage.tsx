@@ -1,10 +1,12 @@
 "use client";
 
+import { CanonicalButton, CanonicalInfoBlock, CanonicalSelector, CanonicalSwitch, CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalInput, CanonicalTextarea } from "@/src/components/canonical";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AccountPageShell } from "@/features/account/components/AccountPageShell";
-import { Button } from "@/components/ui/Button";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+
+
 import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
 import { BUYER_REGIONS } from "@/lib/account/countries";
 import { buyerPreferencesSchema, type BuyerPreferencesInput } from "@/lib/account/schemas";
@@ -13,16 +15,10 @@ import { focusRing } from "@/components/ui/tokens";
 
 type CategoryOption = { slug: string; label: string };
 
-const selectClassName = cn(
-  "w-full rounded-ds-lg border border-border bg-surface px-ds-3 py-ds-3 text-sm text-text-primary",
-  focusRing,
-);
-
 export function AccountBuyerPreferencesPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
   const {
-    register,
     handleSubmit,
     reset,
     control,
@@ -41,6 +37,11 @@ export function AccountBuyerPreferencesPage() {
   });
 
   const selectedCategories = useWatch({ control, name: "preferredCategorySlugs" }) ?? [];
+  const saveSearchAlerts = useWatch({ control, name: "saveSearchAlerts" });
+  const orderUpdatesPush = useWatch({ control, name: "orderUpdatesPush" });
+  const orderUpdatesEmail = useWatch({ control, name: "orderUpdatesEmail" });
+  const showRecommendations = useWatch({ control, name: "showRecommendations" });
+  const region = useWatch({ control, name: "region" });
 
   useEffect(() => {
     let cancelled = false;
@@ -91,92 +92,81 @@ export function AccountBuyerPreferencesPage() {
   });
 
   return (
-    <AccountPageShell
-      title="Buyer preferences"
-      subtitle="Personalise alerts, region, and category interests."
-      backHref="/account/profile"
-      backLabel="Settings"
-    >
-      <form onSubmit={onSubmit} className="rx-surface-card flex flex-col gap-ds-4 p-ds-5" noValidate>
-        <div>
-          <label htmlFor="region" className="text-sm font-medium text-text-primary">
-            Region
-          </label>
-          <select id="region" className={cn(selectClassName, "mt-ds-1")} {...register("region")}>
-            {BUYER_REGIONS.map((region) => (
-              <option key={region} value={region}>
-                {region}
-              </option>
-            ))}
-          </select>
-        </div>
+    <AccountCanonicalShell title="Buyer preferences" backHref="/account/profile" backLabel="Settings">
+      <CanonicalSection title="Buyer preferences">
+        <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
+          <form onSubmit={onSubmit} className="flex flex-col gap-ds-4" noValidate>
+            <CanonicalSelector
+              label="Region"
+              id="region"
+              kind="region"
+              value={region}
+              options={BUYER_REGIONS.map((entry) => ({ value: entry, label: entry }))}
+              onChange={(event) => setValue("region", event.target.value, { shouldDirty: true })}
+            />
 
-        <fieldset className="flex flex-col gap-ds-2">
-          <legend className="text-sm font-medium text-text-primary">Preferred categories</legend>
-          <p className="text-xs text-text-secondary">Tailor recommendations to categories you shop most.</p>
-          <div className="flex flex-wrap gap-ds-2">
-            {categories.map((category) => {
-              const active = selectedCategories.includes(category.slug);
-              return (
-                <button
-                  key={category.slug}
-                  type="button"
-                  onClick={() => toggleCategory(category.slug)}
-                  className={cn(
-                    "rounded-ds-full px-ds-3 py-ds-1.5 text-xs font-medium",
-                    active ? "bg-primary text-primary-foreground" : "bg-surface-muted text-text-secondary",
-                    focusRing,
-                  )}
-                >
-                  {category.label}
-                </button>
-              );
-            })}
-          </div>
-        </fieldset>
+            <fieldset className="flex flex-col gap-ds-2 border-none p-0">
+              <legend className="text-sm font-medium text-text-primary">Preferred categories</legend>
+              <p className="text-xs text-text-secondary">
+                Tailor recommendations to categories you shop most.
+              </p>
+              <div className="flex flex-wrap gap-ds-2">
+                {categories.map((category) => {
+                  const active = selectedCategories.includes(category.slug);
+                  return (
+                    <button
+                      key={category.slug}
+                      type="button"
+                      onClick={() => toggleCategory(category.slug)}
+                      className={cn(
+                        "rounded-ds-full px-ds-3 py-ds-1.5 text-xs font-medium",
+                        active ? "bg-primary text-primary-foreground" : "bg-surface-muted text-text-secondary",
+                        focusRing,
+                      )}
+                    >
+                      {category.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
 
-        <label className="flex items-start gap-ds-3 text-sm">
-          <input type="checkbox" className="mt-1" {...register("saveSearchAlerts")} />
-          <span>
-            <span className="font-medium text-text-primary">Saved search alerts</span>
-            <span className="mt-ds-1 block text-text-secondary">
-              Get notified when new listings match your saved searches.
-            </span>
-          </span>
-        </label>
-        <label className="flex items-start gap-ds-3 text-sm">
-          <input type="checkbox" className="mt-1" {...register("orderUpdatesPush")} />
-          <span>
-            <span className="font-medium text-text-primary">Order push updates</span>
-            <span className="mt-ds-1 block text-text-secondary">
-              Receive push notifications for shipping and delivery updates.
-            </span>
-          </span>
-        </label>
-        <label className="flex items-start gap-ds-3 text-sm">
-          <input type="checkbox" className="mt-1" {...register("orderUpdatesEmail")} />
-          <span>
-            <span className="font-medium text-text-primary">Order email updates</span>
-            <span className="mt-ds-1 block text-text-secondary">
-              Receive email confirmations and delivery notifications.
-            </span>
-          </span>
-        </label>
-        <label className="flex items-start gap-ds-3 text-sm">
-          <input type="checkbox" className="mt-1" {...register("showRecommendations")} />
-          <span>
-            <span className="font-medium text-text-primary">Personalised recommendations</span>
-            <span className="mt-ds-1 block text-text-secondary">
-              Show listings tailored to your browsing and purchase history.
-            </span>
-          </span>
-        </label>
+            <CanonicalSwitch
+              id="saveSearchAlerts"
+              label="Saved search alerts"
+              description="Get notified when new listings match your saved searches."
+              checked={saveSearchAlerts}
+              onChange={(checked) => setValue("saveSearchAlerts", checked, { shouldDirty: true })}
+            />
+            <CanonicalSwitch
+              id="orderUpdatesPush"
+              label="Order push updates"
+              description="Receive push notifications for shipping and delivery updates."
+              checked={orderUpdatesPush}
+              onChange={(checked) => setValue("orderUpdatesPush", checked, { shouldDirty: true })}
+            />
+            <CanonicalSwitch
+              id="orderUpdatesEmail"
+              label="Order email updates"
+              description="Receive email confirmations and delivery notifications."
+              checked={orderUpdatesEmail}
+              onChange={(checked) => setValue("orderUpdatesEmail", checked, { shouldDirty: true })}
+            />
+            <CanonicalSwitch
+              id="showRecommendations"
+              label="Personalised recommendations"
+              description="Show listings tailored to your browsing and purchase history."
+              checked={showRecommendations}
+              onChange={(checked) => setValue("showRecommendations", checked, { shouldDirty: true })}
+            />
 
-        <Button type="submit" variant="primary" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : "Save preferences"}
-        </Button>
-        {message ? <p className="text-sm text-text-secondary">{message}</p> : null}
-      </form>
-    </AccountPageShell>
+            <CanonicalButton type="submit" fullWidth loading={isSubmitting}>
+              {isSubmitting ? "Saving…" : "Save preferences"}
+            </CanonicalButton>
+            {message ? <CanonicalInfoBlock variant="description">{message}</CanonicalInfoBlock> : null}
+          </form>
+        </CanonicalCard>
+      </CanonicalSection>
+    </AccountCanonicalShell>
   );
 }

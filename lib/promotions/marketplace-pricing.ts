@@ -5,7 +5,7 @@ export const MARKETPLACE_PRICING_SETTINGS_KEY = "marketplace_pricing";
 
 export type MarketplacePricingSettings = {
   boost: Array<{
-    id: "3d" | "7d" | "24h";
+    id: "3d" | "7d" | "14d" | "24h" | "28d";
     label: string;
     hours: number;
     priceCents: number;
@@ -25,13 +25,14 @@ export type MarketplacePricingSettings = {
 
 export const DEFAULT_MARKETPLACE_PRICING: MarketplacePricingSettings = {
   boost: [
-    { id: "3d", label: "3 days", hours: 72, priceCents: 100 },
-    { id: "7d", label: "7 days", hours: 168, priceCents: 200 },
+    { id: "7d", label: "7 days", hours: 168, priceCents: 130 },
+    { id: "14d", label: "14 days", hours: 336, priceCents: 250 },
+    { id: "28d", label: "28 days", hours: 672, priceCents: 450 },
   ],
   showcase: {
-    label: "Showcase",
+    label: "Featured Store",
     days: 7,
-    priceCents: 550,
+    priceCents: 600,
     durationId: "7d",
   },
   business: {

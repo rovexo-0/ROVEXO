@@ -103,7 +103,7 @@ export function runSeoAudit(): SeoAuditReport {
     engineVersion: SEO_ENGINE_VERSION,
     issues,
     stats: {
-      categoryPages: leafPaths.length,
+      categoryPages: leafPaths.length + Object.keys(CATEGORY_ALIASES).length,
       browsePages,
       locationPages,
       discoveryPages,

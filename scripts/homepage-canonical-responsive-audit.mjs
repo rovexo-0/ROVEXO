@@ -32,7 +32,9 @@ async function measure(page) {
     const cardRect = card?.getBoundingClientRect();
     const img = card?.querySelector("figure");
     const imgRect = img?.getBoundingClientRect();
-    const storeCard = document.querySelector("[data-hp-store-product]");
+    const storeCard = document.querySelector(
+      '[data-hp-featured-store] [data-hp-listing-card="official"]',
+    );
     const storeRect = storeCard?.getBoundingClientRect();
     const byi = document.querySelector('[class*="byi"]');
     const homepage = document.querySelector('[data-hp-homepage="canonical"]');

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useEffect, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { PageBack } from "@/components/navigation/PageBack";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
@@ -104,13 +104,16 @@ export function SellerReviewCasePage({ caseId }: SellerReviewCasePageProps) {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-2xl bg-background px-5 py-5 ">
+      <CanonicalPageHeader
+        title={reviewCase.productTitle}
+        backHref="/seller/review-center"
+        backLabel="Review Center"
+      />
+      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-2xl bg-background px-ds-4 py-ds-5">
         <DashboardShell>
           <div className="flex items-start justify-between gap-ds-3">
             <div>
-              <PageBack variant="text" backHref="/seller/review-center" backLabel="Review Center" className="mb-ds-2" />
-              <h1 className="text-2xl font-semibold text-text-primary">{reviewCase.productTitle}</h1>
-              <div className="mt-ds-2">
+              <div className="mt-ds-1">
                 <ReviewStatusBadge status={reviewCase.status} label={reviewCase.statusLabel} />
               </div>
             </div>

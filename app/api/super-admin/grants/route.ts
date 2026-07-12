@@ -6,16 +6,19 @@ import {
   grantPromotion,
   grantPromotionCredits,
 } from "@/lib/super-admin/grants";
+import { grantSellerPromotion } from "@/lib/promotions/seller-promotions";
 import type { PromotionType } from "@/lib/promotions/config";
 
 const grantSchema = z.object({
-  type: z.enum(["feature", "bump", "wallet", "credits", "premium"]),
+  type: z.enum(["feature", "bump", "store_featured", "boost_package", "wallet", "credits", "premium"]),
   userId: z.string().uuid(),
   productId: z.string().uuid().optional(),
   amount: z.number().optional(),
   credits: z.number().int().positive().optional(),
   description: z.string().optional(),
   durationId: z.string().optional(),
+  packageId: z.string().optional(),
+  reason: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -37,6 +40,16 @@ export async function POST(request: Request) {
           productId: body.productId,
           type: body.type as PromotionType,
           durationId: body.durationId,
+        });
+        break;
+      case "store_featured":
+      case "boost_package":
+        await grantSellerPromotion({
+          actorId: auth.user.id,
+          sellerId: body.userId,
+          type: body.type,
+          packageId: body.packageId ?? body.durationId ?? "7d",
+          reason: body.reason ?? body.description ?? "Granted by ROVEXO",
         });
         break;
       case "wallet":

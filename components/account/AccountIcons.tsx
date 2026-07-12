@@ -29,7 +29,8 @@ export type AccountIconName =
   | "support"
   | "cart"
   | "verification"
-  | "ideas";
+  | "ideas"
+  | "promotions";
 
 type IconProps = { className?: string };
 
@@ -244,6 +245,15 @@ function Ideas({ className }: IconProps) {
   );
 }
 
+function Promotions({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M3 11v2a4 4 0 0 0 4 4h9.2a3 3 0 0 0 2.8-1.9l1.5-4.1H8.5" />
+      <path d="M7 7h11l-1.2-3.2A2 2 0 0 0 14.9 2H9.6A2 2 0 0 0 7.7 3.4L7 7z" />
+    </svg>
+  );
+}
+
 const ICONS: Record<AccountIconName, (props: IconProps) => ReactElement> = {
   profile: Profile,
   orders: Orders,
@@ -266,6 +276,7 @@ const ICONS: Record<AccountIconName, (props: IconProps) => ReactElement> = {
   cart: Cart,
   verification: Verification,
   ideas: Ideas,
+  promotions: Promotions,
 };
 
 export function AccountIcon({ name, className }: { name: AccountIconName; className?: string }) {

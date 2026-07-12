@@ -7,7 +7,10 @@ import type { ChatMessage, Conversation, ProductListingStatus } from "@/lib/mess
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 
 type ConversationRow = Tables<"conversations"> & {
-  products: Pick<Tables<"products">, "slug" | "title" | "price" | "condition" | "status"> & {
+  products: Pick<
+    Tables<"products">,
+    "id" | "slug" | "title" | "price" | "condition" | "status" | "listing_type" | "accept_offers"
+  > & {
     product_images: Pick<Tables<"product_images">, "url" | "is_primary" | "sort_order">[];
   };
   buyer: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url">;
@@ -63,12 +66,15 @@ function mapConversation(row: ConversationRow, viewerId: string): Conversation {
       lastSeen: undefined,
     },
     product: {
+      id: row.products.id,
       slug: row.products.slug,
       title: row.products.title,
       price: Number(row.products.price),
       condition: row.products.condition,
       imageUrl: productImage(row.products.product_images),
       status: row.products.status as ProductListingStatus,
+      listingType: row.products.listing_type === "auction" ? "auction" : "fixed",
+      acceptOffers: Boolean(row.products.accept_offers),
     },
     lastMessage: row.last_message,
     lastMessageAt: row.last_message_at,
@@ -85,7 +91,7 @@ function mapConversation(row: ConversationRow, viewerId: string): Conversation {
 
 const conversationSelect = `
   *,
-  products ( slug, title, price, condition, status, product_images ( url, is_primary, sort_order ) ),
+  products ( id, slug, title, price, condition, status, listing_type, accept_offers, product_images ( url, is_primary, sort_order ) ),
   buyer:profiles!conversations_buyer_id_fkey ( id, full_name, avatar_url ),
   seller:profiles!conversations_seller_id_fkey ( id, full_name, avatar_url ),
   messages ( * )

@@ -10,6 +10,8 @@
 @import "./product-detail-v1.css";
 @import "./account-hub-v1.css";
 @import "./account-module-v1.css";
+@import "./platform-canonical-ui.css";
+@import "./canonical-ds.css";
 @import "./wallet-hub-v1.css";
 @import "./cart-v1.css";
 @import "./checkout-v1.css";

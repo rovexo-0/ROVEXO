@@ -9,26 +9,38 @@ function readSource(relativePath: string): string {
 }
 
 describe("ROVEXO v1.0 Master Production Audit", () => {
-  it("locks production account hub with live wallet card and 8 stats", () => {
+  it("locks production account hub with live wallet card and 4 primary stats", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
     const stats = readSource("features/account-center/components/AccountStatsStrip.tsx");
-    const walletCard = readSource("features/account-center/components/AccountWalletCard.tsx");
+    const profile = readSource("features/account-center/components/AccountCanonicalProfile.tsx");
     const snapshot = readSource("lib/account-center/snapshot.ts");
 
     expect(home).toContain('data-ac-hub-version="v1.0-production"');
-    expect(home).toContain("AccountWalletCard");
-    expect(stats).toContain("Followers");
-    expect(stats).toContain("Following");
-    expect(stats).toContain("reviewCount");
-    expect(snapshot).toContain("following");
+    expect(home).not.toContain("AccountWalletCard");
+    expect(stats).toContain("Listings");
+    expect(stats).toContain("Saved");
+    expect(stats).toContain("Orders");
+    expect(stats).toContain("Wallet");
+    expect(stats).not.toContain("Following");
+    expect(stats).not.toContain("SOCIAL_STATS");
+    expect(stats).not.toContain("ac-canonical__stats--secondary");
+    expect(profile).toContain("ac-canonical__followers-row");
+    expect(profile).toContain("ac-canonical__rating");
+    expect(profile).toContain("formatAccountProfileRating");
+    expect(profile).not.toContain("⭐ —");
+    expect(snapshot).toContain("followers");
+    expect(readSource("lib/account-center/canonical-menu.ts")).toContain("Promotion Tools");
   });
 
   it("locks production settings hub inventory", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
-    expect(settings).toContain('data-settings-version="v1.0-production"');
+    expect(settings).toContain("AccountCanonicalShell");
+    expect(settings).toContain("SettingsAccordion");
+    expect(settings).toContain('title: "Profile"');
+    expect(settings).toContain('title: "Payments"');
     expect(settings).toContain("Tax Information");
-    expect(settings).toContain("Download My Data");
-    expect(settings).toContain("Cookie Preferences");
+    expect(settings).not.toContain("Identity Verification");
+    expect(settings).not.toContain("Download My Data");
     expect(settings).toContain("DeleteAccountFlow");
   });
 

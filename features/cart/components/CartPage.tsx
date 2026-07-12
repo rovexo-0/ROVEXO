@@ -5,8 +5,8 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
-import { RvxTopBar, RvxTopBarIconLink } from "@/components/header/RvxTopBar";
-import { BagLineIcon, SearchLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
+import { ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
@@ -16,6 +16,7 @@ import {
   FREE_DELIVERY_THRESHOLD,
 } from "@/lib/orders/pricing";
 import type { CartSummary } from "@/lib/cart/store";
+import { groupCartItemsBySeller } from "@/lib/cart/group-by-seller";
 import { Trash2 } from "lucide-react";
 
 type CartPageProps = {
@@ -73,7 +74,8 @@ export function CartPage({ cart }: CartPageProps) {
   );
 
   const total = subtotal + platformFee;
-  const checkoutItem = selectedItems.find((item) => item.available);
+  const sellerGroups = useMemo(() => groupCartItemsBySeller(cart.items), [cart.items]);
+  const multiSeller = sellerGroups.length > 1;
 
   const toggleItem = (id: string) => {
     setSelectedIds((current) => {
@@ -109,6 +111,8 @@ export function CartPage({ cart }: CartPageProps) {
     }
   };
 
+  const checkoutItem = selectedItems.find((item) => item.available);
+
   const proceedToCheckout = () => {
     if (!checkoutItem) return;
     router.push(`/checkout/${checkoutItem.slug}`);
@@ -117,31 +121,26 @@ export function CartPage({ cart }: CartPageProps) {
   return (
     <BetaAppShell className="cart-v1-shell">
       <div className="cart-v1" data-cart-version="v1.0">
-        <RvxTopBar>
-          <RvxTopBarIconLink href="/search" label="Search">
-            <SearchLineIcon />
-          </RvxTopBarIconLink>
-          <RvxTopBarIconLink href="/cart" label="Cart" badge={cart.itemCount}>
-            <BagLineIcon />
-          </RvxTopBarIconLink>
-        </RvxTopBar>
+        <CanonicalPageHeader
+          title={`Your Cart (${cart.itemCount})`}
+          backHref="/"
+          backLabel="Back"
+          rightAction={
+            cart.items.length > 0 ? (
+              <button
+                type="button"
+                className="cart-v1__edit min-h-12 px-ds-2 text-sm font-semibold text-primary"
+                onClick={() => setEditMode((value) => !value)}
+              >
+                {editMode ? "Done" : "Edit"}
+              </button>
+            ) : (
+              <span aria-hidden className="w-12" />
+            )
+          }
+        />
 
-        <div className="cart-v1__title-row">
-          <h1 className="cart-v1__title">Your Cart ({cart.itemCount})</h1>
-          {cart.items.length > 0 ? (
-            <button
-              type="button"
-              className="cart-v1__edit"
-              onClick={() => setEditMode((value) => !value)}
-            >
-              {editMode ? "Done" : "Edit"}
-            </button>
-          ) : (
-            <span aria-hidden className="cart-v1__edit-spacer" />
-          )}
-        </div>
-
-        <ScrollContainer as="main" withBottomNav={false} className="cart-v1__main">
+        <ScrollContainer as="main" withBottomNav className="cart-v1__main">
           {cart.items.length === 0 ? (
             <EmptyState
               title="Your cart is empty"
@@ -151,8 +150,25 @@ export function CartPage({ cart }: CartPageProps) {
             />
           ) : (
             <>
+              {multiSeller ? (
+                <p className="cart-v1__multi-seller-note px-ds-4 pb-ds-2 text-sm text-text-secondary">
+                  Items from {sellerGroups.length} sellers — each seller is checked out separately.
+                </p>
+              ) : null}
               <ul className="cart-v1__items">
-                {cart.items.map((item) => {
+                {sellerGroups.map((group) => (
+                  <li key={group.sellerId} className="cart-v1__seller-group">
+                    {multiSeller ? (
+                      <h2 className="cart-v1__seller-heading px-ds-4 pb-ds-2 pt-ds-1 text-sm font-semibold text-text-primary">
+                        {group.sellerName}
+                        <span className="font-normal text-text-secondary">
+                          {" "}
+                          · {group.itemCount} item{group.itemCount === 1 ? "" : "s"}
+                        </span>
+                      </h2>
+                    ) : null}
+                    <ul className="cart-v1__seller-items">
+                      {group.items.map((item) => {
                   const isSelected = selectedIds.has(item.id);
                   const maxQty = Math.min(item.stock, 99);
                   const lineTotal = item.price * item.quantity;
@@ -248,7 +264,10 @@ export function CartPage({ cart }: CartPageProps) {
                       </div>
                     </li>
                   );
-                })}
+                      })}
+                    </ul>
+                  </li>
+                ))}
               </ul>
 
               <div className="cart-v1__platform-fee" role="group" aria-label="Platform Fee">

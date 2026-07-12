@@ -1,0 +1,201 @@
+/**
+ * ROVEXO Platform Canonical UI v1.0
+ * Visual SSOT: My Account (`ac-canonical`, `acm-settings`).
+ * Apply `.pcu-module` on module page bodies outside Homepage / My Account hub.
+ */
+
+@import "./account-canonical-v2.css";
+@import "./account-settings-ui.css";
+
+:root {
+  --pcu-card-radius: 14px;
+  --pcu-card-border: rgb(15 23 42 / 0.08);
+  --pcu-card-shadow: 0 1px 6px rgb(15 23 42 / 0.04);
+  --pcu-row-divider: rgb(15 23 42 / 0.06);
+  --pcu-section-gap: 12px;
+  --pcu-page-padding-x: 16px;
+  --pcu-page-max-width: 640px;
+  --pcu-row-min-height: 48px;
+  --pcu-touch-target: 44px;
+  --pcu-section-title-size: 0.6875rem;
+  --pcu-section-title-tracking: 0.06em;
+  --pcu-body-bg: #ffffff;
+}
+
+.pcu-module {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pcu-section-gap);
+  width: 100%;
+  max-width: var(--pcu-page-max-width);
+  margin-inline: auto;
+  padding: 8px var(--pcu-page-padding-x)
+    calc(var(--bottom-nav-shell-height, 56px) + 28px + env(safe-area-inset-bottom, 0px));
+  background: var(--pcu-body-bg);
+}
+
+.pcu-module--flush {
+  padding-top: 0;
+}
+
+.pcu-intro {
+  margin: 0;
+  padding: 0 4px 4px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--ds-color-text-secondary);
+}
+
+.pcu-search {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--pcu-card-border);
+  border-radius: 999px;
+  background: #f8fafc;
+  font-size: 0.875rem;
+  color: var(--ds-color-text-primary);
+  outline: none;
+}
+
+.pcu-search::placeholder {
+  color: #94a3b8;
+}
+
+.pcu-search:focus {
+  border-color: color-mix(in srgb, var(--ds-color-primary) 35%, var(--pcu-card-border));
+  box-shadow: 0 0 0 3px rgb(124 58 237 / 0.12);
+}
+
+/* Canonical card surface — matches My Account section cards */
+.rx-surface-card--canonical,
+.pcu-card {
+  overflow: hidden;
+  border: 1px solid var(--pcu-card-border) !important;
+  border-radius: var(--pcu-card-radius) !important;
+  background: #ffffff !important;
+  box-shadow: var(--pcu-card-shadow) !important;
+  backdrop-filter: none !important;
+}
+
+.ac-canonical__row-subtitle {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.25;
+  color: #94a3b8;
+}
+
+/* Harmonize legacy module section titles → My Account uppercase labels */
+.pcu-module .mhub-section__title,
+.pcu-module .wallet-hub__section-title,
+.wallet-hub .wallet-hub__section-title {
+  margin: 0;
+  padding: 0 4px;
+  font-size: var(--pcu-section-title-size);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: var(--pcu-section-title-tracking);
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.pcu-module .mhub-section,
+.wallet-hub .wallet-hub__section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wallet-hub .wallet-hub__section-head {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Wallet / cart / checkout cards → canonical surfaces */
+.wallet-hub__balance-card,
+.wallet-hub__txn-card,
+.wallet-hub__bank-card,
+.cart-v1__item,
+.cart-v1__summary,
+.checkout-v1__card,
+.ckt-v1__card {
+  border: 1px solid var(--pcu-card-border) !important;
+  border-radius: var(--pcu-card-radius) !important;
+  box-shadow: var(--pcu-card-shadow) !important;
+}
+
+.wallet-hub__txn {
+  border-bottom: 1px solid var(--pcu-row-divider);
+}
+
+.wallet-hub__txn:last-child {
+  border-bottom: none;
+}
+
+/* Settings toggles inside canonical cards */
+.acm-settings__row--toggle {
+  cursor: pointer;
+}
+
+.acm-settings__row--toggle input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: var(--ds-color-primary);
+}
+
+.acm-settings__toggle-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.acm-settings__toggle-description {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--ds-color-text-secondary);
+}
+
+/* Primary CTA — matches acm-cta__btn */
+.pcu-btn-primary,
+.wallet-hub__withdraw--primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 14px;
+  background: var(--ds-color-primary);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 120ms ease;
+}
+
+.pcu-btn-primary:hover {
+  opacity: 0.92;
+}
+
+.pcu-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Help category rows — use ac-canonical__row in components */
+
+@media (min-width: 768px) {
+  .pcu-module {
+    padding-inline: 24px;
+  }
+}

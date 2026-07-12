@@ -131,8 +131,12 @@ export type AdminEscrowOverview = {
   escrowPending: number;
   released: number;
   platformFeeReserved: number;
+  platformFeeToday: number;
+  platformFeeWeek: number;
+  platformFeeMonth: number;
   shippingReserve: number;
   onHoldOrders: number;
+  failedWithdrawals: number;
 };
 
 /** Platform-wide escrow overview for the Super Admin dashboard (spec §11). */
@@ -140,11 +144,27 @@ export async function getAdminEscrowOverview(): Promise<AdminEscrowOverview> {
   const admin = createAdminClient();
   const commerce = createCommerceAdminClient();
 
-  const [{ data: sales }, { data: paidOrders }, { data: reserves }, { data: issueOrders }] = await Promise.all([
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const startOfWeek = new Date(now.getTime() - 7 * 24 * 3600_000).toISOString();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  const [
+    { data: sales },
+    { data: paidOrders },
+    { data: reserves },
+    { data: issueOrders },
+    { data: failedWithdrawals },
+  ] = await Promise.all([
     admin.from("wallet_transactions").select("amount, stripe_transfer_id, status").eq("type", "sale"),
-    admin.from("orders").select("platform_fee").not("paid_at", "is", null),
+    admin.from("orders").select("platform_fee, paid_at").not("paid_at", "is", null),
     commerce.from("shipping_reserve").select("reserved_amount, spent_amount, status"),
     admin.from("orders").select("id").eq("status", "issue_open"),
+    admin
+      .from("wallet_transactions")
+      .select("amount")
+      .eq("type", "withdrawal")
+      .eq("status", "failed"),
   ]);
 
   const salesRows = (sales as Array<{ amount: number; stripe_transfer_id: string | null; status: string }> | null) ?? [];
@@ -162,6 +182,23 @@ export async function getAdminEscrowOverview(): Promise<AdminEscrowOverview> {
     ),
   );
 
+  const paidOrderRows =
+    (paidOrders as Array<{ platform_fee: number | null; paid_at: string | null }> | null) ?? [];
+
+  const sumFeesSince = (since: string) =>
+    round(
+      paidOrderRows
+        .filter((o) => o.paid_at && o.paid_at >= since)
+        .reduce((sum, o) => sum + Number(o.platform_fee ?? 0), 0),
+    );
+
+  const platformFeeToday = sumFeesSince(startOfDay);
+  const platformFeeWeek = sumFeesSince(startOfWeek);
+  const platformFeeMonth = sumFeesSince(startOfMonth);
+
+  const failedWithdrawalCount =
+    ((failedWithdrawals as Array<{ amount: number }> | null) ?? []).length;
+
   const reserveRows =
     (reserves as Array<{ reserved_amount: number; spent_amount: number; status: string }> | null) ?? [];
   const shippingReserve = round(
@@ -172,5 +209,15 @@ export async function getAdminEscrowOverview(): Promise<AdminEscrowOverview> {
 
   const onHoldOrders = ((issueOrders as Array<{ id: string }> | null) ?? []).length;
 
-  return { escrowPending, released, platformFeeReserved, shippingReserve, onHoldOrders };
+  return {
+    escrowPending,
+    released,
+    platformFeeReserved,
+    platformFeeToday,
+    platformFeeWeek,
+    platformFeeMonth,
+    shippingReserve,
+    onHoldOrders,
+    failedWithdrawals: failedWithdrawalCount,
+  };
 }

@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { searchCategories } from "@/lib/taxonomy/category-search";
+import { searchCategoryPicker } from "@/lib/sell/category-picker-search";
 import type { MigrationNormalizedListing } from "@/lib/seller/migration/engine/types";
 
 export async function getRememberedCategoryMapping(
@@ -57,14 +57,15 @@ export async function mapListingCategory(
     };
   }
 
-  const results = searchCategories(sourceCategory, { limit: 3 });
-  const top = results[0]?.category;
-  if (top?.slug) {
-    await rememberCategoryMapping(sellerId, platform, sourceCategory, top.slug);
+  const results = searchCategoryPicker(sourceCategory);
+  const top = results[0];
+  const leafSlug = top?.path.segments[top.path.segments.length - 1]?.slug;
+  if (leafSlug) {
+    await rememberCategoryMapping(sellerId, platform, sourceCategory, leafSlug);
     return {
       ...listing,
-      categorySlug: top.slug,
-      categoryPath: [top.slug],
+      categorySlug: leafSlug,
+      categoryPath: top.path.segments.map((s) => s.slug),
     };
   }
 

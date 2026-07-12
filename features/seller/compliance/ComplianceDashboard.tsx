@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { HubPageMain } from "@/components/layout/HubPageMain";
-import { PageBack } from "@/components/navigation/PageBack";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import {
@@ -36,14 +36,15 @@ export function ComplianceDashboard({ taxProfile, annualStatements }: Compliance
 
   return (
     <BetaAppShell bottomNavTab="account">
-      <HubPageMain withBottomNav className="mx-auto max-w-2xl px-ds-4 py-ds-6" data-compliance-version="v1.0-legal-lock">
-        <PageBack backHref="/account/settings" backLabel="Settings" preferHistory />
-        <header className="mt-ds-4">
-          <h1 className="text-2xl font-bold text-text-primary">Compliance Dashboard</h1>
-          <p className="mt-ds-2 text-sm text-text-secondary">
-            Tax profile, reporting exports, and UK marketplace compliance status.
-          </p>
-        </header>
+      <CanonicalPageHeader title="Compliance" backHref="/account/settings" backLabel="Settings" />
+      <HubPageMain
+        withBottomNav
+        className="mx-auto max-w-2xl px-ds-4 py-ds-6"
+        data-compliance-version="v1.0-legal-lock"
+      >
+        <p className="text-sm text-text-secondary">
+          Tax profile, reporting exports, and UK marketplace compliance status.
+        </p>
 
         <Card padding="md" className="mt-ds-6">
           <h2 className="text-base font-semibold text-text-primary">Seller Tax Profile</h2>

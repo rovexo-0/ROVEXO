@@ -9,7 +9,8 @@ import {
   waitForHomepageUi,
   waitForSearchResultsUi,
 } from "./helpers/stable-ui";
-import { fillSellDescription, publishSellListing, uploadSellPhoto } from "./helpers/sell";
+import { fillSellDescription, publishSellListing, uploadSellPhoto, ensureCategorySelected, gotoSellPage, fillSellTitle, ensureParcelSizeSelected } from "./helpers/sell";
+import { seedSellerBankAccount } from "./helpers/seller-setup";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../lib/supabase/types/database";
 
@@ -65,6 +66,7 @@ test.describe.serial("listing lifecycle certification", () => {
       { onConflict: "id" },
     );
     await admin.from("seller_profiles").upsert({ id: data.user.id }, { onConflict: "id" });
+    await seedSellerBankAccount(admin, data.user.id);
 
     return { id: data.user.id, email, password, username };
   }
@@ -77,6 +79,7 @@ test.describe.serial("listing lifecycle certification", () => {
         await admin.from("products").delete().eq("id", pid);
       }
       await admin.from("seller_profiles").delete().eq("id", userId);
+      await admin.from("withdraw_methods").delete().eq("user_id", userId);
       await admin.from("profiles").delete().eq("id", userId);
       try {
         const list = await admin.storage.from("products").list(`${userId}/`, { limit: 1000 });
@@ -192,26 +195,17 @@ test.describe.serial("listing lifecycle certification", () => {
     const title = `Lifecycle Cert Sofa ${Date.now()}`;
     published.title = title;
 
-    await page.goto("/sell", { waitUntil: "domcontentloaded", timeout: 180_000 });
-    await expect(page.getByRole("button", { name: /add photo/i })).toBeVisible({ timeout: 120_000 });
+    await gotoSellPage(page);
 
     await uploadSellPhoto(page, image);
-    await page.getByPlaceholder(/tell buyers what you're selling/i).fill(title);
+    await fillSellTitle(page, title);
     await fillSellDescription(
       page,
       "Lifecycle certification listing published by Playwright end-to-end automation.",
     );
 
-    await page.waitForTimeout(400);
-    const categoryButton = page.getByRole("button", { name: /select category|^category$/i });
-    if (await categoryButton.isVisible().catch(() => false)) {
-      await categoryButton.click();
-      const searchInput = page.getByRole("searchbox", { name: /search categories/i });
-      if (await searchInput.isVisible().catch(() => false)) {
-        await searchInput.fill("sofa");
-        await page.getByRole("button").filter({ hasText: /sofa/i }).first().click();
-      }
-    }
+    await ensureCategorySelected(page);
+    await ensureParcelSizeSelected(page);
 
     await page.getByPlaceholder("0.00").fill("24.99");
 

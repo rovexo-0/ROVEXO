@@ -13,8 +13,8 @@ describe("enterprise taxonomy", () => {
   it("documents enterprise taxonomy counts", () => {
     expect(taxonomyStats).toMatchInlineSnapshot(`
       {
-        "branches": 298,
-        "leaves": 1113,
+        "branches": 306,
+        "leaves": 1187,
         "roots": 55,
       }
     `);

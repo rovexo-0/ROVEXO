@@ -111,10 +111,20 @@ describe("HomepageEligibility engine", () => {
       ).reason,
     ).toBe("PLACEHOLDER_IMAGE");
     expect(
-      HomepageEligibility.evaluate(
+      HomepageEligibility.isEligible(
         input({ slug: "l", title: "Valid Title Here", sellerVerified: false }),
+      ),
+    ).toBe(true);
+    expect(
+      HomepageEligibility.evaluate(
+        input({
+          slug: "l-inactive",
+          title: "Valid Title Here",
+          sellerVerified: false,
+          sellerAccountStatus: "suspended",
+        }),
       ).reason,
-    ).toBe("SELLER_EMAIL_UNVERIFIED");
+    ).toBe("SELLER_INACTIVE");
     expect(
       HomepageEligibility.evaluate(
         input({ slug: "m", title: "Valid Title Here", sellerAccountStatus: "banned" }),

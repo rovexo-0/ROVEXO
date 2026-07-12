@@ -9,7 +9,7 @@ import { focusRing } from "@/components/ui/tokens";
 
 /** Card container for a titled Sell section. */
 export const sellCard =
-  "rx-form-section flex flex-col gap-ds-3 rounded-ds-lg border border-border bg-surface p-ds-4 shadow-ds-soft";
+  "rx-form-section flex flex-col gap-ds-3 rounded-[var(--cds-radius-lg)] border border-border bg-white p-ds-4";
 
 /** Standard text input / textarea inside the Sell flow. */
 export const sellInput =

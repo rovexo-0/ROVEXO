@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
+import { CanonicalModuleBody } from "@/components/ui/canonical";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { MobileHubNavigator } from "@/features/mobile-ui";
@@ -21,21 +23,19 @@ type TrustCenterPageProps = {
 
 export function TrustCenterPage({ data }: TrustCenterPageProps) {
   const hero = (
-    <section className="mhub-hero lg:rounded-ds-xl lg:bg-gradient-to-br lg:from-primary/10 lg:via-surface lg:to-surface lg:p-ds-6">
-      <p className="text-sm font-medium text-primary">ROVEXO Trust Center</p>
-      <h1 className="mt-ds-2 text-2xl font-bold text-text-primary lg:text-3xl">Trust & Safety</h1>
-      <p className="mt-ds-2 max-w-2xl text-sm text-text-secondary">
-        Purchase protection, seller protection, verification, disputes, and community safety.
-      </p>
-    </section>
+    <p className="pcu-intro">
+      Purchase protection, seller protection, verification, disputes, and community safety.
+    </p>
   );
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-ds-6 px-ds-4 py-ds-6">
-      {hero}
+    <div className="mx-auto flex w-full max-w-[640px] flex-col">
+      <CanonicalPageHeader title="Trust Center" backHref="/account" backLabel="My Account" />
+      <CanonicalModuleBody flush>
+        {hero}
 
-      <section id="score" className="grid gap-ds-4 lg:grid-cols-[1.2fr_1fr]">
-        <Card padding="lg">
+      <section id="score" className="grid gap-ds-3">
+        <Card padding="lg" variant="canonical">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold">Trust Score</h2>
             <TrustTierBadge tier={data.score.tier} />
@@ -61,7 +61,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
           )}
         </Card>
 
-        <Card padding="lg" className="mhub-desktop">
+        <Card padding="lg" variant="canonical" className="mhub-desktop">
           <h2 className="text-lg font-semibold">How to improve</h2>
           <ul className="mt-ds-4 space-y-ds-2 text-sm text-text-secondary">
             {data.recommendations.map((item) => (
@@ -84,7 +84,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
             <div className="mt-ds-4 grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
               {TRUST_CENTER_SECTIONS.map((section) => (
                 <Link key={section.id} href={section.href}>
-                  <Card padding="md" interactive className="h-full">
+                  <Card padding="md" variant="canonical" interactive className="h-full">
                     <HubSectionIcon trustSectionId={section.id} />
                     <p className="mt-ds-2 font-semibold text-text-primary">{section.title}</p>
                     <p className="mt-ds-1 text-sm text-text-secondary">{section.description}</p>
@@ -102,7 +102,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
           {VERIFICATION_TYPES.map((item) => {
             const record = data.verifications.find((entry) => entry.verificationType === item.type);
             return (
-              <Card key={item.type} padding="md">
+              <Card key={item.type} padding="md" variant="canonical">
                 <div className="flex items-start justify-between gap-ds-3">
                   <div>
                     <p className="font-semibold text-text-primary">{item.label}</p>
@@ -114,7 +114,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
             );
           })}
         </div>
-        <Card padding="lg" className="mt-ds-4">
+        <Card padding="lg" variant="canonical" className="mt-ds-4">
           <h3 className="font-semibold text-text-primary">Request verification</h3>
           <p className="mt-ds-1 text-sm text-text-secondary">
             Submit verification requests for moderator review.
@@ -125,7 +125,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
 
       <section id="history" className="mhub-desktop">
         <h2 className="text-lg font-semibold">Recent score changes</h2>
-        <Card padding="lg" className="mt-ds-4">
+        <Card padding="lg" variant="canonical" className="mt-ds-4">
           {data.recentEvents.length ? (
             <ul className="space-y-ds-3 text-sm text-text-secondary">
               {data.recentEvents.map((event) => (
@@ -145,6 +145,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
           )}
         </Card>
       </section>
+      </CanonicalModuleBody>
     </div>
   );
 }

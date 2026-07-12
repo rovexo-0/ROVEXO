@@ -15,10 +15,10 @@ type WholesaleCenterPageProps = {
 
 export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps) {
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-ds-8 px-ds-4 py-ds-6">
+    <div className="flex flex-col gap-ds-8">
       <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6">
         <p className="text-sm font-medium text-primary">ROVEXO Wholesale Center</p>
-        <h1 className="mt-ds-2 text-3xl font-bold text-text-primary">Wholesale & B2B</h1>
+        <h2 className="mt-ds-2 text-2xl font-bold text-text-primary">Wholesale & B2B</h2>
         <p className="mt-ds-2 text-sm text-text-secondary">
           MOQ, bulk pricing, RFQ, verified suppliers, and company-to-company trade tools.
         </p>

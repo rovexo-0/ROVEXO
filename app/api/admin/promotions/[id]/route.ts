@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiAdmin } from "@/lib/auth/session";
+import { writePromotionAuditLog } from "@/lib/promotions/audit-log";
 import {
   adminActivatePromotion,
   adminExpirePromotion,
@@ -12,6 +13,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 const actionSchema = z.object({
   action: z.enum(["activate", "suspend", "expire", "refund"]),
+  reason: z.string().trim().max(500).optional(),
 });
 
 export async function PATCH(request: Request, context: RouteContext) {
@@ -34,6 +36,15 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (!result.success) {
       return NextResponse.json({ error: result.error ?? "Action failed." }, { status: 400 });
     }
+
+    await writePromotionAuditLog({
+      actorId: auth.user.id,
+      userId: auth.user.id,
+      promotionType: "listing_promotion",
+      listingPromotionId: id,
+      newStatus: body.action,
+      reason: body.reason ?? null,
+    });
 
     return NextResponse.json({ success: true });
   } catch {

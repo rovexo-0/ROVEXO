@@ -8,8 +8,6 @@ import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/cons
 import { StoreProfileCard } from "@/components/homepage/canonical/featured-store/StoreProfileCard";
 import css from "@/components/homepage/canonical/featured-store/FeaturedStore.module.css";
 
-export const MAX_FEATURED_STORE_PRODUCTS = 12;
-
 export type FeaturedStoreSectionProps = {
   sections: ShowcaseSellerSection[];
 };
@@ -19,15 +17,11 @@ export const FeaturedStoreSection = memo(function FeaturedStoreSection({
 }: FeaturedStoreSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const profileRailRef = useRef<HTMLDivElement | null>(null);
-  const productRailRef = useRef<HTMLDivElement | null>(null);
 
   const stores = useMemo(() => sections.filter((section) => section.listings.length > 0), [sections]);
   const activeStore = stores[activeIndex] ?? stores[0] ?? null;
 
-  const listings = useMemo(
-    () => (activeStore ? activeStore.listings.slice(0, MAX_FEATURED_STORE_PRODUCTS) : []),
-    [activeStore],
-  );
+  const listings = useMemo(() => (activeStore ? activeStore.listings : []), [activeStore]);
 
   const selectStore = useCallback((index: number) => {
     setActiveIndex(index);
@@ -57,7 +51,7 @@ export const FeaturedStoreSection = memo(function FeaturedStoreSection({
       aria-label="Featured stores"
       className={css.block}
       data-hp-featured-store
-      data-hp-featured-store-version="phase-2-module-01"
+      data-hp-featured-store-version="v1.0-canonical"
     >
       <div ref={profileRailRef} className={css.profileRail} role="list">
         {stores.map((section, index) => (
@@ -94,13 +88,13 @@ export const FeaturedStoreSection = memo(function FeaturedStoreSection({
       {activeStore ? (
         <>
           <FeaturedStoreHeader section={activeStore} />
-          <div ref={productRailRef} className={css.carousel} role="list">
+          <div className={css.carousel} role="list">
             {listings.map((product, index) => (
               <div key={product.id} role="listitem" className={css.carouselItem}>
                 <ListingCard
                   product={product}
                   variant="grid"
-                  priority={index === 0}
+                  priority={index < 2}
                   {...HP_CANONICAL_LISTING_PROPS}
                 />
               </div>

@@ -1,10 +1,11 @@
 "use client";
 
+import { CanonicalButton } from "@/src/components/canonical";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AccountModuleShell } from "@/features/account-module/components/AccountModuleShell";
-import { Button } from "@/components/ui/Button";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+
 import { Skeleton, SkeletonButton, SkeletonText } from "@/components/ui/Skeleton";
 import { MigrationBulkPublishPanel } from "@/features/seller/migration/components/MigrationBulkPublishPanel";
 import { useMarketplaceConnectors } from "@/features/seller/marketplace/hooks/use-marketplace-connectors";
@@ -303,7 +304,7 @@ export function BringYourItemPage() {
   const publishedCount = progressState.publishedCount;
 
   return (
-    <AccountModuleShell title="Bring Your Item" backHref="/account" version="v1.0">
+    <AccountCanonicalShell title="Bring Your Item" backHref="/account">
       <div className="acm-byi" data-bring-your-item-version="v1.0">
         <div className="acm-byi__intro">
           <p className="acm-byi__subtitle">Import your eBay listings into ROVEXO.</p>
@@ -315,19 +316,19 @@ export function BringYourItemPage() {
             <p className="acm-byi__alert-message">{errorRecovery.message}</p>
             <div className="acm-byi__actions">
               {errorRecovery.canRetry ? (
-                <Button fullWidth onClick={() => void handleReconnect()} disabled={connectorActionPending}>
+                <CanonicalButton fullWidth onClick={() => void handleReconnect()} disabled={connectorActionPending}>
                   Reconnect
-                </Button>
+                </CanonicalButton>
               ) : null}
               {errorRecovery.canRetry ? (
-                <Button fullWidth variant="outline" onClick={() => void retryImport()} disabled={retryPending}>
+                <CanonicalButton fullWidth variant="outline" onClick={() => void retryImport()} disabled={retryPending}>
                   Retry
-                </Button>
+                </CanonicalButton>
               ) : null}
               {errorRecovery.canCancel ? (
-                <Button fullWidth variant="outline" onClick={() => void cancelImport()}>
+                <CanonicalButton fullWidth variant="outline" onClick={() => void cancelImport()}>
                   Cancel
-                </Button>
+                </CanonicalButton>
               ) : null}
             </div>
           </div>
@@ -369,9 +370,9 @@ export function BringYourItemPage() {
               >
                 Go to Homepage
               </Link>
-              <Button fullWidth variant="outline" onClick={handleImportMore}>
+              <CanonicalButton fullWidth variant="outline" onClick={handleImportMore}>
                 Import More
-              </Button>
+              </CanonicalButton>
             </div>
           </div>
         ) : null}
@@ -380,9 +381,9 @@ export function BringYourItemPage() {
 
         {!publishComplete && !isConnected && !connectorsLoading && !(error || oauthError) ? (
           <div className="acm-byi__section">
-            <Button fullWidth onClick={handleConnectOAuth}>
+            <CanonicalButton fullWidth onClick={handleConnectOAuth}>
               Connect eBay
-            </Button>
+            </CanonicalButton>
           </div>
         ) : null}
 
@@ -403,13 +404,13 @@ export function BringYourItemPage() {
                 {listingCount ?? 0} Listings Found
               </p>
             )}
-            <Button
+            <CanonicalButton
               fullWidth
               disabled={!canStartImport || isSubmitting || fetchingCount || importLocked}
               onClick={() => void handleStartImport()}
             >
               {isSubmitting ? "Starting…" : "Import Listings"}
-            </Button>
+            </CanonicalButton>
           </div>
         ) : null}
 
@@ -452,20 +453,20 @@ export function BringYourItemPage() {
 
         {!publishComplete && step === 3 && (isPolling || isSubmitting) && !importFailed ? (
           <div className="acm-byi__section">
-            <Button fullWidth variant="outline" onClick={() => void cancelImport()} disabled={retryPending}>
+            <CanonicalButton fullWidth variant="outline" onClick={() => void cancelImport()} disabled={retryPending}>
               Cancel
-            </Button>
+            </CanonicalButton>
           </div>
         ) : null}
 
         {!publishComplete && partialFailure && !error ? (
           <div className="acm-byi__section">
-            <Button fullWidth onClick={() => void handleRetryFailedItems()} disabled={retryPending}>
+            <CanonicalButton fullWidth onClick={() => void handleRetryFailedItems()} disabled={retryPending}>
               {retryPending ? "Retrying…" : "Retry Failed Items"}
-            </Button>
+            </CanonicalButton>
           </div>
         ) : null}
       </div>
-    </AccountModuleShell>
+    </AccountCanonicalShell>
   );
 }

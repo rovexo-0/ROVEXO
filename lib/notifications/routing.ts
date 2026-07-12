@@ -2,9 +2,12 @@ import type { SmartNotificationEventType } from "@/lib/notifications/events";
 import type { NotificationType } from "@/lib/notifications/types";
 import { PROFILE_RETURN_TO_PARAM } from "@/lib/account/profile-completion";
 
+import { TRANSACTION_HUB_INBOX_PATH, transactionHubInboxHref } from "@/lib/transaction-hub/inbox-routes";
+
 /** Canonical deep-link targets — Module 02B SSOT. */
 export const NOTIFICATION_ROUTES = {
-  inbox: "/inbox",
+  inbox: TRANSACTION_HUB_INBOX_PATH,
+  inboxThread: transactionHubInboxHref,
   orders: "/orders",
   order: (orderId: string) => `/orders/${orderId}`,
   orderTracking: (orderId: string) => `/orders/${orderId}?view=tracking`,
@@ -40,7 +43,7 @@ export function resolveSmartNotificationHref(
   switch (eventType) {
     case "new_message":
       return context.conversationId
-        ? `${NOTIFICATION_ROUTES.inbox}?thread=${context.conversationId}`
+        ? NOTIFICATION_ROUTES.inboxThread(context.conversationId)
         : NOTIFICATION_ROUTES.inbox;
     case "new_offer":
       return context.offerId ? NOTIFICATION_ROUTES.offer(context.offerId) : NOTIFICATION_ROUTES.offers;
@@ -97,7 +100,7 @@ export function resolveNotificationTypeHref(
   switch (type) {
     case "message":
       return context.conversationId
-        ? `${NOTIFICATION_ROUTES.inbox}?thread=${context.conversationId}`
+        ? NOTIFICATION_ROUTES.inboxThread(context.conversationId)
         : NOTIFICATION_ROUTES.inbox;
     case "order":
       return context.orderId ? NOTIFICATION_ROUTES.order(context.orderId) : NOTIFICATION_ROUTES.orders;

@@ -4,6 +4,7 @@ import { getConnectAccountStatus } from "@/lib/stripe/connect";
 import { decryptSensitive, encryptSensitive } from "@/lib/wallet/crypto";
 import type { Tables } from "@/lib/supabase/types/database";
 import type { WalletData, WalletTransaction, WithdrawMethod } from "@/lib/wallet/types";
+import { summarizeWalletWithdrawals } from "@/lib/transaction-hub/seller-wallet";
 
 function mapTransaction(row: Tables<"wallet_transactions">): WalletTransaction {
   return {
@@ -91,6 +92,9 @@ export async function getWalletData(userId: string): Promise<WalletData> {
   const paidOutBalance =
     paidOutRows?.reduce((sum, tx) => sum + Number(tx.amount), 0) ?? 0;
 
+  const mappedTransactions = (transactions ?? []).map(mapTransaction);
+  const withdrawalSummary = summarizeWalletWithdrawals(mappedTransactions);
+
   const monthFees = Math.abs(
     monthTransactions
       ?.filter((tx) => tx.type === "fee")
@@ -102,12 +106,13 @@ export async function getWalletData(userId: string): Promise<WalletData> {
     pendingBalance: Number(wallet?.pending_balance ?? 0),
     pendingAvailableAt: wallet?.pending_available_at ?? new Date().toISOString(),
     paidOutBalance,
+    withdrawalSummary,
     monthSummary: {
       revenue: { value: monthRevenue, changePercent: 0 },
       withdrawn: { value: monthPaidOut + monthWithdrawn, changePercent: 0 },
       fees: { value: monthFees, changePercent: 0 },
     },
-    transactions: (transactions ?? []).map(mapTransaction),
+    transactions: mappedTransactions,
     withdrawMethods: (methods ?? []).map(mapWithdrawMethod),
     connectStatus,
   };
@@ -293,5 +298,18 @@ export async function recordWithdrawal(input: {
     .select("*")
     .single();
 
-  return transaction ? mapTransaction(transaction) : null;
+  const mapped = transaction ? mapTransaction(transaction) : null;
+
+  if (mapped) {
+    const { notifySellerWithdrawalCompleted } = await import(
+      "@/lib/transaction-hub/seller-wallet-notifications"
+    );
+    void notifySellerWithdrawalCompleted({
+      sellerId: input.userId,
+      transactionId: mapped.id,
+      amount: input.amount,
+    });
+  }
+
+  return mapped;
 }

@@ -1,24 +1,18 @@
 "use client";
 
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { AccountPageShell } from "@/features/account/components/AccountPageShell";
-import { Button } from "@/components/ui/Button";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+
 import { CURRENCY_OPTIONS } from "@/lib/account/currencies";
 import { currencySchema } from "@/lib/account/schemas";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 import type { AppSettings } from "@/lib/settings/types";
 
 const formSchema = z.object({ currency: currencySchema });
 type FormValues = z.infer<typeof formSchema>;
-
-const selectClassName = cn(
-  "w-full rounded-ds-lg border border-border bg-surface px-ds-3 py-ds-3 text-sm text-text-primary",
-  focusRing,
-);
 
 export function AccountCurrencyPage() {
   const [message, setMessage] = useState<string | null>(null);
@@ -59,31 +53,28 @@ export function AccountCurrencyPage() {
   });
 
   return (
-    <AccountPageShell
-      title="Currency"
-      subtitle="Choose how prices are displayed across ROVEXO."
-      backHref="/account/settings"
-      backLabel="Settings"
-    >
-      <form onSubmit={onSubmit} className="rx-surface-card flex flex-col gap-ds-4 p-ds-5" noValidate>
-        <div>
-          <label htmlFor="currency" className="text-sm font-medium text-text-primary">
-            Display currency
-          </label>
-          <select id="currency" className={cn(selectClassName, "mt-ds-1")} {...register("currency")}>
-            {CURRENCY_OPTIONS.map((option) => (
-              <option key={option.code} value={option.code}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          {errors.currency ? <p className="text-xs text-danger">{errors.currency.message}</p> : null}
-        </div>
-        <Button type="submit" variant="primary" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : "Save currency"}
-        </Button>
-        {message ? <p className="text-sm text-text-secondary">{message}</p> : null}
-      </form>
-    </AccountPageShell>
+    <AccountCanonicalShell title="Currency" backHref="/account/settings">
+      <CanonicalSection title="Currency">
+        <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
+          <form onSubmit={onSubmit} className="flex flex-col gap-ds-4" noValidate>
+            <CanonicalSelector
+              label="Display currency"
+              id="currency"
+              kind="currency"
+              options={CURRENCY_OPTIONS.map((option) => ({
+                value: option.code,
+                label: option.label,
+              }))}
+              error={errors.currency?.message}
+              {...register("currency")}
+            />
+            <CanonicalButton type="submit" fullWidth loading={isSubmitting}>
+              {isSubmitting ? "Saving…" : "Save currency"}
+            </CanonicalButton>
+            {message ? <CanonicalInfoBlock variant="description">{message}</CanonicalInfoBlock> : null}
+          </form>
+        </CanonicalCard>
+      </CanonicalSection>
+    </AccountCanonicalShell>
   );
 }

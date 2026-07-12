@@ -2,7 +2,7 @@
 
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
-import { PageBack } from "@/components/navigation/PageBack";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/wallet/utils";
 import type { AnnualStatement } from "@/lib/wallet/monthly-statements";
@@ -30,16 +30,12 @@ export function AnnualStatementDetail({ statement }: AnnualStatementDetailProps)
 
   return (
     <BetaAppShell bottomNavTab="account">
-      <header className="wallet-hub__header print:hidden">
-        <PageBack
-          backHref="/wallet/statements/annual"
-          backLabel="Annual"
-          preferHistory
-          className="wallet-hub__back"
-        />
-        <h1 className="wallet-hub__title">{statement.label} Statement</h1>
-        <span className="wallet-hub__header-spacer" aria-hidden />
-      </header>
+      <CanonicalPageHeader
+        title={`${statement.label} Statement`}
+        backHref="/wallet/statements/annual"
+        backLabel="Annual"
+        className="print:hidden"
+      />
 
       <ScrollContainer
         withBottomNav

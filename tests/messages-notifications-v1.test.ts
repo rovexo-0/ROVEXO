@@ -18,8 +18,7 @@ describe("Messages + Notifications canonical UI v1.0", () => {
     expect(route).toContain('dynamic = "force-dynamic"');
     expect(route).not.toContain("fetchConversations");
     expect(inbox).toContain('data-messages-version="v1.0"');
-    expect(inbox).toContain("PageBack");
-    expect(inbox).toContain('className="msg-v1__title"');
+    expect(inbox).toContain("CanonicalPageHeader");
     expect(inbox).toContain("msg-row");
     expect(css).toContain(".msg-v1");
     expect(css).toContain(".msg-row__badge");
@@ -52,7 +51,7 @@ describe("Messages + Notifications canonical UI v1.0", () => {
     expect(route).not.toContain("NotificationsEngineHub");
     expect(route).not.toContain("fetchNotifications");
     expect(inbox).toContain('data-notifications-version="v1.0"');
-    expect(inbox).toContain("Mark all as read");
+    expect(inbox).toContain("Mark all read");
     expect(inbox).toContain("notif-row");
     expect(inbox).toContain("markAllRead: true");
     expect(inbox).toContain("useRealtimeNotifications");

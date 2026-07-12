@@ -1,9 +1,9 @@
 "use client";
 
-import { AccountCenterHeader } from "@/features/account-center/components/AccountCenterHeader";
 import { AccountCenterLogoutButton } from "@/features/account-center/components/AccountCenterLogoutButton";
 import { AccountCenterDeleteButton } from "@/features/account-center/components/AccountCenterDeleteButton";
 import { AccountModuleTileGrid } from "@/features/account-center/components/AccountModuleTileGrid";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import {
   getModuleMeta,
   getModuleTiles,
@@ -33,16 +33,18 @@ export function AccountCenterModulePage({
     badgeCounts ? resolveHrefBadge(href, badgeCounts) : resolveMobileBadge(key, mobileBadges);
 
   return (
-    <div className={cn("account-center", moduleId === "selling" && "account-center--seller")}>
-      <div className="account-center__container">
-        <AccountCenterHeader
-          title={meta.title}
-          showBack
-          backHref={meta.backHref}
-          backLabel={meta.backLabel}
-          variant="module"
-        />
-
+    <AccountCanonicalShell
+      title={meta.title}
+      backHref={meta.backHref}
+      bottomNavTab={moduleId === "selling" ? "sell" : "account"}
+    >
+      <div
+        className={cn(
+          "account-center account-center--module px-ds-4 pb-ds-6",
+          moduleId === "selling" && "account-center--seller",
+        )}
+        data-account-module-dashboard={moduleId}
+      >
         <AccountModuleTileGrid
           tiles={tiles}
           resolveBadge={resolveBadge}
@@ -56,6 +58,6 @@ export function AccountCenterModulePage({
           </>
         ) : null}
       </div>
-    </div>
+    </AccountCanonicalShell>
   );
 }

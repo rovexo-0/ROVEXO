@@ -1,12 +1,12 @@
 "use client";
 
+import { CanonicalButton, cdsButtonClass } from "@/src/components/canonical";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression";
 import { Avatar } from "@/components/ui/Avatar";
-import { Button } from "@/components/ui/Button";
+
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
-import { buttonSizes, buttonVariants } from "@/components/ui/variants";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 
@@ -201,27 +201,22 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
           <>
             <label
               htmlFor={pickerId}
-              className={cn(
-                buttonVariants.secondary,
-                buttonSizes.md,
-                focusRing,
-                busy && "pointer-events-none opacity-50",
-              )}
+              className={cn(cdsButtonClass("secondary"), focusRing, busy && "pointer-events-none opacity-50")}
             >
-              Upload photo
+              Upload Photo
             </label>
             {avatarUrl ? (
-              <Button type="button" variant="ghost" onClick={() => void removeAvatar()} disabled={busy}>
-                Remove
-              </Button>
+              <CanonicalButton type="button" variant="ghost" onClick={() => void removeAvatar()} disabled={busy}>
+                Remove Photo
+              </CanonicalButton>
             ) : null}
           </>
         ) : (
           <>
-            <Button type="button" variant="primary" onClick={() => void uploadCropped()} disabled={busy}>
+            <CanonicalButton type="button" onClick={() => void uploadCropped()} disabled={busy} loading={busy}>
               {busy ? "Saving…" : "Save photo"}
-            </Button>
-            <Button
+            </CanonicalButton>
+            <CanonicalButton
               type="button"
               variant="ghost"
               onClick={() => {
@@ -231,7 +226,7 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
               disabled={busy}
             >
               Cancel
-            </Button>
+            </CanonicalButton>
           </>
         )}
       </div>

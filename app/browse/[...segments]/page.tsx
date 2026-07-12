@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Header from "@/components/Header";
+import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ProgrammaticPageView } from "@/features/seo/components/ProgrammaticPageView";
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
@@ -69,7 +69,7 @@ export default async function BrowsePage({ params }: BrowsePageProps) {
 
   return (
     <BetaAppShell bottomNavTab="search">
-      <Header />
+      <RovexoHeaderV2 />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

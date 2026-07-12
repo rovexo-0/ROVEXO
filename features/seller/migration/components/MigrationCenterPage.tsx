@@ -6,9 +6,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { PageBack } from "@/components/navigation/PageBack";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { Button } from "@/components/ui/Button";
-import { StickyPageHeader } from "@/components/ui/StickyPageHeader";
 import { MigrationStepIndicator } from "@/features/seller/migration/components/MigrationStepIndicator";
 import { useMarketplaceConnectors } from "@/features/seller/marketplace/hooks/use-marketplace-connectors";
 import { useMigrationWizard } from "@/features/seller/migration/hooks/use-migration-wizard";
@@ -184,16 +183,9 @@ export function MigrationCenterPage() {
 
   return (
     <BetaAppShell showBottomNav={false} bottomNavTab="account">
-      <HubPageMain withBottomNav={false} className="account-center-shell mx-auto w-full max-w-[480px] bg-background px-ds-4 py-ds-5 ">
-        <StickyPageHeader>
-          <div className="flex items-center gap-ds-2">
-            <PageBack backHref="/account" backLabel="My Account" />
-            <div className="min-w-0 flex-1">
-              <h1 className="truncate text-base font-semibold text-text-primary">Bring Your Item</h1>
-              <p className="truncate text-xs text-text-secondary">Import listings in a few taps</p>
-            </div>
-          </div>
-        </StickyPageHeader>
+      <CanonicalPageHeader title="Bring Your Item" backHref="/account" backLabel="My Account" />
+      <HubPageMain withBottomNav={false} className="account-center-shell mx-auto w-full max-w-[480px] bg-background px-ds-4 py-ds-5">
+        <p className="text-sm text-text-secondary">Import listings in a few taps</p>
 
         <section className="byi-hero mt-ds-4" aria-labelledby="byi-hero-title">
           <p className="byi-hero__eyebrow">Marketplace import</p>

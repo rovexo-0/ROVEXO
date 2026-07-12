@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Header from "@/components/Header";
+import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoryPageView } from "@/features/categories/components/CategoryPageView";
 import { resolveCategoryPage } from "@/lib/categories/server";
@@ -57,7 +57,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <BetaAppShell bottomNavTab="search">
-      <Header />
+      <RovexoHeaderV2 />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

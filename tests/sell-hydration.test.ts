@@ -17,10 +17,11 @@ describe("Sell module hydration safety", () => {
     expect(initializer).not.toContain("loadSellDraft()");
   });
 
-  it("restores sell draft only inside useEffect after mount", () => {
+  it("restores sell draft only when not in a fresh session", () => {
     const source = readSource("features/sell/context/SellProvider.tsx");
     expect(source).toContain("useEffect(() => {");
     expect(source).toContain("const stored = loadSellDraft();");
+    expect(source).toContain("freshSession");
   });
 
   it("does not call crypto.randomUUID during render in SellProvider", () => {

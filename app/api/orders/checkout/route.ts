@@ -19,6 +19,7 @@ export async function POST(request: Request) {
       deliveryOption?: string;
       shippingAddressId?: string;
       shippingQuoteId?: string | null;
+      hubConversationId?: string;
     };
 
     if (!body.productSlug) {
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
       deliveryOption: body.deliveryOption ?? "",
       shippingAddressId: body.shippingAddressId,
       shippingQuoteId: body.shippingQuoteId ?? null,
+      hubConversationId: body.hubConversationId,
     });
 
     if ("error" in result) {

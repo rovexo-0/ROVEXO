@@ -1,9 +1,12 @@
 "use client";
 
-import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ModalContainer } from "@/components/ui/ModalContainer";
+import { useCallback, useState } from "react";
+import { SafeImage } from "@/components/ui/SafeImage";
+import {
+  CanonicalInfoBlock,
+  CanonicalModal,
+} from "@/src/components/canonical";
 import type { ResolvedPromotionCatalogEntry } from "@/lib/promotions/catalog";
 import type { SellerListing } from "@/lib/listings/types";
 
@@ -20,23 +23,19 @@ export function PromotionListingPicker({
   listings,
   onClose,
 }: PromotionListingPickerProps) {
-  const cancelRef = useRef<HTMLButtonElement>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const publishedListings = listings.filter((listing) => listing.status === "published");
-
-  useEffect(() => {
-    if (!open) return;
-    cancelRef.current?.focus();
-  }, [open]);
+  const publishedListings = listings.filter(
+    (listing) => listing.status === "published" && listing.stock > 0,
+  );
 
   const startCheckout = useCallback(
     async (listingId: string) => {
       if (!entry) return;
 
-      if (entry.checkoutKind === "store_featured") {
-        window.location.href = "/account/business";
+      if (entry.checkoutKind === "store_featured" || entry.id === "boost") {
+        setError("Use the main Promotion Tools page for this promotion.");
         return;
       }
 
@@ -78,39 +77,36 @@ export function PromotionListingPicker({
   if (!entry) return null;
 
   return (
-    <ModalContainer
+    <CanonicalModal
       open={open}
+      variant="information"
+      title={`Select a listing for ${entry.title}`}
+      cancelLabel="Close"
       onClose={onClose}
-      variant="sheet"
-      zIndex={120}
-      ariaLabelledBy="promo-listing-picker-title"
-      panelClassName="promo-v1-modal"
     >
-      <h2 id="promo-listing-picker-title" className="promo-v1-modal__title">
-        Select a listing for {entry.title}
-      </h2>
-        <p className="promo-v1-modal__empty">
+      <div className="flex flex-col gap-ds-3">
+        <CanonicalInfoBlock variant="description">
           Choose a published listing to continue with {entry.title.toLowerCase()}.
-        </p>
+        </CanonicalInfoBlock>
 
         {publishedListings.length === 0 ? (
-          <p className="promo-v1-modal__empty">
+          <CanonicalInfoBlock variant="warning">
             You need at least one published listing.{" "}
             <Link href="/sell" className="font-semibold text-primary">
               Create a listing
             </Link>
-          </p>
+          </CanonicalInfoBlock>
         ) : (
-          <div className="promo-v1-modal__list" role="listbox" aria-label="Published listings">
+          <div role="listbox" aria-label="Published listings">
             {publishedListings.map((listing) => (
               <button
                 key={listing.id}
                 type="button"
-                className="promo-v1-modal__listing"
+                className="cds-menu-row w-full"
                 disabled={busyId !== null}
                 onClick={() => void startCheckout(listing.id)}
               >
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-surface-muted">
+                <span className="relative mr-ds-3 inline-flex h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-surface-muted">
                   <SafeImage
                     src={listing.thumbnailUrl ?? listing.imageUrl}
                     alt=""
@@ -118,22 +114,15 @@ export function PromotionListingPicker({
                     className="object-cover"
                     sizes="48px"
                   />
-                </div>
-                <span className="min-w-0 flex-1 truncate text-sm font-semibold text-text-primary">
-                  {listing.title}
                 </span>
+                <span className="cds-menu-row__title truncate">{listing.title}</span>
               </button>
             ))}
           </div>
         )}
 
-        {error ? <p className="promo-v1-modal__error">{error}</p> : null}
-
-        <div className="promo-v1-modal__actions">
-          <button ref={cancelRef} type="button" className="promo-v1-modal__cancel" onClick={onClose}>
-            Cancel
-          </button>
-        </div>
-    </ModalContainer>
+        {error ? <CanonicalInfoBlock variant="error">{error}</CanonicalInfoBlock> : null}
+      </div>
+    </CanonicalModal>
   );
 }

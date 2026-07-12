@@ -1,9 +1,7 @@
 "use client";
 
-import { useId, useState } from "react";
-import { Modal } from "@/components/ui/Modal";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
+import { useState } from "react";
+import { CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalModal } from "@/src/components/canonical";
 import {
   formatSortCode,
   validateBankAccountInput,
@@ -15,6 +13,7 @@ type BankAccountFormProps = {
   connected: boolean;
   onClose: () => void;
   onSaved: () => void;
+  onRemoved?: () => void;
 };
 
 const EMPTY = {
@@ -24,7 +23,7 @@ const EMPTY = {
   confirmAccountNumber: "",
 };
 
-export function BankAccountForm({ open, connected, onClose, onSaved }: BankAccountFormProps) {
+export function BankAccountForm({ open, connected, onClose, onSaved, onRemoved }: BankAccountFormProps) {
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState<BankAccountErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -98,7 +97,8 @@ export function BankAccountForm({ open, connected, onClose, onSaved }: BankAccou
       const response = await fetch("/api/wallet/bank-account", { method: "DELETE" });
       if (response.ok) {
         reset();
-        onSaved();
+        onRemoved?.();
+        onClose();
         return;
       }
       setFormError("Could not remove your bank account. Please try again.");
@@ -112,135 +112,68 @@ export function BankAccountForm({ open, connected, onClose, onSaved }: BankAccou
   const busy = submitting || removing;
 
   return (
-    <Modal
+    <CanonicalModal
       open={open}
+      variant="confirm"
+      title="Bank Account"
+      cancelLabel="Cancel"
+      confirmLabel={submitting ? "Saving…" : "Save"}
+      loading={submitting}
+      confirmDisabled={busy}
       onClose={close}
-      title={connected ? "Manage bank account" : "Add bank account"}
-      footer={
-        <>
-          <Button variant="ghost" onClick={close} disabled={busy}>
-            Cancel
-          </Button>
-          <Button onClick={() => void submit()} disabled={busy}>
-            {submitting ? "Saving…" : "Save bank account"}
-          </Button>
-        </>
-      }
+      onConfirm={() => void submit()}
     >
-      <form
-        className="flex flex-col gap-ds-4"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void submit();
-        }}
-      >
-        <Field
-          label="Account holder name"
+      <div className="flex flex-col gap-ds-4">
+        <CanonicalInput
+          id="accountHolderName"
+          label="Account Holder"
           value={values.accountHolderName}
-          error={errors.accountHolderName}
           autoComplete="name"
-          placeholder="e.g. Alex Taylor"
-          onChange={(value) => update("accountHolderName", value)}
+          error={errors.accountHolderName}
+          onChange={(event) => update("accountHolderName", event.target.value)}
         />
-        <Field
-          label="Sort code"
+        <CanonicalInput
+          id="sortCode"
+          label="Sort Code"
           value={values.sortCode}
+          inputMode="numeric"
+          maxLength={8}
           error={errors.sortCode}
-          inputMode="numeric"
-          placeholder="12-34-56"
-          maxLength={8}
-          onChange={(value) => update("sortCode", value)}
+          onChange={(event) => update("sortCode", event.target.value)}
         />
-        <Field
-          label="Account number"
+        <CanonicalInput
+          id="accountNumber"
+          label="Account Number"
           value={values.accountNumber}
+          inputMode="numeric"
+          maxLength={8}
           error={errors.accountNumber}
-          inputMode="numeric"
-          placeholder="12345678"
-          maxLength={8}
-          onChange={(value) => update("accountNumber", value.replace(/\D/g, ""))}
+          onChange={(event) => update("accountNumber", event.target.value.replace(/\D/g, ""))}
         />
-        <Field
-          label="Confirm account number"
+        <CanonicalInput
+          id="confirmAccountNumber"
+          label="Confirm Account Number"
           value={values.confirmAccountNumber}
-          error={errors.confirmAccountNumber}
           inputMode="numeric"
-          placeholder="12345678"
           maxLength={8}
-          onChange={(value) => update("confirmAccountNumber", value.replace(/\D/g, ""))}
+          error={errors.confirmAccountNumber}
+          onChange={(event) => update("confirmAccountNumber", event.target.value.replace(/\D/g, ""))}
         />
 
-        {formError ? (
-          <p role="alert" className="text-sm text-danger">
-            {formError}
-          </p>
+        {formError ? <CanonicalInfoBlock variant="error">{formError}</CanonicalInfoBlock> : null}
+
+        {connected ? (
+          <CanonicalButton
+            type="button"
+            variant="danger"
+            onClick={() => void remove()}
+            disabled={busy}
+            loading={removing}
+          >
+            {removing ? "Removing…" : "Remove Bank Account"}
+          </CanonicalButton>
         ) : null}
-
-        {/* Submit on Enter without a visible duplicate button. */}
-        <button type="submit" className="sr-only" tabIndex={-1} aria-hidden="true">
-          Save
-        </button>
-      </form>
-
-      {connected ? (
-        <button
-          type="button"
-          onClick={() => void remove()}
-          disabled={busy}
-          className="mt-ds-4 text-sm font-semibold text-danger hover:underline disabled:opacity-50"
-        >
-          {removing ? "Removing…" : "Remove bank account"}
-        </button>
-      ) : null}
-    </Modal>
-  );
-}
-
-type FieldProps = {
-  label: string;
-  value: string;
-  error?: string;
-  placeholder?: string;
-  autoComplete?: string;
-  inputMode?: "numeric" | "text";
-  maxLength?: number;
-  onChange: (value: string) => void;
-};
-
-function Field({
-  label,
-  value,
-  error,
-  placeholder,
-  autoComplete,
-  inputMode,
-  maxLength,
-  onChange,
-}: FieldProps) {
-  const id = useId();
-  const errorId = `${id}-error`;
-
-  return (
-    <div className="flex flex-col gap-ds-2">
-      <label htmlFor={id} className="text-sm font-semibold text-text-primary">
-        {label}
-      </label>
-      <Input
-        id={id}
-        value={value}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        inputMode={inputMode}
-        maxLength={maxLength}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-        onChange={(event) => onChange(event.target.value)}
-      />
-      {error ? (
-        <p id={errorId} role="alert" className="text-xs font-medium text-danger">
-          {error}
-        </p>
-      ) : null}
-    </div>
+      </div>
+    </CanonicalModal>
   );
 }

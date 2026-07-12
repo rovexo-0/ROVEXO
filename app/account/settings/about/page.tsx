@@ -1,4 +1,4 @@
-import { AccountModuleShell } from "@/features/account-module/components/AccountModuleShell";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { SettingsAboutV1 } from "@/features/account-module/components/SettingsAboutV1";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
@@ -9,8 +9,8 @@ export const metadata = {
 
 export default function SettingsAboutRoute() {
   return (
-    <AccountModuleShell title="About" backHref="/account/settings" version="v2.0-02b">
+    <AccountCanonicalShell title="About" backHref="/account/settings">
       <SettingsAboutV1 />
-    </AccountModuleShell>
+    </AccountCanonicalShell>
   );
 }

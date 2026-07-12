@@ -36,16 +36,20 @@ export function resolveLongTailPage(slug: string): DiscoveryPage | null {
 
   // category-brand: phones-apple, laptops-dell
   for (const [alias, categorySlugs] of Object.entries(CATEGORY_ALIASES)) {
-    for (const brand of MARKETPLACE_BRANDS.slice(0, 40)) {
-      const combo = `${alias}-${brandSlug(brand)}`;
-      if (normalized === combo) {
-        return buildLongTailPage(
-          normalized,
-          `${brand} ${slugToTitle(alias)}`,
-          { categorySlugPath: categorySlugs, brand },
-          ["category", "brand"],
-        );
-      }
+    const prefix = `${alias}-`;
+    if (!normalized.startsWith(prefix)) continue;
+
+    const brandPart = normalized.slice(prefix.length);
+    if (!brandPart || brandPart.includes("-")) continue;
+
+    const brand = MARKETPLACE_BRANDS.find((candidate) => brandSlug(candidate) === brandPart);
+    if (brand) {
+      return buildLongTailPage(
+        normalized,
+        `${brand} ${slugToTitle(alias)}`,
+        { categorySlugPath: categorySlugs, brand },
+        ["category", "brand"],
+      );
     }
   }
 

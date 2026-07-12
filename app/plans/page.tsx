@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { CanonicalPageShell } from "@/components/layout/CanonicalPageShell";
 import { PlansPage } from "@/features/monetization/components/PlansPage";
 import { getAuthContext } from "@/lib/auth/session";
 import { getUserSubscription, listMonetizationPlans } from "@/lib/monetization/service";
@@ -21,12 +21,14 @@ export default async function PlansRoute() {
   ]);
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      <PlansPage
-        plans={plans}
-        products={MONETIZATION_PRODUCTS}
-        subscription={subscription}
-      />
-    </BetaAppShell>
+    <CanonicalPageShell
+      title="Plans & Premium"
+      backHref="/account"
+      backLabel="My Account"
+      showBottomNav={false}
+      contentClassName="max-w-5xl gap-ds-6 py-ds-5"
+    >
+      <PlansPage plans={plans} products={MONETIZATION_PRODUCTS} subscription={subscription} />
+    </CanonicalPageShell>
   );
 }

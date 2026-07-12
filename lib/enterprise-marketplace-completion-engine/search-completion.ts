@@ -65,9 +65,9 @@ function scanSearchEngine(scan: MarketplaceCompletionScanResult): CompletionVali
     if (check.includes("saved")) pass = fileExists("features/search/components/SavedSearchesPanel.tsx");
     if (check.includes("ai-suggest")) pass = fileExists("lib/search-engine/engine.ts");
     if (check.includes("misspell") || check.includes("synonym") || check.includes("plural")) {
-      pass = fileExists("lib/taxonomy/category-synonyms.ts") || fileExists("lib/taxonomy/category-normalizer.ts");
+      pass = fileExists("lib/categories/search-synonyms.ts") || fileExists("lib/categories/taxonomy-utils.ts");
     }
-    if (check.includes("category-detection")) pass = fileExists("lib/taxonomy/category-search.ts");
+    if (check.includes("category-detection")) pass = fileExists("lib/sell/category-picker-search.ts");
     if (check.includes("brand-detection")) pass = registry.includes("brand");
     return createCheck("search-engine", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
@@ -149,7 +149,7 @@ function scanPerformance(scan: MarketplaceCompletionScanResult): CompletionValid
 
   return SEARCH_PERFORMANCE_VALIDATION.map((check) => {
     let pass = searchFoundationReady(scan) && scan.homepagePass;
-    if (check.includes("index")) pass = fileExists("lib/taxonomy/category-index.ts");
+    if (check.includes("index")) pass = fileExists("lib/sell/category-picker-search.ts");
     if (check.includes("cache") || check.includes("database")) pass = fileExists("lib/search-engine/engine.ts");
     if (check.includes("lazy") || check.includes("infinite")) pass = resultsSource.includes("useIntersectionWhenVisible");
     if (check.includes("debounce")) pass = debounce;
@@ -162,9 +162,9 @@ function scanDatabase(scan: MarketplaceCompletionScanResult): CompletionValidati
   const registry = readSource("lib/search-engine/registry.ts");
 
   return SEARCH_DATABASE_VALIDATION.map((check) => {
-    let pass = fileExists("lib/taxonomy/category-index.ts") && searchFoundationReady(scan);
+    let pass = fileExists("lib/sell/category-picker-search.ts") && searchFoundationReady(scan);
     if (check.includes("listing")) pass = fileExists("app/api/search/results/route.ts");
-    if (check.includes("category")) pass = fileExists("lib/taxonomy/category-search.ts");
+    if (check.includes("category")) pass = fileExists("lib/sell/category-picker-search.ts");
     if (check.includes("brand")) pass = registry.includes("brand");
     if (check.includes("full-text") || check.includes("search-index")) pass = fileExists("lib/search/search.ts");
     if (check.includes("duplicate") || check.includes("missing") || check.includes("unused") || check.includes("health")) {
@@ -189,7 +189,7 @@ function scanSeo(scan: MarketplaceCompletionScanResult): CompletionValidationIte
 
 function scanAiSearch(): AiSearchValidationItem[] {
   const aiEngine = readSource("lib/search-engine/engine.ts");
-  const aiCategory = readSource("lib/taxonomies/ai-category.ts");
+  const aiCategory = readSource("lib/sell/canonical-category-search.ts");
 
   return AI_SEARCH_VALIDATION.map((check) => {
     let pass = aiEngine.length > 0 || aiCategory.length > 0;
@@ -219,7 +219,7 @@ function scanOmegaGlobal(scan: MarketplaceCompletionScanResult): CompletionValid
     if (check.includes("filter")) pass = fileExists("features/search/components/SearchFilters.tsx");
     if (check.includes("sort")) pass = fileExists("features/search/utils/sort-results.ts");
     if (check.includes("suggest") || check.includes("autocomplete")) pass = overlay && fileExists("features/search/components/SearchSuggestionList.tsx");
-    if (check.includes("index")) pass = fileExists("lib/taxonomy/category-index.ts");
+    if (check.includes("index")) pass = fileExists("lib/sell/category-picker-search.ts");
     if (check.includes("duplicate") || check.includes("missing") || check.includes("ranking")) pass = fileExists("app/api/search/results/route.ts");
     if (check.includes("slow")) pass = fileExists("features/search/hooks/use-debounced-value.ts");
     if (check.includes("pagination") || check.includes("infinite")) pass = resultsSource.includes("hasMore");

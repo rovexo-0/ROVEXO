@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { HubPageMain } from "@/components/layout/HubPageMain";
-import Header from "@/components/Header";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoriesMobileNav } from "@/features/categories/components/CategoriesMobileNav";
 import { CategoryCompactCard } from "@/features/categories/components/CategoryCompactCard";
+import { DiscoveryPageShell } from "@/components/layout/DiscoveryPageShell";
 import { ResponsiveShell } from "@/features/mobile-ui";
 import { getCategoryTree } from "@/lib/categories/queries";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -20,29 +18,26 @@ export default function CategoriesIndexPage() {
   const tree = getCategoryTree();
 
   return (
-    <BetaAppShell bottomNavTab="search">
-      <Header />
-      <HubPageMain className="rx-category-index mx-auto flex w-full max-w-7xl flex-col gap-ds-4 px-ds-4 py-ds-5  pt-[calc(7.5rem+env(safe-area-inset-top))]">
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">All categories</h1>
-          <p className="mt-ds-1 text-sm text-text-secondary">
-            Explore the full ROVEXO marketplace catalogue.
-          </p>
-        </div>
+    <DiscoveryPageShell mainClassName="rx-category-index flex flex-col gap-ds-4">
+      <div>
+        <h1 className="text-lg font-semibold text-text-primary">All categories</h1>
+        <p className="mt-ds-1 text-sm text-text-secondary">
+          Explore the full ROVEXO marketplace catalogue.
+        </p>
+      </div>
 
-        <ResponsiveShell mobile={<CategoriesMobileNav />} desktop={null} />
+      <ResponsiveShell mobile={<CategoriesMobileNav />} desktop={null} />
 
-        <div className="rx-category-page-grid">
-          {tree.map((category) => (
-            <CategoryCompactCard
-              key={category.id}
-              name={category.name}
-              slug={category.slug}
-              subtitle={`${(category.children?.length ?? 0).toLocaleString()} subcategories`}
-            />
-          ))}
-        </div>
-      </HubPageMain>
-    </BetaAppShell>
+      <div className="rx-category-page-grid">
+        {tree.map((category) => (
+          <CategoryCompactCard
+            key={category.id}
+            name={category.name}
+            slug={category.slug}
+            subtitle={`${(category.children?.length ?? 0).toLocaleString()} subcategories`}
+          />
+        ))}
+      </div>
+    </DiscoveryPageShell>
   );
 }

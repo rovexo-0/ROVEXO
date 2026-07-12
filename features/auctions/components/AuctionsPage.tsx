@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import Header from "@/components/Header";
+import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { HomePageShell } from "@/components/home/HomePageShell";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
@@ -88,7 +88,7 @@ export function AuctionsPage({ initialData }: AuctionsPageProps) {
 
   return (
     <BetaAppShell bottomNavTab="home">
-      <HomePageShell header={<Header />} bottomNav={null}>
+      <HomePageShell header={<RovexoHeaderV2 />} bottomNav={null}>
         <ScrollContainer withBottomNav className="auctions-page flex flex-col gap-ds-3">
           <header className="px-ds-4 pt-ds-2">
             <h1 className="text-2xl font-bold tracking-tight text-text-primary">

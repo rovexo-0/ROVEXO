@@ -2,7 +2,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { processAutomaticSellerPayouts } from "@/lib/stripe/payouts";
 import { calculatePlatformFee } from "@/lib/orders/pricing";
 
-export const PENDING_HOLD_HOURS = 36;
+import { DELIVERED_RELEASE_HOURS } from "@/lib/commerce-engine/escrow-constants";
+
+/** @deprecated Use DELIVERED_RELEASE_HOURS from commerce-engine/escrow-constants (24h). */
+export const PENDING_HOLD_HOURS = DELIVERED_RELEASE_HOURS;
 
 function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;

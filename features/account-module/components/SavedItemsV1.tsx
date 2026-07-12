@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
+import { CanonicalButtonLink, CanonicalInfoBlock } from "@/src/components/canonical";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { LISTING_CARD_HOMEPAGE_PROPS } from "@/lib/listing-card/defaults";
 import { formatPlatformFeeLine } from "@/lib/listing-card/format";
-import { AccountModuleShell } from "@/features/account-module/components/AccountModuleShell";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+
 import type { SavedItem } from "@/lib/saved/types";
 
 const PAGE_SIZE = 20;
@@ -51,19 +52,19 @@ export function SavedItemsV1({ initialItems }: SavedItemsV1Props) {
   const visibleItems = items.slice(0, visibleCount);
 
   return (
-    <AccountModuleShell title="Saved Items" backHref="/account" version="v1.0">
+    <AccountCanonicalShell title="Saved Items" backHref="/account">
       {items.length === 0 ? (
-        <div className="acm-empty" data-saved-version="v1.0">
-          <p className="acm-empty__title">No saved items</p>
-          <p className="acm-empty__text">Tap the heart on any listing to save it here.</p>
-          <Link href="/search" className="acm-cta__btn" style={{ marginTop: 16, display: "inline-flex" }}>
+        <CanonicalInfoBlock variant="description">
+          <p className="font-medium text-text-primary">No saved items</p>
+          <p className="mt-ds-1">Tap the heart on any listing to save it here.</p>
+          <CanonicalButtonLink href="/search" variant="secondary" className="mt-ds-4">
             Browse listings
-          </Link>
-        </div>
+          </CanonicalButtonLink>
+        </CanonicalInfoBlock>
       ) : (
-        <div className="rx-listing-grid acm-saved-feed" data-saved-version="v1.0">
+        <div className="rx-listing-grid">
           {visibleItems.map((item) => (
-            <div key={item.productSlug} className="acm-saved-feed__item">
+            <div key={item.productSlug} className="flex flex-col gap-ds-1">
               <ListingCard
                 product={item.product}
                 {...LISTING_CARD_HOMEPAGE_PROPS}
@@ -73,14 +74,12 @@ export function SavedItemsV1({ initialItems }: SavedItemsV1Props) {
                 isFavorite
                 onFavorite={() => void removeItem(item.productSlug)}
               />
-              <p className="acm-saved-feed__fee">{formatPlatformFeeLine(item.product.price)}</p>
+              <p className="cds-field__hint px-ds-1">{formatPlatformFeeLine(item.product.price)}</p>
             </div>
           ))}
-          {visibleCount < items.length ? (
-            <div ref={sentinelRef} className="acm-saved-feed__sentinel" aria-hidden />
-          ) : null}
+          {visibleCount < items.length ? <div ref={sentinelRef} className="h-4" aria-hidden /> : null}
         </div>
       )}
-    </AccountModuleShell>
+    </AccountCanonicalShell>
   );
 }

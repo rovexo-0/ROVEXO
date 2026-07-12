@@ -39,13 +39,13 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
     expect(readSource("app/cookies/page.tsx")).toContain("/legal/cookie-policy");
   });
 
-  it("locks help centre canonical topics including wallet and tax reporting", () => {
+  it("locks help centre category buttons for account entry", () => {
     const help = readSource("features/help/components/HelpCentreCanonicalSection.tsx");
+    const categories = readSource("lib/help/help-centre-categories.ts");
     expect(help).toContain('data-help-centre-version="v1.0-legal-lock"');
-    expect(help).toContain('title: "Wallet"');
-    expect(help).toContain('title: "Orders"');
-    expect(help).toContain("Tax & Reporting");
-    expect(help).toContain("/legal/cookie-policy");
+    expect(categories).toContain('"Payments & Wallet"');
+    expect(categories).toContain('"Orders"');
+    expect(categories).toContain('"Safety"');
     expect(readSource("lib/account-center/canonical-menu.ts")).not.toContain("Contact Support");
   });
 

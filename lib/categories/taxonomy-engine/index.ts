@@ -80,6 +80,38 @@ export {
 } from "@/lib/categories/validate-taxonomy";
 
 export {
+  generateCanonicalTaxonomyReport,
+  formatCanonicalTaxonomyReport,
+  type CanonicalTaxonomyReport,
+  type TaxonomyDimensionCounts,
+} from "@/lib/categories/taxonomy-validation-report";
+
+export {
+  loadCategoryScopedTaxonomy,
+  loadBrandsForCategory,
+  loadMaterialsForCategory,
+  loadColoursForCategory,
+  loadSizesForCategory,
+  resolveTaxonomyScope,
+  excludesElectronicsBrands,
+  type CategoryScopedTaxonomy,
+  type TaxonomyScope,
+} from "@/lib/category-loaders";
+
+export {
+  BRAND_COUNT,
+  MATERIAL_COUNT,
+  COLOUR_COUNT,
+  PRODUCT_TYPE_COUNT,
+} from "@/lib/categories/taxonomy-scale";
+
+export { validateBrand } from "@/lib/brands";
+export { validateMaterial } from "@/lib/materials";
+export { validateColour } from "@/lib/colours";
+
+export * from "@/lib/category-aliases";
+
+export {
   exportTaxonomyBackup,
   parseTaxonomyBackup,
   stringifyTaxonomyBackup,

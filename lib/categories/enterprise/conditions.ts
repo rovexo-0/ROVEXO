@@ -11,7 +11,6 @@ export const MARKETPLACE_CONDITIONS = [
   "Very Good",
   "Good",
   "Fair",
-  "For Parts",
   "Broken",
   "Refurbished",
   "Manufacturer Refurbished",
@@ -35,7 +34,6 @@ export const ELECTRONICS_CONDITIONS = [
   "Like New",
   "Good",
   "Fair",
-  "For Parts",
 ] as const;
 
 export const MARKETPLACE_CONDITIONS_BY_VERTICAL = {

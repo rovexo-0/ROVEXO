@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { PageBack } from "@/components/navigation/PageBack";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { ComposeLineIcon } from "@/components/icons/RvxLineIcons";
 import { Avatar } from "@/components/ui/Avatar";
 import { MessagesEmptyState } from "@/features/messages/components/MessagesEmptyState";
@@ -90,13 +90,16 @@ export function MessagesInboxV1({ initialConversations = [] }: MessagesInboxV1Pr
   return (
     <BetaAppShell className="msg-v1-shell">
       <div className="msg-v1" data-messages-version="v1.0">
-        <div className="msg-v1__titlebar">
-          <PageBack backHref="/account" backLabel="My Account" preferHistory className="msg-v1__back" />
-          <h1 className="msg-v1__title">Messages</h1>
-          <Link href="/search" className="msg-v1__compose" aria-label="Start a new conversation">
-            <ComposeLineIcon />
-          </Link>
-        </div>
+        <CanonicalPageHeader
+          title="Messages"
+          backHref="/account"
+          backLabel="My Account"
+          rightAction={
+            <Link href="/search" className="msg-v1__compose" aria-label="Start a new conversation">
+              <ComposeLineIcon />
+            </Link>
+          }
+        />
 
         {loading ? (
           <MessagesListSkeleton />

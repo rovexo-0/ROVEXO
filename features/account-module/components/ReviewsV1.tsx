@@ -1,8 +1,10 @@
 "use client";
 
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
 import { Avatar } from "@/components/ui/Avatar";
 import { Rating } from "@/components/ui/Rating";
-import { AccountModuleShell } from "@/features/account-module/components/AccountModuleShell";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+
 import type { Review } from "@/lib/reviews/types";
 
 function formatReviewDate(value: string): string {
@@ -21,54 +23,48 @@ export function ReviewsV1({ rating, reviewCount, reviews }: ReviewsV1Props) {
   const displayRating = rating > 0 ? rating : 0;
 
   return (
-    <AccountModuleShell title="My Reviews" backHref="/account" version="v1.0">
-      <section className="acm-reviews-summary" aria-labelledby="reviews-overall-rating" data-reviews-version="v1.0">
-        <h2 id="reviews-overall-rating" className="sr-only">
-          Overall rating
-        </h2>
-        <div className="acm-reviews-summary__stars" aria-hidden>
-          {Array.from({ length: 5 }, (_, index) => (
-            <span
-              key={index}
-              className={index < Math.round(displayRating) ? "acm-reviews-summary__star acm-reviews-summary__star--on" : "acm-reviews-summary__star"}
-            >
-              ★
-            </span>
-          ))}
-        </div>
-        <p className="acm-reviews-summary__score">{displayRating > 0 ? displayRating.toFixed(1) : "—"}</p>
-        <p className="acm-reviews-summary__total">{reviewCount} Total Reviews</p>
-      </section>
+    <AccountCanonicalShell title="My Reviews" backHref="/account">
+      <CanonicalSection title="Overall rating">
+        <CanonicalCard variant="medium" className="flex flex-col items-center gap-ds-2 p-ds-4 text-center">
+          <Rating value={displayRating} size="md" />
+          <p className="cds-menu-row__title text-lg">{displayRating > 0 ? displayRating.toFixed(1) : "—"}</p>
+          <p className="cds-menu-row__subtitle">{reviewCount} Total Reviews</p>
+        </CanonicalCard>
+      </CanonicalSection>
 
       {reviews.length === 0 ? (
-        <div className="acm-empty">
-          <p className="acm-empty__title">No reviews yet</p>
-          <p className="acm-empty__text">Reviews from buyers will appear here after completed orders.</p>
-        </div>
+        <CanonicalInfoBlock variant="description">
+          <p className="font-medium text-text-primary">No reviews yet</p>
+          <p className="mt-ds-1">Reviews from buyers will appear here after completed orders.</p>
+        </CanonicalInfoBlock>
       ) : (
-        <ul className="acm-reviews-list">
-          {reviews.map((review) => (
-            <li key={review.id} className="acm-reviews-item">
-              <Avatar
-                src={review.reviewerAvatarUrl}
-                alt={review.reviewerName ?? "Reviewer"}
-                name={review.reviewerName ?? "Buyer"}
-                size="md"
-              />
-              <div className="acm-reviews-item__body">
-                <div className="acm-reviews-item__head">
-                  <p className="acm-reviews-item__name">{review.reviewerName ?? "Buyer"}</p>
-                  <Rating value={review.rating} size="sm" />
+        <CanonicalSection title="Reviews">
+          <CanonicalCard variant="list">
+            {reviews.map((review) => (
+              <div key={review.id} className="flex gap-ds-3 px-[var(--cds-row-padding-x)] py-ds-3">
+                <Avatar
+                  src={review.reviewerAvatarUrl}
+                  alt={review.reviewerName ?? "Reviewer"}
+                  name={review.reviewerName ?? "Buyer"}
+                  size="md"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center justify-between gap-ds-2">
+                    <p className="cds-menu-row__title">{review.reviewerName ?? "Buyer"}</p>
+                    <Rating value={review.rating} size="sm" />
+                  </div>
+                  {review.comment ? (
+                    <p className="cds-menu-row__subtitle mt-ds-1">{review.comment}</p>
+                  ) : null}
+                  <time className="cds-field__hint mt-ds-1 block" dateTime={review.createdAt}>
+                    {formatReviewDate(review.createdAt)}
+                  </time>
                 </div>
-                {review.comment ? <p className="acm-reviews-item__comment">{review.comment}</p> : null}
-                <time className="acm-reviews-item__date" dateTime={review.createdAt}>
-                  {formatReviewDate(review.createdAt)}
-                </time>
               </div>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </CanonicalCard>
+        </CanonicalSection>
       )}
-    </AccountModuleShell>
+    </AccountCanonicalShell>
   );
 }

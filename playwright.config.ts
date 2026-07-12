@@ -79,7 +79,7 @@ export default defineConfig({
         command: webServerCommand(),
         url: `${baseURL}/api/health/live`,
         // Never attach to a stale dev server on another port (e.g. 3020 from .env.local).
-        reuseExistingServer: false,
+        reuseExistingServer: !process.env.CI,
         timeout: 300_000,
         env: webServerEnvObj,
       }

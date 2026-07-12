@@ -1,6 +1,6 @@
 "use client";
 
-import type { ElementType, ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ElementType, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import {
   RX_SCROLL_FOOTER,
@@ -16,7 +16,7 @@ export type ScrollContainerProps = {
   /** Reserve space for fixed bottom navigation (default true) */
   withBottomNav?: boolean;
   id?: string;
-};
+} & Omit<ComponentPropsWithoutRef<"main">, "as" | "children" | "className" | "id">;
 
 /**
  * Canonical scrollable page region — document scroll with safe-area clearance.
@@ -27,6 +27,7 @@ export function ScrollContainer({
   className,
   withBottomNav = true,
   id,
+  ...rest
 }: ScrollContainerProps) {
   return (
     <Component
@@ -36,6 +37,7 @@ export function ScrollContainer({
         withBottomNav ? RX_SCROLL_PAGE_WITH_NAV : RX_SCROLL_PAGE_NO_NAV,
         className,
       )}
+      {...rest}
     >
       {children}
     </Component>

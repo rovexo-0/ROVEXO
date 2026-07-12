@@ -28,6 +28,7 @@ describe("mobile scroll standard v1", () => {
     expect(css).toContain("env(safe-area-inset-top");
     expect(css).toContain("overflow-y: auto");
     expect(css).toContain("100dvh");
+    expect(css).not.toContain("touch-action: none");
   });
 
   it("imports mobile-scroll-v1 in rovexo index", () => {

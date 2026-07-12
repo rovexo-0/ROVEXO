@@ -1,22 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HubPageMain } from "@/components/layout/HubPageMain";
-import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
-import { readReturnToParam } from "@/lib/navigation/return-to";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { PageBack } from "@/components/navigation/PageBack";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { useRouter, useSearchParams } from "next/navigation";
+import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
 import { CardSetupSheet } from "@/features/account/components/CardSetupSheet";
-import { cn } from "@/lib/cn";
+import {
+  CanonicalButton,
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
+import { readReturnToParam } from "@/lib/navigation/return-to";
 import type { SavedPaymentMethod } from "@/lib/payments/repository";
 import type { UserProfile } from "@/lib/profile/types";
 
 type PaymentMethodsPageProps = {
   profile: UserProfile;
 };
+
+function withReturn(href: string, returnTo: string | null) {
+  return returnTo ? `${href}?returnTo=${encodeURIComponent(returnTo)}` : href;
+}
 
 export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
   const router = useRouter();
@@ -144,75 +149,69 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
   };
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-6 px-ds-4 py-ds-6">
-        <div>
-          <PageBack variant="text" backHref="/account/settings" backLabel="Settings" className="mb-ds-3" />
-          <h1 className="text-2xl font-bold text-text-primary">Payment methods</h1>
-          <p className="mt-ds-1 text-sm text-text-secondary">
-            Save cards for faster checkout. Seller payouts go to your bank account.
-          </p>
-        </div>
-
-        <section className="rx-surface-card p-ds-5">
-          <h2 className="text-base font-semibold text-text-primary">Buyer cards</h2>
-          <div className="mt-ds-4 flex flex-col gap-ds-3">
-            {loading ? <p className="text-sm text-text-secondary">Loading cards…</p> : null}
-            {!loading && !methods.length ? (
-              <p className="text-sm text-text-secondary">No saved cards yet.</p>
-            ) : null}
-            {methods.map((method) => (
-              <article key={method.id} className="rounded-ds-lg border border-border p-ds-4">
-                <div className="flex items-center justify-between gap-ds-3">
-                  <div>
-                    <p className="font-semibold capitalize text-text-primary">{method.brand}</p>
-                    <p className="text-sm text-text-secondary">
-                      •••• {method.last4} · {method.expMonth}/{method.expYear}
-                    </p>
-                  </div>
-                  {method.isDefault ? <Badge>Default</Badge> : null}
-                </div>
-                <div className="mt-ds-3 flex flex-wrap gap-ds-2">
-                  {!method.isDefault ? (
-                    <Button type="button" variant="secondary" size="sm" onClick={() => void setDefault(method.id)}>
-                      Make default
-                    </Button>
-                  ) : null}
-                  <Button type="button" variant="ghost" size="sm" onClick={() => void removeCard(method.id)}>
-                    Remove
-                  </Button>
-                </div>
-              </article>
-            ))}
-          </div>
-          <Button
-            type="button"
-            variant="primary"
-            className="mt-ds-4"
-            onClick={() => void addCard()}
-            disabled={startingSetup}
-          >
-            {startingSetup ? "Starting…" : "Add card"}
-          </Button>
-          {message ? (
-            <p className={cn("mt-ds-2 text-sm", message === "Card saved." ? "text-success" : "text-danger")}>
-              {message}
-            </p>
+    <AccountCanonicalShell title="Payment Methods" backHref="/account/settings">
+      <AccountPageStack>
+        <CanonicalSection title="Saved Cards">
+          {loading ? <p className="account-settings-empty">Loading cards…</p> : null}
+          {!loading && !methods.length ? (
+            <p className="account-settings-empty">No saved cards yet.</p>
           ) : null}
-        </section>
+          {!loading
+            ? methods.map((method) => (
+                <CanonicalCard key={method.id} variant="medium">
+                  <div className="account-settings-payment-card">
+                    <div>
+                      <p className="account-settings-payment-card__title">{method.brand}</p>
+                      <p className="account-settings-payment-card__meta">
+                        •••• {method.last4} · {method.expMonth}/{method.expYear}
+                        {method.isDefault ? " · Default" : ""}
+                      </p>
+                    </div>
+                    <div className="flex gap-3">
+                      {!method.isDefault ? (
+                        <button
+                          type="button"
+                          className="account-settings-text-action"
+                          onClick={() => void setDefault(method.id)}
+                        >
+                          Default
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="account-settings-text-action account-settings-text-action--danger"
+                        onClick={() => void removeCard(method.id)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </CanonicalCard>
+              ))
+            : null}
+          <CanonicalButton type="button" fullWidth onClick={() => void addCard()} loading={startingSetup}>
+            Add Payment Method
+          </CanonicalButton>
+        </CanonicalSection>
 
         {profile.isSeller ? (
-          <section className="rx-surface-card p-ds-5">
-            <h2 className="text-base font-semibold text-text-primary">Seller payouts</h2>
-            <p className="mt-ds-1 text-sm text-text-secondary">
-              Add your bank account to receive payouts securely.
-            </p>
-            <Link href="/seller/wallet" className="mt-ds-4 inline-flex">
-              <Button variant="secondary">Open seller wallet</Button>
-            </Link>
-          </section>
+          <CanonicalSection title="Seller Payouts">
+            <CanonicalCard variant="list">
+              <CanonicalMenuRow
+                title="Bank Account"
+                description="Receive payouts to your bank account."
+                href={withReturn("/account/settings/bank-account", returnTo)}
+              />
+            </CanonicalCard>
+          </CanonicalSection>
         ) : null}
-      </HubPageMain>
+
+        {message ? (
+          <CanonicalInfoBlock variant={message === "Card saved." ? "success" : "error"}>
+            {message}
+          </CanonicalInfoBlock>
+        ) : null}
+      </AccountPageStack>
 
       {clientSecret ? (
         <CardSetupSheet
@@ -225,6 +224,6 @@ export function PaymentMethodsPage({ profile }: PaymentMethodsPageProps) {
           onComplete={completeSetupIntent}
         />
       ) : null}
-    </BetaAppShell>
+    </AccountCanonicalShell>
   );
 }

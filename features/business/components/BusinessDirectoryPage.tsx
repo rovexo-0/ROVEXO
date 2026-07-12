@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PageBack } from "@/components/navigation/PageBack";
 import { Avatar } from "@/components/ui/Avatar";
 import { BusinessBadge, resolveBusinessBadgeKinds } from "@/components/ui/BusinessBadge";
 import { Badge } from "@/components/ui/Badge";
@@ -12,14 +11,10 @@ type BusinessDirectoryPageProps = {
 
 export function BusinessDirectoryPage({ companies }: BusinessDirectoryPageProps) {
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-ds-8 px-ds-4 py-ds-6">
-      <section>
-        <PageBack variant="text" backHref="/business/dashboard" backLabel="Business tools" className="mb-ds-3" />
-        <h1 className="mt-ds-3 text-3xl font-bold text-text-primary">Business Directory</h1>
-        <p className="mt-ds-2 text-sm text-text-secondary">
-          Verified companies, manufacturers, suppliers, and wholesale partners.
-        </p>
-      </section>
+    <div className="flex flex-col gap-ds-6">
+      <p className="text-sm text-text-secondary">
+        Verified companies, manufacturers, suppliers, and wholesale partners.
+      </p>
 
       <div className="grid gap-ds-4 sm:grid-cols-2 lg:grid-cols-3">
         {companies.length ? (

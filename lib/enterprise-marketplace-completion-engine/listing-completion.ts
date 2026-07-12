@@ -175,7 +175,7 @@ function scanPublishValidation(scan: MarketplaceCompletionScanResult): Completio
 
   return LISTING_PUBLISH_VALIDATION.map((check) => {
     let pass = repository.includes("scanListingBeforePublish") && listingFoundationReady(scan);
-    if (check.includes("search")) pass = fileExists("lib/taxonomy/category-search.ts");
+    if (check.includes("search")) pass = fileExists("lib/sell/category-picker-search.ts");
     if (check.includes("category")) pass = fileExists("lib/listings/category-path.ts");
     if (check.includes("homepage") || check.includes("featured")) pass = fileExists("app/api/listings/feature/route.ts");
     if (check.includes("business")) pass = fileExists("lib/moderation/scan-listing.ts");
@@ -216,7 +216,7 @@ function scanDatabaseValidation(scan: MarketplaceCompletionScanResult): Completi
     if (check.includes("relation") || check.includes("index") || check.includes("table")) pass = repository.includes("createClient");
     if (check.includes("image")) pass = fileExists("app/api/listings/upload/route.ts");
     if (check.includes("attribute") || check.includes("categor")) pass = fileExists("lib/listings/draft-mapper.ts");
-    if (check.includes("search")) pass = fileExists("lib/taxonomy/category-search.ts");
+    if (check.includes("search")) pass = fileExists("lib/sell/category-picker-search.ts");
     if (check.includes("seo")) pass = repository.includes("slugify");
     if (check.includes("audit")) pass = fileExists("lib/moderation/scan-listing.ts");
     return createCheck("listing-database", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);

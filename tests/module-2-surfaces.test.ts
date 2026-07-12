@@ -16,7 +16,7 @@ describe("Module 2 — Core Surface Simplification", () => {
 
   it("wires BusinessBadge into listing, profile, and business surfaces", () => {
     expect(readSource("components/ui/ListingCard.tsx")).toContain("resolveHomepagePromotionBadge");
-    expect(readSource("components/account/ProfileCard.tsx")).toContain("BusinessBadge");
+    expect(readSource("features/account/components/ProfileEditPage.tsx")).toContain("AvatarUploader");
     expect(readSource("features/business/components/BusinessDirectoryPage.tsx")).toContain(
       "BusinessBadge",
     );

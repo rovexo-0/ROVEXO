@@ -48,11 +48,12 @@ describe("final platform spec surfaces", () => {
 
   it("uses super-admin marketplace pricing defaults", () => {
     expect(marketplacePricingToBumpOptions(DEFAULT_MARKETPLACE_PRICING)).toEqual([
-      expect.objectContaining({ id: "3d", priceCents: 100, priceLabel: "£1" }),
-      expect.objectContaining({ id: "7d", priceCents: 200, priceLabel: "£2" }),
+      expect.objectContaining({ id: "7d", priceCents: 130, priceLabel: "£1.30" }),
+      expect.objectContaining({ id: "14d", priceCents: 250, priceLabel: "£2.50" }),
+      expect.objectContaining({ id: "28d", priceCents: 450, priceLabel: "£4.50" }),
     ]);
     expect(marketplacePricingToFeatureOptions(DEFAULT_MARKETPLACE_PRICING)).toEqual([
-      expect.objectContaining({ priceCents: 550, priceLabel: "£5.50" }),
+      expect.objectContaining({ priceCents: 600, priceLabel: "£6" }),
     ]);
   });
 

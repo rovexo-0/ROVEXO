@@ -42,7 +42,8 @@ describe("My Account canonical final — Module 02", () => {
     expect(home).toContain("AccountCanonicalProfile");
     expect(home).toContain("AccountStatsStrip");
     expect(home).toContain("AccountMenuSections");
-    expect(page).toContain('layout="account"');
+    expect(page).toContain("AccountCanonicalShell");
+    expect(page).toContain("hideBack");
     expect(css).toContain(".ac-canonical__followers-row");
     expect(css).toContain(".ac-canonical__stat--divider");
     expect(css).toContain(".ac-canonical__avatar-wrap");
@@ -62,6 +63,7 @@ describe("My Account canonical final — Module 02", () => {
       "My Reviews",
       "Wallet",
       "Settings",
+      "Promotion Tools",
       "Help Centre",
       "Ideas",
     ]);
@@ -87,7 +89,7 @@ describe("My Account canonical final — Module 02", () => {
     expect(ideas).toContain("Popular");
     expect(ideas).toContain("Following");
     expect(ideas).toContain("New Idea");
-    expect(ideas).toContain("ac-ideas-hub__search");
+    expect(ideas).toContain('inputType="search"');
   });
 
   it("exposes only Active and Sold listing tabs", () => {
@@ -116,11 +118,12 @@ describe("My Account canonical final — Module 02", () => {
 
     expect(orders).toContain('label: "Bought"');
     expect(orders).toContain('label: "Sold"');
-    expect(orders).toContain("acm-order-card__open");
+    expect(orders).toContain("orders-canonical-row");
+    expect(orders).toContain("showHeaderTitle");
     expect(saved).toContain("ListingCard");
     expect(saved).toContain("LISTING_CARD_HOMEPAGE_PROPS");
     expect(saved).toContain("formatPlatformFeeLine");
-    expect(reviews).toContain('data-reviews-version="v1.0"');
+    expect(reviews).toContain("CanonicalSection");
     expect(menu).toContain('href: "/account/reviews"');
   });
 });

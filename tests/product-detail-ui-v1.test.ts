@@ -66,11 +66,12 @@ describe("Product Details UI v1.1", () => {
     expect(css).not.toContain(".pd-v1__header");
   });
 
-  it("removes the sticky top navigation header", () => {
+  it("uses the canonical page header for back navigation", () => {
     const page = readSource("features/product-detail/ProductDetailPage.tsx");
-    const shellBlock = page.slice(page.indexOf('<div className="pd-v1__shell">'));
 
-    expect(shellBlock.indexOf("<ProductGalleryV1")).toBeLessThan(shellBlock.indexOf('className="pd-v1__main"'));
+    expect(page).toContain("CanonicalPageHeader");
+    expect(page).toContain('<div className="pd-v1__shell">');
+    expect(page.indexOf("CanonicalPageHeader")).toBeLessThan(page.indexOf('<div className="pd-v1__shell">'));
   });
 
   it("keeps approved pricing and removes buyer protection section", () => {
@@ -130,11 +131,25 @@ describe("Product Details UI v1.1", () => {
     expect(similar).toContain("HP_CANONICAL_LISTING_PROPS");
   });
 
-  it("action bar matches marketplace reference buttons", () => {
+  it("action bar matches canonical three-button marketplace layout", () => {
     const bar = readSource("features/product-detail/ProductActionBarV1.tsx");
+    const css = readSource("styles/rovexo/product-detail-v1.css");
+    const page = readSource("features/product-detail/ProductDetailPage.tsx");
 
-    expect(bar).toContain("Add to Cart");
-    expect(bar).toContain("Buy Now");
+    expect(bar).toContain("PRODUCT_ACTION_BUTTONS");
+    expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.buyNow");
+    expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.addToCart");
+    expect(bar).toContain("PRODUCT_ACTION_BAR_COPY.makeOffer");
+    expect(bar).toContain("pd-v1__action-btn--buy");
+    expect(bar).toContain("pd-v1__action-btn--cart");
+    expect(bar).toContain("pd-v1__action-btn--offer");
+    expect(css).toContain("grid-template-columns: repeat(3, minmax(0, 1fr))");
+    expect(css).toContain("pd-v1__action-btn--buy");
+    expect(css).toContain("pd-v1__action-btn--cart .pd-v1__action-icon");
+    expect(page).toContain("useProductActionBar");
+    expect(bar).toContain("cartState");
+    expect(bar).toContain("buyState");
+    expect(page).toContain("OfferComposerSheet");
     expect(bar).not.toContain("Message");
   });
 
@@ -143,7 +158,7 @@ describe("Product Details UI v1.1", () => {
     const toast = readSource("features/product-detail/AddedToCartToast.tsx");
     const css = readSource("styles/rovexo/product-detail-v1.css");
 
-    expect(page).toContain("AddedToCartToast");
+    expect(page).toContain("PRODUCT_ACTION_BAR_COPY.addedToCart");
     expect(page).toContain("refreshBadges");
     expect(page).not.toContain('payload.success ? "Added to cart."');
     expect(toast).toContain("Added to your cart");

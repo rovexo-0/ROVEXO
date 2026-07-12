@@ -29,6 +29,7 @@ type CheckoutInput = {
   deliveryOption: string;
   shippingAddressId?: string;
   shippingQuoteId?: string | null;
+  hubConversationId?: string;
 };
 
 type CheckoutResult =
@@ -182,11 +183,18 @@ export async function createOrderCheckoutSession(
   await admin.from("cart_items").delete().eq("user_id", input.buyerId).eq("product_id", product.id);
 
   const baseUrl = getAppBaseUrl();
-  const orderSuccessUrl = `${baseUrl}/orders/${orderRow.id}?placed=1`;
+  const orderSuccessPath = input.hubConversationId
+    ? `/messages/${input.hubConversationId}?payment=success&order_id=${orderRow.id}`
+    : `/orders/${orderRow.id}?placed=1`;
+  const orderSuccessUrl = `${baseUrl}${orderSuccessPath}`;
   const cancelQuery = new URLSearchParams({
     order: "cancelled",
     order_id: orderRow.id,
   });
+  const cancelPath = input.hubConversationId
+    ? `/messages/${input.hubConversationId}?payment=cancelled&${cancelQuery.toString()}&slug=${product.slug}`
+    : `/checkout/${product.slug}?${cancelQuery.toString()}`;
+  const cancelUrl = `${baseUrl}${cancelPath}`;
 
   if (!isStripeConfigured()) {
     if (isStripeRequired()) {
@@ -279,7 +287,7 @@ export async function createOrderCheckoutSession(
         },
       },
       success_url: `${orderSuccessUrl}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/checkout/${product.slug}?${cancelQuery.toString()}`,
+      cancel_url: cancelUrl,
       expires_at: Math.floor(Date.now() / 1000) + RESERVATION_MINUTES * 60,
     },
     { idempotencyKey: `order-checkout-${orderRow.id}` },

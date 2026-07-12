@@ -39,8 +39,10 @@ async function measure(page) {
     const imgRect = cardEl?.querySelector("figure")?.getBoundingClientRect();
     const grid = document.querySelector('[class*="feedGrid"]');
     const gridStyle = grid ? getComputedStyle(grid) : null;
-    const storeCard = document.querySelector("[data-hp-store-product]");
-    const stores = document.querySelector('[data-hp-featured-store-version="ui-lock-1.0"]');
+    const storeCard = document.querySelector(
+      '[data-hp-featured-store] [data-hp-listing-card="official"]',
+    );
+    const stores = document.querySelector('[data-hp-featured-store-version="v1.0-canonical"]');
     const byi = document.querySelector('[class*="byi"]');
     const homepage = document.querySelector('[data-hp-homepage="canonical"]');
 

@@ -14,7 +14,7 @@ export type CategoryFilterGroup = {
 };
 
 const COMMON_FILTERS: CategoryFilterDefinition[] = [
-  { key: "condition", label: "Condition", type: "select", options: ["New", "Like New", "Good", "Fair", "For Parts"] },
+  { key: "condition", label: "Condition", type: "select", options: ["New", "Like New", "Very Good", "Good", "Fair"] },
   { key: "price", label: "Price", type: "range" },
   { key: "brand", label: "Brand", type: "text" },
   { key: "location", label: "Location", type: "text" },
@@ -63,7 +63,7 @@ export const CATEGORY_FILTER_GROUPS: CategoryFilterGroup[] = [
       { key: "model", label: "Model", type: "text" },
       { key: "storage", label: "Storage", type: "select", options: ["32GB", "64GB", "128GB", "256GB", "512GB", "1TB"] },
       { key: "colour", label: "Colour", type: "text" },
-      { key: "condition", label: "Condition", type: "select", options: ["New", "Like New", "Good", "Fair", "For Parts"] },
+      { key: "condition", label: "Condition", type: "select", options: ["New", "Like New", "Very Good", "Good", "Fair"] },
       { key: "warranty", label: "Warranty", type: "boolean" },
       { key: "unlocked", label: "Unlocked", type: "boolean" },
     ],
@@ -87,7 +87,7 @@ export const CATEGORY_FILTER_GROUPS: CategoryFilterGroup[] = [
       { key: "brand", label: "Brand", type: "text", required: true },
       { key: "voltage", label: "Voltage", type: "select", options: ["12V", "18V", "240V"] },
       { key: "cordless", label: "Cordless", type: "boolean" },
-      { key: "condition", label: "Condition", type: "select", options: ["New", "Like New", "Good", "Fair", "For Parts"] },
+      { key: "condition", label: "Condition", type: "select", options: ["New", "Like New", "Very Good", "Good", "Fair"] },
     ],
   },
   {
@@ -213,7 +213,7 @@ export const CATEGORY_FILTER_GROUPS: CategoryFilterGroup[] = [
   {
     categorySlug: "free-stuff",
     filters: [
-      { key: "condition", label: "Condition", type: "select", options: ["New", "Good", "Fair", "For Parts"] },
+      { key: "condition", label: "Condition", type: "select", options: ["New", "Like New", "Very Good", "Good", "Fair"] },
       { key: "location", label: "Location", type: "text" },
     ],
   },

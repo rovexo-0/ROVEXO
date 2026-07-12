@@ -1,10 +1,11 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { Button } from "@/components/ui/Button";
+import { forwardRef, useSyncExternalStore } from "react";
+import { CanonicalButton } from "@/src/components/canonical";
+import { publishPhaseLabel } from "@/lib/sell/publish-engine";
 import { getPendingTextSnapshot, subscribePendingText } from "@/lib/sell/pending-text-store";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
-import { isListingValid } from "@/features/sell/types";
+import { isSellListingPublishable } from "@/lib/sell/sell-validation";
 import { useSell } from "@/features/sell/context/SellProvider";
 
 function readCanPublish(
@@ -17,12 +18,24 @@ function readCanPublish(
     title: pendingTitleRef.current,
     description: pendingDescriptionRef.current,
   });
-  const publishDraft = effective.condition ? effective : { ...effective, condition: "Used" };
-  return isListingValid(publishDraft, { mode: "quick", showErrors: true });
+
+  return isSellListingPublishable(effective, {
+    title: pendingTitleRef.current,
+    description: pendingDescriptionRef.current,
+  });
 }
 
-export function SellPublishBar() {
-  const { draft, pendingTitleRef, pendingDescriptionRef, isPublishing, publishListing, editListingId } = useSell();
+export const SellPublishBar = forwardRef<HTMLDivElement>(function SellPublishBar(_props, ref) {
+  const {
+    draft,
+    pendingTitleRef,
+    pendingDescriptionRef,
+    isPublishing,
+    publishPhase,
+    uploadProgress,
+    publishListing,
+    editListingId,
+  } = useSell();
 
   const canPublish = useSyncExternalStore(
     subscribePendingText,
@@ -30,25 +43,29 @@ export function SellPublishBar() {
     () => readCanPublish(draft, pendingTitleRef, pendingDescriptionRef),
   );
 
-  const label = editListingId ? "Save changes" : "Publish Listing";
+  const label = publishPhaseLabel(publishPhase, {
+    uploadProgress,
+    isEdit: Boolean(editListingId),
+  });
 
   return (
     <div
-      className="sell-publish-bar fixed inset-x-0 bottom-0 z-[110] border-t border-border bg-surface/95 backdrop-blur"
-      style={{ paddingBottom: "max(env(safe-area-inset-bottom), 12px)" }}
+      ref={ref}
+      className="sell-publish-bar fixed inset-x-0 z-[110] border-t border-border bg-white"
+      data-sell-publish-bar
+      role="region"
+      aria-label="Publish listing"
     >
-      <div className="mx-auto max-w-2xl px-ds-4 py-ds-3">
-        <Button
-          variant="primary"
+      <div className="mx-auto max-w-2xl px-[var(--cds-space-page-x)] py-ds-3">
+        <CanonicalButton
           fullWidth
-          size="lg"
-          className="min-h-ds-7 rounded-ds-lg text-base"
+          loading={isPublishing}
           disabled={!canPublish || isPublishing}
           onClick={() => void publishListing()}
         >
           {label}
-        </Button>
+        </CanonicalButton>
       </div>
     </div>
   );
-}
+});

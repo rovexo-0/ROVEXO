@@ -1,8 +1,8 @@
 import type { FlatCategoryPath } from "@/lib/categories/types";
 import { MARKETPLACE_BRANDS } from "@/lib/categories/enterprise/brands";
-import { MARKETPLACE_CONDITIONS } from "@/lib/categories/enterprise/conditions";
 import type { SellListingDraft } from "@/features/sell/types";
 import { normalizeListingText } from "@/lib/sell/suggest-category-from-title";
+import { isSellQuickCondition } from "@/lib/sell/sell-condition-options";
 
 export type DeterministicPrefillPatch = {
   brand?: string;
@@ -39,15 +39,60 @@ const MATERIAL_KEYWORDS: Array<{ pattern: RegExp; value: string }> = [
 ];
 
 const CONDITION_KEYWORDS: Array<{ pattern: RegExp; value: string }> = [
-  { pattern: /\bbrand\s*new\b|\bnew\s*\(sealed\)\b|\bsealed\b/i, value: "New (sealed)" },
-  { pattern: /\bnew\s*without\s*tags\b/i, value: "New without tags" },
+  { pattern: /\bbrand\s*new\b|\bnew\s*\(sealed\)\b|\bsealed\b/i, value: "New" },
   { pattern: /\blike\s*new\b/i, value: "Like New" },
-  { pattern: /\bexcellent\b/i, value: "Excellent" },
   { pattern: /\bvery\s*good\b/i, value: "Very Good" },
-  { pattern: /\bfor\s*parts\b/i, value: "For Parts" },
-  { pattern: /\bbroken\b/i, value: "Broken" },
-  { pattern: /\brefurb(ished)?\b/i, value: "Refurbished" },
+  { pattern: /\bexcellent\b/i, value: "Very Good" },
+  { pattern: /\bfair\b/i, value: "Fair" },
+  { pattern: /\bgood\b/i, value: "Good" },
 ];
+
+export function suggestBrandFromText(title: string, description = ""): string | null {
+  const corpus = normalizeListingText(`${title} ${description}`);
+  if (!corpus.trim()) return null;
+  return findBrand(corpus);
+}
+
+const COLOUR_WORDS = [
+  "black",
+  "white",
+  "grey",
+  "gray",
+  "blue",
+  "red",
+  "green",
+  "pink",
+  "brown",
+  "beige",
+  "navy",
+  "silver",
+] as const;
+
+function findColourWord(text: string): string | null {
+  for (const word of COLOUR_WORDS) {
+    if (new RegExp(`\\b${word}\\b`, "i").test(text)) {
+      return word === "gray" ? "Grey" : word.charAt(0).toUpperCase() + word.slice(1);
+    }
+  }
+  return null;
+}
+
+export function suggestColourFromTitle(title: string): string | null {
+  const corpus = normalizeListingText(title);
+  return corpus.trim() ? findColourWord(corpus) : null;
+}
+
+export function suggestColourFromDescription(description: string): string | null {
+  const corpus = normalizeListingText(description);
+  return corpus.trim() ? findColourWord(corpus) : null;
+}
+
+export function suggestConditionFromText(title: string, description = ""): string | null {
+  const corpus = normalizeListingText(`${title} ${description}`);
+  if (!corpus.trim()) return null;
+  const condition = findCondition(corpus);
+  return condition && isSellQuickCondition(condition) ? condition : null;
+}
 
 function findBrand(text: string): string | null {
   for (const brand of MARKETPLACE_BRANDS) {
@@ -67,9 +112,7 @@ function findMaterial(text: string): string | null {
 function findCondition(text: string): string | null {
   for (const rule of CONDITION_KEYWORDS) {
     if (rule.pattern.test(text)) {
-      return MARKETPLACE_CONDITIONS.includes(rule.value as (typeof MARKETPLACE_CONDITIONS)[number])
-        ? rule.value
-        : null;
+      return isSellQuickCondition(rule.value) ? rule.value : null;
     }
   }
   return null;
@@ -107,9 +150,26 @@ export function buildDeterministicPrefill(
   let changed = false;
 
   if (!draft.brand) {
-    const brand = findBrand(corpus);
+    const brand = suggestBrandFromText(draft.title, draft.description);
     if (brand) {
       patch.brand = brand;
+      changed = true;
+    }
+  }
+
+  if (!draft.color) {
+    const color =
+      suggestColourFromTitle(draft.title) ?? suggestColourFromDescription(draft.description);
+    if (color) {
+      patch.color = color;
+      changed = true;
+    }
+  }
+
+  if (!draft.condition) {
+    const condition = suggestConditionFromText(draft.title, draft.description);
+    if (condition) {
+      patch.condition = condition;
       changed = true;
     }
   }
@@ -122,29 +182,10 @@ export function buildDeterministicPrefill(
     }
   }
 
-  if (!draft.color) {
-    const colourWords = ["black", "white", "grey", "gray", "blue", "red", "green", "pink", "brown", "beige", "navy", "silver"];
-    for (const word of colourWords) {
-      if (new RegExp(`\\b${word}\\b`, "i").test(corpus)) {
-        patch.color = word === "gray" ? "Grey" : word.charAt(0).toUpperCase() + word.slice(1);
-        changed = true;
-        break;
-      }
-    }
-  }
-
   if (!draft.size) {
     const size = findSize(corpus);
     if (size) {
       patch.size = size;
-      changed = true;
-    }
-  }
-
-  if (!draft.condition || draft.condition === "Used") {
-    const condition = findCondition(corpus);
-    if (condition) {
-      patch.condition = condition;
       changed = true;
     }
   }
@@ -185,7 +226,7 @@ export function applyDeterministicPrefill(
   if (patch.color && !draft.color) result.color = patch.color;
   if (patch.material && !draft.material) result.material = patch.material;
   if (patch.size && !draft.size) result.size = patch.size;
-  if (patch.condition && (!draft.condition || draft.condition === "Used")) result.condition = patch.condition;
+  if (patch.condition && !draft.condition) result.condition = patch.condition;
 
   if (patch.attributes) {
     const attributes = { ...draft.attributes };

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { LegalDocumentPage } from "@/features/legal/components/LegalDocumentPage";
+import { LegalDocumentCanonical } from "@/features/legal/components/LegalDocumentCanonical";
 import { getLegalDocument } from "@/lib/legal/canonical-documents";
 
 type LegalDocumentRouteProps = {
@@ -29,9 +28,5 @@ export default async function LegalDocumentRoute({ params }: LegalDocumentRouteP
     notFound();
   }
 
-  return (
-    <BetaAppShell showBottomNav={false}>
-      <LegalDocumentPage document={document} />
-    </BetaAppShell>
-  );
+  return <LegalDocumentCanonical document={document} />;
 }

@@ -1308,8 +1308,11 @@ export type Database = {
           duration_id: string
           ends_at: string
           id: string
+          paused_at: string | null
           product_id: string
+          reason: string | null
           seller_id: string
+          source: string
           starts_at: string
           status: string
           stripe_payment_intent_id: string | null
@@ -1322,8 +1325,11 @@ export type Database = {
           duration_id: string
           ends_at: string
           id?: string
+          paused_at?: string | null
           product_id: string
+          reason?: string | null
           seller_id: string
+          source?: string
           starts_at?: string
           status?: string
           stripe_payment_intent_id?: string | null
@@ -1336,8 +1342,11 @@ export type Database = {
           duration_id?: string
           ends_at?: string
           id?: string
+          paused_at?: string | null
           product_id?: string
+          reason?: string | null
           seller_id?: string
+          source?: string
           starts_at?: string
           status?: string
           stripe_payment_intent_id?: string | null
@@ -1360,6 +1369,129 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      promotion_action_audit: {
+        Row: {
+          actor_id: string
+          actor_name: string | null
+          actor_username: string | null
+          activation_date: string | null
+          created_at: string
+          duration_label: string | null
+          expiration_date: string | null
+          id: string
+          ip_address: string | null
+          listing_id: string | null
+          listing_promotion_id: string | null
+          new_status: string
+          previous_status: string | null
+          promotion_source: string | null
+          promotion_type: string
+          reason: string | null
+          seller_promotion_id: string | null
+          store_id: string | null
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          actor_id: string
+          actor_name?: string | null
+          actor_username?: string | null
+          activation_date?: string | null
+          created_at?: string
+          duration_label?: string | null
+          expiration_date?: string | null
+          id?: string
+          ip_address?: string | null
+          listing_id?: string | null
+          listing_promotion_id?: string | null
+          new_status: string
+          previous_status?: string | null
+          promotion_source?: string | null
+          promotion_type: string
+          reason?: string | null
+          seller_promotion_id?: string | null
+          store_id?: string | null
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          actor_id?: string
+          actor_username?: string | null
+          created_at?: string
+          duration_label?: string | null
+          id?: string
+          listing_id?: string | null
+          listing_promotion_id?: string | null
+          new_status?: string
+          previous_status?: string | null
+          promotion_type?: string
+          reason?: string | null
+          seller_promotion_id?: string | null
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      seller_promotions: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          ends_at: string | null
+          granted_by_admin: boolean
+          granted_by_admin_id: string | null
+          id: string
+          package_id: string
+          paused_at: string | null
+          reason: string | null
+          seller_id: string
+          source: string
+          starts_at: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount_cents?: number
+          created_at?: string
+          ends_at?: string | null
+          granted_by_admin?: boolean
+          granted_by_admin_id?: string | null
+          id?: string
+          package_id: string
+          paused_at?: string | null
+          reason?: string | null
+          seller_id: string
+          source?: string
+          starts_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          ends_at?: string | null
+          granted_by_admin?: boolean
+          granted_by_admin_id?: string | null
+          id?: string
+          package_id?: string
+          paused_at?: string | null
+          reason?: string | null
+          seller_id?: string
+          source?: string
+          starts_at?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       live_visitor_sessions: {
         Row: {

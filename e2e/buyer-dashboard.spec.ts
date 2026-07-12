@@ -128,28 +128,20 @@ test.describe.serial("Buyer Dashboard v1.0 — authenticated", () => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto("/buyer", { waitUntil: "domcontentloaded" });
       await waitForBuyerDashboardUi(page);
-      await expect(page.locator("main .account-center-header").first()).toBeVisible();
+      await expect(page.locator('[data-canonical-page-header="v1"]').first()).toBeVisible();
     });
   }
 
-  test("module header actions are present", async ({ page, baseURL }) => {
+  test("module header uses canonical page header", async ({ page, baseURL }) => {
     test.skip(!tempBuyer || !baseURL, "Temp buyer was not created");
 
     await signIn(page, tempBuyer!, baseURL!);
     await page.goto("/buyer", { waitUntil: "domcontentloaded" });
     await waitForBuyerDashboardUi(page);
 
-    const header = page.locator("main .account-center-header").first();
-
-    await expect(header.getByRole("link", { name: "Notifications" })).toHaveAttribute(
-      "href",
-      "/notifications",
-    );
-    await expect(header.getByRole("link", { name: "Settings" })).toHaveAttribute(
-      "href",
-      "/account/settings",
-    );
-    await expect(page.getByRole("link", { name: "Messages" })).toHaveAttribute("href", "/messages");
+    const header = page.locator('[data-canonical-page-header="v1"]').first();
+    await expect(header).toBeVisible();
+    await expect(header).toContainText("Buying");
   });
 
   test("buying module tiles link to buyer tools", async ({ page, baseURL }) => {

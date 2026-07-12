@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { HubPageMain } from "@/components/layout/HubPageMain";
-import Header from "@/components/Header";
+import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
@@ -48,7 +48,7 @@ export function ProStorePage({
 
   return (
     <BetaAppShell>
-      <Header />
+      <RovexoHeaderV2 />
       <HubPageMain className="">
         <section className="relative">
           <div className="relative aspect-[21/9] min-h-[160px] w-full">

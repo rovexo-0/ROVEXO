@@ -19,12 +19,14 @@ export async function uploadListingImage(input: {
   sessionId?: string;
   onProgress?: (progress: number) => void;
   maxRetries?: number;
+  retryDelaysMs?: number[];
 }): Promise<UploadedImageResult> {
   validateClientImage(input.file);
   const compressed = await compressListingImage(input.file);
   const thumbnail = await createListingThumbnail(compressed);
   const sessionId = input.sessionId ?? safeRandomUUID();
   const maxRetries = input.maxRetries ?? 3;
+  const retryDelaysMs = input.retryDelaysMs;
 
   let lastError: Error | null = null;
 
@@ -53,7 +55,8 @@ export async function uploadListingImage(input: {
     } catch (error) {
       lastError = error instanceof Error ? error : new Error("Upload failed.");
       if (attempt < maxRetries) {
-        await new Promise((resolve) => setTimeout(resolve, attempt * 500));
+        const delay = retryDelaysMs?.[attempt - 1] ?? attempt * 500;
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
   }

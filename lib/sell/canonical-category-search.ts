@@ -101,7 +101,7 @@ function scoreConfidence(leafMatches: number, branchMatches: number): number {
   if (leafMatches === 1 && branchMatches >= 1) return 0.82;
   if (leafMatches === 1) return 0.76;
   if (branchMatches >= 2) return 0.73;
-  return 0.66; // single generic branch hit — below the suggest threshold
+  return 0.52; // single generic branch hit — possible-match band
 }
 
 /**
@@ -131,7 +131,7 @@ export function searchCanonicalCategories(
     if (branchMatches === 0 && leafMatches === 0) continue;
 
     const confidence = scoreConfidence(leafMatches, branchMatches);
-    if (confidence < 0.66) continue;
+    if (confidence < 0.5) continue;
 
     scored.push({ path: entry.path, confidence, leaf: leafMatches, depth: entry.depth });
   }

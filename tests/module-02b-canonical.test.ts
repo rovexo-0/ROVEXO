@@ -44,7 +44,7 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     const account = sections.find((section) => section.id === "account");
     const support = sections.find((section) => section.id === "support");
 
-    expect(account?.items.map((item) => item.title)).toEqual(["Settings"]);
+    expect(account?.items.map((item) => item.title)).toEqual(["Settings", "Promotion Tools"]);
     expect(support?.items.map((item) => item.title)).toEqual(["Help Centre", "Ideas"]);
     expect(support?.items[0]?.href).toBe("/help");
     expect(readSource("lib/account-center/canonical-menu.ts")).not.toContain("Contact Support");
@@ -52,17 +52,26 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
 
   it("locks Settings hub sections for Module 02B", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
+    const accordion = readSource("features/account-module/components/SettingsAccordion.tsx");
 
-    expect(settings).toContain('data-settings-version="v1.0-production"');
-    expect(settings).toContain('"Profile"');
+    expect(settings).toContain("AccountCanonicalShell");
+    expect(settings).toContain("SettingsAccordion");
+    expect(settings).toContain('title: "Profile"');
     expect(settings).toContain('"Addresses"');
+    expect(settings).toContain('title: "Payments"');
     expect(settings).toContain('"Payment Methods"');
     expect(settings).toContain('"Bank Account"');
     expect(settings).toContain("Notification Preferences");
     expect(settings).toContain('"Privacy & Security"');
-    expect(settings).toContain('"Regional"');
+    expect(settings).toContain('"Preferences"');
     expect(settings).toContain('"Legal"');
+    expect(settings).not.toContain("🗑 Account");
+    expect(settings).not.toContain("Identity Verification");
     expect(settings).toContain("DeleteAccountFlow");
+    expect(settings).toContain("standalone");
+    expect(accordion).toContain("CanonicalCard");
+    expect(accordion).toContain("CanonicalMenuRow");
+    expect(accordion).toContain("sessionStorage");
   });
 
   it("locks wallet financial hub and withdraw flow", () => {
@@ -98,7 +107,7 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
 
   it("routes smart notifications to canonical destinations", () => {
     expect(resolveSmartNotificationHref("new_message", { conversationId: "c1" })).toBe(
-      "/inbox?thread=c1",
+      "/messages/c1",
     );
     expect(resolveSmartNotificationHref("new_offer", { offerId: "o1" })).toBe("/offers/o1");
     expect(resolveSmartNotificationHref("new_order", { orderId: "ord1" })).toBe("/orders/ord1");
@@ -126,16 +135,17 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     expect(resolveCompletionGapHref("payment", "/checkout/item")).toContain("/account/payment-methods");
   });
 
-  it("embeds help centre topics and contact support inside help", () => {
+  it("embeds help centre category buttons inside help", () => {
     const help = readSource("features/help/components/HelpCentreCanonicalSection.tsx");
     const page = readSource("features/help/components/HelpCentrePage.tsx");
+    const categories = readSource("lib/help/help-centre-categories.ts");
 
     expect(help).toContain('data-help-centre-version="v1.0-legal-lock"');
-    expect(help).toContain("Contact Support");
-    expect(help).toContain("/support");
-    expect(help).toContain("/legal/cookie-policy");
-    expect(page).toContain("HelpCentreCanonicalSection");
-    expect(page).not.toContain("<HelpQuickLinks");
+    expect(categories).toContain('"Buying"');
+    expect(categories).toContain('"Reports & Appeals"');
+    expect(page).toContain("AccountCanonicalShell");
+    expect(page).toContain("HelpCentreCategoryGrid");
+    expect(page).not.toContain("MobileBrowseTopics");
   });
 
   it("exposes Module 02B notification preference labels", () => {

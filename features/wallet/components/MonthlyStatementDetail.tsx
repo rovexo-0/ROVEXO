@@ -2,7 +2,7 @@
 
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
-import { PageBack } from "@/components/navigation/PageBack";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { cn } from "@/lib/cn";
 import { formatCurrency, formatWalletDate } from "@/lib/wallet/utils";
 import type { MonthlyStatement } from "@/lib/wallet/monthly-statements";
@@ -41,11 +41,12 @@ export function MonthlyStatementDetail({ statement }: MonthlyStatementDetailProp
 
   return (
     <BetaAppShell bottomNavTab="account">
-      <header className="wallet-hub__header print:hidden">
-        <PageBack backHref="/wallet/statements" backLabel="Statements" preferHistory className="wallet-hub__back" />
-        <h1 className="wallet-hub__title">{statement.label}</h1>
-        <span className="wallet-hub__header-spacer" aria-hidden />
-      </header>
+      <CanonicalPageHeader
+        title={statement.label}
+        backHref="/wallet/statements"
+        backLabel="Statements"
+        className="print:hidden"
+      />
 
       <ScrollContainer withBottomNav className="wallet-hub wallet-statement" data-wallet-statement-version="v2.0-02b">
         <section className="wallet-hub__balance-card">

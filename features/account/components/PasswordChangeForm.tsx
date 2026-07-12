@@ -1,17 +1,11 @@
 "use client";
 
+import { CanonicalButton, CanonicalInfoBlock, CanonicalInput } from "@/src/components/canonical";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/Button";
-import { passwordChangeSchema, type PasswordChangeInput } from "@/lib/account/schemas";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 import { useState } from "react";
 
-const inputClassName = cn(
-  "w-full rounded-ds-lg border border-border bg-surface px-ds-3 py-ds-3 text-sm text-text-primary",
-  focusRing,
-);
+import { passwordChangeSchema, type PasswordChangeInput } from "@/lib/account/schemas";
 
 export function PasswordChangeForm() {
   const [message, setMessage] = useState<string | null>(null);
@@ -42,58 +36,37 @@ export function PasswordChangeForm() {
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-ds-3" noValidate>
-      <div>
-        <label htmlFor="currentPassword" className="text-sm font-medium text-text-primary">
-          Current password
-        </label>
-        <input
-          id="currentPassword"
-          type="password"
-          autoComplete="current-password"
-          className={cn(inputClassName, "mt-ds-1")}
-          {...register("currentPassword")}
-        />
-        {errors.currentPassword ? (
-          <p className="mt-1 text-xs text-danger">{errors.currentPassword.message}</p>
-        ) : null}
-      </div>
-      <div>
-        <label htmlFor="newPassword" className="text-sm font-medium text-text-primary">
-          New password
-        </label>
-        <input
-          id="newPassword"
-          type="password"
-          autoComplete="new-password"
-          className={cn(inputClassName, "mt-ds-1")}
-          {...register("newPassword")}
-        />
-        {errors.newPassword ? (
-          <p className="mt-1 text-xs text-danger">{errors.newPassword.message}</p>
-        ) : null}
-      </div>
-      <div>
-        <label htmlFor="confirmPassword" className="text-sm font-medium text-text-primary">
-          Confirm new password
-        </label>
-        <input
-          id="confirmPassword"
-          type="password"
-          autoComplete="new-password"
-          className={cn(inputClassName, "mt-ds-1")}
-          {...register("confirmPassword")}
-        />
-        {errors.confirmPassword ? (
-          <p className="mt-1 text-xs text-danger">{errors.confirmPassword.message}</p>
-        ) : null}
-      </div>
-      <Button type="submit" variant="secondary" disabled={isSubmitting}>
+      <CanonicalInput
+        id="currentPassword"
+        label="Current password"
+        inputType="password"
+        autoComplete="current-password"
+        error={errors.currentPassword?.message}
+        {...register("currentPassword")}
+      />
+      <CanonicalInput
+        id="newPassword"
+        label="New password"
+        inputType="password"
+        autoComplete="new-password"
+        error={errors.newPassword?.message}
+        {...register("newPassword")}
+      />
+      <CanonicalInput
+        id="confirmPassword"
+        label="Confirm new password"
+        inputType="password"
+        autoComplete="new-password"
+        error={errors.confirmPassword?.message}
+        {...register("confirmPassword")}
+      />
+      <CanonicalButton type="submit" variant="secondary" loading={isSubmitting}>
         {isSubmitting ? "Updating…" : "Change password"}
-      </Button>
+      </CanonicalButton>
       {message ? (
-        <p className="text-sm text-text-secondary" aria-live="polite">
+        <CanonicalInfoBlock variant="description" aria-live="polite">
           {message}
-        </p>
+        </CanonicalInfoBlock>
       ) : null}
     </form>
   );

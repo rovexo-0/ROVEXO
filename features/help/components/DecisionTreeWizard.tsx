@@ -1,11 +1,11 @@
 "use client";
 
-
-import { PageBack } from "@/components/navigation/PageBack";
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+
+
 import { HelpResolutionPrompt } from "@/features/help/components/HelpResolutionPrompt";
 import { HelpSolutionView } from "@/features/help/components/HelpSolutionView";
 import { getHelpTopic } from "@/lib/help/content/topics";
@@ -94,47 +94,40 @@ export function DecisionTreeWizard({ tree }: DecisionTreeWizardProps) {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-ds-6 px-ds-4 py-ds-6">
-      <div>
-        <PageBack variant="text" backHref="/help" backLabel="Help Centre" className="mb-ds-3" />
-        <p className="mt-ds-3 text-sm text-text-muted">{topic?.label}</p>
-        <h1 className="mt-ds-1 text-2xl font-bold text-text-primary">{tree.title}</h1>
-        <p className="mt-ds-2 text-sm text-text-secondary">
+    <AccountCanonicalShell title={topic?.label ?? "Help"} backHref="/help" backLabel="Help Centre">
+      <CanonicalInfoBlock variant="description">
+        <p className="cds-menu-row__title">{tree.title}</p>
+        <p className="mt-ds-2">
           Interactive guided troubleshooting — select the option that best matches your issue.
         </p>
-      </div>
+      </CanonicalInfoBlock>
 
       {solution ? (
         <>
           <HelpSolutionView solution={solution} topicSlug={tree.topicSlug} />
           <HelpResolutionPrompt topicSlug={tree.topicSlug} />
-          <Button variant="secondary" onClick={goBack}>
+          <CanonicalButton variant="secondary" onClick={goBack}>
             Continue troubleshooting
-          </Button>
+          </CanonicalButton>
         </>
       ) : currentNode ? (
-        <Card padding="lg" className="transition-opacity duration-200">
-          <h2 className="text-lg font-semibold text-text-primary">{currentNode.question}</h2>
-          <div className="mt-ds-5 space-y-ds-2">
+        <CanonicalSection title={currentNode.question}>
+          <CanonicalCard variant="list">
             {currentNode.options.map((optionEntry) => (
-              <button
+              <CanonicalMenuRow
                 key={optionEntry.id}
-                type="button"
+                title={optionEntry.label}
                 onClick={() => chooseOption(optionEntry.id)}
-                className="flex w-full items-center gap-ds-3 rx-menu-row rx-glass flex w-full items-center gap-ds-3 rounded-ds-lg px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:border-primary/40"
-              >
-                <span className="inline-flex h-4 w-4 rounded-full border border-border" aria-hidden />
-                {optionEntry.label}
-              </button>
+              />
             ))}
-          </div>
+          </CanonicalCard>
           {history.length > 1 ? (
-            <Button variant="secondary" className="mt-ds-5" onClick={goBack}>
+            <CanonicalButton variant="secondary" className="mt-ds-4" onClick={goBack}>
               Back
-            </Button>
+            </CanonicalButton>
           ) : null}
-        </Card>
+        </CanonicalSection>
       ) : null}
-    </div>
+    </AccountCanonicalShell>
   );
 }

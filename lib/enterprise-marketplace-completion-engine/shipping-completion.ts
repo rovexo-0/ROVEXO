@@ -52,7 +52,7 @@ function scanPlatform(scan: MarketplaceCompletionScanResult): CompletionValidati
     if (check === "home-delivery") pass = fileExists("lib/checkout/delivery.ts");
     if (check === "international-shipping") pass = sellerSettings.includes("internationalShippingEnabled");
     if (check === "shipping-rules") pass = readSource("lib/shipping-engine/registry.ts").includes("rules");
-    if (check === "shipping-profiles") pass = fileExists("features/account/components/AccountSellerShippingPage.tsx");
+    if (check === "shipping-profiles") pass = fileExists("features/account/components/AddressBookPage.tsx");
     if (check === "delivery-estimates") pass = carriers.includes("estimateDeliveryDate");
     if (check === "shipping-zones") pass = shippingDefaults.includes("zones");
     if (check === "shipping-prices") pass = sellerSettings.includes("baseShippingCost");

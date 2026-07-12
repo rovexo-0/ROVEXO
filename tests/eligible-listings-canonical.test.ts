@@ -56,13 +56,22 @@ describe("Canonical eligible-listings unification", () => {
     expect(HomepageEligibility.isRowEligible(APPROVED_ROW)).toBe(true);
   });
 
-  it("excludes unverified sellers uniformly (root-cause parity gate)", () => {
+  it("excludes inactive unverified sellers uniformly (root-cause parity gate)", () => {
     expect(
       HomepageEligibility.isRowEligible({
         ...APPROVED_ROW,
-        profiles: { ...APPROVED_ROW.profiles, verified: false },
+        profiles: { ...APPROVED_ROW.profiles, verified: false, account_status: "pending" },
       }),
     ).toBe(false);
+  });
+
+  it("allows published listings from active sellers before full verification badge", () => {
+    expect(
+      HomepageEligibility.isRowEligible({
+        ...APPROVED_ROW,
+        profiles: { ...APPROVED_ROW.profiles, verified: false, account_status: "active" },
+      }),
+    ).toBe(true);
   });
 
   it("excludes pending/blocked moderation uniformly", () => {
@@ -84,7 +93,11 @@ describe("Canonical eligible-listings unification", () => {
     const rows = [
       APPROVED_ROW,
       { ...APPROVED_ROW, slug: "draft-1", status: "draft" },
-      { ...APPROVED_ROW, slug: "unverified-1", profiles: { ...APPROVED_ROW.profiles, verified: false } },
+      {
+        ...APPROVED_ROW,
+        slug: "unverified-inactive-1",
+        profiles: { ...APPROVED_ROW.profiles, verified: false, account_status: "pending" },
+      },
     ];
     const kept = HomepageEligibility.filterEligibleRows(rows);
     expect(kept.map((row) => row.slug)).toEqual(["genuine-listing-123"]);

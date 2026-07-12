@@ -7,6 +7,7 @@ import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 export type CartItem = {
   id: string;
   productId: string;
+  sellerId: string;
   slug: string;
   title: string;
   price: number;
@@ -53,6 +54,7 @@ function mapCartRow(row: {
     price: number;
     stock: number;
     status: string;
+    seller_id: string;
     condition?: string | null;
     profiles?: { full_name: string | null; username: string | null } | null;
     product_images?: Array<{ url: string; is_primary: boolean; sort_order: number }>;
@@ -75,6 +77,7 @@ function mapCartRow(row: {
   return {
     id: row.id,
     productId: row.products.id,
+    sellerId: row.products.seller_id,
     slug: row.products.slug,
     title: row.products.title,
     price: Number(row.products.price),

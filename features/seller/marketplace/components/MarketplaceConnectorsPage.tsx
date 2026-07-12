@@ -5,9 +5,8 @@ import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { Card } from "@/components/ui/Card";
-import { IconButton } from "@/components/ui/IconButton";
-import { StickyPageHeader } from "@/components/ui/StickyPageHeader";
 import { MarketplaceConnectorCard } from "@/features/seller/marketplace/components/MarketplaceConnectorCard";
 import { useMarketplaceConnectors } from "@/features/seller/marketplace/hooks/use-marketplace-connectors";
 import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
@@ -22,14 +21,6 @@ const MarketplaceConnectorSettingsModal = dynamic(
     ),
   { ssr: false },
 );
-
-function BackIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-    </svg>
-  );
-}
 
 function ConnectorGridSkeleton() {
   return (
@@ -76,22 +67,9 @@ export function MarketplaceConnectorsPage() {
 
   return (
     <BetaAppShell showBottomNav={false}>
-      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-4xl bg-background px-5 py-5 ">
-        <StickyPageHeader>
-          <div className="flex items-center gap-ds-2">
-            <IconButton
-              label="Back to Selling"
-              onClick={() => router.push("/seller")}
-              className={focusRing}
-            >
-              <BackIcon className="h-5 w-5" />
-            </IconButton>
-            <div className="min-w-0 flex-1">
-              <h1 className="truncate text-base font-semibold text-text-primary">Marketplace Connectors</h1>
-              <p className="truncate text-xs text-text-secondary">Connect and manage import sources</p>
-            </div>
-          </div>
-        </StickyPageHeader>
+      <CanonicalPageHeader title="Marketplace Connectors" backHref="/seller" backLabel="Selling" />
+      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-4xl bg-background px-ds-4 py-ds-5">
+        <p className="text-sm text-text-secondary">Connect and manage import sources</p>
 
         <div className="mt-ds-4 flex flex-col gap-ds-4">
           {error ? (

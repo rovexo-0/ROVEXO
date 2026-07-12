@@ -2,10 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { HubPageMain } from "@/components/layout/HubPageMain";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
+import {
+  CanonicalButton,
+  CanonicalButtonLink,
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalInput,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { SELLER_REGISTRATION_OPTIONS, type SellerRegistrationType } from "@/lib/seller/tax/types";
 import type { SellerTaxProfile } from "@/lib/seller/tax/types";
 
@@ -14,11 +20,21 @@ type SellerTaxRegistrationPageProps = {
   connectUrl?: string | null;
 };
 
+const TAX_TYPE_LABELS: Record<SellerRegistrationType, string> = {
+  personal: "Personal",
+  pro_seller: "Pro Seller",
+  business_sole_trader: "Sole Trader",
+  business_company: "Company",
+};
+
+type TaxStep = "type" | "form";
+
 export function SellerTaxRegistrationPage({
   initialProfile,
   connectUrl,
 }: SellerTaxRegistrationPageProps) {
   const router = useRouter();
+  const [step, setStep] = useState<TaxStep>(initialProfile?.submittedAt ? "form" : "type");
   const [registrationType, setRegistrationType] = useState<SellerRegistrationType>(
     initialProfile?.registrationType ?? "personal",
   );
@@ -76,114 +92,159 @@ export function SellerTaxRegistrationPage({
     registrationType === "personal";
   const showCompanyFields = registrationType === "business_company";
 
+  const selectType = (type: SellerRegistrationType) => {
+    setRegistrationType(type);
+    setStep("form");
+  };
+
   return (
-    <BetaAppShell showBottomNav={false}>
-      <HubPageMain withBottomNav={false}>
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">Seller tax registration</h1>
-          <p className="mt-ds-2 text-sm text-text-secondary">
-            Register your seller type and add your bank account to receive payouts.
-          </p>
-        </div>
-
-        <Card padding="lg" className="">
-          <fieldset className="grid gap-ds-3">
-            <legend className="text-sm font-semibold text-text-primary">Registration type</legend>
-            {SELLER_REGISTRATION_OPTIONS.map((option) => (
-              <label key={option.id} className="flex cursor-pointer gap-ds-3 rounded-ds-md border border-border p-ds-3">
-                <input
-                  type="radio"
-                  name="registrationType"
-                  checked={registrationType === option.id}
-                  onChange={() => setRegistrationType(option.id)}
+    <AccountCanonicalShell title="Tax Information" backHref="/account/settings">
+      <AccountPageStack>
+        {step === "type" ? (
+          <CanonicalSection title="Tax Information">
+            <CanonicalCard variant="list">
+              {SELLER_REGISTRATION_OPTIONS.map((option) => (
+                <CanonicalMenuRow
+                  key={option.id}
+                  title={TAX_TYPE_LABELS[option.id]}
+                  onClick={() => selectType(option.id)}
+                  className="account-settings-tax-option"
                 />
-                <span>
-                  <span className="block text-sm font-medium text-text-primary">{option.label}</span>
-                  <span className="block text-xs text-text-secondary">{option.description}</span>
-                </span>
-              </label>
-            ))}
-          </fieldset>
-        </Card>
+              ))}
+            </CanonicalCard>
+          </CanonicalSection>
+        ) : (
+          <>
+            <CanonicalSection title={TAX_TYPE_LABELS[registrationType]}>
+              <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
+                <CanonicalMenuRow title="Change seller type" onClick={() => setStep("type")} />
 
-        <Card padding="lg" className="">
-          <div className="grid gap-ds-4">
-            {showSoleTraderFields ? (
-              <>
-                <Field label="Full name" value={form.fullName} onChange={(value) => update("fullName", value)} />
-                <Field label="Address line 1" value={form.addressLine1} onChange={(value) => update("addressLine1", value)} />
-                <Field label="Address line 2" value={form.addressLine2} onChange={(value) => update("addressLine2", value)} />
-                <Field label="City" value={form.city} onChange={(value) => update("city", value)} />
-                <Field label="Postcode" value={form.postcode} onChange={(value) => update("postcode", value)} />
-                <Field label="Email" value={form.email} onChange={(value) => update("email", value)} />
-                <Field label="Phone" value={form.phone} onChange={(value) => update("phone", value)} />
-                {(registrationType === "business_sole_trader" || registrationType === "pro_seller") && (
+                {showSoleTraderFields ? (
                   <>
-                    <Field label="NINO (when required)" value={form.nino} onChange={(value) => update("nino", value)} />
-                    <Field label="UTR (when applicable)" value={form.utr} onChange={(value) => update("utr", value)} />
+                    <CanonicalInput
+                      id="fullName"
+                      label="Full Name"
+                      value={form.fullName}
+                      onChange={(event) => update("fullName", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="addressLine1"
+                      label="Address"
+                      value={form.addressLine1}
+                      onChange={(event) => update("addressLine1", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="addressLine2"
+                      label="Address line 2"
+                      value={form.addressLine2}
+                      onChange={(event) => update("addressLine2", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="city"
+                      label="City"
+                      value={form.city}
+                      onChange={(event) => update("city", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="postcode"
+                      label="Postcode"
+                      value={form.postcode}
+                      onChange={(event) => update("postcode", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="email"
+                      label="Email"
+                      value={form.email}
+                      onChange={(event) => update("email", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="phone"
+                      label="Phone"
+                      value={form.phone}
+                      onChange={(event) => update("phone", event.target.value)}
+                    />
+                    {registrationType === "business_sole_trader" || registrationType === "pro_seller" ? (
+                      <>
+                        <CanonicalInput
+                          id="nino"
+                          label="NINO"
+                          value={form.nino}
+                          onChange={(event) => update("nino", event.target.value)}
+                        />
+                        <CanonicalInput
+                          id="utr"
+                          label="UTR"
+                          value={form.utr}
+                          onChange={(event) => update("utr", event.target.value)}
+                        />
+                      </>
+                    ) : null}
                   </>
-                )}
-              </>
-            ) : null}
+                ) : null}
 
-            {showCompanyFields ? (
-              <>
-                <Field label="Company name" value={form.companyName} onChange={(value) => update("companyName", value)} />
-                <Field
-                  label="Company registration number"
-                  value={form.companyNumber}
-                  onChange={(value) => update("companyNumber", value)}
-                />
-                <Field
-                  label="Registered address"
-                  value={form.registeredAddress}
-                  onChange={(value) => update("registeredAddress", value)}
-                />
-                <Field label="VAT number (when applicable)" value={form.vatNumber} onChange={(value) => update("vatNumber", value)} />
-                <Field label="Director name" value={form.directorName} onChange={(value) => update("directorName", value)} />
-                <Field label="Email" value={form.email} onChange={(value) => update("email", value)} />
-                <Field label="Phone" value={form.phone} onChange={(value) => update("phone", value)} />
-              </>
-            ) : null}
+                {showCompanyFields ? (
+                  <>
+                    <CanonicalInput
+                      id="companyName"
+                      label="Company Name"
+                      value={form.companyName}
+                      onChange={(event) => update("companyName", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="companyNumber"
+                      label="Company Number"
+                      value={form.companyNumber}
+                      onChange={(event) => update("companyNumber", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="registeredAddress"
+                      label="Registered Address"
+                      value={form.registeredAddress}
+                      onChange={(event) => update("registeredAddress", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="vatNumber"
+                      label="VAT Number"
+                      value={form.vatNumber}
+                      onChange={(event) => update("vatNumber", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="directorName"
+                      label="Director Name"
+                      value={form.directorName}
+                      onChange={(event) => update("directorName", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="companyEmail"
+                      label="Email"
+                      value={form.email}
+                      onChange={(event) => update("email", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="companyPhone"
+                      label="Phone"
+                      value={form.phone}
+                      onChange={(event) => update("phone", event.target.value)}
+                    />
+                  </>
+                ) : null}
 
-            {error ? <p className="text-sm text-danger">{error}</p> : null}
+                {error ? <CanonicalInfoBlock variant="error">{error}</CanonicalInfoBlock> : null}
 
-            <Button disabled={saving} onClick={() => void save()}>
-              Save and set up payouts
-            </Button>
+                <CanonicalButton disabled={saving} loading={saving} fullWidth onClick={() => void save()}>
+                  Save
+                </CanonicalButton>
 
-            {connectUrl ? (
-              <a
-                href={connectUrl}
-                className="inline-flex min-h-ds-7 items-center justify-center rounded-ds-full border border-border px-ds-5 text-sm font-medium"
-              >
-                Continue bank setup
-              </a>
-            ) : null}
-          </div>
-        </Card>
-      </HubPageMain>
-    </BetaAppShell>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div>
-      <label className="text-sm font-medium text-text-primary">{label}</label>
-      <input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="mt-ds-1 w-full rx-input px-ds-3 py-ds-2 text-sm"
-      />
-    </div>
+                {connectUrl ? (
+                  <CanonicalButtonLink href={connectUrl} variant="secondary" fullWidth>
+                    Continue bank setup
+                  </CanonicalButtonLink>
+                ) : null}
+              </CanonicalCard>
+            </CanonicalSection>
+          </>
+        )}
+      </AccountPageStack>
+    </AccountCanonicalShell>
   );
 }

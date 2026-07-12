@@ -19,6 +19,9 @@ export type SellOptionPickerProps = {
   allowCustomFromSearch?: boolean;
   showSwatch?: boolean;
   value: readonly string[];
+  suggestedSectionTitle?: string;
+  suggestedOption?: SelectionOption | null;
+  chooseAnotherLabel?: string;
   onClose: () => void;
   onDone: (selected: string[]) => void;
 };
@@ -50,6 +53,9 @@ export function SellOptionPicker({
   allowCustomFromSearch = false,
   showSwatch = false,
   value,
+  suggestedSectionTitle,
+  suggestedOption,
+  chooseAnotherLabel = "Choose another",
   onClose,
   onDone,
 }: SellOptionPickerProps) {
@@ -82,6 +88,42 @@ export function SellOptionPicker({
   const select = (id: string) => {
     onDone(mode === "multiple" ? [id] : [id]);
     onClose();
+  };
+
+  const useSwatchGrid = showSwatch && layout !== "grid";
+
+  const renderSwatchCell = (option: SelectionOption) => {
+    const active = value.includes(option.id);
+    return (
+      <button
+        key={option.id}
+        type="button"
+        role="radio"
+        aria-checked={active}
+        aria-label={option.label}
+        onClick={() => select(option.id)}
+        className={cn(
+          "flex flex-col items-center gap-ds-2 rounded-ds-md p-ds-2 transition-colors",
+          active ? "bg-primary/5" : "bg-transparent",
+          focusRing,
+        )}
+      >
+        <span
+          className={cn(
+            "h-12 w-12 shrink-0 rounded-ds-full border-2 shadow-sm",
+            active ? "border-primary ring-2 ring-primary/30" : "border-border",
+          )}
+          style={{ backgroundColor: option.swatch ?? "transparent" }}
+          aria-hidden
+        />
+        <span className={cn(
+          "max-w-full truncate text-center text-xs font-medium",
+          active ? "text-primary" : "text-text-secondary",
+        )}>
+          {option.label}
+        </span>
+      </button>
+    );
   };
 
   const renderRow = (option: SelectionOption) => {
@@ -138,7 +180,7 @@ export function SellOptionPicker({
   };
 
   return (
-    <ModalContainer open onClose={onClose} variant="fullscreen" zIndex={200} ariaLabel={title}>
+    <ModalContainer open onClose={onClose} variant="fullscreen" zIndex={200} ariaLabel={title} lockScroll={false}>
       <div className={cn(sellPanel, "flex min-h-0 flex-1 flex-col")}>
         <SellPanelHeader title={title} onBack={onClose} />
 
@@ -160,7 +202,24 @@ export function SellOptionPicker({
         ) : null}
 
         <div className={cn(RX_MODAL_BODY, "min-h-0 flex-1 overflow-y-auto overscroll-contain px-ds-4 pt-ds-3")}>
-          {layout === "grid" ? (
+          {suggestedOption && !trimmed ? (
+            <>
+              <p className="px-ds-1 pb-ds-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+                {suggestedSectionTitle ?? `Suggested ${title}`}
+              </p>
+              <ul className="mb-ds-4 flex flex-col gap-ds-2" role="list">
+                {renderRow(suggestedOption)}
+              </ul>
+              <div className="mb-ds-3 border-t border-border" role="separator" aria-hidden />
+              <p className="px-ds-1 pb-ds-2 text-xs font-semibold uppercase tracking-wide text-text-muted">{chooseAnotherLabel}</p>
+            </>
+          ) : null}
+
+          {useSwatchGrid ? (
+            <div className="grid grid-cols-4 gap-ds-2 pb-ds-4 sm:grid-cols-5" role="radiogroup" aria-label={title}>
+              {filtered.map(renderSwatchCell)}
+            </div>
+          ) : layout === "grid" ? (
             <div className="grid grid-cols-3 gap-ds-2 pb-ds-4" role="radiogroup" aria-label={title}>
               {filtered.map(renderGridCell)}
             </div>

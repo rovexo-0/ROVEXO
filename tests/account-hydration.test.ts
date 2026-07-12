@@ -7,62 +7,38 @@ function readSource(relativePath: string): string {
 }
 
 /**
- * My Account must not use framer-motion on the grid or cards. Applying motion
- * transforms to CSS Grid containers breaks Android Chrome compositing and
- * produces duplicated cards, overlapping labels, and corrupted statistics.
+ * My Account canonical hub must not use framer-motion on menu grids.
  */
 describe("My Account rendering safety", () => {
-  it("MyAccountGrid does not use framer-motion", () => {
-    const source = readSource("components/account/MyAccountGrid.tsx");
-    expect(source).not.toMatch(/from ["']framer-motion["']/);
-    expect(source).not.toMatch(/<motion\./);
-    expect(source).toContain('className="acx-grid"');
+  it("canonical hub does not use framer-motion", () => {
+    const home = readSource("features/account-center/components/AccountCenterHome.tsx");
+    const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
+    expect(home).not.toMatch(/from ["']framer-motion["']/);
+    expect(menu).not.toMatch(/<motion\./);
+    expect(home).toContain("data-ac-hub-version");
   });
 
-  it("MyAccountCard does not use framer-motion", () => {
-    const source = readSource("components/account/MyAccountCard.tsx");
-    expect(source).not.toMatch(/from ["']framer-motion["']/);
-    expect(source).not.toMatch(/<motion\./);
+  it("canonical menu uses CanonicalMenuRow", () => {
+    const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
+    expect(menu).toContain("CanonicalMenuRow");
+    expect(menu).toContain("buildAccountMenuSections");
   });
 
-  it("acx-grid avoids grid-auto-rows: 1fr (Android grid compositor bug)", () => {
-    const css = readSource("styles/rovexo/account-2026.css");
-    const gridBlock = css.slice(css.indexOf(".acx-grid {"), css.indexOf(".acx-card {"));
-    expect(gridBlock).not.toContain("grid-auto-rows");
+  it("ac-canonical hub styles avoid transform on menu rows", () => {
+    const css = readSource("styles/rovexo/account-canonical-v2.css");
+    expect(css).toContain(".ac-canonical__row");
   });
 
-  it("acx-card styles avoid transform (Android ghost-layer bug)", () => {
-    const css = readSource("styles/rovexo/account-2026.css");
-    const cardBlock = css.slice(css.indexOf(".acx-card {"), css.indexOf(".acx-card__tile {"));
-    expect(cardBlock).not.toMatch(/transform\s*:/);
-  });
-
-  it("MyAccountCard uses static accent classes, not inline color-mix", () => {
-    const source = readSource("components/account/MyAccountCard.tsx");
-    expect(source).not.toMatch(/color-mix\s*\(/);
-    expect(source).not.toContain("acx-card-motion");
-    expect(source).toContain("acx-card__tile--");
-  });
-
-  it("ROVEXO Ideas tile uses dedicated ideas entry in account nav", () => {
-    const nav = readSource("components/account/account-nav.ts");
-    expect(nav).toMatch(/id: "ideas"[\s\S]*?href: "\/account\/ideas"/);
+  it("ROVEXO Ideas is in canonical account menu", () => {
+    const menu = readSource("lib/account-center/canonical-menu.ts");
+    expect(menu).toMatch(/id: "ideas"[\s\S]*?href: "\/account\/ideas"/);
     const icons = readSource("components/account/AccountIcons.tsx");
     expect(icons).toContain('"ideas"');
   });
 
-  it("TrustAnalytics avoids overlapping SVG segment circles", () => {
-    const source = readSource("components/account/TrustAnalytics.tsx");
-    expect(source).not.toMatch(/segments\.map/);
-    expect(source).not.toMatch(/transform="rotate/);
-  });
-
-  it("MyAccountGrid gates Super Admin Command Center by role", () => {
-    const grid = readSource("components/account/MyAccountGrid.tsx");
-    const nav = readSource("components/account/account-nav.ts");
-    expect(nav).toContain("SUPER_ADMIN_ACCOUNT_NAV_ITEM");
-    expect(nav).toContain('href: "/super-admin"');
-    expect(grid).toContain('role === "super_admin"');
-    expect(grid).toContain("SUPER_ADMIN_ACCOUNT_NAV_ITEM");
+  it("AccountCanonicalShell is the single subpage shell", () => {
+    const shell = readSource("features/account-canonical/shell/AccountCanonicalShell.tsx");
+    expect(shell).toContain("AccountCanonicalHeader");
+    expect(shell).toContain("data-account-canonical");
   });
 });

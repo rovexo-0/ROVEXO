@@ -2,6 +2,8 @@ import type { FlatCategoryPath } from "@/lib/categories/types";
 import type { AiCameraAnalysisResult } from "@/lib/ai-camera/types";
 import type { SellListingMode } from "@/lib/profile/account";
 import type { ShippingMethod } from "@/lib/shipping/carriers";
+import { createEmptyUserModified, type UserModifiedFields } from "@/lib/sell/suggestion-field-lock";
+import { isSellListingPublishable } from "@/lib/sell/sell-validation";
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
 import { resolveTransactionModeFromFlatPath } from "@/lib/transaction-mode/resolver";
 
@@ -111,6 +113,9 @@ export type SellListingDraft = {
   collectionEnabled: boolean;
 
   analysis: AiCameraAnalysisResult | null;
+
+  /** Fields manually set by the seller — never overwritten by suggestions this session. */
+  userModified: UserModifiedFields;
 };
 
 export const SELL_CONDITIONS = [
@@ -128,9 +133,6 @@ export function createEmptyDraft(): SellListingDraft {
   return {
     photos: [],
     categoryPath: null,
-    // "medium" is the recommended default (see PARCEL_SIZE_OPTIONS). Parcel size
-    // is optional at the API/DB layer, so a valid default keeps a new listing
-    // genuinely complete without forcing an extra tap before publishing.
     parcelSize: null,
 
     listingType: "fixed",
@@ -145,7 +147,7 @@ export function createEmptyDraft(): SellListingDraft {
 
     attributes: {},
 
-    condition: "Used",
+    condition: "",
     shippingMethod: "delivery_available",
 
     price: "",
@@ -166,6 +168,7 @@ export function createEmptyDraft(): SellListingDraft {
     collectionEnabled: false,
 
     analysis: null,
+    userModified: createEmptyUserModified(),
   };
 }
 
@@ -226,10 +229,6 @@ export function getListingValidationErrors(
     errors.title = "Title must be at least 3 characters.";
   }
 
-  if (draft.description.trim().length < 10) {
-    errors.description = "Description must be at least 10 characters.";
-  }
-
   if (!draft.categoryPath) {
     errors.category = "Select a category.";
   }
@@ -253,5 +252,11 @@ export function isListingValid(
   draft: SellListingDraft,
   options?: ListingValidationOptions,
 ): boolean {
-  return Object.keys(getListingValidationErrors(draft, options)).length === 0;
+  if (options?.showErrors === false) {
+    return Object.keys(getListingValidationErrors(draft, options)).length === 0;
+  }
+  return isSellListingPublishable(draft, {
+    title: draft.title,
+    description: draft.description,
+  });
 }

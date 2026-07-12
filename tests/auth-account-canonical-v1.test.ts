@@ -68,18 +68,20 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     expect(actions).toContain("signInWithOAuthProvider");
   });
 
-  it("keeps ACCOUNT section to Settings only", () => {
+  it("keeps ACCOUNT section to Settings and Promotion Tools", () => {
     const sections = buildAccountMenuSections(baseProfile);
     const account = sections.find((section) => section.id === "account");
 
-    expect(account?.items.map((item) => item.title)).toEqual(["Settings"]);
+    expect(account?.items.map((item) => item.title)).toEqual(["Settings", "Promotion Tools"]);
     expect(account?.items[0]?.href).toBe("/account/settings");
+    expect(account?.items[1]?.href).toBe("/account/promotion-tools");
   });
 
   it("consolidates account features under Settings", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
 
-    expect(settings).toContain('data-settings-version="v1.0-production"');
+    expect(settings).toContain("AccountCanonicalShell");
+    expect(settings).toContain("SettingsAccordion");
     expect(settings).toContain('"Profile"');
     expect(settings).toContain('"Addresses"');
     expect(settings).toContain('"Payment Methods"');

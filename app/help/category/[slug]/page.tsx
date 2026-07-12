@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { DecisionTreeWizard } from "@/features/help/components/DecisionTreeWizard";
 import { getHelpTopic } from "@/lib/help/content/topics";
 import { getDecisionTree } from "@/lib/help/decision-trees/registry";
@@ -28,9 +27,5 @@ export default async function HelpCategoryPage({ params }: HelpCategoryPageProps
     notFound();
   }
 
-  return (
-    <BetaAppShell showBottomNav={false}>
-      <DecisionTreeWizard tree={tree} />
-    </BetaAppShell>
-  );
+  return <DecisionTreeWizard tree={tree} />;
 }

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { ChatPage } from "@/features/messages/components/ChatPage";
 import { fetchConversationById } from "@/lib/messages/queries";
@@ -16,5 +17,9 @@ export default async function ChatRoute({ params }: ChatRouteProps) {
     notFound();
   }
 
-  return <ChatPage initialConversation={conversation} />;
+  return (
+    <Suspense fallback={null}>
+      <ChatPage initialConversation={conversation} />
+    </Suspense>
+  );
 }

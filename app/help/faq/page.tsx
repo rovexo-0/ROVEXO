@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { HelpFaqPage } from "@/features/help/components/HelpFaqPage";
 
 export const metadata: Metadata = {
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function HelpFaqRoute() {
-  return (
-    <BetaAppShell showBottomNav={false}>
-      <HelpFaqPage />
-    </BetaAppShell>
-  );
+  return <HelpFaqPage />;
 }

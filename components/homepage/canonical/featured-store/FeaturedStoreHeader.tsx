@@ -3,7 +3,7 @@
 import { Avatar } from "@/components/ui/Avatar";
 import Link from "next/link";
 import { memo, useId } from "react";
-import { resolveStoreBadge } from "@/lib/homepage/store-badges";
+import { FollowSellerButton } from "@/features/launch/components/FollowSellerButton";
 import type { ShowcaseSellerSection } from "@/lib/homepage/showcase-sellers";
 import css from "@/components/homepage/canonical/featured-store/FeaturedStore.module.css";
 
@@ -16,12 +16,12 @@ function StarRow({ rating }: { rating: number }) {
   const clamped = Math.max(0, Math.min(5, rating));
 
   return (
-    <span className={css.stars} aria-hidden>
+    <span className={css.stars} aria-label={`${clamped.toFixed(1)} out of 5 stars`}>
       {Array.from({ length: 5 }, (_, i) => {
         const fill = Math.max(0, Math.min(1, clamped - i));
         const gradId = `${uid}-s${i}`;
         return (
-          <svg key={i} viewBox="0 0 24 24" width="12" height="12">
+          <svg key={i} viewBox="0 0 24 24" width="12" height="12" aria-hidden>
             <defs>
               <linearGradient id={gradId}>
                 <stop offset={`${fill * 100}%`} stopColor="#FFC107" />
@@ -39,16 +39,10 @@ function StarRow({ rating }: { rating: number }) {
   );
 }
 
-function formatReviewCount(count: number): string {
-  if (count <= 0) return "No reviews";
-  if (count === 1) return "1 review";
-  return `${count.toLocaleString("en-GB")} reviews`;
-}
-
 export const FeaturedStoreHeader = memo(function FeaturedStoreHeader({
   section,
 }: FeaturedStoreHeaderProps) {
-  const badge = resolveStoreBadge(section);
+  const displayRating = section.rating > 0 ? section.rating : 0;
 
   return (
     <header className={css.header}>
@@ -61,23 +55,20 @@ export const FeaturedStoreHeader = memo(function FeaturedStoreHeader({
             size="md"
             className="h-full w-full"
           />
-          {badge ? (
-            <span className={css.headerBadge} data-tone={badge.tone}>
-              {badge.label}
-            </span>
-          ) : null}
         </span>
         <span className={css.identityText}>
           <span className={css.storeName}>{section.sellerName}</span>
           <span className={css.ratingLine}>
-            <StarRow rating={section.rating > 0 ? section.rating : 5} />
-            <span className={css.reviewCount}>{formatReviewCount(section.reviewCount)}</span>
+            <StarRow rating={displayRating} />
           </span>
         </span>
       </Link>
-      <Link href={section.profileHref} className={css.visit}>
-        Visit Store
-      </Link>
+      <div className={css.headerActions}>
+        <Link href={section.profileHref} className={css.visit}>
+          Visit Store
+        </Link>
+        <FollowSellerButton sellerId={section.sellerId} compact />
+      </div>
     </header>
   );
 });

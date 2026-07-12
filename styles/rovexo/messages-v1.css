@@ -587,3 +587,42 @@
   color: var(--ds-color-warning);
   background: color-mix(in srgb, var(--ds-color-warning) 10%, #ffffff);
 }
+
+/* Transaction Hub — chat bottom actions (DOCUMENT 1) */
+.thub-v1__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 12px 16px 0;
+  background: var(--ds-color-surface);
+  border-bottom: 1px solid var(--ds-color-border-subtle);
+}
+
+.thub-v1__actions--seller {
+  padding-bottom: 8px;
+}
+
+.thub-v1__action-tertiary {
+  min-height: 44px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ds-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.thub-v1__action-tertiary:disabled {
+  opacity: 0.5;
+}
+
+.thub-v1__checkout-panel {
+  background: var(--ds-color-surface);
+}
+
+.thub-v1__checkout {
+  min-height: 100dvh;
+  background: var(--ds-color-surface);
+}

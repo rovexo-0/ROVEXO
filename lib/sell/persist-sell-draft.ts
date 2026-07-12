@@ -2,6 +2,7 @@ import type { MutableRefObject } from "react";
 import type { SellListingDraft } from "@/features/sell/types";
 import { saveDraftPhotos } from "@/lib/sell/draft-photo-storage";
 import { saveSellDraft, saveUploadSessionId } from "@/lib/sell/draft-storage";
+import { touchDraftSavedAt } from "@/lib/sell/draft-engine";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
 import { sellInputDiag } from "@/lib/sell/sell-input-diagnostics";
 import { sellProfilePersist } from "@/lib/sell/sell-profiler";
@@ -33,6 +34,7 @@ export function persistSellDraftTextSync(refs: PersistableDraftRefs): boolean {
     sellProfilePersist("textSync");
     const draft = resolvePersistableDraft(refs);
     saveSellDraft(draft);
+    touchDraftSavedAt();
     if (refs.uploadSessionId) {
       saveUploadSessionId(refs.uploadSessionId);
     }

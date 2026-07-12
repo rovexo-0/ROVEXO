@@ -18,7 +18,7 @@ describe("deterministic sell prefill", () => {
     const patch = buildDeterministicPrefill(draft);
     expect(patch.brand).toBe("Tempur");
     expect(patch.material).toBe("Memory Foam");
-    expect(patch.condition).toBe("Excellent");
+    expect(patch.condition).toBe("Very Good");
   });
 
   it("never overwrites existing user values", () => {

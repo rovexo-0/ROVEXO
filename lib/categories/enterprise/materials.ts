@@ -1,30 +1,18 @@
 /**
- * Enterprise marketplace materials database — SSOT for Sell attributes and filters.
+ * Enterprise marketplace materials database — re-exports canonical SSOT from lib/materials.
  */
 
-export const MARKETPLACE_MATERIALS = [
-  "Acrylic", "Aluminium", "Bamboo", "Brass", "Bronze", "Canvas", "Carbon Fiber", "Cashmere",
-  "Ceramic", "Chrome", "Copper", "Corduroy", "Cotton", "Denim", "Down", "Elastane", "Faux Fur",
-  "Faux Leather", "Faux Suede", "Felt", "Fibreglass", "Foam", "Gel Foam", "Glass", "Gold", "Hemp",
-  "Jersey", "Jute", "Latex", "Leather", "Linen", "Lycra", "Memory Foam", "Merino Wool", "Mesh",
-  "Metal", "Microfibre", "Nylon", "Organic Cotton", "Paper", "Plastic", "Platinum", "Polyester",
-  "Polypropylene", "Porcelain", "PVC", "Rayon", "Recycled Polyester", "Rubber", "Satin", "Silicone",
-  "Silk", "Silver", "Stainless Steel", "Steel", "Stone", "Suede", "Synthetic", "Tencel", "Titanium",
-  "Tweed", "Velvet", "Vinyl", "Viscose", "Wood", "Wool", "Zinc", "Other",
-] as const;
-
-export const FASHION_MATERIALS = [
-  "Cotton", "Polyester", "Wool", "Silk", "Linen", "Denim", "Leather", "Suede", "Cashmere",
-  "Merino Wool", "Velvet", "Satin", "Jersey", "Fleece", "Nylon", "Elastane", "Viscose",
-] as const;
-
-export const HOME_MATERIALS = [
-  "Wood", "Metal", "Glass", "Ceramic", "Stone", "Marble", "Granite", "Plastic", "Rattan",
-  "Wicker", "Fabric", "Leather", "Velvet", "Cotton", "Linen", "Wool", "Bamboo",
-] as const;
-
-export const MARKETPLACE_MATERIALS_BY_VERTICAL = {
-  default: MARKETPLACE_MATERIALS,
-  fashion: FASHION_MATERIALS,
-  home: HOME_MATERIALS,
-} as const;
+export {
+  MARKETPLACE_MATERIALS,
+  MARKETPLACE_MATERIALS_BY_VERTICAL,
+  MARKETPLACE_MATERIALS_BY_SCOPE,
+  FASHION_MATERIALS,
+  HOME_MATERIALS,
+  PILLOW_MATERIALS,
+  BEDDING_MATERIALS,
+  MATERIAL_DATABASE,
+  MATERIAL_COUNT,
+  getMaterialsForVertical,
+  validateMaterial,
+  type MaterialRecord,
+} from "@/lib/materials";

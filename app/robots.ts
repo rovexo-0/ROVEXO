@@ -1,8 +1,15 @@
 import type { MetadataRoute } from "next";
 import { getAppUrl } from "@/lib/supabase/env";
+import { isLaunchPrivateMode } from "@/lib/launch-certification/private-mode";
 
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = getAppUrl();
+
+  if (isLaunchPrivateMode()) {
+    return {
+      rules: [{ userAgent: "*", disallow: "/" }],
+    };
+  }
 
   return {
     rules: [

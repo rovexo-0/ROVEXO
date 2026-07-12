@@ -18,9 +18,13 @@ describe("sell publish flow with pending title", () => {
     ];
     draft.description = "A complete description for the listing.";
     draft.categoryPath = resolveCategoryPathBySlugs(["shoes", "trainers", "nike"]);
+    draft.brand = "Nike";
+    draft.color = "Black";
+    draft.size = "9";
     draft.condition = "Good";
     draft.price = "50";
     draft.shippingMethod = "delivery_available";
+    draft.parcelSize = "medium";
 
     const pendingTitle = "Nike trainers size 9";
     const effectiveDraft = resolveEffectiveSellDraft(draft, { title: pendingTitle });

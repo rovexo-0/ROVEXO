@@ -1,18 +1,14 @@
 "use client";
 
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea, CanonicalCheckbox } from "@/src/components/canonical";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AccountPageShell } from "@/features/account/components/AccountPageShell";
-import { Button } from "@/components/ui/Button";
-import { privacyPatchSchema, type PrivacyPatchInput } from "@/lib/account/schemas";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 
-const selectClassName = cn(
-  "w-full rounded-ds-lg border border-border bg-surface px-ds-3 py-ds-3 text-sm text-text-primary",
-  focusRing,
-);
+import { DocumentLineIcon, EyeLineIcon, LockLineIcon, PeopleLineIcon } from "@/components/icons/RvxLineIcons";
+import { privacyPatchSchema, type PrivacyPatchInput } from "@/lib/account/schemas";
+
 
 export function AccountPrivacyPage() {
   const [message, setMessage] = useState<string | null>(null);
@@ -20,6 +16,8 @@ export function AccountPrivacyPage() {
     register,
     handleSubmit,
     reset,
+    control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<PrivacyPatchInput>({
     resolver: zodResolver(privacyPatchSchema),
@@ -29,6 +27,9 @@ export function AccountPrivacyPage() {
       showActivityStatus: true,
     },
   });
+
+  const marketingEmails = useWatch({ control, name: "marketingEmails" });
+  const showActivityStatus = useWatch({ control, name: "showActivityStatus" });
 
   useEffect(() => {
     let cancelled = false;
@@ -58,56 +59,79 @@ export function AccountPrivacyPage() {
   });
 
   return (
-    <AccountPageShell
-      title="Privacy settings"
-      subtitle="Control who can see your profile and how ROVEXO contacts you."
-      backHref="/account/profile"
-      backLabel="Settings"
-    >
-      <form onSubmit={onSubmit} className="rx-surface-card flex flex-col gap-ds-4 p-ds-5" noValidate>
-        <div>
-          <label htmlFor="profileVisibility" className="text-sm font-medium text-text-primary">
-            Profile visibility
-          </label>
-          <select
-            id="profileVisibility"
-            className={cn(selectClassName, "mt-ds-1")}
-            {...register("profileVisibility")}
-          >
-            <option value="public">Public — anyone can view</option>
-            <option value="members_only">Members only — signed-in users</option>
-            <option value="private">Private — only you</option>
-          </select>
-          {errors.profileVisibility ? (
-            <p className="text-xs text-danger">{errors.profileVisibility.message}</p>
-          ) : null}
-        </div>
+    <AccountCanonicalShell title="Privacy" backHref="/account/settings">
+      <CanonicalSection title="Privacy">
+        <CanonicalCard variant="list">
+          <CanonicalMenuRow
+            title="Blocked Users"
+            icon={<PeopleLineIcon />}
+            href="/account/blocked-users"
+          />
+          <CanonicalMenuRow
+            title="Download My Data"
+            icon={<DocumentLineIcon />}
+            href="/support?category=data-export"
+          />
+        </CanonicalCard>
+      </CanonicalSection>
 
-        <label className="flex items-start gap-ds-3 text-sm text-text-primary">
-          <input type="checkbox" className="mt-1" {...register("marketingEmails")} />
-          <span>
-            <span className="font-medium">Marketing emails</span>
-            <span className="mt-ds-1 block text-text-secondary">
-              Receive offers, tips, and product updates from ROVEXO.
-            </span>
-          </span>
-        </label>
+      <CanonicalSection title="Visibility">
+        <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
+          <form onSubmit={onSubmit} className="flex flex-col gap-ds-4" noValidate>
+            <CanonicalSelector
+              label="Profile visibility"
+              id="profileVisibility"
+              kind="generic"
+              options={[
+                { value: "public", label: "Public — anyone can view" },
+                { value: "members_only", label: "Members only — signed-in users" },
+                { value: "private", label: "Private — only you" },
+              ]}
+              error={errors.profileVisibility?.message}
+              {...register("profileVisibility")}
+            />
 
-        <label className="flex items-start gap-ds-3 text-sm text-text-primary">
-          <input type="checkbox" className="mt-1" {...register("showActivityStatus")} />
-          <span>
-            <span className="font-medium">Show activity status</span>
-            <span className="mt-ds-1 block text-text-secondary">
-              Let others see when you were last active in messages.
-            </span>
-          </span>
-        </label>
+            <CanonicalCheckbox
+              id="marketingEmails"
+              label="Marketing emails"
+              description="Receive offers, tips, and product updates from ROVEXO."
+              checked={marketingEmails}
+              onChange={(event) => setValue("marketingEmails", event.target.checked, { shouldDirty: true })}
+            />
 
-        <Button type="submit" variant="primary" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : "Save privacy settings"}
-        </Button>
-        {message ? <p className="text-sm text-text-secondary">{message}</p> : null}
-      </form>
-    </AccountPageShell>
+            <CanonicalCheckbox
+              id="showActivityStatus"
+              label="Show activity status"
+              description="Let others see when you were last active in messages."
+              checked={showActivityStatus}
+              onChange={(event) =>
+                setValue("showActivityStatus", event.target.checked, { shouldDirty: true })
+              }
+            />
+
+            <CanonicalButton type="submit" fullWidth loading={isSubmitting}>
+              {isSubmitting ? "Saving…" : "Save privacy settings"}
+            </CanonicalButton>
+            {message ? <CanonicalInfoBlock variant="description">{message}</CanonicalInfoBlock> : null}
+          </form>
+        </CanonicalCard>
+      </CanonicalSection>
+
+      <CanonicalSection title="Marketing">
+        <CanonicalCard variant="list">
+          <CanonicalMenuRow
+            title="Marketing Preferences"
+            description="Email and promotional updates"
+            icon={<EyeLineIcon />}
+            href="/account/privacy"
+          />
+          <CanonicalMenuRow
+            title="Cookie Preferences"
+            icon={<LockLineIcon />}
+            href="/legal/cookie-policy"
+          />
+        </CanonicalCard>
+      </CanonicalSection>
+    </AccountCanonicalShell>
   );
 }

@@ -15,17 +15,17 @@ import {
 
 describe("promotion config", () => {
   it("defines bump and showcase pricing defaults", () => {
-    expect(BUMP_DURATIONS).toHaveLength(2);
+    expect(BUMP_DURATIONS).toHaveLength(3);
     expect(FEATURE_DURATIONS).toHaveLength(1);
-    expect(getPromotionDuration("bump", "3d")?.priceCents).toBe(100);
-    expect(getPromotionDuration("bump", "7d")?.priceCents).toBe(200);
-    expect(getPromotionDuration("feature", "7d")?.priceCents).toBe(550);
+    expect(getPromotionDuration("bump", "7d")?.priceCents).toBe(130);
+    expect(getPromotionDuration("bump", "14d")?.priceCents).toBe(250);
+    expect(getPromotionDuration("feature", "7d")?.priceCents).toBe(600);
   });
 
   it("computes end dates from duration ids", () => {
     const start = new Date("2026-01-01T12:00:00Z");
-    const bumpEnd = computeEndsAt("bump", "3d", start);
-    expect(bumpEnd?.getTime()).toBe(start.getTime() + 72 * 60 * 60 * 1000);
+    const bumpEnd = computeEndsAt("bump", "7d", start);
+    expect(bumpEnd?.getTime()).toBe(start.getTime() + 168 * 60 * 60 * 1000);
 
     const featureEnd = computeEndsAt("feature", "7d", start);
     expect(featureEnd?.getUTCDate()).toBe(8);

@@ -7,6 +7,7 @@ import { searchListings as searchListingsRepo } from "@/lib/listings/repository"
 import { compareHomepageFeedProducts, computeHomepagePriorityScore } from "@/lib/homepage/feed-ranking";
 import {
   buildShowcaseSellerSections,
+  enrichShowcaseSellerSections,
   type ShowcaseSellerSection,
 } from "@/lib/homepage/showcase-sellers";
 import { HomepageEligibility } from "@/lib/homepage/homepage-eligibility";
@@ -87,6 +88,7 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     sellerResponseRate: Math.min(100, Math.round(70 + rating * 6)),
     location: resolveProductLocationCity(row.location_city, row.description),
     listingType: row.listing_type ?? "fixed",
+    acceptOffers: Boolean(row.accept_offers),
     auctionEndsAt: row.auction_ends_at,
     auctionCurrentBid:
       row.listing_type === "auction" && row.auction_start_price != null
@@ -198,6 +200,7 @@ function mapProductDetail(row: ProductRow, transactionMode = DEFAULT_TRANSACTION
     sellerUsername: row.profiles?.username ?? null,
     categoryId: row.category_id,
     transactionMode,
+    acceptOffers: Boolean(row.accept_offers),
   };
 }
 
@@ -376,7 +379,7 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
   };
 }
 
-/** Paid Showcase sellers — one horizontal section per seller with active feature promotion. */
+/** Paid Featured Store sellers — all active listings per seller, newest first. */
 export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection[]> {
   if (!isSupabaseConfigured()) {
     return [];
@@ -386,14 +389,32 @@ export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection
 
   const supabase = await createClient();
   const now = new Date().toISOString();
+
+  const { data: anchorRows, error: anchorError } = await supabase
+    .from("products")
+    .select("seller_id")
+    .eq("status", "published")
+    .gt("featured_until", now);
+
+  if (anchorError || !anchorRows?.length) {
+    return [];
+  }
+
+  const featuredSellerIds = [
+    ...new Set(anchorRows.map((row) => row.seller_id).filter(Boolean)),
+  ] as string[];
+
+  if (featuredSellerIds.length === 0) {
+    return [];
+  }
+
   const { data, error } = await supabase
     .from("products")
     .select(PRODUCT_SELECT)
     .eq("status", "published")
-    .gt("featured_until", now)
-    .order("promotion_score", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(72);
+    .gt("stock", 0)
+    .in("seller_id", featuredSellerIds)
+    .order("created_at", { ascending: false });
 
   if (error || !data?.length) {
     return [];
@@ -403,14 +424,11 @@ export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection
   const mapped = rows.map((row) => mapProductRow(row));
   const withModes = await attachTransactionModes(mapped);
   const enriched = await enrichProductsWithTrust(withModes);
-  const ranked = enriched
-    .map((product) => ({
-      ...product,
-      homepagePriorityScore: computeHomepagePriorityScore(product),
-    }))
-    .sort(compareHomepageFeedProducts);
+  const sections = buildShowcaseSellerSections(enriched, {
+    featuredSellerIds: new Set(featuredSellerIds),
+  });
 
-  return buildShowcaseSellerSections(ranked);
+  return enrichShowcaseSellerSections(sections);
 }
 
 // Wrapped in React.cache so the listing page's generateMetadata() and the page

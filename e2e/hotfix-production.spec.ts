@@ -5,7 +5,8 @@ import path from "path";
 import { createAdminClient } from "../lib/supabase/admin";
 import { signInWithSessionCookies } from "./helpers/auth";
 import { ALL_LISTINGS_SELECTOR, waitForHomepageUi } from "./helpers/stable-ui";
-import { fillSellDescription, publishSellListing, uploadSellPhoto } from "./helpers/sell";
+import { fillSellDescription, publishSellListing, uploadSellPhoto, ensureCategorySelected, gotoSellPage, fillSellTitle, ensureParcelSizeSelected } from "./helpers/sell";
+import { seedSellerBankAccount } from "./helpers/seller-setup";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../lib/supabase/types/database";
 
@@ -56,6 +57,7 @@ test.describe.serial("production hotfix validation", () => {
 
     if (role === "seller") {
       await admin.from("seller_profiles").upsert({ id: data.user.id }, { onConflict: "id" });
+      await seedSellerBankAccount(admin, data.user.id);
     }
 
     return { id: data.user.id, email, password, username, role };
@@ -69,6 +71,7 @@ test.describe.serial("production hotfix validation", () => {
         await admin.from("products").delete().eq("id", pid);
       }
       await admin.from("seller_profiles").delete().eq("id", userId);
+      await admin.from("withdraw_methods").delete().eq("user_id", userId);
       await admin.from("profiles").delete().eq("id", userId);
       await admin.auth.admin.deleteUser(userId);
     } catch {
@@ -118,22 +121,14 @@ test.describe.serial("production hotfix validation", () => {
     const galleryImage = writeTempImage("publish.jpg");
     const title = `Hotfix homepage ${Date.now()}`;
 
-    await page.goto("/sell", { waitUntil: "domcontentloaded", timeout: 180_000 });
-    await expect(page.getByRole("button", { name: /add photo/i })).toBeVisible({ timeout: 120_000 });
+    await gotoSellPage(page);
 
     await uploadSellPhoto(page, galleryImage);
-    await page.getByPlaceholder(/tell buyers what you're selling/i).fill(title);
+    await fillSellTitle(page, title);
     await fillSellDescription(page, "E2E hotfix validation listing with enough detail for publish.");
 
-    const categoryButton = page.getByRole("button", { name: /select category|^category$/i });
-    if (await categoryButton.isVisible().catch(() => false)) {
-      await categoryButton.click();
-      const searchInput = page.getByRole("searchbox", { name: /search categories/i });
-      if (await searchInput.isVisible().catch(() => false)) {
-        await searchInput.fill("sofa");
-        await page.getByRole("button").filter({ hasText: /sofa/i }).first().click();
-      }
-    }
+    await ensureCategorySelected(page);
+    await ensureParcelSizeSelected(page);
 
     await page.getByPlaceholder("0.00").fill("29.99");
     await publishSellListing(page);

@@ -1,8 +1,11 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { resolveBackRoute } from "@/lib/navigation/back-routes";
+import { resolveListingBackFallback } from "@/lib/navigation/listing-back";
+import { readPreviousNavigationPath } from "@/lib/navigation/session-navigation";
+import { bumpSessionVisitDepth } from "@/lib/navigation/session-visit-depth";
 
 export type UsePageBackOptions = {
   backHref?: string;
@@ -13,6 +16,11 @@ export type UsePageBackOptions = {
 export function usePageBack(options: UsePageBackOptions = {}) {
   const pathname = usePathname() ?? "/";
   const router = useRouter();
+  const visitDepthRef = useRef<number | null>(null);
+
+  if (visitDepthRef.current === null) {
+    visitDepthRef.current = bumpSessionVisitDepth();
+  }
 
   const resolved = useMemo(() => resolveBackRoute(pathname), [pathname]);
 
@@ -25,12 +33,24 @@ export function usePageBack(options: UsePageBackOptions = {}) {
       router.push(href);
       return;
     }
-    if (typeof window !== "undefined" && window.history.length > 1) {
+
+    const visitDepth = visitDepthRef.current ?? 1;
+    const canHistoryBack =
+      typeof window !== "undefined" &&
+      window.history.length > 1 &&
+      visitDepth > 1;
+
+    if (options.preferHistory !== false && canHistoryBack) {
       router.back();
       return;
     }
-    router.push(href);
-  }, [href, options.backHref, options.preferHistory, router]);
+
+    const listingFallback = pathname.startsWith("/listing/")
+      ? resolveListingBackFallback(readPreviousNavigationPath())
+      : null;
+
+    router.push(listingFallback ?? options.backHref ?? resolved?.parentHref ?? "/");
+  }, [href, options.backHref, options.preferHistory, pathname, resolved?.parentHref, router]);
 
   return {
     visible,

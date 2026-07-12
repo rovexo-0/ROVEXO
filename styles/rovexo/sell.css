@@ -1,15 +1,53 @@
 /* ROVEXO v1.0 — Sell flow premium presentation */
 
 .sell-page-v1 {
-  background: var(--ds-color-background);
+  background: #ffffff;
+}
+
+/* Document-scroll sell shell — never trap overflow in a flex child */
+.sell-page-v1-shell {
+  --sell-publish-bar-measured: 140px;
+  --sell-keyboard-offset: 0px;
+  --sell-scroll-keyboard-extra: 0px;
+  --sell-content-bottom-padding: max(
+    calc(var(--sell-publish-bar-measured) + 32px + var(--sell-scroll-keyboard-extra)),
+    calc(128px + env(safe-area-inset-bottom, 0px)),
+    calc(120px + env(safe-area-inset-bottom, 0px))
+  );
+
+  min-height: 100dvh;
+  overflow: visible;
+}
+
+/* Scrollable sell content clears the fixed publish bar + safe area */
+.sell-page-v1-shell .sell-page-v1-content {
+  padding-bottom: var(--sell-content-bottom-padding);
+  scroll-padding-bottom: var(--sell-content-bottom-padding);
+}
+
+/* Fixed publish bar — lifts above keyboard via visualViewport */
+.sell-publish-bar {
+  bottom: var(--sell-keyboard-offset, 0px);
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
+}
+
+.sell-page-v1-shell .sell-page-v1-content input,
+.sell-page-v1-shell .sell-page-v1-content textarea,
+.sell-page-v1-shell .sell-page-v1-content select,
+.sell-page-v1-shell .sell-page-v1-content [role="button"] {
+  scroll-margin-bottom: var(--sell-content-bottom-padding);
+}
+
+.sell-flow-shell.sell-page-v1 {
+  overflow: visible;
 }
 
 .sell-page-v1 .rx-form-section {
-  padding: var(--ds-space-5);
-  border-radius: var(--ds-radius-xl);
-  border: 1px solid var(--ds-color-border);
-  background: var(--ds-color-surface);
-  box-shadow: var(--ds-shadow-soft);
+  padding: var(--ds-space-4);
+  border-radius: var(--cds-radius-lg);
+  border: 1px solid var(--cds-color-border, rgb(15 23 42 / 0.08));
+  background: #ffffff;
+  box-shadow: none;
 }
 
 .sell-page-v1 .rx-input {
@@ -27,20 +65,86 @@
 
 .sell-page-v1 .rx-upload {
   min-height: 120px;
-  border-radius: var(--ds-radius-xl);
-  border: 2px dashed var(--ds-color-border-strong);
-  background: var(--ds-color-surface-muted);
-  color: var(--ds-color-text-primary);
-  transition:
-    border-color var(--ds-duration-fast) var(--ds-ease),
-    transform var(--ds-duration-fast) var(--ds-ease),
-    box-shadow var(--ds-duration-fast) var(--ds-ease);
+  border-radius: var(--cds-radius-md);
+  border: 1px dashed var(--cds-color-border, rgb(15 23 42 / 0.12));
+  background: #ffffff;
+  color: var(--cds-color-text-primary);
 }
 
-.sell-page-v1 .rx-upload:hover {
-  border-color: color-mix(in srgb, var(--ds-color-primary) 40%, var(--ds-color-border-strong));
-  box-shadow: var(--ds-shadow-soft);
-  transform: translateY(-1px);
+.sell-photo-upload {
+  border: 1px dashed var(--cds-color-border, rgb(15 23 42 / 0.12));
+  border-radius: var(--cds-radius-md);
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.sell-publish-bar[hidden] {
+  display: none;
+}
+
+.sell-page-field {
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + var(--cds-header-height, 56px) + 8px);
+}
+
+.sell-page-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + var(--cds-header-height, 56px) + 8px);
+}
+
+.sell-pricing-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.sell-pricing-summary__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.875rem;
+  color: var(--cds-color-text-secondary);
+}
+
+.sell-pricing-summary__row--emphasis {
+  font-weight: 600;
+  color: var(--cds-color-text-primary);
+}
+
+.sell-review-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.sell-review-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--cds-color-border, rgb(15 23 42 / 0.08));
+}
+
+.sell-review-card > .sell-review-row:first-child {
+  border-top: none;
+}
+
+.sell-review-row__label {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--cds-color-text-muted);
+}
+
+.sell-review-row__value {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: var(--cds-color-text-primary);
 }
 
 .sell-page-v1 .rx-footer-bar {

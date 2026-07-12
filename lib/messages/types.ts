@@ -22,13 +22,18 @@ export type ChatMessage = {
   moderationWarning?: string | null;
 };
 
+export type ConversationListingType = "fixed" | "auction";
+
 export type ConversationProduct = {
+  id: string;
   slug: string;
   title: string;
   price: number;
   condition: string;
   imageUrl: string;
   status: ProductListingStatus;
+  listingType: ConversationListingType;
+  acceptOffers: boolean;
 };
 
 export type ConversationParticipant = {

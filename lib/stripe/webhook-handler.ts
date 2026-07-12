@@ -4,6 +4,7 @@ import { logPaymentError, logStripeWebhookEvent } from "@/lib/ops/logger";
 import { cancelPendingOrder, fulfillOrderFromStripeSession } from "@/lib/orders/checkout";
 import { completePaidOrderFulfillment } from "@/lib/orders/post-payment.server";
 import { fulfillPromotionFromStripeSession } from "@/lib/promotions/service";
+import { fulfillSellerPromotionFromStripeSession } from "@/lib/promotions/seller-promotions";
 import {
   fulfillSubscriptionFromStripeSession,
   syncSubscriptionFromStripe,
@@ -54,6 +55,12 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session):
   if (session.metadata?.checkoutType === "promotion") {
     await fulfillPromotionFromStripeSession(session);
     await recordPlatformAnalyticsEvent({ domain: "promotions", metric: "checkout_completed" });
+    return;
+  }
+
+  if (session.metadata?.checkoutType === "seller_promotion") {
+    await fulfillSellerPromotionFromStripeSession(session);
+    await recordPlatformAnalyticsEvent({ domain: "promotions", metric: "seller_checkout_completed" });
     return;
   }
 

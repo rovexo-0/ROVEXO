@@ -48,7 +48,15 @@ export function buildAccountMenuSections(profile: UserProfile): AccountMenuSecti
     {
       id: "account",
       title: "ACCOUNT",
-      items: [{ id: "settings", title: "Settings", href: "/account/settings", icon: "settings" }],
+      items: [
+        { id: "settings", title: "Settings", href: "/account/settings", icon: "settings" },
+        {
+          id: "promotion-tools",
+          title: "Promotion Tools",
+          href: "/account/promotion-tools",
+          icon: "promotions",
+        },
+      ],
     },
     {
       id: "support",

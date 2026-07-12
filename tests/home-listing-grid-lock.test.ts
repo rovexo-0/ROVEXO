@@ -103,7 +103,7 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(store).toContain("ListingCard");
     expect(store).toContain("HP_CANONICAL_LISTING_PROPS");
     expect(store).toContain("StoreProfileCard");
-    expect(store).toContain('data-hp-featured-store-version="phase-2-module-01"');
+    expect(store).toContain('data-hp-featured-store-version="v1.0-canonical"');
     expect(css).toContain("--hp-store-card-ref-w");
   });
 

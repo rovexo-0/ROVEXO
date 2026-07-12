@@ -1,8 +1,10 @@
 "use client";
 
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
 import { useState } from "react";
-import { AccountPageShell } from "@/features/account/components/AccountPageShell";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { LanguagePicker } from "@/features/settings/components/LanguagePicker";
+
 import { useLocale } from "@/lib/i18n/provider";
 import { getLocaleOption, type LocaleCode } from "@/lib/i18n/config";
 import { useTranslation } from "@/lib/i18n/use-translation";
@@ -23,20 +25,17 @@ export function AccountLanguagePage() {
   };
 
   return (
-    <AccountPageShell
-      title="Language"
-      subtitle="Choose your preferred language and regional format."
-      backHref="/account/settings"
-      backLabel="Settings"
-    >
-      <section className="rx-surface-card p-ds-5">
-        <LanguagePicker
-          value={getLocaleOption(localeCode).language}
-          localeCode={localeCode}
-          onChange={(code) => void save(code)}
-        />
-        {message ? <p className="mt-ds-3 text-sm text-text-secondary">{message}</p> : null}
-      </section>
-    </AccountPageShell>
+    <AccountCanonicalShell title="Language" backHref="/account/settings" backLabel="Settings">
+      <CanonicalSection title="Language">
+        <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
+          <LanguagePicker
+            value={getLocaleOption(localeCode).language}
+            localeCode={localeCode}
+            onChange={(code) => void save(code)}
+          />
+          {message ? <CanonicalInfoBlock variant="description">{message}</CanonicalInfoBlock> : null}
+        </CanonicalCard>
+      </CanonicalSection>
+    </AccountCanonicalShell>
   );
 }

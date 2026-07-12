@@ -3,9 +3,10 @@
 import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { Avatar } from "@/components/ui/Avatar";
 import {
-  BackLineIcon,
   ChevronRightLineIcon,
   DoubleCheckLineIcon,
   GalleryLineIcon,
@@ -13,9 +14,12 @@ import {
   SendLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import { useChatRealtime } from "@/features/messages/hooks/use-chat-realtime";
+import { TransactionHubBottomActions } from "@/features/transaction-hub/TransactionHubBottomActions";
+import { TransactionHubPaymentSuccess } from "@/features/transaction-hub/TransactionHubPaymentSuccess";
+import { CheckoutHubSheet } from "@/features/transaction-hub/CheckoutHubSheet";
 import { getViewerRole } from "@/lib/messages/types";
 import type { ChatMessage, Conversation, SenderRole } from "@/lib/messages/types";
-import { formatMessageTime, getPresenceLabel } from "@/lib/messages/utils";
+import { formatMessageTime } from "@/lib/messages/utils";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 
 type ChatPageProps = {
@@ -86,10 +90,18 @@ function ChatBubbleRow({
 }
 
 export function ChatPage({ initialConversation }: ChatPageProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [conversation, setConversation] = useState(initialConversation);
   const [warning, setWarning] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState<{
+    orderId: string;
+    orderNumber?: string | null;
+  } | null>(null);
+  const [resumeCheckoutOpen, setResumeCheckoutOpen] = useState(false);
+  const paymentHandledRef = useRef(false);
   const viewerRole = getViewerRole(conversation.participant);
   const threadEndRef = useRef<HTMLDivElement>(null);
 
@@ -106,6 +118,50 @@ export function ChatPage({ initialConversation }: ChatPageProps) {
   useEffect(() => {
     threadEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [conversation.messages.length]);
+
+  useEffect(() => {
+    if (paymentHandledRef.current) return;
+
+    const paymentStatus = searchParams.get("payment");
+    const orderId = searchParams.get("order_id");
+    const sessionId = searchParams.get("session_id");
+    const cancelledSlug = searchParams.get("slug");
+
+    if (!paymentStatus || !orderId) return;
+
+    paymentHandledRef.current = true;
+
+    if (paymentStatus === "cancelled") {
+      router.replace(`/messages/${conversation.id}`);
+      if (cancelledSlug) {
+        setResumeCheckoutOpen(true);
+      }
+      return;
+    }
+
+    if (paymentStatus === "success") {
+      const confirm = async () => {
+        if (sessionId) {
+          const response = await fetch(
+            `/api/orders/confirm?session_id=${encodeURIComponent(sessionId)}`,
+          );
+          const payload = (await response.json()) as {
+            success?: boolean;
+            order?: { id: string; orderNumber?: string };
+          };
+          setPaymentSuccess({
+            orderId: payload.order?.id ?? orderId,
+            orderNumber: payload.order?.orderNumber ?? null,
+          });
+        } else {
+          setPaymentSuccess({ orderId });
+        }
+        router.replace(`/messages/${conversation.id}`);
+      };
+
+      void confirm();
+    }
+  }, [conversation.id, router, searchParams]);
 
   const handleSend = useCallback(async () => {
     const content = draft.trim();
@@ -159,7 +215,6 @@ export function ChatPage({ initialConversation }: ChatPageProps) {
   ]);
 
   const { participant, product } = conversation;
-  const online = participant.online;
 
   const dayGroups = useMemo(() => {
     const groups: Array<{ key: string; label: string; messages: ChatMessage[] }> = [];
@@ -177,24 +232,16 @@ export function ChatPage({ initialConversation }: ChatPageProps) {
 
   return (
     <div className="chat-v1" data-messages-version="v1.0">
-      <header className="chat-v1__header">
-        <Link href="/messages" className="chat-v1__icon" aria-label="Back to messages">
-          <BackLineIcon />
-        </Link>
-        <div className="chat-v1__id">
-          <Avatar src={participant.avatarUrl} alt={participant.name} name={participant.name} size="md" />
-          <div className="min-w-0">
-            <div className="chat-v1__name">{participant.name}</div>
-            <span className={online ? "chat-v1__presence chat-v1__presence--online" : "chat-v1__presence"}>
-              {online ? <span className="chat-v1__presence-dot" /> : null}
-              {online ? "Active now" : getPresenceLabel(conversation)}
-            </span>
-          </div>
-        </div>
-        <button type="button" className="chat-v1__icon" aria-label="Conversation options">
-          <MoreLineIcon />
-        </button>
-      </header>
+      <CanonicalPageHeader
+        title={participant.name}
+        backHref="/messages"
+        backLabel="Back to messages"
+        rightAction={
+          <button type="button" className="chat-v1__icon" aria-label="Conversation options">
+            <MoreLineIcon />
+          </button>
+        }
+      />
 
       <div className="chat-v1__product-wrap">
         <Link href={`/listing/${product.slug}`} className="chat-v1__product">
@@ -213,6 +260,12 @@ export function ChatPage({ initialConversation }: ChatPageProps) {
       </div>
 
       {warning ? <div className="chat-v1__warning">{warning}</div> : null}
+
+      <TransactionHubBottomActions
+        conversationId={conversation.id}
+        viewerRole={viewerRole}
+        product={product}
+      />
 
       <div className="chat-v1__thread">
         {dayGroups.map((group) => (
@@ -268,6 +321,22 @@ export function ChatPage({ initialConversation }: ChatPageProps) {
           </button>
         </div>
       </div>
+
+      {paymentSuccess ? (
+        <TransactionHubPaymentSuccess
+          open
+          orderId={paymentSuccess.orderId}
+          orderNumber={paymentSuccess.orderNumber}
+          onContinueChat={() => setPaymentSuccess(null)}
+        />
+      ) : null}
+
+      <CheckoutHubSheet
+        open={resumeCheckoutOpen}
+        onClose={() => setResumeCheckoutOpen(false)}
+        productSlug={product.slug}
+        conversationId={conversation.id}
+      />
     </div>
   );
 }

@@ -24,9 +24,14 @@ function hasCompleteAddress(draft: CheckoutDraft): boolean {
 export function useCheckoutForm(
   product: ProductDetail,
   initialDraft: CheckoutDraft,
-  options?: { liveShippingEnabled?: boolean },
+  options?: {
+    liveShippingEnabled?: boolean;
+    hubConversationId?: string;
+    onDraftChange?: (draft: CheckoutDraft) => void;
+  },
 ) {
   const liveShippingEnabled = options?.liveShippingEnabled ?? true;
+  const hubConversationId = options?.hubConversationId;
   const liveShippingActive = liveShippingEnabled;
   const [view, setView] = useState<CheckoutView>("checkout");
   const [draft, setDraft] = useState<CheckoutDraft>(initialDraft);
@@ -79,9 +84,15 @@ export function useCheckoutForm(
     ],
   );
 
+  const onDraftChange = options?.onDraftChange;
+
   const updateDraft = useCallback((patch: Partial<CheckoutDraft>) => {
-    setDraft((current) => ({ ...current, ...patch }));
-  }, []);
+    setDraft((current) => {
+      const next = { ...current, ...patch };
+      onDraftChange?.(next);
+      return next;
+    });
+  }, [onDraftChange]);
 
   const retryShippingQuotes = useCallback(() => {
     setLiveQuotesAttempted(false);
@@ -222,6 +233,7 @@ export function useCheckoutForm(
           deliveryOption: draft.deliveryOption,
           shippingAddressId,
           shippingQuoteId: selectedQuote?.id ?? null,
+          hubConversationId,
         }),
       });
 
@@ -253,7 +265,7 @@ export function useCheckoutForm(
     } finally {
       setIsSubmitting(false);
     }
-  }, [canPay, draft.addressId, draft.deliveryOption, isSubmitting, product.slug, selectedQuote]);
+  }, [canPay, draft.addressId, draft.deliveryOption, hubConversationId, isSubmitting, product.slug, selectedQuote]);
 
   return {
     view,

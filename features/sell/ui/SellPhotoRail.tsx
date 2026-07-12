@@ -1,34 +1,31 @@
 "use client";
 
-import { memo, useCallback, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { CanonicalCard } from "@/src/components/canonical";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
 import { focusRing } from "@/features/sell/ui/sell-classes";
 import { useSell } from "@/features/sell/context/SellProvider";
-import { SELL_PHOTO_MAX } from "@/features/sell/types";
+import { getListingValidationErrors, SELL_PHOTO_MAX } from "@/features/sell/types";
+import { DeletePhotoAction } from "@/features/sell/ui/DeletePhotoAction";
+import { SellInlineError } from "@/features/sell/ui/SellPrimitives";
 
 const LONG_PRESS_MS = 400;
 const MOVE_CANCEL_PX = 12;
 
-function PlusIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-    </svg>
-  );
-}
+export const SellPhotoRail = memo(function SellPhotoRail({
+  onPhotosAdded,
+}: {
+  onPhotosAdded?: () => void;
+}) {
+  const { draft, addPhotos, replacePhoto, reorderPhotos, retryPhotoUpload, showValidation } = useSell();
 
-function CloseIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
-  );
-}
-
-export const SellPhotoRail = memo(function SellPhotoRail() {
-  const { draft, addPhotos, removePhoto, reorderPhotos, retryPhotoUpload } = useSell();
+  const photoError = useMemo(() => {
+    if (!showValidation) return undefined;
+    return getListingValidationErrors(draft, { mode: "quick", showErrors: true }).photos;
+  }, [draft, showValidation]);
 
   const longPressTimer = useRef<number | null>(null);
   const touchDragIndex = useRef<number | null>(null);
@@ -40,12 +37,36 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
 
   const photos = draft.photos;
   const canAdd = photos.length < SELL_PHOTO_MAX;
+  const onPhotosAddedRef = useRef(onPhotosAdded);
+  onPhotosAddedRef.current = onPhotosAdded;
+  const announcedPhotos = useRef(false);
+
+  useEffect(() => {
+    if (!announcedPhotos.current && photos.length > 0) {
+      announcedPhotos.current = true;
+      onPhotosAddedRef.current?.();
+    }
+    if (photos.length === 0) {
+      announcedPhotos.current = false;
+    }
+  }, [photos.length]);
 
   const handleFilesSelected = useCallback(
     (files: FileList) => {
       void addPhotos(files);
     },
     [addPhotos],
+  );
+
+  const handleReplaceSelected = useCallback(
+    (photoId: string, files: FileList) => {
+      const file = files[0];
+      if (!file) return;
+      replacePhoto(photoId, file);
+      void retryPhotoUpload(photoId);
+      setPreviewId(null);
+    },
+    [replacePhoto, retryPhotoUpload],
   );
 
   const clearLongPress = useCallback(() => {
@@ -107,46 +128,56 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
   const previewPhoto = previewId ? photos.find((photo) => photo.id === previewId) ?? null : null;
 
   const tileBase =
-    "relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-ds-lg";
+    "relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[var(--cds-radius-md)]";
+
+  const addPhotosControl = (
+    <label
+      aria-label="Add Photos"
+      className={cn(
+        "sell-photo-upload relative flex min-h-[7rem] w-full flex-col items-center justify-center gap-ds-2",
+        photoError && "border-destructive/50",
+        focusRing,
+      )}
+    >
+      <NativeImageFileInput
+        intent="gallery"
+        placement="overlay"
+        multiple
+        onFilesSelected={handleFilesSelected}
+      />
+      <Plus className="h-6 w-6 text-primary" aria-hidden />
+      <span className="text-sm font-medium text-text-primary">Add Photos</span>
+    </label>
+  );
 
   return (
-    <section aria-label="Add Photos" className="rx-form-section flex flex-col gap-ds-3 rounded-ds-lg border border-border bg-surface p-ds-4 shadow-ds-soft">
+    <CanonicalCard
+      variant="medium"
+      role="region"
+      className={cn(
+        "relative flex flex-col gap-ds-3 overflow-hidden p-ds-4",
+        photoError && "ring-2 ring-destructive/40",
+      )}
+      aria-label="Add Photos"
+    >
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-text-primary">Add Photos</h2>
-        <span className="text-xs font-semibold tabular-nums text-text-muted" aria-live="polite">
-          {photos.length} / {SELL_PHOTO_MAX}
+        <span className="text-sm font-medium text-text-primary">Add Photos</span>
+        <span className="text-xs font-medium tabular-nums text-text-muted" aria-live="polite">
+          {photos.length}/{SELL_PHOTO_MAX}
         </span>
       </div>
 
       {photos.length === 0 ? (
-        <label
-          aria-label="Add Photos"
-          className={cn(
-            "relative flex min-h-[8rem] w-full touch-manipulation flex-col items-center justify-center gap-ds-2 rounded-ds-lg border-2 border-dashed border-primary/40 bg-primary/5 text-primary transition-colors active:bg-primary/10",
-            focusRing,
-          )}
-        >
-          <NativeImageFileInput
-            intent="gallery"
-            placement="overlay"
-            multiple
-            onFilesSelected={handleFilesSelected}
-          />
-          <PlusIcon className="pointer-events-none h-7 w-7" />
-          <span className="pointer-events-none text-sm font-semibold">Add Photos</span>
-          <span className="pointer-events-none text-xs font-normal text-text-muted">
-            Maximum {SELL_PHOTO_MAX} photos
-          </span>
-        </label>
+        addPhotosControl
       ) : (
         <div
-          className="-mx-ds-1 flex gap-ds-2 overflow-x-auto px-ds-1 pb-ds-1"
+          className="flex gap-ds-2 overflow-x-auto pb-ds-1"
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
           onTouchCancel={onTouchEnd}
           onDragOver={(event) => event.preventDefault()}
           onDrop={onFileDrop}
-          aria-label="Photo rail"
+          aria-label="Photo gallery"
         >
           {photos.map((photo, index) => (
             <div
@@ -165,7 +196,7 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
               className={cn(
                 tileBase,
                 "border border-border bg-surface-muted",
-                (dragIndex === index || activeTouch === index) && "scale-95 opacity-80 ring-2 ring-primary",
+                (dragIndex === index || activeTouch === index) && "ring-2 ring-primary",
               )}
             >
               <button
@@ -185,24 +216,21 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
                 />
               </button>
 
-              {index === 0 ? (
-                <span className="absolute bottom-1 left-1 rounded-ds-sm bg-primary px-1.5 py-0.5 text-[0.625rem] font-semibold text-white">
-                  Cover
-                </span>
+              <DeletePhotoAction
+                photoId={photo.id}
+                ariaLabel={`Delete photo ${index + 1}`}
+                className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-ds-full bg-black/60 text-xs text-white"
+              />
+
+              {photo.uploading ? (
+                <div className="absolute inset-0 grid place-items-center bg-black/40">
+                  <span
+                    className="h-6 w-6 animate-spin rounded-ds-full border-2 border-white border-t-transparent"
+                    aria-hidden
+                  />
+                  <span className="sr-only">Uploading photo</span>
+                </div>
               ) : null}
-
-              <span className="absolute bottom-1 right-1 rounded-ds-sm bg-black/60 px-1.5 py-0.5 text-[0.625rem] font-semibold tabular-nums text-white">
-                {index + 1} / {SELL_PHOTO_MAX}
-              </span>
-
-              <button
-                type="button"
-                aria-label={`Delete photo ${index + 1}`}
-                onClick={() => void removePhoto(photo.id)}
-                className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-ds-full bg-black/60 text-white"
-              >
-                <CloseIcon className="h-3.5 w-3.5" />
-              </button>
 
               {photo.uploadError ? (
                 <button
@@ -219,11 +247,7 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
           {canAdd ? (
             <label
               aria-label="Add Photos"
-              className={cn(
-                tileBase,
-                "touch-manipulation flex-col gap-1 border-2 border-dashed border-primary/40 bg-primary/5 text-primary",
-                focusRing,
-              )}
+              className={cn(tileBase, "sell-photo-upload flex-col gap-1", focusRing)}
             >
               <NativeImageFileInput
                 intent="gallery"
@@ -231,20 +255,12 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
                 multiple
                 onFilesSelected={handleFilesSelected}
               />
-              <PlusIcon className="pointer-events-none h-6 w-6" />
-              <span className="pointer-events-none text-xs font-semibold">Add Photos</span>
+              <Plus className="h-5 w-5 text-primary" aria-hidden />
+              <span className="text-[0.625rem] font-medium text-text-primary">Add</span>
             </label>
           ) : null}
         </div>
       )}
-
-      {photos.length > 0 ? (
-        <p className="text-xs text-text-muted" aria-live="polite">
-          {canAdd
-            ? "Tap to preview · long-press or drag to reorder · first photo is your cover image."
-            : `Maximum ${SELL_PHOTO_MAX} photos reached.`}
-        </p>
-      ) : null}
 
       <ModalContainer
         open={Boolean(previewPhoto)}
@@ -252,25 +268,46 @@ export const SellPhotoRail = memo(function SellPhotoRail() {
         variant="lightbox"
         zIndex={210}
         ariaLabel="Photo preview"
+        lockScroll={false}
       >
         <button
           type="button"
           aria-label="Close preview"
           onClick={() => setPreviewId(null)}
-          className={cn("absolute right-ds-4 top-[max(env(safe-area-inset-top),1rem)] z-10 grid h-11 w-11 place-items-center rounded-ds-full bg-white/10 text-white", focusRing)}
+          className={cn(
+            "absolute right-ds-4 top-[max(env(safe-area-inset-top),1rem)] z-10 grid h-11 w-11 place-items-center rounded-ds-full bg-black/50 text-white",
+            focusRing,
+          )}
         >
-          <CloseIcon className="h-6 w-6" />
+          ×
         </button>
         {previewPhoto ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            src={previewPhoto.url ?? previewPhoto.previewUrl}
-            alt="Photo preview"
-            className="max-h-full max-w-full rounded-ds-lg object-contain"
-            decoding="async"
-          />
+          <div className="flex max-h-full max-w-full flex-col items-center gap-ds-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewPhoto.url ?? previewPhoto.previewUrl}
+              alt="Photo preview"
+              className="max-h-[70vh] max-w-full rounded-ds-lg object-contain"
+              decoding="async"
+            />
+            <label
+              className={cn(
+                "relative flex min-h-[44px] min-w-[8rem] items-center justify-center rounded-ds-md bg-white px-ds-4 text-sm font-semibold text-text-primary",
+                focusRing,
+              )}
+            >
+              <NativeImageFileInput
+                intent="gallery"
+                placement="overlay"
+                onFilesSelected={(files) => handleReplaceSelected(previewPhoto.id, files)}
+              />
+              Replace
+            </label>
+          </div>
         ) : null}
       </ModalContainer>
-    </section>
+
+      <SellInlineError message={photoError} />
+    </CanonicalCard>
   );
 });

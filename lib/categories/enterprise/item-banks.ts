@@ -1,5 +1,17 @@
 /** Shared catalog item banks for enterprise taxonomy expansion. */
 
+import type { ProductGroupDef } from "@/lib/categories/enterprise/builder";
+import {
+  BED_SHEET_FAMILIES,
+  BLANKET_FAMILIES,
+  DUVET_COVER_FAMILIES,
+  DUVET_FAMILIES,
+  MATTRESS_PROTECTOR_FAMILIES,
+  PILLOWCASE_FAMILIES,
+  PILLOW_FAMILIES,
+  THROW_FAMILIES,
+} from "@/lib/categories/enterprise/databases/product-families";
+
 export const CAR_BODY_TYPES = [
   ["Saloon", "saloon"],
   ["Hatchback", "hatchback"],
@@ -186,6 +198,19 @@ export const TENT_ACCESSORY_ITEMS = [
   ["Groundsheets", "groundsheets"], ["Repair Kits", "tent-repair-kits"],
 ] as const;
 
+/** 4-level bedding taxonomy: Category → Subcategory → Product Type → Product Family */
+export const BEDDING_GROUPS: readonly ProductGroupDef[] = [
+  { name: "Duvets", slug: "duvets", items: DUVET_FAMILIES },
+  { name: "Pillows", slug: "pillows", items: PILLOW_FAMILIES },
+  { name: "Pillowcases", slug: "pillowcases", items: PILLOWCASE_FAMILIES },
+  { name: "Mattress Protectors", slug: "mattress-protectors", items: MATTRESS_PROTECTOR_FAMILIES },
+  { name: "Throws", slug: "throws", items: THROW_FAMILIES },
+  { name: "Blankets", slug: "blankets", items: BLANKET_FAMILIES },
+  { name: "Bed Sheets", slug: "bed-sheets", items: BED_SHEET_FAMILIES },
+  { name: "Duvet Covers", slug: "duvet-covers", items: DUVET_COVER_FAMILIES },
+];
+
+/** @deprecated Use BEDDING_GROUPS for 4-level paths. Kept for backward-compatible slug references. */
 export const BEDDING_ITEMS = [
   ["Duvets", "duvets"], ["Pillows", "pillows"], ["Pillowcases", "pillowcases"],
   ["Mattress Protectors", "mattress-protectors"], ["Throws", "throws"], ["Blankets", "blankets"],

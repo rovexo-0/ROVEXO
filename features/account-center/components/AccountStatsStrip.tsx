@@ -1,16 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Heart,
-  Package,
-  Star,
-  Tag,
-  UserCheck,
-  UserPlus,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { Heart, Package, Tag, Wallet } from "lucide-react";
 import { formatCurrency } from "@/lib/wallet/utils";
 import type { AccountHubSnapshot } from "@/lib/account-center/snapshot";
 import type { WalletData } from "@/lib/wallet/types";
@@ -29,46 +20,24 @@ const PRIMARY_STATS = [
   { key: "wallet" as const, label: "Wallet", href: "/wallet", Icon: Wallet, isWallet: true },
 ] as const;
 
-const SOCIAL_STATS = [
-  { key: "followers" as const, label: "Followers", href: "/account/followers", Icon: Users },
-  { key: "following" as const, label: "Following", href: "/account/followers?tab=following", Icon: UserPlus },
-  { key: "reviewCount" as const, label: "Reviews", href: "/account/reviews", Icon: Star },
-  { key: "rating" as const, label: "Rating", href: "/account/reviews", Icon: UserCheck, isRating: true },
-] as const;
-
 function formatStatValue(
   key: keyof AccountHubSnapshot | "wallet",
   snapshot: AccountHubSnapshot,
   wallet?: WalletData | null,
-  isRating?: boolean,
 ): string {
   if (key === "wallet") {
     return wallet != null ? formatCurrency(wallet.availableBalance) : "—";
   }
-  if (isRating) {
-    return snapshot.rating > 0 ? snapshot.rating.toFixed(1) : "—";
-  }
   return String(snapshot[key]);
 }
 
-function StatGrid({
-  items,
-  snapshot,
-  wallet,
-  className,
-}: {
-  items: typeof PRIMARY_STATS | typeof SOCIAL_STATS;
-  snapshot: AccountHubSnapshot;
-  wallet?: WalletData | null;
-  className?: string;
-}) {
+export function AccountStatsStrip({ snapshot, wallet = null }: AccountStatsStripProps) {
   return (
-    <section className={cn("ac-canonical__stats", className)} aria-label="Account statistics">
-      {items.map((stat, index) => {
+    <section className="ac-canonical__stats" aria-label="Account statistics">
+      {PRIMARY_STATS.map((stat, index) => {
         const Icon = stat.Icon;
         const isWallet = "isWallet" in stat && stat.isWallet;
-        const isRating = "isRating" in stat && stat.isRating;
-        const value = formatStatValue(stat.key, snapshot, wallet, isRating);
+        const value = formatStatValue(stat.key, snapshot, wallet);
 
         return (
           <Link
@@ -77,7 +46,7 @@ function StatGrid({
             className={cn(
               "ac-canonical__stat",
               isWallet && "ac-canonical__stat--wallet",
-              index < items.length - 1 && "ac-canonical__stat--divider",
+              index < PRIMARY_STATS.length - 1 && "ac-canonical__stat--divider",
               focusRing,
             )}
             aria-label={`${value} ${stat.label}`}
@@ -89,14 +58,5 @@ function StatGrid({
         );
       })}
     </section>
-  );
-}
-
-export function AccountStatsStrip({ snapshot, wallet = null }: AccountStatsStripProps) {
-  return (
-    <div className="ac-canonical__stats-wrap">
-      <StatGrid items={PRIMARY_STATS} snapshot={snapshot} wallet={wallet} />
-      <StatGrid items={SOCIAL_STATS} snapshot={snapshot} wallet={wallet} className="ac-canonical__stats--secondary" />
-    </div>
   );
 }

@@ -18,6 +18,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { creditSellerForOrder as walletCreditSellerForOrder } from "@/lib/wallet/sales";
 import { recordEscrowEvent } from "@/lib/commerce-engine/ledger";
 import { emitCommerceEvent } from "@/lib/commerce-engine/events";
+import { notifySellerFundsPending } from "@/lib/transaction-hub/seller-wallet-notifications";
 import { reserveShippingForOrder } from "@/lib/commerce-engine/shipping-reserve";
 import { calculateSellerNetAmount } from "@/lib/wallet/sales";
 import { DELIVERED_RELEASE_HOURS } from "@/lib/commerce-engine/escrow-constants";
@@ -110,6 +111,13 @@ export async function openEscrowForOrder(input: {
         result: "reserved",
         amount: platformFee,
         metadata: { orderNumber: input.orderNumber },
+      });
+
+      void notifySellerFundsPending({
+        sellerId: input.sellerId,
+        orderId: input.orderId,
+        orderNumber: input.orderNumber,
+        amount: sellerAmount,
       });
     }
 

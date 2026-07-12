@@ -182,7 +182,10 @@
 
 body.rx-scroll-locked {
   overflow: hidden !important;
-  touch-action: none;
+}
+
+html.rx-scroll-locked {
+  overflow: hidden !important;
 }
 
 /* Keyboard: keep focused fields visible */

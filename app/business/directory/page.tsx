@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { CanonicalPageShell } from "@/components/layout/CanonicalPageShell";
 import { BusinessDirectoryPage } from "@/features/business/components/BusinessDirectoryPage";
 import { listBusinessDirectory } from "@/lib/business/directory";
 
@@ -10,9 +10,16 @@ export const metadata: Metadata = {
 
 export default async function BusinessDirectoryRoute() {
   const companies = await listBusinessDirectory();
+
   return (
-    <BetaAppShell showBottomNav={false}>
+    <CanonicalPageShell
+      title="Business Directory"
+      backHref="/business/dashboard"
+      backLabel="Business tools"
+      showBottomNav={false}
+      contentClassName="max-w-6xl gap-ds-6 py-ds-5"
+    >
       <BusinessDirectoryPage companies={companies} />
-    </BetaAppShell>
+    </CanonicalPageShell>
   );
 }

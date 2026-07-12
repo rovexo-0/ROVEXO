@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { CanonicalPageShell } from "@/components/layout/CanonicalPageShell";
 import { WholesaleCenterPage } from "@/features/wholesale/components/WholesaleCenterPage";
 import { listOpenRfqRequests } from "@/lib/wholesale/service";
 import { getAuthContext } from "@/lib/auth/session";
@@ -16,8 +16,14 @@ export default async function WholesalePage() {
   const rfqs = await listOpenRfqRequests();
 
   return (
-    <BetaAppShell showBottomNav={false}>
+    <CanonicalPageShell
+      title="Wholesale Center"
+      backHref="/business/dashboard"
+      backLabel="Business tools"
+      showBottomNav={false}
+      contentClassName="max-w-6xl gap-ds-6 py-ds-5"
+    >
       <WholesaleCenterPage account={account} rfqs={rfqs} />
-    </BetaAppShell>
+    </CanonicalPageShell>
   );
 }

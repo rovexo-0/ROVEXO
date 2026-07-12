@@ -46,6 +46,7 @@ export const buttonSizes = {
   sm: "h-10 rounded-ds-sm px-ds-3 text-sm font-semibold",
   md: "h-11 rounded-ds-md px-ds-5 text-sm font-semibold",
   lg: "h-12 rounded-ds-lg px-ds-6 text-base font-semibold",
+  canonical: "min-h-[52px] rounded-[14px] px-ds-6 text-base font-semibold",
 } as const;
 
 export const iconButtonSizes = {

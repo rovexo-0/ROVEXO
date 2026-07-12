@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { HelpArticlePage } from "@/features/help/components/HelpArticlePage";
 import { getHelpArticle } from "@/lib/help/content/articles";
 
@@ -28,9 +27,5 @@ export default async function HelpArticleRoute({ params }: HelpArticleRouteProps
     notFound();
   }
 
-  return (
-    <BetaAppShell showBottomNav={false}>
-      <HelpArticlePage article={article} />
-    </BetaAppShell>
-  );
+  return <HelpArticlePage article={article} />;
 }

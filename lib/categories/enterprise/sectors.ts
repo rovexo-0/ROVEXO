@@ -1,8 +1,7 @@
 import type { SectorDef } from "@/lib/categories/enterprise/builder";
 import {
   BATHROOM_ITEMS,
-  BEDDING_ITEMS,
-  BEDDING_SIZES,
+  BEDDING_GROUPS,
   BLIND_TYPES,
   BOOK_GENRES,
   CAR_BODY_TYPES,
@@ -111,7 +110,7 @@ export const ENTERPRISE_SECTORS: SectorDef[] = [
         items: [...FURNITURE_ITEMS],
         groups: [{ name: "Tables", slug: "tables", items: [...TABLE_TYPES] }],
       },
-      { name: "Bedding", slug: "bedding", items: [...BEDDING_ITEMS, ...BEDDING_SIZES] },
+      { name: "Bedding", slug: "bedding", groups: [...BEDDING_GROUPS] },
       {
         name: "Home Textiles",
         slug: "home-textiles",

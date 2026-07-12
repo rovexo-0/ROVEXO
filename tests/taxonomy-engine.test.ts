@@ -35,6 +35,15 @@ describe("marketplace taxonomy engine", () => {
 
     const diningTable = resolveCategoryPathBySlugs(["home-garden", "furniture", "tables", "dining-table"]);
     expect(diningTable?.pathLabel).toContain("Dining Table");
+
+    const memoryFoamPillow = resolveCategoryPathBySlugs([
+      "home-garden",
+      "bedding",
+      "pillows",
+      "memory-foam-pillow",
+    ]);
+    expect(memoryFoamPillow?.pathLabel).toContain("Memory Foam Pillow");
+    expect(memoryFoamPillow?.segments.length).toBe(4);
   });
 
   it("returns hierarchical smart suggestions", () => {

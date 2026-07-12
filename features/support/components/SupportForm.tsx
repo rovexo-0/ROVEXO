@@ -1,10 +1,10 @@
 "use client";
 
+import { CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalTextarea } from "@/src/components/canonical";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+
 import {
   buildSupportContext,
   canAccessSupport,
@@ -82,9 +82,9 @@ export function SupportForm() {
   };
 
   return (
-    <Card padding="lg" className="">
+    <div className="flex flex-col gap-ds-4">
       {!supportAllowed ? (
-        <div className="mb-ds-5 rounded-ds-lg bg-surface-muted px-ds-4 py-ds-4 text-sm text-text-secondary">
+        <CanonicalInfoBlock variant="warning">
           Before contacting Support, complete the interactive help guide and try the suggested solutions.
           {session.topicSlug ? (
             <>
@@ -101,85 +101,66 @@ export function SupportForm() {
               </Link>
             </>
           )}
-        </div>
+        </CanonicalInfoBlock>
       ) : null}
 
-      <div className="grid gap-ds-4">
-        <div>
-          <label htmlFor="support-category" className="text-sm font-medium text-text-primary">
-            Category
-          </label>
-          <select
-            id="support-category"
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-            className="mt-ds-1 w-full rx-input px-ds-3 py-ds-2 text-sm"
-          >
-            {SUPPORT_CATEGORIES.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <CanonicalSelector
+        label="Category"
+        id="support-category"
+        kind="generic"
+        value={category}
+        onChange={(event) => setCategory(event.target.value)}
+        options={SUPPORT_CATEGORIES.map((item) => ({ value: item.id, label: item.label }))}
+      />
 
-        <div>
-          <label htmlFor="support-subject" className="text-sm font-medium text-text-primary">
-            Subject
-          </label>
-          <input
-            id="support-subject"
-            value={subject}
-            onChange={(event) => setSubject(event.target.value)}
-            className="mt-ds-1 w-full rx-input px-ds-3 py-ds-2 text-sm"
-          />
-        </div>
+      <CanonicalInput
+        id="support-subject"
+        label="Subject"
+        value={subject}
+        onChange={(event) => setSubject(event.target.value)}
+      />
 
-        <div>
-          <label htmlFor="support-description" className="text-sm font-medium text-text-primary">
-            Description
-          </label>
-          <textarea
-            id="support-description"
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            rows={6}
-            className="mt-ds-1 w-full rx-input px-ds-3 py-ds-2 text-sm"
-          />
-        </div>
+      <CanonicalTextarea
+        id="support-description"
+        label="Description"
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+        rows={6}
+      />
 
-        <div>
-          <label htmlFor="support-attachments" className="text-sm font-medium text-text-primary">
-            Attachments
-          </label>
-          <input
-            id="support-attachments"
-            type="file"
-            multiple
-            accept="image/jpeg,image/png,image/webp,application/pdf"
-            onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
-            className="mt-ds-1 block w-full text-sm"
-          />
-        </div>
-
-        {session.path.length > 0 && (
-          <div className="rounded-ds-lg border border-border px-ds-4 py-ds-3 text-xs text-text-secondary">
-            <p className="font-medium text-text-primary">Help context attached automatically</p>
-            <p className="mt-ds-1">Topic: {session.topicSlug ?? "—"}</p>
-            <p>Decision tree steps: {session.path.length}</p>
-            <p>Articles viewed: {session.articlesViewed.length}</p>
-          </div>
-        )}
-
-        {error ? <p className="text-sm text-danger">{error}</p> : null}
-
-        <Button
-          disabled={submitting || !subject.trim() || !description.trim() || !supportAllowed}
-          onClick={() => void submit()}
-        >
-          Submit request
-        </Button>
+      <div className="cds-field">
+        <label htmlFor="support-attachments" className="cds-field__label">
+          Attachments
+        </label>
+        <input
+          id="support-attachments"
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp,application/pdf"
+          onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+          className="cds-input"
+        />
       </div>
-    </Card>
+
+      {session.path.length > 0 ? (
+        <CanonicalInfoBlock variant="description">
+          <p className="font-medium text-text-primary">Help context attached automatically</p>
+          <p className="mt-ds-1">Topic: {session.topicSlug ?? "—"}</p>
+          <p>Decision tree steps: {session.path.length}</p>
+          <p>Articles viewed: {session.articlesViewed.length}</p>
+        </CanonicalInfoBlock>
+      ) : null}
+
+      {error ? <CanonicalInfoBlock variant="error">{error}</CanonicalInfoBlock> : null}
+
+      <CanonicalButton
+        fullWidth
+        disabled={submitting || !subject.trim() || !description.trim() || !supportAllowed}
+        loading={submitting}
+        onClick={() => void submit()}
+      >
+        Submit request
+      </CanonicalButton>
+    </div>
   );
 }

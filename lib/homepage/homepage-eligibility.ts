@@ -169,7 +169,14 @@ function evaluateCoreEligibility(input: HomepageListingInput): HomepageEligibili
     return { eligible: false, reason: "SELLER_INACTIVE", mode };
   }
   if (!input.sellerVerified) {
-    return { eligible: false, reason: "SELLER_EMAIL_UNVERIFIED", mode };
+    // Publish gate requires bank on first listing; active sellers with published
+    // inventory must appear on homepage/search immediately — do not wait for the
+    // full verified badge (address + payment + bank).
+    const marketplaceVisible =
+      input.status === "published" && input.sellerAccountStatus === "active";
+    if (!marketplaceVisible) {
+      return { eligible: false, reason: "SELLER_EMAIL_UNVERIFIED", mode };
+    }
   }
   if (!isMarketplaceModerationVisible(input.moderationStatus)) {
     return { eligible: false, reason: "MARKETPLACE_NOT_APPROVED", mode };

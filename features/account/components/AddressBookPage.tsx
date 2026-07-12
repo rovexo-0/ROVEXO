@@ -2,29 +2,37 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { readReturnToParam } from "@/lib/navigation/return-to";
-import { HubPageMain } from "@/components/layout/HubPageMain";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { PageBack } from "@/components/navigation/PageBack";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
+import {
+  CanonicalButton,
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalInput,
+  CanonicalSection,
+  CanonicalSelector,
+  CanonicalSwitch,
+} from "@/src/components/canonical";
+import { readReturnToParam } from "@/lib/navigation/return-to";
 import { addressInputSchema, type AddressInput } from "@/lib/account/schemas";
 import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
 import { SUPPORTED_COUNTRIES } from "@/lib/account/countries";
 import type { UserAddress } from "@/lib/addresses/repository";
 import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 
 type AddressBookPageProps = {
   initialType?: "shipping" | "billing";
 };
 
-const inputClassName = cn(
-  "w-full rounded-ds-lg border border-border bg-surface px-ds-3 py-ds-3 text-sm text-text-primary",
-  focusRing,
-);
+function formatAddressLines(address: UserAddress): string {
+  const lines = [
+    address.addressLine,
+    address.addressLine2,
+    [address.city, address.postcode, address.country].filter(Boolean).join(", "),
+  ].filter(Boolean);
+  return lines.join("\n");
+}
 
 export function AddressBookPage({ initialType = "shipping" }: AddressBookPageProps) {
   const router = useRouter();
@@ -34,12 +42,15 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
   const [loading, setLoading] = useState(true);
   const [activeType, setActiveType] = useState<"shipping" | "billing">(initialType);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<AddressInput>({
     resolver: zodResolver(addressInputSchema),
@@ -67,10 +78,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
     setLoading(false);
   };
 
-  const switchType = (type: "shipping" | "billing") => {
-    setActiveType(type);
-    setLoading(true);
-    setEditingId(null);
+  const resetForm = (type: "shipping" | "billing") => {
     reset({
       recipientName: "",
       addressLine: "",
@@ -81,6 +89,14 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
       addressType: type,
       isDefault: false,
     });
+  };
+
+  const switchType = (type: "shipping" | "billing") => {
+    setActiveType(type);
+    setLoading(true);
+    setEditingId(null);
+    setShowForm(false);
+    resetForm(type);
     void loadAddresses(type);
   };
 
@@ -113,16 +129,8 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
       return;
     }
     setEditingId(null);
-    reset({
-      recipientName: "",
-      addressLine: "",
-      addressLine2: "",
-      city: "",
-      postcode: "",
-      country: UK_DEFAULT_COUNTRY,
-      addressType: activeType,
-      isDefault: false,
-    });
+    setShowForm(false);
+    resetForm(activeType);
     await loadAddresses(activeType);
     if (returnTo) {
       router.push(returnTo);
@@ -133,6 +141,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
 
   const startEdit = (address: UserAddress) => {
     setEditingId(address.id);
+    setShowForm(true);
     reset({
       recipientName: address.recipientName,
       addressLine: address.addressLine,
@@ -145,6 +154,18 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
     });
   };
 
+  const startAdd = () => {
+    setEditingId(null);
+    setShowForm(true);
+    resetForm(activeType);
+  };
+
+  const cancelForm = () => {
+    setEditingId(null);
+    setShowForm(false);
+    resetForm(activeType);
+  };
+
   const removeAddress = async (id: string) => {
     setMessage(null);
     const response = await fetch(`/api/addresses/${id}`, { method: "DELETE" });
@@ -153,149 +174,148 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
       setMessage(payload.error ?? "Unable to delete address.");
       return;
     }
+    if (editingId === id) cancelForm();
     await loadAddresses(activeType);
     setMessage("Address deleted.");
   };
 
-  const makeDefault = async (id: string) => {
-    setMessage(null);
-    const response = await fetch(`/api/addresses/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "set_default" }),
-    });
-    if (!response.ok) {
-      const payload = (await response.json()) as { error?: string };
-      setMessage(payload.error ?? "Unable to set default address.");
-      return;
-    }
-    await loadAddresses(activeType);
-    setMessage("Default address updated.");
-  };
+  const isDefault = useWatch({ control, name: "isDefault" });
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-6 px-ds-4 py-ds-6 ">
-        <div>
-          <PageBack variant="text" backHref="/account/settings" backLabel="Settings" className="mb-ds-3" />
-          <h1 className="text-2xl font-bold text-text-primary">Address book</h1>
-          <p className="mt-ds-1 text-sm text-text-secondary">
-            Manage personal shipping addresses and business billing addresses for checkout and invoices.
-          </p>
-        </div>
-
-        <div className="flex gap-ds-2">
-          {(["shipping", "billing"] as const).map((type) => (
+    <AccountCanonicalShell title="Addresses" backHref="/account/settings">
+      <AccountPageStack>
+        <CanonicalSection title="Address Type">
+          <div className="account-settings-segment" role="tablist" aria-label="Address type">
             <button
-              key={type}
               type="button"
-              onClick={() => switchType(type)}
+              role="tab"
+              aria-selected={activeType === "shipping"}
               className={cn(
-                "rounded-ds-full px-ds-4 py-ds-2 text-sm font-medium",
-                activeType === type ? "bg-primary text-primary-foreground" : "bg-surface-muted text-text-secondary",
-                focusRing,
+                "account-settings-segment__option",
+                activeType === "shipping" && "account-settings-segment__option--active",
               )}
+              onClick={() => switchType("shipping")}
             >
-              {type === "shipping" ? "Personal / shipping" : "Business / billing"}
+              Personal
             </button>
-          ))}
-        </div>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeType === "billing"}
+              className={cn(
+                "account-settings-segment__option",
+                activeType === "billing" && "account-settings-segment__option--active",
+              )}
+              onClick={() => switchType("billing")}
+            >
+              Business
+            </button>
+          </div>
+        </CanonicalSection>
 
-        <section className="flex flex-col gap-ds-3">
-          {loading ? <p className="text-sm text-text-secondary">Loading addresses…</p> : null}
+        <CanonicalSection title="Saved Addresses">
+          {loading ? <p className="account-settings-empty">Loading addresses…</p> : null}
           {!loading && !addresses.length ? (
-            <p className="text-sm text-text-secondary">No {activeType} addresses yet.</p>
+            <p className="account-settings-empty">No saved addresses yet.</p>
           ) : null}
-          {addresses.map((address) => (
-            <article key={address.id} className="rx-surface-card p-ds-4">
-              <div className="flex items-start justify-between gap-ds-3">
-                <div>
-                  <p className="font-semibold text-text-primary">{address.recipientName}</p>
-                  <p className="mt-ds-1 text-sm text-text-secondary">
-                    {address.addressLine}
-                    {address.addressLine2 ? `, ${address.addressLine2}` : ""}
-                  </p>
-                  <p className="text-sm text-text-secondary">
-                    {[address.city, address.postcode, address.country].filter(Boolean).join(", ")}
-                  </p>
-                </div>
-                {address.isDefault ? <Badge>Default</Badge> : null}
-              </div>
-              <div className="mt-ds-3 flex flex-wrap gap-ds-2">
-                <Button type="button" variant="secondary" size="sm" onClick={() => startEdit(address)}>
-                  Edit
-                </Button>
-                {!address.isDefault ? (
-                  <Button type="button" variant="ghost" size="sm" onClick={() => void makeDefault(address.id)}>
-                    Make default
-                  </Button>
-                ) : null}
-                <Button type="button" variant="ghost" size="sm" onClick={() => void removeAddress(address.id)}>
-                  Delete
-                </Button>
-              </div>
-            </article>
-          ))}
-        </section>
+          {!loading
+            ? addresses.map((address) => (
+                <CanonicalCard key={address.id} variant="medium">
+                  <div className="account-settings-address-card">
+                    <div className="account-settings-address-card__header">
+                      <div>
+                        <p className="account-settings-address-card__name">{address.recipientName}</p>
+                        <p className="account-settings-address-card__address whitespace-pre-line">
+                          {formatAddressLines(address)}
+                        </p>
+                      </div>
+                      {address.isDefault ? (
+                        <span className="account-settings-address-card__badge">Default</span>
+                      ) : null}
+                    </div>
+                    <div className="account-settings-address-card__actions">
+                      <button
+                        type="button"
+                        className="account-settings-text-action"
+                        onClick={() => startEdit(address)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="account-settings-text-action account-settings-text-action--danger"
+                        onClick={() => void removeAddress(address.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </CanonicalCard>
+              ))
+            : null}
+        </CanonicalSection>
 
-        <form onSubmit={onSubmit} className="rx-surface-card flex flex-col gap-ds-3 p-ds-5" noValidate>
-          <h2 className="text-base font-semibold text-text-primary">
-            {editingId ? "Edit address" : `Add ${activeType} address`}
-          </h2>
-          <input type="hidden" {...register("addressType")} value={activeType} />
-          <div>
-            <label htmlFor="recipientName" className="text-sm font-medium">Recipient name</label>
-            <input id="recipientName" className={cn(inputClassName, "mt-ds-1")} {...register("recipientName")} />
-            {errors.recipientName ? <p className="text-xs text-danger">{errors.recipientName.message}</p> : null}
-          </div>
-          <div>
-            <label htmlFor="addressLine" className="text-sm font-medium">Address line</label>
-            <input id="addressLine" className={cn(inputClassName, "mt-ds-1")} {...register("addressLine")} />
-            {errors.addressLine ? <p className="text-xs text-danger">{errors.addressLine.message}</p> : null}
-          </div>
-          <div>
-            <label htmlFor="addressLine2" className="text-sm font-medium">Address line 2</label>
-            <input id="addressLine2" className={cn(inputClassName, "mt-ds-1")} {...register("addressLine2")} />
-          </div>
-          <div className="grid gap-ds-3 sm:grid-cols-2">
-            <div>
-              <label htmlFor="city" className="text-sm font-medium">City</label>
-              <input id="city" className={cn(inputClassName, "mt-ds-1")} {...register("city")} />
-            </div>
-            <div>
-              <label htmlFor="postcode" className="text-sm font-medium">Postcode</label>
-              <input id="postcode" className={cn(inputClassName, "mt-ds-1")} {...register("postcode")} />
-              {errors.postcode ? <p className="text-xs text-danger">{errors.postcode.message}</p> : null}
-            </div>
-          </div>
-          <div>
-            <label htmlFor="country" className="text-sm font-medium">Country</label>
-            <select id="country" className={cn(inputClassName, "mt-ds-1")} {...register("country")}>
-              {SUPPORTED_COUNTRIES.map((country) => (
-                <option key={country.code} value={country.name}>
-                  {country.name}
-                </option>
-              ))}
-            </select>
-            {errors.country ? <p className="text-xs text-danger">{errors.country.message}</p> : null}
-          </div>
-          <label className="flex items-center gap-ds-2 text-sm text-text-primary">
-            <input type="checkbox" {...register("isDefault")} />
-            Set as default {activeType} address
-          </label>
-          <div className="flex gap-ds-2">
-            <Button type="submit" variant="primary" disabled={isSubmitting}>
-              {isSubmitting ? "Saving…" : "Save address"}
-            </Button>
-            {editingId ? (
-              <Button type="button" variant="ghost" onClick={() => setEditingId(null)}>
-                Cancel edit
-              </Button>
-            ) : null}
-          </div>
-          {message ? <p className="text-sm text-text-secondary">{message}</p> : null}
-        </form>
-      </HubPageMain>
-    </BetaAppShell>
+        {showForm ? (
+          <CanonicalSection title={editingId ? "Edit Address" : "Add Address"}>
+            <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
+              <form onSubmit={onSubmit} className="flex flex-col gap-ds-4" noValidate>
+                <input type="hidden" {...register("addressType")} value={activeType} />
+                <CanonicalInput
+                  id="recipientName"
+                  label="Name"
+                  error={errors.recipientName?.message}
+                  {...register("recipientName")}
+                />
+                <CanonicalInput
+                  id="addressLine"
+                  label="Address"
+                  error={errors.addressLine?.message}
+                  {...register("addressLine")}
+                />
+                <CanonicalInput id="addressLine2" label="Address line 2" {...register("addressLine2")} />
+                <div className="grid gap-ds-3 sm:grid-cols-2">
+                  <CanonicalInput id="city" label="City" {...register("city")} />
+                  <CanonicalInput
+                    id="postcode"
+                    label="Postcode"
+                    error={errors.postcode?.message}
+                    {...register("postcode")}
+                  />
+                </div>
+                <CanonicalSelector
+                  id="country"
+                  label="Country"
+                  kind="country"
+                  options={SUPPORTED_COUNTRIES.map((country) => ({
+                    value: country.name,
+                    label: country.name,
+                  }))}
+                  error={errors.country?.message}
+                  {...register("country")}
+                />
+                <CanonicalSwitch
+                  id="isDefault"
+                  label="Default address"
+                  checked={Boolean(isDefault)}
+                  onChange={(checked) => setValue("isDefault", checked, { shouldDirty: true })}
+                />
+                <CanonicalButton type="submit" fullWidth loading={isSubmitting}>
+                  {isSubmitting ? "Saving…" : "Save Address"}
+                </CanonicalButton>
+                <CanonicalButton type="button" variant="ghost" fullWidth onClick={cancelForm}>
+                  Cancel
+                </CanonicalButton>
+              </form>
+            </CanonicalCard>
+          </CanonicalSection>
+        ) : (
+          <CanonicalButton type="button" fullWidth onClick={startAdd}>
+            Add Address
+          </CanonicalButton>
+        )}
+
+        {message ? <CanonicalInfoBlock variant="description">{message}</CanonicalInfoBlock> : null}
+      </AccountPageStack>
+    </AccountCanonicalShell>
   );
 }

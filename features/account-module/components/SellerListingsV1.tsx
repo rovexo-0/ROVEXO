@@ -1,13 +1,13 @@
 "use client";
 
+import { CanonicalModal } from "@/src/components/canonical";
 import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ShareListingSheet } from "@/components/share/ShareListingSheet";
-import { Dialog } from "@/components/ui/Dialog";
-import { Button } from "@/components/ui/Button";
-import { AccountModuleShell } from "@/features/account-module/components/AccountModuleShell";
+
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { PromotionPicker } from "@/features/seller/listings/components/PromotionPicker";
 import type { PromotionType } from "@/lib/promotions/config";
 import type { ListingFilter, SellerListing } from "@/lib/listings/types";
@@ -181,7 +181,7 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
   };
 
   return (
-    <AccountModuleShell title="My Listings" backHref="/account" version="v1.0">
+    <AccountCanonicalShell title="My Listings" backHref="/account">
       <div className="acm-tabs" role="tablist" aria-label="Listing filters" data-listings-version="v2.0-final">
         {LISTING_TABS.map((tab) => (
           <Link
@@ -274,28 +274,25 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
         </ul>
       )}
 
-      <Dialog
+      <CanonicalModal
         open={pendingDelete !== null}
-        onClose={closeDialog}
+        variant="delete"
         title="Delete Listing?"
-        footer={
-          <>
-            <Button type="button" variant="secondary" onClick={closeDialog} disabled={isDeleting}>
-              Cancel
-            </Button>
-            <Button type="button" variant="danger" onClick={confirmDelete} disabled={isDeleting}>
-              {isDeleting ? "Deleting…" : "Delete"}
-            </Button>
-          </>
-        }
+        cancelLabel="Cancel"
+        confirmLabel={isDeleting ? "Deleting…" : "Delete"}
+        loading={isDeleting}
+        onClose={closeDialog}
+        onConfirm={() => void confirmDelete()}
       >
-        <p>This action permanently deletes this listing and cannot be undone.</p>
+        <p className="text-sm text-text-secondary">
+          This action permanently deletes this listing and cannot be undone.
+        </p>
         {deleteError ? (
           <p className="mt-ds-2 text-sm text-danger" role="alert">
             {deleteError}
           </p>
         ) : null}
-      </Dialog>
+      </CanonicalModal>
 
       <ShareListingSheet
         open={shareTarget !== null}
@@ -318,6 +315,6 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
           void startPromotionCheckout(promotionTarget.listingId, promotionTarget.type, durationId, scheduledStartAt);
         }}
       />
-    </AccountModuleShell>
+    </AccountCanonicalShell>
   );
 }

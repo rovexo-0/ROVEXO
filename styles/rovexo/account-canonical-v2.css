@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 8px 16px calc(var(--bottom-nav-shell-height, 56px) + 8px + env(safe-area-inset-bottom, 0px));
+  padding: 8px 16px calc(var(--bottom-nav-shell-height, 56px) + 28px + env(safe-area-inset-bottom, 0px));
   background: #ffffff;
 }
 
@@ -243,6 +243,10 @@
 }
 
 /* ── Menu sections ── */
+.ac-canonical__menu {
+  margin-top: 10px;
+}
+
 .ac-canonical__section {
   display: flex;
   flex-direction: column;

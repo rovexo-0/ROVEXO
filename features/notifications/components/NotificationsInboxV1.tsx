@@ -3,9 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { NotificationsBellLink } from "@/components/header/NotificationsBellLink";
-import { RvxTopBar, RvxTopBarIconLink } from "@/components/header/RvxTopBar";
-import { CartLineIcon, SearchLineIcon } from "@/components/icons/RvxLineIcons";
+import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { NotificationsEmptyState } from "@/features/notifications/components/NotificationsEmptyState";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { NotificationLineIcon } from "@/features/notifications/icons-v1";
@@ -57,7 +55,7 @@ function NotificationsListSkeleton() {
 
 export function NotificationsInboxV1() {
   const router = useRouter();
-  const { mobileBadges, setNotifications, refresh } = useRealtimeNotifications();
+  const { setNotifications, refresh } = useRealtimeNotifications();
   const [notifications, setLocalNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -137,29 +135,23 @@ export function NotificationsInboxV1() {
   };
 
   return (
-    <BetaAppShell className="notif-v1-shell">
+    <BetaAppShell className="notif-v1-shell" bottomNavTab="account">
       <div className="notif-v1" data-notifications-version="v1.0">
-        <RvxTopBar>
-          <RvxTopBarIconLink href="/search" label="Search">
-            <SearchLineIcon />
-          </RvxTopBarIconLink>
-          <RvxTopBarIconLink href="/cart" label="Cart" badge={mobileBadges.cart}>
-            <CartLineIcon />
-          </RvxTopBarIconLink>
-          <NotificationsBellLink />
-        </RvxTopBar>
-
-        <div className="notif-v1__titlebar">
-          <h1 className="notif-v1__title">Notifications</h1>
-          <button
-            type="button"
-            className="notif-v1__markall"
-            disabled={busy || notifications.every((item) => item.read)}
-            onClick={() => void markAllRead()}
-          >
-            Mark all as read
-          </button>
-        </div>
+        <CanonicalPageHeader
+          title="Notifications"
+          backHref="/account"
+          backLabel="My Account"
+          rightAction={
+            <button
+              type="button"
+              className="min-h-12 px-ds-1 text-sm font-semibold text-primary disabled:opacity-50"
+              disabled={busy || notifications.every((item) => item.read)}
+              onClick={() => void markAllRead()}
+            >
+              Mark all read
+            </button>
+          }
+        />
 
         {loading ? (
           <NotificationsListSkeleton />

@@ -30,6 +30,12 @@ export type WalletData = {
   pendingAvailableAt: string;
   /** Completed sale payouts transferred to Stripe Connect. */
   paidOutBalance: number;
+  withdrawalSummary: {
+    processingTotal: number;
+    processingCount: number;
+    completedTotal: number;
+    completedCount: number;
+  };
   monthSummary: {
     revenue: WalletSummaryMetric;
     withdrawn: WalletSummaryMetric;

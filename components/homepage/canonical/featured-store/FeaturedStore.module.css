@@ -1,995 +1,277 @@
 /* ROVEXO Canonical Featured Store — responsive carousel (reference 112×206). */
 
-
-
 .block {
-
   box-sizing: border-box;
-
   width: 100%;
-
   min-width: 0;
-
   margin: 0;
-
   padding: 0;
-
   container-type: inline-size;
-
   container-name: hp-featured-store;
-
 }
-
-
 
 .header {
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   gap: clamp(8px, 2.5vw, 10px);
-
   margin: 0;
-
   padding: 0;
-
 }
-
-
 
 .identity {
-
   display: flex;
-
   align-items: center;
-
   min-width: 0;
-
   flex: 1 1 auto;
-
   text-decoration: none;
-
   color: inherit;
-
 }
-
-
 
 .identity:focus-visible {
-
   outline: 2px solid var(--ds-color-primary);
-
   outline-offset: 2px;
-
   border-radius: 8px;
-
 }
-
-
 
 .logo {
-
   position: relative;
-
   flex: 0 0 clamp(48px, 13cqi, 52px);
-
   width: clamp(48px, 13cqi, 52px);
-
   height: clamp(48px, 13cqi, 52px);
-
   margin-right: clamp(8px, 2.5cqi, 10px);
-
   overflow: hidden;
-
   border-radius: 50%;
-
   background: #f3f4f6;
-
 }
-
-
-
-.logoFallback {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  width: 100%;
-
-  height: 100%;
-
-  font-size: clamp(16px, 4.5cqi, 18px);
-
-  font-weight: 700;
-
-  color: #6b7280;
-
-}
-
-
 
 .identityText {
-
   display: flex;
-
   flex-direction: column;
-
   min-width: 0;
-
   gap: 2px;
-
 }
-
-
 
 .storeName {
-
   overflow: hidden;
-
   font-size: clamp(16px, 5cqi, 18px);
-
   font-weight: 700;
-
   line-height: 1.2;
-
   color: #111827;
-
   white-space: nowrap;
-
   text-overflow: ellipsis;
-
 }
-
-
 
 .ratingLine {
-
   display: inline-flex;
-
   align-items: center;
-
   gap: 6px;
-
   min-width: 0;
-
 }
-
-
 
 .stars {
-
   display: inline-flex;
-
   align-items: center;
-
   gap: 1px;
-
   flex-shrink: 0;
-
 }
-
-
-
-.reviewCount {
-
-  overflow: hidden;
-
-  font-size: clamp(11px, 3.2cqi, 12px);
-
-  font-weight: 500;
-
-  line-height: 1;
-
-  color: #6b7280;
-
-  white-space: nowrap;
-
-  text-overflow: ellipsis;
-
-}
-
-
 
 .visit {
-
   flex: 0 0 auto;
-
   display: inline-flex;
-
   align-items: center;
-
   justify-content: center;
-
   height: clamp(38px, 10cqi, 40px);
-
   min-height: var(--ds-touch-target, 44px);
-
   padding: 0 clamp(12px, 4cqi, 16px);
-
   border: none;
-
   border-radius: 20px;
-
   background: var(--ds-color-primary);
-
   font-size: clamp(13px, 3.8cqi, 14px);
-
   font-weight: 700;
-
   line-height: 1;
-
   text-decoration: none;
-
   color: #ffffff;
-
   white-space: nowrap;
-
 }
-
-
 
 .visit:focus-visible {
-
   outline: 2px solid var(--ds-color-primary);
-
   outline-offset: 2px;
-
 }
 
-
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 2cqi, 8px);
+  flex: 0 0 auto;
+  flex-shrink: 0;
+}
 
 .carousel {
-
   --hp-store-card-w: var(--hp-store-card-ref-w, 112px);
-
   --hp-store-visible: calc(
-
     var(--hp-store-card-w) * var(--hp-store-visible-cards, 3) +
-
       var(--hp-store-card-gap, 12px) * (var(--hp-store-visible-cards, 3) - 1)
-
   );
 
-
-
   display: flex;
-
   gap: var(--hp-store-card-gap, 12px);
-
   margin: clamp(6px, 2cqi, 8px) 0 0;
-
   padding: 0;
-
   padding-right: max(0px, calc(100cqi - var(--hp-store-visible)));
-
   overflow-x: auto;
-
   overflow-y: hidden;
-
   -webkit-overflow-scrolling: touch;
-
-  scroll-snap-type: x proximity;
-
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   scrollbar-width: none;
-
 }
-
-
 
 .carousel::-webkit-scrollbar {
-
   display: none;
-
 }
-
-
 
 .carouselItem {
-
-  flex: 0 0 calc(50% - 6px);
-
-  min-width: 0;
-
-  scroll-snap-align: start;
-
-}
-
-
-
-.product {
-
-  box-sizing: border-box;
-
-  display: grid;
-
-  grid-template-rows: 57.28% auto;
-
+  flex: 0 0 var(--hp-store-card-w);
   width: var(--hp-store-card-w);
-
-  aspect-ratio: var(--hp-store-card-aspect, 112 / 206);
-
-  height: auto;
-
-  overflow: hidden;
-
-  font-family: Inter, system-ui, sans-serif;
-
+  min-width: 0;
+  scroll-snap-align: start;
 }
 
-
-
-.productLink {
-
-  display: grid;
-
-  grid-template-rows: subgrid;
-
-  grid-row: 1 / -1;
-
-  height: 100%;
-
-  color: inherit;
-
-  text-decoration: none;
-
-}
-
-
-
-.productLink:focus-visible {
-
-  outline: 2px solid var(--ds-color-primary);
-
-  outline-offset: 2px;
-
-  border-radius: 12px;
-
-}
-
-
-
-.productVisual {
-
-  position: relative;
-
+.carouselItem > * {
   width: 100%;
-
-  height: 100%;
-
-  min-height: 0;
-
-  overflow: hidden;
-
-  border-radius: clamp(10px, 3cqi, 12px);
-
-  background: #f3f4f6;
-
 }
-
-
-
-.productVisual img {
-
-  display: block;
-
-  width: 100% !important;
-
-  height: 100% !important;
-
-  object-fit: cover !important;
-
-  object-position: center !important;
-
-}
-
-
-
-.productSave {
-
-  position: absolute;
-
-  top: clamp(5px, 1.5cqi, 6px);
-
-  right: clamp(5px, 1.5cqi, 6px);
-
-  z-index: 2;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  width: clamp(26px, 8cqi, 28px);
-
-  height: clamp(26px, 8cqi, 28px);
-
-  margin: 0;
-
-  padding: 0;
-
-  border: none;
-
-  border-radius: 50%;
-
-  background: #ffffff;
-
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-
-  color: #374151;
-
-  cursor: pointer;
-
-}
-
-
-
-.productSave[data-active="true"] {
-
-  color: #ef4444;
-
-}
-
-
-
-.productSave svg {
-
-  width: clamp(14px, 4.5cqi, 16px);
-
-  height: clamp(14px, 4.5cqi, 16px);
-
-}
-
-
-
-.productCopy {
-
-  display: flex;
-
-  flex-direction: column;
-
-  justify-content: flex-start;
-
-  min-height: 0;
-
-  padding-top: clamp(3px, 1cqi, 4px);
-
-}
-
-
-
-.productTitle {
-
-  display: -webkit-box;
-
-  margin: 0;
-
-  overflow: hidden;
-
-  -webkit-box-orient: vertical;
-
-  -webkit-line-clamp: 2;
-
-  max-height: 2.4em;
-
-  font-size: clamp(12px, 3.8cqi, 13px);
-
-  font-weight: 600;
-
-  line-height: 1.2;
-
-  color: #111827;
-
-}
-
-
-
-.productCondition {
-
-  margin: 2px 0 0;
-
-  font-size: clamp(10px, 3cqi, 11px);
-
-  font-weight: 400;
-
-  line-height: 1.2;
-
-  color: #6b7280;
-
-  white-space: nowrap;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-
-}
-
-
-
-.productPrice {
-
-  margin: 2px 0 0;
-
-  font-size: clamp(14px, 4.5cqi, 16px);
-
-  font-weight: 700;
-
-  line-height: 1.2;
-
-  color: var(--ds-color-primary);
-
-  white-space: nowrap;
-
-}
-
-
-
-.productTotal {
-
-  margin: 0;
-
-  font-size: clamp(12px, 3.6cqi, 13px);
-
-  font-weight: 600;
-
-  line-height: 1.2;
-
-  color: var(--ds-color-success);
-
-  white-space: nowrap;
-
-}
-
-
 
 @container hp-featured-store (min-width: 480px) {
-
   .carousel {
-
     --hp-store-card-w: 120px;
-
   }
-
 }
-
-
 
 @container hp-featured-store (min-width: 768px) {
-
   .carousel {
-
     --hp-store-card-w: 128px;
-
     --hp-store-visible-cards: 4;
-
   }
-
 }
-
-
 
 @container hp-featured-store (min-width: 1024px) {
-
   .carousel {
-
     --hp-store-card-w: 136px;
-
     --hp-store-visible-cards: 5;
-
   }
-
 }
-
-
 
 .profileRail {
-
   display: flex;
-
   gap: 14px;
-
   margin: 0;
-
   padding: 0 2px 4px;
-
   overflow-x: auto;
-
   overflow-y: hidden;
-
   -webkit-overflow-scrolling: touch;
-
   scroll-snap-type: x proximity;
-
   scrollbar-width: none;
-
 }
-
-
 
 .profileRail::-webkit-scrollbar {
-
   display: none;
-
 }
-
-
 
 .profileRailItem {
-
   flex: 0 0 auto;
-
   scroll-snap-align: start;
-
 }
-
-
 
 .profileRailButton {
-
   margin: 0;
-
   padding: 0;
-
   border: none;
-
   background: transparent;
-
   cursor: pointer;
-
 }
-
-
 
 .profileRailButton:focus-visible {
-
   outline: 2px solid var(--ds-color-primary);
-
   outline-offset: 2px;
-
   border-radius: 12px;
-
 }
-
-
 
 .profileCard {
-
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   width: 108px;
-
   padding: 0 4px 8px;
-
   text-decoration: none;
-
   color: inherit;
-
   transition: transform 180ms ease, opacity 180ms ease;
-
 }
-
-
 
 .profileCard[data-active="false"] {
-
   opacity: 0.72;
-
 }
-
-
 
 .profileCard[data-active="true"] {
-
   opacity: 1;
-
 }
-
-
 
 .profileLogoWrap {
-
   position: relative;
-
   display: inline-flex;
-
 }
-
-
 
 .profileLogo {
-
   position: relative;
-
   width: 72px;
-
   height: 72px;
-
   overflow: hidden;
-
   border-radius: 50%;
-
   background: #f3f4f6;
-
   border: 2px solid transparent;
-
   transition: border-color 180ms ease;
-
 }
-
-
 
 .profileCard[data-active="true"] .profileLogo {
-
   border-color: var(--ds-color-primary);
-
 }
-
-
-
-.profileBadge {
-
-  position: absolute;
-
-  top: -4px;
-
-  right: -8px;
-
-  z-index: 2;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  min-height: 18px;
-
-  padding: 0 6px;
-
-  border-radius: 999px;
-
-  font-size: 9px;
-
-  font-weight: 700;
-
-  line-height: 1;
-
-  white-space: nowrap;
-
-  box-shadow: 0 1px 2px rgb(15 23 42 / 0.12);
-
-}
-
-
-
-.profileBadge[data-tone="premium"] {
-
-  background: #fef3c7;
-
-  color: #b45309;
-
-}
-
-
-
-.profileBadge[data-tone="featured"] {
-
-  background: rgb(147 51 234 / 0.14);
-
-  color: var(--ds-color-primary);
-
-}
-
-
-
-.profileBadge[data-tone="verified"] {
-
-  background: #dbeafe;
-
-  color: #1d4ed8;
-
-}
-
-
-
-.profileBadge[data-tone="new"] {
-
-  background: #d1fae5;
-
-  color: #047857;
-
-}
-
-
 
 .profileName {
-
   margin-top: 8px;
-
   max-width: 100%;
-
   overflow: hidden;
-
   font-size: 12px;
-
   font-weight: 700;
-
   line-height: 1.2;
-
   text-align: center;
-
   text-overflow: ellipsis;
-
   white-space: nowrap;
-
   color: #111827;
-
 }
-
-
 
 .profileMeta {
-
   margin-top: 2px;
-
   font-size: 10px;
-
   font-weight: 600;
-
   line-height: 1.2;
-
   color: #6b7280;
-
 }
-
-
-
-.profileFollowers {
-
-  margin-top: 2px;
-
-  font-size: 10px;
-
-  line-height: 1.2;
-
-  color: #9ca3af;
-
-}
-
-
-
-.profileVerified {
-
-  display: inline-flex;
-
-  align-items: center;
-
-  gap: 2px;
-
-  margin-top: 4px;
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  color: #2563eb;
-
-}
-
-
 
 .profileDots {
-
   display: flex;
-
   justify-content: center;
-
   gap: 6px;
-
   margin: 2px 0 8px;
-
 }
-
-
 
 .profileDot {
-
   width: 6px;
-
   height: 6px;
-
   border-radius: 999px;
-
   background: #d1d5db;
-
 }
-
-
 
 .profileDot[data-active="true"] {
-
   background: var(--ds-color-primary);
-
 }
-
-
-
-.headerBadge {
-
-  position: absolute;
-
-  top: -4px;
-
-  right: -6px;
-
-  z-index: 2;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  min-height: 18px;
-
-  padding: 0 6px;
-
-  border-radius: 999px;
-
-  font-size: 9px;
-
-  font-weight: 700;
-
-  line-height: 1;
-
-  white-space: nowrap;
-
-}
-
-
-
-.headerBadge[data-tone="premium"] {
-
-  background: #fef3c7;
-
-  color: #b45309;
-
-}
-
-
-
-.headerBadge[data-tone="featured"] {
-
-  background: rgb(147 51 234 / 0.14);
-
-  color: var(--ds-color-primary);
-
-}
-
-
-
-.headerBadge[data-tone="verified"] {
-
-  background: #dbeafe;
-
-  color: #1d4ed8;
-
-}
-
-
-
-.headerBadge[data-tone="new"] {
-
-  background: #d1fae5;
-
-  color: #047857;
-
-}
-
-

@@ -1,10 +1,10 @@
 "use client";
 
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { AccountPageShell } from "@/features/account/components/AccountPageShell";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+
+import { LockLineIcon, PeopleLineIcon, PhoneLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { PasswordChangeForm } from "@/features/account/components/PasswordChangeForm";
 
 type SecurityState = {
@@ -74,97 +74,66 @@ export function AccountSecurityPage() {
   };
 
   return (
-    <AccountPageShell
-      title="Account security"
-      subtitle="Manage your password, sessions, and two-factor authentication."
-      backHref="/account/settings"
-      backLabel="Settings"
-    >
-      <div className="flex flex-col gap-ds-4">
-        <section className="rx-surface-card p-ds-5">
-          <h2 className="text-base font-semibold text-text-primary">Password</h2>
-          <p className="mt-ds-1 text-sm text-text-secondary">
-            Change your password securely without leaving ROVEXO.
-          </p>
-          <div className="mt-ds-4">
-            <PasswordChangeForm />
-          </div>
-          <Link href="/forgot-password" className="mt-ds-3 inline-flex text-sm font-medium text-primary">
-            Reset via email
-          </Link>
-        </section>
+    <AccountCanonicalShell title="Password & Security" backHref="/account/settings">
+      <CanonicalSection title="Password">
+        <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
+          <PasswordChangeForm />
+          <CanonicalMenuRow title="Reset via email" icon={<LockLineIcon />} href="/forgot-password" />
+        </CanonicalCard>
+      </CanonicalSection>
 
-        <section className="rx-surface-card p-ds-5">
-          <h2 className="text-base font-semibold text-text-primary">Sessions & devices</h2>
-          <p className="mt-ds-1 text-sm text-text-secondary">
-            Review your active session and sign out everywhere else if needed.
-          </p>
+      <CanonicalSection title="Devices & Sessions">
+        <CanonicalCard variant="list">
           {session ? (
-            <div className="mt-ds-4 rounded-ds-lg border border-border bg-surface-muted p-ds-4">
-              <div className="flex items-center justify-between gap-ds-3">
-                <div>
-                  <p className="font-medium text-text-primary">{formatDeviceLabel()}</p>
-                  <p className="mt-ds-1 text-xs text-text-secondary">Current session · {session.current.provider}</p>
-                </div>
-                <Badge>Active</Badge>
-              </div>
-              <p className="mt-ds-3 text-xs text-text-muted">
-                Last sign-in:{" "}
-                {session.current.lastSignInAt
-                  ? new Date(session.current.lastSignInAt).toLocaleString("en-GB")
-                  : "Unknown"}
-              </p>
-              <p className="text-xs text-text-muted">
-                Expires: {new Date(session.current.expiresAt).toLocaleString("en-GB")}
-              </p>
-            </div>
+            <CanonicalMenuRow
+              title={formatDeviceLabel()}
+              description={`Current session · ${session.current.provider}`}
+              icon={<PhoneLineIcon />}
+              value="Active"
+            />
           ) : (
-            <p className="mt-ds-3 text-sm text-text-secondary">Loading session…</p>
+            <CanonicalMenuRow title="Loading session…" icon={<PhoneLineIcon />} disabled />
           )}
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="mt-ds-4"
-            disabled={signingOutOthers}
+          <CanonicalMenuRow
+            title="Sign out all other devices"
+            icon={<ShieldLineIcon />}
             onClick={() => void signOutOtherSessions()}
-          >
-            {signingOutOthers ? "Signing out…" : "Sign out all other devices"}
-          </Button>
-          {sessionMessage ? <p className="mt-ds-2 text-sm text-text-secondary">{sessionMessage}</p> : null}
-        </section>
+            disabled={signingOutOthers}
+            value={signingOutOthers ? "Signing out…" : undefined}
+          />
+        </CanonicalCard>
+        {sessionMessage ? (
+          <CanonicalInfoBlock variant="description">{sessionMessage}</CanonicalInfoBlock>
+        ) : null}
+      </CanonicalSection>
 
-        <section className="rx-surface-card p-ds-5">
-          <div className="flex items-center justify-between gap-ds-3">
-            <h2 className="text-base font-semibold text-text-primary">Two-factor authentication</h2>
-            {security?.mfa.enabled ? <Badge>Enabled</Badge> : <Badge variant="default">Off</Badge>}
-          </div>
-          <p className="mt-ds-1 text-sm text-text-secondary">
-            Add an authenticator app for an extra layer of protection on your ROVEXO account.
-          </p>
-          {security ? (
-            <p className="mt-ds-3 text-sm text-text-secondary">
-              {security.mfa.enabled
-                ? `${security.mfa.factorCount} verified authenticator factor(s) active.`
-                : "Two-factor authentication is not enabled yet."}
-            </p>
-          ) : (
-            <p className="mt-ds-3 text-sm text-text-secondary">Loading security status…</p>
-          )}
-        </section>
+      <CanonicalSection title="Two-factor authentication">
+        <CanonicalCard variant="list">
+          <CanonicalMenuRow
+            title="Authenticator app"
+            description={
+              security
+                ? security.mfa.enabled
+                  ? `${security.mfa.factorCount} verified factor(s) active.`
+                  : "Two-factor authentication is not enabled yet."
+                : "Loading security status…"
+            }
+            icon={<ShieldLineIcon />}
+            value={security?.mfa.enabled ? "Enabled" : "Off"}
+          />
+        </CanonicalCard>
+      </CanonicalSection>
 
-        <section className="rx-surface-card p-ds-5">
-          <h2 className="text-base font-semibold text-text-primary">Blocked users</h2>
-          <p className="mt-ds-1 text-sm text-text-secondary">
-            Manage users you have blocked from contacting you.
-          </p>
-          <Link href="/account/blocked-users" className="mt-ds-4 inline-flex">
-            <Button variant="secondary" size="sm">
-              Manage blocked users
-            </Button>
-          </Link>
-        </section>
-      </div>
-    </AccountPageShell>
+      <CanonicalSection title="Privacy">
+        <CanonicalCard variant="list">
+          <CanonicalMenuRow
+            title="Blocked Users"
+            description="Manage users you have blocked from contacting you"
+            icon={<PeopleLineIcon />}
+            href="/account/blocked-users"
+          />
+        </CanonicalCard>
+      </CanonicalSection>
+    </AccountCanonicalShell>
   );
 }

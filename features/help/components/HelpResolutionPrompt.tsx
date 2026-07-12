@@ -1,8 +1,8 @@
 "use client";
 
+import { CanonicalButton, CanonicalButtonLink, CanonicalCard, CanonicalInfoBlock, CanonicalSection } from "@/src/components/canonical";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+
 import {
   canAccessSupport,
   markResolution,
@@ -35,63 +35,59 @@ export function HelpResolutionPrompt({ topicSlug }: HelpResolutionPromptProps) {
   const supportAllowed = canAccessSupport(readHelpSession());
 
   return (
-    <Card padding="lg">
-      <h2 className="text-lg font-semibold text-text-primary">Did this solve your problem?</h2>
-      <div className="mt-ds-4 flex flex-wrap gap-ds-2">
-        <Link
-          href="/help"
-          onClick={handleYes}
-          className="rx-chip inline-flex min-h-ds-7 items-center px-ds-5 text-sm font-semibold text-text-primary"
-        >
-          Yes — return home
-        </Link>
-        <Button variant="secondary" onClick={handleNo}>
-          No — need more help
-        </Button>
-      </div>
-
-      {session.resolved === false && (
-        <div className="mt-ds-5 space-y-ds-3 border-t border-border pt-ds-5">
-          <h3 className="text-sm font-semibold text-text-primary">More solutions</h3>
-          <ul className="space-y-ds-2 text-sm text-text-secondary">
-            <li>
-              <Link href={`/help/category/${topicSlug}`} className="text-primary hover:underline">
-                Start guided troubleshooting again
-              </Link>
-            </li>
-            <li>
-              <Link href="/help" className="text-primary hover:underline">
-                Browse all help topics
-              </Link>
-            </li>
-          </ul>
-
-          {supportAllowed ? (
-            <Link
-              href={`/support?topic=${topicSlug}&guided=1`}
-              onClick={() => void trackHelpEvent({ type: "support_gate_pass", topicSlug })}
-              className="inline-flex min-h-ds-7 items-center rounded-ds-full bg-primary px-ds-5 text-sm font-semibold text-primary-foreground"
-            >
-              Contact Support
-            </Link>
-          ) : (
-            <div className="rounded-ds-lg bg-surface-muted px-ds-4 py-ds-3 text-sm text-text-secondary">
-              Complete the guided troubleshooting flow and select <strong>No</strong> before contacting Support.
-              This helps us resolve your issue faster.
-              <button
-                type="button"
-                className="mt-ds-2 block text-primary underline"
-                onClick={() => {
-                  resetHelpSession();
-                  window.location.reload();
-                }}
-              >
-                Restart guided troubleshooting
-              </button>
-            </div>
-          )}
+    <CanonicalSection title="Did this solve your problem?">
+      <CanonicalCard variant="medium">
+        <div className="flex flex-wrap gap-ds-2 p-ds-4">
+          <CanonicalButtonLink href="/help" variant="secondary" onClick={handleYes}>
+            Yes — return home
+          </CanonicalButtonLink>
+          <CanonicalButton variant="secondary" onClick={handleNo}>
+            No — need more help
+          </CanonicalButton>
         </div>
-      )}
-    </Card>
+
+        {session.resolved === false ? (
+          <div className="space-y-ds-3 border-t border-[var(--cds-color-divider)] p-ds-4">
+            <p className="cds-menu-row__title">More solutions</p>
+            <ul className="space-y-ds-2 cds-menu-row__subtitle">
+              <li>
+                <Link href={`/help/category/${topicSlug}`} className="text-primary hover:opacity-80">
+                  Start guided troubleshooting again
+                </Link>
+              </li>
+              <li>
+                <Link href="/help" className="text-primary hover:opacity-80">
+                  Browse all help topics
+                </Link>
+              </li>
+            </ul>
+
+            {supportAllowed ? (
+              <CanonicalButtonLink
+                href={`/support?topic=${topicSlug}&guided=1`}
+                onClick={() => void trackHelpEvent({ type: "support_gate_pass", topicSlug })}
+              >
+                Contact Support
+              </CanonicalButtonLink>
+            ) : (
+              <CanonicalInfoBlock variant="warning">
+                Complete the guided troubleshooting flow and select <strong>No</strong> before contacting
+                Support. This helps us resolve your issue faster.
+                <CanonicalButton
+                  variant="ghost"
+                  className="mt-ds-2"
+                  onClick={() => {
+                    resetHelpSession();
+                    window.location.reload();
+                  }}
+                >
+                  Restart guided troubleshooting
+                </CanonicalButton>
+              </CanonicalInfoBlock>
+            )}
+          </div>
+        ) : null}
+      </CanonicalCard>
+    </CanonicalSection>
   );
 }

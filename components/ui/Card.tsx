@@ -5,6 +5,7 @@ import type { HTMLAttributes } from "react";
 export type CardProps = HTMLAttributes<HTMLDivElement> & {
   interactive?: boolean;
   padding?: "none" | "sm" | "md" | "lg";
+  variant?: "default" | "canonical";
 };
 
 const paddingStyles = {
@@ -17,6 +18,7 @@ const paddingStyles = {
 export function Card({
   interactive = false,
   padding = "md",
+  variant = "default",
   className,
   children,
   ...props
@@ -24,7 +26,9 @@ export function Card({
   return (
     <div
       className={cn(
-        "rx-surface-card relative border-border/70 bg-surface/90",
+        variant === "canonical"
+          ? "rx-surface-card--canonical pcu-card"
+          : "rx-surface-card relative border-border/70 bg-surface/90",
         paddingStyles[padding],
         interactive && cn("cursor-pointer", transitionFast),
         className,

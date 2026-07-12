@@ -6,6 +6,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { formatCount } from "@/lib/account-center/derive";
+import { formatAccountProfileRating } from "@/lib/account-center/format-profile-rating";
 import type { AccountHubSnapshot } from "@/lib/account-center/snapshot";
 import type { UserProfile } from "@/lib/profile/types";
 
@@ -20,12 +21,9 @@ function formatMemberSince(value: string): string {
   return date.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 }
 
-function formatRatingLine(rating: number, reviewCount: number): string {
-  if (reviewCount <= 0) return "⭐ —";
-  return `⭐ ${rating.toFixed(1)} (${formatCount(reviewCount)})`;
-}
-
 export function AccountCanonicalProfile({ profile, snapshot }: AccountCanonicalProfileProps) {
+  const ratingLine = formatAccountProfileRating(snapshot.rating, snapshot.reviewCount);
+
   return (
     <section className="ac-canonical__profile" aria-label="Profile">
       <div className="ac-canonical__profile-top">
@@ -45,8 +43,8 @@ export function AccountCanonicalProfile({ profile, snapshot }: AccountCanonicalP
               {profile.verified ? <span className="ac-canonical__verified-pill">Verified</span> : null}
             </div>
             <p className="ac-canonical__meta">Member since {formatMemberSince(profile.memberSince)}</p>
-            <p className="ac-canonical__rating" aria-label={`Rating ${formatRatingLine(snapshot.rating, snapshot.reviewCount)}`}>
-              {formatRatingLine(snapshot.rating, snapshot.reviewCount)}
+            <p className="ac-canonical__rating" aria-label={`Rating ${ratingLine}`}>
+              {ratingLine}
             </p>
           </div>
         </Link>

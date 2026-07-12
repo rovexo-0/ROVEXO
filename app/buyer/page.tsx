@@ -1,6 +1,4 @@
 import { Suspense } from "react";
-import { HubPageMain } from "@/components/layout/HubPageMain";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { AccountModuleSkeleton } from "@/components/skeletons/PageSkeletons";
 import { AccountCenterModulePage } from "@/features/account-center/components/AccountCenterModulePage";
 import { fetchProfile } from "@/lib/profile/queries";
@@ -14,22 +12,13 @@ export const metadata = {
 
 async function BuyingModuleContent() {
   await fetchProfile();
-  return (
-    <AccountCenterModulePage
-      moduleId="buying"
-      description="Orders, saved items, trust, and discovery."
-    />
-  );
+  return <AccountCenterModulePage moduleId="buying" />;
 }
 
 export default function BuyerPage() {
   return (
-    <BetaAppShell bottomNavTab="account" className="account-center-shell">
-      <HubPageMain className="mx-auto w-full max-w-[480px] ">
-        <Suspense fallback={<AccountModuleSkeleton />}>
-          <BuyingModuleContent />
-        </Suspense>
-      </HubPageMain>
-    </BetaAppShell>
+    <Suspense fallback={<AccountModuleSkeleton />}>
+      <BuyingModuleContent />
+    </Suspense>
   );
 }

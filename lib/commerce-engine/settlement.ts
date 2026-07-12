@@ -22,6 +22,7 @@ import { transferSalePayoutToConnect } from "@/lib/stripe/payouts";
 import { recordEscrowEvent } from "@/lib/commerce-engine/ledger";
 import { recordCommerceAudit } from "@/lib/commerce-engine/audit";
 import { emitCommerceEvent } from "@/lib/commerce-engine/events";
+import { notifySellerFundsReleased } from "@/lib/transaction-hub/seller-wallet-notifications";
 import {
   decideRelease,
   type ReleaseOutcome,
@@ -207,6 +208,13 @@ async function settleSale(sale: PendingSale, order: OrderRow, requireTimer: bool
     result: "released",
     amount,
     metadata: { transferId: result.transferId },
+  });
+
+  void notifySellerFundsReleased({
+    sellerId: sale.user_id,
+    orderId: order.id,
+    orderNumber: sale.order_number ?? order.order_number,
+    amount,
   });
 
   return { released: true, reason: "released" };

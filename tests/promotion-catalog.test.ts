@@ -11,10 +11,10 @@ describe("promotion catalog", () => {
     expect(DEFAULT_PROMOTION_CATALOG.entries).toHaveLength(5);
     expect(DEFAULT_PROMOTION_CATALOG.entries.map((entry) => entry.id)).toEqual([
       "bump",
-      "featured",
-      "boost",
-      "premium",
       "store_featured",
+      "boost",
+      "featured",
+      "premium",
     ]);
   });
 
@@ -23,15 +23,15 @@ describe("promotion catalog", () => {
     expect(formatPromotionPrice(999)).toBe("£9.99");
   });
 
-  it("resolves marketplace-linked pricing for featured and boost", () => {
+  it("resolves marketplace-linked pricing for bump and featured store", () => {
     const resolved = resolvePromotionCatalog(DEFAULT_PROMOTION_CATALOG, DEFAULT_MARKETPLACE_PRICING);
-    const featured = resolved.entries.find((entry) => entry.id === "featured");
-    const boost = resolved.entries.find((entry) => entry.id === "boost");
+    const bump = resolved.entries.find((entry) => entry.id === "bump");
+    const storeFeatured = resolved.entries.find((entry) => entry.id === "store_featured");
 
-    expect(featured?.resolvedPriceCents).toBe(DEFAULT_MARKETPLACE_PRICING.showcase.priceCents);
-    expect(boost?.resolvedPriceCents).toBe(
+    expect(bump?.resolvedPriceCents).toBe(
       DEFAULT_MARKETPLACE_PRICING.boost.find((tier) => tier.id === "7d")?.priceCents,
     );
+    expect(storeFeatured?.resolvedPriceCents).toBe(DEFAULT_MARKETPLACE_PRICING.showcase.priceCents);
   });
 
   it("filters disabled and hidden entries", () => {

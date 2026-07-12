@@ -19,6 +19,7 @@ import { redirectAfterSignIn, sanitizeNextPath } from "@/lib/auth/redirects";
 import { queueGaEvents, type QueuedGaEvent } from "@/lib/analytics/queue-ga-event";
 import { mapAuthErrorMessage } from "@/lib/auth/errors";
 import { applySessionPersistence } from "@/lib/auth/session-cookies";
+import { isPublicRegistrationEnabled } from "@/lib/launch-certification/private-mode";
 
 const registerSchema = z
   .object({
@@ -74,6 +75,13 @@ export async function signUp(
   _prev: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
+  if (!isPublicRegistrationEnabled()) {
+    return {
+      error:
+        "Public registration is disabled during certification. Use an approved demo account.",
+    };
+  }
+
   const parsed = registerSchema.safeParse({
     firstName: formData.get("firstName"),
     lastName: formData.get("lastName"),

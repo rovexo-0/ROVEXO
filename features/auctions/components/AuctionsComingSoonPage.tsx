@@ -6,7 +6,7 @@ import { memo, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { resolveAuctionFeatureIcon } from "@/lib/icons/auction-feature-icons";
-import Header from "@/components/Header";
+import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { HomePageShell } from "@/components/home/HomePageShell";
 import { AuctionsLearnMoreModal } from "@/features/auctions/components/AuctionsLearnMoreModal";
@@ -65,7 +65,7 @@ export const AuctionsComingSoonPage = memo(function AuctionsComingSoonPage({
 
   return (
     <BetaAppShell bottomNavTab="home">
-      <HomePageShell header={<Header />} bottomNav={null}>
+      <HomePageShell header={<RovexoHeaderV2 />} bottomNav={null}>
         <main className="auctions-soon-page">
           <div className="auctions-soon-page__inner">
             <header className="auctions-soon-header">

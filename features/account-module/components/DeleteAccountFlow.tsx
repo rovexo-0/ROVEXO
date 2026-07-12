@@ -1,17 +1,19 @@
 "use client";
 
+import { CanonicalMenuRow, CanonicalButton, CanonicalInput, CanonicalModal } from "@/src/components/canonical";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { ConfirmDialog } from "@/features/settings/components/ConfirmDialog";
-import { focusRing } from "@/components/ui/tokens";
-import { cn } from "@/lib/cn";
+
 import type { AccountDeletionEligibility } from "@/lib/account/deletion-eligibility";
+
 
 type DeleteAccountFlowProps = {
   className?: string;
+  /** Centered destructive action below settings groups — no section card. */
+  standalone?: boolean;
 };
 
-export function DeleteAccountFlow({ className }: DeleteAccountFlowProps) {
+export function DeleteAccountFlow({ className, standalone = false }: DeleteAccountFlowProps) {
   const router = useRouter();
   const [step, setStep] = useState<0 | 1 | 2>(0);
   const [password, setPassword] = useState("");
@@ -53,56 +55,56 @@ export function DeleteAccountFlow({ className }: DeleteAccountFlowProps) {
     });
   };
 
-  return (
-    <>
-      <section className={cn("acm-settings__section acm-settings__section--danger", className)}>
-        <h2 className="acm-settings__heading acm-settings__heading--danger">Delete Account</h2>
-        <div className="acm-settings__card acm-settings__card--danger">
-          <button
-            type="button"
-            className={cn("acm-settings__row acm-settings__row--danger", focusRing)}
-            onClick={() => setStep(1)}
-          >
-            <span className="acm-settings__label">Delete Account</span>
-          </button>
-        </div>
-      </section>
+  const openFlow = () => setStep(1);
 
-      <ConfirmDialog
+  const row = standalone ? (
+    <CanonicalButton variant="ghost" className={className} onClick={openFlow}>
+      <span className="text-danger">Delete Account</span>
+    </CanonicalButton>
+  ) : (
+    <CanonicalMenuRow title="Delete Account" destructive onClick={openFlow} className={className} />
+  );
+
+  const dialogs = (
+    <>
+      <CanonicalModal
         open={step === 1}
+        variant="delete"
         title="Delete Account?"
-        description="Deleting your account is permanent. This action cannot be undone."
         confirmLabel="Continue"
         cancelLabel="Cancel"
-        destructive
         onConfirm={() => {
           setStep(2);
           setPassword("");
           setError(null);
         }}
-        onCancel={() => setStep(0)}
-      />
+        onClose={() => setStep(0)}
+      >
+        <p className="text-sm text-text-secondary">
+          Deleting your account is permanent. This action cannot be undone.
+        </p>
+      </CanonicalModal>
 
-      <ConfirmDialog
+      <CanonicalModal
         open={step === 2}
+        variant="delete"
         title="Confirm password"
-        description="Enter your password to permanently delete your ROVEXO account."
         confirmLabel={isPending ? "Deleting…" : "Delete Account"}
         cancelLabel="Cancel"
-        destructive
+        loading={isPending}
         confirmDisabled={isPending || !password || eligibility?.canDelete === false}
         onConfirm={() => void handleDelete()}
-        onCancel={() => setStep(0)}
+        onClose={() => setStep(0)}
       >
-        <div className="mt-4 space-y-3">
-          <label htmlFor="delete-account-password" className="block text-sm font-medium">
-            Enter Password
-          </label>
-          <input
+        <div className="flex flex-col gap-ds-3">
+          <p className="text-sm text-text-secondary">
+            Enter your password to permanently delete your ROVEXO account.
+          </p>
+          <CanonicalInput
             id="delete-account-password"
-            type="password"
+            label="Enter Password"
+            inputType="password"
             autoComplete="current-password"
-            className="w-full rounded-lg border border-border px-3 py-2 text-sm"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
@@ -120,7 +122,14 @@ export function DeleteAccountFlow({ className }: DeleteAccountFlowProps) {
           ) : null}
           {error ? <p className="text-sm text-danger">{error}</p> : null}
         </div>
-      </ConfirmDialog>
+      </CanonicalModal>
+    </>
+  );
+
+  return (
+    <>
+      {row}
+      {dialogs}
     </>
   );
 }

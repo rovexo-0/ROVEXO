@@ -50,6 +50,12 @@ describe("wallet engine", () => {
       pendingBalance: 50,
       pendingAvailableAt: new Date().toISOString(),
       paidOutBalance: 100,
+      withdrawalSummary: {
+        processingTotal: 0,
+        processingCount: 0,
+        completedTotal: 0,
+        completedCount: 0,
+      },
       monthSummary: {
         revenue: { value: 200, changePercent: 0 },
         withdrawn: { value: 80, changePercent: 0 },
@@ -84,6 +90,12 @@ describe("wallet engine", () => {
       pendingBalance: 50,
       pendingAvailableAt: new Date().toISOString(),
       paidOutBalance: 100,
+      withdrawalSummary: {
+        processingTotal: 0,
+        processingCount: 0,
+        completedTotal: 0,
+        completedCount: 0,
+      },
       monthSummary: {
         revenue: { value: 200, changePercent: 0 },
         withdrawn: { value: 80, changePercent: 0 },

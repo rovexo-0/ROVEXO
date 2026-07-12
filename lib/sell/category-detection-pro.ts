@@ -3,7 +3,7 @@ import {
   type TitleCategorySuggestion,
 } from "@/lib/sell/suggest-category-from-title";
 
-export type CategoryDetectionTier = "auto" | "suggest" | "none";
+export type CategoryDetectionTier = "auto" | "suggest" | "possible" | "none";
 
 export type CategoryDetectionResult = {
   suggestions: TitleCategorySuggestion[];
@@ -11,15 +11,31 @@ export type CategoryDetectionResult = {
   tier: CategoryDetectionTier;
 };
 
-/** ≥90% — auto-select category from title. */
-export const AUTO_SELECT_CONFIDENCE = 0.9;
-/** 70–89% — suggest best match only. */
-export const SUGGEST_CONFIDENCE_MIN = 0.7;
+/** ≥95% — auto suggested band (§29). */
+export const AUTO_SELECT_CONFIDENCE = 0.95;
+/** 80–94% — suggested band. */
+export const SUGGEST_CONFIDENCE_MIN = 0.8;
+/** 50–79% — possible match band. */
+export const POSSIBLE_MATCH_MIN = 0.5;
 
 export function getCategoryDetectionTier(confidence: number): CategoryDetectionTier {
   if (confidence >= AUTO_SELECT_CONFIDENCE) return "auto";
   if (confidence >= SUGGEST_CONFIDENCE_MIN) return "suggest";
+  if (confidence >= POSSIBLE_MATCH_MIN) return "possible";
   return "none";
+}
+
+export function tierSectionLabel(tier: CategoryDetectionTier): string {
+  switch (tier) {
+    case "auto":
+      return "Suggested Category";
+    case "suggest":
+      return "Suggested Category";
+    case "possible":
+      return "Possible Match";
+    default:
+      return "Suggested Category";
+  }
 }
 
 export function detectCategoryFromTitle(
@@ -27,15 +43,12 @@ export function detectCategoryFromTitle(
   description = "",
 ): CategoryDetectionResult {
   const suggestions = suggestCategoryFromTitle(title, description);
-  const top = suggestions[0] ?? null;
+  const top = suggestions.find((item) => item.confidence >= POSSIBLE_MATCH_MIN) ?? null;
   const tier = top ? getCategoryDetectionTier(top.confidence) : "none";
 
   return {
-    suggestions:
-      tier === "none"
-        ? suggestions.filter((item) => item.confidence >= SUGGEST_CONFIDENCE_MIN)
-        : suggestions.slice(0, 3),
-    top: top && top.confidence >= SUGGEST_CONFIDENCE_MIN ? top : null,
+    suggestions: top ? [top] : [],
+    top,
     tier,
   };
 }

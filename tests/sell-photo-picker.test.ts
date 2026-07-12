@@ -42,13 +42,16 @@ describe("sell photo picker (Android / Samsung)", () => {
     expect(source).toContain("resolveNativeImageCapture");
   });
 
-  it("routes sell Add Photos to native gallery only", () => {
+  it("routes sell Add Photos through native gallery overlay only", () => {
     const source = readSource("features/sell/ui/SellPhotoRail.tsx");
     expect(source).toContain('intent="gallery"');
-    expect(source).not.toContain('intent="camera"');
     expect(source).toContain('placement="overlay"');
+    expect(source).not.toContain('intent="camera"');
+    expect(source).not.toContain("sourceSheetOpen");
+    expect(source).not.toContain('variant="sheet"');
     expect(source).toContain("Add Photos");
-    expect(source).not.toContain("Take Photo");
+    expect(source).toContain("DeletePhotoAction");
+    expect(source).not.toContain("window.confirm");
   });
 
   it("routes auction sell through canonical photo rail", () => {

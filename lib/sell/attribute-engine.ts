@@ -19,6 +19,7 @@ import {
   type SelectionOption,
 } from "@/lib/sell/attribute-options";
 import { MARKETPLACE_CONDITIONS_BY_VERTICAL } from "@/lib/categories/enterprise/conditions";
+import { loadCategoryScopedTaxonomy } from "@/lib/category-loaders/scoped";
 
 export type AttributeInput = "select-single" | "select-multi" | "grid-single" | "text";
 
@@ -420,9 +421,12 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
   features: {
     id: "features",
     label: "Features",
-    input: "text",
+    input: "select-single",
     target: { kind: "map" },
-    placeholder: "e.g. Cooling, Hypoallergenic, Adjustable",
+    options: [],
+    searchable: true,
+    searchPlaceholder: "Search features",
+    placeholder: "Select feature",
   },
   sim: {
     id: "sim",
@@ -539,32 +543,145 @@ const BEDDING_ATTRIBUTE_IDS = [
   "features",
 ] as const;
 
+function applyCategoryScopedOptions(defs: AttributeDef[], categoryPath: FlatCategoryPath | null): AttributeDef[] {
+  const scoped = loadCategoryScopedTaxonomy(categoryPath);
+  if (!scoped) return defs;
+
+  return defs.map((def) => {
+    switch (def.id) {
+      case "brand":
+        return {
+          ...def,
+          options: toOptions(scoped.brands),
+          popularIds: scoped.popularBrandIds,
+        };
+      case "material":
+      case "coverMaterial":
+        return { ...def, options: toOptions(scoped.materials) };
+      case "colour":
+        return {
+          ...def,
+          options: scoped.colours.map((colour) => ({
+            id: colour.id,
+            label: colour.label,
+            swatch: colour.swatch,
+          })),
+          showSwatch: true,
+        };
+      case "size":
+        return { ...def, options: toOptions(scoped.sizes) };
+      case "pattern":
+        return { ...def, options: toOptions(scoped.patterns) };
+      case "style":
+        return { ...def, options: toOptions(scoped.styles) };
+      case "features":
+        return scoped.features.length > 0
+          ? { ...def, options: toOptions(scoped.features), searchable: true }
+          : def;
+      case "storage":
+        return { ...def, options: toOptions(scoped.storage) };
+      case "ram":
+        return { ...def, options: toOptions(scoped.ram) };
+      case "warranty":
+        return { ...def, options: toOptions(scoped.warrantyTypes) };
+      case "condition":
+        return { ...def, options: toOptions(scoped.conditions) };
+      case "compatibility":
+        return scoped.compatibility.length > 0
+          ? { ...def, input: "select-single" as const, options: toOptions(scoped.compatibility) }
+          : def;
+      default:
+        return def;
+    }
+  });
+}
+
+const QUICK_SELL_SIZE_CATEGORY_SLUGS = new Set([
+  "mens-fashion",
+  "womens-fashion",
+  "kids-fashion",
+  "shoes",
+  "sports",
+]);
+
+const QUICK_SELL_ATTRIBUTE_ORDER = ["brand", "colour", "size"] as const;
+
+function quickSellCategorySupportsAttribute(
+  categoryPath: FlatCategoryPath | null,
+  attributeId: (typeof QUICK_SELL_ATTRIBUTE_ORDER)[number],
+): boolean {
+  if (!categoryPath) return false;
+  const slug = categoryPath.categorySlug;
+  const subSlug = categoryPath.subcategorySlug;
+  const childSlug = categoryPath.childCategorySlug;
+
+  const fullIds =
+    slug === "home-garden" &&
+    ((subSlug && BEDDING_SUBCATEGORY_SLUGS.has(subSlug)) ||
+      (childSlug && BEDDING_SUBCATEGORY_SLUGS.has(childSlug)))
+      ? [...BEDDING_ATTRIBUTE_IDS]
+      : slug && CATEGORY_ATTRIBUTE_IDS[slug]
+        ? CATEGORY_ATTRIBUTE_IDS[slug]
+        : [...DEFAULT_ATTRIBUTE_IDS];
+
+  if (!fullIds.includes(attributeId)) return false;
+
+  if (attributeId === "size") {
+    if (QUICK_SELL_SIZE_CATEGORY_SLUGS.has(slug ?? "")) return true;
+    if (
+      slug === "home-garden" &&
+      ((subSlug && BEDDING_SUBCATEGORY_SLUGS.has(subSlug)) ||
+        (childSlug && BEDDING_SUBCATEGORY_SLUGS.has(childSlug)))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  return true;
+}
+
+/** Quick-sell progressive attributes — brand, colour, size only when applicable (§36, §40). */
+export function getQuickSellAttributeDefs(categoryPath: FlatCategoryPath | null): AttributeDef[] {
+  if (!categoryPath) return [];
+
+  const defs = QUICK_SELL_ATTRIBUTE_ORDER.filter((id) =>
+    quickSellCategorySupportsAttribute(categoryPath, id),
+  )
+    .map((id) => ATTRIBUTE_DEFS[id])
+    .filter((def): def is AttributeDef => Boolean(def));
+
+  return applyCategoryScopedOptions(defs, categoryPath);
+}
+
 export function getAttributeDefsForCategory(categoryPath: FlatCategoryPath | null): AttributeDef[] {
   const slug = categoryPath?.categorySlug;
   const subSlug = categoryPath?.subcategorySlug;
   const childSlug = categoryPath?.childCategorySlug;
 
+  let defs: AttributeDef[];
+
   if (slug === "home-garden" && (subSlug && BEDDING_SUBCATEGORY_SLUGS.has(subSlug) || childSlug && BEDDING_SUBCATEGORY_SLUGS.has(childSlug))) {
-    return BEDDING_ATTRIBUTE_IDS.map((id) => ATTRIBUTE_DEFS[id]).filter(
+    defs = BEDDING_ATTRIBUTE_IDS.map((id) => ATTRIBUTE_DEFS[id]).filter(
       (def): def is AttributeDef => Boolean(def),
     );
-  }
-
-  if (slug === "home-garden" && subSlug && FURNITURE_SUBCATEGORY_SLUGS.has(subSlug)) {
-    return FURNITURE_ATTRIBUTE_IDS.map((id) => ATTRIBUTE_DEFS[id]).filter(
+  } else if (slug === "home-garden" && subSlug && FURNITURE_SUBCATEGORY_SLUGS.has(subSlug)) {
+    defs = FURNITURE_ATTRIBUTE_IDS.map((id) => ATTRIBUTE_DEFS[id]).filter(
       (def): def is AttributeDef => Boolean(def),
     );
+  } else {
+    const ids = (slug && CATEGORY_ATTRIBUTE_IDS[slug]) || [...DEFAULT_ATTRIBUTE_IDS];
+    defs = ids
+      .map((id) => ATTRIBUTE_DEFS[id])
+      .filter((def): def is AttributeDef => Boolean(def))
+      .map((def) =>
+        def.id === "condition"
+          ? { ...def, options: conditionOptionsForCategorySlug(slug) }
+          : def,
+      );
   }
 
-  const ids = (slug && CATEGORY_ATTRIBUTE_IDS[slug]) || [...DEFAULT_ATTRIBUTE_IDS];
-  return ids
-    .map((id) => ATTRIBUTE_DEFS[id])
-    .filter((def): def is AttributeDef => Boolean(def))
-    .map((def) =>
-      def.id === "condition"
-        ? { ...def, options: conditionOptionsForCategorySlug(slug) }
-        : def,
-    );
+  return applyCategoryScopedOptions(defs, categoryPath);
 }
 
 /** Read an attribute's current value from the draft (field or generic map). */

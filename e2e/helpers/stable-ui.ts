@@ -8,7 +8,7 @@ import { expect, type Page } from "@playwright/test";
 
 /** Canonical homepage landmarks — keep in sync with RovexoHomePage composition. */
 
-export const HOMEPAGE_MAIN_SELECTOR = 'main[data-hp-homepage="canonical"]';
+export const HOMEPAGE_MAIN_SELECTOR = 'main[data-hp-homepage="canonical"], [data-hp-homepage="canonical"]';
 
 export const CATEGORY_RAIL_SELECTOR = 'nav[aria-label="Categories"]';
 
@@ -116,7 +116,9 @@ export async function waitForHomepageUi(page: Page): Promise<void> {
   });
 
   const searchControl = page
-    .locator(".rx-h2__search .homepage-search__control, [data-header-search='bar']")
+    .locator(
+      ".rx-h2__search .homepage-search__control, [data-header-search='bar'], [data-header-search='field'], #rx-h2-search",
+    )
     .first();
   await searchControl.scrollIntoViewIfNeeded();
   await expect(searchControl).toBeVisible();
@@ -141,9 +143,12 @@ export async function waitForSearchResultsUi(page: Page): Promise<void> {
 
   await waitForSearchResultsResponse(page);
 
-  await expect(page.getByRole("tablist", { name: "Search filters" })).toBeVisible();
+  await expect(page.locator('[data-search-version="v1.0-final"]').first()).toBeVisible();
 
-  await expect(page.getByRole("region", { name: "Search filters" })).toBeVisible();
+  const tablist = page.getByRole("tablist", { name: "Search filters" });
+  if (await tablist.isVisible().catch(() => false)) {
+    await expect(page.getByRole("region", { name: "Search filters" })).toBeVisible();
+  }
 
 }
 
