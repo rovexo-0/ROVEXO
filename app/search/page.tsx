@@ -56,7 +56,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     return (
       <BetaAppShell bottomNavTab="search">
         <RovexoHeaderV2 />
-        <HubPageMain className="px-0 py-0">
+        <HubPageMain className="rx-image-search-page px-0 py-0">
           <ImageSearchView />
         </HubPageMain>
       </BetaAppShell>

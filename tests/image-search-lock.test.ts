@@ -8,25 +8,32 @@ function readSource(relativePath: string): string {
 }
 
 describe("Homepage UI Lock v1.0 — image search", () => {
-  it("opens native camera from homepage search without routing first", () => {
+  it("opens native picker from homepage search without routing first", () => {
     const search = readSource("components/home/HomepageSearchField.tsx");
+    const camera = readSource("components/home/ImageSearchCamera.tsx");
+
     expect(search).toContain("ImageSearchCamera");
-    expect(search).toContain('aria-label="Image search"');
-    expect(search).toContain("setImageSearchOpen(true)");
-    expect(search).toContain("handleImageSearchCapture");
+    expect(search).toContain("handleImageSearchFiles");
+    expect(search).toContain("isImageProcessing");
+    expect(camera).toContain("NativeImageFileInput");
+    expect(camera).not.toContain("getUserMedia");
   });
 
-  it("renders image search results with canonical listing cards", () => {
+  it("renders image search results with canonical listing cards on white background", () => {
     const view = readSource("features/search/components/ImageSearchView.tsx");
     const page = readSource("app/search/page.tsx");
+    const css = readSource("styles/rovexo/image-search.css");
 
     expect(view).toContain("Image Search");
     expect(view).toContain("Results similar to your photo");
-    expect(view).toContain("Searching...");
+    expect(view).toContain("ProductGridSkeleton");
     expect(view).toContain("ListingCard");
     expect(view).toContain("HP_CANONICAL_LISTING_PROPS");
+    expect(view).toContain('import("@/lib/image-search/search")');
     expect(page).toContain('visual === "1"');
-    expect(page).toContain("ImageSearchView");
+    expect(page).toContain("rx-image-search-page");
+    expect(css).toContain("background-color: #ffffff");
+    expect(css).not.toMatch(/purple|#7c3aed|gradient/i);
   });
 
   it("uses client-side similarity against homepage feed corpus", () => {

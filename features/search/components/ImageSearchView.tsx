@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ListingCard } from "@/components/ui/ListingCard";
+import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
 import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
-import { runImageSimilaritySearch } from "@/lib/image-search/search";
-import { clearImageSearchQuery, readImageSearchQuery } from "@/lib/image-search/storage";
+import { readImageSearchQuery } from "@/lib/image-search/storage";
+import type { ImageSearchMatch } from "@/lib/image-search/search";
 import css from "@/components/homepage/canonical/CanonicalHomepage.module.css";
+import "@/styles/rovexo/image-search.css";
 
 export function ImageSearchView() {
   const router = useRouter();
@@ -14,15 +16,19 @@ export function ImageSearchView() {
   const [phase, setPhase] = useState<"searching" | "results" | "missing">(
     queryDataUrl ? "searching" : "missing",
   );
-  const [matches, setMatches] = useState<Awaited<ReturnType<typeof runImageSimilaritySearch>>>([]);
+  const [matches, setMatches] = useState<ImageSearchMatch[]>([]);
 
   useEffect(() => {
     if (!queryDataUrl) return;
 
     const controller = new AbortController();
 
-    void runImageSimilaritySearch(queryDataUrl, controller.signal)
+    void import("@/lib/image-search/search")
+      .then(({ runImageSimilaritySearch }) =>
+        runImageSimilaritySearch(queryDataUrl, controller.signal),
+      )
       .then((results) => {
+        if (controller.signal.aborted) return;
         setMatches(results);
         setPhase("results");
       })
@@ -35,12 +41,6 @@ export function ImageSearchView() {
 
     return () => controller.abort();
   }, [queryDataUrl]);
-
-  useEffect(() => {
-    return () => {
-      clearImageSearchQuery();
-    };
-  }, []);
 
   if (phase === "missing") {
     return (
@@ -72,9 +72,14 @@ export function ImageSearchView() {
       ) : null}
 
       {phase === "searching" ? (
-        <p className="rx-image-search-results__status" role="status" aria-live="polite">
-          Searching...
-        </p>
+        <>
+          <p className="rx-image-search-results__status sr-only" role="status" aria-live="polite">
+            Searching...
+          </p>
+          <div className="rx-image-search-results__grid-slot" aria-busy="true">
+            <ProductGridSkeleton count={8} />
+          </div>
+        </>
       ) : null}
 
       {phase === "results" ? (

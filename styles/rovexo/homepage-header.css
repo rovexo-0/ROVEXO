@@ -279,6 +279,7 @@
 }
 
 .homepage-search__camera {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -289,6 +290,8 @@
   background: transparent;
   color: var(--ds-color-text-secondary);
   flex-shrink: 0;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 .homepage-search__camera:hover {

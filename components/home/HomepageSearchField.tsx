@@ -8,7 +8,6 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import { Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ImageSearchCamera } from "@/components/home/ImageSearchCamera";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
@@ -52,7 +51,8 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
   const [activeIndex, setActiveIndex] = useState(-1);
   const [remoteSuggestions, setRemoteSuggestions] = useState<SuggestionItem[]>([]);
   const [isFetching, setIsFetching] = useState(false);
-  const [imageSearchOpen, setImageSearchOpen] = useState(false);
+  const [isImageProcessing, setIsImageProcessing] = useState(false);
+  const imageSearchInputId = `${inputId}-image-search`;
 
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
   const trimmedQuery = query.trim();
@@ -181,10 +181,22 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
     }
   }
 
-  function handleImageSearchCapture(dataUrl: string) {
-    storeImageSearchQuery(dataUrl);
-    setImageSearchOpen(false);
-    router.push("/search?visual=1");
+  async function handleImageSearchFiles(files: FileList) {
+    const file = files[0];
+    if (!file) return;
+
+    setIsImageProcessing(true);
+    try {
+      const { fileToDataUrl } = await import("@/lib/image-search/similarity");
+      const dataUrl = await fileToDataUrl(file);
+      storeImageSearchQuery(dataUrl);
+      captureHomepageScroll();
+      router.push("/search?visual=1");
+    } catch {
+      // User cancelled or image could not be read — stay on homepage.
+    } finally {
+      setIsImageProcessing(false);
+    }
   }
 
   return (
@@ -272,14 +284,11 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
                 </svg>
               </button>
             ) : (
-              <button
-                type="button"
-                aria-label="Image search"
-                className={cn("homepage-search__camera", focusRing, transitionFast)}
-                onClick={() => setImageSearchOpen(true)}
-              >
-                <Camera width={20} height={20} strokeWidth={1.75} aria-hidden />
-              </button>
+              <ImageSearchCamera
+                inputId={imageSearchInputId}
+                processing={isImageProcessing}
+                onFilesSelected={(files) => void handleImageSearchFiles(files)}
+              />
             )}
           </div>
         </div>
@@ -312,12 +321,6 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
           </ul>
         ) : null}
       </form>
-
-      <ImageSearchCamera
-        open={imageSearchOpen}
-        onClose={() => setImageSearchOpen(false)}
-        onCapture={handleImageSearchCapture}
-      />
     </div>
   );
 }
