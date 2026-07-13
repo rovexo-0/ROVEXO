@@ -12,6 +12,8 @@ type WalletInsightsProps = {
 };
 
 export function WalletInsights({ sales, withdrawn, pending, pendingAvailableAt }: WalletInsightsProps) {
+  const status = pending > 0 ? "Pending release" : "No payout scheduled";
+
   return (
     <section className="wallet-v2__insights" aria-label="Wallet insights">
       <article className="wallet-v2__insight-card">
@@ -36,17 +38,18 @@ export function WalletInsights({ sales, withdrawn, pending, pendingAvailableAt }
         <div className="wallet-v2__section-head">
           <h2 className="wallet-v2__section-title">Next Payout</h2>
           <Link href={WALLET_ROUTES.payouts} className="wallet-v2__section-link">
-            Payouts
+            Details
           </Link>
         </div>
+        <p className="wallet-v2__insight-kicker">Expected amount</p>
         <p className="wallet-v2__insight-amount">{formatCurrency(pending)}</p>
         <p className="wallet-v2__insight-copy">
           {pendingAvailableAt
-            ? `Estimated ${formatWalletDate(pendingAvailableAt)}`
-            : "Released after delivery hold"}
+            ? `Estimated date · ${formatWalletDate(pendingAvailableAt)}`
+            : "Estimated date · After delivery hold"}
         </p>
         <p className="wallet-v2__insight-status">
-          Status: {pending > 0 ? "Pending release" : "No payout scheduled"}
+          Status · <strong>{status}</strong>
         </p>
       </article>
     </section>

@@ -1,8 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { ReactNode } from "react";
 import Link from "next/link";
+import type { ReactNode, SVGProps } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { cn } from "@/lib/cn";
 import { resolveManualWithdrawableBalance } from "@/lib/transaction-hub/seller-wallet";
@@ -10,13 +10,12 @@ import { WALLET_CANONICAL_VERSION, WALLET_ROUTES } from "@/lib/wallet/canonical-
 import { formatCurrency } from "@/lib/wallet/utils";
 import type { WalletData } from "@/lib/wallet/types";
 import {
-  BagLineIcon,
   BankLineIcon,
   CheckLineIcon,
+  ChevronRightLineIcon,
   CreditCardLineIcon,
   DocumentLineIcon,
-  EditLineIcon,
-  TruckLineIcon,
+  ShieldLineIcon,
   WalletLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import "@/styles/rovexo/wallet-hub-v1.css";
@@ -28,9 +27,30 @@ type WalletHubV1Props = {
   showStatements?: boolean;
 };
 
+type IconProps = SVGProps<SVGSVGElement>;
+
+function ClockLineIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ProcessingLineIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
+      <path d="M12 3v3M12 18v3M3 12h3M18 12h3" strokeLinecap="round" />
+      <path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
 const WalletInsights = dynamic(
   () => import("@/features/wallet/components/WalletInsights").then((mod) => mod.WalletInsights),
-  { ssr: true, loading: () => <WalletSectionSkeleton label="Insights" /> },
+  { ssr: true, loading: () => <WalletSectionSkeleton label="Insights" tall /> },
 );
 
 const WalletRecentTransactions = dynamic(
@@ -38,14 +58,20 @@ const WalletRecentTransactions = dynamic(
     import("@/features/wallet/components/WalletRecentTransactions").then(
       (mod) => mod.WalletRecentTransactions,
     ),
-  { ssr: true, loading: () => <WalletSectionSkeleton label="Transactions" /> },
+  { ssr: true, loading: () => <WalletSectionSkeleton label="Transactions" tall /> },
 );
 
-function WalletSectionSkeleton({ label }: { label: string }) {
+const WalletConnectedBank = dynamic(
+  () =>
+    import("@/features/wallet/components/WalletConnectedBank").then((mod) => mod.WalletConnectedBank),
+  { ssr: true, loading: () => <WalletSectionSkeleton label="Connected Bank" /> },
+);
+
+function WalletSectionSkeleton({ label, tall = false }: { label: string; tall?: boolean }) {
   return (
     <section className="wallet-v2__skeleton" aria-busy="true" aria-label={`Loading ${label}`}>
       <div className="wallet-v2__skeleton-bar" />
-      <div className="wallet-v2__skeleton-card" />
+      <div className={cn("wallet-v2__skeleton-card", tall && "wallet-v2__skeleton-card--tall")} />
     </section>
   );
 }
@@ -69,8 +95,13 @@ function BalanceMetricCard({
       className="wallet-v2__metric"
       aria-label={`${title}: ${formatCurrency(amount)}. ${hint}`}
     >
-      <span className="wallet-v2__metric-icon" aria-hidden>
-        {icon}
+      <span className="wallet-v2__metric-top">
+        <span className="wallet-v2__metric-icon" aria-hidden>
+          {icon}
+        </span>
+        <span className="wallet-v2__metric-chevron" aria-hidden>
+          <ChevronRightLineIcon />
+        </span>
       </span>
       <p className="wallet-v2__metric-title">{title}</p>
       <p className="wallet-v2__metric-amount">{formatCurrency(amount)}</p>
@@ -79,7 +110,7 @@ function BalanceMetricCard({
   );
 }
 
-function QuickActionButton({
+function QuickActionCard({
   href,
   label,
   icon,
@@ -107,7 +138,7 @@ export function WalletHubV1({
   const withdrawable = resolveManualWithdrawableBalance(data);
   const { withdrawalSummary } = data;
   const connectedBank = data.withdrawMethods.find((method) => method.connected) ?? null;
-  const availableStatus = withdrawable > 0 ? "Available" : "Ready";
+  const walletVerified = data.connectStatus.connected && data.connectStatus.payoutsEnabled;
 
   return (
     <AccountCanonicalShell title="Wallet" backHref={backHref} backLabel="My Account" showHeaderTitle>
@@ -115,22 +146,23 @@ export function WalletHubV1({
         className="wallet-v2"
         data-wallet-hub-version="v1.0-production"
         data-wallet-canonical={WALLET_CANONICAL_VERSION}
-        data-wallet-ui="v1.0-redesign"
+        data-wallet-ui="v1.0-final"
       >
         {connectMessage ? <p className="wallet-v2__notice">{connectMessage}</p> : null}
 
         <section className="wallet-v2__hero" aria-labelledby="wallet-available-label">
+          <div className="wallet-v2__hero-glow" aria-hidden />
           <div className="wallet-v2__hero-top">
-            <div>
+            <div className="wallet-v2__hero-copy">
               <p id="wallet-available-label" className="wallet-v2__hero-label">
                 Available Balance
               </p>
               <p className="wallet-v2__hero-balance">{formatCurrency(withdrawable)}</p>
               <p className="wallet-v2__hero-sub">Available to withdraw</p>
             </div>
-            <span className="wallet-v2__status" aria-label={`Status: ${availableStatus}`}>
-              <span className="wallet-v2__status-dot" aria-hidden />
-              {availableStatus}
+            <span className="wallet-v2__verified" aria-label="Verified Wallet">
+              <ShieldLineIcon />
+              Verified Wallet
             </span>
           </div>
 
@@ -161,40 +193,36 @@ export function WalletHubV1({
             title="Pending"
             amount={data.pendingBalance}
             hint="Waiting for delivery"
-            icon={<TruckLineIcon />}
+            icon={<ClockLineIcon />}
           />
           <BalanceMetricCard
             href={WALLET_ROUTES.withdraw}
             title="Available"
             amount={withdrawable}
             hint="Ready to withdraw"
-            icon={<CheckLineIcon />}
+            icon={<WalletLineIcon />}
           />
           <BalanceMetricCard
             href={WALLET_ROUTES.payouts}
             title="Processing"
             amount={withdrawalSummary.processingTotal}
             hint="Being processed"
-            icon={<WalletLineIcon />}
+            icon={<ProcessingLineIcon />}
           />
           <BalanceMetricCard
             href={WALLET_ROUTES.payouts}
-            title="Paid Out"
+            title="Lifetime Withdrawn"
             amount={withdrawalSummary.completedTotal}
             hint="Total withdrawn"
-            icon={<BagLineIcon />}
+            icon={<CheckLineIcon />}
           />
         </section>
 
         <section className="wallet-v2__quick-grid" aria-label="Quick actions">
-          <QuickActionButton href={WALLET_ROUTES.bankAccount} label="Add Bank" icon={<BankLineIcon />} />
-          <QuickActionButton href={WALLET_ROUTES.withdraw} label="Withdraw" icon={<WalletLineIcon />} />
-          <QuickActionButton
-            href={WALLET_ROUTES.transactions}
-            label="Transactions"
-            icon={<DocumentLineIcon />}
-          />
-          <QuickActionButton
+          <QuickActionCard href={WALLET_ROUTES.bankAccount} label="Bank Account" icon={<BankLineIcon />} />
+          <QuickActionCard href={WALLET_ROUTES.withdraw} label="Withdraw" icon={<WalletLineIcon />} />
+          <QuickActionCard href={WALLET_ROUTES.transactions} label="Transactions" icon={<DocumentLineIcon />} />
+          <QuickActionCard
             href={WALLET_ROUTES.paymentMethods}
             label="Payment Methods"
             icon={<CreditCardLineIcon />}
@@ -208,51 +236,7 @@ export function WalletHubV1({
           pendingAvailableAt={data.pendingAvailableAt}
         />
 
-        <section className="wallet-v2__section" aria-labelledby="wallet-bank-title">
-          <div className="wallet-v2__section-head">
-            <h2 id="wallet-bank-title" className="wallet-v2__section-title">
-              Connected Bank
-            </h2>
-          </div>
-
-          <div className="wallet-v2__bank-card">
-            {connectedBank ? (
-              <>
-                <div className="wallet-v2__bank-row">
-                  <span className="wallet-v2__bank-logo" aria-hidden>
-                    <BankLineIcon />
-                  </span>
-                  <div className="wallet-v2__bank-copy">
-                    <p className="wallet-v2__bank-name">{connectedBank.label}</p>
-                    <p className="wallet-v2__bank-meta">
-                      Account ending ****{connectedBank.lastDigits}
-                    </p>
-                    <span className="wallet-v2__bank-default">Default</span>
-                  </div>
-                </div>
-                <div className="wallet-v2__bank-actions">
-                  <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__bank-action">
-                    <EditLineIcon />
-                    Edit
-                  </Link>
-                  <Link
-                    href={WALLET_ROUTES.bankAccount}
-                    className="wallet-v2__bank-action wallet-v2__bank-action--danger"
-                  >
-                    Remove
-                  </Link>
-                </div>
-              </>
-            ) : (
-              <div className="wallet-v2__bank-empty">
-                <p className="wallet-v2__empty">No bank account connected</p>
-                <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__cta">
-                  Connect Bank Account
-                </Link>
-              </div>
-            )}
-          </div>
-        </section>
+        <WalletConnectedBank bank={connectedBank} verified={walletVerified} />
 
         <WalletRecentTransactions transactions={data.transactions} />
 
@@ -266,7 +250,7 @@ export function WalletHubV1({
                 Monthly
               </Link>
             </div>
-            <div className="wallet-v2__bank-card wallet-v2__bank-card--padded">
+            <div className="wallet-v2__panel wallet-v2__panel--padded">
               <p className="wallet-v2__insight-copy">
                 Monthly and annual seller statements with sales, refunds, withdrawals, and PDF export.
               </p>

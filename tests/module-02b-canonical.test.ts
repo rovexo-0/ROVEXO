@@ -78,7 +78,7 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     const withdrawApi = readSource("app/api/wallet/withdraw/route.ts");
 
     expect(hub).toContain('data-wallet-hub-version="v1.0-production"');
-    expect(hub).toContain('data-wallet-ui="v1.0-redesign"');
+    expect(hub).toContain('data-wallet-ui="v1.0-final"');
     expect(hub).toContain("Available Balance");
     expect(hub).toContain("WALLET_ROUTES.withdraw");
     expect(hub).toContain("WALLET_ROUTES.transactions");

@@ -51,8 +51,8 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
     const insights = readSource("features/wallet/components/WalletInsights.tsx");
     const detail = readSource("features/wallet/components/MonthlyStatementDetail.tsx");
-    expect(hub).toContain('data-wallet-ui="v1.0-redesign"');
-    expect(hub).toContain("Paid Out");
+    expect(hub).toContain('data-wallet-ui="v1.0-final"');
+    expect(hub).toContain("Lifetime Withdrawn");
     expect(insights).toContain("This Month");
     expect(detail).toContain("Download CSV");
     expect(detail).toContain("Opening Balance");
