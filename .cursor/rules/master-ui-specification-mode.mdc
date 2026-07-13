@@ -1,0 +1,55 @@
+---
+description: Master UI Specification Mode — no page implementation without an approved engineering UI spec
+alwaysApply: true
+---
+
+# ROVEXO Master UI Specification Mode (v1.0)
+
+**STATUS: MANDATORY | PLATFORM-WIDE | FROM NOW ON**
+
+Do **not** implement or redesign UI from screenshots alone.
+Screenshots are visual reference only. Implementation follows an approved Master UI Spec.
+
+## Gate
+
+1. Write Master UI Spec (`docs/modules/<module>/MASTER_UI_SPECIFICATION.md`)
+2. Include all 10 deliverables (see template)
+3. Wait for explicit human approval
+4. Only then implement — 1:1 to the spec
+5. Freeze only after visual QA vs spec + mockup
+
+## Forbidden without approved spec
+
+- Estimating spacing, type, radius, shadows, colours, or sizes
+- Separate Mobile / Desktop / Tablet components or layouts
+- Desktop redesigns, dark alternate card themes, hierarchy changes
+- “Close enough” screenshot matching
+
+## Canonical UI rules
+
+- **One** page component, **one** design, **one** source of truth
+- Desktop / tablet / PWA may change **only**: max-width, grid columns, horizontal spacing
+- Everything else identical across breakpoints
+
+## Required deliverables (every page)
+
+1. Master UI Specification  
+2. Component Dimension Table  
+3. Spacing Table  
+4. Typography Table  
+5. Colour Table  
+6. Interaction Specification  
+7. Responsive Specification  
+8. Accessibility Specification  
+9. Developer Notes  
+10. QA Checklist  
+
+Template: `docs/engineering/MASTER_UI_SPECIFICATION_TEMPLATE.md`
+
+## Component fields (mandatory)
+
+For every component: Name, Purpose, X/Y, Width, Height, Padding, Margin, Gap, Radius, Shadow, Background, Border, Icon, Icon Size, Icon Stroke, Title/Body fonts, Weight, Size, Line Height, Letter Spacing, Alignment, Pressed/Hover/Focus/Disabled/Loading/Empty, Animation, Navigation, Responsive Behaviour.
+
+## Wallet
+
+Wallet v1.0 is **not frozen**. Further Wallet visual work requires an approved Wallet Master UI Spec first.

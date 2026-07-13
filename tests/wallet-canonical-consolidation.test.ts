@@ -7,7 +7,7 @@ function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("Wallet premium final UI v1.0", () => {
+describe("Wallet v1.0 canonical mockup SSOT", () => {
   it("defines canonical wallet routes", () => {
     expect(WALLET_ROUTES.hub).toBe("/wallet");
     expect(WALLET_ROUTES.paymentMethods).toBe("/wallet/payment-methods");
@@ -17,57 +17,52 @@ describe("Wallet premium final UI v1.0", () => {
     expect(WALLET_ROUTES.payouts).toBe("/wallet/payouts");
   });
 
-  it("renders approved premium seller wallet surfaces", () => {
+  it("matches approved mockup structure and copy", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
     const css = readSource("styles/rovexo/wallet-hub-v1.css");
     const bank = readSource("features/wallet/components/WalletConnectedBank.tsx");
     const txns = readSource("features/wallet/components/WalletRecentTransactions.tsx");
+    const insights = readSource("features/wallet/components/WalletInsights.tsx");
 
-    expect(hub).toContain('data-wallet-ui="v1.0-final"');
-    expect(hub).toContain('data-wallet-visual="canonical-light"');
+    expect(hub).toContain('data-wallet-ui="v1.0-canonical-mockup"');
     expect(hub).toContain("wallet-v2__hero");
-    expect(hub).toContain("Verified Wallet");
     expect(hub).toContain("Available Balance");
-    expect(hub).toContain("Lifetime Withdrawn");
-    expect(hub).toContain('label="Bank Account"');
-    expect(hub).toContain('href="/help"');
-    expect(hub).toContain("HeadsetLineIcon");
-    expect(hub).not.toContain("platformFeeBuyerOnly");
+    expect(hub).toContain("wallet-v2__status-pill");
+    expect(hub).toContain("Available");
+    expect(hub).toContain("Paid Out");
+    expect(hub).toContain('label="Add Bank"');
+    expect(hub).toContain("Quick Actions");
+    expect(hub).not.toContain("Lifetime Withdrawn");
+    expect(hub).not.toContain("Verified Wallet");
     expect(hub).not.toContain("Platform Fee");
+    expect(hub).not.toContain("wallet-statements");
     expect(hub).not.toContain("WalletDesktop");
     expect(hub).not.toContain("WalletMobile");
+
+    expect(insights).toContain("Insights");
+    expect(insights).toContain("View all");
+    expect(insights).toContain("This Month");
+    expect(insights).toContain("Next Payout");
+    expect(insights).toContain("No upcoming payout when you have pending funds.");
+
     expect(bank).toContain("Connect Bank Account");
+    expect(bank).toContain("No bank account connected");
+    expect(bank).toContain("Add your bank account to withdraw funds.");
     expect(bank).toContain("Change Bank");
-    expect(bank).toContain("Edit Bank");
     expect(bank).toContain("Remove Bank");
-    expect(bank).toContain('method: "DELETE"');
-    expect(txns).toContain("View All");
-    expect(txns).toContain("Withdrawals");
-    expect(txns).toContain('role="tablist"');
+
+    expect(txns).toContain("View all");
+    expect(txns).toContain("No transactions yet");
+    expect(txns).toContain("Your payments and withdrawals will appear here.");
     expect(txns).toContain("IntersectionObserver");
-    expect(css).toContain("--wallet-radius: 20px");
-    expect(css).toContain("--wallet-gap: 24px");
-    expect(css).toContain("linear-gradient");
-    expect(css).toContain("padding: 24px");
-    expect(css).toContain("200ms");
-    expect(css).toContain("prefers-reduced-motion");
+
     expect(css).toContain("color-scheme: only light");
-    expect(css).toContain("repeat(2, minmax(0, 1fr))");
-  });
-
-  it("keeps one light Wallet design across breakpoints (no dark/desktop theme)", () => {
-    const css = readSource("styles/rovexo/wallet-hub-v1.css");
-    const hub = readSource("features/wallet/components/WalletHubV1.tsx");
-    const page = readSource("features/wallet/components/WalletPage.tsx");
-
-    expect(page).toContain("WalletHubV1");
-    expect(hub).not.toMatch(/matchMedia|useMediaQuery|isDesktop|isMobile/);
+    expect(css).toContain("width: min(100%, 390px)");
+    expect(css).toContain("width: min(100%, 720px)");
+    expect(css).toContain("--wallet-radius-hero: 20px");
+    expect(css).toContain("--wallet-radius-card: 16px");
     expect(css).not.toContain("prefers-color-scheme: dark");
-    expect(css).toContain("color-scheme: only light");
-    expect(css).toContain('--wallet-surface: #ffffff');
     expect(css).not.toContain("background: #18181b");
-    expect(css).not.toMatch(/\.wallet-v2__metrics\s*\{[^}]*repeat\(4/);
-    expect(css).toMatch(/width:\s*min\(100%,\s*720px\)/);
   });
 
   it("lazy-loads insights, transactions, and connected bank", () => {
@@ -108,5 +103,12 @@ describe("Wallet premium final UI v1.0", () => {
     const dashboard = readSource("features/seller/dashboard/components/SellerDashboardPage.tsx");
     expect(dashboard).toContain('href: "/wallet"');
     expect(dashboard).not.toContain('href: "/seller/wallet"');
+  });
+
+  it("keeps a single hub component across breakpoints", () => {
+    const page = readSource("features/wallet/components/WalletPage.tsx");
+    const hub = readSource("features/wallet/components/WalletHubV1.tsx");
+    expect(page).toContain("WalletHubV1");
+    expect(hub).not.toMatch(/matchMedia|useMediaQuery|isDesktop|isMobile/);
   });
 });

@@ -83,10 +83,15 @@ export function WalletConnectedBank({ bank, verified }: WalletConnectedBankProps
           </>
         ) : (
           <div className="wallet-v2__bank-empty">
-            <span className="wallet-v2__bank-logo wallet-v2__bank-logo--muted" aria-hidden>
-              <BankLineIcon />
-            </span>
-            <p className="wallet-v2__bank-empty-copy">No bank account connected</p>
+            <div className="wallet-v2__bank-empty-row">
+              <span className="wallet-v2__bank-dash" aria-hidden>
+                <BankLineIcon />
+              </span>
+              <div className="wallet-v2__bank-copy">
+                <p className="wallet-v2__bank-name">No bank account connected</p>
+                <p className="wallet-v2__bank-meta">Add your bank account to withdraw funds.</p>
+              </div>
+            </div>
             <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__cta">
               Connect Bank Account
             </Link>
