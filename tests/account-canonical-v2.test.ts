@@ -127,7 +127,8 @@ describe("My Account canonical final — Module 02", () => {
     expect(hub).toContain('label: "Bought"');
     expect(hub).toContain('label: "Sold"');
     expect(hub).toContain("orders-v2");
-    expect(hub).toContain("orders-v2__stats");
+    expect(hub).toContain("orders-v2__chips");
+    expect(hub).toContain("No orders yet.");
     expect(hub).toContain('showHeaderTitle');
     expect(saved).toContain("ListingCard");
     expect(saved).toContain("LISTING_CARD_HOMEPAGE_PROPS");
