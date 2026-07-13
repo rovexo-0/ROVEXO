@@ -58,12 +58,12 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     expect(txns).toContain("IntersectionObserver");
 
     expect(css).toContain("color-scheme: only light");
-    expect(css).toContain("width: min(100%, 390px)");
-    expect(css).toContain("width: min(100%, 720px)");
+    expect(css).toContain("max-width: 390px");
+    expect(css).toContain("max-width: 720px");
     expect(css).toContain("--wallet-radius-hero: 24px");
     expect(css).toContain("--wallet-radius-card: 18px");
     expect(css).toContain("--wallet-radius-btn: 14px");
-    expect(css).toContain("--wallet-pad-x: 20px");
+    expect(css).toContain("--wallet-pad-x: 12px");
     expect(css).toContain("height: 170px");
     expect(css).toContain("height: 128px");
     expect(css).toContain("height: 92px");
@@ -73,6 +73,8 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     expect(css).toContain("border-radius: 18px");
     expect(css).toContain("padding: 0 16px");
     expect(css).toContain("min-height: 64px");
+    expect(css).toContain("justify-content: flex-start");
+    expect(css).toContain("margin: 0 0 12px");
     expect(css).not.toContain("prefers-color-scheme: dark");
     expect(css).not.toContain("background: #18181b");
   });
