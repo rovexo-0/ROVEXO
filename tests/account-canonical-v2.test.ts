@@ -117,19 +117,16 @@ describe("My Account canonical final — Module 02", () => {
   });
 
   it("locks phase 2 orders saved reviews canonical markers", () => {
-    const orders = readSource("features/account-module/components/OrdersV1.tsx");
-    const hub = readSource("features/orders/components/OrdersHubV1.tsx");
+    const hub = readSource("features/orders/components/OrdersPage.tsx");
     const saved = readSource("features/account-module/components/SavedItemsV1.tsx");
     const reviews = readSource("features/account-module/components/ReviewsV1.tsx");
     const menu = readSource("lib/account-center/canonical-menu.ts");
 
-    expect(orders).toContain("OrdersHubV1");
     expect(hub).toContain('label: "Bought"');
     expect(hub).toContain('label: "Sold"');
-    expect(hub).toContain("orders-v2");
-    expect(hub).toContain("orders-v2__chips");
+    expect(hub).toContain("orders-page");
     expect(hub).toContain("No orders yet.");
-    expect(hub).toContain('showHeaderTitle');
+    expect(hub).toContain("showHeaderTitle");
     expect(saved).toContain("ListingCard");
     expect(saved).toContain("LISTING_CARD_HOMEPAGE_PROPS");
     expect(saved).toContain("formatPlatformFeeLine");

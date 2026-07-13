@@ -28,7 +28,7 @@ const SETTINGS_MENU_PAGES = [
 ];
 
 const ACCOUNT_MODULE_SHELL_PAGES = [
-  "features/account-module/components/OrdersV1.tsx",
+  "features/orders/components/OrdersPage.tsx",
   "features/account-module/components/SellerListingsV1.tsx",
   "features/account-module/components/SavedItemsV1.tsx",
   "features/account-module/components/ReviewsV1.tsx",

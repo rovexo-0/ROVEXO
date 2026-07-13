@@ -1,14 +1,13 @@
 import { Suspense } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { OrdersHubSkeleton, OrdersHubV1 } from "@/features/orders/components/OrdersHubV1";
+import { OrdersPage, OrdersPageSkeleton } from "@/features/orders/components/OrdersPage";
 import { fetchOrdersForUser } from "@/lib/orders/queries";
 import { getProfile } from "@/lib/profile/data";
-import "@/styles/rovexo/orders-hub-v1.css";
 
-function OrdersLoadingFallback() {
+function OrdersFallback() {
   return (
     <AccountCanonicalShell title="Orders" showHeaderTitle backHref="/account">
-      <OrdersHubSkeleton />
+      <OrdersPageSkeleton />
     </AccountCanonicalShell>
   );
 }
@@ -21,8 +20,8 @@ export default async function OrdersRoute() {
   ]);
 
   return (
-    <Suspense fallback={<OrdersLoadingFallback />}>
-      <OrdersHubV1
+    <Suspense fallback={<OrdersFallback />}>
+      <OrdersPage
         boughtOrders={boughtOrders}
         soldOrders={soldOrders}
         unreadNotifications={profile.unreadNotifications}

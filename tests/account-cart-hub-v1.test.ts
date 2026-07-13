@@ -105,7 +105,7 @@ describe("My Account module v1.0", () => {
     expect(listingsRoute).toContain("SellerListingsV1");
     expect(listingsRoute).not.toContain("isSeller");
     expect(listingsRoute).toContain('dynamic = "force-dynamic"');
-    expect(readSource("app/orders/page.tsx")).toContain("OrdersV1");
+    expect(readSource("app/orders/page.tsx")).toContain("<OrdersPage");
     expect(readSource("app/saved/page.tsx")).toContain("SavedItemsV1");
     expect(readSource("app/account/reviews/page.tsx")).toContain("ReviewsV1");
     expect(readSource("app/account/settings/page.tsx")).toContain("SettingsV1");

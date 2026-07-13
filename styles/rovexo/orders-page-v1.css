@@ -1,0 +1,232 @@
+/* ROVEXO Orders Page v1.0 — single canonical UI */
+
+.account-canonical:has(.orders-page) .account-canonical-header__bar--titled {
+  box-sizing: border-box;
+  min-height: calc(72px + env(safe-area-inset-top, 0px));
+  height: calc(72px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  grid-template-columns: 44px 1fr 44px;
+  gap: 8px;
+}
+
+.account-canonical:has(.orders-page) .cds-header__back {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+}
+
+.account-canonical:has(.orders-page) .account-canonical-header__action,
+.account-canonical:has(.orders-page) .account-canonical-header__spacer {
+  width: 44px;
+  height: 44px;
+}
+
+.account-canonical:has(.orders-page) .account-canonical-header__action a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+.account-canonical:has(.orders-page) .account-canonical-header__title {
+  font-size: 34px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.account-canonical-shell:has(.orders-page) .cds-layout__content--account-canonical {
+  background: #ffffff;
+}
+
+.orders-page {
+  --orders-purple: #7c3aed;
+  --orders-muted: #64748b;
+  --orders-text: #111827;
+  --orders-border: #ececec;
+  --orders-chip-border: #e5e7eb;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  padding:
+    24px
+    max(16px, env(safe-area-inset-left, 0px))
+    max(24px, env(safe-area-inset-bottom, 0px))
+    max(16px, env(safe-area-inset-right, 0px));
+  overflow-x: hidden;
+  background: #ffffff;
+  color: var(--orders-text);
+}
+
+.orders-page *,
+.orders-page *::before,
+.orders-page *::after {
+  box-sizing: border-box;
+}
+
+.orders-page__notify {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--orders-text);
+  text-decoration: none;
+}
+
+.orders-page__notify-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.orders-page__notify-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--orders-purple);
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.orders-page__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 54px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--orders-border);
+}
+
+.orders-page__tab {
+  position: relative;
+  height: 54px;
+  border: none;
+  background: transparent;
+  color: var(--orders-muted);
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.orders-page__tab--on {
+  color: var(--orders-purple);
+}
+
+.orders-page__tab--on::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 150px;
+  max-width: calc(100% - 16px);
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--orders-purple);
+  transform: translateX(-50%);
+  transition: transform 200ms ease;
+}
+
+.orders-page__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.orders-page__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  min-width: 44px;
+  padding: 0 22px;
+  border: 1px solid var(--orders-chip-border);
+  border-radius: 23px;
+  background: #ffffff;
+  color: #111111;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.orders-page__chip--on {
+  border-color: var(--orders-purple);
+  background: var(--orders-purple);
+  color: #ffffff;
+}
+
+.orders-page__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 96px;
+  padding: 0 16px 48px;
+  text-align: center;
+}
+
+.orders-page__empty-icon {
+  width: 80px;
+  height: 80px;
+  color: #111827;
+  opacity: 0.35;
+}
+
+.orders-page__empty-title {
+  margin: 24px 0 0;
+  max-width: 280px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.orders-page__empty-sub {
+  margin: 12px 0 0;
+  max-width: 280px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.orders-page__list {
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orders-page__row {
+  display: block;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--orders-border);
+  color: var(--orders-text);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.orders-page__skel {
+  border-radius: 12px;
+  background: #f3f4f6;
+}
+
+.orders-page__skel--tab {
+  height: 54px;
+}
+
+.orders-page__skel--chip {
+  width: 110px;
+  height: 46px;
+  border-radius: 23px;
+}
+
+.orders-page__skel--empty {
+  width: 80px;
+  height: 80px;
+  margin: 96px auto 0;
+}
