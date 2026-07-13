@@ -200,6 +200,7 @@ export function WalletHubV1({
         data-wallet-canonical={WALLET_CANONICAL_VERSION}
         data-wallet-ui="v1.0-canonical-mockup"
         data-wallet-visual="canonical-light"
+        data-wallet-final-spec="v1.0-final-dimensions"
         data-wallet-ssot="docs/modules/wallet/wallet-v1-canonical-mockup.png"
       >
         {connectMessage ? <p className="wallet-v2__notice">{connectMessage}</p> : null}
@@ -282,7 +283,7 @@ export function WalletHubV1({
           />
         </section>
 
-        <section className="wallet-v2__section" aria-labelledby="wallet-quick-title">
+        <section className="wallet-v2__section wallet-v2__section--quick" aria-labelledby="wallet-quick-title">
           <div className="wallet-v2__section-head">
             <h2 id="wallet-quick-title" className="wallet-v2__section-title">
               Quick Actions

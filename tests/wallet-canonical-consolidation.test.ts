@@ -25,10 +25,10 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     const insights = readSource("features/wallet/components/WalletInsights.tsx");
 
     expect(hub).toContain('data-wallet-ui="v1.0-canonical-mockup"');
+    expect(hub).toContain('data-wallet-final-spec="v1.0-final-dimensions"');
     expect(hub).toContain("wallet-v2__hero");
     expect(hub).toContain("Available Balance");
     expect(hub).toContain("wallet-v2__status-pill");
-    expect(hub).toContain("Available");
     expect(hub).toContain("Paid Out");
     expect(hub).toContain('label="Add Bank"');
     expect(hub).toContain("Quick Actions");
@@ -43,24 +43,31 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     expect(insights).toContain("View all");
     expect(insights).toContain("This Month");
     expect(insights).toContain("Next Payout");
-    expect(insights).toContain("No upcoming payout when you have pending funds.");
+    expect(insights).toContain("Estimated payout");
+    expect(insights).toContain("Status ·");
 
     expect(bank).toContain("Connect Bank Account");
     expect(bank).toContain("No bank account connected");
-    expect(bank).toContain("Add your bank account to withdraw funds.");
     expect(bank).toContain("Change Bank");
     expect(bank).toContain("Remove Bank");
 
     expect(txns).toContain("View all");
     expect(txns).toContain("No transactions yet");
-    expect(txns).toContain("Your payments and withdrawals will appear here.");
     expect(txns).toContain("IntersectionObserver");
 
     expect(css).toContain("color-scheme: only light");
     expect(css).toContain("width: min(100%, 390px)");
     expect(css).toContain("width: min(100%, 720px)");
-    expect(css).toContain("--wallet-radius-hero: 20px");
-    expect(css).toContain("--wallet-radius-card: 16px");
+    expect(css).toContain("--wallet-radius-hero: 24px");
+    expect(css).toContain("--wallet-radius-card: 18px");
+    expect(css).toContain("--wallet-radius-btn: 14px");
+    expect(css).toContain("--wallet-pad-x: 20px");
+    expect(css).toContain("height: 170px");
+    expect(css).toContain("height: 128px");
+    expect(css).toContain("height: 92px");
+    expect(css).toContain("height: 118px");
+    expect(css).toContain("height: 52px");
+    expect(css).toContain("min-height: 64px");
     expect(css).not.toContain("prefers-color-scheme: dark");
     expect(css).not.toContain("background: #18181b");
   });

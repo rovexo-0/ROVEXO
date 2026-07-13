@@ -35,6 +35,7 @@ function PurseLineIcon(props: IconProps) {
 
 export function WalletInsights({ sales, withdrawn, pending, pendingAvailableAt }: WalletInsightsProps) {
   const hasUpcoming = pending > 0 && Boolean(pendingAvailableAt);
+  const status = hasUpcoming ? "Pending release" : "No upcoming payout";
 
   return (
     <section className="wallet-v2__section" aria-labelledby="wallet-insights-title">
@@ -78,23 +79,16 @@ export function WalletInsights({ sales, withdrawn, pending, pendingAvailableAt }
             </span>
             Next Payout
           </h3>
+          <p className="wallet-v2__insight-kicker">Estimated payout</p>
+          <p className={hasUpcoming ? "wallet-v2__insight-amount" : "wallet-v2__insight-amount wallet-v2__insight-amount--empty"}>
+            {hasUpcoming ? formatCurrency(pending) : "—"}
+          </p>
+          <p className="wallet-v2__insight-status">
+            Status · <strong>{status}</strong>
+          </p>
           {hasUpcoming ? (
-            <>
-              <p className="wallet-v2__insight-amount">{formatCurrency(pending)}</p>
-              <p className="wallet-v2__insight-copy">
-                Expected · {formatWalletDate(pendingAvailableAt)}
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="wallet-v2__insight-amount wallet-v2__insight-amount--empty" aria-hidden>
-                —
-              </p>
-              <p className="wallet-v2__insight-copy">
-                No upcoming payout when you have pending funds.
-              </p>
-            </>
-          )}
+            <p className="wallet-v2__insight-copy">Expected · {formatWalletDate(pendingAvailableAt)}</p>
+          ) : null}
         </article>
       </div>
     </section>
