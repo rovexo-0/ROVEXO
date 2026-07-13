@@ -299,14 +299,16 @@
 
 .auth-login-route,
 .auth-register-route,
-.auth-forgot-password-route {
+.auth-forgot-password-route,
+.auth-reset-password-route {
   min-height: 100dvh;
   background-color: #ffffff;
 }
 
 .auth-login,
 .auth-register,
-.auth-forgot-password {
+.auth-forgot-password,
+.auth-reset-password {
   position: relative;
   display: flex;
   min-height: 100dvh;
@@ -322,7 +324,8 @@
 
 .auth-login__back,
 .auth-register__back,
-.auth-forgot-password__back {
+.auth-forgot-password__back,
+.auth-reset-password__back {
   position: absolute;
   top: max(env(safe-area-inset-top), 12px);
   left: max(env(safe-area-inset-left), 16px);
@@ -453,8 +456,35 @@
 
 .auth-login .auth-container,
 .auth-register .auth-container,
-.auth-forgot-password .auth-container {
+.auth-forgot-password .auth-container,
+.auth-reset-password .auth-container {
   padding-top: 0;
+}
+
+.auth-reset-password__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-reset-password__submit-pending {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.auth-reset-password__success,
+.auth-reset-password__token-error {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.auth-reset-password__token-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .auth-forgot-password__form {

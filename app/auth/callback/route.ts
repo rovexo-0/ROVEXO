@@ -19,12 +19,24 @@ export async function GET(request: Request) {
     });
 
     if (error) {
+      const resetNext = sanitizeNextPath(searchParams.get("next"), "/reset-password");
+      if (resetNext === "/reset-password") {
+        const normalized = error.message.toLowerCase();
+        const reason = normalized.includes("expired") ? "expired" : "invalid";
+        return NextResponse.redirect(`${origin}/reset-password?error=${reason}`);
+      }
       return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
     }
   } else if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
+      const resetNext = sanitizeNextPath(searchParams.get("next"), "/reset-password");
+      if (resetNext === "/reset-password") {
+        const normalized = error.message.toLowerCase();
+        const reason = normalized.includes("expired") ? "expired" : "invalid";
+        return NextResponse.redirect(`${origin}/reset-password?error=${reason}`);
+      }
       return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
     }
   } else {

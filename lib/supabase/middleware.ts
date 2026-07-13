@@ -156,14 +156,6 @@ export async function updateSession(request: NextRequest) {
       return applyPendingCookies(supabaseResponse, pendingCookies);
     }
 
-    if (!user && isResetPasswordPath) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/login";
-      loginUrl.searchParams.set("next", "/reset-password");
-      loginUrl.searchParams.set("error", "reset_session_required");
-      return applyPendingCookies(NextResponse.redirect(loginUrl), pendingCookies);
-    }
-
     // Only resolve the role for admin-scoped paths. Ordinary authenticated
     // navigations (homepage, most API routes) must not pay for a role query here.
     if (user) {

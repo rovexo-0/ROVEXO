@@ -76,6 +76,7 @@ describe("AUTH brand logo canonical v1.0", () => {
       "features/auth/components/LoginScreen.tsx",
       "features/auth/components/RegisterScreen.tsx",
       "features/auth/components/ForgotPasswordScreen.tsx",
+      "features/auth/components/ResetPasswordScreen.tsx",
       "features/auth/components/AuthForm.tsx",
     ]) {
       const source = readFileSync(path.join(process.cwd(), screen), "utf8");

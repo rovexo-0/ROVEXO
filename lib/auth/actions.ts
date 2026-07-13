@@ -18,6 +18,7 @@ import { getAppUrl } from "@/lib/supabase/env";
 import { redirectAfterSignIn, sanitizeNextPath } from "@/lib/auth/redirects";
 import { queueGaEvents, type QueuedGaEvent } from "@/lib/analytics/queue-ga-event";
 import { mapAuthErrorMessage } from "@/lib/auth/errors";
+import { validateResetPasswordStrength } from "@/lib/auth/password-strength";
 import { applySessionPersistence } from "@/lib/auth/session-cookies";
 import { isPublicRegistrationEnabled } from "@/lib/launch-certification/private-mode";
 
@@ -303,13 +304,18 @@ export async function updatePassword(
     return { error: "Passwords do not match." };
   }
 
+  const strengthError = validateResetPasswordStrength(parsed.data.password);
+  if (strengthError) {
+    return { error: strengthError };
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Your reset session expired. Request a new password reset link." };
+    return { error: "Your reset link is invalid or has expired. Request a new password reset link." };
   }
 
   const { error } = await supabase.auth.updateUser({
@@ -317,11 +323,22 @@ export async function updatePassword(
   });
 
   if (error) {
-    return { error: mapAuthErrorMessage(error.message) };
+    const normalized = error.message.toLowerCase();
+    if (normalized.includes("expired")) {
+      return { error: "Your reset link has expired. Request a new password reset link." };
+    }
+    if (normalized.includes("session")) {
+      return { error: "Your reset link is invalid or has expired. Request a new password reset link." };
+    }
+    return { error: mapAuthErrorMessage(error.message) || "Unable to reset password. Please try again." };
   }
 
+  await supabase.auth.signOut();
   revalidatePath("/", "layout");
-  redirect("/account");
+
+  return {
+    success: "Password updated successfully.",
+  };
 }
 
 export async function resendVerificationEmail(

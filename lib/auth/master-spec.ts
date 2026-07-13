@@ -209,6 +209,45 @@ export const AUTH_MASTER_SPEC = {
       offlineError: "You appear to be offline. Check your connection and try again.",
     },
   },
+  resetPassword: {
+    fadeDurationMs: 225,
+    motion: "fade_only" as const,
+    prohibitedMotion: ["scale", "bounce", "rotation"] as const,
+    presentation: {
+      layout: "centered",
+      background: "#ffffff",
+      maxWidthPx: 430,
+    },
+    routes: {
+      back: "/login",
+      signIn: "/login",
+      forgotPassword: "/forgot-password",
+    },
+    copy: {
+      title: "Reset your password",
+      description: "Create a strong new password for your ROVEXO account.",
+      newPasswordLabel: "New Password",
+      newPasswordPlaceholder: "Enter your new password",
+      confirmPasswordLabel: "Confirm Password",
+      confirmPasswordPlaceholder: "Confirm your new password",
+      passwordHint: "At least 8 characters with upper, lower, number, and symbol",
+      submit: "Reset Password",
+      submitting: "Resetting password…",
+      successTitle: "Password updated successfully",
+      successDescription: "Your password has been changed. You can now sign in with your new credentials.",
+      goToSignIn: "Go to Sign In",
+      invalidTitle: "Invalid link",
+      invalidDescription:
+        "This password reset link is invalid. Request a new link and try again.",
+      expiredTitle: "Link expired",
+      expiredDescription:
+        "This password reset link has expired. Request a new link to continue.",
+      requestNewLink: "Request New Link",
+      offlineError: "You appear to be offline. Check your connection and try again.",
+      passwordsMismatch: "Passwords do not match.",
+      weakPassword: "Password must meet all strength requirements.",
+    },
+  },
 } as const;
 
 export type AuthSplashPhase = (typeof AUTH_MASTER_SPEC.splash.phases)[number];
