@@ -25,7 +25,7 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     const insights = readSource("features/wallet/components/WalletInsights.tsx");
 
     expect(hub).toContain('data-wallet-ui="v1.0-canonical-mockup"');
-    expect(hub).toContain('data-wallet-final-spec="v1.0-visual-qa-lock"');
+    expect(hub).toContain('data-wallet-final-spec="v1.0-canonical-lock"');
     expect(hub).toContain('data-wallet-freeze="pending-visual-qa"');
     expect(hub).toContain("wallet-v2__hero");
     expect(hub).toContain("Available Balance");
@@ -50,27 +50,25 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     expect(bank).toContain("Connect Bank Account");
     expect(bank).toContain("No bank account connected");
     expect(bank).toContain("Change Bank");
+    expect(bank).toContain("Edit Bank");
     expect(bank).toContain("Remove Bank");
-    expect(bank).not.toContain("Edit Bank");
 
     expect(txns).toContain("View all");
     expect(txns).toContain("No transactions yet");
     expect(txns).toContain("IntersectionObserver");
 
-    expect(css).toContain("--wallet-pad-x: 16px");
+    expect(css).toContain("--wallet-pad-x: 20px");
     expect(css).toContain("max-width: 390px");
     expect(css).toContain("max-width: 720px");
-    expect(css).toContain("min-height: 188px");
-    expect(css).toContain("min-height: 128px");
+    expect(css).toContain("height: 170px");
+    expect(css).toContain("height: 128px");
     expect(css).toContain("height: 92px");
     expect(css).toContain("height: 118px");
     expect(css).toContain("height: 52px");
-    expect(css).toContain("height: 48px");
-    expect(css).toContain("height: 148px");
-    expect(css).toContain("margin: 0 0 12px");
-    expect(css).toContain("margin: 0 0 10px");
+    expect(css).toContain("--wallet-radius-hero: 24px");
+    expect(css).toContain("--wallet-radius-card: 18px");
+    expect(css).toContain("--wallet-radius-btn: 14px");
     expect(css).toContain("repeat(3, minmax(0, 1fr))");
-    expect(css).toContain("justify-content: flex-start");
     expect(css).not.toContain("prefers-color-scheme: dark");
     expect(css).not.toContain("background: #18181b");
   });

@@ -1,32 +1,23 @@
 # ROVEXO Wallet — Master UI Specification
 
 **Route:** `/wallet`  
-**Canonical component:** `features/wallet/components/WalletHubV1.tsx`  
-**Canonical styles:** `styles/rovexo/wallet-hub-v1.css`  
-**Visual SSOT:** `docs/modules/wallet/wallet-v1-canonical-mockup.png`  
-**Status:** `Implemented — awaiting pixel-perfect visual QA`  
-**Freeze:** Blocked until explicit visual QA approval
+**Canonical:** `WalletHubV1` + `styles/rovexo/wallet-hub-v1.css`  
+**SSOT:** `docs/modules/wallet/wallet-v1-canonical-mockup.png`  
+**Status:** Implemented — `data-wallet-freeze="pending-visual-qa"`  
+**Freeze:** Only after explicit pixel-perfect visual QA approval
 
-## Final dimension lock
+## Locked tokens (FINAL CANONICAL)
 
 | Token | Value |
 |-------|-------|
-| Header height | 64px |
-| Header pad | 20px |
-| Back / Help | 40×40 |
-| Content pad-x | 20px (24px ≥640px) |
-| Hero margin-top | 20px |
-| Hero height | 170px |
-| Hero radius | 24px |
-| Hero pad | 24px |
-| Hero buttons | 52px H · 14px radius · equal width |
-| Metrics gap | 16px |
-| Metric card | 128px H · 18px radius · 20px pad |
-| Quick top | 28px |
-| Quick card | 92px H · 16px radius · 12px gap |
-| Insight card | 118px H · 18px radius |
-| Bank card | min 108px · 18px radius |
+| Header | 64px · pad 20 · controls 40×40 |
+| Page pad-x | 20px |
 | Max-width mobile | 390px |
 | Max-width desktop | 720px |
-
-Desktop may change only max-width, columns, horizontal spacing.
+| Hero | 170×24 radius · pad 24 · mt 20 |
+| Hero buttons | 52px · 14px radius · equal width |
+| Balance cards | 128×18 · pad 20 · gap 16 · 2-col |
+| Quick Actions | mt 28 · cards 92×16 · gap 12 |
+| Insights cards | 118×18 · two equal |
+| Connected bank | min 108×18 |
+| Desktop | max-width only |
