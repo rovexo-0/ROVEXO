@@ -1,7 +1,15 @@
 import { redirect } from "next/navigation";
 import type { UserRole } from "@/lib/supabase/types/database";
 
-const AUTH_ROUTE_PREFIXES = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email"];
+const AUTH_ROUTE_PREFIXES = [
+  "/splash",
+  "/welcome",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+];
 
 const SUPER_ADMIN_ROUTE_PREFIXES = ["/admin", "/super-admin", "/dashboard", "/staff"];
 

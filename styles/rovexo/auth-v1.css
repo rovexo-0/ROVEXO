@@ -1,0 +1,86 @@
+/**
+ * ROVEXO AUTH v1 — Splash + shared auth presentation tokens.
+ * iPhone 17 Pro Max reference: 430px logical width, fade-only motion.
+ */
+
+.auth-splash {
+  --auth-splash-bg-top: #f5f0ff;
+  --auth-splash-bg-mid: #faf8ff;
+  --auth-splash-bg-bottom: #ffffff;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: max(env(safe-area-inset-top), 24px) max(env(safe-area-inset-right), 24px)
+    max(env(safe-area-inset-bottom), 24px) max(env(safe-area-inset-left), 24px);
+  background: linear-gradient(
+    180deg,
+    var(--auth-splash-bg-top) 0%,
+    var(--auth-splash-bg-mid) 42%,
+    var(--auth-splash-bg-bottom) 100%
+  );
+  opacity: 1;
+  transition: opacity 600ms ease-out;
+}
+
+.auth-splash--exit {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.auth-splash__mark {
+  width: 96px;
+  height: 96px;
+  animation: auth-splash-fade-in 600ms ease-out both;
+}
+
+.auth-splash__wordmark {
+  margin-top: 20px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ds-color-text-primary, #0f0f12);
+  animation: auth-splash-fade-in 600ms ease-out 120ms both;
+}
+
+.auth-splash__tagline {
+  margin-top: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ds-color-text-secondary, #5c5c66);
+  animation: auth-splash-fade-in 600ms ease-out 200ms both;
+}
+
+@keyframes auth-splash-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.auth-layout--hero {
+  background: linear-gradient(
+    180deg,
+    var(--auth-splash-bg-top) 0%,
+    var(--auth-splash-bg-mid) 38%,
+    var(--auth-splash-bg-bottom) 100%
+  );
+}
+
+.auth-primary-button,
+.auth-secondary-button {
+  min-height: 52px;
+}
+
+@media (min-width: 430px) {
+  .auth-layout--form main {
+    max-width: 430px;
+  }
+}

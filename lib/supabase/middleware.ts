@@ -2,42 +2,11 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types/database";
 import { AUTHENTICATED_HOME } from "@/lib/auth/redirects";
+import {
+  AUTH_PROTECTED_PREFIXES,
+  AUTH_SUPER_ADMIN_PREFIXES,
+} from "@/lib/auth/protected-routes";
 import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/supabase/env";
-
-const PROTECTED_PREFIXES = [
-  "/account",
-  "/buyer",
-  "/cart",
-  "/orders",
-  "/payments",
-  "/protection",
-  "/wallet",
-  "/shipping",
-  "/messages",
-  "/saved",
-  "/notifications",
-  "/analytics",
-  "/security",
-  "/ai",
-  "/integrations",
-  "/settings",
-  "/checkout",
-  "/sell",
-  "/seller",
-  "/import",
-  "/business",
-  "/admin",
-  "/super-admin",
-  "/dashboard",
-  "/resolution",
-];
-
-const SUPER_ADMIN_ROUTE_PREFIXES = [
-  "/admin",
-  "/super-admin",
-  "/dashboard",
-  "/staff",
-];
 
 const AUTH_BYPASS_PREFIXES = ["/auth/callback", "/auth/signout"];
 
@@ -135,7 +104,7 @@ export async function updateSession(request: NextRequest) {
       return applyPendingCookies(NextResponse.redirect(auctionsUrl), pendingCookies);
     }
 
-    const isProtected = PROTECTED_PREFIXES.some(
+    const isProtected = AUTH_PROTECTED_PREFIXES.some(
       (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
     );
     const isVerifyEmailPath =
@@ -203,7 +172,7 @@ export async function updateSession(request: NextRequest) {
       const isStaffApi = pathname.startsWith("/api/staff-enterprise/");
       const isStaffPage = !isApiRoute && (pathname === "/staff" || pathname.startsWith("/staff/"));
       const isSuperAdminPage =
-        !isApiRoute && matchesRoutePrefix(pathname, SUPER_ADMIN_ROUTE_PREFIXES);
+        !isApiRoute && matchesRoutePrefix(pathname, [...AUTH_SUPER_ADMIN_PREFIXES]);
 
       if (isSuperAdminApi || isAdminApi || isSuperAdminPage || isStaffApi || isStaffPage) {
         const role = await resolveRole();
