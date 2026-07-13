@@ -1,19 +1,20 @@
-/* ROVEXO Orders Hub v1.0 — Master Implementation Spec (canonical) */
+/* ROVEXO Orders Hub v1.0 — Minimal Canonical (Apple-style) */
 
 .account-canonical:has(.orders-v2) .account-canonical-header__bar--titled {
-  min-height: 84px;
-  height: 84px;
-  padding-top: 0;
+  box-sizing: border-box;
+  min-height: calc(72px + env(safe-area-inset-top, 0px));
+  height: calc(72px + env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: 0;
-  padding-left: 16px;
-  padding-right: 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
   grid-template-columns: 44px 1fr 44px;
   gap: 8px;
 }
 
 .account-canonical:has(.orders-v2) .cds-header__back {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   min-width: 44px;
   min-height: 44px;
   border-radius: 12px;
@@ -35,9 +36,9 @@
 }
 
 .account-canonical:has(.orders-v2) .account-canonical-header__title {
-  font-size: 28px;
+  font-size: 34px;
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.1;
   color: #111827;
 }
 
@@ -50,26 +51,23 @@
   --orders-purple: #7c3aed;
   --orders-border: #ececec;
   --orders-chip-border: #e5e7eb;
-  --orders-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
-  --orders-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.08);
   --orders-title: #111827;
   --orders-muted: #64748b;
-  --orders-empty: #374151;
-  --orders-green: #22c55e;
-  --orders-orange: #f59e0b;
-  --orders-blue: #3b82f6;
   --orders-pad-x: 16px;
-  --orders-anim: 200ms ease;
-  --orders-chip-anim: 150ms ease;
+  --orders-anim: 150ms ease;
 
   color-scheme: only light;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 100%;
+  max-width: 440px;
   margin: 0 auto;
-  padding: 24px var(--orders-pad-x) 34px;
+  padding:
+    24px
+    max(var(--orders-pad-x), env(safe-area-inset-left, 0px))
+    max(24px, env(safe-area-inset-bottom, 0px))
+    max(var(--orders-pad-x), env(safe-area-inset-right, 0px));
   overflow-x: hidden;
   color: var(--orders-title);
   background: #ffffff;
@@ -81,7 +79,7 @@
   box-sizing: border-box;
 }
 
-/* Notification */
+/* Notify */
 .orders-v2__notify {
   position: relative;
   display: inline-flex;
@@ -95,8 +93,8 @@
 }
 
 .orders-v2__notify-icon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
 }
 
 .orders-v2__notify-dot {
@@ -114,211 +112,54 @@
   display: none;
 }
 
-/* Tabs — Header → Tabs spacing via page pad-top; Tabs → Stats 24px */
+/* Tabs — Header → Tabs = 24pt via page pad */
 .orders-v2__tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  height: 58px;
+  grid-template-columns: 50% 50%;
+  height: 54px;
   margin-bottom: 24px;
   border-bottom: 1px solid var(--orders-border);
 }
 
 .orders-v2__tab {
   position: relative;
-  height: 58px;
-  min-height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 54px;
+  min-height: 54px;
   border: none;
   background: transparent;
   color: var(--orders-muted);
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
-  transition: color var(--orders-anim);
+  transition: color 200ms ease;
 }
 
 .orders-v2__tab--active {
   color: var(--orders-purple);
 }
 
-.orders-v2__tab--active::after {
-  content: "";
+.orders-v2__tab-underline {
   position: absolute;
   bottom: 0;
   left: 50%;
-  width: 170px;
-  max-width: calc(100% - 24px);
+  width: 150px;
+  max-width: calc(100% - 16px);
   height: 3px;
   border-radius: 3px 3px 0 0;
   background: var(--orders-purple);
   transform: translateX(-50%);
-  animation: orders-v2-tab-in var(--orders-anim);
 }
 
-@keyframes orders-v2-tab-in {
-  from {
-    opacity: 0.35;
-    transform: translateX(-50%) scaleX(0.5);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) scaleX(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .orders-v2__tab--active::after,
-  .orders-v2__chip,
-  .orders-v2__stat-card {
-    animation: none !important;
-    transition: none !important;
-  }
-
-  .orders-v2__stat-card:hover,
-  .orders-v2__stat-card:active {
-    transform: none;
-  }
-}
-
-/* Statistics — final 4-column row (no wrap, no x-scroll) */
-.orders-v2__stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: 1fr;
-  gap: 12px;
-  width: 100%;
-  margin: 0;
-  overflow: hidden;
-}
-
-.orders-v2__stat-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 100%;
-  max-width: 100%;
-  height: 128px;
-  min-height: 128px;
-  max-height: 128px;
-  padding: 16px;
-  border: 1px solid var(--orders-border);
-  border-radius: 20px;
-  background: #ffffff;
-  box-shadow: var(--orders-shadow);
-  text-align: left;
-  text-decoration: none;
-  color: inherit;
-  cursor: pointer;
-  appearance: none;
-  font: inherit;
-  overflow: hidden;
-  transition:
-    transform 200ms ease,
-    box-shadow 200ms ease;
-}
-
-.orders-v2__stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--orders-shadow-hover);
-}
-
-.orders-v2__stat-card:active {
-  transform: scale(0.98);
-}
-
-.orders-v2__stat-card:focus-visible {
-  outline: 2px solid var(--orders-purple);
-  outline-offset: 2px;
-}
-
-.orders-v2__stat-icon {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  background: rgb(124 58 237 / 0.12);
-  color: var(--orders-purple);
-}
-
-.orders-v2__stat-icon--pending {
-  background: rgb(245 158 11 / 0.14);
-  color: var(--orders-orange);
-}
-
-.orders-v2__stat-icon--orders {
-  background: rgb(59 130 246 / 0.14);
-  color: var(--orders-blue);
-}
-
-.orders-v2__stat-icon--feedback {
-  background: rgb(34 197 94 / 0.14);
-  color: var(--orders-green);
-}
-
-.orders-v2__stat-svg {
-  width: 20px;
-  height: 20px;
-}
-
-.orders-v2__stat-copy {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 6px;
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-  padding-right: 44px;
-}
-
-.orders-v2__stat-title {
-  margin: 0;
-  overflow: hidden;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.2;
-  color: var(--orders-muted);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.orders-v2__stat-value {
-  margin: 0;
-  overflow: hidden;
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 34px;
-  letter-spacing: -0.02em;
-  color: var(--orders-title);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.orders-v2__stat-sub {
-  margin: 0;
-  overflow: hidden;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.25;
-  color: var(--orders-muted);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Chips — stats → chips 20px */
+/* Chips — Tabs → Chips 24pt */
 .orders-v2__chips {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   width: 100%;
-  margin-top: 20px;
+  margin: 0;
 }
 
 .orders-v2__chip {
@@ -334,13 +175,13 @@
   background: #ffffff;
   color: #111111;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background var(--orders-chip-anim),
-    color var(--orders-chip-anim),
-    border-color var(--orders-chip-anim);
+    background var(--orders-anim),
+    color var(--orders-anim),
+    border-color var(--orders-anim);
 }
 
 .orders-v2__chip--active {
@@ -354,32 +195,50 @@
   outline-offset: 2px;
 }
 
-/* Empty — text only, large spacing below chips */
+/* Empty — spacious centered */
 .orders-v2__empty {
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   width: 100%;
-  margin-top: 100px;
-  padding: 0 8px 48px;
+  margin-top: 96px;
+  padding: 0 16px 64px;
   text-align: center;
 }
 
+.orders-v2__empty-icon {
+  display: block;
+  width: 80px;
+  height: 80px;
+  color: #111827;
+  opacity: 0.35;
+}
+
 .orders-v2__empty-title {
-  margin: 0;
+  margin: 24px 0 0;
+  max-width: 280px;
   font-size: 26px;
   font-weight: 700;
   line-height: 1.25;
-  color: var(--orders-empty);
-  opacity: 1;
+  color: #111827;
 }
 
-/* Minimal list when orders exist (not part of empty approved frame) */
+.orders-v2__empty-sub {
+  margin: 12px 0 0;
+  max-width: 280px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+/* Minimal list when orders exist */
 .orders-v2__list {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin: 24px 0 0;
+  margin: 28px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -393,7 +252,6 @@
   border: 1px solid var(--orders-border);
   border-radius: 16px;
   background: #ffffff;
-  box-shadow: var(--orders-shadow);
   text-decoration: none;
   color: inherit;
 }
@@ -445,17 +303,17 @@
 .orders-v2__badge--delivered,
 .orders-v2__badge--completed {
   background: rgb(34 197 94 / 0.14);
-  color: var(--orders-green);
+  color: #22c55e;
 }
 
 .orders-v2__badge--shipping {
   background: rgb(59 130 246 / 0.14);
-  color: var(--orders-blue);
+  color: #3b82f6;
 }
 
 .orders-v2__badge--processing {
   background: rgb(245 158 11 / 0.16);
-  color: var(--orders-orange);
+  color: #f59e0b;
 }
 
 .orders-v2__badge--cancelled {
@@ -473,7 +331,6 @@
   height: 1px;
 }
 
-/* Skeletons */
 .orders-v2__skel {
   border-radius: 12px;
   background: linear-gradient(90deg, #f3f4f6, #fafafa, #f3f4f6);
@@ -491,37 +348,27 @@
 }
 
 .orders-v2__skel--tab {
-  height: 58px;
-}
-
-.orders-v2__skel--stat {
-  height: 128px;
-  border-radius: 20px;
+  height: 54px;
 }
 
 .orders-v2__skel--chip {
-  width: 96px;
+  width: 108px;
   height: 46px;
   border-radius: 23px;
 }
 
 .orders-v2__skel--empty {
-  height: 32px;
-  width: 180px;
-  margin: 100px auto 0;
-  border-radius: 8px;
+  width: 80px;
+  height: 80px;
+  margin: 96px auto 0;
+  border-radius: 16px;
 }
 
-@media (min-width: 768px) {
-  .orders-v2 {
-    max-width: 720px;
-    padding-left: 24px;
-    padding-right: 24px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .orders-v2 {
-    max-width: 860px;
+@media (prefers-reduced-motion: reduce) {
+  .orders-v2__skel,
+  .orders-v2__chip,
+  .orders-v2__tab {
+    animation: none !important;
+    transition: none !important;
   }
 }

@@ -2,32 +2,23 @@
 
 **Route:** `/orders`  
 **Canonical:** `OrdersHubV1` + `styles/rovexo/orders-hub-v1.css`  
-**Authority:** Master Implementation Specification (Orders v1.0)  
-**Status:** Implemented — `data-orders-freeze="pending-visual-qa"`  
-**Rule:** Single canonical component. No alternate layouts.
+**Status:** Minimal canonical — `data-orders-freeze="pending-visual-qa"`
 
 ## Section tree
 
-1. Header (84px)  
-2. Sold / Bought tabs (58px · underline 170×3)  
-3. Statistics **4-column × 1-row** grid (128px · gap 12 · no wrap / no x-scroll)  
-4. Status chips (46px · radius 23 · gap 12 · mt 20)  
-5. Empty text-only **or** order list  
-6. Bottom navigation (canonical shell — unchanged)
+1. Header (72 + safe-area · 34 bold · 44 controls)  
+2. Sold / Bought tabs (54 · underline 150×3)  
+3. Status chips — **All · Processing · Completed** only  
+4. Empty state (package outline) **or** order list  
+5. Bottom navigation (unchanged)
 
-## Locked tokens
+## Removed permanently
 
-| Token | Value |
-|-------|-------|
-| Page pad | 16px |
-| Header | 84px · title 28/700 `#111827` |
-| Tabs | 58px · 18/600 · underline `#7C3AED` 3×170 · 200ms |
-| Stats cards | height 156 · radius 20 · pad 20 · icon 46×46 r23 |
-| Stat title/value/sub | 14/600 · 32/700 · 13/400 |
-| Chips | height 48 · pad-x 22 · radius 24 · 16/600 · 150ms |
-| Empty | “No orders yet.” · 26/700 `#374151` · mt 100 · **no** art/buttons/subtitle |
-| Forbidden | search · sort · sell/browse CTAs · banners · snap carousels |
+Statistics cards · Total Sales · Pending Payout · Positive Feedback · Search · Sort · CTAs · Banners · Shipping/Cancelled chips
 
-## Freeze
+## Empty state
 
-Pending pixel-perfect visual QA against the approved design.
+- Icon 80×80 · opacity 35%  
+- Title: `No orders yet.` · 26/700 `#111827`  
+- Subtitle: `Your sold items will appear here.` (Bought uses purchase copy)  
+- mt 96 · icon→title 24 · title→sub 12 · max-width 280
