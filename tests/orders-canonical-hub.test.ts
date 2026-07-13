@@ -17,8 +17,9 @@ describe("Orders Hub v1.0 master implementation", () => {
     expect(hub).toContain("No orders yet.");
     expect(hub).not.toContain("Browse Marketplace");
     expect(hub).not.toContain("Sell an Item");
-    expect(hub).not.toContain("Search order");
-    expect(hub).not.toContain("Newest");
+    expect(hub).not.toContain('placeholder="Search');
+    expect(hub).not.toContain("orders-v2__sort");
+    expect(hub).not.toContain("scroll-snap");
     expect(css).toContain("grid-template-columns: 1fr 1fr");
     expect(css).toContain("height: 156px");
     expect(css).toContain("height: 84px");
