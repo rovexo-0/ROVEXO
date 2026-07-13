@@ -23,14 +23,14 @@ describe("Messages + Notifications → Inbox Hub Sprint 1", () => {
     expect(index).toContain("./notifications-v1.css");
   });
 
-  it("keeps chat UI module available for Sprint 2", () => {
+  it("keeps chat UI module available alongside ConversationHub", () => {
     const chat = readSource("features/messages/components/ChatPage.tsx");
+    const hub = readSource("features/inbox/components/ConversationHub.tsx");
     const css = readSource("styles/rovexo/messages-v1.css");
 
     expect(chat).toContain('data-messages-version="v1.0"');
-    expect(chat).toContain("chat-v1__composer");
+    expect(hub).toContain("data-conversation-hub");
     expect(chat).toContain("useChatRealtime");
-    expect(chat).toContain("/api/messages/");
     expect(css).toContain(".chat-v1");
   });
 

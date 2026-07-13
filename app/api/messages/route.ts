@@ -43,6 +43,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     success: true,
     conversationId: result.conversationId,
-    href: `/messages/${result.conversationId}`,
+    href: `/inbox/conversation/${result.conversationId}`,
   });
 }

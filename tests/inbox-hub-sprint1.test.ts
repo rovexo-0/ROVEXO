@@ -26,7 +26,7 @@ describe("Inbox Hub Sprint 1 canonical foundation", () => {
     expect(route).toContain('dynamic = "force-dynamic"');
     expect(legacyMessages).toContain("INBOX_ROUTES.hub");
     expect(legacyNotifications).toContain("INBOX_ROUTES.notificationsTab");
-    expect(conversation).toContain("ConversationPlaceholder");
+    expect(conversation).toContain("ConversationHub");
     expect(css).toContain(".inbox-hub");
     expect(index).toContain("./inbox-hub-v1.css");
   });
@@ -69,10 +69,10 @@ describe("Inbox Hub Sprint 1 canonical foundation", () => {
     expect(canonical).toContain('href: "/inbox"');
   });
 
-  it("keeps ChatPage component for Sprint 2 while route is placeholder", () => {
+  it("keeps ChatPage component available while ConversationHub is canonical", () => {
     const chat = readSource("features/messages/components/ChatPage.tsx");
-    const legacyChat = readSource("app/messages/[id]/page.tsx");
+    const route = readSource("app/inbox/conversation/[conversationId]/page.tsx");
     expect(chat).toContain('data-messages-version="v1.0"');
-    expect(legacyChat).toContain("INBOX_ROUTES.conversation");
+    expect(route).toContain("ConversationHub");
   });
 });
