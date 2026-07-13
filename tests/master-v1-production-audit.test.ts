@@ -54,10 +54,11 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
   });
 
   it("locks GDPR registration consent", () => {
-    const fields = readSource("features/auth/components/RegisterFields.tsx");
+    const fields = readSource("features/auth/components/RegisterScreen.tsx");
     const actions = readSource("lib/auth/actions.ts");
     expect(fields).toContain('name="gdpr"');
-    expect(fields).toContain("Cookie Policy");
+    expect(fields).toContain("/legal/cookie-policy");
+    expect(fields).toContain("copy.cookieLabel");
     expect(actions).toContain("marketing_emails");
   });
 

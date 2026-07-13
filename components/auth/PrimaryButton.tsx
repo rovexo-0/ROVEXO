@@ -13,6 +13,7 @@ export function PrimaryButton({
 }: ButtonProps & { href?: string }) {
   const classes = cn(
     "auth-primary-button inline-flex items-center justify-center",
+    "auth-primary-button--gradient",
     buttonVariants.primary,
     buttonSizes[size],
     fullWidth && "w-full",
@@ -33,7 +34,7 @@ export function PrimaryButton({
       variant="primary"
       size={size}
       fullWidth={fullWidth}
-      className={cn("auth-primary-button min-h-[52px] rounded-[16px] text-[17px] font-semibold", className)}
+      className={cn("auth-primary-button auth-primary-button--gradient min-h-[52px] rounded-[16px] text-[17px] font-semibold", className)}
       {...props}
     >
       {children}

@@ -110,7 +110,7 @@ describe("ROVEXO unified account architecture v1.0", () => {
 
     const fields = readFileSync(
 
-      join(process.cwd(), "features/auth/components/RegisterFields.tsx"),
+      join(process.cwd(), "features/auth/components/RegisterScreen.tsx"),
 
       "utf8",
 
@@ -126,9 +126,11 @@ describe("ROVEXO unified account architecture v1.0", () => {
 
     expect(fields).toContain('name="password"');
 
-    expect(fields).toContain('name="firstName"');
+    expect(fields).toContain('name="fullName"');
 
-    expect(fields).toContain('name="lastName"');
+    expect(fields).not.toContain('name="firstName"');
+
+    expect(fields).not.toContain('name="lastName"');
 
   });
 

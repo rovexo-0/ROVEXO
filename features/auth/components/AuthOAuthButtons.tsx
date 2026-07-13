@@ -4,10 +4,10 @@ import { useTransition } from "react";
 import { signInWithOAuthProvider } from "@/lib/auth/actions";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
-import type { AuthWelcomeSocialProvider } from "@/lib/auth/master-spec";
+import type { AuthSocialProvider } from "@/lib/auth/master-spec";
 
 export type SocialButtonProps = {
-  provider: AuthWelcomeSocialProvider;
+  provider: AuthSocialProvider;
   label: string;
   next?: string;
   disabled?: boolean;
@@ -53,7 +53,7 @@ function FacebookIcon() {
   );
 }
 
-const SOCIAL_ICONS: Record<AuthWelcomeSocialProvider, React.ReactNode> = {
+const SOCIAL_ICONS: Record<AuthSocialProvider, React.ReactNode> = {
   apple: <AppleIcon />,
   google: <GoogleIcon />,
   facebook: <FacebookIcon />,
@@ -98,8 +98,8 @@ export function SocialButton({
 type AuthOAuthButtonsProps = {
   next?: string;
   className?: string;
-  providers?: readonly AuthWelcomeSocialProvider[];
-  labels?: Partial<Record<AuthWelcomeSocialProvider, string>>;
+  providers?: readonly AuthSocialProvider[];
+  labels?: Partial<Record<AuthSocialProvider, string>>;
 };
 
 export function AuthOAuthDivider({ label = "or continue with" }: { label?: string }) {
@@ -118,7 +118,7 @@ export function AuthOAuthButtons({
   providers = ["apple", "google"],
   labels,
 }: AuthOAuthButtonsProps) {
-  const defaultLabels: Record<AuthWelcomeSocialProvider, string> = {
+  const defaultLabels: Record<AuthSocialProvider, string> = {
     apple: "Apple",
     google: "Google",
     facebook: "Facebook",

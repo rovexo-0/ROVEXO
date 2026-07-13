@@ -87,7 +87,93 @@ export const AUTH_MASTER_SPEC = {
       },
     },
   },
+  login: {
+    fadeDurationMs: 225,
+    motion: "fade_only" as const,
+    prohibitedMotion: ["scale", "bounce", "rotation"] as const,
+    presentation: {
+      layout: "centered",
+      background: "#ffffff",
+      maxWidthPx: 430,
+    },
+    routes: {
+      back: "/welcome",
+    },
+    socialProviders: ["apple", "google", "facebook"] as const,
+    copy: {
+      tagline: "BUY. SELL. GROW.",
+      title: "Welcome back 👋",
+      description:
+        "Great to see you again. Continue buying, selling and growing your ROVEXO journey.",
+      emailLabel: "Email",
+      emailPlaceholder: "name@email.co.uk",
+      passwordLabel: "Password",
+      passwordPlaceholder: "Enter your password",
+      rememberMe: "Remember Me",
+      forgotPassword: "Forgot Password",
+      signIn: "Sign In",
+      submitting: "Signing in…",
+      divider: "or continue with",
+      footerPrefix: "New to ROVEXO?",
+      createAccount: "Create Free Account",
+      socialLabels: {
+        apple: "Continue with Apple",
+        google: "Continue with Google",
+        facebook: "Continue with Facebook",
+      },
+    },
+  },
+  register: {
+    fadeDurationMs: 225,
+    motion: "fade_only" as const,
+    prohibitedMotion: ["scale", "bounce", "rotation"] as const,
+    presentation: {
+      layout: "centered",
+      background: "#ffffff",
+      maxWidthPx: 430,
+    },
+    routes: {
+      back: "/welcome",
+      signIn: "/login",
+    },
+    socialProviders: ["apple", "google", "facebook"] as const,
+    copy: {
+      tagline: "BUY. SELL. GROW.",
+      title: "Join ROVEXO today 🚀",
+      description:
+        "Create your free account and start buying, selling and growing your business in minutes.",
+      fullNameLabel: "Full Name",
+      fullNamePlaceholder: "Your full name",
+      emailLabel: "Email",
+      emailPlaceholder: "name@email.co.uk",
+      passwordLabel: "Password",
+      passwordPlaceholder: "Create a password",
+      confirmPasswordLabel: "Confirm Password",
+      confirmPasswordPlaceholder: "Confirm your password",
+      passwordHint: "At least 8 characters",
+      submit: "Create Free Account",
+      submitting: "Creating account…",
+      divider: "or continue with",
+      footerPrefix: "Already have an account?",
+      signIn: "Sign In",
+      socialLabels: {
+        apple: "Continue with Apple",
+        google: "Continue with Google",
+        facebook: "Continue with Facebook",
+      },
+      termsPrefix: "I agree to the",
+      termsLabel: "Terms",
+      privacyLabel: "Privacy Policy",
+      cookieLabel: "Cookie Policy",
+      gdpr:
+        "I understand ROVEXO will process my personal data to provide the marketplace under UK GDPR.",
+      marketing: "Receive updates and offers",
+    },
+  },
 } as const;
 
 export type AuthSplashPhase = (typeof AUTH_MASTER_SPEC.splash.phases)[number];
 export type AuthWelcomeSocialProvider = (typeof AUTH_MASTER_SPEC.welcome.socialProviders)[number];
+export type AuthSocialProvider = AuthWelcomeSocialProvider;
+export type AuthLoginSocialProvider = (typeof AUTH_MASTER_SPEC.login.socialProviders)[number];
+export type AuthRegisterSocialProvider = (typeof AUTH_MASTER_SPEC.register.socialProviders)[number];

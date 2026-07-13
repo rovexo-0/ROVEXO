@@ -9,6 +9,7 @@ import {
 import { summarizeUkComplianceAudit, UK_COMPLIANCE_AUDIT } from "@/lib/compliance/uk-audit";
 import { buildAnnualStatements } from "@/lib/wallet/monthly-statements";
 import type { MonthlyStatement } from "@/lib/wallet/monthly-statements";
+import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 
 function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
@@ -16,12 +17,15 @@ function readSource(relativePath: string): string {
 
 describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
   it("locks premium auth markers", () => {
-    const login = readSource("app/(auth)/login/page.tsx");
-    const register = readSource("app/(auth)/register/page.tsx");
+    const login = readSource("features/auth/components/LoginScreen.tsx");
+    const register = readSource("features/auth/components/RegisterScreen.tsx");
     const form = readSource("features/auth/components/AuthForm.tsx");
 
-    expect(login).toContain("Welcome back 👋");
-    expect(register).toContain("Join ROVEXO today 🚀");
+    expect(login).toContain("AUTH_MASTER_SPEC.login");
+    expect(AUTH_MASTER_SPEC.login.copy.title).toBe("Welcome back 👋");
+    expect(login).toContain('data-auth-version="v1.0-legal-lock"');
+    expect(register).toContain("AUTH_MASTER_SPEC.register");
+    expect(AUTH_MASTER_SPEC.register.copy.title).toBe("Join ROVEXO today 🚀");
     expect(form).toContain('data-auth-version="v1.0-legal-lock"');
     expect(readSource("features/auth/components/AuthBrand.tsx")).toContain("Buy. Sell. Grow.");
   });

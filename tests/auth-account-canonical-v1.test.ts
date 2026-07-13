@@ -8,6 +8,7 @@ import {
   buildProfileCompletionRedirect,
   PROFILE_RETURN_TO_PARAM,
 } from "@/lib/account/profile-completion";
+import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 
 function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
@@ -39,30 +40,29 @@ const baseProfile: UserProfile = {
 describe("Auth + Account Architecture canonical v1.0", () => {
   it("locks premium auth shell and login copy", () => {
     const shell = readSource("features/auth/components/AuthShell.tsx");
-    const login = readSource("app/(auth)/login/page.tsx");
+    const login = readSource("features/auth/components/LoginScreen.tsx");
     const brand = readSource("features/auth/components/AuthBrand.tsx");
 
     expect(shell).toContain("bg-white");
-    expect(login).toContain("Welcome back 👋");
-    expect(login).toContain("Create Free Account");
-    expect(login).toContain("Forgot Password");
+    expect(login).toContain("AUTH_MASTER_SPEC.login");
+    expect(AUTH_MASTER_SPEC.login.copy.title).toBe("Welcome back 👋");
+    expect(AUTH_MASTER_SPEC.login.copy.createAccount).toBe("Create Free Account");
+    expect(AUTH_MASTER_SPEC.login.copy.forgotPassword).toBe("Forgot Password");
     expect(brand).toContain("Buy. Sell. Grow.");
   });
 
   it("locks register fields and OAuth entry points", () => {
-    const register = readSource("app/(auth)/register/page.tsx");
-    const fields = readSource("features/auth/components/RegisterFields.tsx");
+    const register = readSource("features/auth/components/RegisterScreen.tsx");
     const oauth = readSource("features/auth/components/AuthOAuthButtons.tsx");
     const actions = readSource("lib/auth/actions.ts");
 
-    expect(register).toContain("Join ROVEXO today 🚀");
-    expect(register).toContain("Create Free Account");
-    expect(fields).toContain('name="firstName"');
-    expect(fields).toContain('name="lastName"');
-    expect(fields).toContain('name="confirmPassword"');
-    expect(fields).toContain('name="terms"');
-    expect(fields).toContain('name="gdpr"');
-    expect(fields).toContain("/legal/cookie-policy");
+    expect(AUTH_MASTER_SPEC.register.copy.title).toBe("Join ROVEXO today 🚀");
+    expect(AUTH_MASTER_SPEC.register.copy.submit).toBe("Create Free Account");
+    expect(register).toContain('name="fullName"');
+    expect(register).toContain('name="confirmPassword"');
+    expect(register).toContain('name="terms"');
+    expect(register).toContain('name="gdpr"');
+    expect(register).toContain("/legal/cookie-policy");
     expect(oauth).toContain("Apple");
     expect(oauth).toContain("Google");
     expect(actions).toContain("signInWithOAuthProvider");

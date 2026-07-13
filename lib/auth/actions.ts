@@ -23,8 +23,7 @@ import { isPublicRegistrationEnabled } from "@/lib/launch-certification/private-
 
 const registerSchema = z
   .object({
-    firstName: z.string().trim().min(1, "First name is required."),
-    lastName: z.string().trim().min(1, "Last name is required."),
+    fullName: z.string().trim().min(1, "Full name is required."),
     email: z.string().email(),
     password: z.string().min(8),
     confirmPassword: z.string().min(8),
@@ -83,8 +82,7 @@ export async function signUp(
   }
 
   const parsed = registerSchema.safeParse({
-    firstName: formData.get("firstName"),
-    lastName: formData.get("lastName"),
+    fullName: formData.get("fullName"),
     email: formData.get("email"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
@@ -103,8 +101,7 @@ export async function signUp(
     return { error: "Too many registration attempts. Please try again later." };
   }
 
-  const { email, password, firstName, lastName } = parsed.data;
-  const fullName = `${firstName} ${lastName}`.trim();
+  const { email, password, fullName } = parsed.data;
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signUp({

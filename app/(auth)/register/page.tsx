@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
-import { signUp } from "@/lib/auth/actions";
 import { redirectIfAuthenticated } from "@/lib/auth/guest-redirect";
-import { AuthForm, AuthLink } from "@/features/auth/components/AuthForm";
-import { RegisterFields } from "@/features/auth/components/RegisterFields";
+import { RegisterScreen } from "@/features/auth/components/RegisterScreen";
 import { isPublicRegistrationEnabled } from "@/lib/launch-certification/private-mode";
+
+export const metadata = {
+  title: "Create Account",
+  robots: { index: false, follow: false },
+};
 
 export default async function RegisterPage() {
   await redirectIfAuthenticated();
@@ -12,20 +15,5 @@ export default async function RegisterPage() {
     redirect("/login?certification=registration-disabled");
   }
 
-  return (
-    <AuthForm
-      title="Join ROVEXO today 🚀"
-      description="Create your free account and start buying, selling and growing your business in minutes."
-      action={signUp}
-      submitLabel="Create Free Account"
-      oauthDividerLabel="Continue with"
-      footer={
-        <p>
-          Already have an account? <AuthLink href="/login">Sign In</AuthLink>
-        </p>
-      }
-    >
-      <RegisterFields />
-    </AuthForm>
-  );
+  return <RegisterScreen />;
 }
