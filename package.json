@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "verify:env": "npx tsx scripts/verify-env.ts",
     "verify:production": "node scripts/verify-production.mjs",
+    "verify:dev-preview": "node scripts/verify-dev-preview.mjs",
     "db:migrate": "node scripts/supabase-migrate-workflow.mjs",
     "db:republish-homepage": "npx tsx scripts/republish-homepage-launch-defaults.ts",
     "db:push": "supabase db push --linked --yes",
