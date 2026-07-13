@@ -12,6 +12,15 @@ export const AUTH_MASTER_SPEC = {
     primaryButtonHeightPx: 52,
     inputFontSizePx: 17,
   },
+  brandLogo: {
+    component: "RovexoBrandLogo",
+    path: "components/branding/RovexoBrandLogo.tsx",
+    mobileWidthPx: 220,
+    desktopWidthPx: 280,
+    topSafeAreaPx: 48,
+    titleGapPx: 32,
+    prohibitedOnAuth: ["RovexoAppIconMark", "RovexoLogo", "favicon", "pwa"],
+  },
   routes: {
     splash: "/splash",
     welcome: "/welcome",

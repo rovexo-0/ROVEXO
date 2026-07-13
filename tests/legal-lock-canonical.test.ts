@@ -27,7 +27,7 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
     expect(register).toContain("AUTH_MASTER_SPEC.register");
     expect(AUTH_MASTER_SPEC.register.copy.title).toBe("Join ROVEXO today 🚀");
     expect(form).toContain('data-auth-version="v1.0-legal-lock"');
-    expect(readSource("features/auth/components/AuthBrand.tsx")).toContain("Buy. Sell. Grow.");
+    expect(readSource("components/branding/RovexoBrandLogo.tsx")).toContain("BUY.");
   });
 
   it("exposes all canonical legal documents from scratch SSOT", () => {

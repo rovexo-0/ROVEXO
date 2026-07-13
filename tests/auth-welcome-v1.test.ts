@@ -27,7 +27,7 @@ describe("AUTH_MASTER_SPEC v1.0 — welcome screen", () => {
 
     expect(page).toContain("WelcomeScreen");
     expect(page).toContain("redirectIfAuthenticated");
-    expect(screen).toContain("AuthLogo");
+    expect(screen).toContain("RovexoBrandLogo");
     expect(screen).toContain("AuthHeading");
     expect(screen).toContain("PrimaryButton");
     expect(screen).toContain("SecondaryButton");

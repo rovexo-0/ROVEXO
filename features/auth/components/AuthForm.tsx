@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { AuthAlert } from "@/features/auth/components/AuthAlert";
-import { AuthBrand } from "@/features/auth/components/AuthBrand";
+import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
 import { AuthOAuthButtons, AuthOAuthDivider } from "@/features/auth/components/AuthOAuthButtons";
 import { AuthSpinner } from "@/features/auth/components/AuthSpinner";
 import type { AuthActionState } from "@/lib/auth/actions";
@@ -49,7 +49,7 @@ export function AuthForm({
   return (
     <div className="flex w-full flex-col gap-ds-8" data-auth-version="v1.0-legal-lock">
       <header className="flex flex-col items-center gap-ds-6 text-center">
-        <AuthBrand />
+        <RovexoBrandLogo className="rovexo-brand-logo--auth" />
         <div className="flex max-w-[22rem] flex-col gap-ds-2">
           <h1 className="text-[1.75rem] font-semibold tracking-tight text-text-primary">{title}</h1>
           <p className="text-[15px] leading-relaxed text-text-secondary">{description}</p>
@@ -117,7 +117,7 @@ export { AuthSelect } from "@/features/auth/components/AuthSelect";
 export { AuthAlert } from "@/features/auth/components/AuthAlert";
 export { AuthLink } from "@/features/auth/components/AuthLink";
 export { AuthShell } from "@/features/auth/components/AuthShell";
-export { AuthLogo } from "@/features/auth/components/AuthLogo";
+export { AuthLogo } from "@/components/auth/AuthLogo";
 export { AuthSpinner } from "@/features/auth/components/AuthSpinner";
 export { ResetPasswordFields } from "@/features/auth/components/ResetPasswordFields";
 export { ResetPasswordForm } from "@/features/auth/components/ResetPasswordForm";

@@ -9,12 +9,12 @@ import {
   AuthFooter,
   AuthHeading,
   AuthIconInput,
-  AuthOfficialLogo,
   AuthPasswordInput,
   Divider,
   PrimaryButton,
   SocialLogin,
 } from "@/components/auth";
+import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
 import { MailLineIcon, UserLineIcon } from "@/components/icons/RvxLineIcons";
 import { AuthAlert } from "@/features/auth/components/AuthAlert";
 import { AuthLink } from "@/features/auth/components/AuthLink";
@@ -58,7 +58,7 @@ export function RegisterScreen() {
     >
       <AuthBackButton href={routes.back} className="auth-register__back" />
       <AuthContainer>
-        <AuthOfficialLogo />
+        <RovexoBrandLogo className="rovexo-brand-logo--auth" />
         <AuthHeading title={copy.title} description={copy.description} />
 
         <form

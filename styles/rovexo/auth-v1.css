@@ -125,39 +125,74 @@
   text-align: center;
 }
 
-.auth-logo__mark {
-  width: 96px;
-  height: 96px;
+/* ── Canonical auth brand logo (horizontal wordmark + tagline) ── */
+
+.rovexo-brand-logo {
+  display: flex;
+  width: 220px;
+  max-width: 100%;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  text-align: center;
 }
 
-.auth-logo__wordmark {
-  margin-top: 20px;
-  font-size: 1.5rem;
+@media (min-width: 430px) {
+  .rovexo-brand-logo {
+    width: 280px;
+  }
 }
 
-.auth-logo__wordmark.rx-wordmark {
+.rovexo-brand-logo--auth {
+  margin-top: max(env(safe-area-inset-top), 48px);
+  margin-bottom: 32px;
+}
+
+.rovexo-brand-logo__wordmark {
   display: inline-flex;
+  width: 100%;
   align-items: baseline;
+  justify-content: center;
+  font-size: 2rem;
   font-weight: 800;
   letter-spacing: -0.05em;
   line-height: 1;
 }
 
-.auth-logo__wordmark .rx-wordmark__rove,
-.auth-logo__wordmark .rx-wordmark__o {
+@media (min-width: 430px) {
+  .rovexo-brand-logo__wordmark {
+    font-size: 2.5rem;
+  }
+}
+
+.rovexo-brand-logo__wordmark .rx-wordmark__rove,
+.rovexo-brand-logo__wordmark .rx-wordmark__o {
   color: #111111;
 }
 
-.auth-logo__wordmark .rx-wordmark__x {
+.rovexo-brand-logo__wordmark .rx-wordmark__x {
   color: #7c3aed;
 }
 
-.auth-logo__tagline {
-  margin: 8px 0 0;
+.rovexo-brand-logo__tagline {
+  margin: 10px 0 0;
   font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  color: var(--ds-color-text-secondary, #5c5c66);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.rovexo-brand-logo__buy {
+  color: #9333ea;
+}
+
+.rovexo-brand-logo__sell {
+  color: #f97316;
+}
+
+.rovexo-brand-logo__grow {
+  color: #9333ea;
 }
 
 .auth-heading {
@@ -315,63 +350,6 @@
   font-weight: 600;
 }
 
-.auth-official-logo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  text-align: center;
-}
-
-.auth-official-logo__brand {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.auth-official-logo__mark {
-  width: 52px;
-  height: 52px;
-  flex-shrink: 0;
-}
-
-.auth-official-logo__wordmark {
-  font-size: 1.625rem;
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  line-height: 1;
-}
-
-.auth-official-logo__wordmark .rx-wordmark__rove,
-.auth-official-logo__wordmark .rx-wordmark__o {
-  color: #111111;
-}
-
-.auth-official-logo__wordmark .rx-wordmark__x {
-  color: #7c3aed;
-}
-
-.auth-colored-tagline {
-  margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.auth-colored-tagline__buy {
-  color: #9333ea;
-}
-
-.auth-colored-tagline__sell {
-  color: #f97316;
-}
-
-.auth-colored-tagline__grow {
-  color: #7c3aed;
-}
-
 .auth-primary-button--gradient {
   background-image: var(--auth-gradient-cta) !important;
   border: none;
@@ -472,7 +450,7 @@
 
 .auth-login .auth-container,
 .auth-register .auth-container {
-  padding-top: 44px;
+  padding-top: 0;
 }
 
 .auth-login__form,

@@ -29,7 +29,7 @@ describe("AUTH_MASTER_SPEC v1.0 — login screen", () => {
 
     expect(page).toContain("LoginScreen");
     expect(page).toContain("redirectIfAuthenticated");
-    expect(screen).toContain("AuthOfficialLogo");
+    expect(screen).toContain("RovexoBrandLogo");
     expect(screen).toContain("AuthBackButton");
     expect(screen).toContain("AuthIconInput");
     expect(screen).toContain("AuthPasswordInput");

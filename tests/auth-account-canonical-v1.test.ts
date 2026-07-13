@@ -41,14 +41,14 @@ describe("Auth + Account Architecture canonical v1.0", () => {
   it("locks premium auth shell and login copy", () => {
     const shell = readSource("features/auth/components/AuthShell.tsx");
     const login = readSource("features/auth/components/LoginScreen.tsx");
-    const brand = readSource("features/auth/components/AuthBrand.tsx");
+    const brand = readSource("components/branding/RovexoBrandLogo.tsx");
 
     expect(shell).toContain("bg-white");
     expect(login).toContain("AUTH_MASTER_SPEC.login");
     expect(AUTH_MASTER_SPEC.login.copy.title).toBe("Welcome back 👋");
     expect(AUTH_MASTER_SPEC.login.copy.createAccount).toBe("Create Free Account");
     expect(AUTH_MASTER_SPEC.login.copy.forgotPassword).toBe("Forgot Password");
-    expect(brand).toContain("Buy. Sell. Grow.");
+    expect(brand).toContain("BUY.");
   });
 
   it("locks register fields and OAuth entry points", () => {

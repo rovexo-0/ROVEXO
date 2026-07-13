@@ -7,13 +7,13 @@ import {
   AuthFooter,
   AuthHeading,
   AuthIconInput,
-  AuthOfficialLogo,
   AuthPasswordInput,
   Checkbox,
   Divider,
   PrimaryButton,
   SocialLogin,
 } from "@/components/auth";
+import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
 import { MailLineIcon } from "@/components/icons/RvxLineIcons";
 import { AuthAlert } from "@/features/auth/components/AuthAlert";
 import { AuthLink } from "@/features/auth/components/AuthLink";
@@ -43,7 +43,7 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
     >
       <AuthBackButton href={routes.back} className="auth-login__back" />
       <AuthContainer>
-        <AuthOfficialLogo />
+        <RovexoBrandLogo className="rovexo-brand-logo--auth" />
         <AuthHeading title={copy.title} description={copy.description} />
 
         <form

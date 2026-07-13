@@ -4,12 +4,12 @@ import {
   AuthContainer,
   AuthFooter,
   AuthHeading,
-  AuthLogo,
   Divider,
   PrimaryButton,
   SecondaryButton,
   SocialLogin,
 } from "@/components/auth";
+import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
 import { AuthLink } from "@/features/auth/components/AuthLink";
 import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { AUTH_MODULE_VERSION } from "@/lib/auth/canonical";
@@ -25,7 +25,7 @@ export function WelcomeScreen() {
       data-auth-screen="welcome"
     >
       <AuthContainer>
-        <AuthLogo />
+        <RovexoBrandLogo className="rovexo-brand-logo--auth" />
         <AuthHeading title={copy.title} description={copy.description} />
         <div className="auth-welcome__actions">
           <PrimaryButton href={routes.signIn}>{copy.signIn}</PrimaryButton>

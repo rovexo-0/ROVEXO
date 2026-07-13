@@ -27,7 +27,7 @@ describe("AUTH_MASTER_SPEC v1.0 — register screen", () => {
 
     expect(page).toContain("RegisterScreen");
     expect(page).toContain("redirectIfAuthenticated");
-    expect(screen).toContain("AuthOfficialLogo");
+    expect(screen).toContain("RovexoBrandLogo");
     expect(screen).toContain("AuthBackButton");
     expect(screen).toContain("AuthIconInput");
     expect(screen).toContain("AuthPasswordInput");
@@ -43,7 +43,7 @@ describe("AUTH_MASTER_SPEC v1.0 — register screen", () => {
     const css = readSource("styles/rovexo/auth-v1.css");
     expect(css).toContain("auth-register-route");
     expect(css).toContain("--auth-gradient-cta");
-    expect(css).toContain("auth-colored-tagline");
+    expect(css).toContain("rovexo-brand-logo");
     expect(css).not.toMatch(/auth-register[^{]*\{[^}]*scale\(/);
     expect(css).not.toMatch(/bounce/);
   });
