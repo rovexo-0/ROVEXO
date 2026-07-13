@@ -19,7 +19,7 @@ export type AccountCanonicalShellProps = {
   bottomNavTab?: BottomNavTab;
   /** My Account hub — no back header */
   hideBack?: boolean;
-  /** Centered title in header row (e.g. Orders). Settings pages stay back-only. */
+  /** Centered title in header row (e.g. Orders, Settings). */
   showHeaderTitle?: boolean;
   intro?: string;
 };

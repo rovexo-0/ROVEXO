@@ -101,7 +101,8 @@ async function main() {
     account: {
       status: accountRes.status,
       url: accountRes.url,
-      hasSummaryCard: accountHtml.includes('data-ac-seller-performance="v1.0"'),
+      hasSummaryCard: accountHtml.includes('data-ac-seller-performance="v1.0-frozen"'),
+      hasFrozenDashboard: dashboardHtml.includes('data-seller-performance-dashboard="v1.0-frozen"'),
       hasViewDetails: accountHtml.includes("View details"),
       hasPerformanceRoute: accountHtml.includes("/seller/performance"),
       hasScoreRing: accountHtml.includes("ac-canonical__seller-score-ring"),
@@ -153,6 +154,7 @@ async function main() {
   const pass =
     results.account.hasSummaryCard &&
     results.account.hasViewDetails &&
+    results.account.hasFrozenDashboard &&
     results.dashboard.hasReputationEngine &&
     !results.dashboard.blockedToAccount &&
     results.publicApi.hasLevel &&

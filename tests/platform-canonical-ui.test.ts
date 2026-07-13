@@ -28,7 +28,7 @@ describe("platform canonical UI v1.0", () => {
   it("routes settings UI through canonical design system", () => {
     expect(readSource("features/settings/components/SettingSection.tsx")).toContain("CanonicalSection");
     expect(readSource("features/settings/components/SettingToggle.tsx")).toContain("CanonicalSwitch");
-    expect(readSource("features/account-module/components/SettingsAccordion.tsx")).toContain("CanonicalMenuRow");
+    expect(readSource("features/account-module/components/SettingsMenuSections.tsx")).toContain("CanonicalMenuRow");
   });
 
   it("aligns help centre with My Account settings rows", () => {

@@ -1,0 +1,68 @@
+/**
+ * ROVEXO Settings hub — canonical v1.0 layout tokens.
+ * 16px radius, 64px rows, 24px section gap, #EFEFEF dividers.
+ */
+
+.settings-canonical {
+  --cds-space-section-gap: 24px;
+  --cds-radius-card: 16px;
+  --cds-row-min-height: 64px;
+  --cds-row-padding-x: 16px;
+  --cds-color-divider: #efefef;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cds-space-section-gap);
+  width: 100%;
+}
+
+.settings-canonical__card {
+  border-radius: 16px;
+}
+
+.settings-canonical__danger-card {
+  border-color: rgb(254 202 202 / 0.65);
+  background: #fef2f2;
+}
+
+.settings-canonical__danger-card .cds-menu-row:active:not(:disabled) {
+  background: rgb(254 226 226 / 0.55);
+}
+
+.settings-canonical__danger-icon {
+  display: inline-flex;
+  color: var(--cds-color-danger);
+}
+
+.settings-canonical .cds-menu-row__title--danger {
+  justify-content: flex-start;
+  width: auto;
+  color: var(--cds-color-danger);
+}
+
+@media (prefers-color-scheme: dark) {
+  .settings-canonical {
+    --cds-color-divider: rgb(255 255 255 / 0.08);
+  }
+
+  .settings-canonical__danger-card {
+    border-color: rgb(127 29 29 / 0.45);
+    background: rgb(69 10 10 / 0.35);
+  }
+
+  .settings-canonical__danger-card .cds-menu-row:active:not(:disabled) {
+    background: rgb(127 29 29 / 0.25);
+  }
+}
+
+[data-theme="dark"] .settings-canonical {
+  --cds-color-divider: rgb(255 255 255 / 0.08);
+}
+
+[data-theme="dark"] .settings-canonical__danger-card {
+  border-color: rgb(127 29 29 / 0.45);
+  background: rgb(69 10 10 / 0.35);
+}
+
+[data-theme="dark"] .settings-canonical__danger-card .cds-menu-row:active:not(:disabled) {
+  background: rgb(127 29 29 / 0.25);
+}

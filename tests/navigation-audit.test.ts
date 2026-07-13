@@ -81,7 +81,7 @@ function collectNavHrefs(): string[] {
     ...ALL_PUBLIC_ROUTES.map((href) => ({ href })),
     ...BUYER_SETTINGS_LINKS,
     ...SELLER_SETTINGS_LINKS,
-    ...BUYER_PAYMENT_METHODS.map(() => ({ href: `/account/payment-methods` })),
+    ...BUYER_PAYMENT_METHODS.map(() => ({ href: `/wallet/payment-methods` })),
     ...buildQuickActions({ orders: 0, saved: 0, messages: 0, notifications: 0 }),
     ...buildSellerQuickActions({ listings: 0, orders: 0, messages: 0 }),
     { href: SELLER_SUBSCRIPTION_PLACEHOLDER.href },

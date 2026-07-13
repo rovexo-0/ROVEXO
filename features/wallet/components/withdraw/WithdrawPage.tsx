@@ -9,6 +9,7 @@ import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { formatCurrency, parseWithdrawAmount } from "@/lib/wallet/utils";
+import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import type { WalletData } from "@/lib/wallet/types";
 type WithdrawPageProps = {
   data: WalletData;
@@ -79,7 +80,7 @@ export function WithdrawPage({ data }: WithdrawPageProps) {
             <h2 id="withdraw-bank-title" className="wallet-hub__section-title">
               Connected Bank
             </h2>
-            <Link href="/account/settings/bank-account" className="wallet-hub__section-link">
+            <Link href={WALLET_ROUTES.bankAccount} className="wallet-hub__section-link">
               {connectedMethod ? "Edit Bank" : "Add Bank"}
             </Link>
           </div>
@@ -140,8 +141,8 @@ export function WithdrawPage({ data }: WithdrawPageProps) {
         </button>
         {!connectedMethod ? (
           <p className="wallet-hub__footer-note">
-            <Link href="/account/settings/bank-account?returnTo=/wallet/withdraw">
-              Add your bank account in Settings
+            <Link href={`${WALLET_ROUTES.bankAccount}?returnTo=/wallet/withdraw`}>
+              Manage bank account in Wallet
             </Link>{" "}
             before withdrawing.
           </p>

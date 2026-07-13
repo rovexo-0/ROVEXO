@@ -19,8 +19,8 @@ export type ProfileCompletionStatus = {
 
 const SETTINGS_PATHS: Record<ProfileCompletionGap, string> = {
   address: "/account/addresses",
-  payment: "/account/payment-methods",
-  bank: "/account/settings/bank-account",
+  payment: "/wallet/payment-methods",
+  bank: "/wallet/bank-account",
 };
 
 export function sanitizeReturnToPath(

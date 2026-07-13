@@ -1,17 +1,6 @@
-import { Suspense } from "react";
-import { PaymentMethodsPage } from "@/features/account/components/PaymentMethodsPage";
-import { getProfile } from "@/lib/profile/data";
+import { redirect } from "next/navigation";
+import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 
-export const metadata = {
-  title: "Payment Methods",
-};
-
-export default async function AccountPaymentMethodsRoute() {
-  const profile = await getProfile();
-
-  return (
-    <Suspense fallback={<div className="p-ds-6 text-sm text-text-secondary">Loading payment methods…</div>}>
-      <PaymentMethodsPage profile={profile} />
-    </Suspense>
-  );
+export default function AccountPaymentMethodsRedirect() {
+  redirect(WALLET_ROUTES.paymentMethods);
 }

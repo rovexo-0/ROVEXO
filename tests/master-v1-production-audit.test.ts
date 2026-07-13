@@ -34,14 +34,17 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
 
   it("locks production settings hub inventory", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
+    const menu = readSource("lib/account-center/settings-menu.ts");
     expect(settings).toContain("AccountCanonicalShell");
-    expect(settings).toContain("SettingsAccordion");
-    expect(settings).toContain('title: "Profile"');
-    expect(settings).toContain('title: "Payments"');
-    expect(settings).toContain("Tax Information");
-    expect(settings).not.toContain("Identity Verification");
-    expect(settings).not.toContain("Download My Data");
-    expect(settings).toContain("DeleteAccountFlow");
+    expect(settings).toContain("SettingsMenuSections");
+    expect(menu).toContain('"Profile"');
+    expect(menu).toContain('"Seller Performance"');
+    expect(menu).toContain('"Wallet"');
+    expect(menu).not.toContain("Identity Verification");
+    expect(menu).not.toContain("Download My Data");
+    expect(readSource("features/account-module/components/SettingsMenuSections.tsx")).toContain(
+      "DeleteAccountFlow",
+    );
   });
 
   it("locks production wallet earnings and statement exports", () => {

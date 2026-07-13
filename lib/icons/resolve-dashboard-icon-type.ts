@@ -53,7 +53,7 @@ export function resolveDashboardIconType(href: string): DashboardIconType {
   if (href.startsWith("/business")) return "business";
   if (href.startsWith("/wholesale")) return "wholesale";
   if (href === "/account/addresses") return "addresses";
-  if (href === "/account/payment-methods") return "payment";
+  if (href === "/wallet/payment-methods" || href === "/account/payment-methods") return "payment";
   if (href === "/account/security") return "security";
   if (href === "/account/seller/shipping") return "shipping";
   if (href.startsWith("/account/profile")) return "account";

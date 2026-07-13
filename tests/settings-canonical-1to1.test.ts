@@ -39,10 +39,10 @@ const ACCOUNT_MODULE_SHELL_PAGES = [
 describe("settings + account canonical experience", () => {
   it("routes settings menu primitives through canonical design system", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
-    const accordion = readSource("features/account-module/components/SettingsAccordion.tsx");
+    const sections = readSource("features/account-module/components/SettingsMenuSections.tsx");
     expect(settings).toContain("AccountCanonicalShell");
-    expect(accordion).toContain("CanonicalMenuRow");
-    expect(accordion).toContain("CanonicalCard");
+    expect(sections).toContain("CanonicalMenuRow");
+    expect(sections).toContain("CanonicalCard");
     expect(settings).not.toContain("CanonicalAccountMenuRow");
   });
 

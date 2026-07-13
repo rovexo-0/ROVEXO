@@ -218,8 +218,8 @@ export async function createPaymentMethodSetupSession(userId: string): Promise<s
     mode: "setup",
     customer: customerId,
     payment_method_types: ["card"],
-    success_url: `${base}/account/payment-methods?setup=success&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${base}/account/payment-methods?setup=cancelled`,
+    success_url: `${base}/wallet/payment-methods?setup=success&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${base}/wallet/payment-methods?setup=cancelled`,
   });
 
   return session.url;

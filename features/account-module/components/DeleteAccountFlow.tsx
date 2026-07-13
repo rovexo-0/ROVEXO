@@ -5,15 +5,18 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
 import type { AccountDeletionEligibility } from "@/lib/account/deletion-eligibility";
+import { SettingsMenuIconGlyph } from "@/features/account-module/components/SettingsMenuIcon";
 
 
 type DeleteAccountFlowProps = {
   className?: string;
   /** Centered destructive action below settings groups — no section card. */
   standalone?: boolean;
+  /** Danger-zone menu row with icon, subtitle, and chevron. */
+  dangerRow?: boolean;
 };
 
-export function DeleteAccountFlow({ className, standalone = false }: DeleteAccountFlowProps) {
+export function DeleteAccountFlow({ className, standalone = false, dangerRow = false }: DeleteAccountFlowProps) {
   const router = useRouter();
   const [step, setStep] = useState<0 | 1 | 2>(0);
   const [password, setPassword] = useState("");
@@ -57,7 +60,16 @@ export function DeleteAccountFlow({ className, standalone = false }: DeleteAccou
 
   const openFlow = () => setStep(1);
 
-  const row = standalone ? (
+  const row = dangerRow ? (
+    <CanonicalMenuRow
+      title="Delete Account"
+      description="Permanently remove your account"
+      destructive
+      className={className}
+      icon={<SettingsMenuIconGlyph name="logout" danger />}
+      onClick={openFlow}
+    />
+  ) : standalone ? (
     <CanonicalButton variant="ghost" className={className} onClick={openFlow}>
       <span className="text-danger">Delete Account</span>
     </CanonicalButton>

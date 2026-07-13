@@ -2,7 +2,7 @@ import type { PaymentsEngineFilterId, PaymentsEngineModule } from "@/lib/payment
 
 export const PAYMENTS_ENGINE_MODULES: PaymentsEngineModule[] = [
   { id: "history", label: "Payment History", icon: "📑", description: "Complete payment ledger", href: "/payments?tab=history" },
-  { id: "methods", label: "Payment Methods", icon: "💳", description: "Saved cards and wallets", href: "/account/payment-methods" },
+  { id: "methods", label: "Payment Methods", icon: "💳", description: "Saved cards and wallets", href: "/wallet/payment-methods" },
   { id: "receipts", label: "Receipts", icon: "🧾", description: "Receipts and confirmations", href: "/payments?tab=receipts" },
   { id: "refunds", label: "Refunds", icon: "↩️", description: "Refund timeline and history", href: "/payments?tab=refunds" },
   { id: "orders", label: "Orders Integration", icon: "📦", description: "Order timeline and status", href: "/orders" },

@@ -106,6 +106,18 @@
   color: var(--ds-color-text-primary);
 }
 
+.ckt-v1__manage-payments {
+  margin: 0;
+  text-align: center;
+}
+
+.ckt-v1__manage-payments-link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ds-color-primary);
+  text-decoration: none;
+}
+
 .ckt-v1__optional {
   font-weight: 500;
   color: var(--ds-color-text-secondary);

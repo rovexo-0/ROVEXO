@@ -86,7 +86,7 @@ export function getAccountModuleTiles(): MobileTile[] {
     tile("/account/profile", "Profile", "Name, avatar & email"),
     tile("/account/security", "Security", "Password, 2FA & sessions"),
     tile("/account/addresses", "Addresses", "Shipping & billing"),
-    tile("/account/payment-methods", "Payment Methods", "Cards & checkout"),
+    tile("/wallet/payment-methods", "Payment Methods", "Cards & checkout"),
     tile("/account/preferences/language", "Language", "Locale & region"),
     tile("/notifications/settings", "Notifications", "Push & email", "notifications"),
     tile("/account/preferences/appearance", "Appearance", "Theme & display"),

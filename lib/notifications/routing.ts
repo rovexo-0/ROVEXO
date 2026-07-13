@@ -2,6 +2,8 @@ import type { SmartNotificationEventType } from "@/lib/notifications/events";
 import type { NotificationType } from "@/lib/notifications/types";
 import { PROFILE_RETURN_TO_PARAM } from "@/lib/account/profile-completion";
 
+import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
+
 import { TRANSACTION_HUB_INBOX_PATH, transactionHubInboxHref } from "@/lib/transaction-hub/inbox-routes";
 
 /** Canonical deep-link targets — Module 02B SSOT. */
@@ -18,13 +20,13 @@ export const NOTIFICATION_ROUTES = {
   reviews: "/account/reviews",
   followers: "/account/followers",
   listing: (slug: string) => `/product/${slug}`,
-  wallet: "/wallet",
-  walletTransactions: "/wallet/transactions",
+  wallet: WALLET_ROUTES.hub,
+  walletTransactions: WALLET_ROUTES.transactions,
   walletWithdrawal: (transactionId: string) => `/wallet/transactions/${transactionId}`,
   settings: "/account/settings",
   settingsAddresses: `/account/addresses?${PROFILE_RETURN_TO_PARAM}=/account`,
-  settingsPayments: `/account/payment-methods?${PROFILE_RETURN_TO_PARAM}=/account`,
-  settingsBank: `/account/settings/bank-account?${PROFILE_RETURN_TO_PARAM}=/account`,
+  settingsPayments: `${WALLET_ROUTES.paymentMethods}?${PROFILE_RETURN_TO_PARAM}=/account`,
+  settingsBank: `${WALLET_ROUTES.bankAccount}?${PROFILE_RETURN_TO_PARAM}=/account`,
 } as const;
 
 export type NotificationRouteContext = {
@@ -89,8 +91,8 @@ export function resolveCompletionGapHref(
 ): string {
   const encoded = encodeURIComponent(returnTo);
   if (gap === "address") return `${NOTIFICATION_ROUTES.settingsAddresses.split("?")[0]}?${PROFILE_RETURN_TO_PARAM}=${encoded}`;
-  if (gap === "payment") return `/account/payment-methods?${PROFILE_RETURN_TO_PARAM}=${encoded}`;
-  return `/account/settings/bank-account?${PROFILE_RETURN_TO_PARAM}=${encoded}`;
+  if (gap === "payment") return `${WALLET_ROUTES.paymentMethods}?${PROFILE_RETURN_TO_PARAM}=${encoded}`;
+  return `${WALLET_ROUTES.bankAccount}?${PROFILE_RETURN_TO_PARAM}=${encoded}`;
 }
 
 export function resolveNotificationTypeHref(

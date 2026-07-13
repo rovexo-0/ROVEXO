@@ -36,7 +36,7 @@ export function getSellerDashboardTiles(): MobileTile[] {
     tile("/seller", "Selling", "Performance & overview"),
     tile("/seller/listings", "My Listings", "Manage inventory"),
     tile("/seller/orders", "Seller Orders", "Fulfillment & shipping", "orders"),
-    tile("/seller/wallet", "Wallet", "Balance & withdrawals", "wallet-payout"),
+    tile("/wallet", "Wallet", "Balance & withdrawals", "wallet-payout"),
     tile("/seller/analytics", "Seller Analytics", "Views, sales & trends"),
     tile(MIGRATION_CENTER_PATH, "Bring Your Items", "Import your entire store"),
     tile("/seller/connectors", "Marketplace Connectors", "Connect external stores"),
@@ -51,7 +51,7 @@ export function getSellerDashboardTiles(): MobileTile[] {
 export const ACCOUNT_DASHBOARD_TILES: MobileTile[] = [
   tile("/account/profile", "Profile", "Name, avatar & email"),
   tile("/account/addresses", "Addresses", "Shipping & billing"),
-  tile("/account/payment-methods", "Payment Methods", "Cards & checkout"),
+  tile("/wallet/payment-methods", "Payment Methods", "Cards & checkout"),
   tile("/account/preferences/appearance", "Appearance", "Theme & display"),
   tile("/account/preferences/language", "Language", "Locale & region"),
   tile("/account/security", "Security", "Password & 2FA"),

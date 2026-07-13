@@ -118,7 +118,7 @@ export function SellerPromotionsSection({
             <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
               History
             </p>
-            <Link href="/seller/wallet" className="text-xs font-semibold text-primary">
+            <Link href="/wallet" className="text-xs font-semibold text-primary">
               Wallet
             </Link>
           </div>

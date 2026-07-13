@@ -79,17 +79,18 @@ describe("Auth + Account Architecture canonical v1.0", () => {
 
   it("consolidates account features under Settings", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
+    const menu = readSource("lib/account-center/settings-menu.ts");
 
     expect(settings).toContain("AccountCanonicalShell");
-    expect(settings).toContain("SettingsAccordion");
-    expect(settings).toContain('"Profile"');
-    expect(settings).toContain('"Addresses"');
-    expect(settings).toContain('"Payment Methods"');
-    expect(settings).toContain('"Bank Account"');
-    expect(settings).toContain("Notification Preferences");
-    expect(settings).toContain("DeleteAccountFlow");
+    expect(settings).toContain("SettingsMenuSections");
+    expect(menu).toContain('"Profile"');
+    expect(menu).toContain('"Addresses"');
+    expect(menu).toContain('"Payment Methods"');
+    expect(menu).toContain('"Notifications"');
+    expect(menu).toContain('"Seller Performance"');
+    expect(menu).toContain('"Appearance"');
     expect(settings).not.toContain("Help Centre");
-    expect(settings).not.toContain("Appearance");
+    expect(settings).not.toContain("SettingsAccordion");
   });
 
   it("removes manual verification route UI", () => {

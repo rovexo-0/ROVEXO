@@ -52,26 +52,24 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
 
   it("locks Settings hub sections for Module 02B", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
-    const accordion = readSource("features/account-module/components/SettingsAccordion.tsx");
+    const menu = readSource("lib/account-center/settings-menu.ts");
+    const sections = readSource("features/account-module/components/SettingsMenuSections.tsx");
 
     expect(settings).toContain("AccountCanonicalShell");
-    expect(settings).toContain("SettingsAccordion");
-    expect(settings).toContain('title: "Profile"');
-    expect(settings).toContain('"Addresses"');
-    expect(settings).toContain('title: "Payments"');
-    expect(settings).toContain('"Payment Methods"');
-    expect(settings).toContain('"Bank Account"');
-    expect(settings).toContain("Notification Preferences");
-    expect(settings).toContain('"Privacy & Security"');
-    expect(settings).toContain('"Preferences"');
-    expect(settings).toContain('"Legal"');
+    expect(settings).toContain("SettingsMenuSections");
+    expect(menu).toContain('"Profile"');
+    expect(menu).toContain('"Addresses"');
+    expect(menu).toContain('"Payment Methods"');
+    expect(menu).toContain('"Notifications"');
+    expect(menu).toContain('"Privacy & Security"');
+    expect(menu).toContain('"Seller Performance"');
+    expect(menu).toContain('"LEGAL"');
     expect(settings).not.toContain("🗑 Account");
     expect(settings).not.toContain("Identity Verification");
-    expect(settings).toContain("DeleteAccountFlow");
-    expect(settings).toContain("standalone");
-    expect(accordion).toContain("CanonicalCard");
-    expect(accordion).toContain("CanonicalMenuRow");
-    expect(accordion).toContain("sessionStorage");
+    expect(sections).toContain("DeleteAccountFlow");
+    expect(sections).toContain("dangerRow");
+    expect(sections).toContain("CanonicalCard");
+    expect(sections).toContain("CanonicalMenuRow");
   });
 
   it("locks wallet financial hub and withdraw flow", () => {
@@ -80,11 +78,12 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     const withdrawApi = readSource("app/api/wallet/withdraw/route.ts");
 
     expect(hub).toContain('data-wallet-hub-version="v1.0-production"');
-    expect(hub).toContain("Available Balance");
-    expect(hub).toContain("Withdraw");
-    expect(hub).toContain("Transactions");
-    expect(hub).toContain("Annual Statements");
+    expect(hub).toContain("SELLER_WALLET_COPY.availableBalance");
+    expect(hub).toContain("WALLET_ROUTES.withdraw");
+    expect(hub).toContain("WALLET_ROUTES.transactions");
+    expect(hub).toContain("WALLET_ROUTES.paymentMethods");
     expect(withdraw).toContain('data-wallet-withdraw-version="v2.0-02b"');
+    expect(withdraw).toContain("WALLET_ROUTES.bankAccount");
     expect(withdraw).toContain("Withdraw to Bank Account");
     expect(withdrawApi).toContain("recordWithdrawal");
     expect(withdrawApi).toContain("emitSmartNotification");
@@ -129,10 +128,10 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     );
 
     expect(resolveCompletionGapHref("bank", "/wallet/withdraw")).toContain(
-      "/account/settings/bank-account",
+      "/wallet/bank-account",
     );
     expect(resolveCompletionGapHref("address", "/checkout/item")).toContain("/account/addresses");
-    expect(resolveCompletionGapHref("payment", "/checkout/item")).toContain("/account/payment-methods");
+    expect(resolveCompletionGapHref("payment", "/checkout/item")).toContain("/wallet/payment-methods");
   });
 
   it("embeds help centre category buttons inside help", () => {

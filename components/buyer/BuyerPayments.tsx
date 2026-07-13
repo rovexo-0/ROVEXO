@@ -9,7 +9,7 @@ export function BuyerPayments() {
   const { data } = useBuyerDashboard();
 
   return (
-    <BuyerSection id="buyer-payments" title="Payment methods" href="/account/payment-methods">
+    <BuyerSection id="buyer-payments" title="Payment methods" href="/wallet/payment-methods">
       <div className="flex flex-col gap-4">
         {data.paymentMethods.map((method) => (
           <article key={method.id} className="buyer-payment-card">
@@ -22,7 +22,7 @@ export function BuyerPayments() {
             </div>
           </article>
         ))}
-        <Link href="/account/payment-methods" className="buyer-section__link">
+        <Link href="/wallet/payment-methods" className="buyer-section__link">
           Manage payment methods
         </Link>
       </div>

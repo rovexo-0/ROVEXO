@@ -196,7 +196,7 @@ test.describe.serial("My Account — cross-device layout integrity", () => {
       .getByRole("link", { name: /Settings/i })
       .click();
     await expect(page).toHaveURL(/\/account\/settings/, { timeout: 30_000 });
-    await expect(page.locator('[data-settings-version="v1.1"]')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('[data-settings-canonical="v1.0"]')).toBeVisible({ timeout: 30_000 });
     await page.goBack({ waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/account/, { timeout: 30_000 });
 

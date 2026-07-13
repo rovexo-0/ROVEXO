@@ -105,6 +105,12 @@ export function CheckoutPaymentStepV1({ form, totals }: CheckoutPaymentStepV1Pro
             );
           })}
         </div>
+
+        <p className="ckt-v1__manage-payments">
+          <a href="/wallet/payment-methods" className="ckt-v1__manage-payments-link">
+            Manage Payment Methods
+          </a>
+        </p>
       </section>
 
       <section className="ckt-v1__section" aria-labelledby="ckt-order-summary">

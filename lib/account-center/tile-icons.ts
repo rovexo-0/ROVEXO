@@ -37,7 +37,7 @@ const HREF_ICONS: Record<string, TileIconStyle> = {
   "/auctions": { emoji: "🔨", background: "#fef3c7" },
   "/account/profile": { emoji: "👤", background: "rgb(147 51 234 / 0.08)" },
   "/account/addresses": { emoji: "📍", background: "#f0fdf4" },
-  "/account/payment-methods": { emoji: "💳", background: "#faf5ff" },
+  "/wallet/payment-methods": { emoji: "💳", background: "#faf5ff" },
   "/account/seller/shipping": { emoji: "📦", background: "#ecfeff" },
   "/account/preferences/appearance": { emoji: "🎨", background: "#fff7ed" },
   "/account/preferences/language": { emoji: "🌐", background: "#ecfeff" },
