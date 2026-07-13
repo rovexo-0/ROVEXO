@@ -1,29 +1,22 @@
-/** ROVEXO AUTH v1 — Sprint 1 SSOT */
+/** ROVEXO AUTH v1 — re-exports AUTH_MASTER_SPEC v1.0 SSOT */
 
-export const AUTH_MODULE_VERSION = "v1.0-sprint1" as const;
+import { AUTH_MASTER_SPEC, AUTH_MASTER_SPEC_VERSION } from "@/lib/auth/master-spec";
 
-export const AUTH_ROUTES = {
-  splash: "/splash",
-  welcome: "/welcome",
-  login: "/login",
-  register: "/register",
-  forgotPassword: "/forgot-password",
-  verifyEmail: "/verify-email",
-  resetPassword: "/reset-password",
-  home: "/",
-} as const;
+export {
+  AUTH_MASTER_SPEC,
+  AUTH_MASTER_SPEC_VERSION,
+  type AuthSplashPhase,
+} from "@/lib/auth/master-spec";
 
-/** iPhone 17 Pro Max reference — 430 CSS px logical width. */
-export const AUTH_MOBILE_REFERENCE = {
-  viewportWidthPx: 430,
-  maxContentWidthPx: 430,
-  minTouchTargetPx: 48,
-  primaryButtonHeightPx: 52,
-  inputFontSizePx: 17,
-} as const;
+export const AUTH_MODULE_VERSION = AUTH_MASTER_SPEC_VERSION;
+
+export const AUTH_ROUTES = AUTH_MASTER_SPEC.routes;
+
+export const AUTH_MOBILE_REFERENCE = AUTH_MASTER_SPEC.mobileReference;
 
 export const AUTH_SPLASH = {
-  fadeDurationMs: 600,
-  minDisplayMs: 800,
-  maxWaitMs: 4000,
+  phases: AUTH_MASTER_SPEC.splash.phases,
+  fadeDurationMs: AUTH_MASTER_SPEC.splash.fadeDurationMs,
+  minDisplayMs: AUTH_MASTER_SPEC.splash.minDisplayMs,
+  maxWaitMs: AUTH_MASTER_SPEC.splash.maxWaitMs,
 } as const;

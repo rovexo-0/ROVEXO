@@ -3,6 +3,10 @@
  * iPhone 17 Pro Max reference: 430px logical width, fade-only motion.
  */
 
+.auth-splash-route {
+  min-height: 100dvh;
+}
+
 .auth-splash {
   --auth-splash-bg-top: #f5f0ff;
   --auth-splash-bg-mid: #faf8ff;

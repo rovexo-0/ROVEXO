@@ -2,6 +2,10 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  AUTH_MASTER_SPEC,
+  AUTH_MASTER_SPEC_VERSION,
+} from "@/lib/auth/master-spec";
+import {
   AUTH_MODULE_VERSION,
   AUTH_ROUTES,
   AUTH_SPLASH,
@@ -12,14 +16,22 @@ function readSource(relativePath: string): string {
   return readFileSync(path.join(process.cwd(), relativePath), "utf8");
 }
 
-describe("AUTH v1 — splash screen", () => {
-  it("exports canonical auth routes and splash timing", () => {
-    expect(AUTH_MODULE_VERSION).toBe("v1.0-sprint1");
+describe("AUTH_MASTER_SPEC v1.0 — splash screen", () => {
+  it("locks AUTH_MASTER_SPEC v1.0 splash contract", () => {
+    expect(AUTH_MASTER_SPEC_VERSION).toBe("v1.0");
+    expect(AUTH_MODULE_VERSION).toBe("v1.0");
+    expect(AUTH_MASTER_SPEC.splash.phases).toEqual([
+      "initialize_app",
+      "initialize_supabase",
+      "restore_session",
+    ]);
+    expect(AUTH_MASTER_SPEC.splash.motion).toBe("fade_only");
+    expect(AUTH_MASTER_SPEC.splash.prohibitedMotion).toContain("spinner");
     expect(AUTH_ROUTES.splash).toBe("/splash");
     expect(AUTH_ROUTES.welcome).toBe("/welcome");
     expect(AUTH_ROUTES.home).toBe("/");
     expect(AUTH_SPLASH.fadeDurationMs).toBe(600);
-    expect(AUTH_SPLASH.minDisplayMs).toBeGreaterThanOrEqual(600);
+    expect(AUTH_SPLASH.minDisplayMs).toBe(800);
   });
 
   it("lists splash and welcome as public auth routes", () => {
@@ -28,31 +40,49 @@ describe("AUTH v1 — splash screen", () => {
   });
 
   it("protects sell, wallet, checkout, orders, inbox, saved, business, admin", () => {
-    const required = ["/sell", "/wallet", "/checkout", "/orders", "/messages", "/saved", "/business", "/admin", "/super-admin"];
+    const required = [
+      "/sell",
+      "/wallet",
+      "/checkout",
+      "/orders",
+      "/messages",
+      "/saved",
+      "/business",
+      "/admin",
+      "/super-admin",
+    ];
     for (const prefix of required) {
       expect(AUTH_PROTECTED_PREFIXES).toContain(prefix);
     }
   });
 
-  it("implements splash page and bootstrap flow", () => {
+  it("implements splash bootstrap phases and destinations", () => {
     const splashPage = readSource("app/(auth)/splash/page.tsx");
+    const splashLayout = readSource("app/(auth)/splash/layout.tsx");
     const splashScreen = readSource("features/auth/components/SplashScreen.tsx");
     const bootstrap = readSource("lib/auth/bootstrap.ts");
 
     expect(splashPage).toContain("SplashScreen");
+    expect(splashLayout).toContain("linear-gradient");
+    expect(splashLayout).toContain("themeColor");
     expect(splashScreen).toContain("resolveSplashDestination");
     expect(splashScreen).toContain("RovexoAppIconMark");
     expect(splashScreen).toContain("auth-splash--exit");
+    expect(splashScreen).toContain("data-auth-spec");
+    expect(bootstrap).toContain("initialize_app");
+    expect(bootstrap).toContain("initialize_supabase");
+    expect(bootstrap).toContain("restore_session");
     expect(bootstrap).toContain("getSession");
     expect(bootstrap).toContain("AUTH_ROUTES.welcome");
-    expect(bootstrap).toContain("AUTH_ROUTES.home");
+    expect(bootstrap).toContain("authenticatedVerified");
   });
 
-  it("uses fade-only splash CSS (no scale or bounce)", () => {
+  it("uses fade-only splash CSS (no scale, bounce, or spinner)", () => {
     const css = readSource("styles/rovexo/auth-v1.css");
     expect(css).toContain("auth-splash-fade-in");
     expect(css).not.toMatch(/scale\(/);
     expect(css).not.toMatch(/bounce/);
+    expect(css).not.toContain("spinner");
     expect(css).toContain("opacity");
   });
 

@@ -3,13 +3,23 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RovexoAppIconMark } from "@/components/brand/RovexoAppIconMark";
+import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { AUTH_MODULE_VERSION, AUTH_SPLASH } from "@/lib/auth/canonical";
 import { resolveSplashDestination } from "@/lib/auth/bootstrap";
 import { cn } from "@/lib/cn";
 
+function SplashWordmark() {
+  return (
+    <p className="auth-splash__wordmark" aria-hidden>
+      ROV<span className="text-primary">X</span>O
+    </p>
+  );
+}
+
 export function SplashScreen() {
   const router = useRouter();
   const [exiting, setExiting] = useState(false);
+  const { copy } = AUTH_MASTER_SPEC.splash;
 
   useEffect(() => {
     let cancelled = false;
@@ -38,13 +48,14 @@ export function SplashScreen() {
       className={cn("auth-splash", exiting && "auth-splash--exit")}
       role="status"
       aria-live="polite"
-      aria-label="Loading ROVEXO"
+      aria-label={copy.ariaLabel}
       data-auth-module={AUTH_MODULE_VERSION}
+      data-auth-spec={AUTH_MASTER_SPEC.version}
       data-auth-screen="splash"
     >
       <RovexoAppIconMark className="auth-splash__mark" contained uid="splash" />
-      <p className="auth-splash__wordmark">ROVEXO</p>
-      <p className="auth-splash__tagline">Buy. Sell. Grow.</p>
+      <SplashWordmark />
+      <p className="auth-splash__tagline">{copy.tagline}</p>
     </div>
   );
 }
