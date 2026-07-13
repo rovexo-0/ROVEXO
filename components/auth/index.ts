@@ -1,6 +1,9 @@
 export { AuthLayout } from "@/components/auth/AuthLayout";
 export { AuthRouteLayout } from "@/components/auth/AuthRouteLayout";
 export { AuthHeader } from "@/components/auth/AuthHeader";
+export { AuthLogo } from "@/components/auth/AuthLogo";
+export { AuthContainer } from "@/components/auth/AuthContainer";
+export { AuthHeading } from "@/components/auth/AuthHeading";
 export { AuthInput } from "@/components/auth/AuthInput";
 export { PasswordInput } from "@/components/auth/PasswordInput";
 export { PrimaryButton } from "@/components/auth/PrimaryButton";
@@ -8,4 +11,5 @@ export { SecondaryButton } from "@/components/auth/SecondaryButton";
 export { Checkbox } from "@/components/auth/Checkbox";
 export { Divider } from "@/components/auth/Divider";
 export { SocialLogin } from "@/components/auth/SocialLogin";
+export { SocialButton } from "@/components/auth/SocialButton";
 export { AuthFooter } from "@/components/auth/AuthFooter";

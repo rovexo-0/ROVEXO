@@ -159,7 +159,7 @@ export async function signUp(
 
 export async function signInWithOAuthProvider(formData: FormData): Promise<void> {
   const provider = formData.get("provider");
-  if (provider !== "google" && provider !== "apple") {
+  if (provider !== "google" && provider !== "apple" && provider !== "facebook") {
     return;
   }
 

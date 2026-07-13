@@ -1,15 +1,18 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { redirectIfAuthenticated } from "@/lib/auth/guest-redirect";
+import { WelcomeScreen } from "@/features/auth/components/WelcomeScreen";
 
 export const metadata: Metadata = {
   title: "Welcome",
   robots: { index: false, follow: false },
 };
 
-/** Placeholder — full Welcome screen ships in the next sprint step. */
-export default function WelcomePage() {
-  return (
-    <p className="text-center text-sm text-text-secondary">
-      Welcome — review splash, then continue implementation.
-    </p>
-  );
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+};
+
+export default async function WelcomePage() {
+  await redirectIfAuthenticated();
+
+  return <WelcomeScreen />;
 }

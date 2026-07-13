@@ -4,15 +4,19 @@ import { useTransition } from "react";
 import { signInWithOAuthProvider } from "@/lib/auth/actions";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import type { AuthWelcomeSocialProvider } from "@/lib/auth/master-spec";
 
-type AuthOAuthButtonsProps = {
+export type SocialButtonProps = {
+  provider: AuthWelcomeSocialProvider;
+  label: string;
   next?: string;
+  disabled?: boolean;
   className?: string;
 };
 
 function AppleIcon() {
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+    <svg className="auth-social-button__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
       <path d="M17.05 20.28c-.98.95-2.05 1.88-3.3 1.9-1.24.02-1.64-.74-3.06-.74-1.42 0-1.86.72-3.04.76-1.22.04-2.15-1.23-3.08-2.18C2.8 16.96 1.5 12.58 3.1 9.9c.8-1.32 2.24-2.16 3.8-2.18 1.18-.02 2.3.8 3.04.8.74 0 2.12-.98 3.58-.84 1.22.05 2.34.7 3.04 1.68-2.68 1.48-2.24 5.32.44 6.52-.58 1.5-1.32 2.98-2.35 4.4zM14.03 4.1c.52-1.24.44-2.36-.04-3.36-1.02.08-2.26.68-2.98 1.54-.66.78-1.24 2.04-.68 3.24 1.18.1 2.38-.6 3.7-1.42z" />
     </svg>
   );
@@ -20,7 +24,7 @@ function AppleIcon() {
 
 function GoogleIcon() {
   return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden>
+    <svg className="auth-social-button__icon" viewBox="0 0 24 24" aria-hidden>
       <path
         fill="#4285F4"
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
@@ -41,19 +45,27 @@ function GoogleIcon() {
   );
 }
 
-function OAuthButton({
+function FacebookIcon() {
+  return (
+    <svg className="auth-social-button__icon" viewBox="0 0 24 24" fill="#1877F2" aria-hidden>
+      <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.027 4.393 11.023 10.125 11.926v-8.43H7.078v-3.496h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.496h-2.796v8.43C19.607 23.096 24 18.1 24 12.073z" />
+    </svg>
+  );
+}
+
+const SOCIAL_ICONS: Record<AuthWelcomeSocialProvider, React.ReactNode> = {
+  apple: <AppleIcon />,
+  google: <GoogleIcon />,
+  facebook: <FacebookIcon />,
+};
+
+export function SocialButton({
   provider,
   label,
-  icon,
   next,
   disabled,
-}: {
-  provider: "apple" | "google";
-  label: string;
-  icon: React.ReactNode;
-  next?: string;
-  disabled?: boolean;
-}) {
+  className,
+}: SocialButtonProps) {
   const [pending, startTransition] = useTransition();
 
   return (
@@ -61,6 +73,7 @@ function OAuthButton({
       type="button"
       disabled={disabled || pending}
       aria-busy={pending}
+      aria-label={label}
       onClick={() => {
         startTransition(async () => {
           const formData = new FormData();
@@ -70,35 +83,57 @@ function OAuthButton({
         });
       }}
       className={cn(
-        "flex min-h-[50px] w-full items-center justify-center gap-ds-2 rounded-ds-xl border border-border/80 bg-surface px-ds-4 text-[16px] font-medium text-text-primary shadow-ds-soft",
-        "hover:bg-surface-muted active:scale-[0.99]",
+        "auth-social-button",
         focusRing,
         (disabled || pending) && "pointer-events-none opacity-60",
+        className,
       )}
     >
-      {icon}
-      {label}
+      {SOCIAL_ICONS[provider]}
+      <span>{label}</span>
     </button>
   );
 }
 
+type AuthOAuthButtonsProps = {
+  next?: string;
+  className?: string;
+  providers?: readonly AuthWelcomeSocialProvider[];
+  labels?: Partial<Record<AuthWelcomeSocialProvider, string>>;
+};
+
 export function AuthOAuthDivider({ label = "or continue with" }: { label?: string }) {
   return (
-    <div className="relative flex items-center py-ds-1">
-      <div className="h-px flex-1 bg-border/70" aria-hidden />
-      <span className="px-ds-3 text-xs font-medium uppercase tracking-wide text-text-muted">
-        {label}
-      </span>
-      <div className="h-px flex-1 bg-border/70" aria-hidden />
+    <div className="auth-divider" role="presentation">
+      <div className="auth-divider__line" aria-hidden />
+      <span className="auth-divider__label">{label}</span>
+      <div className="auth-divider__line" aria-hidden />
     </div>
   );
 }
 
-export function AuthOAuthButtons({ next, className }: AuthOAuthButtonsProps) {
+export function AuthOAuthButtons({
+  next,
+  className,
+  providers = ["apple", "google"],
+  labels,
+}: AuthOAuthButtonsProps) {
+  const defaultLabels: Record<AuthWelcomeSocialProvider, string> = {
+    apple: "Apple",
+    google: "Google",
+    facebook: "Facebook",
+  };
+
   return (
-    <div className={cn("flex flex-col gap-ds-3", className)}>
-      <OAuthButton provider="apple" label="Apple" icon={<AppleIcon />} next={next} />
-      <OAuthButton provider="google" label="Google" icon={<GoogleIcon />} next={next} />
+    <div className={cn("auth-social-login", className)}>
+      {providers.map((provider) => (
+        <SocialButton
+          key={provider}
+          provider={provider}
+          label={labels?.[provider] ?? defaultLabels[provider]}
+          next={next}
+        />
+      ))}
     </div>
   );
 }

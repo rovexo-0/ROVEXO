@@ -12,7 +12,7 @@ type AuthRouteLayoutProps = {
 export function AuthRouteLayout({ children }: AuthRouteLayoutProps) {
   const pathname = usePathname();
 
-  if (pathname === AUTH_ROUTES.splash) {
+  if (pathname === AUTH_ROUTES.splash || pathname === AUTH_ROUTES.welcome) {
     return <>{children}</>;
   }
 

@@ -53,6 +53,41 @@ export const AUTH_MASTER_SPEC = {
       noWhiteScreen: true,
     },
   },
+  welcome: {
+    fadeDurationMs: 225,
+    motion: "fade_only" as const,
+    prohibitedMotion: ["scale", "bounce", "rotation"] as const,
+    presentation: {
+      layout: "centered",
+      background: "#ffffff",
+      maxWidthPx: 430,
+    },
+    routes: {
+      signIn: "/login",
+      register: "/register",
+      terms: "/legal/terms-and-conditions",
+      privacy: "/legal/privacy-policy",
+    },
+    socialProviders: ["apple", "google", "facebook"] as const,
+    copy: {
+      tagline: "BUY. SELL. GROW.",
+      title: "Welcome to ROVEXO",
+      description:
+        "Discover trusted buying and selling in one place. Sign in or create your free account to get started.",
+      signIn: "Sign In",
+      createAccount: "Create Account",
+      divider: "or continue with",
+      footerPrefix: "By continuing you agree to the",
+      termsLabel: "Terms of Service",
+      privacyLabel: "Privacy Policy",
+      socialLabels: {
+        apple: "Continue with Apple",
+        google: "Continue with Google",
+        facebook: "Continue with Facebook",
+      },
+    },
+  },
 } as const;
 
 export type AuthSplashPhase = (typeof AUTH_MASTER_SPEC.splash.phases)[number];
+export type AuthWelcomeSocialProvider = (typeof AUTH_MASTER_SPEC.welcome.socialProviders)[number];
