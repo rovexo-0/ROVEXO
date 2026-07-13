@@ -29,17 +29,25 @@ describe("Wallet premium final UI v1.0", () => {
     expect(hub).toContain("Available Balance");
     expect(hub).toContain("Lifetime Withdrawn");
     expect(hub).toContain('label="Bank Account"');
+    expect(hub).toContain('href="/help"');
+    expect(hub).toContain("HeadsetLineIcon");
     expect(hub).not.toContain("platformFeeBuyerOnly");
     expect(hub).not.toContain("Platform Fee");
     expect(bank).toContain("Connect Bank Account");
     expect(bank).toContain("Change Bank");
+    expect(bank).toContain("Edit Bank");
+    expect(bank).toContain("Remove Bank");
+    expect(bank).toContain('method: "DELETE"');
     expect(txns).toContain("View All");
     expect(txns).toContain("Withdrawals");
     expect(txns).toContain('role="tablist"');
+    expect(txns).toContain("IntersectionObserver");
     expect(css).toContain("--wallet-radius: 20px");
     expect(css).toContain("--wallet-gap: 24px");
     expect(css).toContain("linear-gradient");
     expect(css).toContain("padding: 24px");
+    expect(css).toContain("200ms");
+    expect(css).toContain("prefers-reduced-motion");
   });
 
   it("lazy-loads insights, transactions, and connected bank", () => {
@@ -58,12 +66,14 @@ describe("Wallet premium final UI v1.0", () => {
   it("hosts payment methods only under wallet", () => {
     const page = readSource("features/wallet/components/WalletPaymentMethodsPage.tsx");
     const accountRedirect = readSource("app/account/payment-methods/page.tsx");
-    const settingsRedirect = readSource("app/account/settings/bank-account/page.tsx");
+    const settingsBankRedirect = readSource("app/account/settings/bank-account/page.tsx");
+    const settingsPmRedirect = readSource("app/account/settings/payment-methods/page.tsx");
 
     expect(page).toContain("CardSetupSheet");
     expect(page).toContain("Add Card");
     expect(accountRedirect).toContain("WALLET_ROUTES.paymentMethods");
-    expect(settingsRedirect).toContain("WALLET_ROUTES.bankAccount");
+    expect(settingsBankRedirect).toContain("WALLET_ROUTES.bankAccount");
+    expect(settingsPmRedirect).toContain("WALLET_ROUTES.paymentMethods");
   });
 
   it("settings and checkout reference wallet payment methods only", () => {

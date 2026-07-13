@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { BackLineIcon } from "@/components/icons/RvxLineIcons";
 import { usePageBack } from "@/hooks/navigation/usePageBack";
 import { cn } from "@/lib/cn";
@@ -13,6 +14,8 @@ export type AccountCanonicalHeaderProps = {
   centeredTitle?: string;
   /** History fallback when back stack is empty. Defaults to /account. */
   fallbackHref?: string;
+  /** Optional trailing action (e.g. Help on Wallet). */
+  rightAction?: ReactNode;
 };
 
 const ACCOUNT_BACK_FALLBACK = "/account";
@@ -25,6 +28,7 @@ export function AccountCanonicalHeader({
   backLabel = "Back",
   centeredTitle,
   fallbackHref = ACCOUNT_BACK_FALLBACK,
+  rightAction,
 }: AccountCanonicalHeaderProps) {
   const back = usePageBack({
     backHref: fallbackHref,
@@ -59,8 +63,16 @@ export function AccountCanonicalHeader({
         {centeredTitle ? (
           <>
             <h1 className="account-canonical-header__title">{centeredTitle}</h1>
-            <span className="account-canonical-header__spacer" aria-hidden />
+            {rightAction ? (
+              <div className="account-canonical-header__action">{rightAction}</div>
+            ) : (
+              <span className="account-canonical-header__spacer" aria-hidden />
+            )}
           </>
+        ) : rightAction ? (
+          <div className="account-canonical-header__action account-canonical-header__action--trail">
+            {rightAction}
+          </div>
         ) : null}
       </div>
     </header>

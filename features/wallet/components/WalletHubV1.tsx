@@ -15,6 +15,7 @@ import {
   ChevronRightLineIcon,
   CreditCardLineIcon,
   DocumentLineIcon,
+  HeadsetLineIcon,
   ShieldLineIcon,
   WalletLineIcon,
 } from "@/components/icons/RvxLineIcons";
@@ -141,7 +142,17 @@ export function WalletHubV1({
   const walletVerified = data.connectStatus.connected && data.connectStatus.payoutsEnabled;
 
   return (
-    <AccountCanonicalShell title="Wallet" backHref={backHref} backLabel="My Account" showHeaderTitle>
+    <AccountCanonicalShell
+      title="Wallet"
+      backHref={backHref}
+      backLabel="My Account"
+      showHeaderTitle
+      rightAction={
+        <Link href="/help" aria-label="Help Centre" className="wallet-v2__help">
+          <HeadsetLineIcon />
+        </Link>
+      }
+    >
       <div
         className="wallet-v2"
         data-wallet-hub-version="v1.0-production"

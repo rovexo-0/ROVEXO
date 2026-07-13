@@ -88,6 +88,8 @@ describe("formatAccountSellerRatingDisplay", () => {
 describe("account seller performance summary messages", () => {
   const emptyFactors: SellerPerformanceFactors = {
     completedOrders: 0,
+    messagesReceived: 0,
+    messagesReplied: 0,
     reviews: {
       averageRating: 0,
       reviewCount: 0,
@@ -96,10 +98,22 @@ describe("account seller performance summary messages", () => {
     responseRatePercent: 0,
     averageResponseTimeMinutes: null,
     averageDispatchTimeHours: null,
+    dispatchWithin24hPercent: null,
+    dispatchWithin48hPercent: null,
+    cancelledOrders: 0,
     cancellationRatePercent: 0,
     validatedReports: 0,
     profileCompletion: { percent: 0, completed: [], missing: [] },
-    storeActivity: { score: 0 },
+    storeActivity: {
+      score: 0,
+      recentListings: 0,
+      recentLogins: 0,
+      recentMessages: 0,
+      recentSales: 0,
+      recentUpdates: 0,
+    },
+    identityVerified: false,
+    businessVerified: false,
   };
 
   const components: ComponentScores = {

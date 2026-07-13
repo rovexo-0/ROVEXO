@@ -29,7 +29,9 @@ export type AccountCanonicalShellProps = {
  */
 export function AccountCanonicalShell({
   title,
+  backHref = "/account",
   backLabel = "Back",
+  rightAction,
   children,
   className,
   contentClassName,
@@ -47,6 +49,8 @@ export function AccountCanonicalShell({
               <AccountCanonicalHeader
                 backLabel={backLabel}
                 centeredTitle={showHeaderTitle ? title : undefined}
+                fallbackHref={backHref}
+                rightAction={rightAction}
               />
             </div>
           ) : null}
