@@ -1,7 +1,10 @@
 /**
- * ROVEXO Wallet hub — premium final UI v1.0
+ * ROVEXO Wallet hub — premium final UI v1.0 (CANONICAL — one layout all breakpoints)
  * Quality bar: Revolut / Stripe Express / Airbnb Host Payout
  * 20px radius · 24px spacing · 16px gaps · classic black icons · purple hero
+ *
+ * Responsive may change ONLY: width, max-width, column count.
+ * Never: dark theme, alternate colours, spacing system, hierarchy, or desktop redesign.
  */
 
 .wallet-v2 {
@@ -15,12 +18,28 @@
   --wallet-shadow: 0 10px 30px rgb(15 23 42 / 0.08);
   --wallet-shadow-soft: 0 4px 16px rgb(15 23 42 / 0.05);
   --wallet-icon: #111111;
+  --wallet-surface: #ffffff;
+  --wallet-text: #111111;
+  --wallet-text-muted: #71717a;
+  /* Canonical light mockup only — never follow OS/app dark theme */
+  color-scheme: only light;
   display: flex;
   flex-direction: column;
   gap: var(--wallet-gap);
   width: min(100%, 640px);
   margin-inline: auto;
   padding: 4px 0 12px;
+  color: var(--wallet-text);
+}
+
+/* Force approved light mockup even when app/OS theme is dark */
+html[data-theme="dark"] .wallet-v2,
+[data-theme="dark"] .wallet-v2 {
+  --wallet-surface: #ffffff;
+  --wallet-text: #111111;
+  --wallet-text-muted: #71717a;
+  --wallet-icon: #111111;
+  color: var(--wallet-text);
 }
 
 .wallet-v2__notice {
@@ -178,10 +197,10 @@
   padding: 16px;
   border: 1px solid rgb(15 23 42 / 0.06);
   border-radius: var(--wallet-radius);
-  background: #fff;
+  background: var(--wallet-surface);
   box-shadow: var(--wallet-shadow-soft);
   text-decoration: none;
-  color: inherit;
+  color: var(--wallet-text);
   transition:
     box-shadow 200ms ease,
     transform 200ms ease,
@@ -276,10 +295,10 @@
   padding: 14px 8px;
   border: 1px solid rgb(15 23 42 / 0.06);
   border-radius: var(--wallet-radius);
-  background: #fff;
+  background: var(--wallet-surface);
   box-shadow: var(--wallet-shadow-soft);
   text-decoration: none;
-  color: inherit;
+  color: var(--wallet-text);
   text-align: center;
   transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
 }
@@ -335,8 +354,9 @@
 .wallet-v2__txn-card {
   border: 1px solid rgb(15 23 42 / 0.06);
   border-radius: var(--wallet-radius);
-  background: #fff;
+  background: var(--wallet-surface);
   box-shadow: var(--wallet-shadow-soft);
+  color: var(--wallet-text);
 }
 
 .wallet-v2__insight-card {
@@ -645,7 +665,7 @@
   padding: 0 14px;
   border: 1px solid rgb(15 23 42 / 0.08);
   border-radius: 999px;
-  background: #fff;
+  background: var(--wallet-surface);
   color: #52525b;
   font-size: 0.8125rem;
   font-weight: 600;
@@ -809,38 +829,14 @@
   }
 }
 
-/* —— Responsive —— */
+/* —— Responsive (width / max-width / columns ONLY) —— */
 @media (min-width: 640px) {
-  .wallet-v2__metrics {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .wallet-v2__insights {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .wallet-v2__hero-balance {
-    font-size: 2.75rem;
-  }
-
-  .wallet-v2__quick-label {
-    font-size: 0.75rem;
+  .wallet-v2 {
+    width: min(100%, 720px);
   }
 }
 
 @media (max-width: 380px) {
-  .wallet-v2__quick-label {
-    font-size: 0.625rem;
-  }
-
-  .wallet-v2__hero-balance {
-    font-size: 2rem;
-  }
-
-  .wallet-v2__hero {
-    padding: 20px;
-  }
-
   .wallet-v2__bank-actions {
     grid-template-columns: 1fr;
   }
@@ -876,83 +872,6 @@
   .wallet-v2__bank-action:active {
     transform: none;
   }
-}
-
-/* —— Dark mode —— */
-@media (prefers-color-scheme: dark) {
-  .wallet-v2 {
-    --wallet-icon: #f4f4f5;
-  }
-
-  .wallet-v2__metric,
-  .wallet-v2__quick,
-  .wallet-v2__insight-card,
-  .wallet-v2__panel,
-  .wallet-v2__bank-card,
-  .wallet-v2__txn-card,
-  .wallet-v2__tab {
-    background: #18181b;
-    border-color: rgb(255 255 255 / 0.08);
-  }
-
-  .wallet-v2__metric-icon,
-  .wallet-v2__quick-icon,
-  .wallet-v2__bank-logo,
-  .wallet-v2__txn-icon {
-    background: #27272a;
-    color: #f4f4f5;
-  }
-
-  .wallet-v2__metric-title,
-  .wallet-v2__metric-hint,
-  .wallet-v2__bank-meta,
-  .wallet-v2__insight-copy,
-  .wallet-v2__insight-status,
-  .wallet-v2__insight-kicker,
-  .wallet-v2__insight-list dt,
-  .wallet-v2__empty,
-  .wallet-v2__txn-sub,
-  .wallet-v2__txn-meta,
-  .wallet-v2__tab {
-    color: #a1a1aa;
-  }
-
-  .wallet-v2__metric-amount,
-  .wallet-v2__section-title,
-  .wallet-v2__bank-name,
-  .wallet-v2__txn-title,
-  .wallet-v2__quick-label,
-  .wallet-v2__insight-list dd,
-  .wallet-v2__insight-status strong {
-    color: #fafafa;
-  }
-
-  .wallet-v2__txn,
-  .wallet-v2__bank-change,
-  .wallet-v2__bank-action {
-    border-color: rgb(255 255 255 / 0.08);
-  }
-
-  .wallet-v2__txn:hover {
-    background: rgb(255 255 255 / 0.04);
-  }
-}
-
-[data-theme="dark"] .wallet-v2__metric,
-[data-theme="dark"] .wallet-v2__quick,
-[data-theme="dark"] .wallet-v2__insight-card,
-[data-theme="dark"] .wallet-v2__bank-card,
-[data-theme="dark"] .wallet-v2__txn-card {
-  background: #18181b;
-  border-color: rgb(255 255 255 / 0.08);
-}
-
-[data-theme="dark"] .wallet-v2__metric-amount,
-[data-theme="dark"] .wallet-v2__section-title,
-[data-theme="dark"] .wallet-v2__bank-name,
-[data-theme="dark"] .wallet-v2__txn-title,
-[data-theme="dark"] .wallet-v2__quick-label {
-  color: #fafafa;
 }
 
 /* Keep legacy wallet-hub styles for withdraw / transactions / statements pages */

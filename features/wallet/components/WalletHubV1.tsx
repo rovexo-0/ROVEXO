@@ -158,6 +158,7 @@ export function WalletHubV1({
         data-wallet-hub-version="v1.0-production"
         data-wallet-canonical={WALLET_CANONICAL_VERSION}
         data-wallet-ui="v1.0-final"
+        data-wallet-visual="canonical-light"
       >
         {connectMessage ? <p className="wallet-v2__notice">{connectMessage}</p> : null}
 

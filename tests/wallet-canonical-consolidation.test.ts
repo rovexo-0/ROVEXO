@@ -24,6 +24,7 @@ describe("Wallet premium final UI v1.0", () => {
     const txns = readSource("features/wallet/components/WalletRecentTransactions.tsx");
 
     expect(hub).toContain('data-wallet-ui="v1.0-final"');
+    expect(hub).toContain('data-wallet-visual="canonical-light"');
     expect(hub).toContain("wallet-v2__hero");
     expect(hub).toContain("Verified Wallet");
     expect(hub).toContain("Available Balance");
@@ -33,6 +34,8 @@ describe("Wallet premium final UI v1.0", () => {
     expect(hub).toContain("HeadsetLineIcon");
     expect(hub).not.toContain("platformFeeBuyerOnly");
     expect(hub).not.toContain("Platform Fee");
+    expect(hub).not.toContain("WalletDesktop");
+    expect(hub).not.toContain("WalletMobile");
     expect(bank).toContain("Connect Bank Account");
     expect(bank).toContain("Change Bank");
     expect(bank).toContain("Edit Bank");
@@ -48,6 +51,22 @@ describe("Wallet premium final UI v1.0", () => {
     expect(css).toContain("padding: 24px");
     expect(css).toContain("200ms");
     expect(css).toContain("prefers-reduced-motion");
+    expect(css).toContain("color-scheme: only light");
+    expect(css).toContain("repeat(2, minmax(0, 1fr))");
+  });
+
+  it("keeps one light Wallet design across breakpoints (no dark/desktop theme)", () => {
+    const css = readSource("styles/rovexo/wallet-hub-v1.css");
+    const hub = readSource("features/wallet/components/WalletHubV1.tsx");
+    const page = readSource("features/wallet/components/WalletPage.tsx");
+
+    expect(page).toContain("WalletHubV1");
+    expect(hub).not.toMatch(/matchMedia|useMediaQuery|isDesktop|isMobile/);
+    expect(css).not.toContain("prefers-color-scheme: dark");
+    expect(css).not.toContain('[data-theme="dark"] .wallet-v2');
+    expect(css).not.toContain("background: #18181b");
+    expect(css).not.toMatch(/\.wallet-v2__metrics\s*\{[^}]*repeat\(4/);
+    expect(css).toMatch(/width:\s*min\(100%,\s*720px\)/);
   });
 
   it("lazy-loads insights, transactions, and connected bank", () => {
