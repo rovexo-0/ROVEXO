@@ -1,18 +1,6 @@
-import { OrdersListPage } from "@/features/orders/components/OrdersListPage";
-import { fetchOrdersForUser } from "@/lib/orders/queries";
-import { getProfile } from "@/lib/profile/data";
+import { permanentRedirect } from "next/navigation";
 
-export default async function SellerOrdersRoute() {
-  const profile = await getProfile();
-  const orders = await fetchOrdersForUser(profile.id, "seller");
-
-  return (
-    <OrdersListPage
-      orders={orders}
-      userId={profile.id}
-      listRole="seller"
-      backHref="/seller"
-      showBottomNav={false}
-    />
-  );
+/** Seller orders list consolidates into canonical /orders Sold tab. */
+export default function SellerOrdersRoute() {
+  permanentRedirect("/orders");
 }

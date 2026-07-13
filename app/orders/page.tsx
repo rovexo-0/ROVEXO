@@ -12,7 +12,11 @@ export default async function OrdersRoute() {
 
   return (
     <Suspense>
-      <OrdersV1 boughtOrders={boughtOrders} soldOrders={soldOrders} />
+      <OrdersV1
+        boughtOrders={boughtOrders}
+        soldOrders={soldOrders}
+        unreadNotifications={profile.unreadNotifications}
+      />
     </Suspense>
   );
 }
