@@ -51,6 +51,7 @@ export function sortOrdersHubNewest(orders: Order[]): Order[] {
   return [...orders].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
 }
 
+/** Sold-tab statistics — Master Implementation Spec card copy. */
 export function buildSoldSummary(orders: Order[]): OrdersHubSummaryCard[] {
   const nonCancelled = orders.filter((o) => o.status !== "cancelled");
   const totalSales = nonCancelled.reduce((sum, o) => sum + o.totals.total, 0);
@@ -62,9 +63,10 @@ export function buildSoldSummary(orders: Order[]): OrdersHubSummaryCard[] {
   );
   const pendingTotal = pending.reduce((sum, o) => sum + o.totals.total, 0);
   const completed = orders.filter((o) => o.status === "completed" || o.status === "delivered");
+  const reviewCount = completed.length;
   const feedbackPct =
     nonCancelled.length === 0
-      ? "100%"
+      ? "0%"
       : `${Math.round((completed.length / nonCancelled.length) * 100)}%`;
 
   return [
@@ -80,7 +82,7 @@ export function buildSoldSummary(orders: Order[]): OrdersHubSummaryCard[] {
       id: "pending-payout",
       title: "Pending Payout",
       value: formatCurrency(pendingTotal),
-      subtitle: `${pending.length} orders`,
+      subtitle: pendingTotal === 0 ? "Nothing to withdraw" : `${pending.length} orders`,
       tone: "pending",
       href: "/wallet",
       filter: "processing",
@@ -89,7 +91,7 @@ export function buildSoldSummary(orders: Order[]): OrdersHubSummaryCard[] {
       id: "orders",
       title: "Orders",
       value: String(orders.length),
-      subtitle: "Sold",
+      subtitle: "All orders",
       tone: "orders",
       filter: "all",
     },
@@ -97,13 +99,14 @@ export function buildSoldSummary(orders: Order[]): OrdersHubSummaryCard[] {
       id: "feedback",
       title: "Positive Feedback",
       value: feedbackPct,
-      subtitle: "Completed rate",
+      subtitle: `${reviewCount} Review${reviewCount === 1 ? "" : "s"}`,
       tone: "feedback",
       filter: "completed",
     },
   ];
 }
 
+/** Bought-tab statistics — same grid structure, buyer-facing copy. */
 export function buildBoughtSummary(orders: Order[]): OrdersHubSummaryCard[] {
   const nonCancelled = orders.filter((o) => o.status !== "cancelled");
   const totalSpent = nonCancelled.reduce((sum, o) => sum + o.totals.total, 0);
@@ -129,7 +132,7 @@ export function buildBoughtSummary(orders: Order[]): OrdersHubSummaryCard[] {
       id: "in-progress",
       title: "In Progress",
       value: String(inProgress.length),
-      subtitle: "Active orders",
+      subtitle: inProgress.length === 0 ? "Nothing active" : "Active orders",
       tone: "pending",
       filter: "processing",
     },
@@ -137,7 +140,7 @@ export function buildBoughtSummary(orders: Order[]): OrdersHubSummaryCard[] {
       id: "orders",
       title: "Orders",
       value: String(orders.length),
-      subtitle: "Bought",
+      subtitle: "All orders",
       tone: "orders",
       filter: "all",
     },
@@ -145,7 +148,7 @@ export function buildBoughtSummary(orders: Order[]): OrdersHubSummaryCard[] {
       id: "completed",
       title: "Completed",
       value: String(completed.length),
-      subtitle: "Delivered",
+      subtitle: `${completed.length} Review${completed.length === 1 ? "" : "s"}`,
       tone: "feedback",
       filter: "completed",
     },
