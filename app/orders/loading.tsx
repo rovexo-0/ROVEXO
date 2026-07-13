@@ -1,9 +1,11 @@
-import { OrdersSkeleton } from "@/components/skeletons/PageSkeletons";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+import { OrdersHubSkeleton } from "@/features/orders/components/OrdersHubV1";
+import "@/styles/rovexo/orders-hub-v1.css";
 
 export default function OrdersLoading() {
   return (
-    <div className="min-h-screen bg-background text-text-primary">
-      <OrdersSkeleton />
-    </div>
+    <AccountCanonicalShell title="Orders" showHeaderTitle backHref="/account">
+      <OrdersHubSkeleton />
+    </AccountCanonicalShell>
   );
 }

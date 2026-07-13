@@ -38,25 +38,32 @@ function mockOrder(overrides: Partial<Order> = {}): Order {
 }
 
 describe("Orders Hub v1.0 canonical", () => {
-  it("locks hub markers and mockup tokens", () => {
+  it("locks full mockup section tree in hub + css", () => {
     const hub = readSource("features/orders/components/OrdersHubV1.tsx");
     const css = readSource("styles/rovexo/orders-hub-v1.css");
     const route = readSource("app/orders/page.tsx");
     const indexCss = readSource("styles/rovexo/index.css");
+    const legacy = readSource("styles/rovexo/account-settings-ui.css");
 
     expect(hub).toContain('data-orders-ui="v1.0-canonical-mockup"');
-    expect(hub).toContain('data-orders-freeze="pending-visual-qa"');
-    expect(hub).toContain("/notifications");
+    expect(hub).toContain('data-orders-sections="header,tabs,summary,chips,list"');
+    expect(hub).toContain("orders-v2__summary");
+    expect(hub).toContain("orders-v2__filters");
+    expect(hub).toContain("orders-v2__timeline");
+    expect(hub).toContain("orders-v2__empty");
     expect(hub).toContain("Browse Marketplace");
     expect(hub).toContain("Sell an Item");
+    expect(hub).toContain("/notifications");
+    expect(css).toContain(".orders-v2__summary");
     expect(css).toContain("height: 92px");
     expect(css).toContain("height: 40px");
-    expect(css).toContain("height: 44px");
-    expect(css).toContain("#7c3aed");
     expect(css).toContain("96px");
+    expect(css).toContain("#7c3aed");
     expect(css).toContain("0 4px 20px rgba(17, 24, 39, 0.05)");
-    expect(indexCss).toContain('"./orders-hub-v1.css"');
-    expect(route).toContain("unreadNotifications");
+    expect(indexCss).toContain("orders-hub-v1.css");
+    expect(route).toContain("OrdersHubV1");
+    expect(route).toContain("OrdersHubSkeleton");
+    expect(legacy).not.toContain(".orders-canonical-tabs");
   });
 
   it("maps status filters and sold summary cards", () => {
