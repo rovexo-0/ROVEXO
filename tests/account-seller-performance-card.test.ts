@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { formatAccountSellerRatingDisplay } from "@/lib/account-center/format-seller-rating";
 import {
   buildNextLevelRequirements,
   progressToNextLevel,
@@ -21,9 +22,9 @@ describe("My Account Seller Performance card", () => {
     expect(home).toMatch(
       /AccountStatsStrip[\s\S]*AccountSellerPerformanceCard[\s\S]*AccountMenuSections/,
     );
-    expect(page).toContain("fetchAccountSellerPerformanceSummary");
+    expect(page).toContain("getSellerPerformanceSummary");
     expect(page).toContain("sellerPerformance={sellerPerformance}");
-    expect(card).toContain('href="/seller/performance"');
+    expect(card).toContain('router.push("/seller/performance")');
     expect(card).toContain("View details");
     expect(card).toContain("SellerLevelBadge");
     expect(card).toContain("AccountSellerScoreRing");
@@ -35,21 +36,29 @@ describe("My Account Seller Performance card", () => {
     const css = readSource("styles/rovexo/account-canonical-v2.css");
 
     expect(card).toContain("ac-canonical__seller-performance-link");
-    expect(card).toContain("AccountSellerStarRating");
+    expect(card).toContain("BagLineIcon");
+    expect(card).toContain("performance.ratingDisplay");
     expect(card).toContain("Completed Sales");
     expect(card).not.toContain("ac-canonical__seller-performance-cta");
     expect(css).toContain(".ac-canonical__seller-performance-grid");
-    expect(css).toContain(".ac-canonical__seller-progress-bar-row");
+    expect(css).toContain("min-height: 160px");
+    expect(css).toContain("max-height: 180px");
+    expect(css).toContain("width: 64px");
+    expect(css).toContain("font-size: 28px");
+    expect(css).toContain("height: 6px");
+    expect(css).toContain("cursor: pointer");
     expect(css).not.toContain(".ac-canonical__seller-performance-cta");
   });
 
   it("reads stored seller performance values from the engine service", () => {
     const summary = readSource("lib/account-center/seller-performance-summary.ts");
 
+    expect(summary).toContain("getSellerPerformanceSummary");
     expect(summary).toContain("getSellerPerformanceScore");
     expect(summary).toContain("progressToNextLevel");
     expect(summary).toContain("buildNextLevelRequirements");
     expect(summary).toContain("Start selling to build your reputation.");
+    expect(summary).toContain("Almost ");
     expect(summary).not.toContain("calculateSellerPerformanceScore");
     expect(summary).not.toContain("placeholder");
     expect(summary).not.toContain("demo");
@@ -63,7 +72,15 @@ describe("My Account Seller Performance card", () => {
     expect(card).toContain("performance.totalSales");
     expect(card).toContain("performance.progressPercent");
     expect(card).toContain("performance.progressMessage");
-    expect(card).toContain("performance.reviewCount");
+    expect(card).toContain("performance.ratingDisplay");
+  });
+});
+
+describe("formatAccountSellerRatingDisplay", () => {
+  it("formats new and rated seller lines", () => {
+    expect(formatAccountSellerRatingDisplay(0, 0)).toBe("⭐ New");
+    expect(formatAccountSellerRatingDisplay(4.8, 12)).toBe("★★★★☆ 4.8");
+    expect(formatAccountSellerRatingDisplay(4.3, 2)).toBe("★★★★☆ 4.3");
   });
 });
 

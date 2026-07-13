@@ -1,9 +1,10 @@
-import Link from "next/link";
-import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { BagLineIcon, ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import { SellerLevelBadge } from "@/features/seller-performance/components/SellerLevelBadge";
 import { AccountSellerPerformanceIcon } from "@/features/account-center/components/AccountSellerPerformanceIcon";
 import { AccountSellerScoreRing } from "@/features/account-center/components/AccountSellerScoreRing";
-import { AccountSellerStarRating } from "@/features/account-center/components/AccountSellerStarRating";
 import type { AccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
@@ -13,6 +14,8 @@ type AccountSellerPerformanceCardProps = {
 };
 
 export function AccountSellerPerformanceCard({ performance }: AccountSellerPerformanceCardProps) {
+  const router = useRouter();
+
   return (
     <section
       className="ac-canonical__seller-performance"
@@ -24,23 +27,20 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
           <AccountSellerPerformanceIcon className="ac-canonical__seller-performance-icon" />
           <h2 className="ac-canonical__seller-performance-title">Seller Performance</h2>
         </div>
-        <Link
-          href="/seller/performance"
+        <button
+          type="button"
+          onClick={() => router.push("/seller/performance")}
           className={cn("ac-canonical__seller-performance-link", focusRing)}
         >
           View details
           <ChevronRightLineIcon className="ac-canonical__seller-performance-link-icon" />
-        </Link>
+        </button>
       </div>
 
       <div className="ac-canonical__seller-performance-grid">
         <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--level">
           <SellerLevelBadge level={performance.level} className="ac-canonical__seller-level-badge" />
-          {performance.reviewCount === 0 ? (
-            <p className="ac-canonical__seller-rating-new">⭐ New</p>
-          ) : (
-            <AccountSellerStarRating rating={performance.averageRating} />
-          )}
+          <p className="ac-canonical__seller-rating">{performance.ratingDisplay}</p>
         </div>
 
         <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--score">
@@ -48,10 +48,11 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
         </div>
 
         <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--sales">
-          <p className="ac-canonical__seller-metric-label">Completed Sales</p>
+          <BagLineIcon className="ac-canonical__seller-sales-icon" aria-hidden />
           <p className="ac-canonical__seller-metric-value">
             {performance.totalSales.toLocaleString()}
           </p>
+          <p className="ac-canonical__seller-metric-label">Completed Sales</p>
         </div>
       </div>
 

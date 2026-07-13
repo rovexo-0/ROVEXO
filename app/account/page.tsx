@@ -1,6 +1,6 @@
 import { AccountCenterPage } from "@/features/account-center/components/AccountCenterPage";
 import { fetchAccountHubSnapshot } from "@/lib/account-center/snapshot";
-import { fetchAccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
+import { getSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
 import { fetchProfile } from "@/lib/profile/queries";
 import { fetchWalletData } from "@/lib/wallet/queries";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
@@ -12,7 +12,7 @@ export default async function AccountPage() {
   const [wallet, snapshot, sellerPerformance] = await Promise.all([
     fetchWalletData().catch(() => null),
     fetchAccountHubSnapshot(profile),
-    fetchAccountSellerPerformanceSummary(profile.id),
+    getSellerPerformanceSummary(profile.id),
   ]);
 
   return (
