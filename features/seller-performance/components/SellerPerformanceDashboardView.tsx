@@ -3,7 +3,10 @@ import { SellerLevelBadge } from "@/features/seller-performance/components/Selle
 import { SellerPerformanceFactorCard } from "@/features/seller-performance/components/SellerPerformanceFactorCard";
 import { SellerPerformanceHistorySection } from "@/features/seller-performance/components/SellerPerformanceHistorySection";
 import { SellerPerformanceScoreMeter } from "@/features/seller-performance/components/SellerPerformanceScoreMeter";
-import { SELLER_LEVEL_LABELS } from "@/lib/seller-performance/master-spec";
+import {
+  ACHIEVEMENT_DEFINITIONS,
+  SELLER_LEVEL_LABELS,
+} from "@/lib/seller-performance/master-spec";
 import type { ScoreHistoryRange, SellerPerformanceDashboard } from "@/lib/seller-performance/types";
 
 type SellerPerformanceDashboardViewProps = {
@@ -11,10 +14,19 @@ type SellerPerformanceDashboardViewProps = {
   historyRange?: ScoreHistoryRange;
 };
 
+function badgeLabel(badgeId: (typeof ACHIEVEMENT_DEFINITIONS)[number]["id"]): string {
+  return ACHIEVEMENT_DEFINITIONS.find((entry) => entry.id === badgeId)?.label ?? badgeId;
+}
+
 export function SellerPerformanceDashboardView({
   data,
   historyRange = "90d",
 }: SellerPerformanceDashboardViewProps) {
+  const publicBadges = data.score.badgesGranted.map((badgeId) => ({
+    id: badgeId,
+    label: badgeLabel(badgeId),
+  }));
+
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-ds-6 px-ds-4 py-ds-6">
       <section>
@@ -101,6 +113,42 @@ export function SellerPerformanceDashboardView({
         </Card>
       </div>
 
+      <div className="grid gap-ds-4 md:grid-cols-2">
+        <Card padding="lg">
+          <h2 className="font-semibold text-text-primary">Public badges</h2>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {publicBadges.length ? (
+              publicBadges.map((badge) => (
+                <li
+                  key={badge.id}
+                  className="rounded-ds-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+                >
+                  {badge.label}
+                </li>
+              ))
+            ) : (
+              <li className="text-sm text-text-secondary">No public badges yet.</li>
+            )}
+          </ul>
+        </Card>
+
+        <Card padding="lg">
+          <h2 className="font-semibold text-text-primary">Notifications</h2>
+          <ul className="mt-3 space-y-2 text-sm text-text-secondary">
+            {data.latestChanges.length ? (
+              data.latestChanges.slice(0, 6).map((change) => (
+                <li key={`notice-${change.id}`} className="border-b border-border pb-2">
+                  Reputation update: {change.delta >= 0 ? "+" : ""}
+                  {change.delta} points — {change.reason}
+                </li>
+              ))
+            ) : (
+              <li>No reputation notifications yet.</li>
+            )}
+          </ul>
+        </Card>
+      </div>
+
       <Card padding="lg">
         <h2 className="font-semibold text-text-primary">Score trend</h2>
         <SellerPerformanceHistorySection
@@ -109,16 +157,20 @@ export function SellerPerformanceDashboardView({
         />
       </Card>
 
-      {data.factorBreakdown.length > 0 && (
-        <Card padding="lg">
-          <h2 className="font-semibold text-text-primary">Performance factors</h2>
+      <Card padding="lg">
+        <h2 className="font-semibold text-text-primary">Performance factors</h2>
+        {data.factorBreakdown.length > 0 ? (
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {data.factorBreakdown.map((factor) => (
               <SellerPerformanceFactorCard key={factor.key} factor={factor} />
             ))}
           </div>
-        </Card>
-      )}
+        ) : (
+          <p className="mt-3 text-sm text-text-secondary">
+            Factor breakdown will appear after your first marketplace activity is recorded.
+          </p>
+        )}
+      </Card>
     </div>
   );
 }

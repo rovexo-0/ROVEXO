@@ -54,12 +54,10 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
         </div>
 
         <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--sales">
-          <div className="ac-canonical__seller-sales-stack">
-            <BagLineIcon className="ac-canonical__seller-sales-icon" aria-hidden />
-            <p className="ac-canonical__seller-metric-value">
-              {performance.totalSales.toLocaleString()}
-            </p>
-          </div>
+          <BagLineIcon className="ac-canonical__seller-sales-icon" aria-hidden />
+          <p className="ac-canonical__seller-metric-value">
+            {performance.totalSales.toLocaleString()}
+          </p>
           <p className="ac-canonical__seller-metric-label">Completed Sales</p>
         </div>
       </div>

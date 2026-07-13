@@ -1,6 +1,7 @@
-import { cn } from "@/lib/cn";
+"use client";
 
-const SCORE_RING_GRADIENT_ID = "ac-seller-score-ring-gradient";
+import { useEffect, useId, useRef, useState } from "react";
+import { cn } from "@/lib/cn";
 
 type AccountSellerScoreRingProps = {
   score: number;
@@ -8,21 +9,45 @@ type AccountSellerScoreRingProps = {
 };
 
 export function AccountSellerScoreRing({ score, className }: AccountSellerScoreRingProps) {
+  const gradientId = useId().replace(/:/g, "");
   const normalized = Math.max(0, Math.min(100, Math.round(score)));
   const radius = 27;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (normalized / 100) * circumference;
+  const targetOffset = circumference - (normalized / 100) * circumference;
+
+  const [strokeOffset, setStrokeOffset] = useState(circumference);
+  const [animateRing, setAnimateRing] = useState(false);
+  const previousScore = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (previousScore.current === null) {
+      setStrokeOffset(targetOffset);
+      previousScore.current = normalized;
+      return;
+    }
+
+    if (previousScore.current !== normalized) {
+      setAnimateRing(true);
+      setStrokeOffset(targetOffset);
+      previousScore.current = normalized;
+    }
+  }, [normalized, targetOffset]);
 
   return (
     <div
-      className={cn("ac-canonical__seller-score-ring", className)}
+      className={cn(
+        "ac-canonical__seller-score-ring",
+        animateRing && "ac-canonical__seller-score-ring--animate",
+        className,
+      )}
       role="img"
       aria-label={`Seller score ${normalized} out of 100`}
     >
       <svg viewBox="0 0 64 64" className="ac-canonical__seller-score-ring-svg" aria-hidden>
         <defs>
-          <linearGradient id={SCORE_RING_GRADIENT_ID} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#8b5cf6" />
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#a855f7" />
+            <stop offset="50%" stopColor="#8b5cf6" />
             <stop offset="100%" stopColor="#7c3aed" />
           </linearGradient>
         </defs>
@@ -42,9 +67,9 @@ export function AccountSellerScoreRing({ score, className }: AccountSellerScoreR
           fill="none"
           strokeWidth="5"
           strokeLinecap="round"
-          stroke={`url(#${SCORE_RING_GRADIENT_ID})`}
+          stroke={`url(#${gradientId})`}
           strokeDasharray={circumference}
-          strokeDashoffset={offset}
+          strokeDashoffset={strokeOffset}
           transform="rotate(-90 32 32)"
         />
       </svg>

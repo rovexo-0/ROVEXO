@@ -42,8 +42,9 @@ describe("My Account Seller Performance card", () => {
     expect(card).not.toContain("ac-canonical__seller-performance-cta");
     expect(css).toContain(".ac-canonical__seller-performance-grid");
     expect(css).toContain("grid-template-columns: repeat(3, minmax(0, 1fr))");
-    expect(css).toContain("ac-canonical__seller-sales-stack");
-    expect(css).toContain("data-seller-level");
+    expect(css).toContain("height: 64px");
+    expect(css).toContain("margin-bottom: 10px");
+    expect(css).toContain("ac-canonical__seller-score-ring--animate");
     expect(css).toContain("font-size: 28px");
     expect(css).toContain("height: 6px");
     expect(css).toContain("cursor: pointer");
