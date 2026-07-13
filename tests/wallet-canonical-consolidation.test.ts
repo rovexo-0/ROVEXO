@@ -63,7 +63,8 @@ describe("Wallet premium final UI v1.0", () => {
     expect(page).toContain("WalletHubV1");
     expect(hub).not.toMatch(/matchMedia|useMediaQuery|isDesktop|isMobile/);
     expect(css).not.toContain("prefers-color-scheme: dark");
-    expect(css).not.toContain('[data-theme="dark"] .wallet-v2');
+    expect(css).toContain("color-scheme: only light");
+    expect(css).toContain('--wallet-surface: #ffffff');
     expect(css).not.toContain("background: #18181b");
     expect(css).not.toMatch(/\.wallet-v2__metrics\s*\{[^}]*repeat\(4/);
     expect(css).toMatch(/width:\s*min\(100%,\s*720px\)/);
