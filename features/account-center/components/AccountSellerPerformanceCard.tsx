@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import { SellerLevelBadge } from "@/features/seller-performance/components/SellerLevelBadge";
+import { AccountSellerPerformanceIcon } from "@/features/account-center/components/AccountSellerPerformanceIcon";
 import { AccountSellerScoreRing } from "@/features/account-center/components/AccountSellerScoreRing";
-import { formatSellerPerformanceRating } from "@/lib/account-center/format-profile-rating";
+import { AccountSellerStarRating } from "@/features/account-center/components/AccountSellerStarRating";
 import type { AccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
@@ -11,11 +13,6 @@ type AccountSellerPerformanceCardProps = {
 };
 
 export function AccountSellerPerformanceCard({ performance }: AccountSellerPerformanceCardProps) {
-  const ratingLine = formatSellerPerformanceRating(
-    performance.averageRating,
-    performance.reviewCount,
-  );
-
   return (
     <section
       className="ac-canonical__seller-performance"
@@ -23,31 +20,44 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
       data-ac-seller-performance="v1.0"
     >
       <div className="ac-canonical__seller-performance-header">
-        <h2 className="ac-canonical__seller-performance-title">Seller Performance</h2>
-        <SellerLevelBadge level={performance.level} className="ac-canonical__seller-level-badge" />
+        <div className="ac-canonical__seller-performance-heading">
+          <AccountSellerPerformanceIcon className="ac-canonical__seller-performance-icon" />
+          <h2 className="ac-canonical__seller-performance-title">Seller Performance</h2>
+        </div>
+        <Link
+          href="/seller/performance"
+          className={cn("ac-canonical__seller-performance-link", focusRing)}
+        >
+          View details
+          <ChevronRightLineIcon className="ac-canonical__seller-performance-link-icon" />
+        </Link>
       </div>
 
-      <div className="ac-canonical__seller-performance-body">
-        <AccountSellerScoreRing score={performance.score} />
-        <div className="ac-canonical__seller-performance-metrics">
-          <div>
-            <p className="ac-canonical__seller-metric-label">Seller rating</p>
-            <p className="ac-canonical__seller-metric-value">{ratingLine}</p>
-          </div>
-          <div>
-            <p className="ac-canonical__seller-metric-label">Total sales</p>
-            <p className="ac-canonical__seller-metric-value">
-              {performance.totalSales.toLocaleString()}
-            </p>
-          </div>
+      <div className="ac-canonical__seller-performance-grid">
+        <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--level">
+          <SellerLevelBadge level={performance.level} className="ac-canonical__seller-level-badge" />
+          {performance.reviewCount === 0 ? (
+            <p className="ac-canonical__seller-rating-new">⭐ New</p>
+          ) : (
+            <AccountSellerStarRating rating={performance.averageRating} />
+          )}
+        </div>
+
+        <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--score">
+          <AccountSellerScoreRing score={performance.score} />
+        </div>
+
+        <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--sales">
+          <p className="ac-canonical__seller-metric-label">Completed Sales</p>
+          <p className="ac-canonical__seller-metric-value">
+            {performance.totalSales.toLocaleString()}
+          </p>
         </div>
       </div>
 
-      <div className="ac-canonical__seller-performance-progress">
-        <div className="ac-canonical__seller-progress-row">
-          <span className="ac-canonical__seller-progress-label">Level progress</span>
-          <span className="ac-canonical__seller-progress-percent">{performance.progressPercent}%</span>
-        </div>
+      <p className="ac-canonical__seller-progress-message">{performance.progressMessage}</p>
+
+      <div className="ac-canonical__seller-progress-bar-row">
         <div
           className="ac-canonical__seller-progress-track"
           role="progressbar"
@@ -61,15 +71,8 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
             style={{ width: `${performance.progressPercent}%` }}
           />
         </div>
-        <p className="ac-canonical__seller-progress-message">{performance.progressMessage}</p>
+        <span className="ac-canonical__seller-progress-percent">{performance.progressPercent}%</span>
       </div>
-
-      <Link
-        href="/seller/performance"
-        className={cn("ac-canonical__seller-performance-cta", focusRing)}
-      >
-        View details
-      </Link>
     </section>
   );
 }

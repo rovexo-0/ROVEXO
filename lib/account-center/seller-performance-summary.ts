@@ -1,6 +1,7 @@
 import { levelLabel, progressToNextLevel, buildNextLevelRequirements } from "@/lib/seller-performance/levels";
 import { SELLER_LEVEL_LABELS, type SellerLevel } from "@/lib/seller-performance/master-spec";
 import { getSellerPerformanceScore } from "@/lib/seller-performance/service";
+import type { NextLevelRequirement } from "@/lib/seller-performance/types";
 
 export type AccountSellerPerformanceSummary = {
   level: SellerLevel;
@@ -12,18 +13,42 @@ export type AccountSellerPerformanceSummary = {
   progressPercent: number;
   progressMessage: string;
   nextLevelLabel: string | null;
+  isNewSeller: boolean;
 };
 
-function buildProgressMessage(
-  progressPercent: number,
-  pointsToNext: number | null,
+function buildAccountProgressMessage(
+  totalSales: number,
   nextLevelLabel: string | null,
+  pointsToNext: number | null,
+  requirements: NextLevelRequirement[],
 ): string {
-  if (!nextLevelLabel) return "You have reached the highest seller level.";
-  if (pointsToNext != null && pointsToNext > 0) {
-    return `${pointsToNext} points to ${nextLevelLabel}`;
+  if (totalSales === 0) {
+    return "Start selling to build your reputation.";
   }
-  return `${progressPercent}% toward ${nextLevelLabel}`;
+
+  if (!nextLevelLabel) {
+    return "You have reached the highest seller level.";
+  }
+
+  const salesRequirement = requirements.find((item) => item.kind === "completed_orders");
+  if (salesRequirement && salesRequirement.remaining > 0) {
+    const noun = salesRequirement.remaining === 1 ? "sale" : "sales";
+    return `Only ${salesRequirement.remaining} ${noun} until ${nextLevelLabel}`;
+  }
+
+  if (pointsToNext != null && pointsToNext > 0) {
+    const noun = pointsToNext === 1 ? "point" : "points";
+    return `Only ${pointsToNext} ${noun} until ${nextLevelLabel}`;
+  }
+
+  const alternateRequirement = requirements.find(
+    (item) => item.kind !== "points" && item.remaining > 0,
+  );
+  if (alternateRequirement) {
+    return `Only ${alternateRequirement.remaining} more ${alternateRequirement.label.toLowerCase()} until ${nextLevelLabel}`;
+  }
+
+  return `Progress toward ${nextLevelLabel}`;
 }
 
 export async function fetchAccountSellerPerformanceSummary(
@@ -31,6 +56,8 @@ export async function fetchAccountSellerPerformanceSummary(
 ): Promise<AccountSellerPerformanceSummary> {
   const scoreRow = await getSellerPerformanceScore(userId);
   const factors = scoreRow.factors;
+  const totalSales = factors?.completedOrders ?? 0;
+  const reviewCount = factors?.reviews.reviewCount ?? 0;
   const progress = progressToNextLevel(scoreRow.score);
 
   if (factors) {
@@ -42,26 +69,24 @@ export async function fetchAccountSellerPerformanceSummary(
   }
 
   const nextLevelLabel = progress.nextLevel ? SELLER_LEVEL_LABELS[progress.nextLevel] : null;
-  const altRequirement = progress.requirements.find((item) => item.kind !== "points");
-  let progressMessage = buildProgressMessage(
-    progress.percent,
-    progress.pointsToNext,
+  const progressMessage = buildAccountProgressMessage(
+    totalSales,
     nextLevelLabel,
+    progress.pointsToNext,
+    progress.requirements,
   );
-
-  if (altRequirement && progress.pointsToNext != null && progress.pointsToNext > 0) {
-    progressMessage = `${progress.pointsToNext} points or ${altRequirement.remaining} more ${altRequirement.label.toLowerCase()} to ${nextLevelLabel}`;
-  }
+  const progressPercent = totalSales === 0 ? 0 : progress.percent;
 
   return {
     level: scoreRow.level,
     levelLabel: levelLabel(scoreRow.level),
     score: scoreRow.score,
     averageRating: factors?.reviews.averageRating ?? 0,
-    reviewCount: factors?.reviews.reviewCount ?? 0,
-    totalSales: factors?.completedOrders ?? 0,
-    progressPercent: progress.percent,
+    reviewCount,
+    totalSales,
+    progressPercent,
     progressMessage,
     nextLevelLabel,
+    isNewSeller: totalSales === 0 && reviewCount === 0,
   };
 }

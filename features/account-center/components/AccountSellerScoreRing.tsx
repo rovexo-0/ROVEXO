@@ -7,7 +7,7 @@ type AccountSellerScoreRingProps = {
 
 export function AccountSellerScoreRing({ score, className }: AccountSellerScoreRingProps) {
   const normalized = Math.max(0, Math.min(100, Math.round(score)));
-  const radius = 34;
+  const radius = 20;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (normalized / 100) * circumference;
 
@@ -17,29 +17,32 @@ export function AccountSellerScoreRing({ score, className }: AccountSellerScoreR
       role="img"
       aria-label={`Seller score ${normalized} out of 100`}
     >
-      <svg viewBox="0 0 80 80" className="ac-canonical__seller-score-ring-svg" aria-hidden>
+      <svg viewBox="0 0 56 56" className="ac-canonical__seller-score-ring-svg" aria-hidden>
         <circle
           className="ac-canonical__seller-score-ring-track"
-          cx="40"
-          cy="40"
+          cx="28"
+          cy="28"
           r={radius}
           fill="none"
-          strokeWidth="6"
+          strokeWidth="4"
         />
         <circle
           className="ac-canonical__seller-score-ring-progress"
-          cx="40"
-          cy="40"
+          cx="28"
+          cy="28"
           r={radius}
           fill="none"
-          strokeWidth="6"
+          strokeWidth="4"
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          transform="rotate(-90 40 40)"
+          transform="rotate(-90 28 28)"
         />
       </svg>
-      <span className="ac-canonical__seller-score-ring-value">{normalized}</span>
+      <div className="ac-canonical__seller-score-ring-copy">
+        <span className="ac-canonical__seller-score-ring-value">{normalized}</span>
+        <span className="ac-canonical__seller-score-ring-max">/100</span>
+      </div>
     </div>
   );
 }
