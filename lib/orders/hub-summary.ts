@@ -8,12 +8,6 @@ export type OrdersHubStatusFilter =
   | "completed"
   | "cancelled";
 
-export type OrdersHubSort =
-  | "newest"
-  | "oldest"
-  | "highest_value"
-  | "lowest_value";
-
 export type OrdersHubSummaryCard = {
   id: string;
   title: string;
@@ -34,7 +28,6 @@ export function matchesOrdersHubStatusFilter(
   if (filter === "completed") {
     return order.status === "completed" || order.status === "delivered";
   }
-  // processing
   return (
     order.status === "awaiting_payment" ||
     order.status === "awaiting_shipment" ||
@@ -42,33 +35,20 @@ export function matchesOrdersHubStatusFilter(
   );
 }
 
-export function sortOrdersHub(orders: Order[], sort: OrdersHubSort): Order[] {
-  const next = [...orders];
-  switch (sort) {
-    case "oldest":
-      return next.sort((a, b) => +new Date(a.createdAt) - +new Date(b.createdAt));
-    case "highest_value":
-      return next.sort((a, b) => b.totals.total - a.totals.total);
-    case "lowest_value":
-      return next.sort((a, b) => a.totals.total - b.totals.total);
-    case "newest":
-    default:
-      return next.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
-  }
+export function countOrdersByFilter(
+  orders: Order[],
+): Record<OrdersHubStatusFilter, number> {
+  return {
+    all: orders.length,
+    processing: orders.filter((o) => matchesOrdersHubStatusFilter(o, "processing")).length,
+    shipping: orders.filter((o) => matchesOrdersHubStatusFilter(o, "shipping")).length,
+    completed: orders.filter((o) => matchesOrdersHubStatusFilter(o, "completed")).length,
+    cancelled: orders.filter((o) => matchesOrdersHubStatusFilter(o, "cancelled")).length,
+  };
 }
 
-export function searchOrdersHub(orders: Order[], query: string, tab: "sold" | "bought"): Order[] {
-  const q = query.trim().toLowerCase();
-  if (!q) return orders;
-  return orders.filter((order) => {
-    const party = tab === "sold" ? order.buyer.name : order.seller.name;
-    return (
-      order.id.toLowerCase().includes(q) ||
-      order.orderNumber.toLowerCase().includes(q) ||
-      order.product.title.toLowerCase().includes(q) ||
-      party.toLowerCase().includes(q)
-    );
-  });
+export function sortOrdersHubNewest(orders: Order[]): Order[] {
+  return [...orders].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
 }
 
 export function buildSoldSummary(orders: Order[]): OrdersHubSummaryCard[] {
@@ -84,7 +64,7 @@ export function buildSoldSummary(orders: Order[]): OrdersHubSummaryCard[] {
   const completed = orders.filter((o) => o.status === "completed" || o.status === "delivered");
   const feedbackPct =
     nonCancelled.length === 0
-      ? "—"
+      ? "100%"
       : `${Math.round((completed.length / nonCancelled.length) * 100)}%`;
 
   return [
