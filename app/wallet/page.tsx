@@ -2,6 +2,7 @@ import { WalletPage, resolveWalletShowStatements } from "@/features/wallet/compo
 import { fetchWalletData } from "@/lib/wallet/queries";
 import { fetchProfile } from "@/lib/profile/queries";
 import { syncConnectAccountBySellerId } from "@/lib/stripe/connect";
+import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { redirect } from "next/navigation";
 
 type WalletRouteProps = {
@@ -13,6 +14,11 @@ export default async function WalletRoute({ searchParams }: WalletRouteProps) {
 
   if (!profile) {
     redirect("/login?next=/wallet");
+  }
+
+  // Buyers manage saved cards only — seller wallet hub is for selling funds.
+  if (!profile.isSeller) {
+    redirect(WALLET_ROUTES.paymentMethods);
   }
 
   const params = await searchParams;

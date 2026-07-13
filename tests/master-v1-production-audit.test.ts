@@ -49,9 +49,11 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
 
   it("locks production wallet earnings and statement exports", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
+    const insights = readSource("features/wallet/components/WalletInsights.tsx");
     const detail = readSource("features/wallet/components/MonthlyStatementDetail.tsx");
-    expect(hub).toContain("Monthly Earnings");
-    expect(hub).toContain("Lifetime Earnings");
+    expect(hub).toContain('data-wallet-ui="v1.0-redesign"');
+    expect(hub).toContain("Paid Out");
+    expect(insights).toContain("This Month");
     expect(detail).toContain("Download CSV");
     expect(detail).toContain("Opening Balance");
   });

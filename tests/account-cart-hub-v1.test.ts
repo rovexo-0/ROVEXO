@@ -45,15 +45,14 @@ describe("Account + Cart canonical UI v1", () => {
     const withdraw = readSource("app/wallet/withdraw/page.tsx");
 
     expect(wallet).toContain('data-wallet-hub-version="v1.0-production"');
-    expect(wallet).toContain("SELLER_WALLET_COPY.availableBalance");
+    expect(wallet).toContain('data-wallet-ui="v1.0-redesign"');
+    expect(wallet).toContain("Available Balance");
     expect(wallet).toContain("Transactions");
     expect(wallet).toContain("Annual Statements");
+    expect(wallet).toContain("Connected Bank");
     expect(wallet).not.toContain("Pending Balance");
-    expect(wallet).not.toContain("Connected Bank");
     expect(wallet).not.toContain("Total earnings");
-    expect(wallet).not.toContain("Manage");
-    expect(wallet).toContain("wallet-hub__amount--in");
-    expect(wallet).toContain("wallet-hub__amount--out");
+    expect(wallet).not.toContain("Platform Fee");
     expect(page).toContain("WalletHubV1");
     expect(withdraw).toContain("WithdrawPage");
   });
