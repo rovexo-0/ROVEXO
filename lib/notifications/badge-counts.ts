@@ -16,7 +16,7 @@ export function resolveHrefBadge(href: string, counts: DashboardBadgeCounts): nu
   if (href.startsWith("/orders") || href === "/orders") return counts.orders;
   if (href.startsWith("/cart")) return counts.cart;
   if (href.startsWith("/saved")) return counts.saved;
-  if (href.startsWith("/messages")) return counts.messages;
+  if (href.startsWith("/inbox") || href.startsWith("/messages")) return counts.messages + counts.notifications;
   if (href.startsWith("/notifications")) return counts.notifications;
   if (href.startsWith("/seller/wallet")) return counts["wallet-payout"];
   if (href.startsWith("/seller/orders")) return counts.orders;

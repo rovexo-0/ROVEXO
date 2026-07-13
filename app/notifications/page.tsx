@@ -1,15 +1,9 @@
-import { NotificationsInboxV1 } from "@/features/notifications/components/NotificationsInboxV1";
+import { redirect } from "next/navigation";
+import { INBOX_ROUTES } from "@/lib/inbox/canonical-routes";
 
 export const dynamic = "force-dynamic";
 
-export default function NotificationsRoute() {
-  return <NotificationsInboxV1 />;
-}
-
-export async function generateMetadata() {
-  return {
-    title: "Notifications | ROVEXO",
-    description: "ROVEXO Notifications — real-time alerts and marketplace updates.",
-    robots: { index: false, follow: false },
-  };
+/** Legacy Notifications list → Inbox Notifications tab. */
+export default function NotificationsRouteRedirect() {
+  redirect(INBOX_ROUTES.notificationsTab);
 }

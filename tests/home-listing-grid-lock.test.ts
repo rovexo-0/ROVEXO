@@ -133,7 +133,7 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(nav).toContain('label: "Browse"');
     expect(nav).toContain('label: "Inbox"');
     expect(nav).toContain('label: "Profile"');
-    expect(nav).toContain('href: "/messages"');
+    expect(nav).toContain('href: "/inbox"');
     expect(page).toContain("HP_CANONICAL_BOTTOM_NAV");
   });
 

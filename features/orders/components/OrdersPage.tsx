@@ -110,7 +110,7 @@ export function OrdersPage({
 
   const notify: ReactNode = (
     <Link
-      href="/notifications"
+      href="/inbox?tab=notifications"
       className="orders-page__notify"
       aria-label={
         unreadNotifications > 0

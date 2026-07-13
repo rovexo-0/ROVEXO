@@ -46,8 +46,8 @@ export const BUSINESS_NAV: NavLink[] = [
 ];
 
 export const SHARED_NAV: NavLink[] = [
-  { href: "/messages", label: "Messages", subtitle: "Buyer & seller chats" },
-  { href: "/notifications", label: "Notifications", subtitle: "Alerts & activity" },
+  { href: "/inbox", label: "Inbox", subtitle: "Messages & notifications" },
+  { href: "/inbox?tab=notifications", label: "Notifications", subtitle: "Alerts & activity" },
   { href: "/notifications/settings", label: "Notification Settings", subtitle: "Push & email preferences" },
   { href: "/settings", label: "Settings", subtitle: "Account & privacy" },
   { href: "/help", label: "Help Centre", subtitle: "Guides & troubleshooting" },
@@ -131,6 +131,7 @@ export const ALL_PUBLIC_ROUTES = [
   "/account",
   "/orders",
   "/messages",
+  "/inbox",
   "/notifications",
   "/settings",
   "/help",

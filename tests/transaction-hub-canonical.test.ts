@@ -69,17 +69,17 @@ describe("transaction hub canonical", () => {
     ).toEqual({ buyNow: false, makeOffer: false, addToCart: false });
   });
 
-  it("uses /messages as canonical inbox", () => {
-    expect(TRANSACTION_HUB_INBOX_PATH).toBe("/messages");
-    expect(transactionHubInboxHref("conv-1")).toBe("/messages/conv-1");
+  it("uses /inbox as canonical inbox", () => {
+    expect(TRANSACTION_HUB_INBOX_PATH).toBe("/inbox");
+    expect(transactionHubInboxHref("conv-1")).toBe("/inbox/conversation/conv-1");
     expect(transactionHubCheckoutHref("pillow", "conv-1")).toContain("/checkout/pillow");
     expect(transactionHubCheckoutHref("pillow", "conv-1")).toContain("returnTo=");
     expect(transactionHubCheckoutHref("pillow", "conv-1")).toContain("hub=chat");
   });
 
-  it("routes message notifications to /messages threads", () => {
+  it("routes message notifications to inbox conversation threads", () => {
     expect(resolveSmartNotificationHref("new_message", { conversationId: "c1" })).toBe(
-      "/messages/c1",
+      "/inbox/conversation/c1",
     );
   });
 });

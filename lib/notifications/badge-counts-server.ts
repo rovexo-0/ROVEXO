@@ -6,6 +6,7 @@ const HREF_BADGE_KEYS: Array<{ prefix: string; key: MobileBadgeKey }> = [
   { prefix: "/orders", key: "orders" },
   { prefix: "/cart", key: "cart" },
   { prefix: "/saved", key: "saved" },
+  { prefix: "/inbox", key: "messages" },
   { prefix: "/messages", key: "messages" },
   { prefix: "/notifications", key: "notifications" },
   { prefix: "/seller/wallet", key: "wallet-payout" },

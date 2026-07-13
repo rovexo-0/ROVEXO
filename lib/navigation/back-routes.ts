@@ -34,8 +34,9 @@ const EXACT_BACK_ROUTES: Record<string, BackRouteConfig> = {
   "/sell": { parentHref: "/seller", label: "Selling" },
   "/orders": { parentHref: "/account", label: "My Account" },
   "/wallet": { parentHref: "/account", label: "My Account" },
-  "/messages": { parentHref: "/account", label: "Account" },
-  "/notifications": { parentHref: "/account", label: "Account" },
+  "/messages": { parentHref: "/inbox", label: "Inbox" },
+  "/inbox": { parentHref: "/account", label: "Account" },
+  "/notifications": { parentHref: "/inbox", label: "Inbox" },
   "/trust": { parentHref: "/account", label: "Account" },
   "/resolution": { parentHref: "/account", label: "Account" },
   "/assistant": { parentHref: "/help", label: "Help" },
@@ -101,11 +102,14 @@ export function resolveBackRoute(pathname: string): BackRouteConfig | null {
   if (normalized.startsWith("/orders/")) {
     return { parentHref: "/orders", label: "Orders" };
   }
+  if (normalized.startsWith("/inbox/conversation/")) {
+    return { parentHref: "/inbox", label: "Inbox" };
+  }
   if (normalized.startsWith("/messages/")) {
-    return { parentHref: "/messages", label: "Messages" };
+    return { parentHref: "/inbox", label: "Inbox" };
   }
   if (normalized.startsWith("/notifications/")) {
-    return { parentHref: "/notifications", label: "Notifications" };
+    return { parentHref: "/inbox?tab=notifications", label: "Inbox" };
   }
   if (normalized.startsWith("/help/")) {
     return { parentHref: "/help", label: "Help" };

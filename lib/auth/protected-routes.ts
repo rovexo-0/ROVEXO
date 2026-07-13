@@ -10,6 +10,7 @@ export const AUTH_PROTECTED_PREFIXES = [
   "/wallet",
   "/shipping",
   "/messages",
+  "/inbox",
   "/saved",
   "/notifications",
   "/analytics",

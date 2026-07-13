@@ -14,8 +14,8 @@ export function sumBadgeKeys(
       const hrefKeys: Partial<Record<MobileBadgeKey, string>> = {
         orders: "/orders",
         cart: "/cart",
-        messages: "/messages",
-        notifications: "/notifications",
+        messages: "/inbox",
+        notifications: "/inbox?tab=notifications",
         saved: "/saved",
         "wallet-payout": "/seller/wallet",
       };

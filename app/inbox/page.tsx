@@ -1,18 +1,33 @@
-import { redirect } from "next/navigation";
-import { TRANSACTION_HUB_INBOX_PATH } from "@/lib/transaction-hub/inbox-routes";
+import { Suspense } from "react";
+import { InboxPage } from "@/features/inbox/components/InboxPage";
 
-type InboxRedirectProps = {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-};
+export const dynamic = "force-dynamic";
 
-/** Legacy `/inbox` alias — canonical inbox lives at `/messages`. */
-export default async function InboxRedirect({ searchParams }: InboxRedirectProps) {
-  const params = await searchParams;
-  const thread = params.thread;
+function InboxFallback() {
+  return (
+    <div className="inbox-hub" aria-busy="true" aria-label="Loading inbox">
+      <div className="inbox-hub__tabs" />
+      <ul className="inbox-hub__list" aria-hidden>
+        {Array.from({ length: 6 }).map((_, index) => (
+          <li key={index} className="inbox-hub__skel inbox-hub__skel--card" />
+        ))}
+      </ul>
+    </div>
+  );
+}
 
-  if (typeof thread === "string" && thread.trim()) {
-    redirect(`${TRANSACTION_HUB_INBOX_PATH}/${thread.trim()}`);
-  }
+export default function InboxRoute() {
+  return (
+    <Suspense fallback={<InboxFallback />}>
+      <InboxPage />
+    </Suspense>
+  );
+}
 
-  redirect(TRANSACTION_HUB_INBOX_PATH);
+export async function generateMetadata() {
+  return {
+    title: "Inbox | ROVEXO",
+    description: "ROVEXO Inbox — messages and notifications in one place.",
+    robots: { index: false, follow: false },
+  };
 }

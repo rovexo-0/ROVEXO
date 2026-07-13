@@ -25,6 +25,7 @@ const HREF_ICONS: Record<string, TileIconStyle> = {
   "/plans": { emoji: "📢", background: "#fce7f3" },
   "/support": { emoji: "🎧", background: "#ecfeff" },
   "/orders": { emoji: "📋", background: "rgb(147 51 234 / 0.08)" },
+  "/inbox": { emoji: "💬", background: "#f0fdf4" },
   "/messages": { emoji: "💬", background: "#f0fdf4" },
   "/saved": { emoji: "❤️", background: "#fce7f3" },
   "/notifications": { emoji: "🔔", background: "#fff7ed" },

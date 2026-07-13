@@ -226,9 +226,10 @@ describe("Navigation audit — bottom navigation", () => {
       "utf8",
     );
 
-    for (const route of ["/", "/search", "/sell", "/messages", "/account"]) {
+    for (const route of ["/", "/search", "/sell", "/account"]) {
       expect(bottomNav).toContain(`"${route}"`);
     }
+    expect(bottomNav).toContain("INBOX_ROUTES.hub");
   });
 
   it("does not duplicate scroll provider in BetaAppShell", () => {

@@ -1,25 +1,14 @@
-import { Suspense } from "react";
-import { notFound } from "next/navigation";
-import { ChatPage } from "@/features/messages/components/ChatPage";
-import { fetchConversationById } from "@/lib/messages/queries";
-import { getProfile } from "@/lib/profile/data";
+import { redirect } from "next/navigation";
+import { INBOX_ROUTES } from "@/lib/inbox/canonical-routes";
+
+export const dynamic = "force-dynamic";
 
 type ChatRouteProps = {
   params: Promise<{ id: string }>;
 };
 
-export default async function ChatRoute({ params }: ChatRouteProps) {
+/** Legacy chat deep-link → Inbox conversation placeholder (Sprint 2). */
+export default async function ChatRouteRedirect({ params }: ChatRouteProps) {
   const { id } = await params;
-  await getProfile();
-  const conversation = await fetchConversationById(id);
-
-  if (!conversation) {
-    notFound();
-  }
-
-  return (
-    <Suspense fallback={null}>
-      <ChatPage initialConversation={conversation} />
-    </Suspense>
-  );
+  redirect(INBOX_ROUTES.conversation(id));
 }

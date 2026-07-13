@@ -75,7 +75,7 @@ function createDefaultNavigation(): AppStudioNavigationConfig {
     { id: "home", label: "Home", href: "/", icon: "🏠", visible: true },
     { id: "search", label: "Search", href: "/search", icon: "🔍", visible: true },
     { id: "sell", label: "Sell", href: "/sell", icon: "➕", visible: true },
-    { id: "messages", label: "Messages", href: "/messages", icon: "💬", badge: "3", visible: true },
+    { id: "messages", label: "Inbox", href: "/inbox", icon: "💬", badge: "3", visible: true },
     { id: "account", label: "Account", href: "/account", icon: "👤", visible: true },
   ];
 

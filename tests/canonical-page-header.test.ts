@@ -22,7 +22,6 @@ const WRAPPER_FILES = [
 ];
 
 const CANONICAL_HEADER_CONSUMERS = [
-  "features/messages/components/MessagesInboxV1.tsx",
   "features/messages/components/ChatPage.tsx",
   "features/product-detail/ProductDetailPage.tsx",
 ];
@@ -80,7 +79,7 @@ describe("CanonicalPageHeader platform standard", () => {
   it("discourages new inline rx-page-header shells on migrated routes", () => {
     const migrated = [
       "features/wallet/components/WalletHubV1.tsx",
-      "features/messages/components/MessagesInboxV1.tsx",
+      "features/inbox/components/InboxPage.tsx",
       "features/messages/components/ChatPage.tsx",
     ];
 

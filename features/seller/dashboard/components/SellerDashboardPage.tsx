@@ -24,7 +24,7 @@ const QUICK_ACTIONS = [
   { href: "/seller/performance", label: "Seller Performance", subtitle: "Reputation Engine" },
   { href: "/seller/trust", label: "Trust Score", subtitle: "Reputation & safety" },
   { href: "/seller/tax", label: "Tax", subtitle: "VAT & registration" },
-  { href: "/messages", label: "Messages", subtitle: "Buyer & seller chats" },
+  { href: "/inbox", label: "Inbox", subtitle: "Messages & notifications" },
   { href: "/seller/promotions", label: "Promotions", subtitle: "Bump, boost & featured" },
   { href: "/plans", label: "Plans", subtitle: "Premium subscriptions" },
 ] as const;

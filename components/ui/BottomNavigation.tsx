@@ -6,7 +6,9 @@ import type { MouseEvent } from "react";
 import type { BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
 import { BottomNavV2Icon } from "@/components/ui/BottomNavV2Icon";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
+import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { cn } from "@/lib/cn";
+import { INBOX_ROUTES } from "@/lib/inbox/canonical-routes";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import type { MenuItemConfig } from "@/lib/platform-visual/types";
@@ -32,7 +34,7 @@ type NavItem = {
 const defaultNavItems: NavItem[] = [
   { id: "home", label: "Home", href: "/", icon: "home" },
   { id: "search", label: "Browse", href: "/search", icon: "search" },
-  { id: "saved", label: "Inbox", href: "/messages", icon: "saved" },
+  { id: "saved", label: "Inbox", href: INBOX_ROUTES.hub, icon: "saved" },
   { id: "account", label: "Profile", href: "/account", icon: "account" },
 ];
 
@@ -49,7 +51,7 @@ function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab
   if (active) return active;
   if (pathname.startsWith("/sell")) return "sell";
   if (pathname.startsWith("/search")) return "search";
-  if (pathname.startsWith("/messages")) return "saved";
+  if (pathname.startsWith("/inbox") || pathname.startsWith("/messages")) return "saved";
   if (pathname.startsWith("/saved")) return "account";
   if (pathname.startsWith("/account")) return "account";
   return "home";
@@ -79,15 +81,22 @@ function NavLink({
   item,
   isActive,
   onNavigate,
+  badgeCount = 0,
 }: {
   item: NavItem;
   isActive: boolean;
   onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
+  badgeCount?: number;
 }) {
+  const badgeLabel =
+    badgeCount > 0
+      ? `${item.label}, ${badgeCount > 99 ? "99+" : badgeCount} unread`
+      : item.label;
+
   return (
     <Link
       href={item.href}
-      aria-label={item.label}
+      aria-label={badgeLabel}
       aria-current={isActive ? "page" : undefined}
       data-active={isActive}
       onClick={onNavigate}
@@ -95,6 +104,11 @@ function NavLink({
     >
       <span className="rx-bottom-nav-icon-wrap">
         <NavIcon type={item.icon} href={item.href} isActive={isActive} />
+        {badgeCount > 0 ? (
+          <span className="rx-bottom-nav-badge" aria-hidden>
+            {badgeCount > 99 ? "99+" : badgeCount}
+          </span>
+        ) : null}
       </span>
       <span className="rx-bottom-nav-item__label">{item.label}</span>
     </Link>
@@ -111,6 +125,7 @@ export function BottomNavigation({
   const pathname = usePathname();
   const searchOverlay = useSearchOverlayOptional();
   const scroll = useMobileHeaderScrollContext();
+  const { mobileBadges } = useRealtimeNotifications();
   const activeTab = resolveActiveTab(pathname, active);
   const isChromeVisible = scroll?.isVisible ?? true;
   const hasScrollBehavior = Boolean(scroll);
@@ -121,6 +136,7 @@ export function BottomNavigation({
   const account = navItems.find((item) => item.id === "account") ?? defaultNavItems[3];
   const sell = menuItems?.find((item) => item.id === "sell" && item.enabled);
   const isSellActive = activeTab === "sell";
+  const inboxBadge = Math.max(0, (mobileBadges.messages ?? 0) + (mobileBadges.notifications ?? 0));
 
   function handleSearchNavigate(event: MouseEvent<HTMLAnchorElement>) {
     if (pathname === "/" && searchOverlay) {
@@ -188,7 +204,7 @@ export function BottomNavigation({
           )}
 
           <li>
-            <NavLink item={saved} isActive={activeTab === "saved"} />
+            <NavLink item={saved} isActive={activeTab === "saved"} badgeCount={inboxBadge} />
           </li>
           <li>
             <NavLink item={account} isActive={activeTab === "account"} />

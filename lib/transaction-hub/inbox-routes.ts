@@ -1,10 +1,12 @@
-/** Canonical Transaction Hub inbox routes — `/messages` is the live inbox. */
+/** Canonical Transaction Hub inbox — Sprint 1: `/inbox`. */
 
-export const TRANSACTION_HUB_INBOX_PATH = "/messages" as const;
+import { INBOX_ROUTES } from "@/lib/inbox/canonical-routes";
+
+export const TRANSACTION_HUB_INBOX_PATH = INBOX_ROUTES.hub;
 
 export function transactionHubInboxHref(conversationId?: string): string {
   if (conversationId?.trim()) {
-    return `${TRANSACTION_HUB_INBOX_PATH}/${conversationId.trim()}`;
+    return INBOX_ROUTES.conversation(conversationId.trim());
   }
   return TRANSACTION_HUB_INBOX_PATH;
 }

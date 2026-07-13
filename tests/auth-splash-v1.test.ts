@@ -46,6 +46,7 @@ describe("AUTH_MASTER_SPEC v1.0 — splash screen", () => {
       "/checkout",
       "/orders",
       "/messages",
+      "/inbox",
       "/saved",
       "/business",
       "/admin",

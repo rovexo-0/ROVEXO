@@ -212,13 +212,13 @@ export async function appendMessage(input: {
       type: "message",
       title: "New message",
       subtitle: input.content.slice(0, 120),
-      href: `/messages/${input.conversationId}`,
+      href: `/inbox/conversation/${input.conversationId}`,
       detail: buildAutoReplyWarning(security.warning) ?? undefined,
       email: recipientProfile?.email
         ? {
             to: recipientProfile.email,
             subject: "New ROVEXO message",
-            body: `${input.content.slice(0, 500)}\n\nOpen: /messages/${input.conversationId}`,
+            body: `${input.content.slice(0, 500)}\n\nOpen: /inbox/conversation/${input.conversationId}`,
           }
         : undefined,
     });

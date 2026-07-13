@@ -24,7 +24,7 @@ describe("Account Center modules", () => {
     const hrefs = getBuyingModuleTiles().map((tile) => tile.href);
     expect(hrefs).not.toContain("/seller/listings");
     expect(hrefs).toContain("/orders");
-    expect(hrefs).toContain("/messages");
+    expect(hrefs).toContain("/inbox");
   });
 
   it("selling module lists Bring Your Item without hub self-link", () => {

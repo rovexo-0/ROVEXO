@@ -310,11 +310,11 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
 
               const payload = (await response.json()) as { href?: string };
 
-              router.push(payload.href ?? "/messages");
+              router.push(payload.href ?? "/inbox");
 
             })
 
-            .catch(() => router.push("/messages"));
+            .catch(() => router.push("/inbox"));
 
         }}
 

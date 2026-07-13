@@ -13,8 +13,8 @@ function tile(
 
 export const QUICK_ACCESS_TILES: MobileTile[] = [
   tile("/orders", "Orders", "Track purchases", "orders"),
-  tile("/messages", "Messages", "Buyer & seller chats", "messages"),
-  tile("/notifications", "Notifications", "Alerts & activity", "notifications"),
+  tile("/inbox", "Inbox", "Messages & notifications", "messages"),
+  tile("/inbox?tab=notifications", "Notifications", "Alerts & activity", "notifications"),
   tile("/saved", "Saved", "Wishlist items", "saved"),
   tile("/trust", "Trust Centre", "Score & safety"),
   tile("/resolution", "Resolution Centre", "Disputes & cases"),

@@ -108,7 +108,7 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
 
   it("routes smart notifications to canonical destinations", () => {
     expect(resolveSmartNotificationHref("new_message", { conversationId: "c1" })).toBe(
-      "/messages/c1",
+      "/inbox/conversation/c1",
     );
     expect(resolveSmartNotificationHref("new_offer", { offerId: "o1" })).toBe("/offers/o1");
     expect(resolveSmartNotificationHref("new_order", { orderId: "ord1" })).toBe("/orders/ord1");

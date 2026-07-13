@@ -52,9 +52,9 @@ function tile(
 export function getBuyingModuleTiles(): MobileTile[] {
   return [
     tile("/orders", "Orders", "Track purchases", "orders"),
-    tile("/messages", "Messages", "Marketplace chats", "messages"),
+    tile("/inbox", "Inbox", "Messages & notifications", "messages"),
     tile("/saved", "Saved", "Items you saved", "saved"),
-    tile("/notifications", "Notifications", "Alerts & activity", "notifications"),
+    tile("/inbox?tab=notifications", "Notifications", "Alerts & activity", "notifications"),
     tile("/support", "Support", "Help from our team"),
     tile("/trust", "Trust Centre", "Score, safety & verification"),
     tile("/resolution", "Resolution Centre", "Disputes, returns & claims"),

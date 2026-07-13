@@ -39,7 +39,7 @@ export type DashboardIconType =
 export function resolveDashboardIconType(href: string): DashboardIconType {
   if (href === "/orders" || href.startsWith("/orders")) return "orders";
   if (href === "/cart") return "cart";
-  if (href.startsWith("/messages")) return "messages";
+  if (href.startsWith("/inbox") || href.startsWith("/messages")) return "messages";
   if (href.startsWith("/notifications")) return "notifications";
   if (href.startsWith("/settings") || href.startsWith("/account/settings") || href === "/legal") return "settings";
   if (href.startsWith("/import") || href.startsWith("/account/bring-your-item") || href.startsWith("/seller/migration") || href.startsWith("/seller/connectors")) return "listings";

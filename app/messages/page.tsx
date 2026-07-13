@@ -1,15 +1,9 @@
-import { MessagesInboxV1 } from "@/features/messages/components/MessagesInboxV1";
+import { redirect } from "next/navigation";
+import { INBOX_ROUTES } from "@/lib/inbox/canonical-routes";
 
 export const dynamic = "force-dynamic";
 
-export default function MessagesRoute() {
-  return <MessagesInboxV1 />;
-}
-
-export async function generateMetadata() {
-  return {
-    title: "Messages | ROVEXO",
-    description: "ROVEXO Messages — secure marketplace communication and real-time chat.",
-    robots: { index: false, follow: false },
-  };
+/** Legacy Messages list → canonical Inbox. */
+export default function MessagesRouteRedirect() {
+  redirect(INBOX_ROUTES.hub);
 }
