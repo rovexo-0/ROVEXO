@@ -257,11 +257,28 @@ export async function requestPasswordReset(
     },
   });
 
-  if (!error && data.properties?.action_link) {
+  if (error) {
+    const normalized = error.message.toLowerCase();
+    if (normalized.includes("not found") || normalized.includes("no user")) {
+      return { error: "No account found for that email address." };
+    }
+    if (normalized.includes("rate limit")) {
+      return { error: "Too many reset attempts. Please try again later." };
+    }
+    return { error: mapAuthErrorMessage(error.message) || "Unable to send reset link. Please try again." };
+  }
+
+  if (!data.properties?.action_link) {
+    return { error: "Unable to send reset link. Please try again." };
+  }
+
+  try {
     await sendPasswordResetEmail({
       to: parsed.data.email,
       resetUrl: data.properties.action_link,
     });
+  } catch {
+    return { error: "Unable to send reset link. Please try again." };
   }
 
   return {

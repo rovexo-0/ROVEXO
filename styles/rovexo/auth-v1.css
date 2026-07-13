@@ -298,13 +298,15 @@
 /* ── Login screen (AUTH_MASTER_SPEC v1.0) ── */
 
 .auth-login-route,
-.auth-register-route {
+.auth-register-route,
+.auth-forgot-password-route {
   min-height: 100dvh;
   background-color: #ffffff;
 }
 
 .auth-login,
-.auth-register {
+.auth-register,
+.auth-forgot-password {
   position: relative;
   display: flex;
   min-height: 100dvh;
@@ -319,7 +321,8 @@
 }
 
 .auth-login__back,
-.auth-register__back {
+.auth-register__back,
+.auth-forgot-password__back {
   position: absolute;
   top: max(env(safe-area-inset-top), 12px);
   left: max(env(safe-area-inset-left), 16px);
@@ -449,8 +452,46 @@
 }
 
 .auth-login .auth-container,
-.auth-register .auth-container {
+.auth-register .auth-container,
+.auth-forgot-password .auth-container {
   padding-top: 0;
+}
+
+.auth-forgot-password__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-forgot-password__submit-pending {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.auth-forgot-password__footer {
+  margin-top: 4px;
+}
+
+.auth-forgot-password__sign-in-prompt {
+  margin: 0;
+  text-align: center;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--ds-color-text-secondary, #5c5c66);
+}
+
+.auth-forgot-password__success {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.auth-forgot-password__success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .auth-login__form,

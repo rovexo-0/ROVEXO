@@ -19,6 +19,7 @@ export type AuthIconInputProps = {
   inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"];
   value?: string;
   onChange?: InputHTMLAttributes<HTMLInputElement>["onChange"];
+  autoFocus?: boolean;
 };
 
 export function AuthIconInput({
@@ -36,6 +37,7 @@ export function AuthIconInput({
   inputMode,
   value,
   onChange,
+  autoFocus,
 }: AuthIconInputProps) {
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
 
@@ -62,6 +64,7 @@ export function AuthIconInput({
           maxLength={maxLength}
           pattern={pattern}
           inputMode={inputMode}
+          autoFocus={autoFocus}
           onInvalid={(event) => {
             event.preventDefault();
             setValidationMessage(event.currentTarget.validationMessage);

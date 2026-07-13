@@ -179,6 +179,36 @@ export const AUTH_MASTER_SPEC = {
       marketing: "Receive updates and offers",
     },
   },
+  forgotPassword: {
+    fadeDurationMs: 225,
+    motion: "fade_only" as const,
+    prohibitedMotion: ["scale", "bounce", "rotation"] as const,
+    presentation: {
+      layout: "centered",
+      background: "#ffffff",
+      maxWidthPx: 430,
+    },
+    routes: {
+      back: "/login",
+      signIn: "/login",
+      openEmail: "mailto:",
+    },
+    copy: {
+      title: "Forgot your password?",
+      description:
+        "Enter your email address and we'll send you a secure password reset link.",
+      emailLabel: "Email",
+      emailPlaceholder: "name@email.co.uk",
+      submit: "Send Reset Link",
+      submitting: "Sending reset link…",
+      backToSignIn: "Back to Sign In",
+      successTitle: "Check your email",
+      successDescription:
+        "We've sent a password reset link to your email address.",
+      openEmailApp: "Open Email App",
+      offlineError: "You appear to be offline. Check your connection and try again.",
+    },
+  },
 } as const;
 
 export type AuthSplashPhase = (typeof AUTH_MASTER_SPEC.splash.phases)[number];

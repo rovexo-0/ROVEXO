@@ -13,9 +13,10 @@ const BARE_AUTH_ROUTES = [
   AUTH_ROUTES.welcome,
   AUTH_ROUTES.login,
   AUTH_ROUTES.register,
+  AUTH_ROUTES.forgotPassword,
 ] as const;
 
-/** Splash, welcome, and login are full-bleed; other auth routes use the shared shell. */
+/** Splash, welcome, login, register, and forgot-password are full-bleed. */
 export function AuthRouteLayout({ children }: AuthRouteLayoutProps) {
   const pathname = usePathname();
 
