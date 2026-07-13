@@ -578,14 +578,25 @@ export function InboxPage() {
                       href={INBOX_ROUTES.conversation(conversation.id)}
                       className="inbox-hub__card"
                     >
-                      <span className="inbox-hub__thumb">
-                        <SafeImage
-                          src={conversation.product.imageUrl}
-                          alt={conversation.product.title}
-                          fill
-                          className="inbox-hub__thumb-img"
-                          sizes="56px"
-                        />
+                      <span className="inbox-hub__media">
+                        <span className="inbox-hub__thumb">
+                          <SafeImage
+                            src={conversation.product.imageUrl}
+                            alt={conversation.product.title}
+                            fill
+                            className="inbox-hub__thumb-img"
+                            sizes="64px"
+                          />
+                        </span>
+                        <span className="inbox-hub__avatar">
+                          <Avatar
+                            src={conversation.participant.avatarUrl}
+                            alt={conversation.participant.name}
+                            name={conversation.participant.name}
+                            size="sm"
+                            className="inbox-hub__avatar-face"
+                          />
+                        </span>
                       </span>
                       <span className="inbox-hub__card-body">
                         <span className="inbox-hub__card-top">
@@ -604,12 +615,6 @@ export function InboxPage() {
                           </span>
                         </span>
                         <span className="inbox-hub__party">
-                          <Avatar
-                            src={conversation.participant.avatarUrl}
-                            alt={conversation.participant.name}
-                            name={conversation.participant.name}
-                            size="sm"
-                          />
                           <span className="inbox-hub__party-name">
                             {conversation.participant.name}
                           </span>
