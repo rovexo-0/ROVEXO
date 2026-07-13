@@ -30,6 +30,7 @@ export const SELLER_NAV: NavLink[] = [
   { href: "/seller/analytics", label: "Analytics", subtitle: "Views, sales & trends" },
   { href: MIGRATION_CENTER_PATH, label: "Bring Your Items", subtitle: "Import your entire store" },
   { href: "/seller/connectors", label: "Marketplace Connectors", subtitle: "Connect external stores" },
+  { href: "/seller/performance", label: "Seller Performance", subtitle: "Reputation Engine & level" },
   { href: "/seller/trust", label: "Trust Score", subtitle: "Reputation & improvements" },
   { href: "/seller/tax", label: "Tax Registration", subtitle: "VAT & tax settings" },
   { href: "/sell", label: "Sell Item", subtitle: "Create a new listing" },

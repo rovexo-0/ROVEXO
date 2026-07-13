@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tables, TablesUpdate } from "@/lib/supabase/types/database";
 import { inspectMessageContent, buildAutoReplyWarning } from "@/lib/messages/security";
 import { dispatchNotification } from "@/lib/notifications/dispatch";
+import { onSellerMessageReply } from "@/lib/seller-performance/events";
 import type { ChatMessage, Conversation, ProductListingStatus } from "@/lib/messages/types";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 
@@ -224,6 +225,10 @@ export async function appendMessage(input: {
   }
 
   await supabase.from("messages").update({ status: "delivered" }).eq("id", data.id);
+
+  if (input.senderRole === "seller" && conversation) {
+    void onSellerMessageReply({ sellerId: conversation.seller_id });
+  }
 
   return {
     message: mapMessage({ ...data, status: "delivered" }),

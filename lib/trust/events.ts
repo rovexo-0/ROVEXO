@@ -1,6 +1,14 @@
 import { TRUST_EVENT_DELTAS, type TrustEventKey } from "@/lib/trust/constants";
 import { applyTrustImpact, recalculateTrustScore } from "@/lib/trust/service";
 import { detectOrderTrustFraud, detectReviewFraud } from "@/lib/trust/anti-fraud";
+import {
+  onSellerDispatch,
+  onSellerOrderCancelled,
+  onSellerOrderCompleted,
+  onSellerOrderRefunded,
+  onSellerReview,
+  onSellerValidatedReport,
+} from "@/lib/seller-performance/events";
 
 export async function onOrderCompleted(input: {
   orderId: string;
@@ -35,6 +43,12 @@ export async function onOrderCompleted(input: {
       metadata: { orderId: input.orderId },
     }),
   ]);
+
+  void onSellerOrderCompleted({
+    orderId: input.orderId,
+    sellerId: input.sellerId,
+    buyerId: input.buyerId,
+  });
 }
 
 export async function onOrderCancelled(input: {
@@ -64,6 +78,8 @@ export async function onOrderCancelled(input: {
       metadata: { orderId: input.orderId, initiatedBy: input.initiatedBy },
     }),
   ]);
+
+  void onSellerOrderCancelled({ orderId: input.orderId, sellerId: input.sellerId });
 }
 
 export async function onOrderRefunded(input: {
@@ -93,6 +109,8 @@ export async function onOrderRefunded(input: {
       metadata: { orderId: input.orderId, partial: Boolean(input.partial) },
     }),
   ]);
+
+  void onSellerOrderRefunded({ orderId: input.orderId, sellerId: input.sellerId });
 }
 
 export async function onShipmentDelivered(input: {
@@ -107,6 +125,12 @@ export async function onShipmentDelivered(input: {
     delta: TRUST_EVENT_DELTAS[eventType],
     idempotencyKey: `shipment:${input.onTime ? "on-time" : "late"}:${input.orderId}`,
     metadata: { orderId: input.orderId, onTime: input.onTime },
+  });
+
+  void onSellerDispatch({
+    orderId: input.orderId,
+    sellerId: input.sellerId,
+    late: !input.onTime,
   });
 }
 
@@ -167,6 +191,13 @@ export async function onReviewSubmitted(input: {
     delta: Math.round(delta),
     idempotencyKey: `review:${input.orderId}`,
     metadata: { orderId: input.orderId, rating: input.rating },
+  });
+
+  void onSellerReview({
+    orderId: input.orderId,
+    revieweeId: input.revieweeId,
+    reviewerId: input.reviewerId,
+    rating: input.rating,
   });
 }
 
@@ -247,6 +278,11 @@ export async function onContentReportTargeted(input: {
     delta: TRUST_EVENT_DELTAS.report_received,
     idempotencyKey: `report:${input.reportId}`,
     metadata: { reportId: input.reportId },
+  });
+
+  void onSellerValidatedReport({
+    sellerId: input.targetUserId,
+    reportId: input.reportId,
   });
 }
 

@@ -4001,6 +4001,254 @@ export type Database = {
           },
         ]
       }
+      seller_performance_audit: {
+        Row: {
+          action: string
+          admin_id: string
+          badge_after: Json | null
+          badge_before: Json | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          metadata: Json
+          reason: string
+          score_after: number | null
+          score_before: number | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          badge_after?: Json | null
+          badge_before?: Json | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json
+          reason: string
+          score_after?: number | null
+          score_before?: number | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          badge_after?: Json | null
+          badge_before?: Json | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json
+          reason?: string
+          score_after?: number | null
+          score_before?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_performance_audit_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_performance_audit_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_performance_badge_history: {
+        Row: {
+          action: string
+          admin_id: string | null
+          badge_id: string
+          created_at: string
+          id: string
+          new_badges: Json
+          previous_badges: Json
+          reason: string
+          trigger_event: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          badge_id: string
+          created_at?: string
+          id?: string
+          new_badges?: Json
+          previous_badges?: Json
+          reason: string
+          trigger_event?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          badge_id?: string
+          created_at?: string
+          id?: string
+          new_badges?: Json
+          previous_badges?: Json
+          reason?: string
+          trigger_event?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_performance_badge_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_performance_event_queue: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_type: string
+          fraud_flags: Json
+          id: string
+          idempotency_key: string
+          metadata: Json
+          processed_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_type: string
+          fraud_flags?: Json
+          id?: string
+          idempotency_key: string
+          metadata?: Json
+          processed_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_type?: string
+          fraud_flags?: Json
+          id?: string
+          idempotency_key?: string
+          metadata?: Json
+          processed_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_performance_event_queue_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_performance_history: {
+        Row: {
+          admin_id: string | null
+          created_at: string
+          delta: number
+          id: string
+          metadata: Json
+          reason: string
+          score_after: number
+          score_before: number
+          trigger_event: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_id?: string | null
+          created_at?: string
+          delta: number
+          id?: string
+          metadata?: Json
+          reason: string
+          score_after: number
+          score_before: number
+          trigger_event?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_id?: string | null
+          created_at?: string
+          delta?: number
+          id?: string
+          metadata?: Json
+          reason?: string
+          score_after?: number
+          score_before?: number
+          trigger_event?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_performance_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_performance_scores: {
+        Row: {
+          achievements: Json
+          badges_granted: Json
+          badges_revoked: Json
+          component_scores: Json
+          factors_snapshot: Json
+          last_recalculated_at: string | null
+          level: string
+          score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievements?: Json
+          badges_granted?: Json
+          badges_revoked?: Json
+          component_scores?: Json
+          factors_snapshot?: Json
+          last_recalculated_at?: string | null
+          level?: string
+          score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievements?: Json
+          badges_granted?: Json
+          badges_revoked?: Json
+          component_scores?: Json
+          factors_snapshot?: Json
+          last_recalculated_at?: string | null
+          level?: string
+          score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_performance_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trust_scores: {
         Row: {
           business_score: number

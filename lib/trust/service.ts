@@ -509,6 +509,27 @@ export async function reviewTrustVerification(input: {
       await syncBusinessVerificationFlags(verification.userId, verification.verificationType);
     }
 
+    if (input.status === "approved") {
+      const {
+        onSellerBusinessVerified,
+        onSellerEmailVerified,
+        onSellerIdentityVerified,
+        onSellerPhoneVerified,
+      } = await import("@/lib/seller-performance/events");
+      if (verification.verificationType === "identity") {
+        void onSellerIdentityVerified({ userId: verification.userId });
+      }
+      if (verification.verificationType === "email") {
+        void onSellerEmailVerified({ userId: verification.userId });
+      }
+      if (verification.verificationType === "phone") {
+        void onSellerPhoneVerified({ userId: verification.userId });
+      }
+      if (verification.verificationType === "business") {
+        void onSellerBusinessVerified({ userId: verification.userId });
+      }
+    }
+
     return true;
   } catch {
     return false;

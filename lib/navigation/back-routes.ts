@@ -28,6 +28,7 @@ const EXACT_BACK_ROUTES: Record<string, BackRouteConfig> = {
   "/seller/wallet": { parentHref: "/wallet", label: "Wallet" },
   "/seller/analytics": { parentHref: "/seller", label: "Selling" },
   "/seller/tax": { parentHref: "/seller", label: "Selling" },
+  "/seller/performance": { parentHref: "/seller", label: "Selling" },
   "/seller/trust": { parentHref: "/seller", label: "Selling" },
   "/seller/review-center": { parentHref: "/seller", label: "Selling" },
   "/sell": { parentHref: "/seller", label: "Selling" },

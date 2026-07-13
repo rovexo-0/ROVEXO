@@ -40,6 +40,7 @@ export function getSellerDashboardTiles(): MobileTile[] {
     tile("/seller/analytics", "Seller Analytics", "Views, sales & trends"),
     tile(MIGRATION_CENTER_PATH, "Bring Your Items", "Import your entire store"),
     tile("/seller/connectors", "Marketplace Connectors", "Connect external stores"),
+    tile("/seller/performance", "Seller Performance", "Reputation Engine & level"),
     tile("/seller/trust", "Trust Score", "Reputation & improvements"),
     tile("/seller/tax", "Tax Registration", "VAT & tax settings"),
     tile("/sell", "Sell Item", "Create a new listing"),

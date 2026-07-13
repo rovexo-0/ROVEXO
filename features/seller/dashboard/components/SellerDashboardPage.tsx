@@ -21,6 +21,7 @@ const QUICK_ACTIONS = [
   { href: "/seller/orders", label: "Orders", subtitle: "Fulfillment & shipping" },
   { href: "/seller/wallet", label: "Wallet", subtitle: "Balance & payouts" },
   { href: "/seller/analytics", label: "Analytics", subtitle: "Views, sales & trends" },
+  { href: "/seller/performance", label: "Seller Performance", subtitle: "Reputation Engine" },
   { href: "/seller/trust", label: "Trust Score", subtitle: "Reputation & safety" },
   { href: "/seller/tax", label: "Tax", subtitle: "VAT & registration" },
   { href: "/messages", label: "Messages", subtitle: "Buyer & seller chats" },
