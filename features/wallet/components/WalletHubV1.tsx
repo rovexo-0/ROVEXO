@@ -219,33 +219,35 @@ export function WalletHubV1({
 
           <p className="wallet-v2__hero-balance">{formatCurrency(withdrawable)}</p>
 
-          <p className="wallet-v2__hero-sub">
-            Available to withdraw
-            <span className="wallet-v2__hero-info" aria-hidden>
-              <InfoLineIcon />
-            </span>
-          </p>
+          <div className="wallet-v2__hero-footer">
+            <p className="wallet-v2__hero-sub">
+              Available to withdraw
+              <span className="wallet-v2__hero-info" aria-hidden>
+                <InfoLineIcon />
+              </span>
+            </p>
 
-          <div className="wallet-v2__hero-actions">
-            <Link
-              href={WALLET_ROUTES.withdraw}
-              className={cn(
-                "wallet-v2__hero-btn",
-                "wallet-v2__hero-btn--primary",
-                withdrawable <= 0 && "is-disabled",
-              )}
-              aria-disabled={withdrawable <= 0}
-              onClick={(event) => {
-                if (withdrawable <= 0) event.preventDefault();
-              }}
-            >
-              <WithdrawUpIcon />
-              Withdraw
-            </Link>
-            <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__hero-btn wallet-v2__hero-btn--secondary">
-              <BankLineIcon />
-              Bank Account
-            </Link>
+            <div className="wallet-v2__hero-actions">
+              <Link
+                href={WALLET_ROUTES.withdraw}
+                className={cn(
+                  "wallet-v2__hero-btn",
+                  "wallet-v2__hero-btn--primary",
+                  withdrawable <= 0 && "is-disabled",
+                )}
+                aria-disabled={withdrawable <= 0}
+                onClick={(event) => {
+                  if (withdrawable <= 0) event.preventDefault();
+                }}
+              >
+                <WithdrawUpIcon />
+                Withdraw
+              </Link>
+              <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__hero-btn wallet-v2__hero-btn--secondary">
+                <BankLineIcon />
+                Bank Account
+              </Link>
+            </div>
           </div>
         </section>
 

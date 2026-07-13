@@ -57,7 +57,7 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     expect(txns).toContain("No transactions yet");
     expect(txns).toContain("IntersectionObserver");
 
-    expect(css).toContain("--wallet-pad-x: 20px");
+    expect(css).toContain("--wallet-pad-x: 16px");
     expect(css).toContain("max-width: 390px");
     expect(css).toContain("max-width: 720px");
     expect(css).toContain("height: 170px");
@@ -65,6 +65,8 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     expect(css).toContain("height: 92px");
     expect(css).toContain("height: 118px");
     expect(css).toContain("height: 52px");
+    expect(css).toContain("font-size: 2.5rem");
+    expect(css).toContain("wallet-v2__hero-footer");
     expect(css).toContain("--wallet-radius-hero: 24px");
     expect(css).toContain("--wallet-radius-card: 18px");
     expect(css).toContain("--wallet-radius-btn: 14px");
