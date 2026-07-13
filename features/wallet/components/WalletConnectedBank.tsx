@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BankLineIcon, EditLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
+import { BankLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import type { WithdrawMethod } from "@/lib/wallet/types";
 
@@ -59,10 +59,6 @@ export function WalletConnectedBank({ bank, verified }: WalletConnectedBankProps
               </div>
             </div>
             <div className="wallet-v2__bank-actions" role="group" aria-label="Bank account actions">
-              <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__bank-action">
-                <EditLineIcon />
-                Edit Bank
-              </Link>
               <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__bank-action">
                 Change Bank
               </Link>

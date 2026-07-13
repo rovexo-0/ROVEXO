@@ -25,7 +25,8 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     const insights = readSource("features/wallet/components/WalletInsights.tsx");
 
     expect(hub).toContain('data-wallet-ui="v1.0-canonical-mockup"');
-    expect(hub).toContain('data-wallet-final-spec="v1.0-final-dimensions"');
+    expect(hub).toContain('data-wallet-final-spec="v1.0-visual-qa-lock"');
+    expect(hub).toContain('data-wallet-freeze="pending-visual-qa"');
     expect(hub).toContain("wallet-v2__hero");
     expect(hub).toContain("Available Balance");
     expect(hub).toContain("wallet-v2__status-pill");
@@ -43,13 +44,14 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     expect(insights).toContain("View all");
     expect(insights).toContain("This Month");
     expect(insights).toContain("Next Payout");
+    expect(insights).toContain("No upcoming payout when you have pending funds.");
     expect(insights).toContain("Estimated payout");
-    expect(insights).toContain("Status ·");
 
     expect(bank).toContain("Connect Bank Account");
     expect(bank).toContain("No bank account connected");
     expect(bank).toContain("Change Bank");
     expect(bank).toContain("Remove Bank");
+    expect(bank).not.toContain("Edit Bank");
 
     expect(txns).toContain("View all");
     expect(txns).toContain("No transactions yet");
@@ -67,6 +69,9 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     expect(css).toContain("height: 92px");
     expect(css).toContain("height: 118px");
     expect(css).toContain("height: 52px");
+    expect(css).toContain("height: 36px");
+    expect(css).toContain("border-radius: 18px");
+    expect(css).toContain("padding: 0 16px");
     expect(css).toContain("min-height: 64px");
     expect(css).not.toContain("prefers-color-scheme: dark");
     expect(css).not.toContain("background: #18181b");
@@ -93,8 +98,11 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
 
     expect(page).toContain("CardSetupSheet");
     expect(page).toContain("Add Card");
+    expect(accountRedirect).toContain("permanentRedirect");
     expect(accountRedirect).toContain("WALLET_ROUTES.paymentMethods");
+    expect(settingsBankRedirect).toContain("permanentRedirect");
     expect(settingsBankRedirect).toContain("WALLET_ROUTES.bankAccount");
+    expect(settingsPmRedirect).toContain("permanentRedirect");
     expect(settingsPmRedirect).toContain("WALLET_ROUTES.paymentMethods");
   });
 

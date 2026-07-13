@@ -47,8 +47,8 @@
   --wallet-text-muted: #8b8b93;
   --wallet-text-secondary: #6b6b73;
   --wallet-border: rgb(15 23 42 / 0.06);
-  --wallet-purple-start: #8b5cf6;
-  --wallet-purple-mid: #784cdf;
+  --wallet-purple-start: #815ce0;
+  --wallet-purple-mid: #764cd4;
   --wallet-purple-end: #6d28d9;
   --wallet-purple: #6d28d9;
   --wallet-radius-hero: 24px;
@@ -136,16 +136,20 @@ html[data-theme="dark"] .wallet-v2,
 .wallet-v2__status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 28px;
-  padding: 0 10px;
-  border-radius: 999px;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 18px;
   background: rgb(255 255 255 / 0.18);
   border: 1px solid rgb(255 255 255 / 0.16);
   font-size: 0.75rem;
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .wallet-v2__status-dot {
@@ -576,10 +580,10 @@ html[data-theme="dark"] .wallet-v2,
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   box-sizing: border-box;
   min-height: 108px;
-  padding: 16px;
+  padding: 20px;
 }
 
 .wallet-v2__bank-empty-row {
@@ -610,7 +614,7 @@ html[data-theme="dark"] .wallet-v2,
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 16px;
+  padding: 20px;
 }
 
 .wallet-v2__bank-logo {
@@ -690,7 +694,7 @@ html[data-theme="dark"] .wallet-v2,
 
 .wallet-v2__bank-actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   border-top: 1px solid #efefef;
 }
 

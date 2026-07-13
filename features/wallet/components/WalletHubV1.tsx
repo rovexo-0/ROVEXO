@@ -200,7 +200,8 @@ export function WalletHubV1({
         data-wallet-canonical={WALLET_CANONICAL_VERSION}
         data-wallet-ui="v1.0-canonical-mockup"
         data-wallet-visual="canonical-light"
-        data-wallet-final-spec="v1.0-final-dimensions"
+        data-wallet-final-spec="v1.0-visual-qa-lock"
+        data-wallet-freeze="pending-visual-qa"
         data-wallet-ssot="docs/modules/wallet/wallet-v1-canonical-mockup.png"
       >
         {connectMessage ? <p className="wallet-v2__notice">{connectMessage}</p> : null}
