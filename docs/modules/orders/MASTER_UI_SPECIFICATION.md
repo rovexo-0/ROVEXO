@@ -10,8 +10,8 @@
 
 1. Header (84px)  
 2. Sold / Bought tabs (58px · underline 170×3)  
-3. Statistics **2×2 CSS grid** (156×20 · gap 16 · no x-scroll)  
-4. Status chips (48px · radius 24 · gap 12)  
+3. Statistics **4-column × 1-row** grid (128px · gap 12 · no wrap / no x-scroll)  
+4. Status chips (46px · radius 23 · gap 12 · mt 20)  
 5. Empty text-only **or** order list  
 6. Bottom navigation (canonical shell — unchanged)
 

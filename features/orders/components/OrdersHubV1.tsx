@@ -275,9 +275,9 @@ export function OrdersHubV1({
       <div
         className="orders-v2"
         data-orders-hub-version="v1.0"
-        data-orders-ui="v1.0-master-implementation"
+        data-orders-ui="v1.0-final-statistics"
         data-orders-freeze="pending-visual-qa"
-        data-orders-sections="header,tabs,stats-2x2,chips,empty-or-list"
+        data-orders-sections="header,tabs,stats-4col,chips,empty-or-list"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
