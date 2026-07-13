@@ -28,7 +28,7 @@ export function SellerPerformanceDashboardView({
   }));
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-ds-6 px-ds-4 py-ds-6">
+    <div className="mx-auto flex w-full max-w-4xl flex-col gap-ds-6 px-ds-4 py-ds-6" data-seller-performance-dashboard="v1.0-frozen">
       <section>
         <p className="text-sm font-medium text-primary">Seller Performance</p>
         <h1 className="mt-1 text-2xl font-bold text-text-primary">Your Reputation Engine</h1>

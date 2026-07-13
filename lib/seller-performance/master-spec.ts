@@ -5,6 +5,10 @@
 
 export const SELLER_PERFORMANCE_SPEC_VERSION = "1.0" as const;
 
+/** Canonical freeze marker — Seller Performance v1.0 approved for production. */
+export const SELLER_PERFORMANCE_CANONICAL_STATUS = "CANONICAL_FROZEN_v1.0" as const;
+export const SELLER_PERFORMANCE_CANONICAL_FROZEN = true as const;
+
 export const SELLER_SCORE_MIN = 0;
 export const SELLER_SCORE_MAX = 100;
 

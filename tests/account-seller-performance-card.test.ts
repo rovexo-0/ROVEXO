@@ -28,7 +28,7 @@ describe("My Account Seller Performance card", () => {
     expect(card).toContain("View details");
     expect(card).toContain("AccountSellerLevelBadge");
     expect(card).toContain("AccountSellerScoreRing");
-    expect(card).toContain('data-ac-seller-performance="v1.0"');
+    expect(card).toContain('data-ac-seller-performance="v1.0-frozen"');
   });
 
   it("uses compact summary layout markers", () => {

@@ -1,0 +1,41 @@
+---
+description: Seller Performance v1.0 Reputation Engine is CANONICAL FROZEN — bug fixes only, no structural UI changes
+globs: lib/seller-performance/**,features/seller-performance/**,features/account-center/components/AccountSeller*.tsx,app/seller/performance/**,app/api/seller/performance/**,lib/account-center/seller-performance-summary.ts
+alwaysApply: false
+---
+
+# Seller Performance v1.0 — CANONICAL FREEZE
+
+**STATUS: CANONICAL | FROZEN | NO AI**
+
+The Seller Performance Reputation Engine v1.0 is frozen after QA approval.
+
+## Frozen surfaces
+
+- **Account summary card** (`/account`) — `data-ac-seller-performance="v1.0-frozen"`
+- **Seller dashboard** (`/seller/performance`) — `data-seller-performance-dashboard="v1.0-frozen"`
+- **Scoring formula** — `lib/seller-performance/master-spec.ts` weights and levels
+- **Public API boundary** — `GET /api/seller/performance/[userId]` buyer-safe fields only
+
+## Allowed changes
+
+- Deterministic engine bug fixes (event queue, recalculation, anti-fraud)
+- Broken navigation or data-loading fixes
+- Accessibility and performance fixes that do not alter approved layout
+- Super-admin audit tooling (does not change buyer-visible surfaces)
+
+## Prohibited without explicit approval
+
+- Structural UI redesign of summary card or dashboard
+- Scoring formula / weight changes
+- AI, ML, or estimated values
+- Exposing internal score, formula, audit, or factor breakdown on public buyer surfaces
+- Client-side score calculation in React components
+
+## SSOT
+
+- Engine: `lib/seller-performance/`
+- Account summary: `lib/account-center/seller-performance-summary.ts`
+- Freeze tests: `tests/seller-performance-freeze.test.ts`
+
+If a change alters frozen layout or public API boundaries, **STOP and request explicit approval**.
