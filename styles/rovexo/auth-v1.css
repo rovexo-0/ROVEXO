@@ -597,6 +597,72 @@
   background: #9333ea;
 }
 
+.auth-password-strength__bar--level-1 {
+  background: #ef4444;
+}
+
+.auth-password-strength__bar--level-2 {
+  background: #f97316;
+}
+
+.auth-password-strength__bar--level-3 {
+  background: #eab308;
+}
+
+.auth-password-strength__bar--level-4 {
+  background: #22c55e;
+}
+
+.auth-password-strength__bar--level-5 {
+  background: #9333ea;
+}
+
+.auth-password-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.auth-password-checklist__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--ds-color-text-secondary, #64748b);
+}
+
+.auth-password-checklist__item--met {
+  color: var(--ds-color-success, #16a34a);
+}
+
+.auth-password-checklist__mark {
+  width: 1rem;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.auth-reset-password__password-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-reset-password__success-icon {
+  display: flex;
+  justify-content: center;
+  color: var(--ds-color-success, #16a34a);
+}
+
+.auth-reset-password__success .auth-heading {
+  text-align: center;
+}
+
 .auth-password-strength__label,
 .auth-password-strength__hint {
   margin: 0;

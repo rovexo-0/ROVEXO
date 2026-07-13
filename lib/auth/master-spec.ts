@@ -231,6 +231,20 @@ export const AUTH_MASTER_SPEC = {
       confirmPasswordLabel: "Confirm Password",
       confirmPasswordPlaceholder: "Confirm your new password",
       passwordHint: "At least 8 characters with upper, lower, number, and symbol",
+      checklist: {
+        minLength: "Minimum 8 characters",
+        uppercase: "One uppercase letter",
+        lowercase: "One lowercase letter",
+        number: "One number",
+        special: "One special character",
+      },
+      strengthLabels: {
+        veryWeak: "Very Weak",
+        weak: "Weak",
+        medium: "Medium",
+        strong: "Strong",
+        excellent: "Excellent",
+      },
       submit: "Reset Password",
       submitting: "Resetting password…",
       successTitle: "Password updated successfully",
@@ -239,13 +253,20 @@ export const AUTH_MASTER_SPEC = {
       invalidTitle: "Invalid link",
       invalidDescription:
         "This password reset link is invalid. Request a new link and try again.",
-      expiredTitle: "Link expired",
-      expiredDescription:
-        "This password reset link has expired. Request a new link to continue.",
-      requestNewLink: "Request New Link",
-      offlineError: "You appear to be offline. Check your connection and try again.",
-      passwordsMismatch: "Passwords do not match.",
-      weakPassword: "Password must meet all strength requirements.",
+      expiredTitle: "Your password reset link has expired.",
+      expiredDescription: "Request a new link to choose a new password.",
+      requestNewLink: "Request New Reset Link",
+      errors: {
+        weakPassword: "Password must meet all strength requirements.",
+        passwordsMismatch: "Passwords do not match.",
+        expiredToken: "Your password reset link has expired.",
+        invalidToken: "This password reset link is invalid.",
+        offline: "You appear to be offline. Check your connection and try again.",
+        serverUnavailable:
+          "We're unable to reset your password right now. Please try again shortly.",
+        tooManyRequests: "Too many attempts. Please wait a moment and try again.",
+        unknown: "Something went wrong. Please try again.",
+      },
     },
   },
 } as const;

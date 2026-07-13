@@ -19,6 +19,7 @@ import { redirectAfterSignIn, sanitizeNextPath } from "@/lib/auth/redirects";
 import { queueGaEvents, type QueuedGaEvent } from "@/lib/analytics/queue-ga-event";
 import { mapAuthErrorMessage } from "@/lib/auth/errors";
 import { validateResetPasswordStrength } from "@/lib/auth/password-strength";
+import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { applySessionPersistence } from "@/lib/auth/session-cookies";
 import { isPublicRegistrationEnabled } from "@/lib/launch-certification/private-mode";
 
@@ -291,17 +292,25 @@ export async function updatePassword(
   _prev: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
+  const resetCopy = AUTH_MASTER_SPEC.resetPassword.copy;
+  const headersList = await headers();
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const updateLimit = await enforceAuthRequestRateLimit("update-password", ip);
+  if (!updateLimit.allowed) {
+    return { error: resetCopy.errors.tooManyRequests };
+  }
+
   const parsed = resetPasswordSchema.safeParse({
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid password." };
+    return { error: resetCopy.errors.weakPassword };
   }
 
   if (parsed.data.password !== parsed.data.confirmPassword) {
-    return { error: "Passwords do not match." };
+    return { error: resetCopy.errors.passwordsMismatch };
   }
 
   const strengthError = validateResetPasswordStrength(parsed.data.password);
@@ -315,7 +324,7 @@ export async function updatePassword(
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "Your reset link is invalid or has expired. Request a new password reset link." };
+    return { error: resetCopy.errors.invalidToken };
   }
 
   const { error } = await supabase.auth.updateUser({
@@ -325,12 +334,29 @@ export async function updatePassword(
   if (error) {
     const normalized = error.message.toLowerCase();
     if (normalized.includes("expired")) {
-      return { error: "Your reset link has expired. Request a new password reset link." };
+      return { error: resetCopy.errors.expiredToken };
     }
-    if (normalized.includes("session")) {
-      return { error: "Your reset link is invalid or has expired. Request a new password reset link." };
+    if (normalized.includes("session") || normalized.includes("invalid")) {
+      return { error: resetCopy.errors.invalidToken };
     }
-    return { error: mapAuthErrorMessage(error.message) || "Unable to reset password. Please try again." };
+    const mapped = mapAuthErrorMessage(error.message);
+    if (mapped.toLowerCase().includes("too many")) {
+      return { error: resetCopy.errors.tooManyRequests };
+    }
+    if (
+      mapped.toLowerCase().includes("password") &&
+      (mapped.toLowerCase().includes("weak") ||
+        mapped.toLowerCase().includes("character") ||
+        mapped.toLowerCase().includes("uppercase"))
+    ) {
+      return { error: resetCopy.errors.weakPassword };
+    }
+    return {
+      error:
+        mapped && mapped !== error.message
+          ? mapped
+          : resetCopy.errors.serverUnavailable,
+    };
   }
 
   await supabase.auth.signOut();

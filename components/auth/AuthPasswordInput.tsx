@@ -35,6 +35,8 @@ export type AuthPasswordInputProps = {
   value?: string;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   hint?: React.ReactNode;
+  describedBy?: string;
+  inputId?: string;
 };
 
 export function AuthPasswordInput({
@@ -47,13 +49,16 @@ export function AuthPasswordInput({
   value,
   onChange,
   hint,
+  describedBy,
+  inputId,
 }: AuthPasswordInputProps) {
   const [visible, setVisible] = useState(false);
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
+  const fieldId = inputId ?? name;
 
   return (
     <div className="auth-icon-field">
-      <label className="auth-icon-field__label" htmlFor={name}>
+      <label className="auth-icon-field__label" htmlFor={fieldId}>
         {label}
       </label>
       <div className="auth-icon-field__control">
@@ -61,7 +66,7 @@ export function AuthPasswordInput({
           <LockLineIcon className="auth-icon-field__svg" />
         </span>
         <input
-          id={name}
+          id={fieldId}
           name={name}
           type={visible ? "text" : "password"}
           autoComplete={autoComplete}
@@ -70,6 +75,10 @@ export function AuthPasswordInput({
           minLength={minLength}
           value={value}
           onChange={onChange}
+          spellCheck={false}
+          autoCorrect="off"
+          autoCapitalize="none"
+          aria-describedby={describedBy}
           onInvalid={(event) => {
             event.preventDefault();
             setValidationMessage(event.currentTarget.validationMessage);

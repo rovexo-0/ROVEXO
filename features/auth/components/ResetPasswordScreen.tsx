@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
-import { cn } from "@/lib/cn";
+import { useActionState, useId, useMemo, useState } from "react";
 import {
   AuthBackButton,
   AuthContainer,
@@ -13,8 +12,15 @@ import {
 import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
 import { AuthAlert } from "@/features/auth/components/AuthAlert";
 import { AuthSpinner } from "@/features/auth/components/AuthSpinner";
+import { ResetPasswordChecklist } from "@/features/auth/components/ResetPasswordChecklist";
+import { ResetPasswordStrengthMeter } from "@/features/auth/components/ResetPasswordStrengthMeter";
 import { updatePassword, type AuthActionState } from "@/lib/auth/actions";
-import { scoreResetPassword, validateResetPasswordStrength } from "@/lib/auth/password-strength";
+import {
+  getResetPasswordRequirements,
+  mapResetPasswordClientError,
+  scoreResetPassword,
+  validateResetPasswordStrength,
+} from "@/lib/auth/password-strength";
 import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { AUTH_MODULE_VERSION } from "@/lib/auth/canonical";
 
@@ -24,14 +30,36 @@ type ResetPasswordScreenProps = {
   tokenState: ResetPasswordTokenState;
 };
 
+function ResetPasswordSuccessIcon() {
+  return (
+    <span className="auth-reset-password__success-icon" aria-hidden>
+      <svg viewBox="0 0 24 24" fill="none" className="h-12 w-12">
+        <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="1.5" />
+        <path
+          d="M7.5 12.5l3 3 6-6.5"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  );
+}
+
 export function ResetPasswordScreen({ tokenState }: ResetPasswordScreenProps) {
   const { copy, routes } = AUTH_MASTER_SPEC.resetPassword;
   const [state, formAction, pending] = useActionState(updatePassword, {} as AuthActionState);
   const [clientError, setClientError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const checklistId = useId();
+  const strengthId = useId();
+
+  const requirements = useMemo(() => getResetPasswordRequirements(password), [password]);
   const strength = useMemo(() => scoreResetPassword(password), [password]);
-  const alertMessage = clientError ?? state.error;
+  const rawAlertMessage = clientError ?? state.error;
+  const alertMessage = mapResetPasswordClientError(rawAlertMessage);
   const showSuccess = Boolean(state.success);
 
   if (tokenState === "invalid" || tokenState === "expired") {
@@ -78,6 +106,7 @@ export function ResetPasswordScreen({ tokenState }: ResetPasswordScreenProps) {
 
         {showSuccess ? (
           <div className="auth-reset-password__success" role="status" aria-live="polite">
+            <ResetPasswordSuccessIcon />
             <AuthHeading title={copy.successTitle} description={copy.successDescription} />
             <PrimaryButton href={routes.signIn}>{copy.goToSignIn}</PrimaryButton>
           </div>
@@ -87,18 +116,20 @@ export function ResetPasswordScreen({ tokenState }: ResetPasswordScreenProps) {
             <form
               action={formAction}
               className="auth-reset-password__form"
+              autoComplete="on"
+              noValidate
               onSubmit={(event) => {
                 setClientError(null);
 
                 if (typeof navigator !== "undefined" && !navigator.onLine) {
                   event.preventDefault();
-                  setClientError(copy.offlineError);
+                  setClientError(copy.errors.offline);
                   return;
                 }
 
                 if (password !== confirmPassword) {
                   event.preventDefault();
-                  setClientError(copy.passwordsMismatch);
+                  setClientError(copy.errors.passwordsMismatch);
                   return;
                 }
 
@@ -115,26 +146,29 @@ export function ResetPasswordScreen({ tokenState }: ResetPasswordScreenProps) {
                 <AuthPasswordInput
                   label={copy.newPasswordLabel}
                   name="password"
+                  inputId="reset-password-new"
                   autoComplete="new-password"
                   placeholder={copy.newPasswordPlaceholder}
                   minLength={8}
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
+                  describedBy={
+                    password
+                      ? `${checklistId} ${strengthId}`
+                      : undefined
+                  }
                   hint={
                     password ? (
-                      <div className="auth-password-strength">
-                        <div className="auth-password-strength__bars" aria-hidden>
-                          {[1, 2, 3, 4, 5].map((step) => (
-                            <span
-                              key={step}
-                              className={cn(
-                                "auth-password-strength__bar",
-                                step <= strength.score && "auth-password-strength__bar--filled",
-                              )}
-                            />
-                          ))}
-                        </div>
-                        <span className="auth-password-strength__label">{strength.label}</span>
+                      <div className="auth-reset-password__password-meta">
+                        <ResetPasswordChecklist
+                          id={checklistId}
+                          requirements={requirements}
+                        />
+                        <ResetPasswordStrengthMeter
+                          id={strengthId}
+                          strength={strength}
+                          hint={undefined}
+                        />
                       </div>
                     ) : (
                       <p className="auth-password-strength__hint">{copy.passwordHint}</p>
@@ -144,6 +178,7 @@ export function ResetPasswordScreen({ tokenState }: ResetPasswordScreenProps) {
                 <AuthPasswordInput
                   label={copy.confirmPasswordLabel}
                   name="confirmPassword"
+                  inputId="reset-password-confirm"
                   autoComplete="new-password"
                   placeholder={copy.confirmPasswordPlaceholder}
                   minLength={8}
@@ -152,18 +187,24 @@ export function ResetPasswordScreen({ tokenState }: ResetPasswordScreenProps) {
                   hint={
                     confirmPassword && confirmPassword !== password ? (
                       <p className="auth-password-strength__hint text-danger" role="alert">
-                        {copy.passwordsMismatch}
+                        {copy.errors.passwordsMismatch}
                       </p>
                     ) : null
                   }
                 />
               </div>
 
-              <PrimaryButton type="submit" disabled={pending} aria-busy={pending} data-testid="auth-submit">
+              <PrimaryButton
+                type="submit"
+                disabled={pending}
+                aria-busy={pending}
+                aria-disabled={pending}
+                data-testid="auth-submit"
+              >
                 {pending ? (
                   <span className="auth-reset-password__submit-pending">
-                    <AuthSpinner className="h-5 w-5" />
-                    {copy.submitting}
+                    <AuthSpinner className="h-5 w-5" aria-hidden />
+                    <span>{copy.submitting}</span>
                   </span>
                 ) : (
                   copy.submit

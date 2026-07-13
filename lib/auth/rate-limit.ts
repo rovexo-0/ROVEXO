@@ -5,7 +5,12 @@ import {
   type RateLimitResult,
 } from "@/lib/api/rate-limit";
 
-export type AuthRateLimitScope = "login" | "register" | "reset" | "verify-resend";
+export type AuthRateLimitScope =
+  | "login"
+  | "register"
+  | "reset"
+  | "update-password"
+  | "verify-resend";
 
 const AUTH_RATE_LIMIT_ALLOWED: RateLimitResult = {
   allowed: true,
@@ -35,6 +40,10 @@ const AUTH_RATE_LIMITS: Record<
   },
   reset: {
     production: { limit: 5, windowMs: 15 * 60_000 },
+    development: { limit: 30, windowMs: 5 * 60_000 },
+  },
+  "update-password": {
+    production: { limit: 10, windowMs: 15 * 60_000 },
     development: { limit: 30, windowMs: 5 * 60_000 },
   },
   "verify-resend": {

@@ -3,7 +3,12 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { AUTH_MASTER_SPEC, AUTH_MASTER_SPEC_VERSION } from "@/lib/auth/master-spec";
 import { AUTH_ROUTES } from "@/lib/auth/canonical";
-import { scoreResetPassword, validateResetPasswordStrength } from "@/lib/auth/password-strength";
+import {
+  getResetPasswordRequirements,
+  mapResetPasswordClientError,
+  scoreResetPassword,
+  validateResetPasswordStrength,
+} from "@/lib/auth/password-strength";
 
 function readSource(relativePath: string): string {
   return readFileSync(path.join(process.cwd(), relativePath), "utf8");
@@ -17,7 +22,10 @@ describe("AUTH_MASTER_SPEC v1.0 — reset password screen", () => {
     expect(AUTH_MASTER_SPEC.resetPassword.copy.submit).toBe("Reset Password");
     expect(AUTH_MASTER_SPEC.resetPassword.copy.successTitle).toBe("Password updated successfully");
     expect(AUTH_MASTER_SPEC.resetPassword.copy.invalidTitle).toBe("Invalid link");
-    expect(AUTH_MASTER_SPEC.resetPassword.copy.expiredTitle).toBe("Link expired");
+    expect(AUTH_MASTER_SPEC.resetPassword.copy.expiredTitle).toBe(
+      "Your password reset link has expired.",
+    );
+    expect(AUTH_MASTER_SPEC.resetPassword.copy.requestNewLink).toBe("Request New Reset Link");
   });
 
   it("implements reset password screen with canonical auth components", () => {
@@ -29,22 +37,51 @@ describe("AUTH_MASTER_SPEC v1.0 — reset password screen", () => {
     expect(page).toContain("resolveTokenState");
     expect(screen).toContain("RovexoBrandLogo");
     expect(screen).toContain("AuthPasswordInput");
-    expect(screen).toContain("auth-password-strength");
+    expect(screen).toContain("ResetPasswordChecklist");
+    expect(screen).toContain("ResetPasswordStrengthMeter");
     expect(screen).toContain("data-auth-token-state");
     expect(screen).toContain('data-auth-version="v1.0-legal-lock"');
     expect(screen).not.toContain("RovexoAppIconMark");
     expect(layout).toContain("auth-reset-password-route");
   });
 
-  it("scores password strength across five requirements", () => {
+  it("tracks live password requirements and five strength levels", () => {
     expect(scoreResetPassword("").score).toBe(0);
+    expect(scoreResetPassword("a").label).toBe("Very Weak");
+    expect(scoreResetPassword("Pass").label).toBe("Weak");
+    expect(scoreResetPassword("Password").label).toBe("Medium");
+    expect(scoreResetPassword("Password1").label).toBe("Strong");
     expect(scoreResetPassword("Password1!").score).toBe(5);
-    expect(validateResetPasswordStrength("short")).toMatch(/8 characters/);
-    expect(validateResetPasswordStrength("password1!")).toMatch(/uppercase/);
-    expect(validateResetPasswordStrength("PASSWORD1!")).toMatch(/lowercase/);
-    expect(validateResetPasswordStrength("Password!")).toMatch(/number/);
-    expect(validateResetPasswordStrength("Password1")).toMatch(/special character/);
+    expect(scoreResetPassword("Password1!").label).toBe("Excellent");
+
+    const requirements = getResetPasswordRequirements("Password1!");
+    expect(requirements.every((item) => item.met)).toBe(true);
     expect(validateResetPasswordStrength("Password1!")).toBeNull();
+    expect(validateResetPasswordStrength("short")).toBe(
+      AUTH_MASTER_SPEC.resetPassword.copy.errors.weakPassword,
+    );
+  });
+
+  it("maps granular reset password errors", () => {
+    const { errors } = AUTH_MASTER_SPEC.resetPassword.copy;
+    expect(mapResetPasswordClientError(errors.passwordsMismatch)).toBe(errors.passwordsMismatch);
+    expect(mapResetPasswordClientError(errors.expiredToken)).toBe(errors.expiredToken);
+    expect(mapResetPasswordClientError(errors.offline)).toBe(errors.offline);
+    expect(mapResetPasswordClientError(errors.tooManyRequests)).toBe(errors.tooManyRequests);
+    expect(mapResetPasswordClientError("random failure")).toBe(errors.unknown);
+  });
+
+  it("supports password managers and independent visibility toggles", () => {
+    const screen = readSource("features/auth/components/ResetPasswordScreen.tsx");
+    const input = readSource("components/auth/AuthPasswordInput.tsx");
+
+    expect(screen).toContain('autoComplete="new-password"');
+    expect(screen).toContain('autoComplete="on"');
+    expect(screen).toContain('inputId="reset-password-new"');
+    expect(screen).toContain('inputId="reset-password-confirm"');
+    expect(input).toContain("setVisible");
+    expect(input).not.toContain("onPaste");
+    expect(input).not.toContain('autoComplete="off"');
   });
 
   it("returns success without auto-login redirect", () => {
@@ -53,8 +90,10 @@ describe("AUTH_MASTER_SPEC v1.0 — reset password screen", () => {
 
     expect(actions).toContain("signOut");
     expect(actions).toContain('success: "Password updated successfully."');
-    expect(actions).not.toMatch(/updatePassword[\s\S]*redirect\("/account"\)/);
-    expect(screen).toContain("Go to Sign In");
+    expect(actions).toContain("errors.tooManyRequests");
+    expect(actions).not.toMatch(/updatePassword[\s\S]*redirect\("\/account"\)/);
+    expect(screen).toContain("copy.goToSignIn");
+    expect(screen).toContain("auth-reset-password__success-icon");
     expect(screen).not.toContain('redirect("/account")');
   });
 
