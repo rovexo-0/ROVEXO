@@ -26,7 +26,7 @@ describe("My Account Seller Performance card", () => {
     expect(page).toContain("sellerPerformance={sellerPerformance}");
     expect(card).toContain('router.push("/seller/performance")');
     expect(card).toContain("View details");
-    expect(card).toContain("SellerLevelBadge");
+    expect(card).toContain("AccountSellerLevelBadge");
     expect(card).toContain("AccountSellerScoreRing");
     expect(card).toContain('data-ac-seller-performance="v1.0"');
   });
@@ -41,9 +41,9 @@ describe("My Account Seller Performance card", () => {
     expect(card).toContain("Completed Sales");
     expect(card).not.toContain("ac-canonical__seller-performance-cta");
     expect(css).toContain(".ac-canonical__seller-performance-grid");
-    expect(css).toContain("min-height: 160px");
-    expect(css).toContain("max-height: 180px");
-    expect(css).toContain("width: 64px");
+    expect(css).toContain("grid-template-columns: repeat(3, minmax(0, 1fr))");
+    expect(css).toContain("ac-canonical__seller-sales-stack");
+    expect(css).toContain("data-seller-level");
     expect(css).toContain("font-size: 28px");
     expect(css).toContain("height: 6px");
     expect(css).toContain("cursor: pointer");

@@ -1,5 +1,7 @@
 import { cn } from "@/lib/cn";
 
+const SCORE_RING_GRADIENT_ID = "ac-seller-score-ring-gradient";
+
 type AccountSellerScoreRingProps = {
   score: number;
   className?: string;
@@ -18,6 +20,12 @@ export function AccountSellerScoreRing({ score, className }: AccountSellerScoreR
       aria-label={`Seller score ${normalized} out of 100`}
     >
       <svg viewBox="0 0 64 64" className="ac-canonical__seller-score-ring-svg" aria-hidden>
+        <defs>
+          <linearGradient id={SCORE_RING_GRADIENT_ID} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#7c3aed" />
+          </linearGradient>
+        </defs>
         <circle
           className="ac-canonical__seller-score-ring-track"
           cx="32"
@@ -34,6 +42,7 @@ export function AccountSellerScoreRing({ score, className }: AccountSellerScoreR
           fill="none"
           strokeWidth="5"
           strokeLinecap="round"
+          stroke={`url(#${SCORE_RING_GRADIENT_ID})`}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           transform="rotate(-90 32 32)"

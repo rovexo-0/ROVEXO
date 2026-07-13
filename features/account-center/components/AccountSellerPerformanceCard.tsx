@@ -1,8 +1,9 @@
 "use client";
 
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { BagLineIcon, ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
-import { SellerLevelBadge } from "@/features/seller-performance/components/SellerLevelBadge";
+import { AccountSellerLevelBadge } from "@/features/account-center/components/AccountSellerLevelBadge";
 import { AccountSellerPerformanceIcon } from "@/features/account-center/components/AccountSellerPerformanceIcon";
 import { AccountSellerScoreRing } from "@/features/account-center/components/AccountSellerScoreRing";
 import type { AccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
@@ -15,6 +16,10 @@ type AccountSellerPerformanceCardProps = {
 
 export function AccountSellerPerformanceCard({ performance }: AccountSellerPerformanceCardProps) {
   const router = useRouter();
+
+  const openPerformanceDashboard = useCallback(() => {
+    router.push("/seller/performance");
+  }, [router]);
 
   return (
     <section
@@ -29,8 +34,9 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
         </div>
         <button
           type="button"
-          onClick={() => router.push("/seller/performance")}
+          onClick={openPerformanceDashboard}
           className={cn("ac-canonical__seller-performance-link", focusRing)}
+          aria-label="View seller performance details"
         >
           View details
           <ChevronRightLineIcon className="ac-canonical__seller-performance-link-icon" />
@@ -39,7 +45,7 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
 
       <div className="ac-canonical__seller-performance-grid">
         <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--level">
-          <SellerLevelBadge level={performance.level} className="ac-canonical__seller-level-badge" />
+          <AccountSellerLevelBadge level={performance.level} />
           <p className="ac-canonical__seller-rating">{performance.ratingDisplay}</p>
         </div>
 
@@ -48,10 +54,12 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
         </div>
 
         <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--sales">
-          <BagLineIcon className="ac-canonical__seller-sales-icon" aria-hidden />
-          <p className="ac-canonical__seller-metric-value">
-            {performance.totalSales.toLocaleString()}
-          </p>
+          <div className="ac-canonical__seller-sales-stack">
+            <BagLineIcon className="ac-canonical__seller-sales-icon" aria-hidden />
+            <p className="ac-canonical__seller-metric-value">
+              {performance.totalSales.toLocaleString()}
+            </p>
+          </div>
           <p className="ac-canonical__seller-metric-label">Completed Sales</p>
         </div>
       </div>
