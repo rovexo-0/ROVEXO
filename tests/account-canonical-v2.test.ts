@@ -41,13 +41,19 @@ describe("My Account canonical final — Module 02", () => {
     expect(home).toContain('data-ac-hub-version="v1.0-production"');
     expect(home).toContain("AccountCanonicalProfile");
     expect(home).toContain("AccountStatsStrip");
+    expect(home).toContain("AccountSellerPerformanceCard");
     expect(home).toContain("AccountMenuSections");
+    expect(home).toMatch(
+      /AccountStatsStrip[\s\S]*AccountSellerPerformanceCard[\s\S]*AccountMenuSections/,
+    );
     expect(page).toContain("AccountCanonicalShell");
     expect(page).toContain("hideBack");
     expect(css).toContain(".ac-canonical__followers-row");
     expect(css).toContain(".ac-canonical__stat--divider");
     expect(css).toContain(".ac-canonical__avatar-wrap");
     expect(css).toContain(".ac-canonical__name-row");
+    expect(css).toContain(".ac-canonical__seller-performance");
+    expect(css).toContain(".ac-canonical__seller-score-ring");
   });
 
   it("builds sectioned menu per canonical final spec", () => {

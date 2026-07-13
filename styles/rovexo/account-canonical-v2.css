@@ -242,6 +242,159 @@
   color: #111111;
 }
 
+/* ── Seller Performance ── */
+.ac-canonical__seller-performance {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgb(15 23 42 / 0.08);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 1px 6px rgb(15 23 42 / 0.04);
+}
+
+.ac-canonical__seller-performance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ac-canonical__seller-performance-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #111111;
+}
+
+.ac-canonical__seller-level-badge {
+  flex-shrink: 0;
+}
+
+.ac-canonical__seller-performance-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+
+.ac-canonical__seller-score-ring {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+}
+
+.ac-canonical__seller-score-ring-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.ac-canonical__seller-score-ring-track {
+  stroke: rgb(15 23 42 / 0.08);
+}
+
+.ac-canonical__seller-score-ring-progress {
+  stroke: #7c3aed;
+}
+
+.ac-canonical__seller-score-ring-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111111;
+  font-variant-numeric: tabular-nums;
+}
+
+.ac-canonical__seller-performance-metrics {
+  display: grid;
+  gap: 10px;
+}
+
+.ac-canonical__seller-metric-label {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: #94a3b8;
+}
+
+.ac-canonical__seller-metric-value {
+  margin: 2px 0 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111111;
+}
+
+.ac-canonical__seller-performance-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ac-canonical__seller-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ac-canonical__seller-progress-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.ac-canonical__seller-progress-percent {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #7c3aed;
+  font-variant-numeric: tabular-nums;
+}
+
+.ac-canonical__seller-progress-track {
+  overflow: hidden;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(15 23 42 / 0.08);
+}
+
+.ac-canonical__seller-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
+  transition: width 200ms ease;
+}
+
+.ac-canonical__seller-progress-message {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: #64748b;
+}
+
+.ac-canonical__seller-performance-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgb(124 58 237 / 0.25);
+}
+
+.ac-canonical__seller-performance-cta:active {
+  opacity: 0.92;
+}
+
 /* ── Menu sections ── */
 .ac-canonical__menu {
   margin-top: 10px;
