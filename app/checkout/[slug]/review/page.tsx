@@ -2,6 +2,6 @@ import { CheckoutSlugPage } from "@/features/checkout/components/CheckoutSlugPag
 
 type Props = { params: Promise<{ slug: string }> };
 
-export default function CheckoutRoute(props: Props) {
+export default function CheckoutReviewRoute(props: Props) {
   return <CheckoutSlugPage {...props} initialStep="review" />;
 }

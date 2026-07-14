@@ -17,7 +17,6 @@ const LEGACY_HEADER_PATTERNS = [
 
 const WRAPPER_FILES = [
   "components/beta/BetaPageHeader.tsx",
-  "features/checkout/components/CheckoutPageHeader.tsx",
   "features/wallet/components/WalletHeader.tsx",
 ];
 

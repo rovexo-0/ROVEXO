@@ -71,18 +71,31 @@ describe("Account + Cart canonical UI v1", () => {
     expect(css).toContain(".cart-v1__checkout");
   });
 
-  it("locks stepped checkout v1 markers", () => {
+  it("locks checkout foundation v1 markers", () => {
     const wizard = readSource("features/checkout/components/CheckoutWizardV1.tsx");
     const summary = readSource("features/checkout/components/OrderSummary.tsx");
+    const price = readSource("features/checkout/components/CheckoutPriceSummary.tsx");
     const css = readSource("styles/rovexo/checkout-v1.css");
+    const address = readSource("app/checkout/[slug]/address/page.tsx");
+    const payment = readSource("app/checkout/[slug]/payment/page.tsx");
+    const review = readSource("app/checkout/[slug]/review/page.tsx");
 
     expect(wizard).toContain('data-checkout-version="v1.0"');
-    expect(wizard).toContain("CheckoutStepper");
+    expect(wizard).toContain('data-checkout-sprint="1-foundation"');
+    expect(wizard).toContain("Confirm & Pay");
     expect(wizard).toContain("Continue to Payment");
-    expect(wizard).toContain("Place Order");
+    expect(wizard).toContain("CheckoutProductSummary");
+    expect(wizard).toContain("CheckoutPriceSummary");
+    expect(price).toContain("Platform Fee");
     expect(summary).toContain("Platform Fee");
     expect(summary).not.toContain("Buyer Protection Fee");
+    expect(css).toContain(".ckt-v1__header");
+    expect(css).toContain("height: 64px");
+    expect(css).toContain("--ckt-max: 430px");
     expect(css).toContain(".ckt-v1__stepper");
+    expect(address).toContain('initialStep="delivery"');
+    expect(payment).toContain('initialStep="payment"');
+    expect(review).toContain('initialStep="review"');
   });
 
   it("loads cart variation from database mapping", () => {

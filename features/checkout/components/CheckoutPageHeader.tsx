@@ -1,6 +1,9 @@
 "use client";
 
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
+import { BackLineIcon } from "@/components/icons/RvxLineIcons";
+import { PageBack } from "@/components/navigation/PageBack";
+import { cn } from "@/lib/cn";
+import { focusRing } from "@/components/ui/tokens";
 
 type CheckoutPageHeaderProps = {
   backHref?: string;
@@ -8,19 +11,33 @@ type CheckoutPageHeaderProps = {
   onBack?: () => void;
 };
 
-/** @deprecated Use CanonicalPageHeader directly. */
+/** Sprint 1 — back-only checkout header (no title, no trailing action). */
 export function CheckoutPageHeader({
   backHref = "/",
-  backLabel = "Listing",
+  backLabel = "Back",
   onBack,
 }: CheckoutPageHeaderProps) {
   return (
-    <CanonicalPageHeader
-      title="Checkout"
-      backHref={backHref}
-      backLabel={onBack ? "Go back" : backLabel}
-      onBack={onBack}
-      className="bg-white"
-    />
+    <header className="ckt-v1__header" data-checkout-header="v1.0">
+      <div className="ckt-v1__header-bar">
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className={cn("ckt-v1__header-back", focusRing)}
+            aria-label={backLabel}
+          >
+            <BackLineIcon />
+          </button>
+        ) : (
+          <PageBack
+            backHref={backHref}
+            backLabel={backLabel}
+            preferHistory
+            className="ckt-v1__header-back-wrap"
+          />
+        )}
+      </div>
+    </header>
   );
 }

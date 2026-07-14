@@ -20,6 +20,7 @@ type CheckoutPageProps = {
   initialDraft: CheckoutDraft;
   liveShippingEnabled?: boolean;
   buyerPhone?: string | null;
+  initialStep?: import("@/features/checkout/types").CheckoutStep;
 };
 
 export function CheckoutPage({
@@ -27,6 +28,7 @@ export function CheckoutPage({
   initialDraft,
   liveShippingEnabled = true,
   buyerPhone = null,
+  initialStep = "review",
 }: CheckoutPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -125,7 +127,12 @@ export function CheckoutPage({
               </Card>
             ) : null}
 
-            <CheckoutWizardV1 product={product} form={form} buyerPhone={buyerPhone} />
+            <CheckoutWizardV1
+              product={product}
+              form={form}
+              buyerPhone={buyerPhone}
+              initialStep={initialStep}
+            />
           </>
         )}
       </main>
