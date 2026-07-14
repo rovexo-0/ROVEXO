@@ -1,44 +1,44 @@
-/* ROVEXO Orders Page v1.0 — single canonical UI */
+/* ROVEXO Orders Page v1.1 — header simplification (back only) */
 
-.account-canonical:has(.orders-page) .account-canonical-header__bar--titled {
+/* Header: 64px · pad 20 · back 40×40 · no title · no right action · no spacer */
+.account-canonical:has(.orders-page) .account-canonical-header__bar {
   box-sizing: border-box;
-  min-height: calc(72px + env(safe-area-inset-top, 0px));
-  height: calc(72px + env(safe-area-inset-top, 0px));
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  grid-template-columns: 44px 1fr 44px;
-  gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 64px;
+  height: 64px;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 20px;
+  padding-right: 20px;
+  gap: 0;
 }
 
 .account-canonical:has(.orders-page) .cds-header__back {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
   border-radius: 12px;
+  flex-shrink: 0;
 }
 
+.account-canonical:has(.orders-page) .cds-header__back svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Hide any leftover titled/spacer chrome if class names ever leak */
+.account-canonical:has(.orders-page) .account-canonical-header__title,
 .account-canonical:has(.orders-page) .account-canonical-header__action,
 .account-canonical:has(.orders-page) .account-canonical-header__spacer {
-  width: 44px;
-  height: 44px;
-}
-
-.account-canonical:has(.orders-page) .account-canonical-header__action a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-}
-
-.account-canonical:has(.orders-page) .account-canonical-header__title {
-  font-size: 34px;
-  font-weight: 700;
-  color: #111827;
+  display: none !important;
 }
 
 .account-canonical-shell:has(.orders-page) .cds-layout__content--account-canonical {
   background: #ffffff;
+  padding-top: 0;
 }
 
 .orders-page {
@@ -66,33 +66,6 @@
 .orders-page *::before,
 .orders-page *::after {
   box-sizing: border-box;
-}
-
-.orders-page__notify {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  color: var(--orders-text);
-  text-decoration: none;
-}
-
-.orders-page__notify-icon {
-  width: 28px;
-  height: 28px;
-}
-
-.orders-page__notify-dot {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--orders-purple);
-  box-shadow: 0 0 0 2px #fff;
 }
 
 .orders-page__tabs {

@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type ReactNode, type SVGProps } from "react";
+import { useMemo, useState, type SVGProps } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BellLineIcon } from "@/components/icons/RvxLineIcons";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { cn } from "@/lib/cn";
 import type { Order } from "@/lib/orders/types";
@@ -15,7 +14,6 @@ type Chip = "all" | "processing" | "completed";
 export type OrdersPageProps = {
   boughtOrders: Order[];
   soldOrders: Order[];
-  unreadNotifications?: number;
 };
 
 const TABS: { id: Tab; label: string }[] = [
@@ -83,12 +81,8 @@ export function OrdersPageSkeleton() {
   );
 }
 
-/** ROVEXO Orders v1.0 — single canonical UI. */
-export function OrdersPage({
-  boughtOrders,
-  soldOrders,
-  unreadNotifications = 0,
-}: OrdersPageProps) {
+/** ROVEXO Orders v1.1 — header simplification (back only). */
+export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tab: Tab = searchParams.get("tab") === "bought" ? "bought" : "sold";
@@ -108,32 +102,12 @@ export function OrdersPage({
     router.push(next === "sold" ? "/orders" : "/orders?tab=bought");
   };
 
-  const notify: ReactNode = (
-    <Link
-      href="/inbox?tab=notifications"
-      className="orders-page__notify"
-      aria-label={
-        unreadNotifications > 0
-          ? `Notifications, ${unreadNotifications} unread`
-          : "Notifications"
-      }
-    >
-      <BellLineIcon className="orders-page__notify-icon" />
-      {unreadNotifications > 0 ? <span className="orders-page__notify-dot" aria-hidden /> : null}
-    </Link>
-  );
-
   return (
-    <AccountCanonicalShell
-      title="Orders"
-      showHeaderTitle
-      backHref="/account"
-      rightAction={notify}
-    >
+    <AccountCanonicalShell title="Orders" backHref="/account" backLabel="My Account">
       <div
         className="orders-page"
-        data-orders-page="v1.0"
-        data-orders-ui="approved-minimal"
+        data-orders-page="v1.1"
+        data-orders-ui="header-simplified"
         data-orders-freeze="pending-visual-qa"
       >
         <div className="orders-page__tabs" role="tablist" aria-label="Order type">

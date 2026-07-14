@@ -4,7 +4,7 @@ import "@/styles/rovexo/orders-page-v1.css";
 
 export default function OrdersLoading() {
   return (
-    <AccountCanonicalShell title="Orders" showHeaderTitle backHref="/account">
+    <AccountCanonicalShell title="Orders" backHref="/account">
       <OrdersPageSkeleton />
     </AccountCanonicalShell>
   );

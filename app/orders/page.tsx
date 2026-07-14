@@ -6,7 +6,7 @@ import { getProfile } from "@/lib/profile/data";
 
 function OrdersFallback() {
   return (
-    <AccountCanonicalShell title="Orders" showHeaderTitle backHref="/account">
+    <AccountCanonicalShell title="Orders" backHref="/account">
       <OrdersPageSkeleton />
     </AccountCanonicalShell>
   );
@@ -21,11 +21,7 @@ export default async function OrdersRoute() {
 
   return (
     <Suspense fallback={<OrdersFallback />}>
-      <OrdersPage
-        boughtOrders={boughtOrders}
-        soldOrders={soldOrders}
-        unreadNotifications={profile.unreadNotifications}
-      />
+      <OrdersPage boughtOrders={boughtOrders} soldOrders={soldOrders} />
     </Suspense>
   );
 }
