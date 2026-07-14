@@ -17,11 +17,13 @@ DOM: `data-auth-screen="splash"` · `data-auth-ui="v1.0-splash-ready"` · `data-
 
 - Show instantly (premium light background only — no dark mode)
 - ROVEXO mark + wordmark + BUY. SELL. GROW. + fade-only load cue
-- Timing: `minDisplayMs` 500 · `maxWaitMs` 1500 · fade 600ms
+- Timing: `minDisplayMs` 600 · `maxWaitMs` 1200 · soft exit fade 220ms
+- Brand stage always opaque (SSR chrome + live overlay) — **never** opacity-0 blank paint
 - Session: getSession → getUser (silent refresh/validate) → guest `/welcome` | verify-email | `/`
 - Invalid/expired: local sign-out → guest (no token/error exposure)
 - Motion: fade_only — **no** spinner string, scale, or bounce
 - RX app icon mark allowed on Splash only
+- PWA `start_url`: `/splash`
 
 ## Singularity
 

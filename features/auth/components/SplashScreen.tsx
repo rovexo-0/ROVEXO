@@ -11,12 +11,12 @@ import { cn } from "@/lib/cn";
 function SplashWordmark() {
   return (
     <p className="auth-splash__wordmark" aria-hidden>
-      ROV<span className="text-primary">X</span>O
+      ROV<span className="auth-splash__wordmark-x">X</span>O
     </p>
   );
 }
 
-/** Premium non-blocking load cue — fade-only (no spinner / scale / bounce). */
+/** Premium non-blocking load cue — fade-only pulse (no spinner / scale / bounce). */
 function SplashIndicator() {
   return (
     <div className="auth-splash__indicator" aria-hidden>
@@ -27,9 +27,13 @@ function SplashIndicator() {
   );
 }
 
+/**
+ * Canonical splash bootstrap — brand stage always visible (never opacity 0).
+ * Session validation runs while splash is on screen; then seamless replace.
+ */
 export function SplashScreen() {
   const router = useRouter();
-  const [exiting, setExiting] = useState(false);
+  const [ready, setReady] = useState(false);
   const { copy } = AUTH_MASTER_SPEC.splash;
 
   useEffect(() => {
@@ -39,7 +43,13 @@ export function SplashScreen() {
       const { destination } = await resolveSplashDestination();
       if (cancelled) return;
 
-      setExiting(true);
+      try {
+        router.prefetch(destination);
+      } catch {
+        /* prefetch optional */
+      }
+
+      setReady(true);
       window.setTimeout(() => {
         if (!cancelled) {
           router.replace(destination);
@@ -56,14 +66,14 @@ export function SplashScreen() {
 
   return (
     <div
-      className={cn("auth-splash", exiting && "auth-splash--exit")}
+      className={cn("auth-splash", "auth-splash--live", ready && "auth-splash--exit")}
       role="status"
       aria-live="polite"
       aria-label={copy.ariaLabel}
       data-auth-module={AUTH_MODULE_VERSION}
       data-auth-spec={AUTH_MASTER_SPEC.version}
       data-auth-screen="splash"
-      data-auth-ui="v1.0-splash-ready"
+      data-auth-ui="v1.0-splash-final-lock"
       data-splash-lock="CANONICAL"
     >
       <div className="auth-splash__stage">

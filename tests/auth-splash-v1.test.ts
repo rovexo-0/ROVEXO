@@ -30,9 +30,9 @@ describe("AUTH_MASTER_SPEC v1.0 — splash screen", () => {
     expect(AUTH_ROUTES.splash).toBe("/splash");
     expect(AUTH_ROUTES.welcome).toBe("/welcome");
     expect(AUTH_ROUTES.home).toBe("/");
-    expect(AUTH_SPLASH.fadeDurationMs).toBe(600);
-    expect(AUTH_SPLASH.minDisplayMs).toBe(500);
-    expect(AUTH_SPLASH.maxWaitMs).toBe(1500);
+    expect(AUTH_SPLASH.fadeDurationMs).toBe(220);
+    expect(AUTH_SPLASH.minDisplayMs).toBe(600);
+    expect(AUTH_SPLASH.maxWaitMs).toBe(1200);
   });
 
   it("lists splash and welcome as public auth routes", () => {
@@ -65,8 +65,9 @@ describe("AUTH_MASTER_SPEC v1.0 — splash screen", () => {
     const bootstrap = readSource("lib/auth/bootstrap.ts");
 
     expect(splashPage).toContain("SplashScreen");
-    expect(splashLayout).toContain("linear-gradient");
     expect(splashLayout).toContain("themeColor");
+    expect(splashLayout).toContain("#ffffff");
+    expect(splashLayout).toContain("auth-splash--ssr");
     expect(splashScreen).toContain("resolveSplashDestination");
     expect(splashScreen).toContain("RovexoAppIconMark");
     expect(splashScreen).toContain("auth-splash--exit");

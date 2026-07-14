@@ -1,17 +1,18 @@
 /**
  * ROVEXO AUTH v1 — Splash + shared auth presentation tokens.
  * iPhone 17 Pro Max reference: 430px logical width, fade-only motion.
+ * Brand stage is ALWAYS opaque — never start at opacity 0 (kills blank PWA flash).
  */
 
 .auth-splash-route {
+  position: relative;
   min-height: 100dvh;
-  background: #ffffff;
+  background: #ffffff !important;
+  color-scheme: light;
 }
 
 .auth-splash {
-  --auth-splash-bg-top: #ffffff;
-  --auth-splash-bg-mid: #fafafa;
-  --auth-splash-bg-bottom: #ffffff;
+  --auth-splash-bg: #ffffff;
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -23,18 +24,23 @@
   padding: max(env(safe-area-inset-top), 24px) max(env(safe-area-inset-right), 24px)
     max(env(safe-area-inset-bottom), 24px) max(env(safe-area-inset-left), 24px);
   color-scheme: light;
-  background: linear-gradient(
-    180deg,
-    var(--auth-splash-bg-top) 0%,
-    var(--auth-splash-bg-mid) 48%,
-    var(--auth-splash-bg-bottom) 100%
-  );
+  background: var(--auth-splash-bg);
   opacity: 1;
-  transition: opacity 600ms ease-out;
 }
 
+.auth-splash--ssr {
+  z-index: 90;
+  pointer-events: none;
+}
+
+.auth-splash--live {
+  z-index: 100;
+  transition: opacity 220ms ease-out;
+}
+
+/* Soft handoff — stay readable; do not collapse to blank white */
 .auth-splash--exit {
-  opacity: 0;
+  opacity: 0.92;
   pointer-events: none;
 }
 
@@ -45,6 +51,7 @@
   justify-content: center;
   width: min(100%, 430px);
   padding-inline: 16px;
+  opacity: 1;
 }
 
 .auth-splash__mark {
@@ -52,7 +59,7 @@
   height: 96px;
   border-radius: 22px;
   box-shadow: 0 8px 28px rgb(15 15 18 / 0.06);
-  animation: auth-splash-fade-in 500ms ease-out both;
+  opacity: 1;
 }
 
 .auth-splash__wordmark {
@@ -62,7 +69,12 @@
   letter-spacing: -0.04em;
   line-height: 1;
   color: #09090b;
-  animation: auth-splash-fade-in 500ms ease-out 80ms both;
+  opacity: 1;
+}
+
+.auth-splash__wordmark-x,
+.auth-splash__wordmark .text-primary {
+  color: #7c3aed;
 }
 
 .auth-splash__tagline {
@@ -72,7 +84,7 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #71717a;
-  animation: auth-splash-fade-in 500ms ease-out 140ms both;
+  opacity: 1;
 }
 
 .auth-splash__indicator {
@@ -82,7 +94,7 @@
   gap: 6px;
   margin-top: 28px;
   min-height: 8px;
-  animation: auth-splash-fade-in 500ms ease-out 200ms both;
+  opacity: 1;
 }
 
 .auth-splash__indicator span {
@@ -105,7 +117,7 @@
 
 @keyframes auth-splash-fade-in {
   from {
-    opacity: 0;
+    opacity: 1;
   }
   to {
     opacity: 1;
@@ -123,25 +135,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .auth-splash,
-  .auth-splash__mark,
-  .auth-splash__wordmark,
-  .auth-splash__tagline,
-  .auth-splash__indicator,
+  .auth-splash--live {
+    transition: none !important;
+  }
+
   .auth-splash__indicator span {
     animation: none !important;
-    transition: none !important;
-    opacity: 1 !important;
+    opacity: 0.7 !important;
   }
 }
 
 .auth-layout--hero {
-  background: linear-gradient(
-    180deg,
-    var(--auth-splash-bg-top) 0%,
-    var(--auth-splash-bg-mid) 38%,
-    var(--auth-splash-bg-bottom) 100%
-  );
+  background: #ffffff;
 }
 
 .auth-primary-button,
