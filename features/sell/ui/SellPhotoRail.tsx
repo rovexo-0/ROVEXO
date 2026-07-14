@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { CanonicalCard } from "@/src/components/canonical";
 import { ModalContainer } from "@/components/ui/ModalContainer";
-import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
+import { SellPhotoFileInput } from "@/features/sell/ui/SellPhotoFileInput";
 import { focusRing } from "@/features/sell/ui/sell-classes";
 import { useSell } from "@/features/sell/context/SellProvider";
 import { getListingValidationErrors, SELL_PHOTO_MAX } from "@/features/sell/types";
@@ -139,12 +139,7 @@ export const SellPhotoRail = memo(function SellPhotoRail({
         focusRing,
       )}
     >
-      <NativeImageFileInput
-        intent="gallery"
-        placement="overlay"
-        multiple
-        onFilesSelected={handleFilesSelected}
-      />
+      <SellPhotoFileInput multiple onFilesSelected={handleFilesSelected} />
       <Plus className="h-6 w-6 text-primary" aria-hidden />
       <span className="text-sm font-medium text-text-primary">Add Photos</span>
     </label>
@@ -249,12 +244,7 @@ export const SellPhotoRail = memo(function SellPhotoRail({
               aria-label="Add Photos"
               className={cn(tileBase, "sell-photo-upload flex-col gap-1", focusRing)}
             >
-              <NativeImageFileInput
-                intent="gallery"
-                placement="overlay"
-                multiple
-                onFilesSelected={handleFilesSelected}
-              />
+              <SellPhotoFileInput multiple onFilesSelected={handleFilesSelected} />
               <Plus className="h-5 w-5 text-primary" aria-hidden />
               <span className="text-[0.625rem] font-medium text-text-primary">Add</span>
             </label>
@@ -296,9 +286,8 @@ export const SellPhotoRail = memo(function SellPhotoRail({
                 focusRing,
               )}
             >
-              <NativeImageFileInput
-                intent="gallery"
-                placement="overlay"
+              <SellPhotoFileInput
+                multiple={false}
                 onFilesSelected={(files) => handleReplaceSelected(previewPhoto.id, files)}
               />
               Replace

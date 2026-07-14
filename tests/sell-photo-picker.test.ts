@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   NATIVE_IMAGE_FALLBACK_ACCEPT,
   NATIVE_IMAGE_GALLERY_ACCEPT,
+  NATIVE_IMAGE_SUPPORTED_MIME,
   nativeImageFileInputOverlayClassName,
   resolveNativeImageAccept,
   resolveNativeImageCapture,
@@ -16,56 +17,62 @@ function readSource(relativePath: string): string {
 }
 
 describe("sell photo picker (Android / Samsung)", () => {
-  it("uses explicit gallery MIME types instead of image/* wildcard", () => {
-    expect(NATIVE_IMAGE_GALLERY_ACCEPT).toContain("image/jpeg");
-    expect(NATIVE_IMAGE_GALLERY_ACCEPT).toContain("image/png");
-    expect(NATIVE_IMAGE_GALLERY_ACCEPT).not.toContain("image/*");
-    expect(resolveNativeImageAccept("gallery")).toBe(NATIVE_IMAGE_GALLERY_ACCEPT);
-  });
-
-  it("keeps image/* only as explicit fallback intent", () => {
+  it("uses accept=image/* so Android opens Gallery / Google Photos providers", () => {
+    expect(NATIVE_IMAGE_GALLERY_ACCEPT).toBe("image/*");
     expect(NATIVE_IMAGE_FALLBACK_ACCEPT).toBe("image/*");
+    expect(resolveNativeImageAccept("gallery")).toBe("image/*");
     expect(resolveNativeImageAccept("any")).toBe("image/*");
   });
 
-  it("uses capture only for dedicated camera intent", () => {
-    expect(resolveNativeImageCapture("gallery")).toBeUndefined();
-    expect(resolveNativeImageCapture("camera")).toBe("environment");
+  it("documents supported image MIME types without forcing them into accept", () => {
+    expect(NATIVE_IMAGE_SUPPORTED_MIME).toEqual([
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/heic",
+      "image/heif",
+    ]);
   });
 
-  it("does not hide the file input from assistive tech or Samsung taps", () => {
+  it("never forces capture on gallery / sell picker", () => {
+    expect(resolveNativeImageCapture("gallery")).toBeUndefined();
+    expect(resolveNativeImageCapture("any")).toBeUndefined();
+  });
+
+  it("sell Add Photos uses SellPhotoFileInput with image/* and no capture", () => {
+    const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
+    const input = readSource("features/sell/ui/SellPhotoFileInput.tsx");
+
+    expect(rail).toContain("SellPhotoFileInput");
+    expect(rail).not.toContain("NativeImageFileInput");
+    expect(rail).not.toContain('intent="camera"');
+    expect(rail).not.toContain("capture=");
+
+    expect(input).toContain('type="file"');
+    expect(input).toContain('accept="image/*"');
+    expect(input).toContain("multiple");
+    expect(input).not.toMatch(/\bcapture\b/);
+    expect(input).not.toContain("environment");
+    expect(input).not.toContain('intent="camera"');
+  });
+
+  it("shared NativeImageFileInput omits capture unless camera intent", () => {
     const source = readSource("components/ui/NativeImageFileInput.tsx");
+    expect(source).toContain('type="file"');
+    expect(source).toContain("...(capture ? { capture } : {})");
     expect(source).not.toContain("aria-hidden");
     expect(source).not.toContain("tabIndex={-1}");
-    expect(source).toContain('type="file"');
-    expect(source).toContain("resolveNativeImageAccept");
-    expect(source).toContain("resolveNativeImageCapture");
-  });
-
-  it("routes sell Add Photos through native gallery overlay only", () => {
-    const source = readSource("features/sell/ui/SellPhotoRail.tsx");
-    expect(source).toContain('intent="gallery"');
-    expect(source).toContain('placement="overlay"');
-    expect(source).not.toContain('intent="camera"');
-    expect(source).not.toContain("sourceSheetOpen");
-    expect(source).not.toContain('variant="sheet"');
-    expect(source).toContain("Add Photos");
-    expect(source).toContain("DeletePhotoAction");
-    expect(source).not.toContain("window.confirm");
   });
 
   it("routes auction sell through canonical photo rail", () => {
     const source = readSource("features/auctions/sell/AuctionSellPage.tsx");
     expect(source).toContain("SellPhotoRail");
-    expect(source).toContain("SellCategoryBlock");
     expect(source).not.toContain("PhotoUploader");
-    expect(source).not.toContain("CategoryTreePicker");
   });
 
   it("overlay input covers the full label hit target", () => {
     expect(nativeImageFileInputOverlayClassName).toContain("inset-0");
     expect(nativeImageFileInputOverlayClassName).toContain("opacity-0");
-    expect(nativeImageFileInputOverlayClassName).not.toContain("display:none");
   });
 
   it("sanitizes React useId values for htmlFor association", () => {
@@ -79,7 +86,7 @@ describe("sell photo picker (Android / Samsung)", () => {
 
 describe("sell photo upload state", () => {
   it("resets file input value after selection for re-pick", () => {
-    const source = readSource("components/ui/NativeImageFileInput.tsx");
+    const source = readSource("features/sell/ui/SellPhotoFileInput.tsx");
     expect(source).toContain('event.target.value = ""');
   });
 

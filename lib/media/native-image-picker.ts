@@ -1,23 +1,38 @@
 /**
  * Native mobile image picker — Samsung Android, Chrome Android, iOS Safari, WebView, PWA.
  *
- * Priority on Android:
- * 1. System Photo Picker (Android 13+) — use explicit image MIME types (not image/*).
- * 2. Native gallery chooser — same explicit MIME list on older WebViews.
- * 3. Standard file picker — image/* fallback only when intent is "any".
+ * Sell Add Photos uses `SellPhotoFileInput` which hardcodes:
+ *   <input type="file" accept="image/*" multiple />
+ * with NO capture attribute.
+ *
+ * Why image/* (not an explicit MIME list)?
+ * Explicit MIME lists (image/jpeg,image/png,…) and capture= both push many Samsung/Chrome
+ * builds into the legacy Camera / Video Camera / Files chooser and hide Gallery /
+ * Google Photos. The OS photo picker with accept="image/*" surfaces available providers.
  *
  * Rules:
- * - Never use capture= on gallery intent (opens camera-only on some browsers).
- * - Use capture="environment" only on dedicated camera intent.
+ * - Never set capture on gallery / sell photo pickers.
+ * - Use capture="environment" only on a dedicated camera intent (not sell).
  * - Prefer nesting the input inside <label> with overlay placement on Samsung.
  * - Do not set aria-hidden or tabIndex={-1} on the input.
  */
 
-/** Standard image MIME types — opens Android Photo Picker / gallery, not My Files. */
-export const NATIVE_IMAGE_GALLERY_ACCEPT =
-  "image/jpeg,image/png,image/webp,image/heic,image/heif,image/gif";
+/** Documented supported image MIME types (client validation / docs). */
+export const NATIVE_IMAGE_SUPPORTED_MIME = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+] as const;
 
-/** Wildcard fallback when explicit MIME lists are unsupported (desktop legacy paths). */
+/**
+ * Accept string for gallery / photo pickers.
+ * Wildcard lets Android/iOS choose Gallery, Google Photos, Photos, Files, Camera.
+ */
+export const NATIVE_IMAGE_GALLERY_ACCEPT = "image/*";
+
+/** Alias — same wildcard for desktop / legacy fallback paths. */
 export const NATIVE_IMAGE_FALLBACK_ACCEPT = "image/*";
 
 /**
@@ -29,16 +44,16 @@ export type NativeImagePickerIntent = "gallery" | "camera" | "any";
 
 export type NativeImagePickerPlacement = "associated" | "overlay";
 
-export function resolveNativeImageAccept(intent: NativeImagePickerIntent = "any"): string {
-  if (intent === "any") {
-    return NATIVE_IMAGE_FALLBACK_ACCEPT;
-  }
+export function resolveNativeImageAccept(_intent: NativeImagePickerIntent = "any"): string {
+  void _intent;
+  // Always image/* for gallery-compatible pickers (including camera-intent accept).
   return NATIVE_IMAGE_GALLERY_ACCEPT;
 }
 
 export function resolveNativeImageCapture(
   intent: NativeImagePickerIntent,
 ): "environment" | undefined {
+  // Sell / gallery paths must never force camera.
   return intent === "camera" ? "environment" : undefined;
 }
 

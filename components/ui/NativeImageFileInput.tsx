@@ -10,6 +10,11 @@ import {
   type NativeImageFileInputProps,
 } from "@/lib/media/native-image-picker";
 
+/**
+ * Platform file picker for photos.
+ * Gallery intent renders exactly: <input type="file" accept="image/*" multiple? />
+ * with no capture attribute (required for Samsung Gallery / Google Photos).
+ */
 export function NativeImageFileInput({
   id,
   multiple = false,
@@ -37,7 +42,8 @@ export function NativeImageFileInput({
       accept={resolvedAccept}
       multiple={multiple}
       disabled={disabled}
-      capture={capture}
+      // Only set capture for dedicated camera flows — never for sell gallery picks.
+      {...(capture ? { capture } : {})}
       onChange={handleChange}
       className={cn(
         placement === "overlay" ? nativeImageFileInputOverlayClassName : nativeImageFileInputClassName,
