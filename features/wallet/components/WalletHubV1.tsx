@@ -14,7 +14,6 @@ import {
   ChevronRightLineIcon,
   CreditCardLineIcon,
   DocumentLineIcon,
-  InfoLineIcon,
   WalletLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import "@/styles/rovexo/wallet-hub-v1.css";
@@ -83,8 +82,7 @@ function AddBankIcon(props: IconProps) {
       <path d="M5 10v8M9 10v8M15 10v8M19 10v8" strokeLinecap="round" />
       <path d="M3 18h18" strokeLinecap="round" />
       <path d="M12 3l9 5H3l9-5Z" strokeLinejoin="round" />
-      <circle cx="18" cy="6" r="4" fill="currentColor" stroke="none" />
-      <path d="M18 4.5v3M16.5 6h3" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M18 5v4M16 7h4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -117,38 +115,33 @@ function WalletSectionSkeleton({ label, tall = false }: { label: string; tall?: 
   );
 }
 
-function BalanceMetricCard({
+function BalanceListRow({
   href,
   title,
   amount,
   hint,
   icon,
-  tone,
 }: {
   href: string;
   title: string;
   amount: number;
   hint: string;
   icon: ReactNode;
-  tone: "pending" | "available" | "processing" | "paid";
 }) {
   return (
     <Link
       href={href}
-      className={cn("wallet-v2__metric", `wallet-v2__metric--${tone}`)}
+      className="wallet-v2__balance-row"
       aria-label={`${title}: ${formatCurrency(amount)}. ${hint}`}
     >
-      <span className="wallet-v2__metric-top">
-        <span className="wallet-v2__metric-icon" aria-hidden>
-          {icon}
-        </span>
-        <span className="wallet-v2__metric-chevron" aria-hidden>
-          <ChevronRightLineIcon />
-        </span>
+      <span className="wallet-v2__balance-icon" aria-hidden>
+        {icon}
       </span>
-      <p className="wallet-v2__metric-title">{title}</p>
-      <p className="wallet-v2__metric-amount">{formatCurrency(amount)}</p>
-      <p className="wallet-v2__metric-hint">{hint}</p>
+      <span className="wallet-v2__balance-label">{title}</span>
+      <span className="wallet-v2__balance-amount">{formatCurrency(amount)}</span>
+      <span className="wallet-v2__balance-chevron" aria-hidden>
+        <ChevronRightLineIcon />
+      </span>
     </Link>
   );
 }
@@ -196,13 +189,11 @@ export function WalletHubV1({
     >
       <div
         className="wallet-v2"
-        data-wallet-hub-version="v1.0-canonical"
+        data-wallet-hub-version="v1.1-ui"
         data-wallet-canonical={WALLET_CANONICAL_VERSION}
-        data-wallet-ui="v1.0-canonical-mockup"
+        data-wallet-ui="v1.1-simplified"
         data-wallet-visual="canonical-light"
-        data-wallet-final-spec="v1.0-canonical-lock"
         data-wallet-freeze="pending-visual-qa"
-        data-wallet-ssot="docs/modules/wallet/wallet-v1-canonical-mockup.png"
       >
         {connectMessage ? <p className="wallet-v2__notice">{connectMessage}</p> : null}
 
@@ -219,69 +210,56 @@ export function WalletHubV1({
 
           <p className="wallet-v2__hero-balance">{formatCurrency(withdrawable)}</p>
 
-          <div className="wallet-v2__hero-footer">
-            <p className="wallet-v2__hero-sub">
-              Available to withdraw
-              <span className="wallet-v2__hero-info" aria-hidden>
-                <InfoLineIcon />
-              </span>
-            </p>
-
-            <div className="wallet-v2__hero-actions">
-              <Link
-                href={WALLET_ROUTES.withdraw}
-                className={cn(
-                  "wallet-v2__hero-btn",
-                  "wallet-v2__hero-btn--primary",
-                  withdrawable <= 0 && "is-disabled",
-                )}
-                aria-disabled={withdrawable <= 0}
-                onClick={(event) => {
-                  if (withdrawable <= 0) event.preventDefault();
-                }}
-              >
-                <WithdrawUpIcon />
-                Withdraw
-              </Link>
-              <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__hero-btn wallet-v2__hero-btn--secondary">
-                <BankLineIcon />
-                Bank Account
-              </Link>
-            </div>
+          <div className="wallet-v2__hero-actions">
+            <Link
+              href={WALLET_ROUTES.withdraw}
+              className={cn(
+                "wallet-v2__hero-btn",
+                "wallet-v2__hero-btn--primary",
+                withdrawable <= 0 && "is-disabled",
+              )}
+              aria-disabled={withdrawable <= 0}
+              onClick={(event) => {
+                if (withdrawable <= 0) event.preventDefault();
+              }}
+            >
+              <WithdrawUpIcon />
+              Withdraw
+            </Link>
+            <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__hero-btn wallet-v2__hero-btn--secondary">
+              <BankLineIcon />
+              Bank Account
+            </Link>
           </div>
         </section>
 
-        <section className="wallet-v2__metrics" aria-label="Wallet balances">
-          <BalanceMetricCard
+        <section className="wallet-v2__balance-card" aria-label="Wallet balances">
+          <BalanceListRow
             href={WALLET_ROUTES.transactions}
             title="Pending"
             amount={data.pendingBalance}
             hint="Waiting for delivery"
-            tone="pending"
             icon={<ClockLineIcon />}
           />
-          <BalanceMetricCard
+          <BalanceListRow
             href={WALLET_ROUTES.withdraw}
             title="Available"
             amount={withdrawable}
             hint="Ready to withdraw"
-            tone="available"
             icon={<WalletLineIcon />}
           />
-          <BalanceMetricCard
+          <BalanceListRow
             href={WALLET_ROUTES.payouts}
             title="Processing"
             amount={withdrawalSummary.processingTotal}
             hint="Being processed"
-            tone="processing"
             icon={<RefreshLineIcon />}
           />
-          <BalanceMetricCard
+          <BalanceListRow
             href={WALLET_ROUTES.payouts}
             title="Paid Out"
             amount={withdrawalSummary.completedTotal}
             hint="Total withdrawn"
-            tone="paid"
             icon={<CheckCircleLineIcon />}
           />
         </section>
@@ -292,15 +270,17 @@ export function WalletHubV1({
               Quick Actions
             </h2>
           </div>
-          <div className="wallet-v2__quick-grid">
-            <QuickActionCard href={WALLET_ROUTES.bankAccount} label="Add Bank" icon={<AddBankIcon />} />
-            <QuickActionCard href={WALLET_ROUTES.withdraw} label="Withdraw" icon={<WithdrawUpIcon />} />
-            <QuickActionCard href={WALLET_ROUTES.transactions} label="Transactions" icon={<DocumentLineIcon />} />
-            <QuickActionCard
-              href={WALLET_ROUTES.paymentMethods}
-              label="Payment Methods"
-              icon={<CreditCardLineIcon />}
-            />
+          <div className="wallet-v2__quick-card">
+            <div className="wallet-v2__quick-grid">
+              <QuickActionCard href={WALLET_ROUTES.bankAccount} label="Add Bank" icon={<AddBankIcon />} />
+              <QuickActionCard href={WALLET_ROUTES.withdraw} label="Withdraw" icon={<WithdrawUpIcon />} />
+              <QuickActionCard href={WALLET_ROUTES.transactions} label="Transactions" icon={<DocumentLineIcon />} />
+              <QuickActionCard
+                href={WALLET_ROUTES.paymentMethods}
+                label="Payment Methods"
+                icon={<CreditCardLineIcon />}
+              />
+            </div>
           </div>
         </section>
 

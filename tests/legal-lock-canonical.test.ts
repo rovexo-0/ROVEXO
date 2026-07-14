@@ -54,9 +54,7 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
   });
 
   it("locks wallet annual statements, filters, and PDF export", () => {
-    const hub = readSource("features/wallet/components/WalletHubV1.tsx");
     const txn = readSource("features/wallet/components/WalletTransactionsList.tsx");
-    expect(hub).toContain("Annual Statements");
     expect(txn).toContain("Search transactions");
     expect(txn).toContain("Filter by type");
     expect(readSource("features/wallet/components/AnnualStatementDetail.tsx")).toContain("Download PDF");

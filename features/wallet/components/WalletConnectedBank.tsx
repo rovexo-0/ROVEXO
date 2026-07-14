@@ -3,7 +3,12 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BankLineIcon, EditLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
+import {
+  BankLineIcon,
+  ChevronRightLineIcon,
+  EditLineIcon,
+  ShieldLineIcon,
+} from "@/components/icons/RvxLineIcons";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import type { WithdrawMethod } from "@/lib/wallet/types";
 
@@ -31,7 +36,7 @@ export function WalletConnectedBank({ bank, verified }: WalletConnectedBankProps
   };
 
   return (
-    <section className="wallet-v2__section" aria-labelledby="wallet-bank-title">
+    <section className="wallet-v2__section wallet-v2__section--bank" aria-labelledby="wallet-bank-title">
       <div className="wallet-v2__section-head">
         <h2 id="wallet-bank-title" className="wallet-v2__section-title">
           Connected Bank
@@ -41,23 +46,26 @@ export function WalletConnectedBank({ bank, verified }: WalletConnectedBankProps
       <div className="wallet-v2__bank-card">
         {bank ? (
           <>
-            <div className="wallet-v2__bank-row">
-              <span className="wallet-v2__bank-logo" aria-hidden>
+            <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__bank-main">
+              <span className="wallet-v2__bank-icon" aria-hidden>
                 <BankLineIcon />
               </span>
-              <div className="wallet-v2__bank-copy">
-                <div className="wallet-v2__bank-name-row">
-                  <p className="wallet-v2__bank-name">{bank.label}</p>
+              <span className="wallet-v2__bank-copy">
+                <span className="wallet-v2__bank-name-row">
+                  <span className="wallet-v2__bank-name">{bank.label}</span>
                   {verified ? (
                     <span className="wallet-v2__bank-verified">
                       <ShieldLineIcon />
                       Verified
                     </span>
                   ) : null}
-                </div>
-                <p className="wallet-v2__bank-meta">****{bank.lastDigits}</p>
-              </div>
-            </div>
+                </span>
+                <span className="wallet-v2__bank-meta">****{bank.lastDigits}</span>
+              </span>
+              <span className="wallet-v2__bank-chevron" aria-hidden>
+                <ChevronRightLineIcon />
+              </span>
+            </Link>
             <div className="wallet-v2__bank-actions" role="group" aria-label="Bank account actions">
               <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__bank-action">
                 <EditLineIcon />
@@ -82,20 +90,18 @@ export function WalletConnectedBank({ bank, verified }: WalletConnectedBankProps
             ) : null}
           </>
         ) : (
-          <div className="wallet-v2__bank-empty">
-            <div className="wallet-v2__bank-empty-row">
-              <span className="wallet-v2__bank-dash" aria-hidden>
-                <BankLineIcon />
-              </span>
-              <div className="wallet-v2__bank-copy">
-                <p className="wallet-v2__bank-name">No bank account connected</p>
-                <p className="wallet-v2__bank-meta">Add your bank account to withdraw funds.</p>
-              </div>
-            </div>
-            <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__cta">
-              Connect Bank Account
-            </Link>
-          </div>
+          <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__bank-main wallet-v2__bank-main--empty">
+            <span className="wallet-v2__bank-icon" aria-hidden>
+              <BankLineIcon />
+            </span>
+            <span className="wallet-v2__bank-copy">
+              <span className="wallet-v2__bank-name">No bank account connected</span>
+              <span className="wallet-v2__bank-inline-cta">Connect Bank Account →</span>
+            </span>
+            <span className="wallet-v2__bank-chevron" aria-hidden>
+              <ChevronRightLineIcon />
+            </span>
+          </Link>
         )}
       </div>
     </section>

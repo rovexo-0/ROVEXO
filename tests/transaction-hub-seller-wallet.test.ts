@@ -81,8 +81,8 @@ describe("transaction hub seller wallet document 3", () => {
     expect(settlement).toContain("notifySellerFundsReleased");
     expect(wallet).toContain("Waiting for delivery");
     expect(wallet).toContain("Being processed");
-    expect(wallet).toContain("Lifetime Withdrawn");
-    expect(wallet).toContain("Verified Wallet");
+    expect(wallet).toContain("Paid Out");
+    expect(wallet).toContain("Available Balance");
   });
 
   it("extends super admin finance dashboard metrics", () => {

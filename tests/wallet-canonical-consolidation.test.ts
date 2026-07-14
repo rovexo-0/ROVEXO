@@ -7,7 +7,7 @@ function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("Wallet v1.0 canonical mockup SSOT", () => {
+describe("Wallet v1.1 simplified UI SSOT", () => {
   it("defines canonical wallet routes", () => {
     expect(WALLET_ROUTES.hub).toBe("/wallet");
     expect(WALLET_ROUTES.paymentMethods).toBe("/wallet/payment-methods");
@@ -17,22 +17,25 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     expect(WALLET_ROUTES.payouts).toBe("/wallet/payouts");
   });
 
-  it("matches approved mockup structure and copy", () => {
+  it("matches v1.1 simplified structure and copy", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
     const css = readSource("styles/rovexo/wallet-hub-v1.css");
     const bank = readSource("features/wallet/components/WalletConnectedBank.tsx");
     const txns = readSource("features/wallet/components/WalletRecentTransactions.tsx");
     const insights = readSource("features/wallet/components/WalletInsights.tsx");
 
-    expect(hub).toContain('data-wallet-ui="v1.0-canonical-mockup"');
-    expect(hub).toContain('data-wallet-final-spec="v1.0-canonical-lock"');
+    expect(hub).toContain('data-wallet-ui="v1.1-simplified"');
+    expect(hub).toContain('data-wallet-hub-version="v1.1-ui"');
     expect(hub).toContain('data-wallet-freeze="pending-visual-qa"');
     expect(hub).toContain("wallet-v2__hero");
     expect(hub).toContain("Available Balance");
     expect(hub).toContain("wallet-v2__status-pill");
+    expect(hub).toContain("wallet-v2__balance-card");
     expect(hub).toContain("Paid Out");
     expect(hub).toContain('label="Add Bank"');
     expect(hub).toContain("Quick Actions");
+    expect(hub).not.toContain("wallet-v2__metrics");
+    expect(hub).not.toContain("BalanceMetricCard");
     expect(hub).not.toContain("Lifetime Withdrawn");
     expect(hub).not.toContain("Verified Wallet");
     expect(hub).not.toContain("Platform Fee");
@@ -47,7 +50,7 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     expect(insights).toContain("No upcoming payout when you have pending funds.");
     expect(insights).toContain("Estimated payout");
 
-    expect(bank).toContain("Connect Bank Account");
+    expect(bank).toContain("Connect Bank Account →");
     expect(bank).toContain("No bank account connected");
     expect(bank).toContain("Change Bank");
     expect(bank).toContain("Edit Bank");
@@ -57,20 +60,26 @@ describe("Wallet v1.0 canonical mockup SSOT", () => {
     expect(txns).toContain("No transactions yet");
     expect(txns).toContain("IntersectionObserver");
 
-    expect(css).toContain("--wallet-pad-x: 16px");
-    expect(css).toContain("max-width: 390px");
-    expect(css).toContain("max-width: 720px");
+    expect(css).toContain("--wallet-pad-x: 20px");
+    expect(css).toContain("430px");
+    expect(css).toContain("max-width: 480px");
     expect(css).toContain("height: 170px");
-    expect(css).toContain("height: 128px");
-    expect(css).toContain("height: 92px");
+    expect(css).toContain("height: 108px");
     expect(css).toContain("height: 118px");
     expect(css).toContain("height: 52px");
+    expect(css).toContain("height: 60px");
+    expect(css).toContain("height: 96px");
     expect(css).toContain("font-size: 2.5rem");
-    expect(css).toContain("wallet-v2__hero-footer");
+    expect(css).toContain("wallet-v2__balance-card");
+    expect(css).toContain("wallet-v2__quick-card");
+    expect(css).toContain("padding-left: 0");
+    expect(css).toContain("overflow-x: clip");
     expect(css).toContain("--wallet-radius-hero: 24px");
     expect(css).toContain("--wallet-radius-card: 18px");
+    expect(css).toContain("--wallet-radius-list: 20px");
     expect(css).toContain("--wallet-radius-btn: 14px");
     expect(css).toContain("repeat(3, minmax(0, 1fr))");
+    expect(css).not.toContain("wallet-v2__metrics");
     expect(css).not.toContain("prefers-color-scheme: dark");
     expect(css).not.toContain("background: #18181b");
   });
