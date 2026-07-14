@@ -21,7 +21,8 @@ describe("Account + Cart canonical UI v1", () => {
     expect(menu).toContain("Log Out");
     expect(menu).toContain("Inbox");
     expect(css).toContain(".ac-v1");
-    expect(css).toContain(".ac-v1__menu-icon");
+    expect(css).toContain(".ac-v1__row-icon");
+    expect(css).toContain("--ac-shadow");
   });
 
   it("uses list rows instead of legacy account grid on hub", () => {
@@ -33,9 +34,8 @@ describe("Account + Cart canonical UI v1", () => {
 
   it("hub menu rows include chevrons per canonical reference", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
-    const row = readSource("src/components/canonical/CanonicalMenuRow.tsx");
-    expect(menu).toContain("CanonicalMenuRow");
-    expect(row).toContain("ChevronRightLineIcon");
+    expect(menu).toContain("ChevronRight");
+    expect(menu).toContain("ac-v1__row-chevron");
   });
 
   it("locks wallet hub markers", () => {

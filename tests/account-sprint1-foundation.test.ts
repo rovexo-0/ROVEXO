@@ -94,12 +94,11 @@ describe("My Account Sprint 1 foundation", () => {
     expect(card).toContain("View Details");
   });
 
-  it("documents the master UI spec", () => {
-    expect(existsSync(join(process.cwd(), "docs/modules/account/MASTER_UI_SPECIFICATION.md"))).toBe(
-      true,
-    );
-    const spec = readSource("docs/modules/account/MASTER_UI_SPECIFICATION.md");
-    expect(spec).toContain("Sprint 1");
-    expect(spec).toContain("64px");
+  it("applies wallet-matched visual QA marker", () => {
+    const home = readSource("features/account-center/components/AccountCenterHome.tsx");
+    const css = readSource("styles/rovexo/account-canonical-v2.css");
+    expect(home).toContain('data-account-ui="visual-qa-wallet-match"');
+    expect(css).toContain("--ac-shadow: 0 8px 24px");
+    expect(css).toContain("min-height: 56px");
   });
 });

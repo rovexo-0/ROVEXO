@@ -33,6 +33,7 @@ export function AccountCenterHome({
       className="ac-v1"
       data-account-version="v1.0"
       data-account-sprint="1-foundation"
+      data-account-ui="visual-qa-wallet-match"
       data-ac-hub-version="v1.0-sprint1"
     >
       <AccountCanonicalProfile

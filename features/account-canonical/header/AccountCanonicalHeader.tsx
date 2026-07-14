@@ -17,13 +17,10 @@ export type AccountCanonicalHeaderIdentity = {
 export type AccountCanonicalHeaderProps = {
   className?: string;
   backLabel?: string;
-  /** Centered page title (Orders and similar hub sub-pages). */
   centeredTitle?: string;
-  /** My Account hub — back + avatar + name + badges (no page title). */
+  /** My Account hub — back | avatar+name (center) | verified (right). */
   identity?: AccountCanonicalHeaderIdentity;
-  /** History fallback when back stack is empty. Defaults to /account. */
   fallbackHref?: string;
-  /** Optional trailing action (e.g. Help on Wallet). */
   rightAction?: ReactNode;
 };
 
@@ -77,21 +74,23 @@ export function AccountCanonicalHeader({
         </button>
 
         {identityMode && identity ? (
-          <div className="account-canonical-header__identity" aria-label={identity.name}>
-            <Avatar
-              src={identity.avatarUrl}
-              alt={identity.name}
-              name={identity.name}
-              size="sm"
-              className="account-canonical-header__avatar"
-            />
-            <div className="account-canonical-header__identity-copy">
+          <>
+            <div className="account-canonical-header__identity" aria-label={identity.name}>
+              <Avatar
+                src={identity.avatarUrl}
+                alt={identity.name}
+                name={identity.name}
+                size="sm"
+                className="account-canonical-header__avatar"
+              />
               <p className="account-canonical-header__identity-name">{identity.name}</p>
-              {identity.verified ? (
-                <span className="account-canonical-header__verified">Verified</span>
-              ) : null}
             </div>
-          </div>
+            {identity.verified ? (
+              <span className="account-canonical-header__verified">Verified</span>
+            ) : (
+              <span className="account-canonical-header__spacer" aria-hidden />
+            )}
+          </>
         ) : null}
 
         {centeredTitle ? (
@@ -103,7 +102,7 @@ export function AccountCanonicalHeader({
               <span className="account-canonical-header__spacer" aria-hidden />
             )}
           </>
-        ) : rightAction ? (
+        ) : !identityMode && rightAction ? (
           <div className="account-canonical-header__action account-canonical-header__action--trail">
             {rightAction}
           </div>

@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
+import { ChevronRight } from "lucide-react";
 import { AccountSellerLevelBadge } from "@/features/account-center/components/AccountSellerLevelBadge";
 import type { AccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
 import { focusRing } from "@/components/ui/tokens";
@@ -31,11 +31,11 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
         <button
           type="button"
           onClick={openPerformanceDashboard}
-          className={cn("ac-v1__text-link", focusRing)}
+          className={cn("ac-v1__seller-link", focusRing)}
           aria-label="View seller performance details"
         >
-          View Details →
-          <ChevronRightLineIcon className="ac-v1__seller-chevron" />
+          View Details
+          <ChevronRight className="ac-v1__seller-chevron" strokeWidth={1.75} aria-hidden />
         </button>
       </div>
 

@@ -18,15 +18,16 @@ describe("My Account rendering safety", () => {
     expect(home).toContain("data-account-version");
   });
 
-  it("canonical menu uses CanonicalMenuRow", () => {
+  it("canonical menu uses wallet-matched row list", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
-    expect(menu).toContain("CanonicalMenuRow");
+    expect(menu).toContain("ac-v1__row");
     expect(menu).toContain("buildAccountMenuSections");
+    expect(menu).toContain('from "lucide-react"');
   });
 
   it("ac-v1 hub styles keep outline menu icons", () => {
     const css = readSource("styles/rovexo/account-canonical-v2.css");
-    expect(css).toContain(".ac-v1__menu-icon");
+    expect(css).toContain(".ac-v1__row-icon");
     expect(css).toContain("background: transparent");
   });
 

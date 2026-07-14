@@ -48,6 +48,8 @@ describe("My Account canonical — Sprint 1 SSOT", () => {
     expect(css).toContain(".ac-v1");
     expect(css).toContain(".ac-v1__profile-card");
     expect(css).toContain(".ac-v1__seller-card");
+    expect(css).toContain("--ac-shadow: 0 8px 24px");
+    expect(css).toContain("--ac-radius: 20px");
     expect(css).toContain(".account-canonical-header__bar--identity");
   });
 
@@ -69,9 +71,11 @@ describe("My Account canonical — Sprint 1 SSOT", () => {
     expect(titles).not.toContain("Buyer Account");
   });
 
-  it("uses shared AccountIcon in menu rows (no Lucide fork)", () => {
+  it("uses Lucide outline icons in menu rows", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
-    expect(menu).toContain("AccountIcon");
-    expect(menu).not.toContain('from "lucide-react"');
+    expect(menu).toContain('from "lucide-react"');
+    expect(menu).toContain("strokeWidth={1.75}");
+    expect(menu).not.toContain("<AccountIcon");
+    expect(menu).not.toContain("AccountIcon name=");
   });
 });
