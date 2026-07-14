@@ -9,6 +9,7 @@ import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { VisitorPresenceBeacon } from "@/components/analytics/VisitorPresenceBeacon";
 import { PageVisibilityProvider } from "@/components/providers/PageVisibilityProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { SettingsThemeSync } from "@/components/providers/SettingsThemeSync";
 import { LocaleProvider } from "@/lib/i18n/provider";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
 import { PushSubscriptionManager } from "@/features/notifications/components/PushSubscriptionManager";
@@ -117,6 +118,7 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-background text-text-primary"
       >
         <ThemeProvider>
+          <SettingsThemeSync />
           <PageVisibilityProvider>
           <LocaleProvider>
             <PwaProvider>
