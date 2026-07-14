@@ -1,6 +1,11 @@
 import type { SmartNotificationEventType } from "@/lib/notifications/events";
 import type { NotificationType } from "@/lib/notifications/types";
 import { PROFILE_RETURN_TO_PARAM } from "@/lib/account/profile-completion";
+import {
+  getCanonicalNotificationByEventType,
+  resolveCanonicalNotificationHref,
+  type NotificationRouteContext,
+} from "@/lib/notifications/catalog";
 
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 
@@ -29,19 +34,17 @@ export const NOTIFICATION_ROUTES = {
   settingsBank: `${WALLET_ROUTES.bankAccount}?${PROFILE_RETURN_TO_PARAM}=/account`,
 } as const;
 
-export type NotificationRouteContext = {
-  orderId?: string;
-  offerId?: string;
-  productId?: string;
-  productSlug?: string;
-  transactionId?: string;
-  conversationId?: string;
-};
+export type { NotificationRouteContext };
 
 export function resolveSmartNotificationHref(
-  eventType: SmartNotificationEventType,
+  eventType: SmartNotificationEventType | string,
   context: NotificationRouteContext = {},
 ): string {
+  const catalog = getCanonicalNotificationByEventType(eventType);
+  if (catalog) {
+    return resolveCanonicalNotificationHref(catalog.kind, context);
+  }
+
   switch (eventType) {
     case "new_message":
       return context.conversationId
@@ -90,8 +93,12 @@ export function resolveCompletionGapHref(
   returnTo: string,
 ): string {
   const encoded = encodeURIComponent(returnTo);
-  if (gap === "address") return `${NOTIFICATION_ROUTES.settingsAddresses.split("?")[0]}?${PROFILE_RETURN_TO_PARAM}=${encoded}`;
-  if (gap === "payment") return `${WALLET_ROUTES.paymentMethods}?${PROFILE_RETURN_TO_PARAM}=${encoded}`;
+  if (gap === "address") {
+    return `${NOTIFICATION_ROUTES.settingsAddresses.split("?")[0]}?${PROFILE_RETURN_TO_PARAM}=${encoded}`;
+  }
+  if (gap === "payment") {
+    return `${WALLET_ROUTES.paymentMethods}?${PROFILE_RETURN_TO_PARAM}=${encoded}`;
+  }
   return `${WALLET_ROUTES.bankAccount}?${PROFILE_RETURN_TO_PARAM}=${encoded}`;
 }
 

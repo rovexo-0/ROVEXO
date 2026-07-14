@@ -149,3 +149,32 @@
   flex-shrink: 0;
   width: 9px;
 }
+
+.notif-row-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-bottom: 1px solid rgb(15 23 42 / 0.06);
+}
+
+.notif-row-wrap .notif-row {
+  border-top: none;
+  border-radius: 16px;
+}
+
+.notif-row__delete {
+  align-self: flex-end;
+  margin: 0 12px 8px;
+  border: none;
+  background: transparent;
+  padding: 4px 2px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.notif-v1__group {
+  display: flex;
+  flex-direction: column;
+}

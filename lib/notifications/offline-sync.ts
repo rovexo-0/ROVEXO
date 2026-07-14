@@ -3,6 +3,7 @@ const OFFLINE_QUEUE_KEY = "rovexo:notification-offline-queue";
 export type OfflineNotificationAction =
   | { type: "mark_read"; ids: string[] }
   | { type: "mark_all_read" }
+  | { type: "delete"; ids: string[] }
   | { type: "delete_read" };
 
 function readQueue(): OfflineNotificationAction[] {
@@ -42,6 +43,15 @@ async function flushAction(action: OfflineNotificationAction): Promise<boolean> 
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ markAllRead: true }),
+    });
+    return response.ok;
+  }
+
+  if (action.type === "delete") {
+    const response = await fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: action.ids, delete: true }),
     });
     return response.ok;
   }

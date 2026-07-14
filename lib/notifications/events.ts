@@ -3,6 +3,10 @@ import type { Tables } from "@/lib/supabase/types/database";
 import { createNotification } from "@/lib/notifications/create";
 import { deliverNotificationChannels } from "@/lib/notifications/deliver";
 import {
+  getCanonicalNotificationByEventType,
+  type NotificationControlKey,
+} from "@/lib/notifications/catalog";
+import {
   buildNotificationGroupKey,
   resolveNotificationPriority,
   shouldSendForegroundPush,
@@ -11,6 +15,9 @@ import { resolveSmartNotificationHref } from "@/lib/notifications/routing";
 
 type NotificationType = Tables<"notifications">["type"];
 
+/**
+ * Smart event ids — includes legacy names plus Notifications v1.0 catalog eventType values.
+ */
 export type SmartNotificationEventType =
   | "new_order"
   | "order_shipped"
@@ -27,7 +34,26 @@ export type SmartNotificationEventType =
   | "trust_verification"
   | "admin_announcement"
   | "business_lead"
-  | "promotion";
+  | "promotion"
+  | "purchase_successful"
+  | "payment_successful"
+  | "order_confirmed"
+  | "tracking_updated"
+  | "offer_accepted"
+  | "offer_declined"
+  | "offer_expired"
+  | "item_back_in_stock"
+  | "favorite_price_changed"
+  | "seller_offer_accepted"
+  | "seller_offer_declined"
+  | "seller_offer_expired"
+  | "shipping_deadline"
+  | "buyer_reported_issue"
+  | "refund_requested"
+  | "business_verified"
+  | "security_alert"
+  | "policy_update"
+  | "legal_update";
 
 type EmitSmartNotificationInput = {
   userId: string;
@@ -53,7 +79,26 @@ type PreferenceCategory =
   | "business"
   | "ai";
 
+function controlToPreference(control: NotificationControlKey): PreferenceCategory {
+  switch (control) {
+    case "orders":
+      return "orders";
+    case "offers":
+      return "messages";
+    case "marketing":
+      return "marketing";
+    case "security":
+      return "security";
+    case "push":
+    case "email":
+      return "orders";
+  }
+}
+
 function eventPreferenceCategory(eventType: SmartNotificationEventType): PreferenceCategory {
+  const fromCatalog = getCanonicalNotificationByEventType(eventType);
+  if (fromCatalog) return controlToPreference(fromCatalog.control);
+
   switch (eventType) {
     case "new_order":
     case "order_shipped":
@@ -79,6 +124,8 @@ function eventPreferenceCategory(eventType: SmartNotificationEventType): Prefere
       return "business";
     case "saved_search_match":
       return "ai";
+    default:
+      return "orders";
   }
 }
 
