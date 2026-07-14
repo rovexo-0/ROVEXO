@@ -20,7 +20,7 @@ export function AccountCenterPage({
   sellerPerformance,
 }: AccountCenterPageProps) {
   return (
-    <AccountCanonicalShell title="My Account" backHref="/">
+    <AccountCanonicalShell title="My Account" hideBack>
       <AccountCenterHome
         profile={profile}
         snapshot={snapshot}

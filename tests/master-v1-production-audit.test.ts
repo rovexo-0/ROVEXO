@@ -9,15 +9,21 @@ function readSource(relativePath: string): string {
 }
 
 describe("ROVEXO v1.0 Master Production Audit", () => {
-  it("locks production account hub Sprint 1 foundation", () => {
+  it("locks production account hub Module 02 (no profile CTAs)", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
     const profile = readSource("features/account-center/components/AccountCanonicalProfile.tsx");
+    const stats = readSource("features/account-center/components/AccountStatsStrip.tsx");
     const snapshot = readSource("lib/account-center/snapshot.ts");
 
-    expect(home).toContain('data-account-version="v1.0"');
+    expect(home).toContain('data-ac-hub-version="v1.0-production"');
     expect(home).not.toContain("AccountWalletCard");
     expect(home).toContain("AccountStatsStrip");
-    expect(profile).toContain("ac-v1__profile-card");
+    expect(home).toContain("AccountSellerPerformanceCard");
+    expect(stats).toContain("Listings");
+    expect(stats).toContain("Saved");
+    expect(stats).toContain("Orders");
+    expect(stats).toContain("Wallet");
+    expect(profile).toContain("ac-canonical__followers-row");
     expect(profile).not.toContain("View Public Profile");
     expect(profile).not.toContain("Edit Profile");
     expect(profile).toContain("formatAccountProfileRating");

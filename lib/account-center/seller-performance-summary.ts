@@ -12,8 +12,6 @@ export type AccountSellerPerformanceSummary = {
   reviewCount: number;
   ratingDisplay: string;
   totalSales: number;
-  /** Seller response rate percent from seller-performance engine. */
-  responseRatePercent: number;
   progressPercent: number;
   progressMessage: string;
   nextLevelLabel: string | null;
@@ -106,7 +104,6 @@ export async function getSellerPerformanceSummary(
     reviewCount,
     ratingDisplay: formatAccountSellerRatingDisplay(averageRating, reviewCount),
     totalSales,
-    responseRatePercent: factors?.responseRatePercent ?? 0,
     progressPercent,
     progressMessage,
     nextLevelLabel,

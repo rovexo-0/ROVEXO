@@ -1,21 +1,7 @@
 "use client";
 
-import { useState, useTransition, type ComponentType } from "react";
-import Link from "next/link";
-import {
-  Bookmark,
-  BriefcaseBusiness,
-  ChevronRight,
-  Heart,
-  LayoutGrid,
-  LogOut,
-  MessageSquare,
-  Package,
-  Settings,
-  Star,
-  Wallet,
-  type LucideProps,
-} from "lucide-react";
+import { useTransition } from "react";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import {
   ACCOUNT_LOGOUT_MENU_ITEM,
   buildAccountMenuSections,
@@ -26,22 +12,7 @@ import { resolveHrefBadge } from "@/lib/notifications/badge-counts";
 import { resolveMobileBadge } from "@/features/mobile-ui/hooks/use-mobile-badges";
 import { signOut } from "@/lib/auth/actions";
 import type { UserProfile } from "@/lib/profile/types";
-import { CanonicalConfirmDialog } from "@/src/components/canonical/dialogs/CanonicalConfirmDialog";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
-
-const MENU_ICONS: Record<string, ComponentType<LucideProps>> = {
-  listings: LayoutGrid,
-  orders: Package,
-  messages: MessageSquare,
-  wallet: Wallet,
-  reviews: Star,
-  saved: Heart,
-  following: Bookmark,
-  business: BriefcaseBusiness,
-  settings: Settings,
-  security: LogOut,
-};
+import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 
 function resolveMenuBadge(
   item: AccountMenuItem,
@@ -60,78 +31,54 @@ type AccountMenuSectionsProps = {
   profile: UserProfile;
 };
 
-function MenuRowIcon({ name }: { name: string }) {
-  const Icon = MENU_ICONS[name] ?? Settings;
-  return <Icon className="ac-v1__row-icon-svg" strokeWidth={1.75} aria-hidden />;
-}
-
 export function AccountMenuSections({ profile }: AccountMenuSectionsProps) {
   const { badgeCounts, mobileBadges } = useRealtimeNotifications();
   const [isPending, startTransition] = useTransition();
-  const [logoutOpen, setLogoutOpen] = useState(false);
-  const items = buildAccountMenuSections(profile).flatMap((section) => section.items);
+  const sections = buildAccountMenuSections(profile);
 
   return (
-    <nav className="ac-v1__menu" aria-label="My Account" data-account-menu="v1.0">
-      <div className="ac-v1__menu-card">
-        {items.map((item) => {
-          const badge = resolveMenuBadge(item, badgeCounts, mobileBadges);
-          const rowClass = cn("ac-v1__row", focusRing, item.comingSoon && "ac-v1__row--disabled");
+    <nav className="ac-canonical__menu" aria-label="My Account">
+      {sections.map((section) => (
+        <CanonicalSection key={section.id} title={section.title}>
+          <CanonicalCard variant="list">
+            {section.items.map((item) => (
+              <CanonicalMenuRow
+                key={item.id}
+                id={`ac-canonical-${item.id}`}
+                href={item.href}
+                title={item.title}
+                description={item.subtitle}
+                comingSoon={item.comingSoon}
+                disabled={item.comingSoon}
+                badge={resolveMenuBadge(item, badgeCounts, mobileBadges)}
+                trailing={
+                  item.showVerifiedBadge ? (
+                    <span className="ac-canonical__verified-pill">Verified</span>
+                  ) : undefined
+                }
+                icon={
+                  <span className="ac-canonical__menu-icon" aria-hidden>
+                    <AccountIcon name={item.icon} />
+                  </span>
+                }
+              />
+            ))}
+          </CanonicalCard>
+        </CanonicalSection>
+      ))}
 
-          const content = (
-            <>
-              <span className="ac-v1__row-icon" aria-hidden>
-                <MenuRowIcon name={item.icon} />
-              </span>
-              <span className="ac-v1__row-title">{item.title}</span>
-              {badge > 0 ? <span className="ac-v1__row-badge">{badge > 99 ? "99+" : badge}</span> : null}
-              <ChevronRight className="ac-v1__row-chevron" strokeWidth={1.75} aria-hidden />
-            </>
-          );
-
-          if (item.href && !item.comingSoon) {
-            return (
-              <Link key={item.id} id={`ac-v1-${item.id}`} href={item.href} className={rowClass}>
-                {content}
-              </Link>
-            );
-          }
-
-          return (
-            <div key={item.id} id={`ac-v1-${item.id}`} className={rowClass} aria-disabled>
-              {content}
-            </div>
-          );
-        })}
-
-        <button
-          type="button"
-          id="ac-v1-logout"
-          className={cn("ac-v1__row", "ac-v1__row--logout", focusRing)}
-          disabled={isPending}
-          onClick={() => setLogoutOpen(true)}
-        >
-          <span className="ac-v1__row-icon" aria-hidden>
-            <MenuRowIcon name={ACCOUNT_LOGOUT_MENU_ITEM.icon} />
-          </span>
-          <span className="ac-v1__row-title">{ACCOUNT_LOGOUT_MENU_ITEM.title}</span>
-        </button>
-      </div>
-
-      <CanonicalConfirmDialog
-        open={logoutOpen}
-        onClose={() => setLogoutOpen(false)}
-        onConfirm={() => {
-          setLogoutOpen(false);
-          startTransition(() => void signOut());
-        }}
-        title="Log out?"
-        description="You will need to sign in again to access your account."
-        confirmLabel="Log Out"
-        cancelLabel="Cancel"
-        destructive
-        loading={isPending}
-      />
+      <CanonicalSection title="System">
+        <CanonicalCard variant="list">
+          <CanonicalMenuRow
+            id="ac-canonical-logout"
+            title={ACCOUNT_LOGOUT_MENU_ITEM.title}
+            destructive
+            disabled={isPending}
+            hideChevron
+            onClick={() => startTransition(() => void signOut())}
+          />
+        </CanonicalCard>
+      </CanonicalSection>
     </nav>
   );
 }

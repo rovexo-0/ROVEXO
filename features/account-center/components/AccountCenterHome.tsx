@@ -30,35 +30,10 @@ export function AccountCenterHome({
   });
 
   return (
-    <div
-      className="ac-v1"
-      data-account-version="v1.0"
-      data-account-sprint="1-foundation"
-      data-account-ui="final-visual-qa"
-      data-ac-hub-version="v1.0-sprint1"
-    >
-      <AccountCanonicalProfile
-        profile={profile}
-        snapshot={liveSnapshot}
-        sellerPerformance={sellerPerformance}
-      />
-
+    <div className="ac-canonical" data-ac-hub-version="v1.0-production">
+      <AccountCanonicalProfile profile={profile} snapshot={liveSnapshot} />
       <AccountStatsStrip snapshot={liveSnapshot} wallet={liveWallet} />
-
       <AccountSellerPerformanceCard performance={sellerPerformance} />
-
-      {liveSnapshot.listings === 0 ? (
-        <p className="ac-v1__info-card" role="status">
-          No listings yet — sell something when you are ready.
-        </p>
-      ) : null}
-
-      {liveSnapshot.reviewCount === 0 ? (
-        <p className="ac-v1__info-card" role="status">
-          No reviews yet. Ratings appear after completed orders.
-        </p>
-      ) : null}
-
       <AccountMenuSections profile={profile} />
     </div>
   );

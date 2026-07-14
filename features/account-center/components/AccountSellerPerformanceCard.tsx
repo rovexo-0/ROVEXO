@@ -2,8 +2,10 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronRight } from "lucide-react";
+import { BagLineIcon, ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import { AccountSellerLevelBadge } from "@/features/account-center/components/AccountSellerLevelBadge";
+import { AccountSellerPerformanceIcon } from "@/features/account-center/components/AccountSellerPerformanceIcon";
+import { AccountSellerScoreRing } from "@/features/account-center/components/AccountSellerScoreRing";
 import type { AccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
@@ -12,10 +14,8 @@ type AccountSellerPerformanceCardProps = {
   performance: AccountSellerPerformanceSummary;
 };
 
-/** Compact seller performance summary — opens frozen dashboard at /seller/performance. */
 export function AccountSellerPerformanceCard({ performance }: AccountSellerPerformanceCardProps) {
   const router = useRouter();
-  const noSales = performance.totalSales === 0;
 
   const openPerformanceDashboard = useCallback(() => {
     router.push("/seller/performance");
@@ -23,50 +23,62 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
 
   return (
     <section
-      className="ac-v1__seller-card"
+      className="ac-canonical__seller-performance"
       aria-label="Seller Performance"
       data-ac-seller-performance="v1.0-frozen"
     >
-      <div className="ac-v1__seller-card-head">
-        <h2 className="ac-v1__seller-card-title">Seller Performance</h2>
+      <div className="ac-canonical__seller-performance-header">
+        <div className="ac-canonical__seller-performance-heading">
+          <AccountSellerPerformanceIcon className="ac-canonical__seller-performance-icon" />
+          <h2 className="ac-canonical__seller-performance-title">Seller Performance</h2>
+        </div>
         <button
           type="button"
           onClick={openPerformanceDashboard}
-          className={cn("ac-v1__seller-link", focusRing)}
+          className={cn("ac-canonical__seller-performance-link", focusRing)}
           aria-label="View seller performance details"
         >
-          View Details →
-          <ChevronRight className="ac-v1__seller-chevron" strokeWidth={1.75} aria-hidden />
+          View details
+          <ChevronRightLineIcon className="ac-canonical__seller-performance-link-icon" />
         </button>
       </div>
 
-      {noSales ? (
-        <p className="ac-v1__seller-empty" role="status">
-          Complete your first sale to unlock your performance score.
-        </p>
-      ) : null}
-
-      <div className="ac-v1__seller-metrics">
-        <div className="ac-v1__seller-metric">
-          <span className="ac-v1__seller-metric-label">Seller Level</span>
+      <div className="ac-canonical__seller-performance-grid">
+        <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--level">
           <AccountSellerLevelBadge level={performance.level} />
+          <p className="ac-canonical__seller-rating">{performance.ratingDisplay}</p>
         </div>
-        <div className="ac-v1__seller-metric">
-          <span className="ac-v1__seller-metric-label">Rating</span>
-          <span className="ac-v1__seller-metric-value">{performance.ratingDisplay}</span>
+
+        <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--score">
+          <AccountSellerScoreRing score={performance.score} />
         </div>
-        <div className="ac-v1__seller-metric">
-          <span className="ac-v1__seller-metric-label">Completed Sales</span>
-          <span className="ac-v1__seller-metric-value">
+
+        <div className="ac-canonical__seller-performance-col ac-canonical__seller-performance-col--sales">
+          <BagLineIcon className="ac-canonical__seller-sales-icon" aria-hidden />
+          <p className="ac-canonical__seller-metric-value">
             {performance.totalSales.toLocaleString()}
-          </span>
+          </p>
+          <p className="ac-canonical__seller-metric-label">Completed Sales</p>
         </div>
-        <div className="ac-v1__seller-metric">
-          <span className="ac-v1__seller-metric-label">Response Rate</span>
-          <span className="ac-v1__seller-metric-value">
-            {Math.round(performance.responseRatePercent)}%
-          </span>
+      </div>
+
+      <p className="ac-canonical__seller-progress-message">{performance.progressMessage}</p>
+
+      <div className="ac-canonical__seller-progress-bar-row">
+        <div
+          className="ac-canonical__seller-progress-track"
+          role="progressbar"
+          aria-valuenow={performance.progressPercent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Progress to next seller level"
+        >
+          <div
+            className="ac-canonical__seller-progress-fill"
+            style={{ width: `${performance.progressPercent}%` }}
+          />
         </div>
+        <span className="ac-canonical__seller-progress-percent">{performance.progressPercent}%</span>
       </div>
     </section>
   );

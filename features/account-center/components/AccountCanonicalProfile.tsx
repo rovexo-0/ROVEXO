@@ -1,16 +1,18 @@
 "use client";
 
+import Link from "next/link";
+import { ChevronRight, Users } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
+import { cn } from "@/lib/cn";
+import { focusRing } from "@/components/ui/tokens";
+import { formatCount } from "@/lib/account-center/derive";
 import { formatAccountProfileRating } from "@/lib/account-center/format-profile-rating";
-import { AccountSellerLevelBadge } from "@/features/account-center/components/AccountSellerLevelBadge";
-import type { AccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
 import type { AccountHubSnapshot } from "@/lib/account-center/snapshot";
 import type { UserProfile } from "@/lib/profile/types";
 
 type AccountCanonicalProfileProps = {
   profile: UserProfile;
   snapshot: AccountHubSnapshot;
-  sellerPerformance: AccountSellerPerformanceSummary;
 };
 
 function formatMemberSince(value: string): string {
@@ -19,45 +21,45 @@ function formatMemberSince(value: string): string {
   return date.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 }
 
-export function AccountCanonicalProfile({
-  profile,
-  snapshot,
-  sellerPerformance,
-}: AccountCanonicalProfileProps) {
+export function AccountCanonicalProfile({ profile, snapshot }: AccountCanonicalProfileProps) {
   const ratingLine = formatAccountProfileRating(snapshot.rating, snapshot.reviewCount);
-  const profileIncomplete =
-    !profile.fullName.trim() || !profile.username.trim() || !profile.avatarUrl;
 
   return (
-    <section className="ac-v1__profile-card" aria-label="Profile" data-account-profile-card="v1.0">
-      <div className="ac-v1__profile-main">
-        <Avatar
-          src={profile.avatarUrl}
-          alt={profile.fullName}
-          name={profile.fullName}
-          size="xl"
-          className="ac-v1__profile-avatar"
-        />
-        <div className="ac-v1__profile-copy">
-          <h1 className="ac-v1__profile-name">{profile.fullName || "Your profile"}</h1>
-          {profile.username ? (
-            <p className="ac-v1__profile-username">@{profile.username}</p>
-          ) : null}
-          <p className="ac-v1__profile-meta">Member since {formatMemberSince(profile.memberSince)}</p>
-          <div className="ac-v1__profile-badges">
-            <AccountSellerLevelBadge level={sellerPerformance.level} />
-            <span className="ac-v1__profile-rating" aria-label={`Rating ${ratingLine}`}>
+    <section className="ac-canonical__profile" aria-label="Profile">
+      <div className="ac-canonical__profile-top">
+        <Link href="/account/profile" className={cn("ac-canonical__identity", focusRing)}>
+          <span className="ac-canonical__avatar-wrap">
+            <Avatar
+              src={profile.avatarUrl}
+              alt={profile.fullName}
+              name={profile.fullName}
+              size="lg"
+              className="ac-canonical__avatar"
+            />
+          </span>
+          <div className="ac-canonical__identity-copy">
+            <div className="ac-canonical__name-row">
+              <h1 className="ac-canonical__name">{profile.fullName}</h1>
+              {profile.verified ? <span className="ac-canonical__verified-pill">Verified</span> : null}
+            </div>
+            <p className="ac-canonical__meta">Member since {formatMemberSince(profile.memberSince)}</p>
+            <p className="ac-canonical__rating" aria-label={`Rating ${ratingLine}`}>
               {ratingLine}
-            </span>
+            </p>
           </div>
-        </div>
-      </div>
+        </Link>
 
-      {profileIncomplete ? (
-        <p className="ac-v1__profile-note" role="status">
-          Complete your profile to help buyers recognise you.
-        </p>
-      ) : null}
+        <Link
+          href="/account/followers"
+          className={cn("ac-canonical__followers-row", focusRing)}
+          aria-label={`${formatCount(snapshot.followers)} followers`}
+        >
+          <Users className="ac-canonical__followers-icon" strokeWidth={1.75} aria-hidden />
+          <span className="ac-canonical__followers-count">{formatCount(snapshot.followers)}</span>
+          <span className="ac-canonical__followers-label">Followers</span>
+          <ChevronRight className="ac-canonical__followers-chevron" strokeWidth={1.75} aria-hidden />
+        </Link>
+      </div>
     </section>
   );
 }

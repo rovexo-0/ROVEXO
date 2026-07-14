@@ -12,17 +12,17 @@ describe("Account + Cart canonical UI v1", () => {
     const menu = readSource("lib/account-center/canonical-menu.ts");
     const css = readSource("styles/rovexo/account-canonical-v2.css");
 
-    expect(home).toContain('data-account-version="v1.0"');
+    expect(home).toContain('data-ac-hub-version="v1.0-production"');
     expect(home).toContain("AccountCanonicalProfile");
     expect(home).toContain("AccountMenuSections");
     expect(menu).toContain("buildAccountMenuSections");
     expect(menu).toContain("My Listings");
     expect(menu).not.toContain("Personal Information");
-    expect(menu).toContain("Log Out");
-    expect(menu).toContain("Inbox");
-    expect(css).toContain(".ac-v1");
-    expect(css).toContain(".ac-v1__row-icon");
-    expect(css).toContain("--ac-shadow");
+    expect(menu).toContain('title: "Ideas"');
+    expect(menu).toContain("Sign Out");
+    expect(css).toContain(".ac-canonical__stats");
+    expect(css).toContain(".ac-canonical__followers");
+    expect(css).toContain(".ac-canonical__section-card");
   });
 
   it("uses list rows instead of legacy account grid on hub", () => {
@@ -34,8 +34,9 @@ describe("Account + Cart canonical UI v1", () => {
 
   it("hub menu rows include chevrons per canonical reference", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
-    expect(menu).toContain("ChevronRight");
-    expect(menu).toContain("ac-v1__row-chevron");
+    const row = readSource("src/components/canonical/CanonicalMenuRow.tsx");
+    expect(menu).toContain("CanonicalMenuRow");
+    expect(row).toContain("ChevronRightLineIcon");
   });
 
   it("locks wallet hub markers", () => {

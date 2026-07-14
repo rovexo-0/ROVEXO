@@ -15,25 +15,23 @@ describe("My Account rendering safety", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
     expect(home).not.toMatch(/from ["']framer-motion["']/);
     expect(menu).not.toMatch(/<motion\./);
-    expect(home).toContain("data-account-version");
+    expect(home).toContain("data-ac-hub-version");
   });
 
-  it("canonical menu uses wallet-matched row list", () => {
+  it("canonical menu uses CanonicalMenuRow", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
-    expect(menu).toContain("ac-v1__row");
+    expect(menu).toContain("CanonicalMenuRow");
     expect(menu).toContain("buildAccountMenuSections");
-    expect(menu).toContain('from "lucide-react"');
   });
 
-  it("ac-v1 hub styles keep outline menu icons", () => {
+  it("ac-canonical hub styles avoid transform on menu rows", () => {
     const css = readSource("styles/rovexo/account-canonical-v2.css");
-    expect(css).toContain(".ac-v1__row-icon");
-    expect(css).toContain("background: transparent");
+    expect(css).toContain(".ac-canonical__row");
   });
 
-  it("ROVEXO Ideas remains a dedicated account route with icon support", () => {
-    const ideasPage = readSource("app/account/ideas/page.tsx");
-    expect(ideasPage.length).toBeGreaterThan(0);
+  it("ROVEXO Ideas is in canonical account menu", () => {
+    const menu = readSource("lib/account-center/canonical-menu.ts");
+    expect(menu).toMatch(/id: "ideas"[\s\S]*?href: "\/account\/ideas"/);
     const icons = readSource("components/account/AccountIcons.tsx");
     expect(icons).toContain('"ideas"');
   });

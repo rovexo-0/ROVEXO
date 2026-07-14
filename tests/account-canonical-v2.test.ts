@@ -32,54 +32,58 @@ const baseProfile: UserProfile = {
   unreadNotifications: 0,
 };
 
-describe("My Account canonical — Sprint 1 SSOT", () => {
+describe("My Account canonical final — Module 02 restore", () => {
   it("locks hub version and canonical components", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
     const page = readSource("features/account-center/components/AccountCenterPage.tsx");
     const css = readSource("styles/rovexo/account-canonical-v2.css");
 
-    expect(home).toContain('data-account-version="v1.0"');
+    expect(home).toContain('data-ac-hub-version="v1.0-production"');
     expect(home).toContain("AccountCanonicalProfile");
     expect(home).toContain("AccountStatsStrip");
     expect(home).toContain("AccountSellerPerformanceCard");
     expect(home).toContain("AccountMenuSections");
     expect(home).toMatch(
-      /AccountCanonicalProfile[\s\S]*AccountStatsStrip[\s\S]*AccountSellerPerformanceCard/,
+      /AccountStatsStrip[\s\S]*AccountSellerPerformanceCard[\s\S]*AccountMenuSections/,
     );
     expect(page).toContain("AccountCanonicalShell");
+    expect(page).toContain("hideBack");
     expect(page).not.toContain("identity=");
-    expect(page).toContain('backHref="/"');
-    expect(css).toContain(".ac-v1");
-    expect(css).toContain(".ac-v1__profile-card");
-    expect(css).toContain(".ac-v1__seller-card");
-    expect(css).toContain("--ac-shadow: 0 8px 24px");
-    expect(css).toContain("--ac-radius: 20px");
-    expect(css).toContain(".account-canonical-header__bar--identity");
+    expect(css).toContain(".ac-canonical__followers-row");
+    expect(css).toContain(".ac-canonical__stat--divider");
+    expect(css).toContain(".ac-canonical__avatar-wrap");
+    expect(css).toContain(".ac-canonical__name-row");
+    expect(css).toContain(".ac-canonical__seller-performance");
+    expect(css).toContain(".ac-canonical__seller-score-ring");
+    expect(css).not.toContain(".ac-v1__profile-card");
   });
 
-  it("builds classic menu without separate account types", () => {
+  it("builds sectioned menu per Module 02 spec", () => {
     const sections = buildAccountMenuSections(baseProfile);
     const titles = sections.flatMap((section) => section.items.map((item) => item.title));
 
+    expect(sections.map((section) => section.title)).toEqual(["MANAGE", "ACCOUNT", "SUPPORT"]);
     expect(titles).toEqual([
       "My Listings",
       "Orders",
-      "Inbox",
+      "Saved Items",
+      "My Reviews",
       "Wallet",
-      "Reviews",
-      "Saved",
-      "Following",
       "Settings",
+      "Promotion Tools",
+      "Help Centre",
+      "Ideas",
     ]);
     expect(titles).not.toContain("Become Seller");
-    expect(titles).not.toContain("Buyer Account");
+    expect(titles).not.toContain("View Public Profile");
+    expect(titles).not.toContain("Edit Profile");
   });
 
-  it("uses Lucide outline icons in menu rows", () => {
+  it("uses shared AccountIcon in menu rows", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
-    expect(menu).toContain('from "lucide-react"');
-    expect(menu).toContain("strokeWidth={1.75}");
-    expect(menu).not.toContain("<AccountIcon");
-    expect(menu).not.toContain("AccountIcon name=");
+    expect(menu).toContain("AccountIcon");
+    expect(menu).toContain("CanonicalMenuRow");
+    expect(menu).not.toContain("View Public Profile");
+    expect(menu).not.toContain("Edit Profile");
   });
 });
