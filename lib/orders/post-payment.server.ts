@@ -330,7 +330,9 @@ async function runCompletePaidOrderFulfillment(input: {
   });
   if ("error" in conversation) {
     console.warn("[orders/post-payment] conversation:", conversation.error);
-  } else if (isSendcloudConfigured()) {
+  }
+
+  if (isSendcloudConfigured()) {
     try {
       await generateShippingLabelForOrder(input.orderId, row.seller_id);
     } catch (error) {

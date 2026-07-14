@@ -1,0 +1,38 @@
+---
+description: Checkout v1.0 is CANONICAL FROZEN — bug fixes only, no structural UI changes
+globs: features/checkout/**/*.tsx,features/checkout/**/*.ts,styles/rovexo/checkout-v1.css,app/checkout/**/*.tsx,lib/checkout/**/*.ts,docs/modules/checkout/**
+alwaysApply: false
+---
+
+# Checkout v1.0 — CANONICAL FREEZE
+
+**STATUS: CANONICAL | FROZEN | SINGLE SOURCE OF TRUTH**
+
+Frozen constant: `CHECKOUT_CANONICAL_FROZEN = true` (`lib/checkout/freeze.ts`)  
+DOM: `data-checkout-freeze="FROZEN"` · `data-checkout-version="v1.0"`
+
+## Immutable
+
+- Routes under `/checkout/[listingSlug]` (+ address / payment / review / success)
+- Buy Now → listing checkout (no cart intermediate for purchase)
+- Shell: `CheckoutWizardV1` + `checkout-v1.css` tokens (430px, 64px header, 56px CTA)
+- Wallet payment methods SSOT — do not duplicate card management in Checkout
+- Sendcloud-only live shipping via Shipping Engine
+- Buyer-visible Platform Fee; never expose platform fee as a seller wallet line
+
+## Allowed
+
+- Bug fixes (payment failures, inventory unlock, webhook mapping, a11y, image safety via `SafeImage`)
+- Backend/API fixes that do not change frozen layout or copy structure
+
+## Prohibited
+
+- Redesign, layout changes, new Checkout UI surfaces under v1.0
+- Reintroducing Parcel2Go / Shippo / parallel checkout providers
+- Duplicating payment management outside Wallet
+- Structural changes after freeze — ship as **Checkout v1.1**
+
+## Reference
+
+- Spec: `docs/modules/checkout/MASTER_UI_SPECIFICATION.md`
+- Freeze: `docs/modules/checkout/UI_FREEZE.md`

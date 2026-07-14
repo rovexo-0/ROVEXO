@@ -113,7 +113,9 @@ describe("Auth + Account Architecture canonical v1.0", () => {
   });
 
   it("wires checkout publish and withdraw gates", () => {
-    expect(readSource("app/checkout/[slug]/page.tsx")).toContain("resolveProfileCompletionRedirect");
+    expect(readSource("features/checkout/lib/load-checkout-page.ts")).toContain(
+      "resolveProfileCompletionRedirect",
+    );
     expect(readSource("app/wallet/withdraw/page.tsx")).toContain("resolveProfileCompletionRedirect");
     expect(readSource("app/api/account/profile-gate/route.ts")).toContain("resolveProfileCompletionRedirect");
     expect(readSource("features/sell/context/SellProvider.tsx")).toContain("profile-gate");

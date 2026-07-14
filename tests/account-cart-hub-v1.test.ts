@@ -81,7 +81,8 @@ describe("Account + Cart canonical UI v1", () => {
     const review = readSource("app/checkout/[slug]/review/page.tsx");
 
     expect(wizard).toContain('data-checkout-version="v1.0"');
-    expect(wizard).toContain('data-checkout-sprint="1-foundation"');
+    expect(wizard).toContain('data-checkout-sprint="3-qa"');
+    expect(wizard).toContain('data-checkout-freeze="FROZEN"');
     expect(wizard).toContain("Confirm & Pay");
     expect(wizard).toContain("Continue to Payment");
     expect(wizard).toContain("CheckoutProductSummary");

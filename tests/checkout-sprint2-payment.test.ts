@@ -65,9 +65,10 @@ describe("checkout sprint 2 — payment + sendcloud", () => {
     expect(mapSendcloudTrackingStatus("Failed")).toBe("failed");
   });
 
-  it("marks sprint 2 on the checkout shell", () => {
+  it("marks sprint 3 qa freeze on the checkout shell", () => {
     const wizard = readSource("features/checkout/components/CheckoutWizardV1.tsx");
-    expect(wizard).toContain('data-checkout-sprint="2-payment"');
+    expect(wizard).toContain('data-checkout-sprint="3-qa"');
+    expect(wizard).toContain('data-checkout-freeze="FROZEN"');
     expect(wizard).toContain('data-checkout-version="v1.0"');
   });
 });

@@ -5,6 +5,7 @@ import { CheckoutSuccessView } from "@/features/checkout/components/CheckoutSucc
 import { loadCheckoutPageProps } from "@/features/checkout/lib/load-checkout-page";
 import { confirmOrderCheckoutSession } from "@/lib/orders/checkout";
 import { getOrderById } from "@/lib/orders/store";
+import type { OrderStatus } from "@/lib/orders/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAuthContext } from "@/lib/auth/session";
 import "@/styles/rovexo/checkout-v1.css";
@@ -13,6 +14,15 @@ type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ order_id?: string; session_id?: string }>;
 };
+
+/** Success UI is only for paid-or-later orders — never awaiting_payment. */
+const SUCCESS_ORDER_STATUSES = new Set<OrderStatus>([
+  "awaiting_shipment",
+  "shipped",
+  "delivered",
+  "completed",
+  "issue_open",
+]);
 
 async function resolveConversationId(buyerId: string, productId: string | null, sellerId: string | null) {
   if (!productId) return null;
@@ -41,11 +51,15 @@ export default async function CheckoutSuccessRoute({ params, searchParams }: Pro
   const userId = auth.user.id;
 
   let orderId = query.order_id ?? null;
+  let sessionConfirmed = false;
 
   if (query.session_id) {
     const confirmed = await confirmOrderCheckoutSession(query.session_id, userId);
     if (confirmed.success && confirmed.order?.id) {
       orderId = confirmed.order.id;
+      sessionConfirmed = true;
+    } else if (!orderId) {
+      redirect(`/checkout/${slug}?order=payment_failed`);
     }
   }
 
@@ -58,6 +72,14 @@ export default async function CheckoutSuccessRoute({ params, searchParams }: Pro
     redirect("/orders");
   }
 
+  if (!SUCCESS_ORDER_STATUSES.has(order.status)) {
+    // Unpaid / cancelled — never show Payment successful.
+    if (query.session_id && !sessionConfirmed) {
+      redirect(`/checkout/${slug}?order=payment_failed`);
+    }
+    redirect(`/checkout/${slug}`);
+  }
+
   const conversationId = await resolveConversationId(
     userId,
     order.product?.id ?? null,
@@ -66,7 +88,12 @@ export default async function CheckoutSuccessRoute({ params, searchParams }: Pro
 
   return (
     <BetaAppShell showBottomNav={false} className="checkout-v1-shell">
-      <div className="ckt-v1" data-checkout-version="v1.0" data-checkout-sprint="2-payment">
+      <div
+        className="ckt-v1"
+        data-checkout-version="v1.0"
+        data-checkout-sprint="3-qa"
+        data-checkout-freeze="FROZEN"
+      >
         <CheckoutPageHeader backHref="/orders" backLabel="Orders" />
         <main className="ckt-v1__main">
           <CheckoutSuccessView

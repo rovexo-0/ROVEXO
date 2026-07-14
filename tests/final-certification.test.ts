@@ -11,12 +11,12 @@ describe("shipping certification checkout wiring", () => {
   });
 
   it("passes server-side Sendcloud configuration into checkout", () => {
-    const checkoutPage = readFileSync(
-      path.join(process.cwd(), "app/checkout/[slug]/page.tsx"),
+    const loader = readFileSync(
+      path.join(process.cwd(), "features/checkout/lib/load-checkout-page.ts"),
       "utf8",
     );
-    expect(checkoutPage).toContain("isSendcloudConfigured");
-    expect(checkoutPage).toContain("liveShippingEnabled");
+    expect(loader).toContain("isSendcloudConfigured");
+    expect(loader).toContain("liveShippingEnabled");
   });
 
   it("maps seller dispatch-not-ready to a friendly checkout message", async () => {

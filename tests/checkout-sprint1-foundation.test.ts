@@ -23,14 +23,15 @@ describe("Checkout Sprint 1 foundation SSOT", () => {
     const css = readSource("styles/rovexo/checkout-v1.css");
     const spec = readSource("docs/modules/checkout/MASTER_UI_SPECIFICATION.md");
 
-    expect(wizard).toContain('data-checkout-sprint="2-payment"');
+    expect(wizard).toContain('data-checkout-sprint="3-qa"');
+    expect(wizard).toContain('data-checkout-freeze="FROZEN"');
     expect(wizard).toContain("Confirm & Pay");
     expect(header).toContain("ckt-v1__header");
     expect(header).not.toContain("CanonicalPageHeader");
     expect(header).not.toContain("title=");
     expect(css).toContain("--ckt-max: 430px");
     expect(css).toContain("height: 56px");
-    expect(spec).toContain("Sprint 2");
+    expect(spec).toContain("FROZEN");
     expect(wizard).not.toContain("Parcel2Go");
     expect(wizard).not.toContain("Shippo");
   });

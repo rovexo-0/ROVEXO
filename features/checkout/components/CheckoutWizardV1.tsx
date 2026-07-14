@@ -195,7 +195,8 @@ export function CheckoutWizardV1({
     <div
       className="ckt-v1"
       data-checkout-version="v1.0"
-      data-checkout-sprint="2-payment"
+      data-checkout-sprint="3-qa"
+      data-checkout-freeze="FROZEN"
       data-checkout-step={step}
       data-checkout-embedded={embedded ? "true" : undefined}
     >

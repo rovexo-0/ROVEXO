@@ -65,10 +65,9 @@ describe("Pre-launch production config", () => {
     expect(source).not.toMatch(/sellerId: input\.sellerId/);
   });
 
-  it("requires authenticated profile for seller orders routes (unified account)", () => {
+  it("requires seller orders list to consolidate into canonical /orders", () => {
     const listSource = readFileSync(path.join(process.cwd(), "app/seller/orders/page.tsx"), "utf8");
-    expect(listSource).toContain("getProfile()");
-    expect(listSource).toContain("fetchOrdersForUser");
+    expect(listSource).toContain('permanentRedirect("/orders")');
 
     const detailSource = readFileSync(path.join(process.cwd(), "app/seller/orders/[id]/page.tsx"), "utf8");
     expect(detailSource).toContain("getProfile()");

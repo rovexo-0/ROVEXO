@@ -72,9 +72,11 @@ describe("account shell standardization", () => {
     expect(modulePage).not.toContain("AccountCenterHeader");
   });
 
-  it("standardizes address and payment settings on AccountCanonicalShell", () => {
+  it("standardizes address and payment settings on canonical shells", () => {
     expect(readSource("features/account/components/AddressBookPage.tsx")).toContain("AccountCanonicalShell");
-    expect(readSource("features/account/components/PaymentMethodsPage.tsx")).toContain("AccountCanonicalShell");
+    expect(readSource("features/wallet/components/WalletPaymentMethodsPage.tsx")).toContain(
+      "AccountCanonicalShell",
+    );
   });
 });
 

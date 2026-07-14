@@ -1,9 +1,9 @@
 # ROVEXO Checkout — Master UI Specification
 
-**Status:** Sprint 2 — Payment + Sendcloud (business wiring; UI unchanged)  
-**Freeze:** Not eligible until payment, Sendcloud, orders, inbox, wallet, and tracking QA pass  
+**Status:** **FROZEN** — `CANONICAL_FROZEN_v1.0`  
+**Markers:** `data-checkout-freeze="FROZEN"` · `data-checkout-version="v1.0"`  
 **SSOT:** `CheckoutWizardV1` + `styles/rovexo/checkout-v1.css`  
-**Marker:** `data-checkout-version="v1.0"` · `data-checkout-sprint="2-payment"`
+**Freeze:** `lib/checkout/freeze.ts` · `docs/modules/checkout/UI_FREEZE.md`
 
 ## Routes
 
@@ -14,7 +14,7 @@
 | `/checkout/[slug]/address` | Delivery address + method |
 | `/checkout/[slug]/payment` | Payment method selection (Wallet SSOT) |
 | `/checkout/[slug]/review` | Alias of summary |
-| `/checkout/[slug]/success` | Post-pay success (order + conversation CTAs) |
+| `/checkout/[slug]/success` | Post-pay success (paid orders only) |
 | `/checkout/success` | Legacy helper → `/orders` |
 
 ## Entry
@@ -40,16 +40,10 @@ Buy Now → `/checkout/[listingSlug]` (no cart intermediate). One listing per se
 3. Payment (+ Change → payment / Wallet SSOT)
 4. Price summary (Item · Delivery · Platform Fee · TOTAL — fee buyer-visible only)
 
-## Sprint 2 (this release)
+## Post-pay (locked behaviour)
 
-- Wallet payment methods via `/api/payment-methods`
-- Stripe Checkout + lock listing on confirm; unlock on cancel/fail
-- Post-pay: order · inbox conversation · wallet escrow · Sendcloud label (best-effort) · tracking
-- Success page with View Order / Open Conversation / Continue Shopping
-- Sendcloud webhook → shipping status updates
+Order · Inbox conversation · Wallet escrow · Sendcloud label (best-effort) · webhook status updates · success CTAs
 
-## Not in scope
+## Post-freeze
 
-- Checkout UI redesign
-- Wallet / Orders / Inbox UI changes
-- Freeze (requires full QA)
+No structural UI changes under v1.0. Enhancements ship as **Checkout v1.1**.
