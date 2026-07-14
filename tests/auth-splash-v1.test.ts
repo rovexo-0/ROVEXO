@@ -101,4 +101,25 @@ describe("AUTH_MASTER_SPEC v1.0 — splash screen", () => {
     expect(routeLayout).toContain("AUTH_ROUTES.splash");
     expect(routeLayout).toContain("AuthShell");
   });
+
+  it("never paints homepage skeleton as splash Suspense fallback", () => {
+    const rootLoading = readSource("app/loading.tsx");
+    const splashLoading = readSource("app/(auth)/splash/loading.tsx");
+    const authLoading = readSource("app/(auth)/loading.tsx");
+    const firstPaint = readSource("components/auth/SplashFirstPaint.tsx");
+    const middleware = readSource("lib/supabase/middleware.ts");
+    const pathnameHeader = readSource("lib/auth/request-pathname.ts");
+
+    expect(pathnameHeader).toContain("x-rovexo-pathname");
+    expect(middleware).toContain("ROVEXO_PATHNAME_HEADER");
+    expect(middleware).toContain("nextWithPathname");
+    expect(rootLoading).toContain("SplashFirstPaint");
+    expect(rootLoading).toContain("isAuthBootPath");
+    expect(rootLoading).toContain("ROVEXO_PATHNAME_HEADER");
+    expect(splashLoading).toContain("SplashFirstPaint");
+    expect(authLoading).toContain("SplashFirstPaint");
+    expect(firstPaint).toContain("auth-splash--ssr");
+    expect(firstPaint).toContain("Buy. Sell. Grow.");
+    expect(firstPaint).toContain("/icons/icon-192.png");
+  });
 });

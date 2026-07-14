@@ -6,6 +6,7 @@ import {
   AUTH_PROTECTED_PREFIXES,
   AUTH_SUPER_ADMIN_PREFIXES,
 } from "@/lib/auth/protected-routes";
+import { ROVEXO_PATHNAME_HEADER } from "@/lib/auth/request-pathname";
 import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseConfigured } from "@/lib/supabase/env";
 
 const AUTH_BYPASS_PREFIXES = ["/auth/callback", "/auth/signout"];
@@ -23,6 +24,17 @@ function applyPendingCookies(response: NextResponse, pendingCookies: PendingCook
     response.cookies.set(name, value, options);
   });
   return response;
+}
+
+/** Passthrough that stamps the request pathname for root loading boundaries. */
+function nextWithPathname(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(ROVEXO_PATHNAME_HEADER, request.nextUrl.pathname);
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 }
 
 function matchesRoutePrefix(pathname: string, prefixes: string[]): boolean {
@@ -54,7 +66,7 @@ function forbiddenApiResponse() {
 }
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+  let supabaseResponse = nextWithPathname(request);
   let pendingCookies: PendingCookie[] = [];
 
   if (!isSupabaseConfigured()) {
@@ -72,7 +84,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) => {
             request.cookies.set(name, value);
           });
-          supabaseResponse = NextResponse.next({ request });
+          supabaseResponse = nextWithPathname(request);
           cookiesToSet.forEach(({ name, value, options }) => {
             supabaseResponse.cookies.set(name, value, options);
           });
