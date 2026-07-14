@@ -148,13 +148,9 @@
   color: #6b7280;
 }
 
-[data-theme="dark"] .rx-category-card__title {
-  color: #ffffff;
-}
 
-[data-theme="dark"] .rx-category-card__subtitle {
-  color: rgba(255, 255, 255, 0.7);
-}
+
+
 
 .rx-category-tile-icon,
 .rx-category-icon-3d,
@@ -164,9 +160,7 @@
   height: 84px;
 }
 
-[data-theme="dark"] .rx-category-render__img {
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.28));
-}
+
 
 .rx-page-home .rx-category-card {
   background: transparent;

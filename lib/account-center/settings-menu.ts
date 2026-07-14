@@ -159,13 +159,6 @@ export function buildSettingsMenuSections(returnTo: string | null): SettingsMenu
           icon: "settings",
         },
         {
-          id: "appearance",
-          title: "Appearance",
-          subtitle: "Theme and display",
-          href: href("/account/preferences/appearance"),
-          icon: "moon",
-        },
-        {
           id: "language-currency",
           title: "Language & Currency",
           subtitle: "Region, language, and currency",

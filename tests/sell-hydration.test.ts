@@ -54,11 +54,12 @@ describe("Sell module hydration safety", () => {
     expect(source).toContain("sellDebug");
   });
 
-  it("keeps ThemeProvider script-free (anti-flash script lives in the document head)", () => {
-    const source = readSource("components/providers/ThemeProvider.tsx");
-    expect(source).not.toMatch(/from [\"']next-themes[\"']/);
-    expect(source).not.toContain("<script");
-    expect(source).not.toContain("dangerouslySetInnerHTML");
+  it("locks the app to the canonical light theme only", () => {
+    const layout = readSource("app/layout.tsx");
+    expect(layout).toContain('data-theme="light"');
+    expect(layout).not.toContain("ThemeProvider");
+    expect(layout).not.toContain("THEME_INIT_SCRIPT");
+    expect(layout).not.toContain("rovexo-theme");
   });
 
   it("persists draft on visibility and bfcache lifecycle events", () => {

@@ -1,7 +1,6 @@
-import { AccountAppearancePage } from "@/features/account/components/AccountAppearancePage";
+import { redirect } from "next/navigation";
 
-export const metadata = { title: "Appearance" };
-
+/** Appearance / dark theme removed — Light theme is the only supported UI. */
 export default function AccountAppearanceRoute() {
-  return <AccountAppearancePage />;
+  redirect("/account/settings");
 }

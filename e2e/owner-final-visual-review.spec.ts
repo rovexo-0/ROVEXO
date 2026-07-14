@@ -15,7 +15,7 @@ const PAGES_DIR = join(OUT, "pages");
 const INTERACTIONS_DIR = join(OUT, "interactions");
 
 type Device = { id: string; label: string; width: number; height: number };
-type Theme = "light" | "dark";
+type Theme = "light";
 
 const DEVICES: Device[] = [
   { id: "desktop-1920", label: "Desktop 1920px", width: 1920, height: 1080 },
@@ -25,7 +25,7 @@ const DEVICES: Device[] = [
   { id: "android", label: "Android", width: 412, height: 915 },
 ];
 
-const THEMES: Theme[] = ["light", "dark"];
+const THEMES: Theme[] = ["light"];
 
 type PageDef = { id: string; label: string; path: string | ((slug: string) => string) };
 

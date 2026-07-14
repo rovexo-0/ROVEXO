@@ -8,11 +8,7 @@
   --rx-home-radius-card-sm: 18px;
 }
 
-[data-theme="dark"] .rx-page-home .rx-home-final {
-  --rx-home-shadow-soft: 0 2px 16px rgb(0 0 0 / 0.28);
-  --rx-home-shadow-medium: 0 8px 28px rgb(0 0 0 / 0.32);
-  --rx-home-shadow-hover: 0 12px 32px rgb(0 0 0 / 0.36);
-}
+
 
 /* Compact header on homepage */
 .rx-page-home .rx-header-premium__row {
@@ -45,18 +41,14 @@
   color: #000000;
 }
 
-[data-theme="dark"] .rx-page-home .rx-category-card__title {
-  color: #ffffff;
-}
+
 
 /* Hero — balanced elevation */
 .rx-page-home .rx-home-final .import-rx-hero-banner.import-rx-hero-banner--premium {
   box-shadow: var(--rx-home-shadow-medium);
 }
 
-[data-theme="dark"] .rx-page-home .rx-home-final .import-rx-hero-banner.import-rx-hero-banner--premium {
-  box-shadow: var(--rx-home-shadow-medium);
-}
+
 
 /* Section typography */
 .rx-page-home .rx-home-final .rx-section__title,
@@ -131,20 +123,4 @@
   box-shadow: var(--rx-home-shadow-soft);
 }
 
-[data-theme="dark"] .rx-page-home .rx-home-final .rx-listing-card,
-[data-theme="dark"] .rx-page-home .rx-home-final .rx-auctions-compact__card,
-[data-theme="dark"] .rx-page-home .rx-home-final .rx-auction-carousel__card,
-[data-theme="dark"] .rx-page-home .rx-home-final .rx-business-spotlight__card > div {
-  background: #141414;
-  border-color: rgb(255 255 255 / 0.08);
-  box-shadow: var(--rx-home-shadow-soft);
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .rx-page-home .rx-home-polish .rx-listing-card,
-  .rx-page-home .rx-home-polish .rx-listing-card:hover,
-  .rx-page-home .rx-home-polish .rx-listing-card:active {
-    transform: none;
-    transition: none;
-  }
-}

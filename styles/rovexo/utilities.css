@@ -21,46 +21,9 @@
   --ds-radius-premium: var(--ds-radius-xl);
 }
 
-[data-theme="dark"],
-:root:not([data-theme="light"]) {
-  @media (prefers-color-scheme: dark) {
-    --ds-glass-bg: rgb(24 24 27 / 0.72);
-    --ds-glass-border: rgb(255 255 255 / 0.08);
-    --ds-glass-highlight: linear-gradient(
-      135deg,
-      rgb(255 255 255 / 0.12) 0%,
-      rgb(255 255 255 / 0.02) 48%,
-      rgb(59 130 246 / 0.12) 100%
-    );
-    --ds-depth-1: 0 1px 2px rgb(0 0 0 / 0.35), 0 4px 12px rgb(0 0 0 / 0.25),
-      inset 0 1px 0 rgb(255 255 255 / 0.06);
-    --ds-depth-2: 0 2px 4px rgb(0 0 0 / 0.4), 0 12px 28px rgb(0 0 0 / 0.35),
-      inset 0 1px 0 rgb(255 255 255 / 0.08);
-    --ds-depth-3: 0 8px 24px rgb(0 0 0 / 0.45), 0 24px 48px rgb(147 51 234 / 0.2),
-      inset 0 1px 0 rgb(255 255 255 / 0.1);
-    --ds-glow-primary: 0 0 0 1px rgb(59 130 246 / 0.25), 0 8px 32px rgb(59 130 246 / 0.35);
-    --ds-neu-light: 6px 6px 16px rgb(0 0 0 / 0.45), -4px -4px 12px rgb(255 255 255 / 0.04);
-  }
-}
 
-[data-theme="dark"] {
-  --ds-glass-bg: rgb(24 24 27 / 0.72);
-  --ds-glass-border: rgb(255 255 255 / 0.08);
-  --ds-glass-highlight: linear-gradient(
-    135deg,
-    rgb(255 255 255 / 0.12) 0%,
-    rgb(255 255 255 / 0.02) 48%,
-    rgb(59 130 246 / 0.12) 100%
-  );
-  --ds-depth-1: 0 1px 2px rgb(0 0 0 / 0.35), 0 4px 12px rgb(0 0 0 / 0.25),
-    inset 0 1px 0 rgb(255 255 255 / 0.06);
-  --ds-depth-2: 0 2px 4px rgb(0 0 0 / 0.4), 0 12px 28px rgb(0 0 0 / 0.35),
-    inset 0 1px 0 rgb(255 255 255 / 0.08);
-  --ds-depth-3: 0 8px 24px rgb(0 0 0 / 0.45), 0 24px 48px rgb(147 51 234 / 0.2),
-    inset 0 1px 0 rgb(255 255 255 / 0.1);
-  --ds-glow-primary: 0 0 0 1px rgb(59 130 246 / 0.25), 0 8px 32px rgb(59 130 246 / 0.35);
-  --ds-neu-light: 6px 6px 16px rgb(0 0 0 / 0.45), -4px -4px 12px rgb(255 255 255 / 0.04);
-}
+
+
 
 /* Glass surfaces */
 .rx-glass {
@@ -478,9 +441,7 @@
   -webkit-backdrop-filter: blur(var(--ds-glass-blur)) saturate(180%);
 }
 
-[data-theme="dark"] .bottom-nav-shell {
-  background: color-mix(in srgb, var(--ds-color-surface) 86%, transparent);
-}
+
 
 /* Hero search gradient */
 .hero-search-gradient {

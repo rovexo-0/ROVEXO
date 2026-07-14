@@ -51,7 +51,6 @@ describe("Settings canonical v1.0 hub", () => {
       "Promotion Tools",
       "Wallet",
       "Preferences",
-      "Appearance",
       "Language & Currency",
       "Accessibility",
       "Terms & Policies",
@@ -70,7 +69,7 @@ describe("Settings canonical v1.0 hub", () => {
     expect(hrefs).toContain("/account/promotion-tools");
     expect(hrefs).toContain("/wallet");
     expect(hrefs).toContain("/account/buyer/preferences");
-    expect(hrefs).toContain("/account/preferences/appearance");
+    expect(hrefs).not.toContain("/account/preferences/appearance");
     expect(hrefs).toContain("/account/preferences/language");
     expect(hrefs).toContain("/legal/accessibility-statement");
     expect(hrefs).toContain("/legal");

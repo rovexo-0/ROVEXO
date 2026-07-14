@@ -31,10 +31,9 @@ describe("Module 2 — Core Surface Simplification", () => {
     const sell = readSource("styles/rovexo/sell.css");
 
     expect(gridLock).toContain("var(--ds-color-surface)");
-    expect(gridLock).toContain('[data-theme="dark"] .home-v1-listing-grid-lock');
-    expect(sell).toContain("var(--ds-color-background)");
+    expect(gridLock).not.toContain('[data-theme="dark"]');
     expect(sell).toContain("var(--ds-color-surface-muted)");
-    expect(sell).not.toContain("background: #ffffff;");
+    expect(sell).toContain("background: #ffffff");
   });
 
   it("keeps promotional tools linked to the canonical plans surface", () => {

@@ -52,7 +52,6 @@ export const SELLER_SETTINGS_LINKS: SellerSettingsLink[] = [
   { id: "store", label: "Store", href: "/account/profile", icon: RovexoIcons.dashboard.listings },
   { id: "payments", label: "Payments", href: "/wallet", icon: RovexoIcons.seller.wallet },
   { id: "notifications", label: "Notifications", href: "/notifications/settings", icon: RovexoIcons.notifications.bell },
-  { id: "appearance", label: "Appearance", href: "/account/preferences/appearance", icon: RovexoIcons.settings.settings },
   { id: "language", label: "Language", href: "/account/preferences/language", icon: RovexoIcons.dashboard.help },
   { id: "privacy", label: "Privacy", href: "/account/privacy", icon: RovexoIcons.security.shield },
 ];

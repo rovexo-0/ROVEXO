@@ -10,7 +10,6 @@ const SETTINGS_SHELL_PAGES = [
   "features/account-module/components/SettingsV1.tsx",
   "features/account-module/components/PromotionToolsV1.tsx",
   "features/account/components/AddressBookPage.tsx",
-  "features/account/components/PaymentMethodsPage.tsx",
   "features/account/components/AccountPrivacyPage.tsx",
   "features/account/components/AccountSecurityPage.tsx",
   "features/account/components/AccountBlockedUsersPage.tsx",
@@ -18,7 +17,6 @@ const SETTINGS_SHELL_PAGES = [
   "features/account/components/AccountLanguagePage.tsx",
   "features/account/components/AccountCurrencyPage.tsx",
   "features/account/components/AccountTimezonePage.tsx",
-  "features/account/components/AccountAppearancePage.tsx",
   "features/account/components/AccountBuyerPreferencesPage.tsx",
 ];
 

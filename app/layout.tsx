@@ -8,8 +8,6 @@ import { AppShellLayout } from "@/components/layout/AppShellLayout";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { VisitorPresenceBeacon } from "@/components/analytics/VisitorPresenceBeacon";
 import { PageVisibilityProvider } from "@/components/providers/PageVisibilityProvider";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import { SettingsThemeSync } from "@/components/providers/SettingsThemeSync";
 import { LocaleProvider } from "@/lib/i18n/provider";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
 import { PushSubscriptionManager } from "@/features/notifications/components/PushSubscriptionManager";
@@ -30,14 +28,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-/**
- * Pre-paint theme resolution — runs before the body renders so dark/system
- * users never see a light flash. Reads the persisted appearance MODE and sets
- * <html data-theme>. Kept tiny and dependency-free; failures are swallowed so a
- * missing localStorage never blocks paint. Pairs with suppressHydrationWarning.
- */
-const THEME_INIT_SCRIPT = `(function(){try{var m=localStorage.getItem("rovexo-theme")||"light";var d=m==="dark"||(m==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.setAttribute("data-theme",d?"dark":"light");}catch(e){}})();`;
-
 // Pre-paint locale sync: applies the stored locale to <html lang/dir> before
 // hydration so language and text direction (incl. RTL) never flash on first paint.
 const LOCALE_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("rovexo-locale");if(!c||!/^[a-z]{2}-[A-Z]{2}$/.test(c))return;var el=document.documentElement;el.setAttribute("lang",c);el.setAttribute("dir",c==="ar-SA"?"rtl":"ltr");}catch(e){}})();`;
@@ -48,22 +38,19 @@ export const metadata: Metadata = {
     default: "ROVEXO – Buy & Sell on the Modern Marketplace",
     template: "%s | ROVEXO",
   },
-  description:
-    "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
+  description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
   openGraph: {
     type: "website",
     locale: "en_GB",
     siteName: "ROVEXO",
     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
-    description:
-      "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
+    description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
     images: [{ url: "/brand/og-image.png", width: 1200, height: 630, alt: "ROVEXO" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "ROVEXO – Buy & Sell on the Modern Marketplace",
-    description:
-      "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
+    description: "Discover pre-loved treasures and trusted retail deals on ROVEXO.",
     images: ["/brand/og-image.png"],
   },
   alternates: {
@@ -102,36 +89,28 @@ export default function RootLayout({
     <html
       lang="en-GB"
       data-theme="light"
-      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: LOCALE_INIT_SCRIPT }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
         />
       </head>
-      <body
-        suppressHydrationWarning
-        className="min-h-full flex flex-col bg-background text-text-primary"
-      >
-        <ThemeProvider>
-          <SettingsThemeSync />
-          <PageVisibilityProvider>
+      <body className="min-h-full flex flex-col bg-background text-text-primary">
+        <PageVisibilityProvider>
           <LocaleProvider>
             <PwaProvider>
-            <PushSubscriptionManager />
-            <ToastProvider>
-              <SearchProvider>
-                <AppShellLayout>{children}</AppShellLayout>
-              </SearchProvider>
-            </ToastProvider>
+              <PushSubscriptionManager />
+              <ToastProvider>
+                <SearchProvider>
+                  <AppShellLayout>{children}</AppShellLayout>
+                </SearchProvider>
+              </ToastProvider>
             </PwaProvider>
           </LocaleProvider>
-          </PageVisibilityProvider>
-        </ThemeProvider>
+        </PageVisibilityProvider>
         <GoogleAnalytics />
         <VisitorPresenceBeacon />
       </body>

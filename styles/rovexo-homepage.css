@@ -242,11 +242,7 @@
   outline-offset: 2px;
 }
 
-[data-theme="dark"] .home-v1-category-capsule {
-  background: color-mix(in srgb, var(--ds-color-surface) 92%, #ffffff 8%);
-  border-color: color-mix(in srgb, var(--ds-color-border) 70%, transparent);
-  color: var(--ds-color-text-primary);
-}
+
 
 .home-v1-category-tile {
   display: none;
@@ -623,9 +619,7 @@
   width: var(--rx-home-listing-card-w);
 }
 
-[data-theme="dark"] .rx-showcase-v2__rating {
-  color: var(--ds-color-text-secondary);
-}
+
 
 /* ── Bring Your Item ── */
 

@@ -143,11 +143,7 @@
   box-shadow: 0 0 28px color-mix(in srgb, var(--ds-color-primary) 14%, transparent);
 }
 
-[data-theme="dark"] .rx-bottom-nav-shell {
-  border-color: var(--ds-color-border);
-  background: color-mix(in srgb, var(--ds-color-surface) 86%, transparent);
-  box-shadow: var(--ds-shadow-premium);
-}
+
 
 .rx-bottom-nav-grid {
   position: relative;
@@ -338,10 +334,7 @@
   -webkit-backdrop-filter: none;
 }
 
-[data-theme="dark"] .rx-header-shell {
-  background: transparent;
-  border-color: transparent;
-}
+
 
 .rx-header-shell__search {
   max-width: 100%;

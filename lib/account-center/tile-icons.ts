@@ -40,7 +40,6 @@ const HREF_ICONS: Record<string, TileIconStyle> = {
   "/account/addresses": { emoji: "📍", background: "#f0fdf4" },
   "/wallet/payment-methods": { emoji: "💳", background: "#faf5ff" },
   "/account/seller/shipping": { emoji: "📦", background: "#ecfeff" },
-  "/account/preferences/appearance": { emoji: "🎨", background: "#fff7ed" },
   "/account/preferences/language": { emoji: "🌐", background: "#ecfeff" },
   "/account/security": { emoji: "🔒", background: "#fef2f2" },
   "/account/privacy": { emoji: "🛡️", background: "rgb(147 51 234 / 0.08)" },

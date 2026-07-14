@@ -221,9 +221,7 @@
   box-shadow: 0 4px 16px color-mix(in srgb, var(--ds-color-primary) 28%, transparent);
 }
 
-[data-theme="dark"] .rx4-import {
-  box-shadow: none;
-}
+
 
 .rx4-import__content {
   display: flex;
@@ -611,22 +609,7 @@
   }
 }
 
-[data-theme="dark"] .rx4-topbar,
-[data-theme="dark"] .rx4 {
-  background: var(--ds-color-background);
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .rx4-cats__track,
-  .rx4-carousel {
-    scroll-behavior: auto;
-  }
-
-  .rx4-skeleton__media,
-  .rx4-skeleton__line {
-    animation: none;
-  }
-}
 
 @import "./rovexo/homepage-header.css";
 

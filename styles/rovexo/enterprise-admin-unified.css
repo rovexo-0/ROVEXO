@@ -502,13 +502,7 @@
   .ea-tab { transition: none; }
 }
 
-@media (prefers-color-scheme: dark) {
-  .ea-admin__header,
-  .ea-panel,
-  .ea-omega-bar {
-    background: color-mix(in srgb, var(--ds-color-surface) 96%, transparent);
-  }
-}
+
 
 /* Enterprise Category Management — 3-panel workspace */
 .ecm-workspace {

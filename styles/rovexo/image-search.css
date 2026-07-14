@@ -5,10 +5,7 @@
   background-image: none;
 }
 
-[data-theme="dark"] .rx-image-search-page {
-  background-color: var(--ds-color-background);
-  background-image: none;
-}
+
 
 .rx-image-search-results {
   box-sizing: border-box;
@@ -21,9 +18,7 @@
   background-image: none;
 }
 
-[data-theme="dark"] .rx-image-search-results {
-  background-color: var(--ds-color-background);
-}
+
 
 .rx-image-search-results__header {
   margin-bottom: 12px;

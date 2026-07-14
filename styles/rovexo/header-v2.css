@@ -216,9 +216,7 @@
   }
 }
 
-[data-theme="dark"] .rx-h2 {
-  background: var(--ds-color-background);
-}
+
 
 /* Homepage — row 1 logo + actions, row 2 search below */
 .rx-h2--homepage {

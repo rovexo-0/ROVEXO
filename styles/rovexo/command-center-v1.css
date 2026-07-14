@@ -844,24 +844,4 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .cc1-noc-health {
-    background: #0f172a;
-    border-color: #334155;
-  }
 
-  .cc1-noc-health__card {
-    background: #1e293b;
-    border-color: #334155;
-  }
-
-  .cc1-noc-alerts {
-    background: #450a0a;
-    border-color: #7f1d1d;
-  }
-
-  .cc1-noc-alerts--clear {
-    background: #052e16;
-    border-color: #166534;
-  }
-}

@@ -119,7 +119,7 @@ test.describe.serial("Buyer Dashboard v1.0 — authenticated", () => {
     });
   }
 
-  for (const theme of ["light", "dark"] as const) {
+  for (const theme of ["light"] as const) {
     test(`renders in ${theme} mode`, async ({ page, baseURL }) => {
       test.skip(!tempBuyer || !baseURL, "Temp buyer was not created");
 

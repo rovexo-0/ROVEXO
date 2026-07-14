@@ -16,9 +16,7 @@
   color: #000000;
 }
 
-[data-theme="dark"] .rx-home-polish .rx-section__title {
-  color: #ffffff;
-}
+
 
 .rx-home-polish .rx-section > .mb-ds-2 + *,
 .rx-home-polish .rx-section > div:first-child {
@@ -196,17 +194,9 @@
   color: var(--ds-color-text-secondary);
 }
 
-[data-theme="dark"] .rx-home-polish .rx-listing-card {
-  background: #0a0a0a;
-  border-color: rgb(255 255 255 / 0.08);
-  box-shadow: 0 2px 16px rgb(0 0 0 / 0.35);
-}
 
-[data-theme="dark"] .rx-home-polish .rx-auctions-compact__card {
-  background: #0a0a0a;
-  border-color: rgb(255 255 255 / 0.08);
-  box-shadow: 0 2px 16px rgb(0 0 0 / 0.35);
-}
+
+
 
 @media (min-width: 640px) {
   .rx-home-polish .rx-home-empty {

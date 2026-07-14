@@ -2,16 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  Bell,
-  Grid3X3,
-  Mail,
-  Moon,
-  Search,
-  Sun,
-} from "lucide-react";
-import { useTheme } from "@/components/providers/ThemeProvider";
-import { cn } from "@/lib/cn";
+import { Bell, Grid3X3, Mail, Search } from "lucide-react";
 import type {
   CommandCenterAdminIdentity,
   CommandCenterNotification,
@@ -48,9 +39,6 @@ type CcHeaderProps = {
 };
 
 export function CcHeader({ notifications, messageCount, admin }: CcHeaderProps) {
-  const { resolvedTheme, setTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
-
   return (
     <header className="cc2-header">
       <div className="cc2-header__left">
@@ -67,25 +55,6 @@ export function CcHeader({ notifications, messageCount, admin }: CcHeaderProps) 
       </div>
 
       <div className="cc2-header__right">
-        <div className="cc2-theme-toggle" role="group" aria-label="Theme">
-          <button
-            type="button"
-            className={cn("cc2-theme-toggle__btn", !isDark && "cc2-theme-toggle__btn--active")}
-            onClick={() => setTheme("light")}
-            aria-pressed={!isDark}
-          >
-            <Sun size={14} />
-          </button>
-          <button
-            type="button"
-            className={cn("cc2-theme-toggle__btn", isDark && "cc2-theme-toggle__btn--active")}
-            onClick={() => setTheme("dark")}
-            aria-pressed={isDark}
-          >
-            <Moon size={14} />
-          </button>
-        </div>
-
         <CcUtcClock />
 
         <Link href="/super-admin/search" className="cc2-header__icon-btn" aria-label="Search">

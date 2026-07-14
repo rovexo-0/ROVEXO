@@ -98,11 +98,7 @@
   }
 }
 
-[data-theme="dark"] .rx-header-bring-item-cta {
-  box-shadow:
-    0 1px 2px rgb(0 0 0 / 0.3),
-    0 8px 28px rgb(147 51 234 / 0.45);
-}
+
 
 @media (prefers-reduced-motion: reduce) {
   .rx-header-bring-item-cta,

@@ -55,7 +55,6 @@ const ACCOUNT_LINKS = [
   { href: "/account/privacy", label: "Privacy" },
   { href: "/trust", label: "Verification" },
   { href: "/notifications/settings", label: "Notifications" },
-  { href: "/account/preferences/appearance", label: "Appearance" },
   { href: "/account/preferences/language", label: "Language" },
   { href: "/help", label: "Help" },
   { href: "/support", label: "Contact" },

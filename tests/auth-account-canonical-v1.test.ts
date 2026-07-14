@@ -90,7 +90,7 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     expect(menu).toContain('"Payment Methods"');
     expect(menu).toContain('"Notifications"');
     expect(menu).toContain('"Seller Performance"');
-    expect(menu).toContain('"Appearance"');
+    expect(menu).not.toContain('"Appearance"');
     expect(settings).not.toContain("Help Centre");
     expect(settings).not.toContain("SettingsAccordion");
   });

@@ -34,7 +34,7 @@ test.beforeAll(() => {
 });
 
 for (const viewport of VIEWPORTS) {
-  for (const theme of ["light", "dark"] as const) {
+  for (const theme of ["light"] as const) {
     for (const pageDef of PAGES) {
       test(`owner review — ${pageDef.name} — ${viewport.label} — ${theme}`, async ({ page, browserName }) => {
         test.skip(browserName !== "chromium", "Owner review screenshots use Chromium only");

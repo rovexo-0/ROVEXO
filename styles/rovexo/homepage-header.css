@@ -22,14 +22,9 @@
   box-shadow: var(--ds-shadow-soft);
 }
 
-[data-theme="dark"] .homepage-header {
-  background: var(--ds-color-background);
-}
 
-[data-theme="dark"] .homepage-header--scrolled {
-  border-bottom-color: var(--ds-color-border);
-  box-shadow: var(--ds-shadow-soft);
-}
+
+
 
 .homepage-header__inner {
   box-sizing: border-box;
@@ -144,9 +139,7 @@
   transform: scale(0.98);
 }
 
-[data-theme="dark"] .homepage-header .header-action-2026:hover {
-  background: color-mix(in srgb, var(--ds-color-text-primary) 6%, transparent);
-}
+
 
 /* Category rail — attached below header row */
 
@@ -170,11 +163,7 @@
   color: var(--ds-color-primary);
 }
 
-[data-theme="dark"] .home-v1-category-capsule--selected {
-  border-color: color-mix(in srgb, var(--ds-color-primary) 50%, var(--ds-color-border));
-  background: color-mix(in srgb, var(--ds-color-primary) 14%, var(--ds-color-surface));
-  color: var(--ds-color-primary);
-}
+
 
 /* Search field */
 
@@ -222,10 +211,7 @@
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-color-primary) 12%, transparent);
 }
 
-[data-theme="dark"] .homepage-search__control {
-  background: var(--ds-color-surface);
-  border-color: var(--ds-color-border);
-}
+
 
 .homepage-search__icon {
   display: inline-flex;

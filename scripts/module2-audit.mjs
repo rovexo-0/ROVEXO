@@ -44,7 +44,7 @@ const module2Signals = [
   { id: "sell-drag-drop", pass: read("features/sell/components/PhotoUploader.tsx").includes("onDrop={handleFileDrop}") },
   { id: "pricing-ssot", pass: read("lib/promotions/marketplace-pricing.ts").includes("100") && read("lib/promotions/marketplace-pricing.ts").includes("550") },
   { id: "brand-wordmark", pass: read("components/brand/RovexoLogo.tsx").includes("text-primary") },
-  { id: "theme-white-black", pass: read("features/settings/components/AppearancePicker.tsx").includes('"White"') && !read("features/settings/components/AppearancePicker.tsx").includes('"System"') },
+  { id: "theme-light-only", pass: !existsSync("features/settings/components/AppearancePicker.tsx") && read("app/layout.tsx").includes('data-theme="light"') && !read("styles/tokens.css").includes('[data-theme="dark"]') },
   { id: "super-admin-simplified", pass: read("lib/super-admin/nav.ts").includes("Module 2") && read("lib/super-admin/nav.ts").includes("/super-admin/pricing") },
   { id: "business-badge", pass: existsSync("components/ui/BusinessBadge.tsx") },
   { id: "no-ai-category-sell", pass: read("lib/sell/sell-background-policy.ts").includes("categorySuggestEnabled: false") },

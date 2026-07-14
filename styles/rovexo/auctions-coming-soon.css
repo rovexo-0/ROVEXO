@@ -6,9 +6,7 @@
   padding-bottom: calc(var(--ds-space-7) + env(safe-area-inset-bottom));
 }
 
-[data-theme="dark"] .auctions-soon-page {
-  background: var(--ds-color-background);
-}
+
 
 .auctions-soon-page__inner {
   width: min(100%, 960px);
@@ -56,10 +54,7 @@
   box-shadow: 0 10px 30px rgb(15 23 42 / 0.06);
 }
 
-[data-theme="dark"] .auctions-soon-hero-panel {
-  border-color: var(--ds-color-border);
-  background: var(--ds-color-surface);
-}
+
 
 @media (min-width: 768px) {
   .auctions-soon-hero-panel {
@@ -201,10 +196,7 @@
     box-shadow var(--ds-duration-fast) var(--ds-ease);
 }
 
-[data-theme="dark"] .auctions-soon-feature-card {
-  border-color: var(--ds-color-border);
-  background: var(--ds-color-surface);
-}
+
 
 @media (hover: hover) and (pointer: fine) {
   .auctions-soon-feature-card:hover {

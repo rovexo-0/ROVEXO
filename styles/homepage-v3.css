@@ -486,17 +486,7 @@
   }
 }
 
-[data-theme="dark"] .hp3-header,
-[data-theme="dark"] .hp3 {
-  background: var(--ds-color-background);
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .hp3-skeleton__media,
-  .hp3-skeleton__line {
-    animation: none;
-  }
-}
 
 /* Search field styles (inline in V3 main — not in sticky header) */
 @import "./rovexo/homepage-header.css";

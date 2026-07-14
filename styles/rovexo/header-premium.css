@@ -78,9 +78,7 @@
   transform: scale(0.98);
 }
 
-[data-theme="dark"] .rx-header-premium .header-action-2026:hover {
-  background: rgb(255 255 255 / 0.06);
-}
+
 
 .rx-header-premium__profile-link {
   display: inline-flex;
@@ -110,9 +108,7 @@
   --tw-ring-offset-shadow: 0 0 #0000;
 }
 
-[data-theme="dark"] .rx-header-premium__avatar {
-  border-color: rgb(255 255 255 / 0.12);
-}
+
 
 @media (prefers-reduced-motion: reduce) {
   .rx-header-premium .header-action-2026,
@@ -168,10 +164,7 @@
   border-bottom: 1px solid var(--ds-color-border);
 }
 
-[data-theme="dark"] .rx-header-premium--homepage {
-  background: var(--ds-color-background);
-  border-bottom-color: var(--ds-color-border);
-}
+
 
 @media (min-width: 1024px) {
   .rx-header-premium__row--homepage {

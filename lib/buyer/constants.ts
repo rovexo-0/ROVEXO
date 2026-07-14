@@ -86,5 +86,4 @@ export const BUYER_SETTINGS_LINKS: BuyerSettingsLink[] = [
   { id: "currency", label: "Currency", href: "/account/preferences/currency", icon: RovexoIcons.payments.payment },
   { id: "notifications", label: "Notifications", href: "/notifications/settings", icon: RovexoIcons.notifications.bell },
   { id: "privacy", label: "Privacy", href: "/account/privacy", icon: RovexoIcons.security.shield },
-  { id: "appearance", label: "Appearance", href: "/account/preferences/appearance", icon: RovexoIcons.actions.eye },
 ];

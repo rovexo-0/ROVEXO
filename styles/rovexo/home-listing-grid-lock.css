@@ -187,11 +187,6 @@
   display: none;
 }
 
-[data-theme="dark"] .home-v1-main [data-listing-card="rovexo"] {
-  background: var(--ds-color-surface);
-  border-color: var(--ds-color-border);
-}
 
-[data-theme="dark"] .home-v1-listing-grid-lock {
-  background: var(--ds-color-background);
-}
+
+

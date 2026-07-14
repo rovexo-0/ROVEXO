@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Verifies theme token definitions and documents Theme Engine contract.
+ * Verifies canonical light-only theme tokens (dark theme removed).
  * Output: reports/module-2/final-visual/THEME_VERIFICATION.md
  */
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -24,7 +24,7 @@ function extractBlock(selector) {
 
 const rootBlock = extractBlock(":root");
 const lightBlock = extractBlock('[data-theme="light"]');
-const darkBlock = extractBlock('[data-theme="dark"]');
+const hasDarkSelector = /\[data-theme=["']dark["']\]/.test(tokens);
 
 function getPrimary(block) {
   const m = block.match(/--ds-color-primary:\s*([^;]+)/);
@@ -33,7 +33,6 @@ function getPrimary(block) {
 
 const rootPrimary = getPrimary(rootBlock);
 const lightPrimary = getPrimary(lightBlock);
-const darkPrimary = getPrimary(darkBlock);
 
 const checks = [
   {
@@ -52,19 +51,21 @@ const checks = [
     detail: `[data-theme=light] --ds-color-primary = ${lightPrimary}`,
   },
   {
-    id: "dark-purple",
-    pass: darkPrimary.includes("a855f7"),
-    detail: `[data-theme=dark] --ds-color-primary = ${darkPrimary}`,
+    id: "no-dark-theme-block",
+    pass: !hasDarkSelector,
+    detail: hasDarkSelector
+      ? "Dark theme selector still present in tokens.css"
+      : "No [data-theme=dark] block (light-only)",
   },
   {
-    id: "no-blue-light",
-    pass: !lightBlock.includes("2563eb") && !lightBlock.includes("37, 99, 235"),
-    detail: "Light theme block has no legacy blue",
+    id: "no-appearance-picker",
+    pass: !existsSync(join(ROOT, "features", "settings", "components", "AppearancePicker.tsx")),
+    detail: "AppearancePicker removed (light theme only)",
   },
   {
-    id: "appearance-picker",
-    pass: existsSync(join(ROOT, "features", "settings", "components", "AppearancePicker.tsx")),
-    detail: "AppearancePicker component exists (white/black themes)",
+    id: "no-theme-provider",
+    pass: !existsSync(join(ROOT, "components", "providers", "ThemeProvider.tsx")),
+    detail: "ThemeProvider removed (light theme only)",
   },
 ];
 
@@ -76,11 +77,11 @@ let md = `# Theme Verification Report
 **Generated:** ${new Date().toISOString()}  
 **Status:** **${status}** (${pass}/${checks.length} checks)
 
-## Theme Engine Contract
+## Theme Contract
 
-- **Modes:** White (\`light\`) and Black (\`dark\`) only — no system/auto toggle in UI.
-- **Accent:** Official ROVEXO Purple via \`--ds-color-primary\` on both themes.
-- **Inheritance:** Components should use design tokens (\`var(--ds-color-*)\`, Tailwind \`primary\`, \`text-text-primary\`) — not hardcoded hex/rgb blues.
+- **Mode:** Light only (canonical ROVEXO v1.0).
+- **Accent:** Official ROVEXO Purple via \`--ds-color-primary\`.
+- **Dark / System themes:** Removed.
 
 ## Token Checks
 
@@ -101,7 +102,6 @@ md += `
 |-------|------------------------|
 | \`:root\` | \`${rootPrimary}\` |
 | \`[data-theme=light]\` | \`${lightPrimary}\` |
-| \`[data-theme=dark]\` | \`${darkPrimary}\` |
 
 **End of theme verification.**
 `;

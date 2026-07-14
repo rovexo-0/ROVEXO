@@ -34,16 +34,9 @@
   display: none;
 }
 
-[data-theme="dark"] [data-bottom-nav="v2"] {
-  --rx-bottom-nav-inactive: #ffffff;
-  --rx-bottom-nav-active: var(--ds-color-primary, #9333ea);
-}
 
-[data-theme="dark"] [data-bottom-nav="v2"] .rx-bottom-nav-shell {
-  border-top-color: rgb(255 255 255 / 0.08);
-  background: #0f172a;
-  box-shadow: none;
-}
+
+
 
 [data-bottom-nav="v2"] .rx-bottom-nav-grid {
   display: grid;

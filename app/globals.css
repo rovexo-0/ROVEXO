@@ -1,8 +1,5 @@
 @import "tailwindcss";
 
-/* Bind Tailwind's `dark:` variant to the Theme Engine's data-theme attribute. */
-@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-
 @theme inline {
   --color-primary: var(--ds-color-primary);
   --color-primary-foreground: var(--ds-color-primary-foreground);

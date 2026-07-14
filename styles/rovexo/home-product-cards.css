@@ -159,43 +159,10 @@
   transform: scale(0.985) translateZ(0);
 }
 
-[data-theme="dark"] .rx-page-home .rx-home-polish .rx-listing-card {
-  background: #141414;
-  border-color: rgb(255 255 255 / 0.08);
-  box-shadow: 0 2px 18px rgb(0 0 0 / 0.32);
-}
 
-[data-theme="dark"] .rx-page-home .rx-home-polish .rx-listing-card__title {
-  color: #ffffff;
-}
 
-[data-theme="dark"] .rx-page-home .rx-home-polish .rx-listing-card__price > span:first-child {
-  color: #60a5fa;
-}
 
-[data-theme="dark"] .rx-page-home .rx-home-polish .rx-listing-card__stat,
-[data-theme="dark"] .rx-page-home .rx-home-polish .rx-listing-card__location {
-  color: #9ca3af;
-}
 
-[data-theme="dark"] .rx-page-home .rx-home-polish .rx-listing-card__heart {
-  border-color: rgb(255 255 255 / 0.16);
-  background: rgb(255 255 255 / 0.12);
-  box-shadow: 0 4px 18px rgb(0 0 0 / 0.28);
-}
 
-[data-theme="dark"] .rx-page-home .rx-home-polish .rx-listing-card__image {
-  background: #1f1f1f;
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .rx-page-home .rx-home-polish .rx-listing-card,
-  .rx-page-home .rx-home-polish .rx-listing-card:hover,
-  .rx-page-home .rx-home-polish .rx-listing-card:active,
-  .rx-page-home .rx-home-polish .rx-listing-card__heart,
-  .rx-page-home .rx-home-polish .rx-listing-card__heart:hover,
-  .rx-page-home .rx-home-polish .rx-listing-card__heart.is-animating {
-    transform: none;
-    transition: none;
-  }
-}
+

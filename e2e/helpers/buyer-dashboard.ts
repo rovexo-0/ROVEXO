@@ -25,15 +25,11 @@ export async function assertNoHorizontalOverflow(page: Page): Promise<void> {
   expect(overflow, "buyer dashboard must not scroll horizontally").toBe(false);
 }
 
-export async function applyTheme(page: Page, theme: "light" | "dark"): Promise<void> {
-  await page.emulateMedia({ colorScheme: theme });
-  await page.evaluate((mode) => {
-    if (mode === "dark") {
-      document.documentElement.dataset.theme = "dark";
-      document.documentElement.classList.add("dark");
-    } else {
-      delete document.documentElement.dataset.theme;
-      document.documentElement.classList.remove("dark");
-    }
-  }, theme);
+export async function applyTheme(page: Page, theme: "light" = "light"): Promise<void> {
+  void theme;
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.evaluate(() => {
+    document.documentElement.dataset.theme = "light";
+    document.documentElement.classList.remove("dark");
+  });
 }

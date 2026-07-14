@@ -7,14 +7,14 @@ const OUT = join(process.cwd(), "owner-review-screenshots", "phase1");
 const PAGES_DIR = join(OUT, "pages");
 
 type Device = { id: string; label: string; width: number; height: number };
-type Theme = "light" | "dark";
+type Theme = "light";
 
 const DEVICES: Device[] = [
   { id: "desktop", label: "Desktop", width: 1440, height: 900 },
   { id: "iphone", label: "iPhone", width: 390, height: 844 },
 ];
 
-const THEMES: Theme[] = ["light", "dark"];
+const THEMES: Theme[] = ["light"];
 
 const PAGES = [
   { id: "homepage", label: "Homepage", path: "/" },

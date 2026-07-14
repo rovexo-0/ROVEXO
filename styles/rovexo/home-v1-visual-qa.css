@@ -16,25 +16,7 @@
   background-color: #ffffff;
 }
 
-[data-theme="dark"] .rx-page.rx-page-home,
-[data-theme="dark"] .rx-page.rx-page-home.bg-background {
-  background-color: #000000;
-  background-image: none;
-}
 
-[data-theme="dark"] .rx-page-home .rx-home-final,
-[data-theme="dark"] .rx-page-home .rx-home-final .rx-section,
-[data-theme="dark"] .rx-page-home .rx-home-final .rx-home-category-sync,
-[data-theme="dark"] .rx-page-home .rx-home-final .rx-category-rail-section,
-[data-theme="dark"] .rx-page-home .rx-home-final .rx-hero-section {
-  background-color: transparent;
-}
-
-/* ── Header: align row height with search pill ── */
-.rx-page-home .rx-header-premium__row {
-  align-items: center;
-  min-height: 48px;
-}
 
 @media (min-width: 640px) {
   .rx-page-home .rx-header-premium__row {
