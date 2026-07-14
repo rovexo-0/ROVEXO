@@ -1,56 +1,14 @@
 /**
- * ROVEXO Settings hub — Sprint 1 canonical foundation v1.0.
- * Flat sections. Light theme only. UI inventory SSOT.
+ * ROVEXO Settings hub — canonical menu v1.0 (flat sections).
+ * Routes map to existing account surfaces; logical /settings/* names in comments only.
  */
-
-export type SettingsRowKind = "link" | "toggle" | "meta" | "action";
-
-export type SettingsToggleKey =
-  | "pushEnabled"
-  | "emailMessages"
-  | "orders"
-  | "emailMarketing";
-
-export type SettingsMenuIcon =
-  | "mail"
-  | "phone"
-  | "user"
-  | "lock"
-  | "shield"
-  | "eye"
-  | "ban"
-  | "download"
-  | "trash"
-  | "bell"
-  | "credit-card"
-  | "landmark"
-  | "percent"
-  | "file-text"
-  | "scroll-text"
-  | "cookie"
-  | "scale"
-  | "help-circle"
-  | "message-circle"
-  | "flag"
-  | "info"
-  | "hash";
 
 export type SettingsMenuRow = {
   id: string;
   title: string;
-  subtitle?: string;
-  href?: string;
+  subtitle: string;
+  href: string;
   icon: SettingsMenuIcon;
-  kind?: SettingsRowKind;
-  /** NotificationSettings field when kind === "toggle". */
-  toggleKey?: SettingsToggleKey;
-  comingSoon?: boolean;
-  /** Static meta value (About). */
-  value?: string;
-  /** Destructive row style. */
-  destructive?: boolean;
-  /** Opens Delete Account flow. */
-  action?: "delete-account";
 };
 
 export type SettingsMenuSection = {
@@ -58,6 +16,26 @@ export type SettingsMenuSection = {
   title: string;
   rows: SettingsMenuRow[];
 };
+
+export type SettingsMenuIcon =
+  | "user"
+  | "location"
+  | "credit-card"
+  | "bell"
+  | "lock"
+  | "people"
+  | "phone"
+  | "shield"
+  | "star"
+  | "megaphone"
+  | "wallet"
+  | "settings"
+  | "moon"
+  | "globe"
+  | "headset"
+  | "document"
+  | "info"
+  | "logout";
 
 function withReturn(href: string, returnTo: string | null): string {
   return returnTo ? `${href}?returnTo=${encodeURIComponent(returnTo)}` : href;
@@ -72,137 +50,127 @@ export function buildSettingsMenuSections(returnTo: string | null): SettingsMenu
       title: "ACCOUNT",
       rows: [
         {
-          id: "email",
-          title: "Email",
-          subtitle: "Account email address",
-          href: href("/account/profile"),
-          icon: "mail",
-        },
-        {
-          id: "phone",
-          title: "Phone Number",
-          subtitle: "Mobile number for verification",
-          href: href("/account/profile"),
-          icon: "phone",
-        },
-        {
-          id: "username",
-          title: "Username",
-          subtitle: "Public username",
+          id: "profile",
+          title: "Profile",
+          subtitle: "Name, photo, and public profile",
           href: href("/account/profile"),
           icon: "user",
         },
         {
-          id: "change-password",
-          title: "Change Password",
-          subtitle: "Update your password",
-          href: href("/account/security"),
-          icon: "lock",
+          id: "addresses",
+          title: "Addresses",
+          subtitle: "Delivery and billing addresses",
+          href: href("/account/addresses"),
+          icon: "location",
         },
         {
-          id: "two-factor",
-          title: "Two-Factor Authentication",
-          subtitle: "Add an extra layer of security",
-          href: href("/account/security"),
-          icon: "shield",
-          comingSoon: true,
+          id: "payment-methods",
+          title: "Payment Methods",
+          subtitle: "Cards and payment options",
+          href: href("/wallet/payment-methods"),
+          icon: "credit-card",
+        },
+        {
+          id: "notifications",
+          title: "Notifications",
+          subtitle: "Alerts, email, and push",
+          href: href("/notifications/settings"),
+          icon: "bell",
         },
       ],
     },
     {
-      id: "privacy",
-      title: "PRIVACY",
+      id: "security",
+      title: "SECURITY",
       rows: [
         {
-          id: "profile-visibility",
-          title: "Profile Visibility",
-          subtitle: "Who can see your profile",
-          href: href("/account/privacy"),
-          icon: "eye",
+          id: "privacy-security",
+          title: "Privacy & Security",
+          subtitle: "Password, privacy, and data",
+          href: href("/account/security"),
+          icon: "lock",
+        },
+        {
+          id: "connected-accounts",
+          title: "Connected Accounts",
+          subtitle: "Linked social and sign-in",
+          href: href("/account/security"),
+          icon: "people",
+        },
+        {
+          id: "devices",
+          title: "Devices & Sessions",
+          subtitle: "Active devices and logins",
+          href: href("/account/security"),
+          icon: "phone",
         },
         {
           id: "blocked-users",
           title: "Blocked Users",
           subtitle: "People you've blocked",
           href: href("/account/blocked-users"),
-          icon: "ban",
-        },
-        {
-          id: "download-data",
-          title: "Download My Data",
-          subtitle: "Request a copy of your data",
-          href: "/support?category=data-export",
-          icon: "download",
-        },
-        {
-          id: "delete-account",
-          title: "Delete Account",
-          subtitle: "Permanently delete your account",
-          icon: "trash",
-          kind: "action",
-          action: "delete-account",
-          destructive: true,
+          icon: "people",
         },
       ],
     },
     {
-      id: "notifications",
-      title: "NOTIFICATIONS",
+      id: "marketplace",
+      title: "MARKETPLACE",
       rows: [
         {
-          id: "push-notifications",
-          title: "Push Notifications",
-          kind: "toggle",
-          toggleKey: "pushEnabled",
-          icon: "bell",
+          id: "business-verification",
+          title: "Business Verification",
+          subtitle: "Company and trade details",
+          href: href("/trust"),
+          icon: "shield",
         },
         {
-          id: "email-notifications",
-          title: "Email Notifications",
-          kind: "toggle",
-          toggleKey: "emailMessages",
-          icon: "mail",
+          id: "seller-performance",
+          title: "Seller Performance",
+          subtitle: "Reputation score and achievements",
+          href: href("/seller/performance"),
+          icon: "star",
         },
         {
-          id: "order-updates",
-          title: "Order Updates",
-          kind: "toggle",
-          toggleKey: "orders",
-          icon: "bell",
+          id: "promotion-tools",
+          title: "Promotion Tools",
+          subtitle: "Boost listings and campaigns",
+          href: href("/account/promotion-tools"),
+          icon: "megaphone",
         },
         {
-          id: "marketing-emails",
-          title: "Marketing Emails",
-          kind: "toggle",
-          toggleKey: "emailMarketing",
-          icon: "mail",
+          id: "wallet",
+          title: "Wallet",
+          subtitle: "Balance, payouts, and transactions",
+          href: href("/wallet"),
+          icon: "wallet",
         },
       ],
     },
     {
-      id: "payments",
-      title: "PAYMENTS",
+      id: "preferences",
+      title: "PREFERENCES",
       rows: [
         {
-          id: "payment-methods",
-          title: "Payment Methods",
-          subtitle: "Cards and checkout options",
-          href: href("/wallet/payment-methods"),
-          icon: "credit-card",
+          id: "preferences",
+          title: "Preferences",
+          subtitle: "Shopping and recommendations",
+          href: href("/account/buyer/preferences"),
+          icon: "settings",
         },
         {
-          id: "bank-account",
-          title: "Connected Bank Account",
-          subtitle: "Payout bank details",
-          href: href("/wallet/bank-account"),
-          icon: "landmark",
+          id: "language-currency",
+          title: "Language & Currency",
+          subtitle: "Region, language, and currency",
+          href: href("/account/preferences/language"),
+          icon: "globe",
         },
         {
-          id: "platform-fees",
-          title: "Platform Fees",
-          subtitle: "Read-only fee information",
-          href: "/legal/platform-fee-policy",
-          icon: "percent",
+          id: "accessibility",
+          title: "Accessibility",
+          subtitle: "Accessibility options and statement",
+          href: "/legal/accessibility-statement",
+          icon: "headset",
         },
       ],
     },
@@ -211,52 +179,18 @@ export function buildSettingsMenuSections(returnTo: string | null): SettingsMenu
       title: "LEGAL",
       rows: [
         {
-          id: "terms",
-          title: "Terms & Conditions",
-          href: "/legal/terms-and-conditions",
-          icon: "file-text",
+          id: "terms-policies",
+          title: "Terms & Policies",
+          subtitle: "Terms, privacy, and cookies",
+          href: "/legal",
+          icon: "document",
         },
         {
-          id: "privacy-policy",
-          title: "Privacy Policy",
-          href: "/legal/privacy-policy",
-          icon: "scroll-text",
-        },
-        {
-          id: "cookie-policy",
-          title: "Cookie Policy",
-          href: "/legal/cookie-policy",
-          icon: "cookie",
-        },
-        {
-          id: "marketplace-rules",
-          title: "Marketplace Rules",
-          href: "/legal/community-guidelines",
-          icon: "scale",
-        },
-      ],
-    },
-    {
-      id: "support",
-      title: "SUPPORT",
-      rows: [
-        {
-          id: "help",
-          title: "Help Centre",
-          href: "/help",
-          icon: "help-circle",
-        },
-        {
-          id: "contact",
-          title: "Contact Support",
-          href: "/support",
-          icon: "message-circle",
-        },
-        {
-          id: "report",
-          title: "Report a Problem",
-          href: "/support?category=report",
-          icon: "flag",
+          id: "about",
+          title: "About ROVEXO",
+          subtitle: "App version and information",
+          href: "/account/settings/about",
+          icon: "info",
         },
       ],
     },

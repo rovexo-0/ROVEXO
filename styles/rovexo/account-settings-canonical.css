@@ -1,121 +1,48 @@
 /**
- * ROVEXO Settings hub — Sprint 1 canonical foundation v1.0.
- * Cards 20px · padding 20px · section gap 16px · rows 56px · header 64px · max 430px.
+ * ROVEXO Settings hub — canonical v1.0 layout tokens.
+ * 16px radius, 64px rows, 24px section gap, #EFEFEF dividers.
  */
 
-.settings-canonical-shell .account-canonical,
-.settings-canonical-shell .cds-layout--account-canonical {
-  max-width: 430px;
-  margin-inline: auto;
-}
-
-.settings-canonical-shell .account-canonical-header__bar--titled {
-  min-height: 64px;
-  height: 64px;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 20px;
-  padding-right: 20px;
-  grid-template-columns: 40px 1fr 40px;
-  gap: 8px;
-  box-shadow: none;
-  border-bottom: 1px solid var(--cds-color-border, rgb(15 23 42 / 0.08));
-}
-
-.settings-canonical-shell .cds-header__back {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-}
-
-.settings-canonical-shell .account-canonical-header__title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--cds-color-text-primary, #111111);
-}
-
-.settings-canonical-shell .account-canonical-header__spacer,
-.settings-canonical-shell .account-canonical-header__action {
-  width: 40px;
-  height: 40px;
-}
-
-.settings-canonical-shell__content {
-  max-width: 430px;
-  margin-inline: auto;
-  padding-left: 20px !important;
-  padding-right: 20px !important;
-  padding-top: 16px !important;
-}
-
 .settings-canonical {
-  --cds-space-section-gap: 16px;
-  --cds-radius-card: 20px;
-  --cds-row-min-height: 56px;
-  --cds-row-padding-x: 20px;
-  --cds-color-divider: rgb(15 23 42 / 0.08);
+  --cds-space-section-gap: 24px;
+  --cds-radius-card: 16px;
+  --cds-row-min-height: 64px;
+  --cds-row-padding-x: 16px;
+  --cds-color-divider: #efefef;
   display: flex;
   flex-direction: column;
   gap: var(--cds-space-section-gap);
   width: 100%;
-  max-width: 430px;
-  margin-inline: auto;
 }
 
 .settings-canonical__card {
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: none;
-  border: 1px solid var(--cds-color-border, rgb(15 23 42 / 0.08));
-  background: #ffffff;
+  border-radius: 16px;
 }
 
-.settings-canonical .cds-menu-row {
-  min-height: 56px;
-  padding-inline: 20px;
-  transition: background-color 120ms ease;
+.settings-canonical__danger-card {
+  border-color: rgb(254 202 202 / 0.65);
+  background: #fef2f2;
 }
 
-.settings-canonical .cds-menu-row:active:not(:disabled) {
-  background: rgb(15 23 42 / 0.03);
-}
-
-.settings-canonical .cds-toggle-row {
-  min-height: 56px;
-  padding-inline: 20px;
-}
-
-.settings-canonical__toggles {
-  display: flex;
-  flex-direction: column;
-}
-
-.settings-canonical__soon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgb(147 51 234 / 0.08);
-  color: #7c3aed;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
+.settings-canonical__danger-card .cds-menu-row:active:not(:disabled) {
+  background: rgb(254 226 226 / 0.55);
 }
 
 .settings-canonical__danger-icon {
   display: inline-flex;
-  color: var(--cds-color-danger, #ef4444);
+  color: var(--cds-color-danger);
 }
 
 .settings-canonical .cds-menu-row__title--danger {
   justify-content: flex-start;
   width: auto;
-  color: var(--cds-color-danger, #ef4444);
+  color: var(--cds-color-danger);
 }
 
-.settings-canonical .cds-section__title {
-  letter-spacing: 0.06em;
-}
+
+
+
+
+
+
+

@@ -37,13 +37,11 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
     const menu = readSource("lib/account-center/settings-menu.ts");
     expect(settings).toContain("AccountCanonicalShell");
     expect(settings).toContain("SettingsMenuSections");
-    expect(menu).toContain('"Email"');
-    expect(menu).toContain('"Delete Account"');
-    expect(menu).toContain('"Payment Methods"');
-    expect(menu).toContain('"Help Centre"');
-    expect(menu).toContain("Download My Data");
-    expect(menu).not.toContain("Appearance");
+    expect(menu).toContain('"Profile"');
+    expect(menu).toContain('"Seller Performance"');
+    expect(menu).toContain('"Wallet"');
     expect(menu).not.toContain("Identity Verification");
+    expect(menu).not.toContain("Download My Data");
     expect(readSource("features/account-module/components/SettingsMenuSections.tsx")).toContain(
       "DeleteAccountFlow",
     );
