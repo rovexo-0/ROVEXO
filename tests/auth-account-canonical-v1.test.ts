@@ -79,19 +79,18 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     );
   });
 
-  it("consolidates account features under Settings", () => {
+  it("consolidates account features under Settings foundation", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
     const menu = readSource("lib/account-center/settings-menu.ts");
 
     expect(settings).toContain("AccountCanonicalShell");
     expect(settings).toContain("SettingsMenuSections");
-    expect(menu).toContain('"Profile"');
-    expect(menu).toContain('"Addresses"');
+    expect(menu).toContain('"Email"');
+    expect(menu).toContain('"Change Password"');
     expect(menu).toContain('"Payment Methods"');
-    expect(menu).toContain('"Notifications"');
-    expect(menu).toContain('"Seller Performance"');
+    expect(menu).toContain('"Help Centre"');
     expect(menu).not.toContain('"Appearance"');
-    expect(settings).not.toContain("Help Centre");
+    expect(menu).not.toContain('"Language"');
     expect(settings).not.toContain("SettingsAccordion");
   });
 

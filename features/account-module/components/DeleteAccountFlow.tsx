@@ -66,7 +66,7 @@ export function DeleteAccountFlow({ className, standalone = false, dangerRow = f
       description="Permanently remove your account"
       destructive
       className={className}
-      icon={<SettingsMenuIconGlyph name="logout" danger />}
+      icon={<SettingsMenuIconGlyph name="trash" danger />}
       onClick={openFlow}
     />
   ) : standalone ? (

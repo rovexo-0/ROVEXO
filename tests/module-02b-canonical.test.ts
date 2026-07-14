@@ -45,23 +45,21 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     expect(titles).toContain("Settings");
     expect(titles).not.toContain("Contact Support");
     expect(readSource("lib/account-center/canonical-menu.ts")).not.toContain("Contact Support");
-    expect(readSource("lib/account-center/settings-menu.ts")).toContain("Promotion Tools");
+    expect(readSource("lib/account-center/settings-menu.ts")).toContain("Payment Methods");
   });
 
-  it("locks Settings hub sections for Module 02B", () => {
+  it("locks Settings hub Sprint 1 foundation sections", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
     const menu = readSource("lib/account-center/settings-menu.ts");
     const sections = readSource("features/account-module/components/SettingsMenuSections.tsx");
 
     expect(settings).toContain("AccountCanonicalShell");
     expect(settings).toContain("SettingsMenuSections");
-    expect(menu).toContain('"Profile"');
-    expect(menu).toContain('"Addresses"');
+    expect(menu).toContain('"Email"');
     expect(menu).toContain('"Payment Methods"');
-    expect(menu).toContain('"Notifications"');
-    expect(menu).toContain('"Privacy & Security"');
-    expect(menu).toContain('"Seller Performance"');
     expect(menu).toContain('"LEGAL"');
+    expect(menu).toContain('"SUPPORT"');
+    expect(menu).toContain('"Help Centre"');
     expect(settings).not.toContain("🗑 Account");
     expect(settings).not.toContain("Identity Verification");
     expect(sections).toContain("DeleteAccountFlow");
