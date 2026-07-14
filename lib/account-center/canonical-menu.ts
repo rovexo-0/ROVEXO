@@ -1,6 +1,6 @@
 /**
- * ROVEXO My Account — canonical menu Sprint 1 foundation.
- * Single account hub for every authenticated user (buy + sell + business tools).
+ * ROVEXO My Account — canonical menu (final visual QA list).
+ * Single account hub for every authenticated user.
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
 import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
@@ -32,38 +32,31 @@ export const ACCOUNT_LOGOUT_MENU_ITEM: AccountMenuItem = {
 };
 
 /**
- * Classic account list — Sprint 1 SSOT.
- * Business tools row only when business verification is enabled (not an account type).
+ * Classic account list — exact hub rows (no Promotion Tools / Help / Ideas).
  */
 export function buildAccountMenuSections(profile: UserProfile): AccountMenuSection[] {
-  const items: AccountMenuItem[] = [
-    { id: "listings", title: "My Listings", href: "/seller/listings", icon: "listings" },
-    { id: "orders", title: "Orders", href: "/orders", icon: "orders", badgeKeys: ["orders"] },
+  void profile;
+  return [
     {
-      id: "inbox",
-      title: "Inbox",
-      href: "/inbox",
-      icon: "messages",
-      badgeKeys: ["messages"],
+      id: "primary",
+      items: [
+        { id: "listings", title: "My Listings", href: "/seller/listings", icon: "listings" },
+        { id: "orders", title: "Orders", href: "/orders", icon: "orders", badgeKeys: ["orders"] },
+        {
+          id: "inbox",
+          title: "Inbox",
+          href: "/inbox",
+          icon: "messages",
+          badgeKeys: ["messages"],
+        },
+        { id: "wallet", title: "Wallet", href: "/wallet", icon: "wallet" },
+        { id: "reviews", title: "Reviews", href: "/account/reviews", icon: "reviews" },
+        { id: "saved", title: "Saved", href: "/saved", icon: "saved", badgeKeys: ["saved"] },
+        { id: "following", title: "Following", href: "/account/followers", icon: "following" },
+        { id: "settings", title: "Settings", href: "/account/settings", icon: "settings" },
+      ],
     },
-    { id: "wallet", title: "Wallet", href: "/wallet", icon: "wallet" },
-    { id: "reviews", title: "Reviews", href: "/account/reviews", icon: "reviews" },
-    { id: "saved", title: "Saved", href: "/saved", icon: "saved", badgeKeys: ["saved"] },
-    { id: "following", title: "Following", href: "/account/followers", icon: "following" },
   ];
-
-  if (profile.capabilities.hasBusinessVerification) {
-    items.push({
-      id: "business-tools",
-      title: "Business tools",
-      href: "/business/dashboard",
-      icon: "business",
-    });
-  }
-
-  items.push({ id: "settings", title: "Settings", href: "/account/settings", icon: "settings" });
-
-  return [{ id: "primary", items }];
 }
 
 /** @deprecated Use buildAccountMenuSections — flat list for legacy callers. */

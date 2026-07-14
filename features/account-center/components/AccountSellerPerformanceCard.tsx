@@ -15,6 +15,7 @@ type AccountSellerPerformanceCardProps = {
 /** Compact seller performance summary — opens frozen dashboard at /seller/performance. */
 export function AccountSellerPerformanceCard({ performance }: AccountSellerPerformanceCardProps) {
   const router = useRouter();
+  const noSales = performance.totalSales === 0;
 
   const openPerformanceDashboard = useCallback(() => {
     router.push("/seller/performance");
@@ -34,10 +35,16 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
           className={cn("ac-v1__seller-link", focusRing)}
           aria-label="View seller performance details"
         >
-          View Details
+          View Details →
           <ChevronRight className="ac-v1__seller-chevron" strokeWidth={1.75} aria-hidden />
         </button>
       </div>
+
+      {noSales ? (
+        <p className="ac-v1__seller-empty" role="status">
+          Complete your first sale to unlock your performance score.
+        </p>
+      ) : null}
 
       <div className="ac-v1__seller-metrics">
         <div className="ac-v1__seller-metric">

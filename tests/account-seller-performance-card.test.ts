@@ -20,6 +20,7 @@ describe("My Account Seller Performance card", () => {
     expect(card).toContain("View Details");
     expect(card).toContain("AccountSellerLevelBadge");
     expect(card).toContain("Response Rate");
+    expect(card).toContain("Complete your first sale to unlock your performance score.");
     expect(card).toContain('data-ac-seller-performance="v1.0-compact"');
   });
 

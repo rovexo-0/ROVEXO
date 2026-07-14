@@ -36,7 +36,6 @@ describe("My Account Sprint 1 foundation", () => {
   it("marks sprint 1 foundation on the hub", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
     const page = readSource("features/account-center/components/AccountCenterPage.tsx");
-    const header = readSource("features/account-canonical/header/AccountCanonicalHeader.tsx");
 
     expect(home).toContain('data-account-version="v1.0"');
     expect(home).toContain('data-account-sprint="1-foundation"');
@@ -44,13 +43,11 @@ describe("My Account Sprint 1 foundation", () => {
     expect(home).toContain("AccountSellerPerformanceCard");
     expect(home).toContain("AccountMenuSections");
     expect(home).not.toContain("AccountStatsStrip");
-    expect(page).toContain("identity=");
-    expect(page).not.toContain("hideBack");
-    expect(header).toContain("data-account-header");
-    expect(header).toContain("identity");
+    expect(page).not.toContain("identity=");
+    expect(page).toContain('backHref="/"');
   });
 
-  it("builds the sprint 1 classic menu", () => {
+  it("builds the exact classic menu", () => {
     const titles = buildAccountMenuSections(baseProfile).flatMap((s) => s.items.map((i) => i.title));
     expect(titles).toEqual([
       "My Listings",
@@ -62,21 +59,11 @@ describe("My Account Sprint 1 foundation", () => {
       "Following",
       "Settings",
     ]);
-
-    const withBusiness: UserProfile = {
-      ...baseProfile,
-      capabilities: resolveAccountCapabilities({
-        role: "buyer",
-        verified: true,
-        hasSellerProfile: true,
-        hasBusinessAccount: true,
-      }),
-    };
-    const businessTitles = buildAccountMenuSections(withBusiness).flatMap((s) =>
-      s.items.map((i) => i.title),
-    );
-    expect(businessTitles).toContain("Business tools");
-    expect(businessTitles).not.toContain("Become Seller");
+    expect(titles).not.toContain("Business tools");
+    expect(titles).not.toContain("Promotion Tools");
+    expect(titles).not.toContain("Help Centre");
+    expect(titles).not.toContain("Ideas");
+    expect(titles).not.toContain("Become Seller");
   });
 
   it("confirms logout before signing out", () => {
@@ -91,14 +78,22 @@ describe("My Account Sprint 1 foundation", () => {
     expect(card).toContain('router.push("/seller/performance")');
     expect(card).toContain("Response Rate");
     expect(card).toContain("Completed Sales");
-    expect(card).toContain("View Details");
+    expect(card).toContain("View Details →");
+    expect(card).toContain("Complete your first sale to unlock your performance score.");
   });
 
-  it("applies wallet-matched visual QA marker", () => {
+  it("applies final visual QA polish tokens", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
     const css = readSource("styles/rovexo/account-canonical-v2.css");
-    expect(home).toContain('data-account-ui="visual-qa-wallet-match"');
+    expect(home).toContain('data-account-ui="final-visual-qa"');
     expect(css).toContain("--ac-shadow: 0 8px 24px");
+    expect(css).toContain("--ac-page-bg: #fafafa");
+    expect(css).toContain("font-size: 22px");
+    expect(css).toContain("width: 84px");
+    expect(css).toContain("height: 52px");
     expect(css).toContain("min-height: 56px");
+    expect(existsSync(join(process.cwd(), "docs/modules/account/MASTER_UI_SPECIFICATION.md"))).toBe(
+      true,
+    );
   });
 });

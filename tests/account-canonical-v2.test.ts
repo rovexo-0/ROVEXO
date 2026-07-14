@@ -44,7 +44,8 @@ describe("My Account canonical — Sprint 1 SSOT", () => {
     expect(home).toContain("AccountMenuSections");
     expect(home).not.toContain("AccountStatsStrip");
     expect(page).toContain("AccountCanonicalShell");
-    expect(page).toContain("identity=");
+    expect(page).not.toContain("identity=");
+    expect(page).toContain('backHref="/"');
     expect(css).toContain(".ac-v1");
     expect(css).toContain(".ac-v1__profile-card");
     expect(css).toContain(".ac-v1__seller-card");

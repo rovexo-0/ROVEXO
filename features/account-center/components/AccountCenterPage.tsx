@@ -20,15 +20,7 @@ export function AccountCenterPage({
   sellerPerformance,
 }: AccountCenterPageProps) {
   return (
-    <AccountCanonicalShell
-      title="My Account"
-      identity={{
-        name: profile.fullName || profile.username || "Account",
-        avatarUrl: profile.avatarUrl,
-        verified: profile.verified,
-      }}
-      backHref="/"
-    >
+    <AccountCanonicalShell title="My Account" backHref="/">
       <AccountCenterHome
         profile={profile}
         snapshot={snapshot}
