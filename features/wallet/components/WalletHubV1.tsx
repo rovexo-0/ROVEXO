@@ -11,10 +11,8 @@ import { formatCurrency } from "@/lib/wallet/utils";
 import type { WalletData } from "@/lib/wallet/types";
 import {
   BankLineIcon,
-  ChevronRightLineIcon,
   CreditCardLineIcon,
   DocumentLineIcon,
-  WalletLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import "@/styles/rovexo/wallet-hub-v1.css";
 
@@ -32,35 +30,6 @@ function HelpCircleIcon(props: IconProps) {
       <circle cx="12" cy="12" r="9" />
       <path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1.4.9-1.4 1.7" strokeLinecap="round" />
       <path d="M12 17h.01" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function CheckCircleLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="m8.5 12.5 2.5 2.5 4.5-5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function ClockLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function RefreshLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <path d="M21 12a9 9 0 0 0-15.5-6.4" strokeLinecap="round" />
-      <path d="M3 4v5h5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M3 12a9 9 0 0 0 15.5 6.4" strokeLinecap="round" />
-      <path d="M21 20v-5h-5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -103,46 +72,23 @@ const WalletRecentTransactions = dynamic(
 const WalletConnectedBank = dynamic(
   () =>
     import("@/features/wallet/components/WalletConnectedBank").then((mod) => mod.WalletConnectedBank),
-  { ssr: true, loading: () => <WalletSectionSkeleton label="Connected Bank" /> },
+  { ssr: true, loading: () => <WalletSectionSkeleton label="Connected Bank" hideTitle /> },
 );
 
-function WalletSectionSkeleton({ label, tall = false }: { label: string; tall?: boolean }) {
-  return (
-    <section className="wallet-v2__skeleton" aria-busy="true" aria-label={`Loading ${label}`}>
-      <div className="wallet-v2__skeleton-bar" />
-      <div className={cn("wallet-v2__skeleton-card", tall && "wallet-v2__skeleton-card--tall")} />
-    </section>
-  );
-}
-
-function BalanceListRow({
-  href,
-  title,
-  amount,
-  hint,
-  icon,
+function WalletSectionSkeleton({
+  label,
+  tall = false,
+  hideTitle = false,
 }: {
-  href: string;
-  title: string;
-  amount: number;
-  hint: string;
-  icon: ReactNode;
+  label: string;
+  tall?: boolean;
+  hideTitle?: boolean;
 }) {
   return (
-    <Link
-      href={href}
-      className="wallet-v2__balance-row"
-      aria-label={`${title}: ${formatCurrency(amount)}. ${hint}`}
-    >
-      <span className="wallet-v2__balance-icon" aria-hidden>
-        {icon}
-      </span>
-      <span className="wallet-v2__balance-label">{title}</span>
-      <span className="wallet-v2__balance-amount">{formatCurrency(amount)}</span>
-      <span className="wallet-v2__balance-chevron" aria-hidden>
-        <ChevronRightLineIcon />
-      </span>
-    </Link>
+    <section className="wallet-v2__skeleton" aria-busy="true" aria-label={`Loading ${label}`}>
+      {hideTitle ? null : <div className="wallet-v2__skeleton-bar" />}
+      <div className={cn("wallet-v2__skeleton-card", tall && "wallet-v2__skeleton-card--tall")} />
+    </section>
   );
 }
 
@@ -171,7 +117,6 @@ export function WalletHubV1({
   connectMessage,
 }: WalletHubV1Props) {
   const withdrawable = resolveManualWithdrawableBalance(data);
-  const { withdrawalSummary } = data;
   const connectedBank = data.withdrawMethods.find((method) => method.connected) ?? null;
   const walletVerified = data.connectStatus.connected && data.connectStatus.payoutsEnabled;
 
@@ -189,9 +134,9 @@ export function WalletHubV1({
     >
       <div
         className="wallet-v2"
-        data-wallet-hub-version="v1.1-ui"
+        data-wallet-hub-version="v1.2-ui"
         data-wallet-canonical={WALLET_CANONICAL_VERSION}
-        data-wallet-ui="v1.1-simplified"
+        data-wallet-ui="v1.2-simplified"
         data-wallet-visual="canonical-light"
         data-wallet-freeze="pending-visual-qa"
       >
@@ -233,43 +178,7 @@ export function WalletHubV1({
           </div>
         </section>
 
-        <section className="wallet-v2__balance-card" aria-label="Wallet balances">
-          <BalanceListRow
-            href={WALLET_ROUTES.transactions}
-            title="Pending"
-            amount={data.pendingBalance}
-            hint="Waiting for delivery"
-            icon={<ClockLineIcon />}
-          />
-          <BalanceListRow
-            href={WALLET_ROUTES.withdraw}
-            title="Available"
-            amount={withdrawable}
-            hint="Ready to withdraw"
-            icon={<WalletLineIcon />}
-          />
-          <BalanceListRow
-            href={WALLET_ROUTES.payouts}
-            title="Processing"
-            amount={withdrawalSummary.processingTotal}
-            hint="Being processed"
-            icon={<RefreshLineIcon />}
-          />
-          <BalanceListRow
-            href={WALLET_ROUTES.payouts}
-            title="Paid Out"
-            amount={withdrawalSummary.completedTotal}
-            hint="Total withdrawn"
-            icon={<CheckCircleLineIcon />}
-          />
-        </section>
-
-        <section className="wallet-v2__section wallet-v2__section--quick" aria-labelledby="wallet-quick-title">
-          <div className="wallet-v2__section-head">
-            <h2 id="wallet-quick-title" className="wallet-v2__section-title">
-              Quick Actions
-            </h2>
-          </div>
+        <section className="wallet-v2__section wallet-v2__section--quick" aria-label="Quick actions">
           <div className="wallet-v2__quick-card">
             <div className="wallet-v2__quick-grid">
               <QuickActionCard href={WALLET_ROUTES.bankAccount} label="Add Bank" icon={<AddBankIcon />} />

@@ -7,7 +7,7 @@ function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("Wallet v1.1 simplified UI SSOT", () => {
+describe("Wallet v1.2 simplified UI SSOT", () => {
   it("defines canonical wallet routes", () => {
     expect(WALLET_ROUTES.hub).toBe("/wallet");
     expect(WALLET_ROUTES.paymentMethods).toBe("/wallet/payment-methods");
@@ -17,23 +17,24 @@ describe("Wallet v1.1 simplified UI SSOT", () => {
     expect(WALLET_ROUTES.payouts).toBe("/wallet/payouts");
   });
 
-  it("matches v1.1 simplified structure and copy", () => {
+  it("matches v1.2 simplified structure and copy", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
     const css = readSource("styles/rovexo/wallet-hub-v1.css");
     const bank = readSource("features/wallet/components/WalletConnectedBank.tsx");
     const txns = readSource("features/wallet/components/WalletRecentTransactions.tsx");
     const insights = readSource("features/wallet/components/WalletInsights.tsx");
 
-    expect(hub).toContain('data-wallet-ui="v1.1-simplified"');
-    expect(hub).toContain('data-wallet-hub-version="v1.1-ui"');
+    expect(hub).toContain('data-wallet-ui="v1.2-simplified"');
+    expect(hub).toContain('data-wallet-hub-version="v1.2-ui"');
     expect(hub).toContain('data-wallet-freeze="pending-visual-qa"');
     expect(hub).toContain("wallet-v2__hero");
     expect(hub).toContain("Available Balance");
     expect(hub).toContain("wallet-v2__status-pill");
-    expect(hub).toContain("wallet-v2__balance-card");
-    expect(hub).toContain("Paid Out");
     expect(hub).toContain('label="Add Bank"');
-    expect(hub).toContain("Quick Actions");
+    expect(hub).toContain("wallet-v2__quick-card");
+    expect(hub).not.toContain("wallet-v2__balance-card");
+    expect(hub).not.toContain("Paid Out");
+    expect(hub).not.toContain("Quick Actions");
     expect(hub).not.toContain("wallet-v2__metrics");
     expect(hub).not.toContain("BalanceMetricCard");
     expect(hub).not.toContain("Lifetime Withdrawn");
@@ -55,6 +56,8 @@ describe("Wallet v1.1 simplified UI SSOT", () => {
     expect(bank).toContain("Change Bank");
     expect(bank).toContain("Edit Bank");
     expect(bank).toContain("Remove Bank");
+    expect(bank).not.toContain("wallet-v2__section-title");
+    expect(bank).not.toContain(">Connected Bank<");
 
     expect(txns).toContain("View all");
     expect(txns).toContain("No transactions yet");
@@ -67,18 +70,16 @@ describe("Wallet v1.1 simplified UI SSOT", () => {
     expect(css).toContain("height: 108px");
     expect(css).toContain("height: 118px");
     expect(css).toContain("height: 52px");
-    expect(css).toContain("height: 60px");
     expect(css).toContain("height: 96px");
     expect(css).toContain("font-size: 2.5rem");
-    expect(css).toContain("wallet-v2__balance-card");
     expect(css).toContain("wallet-v2__quick-card");
     expect(css).toContain("padding-left: 0");
     expect(css).toContain("overflow-x: clip");
     expect(css).toContain("--wallet-radius-hero: 24px");
     expect(css).toContain("--wallet-radius-card: 18px");
-    expect(css).toContain("--wallet-radius-list: 20px");
     expect(css).toContain("--wallet-radius-btn: 14px");
     expect(css).toContain("repeat(3, minmax(0, 1fr))");
+    expect(css).not.toContain("wallet-v2__balance-card");
     expect(css).not.toContain("wallet-v2__metrics");
     expect(css).not.toContain("prefers-color-scheme: dark");
     expect(css).not.toContain("background: #18181b");

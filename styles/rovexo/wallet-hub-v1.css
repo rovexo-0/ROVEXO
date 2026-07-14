@@ -291,88 +291,6 @@ html[data-theme="dark"] .wallet-v2,
   pointer-events: none;
 }
 
-/* —— Balance list (replaces 4 metric cards) —— */
-.wallet-v2__balance-card {
-  box-sizing: border-box;
-  margin-top: 20px;
-  padding: 20px;
-  border: 1px solid var(--wallet-border);
-  border-radius: var(--wallet-radius-list);
-  background: var(--wallet-surface);
-  box-shadow: var(--wallet-shadow-soft);
-}
-
-.wallet-v2__balance-row {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) auto 20px;
-  align-items: center;
-  column-gap: 12px;
-  box-sizing: border-box;
-  height: 60px;
-  min-height: 60px;
-  padding: 0;
-  border: none;
-  border-bottom: 1px solid #efefef;
-  background: transparent;
-  text-decoration: none;
-  color: var(--wallet-text);
-}
-
-.wallet-v2__balance-row:last-child {
-  border-bottom: none;
-}
-
-.wallet-v2__balance-row:focus-visible {
-  outline: 2px solid var(--wallet-purple);
-  outline-offset: 2px;
-  border-radius: 8px;
-}
-
-.wallet-v2__balance-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  color: var(--wallet-icon);
-}
-
-.wallet-v2__balance-icon svg {
-  width: 24px;
-  height: 24px;
-}
-
-.wallet-v2__balance-label {
-  font-size: 1.0625rem;
-  font-weight: 600;
-  line-height: 1.2;
-  color: #18181b;
-}
-
-.wallet-v2__balance-amount {
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  color: #111;
-  text-align: right;
-}
-
-.wallet-v2__balance-chevron {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  color: #c4c4c8;
-}
-
-.wallet-v2__balance-chevron svg {
-  width: 20px;
-  height: 20px;
-}
-
 /* —— Sections —— */
 .wallet-v2__section {
   display: flex;
@@ -383,6 +301,11 @@ html[data-theme="dark"] .wallet-v2,
 
 .wallet-v2__section--quick {
   margin-top: 24px;
+  gap: 0;
+}
+
+.wallet-v2__section--bank {
+  gap: 0;
 }
 
 .wallet-v2__section-head {
@@ -1041,7 +964,6 @@ html[data-theme="dark"] .wallet-v2,
 
 @media (prefers-reduced-motion: reduce) {
   .wallet-v2__hero-btn,
-  .wallet-v2__balance-row,
   .wallet-v2__quick,
   .wallet-v2__tab,
   .wallet-v2__txn,

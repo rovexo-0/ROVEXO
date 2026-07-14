@@ -79,10 +79,10 @@ describe("transaction hub seller wallet document 3", () => {
 
     expect(escrow).toContain("notifySellerFundsPending");
     expect(settlement).toContain("notifySellerFundsReleased");
-    expect(wallet).toContain("Waiting for delivery");
-    expect(wallet).toContain("Being processed");
-    expect(wallet).toContain("Paid Out");
     expect(wallet).toContain("Available Balance");
+    expect(wallet).toContain("wallet-v2__quick-card");
+    expect(wallet).toContain("WALLET_ROUTES.withdraw");
+    expect(wallet).not.toContain("wallet-v2__balance-card");
   });
 
   it("extends super admin finance dashboard metrics", () => {

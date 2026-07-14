@@ -36,13 +36,7 @@ export function WalletConnectedBank({ bank, verified }: WalletConnectedBankProps
   };
 
   return (
-    <section className="wallet-v2__section wallet-v2__section--bank" aria-labelledby="wallet-bank-title">
-      <div className="wallet-v2__section-head">
-        <h2 id="wallet-bank-title" className="wallet-v2__section-title">
-          Connected Bank
-        </h2>
-      </div>
-
+    <section className="wallet-v2__section wallet-v2__section--bank" aria-label="Connected bank">
       <div className="wallet-v2__bank-card">
         {bank ? (
           <>
