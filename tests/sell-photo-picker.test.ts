@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import {
   NATIVE_IMAGE_FALLBACK_ACCEPT,
@@ -14,6 +14,21 @@ import { SELL_PHOTO_MAX } from "@/features/sell/types";
 
 function readSource(relativePath: string): string {
   return readFileSync(path.join(process.cwd(), relativePath), "utf8");
+}
+
+function walkTsFiles(dir: string): string[] {
+  const entries = readdirSync(dir);
+  const files: string[] = [];
+  for (const entry of entries) {
+    const full = path.join(dir, entry);
+    const stats = statSync(full);
+    if (stats.isDirectory()) {
+      files.push(...walkTsFiles(full));
+      continue;
+    }
+    if (/\.(tsx?|jsx?)$/.test(entry)) files.push(full);
+  }
+  return files;
 }
 
 describe("sell photo picker (Android / Samsung)", () => {
@@ -39,7 +54,49 @@ describe("sell photo picker (Android / Samsung)", () => {
     expect(resolveNativeImageCapture("any")).toBeUndefined();
   });
 
-  it("sell Add Photos uses SellPhotoFileInput with image/* and no capture", () => {
+  it("has exactly one file-input photo picker implementation in features/sell", () => {
+    const sellRoot = path.join(process.cwd(), "features/sell");
+    const files = walkTsFiles(sellRoot);
+    const fileInputOwners = files.filter((file) => {
+      const source = readFileSync(file, "utf8");
+      return /type=["']file["']/.test(source);
+    });
+
+    const relative = fileInputOwners.map((file) =>
+      path.relative(process.cwd(), file).replace(/\\/g, "/"),
+    );
+
+    expect(relative).toEqual(["features/sell/ui/SellPhotoFileInput.tsx"]);
+    expect(existsSync(path.join(sellRoot, "ui/SellPhotoFileInput.tsx"))).toBe(true);
+  });
+
+  it("bans legacy / duplicate picker names inside the sell module", () => {
+    const sellRoot = path.join(process.cwd(), "features/sell");
+    const banned = [
+      "NativeImageFileInput",
+      "PhotoUploader",
+      "PhotoPicker",
+      "ImagePicker",
+      "FilePicker",
+      "GalleryPicker",
+      "CameraPicker",
+      "sourceSheetOpen",
+      "ActionSheet",
+      "BottomSheet",
+      'capture="environment"',
+      "capture='environment'",
+    ];
+
+    for (const file of walkTsFiles(sellRoot)) {
+      const source = readFileSync(file, "utf8");
+      const relative = path.relative(process.cwd(), file).replace(/\\/g, "/");
+      for (const token of banned) {
+        expect(source.includes(token), `${relative} must not contain ${token}`).toBe(false);
+      }
+    }
+  });
+
+  it("sell Add Photos uses only SellPhotoFileInput", () => {
     const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
     const input = readSource("features/sell/ui/SellPhotoFileInput.tsx");
 
