@@ -9,33 +9,55 @@ import { MakeOfferSheet } from "@/features/transaction-hub/MakeOfferSheet";
 import type { ConversationProduct, SenderRole } from "@/lib/messages/types";
 import { resolveChatBottomActions } from "@/lib/transaction-hub/chat-actions";
 import { TRANSACTION_HUB_COPY } from "@/lib/transaction-hub/canonical";
-import {
-  trackTransactionHubAddToCart,
-  trackTransactionHubShareListing,
-} from "@/lib/transaction-hub/analytics";
+import { trackTransactionHubAddToCart } from "@/lib/transaction-hub/analytics";
 import { addToCartFromHub } from "@/lib/transaction-hub/cart-engine";
-import { transactionHubListingHref } from "@/lib/transaction-hub/inbox-routes";
+import { formatCurrency } from "@/lib/wallet/utils";
+
+type PendingOffer = {
+  id: string;
+  amount: number;
+};
+
+type AcceptedOffer = {
+  id: string;
+  amount: number;
+};
 
 type TransactionHubBottomActionsProps = {
   conversationId: string;
   viewerRole: SenderRole;
   product: ConversationProduct;
+  /** Accepted offer — show Buy Now only; hide Make Offer / Add to Cart. */
+  acceptedOffer?: AcceptedOffer | null;
+  /** Buyer open offer — show pending + cancel instead of make offer. */
+  pendingOffer?: PendingOffer | null;
+  onCancelOffer?: (offerId: string) => void;
 };
 
 export function TransactionHubBottomActions({
   conversationId,
   viewerRole,
   product,
+  acceptedOffer = null,
+  pendingOffer = null,
+  onCancelOffer,
 }: TransactionHubBottomActionsProps) {
   const router = useRouter();
   const { pushToast } = useToast();
   const { refresh: refreshBadges } = useRealtimeNotifications();
   const [offerOpen, setOfferOpen] = useState(false);
-  const [busy, setBusy] = useState<"cart" | null>(null);
+  const [busy, setBusy] = useState<"cart" | "cancel" | null>(null);
+
+  const hasAcceptedOffer = acceptedOffer != null;
 
   const actions = useMemo(
-    () => resolveChatBottomActions({ viewerRole, product }),
-    [product, viewerRole],
+    () =>
+      resolveChatBottomActions({
+        viewerRole,
+        product,
+        hasAcceptedOffer,
+      }),
+    [hasAcceptedOffer, product, viewerRole],
   );
 
   const analyticsContext = useMemo(
@@ -72,94 +94,97 @@ export function TransactionHubBottomActions({
   }, [analyticsContext, product.slug, pushToast, refreshBadges]);
 
   const handleBuyNow = useCallback(() => {
-    router.push(`/checkout/${product.slug}?conversationId=${encodeURIComponent(conversationId)}`);
-  }, [conversationId, product.slug, router]);
+    const params = new URLSearchParams({
+      conversationId,
+    });
+    if (acceptedOffer?.id) {
+      params.set("offerId", acceptedOffer.id);
+    }
+    router.push(`/checkout/${product.slug}?${params.toString()}`);
+  }, [acceptedOffer, conversationId, product.slug, router]);
 
-  const handleShareListing = useCallback(async () => {
-    if (typeof window === "undefined") return;
-    const url = `${window.location.origin}${transactionHubListingHref(product.slug)}`;
-
+  const handleCancelOffer = useCallback(async () => {
+    if (!pendingOffer || !onCancelOffer) return;
+    setBusy("cancel");
     try {
-      if (navigator.share) {
-        await navigator.share({ title: product.title, url });
-        trackTransactionHubShareListing(analyticsContext);
-        return;
-      }
-
-      await navigator.clipboard.writeText(url);
-      trackTransactionHubShareListing(analyticsContext);
-      pushToast({
-        title: TRANSACTION_HUB_COPY.linkCopied,
-        variant: "success",
-      });
-    } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") return;
-
-      try {
-        await navigator.clipboard.writeText(url);
-        pushToast({
-          title: TRANSACTION_HUB_COPY.linkCopied,
-          variant: "success",
-        });
-      } catch {
-        pushToast({
-          title: "Unable to share listing.",
-          variant: "error",
-        });
-      }
+      onCancelOffer(pendingOffer.id);
+    } finally {
+      setBusy(null);
     }
-  }, [analyticsContext, product.slug, product.title, pushToast]);
+  }, [onCancelOffer, pendingOffer]);
 
-  if (viewerRole === "buyer") {
-    if (!actions.buyNow && !actions.makeOffer && !actions.addToCart) {
-      return null;
-    }
+  if (viewerRole !== "buyer") {
+    return null;
+  }
 
+  if (hasAcceptedOffer) {
     return (
-      <>
-        <div className="thub-v1__actions" data-transaction-hub-version="v1.0">
-          {actions.buyNow ? (
-            <CanonicalButton fullWidth disabled={busy !== null} onClick={handleBuyNow}>
-              Buy Now
-            </CanonicalButton>
-          ) : null}
-          {actions.makeOffer ? (
-            <CanonicalButton
-              fullWidth
-              variant="outline"
-              disabled={busy !== null}
-              onClick={() => setOfferOpen(true)}
-            >
-              Make Offer
-            </CanonicalButton>
-          ) : null}
-          {actions.addToCart ? (
-            <button
-              type="button"
-              className="thub-v1__action-tertiary"
-              disabled={busy !== null}
-              onClick={() => void handleAddToCart()}
-            >
-              {busy === "cart" ? "Adding…" : "Add to Cart"}
-            </button>
-          ) : null}
-        </div>
-
-        <MakeOfferSheet
-          open={offerOpen}
-          onClose={() => setOfferOpen(false)}
-          conversationId={conversationId}
-          product={product}
-        />
-      </>
+      <div className="thub-v1__actions" data-transaction-hub-version="v1.0">
+        <CanonicalButton fullWidth disabled={busy !== null} onClick={handleBuyNow}>
+          Buy Now
+          {acceptedOffer ? ` · ${formatCurrency(acceptedOffer.amount)}` : ""}
+        </CanonicalButton>
+      </div>
     );
   }
 
+  if (pendingOffer) {
+    return (
+      <div className="thub-v1__actions" data-transaction-hub-version="v1.0">
+        <p className="thub-v1__pending-label">Offer Pending</p>
+        <p className="thub-v1__pending-amount">{formatCurrency(pendingOffer.amount)}</p>
+        <CanonicalButton
+          fullWidth
+          variant="outline"
+          disabled={busy !== null}
+          onClick={() => void handleCancelOffer()}
+        >
+          {busy === "cancel" ? "Cancelling…" : "Cancel Offer"}
+        </CanonicalButton>
+      </div>
+    );
+  }
+
+  if (!actions.buyNow && !actions.makeOffer && !actions.addToCart) {
+    return null;
+  }
+
   return (
-    <div className="thub-v1__actions thub-v1__actions--seller" data-transaction-hub-version="v1.0">
-      <CanonicalButton fullWidth variant="outline" onClick={() => void handleShareListing()}>
-        Share Listing
-      </CanonicalButton>
-    </div>
+    <>
+      <div className="thub-v1__actions" data-transaction-hub-version="v1.0">
+        {actions.buyNow ? (
+          <CanonicalButton fullWidth disabled={busy !== null} onClick={handleBuyNow}>
+            Buy Now
+          </CanonicalButton>
+        ) : null}
+        {actions.makeOffer ? (
+          <CanonicalButton
+            fullWidth
+            variant="outline"
+            disabled={busy !== null}
+            onClick={() => setOfferOpen(true)}
+          >
+            Make Offer
+          </CanonicalButton>
+        ) : null}
+        {actions.addToCart ? (
+          <button
+            type="button"
+            className="thub-v1__action-tertiary"
+            disabled={busy !== null}
+            onClick={() => void handleAddToCart()}
+          >
+            {busy === "cart" ? "Adding…" : "Add to Cart"}
+          </button>
+        ) : null}
+      </div>
+
+      <MakeOfferSheet
+        open={offerOpen}
+        onClose={() => setOfferOpen(false)}
+        conversationId={conversationId}
+        product={product}
+      />
+    </>
   );
 }

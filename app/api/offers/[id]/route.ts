@@ -55,17 +55,38 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (error) {
       return NextResponse.json({ success: false, error: "Unable to accept offer." }, { status: 500 });
     }
+
+    const { data: product } = await supabase
+      .from("products")
+      .select("slug")
+      .eq("id", offer.product_id)
+      .maybeSingle();
+
+    const checkoutHref = product?.slug
+      ? `/checkout/${encodeURIComponent(product.slug)}?offerId=${encodeURIComponent(id)}`
+      : href;
+
     void emitSmartNotification({
       userId: offer.buyer_id,
-      eventType: "new_offer",
+      eventType: "offer_accepted",
       idempotencyKey: `offer-accept:${id}`,
       notificationType: "offer",
       title: "Offer accepted",
-      subtitle: "Your offer was accepted.",
-      href,
-      payload: { offerId: id },
+      subtitle: "Your offer was accepted. Complete checkout to buy.",
+      href: checkoutHref,
+      payload: {
+        offerId: id,
+        productId: offer.product_id,
+        productSlug: product?.slug,
+        acceptedOfferPrice: Number(offer.amount),
+      },
     });
-    return NextResponse.json({ success: true, status: "accepted" });
+    return NextResponse.json({
+      success: true,
+      status: "accepted",
+      acceptedOfferPrice: Number(offer.amount),
+      offerId: id,
+    });
   }
 
   if (parsed.data.action === "decline") {

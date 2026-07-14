@@ -49,13 +49,15 @@ describe("Inbox Hub v1.0 — CANONICAL FREEZE", () => {
     ]);
     expect([...INBOX_CONVERSATION_STATUS_RAIL]).toEqual([
       "Paid",
-      "Packed",
-      "Shipped",
-      "Delivered",
-      "Completed",
+      "Prep",
+      "Ship",
+      "Done",
+      "Paid",
     ]);
-    expect(INBOX_HUB_VISUAL_LOCK.cardRadiusPx).toBe(20);
-    expect(INBOX_HUB_VISUAL_LOCK.thumbSizePx).toBe(64);
+    expect(INBOX_HUB_VISUAL_LOCK.cardRadiusPx).toBe(16);
+    expect(INBOX_HUB_VISUAL_LOCK.cardPaddingPx).toBe(14);
+    expect(INBOX_HUB_VISUAL_LOCK.thumbSizePx).toBe(52);
+    expect(INBOX_HUB_VISUAL_LOCK.headerHeightPx).toBe(56);
     expect(INBOX_HUB_VISUAL_LOCK.purple).toBe("#6d28d9");
   });
 

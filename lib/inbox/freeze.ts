@@ -20,24 +20,24 @@ export const INBOX_HUB_LEGACY_REDIRECTS = [
   "/notifications",
 ] as const;
 
-/** Visual tokens locked at freeze (list hub). */
+/** Visual tokens — Vinted size system densify (UI only). */
 export const INBOX_HUB_VISUAL_LOCK = {
-  headerHeightPx: 64,
+  headerHeightPx: 56,
   controlSizePx: 40,
-  tabHeightPx: 44,
-  cardRadiusPx: 20,
-  cardPaddingPx: 20,
-  thumbSizePx: 64,
+  tabHeightPx: 40,
+  cardRadiusPx: 16,
+  cardPaddingPx: 14,
+  thumbSizePx: 52,
   pagePadXPx: 16,
   shadow: "0 8px 24px rgb(15 23 42 / 0.06)",
   purple: "#6d28d9",
 } as const;
 
-/** Conversation order rail labels locked at freeze. */
+/** Conversation order rail labels — compact display (same step ids). */
 export const INBOX_CONVERSATION_STATUS_RAIL = [
   "Paid",
-  "Packed",
-  "Shipped",
-  "Delivered",
-  "Completed",
+  "Prep",
+  "Ship",
+  "Done",
+  "Paid",
 ] as const;

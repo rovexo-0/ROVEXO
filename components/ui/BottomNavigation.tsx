@@ -151,6 +151,11 @@ export function BottomNavigation({
 
   if (!visible) return null;
 
+  // Transaction Hub conversation is full-screen — never mount bottom nav.
+  if (pathname.startsWith("/inbox/conversation")) {
+    return null;
+  }
+
   return (
     <nav
       data-bottom-nav="v2"

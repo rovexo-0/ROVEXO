@@ -139,11 +139,13 @@ describe("Official Listing Card — homepage grid lock", () => {
 
   it("uses canonical search placeholder and camera control", () => {
     const search = readSource("components/home/HomepageSearchField.tsx");
+    const camera = readSource("components/home/ImageSearchCamera.tsx");
     const header = readSource("components/header/RovexoHeaderV2.tsx");
 
     expect(search).toContain("Search for items or members");
-    expect(search).toContain("homepage-search__camera");
-    expect(search).toContain("Camera");
+    expect(search).toContain("ImageSearchCamera");
+    expect(camera).toContain("homepage-search__camera");
+    expect(camera).toContain("Camera");
     expect(header).toContain("hp-canonical-search");
   });
 

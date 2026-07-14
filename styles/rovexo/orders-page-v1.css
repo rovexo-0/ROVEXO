@@ -1,17 +1,17 @@
 /* ROVEXO Orders Page v1.1 — header simplification (back only) */
 
-/* Header: 64px · pad 20 · back 40×40 · no title · no right action · no spacer */
+/* Header: 56px · pad 16 · back 40×40 · no title · no right action · no spacer */
 .account-canonical:has(.orders-page) .account-canonical-header__bar {
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  min-height: 64px;
-  height: 64px;
+  min-height: 56px;
+  height: 56px;
   padding-top: 0;
   padding-bottom: 0;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 16px;
+  padding-right: 16px;
   gap: 0;
 }
 
@@ -42,10 +42,10 @@
 }
 
 .orders-page {
-  --orders-purple: #7c3aed;
-  --orders-muted: #64748b;
-  --orders-text: #111827;
-  --orders-border: #ececec;
+  --orders-purple: #6d28d9;
+  --orders-muted: #8b8b93;
+  --orders-text: #111111;
+  --orders-border: rgb(15 23 42 / 0.06);
   --orders-chip-border: #e5e7eb;
 
   box-sizing: border-box;
@@ -53,9 +53,9 @@
   max-width: 440px;
   margin: 0 auto;
   padding:
-    24px
+    16px
     max(16px, env(safe-area-inset-left, 0px))
-    max(24px, env(safe-area-inset-bottom, 0px))
+    max(16px, env(safe-area-inset-bottom, 0px))
     max(16px, env(safe-area-inset-right, 0px));
   overflow-x: hidden;
   background: #ffffff;
@@ -71,18 +71,18 @@
 .orders-page__tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 54px;
-  margin-bottom: 24px;
+  height: 40px;
+  margin-bottom: 14px;
   border-bottom: 1px solid var(--orders-border);
 }
 
 .orders-page__tab {
   position: relative;
-  height: 54px;
+  height: 40px;
   border: none;
   background: transparent;
   color: var(--orders-muted);
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -108,21 +108,21 @@
 .orders-page__chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
 }
 
 .orders-page__chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 46px;
+  height: 36px;
   min-width: 44px;
-  padding: 0 22px;
+  padding: 0 14px;
   border: 1px solid var(--orders-chip-border);
-  border-radius: 23px;
+  border-radius: 999px;
   background: #ffffff;
   color: #111111;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
@@ -138,47 +138,47 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 96px;
-  padding: 0 16px 48px;
+  margin-top: 64px;
+  padding: 0 16px 40px;
   text-align: center;
 }
 
 .orders-page__empty-icon {
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
   color: #111827;
   opacity: 0.35;
 }
 
 .orders-page__empty-title {
-  margin: 24px 0 0;
+  margin: 16px 0 0;
   max-width: 280px;
-  font-size: 26px;
+  font-size: 16px;
   font-weight: 700;
-  color: #111827;
+  color: #111111;
 }
 
 .orders-page__empty-sub {
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   max-width: 280px;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 400;
   line-height: 1.45;
-  color: #64748b;
+  color: #8b8b93;
 }
 
 .orders-page__list {
-  margin: 28px 0 0;
+  margin: 14px 0 0;
   padding: 0;
   list-style: none;
 }
 
 .orders-page__row {
   display: block;
-  padding: 16px 0;
+  padding: 14px 0;
   border-bottom: 1px solid var(--orders-border);
   color: var(--orders-text);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   text-decoration: none;
 }
@@ -189,17 +189,17 @@
 }
 
 .orders-page__skel--tab {
-  height: 54px;
+  height: 40px;
 }
 
 .orders-page__skel--chip {
-  width: 110px;
-  height: 46px;
-  border-radius: 23px;
+  width: 96px;
+  height: 36px;
+  border-radius: 999px;
 }
 
 .orders-page__skel--empty {
-  width: 80px;
-  height: 80px;
-  margin: 96px auto 0;
+  width: 72px;
+  height: 72px;
+  margin: 64px auto 0;
 }

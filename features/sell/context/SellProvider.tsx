@@ -247,6 +247,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
 
   useEffect(() => {
     if (!restoreDraft || initialDraft || editListingId) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoration intentionally populates the draft after its asynchronous storage read.
     void restoreLocalDraft();
   }, [editListingId, initialDraft, restoreDraft, restoreLocalDraft]);
 

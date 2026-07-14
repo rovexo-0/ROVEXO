@@ -71,6 +71,7 @@ describe("Enterprise UI system — header", () => {
   it("uses debounced inline search on the homepage header", () => {
     const header = readFileSync(join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     const searchField = readFileSync(join(process.cwd(), "components/home/HomepageSearchField.tsx"), "utf8");
+    const imageSearch = readFileSync(join(process.cwd(), "components/home/ImageSearchCamera.tsx"), "utf8");
     expect(header).toContain("HomepageSearchField");
     expect(searchField).toContain("RovexoIcon");
     expect(searchField).toContain("RovexoIcons.navigation.search");
@@ -78,6 +79,6 @@ describe("Enterprise UI system — header", () => {
     expect(searchField).toContain("useDebouncedValue");
     expect(searchField).not.toContain("BottomNavIcon3D");
     expect(searchField).toContain("ImageSearchCamera");
-    expect(searchField).toContain('aria-label="Image search"');
+    expect(imageSearch).toContain('aria-label="Image search"');
   });
 });

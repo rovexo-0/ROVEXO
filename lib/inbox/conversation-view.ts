@@ -1,6 +1,6 @@
 /**
  * Conversation Hub view model — Sprint 3 SSOT.
- * Order rail: Paid · Packed · Shipped · Delivered · Completed
+ * Order rail: Paid · Prep · Ship · Done · Paid (compact labels; step ids unchanged)
  */
 
 import type { ChatMessage, Conversation, ConversationProduct, SenderRole } from "@/lib/messages/types";
@@ -139,10 +139,10 @@ export type ConversationHubView = {
 
 const STEP_LABELS: Record<ConversationOrderStatusStepId, string> = {
   paid: "Paid",
-  packed: "Packed",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  completed: "Completed",
+  packed: "Prep",
+  shipped: "Ship",
+  delivered: "Done",
+  completed: "Paid",
 };
 
 const SYSTEM_EVENT_COPY: Record<ConversationSystemEventType, { title: string; subtitle: string }> = {
@@ -355,22 +355,30 @@ function buildTimeline(
   for (const offer of offers) {
     items.push({ kind: "offer", id: `offer-${offer.id}`, at: offer.createdAt, offer });
     if (offer.state === "accepted") {
+      const amountLabel = new Intl.NumberFormat("en-GB", {
+        style: "currency",
+        currency: offer.currency || "GBP",
+      }).format(offer.amount);
       items.push({
         kind: "system",
         id: `system-offer-accepted-${offer.id}`,
         at: offer.createdAt,
         event: "offer_accepted",
-        title: SYSTEM_EVENT_COPY.offer_accepted.title,
+        title: `${amountLabel} accepted`,
         subtitle: SYSTEM_EVENT_COPY.offer_accepted.subtitle,
       });
     }
     if (offer.state === "declined") {
+      const amountLabel = new Intl.NumberFormat("en-GB", {
+        style: "currency",
+        currency: offer.currency || "GBP",
+      }).format(offer.amount);
       items.push({
         kind: "system",
         id: `system-offer-declined-${offer.id}`,
         at: offer.createdAt,
         event: "offer_declined",
-        title: SYSTEM_EVENT_COPY.offer_declined.title,
+        title: `${amountLabel} declined`,
         subtitle: SYSTEM_EVENT_COPY.offer_declined.subtitle,
       });
     }

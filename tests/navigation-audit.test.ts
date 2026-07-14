@@ -194,12 +194,17 @@ describe("Navigation audit — source href scan", () => {
 
 describe("Navigation audit — auth and shell", () => {
   it("defines protected route prefixes in middleware", () => {
+    const protectedRoutes = readFileSync(
+      path.join(process.cwd(), "lib/auth/protected-routes.ts"),
+      "utf8",
+    );
     const middleware = readFileSync(
       path.join(process.cwd(), "lib/supabase/middleware.ts"),
       "utf8",
     );
+    expect(middleware).toContain("AUTH_PROTECTED_PREFIXES");
     for (const prefix of ["/buyer", "/seller", "/business", "/account", "/admin", "/super-admin", "/sell", "/import"]) {
-      expect(middleware).toContain(`"${prefix}"`);
+      expect(protectedRoutes).toContain(`"${prefix}"`);
     }
   });
 

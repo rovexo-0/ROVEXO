@@ -113,13 +113,12 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     expect(resolveSmartNotificationHref("order_shipped", { orderId: "ord1" })).toBe(
       "/orders/ord1?view=tracking",
     );
-    expect(resolveSmartNotificationHref("listing_sold", { productId: "p1" })).toBe(
-      "/saved?highlight=p1",
-    );
+    expect(resolveSmartNotificationHref("listing_sold", { productId: "p1" })).toBe("/orders");
+    expect(resolveSmartNotificationHref("listing_sold", { orderId: "ord1" })).toBe("/orders/ord1");
     expect(resolveSmartNotificationHref("payment_received", { transactionId: "t1" })).toBe(
       "/wallet/transactions/t1",
     );
-    expect(resolveSmartNotificationHref("trust_verification")).toBe(NOTIFICATION_ROUTES.settings);
+    expect(resolveSmartNotificationHref("trust_verification")).toBe("/account/security");
 
     expect(resolveNotificationTypeHref("follower")).toBe(NOTIFICATION_ROUTES.followers);
     expect(resolveNotificationTypeHref("review")).toBe(NOTIFICATION_ROUTES.reviews);
@@ -149,11 +148,14 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
 
   it("exposes Module 02B notification preference labels", () => {
     const prefs = readSource("features/notifications/components/NotificationSettingsPage.tsx");
+    const controls = readSource("lib/notifications/controls.ts");
 
-    expect(prefs).toContain("Saved Item Sold");
-    expect(prefs).toContain("Followed Seller New Listing");
-    expect(prefs).toContain("Followers");
-    expect(prefs).toContain("Push Notifications");
-    expect(prefs).toContain("Email Notifications");
+    expect(prefs).toContain("NOTIFICATION_USER_CONTROLS");
+    expect(controls).toContain("Push Notifications");
+    expect(controls).toContain("Email Notifications");
+    expect(controls).toContain("Order Notifications");
+    expect(controls).toContain("Offer Notifications");
+    expect(controls).toContain("Marketing Notifications");
+    expect(controls).toContain("Security Notifications");
   });
 });

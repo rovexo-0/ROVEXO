@@ -95,7 +95,7 @@ function resolveSuggestedOption(def: AttributeDef, suggestion: string | null): S
 
 export function SellProgressiveAttributes() {
 
-  const { draft, updateDraft, showValidation, pendingTitleRef, pendingDescriptionRef } = useSell();
+  const { draft, updateDraft, showValidation } = useSell();
 
   const { visibleAttributeDefs, scrollToNextStep } = useSellProgressiveFlow();
 
@@ -103,9 +103,9 @@ export function SellProgressiveAttributes() {
 
 
 
-  const title = pendingTitleRef.current || draft.title;
+  const title = draft.title;
 
-  const description = pendingDescriptionRef.current || draft.description;
+  const description = draft.description;
 
 
 

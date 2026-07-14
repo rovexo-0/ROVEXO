@@ -68,7 +68,7 @@ describe("Conversation Hub Sprint 3", () => {
     expect(css).toContain(".conv-hub");
   });
 
-  it("uses Paid · Packed · Shipped · Delivered · Completed rail", () => {
+  it("uses Paid · Prep · Ship · Done · Paid compact rail labels", () => {
     expect(CONVERSATION_HUB_VERSION).toBe("v1.0-frozen");
     expect(CONVERSATION_ORDER_STATUS_STEPS).toEqual([
       "paid",

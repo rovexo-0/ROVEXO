@@ -27,11 +27,13 @@ export function useCheckoutForm(
   options?: {
     liveShippingEnabled?: boolean;
     hubConversationId?: string;
+    offerId?: string | null;
     onDraftChange?: (draft: CheckoutDraft) => void;
   },
 ) {
   const liveShippingEnabled = options?.liveShippingEnabled ?? true;
   const hubConversationId = options?.hubConversationId;
+  const offerId = options?.offerId ?? null;
   const liveShippingActive = liveShippingEnabled;
   const [view, setView] = useState<CheckoutView>("checkout");
   const [draft, setDraft] = useState<CheckoutDraft>(initialDraft);
@@ -255,6 +257,7 @@ export function useCheckoutForm(
           shippingQuoteId: selectedQuote?.id ?? null,
           hubConversationId,
           paymentMethodId: walletPaymentMethodId,
+          offerId,
         }),
       });
 
@@ -293,7 +296,7 @@ export function useCheckoutForm(
     } finally {
       setIsSubmitting(false);
     }
-  }, [canPay, draft.addressId, draft.deliveryOption, hubConversationId, isSubmitting, product.slug, selectedQuote]);
+  }, [canPay, draft.addressId, draft.deliveryOption, hubConversationId, isSubmitting, offerId, product.slug, selectedQuote]);
 
   return {
     view,

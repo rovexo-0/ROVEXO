@@ -547,6 +547,10 @@ export function resolveCanonicalNotificationHref(
         : orderHref(context);
     case "offer":
       if (def.kind === "buyer.offer_accepted") {
+        if (context.productSlug && context.offerId) {
+          return `/checkout/${encodeURIComponent(context.productSlug)}?offerId=${encodeURIComponent(context.offerId)}`;
+        }
+        // Legacy deep link — app/checkout/page.tsx resolves to slug + locked price.
         return context.offerId
           ? `/checkout?offerId=${encodeURIComponent(context.offerId)}`
           : "/offers";

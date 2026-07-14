@@ -29,6 +29,9 @@ type CheckoutHubSheetProps = {
   onClose: () => void;
   productSlug: string;
   conversationId?: string;
+  /** Locked accepted offer — checkout must price from this, not listing price. */
+  offerId?: string | null;
+  acceptedOfferPrice?: number | null;
 };
 
 export function CheckoutHubSheet({
@@ -36,6 +39,8 @@ export function CheckoutHubSheet({
   onClose,
   productSlug,
   conversationId,
+  offerId = null,
+  acceptedOfferPrice = null,
 }: CheckoutHubSheetProps) {
   const router = useRouter();
   const [bootstrap, setBootstrap] = useState<CheckoutBootstrap | null>(null);
@@ -44,12 +49,11 @@ export function CheckoutHubSheet({
 
   useEffect(() => {
     if (!open) {
-      setBootstrap(null);
-      setError(null);
       return;
     }
 
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- bootstrap fetch on sheet open
     setLoading(true);
     setError(null);
 
@@ -76,8 +80,18 @@ export function CheckoutHubSheet({
         }
 
         const restoredDraft = loadHubCheckoutDraft(productSlug);
+        const lockedPrice =
+          acceptedOfferPrice != null &&
+          Number.isFinite(acceptedOfferPrice) &&
+          acceptedOfferPrice > 0
+            ? Math.round(acceptedOfferPrice * 100) / 100
+            : null;
+
         setBootstrap({
-          product: payload.product,
+          product:
+            lockedPrice != null
+              ? { ...payload.product, price: lockedPrice }
+              : payload.product,
           initialDraft: restoredDraft ?? payload.initialDraft,
           buyerPhone: payload.buyerPhone,
           liveShippingEnabled: payload.liveShippingEnabled,
@@ -93,7 +107,7 @@ export function CheckoutHubSheet({
         trackGaEvent("begin_checkout", {
           item_id: payload.product.id,
           item_name: payload.product.title,
-          value: payload.product.price,
+          value: lockedPrice ?? payload.product.price,
           currency,
           source: "transaction_hub_embedded",
         });
@@ -108,7 +122,7 @@ export function CheckoutHubSheet({
     return () => {
       cancelled = true;
     };
-  }, [conversationId, onClose, open, productSlug, router]);
+  }, [acceptedOfferPrice, conversationId, onClose, open, productSlug, router]);
 
   const handleDraftChange = useCallback(
     (draft: CheckoutDraft) => {
@@ -150,6 +164,7 @@ export function CheckoutHubSheet({
         <CheckoutHubContent
           bootstrap={bootstrap}
           conversationId={conversationId}
+          offerId={offerId}
           onClose={() => {
             clearHubCheckoutDraft(productSlug);
             onClose();
@@ -164,17 +179,20 @@ export function CheckoutHubSheet({
 function CheckoutHubContent({
   bootstrap,
   conversationId,
+  offerId,
   onClose,
   onDraftChange,
 }: {
   bootstrap: CheckoutBootstrap;
   conversationId?: string;
+  offerId?: string | null;
   onClose: () => void;
   onDraftChange: (draft: CheckoutDraft) => void;
 }) {
   const form = useCheckoutForm(bootstrap.product, bootstrap.initialDraft, {
     liveShippingEnabled: bootstrap.liveShippingEnabled,
     hubConversationId: conversationId,
+    offerId,
     onDraftChange,
   });
 

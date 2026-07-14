@@ -2,6 +2,10 @@
 
 export const TRANSACTION_HUB_VERSION = "v1.0" as const;
 
+/** Canonical freeze — Transaction Hub v1.0 approved production SSOT. */
+export const TRANSACTION_HUB_CANONICAL_STATUS = "CANONICAL_TRANSACTION_HUB_FROZEN_v1.0" as const;
+export const TRANSACTION_HUB_CANONICAL_FROZEN = true as const;
+
 /** Canonical chat bottom action priority — primary → tertiary. */
 export const CHAT_BOTTOM_ACTIONS = {
   buyNow: { id: "buy_now", label: "Buy Now", priority: "primary" },

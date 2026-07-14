@@ -70,7 +70,9 @@ function SellScreenInner({ freshSession, restoreDraft, onRecoveryResolved }: Sel
   }, [checkRecovery, freshSession, onRecoveryResolved]);
 
   useEffect(() => {
-    if (publishSuccess) setSuccessOpen(true);
+    if (!publishSuccess) return;
+    const openTimer = window.setTimeout(() => setSuccessOpen(true), 0);
+    return () => window.clearTimeout(openTimer);
   }, [publishSuccess]);
 
   const handleContinueDraft = useCallback(async () => {

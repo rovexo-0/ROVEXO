@@ -624,7 +624,7 @@ export function InboxPage() {
                             alt={conversation.product.title}
                             fill
                             className="inbox-hub__thumb-img"
-                            sizes="64px"
+                            sizes="52px"
                           />
                         </span>
                         <span className="inbox-hub__avatar">

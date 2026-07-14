@@ -17,9 +17,7 @@ import {
   BackLineIcon,
   ChevronRightLineIcon,
   DoubleCheckLineIcon,
-  GalleryLineIcon,
   MoreLineIcon,
-  SendLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { useChatRealtime, signalTyping } from "@/features/messages/hooks/use-chat-realtime";
@@ -40,6 +38,8 @@ import {
   type ConversationOfferView,
   type ConversationOrderStatusStep,
 } from "@/lib/inbox";
+import { TRANSACTION_HUB_CANONICAL_STATUS } from "@/lib/transaction-hub/canonical";
+import { transactionHubListingHref } from "@/lib/transaction-hub/inbox-routes";
 import type { ChatMessage, Conversation } from "@/lib/messages/types";
 import { formatMessageTime } from "@/lib/messages/utils";
 import type { Order } from "@/lib/orders/types";
@@ -56,15 +56,6 @@ type LoadState = "ready" | "loading" | "error" | "offline";
 type IconProps = SVGProps<SVGSVGElement>;
 
 const HISTORY_PAGE = 40;
-
-function CameraLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <path d="M4 8h3l2-2h6l2 2h3v11H4V8Z" strokeLinejoin="round" />
-      <circle cx="12" cy="13" r="3.5" />
-    </svg>
-  );
-}
 
 function PlusLineIcon(props: IconProps) {
   return (
@@ -135,6 +126,14 @@ function MessageBubble({
   );
 }
 
+const RAIL_DISPLAY_LABELS: Record<ConversationOrderStatusStep["id"], string> = {
+  paid: "Paid",
+  packed: "Packed",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  completed: "Completed",
+};
+
 function OrderStatusRail({
   steps,
   onSelect,
@@ -144,22 +143,28 @@ function OrderStatusRail({
 }) {
   return (
     <div className="conv-hub__rail" role="list" aria-label="Order status">
-      {steps.map((step) => (
-        <button
-          key={step.id}
-          type="button"
-          role="listitem"
-          className={cn(
-            "conv-hub__rail-step",
-            step.state === "complete" && "conv-hub__rail-step--complete",
-            step.state === "current" && "conv-hub__rail-step--current",
-          )}
-          onClick={() => onSelect(step)}
-        >
-          <span className="conv-hub__rail-dot" aria-hidden />
-          <span className="conv-hub__rail-label">{step.label}</span>
-        </button>
-      ))}
+      {steps.map((step) => {
+        const label = RAIL_DISPLAY_LABELS[step.id];
+        return (
+          <button
+            key={step.id}
+            type="button"
+            role="listitem"
+            aria-label={label}
+            className={cn(
+              "conv-hub__rail-step",
+              step.state === "complete" && "conv-hub__rail-step--complete",
+              step.state === "current" && "conv-hub__rail-step--current",
+            )}
+            onClick={() => onSelect({ ...step, label })}
+          >
+            <span className="conv-hub__rail-dot" aria-hidden />
+            <span className="conv-hub__rail-label" aria-hidden>
+              {label}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -220,6 +225,9 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [attachSheetOpen, setAttachSheetOpen] = useState(false);
   const pullStartY = useRef<number | null>(null);
   const typingTimer = useRef<number | null>(null);
 
@@ -375,6 +383,15 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
     [conversation, order, offers, dispute, typingLabel],
   );
 
+  const acceptedOffer = useMemo(
+    () => offers.find((offer) => offer.state === "accepted") ?? null,
+    [offers],
+  );
+  const pendingOffer = useMemo(
+    () => (acceptedOffer ? null : offers.find((offer) => offer.state === "open") ?? null),
+    [acceptedOffer, offers],
+  );
+
   const timelineWindow = useMemo(() => {
     const items = view.timeline;
     if (items.length <= historyCount) return items;
@@ -524,6 +541,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   const handleUploadFiles = async (files: FileList | null) => {
     const file = files?.[0];
     if (!file || conversation.blocked) return;
+    setAttachSheetOpen(false);
     setUploading(true);
     try {
       const uploaded = await uploadListingImage({ file, productId: conversation.product.id });
@@ -537,6 +555,28 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       setUploading(false);
       if (galleryInputRef.current) galleryInputRef.current.value = "";
       if (cameraInputRef.current) cameraInputRef.current.value = "";
+      if (videoInputRef.current) videoInputRef.current.value = "";
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const sharePayload = async (title: string, url: string) => {
+    setAttachSheetOpen(false);
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      pushToast({ title: "Link copied.", variant: "success" });
+    } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") return;
+      try {
+        await navigator.clipboard.writeText(url);
+        pushToast({ title: "Link copied.", variant: "success" });
+      } catch {
+        pushToast({ title: "Unable to share.", variant: "error" });
+      }
     }
   };
 
@@ -694,19 +734,33 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
 
   if (loadState === "loading" && !order && offers.length === 0 && conversation.messages.length === 0) {
     return (
-      <AccountCanonicalShell title="Conversation" hideBack bottomNavTab="saved" contentClassName="!p-0">
+      <AccountCanonicalShell
+        title="Conversation"
+        hideBack
+        showBottomNav={false}
+        bottomNavTab="saved"
+        contentClassName="!p-0"
+      >
         <ConversationSkeleton />
       </AccountCanonicalShell>
     );
   }
 
   return (
-    <AccountCanonicalShell title="Conversation" hideBack bottomNavTab="saved" contentClassName="!p-0">
+    <AccountCanonicalShell
+      title="Conversation"
+      hideBack
+      showBottomNav={false}
+      bottomNavTab="saved"
+      contentClassName="!p-0"
+    >
       <div
         className="conv-hub"
         data-conversation-hub={CONVERSATION_HUB_VERSION}
         data-conversation-freeze="FROZEN"
+        data-transaction-hub-freeze={TRANSACTION_HUB_CANONICAL_STATUS}
         data-conversation-realtime="live"
+        data-conversation-shell="fullscreen"
       >
         <header className="conv-hub__header">
           <button
@@ -816,7 +870,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
         >
           <Link href={view.orderDetailsHref} className="conv-hub__product">
             <span className="conv-hub__product-thumb">
-              <SafeImage src={view.product.imageUrl} alt={view.product.title} fill sizes="64px" />
+              <SafeImage src={view.product.imageUrl} alt={view.product.title} fill sizes="52px" />
             </span>
             <span className="conv-hub__product-body">
               <span className="conv-hub__product-title">{view.product.title}</span>
@@ -856,24 +910,18 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
           />
 
           {view.tracking ? (
-            <section className="conv-hub__section" aria-label="Tracking">
-              <h2 className="conv-hub__section-title">Tracking</h2>
-              <div className="conv-hub__section-row">
-                <span>Courier</span>
-                <span className="conv-hub__section-value">{view.tracking.courierName}</span>
-              </div>
-              <div className="conv-hub__section-row">
-                <span>Tracking number</span>
-                <span className="conv-hub__section-value">{view.tracking.trackingNumber}</span>
-              </div>
-              <div className="conv-hub__section-row">
-                <span>Status</span>
-                <span className="conv-hub__section-value">{view.tracking.statusLabel}</span>
-              </div>
-              {view.tracking.estimatedDelivery ? (
+            <section className="conv-hub__section conv-hub__section--delivery" aria-label="Tracking">
+              <h2 className="conv-hub__section-title">Expected delivery:</h2>
+              <p className="conv-hub__delivery-line">
+                <span className="conv-hub__delivery-name">
+                  {view.tracking.estimatedDelivery ?? "Pending"}
+                </span>
+                <span className="conv-hub__delivery-meta">{view.tracking.courierName}</span>
+              </p>
+              {view.tracking.trackingNumber ? (
                 <div className="conv-hub__section-row">
-                  <span>Estimated delivery</span>
-                  <span className="conv-hub__section-value">{view.tracking.estimatedDelivery}</span>
+                  <span>Tracking</span>
+                  <span className="conv-hub__section-value">{view.tracking.trackingNumber}</span>
                 </div>
               ) : null}
               <div className="conv-hub__section-actions">
@@ -894,13 +942,13 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
               </div>
             </section>
           ) : (
-            <section className="conv-hub__section" aria-label="Tracking">
-              <h2 className="conv-hub__section-title">Tracking</h2>
+            <section className="conv-hub__section conv-hub__section--delivery" aria-label="Tracking">
+              <h2 className="conv-hub__section-title">Expected delivery:</h2>
               <p className="conv-hub__empty-note">Waiting for shipment</p>
             </section>
           )}
 
-          <section className="conv-hub__section" aria-label="Dispute">
+          <section className="conv-hub__section conv-hub__section--dispute" aria-label="Dispute">
             <h2 className="conv-hub__section-title">Dispute</h2>
             {view.dispute ? (
               <>
@@ -973,10 +1021,18 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                   );
                 }
                 if (item.kind === "system") {
+                  const compactOfferSystem =
+                    item.event === "offer_accepted" || item.event === "offer_declined";
                   return (
-                    <div key={item.id} className="conv-hub__system" data-event={item.event}>
+                    <div
+                      key={item.id}
+                      className={cn("conv-hub__system", compactOfferSystem && "conv-hub__system--offer")}
+                      data-event={item.event}
+                    >
                       <p className="conv-hub__system-title">{item.title}</p>
-                      {item.subtitle ? <p className="conv-hub__system-sub">{item.subtitle}</p> : null}
+                      {!compactOfferSystem && item.subtitle ? (
+                        <p className="conv-hub__system-sub">{item.subtitle}</p>
+                      ) : null}
                       <p className="conv-hub__system-sub">
                         <time dateTime={item.at}>{formatMessageTime(item.at)}</time>
                       </p>
@@ -985,22 +1041,40 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 }
                 if (item.kind === "offer") {
                   const offer = item.offer;
+                  const isOpen = offer.state === "open";
+                  const stateLabel =
+                    offer.state === "open"
+                      ? "Offer pending"
+                      : offer.state === "accepted"
+                        ? "Offer accepted"
+                        : offer.state === "declined"
+                          ? "Offer declined"
+                          : `Offer ${offer.state.replace("_", " ")}`;
                   return (
-                    <div key={item.id} className="conv-hub__offer" data-offer-state={offer.state}>
-                      <p className="conv-hub__offer-amount">{formatCurrency(offer.amount)}</p>
-                      <p className="conv-hub__offer-state">{offer.state.replace("_", " ")}</p>
-                      {offer.state === "open" ? (
+                    <div
+                      key={item.id}
+                      className={cn("conv-hub__offer", !isOpen && "conv-hub__offer--compact")}
+                      data-offer-state={offer.state}
+                    >
+                      <div className="conv-hub__offer-head">
+                        <p className="conv-hub__offer-amount">{formatCurrency(offer.amount)}</p>
+                        <p className="conv-hub__offer-state">{stateLabel}</p>
+                      </div>
+                      {!isOpen ? (
+                        <time className="conv-hub__offer-time" dateTime={item.at}>
+                          {formatMessageTime(item.at)}
+                        </time>
+                      ) : null}
+                      {isOpen && view.viewerRole === "seller" ? (
                         <div className="conv-hub__offer-actions">
-                          {view.viewerRole === "seller" ? (
-                            <button
-                              type="button"
-                              className="conv-hub__offer-btn conv-hub__offer-btn--primary"
-                              disabled={actionBusy === offer.id}
-                              onClick={() => void patchOffer(offer.id, "accept")}
-                            >
-                              Accept
-                            </button>
-                          ) : null}
+                          <button
+                            type="button"
+                            className="conv-hub__offer-btn conv-hub__offer-btn--primary"
+                            disabled={actionBusy === offer.id}
+                            onClick={() => void patchOffer(offer.id, "accept")}
+                          >
+                            Accept
+                          </button>
                           <button
                             type="button"
                             className="conv-hub__offer-btn"
@@ -1015,7 +1089,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                             disabled={actionBusy === offer.id}
                             onClick={() => setCounterFor(offer.id)}
                           >
-                            Counter
+                            Counter Offer
                           </button>
                         </div>
                       ) : null}
@@ -1090,6 +1164,17 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 conversationId={conversation.id}
                 viewerRole={view.viewerRole}
                 product={view.product}
+                acceptedOffer={
+                  acceptedOffer
+                    ? { id: acceptedOffer.id, amount: acceptedOffer.amount }
+                    : null
+                }
+                pendingOffer={
+                  pendingOffer
+                    ? { id: pendingOffer.id, amount: pendingOffer.amount }
+                    : null
+                }
+                onCancelOffer={(offerId) => void patchOffer(offerId, "decline")}
               />
             </div>
           )}
@@ -1105,38 +1190,21 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
               type="button"
               className="conv-hub__icon-btn"
               aria-label="Add attachment"
+              aria-expanded={attachSheetOpen}
               disabled={conversation.blocked || uploading}
-              onClick={() => galleryInputRef.current?.click()}
+              onClick={() => setAttachSheetOpen(true)}
             >
               <PlusLineIcon />
             </button>
-            <button
-              type="button"
-              className="conv-hub__icon-btn"
-              aria-label="Open camera"
-              disabled={conversation.blocked || uploading}
-              onClick={() => cameraInputRef.current?.click()}
-            >
-              <CameraLineIcon />
-            </button>
-            <button
-              type="button"
-              className="conv-hub__icon-btn"
-              aria-label="Open gallery"
-              disabled={conversation.blocked || uploading}
-              onClick={() => galleryInputRef.current?.click()}
-            >
-              <GalleryLineIcon />
-            </button>
             <label className="sr-only" htmlFor="conv-hub-composer">
-              Type a message
+              Write a message
             </label>
             <textarea
               id="conv-hub-composer"
               ref={textareaRef}
               className="conv-hub__composer-field"
               rows={1}
-              placeholder={uploading ? "Uploading…" : "Type a message..."}
+              placeholder={uploading ? "Uploading…" : "Write a message..."}
               value={draft}
               disabled={conversation.blocked || sending || uploading}
               onChange={(event) => handleDraftChange(event.target.value)}
@@ -1153,7 +1221,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
               aria-label="Send message"
               disabled={conversation.blocked || sending || uploading || !draft.trim()}
             >
-              <SendLineIcon />
+              Send
             </button>
             <input
               ref={galleryInputRef}
@@ -1172,7 +1240,127 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
               tabIndex={-1}
               onChange={(event) => void handleUploadFiles(event.target.files)}
             />
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/*"
+              capture="environment"
+              className="sr-only"
+              tabIndex={-1}
+              onChange={(event) => void handleUploadFiles(event.target.files)}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="sr-only"
+              tabIndex={-1}
+              onChange={(event) => void handleUploadFiles(event.target.files)}
+            />
           </form>
+
+          {attachSheetOpen ? (
+            <div
+              className="conv-hub__attach-sheet"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Add attachment"
+            >
+              <button
+                type="button"
+                className="conv-hub__attach-backdrop"
+                aria-label="Close attachment options"
+                onClick={() => setAttachSheetOpen(false)}
+              />
+              <div className="conv-hub__attach-panel">
+                <p className="conv-hub__attach-title">Add</p>
+                <button
+                  type="button"
+                  className="conv-hub__attach-item"
+                  disabled={conversation.blocked || uploading}
+                  onClick={() => cameraInputRef.current?.click()}
+                >
+                  Take photo
+                </button>
+                <button
+                  type="button"
+                  className="conv-hub__attach-item"
+                  disabled={conversation.blocked || uploading}
+                  onClick={() => galleryInputRef.current?.click()}
+                >
+                  Gallery
+                </button>
+                <button
+                  type="button"
+                  className="conv-hub__attach-item"
+                  disabled={conversation.blocked || uploading}
+                  onClick={() => videoInputRef.current?.click()}
+                >
+                  Video
+                </button>
+                <button
+                  type="button"
+                  className="conv-hub__attach-item"
+                  disabled={conversation.blocked || uploading}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Files
+                </button>
+                <button
+                  type="button"
+                  className="conv-hub__attach-item"
+                  onClick={() => {
+                    const path = transactionHubListingHref(view.product.slug);
+                    void sharePayload(
+                      view.product.title,
+                      `${window.location.origin}${path}`,
+                    );
+                  }}
+                >
+                  Share listing
+                </button>
+                <button
+                  type="button"
+                  className="conv-hub__attach-item"
+                  disabled={!view.tracking?.trackingNumber}
+                  onClick={() => {
+                    if (!view.tracking?.trackingNumber) {
+                      pushToast({ title: "Tracking is not available yet.", variant: "info" });
+                      setAttachSheetOpen(false);
+                      return;
+                    }
+                    const href =
+                      view.tracking.carrierUrl ??
+                      (order ? `/orders/${order.id}/tracking` : view.orderDetailsHref);
+                    void sharePayload(
+                      `Tracking ${view.tracking.trackingNumber}`,
+                      href.startsWith("http") ? href : `${window.location.origin}${href}`,
+                    );
+                  }}
+                >
+                  Share tracking
+                </button>
+                <button
+                  type="button"
+                  className="conv-hub__attach-item"
+                  onClick={() => {
+                    void sharePayload(
+                      `Order ${orderNumber}`,
+                      `${window.location.origin}${view.orderDetailsHref}`,
+                    );
+                  }}
+                >
+                  Share order details
+                </button>
+                <button
+                  type="button"
+                  className="conv-hub__attach-item conv-hub__attach-item--cancel"
+                  onClick={() => setAttachSheetOpen(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {previewUrl ? (
@@ -1203,6 +1391,8 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
           onClose={() => setResumeCheckoutOpen(false)}
           productSlug={view.product.slug}
           conversationId={conversation.id}
+          offerId={acceptedOffer?.id ?? null}
+          acceptedOfferPrice={acceptedOffer?.amount ?? null}
         />
       </div>
     </AccountCanonicalShell>

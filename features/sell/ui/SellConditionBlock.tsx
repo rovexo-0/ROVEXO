@@ -15,20 +15,17 @@ type SellConditionBlockProps = {
 };
 
 export function SellConditionBlock({ onConditionSelected }: SellConditionBlockProps) {
-  const { draft, updateDraft, showValidation, pendingTitleRef, pendingDescriptionRef } = useSell();
+  const { draft, updateDraft, showValidation } = useSell();
   const { scrollToNextStep } = useSellProgressiveFlow();
 
   const error = useMemo(() => {
     if (!showValidation) return undefined;
     return getSellValidationErrorForField(
       draft,
-      {
-        title: pendingTitleRef.current || draft.title,
-        description: pendingDescriptionRef.current || draft.description,
-      },
+      { title: draft.title, description: draft.description },
       "condition",
     );
-  }, [draft, pendingDescriptionRef, pendingTitleRef, showValidation]);
+  }, [draft, showValidation]);
 
   const select = (value: string) => {
     updateDraft({ condition: value }, { userModifiedFields: ["condition"] });

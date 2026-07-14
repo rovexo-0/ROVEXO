@@ -33,15 +33,15 @@ export function TransactionHubPaymentSuccess({
       ariaLabel="Payment successful"
       lockScroll
     >
-      <div className="flex w-full max-w-sm flex-col items-center gap-ds-4 p-ds-6 text-center">
+      <div className="flex w-full max-w-sm flex-col items-center gap-3 p-4 text-center">
         <span
-          className="grid h-14 w-14 place-items-center rounded-ds-full bg-success/15 text-success"
+          className="grid h-12 w-12 place-items-center rounded-ds-full bg-success/15 text-success"
           aria-hidden
         >
-          <Check className="h-7 w-7" strokeWidth={2.5} />
+          <Check className="h-6 w-6" strokeWidth={2.5} />
         </span>
-        <div className="flex flex-col gap-ds-1">
-          <h2 className="text-lg font-semibold text-text-primary">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-base font-semibold text-text-primary">
             {TRANSACTION_HUB_COPY.paymentSuccessful}
           </h2>
           {orderNumber ? (
@@ -49,7 +49,7 @@ export function TransactionHubPaymentSuccess({
           ) : null}
         </div>
 
-        <div className="flex w-full flex-col gap-ds-2">
+        <div className="flex w-full flex-col gap-2">
           <CanonicalButton
             fullWidth
             onClick={() => {

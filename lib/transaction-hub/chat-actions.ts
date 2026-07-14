@@ -15,6 +15,8 @@ export type ChatActionContext = {
   viewerRole: SenderRole;
   product: ConversationProduct;
   transactionMode?: TransactionMode;
+  /** When an accepted offer is locked, keep Buy Now only (hide Make Offer / Add to Cart). */
+  hasAcceptedOffer?: boolean;
 };
 
 function isListingAvailable(product: ConversationProduct): boolean {
@@ -36,6 +38,14 @@ export function resolveChatBottomActions(context: ChatActionContext): ResolvedCh
 
   const available = isListingAvailable(context.product);
   const fixedPrice = isFixedPrice(context.product);
+
+  if (context.hasAcceptedOffer) {
+    return {
+      buyNow: available && fixedPrice && capabilities.buyNow,
+      makeOffer: false,
+      addToCart: false,
+    };
+  }
 
   return {
     buyNow: available && fixedPrice && capabilities.buyNow,

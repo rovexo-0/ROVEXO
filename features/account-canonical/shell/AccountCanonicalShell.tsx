@@ -18,6 +18,8 @@ export type AccountCanonicalShellProps = {
   className?: string;
   contentClassName?: string;
   bottomNavTab?: BottomNavTab;
+  /** When false, hides platform bottom nav (e.g. full-screen Transaction Hub). */
+  showBottomNav?: boolean;
   /** My Account hub ? no back header */
   hideBack?: boolean;
   /** Centered title in header row (e.g. Orders, Settings). */
@@ -37,6 +39,7 @@ export function AccountCanonicalShell({
   className,
   contentClassName,
   bottomNavTab = "account",
+  showBottomNav = true,
   hideBack = false,
   showHeaderTitle = false,
   intro,
@@ -44,7 +47,11 @@ export function AccountCanonicalShell({
   const { tx } = useTranslation();
 
   return (
-    <BetaAppShell bottomNavTab={bottomNavTab} className={cn("account-canonical-shell", className)}>
+    <BetaAppShell
+      bottomNavTab={bottomNavTab}
+      showBottomNav={showBottomNav}
+      className={cn("account-canonical-shell", className)}
+    >
       <div className="account-canonical" data-account-canonical="v2.0">
         <div className="cds-layout cds-layout--account-canonical" data-cds-version={CDS_VERSION}>
           {!hideBack ? (
@@ -60,7 +67,7 @@ export function AccountCanonicalShell({
           <main
             className={cn(
               "cds-layout__content",
-              "cds-layout__content--with-bottom-nav",
+              showBottomNav && "cds-layout__content--with-bottom-nav",
               "cds-layout__content--account-canonical",
               contentClassName,
             )}

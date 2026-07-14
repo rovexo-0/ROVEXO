@@ -27,10 +27,13 @@ describe("title-only category detection", () => {
 
   it("uses v1.0 confidence tiers", () => {
     expect(getCategoryDetectionTier(0.95)).toBe("auto");
-    expect(getCategoryDetectionTier(0.9)).toBe("auto");
-    expect(getCategoryDetectionTier(0.89)).toBe("suggest");
-    expect(getCategoryDetectionTier(0.7)).toBe("suggest");
-    expect(getCategoryDetectionTier(0.69)).toBe("none");
+    expect(getCategoryDetectionTier(0.94)).toBe("suggest");
+    expect(getCategoryDetectionTier(0.8)).toBe("suggest");
+    expect(getCategoryDetectionTier(0.79)).toBe("possible");
+    expect(getCategoryDetectionTier(0.5)).toBe("possible");
+    expect(getCategoryDetectionTier(0.49)).toBe("none");
+    expect(AUTO_SELECT_CONFIDENCE).toBe(0.95);
+    expect(SUGGEST_CONFIDENCE_MIN).toBe(0.8);
   });
 
   it("auto-selects at 90% confidence or higher", () => {
@@ -41,14 +44,12 @@ describe("title-only category detection", () => {
   });
 
   it("confidently classifies an unambiguous book title", () => {
-    // A title dominated by book tokens resolves to Books with high confidence
-    // and auto-selects. (The 70–89% suggest-tier boundary itself is unit-tested
-    // in "uses v1.0 confidence tiers" above.)
+    // A title dominated by book tokens resolves to Books at suggest confidence.
     const detection = detectCategoryFromTitle("Used paperback novel crime fiction");
     expect(detection.top).not.toBeNull();
     expect(detection.top!.path.categorySlug).toBe("books");
     expect(detection.top!.confidence).toBeGreaterThanOrEqual(SUGGEST_CONFIDENCE_MIN);
-    expect(shouldAutoSelectCategory(detection.suggestions)).not.toBeNull();
+    expect(getCategoryDetectionTier(detection.top!.confidence)).toBe("suggest");
   });
 
   it("maps release example titles to expected categories", () => {

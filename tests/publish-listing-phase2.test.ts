@@ -172,6 +172,10 @@ describe("AI category recovery bridge", () => {
     draft.condition = "Good";
     draft.price = "80";
     draft.shippingMethod = "delivery_available";
+    draft.parcelSize = "medium";
+    draft.brand = "Nike";
+    draft.color = "White";
+    draft.size = "10";
 
     expect(isListingValid(draft, { mode: "quick" })).toBe(true);
   });

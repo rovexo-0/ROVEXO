@@ -130,22 +130,19 @@ describe("sell page canonical v1.0", () => {
   it("photo rail uses native OS picker only — no custom source sheet", () => {
 
     const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
+    const picker = readSource("features/sell/ui/SellPhotoFileInput.tsx");
 
     expect(rail).toContain("Add Photos");
 
-    expect(rail).toContain('intent="gallery"');
-
-    expect(rail).toContain('placement="overlay"');
-
-    expect(rail).not.toContain('intent="camera"');
+    expect(rail).toContain("SellPhotoFileInput");
+    expect(picker).toContain('accept="image/*"');
+    expect(picker).not.toContain('capture=');
 
     expect(rail).not.toContain("sourceSheetOpen");
 
     expect(rail).not.toContain('variant="sheet"');
 
     expect(rail).not.toContain("Take Photo");
-
-    expect(rail).not.toContain("Gallery");
 
     expect(rail).toContain("DeletePhotoAction");
 

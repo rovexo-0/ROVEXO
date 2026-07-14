@@ -18,6 +18,10 @@ import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } 
 import { ensureStripeCustomer } from "@/lib/payments/repository";
 import { assertMarketplacePurchaseAllowedForProductSlug } from "@/lib/transaction-mode/validate";
 import { completePaidOrderFulfillment } from "@/lib/orders/post-payment.server";
+import {
+  resolveLockedAcceptedOffer,
+  resolveTransactionItemPrice,
+} from "@/lib/offers/accepted-price";
 
 const RESERVATION_MINUTES = 30;
 
@@ -32,6 +36,8 @@ type CheckoutInput = {
   hubConversationId?: string;
   /** Wallet payment method id (SSOT) — maps to Stripe PM when present. */
   paymentMethodId?: string | null;
+  /** Accepted offer id — locks transaction price to offers.amount. */
+  offerId?: string | null;
 };
 
 type CheckoutResult =
@@ -136,7 +142,23 @@ export async function createOrderCheckoutSession(
     return { error: "Unable to retrieve shipping price." };
   }
 
-  const totals = calculateOrderTotals(Number(product.price), deliveryPrice);
+  const lockedOffer = await resolveLockedAcceptedOffer({
+    buyerId: input.buyerId,
+    productId: product.id,
+    offerId: input.offerId,
+  });
+
+  if (lockedOffer && lockedOffer.sellerId !== product.seller_id) {
+    await releaseProductInventory(product.id, 1);
+    return { error: "Accepted offer does not match this listing." };
+  }
+
+  const itemPrice = resolveTransactionItemPrice({
+    listingPrice: Number(product.price),
+    acceptedOfferPrice: lockedOffer?.acceptedOfferPrice,
+  });
+
+  const totals = calculateOrderTotals(itemPrice, deliveryPrice);
   const { platformFee, sellerAmount } = calculateSellerNetAmount(totals.itemPrice);
   const reservedUntil = new Date(Date.now() + RESERVATION_MINUTES * 60 * 1000).toISOString();
   const imageUrl = primaryImage(product.product_images);
@@ -295,6 +317,8 @@ export async function createOrderCheckoutSession(
         sellerId: product.seller_id,
         productId: product.id,
         paymentMethodId: selected?.id ?? "",
+        offerId: lockedOffer?.offerId ?? "",
+        acceptedOfferPrice: lockedOffer ? String(lockedOffer.acceptedOfferPrice) : "",
       },
       payment_intent_data: {
         metadata: {
@@ -303,6 +327,8 @@ export async function createOrderCheckoutSession(
           buyerId: input.buyerId,
           sellerId: product.seller_id,
           productId: product.id,
+          offerId: lockedOffer?.offerId ?? "",
+          acceptedOfferPrice: lockedOffer ? String(lockedOffer.acceptedOfferPrice) : "",
         },
       },
       success_url: `${orderSuccessUrl}${orderSuccessUrl.includes("?") ? "&" : "?"}session_id={CHECKOUT_SESSION_ID}`,

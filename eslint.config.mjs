@@ -19,6 +19,13 @@ const eslintConfig = defineConfig([
     "_wip/**",
     "next-env.d.ts",
   ]),
+  // Messages module is frozen — allow known intentional resume-checkout effect.
+  {
+    files: ["features/messages/components/ChatPage.tsx"],
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

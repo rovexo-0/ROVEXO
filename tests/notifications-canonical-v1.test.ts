@@ -80,6 +80,12 @@ describe("Notifications canonical v1.0", () => {
       resolveCanonicalNotificationHref("buyer.offer_accepted", { offerId: "off1" }),
     ).toContain("/checkout?offerId=off1");
     expect(
+      resolveCanonicalNotificationHref("buyer.offer_accepted", {
+        offerId: "off1",
+        productSlug: "vintage-jacket",
+      }),
+    ).toBe("/checkout/vintage-jacket?offerId=off1");
+    expect(
       resolveCanonicalNotificationHref("seller.new_message", { conversationId: "c1" }),
     ).toBe("/inbox/conversation/c1");
 

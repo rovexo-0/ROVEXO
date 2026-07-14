@@ -21,6 +21,7 @@ type CheckoutPageProps = {
   liveShippingEnabled?: boolean;
   buyerPhone?: string | null;
   initialStep?: import("@/features/checkout/types").CheckoutStep;
+  acceptedOfferId?: string | null;
 };
 
 export function CheckoutPage({
@@ -29,13 +30,16 @@ export function CheckoutPage({
   liveShippingEnabled = true,
   buyerPhone = null,
   initialStep = "review",
+  acceptedOfferId = null,
 }: CheckoutPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const hubConversationId = searchParams.get("conversationId") ?? undefined;
+  const offerId = searchParams.get("offerId") ?? acceptedOfferId ?? undefined;
   const form = useCheckoutForm(product, initialDraft, {
     liveShippingEnabled,
     hubConversationId,
+    offerId,
   });
   const { view, order, isSubmitting, errorMessage } = form;
   const isSuccess = view === "success";

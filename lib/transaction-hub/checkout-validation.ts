@@ -66,12 +66,22 @@ export function validateCheckoutPayment(draft: CheckoutDraft): CheckoutValidatio
 export function validateCheckoutTotals(
   product: ProductDetail,
   totals: OrderTotals,
+  lockedItemPrice?: number | null,
 ): CheckoutValidationResult {
   if (!Number.isFinite(totals.total) || totals.total <= 0) {
     return { valid: false, field: "total", message: "Order total is invalid." };
   }
-  if (totals.platformFee < 0 || totals.itemPrice !== product.price) {
-    return { valid: false, field: "total", message: "Order summary does not match listing price." };
+  const expectedItemPrice =
+    lockedItemPrice != null && lockedItemPrice > 0 ? lockedItemPrice : product.price;
+  if (totals.platformFee < 0 || totals.itemPrice !== expectedItemPrice) {
+    return {
+      valid: false,
+      field: "total",
+      message:
+        lockedItemPrice != null && lockedItemPrice > 0
+          ? "Order summary does not match accepted offer price."
+          : "Order summary does not match listing price.",
+    };
   }
   return { valid: true };
 }
@@ -81,7 +91,14 @@ export function validateCheckoutReady(input: {
   draft: CheckoutDraft;
   selectedQuote: CheckoutCarrierQuote | null;
   quotesAttempted: boolean;
+  /** When set, totals must match this accepted-offer price instead of listing price. */
+  lockedItemPrice?: number | null;
 }): CheckoutValidationResult {
+  const itemPrice =
+    input.lockedItemPrice != null && input.lockedItemPrice > 0
+      ? input.lockedItemPrice
+      : input.product.price;
+
   const checks = [
     validateProductPurchasable(input.product),
     validateCheckoutAddress(input.draft),
@@ -90,7 +107,7 @@ export function validateCheckoutReady(input: {
     validateCheckoutTotals(
       input.product,
       calculateOrderTotals(
-        input.product.price,
+        itemPrice,
         getDeliveryPrice({
           listingOffersFreeDelivery: input.product.freeDelivery,
           listingShippingPrice: input.product.shippingPrice ?? null,
@@ -98,6 +115,7 @@ export function validateCheckoutReady(input: {
           liveQuotesAttempted: input.quotesAttempted,
         }),
       ),
+      itemPrice,
     ),
   ];
 
