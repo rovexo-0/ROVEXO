@@ -104,13 +104,12 @@ describe("account hub menu alignment", () => {
     expect(titles).toEqual([
       "My Listings",
       "Orders",
-      "Saved Items",
-      "My Reviews",
+      "Inbox",
       "Wallet",
+      "Reviews",
+      "Saved",
+      "Following",
       "Settings",
-      "Promotion Tools",
-      "Help Centre",
-      "Ideas",
     ]);
   });
 });

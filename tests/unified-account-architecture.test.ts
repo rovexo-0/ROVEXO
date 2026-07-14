@@ -162,15 +162,15 @@ describe("ROVEXO unified account architecture v1.0", () => {
 
 
 
-  it("builds the canonical My Account menu with Manage, Account, Community, and Support sections", () => {
+  it("builds the canonical My Account Sprint 1 menu", () => {
     const menu = readFileSync(join(process.cwd(), "lib/account-center/canonical-menu.ts"), "utf8");
     expect(menu).toContain("buildAccountMenuSections");
-    expect(menu).toContain('title: "MANAGE"');
     expect(menu).toContain('title: "My Listings"');
+    expect(menu).toContain('title: "Inbox"');
+    expect(menu).toContain('title: "Settings"');
+    expect(menu).toContain('title: "Log Out"');
     expect(menu).not.toContain('title: "Verification"');
-    expect(menu).toContain('title: "Ideas"');
-    expect(menu).toContain('title: "Help Centre"');
-    expect(menu).toContain('title: "Sign Out"');
+    expect(menu).not.toContain("Become Seller");
     expect(menu).not.toContain("buildSellingSubmenu(profile)");
   });
 

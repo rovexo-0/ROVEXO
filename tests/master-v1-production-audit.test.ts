@@ -9,27 +9,20 @@ function readSource(relativePath: string): string {
 }
 
 describe("ROVEXO v1.0 Master Production Audit", () => {
-  it("locks production account hub with live wallet card and 4 primary stats", () => {
+  it("locks production account hub Sprint 1 foundation", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
-    const stats = readSource("features/account-center/components/AccountStatsStrip.tsx");
     const profile = readSource("features/account-center/components/AccountCanonicalProfile.tsx");
     const snapshot = readSource("lib/account-center/snapshot.ts");
 
-    expect(home).toContain('data-ac-hub-version="v1.0-production"');
+    expect(home).toContain('data-account-version="v1.0"');
     expect(home).not.toContain("AccountWalletCard");
-    expect(stats).toContain("Listings");
-    expect(stats).toContain("Saved");
-    expect(stats).toContain("Orders");
-    expect(stats).toContain("Wallet");
-    expect(stats).not.toContain("Following");
-    expect(stats).not.toContain("SOCIAL_STATS");
-    expect(stats).not.toContain("ac-canonical__stats--secondary");
-    expect(profile).toContain("ac-canonical__followers-row");
-    expect(profile).toContain("ac-canonical__rating");
+    expect(home).not.toContain("AccountStatsStrip");
+    expect(profile).toContain("ac-v1__profile-card");
+    expect(profile).toContain("View Public Profile");
     expect(profile).toContain("formatAccountProfileRating");
-    expect(profile).not.toContain("⭐ —");
+    expect(snapshot).toContain("listings");
+    expect(snapshot).toContain("reviewCount");
     expect(snapshot).toContain("followers");
-    expect(readSource("lib/account-center/canonical-menu.ts")).toContain("Promotion Tools");
   });
 
   it("locks production settings hub inventory", () => {

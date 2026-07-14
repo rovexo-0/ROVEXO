@@ -1,6 +1,6 @@
 /**
- * ROVEXO My Account — canonical menu v2.0 lock (Module 02).
- * Single source of truth. Pixel reference: Module 02 UI Lock v1.0.
+ * ROVEXO My Account — canonical menu Sprint 1 foundation.
+ * Single account hub for every authenticated user (buy + sell + business tools).
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
 import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
@@ -20,53 +20,50 @@ export type AccountMenuItem = {
 
 export type AccountMenuSection = {
   id: string;
-  title: string;
+  title?: string;
   items: AccountMenuItem[];
 };
 
 export const ACCOUNT_LOGOUT_MENU_ITEM: AccountMenuItem = {
   id: "logout",
-  title: "Sign Out",
+  title: "Log Out",
   icon: "security",
   destructive: true,
 };
 
+/**
+ * Classic account list — Sprint 1 SSOT.
+ * Business tools row only when business verification is enabled (not an account type).
+ */
 export function buildAccountMenuSections(profile: UserProfile): AccountMenuSection[] {
-  void profile;
-  return [
+  const items: AccountMenuItem[] = [
+    { id: "listings", title: "My Listings", href: "/seller/listings", icon: "listings" },
+    { id: "orders", title: "Orders", href: "/orders", icon: "orders", badgeKeys: ["orders"] },
     {
-      id: "manage",
-      title: "MANAGE",
-      items: [
-        { id: "listings", title: "My Listings", href: "/seller/listings", icon: "listings" },
-        { id: "orders", title: "Orders", href: "/orders", icon: "orders", badgeKeys: ["orders"] },
-        { id: "saved", title: "Saved Items", href: "/saved", icon: "saved", badgeKeys: ["saved"] },
-        { id: "reviews", title: "My Reviews", href: "/account/reviews", icon: "reviews" },
-        { id: "wallet", title: "Wallet", href: "/wallet", icon: "wallet" },
-      ],
+      id: "inbox",
+      title: "Inbox",
+      href: "/inbox",
+      icon: "messages",
+      badgeKeys: ["messages"],
     },
-    {
-      id: "account",
-      title: "ACCOUNT",
-      items: [
-        { id: "settings", title: "Settings", href: "/account/settings", icon: "settings" },
-        {
-          id: "promotion-tools",
-          title: "Promotion Tools",
-          href: "/account/promotion-tools",
-          icon: "promotions",
-        },
-      ],
-    },
-    {
-      id: "support",
-      title: "SUPPORT",
-      items: [
-        { id: "help", title: "Help Centre", href: "/help", icon: "help" },
-        { id: "ideas", title: "Ideas", href: "/account/ideas", icon: "ideas" },
-      ],
-    },
+    { id: "wallet", title: "Wallet", href: "/wallet", icon: "wallet" },
+    { id: "reviews", title: "Reviews", href: "/account/reviews", icon: "reviews" },
+    { id: "saved", title: "Saved", href: "/saved", icon: "saved", badgeKeys: ["saved"] },
+    { id: "following", title: "Following", href: "/account/followers", icon: "following" },
   ];
+
+  if (profile.capabilities.hasBusinessVerification) {
+    items.push({
+      id: "business-tools",
+      title: "Business tools",
+      href: "/business/dashboard",
+      icon: "business",
+    });
+  }
+
+  items.push({ id: "settings", title: "Settings", href: "/account/settings", icon: "settings" });
+
+  return [{ id: "primary", items }];
 }
 
 /** @deprecated Use buildAccountMenuSections — flat list for legacy callers. */
@@ -74,7 +71,7 @@ export function buildAccountMenu(profile: UserProfile): AccountMenuItem[] {
   return buildAccountMenuSections(profile).flatMap((section) => section.items);
 }
 
-/** @deprecated Selling submenu removed in Module 02 canonical hub. */
+/** @deprecated Selling submenu removed — unified account has no seller conversion menu. */
 export function buildSellingSubmenu(profile: UserProfile): never[] {
   void profile;
   return [];

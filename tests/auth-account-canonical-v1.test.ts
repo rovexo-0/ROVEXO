@@ -68,13 +68,15 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     expect(actions).toContain("signInWithOAuthProvider");
   });
 
-  it("keeps ACCOUNT section to Settings and Promotion Tools", () => {
+  it("keeps Settings as the only settings entry on the hub menu", () => {
     const sections = buildAccountMenuSections(baseProfile);
-    const account = sections.find((section) => section.id === "account");
+    const titles = sections.flatMap((section) => section.items.map((item) => item.title));
 
-    expect(account?.items.map((item) => item.title)).toEqual(["Settings", "Promotion Tools"]);
-    expect(account?.items[0]?.href).toBe("/account/settings");
-    expect(account?.items[1]?.href).toBe("/account/promotion-tools");
+    expect(titles).toContain("Settings");
+    expect(titles.filter((title) => title === "Settings")).toHaveLength(1);
+    expect(sections.flatMap((s) => s.items).find((i) => i.id === "settings")?.href).toBe(
+      "/account/settings",
+    );
   });
 
   it("consolidates account features under Settings", () => {
@@ -98,7 +100,7 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     const menu = readSource("lib/account-center/canonical-menu.ts");
 
     expect(verification).toContain('redirect("/account/settings")');
-    expect(menu).not.toContain("Verification");
+    expect(menu).not.toContain('title: "Verification"');
     expect(menu).not.toContain("Personal Information");
     expect(menu).not.toContain("Address Book");
     expect(menu).not.toContain("Payment Methods");

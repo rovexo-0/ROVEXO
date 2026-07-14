@@ -39,15 +39,13 @@ const baseProfile: UserProfile = {
 };
 
 describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
-  it("keeps ACCOUNT to Settings only and SUPPORT without Contact Support", () => {
+  it("keeps Settings on the hub menu and Help/Ideas under Settings modules", () => {
     const sections = buildAccountMenuSections(baseProfile);
-    const account = sections.find((section) => section.id === "account");
-    const support = sections.find((section) => section.id === "support");
-
-    expect(account?.items.map((item) => item.title)).toEqual(["Settings", "Promotion Tools"]);
-    expect(support?.items.map((item) => item.title)).toEqual(["Help Centre", "Ideas"]);
-    expect(support?.items[0]?.href).toBe("/help");
+    const titles = sections.flatMap((section) => section.items.map((item) => item.title));
+    expect(titles).toContain("Settings");
+    expect(titles).not.toContain("Contact Support");
     expect(readSource("lib/account-center/canonical-menu.ts")).not.toContain("Contact Support");
+    expect(readSource("lib/account-center/settings-menu.ts")).toContain("Promotion Tools");
   });
 
   it("locks Settings hub sections for Module 02B", () => {

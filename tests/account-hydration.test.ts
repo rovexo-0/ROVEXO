@@ -15,7 +15,7 @@ describe("My Account rendering safety", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
     expect(home).not.toMatch(/from ["']framer-motion["']/);
     expect(menu).not.toMatch(/<motion\./);
-    expect(home).toContain("data-ac-hub-version");
+    expect(home).toContain("data-account-version");
   });
 
   it("canonical menu uses CanonicalMenuRow", () => {
@@ -24,14 +24,15 @@ describe("My Account rendering safety", () => {
     expect(menu).toContain("buildAccountMenuSections");
   });
 
-  it("ac-canonical hub styles avoid transform on menu rows", () => {
+  it("ac-v1 hub styles keep outline menu icons", () => {
     const css = readSource("styles/rovexo/account-canonical-v2.css");
-    expect(css).toContain(".ac-canonical__row");
+    expect(css).toContain(".ac-v1__menu-icon");
+    expect(css).toContain("background: transparent");
   });
 
-  it("ROVEXO Ideas is in canonical account menu", () => {
-    const menu = readSource("lib/account-center/canonical-menu.ts");
-    expect(menu).toMatch(/id: "ideas"[\s\S]*?href: "\/account\/ideas"/);
+  it("ROVEXO Ideas remains a dedicated account route with icon support", () => {
+    const ideasPage = readSource("app/account/ideas/page.tsx");
+    expect(ideasPage.length).toBeGreaterThan(0);
     const icons = readSource("components/account/AccountIcons.tsx");
     expect(icons).toContain('"ideas"');
   });

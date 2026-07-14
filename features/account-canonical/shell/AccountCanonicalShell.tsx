@@ -3,12 +3,15 @@
 import type { ReactNode } from "react";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import type { BottomNavTab } from "@/components/ui/BottomNavigation";
-import { AccountCanonicalHeader } from "@/features/account-canonical/header/AccountCanonicalHeader";
+import {
+  AccountCanonicalHeader,
+  type AccountCanonicalHeaderIdentity,
+} from "@/features/account-canonical/header/AccountCanonicalHeader";
 import { cn } from "@/lib/cn";
 import { CDS_VERSION } from "@/src/components/canonical/tokens";
 
 export type AccountCanonicalShellProps = {
-  /** Retained for page-level semantics; not rendered in the Phase 1 back-only header. */
+  /** Retained for page-level semantics; not rendered in identity/back-only headers. */
   title: string;
   backHref?: string;
   backLabel?: string;
@@ -17,10 +20,12 @@ export type AccountCanonicalShellProps = {
   className?: string;
   contentClassName?: string;
   bottomNavTab?: BottomNavTab;
-  /** My Account hub — no back header */
+  /** My Account hub — no back header (legacy). Prefer `identity` for Sprint 1. */
   hideBack?: boolean;
   /** Centered title in header row (e.g. Orders, Settings). */
   showHeaderTitle?: boolean;
+  /** My Account Sprint 1 — back + avatar + name + badges. */
+  identity?: AccountCanonicalHeaderIdentity;
   intro?: string;
 };
 
@@ -38,17 +43,21 @@ export function AccountCanonicalShell({
   bottomNavTab = "account",
   hideBack = false,
   showHeaderTitle = false,
+  identity,
   intro,
 }: AccountCanonicalShellProps) {
+  const showHeader = !hideBack || Boolean(identity);
+
   return (
     <BetaAppShell bottomNavTab={bottomNavTab} className={cn("account-canonical-shell", className)}>
       <div className="account-canonical" data-account-canonical="v2.0">
         <div className="cds-layout cds-layout--account-canonical" data-cds-version={CDS_VERSION}>
-          {!hideBack ? (
+          {showHeader ? (
             <div className="cds-layout__header">
               <AccountCanonicalHeader
                 backLabel={backLabel}
-                centeredTitle={showHeaderTitle ? title : undefined}
+                centeredTitle={showHeaderTitle && !identity ? title : undefined}
+                identity={identity}
                 fallbackHref={backHref}
                 rightAction={rightAction}
               />
