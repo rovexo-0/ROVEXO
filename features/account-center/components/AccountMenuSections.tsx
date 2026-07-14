@@ -13,6 +13,7 @@ import { resolveMobileBadge } from "@/features/mobile-ui/hooks/use-mobile-badges
 import { signOut } from "@/lib/auth/actions";
 import type { UserProfile } from "@/lib/profile/types";
 import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
 function resolveMenuBadge(
   item: AccountMenuItem,
@@ -34,10 +35,11 @@ type AccountMenuSectionsProps = {
 export function AccountMenuSections({ profile }: AccountMenuSectionsProps) {
   const { badgeCounts, mobileBadges } = useRealtimeNotifications();
   const [isPending, startTransition] = useTransition();
+  const { tx } = useTranslation();
   const sections = buildAccountMenuSections(profile);
 
   return (
-    <nav className="ac-canonical__menu" aria-label="My Account">
+    <nav className="ac-canonical__menu" aria-label={tx("My Account")}>
       {sections.map((section) => (
         <CanonicalSection key={section.id} title={section.title}>
           <CanonicalCard variant="list">

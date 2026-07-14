@@ -2,10 +2,10 @@ import type { MessageKey } from "@/lib/i18n/messages/en-GB";
 
 export const nlNL: Record<MessageKey, string> = {
   "nav.home": "Home",
-  "nav.search": "Zoeken",
+  "nav.search": "Bladeren",
   "nav.sell": "Verkopen",
-  "nav.saved": "Opgeslagen",
-  "nav.account": "Account",
+  "nav.saved": "Inbox",
+  "nav.account": "Profiel",
   "account.title": "Mijn account",
   "account.quickAccess": "Snelle toegang",
   "account.module.buyer": "Koper",

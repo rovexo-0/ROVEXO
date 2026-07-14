@@ -6,6 +6,7 @@ import type { BottomNavTab } from "@/components/ui/BottomNavigation";
 import { AccountCanonicalHeader } from "@/features/account-canonical/header/AccountCanonicalHeader";
 import { cn } from "@/lib/cn";
 import { CDS_VERSION } from "@/src/components/canonical/tokens";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
 export type AccountCanonicalShellProps = {
   /** Retained for page-level semantics; not rendered in the Phase 1 back-only header. */
@@ -17,7 +18,7 @@ export type AccountCanonicalShellProps = {
   className?: string;
   contentClassName?: string;
   bottomNavTab?: BottomNavTab;
-  /** My Account hub — no back header */
+  /** My Account hub ? no back header */
   hideBack?: boolean;
   /** Centered title in header row (e.g. Orders, Settings). */
   showHeaderTitle?: boolean;
@@ -40,6 +41,8 @@ export function AccountCanonicalShell({
   showHeaderTitle = false,
   intro,
 }: AccountCanonicalShellProps) {
+  const { tx } = useTranslation();
+
   return (
     <BetaAppShell bottomNavTab={bottomNavTab} className={cn("account-canonical-shell", className)}>
       <div className="account-canonical" data-account-canonical="v2.0">
@@ -47,8 +50,8 @@ export function AccountCanonicalShell({
           {!hideBack ? (
             <div className="cds-layout__header">
               <AccountCanonicalHeader
-                backLabel={backLabel}
-                centeredTitle={showHeaderTitle ? title : undefined}
+                backLabel={tx(backLabel)}
+                centeredTitle={showHeaderTitle ? tx(title) : undefined}
                 fallbackHref={backHref}
                 rightAction={rightAction}
               />
@@ -62,7 +65,7 @@ export function AccountCanonicalShell({
               contentClassName,
             )}
           >
-            {intro ? <p className="cds-section__intro">{intro}</p> : null}
+            {intro ? <p className="cds-section__intro">{tx(intro)}</p> : null}
             {children}
           </main>
         </div>

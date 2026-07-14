@@ -2,10 +2,10 @@ import type { MessageKey } from "@/lib/i18n/messages/en-GB";
 
 export const itIT: Record<MessageKey, string> = {
   "nav.home": "Home",
-  "nav.search": "Cerca",
+  "nav.search": "Esplora",
   "nav.sell": "Vendi",
-  "nav.saved": "Salvati",
-  "nav.account": "Account",
+  "nav.saved": "Posta in arrivo",
+  "nav.account": "Profilo",
   "account.title": "Il mio account",
   "account.quickAccess": "Accesso rapido",
   "account.module.buyer": "Acquirente",

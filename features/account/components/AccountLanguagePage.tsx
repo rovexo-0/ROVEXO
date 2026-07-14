@@ -1,26 +1,26 @@
 "use client";
 
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
+import { CanonicalSection, CanonicalCard, CanonicalInfoBlock } from "@/src/components/canonical";
 import { useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { LanguagePicker } from "@/features/settings/components/LanguagePicker";
 
 import { useLocale } from "@/lib/i18n/provider";
 import { getLocaleOption, type LocaleCode } from "@/lib/i18n/config";
-import { useTranslation } from "@/lib/i18n/use-translation";
+import { translate } from "@/lib/i18n/messages";
 
 export function AccountLanguagePage() {
   const { localeCode, setLocaleCode } = useLocale();
-  const { t } = useTranslation();
   const [message, setMessage] = useState<string | null>(null);
 
   const save = async (code: LocaleCode) => {
     setMessage(null);
     try {
       await setLocaleCode(code);
-      setMessage(t("language.updated"));
+      // Use the newly selected locale so the confirmation is not stuck in English.
+      setMessage(translate(code, "language.updated"));
     } catch {
-      setMessage(t("language.error"));
+      setMessage(translate(code, "language.error"));
     }
   };
 

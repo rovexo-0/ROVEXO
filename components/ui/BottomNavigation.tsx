@@ -12,6 +12,7 @@ import { INBOX_ROUTES } from "@/lib/inbox/canonical-routes";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import type { MenuItemConfig } from "@/lib/platform-visual/types";
+import { useTranslation } from "@/lib/i18n/use-translation";
 import "./bottom-navigation.css";
 
 export type BottomNavTab = "home" | "search" | "sell" | "saved" | "account";
@@ -30,13 +31,6 @@ type NavItem = {
   href: string;
   icon: BottomNavIconType;
 };
-
-const defaultNavItems: NavItem[] = [
-  { id: "home", label: "Home", href: "/", icon: "home" },
-  { id: "search", label: "Browse", href: "/search", icon: "search" },
-  { id: "saved", label: "Inbox", href: INBOX_ROUTES.hub, icon: "saved" },
-  { id: "account", label: "Profile", href: "/account", icon: "account" },
-];
 
 function mapMenuItems(items: MenuItemConfig[]): NavItem[] {
   return items.map((item) => ({
@@ -126,15 +120,25 @@ export function BottomNavigation({
   const searchOverlay = useSearchOverlayOptional();
   const scroll = useMobileHeaderScrollContext();
   const { mobileBadges } = useRealtimeNotifications();
+  const { t, tx } = useTranslation();
   const activeTab = resolveActiveTab(pathname, active);
   const isChromeVisible = scroll?.isVisible ?? true;
   const hasScrollBehavior = Boolean(scroll);
-  const navItems = menuItems?.length ? mapMenuItems(menuItems) : defaultNavItems;
-  const home = navItems.find((item) => item.id === "home") ?? defaultNavItems[0];
-  const search = navItems.find((item) => item.id === "search") ?? defaultNavItems[1];
-  const saved = navItems.find((item) => item.id === "saved") ?? defaultNavItems[2];
-  const account = navItems.find((item) => item.id === "account") ?? defaultNavItems[3];
+  const localizedDefaults: NavItem[] = [
+    { id: "home", label: t("nav.home"), href: "/", icon: "home" },
+    { id: "search", label: t("nav.search"), href: "/search", icon: "search" },
+    { id: "saved", label: t("nav.saved"), href: INBOX_ROUTES.hub, icon: "saved" },
+    { id: "account", label: t("nav.account"), href: "/account", icon: "account" },
+  ];
+  const navItems = menuItems?.length
+    ? mapMenuItems(menuItems).map((item) => ({ ...item, label: tx(item.label) }))
+    : localizedDefaults;
+  const home = navItems.find((item) => item.id === "home") ?? localizedDefaults[0];
+  const search = navItems.find((item) => item.id === "search") ?? localizedDefaults[1];
+  const saved = navItems.find((item) => item.id === "saved") ?? localizedDefaults[2];
+  const account = navItems.find((item) => item.id === "account") ?? localizedDefaults[3];
   const sell = menuItems?.find((item) => item.id === "sell" && item.enabled);
+  const sellLabel = sell ? tx(sell.label) : t("nav.sell");
   const isSellActive = activeTab === "sell";
   const inboxBadge = Math.max(0, (mobileBadges.messages ?? 0) + (mobileBadges.notifications ?? 0));
 
@@ -151,7 +155,7 @@ export function BottomNavigation({
     <nav
       data-bottom-nav="v2"
       data-bottom-nav-version="v2-final"
-      aria-label={ariaLabel}
+      aria-label={tx(ariaLabel)}
       className={cn(
         "pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center",
         hasScrollBehavior &&
@@ -175,7 +179,7 @@ export function BottomNavigation({
             <li>
               <Link
                 href={sell.href}
-                aria-label={sell.label}
+                aria-label={sellLabel}
                 aria-current={isSellActive ? "page" : undefined}
                 data-active={isSellActive}
                 className={cn("rx-bottom-nav-item rx-bottom-nav-item--sell", focusRing, transitionFast)}
@@ -183,14 +187,14 @@ export function BottomNavigation({
                 <span className="rx-bottom-nav-sell">
                   <SellPlusIcon />
                 </span>
-                <span className="rx-bottom-nav-item__label">{sell.label}</span>
+                <span className="rx-bottom-nav-item__label">{sellLabel}</span>
               </Link>
             </li>
           ) : (
             <li>
               <Link
                 href="/sell"
-                aria-label="Sell"
+                aria-label={sellLabel}
                 aria-current={isSellActive ? "page" : undefined}
                 data-active={isSellActive}
                 className={cn("rx-bottom-nav-item rx-bottom-nav-item--sell", focusRing, transitionFast)}
@@ -198,7 +202,7 @@ export function BottomNavigation({
                 <span className="rx-bottom-nav-sell">
                   <SellPlusIcon />
                 </span>
-                <span className="rx-bottom-nav-item__label">Sell</span>
+                <span className="rx-bottom-nav-item__label">{sellLabel}</span>
               </Link>
             </li>
           )}

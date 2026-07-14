@@ -5,6 +5,7 @@ import { frFR } from "@/lib/i18n/messages/fr-FR";
 import { itIT } from "@/lib/i18n/messages/it-IT";
 import { esES } from "@/lib/i18n/messages/es-ES";
 import { nlNL } from "@/lib/i18n/messages/nl-NL";
+import { plPL } from "@/lib/i18n/messages/pl-PL";
 import type { LocaleCode } from "@/lib/i18n/config";
 
 /**
@@ -19,6 +20,7 @@ const catalogs: Partial<Record<LocaleCode, Record<MessageKey, string>>> = {
   "it-IT": itIT,
   "es-ES": esES,
   "nl-NL": nlNL,
+  "pl-PL": plPL,
 };
 
 export function translate(locale: LocaleCode | string, key: MessageKey): string {

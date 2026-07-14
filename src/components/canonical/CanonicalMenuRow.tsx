@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
 export type CanonicalMenuRowProps = {
   title: string;
@@ -90,13 +91,14 @@ export function CanonicalMenuRow({
   id,
   className,
 }: CanonicalMenuRowProps) {
+  const { tx } = useTranslation();
   const chevronVisible = showChevron && !hideChevron;
 
   const content = (
     <MenuRowContent
-      title={title}
-      description={description}
-      value={value}
+      title={tx(title)}
+      description={description ? tx(description) : undefined}
+      value={value ? tx(value) : undefined}
       icon={icon}
       badge={badge}
       trailing={trailing}

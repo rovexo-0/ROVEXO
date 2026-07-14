@@ -23,12 +23,28 @@ type LocaleContextValue = {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 const STORAGE_KEY = "rovexo-locale";
+const COOKIE_KEY = "rovexo-locale";
 const LOCALE_CHANGE_EVENT = "rovexo-locale-change";
+
+function writeLocaleCookie(code: LocaleCode) {
+  if (typeof document === "undefined") return;
+  document.cookie = `${COOKIE_KEY}=${encodeURIComponent(code)};path=/;max-age=31536000;samesite=lax`;
+}
+
+function readCookieLocale(): LocaleCode | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(?:^|;\s*)rovexo-locale=([^;]+)/);
+  if (!match?.[1]) return null;
+  const code = decodeURIComponent(match[1]) as LocaleCode;
+  return getLocaleOption(code) ? code : null;
+}
 
 function readStoredLocale(): LocaleCode {
   if (typeof window === "undefined") return "en-GB";
   const stored = window.localStorage.getItem(STORAGE_KEY) as LocaleCode | null;
   if (stored && getLocaleOption(stored)) return stored;
+  const fromCookie = readCookieLocale();
+  if (fromCookie) return fromCookie;
   return "en-GB";
 }
 
@@ -69,6 +85,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
         const code = payload.settings?.localeCode;
         if (!cancelled && code && getLocaleOption(code) && code !== readStoredLocale()) {
           window.localStorage.setItem(STORAGE_KEY, code);
+          writeLocaleCookie(code);
           notifyLocaleChange();
           document.documentElement.lang = localeToHtmlLang(code);
         }
@@ -83,7 +100,9 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
 
   const applyLocale = useCallback((code: LocaleCode) => {
     window.localStorage.setItem(STORAGE_KEY, code);
+    writeLocaleCookie(code);
     document.documentElement.lang = localeToHtmlLang(code);
+    document.documentElement.dir = localeDirection(code);
     notifyLocaleChange();
   }, []);
 
@@ -91,15 +110,19 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     async (code: LocaleCode) => {
       applyLocale(code);
       const option = getLocaleOption(code);
-      await fetch("/api/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          localeCode: code,
-          language: option.language,
-          currency: option.currencyLabel,
-        }),
-      });
+      try {
+        await fetch("/api/settings", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            localeCode: code,
+            language: option.language,
+            currency: option.currencyLabel,
+          }),
+        });
+      } catch {
+        // Keep local locale applied even if the settings sync fails offline.
+      }
     },
     [applyLocale],
   );
