@@ -30,7 +30,12 @@ export function AccountCenterHome({
   });
 
   return (
-    <div className="ac-canonical" data-ac-hub-version="v1.0-production">
+    <div
+      className="ac-canonical"
+      data-ac-hub-version="v1.0-production"
+      data-account-freeze="FROZEN"
+      data-account-version="v1.0"
+    >
       <AccountCanonicalProfile profile={profile} snapshot={liveSnapshot} />
       <AccountStatsStrip snapshot={liveSnapshot} wallet={liveWallet} />
       <AccountSellerPerformanceCard performance={sellerPerformance} />

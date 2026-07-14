@@ -1,36 +1,58 @@
 # ROVEXO My Account — Master UI Specification
 
-**Status:** Sprint 1 — Canonical Foundation (UI)  
-**Freeze:** Pending visual QA before Sprint 2  
-**SSOT:** `AccountCenterHome` (`.ac-v1`) + `styles/rovexo/account-canonical-v2.css`  
-**Markers:** `data-account-version="v1.0"` · `data-account-sprint="1-foundation"`
+**STATUS:**  
+**CANONICAL_FROZEN_v1.0**
+
+| Field | Value |
+|-------|-------|
+| Module | My Account |
+| Version | v1.0 |
+| Freeze | `ACCOUNT_UI_FREEZE` = `CANONICAL_FROZEN_v1.0` (`lib/account/freeze.ts`) |
+| DOM | `data-account-freeze="FROZEN"` · `data-ac-hub-version="v1.0-production"` · `data-account-version="v1.0"` |
+| SSOT | `AccountCenterHome` (`.ac-canonical`) + `styles/rovexo/account-canonical-v2.css` |
+| Freeze doc | `docs/modules/account/UI_FREEZE.md` |
+| Cursor rule | `.cursor/rules/account-v1-freeze.mdc` |
+| Freeze date | 2026-07-14 |
 
 ## Route
 
 | Route | Purpose |
 |-------|---------|
-| `/account` | Canonical My Account hub |
+| `/account` | Canonical My Account hub (frozen) |
 
 ## Header
 
-- Height **64px**
-- **Back** · Profile avatar · Display name · Verified badge (if applicable)
-- No page title · No notification icon
+- Hub uses `AccountCanonicalShell` with **`hideBack`** (no back / title row on the hub root)
+- Bottom navigation remains the Account tab via `BetaAppShell`
 
-## Sections
+## Frozen sections (order)
 
-1. Profile card — photo, name, username, member since, seller level, rating, badges, View Public Profile / Edit Profile
-2. Seller Performance (compact) → `/seller/performance`
-3. Empty/info cards when profile incomplete / no listings / no reviews
-4. Classic outline-icon menu
-5. Log Out (outlined row + confirmation)
+1. **Profile** — `AccountCanonicalProfile`  
+   Avatar · name · verified · member since · rating · followers row  
+   **No** View Public Profile · **No** Edit Profile
+2. **Quick Stats** — `AccountStatsStrip`  
+   Listings · Saved · Orders · Wallet
+3. **Seller Performance** — `AccountSellerPerformanceCard`  
+   Level badge · rating · score ring · completed sales · progress bar · View details  
+   Marker: `data-ac-seller-performance="v1.0-frozen"`
+4. **Menu** — `AccountMenuSections`  
+   MANAGE · ACCOUNT · SUPPORT · SYSTEM (Sign Out)
 
-## Menu rows (SSOT)
+## Menu inventory (SSOT)
 
-My Listings · Orders · Inbox · Wallet · Reviews · Saved · Following · Business tools (if verified) · Settings
+`lib/account-center/canonical-menu.ts`
 
-Settings opens `/account/settings` only — no duplicated settings on the hub.
+**MANAGE:** My Listings · Orders · Saved Items · My Reviews · Wallet  
+**ACCOUNT:** Settings · Promotion Tools  
+**SUPPORT:** Help Centre · Ideas  
+**SYSTEM:** Sign Out
 
 ## Architecture
 
-One ROVEXO Account for buy + sell. Business tools are capability-gated, not a separate account type.
+One ROVEXO Account for buy + sell. Capabilities unlock by action and verification — never by role switching or separate Buyer / Seller / Business account types.
+
+## Post-freeze policy
+
+No structural UI changes under My Account **v1.0**.  
+Ship deltas as My Account **v1.1** only.  
+Bug fixes that preserve layout and copy structure remain allowed.

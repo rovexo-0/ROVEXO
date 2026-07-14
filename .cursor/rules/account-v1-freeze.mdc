@@ -1,0 +1,40 @@
+---
+description: My Account v1.0 is CANONICAL FROZEN — bug fixes only, no structural UI changes
+globs: features/account-center/**/*.tsx,features/account-center/**/*.ts,features/account-canonical/**/*.tsx,features/account-canonical/**/*.ts,styles/rovexo/account-canonical-v2.css,app/account/**/*.tsx,lib/account/freeze.ts,lib/account-center/canonical-menu.ts,docs/modules/account/**
+alwaysApply: false
+---
+
+# My Account v1.0 — CANONICAL FREEZE
+
+**STATUS: CANONICAL | FROZEN | SINGLE SOURCE OF TRUTH**
+
+Frozen constant: `ACCOUNT_UI_FREEZE = "CANONICAL_FROZEN_v1.0"` (`lib/account/freeze.ts`)  
+DOM: `data-account-freeze="FROZEN"` · `data-ac-hub-version="v1.0-production"`
+
+## Immutable
+
+- Route `/account` hub composition and section order
+- Profile · Quick Stats · Seller Performance · Menu sections
+- Spacing, typography, icons, card sizes, shadows
+- Menu inventory (`lib/account-center/canonical-menu.ts`)
+- Bottom navigation Account tab wiring
+- Absence of View Public Profile / Edit Profile on the hub
+
+## Allowed
+
+- Bug fixes that preserve frozen layout and copy structure
+- Backend / API / data fixes that do not change frozen UI
+- Accessibility and image-safety fixes via `SafeImage` / `Avatar`
+
+## Prohibited
+
+- Structural UI changes, spacing, typography, icon, or navigation changes
+- Component removals or reordering under v1.0
+- Redesign / simplify / rebuild of the hub
+- Future UI work under v1.0 — must target **My Account v1.1** only
+
+## Reference
+
+- Spec: `docs/modules/account/MASTER_UI_SPECIFICATION.md`
+- Freeze: `docs/modules/account/UI_FREEZE.md`
+- Guard: `tests/account-v1-freeze.test.ts`
