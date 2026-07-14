@@ -27,24 +27,54 @@ type LoginScreenProps = {
   initialError?: string;
 };
 
+/** Premium marketplace social row — Apple + Google (Facebook OAuth preserved in SSOT). */
+const PREMIUM_SOCIAL = ["apple", "google"] as const;
+
+/**
+ * ROVEXO_LOGIN_FINAL_FREEZE_v1.0 presentation.
+ * Master-spec / routes / actions untouched — UI hierarchy only.
+ */
+const LOGIN_UI = {
+  title: "Welcome back",
+  description: "Good to see you again.",
+  emailLabel: "Email address",
+  passwordLabel: "Password",
+  rememberMe: "Remember me",
+  forgotPassword: "Forgot password?",
+  divider: "Continue with",
+  createAccount: "Create Account",
+  trustTitle: "Protected Sign-in",
+  trustCopy: "Your data is encrypted and secure.",
+  socialLabels: {
+    apple: "Apple",
+    google: "Google",
+    facebook: "Facebook",
+  },
+} as const;
+
 export function LoginScreen({ next, initialError }: LoginScreenProps) {
-  const { copy, socialProviders, routes } = AUTH_MASTER_SPEC.login;
+  const { copy, routes } = AUTH_MASTER_SPEC.login;
   const [state, formAction, pending] = useActionState(signIn, {} as AuthActionState);
   const [clientError, setClientError] = useState<string | null>(null);
   const alertMessage = clientError ?? state.error ?? initialError;
 
   return (
     <div
-      className="auth-login"
+      className="auth-login auth-login--premium"
       data-auth-module={AUTH_MODULE_VERSION}
       data-auth-spec={AUTH_MASTER_SPEC.version}
       data-auth-screen="login"
       data-auth-version="v1.0-legal-lock"
+      data-auth-ui="v1.0-final-freeze"
     >
       <AuthBackButton href={routes.back} className="auth-login__back" />
       <AuthContainer>
-        <RovexoBrandLogo className="rovexo-brand-logo--auth" />
-        <AuthHeading title={copy.title} description={copy.description} />
+        <div className="auth-login__brand">
+          <RovexoBrandLogo className="rovexo-brand-logo--auth" />
+        </div>
+        <div className="auth-login__intro">
+          <AuthHeading title={LOGIN_UI.title} description={LOGIN_UI.description} />
+        </div>
 
         <form
           action={formAction}
@@ -54,9 +84,9 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
           {next ? <input type="hidden" name="next" value={next} /> : null}
           {alertMessage ? <AuthAlert message={alertMessage} variant="error" /> : null}
 
-          <div className="auth-form-fields">
+          <div className="auth-form-fields auth-login__fields">
             <AuthIconInput
-              label={copy.emailLabel}
+              label={LOGIN_UI.emailLabel}
               name="email"
               type="email"
               autoComplete="email"
@@ -65,7 +95,7 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
               icon={<MailLineIcon className="auth-icon-field__svg" />}
             />
             <AuthPasswordInput
-              label={copy.passwordLabel}
+              label={LOGIN_UI.passwordLabel}
               name="password"
               autoComplete="current-password"
               placeholder={copy.passwordPlaceholder}
@@ -73,40 +103,47 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
           </div>
 
           <div className="auth-login__meta">
-            <Checkbox name="remember" label={copy.rememberMe} defaultChecked className="auth-login__remember" />
+            <Checkbox
+              name="remember"
+              label={LOGIN_UI.rememberMe}
+              defaultChecked
+              className="auth-login__remember"
+            />
             <AuthLink href="/forgot-password" className="auth-login__forgot">
-              {copy.forgotPassword}
+              {LOGIN_UI.forgotPassword}
             </AuthLink>
           </div>
 
-          <PrimaryButton type="submit" disabled={pending} aria-busy={pending} data-testid="auth-submit">
-            {pending ? (
-              <span className="auth-login__submit-pending">
-                <AuthSpinner className="h-5 w-5" />
-                {copy.submitting}
-              </span>
-            ) : (
-              copy.signIn
-            )}
-          </PrimaryButton>
+          <div className="auth-login__cta">
+            <PrimaryButton type="submit" disabled={pending} aria-busy={pending} data-testid="auth-submit">
+              {pending ? (
+                <span className="auth-login__submit-pending">
+                  <AuthSpinner className="h-5 w-5" />
+                  {copy.submitting}
+                </span>
+              ) : (
+                copy.signIn
+              )}
+            </PrimaryButton>
+            <div className="auth-login__trust" role="note">
+              <p className="auth-login__trust-title">{LOGIN_UI.trustTitle}</p>
+              <p className="auth-login__trust-copy">{LOGIN_UI.trustCopy}</p>
+            </div>
+          </div>
         </form>
 
-        <Divider label={copy.divider} />
-        <SocialLogin
-          next={next}
-          providers={socialProviders}
-          labels={{
-            apple: copy.socialLabels.apple,
-            google: copy.socialLabels.google,
-            facebook: copy.socialLabels.facebook,
-          }}
-        />
+        <div className="auth-login__social">
+          <Divider label={LOGIN_UI.divider} />
+          <SocialLogin next={next} providers={PREMIUM_SOCIAL} labels={LOGIN_UI.socialLabels} />
+        </div>
 
         <AuthFooter className="auth-login__footer">
-          <p className="auth-login__register-prompt">
-            {copy.footerPrefix}{" "}
-            <AuthLink href="/register">{copy.createAccount}</AuthLink>
-          </p>
+          <div className="auth-login__register">
+            <p className="auth-login__register-prompt">{copy.footerPrefix}</p>
+            <AuthLink href="/register" className="auth-login__register-cta">
+              {LOGIN_UI.createAccount}
+            </AuthLink>
+          </div>
         </AuthFooter>
       </AuthContainer>
     </div>
