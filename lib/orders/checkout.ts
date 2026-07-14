@@ -30,6 +30,8 @@ type CheckoutInput = {
   shippingAddressId?: string;
   shippingQuoteId?: string | null;
   hubConversationId?: string;
+  /** Wallet payment method id (SSOT) — maps to Stripe PM when present. */
+  paymentMethodId?: string | null;
 };
 
 type CheckoutResult =
@@ -183,9 +185,8 @@ export async function createOrderCheckoutSession(
   await admin.from("cart_items").delete().eq("user_id", input.buyerId).eq("product_id", product.id);
 
   const baseUrl = getAppBaseUrl();
-  const orderSuccessPath = input.hubConversationId
-    ? `/inbox/conversation/${input.hubConversationId}?payment=success&order_id=${orderRow.id}`
-    : `/orders/${orderRow.id}?placed=1`;
+  // Sprint 2: always land on checkout success (order + conversation CTAs). Chat return is opt-in via cancel only.
+  const orderSuccessPath = `/checkout/${product.slug}/success?order_id=${orderRow.id}`;
   const orderSuccessUrl = `${baseUrl}${orderSuccessPath}`;
   const cancelQuery = new URLSearchParams({
     order: "cancelled",
@@ -222,6 +223,22 @@ export async function createOrderCheckoutSession(
 
   const stripe = getStripeClient();
   const customerId = await ensureStripeCustomer(input.buyerId);
+
+  // Prefer Wallet default / selected payment method as Stripe customer default.
+  const { listPaymentMethods, setDefaultPaymentMethod } = await import("@/lib/payments/repository");
+  const savedMethods = await listPaymentMethods(input.buyerId);
+  const selected =
+    savedMethods.find((method) => method.id === input.paymentMethodId) ??
+    savedMethods.find((method) => method.isDefault) ??
+    savedMethods[0] ??
+    null;
+  if (selected && customerId) {
+    try {
+      await setDefaultPaymentMethod(input.buyerId, selected.id);
+    } catch {
+      // Non-fatal — Checkout Session still proceeds with customer cards.
+    }
+  }
 
   const lineItems: Array<{
     quantity: number;
@@ -264,6 +281,7 @@ export async function createOrderCheckoutSession(
   }
 
   // Platform collects the full payment; seller payouts run after delivery + hold via Connect transfers.
+  // payment_method_types: card enables Visa/Mastercard and Apple Pay / Google Pay where available.
   const session = await stripe.checkout.sessions.create(
     {
       mode: "payment",
@@ -276,6 +294,7 @@ export async function createOrderCheckoutSession(
         buyerId: input.buyerId,
         sellerId: product.seller_id,
         productId: product.id,
+        paymentMethodId: selected?.id ?? "",
       },
       payment_intent_data: {
         metadata: {
@@ -286,7 +305,7 @@ export async function createOrderCheckoutSession(
           productId: product.id,
         },
       },
-      success_url: `${orderSuccessUrl}&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${orderSuccessUrl}${orderSuccessUrl.includes("?") ? "&" : "?"}session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancelUrl,
       expires_at: Math.floor(Date.now() / 1000) + RESERVATION_MINUTES * 60,
     },

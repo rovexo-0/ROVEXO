@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CanonicalButton } from "@/src/components/canonical";
 import { useToast } from "@/components/ui/Toast";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
-import { CheckoutHubSheet } from "@/features/transaction-hub/CheckoutHubSheet";
 import { MakeOfferSheet } from "@/features/transaction-hub/MakeOfferSheet";
 import type { ConversationProduct, SenderRole } from "@/lib/messages/types";
 import { resolveChatBottomActions } from "@/lib/transaction-hub/chat-actions";
@@ -15,6 +15,7 @@ import {
 } from "@/lib/transaction-hub/analytics";
 import { addToCartFromHub } from "@/lib/transaction-hub/cart-engine";
 import { transactionHubListingHref } from "@/lib/transaction-hub/inbox-routes";
+
 type TransactionHubBottomActionsProps = {
   conversationId: string;
   viewerRole: SenderRole;
@@ -26,10 +27,10 @@ export function TransactionHubBottomActions({
   viewerRole,
   product,
 }: TransactionHubBottomActionsProps) {
+  const router = useRouter();
   const { pushToast } = useToast();
   const { refresh: refreshBadges } = useRealtimeNotifications();
   const [offerOpen, setOfferOpen] = useState(false);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [busy, setBusy] = useState<"cart" | null>(null);
 
   const actions = useMemo(
@@ -71,8 +72,8 @@ export function TransactionHubBottomActions({
   }, [analyticsContext, product.slug, pushToast, refreshBadges]);
 
   const handleBuyNow = useCallback(() => {
-    setCheckoutOpen(true);
-  }, []);
+    router.push(`/checkout/${product.slug}?conversationId=${encodeURIComponent(conversationId)}`);
+  }, [conversationId, product.slug, router]);
 
   const handleShareListing = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -118,11 +119,7 @@ export function TransactionHubBottomActions({
       <>
         <div className="thub-v1__actions" data-transaction-hub-version="v1.0">
           {actions.buyNow ? (
-            <CanonicalButton
-              fullWidth
-              disabled={busy !== null}
-              onClick={handleBuyNow}
-            >
+            <CanonicalButton fullWidth disabled={busy !== null} onClick={handleBuyNow}>
               Buy Now
             </CanonicalButton>
           ) : null}
@@ -153,13 +150,6 @@ export function TransactionHubBottomActions({
           onClose={() => setOfferOpen(false)}
           conversationId={conversationId}
           product={product}
-        />
-
-        <CheckoutHubSheet
-          open={checkoutOpen}
-          onClose={() => setCheckoutOpen(false)}
-          productSlug={product.slug}
-          conversationId={conversationId}
         />
       </>
     );

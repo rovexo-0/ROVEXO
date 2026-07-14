@@ -82,7 +82,9 @@ describe("canonical product action bar", () => {
 
     expect(page).toContain("useProductActionBar");
 
-    expect(page).toContain("CheckoutHubSheet");
+    expect(page).toContain("/checkout/");
+
+    expect(page).not.toContain("CheckoutHubSheet");
 
     expect(page).toContain("OfferComposerSheet");
 

@@ -32,7 +32,11 @@ export function CheckoutPage({
 }: CheckoutPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const form = useCheckoutForm(product, initialDraft, { liveShippingEnabled });
+  const hubConversationId = searchParams.get("conversationId") ?? undefined;
+  const form = useCheckoutForm(product, initialDraft, {
+    liveShippingEnabled,
+    hubConversationId,
+  });
   const { view, order, isSubmitting, errorMessage } = form;
   const isSuccess = view === "success";
   const purchaseTrackedRef = useRef(false);
@@ -85,9 +89,9 @@ export function CheckoutPage({
             const resolvedOrderId = payload.order?.id ?? orderId;
             if (resolvedOrderId) {
               router.replace(
-                payload.success
-                  ? `/orders/${resolvedOrderId}?placed=1`
-                  : `/orders/${resolvedOrderId}`,
+                `/checkout/${product.slug}/success?order_id=${encodeURIComponent(resolvedOrderId)}${
+                  sessionId ? `&session_id=${encodeURIComponent(sessionId)}` : ""
+                }`,
               );
               return;
             }
@@ -97,7 +101,7 @@ export function CheckoutPage({
       }
 
       if (orderId) {
-        router.replace(`/orders/${orderId}?placed=1`);
+        router.replace(`/checkout/${product.slug}/success?order_id=${encodeURIComponent(orderId)}`);
         return;
       }
     }
@@ -111,8 +115,13 @@ export function CheckoutPage({
             "mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col justify-center px-ds-4 py-ds-6",
         )}
       >
-        {isSuccess ? (
-          <CheckoutSuccessView form={form} />
+        {isSuccess && order ? (
+          <CheckoutSuccessView
+            orderId={order.id}
+            orderNumber={order.orderNumber}
+            conversationId={hubConversationId ?? null}
+            estimatedDelivery={null}
+          />
         ) : (
           <>
             {product.availability === "out_of_stock" || product.stock <= 0 ? (

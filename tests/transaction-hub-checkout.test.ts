@@ -76,7 +76,7 @@ describe("transaction hub checkout document 2", () => {
     ).toBe(true);
   });
 
-  it("embeds checkout hub in chat without full-page buy now navigation", () => {
+  it("opens Buy Now on full-page listing checkout", () => {
     const actions = readFileSync(
       path.join(process.cwd(), "features/transaction-hub/TransactionHubBottomActions.tsx"),
       "utf8",
@@ -85,24 +85,20 @@ describe("transaction hub checkout document 2", () => {
       path.join(process.cwd(), "features/transaction-hub/CheckoutHubSheet.tsx"),
       "utf8",
     );
-    const chat = readFileSync(
-      path.join(process.cwd(), "features/messages/components/ChatPage.tsx"),
-      "utf8",
-    );
 
-    expect(actions).toContain("CheckoutHubSheet");
-    expect(actions).not.toContain("transactionHubCheckoutHref");
+    expect(actions).toContain("/checkout/");
+    expect(actions).toContain("conversationId");
+    expect(actions).not.toContain("CheckoutHubSheet");
     expect(hub).toContain("data-transaction-hub-checkout=\"embedded\"");
-    expect(hub).toContain("/api/transaction-hub/checkout");
-    expect(chat).toContain("TransactionHubPaymentSuccess");
   });
 
-  it("returns payment success to the same conversation", () => {
+  it("returns payment cancel to the same conversation when opened from hub", () => {
     const checkout = readFileSync(
       path.join(process.cwd(), "lib/orders/checkout.ts"),
       "utf8",
     );
     expect(checkout).toContain("hubConversationId");
-    expect(checkout).toContain("/inbox/conversation/${input.hubConversationId}?payment=success");
+    expect(checkout).toContain("/checkout/${product.slug}/success?order_id=");
+    expect(checkout).toContain("/inbox/conversation/${input.hubConversationId}?payment=cancelled");
   });
 });

@@ -215,6 +215,11 @@ export function useCheckoutForm(
   const placeOrder = useCallback(async () => {
     if (!canPay || isSubmitting) return;
 
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setErrorMessage("You're offline. Check your connection and try again.");
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage(null);
 
@@ -223,6 +228,21 @@ export function useCheckoutForm(
       if (!shippingAddressId) {
         setErrorMessage("Delivery address is required. Return to Delivery and continue again.");
         return;
+      }
+
+      let walletPaymentMethodId: string | null = null;
+      try {
+        const methodsResponse = await fetch("/api/payment-methods");
+        if (methodsResponse.ok) {
+          const methodsPayload = (await methodsResponse.json()) as {
+            methods?: Array<{ id: string; isDefault?: boolean }>;
+          };
+          const methods = methodsPayload.methods ?? [];
+          walletPaymentMethodId =
+            methods.find((method) => method.isDefault)?.id ?? methods[0]?.id ?? null;
+        }
+      } catch {
+        // Wallet methods optional for guest Stripe Checkout cards.
       }
 
       const response = await fetch("/api/orders/checkout", {
@@ -234,6 +254,7 @@ export function useCheckoutForm(
           shippingAddressId,
           shippingQuoteId: selectedQuote?.id ?? null,
           hubConversationId,
+          paymentMethodId: walletPaymentMethodId,
         }),
       });
 
@@ -245,12 +266,19 @@ export function useCheckoutForm(
       };
 
       if (!response.ok || !payload.success) {
-        setErrorMessage(payload.error ?? "Unable to start checkout.");
-        return;
-      }
-
-      if (payload.url?.includes("placed=1") || payload.url?.includes("order=success")) {
-        window.location.href = payload.url;
+        const raw = payload.error ?? "Unable to start checkout.";
+        const lower = raw.toLowerCase();
+        if (lower.includes("declined")) {
+          setErrorMessage("Card declined. Try another payment method or card.");
+        } else if (lower.includes("3d") || lower.includes("authentication")) {
+          setErrorMessage("Payment authentication was cancelled. You can try again.");
+        } else if (lower.includes("cancel")) {
+          setErrorMessage("Payment was cancelled. Your checkout details were kept.");
+        } else if (lower.includes("ship") || lower.includes("sendcloud")) {
+          setErrorMessage("Shipping is temporarily unavailable. Try again in a moment.");
+        } else {
+          setErrorMessage(raw);
+        }
         return;
       }
 
@@ -261,7 +289,7 @@ export function useCheckoutForm(
 
       setErrorMessage("Unable to start checkout.");
     } catch {
-      setErrorMessage("Unable to start checkout.");
+      setErrorMessage("Something went wrong. Check your connection and try again.");
     } finally {
       setIsSubmitting(false);
     }

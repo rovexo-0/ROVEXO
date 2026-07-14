@@ -32,8 +32,6 @@ import { ProductStoreSection } from "@/features/product-detail/ProductStoreSecti
 
 import { ProductReportDialog } from "@/features/product-detail/ProductReportDialog";
 
-import { CheckoutHubSheet } from "@/features/transaction-hub/CheckoutHubSheet";
-
 import { OfferComposerSheet } from "@/features/transaction-hub/OfferComposerSheet";
 
 import { formatListingPrice, formatListingPriceIncl } from "@/lib/listing-card/format";
@@ -49,8 +47,6 @@ import { getActiveMarket } from "@/lib/seo/markets";
 import { getTransactionCapabilities } from "@/lib/transaction-mode/capabilities";
 
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
-
-import { addToCartFromHub } from "@/lib/transaction-hub/cart-engine";
 
 import { useProductActionBar } from "@/features/product-detail/use-product-action-bar";
 
@@ -79,8 +75,6 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
   const { pushToast } = useToast();
 
   const { refresh: refreshBadges } = useRealtimeNotifications();
-
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const [offerOpen, setOfferOpen] = useState(false);
 
@@ -150,7 +144,7 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
 
     canMakeOffer: offerEnabled,
 
-    onBuyNow: () => setCheckoutOpen(true),
+    onBuyNow: () => router.push(`/checkout/${product.slug}`),
 
     onMakeOffer: () => setOfferOpen(true),
 
@@ -325,18 +319,6 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
         onMakeOffer={handleMakeOffer}
 
       />
-
-      <CheckoutHubSheet
-
-        open={checkoutOpen}
-
-        onClose={() => setCheckoutOpen(false)}
-
-        productSlug={product.slug}
-
-      />
-
-
 
       <OfferComposerSheet
 

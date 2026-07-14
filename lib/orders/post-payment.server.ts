@@ -5,6 +5,7 @@ import { CHECKOUT_CARRIERS } from "@/lib/checkout/delivery";
 import { openEscrowForOrder } from "@/lib/commerce-engine";
 import { buildOrderReceiptUrl } from "@/lib/invoices/receipt";
 import { notifyOrderPaid } from "@/lib/orders/notifications";
+import { ensureOrderConversation } from "@/lib/orders/ensure-order-conversation";
 import { calculateSellerNetAmount } from "@/lib/wallet/sales";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { ShippingService } from "@/lib/shipping/engine";
@@ -18,6 +19,8 @@ import {
   getShippingRecord,
   saveShippingQuotes,
 } from "@/lib/shipping/store";
+import { generateShippingLabelForOrder } from "@/lib/shipping/label-generation.server";
+import { isSendcloudConfigured } from "@/lib/shipping/env";
 import type { UkCarrier } from "@/lib/shipping/carriers";
 import type { ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
 
@@ -221,7 +224,7 @@ export async function completePaidOrderFulfillment(input: {
   orderId: string;
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
-}): Promise<{ success: boolean; error?: string }> {
+}): Promise<{ success: boolean; error?: string; conversationId?: string }> {
   try {
     return await runCompletePaidOrderFulfillment(input);
   } catch (error) {
@@ -235,7 +238,7 @@ async function runCompletePaidOrderFulfillment(input: {
   orderId: string;
   stripeSessionId?: string | null;
   stripePaymentIntentId?: string | null;
-}): Promise<{ success: boolean; error?: string }> {
+}): Promise<{ success: boolean; error?: string; conversationId?: string }> {
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
@@ -317,6 +320,27 @@ async function runCompletePaidOrderFulfillment(input: {
 
   await ensureOrderShippingPipeline(row);
 
+  const itemRow = item;
+  const conversation = await ensureOrderConversation({
+    buyerId: row.buyer_id,
+    sellerId: row.seller_id,
+    productId: itemRow.product_id ?? "",
+    productSlug: itemRow.slug,
+    orderNumber: row.order_number,
+  });
+  if ("error" in conversation) {
+    console.warn("[orders/post-payment] conversation:", conversation.error);
+  } else if (isSendcloudConfigured()) {
+    try {
+      await generateShippingLabelForOrder(input.orderId, row.seller_id);
+    } catch (error) {
+      console.warn(
+        "[orders/post-payment] Sendcloud label deferred:",
+        error instanceof Error ? error.message : error,
+      );
+    }
+  }
+
   const [{ data: buyerProfile }, { data: sellerProfile }] = await Promise.all([
     admin.from("profiles").select("email").eq("id", row.buyer_id).maybeSingle(),
     admin.from("profiles").select("email").eq("id", row.seller_id).maybeSingle(),
@@ -331,5 +355,8 @@ async function runCompletePaidOrderFulfillment(input: {
     productTitle: item.title,
   });
 
-  return { success: true };
+  return {
+    success: true,
+    conversationId: "conversationId" in conversation ? conversation.conversationId : undefined,
+  };
 }

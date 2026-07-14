@@ -103,7 +103,8 @@ describe("transaction hub chat integration", () => {
     expect(actions).toContain("Make Offer");
     expect(actions).toContain("Add to Cart");
     expect(actions).toContain("TRANSACTION_HUB_COPY.addedToCart");
-    expect(actions).toContain("CheckoutHubSheet");
+    expect(actions).toContain("/checkout/");
+    expect(actions).not.toContain("CheckoutHubSheet");
     expect(actions).not.toContain('router.push("/cart")');
   });
 });
