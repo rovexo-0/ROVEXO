@@ -113,6 +113,7 @@ export function filterInboxConversations(
     case "offers":
       return conversations.filter((item) => !item.archived && item.product.acceptOffers);
     case "disputes":
+      /* Sprint freeze: real dispute linkage lands in v1.1 — do not invent rows. */
       return [];
     case "archived":
       return conversations.filter((item) => item.archived);

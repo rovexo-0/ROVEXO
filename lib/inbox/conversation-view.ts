@@ -9,7 +9,7 @@ import { getViewerRole } from "@/lib/messages/types";
 import type { Order, OrderStatus } from "@/lib/orders/types";
 import { getOrderStatusLabel, getTrackingUrl } from "@/lib/orders/status";
 
-export const CONVERSATION_HUB_VERSION = "v1.0-sprint-3" as const;
+export const CONVERSATION_HUB_VERSION = "v1.0-frozen" as const;
 
 /** Order status rail — aligned with Orders nomenclature + Completed. */
 export const CONVERSATION_ORDER_STATUS_STEPS = [
@@ -99,7 +99,6 @@ export type ConversationTimelineItem =
 
 export type ConversationDynamicAction = {
   id:
-    | "mark_packed"
     | "add_tracking"
     | "confirm_shipment"
     | "confirm_received"
@@ -334,28 +333,10 @@ function buildSystemEventsFromOrder(order: Order | null | undefined): Conversati
   return items;
 }
 
-function buildSystemEventsFallback(conversation: Conversation): ConversationTimelineItem[] {
-  if (conversation.product.status !== "sold") return [];
-  const base = conversation.lastMessageAt || new Date().toISOString();
-  const events: ConversationSystemEventType[] = [
-    "payment_confirmed",
-    "tracking_added",
-    "delivered",
-    "review_available",
-  ];
-  return events.map((event, index) => {
-    const copy = SYSTEM_EVENT_COPY[event];
-    const at = new Date(base);
-    at.setMinutes(at.getMinutes() - (events.length - index) * 90);
-    return {
-      kind: "system" as const,
-      id: `system-${event}`,
-      at: at.toISOString(),
-      event,
-      title: copy.title,
-      subtitle: copy.subtitle,
-    };
-  });
+function buildSystemEventsFallback(_conversation: Conversation): ConversationTimelineItem[] {
+  /* Never invent logistics events without a linked order. */
+  void _conversation;
+  return [];
 }
 
 function buildTimeline(
@@ -438,7 +419,6 @@ function buildDynamicActions(
 
     const actions: ConversationDynamicAction[] = [];
     if (order.status === "awaiting_shipment") {
-      actions.push({ id: "mark_packed", label: "Mark as packed", role: "seller" });
       actions.push({ id: "add_tracking", label: "Add tracking", role: "seller" });
       actions.push({ id: "confirm_shipment", label: "Confirm shipment", role: "seller" });
     }
@@ -448,21 +428,9 @@ function buildDynamicActions(
     return actions;
   }
 
-  if (productStatus !== "sold") return [];
-
-  if (viewerRole === "buyer") {
-    return [
-      { id: "confirm_received", label: "Confirm received", role: "buyer" },
-      { id: "leave_feedback", label: "Leave feedback", role: "buyer" },
-      { id: "report_issue", label: "Report issue", role: "buyer" },
-    ];
-  }
-
-  return [
-    { id: "mark_packed", label: "Mark as packed", role: "seller" },
-    { id: "add_tracking", label: "Add tracking", role: "seller" },
-    { id: "confirm_shipment", label: "Confirm shipment", role: "seller" },
-  ];
+  void productStatus;
+  /* Without a linked order, only pre-purchase hub actions apply (handled by TransactionHubBottomActions). */
+  return [];
 }
 
 function buildTracking(
@@ -481,16 +449,7 @@ function buildTracking(
       carrierUrl: getTrackingUrl(order.deliveryCarrier, order.trackingNumber),
     };
   }
-  if (conversation.product.status === "sold") {
-    return {
-      courierName: "Carrier",
-      trackingNumber: `TRK${conversation.id.slice(0, 10).toUpperCase()}`,
-      statusLabel: "In transit",
-      latestScan: "Parcel scanned at local depot",
-      estimatedDelivery: undefined,
-      carrierUrl: null,
-    };
-  }
+  void conversation;
   return null;
 }
 

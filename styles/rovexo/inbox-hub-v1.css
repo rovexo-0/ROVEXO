@@ -668,6 +668,30 @@
   font-weight: 500;
 }
 
+.inbox-hub__banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: var(--inbox-space);
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.inbox-hub__banner button {
+  border: none;
+  background: transparent;
+  color: var(--inbox-purple);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 @media (min-width: 768px) {
   .inbox-hub {
     max-width: 720px;

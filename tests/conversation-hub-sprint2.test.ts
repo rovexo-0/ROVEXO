@@ -69,7 +69,7 @@ describe("Conversation Hub Sprint 3", () => {
   });
 
   it("uses Paid · Packed · Shipped · Delivered · Completed rail", () => {
-    expect(CONVERSATION_HUB_VERSION).toBe("v1.0-sprint-3");
+    expect(CONVERSATION_HUB_VERSION).toBe("v1.0-frozen");
     expect(CONVERSATION_ORDER_STATUS_STEPS).toEqual([
       "paid",
       "packed",

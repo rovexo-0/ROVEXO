@@ -48,7 +48,6 @@ const MESSAGE_FILTERS: { id: InboxMessageFilter; label: string }[] = [
   { id: "unread", label: "Unread" },
   { id: "orders", label: "Orders" },
   { id: "offers", label: "Offers" },
-  { id: "disputes", label: "Disputes" },
   { id: "archived", label: "Archived" },
 ];
 
@@ -187,7 +186,6 @@ function SwipeableConversationRow({
           dragging.current = false;
           if (currentOffset.current >= SWIPE_THRESHOLD) {
             onMarkRead();
-            onPin();
             reset();
             return;
           }
@@ -232,6 +230,7 @@ export function InboxPage() {
   const [notifications, setLocalNotifications] = useState<Notification[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const [hubError, setHubError] = useState<string | null>(null);
   const [filter, setFilter] = useState<InboxMessageFilter>("all");
   const [searchOpen, setSearchOpen] = useState(searchParams.get("search") === "1");
   const [query, setQuery] = useState("");
@@ -278,6 +277,17 @@ export function InboxPage() {
 
         if (cancelled) return;
 
+        if (!messagesResponse.ok && !notificationsResponse.ok) {
+          setHubError(
+            typeof navigator !== "undefined" && !navigator.onLine
+              ? "You’re offline."
+              : "Unable to load Inbox.",
+          );
+          return;
+        }
+
+        setHubError(null);
+
         if (messagesResponse.ok) {
           const payload = (await messagesResponse.json()) as { conversations?: Conversation[] };
           if (!cancelled) setConversations(payload.conversations ?? []);
@@ -292,6 +302,14 @@ export function InboxPage() {
             setLocalNotifications(next);
             setNotifications(next);
           }
+        }
+      } catch {
+        if (!cancelled) {
+          setHubError(
+            typeof navigator !== "undefined" && !navigator.onLine
+              ? "You’re offline."
+              : "Unable to load Inbox.",
+          );
         }
       } finally {
         if (!cancelled) {
@@ -467,6 +485,7 @@ export function InboxPage() {
       <div
         className="inbox-hub"
         data-inbox-hub={INBOX_CANONICAL_VERSION}
+        data-inbox-freeze="FROZEN"
         data-inbox-realtime="foundation"
         onTouchStart={(event) => {
           if (window.scrollY <= 0) pullStartY.current = event.touches[0]?.clientY ?? null;
@@ -479,6 +498,26 @@ export function InboxPage() {
         }}
       >
         {refreshing ? <div className="inbox-hub__refresh">Refreshing…</div> : null}
+
+        {hubError ? (
+          <div className="inbox-hub__banner" role="alert">
+            <span>{hubError}</span>
+            <button
+              type="button"
+              onClick={() => {
+                setLoadingMessages(true);
+                setLoadingNotifications(true);
+                setHubError(null);
+                void refreshAll().finally(() => {
+                  setLoadingMessages(false);
+                  setLoadingNotifications(false);
+                });
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        ) : null}
 
         <div className="inbox-hub__tabs" role="tablist" aria-label="Inbox sections">
           <button

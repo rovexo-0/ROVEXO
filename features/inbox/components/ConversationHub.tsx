@@ -166,7 +166,12 @@ function OrderStatusRail({
 
 function ConversationSkeleton() {
   return (
-    <div className="conv-hub" data-conversation-hub={CONVERSATION_HUB_VERSION} aria-busy="true">
+    <div
+      className="conv-hub"
+      data-conversation-hub={CONVERSATION_HUB_VERSION}
+      data-conversation-freeze="FROZEN"
+      aria-busy="true"
+    >
       <div className="conv-hub__header">
         <span className="conv-hub__skel conv-hub__skel--icon" />
         <span className="conv-hub__skel conv-hub__skel--title" />
@@ -642,10 +647,6 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
         void reloadRelated();
         return;
       }
-      if (actionId === "mark_packed") {
-        pushToast({ title: "Marked as packed.", variant: "success" });
-        return;
-      }
       if (actionId === "confirm_received" || actionId === "confirm_delivery") {
         const response = await fetch(`/api/orders/${order.id}`, {
           method: "PATCH",
@@ -704,6 +705,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       <div
         className="conv-hub"
         data-conversation-hub={CONVERSATION_HUB_VERSION}
+        data-conversation-freeze="FROZEN"
         data-conversation-realtime="live"
       >
         <header className="conv-hub__header">
@@ -755,12 +757,14 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ action: "mute", value: !conversation.muted }),
-                    }).then(() =>
+                    }).then((response) => {
+                      if (!response.ok) return;
+                      setConversation((current) => ({ ...current, muted: !current.muted }));
                       pushToast({
                         title: conversation.muted ? "Conversation unmuted." : "Conversation muted.",
                         variant: "success",
-                      }),
-                    );
+                      });
+                    });
                   }}
                 >
                   {conversation.muted ? "Unmute" : "Mute"} conversation
@@ -987,14 +991,16 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                       <p className="conv-hub__offer-state">{offer.state.replace("_", " ")}</p>
                       {offer.state === "open" ? (
                         <div className="conv-hub__offer-actions">
-                          <button
-                            type="button"
-                            className="conv-hub__offer-btn conv-hub__offer-btn--primary"
-                            disabled={actionBusy === offer.id}
-                            onClick={() => void patchOffer(offer.id, "accept")}
-                          >
-                            Accept
-                          </button>
+                          {view.viewerRole === "seller" ? (
+                            <button
+                              type="button"
+                              className="conv-hub__offer-btn conv-hub__offer-btn--primary"
+                              disabled={actionBusy === offer.id}
+                              onClick={() => void patchOffer(offer.id, "accept")}
+                            >
+                              Accept
+                            </button>
+                          ) : null}
                           <button
                             type="button"
                             className="conv-hub__offer-btn"

@@ -1,6 +1,6 @@
-/** Canonical Inbox Hub routes — Sprint 1 SSOT. */
+/** Canonical Inbox Hub routes — v1.0 FROZEN SSOT. */
 
-export const INBOX_CANONICAL_VERSION = "v1.0-sprint-1" as const;
+export const INBOX_CANONICAL_VERSION = "v1.0-frozen" as const;
 
 export const INBOX_ROUTES = {
   hub: "/inbox",
