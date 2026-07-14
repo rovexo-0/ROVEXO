@@ -14,7 +14,7 @@ import {
   SocialLogin,
 } from "@/components/auth";
 import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
-import { MailLineIcon } from "@/components/icons/RvxLineIcons";
+import { MailLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { AuthAlert } from "@/features/auth/components/AuthAlert";
 import { AuthLink } from "@/features/auth/components/AuthLink";
 import { AuthSpinner } from "@/features/auth/components/AuthSpinner";
@@ -31,8 +31,8 @@ type LoginScreenProps = {
 const PREMIUM_SOCIAL = ["apple", "google"] as const;
 
 /**
- * ROVEXO_LOGIN_FINAL_FREEZE_v1.0 presentation.
- * Master-spec / routes / actions untouched — UI hierarchy only.
+ * ROVEXO LOGIN_UI_FINAL_LOCK — presentation only.
+ * Layout / hierarchy / auth logic locked. Micro polish only.
  */
 const LOGIN_UI = {
   title: "Welcome back",
@@ -65,7 +65,7 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
       data-auth-spec={AUTH_MASTER_SPEC.version}
       data-auth-screen="login"
       data-auth-version="v1.0-legal-lock"
-      data-auth-ui="v1.0-final-freeze"
+      data-auth-ui="v1.0-ui-lock"
     >
       <AuthBackButton href={routes.back} className="auth-login__back" />
       <AuthContainer>
@@ -126,7 +126,10 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
               )}
             </PrimaryButton>
             <div className="auth-login__trust" role="note">
-              <p className="auth-login__trust-title">{LOGIN_UI.trustTitle}</p>
+              <p className="auth-login__trust-title">
+                <ShieldLineIcon className="auth-login__trust-icon" aria-hidden />
+                <span>{LOGIN_UI.trustTitle}</span>
+              </p>
               <p className="auth-login__trust-copy">{LOGIN_UI.trustCopy}</p>
             </div>
           </div>
@@ -138,12 +141,12 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
         </div>
 
         <AuthFooter className="auth-login__footer">
-          <div className="auth-login__register">
-            <p className="auth-login__register-prompt">{copy.footerPrefix}</p>
+          <p className="auth-login__register-prompt">
+            {copy.footerPrefix}{" "}
             <AuthLink href="/register" className="auth-login__register-cta">
               {LOGIN_UI.createAccount}
             </AuthLink>
-          </div>
+          </p>
         </AuthFooter>
       </AuthContainer>
     </div>
