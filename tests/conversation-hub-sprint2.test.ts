@@ -6,8 +6,10 @@ import {
   CONVERSATION_ORDER_STATUS_STEPS,
   buildConversationHubView,
   buildOrderStatusSteps,
+  mapOfferDbStatus,
 } from "@/lib/inbox";
 import type { Conversation } from "@/lib/messages/types";
+import type { Order } from "@/lib/orders/types";
 
 function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
@@ -52,49 +54,65 @@ const sampleConversation = {
   ],
 } as Conversation;
 
-describe("Conversation Hub Sprint 2", () => {
-  it("mounts ConversationHub on the canonical conversation route", () => {
+describe("Conversation Hub Sprint 3", () => {
+  it("mounts ConversationHub with sprint-3 version markers", () => {
     const route = readSource("app/inbox/conversation/[conversationId]/page.tsx");
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
     const css = readSource("styles/rovexo/conversation-hub-v1.css");
-    const index = readSource("styles/rovexo/index.css");
 
     expect(route).toContain("ConversationHub");
-    expect(route).toContain("fetchConversationById");
-    expect(hub).toContain(`data-conversation-hub={CONVERSATION_HUB_VERSION}`);
-    expect(hub).toContain("data-conversation-realtime");
+    expect(hub).toContain("CONVERSATION_HUB_VERSION");
+    expect(hub).toContain("uploadListingImage");
+    expect(hub).toContain("signalTyping");
+    expect(hub).toContain("refreshBadges");
     expect(css).toContain(".conv-hub");
-    expect(index).toContain("./conversation-hub-v1.css");
   });
 
-  it("builds hub view with order status rail and timeline messages", () => {
-    expect(CONVERSATION_HUB_VERSION).toBe("v1.0-sprint-2");
+  it("uses Paid · Packed · Shipped · Delivered · Completed rail", () => {
+    expect(CONVERSATION_HUB_VERSION).toBe("v1.0-sprint-3");
     expect(CONVERSATION_ORDER_STATUS_STEPS).toEqual([
       "paid",
-      "preparing",
-      "dispatched",
-      "in_transit",
+      "packed",
+      "shipped",
       "delivered",
       "completed",
     ]);
 
-    const view = buildConversationHubView({ conversation: sampleConversation });
-    expect(view.product.title).toBe("Vintage Lamp");
-    expect(view.timeline.some((item) => item.kind === "message")).toBe(true);
-    expect(view.tracking).toBeNull();
-    expect(view.dispute).toBeNull();
-    expect(view.dynamicActions).toHaveLength(0);
+    const shippedOrder = {
+      id: "o1",
+      orderNumber: "RX-1",
+      status: "shipped",
+      product: sampleConversation.product,
+      buyer: { id: "b", name: "Buyer" },
+      seller: { id: "s", name: "Seller" },
+      totals: { itemPrice: 42, platformFee: 0, delivery: 0, total: 42 },
+      deliveryCarrier: "Royal Mail",
+      trackingNumber: "AB123",
+      createdAt: new Date().toISOString(),
+      shippedAt: new Date().toISOString(),
+      disputesDisabled: false,
+    } as Order;
 
-    const soldSteps = buildOrderStatusSteps("sold");
-    expect(soldSteps.every((step) => step.state === "complete" || step.state === "current")).toBe(true);
+    const view = buildConversationHubView({
+      conversation: sampleConversation,
+      order: shippedOrder,
+    });
+
+    expect(view.tracking?.trackingNumber).toBe("AB123");
+    expect(view.statusSteps.find((step) => step.state === "current")?.id).toBe("shipped");
+    expect(view.dynamicActions.some((action) => action.id === "confirm_shipment")).toBe(true);
   });
 
-  it("keeps offer and dispute controls presentation-ready without Sprint 3 backends", () => {
-    const hub = readSource("features/inbox/components/ConversationHub.tsx");
-    expect(hub).toContain("Open dispute");
-    expect(hub).toContain("Accept");
-    expect(hub).toContain("Counter");
-    expect(hub).toContain("subscribeConversationRealtime");
-    expect(hub).not.toContain("POST /api/disputes");
+  it("maps offer database statuses and wires offer action API", () => {
+    expect(mapOfferDbStatus("rejected")).toBe("declined");
+    expect(mapOfferDbStatus("pending")).toBe("open");
+    expect(readSource("app/api/offers/[id]/route.ts")).toContain('action: z.enum(["accept", "decline", "counter"])');
+    expect(readSource("app/api/messages/[id]/route.ts")).toContain('kind?: "text" | "photo" | "emoji"');
+  });
+
+  it("builds product-progress rails without an order", () => {
+    const soldSteps = buildOrderStatusSteps("sold");
+    expect(soldSteps.at(-1)?.state).toBe("current");
+    expect(soldSteps.slice(0, -1).every((step) => step.state === "complete")).toBe(true);
   });
 });

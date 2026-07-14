@@ -13,6 +13,44 @@ const createOfferSchema = z.object({
   conversationId: z.string().uuid().optional(),
 });
 
+export async function GET(request: Request) {
+  const { user } = await requireAuthContext();
+  const productSlug = new URL(request.url).searchParams.get("productSlug");
+  if (!productSlug) {
+    return NextResponse.json({ success: false, error: "productSlug required." }, { status: 400 });
+  }
+
+  const supabase = await createClient();
+  const { data: product } = await supabase
+    .from("products")
+    .select("id")
+    .eq("slug", productSlug)
+    .maybeSingle();
+
+  if (!product) {
+    return NextResponse.json({ offers: [] });
+  }
+
+  const { data: offers } = await supabase
+    .from("offers")
+    .select("id, amount, status, created_at, buyer_id, seller_id, message")
+    .eq("product_id", product.id)
+    .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+    .order("created_at", { ascending: true });
+
+  return NextResponse.json({
+    offers: (offers ?? []).map((offer) => ({
+      id: offer.id,
+      amount: Number(offer.amount),
+      status: offer.status,
+      createdAt: offer.created_at,
+      buyerId: offer.buyer_id,
+      sellerId: offer.seller_id,
+      message: offer.message,
+    })),
+  });
+}
+
 export async function POST(request: Request) {
   const { user } = await requireAuthContext();
 

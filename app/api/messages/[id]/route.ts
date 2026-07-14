@@ -39,6 +39,7 @@ export async function POST(request: Request, context: RouteContext) {
       content?: string;
       senderRole?: "buyer" | "seller";
       replyToId?: string;
+      kind?: "text" | "photo" | "emoji";
     };
 
     if (!body.content?.trim() || !body.senderRole) {
@@ -50,12 +51,15 @@ export async function POST(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
     }
 
+    const kind = body.kind === "photo" || body.kind === "emoji" ? body.kind : "text";
+
     const result = await appendMessage({
       conversationId: id,
       senderId: auth.user.id,
       senderRole: body.senderRole,
       content: body.content.trim(),
       replyToId: body.replyToId,
+      kind,
     });
 
     if (!result.message) {

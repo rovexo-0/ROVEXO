@@ -103,6 +103,6 @@ describe("transaction hub checkout document 2", () => {
       "utf8",
     );
     expect(checkout).toContain("hubConversationId");
-    expect(checkout).toContain("/messages/${input.hubConversationId}?payment=success");
+    expect(checkout).toContain("/inbox/conversation/${input.hubConversationId}?payment=success");
   });
 });

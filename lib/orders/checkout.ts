@@ -184,7 +184,7 @@ export async function createOrderCheckoutSession(
 
   const baseUrl = getAppBaseUrl();
   const orderSuccessPath = input.hubConversationId
-    ? `/messages/${input.hubConversationId}?payment=success&order_id=${orderRow.id}`
+    ? `/inbox/conversation/${input.hubConversationId}?payment=success&order_id=${orderRow.id}`
     : `/orders/${orderRow.id}?placed=1`;
   const orderSuccessUrl = `${baseUrl}${orderSuccessPath}`;
   const cancelQuery = new URLSearchParams({
@@ -192,7 +192,7 @@ export async function createOrderCheckoutSession(
     order_id: orderRow.id,
   });
   const cancelPath = input.hubConversationId
-    ? `/messages/${input.hubConversationId}?payment=cancelled&${cancelQuery.toString()}&slug=${product.slug}`
+    ? `/inbox/conversation/${input.hubConversationId}?payment=cancelled&${cancelQuery.toString()}&slug=${product.slug}`
     : `/checkout/${product.slug}?${cancelQuery.toString()}`;
   const cancelUrl = `${baseUrl}${cancelPath}`;
 
