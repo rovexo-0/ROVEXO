@@ -1,0 +1,94 @@
+---
+description: REGISTER_MASTER_LOCK — Register v1.0 certified permanently locked; one Register/auth system only
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — REGISTER MASTER LOCK
+
+**STATUS: CANONICAL | APPROVED | CERTIFIED | PRODUCTION READY | PERMANENTLY LOCKED | 100/100**
+
+**Register v1.0 is a READ-ONLY canonical component.** Do not reopen for redesign.
+
+Primary entry: `features/auth/components/RegisterScreen.tsx` · `app/(auth)/register/**` · register styles in `styles/rovexo/auth-v1.css`
+
+## Canonical singularity
+
+ROVEXO shall maintain **exactly one**:
+
+- Register page
+- Register flow
+- Authentication system
+- Account creation flow
+
+**No duplicates or parallel implementations.**
+
+## Locked structure (immutable order)
+
+1. ROVEXO logo (wordmark — never RX)
+2. BUY . SELL . GROW.
+3. Create your account
+4. Welcome to ROVEXO.
+5. First Name
+6. Last Name
+7. Email Address
+8. Password
+9. Confirm Password
+10. Country
+11. Agree To Terms
+12. Create Account
+13. Protected Sign-up
+14. Continue with Apple
+15. Continue with Google
+16. Already have an account?
+17. Sign In
+
+No other elements permitted.
+
+## Account rules
+
+**Required:** unique email · verified email · secure password · terms acceptance · privacy acceptance  
+
+**Optional:** Apple Sign Up · Google Sign Up  
+
+**Not required for v1.0:** phone number · username · avatar · profile wizard
+
+## Password policy
+
+- Minimum 8 characters
+- Must support uppercase, lowercase, numbers, special characters
+- Never store locally insecurely · never expose · never log · never cache insecurely
+
+## Auth flow (locked)
+
+Register → Email validation → Account created → Auto sign-in → Welcome state → Homepage  
+
+No extra steps. Account creation target: **&lt; 60 seconds**.
+
+## Social auth
+
+**Allowed UI:** Apple · Google  
+
+**Not allowed v1.0:** Facebook · X · LinkedIn · GitHub · Discord · Microsoft
+
+## Allowed after freeze
+
+Bug · security · accessibility · deployment fixes only — **without** changing hierarchy, UX, layout, structure, or account flow.
+
+## Prohibited
+
+Usernames · avatars · profile setup wizard · marketing popups · questionnaires · onboarding flows · duplicate buttons/pages · new providers · redesign of layout/hierarchy.
+
+## Design principles
+
+Must feel: fast · premium · minimal · professional · marketplace · mobile-first · responsive · accessible.  
+
+Zero unnecessary fields, questions, steps, or redirects.
+
+## Next development phase (do not revisit Register)
+
+1. AUTH MASTER SPECIFICATION  
+2. AUTH QA  
+3. LAUNCH CERTIFICATION  
+4. PRODUCTION RELEASE  
+
+**SPLASH is separately frozen** (see `splash-v1-freeze.mdc`). Unfreeze Register only for critical security / production-break issues, or explicit **ROVEXO v2.0** / Master Spec approval.

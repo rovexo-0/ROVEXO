@@ -8,19 +8,19 @@ import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
 /**
  * Clears Supabase auth cookies on the redirect response.
  * Server Component signOut + redirect leaves cookies intact and caused
- * /login ↔ /account redirect loops in production.
+ * auth ↔ app redirect loops in production.
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const error = searchParams.get("error");
 
-  const loginUrl = new URL("/login", origin);
+  const welcomeUrl = new URL("/welcome", origin);
   if (error && Object.prototype.hasOwnProperty.call(AUTH_ERROR_MESSAGES, error)) {
-    loginUrl.searchParams.set("error", error);
+    welcomeUrl.searchParams.set("error", error);
   }
 
   const cookieStore = await cookies();
-  const response = NextResponse.redirect(loginUrl);
+  const response = NextResponse.redirect(welcomeUrl);
 
   const supabase = createServerClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {
     cookies: {

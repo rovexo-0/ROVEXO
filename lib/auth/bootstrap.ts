@@ -20,7 +20,7 @@ function yieldToPaint(): Promise<void> {
   });
 }
 
-function welcomeResult(phases: AuthSplashPhase[]): SplashBootstrapResult {
+function guestResult(phases: AuthSplashPhase[]): SplashBootstrapResult {
   return {
     destination: AUTH_ROUTES.welcome,
     authenticated: false,
@@ -29,6 +29,10 @@ function welcomeResult(phases: AuthSplashPhase[]): SplashBootstrapResult {
   };
 }
 
+/**
+ * Canonical splash session handler — single entry for cold-start auth routing.
+ * Does not expose tokens or internal errors to the UI.
+ */
 export async function resolveSplashDestination(
   onPhase?: (phase: AuthSplashPhase) => void,
 ): Promise<SplashBootstrapResult> {
@@ -48,44 +52,60 @@ export async function resolveSplashDestination(
 
     track("initialize_supabase");
     if (!isSupabaseConfigured()) {
-      return welcomeResult(phases);
+      return guestResult(phases);
     }
 
     const supabase = tryCreateClient();
     if (!supabase) {
-      return welcomeResult(phases);
+      return guestResult(phases);
     }
 
     track("restore_session");
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
 
-    const user = session?.user;
-    if (!user) {
-      return welcomeResult(phases);
-    }
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    const emailVerified = Boolean(user.email_confirmed_at);
-    if (!emailVerified) {
+      if (!session?.user) {
+        return guestResult(phases);
+      }
+
+      /* Silent refresh / validate — expired or invalid session → local sign-out → guest */
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData.user) {
+        try {
+          await supabase.auth.signOut({ scope: "local" });
+        } catch {
+          /* never surface auth errors on splash */
+        }
+        return guestResult(phases);
+      }
+
+      const user = userData.user;
+      const emailVerified = Boolean(user.email_confirmed_at);
+      if (!emailVerified) {
+        return {
+          destination: `${AUTH_ROUTES.verifyEmail}?email=${encodeURIComponent(user.email ?? "")}`,
+          authenticated: true,
+          emailVerified: false,
+          phases,
+        };
+      }
+
       return {
-        destination: `${AUTH_ROUTES.verifyEmail}?email=${encodeURIComponent(user.email ?? "")}`,
+        destination: AUTH_MASTER_SPEC.splash.destinations.authenticatedVerified,
         authenticated: true,
-        emailVerified: false,
+        emailVerified: true,
         phases,
       };
+    } catch {
+      return guestResult(phases);
     }
-
-    return {
-      destination: AUTH_MASTER_SPEC.splash.destinations.authenticatedVerified,
-      authenticated: true,
-      emailVerified: true,
-      phases,
-    };
   })();
 
   const timeout = new Promise<SplashBootstrapResult>((resolve) => {
-    window.setTimeout(() => resolve(welcomeResult([...phases])), AUTH_SPLASH.maxWaitMs);
+    window.setTimeout(() => resolve(guestResult([...phases])), AUTH_SPLASH.maxWaitMs);
   });
 
   const [result] = await Promise.all([Promise.race([sessionPromise, timeout]), minDelay]);

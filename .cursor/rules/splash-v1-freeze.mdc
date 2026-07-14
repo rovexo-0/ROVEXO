@@ -1,0 +1,40 @@
+---
+description: SPLASH_SCREEN_MASTER_SPEC — one canonical splash; Login/Register frozen; session bootstrap only
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — SPLASH SCREEN MASTER SPEC
+
+**STATUS: CANONICAL | PRODUCTION READY | CERTIFIED**
+
+**Exactly one Splash Screen.** Do not create duplicates.
+
+Entry: `features/auth/components/SplashScreen.tsx` · `app/(auth)/splash/**` · `lib/auth/bootstrap.ts` · `AUTH_MASTER_SPEC.splash`
+
+DOM: `data-auth-screen="splash"` · `data-auth-ui="v1.0-splash-ready"` · `data-splash-lock="CANONICAL"`
+
+## Locked behaviour
+
+- Show instantly (premium light background only — no dark mode)
+- ROVEXO mark + wordmark + BUY. SELL. GROW. + fade-only load cue
+- Timing: `minDisplayMs` 500 · `maxWaitMs` 1500 · fade 600ms
+- Session: getSession → getUser (silent refresh/validate) → guest `/welcome` | verify-email | `/`
+- Invalid/expired: local sign-out → guest (no token/error exposure)
+- Motion: fade_only — **no** spinner string, scale, or bounce
+- RX app icon mark allowed on Splash only
+
+## Singularity
+
+ONE splash · ONE session bootstrap (`resolveSplashDestination`) · ONE auth system.
+
+## Do not touch
+
+Login v1.0 and Register v1.0 remain FROZEN. Do not modify their UI or auth flows from Splash work.
+
+## Allowed
+
+Security · performance · a11y · responsive · bug · deployment fixes that preserve splash contract.
+
+## Next phase
+
+AUTH MASTER SPECIFICATION → AUTH QA → LAUNCH CERTIFICATION → PRODUCTION RELEASE

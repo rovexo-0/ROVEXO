@@ -1,0 +1,82 @@
+---
+description: LOGIN_FINAL_FREEZE_AND_AUTH_POLICY — Login v1.0 certified read-only; one Login/Register/Splash/Auth system only
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — LOGIN FINAL FREEZE + AUTH POLICY
+
+**STATUS: APPROVED | CERTIFIED | PRODUCTION READY | FROZEN | PERMANENTLY LOCKED | 100/100**
+
+**Login v1.0 is a READ-ONLY canonical component.** All Cursor agents must obey this policy.
+
+DOM: `data-auth-ui="v1.0-ui-lock"` · `data-auth-version="v1.0-legal-lock"` · `data-auth-screen="login"`  
+Primary files: `features/auth/components/LoginScreen.tsx`, `styles/rovexo/auth-v1.css` (`.auth-login--premium`), `app/(auth)/login/**`
+
+## Canonical singularity (project-wide)
+
+ROVEXO shall maintain **exactly one** of each:
+
+- Login page
+- Register page
+- Splash screen
+- Auth system
+- Master Auth Specification
+
+**No duplicates, parallel implementations, or alternate auth UIs** anywhere in the repo.
+
+## Locked Login structure (immutable order)
+
+1. ROVEXO logo (wordmark — never RX app icon on Login)
+2. BUY . SELL . GROW.
+3. Welcome back
+4. Good to see you again.
+5. Email Address
+6. Password
+7. Remember me
+8. Forgot password
+9. Sign In
+10. Protected Sign-in
+11. Continue with Apple
+12. Continue with Google
+13. Create Account
+
+No additional elements permitted.
+
+## Permanently locked (never structurally modify)
+
+Logo · typography hierarchy · layout · auth flow · CTA hierarchy · inputs · Protected Sign-in · Remember me · Forgot password · social login · Create Account · responsive · a11y · reduced motion · focus/success/error states · performance standards · APIs · Supabase · Register connection.
+
+## Allowed after freeze (only)
+
+Security · performance · accessibility · browser compatibility · bug · deployment · lint · TypeScript · production fixes —
+
+**WITHOUT** changing design, hierarchy, spacing, UX, or authentication behaviour.
+
+## Forbidden (reject)
+
+Redesign · dark mode · illustrations · new layouts/buttons/sections · new auth flows/providers · duplicate Login/Register/Splash/Auth · experimental UI · marketing/typography/spacing/hierarchy redesigns.
+
+## Freeze policy
+
+Reject any change that modifies UI, UX, hierarchy, layout, spacing, branding, responsiveness, or authentication flow — **unless**:
+
+1. Critical security issue, or  
+2. Production-breaking issue, or  
+3. Explicit **ROVEXO v2.0** approval, or  
+4. Master Specification approval.
+
+Login v1.0 must **never** be unfrozen for cosmetic preference, redesign, experiment, or marketing requests.
+
+## Design principles
+
+Must feel: premium · minimal · fast · professional · marketplace · trustworthy · conversion · Apple-grade simplicity.  
+Must never feel: SaaS · CRM · gaming · corporate portal · admin · social network · banking app.
+
+## Next development phase (do not revisit Login)
+
+1. AUTH MASTER SPECIFICATION  
+2. AUTH QA  
+3. LAUNCH CERTIFICATION  
+4. PRODUCTION RELEASE  
+
+**REGISTER**, **SPLASH**, and **WELCOME** are separately frozen. Do not reopen frozen auth screens unless a critical issue is found.

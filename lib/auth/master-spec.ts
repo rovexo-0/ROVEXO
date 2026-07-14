@@ -35,9 +35,10 @@ export const AUTH_MASTER_SPEC = {
     /** Ordered bootstrap phases — must execute in sequence. */
     phases: ["initialize_app", "initialize_supabase", "restore_session"] as const,
     motion: "fade_only" as const,
-    minDisplayMs: 800,
+    /** Visible splash window: 500ms min → 1500ms max session wait. */
+    minDisplayMs: 500,
     fadeDurationMs: 600,
-    maxWaitMs: 4000,
+    maxWaitMs: 1500,
     /** No scale, bounce, or spinner on splash. */
     prohibitedMotion: ["scale", "bounce", "spinner"] as const,
     destinations: {
@@ -57,8 +58,7 @@ export const AUTH_MASTER_SPEC = {
     presentation: {
       layout: "full_bleed",
       shell: "none",
-      background:
-        "linear-gradient(180deg, #f5f0ff 0%, #faf8ff 42%, #ffffff 100%)",
+      background: "linear-gradient(180deg, #ffffff 0%, #fafafa 48%, #ffffff 100%)",
       noWhiteScreen: true,
     },
   },

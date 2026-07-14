@@ -31,7 +31,8 @@ describe("AUTH_MASTER_SPEC v1.0 — splash screen", () => {
     expect(AUTH_ROUTES.welcome).toBe("/welcome");
     expect(AUTH_ROUTES.home).toBe("/");
     expect(AUTH_SPLASH.fadeDurationMs).toBe(600);
-    expect(AUTH_SPLASH.minDisplayMs).toBe(800);
+    expect(AUTH_SPLASH.minDisplayMs).toBe(500);
+    expect(AUTH_SPLASH.maxWaitMs).toBe(1500);
   });
 
   it("lists splash and welcome as public auth routes", () => {

@@ -119,10 +119,11 @@ export async function updateSession(request: NextRequest) {
     }
 
     if (!user && isProtected && !isApiRoute) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/login";
-      loginUrl.searchParams.set("next", pathname);
-      return applyPendingCookies(NextResponse.redirect(loginUrl), pendingCookies);
+      const welcomeUrl = request.nextUrl.clone();
+      welcomeUrl.pathname = "/welcome";
+      welcomeUrl.search = "";
+      welcomeUrl.searchParams.set("next", pathname);
+      return applyPendingCookies(NextResponse.redirect(welcomeUrl), pendingCookies);
     }
 
     if (user && !user.email_confirmed_at && isProtected && !isApiRoute) {

@@ -16,6 +16,17 @@ function SplashWordmark() {
   );
 }
 
+/** Premium non-blocking load cue — fade-only (no spinner / scale / bounce). */
+function SplashIndicator() {
+  return (
+    <div className="auth-splash__indicator" aria-hidden>
+      <span />
+      <span />
+      <span />
+    </div>
+  );
+}
+
 export function SplashScreen() {
   const router = useRouter();
   const [exiting, setExiting] = useState(false);
@@ -52,10 +63,15 @@ export function SplashScreen() {
       data-auth-module={AUTH_MODULE_VERSION}
       data-auth-spec={AUTH_MASTER_SPEC.version}
       data-auth-screen="splash"
+      data-auth-ui="v1.0-splash-ready"
+      data-splash-lock="CANONICAL"
     >
-      <RovexoAppIconMark className="auth-splash__mark" contained uid="splash" />
-      <SplashWordmark />
-      <p className="auth-splash__tagline">{copy.tagline}</p>
+      <div className="auth-splash__stage">
+        <RovexoAppIconMark className="auth-splash__mark" contained uid="splash" />
+        <SplashWordmark />
+        <p className="auth-splash__tagline">{copy.tagline}</p>
+        <SplashIndicator />
+      </div>
     </div>
   );
 }

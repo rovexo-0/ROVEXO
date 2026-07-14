@@ -1,0 +1,45 @@
+---
+description: WELCOME_SCREEN_MASTER_SPEC — one canonical Welcome; Login/Register/Splash frozen
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — WELCOME SCREEN MASTER SPEC
+
+**STATUS: CANONICAL | CERTIFIED | PRODUCTION READY**
+
+**Exactly one Welcome Screen.** Do not create duplicates.
+
+Entry: `features/auth/components/WelcomeScreen.tsx` · `app/(auth)/welcome/**` · welcome styles in `styles/rovexo/auth-v1.css`
+
+DOM: `data-auth-screen="welcome"` · `data-auth-ui="v1.0-welcome-ready"` · `data-welcome-lock="CANONICAL"`
+
+## Flow (locked)
+
+Splash → session check → authenticated? → Homepage · else → **Welcome** → Login **or** Register → verify → Homepage
+
+## Locked content
+
+- ROVEXO wordmark + BUY. SELL. GROW.
+- Title: Welcome to ROVEXO
+- Subtitle: Buy. Sell. Grow. / Built for serious buyers and sellers.
+- Primary: Sign In → `/login`
+- Secondary: Create Account → `/register`
+- Social UI: Apple + Google only (equal row)
+- Protected Authentication badge
+- Light mode only · premium white · mobile-first 430px
+
+## Singularity
+
+ONE Welcome · ONE auth system · ONE session bootstrap (Splash).
+
+## Do not touch
+
+Login · Register · Splash remain frozen. Welcome work must not edit those screens.
+
+## Allowed after certification
+
+Security · a11y · responsive · bug · deployment fixes without hierarchy/UX redesign.
+
+## Next phase
+
+AUTH MASTER SPECIFICATION → AUTH QA → LAUNCH CERTIFICATION → PRODUCTION RELEASE

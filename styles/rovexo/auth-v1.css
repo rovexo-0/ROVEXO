@@ -5,11 +5,12 @@
 
 .auth-splash-route {
   min-height: 100dvh;
+  background: #ffffff;
 }
 
 .auth-splash {
-  --auth-splash-bg-top: #f5f0ff;
-  --auth-splash-bg-mid: #faf8ff;
+  --auth-splash-bg-top: #ffffff;
+  --auth-splash-bg-mid: #fafafa;
   --auth-splash-bg-bottom: #ffffff;
   position: fixed;
   inset: 0;
@@ -21,10 +22,11 @@
   min-height: 100dvh;
   padding: max(env(safe-area-inset-top), 24px) max(env(safe-area-inset-right), 24px)
     max(env(safe-area-inset-bottom), 24px) max(env(safe-area-inset-left), 24px);
+  color-scheme: light;
   background: linear-gradient(
     180deg,
     var(--auth-splash-bg-top) 0%,
-    var(--auth-splash-bg-mid) 42%,
+    var(--auth-splash-bg-mid) 48%,
     var(--auth-splash-bg-bottom) 100%
   );
   opacity: 1;
@@ -36,28 +38,69 @@
   pointer-events: none;
 }
 
+.auth-splash__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 430px);
+  padding-inline: 16px;
+}
+
 .auth-splash__mark {
   width: 96px;
   height: 96px;
-  animation: auth-splash-fade-in 600ms ease-out both;
+  border-radius: 22px;
+  box-shadow: 0 8px 28px rgb(15 15 18 / 0.06);
+  animation: auth-splash-fade-in 500ms ease-out both;
 }
 
 .auth-splash__wordmark {
-  margin-top: 20px;
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--ds-color-text-primary, #0f0f12);
-  animation: auth-splash-fade-in 600ms ease-out 120ms both;
+  margin-top: 22px;
+  font-size: clamp(1.5rem, 4.5vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: #09090b;
+  animation: auth-splash-fade-in 500ms ease-out 80ms both;
 }
 
 .auth-splash__tagline {
-  margin-top: 8px;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--ds-color-text-secondary, #5c5c66);
-  animation: auth-splash-fade-in 600ms ease-out 200ms both;
+  margin-top: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #71717a;
+  animation: auth-splash-fade-in 500ms ease-out 140ms both;
+}
+
+.auth-splash__indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 28px;
+  min-height: 8px;
+  animation: auth-splash-fade-in 500ms ease-out 200ms both;
+}
+
+.auth-splash__indicator span {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #7c3aed;
+  opacity: 0.35;
+  animation: auth-splash-indicator-pulse 1s ease-in-out infinite;
+}
+
+.auth-splash__indicator span:nth-child(2) {
+  animation-delay: 160ms;
+}
+
+.auth-splash__indicator span:nth-child(3) {
+  animation-delay: 320ms;
 }
 
 @keyframes auth-splash-fade-in {
@@ -66,6 +109,29 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes auth-splash-indicator-pulse {
+  0%,
+  100% {
+    opacity: 0.28;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-splash,
+  .auth-splash__mark,
+  .auth-splash__wordmark,
+  .auth-splash__tagline,
+  .auth-splash__indicator,
+  .auth-splash__indicator span {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
   }
 }
 
@@ -293,6 +359,214 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+/* ── WELCOME_SCREEN_MASTER_SPEC v1.0 (Welcome only) ── */
+
+.auth-welcome.auth-welcome--premium {
+  --welcome-bg: #ffffff;
+  --welcome-primary: #7c3aed;
+  --welcome-border: #ececec;
+  justify-content: flex-start;
+  padding-top: max(env(safe-area-inset-top), 12px);
+  padding-bottom: max(env(safe-area-inset-bottom), 28px);
+  color-scheme: light;
+  background-color: var(--welcome-bg);
+}
+
+.auth-welcome.auth-welcome--premium .auth-container {
+  gap: 20px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.auth-welcome.auth-welcome--premium .auth-welcome__brand .rovexo-brand-logo--auth {
+  margin-top: max(env(safe-area-inset-top), 40px);
+  margin-bottom: 4px;
+}
+
+.auth-welcome.auth-welcome--premium .rovexo-brand-logo__wordmark {
+  font-size: 2.375rem;
+  letter-spacing: -0.06em;
+}
+
+@media (min-width: 430px) {
+  .auth-welcome.auth-welcome--premium .rovexo-brand-logo__wordmark {
+    font-size: 2.75rem;
+  }
+}
+
+.auth-welcome.auth-welcome--premium .rovexo-brand-logo__tagline {
+  margin-top: 12px;
+  letter-spacing: 0.18em;
+}
+
+.auth-welcome.auth-welcome--premium .auth-heading__title {
+  font-size: 1.6875rem;
+  letter-spacing: -0.035em;
+  color: #09090b;
+}
+
+.auth-welcome.auth-welcome--premium .auth-heading__description {
+  max-width: 20rem;
+  margin-inline: auto;
+  white-space: pre-line;
+  font-size: 0.9375rem;
+  font-weight: 450;
+  line-height: 1.45;
+  color: #71717a;
+}
+
+.auth-welcome.auth-welcome--premium .auth-welcome__actions {
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.auth-welcome.auth-welcome--premium .auth-primary-button {
+  min-height: 56px;
+  height: 56px;
+  border-radius: 14px;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  background-image: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 48%, #6d28d9 100%) !important;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.18) inset,
+    0 8px 22px rgb(124 58 237 / 0.26);
+  transition: box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1), opacity 160ms ease;
+}
+
+.auth-welcome.auth-welcome--premium .auth-primary-button:hover:not(:disabled) {
+  opacity: 0.97;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.2) inset,
+    0 10px 26px rgb(124 58 237 / 0.32);
+}
+
+.auth-welcome.auth-welcome--premium .auth-primary-button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px #ffffff,
+    0 0 0 6px var(--welcome-primary),
+    0 8px 22px rgb(124 58 237 / 0.26);
+}
+
+.auth-welcome.auth-welcome--premium .auth-secondary-button {
+  min-height: 52px;
+  height: 52px;
+  border-radius: 14px;
+  border: 1px solid var(--welcome-border);
+  background: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 650;
+  color: var(--welcome-primary);
+  box-shadow: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.auth-welcome.auth-welcome--premium .auth-secondary-button:hover:not(:disabled),
+.auth-welcome.auth-welcome--premium .auth-secondary-button:focus-visible {
+  border-color: #ddd6fe;
+  background: #fafafa;
+  color: #6d28d9;
+}
+
+.auth-welcome.auth-welcome--premium .auth-welcome__trust {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.auth-welcome.auth-welcome--premium .auth-welcome__trust-title {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #3f3f46;
+}
+
+.auth-welcome.auth-welcome--premium .auth-welcome__trust-icon {
+  width: 14px;
+  height: 14px;
+  color: #52525b;
+}
+
+.auth-welcome.auth-welcome--premium .auth-welcome__trust-copy {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 450;
+  color: #71717a;
+}
+
+.auth-welcome.auth-welcome--premium .auth-welcome__social {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-welcome.auth-welcome--premium .auth-divider__line {
+  background: var(--welcome-border);
+}
+
+.auth-welcome.auth-welcome--premium .auth-social-login {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.auth-welcome.auth-welcome--premium .auth-social-button {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 50px;
+  height: 50px;
+  border-radius: 14px;
+  border: 1px solid var(--welcome-border);
+  font-size: 0.8125rem;
+}
+
+.auth-welcome.auth-welcome--premium .auth-welcome__footer {
+  margin-top: 2px;
+}
+
+.auth-welcome.auth-welcome--premium .auth-welcome__legal {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #a1a1aa;
+}
+
+.auth-welcome.auth-welcome--premium .auth-welcome__legal a {
+  color: #71717a;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (min-width: 430px) {
+  .auth-welcome.auth-welcome--premium .auth-container {
+    max-width: 416px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .auth-welcome.auth-welcome--premium .auth-container {
+    max-width: 420px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-welcome.auth-welcome--premium {
+    animation: none !important;
   }
 }
 
