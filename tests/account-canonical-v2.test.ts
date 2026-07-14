@@ -40,9 +40,12 @@ describe("My Account canonical — Sprint 1 SSOT", () => {
 
     expect(home).toContain('data-account-version="v1.0"');
     expect(home).toContain("AccountCanonicalProfile");
+    expect(home).toContain("AccountStatsStrip");
     expect(home).toContain("AccountSellerPerformanceCard");
     expect(home).toContain("AccountMenuSections");
-    expect(home).not.toContain("AccountStatsStrip");
+    expect(home).toMatch(
+      /AccountCanonicalProfile[\s\S]*AccountStatsStrip[\s\S]*AccountSellerPerformanceCard/,
+    );
     expect(page).toContain("AccountCanonicalShell");
     expect(page).not.toContain("identity=");
     expect(page).toContain('backHref="/"');

@@ -13,7 +13,7 @@ describe("My Account Seller Performance card", () => {
     const card = readSource("features/account-center/components/AccountSellerPerformanceCard.tsx");
 
     expect(home).toContain("AccountSellerPerformanceCard");
-    expect(home).toMatch(/AccountSellerPerformanceCard[\s\S]*AccountMenuSections/);
+    expect(home).toMatch(/AccountStatsStrip[\s\S]*AccountSellerPerformanceCard[\s\S]*AccountMenuSections/);
     expect(page).toContain("getSellerPerformanceSummary");
     expect(page).toContain("sellerPerformance={sellerPerformance}");
     expect(card).toContain('router.push("/seller/performance")');
@@ -21,7 +21,7 @@ describe("My Account Seller Performance card", () => {
     expect(card).toContain("AccountSellerLevelBadge");
     expect(card).toContain("Response Rate");
     expect(card).toContain("Complete your first sale to unlock your performance score.");
-    expect(card).toContain('data-ac-seller-performance="v1.0-compact"');
+    expect(card).toContain('data-ac-seller-performance="v1.0-frozen"');
   });
 
   it("uses compact summary layout markers", () => {

@@ -16,9 +16,10 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
 
     expect(home).toContain('data-account-version="v1.0"');
     expect(home).not.toContain("AccountWalletCard");
-    expect(home).not.toContain("AccountStatsStrip");
+    expect(home).toContain("AccountStatsStrip");
     expect(profile).toContain("ac-v1__profile-card");
-    expect(profile).toContain("View Public Profile");
+    expect(profile).not.toContain("View Public Profile");
+    expect(profile).not.toContain("Edit Profile");
     expect(profile).toContain("formatAccountProfileRating");
     expect(snapshot).toContain("listings");
     expect(snapshot).toContain("reviewCount");

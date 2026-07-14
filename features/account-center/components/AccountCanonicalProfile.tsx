@@ -1,9 +1,6 @@
 "use client";
 
-import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 import { formatAccountProfileRating } from "@/lib/account-center/format-profile-rating";
 import { AccountSellerLevelBadge } from "@/features/account-center/components/AccountSellerLevelBadge";
 import type { AccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
@@ -28,7 +25,6 @@ export function AccountCanonicalProfile({
   sellerPerformance,
 }: AccountCanonicalProfileProps) {
   const ratingLine = formatAccountProfileRating(snapshot.rating, snapshot.reviewCount);
-  const publicHref = profile.username ? `/user/${profile.username}` : "/account/profile";
   const profileIncomplete =
     !profile.fullName.trim() || !profile.username.trim() || !profile.avatarUrl;
 
@@ -62,15 +58,6 @@ export function AccountCanonicalProfile({
           Complete your profile to help buyers recognise you.
         </p>
       ) : null}
-
-      <div className="ac-v1__profile-actions">
-        <Link href={publicHref} className={cn("ac-v1__profile-btn", focusRing)}>
-          View Public Profile
-        </Link>
-        <Link href="/account/profile" className={cn("ac-v1__profile-btn", focusRing)}>
-          Edit Profile
-        </Link>
-      </div>
     </section>
   );
 }

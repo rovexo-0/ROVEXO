@@ -25,7 +25,7 @@ export function AccountSellerPerformanceCard({ performance }: AccountSellerPerfo
     <section
       className="ac-v1__seller-card"
       aria-label="Seller Performance"
-      data-ac-seller-performance="v1.0-compact"
+      data-ac-seller-performance="v1.0-frozen"
     >
       <div className="ac-v1__seller-card-head">
         <h2 className="ac-v1__seller-card-title">Seller Performance</h2>

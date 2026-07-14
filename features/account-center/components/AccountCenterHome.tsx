@@ -3,6 +3,7 @@
 import { AccountCanonicalProfile } from "@/features/account-center/components/AccountCanonicalProfile";
 import { AccountMenuSections } from "@/features/account-center/components/AccountMenuSections";
 import { AccountSellerPerformanceCard } from "@/features/account-center/components/AccountSellerPerformanceCard";
+import { AccountStatsStrip } from "@/features/account-center/components/AccountStatsStrip";
 import { useAccountHubLive } from "@/features/account-center/hooks/useAccountHubLive";
 import type { AccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
 import type { AccountHubSnapshot } from "@/lib/account-center/snapshot";
@@ -22,7 +23,7 @@ export function AccountCenterHome({
   wallet = null,
   sellerPerformance,
 }: AccountCenterHomeProps) {
-  const { snapshot: liveSnapshot } = useAccountHubLive({
+  const { snapshot: liveSnapshot, wallet: liveWallet } = useAccountHubLive({
     userId: profile.id,
     snapshot,
     wallet,
@@ -41,6 +42,8 @@ export function AccountCenterHome({
         snapshot={liveSnapshot}
         sellerPerformance={sellerPerformance}
       />
+
+      <AccountStatsStrip snapshot={liveSnapshot} wallet={liveWallet} />
 
       <AccountSellerPerformanceCard performance={sellerPerformance} />
 

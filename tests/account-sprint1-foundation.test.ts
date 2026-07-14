@@ -40,9 +40,12 @@ describe("My Account Sprint 1 foundation", () => {
     expect(home).toContain('data-account-version="v1.0"');
     expect(home).toContain('data-account-sprint="1-foundation"');
     expect(home).toContain("AccountCanonicalProfile");
+    expect(home).toContain("AccountStatsStrip");
     expect(home).toContain("AccountSellerPerformanceCard");
     expect(home).toContain("AccountMenuSections");
-    expect(home).not.toContain("AccountStatsStrip");
+    expect(home).toMatch(
+      /AccountCanonicalProfile[\s\S]*AccountStatsStrip[\s\S]*AccountSellerPerformanceCard/,
+    );
     expect(page).not.toContain("identity=");
     expect(page).toContain('backHref="/"');
   });
@@ -90,8 +93,9 @@ describe("My Account Sprint 1 foundation", () => {
     expect(css).toContain("--ac-page-bg: #fafafa");
     expect(css).toContain("font-size: 22px");
     expect(css).toContain("width: 84px");
-    expect(css).toContain("height: 52px");
     expect(css).toContain("min-height: 56px");
+    expect(css).not.toContain(".ac-v1__profile-btn");
+    expect(css).not.toContain(".ac-v1__profile-actions");
     expect(existsSync(join(process.cwd(), "docs/modules/account/MASTER_UI_SPECIFICATION.md"))).toBe(
       true,
     );
