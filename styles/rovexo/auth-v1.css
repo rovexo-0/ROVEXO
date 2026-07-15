@@ -57,17 +57,18 @@
 .auth-splash__mark {
   width: 96px;
   height: 96px;
-  border-radius: 22px;
-  box-shadow: 0 8px 28px rgb(15 15 18 / 0.06);
+  border-radius: 26px;
+  box-shadow: 0 6px 22px rgb(15 15 18 / 0.05);
   opacity: 1;
 }
 
 .auth-splash__wordmark {
-  margin-top: 22px;
+  margin-top: 24px;
   font-size: clamp(1.5rem, 4.5vw, 1.75rem);
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
   line-height: 1;
+  text-align: center;
   color: #09090b;
   opacity: 1;
 }
@@ -78,11 +79,12 @@
 }
 
 .auth-splash__tagline {
-  margin-top: 12px;
-  font-size: 0.75rem;
+  margin-top: 14px;
+  font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
+  text-align: center;
   color: #71717a;
   opacity: 1;
 }
@@ -91,8 +93,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  margin-top: 28px;
+  gap: 7px;
+  margin-top: 30px;
   min-height: 8px;
   opacity: 1;
 }

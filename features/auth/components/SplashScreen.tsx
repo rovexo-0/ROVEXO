@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
 function SplashWordmark() {
   return (
     <p className="auth-splash__wordmark" aria-hidden>
-      ROV<span className="auth-splash__wordmark-x">X</span>O
+      ROVE<span className="auth-splash__wordmark-x">X</span>O
     </p>
   );
 }

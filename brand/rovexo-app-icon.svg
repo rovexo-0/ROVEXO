@@ -1,29 +1,40 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none" role="img" aria-label="ROVEXO">
+  <!--
+    Canonical RX app icon — Splash Icon Final Polish (pre-freeze).
+    KEEP: RX · black plate · white R · purple X · rounded corners.
+    POLISH: −~8% X thickness · softer plate radius · refined purple · crisper small sizes.
+  -->
   <defs>
-    <linearGradient id="rx-bg" x1="128" y1="96" x2="896" y2="928" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0B1224"/>
-      <stop offset="0.55" stop-color="#101A33"/>
-      <stop offset="1" stop-color="#0A1020"/>
+    <linearGradient id="rx-bg" x1="120" y1="88" x2="904" y2="936" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#070A12"/>
+      <stop offset="0.45" stop-color="#0B1224"/>
+      <stop offset="1" stop-color="#05070E"/>
     </linearGradient>
-    <linearGradient id="rx-r" x1="300" y1="220" x2="760" y2="820" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#60A5FA"/>
-      <stop offset="0.45" stop-color="#6366F1"/>
-      <stop offset="0.78" stop-color="#A855F7"/>
-      <stop offset="1" stop-color="#EC4899"/>
+    <linearGradient id="rx-x" x1="580" y1="270" x2="850" y2="770" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B794F6"/>
+      <stop offset="0.4" stop-color="#9F6AF5"/>
+      <stop offset="1" stop-color="#7C3AED"/>
     </linearGradient>
-    <linearGradient id="rx-shine" x1="220" y1="180" x2="520" y2="420" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFFFFF" stop-opacity="0.42"/>
+    <linearGradient id="rx-shine" x1="180" y1="140" x2="560" y2="460" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.12"/>
       <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
-    <filter id="rx-glow" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="18" stdDeviation="28" flood-color="#2563EB" flood-opacity="0.35"/>
-      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#A855F7" flood-opacity="0.28"/>
-    </filter>
   </defs>
-  <g filter="url(#rx-glow)">
-    <rect x="96" y="96" width="832" height="832" rx="196" fill="url(#rx-bg)"/>
-    <rect x="96" y="96" width="832" height="832" rx="196" fill="url(#rx-shine)"/>
-    <path fill="url(#rx-r)" d="M312 736V288h148c71.4 0 115.5 38 115.5 95.2 0 41.4-21 69.8-57.2 83.2l77.6 161.6h-69.7l-67.4-141.4H376.8V736H312Zm68.2-193.8h73c34.2 0 53.2-16 53.2-44.8 0-28.3-19-44.8-53.2-44.8h-73v89.6Z"/>
-    <ellipse cx="360" cy="300" rx="168" ry="88" fill="#FFFFFF" opacity="0.14"/>
+
+  <!-- Softer squircle -->
+  <rect x="88" y="88" width="848" height="848" rx="228" fill="url(#rx-bg)"/>
+  <rect x="88" y="88" width="848" height="848" rx="228" fill="url(#rx-shine)"/>
+
+  <g transform="translate(512 512) scale(1.04) translate(-512 -512)">
+    <!-- White R -->
+    <path
+      fill="#FFFFFF"
+      d="M232 740V284h132c68 0 108 36 108 94 0 41-19 70-54 84l72 278h-72L350 490H312v250H232Zm78-298h64c30 0 48-15 48-42s-18-42-48-42h-64v84Z"
+    />
+    <!-- Purple X — ~8% thinner arms than prior polish -->
+    <path
+      fill="url(#rx-x)"
+      d="M588 288l116 224L588 736h74l76-140 76 140h74L722 512l142-224h-74l-76 138L662 288h-74Z"
+    />
   </g>
 </svg>

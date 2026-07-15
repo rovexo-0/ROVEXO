@@ -48,7 +48,7 @@ export const AUTH_MASTER_SPEC = {
     },
     copy: {
       wordmark: "ROVEXO",
-      tagline: "Buy. Sell. Grow.",
+      tagline: "BUY . SELL . GROW.",
       ariaLabel: "Loading ROVEXO",
     },
     assets: {

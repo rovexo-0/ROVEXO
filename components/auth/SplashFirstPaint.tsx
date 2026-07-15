@@ -26,9 +26,9 @@ export function SplashFirstPaint({ label = "Loading ROVEXO" }: { label?: string 
             decoding="async"
           />
           <p className="auth-splash__wordmark">
-            ROV<span className="auth-splash__wordmark-x">X</span>O
+            ROVE<span className="auth-splash__wordmark-x">X</span>O
           </p>
-          <p className="auth-splash__tagline">Buy. Sell. Grow.</p>
+          <p className="auth-splash__tagline">BUY . SELL . GROW.</p>
           <div className="auth-splash__indicator" aria-hidden>
             <span />
             <span />

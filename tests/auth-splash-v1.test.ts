@@ -119,7 +119,7 @@ describe("AUTH_MASTER_SPEC v1.0 — splash screen", () => {
     expect(splashLoading).toContain("SplashFirstPaint");
     expect(authLoading).toContain("SplashFirstPaint");
     expect(firstPaint).toContain("auth-splash--ssr");
-    expect(firstPaint).toContain("Buy. Sell. Grow.");
+    expect(firstPaint).toContain("BUY . SELL . GROW.");
     expect(firstPaint).toContain("/icons/icon-192.png");
   });
 });

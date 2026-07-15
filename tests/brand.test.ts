@@ -31,9 +31,13 @@ describe("Official ROVEXO brand", () => {
   it("references official social and PWA assets in metadata", () => {
     const layout = readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
     const manifest = readFileSync(path.join(process.cwd(), "app/manifest.ts"), "utf8");
+    const appIcon = readFileSync(path.join(process.cwd(), "brand/rovexo-app-icon.svg"), "utf8");
     expect(layout).toContain("/brand/og-image.png");
     expect(layout).toContain("/favicon.svg");
     expect(manifest).toContain("icon-maskable-512.png");
-    expect(manifest).toContain("#0B1224");
+    expect(manifest).toContain('theme_color: "#ffffff"');
+    expect(appIcon).toContain("#0B1224");
+    expect(appIcon).toContain("#FFFFFF");
+    expect(appIcon).toContain("#7C3AED");
   });
 });
