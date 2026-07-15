@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { RovexoAppIconMark } from "@/components/brand/RovexoAppIconMark";
 import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { AUTH_MODULE_VERSION, AUTH_SPLASH } from "@/lib/auth/canonical";
 import { resolveSplashDestination } from "@/lib/auth/bootstrap";
@@ -16,15 +15,9 @@ function SplashWordmark() {
   );
 }
 
-/** Premium non-blocking load cue — fade-only pulse (no spinner / scale / bounce). */
+/** Premium non-blocking load cue — one soft pulse, never a spinner or progress indicator. */
 function SplashIndicator() {
-  return (
-    <div className="auth-splash__indicator" aria-hidden>
-      <span />
-      <span />
-      <span />
-    </div>
-  );
+  return <span className="auth-splash__pulse" aria-hidden />;
 }
 
 /**
@@ -76,8 +69,7 @@ export function SplashScreen() {
       data-auth-ui="v1.0-splash-final-lock"
       data-splash-lock="CANONICAL"
     >
-      <div className="auth-splash__stage">
-        <RovexoAppIconMark className="auth-splash__mark" contained uid="splash" />
+      <div className="auth-splash__stage auth-splash__stage--wordmark-only">
         <SplashWordmark />
         <p className="auth-splash__tagline">{copy.tagline}</p>
         <SplashIndicator />

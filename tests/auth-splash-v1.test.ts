@@ -68,8 +68,13 @@ describe("AUTH_MASTER_SPEC v1.0 — splash screen", () => {
     expect(splashLayout).toContain("themeColor");
     expect(splashLayout).toContain("#ffffff");
     expect(splashLayout).toContain("auth-splash--ssr");
+    expect(splashLayout).toContain("auth-splash__stage--wordmark-only");
+    expect(splashLayout).toContain("auth-splash__pulse");
+    expect(splashLayout).not.toContain("/icons/icon-192.png");
     expect(splashScreen).toContain("resolveSplashDestination");
-    expect(splashScreen).toContain("RovexoAppIconMark");
+    expect(splashScreen).not.toContain("RovexoAppIconMark");
+    expect(splashScreen).toContain("auth-splash__stage--wordmark-only");
+    expect(splashScreen).toContain("auth-splash__pulse");
     expect(splashScreen).toContain("auth-splash--exit");
     expect(splashScreen).toContain("data-auth-spec");
     expect(bootstrap).toContain("initialize_app");
@@ -87,6 +92,8 @@ describe("AUTH_MASTER_SPEC v1.0 — splash screen", () => {
     expect(css).not.toMatch(/bounce/);
     expect(css).not.toContain("spinner");
     expect(css).toContain("opacity");
+    expect(css).toContain("auth-splash-premium-pulse 1.8s");
+    expect(css).toContain("auth-splash-wordmark-reveal 250ms");
   });
 
   it("exposes reusable auth components without duplicating next/image", () => {
@@ -115,11 +122,22 @@ describe("AUTH_MASTER_SPEC v1.0 — splash screen", () => {
     expect(middleware).toContain("nextWithPathname");
     expect(rootLoading).toContain("SplashFirstPaint");
     expect(rootLoading).toContain("isAuthBootPath");
+    expect(rootLoading).toContain("isSplashPath");
     expect(rootLoading).toContain("ROVEXO_PATHNAME_HEADER");
-    expect(splashLoading).toContain("SplashFirstPaint");
+    expect(splashLoading).toContain("SplashFirstPaint wordmarkOnly");
     expect(authLoading).toContain("SplashFirstPaint");
     expect(firstPaint).toContain("auth-splash--ssr");
+    expect(firstPaint).toContain("wordmarkOnly");
+    expect(firstPaint).toContain("auth-splash__pulse");
     expect(firstPaint).toContain("BUY . SELL . GROW.");
     expect(firstPaint).toContain("/icons/icon-192.png");
+  });
+
+  it("permanently freezes the approved Splash presentation", () => {
+    const freezeRule = readSource(".cursor/rules/splash-v1-freeze.mdc");
+    expect(freezeRule).toContain("APPROVED | CERTIFIED | PRODUCTION READY | PERMANENTLY FROZEN");
+    expect(freezeRule).toContain("no RX icon");
+    expect(freezeRule).toContain("soft 1.8s opacity pulse");
+    expect(freezeRule).toContain("without explicit user approval");
   });
 });

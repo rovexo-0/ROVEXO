@@ -2,7 +2,13 @@
  * Instant first-paint splash chrome — used by route loading boundaries.
  * Never homepage skeleton / black blank / empty frame.
  */
-export function SplashFirstPaint({ label = "Loading ROVEXO" }: { label?: string }) {
+export function SplashFirstPaint({
+  label = "Loading ROVEXO",
+  wordmarkOnly = false,
+}: {
+  label?: string;
+  wordmarkOnly?: boolean;
+}) {
   return (
     <div
       className="auth-splash-route"
@@ -15,25 +21,39 @@ export function SplashFirstPaint({ label = "Loading ROVEXO" }: { label?: string 
       }}
     >
       <div className="auth-splash auth-splash--ssr" role="status" aria-label={label}>
-        <div className="auth-splash__stage">
-          {/* eslint-disable-next-line @next/next/no-img-element -- loading boundary first paint; SafeImage not for splash SSOT */}
-          <img
-            className="auth-splash__mark"
-            src="/icons/icon-192.png"
-            width={96}
-            height={96}
-            alt=""
-            decoding="async"
-          />
+        <div
+          className={
+            wordmarkOnly
+              ? "auth-splash__stage auth-splash__stage--wordmark-only"
+              : "auth-splash__stage"
+          }
+        >
+          {!wordmarkOnly ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element -- auth loading boundary first paint */}
+              <img
+                className="auth-splash__mark"
+                src="/icons/icon-192.png"
+                width={96}
+                height={96}
+                alt=""
+                decoding="async"
+              />
+            </>
+          ) : null}
           <p className="auth-splash__wordmark">
             ROVE<span className="auth-splash__wordmark-x">X</span>O
           </p>
           <p className="auth-splash__tagline">BUY . SELL . GROW.</p>
-          <div className="auth-splash__indicator" aria-hidden>
-            <span />
-            <span />
-            <span />
-          </div>
+          {wordmarkOnly ? (
+            <span className="auth-splash__pulse" aria-hidden />
+          ) : (
+            <div className="auth-splash__indicator" aria-hidden>
+              <span />
+              <span />
+              <span />
+            </div>
+          )}
         </div>
       </div>
     </div>

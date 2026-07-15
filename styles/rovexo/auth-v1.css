@@ -117,12 +117,92 @@
   animation-delay: 320ms;
 }
 
+.auth-splash__stage--wordmark-only .auth-splash__wordmark {
+  margin-top: 0;
+  font-size: clamp(1.7rem, 6vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.auth-splash__stage--wordmark-only .auth-splash__tagline {
+  margin-top: 18px;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  color: #52525b;
+}
+
+.auth-splash__pulse {
+  display: block;
+  width: 5px;
+  height: 5px;
+  margin-top: 30px;
+  border-radius: 999px;
+  background: #7c3aed;
+  opacity: 0.55;
+}
+
+.auth-splash--live
+  .auth-splash__stage--wordmark-only
+  .auth-splash__wordmark {
+  animation: auth-splash-wordmark-reveal 250ms ease-out both;
+}
+
+.auth-splash--live
+  .auth-splash__stage--wordmark-only
+  .auth-splash__tagline {
+  animation: auth-splash-detail-reveal 250ms ease-out 300ms both;
+}
+
+.auth-splash--live .auth-splash__stage--wordmark-only .auth-splash__pulse {
+  animation:
+    auth-splash-pulse-reveal 300ms ease-out 500ms both,
+    auth-splash-premium-pulse 1.8s ease-in-out 800ms infinite;
+}
+
 @keyframes auth-splash-fade-in {
   from {
     opacity: 1;
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes auth-splash-wordmark-reveal {
+  from {
+    opacity: 0.78;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes auth-splash-detail-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes auth-splash-pulse-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.55;
+  }
+}
+
+@keyframes auth-splash-premium-pulse {
+  0%,
+  100% {
+    opacity: 0.34;
+  }
+  50% {
+    opacity: 0.82;
   }
 }
 
@@ -144,6 +224,17 @@
   .auth-splash__indicator span {
     animation: none !important;
     opacity: 0.7 !important;
+  }
+
+  .auth-splash__stage--wordmark-only .auth-splash__wordmark,
+  .auth-splash__stage--wordmark-only .auth-splash__tagline,
+  .auth-splash__stage--wordmark-only .auth-splash__pulse {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  .auth-splash__stage--wordmark-only .auth-splash__pulse {
+    opacity: 0.55 !important;
   }
 }
 

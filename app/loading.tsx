@@ -12,6 +12,10 @@ function isAuthBootPath(pathname: string): boolean {
   );
 }
 
+function isSplashPath(pathname: string): boolean {
+  return pathname === "/splash" || pathname.startsWith("/splash/");
+}
+
 /**
  * Root Suspense fallback. Auth/splash cold starts must never paint homepage
  * skeleton (looks like a blank / broken white screen on PWA open).
@@ -21,7 +25,7 @@ export default async function RootLoading() {
   const pathname = headerStore.get(ROVEXO_PATHNAME_HEADER) ?? "";
 
   if (isAuthBootPath(pathname)) {
-    return <SplashFirstPaint />;
+    return <SplashFirstPaint wordmarkOnly={isSplashPath(pathname)} />;
   }
 
   return (

@@ -27,25 +27,12 @@ export default function SplashRouteLayout({ children }: { children: React.ReactN
       }}
     >
       <div className="auth-splash auth-splash--ssr" aria-hidden="true">
-        <div className="auth-splash__stage">
-          {/* eslint-disable-next-line @next/next/no-img-element -- first-paint SSR; SafeImage/next/image not for splash SSOT */}
-          <img
-            className="auth-splash__mark"
-            src="/icons/icon-192.png"
-            width={96}
-            height={96}
-            alt=""
-            decoding="async"
-          />
+        <div className="auth-splash__stage auth-splash__stage--wordmark-only">
           <p className="auth-splash__wordmark">
             ROVE<span className="auth-splash__wordmark-x">X</span>O
           </p>
           <p className="auth-splash__tagline">BUY . SELL . GROW.</p>
-          <div className="auth-splash__indicator">
-            <span />
-            <span />
-            <span />
-          </div>
+          <span className="auth-splash__pulse" />
         </div>
       </div>
       {children}
