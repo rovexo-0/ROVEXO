@@ -9,8 +9,8 @@ type RovexoAppIconMarkProps = {
 };
 
 /**
- * Official ROVEXO RX app icon — final polish (synced with brand/rovexo-app-icon.svg).
- * Black plate · white R · purple X · softer rounded corners.
+ * Official ROVEXO RX app icon — synced with brand/rovexo-app-icon.svg.
+ * Black plate · white R · elegant purple X · soft rounded corners.
  */
 export function RovexoAppIconMark({
   className,
@@ -24,16 +24,16 @@ export function RovexoAppIconMark({
 
   const icon = (
     <>
-      <rect x="88" y="88" width="848" height="848" rx="228" fill={`url(#${bg})`} />
-      <rect x="88" y="88" width="848" height="848" rx="228" fill={`url(#${shine})`} />
-      <g transform="translate(512 512) scale(1.04) translate(-512 -512)">
+      <rect x="90" y="90" width="844" height="844" rx="240" fill={`url(#${bg})`} />
+      <rect x="90" y="90" width="844" height="844" rx="240" fill={`url(#${shine})`} />
+      <g transform="translate(512 512) scale(1.03) translate(-512 -512)">
         <path
           fill="#FFFFFF"
-          d="M232 740V284h132c68 0 108 36 108 94 0 41-19 70-54 84l72 278h-72L350 490H312v250H232Zm78-298h64c30 0 48-15 48-42s-18-42-48-42h-64v84Z"
+          d="M236 736V288h128c66 0 104 35 104 92 0 40-18 68-52 82l68 274h-70L348 492H312v244H236Zm76-292h62c28 0 46-14 46-40s-18-40-46-40h-62v80Z"
         />
         <path
           fill={`url(#${x})`}
-          d="M588 288l116 224L588 736h74l76-140 76 140h74L722 512l142-224h-74l-76 138L662 288h-74Z"
+          d="M600 296l108 216L600 728h66l72-132 72 132h66L734 512l134-216h-66l-72 130L666 296h-66Z"
         />
       </g>
     </>
@@ -46,27 +46,27 @@ export function RovexoAppIconMark({
       className={cn("block h-full w-full max-h-full max-w-full shrink-0", className)}
       aria-hidden
       fill="none"
-      data-rx-icon="v1.0-final-polish"
+      data-rx-icon="v1.0-icon-polish"
     >
       <defs>
-        <linearGradient id={bg} x1="120" y1="88" x2="904" y2="936" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#070A12" />
-          <stop offset="0.45" stopColor="#0B1224" />
-          <stop offset="1" stopColor="#05070E" />
+        <linearGradient id={bg} x1="128" y1="96" x2="896" y2="928" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#080B14" />
+          <stop offset="0.48" stopColor="#0B1224" />
+          <stop offset="1" stopColor="#060810" />
         </linearGradient>
-        <linearGradient id={x} x1="580" y1="270" x2="850" y2="770" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#B794F6" />
-          <stop offset="0.4" stopColor="#9F6AF5" />
+        <linearGradient id={x} x1="590" y1="280" x2="860" y2="760" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#A78BFA" />
+          <stop offset="0.45" stopColor="#8B5CF6" />
           <stop offset="1" stopColor="#7C3AED" />
         </linearGradient>
-        <linearGradient id={shine} x1="180" y1="140" x2="560" y2="460" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FFFFFF" stopOpacity="0.12" />
+        <linearGradient id={shine} x1="200" y1="150" x2="540" y2="440" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FFFFFF" stopOpacity="0.09" />
           <stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
         </linearGradient>
         {!contained ? (
           <filter id={glow} x="-20%" y="-20%" width="140%" height="140%" colorInterpolationFilters="sRGB">
-            <feDropShadow dx="0" dy="6" stdDeviation="14" floodColor="#7C3AED" floodOpacity="0.18" />
-            <feDropShadow dx="0" dy="2" stdDeviation="6" floodColor="#0B1224" floodOpacity="0.12" />
+            <feDropShadow dx="0" dy="4" stdDeviation="10" floodColor="#7C3AED" floodOpacity="0.12" />
+            <feDropShadow dx="0" dy="2" stdDeviation="5" floodColor="#0B1224" floodOpacity="0.1" />
           </filter>
         ) : null}
       </defs>

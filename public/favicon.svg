@@ -1,40 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none" role="img" aria-label="ROVEXO">
   <!--
-    Canonical RX app icon — Splash Icon Final Polish (pre-freeze).
-    KEEP: RX · black plate · white R · purple X · rounded corners.
-    POLISH: −~8% X thickness · softer plate radius · refined purple · crisper small sizes.
+    Official RX icon — UI polish only (pre-approval).
+    KEEP: RX · black plate · white R · purple X · rounded square.
+    POLISH: elegant thinner X · softer radius/shadow · optical balance · small-size clarity.
   -->
   <defs>
-    <linearGradient id="rx-bg" x1="120" y1="88" x2="904" y2="936" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#070A12"/>
-      <stop offset="0.45" stop-color="#0B1224"/>
-      <stop offset="1" stop-color="#05070E"/>
+    <linearGradient id="rx-bg" x1="128" y1="96" x2="896" y2="928" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#080B14"/>
+      <stop offset="0.48" stop-color="#0B1224"/>
+      <stop offset="1" stop-color="#060810"/>
     </linearGradient>
-    <linearGradient id="rx-x" x1="580" y1="270" x2="850" y2="770" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#B794F6"/>
-      <stop offset="0.4" stop-color="#9F6AF5"/>
+    <linearGradient id="rx-x" x1="590" y1="280" x2="860" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A78BFA"/>
+      <stop offset="0.45" stop-color="#8B5CF6"/>
       <stop offset="1" stop-color="#7C3AED"/>
     </linearGradient>
-    <linearGradient id="rx-shine" x1="180" y1="140" x2="560" y2="460" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFFFFF" stop-opacity="0.12"/>
+    <linearGradient id="rx-shine" x1="200" y1="150" x2="540" y2="440" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.09"/>
       <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
   </defs>
 
-  <!-- Softer squircle -->
-  <rect x="88" y="88" width="848" height="848" rx="228" fill="url(#rx-bg)"/>
-  <rect x="88" y="88" width="848" height="848" rx="228" fill="url(#rx-shine)"/>
+  <!-- Softer luxury squircle -->
+  <rect x="90" y="90" width="844" height="844" rx="240" fill="url(#rx-bg)"/>
+  <rect x="90" y="90" width="844" height="844" rx="240" fill="url(#rx-shine)"/>
 
-  <g transform="translate(512 512) scale(1.04) translate(-512 -512)">
-    <!-- White R -->
+  <!-- Optical center — slight left bias on R, breathing room before X -->
+  <g transform="translate(512 512) scale(1.03) translate(-512 -512)">
+    <!-- White R — open counter, balanced stem -->
     <path
       fill="#FFFFFF"
-      d="M232 740V284h132c68 0 108 36 108 94 0 41-19 70-54 84l72 278h-72L350 490H312v250H232Zm78-298h64c30 0 48-15 48-42s-18-42-48-42h-64v84Z"
+      d="M236 736V288h128c66 0 104 35 104 92 0 40-18 68-52 82l68 274h-70L348 492H312v244H236Zm76-292h62c28 0 46-14 46-40s-18-40-46-40h-62v80Z"
     />
-    <!-- Purple X — ~8% thinner arms than prior polish -->
+    <!-- Elegant purple X — ~8% thinner arms, clearer silhouette -->
     <path
       fill="url(#rx-x)"
-      d="M588 288l116 224L588 736h74l76-140 76 140h74L722 512l142-224h-74l-76 138L662 288h-74Z"
+      d="M600 296l108 216L600 728h66l72-132 72 132h66L734 512l134-216h-66l-72 130L666 296h-66Z"
     />
   </g>
 </svg>
