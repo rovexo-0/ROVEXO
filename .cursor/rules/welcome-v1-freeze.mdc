@@ -1,17 +1,17 @@
 ---
-description: WELCOME_SCREEN_MASTER_SPEC — one canonical Welcome; Login/Register/Splash frozen
+description: WELCOME v2.0 OFFICIAL LOCK — one canonical Welcome; Login/Register/Splash frozen
 alwaysApply: true
 ---
 
-# ROVEXO v1.0 — WELCOME SCREEN MASTER SPEC
+# ROVEXO v1.0 — WELCOME v2.0 OFFICIAL RELEASE LOCK
 
-**STATUS: CANONICAL | CERTIFIED | PRODUCTION READY**
+**STATUS: OFFICIALLY RELEASED | CANONICAL | CERTIFIED | PRODUCTION READY | PERMANENTLY LOCKED**
 
 **Exactly one Welcome Screen.** Do not create duplicates.
 
-Entry: `features/auth/components/WelcomeScreen.tsx` · `app/(auth)/welcome/**` · welcome styles in `styles/rovexo/auth-v1.css`
+Entry: `features/auth/components/WelcomeScreen.tsx` · `app/(auth)/welcome/**` · `styles/rovexo/welcome-v2.css`
 
-DOM: `data-auth-screen="welcome"` · `data-auth-ui="v1.0-welcome-ready"` · `data-welcome-lock="CANONICAL"`
+DOM: `data-auth-screen="welcome-v2"` · `data-auth-ui="v2.0-official-release"` · `data-welcome-lock="CANONICAL-V2"`
 
 ## Flow (locked)
 
@@ -19,27 +19,34 @@ Splash → session check → authenticated? → Homepage · else → **Welcome**
 
 ## Locked content
 
-- ROVEXO wordmark + BUY. SELL. GROW.
-- Title: Welcome to ROVEXO
-- Subtitle: Buy. Sell. Grow. / Built for serious buyers and sellers.
-- Primary: Sign In → `/login`
-- Secondary: Create Account → `/register`
-- Social UI: Apple + Google only (equal row)
-- Protected Authentication badge
+- ROVEXO wordmark + `BUY • SELL • GROW.`
+- Premium metallic marketplace object with restrained purple ambient light
+- Title: `The open marketplace for real value.`
+- Supporting copy: `Buy, sell, and grow across curated assets and opportunities.`
+- Primary: Continue → `/register`
+- Secondary: Sign In → `/login`
+- Privacy Policy · Terms of Service · Cookie Policy
 - Light mode only · premium white · mobile-first 430px
+- Extremely subtle 2–3° float; reduced-motion static
+- Continue touch feedback: 97% scale, 80ms premium easing
 
 ## Singularity
 
 ONE Welcome · ONE auth system · ONE session bootstrap (Splash).
 
-## Do not touch
+## Permanently locked
 
 Login · Register · Splash remain frozen. Welcome work must not edit those screens.
 
-## Allowed after certification
+Do not redesign or replace Welcome v2.0. Layout, typography, colours, components,
+spacing, animations, responsive behaviour, routing, and production configuration
+are immutable.
 
-Security · a11y · responsive · bug · deployment fixes without hierarchy/UX redesign.
+## Allowed after lock
+
+Security fixes · production fixes · critical bug fixes only, without visual or
+authentication-flow changes.
 
 ## Next phase
 
-AUTH MASTER SPECIFICATION → AUTH QA → LAUNCH CERTIFICATION → PRODUCTION RELEASE
+AUTH MASTER SPEC v1.0

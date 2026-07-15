@@ -1,87 +1,75 @@
-"use client";
-
-import {
-  AuthContainer,
-  AuthFooter,
-  AuthHeading,
-  Divider,
-  PrimaryButton,
-  SecondaryButton,
-  SocialLogin,
-} from "@/components/auth";
-import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
-import { ShieldLineIcon } from "@/components/icons/RvxLineIcons";
-import { AuthLink } from "@/features/auth/components/AuthLink";
+import Link from "next/link";
+import { RovexoWordmark } from "@/components/brand/RovexoWordmark";
 import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { AUTH_MODULE_VERSION } from "@/lib/auth/canonical";
 
-/** Premium welcome social row — Apple + Google (Facebook OAuth preserved in SSOT). */
-const WELCOME_SOCIAL = ["apple", "google"] as const;
-
 /**
- * ROVEXO WELCOME_SCREEN_MASTER_SPEC presentation.
- * Master-spec routes/actions untouched — Login / Register / Splash not modified.
+ * ROVEXO Welcome v2.0 — canonical release.
+ * Authentication, session handling, and canonical route destinations remain unchanged.
  */
-const WELCOME_UI = {
-  description: "Buy. Sell. Grow.\nBuilt for serious buyers and sellers.",
-  trustTitle: "Protected Authentication",
-  trustCopy: "Secure sign-in for buyers and sellers.",
-} as const;
-
 export function WelcomeScreen() {
-  const { copy, routes } = AUTH_MASTER_SPEC.welcome;
+  const { routes } = AUTH_MASTER_SPEC.welcome;
 
   return (
-    <div
-      className="auth-welcome auth-welcome--premium"
+    <main
+      className="welcome-v2"
       data-auth-module={AUTH_MODULE_VERSION}
       data-auth-spec={AUTH_MASTER_SPEC.version}
-      data-auth-screen="welcome"
-      data-auth-ui="v1.0-welcome-ready"
-      data-welcome-lock="CANONICAL"
+      data-auth-screen="welcome-v2"
+      data-auth-ui="v2.0-official-release"
+      data-welcome-lock="CANONICAL-V2"
     >
-      <AuthContainer>
-        <div className="auth-welcome__brand">
-          <RovexoBrandLogo className="rovexo-brand-logo--auth" />
-        </div>
-
-        <div className="auth-welcome__intro">
-          <AuthHeading title={copy.title} description={WELCOME_UI.description} />
-        </div>
-
-        <div className="auth-welcome__actions">
-          <PrimaryButton href={routes.signIn}>{copy.signIn}</PrimaryButton>
-          <SecondaryButton href={routes.register}>{copy.createAccount}</SecondaryButton>
-        </div>
-
-        <div className="auth-welcome__trust" role="note">
-          <p className="auth-welcome__trust-title">
-            <ShieldLineIcon className="auth-welcome__trust-icon" aria-hidden />
-            <span>{WELCOME_UI.trustTitle}</span>
+      <div className="welcome-v2__content">
+        <header className="welcome-v2__brand">
+          <RovexoWordmark className="welcome-v2__wordmark" />
+          <p className="welcome-v2__tagline" aria-hidden>
+            BUY <span>•</span> SELL <span>•</span> GROW.
           </p>
-          <p className="auth-welcome__trust-copy">{WELCOME_UI.trustCopy}</p>
+        </header>
+
+        <div
+          className="welcome-v2__hero"
+          role="img"
+          aria-label="Premium marketplace collection"
+        >
+          <div className="welcome-v2__ambient" aria-hidden />
+          <div className="welcome-v2__orb" aria-hidden />
+          <div className="welcome-v2__ring" aria-hidden />
+          <div className="welcome-v2__cube" aria-hidden />
+          <div className="welcome-v2__cone" aria-hidden />
+          <div className="welcome-v2__ground-shadow" aria-hidden />
         </div>
 
-        <div className="auth-welcome__social">
-          <Divider label={copy.divider} />
-          <SocialLogin
-            providers={WELCOME_SOCIAL}
-            labels={{
-              apple: copy.socialLabels.apple,
-              google: copy.socialLabels.google,
-              facebook: copy.socialLabels.facebook,
-            }}
-          />
-        </div>
-
-        <AuthFooter className="auth-welcome__footer">
-          <p className="auth-welcome__legal">
-            {copy.footerPrefix}{" "}
-            <AuthLink href={routes.terms}>{copy.termsLabel}</AuthLink>{" "}
-            <AuthLink href={routes.privacy}>{copy.privacyLabel}</AuthLink>
+        <section className="welcome-v2__message" aria-labelledby="welcome-v2-title">
+          <h1 id="welcome-v2-title">
+            The open marketplace
+            <br />
+            for real value.
+          </h1>
+          <p>
+            Buy, sell, and grow across curated assets
+            <br />
+            and opportunities.
           </p>
-        </AuthFooter>
-      </AuthContainer>
-    </div>
+        </section>
+
+        <nav className="welcome-v2__actions" aria-label="Welcome actions">
+          <Link className="welcome-v2__continue" href={routes.register}>
+            Continue
+          </Link>
+          <Link className="welcome-v2__sign-in" href={routes.signIn}>
+            Sign In
+          </Link>
+        </nav>
+
+        <footer className="welcome-v2__legal">
+          <Link href={routes.privacy}>Privacy Policy</Link>
+          <span aria-hidden>•</span>
+          <Link href={routes.terms}>Terms of Service</Link>
+          <span aria-hidden>•</span>
+          <Link href="/legal/cookie-policy">Cookie Policy</Link>
+        </footer>
+      </div>
+    </main>
   );
 }

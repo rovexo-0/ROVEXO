@@ -1,11 +1,27 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { subscribeToBrowserPush, unsubscribeFromBrowserPush } from "@/lib/push/client-subscribe";
 import { isDocumentVisible } from "@/lib/performance/visibility";
+import { AUTH_ROUTES } from "@/lib/auth/canonical";
+
+const PUBLIC_AUTH_ROUTES: ReadonlySet<string> = new Set([
+  AUTH_ROUTES.splash,
+  AUTH_ROUTES.welcome,
+  AUTH_ROUTES.login,
+  AUTH_ROUTES.register,
+  AUTH_ROUTES.forgotPassword,
+  AUTH_ROUTES.verifyEmail,
+  AUTH_ROUTES.resetPassword,
+]);
 
 export function PushSubscriptionManager() {
+  const pathname = usePathname();
+
   useEffect(() => {
+    if (PUBLIC_AUTH_ROUTES.has(pathname)) return;
+
     let cancelled = false;
 
     async function syncPushSubscription() {
@@ -40,7 +56,7 @@ export function PushSubscriptionManager() {
       cancelled = true;
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }

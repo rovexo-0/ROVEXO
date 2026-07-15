@@ -63,9 +63,10 @@ export const AUTH_MASTER_SPEC = {
     },
   },
   welcome: {
-    fadeDurationMs: 225,
-    motion: "fade_only" as const,
-    prohibitedMotion: ["scale", "bounce", "rotation"] as const,
+    uiVersion: "v2.0" as const,
+    fadeDurationMs: 500,
+    motion: "subtle_float" as const,
+    prohibitedMotion: ["bounce", "neon", "aggressive_glow"] as const,
     presentation: {
       layout: "centered",
       background: "#ffffff",
@@ -79,12 +80,12 @@ export const AUTH_MASTER_SPEC = {
     },
     socialProviders: ["apple", "google", "facebook"] as const,
     copy: {
-      tagline: "BUY. SELL. GROW.",
-      title: "Welcome to ROVEXO",
+      tagline: "BUY • SELL • GROW.",
+      title: "The open marketplace for real value.",
       description:
-        "Discover trusted buying and selling in one place. Sign in or create your free account to get started.",
+        "Buy, sell, and grow across curated assets and opportunities.",
       signIn: "Sign In",
-      createAccount: "Create Account",
+      createAccount: "Continue",
       divider: "or continue with",
       footerPrefix: "By continuing you agree to the",
       termsLabel: "Terms of Service",

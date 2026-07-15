@@ -11,7 +11,7 @@ export type RovexoWordmarkProps = {
 /** Official ROVEXO wordmark — ROVE black, X #7C3AED, O black. No effects. */
 export function RovexoWordmark({ className, asLink = false }: RovexoWordmarkProps) {
   const mark = (
-    <span className={cn("rx-wordmark", className)} aria-label="ROVEXO">
+    <span className={cn("rx-wordmark", className)} role="img" aria-label="ROVEXO">
       <span className="rx-wordmark__rove" aria-hidden>
         ROVE
       </span>

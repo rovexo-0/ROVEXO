@@ -8,41 +8,41 @@ function readSource(relativePath: string): string {
   return readFileSync(path.join(process.cwd(), relativePath), "utf8");
 }
 
-describe("AUTH_MASTER_SPEC v1.0 — welcome screen", () => {
-  it("locks welcome copy, routes, and fade timing", () => {
+describe("AUTH_MASTER_SPEC v1.0 — canonical Welcome v2.0", () => {
+  it("preserves canonical auth routes", () => {
     expect(AUTH_MASTER_SPEC_VERSION).toBe("v1.0");
     expect(AUTH_ROUTES.welcome).toBe("/welcome");
-    expect(AUTH_MASTER_SPEC.welcome.fadeDurationMs).toBe(225);
     expect(AUTH_MASTER_SPEC.welcome.presentation.background).toBe("#ffffff");
-    expect(AUTH_MASTER_SPEC.welcome.copy.tagline).toBe("BUY. SELL. GROW.");
-    expect(AUTH_MASTER_SPEC.welcome.copy.signIn).toBe("Sign In");
-    expect(AUTH_MASTER_SPEC.welcome.copy.createAccount).toBe("Create Account");
-    expect(AUTH_MASTER_SPEC.welcome.socialProviders).toEqual(["apple", "google", "facebook"]);
+    expect(AUTH_MASTER_SPEC.welcome.routes.signIn).toBe("/login");
+    expect(AUTH_MASTER_SPEC.welcome.routes.register).toBe("/register");
   });
 
-  it("implements welcome screen with canonical auth components", () => {
+  it("implements the singular canonical Welcome v2.0 release", () => {
     const page = readSource("app/(auth)/welcome/page.tsx");
     const screen = readSource("features/auth/components/WelcomeScreen.tsx");
     const layout = readSource("app/(auth)/welcome/layout.tsx");
 
     expect(page).toContain("WelcomeScreen");
     expect(page).toContain("redirectIfAuthenticated");
-    expect(screen).toContain("RovexoBrandLogo");
-    expect(screen).toContain("AuthHeading");
-    expect(screen).toContain("PrimaryButton");
-    expect(screen).toContain("SecondaryButton");
-    expect(screen).toContain("SocialLogin");
-    expect(screen).toContain("AuthFooter");
-    expect(screen).toContain('href={routes.signIn}');
+    expect(screen).toContain("RovexoWordmark");
+    expect(screen).toContain('data-auth-ui="v2.0-official-release"');
+    expect(screen).toContain('data-welcome-lock="CANONICAL-V2"');
+    expect(screen).toContain("The open marketplace");
+    expect(screen).toContain("for real value.");
+    expect(screen).toContain("BUY <span>•</span> SELL <span>•</span> GROW.");
     expect(screen).toContain('href={routes.register}');
+    expect(screen).toContain('href={routes.signIn}');
+    expect(screen).not.toContain("SocialLogin");
     expect(layout).toContain("auth-welcome-route");
   });
 
-  it("uses fade-only welcome CSS without scale or bounce", () => {
-    const css = readSource("styles/rovexo/auth-v1.css");
-    expect(css).toContain("auth-welcome-fade-in");
-    expect(css).toContain("background-color: #ffffff");
-    expect(css).not.toMatch(/auth-welcome[^{]*\{[^}]*scale\(/);
+  it("locks premium motion, reduced motion, and touch feedback", () => {
+    const css = readSource("styles/rovexo/welcome-v2.css");
+    expect(css).toContain("welcome-v2-float");
+    expect(css).toContain("prefers-reduced-motion: reduce");
+    expect(css).toContain("background: #ffffff");
+    expect(css).toContain("transform: scale(0.97)");
+    expect(css).toContain("80ms cubic-bezier(0.2, 0.8, 0.2, 1)");
     expect(css).not.toMatch(/bounce/);
   });
 

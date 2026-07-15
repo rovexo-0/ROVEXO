@@ -70,9 +70,15 @@ describe("AUTH brand logo canonical v1.0", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("wires RovexoBrandLogo on welcome, login, and register", () => {
+  it("wires the canonical wordmark on Welcome v2 and brand block on form screens", () => {
+    const welcome = readFileSync(
+      path.join(process.cwd(), "features/auth/components/WelcomeScreen.tsx"),
+      "utf8",
+    );
+    expect(welcome).toContain("RovexoWordmark");
+    expect(welcome).not.toContain("RovexoAppIconMark");
+
     for (const screen of [
-      "features/auth/components/WelcomeScreen.tsx",
       "features/auth/components/LoginScreen.tsx",
       "features/auth/components/RegisterScreen.tsx",
       "features/auth/components/ForgotPasswordScreen.tsx",
