@@ -1,0 +1,40 @@
+---
+description: ROVEXO v1.0 final Product Owner UI lock and per-page approval contract
+alwaysApply: true
+---
+
+# ROVEXO v1.0 Final Product Owner Design Contract
+
+This is the highest-priority UI decision contract until v1.0 is officially released.
+
+## Product direction
+
+- Stop adding features. Simplify, unify, optimize, polish, test, certify, and launch.
+- Design philosophy: Apple premium minimalism + Vinted marketplace UX/simplicity + Revolut speed/wallet minimalism + ROVEXO purple/RX/smart features.
+- Never copy another brand's visual identity. Preserve ROVEXO branding and existing integrations.
+- Prefer one click; two is acceptable; any flow requiring three or more clicks needs Product Owner review.
+- Remove anything that can be removed without losing functionality. Eliminate duplicate information, buttons, flows, features, borders, spacing, and visual elements.
+- Apply one typography, spacing, button, component, navigation, responsive, and design language across every platform surface.
+
+## Canonical UI contracts
+
+- Inbox is the primary transaction hub: one transaction context, one thread. Keep messages, offers, payment confirmation, tracking, delivery, review, dispute, buyer/seller actions, and completion inline wherever existing contracts allow. Checkout is the only normal redirect.
+- My Account uses compact rows without large cards, unnecessary icons, or excess whitespace.
+- Homepage cards immediately expose item price, inclusive price, condition, and numeric rating with no clutter.
+- Product pages contain only images, title, price, rating, seller, description, shipping, reviews, Buy Now, and Make Offer.
+- Orders compactly expose Bought, Sold, In Progress, Completed, and Cancelled.
+
+## Mandatory page gate
+
+- Work on one page at a time. Do not move to the next page before explicit Product Owner visual approval.
+- Locked order: Homepage → Search → Messages/Inbox → Product → Orders → Wallet → Checkout → Notifications → My Account → Settings → Seller Dashboard → Business Dashboard → Admin → Super Admin.
+- Every UI change requires: current design, proposed design, rationale, removals, improvements, high-fidelity mockup, real implementation, real screenshot, responsive screenshots, video preview, Product Owner approval, then the next step.
+- Approval is binary: a module is either NOT APPROVED or APPROVED.
+- Follow the approved Master UI Specification before implementation. No blind screenshot-driven implementation.
+- Test iPhone 17 Pro Max, Standard iPhone, Samsung Ultra, Tablet, Desktop, and PWA. The design system remains identical; only responsive layout may change.
+
+## Protected systems and release gate
+
+- UI-only: never modify Authentication, Stripe, Sendcloud, database/schema, API contracts, Wallet/Escrow logic, business logic, or marketplace architecture.
+- Never commit, push, freeze, deploy, release, or production-lock before every affected page is visually approved and every required preview and responsive test passes.
+- When in doubt: do not add. Simplify, remove, unify, accelerate, minimize, and keep ROVEXO premium.

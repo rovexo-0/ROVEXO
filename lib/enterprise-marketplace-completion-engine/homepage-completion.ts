@@ -213,7 +213,7 @@ function buildPassConditions(scan: MarketplaceCompletionScanResult, homeContent:
     "no-duplicate-categories": hasRail && noLegacyGrid,
     "no-duplicate-homepage-sections": noLegacyGrid && scan.globalUiPass,
     "no-empty-space-above-search":
-      readSource("components/homepage-v4/HomepageV4Search.tsx").includes("HomepageSearchField") &&
+      readSource("components/header/RovexoHeaderV2.tsx").includes("HomepageSearchField") &&
       scan.homepagePass,
     "all-buttons-functional": fileExists("components/ui/Button.tsx"),
     "all-routes-functional": fileExists("middleware.ts"),

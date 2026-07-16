@@ -12,6 +12,7 @@ import { closeSearchAndReturnHome } from "@/lib/navigation/homepage-scroll-resto
 import { useIntersectionWhenVisible } from "@/lib/performance/hooks";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
+import { HOME_CATEGORY_NAV } from "@/lib/home/constants";
 
 type SearchResultsResponse = {
   items: Product[];
@@ -121,6 +122,14 @@ export function SearchResultsView() {
     closeSearchAndReturnHome((href) => router.push(href));
   }
 
+  function handleCategoryChange(nextCategory: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextCategory) params.set("category", nextCategory);
+    else params.delete("category");
+    params.delete("page");
+    router.replace(`/search?${params.toString()}`);
+  }
+
   return (
     <div className="srch-results" data-search-version="v1.0-final">
       <div className="srch-results__top">
@@ -140,6 +149,25 @@ export function SearchResultsView() {
             </p>
           ) : null}
         </div>
+      </div>
+
+      <div className="srch-results__filters" aria-label="Search filters">
+        <span className="srch-results__filters-label">Filters</span>
+        <label className="srch-results__filter">
+          <span className="sr-only">Category</span>
+          <select
+            className={cn("srch-results__filter-select", focusRing)}
+            value={category ?? ""}
+            onChange={(event) => handleCategoryChange(event.target.value)}
+          >
+            <option value="">All categories</option>
+            {HOME_CATEGORY_NAV.map((item) => (
+              <option key={item.slug} value={item.slug}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       <div className="rx-listing-grid min-h-[24rem] px-ds-4">

@@ -190,7 +190,12 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
 
   return (
 
-    <div className="pd-v1" data-pd-detail-version="v1.1">
+    <div
+      className="pd-v1"
+      data-pd-detail-version="v1.2-universal-preview"
+      data-universal-ui="v1.1"
+      data-universal-ui-status="preview"
+    >
 
       <RecordRecentlyViewed productSlug={product.slug} />
 

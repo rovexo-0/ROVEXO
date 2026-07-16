@@ -6,6 +6,10 @@
 **Status:** Implemented — `data-wallet-ui="v1.2-simplified"` · `data-wallet-freeze="pending-visual-qa"`  
 **Freeze:** Only after explicit pixel-perfect visual QA approval
 
+## Universal UI v1.1 compatibility amendment
+
+Approved 2026-07-15. Wallet APIs, payout logic and routing are unchanged. Presentation now consumes Universal UI v1.1: 60px header, 44px controls, 24px icons, 48px hero actions, 14px radii, no card shadows, 16px horizontal padding, 24px section rhythm, 14px body text and 16px section titles.
+
 ## Locked tokens (v1.2)
 
 | Token | Value |

@@ -4,6 +4,10 @@
 **Single UI component:** `features/orders/components/OrdersPage.tsx`  
 **Styles:** `styles/rovexo/orders-page-v1.css`  
 
+## Universal UI v1.1 compatibility amendment
+
+Approved 2026-07-15. Orders data and status behavior are unchanged. Presentation now consumes Universal UI v1.1: 60px header, 44px back/tab/chip targets, 24px icons, 16px inner padding, 14px body text, 14px controls and divider-based compact rows.
+
 ## Architecture
 
 - One Orders UI module only: `OrdersPage`

@@ -64,9 +64,9 @@ describe("i18n", () => {
   });
 
   it("keeps English bottom-nav labels stable for the active chrome", () => {
-    expect(translate("en-GB", "nav.search")).toBe("Browse");
+    expect(translate("en-GB", "nav.search")).toBe("Search");
     expect(translate("en-GB", "nav.saved")).toBe("Inbox");
-    expect(translate("en-GB", "nav.account")).toBe("Profile");
+    expect(translate("en-GB", "nav.account")).toBe("Account");
   });
 
   it("lists UK shipping carriers with official names", () => {

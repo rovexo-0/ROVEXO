@@ -5,6 +5,10 @@
 **SSOT:** `CheckoutWizardV1` + `styles/rovexo/checkout-v1.css`  
 **Freeze:** `lib/checkout/freeze.ts` · `docs/modules/checkout/UI_FREEZE.md`
 
+## Universal UI v1.1 compatibility amendment
+
+Approved 2026-07-15. Checkout behavior, routes and payment contracts remain frozen. Presentation now consumes Universal UI v1.1: 60px header, 44px back target, 24px icon, 48px CTA, 14px controls/cards, 16px inner padding, 24px section rhythm and 14px body text. Bottom navigation remains hidden throughout checkout.
+
 ## Routes
 
 | Route | Purpose |

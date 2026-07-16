@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -15,7 +14,6 @@ import { Avatar } from "@/components/ui/Avatar";
 import { SafeImage } from "@/components/ui/SafeImage";
 import {
   BackLineIcon,
-  ChevronRightLineIcon,
   DoubleCheckLineIcon,
   MoreLineIcon,
 } from "@/components/icons/RvxLineIcons";
@@ -25,6 +23,7 @@ import { useRealtimeNotifications } from "@/features/notifications/components/Re
 import { CheckoutHubSheet } from "@/features/transaction-hub/CheckoutHubSheet";
 import { TransactionHubBottomActions } from "@/features/transaction-hub/TransactionHubBottomActions";
 import { TransactionHubPaymentSuccess } from "@/features/transaction-hub/TransactionHubPaymentSuccess";
+import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
@@ -219,6 +218,8 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
     orderNumber?: string | null;
   } | null>(null);
   const [resumeCheckoutOpen, setResumeCheckoutOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const requestedOrderId = searchParams.get("order") ?? searchParams.get("order_id");
   const paymentHandledRef = useRef(false);
   const threadEndRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -251,12 +252,16 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       let nextOrder: Order | null = null;
       if (ordersRes.ok) {
         const payload = (await ordersRes.json()) as { orders?: Order[] };
-        nextOrder =
-          (payload.orders ?? []).find(
-            (item) =>
-              item.product.id === conversation.product.id ||
-              item.product.slug === conversation.product.slug,
-          ) ?? null;
+        const matchingOrders = (payload.orders ?? []).filter(
+          (item) =>
+            item.product.id === conversation.product.id ||
+            item.product.slug === conversation.product.slug,
+        );
+        nextOrder = requestedOrderId
+          ? matchingOrders.find((item) => item.id === requestedOrderId) ?? null
+          : matchingOrders.length === 1
+            ? matchingOrders[0]
+            : null;
         setOrder(nextOrder);
       }
 
@@ -268,6 +273,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             status: string;
             createdAt: string;
             buyerId: string;
+            fromRole?: "buyer" | "seller";
           }>;
         };
         setOffers(
@@ -276,7 +282,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             amount: offer.amount,
             currency: "GBP",
             state: mapOfferDbStatus(offer.status),
-            fromRole: "buyer" as const,
+            fromRole: offer.fromRole ?? ("buyer" as const),
             createdAt: offer.createdAt,
           })),
         );
@@ -320,7 +326,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
     } catch {
       setLoadState(typeof navigator !== "undefined" && !navigator.onLine ? "offline" : "error");
     }
-  }, [conversation.product.id, conversation.product.slug]);
+  }, [conversation.product.id, conversation.product.slug, requestedOrderId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -595,7 +601,14 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       const payload = (await response.json()) as {
         success?: boolean;
         status?: string;
-        offer?: { id: string; amount: number; createdAt: string; status: string };
+        offer?: {
+          id: string;
+          amount: number;
+          createdAt: string;
+          status: string;
+          fromRole?: "buyer" | "seller";
+        };
+        checkoutHref?: string;
         error?: string;
       };
       if (!response.ok || !payload.success) {
@@ -614,7 +627,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             amount: nextOffer.amount,
             currency: "GBP",
             state: mapOfferDbStatus(nextOffer.status),
-            fromRole: view.viewerRole,
+            fromRole: nextOffer.fromRole ?? view.viewerRole,
             createdAt: nextOffer.createdAt,
           },
         ]);
@@ -633,6 +646,9 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       setCounterFor(null);
       setCounterAmount("");
       void refreshBadges();
+      if (action === "accept" && view.viewerRole === "buyer" && payload.checkoutHref) {
+        router.push(payload.checkoutHref);
+      }
     } finally {
       setActionBusy(null);
     }
@@ -647,7 +663,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
     setActionBusy(actionId);
     try {
       if (actionId === "leave_feedback" || actionId === "leave_review") {
-        router.push(`${view.orderDetailsHref}?review=1`);
+        setReviewOpen(true);
         return;
       }
       if (actionId === "open_dispute") {
@@ -665,9 +681,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
           pushToast({ title: "Unable to open dispute.", variant: "error" });
           return;
         }
-        const payload = (await response.json()) as { case?: { id: string } };
         pushToast({ title: "Dispute opened.", variant: "success" });
-        if (payload.case?.id) router.push(`/resolution/${payload.case.id}`);
         void reloadRelated();
         return;
       }
@@ -719,8 +733,9 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
     }
   };
 
-  const orderNumber =
-    view.orderReference.orderNumber ?? `Order #${view.orderReference.orderId.slice(0, 8).toUpperCase()}`;
+  const orderNumber = order
+    ? view.orderReference.orderNumber ?? `Order #${order.id.slice(0, 8).toUpperCase()}`
+    : "Transaction";
 
   const copyTracking = async () => {
     if (!view.tracking?.trackingNumber) return;
@@ -796,17 +811,6 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                   role="menuitem"
                   onClick={() => {
                     setMenuOpen(false);
-                    router.push(view.orderDetailsHref);
-                  }}
-                >
-                  View order
-                </button>
-                <button
-                  type="button"
-                  className="conv-hub__menu-item"
-                  role="menuitem"
-                  onClick={() => {
-                    setMenuOpen(false);
                     void fetch(`/api/messages/${conversation.id}`, {
                       method: "PATCH",
                       headers: { "Content-Type": "application/json" },
@@ -868,7 +872,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             pullStartY.current = null;
           }}
         >
-          <Link href={view.orderDetailsHref} className="conv-hub__product">
+          <div className="conv-hub__product" aria-label="Transaction item">
             <span className="conv-hub__product-thumb">
               <SafeImage src={view.product.imageUrl} alt={view.product.title} fill sizes="52px" />
             </span>
@@ -889,9 +893,8 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             </span>
             <span className="conv-hub__product-aside">
               <span className="conv-hub__product-status">{view.orderStatusLabel}</span>
-              <ChevronRightLineIcon className="conv-hub__chevron" />
             </span>
-          </Link>
+          </div>
 
           <OrderStatusRail
             steps={view.statusSteps}
@@ -925,17 +928,16 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 </div>
               ) : null}
               <div className="conv-hub__section-actions">
-                <a
-                  className="conv-hub__section-cta"
-                  href={
-                    view.tracking.carrierUrl ??
-                    (order ? `/orders/${order.id}/tracking` : view.orderDetailsHref)
-                  }
-                  target={view.tracking.carrierUrl ? "_blank" : undefined}
-                  rel={view.tracking.carrierUrl ? "noreferrer" : undefined}
-                >
-                  Open tracking
-                </a>
+                {view.tracking.carrierUrl ? (
+                  <a
+                    className="conv-hub__section-cta"
+                    href={view.tracking.carrierUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open tracking
+                  </a>
+                ) : null}
                 <button type="button" className="conv-hub__section-cta conv-hub__section-cta--ghost" onClick={() => void copyTracking()}>
                   Copy tracking
                 </button>
@@ -959,9 +961,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 {view.dispute.decisionSummary ? (
                   <p className="conv-hub__empty-note">{view.dispute.decisionSummary}</p>
                 ) : null}
-                <Link href={`/resolution/${view.dispute.id}`} className="conv-hub__section-cta">
-                  Continue dispute
-                </Link>
+                <p className="conv-hub__empty-note">Updates will appear in this transaction thread.</p>
               </>
             ) : (
               <>
@@ -976,6 +976,12 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
               </>
             )}
           </section>
+
+          {reviewOpen && order ? (
+            <section className="conv-hub__section conv-hub__section--review" aria-label="Review">
+              <OrderReviewCard orderId={order.id} sellerName={view.sellerName} />
+            </section>
+          ) : null}
 
           {view.attachments.length > 0 ? (
             <section className="conv-hub__section" aria-label="Attachments">
@@ -1065,7 +1071,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                           {formatMessageTime(item.at)}
                         </time>
                       ) : null}
-                      {isOpen && view.viewerRole === "seller" ? (
+                      {isOpen && offer.fromRole !== view.viewerRole ? (
                         <div className="conv-hub__offer-actions">
                           <button
                             type="button"
@@ -1141,7 +1147,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
         <div className="conv-hub__footer">
           {warning ? <div className="conv-hub__warning">{warning}</div> : null}
 
-          {view.dynamicActions.length > 0 ? (
+          {reviewOpen ? null : view.dynamicActions.length > 0 ? (
             <div className="conv-hub__order-actions">
               {view.dynamicActions.map((action, index) => (
                 <button

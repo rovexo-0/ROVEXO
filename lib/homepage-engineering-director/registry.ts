@@ -76,7 +76,7 @@ export const HOMEPAGE_PRODUCTION_GATES = [
 
 export const PREMIUM_HOME_STACK = [
   "RovexoHeaderV2",
-  "CanonicalHomepage",
+  "RovexoHomePage",
 ] as const;
 
 export const LEGACY_HOME_IMPORTS = [
@@ -97,7 +97,7 @@ export const LEGACY_HOME_IMPORTS = [
 
 export const HOMEPAGE_SOURCE_FILES = {
   page: "app/page.tsx",
-  homeContent: "components/homepage/canonical/CanonicalHomepage.tsx",
+  homeContent: "components/home/RovexoHomePage.tsx",
   categoryRail: "components/homepage/canonical/CanonicalCategoryRail.tsx",
   header: "components/header/RovexoHeaderV2.tsx",
   betaShell: "components/beta/BetaAppShell.tsx",

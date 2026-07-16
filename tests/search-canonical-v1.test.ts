@@ -33,13 +33,29 @@ describe("Search canonical v1.0 final UI lock", () => {
     expect(rail).toContain("captureHomepageScroll");
   });
 
-  it("removes messages from header and account menu duplicates", () => {
+  it("shows the real category filter without expanding the search contract", () => {
+    const results = readSource("features/search/components/SearchResultsView.tsx");
+    const filters = readSource("features/search/utils/filters.ts");
+
+    expect(results).toContain('aria-label="Search filters"');
+    expect(results).toContain("<select");
+    expect(results).toContain("All categories");
+    expect(results).toContain("HOME_CATEGORY_NAV");
+    expect(filters).toContain("category?: string");
+    expect(filters).not.toContain("condition?:");
+    expect(filters).not.toContain("price?:");
+  });
+
+  it("routes homepage communication through the singular Inbox hub", () => {
     const header = readSource("components/header/RovexoHeaderV2.tsx");
+    const nav = readSource("lib/homepage/canonical-nav.ts");
     const menu = readSource("lib/account-center/canonical-menu.ts");
 
     expect(header).not.toContain('href="/messages"');
-    expect(header).not.toContain("MessageSquare");
+    expect(header).not.toContain("MessageCircle");
     expect(header).toContain('href="/notifications"');
+    expect(nav).toContain('label: "Inbox"');
+    expect(nav).toContain('href: "/inbox"');
     expect(menu).not.toContain('title: "Messages"');
     expect(menu).not.toContain('href: "/messages"');
   });

@@ -3,6 +3,10 @@
 **STATUS:**  
 **CANONICAL_FROZEN_v1.0**
 
+## Universal UI v1.1 compatibility amendment
+
+Approved 2026-07-15. Account information architecture and frozen behavior remain unchanged. Account and Settings presentation now consume Universal UI v1.1: 60px headers, 44px header controls, 24px icons, 14px body text, 16px section titles, 16px inner padding, 24px section rhythm, 14px cards and shadowless white surfaces.
+
 | Field | Value |
 |-------|-------|
 | Module | My Account |

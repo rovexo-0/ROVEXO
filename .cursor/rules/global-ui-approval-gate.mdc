@@ -1,0 +1,50 @@
+---
+description: Mandatory visual-preview and approval gates for every ROVEXO module
+alwaysApply: true
+---
+
+# ROVEXO v1.0 Global Preview Policy — Officially Locked
+
+Applies without exception to every user-facing module and future page. Non-visual
+work must preview every affected surface. One module means one canonical implementation.
+
+## Mandatory sequence
+
+Build → Implementation → Visual Preview → Responsive Testing → QA Testing →
+User-Flow Testing → Product Owner Approval → Freeze → Commit → Push →
+Preview Deployment → Production Validation → Production Deployment → Lock.
+
+Never skip, reorder, combine, or infer authorization between stages.
+
+## Required visual evidence
+
+Every module must provide all seven artifacts before approval:
+1. iPhone 17 Pro Max preview
+2. Samsung Galaxy Ultra preview
+3. Desktop preview
+4. PWA preview
+5. Responsive composite preview
+6. Complete user-flow preview
+7. Final official preview
+
+Evidence must show the final appearance and behavior: spacing, cards, imagery,
+navigation, scrolling, motion/transitions, loading, responsive layouts, and
+empty-state behavior (including omission where the approved spec hides empties).
+Static specifications, code, contracts, or test output alone are never approval evidence.
+
+Required surfaces include Homepage, Search, Sell, Inbox Hub, Product, Checkout,
+Wallet, Account, Settings, Admin, Business tools/profile verification, and every
+future UI. “Business” never creates a separate account type or role-switching flow.
+
+## Human approval hard stop
+
+After previews and tests, stop and wait for explicit Product Owner approval.
+Before approval, never freeze, commit, push, merge, deploy, production-lock,
+release, or start a later release stage. Praise is not approval. Authorization
+is stage-specific and never carries forward implicitly.
+
+## Release gates
+
+No preview = no approval. No approval = no Freeze. No Freeze = no Commit.
+No Commit = no Push. No Push = no Deploy. No final official visual preview means
+the module may never be deployed or locked.

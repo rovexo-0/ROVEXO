@@ -112,7 +112,7 @@ export function CheckoutPage({
   }, [product.slug, router, searchParams]);
 
   return (
-    <BetaAppShell showBottomNav={!isSuccess} className="checkout-v1-shell">
+    <BetaAppShell showBottomNav={false} className="checkout-v1-shell">
       <main
         className={cn(
           isSuccess &&

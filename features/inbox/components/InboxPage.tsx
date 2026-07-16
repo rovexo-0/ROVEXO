@@ -11,7 +11,6 @@ import {
   type ReactNode,
   type SVGProps,
 } from "react";
-import { Avatar } from "@/components/ui/Avatar";
 import { SafeImage } from "@/components/ui/SafeImage";
 import {
   ChevronRightLineIcon,
@@ -30,11 +29,9 @@ import {
   INBOX_CANONICAL_VERSION,
   INBOX_ROUTES,
   buildUnreadCounter,
-  filterInboxConversations,
   mapNotificationCategory,
   parseInboxTab,
   subscribeInboxRealtime,
-  type InboxMessageFilter,
   type InboxTab,
 } from "@/lib/inbox";
 import "@/styles/rovexo/inbox-hub-v1.css";
@@ -42,14 +39,6 @@ import "@/styles/rovexo/inbox-hub-v1.css";
 const PAGE_SIZE = 20;
 const SWIPE_THRESHOLD = 72;
 const MAX_SWIPE = 140;
-
-const MESSAGE_FILTERS: { id: InboxMessageFilter; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "unread", label: "Unread" },
-  { id: "orders", label: "Orders" },
-  { id: "offers", label: "Offers" },
-  { id: "archived", label: "Archived" },
-];
 
 type IconProps = SVGProps<SVGSVGElement>;
 
@@ -100,16 +89,6 @@ function matchesNotificationSearch(notification: Notification, query: string): b
     .join(" ")
     .toLowerCase()
     .includes(q);
-}
-
-function statusLabel(status: Conversation["product"]["status"]): string {
-  if (status === "published") return "Active";
-  return status;
-}
-
-function orderIdLabel(conversation: Conversation): string {
-  const short = conversation.product.id.slice(0, 8).toUpperCase();
-  return `Order #${short}`;
 }
 
 function SwipeableConversationRow({
@@ -231,7 +210,6 @@ export function InboxPage() {
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
   const [hubError, setHubError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<InboxMessageFilter>("all");
   const [searchOpen, setSearchOpen] = useState(searchParams.get("search") === "1");
   const [query, setQuery] = useState("");
   const [messagePage, setMessagePage] = useState(1);
@@ -357,11 +335,11 @@ export function InboxPage() {
   ]);
 
   const filteredConversations = useMemo(() => {
-    const base = filterInboxConversations(conversations, filter).filter((item) =>
+    const base = conversations.filter((item) =>
       matchesConversationSearch(item, query),
     );
     return [...base].sort((a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt));
-  }, [conversations, filter, query]);
+  }, [conversations, query]);
 
   const filteredNotifications = useMemo(() => {
     return notifications
@@ -486,6 +464,7 @@ export function InboxPage() {
         className="inbox-hub"
         data-inbox-hub={INBOX_CANONICAL_VERSION}
         data-inbox-freeze="FROZEN"
+        data-inbox-universal="v1.1-preview"
         data-inbox-realtime="foundation"
         onTouchStart={(event) => {
           if (window.scrollY <= 0) pullStartY.current = event.touches[0]?.clientY ?? null;
@@ -573,25 +552,6 @@ export function InboxPage() {
           </div>
         ) : null}
 
-        {tab === "messages" ? (
-          <div className="inbox-hub__chips" role="group" aria-label="Message filters">
-            {MESSAGE_FILTERS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={cn("inbox-hub__chip", filter === item.id && "inbox-hub__chip--on")}
-                aria-pressed={filter === item.id}
-                onClick={() => {
-                  setFilter(item.id);
-                  setMessagePage(1);
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        ) : null}
-
         {loading ? (
           <InboxListSkeleton variant={tab === "messages" ? "messages" : "notifications"} />
         ) : tab === "messages" ? (
@@ -627,15 +587,6 @@ export function InboxPage() {
                             sizes="52px"
                           />
                         </span>
-                        <span className="inbox-hub__avatar">
-                          <Avatar
-                            src={conversation.participant.avatarUrl}
-                            alt={conversation.participant.name}
-                            name={conversation.participant.name}
-                            size="sm"
-                            className="inbox-hub__avatar-face"
-                          />
-                        </span>
                       </span>
                       <span className="inbox-hub__card-body">
                         <span className="inbox-hub__card-top">
@@ -646,17 +597,6 @@ export function InboxPage() {
                           >
                             {formatMessageTime(conversation.lastMessageAt)}
                           </time>
-                        </span>
-                        <span className="inbox-hub__meta">
-                          <span className="inbox-hub__order-id">{orderIdLabel(conversation)}</span>
-                          <span className="inbox-hub__status">
-                            {statusLabel(conversation.product.status)}
-                          </span>
-                        </span>
-                        <span className="inbox-hub__party">
-                          <span className="inbox-hub__party-name">
-                            {conversation.participant.name}
-                          </span>
                         </span>
                         <span
                           className={cn(

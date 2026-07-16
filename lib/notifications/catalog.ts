@@ -91,11 +91,13 @@ function orderHref(ctx: NotificationRouteContext) {
 }
 
 function trackingHref(ctx: NotificationRouteContext) {
-  return ctx.orderId ? `/orders/${ctx.orderId}?view=tracking` : "/orders";
+  return ctx.orderId ? `/orders/${ctx.orderId}/tracking` : "/orders";
 }
 
 function offerHref(ctx: NotificationRouteContext) {
-  return ctx.offerId ? `/offers/${ctx.offerId}` : "/offers";
+  return ctx.offerId
+    ? `/inbox?tab=messages&filter=offers&offer=${encodeURIComponent(ctx.offerId)}`
+    : "/inbox?tab=messages&filter=offers";
 }
 
 function conversationHref(ctx: NotificationRouteContext) {
@@ -103,7 +105,7 @@ function conversationHref(ctx: NotificationRouteContext) {
 }
 
 function productHref(ctx: NotificationRouteContext) {
-  if (ctx.productSlug) return `/product/${ctx.productSlug}`;
+  if (ctx.productSlug) return `/listing/${ctx.productSlug}`;
   if (ctx.productId) return `/saved?highlight=${ctx.productId}`;
   return "/saved";
 }
@@ -553,7 +555,7 @@ export function resolveCanonicalNotificationHref(
         // Legacy deep link — app/checkout/page.tsx resolves to slug + locked price.
         return context.offerId
           ? `/checkout?offerId=${encodeURIComponent(context.offerId)}`
-          : "/offers";
+          : "/inbox?tab=messages&filter=offers";
       }
       return offerHref(context);
     case "conversation":

@@ -9,13 +9,16 @@ import { focusRing, transitionFast } from "@/components/ui/tokens";
 export function HeaderProfileLink({
   className,
   avatarClassName,
+  loadProfile = true,
 }: {
   className?: string;
   avatarClassName?: string;
+  loadProfile?: boolean;
 }) {
   const [profile, setProfile] = useState<{ name: string; avatarUrl: string | null } | null>(null);
 
   useEffect(() => {
+    if (!loadProfile) return;
     let cancelled = false;
 
     void fetch("/api/profile", { cache: "no-store" })
@@ -33,7 +36,7 @@ export function HeaderProfileLink({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [loadProfile]);
 
   return (
     <Link

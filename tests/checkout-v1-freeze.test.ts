@@ -23,11 +23,15 @@ describe("Checkout v1.0 — CANONICAL FREEZE", () => {
 
   it("marks frozen DOM on wizard and success", () => {
     const wizard = readSource("features/checkout/components/CheckoutWizardV1.tsx");
+    const page = readSource("features/checkout/components/CheckoutPage.tsx");
+    const header = readSource("features/checkout/components/CheckoutPageHeader.tsx");
     const success = readSource("app/checkout/[slug]/success/page.tsx");
     expect(wizard).toContain('data-checkout-freeze="FROZEN"');
     expect(wizard).toContain('data-checkout-version="v1.0"');
     expect(success).toContain('data-checkout-freeze="FROZEN"');
     expect(success).toContain("SUCCESS_ORDER_STATUSES");
+    expect(page).toContain("showBottomNav={false}");
+    expect(header).not.toContain("preferHistory");
   });
 
   it("keeps Buy Now on listing checkout without cart intermediate", () => {

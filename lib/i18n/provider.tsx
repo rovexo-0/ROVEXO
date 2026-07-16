@@ -12,6 +12,7 @@ import {
 import { usePathname } from "next/navigation";
 import { getLocaleOption, localeDirection, localeToHtmlLang, type LocaleCode } from "@/lib/i18n/config";
 import { AUTH_ROUTES } from "@/lib/auth/canonical";
+import { createClient } from "@/lib/supabase/client";
 
 type LocaleContextValue = {
   localeCode: LocaleCode;
@@ -96,6 +97,11 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
     void (async () => {
       try {
+        const {
+          data: { session },
+        } = await createClient().auth.getSession();
+        if (!session || cancelled) return;
+
         const response = await fetch("/api/settings");
         if (!response.ok) return;
         const payload = (await response.json()) as { settings?: { localeCode?: LocaleCode } };

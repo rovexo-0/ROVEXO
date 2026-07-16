@@ -33,7 +33,6 @@ export function CheckoutPageHeader({
           <PageBack
             backHref={backHref}
             backLabel={backLabel}
-            preferHistory
             className="ckt-v1__header-back-wrap"
           />
         )}

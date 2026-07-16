@@ -20,8 +20,10 @@ describe("OrdersPage single source of truth", () => {
     expect(ui).toContain('data-orders-page="v1.1"');
     expect(ui).toContain('data-orders-ui="header-simplified"');
     expect(ui).toContain('label: "All"');
-    expect(ui).toContain('label: "Processing"');
+    expect(ui).toContain('label: "In Progress"');
     expect(ui).toContain('label: "Completed"');
+    expect(ui).toContain('label: "Cancelled"');
+    expect(ui).toContain('data-order-status={order.status}');
     expect(ui).toContain("No orders yet.");
     expect(ui).toContain("Your sold items will appear here.");
     expect(ui).not.toContain("showHeaderTitle");
@@ -30,7 +32,6 @@ describe("OrdersPage single source of truth", () => {
     expect(ui).not.toContain("orders-page__notify");
     expect(ui).not.toContain("Total Sales");
     expect(ui).not.toContain("Shipping");
-    expect(ui).not.toContain("Cancelled");
     expect(css).toContain(".orders-page");
     expect(css).toContain("height: 56px");
     expect(css).toContain("width: 40px");

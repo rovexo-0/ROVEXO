@@ -8,5 +8,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/403");
   }
 
-  return children;
+  return (
+    <div data-universal-ui="v1.1" data-universal-ui-status="preview">
+      {children}
+    </div>
+  );
 }

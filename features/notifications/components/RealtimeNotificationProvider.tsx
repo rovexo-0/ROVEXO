@@ -44,6 +44,7 @@ type RealtimeNotificationProviderProps = {
   children: ReactNode;
   initialUnreadCount?: number;
   initialNotifications?: Notification[];
+  enabled?: boolean;
 };
 
 async function fetchBadgeState(signal?: AbortSignal): Promise<{
@@ -129,6 +130,7 @@ export function RealtimeNotificationProvider({
   children,
   initialUnreadCount = 0,
   initialNotifications = [],
+  enabled = true,
 }: RealtimeNotificationProviderProps) {
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
@@ -147,7 +149,7 @@ export function RealtimeNotificationProvider({
   }, []);
 
   const refresh = useCallback(async () => {
-    if (!isDocumentVisible()) return;
+    if (!enabled || !isDocumentVisible()) return;
     try {
       const state = await fetchBadgeState();
       applyState(state);
@@ -155,18 +157,20 @@ export function RealtimeNotificationProvider({
       if ((error as Error).name === "AbortError") return;
       // ignore network errors
     }
-  }, [applyState]);
+  }, [applyState, enabled]);
 
   useEffect(() => {
+    if (!enabled) return;
     if (mountedRef.current) return;
     mountedRef.current = true;
     const timer = window.setTimeout(() => {
       void refresh();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [refresh]);
+  }, [enabled, refresh]);
 
   useEffect(() => {
+    if (!enabled) return;
     let channel: ReturnType<typeof subscribeToUserNotifications> | null = null;
     let cancelled = false;
     let reconnectTimer: number | null = null;
@@ -251,9 +255,10 @@ export function RealtimeNotificationProvider({
       document.removeEventListener("visibilitychange", onVisibility);
       disconnect();
     };
-  }, [refresh]);
+  }, [enabled, refresh]);
 
   useEffect(() => {
+    if (!enabled) return;
     if (!("serviceWorker" in navigator)) return;
 
     const onMessage = (event: MessageEvent) => {
@@ -264,7 +269,7 @@ export function RealtimeNotificationProvider({
 
     navigator.serviceWorker.addEventListener("message", onMessage);
     return () => navigator.serviceWorker.removeEventListener("message", onMessage);
-  }, [refresh]);
+  }, [enabled, refresh]);
 
   const value = useMemo(
     () => ({

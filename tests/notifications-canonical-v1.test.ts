@@ -75,7 +75,7 @@ describe("Notifications canonical v1.0", () => {
     ).toBe("/orders/o1");
     expect(
       resolveCanonicalNotificationHref("buyer.tracking_updated", { orderId: "o2" }),
-    ).toBe("/orders/o2?view=tracking");
+    ).toBe("/orders/o2/tracking");
     expect(
       resolveCanonicalNotificationHref("buyer.offer_accepted", { offerId: "off1" }),
     ).toContain("/checkout?offerId=off1");
@@ -90,7 +90,7 @@ describe("Notifications canonical v1.0", () => {
     ).toBe("/inbox/conversation/c1");
 
     expect(resolveSmartNotificationHref("order_shipped", { orderId: "o9" })).toBe(
-      "/orders/o9?view=tracking",
+      "/orders/o9/tracking",
     );
     expect(getCanonicalNotification("marketplace.security_alert").control).toBe("security");
   });

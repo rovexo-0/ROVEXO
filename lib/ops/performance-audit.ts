@@ -98,11 +98,13 @@ function buildNextJsChecks(): PerformanceCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
   const homePage = readProjectFile("app/page.tsx");
   const homeContent =
-    readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx") ||
-    readProjectFile("components/home/RovexoHomePage.tsx");
+    readProjectFile("components/home/RovexoHomePage.tsx") ||
+    readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx");
   const parallelHomeFetch =
     /Promise\.all(?:Settled)?\s*\(/.test(homePage) &&
     homePage.includes("fetchHomepageFeed");
+  const serverComposedHome =
+    homeContent.includes("HomepageProductSections") && !homeContent.includes('"use client"');
 
   return [
     {
@@ -150,9 +152,12 @@ function buildNextJsChecks(): PerformanceCheck[] {
       pass:
         homeContent.includes("next/dynamic") ||
         homeContent.includes("memo(") ||
+        serverComposedHome ||
         (homeContent.includes("RovexoAllListings") && homeContent.includes("memo(")),
       message: homeContent.includes("next/dynamic")
         ? "Below-fold sections code-split"
+        : serverComposedHome
+          ? "Server-composed homepage with isolated interactive boundary"
         : homeContent.includes("memo(")
           ? "Canonical homepage memoized for stable hydration"
           : homeContent.includes("RovexoAllListings") && homeContent.includes("memo(")
@@ -161,6 +166,7 @@ function buildNextJsChecks(): PerformanceCheck[] {
       score:
         homeContent.includes("next/dynamic") ||
         homeContent.includes("memo(") ||
+        serverComposedHome ||
         (homeContent.includes("RovexoAllListings") && homeContent.includes("memo("))
           ? 100
           : 50,
@@ -243,8 +249,10 @@ function buildCacheChecks(): PerformanceCheck[] {
 function buildWebVitalsChecks(): PerformanceCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
   const homeContent =
-    readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx") ||
-    readProjectFile("components/home/RovexoHomePage.tsx");
+    readProjectFile("components/home/RovexoHomePage.tsx") ||
+    readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx");
+  const serverComposedHome =
+    homeContent.includes("HomepageProductSections") && !homeContent.includes('"use client"');
 
   return [
     {
@@ -259,11 +267,13 @@ function buildWebVitalsChecks(): PerformanceCheck[] {
       id: "cwv-home-memo",
       category: "web-vitals",
       label: "Home content memoization",
-      pass: homeContent.includes("memo("),
-      message: homeContent.includes("memo(")
-        ? "Home sections memoized to reduce re-renders"
-        : "Home content re-renders on every parent update",
-      score: homeContent.includes("memo(") ? 100 : 60,
+      pass: homeContent.includes("memo(") || serverComposedHome,
+      message: serverComposedHome
+        ? "Server component isolates interactive homepage state"
+        : homeContent.includes("memo(")
+          ? "Home sections memoized to reduce re-renders"
+          : "Home content re-renders on every parent update",
+      score: homeContent.includes("memo(") || serverComposedHome ? 100 : 60,
     },
     {
       id: "cwv-strict-mode",

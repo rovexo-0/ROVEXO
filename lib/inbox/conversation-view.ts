@@ -415,7 +415,7 @@ function buildDynamicActions(
       if (order.status === "delivered") {
         actions.push({ id: "confirm_received", label: "Confirm received", role: "buyer" });
       }
-      if (order.status === "completed" || order.status === "delivered") {
+      if (order.status === "completed") {
         actions.push({ id: "leave_feedback", label: "Leave feedback", role: "buyer" });
       }
       if (order.status !== "cancelled" && order.status !== "completed") {

@@ -91,13 +91,18 @@ describe("Inbox Hub v1.0 — CANONICAL FREEZE", () => {
     expect(view.timeline.every((item) => item.kind !== "system")).toBe(true);
   });
 
-  it("locks offer, tracking, dispute, and realtime contracts", () => {
+  it("preserves offer, tracking, dispute, review, and realtime contracts in-thread", () => {
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
     expect(hub).toContain("/api/offers/");
     expect(hub).toContain("Open tracking");
     expect(hub).toContain("Copy tracking");
     expect(hub).toContain("Open dispute");
-    expect(hub).toContain("Continue dispute");
+    expect(hub).toContain("Updates will appear in this transaction thread.");
+    expect(hub).toContain("<OrderReviewCard");
+    expect(hub).toContain("setReviewOpen(true)");
+    expect(hub).not.toContain('router.push(`${view.orderDetailsHref}?review=1`)');
+    expect(hub).toContain('searchParams.get("order") ?? searchParams.get("order_id")');
+    expect(hub).toContain("matchingOrders.length === 1");
     expect(hub).toContain("subscribeConversationRealtime");
     expect(hub).toContain("signalTyping");
     expect(hub).toContain("refreshBadges");

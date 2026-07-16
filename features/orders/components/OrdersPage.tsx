@@ -9,7 +9,7 @@ import type { Order } from "@/lib/orders/types";
 import "@/styles/rovexo/orders-page-v1.css";
 
 type Tab = "sold" | "bought";
-type Chip = "all" | "processing" | "completed";
+type Chip = "all" | "in_progress" | "completed" | "cancelled";
 
 export type OrdersPageProps = {
   boughtOrders: Order[];
@@ -23,8 +23,9 @@ const TABS: { id: Tab; label: string }[] = [
 
 const CHIPS: { id: Chip; label: string }[] = [
   { id: "all", label: "All" },
-  { id: "processing", label: "Processing" },
+  { id: "in_progress", label: "In Progress" },
   { id: "completed", label: "Completed" },
+  { id: "cancelled", label: "Cancelled" },
 ];
 
 type IconProps = SVGProps<SVGSVGElement>;
@@ -50,6 +51,7 @@ function PackageOutlineIcon(props: IconProps) {
 
 function matchesChip(order: Order, chip: Chip): boolean {
   if (chip === "all") return true;
+  if (chip === "cancelled") return order.status === "cancelled";
   if (chip === "completed") {
     return order.status === "completed" || order.status === "delivered";
   }
@@ -64,6 +66,13 @@ function detailHref(order: Order, tab: Tab): string {
   return tab === "sold" ? `/seller/orders/${order.id}` : `/orders/${order.id}`;
 }
 
+function statusLabel(status: Order["status"]): string {
+  if (status === "awaiting_payment") return "Awaiting payment";
+  if (status === "awaiting_shipment") return "Preparing shipment";
+  if (status === "issue_open") return "Issue open";
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
 export function OrdersPageSkeleton() {
   return (
     <div className="orders-page" aria-busy="true" aria-label="Loading orders">
@@ -72,6 +81,7 @@ export function OrdersPageSkeleton() {
         <div className="orders-page__skel orders-page__skel--tab" />
       </div>
       <div className="orders-page__chips">
+        <div className="orders-page__skel orders-page__skel--chip" />
         <div className="orders-page__skel orders-page__skel--chip" />
         <div className="orders-page__skel orders-page__skel--chip" />
         <div className="orders-page__skel orders-page__skel--chip" />
@@ -153,8 +163,16 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
           <ul className="orders-page__list">
             {visible.map((order) => (
               <li key={order.id}>
-                <Link href={detailHref(order, tab)} className="orders-page__row">
-                  {order.product.title}
+                <Link
+                  href={detailHref(order, tab)}
+                  className="orders-page__row"
+                  data-order-status={order.status}
+                >
+                  <span className="orders-page__row-copy">
+                    <span className="orders-page__row-title">{order.product.title}</span>
+                    <span className="orders-page__row-number">{order.orderNumber}</span>
+                  </span>
+                  <span className="orders-page__row-status">{statusLabel(order.status)}</span>
                 </Link>
               </li>
             ))}

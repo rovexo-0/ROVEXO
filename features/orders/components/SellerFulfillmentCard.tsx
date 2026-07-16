@@ -62,6 +62,14 @@ export function SellerFulfillmentCard({ order, onUpdated }: SellerFulfillmentCar
           Mark as Delivered
         </Button>
       )}
+      {!canMarkDelivered && order.status === "delivered" ? (
+        <p
+          className="flex min-h-12 items-center justify-center rounded-ds-lg bg-success/10 text-sm font-semibold text-success"
+          aria-live="polite"
+        >
+          Delivered
+        </p>
+      ) : null}
 
       {canRefund && (
         <Button

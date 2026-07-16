@@ -7,6 +7,10 @@
 **Status:** **FROZEN** — `CANONICAL_FROZEN_v1.0`  
 **Markers:** `data-inbox-freeze="FROZEN"` · `data-conversation-freeze="FROZEN"`
 
+## Universal UI v1.1 compatibility amendment
+
+Approved 2026-07-15. The v1.0 behavior and markers remain frozen; presentation now consumes Universal UI v1.1. Inbox uses 68px-minimum divider rows with 44px media, 14px body text and no card shadow. Filter chips are removed. Exact order context is selected with `?order=<id>` or only when one unambiguous order matches. Tracking, delivery confirmation, disputes and reviews remain inline; legacy detail routes remain recovery fallbacks.
+
 ## Freeze rule
 
 Inbox Hub v1.0 is the single source of truth for marketplace communication.

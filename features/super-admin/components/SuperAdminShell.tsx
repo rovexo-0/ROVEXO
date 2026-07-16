@@ -129,6 +129,8 @@ export function SuperAdminShell({ children }: SuperAdminShellProps) {
 
   return (
     <div
+      data-universal-ui="v1.1"
+      data-universal-ui-status="preview"
       className={cn(
         "sa-premium-shell rx-page min-h-screen text-text-primary",
         isMissionControlHome ? "cc2-shell cc2-shell--home" : "bg-background",
