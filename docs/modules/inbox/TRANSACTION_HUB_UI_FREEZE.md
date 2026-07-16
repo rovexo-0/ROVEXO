@@ -1,23 +1,10 @@
-# Transaction Hub v1.0 — UI Freeze
+# Transaction Hub UI Freeze — v1.1
 
 | Field | Value |
 |-------|-------|
-| Module | Transaction Hub (Conversation) |
-| Version | v1.0 |
-| STATUS | **FROZEN** |
-| Canonical status | `CANONICAL_TRANSACTION_HUB_FROZEN_v1.0` |
-| Constant | `TRANSACTION_HUB_CANONICAL_FROZEN` in `lib/transaction-hub/canonical.ts` |
-| DOM | `data-transaction-hub-freeze="CANONICAL_TRANSACTION_HUB_FROZEN_v1.0"` |
+| Version | v1.1 Zoom Out |
+| STATUS | **FINAL APPROVED · UI LOCK ENABLED** |
+| DOM | `data-conversation-hub-ui="v1.1-zoom-out"` |
+| Spec | `docs/modules/inbox/MASTER_UI_SPECIFICATION.md` |
 
-## Frozen for v1.0
-
-- Full-screen conversation (no bottom navigation)
-- Single (+) attachment entry + message bar + SEND
-- Vinted density typography / card spacing
-- Purple ROVEXO branding
-- Offer accepted hides Buy Now / Make Offer / Add to Cart
-
-## Post-freeze
-
-No Transaction Hub UI modifications under v1.0.  
-Ship deltas as Transaction Hub **v1.1+** only.
+UI density zoom only. Business logic unchanged.

@@ -14,6 +14,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { SafeImage } from "@/components/ui/SafeImage";
 import {
   BackLineIcon,
+  ChevronRightLineIcon,
   DoubleCheckLineIcon,
   MoreLineIcon,
 } from "@/components/icons/RvxLineIcons";
@@ -23,6 +24,8 @@ import { useRealtimeNotifications } from "@/features/notifications/components/Re
 import { CheckoutHubSheet } from "@/features/transaction-hub/CheckoutHubSheet";
 import { TransactionHubBottomActions } from "@/features/transaction-hub/TransactionHubBottomActions";
 import { TransactionHubPaymentSuccess } from "@/features/transaction-hub/TransactionHubPaymentSuccess";
+import { PlatformFeeSheet } from "@/features/inbox/components/PlatformFeeSheet";
+import { ReviewTeaserSheet } from "@/features/inbox/components/ReviewTeaserSheet";
 import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
@@ -35,15 +38,16 @@ import {
   subscribeConversationRealtime,
   type ConversationDisputeView,
   type ConversationOfferView,
-  type ConversationOrderStatusStep,
 } from "@/lib/inbox";
 import { TRANSACTION_HUB_CANONICAL_STATUS } from "@/lib/transaction-hub/canonical";
 import { transactionHubListingHref } from "@/lib/transaction-hub/inbox-routes";
 import type { ChatMessage, Conversation } from "@/lib/messages/types";
 import { formatMessageTime } from "@/lib/messages/utils";
 import type { Order } from "@/lib/orders/types";
+import { formatListingPrice, formatListingPriceIncl } from "@/lib/listing-card/format";
 import { formatCurrency } from "@/lib/wallet/utils";
 import { uploadListingImage } from "@/lib/listings/upload-client";
+import { ShieldCheck } from "lucide-react";
 import "@/styles/rovexo/conversation-hub-v1.css";
 
 type ConversationHubProps = {
@@ -60,6 +64,18 @@ function PlusLineIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
       <path d="M12 5v14M5 12h14" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CameraLineIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
+      <path
+        d="M4 8h3l1.5-2h7L17 8h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="14" r="3.5" />
     </svg>
   );
 }
@@ -125,55 +141,12 @@ function MessageBubble({
   );
 }
 
-const RAIL_DISPLAY_LABELS: Record<ConversationOrderStatusStep["id"], string> = {
-  paid: "Paid",
-  packed: "Packed",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  completed: "Completed",
-};
-
-function OrderStatusRail({
-  steps,
-  onSelect,
-}: {
-  steps: ConversationOrderStatusStep[];
-  onSelect: (step: ConversationOrderStatusStep) => void;
-}) {
-  return (
-    <div className="conv-hub__rail" role="list" aria-label="Order status">
-      {steps.map((step) => {
-        const label = RAIL_DISPLAY_LABELS[step.id];
-        return (
-          <button
-            key={step.id}
-            type="button"
-            role="listitem"
-            aria-label={label}
-            className={cn(
-              "conv-hub__rail-step",
-              step.state === "complete" && "conv-hub__rail-step--complete",
-              step.state === "current" && "conv-hub__rail-step--current",
-            )}
-            onClick={() => onSelect({ ...step, label })}
-          >
-            <span className="conv-hub__rail-dot" aria-hidden />
-            <span className="conv-hub__rail-label" aria-hidden>
-              {label}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 function ConversationSkeleton() {
   return (
     <div
       className="conv-hub"
+      data-conversation-freeze="FINAL-LOCK"
       data-conversation-hub={CONVERSATION_HUB_VERSION}
-      data-conversation-freeze="FROZEN"
       aria-busy="true"
     >
       <div className="conv-hub__header">
@@ -183,7 +156,6 @@ function ConversationSkeleton() {
       </div>
       <div className="conv-hub__body">
         <div className="conv-hub__skel conv-hub__skel--card" />
-        <div className="conv-hub__skel conv-hub__skel--rail" />
         <div className="conv-hub__skel conv-hub__skel--bubble" />
         <div className="conv-hub__skel conv-hub__skel--bubble conv-hub__skel--bubble-out" />
       </div>
@@ -229,6 +201,8 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   const videoInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [attachSheetOpen, setAttachSheetOpen] = useState(false);
+  const [feeSheetOpen, setFeeSheetOpen] = useState(false);
+  const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
   const pullStartY = useRef<number | null>(null);
   const typingTimer = useRef<number | null>(null);
 
@@ -772,7 +746,8 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       <div
         className="conv-hub"
         data-conversation-hub={CONVERSATION_HUB_VERSION}
-        data-conversation-freeze="FROZEN"
+        data-conversation-freeze="FINAL-LOCK"
+        data-conversation-hub-ui="v1.1-zoom-out"
         data-transaction-hub-freeze={TRANSACTION_HUB_CANONICAL_STATUS}
         data-conversation-realtime="live"
         data-conversation-shell="fullscreen"
@@ -787,11 +762,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             <BackLineIcon />
           </button>
           <div className="conv-hub__header-centre">
-            <h1 className="conv-hub__header-title">{view.product.title}</h1>
-            <p className="conv-hub__header-sub">
-              <span>{orderNumber}</span>
-              <span className="conv-hub__header-badge">{view.orderStatusLabel}</span>
-            </p>
+            <h1 className="conv-hub__header-title">{view.participantName}</h1>
           </div>
           <div className="conv-hub__menu">
             <button
@@ -872,133 +843,44 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             pullStartY.current = null;
           }}
         >
-          <div className="conv-hub__product" aria-label="Transaction item">
-            <span className="conv-hub__product-thumb">
-              <SafeImage src={view.product.imageUrl} alt={view.product.title} fill sizes="52px" />
-            </span>
-            <span className="conv-hub__product-body">
+          <button
+            type="button"
+            className="conv-hub__product"
+            aria-label="Transaction item"
+            onClick={() => router.push(transactionHubListingHref(view.product.slug))}
+          >
+            <span className="conv-hub__product-stack">
               <span className="conv-hub__product-title">{view.product.title}</span>
-              <span className="conv-hub__product-price">{formatCurrency(view.product.price)}</span>
-              <span className="conv-hub__product-meta">
-                <Avatar
-                  src={view.sellerAvatarUrl ?? view.participantAvatarUrl}
-                  alt={view.sellerName}
-                  name={view.sellerName}
-                  size="sm"
-                  className="conv-hub__product-seller-avatar"
-                />
-                <span>{view.sellerName}</span>
-                <span>· {orderNumber}</span>
+              <span className="conv-hub__product-prices">
+                <span className="conv-hub__product-price">
+                  {formatListingPrice(acceptedOffer?.amount ?? view.product.price)}
+                </span>
+                <span className="conv-hub__product-incl">
+                  {formatListingPriceIncl(acceptedOffer?.amount ?? view.product.price)}
+                  <button
+                    type="button"
+                    className="conv-hub__fee-shield"
+                    aria-label="Platform Fee"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setFeeSheetOpen(true);
+                    }}
+                  >
+                    <ShieldCheck aria-hidden strokeWidth={2.25} className="conv-hub__fee-shield-icon" />
+                  </button>
+                </span>
+              </span>
+              <span className="conv-hub__product-status-row">
+                <span className="conv-hub__product-status">{view.orderStatusLabel}</span>
+                <ChevronRightLineIcon className="conv-hub__chevron" />
               </span>
             </span>
-            <span className="conv-hub__product-aside">
-              <span className="conv-hub__product-status">{view.orderStatusLabel}</span>
-            </span>
-          </div>
-
-          <OrderStatusRail
-            steps={view.statusSteps}
-            onSelect={(step) =>
-              pushToast({
-                title: step.label,
-                description:
-                  step.state === "future"
-                    ? "This step has not started yet."
-                    : step.state === "current"
-                      ? "Current order stage."
-                      : "Step complete.",
-                variant: "info",
-              })
-            }
-          />
-
-          {view.tracking ? (
-            <section className="conv-hub__section conv-hub__section--delivery" aria-label="Tracking">
-              <h2 className="conv-hub__section-title">Expected delivery:</h2>
-              <p className="conv-hub__delivery-line">
-                <span className="conv-hub__delivery-name">
-                  {view.tracking.estimatedDelivery ?? "Pending"}
-                </span>
-                <span className="conv-hub__delivery-meta">{view.tracking.courierName}</span>
-              </p>
-              {view.tracking.trackingNumber ? (
-                <div className="conv-hub__section-row">
-                  <span>Tracking</span>
-                  <span className="conv-hub__section-value">{view.tracking.trackingNumber}</span>
-                </div>
-              ) : null}
-              <div className="conv-hub__section-actions">
-                {view.tracking.carrierUrl ? (
-                  <a
-                    className="conv-hub__section-cta"
-                    href={view.tracking.carrierUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Open tracking
-                  </a>
-                ) : null}
-                <button type="button" className="conv-hub__section-cta conv-hub__section-cta--ghost" onClick={() => void copyTracking()}>
-                  Copy tracking
-                </button>
-              </div>
-            </section>
-          ) : (
-            <section className="conv-hub__section conv-hub__section--delivery" aria-label="Tracking">
-              <h2 className="conv-hub__section-title">Expected delivery:</h2>
-              <p className="conv-hub__empty-note">Waiting for shipment</p>
-            </section>
-          )}
-
-          <section className="conv-hub__section conv-hub__section--dispute" aria-label="Dispute">
-            <h2 className="conv-hub__section-title">Dispute</h2>
-            {view.dispute ? (
-              <>
-                <div className="conv-hub__section-row">
-                  <span>{view.dispute.title}</span>
-                  <span className="conv-hub__section-value">{view.dispute.status}</span>
-                </div>
-                {view.dispute.decisionSummary ? (
-                  <p className="conv-hub__empty-note">{view.dispute.decisionSummary}</p>
-                ) : null}
-                <p className="conv-hub__empty-note">Updates will appear in this transaction thread.</p>
-              </>
-            ) : (
-              <>
-                <p className="conv-hub__empty-note">Transaction running normally</p>
-                <button
-                  type="button"
-                  className="conv-hub__section-cta conv-hub__section-cta--ghost"
-                  onClick={() => void runOrderAction("open_dispute")}
-                >
-                  Open dispute
-                </button>
-              </>
-            )}
-          </section>
+          </button>
 
           {reviewOpen && order ? (
-            <section className="conv-hub__section conv-hub__section--review" aria-label="Review">
+            <div className="conv-hub__inline-review" aria-label="Leave review">
               <OrderReviewCard orderId={order.id} sellerName={view.sellerName} />
-            </section>
-          ) : null}
-
-          {view.attachments.length > 0 ? (
-            <section className="conv-hub__section" aria-label="Attachments">
-              <h2 className="conv-hub__section-title">Attachments</h2>
-              <div className="conv-hub__attachments">
-                {view.attachments.map((attachment) => (
-                  <button
-                    key={attachment.id}
-                    type="button"
-                    className="conv-hub__attachment"
-                    onClick={() => setPreviewUrl(attachment.url)}
-                  >
-                    {attachment.label}
-                  </button>
-                ))}
-              </div>
-            </section>
+            </div>
           ) : null}
 
           <div className="conv-hub__timeline" aria-live="polite">
@@ -1027,21 +909,97 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                   );
                 }
                 if (item.kind === "system") {
-                  const compactOfferSystem =
-                    item.event === "offer_accepted" || item.event === "offer_declined";
+                  const isTracking =
+                    item.event === "tracking_added" || item.event === "tracking_updated";
+                  const isLabel =
+                    item.event === "label_created" || item.event === "shipping_label_generated";
+                  const trackingHref = view.tracking?.carrierUrl ?? null;
+                  const parcelCodes = view.tracking?.trackingNumber
+                    ? view.tracking.trackingNumber
+                        .split(/[,;\s]+/)
+                        .map((code) => code.trim())
+                        .filter(Boolean)
+                    : [];
+                  const parcels =
+                    parcelCodes.length > 0
+                      ? parcelCodes.map((code, index) => ({
+                          code,
+                          label: `Parcel ${index + 1} of ${parcelCodes.length}`,
+                        }))
+                      : [];
                   return (
-                    <div
-                      key={item.id}
-                      className={cn("conv-hub__system", compactOfferSystem && "conv-hub__system--offer")}
-                      data-event={item.event}
-                    >
+                    <div key={item.id} className="conv-hub__system" data-event={item.event}>
+                      <p className="conv-hub__system-brand">ROVEXO</p>
                       <p className="conv-hub__system-title">{item.title}</p>
-                      {!compactOfferSystem && item.subtitle ? (
+                      {item.subtitle && !isTracking ? (
                         <p className="conv-hub__system-sub">{item.subtitle}</p>
                       ) : null}
-                      <p className="conv-hub__system-sub">
+                      {isLabel && view.tracking?.courierName ? (
+                        <p className="conv-hub__system-sub">{view.tracking.courierName}</p>
+                      ) : null}
+                      <p className="conv-hub__system-time">
                         <time dateTime={item.at}>{formatMessageTime(item.at)}</time>
                       </p>
+                      {isTracking && parcels.length > 0
+                        ? parcels.map((parcel) => (
+                            <div key={parcel.code} className="conv-hub__parcel">
+                              {parcels.length > 1 ? (
+                                <p className="conv-hub__parcel-label">{parcel.label}</p>
+                              ) : null}
+                              <p className="conv-hub__parcel-code">{parcel.code}</p>
+                              <div className="conv-hub__system-actions">
+                                {trackingHref ? (
+                                  <a
+                                    className="conv-hub__system-cta"
+                                    href={trackingHref}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    View Tracking
+                                  </a>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="conv-hub__system-cta"
+                                    onClick={() => void copyTracking()}
+                                  >
+                                    View Tracking
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  className="conv-hub__system-cta"
+                                  disabled={actionBusy === "print_label"}
+                                  onClick={() => void runOrderAction("print_label")}
+                                >
+                                  View Label
+                                </button>
+                              </div>
+                            </div>
+                          ))
+                        : null}
+                      {isLabel && !isTracking ? (
+                        <div className="conv-hub__system-actions">
+                          <button
+                            type="button"
+                            className="conv-hub__system-cta"
+                            disabled={actionBusy === "print_label"}
+                            onClick={() => void runOrderAction("print_label")}
+                          >
+                            View Label
+                          </button>
+                        </div>
+                      ) : null}
+                      {item.event === "dispute_started" ? (
+                        <button
+                          type="button"
+                          className="conv-hub__system-cta"
+                          disabled={actionBusy === "open_dispute"}
+                          onClick={() => void runOrderAction("open_dispute")}
+                        >
+                          View dispute
+                        </button>
+                      ) : null}
                     </div>
                   );
                 }
@@ -1085,17 +1043,17 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                             type="button"
                             className="conv-hub__offer-btn"
                             disabled={actionBusy === offer.id}
-                            onClick={() => void patchOffer(offer.id, "decline")}
+                            onClick={() => setCounterFor(offer.id)}
                           >
-                            Decline
+                            Counter
                           </button>
                           <button
                             type="button"
                             className="conv-hub__offer-btn"
                             disabled={actionBusy === offer.id}
-                            onClick={() => setCounterFor(offer.id)}
+                            onClick={() => void patchOffer(offer.id, "decline")}
                           >
-                            Counter Offer
+                            Decline
                           </button>
                         </div>
                       ) : null}
@@ -1140,6 +1098,34 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             )}
 
             {typingLabel ? <div className="conv-hub__typing">{typingLabel}</div> : null}
+
+            {order?.status === "completed" || order?.completedAt ? (
+              <>
+                <div className="conv-hub__review-teaser">
+                  <p className="conv-hub__review-stars" aria-hidden>
+                    ★★★★★
+                  </p>
+                  <p className="conv-hub__review-summary">Excellent seller.</p>
+                  <button
+                    type="button"
+                    className="conv-hub__system-cta"
+                    onClick={() => setReviewSheetOpen(true)}
+                  >
+                    View review &gt;
+                  </button>
+                </div>
+                <div className="conv-hub__done-summary">
+                  <p className="conv-hub__done-check">✓ Payment received</p>
+                  <p className="conv-hub__done-check">✓ Tracking available</p>
+                  <p className="conv-hub__done-check">✓ Delivered</p>
+                  <p className="conv-hub__done-check">✓ Review received</p>
+                  <p className="conv-hub__done-check">✓ Funds released</p>
+                  <p className="conv-hub__done-title">COMPLETED</p>
+                  <p className="conv-hub__done-thanks">Thank you for using ROVEXO.</p>
+                </div>
+              </>
+            ) : null}
+
             <div ref={threadEndRef} />
           </div>
         </div>
@@ -1195,6 +1181,15 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             <button
               type="button"
               className="conv-hub__icon-btn"
+              aria-label="Take photo"
+              disabled={conversation.blocked || uploading}
+              onClick={() => cameraInputRef.current?.click()}
+            >
+              <CameraLineIcon />
+            </button>
+            <button
+              type="button"
+              className="conv-hub__icon-btn conv-hub__icon-btn--attach"
               aria-label="Add attachment"
               aria-expanded={attachSheetOpen}
               disabled={conversation.blocked || uploading}
@@ -1203,14 +1198,14 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
               <PlusLineIcon />
             </button>
             <label className="sr-only" htmlFor="conv-hub-composer">
-              Write a message
+              Type a message
             </label>
             <textarea
               id="conv-hub-composer"
               ref={textareaRef}
               className="conv-hub__composer-field"
               rows={1}
-              placeholder={uploading ? "Uploading…" : "Write a message..."}
+              placeholder={uploading ? "Uploading…" : "Type a message…"}
               value={draft}
               disabled={conversation.blocked || sending || uploading}
               onChange={(event) => handleDraftChange(event.target.value)}
@@ -1227,7 +1222,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
               aria-label="Send message"
               disabled={conversation.blocked || sending || uploading || !draft.trim()}
             >
-              Send
+              SEND
             </button>
             <input
               ref={galleryInputRef}
@@ -1327,19 +1322,16 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 <button
                   type="button"
                   className="conv-hub__attach-item"
-                  disabled={!view.tracking?.trackingNumber}
+                  disabled={!view.tracking?.trackingNumber || !view.tracking?.carrierUrl}
                   onClick={() => {
-                    if (!view.tracking?.trackingNumber) {
+                    if (!view.tracking?.trackingNumber || !view.tracking.carrierUrl) {
                       pushToast({ title: "Tracking is not available yet.", variant: "info" });
                       setAttachSheetOpen(false);
                       return;
                     }
-                    const href =
-                      view.tracking.carrierUrl ??
-                      (order ? `/orders/${order.id}/tracking` : view.orderDetailsHref);
                     void sharePayload(
                       `Tracking ${view.tracking.trackingNumber}`,
-                      href.startsWith("http") ? href : `${window.location.origin}${href}`,
+                      view.tracking.carrierUrl,
                     );
                   }}
                 >
@@ -1399,6 +1391,18 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
           conversationId={conversation.id}
           offerId={acceptedOffer?.id ?? null}
           acceptedOfferPrice={acceptedOffer?.amount ?? null}
+        />
+        <PlatformFeeSheet
+          open={feeSheetOpen}
+          itemPrice={acceptedOffer?.amount ?? view.product.price}
+          onClose={() => setFeeSheetOpen(false)}
+        />
+        <ReviewTeaserSheet
+          open={reviewSheetOpen}
+          rating={5}
+          summary="Excellent seller."
+          body={"Fast delivery.\nItem exactly as described.\nHighly recommended."}
+          onClose={() => setReviewSheetOpen(false)}
         />
       </div>
     </AccountCanonicalShell>

@@ -1,12 +1,12 @@
 /**
- * ROVEXO Inbox Hub — freeze markers v1.0
- * STATUS = FROZEN when INBOX_HUB_CANONICAL_FROZEN === true.
+ * ROVEXO Inbox + Transaction Hub — freeze markers v1.1
+ * STATUS = UI LOCK ENABLED when INBOX_HUB_CANONICAL_FROZEN === true.
  */
 
-export const INBOX_HUB_SPEC_VERSION = "1.0" as const;
+export const INBOX_HUB_SPEC_VERSION = "1.1" as const;
 
-/** Canonical freeze — Inbox Hub v1.0 approved production SSOT. */
-export const INBOX_HUB_CANONICAL_STATUS = "CANONICAL_FROZEN_v1.0" as const;
+/** Canonical freeze — Inbox Hub + Transaction Hub v1.1 zoom-out SSOT. */
+export const INBOX_HUB_CANONICAL_STATUS = "CANONICAL_UI_LOCK_v1.1" as const;
 export const INBOX_HUB_CANONICAL_FROZEN = true as const;
 
 export const INBOX_HUB_ROUTES = {
@@ -20,20 +20,20 @@ export const INBOX_HUB_LEGACY_REDIRECTS = [
   "/notifications",
 ] as const;
 
-/** Visual tokens — Vinted size system densify (UI only). */
+/** Visual tokens — v1.1 global zoom-out (UI only). */
 export const INBOX_HUB_VISUAL_LOCK = {
-  headerHeightPx: 56,
-  controlSizePx: 40,
-  tabHeightPx: 40,
-  cardRadiusPx: 16,
-  cardPaddingPx: 14,
-  thumbSizePx: 52,
-  pagePadXPx: 16,
-  shadow: "0 8px 24px rgb(15 23 42 / 0.06)",
+  headerHeightPx: 40,
+  controlSizePx: 36,
+  tabHeightPx: 34,
+  cardRadiusPx: 0,
+  cardPaddingPx: 5,
+  thumbSizePx: 0,
+  pagePadXPx: 12,
+  shadow: "none",
   purple: "#6d28d9",
 } as const;
 
-/** Conversation order rail labels — compact display (same step ids). */
+/** Order progress step labels (ids unchanged; rail chrome hidden in v1.1 UI). */
 export const INBOX_CONVERSATION_STATUS_RAIL = [
   "Paid",
   "Prep",

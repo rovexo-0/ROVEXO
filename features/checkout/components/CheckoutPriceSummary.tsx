@@ -43,8 +43,8 @@ export function CheckoutPriceSummary({ totals, freeDelivery = false }: CheckoutP
       </div>
       {open ? (
         <p id={tipId} className="ckt-v1__price-tip" role="note">
-          Platform Fee covers secure payment processing and buyer protection. Sellers never see this
-          line.
+          Platform Fee covers secure payment processing, escrow protection, and platform security.
+          Sellers never see this line.
         </p>
       ) : null}
       <div className="ckt-v1__price-total">

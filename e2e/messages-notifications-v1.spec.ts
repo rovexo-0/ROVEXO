@@ -19,7 +19,7 @@ const VIEWPORTS = [
   { name: "desktop", width: 1280, height: 800 },
 ] as const;
 
-test.describe.serial("Messages + Notifications v1.0 — canonical layout", () => {
+test.describe.serial("Inbox Hub v1.1 — Messages + Notifications", () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName !== "chromium", "Auth layout E2E runs on chromium only");
   });
@@ -79,25 +79,20 @@ test.describe.serial("Messages + Notifications v1.0 — canonical layout", () =>
     expect(overflowPx).toBeLessThanOrEqual(1);
   }
 
-  async function assertMessagesInbox(page: Page) {
-    const bodyText = await page.locator("body").innerText();
-    await expect(
-      page.locator('[data-messages-version="v1.0"]'),
-      `Expected messages v1 shell. Body text: ${bodyText.slice(0, 200)}`,
-    ).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole("heading", { name: "Messages", exact: true })).toHaveCount(1);
-    await expect(page.getByRole("button", { name: "My Account" })).toHaveCount(1);
-    await expect(page.locator(".msg-v1__compose")).toHaveCount(1);
-    await expect(page.locator('[data-bottom-nav="2026"]')).toHaveCount(1);
+  async function assertInboxMessages(page: Page) {
+    const hub = page.locator(".inbox-hub[data-inbox-hub]");
+    await expect(hub).toBeVisible({ timeout: 60_000 });
+    await expect(hub).toHaveAttribute("data-inbox-freeze", "FINAL-LOCK");
+    await expect(page.getByRole("heading", { name: "Inbox", exact: true })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /Messages/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /Notifications/i })).toBeVisible();
     await assertNoHorizontalOverflow(page);
   }
 
-  async function assertNotificationsInbox(page: Page) {
-    await expect(page.locator('[data-notifications-version="v1.0"]')).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole("heading", { name: "Notifications", exact: true })).toHaveCount(1);
-    await expect(page.getByRole("button", { name: "Mark all as read" })).toHaveCount(1);
-    await expect(page.locator(".rvx-topbar")).toHaveCount(1);
-    await expect(page.locator('[data-bottom-nav="2026"]')).toHaveCount(1);
+  async function assertInboxNotifications(page: Page) {
+    const hub = page.locator(".inbox-hub[data-inbox-hub]");
+    await expect(hub).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("tab", { name: /Notifications/i })).toBeVisible();
     await assertNoHorizontalOverflow(page);
   }
 
@@ -117,39 +112,53 @@ test.describe.serial("Messages + Notifications v1.0 — canonical layout", () =>
     if (tempUser) await deleteTempUser(tempUser.id);
   });
 
-  test("messages inbox renders canonical v1 layout", async ({ page, baseURL }) => {
+  test("inbox messages tab renders canonical v1.1 layout", async ({ page, baseURL }) => {
     test.skip(!tempUser || !baseURL, "Temp user not available");
     await signIn(page, tempUser!, baseURL!);
-    await page.goto("/account", { waitUntil: "domcontentloaded", timeout: 60_000 });
-    await expect(page.locator(".ac-hub")).toBeVisible({ timeout: 60_000 });
-    await page.goto("/messages", { waitUntil: "domcontentloaded", timeout: 60_000 });
-    await expect(page).toHaveURL(/\/messages/, { timeout: 60_000 });
-    await assertMessagesInbox(page);
+    await page.goto("/inbox", { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await expect(page).toHaveURL(/\/inbox/, { timeout: 60_000 });
+    await assertInboxMessages(page);
   });
 
-  test("notifications inbox renders canonical v1 layout", async ({ page, baseURL }) => {
+  test("legacy /messages redirects into inbox hub", async ({ page, baseURL }) => {
+    test.skip(!tempUser || !baseURL, "Temp user not available");
+    await signIn(page, tempUser!, baseURL!);
+    await page.goto("/messages", { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await expect(page).toHaveURL(/\/inbox/, { timeout: 60_000 });
+    await assertInboxMessages(page);
+  });
+
+  test("inbox notifications tab renders canonical v1.1 layout", async ({ page, baseURL }) => {
+    test.skip(!tempUser || !baseURL, "Temp user not available");
+    await signIn(page, tempUser!, baseURL!);
+    await page.goto("/inbox?tab=notifications", { waitUntil: "domcontentloaded", timeout: 60_000 });
+    await expect(page).toHaveURL(/tab=notifications/, { timeout: 60_000 });
+    await assertInboxNotifications(page);
+  });
+
+  test("legacy /notifications redirects into inbox notifications", async ({ page, baseURL }) => {
     test.skip(!tempUser || !baseURL, "Temp user not available");
     await signIn(page, tempUser!, baseURL!);
     await page.goto("/notifications", { waitUntil: "domcontentloaded", timeout: 60_000 });
-    await expect(page).toHaveURL(/\/notifications/, { timeout: 60_000 });
-    await assertNotificationsInbox(page);
+    await expect(page).toHaveURL(/\/inbox/, { timeout: 60_000 });
+    await assertInboxNotifications(page);
   });
 
   for (const viewport of VIEWPORTS) {
-    test(`messages responsive at ${viewport.name}`, async ({ page, baseURL }) => {
+    test(`inbox messages responsive at ${viewport.name}`, async ({ page, baseURL }) => {
       test.skip(!tempUser || !baseURL, "Temp user not available");
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await signIn(page, tempUser!, baseURL!);
-      await page.goto("/messages", { waitUntil: "domcontentloaded", timeout: 60_000 });
-      await assertMessagesInbox(page);
+      await page.goto("/inbox", { waitUntil: "domcontentloaded", timeout: 60_000 });
+      await assertInboxMessages(page);
     });
 
-    test(`notifications responsive at ${viewport.name}`, async ({ page, baseURL }) => {
+    test(`inbox notifications responsive at ${viewport.name}`, async ({ page, baseURL }) => {
       test.skip(!tempUser || !baseURL, "Temp user not available");
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await signIn(page, tempUser!, baseURL!);
-      await page.goto("/notifications", { waitUntil: "domcontentloaded", timeout: 60_000 });
-      await assertNotificationsInbox(page);
+      await page.goto("/inbox?tab=notifications", { waitUntil: "domcontentloaded", timeout: 60_000 });
+      await assertInboxNotifications(page);
     });
   }
 });

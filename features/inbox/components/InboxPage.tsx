@@ -11,9 +11,7 @@ import {
   type ReactNode,
   type SVGProps,
 } from "react";
-import { SafeImage } from "@/components/ui/SafeImage";
 import {
-  ChevronRightLineIcon,
   SearchLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import { AccountCanonicalShell } from "@/features/account-canonical";
@@ -463,7 +461,7 @@ export function InboxPage() {
       <div
         className="inbox-hub"
         data-inbox-hub={INBOX_CANONICAL_VERSION}
-        data-inbox-freeze="FROZEN"
+        data-inbox-freeze="FINAL-LOCK"
         data-inbox-universal="v1.1-preview"
         data-inbox-realtime="foundation"
         onTouchStart={(event) => {
@@ -577,20 +575,11 @@ export function InboxPage() {
                       href={INBOX_ROUTES.conversation(conversation.id)}
                       className="inbox-hub__card"
                     >
-                      <span className="inbox-hub__media">
-                        <span className="inbox-hub__thumb">
-                          <SafeImage
-                            src={conversation.product.imageUrl}
-                            alt={conversation.product.title}
-                            fill
-                            className="inbox-hub__thumb-img"
-                            sizes="52px"
-                          />
-                        </span>
-                      </span>
                       <span className="inbox-hub__card-body">
                         <span className="inbox-hub__card-top">
-                          <span className="inbox-hub__product-title">{conversation.product.title}</span>
+                          <span className="inbox-hub__product-title">
+                            {conversation.participant.name}
+                          </span>
                           <time
                             className="inbox-hub__time"
                             dateTime={conversation.lastMessageAt}
@@ -606,14 +595,6 @@ export function InboxPage() {
                         >
                           {conversation.lastMessage}
                         </span>
-                      </span>
-                      <span className="inbox-hub__card-aside">
-                        {conversation.unreadCount > 0 ? (
-                          <span className="inbox-hub__unread" aria-label={`${conversation.unreadCount} unread`}>
-                            {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
-                          </span>
-                        ) : null}
-                        <ChevronRightLineIcon className="inbox-hub__chevron" />
                       </span>
                     </Link>
                   </SwipeableConversationRow>
@@ -641,18 +622,9 @@ export function InboxPage() {
                   </span>
                   <span className="inbox-hub__notif-body">
                     <span className="inbox-hub__notif-title">{notification.title}</span>
-                    <span className="inbox-hub__notif-sub">{notification.subtitle}</span>
                     <time className="inbox-hub__notif-time" dateTime={notification.createdAt}>
                       {formatNotificationTime(notification.createdAt)}
                     </time>
-                  </span>
-                  <span className="inbox-hub__notif-aside">
-                    {!notification.read ? (
-                      <span className="inbox-hub__notif-dot" aria-label="Unread" />
-                    ) : (
-                      <span className="inbox-hub__notif-dot-spacer" />
-                    )}
-                    <ChevronRightLineIcon className="inbox-hub__chevron" />
                   </span>
                 </button>
               </li>

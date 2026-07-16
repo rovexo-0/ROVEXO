@@ -9,7 +9,7 @@ import { getViewerRole } from "@/lib/messages/types";
 import type { Order, OrderStatus } from "@/lib/orders/types";
 import { getOrderStatusLabel, getTrackingUrl } from "@/lib/orders/status";
 
-export const CONVERSATION_HUB_VERSION = "v1.0-frozen" as const;
+export const CONVERSATION_HUB_VERSION = "v1.1-zoom-out" as const;
 
 /** Order status rail — aligned with Orders nomenclature + Completed. */
 export const CONVERSATION_ORDER_STATUS_STEPS = [
@@ -44,7 +44,10 @@ export type ConversationSystemEventType =
   | "parcel_delivered"
   | "refund_issued"
   | "refund_completed"
-  | "review_available";
+  | "review_available"
+  | "funds_released"
+  | "completed"
+  | "shipping_label_generated";
 
 export type ConversationOfferState = "open" | "accepted" | "declined" | "expired" | "countered";
 
@@ -146,22 +149,31 @@ const STEP_LABELS: Record<ConversationOrderStatusStepId, string> = {
 };
 
 const SYSTEM_EVENT_COPY: Record<ConversationSystemEventType, { title: string; subtitle: string }> = {
-  payment_confirmed: { title: "Payment confirmed", subtitle: "Order payment was successful" },
-  tracking_added: { title: "Tracking added", subtitle: "A tracking number is available" },
-  delivered: { title: "Delivered", subtitle: "Parcel marked as delivered" },
-  refund: { title: "Refund", subtitle: "A refund was issued for this order" },
-  cancelled: { title: "Cancelled", subtitle: "This order was cancelled" },
-  dispute_started: { title: "Dispute started", subtitle: "A transaction dispute is open" },
-  offer_accepted: { title: "Offer accepted", subtitle: "An offer was accepted" },
-  offer_declined: { title: "Offer declined", subtitle: "An offer was declined" },
-  payment_received: { title: "Payment received", subtitle: "Funds secured for this order" },
-  label_created: { title: "Label created", subtitle: "Shipping label is ready" },
-  parcel_collected: { title: "Parcel collected", subtitle: "Courier has the parcel" },
-  tracking_updated: { title: "Tracking updated", subtitle: "New scan from the carrier" },
-  parcel_delivered: { title: "Parcel delivered", subtitle: "Marked as delivered" },
-  refund_issued: { title: "Refund issued", subtitle: "Refund is being processed" },
-  refund_completed: { title: "Refund completed", subtitle: "Buyer has been refunded" },
-  review_available: { title: "Review available", subtitle: "Share feedback on this order" },
+  tracking_added: { title: "Tracking available.", subtitle: "" },
+  delivered: { title: "Delivered.", subtitle: "" },
+  refund: { title: "Refund completed.", subtitle: "" },
+  cancelled: { title: "Cancelled.", subtitle: "" },
+  dispute_started: { title: "Dispute opened.", subtitle: "" },
+  offer_accepted: { title: "Offer accepted.", subtitle: "" },
+  offer_declined: { title: "Offer declined.", subtitle: "" },
+  payment_received: { title: "Payment received.", subtitle: "" },
+  label_created: { title: "Shipping label generated.", subtitle: "" },
+  shipping_label_generated: { title: "Shipping label generated.", subtitle: "" },
+  parcel_collected: { title: "Item shipped.", subtitle: "" },
+  tracking_updated: { title: "In transit.", subtitle: "" },
+  parcel_delivered: { title: "Delivered.", subtitle: "" },
+  refund_issued: { title: "Refund completed.", subtitle: "" },
+  refund_completed: { title: "Refund completed.", subtitle: "" },
+  review_available: { title: "Review received.", subtitle: "" },
+  payment_confirmed: { title: "Payment received.", subtitle: "" },
+  funds_released: {
+    title: "Funds released.",
+    subtitle: "",
+  },
+  completed: {
+    title: "Completed.",
+    subtitle: "Thank you for using ROVEXO.",
+  },
 };
 
 function dayKey(iso: string): string {
@@ -274,9 +286,9 @@ function buildSystemEventsFromOrder(order: Order | null | undefined): Conversati
       kind: "system",
       id: `system-payment-${order.id}`,
       at: order.paidAt,
-      event: "payment_confirmed",
-      title: SYSTEM_EVENT_COPY.payment_confirmed.title,
-      subtitle: SYSTEM_EVENT_COPY.payment_confirmed.subtitle,
+      event: "payment_received",
+      title: SYSTEM_EVENT_COPY.payment_received.title,
+      subtitle: SYSTEM_EVENT_COPY.payment_received.subtitle,
     });
   }
   if (order.trackingNumber && order.shippedAt) {
@@ -285,8 +297,8 @@ function buildSystemEventsFromOrder(order: Order | null | undefined): Conversati
       id: `system-tracking-${order.id}`,
       at: order.shippedAt,
       event: "tracking_added",
-      title: SYSTEM_EVENT_COPY.tracking_added.title,
-      subtitle: `Tracking ${order.trackingNumber}`,
+      title: "Tracking available.",
+      subtitle: order.trackingNumber,
     });
   }
   if (order.deliveredAt) {
@@ -299,14 +311,16 @@ function buildSystemEventsFromOrder(order: Order | null | undefined): Conversati
       subtitle: SYSTEM_EVENT_COPY.delivered.subtitle,
     });
   }
-  if (order.refundedAt) {
+  if (order.refundedAt || order.refundCompletedAt) {
     items.push({
       kind: "system",
       id: `system-refund-${order.id}`,
-      at: order.refundedAt,
-      event: "refund",
-      title: SYSTEM_EVENT_COPY.refund.title,
-      subtitle: SYSTEM_EVENT_COPY.refund.subtitle,
+      at: order.refundCompletedAt ?? order.refundedAt!,
+      event: order.refundCompletedAt ? "refund_completed" : "refund",
+      title: order.refundCompletedAt
+        ? SYSTEM_EVENT_COPY.refund_completed.title
+        : SYSTEM_EVENT_COPY.refund.title,
+      subtitle: "",
     });
   }
   if (order.cancelledAt) {
@@ -316,7 +330,7 @@ function buildSystemEventsFromOrder(order: Order | null | undefined): Conversati
       at: order.cancelledAt,
       event: "cancelled",
       title: SYSTEM_EVENT_COPY.cancelled.title,
-      subtitle: order.cancellationReason ?? SYSTEM_EVENT_COPY.cancelled.subtitle,
+      subtitle: order.cancellationReason ?? "",
     });
   }
   if (order.status === "issue_open") {
@@ -327,6 +341,25 @@ function buildSystemEventsFromOrder(order: Order | null | undefined): Conversati
       event: "dispute_started",
       title: SYSTEM_EVENT_COPY.dispute_started.title,
       subtitle: SYSTEM_EVENT_COPY.dispute_started.subtitle,
+    });
+  }
+  if (order.status === "completed" || order.completedAt) {
+    const completedAt = order.completedAt ?? order.deliveredAt ?? order.paidAt ?? order.createdAt;
+    items.push({
+      kind: "system",
+      id: `system-funds-${order.id}`,
+      at: completedAt,
+      event: "funds_released",
+      title: SYSTEM_EVENT_COPY.funds_released.title,
+      subtitle: SYSTEM_EVENT_COPY.funds_released.subtitle,
+    });
+    items.push({
+      kind: "system",
+      id: `system-completed-${order.id}`,
+      at: completedAt,
+      event: "completed",
+      title: SYSTEM_EVENT_COPY.completed.title,
+      subtitle: SYSTEM_EVENT_COPY.completed.subtitle,
     });
   }
 
@@ -364,8 +397,8 @@ function buildTimeline(
         id: `system-offer-accepted-${offer.id}`,
         at: offer.createdAt,
         event: "offer_accepted",
-        title: `${amountLabel} accepted`,
-        subtitle: SYSTEM_EVENT_COPY.offer_accepted.subtitle,
+        title: SYSTEM_EVENT_COPY.offer_accepted.title,
+        subtitle: amountLabel,
       });
     }
     if (offer.state === "declined") {
@@ -378,8 +411,8 @@ function buildTimeline(
         id: `system-offer-declined-${offer.id}`,
         at: offer.createdAt,
         event: "offer_declined",
-        title: `${amountLabel} declined`,
-        subtitle: SYSTEM_EVENT_COPY.offer_declined.subtitle,
+        title: SYSTEM_EVENT_COPY.offer_declined.title,
+        subtitle: amountLabel,
       });
     }
   }

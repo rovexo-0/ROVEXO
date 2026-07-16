@@ -17,19 +17,20 @@ function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("Inbox Hub v1.0 — CANONICAL FREEZE", () => {
-  it("marks Inbox Hub as canonical frozen", () => {
+describe("Inbox Hub v1.1 — UI LOCK", () => {
+  it("marks Inbox Hub as canonical UI locked", () => {
     expect(INBOX_HUB_CANONICAL_FROZEN).toBe(true);
-    expect(INBOX_HUB_CANONICAL_STATUS).toBe("CANONICAL_FROZEN_v1.0");
-    expect(INBOX_CANONICAL_VERSION).toBe("v1.0-frozen");
-    expect(CONVERSATION_HUB_VERSION).toBe("v1.0-frozen");
+    expect(INBOX_HUB_CANONICAL_STATUS).toBe("CANONICAL_UI_LOCK_v1.1");
+    expect(INBOX_CANONICAL_VERSION).toBe("v1.1-zoom-out");
+    expect(CONVERSATION_HUB_VERSION).toBe("v1.1-zoom-out");
   });
 
   it("locks DOM freeze markers on hub surfaces", () => {
     const inbox = readSource("features/inbox/components/InboxPage.tsx");
     const conversation = readSource("features/inbox/components/ConversationHub.tsx");
-    expect(inbox).toContain('data-inbox-freeze="FROZEN"');
-    expect(conversation).toContain('data-conversation-freeze="FROZEN"');
+    expect(inbox).toContain('data-inbox-freeze="FINAL-LOCK"');
+    expect(conversation).toContain('data-conversation-freeze="FINAL-LOCK"');
+    expect(conversation).toContain('data-conversation-hub-ui="v1.1-zoom-out"');
   });
 
   it("locks legacy routes as redirects into /inbox", () => {
@@ -39,7 +40,7 @@ describe("Inbox Hub v1.0 — CANONICAL FREEZE", () => {
     expect(readSource("lib/homepage/canonical-nav.ts")).toContain('href: "/inbox"');
   });
 
-  it("locks conversation status rail and visual constants", () => {
+  it("locks conversation status step ids and v1.1 visual constants", () => {
     expect([...CONVERSATION_ORDER_STATUS_STEPS]).toEqual([
       "paid",
       "packed",
@@ -54,10 +55,10 @@ describe("Inbox Hub v1.0 — CANONICAL FREEZE", () => {
       "Done",
       "Paid",
     ]);
-    expect(INBOX_HUB_VISUAL_LOCK.cardRadiusPx).toBe(16);
-    expect(INBOX_HUB_VISUAL_LOCK.cardPaddingPx).toBe(14);
-    expect(INBOX_HUB_VISUAL_LOCK.thumbSizePx).toBe(52);
-    expect(INBOX_HUB_VISUAL_LOCK.headerHeightPx).toBe(56);
+    expect(INBOX_HUB_VISUAL_LOCK.cardRadiusPx).toBe(0);
+    expect(INBOX_HUB_VISUAL_LOCK.cardPaddingPx).toBe(5);
+    expect(INBOX_HUB_VISUAL_LOCK.thumbSizePx).toBe(0);
+    expect(INBOX_HUB_VISUAL_LOCK.headerHeightPx).toBe(40);
     expect(INBOX_HUB_VISUAL_LOCK.purple).toBe("#6d28d9");
   });
 
@@ -94,12 +95,13 @@ describe("Inbox Hub v1.0 — CANONICAL FREEZE", () => {
   it("preserves offer, tracking, dispute, review, and realtime contracts in-thread", () => {
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
     expect(hub).toContain("/api/offers/");
-    expect(hub).toContain("Open tracking");
-    expect(hub).toContain("Copy tracking");
-    expect(hub).toContain("Open dispute");
-    expect(hub).toContain("Updates will appear in this transaction thread.");
+    expect(hub).toContain("View Tracking");
+    expect(hub).toContain("View Label");
+    expect(hub).toContain("View dispute");
     expect(hub).toContain("<OrderReviewCard");
     expect(hub).toContain("setReviewOpen(true)");
+    expect(hub).toContain("PlatformFeeSheet");
+    expect(hub).toContain("ReviewTeaserSheet");
     expect(hub).not.toContain('router.push(`${view.orderDetailsHref}?review=1`)');
     expect(hub).toContain('searchParams.get("order") ?? searchParams.get("order_id")');
     expect(hub).toContain("matchingOrders.length === 1");
@@ -112,10 +114,10 @@ describe("Inbox Hub v1.0 — CANONICAL FREEZE", () => {
 
   it("publishes immutable freeze documentation", () => {
     const spec = readSource("docs/modules/inbox/MASTER_UI_SPECIFICATION.md");
-    const freeze = readSource("docs/modules/inbox/UI_FREEZE.md");
-    expect(spec).toContain("FROZEN");
-    expect(spec).toContain("CANONICAL_FROZEN_v1.0");
-    expect(freeze).toContain("STATUS");
-    expect(freeze).toContain("FROZEN");
+    const freeze = readSource("docs/modules/inbox/TRANSACTION_HUB_UI_FREEZE.md");
+    expect(spec).toContain("UI LOCK");
+    expect(spec).toContain("v1.1");
+    expect(freeze).toContain("UI LOCK");
+    expect(freeze).toContain("v1.1");
   });
 });
