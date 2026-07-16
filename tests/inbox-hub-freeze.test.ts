@@ -29,6 +29,12 @@ describe("Inbox Hub v1.1 — UI LOCK", () => {
     const inbox = readSource("features/inbox/components/InboxPage.tsx");
     const conversation = readSource("features/inbox/components/ConversationHub.tsx");
     expect(inbox).toContain('data-inbox-freeze="FINAL-LOCK"');
+    expect(inbox).toContain("UNREAD");
+    expect(inbox).toContain("EARLIER");
+    expect(inbox).toContain("Mark all read");
+    expect(inbox).toContain("inbox-hub__notif-card--unread");
+    expect(inbox).not.toContain("inbox-hub__search-badge");
+    expect(inbox).not.toContain("SearchLineIcon");
     expect(conversation).toContain('data-conversation-freeze="FINAL-LOCK"');
     expect(conversation).toContain('data-conversation-hub-ui="v1.1-zoom-out"');
   });

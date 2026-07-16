@@ -11,9 +11,6 @@ import {
   type ReactNode,
   type SVGProps,
 } from "react";
-import {
-  SearchLineIcon,
-} from "@/components/icons/RvxLineIcons";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { NotificationLineIcon } from "@/features/notifications/icons-v1";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
@@ -208,11 +205,11 @@ export function InboxPage() {
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [loadingNotifications, setLoadingNotifications] = useState(true);
   const [hubError, setHubError] = useState<string | null>(null);
-  const [searchOpen, setSearchOpen] = useState(searchParams.get("search") === "1");
-  const [query, setQuery] = useState("");
+  const query = "";
   const [messagePage, setMessagePage] = useState(1);
   const [notificationPage, setNotificationPage] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
+  const [markingAllRead, setMarkingAllRead] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const pullStartY = useRef<number | null>(null);
 
@@ -345,12 +342,28 @@ export function InboxPage() {
       .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
   }, [notifications, query]);
 
+  const unreadNotifications = useMemo(
+    () => filteredNotifications.filter((item) => !item.read),
+    [filteredNotifications],
+  );
+  const earlierNotifications = useMemo(
+    () => filteredNotifications.filter((item) => item.read),
+    [filteredNotifications],
+  );
+
   const visibleConversations = filteredConversations.slice(0, messagePage * PAGE_SIZE);
-  const visibleNotifications = filteredNotifications.slice(0, notificationPage * PAGE_SIZE);
+  const visibleUnreadNotifications = unreadNotifications.slice(
+    0,
+    notificationPage * PAGE_SIZE,
+  );
+  const remainingSlots = Math.max(0, notificationPage * PAGE_SIZE - visibleUnreadNotifications.length);
+  const visibleEarlierNotifications = earlierNotifications.slice(0, remainingSlots);
+  const visibleNotificationCount =
+    visibleUnreadNotifications.length + visibleEarlierNotifications.length;
   const hasMore =
     tab === "messages"
       ? visibleConversations.length < filteredConversations.length
-      : visibleNotifications.length < filteredNotifications.length;
+      : visibleNotificationCount < filteredNotifications.length;
 
   useEffect(() => {
     const node = sentinelRef.current;
@@ -365,7 +378,7 @@ export function InboxPage() {
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasMore, tab, visibleConversations.length, visibleNotifications.length]);
+  }, [hasMore, tab, visibleConversations.length, visibleNotificationCount]);
 
   const patchConversation = async (
     id: string,
@@ -408,6 +421,7 @@ export function InboxPage() {
   };
 
   const markNotificationRead = async (ids: string[]) => {
+    if (ids.length === 0) return;
     if (!navigator.onLine) {
       enqueueOfflineNotificationAction({ type: "mark_read", ids });
       syncNotifications(
@@ -426,29 +440,77 @@ export function InboxPage() {
     await refresh();
   };
 
+  const markAllNotificationsRead = useCallback(async () => {
+    if (!notifications.some((item) => !item.read)) return;
+    setMarkingAllRead(true);
+    try {
+      if (!navigator.onLine) {
+        const unreadIds = notifications.filter((item) => !item.read).map((item) => item.id);
+        enqueueOfflineNotificationAction({ type: "mark_read", ids: unreadIds });
+        const next = notifications.map((item) => ({ ...item, read: true }));
+        setLocalNotifications(next);
+        setNotifications(next);
+        return;
+      }
+      const response = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markAllRead: true }),
+      });
+      if (!response.ok) return;
+      const payload = (await response.json()) as { notifications: Notification[] };
+      setLocalNotifications(payload.notifications);
+      setNotifications(payload.notifications);
+      await refresh();
+    } finally {
+      setMarkingAllRead(false);
+    }
+  }, [notifications, refresh, setNotifications]);
+
   const openNotification = async (notification: Notification) => {
     if (!notification.read) await markNotificationRead([notification.id]);
     router.push(notification.href);
   };
 
-  const searchAction: ReactNode = (
+  const showMarkAll = tab === "notifications" && unread.notifications > 0;
+
+  const markAllAction: ReactNode = showMarkAll ? (
     <button
       type="button"
-      className="inbox-hub__search-btn"
-      aria-label={searchOpen ? "Close search" : "Search inbox"}
-      aria-pressed={searchOpen}
-      onClick={() => setSearchOpen((open) => !open)}
+      className="inbox-hub__mark-all"
+      disabled={markingAllRead}
+      onClick={() => void markAllNotificationsRead()}
     >
-      <SearchLineIcon />
-      {unread.total > 0 && !searchOpen ? (
-        <span className="inbox-hub__search-badge" aria-hidden>
-          {unread.total > 99 ? "99+" : unread.total}
-        </span>
-      ) : null}
+      Mark all read
     </button>
-  );
+  ) : null;
 
   const loading = tab === "messages" ? loadingMessages : loadingNotifications;
+
+  const renderNotificationRow = (notification: Notification, unreadRow: boolean) => (
+    <li key={notification.id}>
+      <button
+        type="button"
+        className={cn(
+          "inbox-hub__notif-card",
+          unreadRow && "inbox-hub__notif-card--unread",
+        )}
+        data-category={mapNotificationCategory(notification.type)}
+        data-notif-state={unreadRow ? "unread" : "read"}
+        onClick={() => void openNotification(notification)}
+      >
+        <span className="inbox-hub__notif-icon">
+          <NotificationLineIcon icon={notification.icon} />
+        </span>
+        <span className="inbox-hub__notif-body">
+          <span className="inbox-hub__notif-title">{notification.title}</span>
+          <time className="inbox-hub__notif-time" dateTime={notification.createdAt}>
+            {formatNotificationTime(notification.createdAt)}
+          </time>
+        </span>
+      </button>
+    </li>
+  );
 
   return (
     <AccountCanonicalShell
@@ -456,7 +518,7 @@ export function InboxPage() {
       showHeaderTitle
       backHref="/account"
       bottomNavTab="saved"
-      rightAction={searchAction}
+      rightAction={markAllAction}
     >
       <div
         className="inbox-hub"
@@ -532,24 +594,6 @@ export function InboxPage() {
           />
         </div>
 
-        {searchOpen ? (
-          <div className="inbox-hub__search">
-            <input
-              className="inbox-hub__search-input"
-              type="search"
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-                setMessagePage(1);
-                setNotificationPage(1);
-              }}
-              placeholder="Search conversations, users, products, order ID…"
-              aria-label="Search inbox"
-              autoFocus
-            />
-          </div>
-        ) : null}
-
         {loading ? (
           <InboxListSkeleton variant={tab === "messages" ? "messages" : "notifications"} />
         ) : tab === "messages" ? (
@@ -608,28 +652,32 @@ export function InboxPage() {
             <p className="inbox-hub__empty-title">You&apos;re all caught up</p>
           </div>
         ) : (
-          <ul className="inbox-hub__list">
-            {visibleNotifications.map((notification) => (
-              <li key={notification.id}>
-                <button
-                  type="button"
-                  className="inbox-hub__notif-card"
-                  data-category={mapNotificationCategory(notification.type)}
-                  onClick={() => void openNotification(notification)}
-                >
-                  <span className="inbox-hub__notif-icon">
-                    <NotificationLineIcon icon={notification.icon} />
-                  </span>
-                  <span className="inbox-hub__notif-body">
-                    <span className="inbox-hub__notif-title">{notification.title}</span>
-                    <time className="inbox-hub__notif-time" dateTime={notification.createdAt}>
-                      {formatNotificationTime(notification.createdAt)}
-                    </time>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div className="inbox-hub__notif-sections">
+            {visibleUnreadNotifications.length > 0 ? (
+              <section className="inbox-hub__section" aria-label="Unread notifications">
+                <h2 className="inbox-hub__section-label">
+                  UNREAD ({unreadNotifications.length})
+                </h2>
+                <ul className="inbox-hub__list">
+                  {visibleUnreadNotifications.map((notification) =>
+                    renderNotificationRow(notification, true),
+                  )}
+                </ul>
+              </section>
+            ) : null}
+            {visibleEarlierNotifications.length > 0 ||
+            (visibleUnreadNotifications.length === 0 && earlierNotifications.length > 0) ? (
+              <section className="inbox-hub__section" aria-label="Earlier notifications">
+                <h2 className="inbox-hub__section-label">EARLIER</h2>
+                <ul className="inbox-hub__list">
+                  {(visibleUnreadNotifications.length === 0
+                    ? earlierNotifications.slice(0, notificationPage * PAGE_SIZE)
+                    : visibleEarlierNotifications
+                  ).map((notification) => renderNotificationRow(notification, false))}
+                </ul>
+              </section>
+            ) : null}
+          </div>
         )}
 
         {hasMore ? <div ref={sentinelRef} className="inbox-hub__sentinel" aria-hidden /> : null}

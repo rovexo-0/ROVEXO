@@ -110,27 +110,21 @@
   box-sizing: border-box;
 }
 
-.inbox-hub__search-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.inbox-hub__mark-all {
+  border: none;
+  background: transparent;
+  color: var(--inbox-purple);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 6px 4px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-.inbox-hub__search-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 999px;
-  background: #ef4444;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 16px;
-  text-align: center;
+.inbox-hub__mark-all:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .inbox-hub__tabs {
@@ -524,17 +518,44 @@
   align-items: center;
   min-height: 0;
   height: auto;
-  padding: 5px 0;
-  border-radius: 0;
+  padding: 5px 8px;
+  margin: 0 -8px;
+  border-radius: 8px;
   background: var(--inbox-surface);
   box-shadow: none;
   border: none;
   border-bottom: 1px solid var(--inbox-border);
   text-align: left;
-  width: 100%;
+  width: calc(100% + 16px);
   cursor: pointer;
   color: inherit;
   font: inherit;
+}
+
+.inbox-hub__notif-card--unread {
+  background: rgb(109 40 217 / 0.06);
+  border-bottom-color: rgb(109 40 217 / 0.08);
+}
+
+.inbox-hub__section {
+  margin: 0 0 10px;
+}
+
+.inbox-hub__section-label {
+  margin: 0 0 4px;
+  padding: 0;
+  color: var(--inbox-muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.inbox-hub__notif-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .inbox-hub__notif-icon {

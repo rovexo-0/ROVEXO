@@ -42,11 +42,11 @@
   --conv-fs-badge: 10px;
   --conv-fs-time: 10px;
   --conv-fs-timeline: 10px;
-  --conv-btn-h: 32px;
+  --conv-btn-h: 28px;
   --conv-header-h: 40px;
-  --conv-composer-h: 36px;
+  --conv-composer-h: 28px;
   --conv-rail-h: 36px;
-  --conv-icon-composer: 18px;
+  --conv-icon-composer: 15px;
   --conv-rail-dot: 12px;
 
   box-sizing: border-box;
@@ -925,15 +925,15 @@
   text-decoration: none;
 }
 
-/* Footer + message bar 48px */
+/* Footer + compact message bar */
 .conv-hub__footer {
   position: sticky;
   bottom: 0;
   z-index: 30;
   padding:
-    var(--conv-gap)
+    4px
     var(--conv-pad-x)
-    calc(8px + env(safe-area-inset-bottom, 0px));
+    calc(4px + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(180deg, rgb(255 255 255 / 0.72) 0%, #ffffff 28%);
   border-top: 1px solid var(--conv-border);
 }
@@ -963,17 +963,17 @@
 
 .conv-hub__composer {
   display: grid;
-  grid-template-columns: 36px 1fr auto;
-  gap: 6px;
+  grid-template-columns: 28px 28px 1fr auto;
+  gap: 4px;
   align-items: center;
   min-height: var(--conv-composer-h);
   height: var(--conv-composer-h);
-  max-height: 44px;
+  max-height: 32px;
 }
 
 .conv-hub__composer .conv-hub__icon-btn {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
 }
 
@@ -982,8 +982,8 @@
 }
 
 .conv-hub__icon-btn--attach svg {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
 }
 
 .conv-hub__composer .conv-hub__icon-btn svg {
@@ -995,42 +995,42 @@
   width: 100%;
   height: var(--conv-composer-h);
   min-height: var(--conv-composer-h);
-  max-height: 44px;
-  padding: 8px 12px;
+  max-height: 32px;
+  padding: 4px 10px;
   border: 1px solid var(--conv-border);
   border-radius: var(--conv-radius-input);
   background: #fafafc;
   color: var(--conv-text);
   font: inherit;
-  font-size: var(--conv-fs-message);
-  line-height: 1.35;
+  font-size: 12px;
+  line-height: 1.25;
   resize: none;
   outline: none;
 }
 
 .conv-hub__composer-field::placeholder {
-  font-size: var(--conv-fs-message);
+  font-size: 12px;
   color: var(--conv-muted);
 }
 
 .conv-hub__composer-field:focus {
   border-color: var(--conv-purple);
-  box-shadow: 0 0 0 3px rgb(109 40 217 / 0.12);
+  box-shadow: 0 0 0 2px rgb(109 40 217 / 0.1);
 }
 
 .conv-hub__send {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 48px;
+  min-width: 40px;
   height: var(--conv-composer-h);
-  max-height: 44px;
+  max-height: 32px;
   padding: 0 8px;
   border: none;
   border-radius: 0;
   background: transparent;
   color: var(--conv-purple);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
