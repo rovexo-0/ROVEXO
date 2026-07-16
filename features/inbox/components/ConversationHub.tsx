@@ -423,8 +423,8 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   const resizeComposer = useCallback(() => {
     const node = textareaRef.current;
     if (!node) return;
-    node.style.height = "auto";
-    node.style.height = `${Math.min(node.scrollHeight, 1.4 * 16 * 6 + 20)}px`;
+    // Single-row lock: keep the composer at one compact line height.
+    node.style.height = "";
   }, []);
 
   useEffect(() => {
@@ -1173,90 +1173,95 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
 
           <form
             className="conv-hub__composer"
+            data-composer-layout="single-row"
             onSubmit={(event: FormEvent) => {
               event.preventDefault();
               handleSend();
             }}
           >
-            <button
-              type="button"
-              className="conv-hub__icon-btn"
-              aria-label="Take photo"
-              disabled={conversation.blocked || uploading}
-              onClick={() => cameraInputRef.current?.click()}
-            >
-              <CameraLineIcon />
-            </button>
-            <button
-              type="button"
-              className="conv-hub__icon-btn conv-hub__icon-btn--attach"
-              aria-label="Add attachment"
-              aria-expanded={attachSheetOpen}
-              disabled={conversation.blocked || uploading}
-              onClick={() => setAttachSheetOpen(true)}
-            >
-              <PlusLineIcon />
-            </button>
-            <label className="sr-only" htmlFor="conv-hub-composer">
-              Type a message
-            </label>
-            <textarea
-              id="conv-hub-composer"
-              ref={textareaRef}
-              className="conv-hub__composer-field"
-              rows={1}
-              placeholder={uploading ? "Uploading…" : "Type a message…"}
-              value={draft}
-              disabled={conversation.blocked || sending || uploading}
-              onChange={(event) => handleDraftChange(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  handleSend();
-                }
-              }}
-            />
-            <button
-              type="submit"
-              className="conv-hub__send"
-              aria-label="Send message"
-              disabled={conversation.blocked || sending || uploading || !draft.trim()}
-            >
-              SEND
-            </button>
-            <input
-              ref={galleryInputRef}
-              type="file"
-              accept="image/*"
-              className="sr-only"
-              tabIndex={-1}
-              onChange={(event) => void handleUploadFiles(event.target.files)}
-            />
-            <input
-              ref={cameraInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="sr-only"
-              tabIndex={-1}
-              onChange={(event) => void handleUploadFiles(event.target.files)}
-            />
-            <input
-              ref={videoInputRef}
-              type="file"
-              accept="video/*"
-              capture="environment"
-              className="sr-only"
-              tabIndex={-1}
-              onChange={(event) => void handleUploadFiles(event.target.files)}
-            />
-            <input
-              ref={fileInputRef}
-              type="file"
-              className="sr-only"
-              tabIndex={-1}
-              onChange={(event) => void handleUploadFiles(event.target.files)}
-            />
+            <div className="conv-hub__composer-row">
+              <button
+                type="button"
+                className="conv-hub__icon-btn"
+                aria-label="Take photo"
+                disabled={conversation.blocked || uploading}
+                onClick={() => cameraInputRef.current?.click()}
+              >
+                <CameraLineIcon />
+              </button>
+              <button
+                type="button"
+                className="conv-hub__icon-btn conv-hub__icon-btn--attach"
+                aria-label="Add attachment"
+                aria-expanded={attachSheetOpen}
+                disabled={conversation.blocked || uploading}
+                onClick={() => setAttachSheetOpen(true)}
+              >
+                <PlusLineIcon />
+              </button>
+              <label className="sr-only" htmlFor="conv-hub-composer">
+                Type a message
+              </label>
+              <textarea
+                id="conv-hub-composer"
+                ref={textareaRef}
+                className="conv-hub__composer-field"
+                rows={1}
+                placeholder={uploading ? "Uploading…" : "Type a message…"}
+                value={draft}
+                disabled={conversation.blocked || sending || uploading}
+                onChange={(event) => handleDraftChange(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    handleSend();
+                  }
+                }}
+              />
+              <button
+                type="submit"
+                className="conv-hub__send"
+                aria-label="Send message"
+                disabled={conversation.blocked || sending || uploading || !draft.trim()}
+              >
+                SEND
+              </button>
+            </div>
+            <div className="conv-hub__composer-files" aria-hidden>
+              <input
+                ref={galleryInputRef}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                tabIndex={-1}
+                onChange={(event) => void handleUploadFiles(event.target.files)}
+              />
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="sr-only"
+                tabIndex={-1}
+                onChange={(event) => void handleUploadFiles(event.target.files)}
+              />
+              <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/*"
+                capture="environment"
+                className="sr-only"
+                tabIndex={-1}
+                onChange={(event) => void handleUploadFiles(event.target.files)}
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="sr-only"
+                tabIndex={-1}
+                onChange={(event) => void handleUploadFiles(event.target.files)}
+              />
+            </div>
           </form>
 
           {attachSheetOpen ? (

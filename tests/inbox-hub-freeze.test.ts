@@ -28,6 +28,7 @@ describe("Inbox Hub v1.1 — UI LOCK", () => {
   it("locks DOM freeze markers on hub surfaces", () => {
     const inbox = readSource("features/inbox/components/InboxPage.tsx");
     const conversation = readSource("features/inbox/components/ConversationHub.tsx");
+    const conversationCss = readSource("styles/rovexo/conversation-hub-v1.css");
     expect(inbox).toContain('data-inbox-freeze="FINAL-LOCK"');
     expect(inbox).toContain("UNREAD");
     expect(inbox).toContain("EARLIER");
@@ -37,6 +38,10 @@ describe("Inbox Hub v1.1 — UI LOCK", () => {
     expect(inbox).not.toContain("SearchLineIcon");
     expect(conversation).toContain('data-conversation-freeze="FINAL-LOCK"');
     expect(conversation).toContain('data-conversation-hub-ui="v1.1-zoom-out"');
+    expect(conversation).toContain('data-composer-layout="single-row"');
+    expect(conversation).toContain("conv-hub__composer-row");
+    expect(conversationCss).toContain("flex-wrap: nowrap");
+    expect(conversationCss).toContain("--conv-composer-h: 22px");
   });
 
   it("locks legacy routes as redirects into /inbox", () => {
