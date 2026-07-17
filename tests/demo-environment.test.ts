@@ -14,10 +14,17 @@ function readSource(relativePath: string): string {
 }
 
 describe("ROVEXO Demo Testing Environment", () => {
-  it("defines 10 canonical demo accounts", () => {
-    expect(DEMO_USERS).toHaveLength(10);
-    expect(DEMO_USERS.every((user) => user.email.endsWith(`@${DEMO_EMAIL_DOMAIN}`))).toBe(true);
+  it("defines 12 canonical demo accounts including permanent Full Demo Accounts", () => {
+    expect(DEMO_USERS).toHaveLength(12);
+    const [buyer, seller, ...rest] = DEMO_USERS;
+    expect(buyer?.email).toBe("demo.buyer@rovexo.co.uk");
+    expect(buyer?.password).toBe("RovexoBuyer@2026");
+    expect(seller?.email).toBe("demo.seller@rovexo.co.uk");
+    expect(seller?.password).toBe("RovexoSeller@2026");
+    expect(rest.every((user) => user.email.endsWith(`@${DEMO_EMAIL_DOMAIN}`))).toBe(true);
     expect(DEMO_USERS.map((user) => user.key)).toEqual([
+      "live-buyer",
+      "live-seller",
       "buyer01",
       "buyer02",
       "seller01",
@@ -73,5 +80,32 @@ describe("ROVEXO Demo Testing Environment", () => {
   it("defaults demo password from env override", () => {
     expect(resolveDemoSeedPassword()).toBeTruthy();
     expect(typeof isDemoSeedEnabled()).toBe("boolean");
+  });
+
+  it("treats Vercel CLI Sensitive redaction as unusable (not a missing Production secret)", async () => {
+    const { isUnusableEnvSecret, hasDemoEnvironmentConfig, hasDemoPublicConfig } = await import(
+      "@/lib/demo-environment/guards"
+    );
+    expect(isUnusableEnvSecret("[SENSITIVE]")).toBe(true);
+    expect(isUnusableEnvSecret("placeholder")).toBe(true);
+    expect(isUnusableEnvSecret("sb_secret_example_not_real")).toBe(false);
+
+    const prevUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const prevAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const prevService = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    try {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_test";
+      process.env.SUPABASE_SERVICE_ROLE_KEY = "[SENSITIVE]";
+      expect(hasDemoEnvironmentConfig()).toBe(false);
+      expect(hasDemoPublicConfig()).toBe(true);
+    } finally {
+      if (prevUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+      else process.env.NEXT_PUBLIC_SUPABASE_URL = prevUrl;
+      if (prevAnon === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      else process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = prevAnon;
+      if (prevService === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+      else process.env.SUPABASE_SERVICE_ROLE_KEY = prevService;
+    }
   });
 });

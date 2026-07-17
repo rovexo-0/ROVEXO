@@ -19,7 +19,7 @@ describe("official header design", () => {
     expect(source).toContain('role="search"');
   });
 
-  it("keeps logo, integrated search, notifications only in header actions", () => {
+  it("keeps integrated search and notifications on non-homepage headers", () => {
     const source = readFileSync(path.join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
 
     expect(source).toContain("HomepageSearchField");
@@ -33,6 +33,9 @@ describe("official header design", () => {
     expect(source).toContain("HeaderProfileLink");
     expect(source).toContain("HomepageHeaderShareButton");
     expect(source).toContain("replaceAccountWithShare");
+    // Homepage PO contract: logo + notification icon removed from homepage layout only.
+    expect(source).toContain('layout === "homepage"');
+    expect(source).toContain("!isHomepageLayout");
   });
 
   it("mounts category rail below header search on homepage", () => {

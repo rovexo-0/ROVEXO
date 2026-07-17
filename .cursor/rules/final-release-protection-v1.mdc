@@ -1,0 +1,28 @@
+---
+description: Require exactly 100% certification before any live deployment
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — Final Release Protection
+
+**STATUS: APPROVED | PROTECTED | PERMANENT**
+
+Live deployment is fail-closed. It is allowed only when every required check
+passes and the calculated certification score is exactly 100%.
+
+Required gates: UI, UX, Auth, Homepage, Orders, Checkout, Wallet, Tracking,
+Notifications, Messages, Reviews, Performance, Responsive, Database,
+Migrations, Full Demo, Buyer flow, Seller flow, Playwright, TypeScript, ESLint,
+production build, and all protected contracts.
+
+Rules:
+- One failed, missing, skipped, pending, unavailable, or unverifiable check
+  blocks deployment.
+- Scores from 0–99.999% always block deployment.
+- Never use thresholds, averages, synthetic defaults, or static file presence
+  as substitutes for required runtime evidence.
+- Never bypass, weaken, delete, reset, or convert a required gate to advisory.
+- No manual overrides by Super Admin, Product Owner, Staff, Developers,
+  Deployment Center, Vercel, CI/CD, or Release Actions.
+- Deployment actions and Vercel builds must execute the canonical predeploy
+  certification and exit non-zero on any failure.

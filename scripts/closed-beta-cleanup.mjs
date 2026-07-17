@@ -27,12 +27,27 @@ const TEST_USER_PATTERNS = [
   /^rt\d+/i,
 ];
 
+const FULL_DEMO_EMAILS = new Set([
+  "demo.buyer@rovexo.co.uk",
+  "demo.seller@rovexo.co.uk",
+]);
+
+function isFullDemoEmail(email) {
+  return FULL_DEMO_EMAILS.has(String(email ?? "").trim().toLowerCase());
+}
+
+function isFullDemoProtectedSlug(slug) {
+  return /^demo-live-(?:buyer|seller)-\d{3}$/.test(String(slug ?? ""));
+}
+
 function isTestProduct(title, slug) {
+  if (isFullDemoProtectedSlug(slug)) return false;
   const hay = `${title ?? ""} ${slug ?? ""}`;
   return TEST_PRODUCT_PATTERNS.some((pattern) => pattern.test(hay));
 }
 
 function isTestUser(email, username) {
+  if (isFullDemoEmail(email)) return false;
   const hay = `${email ?? ""} ${username ?? ""}`;
   return TEST_USER_PATTERNS.some((pattern) => pattern.test(hay));
 }

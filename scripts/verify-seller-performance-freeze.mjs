@@ -148,6 +148,18 @@ async function main() {
 
   console.log(JSON.stringify(results, null, 2));
 
+  const { data: teardownProfile } = await admin
+    .from("profiles")
+    .select("email")
+    .eq("id", userId)
+    .maybeSingle();
+  if (
+    teardownProfile?.email === "demo.buyer@rovexo.co.uk" ||
+    teardownProfile?.email === "demo.seller@rovexo.co.uk"
+  ) {
+    throw new Error("Refused to delete Full Demo Certification account during teardown.");
+  }
+
   await admin.from("profiles").delete().eq("id", userId);
   await admin.auth.admin.deleteUser(userId);
 

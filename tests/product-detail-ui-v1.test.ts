@@ -52,7 +52,7 @@ describe("Product Details UI v1.1", () => {
     const page = readSource("features/product-detail/ProductDetailPage.tsx");
     const css = readSource("styles/rovexo/product-detail-v1.css");
 
-    expect(page).toContain('data-pd-detail-version="v1.1"');
+    expect(page).toContain('data-pd-detail-version="v1.2-universal-preview"');
     expect(page).toContain("ProductGalleryV1");
     expect(page).toContain("ProductConditionCard");
     expect(page).toContain("ProductShippingCard");

@@ -3,6 +3,7 @@ import { logPaymentError } from "@/lib/ops/logger";
 import { notifyPayoutTransferred } from "@/lib/orders/notifications";
 import { getConnectAccountStatus } from "@/lib/stripe/connect";
 import { getStripeClient, isStripeConfigured } from "@/lib/stripe/server";
+import { mustUseVirtualWallet } from "@/lib/full-demo/security";
 
 function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
@@ -37,7 +38,10 @@ export async function transferSalePayoutToConnect(input: {
 
   let transferId: string;
 
-  if (isStripeConfigured()) {
+  if (mustUseVirtualWallet()) {
+    // Full Demo / Certification — virtual payout only. Never call Stripe Connect.
+    transferId = `demo_transfer_${input.orderId}`;
+  } else if (isStripeConfigured()) {
     try {
       const stripe = getStripeClient();
       const transfer = await stripe.transfers.create(

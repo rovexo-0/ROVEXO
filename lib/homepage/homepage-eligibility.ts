@@ -14,7 +14,8 @@ import {
 } from "@/lib/homepage/config";
 
 /** Certified closed-beta demo seed slug: demo-seller01-001 */
-export const APPROVED_DEMO_SLUG_PATTERN = /^demo-(?:buyer|seller|business)\d{2}-\d{3}$/;
+export const APPROVED_DEMO_SLUG_PATTERN =
+  /^demo-(?:live-buyer|live-seller|buyer|seller|business)\d{0,2}-\d{3}$/;
 
 export type HomepageExclusionReason =
   | "NOT_PUBLISHED"

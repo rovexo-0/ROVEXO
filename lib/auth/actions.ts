@@ -111,7 +111,7 @@ export async function signUp(
     password,
     options: {
       data: { full_name: fullName },
-      emailRedirectTo: authCallbackUrl("/account"),
+      emailRedirectTo: authCallbackUrl("/"),
     },
   });
 
@@ -150,7 +150,7 @@ export async function signUp(
   await queueGaEvents(queuedEvents);
 
   if (data.session) {
-    redirect("/account");
+    redirect("/");
   }
 
   redirect("/verify-email?email=" + encodeURIComponent(email));
@@ -231,7 +231,7 @@ export async function signOut(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
-  redirect("/welcome");
+  redirect("/login");
 }
 
 export async function requestPasswordReset(
@@ -388,7 +388,7 @@ export async function resendVerificationEmail(
     type: "signup",
     email: parsed.data.email,
     options: {
-      emailRedirectTo: authCallbackUrl("/account"),
+      emailRedirectTo: authCallbackUrl("/"),
     },
   });
 

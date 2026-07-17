@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { assertFullDemoActionAllowed } from "@/lib/full-demo/permanence";
 import type { UserRole } from "@/lib/supabase/types/database";
 import { auditSuperAdminAction } from "@/lib/super-admin/audit";
 
@@ -165,6 +166,8 @@ export async function updateSuperAdminUser(input: {
   if (existing.role === "super_admin" && input.actorId !== input.userId) {
     throw new Error("The Super Admin account cannot be modified by another session.");
   }
+
+  assertFullDemoActionAllowed(existing.email, input.action);
 
   switch (input.action) {
     case "suspend": {

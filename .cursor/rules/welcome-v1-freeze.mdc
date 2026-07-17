@@ -1,52 +1,16 @@
 ---
-description: WELCOME v2.0 OFFICIAL LOCK — one canonical Welcome; Login/Register/Splash frozen
+description: Welcome removed — Login is guest entry (PO private deployment contract)
 alwaysApply: true
 ---
 
-# ROVEXO v1.0 — WELCOME v2.0 OFFICIAL RELEASE LOCK
+# ROVEXO v1.0 — WELCOME REMOVED
 
-**STATUS: OFFICIALLY RELEASED | CANONICAL | CERTIFIED | PRODUCTION READY | PERMANENTLY LOCKED**
+**STATUS: REMOVED | Product Owner private deployment contract**
 
-**Exactly one Welcome Screen.** Do not create duplicates.
+Welcome Screen is permanently removed from the canonical startup flow.
 
-Entry: `features/auth/components/WelcomeScreen.tsx` · `app/(auth)/welcome/**` · `styles/rovexo/welcome-v2.css`
+- Guest entry: `/login`
+- `/welcome` permanently redirects to `/login`
+- Logout → `/login`
 
-DOM: `data-auth-screen="welcome-v2"` · `data-auth-ui="v2.0-official-release"` · `data-welcome-lock="CANONICAL-V2"`
-
-## Flow (locked)
-
-Splash → session check → authenticated? → Homepage · else → **Welcome** → Login **or** Register → verify → Homepage
-
-## Locked content
-
-- ROVEXO wordmark + `BUY • SELL • GROW.`
-- Premium metallic marketplace object with restrained purple ambient light
-- Title: `The open marketplace for real value.`
-- Supporting copy: `Buy, sell, and grow across curated assets and opportunities.`
-- Primary: Continue → `/register`
-- Secondary: Sign In → `/login`
-- Privacy Policy · Terms of Service · Cookie Policy
-- Light mode only · premium white · mobile-first 430px
-- Extremely subtle 2–3° float; reduced-motion static
-- Continue touch feedback: 97% scale, 80ms premium easing
-
-## Singularity
-
-ONE Welcome · ONE auth system · ONE session bootstrap (Splash).
-
-## Permanently locked
-
-Login · Register · Splash remain frozen. Welcome work must not edit those screens.
-
-Do not redesign or replace Welcome v2.0. Layout, typography, colours, components,
-spacing, animations, responsive behaviour, routing, and production configuration
-are immutable.
-
-## Allowed after lock
-
-Security fixes · production fixes · critical bug fixes only, without visual or
-authentication-flow changes.
-
-## Next phase
-
-AUTH MASTER SPEC v1.0
+Do not restore Welcome without a new approved Auth Master Specification.

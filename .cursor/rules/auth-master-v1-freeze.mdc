@@ -1,49 +1,33 @@
 ---
-description: AUTH_MASTER_SPEC v1.0 — one canonical auth system; Login/Register/Splash/Welcome UI frozen
+description: Auth Master Spec — Login-first startup, Splash/Welcome removed
 alwaysApply: true
 ---
 
 # ROVEXO v1.0 — AUTH MASTER SPEC (CANONICAL)
 
-**STATUS: CERTIFIED | PRODUCTION READY | PERMANENTLY LOCKED | 100/100**
+**STATUS: CERTIFIED | STARTUP SIMPLIFIED (PO PRIVATE DEPLOYMENT CONTRACT)**
 
 **One authentication system only.** Do not create parallel auth, sessions, or guest gates.
 
-## Frozen UI (do not modify)
+## Canonical startup (locked)
 
-Login · Register · Splash · Welcome — approved, certified, production ready.
+App open → Authentication check →
+- Valid verified session → **Homepage** immediately
+- No session → **Login**
+- Unverified session → **Verify email**
+
+**Splash and Welcome are REMOVED.** Do not restore them.
 
 ## Canonical flow
 
-App start → Splash → Session/Auth check → Homepage (valid session) **or** Welcome → Login | Register → Email verify → Homepage  
+Guest → Login → (Register → Email verify → Login) → Homepage
+Logout → Login
+Protected guest → Login (`next` preserved)
 
-Expired/invalid → silent logout → Welcome · Logout → Welcome · Protected guest → Welcome (`next` preserved)
+## Frozen UI
 
-## Canonical modules
-
-| Concern | SSOT |
-|---|---|
-| Spec | `lib/auth/master-spec.ts` / `lib/auth/canonical.ts` |
-| Splash bootstrap | `lib/auth/bootstrap.ts` |
-| Guest entry | `lib/auth/guest-entry.ts` → `/welcome` |
-| Middleware session | `lib/supabase/middleware.ts` |
-| Actions | `lib/auth/actions.ts` (signIn, signUp, signOut, OAuth, remember-me) |
-| Protected prefixes | `lib/auth/protected-routes.ts` |
-| Sign-out route | `app/auth/signout` → `/welcome` |
-| OAuth/OTP callback | `app/auth/callback` |
-
-## Social (UI)
-
-Apple + Google on Welcome/Login. Facebook may remain in SSOT/actions for lock tests — do not add Facebook UI to frozen Welcome/Login.
-
-## Allowed after freeze
-
-Security · performance · a11y · browser · bug · deployment · TypeScript/lint fixes **without** changing frozen UI hierarchy/UX or inventing a second auth system.
+Login · Register remain production-locked presentation.
 
 ## Forbidden
 
-Duplicate Login/Register/Splash/Welcome · duplicate session handlers · duplicate guest redirect targets · new OAuth providers on frozen screens · redesign of frozen auth screens.
-
-## Next phase
-
-AUTH QA → LAUNCH CERTIFICATION → PRODUCTION RELEASE
+Duplicate Login/Register · restoring Splash/Welcome · new OAuth providers on Login · second auth system.

@@ -32,6 +32,8 @@ describe("Canonical Homepage — icon system", () => {
     expect(header).toContain("lucide-react");
     expect(header).not.toContain("MessageSquare");
     expect(header).toContain("Bell");
+    // Homepage layout omits logo + notification (PO authorized removal).
+    expect(header).toContain("!isHomepageLayout");
   });
 
   it("uses text-link category rail without icon holders", () => {

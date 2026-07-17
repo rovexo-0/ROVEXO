@@ -1,0 +1,24 @@
+---
+description: Forbid all manual overrides of deployment and certification gates
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — No Manual Override Contract
+
+**STATUS: APPROVED | PROTECTED | PERMANENT**
+
+No role or system may override deployment, certification, protected contracts,
+migration, database, Full Demo, Homepage freeze, or Final Release Protection.
+
+Forbidden for Super Admin, Product Owner, Staff, Developers, Deployment Center,
+Vercel, CI/CD, and Release Actions:
+
+- Deploy anyway / force deploy
+- Skip tests / skip gates / skip certification
+- Ignore failures / disable gates / disable certification
+- Override failures / bypass contracts
+
+Scores of 97%, 98%, 99%, or 99.999% are blocked. Only exactly 100% PASS with
+certification, protection, no blockers, and no failures allows live deployment.
+
+Never accept override payload keys or env flags. Never weaken this rule.

@@ -1,11 +1,6 @@
-import type { Metadata } from "next";
-import { SplashScreen } from "@/features/auth/components/SplashScreen";
+import { permanentRedirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "ROVEXO",
-  robots: { index: false, follow: false },
-};
-
-export default function SplashPage() {
-  return <SplashScreen />;
+/** Splash removed — canonical guest entry is Login. */
+export default function SplashPageRemoved() {
+  permanentRedirect("/login");
 }

@@ -18,6 +18,8 @@ import path from "node:path";
 import { loadDotEnvFiles } from "../scripts/playwright-env.mjs";
 import { createAdminClient } from "../lib/supabase/admin";
 import { tryGetSupabaseUrl } from "../lib/supabase/env";
+import { isFullDemoEmail } from "../lib/full-demo/canonical";
+import { isFullDemoProtectedSlug } from "../lib/full-demo/permanence";
 
 loadDotEnvFiles();
 
@@ -227,20 +229,54 @@ async function main(): Promise<void> {
   }
 
   console.log("\nDeleting listing data…");
+  console.log("  • Preserving permanent Full Demo Certification listings (live-buyer / live-seller)");
 
-  // 1. Clear listing-linked tables we want fully emptied (before product delete
-  //    so rows using ON DELETE SET NULL, e.g. moderation_queue, are removed too).
-  //    All child tables link via product_id (some have composite PKs, no id).
+  // Resolve Full Demo protected product IDs — NEVER delete these.
+  const { data: allProducts } = await admin.from("products").select("id, slug, seller_id");
+  const sellerIds = [...new Set((allProducts ?? []).map((p) => p.seller_id))];
+  const { data: profiles } = await admin
+    .from("profiles")
+    .select("id, email")
+    .in("id", sellerIds.length ? sellerIds : ["00000000-0000-0000-0000-000000000000"]);
+  const emailById = new Map((profiles ?? []).map((p) => [p.id, p.email]));
+
+  const protectedIds = new Set(
+    (allProducts ?? [])
+      .filter(
+        (p) =>
+          isFullDemoProtectedSlug(p.slug) || isFullDemoEmail(emailById.get(p.seller_id) ?? null),
+      )
+      .map((p) => p.id),
+  );
+
+  // 1. Clear listing-linked tables for non-protected products only.
   for (const table of LISTING_CHILD_TABLES) {
-    await deleteAllRows(admin, table, "product_id");
+    if (protectedIds.size === 0) {
+      await deleteAllRows(admin, table, "product_id");
+      continue;
+    }
+    const { data: childRows } = await admin
+      .from(table as "offers")
+      .select("product_id")
+      .not("product_id", "is", null)
+      .limit(5000);
+    const toDelete = [...new Set((childRows ?? []).map((r) => r.product_id).filter(Boolean))].filter(
+      (id) => !protectedIds.has(id as string),
+    );
+    for (const productId of toDelete) {
+      await admin.from(table as "offers").delete().eq("product_id", productId as string);
+    }
   }
 
   // 2. Remove notifications that deep-link to listings.
   await admin.from("notifications").delete().like("href", "%/listing/%");
 
-  // 3. Hard delete every product row (cascades any remaining child rows).
-  await deleteAllRows(admin, "products");
-
+  // 3. Hard delete non-protected product rows only.
+  for (const product of allProducts ?? []) {
+    if (protectedIds.has(product.id)) continue;
+    await admin.from("products").delete().eq("id", product.id);
+  }
+  console.log(`  • Preserved ${protectedIds.size} Full Demo product(s)`);
   // 4. Purge listing storage objects.
   const removedFiles = await purgeListingStorage(admin);
   console.log(`  • Removed ${removedFiles} storage object(s)`);
@@ -248,19 +284,23 @@ async function main(): Promise<void> {
   // 5. Clear Next.js cache so homepage/search/categories rebuild from empty DB.
   await clearNextCache();
 
-  // 6. Validation report.
-  console.log("\nValidation (expect 0 everywhere):");
-  let allZero = true;
+  // 6. Validation report — Full Demo products may remain (permanent).
+  console.log("\nValidation:");
+  let ok = true;
   for (const table of VALIDATION_TABLES) {
     const count = await countRows(admin, table);
-    if (count !== 0) allZero = false;
+    if (table === "products" || table === "product_images" || table === "listing_promotions") {
+      console.log(`  ${count >= 0 ? "•" : "✗"} ${table} = ${count} (Full Demo inventory may remain)`);
+      continue;
+    }
+    if (count !== 0) ok = false;
     console.log(`  ${count === 0 ? "✓" : "✗"} ${table} = ${count}`);
   }
 
-  if (allZero) {
-    console.log("\n✓ Marketplace is clean. Restart the dev server to flush in-memory caches.\n");
+  if (ok) {
+    console.log("\n✓ Marketplace reset complete. Full Demo Certification listings preserved.\n");
   } else {
-    console.error("\n✗ Some tables still contain rows. Review the warnings above.\n");
+    console.error("\n✗ Some non-demo tables still contain rows. Review the warnings above.\n");
     process.exit(1);
   }
 }

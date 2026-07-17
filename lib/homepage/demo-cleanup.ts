@@ -8,6 +8,8 @@ import {
   isExternalPlaceholderImageUrl,
   resolveOfficialDemoProductImage,
 } from "@/lib/media/official-demo-images";
+import { isFullDemoEmail } from "@/lib/full-demo/canonical";
+import { isFullDemoProtectedSlug } from "@/lib/full-demo/permanence";
 
 type ListingRow = {
   id: string;
@@ -82,6 +84,27 @@ export async function runHomepageDemoCleanup(): Promise<{
 
   for (const row of rows) {
     const email = row.profiles?.email ?? "";
+
+    /** Permanent Full Demo Certification listings — never pause or hide. */
+    if (isFullDemoEmail(email) || isFullDemoProtectedSlug(row.slug)) {
+      const nextTitle = productionTitle(row.title, row.slug);
+      const nextDescription = productionDescription(nextTitle);
+      if (nextTitle !== row.title || nextDescription !== row.description || row.status !== "published") {
+        await admin
+          .from("products")
+          .update({
+            title: nextTitle,
+            description: nextDescription,
+            status: "published",
+            moderation_status: "approved",
+            moderation_summary: "Full Demo Certification listing — permanent",
+          })
+          .eq("id", row.id);
+        polished += 1;
+      }
+      continue;
+    }
+
     const isCertifiedDemo =
       APPROVED_DEMO_SLUG_PATTERN.test(row.slug) && email.endsWith(`@${DEMO_EMAIL_DOMAIN}`);
 

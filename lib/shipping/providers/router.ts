@@ -1,8 +1,10 @@
 import "server-only";
 
 import { sendcloudAdapter } from "@/lib/shipping/pricing/sendcloud-adapter";
+import { demoShippingAdapter } from "@/lib/shipping/pricing/demo-adapter";
 import { SendcloudService } from "@/lib/shipping/sendcloud/service";
 import { isSendcloudConfigured } from "@/lib/shipping/env";
+import { mustUseDemoShipping } from "@/lib/full-demo/security";
 import type {
   ProviderHealthStatus,
   ShippingProviderId,
@@ -26,6 +28,14 @@ export type RoutedQuoteResult = ShippingPricing & {
 export type RoutedLabelResult = ShippingLabelResponse & {
   providerId: ShippingProviderId;
 };
+
+function resolveActiveShippingProvider(): ShippingProvider {
+  // Certification / Full Demo — never call real Sendcloud HTTP.
+  if (mustUseDemoShipping()) {
+    return demoShippingAdapter;
+  }
+  return sendcloudAdapter;
+}
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
@@ -67,17 +77,32 @@ function toPricing(quotes: ShippingQuote[], providerId: ShippingProviderId): Rou
 }
 
 /**
- * Canonical quote fetch — Sendcloud only.
+ * Canonical quote fetch — Sendcloud in production, demo adapter in certification.
  */
 export async function fetchShippingQuotesRouted(
   request: ShippingQuoteRequest,
 ): Promise<RoutedQuoteResult> {
+  const provider = resolveActiveShippingProvider();
+
+  if (mustUseDemoShipping()) {
+    try {
+      const response = await withTimeout(provider.getQuotes(request), PROVIDER_TIMEOUT_MS);
+      if (response.available && response.quotes.length > 0) {
+        return toPricing(response.quotes, PROVIDER_ID);
+      }
+      return toPricing([], PROVIDER_ID);
+    } catch (error) {
+      console.error("[shipping/router] Demo quote request failed:", error);
+      return toPricing([], PROVIDER_ID);
+    }
+  }
+
   if (!isSendcloudConfigured()) {
     return toPricing([], PROVIDER_ID);
   }
 
   try {
-    const response = await withTimeout(sendcloudAdapter.getQuotes(request), PROVIDER_TIMEOUT_MS);
+    const response = await withTimeout(provider.getQuotes(request), PROVIDER_TIMEOUT_MS);
     if (response.available && response.quotes.length > 0) {
       return toPricing(response.quotes, PROVIDER_ID);
     }
@@ -89,11 +114,32 @@ export async function fetchShippingQuotesRouted(
 }
 
 /**
- * Canonical label creation — Sendcloud only.
+ * Canonical label creation — Sendcloud in production, demo adapter in certification.
  */
 export async function createShippingLabelRouted(
   request: ShippingLabelRequest,
 ): Promise<RoutedLabelResult> {
+  const provider = resolveActiveShippingProvider();
+
+  if (mustUseDemoShipping()) {
+    try {
+      const response = await withTimeout(provider.createLabel(request), PROVIDER_TIMEOUT_MS);
+      return { ...response, providerId: PROVIDER_ID };
+    } catch (error) {
+      console.error("[shipping/router] Demo label creation failed:", error);
+      return {
+        available: false,
+        trackingNumber: null,
+        barcode: null,
+        qrPayload: null,
+        pdfUrl: null,
+        carrier: null,
+        reason: "quote_expired",
+        providerId: PROVIDER_ID,
+      };
+    }
+  }
+
   if (!isSendcloudConfigured()) {
     return {
       available: false,
@@ -108,7 +154,7 @@ export async function createShippingLabelRouted(
   }
 
   try {
-    const response = await withTimeout(sendcloudAdapter.createLabel(request), PROVIDER_TIMEOUT_MS);
+    const response = await withTimeout(provider.createLabel(request), PROVIDER_TIMEOUT_MS);
     return { ...response, providerId: PROVIDER_ID };
   } catch (error) {
     console.error("[shipping/router] Label creation failed:", error);
@@ -126,6 +172,21 @@ export async function createShippingLabelRouted(
 }
 
 async function buildProviderHealth(provider: ShippingProvider): Promise<ProviderHealthStatus> {
+  if (mustUseDemoShipping()) {
+    return {
+      id: PROVIDER_ID,
+      name: provider.name,
+      priority: 1,
+      configured: true,
+      status: "healthy",
+      quoteStatus: "healthy",
+      labelStatus: "healthy",
+      trackingStatus: "healthy",
+      latencyMs: 0,
+      message: "Full Demo shipping (virtual — no Sendcloud)",
+    };
+  }
+
   const configured = provider.isConfigured();
   if (!configured) {
     return {
@@ -158,10 +219,10 @@ async function buildProviderHealth(provider: ShippingProvider): Promise<Provider
 }
 
 export async function getShippingProvidersSnapshot(): Promise<ShippingProvidersSnapshot> {
-  const provider = await buildProviderHealth(sendcloudAdapter);
+  const provider = await buildProviderHealth(resolveActiveShippingProvider());
   return { provider };
 }
 
 export function getPrimaryProviderServer(): ShippingProvider {
-  return sendcloudAdapter;
+  return resolveActiveShippingProvider();
 }

@@ -1,0 +1,22 @@
+---
+description: Feature freeze — fix and certify only; no new features or redesigns
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — Final Deployment Authorization (Feature Freeze)
+
+**STATUS: APPROVED | FEATURE FROZEN | FIX AND CERTIFY ONLY**
+
+From this moment: no new features, modules, UI/UX redesigns, contracts, or flows.
+
+Authorized work only: fix deployment/migration/certification/test/responsive/
+performance/UI-UX/protected-contract failures; verify Universal UI v1.1, 9
+blockers, auth, Full Demo, PWA, database, production build, deployment
+certification, and live production.
+
+Homepage remains frozen except authorized removal of ROVEXO logo and
+notification icon. Splash and Welcome stay removed. Guest → Login → Homepage;
+authenticated → Homepage.
+
+Deploy only after exactly 100% pass. Then commit, push, production deploy, and
+live verification — nothing else.

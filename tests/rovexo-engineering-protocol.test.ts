@@ -25,7 +25,7 @@ describe("ROVEXO Master Engineering Protocol", () => {
   it("maintains the module documentation registry", () => {
     const registry = readFileSync(join(process.cwd(), "docs/modules/README.md"), "utf8");
     expect(registry).toContain("Buyer Dashboard");
-    expect(registry).toContain("RovexoHomePage");
+    expect(registry).toContain("CanonicalHomepage");
   });
 
   it("includes the complete Buyer Dashboard documentation package", () => {

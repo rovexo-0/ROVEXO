@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { createAdminClient } from "../lib/supabase/admin";
 import { signInWithSessionCookies } from "./helpers/auth";
+import { assertE2eUserDeletable } from "./helpers/full-demo-safety";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../lib/supabase/types/database";
 
@@ -51,6 +52,7 @@ test.describe.serial("production refund certification", () => {
 
   async function cleanupUser(userId: string, email?: string) {
     try {
+      await assertE2eUserDeletable(admin, userId);
       const { data: orders } = await admin
         .from("orders")
         .select("id")

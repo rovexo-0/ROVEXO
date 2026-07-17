@@ -8,7 +8,7 @@ See [ROVEXO Master Engineering Protocol](../ROVEXO_MASTER_ENGINEERING_PROTOCOL.m
 
 | Module | Route / entry | Phase | Certificate |
 |--------|----------------|-------|-------------|
-| RovexoHomePage | `/` · `components/home/RovexoHomePage.tsx` | **Frozen** | (homepage freeze — prior commit) |
+| CanonicalHomepage | `/` · `components/homepage/canonical/CanonicalHomepage.tsx` | **Frozen** | (homepage freeze — prior commit) |
 | Buyer Dashboard | `/buyer` · `components/buyer/BuyerDashboard.tsx` | **Frozen** | [FREEZE_CERTIFICATE.md](./buyer-dashboard/FREEZE_CERTIFICATE.md) |
 
 ## Required files per module

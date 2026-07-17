@@ -98,8 +98,8 @@ function buildNextJsChecks(): PerformanceCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
   const homePage = readProjectFile("app/page.tsx");
   const homeContent =
-    readProjectFile("components/home/RovexoHomePage.tsx") ||
-    readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx");
+    readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx") ||
+    readProjectFile("components/home/RovexoHomePage.tsx");
   const parallelHomeFetch =
     /Promise\.all(?:Settled)?\s*\(/.test(homePage) &&
     homePage.includes("fetchHomepageFeed");
@@ -249,8 +249,8 @@ function buildCacheChecks(): PerformanceCheck[] {
 function buildWebVitalsChecks(): PerformanceCheck[] {
   const nextConfig = readProjectFile("next.config.ts");
   const homeContent =
-    readProjectFile("components/home/RovexoHomePage.tsx") ||
-    readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx");
+    readProjectFile("components/homepage/canonical/CanonicalHomepage.tsx") ||
+    readProjectFile("components/home/RovexoHomePage.tsx");
   const serverComposedHome =
     homeContent.includes("HomepageProductSections") && !homeContent.includes('"use client"');
 

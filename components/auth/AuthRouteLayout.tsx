@@ -9,15 +9,13 @@ type AuthRouteLayoutProps = {
 };
 
 const BARE_AUTH_ROUTES = [
-  AUTH_ROUTES.splash,
-  AUTH_ROUTES.welcome,
   AUTH_ROUTES.login,
   AUTH_ROUTES.register,
   AUTH_ROUTES.forgotPassword,
   AUTH_ROUTES.resetPassword,
 ] as const;
 
-/** Splash, welcome, login, register, forgot-password, and reset-password are full-bleed. */
+/** Login, register, forgot-password, and reset-password are full-bleed. */
 export function AuthRouteLayout({ children }: AuthRouteLayoutProps) {
   const pathname = usePathname();
 

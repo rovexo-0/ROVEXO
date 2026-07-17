@@ -110,11 +110,32 @@ function validateMigrationSyntax(files) {
     { name: "destructive_drop_table", regex: /drop\s+table\s+(?!if\s+exists)/gi },
     { name: "truncate_without_guard", regex: /truncate\s+table/gi },
     { name: "delete_without_where", regex: /delete\s+from\s+[^\n;]+;/gi },
+    {
+      name: "full_demo_account_delete",
+      regex: /demo\.(buyer|seller)@rovexo\.co\.uk/gi,
+    },
   ];
 
   for (const file of files) {
     const content = readFileSync(join(MIGRATIONS_DIR, file), "utf8");
     for (const pattern of patterns) {
+      if (pattern.name === "full_demo_account_delete") {
+        const mentionsDemo = pattern.regex.test(content);
+        pattern.regex.lastIndex = 0;
+        if (
+          mentionsDemo &&
+          /(delete\s+from\s+profiles|auth\.users|delete\s+user|drop\s+user)/i.test(content)
+        ) {
+          issues.push({
+            type: "full_demo_block",
+            file,
+            message:
+              "Migration must never delete or disable Full Demo Accounts (demo.buyer@rovexo.co.uk / demo.seller@rovexo.co.uk)",
+          });
+        }
+        continue;
+      }
+
       if (pattern.regex.test(content)) {
         issues.push({
           type: "safety_warning",

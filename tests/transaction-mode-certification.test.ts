@@ -183,7 +183,7 @@ describe("Transaction Mode — enterprise certification", () => {
       expect(page).toContain("getTransactionCapabilities");
       expect(page).toContain("capabilities.shipping");
       expect(page).toContain("transactionMode={product.transactionMode}");
-      expect(page).toContain('data-pd-detail-version="v1.1"');
+      expect(page).toContain('data-pd-detail-version="v1.2-universal-preview"');
     });
 
     it("switches action bar by transactionMode", () => {

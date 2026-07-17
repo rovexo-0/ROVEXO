@@ -18,11 +18,11 @@ ROVEXO shall maintain **exactly one** of each:
 
 - Login page
 - Register page
-- Splash screen
 - Auth system
 - Master Auth Specification
 
-**No duplicates, parallel implementations, or alternate auth UIs** anywhere in the repo.
+Splash and Welcome are **REMOVED** (Product Owner private deployment contract).
+Guest entry is Login. Valid session opens Homepage immediately.
 
 ## Locked Login structure (immutable order)
 

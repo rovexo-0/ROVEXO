@@ -23,7 +23,7 @@ export function isSuperAdminOnlyRoute(path: string): boolean {
 
 export function sanitizeNextPath(
   next: string | null | undefined,
-  fallback = "/account",
+  fallback = "/",
 ): string {
   if (!next) {
     return fallback;
@@ -44,7 +44,7 @@ export function sanitizeNextPath(
 
 export function redirectPathForRole(role: UserRole): string {
   if (role === "super_admin") return "/super-admin";
-  return "/account";
+  return "/";
 }
 
 /** Post-login redirect that never sends non–super-admins to super-admin-only URLs (403). */
@@ -63,8 +63,8 @@ export function redirectAfterSignIn(role: UserRole, next?: string | null): never
   redirect(destination);
 }
 
-/** Default destination after auth when already signed in (middleware + post-login). */
-export const AUTHENTICATED_HOME = "/account";
+/** Default destination after auth when already signed in — Homepage. */
+export const AUTHENTICATED_HOME = "/";
 
 export const AUTH_ERROR_MESSAGES: Record<string, string> = {
   auth_callback_failed: "Sign-in link expired or invalid. Please try again.",

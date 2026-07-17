@@ -1,16 +1,16 @@
 /**
- * Canonical guest entry for ROVEXO Auth v1.0.
- * Unauthenticated users land on Welcome — never duplicate guest gates.
+ * Canonical guest entry for ROVEXO Auth.
+ * Unauthenticated users land on Login — Splash and Welcome removed.
  */
 
 import { AUTH_ROUTES } from "@/lib/auth/canonical";
 
-/** Locked guest destination (AUTH_MASTER_SPEC.routes.welcome). */
-export const AUTH_GUEST_ENTRY_PATH = AUTH_ROUTES.welcome;
+/** Locked guest destination (AUTH_MASTER_SPEC.startup.guestEntry). */
+export const AUTH_GUEST_ENTRY_PATH = AUTH_ROUTES.login;
 
 /**
  * Build a path for unauthenticated redirects.
- * Optional `next` is preserved for post-auth deep links (Login may read via URL on later hops).
+ * Optional `next` is preserved for post-auth deep links.
  */
 export function buildGuestAuthPath(nextPathname?: string | null): string {
   if (!nextPathname) {
@@ -25,12 +25,12 @@ export function buildGuestAuthPath(nextPathname?: string | null): string {
   if (
     trimmed === AUTH_GUEST_ENTRY_PATH ||
     trimmed.startsWith(`${AUTH_GUEST_ENTRY_PATH}/`) ||
-    trimmed === AUTH_ROUTES.login ||
-    trimmed.startsWith(`${AUTH_ROUTES.login}/`) ||
     trimmed === AUTH_ROUTES.register ||
     trimmed.startsWith(`${AUTH_ROUTES.register}/`) ||
-    trimmed === AUTH_ROUTES.splash ||
-    trimmed.startsWith(`${AUTH_ROUTES.splash}/`)
+    trimmed === "/splash" ||
+    trimmed.startsWith("/splash/") ||
+    trimmed === "/welcome" ||
+    trimmed.startsWith("/welcome/")
   ) {
     return AUTH_GUEST_ENTRY_PATH;
   }

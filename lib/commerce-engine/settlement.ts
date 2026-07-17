@@ -28,6 +28,7 @@ import {
   type ReleaseOutcome,
   type ReleaseReason,
 } from "@/lib/commerce-engine/release-policy";
+import { mustUseVirtualWallet } from "@/lib/full-demo/security";
 
 const OPEN_CASE_STATUSES = [
   "open",
@@ -118,13 +119,17 @@ async function settleSale(sale: PendingSale, order: OrderRow, requireTimer: bool
     .maybeSingle();
 
   const connectAccountId = sellerProfile?.stripe_connect_account_id;
-  if (!connectAccountId) {
-    return { released: false, reason: "connect_not_ready" };
-  }
+  const virtualWallet = mustUseVirtualWallet();
 
-  const connectStatus = await getConnectAccountStatus(sale.user_id);
-  if (!connectStatus.connected || !connectStatus.payoutsEnabled) {
-    return { released: false, reason: "connect_not_ready" };
+  if (!virtualWallet) {
+    if (!connectAccountId) {
+      return { released: false, reason: "connect_not_ready" };
+    }
+
+    const connectStatus = await getConnectAccountStatus(sale.user_id);
+    if (!connectStatus.connected || !connectStatus.payoutsEnabled) {
+      return { released: false, reason: "connect_not_ready" };
+    }
   }
 
   const amount = Number(sale.amount);
@@ -158,14 +163,14 @@ async function settleSale(sale: PendingSale, order: OrderRow, requireTimer: bool
     result: "available",
   });
 
-  // AVAILABLE → RELEASED via the certified Stripe Connect transfer (unchanged).
+  // AVAILABLE → RELEASED via Stripe Connect (production) or virtual demo transfer.
   const result = await transferSalePayoutToConnect({
     saleTransactionId: sale.id,
     userId: sale.user_id,
     orderId: order.id,
     orderNumber: sale.order_number ?? order.order_number,
     amount,
-    connectAccountId,
+    connectAccountId: connectAccountId ?? "demo_virtual_connect",
   });
 
   if (!result.success) {

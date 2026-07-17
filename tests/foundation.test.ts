@@ -39,9 +39,9 @@ describe("auth redirect helpers", () => {
   it("sanitizes unsafe next paths", async () => {
     const { sanitizeNextPath } = await import("@/lib/auth/redirects");
     expect(sanitizeNextPath("/orders")).toBe("/orders");
-    expect(sanitizeNextPath("//evil.com")).toBe("/account");
-    expect(sanitizeNextPath("/login")).toBe("/account");
-    expect(sanitizeNextPath(undefined)).toBe("/account");
+    expect(sanitizeNextPath("//evil.com")).toBe("/");
+    expect(sanitizeNextPath("/login")).toBe("/");
+    expect(sanitizeNextPath(undefined)).toBe("/");
   });
 
   it("exposes profile_missing auth error copy", async () => {

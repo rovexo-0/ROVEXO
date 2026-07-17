@@ -10,7 +10,6 @@ const AUTH_ROOTS = [
 ];
 
 const ALLOWED_RX_ICON_FILES = new Set([
-  path.normalize("features/auth/components/SplashScreen.tsx"),
   path.normalize("app/(auth)/splash/page.tsx"),
   path.normalize("app/(auth)/splash/layout.tsx"),
 ]);
@@ -70,14 +69,7 @@ describe("AUTH brand logo canonical v1.0", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("wires the canonical wordmark on Welcome v2 and brand block on form screens", () => {
-    const welcome = readFileSync(
-      path.join(process.cwd(), "features/auth/components/WelcomeScreen.tsx"),
-      "utf8",
-    );
-    expect(welcome).toContain("RovexoWordmark");
-    expect(welcome).not.toContain("RovexoAppIconMark");
-
+  it("wires the canonical wordmark on Login and Register form screens", () => {
     for (const screen of [
       "features/auth/components/LoginScreen.tsx",
       "features/auth/components/RegisterScreen.tsx",

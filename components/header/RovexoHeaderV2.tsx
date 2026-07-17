@@ -16,7 +16,7 @@ import { focusRing } from "@/components/ui/tokens";
 export type RovexoHeaderV2Props = {
   showSearch?: boolean;
   unreadNotifications?: number;
-  /** Homepage — logo row + search row below (no inline search). */
+  /** Homepage — search row only (logo + notification icon removed by PO contract). */
   layout?: "default" | "homepage" | "account";
   /** Non-homepage — replaces Account/Avatar with Share. */
   replaceAccountWithShare?: boolean;
@@ -36,7 +36,7 @@ function RovexoHeaderV2({
 }: RovexoHeaderV2Props) {
   const isHomepageLayout = layout === "homepage";
   const isAccountLayout = layout === "account";
-  const isWordmarkLayout = isHomepageLayout || isAccountLayout;
+  const isWordmarkLayout = isAccountLayout;
   const inlineSearch = showSearch && !isHomepageLayout && !isAccountLayout;
   const scroll = useMobileHeaderScrollContext();
   const registerHeader = scroll?.registerHeader;
@@ -78,49 +78,48 @@ function RovexoHeaderV2({
         hasScrollBehavior && !isChromeVisible && "max-lg:-translate-y-full max-lg:opacity-0",
       )}
     >
-      <div className={cn("rx-h2__inner", isWordmarkLayout && "rx-h2__inner--row1")}>
-        {isWordmarkLayout ? (
-          <RovexoWordmark asLink className="rx-h2__wordmark" />
-        ) : (
-          <Link href="/" aria-label="ROVEXO Home" className={cn("rx-h2__logo", focusRing)}>
-            <span className="rx-h2__logo-text">ROVEXO</span>
-          </Link>
-        )}
-
-        {inlineSearch ? (
-          <div className="rx-h2__search">
-            <HomepageSearchField inputId="rx-h2-search" className="rx-h2-search" />
-          </div>
-        ) : !isHomepageLayout && !isAccountLayout ? (
-          <div className="rx-h2__search rx-h2__search--hidden" aria-hidden />
-        ) : null}
-
-        <div
-          className={cn(
-            "rx-h2__actions",
-            (isHomepageLayout || isAccountLayout) && "rx-h2__actions--homepage",
+      {!isHomepageLayout ? (
+        <div className={cn("rx-h2__inner", isWordmarkLayout && "rx-h2__inner--row1")}>
+          {isWordmarkLayout ? (
+            <RovexoWordmark asLink className="rx-h2__wordmark" />
+          ) : (
+            <Link href="/" aria-label="ROVEXO Home" className={cn("rx-h2__logo", focusRing)}>
+              <span className="rx-h2__logo-text">ROVEXO</span>
+            </Link>
           )}
-          role="group"
-          aria-label="Quick links"
-        >
-          <HeaderV2IconLink
-            href="/notifications"
-            label="Notifications"
-            badge={unreadNotifications}
-            className="rx-h2__action--notifications"
-          >
-            <Bell {...HEADER_LUCIDE_ICON} className="rx-h2__lucide" />
-          </HeaderV2IconLink>
-          {!isWordmarkLayout && replaceAccountWithShare ? (
-            <HomepageHeaderShareButton className="rx-h2__share" />
-          ) : !isWordmarkLayout ? (
-            <HeaderProfileLink
-              className="rx-h2__account"
-              avatarClassName="rx-h2__account-avatar"
-            />
+
+          {inlineSearch ? (
+            <div className="rx-h2__search">
+              <HomepageSearchField inputId="rx-h2-search" className="rx-h2-search" />
+            </div>
+          ) : !isAccountLayout ? (
+            <div className="rx-h2__search rx-h2__search--hidden" aria-hidden />
           ) : null}
+
+          <div
+            className={cn("rx-h2__actions", isAccountLayout && "rx-h2__actions--homepage")}
+            role="group"
+            aria-label="Quick links"
+          >
+            <HeaderV2IconLink
+              href="/notifications"
+              label="Notifications"
+              badge={unreadNotifications}
+              className="rx-h2__action--notifications"
+            >
+              <Bell {...HEADER_LUCIDE_ICON} className="rx-h2__lucide" />
+            </HeaderV2IconLink>
+            {!isWordmarkLayout && replaceAccountWithShare ? (
+              <HomepageHeaderShareButton className="rx-h2__share" />
+            ) : !isWordmarkLayout ? (
+              <HeaderProfileLink
+                className="rx-h2__account"
+                avatarClassName="rx-h2__account-avatar"
+              />
+            ) : null}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {isHomepageLayout ? (
         <div className="rx-h2__search-row">

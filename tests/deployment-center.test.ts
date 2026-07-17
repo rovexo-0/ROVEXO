@@ -413,8 +413,18 @@ describe("health and readiness", () => {
     })).status).toBe("failed");
   });
 
-  it("validates readiness", () => {
-    expect(validateDeploymentReadiness(sampleSnapshot()).ready).toBe(true);
+  it("requires exactly 100% readiness and blocks 99% or lower", () => {
+    expect(validateDeploymentReadiness(sampleSnapshot()).ready).toBe(false);
+    expect(
+      validateDeploymentReadiness(
+        sampleSnapshot({ health: { status: "healthy", score: 99, message: "not complete" } }),
+      ).ready,
+    ).toBe(false);
+    const certified = validateDeploymentReadiness(
+      sampleSnapshot({ health: { status: "healthy", score: 100, message: "certified" } }),
+    );
+    expect(certified.ready).toBe(true);
+    expect(certified.score).toBe(100);
   });
 });
 

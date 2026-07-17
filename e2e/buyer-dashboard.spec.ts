@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { loadDotEnvFiles } from "../scripts/playwright-env.mjs";
 import { createAdminClient } from "../lib/supabase/admin";
 import { signInWithSessionCookies } from "./helpers/auth";
+import { assertE2eUserDeletable } from "./helpers/full-demo-safety";
 import {
   applyTheme,
   assertNoHorizontalOverflow,
@@ -56,6 +57,7 @@ async function createTempBuyer(admin: SupabaseClient<Database>): Promise<TempBuy
 
 async function deleteTempBuyer(admin: SupabaseClient<Database>, userId: string) {
   try {
+    await assertE2eUserDeletable(admin, userId);
     await admin.from("profiles").delete().eq("id", userId);
     await admin.auth.admin.deleteUser(userId);
   } catch {

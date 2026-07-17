@@ -1,52 +1,17 @@
 ---
-description: Permanently frozen canonical ROVEXO v1.0 Splash Screen
+description: Splash removed — Login is guest entry (PO private deployment contract)
 alwaysApply: true
 ---
 
-# ROVEXO v1.0 — OFFICIAL SPLASH FREEZE
+# ROVEXO v1.0 — SPLASH REMOVED
 
-**STATUS: APPROVED | CERTIFIED | PRODUCTION READY | PERMANENTLY FROZEN**
+**STATUS: REMOVED | Product Owner private deployment contract**
 
-**Exactly one Splash Screen.** Do not create duplicates.
+Splash Screen is permanently removed from the canonical startup flow.
 
-Entry: `features/auth/components/SplashScreen.tsx` · `app/(auth)/splash/**` · `lib/auth/bootstrap.ts` · `AUTH_MASTER_SPEC.splash`
+- Guest entry: `/login`
+- Valid session: `/` (Homepage)
+- `/splash` permanently redirects to `/login`
+- PWA `start_url`: `/`
 
-DOM: `data-auth-screen="splash"` · `data-auth-ui="v1.0-splash-final-lock"` · `data-splash-lock="CANONICAL"`
-
-## Canonical behaviour
-
-- Show instantly (premium light background only — no dark mode)
-- Hero: ROVEXO wordmark (black with premium purple X) — no RX icon
-- BUY . SELL . GROW. in small, light, premium typography
-- One 5px purple dot with a soft 1.8s opacity pulse
-- Timing: `minDisplayMs` 600 · `maxWaitMs` 1200 · soft exit fade 220ms
-- Brand stage always opaque (SSR chrome + live overlay) — **never** opacity-0 blank paint
-- Session: getSession → getUser (silent refresh/validate) → guest `/welcome` | verify-email | `/`
-- Invalid/expired: local sign-out → guest (no token/error exposure)
-- Motion: 250ms wordmark fade · 300ms tagline reveal · 500ms dot reveal · fade-only handoff
-- No spinner, progress bar, multiple dots, scale, bounce, shadows, gradients, cards, or illustrations
-- White background · identical hierarchy across mobile, desktop, and PWA
-- PWA `start_url`: `/splash`
-
-## Singularity
-
-ONE splash · ONE preview · ONE session bootstrap (`resolveSplashDestination`) ·
-ONE auth system · ONE official branding · ONE production version.
-
-## Quality gate
-
-Splash must be premium, minimalist, trustworthy, mobile first, platform
-consistent, immediately understandable, and LIVE READY on iPhone and Samsung.
-It must provide instant first paint with no blank screen, flicker, skeleton,
-layout shift, or unresponsive UI.
-
-## Do not touch
-
-Login v1.0 and Register v1.0 remain FROZEN. Do not modify their UI or auth flows from Splash work.
-
-## Permanent protection
-
-Do not modify Splash UI, animation, typography, background, branding, spacing,
-responsive layouts, PWA presentation, session flow, authentication flow, or
-routing flow without explicit user approval. Exceptions: critical security,
-production-breaking bugs, or explicitly approved v2.0 work.
+Do not restore Splash without a new approved Auth Master Specification.

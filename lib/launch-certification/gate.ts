@@ -6,6 +6,10 @@ import {
   runLaunchCertificationScan,
 } from "@/lib/launch-certification/scanner";
 import type { LaunchCertificationScanResult } from "@/lib/launch-certification/types";
+import {
+  isFullDemoCertificationPassed,
+  runFullDemoCertificationScan,
+} from "@/lib/full-demo/deploy-gate";
 
 export function isLaunchCertificationPass(
   scan: LaunchCertificationScanResult = runLaunchCertificationScan(),
@@ -25,7 +29,8 @@ export function isOfficialLaunchApproved(
   return (
     scan.allPassed &&
     dashboard.allPassed &&
-    moduleGates.every((gate) => gate.pass)
+    moduleGates.every((gate) => gate.pass) &&
+    isFullDemoCertificationPassed()
   );
 }
 
@@ -34,6 +39,7 @@ export function resolveLaunchCertificationSummary(
 ) {
   const gates = getFinalApprovalGateStatus(scan);
   const dashboard = runCertificationDashboardScan();
+  const fullDemo = runFullDemoCertificationScan();
 
   return {
     version: scan.version,
@@ -42,11 +48,18 @@ export function resolveLaunchCertificationSummary(
     totalCount: scan.totalCount,
     dashboardPassPercent: dashboard.passPercent,
     dashboardAllPassed: dashboard.allPassed,
+    fullDemoPassed: fullDemo.passed,
+    fullDemoDeploymentBlocked: fullDemo.deploymentBlocked,
     launchApproved: isOfficialLaunchApproved(scan),
     deploymentNotLaunch: LAUNCH_CERTIFICATION_COPY.deploymentNotLaunch,
     launchConditions: CERTIFICATION_LAUNCH_CONDITIONS,
-    blockers: [...scan.blockers, ...dashboard.blockers],
+    blockers: [
+      ...scan.blockers,
+      ...dashboard.blockers,
+      ...fullDemo.checks.filter((c) => !c.pass).map((c) => `full-demo:${c.id}`),
+    ],
     gates,
     dashboard,
+    fullDemo,
   };
 }

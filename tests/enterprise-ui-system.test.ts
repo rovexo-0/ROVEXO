@@ -4,7 +4,10 @@ import { describe, expect, it } from "vitest";
 
 describe("Enterprise UI system — homepage hero", () => {
   it("does not render Official ROVEXO banner on homepage", () => {
-    const homePage = readFileSync(join(process.cwd(), "components/home/RovexoHomePage.tsx"), "utf8");
+    const homePage = readFileSync(
+      join(process.cwd(), "components/homepage/canonical/CanonicalHomepage.tsx"),
+      "utf8",
+    );
     expect(homePage).not.toMatch(/from "@\/components\/home\/HomeHeroBanner"/);
     expect(homePage).not.toContain("HomeHeroBannerEngine");
     expect(homePage).not.toContain("RovexoBanner");
@@ -58,7 +61,7 @@ describe("Enterprise UI system — design lock", () => {
 });
 
 describe("Enterprise UI system — header", () => {
-  it("uses official ROVEXO wordmark and production header icons on homepage", () => {
+  it("keeps Lucide icons on non-homepage headers; homepage omits logo and notification", () => {
     const header = readFileSync(join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     expect(header).toContain("ROVEXO");
     expect(header).toContain("lucide-react");
@@ -66,6 +69,7 @@ describe("Enterprise UI system — header", () => {
     expect(header).toContain("Bell");
     expect(header).toContain("HeaderProfileLink");
     expect(header).toContain("HomepageHeaderShareButton");
+    expect(header).toContain("!isHomepageLayout");
   });
 
   it("uses debounced inline search on the homepage header", () => {

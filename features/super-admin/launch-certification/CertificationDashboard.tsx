@@ -13,6 +13,16 @@ type DashboardPayload = {
   };
   mode?: {
     virtualPayments: boolean;
+    virtualWallet?: boolean;
+    sendcloudSandbox?: boolean;
+  };
+  fullDemo?: {
+    version: string;
+    accounts: Array<{ key: string; email: string; label: string; virtualFundsGbp: number }>;
+    security: {
+      realStripeBlocked: boolean;
+      realSendcloudBlocked: boolean;
+    };
   };
   error?: string;
 };
@@ -27,6 +37,7 @@ export function CertificationDashboard() {
   const [scan, setScan] = useState<CertificationDashboardScanResult | null>(null);
   const [privateMode, setPrivateMode] = useState<DashboardPayload["privateMode"]>();
   const [virtualPayments, setVirtualPayments] = useState(false);
+  const [fullDemo, setFullDemo] = useState<DashboardPayload["fullDemo"]>();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -43,6 +54,7 @@ export function CertificationDashboard() {
         setScan(payload.dashboard ?? null);
         setPrivateMode(payload.privateMode);
         setVirtualPayments(Boolean(payload.mode?.virtualPayments));
+        setFullDemo(payload.fullDemo);
       } catch {
         setError("Unable to load certification dashboard.");
       }
@@ -88,6 +100,28 @@ export function CertificationDashboard() {
           </p>
         </div>
       </section>
+
+      {fullDemo ? (
+        <section className="grid gap-ds-3 rounded-ds-lg border border-border bg-surface p-ds-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
+              Full Demo Accounts ({fullDemo.version})
+            </p>
+            <ul className="mt-ds-2 space-y-ds-1 text-sm text-text-primary">
+              {fullDemo.accounts.map((account) => (
+                <li key={account.key}>
+                  {account.label} — {account.email} — £
+                  {account.virtualFundsGbp.toLocaleString("en-GB")} virtual
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="text-sm text-text-secondary">
+            Real Stripe blocked: {fullDemo.security.realStripeBlocked ? "Yes" : "No"} · Real
+            Sendcloud blocked: {fullDemo.security.realSendcloudBlocked ? "Yes" : "No"}
+          </div>
+        </section>
+      ) : null}
 
       <div className="flex items-center justify-between gap-ds-3">
         <p className="text-sm text-text-secondary">

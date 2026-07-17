@@ -37,8 +37,6 @@ export const AUTH_SUPER_ADMIN_PREFIXES = [
 ] as const;
 
 export const AUTH_PUBLIC_PREFIXES = [
-  "/splash",
-  "/welcome",
   "/login",
   "/register",
   "/forgot-password",

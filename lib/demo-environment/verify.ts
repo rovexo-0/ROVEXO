@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types/database";
-import { DEMO_USERS, resolveDemoSeedPassword } from "@/lib/demo-environment/config";
+import { DEMO_USERS, resolveDemoUserPassword } from "@/lib/demo-environment/config";
 import { getDemoAdminClient, hasDemoEnvironmentConfig } from "@/lib/demo-environment/guards";
 
 export type DemoEnvironmentVerificationReport = {
@@ -43,10 +43,10 @@ export async function runDemoEnvironmentVerification(): Promise<DemoEnvironmentV
   }
 
   const admin = getDemoAdminClient();
-  const password = resolveDemoSeedPassword();
   const checks: DemoEnvironmentVerificationReport["checks"] = [];
 
   for (const user of DEMO_USERS) {
+    const password = resolveDemoUserPassword(user);
     const { data: profile } = await admin
       .from("profiles")
       .select("id, role, verified, account_status")

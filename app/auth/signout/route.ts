@@ -14,13 +14,13 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const error = searchParams.get("error");
 
-  const welcomeUrl = new URL("/welcome", origin);
+  const loginUrl = new URL("/login", origin);
   if (error && Object.prototype.hasOwnProperty.call(AUTH_ERROR_MESSAGES, error)) {
-    welcomeUrl.searchParams.set("error", error);
+    loginUrl.searchParams.set("error", error);
   }
 
   const cookieStore = await cookies();
-  const response = NextResponse.redirect(welcomeUrl);
+  const response = NextResponse.redirect(loginUrl);
 
   const supabase = createServerClient<Database>(getSupabaseUrl(), getSupabaseAnonKey(), {
     cookies: {

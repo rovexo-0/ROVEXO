@@ -57,6 +57,8 @@ afterEach(() => {
 describe("HomepageEligibility engine", () => {
   it("recognises certified demo seed slugs", () => {
     expect(APPROVED_DEMO_SLUG_PATTERN.test("demo-seller01-001")).toBe(true);
+    expect(APPROVED_DEMO_SLUG_PATTERN.test("demo-live-seller-001")).toBe(true);
+    expect(APPROVED_DEMO_SLUG_PATTERN.test("demo-live-buyer-001")).toBe(true);
     expect(APPROVED_DEMO_SLUG_PATTERN.test("demo-test-001")).toBe(false);
   });
 

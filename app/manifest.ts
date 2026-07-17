@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "ROVEXO",
     short_name: "ROVEXO",
     description: "Buy and sell on the modern UK marketplace with purchase protection.",
-    start_url: "/splash",
+    start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
     theme_color: "#ffffff",

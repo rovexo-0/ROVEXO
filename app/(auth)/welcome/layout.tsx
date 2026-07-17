@@ -1,13 +1,10 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  title: "Login",
   robots: { index: false, follow: false },
 };
 
-export const viewport: Viewport = {
-  themeColor: "#ffffff",
-};
-
-export default function WelcomeRouteLayout({ children }: { children: React.ReactNode }) {
-  return <div className="auth-welcome-route">{children}</div>;
+export default function WelcomeLayout({ children }: { children: React.ReactNode }) {
+  return children;
 }

@@ -60,8 +60,10 @@ describe("LAUNCH_CERTIFICATION_MASTER_SPEC Document 1", () => {
       "admin",
       "super_admin",
     ]);
-    expect(resolveLaunchDemoAccount("buyer").email).toBe("buyer01@demo.rovexo.co.uk");
-    expect(resolveLaunchDemoAccount("seller").email).toBe("seller01@demo.rovexo.co.uk");
+    expect(resolveLaunchDemoAccount("buyer").email).toBe("demo.buyer@rovexo.co.uk");
+    expect(resolveLaunchDemoAccount("seller").email).toBe("demo.seller@rovexo.co.uk");
+    expect(resolveLaunchDemoAccount("buyer").label).toBe("ROVEXO LIVE BUYER");
+    expect(resolveLaunchDemoAccount("seller").label).toBe("ROVEXO LIVE SELLER");
     expect(resolveLaunchDemoAccount("admin").email).toBe("admin@demo.rovexo.co.uk");
     expect(resolveLaunchDemoAccount("super_admin").email).toBe("superadmin@demo.rovexo.co.uk");
   });

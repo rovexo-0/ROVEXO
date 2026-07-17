@@ -25,9 +25,33 @@ export type DemoUserDefinition = {
   businessName?: string;
   phone?: string;
   avatarSeed: string;
+  /** Optional per-account password — Full Demo Accounts use dedicated credentials. */
+  password?: string;
 };
 
 export const DEMO_USERS: DemoUserDefinition[] = [
+  /** Permanent Full Demo Accounts — official certification credentials. */
+  {
+    key: "live-buyer",
+    email: "demo.buyer@rovexo.co.uk",
+    username: "rovexo_live_buyer",
+    fullName: "ROVEXO LIVE BUYER",
+    role: "buyer",
+    phone: "+447700900001",
+    avatarSeed: "live-buyer",
+    password: "RovexoBuyer@2026",
+  },
+  {
+    key: "live-seller",
+    email: "demo.seller@rovexo.co.uk",
+    username: "rovexo_live_seller",
+    fullName: "ROVEXO LIVE SELLER",
+    role: "business",
+    businessName: "ROVEXO LIVE SELLER Ltd",
+    phone: "+447700900002",
+    avatarSeed: "live-seller",
+    password: "RovexoSeller@2026",
+  },
   {
     key: "buyer01",
     email: `buyer01@${DEMO_EMAIL_DOMAIN}`,
@@ -126,7 +150,13 @@ export function demoAvatarUrl(seed: string): string {
   return `https://api.dicebear.com/7.x/shapes/png?seed=${encodeURIComponent(seed)}`;
 }
 
-export function resolveDemoSeedPassword(): string {  return process.env.DEMO_SEED_PASSWORD?.trim() || DEMO_DEFAULT_PASSWORD;
+export function resolveDemoSeedPassword(): string {
+  return process.env.DEMO_SEED_PASSWORD?.trim() || DEMO_DEFAULT_PASSWORD;
+}
+
+/** Resolve password for a demo user — Full Demo Accounts use dedicated credentials. */
+export function resolveDemoUserPassword(user: Pick<DemoUserDefinition, "password">): string {
+  return user.password?.trim() || resolveDemoSeedPassword();
 }
 
 export function isDemoSeedEnabled(): boolean {

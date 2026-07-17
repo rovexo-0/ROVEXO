@@ -107,13 +107,13 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(css).toContain("--hp-store-card-ref-w");
   });
 
-  it("places search below header on homepage", () => {
+  it("places search below header on homepage without logo or notification icon", () => {
     const header = readSource("components/header/RovexoHeaderV2.tsx");
     const page = readSource("app/page.tsx");
 
     expect(header).toContain('layout?: "default" | "homepage"');
     expect(header).toContain("rx-h2__search-row");
-    expect(header).toContain("RovexoWordmark");
+    expect(header).toContain("!isHomepageLayout");
     expect(page).toContain('layout="homepage"');
   });
 

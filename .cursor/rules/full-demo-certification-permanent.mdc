@@ -1,0 +1,30 @@
+---
+description: Permanent Full Demo accounts and fail-closed deployment certification
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — Full Demo Certification Contract
+
+**STATUS: APPROVED | PROTECTED | PERMANENT**
+
+Official accounts:
+- `demo.buyer@rovexo.co.uk`
+- `demo.seller@rovexo.co.uk`
+
+They must always exist, remain active and verified, and retain £50,000 virtual
+wallet floors. Never delete, expire, disable, suspend, reset, lock, unverify,
+strip permissions, remove products, or include them in cleanup/test teardown.
+
+All Full Demo commerce is virtual. Never call real Stripe payments/Connect,
+Sendcloud shipments, payouts, labels, or real-money paths for these accounts.
+
+Before every live deployment, run the complete fail-closed certification suite:
+TypeScript, ESLint, production build, Playwright, responsive, Universal UI,
+performance, auth, orders, wallet, tracking, checkout, Inbox Hub, refunds,
+cancellations, notifications, messages, Homepage, protected contracts, and the
+25-step Full Demo buyer/seller E2E flow.
+
+Any single failure blocks live deployment. Never weaken, bypass, skip, mock-pass,
+or convert a runtime E2E gate into a source-presence/static check.
+
+Splash and Welcome are removed. Guest startup → Login; valid session → Homepage.

@@ -22,12 +22,18 @@ import { runPostDeployChecks, postDeployHealthScore } from "@/lib/enterprise-dep
 import { generateDeploymentAiInsights } from "@/lib/enterprise-deployment-center/ai-integration";
 import type { DeploymentEnvironment, DeploymentQueueItem } from "@/lib/enterprise-deployment-center/types";
 import { isValidEnvironment } from "@/lib/enterprise-deployment-center/environments";
+import { assertFullDemoCertificationPassed } from "@/lib/full-demo/deploy-gate";
+import { assertDeploymentCertificationPassed } from "@/lib/full-demo/deployment-certification";
+import { assertReleaseProtectionNoOverride } from "@/lib/full-demo/no-override";
+import { getDeploymentSnapshot, validateDeploymentReadiness } from "@/lib/enterprise-deployment-center/reader";
 
 export async function executeDeploymentAction(
   action: string,
   actorId: string,
   payload?: Record<string, unknown>,
 ) {
+  assertReleaseProtectionNoOverride({ payload });
+
   if (isDeploymentConfigAction(action)) {
     return executeDeploymentConfigAction(action, actorId, payload as { document?: DeploymentConfigDocument; historyId?: string });
   }
@@ -91,6 +97,15 @@ export async function executeDeploymentAction(
       return { release: releases.find((r) => r.id === releaseId) };
     }
     case "deploy": {
+      assertFullDemoCertificationPassed();
+      assertDeploymentCertificationPassed();
+      const readiness = validateDeploymentReadiness(await getDeploymentSnapshot("builds"));
+      if (!readiness.ready) {
+        throw new Error(
+          `[RELEASE PROTECTION] Live deployment blocked — readiness is ${readiness.score}%; exactly 100% is required`,
+        );
+      }
+
       const releaseId = String(payload?.releaseId ?? live.settings.releases.find((r) => r.status === "approved")?.id ?? "");
       const strategy = String(payload?.strategy ?? live.settings.defaultStrategy);
       if (!isValidStrategy(strategy)) throw new Error("Invalid strategy");
@@ -99,8 +114,10 @@ export async function executeDeploymentAction(
 
       const postDeploy = runPostDeployChecks();
       const health = postDeployHealthScore(postDeploy);
-      if (health < 70 && live.featureFlags.auto_rollback_enabled !== false) {
-        throw new Error("Post-deploy checks failed — deployment blocked");
+      if (health !== 100) {
+        throw new Error(
+          `[RELEASE PROTECTION] Post-deploy certification is ${health}%; exactly 100% is required`,
+        );
       }
 
       const deployed = markDeployed({ ...release, strategy: strategy as typeof release.strategy, status: "deploying" });

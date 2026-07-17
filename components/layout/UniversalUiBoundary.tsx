@@ -4,12 +4,11 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 const FROZEN_AUTH_PATHS = new Set([
-  "/welcome",
   "/login",
   "/register",
-  "/splash",
   "/forgot-password",
   "/reset-password",
+  "/verify-email",
 ]);
 
 export function UniversalUiBoundary({ children }: { children: ReactNode }) {

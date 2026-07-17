@@ -2,7 +2,6 @@
 
 import { useActionState, useState } from "react";
 import {
-  AuthBackButton,
   AuthContainer,
   AuthFooter,
   AuthHeading,
@@ -53,7 +52,7 @@ const LOGIN_UI = {
 } as const;
 
 export function LoginScreen({ next, initialError }: LoginScreenProps) {
-  const { copy, routes } = AUTH_MASTER_SPEC.login;
+  const { copy } = AUTH_MASTER_SPEC.login;
   const [state, formAction, pending] = useActionState(signIn, {} as AuthActionState);
   const [clientError, setClientError] = useState<string | null>(null);
   const alertMessage = clientError ?? state.error ?? initialError;
@@ -67,7 +66,6 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
       data-auth-version="v1.0-legal-lock"
       data-auth-ui="v1.0-ui-lock"
     >
-      <AuthBackButton href={routes.back} className="auth-login__back" />
       <AuthContainer>
         <div className="auth-login__brand">
           <RovexoBrandLogo className="rovexo-brand-logo--auth" />

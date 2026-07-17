@@ -1,5 +1,4 @@
-import { devices } from "@playwright/test";
-import { chromium, firefox, webkit } from "playwright";
+import { chromium, devices, firefox, webkit } from "@playwright/test";
 
 /**
  * Returns true when Playwright can locate a browser executable on disk.
@@ -109,7 +108,8 @@ export function buildAllProjects() {
       },
       {
         name: "chrome-android",
-        testMatch: /mobile-scroll-standard\.spec\.ts/,
+        testMatch:
+          /mobile-scroll-standard\.spec\.ts|responsive\.spec\.ts|welcome-v2\.spec\.ts/,
         use: { ...devices["Pixel 7"] },
       },
       {

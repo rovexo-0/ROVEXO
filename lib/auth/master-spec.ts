@@ -22,8 +22,6 @@ export const AUTH_MASTER_SPEC = {
     prohibitedOnAuth: ["RovexoAppIconMark", "RovexoLogo", "favicon", "pwa"],
   },
   routes: {
-    splash: "/splash",
-    welcome: "/welcome",
     login: "/login",
     register: "/register",
     forgotPassword: "/forgot-password",
@@ -31,20 +29,28 @@ export const AUTH_MASTER_SPEC = {
     resetPassword: "/reset-password",
     home: "/",
   },
+  /**
+   * Canonical startup (Product Owner private deployment contract):
+   * Guest → Login · Valid session → Homepage · No Splash · No Welcome.
+   */
+  startup: {
+    guestEntry: "/login",
+    authenticatedHome: "/",
+    authenticatedUnverified: "/verify-email",
+    removedRoutes: ["/splash", "/welcome"] as const,
+  },
   splash: {
-    /** Ordered bootstrap phases — must execute in sequence. */
+    /** @deprecated Removed — kept only for type/test migration until Splash files deleted. */
     phases: ["initialize_app", "initialize_supabase", "restore_session"] as const,
     motion: "fade_only" as const,
-    /** Visible splash: 600ms min → 1200ms max session wait (no blank frame). */
-    minDisplayMs: 600,
-    fadeDurationMs: 220,
-    maxWaitMs: 1200,
-    /** No scale, bounce, or spinner on splash. */
+    minDisplayMs: 0,
+    fadeDurationMs: 0,
+    maxWaitMs: 0,
     prohibitedMotion: ["scale", "bounce", "spinner"] as const,
     destinations: {
       authenticatedVerified: "/",
       authenticatedUnverified: "/verify-email",
-      guest: "/welcome",
+      guest: "/login",
     },
     copy: {
       wordmark: "ROVEXO",
@@ -63,9 +69,10 @@ export const AUTH_MASTER_SPEC = {
     },
   },
   welcome: {
-    uiVersion: "v2.0" as const,
-    fadeDurationMs: 500,
-    motion: "subtle_float" as const,
+    /** @deprecated Removed — Welcome page deleted per Product Owner contract. */
+    uiVersion: "removed" as const,
+    fadeDurationMs: 0,
+    motion: "none" as const,
     prohibitedMotion: ["bounce", "neon", "aggressive_glow"] as const,
     presentation: {
       layout: "centered",
@@ -107,7 +114,9 @@ export const AUTH_MASTER_SPEC = {
       maxWidthPx: 430,
     },
     routes: {
-      back: "/welcome",
+      /** No Welcome — Login is the guest entry. */
+      back: null,
+      register: "/register",
     },
     socialProviders: ["apple", "google", "facebook"] as const,
     copy: {
@@ -143,7 +152,7 @@ export const AUTH_MASTER_SPEC = {
       maxWidthPx: 430,
     },
     routes: {
-      back: "/welcome",
+      back: "/login",
       signIn: "/login",
     },
     socialProviders: ["apple", "google", "facebook"] as const,

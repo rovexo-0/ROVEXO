@@ -8,13 +8,13 @@ import { AUTH_ROUTES } from "@/lib/auth/canonical";
 import { createClient } from "@/lib/supabase/client";
 
 const PUBLIC_AUTH_ROUTES: ReadonlySet<string> = new Set([
-  AUTH_ROUTES.splash,
-  AUTH_ROUTES.welcome,
   AUTH_ROUTES.login,
   AUTH_ROUTES.register,
   AUTH_ROUTES.forgotPassword,
   AUTH_ROUTES.verifyEmail,
   AUTH_ROUTES.resetPassword,
+  "/splash",
+  "/welcome",
 ]);
 
 export function PushSubscriptionManager() {

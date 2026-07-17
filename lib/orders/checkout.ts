@@ -22,6 +22,8 @@ import {
   resolveLockedAcceptedOffer,
   resolveTransactionItemPrice,
 } from "@/lib/offers/accepted-price";
+import { mustUseVirtualPayments } from "@/lib/full-demo/security";
+import { debitVirtualBuyerWallet } from "@/lib/full-demo/virtual-checkout";
 
 const RESERVATION_MINUTES = 30;
 
@@ -218,6 +220,55 @@ export async function createOrderCheckoutSession(
     ? `/inbox/conversation/${input.hubConversationId}?payment=cancelled&${cancelQuery.toString()}&slug=${product.slug}`
     : `/checkout/${product.slug}?${cancelQuery.toString()}`;
   const cancelUrl = `${baseUrl}${cancelPath}`;
+
+  /**
+   * Full Demo / Certification virtual payments — never create a real Stripe session.
+   * Debits demo wallet funds, then runs the same fulfillment path as Stripe webhooks.
+   */
+  if (mustUseVirtualPayments()) {
+    const debit = await debitVirtualBuyerWallet({
+      buyerId: input.buyerId,
+      amount: totals.total,
+      orderId: orderRow.id,
+      orderNumber: resolvedOrderNumber,
+      productTitle: product.title,
+    });
+
+    if (!debit.ok) {
+      await cancelPendingOrder(orderRow.id);
+      return { error: debit.error };
+    }
+
+    const fulfilled = await fulfillOrderFromStripeSession({
+      id: debit.sessionId,
+      metadata: {
+        checkoutType: "order",
+        orderId: orderRow.id,
+        buyerId: input.buyerId,
+        sellerId: product.seller_id,
+        productId: product.id,
+        paymentMode: "virtual_demo",
+      },
+      payment_intent: debit.sessionId,
+      payment_status: "paid",
+    });
+
+    if (!fulfilled.success) {
+      return { error: fulfilled.error ?? "Unable to complete virtual payment." };
+    }
+
+    await admin
+      .from("orders")
+      .update({ stripe_session_id: debit.sessionId })
+      .eq("id", orderRow.id);
+
+    const order = await getOrderById(orderRow.id);
+    return {
+      orderId: orderRow.id,
+      url: orderSuccessUrl,
+      order: order ?? undefined,
+    };
+  }
 
   if (!isStripeConfigured()) {
     if (isStripeRequired()) {

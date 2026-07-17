@@ -29,13 +29,13 @@ const STORAGE_KEY = "rovexo-locale";
 const COOKIE_KEY = "rovexo-locale";
 const LOCALE_CHANGE_EVENT = "rovexo-locale-change";
 const PUBLIC_AUTH_ROUTES: ReadonlySet<string> = new Set([
-  AUTH_ROUTES.splash,
-  AUTH_ROUTES.welcome,
   AUTH_ROUTES.login,
   AUTH_ROUTES.register,
   AUTH_ROUTES.forgotPassword,
   AUTH_ROUTES.verifyEmail,
   AUTH_ROUTES.resetPassword,
+  "/splash",
+  "/welcome",
 ]);
 
 function writeLocaleCookie(code: LocaleCode) {

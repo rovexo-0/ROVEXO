@@ -29,6 +29,17 @@ export function loadDotEnvFiles(cwd = process.cwd()) {
         value = value.slice(1, -1);
       }
 
+      // Never inject Vercel CLI Sensitive redaction or placeholder secrets.
+      if (
+        !value ||
+        value === "[SENSITIVE]" ||
+        value.startsWith("[SEN") ||
+        value === "placeholder" ||
+        value === "re_placeholder"
+      ) {
+        continue;
+      }
+
       if (!process.env[key]) {
         process.env[key] = value;
       }

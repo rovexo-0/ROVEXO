@@ -5,8 +5,13 @@ import {
   demoBannerUrl,
   type DemoUserDefinition,
   resolveDemoSeedPassword,
+  resolveDemoUserPassword,
 } from "@/lib/demo-environment/config";
 import { getDemoAdminClient } from "@/lib/demo-environment/guards";
+import {
+  FULL_DEMO_VIRTUAL_FUNDS_GBP,
+  isFullDemoAccountKey,
+} from "@/lib/full-demo/canonical";
 
 export type DemoUserRecord = DemoUserDefinition & {
   id: string;
@@ -61,6 +66,34 @@ async function findProfileIdByEmail(
 ): Promise<string | null> {
   const { data } = await admin.from("profiles").select("id").eq("email", email).maybeSingle();
   return data?.id ?? null;
+}
+
+async function ensureDemoWalletFloor(
+  admin: SupabaseClient<Database>,
+  userId: string,
+  targetBalance: number,
+): Promise<void> {
+  const { data: wallet } = await admin
+    .from("wallets")
+    .select("id, available_balance")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (!wallet) {
+    await admin.from("wallets").insert({
+      user_id: userId,
+      available_balance: targetBalance,
+      pending_balance: 0,
+    });
+    return;
+  }
+
+  if (Number(wallet.available_balance) < targetBalance) {
+    await admin
+      .from("wallets")
+      .update({ available_balance: targetBalance })
+      .eq("id", wallet.id);
+  }
 }
 
 async function bootstrapStaffRole(admin: SupabaseClient<Database>, userId: string, role: UserRole) {
@@ -151,6 +184,50 @@ async function enrichProfile(
     is_default: true,
   });
 
+  /** Permanent Full Demo Accounts — fully verified + £50,000 virtual funds. */
+  if (isFullDemoAccountKey(user.key)) {
+    await admin.from("seller_profiles").upsert(
+      {
+        id: userId,
+        bio: `${user.fullName} — permanent Full Demo Certification account.`,
+        rating: 4.95,
+        review_count: 128,
+        follower_count: 512,
+        listing_count: 0,
+        sales_count: 96,
+      },
+      { onConflict: "id" },
+    );
+
+    if (user.key === "live-seller") {
+      await admin.from("business_accounts").upsert(
+        {
+          id: userId,
+          business_name: user.businessName ?? "ROVEXO LIVE SELLER Ltd",
+          tax_id: "GB999000001",
+          website: "https://live-seller.demo.rovexo.co.uk",
+          description: "Fully verified Full Demo Seller — business + trust certified.",
+          verified_business: true,
+          verification_level: "premium",
+          company_type: "limited_company",
+          trust_score: 98,
+        },
+        { onConflict: "id" },
+      );
+
+      await admin.from("profile_entitlements").upsert(
+        {
+          user_id: userId,
+          company_verified: true,
+          premium: true,
+        },
+        { onConflict: "user_id" },
+      );
+    }
+
+    await ensureDemoWalletFloor(admin, userId, FULL_DEMO_VIRTUAL_FUNDS_GBP);
+  }
+
   if (user.role === "admin" || user.role === "super_admin") {
     try {
       await bootstrapStaffRole(admin, userId, user.role);
@@ -164,7 +241,13 @@ async function enrichProfile(
 
 export async function ensureDemoUser(user: DemoUserDefinition): Promise<DemoUserRecord> {
   const admin = getDemoAdminClient();
-  const password = resolveDemoSeedPassword();
+  const password = resolveDemoUserPassword(user);
+  const userMetadata = {
+    username: user.username,
+    full_name: user.fullName,
+    role: user.role === "admin" || user.role === "super_admin" ? "buyer" : user.role,
+    business_name: user.businessName,
+  };
 
   let userId = await findProfileIdByEmail(admin, user.email);
 
@@ -173,12 +256,7 @@ export async function ensureDemoUser(user: DemoUserDefinition): Promise<DemoUser
       email: user.email,
       password,
       email_confirm: true,
-      user_metadata: {
-        username: user.username,
-        full_name: user.fullName,
-        role: user.role === "admin" || user.role === "super_admin" ? "buyer" : user.role,
-        business_name: user.businessName,
-      },
+      user_metadata: userMetadata,
     });
 
     if (error || !data.user) {
@@ -195,17 +273,19 @@ export async function ensureDemoUser(user: DemoUserDefinition): Promise<DemoUser
     } else {
       userId = data.user.id;
     }
-  } else {
-    await admin.auth.admin.updateUserById(userId, {
-      password,
-      email_confirm: true,
-      user_metadata: {
-        username: user.username,
-        full_name: user.fullName,
-        role: user.role === "admin" || user.role === "super_admin" ? "buyer" : user.role,
-        business_name: user.businessName,
-      },
-    });
+  }
+
+  // Always sync canonical password + email confirmation (covers unconfirmed public signups
+  // and auth users found without a profile row).
+  const { error: updateError } = await admin.auth.admin.updateUserById(userId, {
+    password,
+    email_confirm: true,
+    user_metadata: userMetadata,
+  });
+  if (updateError) {
+    throw new Error(
+      `Failed to sync demo user credentials for ${user.email}: ${formatError(updateError)}`,
+    );
   }
 
   await enrichProfile(admin, user, userId);

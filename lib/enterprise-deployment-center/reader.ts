@@ -7,6 +7,7 @@ import {
 } from "@/lib/enterprise-deployment-center/config";
 import { ENTERPRISE_DEPLOYMENT_MODULE_DESCRIPTOR } from "@/lib/enterprise-deployment-center/descriptor";
 import { buildDeploymentDashboard } from "@/lib/enterprise-deployment-center/engine";
+import { isLiveDeploymentAllowed } from "@/lib/full-demo/deploy-gate";
 
 export async function getDeploymentSnapshot(tab: DeploymentTab = "dashboard"): Promise<DeploymentSnapshot> {
   const live = await getDeploymentLiveDocument();
@@ -85,11 +86,13 @@ export async function getDeploymentPageData(tab: DeploymentTab = "dashboard") {
 }
 
 export function validateDeploymentReadiness(snapshot: DeploymentSnapshot): { ready: boolean; score: number } {
+  const fullDemoOk = isLiveDeploymentAllowed();
   const checks = [
     snapshot.featureFlagsConfig.deployment_center_enabled !== false,
     snapshot.environments.length > 0,
-    snapshot.health.score >= 50,
+    snapshot.health.score === 100,
+    fullDemoOk,
   ];
   const score = Math.round((checks.filter(Boolean).length / checks.length) * 100);
-  return { ready: score >= 75, score };
+  return { ready: score === 100 && checks.every(Boolean), score };
 }

@@ -109,6 +109,27 @@ export async function updateSession(request: NextRequest) {
 
     const pathname = request.nextUrl.pathname;
 
+    // Removed startup routes — always redirect away from Splash / Welcome.
+    if (pathname === "/splash" || pathname.startsWith("/splash/") || pathname === "/welcome" || pathname.startsWith("/welcome/")) {
+      const target = request.nextUrl.clone();
+      if (user) {
+        target.pathname = user.email_confirmed_at ? AUTHENTICATED_HOME : "/verify-email";
+        target.search = user.email_confirmed_at ? "" : `?email=${encodeURIComponent(user.email ?? "")}`;
+      } else {
+        target.pathname = "/login";
+        target.search = "";
+      }
+      return applyPendingCookies(NextResponse.redirect(target), pendingCookies);
+    }
+
+    // Cold start: logged-out users opening the app land on Login (not Homepage).
+    if (!user && (pathname === "/" || pathname === "")) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/login";
+      loginUrl.search = "";
+      return applyPendingCookies(NextResponse.redirect(loginUrl), pendingCookies);
+    }
+
     if (pathname.startsWith("/auctions/") && pathname !== "/auctions") {
       const auctionsUrl = request.nextUrl.clone();
       auctionsUrl.pathname = "/auctions";
@@ -131,11 +152,11 @@ export async function updateSession(request: NextRequest) {
     }
 
     if (!user && isProtected && !isApiRoute) {
-      const welcomeUrl = request.nextUrl.clone();
-      welcomeUrl.pathname = "/welcome";
-      welcomeUrl.search = "";
-      welcomeUrl.searchParams.set("next", pathname);
-      return applyPendingCookies(NextResponse.redirect(welcomeUrl), pendingCookies);
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/login";
+      loginUrl.search = "";
+      loginUrl.searchParams.set("next", pathname);
+      return applyPendingCookies(NextResponse.redirect(loginUrl), pendingCookies);
     }
 
     if (user && !user.email_confirmed_at && isProtected && !isApiRoute) {

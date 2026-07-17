@@ -1,6 +1,7 @@
 import type { APIRequestContext, Page } from "@playwright/test";
 import { loadDotEnvFiles } from "../../scripts/playwright-env.mjs";
 import { createAdminClient } from "../../lib/supabase/admin";
+import { assertE2eUserDeletable } from "./full-demo-safety";
 import type { ProductSection } from "../../lib/products/types";
 
 loadDotEnvFiles();
@@ -254,6 +255,7 @@ async function seedTemporaryListing(): Promise<TempListingSeed> {
 
   if (productError || !product) {
     if (deleteSeller) {
+      await assertE2eUserDeletable(admin, sellerId).catch(() => undefined);
       await admin.auth.admin.deleteUser(sellerId).catch(() => undefined);
     }
     throw new Error(`Failed to create temporary listing for alias test: ${formatSupabaseError(productError)}`);
@@ -280,6 +282,7 @@ async function deleteTemporaryListing(seed: TempListingSeed): Promise<void> {
     await admin.from("products").delete().eq("id", seed.productId);
 
     if (seed.deleteSeller) {
+      await assertE2eUserDeletable(admin, seed.sellerId);
       await admin.from("seller_profiles").delete().eq("id", seed.sellerId);
       await admin.from("profiles").delete().eq("id", seed.sellerId);
       await admin.auth.admin.deleteUser(seed.sellerId);

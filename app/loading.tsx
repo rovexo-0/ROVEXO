@@ -7,25 +7,22 @@ import { ROVEXO_PATHNAME_HEADER } from "@/lib/auth/request-pathname";
 
 function isAuthBootPath(pathname: string): boolean {
   if (!pathname) return false;
+  if (pathname === "/splash" || pathname.startsWith("/splash/")) return true;
+  if (pathname === "/welcome" || pathname.startsWith("/welcome/")) return true;
   return AUTH_PUBLIC_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 }
 
-function isSplashPath(pathname: string): boolean {
-  return pathname === "/splash" || pathname.startsWith("/splash/");
-}
-
 /**
- * Root Suspense fallback. Auth/splash cold starts must never paint homepage
- * skeleton (looks like a blank / broken white screen on PWA open).
+ * Root Suspense fallback. Auth cold starts must never paint homepage skeleton.
  */
 export default async function RootLoading() {
   const headerStore = await headers();
   const pathname = headerStore.get(ROVEXO_PATHNAME_HEADER) ?? "";
 
   if (isAuthBootPath(pathname)) {
-    return <SplashFirstPaint wordmarkOnly={isSplashPath(pathname)} />;
+    return <SplashFirstPaint wordmarkOnly />;
   }
 
   return (

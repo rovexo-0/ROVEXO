@@ -7,6 +7,7 @@
       "develop": true
     }
   },
+  "buildCommand": "npm run certify:predeploy",
   "crons": [
     {
       "path": "/api/cron/maintenance",

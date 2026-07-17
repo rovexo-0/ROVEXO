@@ -6,12 +6,15 @@ import {
 } from "@/lib/demo-environment/guards";
 import { seedDemoListings } from "@/lib/demo-environment/listings";
 import { seedDemoMarketplaceData } from "@/lib/demo-environment/marketplace";
+import { seedFullDemoMarketplaceData } from "@/lib/demo-environment/full-demo-marketplace";
 import { ensureDemoUsers, type DemoUserRecord } from "@/lib/demo-environment/users";
+import { FULL_DEMO_PRODUCT_TARGET } from "@/lib/full-demo/canonical";
 
 export type DemoEnvironmentSeedReport = {
   ok: boolean;
   generatedAt: string;
   users: Array<{ key: string; email: string; role: string; id: string }>;
+  fullDemoAccounts: Array<{ key: string; email: string; label: string }>;
   listings: number;
   orders: number;
   conversations: number;
@@ -19,6 +22,12 @@ export type DemoEnvironmentSeedReport = {
   savedItems: number;
   reviews: number;
   walletTransactions: number;
+  offers: number;
+  counterOffers: number;
+  disputes: number;
+  parcels: number;
+  promotions: number;
+  analyticsEvents: number;
   warnings: string[];
 };
 
@@ -39,6 +48,13 @@ export async function runDemoEnvironmentSeed(): Promise<DemoEnvironmentSeedRepor
   const admin = getDemoAdminClient();
   const users = await ensureDemoUsers(DEMO_USERS);
 
+  const liveBuyer = users.find((user) => user.key === "live-buyer");
+  const liveSeller = users.find((user) => user.key === "live-seller");
+
+  if (!liveBuyer || !liveSeller) {
+    throw new Error("Permanent Full Demo Accounts (live-buyer / live-seller) are missing from seed.");
+  }
+
   const buyers = users.filter((user) => user.role === "buyer");
   const sellers = users.filter(
     (user) => user.role === "seller" || user.role === "business",
@@ -49,11 +65,25 @@ export async function runDemoEnvironmentSeed(): Promise<DemoEnvironmentSeedRepor
     sellers,
   });
 
+  // Guarantee ≥100 published listings for the permanent LIVE SELLER.
+  const { created: liveSellerListings, productIds: liveSellerProductIds } = await seedDemoListings({
+    admin,
+    sellers: [liveSeller],
+    targetCount: FULL_DEMO_PRODUCT_TARGET,
+  });
+
   const marketplace = await seedDemoMarketplaceData({
     admin,
     buyers,
     sellers,
     productIds,
+  });
+
+  const fullDemo = await seedFullDemoMarketplaceData({
+    admin,
+    liveBuyer,
+    liveSeller,
+    productIds: liveSellerProductIds.length ? liveSellerProductIds : productIds,
   });
 
   const { data: superAdmins } = await admin
@@ -74,8 +104,23 @@ export async function runDemoEnvironmentSeed(): Promise<DemoEnvironmentSeedRepor
       role: user.role,
       id: user.id,
     })),
-    listings,
-    ...marketplace,
+    fullDemoAccounts: [
+      { key: liveBuyer.key, email: liveBuyer.email, label: "ROVEXO LIVE BUYER" },
+      { key: liveSeller.key, email: liveSeller.email, label: "ROVEXO LIVE SELLER" },
+    ],
+    listings: listings + liveSellerListings,
+    orders: marketplace.orders + fullDemo.orders,
+    conversations: marketplace.conversations + fullDemo.conversations,
+    notifications: marketplace.notifications + fullDemo.notifications,
+    savedItems: marketplace.savedItems + fullDemo.savedItems,
+    reviews: marketplace.reviews + fullDemo.reviews,
+    walletTransactions: marketplace.walletTransactions + fullDemo.walletTransactions,
+    offers: fullDemo.offers,
+    counterOffers: fullDemo.counterOffers,
+    disputes: fullDemo.disputes,
+    parcels: fullDemo.parcels,
+    promotions: fullDemo.promotions,
+    analyticsEvents: fullDemo.analyticsEvents,
     warnings,
   };
 }

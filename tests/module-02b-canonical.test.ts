@@ -108,10 +108,12 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     expect(resolveSmartNotificationHref("new_message", { conversationId: "c1" })).toBe(
       "/inbox/conversation/c1",
     );
-    expect(resolveSmartNotificationHref("new_offer", { offerId: "o1" })).toBe("/offers/o1");
+    expect(resolveSmartNotificationHref("new_offer", { offerId: "o1" })).toBe(
+      "/inbox?tab=messages&filter=offers&offer=o1",
+    );
     expect(resolveSmartNotificationHref("new_order", { orderId: "ord1" })).toBe("/orders/ord1");
     expect(resolveSmartNotificationHref("order_shipped", { orderId: "ord1" })).toBe(
-      "/orders/ord1?view=tracking",
+      "/orders/ord1/tracking",
     );
     expect(resolveSmartNotificationHref("listing_sold", { productId: "p1" })).toBe("/orders");
     expect(resolveSmartNotificationHref("listing_sold", { orderId: "ord1" })).toBe("/orders/ord1");

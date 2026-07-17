@@ -2,6 +2,7 @@ import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { auditSuperAdminAction } from "@/lib/super-admin/audit";
+import { assertFullDemoActionAllowed, assertFullDemoNotDeletable } from "@/lib/full-demo/permanence";
 import { decryptStaffPii, encryptStaffPii, hashStaffSearchValue, maskIpAddress } from "@/lib/staff-profile/encryption";
 import { staffRoleLabel } from "@/lib/staff-profile/constants";
 import { parseUserAgent } from "@/lib/staff-profile/request-context";
@@ -422,6 +423,17 @@ export async function updateStaffStatus(
   status: StaffStatus,
   context: StaffActionContext,
 ): Promise<void> {
+  const detail = await getStaffProfileDetail(staffId);
+  assertFullDemoNotDeletable(detail?.personalEmail, `${status} staff profile`);
+  if (detail?.profileId) {
+    const { data: profile } = await admin()
+      .from("profiles")
+      .select("email")
+      .eq("id", detail.profileId)
+      .maybeSingle();
+    assertFullDemoActionAllowed(profile?.email, status === "active" ? "restore" : "suspend");
+  }
+
   const { error } = await admin()
     .from("staff_profiles" as never)
     .update({ status } as never)
@@ -484,6 +496,14 @@ export async function resetStaffPassword(staffId: string, context: StaffActionCo
   if (!detail?.profileId) {
     throw new Error("Staff member is not linked to a login account.");
   }
+
+  assertFullDemoNotDeletable(detail.personalEmail, "reset staff password");
+  const { data: profile } = await admin()
+    .from("profiles")
+    .select("email")
+    .eq("id", detail.profileId)
+    .maybeSingle();
+  assertFullDemoActionAllowed(profile?.email, "reset_password");
 
   const password = `RovexoStaff${Math.random().toString(36).slice(2, 10)}!`;
   await admin().auth.admin.updateUserById(detail.profileId, { password });

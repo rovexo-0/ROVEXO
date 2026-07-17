@@ -68,12 +68,20 @@ const DASHBOARD_PROBES: DashboardProbe[] = [
     requiredPaths: [
       "features/checkout/components/CheckoutWizardV1.tsx",
       "features/transaction-hub/CheckoutHubSheet.tsx",
+      "lib/orders/checkout.ts",
+      "lib/full-demo/virtual-checkout.ts",
+    ],
+    requiredSnippets: [
+      { id: "virtual_payments", path: "lib/orders/checkout.ts", contains: "mustUseVirtualPayments" },
     ],
   },
   {
     id: "wallet",
     label: "Wallet",
     requiredPaths: ["features/wallet/components/WalletHubV1.tsx", "lib/transaction-hub/seller-wallet.ts"],
+    requiredSnippets: [
+      { id: "virtual_wallet", path: "lib/stripe/payouts.ts", contains: "mustUseVirtualWallet" },
+    ],
   },
   {
     id: "shipping",
@@ -81,10 +89,12 @@ const DASHBOARD_PROBES: DashboardProbe[] = [
     requiredPaths: [
       "lib/shipping/sendcloud/service.ts",
       "lib/shipping/sendcloud/client.ts",
+      "lib/shipping/pricing/demo-adapter.ts",
       "lib/launch-certification/certification-mode.ts",
     ],
     requiredSnippets: [
       { id: "sandbox", path: "lib/launch-certification/certification-mode.ts", contains: "isSendcloudSandboxMode" },
+      { id: "demo_adapter", path: "lib/shipping/providers/router.ts", contains: "demoShippingAdapter" },
     ],
   },
   {
