@@ -619,7 +619,6 @@ export async function seedFullDemoMarketplaceData(input: {
         source: PROMO_SOURCE,
         starts_at: new Date().toISOString(),
         ends_at: endsAt,
-        reason: "Full Demo Certification promotion",
       })
       .select("id")
       .single();
@@ -676,7 +675,6 @@ export async function seedFullDemoMarketplaceData(input: {
           source: PROMO_SOURCE,
           starts_at: new Date().toISOString(),
           ends_at: endsAt,
-          reason: `Full Demo Certification promotion top-up #${i + 1}`,
         })
         .select("id")
         .single();
