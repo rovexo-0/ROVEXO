@@ -3,16 +3,21 @@
  * Playwright web-server entrypoint.
  * Ensures a production build exists, then starts `next start` on the given port.
  * Cross-platform (Windows + Unix).
+ *
+ * IMPORTANT: spawn `next` directly — do not use `npm run start -- -p …`.
+ * On Vercel/CI, npm can forward `-p` as a positional directory
+ * (`Invalid project directory …/-p`).
  */
 import { spawn } from "node:child_process";
+import path from "node:path";
 import net from "node:net";
-import { loadDotEnvFiles, resolvePackageManager } from "./playwright-env.mjs";
+import { loadDotEnvFiles } from "./playwright-env.mjs";
 import { ensureProductionBuild } from "./playwright-webserver.mjs";
 
 loadDotEnvFiles();
 
 const port = process.argv[2] ?? process.env.PLAYWRIGHT_PORT ?? "13025";
-const pm = resolvePackageManager();
+const nextBin = path.join(process.cwd(), "node_modules", "next", "dist", "bin", "next");
 
 function assertPortFree(listenPort) {
   return new Promise((resolve, reject) => {
@@ -60,11 +65,15 @@ const webServerEnv = {  NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_G
 await assertPortFree(port);
 ensureProductionBuild(webServerEnv);
 
-const child = spawn(`${pm} run start -- -p ${port}`, {
-  stdio: "inherit",
-  env: { ...process.env, ...webServerEnv },
-  shell: true,
-});
+const child = spawn(
+  process.execPath,
+  [nextBin, "start", "--port", String(port), "--hostname", "127.0.0.1"],
+  {
+    stdio: "inherit",
+    env: { ...process.env, ...webServerEnv, PORT: String(port) },
+    shell: false,
+  },
+);
 
 child.on("exit", (code, signal) => {
   if (signal) {
