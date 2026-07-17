@@ -589,8 +589,8 @@ export async function seedFullDemoMarketplaceData(input: {
     notifications += 1;
   }
 
-  // Promotions + analytics (source must match listing_promotions CHECK constraint)
-  const PROMO_SOURCE = "internal" as const;
+  // Promotions + analytics — base listing_promotions columns only (no source/reason;
+  // Production may not have promotion_engine_admin migration columns yet).
   const promoProducts = products.slice(0, FULL_DEMO_SELLER_QUOTAS.promotions);
   for (const product of promoProducts) {
     const { data: existingPromo } = await input.admin
@@ -598,7 +598,7 @@ export async function seedFullDemoMarketplaceData(input: {
       .select("id")
       .eq("product_id", product.id)
       .eq("seller_id", input.liveSeller.id)
-      .eq("source", PROMO_SOURCE)
+      .limit(1)
       .maybeSingle();
 
     if (existingPromo) {
@@ -616,7 +616,6 @@ export async function seedFullDemoMarketplaceData(input: {
         duration_id: "7d",
         amount_cents: 299,
         status: "active",
-        source: PROMO_SOURCE,
         starts_at: new Date().toISOString(),
         ends_at: endsAt,
       })
@@ -650,7 +649,7 @@ export async function seedFullDemoMarketplaceData(input: {
     }
   }
 
-  // Ensure promotion floor even if products were already promo'd under another source
+  // Ensure promotion floor for seller quota
   const { count: promoCount } = await input.admin
     .from("listing_promotions")
     .select("id", { count: "exact", head: true })
@@ -672,7 +671,6 @@ export async function seedFullDemoMarketplaceData(input: {
           duration_id: "7d",
           amount_cents: 299,
           status: "active",
-          source: PROMO_SOURCE,
           starts_at: new Date().toISOString(),
           ends_at: endsAt,
         })
