@@ -238,7 +238,7 @@ export function runDeploymentCertificationScan(): DeploymentCertificationReport 
         pkg.includes('"certify:deployment"') &&
         pkg.includes('"test:database"') &&
         pkg.includes('"test:migrations"') &&
-        vercel.includes('"buildCommand": "npm run certify:predeploy"'),
+        /"buildCommand"\s*:\s*"npm run certify:predeploy"/.test(vercel),
       "certify:predeploy is the Vercel buildCommand (fail-closed)",
     ),
     check(
