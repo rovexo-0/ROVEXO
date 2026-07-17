@@ -65,15 +65,20 @@ describe("Supabase env resolution", () => {
   });
 
   it("requires an explicit Supabase URL when URL env vars are unset", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("SUPABASE_URL", "");
     expect(() => getSupabaseUrl()).toThrow(/NEXT_PUBLIC_SUPABASE_URL/);
   });
 
   it("accepts SUPABASE_URL as a server-side alias", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
     vi.stubEnv("SUPABASE_URL", "https://pklotmwxtnnepaitedic.supabase.co");
     expect(getSupabaseUrl()).toBe("https://pklotmwxtnnepaitedic.supabase.co");
   });
 
   it("accepts NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", () => {
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
+    vi.stubEnv("SUPABASE_ANON_KEY", "");
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "sb_publishable_test");
     expect(getSupabaseAnonKey()).toBe("sb_publishable_test");
   });

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { validateUkShippingAddress } from "@/lib/shipping/addresses";
 import { INTERNAL_LABEL_PLATFORM_FEE_PENCE, applyInternalLabelFee } from "@/lib/shipping/labels/fee";
 import { generateShippingLabel } from "@/lib/shipping/labels/service.server";
@@ -86,6 +86,9 @@ describe("ROVEXO Shipping Engine v1.0", () => {
   });
 
   it("returns no live quotes on the client facade when Sendcloud is not configured", async () => {
+    vi.stubEnv("SENDCLOUD_PUBLIC_KEY", "");
+    vi.stubEnv("SENDCLOUD_SECRET_KEY", "");
+    vi.stubEnv("SENDCLOUD_API_KEY", "");
     const pricing = await fetchShippingQuotes({
       parcelTier: "medium_parcel",
       collectionAddress: sampleAddress,

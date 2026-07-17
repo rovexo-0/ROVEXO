@@ -291,7 +291,7 @@ describe("ROVEXO Full Demo Certification Mode", () => {
       expect(ids).toContain(gate);
     }
     expect(readSource("package.json")).toContain('"certify:deployment"');
-    expect(readSource("vercel.json")).toContain('"buildCommand": "npm run certify:predeploy"');
+    expect(readSource("vercel.json")).toMatch(/"buildCommand"\s*:\s*"npm run certify:predeploy"/);
     expect(readSource("lib/enterprise-deployment-center/actions.ts")).toContain(
       "assertDeploymentCertificationPassed",
     );
