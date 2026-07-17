@@ -589,7 +589,8 @@ export async function seedFullDemoMarketplaceData(input: {
     notifications += 1;
   }
 
-  // Promotions + analytics
+  // Promotions + analytics (source must match listing_promotions CHECK constraint)
+  const PROMO_SOURCE = "internal" as const;
   const promoProducts = products.slice(0, FULL_DEMO_SELLER_QUOTAS.promotions);
   for (const product of promoProducts) {
     const { data: existingPromo } = await input.admin
@@ -597,13 +598,16 @@ export async function seedFullDemoMarketplaceData(input: {
       .select("id")
       .eq("product_id", product.id)
       .eq("seller_id", input.liveSeller.id)
-      .eq("source", "full_demo")
+      .eq("source", PROMO_SOURCE)
       .maybeSingle();
 
-    if (existingPromo) continue;
+    if (existingPromo) {
+      promotions += 1;
+      continue;
+    }
 
     const endsAt = new Date(Date.now() + 7 * 86400000).toISOString();
-    const { data: promo } = await input.admin
+    const { data: promo, error: promoError } = await input.admin
       .from("listing_promotions")
       .insert({
         product_id: product.id,
@@ -612,13 +616,19 @@ export async function seedFullDemoMarketplaceData(input: {
         duration_id: "7d",
         amount_cents: 299,
         status: "active",
-        source: "full_demo",
+        source: PROMO_SOURCE,
         starts_at: new Date().toISOString(),
         ends_at: endsAt,
         reason: "Full Demo Certification promotion",
       })
       .select("id")
       .single();
+
+    if (promoError) {
+      throw new Error(
+        `Full Demo promotion seed failed for product ${product.id}: ${promoError.message}`,
+      );
+    }
 
     if (promo) {
       promotions += 1;
@@ -638,6 +648,44 @@ export async function seedFullDemoMarketplaceData(input: {
         });
         analyticsEvents += 1;
       }
+    }
+  }
+
+  // Ensure promotion floor even if products were already promo'd under another source
+  const { count: promoCount } = await input.admin
+    .from("listing_promotions")
+    .select("id", { count: "exact", head: true })
+    .eq("seller_id", input.liveSeller.id);
+  promotions = Math.max(promotions, promoCount ?? 0);
+
+  if ((promoCount ?? 0) < FULL_DEMO_SELLER_QUOTAS.promotions) {
+    const needed = FULL_DEMO_SELLER_QUOTAS.promotions - (promoCount ?? 0);
+    for (let i = 0; i < needed; i += 1) {
+      const product = products[i % products.length];
+      if (!product) break;
+      const endsAt = new Date(Date.now() + 7 * 86400000).toISOString();
+      const { data: promo, error: promoError } = await input.admin
+        .from("listing_promotions")
+        .insert({
+          product_id: product.id,
+          seller_id: input.liveSeller.id,
+          type: i % 2 === 0 ? "bump" : "feature",
+          duration_id: "7d",
+          amount_cents: 299,
+          status: "active",
+          source: PROMO_SOURCE,
+          starts_at: new Date().toISOString(),
+          ends_at: endsAt,
+          reason: `Full Demo Certification promotion top-up #${i + 1}`,
+        })
+        .select("id")
+        .single();
+      if (promoError) {
+        throw new Error(
+          `Full Demo promotion top-up failed: ${promoError.message}`,
+        );
+      }
+      if (promo) promotions += 1;
     }
   }
 
