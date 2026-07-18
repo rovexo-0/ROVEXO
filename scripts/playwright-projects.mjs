@@ -1,9 +1,19 @@
+import fs from "node:fs";
+import path from "node:path";
 import { chromium, devices, firefox, webkit } from "@playwright/test";
+
+function hasVercelChromiumOverride() {
+  if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) return true;
+  return fs.existsSync(path.join(process.cwd(), ".playwright-vercel-chromium.json"));
+}
 
 /**
  * Returns true when Playwright can locate a browser executable on disk.
  */
 function isBrowserInstalled(browserType) {
+  if (browserType === chromium && hasVercelChromiumOverride()) {
+    return true;
+  }
   try {
     browserType.executablePath();
     return true;

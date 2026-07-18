@@ -39,7 +39,8 @@ function assertPortFree(listenPort) {
   });
 }
 
-const webServerEnv = {  NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-RNEMD5BT0S",
+const webServerEnv = {
+  NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-RNEMD5BT0S",
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://placeholder.supabase.co",
   NEXT_PUBLIC_SUPABASE_ANON_KEY:
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
@@ -57,6 +58,12 @@ const webServerEnv = {  NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_G
   CRON_SECRET: process.env.CRON_SECRET ?? "placeholder",
   SENDCLOUD_PUBLIC_KEY: process.env.SENDCLOUD_PUBLIC_KEY ?? "sendcloud_public_test_placeholder",
   SENDCLOUD_SECRET_KEY: process.env.SENDCLOUD_SECRET_KEY ?? "sendcloud_secret_test_placeholder",
+  // Full Demo / certification — force on for E2E webServer (do not inherit
+  // Vercel Production SENDCLOUD_SANDBOX=0 / private-mode overrides).
+  SENDCLOUD_SANDBOX: "1",
+  ROVEXO_LAUNCH_PRIVATE_MODE: "1",
+  ROVEXO_VIRTUAL_PAYMENTS: "1",
+  ROVEXO_VIRTUAL_WALLET: "1",
   PLAYWRIGHT_E2E: "1",
   ROVEXO_HOMEPAGE_DEMO: "1",
   NODE_ENV: "production",

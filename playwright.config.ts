@@ -1,9 +1,47 @@
+import fs from "node:fs";
+import path from "node:path";
 import { defineConfig } from "@playwright/test";
 import { buildAllProjects } from "./scripts/playwright-projects.mjs";
 import { loadDotEnvFiles } from "./scripts/playwright-env.mjs";
 
 // Load local secrets (Supabase, Stripe, etc.) for the dev server and integration tests.
 loadDotEnvFiles();
+
+function loadVercelChromiumLaunchOptions(): {
+  executablePath?: string;
+  args?: string[];
+} {
+  const markerPath = path.join(process.cwd(), ".playwright-vercel-chromium.json");
+  const fromEnv = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+  if (fromEnv) {
+    return {
+      executablePath: fromEnv,
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+    };
+  }
+  if (!fs.existsSync(markerPath)) return {};
+  try {
+    const parsed = JSON.parse(fs.readFileSync(markerPath, "utf8")) as {
+      executablePath?: string;
+      ldLibraryPath?: string;
+      args?: string[];
+    };
+    if (parsed.ldLibraryPath) {
+      process.env.LD_LIBRARY_PATH = parsed.ldLibraryPath;
+    }
+    if (!parsed.executablePath) return {};
+    return {
+      executablePath: parsed.executablePath,
+      args: Array.isArray(parsed.args) && parsed.args.length > 0
+        ? parsed.args
+        : ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+    };
+  } catch {
+    return {};
+  }
+}
+
+const vercelChromiumLaunch = loadVercelChromiumLaunchOptions();
 
 // Fixed managed port — do not inherit PLAYWRIGHT_PORT from the shell or .env.local.
 const managedE2EPort = "13025";
@@ -72,6 +110,14 @@ export default defineConfig({
     video: "retain-on-failure",
     actionTimeout: 30_000,
     navigationTimeout: 60_000,
+    ...(vercelChromiumLaunch.executablePath
+      ? {
+          launchOptions: {
+            executablePath: vercelChromiumLaunch.executablePath,
+            args: vercelChromiumLaunch.args,
+          },
+        }
+      : {}),
   },
   timeout: 180_000,
   expect: {
