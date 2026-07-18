@@ -17,7 +17,7 @@ export function PublishingOverlay({ phase, uploadProgress, isEdit = false }: Pub
 
   return (
     <div
-      className="fixed inset-x-0 bottom-[calc(var(--sell-publish-bar-measured,72px))] z-[109] border-t border-border bg-white/95 px-[var(--cds-space-page-x)] py-ds-2 backdrop-blur-sm"
+      className="fixed inset-x-0 bottom-[calc(var(--sell-publish-bar-measured,72px))] z-[109] border-t border-border bg-white px-[var(--cds-space-page-x)] py-ds-2"
       role="status"
       aria-live="polite"
       data-sell-publish-phase={phase}

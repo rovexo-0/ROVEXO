@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Check } from "lucide-react";
+import { CheckLineIcon } from "@/components/icons/RvxLineIcons";
 import { CanonicalButton } from "@/src/components/canonical";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { TRANSACTION_HUB_COPY } from "@/lib/transaction-hub/canonical";
@@ -38,7 +38,7 @@ export function TransactionHubPaymentSuccess({
           className="grid h-12 w-12 place-items-center rounded-ds-full bg-success/15 text-success"
           aria-hidden
         >
-          <Check className="h-6 w-6" strokeWidth={2.5} />
+          <CheckLineIcon className="h-6 w-6" />
         </span>
         <div className="flex flex-col gap-1">
           <h2 className="text-base font-semibold text-text-primary">

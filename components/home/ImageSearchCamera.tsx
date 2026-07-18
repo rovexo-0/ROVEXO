@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera } from "lucide-react";
+import { GalleryLineIcon } from "@/components/icons/RvxLineIcons";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -53,7 +53,7 @@ export function ImageSearchCamera({
           </svg>
         </span>
       ) : (
-        <Camera width={20} height={20} strokeWidth={1.75} aria-hidden />
+        <GalleryLineIcon className="h-5 w-5" aria-hidden />
       )}
       <NativeImageFileInput
         id={inputId}

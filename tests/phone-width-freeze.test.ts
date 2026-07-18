@@ -39,4 +39,18 @@ describe("100% Phone Width Freeze — Absolute Final", () => {
       expect(freeze).toContain(`.${token}`);
     }
   });
+
+  it("kills glass blur on consumer hubs", () => {
+    const freeze = readSource("styles/rovexo/phone-width-v1-freeze.css");
+    expect(freeze).toContain("backdrop-filter: none !important");
+    expect(freeze).toContain("Absolute Final — no glass");
+  });
+
+  it("neutralizes ds-glass tokens at source (Absolute Final)", () => {
+    const utilities = readSource("styles/rovexo/utilities.css");
+    expect(utilities).toContain("--ds-glass-bg: #ffffff");
+    expect(utilities).toContain("--ds-glass-blur: 0");
+    expect(utilities).not.toMatch(/backdrop-filter:\s*blur\(/);
+    expect(utilities).not.toMatch(/-webkit-backdrop-filter:\s*blur\(/);
+  });
 });

@@ -22,8 +22,9 @@
 }
 
 .pd-v1__shell {
-  width: min(100%, 640px);
-  margin-inline: auto;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
 }
 
 .pd-v1__gallery {
@@ -527,6 +528,12 @@
 }
 
 .pd-v1__action-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
   animation: pd-v1-action-spin 800ms linear infinite;
 }
 

@@ -209,7 +209,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
           <form onSubmit={handleSubmit} role="search" className="flex items-center gap-ds-2">
             <div
               className={cn(
-                "rx-glass rx-depth-2 rx-glow relative flex min-h-ds-7 flex-1 items-center rounded-ds-full pl-ds-7 pr-ds-2",
+                "relative flex min-h-ds-7 flex-1 items-center rounded-ds-full border border-border bg-white pl-ds-7 pr-ds-2",
                 transitionFast,
                 "focus-within:ring-2 focus-within:ring-primary/25",
               )}

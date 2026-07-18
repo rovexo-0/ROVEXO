@@ -26,10 +26,11 @@ describe("official header design", () => {
     expect(source).toContain('data-header-version="rovexo-v2"');
     expect(source).not.toContain("/account/settings");
     expect(source).not.toContain("RovexoIcons.settings");
-    expect(source).toContain("lucide-react");
+    expect(source).not.toContain("lucide-react");
+    expect(source).toContain("RvxLineIcons");
     expect(source).not.toContain("MessageSquare");
     expect(source).not.toContain('href="/messages"');
-    expect(source).toContain("Bell");
+    expect(source).toContain("BellLineIcon");
     expect(source).toContain("HeaderProfileLink");
     expect(source).toContain("HomepageHeaderShareButton");
     expect(source).toContain("replaceAccountWithShare");

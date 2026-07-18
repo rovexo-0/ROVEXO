@@ -149,7 +149,10 @@ describe("canonical product action bar", () => {
     expect(bar).toContain("PRODUCT_ACTION_BAR_UI_LOCK");
     expect(bar).toContain('data-ui-lock={PRODUCT_ACTION_BAR_UI_LOCK ? "production" : undefined}');
 
-    expect(bar).toContain("Loader2");
+    expect(bar).toContain("RvxLineIcons");
+    expect(bar).toContain("pd-v1__action-spinner");
+    expect(bar).not.toContain("Loader2");
+    expect(bar).not.toContain('from "lucide-react"');
 
     expect(hook).toContain("triggerCommerceHaptic");
 

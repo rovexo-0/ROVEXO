@@ -19,10 +19,11 @@ export type BackRouteConfig = {
 };
 
 const EXACT_BACK_ROUTES: Record<string, BackRouteConfig> = {
-  "/account/bring-your-item": { parentHref: "/account", label: "My Account" },
+  "/account/bring-your-item": { parentHref: "/seller", label: "Selling" },
   "/import": { parentHref: "/account/bring-your-item", label: "Bring Your Item" },
   "/seller/migration": { parentHref: "/account/bring-your-item", label: "Bring Your Item" },
-  "/seller/connectors": { parentHref: "/account/bring-your-item", label: "Bring Your Item" },
+  "/seller/connectors": { parentHref: "/seller", label: "Selling" },
+  "/seller/compliance": { parentHref: "/seller", label: "Selling" },
   "/seller/listings": { parentHref: "/seller", label: "Selling" },
   "/seller/orders": { parentHref: "/seller", label: "Selling" },
   "/seller/wallet": { parentHref: "/wallet", label: "Wallet" },

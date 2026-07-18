@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn";
 import { NotificationTypeIcon, iconToneClass } from "@/features/notifications/icons";
 import { formatNotificationTime } from "@/lib/notifications/utils";
 import { fetchNotificationById } from "@/lib/notifications/queries";
+import { INBOX_ROUTES } from "@/lib/inbox/canonical-routes";
 import {
   CanonicalCard,
   CanonicalMenuRow,
@@ -35,7 +36,7 @@ export async function NotificationDetailPage({ id }: NotificationDetailPageProps
   return (
     <AccountCanonicalShell
       title="Details"
-      backHref="/notifications"
+      backHref={INBOX_ROUTES.notificationsTab}
       backLabel="Notifications"
       showHeaderTitle
       showBottomNav={false}

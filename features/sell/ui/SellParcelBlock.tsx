@@ -32,7 +32,7 @@ function ParcelPicker({
         <SellPanelHeader title="Parcel Size" onBack={onClose} />
         <div className={cn(RX_MODAL_BODY, "min-h-0 flex-1 overflow-y-auto overscroll-contain px-ds-4 pt-ds-3")}>
           <ul className="flex flex-col gap-ds-2 pb-ds-4" role="radiogroup" aria-label="Parcel size">
-            {PARCEL_SIZE_OPTIONS.filter((option) => option.id !== "custom").map((option) => {
+            {PARCEL_SIZE_OPTIONS.map((option) => {
               const active = value === option.id;
               return (
                 <li key={option.id}>

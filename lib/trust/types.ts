@@ -124,7 +124,18 @@ export type TrustCenterSection = {
   title: string;
   description: string;
   href: string;
-  icon: string;
+  /** AccountIconName — One Product icon system */
+  icon:
+    | "verification"
+    | "orders"
+    | "listings"
+    | "business"
+    | "returns"
+    | "support"
+    | "security"
+    | "help"
+    | "settings"
+    | "messages";
 };
 
 export type TrustCenterData = {
@@ -135,17 +146,17 @@ export type TrustCenterData = {
 };
 
 export const TRUST_CENTER_SECTIONS: TrustCenterSection[] = [
-  { id: "score", title: "Trust Score", description: "Your marketplace reputation score", href: "/trust#score", icon: "⭐" },
-  { id: "buyer-protection", title: "Purchase Protection", description: "Secure checkout and dispute support", href: "/help/category/buyer", icon: "🛡️" },
-  { id: "seller-protection", title: "Seller Protection", description: "Payout security and seller policies", href: "/help/category/seller", icon: "🏷️" },
-  { id: "business-protection", title: "Business Protection", description: "B2B trade protection and verification", href: "/help/category/business-accounts", icon: "🏢" },
-  { id: "verification", title: "Verification", description: "Identity, business, and payment verification", href: "/trust#verification", icon: "✅" },
-  { id: "disputes", title: "Dispute Center", description: "Open and track protection cases", href: "/resolution", icon: "⚖️" },
-  { id: "reports", title: "Report Center", description: "Report listings, users, and scams", href: "/help/category/reports", icon: "🚩" },
-  { id: "security", title: "Security Center", description: "Account security and fraud prevention", href: "/help/category/authentication", icon: "🔐" },
-  { id: "safety", title: "Community Safety", description: "Platform rules and scam prevention", href: "/help/category/safety", icon: "🤝" },
-  { id: "policies", title: "Platform Rules", description: "Terms, guidelines, and prohibited items", href: "/help/category/policies", icon: "📜" },
-  { id: "appeals", title: "Appeal System", description: "Request moderation review", href: "/help/category/reports", icon: "📨" },
+  { id: "score", title: "Trust Score", description: "Your marketplace reputation score", href: "/trust#score", icon: "verification" },
+  { id: "buyer-protection", title: "Purchase Protection", description: "Secure checkout and dispute support", href: "/help/category/buyer", icon: "orders" },
+  { id: "seller-protection", title: "Seller Protection", description: "Payout security and seller policies", href: "/help/category/seller", icon: "listings" },
+  { id: "business-protection", title: "Business Protection", description: "B2B trade protection and verification", href: "/help/category/business-accounts", icon: "business" },
+  { id: "verification", title: "Verification", description: "Identity, business, and payment verification", href: "/trust#verification", icon: "verification" },
+  { id: "disputes", title: "Dispute Center", description: "Open and track protection cases", href: "/resolution", icon: "returns" },
+  { id: "reports", title: "Report Center", description: "Report listings, users, and scams", href: "/help/category/reports", icon: "support" },
+  { id: "security", title: "Security Center", description: "Account security and fraud prevention", href: "/help/category/authentication", icon: "security" },
+  { id: "safety", title: "Community Safety", description: "Platform rules and scam prevention", href: "/help/category/safety", icon: "security" },
+  { id: "policies", title: "Platform Rules", description: "Terms, guidelines, and prohibited items", href: "/help/category/policies", icon: "help" },
+  { id: "appeals", title: "Appeal System", description: "Request moderation review", href: "/help/category/reports", icon: "messages" },
 ];
 
 export const VERIFICATION_TYPES: Array<{ type: TrustVerificationType; label: string; description: string }> = [

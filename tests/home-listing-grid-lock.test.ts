@@ -57,7 +57,10 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(card).toContain("metaRowHomepage");
     expect(card).toContain("formatListingPriceIncl");
     expect(card).toContain("inclShieldHomepage");
-    expect(card).toContain("ShieldCheck");
+    expect(card).toContain("ShieldLineIcon");
+    expect(card).toContain("SafeImage");
+    expect(card).not.toContain("ShieldCheck");
+    expect(card).not.toContain('from "lucide-react"');
     expect(card).not.toContain("formatPlatformFeeLine");
   });
 

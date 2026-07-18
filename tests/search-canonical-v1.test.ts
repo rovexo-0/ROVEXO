@@ -56,9 +56,8 @@ describe("Search canonical v1.0 final UI lock", () => {
     expect(header).toContain('href="/notifications"');
     expect(nav).toContain('label: "Inbox"');
     expect(nav).toContain('href: "/inbox"');
-    // Final Freeze v2.0: account hub Messages entry routes to Inbox (not /messages).
+    // Absolute Final: account Messages routes to Transaction Hub at /messages.
     expect(menu).toContain('title: "Messages"');
-    expect(menu).toContain('href: "/inbox"');
-    expect(menu).not.toContain('href: "/messages"');
+    expect(menu).toContain('href: "/messages"');
   });
 });

@@ -7,16 +7,20 @@ function readSource(relativePath: string): string {
 }
 
 describe("Messages + Notifications → Inbox Hub Sprint 1", () => {
-  it("serves unified inbox instead of legacy list pages", () => {
+  it("serves unified inbox and Messages Transaction Hub", () => {
     const inbox = readSource("features/inbox/components/InboxPage.tsx");
     const messagesRoute = readSource("app/messages/page.tsx");
+    const messagesMenu = readSource("lib/account-center/messages-menu.ts");
     const notificationsRoute = readSource("app/notifications/page.tsx");
     const index = readSource("styles/rovexo/index.css");
 
     expect(inbox).toContain("data-inbox-hub=");
     expect(inbox).toContain("Messages");
     expect(inbox).toContain("Notifications");
-    expect(messagesRoute).toContain("redirect");
+    expect(messagesRoute).toContain("MessagesHubPage");
+    expect(messagesRoute).not.toContain("redirect(");
+    expect(messagesMenu).toContain("Transaction hub.");
+    expect(messagesMenu).toContain("buildMessagesMenuSections");
     expect(notificationsRoute).toContain("redirect");
     expect(index).toContain("./inbox-hub-v1.css");
     expect(index).toContain("./messages-v1.css");
@@ -30,7 +34,7 @@ describe("Messages + Notifications → Inbox Hub Sprint 1", () => {
     expect(hub).toContain("data-conversation-hub");
     expect(hub).toContain("useChatRealtime");
     expect(hub).toContain("TransactionHubBottomActions");
-    expect(css).toContain("--conv-composer-h: 52px");
+    expect(css).toContain("--conv-composer-h: 44px");
   });
 
   it("renders notifications inside Inbox Hub", () => {

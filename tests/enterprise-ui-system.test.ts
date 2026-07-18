@@ -28,15 +28,16 @@ describe("Enterprise UI system — homepage hero", () => {
     expect(constants).not.toContain("unsplash.com");
   });
 
-  it("hero carousel auto-advances with deferred first tick", () => {
+  it("Absolute Final — store migration hero is Master Menu only (no carousel/premium)", () => {
     const banner = readFileSync(
       join(process.cwd(), "features/seller/migration/components/StoreMigrationHeroBanner.tsx"),
       "utf8",
     );
-    expect(banner).toContain("AUTO_ADVANCE_MS = 5000");
-    expect(banner).toContain('immediate: false');
-    expect(banner).toContain("HOME_HERO_BANNERS");
-    expect(banner).toContain("handlePointerDown");
+    expect(banner).toContain("CanonicalMenuRow");
+    expect(banner).toContain("Bring Your Item");
+    expect(banner).not.toContain("AUTO_ADVANCE_MS");
+    expect(banner).not.toContain("import-rx-hero-banner--premium");
+    expect(banner).not.toContain("HOME_HERO_BANNERS");
   });
 });
 
@@ -48,25 +49,27 @@ describe("Enterprise UI system — design lock", () => {
     expect(css).toContain("grid-template-columns: repeat(2, minmax(0, 1fr))");
   });
 
-  it("uses vertical enterprise layout in mobile hub cards", () => {
+  it("uses Master Menu row density in mobile hub cards", () => {
     const card = readFileSync(
       join(process.cwd(), "features/mobile-ui/components/MobilePremiumCard.tsx"),
       "utf8",
     );
-    expect(card).toContain("rx-dash-tile__title");
+    expect(card).toContain("cds-menu-row");
     expect(card).toContain("DashboardIcon3D");
+    expect(card).toContain("min-h-[56px]");
     expect(card).not.toContain("rx-dash-tile__body");
   });
 
 });
 
 describe("Enterprise UI system — header", () => {
-  it("keeps Lucide icons on non-homepage headers; homepage omits logo and notification", () => {
+  it("uses canonical line icons on non-homepage headers; homepage omits logo and notification", () => {
     const header = readFileSync(join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     expect(header).toContain("ROVEXO");
-    expect(header).toContain("lucide-react");
+    expect(header).toContain("RvxLineIcons");
+    expect(header).not.toContain("lucide-react");
     expect(header).not.toContain("MessageSquare");
-    expect(header).toContain("Bell");
+    expect(header).toContain("BellLineIcon");
     expect(header).toContain("HeaderProfileLink");
     expect(header).toContain("HomepageHeaderShareButton");
     expect(header).toContain("!isHomepageLayout");

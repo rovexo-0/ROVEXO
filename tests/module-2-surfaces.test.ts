@@ -36,10 +36,17 @@ describe("Module 2 — Core Surface Simplification", () => {
     expect(sell).toContain("background: #ffffff");
   });
 
-  it("keeps promotional tools linked from Selling hub", () => {
+  it("locks Absolute Final Selling hub menu (no Promotions row)", () => {
     const selling = readSource("lib/account-center/selling-menu.ts");
-    expect(selling).toContain("Promotions");
-    expect(selling).toContain("/account/promotion-tools");
+    expect(selling).toContain("Listings");
+    expect(selling).toContain("Orders");
+    expect(selling).toContain("Reviews");
+    expect(selling).toContain("Shipping");
+    expect(selling).toContain("Returns");
+    expect(selling).toContain("Performance");
+    expect(selling).toContain("Compliance");
+    expect(selling).not.toContain("Promotions");
+    expect(selling).not.toContain("/account/promotion-tools");
   });
 
   it("ships module 2 screenshot and audit scripts", () => {

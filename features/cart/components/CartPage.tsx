@@ -16,7 +16,23 @@ import {
 } from "@/lib/orders/pricing";
 import type { CartSummary } from "@/lib/cart/store";
 import { groupCartItemsBySeller } from "@/lib/cart/group-by-seller";
-import { Trash2 } from "lucide-react";
+
+function TrashLineIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className={className}
+    >
+      <path d="M4 7h16M9 7V5h6v2M8 7l.8 12h6.4L16 7" />
+    </svg>
+  );
+}
 
 type CartPageProps = {
   cart: CartSummary;
@@ -123,7 +139,6 @@ export function CartPage({ cart }: CartPageProps) {
       backHref="/"
       showHeaderTitle
       className="cart-v1-shell"
-      contentClassName="!px-2 !pt-0"
       rightAction={
         cart.items.length > 0 ? (
           <button
@@ -228,7 +243,7 @@ export function CartPage({ cart }: CartPageProps) {
                               aria-label={`Remove ${item.title}`}
                               onClick={() => void removeItem(item.slug, item.id)}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <TrashLineIcon className="h-4 w-4" />
                             </button>
 
                             <div className="cart-v1__qty">

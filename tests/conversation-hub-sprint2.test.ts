@@ -63,7 +63,7 @@ describe("Conversation Hub Sprint 3", () => {
     expect(route).toContain("ConversationHub");
     expect(hub).toContain("CONVERSATION_HUB_VERSION");
     expect(hub).toContain("uploadListingImage");
-    expect(hub).toContain("signalTyping");
+    expect(hub).not.toContain("signalTyping");
     expect(hub).toContain("refreshBadges");
     expect(css).toContain(".conv-hub");
   });

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
+import { BellLineIcon } from "@/components/icons/RvxLineIcons";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { formatNotificationBadgeCount } from "@/lib/notifications/utils";
 import { cn } from "@/lib/cn";
@@ -28,7 +28,7 @@ export function NotificationBell({
       aria-label={hasUnread ? `Notifications, ${unreadCount} unread` : "Notifications"}
       className={cn("rx-dash-header__action relative", focusRing, className)}
     >
-      <DashboardIcon3D type="notifications" size={size} />
+      <BellLineIcon style={{ width: size, height: size }} className="text-current" />
       {hasUnread ? (
         <span className="rx-dash-badge rx-dash-badge--danger right-1 top-1" aria-hidden>
           {label}

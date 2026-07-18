@@ -1,17 +1,12 @@
 "use client";
 
 import "@/styles/rovexo/checkout-v1.css";
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
-import { CheckoutDeliveryStepV1 } from "@/features/checkout/components/CheckoutDeliveryStepV1";
 import { CheckoutPageHeader } from "@/features/checkout/components/CheckoutPageHeader";
-import { CheckoutPaymentStepV1 } from "@/features/checkout/components/CheckoutPaymentStepV1";
 import { CheckoutPriceSummary } from "@/features/checkout/components/CheckoutPriceSummary";
 import { CheckoutProductSummary } from "@/features/checkout/components/CheckoutProductSummary";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 import { formatListingPrice } from "@/lib/listing-card/format";
 import {
   getPaymentMethodLabel,
@@ -28,7 +23,7 @@ type CheckoutWizardV1Props = {
   buyerPhone?: string | null;
   embedded?: boolean;
   onClose?: () => void;
-  /** Sprint 1 foundation: delivery | payment | review (summary). */
+  /** Ignored — Absolute Final: one surface only. */
   initialStep?: CheckoutStep;
 };
 
@@ -43,18 +38,19 @@ function detectMobilePlatform() {
   };
 }
 
+/**
+ * Checkout — Absolute Final Freeze.
+ * Products → Shipping → Platform Fee → Total → Confirm & Pay.
+ * No address step · no payment step · no review step · no wizard · one URL.
+ */
 export function CheckoutWizardV1({
   product,
   form,
   buyerPhone,
   embedded = false,
   onClose,
-  initialStep = "review",
 }: CheckoutWizardV1Props) {
-  const router = useRouter();
-  const [step, setStep] = useState<CheckoutStep>(initialStep);
-  const [orderNotes, setOrderNotes] = useState("");
-  const [{ isIOS, isAndroid }] = useState(detectMobilePlatform);
+  const { isIOS, isAndroid } = detectMobilePlatform();
   const { defaultMethod } = useSavedPaymentMethods();
   const savedCardDetail = defaultMethod ? formatSavedCardDetail(defaultMethod) : null;
 
@@ -92,13 +88,12 @@ export function CheckoutWizardV1({
   const deliveryResolved =
     product.freeDelivery || selectedQuote != null || hasListingShippingPrice;
 
-  const canContinueDelivery =
-    addressComplete &&
-    deliveryResolved &&
-    (product.freeDelivery || liveQuotesAttempted || hasListingShippingPrice) &&
-    !shippingBlocked &&
-    !shippingQuotesLoading &&
-    !isResolvingAddress;
+  // Resolve saved address quietly on mount — no separate Address step UI.
+  useEffect(() => {
+    if (!addressComplete && !isResolvingAddress) {
+      void resolveDeliveryAddress();
+    }
+  }, [addressComplete, isResolvingAddress, resolveDeliveryAddress]);
 
   const paymentLabel = getPaymentMethodLabel(draft.paymentMethod, {
     isIOS,
@@ -112,192 +107,94 @@ export function CheckoutWizardV1({
     : selectedQuote?.serviceName || selectedQuote?.carrier || "Standard delivery";
   const etaLabel = selectedQuote?.eta || null;
 
-  const goAddress = () => {
-    if (embedded) {
-      setStep("delivery");
-      return;
-    }
-    router.push(`/checkout/${product.slug}/address`);
-  };
-
-  const goPayment = () => {
-    if (embedded) {
-      setStep("payment");
-      return;
-    }
-    router.push(`/checkout/${product.slug}/payment`);
-  };
-
-  const goReview = () => {
-    if (embedded) {
-      setStep("review");
-      return;
-    }
-    router.push(`/checkout/${product.slug}`);
-  };
-
-  const footerLabel =
-    step === "delivery"
-      ? "Continue to Payment"
-      : step === "payment"
-        ? "Continue to Review"
-        : "Confirm & Pay";
-
   const footerDisabled =
-    step === "delivery"
-      ? !canContinueDelivery
-      : step === "payment"
-        ? false
-        : !canPay || isSubmitting || !addressComplete || !deliveryResolved;
+    !canPay ||
+    isSubmitting ||
+    isResolvingAddress ||
+    shippingQuotesLoading ||
+    shippingBlocked ||
+    !addressComplete ||
+    !deliveryResolved ||
+    (!product.freeDelivery && !liveQuotesAttempted && !hasListingShippingPrice);
 
-  const handleBack = () => {
-    if (step === "delivery" || step === "payment") {
-      goReview();
-      return;
-    }
-    if (embedded && onClose) {
-      onClose();
-    }
-  };
-
-  const handlePrimary = () => {
-    if (step === "delivery") {
-      void (async () => {
+  const handlePay = () => {
+    void (async () => {
+      if (!addressComplete) {
         const resolved = await resolveDeliveryAddress();
-        if (resolved) {
-          if (embedded) {
-            setStep("payment");
-          } else {
-            router.push(`/checkout/${product.slug}/payment`);
-          }
-        }
-      })();
-      return;
-    }
-    if (step === "payment") {
-      goReview();
-      return;
-    }
-    // Sprint 1 UI foundation: existing place-order path retained (no new payment API).
-    void placeOrder();
+        if (!resolved) return;
+      }
+      void placeOrder();
+    })();
   };
-
-  const backHref =
-    step === "review" && !embedded ? `/listing/${product.slug}` : undefined;
-  const onHeaderBack =
-    step === "review"
-      ? embedded
-        ? onClose
-        : undefined
-      : handleBack;
 
   return (
     <div
       className="ckt-v1"
       data-checkout-version="v1.0"
       data-checkout-sprint="3-qa"
-      data-checkout-freeze="FROZEN"
-      data-checkout-step={step}
+      data-checkout-freeze="ABSOLUTE-FINAL"
+      data-checkout-step="confirm"
       data-checkout-embedded={embedded ? "true" : undefined}
     >
       <CheckoutPageHeader
-        backHref={backHref}
-        backLabel={step === "review" && !embedded ? "Listing" : "Back"}
-        onBack={onHeaderBack}
+        backHref={embedded ? undefined : `/listing/${product.slug}`}
+        backLabel={embedded ? "Back" : "Listing"}
+        onBack={embedded ? onClose : undefined}
       />
 
       <ScrollContainer as="main" withBottomNav={false} className="ckt-v1__main">
-        {step === "review" ? (
-          <div className="ckt-v1__sections">
-            <section className="ckt-v1__section" aria-label="Product summary">
-              <CheckoutProductSummary product={product} />
-            </section>
+        <div className="ckt-v1__sections">
+          <section className="ckt-v1__section" aria-label="Products">
+            <h2 className="ckt-v1__section-title">Products</h2>
+            <CheckoutProductSummary product={product} />
+          </section>
 
-            <section className="ckt-v1__section" aria-labelledby="ckt-delivery-title">
-              <div className="ckt-v1__section-head">
-                <h2 id="ckt-delivery-title" className="ckt-v1__section-title">
-                  Delivery
-                </h2>
-                <button
-                  type="button"
-                  className={cn("ckt-v1__change", focusRing)}
-                  onClick={goAddress}
-                >
-                  Change
-                </button>
-              </div>
-              <div className="ckt-v1__card ckt-v1__card--pad">
-                {addressComplete ? (
-                  <>
-                    <p className="ckt-v1__review-value">{draft.recipientName}</p>
-                    {buyerPhone ? <p className="ckt-v1__review-subvalue">{buyerPhone}</p> : null}
-                    <p className="ckt-v1__review-subvalue">
-                      {[draft.addressLine, draft.postcode, draft.country].filter(Boolean).join(", ")}
-                    </p>
-                    <p className="ckt-v1__review-subvalue">{shippingMethodLabel}</p>
-                    {etaLabel ? <p className="ckt-v1__review-subvalue">{etaLabel}</p> : null}
-                    <p className="ckt-v1__review-subvalue">
-                      {product.freeDelivery || shippingPrice === 0
-                        ? "Shipping included"
-                        : formatListingPrice(shippingPrice)}
-                    </p>
-                  </>
-                ) : (
-                  <p className="ckt-v1__review-subvalue">Add a delivery address to continue.</p>
-                )}
-              </div>
-            </section>
-
-            <section className="ckt-v1__section" aria-labelledby="ckt-payment-title">
-              <div className="ckt-v1__section-head">
-                <h2 id="ckt-payment-title" className="ckt-v1__section-title">
-                  Payment
-                </h2>
-                <button
-                  type="button"
-                  className={cn("ckt-v1__change", focusRing)}
-                  onClick={goPayment}
-                >
-                  Change
-                </button>
-              </div>
-              <div className="ckt-v1__card ckt-v1__card--pad">
-                <p className="ckt-v1__review-value">{paymentLabel}</p>
-                {draft.paymentMethod === "saved_card" && savedCardDetail ? (
-                  <p className="ckt-v1__review-subvalue">{savedCardDetail}</p>
-                ) : null}
+          <section className="ckt-v1__section" aria-labelledby="ckt-shipping-title">
+            <h2 id="ckt-shipping-title" className="ckt-v1__section-title">
+              Shipping
+            </h2>
+            <div className="ckt-v1__card ckt-v1__card--pad">
+              {addressComplete ? (
+                <>
+                  <p className="ckt-v1__review-value">{draft.recipientName}</p>
+                  {buyerPhone ? <p className="ckt-v1__review-subvalue">{buyerPhone}</p> : null}
+                  <p className="ckt-v1__review-subvalue">
+                    {[draft.addressLine, draft.postcode, draft.country].filter(Boolean).join(", ")}
+                  </p>
+                  <p className="ckt-v1__review-subvalue">{shippingMethodLabel}</p>
+                  {etaLabel ? <p className="ckt-v1__review-subvalue">{etaLabel}</p> : null}
+                  <p className="ckt-v1__review-subvalue">
+                    {product.freeDelivery || shippingPrice === 0
+                      ? "Shipping included"
+                      : formatListingPrice(shippingPrice)}
+                  </p>
+                </>
+              ) : (
                 <p className="ckt-v1__review-subvalue">
-                  Visa · Mastercard · Apple Pay · Google Pay
+                  Add a delivery address in{" "}
+                  <Link href="/account/addresses" className="ckt-v1__manage-payments-link">
+                    Settings
+                  </Link>{" "}
+                  to continue.
                 </p>
-                <p className="ckt-v1__manage-hint">
-                  Managed in{" "}
-                  <Link href="/wallet/payment-methods" className="ckt-v1__manage-payments-link">
-                    Wallet
-                  </Link>
-                </p>
-              </div>
-            </section>
+              )}
+            </div>
+          </section>
 
-            <section className="ckt-v1__section" aria-labelledby="ckt-price-title">
-              <h2 id="ckt-price-title" className="ckt-v1__section-title">
-                Price summary
-              </h2>
-              <CheckoutPriceSummary totals={totals} freeDelivery={Boolean(product.freeDelivery)} />
-            </section>
-          </div>
-        ) : null}
-
-        {step === "delivery" ? (
-          <CheckoutDeliveryStepV1
-            form={form}
-            product={product}
-            buyerPhone={buyerPhone}
-            orderNotes={orderNotes}
-            onOrderNotesChange={setOrderNotes}
-          />
-        ) : null}
-
-        {step === "payment" ? <CheckoutPaymentStepV1 form={form} totals={totals} /> : null}
+          <section className="ckt-v1__section" aria-labelledby="ckt-price-title">
+            <h2 id="ckt-price-title" className="sr-only">
+              Platform Fee and Total
+            </h2>
+            <CheckoutPriceSummary totals={totals} freeDelivery={Boolean(product.freeDelivery)} />
+            <p className="ckt-v1__manage-hint mt-ds-2">
+              Payment: {paymentLabel}. Managed in{" "}
+              <Link href="/wallet/payment-methods" className="ckt-v1__manage-payments-link">
+                Wallet
+              </Link>
+              .
+            </p>
+          </section>
+        </div>
       </ScrollContainer>
 
       <div className="ckt-v1__footer">
@@ -305,13 +202,9 @@ export function CheckoutWizardV1({
           type="button"
           className="ckt-v1__cta"
           disabled={footerDisabled}
-          onClick={handlePrimary}
+          onClick={handlePay}
         >
-          {step === "review" && isSubmitting
-            ? "Confirming…"
-            : step === "delivery" && isResolvingAddress
-              ? "Confirming address…"
-              : footerLabel}
+          {isSubmitting || isResolvingAddress ? "Confirming…" : "Confirm & Pay"}
         </button>
       </div>
     </div>

@@ -76,10 +76,10 @@ describe("Settings canonical v1.0 hub", () => {
     expect(hrefs).toContain("/account/settings/about");
   });
 
-  it("uses outline icons only in settings rows", () => {
+  it("uses AccountIcon — One Product icon system", () => {
     const icon = readSource("features/account-module/components/SettingsMenuIcon.tsx");
-    expect(icon).toContain("RvxLineIcons");
-    expect(icon).not.toContain("AccountIcon");
+    expect(icon).toContain("AccountIcon");
+    expect(icon).not.toContain("RvxLineIcons");
     expect(icon).not.toContain("createFluencyFeatureIcon");
   });
 

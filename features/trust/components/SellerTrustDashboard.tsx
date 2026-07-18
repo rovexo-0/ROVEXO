@@ -1,5 +1,4 @@
-import { TrustScoreMeter } from "@/features/trust/components/TrustScoreMeter";
-import { TrustTierBadge } from "@/features/trust/components/TrustTierBadge";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import type { TrustDashboardData } from "@/lib/trust/types";
 import {
   CanonicalCard,
@@ -11,31 +10,45 @@ type SellerTrustDashboardProps = {
   data: TrustDashboardData;
 };
 
+/**
+ * Seller Trust — One Product freeze.
+ * Same Master Menu rows as Trust Centre. No score-meter hero.
+ */
 export function SellerTrustDashboard({ data }: SellerTrustDashboardProps) {
   return (
     <div className="ac-canonical flex w-full flex-col gap-ds-4 pb-ds-5">
-      <CanonicalSection title="Trust score">
-        <CanonicalCard variant="medium" className="flex flex-col gap-ds-3 p-ds-4">
-          <div className="flex flex-wrap items-center justify-between gap-ds-2">
-            <TrustTierBadge tier={data.score.tier} />
-            {data.score.scoreLocked ? (
-              <p className="text-sm text-warning">Score locked: {data.score.lockReason}</p>
-            ) : null}
-          </div>
-          <TrustScoreMeter
-            score={data.score.score}
-            tier={data.score.tier}
-            progressPercent={data.progress.percent}
-            nextTier={data.progress.next}
+      <CanonicalSection title="Score">
+        <CanonicalCard variant="list">
+          <CanonicalMenuRow
+            title="Trust Score"
+            description={data.score.tier}
+            value={String(data.score.score)}
+            showChevron={false}
+            icon={
+              <span className="ac-canonical__menu-icon" aria-hidden>
+                <AccountIcon name="verification" />
+              </span>
+            }
           />
+          {data.score.scoreLocked ? (
+            <CanonicalMenuRow
+              title="Score locked"
+              description={data.score.lockReason ?? undefined}
+              showChevron={false}
+            />
+          ) : null}
         </CanonicalCard>
       </CanonicalSection>
 
       <CanonicalSection title="How to improve">
         <CanonicalCard variant="list">
-          {data.recommendations.map((item) => (
-            <CanonicalMenuRow key={item} title={item} showChevron={false} />
-          ))}
+          {data.recommendations.length ? (
+            data.recommendations.map((item) => (
+              <CanonicalMenuRow key={item} title={item} showChevron={false} />
+            ))
+          ) : (
+            <CanonicalMenuRow title="No recommendations right now." showChevron={false} />
+          )}
         </CanonicalCard>
       </CanonicalSection>
 
@@ -51,7 +64,7 @@ export function SellerTrustDashboard({ data }: SellerTrustDashboardProps) {
               />
             ))
           ) : (
-            <CanonicalMenuRow title="No recent trust events yet." showChevron={false} hideChevron />
+            <CanonicalMenuRow title="No recent trust events yet." showChevron={false} />
           )}
         </CanonicalCard>
       </CanonicalSection>

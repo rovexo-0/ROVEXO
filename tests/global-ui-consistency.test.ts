@@ -149,11 +149,11 @@ describe("discovery header standardization", () => {
 describe("canonical shell migrations", () => {
   const CANONICAL_SHELL_ROUTES = [
     "app/plans/page.tsx",
-    "app/wholesale/page.tsx",
   ];
 
   const ACCOUNT_CANONICAL_SHELL_ROUTES = [
     "app/business/directory/page.tsx",
+    "features/wholesale/components/WholesaleCenterPage.tsx",
   ];
 
   const LEGAL_CANONICAL_ROUTES = [
@@ -167,7 +167,7 @@ describe("canonical shell migrations", () => {
     }
   });
 
-  it("wraps Business Directory in AccountCanonicalShell", () => {
+  it("wraps Business Directory and Wholesale in AccountCanonicalShell", () => {
     for (const file of ACCOUNT_CANONICAL_SHELL_ROUTES) {
       expect(readSource(file)).toContain("AccountCanonicalShell");
     }

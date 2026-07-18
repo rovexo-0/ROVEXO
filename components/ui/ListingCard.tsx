@@ -6,7 +6,7 @@
 "use client";
 
 import Link from "next/link";
-import { Eye, ShieldCheck } from "lucide-react";
+import { EyeLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { memo, useCallback, useEffect, useState, type SyntheticEvent } from "react";
 import { ShareListingSheet } from "@/components/share/ShareListingSheet";
 import { Avatar } from "@/components/ui/Avatar";
@@ -272,7 +272,7 @@ export const ListingCard = memo(function ListingCard({
               {showBuyerProtection ? (
                 <span className={css.inclTotalHomepage}>
                   <span>{formatListingPriceIncl(amount)}</span>
-                  <ShieldCheck className={css.inclShieldHomepage} strokeWidth={2.25} aria-hidden />
+                  <ShieldLineIcon className={css.inclShieldHomepage} aria-hidden />
                 </span>
               ) : (
                 <span className={css.inclSpacerHomepage} aria-hidden />
@@ -293,7 +293,7 @@ export const ListingCard = memo(function ListingCard({
           {showBuyerProtection ? (
             <p className={css.protection}>
               <span>{formatListingPriceIncl(amount)}</span>
-              <ShieldCheck className={css.protectionIcon} strokeWidth={2.25} aria-hidden />
+              <ShieldLineIcon className={css.protectionIcon} aria-hidden />
             </p>
           ) : null}
 
@@ -328,7 +328,7 @@ export const ListingCard = memo(function ListingCard({
                 ) : null}
                 {showViews ? (
                   <span className={css.views} aria-label={`${formatCardViews(product.views)} views`}>
-                    <Eye className={css.viewsIcon} strokeWidth={2} aria-hidden />
+                    <EyeLineIcon className={css.viewsIcon} aria-hidden />
                     {formatCardViews(product.views)}
                   </span>
                 ) : null}

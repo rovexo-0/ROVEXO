@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Lock } from "lucide-react";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { formatGBP } from "@/features/commerce-ui/lib/format";
@@ -28,12 +28,14 @@ export function CheckoutPayFooter({
       className={cn(
         inline
           ? "flex flex-col gap-ds-3"
-          : "fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 px-ds-4 pb-[max(env(safe-area-inset-bottom),var(--ds-space-3))] pt-ds-3 backdrop-blur",
+          : "fixed inset-x-0 bottom-0 z-30 border-t border-border bg-white px-ds-4 pb-[max(env(safe-area-inset-bottom),var(--ds-space-3))] pt-ds-3",
         className,
       )}
     >
       <p className="mb-ds-3 flex items-start gap-ds-2 text-xs text-text-muted">
-        <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden />
+        <span className="mt-0.5 ac-canonical__menu-icon shrink-0 text-primary" aria-hidden>
+          <AccountIcon name="security" />
+        </span>
         <span>
           By placing your order, you agree to our{" "}
           <Link href="/terms" className="font-medium text-primary">
@@ -56,7 +58,7 @@ export function CheckoutPayFooter({
         onClick={onPay}
         className="shadow-[var(--ds-shadow-medium)]"
       >
-        {loading ? "Placing order…" : `Pay ${formatGBP(total)}`}
+        {loading ? "Confirming…" : `Confirm & Pay ${formatGBP(total)}`}
       </Button>
     </div>
   );

@@ -8,7 +8,7 @@
 @import "./account-settings-ui.css";
 
 :root {
-  --pcu-card-radius: 20px;
+  --pcu-card-radius: 14px;
   --pcu-card-border: rgb(15 23 42 / 0.08);
   --pcu-card-shadow: 0 1px 6px rgb(15 23 42 / 0.04);
   --pcu-row-divider: rgb(15 23 42 / 0.06);
@@ -198,6 +198,6 @@
 
 @media (min-width: 768px) {
   .pcu-module {
-    padding-inline: 24px;
+    padding-inline: var(--pcu-page-padding-x);
   }
 }

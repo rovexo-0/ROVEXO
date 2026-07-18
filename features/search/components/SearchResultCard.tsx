@@ -206,7 +206,7 @@ export function SearchResultCard({
         }}
         className={cn(
           "pointer-events-auto absolute right-2.5 top-2.5 z-20 flex h-8 w-8 items-center justify-center rounded-full",
-          "bg-surface/80 text-text-muted backdrop-blur hover:bg-secondary hover:text-primary",
+          "bg-surface text-text-muted hover:bg-secondary hover:text-primary",
           isSaved && "text-primary",
           focusRing,
           transitionFast,

@@ -13,11 +13,8 @@ function parseEnabledFlag(value: string | undefined): boolean | null {
 }
 
 /**
- * Bring Your Item release gate — independent from marketplace core v1.0.
- *
- * Production default: disabled until BYI achieves PRODUCTION READY certification.
- * Set `NEXT_PUBLIC_BRING_YOUR_ITEM_ENABLED=true` (or `BRING_YOUR_ITEM_ENABLED=true`)
- * only after real eBay validation, full Playwright E2E, and production verification.
+ * Bring Your Item — Absolute Final: Migration + Connectors are live hubs.
+ * Default ON. Set `NEXT_PUBLIC_BRING_YOUR_ITEM_ENABLED=false` only to kill-switch.
  */
 export function isBringYourItemEnabled(): boolean {
   const explicit =
@@ -25,10 +22,7 @@ export function isBringYourItemEnabled(): boolean {
     parseEnabledFlag(process.env.BRING_YOUR_ITEM_ENABLED);
   if (explicit !== null) return explicit;
 
-  if (process.env.PLAYWRIGHT_E2E === "1" || process.env.VITEST === "true") return true;
-  if (process.env.NODE_ENV !== "production") return true;
-
-  return false;
+  return true;
 }
 
 export function isBringYourItemHref(href: string): boolean {

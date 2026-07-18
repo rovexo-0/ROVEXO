@@ -24,31 +24,33 @@ describe("Account Center modules", () => {
     const hrefs = getBuyingModuleTiles().map((tile) => tile.href);
     const labels = getBuyingModuleTiles().map((tile) => tile.label);
     expect(hrefs).not.toContain("/seller/listings");
-    expect(labels).toContain("Orders");
-    expect(labels).toContain("Offers");
+    expect(labels).toContain("My Orders");
+    expect(labels).toContain("Tracking");
     expect(labels).toContain("Reviews");
   });
 
-  it("selling module excludes Marketplace Import and Bring Your Item", () => {
+  it("selling module includes import destinations when Bring Your Item is enabled", () => {
     const labels = getSellingModuleTiles().map((tile) => tile.label);
     const hrefs = getSellingModuleTiles().map((tile) => tile.href);
-    expect(labels).not.toContain("Marketplace Import");
-    expect(labels).not.toContain("Bring Your Item");
+    expect(labels).toContain("Bring Your Item");
+    expect(labels).toContain("Connectors");
     expect(labels).toContain("Listings");
-    expect(labels).toContain("Wallet");
+    expect(labels).toContain("Compliance");
     expect(labels).not.toContain("Payouts");
-    expect(hrefs).not.toContain("/account/bring-your-item");
+    expect(hrefs).toContain("/account/bring-your-item");
+    expect(hrefs).toContain("/seller/connectors");
   });
 
-  it("buying module matches PO Master Menu destinations", () => {
+  it("buying module matches Absolute Final Master Menu destinations", () => {
     const labels = getBuyingModuleTiles().map((tile) => tile.label);
     expect(labels).toEqual([
-      "Orders",
-      "Cart",
-      "Saved",
-      "Offers",
-      "Returns & Refunds",
+      "My Orders",
+      "Tracking",
       "Reviews",
+      "Refunds",
+      "Disputes",
+      "Saved",
+      "Recently Viewed",
     ]);
   });
 

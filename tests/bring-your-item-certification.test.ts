@@ -101,7 +101,9 @@ describe("Bring Your Item — Phase 2 inline connect certification", () => {
   it("removes secondary connectors link from seller dashboard card", () => {
     const card = readSource("features/seller/migration/components/BringYourItemsDashboardCard.tsx");
     expect(card).not.toContain("MARKETPLACE_CONNECTORS_PATH");
-    expect(card).toContain("Bring your item");
+    expect(card).toContain("Bring Your Item");
+    expect(card).toContain("CanonicalMenuRow");
+    expect(card).not.toContain("bg-gradient");
   });
 });
 
@@ -197,11 +199,11 @@ describe("Bring Your Item — error recovery", () => {
 });
 
 describe("Bring Your Item — full module wiring", () => {
-  it("keeps legacy header CTA file but consumer routes redirect to Selling", () => {
+  it("wires header CTA and account route to live import surfaces", () => {
     const cta = readSource("components/header/HeaderBringYourItemCta.tsx");
     const byi = readSource("app/account/bring-your-item/page.tsx");
     expect(cta).toContain("BRING_YOUR_ITEM_PATH");
-    expect(byi).toContain('redirect("/seller")');
+    expect(byi).toContain("MigrationCenterPage");
   });
 });
 

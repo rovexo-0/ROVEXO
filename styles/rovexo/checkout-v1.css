@@ -3,7 +3,7 @@
  * SSOT: docs/modules/checkout/MASTER_UI_SPECIFICATION.md
  */
 .ckt-v1 {
-  --ckt-max: 430px;
+  --ckt-max: 100%;
   --ckt-pad-x: 16px;
   --ckt-radius: 18px;
   --ckt-gap: 24px;
@@ -31,7 +31,7 @@
   height: 64px;
   min-height: 64px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 var(--ckt-pad-x);
 }
 
 .ckt-v1__header-back,
@@ -239,85 +239,7 @@
   color: #111;
 }
 
-/* Legacy stepper retained for tests / optional surfaces */
-.ckt-v1__stepper {
-  width: min(100%, var(--ckt-max));
-  margin: 0 auto;
-  padding: 12px var(--ckt-pad-x) 4px;
-}
-
-.ckt-v1__stepper-list {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.ckt-v1__stepper-item {
-  position: relative;
-  display: flex;
-  flex: 1;
-  align-items: flex-start;
-}
-
-.ckt-v1__stepper-node-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  min-width: 72px;
-}
-
-.ckt-v1__stepper-node {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  font-size: 0.8125rem;
-  font-weight: 700;
-}
-
-.ckt-v1__stepper-node--upcoming {
-  border: 2px solid #d1d5db;
-  color: #9ca3af;
-  background: #fff;
-}
-
-.ckt-v1__stepper-node--active {
-  border: 2px solid var(--ds-color-primary);
-  color: #fff;
-  background: var(--ds-color-primary);
-}
-
-.ckt-v1__stepper-node--complete {
-  border: 2px solid var(--ds-color-primary);
-  color: #fff;
-  background: var(--ds-color-primary);
-}
-
-.ckt-v1__stepper-node svg {
-  width: 14px;
-  height: 14px;
-}
-
-.ckt-v1__stepper-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--ds-color-text-secondary);
-}
-
-.ckt-v1__stepper-line {
-  position: absolute;
-  top: 14px;
-  left: calc(50% + 20px);
-  right: calc(-50% + 20px);
-  height: 2px;
-  background: #e5e7eb;
-}
+/* Absolute Final: stepper removed — one Confirm & Pay surface */
 
 .ckt-v1__step {
   display: flex;
@@ -683,6 +605,6 @@
 
 @media (min-width: 640px) {
   .ckt-v1 {
-    --ckt-max: 480px;
+    --ckt-max: 100%;
   }
 }

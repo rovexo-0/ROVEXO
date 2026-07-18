@@ -72,7 +72,7 @@
   background: color-mix(in srgb, var(--ds-color-primary-foreground) 16%, transparent);
   font-size: 0.8125rem;
   font-weight: 700;
-  backdrop-filter: blur(8px);
+  backdrop-filter: none;
 }
 
 @media (min-width: 1024px) {

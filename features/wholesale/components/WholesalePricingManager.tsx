@@ -48,7 +48,7 @@ export function WholesalePricingManager() {
   return (
     <CanonicalCard variant="medium" className="w-full">
       <h2 className="text-lg font-semibold">Bulk pricing tiers</h2>
-      <div className="mt-ds-4 grid gap-ds-3 sm:grid-cols-3">
+      <div className="mt-ds-4 flex flex-col gap-ds-3">
         <input
           value={minQuantity}
           onChange={(event) => setMinQuantity(event.target.value)}

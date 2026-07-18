@@ -22,16 +22,17 @@ function walkIcons(dir: string, files: string[] = []): string[] {
 }
 
 describe("Canonical Homepage — icon system", () => {
-  it("renders homepage UI icons exclusively through RovexoIcon (header uses Lucide)", () => {
+  it("renders homepage UI icons exclusively through RovexoIcon; header uses RvxLineIcons", () => {
     for (const rel of HOME_FILES) {
       const source = readFileSync(join(process.cwd(), rel), "utf8");
       expect(source).not.toContain("lucide-react");
     }
 
     const header = readFileSync(join(process.cwd(), HEADER_FILE), "utf8");
-    expect(header).toContain("lucide-react");
+    expect(header).not.toContain("lucide-react");
+    expect(header).toContain("RvxLineIcons");
     expect(header).not.toContain("MessageSquare");
-    expect(header).toContain("Bell");
+    expect(header).toContain("BellLineIcon");
     // Homepage layout omits logo + notification (PO authorized removal).
     expect(header).toContain("!isHomepageLayout");
   });

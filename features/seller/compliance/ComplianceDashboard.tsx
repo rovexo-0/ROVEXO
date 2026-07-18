@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { useMemo } from "react";
-import { AccountCanonicalShell } from "@/features/account-canonical";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import {
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import {
   buildHmrcExportRows,
   serializeComplianceCsv,
@@ -12,6 +12,9 @@ import {
 import { summarizeUkComplianceAudit, UK_COMPLIANCE_AUDIT } from "@/lib/compliance/uk-audit";
 import type { AnnualStatement } from "@/lib/wallet/monthly-statements";
 import type { SellerTaxProfile } from "@/lib/seller/tax/types";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+import { AccountIcon } from "@/components/account/AccountIcons";
+import { useMemo } from "react";
 
 type ComplianceDashboardProps = {
   taxProfile: SellerTaxProfile | null;
@@ -38,71 +41,73 @@ export function ComplianceDashboard({ taxProfile, annualStatements }: Compliance
       backHref="/account/settings"
       backLabel="Settings"
       showHeaderTitle
+      intro="Tax profile, reporting exports, and UK marketplace compliance status."
     >
-      <div className="flex w-full flex-col px-ds-4 pb-ds-5" data-compliance-version="v1.0-legal-lock">
-        <p className="text-sm text-text-secondary">
-          Tax profile, reporting exports, and UK marketplace compliance status.
-        </p>
+      <div className="ac-canonical flex w-full flex-col pb-ds-5" data-compliance-version="v1.0-legal-lock">
+        <CanonicalSection title="Tax">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow
+              title="Seller Tax Profile"
+              description={
+                taxProfile
+                  ? `Registered as ${taxProfile.registrationType}. UTR on file: ${taxProfile.utr ? "Yes" : "No"}.`
+                  : "Complete your tax profile for withdrawals and reporting."
+              }
+              href="/seller/tax"
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="business" />
+                </span>
+              }
+            />
+          </CanonicalCard>
+        </CanonicalSection>
 
-        <Card padding="md" className="mt-ds-6">
-          <h2 className="text-base font-semibold text-text-primary">Seller Tax Profile</h2>
-          <p className="mt-ds-2 text-sm text-text-secondary">
-            {taxProfile
-              ? `Registered as ${taxProfile.registrationType}. UTR on file: ${taxProfile.utr ? "Yes" : "No"}.`
-              : "Complete your tax profile for withdrawals and digital platform reporting."}
-          </p>
-          <Link href="/seller/tax" className="mt-ds-4 inline-flex text-sm font-medium text-primary">
-            {taxProfile ? "Edit Tax Profile" : "Add Tax Profile"}
-          </Link>
-        </Card>
+        <CanonicalSection title="Documents">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow title="Monthly Statements" href="/wallet/statements" />
+            <CanonicalMenuRow title="Annual Statements" href="/wallet/statements/annual" />
+            <CanonicalMenuRow
+              title="Digital Platform Reporting Notice"
+              href="/legal/digital-platform-reporting-tax-notice"
+            />
+          </CanonicalCard>
+        </CanonicalSection>
 
-        <Card padding="md" className="mt-ds-4">
-          <h2 className="text-base font-semibold text-text-primary">Document Vault</h2>
-          <ul className="mt-ds-3 space-y-ds-2 text-sm">
-            <li>
-              <Link href="/wallet/statements" className="text-primary hover:opacity-80">
-                Monthly Statements
-              </Link>
-            </li>
-            <li>
-              <Link href="/wallet/statements/annual" className="text-primary hover:opacity-80">
-                Annual Statements
-              </Link>
-            </li>
-            <li>
-              <Link href="/legal/digital-platform-reporting-tax-notice" className="text-primary hover:opacity-80">
-                Digital Platform Reporting Notice
-              </Link>
-            </li>
-          </ul>
-        </Card>
+        <CanonicalSection title="Export">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow
+              title="HMRC CSV"
+              description={
+                exportRows.length === 0
+                  ? "No annual totals yet"
+                  : `${exportRows.length} row${exportRows.length === 1 ? "" : "s"} ready`
+              }
+              showChevron={false}
+              disabled={exportRows.length === 0}
+              onClick={downloadCsv}
+              value={exportRows.length === 0 ? undefined : "Export"}
+            />
+          </CanonicalCard>
+        </CanonicalSection>
 
-        <Card padding="md" className="mt-ds-4">
-          <div className="flex items-center justify-between gap-ds-3">
-            <div>
-              <h2 className="text-base font-semibold text-text-primary">Export Reports</h2>
-              <p className="mt-ds-1 text-sm text-text-secondary">HMRC-ready annual totals CSV.</p>
-            </div>
-            <Button type="button" size="sm" onClick={downloadCsv} disabled={exportRows.length === 0}>
-              Export CSV
-            </Button>
-          </div>
-        </Card>
-
-        <Card padding="md" className="mt-ds-4">
-          <h2 className="text-base font-semibold text-text-primary">UK Compliance Audit</h2>
-          <p className="mt-ds-2 text-sm text-text-secondary">
-            {summary.implemented} implemented · {summary.partial} partial · {summary.missing} missing
-          </p>
-          <ul className="mt-ds-4 max-h-64 space-y-ds-2 overflow-y-auto text-sm">
+        <CanonicalSection title="UK Compliance Audit">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow
+              title="Summary"
+              description={`${summary.implemented} implemented · ${summary.partial} partial · ${summary.missing} missing`}
+              showChevron={false}
+            />
             {UK_COMPLIANCE_AUDIT.map((finding) => (
-              <li key={finding.area} className="flex items-start justify-between gap-ds-3 border-b border-border pb-ds-2">
-                <span className="capitalize text-text-primary">{finding.area.replaceAll("_", " ")}</span>
-                <span className="shrink-0 text-text-muted">{finding.status}</span>
-              </li>
+              <CanonicalMenuRow
+                key={finding.area}
+                title={finding.area.replaceAll("_", " ")}
+                value={finding.status}
+                showChevron={false}
+              />
             ))}
-          </ul>
-        </Card>
+          </CanonicalCard>
+        </CanonicalSection>
       </div>
     </AccountCanonicalShell>
   );

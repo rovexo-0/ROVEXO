@@ -1,22 +1,71 @@
+import type { ComponentType, SVGProps } from "react";
 import type { NotificationIcon } from "@/lib/notifications/types";
-import type { Fluency3DIconKey } from "@/lib/icons/fluency-3d-registry";
-import { createFluencyClassIcon } from "@/components/icons/fluency-3d-feature";
-import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
+import {
+  BackLineIcon,
+  BellLineIcon,
+  BagLineIcon,
+  ChatLineIcon,
+  CheckLineIcon,
+  HeartLineIcon,
+  MegaphoneLineIcon,
+  PeopleLineIcon,
+  ShieldLineIcon,
+  SettingsLineIcon,
+  StarLineIcon,
+  TagLineIcon,
+  WalletLineIcon,
+} from "@/components/icons/RvxLineIcons";
 
-export const SettingsIcon = createFluencyClassIcon("feature-settings");
-export const BellIcon = createFluencyClassIcon("feature-bell");
+type IconProps = SVGProps<SVGSVGElement> & { className?: string };
 
-const notificationIconKeys: Record<NotificationIcon, Fluency3DIconKey> = {
-  message: "feature-notif-message",
-  order: "feature-notif-order",
-  offer: "feature-notif-offer",
-  review: "sa-reviews",
-  payment: "feature-payment",
-  follower: "feature-followers",
-  moderation: "feature-shield",
-  promotion: "sa-promotions",
-  product: "inventory",
-  system: "feature-notif-system",
+export function SettingsIcon(props: IconProps) {
+  return <SettingsLineIcon {...props} />;
+}
+
+export function BellIcon(props: IconProps) {
+  return <BellLineIcon {...props} />;
+}
+
+export function BackIcon(props: IconProps) {
+  return <BackLineIcon {...props} />;
+}
+
+export function CheckIcon(props: IconProps) {
+  return <CheckLineIcon {...props} />;
+}
+
+function TrashLineIcon(props: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      {...props}
+    >
+      <path d="M4 7h16M9 7V5h6v2M8 7l.8 12h6.4L16 7" />
+    </svg>
+  );
+}
+
+export function TrashIcon(props: IconProps) {
+  return <TrashLineIcon {...props} />;
+}
+
+const notificationIcons: Record<NotificationIcon, ComponentType<IconProps>> = {
+  message: ChatLineIcon,
+  order: BagLineIcon,
+  offer: TagLineIcon,
+  review: StarLineIcon,
+  payment: WalletLineIcon,
+  follower: PeopleLineIcon,
+  moderation: ShieldLineIcon,
+  promotion: MegaphoneLineIcon,
+  product: TagLineIcon,
+  system: BellLineIcon,
 };
 
 export function NotificationTypeIcon({
@@ -26,12 +75,9 @@ export function NotificationTypeIcon({
   icon: NotificationIcon;
   className?: string;
 }) {
-  return <Fluency3DIcon icon={notificationIconKeys[icon]} size={20} className={className} />;
+  const Icon = notificationIcons[icon] ?? BellLineIcon;
+  return <Icon className={className} />;
 }
-
-export const BackIcon = createFluencyClassIcon("feature-back");
-export const CheckIcon = createFluencyClassIcon("feature-notif-check");
-export const TrashIcon = createFluencyClassIcon("feature-notif-trash");
 
 export function iconToneClass(icon: NotificationIcon): string {
   switch (icon) {
@@ -50,4 +96,8 @@ export function iconToneClass(icon: NotificationIcon): string {
     default:
       return "bg-surface-muted text-text-secondary";
   }
+}
+
+export function SavedToneIcon(props: IconProps) {
+  return <HeartLineIcon {...props} />;
 }

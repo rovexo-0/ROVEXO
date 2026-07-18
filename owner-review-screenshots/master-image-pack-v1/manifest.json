@@ -1,0 +1,946 @@
+{
+  "version": "v1-one-product-freeze",
+  "generatedAt": "2026-07-18T22:14:35.058Z",
+  "phoneWidthPx": 390,
+  "insetPx": 16,
+  "colors": [
+    "purple",
+    "white",
+    "black",
+    "grey"
+  ],
+  "philosophy": [
+    "classic",
+    "standard",
+    "simple",
+    "compact",
+    "mobile-first",
+    "zero-learning-curve"
+  ],
+  "hubs": [
+    {
+      "id": "buying",
+      "title": "Buying",
+      "rows": [
+        "My Orders",
+        "Tracking",
+        "Reviews",
+        "Refunds",
+        "Disputes",
+        "Saved",
+        "Recently Viewed"
+      ]
+    },
+    {
+      "id": "selling",
+      "title": "Selling",
+      "rows": [
+        "Listings",
+        "Orders",
+        "Reviews",
+        "Shipping",
+        "Returns",
+        "Performance"
+      ]
+    },
+    {
+      "id": "business",
+      "title": "Business",
+      "rows": [
+        "Orders",
+        "Inventory",
+        "Analytics",
+        "Reviews",
+        "Wallet",
+        "VAT",
+        "Directory"
+      ]
+    },
+    {
+      "id": "wallet",
+      "title": "Wallet",
+      "rows": [
+        "Available",
+        "Pending",
+        "Withdraw",
+        "Transactions",
+        "Personal Bank",
+        "Business Bank"
+      ]
+    },
+    {
+      "id": "messages",
+      "title": "Messages",
+      "rows": [
+        "Inbox",
+        "Orders",
+        "Tracking",
+        "Messages",
+        "Reviews",
+        "Support",
+        "Refunds",
+        "Disputes"
+      ]
+    },
+    {
+      "id": "trust",
+      "title": "Trust Centre",
+      "rows": [
+        "Trust Score",
+        "Buyer",
+        "Seller",
+        "Business",
+        "Verification",
+        "Recent"
+      ]
+    },
+    {
+      "id": "settings",
+      "title": "Settings",
+      "rows": [
+        "Profile",
+        "Security",
+        "Addresses",
+        "Language",
+        "Notifications",
+        "Privacy",
+        "Delete Account"
+      ]
+    },
+    {
+      "id": "account",
+      "title": "My Account",
+      "rows": [
+        "Buying",
+        "Selling",
+        "Business",
+        "Wallet",
+        "Messages",
+        "Notifications",
+        "Verification",
+        "Settings",
+        "Help Centre",
+        "Trust Centre",
+        "Legal Centre"
+      ]
+    },
+    {
+      "id": "orders",
+      "title": "Orders",
+      "rows": [
+        "Bought",
+        "Sold",
+        "In progress",
+        "Completed",
+        "Cancelled"
+      ]
+    },
+    {
+      "id": "search",
+      "title": "Search",
+      "rows": [
+        "Search results",
+        "Filters",
+        "2-column grid"
+      ]
+    },
+    {
+      "id": "parcel",
+      "title": "Parcel",
+      "rows": [
+        "Small Parcel",
+        "Medium Parcel",
+        "Large Parcel",
+        "Extra Large Parcel"
+      ]
+    },
+    {
+      "id": "checkout",
+      "title": "Checkout",
+      "rows": [
+        "Products",
+        "Shipping",
+        "Platform Fee",
+        "Total",
+        "Confirm & Pay"
+      ]
+    },
+    {
+      "id": "tracking",
+      "title": "Tracking",
+      "rows": [
+        "Order context",
+        "Parcel 1 of N",
+        "Timeline"
+      ]
+    },
+    {
+      "id": "reviews",
+      "title": "Reviews",
+      "rows": [
+        "To review",
+        "Your reviews"
+      ]
+    },
+    {
+      "id": "refunds",
+      "title": "Refunds",
+      "rows": [
+        "Buying cases",
+        "Selling cases"
+      ]
+    },
+    {
+      "id": "disputes",
+      "title": "Disputes",
+      "rows": [
+        "Buying cases",
+        "Selling cases"
+      ]
+    },
+    {
+      "id": "saved",
+      "title": "Saved",
+      "rows": [
+        "2-column listings"
+      ]
+    },
+    {
+      "id": "directory",
+      "title": "Directory",
+      "rows": [
+        "Verified companies"
+      ]
+    },
+    {
+      "id": "help",
+      "title": "Help Centre",
+      "rows": [
+        "Search",
+        "Categories",
+        "Email",
+        "Report Problem"
+      ]
+    },
+    {
+      "id": "legal",
+      "title": "Legal Centre",
+      "rows": [
+        "Terms",
+        "Privacy",
+        "Cookies"
+      ]
+    },
+    {
+      "id": "notifications",
+      "title": "Notifications",
+      "rows": [
+        "Unread",
+        "Earlier"
+      ]
+    },
+    {
+      "id": "inventory",
+      "title": "Inventory",
+      "rows": [
+        "Stock rows"
+      ]
+    },
+    {
+      "id": "returns",
+      "title": "Returns",
+      "rows": [
+        "Open cases"
+      ]
+    },
+    {
+      "id": "shipping",
+      "title": "Shipping",
+      "rows": [
+        "Orders",
+        "Returns"
+      ]
+    },
+    {
+      "id": "performance",
+      "title": "Performance",
+      "rows": [
+        "Score",
+        "Factors",
+        "Changes",
+        "Achievements",
+        "Trend"
+      ]
+    },
+    {
+      "id": "verification",
+      "title": "Verification",
+      "rows": [
+        "Identity",
+        "Email",
+        "Phone",
+        "Business"
+      ]
+    },
+    {
+      "id": "store",
+      "title": "Visit Store",
+      "rows": [
+        "Store header",
+        "Featured",
+        "All products"
+      ]
+    },
+    {
+      "id": "followers",
+      "title": "Followers",
+      "rows": [
+        "Follower rows"
+      ]
+    },
+    {
+      "id": "recently-viewed",
+      "title": "Recently Viewed",
+      "rows": [
+        "2-column listings"
+      ]
+    },
+    {
+      "id": "product",
+      "title": "Product",
+      "rows": [
+        "Gallery",
+        "Title & price",
+        "Seller",
+        "Description",
+        "Shipping",
+        "Buy Now",
+        "Make Offer"
+      ]
+    },
+    {
+      "id": "cart",
+      "title": "Cart",
+      "rows": [
+        "Item rows",
+        "Subtotal",
+        "Checkout"
+      ]
+    },
+    {
+      "id": "order-detail",
+      "title": "Order",
+      "rows": [
+        "Status",
+        "Items",
+        "Tracking",
+        "Messages",
+        "Help"
+      ]
+    },
+    {
+      "id": "withdraw",
+      "title": "Withdraw",
+      "rows": [
+        "Available",
+        "Bank",
+        "Amount",
+        "Withdraw"
+      ]
+    },
+    {
+      "id": "transactions",
+      "title": "Transactions",
+      "rows": [
+        "Filters",
+        "Sale",
+        "Fee",
+        "Refund",
+        "Withdrawal"
+      ]
+    },
+    {
+      "id": "inbox-notifications",
+      "title": "Notifications",
+      "rows": [
+        "Unread",
+        "Earlier",
+        "Mark all read"
+      ]
+    },
+    {
+      "id": "compliance",
+      "title": "Compliance",
+      "rows": [
+        "Seller Tax Profile",
+        "Monthly Statements",
+        "Annual Statements",
+        "Export CSV"
+      ]
+    },
+    {
+      "id": "homepage",
+      "title": "Homepage",
+      "rows": [
+        "Search",
+        "Categories",
+        "Listing cards",
+        "Price · condition · rating"
+      ]
+    },
+    {
+      "id": "login",
+      "title": "Login",
+      "rows": [
+        "Email",
+        "Password",
+        "Sign In",
+        "Apple",
+        "Google",
+        "Create Account"
+      ]
+    },
+    {
+      "id": "register",
+      "title": "Register",
+      "rows": [
+        "First Name",
+        "Last Name",
+        "Email",
+        "Password",
+        "Country",
+        "Create Account"
+      ]
+    },
+    {
+      "id": "sell",
+      "title": "Sell",
+      "rows": [
+        "Photos",
+        "Title",
+        "Category",
+        "Condition",
+        "Price",
+        "Publish"
+      ]
+    },
+    {
+      "id": "conversation",
+      "title": "Transaction",
+      "rows": [
+        "Product",
+        "Offer",
+        "Payment",
+        "Tracking",
+        "Message about this order"
+      ]
+    },
+    {
+      "id": "analytics",
+      "title": "Analytics",
+      "rows": [
+        "Overview",
+        "Activity",
+        "Top products",
+        "Promotions",
+        "Geography"
+      ]
+    },
+    {
+      "id": "vat",
+      "title": "VAT",
+      "rows": [
+        "VAT number",
+        "Country",
+        "Statements"
+      ]
+    },
+    {
+      "id": "personal-bank",
+      "title": "Personal Bank",
+      "rows": [
+        "Account name",
+        "Sort code",
+        "Account number",
+        "Save"
+      ]
+    },
+    {
+      "id": "business-bank",
+      "title": "Business Bank",
+      "rows": [
+        "Business name",
+        "Sort code",
+        "Account number",
+        "Save"
+      ]
+    },
+    {
+      "id": "addresses",
+      "title": "Addresses",
+      "rows": [
+        "Delivery address",
+        "Add address"
+      ]
+    },
+    {
+      "id": "profile",
+      "title": "Profile",
+      "rows": [
+        "Name",
+        "Email",
+        "Photo",
+        "Save"
+      ]
+    },
+    {
+      "id": "privacy",
+      "title": "Privacy",
+      "rows": [
+        "Visibility",
+        "Data",
+        "Delete Account"
+      ]
+    },
+    {
+      "id": "security",
+      "title": "Security",
+      "rows": [
+        "Password",
+        "Sessions",
+        "Sign out all"
+      ]
+    },
+    {
+      "id": "ideas",
+      "title": "ROVEXO Ideas",
+      "rows": [
+        "Your idea",
+        "Send"
+      ]
+    },
+    {
+      "id": "plans",
+      "title": "Plans",
+      "rows": [
+        "Current",
+        "Plans",
+        "Add-ons"
+      ]
+    },
+    {
+      "id": "wholesale",
+      "title": "Wholesale",
+      "rows": [
+        "Links",
+        "Account",
+        "RFQ"
+      ]
+    }
+  ],
+  "e2eFlows": [
+    {
+      "id": "e2e-buy",
+      "title": "Buy flow",
+      "rows": [
+        "Search",
+        "Product",
+        "Checkout",
+        "My Orders",
+        "Tracking"
+      ]
+    },
+    {
+      "id": "e2e-sell",
+      "title": "Sell flow",
+      "rows": [
+        "Sell",
+        "Listings",
+        "Orders",
+        "Shipping",
+        "Performance"
+      ]
+    },
+    {
+      "id": "e2e-wallet",
+      "title": "Wallet flow",
+      "rows": [
+        "Available",
+        "Withdraw",
+        "Personal Bank",
+        "Transactions"
+      ]
+    },
+    {
+      "id": "e2e-messages",
+      "title": "Messages flow",
+      "rows": [
+        "Inbox",
+        "Orders",
+        "Tracking",
+        "Messages",
+        "Reviews",
+        "Support",
+        "Refunds",
+        "Disputes"
+      ]
+    },
+    {
+      "id": "e2e-business",
+      "title": "Business flow",
+      "rows": [
+        "Orders",
+        "Inventory",
+        "Analytics",
+        "Wallet",
+        "VAT",
+        "Directory"
+      ]
+    },
+    {
+      "id": "e2e-trust",
+      "title": "Trust flow",
+      "rows": [
+        "Trust Score",
+        "Verification",
+        "Dispute Center",
+        "Security Center"
+      ]
+    },
+    {
+      "id": "e2e-settings",
+      "title": "Settings flow",
+      "rows": [
+        "Profile",
+        "Addresses",
+        "Notifications",
+        "Privacy & Security",
+        "Sign Out"
+      ]
+    },
+    {
+      "id": "checkout-confirm",
+      "title": "Checkout",
+      "rows": [
+        "Products",
+        "Shipping",
+        "Platform Fee",
+        "Total",
+        "Confirm & Pay"
+      ]
+    },
+    {
+      "id": "order-detail-final",
+      "title": "Order Details",
+      "rows": [
+        "Product",
+        "Order status",
+        "Payment status",
+        "Delivery status",
+        "Tracking",
+        "Messages",
+        "Review",
+        "Support"
+      ]
+    },
+    {
+      "id": "tracking-final",
+      "title": "Tracking",
+      "rows": [
+        "Order",
+        "Tracking status",
+        "Courier",
+        "Tracking number",
+        "Delivery updates"
+      ]
+    },
+    {
+      "id": "transaction-hub",
+      "title": "Transaction Hub",
+      "rows": [
+        "Inbox",
+        "Orders",
+        "Tracking",
+        "Messages",
+        "Reviews",
+        "Support",
+        "Refunds",
+        "Disputes"
+      ]
+    }
+  ],
+  "states": [
+    {
+      "id": "default",
+      "label": "Default"
+    },
+    {
+      "id": "empty",
+      "label": "Empty"
+    },
+    {
+      "id": "error",
+      "label": "Error"
+    },
+    {
+      "id": "loading",
+      "label": "Loading"
+    }
+  ],
+  "frameCount": 252,
+  "framesDir": "frames",
+  "frames": [
+    "001-buying-default.svg",
+    "002-buying-empty.svg",
+    "003-buying-error.svg",
+    "004-buying-loading.svg",
+    "005-selling-default.svg",
+    "006-selling-empty.svg",
+    "007-selling-error.svg",
+    "008-selling-loading.svg",
+    "009-business-default.svg",
+    "010-business-empty.svg",
+    "011-business-error.svg",
+    "012-business-loading.svg",
+    "013-wallet-default.svg",
+    "014-wallet-empty.svg",
+    "015-wallet-error.svg",
+    "016-wallet-loading.svg",
+    "017-messages-default.svg",
+    "018-messages-empty.svg",
+    "019-messages-error.svg",
+    "020-messages-loading.svg",
+    "021-trust-default.svg",
+    "022-trust-empty.svg",
+    "023-trust-error.svg",
+    "024-trust-loading.svg",
+    "025-settings-default.svg",
+    "026-settings-empty.svg",
+    "027-settings-error.svg",
+    "028-settings-loading.svg",
+    "029-account-default.svg",
+    "030-account-empty.svg",
+    "031-account-error.svg",
+    "032-account-loading.svg",
+    "033-orders-default.svg",
+    "034-orders-empty.svg",
+    "035-orders-error.svg",
+    "036-orders-loading.svg",
+    "037-search-default.svg",
+    "038-search-empty.svg",
+    "039-search-error.svg",
+    "040-search-loading.svg",
+    "041-parcel-default.svg",
+    "042-parcel-empty.svg",
+    "043-parcel-error.svg",
+    "044-parcel-loading.svg",
+    "045-checkout-default.svg",
+    "046-checkout-empty.svg",
+    "047-checkout-error.svg",
+    "048-checkout-loading.svg",
+    "049-tracking-default.svg",
+    "050-tracking-empty.svg",
+    "051-tracking-error.svg",
+    "052-tracking-loading.svg",
+    "053-reviews-default.svg",
+    "054-reviews-empty.svg",
+    "055-reviews-error.svg",
+    "056-reviews-loading.svg",
+    "057-refunds-default.svg",
+    "058-refunds-empty.svg",
+    "059-refunds-error.svg",
+    "060-refunds-loading.svg",
+    "061-disputes-default.svg",
+    "062-disputes-empty.svg",
+    "063-disputes-error.svg",
+    "064-disputes-loading.svg",
+    "065-saved-default.svg",
+    "066-saved-empty.svg",
+    "067-saved-error.svg",
+    "068-saved-loading.svg",
+    "069-directory-default.svg",
+    "070-directory-empty.svg",
+    "071-directory-error.svg",
+    "072-directory-loading.svg",
+    "073-help-default.svg",
+    "074-help-empty.svg",
+    "075-help-error.svg",
+    "076-help-loading.svg",
+    "077-legal-default.svg",
+    "078-legal-empty.svg",
+    "079-legal-error.svg",
+    "080-legal-loading.svg",
+    "081-notifications-default.svg",
+    "082-notifications-empty.svg",
+    "083-notifications-error.svg",
+    "084-notifications-loading.svg",
+    "085-inventory-default.svg",
+    "086-inventory-empty.svg",
+    "087-inventory-error.svg",
+    "088-inventory-loading.svg",
+    "089-returns-default.svg",
+    "090-returns-empty.svg",
+    "091-returns-error.svg",
+    "092-returns-loading.svg",
+    "093-shipping-default.svg",
+    "094-shipping-empty.svg",
+    "095-shipping-error.svg",
+    "096-shipping-loading.svg",
+    "097-performance-default.svg",
+    "098-performance-empty.svg",
+    "099-performance-error.svg",
+    "100-performance-loading.svg",
+    "101-verification-default.svg",
+    "102-verification-empty.svg",
+    "103-verification-error.svg",
+    "104-verification-loading.svg",
+    "105-store-default.svg",
+    "106-store-empty.svg",
+    "107-store-error.svg",
+    "108-store-loading.svg",
+    "109-followers-default.svg",
+    "110-followers-empty.svg",
+    "111-followers-error.svg",
+    "112-followers-loading.svg",
+    "113-recently-viewed-default.svg",
+    "114-recently-viewed-empty.svg",
+    "115-recently-viewed-error.svg",
+    "116-recently-viewed-loading.svg",
+    "117-product-default.svg",
+    "118-product-empty.svg",
+    "119-product-error.svg",
+    "120-product-loading.svg",
+    "121-cart-default.svg",
+    "122-cart-empty.svg",
+    "123-cart-error.svg",
+    "124-cart-loading.svg",
+    "125-order-detail-default.svg",
+    "126-order-detail-empty.svg",
+    "127-order-detail-error.svg",
+    "128-order-detail-loading.svg",
+    "129-withdraw-default.svg",
+    "130-withdraw-empty.svg",
+    "131-withdraw-error.svg",
+    "132-withdraw-loading.svg",
+    "133-transactions-default.svg",
+    "134-transactions-empty.svg",
+    "135-transactions-error.svg",
+    "136-transactions-loading.svg",
+    "137-inbox-notifications-default.svg",
+    "138-inbox-notifications-empty.svg",
+    "139-inbox-notifications-error.svg",
+    "140-inbox-notifications-loading.svg",
+    "141-compliance-default.svg",
+    "142-compliance-empty.svg",
+    "143-compliance-error.svg",
+    "144-compliance-loading.svg",
+    "145-homepage-default.svg",
+    "146-homepage-empty.svg",
+    "147-homepage-error.svg",
+    "148-homepage-loading.svg",
+    "149-login-default.svg",
+    "150-login-empty.svg",
+    "151-login-error.svg",
+    "152-login-loading.svg",
+    "153-register-default.svg",
+    "154-register-empty.svg",
+    "155-register-error.svg",
+    "156-register-loading.svg",
+    "157-sell-default.svg",
+    "158-sell-empty.svg",
+    "159-sell-error.svg",
+    "160-sell-loading.svg",
+    "161-conversation-default.svg",
+    "162-conversation-empty.svg",
+    "163-conversation-error.svg",
+    "164-conversation-loading.svg",
+    "165-analytics-default.svg",
+    "166-analytics-empty.svg",
+    "167-analytics-error.svg",
+    "168-analytics-loading.svg",
+    "169-vat-default.svg",
+    "170-vat-empty.svg",
+    "171-vat-error.svg",
+    "172-vat-loading.svg",
+    "173-personal-bank-default.svg",
+    "174-personal-bank-empty.svg",
+    "175-personal-bank-error.svg",
+    "176-personal-bank-loading.svg",
+    "177-business-bank-default.svg",
+    "178-business-bank-empty.svg",
+    "179-business-bank-error.svg",
+    "180-business-bank-loading.svg",
+    "181-addresses-default.svg",
+    "182-addresses-empty.svg",
+    "183-addresses-error.svg",
+    "184-addresses-loading.svg",
+    "185-profile-default.svg",
+    "186-profile-empty.svg",
+    "187-profile-error.svg",
+    "188-profile-loading.svg",
+    "189-privacy-default.svg",
+    "190-privacy-empty.svg",
+    "191-privacy-error.svg",
+    "192-privacy-loading.svg",
+    "193-security-default.svg",
+    "194-security-empty.svg",
+    "195-security-error.svg",
+    "196-security-loading.svg",
+    "197-ideas-default.svg",
+    "198-ideas-empty.svg",
+    "199-ideas-error.svg",
+    "200-ideas-loading.svg",
+    "201-plans-default.svg",
+    "202-plans-empty.svg",
+    "203-plans-error.svg",
+    "204-plans-loading.svg",
+    "205-wholesale-default.svg",
+    "206-wholesale-empty.svg",
+    "207-wholesale-error.svg",
+    "208-wholesale-loading.svg",
+    "209-e2e-buy-default.svg",
+    "210-e2e-buy-empty.svg",
+    "211-e2e-buy-error.svg",
+    "212-e2e-buy-loading.svg",
+    "213-e2e-sell-default.svg",
+    "214-e2e-sell-empty.svg",
+    "215-e2e-sell-error.svg",
+    "216-e2e-sell-loading.svg",
+    "217-e2e-wallet-default.svg",
+    "218-e2e-wallet-empty.svg",
+    "219-e2e-wallet-error.svg",
+    "220-e2e-wallet-loading.svg",
+    "221-e2e-messages-default.svg",
+    "222-e2e-messages-empty.svg",
+    "223-e2e-messages-error.svg",
+    "224-e2e-messages-loading.svg",
+    "225-e2e-business-default.svg",
+    "226-e2e-business-empty.svg",
+    "227-e2e-business-error.svg",
+    "228-e2e-business-loading.svg",
+    "229-e2e-trust-default.svg",
+    "230-e2e-trust-empty.svg",
+    "231-e2e-trust-error.svg",
+    "232-e2e-trust-loading.svg",
+    "233-e2e-settings-default.svg",
+    "234-e2e-settings-empty.svg",
+    "235-e2e-settings-error.svg",
+    "236-e2e-settings-loading.svg",
+    "237-checkout-confirm-default.svg",
+    "238-checkout-confirm-empty.svg",
+    "239-checkout-confirm-error.svg",
+    "240-checkout-confirm-loading.svg",
+    "241-order-detail-final-default.svg",
+    "242-order-detail-final-empty.svg",
+    "243-order-detail-final-error.svg",
+    "244-order-detail-final-loading.svg",
+    "245-tracking-final-default.svg",
+    "246-tracking-final-empty.svg",
+    "247-tracking-final-error.svg",
+    "248-tracking-final-loading.svg",
+    "249-transaction-hub-default.svg",
+    "250-transaction-hub-empty.svg",
+    "251-transaction-hub-error.svg",
+    "252-transaction-hub-loading.svg"
+  ]
+}

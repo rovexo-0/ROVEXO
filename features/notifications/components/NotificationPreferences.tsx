@@ -1,6 +1,6 @@
 "use client";
 
-import { CanonicalInfoBlock, CanonicalMenuRow } from "@/src/components/canonical";
+import { CanonicalInfoBlock, CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 import { useEffect, useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 
@@ -52,14 +52,14 @@ export function NotificationPreferencesPage() {
 
   if (!loaded) {
     return (
-      <AccountCanonicalShell title="Notification preferences" backHref="/notifications/settings">
+      <AccountCanonicalShell title="Notification preferences" backHref="/notifications/settings" showHeaderTitle>
         <CanonicalInfoBlock variant="description">Loading preferences…</CanonicalInfoBlock>
       </AccountCanonicalShell>
     );
   }
 
   return (
-    <AccountCanonicalShell title="Notification preferences" backHref="/notifications/settings">
+    <AccountCanonicalShell title="Notification preferences" backHref="/notifications/settings" showHeaderTitle>
       {saving ? (
         <p className="sr-only" aria-live="polite">
           Saving preferences
@@ -125,11 +125,15 @@ export function NotificationPreferencesPage() {
         />
       </SettingSection>
 
-      <CanonicalMenuRow
-        title="Push & email settings"
-        description="Advanced delivery options"
-        href="/notifications/settings"
-      />
+      <CanonicalSection title="More">
+        <CanonicalCard variant="list">
+          <CanonicalMenuRow
+            title="Push & email settings"
+            description="Advanced delivery options"
+            href="/notifications/settings"
+          />
+        </CanonicalCard>
+      </CanonicalSection>
     </AccountCanonicalShell>
   );
 }

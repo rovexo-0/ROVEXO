@@ -24,7 +24,7 @@
 .me-hub__header {
   border-bottom: 1px solid var(--ds-color-border);
   background: var(--ds-glass-bg);
-  backdrop-filter: blur(12px);
+  backdrop-filter: none;
 }
 
 .me-hub__eyebrow {

@@ -1,5 +1,6 @@
 "use client";
 
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { CanonicalCard, CanonicalMenuRow } from "@/src/components/canonical";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 
@@ -20,6 +21,11 @@ export function LegalIndexCanonical({ documents }: LegalIndexCanonicalProps) {
             href={`/legal/${document.slug}`}
             title={document.title}
             description={document.summary}
+            icon={
+              <span className="ac-canonical__menu-icon" aria-hidden>
+                <AccountIcon name="help" />
+              </span>
+            }
           />
         ))}
       </CanonicalCard>

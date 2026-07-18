@@ -28,8 +28,8 @@ import {
 } from "@/lib/search/defaults";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { useDebouncedValue } from "@/features/search/hooks/use-debounced-value";
-import { focusRing, shadowSoft, transitionFast } from "@/components/ui/tokens";
-import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
+import { focusRing, transitionFast } from "@/components/ui/tokens";
+import { SearchLineIcon } from "@/components/icons/RvxLineIcons";
 
 export type SearchBarProps = {
   inputId?: string;
@@ -52,11 +52,23 @@ export type SearchBarProps = {
 };
 
 function SearchIcon({ className }: { className?: string }) {
-  return <Fluency3DIcon icon="search" size={20} className={className} />;
+  return <SearchLineIcon className={className} />;
 }
 
 function ClearIcon({ className }: { className?: string }) {
-  return <Fluency3DIcon icon="feature-close" size={18} className={className} />;
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      aria-hidden
+      className={className}
+    >
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  );
 }
 
 function LoadingSpinner({ className }: { className?: string }) {
@@ -236,24 +248,22 @@ export function SearchBar({
             transitionFast,
             isHeaderVariant
               ? cn(
-                  "rx-glass border-border/60",
-                  "transition-[border-color,box-shadow,background-color,transform] duration-ds-normal ease-ds",
-                  "hover:border-primary/25 hover:shadow-[var(--ds-depth-2)]",
-                  "focus-within:border-primary/45 focus-within:shadow-[var(--ds-glow-primary)] focus-within:ring-2 focus-within:ring-ring/15",
-                  isOpen && "border-primary/45 shadow-[var(--ds-glow-primary)] ring-2 ring-ring/15",
+                  "border-border bg-surface",
+                  "transition-[border-color,box-shadow,background-color] duration-ds-normal ease-ds",
+                  "hover:border-primary/25",
+                  "focus-within:border-primary/45 focus-within:ring-2 focus-within:ring-ring/15",
+                  isOpen && "border-primary/45 ring-2 ring-ring/15",
                   isResponsive
                     ? "min-h-9 pl-2.5 pr-1.5 lg:min-h-11 lg:pl-3 lg:pr-2"
                     : isCompact
                       ? "min-h-9 pl-2.5 pr-1.5"
                       : "min-h-11 pl-3 pr-2",
-                  "active:scale-[0.995]",
                 )
               : cn(
-                  "border-white/10 bg-black/90 pl-3 pr-2 backdrop-blur-xl",
-                  shadowSoft,
-                  isOpen && "border-primary/40 shadow-ds-medium ring-2 ring-ring/20",
+                  "border-border bg-surface pl-3 pr-2",
+                  isOpen && "border-primary/40 ring-2 ring-ring/20",
                   !isOpen &&
-                    "focus-within:border-primary/40 focus-within:shadow-ds-medium focus-within:ring-2 focus-within:ring-ring/20",
+                    "focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-ring/20",
                 ),
           )}
           data-voice-search-ready={isHeaderVariant ? "true" : undefined}
@@ -386,7 +396,7 @@ export function SearchBar({
           role="listbox"
           aria-label="Search suggestions"
           className={cn(
-            "absolute left-0 right-0 top-[calc(100%+var(--ds-space-2))] z-50 overflow-hidden rounded-ds-xl border border-border bg-overlay shadow-ds-floating backdrop-blur-xl backdrop-saturate-150",
+            "absolute left-0 right-0 top-[calc(100%+var(--ds-space-2))] z-50 overflow-hidden rounded-ds-xl border border-border bg-overlay",
             transitionFast,
           )}
         >

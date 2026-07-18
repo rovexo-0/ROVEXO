@@ -35,54 +35,50 @@ const baseProfile: UserProfile = {
   unreadNotifications: 0,
 };
 
-function stubProductionDisabled() {
+function stubKillSwitch() {
   vi.stubEnv("NODE_ENV", "production");
   vi.stubEnv("NEXT_PUBLIC_BRING_YOUR_ITEM_ENABLED", "false");
   vi.stubEnv("BRING_YOUR_ITEM_ENABLED", "false");
-  vi.stubEnv("PLAYWRIGHT_E2E", "");
-  vi.stubEnv("VITEST", "");
 }
 
-describe("Bring Your Item release policy", () => {
+describe("Bring Your Item release policy — Absolute Final", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
-  it("defaults to disabled in production without an explicit flag", () => {
-    stubProductionDisabled();
+  it("defaults to enabled (Migration + Connectors are live hubs)", () => {
+    vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_BRING_YOUR_ITEM_ENABLED", "");
     vi.stubEnv("BRING_YOUR_ITEM_ENABLED", "");
 
+    expect(isBringYourItemEnabled()).toBe(true);
+  });
+
+  it("respects explicit kill-switch false", () => {
+    stubKillSwitch();
     expect(isBringYourItemEnabled()).toBe(false);
   });
 
   it("enables when NEXT_PUBLIC_BRING_YOUR_ITEM_ENABLED=true", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_BRING_YOUR_ITEM_ENABLED", "true");
-    vi.stubEnv("VITEST", "");
 
     expect(isBringYourItemEnabled()).toBe(true);
   });
 
-  it("is not listed on the canonical My Account hub (route remains available elsewhere)", () => {
-    stubProductionDisabled();
-
+  it("is not listed on the canonical My Account hub (lives under Selling)", () => {
     const byi = buildAccountMenu(baseProfile).find((item) => item.id === "bring-your-item");
     expect(byi).toBeUndefined();
   });
 
   it("keeps the live route available when enabled outside the account hub menu", () => {
-    vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("NEXT_PUBLIC_BRING_YOUR_ITEM_ENABLED", "true");
-    vi.stubEnv("VITEST", "");
-
-    const byi = buildAccountMenu(baseProfile).find((item) => item.id === "bring-your-item");
-    expect(byi).toBeUndefined();
     expect(BRING_YOUR_ITEM_PATH).toBe("/account/bring-your-item");
+    const selling = getSellingModuleTiles();
+    expect(selling.some((tile) => tile.href === BRING_YOUR_ITEM_PATH)).toBe(true);
   });
 
-  it("hides BYI from public navigation surfaces when disabled", () => {
-    stubProductionDisabled();
+  it("hides BYI from public navigation surfaces when kill-switched", () => {
+    stubKillSwitch();
 
     const sellingTiles = getSellingModuleTiles();
     const sellHubTiles = getSellHubTiles(baseProfile);

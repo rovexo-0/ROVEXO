@@ -10,16 +10,14 @@ import {
   type SVGProps,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Avatar } from "@/components/ui/Avatar";
 import { SafeImage } from "@/components/ui/SafeImage";
 import {
   BackLineIcon,
   ChevronRightLineIcon,
-  DoubleCheckLineIcon,
   MoreLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { useChatRealtime, signalTyping } from "@/features/messages/hooks/use-chat-realtime";
+import { useChatRealtime } from "@/features/messages/hooks/use-chat-realtime";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { CheckoutHubSheet } from "@/features/transaction-hub/CheckoutHubSheet";
 import { TransactionHubBottomActions } from "@/features/transaction-hub/TransactionHubBottomActions";
@@ -47,7 +45,7 @@ import type { Order } from "@/lib/orders/types";
 import { formatListingPrice, formatListingPriceIncl } from "@/lib/listing-card/format";
 import { formatCurrency } from "@/lib/wallet/utils";
 import { uploadListingImage } from "@/lib/listings/upload-client";
-import { ShieldCheck } from "lucide-react";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import "@/styles/rovexo/conversation-hub-v1.css";
 
 type ConversationHubProps = {
@@ -83,23 +81,14 @@ function CameraLineIcon(props: IconProps) {
 function MessageBubble({
   message,
   outgoing,
-  avatarUrl,
-  avatarName,
   onOpenPhoto,
 }: {
   message: ChatMessage;
   outgoing: boolean;
-  avatarUrl?: string | null;
-  avatarName: string;
   onOpenPhoto: (url: string) => void;
 }) {
-  const isRead = message.status === "read";
-  const isDelivered = message.status === "delivered" || isRead;
-  const isSent = message.status === "sent" || isDelivered;
-
   return (
     <div className={cn("conv-hub__msg", outgoing ? "conv-hub__msg--out" : "conv-hub__msg--in")}>
-      {!outgoing ? <Avatar src={avatarUrl} alt={avatarName} name={avatarName} size="sm" /> : null}
       <div>
         <div className={cn("conv-hub__bubble", outgoing ? "conv-hub__bubble--out" : "conv-hub__bubble--in")}>
           {message.kind === "photo" ? (
@@ -115,26 +104,8 @@ function MessageBubble({
             message.content
           )}
         </div>
-        <span
-          className={cn(
-            "conv-hub__msg-meta",
-            outgoing && isRead && "conv-hub__msg-meta--read",
-            outgoing && isDelivered && !isRead && "conv-hub__msg-meta--delivered",
-          )}
-          aria-label={
-            outgoing
-              ? isRead
-                ? "Seen"
-                : isDelivered
-                  ? "Delivered"
-                  : isSent
-                    ? "Sent"
-                    : undefined
-              : undefined
-          }
-        >
+        <span className="conv-hub__msg-meta">
           <time dateTime={message.sentAt}>{formatMessageTime(message.sentAt)}</time>
-          {outgoing && isDelivered ? <DoubleCheckLineIcon /> : null}
         </span>
       </div>
     </div>
@@ -178,7 +149,6 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   const [uploading, setUploading] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [typingLabel, setTypingLabel] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("ready");
   const [historyCount, setHistoryCount] = useState(HISTORY_PAGE);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -198,13 +168,9 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [attachSheetOpen, setAttachSheetOpen] = useState(false);
   const [feeSheetOpen, setFeeSheetOpen] = useState(false);
   const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
   const pullStartY = useRef<number | null>(null);
-  const typingTimer = useRef<number | null>(null);
 
   useChatRealtime(conversation.id, conversation.participant.id, setConversation);
 
@@ -323,10 +289,6 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
 
   useEffect(() => {
     const sub = subscribeConversationRealtime(conversation.id, (event) => {
-      if (event.type === "typing.started") {
-        setTypingLabel(`${conversation.participant.name} is typing…`);
-      }
-      if (event.type === "typing.stopped") setTypingLabel(null);
       if (event.type === "badge.updated" || event.type === "message.created") {
         void refreshBadges();
       }
@@ -335,7 +297,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       }
     });
     return () => sub.unsubscribe();
-  }, [conversation.id, conversation.participant.name, refreshBadges, reloadRelated]);
+  }, [conversation.id, refreshBadges, reloadRelated]);
 
   useEffect(() => {
     const onOnline = () => {
@@ -358,9 +320,8 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
         order,
         offers,
         dispute,
-        typingLabel,
       }),
-    [conversation, order, offers, dispute, typingLabel],
+    [conversation, order, offers, dispute],
   );
 
   const acceptedOffer = useMemo(
@@ -380,7 +341,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
 
   useEffect(() => {
     threadEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [timelineWindow.length, typingLabel, conversation.messages.length]);
+  }, [timelineWindow.length, conversation.messages.length]);
 
   useEffect(() => {
     if (paymentHandledRef.current) return;
@@ -492,7 +453,6 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
         void refreshBadges();
       } finally {
         setSending(false);
-        void signalTyping(conversation.id, false);
       }
     },
     [
@@ -511,17 +471,11 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
 
   const handleDraftChange = (value: string) => {
     setDraft(value);
-    void signalTyping(conversation.id, value.trim().length > 0);
-    if (typingTimer.current) window.clearTimeout(typingTimer.current);
-    typingTimer.current = window.setTimeout(() => {
-      void signalTyping(conversation.id, false);
-    }, 1200);
   };
 
   const handleUploadFiles = async (files: FileList | null) => {
     const file = files?.[0];
     if (!file || conversation.blocked) return;
-    setAttachSheetOpen(false);
     setUploading(true);
     try {
       const uploaded = await uploadListingImage({ file, productId: conversation.product.id });
@@ -535,28 +489,6 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       setUploading(false);
       if (galleryInputRef.current) galleryInputRef.current.value = "";
       if (cameraInputRef.current) cameraInputRef.current.value = "";
-      if (videoInputRef.current) videoInputRef.current.value = "";
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
-
-  const sharePayload = async (title: string, url: string) => {
-    setAttachSheetOpen(false);
-    try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title, url });
-        return;
-      }
-      await navigator.clipboard.writeText(url);
-      pushToast({ title: "Link copied.", variant: "success" });
-    } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") return;
-      try {
-        await navigator.clipboard.writeText(url);
-        pushToast({ title: "Link copied.", variant: "success" });
-      } catch {
-        pushToast({ title: "Unable to share.", variant: "error" });
-      }
     }
   };
 
@@ -782,28 +714,6 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                   role="menuitem"
                   onClick={() => {
                     setMenuOpen(false);
-                    void fetch(`/api/messages/${conversation.id}`, {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ action: "mute", value: !conversation.muted }),
-                    }).then((response) => {
-                      if (!response.ok) return;
-                      setConversation((current) => ({ ...current, muted: !current.muted }));
-                      pushToast({
-                        title: conversation.muted ? "Conversation unmuted." : "Conversation muted.",
-                        variant: "success",
-                      });
-                    });
-                  }}
-                >
-                  {conversation.muted ? "Unmute" : "Mute"} conversation
-                </button>
-                <button
-                  type="button"
-                  className="conv-hub__menu-item"
-                  role="menuitem"
-                  onClick={() => {
-                    setMenuOpen(false);
                     void runOrderAction("report_issue");
                   }}
                 >
@@ -866,7 +776,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                       setFeeSheetOpen(true);
                     }}
                   >
-                    <ShieldCheck aria-hidden strokeWidth={2.25} className="conv-hub__fee-shield-icon" />
+                    <AccountIcon name="security" className="conv-hub__fee-shield-icon" />
                   </button>
                 </span>
               </span>
@@ -1089,41 +999,25 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                     key={item.id}
                     message={item.message}
                     outgoing={item.message.senderRole === view.viewerRole}
-                    avatarUrl={view.participantAvatarUrl}
-                    avatarName={view.participantName}
                     onOpenPhoto={setPreviewUrl}
                   />
                 );
               })
             )}
 
-            {typingLabel ? <div className="conv-hub__typing">{typingLabel}</div> : null}
+            {null}
 
             {order?.status === "completed" || order?.completedAt ? (
-              <>
-                <div className="conv-hub__review-teaser">
-                  <p className="conv-hub__review-stars" aria-hidden>
-                    ★★★★★
-                  </p>
-                  <p className="conv-hub__review-summary">Excellent seller.</p>
-                  <button
-                    type="button"
-                    className="conv-hub__system-cta"
-                    onClick={() => setReviewSheetOpen(true)}
-                  >
-                    View review &gt;
-                  </button>
-                </div>
-                <div className="conv-hub__done-summary">
-                  <p className="conv-hub__done-check">✓ Payment received</p>
-                  <p className="conv-hub__done-check">✓ Tracking available</p>
-                  <p className="conv-hub__done-check">✓ Delivered</p>
-                  <p className="conv-hub__done-check">✓ Review received</p>
-                  <p className="conv-hub__done-check">✓ Funds released</p>
-                  <p className="conv-hub__done-title">COMPLETED</p>
-                  <p className="conv-hub__done-thanks">Thank you for using ROVEXO.</p>
-                </div>
-              </>
+              <div className="conv-hub__done-summary">
+                <p className="conv-hub__done-title">Order completed</p>
+                <button
+                  type="button"
+                  className="conv-hub__system-cta"
+                  onClick={() => setReviewSheetOpen(true)}
+                >
+                  Leave a review
+                </button>
+              </div>
             ) : null}
 
             <div ref={threadEndRef} />
@@ -1192,22 +1086,21 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
               <button
                 type="button"
                 className="conv-hub__icon-btn conv-hub__icon-btn--attach"
-                aria-label="Add attachment"
-                aria-expanded={attachSheetOpen}
+                aria-label="Add photo"
                 disabled={conversation.blocked || uploading}
-                onClick={() => setAttachSheetOpen(true)}
+                onClick={() => galleryInputRef.current?.click()}
               >
                 <PlusLineIcon />
               </button>
               <label className="sr-only" htmlFor="conv-hub-composer">
-                Type a message
+                Message about this order
               </label>
               <textarea
                 id="conv-hub-composer"
                 ref={textareaRef}
                 className="conv-hub__composer-field"
                 rows={1}
-                placeholder={uploading ? "Uploading…" : "Type a message…"}
+                placeholder={uploading ? "Uploading…" : "Message about this order…"}
                 value={draft}
                 disabled={conversation.blocked || sending || uploading}
                 onChange={(event) => handleDraftChange(event.target.value)}
@@ -1245,121 +1138,8 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 tabIndex={-1}
                 onChange={(event) => void handleUploadFiles(event.target.files)}
               />
-              <input
-                ref={videoInputRef}
-                type="file"
-                accept="video/*"
-                capture="environment"
-                className="sr-only"
-                tabIndex={-1}
-                onChange={(event) => void handleUploadFiles(event.target.files)}
-              />
-              <input
-                ref={fileInputRef}
-                type="file"
-                className="sr-only"
-                tabIndex={-1}
-                onChange={(event) => void handleUploadFiles(event.target.files)}
-              />
             </div>
           </form>
-
-          {attachSheetOpen ? (
-            <div
-              className="conv-hub__attach-sheet"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Add attachment"
-            >
-              <button
-                type="button"
-                className="conv-hub__attach-backdrop"
-                aria-label="Close attachment options"
-                onClick={() => setAttachSheetOpen(false)}
-              />
-              <div className="conv-hub__attach-panel">
-                <p className="conv-hub__attach-title">Add</p>
-                <button
-                  type="button"
-                  className="conv-hub__attach-item"
-                  disabled={conversation.blocked || uploading}
-                  onClick={() => cameraInputRef.current?.click()}
-                >
-                  Take photo
-                </button>
-                <button
-                  type="button"
-                  className="conv-hub__attach-item"
-                  disabled={conversation.blocked || uploading}
-                  onClick={() => galleryInputRef.current?.click()}
-                >
-                  Gallery
-                </button>
-                <button
-                  type="button"
-                  className="conv-hub__attach-item"
-                  disabled={conversation.blocked || uploading}
-                  onClick={() => videoInputRef.current?.click()}
-                >
-                  Video
-                </button>
-                <button
-                  type="button"
-                  className="conv-hub__attach-item"
-                  disabled={conversation.blocked || uploading}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  Files
-                </button>
-                <button
-                  type="button"
-                  className="conv-hub__attach-item"
-                  onClick={() => {
-                    const path = transactionHubListingHref(view.product.slug);
-                    void sharePayload(
-                      view.product.title,
-                      `${window.location.origin}${path}`,
-                    );
-                  }}
-                >
-                  Share listing
-                </button>
-                {view.tracking?.trackingNumber && view.tracking?.carrierUrl ? (
-                  <button
-                    type="button"
-                    className="conv-hub__attach-item"
-                    onClick={() => {
-                      void sharePayload(
-                        `Tracking ${view.tracking!.trackingNumber}`,
-                        view.tracking!.carrierUrl!,
-                      );
-                    }}
-                  >
-                    Share tracking
-                  </button>
-                ) : null}
-                <button
-                  type="button"
-                  className="conv-hub__attach-item"
-                  onClick={() => {
-                    void sharePayload(
-                      `Order ${orderNumber}`,
-                      `${window.location.origin}${view.orderDetailsHref}`,
-                    );
-                  }}
-                >
-                  Share order details
-                </button>
-                <button
-                  type="button"
-                  className="conv-hub__attach-item conv-hub__attach-item--cancel"
-                  onClick={() => setAttachSheetOpen(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          ) : null}
         </div>
 
         {previewUrl ? (

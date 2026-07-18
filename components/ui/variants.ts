@@ -1,42 +1,37 @@
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
+/** Absolute Final — one button system: solid, no glass, no gradient glow. */
 export const buttonVariants = {
   primary: cn(
-    "rx-btn rx-btn--primary bg-[image:var(--ds-gradient-primary)] text-primary-foreground",
-    "shadow-[var(--ds-shadow-medium)]",
-    "hover:brightness-[1.03]",
-    "active:translate-y-0 active:scale-[0.98]",
+    "rx-btn rx-btn--primary bg-primary text-primary-foreground",
     focusRing,
     transitionFast,
   ),
   secondary: cn(
-    "rx-btn rx-btn--secondary rx-glass text-text-primary",
-    "border border-[var(--ds-color-border)] bg-[var(--ds-glass-bg)]",
-    "hover:bg-surface-muted/80 hover:-translate-y-px hover:shadow-[var(--ds-shadow-medium)]",
+    "rx-btn rx-btn--secondary border border-border bg-surface text-text-primary",
+    "hover:bg-surface-muted",
     focusRing,
     transitionFast,
   ),
   outline: cn(
-    "rx-btn border border-[var(--ds-color-border)] bg-surface/70 text-text-primary backdrop-blur-md",
-    "shadow-[var(--ds-shadow-soft)] hover:border-primary/35 hover:shadow-[var(--ds-shadow-medium)]",
+    "rx-btn border border-border bg-surface text-text-primary",
+    "hover:border-primary/35",
     focusRing,
     transitionFast,
   ),
   ghost: cn(
-    "rx-btn rounded-ds-md text-text-secondary hover:bg-secondary/70 hover:text-primary",
+    "rx-btn rounded-ds-md text-text-secondary hover:bg-secondary hover:text-primary",
     focusRing,
     transitionFast,
   ),
   success: cn(
-    "rx-btn rx-btn--success bg-success text-success-foreground shadow-[var(--ds-shadow-soft)]",
-    "hover:brightness-105 hover:-translate-y-px",
+    "rx-btn rx-btn--success bg-success text-success-foreground",
     focusRing,
     transitionFast,
   ),
   danger: cn(
-    "rx-btn rx-btn--danger bg-danger text-danger-foreground shadow-[var(--ds-shadow-soft)]",
-    "hover:brightness-105 hover:-translate-y-px",
+    "rx-btn rx-btn--danger bg-danger text-danger-foreground",
     focusRing,
     transitionFast,
   ),

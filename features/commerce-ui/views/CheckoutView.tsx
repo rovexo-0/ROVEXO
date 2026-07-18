@@ -1,7 +1,6 @@
-import { Package } from "lucide-react";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { cn } from "@/lib/cn";
 import { SecureCheckoutHeader } from "@/features/commerce-ui/components/SecureCheckoutHeader";
-import { CommerceStepper } from "@/features/commerce-ui/components/CommerceStepper";
 import { SellerSummaryCard } from "@/features/commerce-ui/components/SellerSummaryCard";
 import { OrderSummaryTotals } from "@/features/commerce-ui/components/OrderSummaryTotals";
 import { CheckoutPayFooter } from "@/features/commerce-ui/components/CheckoutPayFooter";
@@ -19,13 +18,11 @@ type CheckoutViewProps = {
 };
 
 /**
- * Canonical Checkout UI (UI LOCK).
- *
- * Shows only Products, Shipping, Platform Fee and Total. Never exposes buyer
- * protection, fee percentage, shipping labels or parcel count.
+ * Checkout — Absolute Final.
+ * Product → Shipping → Platform Fee → Total → Confirm & Pay.
+ * No stepper, no micro actions, no luxury chrome.
  */
 export function CheckoutView({
-  step = "payment",
   sellerGroups,
   totals,
   backHref = "/cart",
@@ -34,33 +31,32 @@ export function CheckoutView({
   className,
 }: CheckoutViewProps) {
   return (
-    <div className={cn("flex min-h-full flex-col bg-background", className)}>
+    <div className={cn("ac-canonical flex min-h-full flex-col bg-background", className)}>
       <SecureCheckoutHeader backHref={backHref} />
 
       <div
         className={cn(
-          "flex w-full flex-1 flex-col gap-ds-5 px-ds-4 py-ds-5",
+          "flex w-full flex-1 flex-col gap-ds-4 px-ds-4 py-ds-4",
           !preview && "pb-[calc(140px+env(safe-area-inset-bottom))]",
         )}
       >
-        <CommerceStepper current={step} />
-
-        <section className="flex flex-col gap-ds-4">
+        <section className="flex flex-col gap-ds-3" aria-label="Product">
           <div className="flex items-center gap-ds-2">
-            <Package className="h-5 w-5 text-text-secondary" aria-hidden />
-            <h2 className="text-base font-semibold text-text-primary">Order Summary</h2>
+            <span className="ac-canonical__menu-icon text-text-secondary" aria-hidden>
+              <AccountIcon name="orders" />
+            </span>
+            <h2 className="text-base font-semibold text-text-primary">Product</h2>
           </div>
-
           {sellerGroups.map((group) => (
-            <SellerSummaryCard key={group.sellerId} group={group} showActions />
+            <SellerSummaryCard key={group.sellerId} group={group} showActions={false} />
           ))}
         </section>
 
-        <OrderSummaryTotals totals={totals} accentTotal />
+        <OrderSummaryTotals totals={totals} title="Payment" accentTotal />
       </div>
 
       {preview ? (
-        <div className="border-t border-border bg-surface px-ds-4 py-ds-4">
+        <div className="border-t border-border bg-white px-ds-4 py-ds-4">
           <CheckoutPayFooter total={totals.total} onPay={onPay} inline />
         </div>
       ) : (

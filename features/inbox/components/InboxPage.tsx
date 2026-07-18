@@ -12,7 +12,8 @@ import {
   type SVGProps,
 } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { NotificationLineIcon } from "@/features/notifications/icons-v1";
+import { AccountIcon } from "@/components/account/AccountIcons";
+import { CanonicalMenuRow } from "@/src/components/canonical";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { enqueueOfflineNotificationAction } from "@/lib/notifications/offline-sync";
 import { formatNotificationTime } from "@/lib/notifications/utils";
@@ -33,8 +34,6 @@ import {
 import "@/styles/rovexo/inbox-hub-v1.css";
 
 const PAGE_SIZE = 20;
-const SWIPE_THRESHOLD = 72;
-const MAX_SWIPE = 140;
 
 type IconProps = SVGProps<SVGSVGElement>;
 
@@ -85,98 +84,6 @@ function matchesNotificationSearch(notification: Notification, query: string): b
     .join(" ")
     .toLowerCase()
     .includes(q);
-}
-
-function SwipeableConversationRow({
-  children,
-  onMarkRead,
-  onPin,
-  onArchive,
-  onDelete,
-}: {
-  children: ReactNode;
-  onMarkRead: () => void;
-  onPin: () => void;
-  onArchive: () => void;
-  onDelete: () => void;
-}) {
-  const [offset, setOffset] = useState(0);
-  const [animating, setAnimating] = useState(false);
-  const startX = useRef(0);
-  const dragging = useRef(false);
-  const currentOffset = useRef(0);
-
-  const reset = () => {
-    currentOffset.current = 0;
-    setAnimating(true);
-    setOffset(0);
-    window.setTimeout(() => setAnimating(false), 200);
-  };
-
-  return (
-    <div className="inbox-hub__swipe">
-      <div className="inbox-hub__swipe-actions inbox-hub__swipe-actions--left" aria-hidden>
-        <button type="button" className="inbox-hub__swipe-btn inbox-hub__swipe-btn--read" onClick={onMarkRead}>
-          Read
-        </button>
-        <button type="button" className="inbox-hub__swipe-btn inbox-hub__swipe-btn--pin" onClick={onPin}>
-          Pin
-        </button>
-      </div>
-      <div className="inbox-hub__swipe-actions inbox-hub__swipe-actions--right" aria-hidden>
-        <button
-          type="button"
-          className="inbox-hub__swipe-btn inbox-hub__swipe-btn--archive"
-          onClick={onArchive}
-        >
-          Archive
-        </button>
-        <button
-          type="button"
-          className="inbox-hub__swipe-btn inbox-hub__swipe-btn--delete"
-          onClick={onDelete}
-        >
-          Delete
-        </button>
-      </div>
-      <div
-        className={cn("inbox-hub__swipe-front", animating && "inbox-hub__swipe-front--anim")}
-        style={{
-          transform: `translateX(${offset}px)`,
-          transition: animating ? "transform 200ms ease" : undefined,
-        }}
-        onPointerDown={(event) => {
-          dragging.current = true;
-          startX.current = event.clientX - currentOffset.current;
-          event.currentTarget.setPointerCapture(event.pointerId);
-        }}
-        onPointerMove={(event) => {
-          if (!dragging.current) return;
-          const next = Math.max(-MAX_SWIPE, Math.min(MAX_SWIPE, event.clientX - startX.current));
-          currentOffset.current = next;
-          setOffset(next);
-        }}
-        onPointerUp={() => {
-          if (!dragging.current) return;
-          dragging.current = false;
-          if (currentOffset.current >= SWIPE_THRESHOLD) {
-            onMarkRead();
-            reset();
-            return;
-          }
-          if (currentOffset.current <= -SWIPE_THRESHOLD) {
-            onArchive();
-            reset();
-            return;
-          }
-          reset();
-        }}
-        onPointerCancel={reset}
-      >
-        {children}
-      </div>
-    </div>
-  );
 }
 
 function InboxListSkeleton({ variant }: { variant: "messages" | "notifications" }) {
@@ -511,27 +418,18 @@ export function InboxPage() {
   const loading = tab === "messages" ? loadingMessages : loadingNotifications;
 
   const renderNotificationRow = (notification: Notification, unreadRow: boolean) => (
-    <li key={notification.id}>
-      <button
-        type="button"
-        className={cn(
-          "inbox-hub__notif-card",
-          unreadRow && "inbox-hub__notif-card--unread",
-        )}
-        data-category={mapNotificationCategory(notification.type)}
-        data-notif-state={unreadRow ? "unread" : "read"}
+    <li key={notification.id} className="list-none">
+      <CanonicalMenuRow
+        title={notification.title}
+        description={formatNotificationTime(notification.createdAt)}
         onClick={() => void openNotification(notification)}
-      >
-        <span className="inbox-hub__notif-icon">
-          <NotificationLineIcon icon={notification.icon} />
-        </span>
-        <span className="inbox-hub__notif-body">
-          <span className="inbox-hub__notif-title">{notification.title}</span>
-          <time className="inbox-hub__notif-time" dateTime={notification.createdAt}>
-            {formatNotificationTime(notification.createdAt)}
-          </time>
-        </span>
-      </button>
+        badge={unreadRow ? 1 : undefined}
+        icon={
+          <span className="ac-canonical__menu-icon" aria-hidden>
+            <AccountIcon name="notifications" />
+          </span>
+        }
+      />
     </li>
   );
 
@@ -629,42 +527,37 @@ export function InboxPage() {
               </Link>
             </div>
           ) : (
-            <ul className="inbox-hub__list">
+            <ul className="inbox-hub__list" data-transaction-hub="v1.0">
               {visibleConversations.map((conversation) => (
                 <li key={conversation.id}>
-                  <SwipeableConversationRow
-                    onMarkRead={() => void patchConversation(conversation.id, "read")}
-                    onPin={() => void patchConversation(conversation.id, "pin")}
-                    onArchive={() => void patchConversation(conversation.id, "archive")}
-                    onDelete={() => void patchConversation(conversation.id, "delete")}
+                  <Link
+                    href={INBOX_ROUTES.conversation(conversation.id)}
+                    className="inbox-hub__card"
                   >
-                    <Link
-                      href={INBOX_ROUTES.conversation(conversation.id)}
-                      className="inbox-hub__card"
-                    >
-                      <span className="inbox-hub__card-body">
-                        <span className="inbox-hub__card-top">
-                          <span className="inbox-hub__product-title">
-                            {conversation.participant.name}
-                          </span>
-                          <time
-                            className="inbox-hub__time"
-                            dateTime={conversation.lastMessageAt}
-                          >
-                            {formatMessageTime(conversation.lastMessageAt)}
-                          </time>
+                    <span className="inbox-hub__card-body">
+                      <span className="inbox-hub__card-top">
+                        <span className="inbox-hub__product-title">
+                          {conversation.product?.title ?? conversation.participant.name}
                         </span>
-                        <span
-                          className={cn(
-                            "inbox-hub__preview",
-                            conversation.unreadCount > 0 && "inbox-hub__preview--unread",
-                          )}
+                        <time
+                          className="inbox-hub__time"
+                          dateTime={conversation.lastMessageAt}
                         >
-                          {conversation.lastMessage}
-                        </span>
+                          {formatMessageTime(conversation.lastMessageAt)}
+                        </time>
                       </span>
-                    </Link>
-                  </SwipeableConversationRow>
+                      <span
+                        className={cn(
+                          "inbox-hub__preview",
+                          conversation.unreadCount > 0 && "inbox-hub__preview--unread",
+                        )}
+                      >
+                        {conversation.product?.title
+                          ? `${conversation.participant.name} · ${conversation.lastMessage}`
+                          : conversation.lastMessage}
+                      </span>
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>

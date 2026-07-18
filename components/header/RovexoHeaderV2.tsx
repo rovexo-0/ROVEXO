@@ -2,7 +2,7 @@
 
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Bell } from "lucide-react";
+import { BellLineIcon } from "@/components/icons/RvxLineIcons";
 import { HomepageSearchField } from "@/components/home/HomepageSearchField";
 import { HeaderV2IconLink } from "@/components/header/HeaderV2IconLink";
 import { HeaderProfileLink } from "@/components/header/HeaderProfileLink";
@@ -21,12 +21,6 @@ export type RovexoHeaderV2Props = {
   /** Non-homepage — replaces Account/Avatar with Share. */
   replaceAccountWithShare?: boolean;
 };
-
-const HEADER_LUCIDE_ICON = {
-  size: 20,
-  strokeWidth: 1.75,
-  "aria-hidden": true,
-} as const;
 
 function RovexoHeaderV2({
   showSearch = true,
@@ -107,7 +101,7 @@ function RovexoHeaderV2({
               badge={unreadNotifications}
               className="rx-h2__action--notifications"
             >
-              <Bell {...HEADER_LUCIDE_ICON} className="rx-h2__lucide" />
+              <BellLineIcon className="rx-h2__lucide h-5 w-5" />
             </HeaderV2IconLink>
             {!isWordmarkLayout && replaceAccountWithShare ? (
               <HomepageHeaderShareButton className="rx-h2__share" />

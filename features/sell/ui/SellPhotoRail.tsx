@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Plus } from "lucide-react";
+import { ComposeLineIcon } from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";
 import { CanonicalCard } from "@/src/components/canonical";
 import { ModalContainer } from "@/components/ui/ModalContainer";
@@ -140,7 +140,7 @@ export const SellPhotoRail = memo(function SellPhotoRail({
       )}
     >
       <SellPhotoFileInput multiple onFilesSelected={handleFilesSelected} />
-      <Plus className="h-6 w-6 text-primary" aria-hidden />
+      <ComposeLineIcon className="h-6 w-6 text-primary" aria-hidden />
       <span className="text-sm font-medium text-text-primary">Add Photos</span>
     </label>
   );
@@ -245,7 +245,7 @@ export const SellPhotoRail = memo(function SellPhotoRail({
               className={cn(tileBase, "sell-photo-upload flex-col gap-1", focusRing)}
             >
               <SellPhotoFileInput multiple onFilesSelected={handleFilesSelected} />
-              <Plus className="h-5 w-5 text-primary" aria-hidden />
+              <ComposeLineIcon className="h-5 w-5 text-primary" aria-hidden />
               <span className="text-[0.625rem] font-medium text-text-primary">Add</span>
             </label>
           ) : null}

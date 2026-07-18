@@ -28,7 +28,7 @@ export default async function OrderTrackingRoute({ params }: OrderTrackingRouteP
       showHeaderTitle
       bottomNavTab="account"
     >
-      <div className="flex w-full flex-col px-ds-4 pb-ds-5">
+      <div className="flex w-full flex-col pb-ds-5">
         <TrackingView
           orderNumber={commerce.meta.orderNumber}
           itemCount={commerce.meta.itemCount}

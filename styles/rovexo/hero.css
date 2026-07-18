@@ -713,7 +713,7 @@
 }
 
 .import-rx-hero-banner__cta--primary {
-  backdrop-filter: blur(8px);
+  backdrop-filter: none;
 }
 
 @media (min-width: 640px) {

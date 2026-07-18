@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="732" viewBox="0 0 390 732">
+  <rect width="390" height="732" rx="20" fill="#ffffff" stroke="#0f172a14"/>
+  <rect x="0" y="0" width="390" height="64" fill="#ffffff"/>
+  <line x1="0" y1="64" x2="390" y2="64" stroke="#0f172a14"/>
+  <text x="24" y="40" font-family="system-ui,sans-serif" font-size="22" fill="#64748b">‹</text>
+  <text x="195" y="40" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="#111111" text-anchor="middle">My Account</text>
+  
+  <rect x="16" y="76" width="358" height="616" rx="20" fill="#ffffff" stroke="#0f172a14"/>
+  
+  <line x1="16" y1="132" x2="374" y2="132" stroke="#0f172a14"/>
+  <rect x="32" y="94" width="20" height="20" rx="6" fill="#f3e8ff"/>
+  <text x="64" y="110" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#111111">Buying</text>
+  <text x="360" y="112" font-family="system-ui,sans-serif" font-size="18" fill="#cbd5e1" text-anchor="end">›</text>
+  <line x1="16" y1="188" x2="374" y2="188" stroke="#0f172a14"/>
+  <rect x="32" y="150" width="20" height="20" rx="6" fill="#f3e8ff"/>
+  <text x="64" y="166" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#111111">Selling</text>
+  <text x="360" y="168" font-family="system-ui,sans-serif" font-size="18" fill="#cbd5e1" text-anchor="end">›</text>
+  <line x1="16" y1="244" x2="374" y2="244" stroke="#0f172a14"/>
+  <rect x="32" y="206" width="20" height="20" rx="6" fill="#f3e8ff"/>
+  <text x="64" y="222" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#111111">Business</text>
+  <text x="360" y="224" font-family="system-ui,sans-serif" font-size="18" fill="#cbd5e1" text-anchor="end">›</text>
+  <line x1="16" y1="300" x2="374" y2="300" stroke="#0f172a14"/>
+  <rect x="32" y="262" width="20" height="20" rx="6" fill="#f3e8ff"/>
+  <text x="64" y="278" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#111111">Wallet</text>
+  <text x="360" y="280" font-family="system-ui,sans-serif" font-size="18" fill="#cbd5e1" text-anchor="end">›</text>
+  <line x1="16" y1="356" x2="374" y2="356" stroke="#0f172a14"/>
+  <rect x="32" y="318" width="20" height="20" rx="6" fill="#f3e8ff"/>
+  <text x="64" y="334" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#111111">Messages</text>
+  <text x="360" y="336" font-family="system-ui,sans-serif" font-size="18" fill="#cbd5e1" text-anchor="end">›</text>
+  <line x1="16" y1="412" x2="374" y2="412" stroke="#0f172a14"/>
+  <rect x="32" y="374" width="20" height="20" rx="6" fill="#f3e8ff"/>
+  <text x="64" y="390" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#111111">Notifications</text>
+  <text x="360" y="392" font-family="system-ui,sans-serif" font-size="18" fill="#cbd5e1" text-anchor="end">›</text>
+  <line x1="16" y1="468" x2="374" y2="468" stroke="#0f172a14"/>
+  <rect x="32" y="430" width="20" height="20" rx="6" fill="#f3e8ff"/>
+  <text x="64" y="446" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#111111">Verification</text>
+  <text x="360" y="448" font-family="system-ui,sans-serif" font-size="18" fill="#cbd5e1" text-anchor="end">›</text>
+  <line x1="16" y1="524" x2="374" y2="524" stroke="#0f172a14"/>
+  <rect x="32" y="486" width="20" height="20" rx="6" fill="#f3e8ff"/>
+  <text x="64" y="502" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#111111">Settings</text>
+  <text x="360" y="504" font-family="system-ui,sans-serif" font-size="18" fill="#cbd5e1" text-anchor="end">›</text>
+  <line x1="16" y1="580" x2="374" y2="580" stroke="#0f172a14"/>
+  <rect x="32" y="542" width="20" height="20" rx="6" fill="#f3e8ff"/>
+  <text x="64" y="558" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#111111">Help Centre</text>
+  <text x="360" y="560" font-family="system-ui,sans-serif" font-size="18" fill="#cbd5e1" text-anchor="end">›</text>
+  <line x1="16" y1="636" x2="374" y2="636" stroke="#0f172a14"/>
+  <rect x="32" y="598" width="20" height="20" rx="6" fill="#f3e8ff"/>
+  <text x="64" y="614" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#111111">Trust Centre</text>
+  <text x="360" y="616" font-family="system-ui,sans-serif" font-size="18" fill="#cbd5e1" text-anchor="end">›</text>
+  <line x1="16" y1="692" x2="374" y2="692" stroke="#0f172a14"/>
+  <rect x="32" y="654" width="20" height="20" rx="6" fill="#f3e8ff"/>
+  <text x="64" y="670" font-family="system-ui,sans-serif" font-size="15" font-weight="500" fill="#111111">Legal Centre</text>
+  <text x="360" y="672" font-family="system-ui,sans-serif" font-size="18" fill="#cbd5e1" text-anchor="end">›</text>
+  <text x="16" y="718" font-family="system-ui,sans-serif" font-size="11" fill="#64748b">Default · 16px · 100% · purple/white/black/grey</text>
+</svg>

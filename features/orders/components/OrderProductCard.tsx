@@ -1,10 +1,14 @@
-import { Card } from "@/components/ui/Card";
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { Price } from "@/components/ui/Price";
 import { OrderRoleBadge } from "@/features/orders/components/OrderRoleBadge";
 import { OrderStatusBadge } from "@/features/orders/components/OrderStatusBadge";
 import { getCounterpartyName } from "@/lib/orders/status";
 import { resolveOrderViewRole } from "@/lib/orders/role";
+import {
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import type { Order, OrderViewRole } from "@/lib/orders/types";
 
 type OrderProductCardProps = {
@@ -20,7 +24,12 @@ export function OrderProductCard({ order, userId }: OrderProductCardProps) {
   const counterpartyName = getCounterpartyName(order, view);
 
   return (
-    <OrderProductCardContent order={order} view={view} counterpartyLabel={counterpartyLabel} counterpartyName={counterpartyName} />
+    <OrderProductCardContent
+      order={order}
+      view={view}
+      counterpartyLabel={counterpartyLabel}
+      counterpartyName={counterpartyName}
+    />
   );
 }
 
@@ -31,6 +40,7 @@ type OrderProductCardContentProps = {
   counterpartyName: string;
 };
 
+/** One Product — order header as Master Menu rows. */
 export function OrderProductCardContent({
   order,
   view,
@@ -38,34 +48,31 @@ export function OrderProductCardContent({
   counterpartyName,
 }: OrderProductCardContentProps) {
   return (
-    <Card padding="none" className="overflow-hidden">
-      <div className="flex gap-ds-4 p-ds-4">
-        <ProductRowImage
-          src={order.product.imageUrl}
-          alt={order.product.title}
-          containerClassName="h-24 w-20 shrink-0 rounded-ds-md"
-          sizes="80px"
+    <CanonicalSection title="Order">
+      <CanonicalCard variant="list">
+        <CanonicalMenuRow
+          title={order.product.title}
+          description={`#${order.orderNumber} · ${counterpartyLabel}: ${counterpartyName}`}
+          showChevron={false}
+          icon={
+            <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg" aria-hidden>
+              <ProductRowImage
+                src={order.product.imageUrl}
+                alt=""
+                containerClassName="relative h-10 w-10"
+                sizes="40px"
+              />
+            </span>
+          }
+          trailing={
+            <span className="flex flex-col items-end gap-1">
+              <OrderStatusBadge status={order.status} />
+              <OrderRoleBadge role={view} />
+              <Price amount={order.totals.total} size="sm" />
+            </span>
+          }
         />
-
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-ds-2">
-            <p className="text-xs font-medium text-text-secondary">#{order.orderNumber}</p>
-            <OrderStatusBadge status={order.status} />
-          </div>
-
-          <OrderRoleBadge role={view} className="mt-ds-2" />
-
-          <h1 className="mt-ds-1 line-clamp-2 text-base font-semibold text-text-primary">
-            {order.product.title}
-          </h1>
-
-          <p className="mt-ds-1 text-sm text-text-secondary">
-            {counterpartyLabel}: {counterpartyName}
-          </p>
-
-          <Price amount={order.totals.total} size="md" className="mt-ds-2" />
-        </div>
-      </div>
-    </Card>
+      </CanonicalCard>
+    </CanonicalSection>
   );
 }

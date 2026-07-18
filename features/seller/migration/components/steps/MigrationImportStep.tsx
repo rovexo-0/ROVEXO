@@ -57,9 +57,7 @@ export function MigrationImportStep({
           items={queueItems}
           onItemsChange={onQueueItemsChange}
         />
-        <div className="byi-connect-card">
-          <MigrationBulkPublishPanel job={job} compact />
-        </div>
+        <MigrationBulkPublishPanel job={job} compact />
       </div>
     );
   }

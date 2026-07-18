@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/cn";
-import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
+import { BellLineIcon } from "@/components/icons/RvxLineIcons";
 import { focusRing, transitionNormal } from "@/components/ui/tokens";
 
 type NotificationBellProps = {
@@ -29,7 +29,7 @@ export default function NotificationBell({
         focusRing
       )}
     >
-      <Fluency3DIcon icon="notifications" size={20} />
+      <BellLineIcon className="h-5 w-5" />
 
       {hasUnread && (
         <span

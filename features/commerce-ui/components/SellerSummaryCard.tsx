@@ -1,4 +1,4 @@
-import { Store } from "lucide-react";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { CanonicalCard } from "@/src/components/canonical";
 import { cn } from "@/lib/cn";
 import { formatGBP } from "@/features/commerce-ui/lib/format";
@@ -30,8 +30,8 @@ export function SellerSummaryCard({
   return (
     <CanonicalCard variant="small" className={cn("flex w-full flex-col gap-ds-2", className)}>
       <div className="flex items-center gap-ds-2">
-        <span className="flex h-7 w-7 items-center justify-center rounded-ds-full bg-primary/10 text-primary">
-          <Store className="h-4 w-4" aria-hidden />
+        <span className="ac-canonical__menu-icon text-primary" aria-hidden>
+          <AccountIcon name="business" />
         </span>
         <p className="text-sm font-semibold text-text-primary">{group.sellerName}</p>
       </div>

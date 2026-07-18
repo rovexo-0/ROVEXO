@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check } from "lucide-react";
+import { CheckLineIcon } from "@/components/icons/RvxLineIcons";
 import { CanonicalButton } from "@/src/components/canonical";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { useToast } from "@/components/ui/Toast";
@@ -167,7 +167,7 @@ export function PublishSuccessDialog({
           className="grid h-14 w-14 place-items-center rounded-ds-full bg-success/15 text-success"
           aria-hidden
         >
-          <Check className="h-7 w-7" strokeWidth={2.5} />
+          <CheckLineIcon className="h-7 w-7" />
         </span>
         <div className="flex flex-col gap-ds-1">
           <h2 className="text-lg font-semibold text-text-primary">Listing published</h2>

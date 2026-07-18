@@ -1,6 +1,6 @@
 /**
- * Business hub — Absolute Final PO lock.
- * Orders · Inventory · Analytics · Reviews · Business Wallet · VAT · Directory.
+ * Business hub — Absolute Final Freeze (officially locked).
+ * Orders · Inventory · Analytics · Reviews · Wallet · VAT · Directory.
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
 import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
@@ -40,7 +40,7 @@ export function buildBusinessMenuSections(_storeSlug?: string | null): BusinessM
         { id: "reviews", title: "Reviews", href: "/business/reviews", icon: "reviews" },
         {
           id: "wallet",
-          title: "Business Wallet",
+          title: "Wallet",
           href: "/business/wallet",
           icon: "wallet",
           badgeKeys: ["wallet-payout"],

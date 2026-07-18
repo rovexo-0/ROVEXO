@@ -10,7 +10,7 @@ type LegalDocumentCanonicalProps = {
 
 export function LegalDocumentCanonical({ document }: LegalDocumentCanonicalProps) {
   return (
-    <AccountCanonicalShell title={document.title} backHref="/legal" backLabel="Legal">
+    <AccountCanonicalShell title={document.title} backHref="/legal" backLabel="Legal" showHeaderTitle>
       <LegalDocumentPage document={document} />
     </AccountCanonicalShell>
   );

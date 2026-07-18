@@ -1,5 +1,6 @@
 import { HeaderIconLink } from "@/components/header/HeaderIconLink";
-import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
+import { HeartLineIcon } from "@/components/icons/RvxLineIcons";
+import { cn } from "@/lib/cn";
 
 type HeaderWishlistLinkProps = {
   className?: string;
@@ -7,11 +8,11 @@ type HeaderWishlistLinkProps = {
 };
 
 export function HeaderWishlistLink({ className, size = "default" }: HeaderWishlistLinkProps) {
-  const iconSize = size === "compact" ? 18 : 20;
+  const iconClass = size === "compact" ? "h-[18px] w-[18px]" : "h-5 w-5";
 
   return (
     <HeaderIconLink href="/saved" label="Saved items" size={size} className={className}>
-      <Fluency3DIcon icon="saved" size={iconSize} />
+      <HeartLineIcon className={cn(iconClass)} />
     </HeaderIconLink>
   );
 }

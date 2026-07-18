@@ -1,5 +1,5 @@
 /**
- * Wallet — Absolute Final PO lock.
+ * Wallet — Absolute Final Freeze (officially locked).
  * Available · Pending · Withdraw · Transactions · Personal Bank · Business Bank.
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
@@ -33,13 +33,13 @@ export function buildPersonalWalletMenuSections(): WalletMenuSection[] {
         },
         {
           id: "personal-bank",
-          title: "Personal Bank Account",
+          title: "Personal Bank",
           href: WALLET_ROUTES.bankAccount,
           icon: "payment",
         },
         {
           id: "business-bank",
-          title: "Business Bank Account",
+          title: "Business Bank",
           href: `${WALLET_ROUTES.bankAccount}?scope=business`,
           icon: "payment",
         },
@@ -63,13 +63,13 @@ export function buildBusinessWalletMenuSections(): WalletMenuSection[] {
         },
         {
           id: "personal-bank",
-          title: "Personal Bank Account",
+          title: "Personal Bank",
           href: WALLET_ROUTES.bankAccount,
           icon: "payment",
         },
         {
           id: "business-bank",
-          title: "Business Bank Account",
+          title: "Business Bank",
           href: `${WALLET_ROUTES.bankAccount}?scope=business`,
           icon: "payment",
         },

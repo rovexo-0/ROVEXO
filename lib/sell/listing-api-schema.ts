@@ -30,7 +30,7 @@ export const createListingSchema = z.object({
   shippingMethod: z.enum(["collection_only", "local_delivery", "delivery_available"]).optional(),
   shippingPrice: z.number().nonnegative().nullish(),
   deliveryCarriers: z.array(z.string()).optional(),
-  parcelSize: z.enum(["small", "medium", "large", "xl", "custom"]).optional(),
+  parcelSize: z.enum(["small", "medium", "large", "xl"]).optional(),
   status: z.enum(["draft", "published"]).optional(),
   categoryPath: z
     .object({
@@ -77,7 +77,7 @@ export const updateListingSchema = z.object({
   images: z.array(imageSchema).min(1).max(SELL_PHOTO_MAX).optional(),
   removeImageIds: z.array(z.string()).optional(),
   deliveryCarriers: z.array(z.string()).optional(),
-  parcelSize: z.enum(["small", "medium", "large", "xl", "custom"]).optional(),
+  parcelSize: z.enum(["small", "medium", "large", "xl"]).optional(),
 });
 
 export function formatListingApiValidationError(error: z.ZodError): string {

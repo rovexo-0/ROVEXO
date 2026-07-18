@@ -133,7 +133,7 @@ function scanDatabase(scan: MarketplaceCompletionScanResult): CompletionValidati
 
 function scanAccessibility(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const detailView = readSource("features/orders/components/OrderDetailView.tsx");
-  const listPage = readSource("features/orders/components/OrdersListPage.tsx");
+  const listPage = readSource("features/orders/components/OrdersPage.tsx");
 
   return [
     createCheck("order-accessibility", "order-detail-structure", detailView.length > 0, "Order detail structure PASS"),

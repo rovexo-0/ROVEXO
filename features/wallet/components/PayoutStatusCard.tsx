@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatedCounter } from "@/features/dashboard/components/AnimatedCounter";
 import {
   CanonicalCard,
   CanonicalInfoBlock,
@@ -22,12 +21,7 @@ export function PayoutStatusCard({ paidOutBalance, payoutsEnabled }: PayoutStatu
           title="Paid out to bank"
           showChevron={false}
           trailing={
-            <span className="cds-menu-row__value">
-              <AnimatedCounter
-                value={Math.round(paidOutBalance * 100)}
-                format={(value) => formatCurrency(value / 100)}
-              />
-            </span>
+            <span className="cds-menu-row__value">{formatCurrency(paidOutBalance)}</span>
           }
         />
         <CanonicalMenuRow

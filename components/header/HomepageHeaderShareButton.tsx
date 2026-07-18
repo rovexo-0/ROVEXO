@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { Share2 } from "lucide-react";
+import { MegaphoneLineIcon } from "@/components/icons/RvxLineIcons";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -14,12 +14,6 @@ import {
   getHomepageWhatsAppShareUrl,
   getHomepageXShareUrl,
 } from "@/lib/share/homepage";
-
-const HEADER_LUCIDE_ICON = {
-  size: 20,
-  strokeWidth: 1.75,
-  "aria-hidden": true,
-} as const;
 
 type ShareChannel = {
   id: string;
@@ -168,7 +162,7 @@ export function HomepageHeaderShareButton({ className }: { className?: string })
         )}
       >
         <span className="rx-h2__action-icon">
-          <Share2 {...HEADER_LUCIDE_ICON} className="rx-h2__lucide" />
+          <MegaphoneLineIcon className="rx-h2__lucide h-5 w-5" />
         </span>
       </button>
 
@@ -188,7 +182,7 @@ export function HomepageHeaderShareButton({ className }: { className?: string })
         variant="sheet"
         zIndex={200}
         ariaLabelledBy={titleId}
-        panelClassName="relative w-full max-w-md rounded-t-ds-xl bg-surface p-ds-5 shadow-lg sm:rounded-ds-xl"
+        panelClassName="relative w-full rounded-t-ds-xl bg-surface p-ds-5 sm:rounded-ds-xl"
       >
           <div ref={dialogRef}>
             <div className="mb-ds-4 flex items-start justify-between gap-ds-3">

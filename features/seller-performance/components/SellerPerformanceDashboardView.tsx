@@ -1,5 +1,4 @@
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { SellerLevelBadge } from "@/features/seller-performance/components/SellerLevelBadge";
 import { SellerPerformanceHistorySection } from "@/features/seller-performance/components/SellerPerformanceHistorySection";
 import {
   ACHIEVEMENT_DEFINITIONS,
@@ -45,7 +44,6 @@ export function SellerPerformanceDashboardView({
             <CanonicalMenuRow
               title="Level"
               value={SELLER_LEVEL_LABELS[data.score.level]}
-              trailing={<SellerLevelBadge level={data.score.level} />}
               showChevron={false}
             />
             <CanonicalMenuRow title="Score" value={String(data.score.score)} showChevron={false} />

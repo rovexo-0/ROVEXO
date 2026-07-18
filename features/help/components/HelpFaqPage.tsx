@@ -1,7 +1,6 @@
 "use client";
 
 import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalInfoBlock, CanonicalInput } from "@/src/components/canonical";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 
@@ -13,7 +12,7 @@ export function HelpFaqPage() {
   const faqs = useMemo(() => (query.trim() ? searchHelpFaqs(query) : listHelpFaqs()), [query]);
 
   return (
-    <AccountCanonicalShell title="FAQ" backHref="/help" backLabel="Help Centre">
+    <AccountCanonicalShell title="FAQ" backHref="/help" backLabel="Help Centre" showHeaderTitle>
       <CanonicalInfoBlock variant="description">
         Answers from official articles and guided troubleshooting flows.
       </CanonicalInfoBlock>
@@ -33,16 +32,15 @@ export function HelpFaqPage() {
       <CanonicalSection title="Frequently asked questions">
         <CanonicalCard variant="list">
           {faqs.map((faq) => (
-            <div key={faq.id} className="border-b border-[var(--cds-color-divider)] px-[var(--cds-row-padding-x)] py-ds-4 last:border-b-0">
-              <p className="cds-menu-row__title">{faq.question}</p>
-              <p className="cds-menu-row__subtitle mt-ds-2">{faq.answer}</p>
-              <Link href={faq.href} className="cds-menu-row__title mt-ds-3 inline-flex text-primary hover:opacity-80">
-                View full guidance
-              </Link>
-            </div>
+            <CanonicalMenuRow
+              key={faq.id}
+              href={faq.href}
+              title={faq.question}
+              description={faq.answer}
+            />
           ))}
           {!faqs.length ? (
-            <CanonicalInfoBlock variant="description">No FAQs matched your search.</CanonicalInfoBlock>
+            <CanonicalMenuRow title="No FAQs matched your search." showChevron={false} />
           ) : null}
         </CanonicalCard>
       </CanonicalSection>

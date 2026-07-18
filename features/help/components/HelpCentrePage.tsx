@@ -1,11 +1,10 @@
 "use client";
 
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalInfoBlock, CanonicalInput } from "@/src/components/canonical";
 import { useMemo, useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
+import { AccountIcon } from "@/components/account/AccountIcons";
 
-
-import { HeadsetLineIcon, MailLineIcon } from "@/components/icons/RvxLineIcons";
 import { HelpCentreCategoryGrid } from "@/features/help/components/HelpCentreCanonicalSection";
 import { searchHelpCentre } from "@/lib/help/search";
 import type { HelpSearchResult } from "@/lib/help/types";
@@ -47,13 +46,21 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
               <CanonicalMenuRow
                 title="Email"
                 description="Submit a support request"
-                icon={<MailLineIcon />}
+                icon={
+                  <span className="ac-canonical__menu-icon" aria-hidden>
+                    <AccountIcon name="messages" />
+                  </span>
+                }
                 href="/support"
               />
               <CanonicalMenuRow
                 title="Report Problem"
                 description="Report an issue with an order or listing"
-                icon={<HeadsetLineIcon />}
+                icon={
+                  <span className="ac-canonical__menu-icon" aria-hidden>
+                    <AccountIcon name="support" />
+                  </span>
+                }
                 href="/support?category=report"
               />
             </CanonicalCard>

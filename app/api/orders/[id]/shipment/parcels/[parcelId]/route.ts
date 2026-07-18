@@ -7,12 +7,14 @@ import {
   getShipmentParcelById,
   updateShipmentParcel,
 } from "@/lib/shipping/parcels-repository";
+import { parcelTierToDimensions, isParcelTier } from "@/lib/shipping/parcels";
 import { fetchOrderForUser, getOrderViewRole } from "@/lib/orders/queries";
 import { SHIPPING_STATUSES, PARCEL_OPERATIONS } from "@/lib/shipping/types";
 
 export const dynamic = "force-dynamic";
 
 const patchSchema = z.object({
+  parcelTier: z.string().optional(),
   weightKg: z.number().positive().optional().nullable(),
   lengthCm: z.number().positive().optional().nullable(),
   widthCm: z.number().positive().optional().nullable(),
@@ -57,7 +59,22 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Invalid parcel update." }, { status: 400 });
   }
 
-  const parcel = await updateShipmentParcel(parcelId, body);
+  const { parcelTier, ...rest } = body;
+  const patch =
+    parcelTier && isParcelTier(parcelTier)
+      ? (() => {
+          const dims = parcelTierToDimensions(parcelTier);
+          return {
+            ...rest,
+            weightKg: dims.weightKg,
+            lengthCm: dims.lengthCm,
+            widthCm: dims.widthCm,
+            heightCm: dims.heightCm,
+          };
+        })()
+      : rest;
+
+  const parcel = await updateShipmentParcel(parcelId, patch);
   if (!parcel) {
     return NextResponse.json({ error: "Unable to update parcel." }, { status: 500 });
   }

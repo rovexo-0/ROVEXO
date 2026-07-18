@@ -1,26 +1,17 @@
-
+import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
 import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 import { HELP_CENTRE_CATEGORY_BUTTONS } from "@/lib/help/help-centre-categories";
-import type { ReactNode } from "react";
-import {
-  BagLineIcon,
-  CreditCardLineIcon,
-  DocumentLineIcon,
-  ShieldLineIcon,
-  TagLineIcon,
-  TruckLineIcon,
-  UserLineIcon,
-} from "@/components/icons/RvxLineIcons";
 
-const CATEGORY_ICONS: Record<string, ReactNode> = {
-  Buying: <BagLineIcon />,
-  Selling: <TagLineIcon />,
-  "Payments & Wallet": <CreditCardLineIcon />,
-  Shipping: <TruckLineIcon />,
-  Orders: <DocumentLineIcon />,
-  Account: <UserLineIcon />,
-  Safety: <ShieldLineIcon />,
-  "Reports & Appeals": <DocumentLineIcon />,
+/** One Product — same AccountIcon language as My Account. */
+const CATEGORY_ICONS: Record<string, AccountIconName> = {
+  Buying: "orders",
+  Selling: "listings",
+  "Payments & Wallet": "wallet",
+  Shipping: "shipping",
+  Orders: "orders",
+  Account: "profile",
+  Safety: "security",
+  "Reports & Appeals": "support",
 };
 
 export function HelpCentreCategoryGrid() {
@@ -52,12 +43,17 @@ export function HelpTextCard({
   title: string;
   description: string;
 }) {
+  const iconName = CATEGORY_ICONS[title] ?? "help";
   return (
     <CanonicalMenuRow
       href={href}
       title={title}
       description={description}
-      icon={CATEGORY_ICONS[title] ?? <DocumentLineIcon />}
+      icon={
+        <span className="ac-canonical__menu-icon" aria-hidden>
+          <AccountIcon name={iconName} />
+        </span>
+      }
     />
   );
 }

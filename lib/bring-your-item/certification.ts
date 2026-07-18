@@ -113,29 +113,30 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
 
   const byiRoute = readSource(rootDir, "app/account/bring-your-item/page.tsx");
   const connectorsRoute = readSource(rootDir, "app/seller/connectors/page.tsx");
-  const consumerImportRemoved =
-    byiRoute.includes('redirect("/seller")') && connectorsRoute.includes('redirect("/seller")');
+  const consumerImportLive =
+    byiRoute.includes("MigrationCenterPage") &&
+    connectorsRoute.includes("MarketplaceConnectorsPage");
 
   const steps: BringYourItemCertificationStep[] = [
     step("step-1-open", "STEP 1 — Open Bring Your Item", [
       { id: "canonical-path", label: "Canonical entry /account/bring-your-item", pass: BRING_YOUR_ITEM_PATH === IMPORT_WIZARD_PATH && IMPORT_WIZARD_PATH === "/account/bring-your-item" },
       {
         id: "import-route",
-        label: "Consumer Marketplace Import removed (redirects to Selling)",
-        pass: consumerImportRemoved,
+        label: "Marketplace Import wired to live Selling hub pages",
+        pass: consumerImportLive,
       },
       {
         id: "header-cta",
-        label: "Header CTA does not promote Import in v1.0",
-        pass: !headerCta.includes("BRING_YOUR_ITEM_PATH") || consumerImportRemoved,
+        label: "Header CTA routes to canonical import entry",
+        pass: headerCta.includes("BRING_YOUR_ITEM_PATH") && consumerImportLive,
       },
-      { id: "styles", label: "Dedicated BYI styles retained for legacy module", pass: readSource(rootDir, "styles/rovexo/index.css").includes("bring-your-item.css") || consumerImportRemoved },
+      { id: "styles", label: "Dedicated BYI styles retained for legacy module", pass: readSource(rootDir, "styles/rovexo/index.css").includes("bring-your-item.css") || consumerImportLive },
     ]),
     step("step-2-auth", "STEP 2 — Authentication", [
       {
         id: "seller-gate",
-        label: "Import consumer entry removed / gated",
-        pass: consumerImportRemoved || byiRoute.includes("getProfile()"),
+        label: "Import entry gated behind profile + release flag",
+        pass: consumerImportLive && byiRoute.includes("getProfile()") && byiRoute.includes("isStoreMigrationEnabled"),
       },
       { id: "oauth-server", label: "OAuth server-only", pass: oauthService.includes('"server-only"') },
       { id: "oauth-platforms", label: "OAuth platforms configured", pass: OAUTH_PLATFORM_IDS.length >= 3 },

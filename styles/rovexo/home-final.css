@@ -8,7 +8,7 @@
 
 
 .rx-home-final {
-  --rx-home-max-width: 1440px;
+  --rx-home-max-width: 100%;
   --rx-home-section-gap: 16px;
   --rx-home-header-category-gap: 0;
   --rx-home-category-hero-gap: 11px;

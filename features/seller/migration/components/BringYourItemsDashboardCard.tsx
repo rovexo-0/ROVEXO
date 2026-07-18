@@ -1,56 +1,23 @@
-import Link from "next/link";
-import { Card } from "@/components/ui/Card";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
-import { buttonSizes, buttonVariants } from "@/components/ui/variants";
+import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 
-const FEATURES = ["Bulk Import", "Bulk Publish", "Store Migration"] as const;
-
+/** Absolute Final — Master Menu row entry (no gradient card / emoji hero). */
 export function BringYourItemsDashboardCard() {
   return (
-    <Card
-      padding="lg"
-      className="border-primary/20 bg-gradient-to-br from-primary/[0.06] to-surface"
-    >
-      <div className="flex items-start gap-ds-3">
-        <div
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-ds-lg bg-white text-2xl shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
-          aria-hidden
-        >
-          📦
-        </div>
-        <div className="min-w-0 flex-1">
-          <h2 className="text-base font-semibold text-text-primary">Bring Your Item</h2>
-          <p className="mt-ds-1 text-sm text-text-secondary">
-            Import products from your favourite marketplaces in a few taps.
-          </p>
-          <ul className="mt-ds-3 flex flex-wrap gap-ds-2" aria-label="Migration features">
-            {FEATURES.map((feature) => (
-              <li
-                key={feature}
-                className="rounded-ds-full border border-border bg-white px-ds-3 py-1 text-xs font-medium text-text-primary"
-              >
-                {feature}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-ds-4">
-            <Link
-              href={MIGRATION_CENTER_PATH}
-              className={cn(
-                "inline-flex items-center justify-center",
-                buttonVariants.primary,
-                buttonSizes.md,
-                "min-h-10 px-ds-5 text-sm text-white",
-                focusRing,
-              )}
-            >
-              Bring your item
-            </Link>
-          </div>
-        </div>
-      </div>
-    </Card>
+    <CanonicalSection title="Import">
+      <CanonicalCard variant="list">
+        <CanonicalMenuRow
+          title="Bring Your Item"
+          description="Import listings from marketplaces"
+          href={MIGRATION_CENTER_PATH}
+          icon={
+            <span className="ac-canonical__menu-icon" aria-hidden>
+              <AccountIcon name="import" />
+            </span>
+          }
+        />
+      </CanonicalCard>
+    </CanonicalSection>
   );
 }

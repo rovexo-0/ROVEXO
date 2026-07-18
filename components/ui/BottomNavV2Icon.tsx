@@ -1,11 +1,14 @@
 "use client";
 
-import { Home, MessageSquare, Search, User } from "lucide-react";
+import {
+  ChatLineIcon,
+  SearchLineIcon,
+  UserLineIcon,
+} from "@/components/icons/RvxLineIcons";
 import type { BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
 import { cn } from "@/lib/cn";
 
-const ICON_SIZE = 20;
-const ICON_STROKE = 2;
+const ICON_CLASS = "h-5 w-5";
 
 type BottomNavV2IconProps = {
   type: BottomNavIconType;
@@ -13,27 +16,39 @@ type BottomNavV2IconProps = {
   className?: string;
 };
 
-/** Bottom Nav V2 — Master icon size 20px; Inbox matches /inbox and /messages. */
+function HomeLineIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      className={className}
+    >
+      <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z" />
+    </svg>
+  );
+}
+
+/** Bottom Nav — Absolute Final: one line-icon family (20px), no lucide. */
 export function BottomNavV2Icon({ type, href, className }: BottomNavV2IconProps) {
-  const props = {
-    size: ICON_SIZE,
-    strokeWidth: ICON_STROKE,
-    className: cn("rx-bottom-nav-v2-icon", className),
-    "aria-hidden": true as const,
-  };
+  const iconClass = cn("rx-bottom-nav-v2-icon", ICON_CLASS, className);
 
   if (href.startsWith("/inbox") || href.startsWith("/messages") || type === "saved") {
-    return <MessageSquare {...props} />;
+    return <ChatLineIcon className={iconClass} />;
   }
 
   switch (type) {
     case "home":
-      return <Home {...props} />;
+      return <HomeLineIcon className={iconClass} />;
     case "search":
-      return <Search {...props} />;
+      return <SearchLineIcon className={iconClass} />;
     case "account":
-      return <User {...props} />;
+      return <UserLineIcon className={iconClass} />;
     default:
-      return <Home {...props} />;
+      return <HomeLineIcon className={iconClass} />;
   }
 }

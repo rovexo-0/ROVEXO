@@ -1,6 +1,6 @@
 "use client";
 
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalInfoBlock } from "@/src/components/canonical";
 import Link from "next/link";
 import { useEffect } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
@@ -38,7 +38,7 @@ export function HelpArticlePage({ article }: HelpArticlePageProps) {
   }, [article.slug, article.topic]);
 
   return (
-    <AccountCanonicalShell title={article.title} backHref="/help" backLabel="Help Centre">
+    <AccountCanonicalShell title={article.title} backHref="/help" backLabel="Help Centre" showHeaderTitle>
       {topic ? (
         <CanonicalInfoBlock variant="tip">
           <Link href={`/help/category/${topic.slug}`} className="font-medium text-primary hover:opacity-80">

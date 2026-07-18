@@ -9,30 +9,17 @@ export type GlassSurfaceProps = {
   className?: string;
 } & HTMLAttributes<HTMLElement>;
 
-const depthClass = {
-  1: "rx-depth-1",
-  2: "rx-depth-2",
-  3: "rx-depth-3",
-} as const;
-
+/** Absolute Final: solid surface only — glass/glow removed platform-wide. */
 export function GlassSurface({
   as: Component = "div",
-  depth = 2,
-  glow = false,
+  depth: _depth = 2,
+  glow: _glow = false,
   className,
   children,
   ...props
 }: GlassSurfaceProps) {
   return (
-    <Component
-      className={cn(
-        "rx-glass-surface rx-glass",
-        depthClass[depth],
-        glow && "rx-glow",
-        className,
-      )}
-      {...props}
-    >
+    <Component className={cn("border border-border bg-surface", className)} {...props}>
       {children}
     </Component>
   );

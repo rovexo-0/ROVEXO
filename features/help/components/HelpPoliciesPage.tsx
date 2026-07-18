@@ -1,4 +1,7 @@
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
+"use client";
+
+import { AccountIcon } from "@/components/account/AccountIcons";
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalInfoBlock } from "@/src/components/canonical";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 
 import type { HelpPolicyEntry } from "@/lib/help/policies";
@@ -9,7 +12,7 @@ type HelpPoliciesPageProps = {
 
 export function HelpPoliciesPage({ policies }: HelpPoliciesPageProps) {
   return (
-    <AccountCanonicalShell title="Platform Policies" backHref="/help" backLabel="Help Centre">
+    <AccountCanonicalShell title="Platform Policies" backHref="/help" backLabel="Help Centre" showHeaderTitle>
       <CanonicalInfoBlock variant="description">
         Terms, privacy, safety, prohibited items, and community guidelines.
       </CanonicalInfoBlock>
@@ -22,6 +25,11 @@ export function HelpPoliciesPage({ policies }: HelpPoliciesPageProps) {
               title={policy.title}
               description={policy.summary}
               href={policy.href}
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="help" />
+                </span>
+              }
             />
           ))}
         </CanonicalCard>

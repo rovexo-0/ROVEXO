@@ -54,7 +54,7 @@ export function OrderDetailPageShell({
       hideBack={isCompleted}
       contentClassName={cn(isCompleted && "flex min-h-[70dvh] items-center justify-center")}
     >
-      <div className="flex w-full flex-col gap-ds-4 px-ds-4 pb-ds-5">
+      <div className="flex w-full flex-col gap-ds-4 pb-ds-5">
         {orderContext && !isCompleted ? <OrdersEngineOrderPanel context={orderContext} /> : null}
         {isBuyerCanonical && commerceView ? (
           <BuyerOrderDetailCanonical

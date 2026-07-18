@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 
@@ -30,13 +30,20 @@ export function writeCookieConsent(choice: CookieConsentChoice) {
 
 /** UK cookie banner — analytics only after Accept. Essential cookies always allowed. */
 export function CookieConsentBanner() {
-  const [visible, setVisible] = useState(false);
+  const consent = useSyncExternalStore(
+    (onStoreChange) => {
+      window.addEventListener("rovexo:cookie-consent", onStoreChange);
+      window.addEventListener("storage", onStoreChange);
+      return () => {
+        window.removeEventListener("rovexo:cookie-consent", onStoreChange);
+        window.removeEventListener("storage", onStoreChange);
+      };
+    },
+    readCookieConsent,
+    () => "accepted" as CookieConsentChoice,
+  );
 
-  useEffect(() => {
-    setVisible(readCookieConsent() === null);
-  }, []);
-
-  if (!visible) return null;
+  if (consent !== null) return null;
 
   return (
     <div
@@ -62,7 +69,6 @@ export function CookieConsentBanner() {
             className="min-h-11 rounded-ds-full border border-border px-ds-4 text-sm font-semibold text-text-primary"
             onClick={() => {
               writeCookieConsent("rejected");
-              setVisible(false);
             }}
           >
             Reject
@@ -72,7 +78,6 @@ export function CookieConsentBanner() {
             className="min-h-11 rounded-ds-full bg-primary px-ds-4 text-sm font-semibold text-white"
             onClick={() => {
               writeCookieConsent("accepted");
-              setVisible(false);
             }}
           >
             Accept

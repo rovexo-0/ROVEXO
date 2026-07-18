@@ -3,7 +3,10 @@
  * Few rows. High density. One Master Menu Design System.
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
+import { BRING_YOUR_ITEM_PATH } from "@/lib/bring-your-item/paths";
+import { isBringYourItemEnabled } from "@/lib/bring-your-item/release";
 import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
+import { MARKETPLACE_CONNECTORS_PATH } from "@/lib/seller/marketplace/config";
 
 export type SellingMenuItem = {
   id: string;
@@ -23,7 +26,7 @@ export type SellingMenuSection = {
 export const SELLING_HUB_INTRO = "Manage everything you sell.";
 
 export function buildSellingMenuSections(): SellingMenuSection[] {
-  return [
+  const sections: SellingMenuSection[] = [
     {
       id: "selling",
       title: "",
@@ -65,7 +68,39 @@ export function buildSellingMenuSections(): SellingMenuSection[] {
           href: "/seller/performance",
           icon: "business",
         },
+        {
+          id: "compliance",
+          title: "Compliance",
+          subtitle: "Tax & reporting",
+          href: "/seller/compliance",
+          icon: "verification",
+        },
       ],
     },
   ];
+
+  if (isBringYourItemEnabled()) {
+    sections.push({
+      id: "import",
+      title: "",
+      items: [
+        {
+          id: "bring-your-item",
+          title: "Bring Your Item",
+          subtitle: "Import listings",
+          href: BRING_YOUR_ITEM_PATH,
+          icon: "listings",
+        },
+        {
+          id: "connectors",
+          title: "Connectors",
+          subtitle: "Marketplace sources",
+          href: MARKETPLACE_CONNECTORS_PATH,
+          icon: "business",
+        },
+      ],
+    });
+  }
+
+  return sections;
 }

@@ -68,8 +68,8 @@ describe("Account + Cart canonical UI v1", () => {
     expect(cart).toContain('data-cart-version="v1.0"');
     expect(cart).toContain("Platform Fee");
     expect(cart).not.toContain("Buyer Protection Fee");
-    expect(cart).toContain("Proceed to Checkout");
-    expect(cart).toContain("Your Cart");
+    expect(cart).toContain("Checkout");
+    expect(cart).toContain("Cart (");
     expect(css).toContain(".cart-v1__platform-fee");
     expect(css).toContain(".cart-v1__checkout");
   });
@@ -85,21 +85,23 @@ describe("Account + Cart canonical UI v1", () => {
 
     expect(wizard).toContain('data-checkout-version="v1.0"');
     expect(wizard).toContain('data-checkout-sprint="3-qa"');
-    expect(wizard).toContain('data-checkout-freeze="FROZEN"');
+    expect(wizard).toContain('data-checkout-freeze="ABSOLUTE-FINAL"');
     expect(wizard).toContain("Confirm & Pay");
-    expect(wizard).toContain("Continue to Payment");
+    expect(wizard).not.toContain("Continue to Payment");
     expect(wizard).toContain("CheckoutProductSummary");
     expect(wizard).toContain("CheckoutPriceSummary");
+    expect(wizard).toContain("Products");
+    expect(wizard).toContain("Shipping");
+    expect(wizard).toContain('data-checkout-freeze="ABSOLUTE-FINAL"');
     expect(price).toContain("Platform Fee");
     expect(summary).toContain("Platform Fee");
     expect(summary).not.toContain("Buyer Protection Fee");
     expect(css).toContain(".ckt-v1__header");
     expect(css).toContain("height: 64px");
-    expect(css).toContain("--ckt-max: 430px");
-    expect(css).toContain(".ckt-v1__stepper");
-    expect(address).toContain('initialStep="delivery"');
-    expect(payment).toContain('initialStep="payment"');
-    expect(review).toContain('initialStep="review"');
+    expect(css).toContain("--ckt-max: 100%");
+    expect(address).toContain("redirect");
+    expect(payment).toContain("redirect");
+    expect(review).toContain("redirect");
   });
 
   it("loads cart variation from database mapping", () => {

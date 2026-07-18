@@ -1212,7 +1212,7 @@
 .conv-hub__attach-panel {
   position: relative;
   z-index: 1;
-  width: min(100%, 440px);
+  width: 100%;
   margin: 0 12px calc(12px + env(safe-area-inset-bottom, 0px));
   padding: 8px 0;
   border-radius: 16px;

@@ -1,13 +1,10 @@
 "use client";
 
-import { memo, useCallback, useRef, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { CanonicalCard } from "@/src/components/canonical";
-import { Input } from "@/components/ui/Input";
+import { memo, useCallback, useState } from "react";
+import { CanonicalButton, CanonicalCard, CanonicalMenuRow } from "@/src/components/canonical";
 import { SafeImage } from "@/components/ui/SafeImage";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
-import { UK_CARRIERS } from "@/lib/shipping/carriers";
+import { PARCEL_TIER_OPTIONS, parcelTierLabel } from "@/lib/shipping/parcels";
+import type { ParcelTier } from "@/lib/shipping/types";
 import type { Order } from "@/lib/orders/types";
 import type { ShipmentParcel } from "@/lib/shipping/types";
 
@@ -18,27 +15,33 @@ type ParcelCardProps = {
   onDeleted: (parcelId: string) => void;
 };
 
-function fieldLabel(text: string) {
-  return <span className="text-xs font-medium text-text-secondary">{text}</span>;
+function initialTier(parcel: ShipmentParcel): ParcelTier {
+  const dimensions = parcel.dimensions;
+  if (!dimensions?.lengthCm || !dimensions.widthCm || !dimensions.heightCm) {
+    return "medium_parcel";
+  }
+
+  const matched = PARCEL_TIER_OPTIONS.find(
+    (option) =>
+      option.maxDimensionsCm.length === dimensions.lengthCm &&
+      option.maxDimensionsCm.width === dimensions.widthCm &&
+      option.maxDimensionsCm.height === dimensions.heightCm,
+  );
+
+  return matched?.id ?? "medium_parcel";
 }
 
+/**
+ * Absolute Final Parcel Freeze — ONLY Small / Medium / Large / Extra Large.
+ * No weight · no dimensions · no free text · no custom size.
+ */
 export const ParcelCard = memo(function ParcelCard({
   order,
   parcel,
   onUpdated,
   onDeleted,
 }: ParcelCardProps) {
-  const printRef = useRef<HTMLDivElement>(null);
-  const [draft, setDraft] = useState({
-    weightKg: parcel.weightKg?.toString() ?? "",
-    lengthCm: parcel.dimensions?.lengthCm?.toString() ?? "",
-    widthCm: parcel.dimensions?.widthCm?.toString() ?? "",
-    heightCm: parcel.dimensions?.heightCm?.toString() ?? "",
-    carrier: parcel.carrier ?? String(order.deliveryCarrier),
-    shippingService: parcel.shippingService ?? "",
-    insuranceEnabled: parcel.insuranceEnabled,
-    insuranceValueGbp: parcel.insuranceValueGbp?.toString() ?? "",
-  });
+  const [tier, setTier] = useState<ParcelTier>(() => initialTier(parcel));
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,15 +56,8 @@ export const ParcelCard = memo(function ParcelCard({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          weightKg: draft.weightKg ? Number(draft.weightKg) : null,
-          lengthCm: draft.lengthCm ? Number(draft.lengthCm) : null,
-          widthCm: draft.widthCm ? Number(draft.widthCm) : null,
-          heightCm: draft.heightCm ? Number(draft.heightCm) : null,
-          carrier: draft.carrier,
-          shippingService: draft.shippingService || null,
+          parcelTier: tier,
           productItemIds: [order.product.id],
-          insuranceEnabled: draft.insuranceEnabled,
-          insuranceValueGbp: draft.insuranceValueGbp ? Number(draft.insuranceValueGbp) : null,
         }),
       });
       const payload = (await response.json()) as { parcel?: ShipmentParcel; error?: string };
@@ -74,7 +70,7 @@ export const ParcelCard = memo(function ParcelCard({
     } finally {
       setIsSaving(false);
     }
-  }, [draft, onUpdated, order.id, order.product.id, parcel.id]);
+  }, [onUpdated, order.id, order.product.id, parcel.id, tier]);
 
   const generateLabel = useCallback(async () => {
     setIsGenerating(true);
@@ -84,7 +80,7 @@ export const ParcelCard = memo(function ParcelCard({
       const response = await fetch("/api/shipping/labels", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId: order.id, parcelId: parcel.id }),
+        body: JSON.stringify({ orderId: order.id, parcelId: parcel.id, parcelTier: tier }),
       });
       const payload = (await response.json()) as { parcel?: ShipmentParcel; error?: string };
       if (!response.ok) {
@@ -96,178 +92,61 @@ export const ParcelCard = memo(function ParcelCard({
     } finally {
       setIsGenerating(false);
     }
-  }, [onUpdated, order.id, parcel.id, saveParcel]);
-
-  const printLabel = useCallback(() => {
-    const content = printRef.current;
-    if (!content) return;
-    const printWindow = window.open("", "_blank", "noopener,noreferrer,width=480,height=640");
-    if (!printWindow) return;
-    printWindow.document.write(`
-      <!DOCTYPE html><html><head><title>Parcel ${parcel.parcelNumber} — ${order.orderNumber}</title>
-      <style>body{font-family:system-ui,sans-serif;padding:24px}p{margin:6px 0;font-size:14px}</style>
-      </head><body>${content.innerHTML}</body></html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-  }, [order.orderNumber, parcel.parcelNumber]);
+  }, [onUpdated, order.id, parcel.id, saveParcel, tier]);
 
   return (
-    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-3">
-      <div className="flex items-center justify-between gap-ds-3">
-        <h3 className="text-base font-semibold text-text-primary">
-          Parcel {parcel.parcelNumber} of {parcel.totalParcels}
-        </h3>
-        {!hasLabel ? (
-          <button
-            type="button"
-            className={cn("text-xs font-medium text-danger", focusRing)}
-            onClick={() => onDeleted(parcel.id)}
-          >
-            Remove
-          </button>
-        ) : null}
-      </div>
+    <CanonicalCard variant="list" className="flex w-full flex-col">
+      <CanonicalMenuRow
+        title={`Parcel ${parcel.parcelNumber} of ${parcel.totalParcels}`}
+        value={parcelTierLabel(tier)}
+        showChevron={false}
+        icon={
+          <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted">
+            <SafeImage src={order.product.imageUrl} alt={order.product.title} fill className="object-cover" />
+          </span>
+        }
+      />
 
-      <div className="flex items-center gap-ds-3 rounded-ds-md border border-border bg-surface-muted p-ds-3">
-        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-ds-md bg-surface">
-          <SafeImage src={order.product.imageUrl} alt={order.product.title} fill className="object-cover" />
-        </div>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-text-primary">{order.product.title}</p>
-          <p className="text-xs text-text-secondary">Qty × 1</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-ds-3">
-        <label className="flex flex-col gap-ds-1">
-          {fieldLabel("Weight (kg)")}
-          <Input
-            value={draft.weightKg}
-            onChange={(event) => setDraft((current) => ({ ...current, weightKg: event.target.value }))}
-            inputMode="decimal"
-            disabled={hasLabel}
-          />
-        </label>
-        <label className="flex flex-col gap-ds-1">
-          {fieldLabel("Carrier")}
-          <select
-            className={cn("rx-input min-h-ds-7 w-full rounded-ds-md px-ds-3 text-sm", focusRing)}
-            value={draft.carrier}
-            onChange={(event) => setDraft((current) => ({ ...current, carrier: event.target.value }))}
-            disabled={hasLabel}
-          >
-            {UK_CARRIERS.map((carrier) => (
-              <option key={carrier.id} value={carrier.id}>
-                {carrier.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-ds-1">
-          {fieldLabel("Length (cm)")}
-          <Input
-            value={draft.lengthCm}
-            onChange={(event) => setDraft((current) => ({ ...current, lengthCm: event.target.value }))}
-            inputMode="decimal"
-            disabled={hasLabel}
-          />
-        </label>
-        <label className="flex flex-col gap-ds-1">
-          {fieldLabel("Width (cm)")}
-          <Input
-            value={draft.widthCm}
-            onChange={(event) => setDraft((current) => ({ ...current, widthCm: event.target.value }))}
-            inputMode="decimal"
-            disabled={hasLabel}
-          />
-        </label>
-        <label className="flex flex-col gap-ds-1">
-          {fieldLabel("Height (cm)")}
-          <Input
-            value={draft.heightCm}
-            onChange={(event) => setDraft((current) => ({ ...current, heightCm: event.target.value }))}
-            inputMode="decimal"
-            disabled={hasLabel}
-          />
-        </label>
-        <label className="flex flex-col gap-ds-1">
-          {fieldLabel("Shipping Service")}
-          <Input
-            value={draft.shippingService}
-            onChange={(event) =>
-              setDraft((current) => ({ ...current, shippingService: event.target.value }))
-            }
-            placeholder="Standard"
-            disabled={hasLabel}
-          />
-        </label>
-        <label className="col-span-2 flex items-center gap-ds-2">
-          <input
-            type="checkbox"
-            className="h-4 w-4 rounded border-border"
-            checked={draft.insuranceEnabled}
-            onChange={(event) =>
-              setDraft((current) => ({ ...current, insuranceEnabled: event.target.checked }))
-            }
-            disabled={hasLabel}
-          />
-          {fieldLabel("Add shipping insurance")}
-        </label>
-        {draft.insuranceEnabled ? (
-          <label className="col-span-2 flex flex-col gap-ds-1">
-            {fieldLabel("Insurance value (£)")}
-            <Input
-              value={draft.insuranceValueGbp}
-              onChange={(event) =>
-                setDraft((current) => ({ ...current, insuranceValueGbp: event.target.value }))
-              }
-              inputMode="decimal"
-              placeholder="0.00"
-              disabled={hasLabel}
+      {!hasLabel ? (
+        <div className="flex flex-col border-t border-border">
+          {PARCEL_TIER_OPTIONS.map((option) => (
+            <CanonicalMenuRow
+              key={option.id}
+              title={option.label}
+              description={option.description}
+              showChevron={false}
+              value={tier === option.id ? "Selected" : undefined}
+              onClick={() => setTier(option.id)}
             />
-          </label>
-        ) : null}
-      </div>
-
-      {parcel.trackingNumber ? (
-        <div className="rounded-ds-md border border-border bg-surface-muted p-ds-3">
-          <p className="text-xs text-text-muted">Tracking Number</p>
-          <p className="mt-ds-1 font-mono text-sm font-medium text-text-primary">
-            {parcel.trackingNumber}
-          </p>
+          ))}
         </div>
       ) : null}
 
-      <div ref={printRef} className="sr-only" aria-hidden>
-        <p>ROVEXO — Parcel {parcel.parcelNumber} of {parcel.totalParcels}</p>
-        <p>Order: {order.orderNumber}</p>
-        <p>Carrier: {draft.carrier}</p>
-        <p>Item: {order.product.title}</p>
-        {parcel.trackingNumber ? <p>Tracking: {parcel.trackingNumber}</p> : null}
-      </div>
+      {parcel.trackingNumber ? (
+        <CanonicalMenuRow title="Tracking" value={parcel.trackingNumber} showChevron={false} />
+      ) : null}
 
       {error ? (
-        <p className="text-sm text-danger" role="alert">
+        <p className="px-0 py-ds-2 text-sm text-danger" role="alert">
           {error}
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-ds-2 sm:flex-row">
+      <div className="flex flex-col gap-ds-2 py-ds-3">
         {!hasLabel ? (
-          <Button variant="outline" fullWidth disabled={isSaving} onClick={() => void saveParcel()}>
-            {isSaving ? "Saving…" : "Save Parcel"}
-          </Button>
-        ) : null}
-        {!hasLabel ? (
-          <Button variant="primary" fullWidth disabled={isGenerating} onClick={() => void generateLabel()}>
-            {isGenerating ? "Generating…" : "Generate Label"}
-          </Button>
+          <>
+            <CanonicalButton variant="secondary" disabled={isSaving} onClick={() => void saveParcel()}>
+              {isSaving ? "Saving…" : "Save"}
+            </CanonicalButton>
+            <CanonicalButton variant="primary" disabled={isGenerating} onClick={() => void generateLabel()}>
+              {isGenerating ? "Generating…" : "Generate Label"}
+            </CanonicalButton>
+            <CanonicalButton variant="ghost" onClick={() => onDeleted(parcel.id)}>
+              Remove
+            </CanonicalButton>
+          </>
         ) : (
-          <Button variant="primary" fullWidth onClick={printLabel}>
-            Print Label
-          </Button>
+          <CanonicalMenuRow title="Label ready" value="Print from courier" showChevron={false} />
         )}
       </div>
     </CanonicalCard>

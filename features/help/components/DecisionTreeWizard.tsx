@@ -94,7 +94,7 @@ export function DecisionTreeWizard({ tree }: DecisionTreeWizardProps) {
   };
 
   return (
-    <AccountCanonicalShell title={topic?.label ?? "Help"} backHref="/help" backLabel="Help Centre">
+    <AccountCanonicalShell title={topic?.label ?? "Help"} backHref="/help" backLabel="Help Centre" showHeaderTitle>
       <CanonicalInfoBlock variant="description">
         <p className="cds-menu-row__title">{tree.title}</p>
         <p className="mt-ds-2">

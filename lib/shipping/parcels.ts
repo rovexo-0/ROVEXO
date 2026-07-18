@@ -1,6 +1,9 @@
+/**
+ * ROVEXO v1.0 — PARCEL SYSTEM FREEZE (Absolute Final).
+ * ONLY four options: Small · Medium · Large · Extra Large.
+ * No custom · no weight input · no dimensions input · no free text.
+ */
 import {
-  LEGACY_PARCEL_SIZES,
-  PARCEL_TIERS,
   type LegacyParcelSize,
   type ParcelDetectionInput,
   type ParcelDetectionResult,
@@ -16,41 +19,48 @@ export const PARCEL_TIER_OPTIONS: {
   maxDimensionsCm: { length: number; width: number; height: number };
 }[] = [
   {
-    id: "letter",
-    label: "Letter",
-    description: "Large letter — documents, thin items, small accessories.",
-    maxWeightKg: 0.75,
-    maxDimensionsCm: { length: 35, width: 25, height: 2.5 },
-  },
-  {
     id: "small_parcel",
     label: "Small Parcel",
-    description: "Fits a large letterbox — phone cases, jewellery, small accessories.",
+    description: "Fits a large letterbox.",
     maxWeightKg: 2,
     maxDimensionsCm: { length: 45, width: 35, height: 16 },
   },
   {
     id: "medium_parcel",
     label: "Medium Parcel",
-    description: "Shoebox size — clothing, shoes, books, small electronics.",
+    description: "Shoebox size.",
     maxWeightKg: 10,
     maxDimensionsCm: { length: 61, width: 46, height: 46 },
   },
   {
     id: "large_parcel",
     label: "Large Parcel",
-    description: "Cabin-bag size — coats, homeware, larger bundles.",
+    description: "Cabin-bag size.",
     maxWeightKg: 20,
     maxDimensionsCm: { length: 120, width: 60, height: 60 },
   },
   {
     id: "xl_parcel",
-    label: "XL Parcel",
-    description: "Bulky items — small furniture, large appliances, oversized parcels.",
+    label: "Extra Large Parcel",
+    description: "Bulky items.",
     maxWeightKg: 30,
     maxDimensionsCm: { length: 150, width: 100, height: 100 },
   },
 ];
+
+/** Display labels locked for v1.0 — Small / Medium / Large / Extra Large. */
+export const PARCEL_DISPLAY: Record<string, string> = {
+  letter: "Small Parcel",
+  small: "Small Parcel",
+  small_parcel: "Small Parcel",
+  medium: "Medium Parcel",
+  medium_parcel: "Medium Parcel",
+  large: "Large Parcel",
+  large_parcel: "Large Parcel",
+  xl: "Extra Large Parcel",
+  xl_parcel: "Extra Large Parcel",
+  custom: "Extra Large Parcel",
+};
 
 const LEGACY_TO_TIER: Record<LegacyParcelSize, ParcelTier> = {
   small: "small_parcel",
@@ -61,13 +71,26 @@ const LEGACY_TO_TIER: Record<LegacyParcelSize, ParcelTier> = {
 };
 
 const CATEGORY_TIER_HINTS: Record<string, ParcelTier> = {
-  jewellery: "letter",
+  jewellery: "small_parcel",
   phones: "small_parcel",
   electronics: "medium_parcel",
   "home-garden": "large_parcel",
   furniture: "xl_parcel",
   vehicles: "xl_parcel",
 };
+
+function normalizeTier(tier: ParcelTier | string): ParcelTier {
+  if (tier === "letter") return "small_parcel";
+  if (
+    tier === "small_parcel" ||
+    tier === "medium_parcel" ||
+    tier === "large_parcel" ||
+    tier === "xl_parcel"
+  ) {
+    return tier;
+  }
+  return "medium_parcel";
+}
 
 function tierFromDimensions(dimensions: ParcelDimensions): ParcelTier {
   const { weightKg, lengthCm, widthCm, heightCm } = dimensions;
@@ -98,9 +121,9 @@ function tierFromCategory(categorySlug?: string | null): ParcelTier | null {
   return null;
 }
 
-/** AI-style recommendation from weight, dimensions, category, and legacy size. */
+/** Recommendation from category / legacy size only — no user weight/dim UI. */
 export function recommendParcelTier(input: ParcelDetectionInput): ParcelTier {
-  if (input.manualTier) return input.manualTier;
+  if (input.manualTier) return normalizeTier(input.manualTier);
 
   if (
     input.dimensions?.weightKg != null &&
@@ -126,9 +149,10 @@ export function recommendParcelTier(input: ParcelDetectionInput): ParcelTier {
 
 export function detectParcelTier(input: ParcelDetectionInput): ParcelDetectionResult {
   if (input.manualTier) {
+    const applied = normalizeTier(input.manualTier);
     return {
       recommendedTier: recommendParcelTier({ ...input, manualTier: undefined }),
-      appliedTier: input.manualTier,
+      appliedTier: applied,
       source: "manual",
       confidence: "high",
     };
@@ -180,20 +204,20 @@ export function mapTierToLegacySize(tier: ParcelTier): LegacyParcelSize {
     large_parcel: "large",
     xl_parcel: "xl",
   };
-  return map[tier] ?? "medium";
+  return map[normalizeTier(tier)] ?? "medium";
 }
 
-export function parcelTierLabel(tier: ParcelTier): string {
-  return PARCEL_TIER_OPTIONS.find((option) => option.id === tier)?.label ?? tier;
+export function parcelTierLabel(tier: ParcelTier | string): string {
+  return PARCEL_DISPLAY[tier] ?? PARCEL_TIER_OPTIONS.find((o) => o.id === tier)?.label ?? "Medium Parcel";
 }
 
 /**
- * Representative shippable dimensions/weight for a parcel tier. Used to build
- * real Sendcloud quote/shipment payloads instead of hardcoded values.
- * Weight is a conservative mid-point of the tier so pricing stays accurate.
+ * Internal shippable dimensions for Sendcloud — never shown as user inputs.
  */
 export function parcelTierToDimensions(tier: ParcelTier): ParcelDimensions {
-  const option = PARCEL_TIER_OPTIONS.find((entry) => entry.id === tier) ?? PARCEL_TIER_OPTIONS[2]!;
+  const normalized = normalizeTier(tier);
+  const option =
+    PARCEL_TIER_OPTIONS.find((entry) => entry.id === normalized) ?? PARCEL_TIER_OPTIONS[1]!;
   const { maxDimensionsCm, maxWeightKg } = option;
   return {
     weightKg: Math.max(0.1, Math.round(maxWeightKg * 0.5 * 100) / 100),
@@ -204,9 +228,15 @@ export function parcelTierToDimensions(tier: ParcelTier): ParcelDimensions {
 }
 
 export function isParcelTier(value: string): value is ParcelTier {
-  return (PARCEL_TIERS as readonly string[]).includes(value);
+  return (
+    value === "letter" ||
+    value === "small_parcel" ||
+    value === "medium_parcel" ||
+    value === "large_parcel" ||
+    value === "xl_parcel"
+  );
 }
 
 export function isLegacyParcelSize(value: string): value is LegacyParcelSize {
-  return (LEGACY_PARCEL_SIZES as readonly string[]).includes(value);
+  return value === "small" || value === "medium" || value === "large" || value === "xl" || value === "custom";
 }

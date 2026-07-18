@@ -9,7 +9,7 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 0 8px;
+  padding: 0 16px;
 }
 
 .srch-results__close {
@@ -60,7 +60,7 @@
   align-items: center;
   gap: 8px;
   min-height: 40px;
-  padding: 0 8px;
+  padding: 0 16px;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -87,12 +87,12 @@
 }
 
 .srch-results__grid {
-  padding: 0 8px 8px;
+  padding: 0 16px 16px;
   width: 100%;
 }
 
 .srch-results__hint {
-  padding: 24px 8px;
+  padding: 24px 16px;
   text-align: center;
   font-size: 0.875rem;
   color: var(--ds-color-text-secondary);
@@ -107,7 +107,7 @@
 }
 
 .srch-results__error {
-  padding: 24px 8px;
+  padding: 24px 16px;
   text-align: center;
   font-size: 0.875rem;
   color: var(--ds-color-text-primary);

@@ -28,8 +28,8 @@ export type ListingType = "fixed" | "auction" | "live";
 /** Maximum photos per listing (also enforced server-side in the API schema). */
 export const SELL_PHOTO_MAX = 8;
 
-/** Parcel size drives automatic shipping labels and courier pricing. */
-export const PARCEL_SIZES = ["small", "medium", "large", "xl", "custom"] as const;
+/** Parcel size — Absolute Final Freeze: ONLY four options. */
+export const PARCEL_SIZES = ["small", "medium", "large", "xl"] as const;
 export type ParcelSize = (typeof PARCEL_SIZES)[number];
 
 export type ParcelSizeOption = {
@@ -42,29 +42,24 @@ export type ParcelSizeOption = {
 export const PARCEL_SIZE_OPTIONS: ParcelSizeOption[] = [
   {
     id: "small",
-    label: "Small",
-    description: "Fits a large letterbox — phone cases, jewellery, small accessories.",
+    label: "Small Parcel",
+    description: "Fits a large letterbox.",
   },
   {
     id: "medium",
-    label: "Medium",
-    description: "Shoebox size — clothing, shoes, books, small electronics.",
+    label: "Medium Parcel",
+    description: "Shoebox size.",
     recommended: true,
   },
   {
     id: "large",
-    label: "Large",
-    description: "Cabin-bag size — coats, homeware, larger bundles.",
+    label: "Large Parcel",
+    description: "Cabin-bag size.",
   },
   {
     id: "xl",
-    label: "Extra Large",
-    description: "Bulky items — small furniture, large appliances, oversized parcels.",
-  },
-  {
-    id: "custom",
-    label: "Custom",
-    description: "Non-standard size — we'll calculate courier pricing at checkout.",
+    label: "Extra Large Parcel",
+    description: "Bulky items.",
   },
 ];
 

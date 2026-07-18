@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { ComposeLineIcon } from "@/components/icons/RvxLineIcons";
 import { Button } from "@/components/ui/Button";
 import { CanonicalCard } from "@/src/components/canonical";
 import { cn } from "@/lib/cn";
@@ -187,7 +187,7 @@ export function ShipmentWizard({
             disabled={isAdding}
             onClick={() => void addParcel()}
           >
-            <Plus className="mr-ds-2 h-4 w-4" aria-hidden />
+            <ComposeLineIcon className="mr-ds-2 h-4 w-4" aria-hidden />
             {isAdding ? "Adding Parcel…" : "Add Parcel"}
           </Button>
 

@@ -1,4 +1,7 @@
-import { CanonicalSection, CanonicalSectionCard } from "@/components/ui/canonical";
+import {
+  CanonicalCard,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { HelpTextCard } from "@/features/help/components/HelpCentreCanonicalSection";
 import { getHelpHubQuickTiles } from "@/lib/mobile-ui/hubs";
 
@@ -7,7 +10,7 @@ export { HelpTextCard } from "@/features/help/components/HelpCentreCanonicalSect
 export function HelpQuickLinks() {
   return (
     <CanonicalSection title="Support hubs">
-      <CanonicalSectionCard>
+      <CanonicalCard variant="list">
         {getHelpHubQuickTiles().map((tile) => (
           <HelpTextCard
             key={tile.href + tile.label}
@@ -16,7 +19,7 @@ export function HelpQuickLinks() {
             description={tile.subtitle}
           />
         ))}
-      </CanonicalSectionCard>
+      </CanonicalCard>
     </CanonicalSection>
   );
 }

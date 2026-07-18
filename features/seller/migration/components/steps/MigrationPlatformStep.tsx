@@ -4,7 +4,7 @@ import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { BRING_YOUR_ITEM_PLATFORM_FLOWS } from "@/lib/bring-your-item/platform-flow";
 import { resolveMigrationPlatformIcon } from "@/lib/icons/migration-platform-icons";
 import type { MigrationPlatformId } from "@/lib/seller/migration/types";
-import { cn } from "@/lib/cn";
+import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 
 type MigrationPlatformStepProps = {
   selected: MigrationPlatformId | null;
@@ -18,45 +18,36 @@ export function MigrationPlatformStep({
   connectedPlatformIds,
 }: MigrationPlatformStepProps) {
   return (
-    <div className="byi-panel__body flex flex-col gap-ds-3">
-      <div>
-        <h2 className="byi-section-title">Choose marketplace</h2>
-        <p className="byi-section-subtitle">
-          Tap where your listings live today. The next step connects and imports in one flow.
-        </p>
-      </div>
-      <ul className="byi-platform-grid" role="listbox" aria-label="Supported marketplaces">
-        {BRING_YOUR_ITEM_PLATFORM_FLOWS.filter((platform) => platform.connectMode !== "coming_soon").map(
-          (platform) => {
-          const isSelected = selected === platform.id;
-          const isConnected = connectedPlatformIds?.has(platform.id) ?? false;
+    <div className="flex w-full flex-col gap-ds-3">
+      <CanonicalSection title="Choose marketplace">
+        <CanonicalCard variant="list">
+          <div role="listbox" aria-label="Supported marketplaces">
+            {BRING_YOUR_ITEM_PLATFORM_FLOWS.filter((platform) => platform.connectMode !== "coming_soon").map(
+              (platform) => {
+                const isSelected = selected === platform.id;
+                const isConnected = connectedPlatformIds?.has(platform.id) ?? false;
 
-          return (
-            <li key={platform.id}>
-              <button
-                type="button"
-                role="option"
-                aria-selected={isSelected}
-                onClick={() => onSelect(platform.id)}
-                className={cn(
-                  "byi-platform-tile",
-                  isSelected && "byi-platform-tile--selected",
-                )}
-              >
-                <span className="byi-platform-tile__icon" aria-hidden>
-                  <RovexoIcon icon={resolveMigrationPlatformIcon(platform.id)} variant="category" />
-                </span>
-                <span className="byi-platform-tile__name">{platform.name}</span>
-                {isConnected ? (
-                  <span className="byi-badge byi-badge--connected">Connected</span>
-                ) : null}
-              </button>
-            </li>
-          );
-        },
-        )}
-      </ul>
-      <p className="byi-hint">
+                return (
+                  <CanonicalMenuRow
+                    key={platform.id}
+                    title={platform.name}
+                    description={isConnected ? "Connected" : undefined}
+                    value={isSelected ? "Selected" : undefined}
+                    showChevron={false}
+                    onClick={() => onSelect(platform.id)}
+                    icon={
+                      <span className="ac-canonical__menu-icon" aria-hidden>
+                        <RovexoIcon icon={resolveMigrationPlatformIcon(platform.id)} variant="category" />
+                      </span>
+                    }
+                  />
+                );
+              },
+            )}
+          </div>
+        </CanonicalCard>
+      </CanonicalSection>
+      <p className="px-0 text-[13px] text-text-secondary">
         eBay, Etsy, and Shopify use secure OAuth. Paste a listing link or upload CSV when supported.
       </p>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { CanonicalCard, CanonicalMenuRow } from "@/src/components/canonical";
@@ -77,23 +77,12 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
   const searchParams = useSearchParams();
   const tab: Tab = searchParams.get("tab") === "bought" ? "bought" : "sold";
   const statusParam = searchParams.get("status");
-  const initialChip: Chip =
+  const chip: Chip =
     statusParam === "in_progress" ||
     statusParam === "completed" ||
     statusParam === "cancelled"
       ? statusParam
       : "all";
-  const [chip, setChip] = useState<Chip>(initialChip);
-
-  useEffect(() => {
-    const next: Chip =
-      statusParam === "in_progress" ||
-      statusParam === "completed" ||
-      statusParam === "cancelled"
-        ? statusParam
-        : "all";
-    setChip(next);
-  }, [statusParam]);
 
   const orders = tab === "sold" ? soldOrders : boughtOrders;
   const visible = useMemo(
@@ -105,8 +94,15 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
   );
 
   const setTab = (next: Tab) => {
-    setChip("all");
     router.push(next === "sold" ? "/orders" : "/orders?tab=bought");
+  };
+
+  const setChip = (next: Chip) => {
+    const params = new URLSearchParams();
+    if (tab === "bought") params.set("tab", "bought");
+    if (next !== "all") params.set("status", next);
+    const qs = params.toString();
+    router.push(qs ? `/orders?${qs}` : "/orders");
   };
 
   return (

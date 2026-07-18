@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Bookmark, Trash2 } from "lucide-react";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -74,13 +74,13 @@ export function CheckoutLineItem({
           <div className="mt-ds-2 flex items-center gap-ds-1">
             <IconAction
               label="Remove"
-              icon={<Trash2 className="h-4 w-4" />}
+              icon={<AccountIcon name="returns" className="h-4 w-4" />}
               onClick={() => onRemove?.(item.id)}
             />
             <IconAction
               label="Save for later"
               active={saved}
-              icon={<Bookmark className={cn("h-4 w-4", saved && "fill-current")} />}
+              icon={<AccountIcon name="saved" className="h-4 w-4" />}
               onClick={() => {
                 const next = !saved;
                 setSaved(next);

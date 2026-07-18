@@ -1,6 +1,6 @@
 "use client";
 
-import { CanonicalInfoBlock, CanonicalMenuRow } from "@/src/components/canonical";
+import { CanonicalInfoBlock, CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 import { useEffect, useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 
@@ -52,7 +52,7 @@ export function NotificationSettingsPage() {
 
   if (!settings) {
     return (
-      <AccountCanonicalShell title="Notifications" backHref="/account/settings">
+      <AccountCanonicalShell title="Notifications" backHref="/account/settings" showHeaderTitle>
         <CanonicalInfoBlock variant="description">Loading settings…</CanonicalInfoBlock>
       </AccountCanonicalShell>
     );
@@ -61,7 +61,7 @@ export function NotificationSettingsPage() {
   const pushOff = !settings.pushEnabled;
 
   return (
-    <AccountCanonicalShell title="Notifications" backHref="/account/settings">
+    <AccountCanonicalShell title="Notifications" backHref="/account/settings" showHeaderTitle>
       {saving ? (
         <p className="sr-only" aria-live="polite">
           Saving settings
@@ -103,8 +103,12 @@ export function NotificationSettingsPage() {
         In-app, push, and email delivery follow these controls. Missing keys fall back safely.
       </CanonicalInfoBlock>
 
-      <CanonicalMenuRow title="Notification preferences" href="/notifications/preferences" />
-      <CanonicalMenuRow title="All Settings" href="/account/settings" />
+      <CanonicalSection title="More">
+        <CanonicalCard variant="list">
+          <CanonicalMenuRow title="Notification preferences" href="/notifications/preferences" />
+          <CanonicalMenuRow title="All Settings" href="/account/settings" />
+        </CanonicalCard>
+      </CanonicalSection>
     </AccountCanonicalShell>
   );
 }

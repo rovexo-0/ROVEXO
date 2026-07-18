@@ -54,7 +54,7 @@ import { useToast } from "@/components/ui/Toast";
 
 import { PRODUCT_ACTION_BAR_COPY } from "@/lib/transaction-hub/product-action-bar";
 
-import { ShieldCheck } from "lucide-react";
+import { ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 
 
 
@@ -229,7 +229,7 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
 
                 <span>{formatListingPriceIncl(amount)}</span>
 
-                <ShieldCheck width={14} height={14} strokeWidth={2.25} aria-hidden />
+                <ShieldLineIcon width={14} height={14} aria-hidden />
 
               </p>
 

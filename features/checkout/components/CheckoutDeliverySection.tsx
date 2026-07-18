@@ -51,7 +51,7 @@ export function CheckoutDeliverySection({
   return (
     <section aria-labelledby="checkout-delivery-heading" className="flex flex-col gap-ds-3">
       <h2 id="checkout-delivery-heading" className="text-base font-semibold text-text-primary">
-        Delivery
+        Shipping
       </h2>
 
       {listingOffersFreeDelivery ? (

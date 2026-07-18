@@ -1,6 +1,6 @@
 /**
- * Buying hub — Absolute Final PO lock.
- * Orders · Tracking · Reviews · Refunds · Disputes · Saved · Recently Viewed.
+ * Buying hub — Absolute Final Freeze (officially locked).
+ * My Orders · Tracking · Reviews · Refunds · Disputes · Saved · Recently Viewed.
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
 import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
@@ -30,7 +30,7 @@ export function buildBuyingMenuSections(): BuyingMenuSection[] {
       items: [
         {
           id: "orders",
-          title: "Orders",
+          title: "My Orders",
           href: "/orders?tab=bought",
           icon: "orders",
           badgeKeys: ["orders"],

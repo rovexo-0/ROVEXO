@@ -33,7 +33,9 @@ describe("Inbox Hub v1.1 — UI LOCK", () => {
     expect(inbox).toContain("UNREAD");
     expect(inbox).toContain("EARLIER");
     expect(inbox).toContain("Mark all read");
-    expect(inbox).toContain("inbox-hub__notif-card--unread");
+    expect(inbox).toContain("CanonicalMenuRow");
+    expect(inbox).toContain("badge={unreadRow ? 1 : undefined}");
+    expect(inbox).not.toContain("inbox-hub__notif-card");
     expect(inbox).not.toContain("inbox-hub__search-badge");
     expect(inbox).not.toContain("SearchLineIcon");
     expect(conversation).toContain('data-conversation-freeze="FINAL-LOCK"');
@@ -41,11 +43,16 @@ describe("Inbox Hub v1.1 — UI LOCK", () => {
     expect(conversation).toContain('data-composer-layout="single-row"');
     expect(conversation).toContain("conv-hub__composer-row");
     expect(conversationCss).toContain("flex-wrap: nowrap");
-    expect(conversationCss).toContain("--conv-composer-h: 52px");
+    expect(conversationCss).toContain("--conv-composer-h: 44px");
   });
 
-  it("locks legacy routes as redirects into /inbox", () => {
-    expect(readSource("app/messages/page.tsx")).toContain("INBOX_ROUTES.hub");
+  it("locks legacy notification route and Messages Transaction Hub entry", () => {
+    const messagesHub = readSource("app/messages/page.tsx");
+    const messagesMenu = readSource("lib/account-center/messages-menu.ts");
+    expect(messagesHub).toContain("MessagesHubPage");
+    expect(messagesHub).not.toContain("redirect(");
+    expect(messagesMenu).toContain("Transaction hub.");
+    expect(messagesMenu).toContain("buildMessagesMenuSections");
     expect(readSource("app/messages/[id]/page.tsx")).toContain("INBOX_ROUTES.conversation");
     expect(readSource("app/notifications/page.tsx")).toContain("INBOX_ROUTES.notificationsTab");
     expect(readSource("lib/homepage/canonical-nav.ts")).toContain('href: "/inbox"');
@@ -117,7 +124,7 @@ describe("Inbox Hub v1.1 — UI LOCK", () => {
     expect(hub).toContain('searchParams.get("order") ?? searchParams.get("order_id")');
     expect(hub).toContain("matchingOrders.length === 1");
     expect(hub).toContain("subscribeConversationRealtime");
-    expect(hub).toContain("signalTyping");
+    expect(hub).not.toContain("signalTyping");
     expect(hub).toContain("refreshBadges");
     expect(readSource("app/api/offers/[id]/route.ts")).toContain("accept");
     expect(readSource("lib/inbox/conversation-realtime.ts")).toContain("ConversationRealtimeEvent");

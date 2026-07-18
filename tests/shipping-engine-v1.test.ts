@@ -25,7 +25,7 @@ const sampleAddress = {
 };
 
 describe("ROVEXO Shipping Engine v1.0", () => {
-  it("defines all canonical parcel tiers", () => {
+  it("defines Absolute Final parcel options — Small Medium Large Extra Large only", () => {
     expect(PARCEL_TIERS).toEqual([
       "letter",
       "small_parcel",
@@ -33,15 +33,20 @@ describe("ROVEXO Shipping Engine v1.0", () => {
       "large_parcel",
       "xl_parcel",
     ]);
-    expect(PARCEL_TIER_OPTIONS.map((option) => option.label)).toContain("Letter");
-    expect(PARCEL_TIER_OPTIONS.map((option) => option.label)).toContain("XL Parcel");
+    expect(PARCEL_TIER_OPTIONS.map((option) => option.label)).toEqual([
+      "Small Parcel",
+      "Medium Parcel",
+      "Large Parcel",
+      "Extra Large Parcel",
+    ]);
+    expect(PARCEL_TIER_OPTIONS.map((option) => option.id)).not.toContain("letter");
   });
 
   it("detects parcel tier from dimensions and supports manual override", () => {
     const detected = detectParcelTier({
       dimensions: { weightKg: 0.2, lengthCm: 30, widthCm: 20, heightCm: 2 },
     });
-    expect(detected.appliedTier).toBe("letter");
+    expect(detected.appliedTier).toBe("small_parcel");
     expect(detected.source).toBe("dimensions");
 
     const manual = detectParcelTier({

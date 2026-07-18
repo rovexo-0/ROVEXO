@@ -1,7 +1,7 @@
 import { RovexoIcons } from "@/lib/icons";
 import type { SellerQuickAction, SellerSettingsLink } from "@/types/seller";
 
-export const SELLER_DASHBOARD_MAX_WIDTH = 480;
+export const SELLER_DASHBOARD_MAX_WIDTH = 100;
 
 export const SELLER_NEW_ORDER_STATUSES = new Set(["awaiting_payment", "awaiting_shipment"]);
 export const SELLER_PROCESSING_ORDER_STATUSES = new Set(["awaiting_shipment"]);

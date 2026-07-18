@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import type { ParcelOperation } from "@/features/commerce-ui/types";
+import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 
 type ParcelOperationsProps = {
   orderId: string;
@@ -14,14 +14,15 @@ type ParcelOperationsProps = {
 };
 
 const OPERATIONS: Array<{ id: ParcelOperation; label: string; description: string }> = [
-  { id: "return", label: "Return", description: "Request a return for this parcel only." },
-  { id: "claim", label: "Claim", description: "Open a claim for this parcel only." },
-  { id: "lost", label: "Lost", description: "Report this parcel as lost in transit." },
-  { id: "damaged", label: "Damaged", description: "Report damage to items in this parcel." },
+  { id: "return", label: "Return", description: "Request a return for this parcel." },
+  { id: "claim", label: "Claim", description: "Open a claim for this parcel." },
+  { id: "lost", label: "Lost", description: "Report this parcel as lost." },
+  { id: "damaged", label: "Damaged", description: "Report damage to this parcel." },
 ];
 
 /**
- * Parcel-level operations — each action applies independently to one parcel.
+ * Parcel-level operations — Absolute Final Master Menu rows.
+ * Size display lives on ParcelCard (S / M / L / XL only).
  */
 export function ParcelOperations({
   orderId,
@@ -58,29 +59,37 @@ export function ParcelOperations({
   }
 
   return (
-    <div className={cn("flex flex-col gap-ds-3 border-t border-border pt-ds-4", className)}>
-      <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Parcel actions</p>
-      {activeOperation ? (
-        <p className="rounded-ds-md border border-warning/30 bg-warning/10 px-ds-3 py-ds-2 text-sm text-text-primary">
-          Active: <span className="font-semibold capitalize">{activeOperation}</span>
-        </p>
-      ) : null}
-      <div className="grid grid-cols-2 gap-ds-2">
-        {OPERATIONS.map((operation) => (
-          <Button
-            key={operation.id}
-            variant="outline"
-            size="sm"
-            fullWidth
-            disabled={Boolean(pending) || activeOperation === operation.id}
-            onClick={() => void applyOperation(operation.id)}
-          >
-            {pending === operation.id ? "Applying…" : operation.label}
-          </Button>
-        ))}
-      </div>
+    <div className={cn("w-full", className)}>
+      <CanonicalSection title="Parcel actions">
+        <CanonicalCard variant="list">
+          {activeOperation ? (
+            <CanonicalMenuRow
+              title="Active"
+              value={activeOperation}
+              showChevron={false}
+            />
+          ) : null}
+          {OPERATIONS.map((operation) => (
+            <CanonicalMenuRow
+              key={operation.id}
+              title={operation.label}
+              description={operation.description}
+              value={
+                pending === operation.id
+                  ? "Applying…"
+                  : activeOperation === operation.id
+                    ? "Active"
+                    : undefined
+              }
+              showChevron={false}
+              disabled={Boolean(pending) || activeOperation === operation.id}
+              onClick={() => void applyOperation(operation.id)}
+            />
+          ))}
+        </CanonicalCard>
+      </CanonicalSection>
       {error ? (
-        <p className="text-sm text-danger" role="alert">
+        <p className="mt-ds-2 text-sm text-danger" role="alert">
           {error}
         </p>
       ) : null}

@@ -1,50 +1,69 @@
+"use client";
+
 import Link from "next/link";
 import { DashboardIcon3D, type DashboardIconType } from "@/components/icons/DashboardIcon3D";
-import { MobilePremiumBadge } from "@/features/mobile-ui/components/MobilePremiumPrimitives";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import type { MobileBadgeKey, MobileBadgeTone } from "@/lib/mobile-ui/types";
 
 export type MobilePremiumCardProps = {
   href: string;
-  label: string;
-  subtitle: string;
+  title?: string;
+  /** @deprecated use title */
+  label?: string;
   iconType: DashboardIconType;
+  badge?: number | string | null;
   badgeKey?: MobileBadgeKey;
   badgeCount?: number;
   badgeTone?: MobileBadgeTone;
-  statusLabel?: string;
+  className?: string;
+  description?: string;
+  subtitle?: string;
+  onClick?: () => void;
 };
 
+/** Absolute Final: Master Menu row density — not a premium tile. */
 export function MobilePremiumCard({
   href,
+  title,
   label,
-  subtitle,
   iconType,
-  badgeKey,
-  badgeCount = 0,
-  badgeTone,
-  statusLabel,
+  badge,
+  badgeCount,
+  className,
+  description,
+  subtitle,
+  onClick,
 }: MobilePremiumCardProps) {
+  const heading = title ?? label ?? "";
+  const detail = description ?? subtitle;
+  const badgeValue = badge ?? badgeCount;
+
   return (
     <Link
       href={href}
-      className={cn("rx-dash-tile rx-hub-card", focusRing)}
-      aria-label={statusLabel ? `${label}. ${subtitle}. ${statusLabel}` : `${label}. ${subtitle}`}
+      onClick={onClick}
+      className={cn(
+        "cds-menu-row flex min-h-[56px] w-full items-center gap-3 border-b border-border px-0 py-0 text-left",
+        focusRing,
+        className,
+      )}
     >
-      <MobilePremiumBadge count={badgeCount} badgeKey={badgeKey} tone={badgeTone} />
-
-      <div className="rx-dash-tile__icon rx-hub-card__icon">
-        <DashboardIcon3D type={iconType} size={36} />
-      </div>
-      <p className="rx-dash-tile__title rx-hub-card__title">{label}</p>
-      <p className="rx-dash-tile__subtitle rx-hub-card__subtitle">{subtitle}</p>
-      {statusLabel ? <p className="rx-dash-tile__status">{statusLabel}</p> : null}
+      <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-primary" aria-hidden>
+        <DashboardIcon3D type={iconType} size={20} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="cds-menu-row__title block text-[15px] font-medium text-text-primary">
+          {heading}
+        </span>
+        {detail ? <span className="block text-xs text-text-secondary">{detail}</span> : null}
+      </span>
+      {badgeValue != null && badgeValue !== "" && badgeValue !== 0 ? (
+        <span className="text-xs font-semibold text-primary">{badgeValue}</span>
+      ) : null}
+      <span className="text-text-muted" aria-hidden>
+        ›
+      </span>
     </Link>
   );
-}
-
-export function formatMobileBadge(count: number): string {
-  if (count > 9) return "9+";
-  return String(count);
 }

@@ -83,7 +83,7 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     expect(hub).toContain("PersonalWalletMenuSections");
     expect(hub).not.toContain("wallet-v2__hero");
     expect(hub).not.toContain("Platform Fee");
-    expect(withdraw).toContain('data-wallet-withdraw-version="v2.0-02b"');
+    expect(withdraw).toContain('data-wallet-withdraw-version="v3.0-one-product"');
     expect(withdraw).toContain("WALLET_ROUTES.bankAccount");
     expect(withdraw).toContain("Withdraw to Bank Account");
     expect(withdrawApi).toContain("recordWithdrawal");

@@ -1,4 +1,3 @@
-import { Info } from "lucide-react";
 import { CanonicalCard } from "@/src/components/canonical";
 import { cn } from "@/lib/cn";
 import { formatGBP } from "@/features/commerce-ui/lib/format";
@@ -16,18 +15,13 @@ type OrderSummaryTotalsProps = {
 function Row({
   label,
   value,
-  info = false,
 }: {
   label: string;
   value: string;
-  info?: boolean;
 }) {
   return (
     <div className="flex min-h-[44px] items-center justify-between gap-ds-3 px-ds-4 text-sm">
-      <span className="inline-flex items-center gap-ds-1 text-text-secondary">
-        {label}
-        {info ? <Info className="h-3.5 w-3.5 text-text-muted" aria-hidden /> : null}
-      </span>
+      <span className="text-text-secondary">{label}</span>
       <span className="font-medium text-text-primary">{value}</span>
     </div>
   );
@@ -50,7 +44,7 @@ export function OrderSummaryTotals({
       <CanonicalCard variant="list" className="flex w-full flex-col py-1">
         <Row label="Products" value={formatGBP(totals.products)} />
         <Row label="Shipping" value={formatGBP(totals.shipping)} />
-        <Row label="Platform Fee" value={formatGBP(totals.platformFee)} info />
+        <Row label="Platform Fee" value={formatGBP(totals.platformFee)} />
         <div className="border-t border-border">
           <div className="flex min-h-[44px] items-center justify-between gap-ds-3 px-ds-4">
             <span className="text-sm font-semibold text-text-primary">Total</span>

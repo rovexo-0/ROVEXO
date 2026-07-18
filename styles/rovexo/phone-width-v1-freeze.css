@@ -103,3 +103,97 @@ main,
   max-width: 100% !important;
   margin-inline: 0 !important;
 }
+
+/* —— Absolute Final — no glass / blur / glow on consumer hubs —— */
+body,
+body *,
+.account-center,
+.account-center *,
+.account-canonical,
+.account-canonical *,
+.ac-canonical,
+.ac-canonical *,
+.wallet-v2,
+.wallet-v2 *,
+.inbox-hub,
+.inbox-hub *,
+.conv-hub,
+.conv-hub *,
+.cart-v1,
+.ckt-v1,
+.orders-page,
+.srch-results,
+.cds-layout,
+.cds-layout * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.account-center-trust,
+.account-center-stats,
+.rx-card--glass,
+.card--glass {
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Palette lock: purple / white / black / grey only (consumer hubs) */
+.account-center-trust__stars {
+  color: #64748b !important;
+}
+
+.account-center-trust__meter-fill {
+  background: #9333ea !important;
+}
+
+/* Product detail + checkout — 100% phone width (One Product) */
+.pd-v1__shell,
+.ckt-v1,
+.ckt-v1__header-bar,
+.ckt-v1__main,
+.ckt-v1__footer-inner {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+}
+
+.wallet-v2 [class*="sheet"],
+.promo-v1-modal,
+.conv-hub__attach-panel {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Homepage / header — Absolute Final width (content may differ; width may not) */
+.rx-h2,
+.rx-home,
+[data-homepage="canonical"],
+.hp-canonical {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+}
+
+/* Absolute Final — kill glass utilities platform-wide (auth layout unchanged) */
+.rx-glass,
+.rx-glass-surface,
+.rx-glass::before,
+.rx-glass-surface::after {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+.rx-float,
+.rx-pulse-glow,
+.rx-icon-3d {
+  animation: none !important;
+  transform: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.ckt-v1 {
+  --ckt-max: 100% !important;
+}

@@ -2,7 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Shield, Truck, Lock } from "lucide-react";
+import {
+  LockLineIcon,
+  ShieldLineIcon,
+  TruckLineIcon,
+} from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { focusRing } from "@/components/ui/tokens";
@@ -86,7 +90,7 @@ export function CartCheckoutSheet({
         disabled={!checkoutSlug}
         onClick={goCheckout}
       >
-        <Lock className="h-4 w-4" aria-hidden />
+        <LockLineIcon className="h-4 w-4" aria-hidden />
         Checkout Securely
       </button>
 
@@ -112,15 +116,15 @@ export function CartCheckoutSheet({
 
       <ul className="cart-v1__sheet-trust">
         <li>
-          <Truck className="h-4 w-4" aria-hidden />
+          <TruckLineIcon className="h-4 w-4" aria-hidden />
           Free delivery on orders over £50
         </li>
         <li>
-          <Shield className="h-4 w-4" aria-hidden />
+          <ShieldLineIcon className="h-4 w-4" aria-hidden />
           30-day returns. Purchase protection
         </li>
         <li>
-          <Lock className="h-4 w-4" aria-hidden />
+          <LockLineIcon className="h-4 w-4" aria-hidden />
           Secure payments. 100% safe
         </li>
       </ul>

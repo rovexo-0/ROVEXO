@@ -162,9 +162,9 @@ function scanCheckout(scan: MarketplaceCompletionScanResult): CompletionValidati
 
   return BUYER_CHECKOUT_VALIDATION.map((check) => {
     let pass = checkout.length > 0 && fileExists("app/api/orders/checkout/route.ts");
-    if (check.includes("address")) pass = fileExists("features/checkout/components/CheckoutAddressCard.tsx");
+    if (check.includes("address")) pass = fileExists("features/commerce-ui/views/CheckoutView.tsx");
     if (check.includes("delivery")) pass = fileExists("features/checkout/components/CheckoutDeliverySection.tsx");
-    if (check.includes("payment")) pass = fileExists("features/checkout/components/CheckoutPaymentMethodCard.tsx");
+    if (check.includes("payment")) pass = fileExists("features/commerce-ui/views/CheckoutView.tsx");
     if (check.includes("buyer-protection") || check.includes("terms")) pass = fileExists("features/checkout/components/CheckoutReturnPolicy.tsx");
     if (check.includes("summary")) pass = fileExists("features/checkout/components/OrderSummary.tsx");
     if (check.includes("confirmation")) pass = fileExists("features/checkout/components/CheckoutSuccessView.tsx");

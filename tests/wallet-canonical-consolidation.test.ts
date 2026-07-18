@@ -40,8 +40,8 @@ describe("Wallet Master Menu SSOT — max 2 wallets", () => {
   it("exposes bank destinations only below balance rows", () => {
     expect(buildPersonalWalletMenuSections().flatMap((s) => s.items).map((i) => i.title)).toEqual([
       "Transactions",
-      "Personal Bank Account",
-      "Business Bank Account",
+      "Personal Bank",
+      "Business Bank",
     ]);
     expect(buildBusinessWalletMenuSections().flatMap((s) => s.items).length).toBe(3);
   });

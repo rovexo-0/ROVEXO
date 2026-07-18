@@ -54,7 +54,7 @@ describe("Master Menu Design — Buying", () => {
     expect(BUYING_HUB_INTRO).toBe("Manage everything you buy.");
     const titles = buildBuyingMenuSections().flatMap((s) => s.items.map((i) => i.title));
     expect(titles).toEqual([
-      "Orders",
+      "My Orders",
       "Tracking",
       "Reviews",
       "Refunds",
@@ -76,6 +76,9 @@ describe("Master Menu Design — Selling", () => {
       "Shipping",
       "Returns",
       "Performance",
+      "Compliance",
+      "Bring Your Item",
+      "Connectors",
     ]);
   });
 });
@@ -90,22 +93,25 @@ describe("Master Menu Design — Business", () => {
       "Inventory",
       "Analytics",
       "Reviews",
-      "Business Wallet",
+      "Wallet",
       "VAT",
       "Directory",
     ]);
   });
 });
 
-describe("Master Menu Design — Messages", () => {
-  it("locks PO Messages hub rows", () => {
+describe("Master Menu Design — Messages Transaction Hub", () => {
+  it("locks Absolute Final Transaction Hub rows", () => {
     const titles = buildMessagesMenuSections().flatMap((s) => s.items.map((i) => i.title));
     expect(titles).toEqual([
-      "Conversations",
-      "Offers",
-      "Order Updates",
-      "Payment Updates",
-      "Tracking Updates",
+      "Inbox",
+      "Orders",
+      "Tracking",
+      "Messages",
+      "Reviews",
+      "Support",
+      "Refunds",
+      "Disputes",
     ]);
   });
 });
@@ -113,19 +119,11 @@ describe("Master Menu Design — Messages", () => {
 describe("Wallet architecture — PO Absolute Final", () => {
   it("Personal Wallet destinations", () => {
     const titles = buildPersonalWalletMenuSections().flatMap((s) => s.items.map((i) => i.title));
-    expect(titles).toEqual([
-      "Transactions",
-      "Personal Bank Account",
-      "Business Bank Account",
-    ]);
+    expect(titles).toEqual(["Transactions", "Personal Bank", "Business Bank"]);
   });
 
   it("Business Wallet destinations", () => {
     const titles = buildBusinessWalletMenuSections().flatMap((s) => s.items.map((i) => i.title));
-    expect(titles).toEqual([
-      "Transactions",
-      "Personal Bank Account",
-      "Business Bank Account",
-    ]);
+    expect(titles).toEqual(["Transactions", "Personal Bank", "Business Bank"]);
   });
 });

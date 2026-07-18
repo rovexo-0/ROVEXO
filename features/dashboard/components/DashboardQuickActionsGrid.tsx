@@ -1,13 +1,11 @@
-import Link from "next/link";
-import { DashboardIcon3D, type DashboardIconType } from "@/components/icons/DashboardIcon3D";
+import type { DashboardIconType } from "@/components/icons/DashboardIcon3D";
 import { resolveDashboardIconType } from "@/lib/icons/resolve-dashboard-icon-type";
-import { Card } from "@/components/ui/Card";
-import { PremiumIcon } from "@/components/icons/PremiumIcon";
-import { DashboardGrid } from "@/features/dashboard/components/DashboardGrid";
-import { DashboardSection } from "@/features/dashboard/components/DashboardSection";
-import { cn } from "@/lib/cn";
-import { focusRing, transitionFast } from "@/components/ui/tokens";
-import { ChevronRightIcon } from "@/features/product-detail/icons";
+import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
+import {
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 
 export type QuickActionItem = {
   href: string;
@@ -21,59 +19,31 @@ type DashboardQuickActionsGridProps = {
   actions: QuickActionItem[];
 };
 
+/** Absolute Final: quick actions as Master Menu rows — no tile/PremiumIcon grid. */
 export function DashboardQuickActionsGrid({
   title = "Quick Actions",
   actions,
 }: DashboardQuickActionsGridProps) {
   return (
-    <DashboardSection id="dash-quick-actions" title={title}>
-      <DashboardGrid className="lg:grid lg:grid-cols-2 lg:gap-ds-3">
+    <CanonicalSection title={title} titleId="dash-quick-actions">
+      <CanonicalCard variant="list">
         {actions.map((action) => {
           const iconType = action.iconType ?? resolveDashboardIconType(action.href);
           return (
-            <Link
+            <CanonicalMenuRow
               key={action.href + action.label}
+              title={action.label}
+              description={action.subtitle}
               href={action.href}
-              className={cn("rx-dash-tile lg:hidden", focusRing)}
-              aria-label={action.label}
-            >
-              <div className="rx-dash-tile__top">
-                <div className="rx-dash-tile__icon">
-                  <DashboardIcon3D type={iconType} size={32} />
-                </div>
-                <ChevronRightIcon className="rx-dash-tile__chevron h-4 w-4" aria-hidden />
-              </div>
-              <div>
-                <p className="rx-dash-tile__title">{action.label}</p>
-                {action.subtitle ? (
-                  <p className="rx-dash-tile__subtitle">{action.subtitle}</p>
-                ) : null}
-              </div>
-            </Link>
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <DashboardIcon3D type={iconType} size={20} />
+                </span>
+              }
+            />
           );
         })}
-        {actions.map((action) => {
-          const iconType = action.iconType ?? resolveDashboardIconType(action.href);
-          return (
-            <Link key={`desktop-${action.href}`} href={action.href} className="hidden lg:block">
-              <Card
-                padding="md"
-                interactive
-                className={cn(
-                  "flex min-h-[92px] flex-col items-start justify-center gap-ds-2",
-                  transitionFast,
-                  focusRing,
-                )}
-              >
-                <PremiumIcon size="sm" float label={action.label}>
-                  <DashboardIcon3D type={iconType} size={24} />
-                </PremiumIcon>
-                <span className="text-sm font-semibold text-text-primary">{action.label}</span>
-              </Card>
-            </Link>
-          );
-        })}
-      </DashboardGrid>
-    </DashboardSection>
+      </CanonicalCard>
+    </CanonicalSection>
   );
 }

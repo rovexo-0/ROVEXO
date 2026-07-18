@@ -1,20 +1,56 @@
 import type { MessageStatus } from "@/lib/messages/types";
-import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
-import { createFluencyFeatureIcon } from "@/components/icons/fluency-3d-feature";
+import {
+  ChatLineIcon,
+  CheckLineIcon,
+  DoubleCheckLineIcon,
+  GalleryLineIcon,
+  MoreLineIcon,
+  SearchLineIcon,
+} from "@/components/icons/RvxLineIcons";
+import type { SVGProps } from "react";
+
+type IconProps = SVGProps<SVGSVGElement> & { className?: string };
 
 export function MessageStatusIcon({ status }: { status: MessageStatus }) {
-  const key =
-    status === "read"
-      ? "feature-message-read"
-      : status === "delivered"
-        ? "feature-message-delivered"
-        : "feature-message-sent";
-
-  return <Fluency3DIcon icon={key} size={14} />;
+  if (status === "read" || status === "delivered") {
+    return <DoubleCheckLineIcon className="h-3.5 w-3.5" />;
+  }
+  return <CheckLineIcon className="h-3.5 w-3.5" />;
 }
 
-export const SearchIcon = createFluencyFeatureIcon("feature-message-search");
-export const MoreIcon = createFluencyFeatureIcon("feature-message-more");
-export const EmptyMessagesIcon = createFluencyFeatureIcon("feature-message-empty", 48);
-export const PlusIcon = createFluencyFeatureIcon("feature-message-plus");
-export const CameraIcon = createFluencyFeatureIcon("feature-message-camera");
+export function SearchIcon(props: IconProps) {
+  return <SearchLineIcon {...props} />;
+}
+
+export function MoreIcon(props: IconProps) {
+  return <MoreLineIcon {...props} />;
+}
+
+export function EmptyMessagesIcon(props: IconProps) {
+  return <ChatLineIcon className="h-12 w-12" {...props} />;
+}
+
+function PlusLineIcon(props: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+      {...props}
+    >
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+export function PlusIcon(props: IconProps) {
+  return <PlusLineIcon {...props} />;
+}
+
+export function CameraIcon(props: IconProps) {
+  return <GalleryLineIcon {...props} />;
+}

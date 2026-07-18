@@ -16,7 +16,7 @@ async function MessagesHubContent() {
   return <MessagesHubPage />;
 }
 
-/** Messages hub — Master Menu (Conversations, Offers, Updates). */
+/** Messages hub — Absolute Final Transaction Hub (Inbox · Orders · Tracking · Messages · Reviews · Support · Refunds · Disputes). */
 export default function MessagesRoute() {
   return (
     <Suspense fallback={<AccountModuleSkeleton />}>

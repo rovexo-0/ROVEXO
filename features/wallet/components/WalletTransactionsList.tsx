@@ -1,9 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { cn } from "@/lib/cn";
+import {
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { formatCurrency, formatWalletDate } from "@/lib/wallet/utils";
 import type { WalletTransaction } from "@/lib/wallet/types";
 
@@ -56,70 +59,73 @@ export function WalletTransactionsList({ transactions }: WalletTransactionsListP
       backLabel="Wallet"
       showHeaderTitle
     >
-      <div className="wallet-hub" data-wallet-transactions-version="v1.0-legal-lock">
-        <div className="wallet-hub__filters px-ds-4">
-          <label className="sr-only" htmlFor="wallet-txn-search">
-            Search transactions
-          </label>
-          <input
-            id="wallet-txn-search"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search by title or order #"
-            className="wallet-hub__amount-input"
-          />
-          <div className="mt-ds-3 grid grid-cols-2 gap-ds-3">
-            <select
-              value={type}
-              onChange={(event) => setType(event.target.value as (typeof TYPE_OPTIONS)[number]["value"])}
-              className="wallet-hub__amount-input"
-              aria-label="Filter by type"
-            >
-              {TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <select
-              value={year}
-              onChange={(event) => setYear(event.target.value)}
-              className="wallet-hub__amount-input"
-              aria-label="Filter by year"
-            >
-              {years.map((entry) => (
-                <option key={entry} value={entry}>
-                  {entry === "all" ? "All years" : entry}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+      <div className="ac-canonical" data-wallet-transactions-version="v2.0-one-product">
+        <CanonicalSection title="Filters">
+          <CanonicalCard variant="medium" className="flex flex-col gap-ds-3 p-ds-4">
+            <label className="sr-only" htmlFor="wallet-txn-search">
+              Search transactions
+            </label>
+            <input
+              id="wallet-txn-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search by title or order #"
+              className="min-h-11 w-full rounded-[20px] border border-[rgb(15_23_42/0.08)] px-ds-4 text-sm"
+            />
+            <div className="grid grid-cols-2 gap-ds-3">
+              <select
+                value={type}
+                onChange={(event) => setType(event.target.value as (typeof TYPE_OPTIONS)[number]["value"])}
+                className="min-h-11 w-full rounded-[20px] border border-[rgb(15_23_42/0.08)] px-ds-3 text-sm"
+                aria-label="Filter by type"
+              >
+                {TYPE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={year}
+                onChange={(event) => setYear(event.target.value)}
+                className="min-h-11 w-full rounded-[20px] border border-[rgb(15_23_42/0.08)] px-ds-3 text-sm"
+                aria-label="Filter by year"
+              >
+                {years.map((entry) => (
+                  <option key={entry} value={entry}>
+                    {entry === "all" ? "All years" : entry}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </CanonicalCard>
+        </CanonicalSection>
 
-        <div className="wallet-hub__txn-card">
-          {filtered.length === 0 ? (
-            <p className="wallet-hub__empty">No transactions match your filters.</p>
-          ) : (
-            filtered.map((transaction) => {
-              const positive = transaction.amount >= 0;
-              return (
-                <Link key={transaction.id} href={`/wallet/transactions/${transaction.id}`} className="wallet-hub__txn">
-                  <div className="wallet-hub__txn-copy">
-                    <p className="wallet-hub__txn-title">{transaction.productTitle}</p>
-                    <p className="wallet-hub__txn-sub">
-                      {transaction.orderNumber ? `#${transaction.orderNumber} · ` : ""}
-                      {formatWalletDate(transaction.createdAt)}
-                    </p>
-                  </div>
-                  <p className={cn("wallet-hub__txn-amount", positive ? "wallet-hub__amount--in" : "wallet-hub__amount--out")}>
-                    {positive ? "+" : "−"} {formatCurrency(Math.abs(transaction.amount))}
-                  </p>
-                </Link>
-              );
-            })
-          )}
-        </div>
+        <CanonicalSection title="Transactions">
+          <CanonicalCard variant="list">
+            {filtered.length === 0 ? (
+              <CanonicalMenuRow title="No transactions match your filters." showChevron={false} />
+            ) : (
+              filtered.map((transaction) => {
+                const positive = transaction.amount >= 0;
+                return (
+                  <CanonicalMenuRow
+                    key={transaction.id}
+                    href={`/wallet/transactions/${transaction.id}`}
+                    title={transaction.productTitle}
+                    description={
+                      transaction.orderNumber
+                        ? `#${transaction.orderNumber} · ${formatWalletDate(transaction.createdAt)}`
+                        : formatWalletDate(transaction.createdAt)
+                    }
+                    value={`${positive ? "+" : "−"} ${formatCurrency(Math.abs(transaction.amount))}`}
+                  />
+                );
+              })
+            )}
+          </CanonicalCard>
+        </CanonicalSection>
       </div>
     </AccountCanonicalShell>
   );

@@ -17,7 +17,7 @@ import { ProductGridSkeleton } from "@/components/home/ProductGridSkeleton";
  * All roots are aria-hidden via the primitives; wrappers add nothing focusable.
  */
 
-const PAGE = "mx-auto flex w-full max-w-[480px] flex-col gap-ds-4 px-ds-4 py-ds-4";
+const PAGE = "flex w-full max-w-none flex-col gap-ds-4 px-ds-4 py-ds-4";
 
 function MobileHeaderSkeleton() {
   return (
@@ -76,7 +76,7 @@ export function HomeSkeleton() {
 
 export function ProductSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-[480px]" aria-hidden="true">
+    <div className="w-full max-w-none" aria-hidden="true">
       <SkeletonImage aspectRatio="1 / 1" rounded="none" />
       <div className="flex flex-col gap-ds-4 px-ds-4 py-ds-4">
         <Skeleton className="h-7 w-2/5" />

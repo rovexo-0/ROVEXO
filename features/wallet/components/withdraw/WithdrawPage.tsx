@@ -4,11 +4,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { useToast } from "@/components/ui/Toast";
-import { cn } from "@/lib/cn";
+import {
+  CanonicalButton,
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { formatCurrency, parseWithdrawAmount } from "@/lib/wallet/utils";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import type { WalletData } from "@/lib/wallet/types";
+
 type WithdrawPageProps = {
   data: WalletData;
 };
@@ -65,84 +72,100 @@ export function WithdrawPage({ data }: WithdrawPageProps) {
 
   return (
     <AccountCanonicalShell title="Withdraw" backHref="/wallet" backLabel="Wallet" showHeaderTitle>
-      <div className="wallet-hub wallet-hub--withdraw" data-wallet-withdraw-version="v2.0-02b">
-        <section className="wallet-hub__balance-card">
-          <p className="wallet-hub__label">Available Balance</p>
-          <p className="wallet-hub__balance">{formatCurrency(data.availableBalance)}</p>
-        </section>
+      <div className="ac-canonical" data-wallet-withdraw-version="v3.0-one-product">
+        <CanonicalSection title="Balance">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow
+              title="Available"
+              value={formatCurrency(data.availableBalance)}
+              showChevron={false}
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="wallet" />
+                </span>
+              }
+            />
+          </CanonicalCard>
+        </CanonicalSection>
 
-        <section className="wallet-hub__bank-card" aria-labelledby="withdraw-bank-title">
-          <div className="wallet-hub__section-head">
-            <h2 id="withdraw-bank-title" className="wallet-hub__section-title">
-              Connected Bank
-            </h2>
-            <Link href={WALLET_ROUTES.bankAccount} className="wallet-hub__section-link">
-              {connectedMethod ? "Edit Bank" : "Add Bank"}
-            </Link>
-          </div>
-          <div className="wallet-hub__txn-card">
+        <CanonicalSection title="Bank">
+          <CanonicalCard variant="list">
             {connectedMethod ? (
-              <div className="wallet-hub__bank-row">
-                <p className="wallet-hub__bank-label">{connectedMethod.label}</p>
-                <p className="wallet-hub__bank-digits">•••• {connectedMethod.lastDigits}</p>
-              </div>
+              <CanonicalMenuRow
+                title={connectedMethod.label}
+                description={`•••• ${connectedMethod.lastDigits}`}
+                href={WALLET_ROUTES.bankAccount}
+                icon={
+                  <span className="ac-canonical__menu-icon" aria-hidden>
+                    <AccountIcon name="payment" />
+                  </span>
+                }
+              />
             ) : (
-              <p className="wallet-hub__empty">Connect a bank account to withdraw funds.</p>
+              <CanonicalMenuRow
+                title="Add bank account"
+                description="Required before withdrawing"
+                href={WALLET_ROUTES.bankAccount}
+                icon={
+                  <span className="ac-canonical__menu-icon" aria-hidden>
+                    <AccountIcon name="payment" />
+                  </span>
+                }
+              />
             )}
-          </div>
-        </section>
+          </CanonicalCard>
+        </CanonicalSection>
 
-        <section className="wallet-hub__withdraw-form" aria-labelledby="withdraw-amount-label">
-          <label htmlFor="withdraw-amount" id="withdraw-amount-label" className="wallet-hub__label">
-            Amount
-          </label>
-          <input
-            id="withdraw-amount"
-            type="text"
-            inputMode="decimal"
-            placeholder="0.00"
-            value={amount}
-            onChange={(event) => setAmount(event.target.value)}
-            className="wallet-hub__amount-input"
-          />
-
-          <button
-            type="button"
-            className="wallet-hub__withdraw-all"
-            onClick={() => setAmount(data.availableBalance.toFixed(2))}
-          >
-            Withdraw All
-          </button>
-
-          <p className="wallet-hub__receive">
-            You will receive <strong>{formatCurrency(parsedAmount > 0 ? parsedAmount : 0)}</strong>
-          </p>
-
-          {error ? (
-            <p className="wallet-hub__form-error" role="alert">
-              {error}
+        <CanonicalSection title="Amount">
+          <CanonicalCard variant="medium" className="flex flex-col gap-ds-3 p-ds-4">
+            <label htmlFor="withdraw-amount" className="text-sm font-medium text-text-primary">
+              Amount
+            </label>
+            <input
+              id="withdraw-amount"
+              type="text"
+              inputMode="decimal"
+              placeholder="0.00"
+              value={amount}
+              onChange={(event) => setAmount(event.target.value)}
+              className="min-h-11 w-full rounded-[20px] border border-[rgb(15_23_42/0.08)] px-ds-4 text-base"
+            />
+            <button
+              type="button"
+              className="min-h-11 text-left text-sm font-semibold text-primary"
+              onClick={() => setAmount(data.availableBalance.toFixed(2))}
+            >
+              Withdraw All
+            </button>
+            <p className="text-sm text-text-secondary">
+              You will receive{" "}
+              <strong className="text-text-primary">
+                {formatCurrency(parsedAmount > 0 ? parsedAmount : 0)}
+              </strong>
             </p>
-          ) : null}
-        </section>
-
-        <footer className="wallet-hub__withdraw-footer">
-          <button
-            type="button"
-            className={cn("wallet-hub__submit", isSubmitting && "wallet-hub__submit--busy")}
-            disabled={isSubmitting || !connectedMethod || parsedAmount <= 0}
-            onClick={() => void handleWithdraw()}
-          >
-            {isSubmitting ? "Processing…" : "Withdraw to Bank Account"}
-          </button>
-          {!connectedMethod ? (
-            <p className="wallet-hub__footer-note">
-              <Link href={`${WALLET_ROUTES.bankAccount}?returnTo=/wallet/withdraw`}>
-                Manage bank account in Wallet
-              </Link>{" "}
-              before withdrawing.
-            </p>
-          ) : null}
-        </footer>
+            {error ? (
+              <p className="text-sm text-danger" role="alert">
+                {error}
+              </p>
+            ) : null}
+            <CanonicalButton
+              variant="primary"
+              fullWidth
+              disabled={isSubmitting || !connectedMethod || parsedAmount <= 0}
+              onClick={() => void handleWithdraw()}
+            >
+              {isSubmitting ? "Processing…" : "Withdraw to Bank Account"}
+            </CanonicalButton>
+            {!connectedMethod ? (
+              <p className="text-sm text-text-secondary">
+                <Link href={`${WALLET_ROUTES.bankAccount}?returnTo=/wallet/withdraw`} className="font-semibold text-primary">
+                  Manage bank account in Wallet
+                </Link>{" "}
+                before withdrawing.
+              </p>
+            ) : null}
+          </CanonicalCard>
+        </CanonicalSection>
       </div>
     </AccountCanonicalShell>
   );

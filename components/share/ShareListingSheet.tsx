@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { PremiumIcon } from "@/components/icons/PremiumIcon";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { cn } from "@/lib/cn";
 import { getListingShareUrl, getFacebookShareUrl } from "@/lib/share/listing-url";
@@ -27,9 +26,9 @@ type ShareChannel = {
 
 function ShareChannelIcon({ children }: { children: React.ReactNode }) {
   return (
-    <PremiumIcon size="md" className="text-text-primary">
+    <span className="flex h-10 w-10 items-center justify-center rounded-ds-md bg-surface-muted text-text-primary">
       {children}
-    </PremiumIcon>
+    </span>
   );
 }
 

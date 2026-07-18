@@ -6,10 +6,8 @@ import {
   CanonicalMenuRow,
   CanonicalInfoBlock,
 } from "@/src/components/canonical";
-import { Avatar } from "@/components/ui/Avatar";
-import { Rating } from "@/components/ui/Rating";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-
 import type { Review } from "@/lib/reviews/types";
 
 function formatReviewDate(value: string): string {
@@ -37,6 +35,11 @@ export function ReviewsV1({ rating, reviewCount, reviews }: ReviewsV1Props) {
               description={`${reviewCount} reviews`}
               value={displayRating}
               showChevron={false}
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="reviews" />
+                </span>
+              }
             />
           </CanonicalCard>
         </CanonicalSection>
@@ -50,26 +53,22 @@ export function ReviewsV1({ rating, reviewCount, reviews }: ReviewsV1Props) {
           <CanonicalSection title="Reviews">
             <CanonicalCard variant="list">
               {reviews.map((review) => (
-                <div key={review.id} className="flex gap-ds-3 px-[var(--cds-row-padding-x)] py-ds-3">
-                  <Avatar
-                    src={review.reviewerAvatarUrl}
-                    alt={review.reviewerName ?? "Reviewer"}
-                    name={review.reviewerName ?? "Buyer"}
-                    size="md"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center justify-between gap-ds-2">
-                      <p className="cds-menu-row__title">{review.reviewerName ?? "Buyer"}</p>
-                      <Rating value={review.rating} size="sm" />
-                    </div>
-                    {review.comment ? (
-                      <p className="cds-menu-row__subtitle mt-ds-1">{review.comment}</p>
-                    ) : null}
-                    <time className="cds-field__hint mt-ds-1 block" dateTime={review.createdAt}>
-                      {formatReviewDate(review.createdAt)}
-                    </time>
-                  </div>
-                </div>
+                <CanonicalMenuRow
+                  key={review.id}
+                  title={review.reviewerName ?? "Buyer"}
+                  description={
+                    review.comment
+                      ? `${review.comment} · ${formatReviewDate(review.createdAt)}`
+                      : formatReviewDate(review.createdAt)
+                  }
+                  value={`${review.rating}/5`}
+                  showChevron={false}
+                  icon={
+                    <span className="ac-canonical__menu-icon" aria-hidden>
+                      <AccountIcon name="reviews" />
+                    </span>
+                  }
+                />
               ))}
             </CanonicalCard>
           </CanonicalSection>

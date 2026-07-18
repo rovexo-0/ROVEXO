@@ -1,13 +1,13 @@
 import { cn } from "@/lib/cn";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { CommercePageHeader } from "@/features/commerce-ui/components/CommercePageHeader";
+import { SafeImage } from "@/components/ui/SafeImage";
 import {
-  OrderInfoCard,
-  OrderItemsPreviewCard,
-  OrderPlacedBanner,
-  OrderStatusCard,
-} from "@/features/commerce-ui/components/OrderDetailCards";
-import { ShipmentCard } from "@/features/commerce-ui/components/ShipmentCard";
-import { OrderSummaryTotals } from "@/features/commerce-ui/components/OrderSummaryTotals";
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
+import { formatGBP } from "@/features/commerce-ui/lib/format";
 import type {
   CommerceLineItem,
   CommerceOrderMeta,
@@ -19,24 +19,22 @@ type OrderDetailsViewProps = {
   meta: CommerceOrderMeta;
   items: CommerceLineItem[];
   totals: CommerceTotals;
-  /** Shipments grouped by seller — parcels from different sellers are never mixed. */
   sellerShipments: CommerceSellerShipment[];
-  /** @deprecated Use sellerShipments — kept for preview mocks. */
   parcelCount?: number;
   shipmentReady?: boolean;
   trackingHref?: string;
   backHref?: string;
   showSuccessBanner?: boolean;
-  /** When true, omits the page header (used inside account shell). */
   embedded?: boolean;
   className?: string;
+  messagesHref?: string;
+  reviewHref?: string;
+  supportHref?: string;
 };
 
 /**
- * Canonical Order Details UI (UI LOCK).
- *
- * After payment the buyer sees order summary and per-seller shipment groups.
- * Parcels from different sellers are never mixed in one shipment card.
+ * Order Details — Absolute Final.
+ * Photo · title · status · tracking · payment · delivery · messages · review · support.
  */
 export function OrderDetailsView({
   meta,
@@ -47,51 +45,140 @@ export function OrderDetailsView({
   shipmentReady,
   trackingHref,
   backHref = "/orders",
-  showSuccessBanner = true,
   embedded = false,
   className,
+  messagesHref,
+  reviewHref = "/account/reviews",
+  supportHref = "/help",
 }: OrderDetailsViewProps) {
-  const shipments =
-    sellerShipments.length > 0
-      ? sellerShipments
-      : [
-          {
-            sellerId: "default",
-            sellerName: "Seller",
-            parcelCount: parcelCount ?? 0,
-            shipmentReady: shipmentReady ?? false,
-            parcels: [],
-            trackingHref: trackingHref ?? "#",
-          },
-        ];
+  const primary = items[0];
+  const shipment = sellerShipments[0];
+  const trackHref = trackingHref ?? shipment?.trackingHref;
+  const paid = meta.paymentStatus === "paid";
+  const ready = shipment?.shipmentReady ?? shipmentReady ?? false;
 
   return (
-    <div className={cn("flex min-h-full flex-col bg-background", className)}>
-      {embedded ? null : <CommercePageHeader title="Order Details" backHref={backHref} />}
+    <div className={cn("ac-canonical flex min-h-full flex-col bg-background", className)}>
+      {embedded ? null : <CommercePageHeader title="Order" backHref={backHref} />}
 
       <div
         className={cn(
           "flex w-full flex-1 flex-col gap-ds-4",
-          embedded ? "px-0 py-0" : "px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]",
+          embedded ? "px-0 py-0" : "px-ds-4 py-ds-4 pb-[calc(84px+env(safe-area-inset-bottom))]",
         )}
       >
-        {showSuccessBanner ? <OrderPlacedBanner /> : null}
-        <OrderInfoCard meta={meta} />
-        <OrderStatusCard meta={meta} />
-        <OrderItemsPreviewCard items={items} />
+        <CanonicalSection title="Product">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow
+              title={primary?.title ?? `Order #${meta.orderNumber}`}
+              description={`#${meta.orderNumber} · ${meta.placedAt}`}
+              value={formatGBP(totals.total)}
+              showChevron={false}
+              icon={
+                primary ? (
+                  <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg" aria-hidden>
+                    <SafeImage
+                      src={primary.imageUrl}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="40px"
+                    />
+                  </span>
+                ) : (
+                  <span className="ac-canonical__menu-icon" aria-hidden>
+                    <AccountIcon name="orders" />
+                  </span>
+                )
+              }
+            />
+          </CanonicalCard>
+        </CanonicalSection>
 
-        {shipments.map((shipment) => (
-          <ShipmentCard
-            key={shipment.sellerId}
-            sellerName={shipment.sellerName}
-            parcelCount={shipment.parcelCount}
-            ready={shipment.shipmentReady}
-            href={shipment.trackingHref}
-            parcels={shipment.parcels}
-          />
-        ))}
+        <CanonicalSection title="Status">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow
+              title="Order status"
+              value={ready ? "In progress" : "Confirmed"}
+              showChevron={false}
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="orders" />
+                </span>
+              }
+            />
+            <CanonicalMenuRow
+              title="Payment status"
+              value={paid ? "Paid" : "Pending"}
+              showChevron={false}
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="payment" />
+                </span>
+              }
+            />
+            <CanonicalMenuRow
+              title="Delivery status"
+              value={ready ? "Shipped" : "Preparing"}
+              showChevron={false}
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="shipping" />
+                </span>
+              }
+            />
+            {trackHref ? (
+              <CanonicalMenuRow
+                title="Tracking"
+                description={
+                  shipment
+                    ? `${shipment.parcelCount || parcelCount || shipment.parcels.length || 1} parcel(s)`
+                    : undefined
+                }
+                href={trackHref}
+                icon={
+                  <span className="ac-canonical__menu-icon" aria-hidden>
+                    <AccountIcon name="shipping" />
+                  </span>
+                }
+              />
+            ) : null}
+          </CanonicalCard>
+        </CanonicalSection>
 
-        <OrderSummaryTotals totals={totals} title="Order Summary" />
+        <CanonicalSection title="Actions">
+          <CanonicalCard variant="list">
+            {messagesHref ? (
+              <CanonicalMenuRow
+                title="Messages"
+                href={messagesHref}
+                icon={
+                  <span className="ac-canonical__menu-icon" aria-hidden>
+                    <AccountIcon name="messages" />
+                  </span>
+                }
+              />
+            ) : null}
+            <CanonicalMenuRow
+              title="Review"
+              href={reviewHref}
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="reviews" />
+                </span>
+              }
+            />
+            <CanonicalMenuRow
+              title="Support"
+              href={supportHref}
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="help" />
+                </span>
+              }
+            />
+          </CanonicalCard>
+        </CanonicalSection>
       </div>
     </div>
   );

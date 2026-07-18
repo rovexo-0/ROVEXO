@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { CategoriesMobileNav } from "@/features/categories/components/CategoriesMobileNav";
 import { CategoryCompactCard } from "@/features/categories/components/CategoryCompactCard";
 import { DiscoveryPageShell } from "@/components/layout/DiscoveryPageShell";
-import { ResponsiveShell } from "@/features/mobile-ui";
 import { getCategoryTree } from "@/lib/categories/queries";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -25,8 +23,6 @@ export default function CategoriesIndexPage() {
           Explore the full ROVEXO marketplace catalogue.
         </p>
       </div>
-
-      <ResponsiveShell mobile={<CategoriesMobileNav />} desktop={null} />
 
       <div className="rx-category-page-grid">
         {tree.map((category) => (

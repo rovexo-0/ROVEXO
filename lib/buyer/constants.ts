@@ -1,7 +1,7 @@
 import { RovexoIcons } from "@/lib/icons";
 import type { BuyerPaymentMethod, BuyerQuickAction, BuyerSettingsLink } from "@/types/buyer";
 
-export const BUYER_DASHBOARD_MAX_WIDTH = 480;
+export const BUYER_DASHBOARD_MAX_WIDTH = 100;
 
 export const BUYER_ACTIVE_ORDER_STATUSES = new Set([
   "awaiting_payment",

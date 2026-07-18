@@ -17,7 +17,10 @@ describe("Official ROVEXO Listing Card — layout lock", () => {
   });
 
   it("implements full official card structure", () => {
-    expect(tsx).toContain("ShieldCheck");
+    expect(tsx).toContain("ShieldLineIcon");
+    expect(tsx).toContain("SafeImage");
+    expect(tsx).not.toContain("ShieldCheck");
+    expect(tsx).not.toContain('from "lucide-react"');
     expect(tsx).toContain("humanizeListingCondition");
     expect(tsx).toContain("formatListingPriceIncl");
     expect(tsx).toContain('<Avatar');

@@ -27,8 +27,8 @@ const chipStyles = (active?: boolean) =>
     transitionFast,
     focusRing,
     active
-      ? "bg-[image:var(--ds-gradient-primary)] text-primary-foreground shadow-[var(--ds-glow-primary)]"
-      : "rx-glass text-text-secondary hover:text-primary rx-depth-1",
+      ? "bg-primary text-primary-foreground"
+      : "border border-border bg-surface text-text-secondary hover:text-primary",
   );
 
 export function CategoryChip(props: CategoryChipProps) {

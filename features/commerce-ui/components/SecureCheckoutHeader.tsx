@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { CommerceWordmark } from "@/features/commerce-ui/components/CommerceWordmark";
@@ -9,12 +9,12 @@ type SecureCheckoutHeaderProps = {
   className?: string;
 };
 
-/** Checkout header: back control, centered ROVEXO wordmark, secure-checkout mark. */
+/** Checkout header — One Product (no glass / lucide). */
 export function SecureCheckoutHeader({ backHref = "/cart", className }: SecureCheckoutHeaderProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-20 flex items-center gap-ds-2 border-b border-border bg-surface/90 px-ds-4 pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))] backdrop-blur",
+        "sticky top-0 z-20 flex items-center gap-ds-2 border-b border-border bg-white px-ds-4 pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]",
         className,
       )}
     >
@@ -27,13 +27,17 @@ export function SecureCheckoutHeader({ backHref = "/cart", className }: SecureCh
           transitionFast,
         )}
       >
-        <ArrowLeft className="h-5 w-5" />
+        <span className="text-xl leading-none" aria-hidden>
+          ‹
+        </span>
       </Link>
 
       <CommerceWordmark className="flex-1 text-center text-lg" />
 
       <span className="inline-flex shrink-0 items-center gap-ds-1 text-xs font-medium text-text-secondary">
-        <ShieldCheck className="h-4 w-4 text-primary" />
+        <span className="ac-canonical__menu-icon text-primary" aria-hidden>
+          <AccountIcon name="security" />
+        </span>
         <span className="hidden min-[380px]:inline">Secure Checkout</span>
       </span>
     </header>

@@ -35,7 +35,7 @@ function MessagesMenuNav({ items }: { items: MessagesMenuItem[] }) {
   );
 }
 
-/** Messages hub — same Master Menu Design as My Account. */
+/** Messages = Transaction Hub (Vinted philosophy — not a chat app). */
 export function MessagesHubPage() {
   const items = buildMessagesMenuSections().flatMap((section) => section.items);
   return (
@@ -46,7 +46,9 @@ export function MessagesHubPage() {
       showHeaderTitle
       intro={MESSAGES_HUB_INTRO}
     >
-      <MessagesMenuNav items={items} />
+      <div data-transaction-hub="v1.0">
+        <MessagesMenuNav items={items} />
+      </div>
     </AccountCanonicalShell>
   );
 }

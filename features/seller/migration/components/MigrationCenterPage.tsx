@@ -182,8 +182,8 @@ export function MigrationCenterPage() {
   return (
     <AccountCanonicalShell
       title="Bring Your Item"
-      backHref="/account"
-      backLabel="My Account"
+      backHref="/seller"
+      backLabel="Selling"
       showHeaderTitle
       showBottomNav={false}
       intro="Import listings."
@@ -198,7 +198,7 @@ export function MigrationCenterPage() {
           </div>
         ) : null}
 
-        <section className="byi-panel w-full" aria-live="polite">
+        <section className="w-full" aria-live="polite">
           {step === 1 ? (
             <MigrationPlatformStep
               selected={platform}

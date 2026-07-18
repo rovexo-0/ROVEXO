@@ -2,9 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import {
+  CanonicalButton,
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import type { MonetizationPlan, MonetizationProduct, MonetizationSubscription } from "@/lib/monetization/types";
 
 type PlansPageProps = {
@@ -13,6 +17,12 @@ type PlansPageProps = {
   subscription: MonetizationSubscription | null;
 };
 
+function planPrice(plan: MonetizationPlan): string {
+  if (plan.priceCents === 0) return "Free";
+  return `£${(plan.priceCents / 100).toFixed(2)}/${plan.interval}`;
+}
+
+/** Absolute Final: Plans as Master Menu rows — no pricing cards grid. */
 export function PlansPage({ plans, products, subscription }: PlansPageProps) {
   const router = useRouter();
   const [busySlug, setBusySlug] = useState<string | null>(null);
@@ -55,72 +65,71 @@ export function PlansPage({ plans, products, subscription }: PlansPageProps) {
   };
 
   return (
-    <div className="flex flex-col gap-ds-8">
-      <section>
-        <p className="text-sm text-text-secondary">
-          Choose a subscription or add-on that fits how you buy and sell on ROVEXO.
-        </p>
-        {subscription ? (
-          <div className="mt-ds-3 flex flex-wrap items-center gap-ds-3">
-            <p className="text-sm text-text-primary">
-              Current plan: <Badge>{subscription.planName}</Badge>
-            </p>
-            <Button variant="secondary" disabled={busySlug === "cancel"} onClick={() => void cancel()}>
-              Cancel subscription
-            </Button>
-          </div>
-        ) : null}
-        {error ? <p className="mt-ds-2 text-sm text-red-600">{error}</p> : null}
-      </section>
+    <div className="ac-canonical flex w-full flex-col gap-ds-4 pb-ds-5">
+      <CanonicalInfoBlock variant="description">
+        Choose a plan that fits how you buy and sell on ROVEXO.
+      </CanonicalInfoBlock>
 
-      <section>
-        <h2 className="text-lg font-semibold">Subscription plans</h2>
-        <div className="mt-ds-4 grid gap-ds-4 md:grid-cols-2 lg:grid-cols-3">
-          {plans.map((plan) => (
-            <Card key={plan.id} padding="lg" className="">
-              <p className="font-semibold text-text-primary">{plan.name}</p>
-              <p className="mt-ds-1 text-2xl font-bold text-primary">
-                {plan.priceCents === 0 ? "Free" : `£${(plan.priceCents / 100).toFixed(2)}/${plan.interval}`}
-              </p>
-              <ul className="mt-ds-4 space-y-ds-1 text-sm text-text-secondary">
-                {plan.features.map((feature) => (
-                  <li key={feature}>• {feature.replace(/_/g, " ")}</li>
-                ))}
-              </ul>
-              <Button
-                className="mt-ds-4 w-full"
-                variant={subscription?.planSlug === plan.slug ? "secondary" : "primary"}
-                disabled={busySlug === plan.slug || subscription?.planSlug === plan.slug}
-                onClick={() => void subscribe(plan.slug)}
+      {subscription ? (
+        <CanonicalSection title="Current">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow title="Plan" value={subscription.planName} showChevron={false} />
+            <div className="px-0 py-ds-2">
+              <CanonicalButton
+                variant="secondary"
+                disabled={busySlug === "cancel"}
+                onClick={() => void cancel()}
               >
-                {subscription?.planSlug === plan.slug ? "Current plan" : plan.priceCents === 0 ? "Activate free" : "Subscribe"}
-              </Button>
-            </Card>
-          ))}
-        </div>
-      </section>
+                Cancel subscription
+              </CanonicalButton>
+            </div>
+          </CanonicalCard>
+        </CanonicalSection>
+      ) : null}
 
-      <section>
-        <h2 className="text-lg font-semibold">Monetization products</h2>
-        <div className="mt-ds-4 grid gap-ds-3 sm:grid-cols-2">
-          {products.map((product) => (
-            <Card key={product.id} padding="md" className="">
-              <div className="flex items-start justify-between gap-ds-3">
-                <div>
-                  <p className="font-semibold text-text-primary">{product.title}</p>
-                  <p className="mt-ds-1 text-sm text-text-secondary">{product.description}</p>
-                </div>
-                <Badge>{product.priceLabel}</Badge>
-              </div>
-              {product.href ? (
-                <a href={product.href} className="mt-ds-3 inline-flex text-sm font-medium text-primary hover:underline">
-                  Open
-                </a>
-              ) : null}
-            </Card>
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
+
+      <CanonicalSection title="Plans">
+        <CanonicalCard variant="list">
+          {plans.map((plan) => (
+            <CanonicalMenuRow
+              key={plan.id}
+              title={plan.name}
+              description={plan.features.map((f) => f.replace(/_/g, " ")).join(" · ")}
+              value={planPrice(plan)}
+              showChevron={false}
+              trailing={
+                <CanonicalButton
+                  variant={subscription?.planSlug === plan.slug ? "secondary" : "primary"}
+                  disabled={busySlug === plan.slug || subscription?.planSlug === plan.slug}
+                  onClick={() => void subscribe(plan.slug)}
+                >
+                  {subscription?.planSlug === plan.slug
+                    ? "Current"
+                    : plan.priceCents === 0
+                      ? "Activate"
+                      : "Subscribe"}
+                </CanonicalButton>
+              }
+            />
           ))}
-        </div>
-      </section>
+        </CanonicalCard>
+      </CanonicalSection>
+
+      <CanonicalSection title="Add-ons">
+        <CanonicalCard variant="list">
+          {products.map((product) => (
+            <CanonicalMenuRow
+              key={product.id}
+              title={product.title}
+              description={product.description}
+              value={product.priceLabel}
+              href={product.href ?? undefined}
+              showChevron={Boolean(product.href)}
+            />
+          ))}
+        </CanonicalCard>
+      </CanonicalSection>
     </div>
   );
 }

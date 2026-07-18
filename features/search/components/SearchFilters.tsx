@@ -45,8 +45,8 @@ export function SearchFilters({
     <section
       aria-label="Search filters"
       className={cn(
-        "rx-form-section border-border bg-background/95 backdrop-blur-sm",
-        sticky && "sticky top-0 z-20 border-b shadow-[0_1px_0_rgba(0,0,0,0.04)]",
+        "rx-form-section border-border bg-background",
+        sticky && "sticky top-0 z-20 border-b",
       )}
     >
       <div className="flex flex-col gap-ds-3 p-ds-3 sm:p-ds-4">

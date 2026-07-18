@@ -1,9 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { CanonicalButton, CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 import { useMigrationPublishPoll } from "@/features/seller/migration/hooks/use-migration-publish-poll";
 import { BRING_YOUR_ITEM_PATH } from "@/lib/bring-your-item/paths";
 import type { MigrationJob, PublishAction } from "@/lib/seller/migration/types";
@@ -95,164 +93,138 @@ export function MigrationBulkPublishPanel({
   };
 
   return (
-    <div className="flex flex-col gap-ds-4">
+    <div className="flex w-full flex-col gap-ds-4">
       {!compact && !minimal ? (
-        <div>
-          <h3 className="text-sm font-semibold text-text-primary">Bulk publish</h3>
-          <p className="mt-ds-1 text-xs text-text-secondary">
-            Validate and publish imported listings. Processing continues in the background if you
-            leave this page.
-          </p>
-        </div>
+        <CanonicalSection title="Bulk publish">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow
+              title="Validate and publish"
+              description="Processing continues in the background if you leave."
+              showChevron={false}
+            />
+          </CanonicalCard>
+        </CanonicalSection>
       ) : null}
 
       {error ? (
-        <Card padding="sm" className="border-error/30 bg-error/5" role="alert">
-          <p className="text-sm text-error">{error}</p>
-        </Card>
+        <p className="text-sm text-danger" role="alert">
+          {error}
+        </p>
       ) : null}
 
-      {isPublishing && progress ? (
-        minimal ? null : (
-          <Card padding="md" className="border-primary/20">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium capitalize text-text-primary">
-                {localJob.publishStatus.replace("_", " ")}
-              </span>
-              <span className="text-text-secondary">{formatEta(progress.etaSeconds)}</span>
-            </div>
-            <div
-              className="mt-ds-3 h-2 overflow-hidden rounded-ds-full bg-surface"
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={progress.progressPercent}
-            >
-              <div
-                className="h-full rounded-ds-full bg-primary transition-[width] duration-500"
-                style={{ width: `${progress.progressPercent}%` }}
-              />
-            </div>
-            <dl className="mt-ds-3 grid grid-cols-2 gap-ds-2 text-xs sm:grid-cols-4">
-              <MiniStat label="Validated" value={progress.validated} />
-              <MiniStat label="Images" value={progress.imagesProcessed} />
-              <MiniStat label="Categories" value={progress.categoriesMapped} />
-              <MiniStat label="Published" value={progress.published} />
-              <MiniStat label="Skipped" value={progress.skipped} />
-              <MiniStat label="Errors" value={progress.errors} />
-              <MiniStat label="Speed/min" value={progress.speedPerMinute} />
-              <MiniStat label="Remaining" value={progress.remaining} />
-            </dl>
-          </Card>
-        )
+      {isPublishing && progress && !minimal ? (
+        <CanonicalSection title="Publishing">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow
+              title={localJob.publishStatus.replace("_", " ")}
+              value={formatEta(progress.etaSeconds)}
+              showChevron={false}
+            />
+            <CanonicalMenuRow title="Progress" value={`${progress.progressPercent}%`} showChevron={false} />
+            <CanonicalMenuRow title="Published" value={String(progress.published)} showChevron={false} />
+            <CanonicalMenuRow title="Errors" value={String(progress.errors)} showChevron={false} />
+            <CanonicalMenuRow title="Remaining" value={String(progress.remaining)} showChevron={false} />
+          </CanonicalCard>
+        </CanonicalSection>
       ) : null}
 
       {finalReport && localJob.publishStatus === "completed" && !minimal ? (
-        <Card padding="md" className="border-success/30 bg-success/5">
-          <p className="text-sm font-semibold text-success">Publishing complete</p>
-          <dl className="mt-ds-3 grid grid-cols-2 gap-ds-2 text-xs sm:grid-cols-4">
-            <MiniStat label="Published" value={finalReport.published} />
-            <MiniStat label="Drafts" value={finalReport.drafts} />
-            <MiniStat label="Skipped" value={finalReport.skipped} />
-            <MiniStat label="Success rate" value={`${finalReport.successRate}%`} />
-          </dl>
-        </Card>
+        <CanonicalSection title="Complete">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow title="Published" value={String(finalReport.published)} showChevron={false} />
+            <CanonicalMenuRow title="Drafts" value={String(finalReport.drafts)} showChevron={false} />
+            <CanonicalMenuRow title="Skipped" value={String(finalReport.skipped)} showChevron={false} />
+            <CanonicalMenuRow
+              title="Success rate"
+              value={`${finalReport.successRate}%`}
+              showChevron={false}
+            />
+          </CanonicalCard>
+        </CanonicalSection>
       ) : importReport && localJob.publishStatus === "idle" && !minimal ? (
-        <Card padding="md" className="border-border">
-          <dl className="grid grid-cols-2 gap-ds-2 text-xs sm:grid-cols-4">
-            <MiniStat label="Imported" value={importReport.imported} />
-            <MiniStat label="Warnings" value={importReport.warnings} />
-            <MiniStat label="Duplicates" value={importReport.duplicates} />
-            <MiniStat label="Errors" value={importReport.errors} />
-          </dl>
-        </Card>
+        <CanonicalSection title="Import summary">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow title="Imported" value={String(importReport.imported)} showChevron={false} />
+            <CanonicalMenuRow title="Warnings" value={String(importReport.warnings)} showChevron={false} />
+            <CanonicalMenuRow title="Duplicates" value={String(importReport.duplicates)} showChevron={false} />
+            <CanonicalMenuRow title="Errors" value={String(importReport.errors)} showChevron={false} />
+          </CanonicalCard>
+        </CanonicalSection>
       ) : null}
 
       {minimal ? (
-        <Button
+        <CanonicalButton
+          variant="primary"
           fullWidth
           disabled={isSubmitting || isPublishing || localJob.publishStatus === "completed"}
           onClick={() => void runAction("publish_all")}
         >
           {isPublishing ? "Publishing…" : localJob.publishStatus === "completed" ? "Published" : "Publish"}
-        </Button>
+        </CanonicalButton>
       ) : (
-        <div className="flex flex-wrap gap-ds-2">
-          <Button
-            size="sm"
+        <div className="flex w-full flex-col gap-ds-2">
+          <CanonicalButton
+            variant="primary"
+            fullWidth
             disabled={isSubmitting || isPublishing}
             onClick={() => void runAction("publish_all")}
           >
             Publish all
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
+          </CanonicalButton>
+          <CanonicalButton
+            variant="secondary"
+            fullWidth
             disabled={isSubmitting || isPublishing}
             onClick={() => void runAction("save_all_draft")}
           >
             Save all as draft
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
+          </CanonicalButton>
+          <CanonicalButton
+            variant="secondary"
+            fullWidth
             disabled={isSubmitting || isPublishing}
             onClick={() => void runAction("retry_failed")}
           >
             Retry failed
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
+          </CanonicalButton>
+          <CanonicalButton
+            variant="ghost"
+            fullWidth
             disabled={isSubmitting}
             onClick={() => void runAction("cancel_pending")}
           >
             Cancel pending
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
+          </CanonicalButton>
+          <CanonicalButton
+            variant="ghost"
+            fullWidth
             disabled={isSubmitting}
             onClick={() => void runAction("delete_drafts")}
           >
             Delete drafts
-          </Button>
+          </CanonicalButton>
         </div>
       )}
 
       {!minimal ? (
-        <div className="flex flex-wrap gap-ds-2">
-          <a
+        <CanonicalCard variant="list">
+          <CanonicalMenuRow
+            title="CSV report"
             href={`/api/seller/migration/${localJob.id}/report.csv`}
-            className="text-xs font-medium text-primary underline"
-          >
-            Download CSV report
-          </a>
-          <a
+          />
+          <CanonicalMenuRow
+            title="JSON report"
             href={`/api/seller/migration/${localJob.id}/report.json`}
-            className="text-xs font-medium text-primary underline"
-          >
-            Download JSON report
-          </a>
+          />
           {!compact ? (
-            <Link
+            <CanonicalMenuRow
+              title="Review items"
+              description="Categories and listings"
               href={`${BRING_YOUR_ITEM_PATH}?job=${encodeURIComponent(localJob.id)}`}
-              className="text-xs font-medium text-primary underline"
-            >
-              Review items &amp; categories
-            </Link>
+            />
           ) : null}
-        </div>
+        </CanonicalCard>
       ) : null}
-    </div>
-  );
-}
-
-function MiniStat({ label, value }: { label: string; value: number | string }) {
-  return (
-    <div>
-      <dt className="text-text-secondary">{label}</dt>
-      <dd className="font-semibold text-text-primary">{value}</dd>
     </div>
   );
 }

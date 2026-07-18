@@ -8,20 +8,25 @@ function read(path: string): string {
   return readFileSync(join(ROOT, path), "utf8");
 }
 
-describe("Canonical Commerce UI v1.0 freeze", () => {
-  it("Order Details groups shipments by seller", () => {
+describe("Canonical Commerce UI — Absolute Final", () => {
+  it("Order Details uses Master Menu rows only", () => {
     const view = read("features/commerce-ui/views/OrderDetailsView.tsx");
     expect(view).toContain("sellerShipments");
-    expect(view).toContain("ShipmentCard");
+    expect(view).toContain("CanonicalMenuRow");
+    expect(view).toContain("Payment status");
+    expect(view).toContain("Support");
+    expect(view).not.toContain("ShipmentCard");
+    expect(view).not.toContain("OrderPlacedBanner");
     expect(view).not.toMatch(/Label\s+\d/i);
   });
 
-  it("Tracking uses seller-grouped parcels and canonical parcel titles", () => {
+  it("Tracking uses seller-grouped parcels without help micro-cards", () => {
     const view = read("features/commerce-ui/views/TrackingView.tsx");
     const card = read("features/commerce-ui/components/ParcelTrackingCard.tsx");
     expect(view).toContain("sellerShipments");
     expect(view).toContain("ParcelTrackingCard");
-    expect(card).toMatch(/Parcel \{parcel\.index\} of \{parcel\.totalParcels\}/);
+    expect(view).not.toContain("NeedHelpCard");
+    expect(card).toContain("Parcel ${parcel.index} of ${parcel.totalParcels}");
   });
 
   it("defines canonical eight-step shipment timeline", () => {
@@ -36,10 +41,11 @@ describe("Canonical Commerce UI v1.0 freeze", () => {
     expect(timeline).toContain("returned");
   });
 
-  it("parcel tracking exposes product allocation and independent operations", () => {
+  it("parcel tracking is status/courier/updates only — no operations grid", () => {
     const card = read("features/commerce-ui/components/ParcelTrackingCard.tsx");
     expect(card).toContain("ParcelProductsList");
-    expect(card).toContain("ParcelOperations");
+    expect(card).toContain("Courier");
+    expect(card).not.toContain("ParcelOperations");
   });
 
   it("checkout totals exclude logistics detail", () => {

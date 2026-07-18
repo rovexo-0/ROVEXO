@@ -7,6 +7,7 @@ import type { InlineImportPreview } from "@/lib/bring-your-item/inline-import-en
 import type { BringYourItemPlatformFlow } from "@/lib/bring-your-item/platform-flow";
 import type { MarketplaceHealthStatus } from "@/lib/seller/marketplace/types";
 import type { MigrationImportMethodId, MigrationPlatformId } from "@/lib/seller/migration/types";
+import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 
 type MigrationConnectStepProps = {
   platformId: MigrationPlatformId | null;
@@ -79,94 +80,95 @@ export function MigrationConnectStep({
   const shopRequired = platformId === "shopify" && !isConnected;
   const shopValue = source.storeUrl.trim();
   const canConnectOAuth = !shopRequired || shopValue.length > 0;
+  const lastSync = formatRelativeTime(lastSyncAt);
 
   return (
-    <div className="byi-panel__body flex flex-col gap-ds-4">
-      <div>
-        <h2 className="byi-section-title">Connect &amp; import</h2>
-        <p className="byi-section-subtitle">
-          Preview, validation, and import run inline — no page changes required.
-        </p>
-      </div>
+    <div className="flex w-full flex-col gap-ds-4">
+      <CanonicalSection title="Connect & import">
+        <CanonicalCard variant="list">
+          {platformFlow.connectMode === "oauth" ? (
+            isConnected ? (
+              <>
+                <CanonicalMenuRow
+                  title={`Connected to ${platformLabel}`}
+                  description={
+                    [
+                      connectionHealth ? healthLabel(connectionHealth) : "Connection active",
+                      lastSync ? `Last sync ${lastSync}` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")
+                  }
+                  showChevron={false}
+                />
+                {lastError ? (
+                  <CanonicalMenuRow title="Notice" description={lastError} showChevron={false} />
+                ) : null}
+                <CanonicalMenuRow
+                  title="Import"
+                  description="Fetch listings and start batch import"
+                  showChevron={false}
+                />
+              </>
+            ) : (
+              <CanonicalMenuRow
+                title={`Connect with ${platformLabel}`}
+                description="Authenticate, then return here to import"
+                showChevron={false}
+              />
+            )
+          ) : null}
 
-      {platformFlow.connectMode === "oauth" ? (
-        <div className={isConnected ? "byi-connect-card byi-connect-card--success" : "byi-connect-card"}>
-          {isConnected ? (
-            <>
-              <p className="text-sm font-semibold text-success">Connected to {platformLabel}</p>
-              <p className="text-xs text-text-secondary">
-                {connectionHealth ? `Status: ${healthLabel(connectionHealth)}` : "Connection active"}
-                {formatRelativeTime(lastSyncAt) ? ` · Last sync ${formatRelativeTime(lastSyncAt)}` : ""}
-              </p>
-              {lastError ? (
-                <p className="text-xs text-warning" role="status">
-                  {lastError}
-                </p>
-              ) : null}
-              <p className="text-xs text-text-secondary">
-                Tap Import to fetch listings, detect duplicates, and start the batch import.
-              </p>
-              <div className="flex flex-col gap-ds-2 sm:flex-row">
-                {onReconnect ? (
-                  <Button
-                    variant="secondary"
-                    fullWidth
-                    disabled={isActionPending}
-                    onClick={onReconnect}
-                  >
-                    {isActionPending ? "Working…" : "Reconnect"}
-                  </Button>
-                ) : null}
-                {onDisconnect ? (
-                  <Button
-                    variant="ghost"
-                    fullWidth
-                    disabled={isActionPending}
-                    onClick={onDisconnect}
-                  >
-                    Disconnect
-                  </Button>
-                ) : null}
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="text-sm text-text-secondary">
-                Authenticate with {platformLabel}. You return here and import continues inline.
-              </p>
-              {shopRequired ? (
-                <label className="flex flex-col gap-ds-1">
-                  <span className="text-xs font-medium text-text-secondary">Shopify store domain</span>
-                  <input
-                    className="byi-input"
-                    type="text"
-                    inputMode="url"
-                    autoComplete="off"
-                    placeholder="your-store.myshopify.com"
-                    value={source.storeUrl}
-                    onChange={(event) => onChangeSource({ storeUrl: event.target.value })}
-                  />
-                </label>
-              ) : null}
-              <Button fullWidth disabled={isConnecting || !canConnectOAuth} onClick={onConnectOAuth}>
-                {isConnecting ? "Checking connection…" : `Connect with ${platformLabel}`}
-              </Button>
-            </>
-          )}
+          {platformFlow.connectMode === "coming_soon" ? (
+            <CanonicalMenuRow
+              title={platformLabel}
+              description="Not available. Choose eBay, Etsy, Shopify, Facebook Marketplace, or CSV."
+              showChevron={false}
+              disabled
+            />
+          ) : null}
+        </CanonicalCard>
+      </CanonicalSection>
+
+      {platformFlow.connectMode === "oauth" && isConnected ? (
+        <div className="flex w-full flex-col gap-ds-2">
+          {onReconnect ? (
+            <Button variant="secondary" fullWidth disabled={isActionPending} onClick={onReconnect}>
+              {isActionPending ? "Working…" : "Reconnect"}
+            </Button>
+          ) : null}
+          {onDisconnect ? (
+            <Button variant="ghost" fullWidth disabled={isActionPending} onClick={onDisconnect}>
+              Disconnect
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
+
+      {platformFlow.connectMode === "oauth" && !isConnected ? (
+        <div className="flex w-full flex-col gap-ds-3">
+          {shopRequired ? (
+            <label className="flex flex-col gap-ds-1">
+              <span className="text-xs font-medium text-text-secondary">Shopify store domain</span>
+              <input
+                className="byi-input"
+                type="text"
+                inputMode="url"
+                autoComplete="off"
+                placeholder="your-store.myshopify.com"
+                value={source.storeUrl}
+                onChange={(event) => onChangeSource({ storeUrl: event.target.value })}
+              />
+            </label>
+          ) : null}
+          <Button fullWidth disabled={isConnecting || !canConnectOAuth} onClick={onConnectOAuth}>
+            {isConnecting ? "Checking connection…" : `Connect with ${platformLabel}`}
+          </Button>
         </div>
       ) : null}
 
       {platformFlow.connectMode === "inline_url" || platformFlow.connectMode === "inline_file" ? (
         <MigrationSourceFields importMethod={importMethod} value={source} onChange={onChangeSource} />
-      ) : null}
-
-      {platformFlow.connectMode === "coming_soon" ? (
-        <div className="byi-connect-card">
-          <p className="text-sm text-text-secondary">
-            {platformLabel} import is not available. Choose eBay, Etsy, Shopify, Facebook Marketplace, or
-            CSV.
-          </p>
-        </div>
       ) : null}
 
       <MigrationInlinePreviewPanel

@@ -1,6 +1,7 @@
 "use client";
 
 import { AccountCanonicalShell } from "@/features/account-canonical";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { TrustVerificationActions } from "@/features/trust/components/TrustVerificationActions";
 import type { TrustDashboardData } from "@/lib/trust/types";
 import { TRUST_CENTER_SECTIONS } from "@/lib/trust/types";
@@ -15,8 +16,8 @@ type TrustCenterPageProps = {
 };
 
 /**
- * Trust Centre — same Master Menu Design as My Account.
- * No score meter heroes. No giant cards. Compact rows only.
+ * Trust Centre — One Product Master Menu.
+ * Same row / icon / card language as My Account. No score-meter heroes.
  */
 export function TrustCenterPage({ data }: TrustCenterPageProps) {
   return (
@@ -35,6 +36,11 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
               description={data.score.tier}
               value={String(data.score.score)}
               showChevron={false}
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="verification" />
+                </span>
+              }
             />
             <CanonicalMenuRow title="Buyer" value={String(data.score.buyerScore)} showChevron={false} />
             <CanonicalMenuRow title="Seller" value={String(data.score.sellerScore)} showChevron={false} />
@@ -64,6 +70,11 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
                 href={section.href}
                 title={section.title}
                 description={section.description}
+                icon={
+                  <span className="ac-canonical__menu-icon" aria-hidden>
+                    <AccountIcon name={section.icon} />
+                  </span>
+                }
               />
             ))}
           </CanonicalCard>

@@ -1,5 +1,6 @@
 import { CanonicalSection, CanonicalCard, CanonicalInfoBlock, CanonicalMenuRow } from "@/src/components/canonical";
 import { AccountCanonicalShell } from "@/features/account-canonical";
+import { AccountIcon } from "@/components/account/AccountIcons";
 import { getBusinessProfile } from "@/lib/profile/data";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
@@ -31,16 +32,31 @@ export default async function BusinessShippingPage() {
             title="Business Orders"
             description="Ship and track sales"
             href="/business/orders"
+            icon={
+              <span className="ac-canonical__menu-icon" aria-hidden>
+                <AccountIcon name="orders" />
+              </span>
+            }
           />
           <CanonicalMenuRow
             title="Personal Orders"
             description="Buyer & seller order hub"
             href="/orders"
+            icon={
+              <span className="ac-canonical__menu-icon" aria-hidden>
+                <AccountIcon name="orders" />
+              </span>
+            }
           />
           <CanonicalMenuRow
             title="Resolution Centre"
             description="Returns, refunds, and disputes"
             href="/resolution"
+            icon={
+              <span className="ac-canonical__menu-icon" aria-hidden>
+                <AccountIcon name="returns" />
+              </span>
+            }
           />
         </CanonicalCard>
       </CanonicalSection>

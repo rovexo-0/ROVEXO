@@ -294,7 +294,7 @@ export const CANONICAL_DESIGN_TOKENS = {
   pageHeader: "components/navigation/CanonicalPageHeader.tsx",
   accountHub: "styles/rovexo/account-canonical-v2.css",
   accountModule: "styles/rovexo/account-module-v1.css",
-  rowHeight: "48px menu rows (ac-canonical__row), 44px touch targets",
+  rowHeight: "56px menu rows (cds-menu-row / CanonicalMenuRow), 44px touch targets",
   borderRadius: "--ds-radius-sm (12px) cards; 14px account section cards",
 } as const;
 

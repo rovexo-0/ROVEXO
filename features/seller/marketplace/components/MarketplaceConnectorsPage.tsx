@@ -102,11 +102,6 @@ export function MarketplaceConnectorsPage() {
                   title={provider.name}
                   description={formatHealth(provider.healthStatus)}
                   value={formatStatus(provider.status)}
-                  icon={
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-ds-md bg-surface text-lg" aria-hidden>
-                      {provider.logo}
-                    </span>
-                  }
                   onClick={() => handleImport(provider)}
                   showChevron={false}
                   trailing={

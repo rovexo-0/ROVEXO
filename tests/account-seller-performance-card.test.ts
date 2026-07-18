@@ -13,7 +13,7 @@ function readSource(relativePath: string): string {
 }
 
 describe("My Account Seller Performance card", () => {
-  it("keeps seller performance off My Account hub (Compact Premium)", () => {
+  it("keeps seller performance off My Account hub; card is Master Menu rows", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
     const page = readSource("app/account/page.tsx");
     const card = readSource("features/account-center/components/AccountSellerPerformanceCard.tsx");
@@ -22,31 +22,20 @@ describe("My Account Seller Performance card", () => {
     expect(home).not.toContain("AccountStatsStrip");
     expect(home).toContain("AccountMenuSections");
     expect(page).toContain("getSellerPerformanceSummary");
-    expect(card).toContain('router.push("/seller/performance")');
-    expect(card).toContain("View details");
-    expect(card).toContain("AccountSellerLevelBadge");
-    expect(card).toContain("AccountSellerScoreRing");
-    expect(card).toContain('data-ac-seller-performance="v1.0-frozen"');
+    expect(card).toContain("CanonicalMenuRow");
+    expect(card).toContain('href="/seller/performance"');
+    expect(card).not.toContain("AccountSellerScoreRing");
+    expect(card).not.toContain("AccountSellerLevelBadge");
   });
 
-  it("uses compact summary layout markers", () => {
+  it("uses Master Menu density — no score ring hero", () => {
     const card = readSource("features/account-center/components/AccountSellerPerformanceCard.tsx");
-    const css = readSource("styles/rovexo/account-canonical-v2.css");
 
-    expect(card).toContain("ac-canonical__seller-performance-link");
-    expect(card).toContain("BagLineIcon");
+    expect(card).toContain("CanonicalMenuRow");
+    expect(card).toContain("Completed sales");
     expect(card).toContain("performance.ratingDisplay");
-    expect(card).toContain("Completed Sales");
     expect(card).not.toContain("ac-canonical__seller-performance-cta");
-    expect(css).toContain(".ac-canonical__seller-performance-grid");
-    expect(css).toContain("grid-template-columns: repeat(3, minmax(0, 1fr))");
-    expect(css).toContain("height: 64px");
-    expect(css).toContain("margin-bottom: 10px");
-    expect(css).toContain("ac-canonical__seller-score-ring--animate");
-    expect(css).toContain("font-size: 28px");
-    expect(css).toContain("height: 6px");
-    expect(css).toContain("cursor: pointer");
-    expect(css).not.toContain(".ac-canonical__seller-performance-cta");
+    expect(card).not.toContain("AccountSellerScoreRing");
   });
 
   it("reads stored seller performance values from the engine service", () => {
@@ -69,8 +58,6 @@ describe("My Account Seller Performance card", () => {
     expect(card).toContain("performance.level");
     expect(card).toContain("performance.score");
     expect(card).toContain("performance.totalSales");
-    expect(card).toContain("performance.progressPercent");
-    expect(card).toContain("performance.progressMessage");
     expect(card).toContain("performance.ratingDisplay");
   });
 });

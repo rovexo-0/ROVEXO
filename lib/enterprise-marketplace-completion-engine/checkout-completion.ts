@@ -57,9 +57,9 @@ function scanFlow(scan: MarketplaceCompletionScanResult): CompletionValidationIt
     let pass = checkoutFoundationReady(scan);
     if (check === "guest-checkout-future") pass = fileExists("lib/payments-engine/registry.ts");
     if (check === "registered-checkout") pass = checkoutForm.includes("/api/orders/checkout");
-    if (check.includes("address")) pass = fileExists("features/checkout/components/CheckoutAddressCard.tsx");
+    if (check.includes("address")) pass = fileExists("features/commerce-ui/views/CheckoutView.tsx");
     if (check.includes("shipping") || check.includes("delivery")) pass = fileExists("features/checkout/components/CheckoutDeliverySection.tsx");
-    if (check.includes("payment")) pass = fileExists("features/checkout/components/CheckoutPaymentMethodCard.tsx");
+    if (check.includes("payment")) pass = fileExists("features/commerce-ui/views/CheckoutView.tsx");
     if (check.includes("review") || check.includes("summary")) pass = fileExists("features/checkout/components/OrderSummary.tsx");
     if (check.includes("terms")) pass = fileExists("features/checkout/components/CheckoutReturnPolicy.tsx");
     if (check.includes("confirmation") || check.includes("success")) pass = fileExists("features/checkout/components/CheckoutSuccessView.tsx");
@@ -73,7 +73,7 @@ function scanFlow(scan: MarketplaceCompletionScanResult): CompletionValidationIt
 function scanPayment(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   const paymentLib = readSource("lib/checkout/payment.ts");
   const stripeServer = readSource("lib/stripe/server.ts");
-  const paymentCard = readSource("features/checkout/components/CheckoutPaymentMethodCard.tsx");
+  const paymentCard = readSource("features/commerce-ui/views/CheckoutView.tsx");
 
   return CHECKOUT_PAYMENT_VALIDATION.map((check) => {
     let pass = checkoutFoundationReady(scan) && stripeServer.length > 0;
@@ -171,7 +171,7 @@ function scanAccessibility(scan: MarketplaceCompletionScanResult): CompletionVal
   return [
     createCheck("checkout-accessibility", "checkout-labels", checkout.length > 0, "Checkout labels PASS"),
     createCheck("checkout-accessibility", "order-summary-structure", summary.length > 0, "Order summary structure PASS"),
-    createCheck("checkout-accessibility", "payment-method-labels", fileExists("features/checkout/components/CheckoutPaymentMethodCard.tsx"), "Payment method labels PASS"),
+    createCheck("checkout-accessibility", "payment-method-labels", fileExists("features/commerce-ui/views/CheckoutView.tsx"), "Payment method labels PASS"),
     createCheck("checkout-accessibility", "focus-states", fileExists("components/ui/tokens.ts"), "Focus states PASS"),
   ].map((item) => ({
     ...item,
@@ -234,12 +234,12 @@ function buildPassConditions(
   const mapping: Record<(typeof CHECKOUT_PASS_CONDITIONS)[number], boolean> = {
     "cart-pass": fileExists("app/cart/page.tsx") && fileExists("app/api/cart/route.ts"),
     "checkout-pass": fileExists("features/checkout/components/CheckoutPage.tsx"),
-    "payment-pass": fileExists("lib/stripe/server.ts") && fileExists("features/checkout/components/CheckoutPaymentMethodCard.tsx"),
+    "payment-pass": fileExists("lib/stripe/server.ts") && fileExists("features/commerce-ui/views/CheckoutView.tsx"),
     "order-pass": fileExists("lib/orders/checkout.ts"),
     "invoice-pass": fileExists("app/api/orders/[id]/receipt/route.ts"),
     "buyer-protection-pass": fileExists("features/checkout/components/CheckoutReturnPolicy.tsx"),
     "delivery-pass": fileExists("features/checkout/components/CheckoutDeliverySection.tsx"),
-    "address-pass": fileExists("features/checkout/components/CheckoutAddressCard.tsx"),
+    "address-pass": fileExists("features/commerce-ui/views/CheckoutView.tsx"),
     "promo-pass": fileExists("app/api/promotions/checkout/route.ts"),
     "performance-pass": scan.buyerCompletionPass,
     "security-pass": fileExists("middleware.ts"),

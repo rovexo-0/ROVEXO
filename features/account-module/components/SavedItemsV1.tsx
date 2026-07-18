@@ -51,7 +51,7 @@ export function SavedItemsV1({ initialItems }: SavedItemsV1Props) {
   const visibleItems = items.slice(0, visibleCount);
 
   return (
-    <AccountCanonicalShell title="Saved" backHref="/account" contentClassName="!px-2 !pt-0">
+    <AccountCanonicalShell title="Saved" backHref="/account">
       {items.length === 0 ? (
         <CanonicalInfoBlock variant="description">
           <p className="font-medium text-text-primary">Nothing saved</p>

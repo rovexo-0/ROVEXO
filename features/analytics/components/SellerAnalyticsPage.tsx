@@ -47,7 +47,7 @@ export function SellerAnalyticsPage({
         />
       }
     >
-      <div className="flex w-full flex-col gap-ds-4 px-ds-4 pb-ds-5">
+      <div className="flex w-full flex-col gap-ds-4 pb-ds-5">
         {loading ? (
           <p className="sr-only" aria-live="polite">
             Updating analytics

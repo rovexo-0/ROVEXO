@@ -1,7 +1,10 @@
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { CanonicalSection, CanonicalSectionCard } from "@/components/ui/canonical";
-import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
-import Link from "next/link";
+import { AccountIcon } from "@/components/account/AccountIcons";
+import {
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import type { ProtectionCase, ProtectionCaseType } from "@/lib/protection/service";
 
 type ResolutionCentreViewProps = {
@@ -21,31 +24,25 @@ function CaseSection({
 }) {
   return (
     <CanonicalSection title={title}>
-      <CanonicalSectionCard>
+      <CanonicalCard variant="list">
         {cases.length === 0 ? (
-          <p className="px-ds-4 py-ds-5 text-sm text-text-secondary">{emptyLabel}</p>
+          <CanonicalMenuRow title={emptyLabel} showChevron={false} />
         ) : (
           cases.map((caseRecord) => (
-            <Link
+            <CanonicalMenuRow
               key={caseRecord.id}
               href={`/resolution/${caseRecord.id}`}
-              className="ac-canonical__row"
-              aria-label={`${caseRecord.caseType} case`}
-            >
-              <span className="ac-canonical__row-copy">
-                <span className="ac-canonical__row-title">
-                  <span className="truncate capitalize">{caseRecord.caseType.replace("_", " ")}</span>
+              title={caseRecord.caseType.replace("_", " ")}
+              description={`${caseRecord.reason} · ${caseRecord.status}`}
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="returns" />
                 </span>
-                <span className="ac-canonical__row-subtitle">{caseRecord.reason}</span>
-                <span className="ac-canonical__row-subtitle">Status: {caseRecord.status}</span>
-              </span>
-              <span className="ac-canonical__row-chevron" aria-hidden>
-                <ChevronRightLineIcon />
-              </span>
-            </Link>
+              }
+            />
           ))
         )}
-      </CanonicalSectionCard>
+      </CanonicalCard>
     </CanonicalSection>
   );
 }
@@ -86,7 +83,7 @@ export function ResolutionCentreView({
       showBottomNav={false}
       intro={intro}
     >
-      <div className="flex w-full flex-col gap-ds-4 pb-ds-5">
+      <div className="ac-canonical flex w-full flex-col gap-ds-4 pb-ds-5">
         <CaseSection title="Buying" cases={buyer} emptyLabel="No cases yet." />
         <CaseSection title="Selling" cases={seller} emptyLabel="No cases yet." />
       </div>

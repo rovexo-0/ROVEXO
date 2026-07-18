@@ -1,26 +1,14 @@
-# ROVEXO Master Image Pack v1 — Absolute Final
+# ROVEXO Master Image Pack v1 — One Product
 
-**Status:** Pack scaffold + baseline captures from develop preview.  
-**After push:** Re-run `node scripts/master-image-pack.mjs` against the updated Master Preview URL for 100% of rebuilt hubs.
+**Absolute Final Freeze** — local visual pack (no network / no Chromium required).
 
-## Rules (frozen)
+1. Open `index.html` for the full grid.
+2. Open `frames/` for 252 individual SVG phone images.
 
-- 100% phone width · 16px left/right
-- Standard / classic / simple / compact
-- Purple · white · black · grey only
-- One design / width / icon / button / row system
-- No premium / 3D / luxury / glass / wow effects
-
-## Gallery
-
-Open `index.html` in this folder.
-
-## Capture command
-
-```bash
-BASE_URL=https://rovexo-git-develop-rovexo.vercel.app node scripts/master-image-pack.mjs
-```
-
-## Surfaces in pack
-
-Buying · Selling · Business · Wallet · Messages · Trust · Settings · Search · Checkout · Tracking · Orders · Reviews · Directory · Notifications · Saved · Help · Legal · sub-menus · E2E · empty/error/loading
+- 52 platform hubs/surfaces
+- 11 E2E flow stacks
+- 4 states each (default / empty / error / loading)
+- 252 image files total
+- Width: 16px · 100% · 16px
+- Palette: purple · white · black · grey only
+- Philosophy: classic · standard · simple · compact · zero learning curve
