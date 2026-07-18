@@ -50,7 +50,7 @@ export function buildSellerQuickActions(counts: {
 
 export const SELLER_SETTINGS_LINKS: SellerSettingsLink[] = [
   { id: "store", label: "Store", href: "/account/profile", icon: RovexoIcons.dashboard.listings },
-  { id: "payments", label: "Payments", href: "/wallet", icon: RovexoIcons.seller.wallet },
+  { id: "payments", label: "Wallet", href: "/wallet", icon: RovexoIcons.seller.wallet },
   { id: "notifications", label: "Notifications", href: "/notifications/settings", icon: RovexoIcons.notifications.bell },
   { id: "language", label: "Language", href: "/account/preferences/language", icon: RovexoIcons.dashboard.help },
   { id: "privacy", label: "Privacy", href: "/account/privacy", icon: RovexoIcons.security.shield },

@@ -2,7 +2,7 @@
    UI only: routing, order, and behaviour unchanged. */
 
 [data-bottom-nav="v2"] {
-  --rx-bottom-nav-height: 50px;
+  --rx-bottom-nav-height: 52px;
   --rx-bottom-nav-sell-size: 56px;
   --rx-bottom-nav-sell-float: 8px;
   --rx-bottom-nav-label-size: 12px;

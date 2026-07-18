@@ -1,39 +1,31 @@
 # ROVEXO v1.0 — Launch Ready Certification Maps
 
-**STATUS:** **FAIL** — Master Preview refresh pending after this push; live Full Demo E2E + Product Owner visual approval still required for PASS.
+**STATUS:** **FAIL** — Master Execution Order blockers partially cleared; live Full Demo E2E + PO visual + Master Preview push still required.
 
-**STOP CONDITION:** Master Preview only — no Production / Google Play / App Store deploy
+**STOP:** Master Preview only — no Production / Google Play / App Store.
 
-## Master Preview URL (canonical)
+## Master Preview URL
 
-| Property | Value |
-|----------|--------|
-| Permanent Preview | https://rovexo-git-develop-rovexo.vercel.app |
-| Branch | `develop` |
-| Environment | Vercel Preview |
-| Production | **FORBIDDEN** until Launch Ready PASS + PO approval |
+**https://rovexo-git-develop-rovexo.vercel.app**  
+(local commits may be ahead of origin until push is approved)
 
-## Demo accounts (permanent)
+## Demo accounts
 
-| Account | Email |
-|---------|--------|
-| Buyer | `demo.buyer@rovexo.co.uk` |
-| Seller | `demo.seller@rovexo.co.uk` |
+- `demo.buyer@rovexo.co.uk`
+- `demo.seller@rovexo.co.uk`
 
----
+## Master Execution Order scorecard (this cycle)
 
-## Launch Ready gate scorecard
-
-| Gate | Result |
+| Rule | Result |
 |------|--------|
-| TypeScript | PASS |
-| Production build | PASS |
-| Unit menu/legal/cart tests | PASS |
-| Live `certify:predeploy` seed+E2E | **BLOCKED / PENDING** (needs Supabase Preview env) |
-| Responsive visual suite | **PENDING** PO |
-| UK Legal SSOT + aliases | PASS (22 docs + gdpr/accessibility/dmca/etc.) |
-| Master shell commerce paths | PASS (Cart, Order detail, Tracking, Review, Compliance, Wallet txn) |
-| One Entry Point polish | PASS (Wallet≠Payouts; Help≠Legal duplicates) |
-| App Store test (1.7M) | **FAIL** until live E2E + PO visual |
-
-**Binary verdict: LAUNCH READY FAIL** (honest — do not ship).
+| Bottom Nav Home · Search · Sell · Inbox · Account | PASS (canonical-nav + visual defaults) |
+| Conversation hides bottom nav | PASS |
+| Auth Splash/Welcome removed | PASS |
+| Personal + Business Wallet only | PASS (Payments label → Wallet) |
+| No consumer AI Assistant | PASS (removed from Help/Support) |
+| Two-col Similar + Recently Viewed | PASS |
+| Master tokens 52px nav / 20px icons | PASS |
+| Business Promotions/Orders/Reviews returnTo Business | PASS (canonical destinations) |
+| Live certify:predeploy E2E | PENDING |
+| PO visual approval | PENDING |
+| **Launch Ready** | **FAIL** |

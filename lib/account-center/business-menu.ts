@@ -44,6 +44,12 @@ export function buildBusinessMenuSections(storeSlug?: string | null): BusinessMe
           badgeKeys: ["wallet-payout"],
         },
         { id: "analytics", title: "Analytics", href: "/business/analytics", icon: "business" },
+        {
+          id: "promotions",
+          title: "Promotions",
+          href: "/business/promotions",
+          icon: "promotions",
+        },
         { id: "followers", title: "Followers", href: "/account/followers", icon: "following" },
         { id: "reviews", title: "Reviews", href: "/business/reviews", icon: "reviews" },
         {

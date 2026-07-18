@@ -86,6 +86,7 @@ describe("Master Menu Design — Business", () => {
       "Orders",
       "Wallet",
       "Analytics",
+      "Promotions",
       "Followers",
       "Reviews",
       "Verification",

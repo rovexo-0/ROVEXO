@@ -5,7 +5,6 @@ import { AccountCanonicalShell } from "@/features/account-canonical";
 
 import { HeadsetLineIcon, MailLineIcon } from "@/components/icons/RvxLineIcons";
 import { PlatformOperatorContactSection } from "@/components/legal/PlatformOperatorContactSection";
-import { HelpAssistant } from "@/features/help/components/HelpAssistant";
 import { SupportForm } from "@/features/support/components/SupportForm";
 
 export const metadata: Metadata = {
@@ -49,7 +48,6 @@ export default function SupportPage() {
       </CanonicalSection>
 
       <PlatformOperatorContactSection />
-      <HelpAssistant compact />
     </AccountCanonicalShell>
   );
 }

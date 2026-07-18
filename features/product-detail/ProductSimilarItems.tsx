@@ -8,6 +8,7 @@ type ProductSimilarItemsProps = {
   categoryId?: string | null;
 };
 
+/** Similar items — Master Two Column Policy (mobile 2-col listing grid). */
 export function ProductSimilarItems({ products, categoryId }: ProductSimilarItemsProps) {
   if (products.length === 0) return null;
 
@@ -24,12 +25,12 @@ export function ProductSimilarItems({ products, categoryId }: ProductSimilarItem
         </Link>
       </div>
 
-      <div className="pd-v1__similar-rail" role="list" aria-label="Similar listings">
+      <div className="rx-listing-grid px-0" role="list" aria-label="Similar listings">
         {products.map((product) => (
           <div key={product.id} role="listitem">
             <ListingCard
               product={product}
-              variant="carousel"
+              variant="grid"
               {...HP_CANONICAL_LISTING_PROPS}
               surface="similar"
               showSeller={false}

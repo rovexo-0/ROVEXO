@@ -130,9 +130,11 @@ describe("Official Listing Card — homepage grid lock", () => {
     const nav = readSource("lib/homepage/canonical-nav.ts");
     const page = readSource("app/page.tsx");
 
-    expect(nav).toContain('label: "Browse"');
+    expect(nav).toContain('label: "Search"');
     expect(nav).toContain('label: "Inbox"');
-    expect(nav).toContain('label: "Profile"');
+    expect(nav).toContain('label: "Account"');
+    expect(nav).not.toContain('label: "Browse"');
+    expect(nav).not.toContain('label: "Profile"');
     expect(nav).toContain('href: "/inbox"');
     expect(page).toContain("HP_CANONICAL_BOTTOM_NAV");
   });

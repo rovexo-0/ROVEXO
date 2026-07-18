@@ -6,7 +6,6 @@ import { AccountCanonicalShell } from "@/features/account-canonical";
 
 
 import { HeadsetLineIcon, MailLineIcon } from "@/components/icons/RvxLineIcons";
-import { HelpAssistant } from "@/features/help/components/HelpAssistant";
 import { HelpCentreCategoryGrid } from "@/features/help/components/HelpCentreCanonicalSection";
 import { searchHelpCentre } from "@/lib/help/search";
 import type { HelpSearchResult } from "@/lib/help/types";
@@ -59,7 +58,6 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
               />
             </CanonicalCard>
           </CanonicalSection>
-          <HelpAssistant compact />
         </>
       )}
     </AccountCanonicalShell>
