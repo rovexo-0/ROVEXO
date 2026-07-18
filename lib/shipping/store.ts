@@ -328,7 +328,7 @@ export async function saveShippingQuotes(input: {
   await admin.from("shipping_quotes").delete().eq("shipping_record_id", record.id);
 
   if (input.pricing.quotes.length > 0) {
-    await admin.from("shipping_quotes").insert(
+    const { error: insertError } = await admin.from("shipping_quotes").insert(
       input.pricing.quotes.map((quote) => ({
         id: quote.id,
         shipping_record_id: record.id,
@@ -343,12 +343,20 @@ export async function saveShippingQuotes(input: {
         expires_at: quote.expiresAt ?? null,
       })),
     );
+    if (insertError) {
+      console.error("[shipping] saveShippingQuotes insert failed:", insertError.message);
+      throw new Error(`Failed to save shipping quotes: ${insertError.message}`);
+    }
   }
 
-  await admin
+  const { error: selectError } = await admin
     .from("shipping_records")
     .update({ selected_quote_id: input.pricing.selectedQuoteId })
     .eq("id", record.id);
+  if (selectError) {
+    console.error("[shipping] saveShippingQuotes select update failed:", selectError.message);
+    throw new Error(`Failed to select shipping quote: ${selectError.message}`);
+  }
 
   return getShippingRecord(input.orderId);
 }

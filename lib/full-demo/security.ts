@@ -28,6 +28,8 @@ export function mustUseVirtualWallet(): boolean {
 
 /** True when shipping must use the in-app demo adapter (no Sendcloud HTTP). */
 export function mustUseDemoShipping(): boolean {
+  // Playwright certification webServer must never hit real Sendcloud.
+  if (process.env.PLAYWRIGHT_E2E === "1" || process.env.E2E_TEST === "1") return true;
   return isSendcloudSandboxMode();
 }
 

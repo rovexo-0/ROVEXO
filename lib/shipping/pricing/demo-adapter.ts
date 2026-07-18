@@ -6,6 +6,8 @@
 
 import "server-only";
 
+import { randomUUID } from "node:crypto";
+
 import {
   FULL_DEMO_PARCEL_SPECS,
   generateDemoDeliveryDate,
@@ -21,8 +23,14 @@ import type {
 } from "@/lib/shipping/pricing/provider";
 import type { ShippingQuote } from "@/lib/shipping/types";
 
+/** Legacy string IDs (pre-UUID). Kept for isDemoShippingQuoteId compatibility. */
 export const DEMO_SHIPPING_QUOTE_PREFIX = "demo:";
 
+/**
+ * Demo quote IDs must be unique per quote fetch.
+ * `shipping_quotes.id` is a global UUID PK — reusing stable IDs across orders
+ * causes duplicate-key failures during concurrent Full Demo checkouts.
+ */
 export function isDemoShippingQuoteId(quoteId: string): boolean {
   return quoteId.startsWith(DEMO_SHIPPING_QUOTE_PREFIX);
 }
@@ -31,7 +39,7 @@ function buildDemoQuotes(): ShippingQuote[] {
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
   return [
     {
-      id: `${DEMO_SHIPPING_QUOTE_PREFIX}royal-mail-tracked-24`,
+      id: randomUUID(),
       providerId: "sendcloud",
       carrier: "Royal Mail",
       serviceName: "Demo Tracked 24",
@@ -42,7 +50,7 @@ function buildDemoQuotes(): ShippingQuote[] {
       expiresAt,
     },
     {
-      id: `${DEMO_SHIPPING_QUOTE_PREFIX}royal-mail-tracked-48`,
+      id: randomUUID(),
       providerId: "sendcloud",
       carrier: "Royal Mail",
       serviceName: "Demo Tracked 48",
@@ -53,7 +61,7 @@ function buildDemoQuotes(): ShippingQuote[] {
       expiresAt,
     },
     {
-      id: `${DEMO_SHIPPING_QUOTE_PREFIX}evri-standard`,
+      id: randomUUID(),
       providerId: "sendcloud",
       carrier: "Evri",
       serviceName: "Demo Standard",
@@ -97,11 +105,9 @@ export class DemoShippingAdapter implements ShippingProvider {
       };
     }
 
+    // Quote IDs are unique per fetch; match by id when possible, else first demo quote.
     const quotes = buildDemoQuotes();
-    const quote =
-      quotes.find((entry) => entry.id === request.quoteId) ??
-      (isDemoShippingQuoteId(request.quoteId) ? quotes[0] : null) ??
-      quotes[0];
+    const quote = quotes.find((entry) => entry.id === request.quoteId) ?? quotes[0];
 
     if (!quote) {
       return {
@@ -118,13 +124,14 @@ export class DemoShippingAdapter implements ShippingProvider {
     const parcelNumber = request.parcelNumber ?? 1;
     const seed = `${request.orderNumber}-${parcelNumber}`;
     const trackingNumber = generateDemoTrackingNumber(seed);
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "http://127.0.0.1:3000").replace(/\/$/, "");
 
     return {
       available: true,
       trackingNumber,
       barcode: trackingNumber,
       qrPayload: trackingNumber,
-      pdfUrl: `/api/shipping/demo-label?tracking=${encodeURIComponent(trackingNumber)}`,
+      pdfUrl: `${appUrl}/api/shipping/demo-label?tracking=${encodeURIComponent(trackingNumber)}`,
       carrier: quote.carrier,
       sendcloudParcelId: null,
       serviceCode: quote.serviceName,

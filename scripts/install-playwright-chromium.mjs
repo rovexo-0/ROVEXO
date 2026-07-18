@@ -61,6 +61,12 @@ async function prepareVercelChromium() {
     "utf8",
   );
 
+  // Video retain-on-failure needs Playwright ffmpeg even when browser comes from Sparticuz.
+  console.log("[playwright] Installing Playwright ffmpeg…");
+  if (!run("npx", ["playwright", "install", "ffmpeg"])) {
+    throw new Error("playwright install ffmpeg failed");
+  }
+
   console.log(`[playwright] Vercel Chromium ready: ${executablePath}`);
   return {
     PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH: executablePath,

@@ -292,6 +292,8 @@ describe("ROVEXO Full Demo Certification Mode", () => {
     }
     expect(readSource("package.json")).toContain('"certify:deployment"');
     expect(readSource("vercel.json")).toMatch(/"buildCommand"\s*:\s*"npm run certify:predeploy"/);
+    expect(readSource("package.json")).toContain("install-playwright-chromium.mjs");
+    expect(readSource("package.json")).toContain("@sparticuz/chromium");
     expect(readSource("lib/enterprise-deployment-center/actions.ts")).toContain(
       "assertDeploymentCertificationPassed",
     );

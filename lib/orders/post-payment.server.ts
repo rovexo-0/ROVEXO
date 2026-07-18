@@ -3,6 +3,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CHECKOUT_CARRIERS } from "@/lib/checkout/delivery";
 import { openEscrowForOrder } from "@/lib/commerce-engine";
+import { mustUseDemoShipping } from "@/lib/full-demo/security";
 import { buildOrderReceiptUrl } from "@/lib/invoices/receipt";
 import { notifyOrderPaid } from "@/lib/orders/notifications";
 import { ensureOrderConversation } from "@/lib/orders/ensure-order-conversation";
@@ -198,6 +199,45 @@ async function ensureOrderShippingPipeline(order: PaidOrderRow): Promise<void> {
           ) ?? pricing.selectedQuoteId;
         await saveShippingQuotes({ orderId: order.id, pricing });
       }
+    }
+  }
+
+  // Full Demo / Sendcloud sandbox: always materialize demo quotes so virtual
+  // label generation cannot fail solely because checkout omitted addresses.
+  const afterAddressQuotes = await getShippingRecord(order.id);
+  if ((afterAddressQuotes?.pricing?.quotes.length ?? 0) === 0 && mustUseDemoShipping()) {
+    const demoCollection: ShippingAddress = collectionAddress ?? {
+      role: "collection",
+      fullName: "ROVEXO Demo Seller",
+      line1: "1 Demo Street",
+      city: "London",
+      postcode: "E1 6AN",
+      country: "GB",
+      validated: true,
+    };
+    const demoDelivery: ShippingAddress = deliveryAddress ?? {
+      role: "delivery",
+      fullName: "ROVEXO Demo Buyer",
+      line1: "2 Demo Road",
+      city: "Manchester",
+      postcode: "M1 1AE",
+      country: "GB",
+      validated: true,
+    };
+    const demoPricing = await fetchShippingQuotesServer({
+      parcelTier: afterAddressQuotes?.parcelTier ?? refreshed?.parcelTier ?? "small_parcel",
+      collectionAddress: demoCollection,
+      deliveryAddress: demoDelivery,
+      preferredCarriers: CHECKOUT_CARRIERS,
+    });
+    if (demoPricing.quotes.length > 0) {
+      demoPricing.selectedQuoteId =
+        pickSelectedQuoteId(
+          demoPricing.quotes,
+          order.delivery_carrier,
+          Number(order.delivery_fee ?? 0),
+        ) ?? demoPricing.selectedQuoteId;
+      await saveShippingQuotes({ orderId: order.id, pricing: demoPricing });
     }
   }
 

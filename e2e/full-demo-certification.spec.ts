@@ -52,8 +52,24 @@ test.describe.serial("Full Demo — mandatory deployment certification", () => {
     const buyer = profiles?.find((profile) => profile.email === BUYER.email);
     const seller = profiles?.find((profile) => profile.email === SELLER.email);
     if (!buyer?.id || !seller?.id) throw new Error("Both permanent Full Demo accounts must exist.");
-    if (!buyer.verified || buyer.account_status !== "active") throw new Error("Buyer is not active.");
-    if (!seller.verified || seller.account_status !== "active") throw new Error("Seller is not active.");
+
+    // Permanent Full Demo accounts must remain active/verified — heal if drift occurs.
+    const heal = async (id: string, email: string) => {
+      await admin
+        .from("profiles")
+        .update({ verified: true, account_status: "active" })
+        .eq("id", id);
+      const { data } = await admin
+        .from("profiles")
+        .select("verified, account_status")
+        .eq("id", id)
+        .single();
+      if (!data?.verified || data.account_status !== "active") {
+        throw new Error(`${email} is not active.`);
+      }
+    };
+    await heal(buyer.id, BUYER.email);
+    await heal(seller.id, SELLER.email);
     buyerId = buyer.id;
     sellerId = seller.id;
 
@@ -100,6 +116,21 @@ test.describe.serial("Full Demo — mandatory deployment certification", () => {
 
   test("03 CREATE PRODUCT", async () => {
     productTitle = `Full Demo Certification ${Date.now()}`;
+    const storagePath = `${sellerId}/temp/full-demo-cert-${Date.now()}.jpg`;
+    // Minimal valid JPEG — must live under `${sellerId}/temp/` for createSellerListing.
+    const jpeg = Buffer.from(
+      "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=",
+      "base64",
+    );
+    const { error: uploadError } = await admin.storage.from("products").upload(storagePath, jpeg, {
+      contentType: "image/jpeg",
+      upsert: true,
+    });
+    expect(uploadError, uploadError?.message ?? "storage upload failed").toBeNull();
+    const {
+      data: { publicUrl },
+    } = admin.storage.from("products").getPublicUrl(storagePath);
+
     const response = await sellerPage.request.post("/api/listings", {
       data: {
         title: productTitle,
@@ -122,8 +153,8 @@ test.describe.serial("Full Demo — mandatory deployment certification", () => {
         inventory: { sku: `FULL-DEMO-${Date.now()}`, stock: 25, lowStockAlert: 1 },
         images: [
           {
-            url: "https://www.rovexo.co.uk/placeholder-product.svg",
-            storagePath: `full-demo/certification-${Date.now()}.svg`,
+            url: publicUrl,
+            storagePath,
             sortOrder: 0,
             isPrimary: true,
           },

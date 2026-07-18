@@ -238,8 +238,11 @@ export function runDeploymentCertificationScan(): DeploymentCertificationReport 
         pkg.includes('"certify:deployment"') &&
         pkg.includes('"test:database"') &&
         pkg.includes('"test:migrations"') &&
+        pkg.includes('"test:e2e:install:chromium"') &&
+        pkg.includes("install-playwright-chromium.mjs") &&
+        pkg.includes("@sparticuz/chromium") &&
         /"buildCommand"\s*:\s*"npm run certify:predeploy"/.test(vercel),
-      "certify:predeploy is the Vercel buildCommand (fail-closed)",
+      "certify:predeploy is the Vercel buildCommand + Sparticuz Chromium E2E (fail-closed)",
     ),
     check(
       "database",

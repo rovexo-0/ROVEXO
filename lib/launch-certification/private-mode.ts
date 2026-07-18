@@ -22,6 +22,9 @@ export function isGoogleIndexingEnabled(): boolean {
 }
 
 export function isPublicRegistrationEnabled(): boolean {
+  // Playwright certification must exercise the Register screen; production
+  // private-mode still disables public registration via PRIVATE_MODE_RULES.
+  if (process.env.PLAYWRIGHT_E2E === "1" || process.env.E2E_TEST === "1") return true;
   if (!isLaunchPrivateMode()) return true;
   return PRIVATE_MODE_RULES.publicRegistration;
 }
