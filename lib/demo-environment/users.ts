@@ -112,25 +112,114 @@ async function bootstrapStaffRole(admin: SupabaseClient<Database>, userId: strin
   }
 }
 
+async function ensureFullDemoCompletionAssets(
+  admin: SupabaseClient<Database>,
+  userId: string,
+  user: DemoUserDefinition,
+): Promise<void> {
+  const paymentId = `pm_demo_full_${user.key}`;
+  const { data: existingPayment } = await admin
+    .from("payment_methods")
+    .select("id")
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+
+  if (!existingPayment) {
+    const { error: paymentError } = await admin.from("payment_methods").upsert(
+      {
+        user_id: userId,
+        stripe_payment_method_id: paymentId,
+        brand: "visa",
+        last4: "4242",
+        exp_month: 12,
+        exp_year: 2030,
+        is_default: true,
+      },
+      { onConflict: "stripe_payment_method_id" },
+    );
+    if (paymentError) {
+      throw new Error(
+        `Failed to seed Full Demo payment method for ${user.email}: ${formatError(paymentError)}`,
+      );
+    }
+  }
+
+  const { data: existingBank } = await admin
+    .from("withdraw_methods")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("provider", "bank_account")
+    .eq("connected", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!existingBank) {
+    const { error: bankError } = await admin.from("withdraw_methods").insert({
+      user_id: userId,
+      provider: "bank_account",
+      label: `${user.fullName} — Full Demo bank`,
+      last_digits: "0001",
+      connected: true,
+      is_default: true,
+    });
+    if (bankError) {
+      throw new Error(
+        `Failed to seed Full Demo bank account for ${user.email}: ${formatError(bankError)}`,
+      );
+    }
+  }
+}
+
 async function enrichProfile(
   admin: SupabaseClient<Database>,
   user: DemoUserDefinition,
   userId: string,
 ): Promise<void> {
-  await admin.from("profiles").upsert(
-    {
-      id: userId,
-      email: user.email,
-      username: user.username,
-      full_name: user.fullName,
-      role: user.role === "admin" || user.role === "super_admin" ? "buyer" : user.role,
-      verified: true,
-      account_status: "active",
-      avatar_url: demoAvatarUrl(user.avatarSeed),
-      phone: user.phone ?? null,
-    },
-    { onConflict: "id" },
-  );
+  const desiredRole =
+    user.role === "admin" || user.role === "super_admin" ? "buyer" : user.role;
+
+  const { data: existingProfile } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  // prevent_profile_role_escalation blocks non-Super-Admin role changes.
+  // Only send role when inserting or when the value is unchanged.
+  const profilePayload: {
+    id: string;
+    email: string;
+    username: string;
+    full_name: string;
+    role?: UserRole;
+    verified: boolean;
+    account_status: "active";
+    avatar_url: string;
+    phone: string | null;
+  } = {
+    id: userId,
+    email: user.email,
+    username: user.username,
+    full_name: user.fullName,
+    verified: true,
+    account_status: "active",
+    avatar_url: demoAvatarUrl(user.avatarSeed),
+    phone: user.phone ?? null,
+  };
+
+  if (!existingProfile || existingProfile.role === desiredRole) {
+    profilePayload.role = desiredRole;
+  }
+
+  const { error: profileError } = await admin
+    .from("profiles")
+    .upsert(profilePayload, { onConflict: "id" });
+  if (profileError) {
+    throw new Error(
+      `Failed to enrich demo profile for ${user.email}: ${formatError(profileError)}`,
+    );
+  }
 
   if (user.role === "seller" || user.role === "business" || user.role === "admin" || user.role === "super_admin") {
     await admin.from("seller_profiles").upsert(
@@ -186,7 +275,9 @@ async function enrichProfile(
 
   /** Permanent Full Demo Accounts — fully verified + £50,000 virtual funds. */
   if (isFullDemoAccountKey(user.key)) {
-    await admin.from("seller_profiles").upsert(
+    await ensureFullDemoCompletionAssets(admin, userId, user);
+
+    const { error: sellerProfileError } = await admin.from("seller_profiles").upsert(
       {
         id: userId,
         bio: `${user.fullName} — permanent Full Demo Certification account.`,
@@ -198,9 +289,14 @@ async function enrichProfile(
       },
       { onConflict: "id" },
     );
+    if (sellerProfileError) {
+      throw new Error(
+        `Failed to enrich Full Demo seller profile for ${user.email}: ${formatError(sellerProfileError)}`,
+      );
+    }
 
     if (user.key === "live-seller") {
-      await admin.from("business_accounts").upsert(
+      const { error: businessError } = await admin.from("business_accounts").upsert(
         {
           id: userId,
           business_name: user.businessName ?? "ROVEXO LIVE SELLER Ltd",
@@ -214,8 +310,13 @@ async function enrichProfile(
         },
         { onConflict: "id" },
       );
+      if (businessError) {
+        throw new Error(
+          `Failed to enrich Full Demo business account for ${user.email}: ${formatError(businessError)}`,
+        );
+      }
 
-      await admin.from("profile_entitlements").upsert(
+      const { error: entitlementError } = await admin.from("profile_entitlements").upsert(
         {
           user_id: userId,
           company_verified: true,
@@ -223,9 +324,31 @@ async function enrichProfile(
         },
         { onConflict: "user_id" },
       );
+      if (entitlementError) {
+        throw new Error(
+          `Failed to enrich Full Demo entitlements for ${user.email}: ${formatError(entitlementError)}`,
+        );
+      }
     }
 
     await ensureDemoWalletFloor(admin, userId, FULL_DEMO_VIRTUAL_FUNDS_GBP);
+
+    const { data: verifiedProfile, error: verifiedError } = await admin
+      .from("profiles")
+      .select("verified, account_status")
+      .eq("id", userId)
+      .single();
+    if (verifiedError) {
+      throw new Error(
+        `Failed to confirm Full Demo profile for ${user.email}: ${formatError(verifiedError)}`,
+      );
+    }
+    if (verifiedProfile?.verified !== true || verifiedProfile.account_status !== "active") {
+      throw new Error(
+        `Full Demo account ${user.email} must remain verified and active after seed ` +
+          `(verified=${verifiedProfile?.verified}, account_status=${verifiedProfile?.account_status}).`,
+      );
+    }
   }
 
   if (user.role === "admin" || user.role === "super_admin") {
