@@ -49,15 +49,16 @@ export async function GET(request: Request) {
   let labelQuery = admin
     .from("shipping_labels_v1")
     .select("label_storage_path, label_url, tracking_number, carrier, provider, shipment_parcel_id")
-    .eq("shipping_record_id", recordId);
+    .eq("shipping_record_id", recordId)
+    .order("updated_at", { ascending: false })
+    .limit(1);
 
   if (parcelId) {
     labelQuery = labelQuery.eq("shipment_parcel_id", parcelId);
   }
 
-  const { data: labelRow } = await labelQuery.maybeSingle();
-
-  const label = labelRow as {
+  const { data: labelRows } = await labelQuery;
+  const label = (Array.isArray(labelRows) ? labelRows[0] : labelRows) as {
     label_storage_path?: string | null;
     label_url?: string | null;
     tracking_number?: string | null;
@@ -65,13 +66,19 @@ export async function GET(request: Request) {
     provider?: string | null;
   } | null;
 
-  if (!label?.label_storage_path && !label?.label_url) {
+  // Demo / virtual labels may only persist a tracking number (relative demo PDF URL).
+  if (!label?.tracking_number && !label?.label_storage_path && !label?.label_url) {
     return NextResponse.json({ error: "Label not found." }, { status: 404 });
   }
 
-  const signedUrl = label.label_storage_path
-    ? await getShippingLabelSignedUrl(label.label_storage_path)
-    : label.label_url;
+  const storagePath = label.label_storage_path?.trim() || null;
+  const isHttpStoragePath = Boolean(storagePath && /^https?:\/\//i.test(storagePath));
+  const isAppRelativePath = Boolean(storagePath?.startsWith("/"));
+  const signedUrl = storagePath && !isHttpStoragePath && !isAppRelativePath
+    ? await getShippingLabelSignedUrl(storagePath)
+    : storagePath && (isHttpStoragePath || isAppRelativePath)
+      ? storagePath
+      : label.label_url;
 
   return NextResponse.json({
     ok: true,

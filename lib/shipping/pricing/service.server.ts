@@ -2,7 +2,9 @@ import "server-only";
 
 import { fetchShippingQuotesRouted } from "@/lib/shipping/providers/router";
 import { sendcloudAdapter } from "@/lib/shipping/pricing/sendcloud-adapter";
+import { demoShippingAdapter } from "@/lib/shipping/pricing/demo-adapter";
 import { isSendcloudConfigured } from "@/lib/shipping/env";
+import { mustUseDemoShipping } from "@/lib/full-demo/security";
 import type { ShippingProvider, ShippingQuoteRequest } from "@/lib/shipping/pricing/provider";
 import type { ShippingPricing } from "@/lib/shipping/types";
 
@@ -36,5 +38,6 @@ export function getConfiguredProvidersServer(): { id: string; name: string; conf
 }
 
 export function activeProviders(): ShippingProvider[] {
+  if (mustUseDemoShipping()) return [demoShippingAdapter];
   return isSendcloudConfigured() ? [sendcloudAdapter] : [];
 }

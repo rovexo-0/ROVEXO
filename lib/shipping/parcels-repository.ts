@@ -313,9 +313,20 @@ export async function attachLabelToParcel(input: {
     .maybeSingle();
 
   if ((existing as { id?: string } | null)?.id) {
-    await admin.from("shipping_labels_v1").update(labelPayload).eq("shipment_parcel_id", input.parcelId);
+    const { error } = await admin
+      .from("shipping_labels_v1")
+      .update(labelPayload)
+      .eq("shipment_parcel_id", input.parcelId);
+    if (error) {
+      console.error("[shipping] attachLabelToParcel update failed:", error.message);
+      throw new Error(`Failed to update shipping label: ${error.message}`);
+    }
   } else {
-    await admin.from("shipping_labels_v1").insert(labelPayload);
+    const { error } = await admin.from("shipping_labels_v1").insert(labelPayload);
+    if (error) {
+      console.error("[shipping] attachLabelToParcel insert failed:", error.message);
+      throw new Error(`Failed to save shipping label: ${error.message}`);
+    }
   }
 
   await admin
