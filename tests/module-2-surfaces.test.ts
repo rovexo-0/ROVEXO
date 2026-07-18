@@ -36,11 +36,10 @@ describe("Module 2 — Core Surface Simplification", () => {
     expect(sell).toContain("background: #ffffff");
   });
 
-  it("keeps promotional tools linked to the canonical plans surface", () => {
-    const card = readSource("components/seller/SellerPromotionCard.tsx");
-    expect(card).toContain("Promotional Tools");
-    expect(card).toContain('href="/plans"');
-    expect(card).toContain("Open promotional tools");
+  it("keeps promotional tools linked from Selling hub", () => {
+    const selling = readSource("lib/account-center/selling-menu.ts");
+    expect(selling).toContain("Promotions");
+    expect(selling).toContain("/account/promotion-tools");
   });
 
   it("ships module 2 screenshot and audit scripts", () => {

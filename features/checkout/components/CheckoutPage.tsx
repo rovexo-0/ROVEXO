@@ -116,7 +116,7 @@ export function CheckoutPage({
       <main
         className={cn(
           isSuccess &&
-            "mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col justify-center px-ds-4 py-ds-6",
+            "flex min-h-[100dvh] w-full max-w-none flex-col justify-center px-ds-4 py-ds-6",
         )}
       >
         {isSuccess && order ? (
@@ -129,13 +129,13 @@ export function CheckoutPage({
         ) : (
           <>
             {product.availability === "out_of_stock" || product.stock <= 0 ? (
-              <Card padding="sm" className="mx-auto mb-4 mt-4 max-w-2xl border-danger/30 bg-danger/5">
+              <Card padding="sm" className="mb-4 mt-4 w-full border-danger/30 bg-danger/5">
                 <p className="text-sm font-medium text-danger">This item is out of stock.</p>
               </Card>
             ) : null}
 
             {errorMessage ? (
-              <Card padding="sm" className="mx-auto mb-4 mt-4 max-w-2xl border-danger/30 bg-danger/5">
+              <Card padding="sm" className="mb-4 mt-4 w-full border-danger/30 bg-danger/5">
                 <p className="text-sm font-medium text-danger">{errorMessage}</p>
               </Card>
             ) : null}

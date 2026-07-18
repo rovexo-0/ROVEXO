@@ -10,6 +10,7 @@
  */
 
 :root {
+  /* Vinted Philosophy Freeze — Master Design SSOT (PO UI/UX Rebuild) */
   --cp-header-height: 64px;
   --cp-search-height: 44px;
   --cp-control-height: 44px;
@@ -18,17 +19,20 @@
   --cp-fab-size: 56px;
   --cp-bottom-nav-height: 52px;
   --cp-icon-size: 20px;
+  --cp-row-height: 56px;
   --cp-body-size: 14px;
   --cp-title-size: 16px;
+  --cp-subtitle-size: 14px;
   --cp-listing-title-size: 15px;
-  --cp-price-size: 18px;
-  --cp-secondary-size: 13px;
+  --cp-price-size: 16px;
+  --cp-secondary-size: 14px;
   --cp-meta-size: 12px;
-  --cp-radius-card: 16px;
-  --cp-radius-control: 14px;
-  --cp-section-gap: 16px;
-  --cp-page-inset: 12px;
-  --cp-card-pad: 10px;
+  --cp-radius-card: 20px;
+  --cp-radius-control: 16px;
+  --cp-section-gap: 24px;
+  --cp-card-gap: 12px;
+  --cp-page-inset: 16px;
+  --cp-card-pad: 12px;
   --cp-row-gap: 8px;
 }
 
@@ -115,15 +119,15 @@
   }
 }
 
-/* —— Account hub: compact rows (My Account contract) —— */
+/* —— Account hub: Compact Premium Master Menu (56 / 16 / 24) —— */
 [data-compact-premium="v1"] .ac-hub {
-  gap: 12px;
-  padding: 8px 12px calc(72px + env(safe-area-inset-bottom));
+  gap: 24px;
+  padding: 16px;
 }
 
 [data-compact-premium="v1"] .ac-hub__profile-card {
   gap: 12px;
-  padding: 12px;
+  padding: 16px;
 }
 
 [data-compact-premium="v1"] .ac-hub__profile-avatar {
@@ -136,12 +140,19 @@
 }
 
 /* Cap oversized display type under Compact Premium TEXT POLICY */
-[data-compact-premium="v1"] h1:not([data-auth-screen]),
-[data-universal-ui="v1.1"] h1:not([data-auth-screen]) {
+[data-compact-premium="v1"] h1:not([data-auth-screen]):not(.ac-canonical__name),
+[data-universal-ui="v1.1"] h1:not([data-auth-screen]):not(.ac-canonical__name) {
   font-size: clamp(15px, 4vw, 16px);
   line-height: 1.25;
   font-weight: 650;
   letter-spacing: -0.01em;
+}
+
+[data-compact-premium="v1"] .ac-canonical__name,
+[data-universal-ui="v1.1"] .ac-canonical__name {
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 700;
 }
 
 [data-compact-premium="v1"] h2:not([data-auth-screen]),
@@ -152,9 +163,9 @@
 }
 
 [data-compact-premium="v1"] .ac-hub__menu-card .ac-hub__row {
-  min-height: var(--cp-control-height, 44px);
-  padding: 10px 12px;
-  gap: 10px;
+  min-height: var(--cp-row-height, 56px);
+  padding: 0 16px;
+  gap: 12px;
 }
 
 /* —— Orders: compact header + rows —— */
@@ -260,9 +271,10 @@
 [data-compact-premium="v1"] .cds-layout,
 [data-compact-premium="v1"] .pcu-module,
 [data-compact-premium="v1"] .notif-v1__shell,
-[data-compact-premium="v1"] .wallet-overview,
+[data-compact-premium="v1"] .wallet-v2,
 [data-compact-premium="v1"] .account-canonical,
 [data-compact-premium="v1"] .cart-v1,
+[data-compact-premium="v1"] .srch-results,
 [data-universal-ui="v1.1"] .wallet-v2,
 [data-universal-ui="v1.1"] .inbox-hub,
 [data-universal-ui="v1.1"] .conv-hub,
@@ -271,7 +283,8 @@
 [data-universal-ui="v1.1"] .pcu-module,
 [data-universal-ui="v1.1"] .ac-canonical,
 [data-universal-ui="v1.1"] .account-canonical,
-[data-universal-ui="v1.1"] .cart-v1 {
+[data-universal-ui="v1.1"] .cart-v1,
+[data-universal-ui="v1.1"] .srch-results {
   max-width: 100% !important;
   width: 100% !important;
   margin-inline: 0 !important;
@@ -293,15 +306,34 @@
 }
 
 [data-compact-premium="v1"] .max-w-\[640px\],
-[data-compact-premium="v1"] .max-w-2xl,
-[data-compact-premium="v1"] .max-w-xl,
-[data-compact-premium="v1"] .max-w-lg,
+[data-compact-premium="v1"] .max-w-\[480px\],
+[data-compact-premium="v1"] .max-w-xs,
+[data-compact-premium="v1"] .max-w-sm,
 [data-compact-premium="v1"] .max-w-md,
+[data-compact-premium="v1"] .max-w-lg,
+[data-compact-premium="v1"] .max-w-xl,
+[data-compact-premium="v1"] .max-w-2xl,
+[data-compact-premium="v1"] .max-w-3xl,
+[data-compact-premium="v1"] .max-w-4xl,
+[data-compact-premium="v1"] .max-w-5xl,
+[data-compact-premium="v1"] .max-w-6xl,
+[data-compact-premium="v1"] .max-w-7xl,
 [data-universal-ui="v1.1"] .max-w-\[640px\],
-[data-universal-ui="v1.1"] .max-w-2xl,
+[data-universal-ui="v1.1"] .max-w-\[480px\],
+[data-universal-ui="v1.1"] .max-w-xs,
+[data-universal-ui="v1.1"] .max-w-sm,
+[data-universal-ui="v1.1"] .max-w-md,
+[data-universal-ui="v1.1"] .max-w-lg,
 [data-universal-ui="v1.1"] .max-w-xl,
-[data-universal-ui="v1.1"] .max-w-lg {
+[data-universal-ui="v1.1"] .max-w-2xl,
+[data-universal-ui="v1.1"] .max-w-3xl,
+[data-universal-ui="v1.1"] .max-w-4xl,
+[data-universal-ui="v1.1"] .max-w-5xl,
+[data-universal-ui="v1.1"] .max-w-6xl,
+[data-universal-ui="v1.1"] .max-w-7xl {
   max-width: 100% !important;
+  width: 100% !important;
+  margin-inline: 0 !important;
 }
 
 

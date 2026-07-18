@@ -2,11 +2,12 @@ import { AccountCanonicalShell } from "@/features/account-canonical";
 import { CanonicalSection, CanonicalSectionCard } from "@/components/ui/canonical";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import Link from "next/link";
-import type { ProtectionCase } from "@/lib/protection/service";
+import type { ProtectionCase, ProtectionCaseType } from "@/lib/protection/service";
 
 type ResolutionCentreViewProps = {
   buyerCases: ProtectionCase[];
   sellerCases: ProtectionCase[];
+  filterType?: ProtectionCaseType | null;
 };
 
 function CaseSection({
@@ -49,25 +50,45 @@ function CaseSection({
   );
 }
 
-export function ResolutionCentreView({ buyerCases, sellerCases }: ResolutionCentreViewProps) {
+function filterCases(cases: ProtectionCase[], filterType?: ProtectionCaseType | null) {
+  if (!filterType) return cases;
+  return cases.filter((entry) => entry.caseType === filterType);
+}
+
+export function ResolutionCentreView({
+  buyerCases,
+  sellerCases,
+  filterType = null,
+}: ResolutionCentreViewProps) {
+  const buyer = filterCases(buyerCases, filterType);
+  const seller = filterCases(sellerCases, filterType);
+  const title =
+    filterType === "refund"
+      ? "Refunds"
+      : filterType === "dispute"
+        ? "Disputes"
+        : "Returns & Refunds";
+  const intro =
+    filterType === "refund"
+      ? "Your refund cases."
+      : filterType === "dispute"
+        ? "Your dispute cases."
+        : "Buyer and seller protection cases.";
+
+  const fromBuying = filterType === "refund" || filterType === "dispute";
+
   return (
     <AccountCanonicalShell
-      title="Returns & Refunds"
-      backHref="/account"
-      backLabel="My Account"
+      title={title}
+      backHref={fromBuying ? "/account/buying" : "/account"}
+      backLabel={fromBuying ? "Buying" : "My Account"}
       showHeaderTitle
       showBottomNav={false}
+      intro={intro}
     >
-      <div className="flex w-full flex-col gap-ds-4 px-ds-4 pb-ds-5">
-        <p className="text-sm text-text-secondary">
-          Buyer and seller protection cases with evidence and appeals.
-        </p>
-        <CaseSection title="Your buyer cases" cases={buyerCases} emptyLabel="No open buyer cases." />
-        <CaseSection
-          title="Your seller cases"
-          cases={sellerCases}
-          emptyLabel="No seller protection cases."
-        />
+      <div className="flex w-full flex-col gap-ds-4 pb-ds-5">
+        <CaseSection title="Buying" cases={buyer} emptyLabel="No cases yet." />
+        <CaseSection title="Selling" cases={seller} emptyLabel="No cases yet." />
       </div>
     </AccountCanonicalShell>
   );

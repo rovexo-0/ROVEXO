@@ -163,7 +163,8 @@ export function MigrationConnectStep({
       {platformFlow.connectMode === "coming_soon" ? (
         <div className="byi-connect-card">
           <p className="text-sm text-text-secondary">
-            {platformLabel} import is coming soon. Try eBay, Etsy, Shopify, Facebook Marketplace, or CSV.
+            {platformLabel} import is not available. Choose eBay, Etsy, Shopify, Facebook Marketplace, or
+            CSV.
           </p>
         </div>
       ) : null}

@@ -1,5 +1,9 @@
-import { Card } from "@/components/ui/Card";
 import { Price } from "@/components/ui/Price";
+import {
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { buildOrderRefundView } from "@/lib/orders/refund-status";
 import type { Order } from "@/lib/orders/types";
 
@@ -28,24 +32,21 @@ export function RefundStatusCard({ order }: RefundStatusCardProps) {
   const showProcessingNote = refund.status !== "completed" && refund.status !== "failed";
 
   return (
-    <div className="flex flex-col gap-ds-3">
-      <Card padding="lg" className="flex flex-col gap-ds-4">
-        <h2 className="text-base font-semibold text-text-primary">Refund</h2>
-
-        <div className="flex flex-col gap-ds-1">
-          <p className="text-sm text-text-secondary">Status</p>
-          <p className="text-sm font-semibold text-text-primary">
-            {status.emoji} {status.label}
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-ds-1">
-          <p className="text-sm text-text-secondary">Refund</p>
-          <p className="text-sm font-semibold text-text-primary">
-            <Price amount={refund.amount} size="sm" />
-          </p>
-        </div>
-      </Card>
+    <div className="flex w-full flex-col gap-ds-2">
+      <CanonicalSection title="Refund">
+        <CanonicalCard variant="list" className="w-full">
+          <CanonicalMenuRow
+            title="Status"
+            value={`${status.emoji} ${status.label}`}
+            showChevron={false}
+          />
+          <CanonicalMenuRow
+            title="Refund"
+            trailing={<Price amount={refund.amount} size="sm" />}
+            showChevron={false}
+          />
+        </CanonicalCard>
+      </CanonicalSection>
 
       {showProcessingNote ? (
         <p className="text-xs text-text-muted">{BANK_PROCESSING_NOTE}</p>

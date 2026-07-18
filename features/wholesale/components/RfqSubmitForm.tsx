@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 
 export function RfqSubmitForm() {
   const router = useRouter();
@@ -46,7 +46,7 @@ export function RfqSubmitForm() {
   };
 
   return (
-    <Card padding="lg" className="">
+    <CanonicalCard variant="medium" className="w-full">
       <h2 className="text-lg font-semibold">Submit RFQ</h2>
       <p className="mt-ds-1 text-sm text-text-secondary">Request quotes from verified wholesale suppliers.</p>
       <div className="mt-ds-4 space-y-ds-3">
@@ -88,6 +88,6 @@ export function RfqSubmitForm() {
           Submit RFQ
         </Button>
       </div>
-    </Card>
+    </CanonicalCard>
   );
 }

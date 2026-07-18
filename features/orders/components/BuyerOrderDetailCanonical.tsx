@@ -1,8 +1,12 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import {
+  CanonicalButton,
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { PublishedCheckmark } from "@/features/sell/components/PublishedCheckmark";
 import { OrderDetailsView } from "@/features/commerce-ui/views/OrderDetailsView";
 import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
@@ -63,23 +67,23 @@ export function BuyerOrderDetailCanonical({
 
   if (order.status === "completed") {
     return (
-      <div className="flex flex-col gap-ds-5">
+      <div className="flex w-full flex-col gap-ds-4">
         <section
-          className="flex w-full flex-col items-center justify-center px-ds-2 py-ds-8 text-center"
+          className="flex w-full flex-col items-center gap-ds-4 py-ds-6 text-center"
           aria-labelledby="order-complete-heading"
         >
           <PublishedCheckmark />
-          <h2 id="order-complete-heading" className="mt-ds-6 text-xl font-semibold text-text-primary">
-            Thank you!
-          </h2>
-          <p className="mt-ds-2 text-sm text-text-secondary">
-            Seller funds release automatically 24 hours after delivery, unless a claim is opened.
-          </p>
-          {order.disputesDisabled ? (
-            <p className="mt-ds-1 text-xs text-text-muted">
-              Further disputes are disabled for this order.
+          <CanonicalInfoBlock variant="success">
+            <p id="order-complete-heading" className="font-medium text-text-primary">
+              Thank you
             </p>
-          ) : null}
+            <p className="mt-ds-1 text-sm">
+              Funds release 24h after delivery unless claimed.
+            </p>
+            {order.disputesDisabled ? (
+              <p className="mt-ds-1 text-xs text-text-muted">Disputes disabled.</p>
+            ) : null}
+          </CanonicalInfoBlock>
         </section>
         <OrderReviewCard orderId={order.id} sellerName={order.seller.name} />
       </div>
@@ -89,7 +93,7 @@ export function BuyerOrderDetailCanonical({
   const showBuyerConfirm = canConfirmDelivery(order.status, order.disputesDisabled);
 
   return (
-    <div className="flex flex-col gap-ds-5">
+    <div className="flex w-full flex-col gap-ds-4">
       <OrderDetailsView
         meta={commerce.meta}
         items={commerce.items}
@@ -98,6 +102,7 @@ export function BuyerOrderDetailCanonical({
         backHref="/orders"
         showSuccessBanner={showSuccessBanner}
         embedded
+        className="w-full"
       />
 
       {escrowState ? <EscrowReleaseCard escrow={escrowState} view="buyer" /> : null}
@@ -115,41 +120,34 @@ export function BuyerOrderDetailCanonical({
       ) : null}
 
       {showBuyerConfirm ? (
-        <Card padding="lg" className="flex flex-col gap-ds-4">
-          <h2 className="text-base font-semibold text-text-primary">Confirm Everything OK</h2>
-          <div className="flex flex-col gap-ds-3">
-            <Button
-              variant="primary"
+        <CanonicalSection title="Delivery">
+          <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-2">
+            <CanonicalButton
               fullWidth
-              size="lg"
-              className="min-h-[60px] rounded-ds-lg text-base"
-              disabled={isSubmitting}
+              loading={isSubmitting}
               onClick={() => void handleBuyerAction("confirm_ok")}
             >
-              Confirm Everything OK
-            </Button>
-            <Button
+              Confirm OK
+            </CanonicalButton>
+            <CanonicalButton
               variant="outline"
               fullWidth
-              size="lg"
-              className="min-h-[60px] rounded-ds-lg text-base"
               disabled={isSubmitting || isOrderClosed(order)}
               onClick={() => void handleBuyerAction("report_issue")}
             >
-              I Have an Issue
-            </Button>
-          </div>
-        </Card>
+              Report issue
+            </CanonicalButton>
+          </CanonicalCard>
+        </CanonicalSection>
       ) : null}
 
       {order.status === "issue_open" ? (
-        <Card padding="lg">
-          <h2 className="text-base font-semibold text-text-primary">Issue Open</h2>
-          <p className="mt-ds-2 text-sm text-text-secondary">
-            Your issue is being reviewed. Track progress in the Resolution Centre.
-          </p>
-          <IssueResolutionLink orderId={order.id} className="mt-ds-4" />
-        </Card>
+        <CanonicalSection title="Issue">
+          <CanonicalInfoBlock variant="warning">
+            <p>Under review. Track in Resolution Centre.</p>
+          </CanonicalInfoBlock>
+          <IssueResolutionLink orderId={order.id} className="mt-ds-2" />
+        </CanonicalSection>
       ) : null}
     </div>
   );

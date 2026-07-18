@@ -121,10 +121,12 @@ describe("sell photo picker (Android / Samsung)", () => {
     expect(source).not.toContain("tabIndex={-1}");
   });
 
-  it("routes auction sell through canonical photo rail", () => {
-    const source = readSource("features/auctions/sell/AuctionSellPage.tsx");
-    expect(source).toContain("SellPhotoRail");
-    expect(source).not.toContain("PhotoUploader");
+  it("routes auction sell bookmarks to canonical Sell", () => {
+    const route = readSource("app/sell/auction/page.tsx");
+    expect(route).toContain('redirect("/sell")');
+    expect(
+      existsSync(path.join(process.cwd(), "features/auctions/sell/AuctionSellPage.tsx")),
+    ).toBe(false);
   });
 
   it("overlay input covers the full label hit target", () => {

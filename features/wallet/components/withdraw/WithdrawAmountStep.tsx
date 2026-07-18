@@ -1,8 +1,6 @@
 "use client";
 
-import { Card } from "@/components/ui/Card";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
+import { CanonicalCard, CanonicalInput, CanonicalSection } from "@/src/components/canonical";
 import { formatCurrency } from "@/lib/wallet/utils";
 import type { WithdrawFlowController } from "@/features/wallet/hooks/use-withdraw-flow";
 
@@ -14,51 +12,31 @@ export function WithdrawAmountStep({ flow }: WithdrawAmountStepProps) {
   const { availableBalance, draft, parsedAmount, updateDraft } = flow;
 
   return (
-    <section aria-labelledby="withdraw-amount-heading" className="flex flex-col gap-ds-3">
-      <h2 id="withdraw-amount-heading" className="text-base font-semibold text-text-primary">
-        Enter Amount
-      </h2>
+    <CanonicalSection title="Amount">
+      <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
+        <p className="cds-menu-row__subtitle">Available {formatCurrency(availableBalance)}</p>
 
-      <Card padding="md" className="">
-        <div className="flex flex-col gap-ds-4">
-          <p className="text-sm text-text-secondary">
-            Available: {formatCurrency(availableBalance)}
-          </p>
+        <CanonicalInput
+          id="withdraw-amount"
+          label="Withdrawal amount"
+          inputType="price"
+          placeholder="0.00"
+          value={draft.amount}
+          onChange={(event) => updateDraft({ amount: event.target.value })}
+        />
 
-          <label htmlFor="withdraw-amount" className="flex flex-col gap-ds-2">
-            <span className="text-sm font-medium text-text-primary">Withdrawal amount</span>
-            <input
-              id="withdraw-amount"
-              type="text"
-              inputMode="decimal"
-              placeholder="0.00"
-              value={draft.amount}
-              onChange={(event) => updateDraft({ amount: event.target.value })}
-              className={cn(
-                "min-h-ds-7 rx-input px-ds-3 py-ds-2 text-lg font-semibold tabular-nums",
-                focusRing,
-              )}
-            />
-          </label>
+        <button
+          type="button"
+          className="account-settings-text-action self-start"
+          onClick={() => updateDraft({ amount: availableBalance.toFixed(2) })}
+        >
+          Withdraw all
+        </button>
 
-          <button
-            type="button"
-            onClick={() => updateDraft({ amount: availableBalance.toFixed(2) })}
-            className={cn(
-              "self-start text-sm font-medium text-primary",
-              focusRing,
-            )}
-          >
-            Withdraw full balance
-          </button>
-
-          {parsedAmount > 0 && (
-            <p className="text-sm text-text-secondary">
-              You will withdraw {formatCurrency(parsedAmount)}
-            </p>
-          )}
-        </div>
-      </Card>
-    </section>
+        {parsedAmount > 0 ? (
+          <p className="cds-menu-row__subtitle">You receive {formatCurrency(parsedAmount)}</p>
+        ) : null}
+      </CanonicalCard>
+    </CanonicalSection>
   );
 }

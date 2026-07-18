@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CanonicalPageShell } from "@/components/layout/CanonicalPageShell";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { BusinessDirectoryPage } from "@/features/business/components/BusinessDirectoryPage";
 import { listBusinessDirectory } from "@/lib/business/directory";
 
@@ -12,14 +12,14 @@ export default async function BusinessDirectoryRoute() {
   const companies = await listBusinessDirectory();
 
   return (
-    <CanonicalPageShell
+    <AccountCanonicalShell
       title="Business Directory"
       backHref="/business/dashboard"
-      backLabel="Business tools"
+      backLabel="Business"
+      showHeaderTitle
       showBottomNav={false}
-      contentClassName="max-w-6xl gap-ds-6 py-ds-5"
     >
       <BusinessDirectoryPage companies={companies} />
-    </CanonicalPageShell>
+    </AccountCanonicalShell>
   );
 }

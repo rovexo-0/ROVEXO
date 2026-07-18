@@ -67,7 +67,7 @@ export function DeleteAllListingsPanel({ initialTotal }: { initialTotal: number 
   }, [confirmText]);
 
   return (
-    <section className="rx-sheet mx-auto mt-ds-4 w-full max-w-2xl p-ds-5">
+    <section className="rx-sheet mt-ds-4 w-full max-w-none p-ds-5">
       <div className="rounded-ds-lg border border-danger/40 bg-danger/5 p-ds-4">
         <p className="text-title text-text-primary">Danger zone</p>
         <p className="mt-ds-2 text-body text-text-secondary">

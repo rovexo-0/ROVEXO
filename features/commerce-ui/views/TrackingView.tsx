@@ -49,7 +49,7 @@ export function TrackingView({
           "flex w-full flex-1 flex-col gap-ds-4",
           embedded
             ? "px-0 py-0"
-            : "mx-auto max-w-lg px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]",
+            : "w-full max-w-none px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]",
         )}
       >
         <InfoBannerCard

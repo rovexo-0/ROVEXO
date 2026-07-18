@@ -162,7 +162,7 @@ export function PublishSuccessDialog({
       ariaLabel="Listing published"
       lockScroll
     >
-      <div className="flex w-full max-w-sm flex-col items-center gap-ds-4 p-ds-6 text-center">
+      <div className="flex w-full max-w-none flex-col items-center gap-ds-4 p-ds-6 text-center">
         <span
           className="grid h-14 w-14 place-items-center rounded-ds-full bg-success/15 text-success"
           aria-hidden

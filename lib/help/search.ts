@@ -22,9 +22,9 @@ function buildExcerpt(content: string, queryTokens: string[]): string {
 const FEATURE_INDEX = [
   { id: "sell", title: "Sell", href: "/sell", keywords: ["sell", "listing", "publish"] },
   { id: "orders", title: "Orders", href: "/orders", keywords: ["orders", "purchases"] },
-  { id: "wallet", title: "Seller Wallet", href: "/seller/wallet", keywords: ["wallet", "withdraw", "balance"] },
-  { id: "messages", title: "Messages", href: "/messages", keywords: ["messages", "chat"] },
-  { id: "settings", title: "Settings", href: "/settings", keywords: ["settings", "profile"] },
+  { id: "wallet", title: "Wallet", href: "/wallet", keywords: ["wallet", "withdraw", "balance", "payout"] },
+  { id: "messages", title: "Messages", href: "/inbox", keywords: ["messages", "chat", "inbox"] },
+  { id: "settings", title: "Settings", href: "/account/settings", keywords: ["settings", "profile"] },
   { id: "search", title: "Search", href: "/search", keywords: ["search", "find"] },
   { id: "support", title: "Contact Support", href: "/support", keywords: ["support", "contact", "ticket"] },
 ];
@@ -189,9 +189,12 @@ export function suggestArticlesForPath(pathname: string) {
     { pattern: /^\/sell/, slugs: ["selling-get-started", "selling-photos", "seller-tax-registration"], topic: "seller" },
     { pattern: /^\/checkout/, slugs: ["payments-checkout", "buying-buyer-protection"], topic: "buyer" },
     { pattern: /^\/orders/, slugs: ["delivery-tracking", "payments-refunds"], topic: "orders" },
+    { pattern: /^\/inbox/, slugs: ["chat-safety"], topic: "chat-messages" },
     { pattern: /^\/messages/, slugs: ["chat-safety"], topic: "chat-messages" },
+    { pattern: /^\/wallet/, slugs: ["payments-checkout", "seller-tax-registration"], topic: "withdraw" },
     { pattern: /^\/seller\/wallet/, slugs: ["payments-checkout", "seller-tax-registration"], topic: "withdraw" },
     { pattern: /^\/seller/, slugs: ["pro-seller-dashboard", "seller-tax-registration"], topic: "seller" },
+    { pattern: /^\/account\/settings/, slugs: ["account-overview"], topic: "account" },
     { pattern: /^\/settings/, slugs: ["account-overview"], topic: "account" },
     { pattern: /^\/support/, slugs: ["reports-appeals-process"], topic: "support" },
   ];
@@ -207,11 +210,12 @@ export function suggestArticlesForPath(pathname: string) {
 }
 
 export function suggestTopicForPath(pathname: string): HelpTopicSlug | null {
-  if (pathname.startsWith("/seller/wallet")) return "withdraw";
+  if (pathname.startsWith("/wallet") || pathname.startsWith("/seller/wallet")) return "withdraw";
   if (pathname.startsWith("/seller")) return "seller";
   if (pathname.startsWith("/orders")) return "orders";
-  if (pathname.startsWith("/messages")) return "chat-messages";
+  if (pathname.startsWith("/inbox") || pathname.startsWith("/messages")) return "chat-messages";
   if (pathname.startsWith("/sell")) return "seller";
+  if (pathname.startsWith("/account/settings") || pathname.startsWith("/settings")) return "account";
   if (pathname.startsWith("/checkout")) return "buyer";
   if (pathname.startsWith("/support")) return "support";
   if (pathname.startsWith("/settings")) return "account";

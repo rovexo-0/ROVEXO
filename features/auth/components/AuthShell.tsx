@@ -12,7 +12,7 @@ export function AuthShell({ children, className }: AuthShellProps) {
       className={cn(
         RX_SCROLL_PAGE,
         RX_SCROLL_PAGE_NO_NAV,
-        "relative flex min-h-[100dvh] flex-col bg-white px-ds-5",
+        "relative flex min-h-[100dvh] flex-col bg-white px-[16px]",
         "pb-[max(env(safe-area-inset-bottom),var(--ds-space-10))]",
         "pt-[max(env(safe-area-inset-top),var(--ds-space-10))]",
         className,
@@ -20,7 +20,7 @@ export function AuthShell({ children, className }: AuthShellProps) {
     >
       <main
         role="main"
-        className="mx-auto flex w-full max-w-[440px] flex-1 flex-col justify-center py-ds-8"
+        className="flex w-full max-w-none flex-1 flex-col justify-center py-ds-8"
       >
         {children}
       </main>

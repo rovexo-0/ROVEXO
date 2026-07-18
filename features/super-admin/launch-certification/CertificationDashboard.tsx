@@ -66,7 +66,7 @@ export function CertificationDashboard() {
   }, [refresh]);
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-ds-4 p-ds-4">
+    <div className="flex w-full max-w-none flex-col gap-ds-4 p-ds-4">
       <header className="flex flex-col gap-ds-2">
         <h1 className="text-2xl font-bold text-text-primary">Certification Dashboard</h1>
         <p className="text-sm text-text-secondary">

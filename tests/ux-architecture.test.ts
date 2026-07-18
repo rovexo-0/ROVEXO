@@ -71,6 +71,6 @@ describe("ROVEXO UX architecture — zero legacy presentation", () => {
     expect(index).toContain("ListingCard");
     expect(index).toContain("Dialog");
     expect(index).toContain("DashboardCard");
-    expect(index).toContain("AuctionCard");
+    expect(index).toContain("Avatar");
   });
 });

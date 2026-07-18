@@ -2,7 +2,7 @@
 
 import { memo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { ShippingService } from "@/lib/shipping";
 import type { Order } from "@/lib/orders/types";
 import type { ShippingRecord } from "@/lib/shipping/types";
@@ -83,7 +83,7 @@ export const LabelCard = memo(function LabelCard({ order, record }: LabelCardPro
   }
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-4">
+    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-3">
       <div>
         <h2 className="text-base font-semibold text-text-primary">Shipping label</h2>
         <p className="mt-ds-1 text-sm text-text-secondary">
@@ -139,6 +139,6 @@ export const LabelCard = memo(function LabelCard({ order, record }: LabelCardPro
           Print draft label
         </Button>
       </div>
-    </Card>
+    </CanonicalCard>
   );
 });

@@ -1,36 +1,29 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
 import { PublishedCheckmark } from "@/features/sell/components/PublishedCheckmark";
+import {
+  CanonicalButtonLink,
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalSection,
+} from "@/src/components/canonical";
+import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 
 export function WithdrawSuccessView() {
   return (
-    <section
-      className="flex w-full flex-col items-center justify-center px-ds-2 py-ds-8 text-center"
-      aria-labelledby="withdraw-success-heading"
-    >
-      <PublishedCheckmark />
-
-      <h2 id="withdraw-success-heading" className="mt-ds-6 text-xl font-semibold text-text-primary">
-        Withdrawal Requested
-      </h2>
-
-      <p className="mt-ds-2 max-w-sm text-sm text-text-secondary">
-        Funds will arrive according to your payout schedule.
-      </p>
-
-      <div className="mt-ds-8 flex w-full max-w-sm flex-col gap-ds-3">
-        <Link href="/seller/wallet" className="block w-full">
-          <Button variant="primary" fullWidth size="lg" className="min-h-ds-7 rounded-ds-lg text-base">
+    <CanonicalSection title="Withdrawal requested">
+      <CanonicalCard variant="medium" className="flex w-full flex-col items-center gap-ds-4 p-ds-4 text-center">
+        <PublishedCheckmark />
+        <CanonicalInfoBlock variant="description">
+          Funds will arrive per your payout schedule.
+        </CanonicalInfoBlock>
+        <div className="flex w-full flex-col gap-ds-3">
+          <CanonicalButtonLink href={WALLET_ROUTES.hub} fullWidth>
             Done
-          </Button>
-        </Link>
-
-        <Link href="/seller/wallet#wallet-transactions-heading" className="block w-full">
-          <Button variant="secondary" fullWidth size="lg" className="min-h-ds-7 rounded-ds-lg text-base">
-            View Transactions
-          </Button>
-        </Link>
-      </div>
-    </section>
+          </CanonicalButtonLink>
+          <CanonicalButtonLink href={`${WALLET_ROUTES.transactions}#wallet-transactions-heading`} variant="secondary" fullWidth>
+            View transactions
+          </CanonicalButtonLink>
+        </div>
+      </CanonicalCard>
+    </CanonicalSection>
   );
 }

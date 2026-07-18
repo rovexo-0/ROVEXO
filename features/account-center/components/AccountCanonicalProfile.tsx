@@ -1,11 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronRight, Users } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
-import { formatCount } from "@/lib/account-center/derive";
 import { formatAccountProfileRating } from "@/lib/account-center/format-profile-rating";
 import type { AccountHubSnapshot } from "@/lib/account-center/snapshot";
 import type { UserProfile } from "@/lib/profile/types";
@@ -21,6 +19,10 @@ function formatMemberSince(value: string): string {
   return date.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 }
 
+/**
+ * My Account identity header only — Followers live under Selling/Business hubs.
+ * Final Master Certification Order: no extra hub chrome beyond the Master Menu.
+ */
 export function AccountCanonicalProfile({ profile, snapshot }: AccountCanonicalProfileProps) {
   const ratingLine = formatAccountProfileRating(snapshot.rating, snapshot.reviewCount);
 
@@ -47,17 +49,6 @@ export function AccountCanonicalProfile({ profile, snapshot }: AccountCanonicalP
               {ratingLine}
             </p>
           </div>
-        </Link>
-
-        <Link
-          href="/account/followers"
-          className={cn("ac-canonical__followers-row", focusRing)}
-          aria-label={`${formatCount(snapshot.followers)} followers`}
-        >
-          <Users className="ac-canonical__followers-icon" strokeWidth={1.75} aria-hidden />
-          <span className="ac-canonical__followers-count">{formatCount(snapshot.followers)}</span>
-          <span className="ac-canonical__followers-label">Followers</span>
-          <ChevronRight className="ac-canonical__followers-chevron" strokeWidth={1.75} aria-hidden />
         </Link>
       </div>
     </section>

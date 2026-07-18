@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type SVGProps } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AccountCanonicalShell } from "@/features/account-canonical";
+import { CanonicalCard, CanonicalMenuRow } from "@/src/components/canonical";
 import { cn } from "@/lib/cn";
 import type { Order } from "@/lib/orders/types";
 import "@/styles/rovexo/orders-page-v1.css";
@@ -27,27 +28,6 @@ const CHIPS: { id: Chip; label: string }[] = [
   { id: "completed", label: "Completed" },
   { id: "cancelled", label: "Cancelled" },
 ];
-
-type IconProps = SVGProps<SVGSVGElement>;
-
-function PackageOutlineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 80 80" fill="none" aria-hidden {...props}>
-      <path
-        d="M14 28 40 14l26 14v28L40 70 14 56V28Z"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M40 14v56M14 28l26 14 26-14"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 function matchesChip(order: Order, chip: Chip): boolean {
   if (chip === "all") return true;
@@ -91,12 +71,29 @@ export function OrdersPageSkeleton() {
   );
 }
 
-/** ROVEXO Orders v1.1 — header simplification (back only). */
+/** ROVEXO Orders v1.1 — compact canonical density (My Account parity). */
 export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tab: Tab = searchParams.get("tab") === "bought" ? "bought" : "sold";
-  const [chip, setChip] = useState<Chip>("all");
+  const statusParam = searchParams.get("status");
+  const initialChip: Chip =
+    statusParam === "in_progress" ||
+    statusParam === "completed" ||
+    statusParam === "cancelled"
+      ? statusParam
+      : "all";
+  const [chip, setChip] = useState<Chip>(initialChip);
+
+  useEffect(() => {
+    const next: Chip =
+      statusParam === "in_progress" ||
+      statusParam === "completed" ||
+      statusParam === "cancelled"
+        ? statusParam
+        : "all";
+    setChip(next);
+  }, [statusParam]);
 
   const orders = tab === "sold" ? soldOrders : boughtOrders;
   const visible = useMemo(
@@ -118,7 +115,7 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
         className="orders-page"
         data-orders-page="v1.1"
         data-orders-ui="header-simplified"
-        data-orders-freeze="pending-visual-qa"
+        data-orders-freeze="v1.0-certified"
       >
         <div className="orders-page__tabs" role="tablist" aria-label="Order type">
           {TABS.map((item) => (
@@ -151,32 +148,33 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
 
         {visible.length === 0 ? (
           <div className="orders-page__empty">
-            <PackageOutlineIcon className="orders-page__empty-icon" />
             <p className="orders-page__empty-title">No orders yet.</p>
             <p className="orders-page__empty-sub">
-              {tab === "sold"
-                ? "Your sold items will appear here."
-                : "Your purchased items will appear here."}
+              {tab === "sold" ? "Sold items appear here." : "Purchases appear here."}
             </p>
+            <Link
+              href={tab === "sold" ? "/sell" : "/search"}
+              className="orders-page__empty-cta"
+            >
+              {tab === "sold" ? "Start selling" : "Browse items"}
+            </Link>
           </div>
         ) : (
-          <ul className="orders-page__list">
+          <CanonicalCard variant="list" className="orders-page__list">
             {visible.map((order) => (
-              <li key={order.id}>
-                <Link
-                  href={detailHref(order, tab)}
-                  className="orders-page__row"
-                  data-order-status={order.status}
-                >
-                  <span className="orders-page__row-copy">
-                    <span className="orders-page__row-title">{order.product.title}</span>
-                    <span className="orders-page__row-number">{order.orderNumber}</span>
-                  </span>
-                  <span className="orders-page__row-status">{statusLabel(order.status)}</span>
-                </Link>
-              </li>
+              <CanonicalMenuRow
+                key={order.id}
+                href={detailHref(order, tab)}
+                title={order.product.title}
+                description={order.orderNumber}
+                value={statusLabel(order.status)}
+                className={cn(
+                  "orders-page__row",
+                  order.status === "cancelled" && "orders-page__row--cancelled",
+                )}
+              />
             ))}
-          </ul>
+          </CanonicalCard>
         )}
       </div>
     </AccountCanonicalShell>

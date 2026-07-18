@@ -1,9 +1,13 @@
-import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { BusinessBadge, resolveBusinessBadgeKinds } from "@/components/ui/BusinessBadge";
 import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
 import type { BusinessDirectoryEntry } from "@/lib/business/directory";
+import {
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 
 type BusinessDirectoryPageProps = {
   companies: BusinessDirectoryEntry[];
@@ -11,46 +15,56 @@ type BusinessDirectoryPageProps = {
 
 export function BusinessDirectoryPage({ companies }: BusinessDirectoryPageProps) {
   return (
-    <div className="flex flex-col gap-ds-6">
-      <p className="text-sm text-text-secondary">
-        Verified companies, manufacturers, suppliers, and wholesale partners.
-      </p>
-
-      <div className="grid gap-ds-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="ac-canonical flex w-full flex-col gap-ds-4 pb-ds-5">
+      <CanonicalSection
+        title="Directory"
+        intro="Verified companies, manufacturers, suppliers, and wholesale partners."
+      >
         {companies.length ? (
-          companies.map((company) => (
-            <Link key={company.id} href={`/store/${company.username}`}>
-              <Card padding="md" interactive className="h-full">
-                <div className="flex items-start gap-ds-3">
-                  <Avatar src={company.avatarUrl ?? undefined} alt={company.companyName} size="md" />
-                  <div>
-                    <p className="font-semibold text-text-primary">{company.companyName}</p>
-                    <p className="text-sm text-text-secondary">@{company.username}</p>
-                  </div>
-                </div>
-                {company.description ? (
-                  <p className="mt-ds-3 line-clamp-2 text-sm text-text-secondary">{company.description}</p>
-                ) : null}
-                <div className="mt-ds-3 flex flex-wrap gap-ds-2">
-                  {resolveBusinessBadgeKinds({
-                    verifiedBusiness: company.verifiedBusiness,
-                    verifiedWholesale: company.verifiedWholesale,
-                    verifiedManufacturer: company.verifiedManufacturer,
-                    verifiedSupplier: company.verifiedSupplier,
-                  }).map((kind) => (
-                    <BusinessBadge key={kind} kind={kind} compact />
-                  ))}
-                  <Badge>Trust {company.trustScore}</Badge>
-                </div>
-              </Card>
-            </Link>
-          ))
+          <CanonicalCard variant="list">
+            {companies.map((company) => {
+              const badges = resolveBusinessBadgeKinds({
+                verifiedBusiness: company.verifiedBusiness,
+                verifiedWholesale: company.verifiedWholesale,
+                verifiedManufacturer: company.verifiedManufacturer,
+                verifiedSupplier: company.verifiedSupplier,
+              });
+
+              return (
+                <CanonicalMenuRow
+                  key={company.id}
+                  href={`/store/${company.username}`}
+                  title={company.companyName}
+                  description={
+                    company.description
+                      ? `@${company.username} · ${company.description}`
+                      : `@${company.username}`
+                  }
+                  icon={
+                    <Avatar
+                      src={company.avatarUrl ?? undefined}
+                      alt={company.companyName}
+                      size="sm"
+                    />
+                  }
+                  trailing={
+                    <span className="flex flex-wrap items-center justify-end gap-ds-1">
+                      {badges.map((kind) => (
+                        <BusinessBadge key={kind} kind={kind} compact />
+                      ))}
+                      <Badge>Trust {company.trustScore}</Badge>
+                    </span>
+                  }
+                />
+              );
+            })}
+          </CanonicalCard>
         ) : (
-          <Card padding="lg" className="col-span-full">
-            <p className="text-sm text-text-secondary">No business profiles are listed yet.</p>
-          </Card>
+          <CanonicalInfoBlock variant="description">
+            No business profiles are listed yet.
+          </CanonicalInfoBlock>
         )}
-      </div>
+      </CanonicalSection>
     </div>
   );
 }

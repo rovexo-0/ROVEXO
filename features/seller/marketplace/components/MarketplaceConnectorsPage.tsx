@@ -1,17 +1,18 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
-import { Card } from "@/components/ui/Card";
-import { MarketplaceConnectorCard } from "@/features/seller/marketplace/components/MarketplaceConnectorCard";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+import {
+  CanonicalButton,
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { useMarketplaceConnectors } from "@/features/seller/marketplace/hooks/use-marketplace-connectors";
 import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
 import type { MarketplaceProviderView } from "@/lib/seller/marketplace/types";
 
 const MarketplaceConnectorSettingsModal = dynamic(
@@ -22,14 +23,12 @@ const MarketplaceConnectorSettingsModal = dynamic(
   { ssr: false },
 );
 
-function ConnectorGridSkeleton() {
-  return (
-    <div className="grid gap-ds-3 sm:grid-cols-2" aria-hidden>
-      {Array.from({ length: 4 }).map((_, index) => (
-        <div key={index} className="h-56 animate-pulse rounded-ds-lg bg-surface" />
-      ))}
-    </div>
-  );
+function formatStatus(status: MarketplaceProviderView["status"]): string {
+  return status.replace(/_/g, " ");
+}
+
+function formatHealth(status: MarketplaceProviderView["healthStatus"]): string {
+  return status.replace(/_/g, " ");
 }
 
 export function MarketplaceConnectorsPage() {
@@ -66,72 +65,77 @@ export function MarketplaceConnectorsPage() {
   }, [summary?.providers]);
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      <CanonicalPageHeader title="Marketplace Connectors" backHref="/seller" backLabel="Selling" />
-      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-4xl bg-background px-ds-4 py-ds-5">
-        <p className="text-sm text-text-secondary">Connect and manage import sources</p>
+    <AccountCanonicalShell
+      title="Connectors"
+      backHref="/seller"
+      backLabel="Selling"
+      showHeaderTitle
+      showBottomNav={false}
+      intro="Import sources."
+    >
+      <div className="ac-canonical flex w-full flex-col gap-ds-4 pb-ds-5">
+        {error ? (
+          <p className="cds-field__error" role="alert">
+            {error}
+          </p>
+        ) : null}
 
-        <div className="mt-ds-4 flex flex-col gap-ds-4">
-          {error ? (
-            <Card padding="sm" className="border-error/30 bg-error/5" role="alert">
-              <p className="text-sm text-error">{error}</p>
-            </Card>
-          ) : null}
+        {summary ? (
+          <CanonicalSection title="Summary">
+            <CanonicalCard variant="list">
+              <CanonicalMenuRow title="Providers" value={String(summary.totalProviders)} showChevron={false} />
+              <CanonicalMenuRow title="Connected" value={String(summary.connectedCount)} showChevron={false} />
+              <CanonicalMenuRow title="Healthy" value={String(summary.healthyCount)} showChevron={false} />
+              <CanonicalMenuRow title="Imports" value={String(analytics?.imports ?? 0)} showChevron={false} />
+            </CanonicalCard>
+          </CanonicalSection>
+        ) : null}
 
-          {summary ? (
-            <Card padding="md" className="border-border bg-surface/50">
-              <dl className="grid grid-cols-2 gap-ds-3 text-sm sm:grid-cols-4">
-                <div>
-                  <dt className="text-text-secondary">Providers</dt>
-                  <dd className="mt-0.5 text-lg font-semibold text-text-primary">{summary.totalProviders}</dd>
-                </div>
-                <div>
-                  <dt className="text-text-secondary">Connected</dt>
-                  <dd className="mt-0.5 text-lg font-semibold text-text-primary">{summary.connectedCount}</dd>
-                </div>
-                <div>
-                  <dt className="text-text-secondary">Healthy</dt>
-                  <dd className="mt-0.5 text-lg font-semibold text-success">{summary.healthyCount}</dd>
-                </div>
-                <div>
-                  <dt className="text-text-secondary">Imports</dt>
-                  <dd className="mt-0.5 text-lg font-semibold text-text-primary">{analytics?.imports ?? 0}</dd>
-                </div>
-              </dl>
-            </Card>
-          ) : null}
-
-          {loading ? (
-            <ConnectorGridSkeleton />
-          ) : (
-            <div className="grid gap-ds-3 sm:grid-cols-2">
-              {sortedProviders.map((provider) => (
-                <MarketplaceConnectorCard
+        <CanonicalSection title="Connectors">
+          <CanonicalCard variant="list">
+            {loading ? (
+              <CanonicalMenuRow title="Loading connectors…" showChevron={false} disabled />
+            ) : sortedProviders.length ? (
+              sortedProviders.map((provider) => (
+                <CanonicalMenuRow
                   key={provider.id}
-                  provider={provider}
-                  onOpenSettings={handleOpenSettings}
-                  onImport={handleImport}
+                  title={provider.name}
+                  description={formatHealth(provider.healthStatus)}
+                  value={formatStatus(provider.status)}
+                  icon={
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-ds-md bg-surface text-lg" aria-hidden>
+                      {provider.logo}
+                    </span>
+                  }
+                  onClick={() => handleImport(provider)}
+                  showChevron={false}
+                  trailing={
+                    <CanonicalButton
+                      variant="secondary"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleOpenSettings(provider);
+                      }}
+                    >
+                      Settings
+                    </CanonicalButton>
+                  }
                 />
-              ))}
-            </div>
-          )}
+              ))
+            ) : (
+              <CanonicalMenuRow title="No connectors yet" showChevron={false} disabled />
+            )}
+          </CanonicalCard>
+        </CanonicalSection>
 
-          {!loading && sortedProviders.length === 0 ? (
-            <Card padding="lg" className="text-center">
-              <p className="text-sm text-text-secondary">No marketplace connectors are available yet.</p>
-              <button
-                type="button"
-                onClick={() => void reload()}
-                className={cn(
-                  "mt-ds-3 text-sm font-medium text-primary underline",
-                  focusRing,
-                )}
-              >
-                Refresh
-              </button>
-            </Card>
-          ) : null}
-        </div>
+        {!loading && sortedProviders.length === 0 ? (
+          <CanonicalInfoBlock variant="description">
+            <p className="font-medium text-text-primary">No marketplace connectors</p>
+            <CanonicalButton variant="secondary" className="mt-ds-3" onClick={() => void reload()}>
+              Refresh
+            </CanonicalButton>
+          </CanonicalInfoBlock>
+        ) : null}
 
         <MarketplaceConnectorSettingsModal
           key={settingsProvider?.id ?? "closed"}
@@ -141,7 +145,7 @@ export function MarketplaceConnectorsPage() {
           onConnect={connectProvider}
           onAction={runAction}
         />
-      </HubPageMain>
-    </BetaAppShell>
+      </div>
+    </AccountCanonicalShell>
   );
 }

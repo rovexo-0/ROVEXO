@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard, CanonicalMenuRow } from "@/src/components/canonical";
 import { renderMarkdown } from "@/lib/help/markdown";
 import type { LegalDocument } from "@/lib/legal/types";
 
@@ -11,26 +10,23 @@ type LegalDocumentPageProps = {
 
 export function LegalDocumentPage({ document }: LegalDocumentPageProps) {
   return (
-    <div className="flex flex-col gap-ds-6" data-legal-document-version="v1.0-legal-lock">
-      <p className="text-sm text-text-secondary">{document.summary}</p>
+    <div className="flex flex-col gap-[var(--cds-space-section-gap,24px)]" data-legal-document-version="v1.0-legal-lock">
+      <p className="cds-menu-row__subtitle">{document.summary}</p>
 
-      <Card padding="lg">
-        <div
-          className="prose-help text-sm text-text-secondary"
-          dangerouslySetInnerHTML={{ __html: renderMarkdown(document.content) }}
-        />
-        <p className="mt-ds-6 text-xs text-text-muted">Last updated {document.lastUpdated}</p>
-      </Card>
+      <CanonicalCard variant="medium">
+        <div className="p-ds-4">
+          <div
+            className="prose-help cds-menu-row__subtitle"
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(document.content) }}
+          />
+          <p className="cds-field__hint mt-ds-4">Updated {document.lastUpdated}</p>
+        </div>
+      </CanonicalCard>
 
-      <p className="text-center text-sm text-text-muted">
-        <Link href="/help" className="font-medium text-primary hover:opacity-80">
-          Help Centre
-        </Link>
-        {" · "}
-        <Link href="/support" className="font-medium text-primary hover:opacity-80">
-          Contact Support
-        </Link>
-      </p>
+      <CanonicalCard variant="list">
+        <CanonicalMenuRow title="Help Centre" href="/help" />
+        <CanonicalMenuRow title="Contact Support" href="/support" />
+      </CanonicalCard>
     </div>
   );
 }

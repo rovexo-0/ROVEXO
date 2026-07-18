@@ -2,7 +2,7 @@
 
 import { memo, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { getTrackingUrl } from "@/lib/orders/status";
 import type { DeliveryCarrier } from "@/lib/products/types";
 import type { ShippingRecord } from "@/lib/shipping/types";
@@ -52,7 +52,7 @@ export const TrackingCard = memo(function TrackingCard({
   }
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-3">
+    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-2">
       <h2 className="text-base font-semibold text-text-primary">Tracking</h2>
       <dl className="grid gap-ds-2 text-sm">
         {resolvedCarrier ? (
@@ -82,6 +82,6 @@ export const TrackingCard = memo(function TrackingCard({
           </Button>
         ) : null}
       </div>
-    </Card>
+    </CanonicalCard>
   );
 });

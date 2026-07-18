@@ -5,7 +5,7 @@
   /* Compact Premium baselines (refined in compact-premium-v1.css) */
   --uv1-header-height: 64px;
   --uv1-bottom-nav-height: 52px;
-  --uv1-icon-size: 22px;
+  --uv1-icon-size: 20px;
   --uv1-sell-glyph-size: 28px;
   --uv1-button-height: 44px;
   --uv1-input-height: 44px;
@@ -116,7 +116,7 @@
 [data-universal-ui="v1.1"] [data-bottom-nav="v2"] {
   --rx-bottom-nav-height: var(--uv1-bottom-nav-height);
   --rx-bottom-nav-icon-size: var(--uv1-icon-size);
-  --rx-bottom-nav-sell-size: 48px;
+  --rx-bottom-nav-sell-size: 56px;
   --rx-bottom-nav-sell-float: 7px;
 }
 

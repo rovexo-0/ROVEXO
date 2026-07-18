@@ -31,7 +31,7 @@ const PLATFORM: MigrationPlatformId = "ebay";
 function BringYourItemSkeleton() {
   return (
     <div className="acm-byi__section" aria-hidden="true">
-      <SkeletonText lines={2} className="mx-auto max-w-xs" />
+      <SkeletonText lines={2} className="w-full" />
       <SkeletonButton fullWidth height={48} />
     </div>
   );
@@ -397,7 +397,7 @@ export function BringYourItemPage() {
             </p>
             {fetchingCount ? (
               <div className="acm-byi__count-skeleton" aria-hidden>
-                <Skeleton className="mx-auto h-5 w-40" />
+                <Skeleton className="h-5 w-40" />
               </div>
             ) : (
               <p className="acm-byi__count" role="status">

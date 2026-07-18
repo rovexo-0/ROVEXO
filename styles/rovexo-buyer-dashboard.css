@@ -1,7 +1,7 @@
 /* ROVEXO Buyer Dashboard v1.0 — Single Source of Truth */
 
 .buyer-page {
-  --buyer-max-width: 480px;
+  --buyer-max-width: 100%;
   --buyer-pad-x: 16px;
   --buyer-pad-top: 16px;
   --buyer-pad-bottom: 110px;
@@ -560,7 +560,7 @@
 
 @media (min-width: 1024px) {
   .buyer-page {
-    --buyer-max-width: 480px;
+    --buyer-max-width: 100%;
   }
 }
 

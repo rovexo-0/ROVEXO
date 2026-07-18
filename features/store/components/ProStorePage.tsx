@@ -3,14 +3,11 @@ import { HubPageMain } from "@/components/layout/HubPageMain";
 import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { Avatar } from "@/components/ui/Avatar";
-import { Card } from "@/components/ui/Card";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { Rating } from "@/components/ui/Rating";
 import type { Product } from "@/lib/products/types";
-import { getCategoryImageUrl } from "@/lib/categories/visuals";
 import { TrustPublicSummary } from "@/features/trust/components/TrustPublicSummary";
 import type { PublicTrustSummary } from "@/lib/trust/types";
-import { SafeImage } from "@/components/ui/SafeImage";
 
 type ProStorePageProps = {
   storeName: string;
@@ -28,6 +25,10 @@ type ProStorePageProps = {
   sellerTrust?: PublicTrustSummary;
 };
 
+/**
+ * Visit Store / Business Store — compact, full phone width, 2-col listings.
+ * No banner heroes. No centered max-width columns.
+ */
 export function ProStorePage({
   storeName,
   username,
@@ -49,87 +50,69 @@ export function ProStorePage({
   return (
     <BetaAppShell>
       <RovexoHeaderV2 />
-      <HubPageMain className="">
-        <section className="relative">
-          <div className="relative aspect-[21/9] min-h-[160px] w-full">
-            <SafeImage
-              src={getCategoryImageUrl("business")}
-              alt=""
-              fill
-              priority
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-          </div>
-          <div className="relative mx-auto flex max-w-4xl items-end gap-ds-4 px-ds-4 -mt-10">
-            <Avatar src={avatarUrl} alt={storeName} name={storeName} size="xl" />
-            <div className="pb-ds-2">
-              <h1 className="text-2xl font-bold text-text-primary">
+      <HubPageMain className="w-full max-w-none">
+        <div className="flex w-full max-w-none flex-col gap-ds-4 px-ds-4 py-ds-4">
+          <header className="flex items-center gap-3">
+            <Avatar src={avatarUrl} alt={storeName} name={storeName} size="lg" />
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate text-[16px] font-bold leading-tight text-text-primary">
                 {storeName}
-                {verified && <span className="ml-ds-2 text-sm text-primary">Verified</span>}
+                {verified ? <span className="ml-1 text-[12px] font-semibold text-primary">Verified</span> : null}
               </h1>
-              <p className="text-sm text-text-secondary">@{username}</p>
+              <p className="text-[13px] text-text-secondary">@{username}</p>
+              {rating > 0 ? <Rating value={rating} reviewCount={reviewCount} size="sm" /> : null}
             </div>
-          </div>
-        </section>
+          </header>
 
-        <div className="mx-auto flex max-w-4xl flex-col gap-ds-5 px-ds-4 py-ds-5">
-          <Card padding="lg" className="">
-            {rating > 0 && <Rating value={rating} reviewCount={reviewCount} size="sm" />}
-            <p className="mt-ds-2 text-sm text-text-secondary">
-              {listingCount} listings · {salesCount} sales · {followerCount} followers
-            </p>
-            {bio && <p className="mt-ds-3 text-sm text-text-primary">{bio}</p>}
-            {website && (
-              <a
-                href={website.startsWith("http") ? website : `https://${website}`}
-                className="mt-ds-3 inline-block text-sm font-semibold text-primary"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Visit website
-              </a>
-            )}
-          </Card>
+          <p className="text-[13px] text-text-secondary">
+            {listingCount} listings · {salesCount} sales · {followerCount} followers
+          </p>
+          {bio ? <p className="text-[14px] text-text-primary">{bio}</p> : null}
+          {website ? (
+            <a
+              href={website.startsWith("http") ? website : `https://${website}`}
+              className="text-[14px] font-semibold text-primary"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Visit website
+            </a>
+          ) : null}
 
-          {sellerTrust && <TrustPublicSummary summary={sellerTrust} compact />}
+          {sellerTrust ? <TrustPublicSummary summary={sellerTrust} compact /> : null}
 
           <section aria-labelledby="featured-products-heading">
-            <h2 id="featured-products-heading" className="mb-ds-3 text-lg font-semibold text-text-primary">
-              Featured products
+            <h2 id="featured-products-heading" className="mb-2 text-[15px] font-semibold text-text-primary">
+              Featured
             </h2>
             {displayFeatured.length > 0 ? (
-              <div className="rx-listing-grid">
+              <div className="rx-listing-grid grid grid-cols-2 gap-3" data-listing-grid="2-col">
                 {displayFeatured.map((product) => (
                   <ListingCard key={product.id} product={product} variant="grid" surface="store" />
                 ))}
               </div>
             ) : (
-              <Card padding="lg" className="">
-                <p className="text-sm text-text-secondary">No featured products yet.</p>
-              </Card>
+              <p className="text-[14px] text-text-secondary">No featured products yet.</p>
             )}
           </section>
 
           <section aria-labelledby="all-products-heading">
-            <div className="mb-ds-3 flex items-center justify-between">
-              <h2 id="all-products-heading" className="text-lg font-semibold text-text-primary">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <h2 id="all-products-heading" className="text-[15px] font-semibold text-text-primary">
                 All products
               </h2>
-              <Link href={`/user/${username}`} className="text-sm font-semibold text-primary">
+              <Link href={`/user/${username}`} className="text-[13px] font-semibold text-primary">
                 Seller profile
               </Link>
             </div>
             {listings.length > 0 ? (
-              <div className="rx-listing-grid">
+              <div className="rx-listing-grid grid grid-cols-2 gap-3" data-listing-grid="2-col">
                 {listings.map((product) => (
                   <ListingCard key={product.id} product={product} variant="grid" surface="store" />
                 ))}
               </div>
             ) : (
-              <Card padding="lg" className="">
-                <p className="text-sm text-text-secondary">No active listings.</p>
-              </Card>
+              <p className="text-[14px] text-text-secondary">No active listings.</p>
             )}
           </section>
         </div>

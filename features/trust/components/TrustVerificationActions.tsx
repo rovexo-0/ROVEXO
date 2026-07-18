@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { CanonicalButton, CanonicalCard, CanonicalMenuRow } from "@/src/components/canonical";
 import type { TrustVerification, TrustVerificationType } from "@/lib/trust/types";
 import { VERIFICATION_TYPES } from "@/lib/trust/types";
 
@@ -28,7 +28,7 @@ export function TrustVerificationActions({ verifications }: TrustVerificationAct
         setMessage("Unable to submit verification request.");
         return;
       }
-      setMessage("Verification submitted for moderator review.");
+      setMessage("Verification submitted for review.");
       router.refresh();
     } finally {
       setBusyType(null);
@@ -36,32 +36,37 @@ export function TrustVerificationActions({ verifications }: TrustVerificationAct
   };
 
   return (
-    <div className="mt-ds-4 space-y-ds-3">
-      {VERIFICATION_TYPES.map((item) => {
-        const record = verifications.find((entry) => entry.verificationType === item.type);
-        const status = record?.status ?? "not_started";
-        const canRequest = status === "not_started" || status === "rejected" || status === "expired";
-        return (
-          <div key={item.type} className="flex flex-wrap items-center justify-between gap-ds-3 border-t border-border pt-ds-3">
-            <div>
-              <p className="font-medium text-text-primary">{item.label}</p>
-              <p className="text-sm text-text-secondary">{item.description}</p>
-            </div>
-            {canRequest ? (
-              <Button
-                variant="secondary"
-                disabled={busyType === item.type}
-                onClick={() => void requestVerification(item.type)}
-              >
-                Request
-              </Button>
-            ) : (
-              <span className="text-sm capitalize text-text-muted">{status.replace(/_/g, " ")}</span>
-            )}
-          </div>
-        );
-      })}
-      {message ? <p className="text-sm text-primary">{message}</p> : null}
-    </div>
+    <>
+      <CanonicalCard variant="list">
+        {VERIFICATION_TYPES.map((item) => {
+          const record = verifications.find((entry) => entry.verificationType === item.type);
+          const status = record?.status ?? "not_started";
+          const canRequest = status === "not_started" || status === "rejected" || status === "expired";
+
+          return (
+            <CanonicalMenuRow
+              key={item.type}
+              title={item.label}
+              description={item.description}
+              value={canRequest ? undefined : status.replace(/_/g, " ")}
+              showChevron={false}
+              trailing={
+                canRequest ? (
+                  <CanonicalButton
+                    variant="secondary"
+                    disabled={busyType === item.type}
+                    loading={busyType === item.type}
+                    onClick={() => void requestVerification(item.type)}
+                  >
+                    Request
+                  </CanonicalButton>
+                ) : undefined
+              }
+            />
+          );
+        })}
+      </CanonicalCard>
+      {message ? <p className="cds-field__hint mt-ds-2 text-primary">{message}</p> : null}
+    </>
   );
 }

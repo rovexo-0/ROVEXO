@@ -1,7 +1,7 @@
 import { Price } from "@/components/ui/Price";
-import { Card } from "@/components/ui/Card";
 import { SHIPPING_INCLUDED_LABEL } from "@/lib/checkout/delivery";
 import type { OrderTotals } from "@/lib/orders/types";
+import { CanonicalCard, CanonicalSection } from "@/src/components/canonical";
 
 type OrderSummaryProps = {
   totals: OrderTotals;
@@ -19,7 +19,7 @@ function SummaryRow({
   emphasis?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between gap-ds-3 text-sm">
+    <div className="flex min-h-[44px] items-center justify-between gap-ds-3 px-ds-4 text-sm">
       <span className={emphasis ? "font-semibold text-text-primary" : "text-text-secondary"}>
         {label}
       </span>
@@ -28,7 +28,7 @@ function SummaryRow({
         size={emphasis ? "md" : "sm"}
         className={
           emphasis
-            ? "[&_span]:text-lg [&_span]:font-bold [&_span]:text-text-primary"
+            ? "[&_span]:text-base [&_span]:font-bold [&_span]:text-text-primary"
             : "[&_span]:font-medium [&_span]:text-text-primary"
         }
       />
@@ -45,16 +45,16 @@ function DeliverySummaryRow({
 }) {
   if (totals.deliveryPending) {
     return (
-      <div className="flex items-center justify-between gap-ds-3 text-sm">
+      <div className="flex min-h-[44px] items-center justify-between gap-ds-3 px-ds-4 text-sm">
         <span className="text-text-secondary">Shipping</span>
-        <span className="text-sm font-medium text-text-muted">Calculated at checkout</span>
+        <span className="text-sm font-medium text-text-muted">At checkout</span>
       </div>
     );
   }
 
   if (listingOffersFreeDelivery) {
     return (
-      <div className="flex items-center justify-between gap-ds-3 text-sm">
+      <div className="flex min-h-[44px] items-center justify-between gap-ds-3 px-ds-4 text-sm">
         <span className="text-text-secondary">Shipping</span>
         <span className="text-sm font-semibold text-primary">{SHIPPING_INCLUDED_LABEL}</span>
       </div>
@@ -64,24 +64,22 @@ function DeliverySummaryRow({
   return <SummaryRow label="Shipping" amount={totals.delivery} />;
 }
 
+/** Checkout totals — compact full-width rows (commerce hierarchy preserved). */
 export function OrderSummary({
   totals,
-  title = "Order Summary",
+  title = "Summary",
   listingOffersFreeDelivery = false,
 }: OrderSummaryProps) {
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-4">
-      <h2 className="text-base font-semibold text-text-primary">{title}</h2>
-
-      <div className="flex flex-col gap-ds-3">
+    <CanonicalSection title={title}>
+      <CanonicalCard variant="list" className="flex w-full flex-col py-1">
         <SummaryRow label="Item" amount={totals.itemPrice} />
         <DeliverySummaryRow totals={totals} listingOffersFreeDelivery={listingOffersFreeDelivery} />
         <SummaryRow label="Platform Fee" amount={totals.platformFee} />
-      </div>
-
-      <div className="border-t border-border pt-ds-4">
-        <SummaryRow label="Total" amount={totals.total} emphasis />
-      </div>
-    </Card>
+        <div className="border-t border-border">
+          <SummaryRow label="Total" amount={totals.total} emphasis />
+        </div>
+      </CanonicalCard>
+    </CanonicalSection>
   );
 }

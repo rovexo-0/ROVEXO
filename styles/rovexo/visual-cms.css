@@ -252,7 +252,7 @@
 
 .vcms-search {
   width: 100%;
-  max-width: 420px;
+  max-width: 100%;
   padding: 10px 14px;
   border: 1px solid var(--ds-color-border);
   border-radius: 999px;

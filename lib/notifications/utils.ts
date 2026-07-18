@@ -7,7 +7,6 @@ export const NOTIFICATION_FILTERS: { id: NotificationFilter; label: string }[] =
   { id: "offers", label: "Offers" },
   { id: "payments", label: "Payments" },
   { id: "reviews", label: "Reviews" },
-  { id: "followers", label: "Followers" },
   { id: "promotions", label: "Featured & Bumps" },
   { id: "moderation", label: "Moderation" },
   { id: "system", label: "System" },
@@ -26,7 +25,7 @@ export function getNotificationFilterCategory(type: NotificationType): Notificat
     case "payment":
       return "payments";
     case "follower":
-      return "followers";
+      return "system";
     case "moderation":
       return "moderation";
     case "promotion_expired":

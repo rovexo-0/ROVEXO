@@ -4,7 +4,6 @@ import { CanonicalButtonLink, CanonicalInfoBlock } from "@/src/components/canoni
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { LISTING_CARD_HOMEPAGE_PROPS } from "@/lib/listing-card/defaults";
-import { formatPlatformFeeLine } from "@/lib/listing-card/format";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 
 import type { SavedItem } from "@/lib/saved/types";
@@ -52,30 +51,28 @@ export function SavedItemsV1({ initialItems }: SavedItemsV1Props) {
   const visibleItems = items.slice(0, visibleCount);
 
   return (
-    <AccountCanonicalShell title="Saved Items" backHref="/account">
+    <AccountCanonicalShell title="Saved" backHref="/account" contentClassName="!px-2 !pt-0">
       {items.length === 0 ? (
         <CanonicalInfoBlock variant="description">
-          <p className="font-medium text-text-primary">No saved items</p>
-          <p className="mt-ds-1">Tap the heart on any listing to save it here.</p>
-          <CanonicalButtonLink href="/search" variant="secondary" className="mt-ds-4">
-            Browse listings
+          <p className="font-medium text-text-primary">Nothing saved</p>
+          <p className="mt-ds-1">Tap ♥ on a listing.</p>
+          <CanonicalButtonLink href="/search" variant="secondary" className="mt-ds-3">
+            Browse
           </CanonicalButtonLink>
         </CanonicalInfoBlock>
       ) : (
-        <div className="rx-listing-grid">
+        <div className="rx-listing-grid w-full">
           {visibleItems.map((item) => (
-            <div key={item.productSlug} className="flex flex-col gap-ds-1">
-              <ListingCard
-                product={item.product}
-                {...LISTING_CARD_HOMEPAGE_PROPS}
-                showStatusBadge={item.listingStatus === "sold"}
-                statusBadgeLabel="SOLD"
-                favoriteMode="controlled"
-                isFavorite
-                onFavorite={() => void removeItem(item.productSlug)}
-              />
-              <p className="cds-field__hint px-ds-1">{formatPlatformFeeLine(item.product.price)}</p>
-            </div>
+            <ListingCard
+              key={item.productSlug}
+              product={item.product}
+              {...LISTING_CARD_HOMEPAGE_PROPS}
+              showStatusBadge={item.listingStatus === "sold"}
+              statusBadgeLabel="SOLD"
+              favoriteMode="controlled"
+              isFavorite
+              onFavorite={() => void removeItem(item.productSlug)}
+            />
           ))}
           {visibleCount < items.length ? <div ref={sentinelRef} className="h-4" aria-hidden /> : null}
         </div>

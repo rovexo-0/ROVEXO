@@ -1,6 +1,6 @@
 /**
- * Buying hub — Master Menu Design (PO Final Authorization).
- * One Feature = One Entry Point.
+ * Buying hub — Absolute Final PO lock.
+ * Orders · Tracking · Reviews · Refunds · Disputes · Saved · Recently Viewed.
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
 import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
@@ -20,23 +20,44 @@ export type BuyingMenuSection = {
   items: BuyingMenuItem[];
 };
 
+export const BUYING_HUB_INTRO = "Manage everything you buy.";
+
 export function buildBuyingMenuSections(): BuyingMenuSection[] {
   return [
     {
       id: "buying",
       title: "",
       items: [
-        { id: "orders", title: "Orders", href: "/orders?tab=bought", icon: "orders", badgeKeys: ["orders"] },
-        { id: "cart", title: "Cart", href: "/cart", icon: "cart", badgeKeys: ["cart"] },
-        { id: "saved", title: "Saved", href: "/saved", icon: "saved", badgeKeys: ["saved"] },
-        { id: "offers", title: "Offers", href: "/account/offers", icon: "promotions" },
         {
-          id: "returns-refunds",
-          title: "Returns & Refunds",
-          href: "/resolution",
-          icon: "returns",
+          id: "orders",
+          title: "Orders",
+          href: "/orders?tab=bought",
+          icon: "orders",
+          badgeKeys: ["orders"],
+        },
+        {
+          id: "tracking",
+          title: "Tracking",
+          href: "/orders?tab=bought&status=in_progress",
+          icon: "shipping",
+          badgeKeys: ["orders"],
         },
         { id: "reviews", title: "Reviews", href: "/account/reviews", icon: "reviews" },
+        { id: "refunds", title: "Refunds", href: "/resolution?type=refund", icon: "returns" },
+        { id: "disputes", title: "Disputes", href: "/resolution?type=dispute", icon: "returns" },
+        {
+          id: "saved",
+          title: "Saved",
+          href: "/saved",
+          icon: "saved",
+          badgeKeys: ["saved"],
+        },
+        {
+          id: "recently-viewed",
+          title: "Recently Viewed",
+          href: "/account/recently-viewed",
+          icon: "listings",
+        },
       ],
     },
   ];

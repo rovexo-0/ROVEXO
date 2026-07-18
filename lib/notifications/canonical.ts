@@ -19,7 +19,7 @@ export const NOTIFICATIONS_CANONICAL_SURFACES = [
   "lib/notifications/controls.ts",
   "lib/notifications/events.ts",
   "lib/notifications/routing.ts",
-  "features/notifications/components/NotificationsInboxV1.tsx",
+  "features/inbox/components/InboxPage.tsx",
   "features/notifications/components/NotificationSettingsPage.tsx",
   "features/notifications/components/RealtimeNotificationProvider.tsx",
 ] as const;

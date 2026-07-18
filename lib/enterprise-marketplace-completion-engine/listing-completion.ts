@@ -200,7 +200,7 @@ function scanButtonValidation(scan: MarketplaceCompletionScanResult): Completion
     if (check.includes("upload") || check.includes("remove")) pass = fileExists("features/sell/components/SellPhotoSection.tsx");
     if (check.includes("ai-category") || check.includes("ai-improve")) pass = fileExists("features/sell/components/TitleCategorySuggestions.tsx");
     if (check.includes("duplicate") || check.includes("archive") || check.includes("delete")) {
-      pass = fileExists("features/seller/listings/components/SellerListingsPage.tsx");
+      pass = fileExists("features/account-module/components/SellerListingsV1.tsx");
     }
     if (check.includes("validate") || check.includes("certify")) pass = fileExists("lib/moderation/scan-listing.ts");
     if (check.includes("continue") || check.includes("back") || check.includes("preview")) pass = sellPage.length > 0;

@@ -23,9 +23,9 @@ describe("OrdersPage single source of truth", () => {
     expect(ui).toContain('label: "In Progress"');
     expect(ui).toContain('label: "Completed"');
     expect(ui).toContain('label: "Cancelled"');
-    expect(ui).toContain('data-order-status={order.status}');
+    expect(ui).toContain("CanonicalMenuRow");
     expect(ui).toContain("No orders yet.");
-    expect(ui).toContain("Your sold items will appear here.");
+    expect(ui).toContain("Sold items appear here.");
     expect(ui).toContain("showHeaderTitle");
     expect(ui).not.toContain("rightAction");
     expect(ui).not.toContain("BellLineIcon");

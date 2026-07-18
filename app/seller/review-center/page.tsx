@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 export default async function SellerReviewCenterRoute() {
   const profile = await getProfile();
-  if (!profile.isSeller) redirect("/account");
+  // Never dump Business/Selling tools to My Account (Final Master Order).
+  if (!profile.isSeller) redirect("/seller");
   return <SellerReviewCenterPage />;
 }

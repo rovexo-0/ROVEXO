@@ -69,10 +69,11 @@ describe("Inbox Hub Sprint 1 canonical foundation", () => {
     expect(canonical).toContain('href: "/inbox"');
   });
 
-  it("keeps ChatPage component available while ConversationHub is canonical", () => {
-    const chat = readSource("features/messages/components/ChatPage.tsx");
+  it("keeps ConversationHub as the only live conversation surface", () => {
+    const hub = readSource("features/inbox/components/ConversationHub.tsx");
     const route = readSource("app/inbox/conversation/[conversationId]/page.tsx");
-    expect(chat).toContain('data-messages-version="v1.0"');
+    expect(hub).toContain("data-conversation-hub");
+    expect(hub).toContain("TransactionHubBottomActions");
     expect(route).toContain("ConversationHub");
   });
 });

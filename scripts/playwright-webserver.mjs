@@ -23,11 +23,6 @@ export function runProductionBuild(env = process.env) {
   });
 }
 
-function buildContainsMessagesV1(cwd = process.cwd()) {
-  const manifestPath = path.join(cwd, ".next", "server", "app", "messages", "page_client-reference-manifest.js");
-  if (!fs.existsSync(manifestPath)) return false;
-  return fs.readFileSync(manifestPath, "utf8").includes("MessagesInboxV1");
-}
 
 function removeProductionBuild(cwd = process.cwd()) {
   const nextDir = path.join(cwd, ".next");
@@ -58,7 +53,6 @@ export function ensureProductionBuild(webServerEnv) {
     "components/navigation/CanonicalPageHeader.tsx",
     "hooks/navigation/usePageBack.ts",
     "lib/navigation/session-visit-depth.ts",
-    "features/sell/types.ts",
     "styles/rovexo/account-hub-v1.css",
     "styles/rovexo/account-module-v1.css",
     "app/account/page.tsx",
@@ -67,11 +61,13 @@ export function ensureProductionBuild(webServerEnv) {
     "features/account-module/components/OrdersV1.tsx",
     "features/account-module/components/SavedItemsV1.tsx",
     "features/account-module/components/SettingsV1.tsx",
-    "features/messages/components/MessagesInboxV1.tsx",
-    "features/messages/components/ChatPage.tsx",
+    "features/inbox/components/InboxPage.tsx",
+    "features/inbox/components/ConversationHub.tsx",
+    "styles/rovexo/inbox-hub-v1.css",
+    "styles/rovexo/conversation-hub-v1.css",
     "styles/rovexo/messages-v1.css",
+    "app/inbox/page.tsx",
     "app/messages/page.tsx",
-    "features/notifications/components/NotificationsInboxV1.tsx",
     "styles/rovexo/notifications-v1.css",
     "app/notifications/page.tsx",
   ];
@@ -81,14 +77,14 @@ export function ensureProductionBuild(webServerEnv) {
     const abs = path.join(process.cwd(), rel);
     return fs.existsSync(abs) && fs.statSync(abs).mtimeMs > buildMtime;
   });
-  const messagesRoute = path.join(process.cwd(), "app", "messages", "page.tsx");
-  const messagesRouteUsesV1 =
-    fs.existsSync(messagesRoute) && fs.readFileSync(messagesRoute, "utf8").includes("MessagesInboxV1");
-  const buildIsStaleForMessages = messagesRouteUsesV1 && hasProductionBuild() && !buildContainsMessagesV1();
+  const inboxRoute = path.join(process.cwd(), "app", "inbox", "page.tsx");
+  const inboxRouteLive =
+    fs.existsSync(inboxRoute) && fs.readFileSync(inboxRoute, "utf8").includes("InboxPage");
+  const buildIsStaleForMessages = !inboxRouteLive && hasProductionBuild();
 
   if (!hasProductionBuild() || sourceIsNewer || buildIsStaleForMessages) {
     if (buildIsStaleForMessages) {
-      console.log("[playwright] Stale messages build detected — clearing .next and rebuilding…");
+      console.log("[playwright] Stale inbox build detected — clearing .next and rebuilding…");
       removeProductionBuild();
     } else {
       console.log("[playwright] Running next build…");

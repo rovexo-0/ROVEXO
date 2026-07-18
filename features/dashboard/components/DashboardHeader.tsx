@@ -68,7 +68,7 @@ export function DashboardHeader({
       >
         <ModalBody className="px-5 pt-[calc(72px+env(safe-area-inset-top))] pb-6">
           <div
-            className="relative mx-auto mt-3 max-w-2xl"
+            className="relative mt-3 w-full max-w-none"
             role="presentation"
             onClick={() => setMenuOpen(false)}
           >

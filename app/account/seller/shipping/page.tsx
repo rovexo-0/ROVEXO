@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-/** Seller shipping settings removed — ROVEXO manages shipping automatically. */
+/** Legacy path — Selling hub Shipping is canonical. */
 export default function AccountSellerShippingRoute() {
-  redirect("/account/settings");
+  redirect("/seller/shipping");
 }

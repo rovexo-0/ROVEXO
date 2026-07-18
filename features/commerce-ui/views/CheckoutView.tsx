@@ -39,7 +39,7 @@ export function CheckoutView({
 
       <div
         className={cn(
-          "mx-auto flex w-full max-w-lg flex-1 flex-col gap-ds-5 px-ds-4 py-ds-5",
+          "flex w-full flex-1 flex-col gap-ds-5 px-ds-4 py-ds-5",
           !preview && "pb-[calc(140px+env(safe-area-inset-bottom))]",
         )}
       >

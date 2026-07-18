@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Check, Copy, Truck } from "lucide-react";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { CanonicalCard } from "@/src/components/canonical";
 import { buttonSizes, buttonVariants } from "@/components/ui/variants";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
@@ -25,7 +25,7 @@ function DetailBlock({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
       <p className="text-xs text-text-muted">{label}</p>
-      <p className="mt-ds-1 truncate text-sm font-medium text-text-primary">{value}</p>
+      <p className="mt-0.5 truncate text-sm font-medium text-text-primary">{value}</p>
     </div>
   );
 }
@@ -34,9 +34,9 @@ function ParcelTimeline({ items }: { items: CommerceParcelTimelineEvent[] }) {
   if (items.length === 0) return null;
 
   return (
-    <ol className="flex flex-col gap-ds-3" aria-label="Parcel timeline">
+    <ol className="flex flex-col gap-ds-2" aria-label="Parcel timeline">
       {items.map((item) => (
-        <li key={item.id} className="flex gap-ds-3">
+        <li key={item.id} className="flex gap-ds-2">
           <span
             className={cn(
               "mt-1 h-3 w-3 shrink-0 rounded-full border-2",
@@ -101,10 +101,10 @@ export function ParcelTrackingCard({
   }
 
   return (
-    <Card padding="lg" className={cn("flex flex-col gap-ds-4", className)}>
-      <div className="flex items-center gap-ds-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-ds-full bg-primary/10 text-primary">
-          <Truck className="h-5 w-5" aria-hidden />
+    <CanonicalCard variant="medium" className={cn("flex w-full flex-col gap-ds-2", className)}>
+      <div className="flex items-center gap-ds-2">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-ds-full bg-primary/10 text-primary">
+          <Truck className="h-4 w-4" aria-hidden />
         </span>
         <p className="flex-1 text-sm font-semibold text-text-primary">
           Parcel {parcel.index} of {parcel.totalParcels}
@@ -116,8 +116,8 @@ export function ParcelTrackingCard({
 
       {parcel.trackingNumber ? (
         <div>
-          <p className="text-xs text-text-muted">Tracking Number</p>
-          <div className="mt-ds-1 flex items-center gap-ds-2">
+          <p className="text-xs text-text-muted">Tracking number</p>
+          <div className="mt-0.5 flex items-center gap-ds-2">
             <span className="truncate font-mono text-sm font-medium text-text-primary">
               {parcel.trackingNumber}
             </span>
@@ -141,17 +141,17 @@ export function ParcelTrackingCard({
         </div>
       ) : null}
 
-      <div className="grid grid-cols-2 gap-ds-3">
+      <div className="grid grid-cols-2 gap-ds-2">
         <DetailBlock label="Carrier" value={parcel.carrier} />
         <DetailBlock
-          label="Estimated Delivery"
-          value={parcel.estimatedDelivery ?? "To be confirmed"}
+          label="Est. delivery"
+          value={parcel.estimatedDelivery ?? "TBC"}
         />
       </div>
 
       {parcel.timeline && parcel.timeline.length > 0 ? (
-        <div className="border-t border-border pt-ds-4">
-          <p className="mb-ds-3 text-xs font-semibold uppercase tracking-wide text-text-muted">
+        <div className="border-t border-border pt-ds-2">
+          <p className="mb-ds-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
             Timeline
           </p>
           <ParcelTimeline items={parcel.timeline} />
@@ -167,11 +167,11 @@ export function ParcelTrackingCard({
             buttonSizes.md,
           )}
         >
-          View Tracking Details
+          View tracking
         </Link>
       ) : (
         <Button variant="outline" fullWidth disabled={parcel.status === "preparing"}>
-          View Tracking Details
+          View tracking
         </Button>
       )}
 
@@ -182,6 +182,6 @@ export function ParcelTrackingCard({
           activeOperation={parcel.operation}
         />
       ) : null}
-    </Card>
+    </CanonicalCard>
   );
 }

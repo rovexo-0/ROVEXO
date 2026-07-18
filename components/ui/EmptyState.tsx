@@ -45,12 +45,12 @@ export function EmptyState({
       ) : null}
       <h3 className="relative z-[1] text-lg font-semibold tracking-tight text-text-primary">{title}</h3>
       {description ? (
-        <p className="relative z-[1] mt-ds-2 max-w-sm text-sm leading-relaxed text-text-secondary">
+        <p className="relative z-[1] mt-ds-2 w-full max-w-none text-sm leading-relaxed text-text-secondary">
           {description}
         </p>
       ) : null}
       {suggestions?.length ? (
-        <ul className="relative z-[1] mt-ds-4 max-w-sm space-y-ds-2 text-left text-sm text-text-secondary">
+        <ul className="relative z-[1] mt-ds-4 w-full max-w-none space-y-ds-2 text-left text-sm text-text-secondary">
           {suggestions.map((suggestion) => (
             <li key={suggestion} className="flex items-start gap-ds-2">
               <span aria-hidden className="mt-0.5 text-primary">

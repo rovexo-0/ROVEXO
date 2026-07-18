@@ -199,7 +199,7 @@ function CheckoutHubContent({
   return (
     <div className="thub-v1__checkout" data-transaction-hub-checkout="embedded">
       {form.errorMessage ? (
-        <div className="mx-auto max-w-2xl px-ds-4 pt-ds-3">
+        <div className="w-full px-ds-4 pt-ds-3">
           <p className="rounded-ds-md border border-destructive/30 bg-destructive/5 px-ds-3 py-ds-2 text-sm text-destructive" role="alert">
             {form.errorMessage}
           </p>

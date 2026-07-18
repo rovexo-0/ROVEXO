@@ -6,8 +6,9 @@ import { redirect } from "next/navigation";
 
 export default async function SellerTaxRoute() {
   const profile = await getProfile();
+  // Never dump Business/Selling tools to My Account (Final Master Order).
   if (!profile.isSeller) {
-    redirect("/account");
+    redirect("/seller");
   }
 
   const taxProfile = await getSellerTaxProfile(profile.id);

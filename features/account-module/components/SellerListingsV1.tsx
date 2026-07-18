@@ -1,40 +1,37 @@
 "use client";
 
-import { CanonicalModal } from "@/src/components/canonical";
+import {
+  CanonicalButtonLink,
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalModal,
+} from "@/src/components/canonical";
 import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ShareListingSheet } from "@/components/share/ShareListingSheet";
-
-import { AccountCanonicalShell } from "@/features/account-canonical";
+import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
 import { PromotionPicker } from "@/features/seller/listings/components/PromotionPicker";
+import { cn } from "@/lib/cn";
 import type { PromotionType } from "@/lib/promotions/config";
 import type { ListingFilter, SellerListing } from "@/lib/listings/types";
 import type { SellerListingsData } from "@/lib/seller/listings-queries";
 import { formatCurrency } from "@/lib/wallet/utils";
+import "@/styles/rovexo/orders-page-v1.css";
 
 const LISTING_TABS: { id: Extract<ListingFilter, "published" | "sold">; label: string }[] = [
   { id: "published", label: "Active" },
   { id: "sold", label: "Sold" },
 ];
 
-function listingStatusLabel(listing: SellerListing): "Active" | "Sold" {
+function listingStatusLabel(listing: SellerListing): string {
   return listing.status === "sold" ? "Sold" : "Active";
-}
-
-function listingStatusClass(listing: SellerListing): string {
-  return listing.status === "sold" ? "acm-badge acm-badge--sold" : "acm-badge acm-badge--active";
 }
 
 function MoreIcon({ className }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden
-    >
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
       <circle cx="5" cy="12" r="1.75" />
       <circle cx="12" cy="12" r="1.75" />
       <circle cx="19" cy="12" r="1.75" />
@@ -181,112 +178,146 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
   };
 
   return (
-    <AccountCanonicalShell title="My Listings" backHref="/account">
-      <div className="acm-tabs" role="tablist" aria-label="Listing filters" data-listings-version="v2.0-final">
-        {LISTING_TABS.map((tab) => (
-          <Link
-            key={tab.id}
-            href={tab.id === "published" ? "/seller/listings" : `/seller/listings?filter=${tab.id}`}
-            role="tab"
-            aria-selected={activeFilter === tab.id}
-            className={activeFilter === tab.id ? "acm-tabs__tab acm-tabs__tab--active" : "acm-tabs__tab"}
-          >
-            {tab.label}
-          </Link>
-        ))}
-      </div>
+    <AccountCanonicalShell title="My Listings" backHref="/account" showHeaderTitle>
+      <AccountPageStack className="w-full">
+        <div className="orders-page w-full" data-listings-version="v2.0-final">
+          <div className="orders-page__tabs" role="tablist" aria-label="Listing filters">
+            {LISTING_TABS.map((tab) => (
+              <Link
+                key={tab.id}
+                href={tab.id === "published" ? "/seller/listings" : `/seller/listings?filter=${tab.id}`}
+                role="tab"
+                aria-selected={activeFilter === tab.id}
+                className={cn("orders-page__tab", activeFilter === tab.id && "orders-page__tab--on")}
+              >
+                {tab.label}
+              </Link>
+            ))}
+          </div>
 
-      {actionError ? (
-        <p className="acm-inline-notice" role="alert">
-          {actionError}
-        </p>
-      ) : null}
+          {actionError ? (
+            <CanonicalInfoBlock variant="error">
+              <p>{actionError}</p>
+            </CanonicalInfoBlock>
+          ) : null}
 
-      {listings.length === 0 ? (
-        <div className="acm-empty">
-          <p className="acm-empty__title">No listings yet</p>
-          <p className="acm-empty__text">Start selling by creating your first listing.</p>
-          <Link href="/sell" className="acm-cta__btn" style={{ marginTop: 16, display: "inline-flex" }}>
-            Create listing
-          </Link>
-        </div>
-      ) : (
-        <ul className="acm-list">
-          {listings.map((listing) => (
-            <li key={listing.id} className="acm-list__item">
-              <div className="acm-list__row">
-                <div className="acm-listing">
-                  <Link href={`/listing/${listing.slug}`} className="acm-listing__thumb" tabIndex={-1} aria-hidden>
-                    <SafeImage src={listing.imageUrl} alt="" fill sizes="72px" className="object-cover" />
+          {listings.length === 0 ? (
+            <CanonicalInfoBlock variant="description">
+              <p className="font-medium text-text-primary">No listings</p>
+              <p className="mt-ds-1">Create your first listing to start selling.</p>
+              <CanonicalButtonLink href="/sell" variant="secondary" className="mt-ds-3">
+                Create listing
+              </CanonicalButtonLink>
+            </CanonicalInfoBlock>
+          ) : (
+            <CanonicalCard variant="list" className="w-full">
+              {listings.map((listing) => (
+                <div
+                  key={listing.id}
+                  className="flex items-center gap-ds-3 px-[var(--cds-row-padding-x)] py-ds-3"
+                >
+                  <Link
+                    href={`/listing/${listing.slug}`}
+                    className="relative h-14 w-14 shrink-0 overflow-hidden rounded-ds-md bg-surface-muted"
+                    tabIndex={-1}
+                    aria-hidden
+                  >
+                    <SafeImage src={listing.imageUrl} alt="" fill sizes="56px" className="object-cover" />
                   </Link>
-                  <div className="acm-listing__body">
-                    <Link href={`/listing/${listing.slug}`} className="acm-listing__title-link">
-                      <p className="acm-listing__title">{listing.title}</p>
+
+                  <div className="min-w-0 flex-1">
+                    <Link href={`/listing/${listing.slug}`} className="block min-w-0">
+                      <p className="cds-menu-row__title truncate">{listing.title}</p>
                     </Link>
-                    <p className="acm-listing__price">{formatCurrency(listing.price)}</p>
-                    <div className="acm-listing__meta">
-                      <span className={listingStatusClass(listing)}>{listingStatusLabel(listing)}</span>
-                      <span className="acm-listing__stats">
-                        <span>{listing.views} views</span>
-                      </span>
-                    </div>
+                    <p className="cds-menu-row__subtitle">
+                      {formatCurrency(listing.price)} · {listingStatusLabel(listing)} · {listing.views} views
+                    </p>
+                  </div>
+
+                  <div
+                    className="relative shrink-0"
+                    ref={openMenuId === listing.id ? menuRef : undefined}
+                  >
+                    <button
+                      type="button"
+                      className="cds-menu-row__trailing inline-flex h-10 w-10 items-center justify-center rounded-full text-text-secondary hover:bg-surface-muted"
+                      aria-label={`Actions for ${listing.title}`}
+                      aria-expanded={openMenuId === listing.id}
+                      aria-haspopup="menu"
+                      disabled={busyId === listing.id}
+                      onClick={() => setOpenMenuId((current) => (current === listing.id ? null : listing.id))}
+                    >
+                      <MoreIcon className="h-5 w-5" />
+                    </button>
+
+                    {openMenuId === listing.id ? (
+                      <div
+                        className="absolute right-0 top-full z-20 mt-ds-1 min-w-[160px] overflow-hidden rounded-ds-lg border border-border bg-background shadow-ds-md"
+                        role="menu"
+                      >
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
+                          onClick={() => void runMenuAction("edit", listing)}
+                        >
+                          Edit
+                        </button>
+                        {listing.status === "published" ? (
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
+                            onClick={() => void runMenuAction("sold", listing)}
+                          >
+                            Mark sold
+                          </button>
+                        ) : null}
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
+                          onClick={() => void runMenuAction("delete", listing)}
+                        >
+                          Delete
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
+                          onClick={() => void runMenuAction("promote", listing)}
+                        >
+                          Promote
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
+                          onClick={() => void runMenuAction("share", listing)}
+                        >
+                          Share
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
-
-                <div className="acm-listing-menu" ref={openMenuId === listing.id ? menuRef : undefined}>
-                  <button
-                    type="button"
-                    className="acm-listing-menu__trigger"
-                    aria-label={`Actions for ${listing.title}`}
-                    aria-expanded={openMenuId === listing.id}
-                    aria-haspopup="menu"
-                    disabled={busyId === listing.id}
-                    onClick={() => setOpenMenuId((current) => (current === listing.id ? null : listing.id))}
-                  >
-                    <MoreIcon className="acm-listing-menu__icon" />
-                  </button>
-
-                  {openMenuId === listing.id ? (
-                    <div className="acm-listing-menu__panel" role="menu">
-                      <button type="button" role="menuitem" className="acm-listing-menu__item" onClick={() => void runMenuAction("edit", listing)}>
-                        Edit
-                      </button>
-                      {listing.status === "published" ? (
-                        <button type="button" role="menuitem" className="acm-listing-menu__item" onClick={() => void runMenuAction("sold", listing)}>
-                          Mark Sold
-                        </button>
-                      ) : null}
-                      <button type="button" role="menuitem" className="acm-listing-menu__item" onClick={() => void runMenuAction("delete", listing)}>
-                        Delete
-                      </button>
-                      <button type="button" role="menuitem" className="acm-listing-menu__item" onClick={() => void runMenuAction("promote", listing)}>
-                        Promote
-                      </button>
-                      <button type="button" role="menuitem" className="acm-listing-menu__item" onClick={() => void runMenuAction("share", listing)}>
-                        Share
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+              ))}
+            </CanonicalCard>
+          )}
+        </div>
+      </AccountPageStack>
 
       <CanonicalModal
         open={pendingDelete !== null}
         variant="delete"
-        title="Delete Listing?"
+        title="Delete listing?"
         cancelLabel="Cancel"
         confirmLabel={isDeleting ? "Deleting…" : "Delete"}
         loading={isDeleting}
         onClose={closeDialog}
         onConfirm={() => void confirmDelete()}
       >
-        <p className="text-sm text-text-secondary">
-          This action permanently deletes this listing and cannot be undone.
-        </p>
+        <p className="text-sm text-text-secondary">This cannot be undone.</p>
         {deleteError ? (
           <p className="mt-ds-2 text-sm text-danger" role="alert">
             {deleteError}

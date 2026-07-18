@@ -1,12 +1,12 @@
 /**
- * ROVEXO Settings hub — canonical v1.0 layout tokens.
- * 16px radius, 64px rows, 24px section gap, #EFEFEF dividers.
+ * ROVEXO Settings hub — Master Menu Design System.
+ * 20px radius, 56px rows, 24px section gap, #EFEFEF dividers.
  */
 
 .settings-canonical {
   --cds-space-section-gap: 24px;
-  --cds-radius-card: 16px;
-  --cds-row-min-height: 64px;
+  --cds-radius-card: 20px;
+  --cds-row-min-height: 56px;
   --cds-row-padding-x: 16px;
   --cds-color-divider: #efefef;
   display: flex;
@@ -16,7 +16,7 @@
 }
 
 .settings-canonical__card {
-  border-radius: 16px;
+  border-radius: 20px;
 }
 
 .settings-canonical__danger-card {

@@ -152,7 +152,6 @@ export function SearchResultsView() {
       </div>
 
       <div className="srch-results__filters" aria-label="Search filters">
-        <span className="srch-results__filters-label">Filters</span>
         <label className="srch-results__filter">
           <span className="sr-only">Category</span>
           <select
@@ -170,28 +169,21 @@ export function SearchResultsView() {
         </label>
       </div>
 
-      <div className="rx-listing-grid min-h-[24rem] px-ds-4">
+      <div className="rx-listing-grid srch-results__grid">
         {!hasBrowseTarget ? (
           <div className="col-span-full srch-results__hint">
-            <p>Use the search bar to find listings.</p>
+            <p>Search above.</p>
             <Link href="/" className="srch-results__home-link">
-              Back to homepage
+              Home
             </Link>
           </div>
         ) : loading ? (
           <ProductGridSkeleton count={8} />
         ) : error ? (
-          <div
-            role="alert"
-            className="col-span-full rounded-ds-xl border border-danger/30 bg-danger/5 px-ds-5 py-ds-8 text-center"
-          >
-            <p className="text-sm font-medium text-text-primary">Search unavailable</p>
-            <button
-              type="button"
-              onClick={() => void loadPage(1, false)}
-              className="mt-ds-3 text-sm font-semibold text-primary"
-            >
-              Try again
+          <div role="alert" className="col-span-full srch-results__error">
+            <p>Search unavailable</p>
+            <button type="button" onClick={() => void loadPage(1, false)}>
+              Retry
             </button>
           </div>
         ) : items.length === 0 ? (

@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { Input } from "@/components/ui/Input";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
@@ -114,7 +114,7 @@ export const ParcelCard = memo(function ParcelCard({
   }, [order.orderNumber, parcel.parcelNumber]);
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-4">
+    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-3">
       <div className="flex items-center justify-between gap-ds-3">
         <h3 className="text-base font-semibold text-text-primary">
           Parcel {parcel.parcelNumber} of {parcel.totalParcels}
@@ -270,6 +270,6 @@ export const ParcelCard = memo(function ParcelCard({
           </Button>
         )}
       </div>
-    </Card>
+    </CanonicalCard>
   );
 });

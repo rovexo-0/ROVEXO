@@ -41,7 +41,7 @@ describe("Inbox Hub v1.1 — UI LOCK", () => {
     expect(conversation).toContain('data-composer-layout="single-row"');
     expect(conversation).toContain("conv-hub__composer-row");
     expect(conversationCss).toContain("flex-wrap: nowrap");
-    expect(conversationCss).toContain("--conv-composer-h: 44px");
+    expect(conversationCss).toContain("--conv-composer-h: 52px");
   });
 
   it("locks legacy routes as redirects into /inbox", () => {

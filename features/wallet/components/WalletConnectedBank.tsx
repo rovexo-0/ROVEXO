@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { BankLineIcon } from "@/components/icons/RvxLineIcons";
 import {
-  BankLineIcon,
-  ChevronRightLineIcon,
-  EditLineIcon,
-  ShieldLineIcon,
-} from "@/components/icons/RvxLineIcons";
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import type { WithdrawMethod } from "@/lib/wallet/types";
 
@@ -36,68 +36,40 @@ export function WalletConnectedBank({ bank, verified }: WalletConnectedBankProps
   };
 
   return (
-    <section className="wallet-v2__section wallet-v2__section--bank" aria-label="Connected bank">
-      <div className="wallet-v2__bank-card">
+    <CanonicalSection title="Bank">
+      <CanonicalCard variant="list">
         {bank ? (
           <>
-            <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__bank-main">
-              <span className="wallet-v2__bank-icon" aria-hidden>
-                <BankLineIcon />
-              </span>
-              <span className="wallet-v2__bank-copy">
-                <span className="wallet-v2__bank-name-row">
-                  <span className="wallet-v2__bank-name">{bank.label}</span>
-                  {verified ? (
-                    <span className="wallet-v2__bank-verified">
-                      <ShieldLineIcon />
-                      Verified
-                    </span>
-                  ) : null}
-                </span>
-                <span className="wallet-v2__bank-meta">****{bank.lastDigits}</span>
-              </span>
-              <span className="wallet-v2__bank-chevron" aria-hidden>
-                <ChevronRightLineIcon />
-              </span>
-            </Link>
-            <div className="wallet-v2__bank-actions" role="group" aria-label="Bank account actions">
-              <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__bank-action">
-                <EditLineIcon />
-                Edit Bank
-              </Link>
-              <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__bank-action">
-                Change Bank
-              </Link>
-              <button
-                type="button"
-                className="wallet-v2__bank-action wallet-v2__bank-action--danger"
-                disabled={isPending}
-                onClick={removeBank}
-              >
-                {isPending ? "Removing…" : "Remove Bank"}
-              </button>
-            </div>
-            {error ? (
-              <p className="wallet-v2__bank-error" role="alert">
-                {error}
-              </p>
-            ) : null}
+            <CanonicalMenuRow
+              title={bank.label}
+              description={`•••• ${bank.lastDigits}`}
+              icon={<BankLineIcon />}
+              value={verified ? "Verified" : undefined}
+              href={WALLET_ROUTES.bankAccount}
+            />
+            <CanonicalMenuRow title="Edit bank" href={WALLET_ROUTES.bankAccount} />
+            <CanonicalMenuRow title="Change bank" href={WALLET_ROUTES.bankAccount} />
+            <CanonicalMenuRow
+              title={isPending ? "Removing…" : "Remove bank"}
+              destructive
+              hideChevron
+              disabled={isPending}
+              onClick={removeBank}
+            />
           </>
         ) : (
-          <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__bank-main wallet-v2__bank-main--empty">
-            <span className="wallet-v2__bank-icon" aria-hidden>
-              <BankLineIcon />
-            </span>
-            <span className="wallet-v2__bank-copy">
-              <span className="wallet-v2__bank-name">No bank account connected</span>
-              <span className="wallet-v2__bank-inline-cta">Connect Bank Account →</span>
-            </span>
-            <span className="wallet-v2__bank-chevron" aria-hidden>
-              <ChevronRightLineIcon />
-            </span>
-          </Link>
+          <CanonicalMenuRow
+            title="Connect bank account"
+            description="Required for withdrawals"
+            icon={<BankLineIcon />}
+            href={WALLET_ROUTES.bankAccount}
+          />
         )}
-      </div>
-    </section>
+      </CanonicalCard>
+
+      {error ? (
+        <CanonicalInfoBlock variant="error">{error}</CanonicalInfoBlock>
+      ) : null}
+    </CanonicalSection>
   );
 }

@@ -31,7 +31,6 @@
 @import "./mobile.css";
 @import "./hero.css";
 @import "./auctions.css";
-@import "./auctions-coming-soon.css";
 @import "./sell.css";
 @import "./chrome-scroll.css";
 @import "./sign-out.css";
@@ -61,7 +60,6 @@
 @import "./shipping-engine.css";
 @import "./orders-engine.css";
 @import "./wallet-engine.css";
-@import "./wallet-overview.css";
 @import "./payments-engine.css";
 @import "./protection-engine.css";
 @import "./messages-engine.css";
@@ -103,3 +101,4 @@
 @import "./command-os-v4.css";
 @import "./universal-ui-v1.css";
 @import "./compact-premium-v1.css";
+@import "./phone-width-v1-freeze.css";

@@ -1,4 +1,9 @@
-import { Card } from "@/components/ui/Card";
+import {
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { formatWalletDate } from "@/lib/wallet/utils";
 import type { OrderResolutionSummary } from "@/lib/resolution-engine/types";
 
@@ -8,12 +13,12 @@ type ResolutionStatusCardProps = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  none: "No active resolution",
+  none: "None",
   OPEN: "Open",
-  PROCESSING: "Processing automatically",
-  WAITING_CARRIER: "Waiting on carrier",
-  WAITING_TRACKING: "Waiting on tracking",
-  WAITING_RETURN: "Waiting for return",
+  PROCESSING: "Processing",
+  WAITING_CARRIER: "Awaiting carrier",
+  WAITING_TRACKING: "Awaiting tracking",
+  WAITING_RETURN: "Awaiting return",
   APPROVED: "Approved",
   REJECTED: "Rejected",
   REFUNDED: "Refunded",
@@ -28,37 +33,44 @@ export function ResolutionStatusCard({ resolution, view }: ResolutionStatusCardP
   const eta = resolution.estimatedCompletionAt
     ? formatWalletDate(resolution.estimatedCompletionAt)
     : null;
+  const statusLabel = STATUS_LABELS[resolution.status] ?? resolution.status;
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-2">
-      <h2 className="text-base font-semibold text-text-primary">Resolution status</h2>
-      <p className="text-sm text-text-secondary">
-        Status:{" "}
-        <span className="font-medium text-text-primary">
-          {STATUS_LABELS[resolution.status] ?? resolution.status}
-        </span>
-      </p>
-      {resolution.refundAmount != null && resolution.status === "REFUNDED" ? (
-        <p className="text-sm text-text-muted">
-          Refund issued: £{resolution.refundAmount.toFixed(2)}
-        </p>
-      ) : null}
-      {resolution.claimStatus ? (
-        <p className="text-sm text-text-muted">Carrier claim: {resolution.claimStatus}</p>
-      ) : null}
-      {resolution.returnStatus ? (
-        <p className="text-sm text-text-muted">Return: {resolution.returnStatus}</p>
-      ) : null}
-      {eta && resolution.status !== "REFUNDED" && resolution.status !== "CLOSED" ? (
-        <p className="text-sm text-text-muted">
-          {view === "buyer"
-            ? `Estimated completion: ${eta}`
-            : `Estimated payout resolution: ${eta}`}
-        </p>
-      ) : null}
-      <p className="text-xs text-text-muted">
-        All cases are processed automatically — no manual review required.
-      </p>
-    </Card>
+    <CanonicalSection title="Resolution">
+      <CanonicalCard variant="list" className="w-full">
+        <CanonicalMenuRow title="Status" value={statusLabel} showChevron={false} />
+        {resolution.refundAmount != null && resolution.status === "REFUNDED" ? (
+          <CanonicalMenuRow
+            title="Refund"
+            value={`£${resolution.refundAmount.toFixed(2)}`}
+            showChevron={false}
+          />
+        ) : null}
+        {resolution.claimStatus ? (
+          <CanonicalMenuRow
+            title="Carrier claim"
+            value={resolution.claimStatus}
+            showChevron={false}
+          />
+        ) : null}
+        {resolution.returnStatus ? (
+          <CanonicalMenuRow
+            title="Return"
+            value={resolution.returnStatus}
+            showChevron={false}
+          />
+        ) : null}
+        {eta && resolution.status !== "REFUNDED" && resolution.status !== "CLOSED" ? (
+          <CanonicalMenuRow
+            title={view === "buyer" ? "Est. completion" : "Est. payout"}
+            value={eta}
+            showChevron={false}
+          />
+        ) : null}
+      </CanonicalCard>
+      <CanonicalInfoBlock variant="description" className="mt-ds-2">
+        <p>Processed automatically.</p>
+      </CanonicalInfoBlock>
+    </CanonicalSection>
   );
 }

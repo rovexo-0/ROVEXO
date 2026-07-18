@@ -1,0 +1,105 @@
+/**
+ * ROVEXO Absolute Final — 100% PHONE WIDTH FREEZE
+ * STATUS: OFFICIALLY FROZEN | WITHOUT EXCEPTIONS
+ *
+ * One width system for 100% of the platform:
+ *   16px left · 100% phone width · 16px right
+ *
+ * Forbidden: max-w-*, centered narrow columns, page gutters other than 16px.
+ */
+
+:root {
+  --rx-phone-inset-x: 16px;
+  --rx-phone-width: 100%;
+  --cds-space-page-x: 16px;
+  --cds-page-max-width: 100%;
+  --pcu-page-max-width: 100%;
+  --ac-max-width: 100%;
+  --cp-page-inset: 16px;
+  --seller-max-width: 100%;
+  --buyer-max-width: 100%;
+}
+
+/* —— Shell / layout —— */
+.cds-layout,
+.cds-layout--account-canonical,
+.account-canonical,
+.account-canonical-shell,
+.pcu-module,
+.ac-canonical,
+.account-center,
+.account-center__container,
+.wallet-v2,
+.inbox-hub,
+.conv-hub,
+.orders-page,
+.cart-v1,
+.ckt-v1,
+.srch-results,
+.sell-page-v1-content,
+.hub-page-main,
+[data-listing-grid] {
+  width: var(--rx-phone-width) !important;
+  max-width: var(--rx-phone-width) !important;
+  margin-inline: 0 !important;
+}
+
+.cds-layout {
+  margin-inline: 0 !important;
+}
+
+.cds-layout__content,
+.cds-layout__content--account-canonical {
+  padding-left: var(--rx-phone-inset-x) !important;
+  padding-right: var(--rx-phone-inset-x) !important;
+}
+
+/* —— Kill Tailwind page-column max-width utilities —— */
+.max-w-none,
+.max-w-xs,
+.max-w-sm,
+.max-w-md,
+.max-w-lg,
+.max-w-xl,
+.max-w-2xl,
+.max-w-3xl,
+.max-w-4xl,
+.max-w-5xl,
+.max-w-6xl,
+.max-w-7xl,
+.max-w-\[440px\],
+.max-w-\[480px\],
+.max-w-\[640px\],
+.max-w-\[720px\],
+.max-w-\[860px\],
+.max-w-\[960px\] {
+  max-width: 100% !important;
+}
+
+/* Floating UI may keep a readable sheet width */
+[data-rx-float="true"],
+[data-rx-float="true"].max-w-sm,
+[data-rx-float="true"].max-w-md,
+.rx-toast,
+[role="status"].rx-sheet {
+  max-width: min(100%, 24rem) !important;
+}
+
+/* —— Explicit full-bleed page bodies —— */
+main,
+.HubPageMain,
+[class*="HubPageMain"],
+.beta-app-shell > *,
+[data-compact-premium="v1"],
+[data-universal-ui="v1.1"] {
+  box-sizing: border-box;
+}
+
+[data-compact-premium="v1"] main,
+[data-universal-ui="v1.1"] main,
+[data-compact-premium="v1"] .hub-page-main,
+.beta-app-shell main {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+}

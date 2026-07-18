@@ -134,22 +134,17 @@ describe("Notifications canonical v1.0", () => {
   });
 
   it("keeps canonical UI surfaces and empty states", () => {
-    const inbox = readSource("features/notifications/components/NotificationsInboxV1.tsx");
+    const inbox = readSource("features/inbox/components/InboxPage.tsx");
     const empty = readSource("features/notifications/components/NotificationsEmptyState.tsx");
     const settings = readSource("features/notifications/components/NotificationSettingsPage.tsx");
-    const page = readSource("features/notifications/components/NotificationsPage.tsx");
     const css = readSource("styles/rovexo/notifications-v1.css");
     const route = readSource("app/notifications/page.tsx");
 
-    expect(inbox).toContain('data-notifications-version="v1.0"');
-    expect(inbox).toContain('data-notifications-canonical="v1.0"');
-    expect(inbox).toContain("Mark all read");
-    expect(inbox).toContain("Load more");
-    expect(inbox).toContain("Delete");
+    expect(inbox).toContain("useRealtimeNotifications");
+    expect(inbox).toContain("Mark all");
     expect(empty).toContain("No Notifications Yet");
     expect(empty).toContain("No Order Notifications");
     expect(settings).toContain("NOTIFICATION_USER_CONTROLS");
-    expect(page).toContain("NotificationsInboxV1");
     expect(css).toContain(".notif-v1");
     expect(route).toContain("redirect");
   });

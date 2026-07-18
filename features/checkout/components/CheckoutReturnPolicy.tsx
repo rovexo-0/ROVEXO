@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
-import { cn } from "@/lib/cn";
-import { focusRing } from "@/components/ui/tokens";
+import {
+  CanonicalCard,
+  CanonicalCheckbox,
+} from "@/src/components/canonical";
 import type { useCheckoutForm } from "@/features/checkout/hooks/use-checkout-form";
 
 const RETURN_WINDOW_DAYS = 14;
@@ -16,34 +17,21 @@ export function CheckoutReturnPolicy({ form }: CheckoutReturnPolicyProps) {
   const { draft, updateDraft } = form;
 
   return (
-    <Card padding="lg" className="">
-      <h2 className="text-base font-semibold text-text-primary">Returns & purchase protection</h2>
-      <p className="mt-ds-2 text-sm text-text-secondary">
-        Eligible purchases include ROVEXO Purchase Protection. You may open a case within{" "}
-        {RETURN_WINDOW_DAYS} days of delivery if an item is not as described.{" "}
+    <CanonicalCard variant="small" className="flex w-full flex-col gap-ds-2">
+      <h2 className="text-base font-semibold text-text-primary">Returns</h2>
+      <p className="text-sm text-text-secondary">
+        {RETURN_WINDOW_DAYS}-day case window with purchase protection.{" "}
         <Link href="/help/buying-buyer-protection" className="font-medium text-primary underline">
-          Read the full policy
+          Full policy
         </Link>
-        .
       </p>
 
-      <label
-        className={cn(
-          "mt-ds-4 flex cursor-pointer items-start gap-ds-3 rounded-ds-md border border-border p-ds-3",
-          focusRing,
-        )}
-      >
-        <input
-          type="checkbox"
-          checked={draft.acceptedReturnPolicy}
-          onChange={(event) => updateDraft({ acceptedReturnPolicy: event.target.checked })}
-          className="mt-0.5 h-4 w-4 rounded border-border text-primary"
-        />
-        <span className="text-sm text-text-primary">
-          I understand the return window, platform fee, and resolution process.
-        </span>
-      </label>
-    </Card>
+      <CanonicalCheckbox
+        label="I accept the return window and fees."
+        checked={draft.acceptedReturnPolicy}
+        onChange={(event) => updateDraft({ acceptedReturnPolicy: event.target.checked })}
+      />
+    </CanonicalCard>
   );
 }
 

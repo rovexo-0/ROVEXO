@@ -8,7 +8,7 @@
   --rx-bottom-nav-label-size: 12px;
   --rx-bottom-nav-inactive: #111111;
   --rx-bottom-nav-active: var(--ds-color-primary);
-  --rx-bottom-nav-icon-size: 22px;
+  --rx-bottom-nav-icon-size: 20px;
 }
 
 [data-bottom-nav="v2"] .rx-bottom-nav-shell {

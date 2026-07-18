@@ -2341,7 +2341,7 @@ export const GLOBAL_LISTING_SCAN_DOMAINS = [
   { id: "preview-listing", label: "Preview Listing", ref: "app/listing/[slug]/page.tsx" },
   { id: "publish-listing", label: "Publish Listing", ref: "app/api/listings/route.ts" },
   { id: "scheduled-listings", label: "Scheduled Listings", ref: "lib/listings/repository.ts" },
-  { id: "archived-listings", label: "Archived Listings", ref: "features/seller/listings/components/SellerListingsPage.tsx" },
+  { id: "archived-listings", label: "Archived Listings", ref: "features/account-module/components/SellerListingsV1.tsx" },
   { id: "expired-listings", label: "Expired Listings", ref: "lib/promotions/format.ts" },
   { id: "featured-listings", label: "Featured Listings", ref: "app/api/listings/feature/route.ts" },
   { id: "auction-listings", label: "Auction Listings", ref: "app/sell/auction/page.tsx" },
@@ -3116,7 +3116,7 @@ export const SHIPPING_PASS_CONDITIONS = [
 
 export const GLOBAL_COMMUNICATION_SCAN_DOMAINS = [
   { id: "messages", label: "Messages", ref: "app/messages/page.tsx" },
-  { id: "inbox", label: "Inbox", ref: "features/messages/components/MessagesListPage.tsx" },
+  { id: "inbox", label: "Inbox", ref: "features/inbox/components/InboxPage.tsx" },
   { id: "threads", label: "Threads", ref: "app/messages/[id]/page.tsx" },
   { id: "attachments", label: "Attachments", ref: "lib/messages-engine/registry.ts" },
   { id: "photos", label: "Photos", ref: "lib/messages/types.ts" },
@@ -3135,7 +3135,7 @@ export const GLOBAL_COMMUNICATION_SCAN_DOMAINS = [
   { id: "support-notifications", label: "Support Notifications", ref: "app/support/page.tsx" },
   { id: "security-notifications", label: "Security Notifications", ref: "lib/trust/notifications.ts" },
   { id: "fraud-alerts", label: "Fraud Alerts", ref: "lib/moderation/notifications.ts" },
-  { id: "marketplace-alerts", label: "Marketplace Alerts", ref: "features/notifications/components/NotificationsPage.tsx" },
+  { id: "marketplace-alerts", label: "Marketplace Alerts", ref: "features/inbox/components/InboxPage.tsx" },
 ] as const;
 
 export const EMAIL_PLATFORM_VALIDATION = [

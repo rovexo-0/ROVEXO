@@ -26,7 +26,7 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
   ];
 
   return (
-    <HubPageMain className="mx-auto flex w-full max-w-7xl flex-col gap-ds-6 px-ds-4 py-ds-5  pt-[calc(7.5rem+env(safe-area-inset-top))]">
+    <HubPageMain className="flex w-full max-w-none flex-col gap-ds-6 px-[16px] py-ds-5 pt-[calc(7.5rem+env(safe-area-inset-top))]">
       <Breadcrumbs items={breadcrumbs} />
 
       <section className="relative overflow-hidden rounded-ds-xl bg-secondary">

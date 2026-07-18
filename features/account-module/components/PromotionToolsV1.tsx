@@ -15,9 +15,17 @@ type PromotionToolsV1Props = {
   entries: ResolvedPromotionCatalogEntry[];
   trustItems: PromotionTrustItem[];
   listings: SellerListing[];
+  backHref?: string;
+  backLabel?: string;
 };
 
-export function PromotionToolsV1({ entries, trustItems, listings }: PromotionToolsV1Props) {
+export function PromotionToolsV1({
+  entries,
+  trustItems,
+  listings,
+  backHref = "/seller",
+  backLabel = "Selling",
+}: PromotionToolsV1Props) {
   const [selectedEntry, setSelectedEntry] = useState<ResolvedPromotionCatalogEntry | null>(null);
   const [listingPickerOpen, setListingPickerOpen] = useState(false);
   const [packagePickerOpen, setPackagePickerOpen] = useState(false);
@@ -59,7 +67,7 @@ export function PromotionToolsV1({ entries, trustItems, listings }: PromotionToo
   };
 
   return (
-    <AccountCanonicalShell title="Promotion Tools" backHref="/account">
+    <AccountCanonicalShell title="Promotions" backHref={backHref} backLabel={backLabel} showHeaderTitle>
       <AccountPageStack>
         <CanonicalSection title="Promotion Tools" intro="Boost visibility for your listings and store.">
           <CanonicalCard variant="list" data-testid="promotion-tools-grid">

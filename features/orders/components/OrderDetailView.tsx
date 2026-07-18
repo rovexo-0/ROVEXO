@@ -1,8 +1,12 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import {
+  CanonicalButton,
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { PublishedCheckmark } from "@/features/sell/components/PublishedCheckmark";
 import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
 import { IssueResolutionLink } from "@/features/orders/components/IssueResolutionLink";
@@ -79,21 +83,23 @@ export function OrderDetailView({
 
   if (showCompleted) {
     return (
-      <div className="flex flex-col gap-ds-5">
+      <div className="flex w-full flex-col gap-ds-4">
         <section
-          className="flex w-full flex-col items-center justify-center px-ds-2 py-ds-8 text-center"
+          className="flex w-full flex-col items-center gap-ds-4 py-ds-6 text-center"
           aria-labelledby="order-complete-heading"
         >
           <PublishedCheckmark />
-          <h2 id="order-complete-heading" className="mt-ds-6 text-xl font-semibold text-text-primary">
-            Thank you!
-          </h2>
-          <p className="mt-ds-2 text-sm text-text-secondary">
-            Seller funds release automatically 24 hours after delivery, unless a claim is opened.
-          </p>
-          {order.disputesDisabled ? (
-            <p className="mt-ds-1 text-xs text-text-muted">Further disputes are disabled for this order.</p>
-          ) : null}
+          <CanonicalInfoBlock variant="success">
+            <p id="order-complete-heading" className="font-medium text-text-primary">
+              Thank you
+            </p>
+            <p className="mt-ds-1 text-sm">
+              Funds release 24h after delivery unless claimed.
+            </p>
+            {order.disputesDisabled ? (
+              <p className="mt-ds-1 text-xs text-text-muted">Disputes disabled.</p>
+            ) : null}
+          </CanonicalInfoBlock>
         </section>
         <OrderReviewCard orderId={order.id} sellerName={order.seller.name} />
       </div>
@@ -101,7 +107,7 @@ export function OrderDetailView({
   }
 
   return (
-    <div className="flex flex-col gap-ds-5">
+    <div className="flex w-full flex-col gap-ds-4">
       {view === "seller" && sellerShipment ? (
         <SellerOrderFulfillment
           order={order}
@@ -118,12 +124,12 @@ export function OrderDetailView({
       ) : null}
 
       {order.status === "awaiting_payment" ? (
-        <Card padding="lg">
-          <p className="text-sm text-text-secondary">Awaiting payment from buyer.</p>
-        </Card>
+        <CanonicalInfoBlock variant="description">
+          <p>Awaiting payment.</p>
+        </CanonicalInfoBlock>
       ) : null}
 
-      <OrderSummaryTotals totals={mapOrderToCommerceTotals(order.totals)} title="Order Summary" />
+      <OrderSummaryTotals totals={mapOrderToCommerceTotals(order.totals)} title="Summary" />
 
       {escrowState && view ? <EscrowReleaseCard escrow={escrowState} view={view} /> : null}
 
@@ -145,43 +151,38 @@ export function OrderDetailView({
       {view === "buyer" ? <RefundStatusCard order={order} /> : null}
 
       {showBuyerConfirm ? (
-        <Card padding="lg" className="flex flex-col gap-ds-4">
-          <h2 className="text-base font-semibold text-text-primary">Confirm Everything OK</h2>
-          <div className="flex flex-col gap-ds-3">
-            <Button
-              variant="primary"
+        <CanonicalSection title="Delivery">
+          <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-2">
+            <CanonicalButton
               fullWidth
-              size="lg"
-              className="min-h-[60px] rounded-ds-lg text-base"
-              disabled={isSubmitting}
+              loading={isSubmitting}
               onClick={() => void handleBuyerAction("confirm_ok")}
             >
-              Confirm Everything OK
-            </Button>
-            <Button
+              Confirm OK
+            </CanonicalButton>
+            <CanonicalButton
               variant="outline"
               fullWidth
-              size="lg"
-              className="min-h-[60px] rounded-ds-lg text-base"
               disabled={isSubmitting || isOrderClosed(order)}
               onClick={() => void handleBuyerAction("report_issue")}
             >
-              I Have an Issue
-            </Button>
-          </div>
-        </Card>
+              Report issue
+            </CanonicalButton>
+          </CanonicalCard>
+        </CanonicalSection>
       ) : null}
 
       {order.status === "issue_open" ? (
-        <Card padding="lg">
-          <h2 className="text-base font-semibold text-text-primary">Issue Open</h2>
-          <p className="mt-ds-2 text-sm text-text-secondary">
-            {view === "buyer"
-              ? "Your issue is being reviewed. Track progress in the Resolution Centre."
-              : "The buyer reported an issue on this order. Respond in the Resolution Centre."}
-          </p>
-          <IssueResolutionLink orderId={order.id} className="mt-ds-4" />
-        </Card>
+        <CanonicalSection title="Issue">
+          <CanonicalInfoBlock variant="warning">
+            <p>
+              {view === "buyer"
+                ? "Under review. Track in Resolution Centre."
+                : "Buyer reported an issue. Respond in Resolution Centre."}
+            </p>
+          </CanonicalInfoBlock>
+          <IssueResolutionLink orderId={order.id} className="mt-ds-2" />
+        </CanonicalSection>
       ) : null}
     </div>
   );

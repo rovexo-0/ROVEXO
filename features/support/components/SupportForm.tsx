@@ -1,10 +1,22 @@
 "use client";
 
-import { CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalTextarea } from "@/src/components/canonical";
+import {
+  CanonicalButton,
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalInput,
+  CanonicalMenuRow,
+  CanonicalSection,
+  CanonicalSelector,
+  CanonicalTextarea,
+} from "@/src/components/canonical";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 
+import { AccountCanonicalShell } from "@/features/account-canonical";
+import { HeadsetLineIcon, MailLineIcon } from "@/components/icons/RvxLineIcons";
+import { PlatformOperatorContactSection } from "@/components/legal/PlatformOperatorContactSection";
 import {
   buildSupportContext,
   canAccessSupport,
@@ -13,7 +25,7 @@ import {
 } from "@/lib/help/session";
 import { SUPPORT_CATEGORIES } from "@/lib/support/types";
 
-export function SupportForm() {
+function SupportFormFields() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -32,7 +44,7 @@ export function SupportForm() {
 
   const submit = async () => {
     if (!supportAllowed) {
-      setError("Please complete guided troubleshooting in Help Center before contacting Support.");
+      setError("Complete guided help before contacting Support.");
       void trackHelpEvent({ type: "support_gate_block", topicSlug: session.topicSlug ?? undefined });
       return;
     }
@@ -82,22 +94,22 @@ export function SupportForm() {
   };
 
   return (
-    <div className="flex flex-col gap-ds-4">
+    <div className="flex w-full flex-col gap-ds-4">
       {!supportAllowed ? (
         <CanonicalInfoBlock variant="warning">
-          Before contacting Support, complete the interactive help guide and try the suggested solutions.
+          Complete guided help first.
           {session.topicSlug ? (
             <>
               {" "}
               <Link href={`/help/category/${session.topicSlug}`} className="font-medium text-primary underline">
-                Continue guided troubleshooting
+                Continue guide
               </Link>
             </>
           ) : (
             <>
               {" "}
               <Link href="/help" className="font-medium text-primary underline">
-                Open Help Center
+                Open Help Centre
               </Link>
             </>
           )}
@@ -144,10 +156,7 @@ export function SupportForm() {
 
       {session.path.length > 0 ? (
         <CanonicalInfoBlock variant="description">
-          <p className="font-medium text-text-primary">Help context attached automatically</p>
-          <p className="mt-ds-1">Topic: {session.topicSlug ?? "—"}</p>
-          <p>Decision tree steps: {session.path.length}</p>
-          <p>Articles viewed: {session.articlesViewed.length}</p>
+          Help context attached ({session.path.length} steps).
         </CanonicalInfoBlock>
       ) : null}
 
@@ -159,8 +168,51 @@ export function SupportForm() {
         loading={submitting}
         onClick={() => void submit()}
       >
-        Submit request
+        Submit
       </CanonicalButton>
     </div>
+  );
+}
+
+function SupportFormFallback() {
+  return <CanonicalInfoBlock variant="description">Loading…</CanonicalInfoBlock>;
+}
+
+export function SupportForm() {
+  return (
+    <Suspense fallback={<SupportFormFallback />}>
+      <SupportFormFields />
+    </Suspense>
+  );
+}
+
+export function SupportPage() {
+  return (
+    <AccountCanonicalShell title="Contact Support" backHref="/help" backLabel="Help Centre">
+      <CanonicalSection title="Contact">
+        <CanonicalCard variant="list" className="w-full">
+          <CanonicalMenuRow
+            title="Email"
+            description="Send a message"
+            icon={<MailLineIcon />}
+            href="#support-form"
+          />
+          <CanonicalMenuRow
+            title="Report problem"
+            description="Order or listing issue"
+            icon={<HeadsetLineIcon />}
+            href="/support?category=report"
+          />
+        </CanonicalCard>
+      </CanonicalSection>
+
+      <CanonicalSection title="Request">
+        <CanonicalCard id="support-form" variant="medium" className="flex w-full flex-col gap-ds-4 p-ds-4">
+          <SupportForm />
+        </CanonicalCard>
+      </CanonicalSection>
+
+      <PlatformOperatorContactSection />
+    </AccountCanonicalShell>
   );
 }

@@ -66,7 +66,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <BetaAppShell bottomNavTab="search">
       <RovexoHeaderV2 />
-      <HubPageMain className="px-0 py-ds-4">
+      <HubPageMain className="gap-0 px-0 py-0">
         <Suspense fallback={<ProductGridSkeleton count={8} />}>
           <SearchResultsView />
         </Suspense>

@@ -4,12 +4,8 @@ import { DocumentLineIcon, InfoLineIcon } from "@/components/icons/RvxLineIcons"
 export function SettingsAboutV1() {
   return (
     <>
-      <CanonicalSection title="About ROVEXO">
-        <CanonicalCard variant="list" className="px-ds-5 py-ds-4">
-          <p className="text-sm text-text-secondary">
-            ROVEXO is the UK marketplace for buying and selling with protected checkout.
-          </p>
-        </CanonicalCard>
+      <CanonicalSection title="About ROVEXO" intro="UK marketplace with protected checkout.">
+        <span className="sr-only">About</span>
       </CanonicalSection>
       <CanonicalSection title="Legal">
         <CanonicalCard variant="list">

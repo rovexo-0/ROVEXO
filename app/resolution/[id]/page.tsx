@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
-import { Card } from "@/components/ui/Card";
-import { ScrollContainer } from "@/components/ui/ScrollContainer";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { ProtectionCaseActions } from "@/features/protection/components/ProtectionCaseActions";
 import { getUserRole, isPlatformAdminRole, requireAuthContext } from "@/lib/auth/session";
 import { getProtectionCase, listProtectionCaseEvents } from "@/lib/protection/service";
 import { privatePageMetadata } from "@/lib/seo/private-metadata";
+import {
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 
 type ResolutionCasePageProps = {
   params: Promise<{ id: string }>;
@@ -43,49 +45,64 @@ export default async function ResolutionCasePage({ params }: ResolutionCasePageP
   const title = `${caseRecord.caseType.replace("_", " ")} case`;
 
   return (
-    <BetaAppShell bottomNavTab="account">
-      <CanonicalPageHeader title={title} backHref="/resolution" backLabel="Resolution Centre" />
-      <ScrollContainer className="flex-1">
-        <main className="mx-auto max-w-3xl px-ds-4 py-ds-6 pb-[calc(var(--ds-space-8)+env(safe-area-inset-bottom))]">
-          <p className="text-sm text-text-secondary">{caseRecord.reason}</p>
+    <AccountCanonicalShell
+      title={title}
+      backHref="/resolution"
+      backLabel="Resolution Centre"
+      showHeaderTitle
+      showBottomNav={false}
+      intro={caseRecord.reason}
+    >
+      <div className="ac-canonical flex w-full flex-col gap-ds-4 pb-ds-5">
+        <CanonicalSection title="Case details">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow title="Status" value={caseRecord.status} showChevron={false} />
+            <CanonicalMenuRow
+              title="Outcome"
+              value={caseRecord.outcome.replace("_", " ")}
+              showChevron={false}
+            />
+            {caseRecord.description ? (
+              <CanonicalMenuRow
+                title="Description"
+                description={caseRecord.description}
+                showChevron={false}
+              />
+            ) : null}
+            {caseRecord.adminNotes ? (
+              <CanonicalMenuRow
+                title="Admin decision"
+                description={caseRecord.adminNotes}
+                showChevron={false}
+              />
+            ) : null}
+          </CanonicalCard>
+        </CanonicalSection>
 
-          <Card className="mt-ds-6 space-y-ds-2 p-ds-4">
-            <p className="text-sm">
-              <span className="font-medium">Status:</span> {caseRecord.status}
-            </p>
-            <p className="text-sm">
-              <span className="font-medium">Outcome:</span> {caseRecord.outcome.replace("_", " ")}
-            </p>
-            {caseRecord.description && (
-              <p className="text-sm text-text-secondary">{caseRecord.description}</p>
+        <ProtectionCaseActions
+          caseId={caseRecord.id}
+          isAdmin={isPlatformAdminRole(role ?? "buyer")}
+          status={caseRecord.status}
+        />
+
+        <CanonicalSection title="Case timeline">
+          <CanonicalCard variant="list">
+            {events.length ? (
+              events.map((event) => (
+                <CanonicalMenuRow
+                  key={event.id}
+                  title={event.eventType.replace("_", " ")}
+                  description={event.message}
+                  value={new Date(event.createdAt).toLocaleString("en-GB")}
+                  showChevron={false}
+                />
+              ))
+            ) : (
+              <CanonicalMenuRow title="No timeline events yet." showChevron={false} hideChevron />
             )}
-            {caseRecord.adminNotes && (
-              <p className="text-sm text-text-secondary">
-                <span className="font-medium">Admin decision:</span> {caseRecord.adminNotes}
-              </p>
-            )}
-          </Card>
-
-          <ProtectionCaseActions
-            caseId={caseRecord.id}
-            isAdmin={isPlatformAdminRole(role ?? "buyer")}
-            status={caseRecord.status}
-          />
-
-          <section className="mt-ds-8">
-            <h2 className="text-lg font-semibold">Case timeline</h2>
-            <ul className="mt-ds-4 space-y-ds-3">
-              {events.map((event) => (
-                <li key={event.id} className="border-l-2 border-primary/30 pl-ds-4">
-                  <p className="text-sm font-medium capitalize">{event.eventType.replace("_", " ")}</p>
-                  <p className="text-sm text-text-secondary">{event.message}</p>
-                  <p className="text-xs text-text-muted">{new Date(event.createdAt).toLocaleString("en-GB")}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </main>
-      </ScrollContainer>
-    </BetaAppShell>
+          </CanonicalCard>
+        </CanonicalSection>
+      </div>
+    </AccountCanonicalShell>
   );
 }

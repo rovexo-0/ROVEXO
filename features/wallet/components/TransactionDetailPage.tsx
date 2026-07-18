@@ -1,9 +1,13 @@
-import { AccountCanonicalShell } from "@/features/account-canonical";
-import { Card } from "@/components/ui/Card";
+import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { Price } from "@/components/ui/Price";
 import { WalletEngineTransactionPanel } from "@/features/wallet-engine/WalletEngineTransactionPanel";
 import { TransactionStatusBadge } from "@/features/wallet/components/TransactionStatusBadge";
+import {
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import {
   formatWalletDateTime,
   getDaysUntilAvailable,
@@ -19,17 +23,6 @@ type TransactionDetailPageProps = {
   backHref?: string;
 };
 
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-start justify-between gap-ds-3 py-ds-2">
-      <span className="text-sm text-text-secondary">{label}</span>
-      <span className="max-w-[60%] truncate text-right text-sm font-medium text-text-primary">
-        {value}
-      </span>
-    </div>
-  );
-}
-
 export function TransactionDetailPage({
   profile: _profile,
   transaction,
@@ -44,68 +37,57 @@ export function TransactionDetailPage({
 
   return (
     <AccountCanonicalShell
-      title="Transaction Details"
+      title="Transaction"
       backHref={backHref}
       backLabel="Wallet"
       showHeaderTitle
       showBottomNav={false}
     >
-      <div className="flex w-full flex-col gap-ds-4 px-ds-4 pb-ds-5">
+      <AccountPageStack aria-label="Transaction details">
         {transactionContext ? <WalletEngineTransactionPanel context={transactionContext} /> : null}
-        <Card padding="md" className="">
-          <div className="flex items-start gap-ds-3">
+
+        <CanonicalSection title="Order">
+          <CanonicalCard variant="medium" className="flex items-start gap-ds-3 p-ds-4">
             <ProductRowImage
               src={transaction.productImageUrl}
               alt={transaction.productTitle}
               containerClassName="h-16 w-16 shrink-0 rounded-ds-lg"
               sizes="64px"
             />
-
             <div className="min-w-0 flex-1">
-              <h2 className="truncate text-base font-semibold text-text-primary">
-                {transaction.productTitle}
-              </h2>
-              <p className="mt-ds-1 text-sm text-text-secondary">
-                Order {transaction.orderNumber}
-              </p>
+              <p className="cds-menu-row__title truncate">{transaction.productTitle}</p>
+              <p className="cds-menu-row__subtitle mt-ds-1">Order {transaction.orderNumber}</p>
               <div className="mt-ds-2 flex flex-wrap items-center gap-ds-2">
                 <Price amount={amount} size="md" currency="GBP" locale="en-GB" />
                 <TransactionStatusBadge status={transaction.status} />
               </div>
             </div>
-          </div>
-        </Card>
+          </CanonicalCard>
+        </CanonicalSection>
 
-        <Card padding="md" className="">
-          <DetailRow label="Date" value={formatWalletDateTime(transaction.createdAt)} />
-          <div className="border-t border-border">
-            <DetailRow label="Type" value={transaction.type} />
-          </div>
-          {transaction.withdrawMethodLabel && (
-            <div className="border-t border-border">
-              <DetailRow label="Payout Method" value={transaction.withdrawMethodLabel} />
-            </div>
-          )}
-          {transaction.feeAmount != null && (
-            <div className="border-t border-border">
-              <DetailRow label="Fee" value={`£${transaction.feeAmount.toFixed(2)}`} />
-            </div>
-          )}
-          {transaction.description && !transaction.description.includes("pi:") && (
-            <div className="border-t border-border">
-              <DetailRow label="Reference" value={transaction.description} />
-            </div>
-          )}
-          {pendingDays != null && transaction.status === "pending" && (
-            <div className="border-t border-border">
-              <DetailRow
-                label="Payout"
-                value={`Available after hold (${pendingDays} ${pendingDays === 1 ? "day" : "days"})`}
+        <CanonicalSection title="Details">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow title="Date" value={formatWalletDateTime(transaction.createdAt)} showChevron={false} />
+            <CanonicalMenuRow title="Type" value={transaction.type} showChevron={false} />
+            {transaction.withdrawMethodLabel ? (
+              <CanonicalMenuRow title="Payout method" value={transaction.withdrawMethodLabel} showChevron={false} />
+            ) : null}
+            {transaction.feeAmount != null ? (
+              <CanonicalMenuRow title="Fee" value={`£${transaction.feeAmount.toFixed(2)}`} showChevron={false} />
+            ) : null}
+            {transaction.description && !transaction.description.includes("pi:") ? (
+              <CanonicalMenuRow title="Reference" value={transaction.description} showChevron={false} />
+            ) : null}
+            {pendingDays != null && transaction.status === "pending" ? (
+              <CanonicalMenuRow
+                title="Payout"
+                value={`After hold (${pendingDays} ${pendingDays === 1 ? "day" : "days"})`}
+                showChevron={false}
               />
-            </div>
-          )}
-        </Card>
-      </div>
+            ) : null}
+          </CanonicalCard>
+        </CanonicalSection>
+      </AccountPageStack>
     </AccountCanonicalShell>
   );
 }

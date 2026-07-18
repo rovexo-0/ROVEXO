@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { shippingStatusLabel } from "@/lib/shipping";
 import type { ShippingRecord } from "@/lib/shipping/types";
 
@@ -22,7 +22,7 @@ export const ShippingCard = memo(function ShippingCard({
   if (!status && !resolvedCarrier) return null;
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-3">
+    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-2">
       <h2 className="text-base font-semibold text-text-primary">Shipping</h2>
       <dl className="grid gap-ds-2 text-sm">
         {status ? (
@@ -38,6 +38,6 @@ export const ShippingCard = memo(function ShippingCard({
           </div>
         ) : null}
       </dl>
-    </Card>
+    </CanonicalCard>
   );
 });

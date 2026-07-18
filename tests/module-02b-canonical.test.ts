@@ -75,12 +75,13 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     const withdraw = readSource("features/wallet/components/withdraw/WithdrawPage.tsx");
     const withdrawApi = readSource("app/api/wallet/withdraw/route.ts");
 
-    expect(hub).toContain('data-wallet-hub-version="v2.0-master"');
-    expect(hub).toContain('data-wallet-ui="compact-premium"');
+    expect(hub).toContain('data-wallet-hub-version="v3.0-standard"');
+    expect(hub).toContain("CanonicalMenuRow");
     expect(hub).toContain("Available");
+    expect(hub).toContain("Withdraw");
     expect(hub).toContain("WALLET_ROUTES.withdraw");
-    expect(hub).toContain("WALLET_ROUTES.bankAccount");
     expect(hub).toContain("PersonalWalletMenuSections");
+    expect(hub).not.toContain("wallet-v2__hero");
     expect(hub).not.toContain("Platform Fee");
     expect(withdraw).toContain('data-wallet-withdraw-version="v2.0-02b"');
     expect(withdraw).toContain("WALLET_ROUTES.bankAccount");

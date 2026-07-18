@@ -26,7 +26,7 @@ export function CheckoutSuccessView({
     >
       <PublishedCheckmark />
 
-      <h2 id="checkout-success-heading" className="mt-ds-6 text-xl font-semibold text-text-primary">
+      <h2 id="checkout-success-heading" className="mt-ds-4 text-[16px] font-semibold text-text-primary">
         Payment successful
       </h2>
 
@@ -37,7 +37,7 @@ export function CheckoutSuccessView({
         <p className="mt-ds-1 text-sm text-text-secondary">Tracking will update once the seller ships.</p>
       )}
 
-      <div className="mt-ds-8 flex w-full max-w-sm flex-col gap-ds-3">
+      <div className="mt-ds-6 flex w-full max-w-none flex-col gap-ds-3">
         <Link href={`/orders/${orderId}?placed=1`} className="block w-full">
           <Button variant="primary" fullWidth size="lg" className="min-h-ds-7 rounded-ds-lg text-base">
             View Order

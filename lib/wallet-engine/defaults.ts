@@ -19,11 +19,11 @@ export function createDefaultWalletEngineDocument(label = "ROVEXO Wallet Engine"
     primaryCountry: "United Kingdom",
     currency: "GBP",
     walletTypes: [
-      { id: "buyer", label: "Buyer Wallet", enabled: true },
-      { id: "seller", label: "Seller Wallet", enabled: true },
+      { id: "buyer", label: "Personal Wallet", enabled: true },
+      { id: "seller", label: "Personal Wallet (legacy)", enabled: false },
       { id: "business", label: "Business Wallet", enabled: true },
-      { id: "platform", label: "Platform Wallet", enabled: true },
-      { id: "administrator", label: "Administrator View", enabled: true },
+      { id: "platform", label: "Platform Wallet", enabled: false },
+      { id: "administrator", label: "Administrator View", enabled: false },
     ],
     balanceTypes: WALLET_ENGINE_BALANCE_TYPES.map((id) => ({
       id,

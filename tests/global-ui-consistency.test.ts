@@ -129,8 +129,6 @@ describe("discovery header standardization", () => {
     "app/l/[location]/page.tsx",
     "app/l/[location]/[...category]/page.tsx",
     "features/store/components/ProStorePage.tsx",
-    "features/auctions/components/AuctionsPage.tsx",
-    "features/auctions/components/AuctionsComingSoonPage.tsx",
   ];
 
   it("removes legacy Header from discovery routes", () => {
@@ -151,8 +149,11 @@ describe("discovery header standardization", () => {
 describe("canonical shell migrations", () => {
   const CANONICAL_SHELL_ROUTES = [
     "app/plans/page.tsx",
-    "app/business/directory/page.tsx",
     "app/wholesale/page.tsx",
+  ];
+
+  const ACCOUNT_CANONICAL_SHELL_ROUTES = [
+    "app/business/directory/page.tsx",
   ];
 
   const LEGAL_CANONICAL_ROUTES = [
@@ -163,6 +164,12 @@ describe("canonical shell migrations", () => {
   it("wraps secondary hubs in CanonicalPageShell", () => {
     for (const file of CANONICAL_SHELL_ROUTES) {
       expect(readSource(file)).toContain("CanonicalPageShell");
+    }
+  });
+
+  it("wraps Business Directory in AccountCanonicalShell", () => {
+    for (const file of ACCOUNT_CANONICAL_SHELL_ROUTES) {
+      expect(readSource(file)).toContain("AccountCanonicalShell");
     }
   });
 
@@ -179,8 +186,8 @@ describe("canonical shell migrations", () => {
   });
 
   it("wraps account-linked support in AccountCanonicalShell", () => {
-    expect(readSource("app/support/page.tsx")).toContain("AccountCanonicalShell");
-    expect(readSource("app/support/page.tsx")).toContain("CanonicalSection");
+    expect(readSource("features/support/components/SupportForm.tsx")).toContain("AccountCanonicalShell");
+    expect(readSource("features/support/components/SupportForm.tsx")).toContain("CanonicalSection");
   });
 
   it("uses canonical settings surfaces", () => {

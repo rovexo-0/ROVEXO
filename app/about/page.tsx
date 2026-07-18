@@ -12,7 +12,7 @@ export default function AboutUsPage() {
   return (
     <BetaAppShell showBottomNav={false}>
       <AccountCanonicalHeader centeredTitle="About Us" fallbackHref="/help" />
-      <main className="mx-auto w-full max-w-2xl px-3 py-4 text-[14px] leading-relaxed text-text-primary">
+      <main className="w-full max-w-none px-4 py-4 text-[14px] leading-relaxed text-text-primary">
         <p className="m-0 text-[13px] text-text-secondary">BUY . SELL . GROW.</p>
         <h1 className="mt-2 text-[16px] font-semibold tracking-tight">About ROVEXO</h1>
         <p className="mt-3 text-text-secondary">

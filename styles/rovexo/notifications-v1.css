@@ -15,7 +15,7 @@
   justify-content: space-between;
   gap: 12px;
   width: 100%;
-  max-width: 640px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 4px 20px 12px;
 }
@@ -47,7 +47,7 @@
 
 .notif-v1__list {
   width: 100%;
-  max-width: 640px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 0 8px calc(96px + env(safe-area-inset-bottom));
   list-style: none;

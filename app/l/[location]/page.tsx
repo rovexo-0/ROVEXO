@@ -42,7 +42,7 @@ export default async function LocalLandingPage({ params }: LocalPageProps) {
     <BetaAppShell bottomNavTab="search">
       <RovexoHeaderV2 />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <main className="mx-auto max-w-6xl px-ds-4 py-ds-6">
+      <main className="w-full max-w-none px-ds-4 py-ds-6">
         <h1 className="text-2xl font-bold">Marketplace in {location.name}</h1>
         <p className="mt-ds-2 text-sm text-text-secondary">
           Browse local listings and popular categories in {location.name}.

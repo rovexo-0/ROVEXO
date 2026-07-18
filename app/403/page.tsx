@@ -5,7 +5,7 @@ import { ForbiddenBackButton } from "@/components/errors/ForbiddenBackButton";
 
 export default function ForbiddenPage() {
   return (
-    <main className="mx-auto flex min-h-[70dvh] max-w-lg flex-col items-center justify-center px-ds-4 py-ds-8 text-center">
+    <main className="flex min-h-[70dvh] w-full max-w-none flex-col items-center justify-center px-ds-4 py-ds-8 text-center">
       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-text-muted">403</p>
       <h1 className="mt-ds-2 text-2xl font-bold text-text-primary">Access denied</h1>
       <p className="mt-ds-3 text-sm text-text-secondary">

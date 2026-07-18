@@ -15,13 +15,10 @@ const LEGACY_HEADER_PATTERNS = [
   /chat-v1__header/,
 ];
 
-const WRAPPER_FILES = [
-  "components/beta/BetaPageHeader.tsx",
-  "features/wallet/components/WalletHeader.tsx",
-];
+const WRAPPER_FILES = ["components/beta/BetaPageHeader.tsx"];
 
 const CANONICAL_HEADER_CONSUMERS = [
-  "features/messages/components/ChatPage.tsx",
+  "features/inbox/components/ConversationHub.tsx",
   "features/product-detail/ProductDetailPage.tsx",
 ];
 
@@ -51,7 +48,9 @@ describe("CanonicalPageHeader platform standard", () => {
   it("wires key internal surfaces to CanonicalPageHeader or AccountCanonicalShell", () => {
     for (const file of CANONICAL_HEADER_CONSUMERS) {
       const source = readSource(file);
-      expect(source).toContain(CANONICAL_HEADER_EXPORT);
+      const ok =
+        source.includes(CANONICAL_HEADER_EXPORT) || source.includes("AccountCanonicalShell");
+      expect(ok, `${file} must use CanonicalPageHeader or AccountCanonicalShell`).toBe(true);
     }
     expect(readSource("features/wallet/components/WalletHubV1.tsx")).toContain("AccountCanonicalShell");
     for (const file of [
@@ -79,7 +78,7 @@ describe("CanonicalPageHeader platform standard", () => {
     const migrated = [
       "features/wallet/components/WalletHubV1.tsx",
       "features/inbox/components/InboxPage.tsx",
-      "features/messages/components/ChatPage.tsx",
+      "features/inbox/components/ConversationHub.tsx",
     ];
 
     for (const file of migrated) {

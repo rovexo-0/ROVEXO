@@ -51,7 +51,7 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
       />
       <BetaPageHeader title={profile.fullName} backHref="/search" />
 
-      <HubPageMain className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 ">
+      <HubPageMain className="flex w-full max-w-none flex-col gap-ds-5 px-ds-4 py-ds-4">
         <Card padding="lg" className="">
           <h1 className="text-xl font-semibold text-text-primary">{profile.fullName}</h1>
           <p className="mt-ds-1 text-sm text-text-secondary">@{profile.username}</p>

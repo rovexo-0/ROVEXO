@@ -24,27 +24,23 @@ function MicIcon({ className }: { className?: string }) {
 
 function ActionButton({
   label,
-  available,
   onClick,
   children,
 }: {
   label: string;
-  available: boolean;
   onClick?: () => void;
   children: React.ReactNode;
 }) {
   return (
     <button
       type="button"
-      onClick={available ? onClick : undefined}
-      aria-label={available ? label : `${label} (coming soon)`}
-      aria-disabled={!available}
-      title={available ? label : `${label} — coming soon`}
+      onClick={onClick}
+      aria-label={label}
+      title={label}
       className={cn(
         "flex h-10 w-10 shrink-0 items-center justify-center rounded-ds-full text-text-muted hover:bg-secondary hover:text-text-primary",
         focusRing,
         transitionFast,
-        !available && "opacity-45 hover:bg-transparent hover:text-text-muted",
       )}
     >
       {children}
@@ -82,7 +78,7 @@ export function SearchInputActions({ onVoice, className }: SearchInputActionsPro
         onFilesSelected={(files) => void handleImageSearchFiles(files)}
       />
       {onVoice ? (
-        <ActionButton label="Voice search" available onClick={onVoice}>
+        <ActionButton label="Voice search" onClick={onVoice}>
           <MicIcon className="h-5 w-5" />
         </ActionButton>
       ) : null}

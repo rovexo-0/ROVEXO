@@ -1,9 +1,14 @@
-import { AccountCanonicalShell } from "@/features/account-canonical";
+import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
+import {
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { formatCurrency } from "@/lib/wallet/utils";
 import { fetchWalletData } from "@/lib/wallet/queries";
 import { fetchProfile } from "@/lib/profile/queries";
 import { redirect } from "next/navigation";
-import { CanonicalCard, CanonicalInfoBlock } from "@/src/components/canonical";
 
 export default async function WalletPendingPage() {
   const profile = await fetchProfile();
@@ -13,23 +18,29 @@ export default async function WalletPendingPage() {
 
   return (
     <AccountCanonicalShell
-      title="Pending Funds"
+      title="Pending"
       backHref="/wallet"
-      backLabel="Personal Wallet"
+      backLabel="Wallet"
       showHeaderTitle
     >
-      <CanonicalCard variant="list" className="px-ds-4 py-ds-4">
+      <AccountPageStack aria-label="Pending funds">
         <CanonicalInfoBlock variant="description">
-          Funds held during the UK marketplace protection period before they become available to withdraw.
+          Funds held during the protection period before withdrawal.
         </CanonicalInfoBlock>
-        <p className="mt-ds-3 text-sm text-text-secondary">Pending</p>
-        <p className="text-lg font-semibold text-text-primary">{formatCurrency(data.pendingBalance)}</p>
-        {data.pendingAvailableAt ? (
-          <p className="mt-ds-2 text-sm text-text-secondary">
-            Available from {new Date(data.pendingAvailableAt).toLocaleDateString("en-GB")}
-          </p>
-        ) : null}
-      </CanonicalCard>
+
+        <CanonicalSection title="Balance">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow title="Pending" value={formatCurrency(data.pendingBalance)} showChevron={false} />
+            {data.pendingAvailableAt ? (
+              <CanonicalMenuRow
+                title="Available from"
+                value={new Date(data.pendingAvailableAt).toLocaleDateString("en-GB")}
+                showChevron={false}
+              />
+            ) : null}
+          </CanonicalCard>
+        </CanonicalSection>
+      </AccountPageStack>
     </AccountCanonicalShell>
   );
 }

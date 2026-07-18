@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { CanonicalButton, CanonicalCard, CanonicalInfoBlock } from "@/src/components/canonical";
 import { Rating } from "@/components/ui/Rating";
 import type { Review } from "@/lib/reviews/types";
 
@@ -64,27 +63,27 @@ export function OrderReviewCard({ orderId, sellerName }: OrderReviewCardProps) {
 
   if (existingReview) {
     return (
-      <Card padding="lg" className="flex flex-col gap-ds-3">
+      <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-2">
         <h2 className="text-base font-semibold text-text-primary">Your review</h2>
         <Rating value={existingReview.rating} size="sm" />
-        {existingReview.comment && (
+        {existingReview.comment ? (
           <p className="text-sm text-text-secondary">{existingReview.comment}</p>
-        )}
-      </Card>
+        ) : null}
+      </CanonicalCard>
     );
   }
 
   if (!canReview) {
     if (!message) return null;
     return (
-      <Card padding="lg" className="">
+      <CanonicalCard variant="medium" className="w-full">
         <p className="text-sm text-text-secondary">{message}</p>
-      </Card>
+      </CanonicalCard>
     );
   }
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-4">
+    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-2">
       <h2 className="text-base font-semibold text-text-primary">Rate {sellerName}</h2>
 
       <div className="flex gap-ds-2">
@@ -112,16 +111,11 @@ export function OrderReviewCard({ orderId, sellerName }: OrderReviewCardProps) {
         className="min-h-[96px] w-full rx-input px-ds-3 py-ds-2 text-sm"
       />
 
-      {message && <p className="text-sm text-text-secondary">{message}</p>}
+      {message ? <CanonicalInfoBlock variant="description">{message}</CanonicalInfoBlock> : null}
 
-      <Button
-        variant="primary"
-        fullWidth
-        disabled={isSubmitting}
-        onClick={() => void submitReview()}
-      >
-        Submit Review
-      </Button>
-    </Card>
+      <CanonicalButton fullWidth disabled={isSubmitting} loading={isSubmitting} onClick={() => void submitReview()}>
+        Submit review
+      </CanonicalButton>
+    </CanonicalCard>
   );
 }

@@ -42,18 +42,20 @@ describe("Account + Cart canonical UI v1", () => {
     expect(row).toContain("ChevronRightLineIcon");
   });
 
-  it("locks Personal Wallet Compact Premium hub markers", () => {
+  it("locks Personal Wallet Master Menu hub markers", () => {
     const wallet = readSource("features/wallet/components/WalletHubV1.tsx");
     const page = readSource("features/wallet/components/WalletPage.tsx");
     const withdraw = readSource("app/wallet/withdraw/page.tsx");
 
-    expect(wallet).toContain('data-wallet-hub-version="v2.0-master"');
-    expect(wallet).toContain('data-wallet-ui="compact-premium"');
+    expect(wallet).toContain('data-wallet-hub-version="v3.0-standard"');
+    expect(wallet).toContain("CanonicalMenuRow");
     expect(wallet).toContain("PersonalWalletMenuSections");
     expect(wallet).toContain("Available");
     expect(wallet).toContain("Pending");
+    expect(wallet).toContain("Withdraw");
     expect(wallet).not.toContain("Total earnings");
     expect(wallet).not.toContain("Platform Fee");
+    expect(wallet).not.toContain("wallet-v2__hero");
     expect(wallet).not.toContain("wallet-v2__balance-card");
     expect(page).toContain("WalletHubV1");
     expect(withdraw).toContain("WithdrawPage");

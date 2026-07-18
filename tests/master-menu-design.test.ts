@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildBuyingMenuSections } from "@/lib/account-center/buying-menu";
+import { buildBuyingMenuSections, BUYING_HUB_INTRO } from "@/lib/account-center/buying-menu";
 import { buildBusinessMenuSections } from "@/lib/account-center/business-menu";
-import { buildSellingMenuSections } from "@/lib/account-center/selling-menu";
+import { buildSellingMenuSections, SELLING_HUB_INTRO } from "@/lib/account-center/selling-menu";
+import { buildMessagesMenuSections } from "@/lib/account-center/messages-menu";
 import {
   buildBusinessWalletMenuSections,
   buildPersonalWalletMenuSections,
@@ -39,94 +40,92 @@ describe("Master Menu Design — My Account", () => {
     ]);
     expect(titles.filter((t) => t.includes("Wallet"))).toHaveLength(1);
   });
+
+  it("routes Messages to Messages hub", () => {
+    const messages = buildAccountMenuSections(profile)
+      .flatMap((s) => s.items)
+      .find((i) => i.id === "messages");
+    expect(messages?.href).toBe("/messages");
+  });
 });
 
 describe("Master Menu Design — Buying", () => {
-  it("includes PO Buying destinations with One Feature = One Entry Point", () => {
+  it("locks PO Buying hub rows", () => {
+    expect(BUYING_HUB_INTRO).toBe("Manage everything you buy.");
     const titles = buildBuyingMenuSections().flatMap((s) => s.items.map((i) => i.title));
     expect(titles).toEqual([
       "Orders",
-      "Cart",
-      "Saved",
-      "Offers",
-      "Returns & Refunds",
+      "Tracking",
       "Reviews",
+      "Refunds",
+      "Disputes",
+      "Saved",
+      "Recently Viewed",
     ]);
-    expect(titles).not.toContain("Tracking");
-    expect(titles).not.toContain("Refunds");
   });
 });
 
 describe("Master Menu Design — Selling", () => {
-  it("includes PO Selling destinations without Import or AI", () => {
+  it("locks PO Selling hub rows", () => {
+    expect(SELLING_HUB_INTRO).toBe("Manage everything you sell.");
     const titles = buildSellingMenuSections().flatMap((s) => s.items.map((i) => i.title));
     expect(titles).toEqual([
       "Listings",
       "Orders",
-      "Wallet",
-      "Analytics",
-      "Promotions",
-      "Offers",
-      "Review Center",
-      "Returns & Refunds",
+      "Reviews",
+      "Shipping",
+      "Returns",
+      "Performance",
     ]);
-    expect(titles).not.toContain("Marketplace Import");
-    expect(titles).not.toContain("AI Assistant");
-    expect(titles).not.toContain("Payouts");
   });
 });
 
 describe("Master Menu Design — Business", () => {
-  it("includes PO Business destinations without Wallet/Payouts duplicate", () => {
+  it("locks PO Business hub rows", () => {
     const titles = buildBusinessMenuSections("demo-store").flatMap((s) =>
       s.items.map((i) => i.title),
     );
     expect(titles).toEqual([
-      "Store",
       "Orders",
-      "Wallet",
+      "Inventory",
       "Analytics",
-      "Promotions",
-      "Followers",
       "Reviews",
-      "Verification",
-      "Policies",
-      "Returns & Refunds",
+      "Business Wallet",
+      "VAT",
+      "Directory",
     ]);
-    expect(titles.filter((t) => t === "Payouts")).toHaveLength(0);
-  });
-
-  it("links Store to public storefront when slug is present", () => {
-    const store = buildBusinessMenuSections("acme-uk")
-      .flatMap((s) => s.items)
-      .find((i) => i.id === "store");
-    expect(store?.href).toBe("/store/acme-uk");
   });
 });
 
-describe("Wallet architecture — max 2 wallets", () => {
-  it("Personal Wallet exposes PO destinations", () => {
+describe("Master Menu Design — Messages", () => {
+  it("locks PO Messages hub rows", () => {
+    const titles = buildMessagesMenuSections().flatMap((s) => s.items.map((i) => i.title));
+    expect(titles).toEqual([
+      "Conversations",
+      "Offers",
+      "Order Updates",
+      "Payment Updates",
+      "Tracking Updates",
+    ]);
+  });
+});
+
+describe("Wallet architecture — PO Absolute Final", () => {
+  it("Personal Wallet destinations", () => {
     const titles = buildPersonalWalletMenuSections().flatMap((s) => s.items.map((i) => i.title));
     expect(titles).toEqual([
-      "Buying",
-      "Selling",
-      "Personal Bank Account",
       "Transactions",
-      "Withdraw",
-      "Pending Funds",
-      "Payout History",
+      "Personal Bank Account",
+      "Business Bank Account",
     ]);
   });
 
-  it("Business Wallet exposes PO destinations", () => {
+  it("Business Wallet destinations", () => {
     const titles = buildBusinessWalletMenuSections().flatMap((s) => s.items.map((i) => i.title));
     expect(titles).toEqual([
-      "Business Orders",
-      "Business Transactions",
-      "Business Promotions",
-      "Business Payouts",
+      "Transactions",
+      "Personal Bank Account",
       "Business Bank Account",
-      "VAT Documents",
     ]);
   });
 });

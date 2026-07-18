@@ -1,173 +1,95 @@
 "use client";
 
-import Link from "next/link";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { CanonicalModuleBody } from "@/components/ui/canonical";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { MobileHubNavigator } from "@/features/mobile-ui";
-import { ResponsiveShell } from "@/features/mobile-ui";
-import { MobileHubSections } from "@/features/mobile-ui";
 import { TrustVerificationActions } from "@/features/trust/components/TrustVerificationActions";
-import { TrustScoreMeter } from "@/features/trust/components/TrustScoreMeter";
-import { TrustTierBadge } from "@/features/trust/components/TrustTierBadge";
 import type { TrustDashboardData } from "@/lib/trust/types";
-import { TRUST_CENTER_SECTIONS, VERIFICATION_TYPES } from "@/lib/trust/types";
-import { getTrustHubSections } from "@/lib/mobile-ui/hubs";
-import { HubSectionIcon } from "@/components/icons/HubSectionIcon";
-import { cn } from "@/lib/cn";
+import { TRUST_CENTER_SECTIONS } from "@/lib/trust/types";
+import {
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 
 type TrustCenterPageProps = {
   data: TrustDashboardData;
 };
 
+/**
+ * Trust Centre — same Master Menu Design as My Account.
+ * No score meter heroes. No giant cards. Compact rows only.
+ */
 export function TrustCenterPage({ data }: TrustCenterPageProps) {
   return (
     <AccountCanonicalShell
-      title="Trust Center"
+      title="Trust Centre"
       backHref="/account"
       backLabel="My Account"
       showHeaderTitle
-      intro="Purchase protection, seller protection, verification, disputes, and community safety."
+      intro="Protection, verification, and safety."
     >
-      <CanonicalModuleBody flush>
-        <section id="score" className="grid gap-ds-3">
-          <Card padding="lg" variant="canonical">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold">Trust Score</h2>
-              <TrustTierBadge tier={data.score.tier} />
-            </div>
-            <TrustScoreMeter
-              score={data.score.score}
-              tier={data.score.tier}
-              progressPercent={data.progress.percent}
-              nextTier={data.progress.next}
-              className="mt-ds-4"
+      <div className="ac-canonical">
+        <CanonicalSection title="Score">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow
+              title="Trust Score"
+              description={data.score.tier}
+              value={String(data.score.score)}
+              showChevron={false}
             />
-            <div className="mt-ds-5 grid grid-cols-2 gap-ds-3 lg:grid-cols-3">
-              <ScorePill label="Buyer" value={data.score.buyerScore} />
-              <ScorePill label="Seller" value={data.score.sellerScore} />
-              <ScorePill
-                label="Business"
-                value={data.score.businessScore}
-                className="col-span-2 lg:col-span-1"
-              />
-            </div>
-            {data.badges.length > 0 && (
-              <div className="mt-ds-5 flex flex-wrap gap-ds-2">
-                {data.badges.map((badge) => (
-                  <Badge key={badge}>{badge}</Badge>
-                ))}
-              </div>
-            )}
-          </Card>
+            <CanonicalMenuRow title="Buyer" value={String(data.score.buyerScore)} showChevron={false} />
+            <CanonicalMenuRow title="Seller" value={String(data.score.sellerScore)} showChevron={false} />
+            <CanonicalMenuRow
+              title="Business"
+              value={String(data.score.businessScore)}
+              showChevron={false}
+            />
+          </CanonicalCard>
+        </CanonicalSection>
 
-          <Card padding="lg" variant="canonical" className="mhub-desktop">
-            <h2 className="text-lg font-semibold">How to improve</h2>
-            <ul className="mt-ds-4 space-y-ds-2 text-sm text-text-secondary">
-              {data.recommendations.map((item) => (
-                <li key={item}>• {item}</li>
+        {data.recommendations.length > 0 ? (
+          <CanonicalSection title="Improve">
+            <CanonicalCard variant="list">
+              {data.recommendations.slice(0, 4).map((item) => (
+                <CanonicalMenuRow key={item} title={item} showChevron={false} />
               ))}
-            </ul>
-          </Card>
-        </section>
+            </CanonicalCard>
+          </CanonicalSection>
+        ) : null}
 
-        <ResponsiveShell
-          mobile={
-            <>
-              <MobileHubSections sections={getTrustHubSections()} />
-              <MobileHubNavigator defaultHub="support" sectionTitle="All hubs" />
-            </>
-          }
-          desktop={
-            <section>
-              <h2 className="text-lg font-semibold">Trust Center</h2>
-              <div className="mt-ds-4 grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
-                {TRUST_CENTER_SECTIONS.map((section) => (
-                  <Link key={section.id} href={section.href}>
-                    <Card padding="md" variant="canonical" interactive className="h-full">
-                      <HubSectionIcon trustSectionId={section.id} />
-                      <p className="mt-ds-2 font-semibold text-text-primary">{section.title}</p>
-                      <p className="mt-ds-1 text-sm text-text-secondary">{section.description}</p>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          }
-        />
+        <CanonicalSection title="Trust Centre">
+          <CanonicalCard variant="list">
+            {TRUST_CENTER_SECTIONS.filter((section) => section.id !== "score").map((section) => (
+              <CanonicalMenuRow
+                key={section.id}
+                href={section.href}
+                title={section.title}
+                description={section.description}
+              />
+            ))}
+          </CanonicalCard>
+        </CanonicalSection>
 
-        <section id="verification" className="mhub-desktop">
-          <h2 className="text-lg font-semibold">Verification Status</h2>
-          <div className="mt-ds-4 grid gap-ds-3 md:grid-cols-2 lg:grid-cols-3">
-            {VERIFICATION_TYPES.map((item) => {
-              const record = data.verifications.find((entry) => entry.verificationType === item.type);
-              return (
-                <Card key={item.type} padding="md" variant="canonical">
-                  <div className="flex items-start justify-between gap-ds-3">
-                    <div>
-                      <p className="font-semibold text-text-primary">{item.label}</p>
-                      <p className="mt-ds-1 text-sm text-text-secondary">{item.description}</p>
-                    </div>
-                    <Badge>{record?.status ?? "not_started"}</Badge>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
-          <Card padding="lg" variant="canonical" className="mt-ds-4">
-            <h3 className="font-semibold text-text-primary">Request verification</h3>
-            <p className="mt-ds-1 text-sm text-text-secondary">
-              Submit verification requests for moderator review.
-            </p>
-            <TrustVerificationActions verifications={data.verifications} />
-          </Card>
-        </section>
+        <CanonicalSection title="Verification">
+          <TrustVerificationActions verifications={data.verifications} />
+        </CanonicalSection>
 
-        <section id="history" className="mhub-desktop">
-          <h2 className="text-lg font-semibold">Recent score changes</h2>
-          <Card padding="lg" variant="canonical" className="mt-ds-4">
+        <CanonicalSection title="Recent">
+          <CanonicalCard variant="list">
             {data.recentEvents.length ? (
-              <ul className="space-y-ds-3 text-sm text-text-secondary">
-                {data.recentEvents.map((event) => (
-                  <li
-                    key={event.id}
-                    className="flex items-start justify-between gap-ds-3 border-b border-border pb-ds-2 last:border-0 last:pb-0"
-                  >
-                    <span>{event.reason ?? event.eventType.replace(/_/g, " ")}</span>
-                    <span
-                      className={
-                        event.delta >= 0 ? "font-semibold text-success" : "font-semibold text-danger"
-                      }
-                    >
-                      {event.delta >= 0 ? `+${event.delta}` : event.delta}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+              data.recentEvents.slice(0, 8).map((event) => (
+                <CanonicalMenuRow
+                  key={event.id}
+                  title={event.reason ?? event.eventType.replace(/_/g, " ")}
+                  value={event.delta >= 0 ? `+${event.delta}` : String(event.delta)}
+                  showChevron={false}
+                />
+              ))
             ) : (
-              <p className="text-sm text-text-secondary">No trust events yet.</p>
+              <CanonicalMenuRow title="No trust events yet" showChevron={false} />
             )}
-          </Card>
-        </section>
-      </CanonicalModuleBody>
+          </CanonicalCard>
+        </CanonicalSection>
+      </div>
     </AccountCanonicalShell>
-  );
-}
-
-function ScorePill({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: number;
-  className?: string;
-}) {
-  return (
-    <div className={cn("rounded-ds-lg bg-surface-muted px-ds-3 py-ds-2", className)}>
-      <p className="text-xs text-text-muted">{label}</p>
-      <p className="text-lg font-semibold text-text-primary">{value}</p>
-    </div>
   );
 }

@@ -1,12 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { HubPageMain } from "@/components/layout/HubPageMain";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { Button } from "@/components/ui/Button";
 import { MigrationStepIndicator } from "@/features/seller/migration/components/MigrationStepIndicator";
 import { useMarketplaceConnectors } from "@/features/seller/marketplace/hooks/use-marketplace-connectors";
@@ -182,22 +180,15 @@ export function MigrationCenterPage() {
   const primaryLabel = "Import";
 
   return (
-    <BetaAppShell showBottomNav={false} bottomNavTab="account">
-      <CanonicalPageHeader title="Bring Your Item" backHref="/account" backLabel="My Account" />
-      <HubPageMain withBottomNav={false} className="account-center-shell mx-auto w-full max-w-[480px] bg-background px-ds-4 py-ds-5">
-        <p className="text-sm text-text-secondary">Import listings in a few taps</p>
-
-        <section className="byi-hero mt-ds-4" aria-labelledby="byi-hero-title">
-          <p className="byi-hero__eyebrow">Marketplace import</p>
-          <h2 id="byi-hero-title" className="byi-hero__title">
-            Move your listings to ROVEXO
-          </h2>
-          <p className="byi-hero__subtitle">
-            Choose where your items live, connect once, and import with batch support, duplicate detection,
-            and resume.
-          </p>
-        </section>
-
+    <AccountCanonicalShell
+      title="Bring Your Item"
+      backHref="/account"
+      backLabel="My Account"
+      showHeaderTitle
+      showBottomNav={false}
+      intro="Import listings."
+    >
+      <div className="ac-canonical flex w-full flex-col gap-ds-4 pb-ds-5">
         <MigrationStepIndicator currentStep={step} />
 
         {error ? (
@@ -207,7 +198,7 @@ export function MigrationCenterPage() {
           </div>
         ) : null}
 
-        <section className="byi-panel" aria-live="polite">
+        <section className="byi-panel w-full" aria-live="polite">
           {step === 1 ? (
             <MigrationPlatformStep
               selected={platform}
@@ -275,7 +266,7 @@ export function MigrationCenterPage() {
             Back to dashboard
           </Link>
         ) : null}
-      </HubPageMain>
-    </BetaAppShell>
+      </div>
+    </AccountCanonicalShell>
   );
 }

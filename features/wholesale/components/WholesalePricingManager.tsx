@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import type { WholesalePricingTier } from "@/lib/wholesale/types";
 
 export function WholesalePricingManager() {
@@ -46,7 +46,7 @@ export function WholesalePricingManager() {
   };
 
   return (
-    <Card padding="lg" className="">
+    <CanonicalCard variant="medium" className="w-full">
       <h2 className="text-lg font-semibold">Bulk pricing tiers</h2>
       <div className="mt-ds-4 grid gap-ds-3 sm:grid-cols-3">
         <input
@@ -83,6 +83,6 @@ export function WholesalePricingManager() {
         ))}
         {!tiers.length ? <li className="text-text-secondary">No pricing tiers yet.</li> : null}
       </ul>
-    </Card>
+    </CanonicalCard>
   );
 }

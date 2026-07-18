@@ -26,7 +26,7 @@ export function DiscoveryPageShell({
       <RovexoHeaderV2 />
       <HubPageMain
         className={cn(
-          "mx-auto w-full max-w-7xl px-ds-4 py-ds-5 pt-[calc(7.5rem+env(safe-area-inset-top))]",
+          "w-full max-w-none px-[16px] py-ds-5 pt-[calc(7.5rem+env(safe-area-inset-top))]",
           mainClassName,
         )}
       >

@@ -33,7 +33,7 @@ export function TransactionHubPaymentSuccess({
       ariaLabel="Payment successful"
       lockScroll
     >
-      <div className="flex w-full max-w-sm flex-col items-center gap-3 p-4 text-center">
+      <div className="flex w-full flex-col items-center gap-3 p-4 text-center">
         <span
           className="grid h-12 w-12 place-items-center rounded-ds-full bg-success/15 text-success"
           aria-hidden

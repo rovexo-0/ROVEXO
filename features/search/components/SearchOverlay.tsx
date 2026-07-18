@@ -200,7 +200,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
           ref={panelRef}
           onKeyDown={handleKeyDown}
           className={cn(
-            "rx-glass rx-depth-3 relative mx-auto flex h-full min-h-0 w-full max-w-2xl flex-1 flex-col overflow-hidden will-change-transform",
+            "relative flex h-full min-h-0 w-full max-w-none flex-1 flex-col overflow-hidden will-change-transform",
             transitionFast,
             visible ? "translate-y-0" : "translate-y-2",
           )}

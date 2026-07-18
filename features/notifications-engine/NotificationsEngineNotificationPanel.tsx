@@ -10,7 +10,7 @@ export function NotificationsEngineNotificationPanel({ context }: NotificationsE
   const { summary } = context;
 
   return (
-    <section className="ne-panel mx-auto mb-ds-3 max-w-2xl px-ds-4">
+    <section className="ne-panel mb-ds-3 w-full max-w-none px-ds-4">
       <div className="ne-panel__head">
         <div>
           <p className="ne-hub__eyebrow">Notifications Engine</p>

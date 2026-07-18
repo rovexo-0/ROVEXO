@@ -1324,24 +1324,20 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 >
                   Share listing
                 </button>
-                <button
-                  type="button"
-                  className="conv-hub__attach-item"
-                  disabled={!view.tracking?.trackingNumber || !view.tracking?.carrierUrl}
-                  onClick={() => {
-                    if (!view.tracking?.trackingNumber || !view.tracking.carrierUrl) {
-                      pushToast({ title: "Tracking is not available yet.", variant: "info" });
-                      setAttachSheetOpen(false);
-                      return;
-                    }
-                    void sharePayload(
-                      `Tracking ${view.tracking.trackingNumber}`,
-                      view.tracking.carrierUrl,
-                    );
-                  }}
-                >
-                  Share tracking
-                </button>
+                {view.tracking?.trackingNumber && view.tracking?.carrierUrl ? (
+                  <button
+                    type="button"
+                    className="conv-hub__attach-item"
+                    onClick={() => {
+                      void sharePayload(
+                        `Tracking ${view.tracking!.trackingNumber}`,
+                        view.tracking!.carrierUrl!,
+                      );
+                    }}
+                  >
+                    Share tracking
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   className="conv-hub__attach-item"

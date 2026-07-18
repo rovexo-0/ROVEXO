@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { IconButton } from "@/components/ui/IconButton";
-import { Card } from "@/components/ui/Card";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { ANALYTICS_DATE_RANGES, type AnalyticsDateRange } from "@/lib/analytics/types";
+import { CanonicalCard } from "@/src/components/canonical";
 
 type AnalyticsRangeActionProps = {
   activeRange: AnalyticsDateRange;
@@ -49,7 +49,7 @@ export function AnalyticsRangeAction({ activeRange, onRangeChange }: AnalyticsRa
         ariaLabel="Date range filter"
         scrollPanel={false}
       >
-        <Card padding="md" className="mx-auto mt-ds-3 max-w-2xl shadow-ds-floating">
+        <CanonicalCard variant="medium" className="mx-auto mt-ds-3 w-full p-ds-4 shadow-ds-floating">
           <h2 className="text-base font-semibold text-text-primary">Date Range</h2>
           <div className="mt-ds-4 flex flex-wrap gap-ds-2">
             {ANALYTICS_DATE_RANGES.map((range) => (
@@ -64,7 +64,7 @@ export function AnalyticsRangeAction({ activeRange, onRangeChange }: AnalyticsRa
               />
             ))}
           </div>
-        </Card>
+        </CanonicalCard>
       </ModalContainer>
     </>
   );

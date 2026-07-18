@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import {
+  CanonicalButton,
+  CanonicalCard,
+  CanonicalInfoBlock,
+} from "@/src/components/canonical";
 import type { Order } from "@/lib/orders/types";
 
 type SellerFulfillmentCardProps = {
@@ -48,40 +51,31 @@ export function SellerFulfillmentCard({ order, onUpdated }: SellerFulfillmentCar
   }
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-3">
-      <h2 className="text-base font-semibold text-text-primary">Seller fulfillment</h2>
-
-      {canMarkDelivered && (
-        <Button
-          variant="primary"
+    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-2">
+      {canMarkDelivered ? (
+        <CanonicalButton
           fullWidth
-          size="lg"
-          disabled={isSubmitting}
+          loading={isSubmitting}
           onClick={() => void runAction("mark_delivered")}
         >
-          Mark as Delivered
-        </Button>
-      )}
-      {!canMarkDelivered && order.status === "delivered" ? (
-        <p
-          className="flex min-h-12 items-center justify-center rounded-ds-lg bg-success/10 text-sm font-semibold text-success"
-          aria-live="polite"
-        >
-          Delivered
-        </p>
+          Mark delivered
+        </CanonicalButton>
       ) : null}
-
-      {canRefund && (
-        <Button
+      {!canMarkDelivered && order.status === "delivered" ? (
+        <CanonicalInfoBlock variant="success" title="Delivered">
+          <span className="sr-only">Order marked delivered</span>
+        </CanonicalInfoBlock>
+      ) : null}
+      {canRefund ? (
+        <CanonicalButton
           variant="outline"
           fullWidth
-          size="lg"
-          disabled={isSubmitting}
+          loading={isSubmitting}
           onClick={() => void runAction("refund")}
         >
-          Issue Refund
-        </Button>
-      )}
-    </Card>
+          Issue refund
+        </CanonicalButton>
+      ) : null}
+    </CanonicalCard>
   );
 }

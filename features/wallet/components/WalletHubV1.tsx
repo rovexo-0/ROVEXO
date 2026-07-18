@@ -1,17 +1,18 @@
 "use client";
 
-import Link from "next/link";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import {
   BusinessWalletMenuSections,
   PersonalWalletMenuSections,
 } from "@/features/wallet/components/WalletMenuSections";
-import { cn } from "@/lib/cn";
+import {
+  CanonicalCard,
+  CanonicalMenuRow,
+} from "@/src/components/canonical";
 import { resolveManualWithdrawableBalance } from "@/lib/transaction-hub/seller-wallet";
 import { WALLET_CANONICAL_VERSION, WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { formatCurrency } from "@/lib/wallet/utils";
 import type { WalletData } from "@/lib/wallet/types";
-import "@/styles/rovexo/wallet-hub-v1.css";
 
 type WalletHubV1Props = {
   data: WalletData;
@@ -20,6 +21,10 @@ type WalletHubV1Props = {
   variant?: "personal" | "business";
 };
 
+/**
+ * Wallet — My Account Master Menu only.
+ * Available · Pending · Withdraw · Transactions · Bank accounts.
+ */
 export function WalletHubV1({
   data,
   backHref = "/account",
@@ -28,7 +33,7 @@ export function WalletHubV1({
 }: WalletHubV1Props) {
   const withdrawable = resolveManualWithdrawableBalance(data);
   const isBusiness = variant === "business";
-  const title = isBusiness ? "Business Wallet" : "Personal Wallet";
+  const title = isBusiness ? "Business Wallet" : "Wallet";
 
   return (
     <AccountCanonicalShell
@@ -36,55 +41,33 @@ export function WalletHubV1({
       backHref={isBusiness ? "/business/dashboard" : backHref}
       backLabel={isBusiness ? "Business" : "My Account"}
       showHeaderTitle
+      intro={connectMessage}
     >
       <div
-        className="wallet-v2"
-        data-wallet-hub-version="v2.0-master"
+        className="ac-canonical"
+        data-wallet-hub-version="v3.0-standard"
         data-wallet-canonical={WALLET_CANONICAL_VERSION}
         data-wallet-variant={variant}
-        data-wallet-ui="compact-premium"
       >
-        {connectMessage ? <p className="wallet-v2__notice">{connectMessage}</p> : null}
-
-        <section className="wallet-v2__hero wallet-v2__hero--compact" aria-labelledby="wallet-available-label">
-          <div className="wallet-v2__hero-top">
-            <p id="wallet-available-label" className="wallet-v2__hero-label">
-              Available
-            </p>
-            <span className="wallet-v2__status-pill" aria-label="Wallet status Available">
-              <span className="wallet-v2__status-dot" aria-hidden />
-              Available
-            </span>
-          </div>
-          <p className="wallet-v2__hero-balance">{formatCurrency(withdrawable)}</p>
-          {data.pendingBalance > 0 ? (
-            <p className="wallet-v2__hero-pending">
-              Pending {formatCurrency(data.pendingBalance)}
-              {data.pendingAvailableAt
-                ? ` · available ${new Date(data.pendingAvailableAt).toLocaleDateString("en-GB")}`
-                : null}
-            </p>
-          ) : null}
-          <div className="wallet-v2__hero-actions">
-            <Link
-              href={WALLET_ROUTES.withdraw}
-              className={cn(
-                "wallet-v2__hero-btn",
-                "wallet-v2__hero-btn--primary",
-                withdrawable <= 0 && "is-disabled",
-              )}
-              aria-disabled={withdrawable <= 0}
-              onClick={(event) => {
-                if (withdrawable <= 0) event.preventDefault();
-              }}
-            >
-              Withdraw
-            </Link>
-            <Link href={WALLET_ROUTES.bankAccount} className="wallet-v2__hero-btn wallet-v2__hero-btn--secondary">
-              Bank
-            </Link>
-          </div>
-        </section>
+        <div className="cds-section">
+          <CanonicalCard variant="list">
+            <CanonicalMenuRow
+              title="Available"
+              value={formatCurrency(withdrawable)}
+              showChevron={false}
+            />
+            <CanonicalMenuRow
+              title="Pending"
+              value={formatCurrency(data.pendingBalance)}
+              href="/wallet/pending"
+            />
+            <CanonicalMenuRow
+              title="Withdraw"
+              href={withdrawable > 0 ? WALLET_ROUTES.withdraw : undefined}
+              disabled={withdrawable <= 0}
+            />
+          </CanonicalCard>
+        </div>
 
         {isBusiness ? <BusinessWalletMenuSections /> : <PersonalWalletMenuSections />}
       </div>

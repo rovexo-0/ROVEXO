@@ -47,7 +47,6 @@ export { Textarea, type TextareaProps } from "@/components/ui/Textarea";
 export { Tooltip, type TooltipProps } from "@/components/ui/Tooltip";
 export { PremiumIcon } from "@/components/icons/PremiumIcon";
 export { ToastProvider, useToast, type ToastVariant } from "@/components/ui/Toast";
-export { AuctionCard } from "@/components/ui/AuctionCard";
 export { DashboardCard } from "@/components/ui/DashboardCard";
 export { StatCard } from "@/components/ui/StatCard";
 export { CategoryCard } from "@/components/ui/CategoryCard";

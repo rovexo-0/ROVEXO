@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
 import { IconButton } from "@/components/ui/IconButton";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { ANALYTICS_DATE_RANGES, type AnalyticsDateRange } from "@/lib/analytics/types";
@@ -52,9 +52,9 @@ export function AnalyticsHeader({ backHref, activeRange, onRangeChange }: Analyt
         ariaLabel="Date range filter"
         scrollPanel={false}
       >
-        <Card padding="md" className="mx-auto mt-ds-3 max-w-2xl shadow-ds-floating">
-          <h2 className="text-base font-semibold text-text-primary">Date Range</h2>
-          <div className="mt-ds-4 flex flex-wrap gap-ds-2">
+        <CanonicalCard variant="small" className="mt-ds-3 w-full max-w-none shadow-ds-floating">
+          <h2 className="text-base font-semibold text-text-primary">Date range</h2>
+          <div className="mt-ds-2 flex flex-wrap gap-ds-2">
             {ANALYTICS_DATE_RANGES.map((range) => (
               <CategoryChip
                 key={range.id}
@@ -67,7 +67,7 @@ export function AnalyticsHeader({ backHref, activeRange, onRangeChange }: Analyt
               />
             ))}
           </div>
-        </Card>
+        </CanonicalCard>
       </ModalContainer>
     </>
   );

@@ -22,7 +22,7 @@ export function ProgrammaticPageView({ page, products, total }: ProgrammaticPage
   ];
 
   return (
-    <main className="mx-auto max-w-6xl px-ds-4 py-ds-6">
+    <main className="w-full max-w-none px-ds-4 py-ds-6">
       <nav className="text-sm text-text-muted">
         <Link href="/" className="text-primary">
           Home
@@ -34,7 +34,7 @@ export function ProgrammaticPageView({ page, products, total }: ProgrammaticPage
       </nav>
 
       <h1 className="mt-ds-4 text-2xl font-bold capitalize">{page.title}</h1>
-      <p className="mt-ds-2 max-w-3xl text-sm text-text-secondary">{page.description}</p>
+      <p className="mt-ds-2 text-sm text-text-secondary">{page.description}</p>
       <p className="mt-ds-2 text-xs text-text-muted">{total} listings</p>
 
       {products.length ? (

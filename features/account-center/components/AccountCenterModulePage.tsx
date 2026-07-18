@@ -1,21 +1,14 @@
 "use client";
 
-import { AccountCenterLogoutButton } from "@/features/account-center/components/AccountCenterLogoutButton";
-import { AccountCenterDeleteButton } from "@/features/account-center/components/AccountCenterDeleteButton";
-import { AccountModuleTileGrid } from "@/features/account-center/components/AccountModuleTileGrid";
 import { BuyingMenuSections } from "@/features/account-center/components/BuyingMenuSections";
 import { SellingMenuSections } from "@/features/account-center/components/SellingMenuSections";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import {
   getModuleMeta,
-  getModuleTiles,
   type AccountCenterModuleId,
 } from "@/lib/account-center/modules";
-import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
-import { resolveHrefBadge } from "@/lib/notifications/badge-counts";
-import { resolveMobileBadge } from "@/features/mobile-ui/hooks/use-mobile-badges";
-import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
-import { cn } from "@/lib/cn";
+import { SELLING_HUB_INTRO } from "@/lib/account-center/selling-menu";
+import { BUYING_HUB_INTRO } from "@/lib/account-center/buying-menu";
 
 type AccountCenterModulePageProps = {
   moduleId: AccountCenterModuleId;
@@ -23,16 +16,11 @@ type AccountCenterModulePageProps = {
   showLogout?: boolean;
 };
 
-export function AccountCenterModulePage({
-  moduleId,
-  showLogout = false,
-}: AccountCenterModulePageProps) {
+/**
+ * Account hub modules — Master Menu only (tile grids deleted).
+ */
+export function AccountCenterModulePage({ moduleId }: AccountCenterModulePageProps) {
   const meta = getModuleMeta(moduleId);
-  const tiles = getModuleTiles(moduleId);
-  const { badgeCounts, mobileBadges } = useRealtimeNotifications();
-
-  const resolveBadge = (href: string, key?: MobileBadgeKey) =>
-    badgeCounts ? resolveHrefBadge(href, badgeCounts) : resolveMobileBadge(key, mobileBadges);
 
   if (moduleId === "buying") {
     return (
@@ -41,6 +29,7 @@ export function AccountCenterModulePage({
         backHref={meta.backHref}
         backLabel="My Account"
         showHeaderTitle
+        intro={BUYING_HUB_INTRO}
       >
         <BuyingMenuSections />
       </AccountCanonicalShell>
@@ -55,6 +44,7 @@ export function AccountCenterModulePage({
         backLabel="My Account"
         bottomNavTab="sell"
         showHeaderTitle
+        intro={SELLING_HUB_INTRO}
       >
         <SellingMenuSections />
       </AccountCanonicalShell>
@@ -68,19 +58,7 @@ export function AccountCenterModulePage({
       bottomNavTab="account"
       showHeaderTitle
     >
-      <div
-        className={cn("account-center account-center--module px-ds-4 pb-ds-6")}
-        data-account-module-dashboard={moduleId}
-      >
-        <AccountModuleTileGrid tiles={tiles} resolveBadge={resolveBadge} />
-
-        {showLogout ? (
-          <>
-            <AccountCenterLogoutButton />
-            <AccountCenterDeleteButton />
-          </>
-        ) : null}
-      </div>
+      <p className="cds-section__intro">Open this hub from My Account.</p>
     </AccountCanonicalShell>
   );
 }

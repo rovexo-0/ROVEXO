@@ -1,6 +1,6 @@
 /**
- * Personal Wallet + Business Wallet — only two wallets allowed (PO Final Authorization).
- * One Feature = One Entry Point.
+ * Wallet — Absolute Final PO lock.
+ * Available · Pending · Withdraw · Transactions · Personal Bank · Business Bank.
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
@@ -18,63 +18,61 @@ export type WalletMenuSection = {
   items: WalletMenuItem[];
 };
 
-/** Personal Wallet — /wallet */
+/** Destinations below balance rows (Available / Pending / Withdraw live on hub). */
 export function buildPersonalWalletMenuSections(): WalletMenuSection[] {
   return [
     {
-      id: "personal",
+      id: "wallet",
       title: "",
       items: [
-        { id: "buying", title: "Buying", href: "/account/buying", icon: "orders" },
-        { id: "selling", title: "Selling", href: "/seller", icon: "listings" },
-        {
-          id: "bank",
-          title: "Personal Bank Account",
-          href: WALLET_ROUTES.bankAccount,
-          icon: "payment",
-        },
         {
           id: "transactions",
           title: "Transactions",
           href: WALLET_ROUTES.transactions,
           icon: "wallet",
         },
-        { id: "withdraw", title: "Withdraw", href: WALLET_ROUTES.withdraw, icon: "wallet" },
-        { id: "pending", title: "Pending Funds", href: "/wallet/pending", icon: "wallet" },
-        { id: "payouts", title: "Payout History", href: WALLET_ROUTES.payouts, icon: "wallet" },
+        {
+          id: "personal-bank",
+          title: "Personal Bank Account",
+          href: WALLET_ROUTES.bankAccount,
+          icon: "payment",
+        },
+        {
+          id: "business-bank",
+          title: "Business Bank Account",
+          href: `${WALLET_ROUTES.bankAccount}?scope=business`,
+          icon: "payment",
+        },
       ],
     },
   ];
 }
 
-/** Business Wallet — /business/wallet (never a third wallet type). */
+/** Business Wallet — same money destinations, business-scoped. */
 export function buildBusinessWalletMenuSections(): WalletMenuSection[] {
   return [
     {
-      id: "business",
+      id: "business-wallet",
       title: "",
       items: [
-        { id: "orders", title: "Business Orders", href: "/business/orders", icon: "orders" },
         {
           id: "transactions",
-          title: "Business Transactions",
+          title: "Transactions",
           href: "/wallet/transactions?scope=business",
           icon: "wallet",
         },
         {
-          id: "promotions",
-          title: "Business Promotions",
-          href: "/business/promotions",
-          icon: "promotions",
-        },
-        { id: "payouts", title: "Business Payouts", href: "/wallet/payouts", icon: "wallet" },
-        {
-          id: "bank",
-          title: "Business Bank Account",
+          id: "personal-bank",
+          title: "Personal Bank Account",
           href: WALLET_ROUTES.bankAccount,
           icon: "payment",
         },
-        { id: "vat", title: "VAT Documents", href: "/seller/tax", icon: "help" },
+        {
+          id: "business-bank",
+          title: "Business Bank Account",
+          href: `${WALLET_ROUTES.bankAccount}?scope=business`,
+          icon: "payment",
+        },
       ],
     },
   ];

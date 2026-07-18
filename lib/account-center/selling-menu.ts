@@ -1,5 +1,6 @@
 /**
- * Selling hub — Master Menu Design (PO Final Authorization).
+ * Selling hub — Vinted Philosophy Freeze (PO Full Platform UI/UX Rebuild).
+ * Few rows. High density. One Master Menu Design System.
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
 import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
@@ -19,13 +20,20 @@ export type SellingMenuSection = {
   items: SellingMenuItem[];
 };
 
+export const SELLING_HUB_INTRO = "Manage everything you sell.";
+
 export function buildSellingMenuSections(): SellingMenuSection[] {
   return [
     {
       id: "selling",
       title: "",
       items: [
-        { id: "listings", title: "Listings", href: "/seller/listings", icon: "listings" },
+        {
+          id: "listings",
+          title: "Listings",
+          href: "/seller/listings",
+          icon: "listings",
+        },
         {
           id: "orders",
           title: "Orders",
@@ -34,22 +42,29 @@ export function buildSellingMenuSections(): SellingMenuSection[] {
           badgeKeys: ["orders"],
         },
         {
-          id: "wallet",
-          title: "Wallet",
-          href: "/wallet",
-          icon: "wallet",
-          badgeKeys: ["wallet-payout"],
+          id: "reviews",
+          title: "Reviews",
+          href: "/seller/review-center",
+          icon: "reviews",
         },
-        { id: "analytics", title: "Analytics", href: "/seller/analytics", icon: "business" },
         {
-          id: "promotions",
-          title: "Promotions",
-          href: "/account/promotion-tools",
-          icon: "promotions",
+          id: "shipping",
+          title: "Shipping",
+          href: "/seller/shipping",
+          icon: "shipping",
         },
-        { id: "offers", title: "Offers", href: "/account/offers?role=seller", icon: "promotions" },
-        { id: "reviews", title: "Review Center", href: "/seller/review-center", icon: "reviews" },
-        { id: "returns", title: "Returns & Refunds", href: "/resolution", icon: "returns" },
+        {
+          id: "returns",
+          title: "Returns",
+          href: "/resolution",
+          icon: "returns",
+        },
+        {
+          id: "performance",
+          title: "Performance",
+          href: "/seller/performance",
+          icon: "business",
+        },
       ],
     },
   ];

@@ -11,7 +11,9 @@ type HubPageMainProps = {
   id?: string;
 };
 
-/** Standard scrollable hub/page main — bottom-nav clearance + safe-area. */
+/**
+ * Standard scrollable hub/page main — 100% phone width + 16px inset (Phone Width Freeze).
+ */
 export function HubPageMain({
   children,
   className,
@@ -22,7 +24,10 @@ export function HubPageMain({
     <ScrollContainer
       id={id}
       withBottomNav={withBottomNav}
-      className={cn("mx-auto flex w-full flex-col gap-ds-4 px-ds-4 py-ds-5", className)}
+      className={cn(
+        "hub-page-main flex w-full max-w-none flex-col gap-ds-4 px-[16px] py-ds-5",
+        className,
+      )}
     >
       {children}
     </ScrollContainer>

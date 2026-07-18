@@ -13,7 +13,7 @@ describe("Messages + Notifications → Inbox Hub Sprint 1", () => {
     const notificationsRoute = readSource("app/notifications/page.tsx");
     const index = readSource("styles/rovexo/index.css");
 
-    expect(inbox).toContain('data-inbox-hub=');
+    expect(inbox).toContain("data-inbox-hub=");
     expect(inbox).toContain("Messages");
     expect(inbox).toContain("Notifications");
     expect(messagesRoute).toContain("redirect");
@@ -23,23 +23,22 @@ describe("Messages + Notifications → Inbox Hub Sprint 1", () => {
     expect(index).toContain("./notifications-v1.css");
   });
 
-  it("keeps chat UI module available alongside ConversationHub", () => {
-    const chat = readSource("features/messages/components/ChatPage.tsx");
+  it("uses ConversationHub as the only live chat surface", () => {
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
-    const css = readSource("styles/rovexo/messages-v1.css");
+    const css = readSource("styles/rovexo/conversation-hub-v1.css");
 
-    expect(chat).toContain('data-messages-version="v1.0"');
     expect(hub).toContain("data-conversation-hub");
-    expect(chat).toContain("useChatRealtime");
-    expect(css).toContain(".chat-v1");
+    expect(hub).toContain("useChatRealtime");
+    expect(hub).toContain("TransactionHubBottomActions");
+    expect(css).toContain("--conv-composer-h: 52px");
   });
 
-  it("keeps notifications module helpers available", () => {
-    const inbox = readSource("features/notifications/components/NotificationsInboxV1.tsx");
+  it("renders notifications inside Inbox Hub", () => {
+    const inbox = readSource("features/inbox/components/InboxPage.tsx");
     const css = readSource("styles/rovexo/notifications-v1.css");
 
-    expect(inbox).toContain('data-notifications-version="v1.0"');
     expect(inbox).toContain("useRealtimeNotifications");
+    expect(inbox).toContain("Mark all");
     expect(css).toContain(".notif-v1");
   });
 

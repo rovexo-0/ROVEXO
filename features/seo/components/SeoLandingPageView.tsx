@@ -29,7 +29,7 @@ export function SeoLandingPageView({
   indexable = true,
 }: SeoLandingPageViewProps) {
   return (
-    <main className="mx-auto max-w-6xl px-ds-4 py-ds-6">
+    <main className="w-full max-w-none px-ds-4 py-ds-6">
       <nav aria-label="Breadcrumb" className="text-sm text-text-muted">
         {breadcrumbs.map((crumb, index) => (
           <span key={crumb.href}>
@@ -46,7 +46,7 @@ export function SeoLandingPageView({
       </nav>
 
       <h1 className="mt-ds-4 text-2xl font-bold">{title}</h1>
-      <p className="mt-ds-2 max-w-3xl text-sm text-text-secondary">{description}</p>
+      <p className="mt-ds-2 text-sm text-text-secondary">{description}</p>
       <p className="mt-ds-2 text-xs text-text-muted">
         {total} listings{!indexable && total > 0 ? " · limited inventory" : ""}
       </p>

@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { cn } from "@/lib/cn";
 import type { DeliveryStage } from "@/lib/orders/types";
 
@@ -20,18 +20,18 @@ function formatTimestamp(value?: string): string | null {
 
 export function DeliveryStatusCard({ stages, carrier }: DeliveryStatusCardProps) {
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-4">
+    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-3">
       <div>
         <h2 className="text-base font-semibold text-text-primary">Delivery Status</h2>
         <p className="mt-ds-1 text-sm text-text-secondary">Carrier: {carrier}</p>
       </div>
 
-      <ol className="flex flex-col gap-ds-4">
+      <ol className="flex flex-col gap-ds-3">
         {stages.map((stage, index) => {
           const timestamp = formatTimestamp(stage.timestamp);
 
           return (
-            <li key={stage.id} className="flex gap-ds-3">
+            <li key={stage.id} className="flex gap-ds-2">
               <div className="flex flex-col items-center">
                 <span
                   className={cn(
@@ -70,6 +70,6 @@ export function DeliveryStatusCard({ stages, carrier }: DeliveryStatusCardProps)
           );
         })}
       </ol>
-    </Card>
+    </CanonicalCard>
   );
 }

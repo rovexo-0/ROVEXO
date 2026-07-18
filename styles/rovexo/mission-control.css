@@ -621,7 +621,7 @@
   display: grid;
   gap: var(--ds-space-3);
   margin-top: var(--ds-space-4);
-  max-width: 480px;
+  max-width: 100%;
 }
 
 .mc-quick-listing__list {

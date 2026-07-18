@@ -22,7 +22,7 @@ export function PublishingOverlay({ phase, uploadProgress, isEdit = false }: Pub
       aria-live="polite"
       data-sell-publish-phase={phase}
     >
-      <div className="mx-auto flex max-w-2xl flex-col gap-ds-2">
+      <div className="flex w-full max-w-none flex-col gap-ds-2">
         <p className="text-center text-sm font-medium text-text-primary">{label}</p>
         {showBar ? (
           <div className="h-1.5 overflow-hidden rounded-ds-full bg-surface-muted">

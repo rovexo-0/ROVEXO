@@ -87,7 +87,7 @@ function scanPushPlatform(scan: MarketplaceCompletionScanResult): CompletionVali
     if (check === "android-push" || check === "ios-push") pass = integrations.includes("fcm") || integrations.includes("apns");
     if (check === "web-push") pass = integrations.includes("webPush") || notifications.includes("push");
     if (check === "silent-push" || check === "badge-updates") pass = fileExists("app/api/notifications/badge-counts/route.ts");
-    if (check === "deep-linking") pass = fileExists("features/notifications/components/NotificationsPage.tsx");
+    if (check === "deep-linking") pass = fileExists("features/inbox/components/InboxPage.tsx");
     if (check === "notification-actions") pass = fileExists("app/api/notifications/route.ts");
     return createCheck("communication-push", check, pass, pass ? `${labelize(check)} PASS` : `${labelize(check)} pending`);
   });
@@ -143,9 +143,9 @@ function scanDatabase(scan: MarketplaceCompletionScanResult): CompletionValidati
 
 function scanAccessibility(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
   return [
-    createCheck("communication-accessibility", "messages-list-structure", fileExists("features/messages/components/MessagesListPage.tsx"), "Messages list structure PASS"),
-    createCheck("communication-accessibility", "chat-bubble-structure", fileExists("features/messages/components/ChatBubble.tsx"), "Chat bubble structure PASS"),
-    createCheck("communication-accessibility", "notification-center-structure", fileExists("features/notifications/components/NotificationCenter.tsx"), "Notification center structure PASS"),
+    createCheck("communication-accessibility", "messages-list-structure", fileExists("features/inbox/components/InboxPage.tsx"), "Messages list structure PASS"),
+    createCheck("communication-accessibility", "chat-bubble-structure", fileExists("features/inbox/components/ConversationHub.tsx"), "Chat bubble structure PASS"),
+    createCheck("communication-accessibility", "notification-center-structure", fileExists("features/inbox/components/InboxPage.tsx"), "Notification center structure PASS"),
     createCheck("communication-accessibility", "focus-states", fileExists("components/ui/tokens.ts"), "Focus states PASS"),
   ].map((item) => ({
     ...item,

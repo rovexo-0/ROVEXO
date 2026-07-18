@@ -80,19 +80,11 @@
   box-shadow: 0 0 0 2px #ffffff;
 }
 
-/* ---------- Premium banner ---------- */
+/* ---------- Premium banner (legacy unused) ---------- */
 .ac2-banner {
   position: relative;
-  min-height: 180px;
-  border-radius: var(--ac2-radius);
-  overflow: hidden;
-  padding: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  isolation: isolate;
-  background: linear-gradient(135deg, #0b1a3a 0%, #12275c 46%, #3b0764 100%);
-  box-shadow: 0 18px 48px rgba(16, 42, 110, 0.35);
+  min-height: 0;
+  display: none;
 }
 
 .ac2-banner__glass {

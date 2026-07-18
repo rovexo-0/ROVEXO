@@ -28,18 +28,19 @@ describe("Seller Performance v1.0 — CANONICAL FREEZE", () => {
     expect(home).toContain("AccountMenuSections");
   });
 
-  it("locks seller dashboard sections for freeze QA", () => {
+  it("locks seller dashboard sections for Absolute Final Master Menu", () => {
     const dashboard = readSource("features/seller-performance/components/SellerPerformanceDashboardView.tsx");
     const history = readSource("features/seller-performance/components/SellerPerformanceHistorySection.tsx");
 
-    expect(dashboard).toContain('data-seller-performance-dashboard="v1.0-frozen"');
-    expect(dashboard).toContain("Your Reputation Engine");
-    expect(dashboard).toContain("Latest changes");
+    expect(dashboard).toContain('data-seller-performance="v2.0-standard"');
+    expect(dashboard).toContain("AccountCanonicalShell");
+    expect(dashboard).toContain("CanonicalMenuRow");
+    expect(dashboard).toContain("Score");
+    expect(dashboard).toContain("Factors");
+    expect(dashboard).toContain("Changes");
     expect(dashboard).toContain("Achievements");
-    expect(dashboard).toContain("Public badges");
-    expect(dashboard).toContain("Notifications");
-    expect(dashboard).toContain("Score trend");
-    expect(dashboard).toContain("Performance factors");
+    expect(dashboard).toContain("Trend");
+    expect(dashboard).not.toContain("Your Reputation Engine");
     expect(history).toContain("30 Days");
     expect(history).toContain("90 Days");
     expect(history).toContain("1 Year");

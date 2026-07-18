@@ -2,7 +2,7 @@
 
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { AccountIcon } from "@/components/account/AccountIcons";
-import { CanonicalCard, CanonicalMenuRow, CanonicalInfoBlock } from "@/src/components/canonical";
+import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 
 type VerificationHubPageProps = {
   backHref?: string;
@@ -11,8 +11,7 @@ type VerificationHubPageProps = {
 };
 
 /**
- * Verification — Master Menu Design (same shell as Settings).
- * Business context never exits to My Account.
+ * Verification — same shell as My Account.
  */
 export function VerificationHubPage({
   backHref = "/account",
@@ -25,51 +24,52 @@ export function VerificationHubPage({
       backHref={backHref}
       backLabel={backLabel}
       showHeaderTitle
+      intro={
+        context === "business"
+          ? "Verify your business profile."
+          : "Verify your ROVEXO account."
+      }
     >
-      <CanonicalInfoBlock variant="description">
-        {context === "business"
-          ? "Verify your business to unlock Store, Orders, Wallet, and Analytics."
-          : "Verify your ROVEXO account for buying and selling protection."}
-      </CanonicalInfoBlock>
-
-      <div className="cds-section">
-        <CanonicalCard variant="list">
-          <CanonicalMenuRow
-            id="verification-trust"
-            href="/trust#verification"
-            title="Trust Centre"
-            description="Score, badges, and verification status"
-            icon={
-              <span className="ac-canonical__menu-icon" aria-hidden>
-                <AccountIcon name="verification" />
-              </span>
-            }
-          />
-          <CanonicalMenuRow
-            id="verification-settings"
-            href="/account/settings"
-            title="Settings"
-            description="Account and security"
-            icon={
-              <span className="ac-canonical__menu-icon" aria-hidden>
-                <AccountIcon name="settings" />
-              </span>
-            }
-          />
-          {context === "business" ? (
+      <div className="ac-canonical">
+        <CanonicalSection title="Verification">
+          <CanonicalCard variant="list">
             <CanonicalMenuRow
-              id="verification-business-back"
-              href="/business/dashboard"
-              title="Business"
-              description="Return to Business"
+              id="verification-trust"
+              href="/trust#verification"
+              title="Trust Centre"
+              description="Score and badges"
               icon={
                 <span className="ac-canonical__menu-icon" aria-hidden>
-                  <AccountIcon name="business" />
+                  <AccountIcon name="verification" />
                 </span>
               }
             />
-          ) : null}
-        </CanonicalCard>
+            <CanonicalMenuRow
+              id="verification-settings"
+              href="/account/settings"
+              title="Settings"
+              description="Account and security"
+              icon={
+                <span className="ac-canonical__menu-icon" aria-hidden>
+                  <AccountIcon name="settings" />
+                </span>
+              }
+            />
+            {context === "business" ? (
+              <CanonicalMenuRow
+                id="verification-business-back"
+                href="/business/dashboard"
+                title="Business"
+                description="Return to Business"
+                icon={
+                  <span className="ac-canonical__menu-icon" aria-hidden>
+                    <AccountIcon name="business" />
+                  </span>
+                }
+              />
+            ) : null}
+          </CanonicalCard>
+        </CanonicalSection>
       </div>
     </AccountCanonicalShell>
   );

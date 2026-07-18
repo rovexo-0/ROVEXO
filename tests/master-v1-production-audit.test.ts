@@ -19,7 +19,7 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
     expect(home).not.toContain("AccountStatsStrip");
     expect(home).not.toContain("AccountSellerPerformanceCard");
     expect(home).toContain("AccountMenuSections");
-    expect(profile).toContain("ac-canonical__followers-row");
+    expect(profile).not.toContain("ac-canonical__followers-row");
     expect(profile).not.toContain("View Public Profile");
     expect(profile).not.toContain("Edit Profile");
     expect(profile).toContain("formatAccountProfileRating");
@@ -43,12 +43,14 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
     );
   });
 
-  it("locks production Personal Wallet Compact Premium hub", () => {
+  it("locks production Personal Wallet Master Menu hub", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
     const detail = readSource("features/wallet/components/MonthlyStatementDetail.tsx");
-    expect(hub).toContain('data-wallet-ui="compact-premium"');
+    expect(hub).toContain('data-wallet-hub-version="v3.0-standard"');
+    expect(hub).toContain("CanonicalMenuRow");
     expect(hub).toContain("PersonalWalletMenuSections");
     expect(hub).toContain("Available");
+    expect(hub).not.toContain("wallet-v2__hero");
     expect(detail).toContain("Download CSV");
     expect(detail).toContain("Opening Balance");
   });

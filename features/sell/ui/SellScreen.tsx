@@ -118,7 +118,7 @@ function SellScreenInner({ freshSession, restoreDraft, onRecoveryResolved }: Sel
       <AccountCanonicalHeader fallbackHref="/" />
       <ScrollContainer
         withBottomNav={false}
-        className="sell-page-v1-content mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-[max(env(safe-area-inset-left),var(--cds-space-page-x))] py-ds-3"
+        className="sell-page-v1-content flex w-full max-w-none flex-col gap-ds-3 px-[max(env(safe-area-inset-left),16px)] pr-[max(env(safe-area-inset-right),16px)] py-ds-3"
       >
         <div id={sellFieldDomId("photos")} className="sell-page-field">
           <SellPhotoRail onPhotosAdded={handlePhotosAdded} />

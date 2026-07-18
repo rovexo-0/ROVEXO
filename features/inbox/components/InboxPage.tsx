@@ -24,6 +24,7 @@ import {
   INBOX_CANONICAL_VERSION,
   INBOX_ROUTES,
   buildUnreadCounter,
+  filterInboxConversations,
   mapNotificationCategory,
   parseInboxTab,
   subscribeInboxRealtime,
@@ -198,6 +199,8 @@ export function InboxPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tab = parseInboxTab(searchParams.get("tab"));
+  const messageFilter = searchParams.get("filter");
+  const notificationCategory = searchParams.get("category");
   const { setNotifications, refresh, mobileBadges } = useRealtimeNotifications();
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -333,14 +336,34 @@ export function InboxPage() {
     const base = conversations.filter((item) =>
       matchesConversationSearch(item, query),
     );
-    return [...base].sort((a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt));
-  }, [conversations, query]);
+    const filter =
+      messageFilter === "offers" ||
+      messageFilter === "orders" ||
+      messageFilter === "unread" ||
+      messageFilter === "archived" ||
+      messageFilter === "disputes"
+        ? messageFilter
+        : "all";
+    const filtered = filterInboxConversations(base, filter);
+    return [...filtered].sort((a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt));
+  }, [conversations, query, messageFilter]);
 
   const filteredNotifications = useMemo(() => {
     return notifications
       .filter((item) => matchesNotificationSearch(item, query))
+      .filter((item) => {
+        if (!notificationCategory) return true;
+        if (notificationCategory === "shipping") {
+          const haystack = `${item.title ?? ""} ${item.subtitle ?? ""} ${item.detail ?? ""}`.toLowerCase();
+          return (
+            mapNotificationCategory(item.type) === "orders" &&
+            /ship|deliver|track|parcel|courier|label/.test(haystack)
+          );
+        }
+        return mapNotificationCategory(item.type) === notificationCategory;
+      })
       .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
-  }, [notifications, query]);
+  }, [notifications, query, notificationCategory]);
 
   const unreadNotifications = useMemo(
     () => filteredNotifications.filter((item) => !item.read),
@@ -602,7 +625,7 @@ export function InboxPage() {
               <MessagesEmptyIllustration className="inbox-hub__empty-illu" />
               <p className="inbox-hub__empty-title">No conversations yet</p>
               <Link href="/search" className="inbox-hub__empty-cta">
-                Browse Marketplace
+                Find something to buy
               </Link>
             </div>
           ) : (

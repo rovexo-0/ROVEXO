@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import {
+  CanonicalButton,
+  CanonicalCard,
+  CanonicalInfoBlock,
+} from "@/src/components/canonical";
 import type { Order } from "@/lib/orders/types";
 
 type BuyerCancelOrderCardProps = {
@@ -53,25 +56,24 @@ export function BuyerCancelOrderCard({
   }
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-3">
-      <h2 className="text-base font-semibold text-text-primary">Cancel Order</h2>
+    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-2">
+      <h2 className="text-base font-semibold text-text-primary">Cancel order</h2>
       <p className="text-sm text-text-secondary">
-        Cancel before shipment to receive a full automatic refund when payment has been taken.
+        Cancel before shipment for a full refund when payment has been taken.
       </p>
       {disabledReason ? (
         <p className="text-sm text-text-muted">{disabledReason}</p>
       ) : null}
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
-      <Button
+      {error ? <CanonicalInfoBlock variant="error">{error}</CanonicalInfoBlock> : null}
+      <CanonicalButton
         variant="outline"
         fullWidth
-        size="lg"
-        className="min-h-[52px] rounded-ds-lg text-base"
         disabled={isSubmitting || Boolean(disabledReason)}
+        loading={isSubmitting}
         onClick={() => void handleCancel()}
       >
-        {isSubmitting ? "Cancelling…" : "Cancel Order"}
-      </Button>
-    </Card>
+        Cancel order
+      </CanonicalButton>
+    </CanonicalCard>
   );
 }

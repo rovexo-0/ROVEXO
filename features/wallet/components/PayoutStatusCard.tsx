@@ -1,8 +1,12 @@
 "use client";
 
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { AnimatedCounter } from "@/features/dashboard/components/AnimatedCounter";
+import {
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import { formatCurrency } from "@/lib/wallet/utils";
 
 type PayoutStatusCardProps = {
@@ -12,28 +16,29 @@ type PayoutStatusCardProps = {
 
 export function PayoutStatusCard({ paidOutBalance, payoutsEnabled }: PayoutStatusCardProps) {
   return (
-    <Card padding="lg" className="">
-      <div className="flex flex-col gap-ds-4">
-        <div className="flex items-start justify-between gap-ds-3">
-          <div>
-            <p className="text-sm font-medium text-text-secondary">Paid out to your bank</p>
-            <p className="mt-ds-2 text-3xl font-bold tabular-nums text-text-primary">
+    <CanonicalSection title="Payouts">
+      <CanonicalCard variant="list">
+        <CanonicalMenuRow
+          title="Paid out to bank"
+          showChevron={false}
+          trailing={
+            <span className="cds-menu-row__value">
               <AnimatedCounter
                 value={Math.round(paidOutBalance * 100)}
                 format={(value) => formatCurrency(value / 100)}
               />
-            </p>
-          </div>
-          <Badge variant={payoutsEnabled ? "success" : "warning"}>
-            {payoutsEnabled ? "Auto payouts on" : "Setup required"}
-          </Badge>
-        </div>
-
-        <p className="text-sm text-text-secondary">
-          After each order is confirmed and the hold period ends, ROVEXO automatically sends
-          your earnings to your bank account.
-        </p>
-      </div>
-    </Card>
+            </span>
+          }
+        />
+        <CanonicalMenuRow
+          title="Auto payouts"
+          value={payoutsEnabled ? "On" : "Setup required"}
+          showChevron={false}
+        />
+      </CanonicalCard>
+      <CanonicalInfoBlock variant="description">
+        Earnings transfer to your bank after each order clears the hold period.
+      </CanonicalInfoBlock>
+    </CanonicalSection>
   );
 }

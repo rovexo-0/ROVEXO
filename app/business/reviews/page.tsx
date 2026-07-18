@@ -1,6 +1,11 @@
-import { redirect } from "next/navigation";
+import { SellerReviewCenterPage } from "@/features/seller/review-center/components/SellerReviewCenterPage";
+import { getBusinessProfile } from "@/lib/profile/data";
+import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
-/** Business Reviews — seller review centre with Business return path. */
-export default function BusinessReviewsRedirect() {
-  redirect("/seller/review-center?returnTo=/business/dashboard");
+export const metadata = privatePageMetadata;
+
+/** Business Reviews — stays in Business hub (no seller → My Account dump). */
+export default async function BusinessReviewsPage() {
+  await getBusinessProfile();
+  return <SellerReviewCenterPage backHref="/business/dashboard" backLabel="Business" />;
 }

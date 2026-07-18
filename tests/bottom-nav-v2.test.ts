@@ -15,7 +15,8 @@ describe("Bottom Navigation V2 — final lock", () => {
     expect(nav).toContain("BottomNavV2Icon");
     expect(nav).toContain('id: "search"');
     expect(nav).toContain('t("nav.search")');
-    expect(css).toContain("--rx-bottom-nav-height: 50px");
+    expect(css).toContain("--rx-bottom-nav-height: 52px");
+    expect(css).toContain("--rx-bottom-nav-icon-size: 20px");
     expect(css).toContain("#111111");
     expect(css).toContain("box-shadow: none");
     expect(css).toContain("border-top: 1px solid #e5e7eb");

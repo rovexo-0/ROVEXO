@@ -1,9 +1,7 @@
 "use client";
 
-import { CanonicalButtonLink, CanonicalInfoBlock } from "@/src/components/canonical";
+import { CanonicalButtonLink, CanonicalCard, CanonicalSection } from "@/src/components/canonical";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-
-import { SUPPORT_SUCCESS_MESSAGE } from "@/lib/support/types";
 
 type SupportSuccessPageProps = {
   ticketNumber?: string;
@@ -11,17 +9,17 @@ type SupportSuccessPageProps = {
 
 export function SupportSuccessPage({ ticketNumber }: SupportSuccessPageProps) {
   return (
-    <AccountCanonicalShell title="Support request sent" backHref="/help" backLabel="Help Centre">
-      <CanonicalInfoBlock variant="success">
-        <p className="font-medium">{SUPPORT_SUCCESS_MESSAGE.title}</p>
-        {ticketNumber ? <p className="mt-ds-2">Reference: {ticketNumber}</p> : null}
-        <div className="mt-ds-4 space-y-ds-2">
-          {SUPPORT_SUCCESS_MESSAGE.paragraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-      </CanonicalInfoBlock>
-      <CanonicalButtonLink href="/help" variant="secondary" className="mt-ds-4">
+    <AccountCanonicalShell title="Request sent" backHref="/help" backLabel="Help Centre">
+      <CanonicalSection title="Sent">
+        <CanonicalCard variant="success" className="flex w-full flex-col gap-ds-2 p-ds-4">
+          <p className="text-sm font-medium text-text-primary">We received your request.</p>
+          {ticketNumber ? (
+            <p className="text-sm text-text-secondary">Reference: {ticketNumber}</p>
+          ) : null}
+          <p className="text-sm text-text-secondary">We will reply by email.</p>
+        </CanonicalCard>
+      </CanonicalSection>
+      <CanonicalButtonLink href="/help" variant="secondary" fullWidth>
         Back to Help Centre
       </CanonicalButtonLink>
     </AccountCanonicalShell>

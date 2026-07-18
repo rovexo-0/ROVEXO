@@ -1,6 +1,6 @@
 /**
- * Business hub — Master Menu Design (PO Final Authorization).
- * Max 2 wallets platform-wide: Personal (/wallet) + Business (/business/wallet).
+ * Business hub — Absolute Final PO lock.
+ * Orders · Inventory · Analytics · Reviews · Business Wallet · VAT · Directory.
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
 import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
@@ -20,15 +20,14 @@ export type BusinessMenuSection = {
   items: BusinessMenuItem[];
 };
 
-export function buildBusinessMenuSections(storeSlug?: string | null): BusinessMenuSection[] {
-  const storeHref = storeSlug ? `/store/${storeSlug}` : "/business/dashboard";
+export const BUSINESS_HUB_INTRO = "Manage your business.";
 
+export function buildBusinessMenuSections(_storeSlug?: string | null): BusinessMenuSection[] {
   return [
     {
       id: "business",
       title: "",
       items: [
-        { id: "store", title: "Store", href: storeHref, icon: "business" },
         {
           id: "orders",
           title: "Orders",
@@ -36,30 +35,18 @@ export function buildBusinessMenuSections(storeSlug?: string | null): BusinessMe
           icon: "orders",
           badgeKeys: ["orders"],
         },
+        { id: "inventory", title: "Inventory", href: "/business/inventory", icon: "listings" },
+        { id: "analytics", title: "Analytics", href: "/business/analytics", icon: "business" },
+        { id: "reviews", title: "Reviews", href: "/business/reviews", icon: "reviews" },
         {
           id: "wallet",
-          title: "Wallet",
+          title: "Business Wallet",
           href: "/business/wallet",
           icon: "wallet",
           badgeKeys: ["wallet-payout"],
         },
-        { id: "analytics", title: "Analytics", href: "/business/analytics", icon: "business" },
-        {
-          id: "promotions",
-          title: "Promotions",
-          href: "/business/promotions",
-          icon: "promotions",
-        },
-        { id: "followers", title: "Followers", href: "/account/followers", icon: "following" },
-        { id: "reviews", title: "Reviews", href: "/business/reviews", icon: "reviews" },
-        {
-          id: "verification",
-          title: "Verification",
-          href: "/business/verification",
-          icon: "verification",
-        },
-        { id: "policies", title: "Policies", href: "/business/policies", icon: "help" },
-        { id: "returns", title: "Returns & Refunds", href: "/resolution", icon: "returns" },
+        { id: "vat", title: "VAT", href: "/business/tax", icon: "help" },
+        { id: "directory", title: "Directory", href: "/business/directory", icon: "business" },
       ],
     },
   ];

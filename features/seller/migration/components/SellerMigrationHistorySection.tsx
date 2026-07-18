@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { Button } from "@/components/ui/Button";
 import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
 import type { SellerMigrationSummary } from "@/lib/seller/migration/types";
@@ -18,7 +18,7 @@ export function SellerMigrationHistorySection({ summary }: SellerMigrationHistor
   const latest = summary.recentJobs[0];
 
   return (
-    <Card padding="lg" className="border-border">
+    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-3 p-ds-4">
       <div className="flex items-start justify-between gap-ds-3">
         <div>
           <h2 className="text-base font-semibold text-text-primary">Recent migrations</h2>
@@ -36,7 +36,7 @@ export function SellerMigrationHistorySection({ summary }: SellerMigrationHistor
         </Link>
       </div>
 
-      <ul className="mt-ds-4 flex flex-col gap-ds-2">
+      <ul className="flex flex-col gap-ds-2">
         {summary.recentJobs.map((job) => (
           <li
             key={job.id}
@@ -75,7 +75,7 @@ export function SellerMigrationHistorySection({ summary }: SellerMigrationHistor
       </ul>
 
       {summary.failedPublishCount > 0 && latest ? (
-        <p className="mt-ds-3 text-xs text-warning">
+        <p className="text-xs text-warning">
           {summary.failedPublishCount} listing{summary.failedPublishCount === 1 ? "" : "s"} failed to
           publish.{" "}
           <Link href={`${MIGRATION_CENTER_PATH}?job=${latest.id}`} className="underline">
@@ -83,6 +83,6 @@ export function SellerMigrationHistorySection({ summary }: SellerMigrationHistor
           </Link>
         </p>
       ) : null}
-    </Card>
+    </CanonicalCard>
   );
 }

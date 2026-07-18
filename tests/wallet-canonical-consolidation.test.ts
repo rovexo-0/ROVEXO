@@ -11,7 +11,7 @@ function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("Wallet Compact Premium SSOT — max 2 wallets", () => {
+describe("Wallet Master Menu SSOT — max 2 wallets", () => {
   it("defines canonical wallet routes", () => {
     expect(WALLET_ROUTES.hub).toBe("/wallet");
     expect(WALLET_ROUTES.paymentMethods).toBe("/wallet/payment-methods");
@@ -21,34 +21,29 @@ describe("Wallet Compact Premium SSOT — max 2 wallets", () => {
     expect(WALLET_ROUTES.payouts).toBe("/wallet/payouts");
   });
 
-  it("matches Personal Wallet Compact Premium structure", () => {
+  it("matches Wallet Master Menu structure", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
-    const css = readSource("styles/rovexo/wallet-hub-v1.css");
     const page = readSource("app/wallet/page.tsx");
     const business = readSource("app/business/wallet/page.tsx");
 
-    expect(hub).toContain('data-wallet-ui="compact-premium"');
-    expect(hub).toContain('data-wallet-hub-version="v2.0-master"');
-    expect(hub).toContain("wallet-v2__hero");
+    expect(hub).toContain('data-wallet-hub-version="v3.0-standard"');
+    expect(hub).toContain("Available");
+    expect(hub).toContain("Pending");
+    expect(hub).toContain("Withdraw");
     expect(hub).toContain("PersonalWalletMenuSections");
-    expect(hub).toContain("BusinessWalletMenuSections");
-    expect(hub).not.toContain("wallet-v2__balance-card");
-    expect(hub).not.toContain("Platform Fee");
-    expect(hub).not.toContain("WalletDesktop");
-    expect(hub).not.toContain("WalletMobile");
-
+    expect(hub).not.toContain("wallet-v2__hero");
+    expect(hub).not.toContain("Payout History");
     expect(page).toContain('variant="personal"');
-    expect(page).not.toContain("WALLET_ROUTES.paymentMethods");
     expect(business).toContain('variant="business"');
-    expect(business).not.toContain('redirect("/wallet")');
-
-    expect(css).toContain("wallet-v2__hero--compact");
-    expect(css).toContain("--wallet-radius-hero: 24px");
   });
 
-  it("exposes only Personal + Business wallet menus", () => {
-    expect(buildPersonalWalletMenuSections().flatMap((s) => s.items).length).toBe(7);
-    expect(buildBusinessWalletMenuSections().flatMap((s) => s.items).length).toBe(6);
+  it("exposes bank destinations only below balance rows", () => {
+    expect(buildPersonalWalletMenuSections().flatMap((s) => s.items).map((i) => i.title)).toEqual([
+      "Transactions",
+      "Personal Bank Account",
+      "Business Bank Account",
+    ]);
+    expect(buildBusinessWalletMenuSections().flatMap((s) => s.items).length).toBe(3);
   });
 
   it("keeps statement export on detail pages", () => {

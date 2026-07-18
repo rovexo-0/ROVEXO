@@ -14,7 +14,6 @@ describe("Settings canonical v1.0 hub", () => {
 
     expect(settings).toContain("AccountCanonicalShell");
     expect(settings).toContain("showHeaderTitle");
-    expect(settings).toContain("Manage your account and preferences");
     expect(settings).toContain("SettingsMenuSections");
     expect(settings).not.toContain("SettingsAccordion");
     expect(sections).toContain('data-settings-canonical="v1.0"');
@@ -86,10 +85,10 @@ describe("Settings canonical v1.0 hub", () => {
 
   it("locks canonical settings layout tokens", () => {
     const css = readSource("styles/rovexo/account-settings-canonical.css");
-    expect(css).toContain("--cds-row-min-height: 64px");
+    expect(css).toContain("--cds-row-min-height: 56px");
     expect(css).toContain("--cds-row-padding-x: 16px");
     expect(css).toContain("--cds-space-section-gap: 24px");
     expect(css).toContain("--cds-color-divider: #efefef");
-    expect(css).toContain("border-radius: 16px");
+    expect(css).toContain("border-radius: 20px");
   });
 });

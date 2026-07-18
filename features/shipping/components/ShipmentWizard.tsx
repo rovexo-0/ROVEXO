@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { ParcelCard } from "@/features/shipping/components/ParcelCard";
@@ -99,8 +99,8 @@ export function ShipmentWizard({
 
   if (!canPrepare) {
     return (
-      <div className="flex flex-col gap-ds-5">
-        <Card padding="lg" className="flex min-h-16 items-center justify-between gap-ds-3">
+      <div className="flex w-full flex-col gap-ds-3">
+        <CanonicalCard variant="medium" className="flex min-h-16 w-full items-center justify-between gap-ds-2">
           <div>
             <h2 className="text-sm font-semibold text-text-primary">Shipment complete</h2>
             <p className="mt-ds-1 text-xs text-text-secondary">
@@ -110,7 +110,7 @@ export function ShipmentWizard({
           <span className="rounded-full bg-success/10 px-ds-3 py-ds-2 text-xs font-semibold text-success">
             Delivered
           </span>
-        </Card>
+        </CanonicalCard>
         <OrderProductCard order={order} userId={userId} />
         <ShipmentSummary record={record} parcels={parcels} />
         <div className="flex min-h-12 items-center justify-center rounded-ds-lg bg-success/10 text-sm font-semibold text-success">
@@ -121,8 +121,8 @@ export function ShipmentWizard({
   }
 
   return (
-    <div className="flex flex-col gap-ds-5">
-      <Card padding="lg" className="flex flex-col gap-ds-4">
+    <div className="flex w-full flex-col gap-ds-3">
+      <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-2">
         <div className="flex items-center gap-ds-2">
           {(["review", "parcels"] as WizardStep[]).map((wizardStep, index) => {
             const active = step === wizardStep;
@@ -151,7 +151,7 @@ export function ShipmentWizard({
             );
           })}
         </div>
-      </Card>
+      </CanonicalCard>
 
       {step === "review" ? (
         <>
@@ -164,7 +164,7 @@ export function ShipmentWizard({
       ) : (
         <>
           <ShipmentSummary record={record} parcels={parcels} />
-          <div className="flex flex-col gap-ds-4">
+          <div className="flex w-full flex-col gap-ds-3">
             {parcels.map((parcel) => (
               <ParcelCard
                 key={parcel.id}

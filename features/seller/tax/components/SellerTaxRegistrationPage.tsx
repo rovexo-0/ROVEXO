@@ -18,6 +18,8 @@ import type { SellerTaxProfile } from "@/lib/seller/tax/types";
 type SellerTaxRegistrationPageProps = {
   initialProfile: SellerTaxProfile | null;
   connectUrl?: string | null;
+  backHref?: string;
+  backLabel?: string;
 };
 
 const TAX_TYPE_LABELS: Record<SellerRegistrationType, string> = {
@@ -32,6 +34,8 @@ type TaxStep = "type" | "form";
 export function SellerTaxRegistrationPage({
   initialProfile,
   connectUrl,
+  backHref = "/account/settings",
+  backLabel = "Settings",
 }: SellerTaxRegistrationPageProps) {
   const router = useRouter();
   const [step, setStep] = useState<TaxStep>(initialProfile?.submittedAt ? "form" : "type");
@@ -98,7 +102,7 @@ export function SellerTaxRegistrationPage({
   };
 
   return (
-    <AccountCanonicalShell title="Tax Information" backHref="/account/settings">
+    <AccountCanonicalShell title="Tax Information" backHref={backHref} backLabel={backLabel} showHeaderTitle>
       <AccountPageStack>
         {step === "type" ? (
           <CanonicalSection title="Tax Information">

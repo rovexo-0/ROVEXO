@@ -10,7 +10,7 @@ export function MessagesEngineConversationPanel({ context }: MessagesEngineConve
   const { summary, messageCount } = context;
 
   return (
-    <section className="me-panel mx-auto mb-ds-3 max-w-2xl px-ds-4">
+    <section className="me-panel mb-ds-3 w-full max-w-none px-ds-4">
       <div className="me-panel__head">
         <div>
           <p className="me-hub__eyebrow">Messages Engine</p>

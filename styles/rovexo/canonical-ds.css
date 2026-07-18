@@ -24,48 +24,49 @@
   --cds-color-warning-bg: rgb(217 119 6 / 0.08);
   --cds-color-danger: #dc2626;
   --cds-color-danger-bg: rgb(220 38 38 / 0.08);
-  --cds-font-size-title: 1.125rem;
-  --cds-font-size-body: 0.9375rem;
-  --cds-font-size-label: 0.9375rem;
-  --cds-font-size-description: 0.75rem;
-  --cds-font-size-section: 0.6875rem;
+  --cds-font-size-title: 24px;
+  --cds-font-size-body: 14px;
+  --cds-font-size-label: 16px;
+  --cds-font-size-description: 14px;
+  --cds-font-size-section: 12px;
   --cds-font-weight-title: 600;
   --cds-font-weight-label: 500;
   --cds-font-weight-section: 600;
   --cds-letter-spacing-section: 0.06em;
   --cds-space-page-x: 16px;
-  --cds-space-section-gap: 12px;
-  --cds-space-section-inner-gap: 6px;
+  --cds-space-page-y: 16px;
+  --cds-space-section-gap: 24px;
+  --cds-space-section-inner-gap: 12px;
   --cds-space-card-padding-sm: 12px;
   --cds-space-card-padding-md: 16px;
   --cds-space-card-padding-lg: 20px;
   --cds-space-safe-bottom: env(safe-area-inset-bottom, 0px);
   --cds-space-safe-top: env(safe-area-inset-top, 0px);
-  --cds-radius-card: 14px;
-  --cds-radius-card-lg: 16px;
-  --cds-radius-input: 12px;
-  --cds-radius-button: 14px;
+  --cds-radius-card: 20px;
+  --cds-radius-card-lg: 20px;
+  --cds-radius-input: 16px;
+  --cds-radius-button: 16px;
   --cds-radius-pill: 999px;
   --cds-shadow-card: 0 1px 6px rgb(15 23 42 / 0.04);
   --cds-shadow-modal: 0 16px 48px rgb(15 23 42 / 0.16);
   --cds-elevation-header: 50;
   --cds-touch-target: 44px;
-  --cds-header-height: 56px;
-  --cds-row-min-height: 48px;
+  --cds-header-height: 64px;
+  --cds-row-min-height: 56px;
   --cds-button-height: 44px;
-  --cds-input-height: 48px;
+  --cds-input-height: 44px;
   --cds-icon-size: 20px;
-  --cds-icon-box: 22px;
-  --cds-chevron-size: 16px;
-  --cds-row-gap: 10px;
-  --cds-row-padding-x: 14px;
+  --cds-icon-box: 20px;
+  --cds-chevron-size: 18px;
+  --cds-row-gap: 12px;
+  --cds-row-padding-x: 16px;
   --cds-color-chevron: #cbd5e1;
   --cds-color-row-danger: #ef4444;
   --cds-duration-fast: 150ms;
   --cds-duration-normal: 220ms;
   --cds-ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --cds-page-max-width: 640px;
-  --cds-bottom-nav-offset: calc(var(--bottom-nav-shell-height, 56px) + 28px + var(--cds-space-safe-bottom));
+  --cds-page-max-width: 100%;
+  --cds-bottom-nav-offset: calc(var(--bottom-nav-shell-height, 52px) + 16px + var(--cds-space-safe-bottom));
 }
 
 
@@ -75,8 +76,8 @@
   flex-direction: column;
   min-height: 100%;
   width: 100%;
-  max-width: var(--cds-page-max-width);
-  margin-inline: auto;
+  max-width: 100%;
+  margin-inline: 0;
   background: var(--cds-color-background);
 }
 
@@ -93,7 +94,7 @@
   flex: 1;
   flex-direction: column;
   gap: var(--cds-space-section-gap);
-  padding: 8px var(--cds-space-page-x) 24px;
+  padding: 16px var(--cds-space-page-x) 24px;
 }
 
 .cds-layout__content--with-bottom-nav {

@@ -7,6 +7,7 @@ import { SearchProvider } from "@/features/search/client";
 import { AppShellLayout } from "@/components/layout/AppShellLayout";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { VisitorPresenceBeacon } from "@/components/analytics/VisitorPresenceBeacon";
+import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
 import { PageVisibilityProvider } from "@/components/providers/PageVisibilityProvider";
 import { LocaleProvider } from "@/lib/i18n/provider";
 import { PwaProvider } from "@/components/pwa/PwaProvider";
@@ -112,6 +113,7 @@ export default function RootLayout({
           </LocaleProvider>
         </PageVisibilityProvider>
         <GoogleAnalytics />
+        <CookieConsentBanner />
         <VisitorPresenceBeacon />
       </body>
     </html>

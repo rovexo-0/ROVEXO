@@ -25,10 +25,10 @@ describe("Platform — marketplace footer removed", () => {
 
   it("does not import HelpPageFooter in app pages", () => {
     const paths = [
-      "features/seller/dashboard/components/SellerDashboardPage.tsx",
       "features/business/dashboard/components/BusinessDashboardPage.tsx",
       "features/orders/components/OrdersListPage.tsx",
       "features/sell/ui/SellScreen.tsx",
+      "features/account-center/components/SellingMenuSections.tsx",
     ];
 
     for (const path of paths) {

@@ -28,7 +28,7 @@
   --conv-radius-input: 20px;
   --conv-radius-btn: 10px;
   --conv-shadow: none;
-  --conv-pad-x: 8px;
+  --conv-pad-x: 12px;
   --conv-card-pad: 6px;
   --conv-gap: 4px;
   --conv-fs-title: 14px;
@@ -43,7 +43,7 @@
   --conv-fs-time: 10px;
   --conv-fs-timeline: 10px;
   --conv-btn-h: 28px;
-  --conv-header-h: 40px;
+  --conv-header-h: 48px;
   --conv-composer-h: 44px;
   --conv-rail-h: 36px;
   --conv-icon-composer: 14px;
@@ -53,7 +53,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 440px;
+  max-width: 100%;
   min-height: calc(100dvh - env(safe-area-inset-bottom, 0px));
   margin: 0 auto;
   color: var(--conv-text);
@@ -887,7 +887,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--conv-gap);
-  padding: 24px 12px;
+  padding: 16px;
   text-align: center;
 }
 
@@ -1099,7 +1099,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 440px;
+  max-width: 100%;
   max-height: 85dvh;
   padding: 12px;
   overflow-y: auto;
@@ -1462,13 +1462,13 @@
 
 @media (min-width: 768px) {
   .conv-hub {
-    max-width: 720px;
+    max-width: 100%;
     --conv-pad-x: 12px;
   }
 }
 
 @media (min-width: 1100px) {
   .conv-hub {
-    max-width: 860px;
+    max-width: 100%;
   }
 }

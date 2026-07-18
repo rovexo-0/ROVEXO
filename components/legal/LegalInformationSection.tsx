@@ -1,6 +1,9 @@
 import Link from "next/link";
 import {
+  LEGAL_COMPANY_NUMBER,
+  LEGAL_JURISDICTION,
   LEGAL_OPERATOR_NAME,
+  LEGAL_REGISTERED_OFFICE,
   LEGAL_SUPPORT_EMAIL,
   LEGAL_WEBSITE_URL,
 } from "@/lib/legal/content";
@@ -10,24 +13,33 @@ export function LegalInformationSection() {
     <div className="space-y-ds-4 text-sm leading-relaxed text-text-secondary">
       <p className="text-base font-semibold text-text-primary">Legal Information</p>
 
-      <p>
-        ROVEXO is owned and operated by {LEGAL_OPERATOR_NAME}.
-      </p>
+      <p>ROVEXO is owned and operated by {LEGAL_OPERATOR_NAME}.</p>
 
       <p>
-        {LEGAL_OPERATOR_NAME} is a company registered in England and Wales.
+        {LEGAL_OPERATOR_NAME} is a company registered in {LEGAL_JURISDICTION}.
       </p>
 
-      <p>
-        ROVEXO is an online marketplace connecting buyers and sellers.
-      </p>
+      {LEGAL_COMPANY_NUMBER ? (
+        <p>
+          <span className="font-medium text-text-primary">Companies House number:</span>{" "}
+          {LEGAL_COMPANY_NUMBER}
+        </p>
+      ) : null}
+
+      {LEGAL_REGISTERED_OFFICE ? (
+        <p>
+          <span className="font-medium text-text-primary">Registered office:</span>{" "}
+          {LEGAL_REGISTERED_OFFICE}
+        </p>
+      ) : null}
+
+      <p>ROVEXO is an online marketplace connecting buyers and sellers.</p>
+
+      <p>Payments are securely processed using Stripe.</p>
 
       <p>
-        Payments are securely processed using Stripe.
-      </p>
-
-      <p>
-        Independent sellers are responsible for the products and services they offer through the platform.
+        Independent sellers are responsible for the products and services they offer through the
+        platform.
       </p>
 
       <div className="space-y-ds-1 border-t border-border pt-ds-4">
@@ -46,6 +58,19 @@ export function LegalInformationSection() {
             rel="noopener noreferrer"
           >
             {LEGAL_WEBSITE_URL}
+          </Link>
+        </p>
+        <p>
+          <Link href="/legal" className="text-primary hover:underline">
+            Legal Centre
+          </Link>
+          {" · "}
+          <Link href="/legal/privacy-policy" className="text-primary hover:underline">
+            Privacy
+          </Link>
+          {" · "}
+          <Link href="/legal/cookie-policy" className="text-primary hover:underline">
+            Cookies
           </Link>
         </p>
       </div>

@@ -1,12 +1,13 @@
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { BusinessMenuSections } from "@/features/business/dashboard/components/BusinessMenuSections";
+import { BUSINESS_HUB_INTRO } from "@/lib/account-center/business-menu";
 import type { BusinessDashboardData } from "@/lib/business/types";
 
 type BusinessDashboardPageProps = {
   data: BusinessDashboardData;
 };
 
-/** Business hub — Master Menu (PO). Bottom nav visible. */
+/** Business hub — Master Menu (PO Absolute Final). */
 export function BusinessDashboardPage({ data }: BusinessDashboardPageProps) {
   return (
     <AccountCanonicalShell
@@ -14,6 +15,7 @@ export function BusinessDashboardPage({ data }: BusinessDashboardPageProps) {
       backHref="/account"
       backLabel="My Account"
       showHeaderTitle
+      intro={BUSINESS_HUB_INTRO}
     >
       <BusinessMenuSections storeSlug={data.company.storeSlug} />
     </AccountCanonicalShell>

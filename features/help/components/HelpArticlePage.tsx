@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 
-import { HelpAssistant } from "@/features/help/components/HelpAssistant";
 import { HelpResolutionPrompt } from "@/features/help/components/HelpResolutionPrompt";
 import { getHelpTopic } from "@/lib/help/content/topics";
 import { getArticleSections } from "@/lib/help/content/article-meta";
@@ -79,7 +78,12 @@ export function HelpArticlePage({ article }: HelpArticlePageProps) {
         </div>
       </CanonicalCard>
 
-      <HelpAssistant compact />
+      <CanonicalSection title="Need more help?">
+        <CanonicalCard variant="list">
+          <CanonicalMenuRow title="Contact Support" description="Open a support request" href="/support" />
+          <CanonicalMenuRow title="Help Centre" description="Browse guides and FAQs" href="/help" />
+        </CanonicalCard>
+      </CanonicalSection>
 
       {related.length ? (
         <CanonicalSection title="Related articles">

@@ -1,5 +1,5 @@
 import { Store } from "lucide-react";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { cn } from "@/lib/cn";
 import { formatGBP } from "@/features/commerce-ui/lib/format";
 import { CheckoutLineItem } from "@/features/commerce-ui/components/CheckoutLineItem";
@@ -28,7 +28,7 @@ export function SellerSummaryCard({
   const subtotal = group.items.reduce((sum, item) => sum + item.price, 0);
 
   return (
-    <Card padding="lg" className={cn("flex flex-col gap-ds-3", className)}>
+    <CanonicalCard variant="small" className={cn("flex w-full flex-col gap-ds-2", className)}>
       <div className="flex items-center gap-ds-2">
         <span className="flex h-7 w-7 items-center justify-center rounded-ds-full bg-primary/10 text-primary">
           <Store className="h-4 w-4" aria-hidden />
@@ -48,10 +48,10 @@ export function SellerSummaryCard({
         ))}
       </div>
 
-      <div className="flex items-center justify-between border-t border-border pt-ds-3 text-sm">
+      <div className="flex items-center justify-between border-t border-border pt-ds-2 text-sm">
         <span className="text-text-secondary">Subtotal</span>
         <span className="font-semibold text-text-primary">{formatGBP(subtotal)}</span>
       </div>
-    </Card>
+    </CanonicalCard>
   );
 }

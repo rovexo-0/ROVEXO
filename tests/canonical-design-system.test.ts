@@ -26,8 +26,8 @@ describe("ROVEXO Canonical Design System v1.0", () => {
     const css = readSource("styles/rovexo/canonical-ds.css");
     expect(css).toContain("--cds-color-primary: #9333ea");
     expect(css).toContain("--cds-icon-size: 20px");
-    expect(css).toContain("--cds-row-min-height: 48px");
-    expect(css).toContain("--cds-chevron-size: 16px");
+    expect(css).toContain("--cds-row-min-height: 56px");
+    expect(css).toContain("--cds-chevron-size: 18px");
     expect(css).toContain(".cds-menu-row");
     expect(css).toContain(".cds-section__card");
     expect(css).toContain(".cds-menu-row__subtitle");
@@ -85,11 +85,11 @@ describe("ROVEXO Canonical Design System v1.0", () => {
   it("CanonicalMenuRow CSS aligns with ac-canonical row tokens", () => {
     const css = readSource("styles/rovexo/canonical-ds.css");
     const accountCss = readSource("styles/rovexo/account-canonical-v2.css");
-    expect(css).toContain("--cds-row-min-height: 48px");
-    expect(css).toContain("--cds-row-padding-x: 14px");
+    expect(css).toContain("--cds-row-min-height: 56px");
+    expect(css).toContain("--cds-row-padding-x: 16px");
     expect(css).toContain("--cds-color-chevron: #cbd5e1");
-    expect(accountCss).toContain("min-height: 48px");
-    expect(accountCss).toContain("padding: 0 14px");
+    expect(accountCss).toContain("min-height: 56px");
+    expect(accountCss).toContain("padding: 0 16px");
     expect(accountCss).toContain("color: #cbd5e1");
   });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { ShippingTrackingTimeline } from "@/features/shipping/components/ShippingTrackingTimeline";
 import { buildTrackingTimeline, shippingStatusLabel } from "@/lib/shipping";
 import type { ShippingRecord } from "@/lib/shipping/types";
@@ -16,7 +16,7 @@ export const ShippingSummary = memo(function ShippingSummary({ record }: Shippin
   const timeline = buildTrackingTimeline(record.trackingEvents, record.status);
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-4">
+    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-2">
       <div>
         <h2 className="text-base font-semibold text-text-primary">Shipping summary</h2>
         <p className="mt-ds-1 text-sm text-text-secondary">
@@ -24,6 +24,6 @@ export const ShippingSummary = memo(function ShippingSummary({ record }: Shippin
         </p>
       </div>
       <ShippingTrackingTimeline items={timeline} />
-    </Card>
+    </CanonicalCard>
   );
 });

@@ -17,7 +17,11 @@ describe("wallet engine", () => {
     expect(doc.marketplaceVersion).toBe("ROVEXO v1.0");
     expect(doc.primaryCountry).toBe("United Kingdom");
     expect(doc.currency).toBe("GBP");
-    expect(doc.walletTypes.some((t) => t.id === "seller" && t.enabled)).toBe(true);
+    // Final Master Order: only Personal + Business wallets are enabled.
+    expect(doc.walletTypes.some((t) => t.id === "buyer" && t.enabled)).toBe(true);
+    expect(doc.walletTypes.some((t) => t.id === "business" && t.enabled)).toBe(true);
+    expect(doc.walletTypes.some((t) => t.id === "seller" && t.enabled)).toBe(false);
+    expect(doc.walletTypes.some((t) => t.id === "platform" && t.enabled)).toBe(false);
     expect(doc.integrations.ordersEngine).toBe(true);
     expect(doc.integrations.buyerProtection).toBe(true);
     expect(doc.holdPeriodHours).toBe(24);

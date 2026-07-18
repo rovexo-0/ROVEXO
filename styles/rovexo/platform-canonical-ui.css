@@ -8,14 +8,14 @@
 @import "./account-settings-ui.css";
 
 :root {
-  --pcu-card-radius: 14px;
+  --pcu-card-radius: 20px;
   --pcu-card-border: rgb(15 23 42 / 0.08);
   --pcu-card-shadow: 0 1px 6px rgb(15 23 42 / 0.04);
   --pcu-row-divider: rgb(15 23 42 / 0.06);
-  --pcu-section-gap: 12px;
+  --pcu-section-gap: 16px;
   --pcu-page-padding-x: 16px;
-  --pcu-page-max-width: 640px;
-  --pcu-row-min-height: 48px;
+  --pcu-page-max-width: 100%;
+  --pcu-row-min-height: 56px;
   --pcu-touch-target: 44px;
   --pcu-section-title-size: 0.6875rem;
   --pcu-section-title-tracking: 0.06em;
@@ -29,10 +29,10 @@
   flex-direction: column;
   gap: var(--pcu-section-gap);
   width: 100%;
-  max-width: var(--pcu-page-max-width);
-  margin-inline: auto;
+  max-width: 100%;
+  margin-inline: 0;
   padding: 8px var(--pcu-page-padding-x)
-    calc(var(--bottom-nav-shell-height, 56px) + 28px + env(safe-area-inset-bottom, 0px));
+    calc(var(--bottom-nav-shell-height, 52px) + 16px + env(safe-area-inset-bottom, 0px));
   background: var(--pcu-body-bg);
 }
 

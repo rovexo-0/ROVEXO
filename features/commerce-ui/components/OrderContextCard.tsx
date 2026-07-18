@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
@@ -21,22 +21,22 @@ export function OrderContextCard({
   className,
 }: OrderContextCardProps) {
   return (
-    <Card padding="lg" className={cn("flex flex-col gap-ds-1", className)}>
+    <CanonicalCard variant="small" className={cn("flex w-full flex-col gap-ds-1", className)}>
       <p className="text-sm font-semibold text-text-primary">Order #{orderNumber}</p>
       <p className="text-sm text-text-secondary">
-        {itemCount} {itemCount === 1 ? "Item" : "Items"} from {sellerName}
+        {itemCount} {itemCount === 1 ? "item" : "items"} · {sellerName}
       </p>
       <Link
         href={orderHref}
         className={cn(
-          "mt-ds-2 inline-flex items-center gap-ds-1 text-sm font-medium text-primary",
+          "mt-ds-1 inline-flex items-center gap-ds-1 text-sm font-medium text-primary",
           focusRing,
           transitionFast,
         )}
       >
-        View Order
+        View order
         <ChevronRight className="h-4 w-4" aria-hidden />
       </Link>
-    </Card>
+    </CanonicalCard>
   );
 }

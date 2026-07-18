@@ -9,12 +9,7 @@ export function SettingsV1() {
   const returnTo = searchParams.get("returnTo");
 
   return (
-    <AccountCanonicalShell
-      title="Settings"
-      backHref="/account"
-      showHeaderTitle
-      intro="Manage your account and preferences"
-    >
+    <AccountCanonicalShell title="Settings" backHref="/account" showHeaderTitle>
       <SettingsMenuSections returnTo={returnTo} />
     </AccountCanonicalShell>
   );

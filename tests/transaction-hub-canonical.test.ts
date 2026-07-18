@@ -85,13 +85,13 @@ describe("transaction hub canonical", () => {
 });
 
 describe("transaction hub chat integration", () => {
-  it("wires bottom actions into ChatPage", () => {
+  it("wires bottom actions into ConversationHub", () => {
     const chat = readFileSync(
-      path.join(process.cwd(), "features/messages/components/ChatPage.tsx"),
+      path.join(process.cwd(), "features/inbox/components/ConversationHub.tsx"),
       "utf8",
     );
     expect(chat).toContain("TransactionHubBottomActions");
-    expect(chat).toContain('data-messages-version="v1.0"');
+    expect(chat).toContain("data-conversation-hub");
   });
 
   it("exposes functional buyer actions without page navigation for cart", () => {

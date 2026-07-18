@@ -1,7 +1,7 @@
 /* ROVEXO Seller Dashboard v1.0 — Single Source of Truth */
 
 .seller-page {
-  --seller-max-width: 480px;
+  --seller-max-width: 100%;
   --seller-pad-x: 16px;
   --seller-pad-top: 16px;
   --seller-pad-bottom: 110px;
@@ -444,7 +444,7 @@
 }
 
 @media (min-width: 1024px) {
-  .seller-page { --seller-max-width: 480px; }
+  .seller-page { --seller-max-width: 100%; }
 }
 
 @media (min-width: 1280px) {

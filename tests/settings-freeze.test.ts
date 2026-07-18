@@ -46,7 +46,6 @@ describe("Settings v1.0 — CANONICAL FREEZE", () => {
     expect(settings).toContain("AccountCanonicalShell");
     expect(settings).toContain("showHeaderTitle");
     expect(settings).toContain('title="Settings"');
-    expect(settings).toContain("Manage your account and preferences");
     expect(settings).toContain("SettingsMenuSections");
     expect(sections).toContain('data-settings-canonical="v1.0"');
     expect(sections).toContain("buildSettingsMenuSections");

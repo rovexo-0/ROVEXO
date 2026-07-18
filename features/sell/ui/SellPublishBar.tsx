@@ -56,7 +56,7 @@ export const SellPublishBar = forwardRef<HTMLDivElement>(function SellPublishBar
       role="region"
       aria-label="Publish listing"
     >
-      <div className="mx-auto max-w-2xl px-[var(--cds-space-page-x)] py-ds-3">
+      <div className="w-full max-w-none px-[max(env(safe-area-inset-left),16px)] pr-[max(env(safe-area-inset-right),16px)] py-ds-3">
         <CanonicalButton
           fullWidth
           loading={isPublishing}

@@ -119,10 +119,11 @@ export function CartPage({ cart }: CartPageProps) {
 
   return (
     <AccountCanonicalShell
-      title={`Your Cart (${cart.itemCount})`}
+      title={`Cart (${cart.itemCount})`}
       backHref="/"
       showHeaderTitle
       className="cart-v1-shell"
+      contentClassName="!px-2 !pt-0"
       rightAction={
         cart.items.length > 0 ? (
           <button
@@ -141,28 +142,24 @@ export function CartPage({ cart }: CartPageProps) {
         <ScrollContainer as="div" withBottomNav className="cart-v1__main">
           {cart.items.length === 0 ? (
             <EmptyState
-              title="Your cart is empty"
-              description="Add items from listings to checkout securely on ROVEXO."
-              actionLabel="Continue shopping"
+              title="Cart empty"
+              description="Add items from listings."
+              actionLabel="Browse"
               actionHref="/"
             />
           ) : (
             <>
               {multiSeller ? (
-                <p className="cart-v1__multi-seller-note px-ds-4 pb-ds-2 text-sm text-text-secondary">
-                  Items from {sellerGroups.length} sellers — each seller is checked out separately.
+                <p className="cart-v1__multi-seller-note pb-ds-1 text-xs text-text-secondary">
+                  {sellerGroups.length} sellers · checkout separately
                 </p>
               ) : null}
               <ul className="cart-v1__items">
                 {sellerGroups.map((group) => (
                   <li key={group.sellerId} className="cart-v1__seller-group">
                     {multiSeller ? (
-                      <h2 className="cart-v1__seller-heading px-ds-4 pb-ds-2 pt-ds-1 text-sm font-semibold text-text-primary">
+                      <h2 className="cart-v1__seller-heading pb-ds-1 pt-ds-1 text-xs font-semibold text-text-primary">
                         {group.sellerName}
-                        <span className="font-normal text-text-secondary">
-                          {" "}
-                          · {group.itemCount} item{group.itemCount === 1 ? "" : "s"}
-                        </span>
                       </h2>
                     ) : null}
                     <ul className="cart-v1__seller-items">
@@ -189,14 +186,12 @@ export function CartPage({ cart }: CartPageProps) {
                           <div className="cart-v1__item-copy">
                             <p className="cart-v1__item-title">{item.title}</p>
                             <p className="cart-v1__item-price">{formatListingPrice(item.price)}</p>
-                            {item.sellerName ? (
+                            {item.sellerName && !multiSeller ? (
                               <p className="cart-v1__item-seller">{item.sellerName}</p>
                             ) : null}
-                            {item.available ? (
-                              <p className="cart-v1__item-stock">In stock</p>
-                            ) : (
+                            {!item.available ? (
                               <p className="cart-v1__oos">Out of stock</p>
-                            )}
+                            ) : null}
                           </div>
 
                           <button
@@ -311,7 +306,7 @@ export function CartPage({ cart }: CartPageProps) {
               disabled={!checkoutItem}
               onClick={proceedToCheckout}
             >
-              Proceed to Checkout
+              Checkout
             </button>
           </div>
         ) : null}

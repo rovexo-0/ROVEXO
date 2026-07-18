@@ -71,7 +71,7 @@ export function OrderDetailsView({
 
       <div
         className={cn(
-          "mx-auto flex w-full max-w-lg flex-1 flex-col gap-ds-4",
+          "flex w-full flex-1 flex-col gap-ds-4",
           embedded ? "px-0 py-0" : "px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]",
         )}
       >

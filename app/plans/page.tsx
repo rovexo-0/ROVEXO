@@ -26,7 +26,7 @@ export default async function PlansRoute() {
       backHref="/account"
       backLabel="My Account"
       showBottomNav={false}
-      contentClassName="max-w-5xl gap-ds-6 py-ds-5"
+      contentClassName="max-w-none gap-ds-6 py-ds-5"
     >
       <PlansPage plans={plans} products={MONETIZATION_PRODUCTS} subscription={subscription} />
     </CanonicalPageShell>

@@ -8,7 +8,7 @@ export function AiOperationsHeader() {
         <h1 className="mt-ds-2 text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
           AI Operations Center
         </h1>
-        <p className="mt-ds-3 max-w-2xl text-sm text-text-secondary sm:text-base">
+        <p className="mt-ds-3 w-full max-w-none text-sm text-text-secondary sm:text-base">
           Intelligent platform monitoring, diagnostics and automatic repair.
         </p>
       </div>

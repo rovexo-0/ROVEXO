@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Card } from "@/components/ui/Card";
+import { CanonicalCard } from "@/src/components/canonical";
 import { CommerceStatusBadge } from "@/features/commerce-ui/components/CommerceStatusBadge";
 import { parcelStatusMeta } from "@/features/commerce-ui/lib/status";
 import { shippingStatusLabel } from "@/lib/shipping/status";
@@ -20,7 +20,7 @@ export const ShipmentSummary = memo(function ShipmentSummary({
   const statusLabel = record ? shippingStatusLabel(record.status) : "Preparing Shipment";
 
   return (
-    <Card padding="lg" className="flex flex-col gap-ds-4">
+    <CanonicalCard variant="medium" className="flex w-full flex-col gap-ds-2">
       <div className="flex items-center justify-between gap-ds-3">
         <div>
           <h2 className="text-base font-semibold text-text-primary">Shipment</h2>
@@ -44,7 +44,7 @@ export const ShipmentSummary = memo(function ShipmentSummary({
             return (
               <li
                 key={parcel.id}
-                className="flex items-center justify-between gap-ds-3 px-ds-4 py-ds-3 text-sm"
+                className="flex items-center justify-between gap-ds-2 px-ds-3 py-ds-2 text-sm"
               >
                 <span className="font-medium text-text-primary">
                   Parcel {parcel.parcelNumber} of {parcel.totalParcels}
@@ -55,6 +55,6 @@ export const ShipmentSummary = memo(function ShipmentSummary({
           })}
         </ul>
       ) : null}
-    </Card>
+    </CanonicalCard>
   );
 });

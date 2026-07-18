@@ -53,7 +53,7 @@ export function CanonicalPageShell({
         <ScrollContainer withBottomNav={showBottomNav} className={cn("flex-1", scrollClassName)}>
           <div
             className={cn(
-              "pcu-module pcu-module--flush mx-auto flex w-full max-w-[640px] flex-col gap-ds-3",
+              "pcu-module pcu-module--flush flex w-full max-w-none flex-col gap-ds-3",
               contentClassName,
             )}
           >

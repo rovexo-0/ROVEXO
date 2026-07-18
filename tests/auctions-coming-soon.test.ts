@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { GET, POST } from "@/app/api/auctions/notify/route";
@@ -43,10 +43,13 @@ describe("auctions launch-ready consumer gate", () => {
     expect(route).not.toContain("getAuctionsPageData");
   });
 
-  it("keeps the full auctions engine available for future replacement", () => {
-    expect(readSource("features/auctions/components/AuctionsPage.tsx")).toContain(
-      "export function AuctionsPage",
+  it("removes orphan consumer auctions UI (route redirects to Search)", () => {
+    expect(existsSync(path.join(process.cwd(), "features/auctions/components/AuctionsPage.tsx"))).toBe(
+      false,
     );
+    expect(
+      existsSync(path.join(process.cwd(), "features/auctions/components/AuctionsComingSoonPage.tsx")),
+    ).toBe(false);
   });
 
   it("retains launch preview copy for future re-enable", () => {

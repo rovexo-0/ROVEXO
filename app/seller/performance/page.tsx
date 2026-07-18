@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { SellerPerformanceDashboardView } from "@/features/seller-performance/components/SellerPerformanceDashboardView";
 import { getAuthContext } from "@/lib/auth/session";
 import { getSellerPerformanceDashboard } from "@/lib/seller-performance/service";
 
 export const metadata: Metadata = {
-  title: "Seller Performance | ROVEXO",
-  description: "Official ROVEXO Reputation Engine — seller score, level, and achievements.",
+  title: "Performance · ROVEXO",
+  description: "Seller performance score and factors.",
 };
 
 export default async function SellerPerformancePage() {
@@ -17,10 +16,5 @@ export default async function SellerPerformancePage() {
   }
 
   const data = await getSellerPerformanceDashboard(auth.user.id);
-
-  return (
-    <BetaAppShell showBottomNav={false}>
-      <SellerPerformanceDashboardView data={data} />
-    </BetaAppShell>
-  );
+  return <SellerPerformanceDashboardView data={data} />;
 }

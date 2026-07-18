@@ -31,7 +31,7 @@ export function IntegrationsEngineHub({ config, context, modules, analytics }: I
     <BetaAppShell bottomNavTab="account">
       <BetaPageHeader title="Integrations" backHref="/account" />
 
-      <HubPageMain className="integ-hub mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5 ">
+      <HubPageMain className="integ-hub flex w-full max-w-none flex-col gap-ds-4 px-ds-4 py-ds-5">
         <header className="integ-hub__intro">
           <p className="integ-hub__eyebrow">Integrations Engine</p>
           <p className="text-sm text-text-secondary">

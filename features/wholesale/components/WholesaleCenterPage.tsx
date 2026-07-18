@@ -1,10 +1,14 @@
-import { RfqSubmitForm } from "@/features/wholesale/components/RfqSubmitForm";
-import { WholesaleMobileNav } from "@/features/wholesale/components/WholesaleMobileNav";
-import { WholesalePricingManager } from "@/features/wholesale/components/WholesalePricingManager";
-import { ResponsiveShell } from "@/features/mobile-ui";
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+import { RfqSubmitForm } from "@/features/wholesale/components/RfqSubmitForm";
+import { WholesalePricingManager } from "@/features/wholesale/components/WholesalePricingManager";
+import {
+  CanonicalButtonLink,
+  CanonicalCard,
+  CanonicalInfoBlock,
+  CanonicalMenuRow,
+  CanonicalSection,
+} from "@/src/components/canonical";
 import type { RfqRequest, WholesaleAccount } from "@/lib/wholesale/types";
 import { WHOLESALE_FEATURES } from "@/lib/wholesale/types";
 
@@ -13,141 +17,110 @@ type WholesaleCenterPageProps = {
   rfqs: RfqRequest[];
 };
 
+const QUICK_LINKS = [
+  { href: "/business/inventory", label: "Bulk pricing" },
+  { href: "/business/directory", label: "Business directory" },
+  { href: "/plans", label: "Wholesale plans" },
+  { href: "/help/category/wholesale", label: "Wholesale help" },
+  { href: "/trust#verification", label: "Verification" },
+  { href: "/business/dashboard", label: "Business tools" },
+] as const;
+
 export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps) {
   return (
-    <div className="flex flex-col gap-ds-8">
-      <section className="rounded-ds-xl bg-gradient-to-br from-primary/10 via-surface to-surface p-ds-6">
-        <p className="text-sm font-medium text-primary">ROVEXO Wholesale Center</p>
-        <h2 className="mt-ds-2 text-2xl font-bold text-text-primary">Wholesale & B2B</h2>
-        <p className="mt-ds-2 text-sm text-text-secondary">
-          MOQ, bulk pricing, RFQ, verified suppliers, and company-to-company trade tools.
-        </p>
-      </section>
+    <AccountCanonicalShell
+      title="Wholesale"
+      backHref="/business/dashboard"
+      backLabel="Business tools"
+      showHeaderTitle
+      showBottomNav={false}
+      intro="MOQ, bulk pricing, RFQ."
+    >
+      <div className="ac-canonical flex w-full flex-col gap-ds-4 pb-ds-5">
+        <CanonicalSection title="Links">
+          <CanonicalCard variant="list">
+            {QUICK_LINKS.map((link) => (
+              <CanonicalMenuRow key={link.href} title={link.label} href={link.href} />
+            ))}
+          </CanonicalCard>
+        </CanonicalSection>
 
-      <ResponsiveShell
-        mobile={<WholesaleMobileNav />}
-        desktop={
-          <section className="grid gap-ds-3 sm:grid-cols-2 lg:grid-cols-3">
-            <QuickNav href="/business/inventory" label="Bulk pricing" />
-            <QuickNav href="/business/directory" label="Business directory" />
-            <QuickNav href="/plans" label="Wholesale plans" />
-            <QuickNav href="/help/category/wholesale" label="Wholesale help" />
-            <QuickNav href="/trust#verification" label="Verification" />
-            <QuickNav href="/business/dashboard" label="Business tools" />
-          </section>
-        }
-      />
+        <CanonicalSection title="Account">
+          <CanonicalCard variant="list">
+            {account ? (
+              <>
+                <CanonicalMenuRow title="Company" value={account.companyName} showChevron={false} />
+                <CanonicalMenuRow title="Type" value={account.accountType} showChevron={false} />
+                <CanonicalMenuRow title="Default MOQ" value={String(account.moqDefault)} showChevron={false} />
+                <CanonicalMenuRow
+                  title="Verified"
+                  value={account.verified ? "Yes" : "No"}
+                  showChevron={false}
+                />
+                <CanonicalMenuRow
+                  title="Bulk pricing"
+                  value={account.bulkPricingEnabled ? "On" : "Off"}
+                  showChevron={false}
+                />
+                <CanonicalMenuRow title="RFQ" value={account.rfqEnabled ? "On" : "Off"} showChevron={false} />
+              </>
+            ) : (
+              <CanonicalInfoBlock variant="description">
+                <p className="font-medium text-text-primary">No wholesale account</p>
+                <CanonicalButtonLink href="/business/dashboard" variant="secondary" className="mt-ds-3">
+                  Set up in Business tools
+                </CanonicalButtonLink>
+              </CanonicalInfoBlock>
+            )}
+          </CanonicalCard>
+        </CanonicalSection>
 
-      <section className="grid gap-ds-4 lg:grid-cols-[1fr_1fr]">
-        <Card padding="lg" className="">
-          <h2 className="text-lg font-semibold">Your wholesale account</h2>
-          {account ? (
-            <div className="mt-ds-4 space-y-ds-2 text-sm text-text-secondary">
-              <p>
-                <span className="font-medium text-text-primary">{account.companyName}</span>
-              </p>
-              <p>Type: {account.accountType}</p>
-              <p>Default MOQ: {account.moqDefault}</p>
-              <div className="flex flex-wrap gap-ds-2 pt-ds-2">
-                {account.verified ? <Badge>Verified Wholesale</Badge> : null}
-                {account.bulkPricingEnabled ? <Badge>Bulk Pricing</Badge> : null}
-                {account.rfqEnabled ? <Badge>RFQ Enabled</Badge> : null}
-              </div>
-            </div>
-          ) : (
-            <p className="mt-ds-4 text-sm text-text-secondary">
-              No wholesale account yet.{" "}
-              <Link href="/business/dashboard" className="text-primary underline">
-                Set up from Business tools
-              </Link>
-            </p>
-          )}
-        </Card>
-
-        <Card padding="lg" className="" id="pricing">
-          <h2 className="text-lg font-semibold">Bulk pricing tiers</h2>
+        <CanonicalSection title="Bulk pricing" card>
           {account?.bulkPricingEnabled ? (
-            <div className="mt-ds-4">
-              <WholesalePricingManager />
-            </div>
+            <WholesalePricingManager />
           ) : (
-            <p className="mt-ds-4 text-sm text-text-secondary">
-              Enable bulk pricing from your{" "}
-              <Link href="/business/inventory" className="text-primary underline">
-                business inventory
-              </Link>
-              .
-            </p>
+            <CanonicalInfoBlock variant="description">
+              <p className="text-sm text-text-secondary">
+                Enable bulk pricing from{" "}
+                <Link href="/business/inventory" className="text-primary underline">
+                  business inventory
+                </Link>
+                .
+              </p>
+            </CanonicalInfoBlock>
           )}
-        </Card>
-      </section>
+        </CanonicalSection>
 
-      <section className="grid gap-ds-4 lg:grid-cols-[1fr_1fr]">
-        <Card padding="lg" className="lg:col-span-2">
-          <h2 className="text-lg font-semibold">Wholesale features</h2>
-          <ResponsiveShell
-            mobile={
-              <div className="mt-ds-4 mhub-grid">
-                {WHOLESALE_FEATURES.map((feature) => (
-                  <div key={feature.id} className="mhub-card mhub-toggle-card">
-                    <p className="font-medium text-text-primary">{feature.title}</p>
-                    <p className="mt-ds-1 text-sm text-text-secondary">{feature.description}</p>
-                  </div>
-                ))}
-              </div>
-            }
-            desktop={
-              <ul className="mt-ds-4 space-y-ds-3">
-                {WHOLESALE_FEATURES.map((feature) => (
-                  <li key={feature.id}>
-                    <p className="font-medium text-text-primary">{feature.title}</p>
-                    <p className="text-sm text-text-secondary">{feature.description}</p>
-                  </li>
-                ))}
-              </ul>
-            }
-          />
-        </Card>
-      </section>
+        <CanonicalSection title="Features">
+          <CanonicalCard variant="list">
+            {WHOLESALE_FEATURES.map((feature) => (
+              <CanonicalMenuRow key={feature.id} title={feature.title} showChevron={false} />
+            ))}
+          </CanonicalCard>
+        </CanonicalSection>
 
-      <RfqSubmitForm />
+        <CanonicalSection title="Submit RFQ" card>
+          <RfqSubmitForm />
+        </CanonicalSection>
 
-      <section>
-        <h2 className="text-lg font-semibold">Open RFQ requests</h2>
-        <div className="mt-ds-4 grid gap-ds-3">
-          {rfqs.length ? (
-            rfqs.map((rfq) => (
-              <Card key={rfq.id} padding="md" className="">
-                <div className="flex items-start justify-between gap-ds-3">
-                  <div>
-                    <p className="font-semibold text-text-primary">{rfq.title}</p>
-                    <p className="mt-ds-1 text-sm text-text-secondary">{rfq.description}</p>
-                    <p className="mt-ds-2 text-xs text-text-muted">
-                      Qty {rfq.quantity}
-                      {rfq.categorySlug ? ` · ${rfq.categorySlug}` : ""}
-                    </p>
-                  </div>
-                  {rfq.premium ? <Badge>Premium RFQ</Badge> : null}
-                </div>
-              </Card>
-            ))
-          ) : (
-            <Card padding="md" className="">
-              <p className="text-sm text-text-secondary">No open RFQ requests yet.</p>
-            </Card>
-          )}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function QuickNav({ href, label }: { href: string; label: string }) {
-  return (
-    <Link href={href}>
-      <Card padding="sm" interactive className="">
-        <p className="text-sm font-semibold text-text-primary">{label}</p>
-      </Card>
-    </Link>
+        <CanonicalSection title="Open RFQs">
+          <CanonicalCard variant="list">
+            {rfqs.length ? (
+              rfqs.map((rfq) => (
+                <CanonicalMenuRow
+                  key={rfq.id}
+                  title={rfq.title}
+                  description={rfq.description}
+                  value={rfq.premium ? "Premium" : `Qty ${rfq.quantity}`}
+                  showChevron={false}
+                />
+              ))
+            ) : (
+              <CanonicalMenuRow title="No open RFQs" showChevron={false} disabled />
+            )}
+          </CanonicalCard>
+        </CanonicalSection>
+      </div>
+    </AccountCanonicalShell>
   );
 }
