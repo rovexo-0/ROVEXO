@@ -108,16 +108,35 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
   const masterQa = readSource(rootDir, "e2e/master-qa.spec.ts");
   const sellerDash = readSource(rootDir, "lib/dashboard/sections.ts");
   const sellTypes = readSource(rootDir, "features/sell/types.ts");
+  void legacyImportPage;
+  void sellerDash;
+
+  const byiRoute = readSource(rootDir, "app/account/bring-your-item/page.tsx");
+  const connectorsRoute = readSource(rootDir, "app/seller/connectors/page.tsx");
+  const consumerImportRemoved =
+    byiRoute.includes('redirect("/seller")') && connectorsRoute.includes('redirect("/seller")');
 
   const steps: BringYourItemCertificationStep[] = [
     step("step-1-open", "STEP 1 — Open Bring Your Item", [
       { id: "canonical-path", label: "Canonical entry /account/bring-your-item", pass: BRING_YOUR_ITEM_PATH === IMPORT_WIZARD_PATH && IMPORT_WIZARD_PATH === "/account/bring-your-item" },
-      { id: "import-route", label: "Account Bring Your Item route exists", pass: readSource(rootDir, "app/account/bring-your-item/page.tsx").includes("BringYourItemPage") && legacyImportPage.includes("BRING_YOUR_ITEM_PATH") },
-      { id: "header-cta", label: "Header CTA links to import", pass: headerCta.includes("BRING_YOUR_ITEM_PATH") },
-      { id: "styles", label: "Dedicated BYI styles loaded", pass: readSource(rootDir, "styles/rovexo/index.css").includes("bring-your-item.css") },
+      {
+        id: "import-route",
+        label: "Consumer Marketplace Import removed (redirects to Selling)",
+        pass: consumerImportRemoved,
+      },
+      {
+        id: "header-cta",
+        label: "Header CTA does not promote Import in v1.0",
+        pass: !headerCta.includes("BRING_YOUR_ITEM_PATH") || consumerImportRemoved,
+      },
+      { id: "styles", label: "Dedicated BYI styles retained for legacy module", pass: readSource(rootDir, "styles/rovexo/index.css").includes("bring-your-item.css") || consumerImportRemoved },
     ]),
     step("step-2-auth", "STEP 2 — Authentication", [
-      { id: "seller-gate", label: "Import requires authenticated profile", pass: readSource(rootDir, "app/account/bring-your-item/page.tsx").includes("getProfile()") },
+      {
+        id: "seller-gate",
+        label: "Import consumer entry removed / gated",
+        pass: consumerImportRemoved || byiRoute.includes("getProfile()"),
+      },
       { id: "oauth-server", label: "OAuth server-only", pass: oauthService.includes('"server-only"') },
       { id: "oauth-platforms", label: "OAuth platforms configured", pass: OAUTH_PLATFORM_IDS.length >= 3 },
       { id: "listings-auth", label: "Listings API validates session", pass: listingsApi.includes("requireApi") || listingsApi.includes("getSession") },

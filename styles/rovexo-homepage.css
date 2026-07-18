@@ -58,8 +58,8 @@
   --rx-home-listing-card-media-h: 190px;
   --rx-home-listing-card-body-h: 110px;
   --rx-home-listing-card-radius: var(--ds-radius-lg);
-  --rx-home-listing-card-shadow: var(--ds-shadow-soft);
-  --rx-home-listing-card-border: 1px solid var(--ds-color-border);
+  --rx-home-listing-card-border: none;
+  --rx-home-listing-card-shadow: none;
   background: var(--ds-color-background);
   overflow-x: hidden;
   padding-bottom: calc(84px + var(--ds-space-5) + env(safe-area-inset-bottom, 0px));

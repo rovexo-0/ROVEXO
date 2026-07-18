@@ -1,28 +1,6 @@
-import type { Metadata } from "next";
-import { Suspense } from "react";
-import { BringYourItemPage } from "@/features/account-module/components/BringYourItemPage";
-import { BringYourItemComingSoonPage } from "@/features/account-module/components/BringYourItemComingSoonPage";
-import { isStoreMigrationEnabled } from "@/lib/seller/migration/config";
-import { getProfile } from "@/lib/profile/data";
-import { privatePageMetadata } from "@/lib/seo/private-metadata";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  ...privatePageMetadata,
-  title: "Bring Your Item | ROVEXO",
-  description: "Import your eBay listings directly into ROVEXO.",
-};
-
-export default async function AccountBringYourItemRoute() {
-  if (!isStoreMigrationEnabled()) {
-    await getProfile();
-    return <BringYourItemComingSoonPage />;
-  }
-
-  await getProfile();
-
-  return (
-    <Suspense fallback={null}>
-      <BringYourItemPage />
-    </Suspense>
-  );
+/** Marketplace Import removed (PO Final Authorization). */
+export default function AccountBringYourItemRemoved() {
+  redirect("/seller");
 }

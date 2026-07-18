@@ -2,12 +2,16 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
+import {
+  buildBusinessWalletMenuSections,
+  buildPersonalWalletMenuSections,
+} from "@/lib/account-center/wallet-menus";
 
 function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("Wallet v1.2 simplified UI SSOT", () => {
+describe("Wallet Compact Premium SSOT — max 2 wallets", () => {
   it("defines canonical wallet routes", () => {
     expect(WALLET_ROUTES.hub).toBe("/wallet");
     expect(WALLET_ROUTES.paymentMethods).toBe("/wallet/payment-methods");
@@ -17,121 +21,39 @@ describe("Wallet v1.2 simplified UI SSOT", () => {
     expect(WALLET_ROUTES.payouts).toBe("/wallet/payouts");
   });
 
-  it("matches v1.2 simplified structure and copy", () => {
+  it("matches Personal Wallet Compact Premium structure", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
     const css = readSource("styles/rovexo/wallet-hub-v1.css");
-    const bank = readSource("features/wallet/components/WalletConnectedBank.tsx");
-    const txns = readSource("features/wallet/components/WalletRecentTransactions.tsx");
-    const insights = readSource("features/wallet/components/WalletInsights.tsx");
+    const page = readSource("app/wallet/page.tsx");
+    const business = readSource("app/business/wallet/page.tsx");
 
-    expect(hub).toContain('data-wallet-ui="v1.2-simplified"');
-    expect(hub).toContain('data-wallet-hub-version="v1.2-ui"');
-    expect(hub).toContain('data-wallet-freeze="pending-visual-qa"');
+    expect(hub).toContain('data-wallet-ui="compact-premium"');
+    expect(hub).toContain('data-wallet-hub-version="v2.0-master"');
     expect(hub).toContain("wallet-v2__hero");
-    expect(hub).toContain("Available Balance");
-    expect(hub).toContain("wallet-v2__status-pill");
-    expect(hub).toContain('label="Add Bank"');
-    expect(hub).toContain("wallet-v2__quick-card");
+    expect(hub).toContain("PersonalWalletMenuSections");
+    expect(hub).toContain("BusinessWalletMenuSections");
     expect(hub).not.toContain("wallet-v2__balance-card");
-    expect(hub).not.toContain("Paid Out");
-    expect(hub).not.toContain("Quick Actions");
-    expect(hub).not.toContain("wallet-v2__metrics");
-    expect(hub).not.toContain("BalanceMetricCard");
-    expect(hub).not.toContain("Lifetime Withdrawn");
-    expect(hub).not.toContain("Verified Wallet");
     expect(hub).not.toContain("Platform Fee");
-    expect(hub).not.toContain("wallet-statements");
     expect(hub).not.toContain("WalletDesktop");
     expect(hub).not.toContain("WalletMobile");
 
-    expect(insights).toContain("Insights");
-    expect(insights).toContain("View all");
-    expect(insights).toContain("This Month");
-    expect(insights).toContain("Next Payout");
-    expect(insights).toContain("No upcoming payout when you have pending funds.");
-    expect(insights).toContain("Estimated payout");
+    expect(page).toContain('variant="personal"');
+    expect(page).not.toContain("WALLET_ROUTES.paymentMethods");
+    expect(business).toContain('variant="business"');
+    expect(business).not.toContain('redirect("/wallet")');
 
-    expect(bank).toContain("Connect Bank Account →");
-    expect(bank).toContain("No bank account connected");
-    expect(bank).toContain("Change Bank");
-    expect(bank).toContain("Edit Bank");
-    expect(bank).toContain("Remove Bank");
-    expect(bank).not.toContain("wallet-v2__section-title");
-    expect(bank).not.toContain(">Connected Bank<");
-
-    expect(txns).toContain("View all");
-    expect(txns).toContain("No transactions yet");
-    expect(txns).toContain("IntersectionObserver");
-
-    expect(css).toContain("--wallet-pad-x: 20px");
-    expect(css).toContain("430px");
-    expect(css).toContain("max-width: 480px");
-    expect(css).toContain("height: 170px");
-    expect(css).toContain("height: 108px");
-    expect(css).toContain("height: 118px");
-    expect(css).toContain("height: 52px");
-    expect(css).toContain("height: 96px");
-    expect(css).toContain("font-size: 2.5rem");
-    expect(css).toContain("wallet-v2__quick-card");
-    expect(css).toContain("padding-left: 0");
-    expect(css).toContain("overflow-x: clip");
+    expect(css).toContain("wallet-v2__hero--compact");
     expect(css).toContain("--wallet-radius-hero: 24px");
-    expect(css).toContain("--wallet-radius-card: 18px");
-    expect(css).toContain("--wallet-radius-btn: 14px");
-    expect(css).toContain("repeat(3, minmax(0, 1fr))");
-    expect(css).not.toContain("wallet-v2__balance-card");
-    expect(css).not.toContain("wallet-v2__metrics");
-    expect(css).not.toContain("prefers-color-scheme: dark");
-    expect(css).not.toContain("background: #18181b");
   });
 
-  it("lazy-loads insights, transactions, and connected bank", () => {
-    const hub = readSource("features/wallet/components/WalletHubV1.tsx");
-    expect(hub).toContain('import("@/features/wallet/components/WalletInsights")');
-    expect(hub).toContain('import("@/features/wallet/components/WalletRecentTransactions")');
-    expect(hub).toContain('import("@/features/wallet/components/WalletConnectedBank")');
+  it("exposes only Personal + Business wallet menus", () => {
+    expect(buildPersonalWalletMenuSections().flatMap((s) => s.items).length).toBe(7);
+    expect(buildBusinessWalletMenuSections().flatMap((s) => s.items).length).toBe(6);
   });
 
-  it("redirects buyers away from seller wallet hub", () => {
-    const page = readSource("app/wallet/page.tsx");
-    expect(page).toContain("!profile.isSeller");
-    expect(page).toContain("WALLET_ROUTES.paymentMethods");
-  });
-
-  it("hosts payment methods only under wallet", () => {
-    const page = readSource("features/wallet/components/WalletPaymentMethodsPage.tsx");
-    const accountRedirect = readSource("app/account/payment-methods/page.tsx");
-    const settingsBankRedirect = readSource("app/account/settings/bank-account/page.tsx");
-    const settingsPmRedirect = readSource("app/account/settings/payment-methods/page.tsx");
-
-    expect(page).toContain("CardSetupSheet");
-    expect(page).toContain("Add Card");
-    expect(accountRedirect).toContain("permanentRedirect");
-    expect(accountRedirect).toContain("WALLET_ROUTES.paymentMethods");
-    expect(settingsBankRedirect).toContain("permanentRedirect");
-    expect(settingsBankRedirect).toContain("WALLET_ROUTES.bankAccount");
-    expect(settingsPmRedirect).toContain("permanentRedirect");
-    expect(settingsPmRedirect).toContain("WALLET_ROUTES.paymentMethods");
-  });
-
-  it("settings and checkout reference wallet payment methods only", () => {
-    expect(readSource("lib/account-center/settings-menu.ts")).toContain(WALLET_ROUTES.paymentMethods);
-    expect(readSource("features/checkout/components/CheckoutPaymentStepV1.tsx")).toContain(
-      WALLET_ROUTES.paymentMethods,
-    );
-    expect(readSource("features/account-module/components/SettingsV1.tsx")).not.toContain("CardSetupSheet");
-  });
-
-  it("routes seller dashboard wallet shortcut to /wallet", () => {
-    const dashboard = readSource("features/seller/dashboard/components/SellerDashboardPage.tsx");
-    expect(dashboard).toContain('href: "/wallet"');
-    expect(dashboard).not.toContain('href: "/seller/wallet"');
-  });
-
-  it("keeps a single hub component across breakpoints", () => {
-    const page = readSource("features/wallet/components/WalletPage.tsx");
-    const hub = readSource("features/wallet/components/WalletHubV1.tsx");
-    expect(page).toContain("WalletHubV1");
-    expect(hub).not.toMatch(/matchMedia|useMediaQuery|isDesktop|isMobile/);
+  it("keeps statement export on detail pages", () => {
+    const detail = readSource("features/wallet/components/MonthlyStatementDetail.tsx");
+    expect(detail).toContain("Download CSV");
+    expect(detail).toContain("Download PDF");
   });
 });

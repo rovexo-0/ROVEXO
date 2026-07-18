@@ -1,4 +1,4 @@
-import { getAllHelpArticles } from "@/lib/help/content/articles";
+import { listLegalDocuments } from "@/lib/legal/canonical-documents";
 
 export type HelpPolicyEntry = {
   slug: string;
@@ -8,30 +8,13 @@ export type HelpPolicyEntry = {
   category: string;
 };
 
-const POLICY_CATEGORIES = new Set([
-  "privacy",
-  "terms",
-  "safety",
-  "prohibited-items",
-  "community-guidelines",
-  "reports-appeals",
-]);
-
+/** Help Policies list — Legal SSOT only (England & Wales marketplace docs). */
 export function listHelpPolicies(): HelpPolicyEntry[] {
-  return getAllHelpArticles()
-    .filter(
-      (article) =>
-        POLICY_CATEGORIES.has(article.category) ||
-        article.slug.includes("policy") ||
-        article.slug.includes("terms") ||
-        article.slug.includes("privacy") ||
-        article.slug.includes("guidelines"),
-    )
-    .map((article) => ({
-      slug: article.slug,
-      title: article.title,
-      summary: article.summary,
-      href: `/help/${article.slug}`,
-      category: article.category,
-    }));
+  return listLegalDocuments().map((document) => ({
+    slug: document.slug,
+    title: document.title,
+    summary: document.summary,
+    href: `/legal/${document.slug}`,
+    category: document.category,
+  }));
 }

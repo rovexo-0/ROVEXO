@@ -41,14 +41,18 @@ async function dismissBlockingDialogs(page: Page): Promise<void> {
 }
 
 export async function fillSellDescription(page: Page, description: string): Promise<void> {
-  const field = page.getByPlaceholder(/tell buyers more about/i);
+  const field = page
+    .getByLabel(/listing description/i)
+    .or(page.getByPlaceholder(/add extra details|tell buyers more about/i))
+    .first();
   await expect(field).toBeVisible({ timeout: 15_000 });
+  await field.scrollIntoViewIfNeeded();
   await field.fill(description);
   await field.blur();
 }
 
 export async function fillSellTitle(page: Page, title: string): Promise<void> {
-  const field = page.getByPlaceholder(/tell buyers what you're selling/i);
+  const field = page.getByPlaceholder(/what are you selling|tell buyers what you're selling/i);
   await expect(field).toBeVisible({ timeout: 15_000 });
   await field.fill(title);
   await field.blur();
@@ -85,6 +89,33 @@ export async function ensureCategorySelected(page: Page): Promise<void> {
   await page.waitForTimeout(400);
 }
 
+/** Fill progressive brand/colour/size rows so condition/parcel/price unlock. */
+export async function completeSellQuickAttributes(page: Page): Promise<void> {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const incomplete = page
+      .locator("button")
+      .filter({ hasText: /Select (brand|colour|color|size)/i })
+      .first();
+    if (!(await incomplete.isVisible().catch(() => false))) break;
+
+    await incomplete.scrollIntoViewIfNeeded();
+    await incomplete.click();
+
+    const dialog = page.getByRole("dialog").last();
+    await expect(dialog).toBeVisible({ timeout: 10_000 });
+    const option = dialog.getByRole("radio").first();
+    await expect(option).toBeVisible({ timeout: 10_000 });
+    await option.click();
+    await expect(dialog).toBeHidden({ timeout: 10_000 });
+  }
+}
+
+export async function ensureConditionSelected(page: Page): Promise<void> {
+  const group = page.getByRole("radiogroup", { name: /^Condition$/i });
+  await expect(group).toBeVisible({ timeout: 30_000 });
+  await group.getByRole("radio", { name: /^New$/i }).click();
+}
+
 export async function ensureParcelSizeSelected(page: Page): Promise<void> {
   const parcelButton = page.getByRole("button", { name: /select parcel size/i });
   if (!(await parcelButton.isVisible().catch(() => false))) return;
@@ -103,9 +134,19 @@ export async function ensureParcelSizeSelected(page: Page): Promise<void> {
   await expect(dialog).toBeHidden({ timeout: 10_000 });
 }
 
+/** Unlock price field: attributes → condition → parcel. */
+export async function completeSellToPrice(page: Page): Promise<void> {
+  await completeSellQuickAttributes(page);
+  await ensureConditionSelected(page);
+  await ensureParcelSizeSelected(page);
+}
+
 export async function publishSellListing(page: Page): Promise<void> {
   await dismissBlockingDialogs(page);
-  const publishBtn = page.getByRole("button", { name: /^publish listing$/i });
+  // CTA label is "Publish"; the sticky bar region is aria-labelled "Publish listing".
+  const publishBtn = page
+    .getByRole("region", { name: /publish listing/i })
+    .getByRole("button", { name: /^(Publish|Save changes)$/i });
   await expect(publishBtn).toBeEnabled({ timeout: 60_000 });
   await publishBtn.click();
   await expect(page).toHaveURL(/\/listing\//, { timeout: 120_000 });

@@ -1,7 +1,4 @@
 import type { MobileBadgeKey, MobileTile } from "@/lib/mobile-ui/types";
-import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
-import { filterBringYourItemTiles } from "@/lib/bring-your-item/release";
-
 function tile(
   href: string,
   label: string,
@@ -18,7 +15,7 @@ export const QUICK_ACCESS_TILES: MobileTile[] = [
   tile("/saved", "Saved", "Wishlist items", "saved"),
   tile("/trust", "Trust Centre", "Score & safety"),
   tile("/resolution", "Resolution Centre", "Disputes & cases"),
-  tile("/assistant", "AI Assistant", "Help & guidance"),
+  tile("/help", "Help Centre", "Guides & support"),
   tile("/support", "Support", "Contact us"),
   tile("/plans", "Premium Plans", "Subscriptions"),
   tile("/categories", "Browse Categories", "Explore marketplace"),
@@ -32,20 +29,18 @@ export const BUYER_TOOLS_TILES: MobileTile[] = [
 ];
 
 export function getSellerDashboardTiles(): MobileTile[] {
-  return filterBringYourItemTiles([
+  return [
     tile("/seller", "Selling", "Performance & overview"),
     tile("/seller/listings", "My Listings", "Manage inventory"),
     tile("/seller/orders", "Seller Orders", "Fulfillment & shipping", "orders"),
     tile("/wallet", "Wallet", "Balance & withdrawals", "wallet-payout"),
     tile("/seller/analytics", "Seller Analytics", "Views, sales & trends"),
-    tile(MIGRATION_CENTER_PATH, "Bring Your Items", "Import your entire store"),
-    tile("/seller/connectors", "Marketplace Connectors", "Connect external stores"),
     tile("/seller/performance", "Seller Performance", "Reputation Engine & level"),
     tile("/seller/trust", "Trust Score", "Reputation & improvements"),
     tile("/seller/tax", "Tax Registration", "VAT & tax settings"),
     tile("/sell", "Sell Item", "Create a new listing"),
     tile("/sell/new", "Publish Listing", "Listing creation wizard"),
-  ]);
+  ];
 }
 
 export const ACCOUNT_DASHBOARD_TILES: MobileTile[] = [
@@ -60,7 +55,7 @@ export const ACCOUNT_DASHBOARD_TILES: MobileTile[] = [
   tile("/help/faq", "FAQ", "Common questions"),
   tile("/help/policies", "Policies", "Terms & platform rules"),
   tile("/account/settings", "Settings", "Account & privacy"),
-  tile("/legal", "About ROVEXO", "Version & legal info"),
+  tile("/legal", "About ROVEXO", "Legal & policies"),
 ];
 
 /** @deprecated Use QUICK_ACCESS_TILES — hub navigation removed from account dashboard. */

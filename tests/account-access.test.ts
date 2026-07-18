@@ -88,11 +88,12 @@ describe("account access routes", () => {
     expect(actions.signOut).toBeTypeOf("function");
   });
 
-  it("redirects non-business users away from business dashboard guard", async () => {
+  it("keeps unverified business users inside Business Verification", async () => {
     const source = await import("node:fs/promises").then((fs) =>
       fs.readFile("lib/profile/data.ts", "utf8"),
     );
-    expect(source).toContain('redirect("/account")');
+    expect(source).toContain("BUSINESS_VERIFICATION_ROUTE");
+    expect(source).not.toContain('redirect("/account")');
     expect(source).not.toContain('throw new Error("Business account required")');
   });
 

@@ -412,7 +412,7 @@ By using ROVEXO you agree to:
 
 ROVEXO may update these terms. Continued use after changes constitutes acceptance.
 
-Disputes are handled under Irish/EU consumer law where applicable.
+Disputes relating to these Help Centre terms summaries are governed by the laws of England and Wales. The full contract is in Legal → Terms & Conditions (/legal/terms-and-conditions).
 
 ${TERMS_PLATFORM_OPERATOR_MARKDOWN}`,
   },

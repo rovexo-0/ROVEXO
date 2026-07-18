@@ -77,7 +77,6 @@ export type SearchFilterScope = "products" | "auctions" | "businesses" | "seller
 
 export const SEARCH_FILTER_SCOPES: { id: SearchFilterScope; label: string }[] = [
   { id: "products", label: "Products" },
-  { id: "auctions", label: "Auctions" },
   { id: "businesses", label: "Businesses" },
   { id: "sellers", label: "Sellers" },
 ];

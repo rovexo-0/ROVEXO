@@ -102,15 +102,17 @@ describe("account hub menu alignment", () => {
     const sections = buildAccountMenuSections(baseProfile);
     const titles = sections.flatMap((section) => section.items.map((item) => item.title));
     expect(titles).toEqual([
-      "My Listings",
-      "Orders",
-      "Saved Items",
-      "My Reviews",
+      "Buying",
+      "Selling",
+      "Business",
       "Wallet",
+      "Messages",
+      "Notifications",
+      "Verification",
       "Settings",
-      "Promotion Tools",
       "Help Centre",
-      "Ideas",
+      "Trust Centre",
+      "Legal Centre",
     ]);
   });
 });

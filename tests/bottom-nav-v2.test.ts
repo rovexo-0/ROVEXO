@@ -23,7 +23,11 @@ describe("Bottom Navigation V2 — final lock", () => {
 
   it("uses slim shell clearance token", () => {
     const globals = readSource("app/globals.css");
-    expect(globals).toContain("--bottom-nav-shell-height: 56px");
+    const compact = readSource("styles/rovexo/compact-premium-v1.css");
+    // Compact Premium (PO 2026-07-18): 52px bar + safe area; FAB 56px
+    expect(globals).toContain("--bottom-nav-shell-height: 52px");
+    expect(compact).toContain("--cp-bottom-nav-height: 52px");
+    expect(compact).toContain("--cp-fab-size: 56px");
   });
 
   it("uses outline profile icon — never avatar in bottom nav", () => {

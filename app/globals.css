@@ -71,11 +71,12 @@ body {
 }
 
 :root {
+  /* Compact Premium defaults (PO 2026-07-18) — refined further under [data-universal-ui] */
   --header-control-height: 44px;
-  --header-search-height: 48px;
-  --header-shell-height: 56px;
+  --header-search-height: 44px;
+  --header-shell-height: 64px;
   --header-mobile-stack-height: 52px;
-  --bottom-nav-shell-height: 56px;
+  --bottom-nav-shell-height: 52px;
 }
 
 @media (min-width: 768px) {

@@ -12,10 +12,10 @@
   margin: 0;
   padding: 0;
   overflow: hidden;
-  border: 1px solid var(--rx-listing-border, var(--ds-color-border));
+  border: none;
   border-radius: var(--rx-listing-radius, var(--ds-radius-md));
   background: var(--ds-color-surface);
-  box-shadow: var(--rx-listing-shadow, var(--ds-shadow-soft));
+  box-shadow: none;
   contain: layout style paint;
   container-type: inline-size;
   container-name: rx-listing-card;
@@ -410,7 +410,8 @@
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  font-size: clamp(0.75rem, 3.8cqi, 0.8125rem);
+  /* Compact Premium: listing titles 15–16px */
+  font-size: clamp(0.9375rem, 4.2cqi, 1rem);
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -419,7 +420,7 @@
 
 .conditionHomepage {
   margin: 0;
-  font-size: clamp(0.625rem, 3cqi, 0.6875rem);
+  font-size: clamp(0.75rem, 3.2cqi, 0.8125rem);
   font-weight: 500;
   line-height: 1.15;
   color: var(--ds-color-text-secondary);

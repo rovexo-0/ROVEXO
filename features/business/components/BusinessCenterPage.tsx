@@ -19,7 +19,7 @@ function buildBusinessSections(storeSlug: string) {
     { title: "Verification", description: "Business and trade verification", href: "/trust#verification" },
     { title: "Trust Score", description: "Business reputation and trust history", href: "/trust" },
     { title: "Marketing", description: "Promotions and featured listings", href: "/seller/listings" },
-    { title: "Messages", description: "Leads and buyer conversations", href: "/messages" },
+    { title: "Messages", description: "Leads and buyer conversations", href: "/inbox" },
     { title: "Subscriptions", description: "Business and wholesale plans", href: "/plans" },
     { title: "Help Center", description: "Business help and guided troubleshooting", href: "/help/category/business-accounts" },
   ] as const;

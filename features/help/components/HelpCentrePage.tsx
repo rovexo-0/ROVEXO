@@ -21,7 +21,7 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
   const hasQuery = query.trim().length > 0;
 
   return (
-    <AccountCanonicalShell title="Help Centre" backHref="/account">
+    <AccountCanonicalShell title="Help Centre" backHref="/account" showHeaderTitle>
       <CanonicalSection title="Search">
         <CanonicalCard variant="medium">
           <CanonicalInfoBlock variant="description">

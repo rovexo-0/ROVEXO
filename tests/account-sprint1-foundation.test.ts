@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { ACCOUNT_MENU_TITLES } from "@/lib/account/freeze";
 import { buildAccountMenuSections } from "@/lib/account-center/canonical-menu";
 import { ROVEXO_ACCOUNT_KIND, resolveAccountCapabilities } from "@/lib/profile/unified-account";
 import type { UserProfile } from "@/lib/profile/types";
@@ -32,25 +33,18 @@ const baseProfile: UserProfile = {
   unreadNotifications: 0,
 };
 
-/**
- * Critical restore lock: Module 02 approved My Account hub (pre–Sprint 1 cleanup),
- * with View Public Profile / Edit Profile permanently absent.
- */
-describe("My Account critical UI restore (Module 02)", () => {
-  it("restores approved hub composition without profile CTAs", () => {
+describe("My Account critical UI restore (Master Menu v2.0)", () => {
+  it("restores Compact Premium hub without dead-space cards", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
     const page = readSource("features/account-center/components/AccountCenterPage.tsx");
     const profile = readSource("features/account-center/components/AccountCanonicalProfile.tsx");
-    const card = readSource("features/account-center/components/AccountSellerPerformanceCard.tsx");
 
-    expect(home).toContain('data-ac-hub-version="v1.0-production"');
+    expect(home).toContain('data-ac-hub-version="v2.0-master"');
     expect(home).toContain("AccountCanonicalProfile");
-    expect(home).toContain("AccountStatsStrip");
-    expect(home).toContain("AccountSellerPerformanceCard");
     expect(home).toContain("AccountMenuSections");
-    expect(home).toMatch(
-      /AccountCanonicalProfile[\s\S]*AccountStatsStrip[\s\S]*AccountSellerPerformanceCard[\s\S]*AccountMenuSections/,
-    );
+    expect(home).not.toContain("AccountStatsStrip");
+    expect(home).not.toContain("AccountSellerPerformanceCard");
+    expect(home).toMatch(/AccountCanonicalProfile[\s\S]*AccountMenuSections/);
     expect(page).toContain("hideBack");
     expect(page).not.toContain("identity=");
 
@@ -58,27 +52,10 @@ describe("My Account critical UI restore (Module 02)", () => {
     expect(profile).not.toContain("Edit Profile");
     expect(home).not.toContain("View Public Profile");
     expect(home).not.toContain("Edit Profile");
-
-    expect(card).toContain('data-ac-seller-performance="v1.0-frozen"');
-    expect(card).toContain("AccountSellerScoreRing");
-    expect(card).toContain("AccountSellerLevelBadge");
-    expect(card).toContain("View details");
-    expect(card).not.toContain("Response Rate");
-    expect(card).not.toContain("ac-v1__seller-card");
   });
 
-  it("locks Module 02 manage/account/support menu", () => {
+  it("locks Master Menu v2.0 Buying / Selling / Business hubs", () => {
     const titles = buildAccountMenuSections(baseProfile).flatMap((s) => s.items.map((i) => i.title));
-    expect(titles).toEqual([
-      "My Listings",
-      "Orders",
-      "Saved Items",
-      "My Reviews",
-      "Wallet",
-      "Settings",
-      "Promotion Tools",
-      "Help Centre",
-      "Ideas",
-    ]);
+    expect(titles).toEqual([...ACCOUNT_MENU_TITLES]);
   });
 });

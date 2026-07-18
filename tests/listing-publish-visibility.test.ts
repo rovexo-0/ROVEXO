@@ -14,6 +14,7 @@ describe("Listing publish visibility", () => {
     expect(route).toContain("syncAutoVerifiedProfile");
     expect(route).not.toContain('.update({ verified: true })');
     expect(sync).toContain("createAdminClient");
+    expect(sync).toContain("isFullDemoEmail");
   });
 
   it("rolls back listings when images cannot be saved", () => {

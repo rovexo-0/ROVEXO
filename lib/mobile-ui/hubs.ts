@@ -4,9 +4,6 @@ import {
   type NavLink,
 } from "@/lib/navigation/map";
 import { SUPER_ADMIN_NAV } from "@/lib/super-admin/nav";
-import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
-import { MARKETPLACE_CONNECTORS_PATH } from "@/lib/seller/marketplace/config";
-import { filterBringYourItemTiles } from "@/lib/bring-your-item/release";
 import type { UserProfile } from "@/lib/profile/types";
 import type {
   MobileHubContext,
@@ -49,44 +46,52 @@ export function getBuyHubTiles(): MobileTile[] {
     tile("/cart", "Cart", "Items ready to checkout", "cart"),
     tile("/saved", "Saved", "Wishlist items", "saved"),
     tile("/search", "Search", "Find anything"),
-    tile("/auctions", "Auctions", "Live bidding"),
-    tile("/messages", "Messages", "Buyer & seller chats", "messages"),
+    tile("/inbox", "Messages", "Buyer & seller chats", "messages"),
     tile("/notifications", "Notifications", "Alerts & activity", "notifications"),
     tile("/trust", "Trust", "Score & safety"),
-    tile("/assistant", "AI Assistant", "Help & guidance"),
+    tile("/help", "Help Centre", "Guides & support"),
     tile("/plans", "Premium", "Subscriptions & plans"),
     tile("/categories", "Categories", "Explore marketplace"),
     tile("/support", "Support", "Contact us"),
   ];
 }
 
-/** ROVEXO v1.0 — Sell Hub (design system locked). */
+/** ROVEXO v1.0 — Sell Hub (Master Menu Design). */
 export function getSellHubTiles(profile: UserProfile): MobileTile[] {
   void profile;
-  return filterBringYourItemTiles([
+  return [
     tile("/seller", "Selling", "Performance & overview"),
     tile("/seller/listings", "My Listings", "Manage inventory"),
     tile("/seller/orders", "Selling Orders", "Fulfillment & shipping", "orders"),
     tile("/wallet", "Wallet", "Balance & withdrawals", "wallet-payout"),
     tile("/seller/analytics", "Analytics", "Views, sales & trends"),
-    tile(MIGRATION_CENTER_PATH, "Bring Your Items", "Import your entire store"),
     tile("/sell/new", "Publish Listing", "Step-by-step listing"),
-    tile(MARKETPLACE_CONNECTORS_PATH, "Marketplace Connectors", "Connect external stores"),
     tile("/seller/tax", "Tax", "VAT & registration"),
-  ]);
+  ];
 }
 
-/** ROVEXO v1.0 — Business Hub (design system locked). */
+/** ROVEXO v1.0 — Business Hub (Master Menu Design). */
 export function getBusinessHubTiles(profile: UserProfile, context?: MobileHubContext): MobileTile[] {
   const tiles: MobileTile[] = [
     ...(context?.storeSlug
-      ? [tile(`/store/${context.storeSlug}`, "Company profile", "Public store page")]
+      ? [tile(`/store/${context.storeSlug}`, "Store", "Public storefront")]
       : []),
-    tile("/business/dashboard", "Business tools", "Revenue & orders"),
-    tile("/wholesale", "Wholesale", "MOQ, RFQ & bulk pricing"),
+    tile("/business/dashboard", "Dashboard", "Business Store hub"),
     tile("/business/analytics", "Analytics", "Insights & reports"),
-    tile("/business/directory", "Directory", "Verified companies"),
-    tile("/plans", "Plans", "Business subscriptions"),
+    tile("/business/orders", "Orders", "Fulfilment workspace", "orders"),
+    tile("/business/wallet", "Wallet", "Balance & payouts", "wallet-payout"),
+    tile("/business/promotions", "Promotions", "Boost listings"),
+    tile("/business/reviews", "Reviews", "Seller review centre"),
+    tile("/business/verification", "Verification", "Business verification"),
+    tile("/business/policies", "Policies", "Business seller terms"),
+    tile("/business/returns", "Returns", "Returns & refunds"),
+    tile("/business/shipping", "Shipping", "Shipping settings"),
+    tile("/business/reports", "Reports", "Business reporting"),
+    tile("/seller/performance", "Performance", "Reputation & level"),
+    tile("/account/followers", "Followers", "Store followers"),
+    tile("/account/settings", "Settings", "Account preferences"),
+    tile("/support", "Contact", "Support"),
+    tile("/about", "About", "About ROVEXO"),
     tile("/business/inventory", "Inventory", "SKU & stock management"),
   ];
 
@@ -109,15 +114,14 @@ export function getBusinessHubTiles(profile: UserProfile, context?: MobileHubCon
 /** ROVEXO v1.0 — Support Hub (design system locked). */
 export function getSupportHubTiles(): MobileTile[] {
   return [
-    tile("/help", "Help", "Guides & troubleshooting"),
-    tile("/resolution", "Resolution", "Disputes & cases"),
+    tile("/help", "Help Centre", "Guides & support"),
+    tile("/resolution", "Returns & Refunds", "Disputes & cases"),
     tile("/help/policies", "Policies", "Platform rules"),
     tile("/help/faq", "FAQ", "Common questions"),
     tile("/trust", "Trust Centre", "Score & safety"),
-    tile("/legal", "Legal", "Platform information"),
-    tile("/help/privacy-policy", "Privacy", "Data & privacy"),
-    tile("/help/terms-of-service", "Terms", "Platform terms"),
-    tile("/assistant", "AI Assistant", "Help & guidance"),
+    tile("/legal", "Legal", "UK marketplace policies"),
+    tile("/legal/privacy-policy", "Privacy", "Data & privacy"),
+    tile("/legal/terms-and-conditions", "Terms", "Platform terms"),
     tile("/support", "Contact Support", "Open a support ticket"),
   ];
 }
@@ -209,7 +213,7 @@ export function getSuperAdminHubSections(): MobileHubSection[] {
 
 export function getHelpHubQuickTiles(): MobileTile[] {
   return getSupportHubTiles().filter((entry) =>
-    ["/help", "/help/faq", "/help/policies", "/assistant", "/resolution", "/trust", "/support"].includes(
+    ["/help", "/help/faq", "/help/policies", "/about", "/legal", "/resolution", "/trust", "/support"].includes(
       entry.href,
     ),
   );
@@ -253,7 +257,7 @@ export function getCategoriesNavSections(): MobileHubSection[] {
       id: "browse",
       title: "Browse",
       tiles: getBuyHubTiles().filter((entry) =>
-        ["/search", "/saved", "/cart", "/orders", "/categories", "/auctions"].includes(entry.href),
+        ["/search", "/saved", "/cart", "/orders", "/categories"].includes(entry.href),
       ),
     },
   ];

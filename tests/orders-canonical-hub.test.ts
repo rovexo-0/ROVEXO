@@ -26,7 +26,7 @@ describe("OrdersPage single source of truth", () => {
     expect(ui).toContain('data-order-status={order.status}');
     expect(ui).toContain("No orders yet.");
     expect(ui).toContain("Your sold items will appear here.");
-    expect(ui).not.toContain("showHeaderTitle");
+    expect(ui).toContain("showHeaderTitle");
     expect(ui).not.toContain("rightAction");
     expect(ui).not.toContain("BellLineIcon");
     expect(ui).not.toContain("orders-page__notify");

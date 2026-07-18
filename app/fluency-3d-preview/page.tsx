@@ -15,7 +15,7 @@ const BUYER_LINKS = [
   { href: "/saved", label: "Saved" },
   { href: "/trust", label: "Trust Centre" },
   { href: "/resolution", label: "Resolution Centre" },
-  { href: "/assistant", label: "AI Assistant" },
+  { href: "/help", label: "Help Centre" },
   { href: "/support", label: "Support" },
   { href: "/plans", label: "Premium Plans" },
   { href: "/categories", label: "Browse Categories" },
@@ -26,27 +26,25 @@ const BUYER_LINKS = [
   { href: "/account/addresses", label: "Addresses" },
   { href: "/wallet/payment-methods", label: "Payment Methods" },
   { href: "/account/settings", label: "Settings" },
-  { href: "/seller/reviews", label: "Reviews" },
+  { href: "/account/reviews", label: "Reviews" },
   { href: "/saved", label: "Watchlist" },
   { href: "/search", label: "Recently Viewed" },
 ] as const;
 
 const SELLER_LINKS = [
-  { href: "/seller/dashboard", label: "Seller Dashboard" },
+  { href: "/seller", label: "Seller Dashboard" },
   { href: "/seller/listings", label: "Listings" },
   { href: "/seller/orders", label: "Orders" },
   { href: "/seller/analytics", label: "Analytics" },
-  { href: "/seller/wallet", label: "Wallet" },
-  { href: "/seller/shipping", label: "Shipping" },
-  { href: "/seller/inventory", label: "Inventory" },
-  { href: "/seller/promotions", label: "Promotions" },
-  { href: "/seller/coupons", label: "Coupons" },
-  { href: "/seller/returns", label: "Returns" },
+  { href: "/wallet", label: "Wallet" },
+  { href: "/account/seller/shipping", label: "Shipping" },
+  { href: "/business/inventory", label: "Inventory" },
+  { href: "/account/promotion-tools", label: "Promotions" },
+  { href: "/legal/returns-refund-policy", label: "Returns" },
   { href: "/seller/performance", label: "Performance" },
-  { href: "/seller/reports", label: "Reports" },
-  { href: "/seller/reviews", label: "Reviews" },
+  { href: "/business/analytics", label: "Reports" },
+  { href: "/seller/review-center", label: "Reviews" },
   { href: "/messages", label: "Messages" },
-  { href: "/seller/customers", label: "Customers" },
 ] as const;
 
 const ACCOUNT_LINKS = [
@@ -62,14 +60,14 @@ const ACCOUNT_LINKS = [
 ] as const;
 
 const BUSINESS_LINKS = [
-  { href: "/business", label: "Business Dashboard" },
-  { href: "/business/profile", label: "Company Profile" },
-  { href: "/business/employees", label: "Employees" },
+  { href: "/business/dashboard", label: "Business Dashboard" },
+  { href: "/account/verification", label: "Company Profile" },
   { href: "/business/analytics", label: "Analytics" },
-  { href: "/business/advertising", label: "Advertising" },
-  { href: "/business/marketing", label: "Marketing" },
-  { href: "/business/finance", label: "Finance" },
+  { href: "/business/promotions", label: "Advertising" },
+  { href: "/business/wallet", label: "Finance" },
   { href: "/business/reports", label: "Reports" },
+  { href: "/business/orders", label: "Orders" },
+  { href: "/business/policies", label: "Policies" },
 ] as const;
 
 const HOMEPAGE_ACTIONS = [

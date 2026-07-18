@@ -1,6 +1,6 @@
 /**
- * ROVEXO My Account — canonical menu v2.0 lock (Module 02).
- * Single source of truth. Pixel reference: Module 02 UI Lock v1.0.
+ * ROVEXO My Account — Master Menu v2.0 (PO Final Authorization)
+ * Buying / Selling / Business hubs + Account + Support. No duplicate wallets/orders.
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
 import type { MobileBadgeKey } from "@/lib/mobile-ui/types";
@@ -20,6 +20,7 @@ export type AccountMenuItem = {
 
 export type AccountMenuSection = {
   id: string;
+  /** Empty = divider group with no section label (Vinted Compact Premium). */
   title: string;
   items: AccountMenuItem[];
 };
@@ -33,37 +34,52 @@ export const ACCOUNT_LOGOUT_MENU_ITEM: AccountMenuItem = {
 
 export function buildAccountMenuSections(profile: UserProfile): AccountMenuSection[] {
   void profile;
+
   return [
     {
-      id: "manage",
-      title: "MANAGE",
+      id: "hubs",
+      title: "",
       items: [
-        { id: "listings", title: "My Listings", href: "/seller/listings", icon: "listings" },
-        { id: "orders", title: "Orders", href: "/orders", icon: "orders", badgeKeys: ["orders"] },
-        { id: "saved", title: "Saved Items", href: "/saved", icon: "saved", badgeKeys: ["saved"] },
-        { id: "reviews", title: "My Reviews", href: "/account/reviews", icon: "reviews" },
-        { id: "wallet", title: "Wallet", href: "/wallet", icon: "wallet" },
+        { id: "buying", title: "Buying", href: "/account/buying", icon: "orders", badgeKeys: ["orders", "cart", "saved"] },
+        { id: "selling", title: "Selling", href: "/seller", icon: "listings", badgeKeys: ["orders", "wallet-payout"] },
+        { id: "business", title: "Business", href: "/business/dashboard", icon: "business" },
       ],
     },
     {
       id: "account",
-      title: "ACCOUNT",
+      title: "",
       items: [
-        { id: "settings", title: "Settings", href: "/account/settings", icon: "settings" },
+        { id: "wallet", title: "Wallet", href: "/wallet", icon: "wallet", badgeKeys: ["wallet-payout"] },
         {
-          id: "promotion-tools",
-          title: "Promotion Tools",
-          href: "/account/promotion-tools",
-          icon: "promotions",
+          id: "messages",
+          title: "Messages",
+          href: "/inbox",
+          icon: "messages",
+          badgeKeys: ["messages"],
         },
+        {
+          id: "notifications",
+          title: "Notifications",
+          href: "/inbox?tab=notifications",
+          icon: "notifications",
+          badgeKeys: ["notifications"],
+        },
+        {
+          id: "verification",
+          title: "Verification",
+          href: "/account/verification",
+          icon: "verification",
+        },
+        { id: "settings", title: "Settings", href: "/account/settings", icon: "settings" },
       ],
     },
     {
       id: "support",
-      title: "SUPPORT",
+      title: "",
       items: [
         { id: "help", title: "Help Centre", href: "/help", icon: "help" },
-        { id: "ideas", title: "Ideas", href: "/account/ideas", icon: "ideas" },
+        { id: "trust", title: "Trust Centre", href: "/trust", icon: "verification" },
+        { id: "legal", title: "Legal Centre", href: "/legal", icon: "help" },
       ],
     },
   ];
@@ -74,7 +90,7 @@ export function buildAccountMenu(profile: UserProfile): AccountMenuItem[] {
   return buildAccountMenuSections(profile).flatMap((section) => section.items);
 }
 
-/** @deprecated Selling submenu removed in Module 02 canonical hub. */
+/** @deprecated Selling submenu lives on /seller via selling-menu.ts. */
 export function buildSellingSubmenu(profile: UserProfile): never[] {
   void profile;
   return [];

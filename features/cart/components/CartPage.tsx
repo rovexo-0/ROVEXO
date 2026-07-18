@@ -3,9 +3,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { cn } from "@/lib/cn";
@@ -119,28 +118,27 @@ export function CartPage({ cart }: CartPageProps) {
   };
 
   return (
-    <BetaAppShell className="cart-v1-shell">
+    <AccountCanonicalShell
+      title={`Your Cart (${cart.itemCount})`}
+      backHref="/"
+      showHeaderTitle
+      className="cart-v1-shell"
+      rightAction={
+        cart.items.length > 0 ? (
+          <button
+            type="button"
+            className="cart-v1__edit min-h-12 px-ds-2 text-sm font-semibold text-primary"
+            onClick={() => setEditMode((value) => !value)}
+          >
+            {editMode ? "Done" : "Edit"}
+          </button>
+        ) : (
+          <span aria-hidden className="w-12" />
+        )
+      }
+    >
       <div className="cart-v1" data-cart-version="v1.0">
-        <CanonicalPageHeader
-          title={`Your Cart (${cart.itemCount})`}
-          backHref="/"
-          backLabel="Back"
-          rightAction={
-            cart.items.length > 0 ? (
-              <button
-                type="button"
-                className="cart-v1__edit min-h-12 px-ds-2 text-sm font-semibold text-primary"
-                onClick={() => setEditMode((value) => !value)}
-              >
-                {editMode ? "Done" : "Edit"}
-              </button>
-            ) : (
-              <span aria-hidden className="w-12" />
-            )
-          }
-        />
-
-        <ScrollContainer as="main" withBottomNav className="cart-v1__main">
+        <ScrollContainer as="div" withBottomNav className="cart-v1__main">
           {cart.items.length === 0 ? (
             <EmptyState
               title="Your cart is empty"
@@ -318,6 +316,6 @@ export function CartPage({ cart }: CartPageProps) {
           </div>
         ) : null}
       </div>
-    </BetaAppShell>
+    </AccountCanonicalShell>
   );
 }

@@ -61,17 +61,19 @@ async function prepareVercelChromium() {
     "utf8",
   );
 
-  // Video retain-on-failure needs Playwright ffmpeg even when browser comes from Sparticuz.
-  console.log("[playwright] Installing Playwright ffmpeg…");
-  if (!run("npx", ["playwright", "install", "ffmpeg"])) {
-    throw new Error("playwright install ffmpeg failed");
-  }
+  // Best-effort ffmpeg for local retain-on-failure tooling; Playwright video is
+  // disabled on Vercel (see playwright.config.ts) because the binary path is flaky.
+  console.log("[playwright] Installing Playwright ffmpeg (best-effort)…");
+  process.env.PLAYWRIGHT_BROWSERS_PATH =
+    process.env.PLAYWRIGHT_BROWSERS_PATH ?? "/vercel/.cache/ms-playwright";
+  run("npx", ["playwright", "install", "ffmpeg"]);
 
   console.log(`[playwright] Vercel Chromium ready: ${executablePath}`);
   return {
     PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH: executablePath,
     LD_LIBRARY_PATH: ldLibraryPath,
     AWS_LAMBDA_JS_RUNTIME: process.env.AWS_LAMBDA_JS_RUNTIME,
+    PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH,
   };
 }
 

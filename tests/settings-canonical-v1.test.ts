@@ -42,6 +42,7 @@ describe("Settings canonical v1.0 hub", () => {
       "Addresses",
       "Payment Methods",
       "Notifications",
+      "ROVEXO Ideas",
       "Privacy & Security",
       "Connected Accounts",
       "Devices & Sessions",

@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { ScrollContainer } from "@/components/ui/ScrollContainer";
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { formatCurrency } from "@/lib/wallet/utils";
 import type { AnnualStatement } from "@/lib/wallet/monthly-statements";
 
@@ -13,10 +11,13 @@ type AnnualStatementsListProps = {
 
 export function AnnualStatementsList({ statements }: AnnualStatementsListProps) {
   return (
-    <BetaAppShell bottomNavTab="account">
-      <CanonicalPageHeader title="Annual Statements" backHref="/wallet/statements" backLabel="Statements" />
-
-      <ScrollContainer withBottomNav className="wallet-hub" data-wallet-annual-statements-version="v1.0-legal-lock">
+    <AccountCanonicalShell
+      title="Annual Statements"
+      backHref="/wallet/statements"
+      backLabel="Statements"
+      showHeaderTitle
+    >
+      <div className="wallet-hub" data-wallet-annual-statements-version="v1.0-legal-lock">
         <div className="wallet-hub__txn-card">
           {statements.length === 0 ? (
             <p className="wallet-hub__empty">No annual statements yet.</p>
@@ -37,7 +38,7 @@ export function AnnualStatementsList({ statements }: AnnualStatementsListProps) 
             ))
           )}
         </div>
-      </ScrollContainer>
-    </BetaAppShell>
+      </div>
+    </AccountCanonicalShell>
   );
 }

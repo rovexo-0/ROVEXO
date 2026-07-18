@@ -10,17 +10,20 @@ describe("Account + Cart canonical UI v1", () => {
   it("locks account hub markers", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
     const menu = readSource("lib/account-center/canonical-menu.ts");
+    const settings = readSource("lib/account-center/settings-menu.ts");
     const css = readSource("styles/rovexo/account-canonical-v2.css");
 
-    expect(home).toContain('data-ac-hub-version="v1.0-production"');
+    expect(home).toContain('data-ac-hub-version="v2.0-master"');
     expect(home).toContain("AccountCanonicalProfile");
     expect(home).toContain("AccountMenuSections");
     expect(menu).toContain("buildAccountMenuSections");
-    expect(menu).toContain("My Listings");
+    expect(menu).toContain('title: "Buying"');
+    expect(menu).toContain('title: "Selling"');
+    expect(menu).toContain('title: "Business"');
     expect(menu).not.toContain("Personal Information");
-    expect(menu).toContain('title: "Ideas"');
+    expect(settings).toContain('title: "ROVEXO Ideas"');
+    expect(settings).toContain("/account/ideas");
     expect(menu).toContain("Sign Out");
-    expect(css).toContain(".ac-canonical__stats");
     expect(css).toContain(".ac-canonical__followers");
     expect(css).toContain(".ac-canonical__section-card");
   });
@@ -39,18 +42,16 @@ describe("Account + Cart canonical UI v1", () => {
     expect(row).toContain("ChevronRightLineIcon");
   });
 
-  it("locks wallet hub markers", () => {
+  it("locks Personal Wallet Compact Premium hub markers", () => {
     const wallet = readSource("features/wallet/components/WalletHubV1.tsx");
     const page = readSource("features/wallet/components/WalletPage.tsx");
     const withdraw = readSource("app/wallet/withdraw/page.tsx");
 
-    expect(wallet).toContain('data-wallet-hub-version="v1.2-ui"');
-    expect(wallet).toContain('data-wallet-ui="v1.2-simplified"');
-    expect(wallet).toContain("Available Balance");
-    expect(wallet).toContain("Transactions");
-    expect(wallet).toContain("wallet-v2__quick-card");
-    expect(wallet).toContain("WalletConnectedBank");
-    expect(wallet).not.toContain("Pending Balance");
+    expect(wallet).toContain('data-wallet-hub-version="v2.0-master"');
+    expect(wallet).toContain('data-wallet-ui="compact-premium"');
+    expect(wallet).toContain("PersonalWalletMenuSections");
+    expect(wallet).toContain("Available");
+    expect(wallet).toContain("Pending");
     expect(wallet).not.toContain("Total earnings");
     expect(wallet).not.toContain("Platform Fee");
     expect(wallet).not.toContain("wallet-v2__balance-card");
@@ -124,7 +125,7 @@ describe("My Account module v1.0", () => {
     expect(readSource("app/saved/page.tsx")).toContain("SavedItemsV1");
     expect(readSource("app/account/reviews/page.tsx")).toContain("ReviewsV1");
     expect(readSource("app/account/settings/page.tsx")).toContain("SettingsV1");
-    expect(readSource("app/account/verification/page.tsx")).toContain('redirect("/account/settings")');
+    expect(readSource("app/account/verification/page.tsx")).toContain("VerificationHubPage");
     expect(readSource("styles/rovexo/account-module-v1.css")).toContain(".acm-tabs");
     expect(readSource("styles/rovexo/account-module-v1.css")).toContain(".acm-saved-grid");
   });

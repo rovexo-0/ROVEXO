@@ -1,0 +1,307 @@
+/**
+ * ROVEXO v1.0 — Compact Premium Design Tokens (platform SSOT)
+ *
+ * Authority: Product Owner Final Authorization — Compact Premium Philosophy
+ * (2026-07-18). Applies under BetaAppShell / Universal UI. Auth Login/Register
+ * remain frozen and are outside this scope.
+ *
+ * Prefer compact ergonomics: shorter chrome, 40–44px controls, dense cards,
+ * no oversized empty space. Touch targets stay ≥40px on modern phones.
+ */
+
+:root {
+  --cp-header-height: 64px;
+  --cp-search-height: 44px;
+  --cp-control-height: 44px;
+  --cp-button-height: 44px;
+  --cp-input-height: 44px;
+  --cp-fab-size: 56px;
+  --cp-bottom-nav-height: 52px;
+  --cp-icon-size: 22px;
+  --cp-body-size: 14px;
+  --cp-title-size: 16px;
+  --cp-listing-title-size: 15px;
+  --cp-price-size: 18px;
+  --cp-secondary-size: 13px;
+  --cp-meta-size: 12px;
+  --cp-radius-card: 16px;
+  --cp-radius-control: 14px;
+  --cp-section-gap: 16px;
+  --cp-page-inset: 12px;
+  --cp-card-pad: 10px;
+  --cp-row-gap: 8px;
+}
+
+/* Map Compact Premium onto shell + Universal UI surfaces (not auth). */
+[data-universal-ui="v1.1"],
+[data-app-shell="beta"] {
+  --header-shell-height: var(--cp-header-height);
+  --header-search-height: var(--cp-search-height);
+  --header-control-height: var(--cp-control-height);
+  --bottom-nav-shell-height: var(--cp-bottom-nav-height);
+
+  --uv1-header-height: var(--cp-header-height);
+  --uv1-bottom-nav-height: var(--cp-bottom-nav-height);
+  --uv1-button-height: var(--cp-button-height);
+  --uv1-input-height: var(--cp-input-height);
+  --uv1-icon-size: var(--cp-icon-size);
+  --uv1-body-size: var(--cp-body-size);
+  --uv1-section-title-size: var(--cp-title-size);
+  --uv1-section-gap: var(--cp-section-gap);
+  --uv1-inner-padding: var(--cp-page-inset);
+  --uv1-radius: var(--cp-radius-card);
+
+  --cds-header-height: var(--cp-header-height);
+  --cds-button-height: var(--cp-button-height);
+  --cds-input-height: var(--cp-input-height);
+
+  --rx-listing-radius: var(--cp-radius-card);
+  --rx-listing-title-size: var(--cp-listing-title-size);
+  --rx-listing-price-size: var(--cp-price-size);
+  --rx-listing-condition-size: var(--cp-meta-size);
+  --rx-listing-bp-size: var(--cp-meta-size);
+  --rx-listing-footer-size: var(--cp-secondary-size);
+  --rx-listing-pad: var(--cp-card-pad);
+  --rx-listing-gap: 4px;
+  --rx-listing-gap-md: 6px;
+
+  --ds-font-body-size: var(--cp-body-size);
+  --ds-font-caption-size: var(--cp-meta-size);
+
+  font-size: var(--cp-body-size);
+}
+
+[data-universal-ui="v1.1"] :where(.rx-btn, .cds-btn, button.rx-btn) {
+  min-height: var(--cp-button-height);
+  border-radius: var(--cp-radius-control);
+  font-size: var(--cp-body-size);
+  line-height: 1.25;
+}
+
+[data-universal-ui="v1.1"] :where(.rx-input, .cds-input, input.rx-input) {
+  min-height: var(--cp-input-height);
+  border-radius: var(--cp-radius-control);
+  font-size: var(--cp-body-size);
+}
+
+[data-bottom-nav="v2"] {
+  --rx-bottom-nav-height: var(--cp-bottom-nav-height);
+  --rx-bottom-nav-sell-size: var(--cp-fab-size);
+  --rx-bottom-nav-sell-float: 8px;
+  --rx-bottom-nav-label-size: var(--cp-meta-size);
+  --rx-bottom-nav-icon-size: var(--cp-icon-size);
+}
+
+/* Header V2 — Compact Premium search chrome */
+[data-header-version="v2"] .rx-h2__inner {
+  height: var(--cp-header-height);
+  min-height: var(--cp-header-height);
+}
+
+[data-header-version="v2"] .rx-h2-search,
+[data-header-version="v2"] .rx-h2-search--homepage {
+  min-height: var(--cp-search-height);
+  height: var(--cp-search-height);
+}
+
+[data-header-version="v2"] .rx-h2__search-row {
+  min-height: var(--cp-search-height);
+}
+
+@media (max-width: 767px) {
+  [data-header-version="v2"] .rx-h2__inner {
+    height: var(--cp-header-height, 64px);
+    min-height: var(--cp-header-height, 64px);
+  }
+}
+
+/* —— Account hub: compact rows (My Account contract) —— */
+[data-compact-premium="v1"] .ac-hub {
+  gap: 12px;
+  padding: 8px 12px calc(72px + env(safe-area-inset-bottom));
+}
+
+[data-compact-premium="v1"] .ac-hub__profile-card {
+  gap: 12px;
+  padding: 12px;
+}
+
+[data-compact-premium="v1"] .ac-hub__profile-avatar {
+  width: 48px;
+  height: 48px;
+}
+
+[data-compact-premium="v1"] .ac-hub__profile-initial {
+  font-size: 1rem;
+}
+
+/* Cap oversized display type under Compact Premium TEXT POLICY */
+[data-compact-premium="v1"] h1:not([data-auth-screen]),
+[data-universal-ui="v1.1"] h1:not([data-auth-screen]) {
+  font-size: clamp(15px, 4vw, 16px);
+  line-height: 1.25;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+[data-compact-premium="v1"] h2:not([data-auth-screen]),
+[data-universal-ui="v1.1"] h2:not([data-auth-screen]) {
+  font-size: clamp(14px, 3.6vw, 15px);
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+[data-compact-premium="v1"] .ac-hub__menu-card .ac-hub__row {
+  min-height: var(--cp-control-height, 44px);
+  padding: 10px 12px;
+  gap: 10px;
+}
+
+/* —— Orders: compact header + rows —— */
+[data-compact-premium="v1"] .account-canonical:has(.orders-page) .account-canonical-header__bar {
+  min-height: var(--cp-header-height, 64px);
+  height: var(--cp-header-height, 64px);
+}
+
+/* —— Wallet: keep 64 header; compact action tiles —— */
+[data-compact-premium="v1"] .wallet-v2 [class*="action"] {
+  min-height: unset;
+}
+
+[data-compact-premium="v1"] .wallet-v2 button,
+[data-compact-premium="v1"] .wallet-v2 .rx-btn,
+[data-compact-premium="v1"] .wallet-v2 a.rx-btn {
+  min-height: var(--cp-button-height, 44px);
+}
+
+/* —— Checkout Compact Premium (structure preserved; density only) —— */
+[data-compact-premium="v1"] .ckt-v1 {
+  --ckt-gap: 16px;
+  --ckt-radius: 16px;
+  --ckt-pad-x: 12px;
+}
+
+[data-compact-premium="v1"] .ckt-v1__header-bar {
+  height: var(--cp-header-height, 64px);
+  min-height: var(--cp-header-height, 64px);
+  padding: 0 12px;
+}
+
+[data-compact-premium="v1"] .ckt-v1 [class*="cta"],
+[data-compact-premium="v1"] .ckt-v1 button[type="submit"] {
+  min-height: var(--cp-button-height, 44px);
+}
+
+/* —— Sell: compact fields —— */
+[data-compact-premium="v1"] .sell-page-v1-content {
+  gap: 12px;
+}
+
+[data-compact-premium="v1"] .rx-listing-grid,
+[data-universal-ui="v1.1"] .rx-listing-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  [data-compact-premium="v1"] .rx-listing-grid,
+  [data-universal-ui="v1.1"] .rx-listing-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-compact-premium="v1"] .rx-listing-grid,
+  [data-universal-ui="v1.1"] .rx-listing-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Borderless compact cards */
+[data-compact-premium="v1"] [data-listing-card],
+[data-compact-premium="v1"] [data-hp-listing-card],
+[data-universal-ui="v1.1"] [data-listing-card],
+[data-universal-ui="v1.1"] [data-hp-listing-card] {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Force unified 44px search control */
+[data-compact-premium="v1"] .homepage-search__control,
+[data-universal-ui="v1.1"] .homepage-search__control,
+[data-header-version="v2"] .homepage-search__control {
+  min-height: 44px !important;
+  height: 44px !important;
+}
+
+/* Product similar: 2 columns (not carousel) under Compact Premium */
+[data-compact-premium="v1"] .pd-v1__similar-rail,
+[data-universal-ui="v1.1"] .pd-v1__similar-rail {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 10px;
+  overflow: visible !important;
+}
+
+[data-compact-premium="v1"] .pd-v1__similar-rail > *,
+[data-universal-ui="v1.1"] .pd-v1__similar-rail > * {
+  width: 100% !important;
+  flex: none !important;
+}
+
+/* —— FULL WIDTH POLICY — 95–100% screen width (all breakpoints) —— */
+[data-compact-premium="v1"] .wallet-v2,
+[data-compact-premium="v1"] .inbox-hub,
+[data-compact-premium="v1"] .conv-hub,
+[data-compact-premium="v1"] .orders-page,
+[data-compact-premium="v1"] .account-center,
+[data-compact-premium="v1"] .account-center__container,
+[data-compact-premium="v1"] .ac-canonical,
+[data-compact-premium="v1"] .acm,
+[data-compact-premium="v1"] .cds-layout,
+[data-compact-premium="v1"] .pcu-module,
+[data-compact-premium="v1"] .notif-v1__shell,
+[data-compact-premium="v1"] .wallet-overview,
+[data-compact-premium="v1"] .account-canonical,
+[data-compact-premium="v1"] .cart-v1,
+[data-universal-ui="v1.1"] .wallet-v2,
+[data-universal-ui="v1.1"] .inbox-hub,
+[data-universal-ui="v1.1"] .conv-hub,
+[data-universal-ui="v1.1"] .orders-page,
+[data-universal-ui="v1.1"] .cds-layout,
+[data-universal-ui="v1.1"] .pcu-module,
+[data-universal-ui="v1.1"] .ac-canonical,
+[data-universal-ui="v1.1"] .account-canonical,
+[data-universal-ui="v1.1"] .cart-v1 {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin-inline: 0 !important;
+}
+
+[data-compact-premium="v1"] .cds-layout,
+[data-universal-ui="v1.1"] .cds-layout {
+  --cds-page-max-width: 100%;
+}
+
+[data-compact-premium="v1"] .pcu-module,
+[data-universal-ui="v1.1"] .pcu-module {
+  --pcu-page-max-width: 100%;
+}
+
+[data-compact-premium="v1"] .account-center,
+[data-universal-ui="v1.1"] .account-center {
+  --ac-max-width: 100%;
+}
+
+[data-compact-premium="v1"] .max-w-\[640px\],
+[data-compact-premium="v1"] .max-w-2xl,
+[data-compact-premium="v1"] .max-w-xl,
+[data-compact-premium="v1"] .max-w-lg,
+[data-compact-premium="v1"] .max-w-md,
+[data-universal-ui="v1.1"] .max-w-\[640px\],
+[data-universal-ui="v1.1"] .max-w-2xl,
+[data-universal-ui="v1.1"] .max-w-xl,
+[data-universal-ui="v1.1"] .max-w-lg {
+  max-width: 100% !important;
+}
+
+

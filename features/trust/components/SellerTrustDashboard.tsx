@@ -9,12 +9,7 @@ type SellerTrustDashboardProps = {
 
 export function SellerTrustDashboard({ data }: SellerTrustDashboardProps) {
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-ds-6 px-ds-4 py-ds-6">
-      <section>
-        <p className="text-sm font-medium text-primary">Seller Trust Dashboard</p>
-        <h1 className="mt-1 text-2xl font-bold text-text-primary">Your reputation at a glance</h1>
-      </section>
-
+    <div className="flex w-full flex-col gap-ds-4 pb-ds-5">
       <Card padding="lg" className="">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <TrustTierBadge tier={data.score.tier} />

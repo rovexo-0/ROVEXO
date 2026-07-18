@@ -1,0 +1,38 @@
+---
+description: Homepage Listing Card — Compact Premium (PO 2026-07-18) supersedes v3/v4 size locks for density
+globs: components/ui/ListingCard.tsx,components/ui/ListingCard.module.css,styles/rovexo/listing-card-official.css,styles/rovexo/compact-premium-v1.css
+alwaysApply: false
+---
+
+# Homepage Listing Card — Compact Premium
+
+**STATUS: COMPACT PREMIUM SSOT | Product Owner Final Authorization 2026-07-18**
+
+Prior v3/v4 pixel freezes are superseded for presentation density. Card **structure and behaviour** remain: image, favourite, price, inclusive price, title, condition, rating, views.
+
+## Compact Premium dimensions
+
+- Radius: **16px**
+- Title: **15–16px / 600**
+- Price: **18px / 700**
+- Secondary / views: **12–13px**
+- Content padding: **10px**
+- Favourite: **≥28×28** touch
+
+## Allowed
+
+- Compact Premium density/type/spacing within PO guidelines
+- Image loading, click, favourite, rating, views, a11y, perf
+- Grid column changes only across breakpoints
+
+## Prohibited
+
+- Removing price, inclusive price, condition, or rating
+- Parallel listing card components
+- Giant empty content blocks
+- Touching Login/Register
+
+## Reference
+
+`docs/modules/homepage/MASTER_UI_SPECIFICATION.md`  
+`docs/modules/compact-premium/COMPACT_PREMIUM_V1.md`

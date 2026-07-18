@@ -31,16 +31,20 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
   });
 
   it("exposes all canonical legal documents from scratch SSOT", () => {
-    expect(LEGAL_DOCUMENT_SLUGS).toHaveLength(21);
+    expect(LEGAL_DOCUMENT_SLUGS).toHaveLength(22);
     expect(getLegalDocument("terms-and-conditions")?.title).toBe("Terms & Conditions");
     expect(getLegalDocument("cookie-policy")?.title).toBe("Cookie Policy");
     expect(getLegalDocument("wallet-terms")).toBeTruthy();
     expect(getLegalDocument("payment-terms")).toBeTruthy();
     expect(getLegalDocument("delivery-policy")).toBeTruthy();
+    expect(getLegalDocument("verification-policy")?.title).toBe("Verification Policy");
+    expect(getLegalDocument("intellectual-property-policy")?.title).toContain("Notice and Takedown");
     expect(listLegalDocuments().every((doc) => doc.content.length > 200)).toBe(true);
     expect(readSource("app/terms/page.tsx")).toContain("/legal/terms-and-conditions");
     expect(readSource("app/privacy/page.tsx")).toContain("/legal/privacy-policy");
     expect(readSource("app/cookies/page.tsx")).toContain("/legal/cookie-policy");
+    expect(readSource("app/verification-policy/page.tsx")).toContain("/legal/verification-policy");
+    expect(readSource("app/trust-center/page.tsx")).toContain('redirect("/trust")');
   });
 
   it("locks help centre category buttons for account entry", () => {

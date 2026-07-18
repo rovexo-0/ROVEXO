@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { SellerTrustDashboard } from "@/features/trust/components/SellerTrustDashboard";
-import { getAuthContext, getUserRole, isSellerRole } from "@/lib/auth/session";
+import { getAuthContext } from "@/lib/auth/session";
 import { getTrustDashboardData } from "@/lib/trust/service";
 
 export const metadata: Metadata = {
@@ -16,11 +16,6 @@ export default async function SellerTrustPage() {
     redirect("/login?next=/seller/trust");
   }
 
-  const role = await getUserRole(auth.user.id);
-  if (!role || !isSellerRole(role)) {
-    redirect("/account");
-  }
-
   const { data: profile } = await auth.supabase
     .from("profiles")
     .select("verified")
@@ -30,8 +25,14 @@ export default async function SellerTrustPage() {
   const data = await getTrustDashboardData(auth.user.id, Boolean(profile?.verified));
 
   return (
-    <BetaAppShell showBottomNav={false}>
+    <AccountCanonicalShell
+      title="Seller Trust"
+      backHref="/seller"
+      backLabel="Selling"
+      showHeaderTitle
+      showBottomNav={false}
+    >
       <SellerTrustDashboard data={data} />
-    </BetaAppShell>
+    </AccountCanonicalShell>
   );
 }

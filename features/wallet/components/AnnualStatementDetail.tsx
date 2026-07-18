@@ -1,8 +1,6 @@
 "use client";
 
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { ScrollContainer } from "@/components/ui/ScrollContainer";
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { cn } from "@/lib/cn";
 import { formatCurrency } from "@/lib/wallet/utils";
 import type { AnnualStatement } from "@/lib/wallet/monthly-statements";
@@ -29,16 +27,14 @@ export function AnnualStatementDetail({ statement }: AnnualStatementDetailProps)
   };
 
   return (
-    <BetaAppShell bottomNavTab="account">
-      <CanonicalPageHeader
-        title={`${statement.label} Statement`}
-        backHref="/wallet/statements/annual"
-        backLabel="Annual"
-        className="print:hidden"
-      />
-
-      <ScrollContainer
-        withBottomNav
+    <AccountCanonicalShell
+      title={`${statement.label} Statement`}
+      backHref="/wallet/statements/annual"
+      backLabel="Annual"
+      showHeaderTitle
+      className="print:hidden"
+    >
+      <div
         className="wallet-hub wallet-statement"
         data-wallet-annual-statement-version="v1.0-legal-lock"
       >
@@ -81,7 +77,7 @@ export function AnnualStatementDetail({ statement }: AnnualStatementDetailProps)
             ))}
           </div>
         </section>
-      </ScrollContainer>
-    </BetaAppShell>
+      </div>
+    </AccountCanonicalShell>
   );
 }

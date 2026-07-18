@@ -1,7 +1,10 @@
-import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
-import { MARKETPLACE_CONNECTORS_PATH } from "@/lib/seller/marketplace/config";
-import { filterBringYourItemTiles } from "@/lib/bring-your-item/release";
+/**
+ * ROVEXO My Account modules — legacy tile helpers.
+ * Buying/Selling hubs now use Master Menu SSOT (buying-menu / selling-menu).
+ */
 import type { MobileBadgeKey, MobileTile } from "@/lib/mobile-ui/types";
+import { buildBuyingMenuSections } from "@/lib/account-center/buying-menu";
+import { buildSellingMenuSections } from "@/lib/account-center/selling-menu";
 
 export type AccountCenterModuleId = "buying" | "selling" | "account";
 
@@ -17,7 +20,7 @@ export type AccountQuickAccessModule = {
 export const ACCOUNT_QUICK_ACCESS: AccountQuickAccessModule[] = [
   {
     id: "buying",
-    href: "/orders",
+    href: "/account/buying",
     title: "Buying",
     subtitle: "Orders, saved & discovery",
     icon: "buying",
@@ -50,35 +53,15 @@ function tile(
 }
 
 export function getBuyingModuleTiles(): MobileTile[] {
-  return [
-    tile("/orders", "Orders", "Track purchases", "orders"),
-    tile("/inbox", "Inbox", "Messages & notifications", "messages"),
-    tile("/saved", "Saved", "Items you saved", "saved"),
-    tile("/inbox?tab=notifications", "Notifications", "Alerts & activity", "notifications"),
-    tile("/support", "Support", "Help from our team"),
-    tile("/trust", "Trust Centre", "Score, safety & verification"),
-    tile("/resolution", "Resolution Centre", "Disputes, returns & claims"),
-    tile("/plans", "Premium", "Subscriptions & perks"),
-    tile("/search", "Search", "Find anything"),
-    tile("/categories", "Browse", "Explore the marketplace"),
-    tile("/auctions", "Auctions", "Live bidding"),
-    tile("/cart", "Cart", "Ready to checkout", "cart"),
-  ];
+  return buildBuyingMenuSections()
+    .flatMap((section) => section.items)
+    .map((item) => tile(item.href, item.title, item.subtitle ?? "", item.badgeKeys?.[0]));
 }
 
 export function getSellingModuleTiles(): MobileTile[] {
-  return filterBringYourItemTiles([
-    tile("/seller/listings", "Listings", "Manage inventory"),
-    tile("/seller/orders", "Orders", "Fulfillment & shipping", "orders"),
-    tile("/wallet", "Wallet", "Balance & payouts", "wallet-payout"),
-    tile("/seller/analytics", "Analytics", "Views, sales & trends"),
-    tile("/sell", "Publish", "Create a listing"),
-    tile(MARKETPLACE_CONNECTORS_PATH, "Marketplace Import", "Connect external stores"),
-    tile(MIGRATION_CENTER_PATH, "Bring Your Item", "Import your store"),
-    tile("/plans", "Promotions", "Boost & premium tools"),
-    tile("/seller/tax", "Tax", "VAT & registration"),
-    tile("/support", "Support", "Selling help"),
-  ]);
+  return buildSellingMenuSections()
+    .flatMap((section) => section.items)
+    .map((item) => tile(item.href, item.title, item.subtitle ?? "", item.badgeKeys?.[0]));
 }
 
 export function getAccountModuleTiles(): MobileTile[] {

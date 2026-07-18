@@ -1,18 +1,14 @@
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
-import {
-  DocumentLineIcon,
-  InfoLineIcon,
-} from "@/components/icons/RvxLineIcons";
-import { ROVEXO_APP_VERSION } from "@/lib/app/version";
-
+import { CanonicalSection, CanonicalCard, CanonicalMenuRow } from "@/src/components/canonical";
+import { DocumentLineIcon, InfoLineIcon } from "@/components/icons/RvxLineIcons";
 
 export function SettingsAboutV1() {
   return (
     <>
       <CanonicalSection title="About ROVEXO">
         <CanonicalCard variant="list" className="px-ds-5 py-ds-4">
-          <p className="text-sm text-text-secondary">App Version</p>
-          <p className="mt-ds-1 text-lg font-semibold text-text-primary">ROVEXO {ROVEXO_APP_VERSION}</p>
+          <p className="text-sm text-text-secondary">
+            ROVEXO is the UK marketplace for buying and selling with protected checkout.
+          </p>
         </CanonicalCard>
       </CanonicalSection>
       <CanonicalSection title="Legal">

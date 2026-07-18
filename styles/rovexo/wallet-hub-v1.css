@@ -40,11 +40,12 @@
   height: 22px;
 }
 
+/* Wallet uses Master header — no oversized title (Compact Premium). */
 .account-canonical:has(.wallet-v2) .account-canonical-header__title {
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
 }
 
 .wallet-v2__help {
@@ -95,9 +96,9 @@
   flex-direction: column;
   gap: 0;
   width: 100%;
-  max-width: min(430px, 100%);
-  margin: 0 auto;
-  padding: 20px var(--wallet-pad-x) 32px;
+  max-width: 100%;
+  margin: 0;
+  padding: 12px var(--wallet-pad-x) 24px;
   color: var(--wallet-text);
   background: #ffffff;
   overflow-x: clip;
@@ -132,6 +133,21 @@
   background: rgb(109 40 217 / 0.06);
   font-size: 0.875rem;
   color: var(--wallet-text);
+}
+
+.wallet-v2__hero--compact {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  padding: 16px;
+  box-shadow: none;
+}
+
+.wallet-v2__hero-pending {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  opacity: 0.9;
 }
 
 /* —— Hero —— */

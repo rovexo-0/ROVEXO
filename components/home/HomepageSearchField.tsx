@@ -227,7 +227,8 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
             autoComplete="off"
             enterKeyHint="search"
             role={hydrated ? "combobox" : "searchbox"}
-            aria-expanded={hydrated ? isOpen : false}
+            // aria-expanded is only valid on combobox — never on searchbox (WCAG aria-allowed-attr).
+            aria-expanded={hydrated ? isOpen : undefined}
             aria-controls={hydrated ? listboxId : undefined}
             aria-autocomplete={hydrated ? "list" : undefined}
             aria-activedescendant={

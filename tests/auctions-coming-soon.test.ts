@@ -33,20 +33,14 @@ function readSource(relativePath: string): string {
   return readFileSync(path.join(process.cwd(), relativePath), "utf8");
 }
 
-describe("auctions coming soon", () => {
-  it("renders the premium coming soon page at /auctions", () => {
+describe("auctions launch-ready consumer gate", () => {
+  it("redirects /auctions to Search — no consumer Coming Soon page", () => {
     const route = readSource("app/auctions/page.tsx");
-    const page = readSource("features/auctions/components/AuctionsComingSoonPage.tsx");
 
-    expect(route).toContain("AuctionsComingSoonPage");
+    expect(route).toContain('redirect("/search")');
+    expect(route).not.toContain("AuctionsComingSoonPage");
     expect(route).not.toContain("AuctionsPage");
     expect(route).not.toContain("getAuctionsPageData");
-    expect(page).toContain("Coming Soon");
-    expect(page).toContain("Notify Me");
-    expect(page).toContain("Back to Marketplace");
-    expect(page).toContain("Learn More");
-    expect(page).toContain("LIVE AUCTIONS");
-    expect(page).toContain("Coming in a future ROVEXO update");
   });
 
   it("keeps the full auctions engine available for future replacement", () => {
@@ -55,7 +49,7 @@ describe("auctions coming soon", () => {
     );
   });
 
-  it("lists all feature preview cards", () => {
+  it("retains launch preview copy for future re-enable", () => {
     const content = readSource("lib/auctions/coming-soon-content.ts");
     expect(content).toContain("Real-Time Bidding");
     expect(content).toContain("Instant Bid Updates");

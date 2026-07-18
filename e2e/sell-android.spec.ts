@@ -186,7 +186,7 @@ test.describe.serial("sell flow (Android) end-to-end", () => {
     await expect(page.locator("[data-photo-index]")).toHaveCount(2, { timeout: 15_000 });
 
     const title = `iPhone 15 Pro Max ${Date.now()}`;
-    await page.getByPlaceholder(/tell buyers what you're selling/i).fill(title);
+    await page.getByPlaceholder(/what are you selling|tell buyers what you're selling/i).fill(title);
     await fillSellDescription(
       page,
       "A test listing created by Playwright E2E automation. Solid condition.",

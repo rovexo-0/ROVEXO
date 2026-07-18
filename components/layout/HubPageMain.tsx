@@ -22,7 +22,7 @@ export function HubPageMain({
     <ScrollContainer
       id={id}
       withBottomNav={withBottomNav}
-      className={cn("mx-auto flex w-full max-w-2xl flex-col gap-ds-4 px-ds-4 py-ds-5", className)}
+      className={cn("mx-auto flex w-full flex-col gap-ds-4 px-ds-4 py-ds-5", className)}
     >
       {children}
     </ScrollContainer>

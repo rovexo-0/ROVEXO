@@ -5,7 +5,7 @@ import path from "path";
 import { createAdminClient } from "../lib/supabase/admin";
 import { signInWithSessionCookies } from "./helpers/auth";
 import { ALL_LISTINGS_SELECTOR, waitForHomepageUi } from "./helpers/stable-ui";
-import { fillSellDescription, publishSellListing, uploadSellPhoto, ensureCategorySelected, gotoSellPage, fillSellTitle, ensureParcelSizeSelected } from "./helpers/sell";
+import { fillSellDescription, publishSellListing, uploadSellPhoto, ensureCategorySelected, gotoSellPage, fillSellTitle, completeSellToPrice } from "./helpers/sell";
 import { seedSellerBankAccount } from "./helpers/seller-setup";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../lib/supabase/types/database";
@@ -125,10 +125,9 @@ test.describe.serial("production hotfix validation", () => {
 
     await uploadSellPhoto(page, galleryImage);
     await fillSellTitle(page, title);
-    await fillSellDescription(page, "E2E hotfix validation listing with enough detail for publish.");
-
     await ensureCategorySelected(page);
-    await ensureParcelSizeSelected(page);
+    await fillSellDescription(page, "E2E hotfix validation listing with enough detail for publish.");
+    await completeSellToPrice(page);
 
     await page.getByPlaceholder("0.00").fill("29.99");
     await publishSellListing(page);

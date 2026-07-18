@@ -79,8 +79,8 @@ describe("transaction hub seller wallet document 3", () => {
 
     expect(escrow).toContain("notifySellerFundsPending");
     expect(settlement).toContain("notifySellerFundsReleased");
-    expect(wallet).toContain("Available Balance");
-    expect(wallet).toContain("wallet-v2__quick-card");
+    expect(wallet).toContain("Available");
+    expect(wallet).toContain("PersonalWalletMenuSections");
     expect(wallet).toContain("WALLET_ROUTES.withdraw");
     expect(wallet).not.toContain("wallet-v2__balance-card");
   });

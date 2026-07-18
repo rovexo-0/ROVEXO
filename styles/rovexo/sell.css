@@ -51,7 +51,7 @@
 }
 
 .sell-page-v1 .rx-input {
-  min-height: 48px;
+  min-height: var(--cp-input-height, 44px);
   border-radius: var(--ds-radius-md);
   font-size: var(--ds-font-body-size);
   background: var(--ds-color-surface-muted);

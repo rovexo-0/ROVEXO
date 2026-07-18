@@ -17,10 +17,6 @@ export function SearchScopeChips({ active, onChange, query = "", className }: Se
   const router = useRouter();
 
   function handleSelect(scope: SearchFilterScope) {
-    if (scope === "auctions") {
-      router.push("/auctions");
-      return;
-    }
     if (scope === "businesses") {
       router.push("/business/directory");
       return;

@@ -13,7 +13,7 @@ describe("Account Center modules", () => {
   });
 
   it("routes quick access to official module destinations", () => {
-    expect(ACCOUNT_QUICK_ACCESS.find((entry) => entry.id === "buying")?.href).toBe("/orders");
+    expect(ACCOUNT_QUICK_ACCESS.find((entry) => entry.id === "buying")?.href).toBe("/account/buying");
     expect(ACCOUNT_QUICK_ACCESS.find((entry) => entry.id === "selling")?.href).toBe("/seller");
     expect(ACCOUNT_QUICK_ACCESS.find((entry) => entry.id === "account")?.href).toBe(
       "/account/settings",
@@ -22,24 +22,34 @@ describe("Account Center modules", () => {
 
   it("keeps buying module free of selling-only destinations", () => {
     const hrefs = getBuyingModuleTiles().map((tile) => tile.href);
-    expect(hrefs).not.toContain("/seller/listings");
-    expect(hrefs).toContain("/orders");
-    expect(hrefs).toContain("/inbox");
-  });
-
-  it("selling module lists Bring Your Item without hub self-link", () => {
-    const hrefs = getSellingModuleTiles().map((tile) => tile.href);
-    expect(hrefs).toContain("/account/bring-your-item");
-    expect(hrefs).toContain("/sell");
-    expect(hrefs).not.toContain("/seller");
-  });
-
-  it("buying module matches v2.1 spec tiles", () => {
     const labels = getBuyingModuleTiles().map((tile) => tile.label);
-    expect(labels).toContain("Trust Centre");
-    expect(labels).toContain("Resolution Centre");
-    expect(labels).toContain("Premium");
-    expect(labels).not.toContain("Offers");
+    expect(hrefs).not.toContain("/seller/listings");
+    expect(labels).toContain("Orders");
+    expect(labels).toContain("Offers");
+    expect(labels).toContain("Reviews");
+  });
+
+  it("selling module excludes Marketplace Import and Bring Your Item", () => {
+    const labels = getSellingModuleTiles().map((tile) => tile.label);
+    const hrefs = getSellingModuleTiles().map((tile) => tile.href);
+    expect(labels).not.toContain("Marketplace Import");
+    expect(labels).not.toContain("Bring Your Item");
+    expect(labels).toContain("Listings");
+    expect(labels).toContain("Wallet");
+    expect(labels).not.toContain("Payouts");
+    expect(hrefs).not.toContain("/account/bring-your-item");
+  });
+
+  it("buying module matches PO Master Menu destinations", () => {
+    const labels = getBuyingModuleTiles().map((tile) => tile.label);
+    expect(labels).toEqual([
+      "Orders",
+      "Cart",
+      "Saved",
+      "Offers",
+      "Returns & Refunds",
+      "Reviews",
+    ]);
   });
 
   it("account module includes ROVEXO Ideas", () => {

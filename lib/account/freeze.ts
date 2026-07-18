@@ -1,6 +1,7 @@
 /**
  * ROVEXO My Account — freeze markers v1.0
  * STATUS = FROZEN when ACCOUNT_CANONICAL_FROZEN === true.
+ * Menu structure updated under PO Final Authorization (Master Menu v2.0).
  */
 
 /** Canonical freeze label — My Account v1.0 approved production SSOT. */
@@ -14,40 +15,42 @@ export const ACCOUNT_CANONICAL_FROZEN = true as const;
 
 export const ACCOUNT_ROUTES = {
   hub: "/account",
+  buying: "/account/buying",
   profile: "/account/profile",
   followers: "/account/followers",
   reviews: "/account/reviews",
   settings: "/account/settings",
   ideas: "/account/ideas",
   promotionTools: "/account/promotion-tools",
+  offers: "/account/offers",
 } as const;
 
 /** DOM markers locked at freeze. */
 export const ACCOUNT_FREEZE_DOM = {
   freeze: "FROZEN",
-  hubVersion: "v1.0-production",
+  hubVersion: "v2.0-master",
   sellerPerformance: "v1.0-frozen",
 } as const;
 
-/** Frozen hub sections in render order. */
+/** Frozen hub sections in render order — Compact Premium Master Menu (PO). */
 export const ACCOUNT_CANONICAL_COMPONENTS = [
   "AccountCanonicalShell",
   "AccountCenterHome",
   "AccountCanonicalProfile",
-  "AccountStatsStrip",
-  "AccountSellerPerformanceCard",
   "AccountMenuSections",
 ] as const;
 
-/** Frozen manage / account / support menu titles (excl. SYSTEM Sign Out). */
+/** Account menu titles — Master Menu v2.0 (PO Final Authorization). */
 export const ACCOUNT_MENU_TITLES = [
-  "My Listings",
-  "Orders",
-  "Saved Items",
-  "My Reviews",
+  "Buying",
+  "Selling",
+  "Business",
   "Wallet",
+  "Messages",
+  "Notifications",
+  "Verification",
   "Settings",
-  "Promotion Tools",
   "Help Centre",
-  "Ideas",
+  "Trust Centre",
+  "Legal Centre",
 ] as const;

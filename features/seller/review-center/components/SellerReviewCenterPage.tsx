@@ -1,12 +1,9 @@
 "use client";
 
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
-import { HubPageMain } from "@/components/layout/HubPageMain";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { Card } from "@/components/ui/Card";
-import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { ReviewStatusBadge } from "@/features/seller/review-center/components/ReviewStatusBadge";
 import type { SellerReviewCase } from "@/lib/moderation/review-center";
 
@@ -33,72 +30,66 @@ export function SellerReviewCenterPage() {
   }, []);
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      <HubPageMain withBottomNav={false} className="mx-auto w-full max-w-2xl bg-background px-5 py-5 ">
-        <DashboardShell>
-          <div>
-            <p className="text-sm text-text-secondary">Selling</p>
-            <h1 className="mt-ds-1 text-2xl font-semibold text-text-primary">Review Center</h1>
+    <AccountCanonicalShell
+      title="Review Center"
+      backHref="/seller"
+      backLabel="Selling"
+      showHeaderTitle
+      showBottomNav={false}
+    >
+      <div className="flex w-full flex-col gap-ds-3 px-ds-4 pb-ds-5">
+        <p className="text-sm text-text-secondary">
+          Listings under moderation review. Hidden from public search until resolved.
+        </p>
+
+        {loading ? (
+          <p className="text-sm text-text-secondary">Loading review cases…</p>
+        ) : null}
+
+        {error ? <p className="text-sm text-danger">{error}</p> : null}
+
+        {!loading && !error && cases.length === 0 ? (
+          <div className="rounded-ds-lg border border-border px-ds-4 py-ds-5 text-center">
+            <p className="text-sm font-medium text-text-primary">No listings under review</p>
             <p className="mt-ds-2 text-sm text-text-secondary">
-              Listings under moderation review. Hidden from public search until resolved.
+              When a listing is reported, it will appear here with next steps.
             </p>
+            <Link
+              href="/seller/listings"
+              className="mt-ds-4 inline-flex rounded-ds-full bg-primary px-ds-4 py-ds-2 text-sm font-medium text-white"
+            >
+              Back to listings
+            </Link>
           </div>
+        ) : null}
 
-          {loading ? (
-            <Card padding="lg" className="rx-glass">
-              <p className="text-sm text-text-secondary">Loading review cases…</p>
-            </Card>
-          ) : null}
-
-          {error ? (
-            <Card padding="lg" className="border-danger/30 bg-danger/5">
-              <p className="text-sm text-danger">{error}</p>
-            </Card>
-          ) : null}
-
-          {!loading && !error && cases.length === 0 ? (
-            <Card padding="lg" className="rx-glass text-center">
-              <p className="text-sm font-medium text-text-primary">No listings under review</p>
-              <p className="mt-ds-2 text-sm text-text-secondary">
-                When a listing is reported, it will appear here with next steps.
-              </p>
-              <Link
-                href="/seller/listings"
-                className="mt-ds-4 inline-flex rounded-ds-full bg-primary px-ds-4 py-ds-2 text-sm font-medium text-white"
-              >
-                Back to listings
-              </Link>
-            </Card>
-          ) : null}
-
-          <div className="flex flex-col gap-ds-3">
-            {cases.map((reviewCase) => (
-              <Link key={reviewCase.id} href={`/seller/review-center/${reviewCase.id}`}>
-                <Card padding="none" className="rx-glass rx-depth-2 overflow-hidden transition hover:shadow-md">
-                  <div className="flex gap-ds-4 p-ds-4">
-                    <ProductRowImage
-                      src={reviewCase.productImageUrl}
-                      alt={reviewCase.productTitle}
-                      containerClassName="h-20 w-20 shrink-0 rounded-ds-lg"
-                      sizes="80px"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-ds-2">
-                        <ReviewStatusBadge status={reviewCase.status} label={reviewCase.statusLabel} />
-                        <span className="text-xs text-text-muted">{reviewCase.estimatedReviewTime}</span>
-                      </div>
-                      <h2 className="mt-ds-2 truncate text-base font-semibold text-text-primary">
-                        {reviewCase.productTitle}
-                      </h2>
-                      <p className="mt-ds-1 text-sm text-text-secondary">{reviewCase.reasonLabel}</p>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </DashboardShell>
-      </HubPageMain>
-    </BetaAppShell>
+        <div className="flex flex-col gap-ds-2">
+          {cases.map((reviewCase) => (
+            <Link
+              key={reviewCase.id}
+              href={`/seller/review-center/${reviewCase.id}`}
+              className="ac-canonical__row"
+            >
+              <ProductRowImage
+                src={reviewCase.productImageUrl}
+                alt={reviewCase.productTitle}
+                containerClassName="h-14 w-14 shrink-0 rounded-ds-md"
+                sizes="56px"
+              />
+              <span className="ac-canonical__row-copy min-w-0 flex-1">
+                <span className="flex flex-wrap items-center gap-ds-2">
+                  <ReviewStatusBadge status={reviewCase.status} label={reviewCase.statusLabel} />
+                  <span className="text-xs text-text-muted">{reviewCase.estimatedReviewTime}</span>
+                </span>
+                <span className="ac-canonical__row-title mt-ds-1 truncate">
+                  {reviewCase.productTitle}
+                </span>
+                <span className="ac-canonical__row-subtitle">{reviewCase.reasonLabel}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </AccountCanonicalShell>
   );
 }

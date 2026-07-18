@@ -95,12 +95,12 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     expect(settings).not.toContain("SettingsAccordion");
   });
 
-  it("removes manual verification route UI", () => {
+  it("exposes Verification Master Menu page", () => {
     const verification = readSource("app/account/verification/page.tsx");
     const menu = readSource("lib/account-center/canonical-menu.ts");
 
-    expect(verification).toContain('redirect("/account/settings")');
-    expect(menu).not.toContain('title: "Verification"');
+    expect(verification).toContain("VerificationHubPage");
+    expect(menu).toContain('title: "Verification"');
     expect(menu).not.toContain("Personal Information");
     expect(menu).not.toContain("Address Book");
     expect(menu).not.toContain("Payment Methods");

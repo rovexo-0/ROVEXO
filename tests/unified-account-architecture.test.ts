@@ -162,16 +162,20 @@ describe("ROVEXO unified account architecture v1.0", () => {
 
 
 
-  it("builds the canonical My Account Module 02 menu", () => {
+  it("builds the canonical My Account Master Menu v2.0", () => {
     const menu = readFileSync(join(process.cwd(), "lib/account-center/canonical-menu.ts"), "utf8");
     expect(menu).toContain("buildAccountMenuSections");
-    expect(menu).toContain('title: "My Listings"');
-    expect(menu).toContain('title: "Saved Items"');
+    expect(menu).toContain('title: "Buying"');
+    expect(menu).toContain('title: "Selling"');
+    expect(menu).toContain('title: "Business"');
+    expect(menu).toContain('title: "Wallet"');
     expect(menu).toContain('title: "Settings"');
-    expect(menu).toContain('title: "Promotion Tools"');
-    expect(menu).toContain('title: "Ideas"');
+    expect(menu).toContain('title: "Help Centre"');
+    expect(menu).toContain('title: "Trust Centre"');
+    expect(menu).toContain('title: "Legal Centre"');
     expect(menu).toContain('title: "Sign Out"');
-    expect(menu).not.toContain('title: "Verification"');
+    expect(menu).toContain('title: "Verification"');
+    expect(menu).toContain('href: "/account/buying"');
     expect(menu).not.toContain("Become Seller");
     expect(menu).not.toContain("View Public Profile");
     expect(menu).not.toContain("Edit Profile");

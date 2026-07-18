@@ -517,7 +517,7 @@ export function InboxPage() {
       title="Inbox"
       showHeaderTitle
       backHref="/account"
-      bottomNavTab="saved"
+      showBottomNav={false}
       rightAction={markAllAction}
     >
       <div

@@ -17,15 +17,15 @@ describe("Seller Performance v1.0 — CANONICAL FREEZE", () => {
     expect(SELLER_PERFORMANCE_CANONICAL_STATUS).toBe("CANONICAL_FROZEN_v1.0");
   });
 
-  it("locks account summary card markers and navigation", () => {
+  it("locks account summary card markers and keeps hub Compact Premium", () => {
     const card = readSource("features/account-center/components/AccountSellerPerformanceCard.tsx");
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
 
     expect(card).toContain('data-ac-seller-performance="v1.0-frozen"');
     expect(card).toContain('router.push("/seller/performance")');
-    expect(home).toMatch(
-      /AccountStatsStrip[\s\S]*AccountSellerPerformanceCard[\s\S]*AccountMenuSections/,
-    );
+    expect(home).not.toContain("AccountSellerPerformanceCard");
+    expect(home).not.toContain("AccountStatsStrip");
+    expect(home).toContain("AccountMenuSections");
   });
 
   it("locks seller dashboard sections for freeze QA", () => {

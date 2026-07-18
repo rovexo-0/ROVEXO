@@ -13,7 +13,7 @@ type LegalIndexCanonicalProps = {
 
 export function LegalIndexCanonical({ documents }: LegalIndexCanonicalProps) {
   return (
-    <AccountCanonicalShell title="Legal" backHref="/account/settings">
+    <AccountCanonicalShell title="Legal" backHref="/account/settings" showHeaderTitle>
       <p className="cds-section__intro">
         {LEGAL_OPERATOR_NAME} operates ROVEXO. These documents describe how the implemented platform works.
       </p>

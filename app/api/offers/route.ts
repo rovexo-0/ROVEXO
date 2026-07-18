@@ -15,12 +15,48 @@ const createOfferSchema = z.object({
 
 export async function GET(request: Request) {
   const { user } = await requireAuthContext();
-  const productSlug = new URL(request.url).searchParams.get("productSlug");
+  const url = new URL(request.url);
+  const productSlug = url.searchParams.get("productSlug");
+  const role = url.searchParams.get("role");
+  const supabase = await createClient();
+
+  if (!productSlug && (role === "buyer" || role === "seller" || role === null)) {
+    const column = role === "seller" ? "seller_id" : role === "buyer" ? "buyer_id" : null;
+    let query = supabase
+      .from("offers")
+      .select("id, amount, status, created_at, buyer_id, seller_id, message, product_id, products(title)")
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (column) {
+      query = query.eq(column, user.id);
+    } else {
+      query = query.or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`);
+    }
+
+    const { data: offers } = await query;
+    return NextResponse.json({
+      offers: (offers ?? []).map((offer) => {
+        const product = offer.products as { title?: string } | { title?: string }[] | null;
+        const productTitle = Array.isArray(product) ? product[0]?.title : product?.title;
+        return {
+          id: offer.id,
+          amount: Number(offer.amount),
+          status: offer.status,
+          createdAt: offer.created_at,
+          buyerId: offer.buyer_id,
+          sellerId: offer.seller_id,
+          message: offer.message,
+          productTitle: productTitle ?? "Offer",
+        };
+      }),
+    });
+  }
+
   if (!productSlug) {
     return NextResponse.json({ success: false, error: "productSlug required." }, { status: 400 });
   }
 
-  const supabase = await createClient();
   const { data: product } = await supabase
     .from("products")
     .select("id")

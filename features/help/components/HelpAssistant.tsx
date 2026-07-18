@@ -35,7 +35,7 @@ export function HelpAssistant({ compact = false }: HelpAssistantProps) {
   };
 
   return (
-    <CanonicalSection title="AI Help Assistant">
+    <CanonicalSection title="Help Search">
       <CanonicalCard variant="medium">
         {!compact ? (
           <CanonicalInfoBlock variant="description">

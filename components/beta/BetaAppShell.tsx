@@ -48,6 +48,8 @@ export function BetaAppShell({
           sellFlow && "sell-flow-shell",
           className,
         )}
+        data-app-shell="beta"
+        data-compact-premium="v1"
       >
         {children}
         {bottomNavVisible ? (

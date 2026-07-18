@@ -88,11 +88,11 @@ export const MONETIZATION_PRODUCTS: MonetizationProduct[] = [
     href: "/wholesale",
   },
   {
-    id: "premium-ai",
+    id: "premium-support",
     type: "subscription",
-    title: "Premium AI",
-    description: "Advanced marketplace assistant capabilities",
+    title: "Premium Support",
+    description: "Priority Help Centre and marketplace support",
     priceLabel: "Enterprise plan",
-    href: "/assistant",
+    href: "/help",
   },
 ];

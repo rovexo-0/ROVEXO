@@ -10,8 +10,6 @@ import { DashboardSummaryGrid } from "@/features/dashboard/components/DashboardS
 import { SellerDashboardHeader } from "@/features/seller/dashboard/components/SellerDashboardHeader";
 import { SellerProfileCard } from "@/features/seller/dashboard/components/SellerProfileCard";
 import { SellerPromotionsSection } from "@/features/seller/dashboard/components/SellerPromotionsSection";
-import { BringYourItemsDashboardCard } from "@/features/seller/migration/components/BringYourItemsDashboardCard";
-import { SellerMigrationHistorySection } from "@/features/seller/migration/components/SellerMigrationHistorySection";
 import type { SellerDashboardData } from "@/lib/seller/types";
 
 const QUICK_ACTIONS = [
@@ -45,12 +43,6 @@ export function SellerDashboardPage({ data }: SellerDashboardPageProps) {
           reviewCount={data.reviewCount}
           activeListings={data.activeListings}
         />
-
-        <BringYourItemsDashboardCard />
-
-        {data.migrationSummary ? (
-          <SellerMigrationHistorySection summary={data.migrationSummary} />
-        ) : null}
 
         {data.lowStockCount > 0 && (
           <Card padding="sm" className="border-warning/30 bg-warning/5">

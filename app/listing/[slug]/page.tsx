@@ -42,7 +42,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
   }
 
   if (product.listingType === "auction") {
-    redirect("/auctions");
+    redirect("/search");
   }
 
   const breadcrumbs = await getCategoryBreadcrumbsForProduct(product.categoryId ?? null);

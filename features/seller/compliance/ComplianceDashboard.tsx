@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
-import { HubPageMain } from "@/components/layout/HubPageMain";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import {
@@ -35,13 +33,13 @@ export function ComplianceDashboard({ taxProfile, annualStatements }: Compliance
   };
 
   return (
-    <BetaAppShell bottomNavTab="account">
-      <CanonicalPageHeader title="Compliance" backHref="/account/settings" backLabel="Settings" />
-      <HubPageMain
-        withBottomNav
-        className="mx-auto max-w-2xl px-ds-4 py-ds-6"
-        data-compliance-version="v1.0-legal-lock"
-      >
+    <AccountCanonicalShell
+      title="Compliance"
+      backHref="/account/settings"
+      backLabel="Settings"
+      showHeaderTitle
+    >
+      <div className="flex w-full flex-col px-ds-4 pb-ds-5" data-compliance-version="v1.0-legal-lock">
         <p className="text-sm text-text-secondary">
           Tax profile, reporting exports, and UK marketplace compliance status.
         </p>
@@ -105,7 +103,7 @@ export function ComplianceDashboard({ taxProfile, annualStatements }: Compliance
             ))}
           </ul>
         </Card>
-      </HubPageMain>
-    </BetaAppShell>
+      </div>
+    </AccountCanonicalShell>
   );
 }

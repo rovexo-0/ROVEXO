@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { fetchCurrentProfile } from "@/lib/profile/repository";
 import type { UserProfile } from "@/lib/profile/types";
+import { BUSINESS_VERIFICATION_ROUTE } from "@/lib/business/access";
 
 export async function getProfile(): Promise<UserProfile> {
   const profile = await fetchCurrentProfile();
@@ -23,11 +24,15 @@ export async function getProfile(): Promise<UserProfile> {
   return profile;
 }
 
+/**
+ * Business surface profile. Never redirects to My Account.
+ * Unverified users stay in Business → Verification.
+ */
 export async function getBusinessProfile(): Promise<UserProfile> {
   const profile = await getProfile();
 
   if (!profile.capabilities.hasBusinessVerification) {
-    redirect("/account");
+    redirect(BUSINESS_VERIFICATION_ROUTE);
   }
 
   return profile;

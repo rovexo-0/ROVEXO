@@ -44,7 +44,7 @@
   --conv-fs-timeline: 10px;
   --conv-btn-h: 28px;
   --conv-header-h: 40px;
-  --conv-composer-h: 22px;
+  --conv-composer-h: 44px;
   --conv-rail-h: 36px;
   --conv-icon-composer: 14px;
   --conv-rail-dot: 12px;
@@ -925,16 +925,16 @@
   text-decoration: none;
 }
 
-/* Footer + single-row compact message bar (always visible) */
+/* Footer + taller focus-mode message bar (PO — Vinted comfort) */
 .conv-hub__footer {
   position: sticky;
   bottom: 0;
   z-index: 30;
   flex-shrink: 0;
   padding:
-    2px
+    10px
     var(--conv-pad-x)
-    calc(2px + env(safe-area-inset-bottom, 0px));
+    calc(12px + env(safe-area-inset-bottom, 0px));
   background: #ffffff;
   border-top: 1px solid var(--conv-border);
 }
@@ -1020,24 +1020,24 @@
   min-width: 0;
   height: var(--conv-composer-h);
   min-height: var(--conv-composer-h);
-  max-height: var(--conv-composer-h);
-  padding: 2px 8px;
+  max-height: 96px;
+  padding: 10px 14px;
   border: 1px solid var(--conv-border);
-  border-radius: 999px;
+  border-radius: 16px;
   background: #fafafc;
   color: var(--conv-text);
   font: inherit;
-  font-size: 12px;
-  line-height: 18px;
+  font-size: 15px;
+  line-height: 22px;
   resize: none;
-  overflow-x: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
+  overflow-x: hidden;
+  overflow-y: auto;
+  white-space: pre-wrap;
   outline: none;
 }
 
 .conv-hub__composer-field::placeholder {
-  font-size: 12px;
+  font-size: 15px;
   color: var(--conv-muted);
 }
 
@@ -1051,15 +1051,15 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
+  min-width: 52px;
   height: var(--conv-composer-h);
-  max-height: var(--conv-composer-h);
-  padding: 0 6px;
+  min-height: var(--conv-composer-h);
+  padding: 0 12px;
   border: none;
-  border-radius: 0;
-  background: transparent;
-  color: var(--conv-purple);
-  font-size: 11px;
+  border-radius: 14px;
+  background: var(--conv-purple);
+  color: #ffffff;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;

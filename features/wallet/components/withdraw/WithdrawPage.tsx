@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { ScrollContainer } from "@/components/ui/ScrollContainer";
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { formatCurrency, parseWithdrawAmount } from "@/lib/wallet/utils";
@@ -66,10 +64,8 @@ export function WithdrawPage({ data }: WithdrawPageProps) {
   };
 
   return (
-    <BetaAppShell bottomNavTab="account">
-      <CanonicalPageHeader title="Withdraw" backHref="/wallet" backLabel="Wallet" />
-
-      <ScrollContainer withBottomNav className="wallet-hub wallet-hub--withdraw" data-wallet-withdraw-version="v2.0-02b">
+    <AccountCanonicalShell title="Withdraw" backHref="/wallet" backLabel="Wallet" showHeaderTitle>
+      <div className="wallet-hub wallet-hub--withdraw" data-wallet-withdraw-version="v2.0-02b">
         <section className="wallet-hub__balance-card">
           <p className="wallet-hub__label">Available Balance</p>
           <p className="wallet-hub__balance">{formatCurrency(data.availableBalance)}</p>
@@ -128,26 +124,26 @@ export function WithdrawPage({ data }: WithdrawPageProps) {
             </p>
           ) : null}
         </section>
-      </ScrollContainer>
 
-      <footer className="wallet-hub__withdraw-footer">
-        <button
-          type="button"
-          className={cn("wallet-hub__submit", isSubmitting && "wallet-hub__submit--busy")}
-          disabled={isSubmitting || !connectedMethod || parsedAmount <= 0}
-          onClick={() => void handleWithdraw()}
-        >
-          {isSubmitting ? "Processing…" : "Withdraw to Bank Account"}
-        </button>
-        {!connectedMethod ? (
-          <p className="wallet-hub__footer-note">
-            <Link href={`${WALLET_ROUTES.bankAccount}?returnTo=/wallet/withdraw`}>
-              Manage bank account in Wallet
-            </Link>{" "}
-            before withdrawing.
-          </p>
-        ) : null}
-      </footer>
-    </BetaAppShell>
+        <footer className="wallet-hub__withdraw-footer">
+          <button
+            type="button"
+            className={cn("wallet-hub__submit", isSubmitting && "wallet-hub__submit--busy")}
+            disabled={isSubmitting || !connectedMethod || parsedAmount <= 0}
+            onClick={() => void handleWithdraw()}
+          >
+            {isSubmitting ? "Processing…" : "Withdraw to Bank Account"}
+          </button>
+          {!connectedMethod ? (
+            <p className="wallet-hub__footer-note">
+              <Link href={`${WALLET_ROUTES.bankAccount}?returnTo=/wallet/withdraw`}>
+                Manage bank account in Wallet
+              </Link>{" "}
+              before withdrawing.
+            </p>
+          ) : null}
+        </footer>
+      </div>
+    </AccountCanonicalShell>
   );
 }

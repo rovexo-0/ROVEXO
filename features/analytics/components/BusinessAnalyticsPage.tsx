@@ -1,8 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { HubPageMain } from "@/components/layout/HubPageMain";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { DashboardPerformanceSection } from "@/features/dashboard/components/DashboardPerformanceSection";
 const AnalyticsDoughnutChart = dynamic(
   () =>
@@ -16,7 +15,7 @@ import {
   buildBusinessExportExtras,
 } from "@/features/analytics/components/AnalyticsExportSection";
 import { AnalyticsGeographicSection } from "@/features/analytics/components/AnalyticsGeographicSection";
-import { AnalyticsHeader } from "@/features/analytics/components/AnalyticsHeader";
+import { AnalyticsRangeAction } from "@/features/analytics/components/AnalyticsRangeAction";
 import { AnalyticsOverviewGrid } from "@/features/analytics/components/AnalyticsOverviewGrid";
 import { AnalyticsTopProductsSection } from "@/features/analytics/components/AnalyticsTopProductsSection";
 import { useAnalyticsData } from "@/features/analytics/hooks/use-analytics-data";
@@ -34,34 +33,35 @@ export function BusinessAnalyticsPage({
   const { data, range, loading, changeRange } = useAnalyticsData("business", initialData);
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      <AnalyticsHeader
-        backHref={backHref}
-        activeRange={range}
-        onRangeChange={(nextRange) => void changeRange(nextRange)}
-      />
-
-      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 ">
-        {loading && (
+    <AccountCanonicalShell
+      title="Analytics"
+      backHref={backHref}
+      backLabel="Business"
+      showHeaderTitle
+      showBottomNav={false}
+      rightAction={
+        <AnalyticsRangeAction
+          activeRange={range}
+          onRangeChange={(nextRange) => void changeRange(nextRange)}
+        />
+      }
+    >
+      <div className="flex w-full flex-col gap-ds-4 px-ds-4 pb-ds-5">
+        {loading ? (
           <p className="sr-only" aria-live="polite">
             Updating analytics
           </p>
-        )}
+        ) : null}
 
         <AnalyticsOverviewGrid metrics={data.overview} />
-
         <DashboardPerformanceSection performance={data.performance} />
-
         <AnalyticsDoughnutChart
           title="Sales Channels"
           headingId="business-sales-channels-heading"
           segments={data.salesChannels}
         />
-
         <AnalyticsTopProductsSection title="Top 5 Products" products={data.topProducts} />
-
         <AnalyticsGeographicSection countries={data.geographicSales} />
-
         <AnalyticsExportSection
           title="Export"
           rangeLabel={data.rangeLabel}
@@ -69,7 +69,7 @@ export function BusinessAnalyticsPage({
           topProducts={data.topProducts}
           extraRows={buildBusinessExportExtras(data)}
         />
-      </HubPageMain>
-    </BetaAppShell>
+      </div>
+    </AccountCanonicalShell>
   );
 }

@@ -17,6 +17,8 @@ type TrackingViewProps = {
   orderId?: string;
   orderHref: string;
   backHref?: string;
+  /** When true, omits the page header (used inside account shell). */
+  embedded?: boolean;
   className?: string;
 };
 
@@ -33,15 +35,23 @@ export function TrackingView({
   orderId,
   orderHref,
   backHref = "/orders",
+  embedded = false,
   className,
 }: TrackingViewProps) {
   const primarySeller = sellerShipments[0]?.sellerName ?? "Seller";
 
   return (
     <div className={cn("flex min-h-full flex-col bg-background", className)}>
-      <CommercePageHeader title="Tracking" backHref={backHref} />
+      {embedded ? null : <CommercePageHeader title="Tracking" backHref={backHref} />}
 
-      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-ds-4 px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]">
+      <div
+        className={cn(
+          "flex w-full flex-1 flex-col gap-ds-4",
+          embedded
+            ? "px-0 py-0"
+            : "mx-auto max-w-lg px-ds-4 py-ds-5 pb-[calc(84px+env(safe-area-inset-bottom))]",
+        )}
+      >
         <InfoBannerCard
           tone="info"
           icon={<Package className="h-5 w-5" />}

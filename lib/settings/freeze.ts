@@ -52,6 +52,7 @@ export const SETTINGS_MENU_ROW_TITLES = [
   "Addresses",
   "Payment Methods",
   "Notifications",
+  "ROVEXO Ideas",
   "Privacy & Security",
   "Connected Accounts",
   "Devices & Sessions",

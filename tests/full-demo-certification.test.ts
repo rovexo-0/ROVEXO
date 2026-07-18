@@ -207,6 +207,12 @@ describe("ROVEXO Full Demo Certification Mode", () => {
     expect(readSource("app/api/super-admin/deployment/deploy/route.ts")).toContain(
       "mfaVerified !== true",
     );
+    // Auto-verified sync must never unverify permanent certification accounts.
+    expect(readSource("lib/profile/auto-verified.ts")).toContain("isFullDemoEmail");
+    expect(readSource("lib/profile/auto-verified.ts")).toContain("verified: true");
+    expect(readSource("lib/demo-environment/users.ts")).toContain(
+      "must remain verified and active after seed",
+    );
   });
 
   it("passes Full Demo Certification gate and allows live deployment only when green", () => {

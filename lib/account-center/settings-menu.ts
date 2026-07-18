@@ -77,6 +77,13 @@ export function buildSettingsMenuSections(returnTo: string | null): SettingsMenu
           href: href("/notifications/settings"),
           icon: "bell",
         },
+        {
+          id: "ideas",
+          title: "ROVEXO Ideas",
+          subtitle: "Private suggestions for the platform",
+          href: href("/account/ideas"),
+          icon: "megaphone",
+        },
       ],
     },
     {
@@ -188,7 +195,7 @@ export function buildSettingsMenuSections(returnTo: string | null): SettingsMenu
         {
           id: "about",
           title: "About ROVEXO",
-          subtitle: "App version and information",
+          subtitle: "About the platform",
           href: "/account/settings/about",
           icon: "info",
         },

@@ -1,7 +1,11 @@
 "use client";
 
+import { useId, useState } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
+import { ImageSearchCamera } from "@/components/home/ImageSearchCamera";
+import { storeImageSearchQuery } from "@/lib/image-search/storage";
 
 type SearchInputActionsProps = {
   /** Optional voice-search handler. When omitted, mic renders disabled. */
@@ -37,7 +41,7 @@ function ActionButton({
       aria-disabled={!available}
       title={available ? label : `${label} — coming soon`}
       className={cn(
-        "flex h-9 w-9 shrink-0 items-center justify-center rounded-ds-full text-text-muted hover:bg-secondary hover:text-text-primary",
+        "flex h-10 w-10 shrink-0 items-center justify-center rounded-ds-full text-text-muted hover:bg-secondary hover:text-text-primary",
         focusRing,
         transitionFast,
         !available && "opacity-45 hover:bg-transparent hover:text-text-muted",
@@ -48,13 +52,40 @@ function ActionButton({
   );
 }
 
-/** Search overlay trailing actions — voice only (Module 1: camera removed). */
+/** Search trailing actions — camera (image search) + optional voice. */
 export function SearchInputActions({ onVoice, className }: SearchInputActionsProps) {
+  const router = useRouter();
+  const cameraInputId = useId();
+  const [processing, setProcessing] = useState(false);
+
+  async function handleImageSearchFiles(files: FileList) {
+    const file = files[0];
+    if (!file) return;
+    setProcessing(true);
+    try {
+      const { fileToDataUrl } = await import("@/lib/image-search/similarity");
+      const dataUrl = await fileToDataUrl(file);
+      storeImageSearchQuery(dataUrl);
+      router.push("/search?visual=1");
+    } catch {
+      // Cancelled or unreadable — stay on search.
+    } finally {
+      setProcessing(false);
+    }
+  }
+
   return (
     <div className={cn("flex items-center gap-0.5", className)}>
-      <ActionButton label="Voice search" available={Boolean(onVoice)} onClick={onVoice}>
-        <MicIcon className="h-5 w-5" />
-      </ActionButton>
+      <ImageSearchCamera
+        inputId={`${cameraInputId}-camera`}
+        processing={processing}
+        onFilesSelected={(files) => void handleImageSearchFiles(files)}
+      />
+      {onVoice ? (
+        <ActionButton label="Voice search" available onClick={onVoice}>
+          <MicIcon className="h-5 w-5" />
+        </ActionButton>
+      ) : null}
     </div>
   );
 }

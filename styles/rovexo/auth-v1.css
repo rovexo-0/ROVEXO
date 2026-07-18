@@ -406,7 +406,8 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ds-color-text-muted, #9ca3af);
+  /* WCAG AA ≥4.5:1 on white */
+  color: var(--ds-color-text-muted, #52525b);
 }
 
 .auth-social-login {
@@ -1314,7 +1315,8 @@
   font-size: 0.9375rem;
   font-weight: 450;
   line-height: 1.4;
-  color: #71717a;
+  /* WCAG AA ≥4.5:1 on white. A11y fix under Login freeze. */
+  color: #52525b;
 }
 
 .auth-login.auth-login--premium .auth-login__form {
@@ -1464,7 +1466,8 @@
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: -0.01em;
-  color: #71717a;
+  /* WCAG AA ≥4.5:1 on white. A11y fix under Login freeze. */
+  color: #52525b !important;
 }
 
 .auth-login.auth-login--premium .auth-login__forgot {
@@ -1472,14 +1475,15 @@
   font-size: 0.75rem;
   font-weight: 650;
   letter-spacing: -0.01em;
-  color: var(--login-primary);
+  /* WCAG AA ≥4.5:1 for 12px purple link on white (brand purple alone is ~4.3:1). */
+  color: #5b21b6 !important;
   text-decoration: none;
   transition: color 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .auth-login.auth-login--premium .auth-login__forgot:hover,
 .auth-login.auth-login--premium .auth-login__forgot:focus-visible {
-  color: #6d28d9;
+  color: #4c1d95 !important;
   text-decoration: underline;
   text-underline-offset: 3px;
   opacity: 1;
@@ -1582,7 +1586,8 @@
   font-weight: 450;
   letter-spacing: -0.005em;
   line-height: 1.35;
-  color: #71717a;
+  /* WCAG AA ≥4.5:1 on white. A11y fix under Login freeze. */
+  color: #52525b;
 }
 
 .auth-login.auth-login--premium .auth-login__social {
@@ -1608,7 +1613,8 @@
   font-weight: 650;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #a1a1aa;
+  /* WCAG AA ≥4.5:1 on white. A11y fix under Login freeze. */
+  color: #52525b !important;
 }
 
 .auth-login.auth-login--premium .auth-social-login {
@@ -1671,7 +1677,8 @@
   font-weight: 500;
   letter-spacing: -0.01em;
   line-height: 1.5;
-  color: #71717a;
+  /* WCAG AA ≥4.5:1 on white (#52525b ≈ 7.0:1). A11y fix under Login freeze. */
+  color: #52525b;
 }
 
 .auth-login.auth-login--premium .auth-login__register-cta {
@@ -1685,7 +1692,8 @@
   font-size: inherit;
   font-weight: 650;
   letter-spacing: -0.015em;
-  color: var(--login-primary);
+  /* WCAG AA ≥4.5:1 for 14px link on white (brand purple alone is ~4.3:1). */
+  color: #5b21b6 !important;
   text-decoration: none;
   box-shadow: none;
   transition: color 160ms cubic-bezier(0.16, 1, 0.3, 1);

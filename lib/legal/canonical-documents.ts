@@ -1,6 +1,10 @@
-import { LEGAL_SUPPORT_EMAIL } from "@/lib/legal/content";
 import type { LegalDocument } from "@/lib/legal/types";
-import { LEGAL_EFFECTIVE_DATE, LEGAL_OPERATOR_BLOCK } from "@/lib/legal/document-shared";
+import {
+  LEGAL_EFFECTIVE_DATE,
+  LEGAL_OPERATOR_BLOCK,
+  LEGAL_SUPPORT_EMAIL,
+  LEGAL_WEBSITE_URL,
+} from "@/lib/legal/document-shared";
 
 /** ROVEXO Legal SSOT — UI Lock + Legal Lock v1.0. Original documents for the implemented platform. */
 export const CANONICAL_LEGAL_DOCUMENTS: LegalDocument[] = [
@@ -372,11 +376,11 @@ ROVEXO may remove listings, suspend sellers, and report serious offences to auth
   },
   {
     slug: "intellectual-property-policy",
-    title: "Intellectual Property Policy",
-    summary: "Copyright, trademarks, and content ownership on ROVEXO.",
+    title: "Intellectual Property & Notice and Takedown Policy",
+    summary: "Copyright, trademarks, Notice and Takedown, and counter-notice on ROVEXO.",
     category: "platform",
     lastUpdated: LEGAL_EFFECTIVE_DATE,
-    content: `# Intellectual Property Policy
+    content: `# Intellectual Property & Notice and Takedown Policy
 
 Effective date: ${LEGAL_EFFECTIVE_DATE}
 
@@ -386,11 +390,46 @@ The ROVEXO name, logos, software, and design systems are owned by DNS EUROPA LTD
 ## 2. Your content
 You retain ownership of photos and descriptions you upload. You grant ROVEXO a licence to host, display, and promote listings on the platform and in marketing where permitted by your settings.
 
-## 3. Infringement reports
-Rights holders may report infringing listings through Contact Support with evidence of ownership and the listing URL. Counterfeit reports may be submitted through Report Listing.
+## 3. Notice and Takedown (UK)
+Rights holders who believe content on ROVEXO infringes copyright, trade mark, or other IP rights may submit a formal Notice and Takedown request.
 
-## 4. Repeat infringement
-Accounts with repeated valid infringement reports may be suspended.`,
+### How to submit a notice
+Email **${LEGAL_SUPPORT_EMAIL}** with subject line **Notice and Takedown**, or use Help Centre → Contact Support and select an IP / copyright topic. Include:
+
+1. Your full name, organisation (if any), postal address, email, and phone number.
+2. A description of the protected work and proof of ownership or exclusive rights.
+3. The exact ROVEXO listing URL(s) or other location of the allegedly infringing material.
+4. A statement that you have a good-faith belief the use is not authorised by the rights holder, its agent, or the law.
+5. A statement that the information in the notice is accurate, and that you are authorised to act on behalf of the rights holder.
+6. Your physical or electronic signature (typed full name is acceptable for email notices).
+
+### Designated contact
+**DNS EUROPA LTD** — Notice and Takedown / IP complaints  
+Website: ${LEGAL_WEBSITE_URL}  
+Support: ${LEGAL_SUPPORT_EMAIL}
+
+### What we do
+We acknowledge valid notices, review the report, and may temporarily hide or remove the listing while the review is open. We aim to act promptly on complete notices. Incomplete notices may be returned for missing details.
+
+## 4. Counter-notice
+If your listing was removed and you believe the removal was a mistake or misidentification, submit a counter-notice to the same contact with:
+
+1. Your name, address, email, and phone number.
+2. Identification of the material removed and its former URL.
+3. A good-faith statement that the material was removed by mistake or misidentification.
+4. Consent to the jurisdiction of the courts of England and Wales.
+5. Your signature (typed full name is acceptable for email).
+
+We may restore material after a counter-notice if the original complainant does not pursue further action within a reasonable period and restoration is appropriate.
+
+## 5. Counterfeit and Report Listing
+Buyers and sellers may also use in-app **Report Listing** for suspected counterfeits. Formal rights-holder notices should still use the Notice and Takedown channel above.
+
+## 6. Repeat infringement
+Accounts with repeated valid infringement findings may be restricted, suspended, or permanently banned under the Account Suspension Policy.
+
+## 7. Governing law
+This policy is governed by the laws of England and Wales.`,
   },
   {
     slug: "complaint-dispute-resolution",
@@ -588,6 +627,42 @@ When provided, buyers open tracking from Orders and notifications.
 
 ## 3. Issues
 Contact the seller through Messages first, then Contact Support for unresolved delivery issues.`,
+  },
+  {
+    slug: "verification-policy",
+    title: "Verification Policy",
+    summary: "How ROVEXO verifies buyers, sellers, and UK businesses.",
+    category: "governance",
+    lastUpdated: LEGAL_EFFECTIVE_DATE,
+    content: `# Verification Policy
+
+Effective date: ${LEGAL_EFFECTIVE_DATE}
+
+## 1. Purpose
+ROVEXO uses verification to protect buyers and sellers, reduce fraud, and meet UK marketplace trust expectations. Verification unlocks higher Trust Score signals and, for businesses, Business Store tools.
+
+## 2. Who can verify
+Every ROVEXO account can buy and sell. Verification is optional for basic use and required for certain Business capabilities (Business Store, Business Wallet analytics surfaces).
+
+## 3. Types of verification
+- **Identity / profile verification** — confirms account ownership and basic profile integrity.
+- **Seller reputation signals** — orders completed, reviews, response behaviour, and Trust Centre history.
+- **Business verification** — company details used for Business Store tools under UK marketplace rules.
+
+## 4. How to request verification
+Open **My Account → Verification** or **Trust Centre**, then submit the requested checks. Business users open **Business → Verification**.
+
+## 5. Review and outcomes
+ROVEXO may approve, request more information, or decline a verification request. Decisions appear in Trust Centre and account notifications.
+
+## 6. Ongoing checks
+ROVEXO may re-check verification after disputes, chargebacks, prohibited-item reports, or material profile changes.
+
+## 7. Data use
+Verification data is processed under the Privacy Policy and Data Retention Policy. Do not submit documents you are not authorised to share.
+
+## 8. Contact
+Questions about verification: Help Centre or Contact Support.`,
   },
 ];
 

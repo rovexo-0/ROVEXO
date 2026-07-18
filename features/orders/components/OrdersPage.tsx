@@ -113,7 +113,7 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
   };
 
   return (
-    <AccountCanonicalShell title="Orders" backHref="/account" backLabel="My Account">
+    <AccountCanonicalShell title="Orders" backHref="/account" backLabel="My Account" showHeaderTitle>
       <div
         className="orders-page"
         data-orders-page="v1.1"

@@ -1,24 +1,6 @@
-import { Suspense } from "react";
-import { AccountModuleSkeleton } from "@/components/skeletons/PageSkeletons";
-import { AccountCenterModulePage } from "@/features/account-center/components/AccountCenterModulePage";
-import { fetchProfile } from "@/lib/profile/queries";
-import { privatePageMetadata } from "@/lib/seo/private-metadata";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  ...privatePageMetadata,
-  title: "Buying · ROVEXO",
-  description: "Orders, messages, saved items, and marketplace tools.",
-};
-
-async function BuyingModuleContent() {
-  await fetchProfile();
-  return <AccountCenterModulePage moduleId="buying" />;
-}
-
-export default function BuyerPage() {
-  return (
-    <Suspense fallback={<AccountModuleSkeleton />}>
-      <BuyingModuleContent />
-    </Suspense>
-  );
+/** Canonical Buying hub is /account/buying (Master Menu). */
+export default function BuyerRedirect() {
+  redirect("/account/buying");
 }

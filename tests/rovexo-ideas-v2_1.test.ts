@@ -7,18 +7,18 @@ function readSource(relativePath: string): string {
 }
 
 describe("ROVEXO Ideas v2.1", () => {
-  it("exposes a private suggestion form in My Account", () => {
+  it("exposes a private suggestion form via Settings", () => {
     const page = readSource("features/account-module/components/RovexoIdeasPage.tsx");
     const route = readSource("app/account/ideas/page.tsx");
-    const menu = readSource("lib/account-center/canonical-menu.ts");
+    const settings = readSource("lib/account-center/settings-menu.ts");
 
     expect(route).toContain("RovexoIdeasPage");
     expect(page).toContain('data-rovexo-ideas-version="v2.0-lock"');
     expect(page).toContain("Submit Idea");
     expect(page).toContain("New Idea");
     expect(page).not.toContain("vote");
-    expect(menu).toContain('title: "Ideas"');
-    expect(menu).toContain("/account/ideas");
+    expect(settings).toContain('title: "ROVEXO Ideas"');
+    expect(settings).toContain("/account/ideas");
   });
 
   it("stores suggestions with admin review statuses", () => {

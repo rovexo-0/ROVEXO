@@ -70,17 +70,17 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     expect(sections).toContain("CanonicalMenuRow");
   });
 
-  it("locks wallet financial hub and withdraw flow", () => {
+  it("locks Personal Wallet Compact Premium hub and withdraw flow", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
     const withdraw = readSource("features/wallet/components/withdraw/WithdrawPage.tsx");
     const withdrawApi = readSource("app/api/wallet/withdraw/route.ts");
 
-    expect(hub).toContain('data-wallet-hub-version="v1.2-ui"');
-    expect(hub).toContain('data-wallet-ui="v1.2-simplified"');
-    expect(hub).toContain("Available Balance");
+    expect(hub).toContain('data-wallet-hub-version="v2.0-master"');
+    expect(hub).toContain('data-wallet-ui="compact-premium"');
+    expect(hub).toContain("Available");
     expect(hub).toContain("WALLET_ROUTES.withdraw");
-    expect(hub).toContain("WALLET_ROUTES.transactions");
-    expect(hub).toContain("WALLET_ROUTES.paymentMethods");
+    expect(hub).toContain("WALLET_ROUTES.bankAccount");
+    expect(hub).toContain("PersonalWalletMenuSections");
     expect(hub).not.toContain("Platform Fee");
     expect(withdraw).toContain('data-wallet-withdraw-version="v2.0-02b"');
     expect(withdraw).toContain("WALLET_ROUTES.bankAccount");

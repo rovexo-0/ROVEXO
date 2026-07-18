@@ -25,7 +25,9 @@ describe("Homepage UI Lock v1.0 — image search", () => {
     const css = readSource("styles/rovexo/image-search.css");
 
     expect(view).toContain("Image Search");
-    expect(view).toContain("Results similar to your photo");
+    expect(view).toContain("Exact matches");
+    expect(view).toContain("Similar products");
+    expect(view).toContain("Similar brands");
     expect(view).toContain("ProductGridSkeleton");
     expect(view).toContain("ListingCard");
     expect(view).toContain("HP_CANONICAL_LISTING_PROPS");

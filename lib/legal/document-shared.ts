@@ -4,6 +4,8 @@ import {
   LEGAL_WEBSITE_URL,
 } from "@/lib/legal/content";
 
+export { LEGAL_SUPPORT_EMAIL, LEGAL_WEBSITE_URL };
+
 export const LEGAL_EFFECTIVE_DATE = "11 July 2026";
 
 export const LEGAL_OPERATOR_BLOCK = `**Platform operator:** ${LEGAL_OPERATOR_NAME}

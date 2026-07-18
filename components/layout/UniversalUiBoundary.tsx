@@ -20,6 +20,7 @@ export function UniversalUiBoundary({ children }: { children: ReactNode }) {
       className="flex min-h-full flex-1 flex-col"
       data-universal-ui={frozenAuth ? undefined : "v1.1"}
       data-universal-ui-status={frozenAuth ? undefined : "preview"}
+      data-compact-premium={frozenAuth ? undefined : "v1"}
     >
       {children}
     </div>

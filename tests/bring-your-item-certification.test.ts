@@ -197,9 +197,11 @@ describe("Bring Your Item — error recovery", () => {
 });
 
 describe("Bring Your Item — full module wiring", () => {
-  it("links homepage header CTA to import wizard", () => {
+  it("keeps legacy header CTA file but consumer routes redirect to Selling", () => {
     const cta = readSource("components/header/HeaderBringYourItemCta.tsx");
+    const byi = readSource("app/account/bring-your-item/page.tsx");
     expect(cta).toContain("BRING_YOUR_ITEM_PATH");
+    expect(byi).toContain('redirect("/seller")');
   });
 });
 

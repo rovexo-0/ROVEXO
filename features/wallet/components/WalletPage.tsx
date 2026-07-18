@@ -5,8 +5,11 @@ type WalletPageProps = {
   data: WalletData;
   backHref?: string;
   connectMessage?: string;
+  variant?: "personal" | "business";
 };
 
-export function WalletPage({ data, backHref, connectMessage }: WalletPageProps) {
-  return <WalletHubV1 data={data} backHref={backHref} connectMessage={connectMessage} />;
+export function WalletPage({ data, backHref, connectMessage, variant = "personal" }: WalletPageProps) {
+  return (
+    <WalletHubV1 data={data} backHref={backHref} connectMessage={connectMessage} variant={variant} />
+  );
 }

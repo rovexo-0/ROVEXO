@@ -3,6 +3,8 @@
 import { AccountCenterLogoutButton } from "@/features/account-center/components/AccountCenterLogoutButton";
 import { AccountCenterDeleteButton } from "@/features/account-center/components/AccountCenterDeleteButton";
 import { AccountModuleTileGrid } from "@/features/account-center/components/AccountModuleTileGrid";
+import { BuyingMenuSections } from "@/features/account-center/components/BuyingMenuSections";
+import { SellingMenuSections } from "@/features/account-center/components/SellingMenuSections";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import {
   getModuleMeta,
@@ -32,24 +34,45 @@ export function AccountCenterModulePage({
   const resolveBadge = (href: string, key?: MobileBadgeKey) =>
     badgeCounts ? resolveHrefBadge(href, badgeCounts) : resolveMobileBadge(key, mobileBadges);
 
+  if (moduleId === "buying") {
+    return (
+      <AccountCanonicalShell
+        title={meta.title}
+        backHref={meta.backHref}
+        backLabel="My Account"
+        showHeaderTitle
+      >
+        <BuyingMenuSections />
+      </AccountCanonicalShell>
+    );
+  }
+
+  if (moduleId === "selling") {
+    return (
+      <AccountCanonicalShell
+        title={meta.title}
+        backHref={meta.backHref}
+        backLabel="My Account"
+        bottomNavTab="sell"
+        showHeaderTitle
+      >
+        <SellingMenuSections />
+      </AccountCanonicalShell>
+    );
+  }
+
   return (
     <AccountCanonicalShell
       title={meta.title}
       backHref={meta.backHref}
-      bottomNavTab={moduleId === "selling" ? "sell" : "account"}
+      bottomNavTab="account"
+      showHeaderTitle
     >
       <div
-        className={cn(
-          "account-center account-center--module px-ds-4 pb-ds-6",
-          moduleId === "selling" && "account-center--seller",
-        )}
+        className={cn("account-center account-center--module px-ds-4 pb-ds-6")}
         data-account-module-dashboard={moduleId}
       >
-        <AccountModuleTileGrid
-          tiles={tiles}
-          resolveBadge={resolveBadge}
-          variant={moduleId === "selling" ? "seller" : "default"}
-        />
+        <AccountModuleTileGrid tiles={tiles} resolveBadge={resolveBadge} />
 
         {showLogout ? (
           <>

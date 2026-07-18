@@ -2,8 +2,6 @@
 
 import { AccountCanonicalProfile } from "@/features/account-center/components/AccountCanonicalProfile";
 import { AccountMenuSections } from "@/features/account-center/components/AccountMenuSections";
-import { AccountSellerPerformanceCard } from "@/features/account-center/components/AccountSellerPerformanceCard";
-import { AccountStatsStrip } from "@/features/account-center/components/AccountStatsStrip";
 import { useAccountHubLive } from "@/features/account-center/hooks/useAccountHubLive";
 import type { AccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
 import type { AccountHubSnapshot } from "@/lib/account-center/snapshot";
@@ -17,13 +15,18 @@ type AccountCenterHomeProps = {
   sellerPerformance: AccountSellerPerformanceSummary;
 };
 
+/**
+ * My Account hub — Compact Premium (PO): profile + Master Menu only.
+ * No stats strip, no duplicate wallet/orders cards, no dead space.
+ */
 export function AccountCenterHome({
   profile,
   snapshot,
   wallet = null,
   sellerPerformance,
 }: AccountCenterHomeProps) {
-  const { snapshot: liveSnapshot, wallet: liveWallet } = useAccountHubLive({
+  void sellerPerformance;
+  const { snapshot: liveSnapshot } = useAccountHubLive({
     userId: profile.id,
     snapshot,
     wallet,
@@ -32,13 +35,11 @@ export function AccountCenterHome({
   return (
     <div
       className="ac-canonical"
-      data-ac-hub-version="v1.0-production"
-      data-account-freeze="FROZEN"
+      data-ac-hub-version="v2.0-master"
+      data-account-menu="master-v2"
       data-account-version="v1.0"
     >
       <AccountCanonicalProfile profile={profile} snapshot={liveSnapshot} />
-      <AccountStatsStrip snapshot={liveSnapshot} wallet={liveWallet} />
-      <AccountSellerPerformanceCard performance={sellerPerformance} />
       <AccountMenuSections profile={profile} />
     </div>
   );

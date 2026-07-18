@@ -1,13 +1,10 @@
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
-import { CanonicalModuleBody, CanonicalSection, CanonicalSectionCard } from "@/components/ui/canonical";
+import { AccountCanonicalShell } from "@/features/account-canonical";
+import { CanonicalSection, CanonicalSectionCard } from "@/components/ui/canonical";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
-import { MobileHubNavigator } from "@/features/mobile-ui";
-import { ResponsiveShell } from "@/features/mobile-ui";
 import Link from "next/link";
 import type { ProtectionCase } from "@/lib/protection/service";
 
-type ResolutionMobileContentProps = {
+type ResolutionCentreViewProps = {
   buyerCases: ProtectionCase[];
   sellerCases: ProtectionCase[];
 };
@@ -52,41 +49,36 @@ function CaseSection({
   );
 }
 
-export function ResolutionMobileContent({ buyerCases, sellerCases }: ResolutionMobileContentProps) {
+export function ResolutionCentreView({ buyerCases, sellerCases }: ResolutionCentreViewProps) {
   return (
-    <>
-      <p className="pcu-intro">
-        Buyer and seller protection cases with evidence and appeals.
-      </p>
-      <MobileHubNavigator defaultHub="support" startExpanded sectionTitle="Support hubs" />
-      <CaseSection title="Your buyer cases" cases={buyerCases} emptyLabel="No open buyer cases." />
-      <CaseSection title="Your seller cases" cases={sellerCases} emptyLabel="No seller protection cases." />
-    </>
-  );
-}
-
-export function ResolutionDesktopContent({ buyerCases, sellerCases }: ResolutionMobileContentProps) {
-  return (
-    <>
-      <p className="pcu-intro">
-        Purchase protection and seller protection cases with evidence, timeline, and appeals.
-      </p>
-      <CaseSection title="Your buyer cases" cases={buyerCases} emptyLabel="No open buyer cases." />
-      <CaseSection title="Your seller cases" cases={sellerCases} emptyLabel="No seller protection cases." />
-    </>
-  );
-}
-
-export function ResolutionCentreView({ buyerCases, sellerCases }: ResolutionMobileContentProps) {
-  return (
-    <BetaAppShell bottomNavTab="account">
-      <CanonicalPageHeader title="Resolution Centre" backHref="/account" backLabel="My Account" />
-      <CanonicalModuleBody flush>
-        <ResponsiveShell
-          mobile={<ResolutionMobileContent buyerCases={buyerCases} sellerCases={sellerCases} />}
-          desktop={<ResolutionDesktopContent buyerCases={buyerCases} sellerCases={sellerCases} />}
+    <AccountCanonicalShell
+      title="Returns & Refunds"
+      backHref="/account"
+      backLabel="My Account"
+      showHeaderTitle
+      showBottomNav={false}
+    >
+      <div className="flex w-full flex-col gap-ds-4 px-ds-4 pb-ds-5">
+        <p className="text-sm text-text-secondary">
+          Buyer and seller protection cases with evidence and appeals.
+        </p>
+        <CaseSection title="Your buyer cases" cases={buyerCases} emptyLabel="No open buyer cases." />
+        <CaseSection
+          title="Your seller cases"
+          cases={sellerCases}
+          emptyLabel="No seller protection cases."
         />
-      </CanonicalModuleBody>
-    </BetaAppShell>
+      </div>
+    </AccountCanonicalShell>
   );
+}
+
+/** @deprecated Prefer ResolutionCentreView — kept for any external imports. */
+export function ResolutionMobileContent(props: ResolutionCentreViewProps) {
+  return <ResolutionCentreView {...props} />;
+}
+
+/** @deprecated Prefer ResolutionCentreView — kept for any external imports. */
+export function ResolutionDesktopContent(props: ResolutionCentreViewProps) {
+  return <ResolutionCentreView {...props} />;
 }

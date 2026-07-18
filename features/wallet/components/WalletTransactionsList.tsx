@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { ScrollContainer } from "@/components/ui/ScrollContainer";
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { cn } from "@/lib/cn";
 import { formatCurrency, formatWalletDate } from "@/lib/wallet/utils";
 import type { WalletTransaction } from "@/lib/wallet/types";
@@ -52,10 +50,13 @@ export function WalletTransactionsList({ transactions }: WalletTransactionsListP
   }, [query, transactions, type, year]);
 
   return (
-    <BetaAppShell bottomNavTab="account">
-      <CanonicalPageHeader title="Transactions" backHref="/wallet" backLabel="Wallet" />
-
-      <ScrollContainer withBottomNav className="wallet-hub" data-wallet-transactions-version="v1.0-legal-lock">
+    <AccountCanonicalShell
+      title="Transactions"
+      backHref="/wallet"
+      backLabel="Wallet"
+      showHeaderTitle
+    >
+      <div className="wallet-hub" data-wallet-transactions-version="v1.0-legal-lock">
         <div className="wallet-hub__filters px-ds-4">
           <label className="sr-only" htmlFor="wallet-txn-search">
             Search transactions
@@ -119,7 +120,7 @@ export function WalletTransactionsList({ transactions }: WalletTransactionsListP
             })
           )}
         </div>
-      </ScrollContainer>
-    </BetaAppShell>
+      </div>
+    </AccountCanonicalShell>
   );
 }

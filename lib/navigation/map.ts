@@ -1,8 +1,5 @@
 import type { UserProfile } from "@/lib/profile/types";
 import { SUPER_ADMIN_PRIMARY_NAV } from "@/lib/super-admin/nav";
-import { MIGRATION_CENTER_PATH } from "@/lib/seller/migration/config";
-import { filterBringYourItemNavLinks } from "@/lib/bring-your-item/release";
-
 export type NavLink = {
   href: string;
   label: string;
@@ -15,7 +12,7 @@ export const BUYER_NAV: NavLink[] = [
   { href: "/saved", label: "Saved", subtitle: "Wishlist & saved items" },
   { href: "/resolution", label: "Resolution Centre", subtitle: "Disputes & protection cases" },
   { href: "/trust", label: "Trust Center", subtitle: "Score, verification & safety" },
-  { href: "/assistant", label: "AI Assistant", subtitle: "Help, search & guidance" },
+  { href: "/help", label: "Help Centre", subtitle: "Guides & troubleshooting" },
   { href: "/plans", label: "Plans & Premium", subtitle: "Subscriptions & promotions" },
   { href: "/support", label: "Contact Support", subtitle: "Open a support ticket" },
   { href: "/categories", label: "Browse Categories", subtitle: "Explore the marketplace" },
@@ -28,8 +25,6 @@ export const SELLER_NAV: NavLink[] = [
   { href: "/seller/orders", label: "Selling Orders", subtitle: "Fulfillment & shipping" },
   { href: "/wallet", label: "Wallet", subtitle: "Balance & withdrawals" },
   { href: "/seller/analytics", label: "Analytics", subtitle: "Views, sales & trends" },
-  { href: MIGRATION_CENTER_PATH, label: "Bring Your Items", subtitle: "Import your entire store" },
-  { href: "/seller/connectors", label: "Marketplace Connectors", subtitle: "Connect external stores" },
   { href: "/seller/performance", label: "Seller Performance", subtitle: "Reputation Engine & level" },
   { href: "/seller/trust", label: "Trust Score", subtitle: "Reputation & improvements" },
   { href: "/seller/tax", label: "Tax Registration", subtitle: "VAT & tax settings" },
@@ -38,11 +33,23 @@ export const SELLER_NAV: NavLink[] = [
 ];
 
 export const BUSINESS_NAV: NavLink[] = [
-  { href: "/business/dashboard", label: "Business tools", subtitle: "Revenue & orders" },
+  { href: "/business/dashboard", label: "Business Store", subtitle: "Store hub" },
+  { href: "/business/analytics", label: "Analytics", subtitle: "Insights & reports" },
+  { href: "/business/orders", label: "Orders", subtitle: "Fulfilment workspace" },
+  { href: "/business/wallet", label: "Wallet", subtitle: "Balance & payouts" },
   { href: "/business/inventory", label: "Inventory", subtitle: "SKU & stock management" },
-  { href: "/business/analytics", label: "Business Analytics", subtitle: "Insights & reports" },
-  { href: "/business/directory", label: "Business Directory", subtitle: "Verified companies" },
-  { href: "/wholesale", label: "Wholesale Center", subtitle: "MOQ, RFQ & bulk pricing" },
+  { href: "/business/promotions", label: "Promotions", subtitle: "Boost listings" },
+  { href: "/business/reviews", label: "Reviews", subtitle: "Seller review centre" },
+  { href: "/business/shipping", label: "Shipping", subtitle: "Seller shipping settings" },
+  { href: "/business/returns", label: "Returns", subtitle: "Returns & refunds" },
+  { href: "/business/verification", label: "Verification", subtitle: "Business verification" },
+  { href: "/business/policies", label: "Policies", subtitle: "Business seller terms" },
+  { href: "/business/reports", label: "Reports", subtitle: "Analytics & reporting" },
+  { href: "/seller/performance", label: "Performance", subtitle: "Reputation & level" },
+  { href: "/account/followers", label: "Followers", subtitle: "Store followers" },
+  { href: "/account/settings", label: "Settings", subtitle: "Account preferences" },
+  { href: "/support", label: "Contact", subtitle: "Support" },
+  { href: "/about", label: "About", subtitle: "About ROVEXO" },
 ];
 
 export const SHARED_NAV: NavLink[] = [
@@ -88,7 +95,8 @@ export const HELP_NAV: NavLink[] = [
   { href: "/help/faq", label: "FAQ" },
   { href: "/help/policies", label: "Policies" },
   { href: "/support", label: "Contact Support" },
-  { href: "/assistant", label: "AI Assistant" },
+  { href: "/about", label: "About Us" },
+  { href: "/legal", label: "Legal Centre" },
   { href: "/resolution", label: "Resolution Centre" },
   { href: "/trust", label: "Trust Center" },
 ];
@@ -96,7 +104,7 @@ export const HELP_NAV: NavLink[] = [
 export function getNavigationSections(profile: UserProfile) {
   const sections: Array<{ id: string; title: string; links: NavLink[] }> = [
     { id: "buying", title: "Buying", links: BUYER_NAV },
-    { id: "selling", title: "Selling", links: filterBringYourItemNavLinks(SELLER_NAV) },
+    { id: "selling", title: "Selling", links: SELLER_NAV },
   ];
 
   if (profile.capabilities.hasBusinessVerification || profile.isAdmin) {
@@ -139,7 +147,8 @@ export const ALL_PUBLIC_ROUTES = [
   "/help/policies",
   "/support",
   "/trust",
-  "/assistant",
+  "/about",
+  "/legal",
   "/plans",
   "/wholesale",
   "/business/center",

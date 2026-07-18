@@ -39,10 +39,11 @@ const REQUIRED_COMPONENT_FILES = [
 ];
 
 describe("Buying activity surface v1.0 — single source of truth", () => {
-  it("uses the official Account Center buyer module", () => {
+  it("uses the official Buying Master Menu hub", () => {
     const page = readFileSync(join(process.cwd(), "app/buyer/page.tsx"), "utf8");
-    expect(page).toContain("AccountCenterModulePage");
-    expect(page).toContain('moduleId="buying"');
+    const buying = readFileSync(join(process.cwd(), "app/account/buying/page.tsx"), "utf8");
+    expect(page).toContain('redirect("/account/buying")');
+    expect(buying).toContain("BuyingHubPage");
     expect(page).not.toContain("BuyerDashboardV2");
   });
 
@@ -66,10 +67,12 @@ describe("Buying activity surface v1.0 — single source of truth", () => {
     expect(dashboard).not.toContain("BuyerDashboardV2");
   });
 
-  it("loads buyer module via account center", () => {
+  it("loads buyer hub via /account/buying", () => {
     const page = readFileSync(join(process.cwd(), "app/buyer/page.tsx"), "utf8");
-    expect(page).toContain("fetchProfile");
-    expect(page).toContain("AccountCenterModulePage");
+    const buying = readFileSync(join(process.cwd(), "app/account/buying/page.tsx"), "utf8");
+    expect(page).toContain('redirect("/account/buying")');
+    expect(buying).toContain("BuyingHubPage");
+    expect(buying).toContain("getProfile");
   });
 
   it("does not modify the frozen homepage V4 stack", () => {

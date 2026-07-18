@@ -1,16 +1,6 @@
-import type { Metadata } from "next";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { MarketplaceAssistantPage } from "@/features/ai-assistant/components/MarketplaceAssistantPage";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "AI Assistant | ROVEXO",
-  description: "Enterprise marketplace assistant integrated with Help Center and Trust Center.",
-};
-
-export default function AssistantPage() {
-  return (
-    <BetaAppShell showBottomNav={false}>
-      <MarketplaceAssistantPage />
-    </BetaAppShell>
-  );
+/** Consumer AI Assistant removed for ROVEXO v1.0 — Help Centre is the support entry. */
+export default function AssistantRedirectPage() {
+  redirect("/help");
 }

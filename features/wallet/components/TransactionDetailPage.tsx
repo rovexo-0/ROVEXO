@@ -1,11 +1,9 @@
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { HubPageMain } from "@/components/layout/HubPageMain";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { Card } from "@/components/ui/Card";
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { Price } from "@/components/ui/Price";
 import { WalletEngineTransactionPanel } from "@/features/wallet-engine/WalletEngineTransactionPanel";
 import { TransactionStatusBadge } from "@/features/wallet/components/TransactionStatusBadge";
-import { WalletHeader } from "@/features/wallet/components/WalletHeader";
 import {
   formatWalletDateTime,
   getDaysUntilAvailable,
@@ -33,7 +31,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 }
 
 export function TransactionDetailPage({
-  profile,
+  profile: _profile,
   transaction,
   transactionContext,
   backHref = "/wallet",
@@ -45,14 +43,14 @@ export function TransactionDetailPage({
       : null;
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      <WalletHeader
-        title="Transaction Details"
-        backHref={backHref}
-        unreadNotifications={profile.unreadNotifications}
-      />
-
-      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-5 px-ds-4 py-ds-4 ">
+    <AccountCanonicalShell
+      title="Transaction Details"
+      backHref={backHref}
+      backLabel="Wallet"
+      showHeaderTitle
+      showBottomNav={false}
+    >
+      <div className="flex w-full flex-col gap-ds-4 px-ds-4 pb-ds-5">
         {transactionContext ? <WalletEngineTransactionPanel context={transactionContext} /> : null}
         <Card padding="md" className="">
           <div className="flex items-start gap-ds-3">
@@ -107,7 +105,7 @@ export function TransactionDetailPage({
             </div>
           )}
         </Card>
-      </HubPageMain>
-    </BetaAppShell>
+      </div>
+    </AccountCanonicalShell>
   );
 }

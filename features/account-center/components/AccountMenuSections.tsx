@@ -1,6 +1,5 @@
 "use client";
 
-import { useTransition } from "react";
 import { AccountIcon } from "@/components/account/AccountIcons";
 import {
   ACCOUNT_LOGOUT_MENU_ITEM,
@@ -14,6 +13,7 @@ import { signOut } from "@/lib/auth/actions";
 import type { UserProfile } from "@/lib/profile/types";
 import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 import { useTranslation } from "@/lib/i18n/use-translation";
+import { useTransition } from "react";
 
 function resolveMenuBadge(
   item: AccountMenuItem,
@@ -39,37 +39,52 @@ export function AccountMenuSections({ profile }: AccountMenuSectionsProps) {
   const sections = buildAccountMenuSections(profile);
 
   return (
-    <nav className="ac-canonical__menu" aria-label={tx("My Account")}>
-      {sections.map((section) => (
-        <CanonicalSection key={section.id} title={section.title}>
-          <CanonicalCard variant="list">
-            {section.items.map((item) => (
-              <CanonicalMenuRow
-                key={item.id}
-                id={`ac-canonical-${item.id}`}
-                href={item.href}
-                title={item.title}
-                description={item.subtitle}
-                comingSoon={item.comingSoon}
-                disabled={item.comingSoon}
-                badge={resolveMenuBadge(item, badgeCounts, mobileBadges)}
-                trailing={
-                  item.showVerifiedBadge ? (
-                    <span className="ac-canonical__verified-pill">Verified</span>
-                  ) : undefined
-                }
-                icon={
-                  <span className="ac-canonical__menu-icon" aria-hidden>
-                    <AccountIcon name={item.icon} />
-                  </span>
-                }
-              />
-            ))}
-          </CanonicalCard>
-        </CanonicalSection>
-      ))}
+    <nav className="ac-canonical__menu" aria-label={tx("My Account")} data-master-menu="v2.0">
+      {sections.map((section) =>
+        section.title ? (
+          <CanonicalSection key={section.id} title={section.title}>
+            <CanonicalCard variant="list">
+              {section.items.map((item) => (
+                <CanonicalMenuRow
+                  key={item.id}
+                  id={`ac-canonical-${item.id}`}
+                  href={item.href}
+                  title={item.title}
+                  description={item.subtitle}
+                  badge={resolveMenuBadge(item, badgeCounts, mobileBadges)}
+                  icon={
+                    <span className="ac-canonical__menu-icon" aria-hidden>
+                      <AccountIcon name={item.icon} />
+                    </span>
+                  }
+                />
+              ))}
+            </CanonicalCard>
+          </CanonicalSection>
+        ) : (
+          <div key={section.id} className="cds-section" data-section={section.id}>
+            <CanonicalCard variant="list">
+              {section.items.map((item) => (
+                <CanonicalMenuRow
+                  key={item.id}
+                  id={`ac-canonical-${item.id}`}
+                  href={item.href}
+                  title={item.title}
+                  description={item.subtitle}
+                  badge={resolveMenuBadge(item, badgeCounts, mobileBadges)}
+                  icon={
+                    <span className="ac-canonical__menu-icon" aria-hidden>
+                      <AccountIcon name={item.icon} />
+                    </span>
+                  }
+                />
+              ))}
+            </CanonicalCard>
+          </div>
+        ),
+      )}
 
-      <CanonicalSection title="System">
+      <div className="cds-section" data-section="system">
         <CanonicalCard variant="list">
           <CanonicalMenuRow
             id="ac-canonical-logout"
@@ -80,7 +95,7 @@ export function AccountMenuSections({ profile }: AccountMenuSectionsProps) {
             onClick={() => startTransition(() => void signOut())}
           />
         </CanonicalCard>
-      </CanonicalSection>
+      </div>
     </nav>
   );
 }

@@ -13,17 +13,15 @@ function readSource(relativePath: string): string {
 }
 
 describe("My Account Seller Performance card", () => {
-  it("wires hub card between quick stats and manage menu", () => {
+  it("keeps seller performance off My Account hub (Compact Premium)", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
     const page = readSource("app/account/page.tsx");
     const card = readSource("features/account-center/components/AccountSellerPerformanceCard.tsx");
 
-    expect(home).toContain("AccountSellerPerformanceCard");
-    expect(home).toMatch(
-      /AccountStatsStrip[\s\S]*AccountSellerPerformanceCard[\s\S]*AccountMenuSections/,
-    );
+    expect(home).not.toContain("AccountSellerPerformanceCard");
+    expect(home).not.toContain("AccountStatsStrip");
+    expect(home).toContain("AccountMenuSections");
     expect(page).toContain("getSellerPerformanceSummary");
-    expect(page).toContain("sellerPerformance={sellerPerformance}");
     expect(card).toContain('router.push("/seller/performance")');
     expect(card).toContain("View details");
     expect(card).toContain("AccountSellerLevelBadge");

@@ -9,7 +9,7 @@ const SUPPORT_LINKS = [
   { href: "/help/faq", label: "FAQ", icon: RovexoIcons.dashboard.help },
   { href: "/support", label: "Contact support", icon: RovexoIcons.support.support },
   { href: "/help", label: "Help center", icon: RovexoIcons.dashboard.help },
-  { href: "/assistant", label: "Live chat", icon: RovexoIcons.chat.messages },
+  { href: "/messages", label: "Messages", icon: RovexoIcons.chat.messages },
 ] as const;
 
 export function BuyerSupport() {

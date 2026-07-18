@@ -1,12 +1,9 @@
 "use client";
 
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
-import { HubPageMain } from "@/components/layout/HubPageMain";
 import { useSearchParams } from "next/navigation";
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { Badge } from "@/components/ui/Badge";
-import { Card } from "@/components/ui/Card";
 import { WholesalePricingManager } from "@/features/wholesale/components/WholesalePricingManager";
 import type { InventoryItem, InventoryStatus } from "@/lib/business/inventory";
 import type { BusinessInventoryData } from "@/lib/business/types";
@@ -25,7 +22,7 @@ const STATUS_VARIANTS: Record<InventoryStatus, "success" | "warning" | "danger">
 
 function InventoryRow({ item }: { item: InventoryItem }) {
   return (
-    <div className="flex min-h-[72px] items-center gap-ds-3 px-ds-4 py-ds-3">
+    <div className="flex min-h-[72px] items-center gap-ds-3 py-ds-3">
       <ProductRowImage
         src={item.imageUrl}
         alt={item.title}
@@ -58,27 +55,28 @@ export function BusinessInventoryPage({ data }: BusinessInventoryPageProps) {
     : data.items;
 
   return (
-    <BetaAppShell showBottomNav={false}>
-      <CanonicalPageHeader title="Inventory" backHref="/business/dashboard" backLabel="Business tools" />
-      <HubPageMain withBottomNav={false} className="mx-auto flex w-full max-w-2xl flex-col gap-ds-3 px-ds-4 py-ds-4">
+    <AccountCanonicalShell
+      title="Inventory"
+      backHref="/business/dashboard"
+      backLabel="Business"
+      showHeaderTitle
+      showBottomNav={false}
+    >
+      <div className="flex w-full flex-col gap-ds-3 px-ds-4 pb-ds-5">
         <p className="text-sm text-text-secondary">{data.company.companyName}</p>
 
         <WholesalePricingManager />
 
-        <Card padding="none" className="overflow-hidden">
+        <div className="divide-y divide-border">
           {filteredItems.length === 0 ? (
-            <p className="px-ds-4 py-ds-6 text-center text-sm text-text-secondary">
+            <p className="py-ds-6 text-center text-sm text-text-secondary">
               No inventory items match this filter.
             </p>
           ) : (
-            filteredItems.map((item, index) => (
-              <div key={item.id} className={index > 0 ? "border-t border-border" : undefined}>
-                <InventoryRow item={item} />
-              </div>
-            ))
+            filteredItems.map((item) => <InventoryRow key={item.id} item={item} />)
           )}
-        </Card>
-      </HubPageMain>
-    </BetaAppShell>
+        </div>
+      </div>
+    </AccountCanonicalShell>
   );
 }

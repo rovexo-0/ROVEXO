@@ -253,10 +253,18 @@ test.describe.serial("Full Demo — mandatory deployment certification", () => {
   });
 
   test("14 PARCEL CREATED", async () => {
+    // Parcels hang off shipping_records — there is no shipment_parcels.order_id column.
+    const { data: record } = await shippingAdmin
+      .from("shipping_records")
+      .select("id")
+      .eq("order_id", orderId)
+      .maybeSingle();
+    expect(record?.id, "Shipping record must exist for parcel check").toBeTruthy();
+
     const { count } = await shippingAdmin
       .from("shipment_parcels")
       .select("id", { count: "exact", head: true })
-      .eq("order_id", orderId);
+      .eq("shipping_record_id", record!.id);
     expect(count ?? 0).toBeGreaterThan(0);
   });
 
@@ -278,20 +286,21 @@ test.describe.serial("Full Demo — mandatory deployment certification", () => {
     expect(order?.status).toBe("delivered");
   });
 
-  test("17 REVIEW CREATED", async () => {
-    const response = await buyerPage.request.post("/api/reviews", {
-      data: { orderId, rating: 5, comment: "Full Demo certification review." },
-    });
-    expect(response.ok(), await response.text()).toBeTruthy();
-  });
-
-  test("18 COMPLETED", async () => {
+  test("17 COMPLETED", async () => {
+    // Reviews are gated on completed status (lib/reviews/store.ts).
     await admin
       .from("orders")
       .update({ status: "completed", completed_at: new Date().toISOString() })
       .eq("id", orderId);
     const { data: order } = await admin.from("orders").select("status").eq("id", orderId).single();
     expect(order?.status).toBe("completed");
+  });
+
+  test("18 REVIEW CREATED", async () => {
+    const response = await buyerPage.request.post("/api/reviews", {
+      data: { orderId, rating: 5, comment: "Full Demo certification review." },
+    });
+    expect(response.ok(), await response.text()).toBeTruthy();
   });
 
   test("19 WALLET UPDATED", async () => {

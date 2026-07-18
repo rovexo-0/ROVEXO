@@ -4,22 +4,22 @@
  */
 
 :root {
-  --rx-listing-radius: var(--ds-radius-md);
-  --rx-listing-pad: var(--ds-space-4);
-  --rx-listing-gap: var(--ds-space-1);
-  --rx-listing-gap-md: var(--ds-space-2);
+  --rx-listing-radius: var(--cp-radius-card, 16px);
+  --rx-listing-pad: var(--cp-card-pad, 10px);
+  --rx-listing-gap: var(--cp-row-gap, 8px);
+  --rx-listing-gap-md: 6px;
   --rx-listing-image-ratio: 160 / 220;
-  --rx-listing-save-size: 32px;
-  --rx-listing-save-inset: var(--ds-space-3);
+  --rx-listing-save-size: 28px;
+  --rx-listing-save-inset: 8px;
   --rx-listing-seller-size: 22px;
-  --rx-listing-title-size: var(--ds-font-body-size);
-  --rx-listing-title-weight: 700;
-  --rx-listing-condition-size: var(--ds-font-caption-size);
-  --rx-listing-price-size: 1.125rem;
-  --rx-listing-bp-size: var(--ds-font-caption-size);
-  --rx-listing-footer-size: var(--ds-font-caption-size);
-  --rx-listing-border: var(--ds-color-border);
-  --rx-listing-shadow: var(--ds-shadow-soft);
+  --rx-listing-title-size: var(--cp-listing-title-size, 0.9375rem);
+  --rx-listing-title-weight: 600;
+  --rx-listing-condition-size: var(--cp-meta-size, 0.75rem);
+  --rx-listing-price-size: var(--cp-price-size, 1.125rem);
+  --rx-listing-bp-size: var(--cp-meta-size, 0.75rem);
+  --rx-listing-footer-size: var(--cp-secondary-size, 0.8125rem);
+  --rx-listing-border: transparent;
+  --rx-listing-shadow: none;
   --rx-listing-shadow-hover: var(--ds-shadow-medium);
   --rx-listing-motion: var(--ds-duration-fast) var(--ds-ease);
 }

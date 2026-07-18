@@ -107,7 +107,9 @@ export default defineConfig({
     serviceWorkers: "block",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    // Vercel AL2023 + Sparticuz Chromium: Playwright ffmpeg is not reliable in the
+    // build image; keep video locally / non-Vercel CI only.
+    video: process.env.VERCEL === "1" ? "off" : "retain-on-failure",
     actionTimeout: 30_000,
     navigationTimeout: 60_000,
     ...(vercelChromiumLaunch.executablePath

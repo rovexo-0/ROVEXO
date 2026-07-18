@@ -2,15 +2,10 @@ import { Suspense } from "react";
 import { BusinessInventoryPage } from "@/features/business/inventory/components/BusinessInventoryPage";
 import { fetchBusinessInventory } from "@/lib/business/queries";
 import { getBusinessProfile } from "@/lib/profile/data";
-import { redirect } from "next/navigation";
 
+/** Business Inventory — unverified users stay in Business Verification (never My Account). */
 export default async function BusinessInventoryRoute() {
-  const profile = await getBusinessProfile();
-
-  if (!profile.capabilities.hasBusinessVerification) {
-    redirect("/account");
-  }
-
+  await getBusinessProfile();
   const data = await fetchBusinessInventory();
 
   return (

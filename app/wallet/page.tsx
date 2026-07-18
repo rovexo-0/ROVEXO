@@ -2,13 +2,13 @@ import { WalletPage } from "@/features/wallet/components/WalletPage";
 import { fetchWalletData } from "@/lib/wallet/queries";
 import { fetchProfile } from "@/lib/profile/queries";
 import { syncConnectAccountBySellerId } from "@/lib/stripe/connect";
-import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { redirect } from "next/navigation";
 
 type WalletRouteProps = {
   searchParams: Promise<{ connect?: string }>;
 };
 
+/** Personal Wallet — one of two allowed wallets (PO). Available to all signed-in users. */
 export default async function WalletRoute({ searchParams }: WalletRouteProps) {
   const profile = await fetchProfile();
 
@@ -16,13 +16,8 @@ export default async function WalletRoute({ searchParams }: WalletRouteProps) {
     redirect("/login?next=/wallet");
   }
 
-  // Buyers manage saved cards only — seller wallet hub is for selling funds.
-  if (!profile.isSeller) {
-    redirect(WALLET_ROUTES.paymentMethods);
-  }
-
   const params = await searchParams;
-  if (params.connect === "success" || params.connect === "refresh") {
+  if (profile.isSeller && (params.connect === "success" || params.connect === "refresh")) {
     await syncConnectAccountBySellerId(profile.id);
   }
 
@@ -32,6 +27,7 @@ export default async function WalletRoute({ searchParams }: WalletRouteProps) {
     <WalletPage
       data={data}
       backHref="/account"
+      variant="personal"
       connectMessage={
         params.connect === "success"
           ? "Bank account setup saved. Payouts will be sent automatically after each hold period."
@@ -45,7 +41,7 @@ export default async function WalletRoute({ searchParams }: WalletRouteProps) {
 
 export async function generateMetadata() {
   return {
-    title: "Wallet | ROVEXO",
+    title: "Personal Wallet | ROVEXO",
     robots: { index: false, follow: false },
   };
 }

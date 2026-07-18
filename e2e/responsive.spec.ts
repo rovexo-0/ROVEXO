@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import { FULL_DEMO_ACCOUNTS } from "../lib/full-demo/canonical";
+import { signInWithSessionCookies } from "./helpers/auth";
 import {
   CATEGORY_RAIL_SELECTOR,
   HEADER_SELECTOR,
@@ -7,8 +9,25 @@ import {
   waitForSearchResultsUi,
 } from "./helpers/stable-ui";
 
+const BUYER = FULL_DEMO_ACCOUNTS[0]!;
+
+async function ensureHomepageSession(
+  page: import("@playwright/test").Page,
+  baseURL: string | undefined,
+) {
+  // Private / certification mode: guests are redirected to Login.
+  // Responsive homepage checks require an authenticated marketplace session.
+  if (!baseURL) return;
+  await signInWithSessionCookies(page, {
+    email: BUYER.email,
+    password: BUYER.password ?? "",
+    baseURL,
+  });
+}
+
 for (const viewport of RESPONSIVE_VIEWPORTS) {
-  test(`homepage layout at ${viewport.label}`, async ({ page }) => {
+  test(`homepage layout at ${viewport.label}`, async ({ page, baseURL }) => {
+    await ensureHomepageSession(page, baseURL);
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForHomepageUi(page);
@@ -31,7 +50,8 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
   });
 }
 
-test("homepage has no unexpected console errors on load", async ({ page }) => {
+test("homepage has no unexpected console errors on load", async ({ page, baseURL }) => {
+  await ensureHomepageSession(page, baseURL);
   const consoleErrors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error") {
@@ -52,6 +72,7 @@ test("homepage has no unexpected console errors on load", async ({ page }) => {
       !line.includes("401 (Unauthorized)") &&
       !line.includes("Failed to load resource") &&
       !line.includes("Missing required environment variable") &&
+      !line.includes("Supabase is not configured") &&
       !line.includes("ServiceWorker intercepted") &&
       !line.includes("MIME type") &&
       !line.includes("strict MIME checking"),
@@ -65,7 +86,8 @@ test("search page is usable on mobile", async ({ page }) => {
   await waitForSearchResultsUi(page);
 });
 
-test("listing page renders on tablet", async ({ page }) => {
+test("listing page renders on tablet", async ({ page, baseURL }) => {
+  await ensureHomepageSession(page, baseURL);
   await page.setViewportSize({ width: 768, height: 1024 });
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await waitForHomepageUi(page);

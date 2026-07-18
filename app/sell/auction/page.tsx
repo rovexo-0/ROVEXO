@@ -1,5 +1,6 @@
-import { AuctionSellPage } from "@/features/auctions/sell/AuctionSellPage";
+import { redirect } from "next/navigation";
 
-export default function AuctionSellRoute() {
-  return <AuctionSellPage />;
+/** Auctions sell UI is out of Compact Premium one-page Sell SSOT — use canonical /sell. */
+export default function SellAuctionRedirect() {
+  redirect("/sell");
 }

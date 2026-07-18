@@ -1,6 +1,4 @@
-import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { HubPageMain } from "@/components/layout/HubPageMain";
-import { BetaPageHeader } from "@/components/beta/BetaPageHeader";
+import { AccountCanonicalShell } from "@/features/account-canonical";
 import { cn } from "@/lib/cn";
 import { OrdersEngineOrderPanel } from "@/features/orders-engine/OrdersEngineOrderPanel";
 import { BuyerOrderDetailCanonical } from "@/features/orders/components/BuyerOrderDetailCanonical";
@@ -38,28 +36,27 @@ export function OrderDetailPageShell({
   resolutionSummary,
   commerceView,
   sellerShipment,
-  showSuccessBanner = false,
-  buyerCanCancel = false,
+  showSuccessBanner,
+  buyerCanCancel,
 }: OrderDetailPageShellProps) {
-  const view = resolveOrderViewRole(order, userId);
-  const isCompleted = view === "buyer" && order.status === "completed";
-  const isBuyerCanonical = view === "buyer" && commerceView != null;
+  const role = resolveOrderViewRole(order, userId);
+  const isBuyerCanonical = role === "buyer" && Boolean(commerceView);
+  const isCompleted = order.status === "completed" || order.status === "cancelled";
 
   return (
-    <BetaAppShell bottomNavTab={showBottomNav ? bottomNavTab : undefined} showBottomNav={showBottomNav}>
-      {!isCompleted ? <BetaPageHeader title="Order Details" backHref={backHref} /> : null}
-
-      <HubPageMain
-        withBottomNav={showBottomNav}
-        className={cn(
-          "mx-auto flex w-full max-w-2xl flex-col",
-          isCompleted
-            ? "min-h-[100dvh] justify-center px-ds-4 py-ds-6"
-            : "px-ds-4 py-ds-5 ",
-        )}
-      >
+    <AccountCanonicalShell
+      title="Order Details"
+      backHref={backHref}
+      backLabel="Orders"
+      showHeaderTitle={!isCompleted}
+      showBottomNav={showBottomNav}
+      bottomNavTab={bottomNavTab}
+      hideBack={isCompleted}
+      contentClassName={cn(isCompleted && "flex min-h-[70dvh] items-center justify-center")}
+    >
+      <div className="flex w-full flex-col gap-ds-4 px-ds-4 pb-ds-5">
         {orderContext && !isCompleted ? <OrdersEngineOrderPanel context={orderContext} /> : null}
-        {isBuyerCanonical ? (
+        {isBuyerCanonical && commerceView ? (
           <BuyerOrderDetailCanonical
             initialOrder={order}
             commerce={commerceView}
@@ -78,7 +75,7 @@ export function OrderDetailPageShell({
             buyerCanCancel={buyerCanCancel}
           />
         )}
-      </HubPageMain>
-    </BetaAppShell>
+      </div>
+    </AccountCanonicalShell>
   );
 }
