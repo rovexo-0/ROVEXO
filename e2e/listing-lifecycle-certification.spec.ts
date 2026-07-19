@@ -480,7 +480,8 @@ test.describe.serial("listing lifecycle certification", () => {
 
     await page.getByRole("button", { name: `Actions for ${published.title}` }).click();
     await page.getByRole("menuitem", { name: /^Delete$/i }).click();
-    const dialog = page.getByRole("dialog");
+    // Scope to delete modal — cookie preferences also uses role=dialog.
+    const dialog = page.getByRole("dialog", { name: /Delete listing\?/i });
     await expect(dialog).toBeVisible();
     await dialog.getByRole("button", { name: /^delete$/i }).click();
 
