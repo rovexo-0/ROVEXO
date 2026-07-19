@@ -39,6 +39,15 @@ async function waitForRouteUi(
       break;
     case "login":
       await expect(page.getByRole("heading", { name: /welcome back/i })).toBeVisible();
+      await expect(page.getByRole("link", { name: /create account/i })).toBeVisible();
+      // Ensure entrance animations finished (opacity:1) before axe contrast checks.
+      await expect
+        .poll(
+          async () =>
+            page.locator(".auth-login__register-cta").evaluate((el) => getComputedStyle(el).opacity),
+          { timeout: 5_000 },
+        )
+        .toBe("1");
       break;
     case "register":
       await expect(

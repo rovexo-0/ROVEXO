@@ -45,7 +45,7 @@ describe("Master Menu Design — My Account", () => {
     const messages = buildAccountMenuSections(profile)
       .flatMap((s) => s.items)
       .find((i) => i.id === "messages");
-    expect(messages?.href).toBe("/messages");
+    expect(messages?.href).toBe("/inbox");
   });
 });
 

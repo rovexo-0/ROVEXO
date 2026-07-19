@@ -63,3 +63,4 @@ next-env.d.ts
 _wip/
 
 tmp/
+.local-chromium-libs/

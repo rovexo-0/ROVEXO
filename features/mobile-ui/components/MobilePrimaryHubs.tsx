@@ -2,12 +2,12 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { IconButton } from "@/components/ui/IconButton";
-import { MobilePremiumCard } from "@/features/mobile-ui/components/MobilePremiumCard";
+import { MobileHubCard } from "@/features/mobile-ui/components/MobileHubCard";
 import { MobilePrimaryHubFolder } from "@/features/mobile-ui/components/MobilePrimaryHubFolder";
 import {
-  MobilePremiumGrid,
-  MobilePremiumSection,
-} from "@/features/mobile-ui/components/MobilePremiumPrimitives";
+  MobileHubGrid,
+  MobileHubBlock,
+} from "@/features/mobile-ui/components/MobileHubPrimitives";
 import {
   resolveMobileBadge,
   useMobileBadges,
@@ -75,9 +75,9 @@ export function MobilePrimaryHubs({
         </div>
         <p className="text-sm text-text-secondary">{openHub.subtitle}</p>
 
-        <MobilePremiumGrid className="mt-ds-2">
+        <MobileHubGrid className="mt-ds-2">
           {openHub.tiles.map((tile) => (
-            <MobilePremiumCard
+            <MobileHubCard
               key={`${openHub.id}-${tile.href}-${tile.label}`}
               href={tile.href}
               label={tile.label}
@@ -88,7 +88,7 @@ export function MobilePrimaryHubs({
               badgeTone={tile.badgeTone}
             />
           ))}
-        </MobilePremiumGrid>
+        </MobileHubGrid>
 
         {footer}
       </section>
@@ -98,8 +98,8 @@ export function MobilePrimaryHubs({
   return (
     <div className="flex flex-col gap-ds-4">
       {header}
-      <MobilePremiumSection id="mhub-primary" title={sectionTitle}>
-        <MobilePremiumGrid>
+      <MobileHubBlock id="mhub-primary" title={sectionTitle}>
+        <MobileHubGrid>
           {hubs.map((hub) => (
             <MobilePrimaryHubFolder
               key={hub.id}
@@ -108,8 +108,8 @@ export function MobilePrimaryHubs({
               onOpen={() => setActiveHub(hub.id)}
             />
           ))}
-        </MobilePremiumGrid>
-      </MobilePremiumSection>
+        </MobileHubGrid>
+      </MobileHubBlock>
       {footer}
     </div>
   );

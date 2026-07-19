@@ -135,7 +135,7 @@ export function SearchFilters({
         ) : null}
 
         <div className="flex flex-wrap items-end gap-ds-4 text-sm text-text-secondary">
-          <label className="flex min-w-[10rem] flex-1 flex-col gap-ds-1 text-xs font-medium text-text-secondary sm:max-w-[14rem]">
+          <label className="flex min-w-[10rem] flex-1 flex-col gap-ds-1 text-xs font-medium text-text-secondary">
             Brand
             <input
               type="search"

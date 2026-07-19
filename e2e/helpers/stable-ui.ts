@@ -120,14 +120,26 @@ export async function waitForHomepageUi(page: Page): Promise<void> {
       ".rx-h2__search .homepage-search__control, [data-header-search='bar'], [data-header-search='field'], #rx-h2-search",
     )
     .first();
-  await searchControl.scrollIntoViewIfNeeded();
+  await expect(searchControl).toBeVisible({ timeout: 15_000 });
+  try {
+    await searchControl.scrollIntoViewIfNeeded({ timeout: 5_000 });
+  } catch {
+    // Header can remount during hydration; visibility above is sufficient.
+  }
   await expect(searchControl).toBeVisible();
 
   await expect(page.locator(HOMEPAGE_MAIN_SELECTOR).first()).toBeVisible();
 
   await expect(page.locator(CATEGORY_RAIL_SELECTOR).first()).toBeVisible();
 
-  await expect(page.locator(ALL_LISTINGS_SELECTOR).first()).toBeVisible();
+  // Grid when listings exist; empty-state still exposes the listings region for Absolute Final.
+  await expect(
+    page
+      .locator(
+        `${ALL_LISTINGS_SELECTOR}, [data-homepage-listing-container="empty"], [data-homepage-empty="listings"]`,
+      )
+      .first(),
+  ).toBeVisible();
 
   await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
 

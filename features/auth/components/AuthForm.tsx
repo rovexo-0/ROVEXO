@@ -50,7 +50,7 @@ export function AuthForm({
     <div className="flex w-full flex-col gap-ds-8" data-auth-version="v1.0-legal-lock">
       <header className="flex flex-col items-center gap-ds-6 text-center">
         <RovexoBrandLogo className="rovexo-brand-logo--auth" />
-        <div className="flex max-w-[22rem] flex-col gap-ds-2">
+        <div className="flex w-full flex-col gap-ds-2">
           <h1 className="text-[1.75rem] font-semibold tracking-tight text-text-primary">{title}</h1>
           <p className="text-[15px] leading-relaxed text-text-secondary">{description}</p>
         </div>

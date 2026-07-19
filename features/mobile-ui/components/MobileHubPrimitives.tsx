@@ -2,13 +2,13 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import type { MobileBadgeKey, MobileBadgeTone } from "@/lib/mobile-ui/types";
 
-type MobilePremiumBadgeProps = {
+type MobileHubBadgeProps = {
   count: number;
   badgeKey?: MobileBadgeKey;
   tone?: MobileBadgeTone;
 };
 
-export function MobilePremiumBadge({ count, badgeKey, tone = "danger" }: MobilePremiumBadgeProps) {
+export function MobileHubBadge({ count, badgeKey, tone = "danger" }: MobileHubBadgeProps) {
   if (count <= 0) return null;
 
   const isWallet = badgeKey === "wallet-payout" || tone === "success";
@@ -29,22 +29,22 @@ export function MobilePremiumBadge({ count, badgeKey, tone = "danger" }: MobileP
   );
 }
 
-type MobilePremiumGridProps = {
+type MobileHubGridProps = {
   children: ReactNode;
   className?: string;
 };
 
-export function MobilePremiumGrid({ children, className }: MobilePremiumGridProps) {
+export function MobileHubGrid({ children, className }: MobileHubGridProps) {
   return <div className={cn("mhub-grid", className)}>{children}</div>;
 }
 
-type MobilePremiumSectionProps = {
+type MobileHubSectionProps = {
   id: string;
   title: string;
   children: ReactNode;
 };
 
-export function MobilePremiumSection({ id, title, children }: MobilePremiumSectionProps) {
+export function MobileHubBlock({ id, title, children }: MobileHubSectionProps) {
   return (
     <section className="mhub-section" aria-labelledby={id}>
       <h2 id={id} className="mhub-section__title">

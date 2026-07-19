@@ -153,12 +153,18 @@ describe("One Product Philosophy Freeze", () => {
 
   it("ConversationHub is Transaction Hub — no chat attach sheet / typing / avatars", () => {
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
+    const css = readSource("styles/rovexo/conversation-hub-v1.css");
     expect(hub).toContain("Message about this order");
     expect(hub).not.toContain("signalTyping");
     expect(hub).not.toContain("attachSheetOpen");
+    expect(hub).not.toContain("uploadListingImage");
+    expect(hub).not.toContain("ShareListingSheet");
     expect(hub).not.toContain('from "@/components/ui/Avatar"');
     expect(hub).not.toContain("Share listing");
     expect(hub).not.toContain("Video");
+    expect(hub).not.toContain("conv-hub__preview");
+    expect(css).not.toContain(".conv-hub__typing");
+    expect(css).not.toContain(".conv-hub__attach-sheet");
   });
 
   it("Fluency3DIcon renders line icons — no 3D picture assets", () => {
@@ -166,11 +172,47 @@ describe("One Product Philosophy Freeze", () => {
     expect(fluency).toContain("RvxLineIcons");
     expect(fluency).not.toContain("<picture");
     expect(fluency).not.toContain("getFluency3DAssetPath");
+    expect(fluency).not.toMatch(/\.webp|\.png/);
+  });
+
+  it("Absolute Final — all legacy icon wrappers forbid 3D asset loading", () => {
+    const wrappers = [
+      "components/icons/DashboardIcon3D.tsx",
+      "components/icons/BottomNavIcon3D.tsx",
+      "components/icons/PremiumIcon.tsx",
+      "components/icons/PremiumNavIcon.tsx",
+      "components/icons/PremiumAccountIcon.tsx",
+    ];
+    for (const rel of wrappers) {
+      const source = readSource(rel);
+      expect(source).not.toContain("getFluency3DAssetPath");
+      expect(source).not.toContain("getAccountIconPng");
+      expect(source).not.toContain("/icons/premium/");
+      expect(source).not.toContain("/icons/fluency-3d/");
+      expect(source).not.toContain("<picture");
+      expect(source).not.toMatch(/\.webp|\.png/);
+    }
   });
 
   it("Button variants have no glass", () => {
     const variants = readSource("components/ui/variants.ts");
     expect(variants).not.toContain("rx-glass");
     expect(variants).not.toContain("backdrop-blur");
+  });
+
+  it("Login Remember row has no glass classes", () => {
+    const remember = readSource("features/auth/components/LoginRememberRow.tsx");
+    expect(remember).not.toContain("rx-glass");
+    expect(remember).not.toContain("rx-depth");
+  });
+
+  it("Consumer headers and checkout CTA use 100% width at source", () => {
+    const header = readSource("styles/rovexo/header-v2.css");
+    const homeHeader = readSource("styles/rovexo/homepage-header.css");
+    const checkout = readSource("styles/rovexo/checkout-v1.css");
+    expect(header).not.toContain("80rem");
+    expect(homeHeader).not.toContain("80rem");
+    expect(checkout).toMatch(/\.ckt-v1__cta[\s\S]*width:\s*100%/);
+    expect(checkout).not.toMatch(/backdrop-filter:\s*blur\(/);
   });
 });

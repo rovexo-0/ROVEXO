@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { MouseEvent } from "react";
-import type { BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
+import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
 import { BottomNavV2Icon } from "@/components/ui/BottomNavV2Icon";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";

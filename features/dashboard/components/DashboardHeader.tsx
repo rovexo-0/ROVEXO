@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { IconButton } from "@/components/ui/IconButton";
 import { ModalBody, ModalContainer } from "@/components/ui/ModalContainer";
-import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
+import { SettingsLineIcon, TagLineIcon } from "@/components/icons/RvxLineIcons";
 import { MobileHubNavigator } from "@/features/mobile-ui";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 import { cn } from "@/lib/cn";
@@ -40,7 +40,7 @@ export function DashboardHeader({
             className="rx-dash-header__action shrink-0"
             onClick={() => setMenuOpen((current) => !current)}
           >
-            <DashboardIcon3D type="categories" size={28} />
+            <TagLineIcon className="h-7 w-7" />
           </IconButton>
 
           <h1 className="rx-dash-header__title text-center">{title}</h1>
@@ -52,7 +52,7 @@ export function DashboardHeader({
               aria-label="Settings"
               className={cn("rx-dash-header__action", focusRing)}
             >
-              <DashboardIcon3D type="settings" size={28} />
+              <SettingsLineIcon className="h-7 w-7" />
             </Link>
           </div>
         </div>

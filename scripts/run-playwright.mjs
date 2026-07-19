@@ -1,12 +1,22 @@
 #!/usr/bin/env node
 /**
  * Run Playwright with Vercel-safe Chromium env (LD_LIBRARY_PATH + executablePath).
+ * Absolute Final: fail closed when Supabase E2E secrets are missing/redacted.
  */
 import { spawnSync } from "node:child_process";
 import {
   preparePlaywrightChromium,
   readVercelChromiumConfig,
 } from "./install-playwright-chromium.mjs";
+
+const ensure = spawnSync("node", ["scripts/ensure-e2e-env.mjs"], {
+  stdio: "inherit",
+  env: process.env,
+  shell: process.platform === "win32",
+});
+if ((ensure.status ?? 1) !== 0) {
+  process.exit(ensure.status ?? 1);
+}
 
 const prepared = await preparePlaywrightChromium();
 const marker = readVercelChromiumConfig();

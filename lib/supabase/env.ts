@@ -1,7 +1,16 @@
+function isUnusableSecret(value: string): boolean {
+  const normalized = value.trim();
+  if (!normalized) return true;
+  if (normalized === "[SENSITIVE]" || normalized.startsWith("[SEN")) return true;
+  if (normalized === "placeholder" || normalized.endsWith("_placeholder")) return true;
+  if (normalized === "sk_test_placeholder" || normalized === "whsec_placeholder") return true;
+  return false;
+}
+
 function readFirstEnv(...names: string[]): string | undefined {
   for (const name of names) {
     const value = process.env[name]?.trim();
-    if (value) {
+    if (value && !isUnusableSecret(value)) {
       return value;
     }
   }

@@ -15,7 +15,10 @@ import { resolveOfficialDemoProductImage } from "@/lib/media/official-demo-image
 const DEMO_MIN_COUNT = 12;
 
 /** Demo catalogue padding is opt-in only (set ROVEXO_HOMEPAGE_DEMO=1). Production hides empty sections. */
-const HOMEPAGE_DEMO_ENABLED = resolveHomepageMode() === "demo";
+function isHomepageDemoEnabled(): boolean {
+  // Read at call-time — Next may inline env at build; Playwright sets this on `next start`.
+  return resolveHomepageMode() === "demo";
+}
 
 const demoImage = (seed: string) => resolveOfficialDemoProductImage(seed);
 
@@ -520,7 +523,7 @@ export function resolveShowcaseSections(
   const fromFeed = buildShowcaseSellerSections(feedItems);
   if (fromFeed.length > 0) return fromFeed;
 
-  if (!HOMEPAGE_DEMO_ENABLED) return [];
+  if (!isHomepageDemoEnabled()) return [];
 
   return buildShowcaseSellerSections(HOMEPAGE_DEMO_SHOWCASE_PRODUCTS);
 }
@@ -547,7 +550,7 @@ function findDemoCatalogProduct(slug: string): Product | undefined {
 }
 
 export function resolveDemoProductDetail(slug: string): ProductDetail | null {
-  if (!HOMEPAGE_DEMO_ENABLED) return null;
+  if (!isHomepageDemoEnabled()) return null;
   const product = findDemoCatalogProduct(slug);
   if (!product) return null;
 
@@ -577,7 +580,7 @@ export function enrichDemoProductDetail(slug: string, detail: ProductDetail | nu
 }
 
 export function resolveDemoSimilarProducts(slug: string, limit = 8): Product[] {
-  if (!HOMEPAGE_DEMO_ENABLED) return [];
+  if (!isHomepageDemoEnabled()) return [];
   return [...HOMEPAGE_DEMO_PRODUCTS, ...HOMEPAGE_DEMO_SHOWCASE_PRODUCTS]
     .filter((product) => product.slug !== slug)
     .slice(0, limit);
@@ -619,7 +622,7 @@ export function resolveHomepageFeedItems(feed: ProductsPage): ProductsPage {
     };
   }
 
-  if (!HOMEPAGE_DEMO_ENABLED) {
+  if (!isHomepageDemoEnabled()) {
     return feed;
   }
 
@@ -650,7 +653,7 @@ export function enrichHomepageData(input: {
     ...input.recommended,
     ...input.newListings,
     ...input.popularListings,
-    ...(HOMEPAGE_DEMO_ENABLED ? HOMEPAGE_DEMO_PRODUCTS : []),
+    ...(isHomepageDemoEnabled() ? HOMEPAGE_DEMO_PRODUCTS : []),
   ]);
 
   const businessesFromProducts = pool
@@ -668,7 +671,7 @@ export function enrichHomepageData(input: {
         : "/search?category=business",
     }));
 
-  if (!HOMEPAGE_DEMO_ENABLED) {
+  if (!isHomepageDemoEnabled()) {
     return {
       featured: uniqueById(input.featured),
       recommended: uniqueById(input.recommended),

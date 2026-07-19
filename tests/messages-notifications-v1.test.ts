@@ -17,8 +17,8 @@ describe("Messages + Notifications → Inbox Hub Sprint 1", () => {
     expect(inbox).toContain("data-inbox-hub=");
     expect(inbox).toContain("Messages");
     expect(inbox).toContain("Notifications");
-    expect(messagesRoute).toContain("MessagesHubPage");
-    expect(messagesRoute).not.toContain("redirect(");
+    expect(messagesRoute).toContain("INBOX_ROUTES.messagesTab");
+    expect(messagesRoute).toContain("redirect(");
     expect(messagesMenu).toContain("Transaction hub.");
     expect(messagesMenu).toContain("buildMessagesMenuSections");
     expect(notificationsRoute).toContain("redirect");
@@ -27,14 +27,19 @@ describe("Messages + Notifications → Inbox Hub Sprint 1", () => {
     expect(index).toContain("./notifications-v1.css");
   });
 
-  it("uses ConversationHub as the only live chat surface", () => {
+  it("uses ConversationHub as the only live transaction messaging surface", () => {
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
     const css = readSource("styles/rovexo/conversation-hub-v1.css");
 
     expect(hub).toContain("data-conversation-hub");
     expect(hub).toContain("useChatRealtime");
     expect(hub).toContain("TransactionHubBottomActions");
+    expect(hub).not.toContain("uploadListingImage");
+    expect(hub).not.toContain("signalTyping");
+    expect(hub).not.toContain("ShareListingSheet");
     expect(css).toContain("--conv-composer-h: 44px");
+    expect(css).not.toContain(".conv-hub__typing");
+    expect(css).not.toContain(".conv-hub__attach-sheet");
   });
 
   it("renders notifications inside Inbox Hub", () => {

@@ -1,11 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { MobilePremiumCard } from "@/features/mobile-ui/components/MobilePremiumCard";
+import { MobileHubCard } from "@/features/mobile-ui/components/MobileHubCard";
 import {
-  MobilePremiumGrid,
-  MobilePremiumSection,
-} from "@/features/mobile-ui/components/MobilePremiumPrimitives";
+  MobileHubGrid,
+  MobileHubBlock,
+} from "@/features/mobile-ui/components/MobileHubPrimitives";
 import {
   resolveMobileBadge,
   useMobileBadges,
@@ -34,10 +34,10 @@ export function MobileHubSections({
       {header}
       {sections.map((section) =>
         section.tiles.length ? (
-          <MobilePremiumSection key={section.id} id={`mhub-${section.id}`} title={section.title}>
-            <MobilePremiumGrid>
+          <MobileHubBlock key={section.id} id={`mhub-${section.id}`} title={section.title}>
+            <MobileHubGrid>
               {section.tiles.map((tile) => (
-                <MobilePremiumCard
+                <MobileHubCard
                   key={`${section.id}-${tile.href}-${tile.label}`}
                   href={tile.href}
                   label={tile.label}
@@ -48,8 +48,8 @@ export function MobileHubSections({
                   badgeTone={tile.badgeTone}
                 />
               ))}
-            </MobilePremiumGrid>
-          </MobilePremiumSection>
+            </MobileHubGrid>
+          </MobileHubBlock>
         ) : null,
       )}
     </div>

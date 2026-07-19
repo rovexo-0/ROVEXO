@@ -9,9 +9,12 @@ import {
 import { resolveHomepageMode } from "@/lib/homepage/config";
 import { rotateShowcaseStores } from "@/lib/homepage/store-rotation";
 
-const DEMO_ENABLED = resolveHomepageMode() === "demo";
 const FEATURED_LIMIT = 12;
 const SHOWCASE_SELLER_LIMIT = 6;
+
+function isHomepageDemoEnabled(): boolean {
+  return resolveHomepageMode() === "demo";
+}
 
 export type HomepageV4Sections = {
   showcases: ShowcaseSellerSection[];
@@ -39,7 +42,7 @@ function resolveFeatured(page: ProductsPage, exclude: Set<string>): Product[] {
     return filtered.slice(0, FEATURED_LIMIT);
   }
 
-  if (!DEMO_ENABLED) {
+  if (!isHomepageDemoEnabled()) {
     return [];
   }
 

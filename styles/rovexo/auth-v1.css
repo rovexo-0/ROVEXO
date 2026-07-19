@@ -693,7 +693,7 @@
     max(env(safe-area-inset-top), 12px) max(env(safe-area-inset-right), 16px)
     max(env(safe-area-inset-bottom), 24px) max(env(safe-area-inset-left), 16px);
   background-color: #ffffff;
-  animation: auth-login-fade-in 225ms ease-out both;
+  animation: none;
   overflow-x: hidden;
 }
 
@@ -1223,6 +1223,16 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .auth-login.auth-login--premium,
+  .auth-login.auth-login--premium * {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 .auth-login.auth-login--premium {
   --login-bg: #ffffff;
   --login-primary: #7c3aed;
@@ -1262,7 +1272,7 @@
 }
 
 .auth-login.auth-login--premium .auth-login__brand {
-  animation: auth-login-rise 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: none;
 }
 
 .auth-login.auth-login--premium .rovexo-brand-logo--auth {
@@ -1293,7 +1303,7 @@
 }
 
 .auth-login.auth-login--premium .auth-login__intro {
-  animation: auth-login-rise 580ms cubic-bezier(0.16, 1, 0.3, 1) 45ms both;
+  animation: none;
 }
 
 .auth-login.auth-login--premium .auth-heading {
@@ -1321,7 +1331,7 @@
 
 .auth-login.auth-login--premium .auth-login__form {
   gap: 14px;
-  animation: auth-login-rise 620ms cubic-bezier(0.16, 1, 0.3, 1) 85ms both;
+  animation: none;
 }
 
 .auth-login.auth-login--premium .auth-login__fields {
@@ -1595,7 +1605,7 @@
   flex-direction: column;
   gap: 12px;
   margin-top: 2px;
-  animation: auth-login-rise 660ms cubic-bezier(0.16, 1, 0.3, 1) 115ms both;
+  animation: none;
 }
 
 .auth-login.auth-login--premium .auth-divider {
@@ -1667,7 +1677,7 @@
 .auth-login.auth-login--premium .auth-login__footer {
   margin-top: 2px;
   padding-bottom: 2px;
-  animation: auth-login-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) 145ms both;
+  animation: none;
 }
 
 .auth-login.auth-login--premium .auth-login__register-prompt {
@@ -1678,10 +1688,11 @@
   letter-spacing: -0.01em;
   line-height: 1.5;
   /* WCAG AA ≥4.5:1 on white (#52525b ≈ 7.0:1). A11y fix under Login freeze. */
-  color: #52525b;
+  color: #3f3f46 !important;
 }
 
-.auth-login.auth-login--premium .auth-login__register-cta {
+.auth-login.auth-login--premium .auth-login__register-cta,
+a.auth-login__register-cta {
   display: inline;
   min-height: 0;
   width: auto;
@@ -1692,26 +1703,32 @@
   font-size: inherit;
   font-weight: 650;
   letter-spacing: -0.015em;
-  /* WCAG AA ≥4.5:1 for 14px link on white (brand purple alone is ~4.3:1). */
-  color: #5b21b6 !important;
+  /* WCAG AA ≥4.5:1 for 14px link on white — force over Tailwind / tokens. */
+  color: #4c1d95 !important;
+  opacity: 1 !important;
   text-decoration: none;
   box-shadow: none;
   transition: color 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .auth-login.auth-login--premium .auth-login__register-cta:hover,
-.auth-login.auth-login--premium .auth-login__register-cta:focus-visible {
+.auth-login.auth-login--premium .auth-login__register-cta:focus-visible,
+a.auth-login__register-cta:hover,
+a.auth-login__register-cta:focus-visible {
   border: none;
   background: transparent;
-  color: #6d28d9;
+  color: #5b21b6 !important;
+  opacity: 1 !important;
   text-decoration: underline;
   text-underline-offset: 3px;
   box-shadow: none;
 }
 
-.auth-login.auth-login--premium .auth-login__register-cta:active {
+.auth-login.auth-login--premium .auth-login__register-cta:active,
+a.auth-login__register-cta:active {
   background: transparent;
-  color: #5b21b6;
+  color: #4c1d95 !important;
+  opacity: 1 !important;
 }
 
 .auth-login.auth-login--premium .auth-login__register-cta:focus-visible {
@@ -1807,4 +1824,19 @@
   .auth-login.auth-login--premium .auth-social-button:active:not(:disabled) {
     transform: none;
   }
+}
+
+
+/* Absolute Final — login a11y: no mid-animation opacity */
+.auth-login.auth-login--premium,
+.auth-login.auth-login--premium .auth-login__footer,
+.auth-login.auth-login--premium .auth-login__register-prompt,
+.auth-login.auth-login--premium .auth-login__register-cta,
+.auth-login.auth-login--premium .auth-login__intro,
+.auth-login.auth-login--premium .auth-login__form,
+.auth-login.auth-login--premium .auth-login__social,
+.auth-login.auth-login--premium .auth-login__brand {
+  opacity: 1 !important;
+  animation: none !important;
+  transform: none !important;
 }

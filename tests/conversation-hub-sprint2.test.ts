@@ -62,10 +62,17 @@ describe("Conversation Hub Sprint 3", () => {
 
     expect(route).toContain("ConversationHub");
     expect(hub).toContain("CONVERSATION_HUB_VERSION");
-    expect(hub).toContain("uploadListingImage");
+    expect(hub).not.toContain("uploadListingImage");
     expect(hub).not.toContain("signalTyping");
+    expect(hub).not.toContain("attachSheetOpen");
+    expect(hub).not.toContain("ShareListingSheet");
+    expect(hub).not.toContain("CameraLineIcon");
+    expect(hub).not.toContain("conv-hub__preview");
     expect(hub).toContain("refreshBadges");
     expect(css).toContain(".conv-hub");
+    expect(css).not.toContain(".conv-hub__typing");
+    expect(css).not.toContain(".conv-hub__attach-sheet");
+    expect(css).not.toContain(".conv-hub__preview");
   });
 
   it("uses Paid · Prep · Ship · Done · Paid compact rail labels", () => {

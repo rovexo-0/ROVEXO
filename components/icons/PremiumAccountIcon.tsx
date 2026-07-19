@@ -1,10 +1,6 @@
-import {
-  getAccountIconPng,
-  getAccountIconSrcSet,
-  getAccountIconWebp,
-  type AccountPremiumIconKey,
-} from "@/lib/account-center/premium-icons";
+import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
 import { cn } from "@/lib/cn";
+import type { AccountPremiumIconKey } from "@/lib/account-center/premium-icons";
 
 type PremiumAccountIconProps = {
   icon: AccountPremiumIconKey;
@@ -14,34 +10,40 @@ type PremiumAccountIconProps = {
   priority?: boolean;
 };
 
-/**
- * Realistic 3D account-family icon. Transparent WebP with PNG fallback — no plate,
- * no border, one shared lighting/perspective family with the nav + category icons.
- * Purely decorative; the surrounding link/card provides the accessible label.
- */
-export function PremiumAccountIcon({ icon, size = 40, className, priority = false }: PremiumAccountIconProps) {
-  const sizes = `${size}px`;
+const PREMIUM_TO_ACCOUNT: Record<AccountPremiumIconKey, AccountIconName> = {
+  shopping: "cart",
+  wallet: "wallet",
+  security: "security",
+  analytics: "reviews",
+  marketplace: "business",
+  feedback: "ideas",
+  response: "messages",
+  orders: "orders",
+  cases: "support",
+  listings: "listings",
+  messages: "messages",
+  business: "business",
+  seller: "listings",
+  buyer: "cart",
+  settings: "settings",
+  help: "help",
+  notification: "notifications",
+  eye: "profile",
+  calendar: "orders",
+  saved: "saved",
+};
+
+/** Absolute Final: AccountIcon line glyphs — no premium account WebP/PNG assets. */
+export function PremiumAccountIcon({ icon, size = 40, className, priority: _priority = false }: PremiumAccountIconProps) {
   return (
-    <picture>
-      <source type="image/webp" srcSet={getAccountIconSrcSet(icon, "webp")} sizes={sizes} />
-      <img
-        src={getAccountIconPng(icon)}
-        srcSet={getAccountIconSrcSet(icon, "png")}
-        sizes={sizes}
-        alt=""
-        aria-hidden
-        width={size}
-        height={size}
-        loading={priority ? "eager" : "lazy"}
-        decoding="async"
-        draggable={false}
-        className={cn("rovexo-account-icon shrink-0 object-contain", className)}
-        style={{ width: size, height: size }}
-      />
-    </picture>
+    <span
+      className={cn("inline-flex shrink-0 items-center justify-center text-current", className)}
+      style={{ width: size, height: size }}
+      aria-hidden
+    >
+      <AccountIcon name={PREMIUM_TO_ACCOUNT[icon]} className="h-full w-full" />
+    </span>
   );
 }
 
-/** Explicit named exports kept in sync with the icon library for tree-shaking clarity. */
 export type { AccountPremiumIconKey };
-export { getAccountIconWebp };

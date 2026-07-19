@@ -100,34 +100,41 @@ export async function enrichShowcaseSellerSections(
 ): Promise<ShowcaseSellerSection[]> {
   if (sections.length === 0) return sections;
 
-  const { createAdminClient } = await import("@/lib/supabase/admin");
-  const admin = createAdminClient();
-  const sellerIds = sections.map((section) => section.sellerId);
+  try {
+    const { tryCreateAdminClient } = await import("@/lib/supabase/admin");
+    const admin = tryCreateAdminClient();
+    if (!admin) {
+      return sections;
+    }
+    const sellerIds = sections.map((section) => section.sellerId);
 
-  const { data } = await admin
-    .from("seller_profiles")
-    .select("id, rating, review_count, follower_count")
-    .in("id", sellerIds);
+    const { data } = await admin
+      .from("seller_profiles")
+      .select("id, rating, review_count, follower_count")
+      .in("id", sellerIds);
 
-  const profileById = new Map(
-    (data ?? []).map((row) => [
-      row.id,
-      {
-        rating: Number(row.rating ?? 0),
-        reviewCount: row.review_count ?? 0,
-        followerCount: row.follower_count ?? 0,
-      },
-    ]),
-  );
+    const profileById = new Map(
+      (data ?? []).map((row) => [
+        row.id,
+        {
+          rating: Number(row.rating ?? 0),
+          reviewCount: row.review_count ?? 0,
+          followerCount: row.follower_count ?? 0,
+        },
+      ]),
+    );
 
-  return sections.map((section) => {
-    const profile = profileById.get(section.sellerId);
-    if (!profile) return section;
-    return {
-      ...section,
-      rating: profile.rating,
-      reviewCount: profile.reviewCount,
-      followerCount: profile.followerCount,
-    };
-  });
+    return sections.map((section) => {
+      const profile = profileById.get(section.sellerId);
+      if (!profile) return section;
+      return {
+        ...section,
+        rating: profile.rating,
+        reviewCount: profile.reviewCount,
+        followerCount: profile.followerCount,
+      };
+    });
+  } catch {
+    return sections;
+  }
 }

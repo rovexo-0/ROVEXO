@@ -153,6 +153,10 @@ const ICON_MAP: Record<string, ComponentType<IconProps>> = {
   "feature-message-camera": CameraGlyph,
   "sa-reviews": StarLineIcon,
   "sa-promotions": MegaphoneLineIcon,
+  "hub-buy": BagLineIcon,
+  "hub-sell": TagLineIcon,
+  "hub-business": UserLineIcon,
+  "hub-support": ChatLineIcon,
 };
 
 /**

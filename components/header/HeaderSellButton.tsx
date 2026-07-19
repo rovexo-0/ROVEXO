@@ -11,9 +11,8 @@ export function HeaderSellButton({ className }: HeaderSellButtonProps) {
     <Link
       href="/sell"
       className={cn(
-        "inline-flex h-9 shrink-0 items-center justify-center rounded-ds-full px-ds-4 text-sm font-semibold text-primary-foreground",
-        "bg-[image:var(--ds-gradient-primary)]",
-        "hover:scale-[1.02] hover:shadow-ds-medium active:scale-[0.98]",
+        "inline-flex h-9 shrink-0 items-center justify-center rounded-ds-full bg-primary px-ds-4 text-sm font-semibold text-primary-foreground",
+        "hover:opacity-90 active:opacity-80",
         focusRing,
         transitionFast,
         className,

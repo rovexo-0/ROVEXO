@@ -184,7 +184,7 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
             step="0.01"
             value={scale}
             onChange={(event) => setScale(Number(event.target.value))}
-            className="w-full max-w-xs"
+            className="w-full"
           />
         </div>
       )}

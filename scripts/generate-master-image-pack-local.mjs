@@ -35,7 +35,7 @@ const HUBS = [
   {
     id: "messages",
     title: "Messages",
-    intro: "Transaction hub.",
+    intro: "/messages → /inbox (Transaction hub)",
     rows: ["Inbox", "Orders", "Tracking", "Messages", "Reviews", "Support", "Refunds", "Disputes"],
   },
   {
@@ -364,7 +364,7 @@ const E2E_FLOWS = [
   {
     id: "e2e-messages",
     title: "Messages flow",
-    intro: "Inbox → Orders → Tracking → Messages → Reviews",
+    intro: "Transaction Hub at /inbox — product · payment · tracking · offer · review · support · refund · dispute",
     rows: ["Inbox", "Orders", "Tracking", "Messages", "Reviews", "Support", "Refunds", "Disputes"],
   },
   {

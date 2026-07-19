@@ -44,8 +44,9 @@ export const CHECKOUT_CANONICAL_COMPONENTS = [
 
 export const CHECKOUT_LOCKED_SECTIONS = [
   "Products",
-  "Shipping",
+  "Delivery",
   "Platform Fee",
+  "Payment",
   "Total",
   "Confirm & Pay",
 ] as const;

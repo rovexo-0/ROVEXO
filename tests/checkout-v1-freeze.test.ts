@@ -22,8 +22,9 @@ describe("Checkout v1.0 — ABSOLUTE FINAL FREEZE", () => {
     expect(CHECKOUT_VISUAL_LOCK.ctaHeightPx).toBe(52);
     expect(CHECKOUT_LOCKED_SECTIONS).toEqual([
       "Products",
-      "Shipping",
+      "Delivery",
       "Platform Fee",
+      "Payment",
       "Total",
       "Confirm & Pay",
     ]);

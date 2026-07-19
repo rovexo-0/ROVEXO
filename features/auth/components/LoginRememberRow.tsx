@@ -7,7 +7,7 @@ export function LoginRememberRow() {
   return (
     <label
       className={cn(
-        "rx-glass rx-depth-1 flex min-h-ds-7 cursor-pointer items-center gap-ds-3 rounded-ds-lg px-ds-4 py-ds-3",
+        "flex min-h-ds-7 cursor-pointer items-center gap-ds-3 rounded-ds-lg border border-border bg-surface px-ds-4 py-ds-3",
         focusRing,
       )}
     >

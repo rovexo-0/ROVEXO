@@ -1,7 +1,7 @@
 "use client";
 
 import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
-import { MobilePremiumBadge } from "@/features/mobile-ui/components/MobilePremiumPrimitives";
+import { MobileHubBadge } from "@/features/mobile-ui/components/MobileHubPrimitives";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { ChevronRightIcon } from "@/features/product-detail/icons";
@@ -31,7 +31,7 @@ export function MobilePrimaryHubFolder({ hub, badgeCount, onOpen }: MobilePrimar
       aria-label={`${hub.label} hub. ${hub.subtitle}. ${itemCount} destinations${badgeCount > 0 ? `, ${badgeCount} notifications` : ""}`}
       aria-haspopup="true"
     >
-      <MobilePremiumBadge count={badgeCount} />
+      <MobileHubBadge count={badgeCount} />
 
       <div className="rx-dash-tile__top">
         <div className="rx-dash-tile__icon">

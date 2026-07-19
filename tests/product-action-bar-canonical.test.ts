@@ -124,7 +124,7 @@ describe("canonical product action bar", () => {
 
     expect(PRODUCT_ACTION_BAR_VERSION).toBe("v1.0-final");
 
-    expect(PRODUCT_ACTION_BAR_VISUAL.backgroundOpacity).toBe(0.92);
+    expect(PRODUCT_ACTION_BAR_VISUAL.backgroundOpacity).toBe(1);
 
     expect(PRODUCT_ACTION_BAR_VISUAL.buttonRadiusPx).toBe(16);
 
@@ -136,9 +136,9 @@ describe("canonical product action bar", () => {
 
     expect(PRODUCT_ACTION_BAR_VISUAL.fontWeight).toBe(600);
 
-    expect(css).toContain("rgba(255 255 255 / 0.92)");
+    expect(css).toContain("background: #ffffff");
 
-    expect(css).toContain("blur(18px)");
+    expect(css).toContain("backdrop-filter: none");
 
     expect(css).toContain("rgba(0 0 0 / 0.05)");
 

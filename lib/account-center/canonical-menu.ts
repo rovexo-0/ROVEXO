@@ -81,7 +81,7 @@ export function buildAccountMenuSections(profile: UserProfile): AccountMenuSecti
           id: "messages",
           title: "Messages",
           subtitle: "Transaction hub",
-          href: "/messages",
+          href: "/inbox",
           icon: "messages",
           badgeKeys: ["messages"],
         },

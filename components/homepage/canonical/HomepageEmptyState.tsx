@@ -37,7 +37,13 @@ export function HomepageEmptyState({ variant }: HomepageEmptyStateProps) {
   const content = COPY[variant];
 
   return (
-    <div className={css.emptyState} role="status" data-hp-empty={variant}>
+    <div
+      className={css.emptyState}
+      role="status"
+      data-hp-empty={variant}
+      data-homepage-empty={variant}
+      data-homepage-listing-container={variant === "listings" ? "empty" : undefined}
+    >
       <PremiumEmptyStateImage id={content.illustration} className={css.emptyIllustration} />
       <h2 className={css.emptyTitle}>{content.title}</h2>
       <p className={css.emptyDescription}>{content.description}</p>

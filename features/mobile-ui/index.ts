@@ -1,11 +1,11 @@
 export { MobileNavIcon } from "@/features/mobile-ui/components/MobileNavIcon";
-export { MobilePremiumCard } from "@/features/mobile-ui/components/MobilePremiumCard";
+export { MobileHubCard } from "@/features/mobile-ui/components/MobileHubCard";
 export {
-  MobilePremiumBadge,
-  MobilePremiumGrid,
-  MobilePremiumSection,
+  MobileHubBadge,
+  MobileHubGrid,
+  MobileHubBlock,
   MobileSkeletonGrid,
-} from "@/features/mobile-ui/components/MobilePremiumPrimitives";
+} from "@/features/mobile-ui/components/MobileHubPrimitives";
 export { MobileHubNavigator } from "@/features/mobile-ui/components/MobileHubNavigator";
 export { MobileHubNav } from "@/features/mobile-ui/components/MobileHubNav";
 export { MobilePrimaryHubs } from "@/features/mobile-ui/components/MobilePrimaryHubs";

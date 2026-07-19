@@ -36,7 +36,7 @@
   flex-shrink: 0;
   padding: 2px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  background: #7c3aed;
 }
 
 .ac-canonical__avatar {
@@ -198,7 +198,7 @@
   padding: 14px 16px;
   border: 1px solid rgb(15 23 42 / 0.08);
   border-radius: 14px;
-  background: linear-gradient(135deg, rgb(124 58 237 / 0.06) 0%, #ffffff 55%);
+  background: #ffffff;
   box-shadow: 0 1px 6px rgb(15 23 42 / 0.04);
   text-decoration: none;
   color: inherit;
@@ -523,7 +523,7 @@
   height: 100%;
   min-width: 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, #a855f7 0%, #8b5cf6 45%, #7c3aed 100%);
+  background: #7c3aed;
   transition: width 450ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 

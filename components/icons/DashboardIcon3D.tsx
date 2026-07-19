@@ -51,6 +51,15 @@ const MAP: Record<string, ComponentType<IconProps>> = {
   wallet: WalletLineIcon,
   orders: BagLineIcon,
   cart: CartLineIcon,
+  "buy-hub": BagLineIcon,
+  "sell-hub": TagLineIcon,
+  "business-hub": UserLineIcon,
+  "support-hub": ChatLineIcon,
+  listings: TagLineIcon,
+  business: UserLineIcon,
+  help: ChatLineIcon,
+  support: ChatLineIcon,
+  inventory: TagLineIcon,
 };
 
 /** Absolute Final: line icons only — no Fluency 3D / dashboard 3D assets. */

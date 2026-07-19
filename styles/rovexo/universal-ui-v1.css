@@ -37,7 +37,9 @@
 
 @media (min-width: 1024px) {
   [data-universal-ui="v1.1"] .rvx-home {
-    max-width: 980px;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
   }
 }
 
@@ -247,29 +249,6 @@
 
 [data-universal-ui="v1.1"] .inbox-hub__card-aside {
   min-height: 44px;
-}
-
-[data-universal-ui="v1.1"] .inbox-hub__notif-card {
-  grid-template-columns: 44px minmax(0, 1fr) auto;
-  gap: 12px;
-  min-height: 68px;
-  padding: 12px 0;
-  border: 0;
-  border-bottom: 1px solid var(--uv1-border);
-  border-radius: 0;
-  box-shadow: none;
-}
-
-[data-universal-ui="v1.1"] .inbox-hub__notif-title {
-  font-size: var(--uv1-body-size);
-  font-weight: 650;
-  line-height: 20px;
-}
-
-[data-universal-ui="v1.1"] .inbox-hub__notif-sub {
-  font-size: var(--uv1-body-size);
-  font-weight: 450;
-  line-height: 20px;
 }
 
 [data-universal-ui="v1.1"].pd-v1 {

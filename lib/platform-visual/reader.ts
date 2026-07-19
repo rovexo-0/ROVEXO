@@ -75,6 +75,11 @@ function bundleToConfig(bundle: PlatformVisualBundle, mode: "live" | "draft"): P
   };
 }
 
+/** Fail-closed homepage fallback when platform visual settings cannot load. */
+export function getDefaultPlatformVisualConfig(): PlatformVisualConfig {
+  return bundleToConfig(createDefaultVisualBundle(), "live");
+}
+
 export async function getPlatformVisualConfig(options?: {
   mode?: "live" | "draft";
 }): Promise<PlatformVisualConfig> {

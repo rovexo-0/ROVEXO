@@ -42,15 +42,22 @@ describe("Inbox Hub v1.1 — UI LOCK", () => {
     expect(conversation).toContain('data-conversation-hub-ui="v1.1-zoom-out"');
     expect(conversation).toContain('data-composer-layout="single-row"');
     expect(conversation).toContain("conv-hub__composer-row");
+    expect(conversation).not.toContain("uploadListingImage");
+    expect(conversation).not.toContain("signalTyping");
+    expect(conversation).not.toContain("attachSheetOpen");
     expect(conversationCss).toContain("flex-wrap: nowrap");
     expect(conversationCss).toContain("--conv-composer-h: 44px");
+    expect(conversationCss).not.toContain(".conv-hub__typing");
+    expect(conversationCss).not.toContain(".conv-hub__attach-sheet");
+    const inboxCss = readSource("styles/rovexo/inbox-hub-v1.css");
+    expect(inboxCss).not.toContain(".inbox-hub__notif-card");
   });
 
   it("locks legacy notification route and Messages Transaction Hub entry", () => {
     const messagesHub = readSource("app/messages/page.tsx");
     const messagesMenu = readSource("lib/account-center/messages-menu.ts");
-    expect(messagesHub).toContain("MessagesHubPage");
-    expect(messagesHub).not.toContain("redirect(");
+    expect(messagesHub).toContain("INBOX_ROUTES.messagesTab");
+    expect(messagesHub).toContain("redirect(");
     expect(messagesMenu).toContain("Transaction hub.");
     expect(messagesMenu).toContain("buildMessagesMenuSections");
     expect(readSource("app/messages/[id]/page.tsx")).toContain("INBOX_ROUTES.conversation");
@@ -125,6 +132,9 @@ describe("Inbox Hub v1.1 — UI LOCK", () => {
     expect(hub).toContain("matchingOrders.length === 1");
     expect(hub).toContain("subscribeConversationRealtime");
     expect(hub).not.toContain("signalTyping");
+    expect(hub).not.toContain("uploadListingImage");
+    expect(hub).not.toContain("ShareListingSheet");
+    expect(hub).not.toContain("conv-hub__preview");
     expect(hub).toContain("refreshBadges");
     expect(readSource("app/api/offers/[id]/route.ts")).toContain("accept");
     expect(readSource("lib/inbox/conversation-realtime.ts")).toContain("ConversationRealtimeEvent");

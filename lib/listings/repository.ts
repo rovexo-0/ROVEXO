@@ -12,6 +12,7 @@ import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { resolveTransactionModeMapForCategoryIds } from "@/lib/transaction-mode/server";
 import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
+import { purgeListingNotifications } from "@/lib/listings/purge-listing-notifications";
 import type {
   CreateListingInput,
   ListingFilter,
@@ -651,12 +652,12 @@ type ListingDeletionTarget = {
  * used by both the seller "Delete" action and the Super Admin bulk tool.
  *
  * The database enforces `ON DELETE CASCADE` on all product-referencing tables
- * (product_images, cart_items, saved_items, recently_viewed, offers, bids,
- * reviews, listing_promotions, promotion_analytics_events, …) and
- * `ON DELETE SET NULL` on order history links (order_items, conversations,
+ * (product_images, cart_items, saved_items, recently_viewed, offers,
+ * listing_promotions, promotion_analytics_events, conversations, …) and
+ * `ON DELETE SET NULL` on order history links (order_items, reviews,
  * moderation_queue), so a single hard delete of the product row removes all
- * child rows with zero orphans. We additionally purge storage objects and any
- * notifications that deep-link to the listing.
+ * live child rows with zero orphans. We additionally purge storage objects and
+ * any notifications that deep-link to the listing.
  *
  * The delete runs through the service-role client so the FK cascade can remove
  * rows owned by other users (e.g. buyers' cart/saved entries) regardless of RLS.
@@ -669,7 +670,7 @@ async function purgeListingRecord(target: ListingDeletionTarget): Promise<boolea
   await deleteStorageFolder(`${target.sellerId}/${target.id}`);
 
   // Purge notifications that deep-link to this listing (no product_id column).
-  await admin.from("notifications").delete().like("href", `%/listing/${target.slug}%`);
+  await purgeListingNotifications(admin, { id: target.id, slug: target.slug });
 
   // Hard delete the product row — cascades all child records atomically.
   const { error } = await admin.from("products").delete().eq("id", target.id);

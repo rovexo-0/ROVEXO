@@ -21,9 +21,10 @@
   align-items: center;
   gap: 12px;
   height: 64px;
-  max-width: 80rem;
-  margin-inline: auto;
-  padding-inline: 32px;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+  padding-inline: var(--rx-phone-inset-x, 16px);
   box-sizing: border-box;
 }
 
@@ -253,9 +254,9 @@
 .rx-h2__search-row {
   box-sizing: border-box;
   width: 100%;
-  max-width: 80rem;
-  margin-inline: auto;
-  padding: 0 12px 8px;
+  max-width: 100%;
+  margin-inline: 0;
+  padding: 0 var(--rx-phone-inset-x, 16px) 8px;
 }
 
 .rx-h2-search--homepage {

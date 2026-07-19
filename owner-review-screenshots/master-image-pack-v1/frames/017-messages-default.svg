@@ -5,7 +5,7 @@
   <line x1="0" y1="64" x2="390" y2="64" stroke="#0f172a14"/>
   <text x="24" y="40" font-family="system-ui,sans-serif" font-size="22" fill="#64748b">‹</text>
   <text x="195" y="40" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="#111111" text-anchor="middle">Messages</text>
-  <text x="16" y="88" font-family="system-ui,sans-serif" font-size="13" fill="#64748b">Transaction hub.</text>
+  <text x="16" y="88" font-family="system-ui,sans-serif" font-size="13" fill="#64748b">/messages → /inbox (Transaction hub)</text>
   <rect x="16" y="112" width="358" height="448" rx="20" fill="#ffffff" stroke="#0f172a14"/>
   
   <line x1="16" y1="168" x2="374" y2="168" stroke="#0f172a14"/>

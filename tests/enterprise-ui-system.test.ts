@@ -51,15 +51,68 @@ describe("Enterprise UI system — design lock", () => {
 
   it("uses Master Menu row density in mobile hub cards", () => {
     const card = readFileSync(
-      join(process.cwd(), "features/mobile-ui/components/MobilePremiumCard.tsx"),
+      join(process.cwd(), "features/mobile-ui/components/MobileHubCard.tsx"),
+      "utf8",
+    );
+    const dashboardIcon = readFileSync(
+      join(process.cwd(), "components/icons/DashboardIcon3D.tsx"),
       "utf8",
     );
     expect(card).toContain("cds-menu-row");
     expect(card).toContain("DashboardIcon3D");
     expect(card).toContain("min-h-[56px]");
     expect(card).not.toContain("rx-dash-tile__body");
+    expect(dashboardIcon).toContain("RvxLineIcons");
+    expect(dashboardIcon).not.toContain(".webp");
+    expect(dashboardIcon).not.toContain(".png");
+    expect(dashboardIcon).not.toContain("<picture");
   });
 
+});
+
+describe("Enterprise UI system — Absolute Final icon freeze", () => {
+  const legacyWrappers = [
+    "components/icons/Fluency3DIcon.tsx",
+    "components/icons/DashboardIcon3D.tsx",
+    "components/icons/BottomNavIcon3D.tsx",
+    "components/icons/PremiumIcon.tsx",
+    "components/icons/PremiumNavIcon.tsx",
+    "components/icons/PremiumAccountIcon.tsx",
+  ] as const;
+
+  it("legacy icon wrappers render line icons only — no 3D picture assets", () => {
+    for (const rel of legacyWrappers) {
+      const source = readFileSync(join(process.cwd(), rel), "utf8");
+      expect(source).not.toContain("getFluency3DAssetPath");
+      expect(source).not.toContain("getAccountIconPng");
+      expect(source).not.toContain("getAccountIconWebp");
+      expect(source).not.toContain("/icons/premium/");
+      expect(source).not.toContain("/icons/fluency-3d/");
+      expect(source).not.toContain("<picture");
+      expect(source).not.toMatch(/\.webp|\.png/);
+    }
+  });
+
+  it("mobile-ui hub folder uses RvxLineIcons — not fluency-3d registry assets", () => {
+    const hubIcon = readFileSync(
+      join(process.cwd(), "features/mobile-ui/components/MobileHubFolderIcon.tsx"),
+      "utf8",
+    );
+    expect(hubIcon).toContain("RvxLineIcons");
+    expect(hubIcon).not.toContain("fluency-3d-registry");
+    expect(hubIcon).not.toContain("Fluency3DIcon");
+    expect(hubIcon).not.toMatch(/\.webp|\.png/);
+  });
+
+  it("dashboard header uses RvxLineIcons directly", () => {
+    const header = readFileSync(
+      join(process.cwd(), "features/dashboard/components/DashboardHeader.tsx"),
+      "utf8",
+    );
+    expect(header).toContain("RvxLineIcons");
+    expect(header).not.toContain("DashboardIcon3D");
+    expect(header).not.toMatch(/\.webp|\.png/);
+  });
 });
 
 describe("Enterprise UI system — header", () => {

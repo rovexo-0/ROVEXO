@@ -56,6 +56,18 @@ const baseURL = localBaseURL;
 const useManagedWebServer = process.env.PLAYWRIGHT_SKIP_WEBSERVER !== "1";
 const isCI = Boolean(process.env.CI);
 
+const resolvedServiceRole =
+  process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
+  process.env.SUPABASE_SECRET_KEY?.trim() ||
+  "";
+const usableServiceRole =
+  resolvedServiceRole &&
+  resolvedServiceRole !== "placeholder" &&
+  !resolvedServiceRole.endsWith("_placeholder") &&
+  resolvedServiceRole !== "[SENSITIVE]"
+    ? resolvedServiceRole
+    : "";
+
 const webServerEnvObj: Record<string, string> = {
   NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "G-RNEMD5BT0S",
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://placeholder.supabase.co",
@@ -63,8 +75,8 @@ const webServerEnvObj: Record<string, string> = {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
     process.env.SUPABASE_ANON_KEY ??
     "placeholder",
-  SUPABASE_SERVICE_ROLE_KEY:
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY ?? "placeholder",
+  // Never inject a fake service-role key — placeholder causes Invalid API key crashes.
+  ...(usableServiceRole ? { SUPABASE_SERVICE_ROLE_KEY: usableServiceRole } : {}),
   // Always align app URL with the Playwright-managed server port (do not inherit .env.local).
   NEXT_PUBLIC_APP_URL: localBaseURL,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? "sk_test_placeholder",
@@ -81,6 +93,7 @@ const webServerEnvObj: Record<string, string> = {
   ROVEXO_VIRTUAL_WALLET: "1",
   SENDCLOUD_SANDBOX: "1",
   PLAYWRIGHT_E2E: "1",
+  NEXT_PUBLIC_ROVEXO_HOMEPAGE_DEMO: "1",
   ROVEXO_HOMEPAGE_DEMO: "1",
   NODE_ENV: process.env.PLAYWRIGHT_DEV_SERVER === "1" ? "development" : "production",
 };
@@ -105,6 +118,8 @@ export default defineConfig({
     baseURL,
     // Prevent stale navigate HTML from public/sw.js during layout E2E.
     serviceWorkers: "block",
+    // Auth/login entrance animations start at opacity 0 — axe would fail mid-animation.
+    reducedMotion: "reduce",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     // Vercel AL2023 + Sparticuz Chromium: Playwright ffmpeg is not reliable in the

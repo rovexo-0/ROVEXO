@@ -4,7 +4,7 @@ import { requireApiSuperAdmin } from "@/lib/auth/session";
 import { auditSuperAdminAction } from "@/lib/super-admin/audit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { deleteAllListingsAsAdmin } from "@/lib/listings/repository";
-import { revalidateMarketplaceListings } from "@/lib/listings/revalidate-published-listing";
+import { revalidateDeletedListing } from "@/lib/listings/revalidate-published-listing";
 
 export const dynamic = "force-dynamic";
 
@@ -51,8 +51,8 @@ export async function POST(request: Request) {
 
   const report = await deleteAllListingsAsAdmin();
 
-  // Rebuild Homepage, Search, Categories and Seller Stores.
-  revalidateMarketplaceListings();
+  // Rebuild Homepage, Search, Categories, Seller Stores, and user-private surfaces.
+  revalidateDeletedListing();
 
   return NextResponse.json({
     ok: true,

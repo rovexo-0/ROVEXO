@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { tryCreateAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { Tables } from "@/lib/supabase/types/database";
 import { searchListings as searchListingsRepo } from "@/lib/listings/repository";
@@ -130,43 +130,51 @@ async function enrichProductsWithTrust(products: Product[]): Promise<Product[]> 
     return products;
   }
 
-  const admin = createAdminClient();
-  const { data } = await admin
-    .from("trust_scores")
-    .select("user_id, score, tier, factors_snapshot")
-    .in("user_id", sellerIds);
+  try {
+    const { tryCreateAdminClient } = await import("@/lib/supabase/admin");
+    const admin = tryCreateAdminClient();
+    if (!admin) {
+      return products;
+    }
+    const { data } = await admin
+      .from("trust_scores")
+      .select("user_id, score, tier, factors_snapshot")
+      .in("user_id", sellerIds);
 
-  const trustBySeller = new Map(
-    (data ?? []).map((row) => [
-      String(row.user_id),
-      {
-        score: Number(row.score),
-        tier: String(row.tier ?? "silver"),
-        responseRate:
-          row.factors_snapshot &&
-          typeof row.factors_snapshot === "object" &&
-          "responseRate" in row.factors_snapshot
-            ? Number((row.factors_snapshot as { responseRate?: number }).responseRate ?? 0)
-            : null,
-      },
-    ]),
-  );
+    const trustBySeller = new Map(
+      (data ?? []).map((row) => [
+        String(row.user_id),
+        {
+          score: Number(row.score),
+          tier: String(row.tier ?? "silver"),
+          responseRate:
+            row.factors_snapshot &&
+            typeof row.factors_snapshot === "object" &&
+            "responseRate" in row.factors_snapshot
+              ? Number((row.factors_snapshot as { responseRate?: number }).responseRate ?? 0)
+              : null,
+        },
+      ]),
+    );
 
-  return products.map((product) => {
-    if (!product.sellerId) return product;
-    const trust = trustBySeller.get(product.sellerId);
-    if (!trust) return product;
+    return products.map((product) => {
+      if (!product.sellerId) return product;
+      const trust = trustBySeller.get(product.sellerId);
+      if (!trust) return product;
 
-    return {
-      ...product,
-      sellerTrustScore: trust.score,
-      sellerTier: trust.tier,
-      sellerResponseRate:
-        trust.responseRate && trust.responseRate > 0
-          ? Math.round(trust.responseRate)
-          : product.sellerResponseRate,
-    };
-  });
+      return {
+        ...product,
+        sellerTrustScore: trust.score,
+        sellerTier: trust.tier,
+        sellerResponseRate:
+          trust.responseRate && trust.responseRate > 0
+            ? Math.round(trust.responseRate)
+            : product.sellerResponseRate,
+      };
+    });
+  } catch {
+    return products;
+  }
 }
 
 function productAvailability(
@@ -464,17 +472,24 @@ export const getProductBySlug = cache(async function getProductBySlug(
 
   const detail = mapProductDetail(row, mode);
 
-  const admin = createAdminClient();
-  const { data: sellerProfile } = await admin
-    .from("seller_profiles")
-    .select("follower_count")
-    .eq("id", row.seller_id)
-    .maybeSingle();
+  try {
+    const admin = tryCreateAdminClient();
+    if (!admin) {
+      return detail;
+    }
+    const { data: sellerProfile } = await admin
+      .from("seller_profiles")
+      .select("follower_count")
+      .eq("id", row.seller_id)
+      .maybeSingle();
 
-  return {
-    ...detail,
-    sellerFollowerCount: sellerProfile?.follower_count ?? 0,
-  };
+    return {
+      ...detail,
+      sellerFollowerCount: sellerProfile?.follower_count ?? 0,
+    };
+  } catch {
+    return detail;
+  }
 });
 
 export async function getSimilarProducts(slug: string, limit = 8): Promise<Product[]> {

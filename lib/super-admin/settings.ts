@@ -1,4 +1,5 @@
 import { createServiceRoleClient } from "@/lib/supabase/admin";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/env";
 import { isDatabasePermissionError } from "@/lib/supabase/database-errors";
 import type { Json } from "@/lib/supabase/types/database";
 import { toAuditLogMetadata } from "@/lib/audit/metadata";
@@ -42,36 +43,40 @@ function getServiceRoleClient() {
 }
 
 export async function getPlatformSetting<T>(key: string, fallback: T | (() => T)): Promise<T> {
-  let admin;
+  // Fail soft — never throw into SSR when service role is absent (demo_session / Playwright).
   try {
-    admin = getServiceRoleClient();
+    if (!isSupabaseAdminConfigured()) {
+      return resolvePlatformSettingFallback(fallback);
+    }
+
+    const admin = getServiceRoleClient();
+    const { data, error } = await admin.from("platform_settings").select("value").eq("key", key).maybeSingle();
+
+    if (error) {
+      if (isDatabasePermissionError(error) || process.env.NODE_ENV === "test") {
+        return resolvePlatformSettingFallback(fallback);
+      }
+      // Prefer fallback over crashing consumer surfaces.
+      return resolvePlatformSettingFallback(fallback);
+    }
+
+    if (!data?.value) return resolvePlatformSettingFallback(fallback);
+    if (Array.isArray(data.value)) return data.value as T;
+    if (typeof data.value === "object" && data.value !== null) {
+      const stored = data.value as Record<string, unknown>;
+      if (isSelfContainedConfigDocument(stored)) {
+        return stored as T;
+      }
+      const fallbackValue = resolvePlatformSettingFallback(fallback);
+      if (!Array.isArray(fallbackValue) && typeof fallbackValue === "object" && fallbackValue !== null) {
+        return { ...fallbackValue, ...stored } as T;
+      }
+      return stored as T;
+    }
+    return data.value as T;
   } catch {
     return resolvePlatformSettingFallback(fallback);
   }
-
-  const { data, error } = await admin.from("platform_settings").select("value").eq("key", key).maybeSingle();
-
-  if (error) {
-    if (isDatabasePermissionError(error) || process.env.NODE_ENV === "test") {
-      return resolvePlatformSettingFallback(fallback);
-    }
-    throw new Error(error.message);
-  }
-
-  if (!data?.value) return resolvePlatformSettingFallback(fallback);
-  if (Array.isArray(data.value)) return data.value as T;
-  if (typeof data.value === "object" && data.value !== null) {
-    const stored = data.value as Record<string, unknown>;
-    if (isSelfContainedConfigDocument(stored)) {
-      return stored as T;
-    }
-    const fallbackValue = resolvePlatformSettingFallback(fallback);
-    if (!Array.isArray(fallbackValue) && typeof fallbackValue === "object" && fallbackValue !== null) {
-      return { ...fallbackValue, ...stored } as T;
-    }
-    return stored as T;
-  }
-  return data.value as T;
 }
 
 export async function listPlatformSettings(): Promise<Record<string, Json>> {

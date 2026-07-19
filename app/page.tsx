@@ -17,7 +17,7 @@ import { getAppUrl } from "@/lib/supabase/env";
 import type { ProductsPage } from "@/lib/products/types";
 import type { ShowcaseSellerSection } from "@/lib/homepage/showcase-sellers";
 import { getAuthContext, getUserRole } from "@/lib/auth/session";
-import { getPlatformVisualConfig } from "@/lib/platform-visual/reader";
+import { getPlatformVisualConfig, getDefaultPlatformVisualConfig } from "@/lib/platform-visual/reader";
 import { HP_CANONICAL_BOTTOM_NAV } from "@/lib/homepage/canonical-nav";
 
 const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
@@ -74,7 +74,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   }
 
   const [visualConfig, featuredPage, feedResult, showcaseFromDb] = await Promise.all([
-    getPlatformVisualConfig({ mode: previewMode }),
+    getPlatformVisualConfig({ mode: previewMode }).catch(() => getDefaultPlatformVisualConfig()),
     fetchProducts("recommended", 1).catch(() => emptyPage),
     fetchHomepageFeed(1).catch(() => emptyPage),
     fetchShowcaseSellerSections().catch(() => [] as ShowcaseSellerSection[]),

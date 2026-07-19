@@ -270,18 +270,18 @@
   color: var(--ds-color-accent);
 }
 
-/* Trust panel — premium glass */
+/* Trust panel — solid surface (Absolute Final) */
 .account-center-trust {
   position: relative;
   z-index: 1;
   width: 148px;
   min-height: 160px;
   border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: var(--ac-shadow-soft);
+  border: 1px solid var(--ds-color-border);
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
   padding: 14px;
   display: flex;
   flex-direction: column;
@@ -361,11 +361,11 @@
   min-height: 80px;
   padding: 14px 8px;
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: var(--ac-card-border);
-  box-shadow: var(--ac-shadow-soft);
+  box-shadow: none;
 }
 
 .account-center-stats__item {

@@ -1,9 +1,14 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/env";
 import { getProfileCompletionStatus } from "@/lib/account/profile-completion";
 import { isFullDemoEmail } from "@/lib/full-demo/canonical";
 
 /** Syncs profiles.verified from automatic completion rules (no manual verification). */
 export async function syncAutoVerifiedProfile(userId: string): Promise<void> {
+  if (!isSupabaseAdminConfigured()) {
+    return;
+  }
+
   const admin = createAdminClient();
 
   // Permanent Full Demo Accounts must always remain verified (certification contract).

@@ -1,5 +1,5 @@
 import type { DashboardIconType } from "@/components/icons/DashboardIcon3D";
-import type { BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
+import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
 import { RovexoIcons } from "@/lib/icons/icons";
 import type { RovexoIconRef } from "@/lib/icons/types";
 

@@ -17,7 +17,7 @@ import {
 import { readReturnToParam } from "@/lib/navigation/return-to";
 import { addressInputSchema, type AddressInput } from "@/lib/account/schemas";
 import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
-import { SUPPORTED_COUNTRIES } from "@/lib/account/countries";
+import { ACTIVE_SUPPORTED_COUNTRIES } from "@/lib/account/countries";
 import type { UserAddress } from "@/lib/addresses/repository";
 import { cn } from "@/lib/cn";
 
@@ -286,7 +286,7 @@ export function AddressBookPage({ initialType = "shipping" }: AddressBookPagePro
                   id="country"
                   label="Country"
                   kind="country"
-                  options={SUPPORTED_COUNTRIES.map((country) => ({
+                  options={ACTIVE_SUPPORTED_COUNTRIES.map((country) => ({
                     value: country.name,
                     label: country.name,
                   }))}

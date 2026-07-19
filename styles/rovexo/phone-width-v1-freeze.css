@@ -67,6 +67,7 @@
 .max-w-5xl,
 .max-w-6xl,
 .max-w-7xl,
+.max-w-\[22rem\],
 .max-w-\[440px\],
 .max-w-\[480px\],
 .max-w-\[640px\],
@@ -74,6 +75,33 @@
 .max-w-\[860px\],
 .max-w-\[960px\] {
   max-width: 100% !important;
+}
+
+/* Auth — width only (structure frozen in auth-v1.css / LoginScreen) */
+.auth-login--premium,
+.auth-register--premium,
+.auth-layout--form main,
+.auth-container,
+.auth-header {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+}
+
+/* Header / homepage — full phone width */
+.homepage-header__inner,
+.rx-h2__inner,
+.rx-h2__search-row {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+  padding-inline: var(--rx-phone-inset-x) !important;
+}
+
+[data-universal-ui="v1.1"] .rvx-home {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
 }
 
 /* Floating UI may keep a readable sheet width */
@@ -121,10 +149,21 @@ body *,
 .conv-hub *,
 .cart-v1,
 .ckt-v1,
+.ckt-v1 *,
+.pd-v1,
+.pd-v1 *,
 .orders-page,
 .srch-results,
 .cds-layout,
-.cds-layout * {
+.cds-layout *,
+.auth-login--premium,
+.auth-login--premium *,
+.auth-register--premium,
+.auth-register--premium *,
+.rx-h2,
+.rx-h2 *,
+.homepage-header,
+.homepage-header * {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
@@ -158,8 +197,7 @@ body *,
 }
 
 .wallet-v2 [class*="sheet"],
-.promo-v1-modal,
-.conv-hub__attach-panel {
+.promo-v1-modal {
   width: 100% !important;
   max-width: 100% !important;
 }
@@ -196,4 +234,30 @@ body *,
 
 .ckt-v1 {
   --ckt-max: 100% !important;
+}
+
+.ckt-v1__cta {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.pd-v1__action-bar {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.cds-confirm-dialog-backdrop {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+
+/* Absolute Final — solid CTAs on consumer hubs (no premium gradients) */
+.account-canonical .ac-canonical__avatar,
+.account-center .ac-canonical__avatar,
+.cds-menu-row--active,
+.hp-canonical [class*="gradient"],
+.rx-home [class*="gradient"] {
+  background-image: none !important;
 }

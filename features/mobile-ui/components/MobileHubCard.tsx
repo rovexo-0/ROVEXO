@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import type { MobileBadgeKey, MobileBadgeTone } from "@/lib/mobile-ui/types";
 
-export type MobilePremiumCardProps = {
+export type MobileHubCardProps = {
   href: string;
   title?: string;
   /** @deprecated use title */
@@ -23,7 +23,7 @@ export type MobilePremiumCardProps = {
 };
 
 /** Absolute Final: Master Menu row density — not a premium tile. */
-export function MobilePremiumCard({
+export function MobileHubCard({
   href,
   title,
   label,
@@ -34,7 +34,7 @@ export function MobilePremiumCard({
   description,
   subtitle,
   onClick,
-}: MobilePremiumCardProps) {
+}: MobileHubCardProps) {
   const heading = title ?? label ?? "";
   const detail = description ?? subtitle;
   const badgeValue = badge ?? badgeCount;

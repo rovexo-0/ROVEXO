@@ -34,9 +34,16 @@ for (const viewport of RESPONSIVE_VIEWPORTS) {
 
     await expect(page.locator(CATEGORY_RAIL_SELECTOR)).toBeVisible();
 
-    const headerBox = await page.locator(HEADER_SELECTOR).first().boundingBox();
-    expect(headerBox?.width).toBeGreaterThan(0);
-    expect(headerBox?.height).toBeGreaterThan(0);
+    const header = page.locator(HEADER_SELECTOR).first();
+    await expect(header).toBeVisible({ timeout: 15_000 });
+    await expect
+      .poll(async () => {
+        const box = await header.boundingBox();
+        return box?.width ?? 0;
+      }, { timeout: 10_000 })
+      .toBeGreaterThan(0);
+    const headerBox = await header.boundingBox();
+    expect(headerBox?.height ?? 0).toBeGreaterThan(0);
 
     const overflow = await page.evaluate(() => {
       const root = document.documentElement;

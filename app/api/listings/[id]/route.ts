@@ -7,7 +7,10 @@ import {
   getSellerListingById,
   updateSellerListing,
 } from "@/lib/listings/repository";
-import { revalidatePublishedListing } from "@/lib/listings/revalidate-published-listing";
+import {
+  revalidateDeletedListing,
+  revalidatePublishedListing,
+} from "@/lib/listings/revalidate-published-listing";
 import { syncProfileVerifiedOnPublish } from "@/lib/profile/sync-verified";
 import { clampInventory, isInventoryValid } from "@/lib/sell/inventory";
 import { sanitizeListingLocationCity } from "@/lib/sell/listing-location";
@@ -135,7 +138,9 @@ export async function DELETE(_request: Request, context: RouteContext) {
   }
 
   if (existing?.slug) {
-    revalidatePublishedListing(existing.slug);
+    revalidateDeletedListing(existing.slug);
+  } else {
+    revalidateDeletedListing();
   }
 
   return NextResponse.json({ success: true });

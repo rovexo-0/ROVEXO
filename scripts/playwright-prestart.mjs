@@ -19,6 +19,23 @@ loadDotEnvFiles();
 const port = process.argv[2] ?? process.env.PLAYWRIGHT_PORT ?? "13025";
 const nextBin = path.join(process.cwd(), "node_modules", "next", "dist", "bin", "next");
 
+function isUsableServiceRole(value) {
+  const v = (value ?? "").trim();
+  if (!v) return false;
+  if (v === "placeholder" || v.endsWith("_placeholder") || v === "[SENSITIVE]" || v.startsWith("[SEN")) {
+    return false;
+  }
+  return true;
+}
+
+// Strip unusable service-role placeholders inherited from shell/CI.
+if (!isUsableServiceRole(process.env.SUPABASE_SERVICE_ROLE_KEY)) {
+  delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+}
+if (!isUsableServiceRole(process.env.SUPABASE_SECRET_KEY)) {
+  delete process.env.SUPABASE_SECRET_KEY;
+}
+
 function assertPortFree(listenPort) {
   return new Promise((resolve, reject) => {
     const tester = net
@@ -46,8 +63,12 @@ const webServerEnv = {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
     process.env.SUPABASE_ANON_KEY ??
     "placeholder",
-  SUPABASE_SERVICE_ROLE_KEY:
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY ?? "placeholder",
+  ...(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY
+    ? {
+        SUPABASE_SERVICE_ROLE_KEY:
+          process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY,
+      }
+    : {}),
   NEXT_PUBLIC_APP_URL: `http://127.0.0.1:${port}`,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? "sk_test_placeholder",
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET ?? "whsec_placeholder",
@@ -66,6 +87,7 @@ const webServerEnv = {
   ROVEXO_VIRTUAL_WALLET: "1",
   PLAYWRIGHT_E2E: "1",
   ROVEXO_HOMEPAGE_DEMO: "1",
+  NEXT_PUBLIC_ROVEXO_HOMEPAGE_DEMO: "1",
   NODE_ENV: "production",
 };
 

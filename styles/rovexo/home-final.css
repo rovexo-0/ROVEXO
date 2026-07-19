@@ -108,7 +108,7 @@ body div.flex.min-h-full.flex-1.flex-col:has(.rx-page-home) > footer {
   padding: 14px 16px;
   border-radius: 24px;
   border: 1px solid rgb(147 51 234 / 0.16);
-  background: linear-gradient(135deg, rgb(147 51 234 / 0.08), rgb(147 51 234 / 0.03));
+  background: rgb(147 51 234 / 0.06);
   box-shadow: 0 8px 24px rgb(15 23 42 / 0.08);
 }
 

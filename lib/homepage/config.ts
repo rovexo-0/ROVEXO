@@ -1,14 +1,19 @@
 export type HomepageMode = "production" | "closed_beta" | "demo";
 
 export function resolveHomepageMode(): HomepageMode {
-  if (
-    process.env.ROVEXO_HOMEPAGE_CLOSED_BETA === "1" ||
-    process.env.NEXT_PUBLIC_ROVEXO_HOMEPAGE_CLOSED_BETA === "1"
-  ) {
+  // Bracket access — Next must not bake these to undefined at build time.
+  const closedBeta =
+    process.env["ROVEXO_HOMEPAGE_CLOSED_BETA"] === "1" ||
+    process.env["NEXT_PUBLIC_ROVEXO_HOMEPAGE_CLOSED_BETA"] === "1";
+  if (closedBeta) {
     return "closed_beta";
   }
 
-  if (process.env.ROVEXO_HOMEPAGE_DEMO === "1" || process.env.NEXT_PUBLIC_ROVEXO_HOMEPAGE_DEMO === "1") {
+  const demo =
+    process.env["ROVEXO_HOMEPAGE_DEMO"] === "1" ||
+    process.env["NEXT_PUBLIC_ROVEXO_HOMEPAGE_DEMO"] === "1" ||
+    process.env["PLAYWRIGHT_E2E"] === "1";
+  if (demo) {
     return "demo";
   }
 

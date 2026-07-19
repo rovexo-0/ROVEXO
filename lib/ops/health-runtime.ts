@@ -1,9 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 import { CRON_STALE_AFTER_MS } from "@/lib/cron/constants";
-import { getSupabaseServiceRoleKey, getSupabaseUrl } from "@/lib/supabase/env";
+import { isSupabaseAdminConfigured, getSupabaseServiceRoleKey, getSupabaseUrl } from "@/lib/supabase/env";
 import type { HealthCheckResult, HealthStatus, PlatformHealthReport } from "@/lib/ops/health-types";
 
 function getHealthClient() {
+  if (!isSupabaseAdminConfigured()) {
+    throw new Error("Supabase admin not configured for health checks");
+  }
   return createClient(getSupabaseUrl(), getSupabaseServiceRoleKey(), {
     auth: { autoRefreshToken: false, persistSession: false },
   });

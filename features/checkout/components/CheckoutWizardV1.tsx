@@ -151,7 +151,7 @@ export function CheckoutWizardV1({
 
           <section className="ckt-v1__section" aria-labelledby="ckt-shipping-title">
             <h2 id="ckt-shipping-title" className="ckt-v1__section-title">
-              Shipping
+              Delivery
             </h2>
             <div className="ckt-v1__card ckt-v1__card--pad">
               {addressComplete ? (
@@ -181,18 +181,27 @@ export function CheckoutWizardV1({
             </div>
           </section>
 
+          <section className="ckt-v1__section" aria-labelledby="ckt-payment-title">
+            <h2 id="ckt-payment-title" className="ckt-v1__section-title">
+              Payment
+            </h2>
+            <div className="ckt-v1__card ckt-v1__card--pad">
+              <p className="ckt-v1__review-value">{paymentLabel}</p>
+              <p className="ckt-v1__review-subvalue">
+                Managed in{" "}
+                <Link href="/wallet/payment-methods" className="ckt-v1__manage-payments-link">
+                  Wallet
+                </Link>
+                .
+              </p>
+            </div>
+          </section>
+
           <section className="ckt-v1__section" aria-labelledby="ckt-price-title">
             <h2 id="ckt-price-title" className="sr-only">
               Platform Fee and Total
             </h2>
             <CheckoutPriceSummary totals={totals} freeDelivery={Boolean(product.freeDelivery)} />
-            <p className="ckt-v1__manage-hint mt-ds-2">
-              Payment: {paymentLabel}. Managed in{" "}
-              <Link href="/wallet/payment-methods" className="ckt-v1__manage-payments-link">
-                Wallet
-              </Link>
-              .
-            </p>
           </section>
         </div>
       </ScrollContainer>

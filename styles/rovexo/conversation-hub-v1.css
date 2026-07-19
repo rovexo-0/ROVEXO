@@ -612,19 +612,6 @@
   border-bottom-left-radius: 8px;
 }
 
-.conv-hub__bubble-photo {
-  position: relative;
-  display: block;
-  width: 180px;
-  height: 140px;
-  padding: 0;
-  border: none;
-  border-radius: 12px;
-  overflow: hidden;
-  background: transparent;
-  cursor: zoom-in;
-}
-
 .conv-hub__msg-meta {
   display: inline-flex;
   align-items: center;
@@ -636,15 +623,6 @@
 
 .conv-hub__msg--out .conv-hub__msg-meta {
   justify-content: flex-end;
-}
-
-.conv-hub__msg-meta--read {
-  color: var(--conv-purple);
-}
-
-.conv-hub__msg-meta svg {
-  width: 14px;
-  height: 14px;
 }
 
 /* System cards — compact, no large card chrome */
@@ -872,16 +850,6 @@
   color: var(--conv-purple);
 }
 
-.conv-hub__typing {
-  align-self: flex-start;
-  padding: 6px 10px;
-  border-radius: 14px;
-  background: #f3f4f6;
-  color: var(--conv-muted);
-  font-size: var(--conv-fs-status);
-  font-weight: 500;
-}
-
 .conv-hub__timeline-empty {
   display: flex;
   flex-direction: column;
@@ -901,28 +869,6 @@
   margin: 0;
   font-size: var(--conv-fs-secondary);
   color: var(--conv-muted);
-}
-
-.conv-hub__attachments {
-  display: flex;
-  gap: var(--conv-gap);
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
-
-.conv-hub__attachment {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 12px;
-  background: #fafafc;
-  border: 1px solid var(--conv-border);
-  color: var(--conv-text);
-  font-size: var(--conv-fs-status);
-  font-weight: 500;
-  text-decoration: none;
 }
 
 /* Footer + taller focus-mode message bar (PO — Vinted comfort) */
@@ -982,15 +928,6 @@
   max-height: var(--conv-composer-h);
 }
 
-.conv-hub__composer-files {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
 .conv-hub__composer .conv-hub__icon-btn {
   flex: 0 0 22px;
   width: 22px;
@@ -998,15 +935,6 @@
   min-width: 22px;
   padding: 0;
   border-radius: 999px;
-}
-
-.conv-hub__icon-btn--attach {
-  opacity: 0.72;
-}
-
-.conv-hub__icon-btn--attach svg {
-  width: 13px;
-  height: 13px;
 }
 
 .conv-hub__composer .conv-hub__icon-btn svg {
@@ -1191,72 +1119,6 @@
   font-size: 13px;
 }
 
-/* Attachment action sheet — single (+) SSOT */
-.conv-hub__attach-sheet {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.conv-hub__attach-backdrop {
-  position: absolute;
-  inset: 0;
-  border: none;
-  background: rgb(15 23 42 / 0.45);
-  cursor: pointer;
-}
-
-.conv-hub__attach-panel {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  margin: 0 12px calc(12px + env(safe-area-inset-bottom, 0px));
-  padding: 8px 0;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 12px 40px rgb(15 23 42 / 0.18);
-  overflow: hidden;
-}
-
-.conv-hub__attach-title {
-  margin: 0;
-  padding: 12px 16px 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--conv-muted);
-  text-align: center;
-}
-
-.conv-hub__attach-item {
-  display: block;
-  width: 100%;
-  min-height: var(--conv-btn-h);
-  padding: 12px 14px;
-  border: none;
-  border-top: 1px solid var(--conv-border);
-  background: #ffffff;
-  color: var(--conv-text);
-  font-size: var(--conv-fs-button);
-  font-weight: 500;
-  text-align: center;
-  cursor: pointer;
-}
-
-.conv-hub__attach-item:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.conv-hub__attach-item--cancel {
-  margin-top: 6px;
-  border-top: 8px solid #f3f4f6;
-  font-weight: 700;
-  color: var(--conv-purple);
-}
-
 .conv-hub__warning {
   margin-bottom: var(--conv-gap);
   padding: 8px 12px;
@@ -1367,49 +1229,6 @@
   border-radius: 12px;
   font: inherit;
   font-size: var(--conv-fs-message);
-}
-
-.conv-hub__msg-meta--delivered {
-  color: var(--conv-secondary);
-}
-
-.conv-hub__preview {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 24px;
-  background: rgb(15 23 42 / 0.72);
-}
-
-.conv-hub__preview-frame {
-  position: relative;
-  width: min(100%, 520px);
-  height: min(70vh, 520px);
-  border-radius: var(--conv-radius-card);
-  overflow: hidden;
-  background: #111;
-}
-
-.conv-hub__preview-close,
-.conv-hub__preview-download {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: var(--conv-btn-h);
-  padding: 0 16px;
-  border-radius: var(--conv-radius-btn);
-  border: none;
-  background: #ffffff;
-  color: #111111;
-  font-size: var(--conv-fs-button);
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
 }
 
 .conv-hub__skel {

@@ -7,10 +7,8 @@ import {
   useRef,
   useState,
   type FormEvent,
-  type SVGProps,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { SafeImage } from "@/components/ui/SafeImage";
 import {
   BackLineIcon,
   ChevronRightLineIcon,
@@ -44,7 +42,6 @@ import { formatMessageTime } from "@/lib/messages/utils";
 import type { Order } from "@/lib/orders/types";
 import { formatListingPrice, formatListingPriceIncl } from "@/lib/listing-card/format";
 import { formatCurrency } from "@/lib/wallet/utils";
-import { uploadListingImage } from "@/lib/listings/upload-client";
 import { AccountIcon } from "@/components/account/AccountIcons";
 import "@/styles/rovexo/conversation-hub-v1.css";
 
@@ -54,55 +51,22 @@ type ConversationHubProps = {
 
 type LoadState = "ready" | "loading" | "error" | "offline";
 
-type IconProps = SVGProps<SVGSVGElement>;
-
 const HISTORY_PAGE = 40;
-
-function PlusLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <path d="M12 5v14M5 12h14" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function CameraLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <path
-        d="M4 8h3l1.5-2h7L17 8h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="14" r="3.5" />
-    </svg>
-  );
-}
 
 function MessageBubble({
   message,
   outgoing,
-  onOpenPhoto,
 }: {
   message: ChatMessage;
   outgoing: boolean;
-  onOpenPhoto: (url: string) => void;
 }) {
+  const content = message.kind === "photo" ? "Shared photo" : message.content;
+
   return (
     <div className={cn("conv-hub__msg", outgoing ? "conv-hub__msg--out" : "conv-hub__msg--in")}>
       <div>
         <div className={cn("conv-hub__bubble", outgoing ? "conv-hub__bubble--out" : "conv-hub__bubble--in")}>
-          {message.kind === "photo" ? (
-            <button
-              type="button"
-              className="conv-hub__bubble-photo"
-              onClick={() => onOpenPhoto(message.content)}
-              aria-label="Open photo"
-            >
-              <SafeImage src={message.content} alt="Shared photo" fill sizes="180px" />
-            </button>
-          ) : (
-            message.content
-          )}
+          {content}
         </div>
         <span className="conv-hub__msg-meta">
           <time dateTime={message.sentAt}>{formatMessageTime(message.sentAt)}</time>
@@ -146,12 +110,10 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   const [dispute, setDispute] = useState<ConversationDisputeView | null>(null);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loadState, setLoadState] = useState<LoadState>("ready");
   const [historyCount, setHistoryCount] = useState(HISTORY_PAGE);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [counterFor, setCounterFor] = useState<string | null>(null);
   const [counterAmount, setCounterAmount] = useState("");
   const [actionBusy, setActionBusy] = useState<string | null>(null);
@@ -166,8 +128,6 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   const threadEndRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const galleryInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [feeSheetOpen, setFeeSheetOpen] = useState(false);
   const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
   const pullStartY = useRef<number | null>(null);
@@ -393,7 +353,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   }, [draft, resizeComposer]);
 
   const sendMessage = useCallback(
-    async (content: string, kind: "text" | "photo" | "emoji" = "text") => {
+    async (content: string) => {
       const trimmed = content.trim();
       if (!trimmed || sending || conversation.blocked) return;
 
@@ -403,7 +363,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       const optimistic: ChatMessage = {
         id: optimisticId,
         senderRole: view.viewerRole,
-        kind,
+        kind: "text",
         content: trimmed,
         sentAt: new Date().toISOString(),
         status: "sent",
@@ -413,7 +373,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       setConversation((current) => ({
         ...current,
         messages: [...current.messages, optimistic],
-        lastMessage: kind === "photo" ? "Photo" : trimmed,
+        lastMessage: trimmed,
         lastMessageAt: optimistic.sentAt,
       }));
 
@@ -421,7 +381,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
         const response = await fetch(`/api/messages/${conversation.id}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: trimmed, senderRole: view.viewerRole, kind }),
+          body: JSON.stringify({ content: trimmed, senderRole: view.viewerRole, kind: "text" }),
         });
         const payload = (await response.json()) as {
           conversation?: Conversation;
@@ -467,29 +427,10 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
     ],
   );
 
-  const handleSend = () => void sendMessage(draft, "text");
+  const handleSend = () => void sendMessage(draft);
 
   const handleDraftChange = (value: string) => {
     setDraft(value);
-  };
-
-  const handleUploadFiles = async (files: FileList | null) => {
-    const file = files?.[0];
-    if (!file || conversation.blocked) return;
-    setUploading(true);
-    try {
-      const uploaded = await uploadListingImage({ file, productId: conversation.product.id });
-      await sendMessage(uploaded.url, "photo");
-    } catch (error) {
-      pushToast({
-        title: error instanceof Error ? error.message : "Unable to upload photo.",
-        variant: "error",
-      });
-    } finally {
-      setUploading(false);
-      if (galleryInputRef.current) galleryInputRef.current.value = "";
-      if (cameraInputRef.current) cameraInputRef.current.value = "";
-    }
   };
 
   const patchOffer = async (offerId: string, action: "accept" | "decline" | "counter", amount?: number) => {
@@ -999,7 +940,6 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                     key={item.id}
                     message={item.message}
                     outgoing={item.message.senderRole === view.viewerRole}
-                    onOpenPhoto={setPreviewUrl}
                   />
                 );
               })
@@ -1074,24 +1014,6 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             }}
           >
             <div className="conv-hub__composer-row">
-              <button
-                type="button"
-                className="conv-hub__icon-btn"
-                aria-label="Take photo"
-                disabled={conversation.blocked || uploading}
-                onClick={() => cameraInputRef.current?.click()}
-              >
-                <CameraLineIcon />
-              </button>
-              <button
-                type="button"
-                className="conv-hub__icon-btn conv-hub__icon-btn--attach"
-                aria-label="Add photo"
-                disabled={conversation.blocked || uploading}
-                onClick={() => galleryInputRef.current?.click()}
-              >
-                <PlusLineIcon />
-              </button>
               <label className="sr-only" htmlFor="conv-hub-composer">
                 Message about this order
               </label>
@@ -1100,9 +1022,9 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 ref={textareaRef}
                 className="conv-hub__composer-field"
                 rows={1}
-                placeholder={uploading ? "Uploading…" : "Message about this order…"}
+                placeholder="Message about this order…"
                 value={draft}
-                disabled={conversation.blocked || sending || uploading}
+                disabled={conversation.blocked || sending}
                 onChange={(event) => handleDraftChange(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && !event.shiftKey) {
@@ -1115,46 +1037,13 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 type="submit"
                 className="conv-hub__send"
                 aria-label="Send message"
-                disabled={conversation.blocked || sending || uploading || !draft.trim()}
+                disabled={conversation.blocked || sending || !draft.trim()}
               >
                 SEND
               </button>
             </div>
-            <div className="conv-hub__composer-files" aria-hidden>
-              <input
-                ref={galleryInputRef}
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                tabIndex={-1}
-                onChange={(event) => void handleUploadFiles(event.target.files)}
-              />
-              <input
-                ref={cameraInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="sr-only"
-                tabIndex={-1}
-                onChange={(event) => void handleUploadFiles(event.target.files)}
-              />
-            </div>
           </form>
         </div>
-
-        {previewUrl ? (
-          <div className="conv-hub__preview" role="dialog" aria-modal="true" aria-label="Attachment preview">
-            <button type="button" className="conv-hub__preview-close" onClick={() => setPreviewUrl(null)}>
-              Close
-            </button>
-            <div className="conv-hub__preview-frame">
-              <SafeImage src={previewUrl} alt="Attachment preview" fill sizes="100vw" />
-            </div>
-            <a className="conv-hub__preview-download" href={previewUrl} download target="_blank" rel="noreferrer">
-              Download
-            </a>
-          </div>
-        ) : null}
 
         {paymentSuccess ? (
           <TransactionHubPaymentSuccess

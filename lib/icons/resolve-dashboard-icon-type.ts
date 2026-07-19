@@ -1,4 +1,4 @@
-import type { BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
+import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
 
 export type DashboardIconType =
   | BottomNavIconType

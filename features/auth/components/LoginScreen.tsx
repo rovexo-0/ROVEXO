@@ -141,7 +141,11 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
         <AuthFooter className="auth-login__footer">
           <p className="auth-login__register-prompt">
             {copy.footerPrefix}{" "}
-            <AuthLink href="/register" className="auth-login__register-cta">
+            <AuthLink
+              href="/register"
+              className="auth-login__register-cta"
+              style={{ color: "#4c1d95" }}
+            >
               {LOGIN_UI.createAccount}
             </AuthLink>
           </p>

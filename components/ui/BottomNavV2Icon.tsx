@@ -5,7 +5,7 @@ import {
   SearchLineIcon,
   UserLineIcon,
 } from "@/components/icons/RvxLineIcons";
-import type { BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
+import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
 import { cn } from "@/lib/cn";
 
 const ICON_CLASS = "h-5 w-5";

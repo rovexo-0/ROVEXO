@@ -2,7 +2,7 @@
 /**
  * Install / prepare Chromium for Playwright certification.
  *
- * Local: Playwright Chromium (+ optional system deps).
+ * Local: Playwright Chromium (+ optional system deps / workspace .local-chromium-libs).
  * Vercel: @sparticuz/chromium — Vercel Amazon Linux lacks libnspr4.so for
  * Playwright's Ubuntu fallback browser, which breaks E2E at launch.
  */
@@ -15,6 +15,8 @@ export const PLAYWRIGHT_VERCEL_CHROMIUM_MARKER = path.join(
   process.cwd(),
   ".playwright-vercel-chromium.json",
 );
+
+const LOCAL_LIBS_DIR = path.join(process.cwd(), ".local-chromium-libs", "lib");
 
 const onVercel = process.env.VERCEL === "1" || Boolean(process.env.VERCEL_ENV);
 
@@ -34,6 +36,13 @@ export function readVercelChromiumConfig() {
   } catch {
     return null;
   }
+}
+
+function localLibsEnv() {
+  if (!fs.existsSync(path.join(LOCAL_LIBS_DIR, "libnspr4.so"))) return {};
+  const ldLibraryPath = [LOCAL_LIBS_DIR, process.env.LD_LIBRARY_PATH].filter(Boolean).join(":");
+  console.log(`[playwright] Using workspace Chromium libs: ${LOCAL_LIBS_DIR}`);
+  return { LD_LIBRARY_PATH: ldLibraryPath };
 }
 
 async function prepareVercelChromium() {
@@ -61,8 +70,6 @@ async function prepareVercelChromium() {
     "utf8",
   );
 
-  // Best-effort ffmpeg for local retain-on-failure tooling; Playwright video is
-  // disabled on Vercel (see playwright.config.ts) because the binary path is flaky.
   console.log("[playwright] Installing Playwright ffmpeg (best-effort)…");
   process.env.PLAYWRIGHT_BROWSERS_PATH =
     process.env.PLAYWRIGHT_BROWSERS_PATH ?? "/vercel/.cache/ms-playwright";
@@ -97,7 +104,7 @@ export async function preparePlaywrightChromium() {
   }
 
   console.log("[playwright] Chromium install complete.");
-  return {};
+  return localLibsEnv();
 }
 
 const isMain =

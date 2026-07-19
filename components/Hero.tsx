@@ -7,43 +7,37 @@ const trustBadges = [
   "Secure payments",
 ];
 
+/** Absolute Final — solid purple hero, no gradient / premium motion. */
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-[#3b0764] via-[var(--ds-color-primary)] to-[#a855f7]" />
-      <div className="relative mx-auto flex min-h-[420px] max-w-7xl flex-col justify-center px-4 py-16 sm:min-h-[480px] sm:px-6 sm:py-20 lg:min-h-[520px] lg:px-8">
-        <p className="mb-4 inline-flex w-fit items-center rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm ring-1 ring-white/20">
-          The modern marketplace for buying and selling
+    <section className="relative overflow-hidden bg-primary">
+      <div className="relative flex min-h-[320px] w-full flex-col justify-center px-4 py-12 sm:min-h-[360px] sm:py-14">
+        <p className="mb-3 inline-flex w-fit items-center rounded-full border border-white/30 bg-white/10 px-3 py-1 text-sm font-medium text-white">
+          BUY · SELL · GROW
         </p>
-        <h1 className="max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl xl:text-6xl">
-          The marketplace where pre-loved meets premium.
+        <h1 className="w-full text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl">
+          Buy and sell on ROVEXO.
         </h1>
-        <p className="mt-4 max-w-xl text-base text-purple-100 sm:text-lg">
-          Buy and sell fashion, tech, home, and more — with purchase protection,
-          verified sellers, and zero listing fees.
+        <p className="mt-3 w-full text-base text-white/90 sm:text-lg">
+          Fashion, tech, home, and more — with purchase protection and verified sellers.
         </p>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href="/search"
-            className="rounded-2xl bg-white px-7 py-3.5 text-sm font-bold text-[var(--ds-color-primary)] shadow-lg transition-transform hover:scale-105 sm:text-base"
+            className="rounded-ds-md bg-white px-6 py-3 text-sm font-bold text-primary"
           >
             Start shopping
           </Link>
           <Link
             href="/sell"
-            className="rounded-2xl border-2 border-white/50 px-7 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/10 sm:text-base"
+            className="rounded-ds-md border border-white px-6 py-3 text-sm font-bold text-white"
           >
-            Sell for free
+            Sell
           </Link>
         </div>
-        <ul className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-purple-100">
+        <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/85">
           {trustBadges.map((badge) => (
-            <li key={badge} className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-xs text-white">
-                ✓
-              </span>
-              {badge}
-            </li>
+            <li key={badge}>{badge}</li>
           ))}
         </ul>
       </div>

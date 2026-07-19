@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { VerifiedIcon } from "@/features/product-detail/icons";
 import { SuperAdminBadge } from "@/features/auth/components/SuperAdminBadge";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
-import { DashboardIcon3D } from "@/components/icons/DashboardIcon3D";
+import { SettingsLineIcon } from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import type { TrustDashboardData } from "@/lib/trust/types";
@@ -36,7 +36,7 @@ export function ProfileCard({
           aria-label="Settings"
           className={cn("rx-dash-profile-card__action", focusRing)}
         >
-          <DashboardIcon3D type="settings" size={26} />
+          <SettingsLineIcon className="h-[26px] w-[26px]" />
         </Link>
       </div>
 

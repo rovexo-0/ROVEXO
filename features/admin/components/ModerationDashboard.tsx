@@ -265,7 +265,7 @@ export function ModerationDashboard({
               </div>
 
               {caseDetail ? (
-                <div className="rx-glass rounded-ds-lg border border-border p-ds-4">
+                <div className="rounded-ds-lg border border-border bg-surface p-ds-4">
                   <h4 className="text-sm font-semibold">Case evidence</h4>
                   {caseDetail.reporter ? (
                     <dl className="mt-ds-3 grid gap-ds-2 text-sm">

@@ -554,7 +554,7 @@
 
 .cds-confirm-dialog-backdrop {
   animation: cds-confirm-fade-in 150ms ease-out forwards;
-  backdrop-filter: blur(4px);
+  backdrop-filter: none;
 }
 
 .cds-confirm-dialog {

@@ -46,3 +46,33 @@ export function revalidateMarketplaceListings(): void {
   revalidatePath("/user/[username]", "page");
   revalidatePath("/store/[slug]", "page");
 }
+
+/**
+ * Bust caches after a listing is permanently deleted so it disappears from every
+ * live surface immediately. Extends marketplace revalidation with user-private
+ * routes that embed product refs (Saved, Cart, Inbox, Orders, Wallet, Notifications).
+ * Order history keeps its snapshot rows — only live discovery surfaces rebuild.
+ */
+export function revalidateDeletedListing(slug?: string | null): void {
+  revalidateMarketplaceListings();
+
+  revalidatePath("/saved");
+  revalidatePath("/cart");
+  revalidatePath("/inbox");
+  revalidatePath("/inbox/conversation/[conversationId]", "page");
+  revalidatePath("/messages");
+  revalidatePath("/messages/[id]", "page");
+  revalidatePath("/orders");
+  revalidatePath("/orders/[id]", "page");
+  revalidatePath("/seller/orders");
+  revalidatePath("/seller/orders/[id]", "page");
+  revalidatePath("/account/orders");
+  revalidatePath("/wallet");
+  revalidatePath("/wallet/transactions");
+  revalidatePath("/notifications");
+
+  if (slug) {
+    revalidatePath(`/listing/${slug}`);
+    revalidatePath(`/checkout/${slug}`);
+  }
+}

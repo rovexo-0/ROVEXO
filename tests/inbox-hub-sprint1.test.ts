@@ -24,8 +24,8 @@ describe("Inbox Hub Sprint 1 canonical foundation", () => {
 
     expect(route).toContain("InboxPage");
     expect(route).toContain('dynamic = "force-dynamic"');
-    expect(legacyMessages).toContain("MessagesHubPage");
-    expect(legacyMessages).not.toContain("redirect(");
+    expect(legacyMessages).toContain("INBOX_ROUTES.messagesTab");
+    expect(legacyMessages).toContain("redirect(");
     expect(legacyNotifications).toContain("INBOX_ROUTES.notificationsTab");
     expect(conversation).toContain("ConversationHub");
     expect(css).toContain(".inbox-hub");

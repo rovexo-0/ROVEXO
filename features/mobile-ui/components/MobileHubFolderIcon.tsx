@@ -1,9 +1,13 @@
 "use client";
 
 import { useId } from "react";
+import {
+  BagLineIcon,
+  ChatLineIcon,
+  TagLineIcon,
+  UserLineIcon,
+} from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";
-import { Fluency3DIcon } from "@/components/icons/Fluency3DIcon";
-import { resolveHubIconKey } from "@/lib/icons/fluency-3d-registry";
 import type { MobilePrimaryHubId } from "@/lib/mobile-ui/types";
 
 type MobileHubFolderIconProps = {
@@ -18,9 +22,17 @@ const HUB_ACCENTS: Record<MobilePrimaryHubId, { from: string; to: string }> = {
   support: { from: "#fbbf24", to: "#b45309" },
 };
 
+const HUB_ICONS = {
+  buy: BagLineIcon,
+  sell: TagLineIcon,
+  business: UserLineIcon,
+  support: ChatLineIcon,
+} as const;
+
 export function MobileHubFolderIcon({ hub, className }: MobileHubFolderIconProps) {
   const uid = useId().replace(/:/g, "");
   const accent = HUB_ACCENTS[hub];
+  const HubIcon = HUB_ICONS[hub];
 
   return (
     <span className={cn("mhub-folder-icon relative inline-flex", className)} aria-hidden>
@@ -37,8 +49,8 @@ export function MobileHubFolderIcon({ hub, className }: MobileHubFolderIconProps
         <circle cx="24" cy="24" r="22" fill={`url(#${uid}-hub)`} filter={`url(#${uid}-shadow)`} />
         <circle cx="24" cy="24" r="22" fill="white" fillOpacity="0.12" />
       </svg>
-      <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <Fluency3DIcon icon={resolveHubIconKey(hub)} size={26} />
+      <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-white">
+        <HubIcon className="h-[26px] w-[26px]" />
       </span>
     </span>
   );

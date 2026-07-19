@@ -6,18 +6,15 @@ type AuthLinkProps = {
   href: string;
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 };
 
-export function AuthLink({ href, children, className }: AuthLinkProps) {
+export function AuthLink({ href, children, className, style }: AuthLinkProps) {
   return (
     <Link
       href={href}
-      className={cn(
-        "font-medium text-primary hover:opacity-80",
-        focusRing,
-        transitionFast,
-        className,
-      )}
+      className={cn(focusRing, transitionFast, className)}
+      style={style}
     >
       {children}
     </Link>

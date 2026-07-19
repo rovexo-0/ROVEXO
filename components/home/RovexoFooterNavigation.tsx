@@ -12,7 +12,7 @@ import { resolveBottomNavGlassIcon } from "@/lib/icons/resolve";
 import { cn } from "@/lib/cn";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import type { MenuItemConfig } from "@/lib/platform-visual/types";
-import type { BottomNavIconType } from "@/components/icons/BottomNavIcon3D";
+import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
 
 export type BottomNavTab = "home" | "search" | "sell" | "saved" | "account";
 
