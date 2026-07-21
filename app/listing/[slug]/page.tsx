@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { StoreUnavailablePage } from "@/components/store/StoreUnavailablePage";
+import { notFound, redirect } from "next/navigation";
 import { ProductDetailPage } from "@/features/product-detail/ProductDetailPage";
 import { fetchProductBySlug, fetchSimilarProducts } from "@/lib/products/queries";
 import { getCategoryBreadcrumbsForProduct } from "@/lib/categories/server";
 import { productPageMetadata } from "@/lib/seo/engine";
 import { productJsonLd } from "@/lib/seo/json-ld";
-import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
 
 type ListingPageProps = {
   params: Promise<{ slug: string }>;
@@ -19,10 +17,7 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   const product = await fetchProductBySlug(slug);
 
   if (!product) {
-    return {
-      title: `${STORE_UNAVAILABLE_COPY.title} · ROVEXO`,
-      robots: { index: false, follow: false },
-    };
+    return { title: "Listing not found · ROVEXO", robots: { index: false, follow: false } };
   }
 
   return productPageMetadata({
@@ -41,7 +36,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
   ]);
 
   if (!product) {
-    return <StoreUnavailablePage kind="listing" />;
+    notFound();
   }
 
   if (product.listingType === "auction") {

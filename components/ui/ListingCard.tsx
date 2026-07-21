@@ -11,18 +11,16 @@ import { memo, useCallback, useEffect, useState, type SyntheticEvent } from "rea
 import { ShareListingSheet } from "@/components/share/ShareListingSheet";
 import { Avatar } from "@/components/ui/Avatar";
 import { SafeImage } from "@/components/ui/SafeImage";
-import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
 import { trackPromotionEvent } from "@/components/promotions/PromotionAnalyticsBeacon";
 import { trackSaveListing } from "@/lib/analytics/marketplace-events";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
-import { resolveVerifiedStatus } from "@/lib/master-engine";
 import {
   formatCardRating,
   formatCardViews,
+  formatProductViewsLabel,
   formatListingPrice,
   formatListingPriceIncl,
-  formatProductViewsLabel,
   humanizeListingCondition,
 } from "@/lib/listing-card/format";
 import { resolveHomepagePromotionBadge } from "@/lib/homepage/feed-ranking";
@@ -120,7 +118,7 @@ function IconStar() {
   return (
     <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden className={css.starIcon}>
       <path
-        fill="#f5b301"
+        fill="var(--ds-color-star)"
         d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
       />
     </svg>
@@ -175,9 +173,6 @@ export const ListingCard = memo(function ListingCard({
       : product.price;
   const condition = humanizeListingCondition(product.condition);
   const promoted = Boolean(product.isFeatured || product.isBumped) && UUID.test(product.id);
-  const { showBadge: showVerifiedBadge } = resolveVerifiedStatus({
-    isRovexoVerified: Boolean(product.sellerVerified),
-  });
 
   const { isSaved, toggle: toggleSaved } = useProductWatchlist(
     favoriteMode === "watchlist" ? product.slug : "",
@@ -205,21 +200,13 @@ export const ListingCard = memo(function ListingCard({
         void toggleSaved();
         if (saving) {
           const { currency } = getActiveMarket();
-          trackGaEvent("add_to_favorites", {
-            item_id: product.id,
-            item_name: product.title,
-            currency,
-          });
+          trackGaEvent("add_to_favorites", { item_id: product.id, item_name: product.title, currency });
         }
       } else {
         onFavorite?.();
         if (saving) {
           const { currency } = getActiveMarket();
-          trackSaveListing({
-            itemId: product.id,
-            itemName: product.title,
-            currency,
-          });
+          trackSaveListing({ itemId: product.id, itemName: product.title, currency });
         }
       }
     },
@@ -279,45 +266,31 @@ export const ListingCard = memo(function ListingCard({
 
         {isHomepageCard ? (
           <div className={css.bodyHomepage}>
-            <p className={css.priceHomepage}>{priceLabel ?? formatListingPrice(amount)}</p>
-            {showBuyerProtection ? (
-              <p className={css.inclTotalHomepage}>
-                <span>{formatListingPriceIncl(amount)}</span>
-                <ShieldLineIcon className={css.inclShieldHomepage} aria-hidden />
-              </p>
-            ) : null}
-            <div className={css.titleWithBadge}>
-              <h3 className={css.titleHomepage}>{product.title}</h3>
-              {showVerifiedBadge ? (
-                <VerifiedBadge className={css.verifiedBadge} />
-              ) : null}
-            </div>
+            <h3 className={css.titleHomepage}>{product.title}</h3>
             {showCondition && condition ? (
               <p className={css.conditionHomepage}>{condition}</p>
             ) : null}
-            <div className={css.metaRowHomepage} data-product-card-stats="v1.0">
-              <span className={css.ratingHomepage} aria-label={`Rating ${formatCardRating(product)}`}>
-                <IconStar />
-                <span className={css.ratingValueHomepage}>{formatCardRating(product)}</span>
-              </span>
-              <span
-                className={css.viewsHomepage}
-                aria-label={formatProductViewsLabel(liveViews)}
-                data-view-live={product.slug}
-              >
-                <EyeLineIcon className={css.viewsIconHomepage} aria-hidden />
-                {formatCardViews(liveViews)}
-              </span>
+            <p className={css.priceHomepage}>{priceLabel ?? formatListingPrice(amount)}</p>
+            <div className={css.metaRowHomepage}>
+              {showBuyerProtection ? (
+                <span className={css.inclTotalHomepage}>
+                  <span>{formatListingPriceIncl(amount)}</span>
+                  <ShieldLineIcon className={css.inclShieldHomepage} aria-hidden />
+                </span>
+              ) : (
+                <span className={css.inclSpacerHomepage} aria-hidden />
+              )}
+              {showRating ? (
+                <span className={css.ratingHomepage} aria-label={`Rating ${formatCardRating(product)}`}>
+                  <IconStar />
+                  <span className={css.ratingValueHomepage}>{formatCardRating(product)}</span>
+                </span>
+              ) : null}
             </div>
           </div>
         ) : (
         <div className={css.body}>
-          <div className={css.titleWithBadge}>
-            <h3 className={css.title}>{product.title}</h3>
-            {showVerifiedBadge ? (
-              <VerifiedBadge className={css.verifiedBadge} />
-            ) : null}
-          </div>
+          <h3 className={css.title}>{product.title}</h3>
           {showCondition && condition ? <p className={css.condition}>{condition}</p> : null}
           <p className={css.price}>{priceLabel ?? formatListingPrice(amount)}</p>
           {showBuyerProtection ? (
