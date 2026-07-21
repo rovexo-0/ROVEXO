@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { after } from "next/server";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
+import { StoreUnavailablePage } from "@/components/store/StoreUnavailablePage";
 import { ProductDetailPage } from "@/features/product-detail/ProductDetailPage";
-import { incrementProductViews } from "@/lib/listings/repository";
 import { fetchProductBySlug, fetchSimilarProducts } from "@/lib/products/queries";
 import { getCategoryBreadcrumbsForProduct } from "@/lib/categories/server";
 import { productPageMetadata } from "@/lib/seo/engine";
 import { productJsonLd } from "@/lib/seo/json-ld";
+import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
 
 type ListingPageProps = {
   params: Promise<{ slug: string }>;
@@ -19,7 +19,10 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   const product = await fetchProductBySlug(slug);
 
   if (!product) {
-    return { title: "Listing not found · ROVEXO", robots: { index: false, follow: false } };
+    return {
+      title: `${STORE_UNAVAILABLE_COPY.title} · ROVEXO`,
+      robots: { index: false, follow: false },
+    };
   }
 
   return productPageMetadata({
@@ -38,7 +41,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
   ]);
 
   if (!product) {
-    notFound();
+    return <StoreUnavailablePage kind="listing" />;
   }
 
   if (product.listingType === "auction") {
@@ -47,11 +50,8 @@ export default async function ListingPage({ params }: ListingPageProps) {
 
   const breadcrumbs = await getCategoryBreadcrumbsForProduct(product.categoryId ?? null);
 
-  // View counting is best-effort and must not block the page render; run it
-  // after the response is sent.
-  after(() => {
-    void incrementProductViews(slug).catch(() => undefined);
-  });
+  // Views: ONLY RecordProductViewBeacon on product page (1.5s dwell) → POST /api/views
+  // Forbidden: server auto-increment / Homepage / Search / Saved / refresh automatic +1
 
   const structuredData = productJsonLd(product, breadcrumbs);
 

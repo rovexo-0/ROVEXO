@@ -1,0 +1,66 @@
+---
+description: ROVEXO v1.0 Absolute Authority View Engine Lock — permanently locked, Level 8 Owner only
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — ABSOLUTE AUTHORITY VIEW ENGINE LOCK
+
+**STATUS: PERMANENTLY LOCKED · OWNER CONTROLLED · LEVEL 8 PROTECTED**  
+**Production Ready: NO until Level 8 Owner QA PASS (Owner only)**
+
+```
+1 PRODUCT = 1 REAL VIEW
+products.views = ONLY source of truth
+```
+
+## Count ONLY if
+
+Product page opened · visible · dwell PASS · unique viewer PASS · anti-spam PASS · sync PASS
+
+## Do NOT count
+
+Homepage · Search · Saved · Stores · Similar · Related · Recommendations · Hover · Scroll · Refresh · Owner spam · Bots · Cache reload · Background tabs
+
+## Owner protection (permanent · CANONICAL)
+
+Owner / Admin / Super Admin / Staff / Bot / Unpublished → **+0**  
+Refresh / multi-tab / relogin within 24h → **+0**  
+Unique users only: A→1 · B→2 · C→3 · …  
+App: `lib/views/record-product-view.ts` before RPC (OWNER = 0).  
+RPC: `20260721230000_view_owner_zero_canonical_v1.sql` (SQL #4 — does not edit SQL #1–#3).
+
+## Galaxy QA (OWNER = 0)
+
+```
+0 → OWNER → 0 → USER A → 1 → refresh×100 → 1 → USER B → 2 → USER C → 3
+→ ADMIN/SUPER_ADMIN/BOT → 3 → 24h → USER A → 4
+```
+
+## Multi-user
+
+User A→1 · B→2 · C→3 · D→4 — unique viewers only
+
+## Sync engine
+
+`POST /api/views` → `record_unique_product_view()` → `product_view_events` → `products.views` → `publishViewLive()` → LIVE SYNC  
+Any fail → stop counting → error → no fake views
+
+## Forbidden
+
+Fake / manual / temporary / JS / hidden / cache / UI-only counters · forced increments
+
+## Deployment lock
+
+Forbidden if SQL / API / RPC / Sync / QA / Owner QA / Galaxy QA / Anti-spam FAIL
+
+## Master Architect rule
+
+No one may modify View Engine · Anti Spam · Sync · Owner Protection · Refresh Protection · Production Lock  
+**without Level 8 Owner approval.**
+
+## Pre-SQL gate (active)
+
+No SQL if Git FAIL · Backup FAIL · Preview FAIL · Migration FAIL · Owner QA FAIL
+
+SSOT: `lib/views/view-system-v1-lock.ts`  
+SQL #1–#3: production approved (do not edit). SQL #4: OWNER = 0 RPC restore.

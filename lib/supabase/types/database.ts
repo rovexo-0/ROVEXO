@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -3538,44 +3538,10 @@ export type Database = {
           },
         ]
       }
-      seller_follows: {
-        Row: {
-          created_at: string
-          follower_id: string
-          seller_id: string
-        }
-        Insert: {
-          created_at?: string
-          follower_id: string
-          seller_id: string
-        }
-        Update: {
-          created_at?: string
-          follower_id?: string
-          seller_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "seller_follows_follower_id_fkey"
-            columns: ["follower_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "seller_follows_seller_id_fkey"
-            columns: ["seller_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       seller_profiles: {
         Row: {
           bio: string | null
           created_at: string
-          follower_count: number
           id: string
           listing_count: number
           listing_limit: number | null
@@ -3589,7 +3555,6 @@ export type Database = {
         Insert: {
           bio?: string | null
           created_at?: string
-          follower_count?: number
           id: string
           listing_count?: number
           listing_limit?: number | null
@@ -3603,7 +3568,6 @@ export type Database = {
         Update: {
           bio?: string | null
           created_at?: string
-          follower_count?: number
           id?: string
           listing_count?: number
           listing_limit?: number | null
@@ -3842,6 +3806,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      stripe_webhook_events: {
+        Row: {
+          event_id: string
+          event_type: string
+          processed_at: string
+          status: string
+        }
+        Insert: {
+          event_id: string
+          event_type: string
+          processed_at?: string
+          status?: string
+        }
+        Update: {
+          event_id?: string
+          event_type?: string
+          processed_at?: string
+          status?: string
+        }
+        Relationships: []
       }
       support_tickets: {
         Row: {
@@ -4506,6 +4491,7 @@ export type Database = {
           description: string | null
           fee_amount: number | null
           id: string
+          idempotency_key: string | null
           order_number: string | null
           payout_available_at: string | null
           product_image_url: string | null
@@ -4524,6 +4510,7 @@ export type Database = {
           description?: string | null
           fee_amount?: number | null
           id?: string
+          idempotency_key?: string | null
           order_number?: string | null
           payout_available_at?: string | null
           product_image_url?: string | null
@@ -4542,6 +4529,7 @@ export type Database = {
           description?: string | null
           fee_amount?: number | null
           id?: string
+          idempotency_key?: string | null
           order_number?: string | null
           payout_available_at?: string | null
           product_image_url?: string | null
@@ -4576,6 +4564,7 @@ export type Database = {
           available_balance: number
           created_at: string
           id: string
+          locked_balance: number
           pending_available_at: string | null
           pending_balance: number
           updated_at: string
@@ -4585,6 +4574,7 @@ export type Database = {
           available_balance?: number
           created_at?: string
           id?: string
+          locked_balance?: number
           pending_available_at?: string | null
           pending_balance?: number
           updated_at?: string
@@ -4594,6 +4584,7 @@ export type Database = {
           available_balance?: number
           created_at?: string
           id?: string
+          locked_balance?: number
           pending_available_at?: string | null
           pending_balance?: number
           updated_at?: string
@@ -4834,6 +4825,14 @@ export type Database = {
       increment_product_views: {
         Args: { product_slug: string }
         Returns: undefined
+      }
+      record_unique_product_view: {
+        Args: {
+          product_slug: string
+          p_viewer_key: string
+          p_viewer_user_id?: string | null
+        }
+        Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }

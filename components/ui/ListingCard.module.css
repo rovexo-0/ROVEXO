@@ -174,6 +174,24 @@
   color: var(--ds-color-text-primary);
 }
 
+.titleWithBadge {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.titleWithBadge .title,
+.titleWithBadge .titleHomepage {
+  flex: 1;
+  min-width: 0;
+}
+
+.verifiedBadge {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
 .condition {
   margin: 0;
   font-size: clamp(0.6875rem, 3.2cqi, var(--rx-listing-condition-size, 0.75rem));
@@ -257,6 +275,8 @@
 
 .starIcon {
   flex-shrink: 0;
+  color: #f5b301;
+  fill: #f5b301;
 }
 
 .ratingValue {
@@ -427,7 +447,7 @@
 }
 
 .priceHomepage {
-  margin: 2px 0 0;
+  margin: 0;
   font-size: clamp(1rem, 5.8cqi, 1.125rem);
   font-weight: 700;
   line-height: 1.15;
@@ -465,6 +485,7 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
+  margin: 0;
   min-width: 0;
   font-size: clamp(0.625rem, 3cqi, 0.6875rem);
   font-weight: 600;
@@ -489,6 +510,9 @@
   align-items: center;
   gap: 3px;
   flex-shrink: 0;
+  min-height: 16px;
+  opacity: 1;
+  visibility: visible;
 }
 
 .ratingValueHomepage {
@@ -496,6 +520,38 @@
   font-weight: 700;
   line-height: 1;
   color: var(--ds-color-text-primary);
+}
+
+.viewsHomepage {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  min-height: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  color: #1a1a1a;
+  opacity: 1;
+  visibility: visible;
+}
+
+.viewsIconHomepage {
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  min-height: 14px;
+  flex-shrink: 0;
+  color: #1a1a1a;
+  stroke: #1a1a1a;
+  opacity: 1;
+  visibility: visible;
+}
+
+.starIcon {
+  flex-shrink: 0;
+  color: #f5b301;
+  fill: #f5b301;
 }
 
 .skeletonHomepage {

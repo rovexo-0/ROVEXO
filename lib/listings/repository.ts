@@ -7,6 +7,7 @@ import { getPublicStorageUrl } from "@/lib/storage/upload";
 import { formatPromotionRemaining, isPromotionActive } from "@/lib/promotions/format";
 import { HomepageEligibility } from "@/lib/homepage/homepage-eligibility";
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
+import { applyAntiMonopolyRotation } from "@/lib/promotions/boost-time-decay-v1";
 import { scanListingBeforePublish } from "@/lib/moderation/scan-listing";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
@@ -299,13 +300,13 @@ async function resolveBrandId(brandName?: string): Promise<string | null> {
 }
 
 async function storageObjectExists(
-  admin: ReturnType<typeof createAdminClient>,
+  supabase: Awaited<ReturnType<typeof createClient>>,
   path: string,
 ): Promise<boolean> {
   const slash = path.lastIndexOf("/");
   const dir = slash >= 0 ? path.slice(0, slash) : "";
   const name = slash >= 0 ? path.slice(slash + 1) : path;
-  const { data } = await admin.storage.from("products").list(dir, { search: name, limit: 100 });
+  const { data } = await supabase.storage.from("products").list(dir, { search: name, limit: 100 });
   return Boolean(data?.some((entry) => entry.name === name));
 }
 
@@ -329,20 +330,20 @@ async function moveImageToProductFolder(
     return image;
   }
 
-  const admin = createAdminClient();
+  const supabase = await createClient();
   const filename = image.storagePath.split("/").pop()!;
   const newPath = buildProductImagePath(sellerId, productId, filename);
   const oldThumbPath = image.storagePath.replace(/\.jpg$/, "-thumb.jpg");
   const newThumbPath = newPath.replace(/\.jpg$/, "-thumb.jpg");
 
-  const { error: copyError } = await admin.storage.from("products").copy(image.storagePath, newPath);
+  const { error: copyError } = await supabase.storage.from("products").copy(image.storagePath, newPath);
 
   if (copyError) {
     // Copy can fail if the temp source no longer exists (e.g. a persisted draft
     // re-published after temp cleanup). Treat as success only if the object is
     // already present at the destination (idempotent re-publish); otherwise skip
     // this image so we never create a dangling reference.
-    const alreadyThere = await storageObjectExists(admin, newPath);
+    const alreadyThere = await storageObjectExists(supabase, newPath);
     if (!alreadyThere) {
       console.error("[moveImageToProductFolder] skipping image with missing source", {
         storagePath: image.storagePath,
@@ -353,10 +354,10 @@ async function moveImageToProductFolder(
   }
 
   // Thumbnail is best-effort; a missing thumbnail must not break publishing.
-  await admin.storage.from("products").copy(oldThumbPath, newThumbPath).catch(() => undefined);
+  await supabase.storage.from("products").copy(oldThumbPath, newThumbPath).catch(() => undefined);
 
   // Only remove the temp sources now that the destination is confirmed present.
-  await admin.storage.from("products").remove([image.storagePath, oldThumbPath]).catch(() => undefined);
+  await supabase.storage.from("products").remove([image.storagePath, oldThumbPath]).catch(() => undefined);
 
   return {
     ...image,
@@ -442,7 +443,7 @@ export async function getSellerListingById(
 
 export async function createSellerListing(
   input: CreateListingInput,
-): Promise<SellerListing | null> {
+): Promise<SellerListing> {
   const supabase = await createClient();
   const brandId = await resolveBrandId(input.brand);
   const slug = slugify(input.title);
@@ -499,7 +500,7 @@ export async function createSellerListing(
       details: error?.details,
       hint: error?.hint,
     });
-    return null;
+    throw new Error(error?.message || "Unable to create listing product.");
   }
 
   // Image insertion and the pre-publish moderation scan are independent (the scan
@@ -520,13 +521,21 @@ export async function createSellerListing(
         : Promise.resolve(),
     ]);
   } catch (error) {
-    const admin = createAdminClient();
-    await admin.from("products").update({ status: "deleted" }).eq("id", product.id);
+    const supabaseRollback = await createClient();
+    await supabaseRollback
+      .from("products")
+      .update({ status: "deleted" })
+      .eq("id", product.id)
+      .eq("seller_id", input.sellerId);
     console.error("[createSellerListing] post-insert failed; listing rolled back", error);
-    return null;
+    throw error instanceof Error ? error : new Error("Unable to finalise listing.");
   }
 
-  return getSellerListingById(input.sellerId, product.id);
+  const listing = await getSellerListingById(input.sellerId, product.id);
+  if (!listing) {
+    throw new Error("Listing created but could not be loaded.");
+  }
+  return listing;
 }
 
 export async function updateSellerListing(
@@ -837,9 +846,10 @@ export async function deleteStorageFolder(prefix: string): Promise<void> {
   await admin.storage.from("products").remove(paths);
 }
 
-export async function incrementProductViews(slug: string): Promise<void> {
-  const supabase = await createClient();
-  await supabase.rpc("increment_product_views", { product_slug: slug });
+export async function incrementProductViews(_slug: string): Promise<void> {
+  // Production Lock: views only via POST /api/views after 1.5s product-page dwell.
+  // Legacy callers must not inflate counters.
+  void _slug;
 }
 
 export async function searchListings(
@@ -947,7 +957,12 @@ export async function searchListings(
     case "price_desc":
       query = query.order("price", { ascending: false });
       break;
+    case "newest":
+      // New Listing Priority Freeze — store / my-listings / seller surfaces.
+      query = query.order("created_at", { ascending: false });
+      break;
     default:
+      // Marketplace discovery ranking (Search / Homepage) — unchanged.
       query = query
         .order("promotion_score", { ascending: false })
         .order("featured_until", { ascending: false, nullsFirst: false })
@@ -959,7 +974,11 @@ export async function searchListings(
   const { data, count } = await query.range(from, to);
   const rows = HomepageEligibility.filterEligibleRows((data as ProductRow[] | null) ?? []);
   const mapped = rows.map((row) => mapProductRow(row));
-  const items = await attachTransactionModes(mapped);
+  const withModes = await attachTransactionModes(mapped);
+  const items =
+    options.sort === "newest" || options.sort === "price_asc" || options.sort === "price_desc"
+      ? withModes
+      : applyAntiMonopolyRotation(withModes);
 
   return {
     items,

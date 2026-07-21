@@ -12,6 +12,10 @@ import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader
 
 import { RecordRecentlyViewed } from "@/features/launch/components/RecordRecentlyViewed";
 
+import { RecordProductViewBeacon } from "@/features/product-detail/RecordProductViewBeacon";
+
+import { ProductViewsLive } from "@/features/product-detail/ProductViewsLive";
+
 import { ProductActionBarV1 } from "@/features/product-detail/ProductActionBarV1";
 
 import { ProductConditionCard } from "@/features/product-detail/ProductConditionCard";
@@ -199,7 +203,13 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
 
       <RecordRecentlyViewed productSlug={product.slug} />
 
-      <CanonicalPageHeader title={product.title} backHref="/" backLabel="Back" />
+      <RecordProductViewBeacon productSlug={product.slug} />
+
+      <CanonicalPageHeader
+        title={product.title}
+        backHref="/"
+        backLabel="Back"
+      />
 
       <div className="pd-v1__shell">
 
@@ -238,6 +248,8 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
 
 
             <ProductDetailBadges product={product} />
+
+            <ProductViewsLive slug={product.slug} initialViews={product.views ?? 0} />
 
           </section>
 
