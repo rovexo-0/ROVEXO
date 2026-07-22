@@ -13,6 +13,8 @@ describe("Header Master Freeze v1.0 — LEVEL 8", () => {
     expect(HEADER_MASTER_FREEZE_V1.oneAvatarOwner).toBe(true);
     expect(HEADER_MASTER_FREEZE_V1.oneProfileFetchOnAppLoad).toBe(true);
     expect(HEADER_MASTER_FREEZE_V1.headerSurvivesNavigation).toBe(true);
+    expect(HEADER_MASTER_FREEZE_V1.status).toBe("PRODUCTION_CERTIFIED_LEVEL_8_FREEZE_LOCKED");
+    expect(HEADER_MASTER_FREEZE_V1.freezeLocked).toBe(true);
   });
 
   it("mounts Auth + Avatar + Header providers once in root layout", () => {

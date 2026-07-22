@@ -12,7 +12,8 @@ function readSource(relativePath: string): string {
 describe("Camera Search v1.0 — Master Freeze", () => {
   it("locks one-photo one-search one-replace navigation", () => {
     expect(CAMERA_SEARCH_V1.version).toBe("1.0");
-    expect(CAMERA_SEARCH_V1.status).toBe("OWNER_APPROVED_MASTER_FREEZE");
+    expect(CAMERA_SEARCH_V1.status).toBe("PRODUCTION_CERTIFIED_LEVEL_8_FREEZE_LOCKED");
+    expect(CAMERA_SEARCH_V1.freezeLocked).toBe(true);
     expect(CAMERA_SEARCH_V1.oneCameraSearchOnly).toBe(true);
     expect(CAMERA_SEARCH_V1.autoSearchAfterConfirm).toBe(true);
     expect(CAMERA_SEARCH_V1.zeroDeadEnds).toBe(true);

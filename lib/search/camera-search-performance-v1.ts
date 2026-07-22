@@ -7,7 +7,11 @@ import { CAMERA_SEARCH_V1 } from "@/lib/search/camera-search-v1-freeze";
 
 export const CAMERA_SEARCH_PERFORMANCE_V1 = {
   version: "1.0",
-  status: "OWNER_APPROVED_PERFORMANCE_FREEZE",
+  status: "PRODUCTION_CERTIFIED_LEVEL_8_FREEZE_LOCKED",
+  complete: true,
+  certified: true,
+  productionReady: true,
+  freezeLocked: true,
   noRefresh: true,
   noReload: true,
   noSecondSearch: true,

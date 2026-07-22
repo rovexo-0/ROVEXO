@@ -1,12 +1,17 @@
 /**
  * ROVEXO HEADER MASTER FREEZE v1.0 — LEVEL 8
+ * OWNER CERTIFICATE: Camera Search v1.0 stack — CERTIFIED · PRODUCTION READY · FREEZE LOCKED
  * ONE Header · ONE Avatar Owner · ONE /api/profile (app load)
  * Forbidden: remount on navigation · second profile fetch · Camera/Search edits
  */
 
 export const HEADER_MASTER_FREEZE_V1 = {
   version: "1.0",
-  status: "LEVEL_8_ABSOLUTE_AUTHORITY",
+  status: "PRODUCTION_CERTIFIED_LEVEL_8_FREEZE_LOCKED",
+  complete: true,
+  certified: true,
+  productionReady: true,
+  freezeLocked: true,
   oneHeaderOnly: true,
   oneAvatarOwner: true,
   oneProfileFetchOnAppLoad: true,
