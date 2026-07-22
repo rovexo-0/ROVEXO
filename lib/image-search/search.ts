@@ -1,5 +1,9 @@
 import { fetchActiveListingCorpus } from "@/lib/image-search/corpus";
 import { computeImageHash, scoreImageSimilarity } from "@/lib/image-search/similarity";
+import type {
+  CameraSearchFilters,
+  CameraSearchResultsPayload,
+} from "@/lib/image-search/results-store";
 import type { Product } from "@/lib/products/types";
 import { CAMERA_SEARCH_V1 } from "@/lib/search/camera-search-v1-freeze";
 import { CAMERA_SEARCH_PERFORMANCE_V1 } from "@/lib/search/camera-search-performance-v1";
@@ -12,21 +16,26 @@ export type ImageSearchMatch = {
 };
 
 export type ImageSearchProgressStep =
-  | "searching"
+  | "validating"
   | "products"
-  | "categories"
-  | "listings"
   | "similar"
-  | "recommendations"
   | "preparing";
 
 export type ImageSearchProgress = (step: ImageSearchProgressStep) => void;
 
+const EXACT_SCORE = 0.85;
 const SOFT_MIN_SCORE = 0.28;
 const MAX_RESULTS = 48;
 const MIN_SHOW = 12;
-/** Parallel hash batch size — Performance Freeze (not sequential await chain). */
 const PARALLEL_BATCH = 16;
+
+function priceBucket(price: number): string {
+  if (price < 25) return "Under £25";
+  if (price < 50) return "£25–£50";
+  if (price < 100) return "£50–£100";
+  if (price < 250) return "£100–£250";
+  return "£250+";
+}
 
 function asRecommended(products: Product[], score = 0.4): ImageSearchMatch[] {
   return products.slice(0, MAX_RESULTS).map((product) => ({
@@ -48,74 +57,100 @@ async function scoreOne(
   };
 }
 
-/**
- * Camera Search Engine — Performance Master Freeze.
- * ONE corpus fetch + PARALLEL matching (Promise.all batches).
- * Never sequential Product→Category→Listing awaits.
- * SEARCH MUST NEVER FAIL — recommended fill if weak/empty.
- */
-export async function runImageSimilaritySearch(
-  queryDataUrl: string,
+async function scoreCorpus(
+  corpus: Product[],
+  queryDataUrl: string | null,
   signal?: AbortSignal,
-  onProgress?: ImageSearchProgress,
 ): Promise<ImageSearchMatch[]> {
-  onProgress?.("searching");
-
-  const corpus = await fetchActiveListingCorpus(signal);
-  if (signal?.aborted) return [];
-  if (corpus.length === 0) return [];
+  if (!queryDataUrl) return asRecommended(corpus);
 
   const queryHash = await computeImageHash(queryDataUrl);
-  if (!queryHash) {
-    onProgress?.("products");
-    onProgress?.("categories");
-    onProgress?.("listings");
-    onProgress?.("similar");
-    onProgress?.("recommendations");
-    onProgress?.("preparing");
-    return asRecommended(corpus);
-  }
+  if (!queryHash) return asRecommended(corpus);
 
   const scored: ImageSearchMatch[] = [];
-
   for (let index = 0; index < corpus.length; index += PARALLEL_BATCH) {
     if (signal?.aborted) break;
     const batch = corpus.slice(index, index + PARALLEL_BATCH);
-    // REQUIRED: Promise.all parallel matching — never sequential await per product.
     const batchScores = await Promise.all(batch.map((product) => scoreOne(product, queryHash)));
     for (const entry of batchScores) {
       if (entry) scored.push(entry);
     }
-    if (index === 0) onProgress?.("products");
   }
-
   scored.sort((left, right) => right.score - left.score);
+  return scored;
+}
 
-  // Parallel result channels (merge from same scored set — no sequential engine awaits).
-  const [exactLike, similarLike, recommendedLike] = await Promise.all([
-    Promise.resolve(scored.filter((entry) => entry.score >= 0.85)),
-    Promise.resolve(
-      scored.filter((entry) => entry.score >= SOFT_MIN_SCORE && entry.score < 0.85),
-    ),
-    Promise.resolve(scored.filter((entry) => entry.score < SOFT_MIN_SCORE)),
-  ]);
+/** APPROVED — parallel channel (never sequential await chain). */
+export async function findExactProducts(scored: ImageSearchMatch[]): Promise<ImageSearchMatch[]> {
+  return scored.filter((entry) => entry.score >= EXACT_SCORE && !entry.recommended);
+}
 
-  onProgress?.("categories");
-  onProgress?.("listings");
-  onProgress?.("similar");
-  onProgress?.("recommendations");
+/** APPROVED — parallel channel. */
+export async function findSimilarProducts(scored: ImageSearchMatch[]): Promise<ImageSearchMatch[]> {
+  return scored.filter(
+    (entry) =>
+      entry.score >= SOFT_MIN_SCORE && entry.score < EXACT_SCORE && !entry.recommended,
+  );
+}
 
-  let results = [...exactLike, ...similarLike].slice(0, MAX_RESULTS);
+/** APPROVED — parallel channel. */
+export async function findRelevantCategories(scored: ImageSearchMatch[]): Promise<string[]> {
+  const counts = new Map<string, number>();
+  for (const { product } of scored) {
+    for (const crumb of product.categoryBreadcrumbs ?? []) {
+      const name = crumb.name?.trim();
+      if (!name) continue;
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([name]) => name);
+}
+
+/** APPROVED — parallel channel. */
+export async function findRelevantFilters(
+  scored: ImageSearchMatch[],
+): Promise<CameraSearchFilters> {
+  const brandCounts = new Map<string, number>();
+  const priceCounts = new Map<string, number>();
+  for (const { product } of scored) {
+    const brand = product.brand?.trim();
+    if (brand) brandCounts.set(brand, (brandCounts.get(brand) ?? 0) + 1);
+    const bucket = priceBucket(product.price);
+    priceCounts.set(bucket, (priceCounts.get(bucket) ?? 0) + 1);
+  }
+  return {
+    brands: [...brandCounts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([brand]) => brand),
+    priceRanges: [...priceCounts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([bucket]) => bucket),
+  };
+}
+
+function mergeMatches(
+  exact: ImageSearchMatch[],
+  similar: ImageSearchMatch[],
+  scored: ImageSearchMatch[],
+  corpus: Product[],
+): ImageSearchMatch[] {
+  let results = [...exact, ...similar].slice(0, MAX_RESULTS);
 
   if (results.length < MIN_SHOW) {
     results = scored.slice(0, Math.min(MAX_RESULTS, Math.max(MIN_SHOW, scored.length)));
   }
 
   if (results.length === 0) {
-    results = asRecommended(corpus);
-  } else if (results.length < MIN_SHOW) {
+    return asRecommended(corpus);
+  }
+
+  if (results.length < MIN_SHOW) {
     const seen = new Set(results.map((entry) => entry.product.id));
-    for (const entry of [...recommendedLike, ...asRecommended(corpus)]) {
+    for (const entry of [...scored, ...asRecommended(corpus)]) {
       if (seen.has(entry.product.id)) continue;
       results.push({
         ...entry,
@@ -126,8 +161,72 @@ export async function runImageSimilaritySearch(
     }
   }
 
-  onProgress?.("preparing");
-  void CAMERA_SEARCH_V1.zeroDeadEnds;
-  void CAMERA_SEARCH_PERFORMANCE_V1.parallelMatchingOnly;
   return results.slice(0, MAX_RESULTS);
+}
+
+/**
+ * Camera Search Master — ONE request + Promise.all channels.
+ * FORBIDDEN: await exact → await similar → await categories → await filters.
+ */
+export async function runCameraSearchMaster(
+  queryDataUrl: string | null,
+  signal?: AbortSignal,
+  onProgress?: ImageSearchProgress,
+): Promise<CameraSearchResultsPayload> {
+  onProgress?.("validating");
+
+  // ONE corpus request only.
+  const corpus = await fetchActiveListingCorpus(signal);
+  if (signal?.aborted) {
+    return {
+      queryDataUrl,
+      matches: [],
+      categories: [],
+      filters: { brands: [], priceRanges: [] },
+      hasExactMatch: false,
+      readyAt: Date.now(),
+    };
+  }
+
+  const scored =
+    corpus.length === 0 ? [] : await scoreCorpus(corpus, queryDataUrl, signal);
+
+  onProgress?.("products");
+
+  // REQUIRED: all channels in parallel.
+  const [exactProducts, similarProducts, categories, filters] = await Promise.all([
+    findExactProducts(scored),
+    findSimilarProducts(scored),
+    findRelevantCategories(scored),
+    findRelevantFilters(scored),
+  ]);
+
+  onProgress?.("similar");
+
+  const matches = mergeMatches(exactProducts, similarProducts, scored, corpus);
+  onProgress?.("preparing");
+
+  void CAMERA_SEARCH_V1.parallelMatchingOnly;
+  void CAMERA_SEARCH_PERFORMANCE_V1.oneApiCall;
+
+  return {
+    queryDataUrl,
+    matches,
+    categories,
+    filters,
+    hasExactMatch: exactProducts.length > 0,
+    readyAt: Date.now(),
+  };
+}
+
+/**
+ * @deprecated use runCameraSearchMaster — kept for lock-test name continuity.
+ */
+export async function runImageSimilaritySearch(
+  queryDataUrl: string,
+  signal?: AbortSignal,
+  onProgress?: ImageSearchProgress,
+): Promise<ImageSearchMatch[]> {
+  const payload = await runCameraSearchMaster(queryDataUrl, signal, onProgress);
+  return payload.matches;
 }

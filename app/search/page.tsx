@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import "@/styles/rovexo/header-v2.css";
 import "@/styles/rovexo/search-results-v1.css";
 import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
 import { SearchResultsView } from "@/features/search/components/SearchResultsView";
-import { ImageSearchView } from "@/features/search/components/ImageSearchView";
 import { buildPageMetadata } from "@/lib/seo/metadata";
+import { CAMERA_SEARCH_V1 } from "@/lib/search/camera-search-v1-freeze";
 
 type SearchPageProps = {
   searchParams: Promise<{ q?: string; visual?: string; category?: string }>;
@@ -20,7 +21,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
     return buildPageMetadata({
       title: "Image Search",
       description: "Results similar to your photo",
-      path: "/search?visual=1",
+      path: CAMERA_SEARCH_V1.resultsRoute,
       noIndex: true,
     });
   }
@@ -50,17 +51,10 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { visual } = await searchParams;
-  const isImageSearch = visual === "1";
 
-  if (isImageSearch) {
-    return (
-      <BetaAppShell bottomNavTab="search">
-        <RovexoHeaderV2 />
-        <HubPageMain className="rx-image-search-page px-0 py-0">
-          <ImageSearchView />
-        </HubPageMain>
-      </BetaAppShell>
-    );
+  // Master Freeze: ONE results route only — legacy visual=1 redirects.
+  if (visual === "1") {
+    redirect(CAMERA_SEARCH_V1.resultsRoute);
   }
 
   return (

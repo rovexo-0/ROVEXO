@@ -1,10 +1,9 @@
 /**
  * ROVEXO CAMERA SEARCH — PERFORMANCE MASTER FREEZE v1.0
- * OWNER APPROVED · ABSOLUTE AUTHORITY
- *
- * NO AI · NO CHAT · NO QUESTIONS · NO DEAD ENDS · NO REFRESH · NO RELOAD · NO SECOND SEARCH
- * Parallel matching only. Total target <2s · absolute max <3s.
+ * Aligned with CAMERA SEARCH MASTER FREEZE (Absolute Authority).
  */
+
+import { CAMERA_SEARCH_V1 } from "@/lib/search/camera-search-v1-freeze";
 
 export const CAMERA_SEARCH_PERFORMANCE_V1 = {
   version: "1.0",
@@ -14,51 +13,34 @@ export const CAMERA_SEARCH_PERFORMANCE_V1 = {
   noSecondSearch: true,
   parallelMatchingOnly: true,
   oneApiCall: true,
+  resultsRoute: CAMERA_SEARCH_V1.resultsRoute,
   targetsMs: {
     imageCompression: 150,
     parallelMatching: 700,
     preparingResults: 400,
     renderResults: 300,
-    totalTarget: 2_000,
-    absoluteMaximum: 3_000,
+    stepDuration: CAMERA_SEARCH_V1.stepDurationMs,
+    /** 95% */
+    totalTarget: CAMERA_SEARCH_V1.targetsMs.totalTarget,
+    /** 98% */
+    p98: CAMERA_SEARCH_V1.targetsMs.p98,
+    /** 100% absolute max — NEVER 10–20s */
+    absoluteMaximum: CAMERA_SEARCH_V1.targetsMs.absoluteMaximum,
   },
-  loadingChecklist: [
-    "Searching.....",
-    "Matching Products",
-    "Matching Categories",
-    "Matching Listings",
-    "Matching Similar Products",
-    "Matching Recommendations",
-    "Preparing Results.....",
-  ] as const,
-  resultsPriority: [
-    "Exact Products",
-    "Similar Products",
-    "Relevant Products",
-    "Marketplace Listings",
-    "Relevant Categories",
-    "Recommendations",
-    "Filters",
-    "Sort",
-  ] as const,
-  noExactMatchCopy:
-    "No exact match found. Showing similar and relevant marketplace results.",
+  loadingChecklist: CAMERA_SEARCH_V1.loadingSteps,
+  resultsPriority: CAMERA_SEARCH_V1.resultsPriority,
+  noExactMatchCopy: CAMERA_SEARCH_V1.noExactMatchCopy,
   forbidden: [
     "sequential await ProductSearch→CategorySearch→…",
     "window.location.reload",
     "router.refresh for camera search",
+    "setTimeout(5000) artificial wait",
     "Empty pages",
     "No Results",
     "Try Again",
     "AI chat",
   ] as const,
-  ssot: {
-    performance: "lib/search/camera-search-performance-v1.ts",
-    corpusApi: "app/api/search/image-corpus/route.ts",
-    engine: "lib/image-search/search.ts",
-    corpus: "lib/image-search/corpus.ts",
-    view: "features/search/components/ImageSearchView.tsx",
-  },
+  ssot: CAMERA_SEARCH_V1.ssot,
 } as const;
 
 export type CameraSearchPerformanceV1 = typeof CAMERA_SEARCH_PERFORMANCE_V1;
