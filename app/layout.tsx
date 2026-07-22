@@ -4,6 +4,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/rovexo/index.css";
 import "./globals.css";
 import { SearchProvider } from "@/features/search/client";
+import { AuthProvider } from "@/features/auth/providers/AuthProvider";
+import { AvatarProvider } from "@/features/auth/providers/AvatarProvider";
+import { HeaderProvider } from "@/features/header/HeaderProvider";
 import { AppShellLayout } from "@/components/layout/AppShellLayout";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { VisitorPresenceBeacon } from "@/components/analytics/VisitorPresenceBeacon";
@@ -105,9 +108,15 @@ export default function RootLayout({
             <PwaProvider>
               <PushSubscriptionManager />
               <ToastProvider>
-                <SearchProvider>
-                  <AppShellLayout>{children}</AppShellLayout>
-                </SearchProvider>
+                <AuthProvider>
+                  <AvatarProvider>
+                    <SearchProvider>
+                      <HeaderProvider>
+                        <AppShellLayout>{children}</AppShellLayout>
+                      </HeaderProvider>
+                    </SearchProvider>
+                  </AvatarProvider>
+                </AuthProvider>
               </ToastProvider>
             </PwaProvider>
           </LocaleProvider>

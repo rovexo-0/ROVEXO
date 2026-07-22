@@ -1,0 +1,29 @@
+# ROVEXO HEADER MASTER FREEZE v1.0 (LEVEL 8)
+
+**STATUS: ABSOLUTE AUTHORITY**
+
+SSOT: `lib/header/header-master-freeze-v1.ts`
+
+## Architecture
+
+```
+RootLayout
+→ AuthProvider (ONE /api/profile)
+→ AvatarProvider (shares profile)
+→ SearchProvider (LOCKED — do not modify)
+→ HeaderProvider (ONE RovexoHeaderV2, never unmount)
+→ pages
+```
+
+## Rules
+
+1. ONE RovexoHeaderV2 — no per-page headers  
+2. ONE AvatarOwner — no `HeaderProfileLink` local fetch  
+3. `/api/profile` once on app load (explicit `refresh()` only after avatar upload/edit)  
+4. Header stays mounted across Home ↔ Results (visibility via CSS `hidden`)  
+5. Camera Search / SearchProvider / matching engines — FORBIDDEN to modify  
+
+## Success
+
+Header survives navigation · Avatar survives · No second fetch · No refresh required
+---

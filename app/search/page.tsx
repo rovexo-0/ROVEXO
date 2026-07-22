@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import "@/styles/rovexo/header-v2.css";
 import "@/styles/rovexo/search-results-v1.css";
-import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
 import { SearchResultsView } from "@/features/search/components/SearchResultsView";
@@ -52,14 +50,12 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { visual } = await searchParams;
 
-  // Master Freeze: ONE results route only — legacy visual=1 redirects.
   if (visual === "1") {
     redirect(CAMERA_SEARCH_V1.resultsRoute);
   }
 
   return (
     <BetaAppShell bottomNavTab="search">
-      <RovexoHeaderV2 />
       <HubPageMain className="gap-0 px-0 py-0">
         <Suspense fallback={<ProductGridSkeleton count={8} />}>
           <SearchResultsView />

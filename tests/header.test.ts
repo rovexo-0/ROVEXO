@@ -57,11 +57,14 @@ describe("official header design", () => {
     expect(homePage).not.toContain("CanonicalBringYourItem");
   });
 
-  it("routes the homepage through RovexoHeaderV2 without header profile avatar", () => {
+  it("routes the homepage through HeaderProvider homepage layout (no per-page header)", () => {
     const page = readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
     const header = readFileSync(path.join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
-    expect(page).toContain("RovexoHeaderV2");
-    expect(page).toContain('layout="homepage"');
+    const provider = readFileSync(path.join(process.cwd(), "features/header/HeaderProvider.tsx"), "utf8");
+    const layout = readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
+    expect(layout).toContain("HeaderProvider");
+    expect(provider).toContain('layout: "homepage"');
+    expect(page).not.toMatch(/<RovexoHeaderV2[\s/>]/);
     expect(page).not.toContain("replaceAccountWithShare");
     expect(page).not.toContain("HomepageV3Header");
     expect(header).toContain("!isHomepageLayout");

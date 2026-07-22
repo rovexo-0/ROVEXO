@@ -81,11 +81,13 @@ function scanComponentRegistry(
   const refs: Record<string, { label: string; sourceRef: string; complete: boolean; message: string }> = {
     "premium-header": {
       label: "Header",
-      sourceRef: "components/header/RovexoHeaderV2.tsx",
+      sourceRef: "features/header/HeaderProvider.tsx",
       complete:
         header.includes('data-header-version="rovexo-v2"') &&
-        (page.includes("<RovexoHeaderV2") || page.includes("RovexoHeaderV2")),
-      message: "Canonical Header V2 with integrated search",
+        (readSource("app/layout.tsx").includes("HeaderProvider") ||
+          page.includes("<RovexoHeaderV2") ||
+          page.includes("RovexoHeaderV2")),
+      message: "Canonical Header V2 with integrated search (HeaderProvider)",
     },
     "safe-area": {
       label: "Safe Area",
@@ -285,10 +287,14 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
     header.includes("HomepageHeaderShareButton") &&
     homepageShare.includes('aria-label="Share"');
 
+  // Inbox Hub lock: notifications live at /inbox?tab=notifications (legacy /notifications redirects).
+  const hasNotificationsEntry =
+    header.includes("/inbox?tab=notifications") || header.includes("/notifications");
+
   const navigationIntegrityScore =
     header.includes("HomepageSearchField") &&
     !header.includes("/messages") &&
-    header.includes("/notifications") &&
+    hasNotificationsEntry &&
     hasAccountNav &&
     hasHomepageShare &&
     !header.includes("HeaderCategoryBar") &&

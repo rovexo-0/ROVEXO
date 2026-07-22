@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { HubPageMain } from "@/components/layout/HubPageMain";
 import "@/styles/rovexo/header-v2.css";
-import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { ImageSearchView } from "@/features/search/components/ImageSearchView";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -16,12 +15,11 @@ export const metadata: Metadata = buildPageMetadata({
 
 /**
  * Official Camera Search results page — Master Freeze SSOT.
- * Route: /search/image/results
+ * Header: ONE HeaderProvider (root layout) — do not mount a second RovexoHeaderV2.
  */
 export default function ImageSearchResultsPage() {
   return (
     <BetaAppShell bottomNavTab="search">
-      <RovexoHeaderV2 />
       <HubPageMain className="rx-image-search-page px-0 py-0">
         <ImageSearchView />
       </HubPageMain>

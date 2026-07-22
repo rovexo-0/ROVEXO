@@ -3,7 +3,6 @@ import "@/styles/homepage-canonical.css";
 import "@/styles/homepage-canonical-responsive.css";
 import "@/styles/rovexo/header-v2.css";
 import { CanonicalHomepage } from "@/components/homepage/canonical";
-import RovexoHeaderV2 from "@/components/header/RovexoHeaderV2";
 import { HomePageShell } from "@/components/home/HomePageShell";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import {
@@ -88,10 +87,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   const structuredData = homePageJsonLd(sections.feed.items, siteUrl);
 
-  const showHeader =
-    !visualConfig.shell.header ||
-    (visualConfig.shell.header.enabled && visualConfig.shell.header.published);
-
   return (
     <BetaAppShell
       bottomNavTab="home"
@@ -103,10 +98,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <HomePageShell
-        header={showHeader ? <RovexoHeaderV2 layout="homepage" showSearch={false} /> : null}
-        bottomNav={null}
-      >
+      <HomePageShell header={null} bottomNav={null}>
         <CanonicalHomepage {...sections} />
       </HomePageShell>
     </BetaAppShell>

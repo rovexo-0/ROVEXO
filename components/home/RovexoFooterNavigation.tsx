@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { usePathname } from "next/navigation";
-import { type MouseEvent, useEffect, useState } from "react";
+import { type MouseEvent } from "react";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { useRovexoMobileHeaderScrollContext } from "@/components/home/RovexoMobileHeaderScrollContext";
 import { RovexoIcons } from "@/lib/icons";
@@ -11,6 +11,7 @@ import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { resolveBottomNavGlassIcon } from "@/lib/icons/resolve";
 import { cn } from "@/lib/cn";
 import { useSearchOverlayOptional } from "@/features/search/client";
+import { useAvatarOptional } from "@/features/auth/providers/AvatarProvider";
 import type { MenuItemConfig } from "@/lib/platform-visual/types";
 import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
 
@@ -66,26 +67,9 @@ function NavIcon({ id }: { id: BottomNavTab }) {
 }
 
 function AccountNavAvatar({ isActive }: { isActive: boolean }) {
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [name, setName] = useState("Account");
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void fetch("/api/profile", { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload: { profile?: { fullName?: string; avatarUrl?: string | null } } | null) => {
-        if (!cancelled && payload?.profile) {
-          setName(payload.profile.fullName ?? "Account");
-          setAvatarUrl(payload.profile.avatarUrl ?? null);
-        }
-      })
-      .catch(() => undefined);
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const avatar = useAvatarOptional();
+  const avatarUrl = avatar?.avatarUrl ?? null;
+  const name = avatar?.name ?? "Account";
 
   if (avatarUrl) {
     const imageSrc = normalizeAvatarUrl(avatarUrl);

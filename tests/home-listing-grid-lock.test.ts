@@ -53,6 +53,7 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(defaults).toContain("showCondition: true");
     expect(defaults).toContain("showSeller: false");
     expect(defaults).toContain("showRating: true");
+    expect(defaults).toContain("showViews: true");
     expect(card).toContain("bodyHomepage");
     expect(card).toContain("metaRowHomepage");
     expect(card).toContain("formatListingPriceIncl");
@@ -75,8 +76,9 @@ describe("Official Listing Card — homepage grid lock", () => {
     const { formatCardRating, formatCardViews } = await import("@/components/ui/ListingCard");
 
     expect(formatCardRating({ rating: 4.9, reviewCount: 12 })).toBe("4.9");
-    expect(formatCardRating({ rating: 0, reviewCount: 0 })).toBe("—");
+    expect(formatCardRating({ rating: 0, reviewCount: 0 })).toBe("0.0");
     expect(formatCardViews(1200)).toBe("1.2K");
+    expect(formatCardViews(0)).toBe("0");
   });
 
   it("omits section titles on canonical homepage", () => {
@@ -105,19 +107,20 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(store).toContain("FeaturedStoreHeader");
     expect(store).toContain("ListingCard");
     expect(store).toContain("HP_CANONICAL_LISTING_PROPS");
-    expect(store).toContain("StoreProfileCard");
+    expect(store).not.toContain("StoreProfileCard");
     expect(store).toContain('data-hp-featured-store-version="v1.0-canonical"');
     expect(css).toContain("--hp-store-card-ref-w");
+    expect(css).toContain("--hp-store-visible-cards: 2.5");
   });
 
   it("places search below header on homepage without logo or notification icon", () => {
     const header = readSource("components/header/RovexoHeaderV2.tsx");
-    const page = readSource("app/page.tsx");
+    const provider = readSource("features/header/HeaderProvider.tsx");
 
     expect(header).toContain('layout?: "default" | "homepage"');
     expect(header).toContain("rx-h2__search-row");
     expect(header).toContain("!isHomepageLayout");
-    expect(page).toContain('layout="homepage"');
+    expect(provider).toContain('layout: "homepage"');
   });
 
   it("uses official ROVEXO wordmark colours", () => {
@@ -142,15 +145,13 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(page).toContain("HP_CANONICAL_BOTTOM_NAV");
   });
 
-  it("uses canonical search placeholder and camera control", () => {
+  it("uses canonical search placeholder without camera icon on Homepage", () => {
     const search = readSource("components/home/HomepageSearchField.tsx");
-    const camera = readSource("components/home/ImageSearchCamera.tsx");
     const header = readSource("components/header/RovexoHeaderV2.tsx");
 
     expect(search).toContain("Search for items or members");
-    expect(search).toContain("ImageSearchCamera");
-    expect(camera).toContain("homepage-search__camera");
-    expect(camera).toContain("Camera");
+    expect(search).toContain("RovexoIcons.navigation.search");
+    expect(search).not.toContain("ImageSearchCamera");
     expect(header).toContain("hp-canonical-search");
   });
 

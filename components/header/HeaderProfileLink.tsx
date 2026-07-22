@@ -1,11 +1,14 @@
 "use client";
 
+import { useAvatarOptional } from "@/features/auth/providers/AvatarProvider";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
+/**
+ * Header avatar — reads ONE AvatarProvider store. No local /api/profile fetch.
+ */
 export function HeaderProfileLink({
   className,
   avatarClassName,
@@ -15,28 +18,9 @@ export function HeaderProfileLink({
   avatarClassName?: string;
   loadProfile?: boolean;
 }) {
-  const [profile, setProfile] = useState<{ name: string; avatarUrl: string | null } | null>(null);
-
-  useEffect(() => {
-    if (!loadProfile) return;
-    let cancelled = false;
-
-    void fetch("/api/profile", { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload: { profile?: { fullName?: string; avatarUrl?: string | null } } | null) => {
-        if (!cancelled && payload?.profile) {
-          setProfile({
-            name: payload.profile.fullName ?? "Account",
-            avatarUrl: payload.profile.avatarUrl ?? null,
-          });
-        }
-      })
-      .catch(() => undefined);
-
-    return () => {
-      cancelled = true;
-    };
-  }, [loadProfile]);
+  const avatar = useAvatarOptional();
+  const name = loadProfile ? (avatar?.name ?? "Account") : "Account";
+  const avatarUrl = loadProfile ? (avatar?.avatarUrl ?? null) : null;
 
   return (
     <Link
@@ -51,9 +35,9 @@ export function HeaderProfileLink({
       )}
     >
       <Avatar
-        src={profile?.avatarUrl}
-        alt={profile?.name ?? "Account"}
-        name={profile?.name}
+        src={avatarUrl}
+        alt={name}
+        name={name}
         size="header"
         className={avatarClassName}
       />

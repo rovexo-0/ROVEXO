@@ -45,7 +45,8 @@ describe("Homepage enterprise migration contract", () => {
     const homePage = readSource("components/homepage/canonical/CanonicalHomepage.tsx");
 
     expect(page).toContain("CanonicalHomepage");
-    expect(page).toContain("RovexoHeaderV2");
+    expect(page).not.toMatch(/<RovexoHeaderV2[\s/>]/);
+    expect(readSource("app/layout.tsx")).toContain("HeaderProvider");
     expect(page).toContain("resolveHomepageV4Sections");
     expect(page).toContain("fetchHomepageFeed");
     expect(page).toContain('fetchProducts("recommended"');
