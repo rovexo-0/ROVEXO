@@ -3,53 +3,18 @@
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
-import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { ImageSearchCamera } from "@/components/home/ImageSearchCamera";
 import { storeImageSearchQuery } from "@/lib/image-search/storage";
 
 type SearchInputActionsProps = {
-  /** Optional voice-search handler. When omitted, mic renders disabled. */
-  onVoice?: () => void;
   className?: string;
 };
 
-function MicIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M18 11a6 6 0 0 1-12 0M12 18v3" />
-    </svg>
-  );
-}
-
-function ActionButton({
-  label,
-  onClick,
-  children,
-}: {
-  label: string;
-  onClick?: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      title={label}
-      className={cn(
-        "flex h-10 w-10 shrink-0 items-center justify-center rounded-ds-full text-text-muted hover:bg-secondary hover:text-text-primary",
-        focusRing,
-        transitionFast,
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-
-/** Search trailing actions — camera (image search) + optional voice. */
-export function SearchInputActions({ onVoice, className }: SearchInputActionsProps) {
+/**
+ * Search trailing actions — Camera only (Search System v1.0).
+ * Voice Assistant permanently forbidden (NO AI / NO Voice policy).
+ */
+export function SearchInputActions({ className }: SearchInputActionsProps) {
   const router = useRouter();
   const cameraInputId = useId();
   const [processing, setProcessing] = useState(false);
@@ -77,11 +42,6 @@ export function SearchInputActions({ onVoice, className }: SearchInputActionsPro
         processing={processing}
         onFilesSelected={(files) => void handleImageSearchFiles(files)}
       />
-      {onVoice ? (
-        <ActionButton label="Voice search" onClick={onVoice}>
-          <MicIcon className="h-5 w-5" />
-        </ActionButton>
-      ) : null}
     </div>
   );
 }

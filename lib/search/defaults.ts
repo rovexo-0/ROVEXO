@@ -28,12 +28,7 @@ export const defaultCategories = homeCategories.map((category) => ({
   href: `/category/${category.slug}`,
 }));
 
-export const defaultSuggestedSellers: SuggestedSeller[] = [
-  { name: "TechHub", href: "/store/techhub" },
-  { name: "LuxResale", href: "/store/luxresale" },
-  { name: "RetroFinds", href: "/store/retrofinds" },
-  { name: "OutdoorPro", href: "/store/outdoorpro" },
-];
+export const defaultSuggestedSellers: SuggestedSeller[] = [];
 
 export const searchScopes: { id: SearchScope; label: string }[] = [
   { id: "products", label: "Products" },

@@ -41,6 +41,8 @@ export type SearchResults = {
   stores: SearchStore[];
   users: SearchUser[];
   trending: string[];
+  /** Live popular terms from listings DB — never AI-generated. */
+  popular: string[];
   categories: SearchCategory[];
   brands: SearchBrand[];
   locations: SearchLocation[];

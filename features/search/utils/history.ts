@@ -1,5 +1,7 @@
+import { SEARCH_SYSTEM_V1 } from "@/lib/search/search-system-v1-lock";
+
 const STORAGE_KEY = "rovexo-search-history";
-const MAX_ITEMS = 10;
+const MAX_ITEMS = SEARCH_SYSTEM_V1.historyMax;
 
 export function getSearchHistory(): string[] {
   if (typeof window === "undefined") return [];

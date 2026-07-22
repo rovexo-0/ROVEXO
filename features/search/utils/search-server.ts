@@ -4,20 +4,25 @@ import {
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
 import { getCategoryBreadcrumbMap } from "@/lib/categories/server";
 import { getTrendingSearches } from "@/lib/search/trending";
+import { getPopularSearches } from "@/lib/search/popular-searches";
 import {
   defaultCategories,
-  defaultSuggestedSellers,
-  defaultTrendingSearches,
   filterSuggestions,
-  filterSellers,
 } from "@/lib/search/defaults";
 import { MANUAL_LISTING_CITIES } from "@/lib/sell/listing-location";
 import type { Product } from "@/lib/products/types";
-import type { SearchBrand, SearchLocation, SearchResults } from "@/features/search/types";
+import type {
+  SearchBrand,
+  SearchLocation,
+  SearchResults,
+  SearchStore,
+  SearchUser,
+} from "@/features/search/types";
 import { SEARCH_PRODUCT_PAGE_SIZE } from "@/features/search/types";
 import { createClient } from "@/lib/supabase/server";
+import { resolveStoreHrefFromSeller } from "@/lib/store/store-href";
 
-const RECENT_LISTINGS_LIMIT = 8;
+const SUGGESTED_LIMIT = 8;
 
 /**
  * Attach the full canonical category breadcrumb path to each product using a
@@ -47,13 +52,23 @@ type SearchAllOptions = {
   locationCity?: string;
 };
 
-async function searchBrands(query: string): Promise<SearchBrand[]> {
+async function searchBrands(query: string, limit = 5): Promise<SearchBrand[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("brands")
     .select("name")
     .ilike("name", `%${query}%`)
-    .limit(5);
+    .limit(limit);
+
+  return (data ?? []).map((row) => ({
+    name: row.name,
+    href: `/search?q=${encodeURIComponent(row.name)}&brand=${encodeURIComponent(row.name)}`,
+  }));
+}
+
+async function getSuggestedBrands(limit = SUGGESTED_LIMIT): Promise<SearchBrand[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("brands").select("name").order("name").limit(limit);
 
   return (data ?? []).map((row) => ({
     name: row.name,
@@ -81,6 +96,75 @@ async function searchProfiles(query: string) {
   return data ?? [];
 }
 
+function memberHref(profile: { id: string; username: string | null }): string {
+  const storeHref = resolveStoreHrefFromSeller({
+    sellerId: profile.id,
+    storeSlug: profile.username,
+  });
+  if (storeHref) return storeHref;
+  if (profile.username) return `/user/${profile.username}`;
+  return `/store/${profile.id}`;
+}
+
+function mapProfilesToUsers(
+  profiles: Array<{ id: string; full_name: string | null; username: string | null }>,
+): SearchUser[] {
+  return profiles.map((profile) => ({
+    id: profile.id,
+    name: profile.username || profile.full_name || "Member",
+    handle: profile.username ? `@${profile.username}` : "",
+    href: memberHref(profile),
+  }));
+}
+
+function mapProfilesToStores(
+  profiles: Array<{ id: string; full_name: string | null; username: string | null }>,
+): SearchStore[] {
+  const stores: SearchStore[] = [];
+  for (const profile of profiles) {
+    const href = resolveStoreHrefFromSeller({
+      sellerId: profile.id,
+      storeSlug: profile.username,
+    });
+    if (!href) continue;
+    stores.push({
+      id: profile.id,
+      name: profile.username || profile.full_name || "Store",
+      href,
+      description: profile.full_name?.trim() || "",
+    });
+  }
+  return stores;
+}
+
+function suggestedStoresFromListings(products: Product[], limit = SUGGESTED_LIMIT): SearchStore[] {
+  const seen = new Set<string>();
+  const stores: SearchStore[] = [];
+
+  for (const product of products) {
+    const sellerId = product.sellerId?.trim();
+    if (!sellerId || seen.has(sellerId)) continue;
+    seen.add(sellerId);
+
+    const href = resolveStoreHrefFromSeller({
+      sellerId,
+      storeSlug: product.sellerUsername,
+    });
+    if (!href) continue;
+
+    stores.push({
+      id: sellerId,
+      name: product.sellerUsername || product.sellerName || "Store",
+      href,
+      description: product.sellerName || "",
+    });
+
+    if (stores.length >= limit) break;
+  }
+
+  return stores;
+}
+
 export async function searchAll(
   query: string,
   options: SearchAllOptions = {},
@@ -91,64 +175,58 @@ export async function searchAll(
   const page = Math.floor(productOffset / productLimit) + 1;
 
   if (!normalized) {
-    const recentLimit = Math.min(Math.max(1, productLimit), RECENT_LISTINGS_LIMIT);
-    const recent = await getRecentPublishedListings(recentLimit);
-    const [products, trending] = await Promise.all([
-      withBreadcrumbs(recent),
-      getTrendingSearches(recent, RECENT_LISTINGS_LIMIT),
+    // Idle overlay: discovery chips only — never Homepage feed / cards.
+    const recent = await getRecentPublishedListings(SUGGESTED_LIMIT);
+    const [trending, popular, brands] = await Promise.all([
+      getTrendingSearches(recent, SUGGESTED_LIMIT),
+      getPopularSearches(SUGGESTED_LIMIT).catch(() => [] as string[]),
+      getSuggestedBrands(SUGGESTED_LIMIT),
     ]);
 
     return {
-      products,
-      sellers: defaultSuggestedSellers,
-      stores: [],
+      products: [],
+      sellers: [],
+      stores: suggestedStoresFromListings(recent, SUGGESTED_LIMIT),
       users: [],
       trending,
+      popular,
       categories: defaultCategories,
-      brands: [],
+      brands,
       locations: [],
       productsHasMore: false,
-      productsOffset: products.length,
+      productsOffset: 0,
     };
   }
 
-  const [{ items: products, hasMore }, profileMatches, brands] = await Promise.all([
-    getEligibleListings({
-      surface: "search",
-      query: normalized,
-      page,
-      pageSize: productLimit,
-      sort: options.sort ?? "newest",
-      brand: options.brand,
-      categorySlug: options.categorySlug,
-      sellerId: options.sellerId,
-      locationCity: options.locationCity,
-    }),
-    searchProfiles(normalized),
-    searchBrands(normalized),
-  ]);
+  const [{ items: products, hasMore }, profileMatches, brands, trendingRaw, popularRaw] =
+    await Promise.all([
+      getEligibleListings({
+        surface: "search",
+        query: normalized,
+        page,
+        pageSize: productLimit,
+        sort: options.sort ?? "newest",
+        brand: options.brand,
+        categorySlug: options.categorySlug,
+        sellerId: options.sellerId,
+        locationCity: options.locationCity,
+      }),
+      searchProfiles(normalized),
+      searchBrands(normalized),
+      getTrendingSearches([], SUGGESTED_LIMIT).catch(() => [] as string[]),
+      getPopularSearches(SUGGESTED_LIMIT).catch(() => [] as string[]),
+    ]);
+
+  const users = mapProfilesToUsers(profileMatches);
+  const stores = mapProfilesToStores(profileMatches);
 
   return {
     products: await withBreadcrumbs(products),
-    sellers: filterSellers(
-      profileMatches.length
-        ? profileMatches.map((profile) => ({
-            id: profile.id,
-            name: profile.full_name,
-            handle: `@${profile.username}`,
-            href: `/user/${profile.username}`,
-          }))
-        : defaultSuggestedSellers,
-      normalized,
-    ),
-    stores: [],
-    users: profileMatches.map((profile) => ({
-      id: profile.id,
-      name: profile.full_name,
-      handle: `@${profile.username}`,
-      href: `/user/${profile.username}`,
-    })),
-    trending: filterSuggestions(defaultTrendingSearches, normalized),
+    sellers: [],
+    stores,
+    users,
+    trending: filterSuggestions(trendingRaw, normalized),
+    popular: filterSuggestions(popularRaw, normalized),
     categories: defaultCategories.filter((category) => includesQuery(category.name, normalized)),
     brands,
     locations: searchLocations(normalized),

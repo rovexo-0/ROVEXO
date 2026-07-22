@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import { useCallback, useMemo, useState } from "react";
 import type { SearchOverlayContextValue } from "@/features/search/types";
 

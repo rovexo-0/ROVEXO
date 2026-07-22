@@ -24,7 +24,7 @@ export function SellerResults({
   if (sellers.length === 0 && users.length === 0) return null;
 
   return (
-    <ul className="flex flex-col gap-ds-1" role="listbox" aria-label="Sellers">
+    <ul className="flex flex-col gap-ds-1" role="listbox" aria-label="Members">
       {sellers.map((seller, sellerIndex) => {
         const navIndex = navOffset + sellerIndex;
         const isActive = activeIndex === navIndex;

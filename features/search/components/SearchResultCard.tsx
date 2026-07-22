@@ -5,9 +5,11 @@ import Link from "next/link";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
 import { Avatar } from "@/components/ui/Avatar";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import { productToCardProps } from "@/lib/products/card";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
+import { resolveVerifiedStatus } from "@/lib/master-engine";
 import type { Product } from "@/lib/products/types";
 import { highlightMatch } from "@/features/search/utils/highlight-match";
 
@@ -24,14 +26,6 @@ function StarIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
       <path d="M11.48 3.5a.56.56 0 0 1 1.04 0l2.08 4.7 5.1.48a.56.56 0 0 1 .32.98l-3.86 3.4 1.13 5a.56.56 0 0 1-.83.6L12 16.5l-4.46 2.66a.56.56 0 0 1-.83-.6l1.13-5-3.86-3.4a.56.56 0 0 1 .32-.98l5.1-.48 2.08-4.7Z" />
-    </svg>
-  );
-}
-
-function VerifiedIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="m9.6 16.2-3.3-3.3 1.4-1.4 1.9 1.9 5.9-5.9 1.4 1.4-7.3 7.3ZM12 2l2.4 1.8 3 .1 1 2.8 2.4 1.7-.9 2.9.9 2.9-2.4 1.7-1 2.8-3 .1L12 22l-2.4-1.8-3-.1-1-2.8L3.2 15.5l.9-2.9-.9-2.9 2.4-1.7 1-2.8 3-.1L12 2Z" />
     </svg>
   );
 }
@@ -79,6 +73,9 @@ export function SearchResultCard({
 
   const condition = formatCondition(product.condition);
   const hasRating = product.reviewCount > 0 && product.rating > 0;
+  const { showBadge: showVerifiedBadge } = resolveVerifiedStatus({
+    isRovexoVerified: Boolean(product.sellerVerified),
+  });
   const hasDiscount =
     typeof props.originalPrice === "number" && props.originalPrice > props.price;
   const breadcrumbs = product.categoryBreadcrumbs ?? [];
@@ -170,9 +167,7 @@ export function SearchResultCard({
             <span className="min-w-0 truncate text-xs text-text-secondary">
               {highlightMatch(product.sellerName, query)}
             </span>
-            {product.sellerVerified ? (
-              <VerifiedIcon className="h-3.5 w-3.5 shrink-0 text-primary" />
-            ) : null}
+            {showVerifiedBadge ? <VerifiedBadge /> : null}
             {hasRating ? (
               <span className="flex shrink-0 items-center gap-0.5 text-xs text-text-muted">
                 <StarIcon className="h-3 w-3 text-warning" />

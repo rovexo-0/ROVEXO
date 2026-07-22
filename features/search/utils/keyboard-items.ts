@@ -20,13 +20,13 @@ export function buildSearchNavItems({
   const items: SearchNavItem[] = [];
 
   if (!hasQuery) {
-    // Idle discovery order must mirror the overlay render order so
-    // aria-activedescendant lines up: recent listings → trending → history.
-    results.products.forEach((product) => {
+    // Idle order must mirror Search Overlay render order (Search System v1.0):
+    // Recent Searches → Trending → Popular → Categories → Stores → Brands
+    history.forEach((term) => {
       items.push({
-        id: `recent-listing-${product.id}`,
-        label: product.title,
-        href: `/listing/${product.slug}`,
+        id: `recent-search-${term}`,
+        label: term,
+        onSelect: () => onSelectTerm(term),
       });
     });
 
@@ -38,11 +38,35 @@ export function buildSearchNavItems({
       });
     });
 
-    history.forEach((term) => {
+    results.popular.forEach((term) => {
       items.push({
-        id: `recent-search-${term}`,
+        id: `popular-${term}`,
         label: term,
         onSelect: () => onSelectTerm(term),
+      });
+    });
+
+    results.categories.forEach((category) => {
+      items.push({
+        id: `suggested-category-${category.href}`,
+        label: category.name,
+        href: category.href,
+      });
+    });
+
+    results.stores.forEach((store) => {
+      items.push({
+        id: `suggested-store-${store.id}`,
+        label: store.name,
+        href: store.href,
+      });
+    });
+
+    results.brands.forEach((brand) => {
+      items.push({
+        id: `suggested-brand-${brand.href}`,
+        label: brand.name,
+        href: brand.href,
       });
     });
 

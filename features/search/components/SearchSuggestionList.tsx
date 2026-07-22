@@ -19,6 +19,8 @@ type SearchSuggestionListProps = {
   onHoverIndex: (index: number) => void;
   onNavigate?: () => void;
   maxProducts?: number;
+  /** Restrict row kinds — Search System v1.0 Items section uses products only. */
+  kinds?: Array<"product" | "category" | "brand" | "location">;
 };
 
 const SUGGESTION_ICONS = {
@@ -39,43 +41,54 @@ export function SearchSuggestionList({
   onHoverIndex,
   onNavigate,
   maxProducts = 5,
+  kinds = ["product", "category", "brand", "location"],
 }: SearchSuggestionListProps) {
+  const kindsSet = useMemo(() => new Set(kinds), [kinds]);
+
   const rows = useMemo(() => {
     const items: SuggestionRow[] = [];
 
-    for (const product of results.products.slice(0, maxProducts)) {
-      items.push({ kind: "product", key: product.id, product });
+    if (kindsSet.has("product")) {
+      for (const product of results.products.slice(0, maxProducts)) {
+        items.push({ kind: "product", key: product.id, product });
+      }
     }
 
-    for (const category of results.categories) {
-      items.push({
-        kind: "category",
-        key: category.href,
-        href: category.href,
-        title: category.name,
-      });
+    if (kindsSet.has("category")) {
+      for (const category of results.categories) {
+        items.push({
+          kind: "category",
+          key: category.href,
+          href: category.href,
+          title: category.name,
+        });
+      }
     }
 
-    for (const brand of results.brands) {
-      items.push({
-        kind: "brand",
-        key: brand.href,
-        href: brand.href,
-        title: brand.name,
-      });
+    if (kindsSet.has("brand")) {
+      for (const brand of results.brands) {
+        items.push({
+          kind: "brand",
+          key: brand.href,
+          href: brand.href,
+          title: brand.name,
+        });
+      }
     }
 
-    for (const location of results.locations) {
-      items.push({
-        kind: "location",
-        key: location.href,
-        href: location.href,
-        title: location.name,
-      });
+    if (kindsSet.has("location")) {
+      for (const location of results.locations) {
+        items.push({
+          kind: "location",
+          key: location.href,
+          href: location.href,
+          title: location.name,
+        });
+      }
     }
 
     return items;
-  }, [maxProducts, results]);
+  }, [kindsSet, maxProducts, results]);
 
   if (rows.length === 0) return null;
 

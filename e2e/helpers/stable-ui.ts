@@ -186,14 +186,7 @@ export async function waitForSearchEmptyState(page: Page): Promise<void> {
 
 export async function waitForSearchOverlayUi(page: Page): Promise<void> {
   const overlay = page.locator("#search-overlay-results");
-  const homepageSuggestions = page.locator(".homepage-search__suggestions").first();
-
-  if (page.url().includes("/search")) {
-    await expect(overlay).toBeVisible();
-  } else {
-    await expect(overlay.or(homepageSuggestions)).toBeVisible();
-  }
-
+  await expect(overlay).toBeVisible({ timeout: 10_000 });
   await page.waitForTimeout(300);
 }
 
@@ -224,7 +217,7 @@ export async function openSearchOverlay(page: Page): Promise<void> {
 
   if (await field.isVisible().catch(() => false)) {
     await field.click();
-    await expect(field).toBeFocused();
+    await waitForSearchOverlayUi(page);
     return;
   }
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { ListingCard } from "@/components/ui/ListingCard";
+import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import type { Product } from "@/lib/products/types";
 import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
 import { SearchResultsEmpty } from "@/features/search/components/SearchResultsEmpty";
@@ -192,7 +193,7 @@ export function SearchResultsView() {
           </div>
         ) : (
           items.map((product) => (
-            <ListingCard key={product.id} product={product} variant="grid" surface="search" />
+            <ListingCard key={product.id} product={product} variant="grid" {...HP_CANONICAL_LISTING_PROPS} />
           ))
         )}
         {isLoadingMore ? <ProductGridSkeleton count={4} /> : null}
