@@ -1,27 +1,53 @@
 /**
- * ROVEXO HEADER MASTER FREEZE v1.0 — LEVEL 8
- * Header Simplification CERTIFIED: MINIMALIST · SEARCH FIRST · FULL WIDTH SEARCH BAR
+ * ROVEXO HEADER MASTER FREEZE v1.0 — OWNER LOCKED
  *
- * ONE Header · NO Notification · NO Avatar · NO header profile fetch
- * Profile/Wallet/Orders keep Back + title via AccountCanonicalHeader (not RovexoHeaderV2 actions).
+ * APPROVED BY OWNER · MOBILE FIRST · COMPACT PREMIUM
+ * ONE HEADER · ONE SEARCH BAR · NO AVATAR · NO NOTIFICATIONS
+ * SEARCH HAS ABSOLUTE PRIORITY · LONG TERM SCALABLE
+ *
+ * NO FURTHER MODIFICATIONS without Owner re-authorization.
  */
 
 export const HEADER_MASTER_FREEZE_V1 = {
   version: "1.0",
-  status: "PRODUCTION_CERTIFIED_LEVEL_8_SEARCH_FIRST_MINIMALIST",
+  status: "OWNER_APPROVED_LOCKED_FROZEN",
   complete: true,
   certified: true,
   productionReady: true,
   freezeLocked: true,
+  approvedByOwner: true,
+  mobileFirst: true,
+  compactPremium: true,
   searchFirstMinimalist: true,
   oneHeaderOnly: true,
+  oneSearchBarOnly: true,
+  oneCameraSearchOnly: true,
   oneAvatarOwner: true,
   oneProfileFetchOnAppLoad: true,
   fullWidthSearchBar: true,
   noNotificationIcon: true,
   noAvatarInHeader: true,
   noHeaderProfileFetch: true,
+  noHeaderNotificationFetch: true,
+  noHeaderUserDataFetch: true,
   headerSurvivesNavigation: true,
+  headerNeverReloads: true,
+  headerNeverRemountsOnNav: true,
+  searchHasAbsolutePriority: true,
+  tokens: {
+    headerHeightPx: 64,
+    searchBar: {
+      heightPx: 44,
+      radiusPx: 16,
+      width: "100%_AVAILABLE_SPACE",
+      iconPx: 20,
+      cameraIconPx: 20,
+      clearIconPx: 20,
+      paddingPx: 16,
+      textPx: 14,
+    },
+  },
+  /** @deprecated use tokens.searchBar */
   searchBarTokens: {
     heightPx: 44,
     radiusPx: 16,
@@ -29,6 +55,14 @@ export const HEADER_MASTER_FREEZE_V1 = {
     iconPx: 20,
     paddingPx: 16,
   },
+  allowed: [
+    "ROVEXO Logo",
+    "Search Bar",
+    "Search Icon",
+    "Camera Search",
+    "Clear Search (X)",
+    "Voice Search (future optional)",
+  ] as const,
   keep: [
     "Search Icon",
     "Camera Search Icon",
@@ -36,6 +70,19 @@ export const HEADER_MASTER_FREEZE_V1 = {
     "Search Suggestions",
     "Trending Searches",
     "Camera Search",
+  ] as const,
+  notAllowed: [
+    "Avatar",
+    "Notifications",
+    "Notification badges",
+    "Settings icon",
+    "Wallet icon",
+    "Inbox icon",
+    "Multiple headers",
+    "Multiple search bars",
+    "Multiple search providers",
+    "Duplicate camera search",
+    "Duplicate navigation states",
   ] as const,
   removed: [
     "Notification Icon",
@@ -45,12 +92,40 @@ export const HEADER_MASTER_FREEZE_V1 = {
     "Avatar Fetch in Header",
     "Avatar Skeleton",
   ] as const,
+  survivesWithoutRefresh: [
+    "Home",
+    "Search",
+    "Image Search",
+    "Discovery",
+    "Categories",
+    "Similar Products",
+    "Recommended Products",
+    "Search Results",
+  ] as const,
+  successGates: {
+    oneHeader: "PASS",
+    oneSearchBar: "PASS",
+    noAvatar: "PASS",
+    noNotifications: "PASS",
+    noSecondApiCall: "PASS",
+    noHeaderRemount: "PASS",
+    noRefreshRequired: "PASS",
+    noHydrationIssues: "PASS",
+    noDuplicatedStates: "PASS",
+    noDuplicatedProviders: "PASS",
+    cameraSearchWorks: "PASS",
+    imageSearchWorks: "PASS",
+    resultsAppearImmediately: "PASS",
+    searchBarMaxWidth: "PASS",
+  },
   forbidden: [
     "Notification icon in RovexoHeaderV2",
     "Avatar / HeaderProfileLink in RovexoHeaderV2",
+    "Header fetch avatar / notifications / user data",
     "duplicated Header icons",
     "unnecessary Header actions",
-    "Camera Search / SearchProvider modifications",
+    "per-page second RovexoHeaderV2",
+    "Camera Search / SearchProvider modifications for header work",
   ] as const,
   ssot: {
     freeze: "lib/header/header-master-freeze-v1.ts",

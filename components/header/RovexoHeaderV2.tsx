@@ -59,6 +59,7 @@ function RovexoHeaderV2({
     <header
       ref={headerRef}
       data-header-version="rovexo-v2"
+      data-header-freeze="v1.0-locked"
       data-header-simplification="v1.0"
       data-header-search-first="true"
       className={cn(

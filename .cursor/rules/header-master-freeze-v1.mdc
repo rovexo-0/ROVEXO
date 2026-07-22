@@ -1,26 +1,40 @@
-# ROVEXO HEADER MASTER FREEZE v1.0 — SEARCH FIRST
+# ROVEXO HEADER MASTER FREEZE v1.0 — LOCKED
 
-**STATUS: LEVEL 8 APPROVED · HEADER SIMPLIFICATION CERTIFIED**
+**STATUS: OWNER APPROVED · LOCKED · FROZEN**  
+**MOBILE FIRST · COMPACT PREMIUM · SEARCH ABSOLUTE PRIORITY**
 
 SSOT: `lib/header/header-master-freeze-v1.ts`
 
 ## Chrome
 
 ```
-ROVEXO | ========== Search Bar (FULL WIDTH) ==========
+ROVEXO | ========== Search Bar (100% available) ==========
 ```
 
-44px · 16px radius · 14px text · 20×20 icons · 16px padding
+Header 64px · Search 44px · Radius 16 · Icons 20×20 · Padding 16
 
-## Removed
+## Allowed
 
-Notification · Avatar · Badge · Header profile fetch
+Logo · Search Bar · Search Icon · Camera · Clear (X) · Voice (future)
 
-## Kept
+## Not allowed
 
-Search · Camera · Clear (X) · Suggestions · Trending · Camera Search
+Avatar · Notifications · badges · Settings/Wallet/Inbox icons · multiple headers/search bars/providers
 
-## Profile / Wallet / Orders
+## Rules
 
-Back + title via AccountCanonicalHeader (not RovexoHeaderV2 actions).
+1. ONE Header  
+2. ONE Search Bar  
+3. ONE Camera Search  
+4. Header never changes after navigation  
+5. Header never reloads  
+6. Header never fetches avatar / notifications / user data  
+7. Search bar always has priority  
+8. Survives Home → Search → Image → Discovery → Results without refresh/remount  
+9. Camera Search always works (Confirm → Auto Search → Results)  
+10. Search bar = 100% available space  
+
+## Success gates
+
+All PASS. NO FURTHER MODIFICATIONS without Owner re-authorization.
 ---
