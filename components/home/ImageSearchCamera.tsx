@@ -1,7 +1,7 @@
 "use client";
 
-import { GalleryLineIcon } from "@/components/icons/RvxLineIcons";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
+import { SearchBarCameraIcon } from "@/features/search/components/SearchBarIcons";
 import { cn } from "@/lib/cn";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
@@ -13,8 +13,8 @@ export type ImageSearchCameraProps = {
 };
 
 /**
- * Native camera / photo-library entry — opens the OS picker immediately on tap.
- * No in-browser camera overlay; heavy work runs after the user selects a photo.
+ * Native camera / photo-library entry — Search Bar Icon Freeze.
+ * Profile Icons Family · 20×20 camera glyph (not Lens / AI / chat).
  */
 export function ImageSearchCamera({
   inputId,
@@ -31,7 +31,7 @@ export function ImageSearchCamera({
         transitionFast,
         (disabled || processing) && "pointer-events-none opacity-60",
       )}
-      aria-label="Image search"
+      aria-label="Camera search"
     >
       {processing ? (
         <span className="homepage-search__spinner" aria-hidden>
@@ -53,7 +53,7 @@ export function ImageSearchCamera({
           </svg>
         </span>
       ) : (
-        <GalleryLineIcon className="h-5 w-5" aria-hidden />
+        <SearchBarCameraIcon />
       )}
       <NativeImageFileInput
         id={inputId}

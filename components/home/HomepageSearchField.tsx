@@ -1,13 +1,12 @@
 "use client";
 
 import { useRef, type KeyboardEvent } from "react";
-import { RovexoIcon } from "@/components/icons/RovexoIcon";
-import { RovexoIcons } from "@/lib/icons";
 import { cn } from "@/lib/cn";
 import { useClientHydrated } from "@/lib/react/use-client-hydrated";
 import { useSearchOverlayOptional } from "@/features/search/client";
 import { captureHomepageScroll } from "@/lib/navigation/homepage-scroll-restore";
 import { SEARCH_SYSTEM_V1 } from "@/lib/search/search-system-v1-lock";
+import { SearchBarSearchIcon } from "@/features/search/components/SearchBarIcons";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
 export type HomepageSearchFieldProps = {
@@ -17,9 +16,8 @@ export type HomepageSearchFieldProps = {
 };
 
 /**
- * Homepage search entry — icon + placeholder only.
- * Focus / click / Enter opens the canonical Search Overlay (Camera + Close live there).
- * No parallel suggestion dropdown. No camera on the homepage field.
+ * Homepage search entry — Search Bar Icon Freeze.
+ * Left: Profile-family Search icon 20×20. Opens overlay (Camera + Close live there).
  */
 export function HomepageSearchField({ inputId, className }: HomepageSearchFieldProps) {
   const hydrated = useClientHydrated();
@@ -32,7 +30,6 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
       searchOverlay.open();
       return;
     }
-    // Fail-closed: overlay provider missing — stay on field (never invent a second search UI).
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -43,7 +40,7 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
   }
 
   return (
-    <div className={cn("homepage-search", className)}>
+    <div className={cn("homepage-search", className)} data-search-bar="v1-icon-freeze">
       <div role="search" className="homepage-search__form">
         <label htmlFor={inputId} className="sr-only">
           Search products
@@ -51,7 +48,7 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
 
         <div className={cn("homepage-search__control", transitionFast)}>
           <span className="homepage-search__icon" aria-hidden>
-            <RovexoIcon icon={RovexoIcons.navigation.search} size={20} />
+            <SearchBarSearchIcon />
           </span>
 
           <input

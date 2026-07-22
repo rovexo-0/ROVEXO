@@ -34,6 +34,9 @@ describe("Search System v1.0 production lock", () => {
     expect(overlay).toContain("SEARCH_SYSTEM_V1.placeholder");
     expect(overlay).toContain("<SearchInputActions");
     expect(overlay).toContain('aria-label="Close"');
+    expect(overlay).toContain("SearchBarSearchIcon");
+    expect(overlay).toContain("SearchBarCloseIcon");
+    expect(overlay).toContain('data-search-bar="v1-icon-freeze"');
     expect(overlay).toContain("Recent Searches");
     expect(overlay).toContain("Trending Searches");
     expect(overlay).toContain('title="Suggestions"');
@@ -46,15 +49,34 @@ describe("Search System v1.0 production lock", () => {
     expect(overlay).not.toContain("Popular Searches");
     expect(overlay).not.toContain("Recent Listings");
     expect(overlay).not.toContain("SavedSearchesPanel");
-    expect(overlay).not.toContain("Suggested Categories");
     expect(overlay).not.toContain('title="Brands"');
 
-    expect(actions).toContain("ImageSearchCamera");
+    expect(actions).toContain("SearchBarCameraIcon");
     expect(actions).not.toContain("Voice search");
     expect(actions).not.toContain("onVoice");
     expect(actions).not.toContain("MicIcon");
+    expect(actions).not.toContain("GalleryLineIcon");
 
     expect(history).toContain("SEARCH_SYSTEM_V1.historyMax");
+  });
+
+  it("locks Search Bar icons to Profile Icons Family (20×20 · stroke 1.9)", () => {
+    const icons = readSource("features/search/components/SearchBarIcons.tsx");
+    const field = readSource("components/home/HomepageSearchField.tsx");
+    const camera = readSource("components/home/ImageSearchCamera.tsx");
+    const css = readSource("styles/rovexo/homepage-header.css");
+
+    expect(icons).toContain("SEARCH_BAR_ICON_SIZE_PX = 20");
+    expect(icons).toContain("SEARCH_BAR_ICON_STROKE = 1.9");
+    expect(icons).toContain("SEARCH_BAR_HEIGHT_PX = 44");
+    expect(icons).toContain("SEARCH_BAR_RADIUS_PX = 16");
+    expect(icons).toContain("SEARCH_BAR_TEXT_PX = 14");
+    expect(icons).toContain("Profile Icons Family");
+    expect(field).toContain("SearchBarSearchIcon");
+    expect(camera).toContain("SearchBarCameraIcon");
+    expect(camera).not.toContain("GalleryLineIcon");
+    expect(css).toContain("height: 44px");
+    expect(css).toContain("border-radius: 16px");
   });
 
   it("uses DB-backed search server without hardcoded fake sellers", () => {

@@ -1,12 +1,16 @@
 "use client";
 
-import { useId, useState } from "react";
+import {
+  useId,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
-import { ImageSearchCamera } from "@/components/home/ImageSearchCamera";
+import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
 import { storeImageSearchQuery } from "@/lib/image-search/storage";
 import { prepareSearchImage } from "@/lib/search/image-pipeline";
+import { SearchBarCameraIcon } from "@/features/search/components/SearchBarIcons";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 
 type SearchInputActionsProps = {
@@ -14,9 +18,9 @@ type SearchInputActionsProps = {
 };
 
 /**
- * ONE camera system — Absolute Master Freeze.
- * Take/Upload → Crop (auto center) → Confirm → Search.
- * Zero questions (no category/brand/store prompts). Fail → text search.
+ * ONE camera system — Search Bar Icon Freeze.
+ * Profile Icons Family · 20×20 · Take/Upload → Crop → Confirm → Search.
+ * Zero questions. No AI / Lens / chat camera.
  */
 export function SearchInputActions({ className }: SearchInputActionsProps) {
   const router = useRouter();
@@ -59,12 +63,30 @@ export function SearchInputActions({ className }: SearchInputActionsProps) {
 
   return (
     <>
-      <div className={cn("flex items-center gap-0.5", className)}>
-        <ImageSearchCamera
-          inputId={`${cameraInputId}-camera`}
-          processing={processing}
-          onFilesSelected={(files) => void handleImageSearchFiles(files)}
-        />
+      <div className={cn("flex shrink-0 items-center", className)}>
+        <label
+          htmlFor={`${cameraInputId}-camera`}
+          className={cn(
+            "relative inline-flex h-11 w-11 items-center justify-center rounded-2xl text-text-secondary",
+            focusRing,
+            transitionFast,
+            (processing) && "pointer-events-none opacity-60",
+          )}
+          aria-label="Camera search"
+        >
+          {processing ? (
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-text-secondary" aria-hidden />
+          ) : (
+            <SearchBarCameraIcon />
+          )}
+          <NativeImageFileInput
+            id={`${cameraInputId}-camera`}
+            intent="any"
+            placement="overlay"
+            disabled={processing}
+            onFilesSelected={(files) => void handleImageSearchFiles(files)}
+          />
+        </label>
       </div>
 
       {pendingDataUrl
@@ -75,20 +97,20 @@ export function SearchInputActions({ className }: SearchInputActionsProps) {
               aria-modal="true"
               aria-label="Confirm image search"
             >
-              <div className="w-full max-w-md rounded-ds-2xl bg-white p-ds-4 shadow-lg">
+              <div className="w-full max-w-md rounded-2xl bg-white p-ds-4 shadow-lg">
                 <p className="mb-ds-3 text-sm font-semibold text-text-primary">Confirm photo</p>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={pendingDataUrl}
                   alt=""
-                  className="mb-ds-4 aspect-square w-full rounded-ds-xl object-cover"
+                  className="mb-ds-4 aspect-square w-full rounded-2xl object-cover"
                 />
                 <div className="flex gap-ds-2">
                   <button
                     type="button"
                     onClick={cancelImageSearch}
                     className={cn(
-                      "flex h-12 flex-1 items-center justify-center rounded-ds-xl border border-border text-sm font-semibold",
+                      "flex h-11 flex-1 items-center justify-center rounded-2xl border border-border text-sm font-semibold",
                       focusRing,
                       transitionFast,
                     )}
@@ -99,7 +121,7 @@ export function SearchInputActions({ className }: SearchInputActionsProps) {
                     type="button"
                     onClick={confirmImageSearch}
                     className={cn(
-                      "flex h-12 flex-1 items-center justify-center rounded-ds-xl bg-primary text-sm font-semibold text-white",
+                      "flex h-11 flex-1 items-center justify-center rounded-2xl bg-primary text-sm font-semibold text-white",
                       focusRing,
                       transitionFast,
                     )}

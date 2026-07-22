@@ -1,0 +1,27 @@
+# ROVEXO Search Bar + Icon Freeze v1.0
+
+**STATUS: PERMANENT FREEZE · APPROVED**
+
+SSOT: `features/search/components/SearchBarIcons.tsx`
+
+## Icons (Profile Icons Family)
+
+| Position | Icon | Size | Stroke |
+|---|---|---|---|
+| Left | Search | 20×20 | 1.9 |
+| Right | Camera Search | 20×20 | 1.9 |
+| Right | X Close | 20×20 | 1.9 |
+
+Forbidden: different family / stroke / thickness / padding / size · AI Camera · Google Lens · chat camera · multiple camera systems
+
+## Search Bar
+
+- Height: **44px**
+- Radius: **16px**
+- Text: **14px**
+- Placeholder: `Search for items or members`
+- Layout: Search icon · placeholder · Camera · X
+
+## Camera flow
+
+Take Photo → Upload → Crop → Confirm → Search Engine → Results · Zero questions

@@ -182,10 +182,11 @@
   align-items: center;
   gap: var(--ds-space-2);
   width: 100%;
-  min-height: 40px;
-  padding-inline: var(--ds-space-3);
+  height: 44px;
+  min-height: 44px;
+  padding-inline: 12px;
   border: 1px solid var(--ds-color-border);
-  border-radius: 9999px;
+  border-radius: 16px;
   background: var(--ds-color-surface);
   color: var(--ds-color-text-primary);
   transition:
@@ -195,13 +196,15 @@
 
 @media (min-width: 768px) {
   .homepage-search__control {
+    height: 44px;
     min-height: 44px;
   }
 }
 
 @media (min-width: 1024px) {
   .homepage-search__control {
-    min-height: 46px;
+    height: 44px;
+    min-height: 44px;
   }
 }
 
@@ -269,10 +272,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 16px;
   background: transparent;
   color: var(--ds-color-text-secondary);
   flex-shrink: 0;

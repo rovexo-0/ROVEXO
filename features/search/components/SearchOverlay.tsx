@@ -44,22 +44,13 @@ import {
 import { buildSearchNavItems, SEARCH_PRIMARY_PRODUCT_COUNT } from "@/features/search/utils/keyboard-items";
 import { hasSearchResults } from "@/features/search/utils/search-client";
 import { SEARCH_ENGINE_V1 } from "@/lib/search/search-engine-v1";
-
-function SearchIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-    </svg>
-  );
-}
-
-function CloseIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
-  );
-}
+import {
+  SearchBarCloseIcon,
+  SearchBarSearchIcon,
+  SEARCH_BAR_HEIGHT_PX,
+  SEARCH_BAR_RADIUS_PX,
+  SEARCH_BAR_TEXT_PX,
+} from "@/features/search/components/SearchBarIcons";
 
 function LoadingSpinner({ className }: { className?: string }) {
   return (
@@ -227,15 +218,26 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
           )}
         >
         <header className="border-b border-border px-ds-4 pb-ds-3 pt-[max(env(safe-area-inset-top),var(--ds-space-3))]">
-          <form onSubmit={handleSubmit} role="search" className="flex items-center gap-ds-2">
+          <form
+            onSubmit={handleSubmit}
+            role="search"
+            className="w-full"
+            data-search-bar="v1-icon-freeze"
+          >
             <div
               className={cn(
-                "relative flex min-h-ds-7 flex-1 items-center rounded-ds-full border border-border bg-white pl-ds-7 pr-ds-2",
+                "relative flex w-full items-center border border-border bg-white pl-3 pr-1",
                 transitionFast,
                 "focus-within:ring-2 focus-within:ring-primary/25",
               )}
+              style={{
+                height: SEARCH_BAR_HEIGHT_PX,
+                borderRadius: SEARCH_BAR_RADIUS_PX,
+              }}
             >
-              <SearchIcon className="pointer-events-none absolute left-ds-4 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" />
+              <span className="mr-2 inline-flex shrink-0 text-text-muted" aria-hidden>
+                <SearchBarSearchIcon />
+              </span>
               <input
                 ref={inputRef}
                 id={inputId}
@@ -248,26 +250,26 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                 aria-activedescendant={
                   activeIndex >= 0 ? `search-nav-item-${activeIndex}` : undefined
                 }
-                className="min-h-ds-7 w-full border-0 bg-transparent py-ds-2 pr-ds-2 text-sm text-text-primary outline-none placeholder:text-text-muted sm:text-base"
+                className="min-w-0 flex-1 border-0 bg-transparent text-text-primary outline-none placeholder:text-text-muted"
+                style={{ fontSize: SEARCH_BAR_TEXT_PX, lineHeight: 1.2 }}
               />
               {(isDebouncing || isLoading) && (
-                <LoadingSpinner className="mr-ds-1 h-5 w-5 text-text-muted" aria-hidden />
+                <LoadingSpinner className="mr-1 h-5 w-5 shrink-0 text-text-muted" aria-hidden />
               )}
               <SearchInputActions />
+              <button
+                type="button"
+                onClick={handleClose}
+                aria-label="Close"
+                className={cn(
+                  "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-text-secondary hover:bg-secondary hover:text-text-primary",
+                  focusRing,
+                  transitionFast,
+                )}
+              >
+                <SearchBarCloseIcon />
+              </button>
             </div>
-
-            <button
-              type="button"
-              onClick={handleClose}
-              aria-label="Close"
-              className={cn(
-                "flex h-12 w-12 shrink-0 items-center justify-center rounded-ds-full text-text-secondary hover:bg-secondary hover:text-text-primary",
-                focusRing,
-                transitionFast,
-              )}
-            >
-              <CloseIcon className="h-5 w-5" />
-            </button>
           </form>
         </header>
 

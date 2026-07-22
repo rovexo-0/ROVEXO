@@ -60,12 +60,13 @@
 }
 
 .rx-h2-search .homepage-search__control {
-  min-height: 41px;
-  border-radius: 24px;
+  height: 44px;
+  min-height: 44px;
+  border-radius: 16px;
   border: 1px solid var(--ds-color-border);
   background: var(--ds-color-surface);
   box-shadow: none;
-  padding-left: 16px;
+  padding-left: 12px;
 }
 
 .rx-h2-search .homepage-search__icon {
@@ -266,8 +267,8 @@
 .rx-h2-search--homepage .homepage-search__control {
   min-height: var(--cp-search-height, 44px);
   height: var(--cp-search-height, 44px);
-  padding-inline: 14px 10px;
-  border-radius: 999px;
+  padding-inline: 12px;
+  border-radius: 16px;
   border-color: rgb(15 23 42 / 0.08);
   background: #f8fafc;
   box-shadow: none;
