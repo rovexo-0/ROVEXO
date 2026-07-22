@@ -116,29 +116,25 @@ describe("Enterprise UI system — Absolute Final icon freeze", () => {
 });
 
 describe("Enterprise UI system — header", () => {
-  it("uses canonical line icons on non-homepage headers; homepage omits logo and notification", () => {
+  it("uses search-first header without notification or avatar icons", () => {
     const header = readFileSync(join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     expect(header).toContain("ROVEXO");
-    expect(header).toContain("RvxLineIcons");
+    expect(header).toContain("HomepageSearchField");
     expect(header).not.toContain("lucide-react");
     expect(header).not.toContain("MessageSquare");
-    expect(header).toContain("BellLineIcon");
-    expect(header).toContain("HeaderProfileLink");
-    expect(header).toContain("HomepageHeaderShareButton");
-    expect(header).toContain("!isHomepageLayout");
+    expect(header).not.toContain("BellLineIcon");
+    expect(header).not.toContain("HeaderProfileLink");
+    expect(header).not.toContain("HomepageHeaderShareButton");
+    expect(header).toContain('data-header-search-first="true"');
   });
 
-  it("uses debounced inline search on the homepage header", () => {
+  it("opens Search Overlay from homepage field with Profile-family Search icon", () => {
     const header = readFileSync(join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     const searchField = readFileSync(join(process.cwd(), "components/home/HomepageSearchField.tsx"), "utf8");
-    const imageSearch = readFileSync(join(process.cwd(), "components/home/ImageSearchCamera.tsx"), "utf8");
     expect(header).toContain("HomepageSearchField");
-    expect(searchField).toContain("RovexoIcon");
-    expect(searchField).toContain("RovexoIcons.navigation.search");
-    expect(searchField).toContain("size={20}");
-    expect(searchField).toContain("useDebouncedValue");
+    expect(searchField).toContain("SearchBarSearchIcon");
+    expect(searchField).toContain("useSearchOverlayOptional");
     expect(searchField).not.toContain("BottomNavIcon3D");
-    expect(searchField).toContain("ImageSearchCamera");
-    expect(imageSearch).toContain('aria-label="Image search"');
+    expect(searchField).not.toContain("ImageSearchCamera");
   });
 });

@@ -21,7 +21,9 @@ describe("Camera Search v1.0 — LEVEL 8 Owner Certificate", () => {
     expect(CAMERA_SEARCH_PERFORMANCE_V1.status).toBe(
       "PRODUCTION_CERTIFIED_LEVEL_8_FREEZE_LOCKED",
     );
-    expect(HEADER_MASTER_FREEZE_V1.status).toBe("PRODUCTION_CERTIFIED_LEVEL_8_FREEZE_LOCKED");
+    expect(HEADER_MASTER_FREEZE_V1.status).toBe(
+      "PRODUCTION_CERTIFIED_LEVEL_8_SEARCH_FIRST_MINIMALIST",
+    );
     expect(HEADER_MASTER_FREEZE_V1.freezeLocked).toBe(true);
   });
 

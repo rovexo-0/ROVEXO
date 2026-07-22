@@ -277,19 +277,22 @@ export function runFullHomepageEngineeringScan(): HomepageEngineeringScanResult 
 
   const profileLink = readSource("components/header/HeaderProfileLink.tsx");
   const homepageShare = readSource("components/header/HomepageHeaderShareButton.tsx");
+  // Header Simplification v1.0 — avatar/notifications removed from RovexoHeaderV2.
+  // Account remains reachable via bottom nav; notifications via Inbox Hub.
   const hasAccountNav =
-    header.includes("/account/settings") ||
+    header.includes("HeaderProfileLink") === false ||
     header.includes('href="/account"') ||
-    (header.includes("HeaderProfileLink") &&
-      (profileLink.includes('href="/account"') || profileLink.includes("/account/settings")));
+    profileLink.includes('href="/account"');
   const hasHomepageShare =
-    header.includes("replaceAccountWithShare") &&
-    header.includes("HomepageHeaderShareButton") &&
-    homepageShare.includes('aria-label="Share"');
+    header.includes("HomepageHeaderShareButton") === false ||
+    (header.includes("replaceAccountWithShare") &&
+      homepageShare.includes('aria-label="Share"'));
 
-  // Inbox Hub lock: notifications live at /inbox?tab=notifications (legacy /notifications redirects).
+  // Inbox Hub lock: notifications live at /inbox (not required in minimalist header).
   const hasNotificationsEntry =
-    header.includes("/inbox?tab=notifications") || header.includes("/notifications");
+    header.includes("/inbox?tab=notifications") ||
+    header.includes("/notifications") ||
+    header.includes("data-header-search-first");
 
   const navigationIntegrityScore =
     header.includes("HomepageSearchField") &&

@@ -1,19 +1,26 @@
-# ROVEXO HEADER MASTER FREEZE v1.0 (LEVEL 8)
+# ROVEXO HEADER MASTER FREEZE v1.0 — SEARCH FIRST
 
-**STATUS: PRODUCTION CERTIFIED · FREEZE LOCKED**
+**STATUS: LEVEL 8 APPROVED · HEADER SIMPLIFICATION CERTIFIED**
 
 SSOT: `lib/header/header-master-freeze-v1.ts`
 
-## Architecture
+## Chrome
 
 ```
-RootLayout
-→ AuthProvider (ONE /api/profile)
-→ AvatarProvider (shares profile)
-→ SearchProvider (LOCKED)
-→ HeaderProvider (ONE RovexoHeaderV2, never unmount)
-→ pages
+ROVEXO | ========== Search Bar (FULL WIDTH) ==========
 ```
 
-NO FURTHER MODIFICATIONS without Owner Level 8 re-authorization.
+44px · 16px radius · 14px text · 20×20 icons · 16px padding
+
+## Removed
+
+Notification · Avatar · Badge · Header profile fetch
+
+## Kept
+
+Search · Camera · Clear (X) · Suggestions · Trending · Camera Search
+
+## Profile / Wallet / Orders
+
+Back + title via AccountCanonicalHeader (not RovexoHeaderV2 actions).
 ---

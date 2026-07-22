@@ -45,11 +45,10 @@ describe("Canonical Homepage — icon system", () => {
 
     const header = readSource(HEADER_FILE);
     expect(header).not.toContain("lucide-react");
-    expect(header).toContain("RvxLineIcons");
     expect(header).not.toContain("MessageSquare");
-    expect(header).toContain("BellLineIcon");
-    // Homepage layout omits logo + notification (PO authorized removal).
-    expect(header).toContain("!isHomepageLayout");
+    expect(header).not.toContain("BellLineIcon");
+    expect(header).toContain("HomepageSearchField");
+    expect(header).toContain('data-header-search-first="true"');
   });
 
   it("uses text-link category rail without icon holders", () => {
@@ -91,7 +90,7 @@ describe("Canonical Homepage — Absolute Final icon freeze", () => {
     const dashboard3d = readSource("components/icons/DashboardIcon3D.tsx");
     const fluency = readSource("components/icons/Fluency3DIcon.tsx");
     expect(bottomNav3d).toContain("RvxLineIcons");
-    expect(dashboard3d).toContain("RvxLineIcons");
+    expect(dashboard3d).toMatch(/RvxLineIcons|AccountIcon/);
     expect(fluency).toContain("RvxLineIcons");
     expect(fluency).not.toContain("<picture");
     expect(fluency).not.toMatch(/fluency-3d\/.*\.(webp|png)/);

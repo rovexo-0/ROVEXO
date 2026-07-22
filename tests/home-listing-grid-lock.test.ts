@@ -113,13 +113,13 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(css).toContain("--hp-store-visible-cards: 2.5");
   });
 
-  it("places search below header on homepage without logo or notification icon", () => {
+  it("places search beside ROVEXO wordmark — full-width search-first header", () => {
     const header = readSource("components/header/RovexoHeaderV2.tsx");
     const provider = readSource("features/header/HeaderProvider.tsx");
 
     expect(header).toContain('layout?: "default" | "homepage"');
-    expect(header).toContain("rx-h2__search-row");
-    expect(header).toContain("!isHomepageLayout");
+    expect(header).toContain("rx-h2__search");
+    expect(header).toContain("HomepageSearchField");
     expect(provider).toContain('layout: "homepage"');
   });
 
@@ -149,10 +149,11 @@ describe("Official Listing Card — homepage grid lock", () => {
     const search = readSource("components/home/HomepageSearchField.tsx");
     const header = readSource("components/header/RovexoHeaderV2.tsx");
 
-    expect(search).toContain("Search for items or members");
-    expect(search).toContain("RovexoIcons.navigation.search");
+    expect(search).toContain("SEARCH_SYSTEM_V1.placeholder");
+    expect(search).toContain("SearchBarSearchIcon");
     expect(search).not.toContain("ImageSearchCamera");
     expect(header).toContain("hp-canonical-search");
+    expect(header).toContain('data-header-search-first="true"');
   });
 
   it("uses canonical homepage stack only", () => {

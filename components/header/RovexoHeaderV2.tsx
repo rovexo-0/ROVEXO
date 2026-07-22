@@ -2,48 +2,41 @@
 
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { BellLineIcon } from "@/components/icons/RvxLineIcons";
 import { HomepageSearchField } from "@/components/home/HomepageSearchField";
-import { HeaderV2IconLink } from "@/components/header/HeaderV2IconLink";
-import { HeaderProfileLink } from "@/components/header/HeaderProfileLink";
-import { HomepageHeaderShareButton } from "@/components/header/HomepageHeaderShareButton";
-import { RovexoWordmark } from "@/components/brand/RovexoWordmark";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
-import { useHeaderBadges } from "@/features/header/hooks/use-header-badges";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import { HEADER_MASTER_FREEZE_V1 } from "@/lib/header/header-master-freeze-v1";
 
 export type RovexoHeaderV2Props = {
   showSearch?: boolean;
+  /** @deprecated notifications removed — Header Simplification v1.0 */
   unreadNotifications?: number;
-  /** Homepage — search row only (logo + notification icon removed by PO contract). */
+  /**
+   * homepage | default — both render ROVEXO + full-width search (no avatar / notifications).
+   * account — wordmark-only chrome (rarely used; account shells use AccountCanonicalHeader).
+   */
   layout?: "default" | "homepage" | "account";
-  /** Non-homepage — replaces Account/Avatar with Share. */
+  /** @deprecated share/avatar actions removed — Header Simplification v1.0 */
   replaceAccountWithShare?: boolean;
 };
 
+/**
+ * ROVEXO HEADER v1.0 — MINIMALIST · SEARCH FIRST · FULL WIDTH SEARCH BAR
+ * LEVEL 8 APPROVED Header Simplification.
+ * Forbidden: Notification icon · Avatar · badges · header profile fetch.
+ */
 function RovexoHeaderV2({
   showSearch = true,
-  unreadNotifications: unreadNotificationsProp = 0,
   layout = "default",
-  replaceAccountWithShare = false,
 }: RovexoHeaderV2Props) {
-  const isHomepageLayout = layout === "homepage";
   const isAccountLayout = layout === "account";
-  const isWordmarkLayout = isAccountLayout;
-  const inlineSearch = showSearch && !isHomepageLayout && !isAccountLayout;
   const scroll = useMobileHeaderScrollContext();
   const registerHeader = scroll?.registerHeader;
   const isChromeVisible = scroll?.isVisible ?? true;
   const hasScrollBehavior = Boolean(scroll);
   const headerRef = useRef<HTMLElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-
-  const liveBadges = useHeaderBadges({
-    unreadNotifications: unreadNotificationsProp,
-  });
-
-  const unreadNotifications = Math.max(unreadNotificationsProp, liveBadges.unreadNotifications);
 
   useLayoutEffect(() => {
     registerHeader?.(headerRef.current);
@@ -57,14 +50,20 @@ function RovexoHeaderV2({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  void HEADER_MASTER_FREEZE_V1.searchFirstMinimalist;
+
+  const searchId =
+    layout === "homepage" ? "hp-canonical-search" : "rx-h2-search";
+
   return (
     <header
       ref={headerRef}
       data-header-version="rovexo-v2"
-      data-header-share={replaceAccountWithShare ? "homepage" : undefined}
+      data-header-simplification="v1.0"
+      data-header-search-first="true"
       className={cn(
         "rx-h2",
-        isHomepageLayout && "rx-h2--homepage",
+        layout === "homepage" && "rx-h2--homepage",
         isAccountLayout && "rx-h2--account",
         isScrolled && "rx-h2--scrolled",
         hasScrollBehavior &&
@@ -72,54 +71,23 @@ function RovexoHeaderV2({
         hasScrollBehavior && !isChromeVisible && "max-lg:-translate-y-full max-lg:opacity-0",
       )}
     >
-      {!isHomepageLayout ? (
-        <div className={cn("rx-h2__inner", isWordmarkLayout && "rx-h2__inner--row1")}>
-          {isWordmarkLayout ? (
-            <RovexoWordmark asLink className="rx-h2__wordmark" />
-          ) : (
-            <Link href="/" aria-label="ROVEXO Home" className={cn("rx-h2__logo", focusRing)}>
-              <span className="rx-h2__logo-text">ROVEXO</span>
-            </Link>
-          )}
+      <div className={cn("rx-h2__inner", isAccountLayout && "rx-h2__inner--row1")}>
+        <Link href="/" aria-label="ROVEXO Home" className={cn("rx-h2__logo", focusRing)}>
+          <span className="rx-h2__logo-text">ROVEXO</span>
+        </Link>
 
-          {inlineSearch ? (
-            <div className="rx-h2__search">
-              <HomepageSearchField inputId="rx-h2-search" className="rx-h2-search" />
-            </div>
-          ) : !isAccountLayout ? (
-            <div className="rx-h2__search rx-h2__search--hidden" aria-hidden />
-          ) : null}
-
-          <div
-            className={cn("rx-h2__actions", isAccountLayout && "rx-h2__actions--homepage")}
-            role="group"
-            aria-label="Quick links"
-          >
-            <HeaderV2IconLink
-              href="/notifications"
-              label="Notifications"
-              badge={unreadNotifications}
-              className="rx-h2__action--notifications"
-            >
-              <BellLineIcon className="rx-h2__lucide h-5 w-5" />
-            </HeaderV2IconLink>
-            {!isWordmarkLayout && replaceAccountWithShare ? (
-              <HomepageHeaderShareButton className="rx-h2__share" />
-            ) : !isWordmarkLayout ? (
-              <HeaderProfileLink
-                className="rx-h2__account"
-                avatarClassName="rx-h2__account-avatar"
-              />
-            ) : null}
+        {showSearch && !isAccountLayout ? (
+          <div className="rx-h2__search">
+            <HomepageSearchField
+              inputId={searchId}
+              className={cn(
+                "rx-h2-search",
+                layout === "homepage" && "rx-h2-search--homepage",
+              )}
+            />
           </div>
-        </div>
-      ) : null}
-
-      {isHomepageLayout ? (
-        <div className="rx-h2__search-row">
-          <HomepageSearchField inputId="hp-canonical-search" className="rx-h2-search rx-h2-search--homepage" />
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </header>
   );
 }

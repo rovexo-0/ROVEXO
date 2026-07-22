@@ -66,7 +66,9 @@
   border: 1px solid var(--ds-color-border);
   background: var(--ds-color-surface);
   box-shadow: none;
-  padding-left: 12px;
+  padding-left: 16px;
+  padding-right: 16px;
+  width: 100%;
 }
 
 .rx-h2-search .homepage-search__icon {
@@ -267,7 +269,7 @@
 .rx-h2-search--homepage .homepage-search__control {
   min-height: var(--cp-search-height, 44px);
   height: var(--cp-search-height, 44px);
-  padding-inline: 12px;
+  padding-inline: 16px;
   border-radius: 16px;
   border-color: rgb(15 23 42 / 0.08);
   background: #f8fafc;

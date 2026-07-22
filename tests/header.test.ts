@@ -23,24 +23,22 @@ describe("official header design", () => {
     expect(source).not.toContain("homepage-search__suggestions");
   });
 
-  it("keeps integrated search and notifications on non-homepage headers", () => {
+  it("keeps search-first full-width bar — no notification or avatar in header", () => {
     const source = readFileSync(path.join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
 
     expect(source).toContain("HomepageSearchField");
     expect(source).toContain('data-header-version="rovexo-v2"');
+    expect(source).toContain('data-header-search-first="true"');
+    expect(source).toContain("ROVEXO");
     expect(source).not.toContain("/account/settings");
     expect(source).not.toContain("RovexoIcons.settings");
     expect(source).not.toContain("lucide-react");
-    expect(source).toContain("RvxLineIcons");
     expect(source).not.toContain("MessageSquare");
     expect(source).not.toContain('href="/messages"');
-    expect(source).toContain("BellLineIcon");
-    expect(source).toContain("HeaderProfileLink");
-    expect(source).toContain("HomepageHeaderShareButton");
-    expect(source).toContain("replaceAccountWithShare");
-    // Homepage PO contract: logo + notification icon removed from homepage layout only.
-    expect(source).toContain('layout === "homepage"');
-    expect(source).toContain("!isHomepageLayout");
+    expect(source).not.toContain("BellLineIcon");
+    expect(source).not.toContain("HeaderProfileLink");
+    expect(source).not.toContain("HomepageHeaderShareButton");
+    expect(source).not.toContain("useHeaderBadges");
   });
 
   it("mounts category rail below header search on homepage", () => {
@@ -48,7 +46,8 @@ describe("official header design", () => {
     const header = readFileSync(path.join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     expect(homePage).toContain("CanonicalCategoryRail");
     expect(homePage).not.toContain("HomepageV4Search");
-    expect(header).toContain("rx-h2__search-row");
+    expect(header).toContain("HomepageSearchField");
+    expect(header).toContain("rx-h2__search");
   });
 
   it("no longer renders the Bring Your Item / Start Selling banner on the homepage", () => {
@@ -65,9 +64,9 @@ describe("official header design", () => {
     expect(layout).toContain("HeaderProvider");
     expect(provider).toContain('layout: "homepage"');
     expect(page).not.toMatch(/<RovexoHeaderV2[\s/>]/);
-    expect(page).not.toContain("replaceAccountWithShare");
     expect(page).not.toContain("HomepageV3Header");
-    expect(header).toContain("!isHomepageLayout");
+    expect(header).toContain('data-header-search-first="true"');
+    expect(header).toContain("ROVEXO");
     expect(page).toContain("openGraph");
     expect(page).toContain("twitter");
     expect(page).toContain("canonical");

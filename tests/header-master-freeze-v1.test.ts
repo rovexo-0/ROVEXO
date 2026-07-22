@@ -7,14 +7,21 @@ function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("Header Master Freeze v1.0 — LEVEL 8", () => {
-  it("locks one header, one avatar owner, one profile fetch", () => {
+describe("Header Master Freeze v1.0 — LEVEL 8 Search-First", () => {
+  it("locks search-first minimalist header (no notification / avatar)", () => {
     expect(HEADER_MASTER_FREEZE_V1.oneHeaderOnly).toBe(true);
-    expect(HEADER_MASTER_FREEZE_V1.oneAvatarOwner).toBe(true);
-    expect(HEADER_MASTER_FREEZE_V1.oneProfileFetchOnAppLoad).toBe(true);
+    expect(HEADER_MASTER_FREEZE_V1.searchFirstMinimalist).toBe(true);
+    expect(HEADER_MASTER_FREEZE_V1.fullWidthSearchBar).toBe(true);
+    expect(HEADER_MASTER_FREEZE_V1.noNotificationIcon).toBe(true);
+    expect(HEADER_MASTER_FREEZE_V1.noAvatarInHeader).toBe(true);
+    expect(HEADER_MASTER_FREEZE_V1.noHeaderProfileFetch).toBe(true);
     expect(HEADER_MASTER_FREEZE_V1.headerSurvivesNavigation).toBe(true);
-    expect(HEADER_MASTER_FREEZE_V1.status).toBe("PRODUCTION_CERTIFIED_LEVEL_8_FREEZE_LOCKED");
     expect(HEADER_MASTER_FREEZE_V1.freezeLocked).toBe(true);
+    expect(HEADER_MASTER_FREEZE_V1.searchBarTokens.heightPx).toBe(44);
+    expect(HEADER_MASTER_FREEZE_V1.searchBarTokens.radiusPx).toBe(16);
+    expect(HEADER_MASTER_FREEZE_V1.searchBarTokens.textPx).toBe(14);
+    expect(HEADER_MASTER_FREEZE_V1.searchBarTokens.iconPx).toBe(20);
+    expect(HEADER_MASTER_FREEZE_V1.searchBarTokens.paddingPx).toBe(16);
   });
 
   it("mounts Auth + Avatar + Header providers once in root layout", () => {
@@ -28,11 +35,14 @@ describe("Header Master Freeze v1.0 — LEVEL 8", () => {
     expect(layout.match(/<SearchProvider>/g)?.length).toBe(1);
   });
 
-  it("HeaderProfileLink does not fetch /api/profile", () => {
-    const link = readSource("components/header/HeaderProfileLink.tsx");
-    expect(link).toContain("useAvatarOptional");
-    expect(link).not.toContain('fetch("/api/profile"');
-    expect(link).not.toContain("useEffect");
+  it("RovexoHeaderV2 has no notification, avatar, or badges", () => {
+    const header = readSource("components/header/RovexoHeaderV2.tsx");
+    expect(header).toContain("HomepageSearchField");
+    expect(header).toContain('data-header-search-first="true"');
+    expect(header).not.toContain("BellLineIcon");
+    expect(header).not.toContain("HeaderProfileLink");
+    expect(header).not.toContain("useHeaderBadges");
+    expect(header).not.toContain("HomepageHeaderShareButton");
   });
 
   it("results and search pages do not mount a second RovexoHeaderV2", () => {
@@ -48,7 +58,6 @@ describe("Header Master Freeze v1.0 — LEVEL 8", () => {
   });
 
   it("does not modify Camera Search / SearchProvider ownership files", () => {
-    // Presence lock — freeze forbids edits; assert SSOT files still exist unchanged in role.
     const provider = readSource("features/search/components/SearchProvider.tsx");
     const camera = readSource("features/search/components/SearchInputActions.tsx");
     expect(provider).toContain("useSearchOverlayState");

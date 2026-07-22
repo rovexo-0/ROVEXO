@@ -53,7 +53,7 @@ function resolveHeaderChrome(pathname: string): HeaderChrome {
     return { visible: false, layout: "default", showSearch: true };
   }
   if (pathname === "/" || pathname === "") {
-    return { visible: true, layout: "homepage", showSearch: false };
+    return { visible: true, layout: "homepage", showSearch: true };
   }
   return { visible: true, layout: "default", showSearch: true };
 }
