@@ -44,26 +44,38 @@ describe("Camera Search v1.0 — Master Freeze", () => {
     expect(CAMERA_SEARCH_PERFORMANCE_V1.targetsMs.absoluteMaximum).toBe(5_000);
   });
 
-  it("Confirm runs AUTO SEARCH then router.replace — never refresh/reload", () => {
+  it("Confirm hands results to SearchProvider — Provider owns close + replace", () => {
     const actions = readSource("features/search/components/SearchInputActions.tsx");
+    const provider = readSource("features/search/components/SearchProvider.tsx");
+    const state = readSource("features/search/hooks/use-search-overlay-state.ts");
     const camera = readSource("components/home/ImageSearchCamera.tsx");
     const search = readSource("components/home/HomepageSearchField.tsx");
+    const layout = readSource("app/layout.tsx");
 
     expect(search).not.toContain("ImageSearchCamera");
     expect(camera).toContain("NativeImageFileInput");
     expect(actions).toContain("Confirm");
     expect(actions).toContain("runAutoSearch");
     expect(actions).toContain("runCameraSearchMaster");
-    expect(actions).toContain("setImageSearchResults");
-    expect(actions).toContain("setResultsReady");
-    expect(actions).toContain('router.replace(RESULTS_ROUTE)');
-    expect(actions).toContain("loadingSteps");
-    expect(actions).toContain("STEP_MS");
+    expect(actions).toContain("search.setResults");
+    expect(actions).toContain("search.setResultsReady");
+    expect(actions).not.toContain("router.replace");
     expect(actions).not.toContain("router.refresh");
     expect(actions).not.toContain("location.reload");
     expect(actions).not.toContain("window.reload");
     expect(actions).not.toContain("setTimeout(5000)");
     expect(actions).not.toMatch(/>\s*Search\s*</);
+
+    expect(state).toContain("router.replace");
+    expect(state).toContain("resultsReady === true");
+    expect(state).toContain("overlayClosed === true");
+    expect(state).toContain("navigationReady === true");
+    expect(state).toContain("setImageSearchResults");
+    expect(provider).toContain("useSearchOverlayState");
+    expect(provider).toContain("handleOverlayDismiss");
+    expect(layout).toContain("<SearchProvider>");
+    // ONE provider only in root layout
+    expect(layout.match(/<SearchProvider/g)?.length).toBe(1);
   });
 
   it("engine uses Promise.all find* channels and one corpus request", () => {

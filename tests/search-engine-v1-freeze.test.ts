@@ -84,7 +84,11 @@ describe("Search Engine v1.0 Senior Architect Freeze", () => {
     expect(actions).toContain("prepareSearchImage");
     expect(actions).toContain("Confirm");
     expect(actions).toContain("runAutoSearch");
-    expect(actions).toContain("router.replace");
+    expect(actions).toContain("search.setResultsReady");
+    expect(actions).not.toContain("router.replace");
+    expect(readSource("features/search/hooks/use-search-overlay-state.ts")).toContain(
+      "router.replace",
+    );
     expect(actions).not.toContain("onVoice");
     expect(imageView).toContain("Recommended Products");
     expect(imageView).toContain("CAMERA_SEARCH_V1");

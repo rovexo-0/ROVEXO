@@ -50,11 +50,27 @@ export type SearchResults = {
   productsOffset: number;
 };
 
+import type { CameraSearchResultsPayload } from "@/lib/image-search/results-store";
+
+/**
+ * ONE SearchProvider owns overlay + camera results + navigation.
+ * Children may invoke these APIs; only SearchProvider implements them.
+ */
 export type SearchOverlayContextValue = {
   open: (query?: string) => void;
   close: () => void;
+  reset: () => void;
   isOpen: boolean;
   isSeller: boolean;
+  /** Camera / results ownership */
+  loading: boolean;
+  setLoading: (value: boolean) => void;
+  results: CameraSearchResultsPayload | null;
+  setResults: (payload: CameraSearchResultsPayload) => void;
+  resultsReady: boolean;
+  setResultsReady: (value: boolean) => void;
+  overlayClosed: boolean;
+  navigationReady: boolean;
 };
 
 export type SearchNavItem = {

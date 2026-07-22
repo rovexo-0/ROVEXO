@@ -2,13 +2,12 @@
 
 import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
 import { storeImageSearchQuery } from "@/lib/image-search/storage";
-import { setImageSearchResults } from "@/lib/image-search/results-store";
 import { prepareSearchImage } from "@/lib/search/image-pipeline";
 import { SearchBarCameraIcon } from "@/features/search/components/SearchBarIcons";
+import { useSearchOverlay } from "@/features/search/hooks/use-search-overlay";
 import { CAMERA_SEARCH_V1 } from "@/lib/search/camera-search-v1-freeze";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import "@/styles/rovexo/image-search.css";
@@ -20,27 +19,20 @@ type SearchInputActionsProps = {
 const STEP_MS = CAMERA_SEARCH_V1.stepDurationMs;
 const STEPS = CAMERA_SEARCH_V1.loadingSteps;
 const ABSOLUTE_MAX_MS = CAMERA_SEARCH_V1.targetsMs.absoluteMaximum;
-const RESULTS_ROUTE = CAMERA_SEARCH_V1.resultsRoute;
 
 /**
- * ONE Camera Search only — Master Freeze.
- * Confirm → AUTO SEARCH (Promise.all) → setResults → router.replace(results).
- * Forbidden: refresh · reload · second Search · second click after Confirm.
+ * Camera entry UI only — does NOT own close/navigate/replace.
+ * After Promise.all → SearchProvider.setResults + setResultsReady.
+ * SearchProvider closes overlay then gated navigation to results.
  */
 export function SearchInputActions({ className }: SearchInputActionsProps) {
-  const router = useRouter();
+  const search = useSearchOverlay();
   const cameraInputId = useId();
   const [processing, setProcessing] = useState(false);
   const [pendingDataUrl, setPendingDataUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
-  const [resultsReady, setResultsReady] = useState(false);
 
-  useEffect(() => {
-    if (!resultsReady) return;
-    // APPROVED: one auto navigation — replace only (never refresh/reload).
-    router.replace(RESULTS_ROUTE);
-  }, [resultsReady, router]);
+  const loading = search.loading;
 
   useEffect(() => {
     if (!loading) return;
@@ -54,8 +46,8 @@ export function SearchInputActions({ className }: SearchInputActionsProps) {
   async function runAutoSearch(dataUrl: string | null) {
     if (dataUrl) storeImageSearchQuery(dataUrl);
     setPendingDataUrl(null);
-    setLoading(true);
-    setResultsReady(false);
+    search.setLoading(true);
+    search.setResultsReady(false);
 
     const controller = new AbortController();
     const hardCap = window.setTimeout(() => controller.abort(), ABSOLUTE_MAX_MS);
@@ -71,17 +63,17 @@ export function SearchInputActions({ className }: SearchInputActionsProps) {
         minUx,
       ]);
 
-      // APPROVED state management — one update, then navigate.
-      setImageSearchResults(payload);
-      setLoading(false);
-      setResultsReady(true);
+      // Provider owns results + ready → close → navigate (not this component).
+      search.setResults(payload);
+      search.setLoading(false);
+      search.setResultsReady(true);
     } catch {
       try {
         const { runCameraSearchMaster } = await import("@/lib/image-search/search");
         const payload = await runCameraSearchMaster(dataUrl);
-        setImageSearchResults(payload);
+        search.setResults(payload);
       } catch {
-        setImageSearchResults({
+        search.setResults({
           queryDataUrl: dataUrl,
           matches: [],
           categories: [],
@@ -90,8 +82,8 @@ export function SearchInputActions({ className }: SearchInputActionsProps) {
           readyAt: Date.now(),
         });
       }
-      setLoading(false);
-      setResultsReady(true);
+      search.setLoading(false);
+      search.setResultsReady(true);
     } finally {
       window.clearTimeout(hardCap);
     }
