@@ -9,14 +9,18 @@ describe("official header design", () => {
     expect(ROVEXO_LOGO_DIMENSIONS.integratedControlHeight).toBe(40);
   });
 
-  it("implements debounced homepage search with suggestions and clear control", () => {
+  it("opens Search Overlay from homepage field with Profile-family Search icon", () => {
     const source = readFileSync(
       path.join(process.cwd(), "components/home/HomepageSearchField.tsx"),
       "utf8",
     );
 
-    expect(source).toContain("useDebouncedValue");
+    expect(source).toContain("useSearchOverlayOptional");
+    expect(source).toContain("searchOverlay.open");
+    expect(source).toContain("SearchBarSearchIcon");
     expect(source).toContain('role="search"');
+    expect(source).not.toContain("useDebouncedValue");
+    expect(source).not.toContain("homepage-search__suggestions");
   });
 
   it("keeps integrated search and notifications on non-homepage headers", () => {
