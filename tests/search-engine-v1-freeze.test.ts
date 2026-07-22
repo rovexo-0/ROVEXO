@@ -32,10 +32,16 @@ describe("Search Engine v1.0 Senior Architect Freeze", () => {
   it("locks one engine, zero admin, and forbidden parallel systems", () => {
     expect(SEARCH_ENGINE_V1.version).toBe("1.0");
     expect(SEARCH_ENGINE_V1.zeroAdminPolicy).toBe(true);
+    expect(SEARCH_ENGINE_V1.zeroQuestionsPolicy).toBe(true);
+    expect(SEARCH_ENGINE_V1.userMustOnlyWrite).toBe(true);
+    expect(SEARCH_ENGINE_V1.filtersAfterSearchOnly).toBe(true);
+    expect(SEARCH_ENGINE_V1.status).toBe("ABSOLUTE_MASTER_FREEZE");
     expect(SEARCH_ENGINE_V1.productionDeploy).toBe("FORBIDDEN_UNTIL_100_CERTIFIED");
+    expect(SEARCH_ENGINE_V1.idleSections).toEqual(["Recent Searches", "Trending Searches"]);
+    expect(SEARCH_ENGINE_V1.idleForbidden).toContain("Categories");
     expect(SEARCH_ENGINE_V1.channels).toEqual(["text", "camera", "filters"]);
     expect(SEARCH_ENGINE_V1.forbidden).toContain("AI Search");
-    expect(SEARCH_ENGINE_V1.forbidden).toContain("Multiple search engines");
+    expect(SEARCH_ENGINE_V1.forbidden).toContain("Filters before search");
     expect(SEARCH_ENGINE_V1.resultPriority[0]).toBe("exact");
   });
 
@@ -75,13 +81,18 @@ describe("Search Engine v1.0 Senior Architect Freeze", () => {
     const adminEngine = readSource("lib/search-engine/engine.ts");
 
     expect(server).toContain("rankSearchProducts");
-    expect(server).toContain("withSearchCache");
     expect(actions).toContain("prepareSearchImage");
+    expect(actions).toContain("Confirm photo");
     expect(actions).not.toContain("onVoice");
     expect(imageView).toContain("Text search");
     expect(popular).toContain("withSearchCache");
+    expect(readSource("lib/search/trending.ts")).toContain("withSearchCache");
     // Admin ops module must not be imported by marketplace search server.
     expect(server).not.toContain("@/lib/search-engine");
     expect(adminEngine).toContain("updatePlatformSetting");
+
+    const resultsView = readSource("features/search/components/SearchResultsView.tsx");
+    expect(resultsView).toContain("{query ? (");
+    expect(resultsView).toContain('aria-label="Search filters"');
   });
 });

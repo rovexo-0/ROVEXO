@@ -152,23 +152,25 @@ export function SearchResultsView() {
         </div>
       </div>
 
-      <div className="srch-results__filters" aria-label="Search filters">
-        <label className="srch-results__filter">
-          <span className="sr-only">Category</span>
-          <select
-            className={cn("srch-results__filter-select", focusRing)}
-            value={category ?? ""}
-            onChange={(event) => handleCategoryChange(event.target.value)}
-          >
-            <option value="">All categories</option>
-            {HOME_CATEGORY_NAV.map((item) => (
-              <option key={item.slug} value={item.slug}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      {query ? (
+        <div className="srch-results__filters" aria-label="Search filters">
+          <label className="srch-results__filter">
+            <span className="sr-only">Category</span>
+            <select
+              className={cn("srch-results__filter-select", focusRing)}
+              value={category ?? ""}
+              onChange={(event) => handleCategoryChange(event.target.value)}
+            >
+              <option value="">All categories</option>
+              {HOME_CATEGORY_NAV.map((item) => (
+                <option key={item.slug} value={item.slug}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      ) : null}
 
       <div className="rx-listing-grid srch-results__grid">
         {!hasBrowseTarget ? (

@@ -6,7 +6,10 @@ type BuildNavItemsParams = {
   hasQuery: boolean;
   onSelectTerm: (term: string) => void;
   onSelectQuery: () => void;
+  suggestionTerms?: string[];
 };
+
+const PRIMARY_PRODUCT_COUNT = 5;
 
 export function buildSearchNavItems({
   results,
@@ -14,13 +17,14 @@ export function buildSearchNavItems({
   hasQuery,
   onSelectTerm,
   onSelectQuery,
+  suggestionTerms = [],
 }: BuildNavItemsParams): SearchNavItem[] {
   if (!results) return [];
 
   const items: SearchNavItem[] = [];
 
   if (!hasQuery) {
-    // Idle: Recent → Trending → Popular → Categories → Stores → Brands
+    // Absolute Master Freeze idle: Recent + Trending ONLY
     history.forEach((term) => {
       items.push({
         id: `recent-search-${term}`,
@@ -37,51 +41,19 @@ export function buildSearchNavItems({
       });
     });
 
-    results.popular.forEach((term) => {
-      items.push({
-        id: `popular-${term}`,
-        label: term,
-        onSelect: () => onSelectTerm(term),
-      });
-    });
-
-    results.categories.forEach((category) => {
-      items.push({
-        id: `suggested-category-${category.href}`,
-        label: category.name,
-        href: category.href,
-      });
-    });
-
-    results.stores.forEach((store) => {
-      items.push({
-        id: `suggested-store-${store.id}`,
-        label: store.name,
-        href: store.href,
-      });
-    });
-
-    results.brands.forEach((brand) => {
-      items.push({
-        id: `suggested-brand-${brand.href}`,
-        label: brand.name,
-        href: brand.href,
-      });
-    });
-
     return items;
   }
 
-  // Query: Categories → Items → Members → Stores → Brands
-  results.categories.forEach((category) => {
+  // Typing: Suggestions → Products → Categories → Stores → Members → Similar
+  suggestionTerms.forEach((term) => {
     items.push({
-      id: `category-${category.href}`,
-      label: category.name,
-      href: category.href,
+      id: `suggestion-${term}`,
+      label: term,
+      onSelect: () => onSelectTerm(term),
     });
   });
 
-  results.products.forEach((product) => {
+  results.products.slice(0, PRIMARY_PRODUCT_COUNT).forEach((product) => {
     items.push({
       id: `product-${product.id}`,
       label: product.title,
@@ -90,11 +62,11 @@ export function buildSearchNavItems({
     });
   });
 
-  results.users.forEach((user) => {
+  results.categories.forEach((category) => {
     items.push({
-      id: `user-${user.id}`,
-      label: user.name,
-      href: user.href,
+      id: `category-${category.href}`,
+      label: category.name,
+      href: category.href,
     });
   });
 
@@ -106,21 +78,24 @@ export function buildSearchNavItems({
     });
   });
 
-  results.brands.forEach((brand) => {
+  results.users.forEach((user) => {
     items.push({
-      id: `brand-${brand.href}`,
-      label: brand.name,
-      href: brand.href,
+      id: `user-${user.id}`,
+      label: user.name,
+      href: user.href,
     });
   });
 
-  results.locations.forEach((location) => {
+  results.products.slice(PRIMARY_PRODUCT_COUNT).forEach((product) => {
     items.push({
-      id: `location-${location.href}`,
-      label: location.name,
-      href: location.href,
+      id: `similar-${product.id}`,
+      label: product.title,
+      href: `/listing/${product.slug}`,
+      onSelect: onSelectQuery,
     });
   });
 
   return items;
 }
+
+export const SEARCH_PRIMARY_PRODUCT_COUNT = PRIMARY_PRODUCT_COUNT;

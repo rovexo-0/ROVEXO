@@ -1,23 +1,51 @@
 /**
- * ROVEXO SEARCH ENGINE v1.0 — SENIOR ARCHITECT FREEZE
+ * ROVEXO SEARCH ENGINE v1.0 — ABSOLUTE MASTER FREEZE
  *
- * ONE SEARCH ENGINE ONLY
- * Text + Camera + Filters → Search Core → Index signals → Cache → Results
+ * GOLDEN RULE: User only WRITES what they want. ROVEXO does everything else.
  *
- * ZERO ADMIN POLICY: trending / popular / recent / suggestions / ranking
- * are automatic from marketplace signals — never manual admin edits.
+ * Idle (nothing written): Recent Searches + Trending Searches ONLY.
+ * Typing: Suggestions → Products → Relevant Categories → Stores → Members → Similar.
+ * Filters: ONLY after a search has results (never before).
+ * Zero questions · Zero admin · One engine only.
  *
- * STATUS: CANONICAL · MASTER FREEZE · PRE-PRODUCTION
+ * STATUS: ABSOLUTE MASTER FREEZE · APPROVED UX CONTRACT
  * Production deploy: FORBIDDEN until Owner 100% certification.
  */
 
 export const SEARCH_ENGINE_V1 = {
   version: "1.0",
-  status: "CANONICAL_MASTER_FREEZE",
+  status: "ABSOLUTE_MASTER_FREEZE",
   productionDeploy: "FORBIDDEN_UNTIL_100_CERTIFIED",
   zeroAdminPolicy: true,
+  zeroQuestionsPolicy: true,
+  userMustOnlyWrite: true,
   channels: ["text", "camera", "filters"] as const,
-  coreSurfaces: ["items", "members", "stores", "brands", "categories"] as const,
+  idleSections: ["Recent Searches", "Trending Searches"] as const,
+  idleForbidden: [
+    "Categories",
+    "Brands",
+    "Stores",
+    "Members",
+    "Filters",
+    "Products",
+    "Popular Searches",
+  ] as const,
+  typingSections: [
+    "Suggestions",
+    "Products",
+    "Relevant Categories",
+    "Relevant Stores",
+    "Relevant Members",
+    "Similar Products",
+  ] as const,
+  filtersAfterSearchOnly: true,
+  canonicalRules: [
+    "USER MUST DO LESS",
+    "ROVEXO MUST DO MORE",
+    "SHOW ONLY WHAT IS RELEVANT",
+    "NEVER ASK UNNECESSARY QUESTIONS",
+  ] as const,
+  coreSurfaces: ["products", "stores", "members", "categories"] as const,
   indexSignals: [
     "products",
     "users",
@@ -52,12 +80,14 @@ export const SEARCH_ENGINE_V1 = {
   forbidden: [
     "Search v2",
     "Search v3",
+    "Search PRO",
     "AI Search",
     "GPT Search",
     "Duplicate systems",
     "Multiple search engines",
-    "Multiple camera systems",
-    "Multiple filter systems",
+    "Ask category/brand/store first",
+    "Filters before search",
+    "Idle category/brand/store pickers",
     "Admin-edited trending/popular/ranking",
   ] as const,
   ssot: {
@@ -69,7 +99,7 @@ export const SEARCH_ENGINE_V1 = {
     overlay: "features/search/components/SearchOverlay.tsx",
     camera: "features/search/components/SearchInputActions.tsx",
     imageSearch: "features/search/components/ImageSearchView.tsx",
-    /** Super-admin ops module — must NEVER drive marketplace discovery ranking. */
+    results: "features/search/components/SearchResultsView.tsx",
     adminOpsOnly: "lib/search-engine/",
   },
 } as const;

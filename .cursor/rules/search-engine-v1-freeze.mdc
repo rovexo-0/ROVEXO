@@ -1,26 +1,36 @@
-# ROVEXO Search Engine v1.0 (SENIOR ARCHITECT FREEZE)
+# ROVEXO Search Engine v1.0 — ABSOLUTE MASTER FREEZE
 
-**STATUS: CANONICAL · MASTER FREEZE · PRE-PRODUCTION**  
-**Production deploy: FORBIDDEN until Owner 100% certification**
+**STATUS: APPROVED UX CONTRACT · PRE-PRODUCTION · NO PRODUCTION DEPLOY**
 
 SSOT: `lib/search/search-engine-v1.ts`
 
-## One engine only
+## Golden rule
 
-Text + Camera + Filters → Search Core → Index signals → Cache → Results
+User only **writes** what they want. ROVEXO does everything else.
+Zero questions. Never ask category / brand / store / member / filter first.
 
-Surfaces: Items · Members · Stores · Brands · Categories
+## Idle (nothing written)
 
-## Zero Admin Policy
+**ONLY** Recent Searches + Trending Searches
 
-Forbidden: admin edits to Trending / Popular / Recent / Suggestions / Ranking.
+Forbidden idle: Categories · Brands · Stores · Members · Filters · Products · Popular
 
-Everything automatic from marketplace signals (views, sales, listings, searches).
+## Typing
 
-## Fail-safe
+Suggestions → Products → Relevant Categories → Relevant Stores → Relevant Members → Similar Products
 
-Image fails → Text · Cache fails → DB · Suggestions fail → Popular · Store fails → Members
+## Filters
 
-## Forbidden
+Available **only after** a text search (`q` present). Never before.
 
-Search v2/v3 · AI/GPT Search · Duplicate engines/cameras/filters · Parallel architectures
+## Camera
+
+Take/Upload → Crop → Confirm → Match → Products / Similar / Categories / Stores / Members  
+No “what category?” questions.
+
+## Four rules
+
+1. User must do less  
+2. ROVEXO must do more  
+3. Show only what is relevant  
+4. Never ask unnecessary questions

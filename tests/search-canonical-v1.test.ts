@@ -33,10 +33,11 @@ describe("Search canonical v1.0 final UI lock", () => {
     expect(rail).toContain("captureHomepageScroll");
   });
 
-  it("shows the real category filter without expanding the search contract", () => {
+  it("shows the real category filter only after a search (Absolute Master Freeze)", () => {
     const results = readSource("features/search/components/SearchResultsView.tsx");
     const filters = readSource("features/search/utils/filters.ts");
 
+    expect(results).toContain("{query ? (");
     expect(results).toContain('aria-label="Search filters"');
     expect(results).toContain("<select");
     expect(results).toContain("All categories");
@@ -49,15 +50,15 @@ describe("Search canonical v1.0 final UI lock", () => {
   it("routes homepage communication through the singular Inbox hub", () => {
     const header = readSource("components/header/RovexoHeaderV2.tsx");
     const nav = readSource("lib/homepage/canonical-nav.ts");
-    const menu = readSource("lib/account-center/canonical-menu.ts");
+    const messagesMenu = readSource("lib/account-center/messages-menu.ts");
 
     expect(header).not.toContain('href="/messages"');
     expect(header).not.toContain("MessageCircle");
-    expect(header).toContain('href="/notifications"');
+    expect(header).toContain('href="/inbox?tab=notifications"');
     expect(nav).toContain('label: "Inbox"');
     expect(nav).toContain('href: "/inbox"');
-    // Absolute Final: account Messages routes to Transaction Hub at /messages.
-    expect(menu).toContain('title: "Messages"');
-    expect(menu).toContain('href: "/inbox"');
+    expect(messagesMenu).toContain('title: "Messages"');
+    expect(messagesMenu).toContain("INBOX_ROUTES.messagesTab");
+    expect(messagesMenu).toContain("INBOX_ROUTES.hub");
   });
 });

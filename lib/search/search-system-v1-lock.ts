@@ -28,17 +28,14 @@ export const SEARCH_SYSTEM_V1 = {
   overlayIdleSections: [
     "Recent Searches",
     "Trending Searches",
-    "Popular Searches",
-    "Categories",
-    "Stores",
-    "Brands",
   ] as const,
   overlayQuerySections: [
-    "Categories",
-    "Items",
-    "Members",
-    "Stores",
-    "Brands",
+    "Suggestions",
+    "Products",
+    "Relevant Categories",
+    "Relevant Stores",
+    "Relevant Members",
+    "Similar Products",
   ] as const,
   cameraAllow: [
     "Take Photo",

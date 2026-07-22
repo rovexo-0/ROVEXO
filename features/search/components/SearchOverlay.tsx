@@ -41,8 +41,9 @@ import {
   getSearchHistory,
   removeSearchHistoryItem,
 } from "@/features/search/utils/history";
-import { buildSearchNavItems } from "@/features/search/utils/keyboard-items";
+import { buildSearchNavItems, SEARCH_PRIMARY_PRODUCT_COUNT } from "@/features/search/utils/keyboard-items";
 import { hasSearchResults } from "@/features/search/utils/search-client";
+import { SEARCH_ENGINE_V1 } from "@/lib/search/search-engine-v1";
 
 function SearchIcon({ className }: { className?: string }) {
   return (
@@ -107,6 +108,18 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
     }
   }, [debouncedQuery]);
 
+  const suggestionTerms = useMemo(() => {
+    if (!results || !hasQuery) return [] as string[];
+    const terms: string[] = [];
+    for (const product of results.products.slice(0, 6)) {
+      if (product.title.trim()) terms.push(product.title.trim());
+    }
+    for (const brand of results.brands.slice(0, 3)) {
+      if (brand.name.trim()) terms.push(brand.name.trim());
+    }
+    return [...new Set(terms)].slice(0, 8);
+  }, [hasQuery, results]);
+
   const navItems = useMemo(
     () =>
       buildSearchNavItems({
@@ -115,8 +128,9 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
         hasQuery,
         onSelectTerm: applySearch,
         onSelectQuery: saveCurrentQuery,
+        suggestionTerms,
       }),
-    [results, history, hasQuery, applySearch, saveCurrentQuery],
+    [results, history, hasQuery, applySearch, saveCurrentQuery, suggestionTerms],
   );
 
   const { activeIndex, setActiveIndex, handleKeyDown } = useSearchKeyboard(navItems, debouncedQuery);
@@ -172,34 +186,22 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
     !isLoading &&
     results &&
     results.trending.length === 0 &&
-    results.popular.length === 0 &&
-    results.categories.length === 0 &&
-    results.stores.length === 0 &&
-    results.brands.length === 0 &&
     history.length === 0;
 
   const showNoResults =
     hasQuery && !isDebouncing && !isLoading && results && !hasSearchResults(results);
 
-  // Idle nav offsets mirror keyboard-items + render order (Search System v1.0).
-  const idleRecentCount = history.length;
-  const idleTrendingCount = results?.trending.length ?? 0;
-  const idlePopularCount = results?.popular.length ?? 0;
-  const idleCategoryCount = results?.categories.length ?? 0;
-  const idleStoreCount = results?.stores.length ?? 0;
+  // Idle: Recent + Trending ONLY (Absolute Master Freeze)
   const idleRecentOffset = 0;
-  const idleTrendingOffset = idleRecentCount;
-  const idlePopularOffset = idleRecentCount + idleTrendingCount;
-  const idleCategoryOffset = idlePopularOffset + idlePopularCount;
-  const idleStoreOffset = idleCategoryOffset + idleCategoryCount;
-  const idleBrandOffset = idleStoreOffset + idleStoreCount;
+  const idleTrendingOffset = history.length;
 
-  // Query order (Master Freeze): Categories → Items → Members → Stores → Brands
-  const categoryQueryOffset = 0;
-  const productOffset = results?.categories.length ?? 0;
-  const memberOffset = productOffset + (results ? Math.min(5, results.products.length) : 0);
-  const storeQueryOffset = memberOffset + (results?.users.length ?? 0);
-  const brandQueryOffset = storeQueryOffset + (results?.stores.length ?? 0);
+  // Typing: Suggestions → Products → Categories → Stores → Members → Similar
+  const suggestionOffset = 0;
+  const productOffset = suggestionTerms.length;
+  const categoryQueryOffset = productOffset + Math.min(SEARCH_PRIMARY_PRODUCT_COUNT, results?.products.length ?? 0);
+  const storeQueryOffset = categoryQueryOffset + (results?.categories.length ?? 0);
+  const memberOffset = storeQueryOffset + (results?.stores.length ?? 0);
+  const similarOffset = memberOffset + (results?.users.length ?? 0);
 
   return createPortal(
     <ModalContainer
@@ -216,6 +218,8 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
         <div
           ref={panelRef}
           onKeyDown={handleKeyDown}
+          data-search-engine={SEARCH_ENGINE_V1.version}
+          data-search-freeze={SEARCH_ENGINE_V1.status}
           className={cn(
             "relative flex h-full min-h-0 w-full max-w-none flex-1 flex-col overflow-hidden will-change-transform",
             transitionFast,
@@ -283,6 +287,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
 
           {!hasQuery && !isTooShort && results && (
             <>
+              {/* Absolute Master Freeze: idle = Recent + Trending ONLY */}
               {history.length > 0 && (
                 <SearchSection title="Recent Searches">
                   <RecentSearches
@@ -307,67 +312,38 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                 </SearchSection>
               )}
 
-              {results.popular.length > 0 && (
-                <SearchSection title="Popular Searches">
-                  <TrendingSearches
-                    items={results.popular}
-                    activeIndex={activeIndex}
-                    navOffset={idlePopularOffset}
-                    onSelect={applySearch}
-                  />
-                </SearchSection>
-              )}
-
-              {results.categories.length > 0 && (
-                <SearchSection title="Categories">
-                  <div className="px-ds-4 py-ds-2">
-                    <CategoryResults
-                      items={results.categories}
-                      activeIndex={activeIndex}
-                      navOffset={idleCategoryOffset}
-                      onHoverIndex={setActiveIndex}
-                    />
-                  </div>
-                </SearchSection>
-              )}
-
-              {results.stores.length > 0 && (
-                <SearchSection title="Stores">
-                  <div className="px-ds-4 py-ds-2">
-                    <StoreResults
-                      items={results.stores}
-                      activeIndex={activeIndex}
-                      navOffset={idleStoreOffset}
-                      onHoverIndex={setActiveIndex}
-                    />
-                  </div>
-                </SearchSection>
-              )}
-
-              {results.brands.length > 0 && (
-                <SearchSection title="Brands">
-                  <div className="px-ds-4 py-ds-2">
-                    <CategoryResults
-                      items={results.brands.map((brand) => ({
-                        name: brand.name,
-                        href: brand.href,
-                      }))}
-                      activeIndex={activeIndex}
-                      navOffset={idleBrandOffset}
-                      onHoverIndex={setActiveIndex}
-                    />
-                  </div>
-                </SearchSection>
-              )}
-
               {showIdleEmpty && <SearchResultsEmpty variant="idle" />}
             </>
           )}
 
           {hasQuery && !isDebouncing && !isLoading && results && (
             <>
+              {suggestionTerms.length > 0 && (
+                <SearchSection title="Suggestions">
+                  <TrendingSearches
+                    items={suggestionTerms}
+                    activeIndex={activeIndex}
+                    navOffset={suggestionOffset}
+                    onSelect={applySearch}
+                  />
+                </SearchSection>
+              )}
+
+              <SearchSection title="Products">
+                <SearchSuggestionList
+                  results={results}
+                  query={debouncedQuery}
+                  activeIndex={activeIndex}
+                  navOffset={productOffset}
+                  onHoverIndex={setActiveIndex}
+                  onNavigate={saveCurrentQuery}
+                  maxProducts={SEARCH_PRIMARY_PRODUCT_COUNT}
+                  kinds={["product"]}
+                />
+              </SearchSection>
+
               {results.categories.length > 0 && (
-                <SearchSection title="Categories">
+                <SearchSection title="Relevant Categories">
                   <div className="px-ds-4 py-ds-2">
                     <CategoryResults
                       items={results.categories}
@@ -379,21 +355,21 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                 </SearchSection>
               )}
 
-              <SearchSection title="Items">
-                <SearchSuggestionList
-                  results={results}
-                  query={debouncedQuery}
-                  activeIndex={activeIndex}
-                  navOffset={productOffset}
-                  onHoverIndex={setActiveIndex}
-                  onNavigate={saveCurrentQuery}
-                  maxProducts={5}
-                  kinds={["product"]}
-                />
-              </SearchSection>
+              {results.stores.length > 0 && (
+                <SearchSection title="Relevant Stores">
+                  <div className="px-ds-4 py-ds-2">
+                    <StoreResults
+                      items={results.stores}
+                      activeIndex={activeIndex}
+                      navOffset={storeQueryOffset}
+                      onHoverIndex={setActiveIndex}
+                    />
+                  </div>
+                </SearchSection>
+              )}
 
-              {(results.users.length > 0 || results.sellers.length > 0) && (
-                <SearchSection title="Members">
+              {results.users.length > 0 && (
+                <SearchSection title="Relevant Members">
                   <div className="px-ds-4 py-ds-2">
                     <SellerResults
                       sellers={[]}
@@ -407,50 +383,13 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                 </SearchSection>
               )}
 
-              {results.stores.length > 0 && (
-                <SearchSection title="Stores">
-                  <div className="px-ds-4 py-ds-2">
-                    <StoreResults
-                      items={results.stores}
-                      activeIndex={activeIndex}
-                      navOffset={storeQueryOffset}
-                      onHoverIndex={setActiveIndex}
-                    />
-                  </div>
-                </SearchSection>
-              )}
-
-              {results.brands.length > 0 && (
-                <SearchSection title="Brands">
-                  <div className="px-ds-4 py-ds-2">
-                    <CategoryResults
-                      items={results.brands.map((brand) => ({
-                        name: brand.name,
-                        href: brand.href,
-                      }))}
-                      activeIndex={activeIndex}
-                      navOffset={brandQueryOffset}
-                      onHoverIndex={setActiveIndex}
-                    />
-                  </div>
-                </SearchSection>
-              )}
-
-              {results.products.length > 5 && (
-                <SearchSection title="More items">
+              {results.products.length > SEARCH_PRIMARY_PRODUCT_COUNT && (
+                <SearchSection title="Similar Products">
                   <ProductResults
-                    items={results.products.slice(5)}
+                    items={results.products.slice(SEARCH_PRIMARY_PRODUCT_COUNT)}
                     query={debouncedQuery}
                     activeIndex={activeIndex}
-                    navOffset={
-                      productOffset +
-                      5 +
-                      results.users.length +
-                      results.stores.length +
-                      results.categories.length +
-                      results.brands.length +
-                      results.locations.length
-                    }
+                    navOffset={similarOffset}
                     hasMore={results.productsHasMore}
                     isLoadingMore={isLoadingMore}
                     onHoverIndex={setActiveIndex}
@@ -460,7 +399,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                 </SearchSection>
               )}
 
-              {results.products.length <= 5 &&
+              {results.products.length <= SEARCH_PRIMARY_PRODUCT_COUNT &&
               results.productsHasMore &&
               results.products.length > 0 ? (
                 <div className="px-ds-4 py-ds-2">
@@ -470,7 +409,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                     disabled={isLoadingMore}
                     className="text-sm font-semibold text-primary"
                   >
-                    {isLoadingMore ? "Loading…" : "Load more items"}
+                    {isLoadingMore ? "Loading…" : "Load more products"}
                   </button>
                 </div>
               ) : null}

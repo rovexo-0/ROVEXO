@@ -22,7 +22,6 @@ import { SEARCH_PRODUCT_PAGE_SIZE } from "@/features/search/types";
 import { createClient } from "@/lib/supabase/server";
 import { resolveStoreHrefFromSeller } from "@/lib/store/store-href";
 import { rankSearchProducts } from "@/lib/search/rank-products";
-import { withSearchCache } from "@/lib/search/cache";
 
 const SUGGESTED_LIMIT = 8;
 
@@ -61,16 +60,6 @@ async function searchBrands(query: string, limit = 5): Promise<SearchBrand[]> {
     .select("name")
     .ilike("name", `%${query}%`)
     .limit(limit);
-
-  return (data ?? []).map((row) => ({
-    name: row.name,
-    href: `/search?q=${encodeURIComponent(row.name)}&brand=${encodeURIComponent(row.name)}`,
-  }));
-}
-
-async function getSuggestedBrands(limit = SUGGESTED_LIMIT): Promise<SearchBrand[]> {
-  const supabase = await createClient();
-  const { data } = await supabase.from("brands").select("name").order("name").limit(limit);
 
   return (data ?? []).map((row) => ({
     name: row.name,
@@ -139,34 +128,6 @@ function mapProfilesToStores(
   return stores;
 }
 
-function suggestedStoresFromListings(products: Product[], limit = SUGGESTED_LIMIT): SearchStore[] {
-  const seen = new Set<string>();
-  const stores: SearchStore[] = [];
-
-  for (const product of products) {
-    const sellerId = product.sellerId?.trim();
-    if (!sellerId || seen.has(sellerId)) continue;
-    seen.add(sellerId);
-
-    const href = resolveStoreHrefFromSeller({
-      sellerId,
-      storeSlug: product.sellerUsername,
-    });
-    if (!href) continue;
-
-    stores.push({
-      id: sellerId,
-      name: product.sellerUsername || product.sellerName || "Store",
-      href,
-      description: product.sellerName || "",
-    });
-
-    if (stores.length >= limit) break;
-  }
-
-  return stores;
-}
-
 export async function searchAll(
   query: string,
   options: SearchAllOptions = {},
@@ -177,31 +138,20 @@ export async function searchAll(
   const page = Math.floor(productOffset / productLimit) + 1;
 
   if (!normalized) {
-    // Idle overlay: discovery chips only — never Homepage feed / cards.
-    // Automatic cache → DB fail-safe. Suggestions fail → popular fallback.
+    // Absolute Master Freeze idle: Recent (client) + Trending ONLY.
+    // Never ship Categories / Brands / Stores / Members / Products / Popular for idle.
     const recent = await getRecentPublishedListings(SUGGESTED_LIMIT);
-    const [trending, popular, brands] = await Promise.all([
-      getTrendingSearches(recent, SUGGESTED_LIMIT),
-      getPopularSearches(SUGGESTED_LIMIT).catch(() => [] as string[]),
-      withSearchCache(
-        "hot",
-        "suggested-brands",
-        () => getSuggestedBrands(SUGGESTED_LIMIT),
-        { ttlMs: 120_000, emptyOnError: [] },
-      ),
-    ]);
-
-    const trendingSafe = trending.length > 0 ? trending : popular;
+    const trending = await getTrendingSearches(recent, SUGGESTED_LIMIT);
 
     return {
       products: [],
       sellers: [],
-      stores: suggestedStoresFromListings(recent, SUGGESTED_LIMIT),
+      stores: [],
       users: [],
-      trending: trendingSafe,
-      popular,
-      categories: defaultCategories,
-      brands,
+      trending,
+      popular: [],
+      categories: [],
+      brands: [],
       locations: [],
       productsHasMore: false,
       productsOffset: 0,

@@ -36,15 +36,18 @@ describe("Search System v1.0 production lock", () => {
     expect(overlay).toContain('aria-label="Close"');
     expect(overlay).toContain("Recent Searches");
     expect(overlay).toContain("Trending Searches");
-    expect(overlay).toContain("Popular Searches");
-    expect(overlay).toContain('title="Categories"');
-    expect(overlay).toContain('title="Items"');
-    expect(overlay).toContain('title="Members"');
-    expect(overlay).toContain('title="Stores"');
-    expect(overlay).toContain('title="Brands"');
+    expect(overlay).toContain('title="Suggestions"');
+    expect(overlay).toContain('title="Products"');
+    expect(overlay).toContain("Relevant Categories");
+    expect(overlay).toContain("Relevant Stores");
+    expect(overlay).toContain("Relevant Members");
+    expect(overlay).toContain("Similar Products");
+    expect(overlay).toContain("Recent + Trending ONLY");
+    expect(overlay).not.toContain("Popular Searches");
     expect(overlay).not.toContain("Recent Listings");
     expect(overlay).not.toContain("SavedSearchesPanel");
     expect(overlay).not.toContain("Suggested Categories");
+    expect(overlay).not.toContain('title="Brands"');
 
     expect(actions).toContain("ImageSearchCamera");
     expect(actions).not.toContain("Voice search");
