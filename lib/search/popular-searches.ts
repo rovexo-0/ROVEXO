@@ -1,4 +1,5 @@
 import { getProductsBySection } from "@/lib/products/repository";
+import { withSearchCache } from "@/lib/search/cache";
 
 function toSearchTerm(title: string, brand?: string | null): string | null {
   const candidate = brand?.trim() || title.trim().split(/\s+/).slice(0, 3).join(" ");
@@ -6,7 +7,7 @@ function toSearchTerm(title: string, brand?: string | null): string | null {
   return candidate;
 }
 
-export async function getPopularSearches(limit = 8): Promise<string[]> {
+async function loadPopularSearches(limit: number): Promise<string[]> {
   const { items } = await getProductsBySection("popular", 1);
   const terms = new Set<string>();
 
@@ -17,4 +18,14 @@ export async function getPopularSearches(limit = 8): Promise<string[]> {
   }
 
   return [...terms];
+}
+
+/** Automatic popular terms from marketplace listings — never admin-edited. */
+export async function getPopularSearches(limit = 8): Promise<string[]> {
+  return withSearchCache(
+    "popular",
+    `limit:${limit}`,
+    () => loadPopularSearches(limit),
+    { ttlMs: 60_000, emptyOnError: [] },
+  );
 }

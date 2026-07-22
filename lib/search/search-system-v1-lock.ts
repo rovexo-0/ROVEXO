@@ -2,6 +2,7 @@
  * ROVEXO Search System v1.0 — MASTER FREEZE (Owner Absolute Authority)
  *
  * STATUS: IN PROGRESS (not Production Ready without Owner approval)
+ * Engine SSOT: `lib/search/search-engine-v1.ts` (ONE engine · ZERO admin ranking)
  *
  * Canonical overlay order:
  * Recent → Trending → Popular → Categories → Items → Members → Stores → Brands

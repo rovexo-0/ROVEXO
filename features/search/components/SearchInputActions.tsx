@@ -5,14 +5,16 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { ImageSearchCamera } from "@/components/home/ImageSearchCamera";
 import { storeImageSearchQuery } from "@/lib/image-search/storage";
+import { prepareSearchImage } from "@/lib/search/image-pipeline";
 
 type SearchInputActionsProps = {
   className?: string;
 };
 
 /**
- * Search trailing actions — Camera only (Search System v1.0).
- * Voice Assistant permanently forbidden (NO AI / NO Voice policy).
+ * Search Engine v1.0 — ONE camera system entry (overlay).
+ * Pipeline: validate → crop/compress → image match. NO AI / NO Voice.
+ * Fail-safe: pipeline failure → text search route.
  */
 export function SearchInputActions({ className }: SearchInputActionsProps) {
   const router = useRouter();
@@ -24,12 +26,20 @@ export function SearchInputActions({ className }: SearchInputActionsProps) {
     if (!file) return;
     setProcessing(true);
     try {
-      const { fileToDataUrl } = await import("@/lib/image-search/similarity");
-      const dataUrl = await fileToDataUrl(file);
-      storeImageSearchQuery(dataUrl);
+      const prepared = await prepareSearchImage(file, {
+        centerCrop: true,
+        rotateDeg: 0,
+        maxEdge: 640,
+      });
+      if (!prepared.ok) {
+        // IMAGE SEARCH FAILS → fallback TEXT SEARCH
+        router.push("/search");
+        return;
+      }
+      storeImageSearchQuery(prepared.dataUrl);
       router.push("/search?visual=1");
     } catch {
-      // Cancelled or unreadable — stay on search.
+      router.push("/search");
     } finally {
       setProcessing(false);
     }

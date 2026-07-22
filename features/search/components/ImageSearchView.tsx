@@ -121,6 +121,9 @@ export function ImageSearchView() {
         <p className="rx-image-search-results__empty">
           Use the camera in Search to take or upload a photo.
         </p>
+        <button type="button" className="rx-image-search-results__back" onClick={() => router.push("/search")}>
+          Text search
+        </button>
         <button type="button" className="rx-image-search-results__back" onClick={() => router.push("/")}>
           Back to Home
         </button>
@@ -253,7 +256,18 @@ export function ImageSearchView() {
             ) : null}
           </>
         ) : (
-          <p className="rx-image-search-results__empty">No similar listings found. Try another photo.</p>
+          <>
+            <p className="rx-image-search-results__empty">
+              No similar listings found. Try another photo or use text search.
+            </p>
+            <button
+              type="button"
+              className="rx-image-search-results__back"
+              onClick={() => router.push("/search")}
+            >
+              Text search
+            </button>
+          </>
         )
       ) : null}
     </section>

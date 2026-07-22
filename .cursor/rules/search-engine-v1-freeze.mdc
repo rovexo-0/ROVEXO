@@ -1,0 +1,26 @@
+# ROVEXO Search Engine v1.0 (SENIOR ARCHITECT FREEZE)
+
+**STATUS: CANONICAL · MASTER FREEZE · PRE-PRODUCTION**  
+**Production deploy: FORBIDDEN until Owner 100% certification**
+
+SSOT: `lib/search/search-engine-v1.ts`
+
+## One engine only
+
+Text + Camera + Filters → Search Core → Index signals → Cache → Results
+
+Surfaces: Items · Members · Stores · Brands · Categories
+
+## Zero Admin Policy
+
+Forbidden: admin edits to Trending / Popular / Recent / Suggestions / Ranking.
+
+Everything automatic from marketplace signals (views, sales, listings, searches).
+
+## Fail-safe
+
+Image fails → Text · Cache fails → DB · Suggestions fail → Popular · Store fails → Members
+
+## Forbidden
+
+Search v2/v3 · AI/GPT Search · Duplicate engines/cameras/filters · Parallel architectures

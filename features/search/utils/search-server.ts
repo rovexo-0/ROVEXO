@@ -21,6 +21,8 @@ import type {
 import { SEARCH_PRODUCT_PAGE_SIZE } from "@/features/search/types";
 import { createClient } from "@/lib/supabase/server";
 import { resolveStoreHrefFromSeller } from "@/lib/store/store-href";
+import { rankSearchProducts } from "@/lib/search/rank-products";
+import { withSearchCache } from "@/lib/search/cache";
 
 const SUGGESTED_LIMIT = 8;
 
@@ -176,19 +178,27 @@ export async function searchAll(
 
   if (!normalized) {
     // Idle overlay: discovery chips only — never Homepage feed / cards.
+    // Automatic cache → DB fail-safe. Suggestions fail → popular fallback.
     const recent = await getRecentPublishedListings(SUGGESTED_LIMIT);
     const [trending, popular, brands] = await Promise.all([
       getTrendingSearches(recent, SUGGESTED_LIMIT),
       getPopularSearches(SUGGESTED_LIMIT).catch(() => [] as string[]),
-      getSuggestedBrands(SUGGESTED_LIMIT),
+      withSearchCache(
+        "hot",
+        "suggested-brands",
+        () => getSuggestedBrands(SUGGESTED_LIMIT),
+        { ttlMs: 120_000, emptyOnError: [] },
+      ),
     ]);
+
+    const trendingSafe = trending.length > 0 ? trending : popular;
 
     return {
       products: [],
       sellers: [],
       stores: suggestedStoresFromListings(recent, SUGGESTED_LIMIT),
       users: [],
-      trending,
+      trending: trendingSafe,
       popular,
       categories: defaultCategories,
       brands,
@@ -205,7 +215,9 @@ export async function searchAll(
         query: normalized,
         page,
         pageSize: productLimit,
-        sort: options.sort ?? "newest",
+        // Default: marketplace discovery order, then Search Engine v1.0 rank.
+        // Explicit newest/price sorts skip relevance re-rank.
+        sort: options.sort,
         brand: options.brand,
         categorySlug: options.categorySlug,
         sellerId: options.sellerId,
@@ -218,15 +230,37 @@ export async function searchAll(
     ]);
 
   const users = mapProfilesToUsers(profileMatches);
-  const stores = mapProfilesToStores(profileMatches);
+  const mappedStores = mapProfilesToStores(profileMatches);
+  // STORE SEARCH FAILS → MEMBER SEARCH (profiles always mapped to members)
+  const stores =
+    mappedStores.length > 0
+      ? mappedStores
+      : users.map((user) => ({
+          id: user.id,
+          name: user.name,
+          href: user.href,
+          description: user.handle,
+        }));
+
+  const breadcrumbed = await withBreadcrumbs(products);
+  const ranked =
+    options.sort === "newest" ||
+    options.sort === "price_asc" ||
+    options.sort === "price_desc"
+      ? breadcrumbed
+      : rankSearchProducts(breadcrumbed, normalized);
+
+  const filteredTrending = filterSuggestions(trendingRaw, normalized);
+  const filteredPopular = filterSuggestions(popularRaw, normalized);
+  const trendingSafe = filteredTrending.length > 0 ? filteredTrending : filteredPopular;
 
   return {
-    products: await withBreadcrumbs(products),
+    products: ranked,
     sellers: [],
     stores,
     users,
-    trending: filterSuggestions(trendingRaw, normalized),
-    popular: filterSuggestions(popularRaw, normalized),
+    trending: trendingSafe,
+    popular: filteredPopular,
     categories: defaultCategories.filter((category) => includesQuery(category.name, normalized)),
     brands,
     locations: searchLocations(normalized),

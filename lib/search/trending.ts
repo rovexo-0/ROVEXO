@@ -1,4 +1,5 @@
 import { getPopularSearches } from "@/lib/search/popular-searches";
+import { withSearchCache } from "@/lib/search/cache";
 import type { Product } from "@/lib/products/types";
 
 function deriveTermFromProduct(product: Product): string | null {
@@ -8,14 +9,9 @@ function deriveTermFromProduct(product: Product): string | null {
   return candidate;
 }
 
-/**
- * Trending searches sourced entirely from live marketplace signals — popular
- * listings first, then the freshest published listings as a real fallback.
- * Never returns hardcoded terms; if the marketplace is empty, so is trending.
- */
-export async function getTrendingSearches(
-  fallbackProducts: Product[] = [],
-  limit = 8,
+async function loadTrendingSearches(
+  fallbackProducts: Product[],
+  limit: number,
 ): Promise<string[]> {
   let popular: string[] = [];
   try {
@@ -34,4 +30,25 @@ export async function getTrendingSearches(
   }
 
   return [...terms].slice(0, limit);
+}
+
+/**
+ * Trending searches — automatic from live marketplace signals only.
+ * Cache fail-safe → database/popular loader. Never admin-edited.
+ */
+export async function getTrendingSearches(
+  fallbackProducts: Product[] = [],
+  limit = 8,
+): Promise<string[]> {
+  const fallbackKey = fallbackProducts
+    .slice(0, 4)
+    .map((product) => product.id)
+    .join(",");
+
+  return withSearchCache(
+    "trending",
+    `limit:${limit}:fb:${fallbackKey}`,
+    () => loadTrendingSearches(fallbackProducts, limit),
+    { ttlMs: 60_000, emptyOnError: [] },
+  );
 }
