@@ -129,6 +129,7 @@ export const HEADER_MASTER_FREEZE_V1 = {
   ] as const,
   ssot: {
     freeze: "lib/header/header-master-freeze-v1.ts",
+    searchPriority: "lib/header/search-priority-freeze-v1.ts",
     header: "features/header/HeaderProvider.tsx",
     component: "components/header/RovexoHeaderV2.tsx",
     css: "styles/rovexo/header-v2.css",

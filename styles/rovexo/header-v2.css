@@ -85,6 +85,13 @@
   box-shadow: none;
 }
 
+/* Legacy homepage modifiers retired — Search Priority Freeze: identical chrome everywhere. */
+.rx-h2--homepage,
+.rx-h2-search--homepage,
+.rx-h2__search-row {
+  /* no-op hooks kept for older CSS references */
+}
+
 .rx-h2__actions {
   display: flex;
   flex-shrink: 0;
@@ -223,10 +230,9 @@
 
 
 
-/* Homepage — row 1 logo + actions, row 2 search below */
+/* Homepage — identical to marketplace (Search Priority Freeze). */
 .rx-h2--homepage {
-  border-bottom-color: transparent;
-  box-shadow: none;
+  /* no visual override */
 }
 
 .rx-h2--homepage.rx-h2--scrolled {
@@ -246,20 +252,8 @@
   gap: 0;
 }
 
-.rx-h2__actions--homepage .rx-h2__action--messages {
-  margin-inline-end: 2px;
-}
-
-.rx-h2__actions--homepage .rx-h2__action--notifications {
-  margin-inline-end: 0;
-}
-
 .rx-h2__search-row {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  margin-inline: 0;
-  padding: 0 var(--rx-phone-inset-x, 16px) 8px;
+  display: none;
 }
 
 .rx-h2-search--homepage {
@@ -267,13 +261,11 @@
 }
 
 .rx-h2-search--homepage .homepage-search__control {
-  min-height: var(--cp-search-height, 44px);
-  height: var(--cp-search-height, 44px);
+  /* Same tokens as .rx-h2-search — no homepage-only styling */
+  min-height: 44px;
+  height: 44px;
   padding-inline: 16px;
   border-radius: 16px;
-  border-color: rgb(15 23 42 / 0.08);
-  background: #f8fafc;
-  box-shadow: none;
 }
 
 .rx-wordmark-link {

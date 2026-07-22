@@ -113,14 +113,15 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(css).toContain("--hp-store-visible-cards: 2.5");
   });
 
-  it("places search beside ROVEXO wordmark — full-width search-first header", () => {
+  it("places search beside ROVEXO — identical marketplace chrome", () => {
     const header = readSource("components/header/RovexoHeaderV2.tsx");
     const provider = readSource("features/header/HeaderProvider.tsx");
 
-    expect(header).toContain('layout?: "default" | "homepage"');
     expect(header).toContain("rx-h2__search");
     expect(header).toContain("HomepageSearchField");
-    expect(provider).toContain('layout: "homepage"');
+    expect(header).toContain('SEARCH_FIELD_ID = "rx-h2-search"');
+    expect(provider).toContain('layout="default"');
+    expect(provider).toContain("SEARCH_PRIORITY_FREEZE_V1");
   });
 
   it("uses official ROVEXO wordmark colours", () => {
@@ -152,7 +153,7 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(search).toContain("SEARCH_SYSTEM_V1.placeholder");
     expect(search).toContain("SearchBarSearchIcon");
     expect(search).not.toContain("ImageSearchCamera");
-    expect(header).toContain("hp-canonical-search");
+    expect(header).toContain('SEARCH_FIELD_ID = "rx-h2-search"');
     expect(header).toContain('data-header-search-first="true"');
   });
 

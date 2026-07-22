@@ -1,0 +1,25 @@
+# ROVEXO SEARCH PRIORITY FREEZE v1.0
+
+**STATUS: OWNER APPROVED · LOCKED · FROZEN · SSOT READY**
+
+SSOT: `lib/header/search-priority-freeze-v1.ts`
+
+## Principle
+
+**IF SOMETHING DOES NOT HELP SEARCH, IT DOES NOT BELONG IN THE HEADER.**
+
+## Header
+
+- Purpose: SEARCH only  
+- Stateless — no auth / avatar / notifications / user fetch  
+- Identical chrome: Home · Search · Image Search · Results · Discovery · Categories · Brands  
+- Search bar = **100%** available space  
+
+## Account
+
+Never use search header. Use **64px Back + Title only**.
+
+## Forbidden forever
+
+Avatar · Notifications · badges · multiple headers/bars/providers · remounts · refresh requirements
+---
