@@ -8,13 +8,25 @@ import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/cons
 import { readImageSearchQuery } from "@/lib/image-search/storage";
 import type { ImageSearchMatch } from "@/lib/image-search/search";
 import { CAMERA_SEARCH_V1 } from "@/lib/search/camera-search-v1-freeze";
+import { CAMERA_SEARCH_PERFORMANCE_V1 } from "@/lib/search/camera-search-performance-v1";
+import type { ImageSearchProgressStep } from "@/lib/image-search/search";
 import css from "@/components/homepage/canonical/CanonicalHomepage.module.css";
 import "@/styles/rovexo/image-search.css";
 
 const EXACT_SCORE = 0.85;
-const ANIMATION_STEPS = CAMERA_SEARCH_V1.animationSteps;
-const MAX_ANIMATION_MS = CAMERA_SEARCH_V1.maxSearchAnimationMs;
-const STEP_MS = CAMERA_SEARCH_V1.stepDurationMs;
+/** Brief polish only — never pad to 2–30s; results as soon as matching finishes. */
+const MIN_UX_MS = CAMERA_SEARCH_PERFORMANCE_V1.targetsMs.preparingResults;
+const ABSOLUTE_MAX_MS = CAMERA_SEARCH_PERFORMANCE_V1.targetsMs.absoluteMaximum;
+
+const CHECKLIST: { step: ImageSearchProgressStep; label: string }[] = [
+  { step: "searching", label: CAMERA_SEARCH_PERFORMANCE_V1.loadingChecklist[0] },
+  { step: "products", label: CAMERA_SEARCH_PERFORMANCE_V1.loadingChecklist[1] },
+  { step: "categories", label: CAMERA_SEARCH_PERFORMANCE_V1.loadingChecklist[2] },
+  { step: "listings", label: CAMERA_SEARCH_PERFORMANCE_V1.loadingChecklist[3] },
+  { step: "similar", label: CAMERA_SEARCH_PERFORMANCE_V1.loadingChecklist[4] },
+  { step: "recommendations", label: CAMERA_SEARCH_PERFORMANCE_V1.loadingChecklist[5] },
+  { step: "preparing", label: CAMERA_SEARCH_PERFORMANCE_V1.loadingChecklist[6] },
+];
 
 function priceBucket(price: number): string {
   if (price < 25) return "Under £25";
@@ -25,15 +37,14 @@ function priceBucket(price: number): string {
 }
 
 /**
- * Camera Search results — ZERO DEAD ENDS.
- * Always shows Products / Similar / Categories / Brands / Recommended + filters.
- * Forbidden: empty page, "no results found", white screen, AI chat questions.
+ * Camera Search results — Performance Master Freeze.
+ * Parallel matching · ONE corpus API · zero dead ends · no refresh/reload/second search.
  */
 export function ImageSearchView() {
   const router = useRouter();
   const queryDataUrl = useMemo(() => readImageSearchQuery(), []);
   const [phase, setPhase] = useState<"searching" | "results">("searching");
-  const [statusIndex, setStatusIndex] = useState(0);
+  const [doneSteps, setDoneSteps] = useState<Set<string>>(() => new Set(["searching"]));
   const [matches, setMatches] = useState<ImageSearchMatch[]>([]);
   const [brandFilter, setBrandFilter] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
@@ -41,16 +52,20 @@ export function ImageSearchView() {
   const [hasExactMatch, setHasExactMatch] = useState(false);
 
   useEffect(() => {
-    if (phase !== "searching") return;
-    const timer = window.setInterval(() => {
-      setStatusIndex((index) => (index + 1) % ANIMATION_STEPS.length);
-    }, STEP_MS);
-    return () => window.clearInterval(timer);
-  }, [phase]);
-
-  useEffect(() => {
     const controller = new AbortController();
     const startedAt = Date.now();
+    const hardCap = window.setTimeout(() => {
+      if (!controller.signal.aborted) setPhase("results");
+    }, ABSOLUTE_MAX_MS);
+
+    function mark(step: ImageSearchProgressStep) {
+      setDoneSteps((current) => {
+        const next = new Set(current);
+        next.add(step);
+        if (step === "products") next.add("searching");
+        return next;
+      });
+    }
 
     async function run() {
       try {
@@ -59,15 +74,21 @@ export function ImageSearchView() {
 
         let results: ImageSearchMatch[] = [];
         if (queryDataUrl) {
-          results = await runImageSimilaritySearch(queryDataUrl, controller.signal);
+          results = await runImageSimilaritySearch(queryDataUrl, controller.signal, mark);
         }
         if (!controller.signal.aborted && results.length === 0) {
+          mark("products");
+          mark("categories");
+          mark("listings");
+          mark("similar");
+          mark("recommendations");
           const corpus = await fetchActiveListingCorpus(controller.signal);
           results = corpus.slice(0, 24).map((product) => ({
             product,
             score: 0.4,
             recommended: true,
           }));
+          mark("preparing");
         }
 
         if (controller.signal.aborted) return;
@@ -76,9 +97,9 @@ export function ImageSearchView() {
         setHasExactMatch(exact);
         setMatches(results);
 
-        // Owner target: Searching 0.5s + Matching 0.5s + Preparing 0.5s (<2s).
+        // Performance Freeze: results ASAP (soft UX floor only). Forbidden: 10–30s waits / refresh.
         const elapsed = Date.now() - startedAt;
-        const wait = Math.max(0, MAX_ANIMATION_MS - elapsed);
+        const wait = Math.max(0, Math.min(MIN_UX_MS, ABSOLUTE_MAX_MS) - elapsed);
         window.setTimeout(() => {
           if (!controller.signal.aborted) setPhase("results");
         }, wait);
@@ -103,9 +124,13 @@ export function ImageSearchView() {
     }
 
     void run();
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      window.clearTimeout(hardCap);
+    };
   }, [queryDataUrl]);
 
+  const noExactCopy = CAMERA_SEARCH_PERFORMANCE_V1.noExactMatchCopy;
   const brands = useMemo(() => {
     const counts = new Map<string, number>();
     for (const { product } of matches) {
@@ -180,22 +205,21 @@ export function ImageSearchView() {
           (entry) => !primaryProducts.some((primary) => primary.product.id === entry.product.id),
         );
 
-  const statusLabel = ANIMATION_STEPS[statusIndex] ?? ANIMATION_STEPS[0];
-
   return (
     <section
       className="rx-image-search-results"
       data-image-search={phase}
       data-camera-search={CAMERA_SEARCH_V1.version}
+      data-camera-search-performance={CAMERA_SEARCH_PERFORMANCE_V1.version}
     >
       <header className="rx-image-search-results__header">
         <h1 className="rx-image-search-results__title">Image Search</h1>
         <p className="rx-image-search-results__subtitle">
           {phase === "searching"
-            ? statusLabel
+            ? "Searching....."
             : hasExactMatch
               ? "Match found — products, similar items, categories and brands"
-              : CAMERA_SEARCH_V1.noExactMatchCopy}
+              : noExactCopy}
         </p>
       </header>
 
@@ -208,9 +232,24 @@ export function ImageSearchView() {
 
       {phase === "searching" ? (
         <>
-          <p className="rx-image-search-results__status" role="status" aria-live="polite">
-            {statusLabel}
-          </p>
+          <ol className="rx-image-search-results__checklist" role="status" aria-live="polite">
+            {CHECKLIST.map(({ step, label }) => {
+              const done = doneSteps.has(step);
+              return (
+                <li
+                  key={step}
+                  className={
+                    done
+                      ? "rx-image-search-results__check rx-image-search-results__check--done"
+                      : "rx-image-search-results__check"
+                  }
+                >
+                  <span aria-hidden>{done ? "✓" : "·"}</span>
+                  <span>{label}</span>
+                </li>
+              );
+            })}
+          </ol>
           <div className="rx-image-search-results__grid-slot" aria-busy="true">
             <ProductGridSkeleton count={8} />
           </div>
@@ -221,7 +260,7 @@ export function ImageSearchView() {
         <>
           {!hasExactMatch ? (
             <p className="rx-image-search-results__banner" role="status">
-              {CAMERA_SEARCH_V1.noExactMatchCopy}
+              {noExactCopy}
             </p>
           ) : null}
 
@@ -349,7 +388,7 @@ export function ImageSearchView() {
           {matches.length === 0 ? (
             <div className="rx-image-search-results__recover">
               <p className="rx-image-search-results__banner" role="status">
-                {CAMERA_SEARCH_V1.noExactMatchCopy}
+                {noExactCopy}
               </p>
               <button
                 type="button"

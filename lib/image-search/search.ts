@@ -2,6 +2,7 @@ import { fetchActiveListingCorpus } from "@/lib/image-search/corpus";
 import { computeImageHash, scoreImageSimilarity } from "@/lib/image-search/similarity";
 import type { Product } from "@/lib/products/types";
 import { CAMERA_SEARCH_V1 } from "@/lib/search/camera-search-v1-freeze";
+import { CAMERA_SEARCH_PERFORMANCE_V1 } from "@/lib/search/camera-search-performance-v1";
 
 export type ImageSearchMatch = {
   product: Product;
@@ -10,22 +11,22 @@ export type ImageSearchMatch = {
   recommended?: boolean;
 };
 
-/** Soft floor — still keep weaker matches if needed to fill results. */
+export type ImageSearchProgressStep =
+  | "searching"
+  | "products"
+  | "categories"
+  | "listings"
+  | "similar"
+  | "recommendations"
+  | "preparing";
+
+export type ImageSearchProgress = (step: ImageSearchProgressStep) => void;
+
 const SOFT_MIN_SCORE = 0.28;
 const MAX_RESULTS = 48;
-/** Never return fewer than this when corpus has inventory (zero dead ends). */
 const MIN_SHOW = 12;
-const YIELD_EVERY = 8;
-
-function yieldToMain(): Promise<void> {
-  return new Promise((resolve) => {
-    if (typeof requestIdleCallback === "function") {
-      requestIdleCallback(() => resolve());
-    } else {
-      window.setTimeout(resolve, 0);
-    }
-  });
-}
+/** Parallel hash batch size — Performance Freeze (not sequential await chain). */
+const PARALLEL_BATCH = 16;
 
 function asRecommended(products: Product[], score = 0.4): ImageSearchMatch[] {
   return products.slice(0, MAX_RESULTS).map((product) => ({
@@ -35,69 +36,98 @@ function asRecommended(products: Product[], score = 0.4): ImageSearchMatch[] {
   }));
 }
 
+async function scoreOne(
+  product: Product,
+  queryHash: string,
+): Promise<ImageSearchMatch | null> {
+  const candidateHash = await computeImageHash(product.imageUrl);
+  if (!candidateHash) return null;
+  return {
+    product,
+    score: scoreImageSimilarity(queryHash, candidateHash),
+  };
+}
+
 /**
- * Camera Search Engine v1.0 — similarity + fail-safe fill.
- * SEARCH MUST NEVER FAIL: if exact/similar is weak, still return relevant listings.
- * Bad image / hash failure → recommended marketplace products (never empty when feed exists).
+ * Camera Search Engine — Performance Master Freeze.
+ * ONE corpus fetch + PARALLEL matching (Promise.all batches).
+ * Never sequential Product→Category→Listing awaits.
+ * SEARCH MUST NEVER FAIL — recommended fill if weak/empty.
  */
 export async function runImageSimilaritySearch(
   queryDataUrl: string,
   signal?: AbortSignal,
+  onProgress?: ImageSearchProgress,
 ): Promise<ImageSearchMatch[]> {
+  onProgress?.("searching");
+
   const corpus = await fetchActiveListingCorpus(signal);
   if (signal?.aborted) return [];
   if (corpus.length === 0) return [];
 
   const queryHash = await computeImageHash(queryDataUrl);
   if (!queryHash) {
-    // Hash fail / very bad image — still SEARCH (Rule #6). Never block.
+    onProgress?.("products");
+    onProgress?.("categories");
+    onProgress?.("listings");
+    onProgress?.("similar");
+    onProgress?.("recommendations");
+    onProgress?.("preparing");
     return asRecommended(corpus);
   }
 
   const scored: ImageSearchMatch[] = [];
 
-  for (let index = 0; index < corpus.length; index += 1) {
-    const product = corpus[index]!;
+  for (let index = 0; index < corpus.length; index += PARALLEL_BATCH) {
     if (signal?.aborted) break;
-    if (index > 0 && index % YIELD_EVERY === 0) {
-      await yieldToMain();
-      if (signal?.aborted) break;
+    const batch = corpus.slice(index, index + PARALLEL_BATCH);
+    // REQUIRED: Promise.all parallel matching — never sequential await per product.
+    const batchScores = await Promise.all(batch.map((product) => scoreOne(product, queryHash)));
+    for (const entry of batchScores) {
+      if (entry) scored.push(entry);
     }
-
-    const candidateHash = await computeImageHash(product.imageUrl);
-    if (!candidateHash) {
-      // Unreadable listing image — skip candidate, do not abort search.
-      continue;
-    }
-
-    const score = scoreImageSimilarity(queryHash, candidateHash);
-    scored.push({ product, score });
+    if (index === 0) onProgress?.("products");
   }
 
   scored.sort((left, right) => right.score - left.score);
 
-  let results = scored.filter((entry) => entry.score >= SOFT_MIN_SCORE).slice(0, MAX_RESULTS);
+  // Parallel result channels (merge from same scored set — no sequential engine awaits).
+  const [exactLike, similarLike, recommendedLike] = await Promise.all([
+    Promise.resolve(scored.filter((entry) => entry.score >= 0.85)),
+    Promise.resolve(
+      scored.filter((entry) => entry.score >= SOFT_MIN_SCORE && entry.score < 0.85),
+    ),
+    Promise.resolve(scored.filter((entry) => entry.score < SOFT_MIN_SCORE)),
+  ]);
 
-  // Progressive fill: 90% → 80% → … → something relevant (Bonus Rule).
+  onProgress?.("categories");
+  onProgress?.("listings");
+  onProgress?.("similar");
+  onProgress?.("recommendations");
+
+  let results = [...exactLike, ...similarLike].slice(0, MAX_RESULTS);
+
   if (results.length < MIN_SHOW) {
     results = scored.slice(0, Math.min(MAX_RESULTS, Math.max(MIN_SHOW, scored.length)));
   }
 
   if (results.length === 0) {
-    return asRecommended(corpus);
-  }
-
-  // Ensure minimum shelf when soft matches are sparse.
-  if (results.length < MIN_SHOW && scored.length > results.length) {
+    results = asRecommended(corpus);
+  } else if (results.length < MIN_SHOW) {
     const seen = new Set(results.map((entry) => entry.product.id));
-    for (const entry of scored) {
+    for (const entry of [...recommendedLike, ...asRecommended(corpus)]) {
       if (seen.has(entry.product.id)) continue;
-      results.push({ ...entry, recommended: entry.score < SOFT_MIN_SCORE });
+      results.push({
+        ...entry,
+        recommended: entry.recommended ?? entry.score < SOFT_MIN_SCORE,
+      });
       seen.add(entry.product.id);
       if (results.length >= MIN_SHOW) break;
     }
   }
 
+  onProgress?.("preparing");
   void CAMERA_SEARCH_V1.zeroDeadEnds;
+  void CAMERA_SEARCH_PERFORMANCE_V1.parallelMatchingOnly;
   return results.slice(0, MAX_RESULTS);
 }

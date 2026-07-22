@@ -1,0 +1,55 @@
+# ROVEXO Camera Search — Performance Master Freeze v1.0
+
+**STATUS: OWNER APPROVED | ABSOLUTE AUTHORITY | PERFORMANCE LOCK**
+
+SSOT: `lib/search/camera-search-performance-v1.ts`
+
+## Contract
+
+```
+1 CLICK = 1 PHOTO = 1 SEARCH = 1 RESULTS PAGE
+```
+
+NO AI · NO CHAT · NO QUESTIONS · NO DEAD ENDS · NO REFRESH · NO RELOAD · NO SECOND SEARCH
+
+## Forbidden
+
+- Sequential `await ProductSearch → CategorySearch → ListingSearch → …`
+- Wait 10s / 20s / 30s then refresh then results
+- `router.refresh()` / `location.reload()` on camera search path
+- Empty pages · “No Results” · “Try Again” · “Image Unsupported”
+
+## Required
+
+```
+IMAGE → VALIDATE → COMPRESS → CENTER CROP → ONE API CALL
+→ PARALLEL MATCHING (Promise.all)
+→ MERGE → PREPARE → AUTO REDIRECT → RESULTS
+```
+
+Corpus: `GET /api/search/image-corpus` (one call) + intelligent cache  
+Engine: `lib/image-search/search.ts` (`Promise.all` batches + `onProgress`)  
+View: `features/search/components/ImageSearchView.tsx` (checklist → results)
+
+## Targets
+
+| Stage | Max |
+|-------|-----|
+| Compression | &lt;150 ms |
+| Parallel matching | &lt;700 ms |
+| Preparing | &lt;400 ms |
+| Render | &lt;300 ms |
+| **Total** | **&lt;2 s** (absolute max **&lt;3 s**) |
+
+## Loading checklist
+
+Searching..... → ✓ Matching Products → ✓ Categories → ✓ Listings → ✓ Similar → ✓ Recommendations → Preparing Results..... → Results
+
+## Zero dead ends copy
+
+`No exact match found. Showing similar and relevant marketplace results.`
+
+## Results priority
+
+Exact → Similar → Relevant → Marketplace Listings → Categories → Recommendations → Filters → Sort
+---

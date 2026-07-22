@@ -18,28 +18,31 @@ export const CAMERA_SEARCH_V1 = {
   zeroDeadEnds: true,
   neverBlockOnImageQuality: true,
   autoSearchAfterConfirm: true,
-  /** Target total animation before results (Owner: <2s). */
+  /** Soft UX floor only — never pad to 10–30s. Performance Freeze owns hard caps. */
   maxSearchAnimationMs: 1_500,
   stepDurationMs: 500,
+  /** Aligned with CAMERA_SEARCH_PERFORMANCE_V1.loadingChecklist */
   animationSteps: [
     "Searching.....",
-    "Matching Products.....",
-    "Matching Categories.....",
-    "Matching Attributes.....",
-    "Matching Similar Products.....",
+    "Matching Products",
+    "Matching Categories",
+    "Matching Listings",
+    "Matching Similar Products",
+    "Matching Recommendations",
     "Preparing Results.....",
   ] as const,
   resultsPriority: [
     "Exact Products",
     "Similar Products",
     "Relevant Products",
-    "Matching Categories",
-    "Recommended Products",
     "Marketplace Listings",
+    "Relevant Categories",
+    "Recommendations",
     "Filters",
     "Sort",
   ] as const,
-  noExactMatchCopy: "No exact match found. Showing similar and relevant products.",
+  noExactMatchCopy:
+    "No exact match found. Showing similar and relevant marketplace results.",
   forbiddenUiCopy: [
     "NO RESULTS FOUND",
     "NOT FOUND",
@@ -56,15 +59,20 @@ export const CAMERA_SEARCH_V1 = {
     "Search again",
     "No similar listings found",
     "What is this?",
+    "Image Unsupported",
+    "Nothing Found",
   ] as const,
   /** @deprecated use noExactMatchCopy */
-  allowedStatusWhenNoExact: "No exact match found. Showing similar and relevant products.",
+  allowedStatusWhenNoExact:
+    "No exact match found. Showing similar and relevant marketplace results.",
   ssot: {
     freeze: "lib/search/camera-search-v1-freeze.ts",
+    performance: "lib/search/camera-search-performance-v1.ts",
     engine: "lib/image-search/search.ts",
     view: "features/search/components/ImageSearchView.tsx",
     camera: "features/search/components/SearchInputActions.tsx",
     pipeline: "lib/search/image-pipeline.ts",
+    corpusApi: "app/api/search/image-corpus/route.ts",
   },
 } as const;
 

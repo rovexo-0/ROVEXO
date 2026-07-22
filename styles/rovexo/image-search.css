@@ -64,6 +64,37 @@
   color: var(--ds-color-text-primary);
 }
 
+.rx-image-search-results__checklist {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rx-image-search-results__check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ds-color-text-secondary);
+}
+
+.rx-image-search-results__check--done {
+  font-weight: 600;
+  color: var(--ds-color-text-primary);
+}
+
+.rx-image-search-results__check > span:first-child {
+  width: 1.25rem;
+  text-align: center;
+  color: #9333ea;
+}
+
 .rx-image-search-results__banner {
   margin: 0 0 12px;
   padding: 10px 12px;
