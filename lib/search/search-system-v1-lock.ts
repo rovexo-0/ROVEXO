@@ -1,19 +1,21 @@
 /**
- * ROVEXO Search System v1.0 — PRODUCTION LOCK (Owner Absolute Authority)
+ * ROVEXO Search System v1.0 — MASTER FREEZE (Owner Absolute Authority)
  *
- * ONE FEATURE = ONE IMPLEMENTATION = ONE SOURCE OF TRUTH
+ * STATUS: IN PROGRESS (not Production Ready without Owner approval)
  *
- * Canonical flow:
- * Homepage → Search Bar → Search Overlay → Items | Members | Camera |
- * Image Search | Stores | Brands | Categories | Filters → Results → Certify
+ * Canonical overlay order:
+ * Recent → Trending → Popular → Categories → Items → Members → Stores → Brands
  *
- * NO AI POLICY: products / listings / categories / members / stores / brands DB only.
- * Social Follow / Followers permanently forbidden on store results.
+ * Camera: Take/Upload → Similar Products / Categories / Brands / Listings only.
+ * NO AI / NO Voice / NO external AI APIs.
+ * Social Follow permanently forbidden (Store “Followers” = stats later, never Follow UI).
+ *
+ * Deploy: Preview authorized. Production Deploy forbidden without Owner approval.
  */
 
 export const SEARCH_SYSTEM_V1 = {
   version: "1.0",
-  status: "PRODUCTION_LOCK",
+  status: "IN_PROGRESS",
   placeholder: "Search for items or members",
   historyMax: 20,
   cameraAlwaysVisible: true,
@@ -21,19 +23,39 @@ export const SEARCH_SYSTEM_V1 = {
   homepageHiddenWhileActive: true,
   noAi: true,
   noVoiceAssistant: true,
+  noExternalAiApis: true,
   overlayIdleSections: [
     "Recent Searches",
     "Trending Searches",
     "Popular Searches",
-    "Suggested Categories",
-    "Suggested Stores",
-    "Suggested Brands",
+    "Categories",
+    "Stores",
+    "Brands",
+  ] as const,
+  overlayQuerySections: [
+    "Categories",
+    "Items",
+    "Members",
+    "Stores",
+    "Brands",
+  ] as const,
+  cameraAllow: [
+    "Take Photo",
+    "Upload Photo",
+    "Similar Products",
+    "Similar Categories",
+    "Similar Brands",
+    "Similar Listings",
   ] as const,
   overlayForbidden: [
     "Homepage feed",
     "Homepage cards",
     "Homepage categories bar",
     "Homepage recommendations",
+    "AI Search",
+    "AI Assistant",
+    "Chat Search",
+    "Voice Search",
   ] as const,
   ssot: {
     overlay: "features/search/components/SearchOverlay.tsx",

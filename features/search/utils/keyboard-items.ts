@@ -20,8 +20,7 @@ export function buildSearchNavItems({
   const items: SearchNavItem[] = [];
 
   if (!hasQuery) {
-    // Idle order must mirror Search Overlay render order (Search System v1.0):
-    // Recent Searches → Trending → Popular → Categories → Stores → Brands
+    // Idle: Recent → Trending → Popular → Categories → Stores → Brands
     history.forEach((term) => {
       items.push({
         id: `recent-search-${term}`,
@@ -73,20 +72,21 @@ export function buildSearchNavItems({
     return items;
   }
 
+  // Query: Categories → Items → Members → Stores → Brands
+  results.categories.forEach((category) => {
+    items.push({
+      id: `category-${category.href}`,
+      label: category.name,
+      href: category.href,
+    });
+  });
+
   results.products.forEach((product) => {
     items.push({
       id: `product-${product.id}`,
       label: product.title,
       href: `/listing/${product.slug}`,
       onSelect: onSelectQuery,
-    });
-  });
-
-  results.sellers.forEach((seller) => {
-    items.push({
-      id: `seller-${seller.href}`,
-      label: seller.name,
-      href: seller.href,
     });
   });
 
@@ -103,14 +103,6 @@ export function buildSearchNavItems({
       id: `store-${store.id}`,
       label: store.name,
       href: store.href,
-    });
-  });
-
-  results.categories.forEach((category) => {
-    items.push({
-      id: `category-${category.href}`,
-      label: category.name,
-      href: category.href,
     });
   });
 

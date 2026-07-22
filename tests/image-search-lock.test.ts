@@ -8,13 +8,12 @@ function readSource(relativePath: string): string {
 }
 
 describe("Homepage UI Lock v1.0 — image search", () => {
-  it("opens native picker from homepage search without routing first", () => {
+  it("keeps image search results surfaces; Homepage search has no camera entry", () => {
     const search = readSource("components/home/HomepageSearchField.tsx");
     const camera = readSource("components/home/ImageSearchCamera.tsx");
 
-    expect(search).toContain("ImageSearchCamera");
-    expect(search).toContain("handleImageSearchFiles");
-    expect(search).toContain("isImageProcessing");
+    expect(search).not.toContain("ImageSearchCamera");
+    expect(search).not.toContain("handleImageSearchFiles");
     expect(camera).toContain("NativeImageFileInput");
     expect(camera).not.toContain("getUserMedia");
   });
@@ -28,6 +27,7 @@ describe("Homepage UI Lock v1.0 — image search", () => {
     expect(view).toContain("Exact matches");
     expect(view).toContain("Similar products");
     expect(view).toContain("Similar brands");
+    expect(view).toContain("Similar categories");
     expect(view).toContain("ProductGridSkeleton");
     expect(view).toContain("ListingCard");
     expect(view).toContain("HP_CANONICAL_LISTING_PROPS");

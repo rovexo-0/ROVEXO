@@ -11,8 +11,10 @@ describe("Search System v1.0 production lock", () => {
   it("locks placeholder, history max, and no-AI / no-voice policy", () => {
     expect(SEARCH_SYSTEM_V1.placeholder).toBe("Search for items or members");
     expect(SEARCH_SYSTEM_V1.historyMax).toBe(20);
+    expect(SEARCH_SYSTEM_V1.status).toBe("IN_PROGRESS");
     expect(SEARCH_SYSTEM_V1.noAi).toBe(true);
     expect(SEARCH_SYSTEM_V1.noVoiceAssistant).toBe(true);
+    expect(SEARCH_SYSTEM_V1.noExternalAiApis).toBe(true);
     expect(SEARCH_SYSTEM_V1.cameraAlwaysVisible).toBe(true);
     expect(SEARCH_SYSTEM_V1.closeAlwaysVisible).toBe(true);
   });
@@ -35,11 +37,14 @@ describe("Search System v1.0 production lock", () => {
     expect(overlay).toContain("Recent Searches");
     expect(overlay).toContain("Trending Searches");
     expect(overlay).toContain("Popular Searches");
-    expect(overlay).toContain("Suggested Categories");
-    expect(overlay).toContain("Suggested Stores");
-    expect(overlay).toContain("Suggested Brands");
+    expect(overlay).toContain('title="Categories"');
+    expect(overlay).toContain('title="Items"');
+    expect(overlay).toContain('title="Members"');
+    expect(overlay).toContain('title="Stores"');
+    expect(overlay).toContain('title="Brands"');
     expect(overlay).not.toContain("Recent Listings");
     expect(overlay).not.toContain("SavedSearchesPanel");
+    expect(overlay).not.toContain("Suggested Categories");
 
     expect(actions).toContain("ImageSearchCamera");
     expect(actions).not.toContain("Voice search");

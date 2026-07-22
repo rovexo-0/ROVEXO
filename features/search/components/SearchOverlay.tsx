@@ -194,9 +194,12 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
   const idleStoreOffset = idleCategoryOffset + idleCategoryCount;
   const idleBrandOffset = idleStoreOffset + idleStoreCount;
 
-  const productOffset = 0;
-  const memberOffset = results ? results.products.slice(0, 5).length : 0;
+  // Query order (Master Freeze): Categories → Items → Members → Stores → Brands
+  const categoryQueryOffset = 0;
+  const productOffset = results?.categories.length ?? 0;
+  const memberOffset = productOffset + (results ? Math.min(5, results.products.length) : 0);
   const storeQueryOffset = memberOffset + (results?.users.length ?? 0);
+  const brandQueryOffset = storeQueryOffset + (results?.stores.length ?? 0);
 
   return createPortal(
     <ModalContainer
@@ -316,7 +319,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
               )}
 
               {results.categories.length > 0 && (
-                <SearchSection title="Suggested Categories">
+                <SearchSection title="Categories">
                   <div className="px-ds-4 py-ds-2">
                     <CategoryResults
                       items={results.categories}
@@ -329,7 +332,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
               )}
 
               {results.stores.length > 0 && (
-                <SearchSection title="Suggested Stores">
+                <SearchSection title="Stores">
                   <div className="px-ds-4 py-ds-2">
                     <StoreResults
                       items={results.stores}
@@ -342,7 +345,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
               )}
 
               {results.brands.length > 0 && (
-                <SearchSection title="Suggested Brands">
+                <SearchSection title="Brands">
                   <div className="px-ds-4 py-ds-2">
                     <CategoryResults
                       items={results.brands.map((brand) => ({
@@ -363,6 +366,19 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
 
           {hasQuery && !isDebouncing && !isLoading && results && (
             <>
+              {results.categories.length > 0 && (
+                <SearchSection title="Categories">
+                  <div className="px-ds-4 py-ds-2">
+                    <CategoryResults
+                      items={results.categories}
+                      activeIndex={activeIndex}
+                      navOffset={categoryQueryOffset}
+                      onHoverIndex={setActiveIndex}
+                    />
+                  </div>
+                </SearchSection>
+              )}
+
               <SearchSection title="Items">
                 <SearchSuggestionList
                   results={results}
@@ -404,19 +420,6 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                 </SearchSection>
               )}
 
-              {results.categories.length > 0 && (
-                <SearchSection title="Categories">
-                  <div className="px-ds-4 py-ds-2">
-                    <CategoryResults
-                      items={results.categories}
-                      activeIndex={activeIndex}
-                      navOffset={storeQueryOffset + results.stores.length}
-                      onHoverIndex={setActiveIndex}
-                    />
-                  </div>
-                </SearchSection>
-              )}
-
               {results.brands.length > 0 && (
                 <SearchSection title="Brands">
                   <div className="px-ds-4 py-ds-2">
@@ -426,9 +429,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                         href: brand.href,
                       }))}
                       activeIndex={activeIndex}
-                      navOffset={
-                        storeQueryOffset + results.stores.length + results.categories.length
-                      }
+                      navOffset={brandQueryOffset}
                       onHoverIndex={setActiveIndex}
                     />
                   </div>

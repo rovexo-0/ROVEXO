@@ -1,33 +1,28 @@
-# ROVEXO Search System v1.0 (PRODUCTION LOCK)
+# ROVEXO Search System v1.0 (MASTER FREEZE)
 
-**STATUS: OWNER ABSOLUTE AUTHORITY | CANONICAL | NO AI**
+**STATUS: IN PROGRESS | OWNER ABSOLUTE AUTHORITY | NO AI | NO PRODUCTION DEPLOY**
 
 SSOT: `lib/search/search-system-v1-lock.ts`
 
-## Canonical flow
+## Canonical overlay order
 
-Homepage → Search Bar → Search Overlay → Items | Members | Camera | Image Search | Stores | Brands | Categories | Filters → Results
+Recent Searches → Trending Searches → Popular Searches → Categories → Items → Members → Stores → Brands
 
 ## Search Bar (overlay active)
 
 - Placeholder: `Search for items or members`
 - Camera permanently visible
 - Close permanently visible
-- Full width · Compact Premium · Mobile First
 - Homepage disappears while Search is active
 
-## Overlay may show only
+## Camera (allow only)
 
-Recent Searches · Trending Searches · Popular Searches · Suggested Categories · Suggested Stores · Suggested Brands · Items · Members
+Take Photo · Upload Photo → Similar Products · Similar Categories · Similar Brands · Similar Listings
 
 ## Forbidden
 
-Homepage feed/cards/categories/recommendations · AI Search/Assistant/Chat/Recommendations · Voice Assistant · Multiple Search/Camera systems · Hardcoded fake sellers · Social Follow/Followers on store results
+AI Search/Assistant/Chat · Voice · OpenAI/Gemini/Claude/external AI APIs · Homepage feed in overlay · Social Follow
 
-## Data sources only
+## Deploy
 
-Products · Listings · Categories · Members · Stores · Brands databases
-
-## History
-
-Last 20 · delete individual · clear all
+Preview: authorized. Production Deploy / Merge / Release: **Owner approval only**.

@@ -28,6 +28,7 @@ export function ImageSearchView() {
   );
   const [matches, setMatches] = useState<ImageSearchMatch[]>([]);
   const [brandFilter, setBrandFilter] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [priceFilter, setPriceFilter] = useState<string | null>(null);
 
   useEffect(() => {
@@ -67,6 +68,19 @@ export function ImageSearchView() {
       .map(([brand]) => brand);
   }, [matches]);
 
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const { product } of matches) {
+      const category = product.categoryBreadcrumbs?.at(-1)?.name?.trim();
+      if (!category) continue;
+      counts.set(category, (counts.get(category) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([category]) => category);
+  }, [matches]);
+
   const priceRanges = useMemo(() => {
     const counts = new Map<string, number>();
     for (const { product } of matches) {
@@ -81,10 +95,16 @@ export function ImageSearchView() {
   const filtered = useMemo(() => {
     return matches.filter(({ product, score }) => {
       if (brandFilter && product.brand?.trim() !== brandFilter) return false;
+      if (
+        categoryFilter &&
+        product.categoryBreadcrumbs?.at(-1)?.name?.trim() !== categoryFilter
+      ) {
+        return false;
+      }
       if (priceFilter && priceBucket(product.price) !== priceFilter) return false;
       return score >= 0;
     });
-  }, [matches, brandFilter, priceFilter]);
+  }, [matches, brandFilter, categoryFilter, priceFilter]);
 
   const exactMatches = filtered.filter(({ score }) => score >= EXACT_SCORE);
   const similarMatches = filtered.filter(({ score }) => score < EXACT_SCORE);
@@ -95,11 +115,11 @@ export function ImageSearchView() {
         <header className="rx-image-search-results__header">
           <h1 className="rx-image-search-results__title">Image Search</h1>
           <p className="rx-image-search-results__subtitle">
-            Exact matches, similar products, brands and price ranges
+            Similar products, categories, brands and listings — photo match only
           </p>
         </header>
         <p className="rx-image-search-results__empty">
-          Use the camera on Homepage or Search to take or choose a photo.
+          Use the camera in Search to take or upload a photo.
         </p>
         <button type="button" className="rx-image-search-results__back" onClick={() => router.push("/")}>
           Back to Home
@@ -113,7 +133,7 @@ export function ImageSearchView() {
       <header className="rx-image-search-results__header">
         <h1 className="rx-image-search-results__title">Image Search</h1>
         <p className="rx-image-search-results__subtitle">
-          Exact matches, similar products, brands and price ranges
+          Similar products, categories, brands and listings — photo match only
         </p>
       </header>
 
@@ -137,6 +157,30 @@ export function ImageSearchView() {
 
       {phase === "results" && matches.length > 0 ? (
         <div className="rx-image-search-results__facets" role="group" aria-label="Refine results">
+          {categories.length > 0 ? (
+            <div className="rx-image-search-results__facet-row">
+              <span className="rx-image-search-results__facet-label">Similar categories</span>
+              <div className="rx-image-search-results__chips">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    className={
+                      categoryFilter === category
+                        ? "rx-image-search-results__chip rx-image-search-results__chip--active"
+                        : "rx-image-search-results__chip"
+                    }
+                    aria-pressed={categoryFilter === category}
+                    onClick={() =>
+                      setCategoryFilter((current) => (current === category ? null : category))
+                    }
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
           {brands.length > 0 ? (
             <div className="rx-image-search-results__facet-row">
               <span className="rx-image-search-results__facet-label">Similar brands</span>
