@@ -1,18 +1,24 @@
-# ROVEXO Camera Search v1.0 Freeze
+# ROVEXO Camera Search v1.0 — OWNER APPROVED
 
-**STATUS: SENIOR ARCHITECT APPROVED**
+**STATUS: APPROVED · NO AI · NO CHAT · NO QUESTIONS · NO DEAD ENDS · ONE CAMERA ONLY**
 
 SSOT: `lib/search/camera-search-v1-freeze.ts`
 
-## Zero dead ends
+## Flow
 
-Never show: No results found · Empty page · White screen · Please try again  
-Always show: Similar products · Categories · Brands · Listings · Recommended
+Camera → Take/Upload → **Confirm** → **AUTO SEARCH** → Searching… → Results page only
 
-## Animation (≤ 2s)
+No second Search button after Confirm.
 
-Searching… → Matching products… → categories… → brands… → Finding similar… → Preparing results…
+## Animation (~1.5s)
 
-## Always search
+Searching → Matching Products → Categories → Attributes → Similar → Preparing Results
 
-Any image quality runs. Hash fail → recommended feed. No AI chat. No user questions.
+## No exact match
+
+`No exact match found. Showing similar and relevant products.`  
+Then always: Products · Categories · Listings · Recommendations · Filters
+
+## Forbidden
+
+Empty / Not found / Try again / Describe image / Unknown object / Unsupported / Select category/brand / AI chat

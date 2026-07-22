@@ -14,6 +14,7 @@ import "@/styles/rovexo/image-search.css";
 const EXACT_SCORE = 0.85;
 const ANIMATION_STEPS = CAMERA_SEARCH_V1.animationSteps;
 const MAX_ANIMATION_MS = CAMERA_SEARCH_V1.maxSearchAnimationMs;
+const STEP_MS = CAMERA_SEARCH_V1.stepDurationMs;
 
 function priceBucket(price: number): string {
   if (price < 25) return "Under £25";
@@ -41,10 +42,9 @@ export function ImageSearchView() {
 
   useEffect(() => {
     if (phase !== "searching") return;
-    const stepMs = Math.floor(MAX_ANIMATION_MS / ANIMATION_STEPS.length);
     const timer = window.setInterval(() => {
       setStatusIndex((index) => (index + 1) % ANIMATION_STEPS.length);
-    }, stepMs);
+    }, STEP_MS);
     return () => window.clearInterval(timer);
   }, [phase]);
 
@@ -62,7 +62,6 @@ export function ImageSearchView() {
           results = await runImageSimilaritySearch(queryDataUrl, controller.signal);
         }
         if (!controller.signal.aborted && results.length === 0) {
-          // Zero dead ends: missing photo or empty similarity → recommended feed.
           const corpus = await fetchActiveListingCorpus(controller.signal);
           results = corpus.slice(0, 24).map((product) => ({
             product,
@@ -77,8 +76,9 @@ export function ImageSearchView() {
         setHasExactMatch(exact);
         setMatches(results);
 
+        // Owner target: Searching 0.5s + Matching 0.5s + Preparing 0.5s (<2s).
         const elapsed = Date.now() - startedAt;
-        const wait = Math.max(0, Math.min(MAX_ANIMATION_MS, 1_200) - elapsed);
+        const wait = Math.max(0, MAX_ANIMATION_MS - elapsed);
         window.setTimeout(() => {
           if (!controller.signal.aborted) setPhase("results");
         }, wait);
@@ -195,7 +195,7 @@ export function ImageSearchView() {
             ? statusLabel
             : hasExactMatch
               ? "Match found — products, similar items, categories and brands"
-              : `${CAMERA_SEARCH_V1.allowedStatusWhenNoExact} — similar products and relevant listings`}
+              : CAMERA_SEARCH_V1.noExactMatchCopy}
         </p>
       </header>
 
@@ -221,7 +221,7 @@ export function ImageSearchView() {
         <>
           {!hasExactMatch ? (
             <p className="rx-image-search-results__banner" role="status">
-              {CAMERA_SEARCH_V1.allowedStatusWhenNoExact}
+              {CAMERA_SEARCH_V1.noExactMatchCopy}
             </p>
           ) : null}
 
@@ -299,10 +299,10 @@ export function ImageSearchView() {
           {primaryProducts.length > 0 ? (
             <section
               className="rx-image-search-results__group"
-              aria-label={hasExactMatch ? "Exact matches" : "Products"}
+              aria-label={hasExactMatch ? "Exact Products" : "Relevant Products"}
             >
               <h2 className="rx-image-search-results__group-title">
-                {hasExactMatch ? "Exact matches" : "Products"}
+                {hasExactMatch ? "Exact Products" : "Relevant Products"}
               </h2>
               <div className={css.feedGrid} data-hp-homepage="canonical">
                 {primaryProducts.map(({ product }) => (
@@ -314,7 +314,7 @@ export function ImageSearchView() {
 
           {secondarySimilar.length > 0 ? (
             <section className="rx-image-search-results__group" aria-label="Similar products">
-              <h2 className="rx-image-search-results__group-title">Similar products</h2>
+              <h2 className="rx-image-search-results__group-title">Similar Products</h2>
               <div className={css.feedGrid} data-hp-homepage="canonical">
                 {secondarySimilar.map(({ product }) => (
                   <ListingCard key={`sim-${product.id}`} product={product} {...HP_CANONICAL_LISTING_PROPS} />
@@ -326,7 +326,7 @@ export function ImageSearchView() {
           {/* Absolute fail-safe shelf — never leave an empty results page */}
           {primaryProducts.length === 0 && secondarySimilar.length === 0 && filtered.length > 0 ? (
             <section className="rx-image-search-results__group" aria-label="Recommended products">
-              <h2 className="rx-image-search-results__group-title">Recommended products</h2>
+              <h2 className="rx-image-search-results__group-title">Recommended Products</h2>
               <div className={css.feedGrid} data-hp-homepage="canonical">
                 {filtered.map(({ product }) => (
                   <ListingCard key={`rec-${product.id}`} product={product} {...HP_CANONICAL_LISTING_PROPS} />
@@ -337,7 +337,7 @@ export function ImageSearchView() {
 
           {filtered.length === 0 && matches.length > 0 ? (
             <section className="rx-image-search-results__group" aria-label="Recommended products">
-              <h2 className="rx-image-search-results__group-title">Recommended products</h2>
+              <h2 className="rx-image-search-results__group-title">Recommended Products</h2>
               <div className={css.feedGrid} data-hp-homepage="canonical">
                 {matches.map(({ product }) => (
                   <ListingCard key={`all-${product.id}`} product={product} {...HP_CANONICAL_LISTING_PROPS} />
@@ -349,7 +349,7 @@ export function ImageSearchView() {
           {matches.length === 0 ? (
             <div className="rx-image-search-results__recover">
               <p className="rx-image-search-results__banner" role="status">
-                {CAMERA_SEARCH_V1.allowedStatusWhenNoExact}
+                {CAMERA_SEARCH_V1.noExactMatchCopy}
               </p>
               <button
                 type="button"

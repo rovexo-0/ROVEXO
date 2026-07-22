@@ -82,9 +82,10 @@ describe("Search Engine v1.0 Senior Architect Freeze", () => {
 
     expect(server).toContain("rankSearchProducts");
     expect(actions).toContain("prepareSearchImage");
-    expect(actions).toContain("Confirm photo");
+    expect(actions).toContain("Confirm");
+    expect(actions).toContain("startAutoSearch");
     expect(actions).not.toContain("onVoice");
-    expect(imageView).toContain("Recommended products");
+    expect(imageView).toContain("Recommended Products");
     expect(imageView).toContain("CAMERA_SEARCH_V1");
     expect(imageView).not.toContain("No similar listings found");
     expect(popular).toContain("withSearchCache");
