@@ -39,12 +39,13 @@ export function SearchInputActions({ className }: SearchInputActionsProps) {
         maxEdge: 640,
       });
       if (!prepared.ok) {
-        router.push("/search");
+        // Rule #6 — never block; results page fills recommended listings.
+        router.push("/search?visual=1");
         return;
       }
       setPendingDataUrl(prepared.dataUrl);
     } catch {
-      router.push("/search");
+      router.push("/search?visual=1");
     } finally {
       setProcessing(false);
     }

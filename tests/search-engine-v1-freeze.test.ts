@@ -84,7 +84,9 @@ describe("Search Engine v1.0 Senior Architect Freeze", () => {
     expect(actions).toContain("prepareSearchImage");
     expect(actions).toContain("Confirm photo");
     expect(actions).not.toContain("onVoice");
-    expect(imageView).toContain("Text search");
+    expect(imageView).toContain("Recommended products");
+    expect(imageView).toContain("CAMERA_SEARCH_V1");
+    expect(imageView).not.toContain("No similar listings found");
     expect(popular).toContain("withSearchCache");
     expect(readSource("lib/search/trending.ts")).toContain("withSearchCache");
     // Admin ops module must not be imported by marketplace search server.

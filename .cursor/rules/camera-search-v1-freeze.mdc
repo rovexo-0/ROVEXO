@@ -1,0 +1,18 @@
+# ROVEXO Camera Search v1.0 Freeze
+
+**STATUS: SENIOR ARCHITECT APPROVED**
+
+SSOT: `lib/search/camera-search-v1-freeze.ts`
+
+## Zero dead ends
+
+Never show: No results found · Empty page · White screen · Please try again  
+Always show: Similar products · Categories · Brands · Listings · Recommended
+
+## Animation (≤ 2s)
+
+Searching… → Matching products… → categories… → brands… → Finding similar… → Preparing results…
+
+## Always search
+
+Any image quality runs. Hash fail → recommended feed. No AI chat. No user questions.
