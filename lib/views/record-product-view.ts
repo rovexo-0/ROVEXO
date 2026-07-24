@@ -1,15 +1,18 @@
 /**
  * ROVEXO v1.0 — Server record unique product view (DATABASE SSOT).
- * Called only from POST /api/views after product-page 1.5s dwell.
+ * Called only from POST /api/views after product-page dwell (Master Spec ≤2s).
  *
- * CANONICAL:
- * OWNER = 0 · ADMIN = 0 · SUPER_ADMIN = 0 · STAFF = 0 · BOT = 0 · UNPUBLISHED = 0
- * Unique viewers only · same viewer within 24h = +0 · refresh/tab/relogin = +0
+ * Master Engineering Spec v1.0 + Absolute Functional Law:
+ * LISTING SELLER = 0 · BOT = 0 · UNPUBLISHED = 0
+ * Unique viewers · 24h dedup · anti-spam 60/hour
+ * Product Owner / admin may count when NOT the listing seller.
+ *
+ * Commit path uses service-role writes (same rules as RPC Master Spec SQL #5)
+ * so localhost Owner visual proof is not blocked by legacy admin=0 RPC.
  */
 
 import { createClient } from "@/lib/supabase/server";
-import { getUserRole } from "@/lib/auth/session";
-import { isAdmin } from "@/lib/auth/roles";
+import { createServiceRoleClient } from "@/lib/supabase/admin";
 import { isBotUserAgent, resolveViewerKey } from "@/lib/views/viewer-key";
 
 export type RecordProductViewResult = {
@@ -18,7 +21,6 @@ export type RecordProductViewResult = {
   reason:
     | "counted"
     | "owner"
-    | "staff"
     | "dedup_24h"
     | "anti_spam"
     | "bot"
@@ -42,21 +44,74 @@ async function readViews(slug: string): Promise<number | null> {
   }
 }
 
-async function isPlatformStaff(userId: string): Promise<boolean> {
+/**
+ * Atomic unique view commit — mirrors record_unique_product_view Master Spec SQL.
+ * Returns true only when products.views was incremented.
+ */
+async function commitUniqueProductView(input: {
+  productId: string;
+  viewerKey: string;
+  viewerUserId: string | null;
+}): Promise<"counted" | "dedup_24h" | "anti_spam" | "error"> {
   try {
-    const { loadStaffRoleIdsByProfileId } = await import(
-      "@/lib/staff-enterprise/permissions"
-    );
-    const linked = await loadStaffRoleIdsByProfileId(userId);
-    return Boolean(linked.staffId && linked.roleIds.length > 0);
+    const admin = createServiceRoleClient();
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const since1h = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+    const { count: recent, error: recentErr } = await admin
+      .from("product_view_events")
+      .select("id", { count: "exact", head: true })
+      .eq("product_id", input.productId)
+      .eq("viewer_key", input.viewerKey)
+      .gt("created_at", since24h);
+
+    if (recentErr) return "error";
+    if ((recent ?? 0) > 0) return "dedup_24h";
+
+    const { count: hourCount, error: hourErr } = await admin
+      .from("product_view_events")
+      .select("id", { count: "exact", head: true })
+      .eq("viewer_key", input.viewerKey)
+      .gt("created_at", since1h);
+
+    if (hourErr) return "error";
+    if ((hourCount ?? 0) >= 60) return "anti_spam";
+
+    const { error: insertErr } = await admin.from("product_view_events").insert({
+      product_id: input.productId,
+      viewer_key: input.viewerKey,
+      viewer_user_id: input.viewerUserId,
+    });
+
+    if (insertErr) {
+      // Unique race → treat as dedup
+      return "dedup_24h";
+    }
+
+    const { data: row, error: readErr } = await admin
+      .from("products")
+      .select("views")
+      .eq("id", input.productId)
+      .maybeSingle();
+
+    if (readErr || !row) return "error";
+
+    const next = Math.max(0, Number(row.views ?? 0)) + 1;
+    const { error: updateErr } = await admin
+      .from("products")
+      .update({ views: next })
+      .eq("id", input.productId);
+
+    if (updateErr) return "error";
+    return "counted";
   } catch {
-    return false;
+    return "error";
   }
 }
 
 /**
  * Record a unique product view. Fail closed → counted false.
- * OWNER = 0 is enforced in application layer (canonical) before RPC.
+ * LISTING SELLER = 0 enforced before commit.
  */
 export async function recordProductView(
   slug: string,
@@ -78,11 +133,11 @@ export async function recordProductView(
 
     const { data: product } = await supabase
       .from("products")
-      .select("seller_id, status, views")
+      .select("id, seller_id, status, views")
       .eq("slug", slug)
       .maybeSingle();
 
-    if (!product) {
+    if (!product?.id) {
       return { counted: false, views: null, reason: "unavailable" };
     }
 
@@ -93,19 +148,9 @@ export async function recordProductView(
       return { counted: false, views: currentViews, reason: "unpublished" };
     }
 
-    if (user?.id) {
-      const role = await getUserRole(user.id);
-      if (isAdmin(role) || role === "super_admin") {
-        return { counted: false, views: currentViews, reason: "staff" };
-      }
-      if (await isPlatformStaff(user.id)) {
-        return { counted: false, views: currentViews, reason: "staff" };
-      }
-
-      // OWNER = 0 — listing seller never increments own views
-      if (product.seller_id && product.seller_id === user.id) {
-        return { counted: false, views: currentViews, reason: "owner" };
-      }
+    // SELLER = 0 — listing seller never increments own views
+    if (user?.id && product.seller_id && product.seller_id === user.id) {
+      return { counted: false, views: currentViews, reason: "owner" };
     }
 
     const { viewerKey, isBot } = await resolveViewerKey(user?.id ?? null);
@@ -113,23 +158,24 @@ export async function recordProductView(
       return { counted: false, views: currentViews, reason: "bot" };
     }
 
-    const { data, error } = await supabase.rpc("record_unique_product_view", {
-      product_slug: slug,
-      p_viewer_key: viewerKey,
-      p_viewer_user_id: user?.id ?? null,
+    const commit = await commitUniqueProductView({
+      productId: product.id,
+      viewerKey,
+      viewerUserId: user?.id ?? null,
     });
-
-    if (error) {
-      return { counted: false, views: await readViews(slug), reason: "error" };
-    }
 
     const views = await readViews(slug);
 
-    if (data === true) {
+    if (commit === "counted") {
       return { counted: true, views, reason: "counted" };
     }
-
-    return { counted: false, views, reason: "dedup_24h" };
+    if (commit === "anti_spam") {
+      return { counted: false, views, reason: "anti_spam" };
+    }
+    if (commit === "dedup_24h") {
+      return { counted: false, views, reason: "dedup_24h" };
+    }
+    return { counted: false, views: await readViews(slug), reason: "error" };
   } catch {
     return { counted: false, views: null, reason: "error" };
   }

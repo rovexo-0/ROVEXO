@@ -1,0 +1,72 @@
+# ROVEXO Absolute Functional Law v1.0 (PERMANENT)
+
+**STATUS: OWNER APPROVED | PERMANENT | LOCKED**
+
+SSOT: `lib/absolute-functional-law-v1.ts`
+
+## Absolute
+
+**If I cannot see it, it does not exist.**
+
+Official proof host: **`http://localhost:3000` only.**
+
+## Never PASS without visual localhost:3000 proof
+
+Forbidden alone: CODE PROOF · HTTP 200 · TEST PASS · REPORT PASS · CERTIFICATION PASS
+
+## Every sprint (mandatory order)
+
+```
+1. IMPLEMENTATION
+2. LOCALHOST:3000
+3. OWNER CLICK
+4. VISUAL RESULT
+5. REGRESSION TEST
+6. FREEZE
+```
+
+## Owner law
+
+```
+CLICK → WORKS
+CLICK → WORKS
+CLICK → WORKS
+→ FREEZE
+```
+
+## Not accepted
+
+SHOULD WORK · MAY WORK · PROBABLY WORKS · HTTP 200 · 95% WORKING · ALMOST DONE · REPORTS ONLY
+
+## Accepted (examples)
+
+| Module | Owner must see |
+|--------|----------------|
+| **View Engine** | 0 Views → click product → ~1s → 1 View → Homepage = 1 View → VISUAL PROOF → FREEZE |
+| **Buy Now** | click → Checkout → Address → Shipping → Payment → Order created → VISUAL PROOF → FREEZE |
+| **Notifications** | new message → red badge +1 → open inbox → exists → mark read → badge gone → VISUAL PROOF → FREEZE |
+| **Shipping** | seller dispatches → tracking exists → buyer receives tracking → updates → VISUAL PROOF → FREEZE |
+
+## Freeze law
+
+```
+NO VISUAL PROOF           = NO FREEZE
+NO LOCALHOST:3000 PROOF   = NO FREEZE
+NOT WORKING               = NOT IMPLEMENTED
+```
+
+## Only accepted proof
+
+```
+LOCALHOST:3000
+→ OWNER CLICK
+→ OWNER SEES IT WORKING
+→ FREEZE
+```
+
+## Cursor must never
+
+- Declare PASS / FREEZE / LOCK / NEXT SPRINT without Owner visual proof on localhost:3000
+- Treat HTTP 200, tests, or reports as substitute for Owner click + see
+- Claim “should / may / probably / almost” as done
+---

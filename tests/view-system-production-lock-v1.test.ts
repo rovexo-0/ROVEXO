@@ -29,10 +29,10 @@ describe("ROVEXO v1.0 — Absolute Authority View Engine Lock", () => {
   it("locks permanently · Level 8 protected · not Production Ready", () => {
     expect(VIEW_ENGINE_LOCK).toBe("ABSOLUTE_AUTHORITY_v1.0");
     expect(VIEW_SYSTEM_LEVEL).toBe(8);
-    expect(VIEW_SYSTEM_STATUS).toBe("PERMANENTLY_LOCKED_NOT_PRODUCTION_READY");
+    expect(VIEW_SYSTEM_STATUS).toBe("SPRING_1_OWNER_FROZEN_LOCKED");
     expect(VIEW_SYSTEM_FREEZE).toBe(true);
     expect(VIEW_SYSTEM_PRODUCTION_READY).toBe(false);
-    expect(VIEW_DWELL_MS).toBe(1500);
+    expect(VIEW_DWELL_MS).toBe(1000);
     expect(VIEW_RULES.ownerOpen).toContain("+0");
     expect(VIEW_OWNER_PROTECTION.ownerOpens).toBe("+0 VIEWS");
     expect(VIEW_OWNER_PROTECTION.bypassForbidden).toBe(true);
@@ -58,10 +58,10 @@ describe("ROVEXO v1.0 — Absolute Authority View Engine Lock", () => {
 
   it("sync engine is canonical POST → RPC → DB → publishViewLive", () => {
     expect(VIEW_SYNC_ENGINE[0]).toBe("POST /api/views");
-    expect(VIEW_SYNC_ENGINE.join(" → ")).toContain("record_unique_product_view()");
+    expect(VIEW_SYNC_ENGINE.join(" → ")).toContain("commitUniqueProductView()");
     expect(VIEW_SYNC_ENGINE.join(" → ")).toContain("publishViewLive()");
     expect(VIEW_MULTI_USER.rule).toContain("UNIQUE USERS");
-    expect(VIEW_LEVEL_8_OWNER_QA).toContain("0 → OWNER OPEN → 0");
+    expect(VIEW_LEVEL_8_OWNER_QA.join(" ")).toContain("Owner click");
     expect(VIEW_PROTECTED_ENGINES).toContain("Owner Protection");
   });
 
@@ -80,7 +80,7 @@ describe("ROVEXO v1.0 — Absolute Authority View Engine Lock", () => {
   it("product page uses dwell beacon → API only", () => {
     const beacon = readSource("features/product-detail/RecordProductViewBeacon.tsx");
     const detail = readSource("features/product-detail/ProductDetailPage.tsx");
-    expect(beacon).toContain("1500");
+    expect(beacon).toContain("1000");
     expect(beacon).toContain('fetch("/api/views"');
     expect(detail).toContain("RecordProductViewBeacon");
   });

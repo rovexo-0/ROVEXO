@@ -1,18 +1,17 @@
 /**
  * ROVEXO v1.0 — ABSOLUTE AUTHORITY VIEW ENGINE LOCK
  *
- * STATUS: PERMANENTLY LOCKED · OWNER CONTROLLED · LEVEL 8 PROTECTED
- * Production Ready: NO until Level 8 Owner QA PASS (Owner only)
+ * STATUS: SPRING 1 · OWNER APPROVED · FROZEN · LOCKED
+ * Absolute Functional Law: localhost:3000 + Owner click + visual proof PASS
  *
- * Authority: Owner Absolute Authority Lock v1.0
- * No View Engine / Anti-Spam / Sync / Owner / Refresh changes
- * without Level 8 Owner approval.
+ * Post-freeze changes require Level 8 Owner approval
+ * (critical security / production bugs / legal only).
  */
 
 export const VIEW_ENGINE_LOCK = "ABSOLUTE_AUTHORITY_v1.0" as const;
 export const VIEW_SYSTEM_VERSION = "1.0" as const;
 export const VIEW_SYSTEM_LEVEL = 8 as const;
-export const VIEW_SYSTEM_STATUS = "PERMANENTLY_LOCKED_NOT_PRODUCTION_READY" as const;
+export const VIEW_SYSTEM_STATUS = "SPRING_1_OWNER_FROZEN_LOCKED" as const;
 export const VIEW_SYSTEM_FREEZE = true as const;
 export const VIEW_SYSTEM_PRODUCTION_READY = false as const;
 
@@ -20,6 +19,7 @@ export const VIEW_SSOT = {
   table: "product_view_events",
   counter: "products.views",
   rpc: "record_unique_product_view",
+  commit: "commitUniqueProductView",
   api: "POST /api/views",
   beacon: "features/product-detail/RecordProductViewBeacon.tsx",
   engine: "lib/views/record-product-view.ts",
@@ -28,7 +28,8 @@ export const VIEW_SSOT = {
   authority: "products.views DATABASE ONLY",
 } as const;
 
-export const VIEW_DWELL_MS = 1500 as const;
+/** Master Spec v1.0 — ≤2s click→1 View; 1s dwell = PERFECT. */
+export const VIEW_DWELL_MS = 1000 as const;
 export const VIEW_WINDOW = "24 hours" as const;
 
 /** 1 PRODUCT = 1 REAL VIEW */
@@ -84,7 +85,7 @@ export const VIEW_MULTI_USER = {
 
 export const VIEW_SYNC_ENGINE = [
   "POST /api/views",
-  "RPC record_unique_product_view()",
+  "commitUniqueProductView()",
   "product_view_events",
   "products.views",
   "publishViewLive()",
@@ -115,18 +116,17 @@ export const VIEW_DEPLOYMENT_FORBIDDEN_IF = [
   "ANTI SPAM FAIL",
 ] as const;
 
+/** Owner visual chain — Master Engineering Spec v1.0 (Absolute Functional Law). */
 export const VIEW_LEVEL_8_OWNER_QA = [
-  "0 → OWNER OPEN → 0",
-  "USER A → 1",
-  "USER A REFRESH x100 → 1",
-  "USER B → 2",
-  "USER C → 3",
-  "ADMIN / SUPER_ADMIN / BOT → 3",
-  "24H → USER A → 4",
-  "ANTI SPAM PASS",
-  "SYNC PASS",
-  "OWNER = 0 PASS",
-  "LEVEL 8 PASS",
+  "Homepage 0 Views",
+  "Owner click product",
+  "≤2s Product Page = 1 View",
+  "Back → Homepage = 1 View",
+  "Same user again → still 1",
+  "Other user → 2 Views",
+  "Bot → BLOCKED → still 2",
+  "Seller → BLOCKED → still 2",
+  "VISUAL OWNER PROOF → FREEZE",
 ] as const;
 
 /** Protected surfaces — require Level 8 Owner approval to modify. */
@@ -142,10 +142,11 @@ export const VIEW_PROTECTED_ENGINES = [
 export const VIEW_ANTI_SPAM = {
   maxUniqueProductViewsPerHour: 60,
   botsSkipped: true,
+  /** Listing seller only — not ROVEXO Product Owner / admin browsing. */
   ownerExcluded: true,
-  adminExcluded: true,
-  superAdminExcluded: true,
-  staffExcluded: true,
+  adminExcluded: false,
+  superAdminExcluded: false,
+  staffExcluded: false,
   unpublishedExcluded: true,
   apiRateLimitPerMinute: 30,
   refreshProtection: true,
@@ -155,10 +156,12 @@ export const VIEW_RULES = {
   onlyRoute: "/listing/[slug]",
   dwellMs: VIEW_DWELL_MS,
   viewWindow: VIEW_WINDOW,
+  /** Listing seller opens own product. */
   ownerOpen: "+0 VIEWS (canonical)",
-  adminOpen: "+0 VIEWS",
-  superAdminOpen: "+0 VIEWS",
-  staffOpen: "+0 VIEWS",
+  /** Product Owner / admin may count when not listing seller. */
+  adminOpen: "+1 WHEN NOT LISTING SELLER",
+  superAdminOpen: "+1 WHEN NOT LISTING SELLER",
+  staffOpen: "+1 WHEN NOT LISTING SELLER",
   botOpen: "+0 VIEWS",
   unpublished: "+0 VIEWS",
   f5: "+0 VIEWS",

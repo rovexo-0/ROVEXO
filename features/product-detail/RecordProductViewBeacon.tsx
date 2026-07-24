@@ -1,18 +1,20 @@
 "use client";
 
 /**
- * Product page ONLY — RecordProductViewBeacon (View Master Architect L7).
+ * Product page ONLY — RecordProductViewBeacon (View Engine Master Spec v1.0).
  *
  * +1 view only if:
- * product page loaded · exists · published · visible · dwell ≥ 1.5s ·
- * not admin/super_admin/bot · not counted in 24h · DATABASE insert success
- * → publishViewLive. Homepage/Search/Saved/Store never call this.
+ * product page loaded · exists · published · visible · dwell ≥ 1s ·
+ * not listing-seller/bot · not counted in 24h · DATABASE insert success
+ * → publishViewLive within Absolute Functional Law ≤2s.
+ * Homepage/Search/Saved/Store never call this.
  */
 
 import { useEffect, useRef } from "react";
 import { publishViewLive } from "@/lib/views/view-live-sync";
 
-const DWELL_MS = 1500;
+/** Master Spec: ≤2s click→1 View. 1s dwell = PERFECT band. */
+const DWELL_MS = 1000;
 
 type RecordProductViewBeaconProps = {
   productSlug: string;
