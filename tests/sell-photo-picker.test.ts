@@ -118,11 +118,18 @@ describe("Native Photo Picker — Production Device Certification v1.0", () => {
       NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.inequalities
         .codeCertificationIsNotProductionDeployment,
     ).toBe(true);
-    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.afterPhaseI).toBe("READY TO COMMIT");
-    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.afterPhaseII).toBe("READY FOR DEPLOY");
-    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.productionSmokeUrl).toBe(
-      "https://www.rovexo.co.uk/sell",
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.vercelProductionBuildCommand).toBe(
+      "npm run build:production",
     );
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.localFullPlatformNotVercelBuildCommand).toBe(
+      true,
+    );
+    const vercelJson = readSource("vercel.json");
+    expect(vercelJson).toContain('"buildCommand": "npm run build:production"');
+    expect(vercelJson).not.toContain("certify:predeploy");
+    const vercelIgnore = readSource(".vercelignore");
+    expect(vercelIgnore).toContain("!app/**/reports");
+
 
     const board = resolveNativePhotoPickerDeployBoard({
       codeCertificationPass: true,

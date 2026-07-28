@@ -17,7 +17,12 @@ coverage
 test-results
 playwright-report
 owner-review-screenshots
+# Root certification report dumps only (~133MB).
+# Bare "reports" is UNANCHORED and would also strip App Router paths like
+# app/business/reports — re-include every App Router reports segment.
 reports
+!app/**/reports
+!app/**/reports/**
 archive
 audit-captures
 audit-captures-auth

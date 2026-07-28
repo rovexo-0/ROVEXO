@@ -346,8 +346,13 @@ export async function lookupUkAddressesByPostcode(postcodeRaw: string): Promise<
     return lookupGetAddress(postcode, getAddressKey);
   }
 
-  // Local / QA / certification without provider credentials — curated only, never invent.
-  if (process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production") {
+  // Local / QA / Vitest / certification without provider credentials — curated only.
+  // Never invent addresses. Production runtime without keys stays fail-closed,
+  // but Vitest must not inherit VERCEL_ENV=production during deploy builds.
+  if (
+    process.env.VITEST !== "true" &&
+    (process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production")
+  ) {
     throw new Error("Address lookup temporarily unavailable.");
   }
 

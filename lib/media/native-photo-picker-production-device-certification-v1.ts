@@ -49,7 +49,7 @@ export const NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1 = {
     "Start Production Deploy",
     "Install Dependencies",
     "Compile",
-    "Build",
+    "Build (npm run build:production on Vercel — Local Full Platform cert is NOT the Vercel buildCommand)",
     "Generate Static Assets",
     "Runtime Validation",
     "Environment Validation",
@@ -57,6 +57,14 @@ export const NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1 = {
     "Health Check",
     "Deployment PASS",
   ] as const,
+
+  /**
+   * Vercel Production build must never run Local Full Platform (certify:predeploy).
+   * That suite requires docs/, reports/, source assets, localhost E2E — excluded from
+   * upload by design. Local/CI keep certify:predeploy. Vercel uses build:production.
+   */
+  vercelProductionBuildCommand: "npm run build:production" as const,
+  localFullPlatformNotVercelBuildCommand: true,
 
   postDeployChecks: [
     "https://www.rovexo.co.uk HTTP 200",

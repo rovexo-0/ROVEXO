@@ -28,8 +28,16 @@ Working Tree CLEAN · Commit · Push · TypeScript · ESLint · Production Build
 `https://www.rovexo.co.uk` HTTP 200 · Boot · Auth · Homepage · Sell  
 Smoke: `/sell` → Add Photos → native picker → upload → publish  
 
+## Vercel Production build
+
+`vercel.json` → `buildCommand`: **`npm run build:production`** only.  
+Local Full Platform (`certify:predeploy`) stays local/CI — never the Vercel Production build (requires docs/reports/source assets excluded from upload).
+
+Also: `.vercelignore` must not strip App Router `**/reports` pages (re-include `app/**/reports`).
+
 ## Cursor must never
 
 - Deploy with a failed prerequisite  
+- Use Local Full Platform as Vercel Production `buildCommand`  
 - Mark Owner Device Certification PASS from automation alone  
 - Change NOT CERTIFIED → CERTIFIED without Owner real-device PASS
