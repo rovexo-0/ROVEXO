@@ -109,8 +109,9 @@ export const SMART_MOBILE_IMAGE_PIPELINE_V1 = {
     marketplaceImages: "NOT CERTIFIED",
     buyerRendering: "NOT CERTIFIED",
     rootCause: "CONFIRMED_FIXES_PENDING_PRODUCTION_VERIFY",
-    finalStatus: "NOT CERTIFIED",
-  } as const,
+    /** Only Owner Production device PASS may set this to CERTIFIED. */
+    finalStatus: "NOT CERTIFIED" as "NOT CERTIFIED" | "CERTIFIED",
+  },
 } as const;
 
 /** JPEG Start-Of-Image marker — required for Next image optimizer + browsers. */

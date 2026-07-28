@@ -23,15 +23,17 @@ describe("canonical confirm dialog", () => {
 });
 
 describe("sell photo delete confirmation", () => {
-  it("does not use browser-native confirm in sell module", () => {
+  it("deletes instantly without confirm dialog or native confirm", () => {
     const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
     const action = readSource("features/sell/ui/DeletePhotoAction.tsx");
     expect(rail).not.toContain("window.confirm");
     expect(rail).not.toContain("window.alert");
     expect(rail).not.toContain("window.prompt");
     expect(rail).toContain("DeletePhotoAction");
-    expect(action).toContain("CanonicalConfirmDialog");
-    expect(action).toContain("Remove photo");
-    expect(action).toContain("This photo will be permanently removed from this listing.");
+    expect(action).not.toContain("CanonicalConfirmDialog");
+    expect(action).not.toContain("Remove photo");
+    expect(action).not.toContain("This photo will be permanently removed from this listing.");
+    expect(action).toContain('data-photo-delete-ux="v1.0"');
+    expect(action).toContain("removePhoto(photoId)");
   });
 });

@@ -153,6 +153,9 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   const [showValidation, setShowValidation] = useState(false);
   const uploadSessionRef = useRef<string>("");
   const [removedImageIds, setRemovedImageIds] = useState<string[]>([]);
+  const removedImageIdsRef = useRef<string[]>([]);
+  /** Photo ids deleted while upload still in flight — completion must not re-inject. */
+  const cancelledPhotoIdsRef = useRef(new Set<string>());
   const pendingTitleRef = useRef(draft.title);
   const pendingDescriptionRef = useRef(draft.description);
   const draftRef = useRef(draft);
@@ -172,6 +175,10 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     draftRevisionRef.current += 1;
     sellProfileSetDraft("draft", `revision-${draftRevisionRef.current}`);
   }, [draft]);
+
+  useEffect(() => {
+    removedImageIdsRef.current = removedImageIds;
+  }, [removedImageIds]);
 
   useEffect(() => {
     if (initialDraft || editListingId || freshSession || restoreDraft) return;
@@ -424,6 +431,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   const uploadPhoto = useCallback(
     async (photo: SellPhoto, onFraction?: (fraction: number) => void) => {
       if (!photo.file || photo.uploaded) return photo;
+      if (cancelledPhotoIdsRef.current.has(photo.id)) return photo;
 
       setDraft((current) => ({
         ...current,
@@ -440,6 +448,16 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
           onProgress: (progress) => onFraction?.(progress),
         });
 
+        // Deleted mid-upload — cancel queue: drop remote object, do not re-inject tile.
+        if (cancelledPhotoIdsRef.current.has(photo.id)) {
+          cancelledPhotoIdsRef.current.delete(photo.id);
+          void deleteListingImage({
+            storagePath: result.storagePath,
+            thumbnailStoragePath: result.thumbnailStoragePath,
+          }).catch(() => undefined);
+          return photo;
+        }
+
         return {
           ...photo,
           uploaded: true,
@@ -451,6 +469,10 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
           previewUrl: result.thumbnailUrl || result.url,
         } satisfies SellPhoto;
       } catch (error) {
+        if (cancelledPhotoIdsRef.current.has(photo.id)) {
+          cancelledPhotoIdsRef.current.delete(photo.id);
+          throw error;
+        }
         const message = toUserSafeFailClosedMessage(error, "unavailable").body;
         setDraft((current) => ({
           ...current,
@@ -537,6 +559,19 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
 
           void uploadPhoto(photo)
             .then((uploaded) => {
+              if (
+                cancelledPhotoIdsRef.current.has(uploaded.id) ||
+                !draftRef.current.photos.some((item) => item.id === uploaded.id)
+              ) {
+                cancelledPhotoIdsRef.current.delete(uploaded.id);
+                if (uploaded.storagePath) {
+                  void deleteListingImage({
+                    storagePath: uploaded.storagePath,
+                    thumbnailStoragePath: uploaded.thumbnailStoragePath,
+                  }).catch(() => undefined);
+                }
+                return;
+              }
               setDraft((current) => ({
                 ...current,
                 photos: current.photos.map((item) => (item.id === uploaded.id ? uploaded : item)),
@@ -557,25 +592,46 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   }, [pushToast, refreshSmartDescription, uploadPhoto]);
 
   const removePhoto = useCallback(async (id: string) => {
-    const photo = draftRef.current.photos.find((item) => item.id === id);
-    if (photo?.existingImageId) {
+    const previous = draftRef.current;
+    const photo = previous.photos.find((item) => item.id === id);
+    if (!photo) return;
+
+    // Cancel active upload for this id — completion must not re-inject the photo.
+    cancelledPhotoIdsRef.current.add(id);
+
+    const previousRemovedImageIds = removedImageIdsRef.current;
+    const previousMetadata = photoMetadataRef.current;
+
+    if (photo.existingImageId) {
       setRemovedImageIds((current) =>
         current.includes(photo.existingImageId!) ? current : [...current, photo.existingImageId!],
       );
     }
-    if (photo?.storagePath && photo.file) {
-      await deleteListingImage({
-        storagePath: photo.storagePath,
-        thumbnailStoragePath: photo.thumbnailStoragePath,
-      }).catch(() => undefined);
-    }
 
-    setDraft((current) => {
-      const target = current.photos.find((item) => item.id === id);
-      if (target?.file) URL.revokeObjectURL(target.previewUrl);
-      photoMetadataRef.current = photoMetadataRef.current.filter((entry) => entry.id !== id);
-      return { ...current, photos: current.photos.filter((item) => item.id !== id) };
-    });
+    try {
+      // Instant local remove — same frame. Storage cleanup is background-only.
+      setDraft((current) => {
+        const target = current.photos.find((item) => item.id === id);
+        if (target?.previewUrl?.startsWith("blob:")) {
+          URL.revokeObjectURL(target.previewUrl);
+        }
+        photoMetadataRef.current = photoMetadataRef.current.filter((entry) => entry.id !== id);
+        return { ...current, photos: current.photos.filter((item) => item.id !== id) };
+      });
+
+      if (photo.storagePath) {
+        void deleteListingImage({
+          storagePath: photo.storagePath,
+          thumbnailStoragePath: photo.thumbnailStoragePath,
+        }).catch(() => undefined);
+      }
+    } catch {
+      // Fail closed — restore previous photos. Never leave ghost/blank slots.
+      cancelledPhotoIdsRef.current.delete(id);
+      photoMetadataRef.current = previousMetadata;
+      setRemovedImageIds(previousRemovedImageIds);
+      setDraft(previous);
+    }
   }, []);
 
   const retryPhotoUpload = useCallback(
@@ -584,9 +640,22 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
       const index = photos.findIndex((photo) => photo.id === id);
       const photo = photos[index];
       if (!photo?.file || index < 0) return;
+      cancelledPhotoIdsRef.current.delete(id);
 
       try {
         const uploaded = await uploadPhoto(photo, (fraction) => setUploadProgress(fraction));
+        if (
+          cancelledPhotoIdsRef.current.has(id) ||
+          !draftRef.current.photos.some((item) => item.id === id)
+        ) {
+          if (uploaded.storagePath) {
+            void deleteListingImage({
+              storagePath: uploaded.storagePath,
+              thumbnailStoragePath: uploaded.thumbnailStoragePath,
+            }).catch(() => undefined);
+          }
+          return;
+        }
         setDraft((current) => ({
           ...current,
           photos: current.photos.map((item) => (item.id === id ? uploaded : item)),

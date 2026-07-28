@@ -33,6 +33,8 @@ export const SellPhotoRail = memo(function SellPhotoRail({
   const longPressTimer = useRef<number | null>(null);
   const touchDragIndex = useRef<number | null>(null);
   const touchStart = useRef<{ x: number; y: number; index: number } | null>(null);
+  const railRef = useRef<HTMLDivElement>(null);
+  const flipRectsRef = useRef<Map<string, DOMRect>>(new Map());
 
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [activeTouch, setActiveTouch] = useState<number | null>(null);
@@ -53,6 +55,66 @@ export const SellPhotoRail = memo(function SellPhotoRail({
       announcedPhotos.current = false;
     }
   }, [photos.length]);
+
+  useEffect(() => {
+    if (previewId && !photos.some((photo) => photo.id === previewId)) {
+      setPreviewId(null);
+    }
+  }, [photos, previewId]);
+
+  const captureFlipBeforeDelete = useCallback(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const map = new Map<string, DOMRect>();
+    rail.querySelectorAll<HTMLElement>("[data-photo-id]").forEach((el) => {
+      const id = el.dataset.photoId;
+      if (id) map.set(id, el.getBoundingClientRect());
+    });
+    const add = rail.querySelector<HTMLElement>("[data-native-photo-picker-trigger]");
+    if (add) map.set("__add__", add.getBoundingClientRect());
+    flipRectsRef.current = map;
+  }, []);
+
+  const playFlipAfterDelete = useCallback(() => {
+    const rail = railRef.current;
+    const first = flipRectsRef.current;
+    if (!rail || first.size === 0) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      flipRectsRef.current = new Map();
+      return;
+    }
+
+    const animateEl = (el: HTMLElement, prev: DOMRect | undefined) => {
+      if (!prev) return;
+      const last = el.getBoundingClientRect();
+      const dx = prev.left - last.left;
+      if (Math.abs(dx) < 0.5) return;
+      el.classList.add("sell-photo-tile--slide-left");
+      el.style.transition = "none";
+      el.style.transform = `translateX(${dx}px)`;
+      void el.offsetWidth;
+      el.style.transition = "transform 180ms ease";
+      el.style.transform = "";
+      const clear = () => {
+        el.style.transition = "";
+        el.style.transform = "";
+        el.classList.remove("sell-photo-tile--slide-left");
+        el.removeEventListener("transitionend", clear);
+      };
+      el.addEventListener("transitionend", clear);
+    };
+
+    rail.querySelectorAll<HTMLElement>("[data-photo-id]").forEach((el) => {
+      const id = el.dataset.photoId;
+      if (!id) return;
+      animateEl(el, first.get(id));
+    });
+    const add = rail.querySelector<HTMLElement>("[data-native-photo-picker-trigger]");
+    if (add) animateEl(add, first.get("__add__"));
+
+    flipRectsRef.current = new Map();
+  }, []);
 
   const handleFilesSelected = useCallback(
     (files: FileList) => {
@@ -164,7 +226,9 @@ export const SellPhotoRail = memo(function SellPhotoRail({
       </div>
 
       <div
+        ref={railRef}
         className="sell-photo-rail overflow-x-auto"
+        data-photo-delete-rail="v1.0"
         onTouchMove={photos.length > 0 ? onTouchMove : undefined}
         onTouchEnd={photos.length > 0 ? onTouchEnd : undefined}
         onTouchCancel={photos.length > 0 ? onTouchEnd : undefined}
@@ -176,6 +240,7 @@ export const SellPhotoRail = memo(function SellPhotoRail({
           <div
             key={photo.id}
             data-photo-index={index}
+            data-photo-id={photo.id}
             draggable
             onDragStart={() => setDragIndex(index)}
             onDragOver={(event) => event.preventDefault()}
@@ -218,6 +283,8 @@ export const SellPhotoRail = memo(function SellPhotoRail({
               photoId={photo.id}
               ariaLabel={`Delete photo ${index + 1}`}
               className="sell-photo-tile__delete"
+              onBeforeDelete={captureFlipBeforeDelete}
+              onAfterDelete={playFlipAfterDelete}
             />
 
             {photo.uploading ? (

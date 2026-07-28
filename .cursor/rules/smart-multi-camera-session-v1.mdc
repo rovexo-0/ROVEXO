@@ -1,0 +1,33 @@
+# ROVEXO Smart Multi Camera Session v1.0
+
+**STATUS: NEXT MAJOR MODULE | GATED | COD SÂNGE**
+
+SSOT: `lib/media/smart-multi-camera-session-v1.ts`  
+Prerequisite: `lib/media/smart-mobile-image-pipeline-v1.ts` → **CERTIFIED**
+
+## Absolute
+
+Seller SHALL NEVER be forced into Take Photo → Return → Upload → repeat per photo.  
+That flow is **FORBIDDEN**.
+
+## Canonical
+
+ONE continuous camera session → 1…8 photos → live bottom thumbnails → delete/reorder → Done/Next → ONE automatic parallel upload → Ready to Publish.
+
+Upload starts **only** after Done/Next.
+
+## Implementation order (locked)
+
+1. Smart Mobile Image Pipeline → **CERTIFIED**  
+2. Smart Multi Camera Session → **IMPLEMENTED**  
+3. Android Certification → PASS  
+4. iPhone Certification → PASS  
+5. ROVEXO Photo Experience → **CERTIFIED**
+
+## Cursor must never
+
+- Implement Multi Camera Session before Image Pipeline CERTIFIED  
+- Restore per-photo leave-camera-and-upload loops  
+- Start upload after each capture  
+- Replace the native camera UI when OS multi-capture exists  
+- Mark CERTIFIED without Owner Android + iPhone Production PASS

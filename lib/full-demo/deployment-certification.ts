@@ -233,7 +233,8 @@ export function runDeploymentCertificationScan(): DeploymentCertificationReport 
         pkg.includes("next-build-and-prune.mjs"),
       "Production build gate wired",
     ),
-    // Pre-deployment gate matrix — must be wired fail-closed.
+    // Pre-deployment gate matrix — Local/CI certify:predeploy; Vercel build:production only.
+    // Local Full Platform must never be the Vercel buildCommand (docs/reports/E2E excluded from upload).
     check(
       "predeploy_gate_wired",
       pkg.includes('"certify:predeploy"') &&
@@ -244,8 +245,9 @@ export function runDeploymentCertificationScan(): DeploymentCertificationReport 
         pkg.includes('"test:e2e:install:chromium"') &&
         pkg.includes("install-playwright-chromium.mjs") &&
         pkg.includes("@sparticuz/chromium") &&
-        /"buildCommand"\s*:\s*"npm run certify:predeploy"/.test(vercel),
-      "certify:predeploy is the Vercel buildCommand + Sparticuz Chromium E2E (fail-closed)",
+        /"buildCommand"\s*:\s*"npm run build:production"/.test(vercel) &&
+        !/"buildCommand"\s*:\s*"npm run certify:predeploy"/.test(vercel),
+      "certify:predeploy is Local/CI; Vercel buildCommand is build:production (fail-closed)",
     ),
     check(
       "database",

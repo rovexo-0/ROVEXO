@@ -178,6 +178,13 @@
   margin: 0;
 }
 
+/* Photo Delete UX — remaining tiles slide left 150–200ms (FLIP uses 180ms) */
+[data-sell-shell] .sell-photo-tile--slide-left {
+  transition: transform 180ms ease !important;
+  will-change: transform;
+  z-index: 0;
+}
+
 [data-sell-shell] .sell-photo-tile:hover {
   transform: scale(1.02);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(0, 0, 0, 0.06);
@@ -206,9 +213,10 @@
   }
 
   [data-sell-shell] .sell-photo-tile,
-  [data-sell-shell] .sell-photo-tile:hover {
-    transition: none;
-    transform: none;
+  [data-sell-shell] .sell-photo-tile:hover,
+  [data-sell-shell] .sell-photo-tile--slide-left {
+    transition: none !important;
+    transform: none !important;
   }
 
   [data-sell-shell] .sell-photo-tile__delete {
