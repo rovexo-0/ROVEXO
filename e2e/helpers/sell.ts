@@ -43,11 +43,12 @@ export async function gotoSellPage(page: Page): Promise<void> {
   await page.waitForTimeout(400);
 }
 
-/** Photos region — first file input when multiple pickers exist on the sell form. */
+/** Native Photo Picker file input — one-tap OS gallery (multi-select safe for E2E). */
 export function sellPhotoInput(page: Page) {
   return page
-    .getByRole("region", { name: /^(Add )?Photos$/i })
-    .locator('input[type="file"]')
+    .locator(
+      'input[type="file"][data-native-photo-picker], input[type="file"][data-universal-photo-intent="gallery"]',
+    )
     .first();
 }
 

@@ -1,0 +1,43 @@
+# ROVEXO Native Photo Picker — Deploy Law + Production Device Certification v1.0
+
+**STATUS: COD SÂNGE | OWNER LAW | FAIL CLOSED**
+
+SSOT: `lib/media/native-photo-picker-production-device-certification-v1.ts`
+
+## Absolute inequalities
+
+```
+Code Certification ≠ Production Deployment ≠ Production Device Certification
+```
+
+Localhost **SHALL NEVER** certify the Native Photo Picker.  
+**CERTIFIED** only after live Production verification on real Android + iPhone devices.
+
+## Phases
+
+| Phase | Outcome |
+|-------|---------|
+| I Code Certification | READY TO COMMIT |
+| II Commit → Push | READY FOR DEPLOY |
+| III Production Deploy + Smoke (`https://www.rovexo.co.uk/sell`) | smoke evidence |
+| IV Owner Device Certification | CERTIFIED only if all PASS |
+
+## Authority
+
+- **Developer:** Implementation · Code Quality · Build · Tests · Deployment  
+- **Owner:** Real Device Validation · Production Behaviour · Final Acceptance  
+
+## Fail closed
+
+Any Production device FAIL → **NOT CERTIFIED** → evidence → root cause → fix → regression → redeploy → repeat Owner Device Certification.
+
+## Final law
+
+No module marked **CERTIFIED** without successful Production Deployment **AND** successful Owner Device Certification on real Android **AND** real iPhone.
+
+## Cursor must never
+
+- Collapse Code / Deploy / Device into one PASS  
+- Mark **CERTIFIED** from localhost alone  
+- Skip Phase II–IV after Code PASS  
+- Claim Owner Device PASS without live Production evidence

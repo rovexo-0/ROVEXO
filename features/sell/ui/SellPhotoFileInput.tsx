@@ -1,29 +1,40 @@
 "use client";
 
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, Ref } from "react";
 import { cn } from "@/lib/cn";
-import { nativeImageFileInputOverlayClassName } from "@/lib/media/native-image-picker";
+import {
+  nativeImageFileInputClassName,
+  nativeImageFileInputOverlayClassName,
+  resolveNativeImageAccept,
+  type NativeImagePickerPlacement,
+} from "@/lib/media/native-image-picker";
+import { NATIVE_PHOTO_PICKER_V1 } from "@/lib/media/universal-photo-picker-v1";
 
 type SellPhotoFileInputProps = {
   multiple?: boolean;
   disabled?: boolean;
   className?: string;
+  placement?: NativeImagePickerPlacement;
+  inputRef?: Ref<HTMLInputElement>;
   onFilesSelected: (files: FileList) => void;
 };
 
 /**
- * Sell Add Photos — Android/iOS native image picker only.
+ * Sell Add Photos — one-tap native OS Photo Picker.
  *
- * Renders exactly:
+ * Exactly:
  *   <input type="file" accept="image/*" multiple />
+ * OS Photos / Gallery only — never forces the device camera.
  *
- * Never forces camera-only mode. Never forces Video Camera.
- * The OS decides Gallery, Google Photos, My Files, Camera, Photos, Files.
+ * Android → system Photo Picker / Gallery
+ * iPhone  → Photos library
  */
 export function SellPhotoFileInput({
   multiple = true,
   disabled = false,
   className,
+  placement = "overlay",
+  inputRef,
   onFilesSelected,
 }: SellPhotoFileInputProps) {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -36,12 +47,20 @@ export function SellPhotoFileInput({
 
   return (
     <input
+      ref={inputRef}
       type="file"
-      accept="image/*"
+      accept={resolveNativeImageAccept("gallery")}
       multiple={multiple}
       disabled={disabled}
       onChange={handleChange}
-      className={cn(nativeImageFileInputOverlayClassName, className)}
+      data-native-photo-picker={NATIVE_PHOTO_PICKER_V1.version}
+      data-universal-photo-intent="gallery"
+      className={cn(
+        placement === "overlay"
+          ? nativeImageFileInputOverlayClassName
+          : nativeImageFileInputClassName,
+        className,
+      )}
     />
   );
 }

@@ -1,20 +1,19 @@
 /**
  * Native mobile image picker — Samsung Android, Chrome Android, iOS Safari, WebView, PWA.
  *
- * Sell Add Photos uses `SellPhotoFileInput` which hardcodes:
- *   <input type="file" accept="image/*" multiple />
- * with NO capture attribute.
+ * ROVEXO Native Photo Picker (v1.0) — Sell Add Photos:
+ *   ONE tap → OS native Photo Picker (no ROVEXO Camera/Gallery sheet).
+ *   <input type="file" accept="image/*" multiple /> with NO capture.
  *
  * Why image/* (not an explicit MIME list)?
- * Explicit MIME lists (image/jpeg,image/png,…) and capture= both push many Samsung/Chrome
- * builds into the legacy Camera / Video Camera / Files chooser and hide Gallery /
- * Google Photos. The OS photo picker with accept="image/*" surfaces available providers.
+ * Explicit MIME lists push many Samsung/Chrome builds into the legacy Files /
+ * Documents chooser and hide Gallery / Google Photos / system Photo Picker.
  *
  * Rules:
- * - Never set capture on gallery / sell photo pickers.
- * - Use capture="environment" only on a dedicated camera intent (not sell).
- * - Prefer nesting the input inside <label> with overlay placement on Samsung.
+ * - Never set capture on Sell Add Photos / gallery paths.
+ * - Prefer nesting the input inside <label> with overlay placement (Samsung).
  * - Do not set aria-hidden or tabIndex={-1} on the input.
+ * - Never show a ROVEXO Action Sheet before the native picker.
  */
 
 /** Documented supported image MIME types (client validation / docs). */
@@ -27,8 +26,8 @@ export const NATIVE_IMAGE_SUPPORTED_MIME = [
 ] as const;
 
 /**
- * Accept string for gallery / photo pickers.
- * Wildcard lets Android/iOS choose Gallery, Google Photos, Photos, Files, Camera.
+ * Accept string for native photo pickers.
+ * Wildcard prefers system Photo Picker / Gallery / Photos on Android and iOS.
  */
 export const NATIVE_IMAGE_GALLERY_ACCEPT = "image/*";
 
@@ -46,14 +45,14 @@ export type NativeImagePickerPlacement = "associated" | "overlay";
 
 export function resolveNativeImageAccept(_intent: NativeImagePickerIntent = "any"): string {
   void _intent;
-  // Always image/* for gallery-compatible pickers (including camera-intent accept).
   return NATIVE_IMAGE_GALLERY_ACCEPT;
 }
 
 export function resolveNativeImageCapture(
   intent: NativeImagePickerIntent,
 ): "environment" | undefined {
-  // Sell / gallery paths must never force camera.
+  // Sell Add Photos / gallery must never force camera.
+  // Dedicated non-Sell camera flows may still request environment capture.
   return intent === "camera" ? "environment" : undefined;
 }
 

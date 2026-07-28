@@ -10,6 +10,17 @@ import {
   resolveNativeImageCapture,
   sanitizeNativeImagePickerId,
 } from "@/lib/media/native-image-picker";
+import {
+  NATIVE_PHOTO_PICKER_V1,
+  UNIVERSAL_PHOTO_PICKER_V1,
+  isNativePhotoPickerOneTap,
+} from "@/lib/media/universal-photo-picker-v1";
+import {
+  NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1,
+  assertNativePhotoPickerNotCertifiableOnLocalhostAlone,
+  resolveNativePhotoPickerCertificationVerdict,
+  resolveNativePhotoPickerDeployBoard,
+} from "@/lib/media/native-photo-picker-production-device-certification-v1";
 import { SELL_PHOTO_MAX } from "@/features/sell/types";
 
 function readSource(relativePath: string): string {
@@ -31,7 +42,99 @@ function walkTsFiles(dir: string): string[] {
   return files;
 }
 
-describe("sell photo picker (Android / Samsung)", () => {
+describe("Native Photo Picker Contract v1.0", () => {
+  it("one tap → native OS picker; forbids ROVEXO Camera/Gallery sheet", () => {
+    expect(NATIVE_PHOTO_PICKER_V1.oneTapToNativePicker).toBe(true);
+    expect(NATIVE_PHOTO_PICKER_V1.customActionSheetForbidden).toBe(true);
+    expect(NATIVE_PHOTO_PICKER_V1.accept).toBe("image/*");
+    expect(NATIVE_PHOTO_PICKER_V1.capture).toBeUndefined();
+    expect(NATIVE_PHOTO_PICKER_V1.multiple).toBe(true);
+    expect(NATIVE_PHOTO_PICKER_V1.listingMax).toBe(8);
+    expect(NATIVE_PHOTO_PICKER_V1.autoUploadAfterSelection).toBe(true);
+    expect(NATIVE_PHOTO_PICKER_V1.retryOnlyOnGenuineFailure).toBe(true);
+    expect(isNativePhotoPickerOneTap()).toBe(true);
+    expect(UNIVERSAL_PHOTO_PICKER_V1).toBe(NATIVE_PHOTO_PICKER_V1);
+  });
+
+  it("forbids intermediate ROVEXO dialogs", () => {
+    for (const token of NATIVE_PHOTO_PICKER_V1.forbiddenUi) {
+      expect(NATIVE_PHOTO_PICKER_V1.forbiddenUi).toContain(token);
+    }
+    expect(existsSync(path.join(process.cwd(), "features/sell/ui/UniversalPhotoPickerSheet.tsx"))).toBe(
+      false,
+    );
+  });
+});
+
+describe("Native Photo Picker — Production Device Certification v1.0", () => {
+  it("forbids certification on localhost alone", () => {
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.localhostAloneForbidden).toBe(true);
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.certificationRequiresLiveProduction).toBe(
+      true,
+    );
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.certificationRequiresRealDevices).toBe(true);
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.ssotCertifiedForbiddenUntilOwnerDevices).toBe(
+      true,
+    );
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.productionDeviceCertification).toBe(
+      "PENDING",
+    );
+    expect(() => assertNativePhotoPickerNotCertifiableOnLocalhostAlone()).not.toThrow();
+  });
+
+  it("code+deploy alone still yields NOT CERTIFIED without Owner devices", () => {
+    expect(
+      resolveNativePhotoPickerCertificationVerdict({
+        codeCertificationPass: true,
+        productionDeployPass: true,
+        productionDeviceCertification: "PENDING",
+      }),
+    ).toBe("NOT CERTIFIED");
+  });
+
+  it("CERTIFIED only when code + deploy + Owner Production devices PASS", () => {
+    expect(
+      resolveNativePhotoPickerCertificationVerdict({
+        codeCertificationPass: true,
+        productionDeployPass: true,
+        productionDeviceCertification: "PASS",
+      }),
+    ).toBe("CERTIFIED");
+  });
+
+  it("Deploy Law: Code ≠ Commit ≠ Deploy ≠ Device; CERTIFIED only after Owner devices", () => {
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.deployLaw).toBe(
+      "NATIVE_PHOTO_PICKER_DEPLOY_LAW_V1",
+    );
+    expect(
+      NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.inequalities
+        .codeCertificationIsNotProductionDeployment,
+    ).toBe(true);
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.afterPhaseI).toBe("READY TO COMMIT");
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.afterPhaseII).toBe("READY FOR DEPLOY");
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.productionSmokeUrl).toBe(
+      "https://www.rovexo.co.uk/sell",
+    );
+
+    const board = resolveNativePhotoPickerDeployBoard({
+      codeCertificationPass: true,
+      commitPass: false,
+      productionDeployPass: false,
+      productionSmokePass: false,
+      ownerDeviceCertification: "PENDING",
+    });
+    expect(board).toEqual({
+      codeCertification: "PASS",
+      commit: "PENDING",
+      productionDeployment: "PENDING",
+      productionSmokeTest: "PENDING",
+      ownerDeviceCertification: "PENDING",
+      nativePhotoPicker: "NOT CERTIFIED",
+    });
+  });
+});
+
+describe("sell photo picker (Android / Samsung / iOS)", () => {
   it("uses accept=image/* so Android opens Gallery / Google Photos providers", () => {
     expect(NATIVE_IMAGE_GALLERY_ACCEPT).toBe("image/*");
     expect(NATIVE_IMAGE_FALLBACK_ACCEPT).toBe("image/*");
@@ -49,9 +152,10 @@ describe("sell photo picker (Android / Samsung)", () => {
     ]);
   });
 
-  it("never forces capture on gallery / sell picker", () => {
+  it("never forces capture on gallery intent; camera intent uses environment", () => {
     expect(resolveNativeImageCapture("gallery")).toBeUndefined();
     expect(resolveNativeImageCapture("any")).toBeUndefined();
+    expect(resolveNativeImageCapture("camera")).toBe("environment");
   });
 
   it("has exactly one file-input photo picker implementation in features/sell", () => {
@@ -72,26 +176,24 @@ describe("sell photo picker (Android / Samsung)", () => {
 
   it("bans legacy / duplicate picker names inside the sell module", () => {
     const sellRoot = path.join(process.cwd(), "features/sell");
-    const banned = [
-      "NativeImageFileInput",
-      "PhotoUploader",
-      "PhotoPicker",
-      "ImagePicker",
-      "FilePicker",
-      "GalleryPicker",
-      "CameraPicker",
-      "sourceSheetOpen",
-      "ActionSheet",
-      "BottomSheet",
-      'capture="environment"',
-      "capture='environment'",
+    const bannedPatterns = [
+      /\bNativeImageFileInput\b/,
+      /\bPhotoUploader\b/,
+      /\bUniversalPhotoPickerSheet\b/,
+      /\bImagePicker\b/,
+      /\bFilePicker\b/,
+      /\bGalleryPicker\b/,
+      /\bCameraPicker\b/,
+      /\bsourceSheetOpen\b/,
+      /\bActionSheet\b/,
+      /\bBottomSheet\b/,
     ];
 
     for (const file of walkTsFiles(sellRoot)) {
       const source = readFileSync(file, "utf8");
       const relative = path.relative(process.cwd(), file).replace(/\\/g, "/");
-      for (const token of banned) {
-        expect(source.includes(token), `${relative} must not contain ${token}`).toBe(false);
+      for (const pattern of bannedPatterns) {
+        expect(pattern.test(source), `${relative} must not match ${pattern}`).toBe(false);
       }
     }
   });
@@ -104,24 +206,27 @@ describe("sell photo picker (Android / Samsung)", () => {
     expect(picker).toMatch(/mode === "multiple" \? \([\s\S]*Apply[\s\S]*\) : null/);
   });
 
-  it("sell Add Photos uses camera icon + native file input", () => {
+  it("sell Add Photos is one-tap native file input (no ROVEXO sheet)", () => {
     const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
     const input = readSource("features/sell/ui/SellPhotoFileInput.tsx");
 
     expect(rail).toContain("SellPhotoFileInput");
     expect(rail).toContain("CameraLineIcon");
     expect(rail).toContain("Add Photos");
+    expect(rail).toContain('data-native-photo-picker-host="v1.0"');
+    expect(rail).toContain('data-native-photo-picker-trigger="1"');
+    expect(rail).not.toContain("UniversalPhotoPickerSheet");
     expect(rail).not.toContain("ComposeLineIcon");
     expect(rail).not.toContain("NativeImageFileInput");
-    expect(rail).not.toContain('intent="camera"');
-    expect(rail).not.toContain("capture=");
+    expect(rail).not.toContain("Camera Photo");
+    expect(rail).not.toContain("Photo Gallery");
 
     expect(input).toContain('type="file"');
-    expect(input).toContain('accept="image/*"');
-    expect(input).toContain("multiple");
-    expect(input).not.toMatch(/\bcapture\b/);
-    expect(input).not.toContain("environment");
-    expect(input).not.toContain('intent="camera"');
+    expect(input).toContain("resolveNativeImageAccept");
+    expect(input).toContain('data-universal-photo-intent="gallery"');
+    expect(input).toContain("data-native-photo-picker");
+    expect(input).not.toContain("capture");
+    expect(input).not.toContain("resolveNativeImageCapture");
   });
 
   it("shared NativeImageFileInput omits capture unless camera intent", () => {
@@ -164,5 +269,14 @@ describe("sell photo upload state", () => {
     const source = readSource("features/sell/context/SellProvider.tsx");
     expect(source).toContain("SELL_PHOTO_MAX - draftRef.current.photos.length");
     expect(source).toContain(".slice(0, SELL_PHOTO_MAX)");
+  });
+
+  it("auto-uploads after selection and retries only on uploadError", () => {
+    const provider = readSource("features/sell/context/SellProvider.tsx");
+    const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
+    expect(provider).toContain("uploadPhoto");
+    expect(rail).toContain("addPhotos");
+    expect(rail).toContain("photo.uploadError");
+    expect(rail).toContain("Retry");
   });
 });

@@ -130,6 +130,7 @@ export const SellPhotoRail = memo(function SellPhotoRail({
 
   const previewPhoto = previewId ? photos.find((photo) => photo.id === previewId) ?? null : null;
 
+  /** One tap → native OS Photo Picker (label + overlay file input). */
   const addPhotosControl = (
     <label
       aria-label="Add Photos"
@@ -139,6 +140,7 @@ export const SellPhotoRail = memo(function SellPhotoRail({
         photoError && "cds-menu-row--error",
         focusRing,
       )}
+      data-native-photo-picker-trigger="1"
     >
       <SellPhotoFileInput multiple onFilesSelected={handleFilesSelected} />
       <CameraLineIcon className="h-5 w-5 text-primary" aria-hidden />
@@ -152,6 +154,7 @@ export const SellPhotoRail = memo(function SellPhotoRail({
       className={cn("relative flex w-full max-w-none flex-col gap-2", photoError && "cds-field--error")}
       aria-label="Photos"
       data-blood-code-xxi-photo="1"
+      data-native-photo-picker-host="v1.0"
     >
       <div className="sell-photo-section__header">
         <span className="text-sm font-medium text-text-primary">Photos</span>

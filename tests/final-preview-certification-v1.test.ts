@@ -153,17 +153,23 @@ describe("Final Preview Certification v1.0 — Parcel Freeze", () => {
   });
 });
 
-describe("Final Preview Certification v1.0 — Sell Gallery / Camera", () => {
-  it("gallery pickers use image/* without capture (Samsung/Android/iOS safe)", () => {
+describe("Final Preview Certification v1.0 — Sell Native Photo Picker", () => {
+  it("one-tap native picker: image/* · no capture · no ROVEXO Camera/Gallery sheet", () => {
     expect(NATIVE_IMAGE_GALLERY_ACCEPT).toBe("image/*");
     expect(resolveNativeImageAccept("gallery")).toBe("image/*");
     expect(resolveNativeImageCapture("gallery")).toBeUndefined();
-    expect(resolveNativeImageCapture("camera")).toBe("environment");
     expect(SELL_PHOTO_MAX).toBe(8);
 
     const sellInput = readSource("features/sell/ui/SellPhotoFileInput.tsx");
-    expect(sellInput).toContain("image/*");
-    expect(sellInput).not.toMatch(/capture=/);
+    const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
+    expect(sellInput).toContain("resolveNativeImageAccept");
+    expect(sellInput).toContain('data-universal-photo-intent="gallery"');
+    expect(sellInput).not.toContain("capture");
+    expect(rail).toContain("SellPhotoFileInput");
+    expect(rail).not.toContain("UniversalPhotoPickerSheet");
+    expect(existsSync(join(process.cwd(), "features/sell/ui/UniversalPhotoPickerSheet.tsx"))).toBe(
+      false,
+    );
     expect(existsSync(join(process.cwd(), "app/sell/camera/page.tsx"))).toBe(true);
   });
 });
