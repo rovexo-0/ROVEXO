@@ -132,7 +132,7 @@ function PinchZoomSlide({
           fill
           priority={priority}
           sizes="100vw"
-          quality={92}
+          quality={90}
           className="object-contain"
           draggable={false}
         />
@@ -279,7 +279,7 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
                   priority={index === 0}
                   loading={index === 0 ? undefined : "lazy"}
                   sizes="100vw"
-                  quality={92}
+                  quality={90}
                   className="pd-v1__gallery-image object-cover"
                   draggable={false}
                 />

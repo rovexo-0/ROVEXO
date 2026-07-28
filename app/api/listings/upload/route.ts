@@ -55,12 +55,15 @@ export async function POST(request: Request) {
     ]);
 
     const { enhanceListingImage } = await import("@/lib/media/enhance-listing-image");
+    const { assertValidJpegBuffer } = await import("@/lib/media/smart-mobile-image-pipeline-v1");
     const [enhancedFull, enhancedThumb] = await Promise.all([
       enhanceListingImage(fullRaw),
       enhanceListingImage(thumbnailRaw),
     ]);
     const fullBuffer = enhancedFull.buffer;
     const thumbnailBuffer = enhancedThumb.buffer;
+    assertValidJpegBuffer(fullBuffer, "listing full image");
+    assertValidJpegBuffer(thumbnailBuffer, "listing thumbnail");
     const contentType = "image/jpeg" as const;
     const filename = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}.jpg`;
 
@@ -75,14 +78,20 @@ export async function POST(request: Request) {
     // Product image filenames are unique + immutable (timestamp + random id), so
     // they can be cached aggressively by the CDN and browsers for a year.
     // Upload uses the authenticated seller session — storage RLS enforces own folder.
+    //
+    // CRITICAL: upload as Blob (FormData multipart), never raw Node Buffer as the
+    // fetch body. Buffer-as-body has produced UTF-8-corrupted objects in Production
+    // (SOI FF D8 FF → EF BF BD) which pass storage HTTP 200 but fail /_next/image.
     const cacheControl = "31536000";
+    const fullBlob = new Blob([new Uint8Array(fullBuffer)], { type: contentType });
+    const thumbBlob = new Blob([new Uint8Array(thumbnailBuffer)], { type: contentType });
     const [fullUpload, thumbUpload] = await Promise.all([
-      supabase.storage.from("products").upload(fullPath, fullBuffer, {
+      supabase.storage.from("products").upload(fullPath, fullBlob, {
         contentType,
         upsert: true,
         cacheControl,
       }),
-      supabase.storage.from("products").upload(thumbPath, thumbnailBuffer, {
+      supabase.storage.from("products").upload(thumbPath, thumbBlob, {
         contentType,
         upsert: true,
         cacheControl,

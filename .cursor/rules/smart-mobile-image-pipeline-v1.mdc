@@ -1,0 +1,26 @@
+# ROVEXO Smart Mobile Image Pipeline v1.0
+
+**STATUS: PRODUCTION BLOCKER | COD SÂNGE | FAIL CLOSED**
+
+SSOT: `lib/media/smart-mobile-image-pipeline-v1.ts`
+
+## Absolute
+
+No certification until every stage PASSes on real Production devices (Desktop · Android · iPhone).
+
+Corrupt objects already stored **cannot** be repaired in place — must **re-upload** after Production deploy of the Blob upload fix.
+
+## Deploy law
+
+Code Review → Build → Typecheck → Lint → Commit → Push → Production Deploy → Smoke → NEW listing/images → SOI verify → Sell/Details/Marketplace/Buyer → Android → iPhone → Owner Certification
+
+## After render PASS
+
+Implement Smart Multi-Photo Camera Session (one session · thumbnails · Next/Done · one upload).
+
+## Cursor must never
+
+- Certify before Owner Production device PASS  
+- Guess or workaround without evidence  
+- Leave `quality` outside Next allowlist  
+- Upload listing images via raw Node Buffer fetch body

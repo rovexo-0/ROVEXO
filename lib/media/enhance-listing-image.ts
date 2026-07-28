@@ -41,6 +41,9 @@ export async function enhanceListingImage(input: Buffer): Promise<EnhancedListin
     });
 
   const buffer = await pipeline.toBuffer();
+  if (buffer.length < 3 || buffer[0] !== 0xff || buffer[1] !== 0xd8 || buffer[2] !== 0xff) {
+    throw new Error("Image enhancement failed to produce a valid JPEG.");
+  }
   return {
     buffer,
     contentType: "image/jpeg",
