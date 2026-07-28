@@ -17,6 +17,7 @@ import {
 } from "@/lib/media/universal-photo-picker-v1";
 import {
   NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1,
+  assertAutoProductionDeployAuthorized,
   assertNativePhotoPickerNotCertifiableOnLocalhostAlone,
   resolveNativePhotoPickerCertificationVerdict,
   resolveNativePhotoPickerDeployBoard,
@@ -106,6 +107,13 @@ describe("Native Photo Picker — Production Device Certification v1.0", () => {
     expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.deployLaw).toBe(
       "NATIVE_PHOTO_PICKER_DEPLOY_LAW_V1",
     );
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.autoProductionDeployLaw).toBe(
+      "AUTO_PRODUCTION_DEPLOY_LAW_V1",
+    );
+    expect(NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.automationMayDeploy).toBe(true);
+    expect(
+      NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.automationShallNeverSelfCertifyDevices,
+    ).toBe(true);
     expect(
       NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.inequalities
         .codeCertificationIsNotProductionDeployment,
@@ -118,19 +126,49 @@ describe("Native Photo Picker — Production Device Certification v1.0", () => {
 
     const board = resolveNativePhotoPickerDeployBoard({
       codeCertificationPass: true,
-      commitPass: false,
+      commitPass: true,
+      pushPass: true,
       productionDeployPass: false,
       productionSmokePass: false,
       ownerDeviceCertification: "PENDING",
     });
     expect(board).toEqual({
       codeCertification: "PASS",
-      commit: "PENDING",
+      commit: "PASS",
+      push: "PASS",
       productionDeployment: "PENDING",
       productionSmokeTest: "PENDING",
       ownerDeviceCertification: "PENDING",
       nativePhotoPicker: "NOT CERTIFIED",
     });
+  });
+
+  it("Auto Production Deploy blocks when any prerequisite fails", () => {
+    expect(() =>
+      assertAutoProductionDeployAuthorized({
+        workingTreeClean: true,
+        commitPass: true,
+        pushOriginPass: true,
+        typeScriptPass: true,
+        eslintPass: true,
+        productionBuildPass: true,
+        unitTestsPass: true,
+        mandatoryCertificationRulesPass: true,
+      }),
+    ).not.toThrow();
+
+    expect(() =>
+      assertAutoProductionDeployAuthorized({
+        workingTreeClean: false,
+        commitPass: true,
+        pushOriginPass: true,
+        typeScriptPass: true,
+        eslintPass: true,
+        productionBuildPass: true,
+        unitTestsPass: true,
+        mandatoryCertificationRulesPass: true,
+      }),
+    ).toThrow(/STOP DEPLOYMENT/);
   });
 });
 

@@ -1,17 +1,18 @@
 /**
- * ROVEXO Native Photo Picker — Production Device Certification + Deploy Law v1.0
+ * ROVEXO Native Photo Picker — Auto Production Deploy Law v1.0
+ * (extends Production Device Certification SSOT)
  *
  * STATUS: COD SÂNGE · OWNER LAW · FAIL CLOSED
  *
- * Absolute inequalities (never collapse):
+ * Absolute:
+ *   NO Production deployment unless all Code Certification gates PASS.
+ *   Deployment SHALL stop immediately on any failed gate.
+ *   AUTOMATION MAY DEPLOY THE BUILD.
+ *   AUTOMATION SHALL NEVER SELF-CERTIFY REAL DEVICE BEHAVIOUR.
+ *   CERTIFIED only after live Production + real Android + real iPhone.
+ *
+ * Inequalities:
  *   Code Certification ≠ Production Deployment ≠ Production Device Certification
- *
- * Localhost SHALL NEVER certify the Native Photo Picker.
- * CERTIFIED only after successful LIVE Production verification on REAL devices
- * (Android + iPhone).
- *
- * SSOT companion rule:
- *   .cursor/rules/native-photo-picker-production-device-cert-v1.mdc
  */
 
 export const NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1 = {
@@ -19,17 +20,65 @@ export const NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1 = {
   id: "native-photo-picker-production-device-certification-v1",
   status: "LAW_LOCKED",
   deployLaw: "NATIVE_PHOTO_PICKER_DEPLOY_LAW_V1",
+  autoProductionDeployLaw: "AUTO_PRODUCTION_DEPLOY_LAW_V1",
 
   localhostAloneForbidden: true,
   certificationRequiresLiveProduction: true,
   certificationRequiresRealDevices: true,
+  automationMayDeploy: true,
+  automationShallNeverSelfCertifyDevices: true,
 
-  /** Code ≠ Deploy ≠ Device — never treat as equivalent. */
   inequalities: {
     codeCertificationIsNotProductionDeployment: true,
     productionDeploymentIsNotProductionDeviceCertification: true,
     onlyLiveProductionRealDevicesGrantCertified: true,
   } as const,
+
+  deployPrerequisites: [
+    "Git Working Tree CLEAN",
+    "Commit PASS",
+    "Push Origin PASS",
+    "TypeScript PASS",
+    "ESLint PASS",
+    "Production Build PASS",
+    "Unit Tests PASS",
+    "Mandatory Certification Rules PASS",
+  ] as const,
+
+  autoDeployPipeline: [
+    "Start Production Deploy",
+    "Install Dependencies",
+    "Compile",
+    "Build",
+    "Generate Static Assets",
+    "Runtime Validation",
+    "Environment Validation",
+    "Deploy",
+    "Health Check",
+    "Deployment PASS",
+  ] as const,
+
+  postDeployChecks: [
+    "https://www.rovexo.co.uk HTTP 200",
+    "Application Boot",
+    "Authentication",
+    "Homepage",
+    "Sell Page",
+  ] as const,
+
+  productionSmokeUrl: "https://www.rovexo.co.uk/sell",
+  productionOrigin: "https://www.rovexo.co.uk",
+
+  productionSmokeSteps: [
+    "Open /sell",
+    "Tap Add Photos",
+    "Native Photo Picker opens",
+    "Select Photos",
+    "Automatic Upload",
+    "Generate Thumbnails",
+    "Progress Indicator",
+    "Publish Listing",
+  ] as const,
 
   phases: {
     I_CODE_CERTIFICATION: [
@@ -50,10 +99,9 @@ export const NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1 = {
     IV_OWNER_DEVICE_CERTIFICATION: ["Android", "iPhone"] as const,
   } as const,
 
-  /** Phase I complete → READY TO COMMIT (not CERTIFIED). */
   afterPhaseI: "READY TO COMMIT" as const,
-  /** Phase II complete → READY FOR DEPLOY (not CERTIFIED). */
   afterPhaseII: "READY FOR DEPLOY" as const,
+  afterPhaseIII: "READY FOR OWNER DEVICE CERTIFICATION" as const,
 
   developerGates: [
     "TypeScript",
@@ -62,8 +110,6 @@ export const NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1 = {
     "Unit Tests",
     "Native Photo Picker Contract",
   ] as const,
-
-  productionSmokeUrl: "https://www.rovexo.co.uk/sell",
 
   productionFlow: [
     "Deploy",
@@ -103,32 +149,37 @@ export const NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1 = {
   ] as const,
 
   failPolicy: [
-    "NOT CERTIFIED",
-    "Collect evidence",
-    "Identify root cause",
+    "STOP DEPLOYMENT",
+    "NO PARTIAL RELEASE",
+    "Collect Logs",
+    "Identify Root Cause",
     "Fix",
-    "Regression Tests",
+    "Restart Pipeline",
+  ] as const,
+
+  deviceFailPolicy: [
+    "NOT CERTIFIED",
+    "Fix",
     "Redeploy",
+    "Repeat Smoke Test",
     "Repeat Owner Device Certification",
   ] as const,
 
   authority: {
     developer: ["Implementation", "Code Quality", "Build", "Tests", "Deployment"] as const,
     owner: ["Real Device Validation", "Production Behaviour", "Final Acceptance"] as const,
+    automation: ["May deploy the build", "Shall never self-certify real device behaviour"] as const,
   } as const,
 
   gates: {
     codeCertification: "REQUIRED",
     commit: "REQUIRED",
+    push: "REQUIRED",
     productionDeploy: "REQUIRED",
     productionSmokeTest: "REQUIRED",
     ownerDeviceCertification: "REQUIRED",
   } as const,
 
-  /**
-   * Machine / localhost / unit evidence may mark code PASS.
-   * They must NEVER imply Owner device PASS.
-   */
   ssotCertifiedForbiddenUntilOwnerDevices: true,
   productionDeviceCertification: "PENDING" as const,
   finalLabelWhenIncomplete: "NOT CERTIFIED" as const,
@@ -147,15 +198,13 @@ export type NativePhotoPickerCertificationVerdict =
 export type NativePhotoPickerDeployBoard = {
   codeCertification: "PASS" | "FAIL" | "PENDING";
   commit: "PASS" | "FAIL" | "PENDING";
+  push: "PASS" | "FAIL" | "PENDING";
   productionDeployment: "PASS" | "FAIL" | "PENDING";
   productionSmokeTest: "PASS" | "FAIL" | "PENDING";
   ownerDeviceCertification: NativePhotoPickerProductionDeviceCertStatus;
   nativePhotoPicker: NativePhotoPickerCertificationVerdict;
 };
 
-/**
- * Absolute: localhost / CI alone cannot grant certification.
- */
 export function assertNativePhotoPickerNotCertifiableOnLocalhostAlone(): void {
   if (!NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.localhostAloneForbidden) {
     throw new Error("Native Photo Picker: localhost-alone certification must remain forbidden.");
@@ -165,6 +214,9 @@ export function assertNativePhotoPickerNotCertifiableOnLocalhostAlone(): void {
       "Native Photo Picker: SSOT must keep certification blocked until Owner Production Device PASS.",
     );
   }
+  if (!NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.automationShallNeverSelfCertifyDevices) {
+    throw new Error("Native Photo Picker: automation must never self-certify devices.");
+  }
   if (
     !NATIVE_PHOTO_PICKER_PRODUCTION_DEVICE_CERT_V1.inequalities
       .onlyLiveProductionRealDevicesGrantCertified
@@ -173,9 +225,6 @@ export function assertNativePhotoPickerNotCertifiableOnLocalhostAlone(): void {
   }
 }
 
-/**
- * Code gates may PASS. Certification stays NOT CERTIFIED until Owner Production devices PASS.
- */
 export function resolveNativePhotoPickerCertificationVerdict(input: {
   codeCertificationPass: boolean;
   productionDeployPass: boolean;
@@ -192,12 +241,10 @@ export function resolveNativePhotoPickerCertificationVerdict(input: {
   return "NOT CERTIFIED";
 }
 
-/**
- * Status board — CERTIFIED only when deploy + Owner devices PASS on live Production.
- */
 export function resolveNativePhotoPickerDeployBoard(input: {
   codeCertificationPass: boolean;
   commitPass: boolean;
+  pushPass: boolean;
   productionDeployPass: boolean;
   productionSmokePass: boolean;
   ownerDeviceCertification: NativePhotoPickerProductionDeviceCertStatus;
@@ -211,9 +258,38 @@ export function resolveNativePhotoPickerDeployBoard(input: {
   return {
     codeCertification: input.codeCertificationPass ? "PASS" : "PENDING",
     commit: input.commitPass ? "PASS" : "PENDING",
+    push: input.pushPass ? "PASS" : "PENDING",
     productionDeployment: input.productionDeployPass ? "PASS" : "PENDING",
     productionSmokeTest: input.productionSmokePass ? "PASS" : "PENDING",
     ownerDeviceCertification: input.ownerDeviceCertification,
     nativePhotoPicker,
   };
+}
+
+/** Fail closed: do not start Production deploy unless prerequisites are all true. */
+export function assertAutoProductionDeployAuthorized(input: {
+  workingTreeClean: boolean;
+  commitPass: boolean;
+  pushOriginPass: boolean;
+  typeScriptPass: boolean;
+  eslintPass: boolean;
+  productionBuildPass: boolean;
+  unitTestsPass: boolean;
+  mandatoryCertificationRulesPass: boolean;
+}): void {
+  assertNativePhotoPickerNotCertifiableOnLocalhostAlone();
+  const failed: string[] = [];
+  if (!input.workingTreeClean) failed.push("Git Working Tree CLEAN");
+  if (!input.commitPass) failed.push("Commit PASS");
+  if (!input.pushOriginPass) failed.push("Push Origin PASS");
+  if (!input.typeScriptPass) failed.push("TypeScript PASS");
+  if (!input.eslintPass) failed.push("ESLint PASS");
+  if (!input.productionBuildPass) failed.push("Production Build PASS");
+  if (!input.unitTestsPass) failed.push("Unit Tests PASS");
+  if (!input.mandatoryCertificationRulesPass) failed.push("Mandatory Certification Rules PASS");
+  if (failed.length > 0) {
+    throw new Error(
+      `AUTO PRODUCTION DEPLOY BLOCKED — failed gates: ${failed.join(" · ")}. STOP DEPLOYMENT. NO PARTIAL RELEASE.`,
+    );
+  }
 }
