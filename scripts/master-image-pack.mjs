@@ -6,7 +6,7 @@
  *   BASE_URL=http://127.0.0.1:3000 node scripts/master-image-pack.mjs
  *   BASE_URL=https://rovexo-git-develop-rovexo.vercel.app node scripts/master-image-pack.mjs
  */
-import { mkdirSync, writeFileSync, existsSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { chromium } from "playwright";
 

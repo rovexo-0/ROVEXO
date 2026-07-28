@@ -1,0 +1,46 @@
+/**
+ * ROVEXO Favourites v1.0 — empty state + page chrome only.
+ * Product cards use Homepage ListingCard SSOT (no card CSS overrides).
+ */
+
+.fav-page {
+  width: 100%;
+  max-width: 100%;
+  background: #ffffff;
+}
+
+.fav-grid {
+  width: 100%;
+  /* Favourites: always 2 columns (Owner Product Card Lock). */
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.fav-grid__sentinel {
+  grid-column: 1 / -1;
+  height: 16px;
+}
+
+.fav-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: min(60vh, 480px);
+  padding: 32px 24px;
+  text-align: center;
+  background: #ffffff;
+}
+
+.fav-empty__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #1a1a1a;
+}
+
+.fav-empty__browse {
+  margin-top: 24px;
+  min-width: 160px;
+}

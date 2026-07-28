@@ -32,8 +32,6 @@ export function ProductSimilarItems({ products, categoryId }: ProductSimilarItem
               product={product}
               variant="grid"
               {...HP_CANONICAL_LISTING_PROPS}
-              surface="similar"
-              showSeller={false}
             />
           </div>
         ))}

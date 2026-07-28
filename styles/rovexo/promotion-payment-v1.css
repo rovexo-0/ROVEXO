@@ -1,0 +1,201 @@
+/**
+ * Promote payment selector — My Wallet · Default Saved Card.
+ * Compact premium · no prohibition/warning icons on disabled Continue.
+ */
+
+.promo-pay {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.promo-pay__option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  min-height: 88px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(15, 23, 42, 0.1);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.promo-pay__option--selected {
+  border-color: #9333ea;
+  box-shadow: 0 0 0 1px rgba(147, 51, 234, 0.25);
+}
+
+.promo-pay__option:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.promo-pay__option-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #0f172a;
+}
+
+.promo-pay__option-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13px;
+  color: #334155;
+}
+
+.promo-pay__option-meta strong {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.promo-pay__option-copy {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.promo-pay__option-status {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.promo-pay__option-status--ok {
+  color: #15803d;
+}
+
+.promo-pay__option-status--off {
+  color: #94a3b8;
+}
+
+.promo-pay__option--unavailable {
+  opacity: 0.5;
+}
+
+.promo-pay__hint,
+.promo-pay__error {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.promo-pay__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.promo-pay__primary,
+.promo-pay__secondary {
+  min-height: 56px;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 650;
+  cursor: pointer;
+  flex: 1;
+}
+
+.promo-pay__primary {
+  border: none;
+  background: linear-gradient(135deg, #a855f7, #9333ea, #7c3aed);
+  color: #fff;
+}
+
+/* Disabled Continue — 50% opacity · text only · no prohibition cursor glyph */
+.promo-pay__primary:disabled,
+.promo-pay__primary[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+  filter: none;
+  box-shadow: none;
+}
+
+.promo-pay__primary:disabled::before,
+.promo-pay__primary:disabled::after,
+.promo-pay__primary[aria-disabled="true"]::before,
+.promo-pay__primary[aria-disabled="true"]::after {
+  content: none !important;
+  display: none !important;
+}
+
+.promo-pay__secondary {
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  color: #0f172a;
+}
+
+.promo-pay__secondary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Store Showcase checkout Continue — same premium disabled treatment */
+.store-showcase-v1__checkout .store-showcase-v1__cta:disabled,
+.store-showcase-v1__checkout .store-showcase-v1__cta[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+  filter: none;
+  box-shadow: none;
+}
+
+.store-showcase-v1__checkout .store-showcase-v1__cta:disabled::before,
+.store-showcase-v1__checkout .store-showcase-v1__cta:disabled::after,
+.store-showcase-v1__checkout .store-showcase-v1__cta[aria-disabled="true"]::before,
+.store-showcase-v1__checkout .store-showcase-v1__cta[aria-disabled="true"]::after {
+  content: none !important;
+  display: none !important;
+}
+
+.store-showcase-v1__checkout .store-showcase-v1__secondary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.store-showcase-v1__checkout .store-showcase-v1__hint {
+  color: #64748b;
+}
+
+.promo-v1-success__body,
+.promo-v1-success__meta {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #334155;
+}
+
+.promo-v1-success__meta {
+  font-weight: 650;
+  color: #5b21b6;
+}
+
+.promo-v1-success__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.store-showcase-v1__actions--stack {
+  flex-direction: column;
+}
+
+.store-showcase-v1__actions--stack .store-showcase-v1__cta,
+.store-showcase-v1__actions--stack .store-showcase-v1__secondary {
+  width: 100%;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}

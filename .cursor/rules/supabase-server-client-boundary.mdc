@@ -1,0 +1,32 @@
+---
+description: Absolute law — never import lib/supabase/server in client/browser code.
+globs: lib/supabase/server.ts,lib/inbox/**/*.ts,features/**/*.{ts,tsx},components/**/*.{ts,tsx},hooks/**/*.{ts,tsx}
+alwaysApply: true
+---
+
+# ABSOLUTE — `lib/supabase/server.ts` BOUNDARY
+
+**NEVER IMPORT** `@/lib/supabase/server` inside:
+
+- Client Components (`"use client"`)
+- Hooks
+- Browser utilities
+- Shared client libraries / barrels consumed by client UI
+
+**ONLY ALLOWED:**
+
+- API Routes (`app/api/**`)
+- Route Handlers
+- Server Components
+- Server Actions
+
+## Enforcement
+
+- `lib/supabase/server.ts` must start with `import "server-only"`
+- Server engines (e.g. `lib/inbox/inbox-event-engine-v1.ts`) must use `server-only` and must **not** be re-exported from client barrels such as `lib/inbox/index.ts`
+- Vitest: `tests/supabase-server-client-boundary.test.ts`
+
+## Cursor must never
+
+- Re-export server Supabase modules through `@/lib/inbox` or other client entry points
+- Import `@/lib/supabase/server` from ConversationHub / InboxPage / hooks

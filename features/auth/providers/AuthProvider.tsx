@@ -84,7 +84,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(() => cachedProfile !== undefined);
 
   const syncFromCache = useCallback(async (force = false) => {
-    setLoading(true);
+    if (force) {
+      setLoading(true);
+    }
     const next = await loadProfileOnce(force);
     setProfile(next);
     setError(cachedError);
@@ -94,8 +96,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void HEADER_MASTER_FREEZE_V1.oneProfileFetchOnAppLoad;
-    void syncFromCache(false);
-  }, [syncFromCache]);
+    let cancelled = false;
+    // All setState runs after await — never synchronously inside the effect body.
+    void (async () => {
+      const next = await loadProfileOnce(false);
+      if (cancelled) return;
+      setProfile(next);
+      setError(cachedError);
+      setLoading(false);
+      setReady(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const refresh = useCallback(async () => {
     cachedProfile = undefined;

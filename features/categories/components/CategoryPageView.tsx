@@ -2,6 +2,7 @@ import Link from "next/link";
 import { HubPageMain } from "@/components/layout/HubPageMain";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ListingCard } from "@/components/ui/ListingCard";
+import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { getCategoryIcon } from "@/lib/categories/visuals";
 import type { CategoryPageData } from "@/lib/categories/server";
@@ -74,7 +75,7 @@ export function CategoryPageView({ category, products, total }: CategoryPageView
         {products.length > 0 ? (
           <div className="rx-listing-grid">
             {products.map((product) => (
-              <ListingCard key={product.id} product={product} variant="grid" surface="category" />
+              <ListingCard key={product.id} product={product} variant="grid" {...HP_CANONICAL_LISTING_PROPS} />
             ))}
           </div>
         ) : (

@@ -32,7 +32,7 @@ export function ProductRecentlyViewed({ currentSlug }: ProductRecentlyViewedProp
         <h2 id="pd-recent-title" className="pd-v1__section-title">
           Recently viewed
         </h2>
-        <Link href="/saved?sort=recently-viewed" className="pd-v1__section-link">
+        <Link href="/account/recently-viewed" className="pd-v1__section-link">
           See all
         </Link>
       </div>
@@ -43,8 +43,6 @@ export function ProductRecentlyViewed({ currentSlug }: ProductRecentlyViewedProp
               product={item}
               variant="grid"
               {...HP_CANONICAL_LISTING_PROPS}
-              surface="recently-viewed"
-              showSeller={false}
             />
           </div>
         ))}

@@ -84,7 +84,7 @@ export function buildSoldSummary(orders: Order[]): OrdersHubSummaryCard[] {
       value: formatCurrency(pendingTotal),
       subtitle: pendingTotal === 0 ? "Nothing to withdraw" : `${pending.length} orders`,
       tone: "pending",
-      href: "/wallet",
+      href: "/balance",
       filter: "processing",
     },
     {

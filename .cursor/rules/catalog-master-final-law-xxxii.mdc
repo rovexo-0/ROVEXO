@@ -1,0 +1,51 @@
+---
+description: Absolute Law XXXII — Catalog Master Final Law. LOCKED. PRODUCTION READY. Sell frozen.
+globs: lib/catalog/**/*.ts,lib/categories/**/*.ts,app/api/categories/**/*.ts,instrumentation.ts,features/sell/**/*.{ts,tsx}
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE LAW XXXII — CATALOG MASTER FINAL LAW
+
+**STATUS: LOCKED | PRODUCTION READY | FINAL PRODUCTION LOCK**
+
+SSOT: `lib/catalog/catalog-master-final-law-xxxii-v1.ts`  
+Catalog: `lib/catalog/` · Resolution: `getCategoryTree()`  
+Child laws: XXX (architecture) · XXXI (protection)
+
+## Equation
+
+```
+ONE PLATFORM = ONE CATALOG = ONE TAXONOMY = ONE TREE = ONE SSOT
+Zero Legacy · Zero Duplicates · Zero Silent Fallback · Zero Parallel Systems
+```
+
+## Sell Page
+
+**PERMANENTLY FROZEN.** Do not modify Sell UI / UX / Flow / layout / routing / publish workflow.  
+Only Catalog Master Database may evolve.
+
+## Resolution (mandatory)
+
+```
+Catalog Master → getCategoryTree() → SSOT
+```
+
+## Production roots (exactly 10)
+
+Women's Fashion · Men's Fashion · Designer · Kids & Baby · Home & Garden ·  
+Electronics · Books & Media · Hobbies & Collectables · Sports & Outdoors ·  
+Vehicle Parts & Accessories
+
+Vehicle Parts = own root. Never under Electronics. Whole vehicles forbidden.
+
+## Fail closed
+
+Startup + every release: `certifyCatalogMasterProductionRelease()`.  
+Fail → **BLOCK**. Never fall back to legacy.
+
+## Cursor must never
+
+- Touch frozen Sell UI/flow for catalog work  
+- Add a second taxonomy / legacy API / parallel tree  
+- Soft-fail validation  
+- Add production roots without Catalog Master revision  

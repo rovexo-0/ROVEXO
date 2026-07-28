@@ -6,7 +6,7 @@ import { getDefaultPaymentMethod } from "@/lib/checkout/payment";
 import { fetchProductBySlug } from "@/lib/products/queries";
 import { getProfileDetails } from "@/lib/profile/service";
 import { isSendcloudConfigured } from "@/lib/shipping/env";
-import { resolveProfileCompletionRedirect } from "@/lib/account/profile-completion";
+import { resolveProfileCompletionRedirect } from "@/lib/account/profile-completion.server";
 import { getProfile } from "@/lib/profile/data";
 import { validateProductPurchasable } from "@/lib/transaction-hub/checkout-validation";
 

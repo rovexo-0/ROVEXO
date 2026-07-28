@@ -1,12 +1,19 @@
 "use client";
 
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea, cdsButtonClass } from "@/src/components/canonical";
+import {
+  CanonicalSection,
+  CanonicalMenuRow,
+  CanonicalButton,
+  CanonicalInfoBlock,
+  CanonicalInput,
+  CanonicalTextarea,
+  cdsButtonClass,
+} from "@/src/components/canonical";
 import { useId, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import { AccountCanonicalShell } from "@/features/account-canonical";
-
+import { MyAccountTemplate, AccountPageStack } from "@/features/account-canonical";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
-
+import { ROVEXO_IDEAS_DOM, ROVEXO_IDEAS_MENU_TITLE } from "@/lib/rovexo-ideas/rovexo-ideas-v1-lock";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 
@@ -24,6 +31,10 @@ function isIdeasTab(value: string | null): value is IdeasTabId {
   return IDEA_TABS.some((tab) => tab.id === value);
 }
 
+/**
+ * Rovexo Ideas v1.0 — Profile design inheritance via MyAccountTemplate.
+ * Menu entry: Profile → Settings → Rovexo Ideas → Help → Legal.
+ */
 export function RovexoIdeasPage() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
@@ -72,92 +83,104 @@ export function RovexoIdeasPage() {
   };
 
   return (
-    <AccountCanonicalShell title="Ideas" backHref="/account">
-      <div data-rovexo-ideas-version="v2.0-lock" className="flex flex-col gap-[var(--cds-space-section-gap)]">
-      <CanonicalSection title="Views">
-        <CanonicalCard variant="list">
-          {IDEA_TABS.map((tab) => (
-            <CanonicalMenuRow
-              key={tab.id}
-              title={tab.label}
-              href={tab.id === "ideas" ? "/account/ideas" : `/account/ideas?tab=${tab.id}`}
-              value={activeTab === tab.id ? "Selected" : undefined}
-              destructive={"action" in tab && tab.action}
-            />
-          ))}
-        </CanonicalCard>
-      </CanonicalSection>
-
-      <CanonicalSection title="Search">
-        <CanonicalInput
-          id="ideas-search"
-          inputType="search"
-          label="Search ideas"
-          value={searchQuery}
-          onChange={(event) => setSearchQuery(event.target.value)}
-          placeholder="Search"
-        />
-      </CanonicalSection>
-
-      {activeTab === "new" ? (
-        <CanonicalSection title="Submit idea">
-          <form className="flex flex-col gap-ds-4" onSubmit={handleSubmit}>
-            <CanonicalInput
-              id="idea-subject"
-              label="Subject"
-              name="subject"
-              value={subject}
-              onChange={(event) => setSubject(event.target.value)}
-              required
-              maxLength={200}
-              disabled={isPending}
-            />
-            <CanonicalTextarea
-              id="idea-body"
-              label="Your Idea"
-              name="body"
-              rows={6}
-              value={body}
-              onChange={(event) => setBody(event.target.value)}
-              required
-              maxLength={5000}
-              disabled={isPending}
-            />
-            <div className="cds-field">
-              <span className="cds-field__label">Screenshot (optional)</span>
-              <NativeImageFileInput
-                id={screenshotInputId}
-                disabled={isPending}
-                onFilesSelected={(files) => {
-                  const file = files[0] ?? null;
-                  setScreenshotFile(file);
-                  setScreenshotName(file?.name ?? null);
-                }}
-              />
-              <label
-                htmlFor={screenshotInputId}
-                className={cn(cdsButtonClass("outline"), focusRing, "mt-ds-2 inline-flex", isPending && "pointer-events-none opacity-50")}
-              >
-                {screenshotName ?? "Choose image"}
-              </label>
+    <MyAccountTemplate
+      surface="ideas"
+      title={ROVEXO_IDEAS_MENU_TITLE}
+      backHref="/account"
+      showHeaderTitle
+    >
+      <div data-rovexo-ideas-version={ROVEXO_IDEAS_DOM} data-full-width-surface="ideas">
+        <AccountPageStack className="fw-engine__stack" aria-label={ROVEXO_IDEAS_MENU_TITLE}>
+          <CanonicalSection title="Views">
+            <div className="fw-engine__group flex flex-col">
+              {IDEA_TABS.map((tab) => (
+                <CanonicalMenuRow
+                  key={tab.id}
+                  title={tab.label}
+                  href={tab.id === "ideas" ? "/account/ideas" : `/account/ideas?tab=${tab.id}`}
+                  value={activeTab === tab.id ? "Selected" : undefined}
+                  destructive={"action" in tab && tab.action}
+                />
+              ))}
             </div>
+          </CanonicalSection>
 
-            {error ? <CanonicalInfoBlock variant="error">{error}</CanonicalInfoBlock> : null}
-            {message ? <CanonicalInfoBlock variant="success">{message}</CanonicalInfoBlock> : null}
+          <CanonicalSection title="Search">
+            <CanonicalInput
+              id="ideas-search"
+              inputType="search"
+              label="Search ideas"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search"
+            />
+          </CanonicalSection>
 
-            <CanonicalButton type="submit" fullWidth loading={isPending}>
-              {isPending ? "Submitting…" : "Submit Idea"}
-            </CanonicalButton>
-          </form>
-        </CanonicalSection>
-      ) : (
-        <CanonicalInfoBlock variant="description">
-          {searchQuery.trim()
-            ? `No ideas match “${searchQuery.trim()}”.`
-            : "Propose improvements for ROVEXO. Like, comment, and follow ideas from the community."}
-        </CanonicalInfoBlock>
-      )}
+          {activeTab === "new" ? (
+            <CanonicalSection title="Submit idea">
+              <form className="flex flex-col gap-ds-4" onSubmit={handleSubmit}>
+                <CanonicalInput
+                  id="idea-subject"
+                  label="Subject"
+                  name="subject"
+                  value={subject}
+                  onChange={(event) => setSubject(event.target.value)}
+                  required
+                  maxLength={200}
+                  disabled={isPending}
+                />
+                <CanonicalTextarea
+                  id="idea-body"
+                  label="Your Idea"
+                  name="body"
+                  rows={6}
+                  value={body}
+                  onChange={(event) => setBody(event.target.value)}
+                  required
+                  maxLength={5000}
+                  disabled={isPending}
+                />
+                <div className="cds-field">
+                  <span className="cds-field__label">Screenshot (optional)</span>
+                  <NativeImageFileInput
+                    id={screenshotInputId}
+                    disabled={isPending}
+                    onFilesSelected={(files) => {
+                      const file = files[0] ?? null;
+                      setScreenshotFile(file);
+                      setScreenshotName(file?.name ?? null);
+                    }}
+                  />
+                  <label
+                    htmlFor={screenshotInputId}
+                    className={cn(
+                      cdsButtonClass("outline"),
+                      focusRing,
+                      "mt-ds-2 inline-flex",
+                      isPending && "pointer-events-none opacity-50",
+                    )}
+                  >
+                    {screenshotName ?? "Choose image"}
+                  </label>
+                </div>
+
+                {error ? <CanonicalInfoBlock variant="error">{error}</CanonicalInfoBlock> : null}
+                {message ? <CanonicalInfoBlock variant="success">{message}</CanonicalInfoBlock> : null}
+
+                <CanonicalButton type="submit" fullWidth loading={isPending}>
+                  {isPending ? "Submitting…" : "Submit Idea"}
+                </CanonicalButton>
+              </form>
+            </CanonicalSection>
+          ) : (
+            <CanonicalInfoBlock variant="description">
+              {searchQuery.trim()
+                ? `No ideas match “${searchQuery.trim()}”.`
+                : "Share ideas with the Rovexo Ideas community. You can submit, search, follow, discuss, and share. ROVEXO decides prioritisation and releases."}
+            </CanonicalInfoBlock>
+          )}
+        </AccountPageStack>
       </div>
-    </AccountCanonicalShell>
+    </MyAccountTemplate>
   );
 }

@@ -1,279 +1,603 @@
-/* ROVEXO v1.0 — Sell flow premium presentation */
-
-.sell-page-v1 {
-  background: #ffffff;
+/* Master Icon System — Profile density on Sell rows */
+[data-sell-shell] .cds-menu-row__icon,
+[data-sell-shell] .master-menu-icon {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-/* Document-scroll sell shell — never trap overflow in a flex child */
-.sell-page-v1-shell {
-  --sell-publish-bar-measured: 140px;
-  --sell-keyboard-offset: 0px;
-  --sell-scroll-keyboard-extra: 0px;
-  --sell-content-bottom-padding: max(
-    calc(var(--sell-publish-bar-measured) + 32px + var(--sell-scroll-keyboard-extra)),
-    calc(128px + env(safe-area-inset-bottom, 0px)),
-    calc(120px + env(safe-area-inset-bottom, 0px))
-  );
-
-  min-height: 100dvh;
-  overflow: visible;
+[data-sell-shell] .master-menu-icon__glyph,
+[data-sell-shell] .master-menu-icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
-/* Scrollable sell content clears the fixed publish bar + safe area */
-.sell-page-v1-shell .sell-page-v1-content {
-  padding-bottom: var(--sell-content-bottom-padding);
-  scroll-padding-bottom: var(--sell-content-bottom-padding);
+/* Profile chevron — black, 16px */
+[data-sell-shell] .cds-menu-row__chevron {
+  color: #1a1a1a;
 }
 
-/* Fixed publish bar — lifts above keyboard via visualViewport */
-.sell-publish-bar {
-  bottom: var(--sell-keyboard-offset, 0px);
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
+[data-sell-shell] .cds-menu-row__chevron svg {
+  width: 16px;
+  height: 16px;
 }
 
-.sell-page-v1-shell .sell-page-v1-content input,
-.sell-page-v1-shell .sell-page-v1-content textarea,
-.sell-page-v1-shell .sell-page-v1-content select,
-.sell-page-v1-shell .sell-page-v1-content [role="button"] {
-  scroll-margin-bottom: var(--sell-content-bottom-padding);
+/* Sell Compact Premium — after global density tokens so Sell-scoped heights win */
+/* (existing rules continue below) */
+
+[data-sell-shell] {
+  /* Compact Premium inputs — 48px controls · description 110px · Publish stays 56px */
+  --cds-space-section-gap: 12px;
+  --sell-control-height: 48px;
+  --sell-description-min-height: 110px;
+  --sell-publish-height: 56px;
+  --sell-sticky-clearance: 96px;
+  --sell-photo-w: 76px;
+  --sell-photo-h: 114px;
+  --sell-photo-radius: 16px;
+  --sell-photo-gap: 8px;
+  --cds-row-min-height: var(--sell-control-height);
+  --cds-input-height: var(--sell-control-height);
+  --fw-input-height: var(--sell-control-height);
+  --cp-input-height: var(--sell-control-height);
+  --uv1-input-height: var(--sell-control-height);
+  width: 100%;
+  max-width: none;
 }
 
-.sell-flow-shell.sell-page-v1 {
-  overflow: visible;
+[data-sell-shell] [aria-label="Sell an item"] {
+  gap: var(--cds-space-section-gap);
 }
 
-.sell-page-v1 .rx-form-section {
-  padding: var(--ds-space-4);
-  border-radius: var(--cds-radius-lg);
-  border: 1px solid var(--cds-color-border, rgb(15 23 42 / 0.08));
-  background: #ffffff;
-  box-shadow: none;
+[data-sell-shell] input,
+[data-sell-shell] textarea,
+[data-sell-shell] [role="button"] {
+  scroll-margin-bottom: var(--sell-sticky-clearance);
 }
 
-.sell-page-v1 .rx-input {
-  min-height: var(--cp-input-height, 44px);
-  border-radius: var(--ds-radius-md);
-  font-size: var(--ds-font-body-size);
-  background: var(--ds-color-surface-muted);
-  border: 1px solid var(--ds-color-border);
-  color: var(--ds-color-text-primary);
+/* Field rhythm — tighter label → control */
+[data-sell-shell] .cds-field {
+  gap: 4px;
 }
 
-.sell-page-v1 .rx-input:focus {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-color-primary) 18%, transparent);
+[data-sell-shell] .cds-field__label {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.2;
 }
 
-.sell-page-v1 .rx-upload {
-  min-height: 120px;
-  border-radius: var(--cds-radius-md);
-  border: 1px dashed var(--cds-color-border, rgb(15 23 42 / 0.12));
-  background: #ffffff;
-  color: var(--cds-color-text-primary);
+[data-sell-shell] .cds-field__hint,
+[data-sell-shell] .cds-field__error,
+[data-sell-shell] .text-xs.text-muted-foreground {
+  margin-top: 2px;
 }
 
-.sell-photo-upload {
-  border: 1px dashed var(--cds-color-border, rgb(15 23 42 / 0.12));
-  border-radius: var(--cds-radius-md);
-  background: #ffffff;
-  cursor: pointer;
+/* Title / Price / text inputs → 48px */
+[data-full-width-engine="v1.0"] [data-sell-shell] .cds-input,
+[data-full-width-engine="v1.0"] [data-sell-shell] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+[data-sell-shell] .cds-input,
+[data-sell-shell] input.cds-input,
+[data-sell-shell] input[type="text"],
+[data-sell-shell] input[type="number"],
+[data-sell-shell] input[type="search"],
+[data-sell-shell] [role="spinbutton"] {
+  height: var(--sell-control-height) !important;
+  min-height: var(--sell-control-height) !important;
+  max-height: var(--sell-control-height) !important;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-radius: 16px;
 }
 
-.sell-publish-bar[hidden] {
-  display: none;
-}
-
-.sell-page-field {
-  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + var(--cds-header-height, 56px) + 8px);
-}
-
-.sell-page-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + var(--cds-header-height, 56px) + 8px);
-}
-
-.sell-pricing-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* Description → 110px min · tighter vertical padding · still resizable / auto-grow */
+[data-full-width-engine="v1.0"] [data-sell-shell] .cds-textarea,
+[data-full-width-engine="v1.0"] [data-sell-shell] textarea,
+[data-sell-shell] .cds-textarea,
+[data-sell-shell] textarea.cds-textarea {
+  min-height: var(--sell-description-min-height) !important;
+  height: var(--sell-description-min-height);
+  max-height: 40vh;
   padding-top: 4px;
+  padding-bottom: 4px;
+  resize: vertical;
+  border-radius: 16px;
 }
 
-.sell-pricing-summary__row {
+/* Category / Condition / Parcel / Brand / Colour rows → 48px */
+[data-full-width-engine="v1.0"] [data-sell-shell] .cds-menu-row,
+[data-sell-shell] .cds-menu-row {
+  min-height: var(--sell-control-height) !important;
+  gap: 8px;
+}
+
+[data-sell-shell] .cds-menu-row__title,
+[data-sell-shell] .cds-menu-row__value,
+[data-sell-shell] .cds-menu-row__trailing {
+  font-size: 0.9375rem;
+  line-height: 1.25;
+}
+
+[data-sell-shell] .cds-menu-row__subtitle,
+[data-sell-shell] .cds-menu-row__description {
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+/* Photos — identical tiles · cover crop · gap 8 · header aligned with counter */
+[data-sell-shell] [aria-label="Photos"] {
+  gap: 8px;
+  width: 100%;
+}
+
+[data-sell-shell] .sell-photo-section__header,
+[data-sell-shell] [aria-label="Photos"] > .flex.items-center {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  font-size: 0.875rem;
-  color: var(--cds-color-text-secondary);
-}
-
-.sell-pricing-summary__row--emphasis {
-  font-weight: 600;
-  color: var(--cds-color-text-primary);
-}
-
-.sell-review-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 0 !important;
-  overflow: hidden;
-}
-
-.sell-review-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  border-top: 1px solid var(--cds-color-border, rgb(15 23 42 / 0.08));
-}
-
-.sell-review-card > .sell-review-row:first-child {
-  border-top: none;
-}
-
-.sell-review-row__label {
+  width: 100%;
+  min-height: 20px;
   margin: 0;
-  font-size: 0.75rem;
-  color: var(--cds-color-text-muted);
+  padding: 0;
 }
 
-.sell-review-row__value {
-  margin: 4px 0 0;
-  font-size: 0.875rem;
-  color: var(--cds-color-text-primary);
+[data-sell-shell] .sell-photo-rail,
+[data-sell-shell] [aria-label="Photo gallery"] {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0;
+  margin: 0;
 }
 
-.sell-page-v1 .rx-footer-bar {
-  border-radius: var(--ds-radius-xl) var(--ds-radius-xl) 0 0;
-  border: 1px solid var(--ds-color-border);
-  border-bottom: none;
-  background: var(--ds-color-surface);
-  box-shadow: var(--ds-shadow-medium);
+[data-sell-shell] .sell-photo-tile {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--sell-photo-w) !important;
+  height: var(--sell-photo-h) !important;
+  min-width: var(--sell-photo-w) !important;
+  min-height: var(--sell-photo-h) !important;
+  max-width: var(--sell-photo-w) !important;
+  max-height: var(--sell-photo-h) !important;
+  border-radius: var(--sell-photo-radius) !important;
+  overflow: hidden;
+  flex: 0 0 var(--sell-photo-w);
+  border: 1px solid #ececec;
+  background: #f5f5f5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transform-origin: center center;
+  will-change: transform;
+  padding: 0;
+  margin: 0;
 }
 
-.sell-page-v1 .rx-footer-bar--sticky {
-  margin-inline: calc(-1 * var(--ds-space-4));
-  padding-inline: var(--ds-space-4);
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), var(--ds-space-3));
-  transform: none;
-  will-change: auto;
+[data-sell-shell] .sell-photo-tile:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(0, 0, 0, 0.06);
+  z-index: 1;
 }
 
-.sell-page-v1 main {
-  overflow-x: clip;
-  overflow-y: visible;
-  -webkit-overflow-scrolling: touch;
+/* Uploaded — same box as Add Photos · identical cover crop */
+[data-sell-shell] .sell-photo-tile--uploaded {
+  animation: sell-photo-tile-in 0.22s ease-out both;
 }
 
-.sell-page-v1 .sell-condition-chip {
-  min-height: 44px;
-  border-radius: var(--ds-radius-full);
-  border: 1px solid var(--ds-color-border);
-  background: var(--ds-color-surface);
-  padding: 0 var(--ds-space-4);
-  font-size: var(--ds-font-caption-size);
-  font-weight: 650;
-  color: var(--ds-color-text-secondary);
-  box-shadow: var(--ds-shadow-soft);
-  transition:
-    border-color var(--ds-duration-fast) var(--ds-ease),
-    color var(--ds-duration-fast) var(--ds-ease),
-    box-shadow var(--ds-duration-fast) var(--ds-ease),
-    transform var(--ds-duration-fast) var(--ds-ease);
-}
-
-.sell-page-v1 .sell-condition-chip[data-selected="true"] {
-  border-color: color-mix(in srgb, var(--ds-color-primary) 40%, transparent);
-  color: var(--ds-color-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-color-primary) 12%, transparent);
-}
-
-.sell-page-v1 .sell-condition-chip:hover {
-  transform: translateY(-1px);
+@keyframes sell-photo-tile-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sell-page-v1 .rx-upload:hover,
-  .sell-page-v1 .sell-condition-chip:hover {
+  [data-sell-shell] .sell-photo-tile--uploaded {
+    animation: none;
+  }
+
+  [data-sell-shell] .sell-photo-tile,
+  [data-sell-shell] .sell-photo-tile:hover {
+    transition: none;
     transform: none;
   }
-}
 
-/* Sell flow — suppress marketplace chrome if any leaks into the shell */
-.sell-flow-shell .home-v1-bottom-nav {
-  display: none !important;
-}
-
-.sell-flow-shell {
-  min-height: 100%;
-}
-
-.sell-page-v1 .rx-form-section {
-  overflow: visible;
-}
-
-.sell-page-v1 .rx-input,
-.sell-page-v1 textarea.rx-input {
-  font-size: 16px;
-}
-
-.sell-page-v1 textarea.rx-input {
-  -webkit-user-select: text;
-  user-select: text;
-}
-
-@supports (height: 100dvh) {
-  .sell-flow-shell {
-    min-height: 100%;
+  [data-sell-shell] .sell-photo-tile__delete {
+    transition: none;
   }
 }
 
-.sell-page-v1 .rx-upload:hover {
+[data-sell-shell] .sell-photo-tile__preview {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+[data-sell-shell] .sell-photo-tile__image,
+[data-sell-shell] .sell-photo-tile--uploaded img,
+[data-sell-shell] .sell-photo-tile img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  object-fit: cover;
+  object-position: center center;
   transform: none;
 }
 
-/* ── Success screen (Your item is live!) ───────────────────────────── */
-.sell-page-v1 .sell-success {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--ds-space-6) var(--ds-space-5)
-    max(env(safe-area-inset-bottom), var(--ds-space-6));
-  padding-top: max(env(safe-area-inset-top), var(--ds-space-6));
-  overflow: hidden;
-  text-align: center;
-  background:
-    radial-gradient(
-      120% 90% at 50% 0%,
-      color-mix(in srgb, var(--ds-color-primary) 82%, #ffffff) 0%,
-      var(--ds-color-primary) 45%,
-      color-mix(in srgb, var(--ds-color-primary) 78%, #1a052e) 100%
-    );
-}
-
-.sell-page-v1 .sell-success__inner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: center;
-}
-
-.sell-page-v1 .sell-success__check {
+/* Delete — 18×18 · top/right 5px · hover opacity only */
+[data-sell-shell] .sell-photo-tile__delete {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  max-width: 18px;
+  max-height: 18px;
+  margin: 0;
+  padding: 0;
   display: grid;
   place-items: center;
-  width: 96px;
-  height: 96px;
-  border-radius: var(--ds-radius-full);
-  border: 3px solid rgba(255, 255, 255, 0.9);
-  color: #ffffff;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.38);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  cursor: pointer;
+  opacity: 0.92;
+  transition: opacity 0.2s ease;
+}
+
+[data-sell-shell] .sell-photo-tile__delete:hover,
+[data-sell-shell] .sell-photo-tile__delete:focus-visible {
+  opacity: 1;
+  outline: none;
+  background: rgba(0, 0, 0, 0.38);
+}
+
+/* Add Photos — identical dimensions / radius / border · centered icon + text */
+[data-sell-shell] .sell-photo-tile--add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
+  margin: 0;
+  background: var(--cds-color-surface-muted, #f5f5f7);
+  border: 1px solid #ececec;
+  cursor: pointer;
+}
+
+[data-sell-shell] .sell-photo-tile--add > svg,
+[data-sell-shell] .sell-photo-tile--add .sell-photo-tile__add-label {
+  flex-shrink: 0;
+}
+
+[data-sell-shell] .sell-photo-tile__add-label {
+  max-width: 100%;
+  padding: 0 2px;
+  margin: 0;
+  font-size: 0.5625rem;
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--cds-color-text-primary, #111);
+  text-align: center;
+}
+
+/* Stock Quantity — full-width stepper · same width as Price · 48px · radius 16 */
+[data-sell-shell] .sell-stock-quantity {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+[data-sell-shell] .sell-stock-quantity .cds-field__label {
+  margin: 0;
+}
+
+[data-sell-shell] .sell-stock-stepper {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
+  padding: 0 6px;
+  margin: 0;
+  border: 1px solid #ececec;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+[data-sell-shell] .sell-stock-stepper__btn {
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: #f7f7f7;
+  color: #111;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+[data-sell-shell] .sell-stock-stepper__btn:hover:not(:disabled),
+[data-sell-shell] .sell-stock-stepper__btn:focus-visible:not(:disabled) {
+  background: #efefef;
+  outline: none;
+}
+
+[data-sell-shell] .sell-stock-stepper__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+[data-sell-shell] .sell-stock-stepper__value,
+[data-sell-shell] .sell-stock-stepper__value-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  background: transparent;
+  color: #111;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  appearance: textfield;
+}
+
+[data-sell-shell] .sell-stock-stepper__value {
+  cursor: text;
+}
+
+[data-sell-shell] .sell-stock-stepper__value-input:focus {
+  outline: none;
+}
+
+[data-sell-shell] .sell-stock-stepper__value-input::-webkit-outer-spin-button,
+[data-sell-shell] .sell-stock-stepper__value-input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+/* Sticky publish — CTA stays 56px (inputs only were compacted) */
+[data-sell-shell] .account-settings-sticky-action,
+[data-sell-shell] [data-sell-publish-bar] {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  margin-top: 8px;
+  padding: 12px 0 max(env(safe-area-inset-bottom, 0px), 4px);
+  background: linear-gradient(180deg, rgb(255 255 255 / 0) 0%, #ffffff 24%);
+}
+
+[data-full-width-engine="v1.0"] [data-sell-shell] [data-sell-publish-bar] .cds-btn,
+[data-sell-shell] [data-sell-publish-bar] .cds-btn,
+[data-sell-shell] [data-sell-publish-bar] button {
+  min-height: var(--sell-publish-height) !important;
+  height: var(--sell-publish-height);
+  --fw-button-height: var(--sell-publish-height);
+}
+
+.cds-menu-row--error {
+  outline: 2px solid color-mix(in srgb, var(--cds-color-danger, #dc2626) 45%, transparent);
+  outline-offset: 0;
+}
+
+/* Fullscreen pickers opened from Sell — match Sell input height */
+.sell-compact-picker .cds-menu-row {
+  min-height: var(--sell-control-height, 48px);
+}
+
+@media (min-width: 768px) {
+  [data-sell-shell] {
+    /* Desktop: same Absolute Authority tokens — only layout width changes */
+    --cds-space-section-gap: 12px;
+  }
+}
+
+/* Price — Master Icon + CanonicalInput (Profile density) */
+[data-sell-shell] .sell-price-with-icon__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+[data-sell-shell] .sell-price-with-icon__row > .master-menu-icon {
+  /* Align 24px icon with 48px input under Account label */
+  margin-top: calc(0.8125rem * 1.2 + 4px + (var(--sell-control-height) - 24px) / 2);
+}
+
+[data-sell-shell] .sell-price-with-icon__field {
+  min-width: 0;
+  flex: 1;
+}
+
+/*
+ * Parcel Size Premium Freeze v2 — Compact Premium.
+ * 48px rows · 24px radios · 15/600 titles · inline Recommended pill.
+ * One badge · one tap · 0.2s radio pop · auto-return.
+ */
+.sell-parcel-picker {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: 16px;
+  overflow: hidden;
+  gap: 0;
+}
+
+.sell-parcel-option {
+  box-sizing: border-box;
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  margin: 0;
+  padding: 2px;
+  gap: 16px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, #111 8%, transparent);
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  align-items: center;
+}
+
+.sell-parcel-option:last-child {
+  border-bottom: 0;
+}
+
+.sell-parcel-option__radio {
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 999px;
+  border: 2px solid #1a1a1a;
+  background: #fff;
+  position: relative;
+  flex-shrink: 0;
+  transform: scale(1);
+}
+
+.sell-parcel-option__radio--checked {
+  border-color: #9333ea;
+}
+
+.sell-parcel-option__radio--checked::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border-radius: 999px;
+  background: #9333ea;
+}
+
+.sell-parcel-option--pending .sell-parcel-option__radio {
+  animation: sell-parcel-radio-pop 0.2s ease;
+}
+
+@keyframes sell-parcel-radio-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.sell-parcel-option__copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-height: 0;
+  min-width: 0;
+}
+
+.sell-parcel-option__title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.sell-parcel-option__label {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: #111;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.sell-parcel-option__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  color: #9333ea;
+  background: color-mix(in srgb, #9333ea 12%, #fff);
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.sell-parcel-option__desc {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: #6b7280;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.sell-parcel-option--active .sell-parcel-option__label {
+  color: #9333ea;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sell-parcel-option--pending .sell-parcel-option__radio {
+    animation: none;
+  }
 }

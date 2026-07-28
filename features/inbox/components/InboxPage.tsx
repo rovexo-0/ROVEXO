@@ -3,14 +3,20 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  memo,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type ReactNode,
   type SVGProps,
 } from "react";
+import { SafeImage } from "@/components/ui/SafeImage";
+import { Avatar } from "@/components/ui/Avatar";
+import { RovexoAppIconMark } from "@/components/brand/RovexoLogo";
+import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { AccountIcon } from "@/components/account/AccountIcons";
 import { CanonicalMenuRow } from "@/src/components/canonical";
@@ -18,11 +24,12 @@ import { useRealtimeNotifications } from "@/features/notifications/components/Re
 import { enqueueOfflineNotificationAction } from "@/lib/notifications/offline-sync";
 import { formatNotificationTime } from "@/lib/notifications/utils";
 import type { Notification } from "@/lib/notifications/types";
-import { formatMessageTime } from "@/lib/messages/utils";
+import { formatInboxRelativeTime } from "@/lib/messages/utils";
 import type { Conversation } from "@/lib/messages/types";
 import { cn } from "@/lib/cn";
 import {
   INBOX_CANONICAL_VERSION,
+  INBOX_HUB_MASTER_DOM,
   INBOX_ROUTES,
   buildUnreadCounter,
   filterInboxConversations,
@@ -31,6 +38,33 @@ import {
   subscribeInboxRealtime,
   type InboxTab,
 } from "@/lib/inbox";
+import {
+  getInboxConversationsCache,
+  getInboxNotificationsCache,
+  hasInboxConversationsCache,
+  hasInboxNotificationsCache,
+  peekInboxConversationsCache,
+  peekInboxNotificationsCache,
+  seedInboxNotificationsCache,
+  setInboxConversationsCache,
+  setInboxNotificationsCache,
+} from "@/lib/inbox/inbox-list-cache";
+import { resolveInboxNotificationRowIcon } from "@/lib/inbox/notification-row-icon";
+import {
+  buildInboxListingImageIndex,
+  resolveNotificationListingImageSrc,
+} from "@/lib/inbox/notification-listing-thumb";
+import {
+  resolveInboxMessageAvatar,
+  resolveInboxNotificationAvatar,
+} from "@/lib/inbox/official-rovexo-avatar";
+import { isWalletHubNotificationHref } from "@/lib/notifications/routing";
+import { resolveNotificationOpenHref } from "@/lib/notifications/resolve-notification-open-href";
+import type { Order } from "@/lib/orders/types";
+import {
+  isMessagesLifecycleDemoEnabled,
+  listMessagesLifecycleDemoInboxRows,
+} from "@/lib/inbox/demo/messages-lifecycle-demo-fixtures-v1";
 import "@/styles/rovexo/inbox-hub-v1.css";
 
 const PAGE_SIZE = 20;
@@ -88,19 +122,98 @@ function matchesNotificationSearch(notification: Notification, query: string): b
 
 function InboxListSkeleton({ variant }: { variant: "messages" | "notifications" }) {
   return (
-    <ul className="inbox-hub__list" aria-hidden>
-      {Array.from({ length: 6 }).map((_, index) => (
+    <ul className="inbox-hub__list inbox-hub__list--skeleton" aria-busy aria-hidden>
+      {Array.from({ length: 8 }).map((_, index) => (
         <li
           key={index}
           className={cn(
             "inbox-hub__skel",
             variant === "messages" ? "inbox-hub__skel--card" : "inbox-hub__skel--notif",
           )}
-        />
+        >
+          {variant === "messages" ? (
+            <span className="inbox-hub__skel-row">
+              <span className="inbox-hub__skel-avatar" />
+              <span className="inbox-hub__skel-lines">
+                <span className="inbox-hub__skel-line inbox-hub__skel-line--title" />
+                <span className="inbox-hub__skel-line inbox-hub__skel-line--party" />
+                <span className="inbox-hub__skel-line inbox-hub__skel-line--preview" />
+              </span>
+            </span>
+          ) : null}
+        </li>
       ))}
     </ul>
   );
 }
+
+type InboxNotificationRowProps = {
+  notification: Notification;
+  unreadRow: boolean;
+  onOpen: (notification: Notification) => void;
+  listingImageSrc: string | null;
+};
+
+function OfficialRovexoInboxMark() {
+  return (
+    <span className="inbox-hub__rx-mark" aria-hidden data-inbox-avatar="official-rx">
+      <RovexoAppIconMark size={48} alt="" className="inbox-hub__rx-mark-img" />
+    </span>
+  );
+}
+
+const InboxNotificationRow = memo(function InboxNotificationRow({
+  notification,
+  unreadRow,
+  onOpen,
+  listingImageSrc,
+}: InboxNotificationRowProps) {
+  const rowIcon = resolveInboxNotificationRowIcon(notification);
+  const avatar = resolveInboxNotificationAvatar(notification, listingImageSrc);
+
+  let icon: ReactNode;
+  if (avatar.kind === "official-rx") {
+    icon = <OfficialRovexoInboxMark />;
+  } else if (avatar.kind === "listing") {
+    icon = (
+      <span className="inbox-hub__notif-thumb" aria-hidden data-inbox-notif-thumb="listing">
+        <SafeImage
+          src={avatar.src}
+          alt=""
+          width={48}
+          height={48}
+          className="inbox-hub__notif-thumb-img"
+          sizes="48px"
+          loading="lazy"
+        />
+      </span>
+    );
+  } else {
+    icon = (
+      <span
+        className="ac-canonical__menu-icon inbox-hub__notif-icon"
+        style={{ color: rowIcon.color }}
+        aria-hidden
+        data-inbox-notif-icon={rowIcon.name}
+      >
+        <AccountIcon name={rowIcon.name} />
+      </span>
+    );
+  }
+
+  return (
+    <li className="list-none">
+      <CanonicalMenuRow
+        title={notification.title}
+        description={notification.subtitle || undefined}
+        value={formatNotificationTime(notification.createdAt)}
+        onClick={() => onOpen(notification)}
+        badge={unreadRow ? 1 : undefined}
+        icon={icon}
+      />
+    </li>
+  );
+});
 
 export function InboxPage() {
   const router = useRouter();
@@ -108,12 +221,25 @@ export function InboxPage() {
   const tab = parseInboxTab(searchParams.get("tab"));
   const messageFilter = searchParams.get("filter");
   const notificationCategory = searchParams.get("category");
-  const { setNotifications, refresh, mobileBadges } = useRealtimeNotifications();
+  const {
+    notifications: providerNotifications,
+    setNotifications,
+    refresh,
+    mobileBadges,
+  } = useRealtimeNotifications();
 
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [notifications, setLocalNotifications] = useState<Notification[]>([]);
-  const [loadingMessages, setLoadingMessages] = useState(true);
-  const [loadingNotifications, setLoadingNotifications] = useState(true);
+  const [conversations, setConversations] = useState<Conversation[]>(
+    () => getInboxConversationsCache() ?? peekInboxConversationsCache(),
+  );
+  const [notifications, setLocalNotifications] = useState<Notification[]>(() => {
+    const cached = getInboxNotificationsCache();
+    if (cached) return cached;
+    return peekInboxNotificationsCache();
+  });
+  const [loadingMessages, setLoadingMessages] = useState(() => !hasInboxConversationsCache());
+  const [loadingNotifications, setLoadingNotifications] = useState(
+    () => !hasInboxNotificationsCache(),
+  );
   const [hubError, setHubError] = useState<string | null>(null);
   const query = "";
   const [messagePage, setMessagePage] = useState(1);
@@ -121,7 +247,31 @@ export function InboxPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [markingAllRead, setMarkingAllRead] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const pullStartY = useRef<number | null>(null);
+
+  /*
+   * loadingNotifications is transition state for the Inbox fetch (B), not pure derived state.
+   * Provider tray data is mirrored into local list during render when local is still empty —
+   * same hydration as the former seed effect, without sync setState inside an effect.
+   * setLoadingNotifications(false) on seed was redundant: skeleton/empty/unread already
+   * gate on effectiveNotifications (which prefers provider when local is empty).
+   */
+  if (notifications.length === 0 && providerNotifications.length > 0) {
+    setLocalNotifications(providerNotifications);
+  }
+
+  const applyConversations = useCallback((next: Conversation[]) => {
+    setInboxConversationsCache(next);
+    setConversations(next);
+  }, []);
+
+  const applyNotifications = useCallback(
+    (next: Notification[]) => {
+      setInboxNotificationsCache(next);
+      setLocalNotifications(next);
+      setNotifications(next);
+    },
+    [setNotifications],
+  );
 
   const setTab = useCallback(
     (next: InboxTab) => {
@@ -136,20 +286,27 @@ export function InboxPage() {
     const response = await fetch("/api/messages", { cache: "no-store" });
     if (!response.ok) return;
     const payload = (await response.json()) as { conversations?: Conversation[] };
-    setConversations(payload.conversations ?? []);
-  }, []);
+    applyConversations(payload.conversations ?? []);
+  }, [applyConversations]);
 
   const loadNotifications = useCallback(async () => {
     const response = await fetch("/api/notifications", { cache: "no-store" });
     if (!response.ok) return;
     const payload = (await response.json()) as { notifications?: Notification[] };
-    const next = payload.notifications ?? [];
-    setLocalNotifications(next);
-    setNotifications(next);
-  }, [setNotifications]);
+    applyNotifications(payload.notifications ?? []);
+  }, [applyNotifications]);
+
+  /* External cache seed only — React list state is mirrored during render above. */
+  useEffect(() => {
+    if (providerNotifications.length === 0) return;
+    if (notifications.length > 0) return;
+    seedInboxNotificationsCache(providerNotifications);
+  }, [providerNotifications, notifications.length]);
 
   useEffect(() => {
     let cancelled = false;
+    const hasCachedLists =
+      hasInboxConversationsCache() && hasInboxNotificationsCache();
 
     void (async () => {
       try {
@@ -161,33 +318,34 @@ export function InboxPage() {
         if (cancelled) return;
 
         if (!messagesResponse.ok && !notificationsResponse.ok) {
-          setHubError(
-            typeof navigator !== "undefined" && !navigator.onLine
-              ? "You’re offline."
-              : "Unable to load Inbox.",
-          );
+          if (!hasCachedLists) {
+            setHubError(
+              typeof navigator !== "undefined" && !navigator.onLine
+                ? "You’re offline."
+                : "Unable to load Inbox.",
+            );
+          }
           return;
         }
 
         setHubError(null);
 
-        if (messagesResponse.ok) {
-          const payload = (await messagesResponse.json()) as { conversations?: Conversation[] };
-          if (!cancelled) setConversations(payload.conversations ?? []);
-        }
-
-        if (notificationsResponse.ok) {
-          const payload = (await notificationsResponse.json()) as {
-            notifications?: Notification[];
-          };
-          if (!cancelled) {
-            const next = payload.notifications ?? [];
-            setLocalNotifications(next);
-            setNotifications(next);
-          }
-        }
+        await Promise.all([
+          (async () => {
+            if (!messagesResponse.ok) return;
+            const payload = (await messagesResponse.json()) as { conversations?: Conversation[] };
+            if (!cancelled) applyConversations(payload.conversations ?? []);
+          })(),
+          (async () => {
+            if (!notificationsResponse.ok) return;
+            const payload = (await notificationsResponse.json()) as {
+              notifications?: Notification[];
+            };
+            if (!cancelled) applyNotifications(payload.notifications ?? []);
+          })(),
+        ]);
       } catch {
-        if (!cancelled) {
+        if (!cancelled && !hasCachedLists) {
           setHubError(
             typeof navigator !== "undefined" && !navigator.onLine
               ? "You’re offline."
@@ -205,34 +363,120 @@ export function InboxPage() {
     return () => {
       cancelled = true;
     };
-  }, [setNotifications]);
+  }, [applyConversations, applyNotifications]);
 
+  /* Deep-link recovery: /inbox?order=… → Transaction Conversation */
   useEffect(() => {
-    const sub = subscribeInboxRealtime(() => {
-      /* Sprint 2+: apply realtime patches */
-    });
-    return () => sub.unsubscribe();
-  }, []);
+    const orderId = searchParams.get("order");
+    if (!orderId || loadingMessages || conversations.length === 0) return;
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch("/api/orders", { cache: "no-store" });
+        if (!response.ok || cancelled) return;
+        const payload = (await response.json()) as { orders?: Order[] };
+        const order = (payload.orders ?? []).find((item) => item.id === orderId);
+        if (!order || cancelled) return;
+
+        const match = conversations.find(
+          (item) =>
+            item.product.id === order.product.id || item.product.slug === order.product.slug,
+        );
+        if (!match || cancelled) return;
+
+        const qs = new URLSearchParams();
+        qs.set("order", orderId);
+        const focus = searchParams.get("focus");
+        if (focus) qs.set("focus", focus);
+        router.replace(`${INBOX_ROUTES.conversation(match.id)}?${qs.toString()}`);
+      } catch {
+        /* stay on Inbox — fail closed without 404 */
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [conversations, loadingMessages, router, searchParams]);
 
   const refreshAll = useCallback(async () => {
     setRefreshing(true);
-    await Promise.all([loadMessages(), loadNotifications(), refresh()]);
-    setRefreshing(false);
+    try {
+      await Promise.all([loadMessages(), loadNotifications(), refresh()]);
+    } finally {
+      setRefreshing(false);
+    }
   }, [loadMessages, loadNotifications, refresh]);
+
+  const refreshAllRef = useRef(refreshAll);
+  const realtimeRefreshTimer = useRef<number | null>(null);
+
+  useLayoutEffect(() => {
+    refreshAllRef.current = refreshAll;
+  }, [refreshAll]);
+
+  useEffect(() => {
+    const scheduleRealtimeRefresh = () => {
+      if (realtimeRefreshTimer.current != null) window.clearTimeout(realtimeRefreshTimer.current);
+      realtimeRefreshTimer.current = window.setTimeout(() => {
+        realtimeRefreshTimer.current = null;
+        void refreshAllRef.current();
+      }, 250);
+    };
+    const sub = subscribeInboxRealtime((event) => {
+      if (
+        event.type === "conversation.updated" ||
+        event.type === "notification.updated" ||
+        event.type === "notification.created" ||
+        event.type === "badge.updated" ||
+        event.type === "message.created" ||
+        event.type === "message.updated" ||
+        event.type === "offer.updated" ||
+        event.type === "order.updated"
+      ) {
+        scheduleRealtimeRefresh();
+      }
+    });
+    return () => {
+      sub.unsubscribe();
+      if (realtimeRefreshTimer.current != null) window.clearTimeout(realtimeRefreshTimer.current);
+    };
+  }, []);
+
+  /* XLIII / Hub open sync — realtime is primary; keep event bridge only. */
+  useEffect(() => {
+    const onInboxSync = () => {
+      void refreshAll();
+    };
+    window.addEventListener("rovexo:inbox-sync", onInboxSync);
+    return () => {
+      window.removeEventListener("rovexo:inbox-sync", onInboxSync);
+    };
+  }, [refreshAll]);
+
+  /* Prefer local/cache; fall back to provider tray so first paint never shows Empty. */
+  const effectiveNotifications = useMemo(() => {
+    if (notifications.length > 0) return notifications;
+    if (providerNotifications.length > 0) return providerNotifications;
+    return notifications;
+  }, [notifications, providerNotifications]);
 
   const unread = useMemo(() => {
     const messagesUnread = conversations.reduce(
       (sum, item) => sum + (item.archived ? 0 : item.unreadCount),
       0,
     );
-    const notificationsUnread = notifications.filter((item) => !item.read).length;
+    const notificationsUnread = effectiveNotifications.filter((item) => !item.read).length;
     return buildUnreadCounter(
-      loadingMessages ? mobileBadges.messages : messagesUnread,
-      loadingNotifications ? mobileBadges.notifications : notificationsUnread,
+      loadingMessages && conversations.length === 0 ? mobileBadges.messages : messagesUnread,
+      loadingNotifications && effectiveNotifications.length === 0
+        ? mobileBadges.notifications
+        : notificationsUnread,
     );
   }, [
     conversations,
-    notifications,
+    effectiveNotifications,
     loadingMessages,
     loadingNotifications,
     mobileBadges.messages,
@@ -252,11 +496,25 @@ export function InboxPage() {
         ? messageFilter
         : "all";
     const filtered = filterInboxConversations(base, filter);
-    return [...filtered].sort((a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt));
+    const demoRows = isMessagesLifecycleDemoEnabled()
+      ? [
+          ...listMessagesLifecycleDemoInboxRows("buyer"),
+          ...listMessagesLifecycleDemoInboxRows("seller"),
+        ]
+      : [];
+    const merged = [...demoRows, ...filtered];
+    const seen = new Set<string>();
+    return merged
+      .filter((item) => {
+        if (seen.has(item.id)) return false;
+        seen.add(item.id);
+        return true;
+      })
+      .sort((a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt));
   }, [conversations, query, messageFilter]);
 
   const filteredNotifications = useMemo(() => {
-    return notifications
+    return effectiveNotifications
       .filter((item) => matchesNotificationSearch(item, query))
       .filter((item) => {
         if (!notificationCategory) return true;
@@ -270,7 +528,13 @@ export function InboxPage() {
         return mapNotificationCategory(item.type) === notificationCategory;
       })
       .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
-  }, [notifications, query, notificationCategory]);
+  }, [effectiveNotifications, query, notificationCategory]);
+
+  /* Reuse Messages product images — join in memory, no per-notification fetches. */
+  const listingImageIndex = useMemo(
+    () => buildInboxListingImageIndex(conversations),
+    [conversations],
+  );
 
   const unreadNotifications = useMemo(
     () => filteredNotifications.filter((item) => !item.read),
@@ -316,8 +580,8 @@ export function InboxPage() {
   ) => {
     if (action === "delete") {
       await fetch(`/api/messages/${id}`, { method: "DELETE" });
-      setConversations((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, archived: true } : item)),
+      applyConversations(
+        conversations.map((item) => (item.id === id ? { ...item, archived: true } : item)),
       );
       return;
     }
@@ -335,51 +599,55 @@ export function InboxPage() {
     if (!response.ok) return;
     const payload = (await response.json()) as { conversation?: Conversation };
     if (payload.conversation) {
-      setConversations((prev) =>
-        prev.map((item) => (item.id === id ? payload.conversation! : item)),
+      applyConversations(
+        conversations.map((item) => (item.id === id ? payload.conversation! : item)),
       );
     } else if (action === "read") {
-      setConversations((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, unreadCount: 0 } : item)),
+      applyConversations(
+        conversations.map((item) => (item.id === id ? { ...item, unreadCount: 0 } : item)),
       );
     }
   };
 
-  const syncNotifications = (next: Notification[]) => {
-    setLocalNotifications(next);
-    setNotifications(next);
-  };
+  void patchConversation;
 
-  const markNotificationRead = async (ids: string[]) => {
-    if (ids.length === 0) return;
-    if (!navigator.onLine) {
-      enqueueOfflineNotificationAction({ type: "mark_read", ids });
-      syncNotifications(
-        notifications.map((item) => (ids.includes(item.id) ? { ...item, read: true } : item)),
-      );
-      return;
-    }
-    const response = await fetch("/api/notifications", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ids, read: true }),
-    });
-    if (!response.ok) return;
-    const payload = (await response.json()) as { notifications: Notification[] };
-    syncNotifications(payload.notifications);
-    await refresh();
-  };
+  const markNotificationRead = useCallback(
+    async (ids: string[]) => {
+      if (ids.length === 0) return;
+      setLocalNotifications((current) => {
+        const optimistic = current.map((item) =>
+          ids.includes(item.id) ? { ...item, read: true } : item,
+        );
+        setInboxNotificationsCache(optimistic);
+        setNotifications(optimistic);
+        return optimistic;
+      });
+      if (!navigator.onLine) {
+        enqueueOfflineNotificationAction({ type: "mark_read", ids });
+        return;
+      }
+      const response = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids, read: true }),
+      });
+      if (!response.ok) return;
+      const payload = (await response.json()) as { notifications: Notification[] };
+      applyNotifications(payload.notifications);
+      void refresh();
+    },
+    [applyNotifications, refresh, setNotifications],
+  );
 
   const markAllNotificationsRead = useCallback(async () => {
     if (!notifications.some((item) => !item.read)) return;
     setMarkingAllRead(true);
     try {
+      const optimistic = notifications.map((item) => ({ ...item, read: true }));
+      applyNotifications(optimistic);
       if (!navigator.onLine) {
         const unreadIds = notifications.filter((item) => !item.read).map((item) => item.id);
         enqueueOfflineNotificationAction({ type: "mark_read", ids: unreadIds });
-        const next = notifications.map((item) => ({ ...item, read: true }));
-        setLocalNotifications(next);
-        setNotifications(next);
         return;
       }
       const response = await fetch("/api/notifications", {
@@ -389,18 +657,22 @@ export function InboxPage() {
       });
       if (!response.ok) return;
       const payload = (await response.json()) as { notifications: Notification[] };
-      setLocalNotifications(payload.notifications);
-      setNotifications(payload.notifications);
-      await refresh();
+      applyNotifications(payload.notifications);
+      void refresh();
     } finally {
       setMarkingAllRead(false);
     }
-  }, [notifications, refresh, setNotifications]);
+  }, [notifications, refresh, applyNotifications]);
 
-  const openNotification = async (notification: Notification) => {
-    if (!notification.read) await markNotificationRead([notification.id]);
-    router.push(notification.href);
-  };
+  const openNotification = useCallback(
+    async (notification: Notification) => {
+      const hrefPromise = resolveNotificationOpenHref(notification);
+      if (!notification.read) void markNotificationRead([notification.id]);
+      const href = await hrefPromise;
+      router.push(isWalletHubNotificationHref(href) ? INBOX_ROUTES.hub : href);
+    },
+    [router, markNotificationRead],
+  );
 
   const showMarkAll = tab === "notifications" && unread.notifications > 0;
 
@@ -415,47 +687,30 @@ export function InboxPage() {
     </button>
   ) : null;
 
-  const loading = tab === "messages" ? loadingMessages : loadingNotifications;
-
-  const renderNotificationRow = (notification: Notification, unreadRow: boolean) => (
-    <li key={notification.id} className="list-none">
-      <CanonicalMenuRow
-        title={notification.title}
-        description={formatNotificationTime(notification.createdAt)}
-        onClick={() => void openNotification(notification)}
-        badge={unreadRow ? 1 : undefined}
-        icon={
-          <span className="ac-canonical__menu-icon" aria-hidden>
-            <AccountIcon name="notifications" />
-          </span>
-        }
-      />
-    </li>
-  );
+  const showMessagesSkeleton = loadingMessages && filteredConversations.length === 0;
+  const showNotificationsSkeleton =
+    loadingNotifications && effectiveNotifications.length === 0;
+  const showMessagesEmpty = !loadingMessages && filteredConversations.length === 0;
+  /* Never show Empty while a fetch is in flight or provider/cache already has rows. */
+  const showNotificationsEmpty =
+    !loadingNotifications && filteredNotifications.length === 0;
 
   return (
     <AccountCanonicalShell
       title="Inbox"
       showHeaderTitle
       backHref="/account"
-      showBottomNav={false}
+      showBottomNav
+      bottomNavTab="saved"
       rightAction={markAllAction}
     >
       <div
         className="inbox-hub"
         data-inbox-hub={INBOX_CANONICAL_VERSION}
+        data-inbox-master={INBOX_HUB_MASTER_DOM}
         data-inbox-freeze="FINAL-LOCK"
         data-inbox-universal="v1.1-preview"
-        data-inbox-realtime="foundation"
-        onTouchStart={(event) => {
-          if (window.scrollY <= 0) pullStartY.current = event.touches[0]?.clientY ?? null;
-        }}
-        onTouchEnd={(event) => {
-          if (pullStartY.current == null) return;
-          const endY = event.changedTouches[0]?.clientY ?? pullStartY.current;
-          if (endY - pullStartY.current > 72) void refreshAll();
-          pullStartY.current = null;
-        }}
+        data-inbox-realtime="v1"
       >
         {refreshing ? <div className="inbox-hub__refresh">Refreshing…</div> : null}
 
@@ -465,13 +720,8 @@ export function InboxPage() {
             <button
               type="button"
               onClick={() => {
-                setLoadingMessages(true);
-                setLoadingNotifications(true);
                 setHubError(null);
-                void refreshAll().finally(() => {
-                  setLoadingMessages(false);
-                  setLoadingNotifications(false);
-                });
+                void refreshAll();
               }}
             >
               Retry
@@ -515,10 +765,15 @@ export function InboxPage() {
           />
         </div>
 
-        {loading ? (
-          <InboxListSkeleton variant={tab === "messages" ? "messages" : "notifications"} />
-        ) : tab === "messages" ? (
-          filteredConversations.length === 0 ? (
+        {/* Both panes stay mounted — instant tab switch + preserved scroll. */}
+        <div
+          className="inbox-hub__pane"
+          hidden={tab !== "messages"}
+          data-inbox-pane="messages"
+        >
+          {showMessagesSkeleton ? (
+            <InboxListSkeleton variant="messages" />
+          ) : showMessagesEmpty ? (
             <div className="inbox-hub__empty">
               <MessagesEmptyIllustration className="inbox-hub__empty-illu" />
               <p className="inbox-hub__empty-title">No conversations yet</p>
@@ -528,23 +783,56 @@ export function InboxPage() {
             </div>
           ) : (
             <ul className="inbox-hub__list" data-transaction-hub="v1.0">
-              {visibleConversations.map((conversation) => (
+              {visibleConversations.map((conversation) => {
+                const avatar = resolveInboxMessageAvatar(conversation);
+                return (
                 <li key={conversation.id}>
                   <Link
                     href={INBOX_ROUTES.conversation(conversation.id)}
                     className="inbox-hub__card"
                   >
+                    <span className="inbox-hub__media">
+                      {avatar.kind === "official-rx" ? (
+                        <OfficialRovexoInboxMark />
+                      ) : avatar.kind === "listing" ? (
+                        <span className="inbox-hub__thumb">
+                          <SafeImage
+                            src={avatar.src}
+                            alt={conversation.product.title}
+                            fill
+                            className="inbox-hub__thumb-img"
+                            sizes="56px"
+                            loading="lazy"
+                          />
+                        </span>
+                      ) : (
+                        <span className="inbox-hub__user-avatar" data-inbox-avatar="user">
+                          <Avatar
+                            src={avatar.src}
+                            alt={conversation.participant.name}
+                            name={conversation.participant.name}
+                            size="lg"
+                            className="inbox-hub__user-avatar-face"
+                          />
+                        </span>
+                      )}
+                    </span>
                     <span className="inbox-hub__card-body">
                       <span className="inbox-hub__card-top">
                         <span className="inbox-hub__product-title">
-                          {conversation.product?.title ?? conversation.participant.name}
+                          {conversation.product.title}
                         </span>
                         <time
                           className="inbox-hub__time"
                           dateTime={conversation.lastMessageAt}
                         >
-                          {formatMessageTime(conversation.lastMessageAt)}
+                          {formatInboxRelativeTime(conversation.lastMessageAt)}
                         </time>
+                      </span>
+                      <span className="inbox-hub__party">
+                        <span className="inbox-hub__party-name">
+                          {conversation.participant.name}
+                        </span>
                       </span>
                       <span
                         className={cn(
@@ -552,49 +840,86 @@ export function InboxPage() {
                           conversation.unreadCount > 0 && "inbox-hub__preview--unread",
                         )}
                       >
-                        {conversation.product?.title
-                          ? `${conversation.participant.name} · ${conversation.lastMessage}`
-                          : conversation.lastMessage}
+                        {conversation.lastMessage}
                       </span>
+                    </span>
+                    <span className="inbox-hub__card-aside">
+                      {conversation.unreadCount > 0 ? (
+                        <span
+                          className="inbox-hub__unread"
+                          aria-label={`${conversation.unreadCount} unread`}
+                        >
+                          {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
+                        </span>
+                      ) : null}
+                      <ChevronRightLineIcon className="inbox-hub__chevron" />
                     </span>
                   </Link>
                 </li>
-              ))}
+                );
+              })}
             </ul>
-          )
-        ) : filteredNotifications.length === 0 ? (
-          <div className="inbox-hub__empty">
-            <NotificationsEmptyIllustration className="inbox-hub__empty-illu" />
-            <p className="inbox-hub__empty-title">You&apos;re all caught up</p>
-          </div>
-        ) : (
-          <div className="inbox-hub__notif-sections">
-            {visibleUnreadNotifications.length > 0 ? (
-              <section className="inbox-hub__section" aria-label="Unread notifications">
-                <h2 className="inbox-hub__section-label">
-                  UNREAD ({unreadNotifications.length})
-                </h2>
-                <ul className="inbox-hub__list">
-                  {visibleUnreadNotifications.map((notification) =>
-                    renderNotificationRow(notification, true),
-                  )}
-                </ul>
-              </section>
-            ) : null}
-            {visibleEarlierNotifications.length > 0 ||
-            (visibleUnreadNotifications.length === 0 && earlierNotifications.length > 0) ? (
-              <section className="inbox-hub__section" aria-label="Earlier notifications">
-                <h2 className="inbox-hub__section-label">EARLIER</h2>
-                <ul className="inbox-hub__list">
+          )}
+        </div>
+
+        <div
+          className="inbox-hub__pane"
+          hidden={tab !== "notifications"}
+          data-inbox-pane="notifications"
+        >
+          {showNotificationsSkeleton ? (
+            <InboxListSkeleton variant="notifications" />
+          ) : showNotificationsEmpty ? (
+            <div className="inbox-hub__empty">
+              <NotificationsEmptyIllustration className="inbox-hub__empty-illu" />
+              <p className="inbox-hub__empty-title">You&apos;re all caught up</p>
+            </div>
+          ) : (
+            <div className="inbox-hub__notif-feed">
+              {visibleUnreadNotifications.length > 0 ? (
+                <section className="inbox-hub__section" aria-label="Unread notifications">
+                  <h2 className="inbox-hub__section-label">
+                    UNREAD ({unreadNotifications.length})
+                  </h2>
+                  <ul className="inbox-hub__list">
+                    {visibleUnreadNotifications.map((notification) => (
+                      <InboxNotificationRow
+                        key={notification.id}
+                        notification={notification}
+                        unreadRow
+                        onOpen={openNotification}
+                        listingImageSrc={resolveNotificationListingImageSrc(
+                          notification,
+                          listingImageIndex,
+                        )}
+                      />
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {visibleEarlierNotifications.length > 0 ||
+              (visibleUnreadNotifications.length === 0 && earlierNotifications.length > 0) ? (
+                <ul className="inbox-hub__list" aria-label="Notifications">
                   {(visibleUnreadNotifications.length === 0
                     ? earlierNotifications.slice(0, notificationPage * PAGE_SIZE)
                     : visibleEarlierNotifications
-                  ).map((notification) => renderNotificationRow(notification, false))}
+                  ).map((notification) => (
+                    <InboxNotificationRow
+                      key={notification.id}
+                      notification={notification}
+                      unreadRow={false}
+                      onOpen={openNotification}
+                      listingImageSrc={resolveNotificationListingImageSrc(
+                        notification,
+                        listingImageIndex,
+                      )}
+                    />
+                  ))}
                 </ul>
-              </section>
-            ) : null}
-          </div>
-        )}
+              ) : null}
+            </div>
+          )}
+        </div>
 
         {hasMore ? <div ref={sentinelRef} className="inbox-hub__sentinel" aria-hidden /> : null}
       </div>

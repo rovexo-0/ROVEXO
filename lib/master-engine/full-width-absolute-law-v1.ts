@@ -1,0 +1,90 @@
+/**
+ * ROVEXO Full Width Absolute Law v1.0
+ * ABSOLUTE P0 · PERMANENT · OWNER APPROVED · ROVEXO v1.0
+ *
+ * Owner-approved design uses 100% available width + height with responsive /
+ * adaptive behaviour — without changing design, UI, UX, components, tokens.
+ * The engine adapts to the design. The design never adapts to the engine.
+ */
+
+export const FULL_WIDTH_ABSOLUTE_LAW_NAME =
+  "ROVEXO FULL WIDTH ABSOLUTE LAW" as const;
+export const FULL_WIDTH_ABSOLUTE_LAW_VERSION = "1.0" as const;
+export const FULL_WIDTH_ABSOLUTE_LAW_STATUS =
+  "ABSOLUTE P0 · PERMANENT · OWNER APPROVED" as const;
+
+export const FULL_WIDTH_ABSOLUTE_SHALL_USE = [
+  "100% AVAILABLE WIDTH",
+  "100% AVAILABLE HEIGHT",
+  "RESPONSIVE ADAPTATION",
+  "ADAPTIVE BEHAVIOUR",
+] as const;
+
+export const FULL_WIDTH_ABSOLUTE_WITHOUT_CHANGING = [
+  "DESIGN",
+  "UI",
+  "UX",
+  "COMPONENTS",
+  "DIMENSIONS",
+  "COLOURS",
+  "ICONS",
+  "ANIMATIONS",
+  "TOKENS",
+  "OWNER APPROVED SPACING",
+] as const;
+
+export const FULL_WIDTH_ABSOLUTE_DISPLAY_TARGETS = [
+  "ALL IPHONES",
+  "ALL ANDROID DEVICES",
+  "ALL PIXEL DEVICES",
+  "ALL SAMSUNG DEVICES",
+  "ALL FOLD DEVICES",
+  "ALL TABLETS",
+  "ALL DESKTOPS",
+  "ALL BROWSERS",
+  "ALL OPERATING SYSTEMS",
+] as const;
+
+export const FULL_WIDTH_ABSOLUTE_ENGINE_ADAPTS_TO = [
+  "DISPLAY SIZE",
+  "SCREEN RATIO",
+  "SAFE AREAS",
+  "BROWSER LIMITATIONS",
+  "DEVICE LIMITATIONS",
+  "ZOOM LEVELS",
+  "ACCESSIBILITY SETTINGS",
+] as const;
+
+export const FULL_WIDTH_ABSOLUTE_ZERO_TARGETS = [
+  "ZERO OVERFLOW",
+  "ZERO CROPPING",
+  "ZERO MISALIGNMENT",
+  "ZERO REDESIGN",
+] as const;
+
+export const FULL_WIDTH_ABSOLUTE_OUTCOMES = [
+  "100% WIDTH",
+  "100% VISIBILITY",
+  ...FULL_WIDTH_ABSOLUTE_ZERO_TARGETS,
+] as const;
+
+export const FULL_WIDTH_ABSOLUTE_RULE =
+  "IT IS FORBIDDEN TO ADAPT THE DESIGN. THE DESIGN SHALL NEVER ADAPT TO THE ENGINE. THE ENGINE SHALL ALWAYS ADAPT TO THE DESIGN." as const;
+
+export const FULL_WIDTH_ABSOLUTE_GOLDEN_RULE =
+  "OWNER APPROVED DESIGN ALWAYS WINS. 100% WIDTH. 100% VISIBILITY. ZERO OVERFLOW. ZERO CROPPING. ZERO MISALIGNMENT. ZERO REDESIGN." as const;
+
+export function fullWidthAbsoluteLawSnapshot() {
+  return {
+    name: FULL_WIDTH_ABSOLUTE_LAW_NAME,
+    version: FULL_WIDTH_ABSOLUTE_LAW_VERSION,
+    status: FULL_WIDTH_ABSOLUTE_LAW_STATUS,
+    shallUse: [...FULL_WIDTH_ABSOLUTE_SHALL_USE],
+    withoutChanging: [...FULL_WIDTH_ABSOLUTE_WITHOUT_CHANGING],
+    displayTargets: [...FULL_WIDTH_ABSOLUTE_DISPLAY_TARGETS],
+    engineAdaptsTo: [...FULL_WIDTH_ABSOLUTE_ENGINE_ADAPTS_TO],
+    outcomes: [...FULL_WIDTH_ABSOLUTE_OUTCOMES],
+    absoluteRule: FULL_WIDTH_ABSOLUTE_RULE,
+    goldenRule: FULL_WIDTH_ABSOLUTE_GOLDEN_RULE,
+  } as const;
+}

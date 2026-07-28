@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiListingRole } from "@/lib/auth/session";
 import { setListingStatus } from "@/lib/listings/repository";
+import {
+  processFollowNotificationEvent,
+  resolveFollowNotificationActor,
+} from "@/lib/follow-notifications";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -29,6 +33,28 @@ export async function POST(request: Request, context: RouteContext) {
 
     if (!listing) {
       return NextResponse.json({ error: "Listing not found." }, { status: 404 });
+    }
+
+    if (
+      listing.status === "published" &&
+      (body.action === "reactivate" || body.action === "publish")
+    ) {
+      void (async () => {
+        const actor = await resolveFollowNotificationActor(auth.user.id);
+        await processFollowNotificationEvent({
+          type: body.action === "reactivate" ? "ListingRelisted" : "NewListingPublished",
+          actorId: auth.user.id,
+          actorName: actor.name,
+          actorUsername: actor.username,
+          actorAvatarUrl: actor.avatarUrl,
+          sellerId: auth.user.id,
+          listingId: listing.id,
+          listingSlug: listing.slug,
+          listingTitle: listing.title,
+          occurredAt: new Date().toISOString(),
+          dedupeKey: `${body.action}:${listing.id}`,
+        });
+      })();
     }
 
     return NextResponse.json({ listing });

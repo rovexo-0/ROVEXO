@@ -1,0 +1,48 @@
+---
+description: Implementation Protection Law v1.1 — protect whole Owner-approved implementation; no regression; 100/100 (P0 L8).
+alwaysApply: true
+---
+
+# ROVEXO Implementation Protection Law v1.1 (ABSOLUTE P0 · LEVEL 8 · LOCKED)
+
+## Mission
+
+Owner-approved = Canonical Implementation · Protected · One SSOT · One version · Protected architecture, design, and logic — **as a whole**.
+
+Integrity includes: Design · UI · UX · Components · Layout · Navigation · Responsive/Adaptive · Business/Financial logic · APIs · States · Performance · A11y · Browser · Architecture · Scalability.
+
+## Forbidden after approval
+
+Redesign · recreate · duplicate · replace · split · migrate · hidden/experimental/temporary versions · duplicated systems / business logic / layouts / engines / implementations
+
+## Allowed (must stay functionally + visually identical)
+
+Bug · performance · a11y · responsive/adaptive · security · browser · infrastructure · API · database · optimization in place
+
+## No Regression Law
+
+Never: reduce functionality/a11y/responsiveness/performance · introduce regressions · break approved flows/components/integrations/navigation/layouts.  
+**Better or identical. Never worse.**
+
+## Five Absolute Questions (order)
+
+1. Root cause? **No → STOP**  
+2. Fix root cause without changing Owner-approved implementation? **Yes → fix only that**  
+3. Can existing be optimized? **Yes → optimize**  
+4. New implementation absolutely required? **No → forbidden**  
+5. Without v2 / duplicated systems/engines/layouts/components/logic? **Yes → proceed · No → Owner approval**
+
+## Principles
+
+**Four golden:** One implementation · Owner-approved always wins · Optimize before rebuild · Simplify before expand  
+
+**Five absolute:** Protect before modify · Code last · No regression · 100/100 only · The implementation always wins  
+
+**If no root cause → do not touch it. If not 100/100 → do not deploy.**
+
+## Master equation
+
+PROTECT + OPTIMIZE + PRESERVE + SIMPLIFY + ONE IMPLEMENTATION + ONE SSOT + ZERO REGRESSIONS + ZERO DUPLICATIONS + OWNER APPROVED DESIGN + MAXIMUM SCALABILITY = **ROVEXO**
+
+Aligns with Design Protection Absolute v1.1 · Evolution Law v1.0.  
+SSOT: `lib/master-engine/implementation-protection-law-v1.ts`

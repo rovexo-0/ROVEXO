@@ -1,0 +1,107 @@
+{
+  "generatedAt": "2026-07-19T15:08:17.078Z",
+  "public": true,
+  "authRequired": false,
+  "routes": [
+    {
+      "path": "/homepage/",
+      "title": "Homepage",
+      "frame": "145-homepage-default.svg"
+    },
+    {
+      "path": "/search/",
+      "title": "Search",
+      "frame": "037-search-default.svg"
+    },
+    {
+      "path": "/sell/",
+      "title": "Sell",
+      "frame": "157-sell-default.svg"
+    },
+    {
+      "path": "/product/",
+      "title": "Product page",
+      "frame": "117-product-default.svg"
+    },
+    {
+      "path": "/cart/",
+      "title": "Cart",
+      "frame": "121-cart-default.svg"
+    },
+    {
+      "path": "/checkout/",
+      "title": "Checkout",
+      "frame": "045-checkout-default.svg"
+    },
+    {
+      "path": "/orders/",
+      "title": "Orders",
+      "frame": "033-orders-default.svg"
+    },
+    {
+      "path": "/tracking/",
+      "title": "Tracking",
+      "frame": "049-tracking-default.svg"
+    },
+    {
+      "path": "/wallet/",
+      "title": "Wallet",
+      "frame": "013-wallet-default.svg"
+    },
+    {
+      "path": "/pending-balance/",
+      "title": "Pending Balance",
+      "frame": "013-wallet-default.svg"
+    },
+    {
+      "path": "/available-balance/",
+      "title": "Available Balance",
+      "frame": "013-wallet-default.svg"
+    },
+    {
+      "path": "/withdraw/",
+      "title": "Withdraw",
+      "frame": "129-withdraw-default.svg"
+    },
+    {
+      "path": "/returns/",
+      "title": "Returns",
+      "frame": "089-returns-default.svg"
+    },
+    {
+      "path": "/refunds/",
+      "title": "Refunds",
+      "frame": "057-refunds-default.svg"
+    },
+    {
+      "path": "/notifications/",
+      "title": "Notifications",
+      "frame": "081-notifications-default.svg"
+    },
+    {
+      "path": "/settings/",
+      "title": "Settings",
+      "frame": "025-settings-default.svg"
+    },
+    {
+      "path": "/transaction-hub/",
+      "title": "Transaction Hub",
+      "frame": "017-messages-default.svg"
+    },
+    {
+      "path": "/buyer-dashboard/",
+      "title": "Buyer Dashboard",
+      "frame": "001-buying-default.svg"
+    },
+    {
+      "path": "/seller-dashboard/",
+      "title": "Seller Dashboard",
+      "frame": "005-selling-default.svg"
+    },
+    {
+      "path": "/business-seller/",
+      "title": "Business Seller",
+      "frame": "009-business-default.svg"
+    }
+  ]
+}

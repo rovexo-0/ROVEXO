@@ -4,7 +4,12 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { memo, useCallback, type SyntheticEvent } from "react";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
-import { calculatePlatformFee } from "@/lib/orders/pricing";
+import {
+  formatListingPrice,
+  formatListingPriceIncl,
+  humanizeListingCondition,
+  resolveListingShippingForIncl,
+} from "@/lib/listing-card/format";
 import { getActiveMarket } from "@/lib/seo/markets";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 import type { Product } from "@/lib/products/types";
@@ -14,23 +19,6 @@ export type StoreCardProps = {
   product: Product;
   priority?: boolean;
 };
-
-function formatPrice(amount: number): string {
-  return `£${amount.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function formatPriceIncl(amount: number): string {
-  const fee = calculatePlatformFee(amount);
-  const total = Math.round((amount + fee) * 100) / 100;
-  return `${formatPrice(total)} incl.`;
-}
-
-function humanizeCondition(raw?: string): string | null {
-  if (!raw?.trim()) return null;
-  const text = raw.replace(/[_-]+/g, " ").trim();
-  if (!text || text.toLowerCase() === "unknown") return null;
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
 
 function IconHeart({ filled }: { filled: boolean }) {
   return (
@@ -53,7 +41,11 @@ export const StoreCard = memo(function StoreCard({ product, priority = false }: 
     product.listingType === "auction" && product.auctionCurrentBid != null
       ? product.auctionCurrentBid
       : product.price;
-  const condition = humanizeCondition(product.condition);
+  const shippingForIncl = resolveListingShippingForIncl({
+    freeDelivery: product.freeDelivery,
+    shippingPrice: product.shippingPrice,
+  });
+  const condition = humanizeListingCondition(product.condition);
   const href = `/listing/${product.slug}`;
 
   const { isSaved, toggle } = useProductWatchlist(product.slug);
@@ -102,8 +94,8 @@ export const StoreCard = memo(function StoreCard({ product, priority = false }: 
         </div>
         <p className={css.title}>{product.title}</p>
         {condition ? <p className={css.condition}>{condition}</p> : null}
-        <p className={css.price}>{formatPrice(amount)}</p>
-        <p className={css.total}>{formatPriceIncl(amount)}</p>
+        <p className={css.price}>{formatListingPrice(amount)}</p>
+        <p className={css.total}>{formatListingPriceIncl(amount, shippingForIncl)}</p>
       </Link>
     </article>
   );

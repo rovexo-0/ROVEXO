@@ -34,6 +34,7 @@ export type ConversationProduct = {
   status: ProductListingStatus;
   listingType: ConversationListingType;
   acceptOffers: boolean;
+  locationCity?: string | null;
 };
 
 export type ConversationParticipant = {
@@ -43,6 +44,8 @@ export type ConversationParticipant = {
   role: SenderRole;
   online: boolean;
   lastSeen?: string;
+  rating?: number | null;
+  reviewCount?: number | null;
 };
 
 export type Conversation = {

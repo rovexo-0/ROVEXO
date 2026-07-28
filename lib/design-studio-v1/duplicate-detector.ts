@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { walkPublicAssets } from "@/lib/design-studio-v1/scan-utils";
@@ -7,7 +8,7 @@ import type { DuplicateScanSummary } from "@/lib/design-studio-v1/types";
 type ScanOptions = { rootDir?: string };
 
 export function scanDuplicateAssets(options: ScanOptions = {}): DuplicateScanSummary {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? workspacePath();
   const publicDir = join(rootDir, "public");
   const scannedAt = new Date().toISOString();
   const hashMap = new Map<string, string[]>();

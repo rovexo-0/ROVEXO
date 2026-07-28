@@ -2,14 +2,14 @@
 
 import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
 import type { SettingsMenuIcon } from "@/lib/account-center/settings-menu";
+import type { SettingsIconTone } from "@/lib/settings/settings-v1";
 
 /**
- * Settings icons — One Product freeze.
- * Same AccountIcon family as My Account / Buying / Selling / Wallet / Messages.
+ * Settings icons — One Product freeze + v1.0 accent tones.
  */
 const SETTINGS_TO_ACCOUNT_ICON: Record<SettingsMenuIcon, AccountIconName> = {
   user: "profile",
-  location: "shipping",
+  location: "address",
   "credit-card": "payment",
   bell: "notifications",
   lock: "security",
@@ -21,23 +21,32 @@ const SETTINGS_TO_ACCOUNT_ICON: Record<SettingsMenuIcon, AccountIconName> = {
   wallet: "wallet",
   settings: "settings",
   moon: "settings",
-  globe: "settings",
-  headset: "help",
-  document: "orders",
+  globe: "language",
+  headset: "accessibility",
+  document: "legal",
   info: "help",
   logout: "security",
 };
 
 export function SettingsMenuIconGlyph({
   name,
+  tone,
   danger = false,
 }: {
   name: SettingsMenuIcon;
+  tone?: SettingsIconTone;
   danger?: boolean;
 }) {
-  const className = danger ? "settings-canonical__danger-icon" : undefined;
+  const toneClass = danger
+    ? "settings-canonical__icon--soft-red"
+    : tone
+      ? `settings-canonical__icon--${tone}`
+      : "";
   return (
-    <span className={`cds-menu-row__icon ac-canonical__menu-icon ${className ?? ""}`.trim()} aria-hidden>
+    <span
+      className={`cds-menu-row__icon ac-canonical__menu-icon settings-canonical__icon ${toneClass}`.trim()}
+      aria-hidden
+    >
       <AccountIcon name={SETTINGS_TO_ACCOUNT_ICON[name] ?? "settings"} />
     </span>
   );

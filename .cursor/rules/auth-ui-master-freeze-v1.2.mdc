@@ -1,0 +1,34 @@
+---
+description: Auth UI Master Freeze v1.2 — no social OAuth UI on Login/Register
+alwaysApply: true
+---
+
+# ROVEXO AUTH UI MASTER FREEZE v1.2
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN**
+
+SSOT: `lib/auth/auth-ui-master-freeze-v1.2.ts`
+
+## Scope
+
+**Sign In + Register presentation only.** Email auth, sessions, Supabase, middleware, routes unchanged.
+
+## Removed from UI
+
+Continue With · Apple · Google · Facebook · all social/OAuth UI on these pages · UK GDPR checkbox/text
+
+## Keep
+
+**Login:** Logo · Welcome Back · email/password · Remember Me · Forgot Password · Sign In · Protected Sign-In · Create Account  
+
+**Register:** Back · Logo · Join ROVEXO Today · Full Name · email/password/confirm · Terms (Privacy + Cookie links) · optional marketing · Create Free Account · Sign In link
+
+## Theme
+
+Official ROVEXO platform purple gradient · Compact Premium · Mobile First · Full Width — must feel part of the platform (not a generic white login).
+
+## Cursor must never
+
+- Restore social buttons on Login/Register without Owner re-authorization  
+- Rewrite Auth / session / middleware to “fix” OAuth config  
+- Touch Search / Header / Camera Search for auth UI work

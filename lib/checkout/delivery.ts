@@ -61,11 +61,13 @@ export function getDeliveryPrice(
   if (options?.listingOffersFreeDelivery) {
     return 0;
   }
-  if (options?.selectedQuote) {
-    return options.selectedQuote.price;
-  }
+  // Absolute Total Price Law v1.0 — listing shipping is the payable shipping SSOT.
+  // Live quotes may identify carrier only; they must not change the locked payable total.
   if (options?.listingShippingPrice != null && options.listingShippingPrice >= 0) {
     return options.listingShippingPrice;
+  }
+  if (options?.selectedQuote) {
+    return options.selectedQuote.price;
   }
   return null;
 }

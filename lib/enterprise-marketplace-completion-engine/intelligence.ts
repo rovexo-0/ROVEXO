@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import path from "node:path";
 import { MARKETPLACE_INTELLIGENCE_DETECTIONS } from "@/lib/enterprise-marketplace-completion-engine/registry";
 import type {
@@ -16,19 +17,19 @@ function labelize(value: string): string {
 }
 
 function fileExists(relativePath: string): boolean {
-  return existsSync(path.join(process.cwd(), relativePath));
+  return existsSync(workspacePath( relativePath));
 }
 
 function readSource(relativePath: string): string {
   try {
-    return readFileSync(path.join(process.cwd(), relativePath), "utf8");
+    return readFileSync(workspacePath( relativePath), "utf8");
   } catch {
     return "";
   }
 }
 
 function listFiles(relativeDir: string, extensions: string[] = [".tsx", ".ts", ".css"]): string[] {
-  const root = path.join(process.cwd(), relativeDir);
+  const root = workspacePath( relativeDir);
   if (!existsSync(root)) return [];
   const results: string[] = [];
   const walk = (dir: string) => {

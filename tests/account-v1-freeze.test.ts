@@ -42,7 +42,7 @@ const baseProfile: UserProfile = {
   unreadNotifications: 0,
 };
 
-describe("My Account v1.0 — CANONICAL FREEZE (Master Menu v2.0)", () => {
+describe("My Account v1.0 — PROFILE MAIN (Owner Implementation)", () => {
   it("locks freeze constants", () => {
     expect(ACCOUNT_UI_FREEZE).toBe("CANONICAL_FROZEN_v1.0");
     expect(ACCOUNT_CANONICAL_STATUS).toBe("CANONICAL_FROZEN_v1.0");
@@ -50,7 +50,7 @@ describe("My Account v1.0 — CANONICAL FREEZE (Master Menu v2.0)", () => {
     expect(ACCOUNT_SPEC_VERSION).toBe("1.0");
     expect(ACCOUNT_ROUTES.hub).toBe("/account");
     expect(ACCOUNT_ROUTES.buying).toBe("/account/buying");
-    expect(ACCOUNT_FREEZE_DOM.hubVersion).toBe("v2.0-master");
+    expect(ACCOUNT_FREEZE_DOM.hubVersion).toBe("profile-v1");
     expect(ACCOUNT_CANONICAL_COMPONENTS).toEqual([
       "AccountCanonicalShell",
       "AccountCenterHome",
@@ -59,20 +59,23 @@ describe("My Account v1.0 — CANONICAL FREEZE (Master Menu v2.0)", () => {
     ]);
   });
 
-  it("marks Master Menu on the hub root without dead-space stats", () => {
+  it("marks Profile main hub without dead-space stats", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
     const page = readSource("features/account-center/components/AccountCenterPage.tsx");
 
-    expect(home).toContain('data-ac-hub-version="v2.0-master"');
-    expect(home).toContain('data-account-menu="master-v2"');
+    expect(home).toContain('data-ac-hub-version="profile-v1"');
+    expect(home).toContain('data-account-menu="profile-v1"');
     expect(home).toContain('data-account-version="v1.0"');
     expect(home).not.toContain("AccountStatsStrip");
     expect(home).not.toContain("AccountSellerPerformanceCard");
     expect(page).toContain("AccountCanonicalShell");
-    expect(page).toContain("hideBack");
+    expect(page).toContain('title="PROFILE"');
+    expect(page).toContain("showHeaderTitle");
+    expect(page).toContain('backHref="/"');
+    expect(page).not.toContain("hideBack");
   });
 
-  it("locks Compact Premium structure: profile + Master Menu + Sign Out", () => {
+  it("locks Compact Premium structure: profile + menu + Sign Out confirm", () => {
     const home = readSource("features/account-center/components/AccountCenterHome.tsx");
     const profile = readSource("features/account-center/components/AccountCanonicalProfile.tsx");
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
@@ -82,26 +85,31 @@ describe("My Account v1.0 — CANONICAL FREEZE (Master Menu v2.0)", () => {
     expect(home).toMatch(/AccountCanonicalProfile[\s\S]*AccountMenuSections/);
 
     expect(profile).toContain("ac-canonical__profile");
-    expect(profile).not.toContain("View Public Profile");
+    expect(profile).toContain("View Profile");
+    expect(profile).toContain("ac-canonical__rating-star");
+    expect(profile).not.toContain("/account/followers");
+    expect(profile).toContain("isNewMemberProfile");
     expect(profile).not.toContain("Edit Profile");
 
     expect(menu).toContain("buildAccountMenuSections");
     expect(menu).toContain("ACCOUNT_LOGOUT_MENU_ITEM");
     expect(menu).toContain("signOut");
-    expect(menu).toContain('data-master-menu="v2.0"');
+    expect(menu).toContain("CanonicalConfirmDialog");
+    expect(menu).toContain('data-master-menu="profile-v1"');
+    expect(menu).toContain("PROFILE_MENU_ICONS");
+    expect(menu).toContain("hideChevron");
   });
 
-  it("locks Master Menu inventory (PO Final Authorization)", () => {
-    const sections = buildAccountMenuSections(baseProfile);
+  it("locks Profile menu inventory (Owner Implementation)", () => {
+    const sections = buildAccountMenuSections(baseProfile, { activeListingCount: 1 });
     const titles = sections.flatMap((section) => section.items.map((item) => item.title));
 
     expect(titles).toEqual([...ACCOUNT_MENU_TITLES]);
-    expect(titles).not.toContain("View Public Profile");
-    expect(titles).not.toContain("Edit Profile");
     expect(titles).not.toContain("Become Seller");
-    expect(titles).not.toContain("ROVEXO Ideas");
-    expect(titles.filter((title) => title === "Wallet")).toHaveLength(1);
-    expect(titles.filter((title) => title === "Orders")).toHaveLength(0);
+    expect(titles).not.toContain("Business");
+    expect(titles).not.toContain("Wallet");
+    expect(titles.filter((title) => title === "Balance")).toHaveLength(1);
+    expect(titles.filter((title) => title === "My Orders")).toHaveLength(1);
   });
 
   it("documents freeze SSOT artifacts", () => {
@@ -115,9 +123,8 @@ describe("My Account v1.0 — CANONICAL FREEZE (Master Menu v2.0)", () => {
     expect(spec).toContain("STATUS:");
     expect(freezeDoc).toContain("FROZEN");
     expect(freezeDoc).toContain("2026-07-14");
-    expect(rule).toContain("Final Freeze v2.0");
-    expect(rule).toContain("LAYOUT PROTECTED");
-    expect(rule).toContain("BUYING / SELLING / BUSINESS");
+    expect(rule).toContain("PROFILE MAIN ONLY");
+    expect(rule).toContain("ZERO DAMAGE");
     expect(existsSync(path.join(process.cwd(), "tests/account-v1-freeze.test.ts"))).toBe(true);
   });
 });

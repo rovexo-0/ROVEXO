@@ -1,0 +1,42 @@
+---
+description: Master Buyer Conversation Hub Freeze — Absolute Master Approved 1:1
+alwaysApply: true
+---
+
+# MASTER BUYER CONVERSATION HUB FREEZE v1.0
+
+**STATUS: ABSOLUTE MASTER APPROVED · PERMANENT FREEZE**
+
+SSOT: `lib/inbox/master-buyer-conversation-hub-freeze-v1.ts`  
+Master UI Freeze: `lib/inbox/buyer-conversation-hub-master-ui-freeze-v1.ts`  
+UI: `features/inbox/components/ConversationHub.tsx` only
+
+Owner-approved image = **ONLY source of truth**.  
+DO NOT REDESIGN · DO NOT IMPROVISE · DO NOT CREATE NEW COMPONENTS.
+
+## Sticky CTA
+
+`BUY NOW • £final_total` — never item-only price.
+
+## Product PASS
+
+Requires Owner visual certification. Code PASS ≠ Product PASS.
+
+## Seller never sees
+
+Platform fee · Buyer total · Buyer breakdown · Shipping fee paid by buyer · Total buyer pays
+
+## Before any commit
+
+No white/empty screen · no build/CSS/TS fail · no responsive/image/button/preview fail → Owner approval → Freeze → Test → Certification → Commit → Push → Deploy
+
+## Permanent law
+
+If Owner cannot SEE + CLICK + SCROLL + PAY + BUY + SELL + TRACK + TEST → **the product does not exist.**
+
+## Cursor must never
+
+- Redesign Buyer Conversation Hub against Master freeze  
+- Show seller Platform Fee / Total Buyer Pays  
+- Use sticky amount = item price alone  
+- Claim Product PASS without Preview + Visual + Owner approval

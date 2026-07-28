@@ -1,0 +1,79 @@
+---
+description: Supreme Blood Code XVII — Automatic Certification Master Law (permanent constitution)
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE XVII — AUTOMATIC CERTIFICATION MASTER LAW
+
+**STATUS: PERMANENT LAW · APPROVED · PERMANENTLY LOCKED · CONSTITUTIONAL**
+
+SSOT: `lib/supreme-blood-code-xvii-v1.ts`
+
+## Absolute Owner Role Law
+
+Owner must **never** become: QA · Security · TypeScript · Build · Performance · Responsive · Mobile · Regression · Accessibility engineer/tester.
+
+Owner is responsible **only** for: Product · Visual · UX · Business certification · Final Approval.
+
+## Automatic Certification Law
+
+Every sprint must pass **Automatic Certification BEFORE Owner Certification**.  
+Without Automatic Certification PASS = **PRODUCT FAIL**.
+
+## Master Development Chain (permanently locked)
+
+Development → TypeScript → ESLint → Build → Functional → Responsive → Mobile → Visual → No Regression QA → **AUTOMATIC CERTIFICATION** → Owner Certification → 100% → Permanent Freeze → Next Sprint
+
+## Automatic Certification must verify
+
+- **Technical** — TypeScript · ESLint · Build · Production Build · Dependencies · Imports/Exports · Routing · Performance · Bundle
+- **Functional** — Buttons · Links · Nav · Scroll · Empty/Loading/Error/API states · Forms · Validation · Transactions
+- **Responsive** — iPhone · Android · Tablet · Desktop · Orientation
+- **Mobile** — Safari · Chrome · Scroll · Touch · Safe areas · Keyboard · Sticky
+- **Security** — Security · Financial · Validation · Restricted · Protected routes
+- **Regression** — Sprints I–VIII (as applicable)
+- **Production** — Build · Routing · Integrity · Readiness
+
+Must verify every page · component · module · button · feature · integration · implementation — **no exceptions**.
+
+## Zero Regression via Auto-Cert
+
+| Developing | Must not break |
+|------------|----------------|
+| IV | I–III |
+| V | I–IV |
+| VIII | I–VII |
+
+Regression exists = **PRODUCT FAIL**
+
+## Owner must never receive
+
+Beta · Partial · Temporary locks · 95% · 99% · Untested products
+
+Owner receives only: Automatically certified + QA certified + Regression certified + Production ready + **100% complete**
+
+## Device / Localhost
+
+- Official Owner device: **iPhone 17 Pro Max**
+- All tests: `http://localhost:3000` — without localhost certification = **PRODUCT FAIL**
+
+## Constitutional chain
+
+```
+NO AUTO CERT = NO OWNER CERT
+NO OWNER CERT = NO 100%
+NO 100% = NO PERMANENT FREEZE
+NO PERMANENT FREEZE = NO NEXT SPRINT
+```
+
+## Trinity (all mandatory)
+
+| Law | Protects |
+|-----|----------|
+| Owner Certification | The Product |
+| Zero Regression (XVI) | The Past |
+| Automatic Certification (XVII) | The Future |
+
+Owner certifies the product. System certifies technical quality. Constitution certifies longevity.
+
+**No compromises. No shortcuts. No partial certifications. Only 100% complete.**

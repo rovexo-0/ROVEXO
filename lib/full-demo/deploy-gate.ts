@@ -4,6 +4,7 @@
  */
 
 import { readFileSync, existsSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join } from "node:path";
 import {
   FULL_DEMO_ACCOUNTS,
@@ -45,7 +46,7 @@ export type FullDemoCertificationReport = {
 };
 
 function readSource(relativePath: string): string {
-  const path = join(process.cwd(), relativePath);
+  const path = workspacePath( relativePath);
   if (!existsSync(path)) return "";
   return readFileSync(path, "utf8");
 }
@@ -100,21 +101,21 @@ export function runFullDemoCertificationScan(): FullDemoCertificationReport {
     ),
     check(
       "demo_seller_quotas",
-      FULL_DEMO_SELLER_QUOTAS.products === 100 &&
+      FULL_DEMO_SELLER_QUOTAS.products === 0 &&
         FULL_DEMO_SELLER_QUOTAS.completedSales === 100 &&
         FULL_DEMO_SELLER_QUOTAS.counterOffers === 20 &&
         FULL_DEMO_SELLER_QUOTAS.promotions >= 10,
-      "Seller inventory quotas locked (100 products + sales + offers + promotions)",
+      "Seller quotas: Absolute Law v5.0 products=0 (real only) + sales/offers/promotions floors",
     ),
     check(
       "authentication_passed",
-      existsSync(join(process.cwd(), "features/auth/components/LoginScreen.tsx")) &&
-        existsSync(join(process.cwd(), "features/auth/components/RegisterScreen.tsx")),
+      existsSync(workspacePath( "features/auth/components/LoginScreen.tsx")) &&
+        existsSync(workspacePath( "features/auth/components/RegisterScreen.tsx")),
       "Authentication screens present (Login + Register frozen)",
     ),
     check(
       "orders_passed",
-      existsSync(join(process.cwd(), "lib/orders/checkout.ts")) &&
+      existsSync(workspacePath( "lib/orders/checkout.ts")) &&
         seed.includes("FULLDEMO-"),
       "Orders path + Full Demo order seed present",
     ),
@@ -187,8 +188,8 @@ export function runFullDemoCertificationScan(): FullDemoCertificationReport {
     ),
     check(
       "product_target",
-      FULL_DEMO_PRODUCT_TARGET >= 100,
-      "LIVE SELLER requires ≥100 products",
+      FULL_DEMO_PRODUCT_TARGET === 0,
+      "Absolute Law v5.0: LIVE SELLER uses real products only (no seeded catalogue)",
     ),
     check(
       "permanence_contract",

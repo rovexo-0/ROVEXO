@@ -32,11 +32,10 @@ import {
 import { safeRandomUUID } from "@/lib/uuid";
 import { compressListingImage, createListingThumbnail, validateClientImage } from "@/lib/storage/client-images";
 import { persistSellDraftSnapshot, persistSellDraftTextSync } from "@/lib/sell/persist-sell-draft";
-import { applyDeterministicPrefill, buildDeterministicPrefill } from "@/lib/sell/deterministic-prefill";
+import { buildDeterministicPrefill } from "@/lib/sell/deterministic-prefill";
 import { detectColourFromImageFile } from "@/lib/sell/detect-colour-from-image";
 import {
   applyPrefillRespectingLocks,
-  createEmptyUserModified,
   inferUserModifiedFromDraft,
   markFieldsUserModified,
   shouldApplyPhotoColourSuggestion,
@@ -56,7 +55,6 @@ import {
 } from "@/lib/sell/smart-description-engine";
 import {
   createEmptyDraft,
-  isListingValid,
   SELL_PHOTO_MAX,
   type SellListingDraft,
   type SellPhoto,
@@ -77,6 +75,7 @@ import {
 import type { SellListingMode } from "@/lib/profile/account";
 import { createNewListingSession } from "@/lib/sell/new-listing-session";
 import { trackListingPublished } from "@/lib/sell/publish-analytics";
+import { toUserSafeFailClosedMessage } from "@/lib/fail-closed";
 import type { PublishSuccessPayload } from "@/lib/sell/publish-success";
 import { bumpPendingTextVersion } from "@/lib/sell/pending-text-store";
 
@@ -452,7 +451,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
           previewUrl: result.thumbnailUrl || result.url,
         } satisfies SellPhoto;
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Upload failed.";
+        const message = toUserSafeFailClosedMessage(error, "unavailable").body;
         setDraft((current) => ({
           ...current,
           photos: current.photos.map((item) =>
@@ -496,7 +495,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
             uploaded: false,
           } satisfies SellPhoto;
         } catch (error) {
-          failures.push(error instanceof Error ? error.message : "Unable to add photo.");
+          failures.push(toUserSafeFailClosedMessage(error, "unavailable").body);
           return null;
         }
       }),
@@ -755,8 +754,12 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
           ? uploadFinishedAtRef.current - uploadStartedAtRef.current
           : undefined;
 
-      const { photos: _photos, ...successPayload } = result;
+      const { photos: _unusedPhotos, ...successPayload } = result;
+      void _unusedPhotos;
       setPublishSuccess(successPayload);
+      // New Listing Priority: bust client RSC cache so My Store / My Listings
+      // show the new item first without a manual refresh.
+      router.refresh();
       trackListingPublished(successPayload, { publishDurationMs, uploadDurationMs });
     } catch (error) {
       if (
@@ -775,13 +778,17 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
           pendingDescriptionRef,
           uploadSessionId: uploadSessionRef.current,
         });
-        setFormError(error.message || PUBLISH_FAILURE_MESSAGE);
+        setFormError(
+          error.message.trim() ? error.message : PUBLISH_FAILURE_MESSAGE,
+        );
         setPublishPhase("error");
         return;
       }
 
       setFormError(
-        error instanceof Error ? error.message : "Unable to publish listing. Please try again.",
+        error instanceof PublishEngineError && error.message.trim()
+          ? error.message
+          : PUBLISH_FAILURE_MESSAGE,
       );
       setPublishPhase("error");
     } finally {

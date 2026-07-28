@@ -29,9 +29,11 @@ describe("My Account rendering safety", () => {
     expect(css).toContain(".ac-canonical__row");
   });
 
-  it("ROVEXO Ideas is reachable from Settings (Master Menu v2.0)", () => {
+  it("ROVEXO Ideas is reachable from Profile (v1.0 permanent rule)", () => {
+    const menu = readSource("lib/account-center/canonical-menu.ts");
+    expect(menu).toMatch(/id: "ideas"[\s\S]*?href:[\s\S]*?\/account\/ideas/);
     const settings = readSource("lib/account-center/settings-menu.ts");
-    expect(settings).toMatch(/id: "ideas"[\s\S]*?href:[\s\S]*?\/account\/ideas/);
+    expect(settings).not.toMatch(/id: "ideas"/);
     const icons = readSource("components/account/AccountIcons.tsx");
     expect(icons).toContain('"ideas"');
   });

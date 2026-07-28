@@ -5,9 +5,10 @@ alwaysApply: true
 
 # ROVEXO v1.0 — AUTH MASTER SPEC (CANONICAL)
 
-**STATUS: CERTIFIED | STARTUP SIMPLIFIED (PO PRIVATE DEPLOYMENT CONTRACT)**
+**STATUS: CERTIFIED | STARTUP SIMPLIFIED (PO PRIVATE DEPLOYMENT CONTRACT)**  
+**Architecture freeze:** see `auth-master-freeze-v1.mdc` + `lib/auth/auth-master-freeze-v1.ts` (OWNER APPROVED · LOCKED · FROZEN).
 
-**One authentication system only.** Do not create parallel auth, sessions, or guest gates.
+**One authentication system only: Supabase Auth.** Do not create parallel auth, sessions, or guest gates.
 
 ## Canonical startup (locked)
 
@@ -30,4 +31,4 @@ Login · Register remain production-locked presentation.
 
 ## Forbidden
 
-Duplicate Login/Register · restoring Splash/Welcome · new OAuth providers on Login · second auth system.
+Duplicate Login/Register · restoring Splash/Welcome · second auth system · custom session owners.

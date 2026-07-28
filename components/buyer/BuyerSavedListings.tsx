@@ -1,6 +1,7 @@
 "use client";
 
 import { ListingCard } from "@/components/ui/ListingCard";
+import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import { BuyerEmptyState } from "@/components/buyer/BuyerEmptyState";
 import { BuyerSection } from "@/components/buyer/BuyerSection";
 import { useBuyerDashboard } from "@/hooks/buyer";
@@ -16,7 +17,7 @@ export function BuyerSavedListings() {
         <div className="buyer-scroll">
           {data.saved.map((item) => (
             <div key={item.productSlug} className="w-[170px] shrink-0 snap-start">
-              <ListingCard product={item.product} variant="grid" surface="saved" />
+              <ListingCard product={item.product} variant="grid" {...HP_CANONICAL_LISTING_PROPS} />
             </div>
           ))}
         </div>

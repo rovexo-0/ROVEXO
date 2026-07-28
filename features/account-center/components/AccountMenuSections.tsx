@@ -1,19 +1,28 @@
 "use client";
 
-import { AccountIcon } from "@/components/account/AccountIcons";
+import { useState, useTransition } from "react";
 import {
   ACCOUNT_LOGOUT_MENU_ITEM,
   buildAccountMenuSections,
   type AccountMenuItem,
 } from "@/lib/account-center/canonical-menu";
+import { HolidayModeProfileRow } from "@/features/account-center/components/HolidayModeProfileRow";
+import {
+  PROFILE_BALANCE_ICON,
+  ProfileMenuIcon,
+} from "@/features/account-center/components/ProfileMenuIcons";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { resolveHrefBadge } from "@/lib/notifications/badge-counts";
 import { resolveMobileBadge } from "@/features/mobile-ui/hooks/use-mobile-badges";
 import { signOut } from "@/lib/auth/actions";
 import type { UserProfile } from "@/lib/profile/types";
-import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
+import { CanonicalMenuRow } from "@/src/components/canonical";
+import { CanonicalConfirmDialog } from "@/src/components/canonical/dialogs/CanonicalConfirmDialog";
 import { useTranslation } from "@/lib/i18n/use-translation";
-import { useTransition } from "react";
+
+/** Re-export for Balance module inheritance (Profile Icon System v1.0). */
+export { PROFILE_BALANCE_ICON };
+export { PROFILE_ICON_COLORS as PROFILE_MENU_ICONS } from "@/lib/account-center/profile-icon-system-v1";
 
 function resolveMenuBadge(
   item: AccountMenuItem,
@@ -30,72 +39,84 @@ function resolveMenuBadge(
 
 type AccountMenuSectionsProps = {
   profile: UserProfile;
+  /** Available-only label for Balance row (never pending/locked). */
+  availableBalanceLabel?: string;
+  /** Holiday Mode (vacationMode) — inline toggle, no subpage. */
+  holidayModeEnabled?: boolean;
+  /** Active listings — Smart Visibility for Holiday Mode. */
+  activeListingCount?: number;
 };
 
-export function AccountMenuSections({ profile }: AccountMenuSectionsProps) {
+export function AccountMenuSections({
+  profile,
+  availableBalanceLabel,
+  holidayModeEnabled = false,
+  activeListingCount = 0,
+}: AccountMenuSectionsProps) {
   const { badgeCounts, mobileBadges } = useRealtimeNotifications();
   const [isPending, startTransition] = useTransition();
+  const [signOutOpen, setSignOutOpen] = useState(false);
   const { tx } = useTranslation();
-  const sections = buildAccountMenuSections(profile);
+  const sections = buildAccountMenuSections(profile, {
+    availableBalanceLabel,
+    activeListingCount,
+  });
 
   return (
-    <nav className="ac-canonical__menu" aria-label={tx("My Account")} data-master-menu="v2.0">
-      {sections.map((section) =>
-        section.title ? (
-          <CanonicalSection key={section.id} title={section.title}>
-            <CanonicalCard variant="list">
-              {section.items.map((item) => (
-                <CanonicalMenuRow
+    <nav className="ac-canonical__menu" aria-label={tx("Profile")} data-master-menu="profile-v1" data-profile-icons="v1.0">
+      {sections.map((section) => (
+        <div key={section.id} className="ac-canonical__menu-group" data-section={section.id}>
+          {section.items.map((item) => {
+            if (item.id === "holiday-mode") {
+              return (
+                <HolidayModeProfileRow
                   key={item.id}
-                  id={`ac-canonical-${item.id}`}
-                  href={item.href}
-                  title={item.title}
-                  description={item.subtitle}
-                  badge={resolveMenuBadge(item, badgeCounts, mobileBadges)}
-                  icon={
-                    <span className="ac-canonical__menu-icon" aria-hidden>
-                      <AccountIcon name={item.icon} />
-                    </span>
-                  }
+                  initialEnabled={holidayModeEnabled}
                 />
-              ))}
-            </CanonicalCard>
-          </CanonicalSection>
-        ) : (
-          <div key={section.id} className="cds-section" data-section={section.id}>
-            <CanonicalCard variant="list">
-              {section.items.map((item) => (
-                <CanonicalMenuRow
-                  key={item.id}
-                  id={`ac-canonical-${item.id}`}
-                  href={item.href}
-                  title={item.title}
-                  description={item.subtitle}
-                  badge={resolveMenuBadge(item, badgeCounts, mobileBadges)}
-                  icon={
-                    <span className="ac-canonical__menu-icon" aria-hidden>
-                      <AccountIcon name={item.icon} />
-                    </span>
-                  }
-                />
-              ))}
-            </CanonicalCard>
-          </div>
-        ),
-      )}
+              );
+            }
 
-      <div className="cds-section" data-section="system">
-        <CanonicalCard variant="list">
-          <CanonicalMenuRow
-            id="ac-canonical-logout"
-            title={ACCOUNT_LOGOUT_MENU_ITEM.title}
-            destructive
-            disabled={isPending}
-            hideChevron
-            onClick={() => startTransition(() => void signOut())}
-          />
-        </CanonicalCard>
+            return (
+              <CanonicalMenuRow
+                key={item.id}
+                id={`ac-canonical-${item.id}`}
+                href={item.href}
+                title={item.title}
+                description={item.subtitle}
+                value={item.value}
+                badge={resolveMenuBadge(item, badgeCounts, mobileBadges)}
+                icon={<ProfileMenuIcon id={item.id} />}
+              />
+            );
+          })}
+        </div>
+      ))}
+
+      <div className="ac-canonical__menu-group" data-section="system">
+        <CanonicalMenuRow
+          id="ac-canonical-logout"
+          title={ACCOUNT_LOGOUT_MENU_ITEM.title}
+          destructive
+          disabled={isPending}
+          hideChevron
+          onClick={() => setSignOutOpen(true)}
+          icon={<ProfileMenuIcon id="logout" />}
+        />
       </div>
+
+      <CanonicalConfirmDialog
+        open={signOutOpen}
+        onClose={() => setSignOutOpen(false)}
+        onConfirm={() => {
+          setSignOutOpen(false);
+          startTransition(() => void signOut());
+        }}
+        title="Sign Out?"
+        confirmLabel="Sign Out"
+        cancelLabel="Cancel"
+        destructive
+        loading={isPending}
+      />
     </nav>
   );
 }

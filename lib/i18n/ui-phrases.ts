@@ -540,6 +540,184 @@ const plPL: UiPhraseMap = {
   "Platform Policies": "Zasady platformy",
 };
 
+const nlNL: UiPhraseMap = {
+  Home: "Home",
+  Browse: "Bladeren",
+  Sell: "Verkopen",
+  Inbox: "Inbox",
+  Profile: "Profiel",
+  "Main navigation": "Hoofdnavigatie",
+  Back: "Terug",
+  "My Account": "Mijn account",
+  Settings: "Instellingen",
+  Language: "Taal",
+  "Manage your account and preferences": "Beheer je account en voorkeuren",
+  "Current display language:": "Huidige weergavetaal:",
+  MANAGE: "BEHEREN",
+  ACCOUNT: "ACCOUNT",
+  SUPPORT: "SUPPORT",
+  SECURITY: "BEVEILIGING",
+  MARKETPLACE: "MARKTPLAATS",
+  PREFERENCES: "VOORKEUREN",
+  LEGAL: "JURIDISCH",
+  System: "Systeem",
+  "My Listings": "Mijn advertenties",
+  Orders: "Bestellingen",
+  "Saved Items": "Opgeslagen items",
+  "My Reviews": "Mijn beoordelingen",
+  Wallet: "Wallet",
+  "Promotion Tools": "Promotietools",
+  "Help Centre": "Helpcentrum",
+  Ideas: "Ideeën",
+  "Sign Out": "Uitloggen",
+  "Log out": "Uitloggen",
+  Addresses: "Adressen",
+  "Payment Methods": "Betaalmethoden",
+  Notifications: "Meldingen",
+  "Privacy & Security": "Privacy en beveiliging",
+  "Connected Accounts": "Gekoppelde accounts",
+  "Devices & Sessions": "Apparaten en sessies",
+  "Blocked Users": "Geblokkeerde gebruikers",
+  "Business Verification": "Zakelijke verificatie",
+  "Seller Performance": "Verkopersprestaties",
+  Preferences: "Voorkeuren",
+  "Language & Currency": "Taal en valuta",
+  Accessibility: "Toegankelijkheid",
+  "Terms & Policies": "Voorwaarden en beleid",
+  "About ROVEXO": "Over ROVEXO",
+  "Name, photo, and public profile": "Naam, foto en openbaar profiel",
+  "Delivery and billing addresses": "Bezorg- en factuuradressen",
+  "Cards and payment options": "Kaarten en betaalopties",
+  "Alerts, email, and push": "Meldingen, e-mail en push",
+  "Password, privacy, and data": "Wachtwoord, privacy en gegevens",
+  "Linked social and sign-in": "Gekoppelde social en aanmelding",
+  "Active devices and logins": "Actieve apparaten en logins",
+  "People you've blocked": "Mensen die je hebt geblokkeerd",
+  "Company and trade details": "Bedrijfs- en handelsgegevens",
+  "Reputation score and achievements": "Reputatiescore en prestaties",
+  "Boost listings and campaigns": "Boost advertenties en campagnes",
+  "Balance, payouts, and transactions": "Saldo, uitbetalingen en transacties",
+  "Shopping and recommendations": "Winkelen en aanbevelingen",
+  "Region, language, and currency": "Regio, taal en valuta",
+  "Accessibility options and statement": "Toegankelijkheidsopties en verklaring",
+  "Terms, privacy, and cookies": "Voorwaarden, privacy en cookies",
+  "App version and information": "App-versie en informatie",
+  Save: "Opslaan",
+  Cancel: "Annuleren",
+  Continue: "Doorgaan",
+  "Loading…": "Laden…",
+  "Delete account": "Account verwijderen",
+  "Language updated.": "Taal bijgewerkt.",
+  "Unable to update language.": "Kan de taal niet bijwerken.",
+  Currency: "Valuta",
+  Timezone: "Tijdzone",
+  Privacy: "Privacy",
+  "Password & Security": "Wachtwoord en beveiliging",
+  Password: "Wachtwoord",
+  "Two-factor authentication": "Tweefactorauthenticatie",
+  "Coming soon": "Binnenkort",
+  "Available Balance": "Beschikbaar saldo",
+  Withdraw: "Opnemen",
+  Transactions: "Transacties",
+  Payouts: "Uitbetalingen",
+  "Bank Account": "Bankrekening",
+  Cart: "Winkelwagen",
+  Search: "Zoeken",
+  "Contact Support": "Contact opnemen met support",
+  Legal: "Juridisch",
+  FAQ: "FAQ",
+  "Platform Policies": "Platformbeleid",
+};
+
+const ptPT: UiPhraseMap = {
+  Home: "Início",
+  Browse: "Explorar",
+  Sell: "Vender",
+  Inbox: "Caixa de entrada",
+  Profile: "Perfil",
+  "Main navigation": "Navegação principal",
+  Back: "Voltar",
+  "My Account": "A minha conta",
+  Settings: "Definições",
+  Language: "Idioma",
+  "Manage your account and preferences": "Gerir a sua conta e preferências",
+  "Current display language:": "Idioma de apresentação atual:",
+  MANAGE: "GERIR",
+  ACCOUNT: "CONTA",
+  SUPPORT: "SUPORTE",
+  SECURITY: "SEGURANÇA",
+  MARKETPLACE: "MERCADO",
+  PREFERENCES: "PREFERÊNCIAS",
+  LEGAL: "LEGAL",
+  System: "Sistema",
+  "My Listings": "Os meus anúncios",
+  Orders: "Encomendas",
+  "Saved Items": "Itens guardados",
+  "My Reviews": "As minhas avaliações",
+  Wallet: "Carteira",
+  "Promotion Tools": "Ferramentas de promoção",
+  "Help Centre": "Centro de ajuda",
+  Ideas: "Ideias",
+  "Sign Out": "Terminar sessão",
+  "Log out": "Terminar sessão",
+  Addresses: "Moradas",
+  "Payment Methods": "Métodos de pagamento",
+  Notifications: "Notificações",
+  "Privacy & Security": "Privacidade e segurança",
+  "Connected Accounts": "Contas ligadas",
+  "Devices & Sessions": "Dispositivos e sessões",
+  "Blocked Users": "Utilizadores bloqueados",
+  "Business Verification": "Verificação empresarial",
+  "Seller Performance": "Desempenho do vendedor",
+  Preferences: "Preferências",
+  "Language & Currency": "Idioma e moeda",
+  Accessibility: "Acessibilidade",
+  "Terms & Policies": "Termos e políticas",
+  "About ROVEXO": "Sobre a ROVEXO",
+  "Name, photo, and public profile": "Nome, foto e perfil público",
+  "Delivery and billing addresses": "Moradas de entrega e faturação",
+  "Cards and payment options": "Cartões e opções de pagamento",
+  "Alerts, email, and push": "Alertas, e-mail e push",
+  "Password, privacy, and data": "Palavra-passe, privacidade e dados",
+  "Linked social and sign-in": "Redes sociais e início de sessão ligados",
+  "Active devices and logins": "Dispositivos e sessões ativos",
+  "People you've blocked": "Pessoas que bloqueou",
+  "Company and trade details": "Dados da empresa e comércio",
+  "Reputation score and achievements": "Pontuação de reputação e conquistas",
+  "Boost listings and campaigns": "Impulsionar anúncios e campanhas",
+  "Balance, payouts, and transactions": "Saldo, levantamentos e transações",
+  "Shopping and recommendations": "Compras e recomendações",
+  "Region, language, and currency": "Região, idioma e moeda",
+  "Accessibility options and statement": "Opções e declaração de acessibilidade",
+  "Terms, privacy, and cookies": "Termos, privacidade e cookies",
+  "App version and information": "Versão da app e informação",
+  Save: "Guardar",
+  Cancel: "Cancelar",
+  Continue: "Continuar",
+  "Loading…": "A carregar…",
+  "Delete account": "Eliminar conta",
+  "Language updated.": "Idioma atualizado.",
+  "Unable to update language.": "Não foi possível atualizar o idioma.",
+  Currency: "Moeda",
+  Timezone: "Fuso horário",
+  Privacy: "Privacidade",
+  "Password & Security": "Palavra-passe e segurança",
+  Password: "Palavra-passe",
+  "Two-factor authentication": "Autenticação de dois fatores",
+  "Coming soon": "Em breve",
+  "Available Balance": "Saldo disponível",
+  Withdraw: "Levantar",
+  Transactions: "Transações",
+  Payouts: "Pagamentos",
+  "Bank Account": "Conta bancária",
+  Cart: "Carrinho",
+  Search: "Pesquisar",
+  "Contact Support": "Contactar o suporte",
+  Legal: "Legal",
+  FAQ: "FAQ",
+  "Platform Policies": "Políticas da plataforma",
+};
+
 const catalogs: Partial<Record<LocaleCode, UiPhraseMap>> = {
   "ro-RO": roRO,
   "de-DE": deDE,
@@ -547,17 +725,50 @@ const catalogs: Partial<Record<LocaleCode, UiPhraseMap>> = {
   "it-IT": itIT,
   "es-ES": esES,
   "pl-PL": plPL,
+  "nl-NL": nlNL,
+  "pt-PT": ptPT,
 };
 
-/** Translate a literal English UI string. Falls back to English when missing. */
+/** Translate a literal English UI string. Falls back to English when missing. Logs only. */
 export function translateUi(locale: LocaleCode | string, text: string): string {
   if (!text) return text;
   if (locale === "en-GB" || locale === "en-IE") return text;
   const catalog = catalogs[locale as LocaleCode];
-  if (!catalog) return text;
-  return catalog[text] ?? text;
+  if (!catalog) {
+    logMissingTranslation({ locale: String(locale), kind: "ui-catalog", key: text });
+    return text;
+  }
+  const value = catalog[text];
+  if (value == null || value === "") {
+    logMissingTranslation({ locale: String(locale), kind: "ui-phrase", key: text });
+    return text;
+  }
+  return value;
 }
 
 export function hasUiPhraseCatalog(locale: LocaleCode | string): boolean {
   return Boolean(catalogs[locale as LocaleCode]);
+}
+
+/** English source phrase keys (canonical UI phrase set). */
+export function listCanonicalUiPhraseKeys(): string[] {
+  const ref = catalogs["ro-RO"];
+  return ref ? Object.keys(ref) : [];
+}
+
+/** Keys present in a locale UI phrase catalog (en-GB → canonical English set). */
+export function listUiPhraseKeys(locale: LocaleCode | string): string[] {
+  if (locale === "en-GB" || locale === "en-IE") return listCanonicalUiPhraseKeys();
+  const catalog = catalogs[locale as LocaleCode];
+  return catalog ? Object.keys(catalog) : [];
+}
+
+function logMissingTranslation(input: {
+  locale: string;
+  kind: "ui-catalog" | "ui-phrase";
+  key: string;
+}): void {
+  if (process.env.NODE_ENV === "production") return;
+  // Fail-closed: never surface to users — log only.
+  console.warn("[language-engine]", "missing-translation", input.kind, input.locale, input.key);
 }

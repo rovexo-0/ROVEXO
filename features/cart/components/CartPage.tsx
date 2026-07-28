@@ -16,6 +16,11 @@ import {
 } from "@/lib/orders/pricing";
 import type { CartSummary } from "@/lib/cart/store";
 import { groupCartItemsBySeller } from "@/lib/cart/group-by-seller";
+import { useToast } from "@/components/ui/Toast";
+import {
+  buildBuyNowCheckoutHref,
+  useBuyNowNavigation,
+} from "@/features/checkout/hooks/use-buy-now-navigation";
 
 function TrashLineIcon({ className }: { className?: string }) {
   return (
@@ -49,6 +54,8 @@ async function cartAction(body: Record<string, unknown>) {
 
 export function CartPage({ cart }: CartPageProps) {
   const router = useRouter();
+  const { pushToast } = useToast();
+  const { executeBuyNow } = useBuyNowNavigation();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     () => new Set(cart.items.filter((item) => item.available).map((item) => item.id)),
   );
@@ -128,9 +135,14 @@ export function CartPage({ cart }: CartPageProps) {
 
   const checkoutItem = selectedItems.find((item) => item.available);
 
-  const proceedToCheckout = () => {
+  const proceedToCheckout = async () => {
     if (!checkoutItem) return;
-    router.push(`/checkout/${checkoutItem.slug}`);
+    const result = await executeBuyNow({
+      productSlug: checkoutItem.slug,
+      onError: (message) => pushToast({ title: message, variant: "error" }),
+    });
+    if (!result.ok) return;
+    router.push(buildBuyNowCheckoutHref(checkoutItem.slug, result.checkoutPath));
   };
 
   return (

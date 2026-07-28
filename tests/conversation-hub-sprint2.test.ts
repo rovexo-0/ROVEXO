@@ -106,13 +106,43 @@ describe("Conversation Hub Sprint 3", () => {
     });
 
     expect(view.tracking?.trackingNumber).toBe("AB123");
-    expect(view.statusSteps.find((step) => step.state === "current")?.id).toBe("shipped");
-    expect(view.dynamicActions.some((action) => action.id === "confirm_shipment")).toBe(true);
+    expect(buildOrderStatusSteps("published", "shipped").find((step) => step.state === "current")?.id).toBe(
+      "shipped",
+    );
+    /* MES v1.1 — after label/tracking, seller Action Bar is informational (carrier webhooks). */
+    expect(view.dynamicActions).toEqual([]);
+    expect(view.actionBarPanel?.title).toMatch(/Tracking Active|Out for delivery|transit/i);
+    expect(view.dynamicActions.some((action) => action.id === "confirm_shipment")).toBe(false);
+
+    const withLabel = buildConversationHubView({
+      conversation: sampleConversation,
+      order: shippedOrder,
+      hasShippingLabel: true,
+    });
+    expect(withLabel.dynamicActions).toEqual([]);
+    expect(withLabel.actionBarPanel).not.toBeNull();
+
+    const awaiting = buildConversationHubView({
+      conversation: sampleConversation,
+      order: { ...shippedOrder, status: "awaiting_shipment", trackingNumber: undefined },
+      hasShippingLabel: false,
+    });
+    expect(awaiting.dynamicActions.some((action) => action.id === "print_label")).toBe(true);
+    expect(awaiting.dynamicActions[0]?.label).toBe("Get Shipping Label");
+
+    const awaitingLabeled = buildConversationHubView({
+      conversation: sampleConversation,
+      order: { ...shippedOrder, status: "awaiting_shipment", trackingNumber: undefined },
+      hasShippingLabel: true,
+    });
+    expect(awaitingLabeled.dynamicActions).toEqual([]);
+    expect(awaitingLabeled.actionBarPanel?.title).toBe("Waiting for parcel drop-off");
   });
 
   it("maps offer database statuses and wires offer action API", () => {
     expect(mapOfferDbStatus("rejected")).toBe("declined");
     expect(mapOfferDbStatus("pending")).toBe("open");
+    expect(mapOfferDbStatus("cancelled")).toBe("countered");
     expect(readSource("app/api/offers/[id]/route.ts")).toContain('action: z.enum(["accept", "decline", "counter"])');
     expect(readSource("app/api/messages/[id]/route.ts")).toContain('kind?: "text" | "photo" | "emoji"');
   });

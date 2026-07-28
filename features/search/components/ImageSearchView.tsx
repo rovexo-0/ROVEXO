@@ -34,19 +34,20 @@ function priceBucket(price: number): string {
  */
 export function ImageSearchView() {
   const router = useRouter();
-  const [payload, setPayload] = useState<CameraSearchResultsPayload | null>(null);
-  const [hydrating, setHydrating] = useState(true);
+  const [payload, setPayload] = useState<CameraSearchResultsPayload | null>(() => {
+    const existing = getImageSearchResults();
+    return existing?.matches?.length ? existing : null;
+  });
+  const [hydrating, setHydrating] = useState(() => {
+    const existing = getImageSearchResults();
+    return !(existing?.matches?.length);
+  });
   const [brandFilter, setBrandFilter] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [priceFilter, setPriceFilter] = useState<string | null>(null);
 
   useEffect(() => {
-    const existing = getImageSearchResults();
-    if (existing?.matches?.length) {
-      setPayload(existing);
-      setHydrating(false);
-      return;
-    }
+    if (payload?.matches?.length) return;
 
     // Fail-closed recovery only (direct URL / lost memory) — still ONE parallel search, never refresh.
     let cancelled = false;
@@ -77,9 +78,12 @@ export function ImageSearchView() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [payload?.matches?.length]);
 
-  const matches: ImageSearchMatch[] = payload?.matches ?? [];
+  const matches = useMemo(
+    (): ImageSearchMatch[] => payload?.matches ?? [],
+    [payload?.matches],
+  );
   const hasExactMatch = payload?.hasExactMatch ?? false;
   const queryDataUrl = payload?.queryDataUrl ?? null;
   const noExactCopy = CAMERA_SEARCH_V1.noExactMatchCopy;
@@ -96,7 +100,7 @@ export function ImageSearchView() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 8)
       .map(([brand]) => brand);
-  }, [matches, payload?.filters.brands]);
+  }, [matches, payload]);
 
   const categories = useMemo(() => {
     if (payload?.categories?.length) return payload.categories;
@@ -112,7 +116,7 @@ export function ImageSearchView() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
       .map(([category]) => category);
-  }, [matches, payload?.categories]);
+  }, [matches, payload]);
 
   const priceRanges = useMemo(() => {
     if (payload?.filters.priceRanges?.length) return payload.filters.priceRanges;
@@ -124,7 +128,7 @@ export function ImageSearchView() {
     return [...counts.entries()]
       .sort((a, b) => b[1] - a[1])
       .map(([bucket]) => bucket);
-  }, [matches, payload?.filters.priceRanges]);
+  }, [matches, payload]);
 
   const filtered = useMemo(() => {
     return matches.filter(({ product }) => {

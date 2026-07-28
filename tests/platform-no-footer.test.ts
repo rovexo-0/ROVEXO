@@ -27,7 +27,7 @@ describe("Platform — marketplace footer removed", () => {
     const paths = [
       "features/business/dashboard/components/BusinessDashboardPage.tsx",
       "features/orders/components/OrdersPage.tsx",
-      "features/sell/ui/SellScreen.tsx",
+      "features/sell/ui/SellPage.tsx",
       "features/account-center/components/SellingMenuSections.tsx",
     ];
 

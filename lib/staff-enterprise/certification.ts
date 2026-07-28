@@ -1,4 +1,5 @@
 import { readFileSync, existsSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join } from "node:path";
 
 export type StaffEnterpriseCertCheck = {
@@ -94,7 +95,7 @@ function auditDeadRoutes(rootDir: string): StaffEnterpriseCertCheck[] {
   ];
 }
 
-export function runStaffEnterpriseCertification(rootDir: string = process.cwd()): StaffEnterpriseCertificationReport {
+export function runStaffEnterpriseCertification(rootDir: string = workspacePath()): StaffEnterpriseCertificationReport {
   const migration = readSource(rootDir, "supabase/migrations/20250725000001_staff_enterprise_platform.sql");
   const staffMigration = readSource(rootDir, "supabase/migrations/20250724000001_staff_profile_activity_audit.sql");
   const permissions = readSource(rootDir, "lib/staff-enterprise/permissions.ts");

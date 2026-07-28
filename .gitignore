@@ -53,11 +53,22 @@ next-env.d.ts
 # Local lint reports
 /eslint-out.json
 /eslint-report.json
+/lint-report.txt
 
 # Debug / regression run logs
 /prod-fix.log
 /prod-reg.log
 /regression-report.log
+/startup.log
+/test.txt
+.tmp-*
+compare-preview.env
+compare-production.env
+test-preview.env
+test-production.env
+
+# Local ops helpers (never deploy secrets tooling via candidate by accident)
+/scripts/sync-supabase-service-role-from-vercel.mjs
 
 # Local archived work
 _wip/

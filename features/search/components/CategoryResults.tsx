@@ -7,6 +7,7 @@ type CategoryResultsProps = {
   activeIndex: number;
   navOffset: number;
   onHoverIndex: (index: number) => void;
+  onNavigate?: () => void;
 };
 
 export function CategoryResults({
@@ -14,6 +15,7 @@ export function CategoryResults({
   activeIndex,
   navOffset,
   onHoverIndex,
+  onNavigate,
 }: CategoryResultsProps) {
   if (items.length === 0) return null;
 
@@ -30,6 +32,7 @@ export function CategoryResults({
               href={category.href}
               className={cn(isActive && "bg-primary/10 text-primary")}
               onMouseEnter={() => onHoverIndex(navIndex)}
+              onClick={onNavigate}
             />
           </li>
         );

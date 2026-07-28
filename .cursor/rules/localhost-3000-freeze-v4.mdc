@@ -1,0 +1,48 @@
+---
+description: Absolute Law v4.0 — localhost:3000 is the ONLY official ROVEXO development and certification host (PERMANENT).
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE LAW v4.0 — LOCALHOST:3000 FREEZE
+
+**STATUS: OWNER APPROVED | PERMANENT LAW | LOCKED | FROZEN**
+
+SSOT: `lib/localhost-3000-freeze-v4.ts`
+
+## Authorized (only)
+
+`http://localhost:3000`
+
+## Forbidden
+
+`localhost:3001` · `localhost:3010` · `localhost:4000` · `localhost:5000` · temporary / demo / fake / mock hosts · test environments with different behaviour
+
+## Mandate
+
+- All development on **localhost:3000**
+- All certifications on **localhost:3000**
+- All modules PASS on **localhost:3000** before: Git Commit → Push → Preview → Production
+- localhost:3000 = **production mirror** (one DB · one products table · one SSOT · one marketplace · one Buy Now / Checkout / Payment / Shipping / Transaction / Auth / Routing)
+- **Real products only** — 0 products → show no products (never pad with fakes)
+
+## Buy Now
+
+Allow only when product exists · real · published · UUID · seller ID · stock · purchasable · all guards PASS.  
+Any fail → STOP (no checkout / payment / order / shipping).
+
+## Fail closed
+
+If localhost:3000 FAILS → STOP. No commit · push · preview · production · freeze · certification.
+
+## Equation
+
+```
+ONE HOST (localhost:3000) = ONE MARKETPLACE = ONE DATABASE = ONE SSOT = REAL PRODUCTS ONLY = PERMANENT LAW
+```
+
+## Cursor must never
+
+- Cite `localhost:3010` (or other forbidden ports) as official development/certification
+- Inject demo/mock/placeholder listings on localhost
+- Claim PASS / commit / push / deploy when localhost:3000 fails
+- Create a second local environment with different marketplace behaviour

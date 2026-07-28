@@ -1,0 +1,28 @@
+---
+description: Conversation Hub Sprint 1 FREEZE — Owner approved payment role contract
+globs:
+  - features/inbox/**
+  - features/transaction-hub/**
+  - lib/inbox/**
+  - styles/rovexo/conversation-hub-v1.css
+alwaysApply: false
+---
+
+# Conversation Hub Sprint 1 FREEZE (Owner · 2026-07-23)
+
+**STATUS: APPROVED · FROZEN**
+
+SSOT: `lib/inbox/conversation-hub-sprint1-freeze-v1.ts`  
+Doc: `docs/modules/inbox/CONVERSATION_HUB_SPRINT1_FREEZE.md`  
+UI: `features/inbox/components/ConversationHub.tsx` only — no duplicates / new pages.
+
+## Permanent money rules
+
+- Buyer: Item + Shipping + Platform Fee = Total Buyer Pays → `Pay now • £final_total`
+- Pay Now **never** shows listing/item price alone
+- Seller: selling price only for money — **never** Platform Fee, buyer shipping, Total Buyer Pays, or buyer breakdown
+- ONE ORDER = ONE TIMELINE = ONE TRANSACTION HUB
+
+## After this freeze
+
+Optimize in place only. Do not redesign. Later sprints (label, tracking polish, issue center, automatic payment release) must obey this contract.

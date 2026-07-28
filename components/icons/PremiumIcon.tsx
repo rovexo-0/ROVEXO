@@ -21,8 +21,6 @@ export function PremiumIcon({
   children,
   size = "md",
   className,
-  float: _float = false,
-  glow: _glow = false,
   label,
 }: PremiumIconProps) {
   return (

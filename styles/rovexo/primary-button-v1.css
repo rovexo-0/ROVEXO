@@ -1,0 +1,130 @@
+/**
+ * ROVEXO GLOBAL BUTTON RECOVERY v1.0 — PrimaryButton CSS SSOT
+ * Functional Profile geometry: Height 56 · Radius 16 · Font 16/600 · Pad-x 24 · Full width · Purple
+ */
+
+:root {
+  --rx-primary-height: 56px;
+  --rx-primary-radius: 16px;
+  --rx-primary-font-size: 16px;
+  --rx-primary-font-weight: 600;
+  --rx-primary-pad-x: 24px;
+  --rx-primary-gradient: linear-gradient(135deg, #a855f7 0%, #9333ea 48%, #7c3aed 100%);
+  --rx-primary-color: #ffffff;
+  --rx-primary-border: rgb(124 58 237 / 0.35);
+  --rx-primary-shadow:
+    0 1px 2px rgb(109 40 217 / 0.12),
+    0 5px 14px rgb(147 51 234 / 0.2),
+    inset 0 1px 0 rgb(255 255 255 / 0.22);
+}
+
+:root {
+  --ma-primary-height: var(--rx-primary-height);
+  --ma-primary-radius: var(--rx-primary-radius);
+  --ma-primary-font-size: var(--rx-primary-font-size);
+  --ma-primary-font-weight: var(--rx-primary-font-weight);
+  --ma-primary-gradient: var(--rx-primary-gradient);
+  --ma-primary-color: var(--rx-primary-color);
+  --ma-primary-border: var(--rx-primary-border);
+  --ma-primary-shadow: var(--rx-primary-shadow);
+  --fw-button-height: var(--rx-primary-height);
+  --fw-button-radius: var(--rx-primary-radius);
+  --cds-button-height: var(--rx-primary-height);
+}
+
+.rx-primary-button,
+button.rx-primary-button,
+a.rx-primary-button,
+.cds-button--primary,
+.cds-button.cds-button--primary,
+.rx-btn.rx-btn--primary:not(.auth-primary-button),
+[data-primary-button="v1.0"],
+[data-primary-button="v1.0-global-primary"],
+[data-my-account-primary],
+[data-full-width-engine="v1.0"] .cds-button--primary,
+[data-full-width-engine="v1.0"] .cds-button.cds-button--primary {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  height: var(--rx-primary-height);
+  min-height: var(--rx-primary-height);
+  max-height: none;
+  padding: 0 var(--rx-primary-pad-x);
+  border-radius: var(--rx-primary-radius);
+  border: 1px solid var(--rx-primary-border);
+  color: var(--rx-primary-color);
+  background: var(--rx-primary-gradient);
+  background-image: var(--rx-primary-gradient);
+  box-shadow: var(--rx-primary-shadow);
+  font-size: var(--rx-primary-font-size);
+  font-weight: var(--rx-primary-font-weight);
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    filter 220ms ease,
+    box-shadow 220ms ease,
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 150ms ease;
+}
+
+.rx-primary-button:hover:not(:disabled),
+.cds-button--primary:hover:not(:disabled) {
+  filter: brightness(1.03);
+  background: var(--rx-primary-gradient);
+  background-image: var(--rx-primary-gradient);
+  box-shadow:
+    0 2px 4px rgb(109 40 217 / 0.14),
+    0 7px 18px rgb(147 51 234 / 0.26),
+    inset 0 1px 0 rgb(255 255 255 / 0.26);
+}
+
+.rx-primary-button:active:not(:disabled),
+.cds-button--primary:active:not(:disabled) {
+  transform: scale(0.98);
+  filter: brightness(0.98);
+}
+
+.rx-primary-button:focus-visible,
+.cds-button--primary:focus-visible {
+  outline: 2px solid #9333ea;
+  outline-offset: 2px;
+  box-shadow: var(--rx-primary-shadow);
+}
+
+.rx-primary-button:disabled,
+.rx-primary-button[aria-disabled="true"],
+.cds-button--primary:disabled,
+.cds-button--primary.cds-button--loading {
+  opacity: 0.6;
+  filter: none;
+  cursor: not-allowed;
+}
+
+.rx-primary-button__spinner,
+.cds-button--primary .cds-button__spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.rx-primary-button--auto {
+  width: auto;
+  max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-primary-button,
+  .cds-button--primary {
+    transition: none;
+  }
+
+  .rx-primary-button:active:not(:disabled),
+  .cds-button--primary:active:not(:disabled) {
+    transform: none;
+  }
+}

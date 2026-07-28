@@ -31,7 +31,7 @@ export function buildMessagesMenuSections(): MessagesMenuSection[] {
           id: "inbox",
           title: "Inbox",
           href: INBOX_ROUTES.hub,
-          icon: "messages",
+          icon: "inbox",
         },
         {
           id: "orders",
@@ -43,7 +43,7 @@ export function buildMessagesMenuSections(): MessagesMenuSection[] {
           id: "tracking",
           title: "Tracking",
           href: "/orders?tab=bought&status=in_progress",
-          icon: "shipping",
+          icon: "tracking",
         },
         {
           id: "messages",
@@ -67,13 +67,13 @@ export function buildMessagesMenuSections(): MessagesMenuSection[] {
           id: "refunds",
           title: "Refunds",
           href: "/resolution?type=refund",
-          icon: "returns",
+          icon: "refunds",
         },
         {
           id: "disputes",
           title: "Disputes",
           href: "/resolution?type=dispute",
-          icon: "returns",
+          icon: "disputes",
         },
       ],
     },

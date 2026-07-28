@@ -5,7 +5,7 @@ type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-/** Absolute Final: one checkout URL — Products → Shipping → Platform Fee → Total → Confirm & Pay. */
+/** Absolute Final: one checkout URL — Products → Shipping → Platform Fee → Total → Buy Now. */
 export default async function CheckoutAddressRoute({ params, searchParams }: Props) {
   const { slug } = await params;
   const query = searchParams ? await searchParams : {};

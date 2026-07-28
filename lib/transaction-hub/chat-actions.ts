@@ -47,8 +47,9 @@ export function resolveChatBottomActions(context: ChatActionContext): ResolvedCh
     };
   }
 
+  /* Conversation mockup absolute: BUY NOW only after Offer Accepted. */
   return {
-    buyNow: available && fixedPrice && capabilities.buyNow,
+    buyNow: false,
     makeOffer: available && context.product.acceptOffers,
     addToCart: available && fixedPrice && capabilities.addToCart,
   };

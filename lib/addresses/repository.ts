@@ -82,10 +82,17 @@ async function findMatchingUserAddress(
   input: AddressInput,
   exceptId?: string,
 ): Promise<UserAddress | null> {
+  /**
+   * Address Engine v1.0 — entity uniqueness (NOT postcode uniqueness).
+   * Same postcode may hold unlimited distinct addresses.
+   */
   const supabase = await createClient();
   const addressType = input.addressType ?? "shipping";
-  const normalizedLine = sanitizeText(input.addressLine).toLowerCase();
-  const normalizedPostcode = sanitizeText(input.postcode).toLowerCase();
+  const line1 = sanitizeText(input.addressLine).toLowerCase();
+  const line2 = (sanitizeOptionalText(input.addressLine2) ?? "").toLowerCase();
+  const city = (sanitizeOptionalText(input.city) ?? "").toLowerCase();
+  const postcode = sanitizeText(input.postcode).toLowerCase();
+  const country = sanitizeText(input.country).toLowerCase();
 
   const { data } = await supabase
     .from("shipping_addresses")
@@ -96,8 +103,11 @@ async function findMatchingUserAddress(
   const match = (data ?? []).find((row) => {
     if (exceptId && row.id === exceptId) return false;
     return (
-      sanitizeText(row.address_line).toLowerCase() === normalizedLine &&
-      sanitizeText(row.postcode).toLowerCase() === normalizedPostcode
+      sanitizeText(row.address_line).toLowerCase() === line1 &&
+      (sanitizeOptionalText(row.address_line_2 ?? undefined) ?? "").toLowerCase() === line2 &&
+      (sanitizeOptionalText(row.city ?? undefined) ?? "").toLowerCase() === city &&
+      sanitizeText(row.postcode).toLowerCase() === postcode &&
+      sanitizeText(row.country).toLowerCase() === country
     );
   });
 

@@ -1,0 +1,44 @@
+# ROVEXO v1.0 — REAL PRODUCTS ONLY (PERMANENT)
+
+**STATUS: OWNER APPROVED | LOCKED | DEMO CATALOGUE REMOVED**
+
+## Law
+
+```
+ONE MARKETPLACE → ONE DATABASE → ONE products TABLE → REAL PRODUCTS ONLY
+```
+
+## Forbidden forever
+
+- Demo Listings / Demo Products / Demo Catalogue
+- Demo Product Detail fallbacks (`if (!detail) return demo`)
+- Demo Buy Now / Checkout / Payment paths for fake slugs
+- `filterCanonicalDemoListings()` / homepage demo injectors
+- `demo-xxxxxx` catalogue listings (`demo-gaming-chair`, `demo-iphone-*`, `demo-listing-*`, `demo-feed-*`)
+- `lib/demo-mode/` catalogue SSOT
+- `lib/homepage/demo-data.ts` demo padding
+- Env toggles that inject fake inventory: `ROVEXO_DEMO_MODE`, `ROVEXO_HOMEPAGE_DEMO`
+
+## Keep (separate system)
+
+Full Demo **certification accounts** only:
+
+- `demo.buyer@rovexo.co.uk`
+- `demo.seller@rovexo.co.uk`
+
+SSOT: `lib/demo-environment/` · `lib/full-demo/` · `.cursor/rules/full-demo-certification-permanent.mdc`
+
+Those accounts buy/sell **real** `products` rows (or empty marketplace). Never a parallel in-memory catalogue.
+
+## Empty marketplace
+
+When no eligible real products exist → empty state / no listings.  
+Never pad with mocks, placeholders, or fallback products.
+
+## Surfaces (real DB only)
+
+Homepage · Search · Categories · Listing · Product · Buy Now · Checkout · Payment · Order · Shipping
+
+## Lock test
+
+`tests/real-products-only-v1.lock.test.ts`

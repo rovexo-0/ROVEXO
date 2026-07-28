@@ -12,6 +12,11 @@ import { ModalContainer } from "@/components/ui/ModalContainer";
 import { focusRing } from "@/components/ui/tokens";
 import { formatListingPrice } from "@/lib/listing-card/format";
 import { getAvailablePaymentMethods } from "@/lib/checkout/payment";
+import { useToast } from "@/components/ui/Toast";
+import {
+  buildBuyNowCheckoutHref,
+  useBuyNowNavigation,
+} from "@/features/checkout/hooks/use-buy-now-navigation";
 
 type CartCheckoutSheetProps = {
   open: boolean;
@@ -44,13 +49,20 @@ export function CartCheckoutSheet({
   checkoutSlug,
 }: CartCheckoutSheetProps) {
   const router = useRouter();
+  const { pushToast } = useToast();
+  const { executeBuyNow } = useBuyNowNavigation();
   const [{ isIOS, isAndroid }] = useState(detectMobilePlatform);
   const methods = useMemo(() => getAvailablePaymentMethods({ isIOS, isAndroid }), [isIOS, isAndroid]);
 
-  const goCheckout = () => {
+  const goCheckout = async () => {
     if (!checkoutSlug) return;
+    const result = await executeBuyNow({
+      productSlug: checkoutSlug,
+      onError: (message) => pushToast({ title: message, variant: "error" }),
+    });
+    if (!result.ok) return;
     onClose();
-    router.push(`/checkout/${checkoutSlug}`);
+    router.push(buildBuyNowCheckoutHref(checkoutSlug, result.checkoutPath));
   };
 
   return (

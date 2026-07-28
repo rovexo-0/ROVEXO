@@ -86,12 +86,13 @@ describe("Seller Performance v1.0 — CANONICAL FREEZE", () => {
       "export async function getPublicSellerPerformanceSummary",
     )[1]?.split("export async function listSellerPerformanceAudit")[0] ?? "";
 
-    expect(route).toContain("level");
-    expect(route).toContain("averageRating");
+    expect(route).toContain("getReputationPublicProfile");
+    expect(route).toContain("canonicalApi");
     expect(route).toContain("badges");
     expect(route).toContain("completedSales");
     expect(route).toContain("verified");
     expect(route).not.toMatch(/score:\s*summary\.score/);
+    expect(publicFn).toContain("badges: []");
     expect(publicFn).not.toContain("componentScores");
     expect(publicFn).not.toContain("factorBreakdown");
     expect(publicFn).not.toContain("seller_performance_audit");

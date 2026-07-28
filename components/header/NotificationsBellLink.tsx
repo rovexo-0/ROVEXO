@@ -7,7 +7,7 @@ import { useRealtimeNotifications } from "@/features/notifications/components/Re
 export function NotificationsBellLink() {
   const { mobileBadges } = useRealtimeNotifications();
   return (
-    <RvxTopBarIconLink href="/notifications" label="Notifications" badge={mobileBadges.notifications}>
+    <RvxTopBarIconLink href="/inbox?tab=notifications" label="Notifications" badge={mobileBadges.notifications}>
       <BellLineIcon />
     </RvxTopBarIconLink>
   );

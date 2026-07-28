@@ -1,24 +1,16 @@
-import { loadAllCategories, type DbCategory } from "@/lib/categories/server";
+/**
+ * Absolute Law XXXI — Database taxonomy trees are FORBIDDEN.
+ * This module never returns legacy DB category trees.
+ * All callers receive Catalog Master via getCategoryTree().
+ */
+
+import { getCategoryTree } from "@/lib/categories/queries";
 import type { CategoryNode } from "@/lib/categories/types";
-import { resolveTransactionModeFromDbValue } from "@/lib/transaction-mode/resolver";
 
-function buildNodes(categories: DbCategory[], parentId: string | null): CategoryNode[] {
-  return categories
-    .filter((category) => category.parentId === parentId)
-    .sort((left, right) => left.sortOrder - right.sortOrder)
-    .map((category) => ({
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-      transactionMode: category.transactionMode
-        ? resolveTransactionModeFromDbValue(category.transactionMode)
-        : undefined,
-      children: buildNodes(categories, category.id),
-    }));
-}
-
+/**
+ * @deprecated Name retained for compatibility only.
+ * Always resolves to Catalog Master — never the database taxonomy.
+ */
 export async function buildCategoryTreeFromDatabase(): Promise<CategoryNode[]> {
-  const categories = await loadAllCategories();
-  if (!categories.length) return [];
-  return buildNodes(categories, null);
+  return getCategoryTree();
 }

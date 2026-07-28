@@ -19,17 +19,24 @@ describe("Search System v1.0 production lock", () => {
     expect(SEARCH_SYSTEM_V1.closeAlwaysVisible).toBe(true);
   });
 
-  it("opens canonical Search Overlay from Homepage search field", () => {
+  it("routes Homepage search field to /search (SEARCH_UI_v1.0 SSOT — no overlay bypass)", () => {
     const field = readSource("components/home/HomepageSearchField.tsx");
     const overlay = readSource("features/search/components/SearchOverlay.tsx");
     const actions = readSource("features/search/components/SearchInputActions.tsx");
     const history = readSource("features/search/utils/history.ts");
+    const landing = readSource("features/search/components/SearchLandingView.tsx");
+    const typeahead = readSource("features/search/components/SearchTypeaheadPanel.tsx");
 
-    expect(field).toContain("useSearchOverlayOptional");
-    expect(field).toContain("searchOverlay.open");
+    expect(field).toContain('router.push("/search")');
+    expect(field).not.toContain("searchOverlay.open");
     expect(field).toContain("SEARCH_SYSTEM_V1.placeholder");
     expect(field).not.toContain("ImageSearchCamera");
     expect(field).not.toContain("homepage-search__suggestions");
+
+    expect(landing).toContain("SearchTypeaheadPanel");
+    expect(landing).toContain('data-search-freeze="SEARCH_UI_v1.0"');
+    expect(landing).not.toContain("searchOverlay.open");
+    expect(typeahead).toContain("useSearchResults");
 
     expect(overlay).toContain("SEARCH_SYSTEM_V1.placeholder");
     expect(overlay).toContain("<SearchInputActions");

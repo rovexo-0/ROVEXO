@@ -6,21 +6,7 @@ function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("ROVEXO Ideas v2.1", () => {
-  it("exposes a private suggestion form via Settings", () => {
-    const page = readSource("features/account-module/components/RovexoIdeasPage.tsx");
-    const route = readSource("app/account/ideas/page.tsx");
-    const settings = readSource("lib/account-center/settings-menu.ts");
-
-    expect(route).toContain("RovexoIdeasPage");
-    expect(page).toContain('data-rovexo-ideas-version="v2.0-lock"');
-    expect(page).toContain("Submit Idea");
-    expect(page).toContain("New Idea");
-    expect(page).not.toContain("vote");
-    expect(settings).toContain('title: "ROVEXO Ideas"');
-    expect(settings).toContain("/account/ideas");
-  });
-
+describe("ROVEXO Ideas storage + admin (compat)", () => {
   it("stores suggestions with admin review statuses", () => {
     const migration = readSource("supabase/migrations/20260708160000_rovexo_ideas_v2_1.sql");
     const types = readSource("lib/rovexo-ideas/types.ts");
@@ -32,12 +18,9 @@ describe("ROVEXO Ideas v2.1", () => {
     expect(types).toContain("closed");
   });
 
-  it("provides a super-admin ROVEXO Ideas module", () => {
-    const admin = readSource("features/super-admin/rovexo-ideas/RovexoIdeasAdmin.tsx");
-    const nav = readSource("lib/super-admin/nav.ts");
-
-    expect(admin).toContain("ROVEXO Ideas");
-    expect(admin).toContain("Search suggestions");
-    expect(nav).toContain("/super-admin/rovexo-ideas");
+  it("defers Profile menu + UI lock to rovexo-ideas-v1-lock.test.ts", () => {
+    const lock = readSource("lib/rovexo-ideas/rovexo-ideas-v1-lock.ts");
+    expect(lock).toContain("PERMANENTLY LOCKED");
+    expect(lock).toContain("/account/ideas");
   });
 });

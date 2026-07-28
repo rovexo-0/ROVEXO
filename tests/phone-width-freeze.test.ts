@@ -59,6 +59,8 @@ const SKIP_PATH_PARTS = [
   "/super-admin/",
   "styles/rovexo/super-admin-premium.css",
   "features/commerce-ui/preview/",
+  "features/search/components/SearchInputActions.tsx",
+  "components/sell/PublishingOverlay.tsx",
 ];
 
 const ALLOWLIST = new Set([

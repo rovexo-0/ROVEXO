@@ -2,9 +2,11 @@ import Link from "next/link";
 import { DiscoveryPageShell } from "@/components/layout/DiscoveryPageShell";
 import { Avatar } from "@/components/ui/Avatar";
 import { ListingCard } from "@/components/ui/ListingCard";
+import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import type { Product } from "@/lib/products/types";
 import { TrustPublicSummary } from "@/features/trust/components/TrustPublicSummary";
 import type { PublicTrustSummary } from "@/lib/trust/types";
+import { storeListingCardAttr } from "@/lib/store/store-listing-card-premium-v1";
 import {
   CanonicalCard,
   CanonicalMenuRow,
@@ -20,7 +22,6 @@ type ProStorePageProps = {
   website: string | null;
   rating: number;
   reviewCount: number;
-  followerCount: number;
   listingCount: number;
   salesCount: number;
   listings: Product[];
@@ -28,9 +29,7 @@ type ProStorePageProps = {
 };
 
 /**
- * Visit Store / Business Store — Absolute Final.
- * Discovery chrome + Master Menu rows for store meta; 2-col listing grids.
- * Purple / white / black only. Full phone width (16px).
+ * Business Store — marketplace only (no social Follow / Followers).
  */
 export function ProStorePage({
   storeName,
@@ -41,7 +40,6 @@ export function ProStorePage({
   website,
   rating,
   reviewCount,
-  followerCount,
   listingCount,
   salesCount,
   listings,
@@ -81,7 +79,6 @@ export function ProStorePage({
             ) : null}
             <CanonicalMenuRow title="Listings" value={String(listingCount)} showChevron={false} />
             <CanonicalMenuRow title="Sales" value={String(salesCount)} showChevron={false} />
-            <CanonicalMenuRow title="Followers" value={String(followerCount)} showChevron={false} />
             {bio ? (
               <CanonicalMenuRow title="About" description={bio} showChevron={false} />
             ) : null}
@@ -102,9 +99,13 @@ export function ProStorePage({
             Featured
           </h2>
           {displayFeatured.length > 0 ? (
-            <div className="rx-listing-grid grid w-full grid-cols-2 gap-3" data-listing-grid="2-col">
+            <div
+              className="rx-listing-grid w-full"
+              data-listing-grid="2-col"
+              {...storeListingCardAttr("business")}
+            >
               {displayFeatured.map((product) => (
-                <ListingCard key={product.id} product={product} variant="grid" surface="store" />
+                <ListingCard key={product.id} product={product} variant="grid" {...HP_CANONICAL_LISTING_PROPS} />
               ))}
             </div>
           ) : (
@@ -122,9 +123,13 @@ export function ProStorePage({
             </Link>
           </div>
           {listings.length > 0 ? (
-            <div className="rx-listing-grid grid w-full grid-cols-2 gap-3" data-listing-grid="2-col">
+            <div
+              className="rx-listing-grid w-full"
+              data-listing-grid="2-col"
+              {...storeListingCardAttr("business")}
+            >
               {listings.map((product) => (
-                <ListingCard key={product.id} product={product} variant="grid" surface="store" />
+                <ListingCard key={product.id} product={product} variant="grid" {...HP_CANONICAL_LISTING_PROPS} />
               ))}
             </div>
           ) : (

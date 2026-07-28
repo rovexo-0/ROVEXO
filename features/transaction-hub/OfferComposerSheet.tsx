@@ -1,12 +1,20 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CanonicalButton } from "@/src/components/canonical";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { useToast } from "@/components/ui/Toast";
+import { cn } from "@/lib/cn";
 import { trackTransactionHubMakeOffer } from "@/lib/transaction-hub/analytics";
 import type { OfferComposerProduct } from "@/lib/transaction-hub/product-action-bar";
+import {
+  MAKE_OFFER_FREEZE_V1,
+  calculateOfferFromDiscount,
+  formatOfferAmount,
+  parseOfferAmount,
+  sanitizeOfferInput,
+} from "@/lib/transaction-hub/make-offer-freeze-v1";
 
 type OfferComposerSheetProps = {
   open: boolean;
@@ -16,29 +24,58 @@ type OfferComposerSheetProps = {
   onOfferSent?: (context: { conversationHref?: string }) => void;
 };
 
-const priceFormatter = new Intl.NumberFormat("en-GB", {
-  style: "currency",
-  currency: "GBP",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
+type OfferMode = "off5" | "off10" | "custom";
 
-export function OfferComposerSheet({
-  open,
-  onClose,
+type OfferComposerBodyProps = {
+  product: OfferComposerProduct;
+  conversationId?: string;
+  onClose: () => void;
+  onOfferSent?: (context: { conversationHref?: string }) => void;
+};
+
+/**
+ * Fresh mount per open — resets custom/amount without useEffect setState.
+ */
+function OfferComposerBody({
   product,
   conversationId,
+  onClose,
   onOfferSent,
-}: OfferComposerSheetProps) {
+}: OfferComposerBodyProps) {
   const router = useRouter();
   const { pushToast } = useToast();
+  const [mode, setMode] = useState<OfferMode>("custom");
   const [amount, setAmount] = useState("");
-  const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const price5 = useMemo(
+    () => calculateOfferFromDiscount(product.price, 0.05),
+    [product.price],
+  );
+  const price10 = useMemo(
+    () => calculateOfferFromDiscount(product.price, 0.1),
+    [product.price],
+  );
+
+  const selectPreset = useCallback(
+    (next: OfferMode) => {
+      setMode(next);
+      if (next === "off5") {
+        setAmount(price5.toFixed(2));
+        return;
+      }
+      if (next === "off10") {
+        setAmount(price10.toFixed(2));
+        return;
+      }
+      setAmount("");
+    },
+    [price10, price5],
+  );
+
   const handleSubmit = useCallback(async () => {
-    const parsed = Number.parseFloat(amount);
-    if (!Number.isFinite(parsed) || parsed <= 0) {
+    const parsed = parseOfferAmount(amount);
+    if (parsed == null) {
       pushToast({ title: "Enter a valid offer amount.", variant: "error" });
       return;
     }
@@ -59,7 +96,6 @@ export function OfferComposerSheet({
         body: JSON.stringify({
           productSlug: product.slug,
           amount: parsed,
-          message: message.trim() || undefined,
           conversationId,
         }),
       });
@@ -103,7 +139,7 @@ export function OfferComposerSheet({
       });
 
       setAmount("");
-      setMessage("");
+      setMode("custom");
       onClose();
 
       if (onOfferSent) {
@@ -125,7 +161,6 @@ export function OfferComposerSheet({
   }, [
     amount,
     conversationId,
-    message,
     onClose,
     onOfferSent,
     product.id,
@@ -136,58 +171,137 @@ export function OfferComposerSheet({
   ]);
 
   return (
+    <div
+      className="mo-v1__sheet"
+      data-make-offer={MAKE_OFFER_FREEZE_V1.version}
+      data-make-offer-freeze="FINAL_FREEZE"
+    >
+      <header className="mo-v1__header">
+        <button type="button" className="mo-v1__close" onClick={onClose} disabled={submitting}>
+          Close
+        </button>
+      </header>
+
+      <div className="mo-v1__product">
+        <div className="mo-v1__thumb">
+          <SafeImage
+            src={product.imageUrl}
+            alt=""
+            fill
+            sizes="72px"
+            className="object-cover"
+          />
+        </div>
+        <div className="mo-v1__product-meta">
+          <p className="mo-v1__title">{product.title}</p>
+          <p className="mo-v1__price">{formatOfferAmount(product.price)}</p>
+        </div>
+      </div>
+
+      <div className="mo-v1__presets" role="group" aria-label="Offer presets">
+        <button
+          type="button"
+          className={cn("mo-v1__preset", mode === "off5" && "mo-v1__preset--active")}
+          onClick={() => selectPreset("off5")}
+          disabled={submitting}
+        >
+          <span className="mo-v1__preset-amount">{formatOfferAmount(price5)}</span>
+          <span className="mo-v1__preset-label">5% off</span>
+        </button>
+        <button
+          type="button"
+          className={cn("mo-v1__preset", mode === "off10" && "mo-v1__preset--active")}
+          onClick={() => selectPreset("off10")}
+          disabled={submitting}
+        >
+          <span className="mo-v1__preset-amount">{formatOfferAmount(price10)}</span>
+          <span className="mo-v1__preset-label">10% off</span>
+        </button>
+        <button
+          type="button"
+          className={cn("mo-v1__preset", mode === "custom" && "mo-v1__preset--active")}
+          onClick={() => selectPreset("custom")}
+          disabled={submitting}
+        >
+          <span className="mo-v1__preset-amount">Custom</span>
+          <span className="mo-v1__preset-label">Set a price</span>
+        </button>
+      </div>
+
+      <label className="mo-v1__amount">
+        <span className="mo-v1__currency" aria-hidden>
+          £
+        </span>
+        <input
+          type="text"
+          inputMode="decimal"
+          pattern="[0-9]*[.]?[0-9]*"
+          enterKeyHint="done"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          aria-label="Offer amount"
+          placeholder="0.00"
+          className="mo-v1__input"
+          value={amount}
+          disabled={submitting}
+          onFocus={() => {
+            if (mode !== "custom") setMode("custom");
+          }}
+          onChange={(event) => {
+            setMode("custom");
+            setAmount(sanitizeOfferInput(event.target.value));
+          }}
+        />
+      </label>
+
+      <button
+        type="button"
+        className="mo-v1__submit"
+        disabled={submitting}
+        aria-busy={submitting || undefined}
+        onClick={() => void handleSubmit()}
+      >
+        {submitting ? "Submitting…" : "Submit Offer"}
+      </button>
+
+      <p className="mo-v1__limit">
+        {MAKE_OFFER_FREEZE_V1.dailyOfferLimit} offers left for today
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Make Offer — Cod Sânge v1.0 FINAL FREEZE.
+ * Close · Image · Title · £ · 5%/10%/Custom · input · Submit · offers left.
+ */
+export function OfferComposerSheet({
+  open,
+  onClose,
+  product,
+  conversationId,
+  onOfferSent,
+}: OfferComposerSheetProps) {
+  return (
     <ModalContainer
       open={open}
       onClose={onClose}
       variant="sheet"
       zIndex={210}
-      ariaLabel="Make offer"
+      ariaLabel="Make an offer"
       lockScroll
+      panelClassName="mo-v1"
     >
-      <div className="flex flex-col gap-ds-4 p-ds-4">
-        <div className="flex flex-col gap-ds-1">
-          <h2 className="text-lg font-semibold text-text-primary">Make Offer</h2>
-          <p className="text-sm text-text-secondary">
-            Listing price: {priceFormatter.format(product.price)}
-          </p>
-        </div>
-
-        <label className="flex flex-col gap-ds-1 text-left">
-          <span className="text-sm font-medium text-text-primary">Your offer (£)</span>
-          <input
-            type="number"
-            inputMode="decimal"
-            min="0.01"
-            step="0.01"
-            className="min-h-[44px] rounded-ds-md border border-border px-ds-3 text-base"
-            value={amount}
-            disabled={submitting}
-            onChange={(event) => setAmount(event.target.value)}
-            placeholder="0.00"
-          />
-        </label>
-
-        <label className="flex flex-col gap-ds-1 text-left">
-          <span className="text-sm font-medium text-text-primary">Message (optional)</span>
-          <textarea
-            className="min-h-[88px] rounded-ds-md border border-border px-ds-3 py-ds-2 text-base"
-            value={message}
-            disabled={submitting}
-            onChange={(event) => setMessage(event.target.value)}
-            placeholder="Add a note for the seller"
-            maxLength={500}
-          />
-        </label>
-
-        <div className="flex flex-col gap-ds-2">
-          <CanonicalButton fullWidth loading={submitting} onClick={() => void handleSubmit()}>
-            Submit Offer
-          </CanonicalButton>
-          <CanonicalButton fullWidth variant="ghost" disabled={submitting} onClick={onClose}>
-            Cancel
-          </CanonicalButton>
-        </div>
-      </div>
+      {open ? (
+        <OfferComposerBody
+          key={`${product.id}-open`}
+          product={product}
+          conversationId={conversationId}
+          onClose={onClose}
+          onOfferSent={onOfferSent}
+        />
+      ) : null}
     </ModalContainer>
   );
 }

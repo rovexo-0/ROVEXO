@@ -1,6 +1,12 @@
 "use client";
 
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
+import {
+  CanonicalSection,
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalButton,
+  CanonicalInfoBlock,
+} from "@/src/components/canonical";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";

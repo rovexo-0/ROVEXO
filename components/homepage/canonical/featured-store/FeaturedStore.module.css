@@ -11,12 +11,24 @@
 }
 
 .header {
+  /* Legacy alias — v2.0 uses .headerCard */
+  display: none;
+}
+
+.headerCard {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(8px, 2.5vw, 10px);
+  gap: clamp(8px, 2.5vw, 12px);
   margin: 0;
-  padding: 0;
+  padding: 12px 14px;
+  border: none;
+  outline: none;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 8px 24px rgb(15 23 42 / 0.06);
 }
 
 .identity {
@@ -26,12 +38,14 @@
   flex: 1 1 auto;
   text-decoration: none;
   color: inherit;
+  border: none;
+  outline: none;
 }
 
 .identity:focus-visible {
   outline: 2px solid var(--ds-color-primary);
   outline-offset: 2px;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .logo {
@@ -43,6 +57,7 @@
   overflow: hidden;
   border-radius: 50%;
   background: #f3f4f6;
+  border: none;
 }
 
 .identityText {
@@ -54,8 +69,8 @@
 
 .storeName {
   overflow: hidden;
-  font-size: clamp(16px, 5cqi, 18px);
-  font-weight: 700;
+  font-size: clamp(13px, 4.1cqi, 14.5px);
+  font-weight: 600;
   line-height: 1.2;
   color: #111827;
   white-space: nowrap;
@@ -69,6 +84,26 @@
   min-width: 0;
 }
 
+.ratingText {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #9333ea;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.joinedText {
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: #6b7280;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .stars {
   display: inline-flex;
   align-items: center;
@@ -77,46 +112,29 @@
 }
 
 .visit {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: clamp(38px, 10cqi, 40px);
-  min-height: var(--ds-touch-target, 44px);
-  padding: 0 clamp(12px, 4cqi, 16px);
-  border: none;
-  border-radius: 20px;
-  background: var(--ds-color-primary);
-  font-size: clamp(13px, 3.8cqi, 14px);
-  font-weight: 700;
-  line-height: 1;
-  text-decoration: none;
-  color: #ffffff;
-  white-space: nowrap;
-}
-
-.visit:focus-visible {
-  outline: 2px solid var(--ds-color-primary);
-  outline-offset: 2px;
+  display: none;
 }
 
 .headerActions {
   display: flex;
   align-items: center;
-  gap: clamp(6px, 2cqi, 8px);
+  gap: 0;
   flex: 0 0 auto;
   flex-shrink: 0;
 }
 
 .carousel {
+  /* FINAL Showcase v1.0: ~2.5 cards visible · remainder via horizontal scroll only */
+  --hp-store-card-gap: var(--hp-store-card-gap, 12px);
+  --hp-store-visible-cards: 2.5;
   --hp-store-card-w: var(--hp-store-card-ref-w, 112px);
   --hp-store-visible: calc(
-    var(--hp-store-card-w) * var(--hp-store-visible-cards, 3) +
-      var(--hp-store-card-gap, 12px) * (var(--hp-store-visible-cards, 3) - 1)
+    var(--hp-store-card-w) * var(--hp-store-visible-cards) +
+      var(--hp-store-card-gap) * 1.5
   );
 
   display: flex;
-  gap: var(--hp-store-card-gap, 12px);
+  gap: var(--hp-store-card-gap);
   margin: clamp(6px, 2cqi, 8px) 0 0;
   padding: 0;
   padding-right: max(0px, calc(100cqi - var(--hp-store-visible)));
@@ -143,40 +161,97 @@
   width: 100%;
 }
 
+/* Slot 10 — View All (opens Store · shows total listing count) */
+.viewAllCard {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 250px;
+  height: 100%;
+  margin: 0;
+  padding: 16px 10px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #a855f7, #9333ea, #7c3aed);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 8px 24px rgb(124 58 237 / 0.18);
+  scroll-snap-align: start;
+}
+
+.viewAllCard:focus-visible {
+  outline: 2px solid var(--ds-color-primary);
+  outline-offset: 2px;
+}
+
+.viewAllTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+
+.viewAllCount {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #ffffff;
+}
+
+.viewAllHint {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: rgb(255 255 255 / 0.88);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel {
+    scroll-behavior: auto;
+  }
+}
+
+/* Lock 2.5 visible cards at every breakpoint — do not widen to 4/5 */
 @container hp-featured-store (min-width: 480px) {
   .carousel {
-    --hp-store-card-w: 120px;
+    --hp-store-card-w: var(--hp-store-card-ref-w, 112px);
+    --hp-store-visible-cards: 2.5;
   }
 }
 
 @container hp-featured-store (min-width: 768px) {
   .carousel {
-    --hp-store-card-w: 128px;
-    --hp-store-visible-cards: 4;
+    --hp-store-card-w: var(--hp-store-card-ref-w, 112px);
+    --hp-store-visible-cards: 2.5;
   }
 }
 
 @container hp-featured-store (min-width: 1024px) {
   .carousel {
-    --hp-store-card-w: 136px;
-    --hp-store-visible-cards: 5;
+    --hp-store-card-w: var(--hp-store-card-ref-w, 112px);
+    --hp-store-visible-cards: 2.5;
   }
 }
 
-.profileRail {
-  display: flex;
-  gap: 14px;
-  margin: 0;
-  padding: 0 2px 4px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
-  scrollbar-width: none;
-}
-
-.profileRail::-webkit-scrollbar {
+/* Profile rail / dots removed from FINAL Showcase v1.0 — keep selectors inert */
+.profileRail,
+.profileDots {
   display: none;
+  margin: 0;
+  padding: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .profileRailItem {

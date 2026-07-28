@@ -61,6 +61,7 @@ export function SellerResults({
               href={user.href}
               role="option"
               aria-selected={isActive}
+              onClick={onNavigate}
               onMouseEnter={() => onHoverIndex(navIndex)}
               className={cn(
                 "flex min-h-ds-7 items-center gap-ds-3 rounded-ds-md px-ds-3 hover:bg-secondary",

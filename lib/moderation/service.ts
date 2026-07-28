@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { requiresModerationQueue } from "@/lib/moderation/risk";
 import type {
   ContentReport,
@@ -518,9 +519,9 @@ export async function applyListingModeration(input: {
   result: ModerationResult;
   source: string;
 }): Promise<{ allowed: boolean; result: ModerationResult }> {
-  const admin = createAdminClient();
+  const supabase = await createClient();
 
-  await admin
+  await supabase
     .from("products")
     .update({
       moderation_status: input.result.decision,
@@ -528,26 +529,36 @@ export async function applyListingModeration(input: {
       moderation_summary: input.result.summary,
       moderation_reviewed_at: new Date().toISOString(),
     })
-    .eq("id", input.productId);
+    .eq("id", input.productId)
+    .eq("seller_id", input.sellerId);
 
   if (input.result.decision !== "approved") {
     const shouldQueue =
       requiresModerationQueue(input.result.riskLevel) || input.result.decision === "blocked";
 
     if (shouldQueue) {
-      await enqueueModerationReview({
-        targetType: "listing",
-        targetId: input.productId,
-        productId: input.productId,
-        sellerId: input.sellerId,
-        source: input.source,
-        result: input.result,
-      });
+      // Queue writes remain admin-scoped (RLS). Best-effort — never skip a block.
+      try {
+        await enqueueModerationReview({
+          targetType: "listing",
+          targetId: input.productId,
+          productId: input.productId,
+          sellerId: input.sellerId,
+          source: input.source,
+          result: input.result,
+        });
+      } catch {
+        // Fail closed on block/warning still enforced via product status below.
+      }
     }
   }
 
   if (input.result.decision === "blocked") {
-    await admin.from("products").update({ status: "paused" }).eq("id", input.productId);
+    await supabase
+      .from("products")
+      .update({ status: "paused" })
+      .eq("id", input.productId)
+      .eq("seller_id", input.sellerId);
     return { allowed: false, result: input.result };
   }
 

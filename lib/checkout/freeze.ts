@@ -1,14 +1,24 @@
 /**
- * ROVEXO Checkout — Absolute Final Freeze v1.0
- * Products → Shipping → Platform Fee → Total → Confirm & Pay ONLY.
- * No address / payment / review wizard steps. Single URL surface.
+ * ROVEXO Checkout — Absolute Final Freeze v1.0 + CHECKOUT_UI_v1.0 (Owner 2026-07-25)
+ * Products → Shipping → Platform Fee → Total → PAY.
+ * UI presentation locked under CHECKOUT_UI_v1.0 (Blood XXVI baseline).
+ * Payment completion / Stripe / order engines are NOT included in the UI freeze.
  */
+
+import { CHECKOUT_UI_V1_FREEZE } from "@/lib/checkout/checkout-ui-v1-freeze";
+
+export { CHECKOUT_UI_V1_FREEZE };
 
 export const CHECKOUT_SPEC_VERSION = "1.0" as const;
 
 /** Absolute Final — confirm-only checkout. */
 export const CHECKOUT_CANONICAL_STATUS = "ABSOLUTE_FINAL_v1.0" as const;
 export const CHECKOUT_CANONICAL_FROZEN = true as const;
+
+/** Owner UI freeze stamp — presentation only. */
+export const CHECKOUT_UI_FROZEN = CHECKOUT_UI_V1_FREEZE.freezeLocked;
+export const CHECKOUT_UI_FREEZE_NAME = CHECKOUT_UI_V1_FREEZE.freezeName;
+export const CHECKOUT_UI_OWNER_APPROVED = CHECKOUT_UI_V1_FREEZE.ownerApproved;
 
 export const CHECKOUT_ROUTES = {
   index: "/checkout",
@@ -21,17 +31,18 @@ export const CHECKOUT_ROUTES = {
   legacySuccess: "/checkout/success",
 } as const;
 
-/** Visual tokens — 100% phone width (16px · 100% · 16px). */
+/** Visual tokens — CHECKOUT_UI_v1.0 Owner lock (Blood XXVI). */
 export const CHECKOUT_VISUAL_LOCK = {
   maxWidthPx: "100%" as const,
-  headerHeightPx: 64,
+  headerHeightPx: CHECKOUT_UI_V1_FREEZE.visualLock.headerHeightPx,
   controlSizePx: 40,
-  headerPadXPx: 16,
-  pagePadXPx: 16,
-  pagePadBottomPx: 24,
-  sectionGapPx: 16,
-  cardRadiusPx: 12,
-  ctaHeightPx: 52,
+  headerPadXPx: CHECKOUT_UI_V1_FREEZE.visualLock.padXPx,
+  pagePadXPx: CHECKOUT_UI_V1_FREEZE.visualLock.padXPx,
+  pagePadBottomPx: 8,
+  sectionGapPx: CHECKOUT_UI_V1_FREEZE.visualLock.sectionGapPx,
+  cardRadiusPx: CHECKOUT_UI_V1_FREEZE.visualLock.cardRadiusPx,
+  ctaHeightPx: CHECKOUT_UI_V1_FREEZE.visualLock.ctaHeightPx,
+  ctaRadiusPx: CHECKOUT_UI_V1_FREEZE.visualLock.ctaRadiusPx,
 } as const;
 
 export const CHECKOUT_CANONICAL_COMPONENTS = [
@@ -43,10 +54,28 @@ export const CHECKOUT_CANONICAL_COMPONENTS = [
 ] as const;
 
 export const CHECKOUT_LOCKED_SECTIONS = [
-  "Products",
-  "Delivery",
-  "Platform Fee",
+  "Product",
+  "Address",
+  "Delivery option",
+  "Delivery details",
+  "Phone",
   "Payment",
-  "Total",
-  "Confirm & Pay",
+  "Price summary",
+  "TOTAL PAY",
+  "Secure Checkout",
 ] as const;
+
+/**
+ * CHECKOUT_UI_v1.0 — CTA presents TOTAL PAY £TOTAL (visual total lives on button).
+ * Platform Fee label remains mandatory (buyer-visible).
+ */
+export const CHECKOUT_MASTER_FREEZE_COPY = {
+  cta: "TOTAL PAY",
+  feeLabel: "Platform Fee",
+  forbiddenCta: ["Pay Securely", "Continue", "Proceed", "Checkout"] as const,
+  forbiddenFee: [
+    "Buyer Protection",
+    "Buyer Protection Fee",
+    "Buyer Protection Included",
+  ] as const,
+} as const;

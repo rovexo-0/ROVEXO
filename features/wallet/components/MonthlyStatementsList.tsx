@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { formatCurrency } from "@/lib/wallet/utils";
+import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import type { MonthlyStatement } from "@/lib/wallet/monthly-statements";
 
 type MonthlyStatementsListProps = {
@@ -13,8 +14,8 @@ export function MonthlyStatementsList({ statements }: MonthlyStatementsListProps
   return (
     <AccountCanonicalShell
       title="Monthly Statements"
-      backHref="/wallet"
-      backLabel="Wallet"
+      backHref={WALLET_ROUTES.hub}
+      backLabel="Balance"
       showHeaderTitle
     >
       <div className="wallet-hub" data-wallet-statements-version="v1.0-legal-lock">

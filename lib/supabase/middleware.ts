@@ -142,8 +142,6 @@ export async function updateSession(request: NextRequest) {
     );
     const isVerifyEmailPath =
       pathname === "/verify-email" || pathname.startsWith("/verify-email/");
-    const isResetPasswordPath =
-      pathname === "/reset-password" || pathname.startsWith("/reset-password/");
     const isApiRoute = pathname.startsWith("/api/");
     const isAuthBypass = AUTH_BYPASS_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 

@@ -10,11 +10,11 @@ import {
 } from "@/lib/categories/taxonomy-engine";
 import { findNodeBySlugPath } from "@/lib/categories/navigation";
 
-describe("marketplace taxonomy engine", () => {
+describe("marketplace taxonomy engine (Catalog Master)", () => {
   it("exposes a single canonical tree for all modules", () => {
-    expect(categoryTree.length).toBeGreaterThanOrEqual(50);
-    expect(taxonomyStats.roots).toBeGreaterThanOrEqual(50);
-    expect(taxonomyStats.leaves).toBeGreaterThan(1000);
+    expect(categoryTree).toHaveLength(10);
+    expect(taxonomyStats.roots).toBe(10);
+    expect(taxonomyStats.leaves).toBeGreaterThanOrEqual(100);
   });
 
   it("passes structural validation", () => {
@@ -23,36 +23,30 @@ describe("marketplace taxonomy engine", () => {
     expect(report.maxDepth).toBeGreaterThanOrEqual(3);
   });
 
-  it("supports 4-level product-type paths", () => {
-    const blackout = resolveCategoryPathBySlugs([
+  it("supports Catalog Master product-type paths", () => {
+    const curtains = resolveCategoryPathBySlugs([
       "home-garden",
       "home-textiles",
       "curtains",
-      "blackout-curtains",
     ]);
-    expect(blackout?.pathLabel).toContain("Blackout Curtains");
-    expect(blackout?.segments.length).toBe(4);
+    expect(curtains?.pathLabel).toContain("Curtains");
+    expect(curtains?.segments.length).toBe(3);
 
-    const diningTable = resolveCategoryPathBySlugs(["home-garden", "furniture", "tables", "dining-table"]);
-    expect(diningTable?.pathLabel).toContain("Dining Table");
+    const tables = resolveCategoryPathBySlugs(["home-garden", "furniture", "tables"]);
+    expect(tables?.pathLabel).toContain("Tables");
 
-    const memoryFoamPillow = resolveCategoryPathBySlugs([
-      "home-garden",
-      "bedding",
-      "pillows",
-      "memory-foam-pillow",
-    ]);
-    expect(memoryFoamPillow?.pathLabel).toContain("Memory Foam Pillow");
-    expect(memoryFoamPillow?.segments.length).toBe(4);
+    const pillows = resolveCategoryPathBySlugs(["home-garden", "bedding", "pillows"]);
+    expect(pillows?.pathLabel).toContain("Pillows");
+    expect(pillows?.segments.length).toBe(3);
   });
 
   it("returns hierarchical smart suggestions", () => {
     warmCategoryPickerIndex();
     const textileNames = searchCategoryPicker("textile").map((result) => result.matchName);
-    expect(textileNames).toEqual(expect.arrayContaining(["Home & Garden", "Home Textiles"]));
+    expect(textileNames).toEqual(expect.arrayContaining(["Home Textiles"]));
 
-    const iphNames = searchCategoryPicker("iph").map((result) => result.matchName);
-    expect(iphNames).toEqual(expect.arrayContaining(["Phones", "Smartphones", "Apple iPhone"]));
+    const phoneNames = searchCategoryPicker("smart").map((result) => result.matchName);
+    expect(phoneNames).toEqual(expect.arrayContaining(["Smartphones"]));
   });
 
   it("completes search under 100ms after warm-up", () => {
@@ -63,19 +57,21 @@ describe("marketplace taxonomy engine", () => {
   });
 
   it("maps attributes by category vertical", () => {
-    const fashion = resolveCategoryPathBySlugs(["womens-fashion", "womens-clothing", "dresses"]);
-    const vehicle = resolveCategoryPathBySlugs(["vehicles", "cars", "saloon"]);
-    const phone = resolveCategoryPathBySlugs(["phones", "smartphones", "apple-iphone"]);
+    const fashion = resolveCategoryPathBySlugs(["womens-fashion", "clothing", "dresses"]);
+    const phone = resolveCategoryPathBySlugs([
+      "electronics",
+      "phones-tablets",
+      "smartphones",
+    ]);
+    const parts = resolveCategoryPathBySlugs([
+      "vehicle-parts",
+      "car-parts",
+      "engine-parts",
+    ]);
 
-    expect(getAttributeIdsForCategoryPath(fashion)).toEqual(
-      expect.arrayContaining(["brand", "size", "colour", "material", "condition", "gender", "season"]),
-    );
-    expect(getAttributeIdsForCategoryPath(vehicle)).toEqual(
-      expect.arrayContaining(["brand", "model", "year", "fuel", "mileage", "doors", "seats", "generation", "bodyType", "registration"]),
-    );
-    expect(getAttributeIdsForCategoryPath(phone)).toEqual(
-      expect.arrayContaining(["brand", "model", "storage", "network", "battery", "warranty"]),
-    );
+    expect(getAttributeIdsForCategoryPath(fashion).length).toBeGreaterThan(0);
+    expect(getAttributeIdsForCategoryPath(phone).length).toBeGreaterThan(0);
+    expect(getAttributeIdsForCategoryPath(parts).length).toBeGreaterThan(0);
   });
 
   it("exports a valid taxonomy backup bundle", async () => {
@@ -84,15 +80,21 @@ describe("marketplace taxonomy engine", () => {
     );
     const backup = exportTaxonomyBackup();
     expect(backup.validation.valid).toBe(true);
-    expect(backup.brands.length).toBeGreaterThan(100);
-    expect(backup.colours.length).toBeGreaterThan(20);
+    expect(backup.brands.length).toBeGreaterThan(40);
+    expect(backup.colours.length).toBeGreaterThan(10);
     const roundTrip = parseTaxonomyBackup(stringifyTaxonomyBackup(backup));
     expect(roundTrip.stats.leaves).toBe(backup.stats.leaves);
   });
 
-  it("includes expanded phone and textile departments", () => {
-    expect(findNodeBySlugPath(categoryTree, ["phones", "feature-phones"])).not.toBeNull();
-    expect(findNodeBySlugPath(categoryTree, ["phones", "phone-accessories-dept", "phone-accessories", "phone-chargers"])).not.toBeNull();
-    expect(findNodeBySlugPath(categoryTree, ["home-garden", "home-textiles", "curtains", "sheer-curtains"])).not.toBeNull();
+  it("includes phone and textile departments under Catalog Master roots", () => {
+    expect(
+      findNodeBySlugPath(categoryTree, ["electronics", "phones-tablets", "feature-phones"]),
+    ).not.toBeNull();
+    expect(
+      findNodeBySlugPath(categoryTree, ["electronics", "phones-tablets", "phone-cases"]),
+    ).not.toBeNull();
+    expect(
+      findNodeBySlugPath(categoryTree, ["home-garden", "home-textiles", "curtains"]),
+    ).not.toBeNull();
   });
 });

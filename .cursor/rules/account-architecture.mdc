@@ -17,11 +17,11 @@ There are **no** Buyer accounts, Seller accounts, Business accounts, or Company 
 
 ## My Account (canonical)
 
-Profile → Selling → Orders → Cart → Saved → Messages → Notifications → Wallet → Verification → **ROVEXO Ideas** → Settings → Log Out
+Profile → Favourites → Balance → My Orders → Holiday Mode → Promote → **Settings** → **Rovexo Ideas** → Help Centre → Legal Information → Sign Out
 
 - **Selling** is the selling workspace (expands with store + business verification).
 - **Wallet** holds all financial functions.
-- **ROVEXO Ideas** is a private suggestion form — no voting or public forum.
+- **Rovexo Ideas** lives on Profile between Settings and Help Centre. Same row system as Profile (icon + text may differ only). Lightbulb 24px `#FFD54A`. SSOT: `lib/rovexo-ideas/rovexo-ideas-v1-lock.ts`.
 - **Delete Account** lives only in Settings.
 
 ## UI rules (mandatory)
@@ -35,3 +35,4 @@ Profile → Selling → Orders → Cart → Saved → Messages → Notifications
 
 - SSOT: `lib/profile/unified-account.ts`, `lib/account-center/canonical-menu.ts`
 - Ideas: `lib/rovexo-ideas/`, `/account/ideas`, `/super-admin/rovexo-ideas`
+---

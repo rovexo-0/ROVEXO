@@ -1,0 +1,34 @@
+---
+description: DESIGN DECISION #001 — Homepage 24px · Internal 16px · ROVEXO v1.1
+alwaysApply: true
+---
+
+# DESIGN DECISION #001 — Internal UI v1.1
+
+**STATUS: OWNER APPROVED | CERTIFIED | PRODUCTION READY**
+
+| Surface | Horizontal padding |
+|---------|-------------------|
+| Homepage | **24px** (LOCKED) |
+| Internal Application | **16px** |
+
+Effective version: **ROVEXO v1.1**  
+Certification: PASSED · Regression: PASSED · Production Ready: YES
+
+## Unchanged
+
+Typography · icons · buttons · cards · colours · radius · header heights · bottom nav · animations · vertical spacing
+
+## SSOT
+
+`lib/design-system/design-decision-001-internal-ui-v1.1.ts`  
+Contract: `lib/master-engine/master-full-width-contract-v1.ts`  
+CSS: `--fw-pad-x: 16px` · `--homepage-pad-x: 24px` in `styles/rovexo/full-width-engine-v1.css`
+
+## Cursor must never
+
+- Apply 16px to Homepage marketing surfaces
+- Revert Internal to 24px without Owner re-authorization
+- Reintroduce temporary RUN3/RUN4 pad preview overlays as default production behaviour
+- Bridge Homepage ↔ Internal tokens (see Design Decision #002)
+---

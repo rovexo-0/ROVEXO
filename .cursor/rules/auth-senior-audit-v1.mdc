@@ -1,0 +1,46 @@
+---
+description: Auth Senior Audit — code PASS config FAIL no rewrites
+alwaysApply: true
+---
+
+# ROVEXO AUTH SENIOR AUDIT v1.0 (LEVEL 5 VERDICT)
+
+**STATUS: OWNER AUDIT RECORDED | LOCKED**
+
+SSOT: `lib/auth/auth-senior-audit-v1.ts`  
+Aligned: OAuth Configuration Golden Law · Deployment Golden Law
+
+## Verdict
+
+**THE CODE IS CORRECT. THE ARCHITECTURE IS CORRECT. THE BUTTONS ARE CORRECT.**  
+**ROOT CAUSE = SUPABASE OAUTH CONFIGURATION.**  
+**NO CODE CHANGES REQUIRED.**
+
+## PASS (platform)
+
+Email Login/Register · Remember Me · Forgot Password · Cookie · Session · Callback · Router · Middleware · Search · Header · Camera Search  
+Sign-in/Register pages · OAuth buttons/calls · Callback path · Session/Cookie creation · Supabase client · ENV · Architecture
+
+## FAIL (Supabase config only)
+
+Google / Apple / Facebook enabled · OAuth redirects · Provider configuration  
+Error: `400 validation_failed` · provider is not enabled
+
+## Smallest fix (ops only)
+
+Enable Google · Apple · Facebook  
+Allowlist `http://localhost:3000` (+ `/auth/callback`) · `https://rovexo.com` (+ `/auth/callback`)  
+Save → Test → Pass
+
+## Forbidden
+
+Auth/OAuth/callback/header/session/search rewrites · Auth v2 · OAuth v2 · new providers/systems
+
+## Deploy
+
+If Google **or** Apple **or** Facebook FAIL → **NO DEPLOY**  
+Only **100/100** → DEPLOY
+
+## Cursor must never
+
+Treat this audit as permission to rewrite Auth. Configuration only.

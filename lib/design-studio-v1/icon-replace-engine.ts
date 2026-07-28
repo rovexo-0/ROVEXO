@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join, relative } from "node:path";
 import { getRovexoIconPath, RovexoIcons } from "@/lib/icons/icons";
 import { LEGACY_ICON_IMPORTS } from "@/lib/design-studio-v1/icon-standard";
@@ -91,7 +92,7 @@ function applyCssIconStandard(rootDir: string): number {
 }
 
 export function buildIconReplacePlan(options: ReplaceOptions = {}): IconReplaceSummary {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? workspacePath();
   const actions = scanReplaceActions(rootDir);
   let applied = 0;
 

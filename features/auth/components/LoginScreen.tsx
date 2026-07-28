@@ -4,13 +4,10 @@ import { useActionState, useState } from "react";
 import {
   AuthContainer,
   AuthFooter,
-  AuthHeading,
   AuthIconInput,
   AuthPasswordInput,
   Checkbox,
-  Divider,
   PrimaryButton,
-  SocialLogin,
 } from "@/components/auth";
 import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
 import { MailLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
@@ -26,29 +23,21 @@ type LoginScreenProps = {
   initialError?: string;
 };
 
-/** Premium marketplace social row — Apple + Google (Facebook OAuth preserved in SSOT). */
-const PREMIUM_SOCIAL = ["apple", "google"] as const;
-
 /**
- * ROVEXO LOGIN_UI_FINAL_LOCK — presentation only.
- * Layout / hierarchy / auth logic locked. Micro polish only.
+ * ROVEXO LOGIN — Owner Canonical Freeze (LOCKED · FROZEN · CERTIFIED).
+ * RX + BUY • SELL • GROW → Email → Password → Remember → Forgot → Sign In
+ * → Secure Sign In → Create Account.
+ * Forbidden: Welcome heading · subtitle · redesign without Owner approval.
  */
 const LOGIN_UI = {
-  title: "Welcome back",
-  description: "Good to see you again.",
-  emailLabel: "Email address",
+  emailLabel: "Email Address",
   passwordLabel: "Password",
-  rememberMe: "Remember me",
-  forgotPassword: "Forgot password?",
-  divider: "Continue with",
+  rememberMe: "Remember Me",
+  forgotPassword: "Forgot Password?",
+  footerPrefix: "New to ROVEXO?",
   createAccount: "Create Account",
-  trustTitle: "Protected Sign-in",
-  trustCopy: "Your data is encrypted and secure.",
-  socialLabels: {
-    apple: "Apple",
-    google: "Google",
-    facebook: "Facebook",
-  },
+  trustTitle: "SECURE SIGN IN",
+  trustCopy: "Your data is protected.",
 } as const;
 
 export function LoginScreen({ next, initialError }: LoginScreenProps) {
@@ -59,25 +48,34 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
 
   return (
     <div
-      className="auth-login auth-login--premium"
+      className="auth-login auth-login--premium auth-platform-theme auth-compact-premium auth-login--canonical-freeze"
       data-auth-module={AUTH_MODULE_VERSION}
       data-auth-spec={AUTH_MASTER_SPEC.version}
       data-auth-screen="login"
-      data-auth-version="v1.0-legal-lock"
-      data-auth-ui="v1.0-ui-lock"
+      data-auth-version="canonical-freeze-v1"
+      data-auth-ui="canonical-freeze-v1"
+      data-login-engine="canonical-freeze-v1"
+      data-auth-freeze="LOCKED_FROZEN_CERTIFIED"
+      data-auth-brand-freeze="XXXIX"
+      data-auth-experience-freeze="XLI"
     >
       <AuthContainer>
         <div className="auth-login__brand">
           <RovexoBrandLogo className="rovexo-brand-logo--auth" />
         </div>
-        <div className="auth-login__intro">
-          <AuthHeading title={LOGIN_UI.title} description={LOGIN_UI.description} />
-        </div>
 
         <form
           action={formAction}
           className="auth-login__form"
-          onSubmit={() => setClientError(null)}
+          onSubmit={(event) => {
+            setClientError(null);
+            const form = event.currentTarget;
+            const email = String(new FormData(form).get("email") ?? "").trim();
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+              event.preventDefault();
+              setClientError("Invalid email address.");
+            }
+          }}
         >
           {next ? <input type="hidden" name="next" value={next} /> : null}
           {alertMessage ? <AuthAlert message={alertMessage} variant="error" /> : null}
@@ -133,19 +131,11 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
           </div>
         </form>
 
-        <div className="auth-login__social">
-          <Divider label={LOGIN_UI.divider} />
-          <SocialLogin next={next} providers={PREMIUM_SOCIAL} labels={LOGIN_UI.socialLabels} />
-        </div>
-
         <AuthFooter className="auth-login__footer">
           <p className="auth-login__register-prompt">
-            {copy.footerPrefix}{" "}
-            <AuthLink
-              href="/register"
-              className="auth-login__register-cta"
-              style={{ color: "#4c1d95" }}
-            >
+            <span className="auth-login__register-prefix">{LOGIN_UI.footerPrefix}</span>
+            {" "}
+            <AuthLink href="/register" className="auth-login__register-cta">
               {LOGIN_UI.createAccount}
             </AuthLink>
           </p>

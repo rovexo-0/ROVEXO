@@ -1,0 +1,25 @@
+---
+description: ROVEXO Premium Button System v1.0 — Visit Store / Browse CTA family (no social Follow).
+alwaysApply: true
+---
+
+# Premium Button System v1.0 (CANONICAL · LOCKED)
+
+SSOT: `components/ui/PremiumButton.tsx` + `PremiumButton.module.css`
+
+## Variants
+
+- **primary** — Visit Store, Browse, View Store, View All, Show More, Visit Profile (CTA family): purple gradient, liquid glass, premium shadow, subtle shine every ~7s
+- **secondary** — alternate CTA (white, purple border/glow, same shine cadence)
+
+## Rules
+
+- One component only. No parallel Visit Store button designs.
+- Shine: single subtle sweep every 6–8s, low opacity, transform-only, never continuous flash/RGB/neon.
+- `prefers-reduced-motion`: disable shine and scale.
+- Wire every new button in this family through `PremiumButton` / `PremiumButtonLink`.
+- Social Follow / Follow Seller / Following variants are **permanently forbidden** (see `social-system-removal-v1.mdc`).
+
+## Homepage search
+
+Homepage search shows **search icon + placeholder only**. No camera / upload / image icon on Homepage.

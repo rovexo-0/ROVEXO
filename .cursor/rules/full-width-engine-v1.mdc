@@ -1,0 +1,44 @@
+---
+description: ROVEXO Full Width Engine v1.0 — Profile reference · Master Full Width Contract v1.1
+alwaysApply: true
+---
+
+# ROVEXO Full Width Engine v1.0 (LOCKED)
+
+**STATUS: UI LOCK | MASTER FULL WIDTH CONTRACT v1.1**
+
+## Golden rule
+
+One platform = one design system. Profile is the official visual reference for internal UI.
+
+**Design Protection Absolute v1.1 (P0):** Owner-approved design always wins. Engines adapt **to** the design — the design never adapts to the engine. Full Width Absolute Law: 100% width/height · zero overflow/cropping/misalignment/redesign. See `design-protection-absolute-v1.mdc` · `full-width-absolute-law-v1.mdc`.
+
+Every account surface must use Full Width Engine via `AccountCanonicalShell`
+(`data-full-width-engine="v1.0"` + `data-master-full-width`).
+
+## Spec (Master Contract tokens · Design Decision #001)
+
+- Width: **100%** only (never 70/80/85/90/95% or centered cards)
+- Internal L/R padding: **16px** · Homepage L/R: **24px** (LOCKED)
+- Vertical / section padding: **24px** (unchanged)
+- Header: **64px** · Primary button / input: **56px** · Radius: **16px** · Touch ≥ **44px**
+- Rows: **100%** width · flat · chevron `>` identical platform-wide
+- Primary CTA: **100%** width
+- Sheets / modals: **100%** width
+
+## Forbidden
+
+Borders · cards · shadows · containers · boxes · rounded cards · section borders · custom widths · custom spacing · secondary design systems
+
+## Engine SSOT
+
+- `lib/design-system/design-decision-001-internal-ui-v1.1.ts`
+- `lib/master-engine/master-full-width-contract-v1.ts`
+- `lib/master-engine/full-width-engine.ts`
+- `styles/rovexo/full-width-engine-v1.css`
+- Export: `@/lib/master-engine` → `getFullWidthEngineSnapshot` · `masterFullWidthContractSnapshot`
+
+## Fail closed
+
+Unavailable content → Owner fail-closed copy. Never white screen or broken card layouts.
+---

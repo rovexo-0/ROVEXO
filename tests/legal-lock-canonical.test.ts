@@ -23,11 +23,19 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
 
     expect(login).toContain("AUTH_MASTER_SPEC.login");
     expect(AUTH_MASTER_SPEC.login.copy.title).toBe("Welcome back 👋");
-    expect(login).toContain('data-auth-version="v1.0-legal-lock"');
+    expect(login).toContain('data-auth-version="canonical-freeze-v1"');
+    expect(login).not.toContain("Welcome Back");
+    expect(login).not.toContain("Good to see you again");
     expect(register).toContain("AUTH_MASTER_SPEC.register");
     expect(AUTH_MASTER_SPEC.register.copy.title).toBe("Join ROVEXO today 🚀");
+    expect(register).toContain('data-auth-version="canonical-freeze-v1"');
+    expect(register).not.toContain("Join ROVEXO Today");
+    expect(register).toContain("SECURE REGISTRATION");
     expect(form).toContain('data-auth-version="v1.0-legal-lock"');
-    expect(readSource("components/branding/RovexoBrandLogo.tsx")).toContain("BUY.");
+    expect(readSource("components/branding/RovexoBrandLogo.tsx")).toContain("canonical");
+    expect(readSource("components/branding/RovexoBrandLogo.tsx")).toContain(
+      "OFFICIAL_BRAND_PRIMARY_EMBLEM",
+    );
   });
 
   it("exposes all canonical legal documents from scratch SSOT", () => {
@@ -96,12 +104,12 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
     expect(annual[0]?.endBalance).toBe(250);
   });
 
-  it("implements product safety report UI", () => {
+  it("uses the frozen product seller verification surface", () => {
     const detail = readSource("features/product-detail/ProductDetailPage.tsx");
     const store = readSource("features/product-detail/ProductStoreSection.tsx");
-    expect(detail).toContain("ProductReportDialog");
-    expect(store).toContain("SellerReportDialog");
-    expect(readSource("app/api/users/report/route.ts")).toContain('targetType: "profile"');
+    expect(detail).not.toContain("ProductReportDialog");
+    expect(store).toContain("VerifiedBadge");
+    expect(store).toContain("resolveVerifiedStatus");
   });
 
   it("provides UK compliance audit with no missing critical areas", () => {

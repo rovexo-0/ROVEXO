@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, tryCreateAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { computePromotionScore } from "@/lib/promotions/format";
 import { writePromotionAuditLog } from "@/lib/promotions/audit-log";
@@ -6,9 +6,18 @@ import {
   BOOST_PACKAGE_TIERS,
   resolveBoostPackageTier,
 } from "@/lib/promotions/canonical-tools";
-import { getMarketplacePricingSettings, DEFAULT_MARKETPLACE_PRICING } from "@/lib/promotions/marketplace-pricing";
+import { getMarketplacePricingSettings } from "@/lib/promotions/marketplace-pricing";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
 import { revalidatePromotionSurfaces } from "@/lib/promotions/revalidate-surfaces";
+import {
+  STORE_SHOWCASE_DURATION_DAYS,
+  STORE_SHOWCASE_PACKAGE_ID,
+  STORE_SHOWCASE_PRICE_CENTS,
+} from "@/lib/promote/constants";
+import { isValidStoreShowcasePackage } from "@/lib/promote/store-showcase-engine";
+import { resolveStoreShowcasePurchaseGate } from "@/lib/master-engine/store-showcase";
+import { getStoreShowcasePersistenceStatus } from "@/lib/promote/store-showcase-status";
+import { isSellerOnVacation } from "@/lib/settings/vacation";
 
 export type SellerPromotionType = "store_featured" | "boost_package";
 
@@ -26,6 +35,7 @@ type ActiveProductRow = {
   bump_count: number | null;
   bumped_until: string | null;
   featured_until: string | null;
+  last_bumped_at: string | null;
   title: string;
 };
 
@@ -42,27 +52,25 @@ function extendUntil(existing: string | null, days: number, from = new Date()): 
 }
 
 async function fetchActiveSellerProducts(sellerId: string): Promise<ActiveProductRow[]> {
-  const admin = createAdminClient();
-  const { data } = await admin
+  const admin = tryCreateAdminClient();
+  if (admin) {
+    const { data } = await admin
+      .from("products")
+      .select("id, bump_count, bumped_until, featured_until, last_bumped_at, title")
+      .eq("seller_id", sellerId)
+      .eq("status", "published")
+      .gt("stock", 0);
+    return (data ?? []) as ActiveProductRow[];
+  }
+
+  const supabase = await createClient();
+  const { data } = await supabase
     .from("products")
-    .select("id, bump_count, bumped_until, featured_until, title")
+    .select("id, bump_count, bumped_until, featured_until, last_bumped_at, title")
     .eq("seller_id", sellerId)
     .eq("status", "published")
     .gt("stock", 0);
-
   return (data ?? []) as ActiveProductRow[];
-}
-
-function resolveStoreFeaturedDays(packageId: string, showcaseDays: number): number {
-  if (packageId === "unlimited") return 36500;
-  const tier = resolveBoostPackageTier(packageId);
-  if (tier) return tier.days;
-  if (packageId === "7d") return 7;
-  if (packageId === "14d") return 14;
-  if (packageId === "28d") return 28;
-  const custom = Number(packageId);
-  if (Number.isFinite(custom) && custom > 0) return Math.floor(custom);
-  return showcaseDays;
 }
 
 export function resolveSellerPromotionPricing(input: {
@@ -70,12 +78,11 @@ export function resolveSellerPromotionPricing(input: {
   packageId: string;
 }): { priceCents: number; durationLabel: string; days: number } | null {
   if (input.type === "store_featured") {
-    const pricing = DEFAULT_MARKETPLACE_PRICING;
-    const days = resolveStoreFeaturedDays(input.packageId, pricing.showcase.days);
+    if (!isValidStoreShowcasePackage(input.packageId)) return null;
     return {
-      priceCents: pricing.showcase.priceCents,
-      durationLabel: `${days} Days`,
-      days,
+      priceCents: STORE_SHOWCASE_PRICE_CENTS,
+      durationLabel: `${STORE_SHOWCASE_DURATION_DAYS} Days`,
+      days: STORE_SHOWCASE_DURATION_DAYS,
     };
   }
 
@@ -106,8 +113,8 @@ export async function applySellerPromotion(input: {
   const resolved =
     input.type === "store_featured"
       ? {
-          days: resolveStoreFeaturedDays(input.packageId, pricing.showcase.days),
-          durationLabel: `${resolveStoreFeaturedDays(input.packageId, pricing.showcase.days)} Days`,
+          days: STORE_SHOWCASE_DURATION_DAYS,
+          durationLabel: `${STORE_SHOWCASE_DURATION_DAYS} Days`,
         }
       : resolveBoostPackageTier(input.packageId)
         ? {
@@ -120,12 +127,19 @@ export async function applySellerPromotion(input: {
     return { success: false, error: "Invalid promotion package." };
   }
 
+  if (input.type === "store_featured" && !isValidStoreShowcasePackage(input.packageId)) {
+    return { success: false, error: "Store Showcase is available for 7 days only." };
+  }
+
   const products = await fetchActiveSellerProducts(input.sellerId);
   if (products.length === 0) {
     return { success: false, error: "You need at least one active listing to promote." };
   }
 
-  const admin = createAdminClient();
+  const admin = tryCreateAdminClient();
+  if (!admin) {
+    return { success: false, error: "Unable to process payment. Please try again." };
+  }
   const now = new Date();
   const scheduledStart = input.scheduledStartAt ? new Date(input.scheduledStartAt) : null;
 
@@ -195,7 +209,13 @@ export async function applySellerPromotion(input: {
       bumpCount += 1;
     }
 
-    const promotionScore = computePromotionScore(bumpCount, bumpedUntil, featuredUntil);
+    const promotionScore = computePromotionScore(
+      bumpCount,
+      bumpedUntil,
+      featuredUntil,
+      input.type === "boost_package" ? now.toISOString() : product.last_bumped_at,
+      now.toISOString(),
+    );
     await admin
       .from("products")
       .update({
@@ -266,7 +286,9 @@ export async function createPendingSellerPromotion(
   packageId: string,
   amountCents: number,
 ): Promise<string | null> {
-  const admin = createAdminClient();
+  const admin = tryCreateAdminClient();
+  if (!admin) return null;
+
   const { data, error } = await admin
     .from("seller_promotions")
     .insert({
@@ -288,18 +310,55 @@ export async function createSellerPromotionCheckoutSession(input: {
   type: SellerPromotionType;
   packageId: string;
 }): Promise<{ url: string } | { error: string }> {
-  const pricing = await getMarketplacePricingSettings();
+  if (input.type === "store_featured") {
+    if (!isValidStoreShowcasePackage(input.packageId)) {
+      return { error: "Store Showcase is available for 7 days only." };
+    }
+
+    const [products, status, holidayModeEnabled] = await Promise.all([
+      fetchActiveSellerProducts(input.sellerId),
+      getStoreShowcasePersistenceStatus(input.sellerId),
+      (async () => {
+        const supabase = await createClient();
+        return isSellerOnVacation(supabase, input.sellerId);
+      })(),
+    ]);
+
+    const gate = resolveStoreShowcasePurchaseGate({
+      activeListingCount: products.length,
+      holidayModeEnabled,
+      hasActiveStoreShowcase: status.hasActiveStoreShowcase,
+      lastExpiredAt: status.lastExpiredAt,
+    });
+
+    if (!gate.canPurchase) {
+      if (!gate.visibility.visible) {
+        return { error: "Store Showcase requires at least 2 active listings." };
+      }
+      if (!gate.visibility.enabled) {
+        return { error: "Store Showcase is disabled while Holiday Mode is on." };
+      }
+      return { error: gate.antiAbuse.message };
+    }
+  }
+
   const quote =
     input.type === "store_featured"
       ? {
-          priceCents: pricing.showcase.priceCents,
-          days: resolveStoreFeaturedDays(input.packageId, pricing.showcase.days),
-          label: "Featured Store",
+          priceCents: STORE_SHOWCASE_PRICE_CENTS,
+          days: STORE_SHOWCASE_DURATION_DAYS,
+          label: "Store Showcase",
+          packageId: STORE_SHOWCASE_PACKAGE_ID,
         }
       : (() => {
           const tier = resolveBoostPackageTier(input.packageId);
           if (!tier) return null;
-          return { priceCents: tier.priceCents, days: tier.days, label: "Boost Package" };
+          return {
+            priceCents: tier.priceCents,
+            days: tier.days,
+            label: "Boost Package",
+            packageId: input.packageId,
+          };
         })();
 
   if (!quote) {
@@ -310,6 +369,9 @@ export async function createSellerPromotionCheckoutSession(input: {
   if (products.length === 0) {
     return { error: "You need at least one active listing to promote." };
   }
+
+  const packageId =
+    input.type === "store_featured" ? STORE_SHOWCASE_PACKAGE_ID : quote.packageId;
 
   const supabase = await createClient();
   const {
@@ -324,7 +386,7 @@ export async function createSellerPromotionCheckoutSession(input: {
     const result = await applySellerPromotion({
       sellerId: input.sellerId,
       type: input.type,
-      packageId: input.packageId,
+      packageId,
       amountCents: quote.priceCents,
     });
 
@@ -332,13 +394,13 @@ export async function createSellerPromotionCheckoutSession(input: {
       return { error: result.error ?? "Unable to apply promotion." };
     }
 
-    return { url: `${getAppBaseUrl()}/account/promotion-tools?promotion=success&type=${input.type}` };
+    return { url: `${getAppBaseUrl()}/promote?promotion=success&type=${input.type}` };
   }
 
   const pendingId = await createPendingSellerPromotion(
     input.sellerId,
     input.type,
-    input.packageId,
+    packageId,
     quote.priceCents,
   );
 
@@ -361,7 +423,10 @@ export async function createSellerPromotionCheckoutSession(input: {
             unit_amount: quote.priceCents,
             product_data: {
               name: quote.label,
-              description: `${quote.days} days — all active listings`,
+              description:
+                input.type === "store_featured"
+                  ? `${quote.days} days — entire store fair visibility`
+                  : `${quote.days} days — all active listings`,
             },
           },
         },
@@ -371,11 +436,11 @@ export async function createSellerPromotionCheckoutSession(input: {
         sellerPromotionId: pendingId,
         sellerId: input.sellerId,
         type: input.type,
-        packageId: input.packageId,
+        packageId,
         amountCents: String(quote.priceCents),
       },
-      success_url: `${baseUrl}/account/promotion-tools?promotion=success&type=${input.type}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/account/promotion-tools?promotion=cancelled&promotion_id=${pendingId}`,
+      success_url: `${baseUrl}/promote?promotion=success&type=${input.type}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/promote?promotion=cancelled&promotion_id=${pendingId}`,
     },
     { idempotencyKey: `seller-promo-checkout-${pendingId}` },
   );
@@ -515,6 +580,8 @@ export async function refreshExpiredSellerPromotions(): Promise<number> {
             product.bump_count ?? 0,
             bumpedUntil,
             featuredUntil,
+            product.last_bumped_at,
+            null,
           ),
         })
         .eq("id", product.id);

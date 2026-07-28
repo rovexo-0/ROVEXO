@@ -1,0 +1,36 @@
+---
+description: Rovexo Ideas FINAL IMPLEMENTATION LOCK v1.0 — Profile row identical except icon+text
+alwaysApply: true
+---
+
+# Rovexo Ideas FINAL IMPLEMENTATION LOCK v1.0
+
+**STATUS: PERMANENTLY LOCKED · ONE TIME IMPLEMENTATION ONLY**
+
+Not a redesign. Inherit Profile / Settings / Full Width 100%. No second design system.
+
+## Official name
+
+**Rovexo Ideas** only. Forbidden: `ROVEXO IDEAS` · `ROVEXO Ideas` · `ROVEXO IDEAS V1` · other variations.
+
+## Profile menu
+
+```
+Settings → Rovexo Ideas → Help Centre
+```
+
+Visually identical to Settings / Help / Promote / My Orders except **icon** and **text**.
+
+## Icon
+
+- Minimalist lightbulb · **24px** · `#FFD54A` soft golden yellow
+- Forbidden: circle · purple · emoji · gradient · complex icons
+
+## Forbidden for the row
+
+Custom typography · custom font weight/size · custom chevron colour · custom paddings · custom row height · 70–95% widths · centred layouts.
+
+## SSOT
+
+`lib/rovexo-ideas/rovexo-ideas-v1-lock.ts` · route `/account/ideas`
+---

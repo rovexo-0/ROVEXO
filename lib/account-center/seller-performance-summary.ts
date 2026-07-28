@@ -18,11 +18,13 @@ export type AccountSellerPerformanceSummary = {
 };
 
 const SELLER_LEVEL_NUMBERS: Record<SellerLevel, number> = {
-  new_seller: 1,
-  trusted_seller: 2,
-  top_seller: 3,
-  premium_seller: 4,
-  elite_seller: 5,
+  bronze: 1,
+  silver: 2,
+  gold: 3,
+  diamond: 4,
+  platinum: 5,
+  elite: 6,
+  legend: 7,
 };
 
 function buildAccountProgressMessage(

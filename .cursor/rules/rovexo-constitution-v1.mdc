@@ -1,0 +1,61 @@
+---
+description: ROVEXO Constitution v1.0 — Level 8 absolute authority
+alwaysApply: true
+---
+
+# ROVEXO CONSTITUTION v1.0 (LEVEL 8)
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN | CANONICAL | SSOT READY**  
+**50+ YEARS READY · 100+ MILLION USERS READY**
+
+SSOT: `lib/rovexo-constitution-v1.ts`
+
+This is the highest engineering law. Child laws: Absolute Master Freeze · Golden Law · Engineering Golden Principle · Supreme Blood Code I–V · View Analyzer · Priority 0 · OAuth Configuration Freeze · domain freezes.
+
+## I — Evolution
+
+**Never** by adding systems, managers, providers, architectures, implementations, states, duplicates, temporary fixes.  
+**Always** by simplifying · optimizing · automating · preserving.
+
+## II — Before code
+
+Ask (YES/NO): Configuration? State? Providers? Navigation? Services? API? Architecture? **Is the code really wrong?**  
+If #8 = NO → **code modifications FORBIDDEN.**
+
+## III — Singularity
+
+Exactly **one** of: Header · Search Engine · Camera Search · Auth · Session · Cookie · User · Callback · Provider · Navigation · Source of Truth.  
+Two owners or two implementations → **forbidden**.
+
+## IV — Root cause
+
+One root cause · one smallest fix · preserve greatest architecture.
+
+## V — Deploy
+
+**100/100 only.** 99 or below → NO DEPLOY.
+
+## VI — If it works, do not touch
+
+Auth · Search · Header · Camera Search · Architecture — when PASS, do not reopen.
+
+## VII — No forks
+
+Forbidden: `v2` · Pro · Manager · Engine Pro.  
+Allowed: Feature → **optimized** (no new systems).
+
+## VIII — Philosophy
+
+User does less · ROVEXO does more. Remove clicks, questions, pages, API calls, states, providers, complexity until only necessary remains.
+
+## Golden equation
+
+One owner = responsibility = implementation = SSOT = root cause = smallest fix = production gate = canonical implementation.
+
+## Final law
+
+Best fix = **smallest code change** + **greatest architecture preserved**.
+
+## Cursor must never
+
+Violate any principle above · create parallel owners/implementations · deploy below 100/100 · rewrite working modules “because something failed” when configuration/provider is the cause.

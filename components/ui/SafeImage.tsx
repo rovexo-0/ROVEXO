@@ -57,6 +57,7 @@ export function SafeImage({
   width,
   height,
   onError,
+  onLoad,
   ...rest
 }: SafeImageProps) {
   const sourceKey = imageSourceKey(src);
@@ -96,6 +97,14 @@ export function SafeImage({
       height={height}
       className={className}
       style={style}
+      onLoad={(event) => {
+        /* Some optimizer/host failures report complete with 0×0 — treat as broken. */
+        const el = event.currentTarget;
+        if (el.naturalWidth === 0 || el.naturalHeight === 0) {
+          setFailedKey(sourceKey);
+        }
+        onLoad?.(event);
+      }}
       onError={(event: SyntheticEvent<HTMLImageElement, Event>) => {
         setFailedKey(sourceKey);
         onError?.(event);

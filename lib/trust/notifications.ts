@@ -14,15 +14,15 @@ export async function notifyTrustScoreChange(input: {
   if (delta === 0) return;
 
   const direction = delta > 0 ? "increased" : "decreased";
+  const memberLabel = `${TRUST_TIER_LABELS[input.tier]} Member`;
   const subtitle = `Your trust score ${direction} to ${input.scoreAfter} (${TRUST_TIER_LABELS[input.tier]}). ${input.reason}`;
-  const detail = input.improvementTip ?? "Visit the Trust Center for personalised recommendations.";
 
   await dispatchNotification({
     userId: input.userId,
     type: "system",
     title: delta > 0 ? "Trust score improved" : "Trust score updated",
     subtitle,
-    detail,
+    detail: memberLabel,
     href: "/trust",
   });
 }

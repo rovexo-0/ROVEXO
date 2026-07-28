@@ -125,6 +125,10 @@ export async function createOrder(
     return null;
   }
 
+  if (!result.orderId) {
+    return null;
+  }
+
   return getOrderById(result.orderId);
 }
 
@@ -170,6 +174,7 @@ export async function applyOrderAction(
     await notifyOrderShipped({
       buyerId: existing.buyer.id,
       buyerEmail: buyerProfile?.email ?? "",
+      orderId: id,
       orderNumber: existing.orderNumber,
       trackingNumber,
     });
@@ -200,6 +205,7 @@ export async function applyOrderAction(
     await notifyOrderDelivered({
       buyerId: existing.buyer.id,
       buyerEmail: buyerProfile?.email ?? "",
+      orderId: id,
       orderNumber: existing.orderNumber,
     });
 
@@ -278,6 +284,7 @@ export async function applyOrderAction(
       buyerEmail: buyerProfile?.email ?? "",
       sellerId: existing.seller.id,
       sellerEmail: sellerProfile?.email ?? "",
+      orderId: id,
       orderNumber: existing.orderNumber,
       amount: Number(orderRow?.total ?? existing.totals.total),
     });

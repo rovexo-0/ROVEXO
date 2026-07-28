@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import { throttle } from "@/lib/performance/throttle";
 import { useDocumentVisible } from "@/lib/performance/hooks";
 
@@ -40,6 +41,7 @@ function isMobileViewport() {
 }
 
 export function RovexoMobileHeaderScrollProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname() ?? "";
   const visible = useDocumentVisible();
   const [isVisible, setIsVisible] = useState(true);
   const [headerElement, setHeaderElement] = useState<HTMLElement | null>(null);
@@ -57,6 +59,19 @@ export function RovexoMobileHeaderScrollProvider({ children }: { children: React
   const registerHeader = useCallback((element: HTMLElement | null) => {
     setHeaderElement((current) => (current === element ? current : element));
   }, []);
+
+  // Route change must show chrome immediately — never inherit hidden state from prior page.
+  // Adjust visibility during render (React-supported); reset scroll tracking refs in layout.
+  const [visibilityPath, setVisibilityPath] = useState(pathname);
+  if (pathname !== visibilityPath) {
+    setVisibilityPath(pathname);
+    setIsVisible(true);
+  }
+
+  useLayoutEffect(() => {
+    scrollDownDistance.current = 0;
+    lastScrollY.current = getScrollY();
+  }, [pathname]);
 
   useLayoutEffect(() => {
     if (!headerElement || !visible) return;

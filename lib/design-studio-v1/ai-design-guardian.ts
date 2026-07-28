@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join, relative } from "node:path";
 import { SCAN_DIRS, walkFiles } from "@/lib/design-studio-v1/scan-utils";
 import type { GuardianFinding, GuardianReport } from "@/lib/design-studio-v1/types";
@@ -76,7 +77,7 @@ function scanFile(rootDir: string, filePath: string): GuardianFinding[] {
 }
 
 export function runAiDesignGuardian(options: ScanOptions = {}): GuardianReport {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? workspacePath();
   const scannedAt = new Date().toISOString();
   const files = SCAN_DIRS.flatMap((dir) =>
     walkFiles(join(rootDir, dir)).filter((f) => f.endsWith(".tsx") || f.endsWith(".css")),

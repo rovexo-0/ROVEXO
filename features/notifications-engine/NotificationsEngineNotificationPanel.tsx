@@ -18,7 +18,7 @@ export function NotificationsEngineNotificationPanel({ context }: NotificationsE
             {summary.priority} · {summary.enterpriseType} · {summary.read ? "Read" : "Unread"}
           </p>
         </div>
-        <Link href="/notifications" className="ne-link">
+        <Link href="/inbox?tab=notifications" className="ne-link">
           Notification Center
         </Link>
       </div>

@@ -1,34 +1,38 @@
-import { getBuyerOrderListRefundLabel } from "@/lib/orders/refund-status";
-import type { Order, OrderStatus } from "@/lib/orders/types";
+import { resolveOrdersV7Status } from "@/lib/orders/orders-v7-status";
+import type { Order } from "@/lib/orders/types";
 
 export type OrdersHubBadgeTone =
   | "delivered"
   | "shipping"
   | "processing"
   | "cancelled"
-  | "completed";
+  | "completed"
+  | "refund"
+  | "dispute";
 
 export type OrdersHubBadge = {
   label: string;
   tone: OrdersHubBadgeTone;
 };
 
-const STATUS_BADGE: Record<OrderStatus, OrdersHubBadge> = {
-  awaiting_payment: { label: "Processing", tone: "processing" },
-  awaiting_shipment: { label: "Processing", tone: "processing" },
-  shipped: { label: "Shipping", tone: "shipping" },
-  delivered: { label: "Delivered", tone: "delivered" },
-  issue_open: { label: "Processing", tone: "processing" },
-  completed: { label: "Completed", tone: "completed" },
-  cancelled: { label: "Cancelled", tone: "cancelled" },
-};
+const TONE_MAP = {
+  green: "completed",
+  purple: "processing",
+  orange: "refund",
+  red: "cancelled",
+  yellow: "dispute",
+} as const satisfies Record<string, OrdersHubBadgeTone>;
 
-export function getOrdersHubBadge(order: Order): OrdersHubBadge {
-  const refundLabel = getBuyerOrderListRefundLabel(order);
-  if (refundLabel === "Refunded") return { label: "Cancelled", tone: "cancelled" };
-  if (refundLabel === "Refund in progress") return { label: "Processing", tone: "processing" };
-  if (refundLabel === "Refund failed") return { label: "Processing", tone: "processing" };
-  return STATUS_BADGE[order.status];
+/** Orders hub badge — delegates colour/label policy to Orders v7.0 lock. */
+export function getOrdersHubBadge(
+  order: Order,
+  view: "buyer" | "seller" = "buyer",
+): OrdersHubBadge {
+  const resolved = resolveOrdersV7Status(order, view);
+  return {
+    label: resolved.label,
+    tone: TONE_MAP[resolved.tone],
+  };
 }
 
 export function formatOrdersHubDate(iso: string): string {

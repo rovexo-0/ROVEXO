@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ROVEXO Profile — Local Preview</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #e8e8e8;
+      color: #1a1a1a;
+    }
+    .phone {
+      width: 390px;
+      min-height: 844px;
+      margin: 24px auto;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .header {
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: center;
+      height: 56px;
+      padding: 0 8px;
+    }
+    .back {
+      width: 44px; height: 44px;
+      border: none; background: transparent;
+      font-size: 22px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .title {
+      margin: 0; text-align: center;
+      font-size: 14px; font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .page { padding: 8px 16px 16px; }
+    .identity {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%; min-height: 64px; padding: 8px 0;
+      text-decoration: none; color: inherit;
+    }
+    .avatar {
+      width: 64px; height: 64px; border-radius: 999px;
+      background: #f5f5f5; display: flex; align-items: center;
+      justify-content: center; font-size: 22px; color: #64748b;
+      flex-shrink: 0;
+    }
+    .copy { flex: 1; min-width: 0; }
+    .name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .name { margin: 0; font-size: 16px; font-weight: 400; }
+    .badge {
+      display: inline-flex; align-items: center; min-height: 20px;
+      padding: 0 8px; border-radius: 999px;
+      background: rgb(147 51 234 / 0.1); color: #9333ea;
+      font-size: 12px; font-weight: 400;
+    }
+    .view { margin: 2px 0 0; font-size: 16px; font-weight: 400; color: #9333ea; }
+    .rating { margin: 2px 0 0; font-size: 16px; font-weight: 400; }
+    .rating-num, .rating-count { color: #9333ea; }
+    .rating-star { color: #f5b301; }
+    .followers {
+      display: flex; align-items: center; gap: 8px;
+      min-height: 44px; text-decoration: none; color: inherit;
+    }
+    .followers-label { font-size: 16px; font-weight: 400; }
+    .followers-value { flex: 1; font-size: 16px; color: #9333ea; }
+    .chevron { color: #1a1a1a; font-size: 18px; }
+    .menu { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .group { display: flex; flex-direction: column; }
+    .row {
+      display: flex; align-items: center; gap: 12px;
+      min-height: 56px; width: 100%;
+      text-decoration: none; color: inherit;
+      background: transparent; border: none;
+      font-size: 16px; font-weight: 400;
+      padding: 0;
+    }
+    .icon { width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; }
+    .label { flex: 1; }
+    .danger { color: #dc2626; }
+    .note {
+      max-width: 390px; margin: 0 auto 24px; padding: 0 8px;
+      font-size: 13px; color: #64748b; text-align: center;
+    }
+    .tabs { display: flex; gap: 8px; justify-content: center; margin: 16px; }
+    .tabs a {
+      padding: 8px 12px; background: #fff; border-radius: 999px;
+      text-decoration: none; color: #9333ea; font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="tabs">
+    <a href="#new">New user</a>
+    <a href="#reviews">After reviews</a>
+  </div>
+
+  <div class="phone" id="new">
+    <header class="header">
+      <button class="back" type="button" aria-label="Back">‹</button>
+      <h1 class="title">PROFILE</h1>
+      <span></span>
+    </header>
+    <main class="page">
+      <a class="identity" href="#">
+        <span class="avatar">M</span>
+        <span class="copy">
+          <div class="name-row">
+            <p class="name">mishuu88</p>
+            <span class="badge">New Member</span>
+          </div>
+          <p class="view">View Profile</p>
+          <p class="rating">
+            <span class="rating-num">0.0</span>
+            <span class="rating-star"> ★ </span>
+            <span class="rating-count">(0)</span>
+          </p>
+        </span>
+        <span class="chevron">›</span>
+      </a>
+      <a class="followers" href="#">
+        <span class="followers-label">Followers</span>
+        <span class="followers-value">0</span>
+        <span class="chevron">›</span>
+      </a>
+      <nav class="menu" aria-label="Profile">
+        <div class="group">
+          <a class="row" href="#"><span class="icon" style="color:#ec4899">♡</span><span class="label">Favourites</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#2563eb">💳</span><span class="label">Balance</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#f97316">📦</span><span class="label">My Orders</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#16a34a">🌴</span><span class="label">Holiday Mode</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#6b7280">⚙</span><span class="label">Settings</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#9333ea">❓</span><span class="label">Help Centre</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#2563eb">🛡</span><span class="label">Legal Information</span><span class="chevron">›</span></a>
+        </div>
+        <div class="group">
+          <button class="row" type="button"><span class="icon" style="color:#dc2626">↩</span><span class="label danger">Sign Out</span><span class="chevron">›</span></button>
+        </div>
+      </nav>
+    </main>
+  </div>
+
+  <div class="phone" id="reviews">
+    <header class="header">
+      <button class="back" type="button" aria-label="Back">‹</button>
+      <h1 class="title">PROFILE</h1>
+      <span></span>
+    </header>
+    <main class="page">
+      <a class="identity" href="#">
+        <span class="avatar">M</span>
+        <span class="copy">
+          <div class="name-row">
+            <p class="name">mishuu88</p>
+          </div>
+          <p class="view">View Profile</p>
+          <p class="rating">
+            <span class="rating-num">5.0</span>
+            <span class="rating-star"> ★ </span>
+            <span class="rating-count">(55)</span>
+          </p>
+        </span>
+        <span class="chevron">›</span>
+      </a>
+      <a class="followers" href="#">
+        <span class="followers-label">Followers</span>
+        <span class="followers-value">327</span>
+        <span class="chevron">›</span>
+      </a>
+      <nav class="menu" aria-label="Profile">
+        <div class="group">
+          <a class="row" href="#"><span class="icon" style="color:#ec4899">♡</span><span class="label">Favourites</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#2563eb">💳</span><span class="label">Balance</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#f97316">📦</span><span class="label">My Orders</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#16a34a">🌴</span><span class="label">Holiday Mode</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#6b7280">⚙</span><span class="label">Settings</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#9333ea">❓</span><span class="label">Help Centre</span><span class="chevron">›</span></a>
+          <a class="row" href="#"><span class="icon" style="color:#2563eb">🛡</span><span class="label">Legal Information</span><span class="chevron">›</span></a>
+        </div>
+        <div class="group">
+          <button class="row" type="button"><span class="icon" style="color:#dc2626">↩</span><span class="label danger">Sign Out</span><span class="chevron">›</span></button>
+        </div>
+      </nav>
+    </main>
+  </div>
+  <p class="note">Local preview · live: http://localhost:3010/account (auth) · Follow on View Profile via existing /api/follows</p>
+</body>
+</html>

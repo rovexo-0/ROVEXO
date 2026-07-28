@@ -39,23 +39,26 @@ describe("My Account critical UI restore (Master Menu v2.0)", () => {
     const page = readSource("features/account-center/components/AccountCenterPage.tsx");
     const profile = readSource("features/account-center/components/AccountCanonicalProfile.tsx");
 
-    expect(home).toContain('data-ac-hub-version="v2.0-master"');
+    expect(home).toContain('data-ac-hub-version="profile-v1"');
     expect(home).toContain("AccountCanonicalProfile");
     expect(home).toContain("AccountMenuSections");
     expect(home).not.toContain("AccountStatsStrip");
     expect(home).not.toContain("AccountSellerPerformanceCard");
     expect(home).toMatch(/AccountCanonicalProfile[\s\S]*AccountMenuSections/);
-    expect(page).toContain("hideBack");
+    expect(page).toContain('title="PROFILE"');
+    expect(page).toContain("showHeaderTitle");
+    expect(page).not.toContain("hideBack");
     expect(page).not.toContain("identity=");
 
-    expect(profile).not.toContain("View Public Profile");
+    expect(profile).toContain("View Profile");
     expect(profile).not.toContain("Edit Profile");
-    expect(home).not.toContain("View Public Profile");
     expect(home).not.toContain("Edit Profile");
   });
 
-  it("locks Master Menu v2.0 Buying / Selling / Business hubs", () => {
-    const titles = buildAccountMenuSections(baseProfile).flatMap((s) => s.items.map((i) => i.title));
+  it("locks Profile main menu inventory", () => {
+    const titles = buildAccountMenuSections(baseProfile, { activeListingCount: 1 }).flatMap((s) =>
+      s.items.map((i) => i.title),
+    );
     expect(titles).toEqual([...ACCOUNT_MENU_TITLES]);
   });
 });

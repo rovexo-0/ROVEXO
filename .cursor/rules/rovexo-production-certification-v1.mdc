@@ -1,0 +1,38 @@
+---
+description: Production Certification Law — 100/100 OAuth blocks deploy
+alwaysApply: true
+---
+
+# ROVEXO PRODUCTION CERTIFICATION LAW v1.0 (LEVEL 8)
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN | CANONICAL SSOT**
+
+SSOT: `lib/rovexo-production-certification-v1.ts`  
+Related: Deployment Golden Law · Auth Senior Audit · OAuth Configuration Golden Law
+
+## Current certification
+
+**PASS:** Header · Search · Camera · Auth core · Cookie · Session · Email · Remember Me · Forgot Password · Router · Image Search · Architecture · Build · Tests  
+
+**FAIL:** Google · Apple · Facebook (Supabase OAuth config)  
+
+**PRODUCTION READY: NO** · Until OAuth passes → **NO DEPLOY**
+
+## Verdict
+
+Code PASS · Architecture PASS · OAuth config FAIL  
+Root cause: Supabase configuration · **Owner ops only** · no code/architecture changes
+
+## Deploy gate (zero exceptions)
+
+100/100 = DEPLOY · 99 = NO DEPLOY · 1 FAIL = NO DEPLOY
+
+## Order
+
+BUILD → AUDIT → TEST → CERTIFY → LOCK → PASS → 100/100 → PREVIEW → PRODUCTION_DEPLOY → DONE  
+
+Forbidden: BUILD → DEPLOY → FIX AFTER · production hotfix deploy · ignore failed gates
+
+## Cursor must never
+
+Deploy while Google/Apple/Facebook gates are false · rewrite Auth because OAuth is disabled · claim PRODUCTION_READY until OAuth passes

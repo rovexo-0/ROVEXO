@@ -1,0 +1,36 @@
+# ROVEXO Canonical Switch Engine v1.0 (LOCKED)
+
+**STATUS: UI LOCK | APPROVED | ONE PLATFORM = ONE SWITCH**
+
+## Golden rule
+
+Every switch in ROVEXO must use **Canonical Switch Engine v1.0**.
+
+- Component: `CanonicalSwitch` (`src/components/canonical/CanonicalSwitch.tsx`)
+- Alias: `SettingToggle` → `CanonicalSwitch` only
+- Engine: `@/lib/master-engine` → `resolveCanonicalSwitchChecked` / `getSwitchEngineSnapshot`
+- CSS: `.cds-switch` tokens in `styles/rovexo/canonical-ds.css`
+
+## Spec (immutable)
+
+- Visual: **28×16** · Thumb **14** · Radius **50%**
+- Hit target: **44×44** (visual remains 28×16)
+- OFF: `#E5E7EB` · ON: `#047857` · Thumb: `#FFFFFF`
+- Animation: **200ms** ease-in-out · no glow / bounce / gradients
+- Disabled: **40%** opacity · not clickable
+- Fail-closed: unavailable → **OFF only**
+
+## Forbidden
+
+- Parallel switch sizes (32px, 24px, etc.)
+- Blue / purple / red / custom switch colours
+- Custom switch components, CSS tracks, or animations
+- `role="switch"` outside `CanonicalSwitch.tsx`
+
+## Mandatory surfaces
+
+Profile Holiday Mode · Settings Notifications / Privacy / Security · Notification controls · future Wallet / Promotions / Business / Admin / Super Admin toggles.
+
+## Production
+
+`activateProductionRules()` remains inactive unless Owner activates. Local / QA / Demo / Visual / E2E show the locked switch everywhere.

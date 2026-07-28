@@ -12,13 +12,17 @@ import { revalidatePublishedListing } from "@/lib/listings/revalidate-published-
 import { buildPublishSuccessPayload } from "@/lib/sell/publish-success";
 import { getAppUrl } from "@/lib/supabase/env";
 import { syncAutoVerifiedProfile } from "@/lib/profile/auto-verified";
-import { resolveProfileCompletionRedirect } from "@/lib/account/profile-completion";
+import { resolveProfileCompletionRedirect } from "@/lib/account/profile-completion.server";
 import {
   createListingSchema,
   formatListingApiValidationError,
 } from "@/lib/sell/listing-api-schema";
 import type { ListingFilter } from "@/lib/listings/types";
 import { clampInventory, isInventoryValid } from "@/lib/sell/inventory";
+import {
+  processFollowNotificationEvent,
+  resolveFollowNotificationActor,
+} from "@/lib/follow-notifications";
 
 const FILTERS: ListingFilter[] = [  "all",
   "draft",
@@ -132,13 +136,28 @@ export async function POST(request: Request) {
       images: body.images,
     });
 
-    if (!listing) {
-      return NextResponse.json({ error: "Unable to publish listing." }, { status: 500 });
-    }
-
     await syncAutoVerifiedProfile(auth.user.id);
 
     revalidatePublishedListing(listing.slug);
+
+    if (listing.status === "published") {
+      void (async () => {
+        const actor = await resolveFollowNotificationActor(auth.user.id);
+        await processFollowNotificationEvent({
+          type: "NewListingPublished",
+          actorId: auth.user.id,
+          actorName: actor.name,
+          actorUsername: actor.username,
+          actorAvatarUrl: actor.avatarUrl,
+          sellerId: auth.user.id,
+          listingId: listing.id,
+          listingSlug: listing.slug,
+          listingTitle: listing.title,
+          occurredAt: new Date().toISOString(),
+          dedupeKey: `new-listing:${listing.id}`,
+        });
+      })();
+    }
 
     const origin = getAppUrl().replace(/\/$/, "");
     const publish = buildPublishSuccessPayload(listing, auth.user.id, origin);
@@ -151,6 +170,10 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+    console.error("[POST /api/listings] publish failed", {
+      message: error instanceof Error ? error.message : "unknown",
+      name: error instanceof Error ? error.name : typeof error,
+    });
     return NextResponse.json({ error: "Unable to publish listing." }, { status: 500 });
   }
 }

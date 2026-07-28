@@ -1,10 +1,7 @@
-import { LISTING_CARD_DEFAULT_PROPS } from "@/lib/listing-card/defaults";
+import { LISTING_CARD_HOMEPAGE_PROPS } from "@/lib/listing-card/defaults";
 
-/** Canonical ListingCard props for Homepage V3 surfaces. */
-export const HP3_LISTING_CARD_PROPS = {
-  ...LISTING_CARD_DEFAULT_PROPS,
-  surface: "homepage" as const,
-};
+/** Canonical ListingCard props — Product Card v1.0 SSOT (same as Homepage). */
+export const HP3_LISTING_CARD_PROPS = LISTING_CARD_HOMEPAGE_PROPS;
 
 export const HP3_VIEW_ALL = {
   featured: "/search?q=&sort=popular",

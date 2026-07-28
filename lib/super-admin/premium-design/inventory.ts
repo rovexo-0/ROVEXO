@@ -1,4 +1,5 @@
 import { access, readFile, stat } from "node:fs/promises";
+import { workspacePath } from "@/lib/server/workspace-path";
 import path from "node:path";
 import { ROVEXO_CATEGORY_PREMIUM_KEYS } from "@/lib/home/category-premium-library";
 import { HERO_CAMPAIGN_IDS } from "@/lib/home/hero-campaign-library";
@@ -30,7 +31,7 @@ export type PremiumAssetInventory = {
 };
 
 async function fileInfo(relativePath: string) {
-  const absolute = path.join(process.cwd(), relativePath);
+  const absolute = workspacePath(relativePath);
   try {
     const info = await stat(absolute);
     return { exists: true, bytes: info.size, mtime: info.mtime.toISOString() };
@@ -41,7 +42,7 @@ async function fileInfo(relativePath: string) {
 
 async function readVersion(manifestPath: string, fallback: string) {
   try {
-    const manifest = JSON.parse(await readFile(path.join(process.cwd(), manifestPath), "utf8")) as {
+    const manifest = JSON.parse(await readFile(workspacePath(manifestPath), "utf8")) as {
       version?: string;
       pipeline?: string;
     };
@@ -128,7 +129,7 @@ export async function getPremiumAssetInventory(): Promise<PremiumAssetInventory>
 
 export async function assetSourceExists(relativePath: string): Promise<boolean> {
   try {
-    await access(path.join(process.cwd(), relativePath));
+    await access(workspacePath( relativePath));
     return true;
   } catch {
     return false;

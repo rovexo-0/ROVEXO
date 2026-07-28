@@ -1,0 +1,47 @@
+---
+description: DESIGN DECISION #002 — Homepage vs Internal tokens never inherit
+alwaysApply: true
+---
+
+# DESIGN DECISION #002 — Dual Layout Token Isolation
+
+**STATUS: OWNER APPROVED | PERMANENT**
+
+```
+Homepage 24px
+↓ never inherit
+↓ Internal Layout Tokens
+
+Internal Layout 16px
+↓ never inherit
+↓ Homepage Tokens
+```
+
+Companion to Design Decision #001 (values). This decision owns **isolation**.
+
+## Token families (independent)
+
+| Family | Pad | CSS vars (only) |
+|--------|-----|-----------------|
+| Homepage | 24px | `--homepage-pad-x` · `--hp-shell-pad` |
+| Internal | 16px | `--fw-pad-x` · `--internal-pad-x` · `--rx-phone-inset-x` · `--cds-space-page-x` |
+
+## Forbidden forever
+
+- Homepage reading/writing Internal vars
+- Internal reading/writing Homepage vars
+- `body:has(.rovexo-page-home)` mutating `--rx-phone-inset-x` / `--fw-pad-x` / `--cds-space-page-x`
+- `--homepage-pad-x: var(--fw-pad-x)` or the reverse
+- `--rx-phone-inset-x: var(--homepage-pad-x)`
+
+## Required
+
+- Homepage surfaces pad with **Homepage Tokens only**
+- Internal / Full Width / Account surfaces pad with **Internal Tokens only**
+- Cross-surface headers: set **padding** from the correct family — never reassign the other family's variables
+
+## SSOT
+
+`lib/design-system/design-decision-002-token-isolation-v1.ts`  
+Values: `lib/design-system/design-decision-001-internal-ui-v1.1.ts`
+---

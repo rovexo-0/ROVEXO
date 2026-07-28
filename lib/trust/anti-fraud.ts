@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isSelfPurchaseBlocked } from "@/lib/checkout/self-purchase-absolute-law-v1";
 
 export type TrustFraudCheck = {
   blocked: boolean;
@@ -25,7 +26,13 @@ export async function detectReviewFraud(input: {
     return { blocked: true, reason: "missing_order" };
   }
 
-  if (order.buyer_id === order.seller_id) {
+  // Cod Sânge: currentUser (order buyer) vs listing owner (order seller column).
+  if (
+    isSelfPurchaseBlocked({
+      currentUserId: order.buyer_id,
+      listingOwnerId: order.seller_id,
+    })
+  ) {
     return { blocked: true, reason: "self_purchase" };
   }
 
@@ -52,7 +59,13 @@ export async function detectSelfOffer(input: {
   buyerId: string;
   sellerId: string;
 }): Promise<TrustFraudCheck> {
-  if (input.buyerId === input.sellerId) {
+  // Same singularity: currentUser must not be listing.owner for offers.
+  if (
+    isSelfPurchaseBlocked({
+      currentUserId: input.buyerId,
+      listingOwnerId: input.sellerId,
+    })
+  ) {
     return { blocked: true, reason: "self_offer" };
   }
   return { blocked: false };
@@ -62,7 +75,13 @@ export async function detectOrderTrustFraud(input: {
   buyerId: string;
   sellerId: string;
 }): Promise<TrustFraudCheck> {
-  if (input.buyerId === input.sellerId) {
+  // Canonical self-purchase: currentUser.id === listing.owner.id
+  if (
+    isSelfPurchaseBlocked({
+      currentUserId: input.buyerId,
+      listingOwnerId: input.sellerId,
+    })
+  ) {
     return { blocked: true, reason: "self_purchase" };
   }
   return { blocked: false };

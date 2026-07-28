@@ -38,7 +38,8 @@ async function waitForRouteUi(
       await expect(page.getByRole("heading", { name: /all categories/i })).toBeVisible();
       break;
     case "login":
-      await expect(page.getByRole("heading", { name: /welcome back/i })).toBeVisible();
+      await expect(page.getByRole("button", { name: /^sign in$/i })).toBeVisible();
+      await expect(page.getByLabel(/email address/i)).toBeVisible();
       await expect(page.getByRole("link", { name: /create account/i })).toBeVisible();
       // Ensure entrance animations finished (opacity:1) before axe contrast checks.
       await expect
@@ -51,8 +52,9 @@ async function waitForRouteUi(
       break;
     case "register":
       await expect(
-        page.getByRole("heading", { name: /join rovexo today|create your account/i }),
+        page.getByRole("button", { name: /create free account/i }),
       ).toBeVisible();
+      await expect(page.getByLabel(/email address/i)).toBeVisible();
       break;
   }
 }
@@ -100,7 +102,7 @@ for (const route of criticalRoutes) {
   });
 }
 
-test("touch targets meet minimum size on default header actions", async ({ page, baseURL }) => {
+test("touch targets meet minimum size on frozen search-priority header", async ({ page, baseURL }) => {
   if (!baseURL) throw new Error("Touch-target audit requires baseURL for demo sign-in.");
   await signInWithSessionCookies(page, {
     email: BUYER.email,
@@ -109,22 +111,19 @@ test("touch targets meet minimum size on default header actions", async ({ page,
   });
 
   await page.setViewportSize({ width: 390, height: 844 });
-  // Search uses RovexoHeaderV2 — Notifications + Account (Messages removed from v2 header).
-  await page.goto("/search?q=phone", { waitUntil: "domcontentloaded" });
-  await waitForSearchResultsUi(page);
+  // Homepage Search Bar Only freeze — RovexoHeaderV2 mounts on `/` only.
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await waitForHomepageUi(page);
 
   const header = page.locator('[data-header-version="rovexo-v2"]').first();
-  await expect(header).toBeVisible();
+  await expect(header).toBeVisible({ timeout: 15_000 });
 
-  const notifications = header.getByRole("link", { name: /notifications/i });
-  const profile = header.getByRole("link", { name: /account|profile/i }).first();
-
-  for (const target of [notifications, profile]) {
-    await expect(target).toBeVisible({ timeout: 15_000 });
-    const box = await target.boundingBox();
-    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
-    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
-  }
+  // Frozen App Icon is 28px; Search Priority Freeze requires the Search control ≥ 44px.
+  const search = header.getByRole("search").first();
+  await expect(search).toBeVisible({ timeout: 15_000 });
+  const box = await search.boundingBox();
+  expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+  expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
 });
 
 function formatViolations(

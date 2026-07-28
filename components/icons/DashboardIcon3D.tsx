@@ -1,23 +1,11 @@
 "use client";
 
-import {
-  BagLineIcon,
-  BellLineIcon,
-  CartLineIcon,
-  ChatLineIcon,
-  HeartLineIcon,
-  SearchLineIcon,
-  SettingsLineIcon,
-  TagLineIcon,
-  UserLineIcon,
-  WalletLineIcon,
-} from "@/components/icons/RvxLineIcons";
+import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
 import { cn } from "@/lib/cn";
 import {
   resolveDashboardIconType,
   type DashboardIconType,
 } from "@/lib/icons/resolve-dashboard-icon-type";
-import type { ComponentType, SVGProps } from "react";
 
 export type { DashboardIconType };
 export { resolveDashboardIconType };
@@ -28,50 +16,49 @@ type DashboardIcon3DProps = {
   size?: number;
 };
 
-type IconProps = SVGProps<SVGSVGElement>;
-
-function HomeLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden {...props}>
-      <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-9.5Z" />
-    </svg>
-  );
-}
-
-const MAP: Record<string, ComponentType<IconProps>> = {
-  home: HomeLineIcon,
-  search: SearchLineIcon,
-  sell: TagLineIcon,
-  saved: HeartLineIcon,
-  account: UserLineIcon,
-  notifications: BellLineIcon,
-  settings: SettingsLineIcon,
-  categories: TagLineIcon,
-  messages: ChatLineIcon,
-  wallet: WalletLineIcon,
-  orders: BagLineIcon,
-  cart: CartLineIcon,
-  "buy-hub": BagLineIcon,
-  "sell-hub": TagLineIcon,
-  "business-hub": UserLineIcon,
-  "support-hub": ChatLineIcon,
-  listings: TagLineIcon,
-  business: UserLineIcon,
-  help: ChatLineIcon,
-  support: ChatLineIcon,
-  inventory: TagLineIcon,
+const MAP: Record<string, AccountIconName> = {
+  home: "profile",
+  search: "search",
+  sell: "sell",
+  saved: "saved",
+  account: "profile",
+  notifications: "notifications",
+  settings: "settings",
+  categories: "categories",
+  messages: "messages",
+  wallet: "wallet",
+  orders: "orders",
+  cart: "cart",
+  "buy-hub": "orders",
+  "sell-hub": "sell",
+  "business-hub": "business",
+  "support-hub": "support",
+  listings: "listings",
+  business: "business",
+  help: "help",
+  support: "support",
+  inventory: "inventory",
+  product: "product",
+  checkout: "checkout",
+  tracking: "tracking",
+  refunds: "refunds",
+  disputes: "disputes",
+  shipping: "shipping",
+  trust: "trust",
+  legal: "legal",
+  directory: "directory",
+  stores: "stores",
 };
-
 /** Absolute Final: line icons only — no Fluency 3D / dashboard 3D assets. */
 export function DashboardIcon3D({ type, className, size = 20 }: DashboardIcon3DProps) {
-  const Icon = MAP[type] ?? TagLineIcon;
+  const name = MAP[type] ?? "listings";
   return (
     <span
       className={cn("inline-flex shrink-0 items-center justify-center text-current", className)}
       style={{ width: size, height: size }}
       aria-hidden
     >
-      <Icon className="h-full w-full" />
+      <AccountIcon name={name} className="h-full w-full" />
     </span>
   );
 }

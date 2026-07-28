@@ -1,0 +1,77 @@
+---
+description: Supreme Blood Code II — Zero Regression · binary 100% gates only
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE II — ZERO REGRESSION
+
+**STATUS: OWNER APPROVED · PERMANENT FREEZE · ABSOLUTE AUTHORITY**
+
+SSOT: `lib/supreme-blood-code-ii-v1.ts`  
+Doc: `docs/engineering/SUPREME_BLOOD_CODE_II_V1.md`
+
+## Hard stop
+
+Nothing may be **committed · pushed · merged · certified · frozen · released** unless **all** gates PASS.
+
+## Mandatory order
+
+CODE → TYPESCRIPT → ESLINT → BUILD → TESTS → PREVIEW → UI → MOBILE → TABLET → DESKTOP → OWNER APPROVAL → FREEZE → COMMIT → PUSH → CERTIFICATION → DONE
+
+## Machine green ≠ product green
+
+| Machine | Product defect | Result |
+|---------|----------------|--------|
+| BUILD PASS | White screen | **NOT APPROVED** |
+| TEST PASS | Broken UI | **NOT APPROVED** |
+| ESLINT PASS | Button broken | **NOT APPROVED** |
+| BUILD PASS | Pay Now incorrect | **NOT APPROVED** |
+| CODE PASS | Preview fail | **NOT APPROVED** |
+
+## Certification blocked
+
+No preview · No UI · No Owner approval · No mobile PASS → **NO CERTIFICATION**
+
+## White-screen policy
+
+If the user sees white/empty/broken page, broken button, wrong status/total/payment/tracking/automation → **sprint FAILS automatically**. No exceptions.
+
+## Binary only
+
+Only **PASS** or **FAIL**. Forbidden: Fake / Partial / Estimated / Assume / Probably / Should / Might / Almost PASS.
+
+## Score law
+
+95% · 99% · 99.99% ≠ 100%. Only **exactly 100% PASS** or **FAIL**.
+
+## Golden QA
+
+**1 failure = entire gate FAIL.** Example: Build/Tests/UI PASS + Preview FAIL → Sprint FAIL.
+
+## Older freezes
+
+May improve · optimize · automate · secure.  
+May **never** break · remove · change · duplicate without Owner approval.
+
+## Never sacrifice
+
+Quality for speed · Security for convenience · Automation for manual ops · Scalability for short-term hacks.
+
+## Owner rule
+
+Owner must never ask “Is it working?” — the platform must **prove** it works, passes, is tested, verified, certified.
+
+## Final supreme rule
+
+If it is not tested · verified · previewed · approved · certified → **it does not exist.**
+
+No preview = no freeze. No PASS = no push. No Owner approval = no certification. **No exceptions.**
+
+Child law: Supreme Blood Code III — Preview View Certification (`lib/supreme-blood-code-iii-v1.ts`).
+
+## Cursor must never
+
+- Claim PASS without verified evidence  
+- Treat 99.x% as 100%  
+- Commit/push/certify when any gate failed or preview/UI/mobile missing  
+- Bypass Owner approval between gates

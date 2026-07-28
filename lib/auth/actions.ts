@@ -178,10 +178,17 @@ export async function signInWithOAuthProvider(formData: FormData): Promise<void>
   redirect(data.url);
 }
 
+/** FORENSIC ONLY — login pipeline timing. Does not alter control flow. */
+let signInWithPasswordCallCount = 0;
+
 export async function signIn(
   _prev: AuthActionState,
   formData: FormData,
 ): Promise<AuthActionState> {
+  const loginTraceId = `LOGIN-TRACE-${Date.now()}`;
+  const loginTotalT0 = Date.now();
+  signInWithPasswordCallCount = 0;
+
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
@@ -198,24 +205,62 @@ export async function signIn(
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
+
+  const T0 = Date.now();
+  console.info(`[${loginTraceId}] signInWithPassword START T0=${T0}`);
+  signInWithPasswordCallCount += 1;
+  const callNumber = signInWithPasswordCallCount;
+  let passwordGrantError: unknown = null;
+  let data: Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>["data"] | undefined;
+  let error: Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>["error"] | undefined;
+  try {
+    const result = await supabase.auth.signInWithPassword(parsed.data);
+    data = result.data;
+    error = result.error;
+  } catch (thrown) {
+    passwordGrantError = thrown;
+    throw thrown;
+  } finally {
+    const T1 = Date.now();
+    const elapsed = T1 - T0;
+    console.info(
+      `[${loginTraceId}] signInWithPassword END T1=${T1} elapsed=${elapsed}ms call#=${callNumber} totalCallsThisSignIn=${signInWithPasswordCallCount}`,
+    );
+    if (elapsed > 5000) {
+      console.info(
+        `[${loginTraceId}] signInWithPassword SLOW detail requestStart=${T0} responseFinished=${T1} thrown=${
+          passwordGrantError ? String(passwordGrantError) : "none"
+        } sdkError=${error?.message ?? "none"} retryCount=0(app) abortCount=0(app)`,
+      );
+    }
+  }
 
   if (error) {
     await recordAuthRateLimitFailure("login", ip);
+    console.info(
+      `[${loginTraceId}] TOTAL_LOGIN ${Date.now() - loginTotalT0}ms (failed auth) callCount=${signInWithPasswordCallCount}`,
+    );
     return { error: mapAuthErrorMessage(error.message) };
   }
 
+  const persistT0 = Date.now();
   await applySessionPersistence(formData.get("remember") === "on");
+  console.info(`[${loginTraceId}] applySessionPersistence ${Date.now() - persistT0}ms`);
 
   await clearAuthRateLimit("login", ip);
 
+  const profileT0 = Date.now();
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", data.user.id)
+    .eq("id", data!.user!.id)
     .maybeSingle();
+  console.info(`[${loginTraceId}] profiles.select(role) ${Date.now() - profileT0}ms`);
 
   if (profileError) {
+    console.info(
+      `[${loginTraceId}] TOTAL_LOGIN ${Date.now() - loginTotalT0}ms (profile error) callCount=${signInWithPasswordCallCount}`,
+    );
     return { error: "Unable to load your profile. Please try again." };
   }
 
@@ -224,7 +269,17 @@ export async function signIn(
   await queueGaEvents([{ name: "login", params: { method: "email" } }]);
 
   const role = (profile?.role ?? "buyer") as UserRole;
-  redirectAfterSignIn(role, formData.get("next")?.toString());
+  const redirectT0 = Date.now();
+  console.info(`[${loginTraceId}] redirectAfterSignIn START`);
+  try {
+    redirectAfterSignIn(role, formData.get("next")?.toString());
+  } finally {
+    // redirectAfterSignIn throws NEXT_REDIRECT — finish is throw time
+    console.info(`[${loginTraceId}] redirectAfterSignIn ${Date.now() - redirectT0}ms`);
+    console.info(
+      `[${loginTraceId}] TOTAL_LOGIN ${Date.now() - loginTotalT0}ms callCount=${signInWithPasswordCallCount}`,
+    );
+  }
 }
 
 export async function signOut(): Promise<void> {

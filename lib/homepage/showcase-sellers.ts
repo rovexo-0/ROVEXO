@@ -1,4 +1,6 @@
 import type { Product } from "@/lib/products/types";
+import { listingHrefFromSlug } from "@/lib/homepage/homepage-final-freeze-v1";
+import { resolveStoreHrefFromSeller } from "@/lib/store/store-href";
 
 export type ShowcaseSellerSection = {
   sellerId: string;
@@ -9,22 +11,24 @@ export type ShowcaseSellerSection = {
   sellerTier?: string;
   rating: number;
   reviewCount: number;
-  followerCount?: number;
+  /** Total active listings for View All card (Store page count). */
+  listingCount?: number;
+  /** ISO date — shown as "Joined May 2026" on Showcase Store Header v2.0. */
+  joinedAt?: string | null;
   listings: Product[];
   profileHref: string;
 };
 
-function resolveShowcaseProfileHref(product: Product): string {
-  if (product.sellerUsername) {
-    if (product.sellerRole === "business") {
-      return `/store/${product.sellerUsername}`;
-    }
-    return `/user/${product.sellerUsername}`;
-  }
-  if (product.sellerId) {
-    return `/search?seller=${encodeURIComponent(product.sellerId)}`;
-  }
-  return "/";
+/** Store href only — /store/[store_slug|store_id]. Never search / empty / broken. */
+export function resolveShowcaseProfileHref(product: Product): string | null {
+  return resolveStoreHrefFromSeller({
+    sellerId: product.sellerId,
+    storeSlug: product.sellerUsername,
+  });
+}
+
+export function isShowcaseListingNavigable(product: Product): boolean {
+  return listingHrefFromSlug(product.slug) != null;
 }
 
 function sortListingsNewestFirst(listings: Product[]): Product[] {
@@ -60,6 +64,7 @@ export function buildShowcaseSellerSections(
   for (const product of products) {
     const sellerId = product.sellerId;
     if (!sellerId || !featuredSellerIds.has(sellerId)) continue;
+    if (!isShowcaseListingNavigable(product)) continue;
     const bucket = bySeller.get(sellerId) ?? [];
     bucket.push(product);
     bySeller.set(sellerId, bucket);
@@ -71,6 +76,8 @@ export function buildShowcaseSellerSections(
     const sorted = sortListingsNewestFirst(listings);
     const primary = sorted[0];
     if (!primary) continue;
+    const profileHref = resolveShowcaseProfileHref(primary);
+    if (!profileHref) continue;
 
     sections.push({
       sellerId,
@@ -81,8 +88,9 @@ export function buildShowcaseSellerSections(
       sellerTier: primary.sellerTier,
       rating: primary.rating,
       reviewCount: primary.reviewCount,
+      listingCount: sorted.length,
       listings: sorted,
-      profileHref: resolveShowcaseProfileHref(primary),
+      profileHref,
     });
   }
 
@@ -110,7 +118,7 @@ export async function enrichShowcaseSellerSections(
 
     const { data } = await admin
       .from("seller_profiles")
-      .select("id, rating, review_count, follower_count")
+      .select("id, rating, review_count, listing_count, created_at")
       .in("id", sellerIds);
 
     const profileById = new Map(
@@ -119,7 +127,8 @@ export async function enrichShowcaseSellerSections(
         {
           rating: Number(row.rating ?? 0),
           reviewCount: row.review_count ?? 0,
-          followerCount: row.follower_count ?? 0,
+          listingCount: Number(row.listing_count ?? 0),
+          joinedAt: (row as { created_at?: string | null }).created_at ?? null,
         },
       ]),
     );
@@ -131,7 +140,11 @@ export async function enrichShowcaseSellerSections(
         ...section,
         rating: profile.rating,
         reviewCount: profile.reviewCount,
-        followerCount: profile.followerCount,
+        listingCount:
+          profile.listingCount > 0
+            ? profile.listingCount
+            : (section.listingCount ?? section.listings.length),
+        joinedAt: section.joinedAt ?? profile.joinedAt,
       };
     });
   } catch {

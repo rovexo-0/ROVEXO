@@ -1,38 +1,39 @@
 ---
-description: Checkout v1.0 is CANONICAL FROZEN — bug fixes only, no structural UI changes
+description: Checkout v1.0 CANONICAL + CHECKOUT_UI_v1.0 Owner visual freeze — bug/backend only unless Owner re-opens UI
 globs: features/checkout/**/*.tsx,features/checkout/**/*.ts,styles/rovexo/checkout-v1.css,app/checkout/**/*.tsx,lib/checkout/**/*.ts,docs/modules/checkout/**
 alwaysApply: false
 ---
 
-# Checkout v1.0 — CANONICAL FREEZE
+# Checkout v1.0 — CANONICAL FREEZE + CHECKOUT_UI_v1.0
 
-**STATUS: CANONICAL | FROZEN | SINGLE SOURCE OF TRUTH**
+**STATUS: CANONICAL | FROZEN | OWNER APPROVED UI (2026-07-25)**
 
-Frozen constant: `CHECKOUT_CANONICAL_FROZEN = true` (`lib/checkout/freeze.ts`)  
-DOM: `data-checkout-freeze="FROZEN"` · `data-checkout-version="v1.0"`
+- UI freeze: `CHECKOUT_UI_V1_FREEZE` (`lib/checkout/checkout-ui-v1-freeze.ts`)
+- Canonical: `CHECKOUT_CANONICAL_FROZEN = true` (`lib/checkout/freeze.ts`)
+- DOM: `data-checkout-freeze="CHECKOUT_UI_v1.0"` · `data-checkout-version="v1.0"` · `data-checkout-ui="v1.0"`
 
-## Immutable
+## Immutable (UI)
 
-- Routes under `/checkout/[listingSlug]` (+ address / payment / review / success)
-- Buy Now → listing checkout (no cart intermediate for purchase)
-- Shell: `CheckoutWizardV1` + `checkout-v1.css` tokens (430px, 64px header, 56px CTA)
+- Shell: `CheckoutWizardV1` + `checkout-v1.css` (Blood XXVI density tokens)
+- Sections: Product · Address · Delivery option · Delivery details · Contact · Payment · Price summary · PAY · Secure Checkout
+- CTA presentation: **PAY £TOTAL** (CHECKOUT_UI_v1.0)
+- Fee: **Platform Fee** (buyer-visible)
 - Wallet payment methods SSOT — do not duplicate card management in Checkout
 - Sendcloud-only live shipping via Shipping Engine
-- Buyer-visible Platform Fee; never expose platform fee as a seller wallet line
 
-## Allowed
+## Allowed without UI reopen
 
-- Bug fixes (payment failures, inventory unlock, webhook mapping, a11y, image safety via `SafeImage`)
-- Backend/API fixes that do not change frozen layout or copy structure
+- Bug fixes (payment failures, inventory unlock, webhook mapping, a11y, `SafeImage`)
+- Backend / API / financial / session fixes that do **not** change frozen layout or visual tokens
 
 ## Prohibited
 
-- Redesign, layout changes, new Checkout UI surfaces under v1.0
+- Visual redesign, spacing/padding/margin/typography/density polish without Owner approval
 - Reintroducing Parcel2Go / Shippo / parallel checkout providers
 - Duplicating payment management outside Wallet
-- Structural changes after freeze — ship as **Checkout v1.1**
 
 ## Reference
 
 - Spec: `docs/modules/checkout/MASTER_UI_SPECIFICATION.md`
 - Freeze: `docs/modules/checkout/UI_FREEZE.md`
+- Rule: `.cursor/rules/checkout-ui-v1-freeze.mdc`

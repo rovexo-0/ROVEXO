@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { SearchLandingView } from "@/features/search/components/SearchLandingView";
+import type { SearchLandingCategoryCount } from "@/features/search/components/SearchLandingView";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import type { Product } from "@/lib/products/types";
@@ -20,6 +21,11 @@ type SearchResultsResponse = {
   total: number;
   page: number;
   hasMore: boolean;
+};
+
+type SearchResultsViewProps = {
+  categoryCounts?: SearchLandingCategoryCount[];
+  trending?: string[];
 };
 
 async function fetchResults(
@@ -47,7 +53,10 @@ function CloseIcon({ className }: { className?: string }) {
   );
 }
 
-export function SearchResultsView() {
+export function SearchResultsView({
+  categoryCounts = [],
+  trending = [],
+}: SearchResultsViewProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get("q")?.trim() ?? "";
@@ -131,6 +140,10 @@ export function SearchResultsView() {
     router.replace(`/search?${params.toString()}`);
   }
 
+  if (!hasBrowseTarget) {
+    return <SearchLandingView categoryCounts={categoryCounts} trending={trending} />;
+  }
+
   return (
     <div className="srch-results" data-search-version="v1.0-final">
       <div className="srch-results__top">
@@ -173,14 +186,7 @@ export function SearchResultsView() {
       ) : null}
 
       <div className="rx-listing-grid srch-results__grid">
-        {!hasBrowseTarget ? (
-          <div className="col-span-full srch-results__hint">
-            <p>Search above.</p>
-            <Link href="/" className="srch-results__home-link">
-              Home
-            </Link>
-          </div>
-        ) : loading ? (
+        {loading ? (
           <ProductGridSkeleton count={8} />
         ) : error ? (
           <div role="alert" className="col-span-full srch-results__error">

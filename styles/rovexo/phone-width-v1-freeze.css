@@ -2,13 +2,15 @@
  * ROVEXO Absolute Final — 100% PHONE WIDTH FREEZE
  * STATUS: OFFICIALLY FROZEN | WITHOUT EXCEPTIONS
  *
- * One width system for 100% of the platform:
- *   16px left · 100% phone width · 16px right
+ * DESIGN DECISION #001 (values) + #002 (isolation):
+ *   Internal Layout Tokens: 16px (--rx-phone-inset-x / --cds-space-page-x / --fw-pad-x)
+ *   Homepage Layout Tokens: 24px (--homepage-pad-x / --hp-shell-pad) — never via these vars
  *
- * Forbidden: max-w-*, centered narrow columns, page gutters other than 16px.
+ * Forbidden: max-w-*, centered narrow columns, bridging Homepage ↔ Internal tokens.
  */
 
 :root {
+  /* Internal Layout Tokens default (Design Decision #001 + #002). Homepage uses --homepage-pad-x. */
   --rx-phone-inset-x: 16px;
   --rx-phone-width: 100%;
   --cds-space-page-x: 16px;
@@ -40,7 +42,7 @@
 .hub-page-main,
 [data-listing-grid] {
   width: var(--rx-phone-width) !important;
-  max-width: var(--rx-phone-width) !important;
+  max-width: none !important;
   margin-inline: 0 !important;
 }
 

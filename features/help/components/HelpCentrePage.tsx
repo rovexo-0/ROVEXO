@@ -1,6 +1,6 @@
 "use client";
 
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalInfoBlock, CanonicalInput } from "@/src/components/canonical";
+import { CanonicalSection, CanonicalMenuRow, CanonicalInfoBlock, CanonicalInput } from "@/src/components/canonical";
 import { useMemo, useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { AccountIcon } from "@/components/account/AccountIcons";
@@ -20,53 +20,55 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
 
   return (
     <AccountCanonicalShell title="Help Centre" backHref="/account" showHeaderTitle>
-      <CanonicalSection title="Search">
-        <CanonicalCard variant="medium">
-          <CanonicalInfoBlock variant="description">
-            Search guides or choose a category below.
-          </CanonicalInfoBlock>
-          <CanonicalInput
-            id="help-search"
-            inputType="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search articles, categories, FAQs..."
-            aria-label="Search help"
-          />
-        </CanonicalCard>
-      </CanonicalSection>
+      <div className="fw-engine__stack" data-full-width-surface="help-centre">
+        <CanonicalSection title="Search">
+          <div className="fw-engine__group flex flex-col gap-ds-3">
+            <CanonicalInfoBlock variant="description">
+              Search guides or choose a category below.
+            </CanonicalInfoBlock>
+            <CanonicalInput
+              id="help-search"
+              inputType="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search articles, categories, FAQs..."
+              aria-label="Search help"
+            />
+          </div>
+        </CanonicalSection>
 
-      {hasQuery ? (
-        <HelpSearchResults results={results} query={query} />
-      ) : (
-        <>
-          <HelpCentreCategoryGrid />
-          <CanonicalSection title="Contact Support">
-            <CanonicalCard variant="list">
-              <CanonicalMenuRow
-                title="Email"
-                description="Submit a support request"
-                icon={
-                  <span className="ac-canonical__menu-icon" aria-hidden>
-                    <AccountIcon name="messages" />
-                  </span>
-                }
-                href="/support"
-              />
-              <CanonicalMenuRow
-                title="Report Problem"
-                description="Report an issue with an order or listing"
-                icon={
-                  <span className="ac-canonical__menu-icon" aria-hidden>
-                    <AccountIcon name="support" />
-                  </span>
-                }
-                href="/support?category=report"
-              />
-            </CanonicalCard>
-          </CanonicalSection>
-        </>
-      )}
+        {hasQuery ? (
+          <HelpSearchResults results={results} query={query} />
+        ) : (
+          <>
+            <HelpCentreCategoryGrid />
+            <CanonicalSection title="Contact Support">
+              <div className="fw-engine__group">
+                <CanonicalMenuRow
+                  title="Email"
+                  description="Submit a support request"
+                  icon={
+                    <span className="ac-canonical__menu-icon" aria-hidden>
+                      <AccountIcon name="messages" />
+                    </span>
+                  }
+                  href="/support"
+                />
+                <CanonicalMenuRow
+                  title="Report Problem"
+                  description="Report an issue with an order or listing"
+                  icon={
+                    <span className="ac-canonical__menu-icon" aria-hidden>
+                      <AccountIcon name="support" />
+                    </span>
+                  }
+                  href="/support?category=report"
+                />
+              </div>
+            </CanonicalSection>
+          </>
+        )}
+      </div>
     </AccountCanonicalShell>
   );
 }
@@ -77,7 +79,7 @@ function HelpSearchResults({ results, query }: { results: HelpSearchResult[]; qu
       <p className="cds-section__intro">
         {results.length} result{results.length === 1 ? "" : "s"} for “{query}”
       </p>
-      <CanonicalCard variant="list">
+      <div className="fw-engine__group">
         {results.map((result) => (
           <CanonicalMenuRow
             key={`${result.type}:${result.id}`}
@@ -86,7 +88,7 @@ function HelpSearchResults({ results, query }: { results: HelpSearchResult[]; qu
             description={result.excerpt}
           />
         ))}
-      </CanonicalCard>
+      </div>
       {results.length === 0 ? (
         <CanonicalInfoBlock variant="description">
           No matches found. Try a category below or contact support from a help article.

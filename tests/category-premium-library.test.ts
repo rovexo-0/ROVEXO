@@ -8,12 +8,15 @@ import {
 import { HOME_CATEGORY_NAV } from "@/lib/home/constants";
 
 describe("ROVEXO premium category asset library", () => {
-  it("keeps homepage nav aligned with the canonical premium library", () => {
-    expect(HOME_CATEGORY_NAV).toHaveLength(ROVEXO_HOME_CATEGORY_RAIL.length);
-    expect(HOME_CATEGORY_NAV.map((item) => item.icon)).toEqual([...ROVEXO_CATEGORY_PREMIUM_KEYS]);
+  it("keeps homepage nav aligned with the canonical 10-root rail", () => {
+    expect(HOME_CATEGORY_NAV).toHaveLength(10);
+    expect(ROVEXO_HOME_CATEGORY_RAIL).toHaveLength(10);
+    expect(HOME_CATEGORY_NAV.map((item) => item.icon)).toEqual(
+      ROVEXO_HOME_CATEGORY_RAIL.map((item) => item.icon),
+    );
   });
 
-  it("ships every premium WebP asset on disk", () => {
+  it("ships every premium WebP asset on disk for registered keys", () => {
     const root = path.join(process.cwd(), "public/categories");
 
     for (const icon of ROVEXO_CATEGORY_PREMIUM_KEYS) {

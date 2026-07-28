@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Favourites — Products State</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #e8e8e8; color: #1a1a1a; }
+    .phone { width: 390px; min-height: 844px; margin: 24px auto; background: #fff; padding-bottom: 24px; }
+    .header { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; height: 56px; padding: 0 8px; }
+    .back { width: 44px; height: 44px; border: 0; background: transparent; font-size: 22px; }
+    .title { margin: 0; text-align: center; font-size: 14px; font-weight: 600; letter-spacing: 0.04em; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 10px; padding: 8px 16px; }
+    .card { border: 1px solid #e8e8e8; border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+    .img { height: 160px; background: linear-gradient(135deg, #f3e8ff, #e0e7ff); position: relative; }
+    .heart { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 999px; background: #fff; display: flex; align-items: center; justify-content: center; color: #ec4899; font-size: 14px; }
+    .body { padding: 10px; }
+    .price { margin: 0; font-size: 18px; font-weight: 700; color: #9333ea; }
+    .incl { margin: 2px 0 0; font-size: 12px; color: #64748b; }
+    .name { margin: 6px 0 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .meta { margin: 6px 0 0; font-size: 12px; color: #64748b; }
+    .rating { margin: 6px 0 0; font-size: 13px; font-weight: 600; }
+    .star { color: #f5b301; }
+    .note { text-align: center; color: #64748b; font-size: 13px; max-width: 390px; margin: 0 auto 24px; padding: 0 12px; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <header class="header">
+      <button class="back" type="button" aria-label="Back">‹</button>
+      <h1 class="title">FAVOURITES</h1>
+      <span></span>
+    </header>
+    <div class="grid" aria-label="Favourites grid preview">
+      <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£24.00</p><p class="incl">£26.40 incl.</p><p class="name">Vintage denim jacket</p><p class="meta">Good</p><p class="rating"><span class="star">★</span> 4.9</p></div></article>
+      <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£12.50</p><p class="incl">£13.75 incl.</p><p class="name">Ceramic vase</p><p class="meta">Very good</p><p class="rating"><span class="star">★</span> 5.0</p></div></article>
+      <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£48.00</p><p class="incl">£52.80 incl.</p><p class="name">Leather tote bag</p><p class="meta">Like new</p><p class="rating"><span class="star">★</span> 4.8</p></div></article>
+      <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£9.99</p><p class="incl">£10.99 incl.</p><p class="name">Book set</p><p class="meta">Good</p><p class="rating"><span class="star">★</span> 4.7</p></div></article>
+      <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£35.00</p><p class="incl">£38.50 incl.</p><p class="name">Wool scarf</p><p class="meta">New</p><p class="rating"><span class="star">★</span> 5.0</p></div></article>
+      <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£18.00</p><p class="incl">£19.80 incl.</p><p class="name">Plant pot</p><p class="meta">Good</p><p class="rating"><span class="star">★</span> 4.6</p></div></article>
+    </div>
+  </div>
+  <p class="note">Products state preview (illustrative layout). Live app uses the exact Homepage ListingCard at http://localhost:3010/saved</p>
+</body>
+</html>

@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join, relative } from "node:path";
 import { runAiDesignGuardian } from "@/lib/design-studio-v1/ai-design-guardian";
 import { SCAN_DIRS, walkFiles } from "@/lib/design-studio-v1/scan-utils";
@@ -14,7 +15,7 @@ const UX_CHECKS = [
 ];
 
 export function runAiExperienceGuardian(options: ScanOptions = {}): ExperienceGuardianReport {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? workspacePath();
   const designGuardian = runAiDesignGuardian({ rootDir });
   const uxFindings: ExperienceGuardianFinding[] = [];
 

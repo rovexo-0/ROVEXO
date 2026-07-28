@@ -28,10 +28,10 @@ const HeaderActions = memo(function HeaderActions({
 }) {
   return (
     <>
-      <HeaderIconLink href="/messages" label="Messages" badge={unreadMessages} size="compact">
+      <HeaderIconLink href="/inbox" label="Messages" badge={unreadMessages} size="compact">
         <RovexoIcon icon={RovexoIcons.chat.messages} variant="header" />
       </HeaderIconLink>
-      <HeaderIconLink href="/notifications" label="Notifications" badge={unreadNotifications} size="compact">
+      <HeaderIconLink href="/inbox?tab=notifications" label="Notifications" badge={unreadNotifications} size="compact">
         <RovexoIcon icon={RovexoIcons.notifications.bell} variant="header" />
       </HeaderIconLink>
       {!compact ? (
@@ -107,7 +107,7 @@ export default memo(Header);
 
 export function NotificationBell({ unreadCount }: { unreadCount: number }) {
   return (
-    <HeaderIconLink href="/notifications" label="Notifications" badge={unreadCount} size="compact">
+    <HeaderIconLink href="/inbox?tab=notifications" label="Notifications" badge={unreadCount} size="compact">
       <RovexoIcon icon={RovexoIcons.notifications.bell} variant="header" />
     </HeaderIconLink>
   );

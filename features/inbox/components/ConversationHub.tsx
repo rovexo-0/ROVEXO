@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -11,42 +12,118 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   BackLineIcon,
-  ChevronRightLineIcon,
   MoreLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { useChatRealtime } from "@/features/messages/hooks/use-chat-realtime";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { CheckoutHubSheet } from "@/features/transaction-hub/CheckoutHubSheet";
-import { TransactionHubBottomActions } from "@/features/transaction-hub/TransactionHubBottomActions";
 import { TransactionHubPaymentSuccess } from "@/features/transaction-hub/TransactionHubPaymentSuccess";
+import { TransactionActionBar } from "@/features/inbox/components/TransactionActionBar";
+import { TransactionStatusCard } from "@/features/inbox/components/TransactionStatusCard";
 import { PlatformFeeSheet } from "@/features/inbox/components/PlatformFeeSheet";
-import { ReviewTeaserSheet } from "@/features/inbox/components/ReviewTeaserSheet";
 import { OrderReviewCard } from "@/features/orders/components/OrderReviewCard";
+import {
+  ShippingLabelViewer,
+  cacheShippingLabelUrl,
+} from "@/features/shipping/components/ShippingLabelViewer";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 import {
   CONVERSATION_HUB_VERSION,
   INBOX_ROUTES,
+  MASTER_BUYER_CONVERSATION_HUB_FREEZE_V1,
+  BUYER_CONVERSATION_HUB_MASTER_UI_FREEZE_V1,
+  MASTER_STACK_BUYER_HUB_V1,
   buildConversationHubView,
   mapOfferDbStatus,
+  resolveSprint1PaymentUi,
+  resolveTransactionStatusCard,
+  isTransactionStatusCardActive,
   subscribeConversationRealtime,
   type ConversationDisputeView,
   type ConversationOfferView,
 } from "@/lib/inbox";
+import { shouldOmitOfferFromChatTimeline } from "@/lib/supreme-blood-code-viii-v1";
+import { Avatar } from "@/components/ui/Avatar";
+import { useProfile } from "@/features/auth/hooks/use-profile";
 import { TRANSACTION_HUB_CANONICAL_STATUS } from "@/lib/transaction-hub/canonical";
 import { transactionHubListingHref } from "@/lib/transaction-hub/inbox-routes";
+import {
+  buildBuyNowCheckoutHref,
+  useBuyNowNavigation,
+} from "@/features/checkout/hooks/use-buy-now-navigation";
 import type { ChatMessage, Conversation } from "@/lib/messages/types";
 import { formatMessageTime } from "@/lib/messages/utils";
 import type { Order } from "@/lib/orders/types";
-import { formatListingPrice, formatListingPriceIncl } from "@/lib/listing-card/format";
 import { formatCurrency } from "@/lib/wallet/utils";
-import { AccountIcon } from "@/components/account/AccountIcons";
-import "@/styles/rovexo/conversation-hub-v1.css";
+import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
+import { calculateOrderTotals } from "@/lib/orders/pricing";
+import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
+import { SafeImage } from "@/components/ui/SafeImage";
+/* conversation-hub-v1.css loads via styles/rovexo/index.css — do not dual-import (Turbopack CSS). */
+
+function formatCompactSystemWhen(iso: string): string {
+  const date = new Date(iso);
+  const day = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(date);
+  const time = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+  return `${day} • ${time}`;
+}
+
+/** Same AccountIcon family + Profile colour language — no emoji / alternate icon sets. */
+function systemEventIcon(event: string): { name: AccountIconName; color: string } {
+  switch (event) {
+    case "payment_received":
+    case "payment_confirmed":
+    case "funds_released":
+    case "completed":
+      return { name: "payment", color: "#06B6D4" };
+    case "shipping_label_generated":
+    case "label_created":
+      return { name: "shipping", color: "#F59E0B" };
+    case "tracking_updated":
+    case "tracking_added":
+    case "parcel_collected":
+    case "delivered":
+    case "parcel_delivered":
+      return { name: "tracking", color: "#9333EA" };
+    case "dispute_started":
+      return { name: "disputes", color: "#EF4444" };
+    case "cancelled":
+    case "offer_declined":
+      return { name: "support", color: "#DC2626" };
+    case "offer_accepted":
+      return { name: "orders", color: "#22C55E" };
+    case "refund":
+    case "refund_issued":
+    case "refund_completed":
+      return { name: "refunds", color: "#60A5FA" };
+    case "review_available":
+      return { name: "reviews", color: "#FFD54A" };
+    default:
+      return { name: "notifications", color: "#9333EA" };
+  }
+}
 
 type ConversationHubProps = {
   initialConversation: Conversation;
+  /** Dev-only mockup fixture offers — never from live DB. */
+  initialOffers?: ConversationOfferView[];
+  /** Dev-only lifecycle fixture order — never from live DB. */
+  initialOrder?: Order | null;
+  /** Dev-only lifecycle fixture dispute. */
+  initialDispute?: ConversationDisputeView | null;
+  /** Dev-only label availability for shipping states. */
+  initialHasShippingLabel?: boolean;
+  /** Dev-only: open checkout resume sheet for Checkout Ready scenario. */
+  initialCheckoutResume?: boolean;
+  /** When true: in-memory demo only — no API/DB mutations. */
+  demoMode?: boolean;
 };
 
 type LoadState = "ready" | "loading" | "error" | "offline";
@@ -55,23 +132,43 @@ const HISTORY_PAGE = 40;
 
 function MessageBubble({
   message,
-  outgoing,
+  avatarSrc,
+  avatarName,
 }: {
   message: ChatMessage;
-  outgoing: boolean;
+  avatarSrc?: string | null;
+  avatarName: string;
 }) {
+  /** Canonical mockup: Buyer left · Seller right. */
+  const isBuyer = message.senderRole === "buyer";
   const content = message.kind === "photo" ? "Shared photo" : message.content;
+  const avatar = (
+    <Avatar
+      src={avatarSrc}
+      alt={avatarName}
+      name={avatarName}
+      size="sm"
+      className="conv-hub__msg-avatar"
+    />
+  );
 
   return (
-    <div className={cn("conv-hub__msg", outgoing ? "conv-hub__msg--out" : "conv-hub__msg--in")}>
-      <div>
-        <div className={cn("conv-hub__bubble", outgoing ? "conv-hub__bubble--out" : "conv-hub__bubble--in")}>
+    <div className={cn("conv-hub__msg", isBuyer ? "conv-hub__msg--buyer" : "conv-hub__msg--seller")}>
+      {isBuyer ? avatar : null}
+      <div className="conv-hub__msg-stack">
+        <div className={cn("conv-hub__bubble", isBuyer ? "conv-hub__bubble--buyer" : "conv-hub__bubble--seller")}>
           {content}
         </div>
         <span className="conv-hub__msg-meta">
           <time dateTime={message.sentAt}>{formatMessageTime(message.sentAt)}</time>
+          {!isBuyer && (message.status === "delivered" || message.status === "read") ? (
+            <span className="conv-hub__msg-ticks" aria-hidden>
+              ✓✓
+            </span>
+          ) : null}
         </span>
       </div>
+      {!isBuyer ? avatar : null}
     </div>
   );
 }
@@ -98,45 +195,77 @@ function ConversationSkeleton() {
   );
 }
 
-export function ConversationHub({ initialConversation }: ConversationHubProps) {
+export function ConversationHub({
+  initialConversation,
+  initialOffers,
+  initialOrder = null,
+  initialDispute = null,
+  initialHasShippingLabel = false,
+  initialCheckoutResume = false,
+  demoMode = false,
+}: ConversationHubProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { pushToast } = useToast();
+  const { profile } = useProfile();
   const { refresh: refreshBadges } = useRealtimeNotifications();
+  const { executeBuyNow } = useBuyNowNavigation();
 
   const [conversation, setConversation] = useState(initialConversation);
-  const [order, setOrder] = useState<Order | null>(null);
-  const [offers, setOffers] = useState<ConversationOfferView[]>([]);
-  const [dispute, setDispute] = useState<ConversationDisputeView | null>(null);
+  const [order, setOrder] = useState<Order | null>(initialOrder);
+  const [hasShippingLabel, setHasShippingLabel] = useState(initialHasShippingLabel);
+  const [relatedReady, setRelatedReady] = useState(demoMode);
+  const [offers, setOffers] = useState<ConversationOfferView[]>(initialOffers ?? []);
+  const [dispute, setDispute] = useState<ConversationDisputeView | null>(initialDispute);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loadState, setLoadState] = useState<LoadState>("ready");
   const [historyCount, setHistoryCount] = useState(HISTORY_PAGE);
-  const [counterFor, setCounterFor] = useState<string | null>(null);
-  const [counterAmount, setCounterAmount] = useState("");
   const [actionBusy, setActionBusy] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState<{
     orderId: string;
     orderNumber?: string | null;
   } | null>(null);
-  const [resumeCheckoutOpen, setResumeCheckoutOpen] = useState(false);
+  const [resumeCheckoutOpen, setResumeCheckoutOpen] = useState(initialCheckoutResume);
   const [reviewOpen, setReviewOpen] = useState(false);
   const requestedOrderId = searchParams.get("order") ?? searchParams.get("order_id");
+  const highlightOfferId = searchParams.get("offerId");
   const paymentHandledRef = useRef(false);
   const threadEndRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [feeSheetOpen, setFeeSheetOpen] = useState(false);
-  const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
-  const pullStartY = useRef<number | null>(null);
+  const refreshBadgesRef = useRef(refreshBadges);
+  const pushToastRef = useRef(pushToast);
+  const focusSyncAtRef = useRef(0);
 
-  useChatRealtime(conversation.id, conversation.participant.id, setConversation);
+  // Keep latest callbacks in refs for async/event handlers — sync in layout, not during render.
+  useLayoutEffect(() => {
+    refreshBadgesRef.current = refreshBadges;
+  }, [refreshBadges]);
+  useLayoutEffect(() => {
+    pushToastRef.current = pushToast;
+  }, [pushToast]);
+
+  const [feeSheetOpen, setFeeSheetOpen] = useState(false);
+  const [labelViewer, setLabelViewer] = useState<{
+    pdfUrl: string | null;
+    orderId: string;
+    carrierName?: string | null;
+  } | null>(null);
+
+  useChatRealtime(conversation.id, conversation.participant.id, setConversation, !demoMode);
 
   const reloadRelated = useCallback(async () => {
+    if (demoMode) {
+      setLoadState("ready");
+      setRelatedReady(true);
+      return;
+    }
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       setLoadState("offline");
+      setRelatedReady(true);
       return;
     }
 
@@ -159,10 +288,13 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
         );
         nextOrder = requestedOrderId
           ? matchingOrders.find((item) => item.id === requestedOrderId) ?? null
-          : matchingOrders.length === 1
-            ? matchingOrders[0]
-            : null;
+          : matchingOrders.length === 0
+            ? null
+            : [...matchingOrders].sort(
+                (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
+              )[0] ?? null;
         setOrder(nextOrder);
+        if (!nextOrder) setHasShippingLabel(false);
       }
 
       if (offersRes.ok) {
@@ -174,6 +306,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             createdAt: string;
             buyerId: string;
             fromRole?: "buyer" | "seller";
+            parentOfferId?: string | null;
           }>;
         };
         setOffers(
@@ -182,13 +315,46 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             amount: offer.amount,
             currency: "GBP",
             state: mapOfferDbStatus(offer.status),
-            fromRole: offer.fromRole ?? ("buyer" as const),
+            fromRole: offer.fromRole === "seller" || offer.fromRole === "buyer" ? offer.fromRole : "buyer",
             createdAt: offer.createdAt,
+            parentOfferId: offer.parentOfferId ?? null,
           })),
         );
       }
 
       if (nextOrder) {
+        const labelRes = await fetch(
+          `/api/shipping/labels?orderId=${encodeURIComponent(nextOrder.id)}`,
+          { cache: "no-store" },
+        );
+        if (labelRes.ok) {
+          const labelPayload = (await labelRes.json()) as {
+            ok?: boolean;
+            pdfUrl?: string | null;
+            trackingNumber?: string | null;
+          };
+          setHasShippingLabel(
+            Boolean(
+              labelPayload.ok ||
+                labelPayload.pdfUrl ||
+                labelPayload.trackingNumber ||
+                nextOrder.trackingNumber ||
+                nextOrder.status === "shipped" ||
+                nextOrder.status === "delivered" ||
+                nextOrder.status === "completed",
+            ),
+          );
+        } else {
+          setHasShippingLabel(
+            Boolean(
+              nextOrder.trackingNumber ||
+                nextOrder.status === "shipped" ||
+                nextOrder.status === "delivered" ||
+                nextOrder.status === "completed",
+            ),
+          );
+        }
+
         const caseRes = await fetch(`/api/protection/cases?orderId=${encodeURIComponent(nextOrder.id)}`, {
           cache: "no-store",
         });
@@ -223,10 +389,12 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       }
 
       setLoadState("ready");
+      setRelatedReady(true);
     } catch {
       setLoadState(typeof navigator !== "undefined" && !navigator.onLine ? "offline" : "error");
+      setRelatedReady(true);
     }
-  }, [conversation.product.id, conversation.product.slug, requestedOrderId]);
+  }, [conversation.product.id, conversation.product.slug, demoMode, requestedOrderId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -240,24 +408,159 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   }, [reloadRelated]);
 
   useEffect(() => {
+    if (demoMode) return;
+    let cancelled = false;
+    const sourceParam = searchParams.get("focus");
+    const source =
+      sourceParam === "counter"
+        ? ("counter_offer" as const)
+        : searchParams.get("offerId")
+          ? ("offer" as const)
+          : searchParams.get("order") || searchParams.get("order_id")
+            ? ("order" as const)
+            : ("hub_mount" as const);
+
     void fetch(`/api/messages/${conversation.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "read" }),
-    }).then(() => void refreshBadges());
-  }, [conversation.id, refreshBadges]);
+      body: JSON.stringify({ action: "read", source }),
+    })
+      .then(async (response) => {
+        if (cancelled) return;
+        const payload = (await response.json().catch(() => null)) as {
+          success?: boolean;
+          sync?: { ok?: boolean };
+          conversation?: typeof conversation;
+        } | null;
+        if (!response.ok || payload?.success === false) {
+          pushToastRef.current({
+            title: "Inbox sync failed. Conversation may stay unread.",
+            variant: "error",
+          });
+          return;
+        }
+        if (payload?.conversation) {
+          setConversation((current) => ({
+            ...current,
+            ...payload.conversation,
+            unreadCount: 0,
+          }));
+        } else {
+          setConversation((current) => ({ ...current, unreadCount: 0 }));
+        }
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("rovexo:inbox-sync", {
+              detail: {
+                conversationId: conversation.id,
+                bloodLaw: "XLIII",
+                source,
+              },
+            }),
+          );
+        }
+        await refreshBadgesRef.current();
+      })
+      .catch(() => {
+        if (!cancelled) {
+          pushToastRef.current({
+            title: "Inbox sync failed. Conversation may stay unread.",
+            variant: "error",
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // Mount / conversation change only — unstable callback identities must not re-fire XLIII sync.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: conversation.id only
+  }, [conversation.id, demoMode]);
 
   useEffect(() => {
-    const sub = subscribeConversationRealtime(conversation.id, (event) => {
-      if (event.type === "badge.updated" || event.type === "message.created") {
-        void refreshBadges();
-      }
-      if (event.type === "offer.updated" || event.type === "tracking.updated" || event.type === "dispute.updated") {
-        void reloadRelated();
-      }
-    });
+    if (demoMode) return;
+    /* XLIII mark-read on focus only — lifecycle data is realtime-driven. */
+    const syncOpen = (source: "hub_focus") => {
+      const now = Date.now();
+      if (now - focusSyncAtRef.current < 8_000) return;
+      focusSyncAtRef.current = now;
+      void fetch(`/api/messages/${conversation.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "read", source }),
+      }).then(async (response) => {
+        if (!response.ok) return;
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("rovexo:inbox-sync", {
+              detail: { conversationId: conversation.id, bloodLaw: "XLIII", source },
+            }),
+          );
+        }
+        await refreshBadgesRef.current();
+      });
+    };
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      syncOpen("hub_focus");
+    };
+    const onFocus = () => {
+      syncOpen("hub_focus");
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [conversation.id, demoMode]);
+
+  useEffect(() => {
+    if (demoMode) return;
+    const viewerRole =
+      conversation.participant.role === "buyer" ? "seller" : "buyer";
+    const selfId = profile?.id ?? null;
+    const buyerId =
+      viewerRole === "buyer" ? selfId : conversation.participant.id;
+    const sellerId =
+      viewerRole === "seller" ? selfId : conversation.participant.id;
+    const sub = subscribeConversationRealtime(
+      conversation.id,
+      (event) => {
+        if (
+          event.type === "badge.updated" ||
+          event.type === "message.created" ||
+          event.type === "message.updated"
+        ) {
+          void refreshBadgesRef.current();
+        }
+        if (
+          event.type === "offer.updated" ||
+          event.type === "tracking.updated" ||
+          event.type === "dispute.updated" ||
+          event.type === "order.updated"
+        ) {
+          void reloadRelated();
+        }
+      },
+      {
+        productId: conversation.product.id,
+        orderId: order?.id ?? null,
+        buyerId,
+        sellerId,
+      },
+    );
     return () => sub.unsubscribe();
-  }, [conversation.id, refreshBadges, reloadRelated]);
+  }, [
+    conversation.id,
+    conversation.participant.id,
+    conversation.participant.role,
+    conversation.product.id,
+    demoMode,
+    order?.id,
+    profile?.id,
+    reloadRelated,
+  ]);
 
   useEffect(() => {
     const onOnline = () => {
@@ -280,17 +583,100 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
         order,
         offers,
         dispute,
+        hasShippingLabel,
       }),
-    [conversation, order, offers, dispute],
+    [conversation, order, offers, dispute, hasShippingLabel],
   );
+
+  const buyerAvatar = useMemo(() => {
+    if (view.viewerRole === "buyer") {
+      return {
+        src: profile?.avatarUrl ?? null,
+        name: profile?.fullName || "Buyer",
+      };
+    }
+    return {
+      src: view.participantAvatarUrl ?? null,
+      name: view.participantName,
+    };
+  }, [profile?.avatarUrl, profile?.fullName, view.participantAvatarUrl, view.participantName, view.viewerRole]);
+
+  const sellerAvatar = useMemo(() => {
+    if (view.viewerRole === "seller") {
+      return {
+        src: profile?.avatarUrl ?? null,
+        name: profile?.fullName || "Seller",
+      };
+    }
+    return {
+      src: view.participantAvatarUrl ?? null,
+      name: view.participantName,
+    };
+  }, [profile?.avatarUrl, profile?.fullName, view.participantAvatarUrl, view.participantName, view.viewerRole]);
 
   const acceptedOffer = useMemo(
     () => offers.find((offer) => offer.state === "accepted") ?? null,
     [offers],
   );
-  const pendingOffer = useMemo(
-    () => (acceptedOffer ? null : offers.find((offer) => offer.state === "open") ?? null),
-    [acceptedOffer, offers],
+  const pendingOffer = useMemo(() => {
+    if (acceptedOffer) return null;
+    const open = offers.filter((offer) => offer.state === "open");
+    if (open.length === 0) return null;
+    return [...open].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))[0] ?? null;
+  }, [acceptedOffer, offers]);
+  const terminalOffer = useMemo(() => {
+    if (acceptedOffer || pendingOffer) return null;
+    const terminal = offers.filter(
+      (offer) => offer.state === "declined" || offer.state === "expired",
+    );
+    if (terminal.length === 0) return null;
+    const latest = [...terminal].sort(
+      (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
+    )[0];
+    if (!latest || (latest.state !== "declined" && latest.state !== "expired")) return null;
+    return { id: latest.id, amount: latest.amount, state: latest.state };
+  }, [acceptedOffer, pendingOffer, offers]);
+  const paymentUi = useMemo(
+    () =>
+      resolveSprint1PaymentUi({
+        viewerRole: view.viewerRole,
+        order,
+        listingPrice: view.product.price,
+        acceptedOfferAmount: acceptedOffer?.amount ?? null,
+      }),
+    [view.viewerRole, view.product.price, order, acceptedOffer],
+  );
+  const itemPrice = acceptedOffer?.amount ?? view.product.price;
+  const buyerTotalIncl = paymentUi.buyerBreakdown?.total ?? calculateOrderTotals(itemPrice, 0).total;
+  const compactStatus =
+    view.productCardStatus === "Sold" || view.productCardStatus === "Completed"
+      ? "Sold"
+      : view.productCardStatus === "Offer Pending" || acceptedOffer
+        ? "Reserved"
+        : "Available";
+  const feeLine =
+    view.viewerRole === "buyer"
+      ? `£${buyerTotalIncl.toFixed(2)} incl. Platform Fee`
+      : null;
+
+  const transactionStatusCard = useMemo(
+    () =>
+      resolveTransactionStatusCard({
+        viewerRole: view.viewerRole,
+        order,
+        hasAcceptedOffer: Boolean(acceptedOffer),
+        hasShippingLabel,
+        tracking: view.tracking,
+        checkoutResumeAvailable: resumeCheckoutOpen,
+      }),
+    [
+      view.viewerRole,
+      view.tracking,
+      order,
+      acceptedOffer,
+      hasShippingLabel,
+      resumeCheckoutOpen,
+    ],
   );
 
   const timelineWindow = useMemo(() => {
@@ -300,8 +686,21 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   }, [view.timeline, historyCount]);
 
   useEffect(() => {
-    threadEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [timelineWindow.length, conversation.messages.length]);
+    threadEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [
+    timelineWindow.length,
+    conversation.messages.length,
+    offers.length,
+    acceptedOffer?.id,
+    pendingOffer?.id,
+  ]);
+
+  useEffect(() => {
+    if (!highlightOfferId) return;
+    const node = document.getElementById(`offer-${highlightOfferId}`);
+    if (!node) return;
+    node.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [highlightOfferId, offers, timelineWindow.length]);
 
   useEffect(() => {
     if (paymentHandledRef.current) return;
@@ -356,6 +755,14 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
     async (content: string) => {
       const trimmed = content.trim();
       if (!trimmed || sending || conversation.blocked) return;
+
+      if (demoMode) {
+        pushToast({
+          title: "Demo conversation — messaging is read-only.",
+          variant: "info",
+        });
+        return;
+      }
 
       setSending(true);
       const isFirstMessage = conversation.messages.length === 0;
@@ -422,6 +829,8 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
       conversation.messages.length,
       conversation.product.slug,
       conversation.product.title,
+      demoMode,
+      pushToast,
       view.viewerRole,
       refreshBadges,
     ],
@@ -434,6 +843,13 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   };
 
   const patchOffer = async (offerId: string, action: "accept" | "decline" | "counter", amount?: number) => {
+    if (demoMode) {
+      pushToast({
+        title: "Demo conversation — offer actions are UI-only.",
+        variant: "info",
+      });
+      return;
+    }
     setActionBusy(offerId);
     try {
       const response = await fetch(`/api/offers/${offerId}`, {
@@ -443,23 +859,60 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
           action,
           amount,
           conversationId: conversation.id,
+          expectedStatus: "pending",
         }),
       });
       const payload = (await response.json()) as {
         success?: boolean;
         status?: string;
+        code?: string;
+        parentOfferId?: string;
         offer?: {
           id: string;
           amount: number;
           createdAt: string;
           status: string;
           fromRole?: "buyer" | "seller";
+          parentOfferId?: string;
         };
         checkoutHref?: string;
         error?: string;
       };
       if (!response.ok || !payload.success) {
-        pushToast({ title: payload.error ?? "Offer action failed.", variant: "error" });
+        const exactError = payload.error?.trim() || "Offer action failed.";
+        pushToast({ title: exactError, variant: "error" });
+        // Fail-closed UI sync: if backend says offer is no longer pending, hide actions.
+        const closedCodes = new Set([
+          "OFFER_EXPIRED",
+          "OFFER_ALREADY_ACCEPTED",
+          "OFFER_ALREADY_DECLINED",
+          "OFFER_CANCELLED",
+          "OFFER_ALREADY_COUNTERED",
+          "OFFER_LOCKED",
+          "OFFER_VERSION_MISMATCH",
+          "OFFER_NOT_PENDING",
+        ]);
+        if (payload.code && closedCodes.has(payload.code)) {
+          setOffers((current) =>
+            current.map((item) =>
+              item.id === offerId
+                ? {
+                    ...item,
+                    state:
+                      payload.code === "OFFER_ALREADY_ACCEPTED"
+                        ? ("accepted" as const)
+                        : payload.code === "OFFER_EXPIRED"
+                          ? ("expired" as const)
+                          : payload.code === "OFFER_ALREADY_COUNTERED"
+                            ? ("countered" as const)
+                            : ("declined" as const),
+                  }
+                : item,
+            ),
+          );
+        }
+        // Refresh from server to resolve any desync.
+        void reloadRelated();
         return;
       }
 
@@ -476,8 +929,16 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             state: mapOfferDbStatus(nextOffer.status),
             fromRole: nextOffer.fromRole ?? view.viewerRole,
             createdAt: nextOffer.createdAt,
+            parentOfferId: nextOffer.parentOfferId ?? offerId,
           },
         ]);
+        pushToast({
+          title:
+            view.viewerRole === "seller"
+              ? "Counter Sent · Waiting for Buyer"
+              : "Counter Sent · Waiting for Seller",
+          variant: "success",
+        });
       } else {
         setOffers((current) =>
           current.map((item) =>
@@ -490,9 +951,19 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
           ),
         );
       }
-      setCounterFor(null);
-      setCounterAmount("");
       void refreshBadges();
+      void reloadRelated();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("rovexo:inbox-sync", {
+            detail: {
+              conversationId: conversation.id,
+              bloodLaw: "XLIII",
+              source: `offer_${action}`,
+            },
+          }),
+        );
+      }
       if (action === "accept" && view.viewerRole === "buyer" && payload.checkoutHref) {
         router.push(payload.checkoutHref);
       }
@@ -502,6 +973,52 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
   };
 
   const runOrderAction = async (actionId: string) => {
+    if (actionId === "view_order") {
+      router.push(view.orderDetailsHref);
+      return;
+    }
+    if (actionId === "withdraw") {
+      /* Messages Master Rewrite: Wallet is the only financial location.
+         Never surface Withdraw inside Messages — soft-redirect if legacy action id arrives. */
+      router.push(WALLET_ROUTES.hub);
+      return;
+    }
+    if (actionId === "track_parcel") {
+      const url = view.tracking?.carrierUrl;
+      if (url) {
+        window.open(url, "_blank", "noopener,noreferrer");
+        return;
+      }
+      pushToast({ title: "Tracking will appear once the carrier scans your parcel.", variant: "info" });
+      return;
+    }
+    if (actionId === "buy_now" || actionId === "resume_payment") {
+      if (demoMode) {
+        pushToast({
+          title: "Demo conversation — Buy Now is UI-only (no checkout).",
+          variant: "info",
+        });
+        return;
+      }
+      const result = await executeBuyNow({
+        productSlug: conversation.product.slug,
+        offerId: acceptedOffer?.id ?? null,
+        conversationId: conversation.id,
+        onError: (message) => pushToast({ title: message, variant: "error" }),
+      });
+      if (!result.ok) return;
+      router.push(buildBuyNowCheckoutHref(conversation.product.slug, result.checkoutPath));
+      return;
+    }
+    if (actionId === "view_dispute") {
+      if (dispute?.id) {
+        router.push(`/protection/${encodeURIComponent(dispute.id)}`);
+        return;
+      }
+      pushToast({ title: "Dispute details will appear here shortly.", variant: "info" });
+      return;
+    }
+
     if (!order) {
       pushToast({ title: "Order details will appear once purchased.", variant: "info" });
       return;
@@ -511,6 +1028,87 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
     try {
       if (actionId === "leave_feedback" || actionId === "leave_review") {
         setReviewOpen(true);
+        return;
+      }
+      if (actionId === "view_label") {
+        if (view.viewerRole !== "seller") {
+          pushToast({ title: "Only the seller can open the shipping label.", variant: "info" });
+          return;
+        }
+        /* Always resolve latest document URL — demo presentation must not use stale cache. */
+        const response = await fetch(
+          `/api/shipping/labels?orderId=${encodeURIComponent(order.id)}`,
+          { cache: "no-store" },
+        );
+        if (!response.ok) {
+          setLabelViewer({
+            pdfUrl: null,
+            orderId: order.id,
+            carrierName: order.deliveryCarrier ?? null,
+          });
+          return;
+        }
+        const payload = (await response.json()) as {
+          pdfUrl?: string | null;
+          labelUrl?: string | null;
+          label?: { pdfUrl?: string | null; labelUrl?: string | null } | null;
+          carrier?: string | null;
+        };
+        const url =
+          payload.pdfUrl ||
+          payload.labelUrl ||
+          payload.label?.pdfUrl ||
+          payload.label?.labelUrl ||
+          null;
+        if (url) cacheShippingLabelUrl(order.id, url);
+        setLabelViewer({
+          pdfUrl: url,
+          orderId: order.id,
+          carrierName: payload.carrier ?? order.deliveryCarrier ?? null,
+        });
+        return;
+      }
+      if (actionId === "print_label" || actionId === "download_label") {
+        if (view.viewerRole !== "seller") {
+          pushToast({ title: "Only the seller can manage shipping labels.", variant: "info" });
+          return;
+        }
+        const response = hasShippingLabel
+          ? await fetch(`/api/shipping/labels?orderId=${encodeURIComponent(order.id)}`, {
+              cache: "no-store",
+            })
+          : await fetch("/api/shipping/labels", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ orderId: order.id }),
+            });
+        if (!response.ok) {
+          pushToast({ title: "Unable to get shipping label.", variant: "error" });
+          return;
+        }
+        const payload = (await response.json()) as {
+          pdfUrl?: string | null;
+          labelUrl?: string | null;
+          label?: { pdfUrl?: string | null; labelUrl?: string | null } | null;
+          carrier?: string | null;
+        };
+        setHasShippingLabel(true);
+        const url =
+          payload.pdfUrl ||
+          payload.labelUrl ||
+          payload.label?.pdfUrl ||
+          payload.label?.labelUrl ||
+          null;
+        if (url) {
+          cacheShippingLabelUrl(order.id, url);
+          setLabelViewer({
+            pdfUrl: url,
+            orderId: order.id,
+            carrierName: payload.carrier ?? order.deliveryCarrier ?? null,
+          });
+        }
+        pushToast({ title: "Shipping label ready.", variant: "success" });
+        void reloadRelated();
         return;
       }
       if (actionId === "open_dispute") {
@@ -533,19 +1131,11 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
         return;
       }
       if (actionId === "add_tracking" || actionId === "confirm_shipment") {
-        const trackingNumber = window.prompt("Enter tracking number");
-        if (!trackingNumber?.trim()) return;
-        const response = await fetch(`/api/orders/${order.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "add_tracking", trackingNumber: trackingNumber.trim() }),
+        /* MES: carrier scan owns tracking after label — no manual Mark as Sent / Add Tracking. */
+        pushToast({
+          title: "Tracking updates automatically after the carrier scans your parcel.",
+          variant: "info",
         });
-        if (!response.ok) {
-          pushToast({ title: "Unable to add tracking.", variant: "error" });
-          return;
-        }
-        pushToast({ title: "Tracking updated.", variant: "success" });
-        void reloadRelated();
         return;
       }
       if (actionId === "confirm_received" || actionId === "confirm_delivery") {
@@ -558,7 +1148,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
           pushToast({ title: "Unable to confirm delivery.", variant: "error" });
           return;
         }
-        pushToast({ title: "Delivery confirmed.", variant: "success" });
+        pushToast({ title: "Everything OK — payment release started.", variant: "success" });
         void reloadRelated();
         return;
       }
@@ -580,27 +1170,12 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
     }
   };
 
-  const orderNumber = order
-    ? view.orderReference.orderNumber ?? `Order #${order.id.slice(0, 8).toUpperCase()}`
-    : "Transaction";
-
-  const copyTracking = async () => {
-    if (!view.tracking?.trackingNumber) return;
-    try {
-      await navigator.clipboard.writeText(view.tracking.trackingNumber);
-      pushToast({ title: "Tracking number copied.", variant: "success" });
-    } catch {
-      pushToast({ title: "Unable to copy tracking number.", variant: "error" });
-    }
-  };
-
-  if (loadState === "loading" && !order && offers.length === 0 && conversation.messages.length === 0) {
+  if (!relatedReady && !demoMode) {
     return (
       <AccountCanonicalShell
         title="Conversation"
         hideBack
         showBottomNav={false}
-        bottomNavTab="saved"
         contentClassName="!p-0"
       >
         <ConversationSkeleton />
@@ -608,24 +1183,40 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
     );
   }
 
+  const headerPrice = itemPrice;
+
+  /* Accepted + no order: Transaction Status Card owns CTA — skip empty sticky spacer. */
+  const hideStickyActions =
+    Boolean(acceptedOffer) &&
+    !view.hasOrder &&
+    view.dynamicActions.length === 0 &&
+    !view.actionBarPanel;
+
   return (
     <AccountCanonicalShell
       title="Conversation"
       hideBack
       showBottomNav={false}
-      bottomNavTab="saved"
       contentClassName="!p-0"
     >
       <div
         className="conv-hub"
         data-conversation-hub={CONVERSATION_HUB_VERSION}
         data-conversation-freeze="FINAL-LOCK"
-        data-conversation-hub-ui="v1.1-zoom-out"
+        data-conversation-hub-ui="v2-canonical"
+        data-blood-code-viii="v1"
+        data-hub-purified="true"
+        data-master-buyer-hub={MASTER_BUYER_CONVERSATION_HUB_FREEZE_V1.version}
+        data-master-ui-freeze={BUYER_CONVERSATION_HUB_MASTER_UI_FREEZE_V1.version}
+        data-master-stack={MASTER_STACK_BUYER_HUB_V1.version}
         data-transaction-hub-freeze={TRANSACTION_HUB_CANONICAL_STATUS}
-        data-conversation-realtime="live"
+        data-conversation-realtime={demoMode ? "demo" : "live"}
         data-conversation-shell="fullscreen"
+        data-bottom-nav="hidden"
+        data-omit-offer-fn={shouldOmitOfferFromChatTimeline.name}
+        data-demo-conversation={demoMode ? "mockup-v1" : undefined}
       >
-        <header className="conv-hub__header">
+        <header className="conv-hub__header" data-master-stack-layer="HEADER">
           <button
             type="button"
             className="conv-hub__icon-btn"
@@ -634,20 +1225,40 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
           >
             <BackLineIcon />
           </button>
-          <div className="conv-hub__header-centre">
-            <h1 className="conv-hub__header-title">{view.participantName}</h1>
+          <div className="conv-hub__header-centre conv-hub__header-centre--identity">
+            <Avatar
+              src={view.participantAvatarUrl}
+              alt={view.participantName}
+              name={view.participantName}
+              size="sm"
+              className="conv-hub__header-avatar"
+            />
+            <div className="conv-hub__header-identity">
+              <p className="conv-hub__header-title">{view.participantName}</p>
+              <p
+                className={cn(
+                  "conv-hub__header-sub",
+                  conversation.participant.online && "conv-hub__header-sub--online",
+                )}
+              >
+                {conversation.participant.online ? (
+                  <span className="conv-hub__online-dot" aria-hidden />
+                ) : null}
+                {view.participantActiveLabel}
+              </p>
+            </div>
           </div>
           <div className="conv-hub__menu">
             <button
               type="button"
               className="conv-hub__icon-btn"
-              aria-label="More options"
+              aria-label="Info"
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((open) => !open)}
             >
               <MoreLineIcon />
             </button>
-            {menuOpen ? (
+            {menuOpen && (order?.status === "delivered" || order?.status === "shipped") ? (
               <div className="conv-hub__menu-panel" role="menu">
                 <button
                   type="button"
@@ -667,7 +1278,11 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
 
         {loadState === "offline" || loadState === "error" ? (
           <div className={cn("conv-hub__banner", loadState === "error" && "conv-hub__banner--error")}>
-            <span>{loadState === "offline" ? "You’re offline." : "Something went wrong."}</span>
+            <span>
+              {loadState === "offline"
+                ? "You’re offline."
+                : "This conversation is temporarily unavailable."}
+            </span>
             <button type="button" onClick={() => void reloadRelated()}>
               Retry
             </button>
@@ -682,51 +1297,96 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
               setHistoryCount((count) => Math.min(view.timeline.length, count + HISTORY_PAGE));
             }
           }}
-          onTouchStart={(event) => {
-            if (bodyRef.current && bodyRef.current.scrollTop <= 0) {
-              pullStartY.current = event.touches[0]?.clientY ?? null;
-            }
-          }}
-          onTouchEnd={(event) => {
-            if (pullStartY.current == null) return;
-            const endY = event.changedTouches[0]?.clientY ?? pullStartY.current;
-            if (endY - pullStartY.current > 72) void reloadRelated();
-            pullStartY.current = null;
-          }}
         >
-          <button
-            type="button"
-            className="conv-hub__product"
-            aria-label="Transaction item"
-            onClick={() => router.push(transactionHubListingHref(view.product.slug))}
+          <div className="conv-hub__scroll-stack">
+          <div
+            className="conv-hub__product conv-hub__product--compact"
+            data-master-stack-layer="PRODUCT_CARD"
+            role="link"
+            tabIndex={0}
+            aria-label="Open listing"
+            onClick={() => {
+              if (demoMode) {
+                pushToast({
+                  title: "Demo conversation — listing is fixture-only.",
+                  variant: "info",
+                });
+                return;
+              }
+              router.push(transactionHubListingHref(view.product.slug));
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                if (demoMode) {
+                  pushToast({
+                    title: "Demo conversation — listing is fixture-only.",
+                    variant: "info",
+                  });
+                  return;
+                }
+                router.push(transactionHubListingHref(view.product.slug));
+              }
+            }}
           >
-            <span className="conv-hub__product-stack">
+            <span className="conv-hub__product-thumb">
+              <SafeImage
+                src={view.product.imageUrl || "/placeholder-product.svg"}
+                alt={view.product.title}
+                fill
+                sizes="52px"
+                className="conv-hub__product-thumb-img"
+              />
+            </span>
+            <span className="conv-hub__product-body">
               <span className="conv-hub__product-title">{view.product.title}</span>
-              <span className="conv-hub__product-prices">
-                <span className="conv-hub__product-price">
-                  {formatListingPrice(acceptedOffer?.amount ?? view.product.price)}
-                </span>
+              <span className="conv-hub__product-price">{formatCurrency(headerPrice)}</span>
+              {feeLine ? (
                 <span className="conv-hub__product-incl">
-                  {formatListingPriceIncl(acceptedOffer?.amount ?? view.product.price)}
+                  {feeLine}
                   <button
                     type="button"
                     className="conv-hub__fee-shield"
-                    aria-label="Platform Fee"
+                    aria-label="Platform Fee information"
                     onClick={(event) => {
                       event.stopPropagation();
                       setFeeSheetOpen(true);
                     }}
                   >
-                    <AccountIcon name="security" className="conv-hub__fee-shield-icon" />
+                    <AccountIcon name="verification" className="conv-hub__fee-shield-icon" />
                   </button>
                 </span>
+              ) : null}
+            </span>
+            <span className="conv-hub__product-aside">
+              <span
+                className={cn(
+                  "conv-hub__product-status",
+                  compactStatus === "Available" && "conv-hub__product-status--available",
+                  compactStatus === "Reserved" && "conv-hub__product-status--reserved",
+                  compactStatus === "Sold" && "conv-hub__product-status--sold",
+                )}
+              >
+                {compactStatus}
               </span>
-              <span className="conv-hub__product-status-row">
-                <span className="conv-hub__product-status">{view.orderStatusLabel}</span>
-                <ChevronRightLineIcon className="conv-hub__chevron" />
+              <span className="conv-hub__chevron" aria-hidden>
+                ›
               </span>
             </span>
-          </button>
+          </div>
+
+          {isTransactionStatusCardActive(transactionStatusCard) ? (
+            <TransactionStatusCard
+              status={transactionStatusCard.status}
+              title={transactionStatusCard.title}
+              description={transactionStatusCard.description}
+              icon={transactionStatusCard.icon}
+              primaryAction={transactionStatusCard.primaryAction}
+              secondaryAction={transactionStatusCard.secondaryAction}
+              busy={Boolean(actionBusy)}
+              onAction={(actionId) => void runOrderAction(actionId)}
+            />
+          ) : null}
 
           {reviewOpen && order ? (
             <div className="conv-hub__inline-review" aria-label="Leave review">
@@ -734,7 +1394,11 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
             </div>
           ) : null}
 
-          <div className="conv-hub__timeline" aria-live="polite">
+          <div
+            className="conv-hub__timeline"
+            data-master-stack-layer="CHAT_HISTORY"
+            aria-live="polite"
+          >
             {historyCount < view.timeline.length ? (
               <button
                 type="button"
@@ -745,251 +1409,211 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
               </button>
             ) : null}
 
-            {timelineWindow.length === 0 ? (
+            {timelineWindow.length === 0 && !conversation.lastMessage.trim() ? (
               <div className="conv-hub__timeline-empty">
                 <p className="conv-hub__timeline-empty-title">Start conversation</p>
                 <p className="conv-hub__timeline-empty-sub">Send a message about this listing to begin.</p>
+              </div>
+            ) : timelineWindow.length === 0 ? (
+              <div className="conv-hub__timeline-empty" role="status">
+                <p className="conv-hub__timeline-empty-title">Loading messages…</p>
               </div>
             ) : (
               timelineWindow.map((item) => {
                 if (item.kind === "day") {
                   return (
                     <div key={item.id} className="conv-hub__day">
-                      <span>{item.label}</span>
+                      <span className="conv-hub__day-label">{item.label}</span>
                     </div>
                   );
                 }
                 if (item.kind === "system") {
-                  const isTracking =
-                    item.event === "tracking_added" || item.event === "tracking_updated";
+                  const title = item.title.replace(/\.$/, "");
                   const isLabel =
-                    item.event === "label_created" || item.event === "shipping_label_generated";
-                  const trackingHref = view.tracking?.carrierUrl ?? null;
-                  const parcelCodes = view.tracking?.trackingNumber
-                    ? view.tracking.trackingNumber
-                        .split(/[,;\s]+/)
-                        .map((code) => code.trim())
-                        .filter(Boolean)
-                    : [];
-                  const parcels =
-                    parcelCodes.length > 0
-                      ? parcelCodes.map((code, index) => ({
-                          code,
-                          label: `Parcel ${index + 1} of ${parcelCodes.length}`,
-                        }))
-                      : [];
+                    item.event === "shipping_label_generated" || item.event === "label_created";
+                  const isOfferAccepted = item.event === "offer_accepted";
+                  const icon = systemEventIcon(item.event);
+                  /* DEFECT #3: Transaction Status Card owns Offer Accepted — never duplicate in chat. */
+                  if (isOfferAccepted) {
+                    return null;
+                  }
+                  /* Messages Master Rewrite: Dynamic Card owns lifecycle — suppress financial/status duplicates. */
+                  if (
+                    item.event === "funds_released" ||
+                    item.event === "completed" ||
+                    item.event === "delivered" ||
+                    item.event === "parcel_delivered" ||
+                    item.event === "tracking_added" ||
+                    item.event === "tracking_updated" ||
+                    item.event === "shipping_label_generated" ||
+                    item.event === "label_created" ||
+                    item.event === "parcel_collected" ||
+                    item.event === "payment_received" ||
+                    item.event === "payment_confirmed"
+                  ) {
+                    return null;
+                  }
                   return (
-                    <div key={item.id} className="conv-hub__system" data-event={item.event}>
-                      <p className="conv-hub__system-brand">ROVEXO</p>
-                      <p className="conv-hub__system-title">{item.title}</p>
-                      {item.subtitle && !isTracking ? (
-                        <p className="conv-hub__system-sub">{item.subtitle}</p>
-                      ) : null}
-                      {isLabel && view.tracking?.courierName ? (
-                        <p className="conv-hub__system-sub">{view.tracking.courierName}</p>
-                      ) : null}
-                      <p className="conv-hub__system-time">
-                        <time dateTime={item.at}>{formatMessageTime(item.at)}</time>
-                      </p>
-                      {isTracking && parcels.length > 0
-                        ? parcels.map((parcel) => (
-                            <div key={parcel.code} className="conv-hub__parcel">
-                              {parcels.length > 1 ? (
-                                <p className="conv-hub__parcel-label">{parcel.label}</p>
-                              ) : null}
-                              <p className="conv-hub__parcel-code">{parcel.code}</p>
-                              <div className="conv-hub__system-actions">
-                                {trackingHref ? (
-                                  <a
-                                    className="conv-hub__system-cta"
-                                    href={trackingHref}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >
-                                    View Tracking
-                                  </a>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    className="conv-hub__system-cta"
-                                    onClick={() => void copyTracking()}
-                                  >
-                                    View Tracking
-                                  </button>
-                                )}
-                                <button
-                                  type="button"
-                                  className="conv-hub__system-cta"
-                                  disabled={actionBusy === "print_label"}
-                                  onClick={() => void runOrderAction("print_label")}
-                                >
-                                  View Label
-                                </button>
-                              </div>
-                            </div>
-                          ))
-                        : null}
-                      {isLabel && !isTracking ? (
-                        <div className="conv-hub__system-actions">
+                    <div
+                      key={item.id}
+                      className="conv-hub__system conv-hub__system--compact"
+                      data-event={item.event}
+                    >
+                      <div
+                        className={cn(
+                          "conv-hub__system-row",
+                          isLabel && "conv-hub__system-row--label",
+                        )}
+                      >
+                        <div className="conv-hub__system-copy">
+                          <p className="conv-hub__system-title">
+                            <span
+                              className="conv-hub__system-glyph"
+                              style={{ color: icon.color }}
+                              aria-hidden
+                            >
+                              <AccountIcon name={icon.name} className="conv-hub__system-glyph-icon" />
+                            </span>
+                            {title}
+                          </p>
+                          {item.subtitle ? (
+                            <p className="conv-hub__system-sub">{item.subtitle}</p>
+                          ) : null}
+                          <p className="conv-hub__system-time">
+                            <time dateTime={item.at}>{formatCompactSystemWhen(item.at)}</time>
+                          </p>
+                        </div>
+                        {isLabel && view.viewerRole === "seller" ? (
                           <button
                             type="button"
-                            className="conv-hub__system-cta"
-                            disabled={actionBusy === "print_label"}
-                            onClick={() => void runOrderAction("print_label")}
+                            className="conv-hub__system-view"
+                            disabled={actionBusy === "view_label"}
+                            onClick={() => void runOrderAction("view_label")}
                           >
-                            View Label
+                            View
                           </button>
-                        </div>
-                      ) : null}
-                      {item.event === "dispute_started" ? (
-                        <button
-                          type="button"
-                          className="conv-hub__system-cta"
-                          disabled={actionBusy === "open_dispute"}
-                          onClick={() => void runOrderAction("open_dispute")}
-                        >
-                          View dispute
-                        </button>
-                      ) : null}
+                        ) : null}
+                      </div>
                     </div>
                   );
                 }
                 if (item.kind === "offer") {
                   const offer = item.offer;
-                  const isOpen = offer.state === "open";
+                  const listingPrice = view.product.price;
+                  const fromBuyer = offer.fromRole === "buyer";
+                  /** Mockup: Counter offer = seller side only (right · light purple). */
+                  const isCounterCard =
+                    !fromBuyer &&
+                    (offer.state === "open" ||
+                      offer.state === "countered" ||
+                      Boolean(offer.parentOfferId));
                   const stateLabel =
-                    offer.state === "open"
-                      ? "Offer pending"
-                      : offer.state === "accepted"
-                        ? "Offer accepted"
-                        : offer.state === "declined"
-                          ? "Offer declined"
-                          : `Offer ${offer.state.replace("_", " ")}`;
+                    offer.state === "accepted"
+                      ? "Offer accepted"
+                      : offer.state === "declined"
+                        ? "Offer declined"
+                        : offer.state === "expired"
+                          ? "Offer expired"
+                          : isCounterCard
+                            ? "Counter offer"
+                            : "Offer made";
+                  const visualState =
+                    offer.state === "accepted"
+                      ? "accepted"
+                      : offer.state === "declined"
+                        ? "declined"
+                        : offer.state === "expired"
+                          ? "expired"
+                          : isCounterCard
+                            ? "countered"
+                            : "pending";
+                  const offerAvatar = fromBuyer ? buyerAvatar : sellerAvatar;
                   return (
                     <div
                       key={item.id}
-                      className={cn("conv-hub__offer", !isOpen && "conv-hub__offer--compact")}
-                      data-offer-state={offer.state}
+                      id={`offer-${offer.id}`}
+                      className={cn(
+                        "conv-hub__offer-row",
+                        fromBuyer ? "conv-hub__offer-row--buyer" : "conv-hub__offer-row--seller",
+                      )}
+                      data-offer-side={fromBuyer ? "buyer" : "seller"}
                     >
-                      <div className="conv-hub__offer-head">
-                        <p className="conv-hub__offer-amount">{formatCurrency(offer.amount)}</p>
-                        <p className="conv-hub__offer-state">{stateLabel}</p>
+                      {fromBuyer ? (
+                        <Avatar
+                          src={offerAvatar.src}
+                          alt={offerAvatar.name}
+                          name={offerAvatar.name}
+                          size="sm"
+                          className="conv-hub__offer-avatar"
+                        />
+                      ) : null}
+                      <div
+                        className={cn(
+                          "conv-hub__offer",
+                          "conv-hub__offer--timeline",
+                          fromBuyer ? "conv-hub__offer--buyer" : "conv-hub__offer--seller",
+                          `conv-hub__offer--${visualState}`,
+                          highlightOfferId === offer.id && "conv-hub__offer--highlight",
+                        )}
+                        data-offer-state={offer.state}
+                        data-offer-visual={visualState}
+                        data-offer-from={offer.fromRole}
+                        data-offer-actions="footer"
+                        data-blood-law="XLIII"
+                        data-offer-pending={offer.state === "open" ? "true" : "false"}
+                      >
+                        <p className="conv-hub__offer-label">{stateLabel}</p>
+                        <div className="conv-hub__offer-head">
+                          <p className="conv-hub__offer-amount">{formatCurrency(offer.amount)}</p>
+                          {listingPrice > 0 && listingPrice !== offer.amount ? (
+                            <p className="conv-hub__offer-list">{formatCurrency(listingPrice)}</p>
+                          ) : null}
+                        </div>
                       </div>
-                      {!isOpen ? (
-                        <time className="conv-hub__offer-time" dateTime={item.at}>
-                          {formatMessageTime(item.at)}
-                        </time>
-                      ) : null}
-                      {isOpen && offer.fromRole !== view.viewerRole ? (
-                        <div className="conv-hub__offer-actions">
-                          <button
-                            type="button"
-                            className="conv-hub__offer-btn conv-hub__offer-btn--primary"
-                            disabled={actionBusy === offer.id}
-                            onClick={() => void patchOffer(offer.id, "accept")}
-                          >
-                            Accept
-                          </button>
-                          <button
-                            type="button"
-                            className="conv-hub__offer-btn"
-                            disabled={actionBusy === offer.id}
-                            onClick={() => setCounterFor(offer.id)}
-                          >
-                            Counter
-                          </button>
-                          <button
-                            type="button"
-                            className="conv-hub__offer-btn"
-                            disabled={actionBusy === offer.id}
-                            onClick={() => void patchOffer(offer.id, "decline")}
-                          >
-                            Decline
-                          </button>
-                        </div>
-                      ) : null}
-                      {counterFor === offer.id ? (
-                        <div className="conv-hub__counter">
-                          <input
-                            type="number"
-                            min="1"
-                            step="0.01"
-                            value={counterAmount}
-                            onChange={(event) => setCounterAmount(event.target.value)}
-                            placeholder="Counter amount"
-                            className="conv-hub__counter-input"
-                          />
-                          <button
-                            type="button"
-                            className="conv-hub__offer-btn conv-hub__offer-btn--primary"
-                            onClick={() => {
-                              const amount = Number(counterAmount);
-                              if (!Number.isFinite(amount) || amount <= 0) return;
-                              void patchOffer(offer.id, "counter", amount);
-                            }}
-                          >
-                            Send counter
-                          </button>
-                        </div>
+                      {!fromBuyer ? (
+                        <Avatar
+                          src={offerAvatar.src}
+                          alt={offerAvatar.name}
+                          name={offerAvatar.name}
+                          size="sm"
+                          className="conv-hub__offer-avatar"
+                        />
                       ) : null}
                     </div>
                   );
                 }
+                const msgAvatar =
+                  item.message.senderRole === "buyer" ? buyerAvatar : sellerAvatar;
                 return (
                   <MessageBubble
                     key={item.id}
                     message={item.message}
-                    outgoing={item.message.senderRole === view.viewerRole}
+                    avatarSrc={msgAvatar.src}
+                    avatarName={msgAvatar.name}
                   />
                 );
               })
             )}
 
-            {null}
-
-            {order?.status === "completed" || order?.completedAt ? (
-              <div className="conv-hub__done-summary">
-                <p className="conv-hub__done-title">Order completed</p>
-                <button
-                  type="button"
-                  className="conv-hub__system-cta"
-                  onClick={() => setReviewSheetOpen(true)}
-                >
-                  Leave a review
-                </button>
-              </div>
-            ) : null}
-
             <div ref={threadEndRef} />
+          </div>
           </div>
         </div>
 
-        <div className="conv-hub__footer">
+        <div className="conv-hub__footer" data-master-stack-layer="STICKY_BUY_NOW_BUTTON">
           {warning ? <div className="conv-hub__warning">{warning}</div> : null}
 
-          {reviewOpen ? null : view.dynamicActions.length > 0 ? (
-            <div className="conv-hub__order-actions">
-              {view.dynamicActions.map((action, index) => (
-                <button
-                  key={action.id}
-                  type="button"
-                  className={cn(
-                    "conv-hub__order-action",
-                    index === 0 && "conv-hub__order-action--primary",
-                  )}
-                  disabled={actionBusy === action.id}
-                  onClick={() => void runOrderAction(action.id)}
-                >
-                  {action.label}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="conv-hub__hub-actions">
-              <TransactionHubBottomActions
+          {reviewOpen || hideStickyActions ? null : (
+            <div
+              className="conv-hub__sticky-actions"
+              data-sticky-cta="total-buyer-pays"
+              aria-label="Conversation actions"
+            >
+              <TransactionActionBar
                 conversationId={conversation.id}
                 viewerRole={view.viewerRole}
                 product={view.product}
+                hasOrder={view.hasOrder}
                 acceptedOffer={
                   acceptedOffer
                     ? { id: acceptedOffer.id, amount: acceptedOffer.amount }
@@ -997,10 +1621,41 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 }
                 pendingOffer={
                   pendingOffer
-                    ? { id: pendingOffer.id, amount: pendingOffer.amount }
+                    ? {
+                        id: pendingOffer.id,
+                        amount: pendingOffer.amount,
+                        fromRole: pendingOffer.fromRole,
+                        parentOfferId: pendingOffer.parentOfferId ?? null,
+                      }
                     : null
                 }
+                terminalOffer={terminalOffer}
                 onCancelOffer={(offerId) => void patchOffer(offerId, "decline")}
+                onAcceptOffer={(offerId) => void patchOffer(offerId, "accept")}
+                onDeclineOffer={(offerId) => void patchOffer(offerId, "decline")}
+                onCounterOffer={(offerId, amount) => void patchOffer(offerId, "counter", amount)}
+                onOfferSent={() => {
+                  void reloadRelated();
+                  void refreshBadges();
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(
+                      new CustomEvent("rovexo:inbox-sync", {
+                        detail: {
+                          conversationId: conversation.id,
+                          bloodLaw: "XLIII",
+                          source: "offer_created",
+                        },
+                      }),
+                    );
+                  }
+                }}
+                dynamicActions={view.dynamicActions}
+                actionBarPanel={view.actionBarPanel}
+                actionBusy={actionBusy}
+                onAction={(id) => void runOrderAction(id)}
+                hidden={resumeCheckoutOpen}
+                demoMode={demoMode}
+                relatedReady={relatedReady}
               />
             </div>
           )}
@@ -1008,12 +1663,29 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
           <form
             className="conv-hub__composer"
             data-composer-layout="single-row"
+            data-master-stack-layer="MESSAGE_INPUT"
             onSubmit={(event: FormEvent) => {
               event.preventDefault();
               handleSend();
             }}
           >
             <div className="conv-hub__composer-row">
+              <button
+                type="button"
+                className="conv-hub__composer-cam"
+                aria-label="Add photo"
+                disabled={conversation.blocked || sending}
+                onClick={() =>
+                  pushToast({
+                    title: "Photo messages coming soon.",
+                    variant: "info",
+                  })
+                }
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden fill="currentColor">
+                  <path d="M9.4 5.5 8.2 7H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3.2l-1.2-1.5a1.5 1.5 0 0 0-1.2-.5H10.6a1.5 1.5 0 0 0-1.2.5ZM12 17.2A3.7 3.7 0 1 1 12 9.8a3.7 3.7 0 0 1 0 7.4Zm0-1.8a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8Z" />
+                </svg>
+              </button>
               <label className="sr-only" htmlFor="conv-hub-composer">
                 Message about this order
               </label>
@@ -1022,7 +1694,7 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 ref={textareaRef}
                 className="conv-hub__composer-field"
                 rows={1}
-                placeholder="Message about this order…"
+                placeholder="Write a message..."
                 value={draft}
                 disabled={conversation.blocked || sending}
                 onChange={(event) => handleDraftChange(event.target.value)}
@@ -1039,7 +1711,9 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
                 aria-label="Send message"
                 disabled={conversation.blocked || sending || !draft.trim()}
               >
-                SEND
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
+                  <path d="M3.4 20.6 21 12 3.4 3.4l.1 6.6L15 12 3.5 14z" />
+                </svg>
               </button>
             </div>
           </form>
@@ -1061,18 +1735,19 @@ export function ConversationHub({ initialConversation }: ConversationHubProps) {
           conversationId={conversation.id}
           offerId={acceptedOffer?.id ?? null}
           acceptedOfferPrice={acceptedOffer?.amount ?? null}
+          sessionUnavailable={demoMode}
         />
         <PlatformFeeSheet
           open={feeSheetOpen}
           itemPrice={acceptedOffer?.amount ?? view.product.price}
           onClose={() => setFeeSheetOpen(false)}
         />
-        <ReviewTeaserSheet
-          open={reviewSheetOpen}
-          rating={5}
-          summary="Excellent seller."
-          body={"Fast delivery.\nItem exactly as described.\nHighly recommended."}
-          onClose={() => setReviewSheetOpen(false)}
+        <ShippingLabelViewer
+          open={Boolean(labelViewer)}
+          onClose={() => setLabelViewer(null)}
+          pdfUrl={labelViewer?.pdfUrl ?? null}
+          orderId={labelViewer?.orderId ?? null}
+          carrierName={labelViewer?.carrierName ?? null}
         />
       </div>
     </AccountCanonicalShell>

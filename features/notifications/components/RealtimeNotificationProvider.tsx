@@ -6,11 +6,14 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
 import { subscribeToUserNotifications, removeNotificationChannel } from "@/lib/notifications/realtime";
+import {
+  subscribeToUserConversationUnread,
+  removeConversationUnreadChannels,
+} from "@/lib/inbox/conversation-unread-realtime";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { flushOfflineNotificationQueue } from "@/lib/notifications/offline-sync";
 import { createClient } from "@/lib/supabase/client";
@@ -25,7 +28,7 @@ type RealtimeNotificationContextValue = {
   notifications: Notification[];
   badgeCounts: DashboardBadgeCounts | null;
   mobileBadges: MobileBadges;
-  refresh: () => Promise<void>;
+  refresh: (opts?: { includeTray?: boolean }) => Promise<void>;
   setNotifications: (notifications: Notification[]) => void;
 };
 
@@ -47,7 +50,41 @@ type RealtimeNotificationProviderProps = {
   enabled?: boolean;
 };
 
-async function fetchBadgeState(signal?: AbortSignal): Promise<{
+/** Coalesce badge-only fetches — never abort mid-flight (DEFECT #007). */
+let inboxBadgeInflight: Promise<{
+  messages: number;
+  notifications: number;
+  ok: boolean;
+}> | null = null;
+
+function fetchInboxBadgeCounts(signal?: AbortSignal): Promise<{
+  messages: number;
+  notifications: number;
+  ok: boolean;
+}> {
+  if (inboxBadgeInflight) return inboxBadgeInflight;
+  inboxBadgeInflight = (async () => {
+    const res = await fetch("/api/inbox/badge", { cache: "no-store", signal });
+    if (!res.ok) return { messages: 0, notifications: 0, ok: false };
+    const payload = (await res.json()) as {
+      messages?: number;
+      notifications?: number;
+    };
+    return {
+      messages: Math.max(0, Number(payload.messages) || 0),
+      notifications: Math.max(0, Number(payload.notifications) || 0),
+      ok: true,
+    };
+  })().finally(() => {
+    inboxBadgeInflight = null;
+  });
+  return inboxBadgeInflight;
+}
+
+async function fetchBadgeState(
+  signal?: AbortSignal,
+  options?: { includeTray?: boolean },
+): Promise<{
   unreadCount: number;
   notifications: Notification[];
   badgeCounts: DashboardBadgeCounts | null;
@@ -58,70 +95,53 @@ async function fetchBadgeState(signal?: AbortSignal): Promise<{
   }
 
   const requestInit = { cache: "no-store" as const, signal };
+  const includeTray = options?.includeTray === true;
 
-  const [countRes, badgeRes, listRes, messagesRes, cartRes, savedRes, ordersRes] =
-    await Promise.all([
-      fetchDeduped("/api/notifications/count", { ...requestInit, dedupeKey: "badge:notifications-count" }),
-      fetchDeduped("/api/notifications/badge-counts", { ...requestInit, dedupeKey: "badge:badge-counts" }),
-      fetchDeduped("/api/notifications", { ...requestInit, dedupeKey: "badge:notifications-list" }),
-      fetchDeduped("/api/messages", { ...requestInit, dedupeKey: "badge:messages" }),
-      fetchDeduped("/api/cart", { ...requestInit, dedupeKey: "badge:cart" }),
-      fetchDeduped("/api/saved", { ...requestInit, dedupeKey: "badge:saved" }),
-      fetchDeduped("/api/orders", { ...requestInit, dedupeKey: "badge:orders" }),
-    ]);
+  // DEFECT #004/#007 — bottom-nav uses one lightweight endpoint only.
+  // Full notification tray / dashboard badge breakdown loads only when requested.
+  const badgeFast = await fetchInboxBadgeCounts(signal);
 
-  let unreadCount = 0;
+  let unreadCount = badgeFast.ok ? badgeFast.notifications : 0;
+  const messages = badgeFast.ok ? badgeFast.messages : 0;
   let notifications: Notification[] = [];
   let badgeCounts: DashboardBadgeCounts | null = null;
 
-  if (countRes.ok) {
-    const payload = (await countRes.json()) as { count: number };
-    unreadCount = payload.count;
+  if (includeTray) {
+    const [listRes, badgeRes] = await Promise.all([
+      fetchDeduped("/api/notifications", { ...requestInit, dedupeKey: "badge:notifications-list" }),
+      fetchDeduped("/api/notifications/badge-counts", {
+        ...requestInit,
+        dedupeKey: "badge:badge-counts",
+      }),
+    ]);
+
+    if (badgeRes.ok) {
+      const payload = (await badgeRes.json()) as { counts: DashboardBadgeCounts };
+      badgeCounts = payload.counts;
+    }
+
+    if (listRes.ok) {
+      const payload = (await listRes.json()) as { notifications: Notification[] };
+      notifications = payload.notifications;
+      if (!badgeFast.ok) {
+        unreadCount = payload.notifications.filter(
+          (item) => !item.read && item.type !== "message",
+        ).length;
+      }
+    }
   }
-
-  if (badgeRes.ok) {
-    const payload = (await badgeRes.json()) as { counts: DashboardBadgeCounts };
-    badgeCounts = payload.counts;
-  }
-
-  if (listRes.ok) {
-    const payload = (await listRes.json()) as { notifications: Notification[] };
-    notifications = payload.notifications;
-    unreadCount = payload.notifications.filter((item) => !item.read).length;
-  }
-
-  const messagesPayload = messagesRes.ok
-    ? ((await messagesRes.json()) as { conversations?: Array<{ unreadCount?: number }> })
-    : { conversations: [] };
-  const cartPayload = cartRes.ok
-    ? ((await cartRes.json()) as { cart?: { itemCount?: number } })
-    : { cart: { itemCount: 0 } };
-  const savedPayload = savedRes.ok
-    ? ((await savedRes.json()) as { items?: unknown[] })
-    : { items: [] };
-  const ordersPayload = ordersRes.ok
-    ? ((await ordersRes.json()) as { orders?: Array<{ status?: string }> })
-    : { orders: [] };
-
-  const active = new Set(["pending", "paid", "processing", "shipped", "confirmed"]);
-  const orders = (ordersPayload.orders ?? []).filter((order) =>
-    active.has(order.status ?? ""),
-  ).length;
 
   return {
     unreadCount,
     notifications,
     badgeCounts,
     mobileBadges: {
-      messages: (messagesPayload.conversations ?? []).reduce(
-        (sum, conversation) => sum + (conversation.unreadCount ?? 0),
-        0,
-      ),
+      messages,
       notifications: unreadCount,
-      cart: cartPayload.cart?.itemCount ?? 0,
-      saved: savedPayload.items?.length ?? 0,
-      orders,
-      "wallet-payout": orders > 0 ? 1 : 0,
+      cart: 0,
+      saved: 0,
+      orders: 0,
+      "wallet-payout": 0,
     },
   };
 }
@@ -139,20 +159,25 @@ export function RealtimeNotificationProvider({
     ...EMPTY_BADGES,
     notifications: initialUnreadCount,
   });
-  const mountedRef = useRef(false);
 
-  const applyState = useCallback((state: Awaited<ReturnType<typeof fetchBadgeState>>) => {
-    setUnreadCount(state.unreadCount);
-    setNotifications(state.notifications);
-    setBadgeCounts(state.badgeCounts);
-    setMobileBadges(state.mobileBadges);
-  }, []);
+  const applyState = useCallback(
+    (state: Awaited<ReturnType<typeof fetchBadgeState>>, includeTray: boolean) => {
+      setUnreadCount(state.unreadCount);
+      setMobileBadges(state.mobileBadges);
+      if (includeTray) {
+        setNotifications(state.notifications);
+        setBadgeCounts(state.badgeCounts);
+      }
+    },
+    [],
+  );
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (opts?: { includeTray?: boolean }) => {
     if (!enabled || !isDocumentVisible()) return;
+    const includeTray = opts?.includeTray === true;
     try {
-      const state = await fetchBadgeState();
-      applyState(state);
+      const state = await fetchBadgeState(undefined, { includeTray });
+      applyState(state, includeTray);
     } catch (error) {
       if ((error as Error).name === "AbortError") return;
       // ignore network errors
@@ -161,8 +186,6 @@ export function RealtimeNotificationProvider({
 
   useEffect(() => {
     if (!enabled) return;
-    if (mountedRef.current) return;
-    mountedRef.current = true;
     const timer = window.setTimeout(() => {
       void refresh();
     }, 0);
@@ -172,6 +195,10 @@ export function RealtimeNotificationProvider({
   useEffect(() => {
     if (!enabled) return;
     let channel: ReturnType<typeof subscribeToUserNotifications> | null = null;
+    let conversationChannels: ReturnType<typeof subscribeToUserConversationUnread> = {
+      buyer: null,
+      seller: null,
+    };
     let cancelled = false;
     let reconnectTimer: number | null = null;
     let reconnectAttempts = 0;
@@ -181,6 +208,8 @@ export function RealtimeNotificationProvider({
         removeNotificationChannel(channel);
         channel = null;
       }
+      removeConversationUnreadChannels(conversationChannels);
+      conversationChannels = { buyer: null, seller: null };
       if (reconnectTimer !== null) {
         window.clearTimeout(reconnectTimer);
         reconnectTimer = null;
@@ -204,10 +233,12 @@ export function RealtimeNotificationProvider({
 
       disconnect();
 
+      const onRealtimeChange = () => {
+        if (isDocumentVisible()) void refresh();
+      };
+
       channel = subscribeToUserNotifications(user.id, {
-        onChange: () => {
-          if (isDocumentVisible()) void refresh();
-        },
+        onChange: onRealtimeChange,
         onStatus: (status) => {
           if (status === "SUBSCRIBED") {
             reconnectAttempts = 0;
@@ -225,9 +256,9 @@ export function RealtimeNotificationProvider({
         },
       });
 
-      if (!channel) {
-        return;
-      }
+      conversationChannels = subscribeToUserConversationUnread(user.id, {
+        onChange: onRealtimeChange,
+      });
     };
 
     const onVisibility = () => {
@@ -248,11 +279,16 @@ export function RealtimeNotificationProvider({
 
     window.addEventListener("online", onOnline);
     document.addEventListener("visibilitychange", onVisibility);
+    const onInboxSync = () => {
+      void refresh();
+    };
+    window.addEventListener("rovexo:inbox-sync", onInboxSync);
 
     return () => {
       cancelled = true;
       window.removeEventListener("online", onOnline);
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("rovexo:inbox-sync", onInboxSync);
       disconnect();
     };
   }, [enabled, refresh]);

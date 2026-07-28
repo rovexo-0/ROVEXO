@@ -66,7 +66,7 @@ function HomepageV4Header({
             <RovexoIcon icon={RovexoIcons.chat.messages} variant="header" />
           </HeaderIconLink>
           <HeaderIconLink
-            href="/notifications"
+            href="/inbox?tab=notifications"
             label="Notifications"
             badge={unreadNotifications}
             size="compact"

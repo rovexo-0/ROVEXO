@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="744" viewBox="0 0 390 744"><rect width="390" height="744" fill="#F2F2F2"/><rect width="390" height="44" fill="#FFFFFF"/><text x="16" y="28" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Settings</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="36" fill="#FFFFFF"/><text x="16" y="120" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#666666">Account</text>
+<rect x="0" y="132" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 148)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></g>
+<text x="54" y="166" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Profile</text>
+<path d="M370 155 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="188" x2="390" y2="188" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="188" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 204)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6.5-5.2 6.5-10.2A6.5 6.5 0 0 0 5.5 10.8C5.5 15.8 12 21 12 21Z"/><circle cx="12" cy="10.5" r="2.1"/></svg></g>
+<text x="54" y="222" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Addresses</text>
+<path d="M370 211 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="244" x2="390" y2="244" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="244" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 260)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 9.5h18"/></svg></g>
+<text x="54" y="278" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Payment methods</text>
+<path d="M370 267 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="300" x2="390" y2="300" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="300" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 316)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 0 1 12 0c0 5 1.8 6.5 1.8 6.5H4.2S6 14.5 6 9.5z"/><path d="M9.8 19a2.3 2.3 0 0 0 4.4 0"/></svg></g>
+<text x="54" y="334" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Notifications</text>
+<path d="M370 323 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="356" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="364" width="390" height="36" fill="#FFFFFF"/><text x="16" y="388" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#666666">Privacy</text>
+<rect x="0" y="400" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 416)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l7 2.6v5c0 4.4-3 8-7 9.4-4-1.4-7-5-7-9.4v-5l7-2.6z"/><path d="M9 12l2 2 4-4.2"/></svg></g>
+<text x="54" y="434" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Privacy &amp; security</text>
+<path d="M370 423 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="456" x2="390" y2="456" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="456" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 472)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2"/></svg></g>
+<text x="54" y="490" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Language &amp; currency</text>
+<path d="M370 479 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="512" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="520" width="390" height="36" fill="#FFFFFF"/><text x="16" y="544" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="700" fill="#666666">About</text>
+<rect x="0" y="556" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 572)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v10M9 10h4.5a2 2 0 0 1 0 4H9"/></svg></g>
+<text x="54" y="590" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Platform Fee policy</text>
+<path d="M370 579 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="612" x2="390" y2="612" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="612" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 628)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4"/></svg></g>
+<text x="54" y="646" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Terms &amp; policies</text>
+<path d="M370 635 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="668" x2="390" y2="668" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="668" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 684)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.85.86c0 1.7-2.45 2.24-2.45 3.74"/><circle cx="12" cy="17" r="0.6" fill="#333333" stroke="none"/></svg></g>
+<text x="54" y="702" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">About ROVEXO</text>
+<path d="M370 691 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="724" width="390" height="20" fill="#F2F2F2"/><text x="16" y="738" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted menu 100% · ROVEXO functions · settings</text></svg>

@@ -3,11 +3,13 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { HomepageSearchField } from "@/components/home/HomepageSearchField";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { HEADER_MASTER_FREEZE_V1 } from "@/lib/header/header-master-freeze-v1";
 import { SEARCH_PRIORITY_FREEZE_V1 } from "@/lib/header/search-priority-freeze-v1";
+import { OFFICIAL_BRAND_APP_ICON } from "@/lib/brand/official-brand-application-v1";
 
 export type RovexoHeaderV2Props = {
   showSearch?: boolean;
@@ -70,8 +72,24 @@ function RovexoHeaderV2({ showSearch = true, layout = "default" }: RovexoHeaderV
       )}
     >
       <div className={cn("rx-h2__inner", isAccountLayout && "rx-h2__inner--row1")}>
-        <Link href="/" aria-label="ROVEXO Home" className={cn("rx-h2__logo", focusRing)}>
-          <span className="rx-h2__logo-text">ROVEXO</span>
+        <Link
+          href="/"
+          aria-label="ROVEXO Home"
+          className={cn("rx-h2__logo", focusRing)}
+          data-auth-brand-freeze="XXXIX"
+          data-auth-experience-freeze="XLI"
+          data-brand-level="III_APP_ICON"
+        >
+          <SafeImage
+            src={OFFICIAL_BRAND_APP_ICON}
+            alt="ROVEXO"
+            width={42}
+            height={28}
+            className="rx-h2__logo-img"
+            priority
+            quality={100}
+            unoptimized
+          />
         </Link>
 
         {showSearch && !isAccountLayout ? (

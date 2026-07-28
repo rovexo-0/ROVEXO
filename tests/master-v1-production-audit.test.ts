@@ -14,28 +14,28 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
     const profile = readSource("features/account-center/components/AccountCanonicalProfile.tsx");
     const snapshot = readSource("lib/account-center/snapshot.ts");
 
-    expect(home).toContain('data-ac-hub-version="v2.0-master"');
+    expect(home).toContain('data-ac-hub-version="profile-v1"');
     expect(home).not.toContain("AccountWalletCard");
     expect(home).not.toContain("AccountStatsStrip");
     expect(home).not.toContain("AccountSellerPerformanceCard");
     expect(home).toContain("AccountMenuSections");
     expect(profile).not.toContain("ac-canonical__followers-row");
-    expect(profile).not.toContain("View Public Profile");
+    expect(profile).toContain("View Profile");
     expect(profile).not.toContain("Edit Profile");
     expect(profile).toContain("formatAccountProfileRating");
     expect(snapshot).toContain("listings");
     expect(snapshot).toContain("reviewCount");
-    expect(snapshot).toContain("followers");
+    expect(snapshot).not.toContain("followers");
   });
 
   it("locks production settings hub inventory", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
     const menu = readSource("lib/account-center/settings-menu.ts");
-    expect(settings).toContain("AccountCanonicalShell");
+    expect(settings).toContain("MyAccountTemplate");
     expect(settings).toContain("SettingsMenuSections");
-    expect(menu).toContain('"Profile"');
-    expect(menu).toContain('"Seller Performance"');
-    expect(menu).toContain('"Wallet"');
+    expect(menu).toContain('"Personal Information"');
+    expect(menu).toContain('"Addresses"');
+    expect(menu).toContain('"Currency"');
     expect(menu).not.toContain("Identity Verification");
     expect(menu).not.toContain("Download My Data");
     expect(readSource("features/account-module/components/SettingsMenuSections.tsx")).toContain(
@@ -43,24 +43,25 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
     );
   });
 
-  it("locks production Personal Wallet Master Menu hub", () => {
+  it("locks production Balance hub as Wallet Production UI", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
     const detail = readSource("features/wallet/components/MonthlyStatementDetail.tsx");
-    expect(hub).toContain('data-wallet-hub-version="v3.0-standard"');
-    expect(hub).toContain("CanonicalMenuRow");
-    expect(hub).toContain("PersonalWalletMenuSections");
-    expect(hub).toContain("Available");
-    expect(hub).not.toContain("wallet-v2__hero");
+    expect(hub).toContain('data-wallet-hub-version="v1.0-canonical"');
+    expect(hub).toContain("wallet-v2__hero");
+    expect(hub).toContain("BALANCE_PAGE_NAME");
+    expect(hub).toContain("Available Balance");
+    expect(hub).not.toContain('title="Wallet"');
     expect(detail).toContain("Download CSV");
     expect(detail).toContain("Opening Balance");
   });
 
-  it("locks GDPR registration consent", () => {
+  it("locks Terms registration consent (GDPR checkbox removed AUTH UI v1.2)", () => {
     const fields = readSource("features/auth/components/RegisterScreen.tsx");
     const actions = readSource("lib/auth/actions.ts");
-    expect(fields).toContain('name="gdpr"');
-    expect(fields).toContain("/legal/cookie-policy");
-    expect(fields).toContain("copy.cookieLabel");
+    expect(fields).toContain('name="terms"');
+    expect(fields).not.toContain('name="gdpr"');
+    expect(fields).not.toContain("/legal/cookie-policy");
+    expect(fields).not.toContain("copy.cookieLabel");
     expect(actions).toContain("marketing_emails");
   });
 

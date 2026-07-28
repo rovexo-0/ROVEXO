@@ -8,6 +8,11 @@ import {
 } from "@/src/components/canonical";
 import { AccountIcon } from "@/components/account/AccountIcons";
 import { AccountCanonicalShell } from "@/features/account-canonical";
+import {
+  buildRatingDistribution,
+  RATING_DISTRIBUTION_LADDER,
+} from "@/lib/reviews/rating-distribution";
+import { SELLER_RATING_RULES } from "@/lib/reviews/seller-rating-system-v1";
 import type { Review } from "@/lib/reviews/types";
 
 function formatReviewDate(value: string): string {
@@ -24,6 +29,8 @@ type ReviewsV1Props = {
 
 export function ReviewsV1({ rating, reviewCount, reviews }: ReviewsV1Props) {
   const displayRating = rating > 0 ? rating.toFixed(1) : "—";
+  const distribution = buildRatingDistribution(reviews);
+  const distTotal = Math.max(reviewCount, reviews.length);
 
   return (
     <AccountCanonicalShell title="My Reviews" backHref="/account" showHeaderTitle>
@@ -44,6 +51,22 @@ export function ReviewsV1({ rating, reviewCount, reviews }: ReviewsV1Props) {
           </CanonicalCard>
         </CanonicalSection>
 
+        {distTotal > 0 ? (
+          <CanonicalSection title="Distribution">
+            <CanonicalCard variant="list">
+              {RATING_DISTRIBUTION_LADDER.map(({ stars, key }) => (
+                <CanonicalMenuRow
+                  key={key}
+                  title={`${stars} stars`}
+                  description={`${Math.round((distribution[key] / distTotal) * 100)}%`}
+                  value={String(distribution[key])}
+                  showChevron={false}
+                />
+              ))}
+            </CanonicalCard>
+          </CanonicalSection>
+        ) : null}
+
         {reviews.length === 0 ? (
           <CanonicalInfoBlock variant="description">
             <p className="font-medium text-text-primary">No reviews yet</p>
@@ -58,8 +81,8 @@ export function ReviewsV1({ rating, reviewCount, reviews }: ReviewsV1Props) {
                   title={review.reviewerName ?? "Buyer"}
                   description={
                     review.comment
-                      ? `${review.comment} · ${formatReviewDate(review.createdAt)}`
-                      : formatReviewDate(review.createdAt)
+                      ? `${SELLER_RATING_RULES.verifiedPurchaseLabel} · ${review.comment} · ${formatReviewDate(review.createdAt)}`
+                      : `${SELLER_RATING_RULES.verifiedPurchaseLabel} · ${formatReviewDate(review.createdAt)}`
                   }
                   value={`${review.rating}/5`}
                   showChevron={false}

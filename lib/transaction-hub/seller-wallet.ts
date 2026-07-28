@@ -73,7 +73,8 @@ export function summarizeWalletWithdrawals(
   for (const tx of transactions) {
     if (tx.type !== "withdrawal") continue;
     const amount = Math.abs(tx.amount);
-    if (tx.status === "pending" || tx.status === "failed") {
+    // Only pending = funds locked / withdrawing. Failed = rolled back to available.
+    if (tx.status === "pending") {
       processingTotal += amount;
       processingCount += 1;
       continue;

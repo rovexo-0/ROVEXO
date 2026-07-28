@@ -1,0 +1,20 @@
+# ROVEXO Account Settings Engine v1.4 (FINAL LOCK)
+
+**STATUS: FINAL LOCK | READY FOR OWNER VISUAL REVIEW**
+
+**COMMIT / PUSH / DEPLOY / PRODUCTION: NO** until Owner approval.
+
+Route: `/account/profile`
+
+## Locked
+
+- **Save Engine v4:** hidden by default · **no reserved space** · 24px / Save / 24px / bottom nav when visible · 200ms fade+slide
+- **Connected Accounts v2:** empty → `No connected accounts.` + Connect Google/Apple/Facebook · connected → Google / Connected (row click)
+- ROVEXO VERIFIED value colours unchanged
+- Full Width · One Page · Switch · Fail Closed preserved
+
+## SSOT
+
+- `lib/account/account-settings-v1.ts`
+- `features/account/components/ProfileEditPage.tsx`
+- `styles/rovexo/account-settings-v1.css`

@@ -289,29 +289,132 @@
   text-align: center;
 }
 
-/* ── Canonical auth brand logo (horizontal wordmark + tagline) ── */
+/* ── Canonical RX 3D logo (Owner freeze) ── */
 
 .rovexo-brand-logo {
   display: flex;
-  width: 220px;
+  width: 180px;
   max-width: 100%;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   margin-inline: auto;
   text-align: center;
+  gap: 14px;
 }
 
 @media (min-width: 430px) {
   .rovexo-brand-logo {
-    width: 280px;
+    width: 180px;
   }
 }
 
-.rovexo-brand-logo--auth {
-  margin-top: max(env(safe-area-inset-top), 48px);
-  margin-bottom: 32px;
+/* Login + Register — Absolute Blood Law XXXIX (certified Primary Emblem scale) */
+.auth-login .rovexo-brand-logo.rovexo-brand-logo--auth,
+.auth-register .rovexo-brand-logo.rovexo-brand-logo--auth {
+  width: 180px;
+  height: auto;
+  max-width: 180px;
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-inline: auto;
+  padding: 0;
+  transform: none;
+  scale: none;
 }
 
+.auth-login .rovexo-brand-logo.rovexo-brand-logo--auth .rovexo-brand-logo__canonical-img,
+.auth-register .rovexo-brand-logo.rovexo-brand-logo--auth .rovexo-brand-logo__canonical-img {
+  display: block;
+  width: 180px;
+  height: auto;
+  max-width: 180px;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  aspect-ratio: auto;
+  object-fit: contain;
+  transform: none;
+}
+
+.auth-login--cod-sange-v3 .auth-login__brand {
+  margin-bottom: 8px;
+}
+
+.auth-login--cod-sange-v3 .auth-login__intro {
+  display: none;
+}
+
+.rovexo-brand-logo--canonical,
+.rovexo-brand-logo--canonical-3d {
+  filter: none;
+}
+
+.rovexo-brand-logo__canonical-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  object-position: center;
+  background: transparent;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* Cod Sânge v3 — ultra-sharp, high-contrast premium silver tagline */
+.rovexo-brand-logo__tagline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  margin: 0;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@media (min-width: 430px) {
+  .rovexo-brand-logo__tagline {
+    font-size: 0.9375rem;
+    letter-spacing: 0.24em;
+  }
+}
+
+.rovexo-brand-logo__buy,
+.rovexo-brand-logo__grow {
+  color: #1f1f28;
+  -webkit-text-fill-color: #1f1f28;
+  background: none;
+  text-shadow:
+    0 1px 0 #ffffff,
+    0 0 1px rgb(124 58 237 / 0.15);
+}
+
+.rovexo-brand-logo__sell {
+  color: #6d28d9;
+  -webkit-text-fill-color: #6d28d9;
+  background: none;
+  font-weight: 800;
+  text-shadow:
+    0 1px 0 rgb(243 232 255),
+    0 0 10px rgb(168 85 247 / 0.35);
+}
+
+.rovexo-brand-logo__dot {
+  display: inline-block;
+  width: 0.4em;
+  height: 0.4em;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 30% 30%, #f3e8ff, #7c3aed 55%, #5b21b6);
+  box-shadow: 0 0 6px rgb(168 85 247 / 0.7);
+  flex-shrink: 0;
+}
+
+/* Legacy wordmark hooks retained for non-auth surfaces only */
 .rovexo-brand-logo__wordmark {
   display: inline-flex;
   width: 100%;
@@ -336,27 +439,6 @@
 
 .rovexo-brand-logo__wordmark .rx-wordmark__x {
   color: #7c3aed;
-}
-
-.rovexo-brand-logo__tagline {
-  margin: 10px 0 0;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.rovexo-brand-logo__buy {
-  color: #9333ea;
-}
-
-.rovexo-brand-logo__sell {
-  color: #f97316;
-}
-
-.rovexo-brand-logo__grow {
-  color: #9333ea;
 }
 
 .auth-heading {
@@ -706,8 +788,8 @@
 
 .auth-login--premium .rovexo-brand-logo--auth,
 .auth-register--premium .rovexo-brand-logo--auth {
-  margin-top: max(env(safe-area-inset-top), 40px);
-  margin-bottom: 8px;
+  margin-top: 0;
+  margin-bottom: 2px;
 }
 
 .auth-login--premium .auth-heading,
@@ -1198,7 +1280,8 @@
 }
 
 :root {
-  --auth-gradient-cta: linear-gradient(135deg, #a855f7 0%, #9333ea 42%, #f97316 100%);
+  /* ROVEXO platform CTA — matches Inbox / Profile purple gradient */
+  --auth-gradient-cta: linear-gradient(135deg, #a855f7 0%, #9333ea 50%, #7c3aed 100%);
 }
 
 @keyframes auth-login-fade-in {
@@ -1276,8 +1359,13 @@
 }
 
 .auth-login.auth-login--premium .rovexo-brand-logo--auth {
-  margin-top: max(env(safe-area-inset-top), 40px);
+  margin-top: 0;
   margin-bottom: 0;
+}
+
+.auth-login--premium .auth-login__brand + .auth-login__form,
+.auth-register--premium .auth-register__brand + .auth-register__form {
+  margin-top: -12px;
 }
 
 .auth-login.auth-login--premium .rovexo-brand-logo__wordmark {
@@ -1294,12 +1382,12 @@
 }
 
 .auth-login.auth-login--premium .rovexo-brand-logo__tagline {
-  margin-top: 14px;
+  margin-top: 0;
   font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
+  font-weight: 800;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #71717a;
+  color: inherit;
 }
 
 .auth-login.auth-login--premium .auth-login__intro {
@@ -1839,4 +1927,337 @@ a.auth-login__register-cta:active {
   opacity: 1 !important;
   animation: none !important;
   transform: none !important;
+}
+
+/* ── AUTH UI MASTER FREEZE v1.2 — platform theme (Login + Register) ── */
+
+.auth-platform-theme {
+  --login-primary: #7c3aed;
+  --auth-platform-surface: #ffffff;
+  --auth-platform-wash: #faf5ff;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgb(168 85 247 / 0.12) 0%, transparent 55%),
+    linear-gradient(180deg, var(--auth-platform-wash) 0%, var(--auth-platform-surface) 42%, var(--auth-platform-surface) 100%);
+}
+
+.auth-login.auth-login--premium.auth-platform-theme,
+.auth-register.auth-register--premium.auth-platform-theme {
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgb(168 85 247 / 0.12) 0%, transparent 55%),
+    linear-gradient(180deg, #faf5ff 0%, #ffffff 42%, #ffffff 100%);
+}
+
+.auth-login.auth-login--premium .auth-login__register-cta,
+.auth-register.auth-register--premium .auth-register__sign-in-prompt a {
+  color: #7c3aed;
+  font-weight: 700;
+}
+
+.auth-login.auth-login--premium .auth-login__register-prompt {
+  text-align: center;
+}
+
+/* Register mirrors Login premium compact platform language */
+.auth-register.auth-register--premium {
+  --login-bg: #ffffff;
+  --login-primary: #7c3aed;
+  --login-border: #ececec;
+  --login-text: #09090b;
+  --login-muted: #71717a;
+  justify-content: flex-start;
+  padding-top: max(env(safe-area-inset-top), 8px);
+  padding-bottom: max(env(safe-area-inset-bottom), 28px);
+  color-scheme: light;
+}
+
+.auth-register.auth-register--premium .auth-container {
+  gap: 20px;
+  padding-inline: 2px;
+  max-width: 392px;
+  width: 100%;
+}
+
+.auth-register.auth-register--premium .auth-register__back .auth-back-button,
+.auth-register.auth-register--premium .auth-back-button {
+  min-height: 44px;
+  min-width: 44px;
+  color: #71717a;
+  font-weight: 500;
+}
+
+.auth-register--canonical-freeze .auth-register__brand {
+  /* Absolute Blood Law XL — certified breathing room below Back (8–12px) */
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.auth-register--canonical-freeze .auth-register__sign-in-prompt {
+  text-align: center;
+  margin: 0;
+}
+
+.auth-register.auth-register--premium .rovexo-brand-logo__wordmark {
+  font-size: 2.375rem;
+  font-weight: 800;
+  letter-spacing: -0.065em;
+  line-height: 0.95;
+}
+
+.auth-register.auth-register--premium .auth-heading__title {
+  font-size: 1.6875rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  color: #09090b;
+}
+
+.auth-register.auth-register--premium .auth-icon-field__control {
+  min-height: 54px;
+  height: 54px;
+  border: 1px solid var(--login-border);
+  border-radius: 14px;
+  background: #fafafa;
+  box-shadow: none;
+}
+
+.auth-register.auth-register--premium .auth-icon-field__control:focus-within {
+  border-color: var(--login-primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgb(124 58 237 / 0.12);
+}
+
+.auth-register.auth-register--premium .auth-register-checkbox__link {
+  color: #7c3aed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-register.auth-register--premium,
+  .auth-register.auth-register--premium * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ── AUTH UI COMPACT PREMIUM v1.3 ── */
+
+.auth-compact-premium.auth-login--premium .auth-container,
+.auth-compact-premium.auth-register--premium .auth-container {
+  gap: 14px;
+}
+
+.auth-compact-premium.auth-login--premium .auth-login__form,
+.auth-compact-premium.auth-register--premium .auth-register__form {
+  gap: 12px;
+}
+
+.auth-compact-premium.auth-login--premium .auth-login__fields,
+.auth-compact-premium.auth-register--premium .auth-form-fields {
+  gap: 10px;
+}
+
+.auth-compact-premium.auth-login--premium .rovexo-brand-logo--auth {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.auth-compact-premium.auth-login--premium .auth-heading,
+.auth-compact-premium.auth-register--premium .auth-heading {
+  gap: 6px;
+}
+
+.auth-compact-premium.auth-login--premium .auth-login__cta,
+.auth-compact-premium.auth-register--premium .auth-register__cta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-compact-premium .auth-login__trust,
+.auth-compact-premium .auth-register__trust {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  text-align: center;
+}
+
+.auth-compact-premium .auth-login__trust-title,
+.auth-compact-premium .auth-register__trust-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7c3aed;
+}
+
+.auth-compact-premium .auth-login__trust-icon,
+.auth-compact-premium .auth-register__trust-icon {
+  width: 14px;
+  height: 14px;
+  color: #7c3aed;
+}
+
+.auth-compact-premium .auth-login__trust-copy,
+.auth-compact-premium .auth-register__trust-copy {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 450;
+  line-height: 1.35;
+  color: #71717a;
+}
+
+.auth-compact-premium .auth-register__checkboxes {
+  gap: 10px;
+}
+
+.auth-compact-premium .auth-login__footer,
+.auth-compact-premium .auth-register__footer {
+  margin-top: 4px;
+  width: 100%;
+}
+
+/* Create Account — Compact Premium secondary (outlined purple) */
+.auth-compact-premium .auth-secondary-button--platform,
+.auth-compact-premium a.auth-secondary-button.auth-secondary-button--platform {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 54px;
+  height: 54px;
+  padding: 0 16px;
+  border: 1.5px solid #9333ea;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #7c3aed !important;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  text-decoration: none !important;
+  box-shadow: none;
+  transition:
+    background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-compact-premium .auth-secondary-button--platform:hover,
+.auth-compact-premium .auth-secondary-button--platform:focus-visible,
+.auth-compact-premium a.auth-secondary-button.auth-secondary-button--platform:hover,
+.auth-compact-premium a.auth-secondary-button.auth-secondary-button--platform:focus-visible {
+  background: rgb(147 51 234 / 0.06);
+  border-color: #7c3aed;
+  color: #6d28d9 !important;
+  text-decoration: none !important;
+  transform: translateY(-1px);
+}
+
+.auth-compact-premium .auth-secondary-button--platform:active,
+.auth-compact-premium a.auth-secondary-button.auth-secondary-button--platform:active {
+  transform: translateY(0);
+  background: rgb(147 51 234 / 0.1);
+}
+
+/* Back — platform purple, 44px touch */
+.auth-compact-premium .auth-back-button--platform,
+.auth-compact-premium.auth-register--premium .auth-back-button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 10px;
+  color: #7c3aed;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+}
+
+.auth-compact-premium .auth-back-button--platform:hover,
+.auth-compact-premium.auth-register--premium .auth-back-button:hover,
+.auth-compact-premium .auth-back-button--platform:focus-visible,
+.auth-compact-premium.auth-register--premium .auth-back-button:focus-visible {
+  color: #6d28d9;
+  background: rgb(124 58 237 / 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-compact-premium .auth-secondary-button--platform,
+  .auth-compact-premium a.auth-secondary-button.auth-secondary-button--platform {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ── AUTH UI COMPACT PREMIUM v1.4 — Create Account text link (not a button) ── */
+
+.auth-compact-premium.auth-login--premium .auth-login__footer {
+  margin-top: 2px;
+}
+
+.auth-compact-premium.auth-login--premium .auth-login__register-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #52525b !important;
+}
+
+.auth-compact-premium.auth-login--premium .auth-login__register-prefix {
+  color: #52525b;
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+.auth-compact-premium.auth-login--premium .auth-login__register-cta,
+.auth-compact-premium.auth-login--premium a.auth-login__register-cta {
+  display: inline;
+  width: auto;
+  min-height: 0;
+  height: auto;
+  padding: 0;
+  border: none !important;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: 0.9375rem; /* 15px */
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: #7c3aed !important;
+  text-decoration: none !important;
+  transform: none !important;
+  transition: color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-compact-premium.auth-login--premium .auth-login__register-cta:hover,
+.auth-compact-premium.auth-login--premium .auth-login__register-cta:focus-visible,
+.auth-compact-premium.auth-login--premium a.auth-login__register-cta:hover,
+.auth-compact-premium.auth-login--premium a.auth-login__register-cta:focus-visible {
+  color: #6d28d9 !important;
+  background: transparent !important;
+  border: none !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+  transform: none !important;
+}
+
+.auth-compact-premium.auth-login--premium .auth-login__register-cta:active,
+.auth-compact-premium.auth-login--premium a.auth-login__register-cta:active {
+  color: #5b21b6 !important;
+  transform: none !important;
+}
+
+/* Register Canonical Freeze — Sign In centered */
+.auth-register--canonical-freeze .auth-register__sign-in-prompt {
+  text-align: center;
+  margin: 0;
 }

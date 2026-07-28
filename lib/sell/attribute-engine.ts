@@ -20,6 +20,10 @@ import {
 } from "@/lib/sell/attribute-options";
 import { MARKETPLACE_CONDITIONS_BY_VERTICAL } from "@/lib/categories/enterprise/conditions";
 import { loadCategoryScopedTaxonomy } from "@/lib/category-loaders/scoped";
+import {
+  resolveAaQuickSellAttributeIds,
+} from "@/lib/sell/aa-quick-sell-attributes";
+import { SELL_QUICK_CONDITIONS } from "@/lib/sell/sell-condition-options";
 
 export type AttributeInput = "select-single" | "select-multi" | "grid-single" | "text";
 
@@ -150,22 +154,22 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
   },
   colour: {
     id: "colour",
-    label: "Colour",
+    label: "Colours",
     input: "select-single",
     target: { kind: "field", field: "color" },
     options: COLOUR_OPTIONS,
     showSwatch: true,
-    placeholder: "Select colour",
+    placeholder: "",
   },
   material: {
     id: "material",
-    label: "Material",
+    label: "Material (recommended)",
     input: "select-single",
     target: { kind: "field", field: "material" },
     options: MATERIAL_OPTIONS,
     searchable: true,
     searchPlaceholder: "Search materials",
-    placeholder: "Select material",
+    placeholder: "",
   },
   style: {
     id: "style",
@@ -226,7 +230,46 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     input: "select-single",
     target: { kind: "map" },
     options: SEASON_OPTIONS,
-    placeholder: "Select season",
+    placeholder: "",
+  },
+  seasonRating: {
+    id: "seasonRating",
+    label: "Season Rating",
+    input: "select-single",
+    target: { kind: "map" },
+    options: toOptions(["1 Season", "2 Season", "3 Season", "4 Season", "5 Season"]),
+    placeholder: "",
+  },
+  length: {
+    id: "length",
+    label: "Length",
+    input: "select-single",
+    target: { kind: "map" },
+    options: toOptions(["Short", "Regular", "Long", "Extra Long"]),
+    placeholder: "",
+  },
+  weight: {
+    id: "weight",
+    label: "Weight",
+    input: "text",
+    target: { kind: "map" },
+    placeholder: "e.g. 1.2 kg",
+  },
+  age: {
+    id: "age",
+    label: "Age",
+    input: "select-single",
+    target: { kind: "map" },
+    options: toOptions(["0–3m", "3–6m", "6–12m", "1–2y", "2–3y", "3–4y", "4–5y", "5+"]),
+    placeholder: "",
+  },
+  operatingSystem: {
+    id: "operatingSystem",
+    label: "Operating System",
+    input: "select-single",
+    target: { kind: "map" },
+    options: toOptions(["iOS", "Android", "Windows", "macOS", "Linux", "Other"]),
+    placeholder: "",
   },
   cpu: {
     id: "cpu",
@@ -244,10 +287,10 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
   },
   battery: {
     id: "battery",
-    label: "Battery",
+    label: "Battery Health",
     input: "text",
     target: { kind: "map" },
-    placeholder: "e.g. 5000 mAh",
+    placeholder: "e.g. 92%",
   },
   warranty: {
     id: "warranty",
@@ -299,7 +342,7 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     input: "select-single",
     target: { kind: "map" },
     options: RAM_OPTIONS,
-    placeholder: "Select RAM",
+    placeholder: "",
   },
   processor: {
     id: "processor",
@@ -314,6 +357,22 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     input: "text",
     target: { kind: "map" },
     placeholder: "e.g. Limited Edition",
+  },
+  platform: {
+    id: "platform",
+    label: "Platform",
+    input: "select-single",
+    target: { kind: "map" },
+    options: [
+      { id: "playstation", label: "PlayStation" },
+      { id: "xbox", label: "Xbox" },
+      { id: "nintendo", label: "Nintendo" },
+      { id: "pc", label: "PC" },
+      { id: "other", label: "Other" },
+    ],
+    placeholder: "Select platform",
+    searchable: true,
+    allowCustomFromSearch: true,
   },
   collection: {
     id: "collection",
@@ -441,8 +500,8 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     label: "Condition",
     input: "select-single",
     target: { kind: "map" },
-    options: toOptions([...MARKETPLACE_CONDITIONS_BY_VERTICAL.default]),
-    placeholder: "Select condition",
+    options: toOptions([...SELL_QUICK_CONDITIONS]),
+    placeholder: "",
   },
   measurements: {
     id: "measurements",
@@ -545,7 +604,20 @@ const BEDDING_ATTRIBUTE_IDS = [
 
 function applyCategoryScopedOptions(defs: AttributeDef[], categoryPath: FlatCategoryPath | null): AttributeDef[] {
   const scoped = loadCategoryScopedTaxonomy(categoryPath);
-  if (!scoped) return defs;
+  if (!scoped) {
+    return defs.map((def) => {
+      if (def.id === "condition") {
+        return { ...def, options: toOptions([...SELL_QUICK_CONDITIONS]) };
+      }
+      if (def.id === "material") {
+        return { ...def, label: "Material (recommended)" };
+      }
+      if (def.id === "colour") {
+        return { ...def, input: "select-single" as const, label: "Colours", options: COLOUR_OPTIONS, showSwatch: true };
+      }
+      return def;
+    });
+  }
 
   return defs.map((def) => {
     switch (def.id) {
@@ -557,16 +629,18 @@ function applyCategoryScopedOptions(defs: AttributeDef[], categoryPath: FlatCate
         };
       case "material":
       case "coverMaterial":
-        return { ...def, options: toOptions(scoped.materials) };
+        return {
+          ...def,
+          options: toOptions(scoped.materials.length > 0 ? scoped.materials : MATERIAL_OPTIONS.map((o) => o.label)),
+          label: def.id === "material" ? "Material (recommended)" : def.label,
+        };
       case "colour":
         return {
           ...def,
-          options: scoped.colours.map((colour) => ({
-            id: colour.id,
-            label: colour.label,
-            swatch: colour.swatch,
-          })),
+          options: COLOUR_OPTIONS,
           showSwatch: true,
+          input: "select-single" as const,
+          label: "Colours",
         };
       case "size":
         return { ...def, options: toOptions(scoped.sizes) };
@@ -585,7 +659,7 @@ function applyCategoryScopedOptions(defs: AttributeDef[], categoryPath: FlatCate
       case "warranty":
         return { ...def, options: toOptions(scoped.warrantyTypes) };
       case "condition":
-        return { ...def, options: toOptions(scoped.conditions) };
+        return { ...def, options: toOptions([...SELL_QUICK_CONDITIONS]) };
       case "compatibility":
         return scoped.compatibility.length > 0
           ? { ...def, input: "select-single" as const, options: toOptions(scoped.compatibility) }
@@ -596,58 +670,12 @@ function applyCategoryScopedOptions(defs: AttributeDef[], categoryPath: FlatCate
   });
 }
 
-const QUICK_SELL_SIZE_CATEGORY_SLUGS = new Set([
-  "mens-fashion",
-  "womens-fashion",
-  "kids-fashion",
-  "shoes",
-  "sports",
-]);
-
-const QUICK_SELL_ATTRIBUTE_ORDER = ["brand", "colour", "size"] as const;
-
-function quickSellCategorySupportsAttribute(
-  categoryPath: FlatCategoryPath | null,
-  attributeId: (typeof QUICK_SELL_ATTRIBUTE_ORDER)[number],
-): boolean {
-  if (!categoryPath) return false;
-  const slug = categoryPath.categorySlug;
-  const subSlug = categoryPath.subcategorySlug;
-  const childSlug = categoryPath.childCategorySlug;
-
-  const fullIds =
-    slug === "home-garden" &&
-    ((subSlug && BEDDING_SUBCATEGORY_SLUGS.has(subSlug)) ||
-      (childSlug && BEDDING_SUBCATEGORY_SLUGS.has(childSlug)))
-      ? [...BEDDING_ATTRIBUTE_IDS]
-      : slug && CATEGORY_ATTRIBUTE_IDS[slug]
-        ? CATEGORY_ATTRIBUTE_IDS[slug]
-        : [...DEFAULT_ATTRIBUTE_IDS];
-
-  if (!fullIds.includes(attributeId)) return false;
-
-  if (attributeId === "size") {
-    if (QUICK_SELL_SIZE_CATEGORY_SLUGS.has(slug ?? "")) return true;
-    if (
-      slug === "home-garden" &&
-      ((subSlug && BEDDING_SUBCATEGORY_SLUGS.has(subSlug)) ||
-        (childSlug && BEDDING_SUBCATEGORY_SLUGS.has(childSlug)))
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  return true;
-}
-
-/** Quick-sell progressive attributes — brand, colour, size only when applicable (§36, §40). */
+/** Sell v1.0 — taxonomy-driven dynamic attributes only (NO UNUSED FIELDS). */
 export function getQuickSellAttributeDefs(categoryPath: FlatCategoryPath | null): AttributeDef[] {
   if (!categoryPath) return [];
 
-  const defs = QUICK_SELL_ATTRIBUTE_ORDER.filter((id) =>
-    quickSellCategorySupportsAttribute(categoryPath, id),
-  )
+  const ids = resolveAaQuickSellAttributeIds(categoryPath);
+  const defs = ids
     .map((id) => ATTRIBUTE_DEFS[id])
     .filter((def): def is AttributeDef => Boolean(def));
 
@@ -684,8 +712,9 @@ export function getAttributeDefsForCategory(categoryPath: FlatCategoryPath | nul
   return applyCategoryScopedOptions(defs, categoryPath);
 }
 
-/** Read an attribute's current value from the draft (field or generic map). */
+/** Read an attribute's current value from the draft (field, condition, or generic map). */
 export function readAttributeValue(draft: SellListingDraft, def: AttributeDef): string {
+  if (def.id === "condition") return draft.condition ?? "";
   if (def.target.kind === "field") return draft[def.target.field] ?? "";
   return draft.attributes?.[def.id] ?? "";
 }

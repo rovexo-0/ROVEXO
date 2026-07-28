@@ -10,7 +10,7 @@ export function BuyerNotifications() {
   const latest = data.notifications;
 
   return (
-    <BuyerSection id="buyer-notifications" title="Notifications" href="/notifications">
+    <BuyerSection id="buyer-notifications" title="Notifications" href="/inbox?tab=notifications">
       {latest.length === 0 ? (
         <BuyerEmptyState title="No notifications" />
       ) : (

@@ -4,10 +4,10 @@ import type { ComponentType, SVGProps } from "react";
 import {
   BagLineIcon,
   CartLineIcon,
+  DocumentLineIcon,
   HeartLineIcon,
   MoreLineIcon,
   PeopleLineIcon,
-  SearchLineIcon,
   StarLineIcon,
   TagLineIcon,
   TruckLineIcon,
@@ -51,6 +51,7 @@ const CATEGORY_LINE_ICONS: Record<HomeCategoryIconType, ComponentType<IconProps>
   luxury: StarLineIcon,
   collectibles: StarLineIcon,
   handmade: TagLineIcon,
+  books: DocumentLineIcon,
   more: MoreLineIcon,
 };
 

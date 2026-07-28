@@ -1,0 +1,139 @@
+/**
+ * ROVEXO v1.0 — STORE CARD PREMIUM FREEZE
+ * Scoped by [data-store-listing-cards]. Does not affect Homepage / Search / Category grids.
+ */
+
+[data-store-listing-cards="store"],
+[data-store-listing-cards="visit"],
+[data-store-listing-cards="business"] {
+  --rx-store-img-w: 88px;
+  --rx-store-img-h: 128px;
+  --rx-store-card-min-h: 240px;
+  --rx-store-img-pad: 8px;
+  --rx-store-gap: 8px;
+  --rx-store-img-radius: 16px;
+  --rx-store-space-image-price: 8px;
+  --rx-store-space-price-title: 6px;
+  --rx-store-space-title-condition: 4px;
+  --rx-store-space-condition-rating: 4px;
+}
+
+[data-store-listing-cards="visit"],
+[data-store-listing-cards="business"] {
+  --rx-store-img-w: 96px;
+  --rx-store-img-h: 136px;
+  --rx-store-card-min-h: 250px;
+}
+
+/* Two-column: phone / Android / tablet. Desktop: auto-responsive. */
+[data-store-listing-cards="store"].rx-listing-grid,
+[data-store-listing-cards="visit"].rx-listing-grid,
+[data-store-listing-cards="business"].rx-listing-grid,
+[data-store-listing-cards="store"].vp-v1__grid,
+[data-store-listing-cards="visit"].vp-v1__grid,
+[data-store-listing-cards="business"].vp-v1__grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--rx-store-gap) 10px;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  [data-store-listing-cards="store"].rx-listing-grid,
+  [data-store-listing-cards="visit"].rx-listing-grid,
+  [data-store-listing-cards="business"].rx-listing-grid,
+  [data-store-listing-cards="store"].vp-v1__grid,
+  [data-store-listing-cards="visit"].vp-v1__grid,
+  [data-store-listing-cards="business"].vp-v1__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-store-listing-cards="store"].rx-listing-grid,
+  [data-store-listing-cards="visit"].rx-listing-grid,
+  [data-store-listing-cards="business"].rx-listing-grid,
+  [data-store-listing-cards="store"].vp-v1__grid,
+  [data-store-listing-cards="visit"].vp-v1__grid,
+  [data-store-listing-cards="business"].vp-v1__grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+[data-store-listing-cards] > [data-listing-card="rovexo"] {
+  aspect-ratio: unset !important;
+  width: 100%;
+  min-height: var(--rx-store-card-min-h);
+  height: auto !important;
+  contain: layout style;
+}
+
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-rows: none !important;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Fixed premium thumbnail — cover + center + radius 16 · no stretch */
+[data-store-listing-cards] > [data-listing-card="rovexo"] figure {
+  box-sizing: border-box;
+  width: var(--rx-store-img-w) !important;
+  height: var(--rx-store-img-h) !important;
+  min-width: var(--rx-store-img-w);
+  min-height: var(--rx-store-img-h);
+  max-width: var(--rx-store-img-w);
+  max-height: var(--rx-store-img-h);
+  aspect-ratio: unset !important;
+  flex: 0 0 var(--rx-store-img-h) !important;
+  margin: var(--rx-store-img-pad) auto 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: var(--rx-store-img-radius) !important;
+  background: var(--ds-color-surface-muted);
+}
+
+[data-store-listing-cards] > [data-listing-card="rovexo"] figure img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: var(--rx-store-img-radius);
+}
+
+/* Image → 8 → Price → 6 → Title → 4 → Condition → 4 → Rating */
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: var(--rx-store-space-image-price) 8px 10px !important;
+}
+
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > p {
+  margin: 0 !important;
+}
+
+/* Title block (first div with product title) */
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > div:has(h3) {
+  margin-top: var(--rx-store-space-price-title) !important;
+}
+
+/* Condition immediately after title */
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > div:has(h3) + p {
+  margin-top: var(--rx-store-space-title-condition) !important;
+}
+
+/* Rating / views row */
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > [data-product-card-stats="v1.0"] {
+  margin-top: var(--rx-store-space-condition-rating) !important;
+}
+
+/* When condition is absent, keep rating 4px under title */
+[data-store-listing-cards] > [data-listing-card="rovexo"] > a > div > div:has(h3) + [data-product-card-stats="v1.0"] {
+  margin-top: var(--rx-store-space-condition-rating) !important;
+}

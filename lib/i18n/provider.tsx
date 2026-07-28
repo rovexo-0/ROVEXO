@@ -11,15 +11,25 @@ import {
 } from "react";
 import { usePathname } from "next/navigation";
 import { getLocaleOption, localeDirection, localeToHtmlLang, type LocaleCode } from "@/lib/i18n/config";
+import {
+  PLATFORM_LANGUAGE_CODE,
+  PLATFORM_LANGUAGE_LABEL,
+  resolvePlatformLanguage,
+} from "@/lib/i18n/platform-language";
+import { UK_DEFAULT_CURRENCY } from "@/lib/i18n/uk-first";
 import { AUTH_ROUTES } from "@/lib/auth/canonical";
-import { createClient } from "@/lib/supabase/client";
+import { tryCreateClient } from "@/lib/supabase/client";
+
+export type SetLocaleOptions = {
+  persist?: boolean;
+};
 
 type LocaleContextValue = {
   localeCode: LocaleCode;
   language: string;
   currency: string;
   currencyLabel: string;
-  setLocaleCode: (code: LocaleCode) => Promise<void>;
+  setLocaleCode: (code: LocaleCode, options?: SetLocaleOptions) => Promise<void>;
   loading: boolean;
 };
 
@@ -52,12 +62,12 @@ function readCookieLocale(): LocaleCode | null {
 }
 
 function readStoredLocale(): LocaleCode {
-  if (typeof window === "undefined") return "en-GB";
+  if (typeof window === "undefined") return resolvePlatformLanguage(null);
   const stored = window.localStorage.getItem(STORAGE_KEY) as LocaleCode | null;
-  if (stored && getLocaleOption(stored)) return stored;
+  if (stored && getLocaleOption(stored)) return resolvePlatformLanguage(stored);
   const fromCookie = readCookieLocale();
-  if (fromCookie) return fromCookie;
-  return "en-GB";
+  if (fromCookie) return resolvePlatformLanguage(fromCookie);
+  return resolvePlatformLanguage(null);
 }
 
 function subscribeLocale(callback: () => void) {
@@ -97,20 +107,23 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
     void (async () => {
       try {
+        const client = tryCreateClient();
+        if (!client) return;
         const {
           data: { session },
-        } = await createClient().auth.getSession();
+        } = await client.auth.getSession();
         if (!session || cancelled) return;
 
         const response = await fetch("/api/settings");
         if (!response.ok) return;
         const payload = (await response.json()) as { settings?: { localeCode?: LocaleCode } };
         const code = payload.settings?.localeCode;
-        if (!cancelled && code && getLocaleOption(code) && code !== readStoredLocale()) {
-          window.localStorage.setItem(STORAGE_KEY, code);
-          writeLocaleCookie(code);
+        const resolved = resolvePlatformLanguage(code);
+        if (!cancelled && code && getLocaleOption(code) && resolved !== readStoredLocale()) {
+          window.localStorage.setItem(STORAGE_KEY, resolved);
+          writeLocaleCookie(resolved);
           notifyLocaleChange();
-          document.documentElement.lang = localeToHtmlLang(code);
+          document.documentElement.lang = localeToHtmlLang(resolved);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -121,47 +134,46 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     };
   }, [pathname]);
 
-  const applyLocale = useCallback((code: LocaleCode) => {
-    window.localStorage.setItem(STORAGE_KEY, code);
-    writeLocaleCookie(code);
-    document.documentElement.lang = localeToHtmlLang(code);
-    document.documentElement.dir = localeDirection(code);
+  const applyLocale = useCallback(() => {
+    const resolved = PLATFORM_LANGUAGE_CODE;
+    window.localStorage.setItem(STORAGE_KEY, resolved);
+    writeLocaleCookie(resolved);
+    document.documentElement.lang = localeToHtmlLang(resolved);
+    document.documentElement.dir = localeDirection(resolved);
     notifyLocaleChange();
   }, []);
 
   const setLocaleCode = useCallback(
-    async (code: LocaleCode) => {
-      applyLocale(code);
-      const option = getLocaleOption(code);
+    async (_code?: LocaleCode, options?: SetLocaleOptions) => {
+      void _code;
+      applyLocale();
+      if (options?.persist === false) return;
       try {
         await fetch("/api/settings", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            localeCode: code,
-            language: option.language,
-            currency: option.currencyLabel,
+            localeCode: PLATFORM_LANGUAGE_CODE,
+            language: PLATFORM_LANGUAGE_LABEL,
           }),
         });
       } catch {
-        // Keep local locale applied even if the settings sync fails offline.
+        // Keep English (UK) applied even if the settings sync fails offline.
       }
     },
     [applyLocale],
   );
 
-  const option = getLocaleOption(localeCode);
-
   const value = useMemo(
     () => ({
-      localeCode,
-      language: option.language,
-      currency: option.currency,
-      currencyLabel: option.currencyLabel,
+      localeCode: PLATFORM_LANGUAGE_CODE,
+      language: PLATFORM_LANGUAGE_LABEL,
+      currency: UK_DEFAULT_CURRENCY,
+      currencyLabel: "GBP (£)",
       setLocaleCode,
       loading,
     }),
-    [localeCode, option, setLocaleCode, loading],
+    [setLocaleCode, loading],
   );
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;

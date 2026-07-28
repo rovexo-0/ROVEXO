@@ -14,7 +14,6 @@ export function mapLegacyTypeToEnterprise(type: NotificationType): Notifications
     offer: "seller",
     review: "seller",
     payment: "buyer",
-    follower: "buyer",
     moderation: "administrator",
     promotion_expired: "marketing",
     saved_item_sold: "buyer",

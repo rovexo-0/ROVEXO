@@ -5,7 +5,6 @@ import Link from "next/link";
 import { memo } from "react";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { BusinessBadge, resolveBusinessBadgeKinds } from "@/components/ui/BusinessBadge";
-import { FollowSellerButton } from "@/features/launch/components/FollowSellerButton";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { RovexoIcons } from "@/lib/icons";
 import { HP4_LISTING_CARD_PROPS } from "@/components/homepage-v4/constants";
@@ -64,7 +63,6 @@ export const HomepageV4Showcase = memo(function HomepageV4Showcase({
               </span>
             </span>
           </Link>
-          <FollowSellerButton sellerId={section.sellerId} compact />
         </div>
       </div>
       <div className="rx4-carousel" role="list" aria-label={`${section.sellerName} listings`}>

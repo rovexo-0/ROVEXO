@@ -1,0 +1,60 @@
+---
+description: ROVEXO Marketplace v1.0 Owner freeze — certified production baseline
+alwaysApply: true
+---
+
+# ROVEXO MARKETPLACE FREEZE v1.0 — COD SÂNGE
+
+**STATUS: CERTIFIED · FROZEN · APPROVED · CANONICAL PRODUCTION BASELINE**
+
+SSOT: `lib/marketplace-freeze-v1.ts`  
+Parents: Absolute Master Freeze · Blood Law XXXIV
+
+## Absolute
+
+ROVEXO Marketplace v1.0 is **FROZEN**.  
+Certification · Localhost visual · Functional flow · Responsive · TypeScript · ESLint · Tests · Production build = **PASS**.
+
+## Singularity
+
+ONE Homepage · ONE Messages Hub · ONE Checkout · ONE Wallet · ONE Orders · ONE Tracking · ONE Dynamic Transaction Card · ONE SSOT per module.
+
+Forbidden: duplicate implementations · parallel systems · experimental UI.
+
+## Locked flow
+
+Homepage → Listing → Make Offer → Counter Offer → Accept Offer → Buy Now → Checkout → Payment → Order → Messages → Shipping Label → Tracking → Delivered → Everything OK / I Have an Issue → Completed → Review → Wallet
+
+## Role isolation
+
+Buyer / Seller / Admin / Super Admin remain isolated.  
+Messages never renders Wallet / Withdraw / Balance / financial summaries.  
+Wallet is the only financial destination.
+
+## Allowed after freeze
+
+Bug · security · performance · a11y · browser/device compatibility · internal refactoring — **only if** zero visual · UX · behaviour · business-logic change.
+
+## Forbidden after freeze
+
+New layouts · new navigation · moved components · renamed flows · duplicated modules · parallel implementations · temporary/experimental UI · placeholder screens · architectural rewrites.
+
+## Change control (all required)
+
+1. Reason documented  
+2. Impact analysed  
+3. Regression tested  
+4. TypeScript PASS  
+5. ESLint PASS  
+6. Tests PASS  
+7. Production Build PASS  
+8. Localhost visual PASS  
+9. No regression  
+10. Explicit Owner approval before merge  
+
+## Cursor must never
+
+- Redesign or reopen frozen marketplace surfaces without Owner re-authorization  
+- Create parallel modules or temporary UI  
+- Merge marketplace changes without the ten change-control gates + Owner approval  
+- Treat this freeze as permission to invent new flows or financial surfaces outside Wallet

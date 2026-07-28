@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Owner Review — Product Card + Favourites Grid</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#e8e8e8;color:#1a1a1a}
+    .wrap{max-width:420px;margin:24px auto;padding:0 12px}
+    h2{font-size:14px;color:#64748b;font-weight:600}
+    .phone{background:#fff;border-radius:12px;padding:12px;margin-bottom:16px}
+    .header{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;height:48px}
+    .title{margin:0;text-align:center;font-size:14px;font-weight:600;letter-spacing:.04em}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+    .card{border:1px solid #e8e8e8;border-radius:16px;overflow:hidden;background:#fff}
+    .img{height:140px;background:linear-gradient(135deg,#f3e8ff,#e0e7ff);position:relative}
+    .heart{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:999px;background:#fff;display:flex;align-items:center;justify-content:center;color:#ec4899}
+    .body{padding:10px}
+    .price{margin:0;font-size:18px;font-weight:700;color:#9333ea}
+    .incl{margin:2px 0 0;font-size:12px;color:#9333ea;font-weight:600}
+    .name{margin:6px 0 0;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .cond{margin:4px 0 0;font-size:12px;color:#64748b}
+    .stats{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:12px;font-weight:600;color:#1a1a1a}
+    .star{color:#f5b301}
+    .note{text-align:center;color:#64748b;font-size:13px;padding-bottom:24px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>New product (0 views)</h2>
+    <div class="phone"><div class="grid">
+      <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£12.00</p><p class="incl">£12.66 incl.</p><p class="name">New listing sample</p><p class="cond">New</p><div class="stats"><span><span class="star">★</span> 0.0</span><span>👁 0</span></div></div></article>
+      <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£8.50</p><p class="incl">£8.97 incl.</p><p class="name">Fresh item</p><p class="cond">Good</p><div class="stats"><span><span class="star">★</span> 0.0</span><span>👁 0</span></div></div></article>
+    </div></div>
+
+    <h2>Products with views · Favourites 2-col / Homepage card</h2>
+    <div class="phone">
+      <div class="header"><span>‹</span><h1 class="title">FAVOURITES</h1><span></span></div>
+      <div class="grid">
+        <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£24.00</p><p class="incl">£26.40 incl.</p><p class="name">Vintage denim jacket</p><p class="cond">Good</p><div class="stats"><span><span class="star">★</span> 4.9</span><span>👁 127</span></div></div></article>
+        <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£48.00</p><p class="incl">£52.80 incl.</p><p class="name">Leather tote bag</p><p class="cond">Like new</p><div class="stats"><span><span class="star">★</span> 5.0</span><span>👁 1.5K</span></div></div></article>
+        <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£18.00</p><p class="incl">£19.80 incl.</p><p class="name">Plant pot</p><p class="cond">Good</p><div class="stats"><span><span class="star">★</span> 4.7</span><span>👁 54</span></div></div></article>
+        <article class="card"><div class="img"><span class="heart">♥</span></div><div class="body"><p class="price">£9.99</p><p class="incl">£10.99 incl.</p><p class="name">Book set</p><p class="cond">Good</p><div class="stats"><span><span class="star">★</span> 4.6</span><span>👁 12</span></div></div></article>
+      </div>
+    </div>
+  </div>
+  <p class="note">Live Favourites: http://localhost:3010/saved · Homepage: http://localhost:3010/</p>
+</body>
+</html>

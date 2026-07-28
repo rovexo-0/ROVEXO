@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { CanonicalButton, CanonicalButtonLink } from "@/src/components/canonical";
 import { cn } from "@/lib/cn";

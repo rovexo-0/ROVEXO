@@ -81,15 +81,22 @@ describe("transaction hub checkout document 2", () => {
       path.join(process.cwd(), "features/transaction-hub/TransactionHubBottomActions.tsx"),
       "utf8",
     );
+    const conversationHub = readFileSync(
+      path.join(process.cwd(), "features/inbox/components/ConversationHub.tsx"),
+      "utf8",
+    );
     const hub = readFileSync(
       path.join(process.cwd(), "features/transaction-hub/CheckoutHubSheet.tsx"),
       "utf8",
     );
 
-    expect(actions).toContain("/checkout/");
     expect(actions).toContain("conversationId");
     expect(actions).not.toContain("CheckoutHubSheet");
-    expect(hub).toContain("data-transaction-hub-checkout=\"embedded\"");
+    expect(conversationHub).toContain("executeBuyNow");
+    expect(conversationHub).toContain("buildBuyNowCheckoutHref");
+    expect(hub).toContain("executeBuyNow");
+    expect(hub).toContain("buildBuyNowCheckoutHref");
+    expect(hub).not.toContain("CheckoutWizardV1");
   });
 
   it("returns payment cancel to the same conversation when opened from hub", () => {

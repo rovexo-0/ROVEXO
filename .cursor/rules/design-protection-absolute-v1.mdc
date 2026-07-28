@@ -1,0 +1,47 @@
+---
+description: Design Protection Absolute v1.1 — Owner design always wins; engines never redesign (P0).
+alwaysApply: true
+---
+
+# ROVEXO Design Protection Absolute v1.1 (P0 · CANONICAL FREEZE)
+
+## Absolute
+
+**Owner-approved design always wins.**  
+**The Responsive Engine must adapt to the design. The design shall never adapt to the Responsive Engine.**
+
+```
+IF THE OWNER APPROVED IT → PROTECT IT.
+DO NOT REBUILD IT. DO NOT REDESIGN IT. DO NOT DUPLICATE IT.
+```
+
+## Forbidden to modify Owner-approved design
+
+Full Width Engine · Responsive Engine · Adaptive Engine · Theme Engine · Accessibility Engine · Future AI / Optimization / Layout Engines · CSS Overrides · Hot Fix Systems · Automated Refactors · Cursor Agents
+
+## Canonical implementations may only receive
+
+Bug fixes · performance · accessibility · responsive adaptations · overflow prevention · alignment fixes · security · browser compatibility
+
+## Forbidden
+
+Redesign · component replacement · visual/icon/colour changes · layout redesign · changing spacing tokens or Owner-approved dimensions · Balance/Wallet/Checkout v2 · hidden duplicates
+
+## One singularity
+
+ONE PAGE → ONE IMPLEMENTATION → ONE SSOT → ONE DESIGN → ONE RESPONSIVE ENGINE → ONE CANONICAL VERSION
+
+## Full Width 100% means
+
+Maximum available width · proper alignment · spacing · responsive · a11y · visibility  
+
+**Not:** redesign 100% · resize everything · rebuild everything
+
+## Correct flow
+
+Approved Design → Responsive adaptation only → Approved Design preserved → Owner approves  
+
+**Wrong:** Approved Design → Responsive Engine → Redesign
+
+Aligns with Design Protection Absolute v1.1 · Implementation Protection Law v1.1 · Evolution Law v1.0.  
+SSOT: `lib/master-engine/design-protection-absolute-v1.ts` · `lib/master-engine/implementation-protection-law-v1.ts` · `lib/master-engine/evolution-law-v1.ts`

@@ -1,0 +1,57 @@
+---
+description: ROVEXO v1.0 Saved PRODUCTION LOCK — FREEZE YES — Owner authority
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — SAVED PRODUCTION LOCK
+
+**STATUS: PRODUCTION LOCK · FROZEN · FREEZE YES**
+
+Authority: Owner · Canonical LIVE: https://www.rovexo.co.uk
+
+## ALLOWED
+
+- Save
+- Unsave
+- Empty state
+- Login
+- Logout
+- Refresh
+- Cross surface synchronization
+- Database truth
+
+## NOT ALLOWED
+
+- Collections
+- Followers
+- Following
+- Lists
+- Undo button
+- Social features
+- Multiple Saved systems
+- LocalStorage authority
+
+## FREEZE
+
+YES — no redesign · no extra Saved features · no alternate Saved systems.
+
+## LIVE heart (locked)
+
+```
+CLICK ♥ → optimistic 0ms → POST|DELETE /api/saved → DB
+→ remount → GET ?slug= → DB truth
+→ Refresh → DB truth (allowed; not required for sync)
+```
+
+Saved unsave: DELETE → `setItems(payload.items)` immediately  
+Empty: “Nothing saved” · Browse → `/search`
+
+## Canonical files
+
+- `features/home/hooks/use-product-watchlist.ts`
+- `components/ui/ListingCard.tsx`
+- `features/search/components/SearchResultCard.tsx`
+- `components/home/stores/StoreCard.tsx`
+- `features/account-module/components/SavedItemsV1.tsx`
+- `app/api/saved/route.ts`
+- `lib/saved/saved-live-production-lock-v1.ts`

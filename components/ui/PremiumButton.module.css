@@ -1,0 +1,414 @@
+/* ROVEXO Premium Button System v1.0 — Visit Store + Follow equal pair */
+
+.root {
+  --pb-h: 34px;
+  --pb-w: 112px;
+  --pb-px: 8px;
+  --pb-fs: 11.5px;
+  --pb-radius: 20px;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  height: var(--pb-h);
+  min-height: var(--pb-h);
+  width: var(--pb-w);
+  min-width: var(--pb-w);
+  max-width: var(--pb-w);
+  padding: 0 var(--pb-px);
+  border-radius: var(--pb-radius);
+  border: 1px solid transparent;
+  font-size: var(--pb-fs);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+  transform: translateZ(0);
+  transition:
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    background 220ms ease,
+    color 220ms ease,
+    filter 220ms ease;
+  will-change: transform;
+}
+
+.root:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none !important;
+}
+
+.root:disabled .shine,
+.root:disabled {
+  animation: none !important;
+}
+
+/* Keep CURRENT height (34px sm / 40px md). Equal width for Visit + Follow. */
+.sm {
+  --pb-h: 34px;
+  --pb-w: 112px;
+  --pb-px: 8px;
+  --pb-fs: 11.5px;
+}
+
+.md {
+  --pb-h: 40px;
+  --pb-w: 128px;
+  --pb-px: 10px;
+  --pb-fs: 13px;
+}
+
+/* Follow Button — CEO Production Gate · 110×40 · radius 999 · fixed · centered */
+.follow.primary,
+.follow {
+  --pb-h: 40px;
+  --pb-w: 110px;
+  --pb-px: 0px;
+  --pb-fs: 11px;
+  --pb-radius: 999px;
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  width: 110px !important;
+  min-width: 110px !important;
+  max-width: 110px !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  border-width: 1.5px !important;
+  border-style: solid !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 40px !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  /* Default / Unfollow: white + purple outline */
+  color: #6c2bd9 !important;
+  background: #ffffff !important;
+  border-color: #6c2bd9 !important;
+  box-shadow:
+    0 1px 2px rgb(108 43 217 / 0.08),
+    0 4px 12px rgb(108 43 217 / 0.1) !important;
+  animation: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+.follow.primary:hover,
+.follow.primary:active,
+.follow:hover,
+.follow:active,
+.follow:focus-visible {
+  transform: none !important;
+  filter: none !important;
+  animation: none !important;
+}
+
+.follow .label {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  width: 100% !important;
+  height: 40px !important;
+  max-width: none !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  line-height: 40px !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+}
+
+.followIcon {
+  display: none !important;
+}
+
+/* FOLLOWING — filled purple · same 110×40 · border none */
+.follow.primary[data-follow-state="following"],
+.follow[data-follow-state="following"] {
+  color: #ffffff !important;
+  background: #6c2bd9 !important;
+  border: none !important;
+  box-shadow:
+    0 1px 2px rgb(108 43 217 / 0.16),
+    0 6px 16px rgb(108 43 217 / 0.22),
+    inset 0 1px 0 rgb(255 255 255 / 0.18) !important;
+}
+
+.follow[data-follow-state="follow"] .shine::after,
+.follow[data-follow-state="unfollow"] .shine::after {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgb(108 43 217 / 0) 40%,
+    rgb(108 43 217 / 0.18) 50%,
+    rgb(108 43 217 / 0) 60%,
+    transparent 100%
+  );
+}
+
+.follow[data-follow-state="following"] .shine::after {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgb(255 255 255 / 0) 40%,
+    rgb(255 255 255 / 0.28) 50%,
+    rgb(255 255 255 / 0) 60%,
+    transparent 100%
+  );
+}
+
+/* Soft moving light ~1.5–2s within a 5s cycle — no pulse/scale */
+.follow .shine::after {
+  animation: pbShineFollowGlow 5s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+}
+
+.primary.pair:not(.follow) .shine::after,
+.primary:not(.fullWidth):not(.follow) .shine::after {
+  animation: pbShineFollowGlow 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Browse / flexible CTAs only — not Visit/Follow pair */
+.fullWidth {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+
+.pair {
+  /* Explicit Visit Store / Follow pair lock */
+  width: var(--pb-w);
+  min-width: var(--pb-w);
+  max-width: var(--pb-w);
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shine {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.shine::after {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: 0;
+  width: 45%;
+  height: 140%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgb(255 255 255 / 0) 40%,
+    rgb(255 255 255 / 0.32) 50%,
+    rgb(255 255 255 / 0) 60%,
+    transparent 100%
+  );
+  transform: translate3d(-160%, 0, 0) skewX(-16deg);
+  will-change: transform;
+}
+
+/*
+ * Follow glow — soft light sweep once every 5s (not continuous blink).
+ */
+.primary.pair .shine::after,
+.primary:not(.fullWidth) .shine::after {
+  animation: pbShineFollowGlow 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.secondary.pair .shine::after,
+.following.pair .shine::after,
+.secondary:not(.fullWidth) .shine::after,
+.following:not(.fullWidth) .shine::after {
+  animation: pbShineFollowGlow 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.primary.pair:not(.follow),
+.primary:not(.fullWidth):not(.follow) {
+  animation: pbPulseFollowGlow 5s ease-in-out infinite;
+}
+
+.secondary.pair:not(.follow),
+.following.pair:not(.follow),
+.secondary:not(.fullWidth):not(.follow),
+.following:not(.fullWidth):not(.follow) {
+  animation: pbPulseFollowGlow 5s ease-in-out infinite;
+}
+
+@keyframes pbShineFollowGlow {
+  0%,
+  6% {
+    transform: translate3d(-160%, 0, 0) skewX(-16deg);
+  }
+  /* ~1.6s sweep inside 5s cycle */
+  38% {
+    transform: translate3d(260%, 0, 0) skewX(-16deg);
+  }
+  38.01%,
+  100% {
+    transform: translate3d(-160%, 0, 0) skewX(-16deg);
+  }
+}
+
+@keyframes pbPulseFollowGlow {
+  0%,
+  100% {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root,
+  .shine::after {
+    animation: none !important;
+  }
+
+  .root:active {
+    transform: none;
+  }
+}
+
+/* ── Primary: Visit Store ── */
+.primary {
+  color: #ffffff;
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 48%, #7c3aed 100%);
+  border-color: rgb(124 58 237 / 0.35);
+  box-shadow:
+    0 1px 2px rgb(109 40 217 / 0.12),
+    0 5px 14px rgb(147 51 234 / 0.2),
+    inset 0 1px 0 rgb(255 255 255 / 0.22);
+}
+
+.primary:hover {
+  filter: brightness(1.03);
+  box-shadow:
+    0 2px 4px rgb(109 40 217 / 0.14),
+    0 7px 18px rgb(147 51 234 / 0.26),
+    inset 0 1px 0 rgb(255 255 255 / 0.26);
+}
+
+.primary:active {
+  transform: scale(0.97);
+  filter: brightness(0.98);
+  animation: none;
+}
+
+.primary:focus-visible {
+  outline: 2px solid #9333ea;
+  outline-offset: 2px;
+}
+
+/* ── Secondary: Follow (idle) ── */
+.secondary {
+  color: #6d28d9;
+  background: linear-gradient(180deg, #ffffff 0%, #faf8ff 100%);
+  border-color: rgb(147 51 234 / 0.28);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 4px 12px rgb(147 51 234 / 0.1),
+    0 0 0 1px rgb(147 51 234 / 0.04),
+    inset 0 1px 0 rgb(255 255 255 / 0.9);
+}
+
+.secondary .shine::after {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgb(147 51 234 / 0) 40%,
+    rgb(147 51 234 / 0.14) 50%,
+    rgb(147 51 234 / 0) 60%,
+    transparent 100%
+  );
+}
+
+.secondary:hover {
+  border-color: rgb(147 51 234 / 0.42);
+  box-shadow:
+    0 2px 4px rgb(15 23 42 / 0.05),
+    0 6px 16px rgb(147 51 234 / 0.14),
+    0 0 0 1px rgb(147 51 234 / 0.08),
+    inset 0 1px 0 rgb(255 255 255 / 1);
+}
+
+.secondary:active {
+  transform: scale(0.97);
+  animation: none;
+}
+
+.secondary:focus-visible {
+  outline: 2px solid #9333ea;
+  outline-offset: 2px;
+}
+
+/* ── Following: ✓ FOLLOWING (emerald) ── */
+.following {
+  color: #ecfdf5;
+  background: linear-gradient(135deg, #34d399 0%, #10b981 48%, #059669 100%);
+  border-color: rgb(5 150 105 / 0.4);
+  box-shadow:
+    0 1px 2px rgb(6 95 70 / 0.12),
+    0 5px 14px rgb(16 185 129 / 0.22),
+    inset 0 1px 0 rgb(255 255 255 / 0.28);
+}
+
+.following .shine::after {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgb(255 255 255 / 0) 40%,
+    rgb(255 255 255 / 0.3) 50%,
+    rgb(255 255 255 / 0) 60%,
+    transparent 100%
+  );
+}
+
+.following:hover {
+  filter: brightness(1.03);
+  box-shadow:
+    0 2px 4px rgb(6 95 70 / 0.14),
+    0 7px 18px rgb(16 185 129 / 0.28),
+    inset 0 1px 0 rgb(255 255 255 / 0.32);
+}
+
+.following:active {
+  transform: scale(0.97);
+  animation: none;
+}
+
+.following:focus-visible {
+  outline: 2px solid #059669;
+  outline-offset: 2px;
+}

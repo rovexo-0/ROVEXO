@@ -1,5 +1,6 @@
 import { buildZeroResultRecovery } from "@/lib/organic-growth/zero-results";
 import type { IntelligenceThresholds } from "@/lib/marketplace-intelligence/config";
+import { sanitizeSearchQuery } from "@/features/search/utils/sanitize-search-query";
 
 export type ZeroResultRecoveryResult = ReturnType<typeof buildZeroResultRecovery> & {
   similarProducts: { label: string; href: string }[];
@@ -27,14 +28,17 @@ export function buildMarketplaceZeroResultRecovery(
   resultCount: number,
   thresholds: IntelligenceThresholds,
 ): ZeroResultRecoveryResult {
-  const base = buildZeroResultRecovery(query, resultCount);
+  const safeQuery = sanitizeSearchQuery(query);
+  const base = buildZeroResultRecovery(safeQuery, resultCount);
 
-  const slug = query.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-  const alternativeConditions = CONDITION_ALTERNATIVES.map((entry) => ({
-    label: `${entry.label} ${query}`,
-    href: `/discover/${entry.suffix}-${slug}`.replace(/-+$/, ""),
-    reason: "condition_alternative",
-  }));
+  const slug = safeQuery.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const alternativeConditions = safeQuery
+    ? CONDITION_ALTERNATIVES.map((entry) => ({
+        label: `${entry.label} ${safeQuery}`,
+        href: `/discover/${entry.suffix}-${slug}`.replace(/-+$/, ""),
+        reason: "condition_alternative",
+      }))
+    : [];
 
   const alternativePriceRanges = PRICE_RANGES;
   const similarProducts = base.recoveryLinks.filter((link) => link.href.startsWith("/listing/"));
@@ -54,6 +58,7 @@ export function buildMarketplaceZeroResultRecovery(
 
   return {
     ...base,
+    query: safeQuery,
     recoveryLinks: uniqueLinks,
     similarProducts,
     nearbyCategories,

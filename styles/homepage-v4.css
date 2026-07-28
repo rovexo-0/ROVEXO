@@ -22,7 +22,7 @@
   width: 100%;
   max-width: 68rem;
   margin-inline: auto;
-  padding-inline: 16px;
+  padding-inline: var(--homepage-pad-x, 24px);
   padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
@@ -34,7 +34,7 @@
     --rx4-section-gap: 24px;
     --rx4-card-gap: 16px;
     --rx4-card-row-gap: 20px;
-    padding-inline: 16px;
+    padding-inline: var(--homepage-pad-x, 24px);
   }
 }
 

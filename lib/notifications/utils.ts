@@ -24,8 +24,6 @@ export function getNotificationFilterCategory(type: NotificationType): Notificat
       return "reviews";
     case "payment":
       return "payments";
-    case "follower":
-      return "system";
     case "moderation":
       return "moderation";
     case "promotion_expired":
@@ -42,6 +40,109 @@ export function formatNotificationBadgeCount(count: number): string {
   if (count <= 0) return "";
   if (count > 99) return "99+";
   return String(count);
+}
+
+const NOTIFICATION_CTA_COPY =
+  /\b(visit|complete|open|view|checkout|trust center|click|tap|please|successfully)\b/i;
+const NOTIFICATION_TECHNICAL_COPY =
+  /\b(your offer was accepted\.|you received an offer on|you have|added your item|has left you|trust score)\b/i;
+const TRUST_TIER_ENTITY =
+  /\b(bronze|silver|gold|platinum|diamond)(?:\s+member)?\b/i;
+
+function firstQuoted(text: string): string | null {
+  const match = text.match(/"([^"]+)"/);
+  const value = match?.[1]?.trim();
+  return value ? value : null;
+}
+
+function afterKeyword(text: string, keyword: RegExp): string | null {
+  const match = text.match(keyword);
+  const value = match?.[1]?.trim().replace(/[."]+$/g, "");
+  return value ? value : null;
+}
+
+function trustMemberEntity(text: string): string | null {
+  const paren = text.match(/\(([^)]+)\)/);
+  const fromParen = paren?.[1]?.trim() ?? "";
+  const tierMatch = (fromParen || text).match(TRUST_TIER_ENTITY);
+  if (!tierMatch?.[1]) return null;
+  const tier = tierMatch[1].charAt(0).toUpperCase() + tierMatch[1].slice(1).toLowerCase();
+  return `${tier} Member`;
+}
+
+function isUsableEntityLine(text: string): boolean {
+  const value = text.trim();
+  if (!value || value.length > 72) return false;
+  if (NOTIFICATION_CTA_COPY.test(value)) return false;
+  if (NOTIFICATION_TECHNICAL_COPY.test(value)) return false;
+  return true;
+}
+
+function looksLikeProductTitle(text: string): boolean {
+  const value = text.trim();
+  if (!value || value.length > 72) return false;
+  if (/^£[\d.,]+$/.test(value)) return false;
+  if (/^★+$/.test(value) || /^\d★/.test(value)) return false;
+  if (/tracking/i.test(value)) return false;
+  if (/offered|requested|favourited|favorited/i.test(value)) return false;
+  return isUsableEntityLine(value);
+}
+
+/**
+ * Spring 2 Transaction Hub — Owner notification row:
+ * Product title · Event title · Short description
+ */
+export function resolveInboxNotificationDisplay(notification: Notification): {
+  productTitle: string;
+  eventTitle: string;
+  description: string;
+  /** @deprecated alias of eventTitle — keep for older call sites */
+  title: string;
+} {
+  const eventTitle = notification.title.trim();
+  const subtitle = (notification.subtitle ?? "").trim();
+  const detail = (notification.detail ?? "").trim();
+  const avatarName = (notification.avatarName ?? "").trim();
+  const haystack = `${subtitle}\n${detail}`;
+
+  if (/trust score/i.test(eventTitle)) {
+    const description =
+      [detail, trustMemberEntity(haystack), avatarName].find(
+        (part) => part && isUsableEntityLine(part),
+      ) ??
+      trustMemberEntity(haystack) ??
+      "";
+    return { productTitle: "", eventTitle, description, title: eventTitle };
+  }
+
+  const productTitle =
+    [avatarName, firstQuoted(haystack), detail]
+      .find((part): part is string => Boolean(part && looksLikeProductTitle(part))) ?? "";
+
+  let description = "";
+  if (notification.type === "message") {
+    description =
+      [subtitle, firstQuoted(subtitle)].find((part) => part && isUsableEntityLine(part)) ??
+      subtitle.slice(0, 72);
+  } else {
+    const candidates = [
+      subtitle,
+      detail && detail !== productTitle ? detail : "",
+      afterKeyword(haystack, /purchased:\s*(.+)/i),
+    ];
+    description =
+      candidates.find(
+        (part): part is string =>
+          Boolean(part && isUsableEntityLine(part) && part.trim() !== productTitle),
+      ) ?? "";
+  }
+
+  return {
+    productTitle,
+    eventTitle,
+    description,
+    title: eventTitle,
+  };
 }
 
 export type NotificationTimeGroup = "today" | "yesterday" | "earlier";
@@ -80,34 +181,27 @@ export function groupNotificationsByTime(notifications: Notification[]): Array<{
   ].filter((section) => section.items.length > 0);
 }
 
-export function formatNotificationTime(iso: string): string {
-  const date = new Date(iso);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMinutes = Math.floor(diffMs / 60000);
-
-  if (diffMinutes < 1) return "Just now";
-  if (diffMinutes < 60) return `${diffMinutes}m`;
-
-  const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours}h`;
-
-  const isToday =
-    date.getDate() === now.getDate() &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear();
-
-  if (isToday) {
-    return new Intl.DateTimeFormat("en-IE", {
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
-  }
-
-  return new Intl.DateTimeFormat("en-IE", {
+export function formatNotificationTime(iso: string, nowMs = Date.now()): string {
+  const then = new Date(iso).getTime();
+  if (!Number.isFinite(then)) return "";
+  const diffMs = Math.max(0, nowMs - then);
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 1) return "now";
+  if (mins === 1) return "1 min ago";
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours === 1) return "1 hour ago";
+  if (hours < 24) return `${hours} hours ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "yesterday";
+  if (days < 7) return `${days} days ago`;
+  if (days < 14) return "1 week ago";
+  const weeks = Math.floor(days / 7);
+  if (weeks < 8) return `${weeks} weeks ago`;
+  return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "short",
-  }).format(date);
+  }).format(new Date(iso));
 }
 
 export function filterNotifications(
@@ -133,8 +227,6 @@ export function mapNotificationIcon(type: NotificationType): Notification["icon"
       return "review";
     case "payment":
       return "payment";
-    case "follower":
-      return "follower";
     case "moderation":
       return "moderation";
     case "promotion_expired":

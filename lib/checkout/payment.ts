@@ -3,7 +3,9 @@ export type PaymentMethodId =
   | "apple_pay"
   | "google_pay"
   | "card"
-  | "paypal";
+  | "paypal"
+  /** Checkout Absolute Law v1.0 — Rovexo Balance (wallet). */
+  | "rovexo_balance";
 
 export type PaymentMethodOption = {
   id: PaymentMethodId;

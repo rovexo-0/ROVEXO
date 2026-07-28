@@ -194,8 +194,8 @@ export const FULL_DEMO_PARCEL_SPECS = [
   { parcelNumber: 3, totalParcels: 3, label: "Parcel 3 of 3" },
 ] as const;
 
-/** Minimum published products for Full Demo Certification. */
-export const FULL_DEMO_PRODUCT_TARGET = 100;
+/** Absolute Law v5.0 — no seeded catalogue. Real products only (target = 0). */
+export const FULL_DEMO_PRODUCT_TARGET = 0;
 
 /**
  * Permanent inventory quotas — Full Demo Certification contract.

@@ -46,7 +46,7 @@
     "certify:deployment": "npx tsx scripts/certify-deployment.ts",
     "test:full-demo-contracts": "vitest run tests/full-demo-certification.test.ts tests/auth-startup-canonical.test.ts tests/auth-guest-entry-v1.test.ts tests/auth-splash-v1.test.ts tests/auth-welcome-v1.test.ts tests/launch-certification-master.test.ts tests/launch-certification-mode.test.ts",
     "certify:predeploy": "npm run typecheck && npm run lint && npm run test:ci && npm run test:migrations && npm run certify:full-demo && npm run certify:deployment && npm run build:production && DEMO_SEED_ENABLED=1 npm run seed:demo && npm run certify:full-demo:live && npm run test:database && npm run test:e2e:install:chromium && npm run test:e2e:certification && npm run certify:full-demo:live",
-    "build:production": "next build",
+    "build:production": "node scripts/next-build-and-prune.mjs",
     "predeploy:private": "npm run certify:predeploy",
     "deploy:private": "npx vercel deploy --yes",
     "cleanup:homepage-demo": "npx tsx scripts/cleanup-homepage-demo-data.ts",

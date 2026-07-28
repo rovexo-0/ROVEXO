@@ -4,11 +4,10 @@ import crypto from "node:crypto";
 const KEY = crypto.randomBytes(32).toString("base64");
 
 async function loadModule() {
-  // Re-import fresh so the module reads the current env each test run.
   return import("@/lib/wallet/crypto");
 }
 
-describe("bank details column encryption", () => {
+describe("bank details column encryption — fail closed", () => {
   const original = process.env.BANK_DETAILS_ENCRYPTION_KEY;
 
   afterEach(() => {
@@ -39,6 +38,11 @@ describe("bank details column encryption", () => {
       const { encryptSensitive } = await loadModule();
       expect(encryptSensitive("123456")).not.toBe(encryptSensitive("123456"));
     });
+
+    it("rejects plaintext legacy values on decrypt", async () => {
+      const { decryptSensitive } = await loadModule();
+      expect(() => decryptSensitive("12345678")).toThrow(/plaintext/i);
+    });
   });
 
   describe("without a key set", () => {
@@ -46,11 +50,10 @@ describe("bank details column encryption", () => {
       delete process.env.BANK_DETAILS_ENCRYPTION_KEY;
     });
 
-    it("reports encryption as not configured and passes plaintext through", async () => {
-      const { encryptSensitive, decryptSensitive, isBankEncryptionConfigured } = await loadModule();
+    it("reports encryption as not configured and refuses encrypt", async () => {
+      const { encryptSensitive, isBankEncryptionConfigured } = await loadModule();
       expect(isBankEncryptionConfigured()).toBe(false);
-      expect(encryptSensitive("123456")).toBe("123456");
-      expect(decryptSensitive("123456")).toBe("123456");
+      expect(() => encryptSensitive("123456")).toThrow(/BANK_DETAILS_ENCRYPTION_KEY/);
     });
   });
 });

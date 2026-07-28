@@ -1,0 +1,43 @@
+---
+description: View Analyzer — Owner must see UI or it does not exist; never white screen
+alwaysApply: true
+---
+
+# ROVEXO VIEW ANALYZER v1.0
+
+**STATUS: OWNER APPROVED · PERMANENT FREEZE · NEVER REMOVE**
+
+SSOT: `lib/view-analyzer-v1.ts`  
+Doc: `docs/engineering/VIEW_ANALYZER_V1.md`  
+Parent: Supreme Blood Code III · Fail Closed Engine
+
+## Owner must see
+
+IMAGE · BUTTON · TITLE · PRICE · HEADER · STATUS · SCROLL · RESPONSIVE · ANIMATION · PAY NOW · TRACKING · LABELS · MESSAGE INPUT · BUYER FLOW · SELLER FLOW
+
+## Immediate FAIL
+
+White screen · Empty page · Broken image · No button · No preview · Loading forever
+
+## Absolute law
+
+White screen · No skeleton · No image · No Pay Now · No Owner visual approval → **DOES NOT EXIST**
+
+Child law: Supreme Blood Code IV — White Screen Kill Switch (`lib/supreme-blood-code-iv-v1.ts`).
+
+## Never show the user
+
+White screen · Empty screen · Black screen · Broken page · Infinite loading · Null page · Unhandled error
+
+## If something fails
+
+Show **skeleton UI** · **error component** · **temporary fail-closed message** — **never** a white screen.
+
+Use `FailClosedPanel` / `toUserSafeFailClosedMessage()` / skeletons. Never raw `error.message`.
+
+## Cursor must never
+
+- Ship or claim PASS when Owner cannot see required surfaces on official preview  
+- Leave white/empty/black/null screens or infinite loaders  
+- Skip skeleton / fail-closed fallbacks on error paths  
+- Treat code-ready without Owner visual approval as existence

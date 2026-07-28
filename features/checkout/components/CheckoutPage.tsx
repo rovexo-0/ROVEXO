@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { CheckoutProcessingOverlay } from "@/features/checkout/components/CheckoutProcessingOverlay";
 import { CheckoutSuccessView } from "@/features/checkout/components/CheckoutSuccessView";
 import { CheckoutWizardV1 } from "@/features/checkout/components/CheckoutWizardV1";
+import { BuyNowPublicErrorDialog } from "@/features/checkout/components/BuyNowPublicErrorDialog";
 import { useCheckoutForm } from "@/features/checkout/hooks/use-checkout-form";
 import type { CheckoutDraft } from "@/features/checkout/types";
 import type { Order } from "@/lib/orders/types";
@@ -22,6 +23,10 @@ type CheckoutPageProps = {
   buyerPhone?: string | null;
   initialStep?: import("@/features/checkout/types").CheckoutStep;
   acceptedOfferId?: string | null;
+  /** @deprecated Blood XXIV pending order — Master Architecture uses checkoutSessionId. */
+  pendingOrderId?: string | null;
+  /** Master Architecture — durable Checkout Session public_id. */
+  checkoutSessionId?: string | null;
 };
 
 export function CheckoutPage({
@@ -31,17 +36,23 @@ export function CheckoutPage({
   buyerPhone = null,
   initialStep = "review",
   acceptedOfferId = null,
+  pendingOrderId = null,
+  checkoutSessionId = null,
 }: CheckoutPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const hubConversationId = searchParams.get("conversationId") ?? undefined;
   const offerId = searchParams.get("offerId") ?? acceptedOfferId ?? undefined;
+  const orderIdFromQuery = searchParams.get("orderId") ?? pendingOrderId ?? undefined;
+  const csFromQuery = searchParams.get("cs") ?? checkoutSessionId ?? undefined;
   const form = useCheckoutForm(product, initialDraft, {
     liveShippingEnabled,
     hubConversationId,
     offerId,
+    pendingOrderId: orderIdFromQuery,
+    checkoutSessionId: csFromQuery,
   });
-  const { view, order, isSubmitting, errorMessage } = form;
+  const { view, order, isSubmitting, errorMessage, clearErrorMessage } = form;
   const isSuccess = view === "success";
   const purchaseTrackedRef = useRef(false);
 
@@ -118,25 +129,26 @@ export function CheckoutPage({
           isSuccess &&
             "flex min-h-[100dvh] w-full max-w-none flex-col justify-center px-ds-4 py-ds-6",
         )}
+        data-blood-code-xxiii="23.0"
+        data-blood-code-xxiv="24.0"
+        data-absolute-financial-law="1.0"
+        data-checkout-sprint="VI"
+        data-checkout-sprint-status="IN-DEVELOPMENT"
+        data-checkout-mode="EXECUTION"
       >
         {isSuccess && order ? (
           <CheckoutSuccessView
+            productTitle={order.product.title}
+            totalPaid={order.totals.total}
             orderId={order.id}
-            orderNumber={order.orderNumber}
+            doneReady={false}
             conversationId={hubConversationId ?? null}
-            estimatedDelivery={null}
           />
         ) : (
           <>
             {product.availability === "out_of_stock" || product.stock <= 0 ? (
               <Card padding="sm" className="mb-4 mt-4 w-full border-danger/30 bg-danger/5">
                 <p className="text-sm font-medium text-danger">This item is out of stock.</p>
-              </Card>
-            ) : null}
-
-            {errorMessage ? (
-              <Card padding="sm" className="mb-4 mt-4 w-full border-danger/30 bg-danger/5">
-                <p className="text-sm font-medium text-danger">{errorMessage}</p>
               </Card>
             ) : null}
 
@@ -149,6 +161,12 @@ export function CheckoutPage({
           </>
         )}
       </main>
+
+      <BuyNowPublicErrorDialog
+        open={Boolean(errorMessage)}
+        message={errorMessage ?? ""}
+        onClose={clearErrorMessage}
+      />
 
       {isSubmitting ? <CheckoutProcessingOverlay /> : null}
     </BetaAppShell>

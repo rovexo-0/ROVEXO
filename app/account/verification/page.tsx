@@ -8,6 +8,19 @@ export const metadata = {
 };
 
 export default async function AccountVerificationPage() {
-  await getProfile();
-  return <VerificationHubPage backHref="/account" backLabel="My Account" context="account" />;
+  try {
+    await getProfile();
+  } catch {
+    return (
+      <VerificationHubPage
+        backHref="/account/settings"
+        backLabel="Settings"
+        context="account"
+        loadFailed
+      />
+    );
+  }
+  return (
+    <VerificationHubPage backHref="/account/settings" backLabel="Settings" context="account" />
+  );
 }

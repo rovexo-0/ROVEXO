@@ -17,9 +17,15 @@ const REPORT_REASONS = [
 type ProductReportDialogProps = {
   productSlug: string;
   productTitle: string;
+  /** `menu` = ••• chrome control on gallery (Product Page v2.0). */
+  trigger?: "link" | "menu";
 };
 
-export function ProductReportDialog({ productSlug, productTitle }: ProductReportDialogProps) {
+export function ProductReportDialog({
+  productSlug,
+  productTitle,
+  trigger = "link",
+}: ProductReportDialogProps) {
   const { pushToast } = useToast();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<(typeof REPORT_REASONS)[number]>(REPORT_REASONS[0]);
@@ -48,9 +54,22 @@ export function ProductReportDialog({ productSlug, productTitle }: ProductReport
 
   return (
     <>
-      <button type="button" className="pd-v1__report-link" onClick={() => setOpen(true)}>
-        Report Listing
-      </button>
+      {trigger === "menu" ? (
+        <button
+          type="button"
+          className="pd-v1__chrome-btn"
+          aria-label="More options"
+          onClick={() => setOpen(true)}
+        >
+          <span className="pd-v1__chrome-menu" aria-hidden>
+            •••
+          </span>
+        </button>
+      ) : (
+        <button type="button" className="pd-v1__report-link" onClick={() => setOpen(true)}>
+          Report Listing
+        </button>
+      )}
 
       <Modal open={open} onClose={() => setOpen(false)} title="Report Listing">
         <p className="text-sm text-text-secondary">

@@ -13,18 +13,20 @@ describe("Account + Cart canonical UI v1", () => {
     const settings = readSource("lib/account-center/settings-menu.ts");
     const css = readSource("styles/rovexo/account-canonical-v2.css");
 
-    expect(home).toContain('data-ac-hub-version="v2.0-master"');
+    expect(home).toContain('data-ac-hub-version="profile-v1"');
     expect(home).toContain("AccountCanonicalProfile");
     expect(home).toContain("AccountMenuSections");
     expect(menu).toContain("buildAccountMenuSections");
-    expect(menu).toContain('title: "Buying"');
-    expect(menu).toContain('title: "Selling"');
-    expect(menu).toContain('title: "Business"');
+    expect(menu).toContain('title: "Favourites"');
+    expect(menu).toContain('title: "My Orders"');
+    expect(menu).toContain('title: "Balance"');
     expect(menu).not.toContain("Personal Information");
-    expect(settings).toContain('title: "ROVEXO Ideas"');
-    expect(settings).toContain("/account/ideas");
+    expect(menu).toContain('title: "Rovexo Ideas"');
+    expect(menu).toContain("/account/ideas");
+    expect(settings).not.toContain('title: "Rovexo Ideas"');
+    expect(settings).not.toContain('title: "ROVEXO Ideas"');
     expect(menu).toContain("Sign Out");
-    expect(css).toContain(".ac-canonical__followers");
+    expect(css).not.toContain(".ac-canonical__followers");
     expect(css).toContain(".ac-canonical__section-card");
   });
 
@@ -47,16 +49,16 @@ describe("Account + Cart canonical UI v1", () => {
     const page = readSource("features/wallet/components/WalletPage.tsx");
     const withdraw = readSource("app/wallet/withdraw/page.tsx");
 
-    expect(wallet).toContain('data-wallet-hub-version="v3.0-standard"');
-    expect(wallet).toContain("CanonicalMenuRow");
-    expect(wallet).toContain("PersonalWalletMenuSections");
-    expect(wallet).toContain("Available");
+    expect(wallet).toContain('data-wallet-hub-version="v1.0-canonical"');
+    expect(wallet).toContain("wallet-v2__hero");
+    expect(wallet).toContain("BALANCE_PAGE_NAME");
+    expect(wallet).toContain("Available Balance");
     expect(wallet).toContain("Pending");
     expect(wallet).toContain("Withdraw");
     expect(wallet).not.toContain("Total earnings");
     expect(wallet).not.toContain("Platform Fee");
-    expect(wallet).not.toContain("wallet-v2__hero");
-    expect(wallet).not.toContain("wallet-v2__balance-card");
+    expect(wallet).not.toContain("balance-v1__available");
+    expect(wallet).not.toContain('title="Wallet"');
     expect(page).toContain("WalletHubV1");
     expect(withdraw).toContain("WithdrawPage");
   });
@@ -85,14 +87,15 @@ describe("Account + Cart canonical UI v1", () => {
 
     expect(wizard).toContain('data-checkout-version="v1.0"');
     expect(wizard).toContain('data-checkout-sprint="3-qa"');
-    expect(wizard).toContain('data-checkout-freeze="ABSOLUTE-FINAL"');
-    expect(wizard).toContain("Confirm & Pay");
+    expect(wizard).toContain('data-checkout-freeze="CHECKOUT_UI_v1.0"');
+    expect(wizard).toContain("TOTAL PAY");
+    expect(wizard).not.toContain("Pay Securely");
     expect(wizard).not.toContain("Continue to Payment");
     expect(wizard).toContain("CheckoutProductSummary");
     expect(wizard).toContain("CheckoutPriceSummary");
-    expect(wizard).toContain("Products");
-    expect(wizard).toContain("Shipping");
-    expect(wizard).toContain('data-checkout-freeze="ABSOLUTE-FINAL"');
+    expect(wizard).toContain("Product");
+    expect(wizard).toContain("Delivery option");
+    expect(wizard).toContain('data-checkout-freeze="CHECKOUT_UI_v1.0"');
     expect(price).toContain("Platform Fee");
     expect(summary).toContain("Platform Fee");
     expect(summary).not.toContain("Buyer Protection Fee");
@@ -115,9 +118,10 @@ describe("My Account module v1.0", () => {
   it("locks profile view markers", () => {
     const profile = readSource("features/account/components/ProfileEditPage.tsx");
     const route = readSource("app/account/profile/page.tsx");
-    expect(profile).toContain("AccountCanonicalShell");
-    expect(profile).toContain("Personal Information");
+    expect(profile).toContain("MyAccountTemplate");
+    expect(profile).toContain("Profile Photo");
     expect(route).toContain("ProfileEditPage");
+    expect(route).toContain("MyAccountTemplate");
   });
 
   it("locks listings orders saved settings v1 routes", () => {

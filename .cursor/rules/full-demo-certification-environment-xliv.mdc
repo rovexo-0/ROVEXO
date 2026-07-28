@@ -1,0 +1,46 @@
+---
+description: Absolute Blood Law XLIV — Full Demo Certification Environment. FAIL CLOSED. No production mutation.
+globs: lib/full-demo/**/*.ts,lib/supreme-blood-law-xliv-full-demo-certification-environment-v1.ts,app/api/full-demo/**/*.ts,e2e/full-demo-certification-environment-xliv.spec.ts,supabase/migrations/20260725170000_full_demo_certification_environment_xliv.sql,instrumentation.ts,tests/full-demo-certification-environment-xliv.test.ts
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XLIV — FULL DEMO CERTIFICATION ENVIRONMENT
+
+**STATUS: SUPREME | LOCKED | FAIL CLOSED**
+
+SSOT: `lib/supreme-blood-law-xliv-full-demo-certification-environment-v1.ts`  
+Engine: `lib/full-demo/demo-session-engine-v1.ts` (server-only)  
+Contract: `lib/full-demo/demo-session-contract-v1.ts`  
+Migration: `20260725170000_full_demo_certification_environment_xliv.sql`
+
+## Absolute
+
+**NO PRODUCTION DATA MAY BE MODIFIED DURING CERTIFICATION.**
+
+## Demo Runtime
+
+- Demo Buyer · Demo Seller · Demo Admin  
+- Virtual wallets: Buyer £100,000 · Seller £100,000 · Admin unlimited  
+- Use **existing** listings → create **DEMO COPIES ONLY** (`is_demo`, `demo_session_id`, `original_listing_id`)  
+- Every mutation affects ONLY demo copies / session artifacts  
+- End: **DELETE entire demo session** → restore wallets → assert production fingerprint unchanged  
+
+## Forbidden
+
+Real payments · real shipping · real wallet movement · real listing edits · leaving demo rows after teardown
+
+## Visual certification
+
+localhost:3000 · 20 screenshots · report PASS | FAIL | WARNING  
+
+## Gates
+
+- Startup: `assertFullDemoCertificationEnvironmentOrBlock()`  
+- Deploy: `assertFullDemoCertificationEnvironmentProductionOrBlock({ runtimeE2eEvidencePass, productionUnchanged })`  
+
+## Cursor must never
+
+- Edit original listings for certification  
+- Re-export Demo Session Engine through client barrels  
+- Declare Production Ready without runtime visual evidence + production-unchanged PASS  
+- Skip session teardown  

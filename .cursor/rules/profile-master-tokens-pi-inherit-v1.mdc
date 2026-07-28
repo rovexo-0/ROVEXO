@@ -1,0 +1,35 @@
+# ROVEXO Profile Master Tokens → Personal Information
+
+**STATUS: UI/UX LOCK · NO GUESSING · EXTRACTED FROM PROFILE**
+
+SSOT: `lib/design-system/profile-master-tokens.ts`  
+CSS inherit: `styles/rovexo/account-settings-v1.css` (aliases `--fw-*` / Profile values only)
+
+## Contract
+
+```
+PROFILE → EXTRACT → MASTER TOKENS → PERSONAL INFORMATION inherits 100%
+ONLY CONTENT MAY DIFFER. DESIGN NEVER DOES.
+```
+
+## Extracted (Profile page)
+
+| Token | Value | Source |
+|-------|-------|--------|
+| Row min-height | 56px | `.ac-canonical__menu .cds-menu-row` |
+| Title | 16px / 400 | `.cds-menu-row__title` |
+| Subtitle/value | 14px / 400 | Full Width `--fw-small-size` |
+| Icon | 24px | `.cds-menu-row__icon` |
+| Chevron | 16px | `.cds-menu-row__chevron svg` |
+| Avatar | 64px | `.ac-canonical__avatar` |
+| Page pad | 16px | Full Width Engine (Design Decision #001) |
+| Header | 56px | Full Width Engine |
+
+## Forbidden
+
+Inventing 72px rows · 18px titles · 80px avatars · 20px page pad · any px not on Profile.
+
+## Cursor must never
+
+- Design Personal Information with local spacing/type
+- “Close enough” to Profile — it must **be** Profile tokens

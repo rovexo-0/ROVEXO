@@ -15,7 +15,6 @@ type DispatchInput = {
     | "offer"
     | "review"
     | "payment"
-    | "follower"
     | "moderation"
     | "promotion_expired"
     | "saved_item_sold"
@@ -26,6 +25,9 @@ type DispatchInput = {
   subtitle: string;
   href?: string;
   detail?: string;
+  /** Product image (or face) — required for Transaction Hub visual proof. */
+  avatarUrl?: string;
+  avatarName?: string;
   email?: { to: string; subject: string; body: string };
   priority?: PushPriority;
   silent?: boolean;
@@ -54,7 +56,6 @@ export async function dispatchNotification(input: DispatchInput): Promise<void> 
       case "review":
         return settings?.reviews ?? true;
       case "payment":
-      case "follower":
       case "moderation":
       case "promotion_expired":
       case "saved_search_match":
@@ -80,6 +81,8 @@ export async function dispatchNotification(input: DispatchInput): Promise<void> 
     subtitle: input.subtitle,
     href: input.href,
     detail: input.detail,
+    avatarUrl: input.avatarUrl,
+    avatarName: input.avatarName,
     priority,
     silent: input.silent,
     groupKey,

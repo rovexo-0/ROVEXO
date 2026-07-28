@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CanonicalCard } from "@/src/components/canonical";
-import { SellRowsCard, SellCompactRow, SellInlineError } from "@/features/sell/ui/SellPrimitives";
+import { SellInlineError, SellNavRow } from "@/features/sell/ui/SellPrimitives";
 import { SellCategoryPicker } from "@/features/sell/ui/SellCategoryPicker";
 import { useSell } from "@/features/sell/context/SellProvider";
 import { getSellValidationErrorForField } from "@/lib/sell/sell-validation";
@@ -42,19 +41,15 @@ export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps
   };
 
   return (
-    <div className="flex flex-col gap-ds-1">
-      <CanonicalCard variant="medium" className="p-ds-2">
-        <SellRowsCard aria-label="Category">
-          <SellCompactRow
-            label="Category"
-            value={draft.categoryPath?.pathLabel}
-            placeholder="Select category"
-            hasError={Boolean(categoryError)}
-            onClick={openPicker}
-            ariaLabel="Select category"
-          />
-        </SellRowsCard>
-      </CanonicalCard>
+    <div className="flex flex-col gap-1">
+      <SellNavRow
+        label="Category"
+        value={draft.categoryPath?.pathLabel}
+        hasError={Boolean(categoryError)}
+        onClick={openPicker}
+        ariaLabel="Category"
+        iconFieldId="category"
+      />
       <SellInlineError message={categoryError} />
 
       <SellCategoryPicker
@@ -67,4 +62,3 @@ export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps
     </div>
   );
 }
-

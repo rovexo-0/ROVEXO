@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Homepage V3.0 — complete UI rebuild screenshots.
- * Usage: ROVEXO_HOMEPAGE_DEMO=1 AUDIT_BASE_URL=http://127.0.0.1:3029 node scripts/homepage-v3-screenshots.mjs
+ * Usage: AUDIT_BASE_URL=http://127.0.0.1:3029 node scripts/homepage-v3-screenshots.mjs
+ * (Real products only — demo catalogue env flags removed.)
  */
 import { copyFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import { join } from "node:path";

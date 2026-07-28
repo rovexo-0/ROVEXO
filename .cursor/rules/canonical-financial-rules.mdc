@@ -1,0 +1,78 @@
+---
+description: ROVEXO Canonical Financial Rules — Money First, Security Second, Speed Third
+alwaysApply: true
+---
+
+# ROVEXO Canonical Financial Rules (Owner Permanent)
+
+**STATUS: CANONICAL | PERMANENT | ZERO EXCEPTIONS**
+
+## Priority order (never reverse)
+
+1. SAFETY  
+2. SECURITY  
+3. ACCURACY  
+4. TRACEABILITY  
+5. RECOVERABILITY  
+6. PERFORMANCE  
+
+Money first. Security second. Speed third.
+
+If Speed, UX, Performance, or Convenience conflict with **money safety** → always choose **money safety**.
+
+## Zero money loss
+
+Never: lose money, duplicate money, duplicate withdrawals/refunds/payouts, expose bank details, create negative balances, corrupt balances, or execute the same financial transaction twice.
+
+## Uncertainty rule
+
+If the system is uncertain → do **not** withdraw, release, refund, or transfer money.
+
+Always: **LOCK funds → mark PENDING/LOCKED → validate → confirm → COMPLETE or ROLLBACK safely.**
+
+## Required properties of every financial operation
+
+Atomic · Idempotent · Auditable · Recoverable · Traceable · Rollback-safe · Failure-safe.
+
+## Allowed money states only
+
+`PENDING` → `LOCKED` → `VALIDATING` → `PROCESSING` → `AVAILABLE` → `WITHDRAWING` → `REFUNDING` → `COMPLETED` → `FAILED` → `ROLLED BACK`
+
+Any unknown state is **forbidden**.
+
+## Audit questions (all must be YES before money moves)
+
+1. Where is the money?  
+2. Who owns the money?  
+3. Is the money safe?  
+4. Can it be recovered?  
+5. Can the transaction be audited?  
+6. Can it be rolled back safely?  
+7. Can it be verified?  
+
+If any answer is **NO** → **the money must not move.**
+
+## Forbidden patterns
+
+- Debit then unknown / failed transfer with no lock or rollback  
+- Webhook timeout → release money  
+- “We don’t know where the money is”
+
+## Required patterns
+
+- Withdraw: lock → validate → process → confirm → ledger → balance → notify → completed  
+- Webhook failure: keep locked → store status → retry → validate → confirm → release  
+
+## Production certification gate
+
+Never certify Production if **any** of these fail: security, money, withdraw, refund, payout, encryption, webhook, balance tests.
+
+**Zero exceptions.**
+
+## Agent constraints
+
+- Prefer fail-closed over optimistic money movement.  
+- Do not mark withdrawals/refunds/payouts `COMPLETED` without confirmation.  
+- Do not store plaintext bank details.  
+- Do not weaken money safety for UX or speed.  
+- UI / routing / homepage changes are out of scope unless Owner explicitly orders them separately from financial work.

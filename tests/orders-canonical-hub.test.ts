@@ -17,8 +17,8 @@ describe("OrdersPage single source of truth", () => {
     expect(route).not.toContain("OrdersCanonicalPage");
     expect(route).not.toContain("OrdersHubV1");
     expect(route).not.toContain("OrdersV1");
-    expect(ui).toContain('data-orders-page="v1.1"');
-    expect(ui).toContain('data-orders-ui="header-simplified"');
+    expect(ui).toContain("ORDERS_UI_VERSION");
+    expect(ui).toContain('data-orders-ui="v7-status-lock"');
     expect(ui).toContain('label: "All"');
     expect(ui).toContain('label: "In Progress"');
     expect(ui).toContain('label: "Completed"');
@@ -31,10 +31,10 @@ describe("OrdersPage single source of truth", () => {
     expect(ui).not.toContain("BellLineIcon");
     expect(ui).not.toContain("orders-page__notify");
     expect(ui).not.toContain("Total Sales");
-    expect(ui).not.toContain("Shipping");
     expect(css).toContain(".orders-page");
-    expect(css).toContain("height: 56px");
+    expect(css).toContain("min-height: 64px");
     expect(css).toContain("width: 40px");
+    expect(css).toContain("max-width: none");
     expect(css).not.toContain("orders-page__notify");
     expect(indexCss).toContain("orders-page-v1.css");
     expect(indexCss).not.toContain("orders-hub-v1.css");

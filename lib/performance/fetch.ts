@@ -2,6 +2,10 @@ type FetchInit = RequestInit & { dedupeKey?: string };
 
 const inflight = new Map<string, AbortController>();
 
+/** Concurrent GET coalescing — many callers share one Promise (Saved-style). */
+const shareInflight = new Map<string, Promise<unknown>>();
+const shareCache = new Map<string, { expires: number; value: unknown }>();
+
 export function abortInflightFetches(prefix?: string): void {
   for (const [key, controller] of inflight.entries()) {
     if (!prefix || key.startsWith(prefix)) {
@@ -11,6 +15,10 @@ export function abortInflightFetches(prefix?: string): void {
   }
 }
 
+/**
+ * Abort-coalesce: latest request wins (typing / search).
+ * Does NOT share one Promise across callers.
+ */
 export async function fetchDeduped(input: RequestInfo | URL, init: FetchInit = {}): Promise<Response> {
   const { dedupeKey, ...requestInit } = init;
   const key =
@@ -31,6 +39,61 @@ export async function fetchDeduped(input: RequestInfo | URL, init: FetchInit = {
     if (inflight.get(key) === controller) {
       inflight.delete(key);
     }
+  }
+}
+
+export type ShareInflightJsonOptions = {
+  /** Soft TTL for remount / Strict Mode (ms). Default 750. */
+  ttlMs?: number;
+  init?: RequestInit;
+};
+
+/**
+ * Share-inflight JSON GET — identical concurrent mounts reuse one network round-trip.
+ * Use for list/hydrate endpoints (messages, notifications, orders, snapshot).
+ * Prefer this over fetchDeduped for mount waterfalls.
+ */
+export function shareInflightJson<T>(
+  key: string,
+  input: RequestInfo | URL,
+  options: ShareInflightJsonOptions = {},
+): Promise<T> {
+  const ttlMs = options.ttlMs ?? 750;
+  const cached = shareCache.get(key);
+  if (cached && cached.expires > Date.now()) {
+    return Promise.resolve(cached.value as T);
+  }
+
+  const existing = shareInflight.get(key);
+  if (existing) return existing as Promise<T>;
+
+  const tracked = (async () => {
+    const response = await fetch(input, {
+      cache: "no-store",
+      ...options.init,
+    });
+    if (!response.ok) {
+      throw new Error(`shareInflightJson failed: ${key} ${response.status}`);
+    }
+    const value = (await response.json()) as T;
+    shareCache.set(key, { expires: Date.now() + ttlMs, value });
+    return value;
+  })().finally(() => {
+    if (shareInflight.get(key) === tracked) {
+      shareInflight.delete(key);
+    }
+  });
+
+  shareInflight.set(key, tracked);
+  return tracked as Promise<T>;
+}
+
+export function invalidateShareInflight(prefix?: string): void {
+  for (const key of [...shareInflight.keys()]) {
+    if (!prefix || key.startsWith(prefix)) shareInflight.delete(key);
+  }
+  for (const key of [...shareCache.keys()]) {
+    if (!prefix || key.startsWith(prefix)) shareCache.delete(key);
   }
 }
 

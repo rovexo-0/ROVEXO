@@ -6,6 +6,10 @@ import { enforceRateLimit } from "@/lib/api/rate-limit";
 import { generateShippingLabelForOrder } from "@/lib/shipping/label-generation.server";
 import { getShippingLabelSignedUrl } from "@/lib/shipping/label-storage.server";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
+import {
+  buildDemoShippingLabelPresentationUrl,
+  isDemoShippingTrackingNumber,
+} from "@/lib/shipping/pricing/demo-adapter";
 import { activeProviders } from "@/lib/shipping/pricing/service.server";
 
 export const dynamic = "force-dynamic";
@@ -69,6 +73,21 @@ export async function GET(request: Request) {
   // Demo / virtual labels may only persist a tracking number (relative demo PDF URL).
   if (!label?.tracking_number && !label?.label_storage_path && !label?.label_url) {
     return NextResponse.json({ error: "Label not found." }, { status: 404 });
+  }
+
+  // Demo: always serve the live high-fidelity presentation (ignore stale storage snapshots).
+  if (isDemoShippingTrackingNumber(label.tracking_number)) {
+    return NextResponse.json({
+      ok: true,
+      pdfUrl: buildDemoShippingLabelPresentationUrl({
+        tracking: label.tracking_number!,
+        carrier: label.carrier,
+        service: null,
+      }),
+      trackingNumber: label.tracking_number,
+      carrier: label.carrier,
+      provider: label.provider ?? "sendcloud",
+    });
   }
 
   const storagePath = label.label_storage_path?.trim() || null;

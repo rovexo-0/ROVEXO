@@ -7,8 +7,6 @@ import { HomeListingCardSkeletonGrid } from "@/components/home/HomeListingCardSk
 import { RovexoAllListingsGrid } from "@/components/home/RovexoAllListingsGrid";
 import gridStyles from "@/components/home/RovexoAllListingsGrid.module.css";
 import { useMarketplaceFeedColumns } from "@/components/home/hooks/useMarketplaceFeedColumns";
-import { HOMEPAGE_DEMO_PRODUCTS } from "@/lib/homepage/demo-data";
-import { isClosedBetaHomepageMode } from "@/lib/homepage/config";
 import type { Product, ProductsPage } from "@/lib/products/types";
 
 type RovexoAllListingsProps = {
@@ -26,9 +24,6 @@ function mergeUniqueProducts(current: Product[], incoming: Product[]): Product[]
   return merged;
 }
 
-const STATIC_DEMO_FALLBACK =
-  process.env.NEXT_PUBLIC_ROVEXO_HOMEPAGE_DEMO === "1" && !isClosedBetaHomepageMode();
-
 export const RovexoAllListings = memo(function RovexoAllListings({
   initialPage,
 }: RovexoAllListingsProps) {
@@ -39,7 +34,6 @@ export const RovexoAllListings = memo(function RovexoAllListings({
   const [bootstrapped, setBootstrapped] = useState(initialPage.items.length > 0);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const demoOffsetRef = useRef(0);
   const columnCount = useMarketplaceFeedColumns();
 
   const loadTriggerIndex = useMemo(
@@ -47,34 +41,12 @@ export const RovexoAllListings = memo(function RovexoAllListings({
     [items.length],
   );
 
-  const appendDemoPage = useCallback(() => {
-    const nextSlice: Product[] = [];
-    let cursor = demoOffsetRef.current % HOMEPAGE_DEMO_PRODUCTS.length;
-
-    while (nextSlice.length < 12) {
-      nextSlice.push({
-        ...HOMEPAGE_DEMO_PRODUCTS[cursor % HOMEPAGE_DEMO_PRODUCTS.length],
-        id: `demo-feed-${demoOffsetRef.current + nextSlice.length}`,
-        slug: `demo-feed-${demoOffsetRef.current + nextSlice.length}`,
-      });
-      cursor += 1;
-    }
-
-    demoOffsetRef.current += nextSlice.length;
-    setItems((current) => mergeUniqueProducts(current, nextSlice));
-    setHasMore(true);
-    setBootstrapped(true);
-  }, []);
-
   const loadMore = useCallback(async () => {
     if (loading) return;
 
     setLoading(true);
     try {
-      if (!hasMore) {
-        if (STATIC_DEMO_FALLBACK) appendDemoPage();
-        return;
-      }
+      if (!hasMore) return;
 
       const nextPage = items.length === 0 ? 1 : page + 1;
       const response = await fetch(`/api/homepage/feed?page=${nextPage}`, {
@@ -82,8 +54,7 @@ export const RovexoAllListings = memo(function RovexoAllListings({
       });
 
       if (!response.ok) {
-        if (STATIC_DEMO_FALLBACK) appendDemoPage();
-        else setHasMore(false);
+        setHasMore(false);
         return;
       }
 
@@ -91,7 +62,6 @@ export const RovexoAllListings = memo(function RovexoAllListings({
 
       if (payload.items.length === 0) {
         setHasMore(false);
-        if (STATIC_DEMO_FALLBACK) appendDemoPage();
         return;
       }
 
@@ -102,20 +72,12 @@ export const RovexoAllListings = memo(function RovexoAllListings({
     } finally {
       setLoading(false);
     }
-  }, [appendDemoPage, hasMore, loading, page, items.length]);
+  }, [hasMore, loading, page, items.length]);
 
   useEffect(() => {
     if (bootstrapped) return;
 
     if (initialPage.items.length > 0) {
-      setBootstrapped(true);
-      setLoading(false);
-      return;
-    }
-
-    if (STATIC_DEMO_FALLBACK) {
-      setItems(HOMEPAGE_DEMO_PRODUCTS.slice(0, 12));
-      setHasMore(true);
       setBootstrapped(true);
       setLoading(false);
       return;

@@ -34,7 +34,6 @@ export function BetaAppShell({
     menuItemsOverride ??
     (visualConfig ? resolvePublishedMenuItems(visualConfig.menus, "bottomNav") : undefined);
   const bottomNavVisible =
-    !sellFlow &&
     showBottomNav &&
     (visualConfig?.shell.bottomNavigation
       ? visualConfig.shell.bottomNavigation.enabled && visualConfig.shell.bottomNavigation.published

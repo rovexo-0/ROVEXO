@@ -11,6 +11,7 @@ import {
   type PromotionType,
 } from "@/lib/promotions/config";
 import { computePromotionScore } from "@/lib/promotions/format";
+import { isPromotionPurchaseBlocked } from "@/lib/promotions/boost-time-decay-v1";
 import type { ListingPromotionRecord } from "@/lib/promotions/types";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
@@ -25,6 +26,8 @@ type ApplyPromotionInput = {
   stripePaymentIntentId?: string | null;
   promotionId?: string;
   scheduledStartAt?: string | null;
+  /** Cron activation of a queued promo — do not re-queue via anti-stack. */
+  activateScheduled?: boolean;
 };
 
 // Wrapped in React's request-scoped `cache` so that when several data loaders
@@ -63,30 +66,41 @@ export async function markPendingPromotionFailed(
   await query;
 }
 
-async function validateBumpPurchase(
+export async function validateBumpPurchase(
   sellerId: string,
   productId: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const admin = createAdminClient();
+  const { tryCreateAdminClient } = await import("@/lib/supabase/admin");
+  const admin = tryCreateAdminClient();
   const supabase = await createClient();
 
   const { data: product } = await supabase
     .from("products")
-    .select("last_bumped_at")
+    .select("last_bumped_at, bumped_until")
     .eq("id", productId)
     .eq("seller_id", sellerId)
     .maybeSingle();
 
-  if (product?.last_bumped_at) {
-    const cooldownMs = BUMP_COOLDOWN_HOURS * 60 * 60 * 1000;
-    const elapsed = Date.now() - new Date(product.last_bumped_at).getTime();
-    if (elapsed < cooldownMs) {
-      const minutesLeft = Math.ceil((cooldownMs - elapsed) / 60_000);
+  const gate = isPromotionPurchaseBlocked({ until: product?.bumped_until });
+  if (gate.blocked) {
+    if (gate.reason === "active") {
       return {
         ok: false,
-        error: `Bump cooldown active. Try again in ${minutesLeft} minute(s).`,
+        error: "A boost is already active on this listing. Wait until it expires, then wait 24 hours before buying again.",
       };
     }
+    const retry = gate.retryAt ? new Date(gate.retryAt) : null;
+    const hoursLeft = retry
+      ? Math.max(1, Math.ceil((retry.getTime() - Date.now()) / 3_600_000))
+      : BUMP_COOLDOWN_HOURS;
+    return {
+      ok: false,
+      error: `Boost cooldown active. Try again in ${hoursLeft} hour(s).`,
+    };
+  }
+
+  if (!admin) {
+    return { ok: true };
   }
 
   const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
@@ -148,13 +162,17 @@ export async function applyListingPromotion(
     return { success: false, error: "Invalid promotion duration." };
   }
 
-  const admin = createAdminClient();
+  const { tryCreateAdminClient } = await import("@/lib/supabase/admin");
+  const admin = tryCreateAdminClient();
+  if (!admin) {
+    return { success: false, error: "Unable to process payment. Please try again." };
+  }
   const now = new Date();
 
   const { data: product, error: productError } = await admin
     .from("products")
     .select(
-      "id, seller_id, bump_count, bumped_until, featured_until, title, status, product_images(url, is_primary, sort_order)",
+      "id, seller_id, bump_count, bumped_until, featured_until, last_bumped_at, title, status, product_images(url, is_primary, sort_order)",
     )
     .eq("id", input.productId)
     .eq("seller_id", input.sellerId)
@@ -205,6 +223,25 @@ export async function applyListingPromotion(
     }
   }
 
+  // Final Freeze Rule #5 — anti-stack: BLOCK while active or inside 24h cooldown.
+  if (!input.activateScheduled) {
+    const until = input.type === "bump" ? product.bumped_until : product.featured_until;
+    const gate = isPromotionPurchaseBlocked({ until, now });
+    if (gate.blocked) {
+      if (gate.reason === "active") {
+        return {
+          success: false,
+          error:
+            "A promotion is already active on this listing. Wait until it expires, then wait 24 hours before buying again.",
+        };
+      }
+      return {
+        success: false,
+        error: "Promotion cooldown active (24 hours after expiry). Please try again later.",
+      };
+    }
+  }
+
   const endsAt = computeEndsAt(input.type, input.durationId, now);
   if (!endsAt) {
     return { success: false, error: "Invalid promotion duration." };
@@ -213,21 +250,31 @@ export async function applyListingPromotion(
   let bumpedUntil = product.bumped_until;
   let featuredUntil = product.featured_until;
   let bumpCount = product.bump_count ?? 0;
+  let lastBumpedAt = product.last_bumped_at as string | null;
 
   if (input.type === "bump") {
-    const existingBumpEnd = product.bumped_until ? new Date(product.bumped_until) : null;
-    const base = existingBumpEnd && existingBumpEnd.getTime() > now.getTime() ? existingBumpEnd : now;
-    const extended = computeEndsAt("bump", input.durationId, base);
-    bumpedUntil = extended?.toISOString() ?? endsAt.toISOString();
+    bumpedUntil = endsAt.toISOString();
     bumpCount += 1;
+    lastBumpedAt = now.toISOString();
   } else {
-    const existingFeatureEnd = product.featured_until ? new Date(product.featured_until) : null;
-    const base = existingFeatureEnd && existingFeatureEnd.getTime() > now.getTime() ? existingFeatureEnd : now;
-    const extended = computeEndsAt("feature", input.durationId, base);
-    featuredUntil = extended?.toISOString() ?? endsAt.toISOString();
+    featuredUntil = endsAt.toISOString();
   }
 
-  const promotionScore = computePromotionScore(bumpCount, bumpedUntil, featuredUntil);
+  const durationHours =
+    input.type === "bump" && "hours" in duration
+      ? duration.hours
+      : input.type === "feature" && "days" in duration
+        ? duration.days * 24
+        : null;
+
+  const promotionScore = computePromotionScore(
+    bumpCount,
+    bumpedUntil,
+    featuredUntil,
+    lastBumpedAt,
+    input.type === "feature" ? now.toISOString() : null,
+    durationHours,
+  );
   const effectiveEndsAt =
     (input.type === "bump" ? bumpedUntil : featuredUntil) ?? endsAt.toISOString();
 
@@ -235,7 +282,7 @@ export async function applyListingPromotion(
     input.type === "bump"
       ? {
           bump_count: bumpCount,
-          last_bumped_at: now.toISOString(),
+          last_bumped_at: lastBumpedAt,
           bumped_until: bumpedUntil,
           promotion_score: promotionScore,
         }
@@ -382,7 +429,7 @@ export async function createPromotionCheckoutSession(input: {
       return { error: result.error ?? "Unable to apply promotion." };
     }
 
-    return { url: `${getAppBaseUrl()}/account/promotion-tools?promotion=success&type=${input.type}` };
+    return { url: `${getAppBaseUrl()}/promote?promotion=success&type=${input.type}` };
   }
 
   const pending = await createPendingPromotion(
@@ -429,8 +476,8 @@ export async function createPromotionCheckoutSession(input: {
         amountCents: String(duration.priceCents),
         scheduledStartAt: input.scheduledStartAt ?? "",
       },
-      success_url: `${baseUrl}/account/promotion-tools?promotion=success&type=${input.type}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/account/promotion-tools?promotion=cancelled&promotion_id=${pending.id}`,
+      success_url: `${baseUrl}/promote?promotion=success&type=${input.type}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/promote?promotion=cancelled&promotion_id=${pending.id}`,
     },
     {
       idempotencyKey: `promo-checkout-${pending.id}`,
@@ -803,6 +850,7 @@ export async function activateScheduledPromotions(): Promise<number> {
       stripeSessionId: promo.stripe_session_id,
       stripePaymentIntentId: promo.stripe_payment_intent_id,
       promotionId: promo.id,
+      activateScheduled: true,
     });
 
     if (result.success) {

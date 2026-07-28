@@ -1,0 +1,24 @@
+# ROVEXO SAVE ENGINE v2.0 + PLATFORM LANGUAGE (FINAL OWNER LOCK)
+
+**STATUS: APPROVED | PERMANENT | ROVEXO v1.0**
+
+## Save Engine v2.0
+
+SSOT: `lib/account/save-engine-v2.ts`
+
+- **NO** Save / Apply / Update / Cancel buttons
+- Automatic save · optimistic · fail closed · background sync · rollback
+- Toast: Saving… → Saved Successfully ✓ → auto-hide (0.8–1.5s)
+- Sensitive actions still require manual confirmation
+
+## Platform Language
+
+SSOT: `lib/i18n/platform-language.ts`
+
+- **English (UK) ONLY** — permanent
+- Language Engine / Selector / Picker / Switcher / Preferences — **REMOVED**
+- 100% platform English (UK)
+
+## Forbidden
+
+Partial translations · multi-language UI · reserved SAVE button space · manual save for non-sensitive settings

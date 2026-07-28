@@ -1,12 +1,12 @@
 import {
   getHomepageFeed,
   getProductBySlug,
+  getProductBySlugForCheckout,
   getProductsBySection,
   getShowcaseSellerSections,
   getSimilarProducts,
 } from "@/lib/products/catalog";
 import type { Product, ProductDetail, ProductSection, ProductsPage } from "@/lib/products/types";
-import { enrichDemoProductDetail, resolveDemoSimilarProducts } from "@/lib/homepage/demo-data";
 
 export async function fetchHomepageFeed(page = 1): Promise<ProductsPage> {
   return getHomepageFeed(page);
@@ -23,13 +23,18 @@ export async function fetchProducts(
   return getProductsBySection(section, page);
 }
 
+/** Real products table only — never demo / mock detail fallbacks. */
 export async function fetchProductBySlug(slug: string): Promise<ProductDetail | null> {
-  const detail = (await getProductBySlug(slug)) ?? null;
-  return enrichDemoProductDetail(slug, detail);
+  return (await getProductBySlug(slug)) ?? null;
+}
+
+/** Includes reserved — Checkout Session owners only. */
+export async function fetchProductBySlugForCheckout(
+  slug: string,
+): Promise<ProductDetail | null> {
+  return (await getProductBySlugForCheckout(slug)) ?? null;
 }
 
 export async function fetchSimilarProducts(slug: string, limit = 8): Promise<Product[]> {
-  const items = await getSimilarProducts(slug, limit);
-  if (items.length > 0) return items;
-  return resolveDemoSimilarProducts(slug, limit);
+  return getSimilarProducts(slug, limit);
 }

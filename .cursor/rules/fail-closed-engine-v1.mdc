@@ -1,0 +1,34 @@
+---
+description: ROVEXO Global Fail Closed Engine — never white-screen or leak internals.
+alwaysApply: true
+---
+
+# ROVEXO GLOBAL FAIL CLOSED ENGINE v1.0 (LOCK)
+
+**If something fails, the user must believe information is temporarily unavailable — never that the platform is broken.**
+
+## Never
+
+White screen · crash · broken navigation/UI/buttons/routes · expose secrets · ENV names · API names · DB names · admin clients · stack traces · internal errors.
+
+## Always
+
+Header · back · navigation · home · skeletons · Retry · responsive layout · design system.
+
+## Owner copy only
+
+Use `FailClosedPanel` / `toUserSafeFailClosedMessage()` from `@/lib/fail-closed` or `@/lib/master-engine`.
+
+Never render `error.message` in UI.
+
+## Wrong
+
+```tsx
+<p>{error.message}</p>
+```
+
+## Correct
+
+```tsx
+<FailClosedPanel onRetry={reset} />
+```

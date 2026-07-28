@@ -14,7 +14,8 @@ export const DEMO_EMAIL_DOMAIN = "demo.rovexo.co.uk";
 
 export const DEMO_DEFAULT_PASSWORD = "RovexoDemo2026!";
 
-export const DEMO_LISTING_TARGET = 300;
+export const DEMO_LISTING_TARGET = 0;
+
 
 export type DemoUserDefinition = {
   key: string;

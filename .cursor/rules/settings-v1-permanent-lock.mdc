@@ -1,0 +1,45 @@
+# ROVEXO Settings v1.0 — PERMANENT LOCK (APPROVED)
+
+**STATUS: PERMANENT LOCK · UI/UX APPROVED · PRODUCTION READY**
+
+SSOT: `lib/settings/settings-v1.ts` · Menu: `lib/account-center/settings-menu.ts`  
+Shell: `MyAccountTemplate` via `SettingsV1`
+
+## Master rule
+
+```
+PROFILE PAGE = MASTER PAGE + SETTINGS v1.0
+             = PROFILE PAGE DESIGN + DIFFERENT CONTENT
+ONLY CONTENT MAY DIFFER. DESIGN NEVER DOES.
+```
+
+## Locked inventory
+
+| Section | Row | Subtitle |
+|---------|-----|----------|
+| ACCOUNT | Personal Information | Name, photo and username. |
+| ACCOUNT | Addresses | Delivery and return addresses. |
+| ACCOUNT | Notifications | Push, email and alerts. |
+| SECURITY | Privacy | Privacy controls and data. |
+| SECURITY | Security | Password, devices and sessions. |
+| SECURITY | Verification | Identity and business verification. |
+| PREFERENCES | Currency | Display currency. |
+| DANGER ZONE | Delete Account | Permanently remove your account. |
+
+## Design lock (inherits 100% from Profile)
+
+Header · Full Width · Typography · Padding · Icon Family · Colors · Components · Responsive · Animations · Loading · Skeleton · Section spacing · Arrow · Divider
+
+## Forbidden
+
+Separate dimensions, icons, colours, components, padding, spacing, proportions, animations, or Design System.
+
+## UX
+
+Premium · minimalist · airy · fast · intuitive · mobile first · find section &lt; 1s
+
+## Cursor must never
+
+- Redesign Settings independently of Profile
+- Add Language / Payment Methods / Holiday / Promote / Help / Legal / Sign Out to Settings hub
+- Change row titles/subtitles without Owner approval

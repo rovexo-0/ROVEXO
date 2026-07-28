@@ -1,9 +1,6 @@
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { SellerPerformanceHistorySection } from "@/features/seller-performance/components/SellerPerformanceHistorySection";
-import {
-  ACHIEVEMENT_DEFINITIONS,
-  SELLER_LEVEL_LABELS,
-} from "@/lib/seller-performance/master-spec";
+import { SELLER_LEVEL_LABELS } from "@/lib/seller-performance/master-spec";
 import type { ScoreHistoryRange, SellerPerformanceDashboard } from "@/lib/seller-performance/types";
 import {
   CanonicalCard,
@@ -11,25 +8,21 @@ import {
   CanonicalSection,
 } from "@/src/components/canonical";
 
+type PublicBadgeRow = { id: string; label: string };
+
 type SellerPerformanceDashboardViewProps = {
   data: SellerPerformanceDashboard;
   historyRange?: ScoreHistoryRange;
+  /** Public badges from Badge Engine ONLY — never seller-performance achievements. */
+  publicBadges?: PublicBadgeRow[];
 };
-
-function badgeLabel(badgeId: (typeof ACHIEVEMENT_DEFINITIONS)[number]["id"]): string {
-  return ACHIEVEMENT_DEFINITIONS.find((entry) => entry.id === badgeId)?.label ?? badgeId;
-}
 
 /** Selling → Performance — My Account Master Menu density. */
 export function SellerPerformanceDashboardView({
   data,
   historyRange = "90d",
+  publicBadges = [],
 }: SellerPerformanceDashboardViewProps) {
-  const publicBadges = data.score.badgesGranted.map((badgeId) => ({
-    id: badgeId,
-    label: badgeLabel(badgeId),
-  }));
-
   return (
     <AccountCanonicalShell
       title="Performance"
@@ -38,7 +31,10 @@ export function SellerPerformanceDashboardView({
       showHeaderTitle
       intro="Score from real selling activity."
     >
-      <div className="ac-canonical flex w-full flex-col gap-ds-4 pb-ds-5" data-seller-performance="v2.0-standard">
+      <div
+        className="ac-canonical flex w-full flex-col gap-ds-4 pb-ds-5"
+        data-seller-performance="v2.0-standard"
+      >
         <CanonicalSection title="Score">
           <CanonicalCard variant="list">
             <CanonicalMenuRow
@@ -111,7 +107,7 @@ export function SellerPerformanceDashboardView({
         </CanonicalSection>
 
         {publicBadges.length > 0 ? (
-          <CanonicalSection title="Badges">
+          <CanonicalSection title="Public badges">
             <CanonicalCard variant="list">
               {publicBadges.map((badge) => (
                 <CanonicalMenuRow key={badge.id} title={badge.label} showChevron={false} />

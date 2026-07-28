@@ -1,0 +1,41 @@
+---
+description: Supreme Blood Code XII — Sprint III Orders permanent freeze (100% complete)
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE XII — SPRINT III ORDERS
+
+**STATUS: APPROVED · 100% COMPLETE · PERMANENT FREEZE**
+
+SSOT: `lib/supreme-blood-code-xii-v1.ts`  
+Official: `http://localhost:3000/orders`
+
+## Header
+
+Allowed: `<` · **Orders** only.  
+Forbidden: Search Bar · Homepage header · ROVEXO logo · notification/saved icons.
+
+## Bottom nav
+
+Home · Search · Sell · Inbox · Account — **ALWAYS VISIBLE · DO NOT REMOVE**.
+
+## Absolute laws
+
+- One Orders module = one implementation (`OrdersPage` + detail routes)
+- Buyer never sees **YOU'LL RECEIVE**
+- Seller never sees **TOTAL PAID**
+- No duplicates · no redesigns · no new components · no cross-module changes
+- Search Bar = Homepage `/` only (unmounted elsewhere)
+
+## Post-freeze
+
+Modify **only** for critical bug fixes with **Owner approval**.
+
+## Sprint map
+
+| Sprint | Module | Status |
+|--------|--------|--------|
+| I | Inbox | LOCKED |
+| II | Conversation Hub | LOCKED |
+| III | Orders | **LOCKED · 100% COMPLETE** |
+| IV | Wallet | WAITING OWNER APPROVAL |

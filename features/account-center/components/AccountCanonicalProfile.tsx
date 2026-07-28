@@ -2,9 +2,15 @@
 
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
-import { formatAccountProfileRating } from "@/lib/account-center/format-profile-rating";
+import { resolveVerifiedStatus } from "@/lib/master-engine";
+import {
+  formatAccountProfileRating,
+  isNewMemberProfile,
+} from "@/lib/account-center/format-profile-rating";
 import type { AccountHubSnapshot } from "@/lib/account-center/snapshot";
 import type { UserProfile } from "@/lib/profile/types";
 
@@ -13,44 +19,60 @@ type AccountCanonicalProfileProps = {
   snapshot: AccountHubSnapshot;
 };
 
-function formatMemberSince(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
-}
-
 /**
- * My Account identity header only — Followers live under Selling/Business hubs.
- * Final Master Certification Order: no extra hub chrome beyond the Master Menu.
+ * Profile header — Avatar · username · rating · View Profile.
+ * Social Followers permanently removed (CEO Social System Removal).
  */
 export function AccountCanonicalProfile({ profile, snapshot }: AccountCanonicalProfileProps) {
   const ratingLine = formatAccountProfileRating(snapshot.rating, snapshot.reviewCount);
+  const username = profile.username?.trim() || profile.fullName || "Username";
+  const href = profile.username?.trim()
+    ? `/user/${encodeURIComponent(profile.username.trim())}`
+    : "/account/profile";
+  const newMember = isNewMemberProfile(snapshot.reviewCount);
+  const ratingValue = newMember ? 0 : snapshot.rating;
+  const reviewCount = Math.max(0, snapshot.reviewCount);
+  const { showBadge } = resolveVerifiedStatus({ isRovexoVerified: profile.verified });
 
   return (
     <section className="ac-canonical__profile" aria-label="Profile">
-      <div className="ac-canonical__profile-top">
-        <Link href="/account/profile" className={cn("ac-canonical__identity", focusRing)}>
-          <span className="ac-canonical__avatar-wrap">
-            <Avatar
-              src={profile.avatarUrl}
-              alt={profile.fullName}
-              name={profile.fullName}
-              size="lg"
-              className="ac-canonical__avatar"
-            />
+      <Link
+        href={href}
+        className={cn("ac-canonical__identity ac-canonical__identity--full", focusRing)}
+        data-profile-header="v1.0"
+      >
+        <span className="ac-canonical__avatar-wrap">
+          <Avatar
+            src={profile.avatarUrl}
+            alt={username}
+            name={username}
+            size="lg"
+            className="ac-canonical__avatar"
+          />
+        </span>
+        <div className="ac-canonical__identity-copy">
+          <h1 className="ac-canonical__name">
+            {username}
+            {showBadge ? (
+              <VerifiedBadge className="ac-canonical__verified-badge" />
+            ) : null}
+          </h1>
+          <p className="ac-canonical__rating" aria-label={`Rating ${ratingLine}`}>
+            <span className="ac-canonical__rating-value">{ratingValue.toFixed(1)}</span>
+            <span className="ac-canonical__rating-star" aria-hidden>
+              {" "}
+              ★{" "}
+            </span>
+            <span className="ac-canonical__rating-count">({reviewCount})</span>
+          </p>
+        </div>
+        <span className="ac-canonical__profile-trailing">
+          <span className="ac-canonical__view-profile">View Profile</span>
+          <span className="ac-canonical__profile-chevron" aria-hidden>
+            <ChevronRightLineIcon />
           </span>
-          <div className="ac-canonical__identity-copy">
-            <div className="ac-canonical__name-row">
-              <h1 className="ac-canonical__name">{profile.fullName}</h1>
-              {profile.verified ? <span className="ac-canonical__verified-pill">Verified</span> : null}
-            </div>
-            <p className="ac-canonical__meta">Member since {formatMemberSince(profile.memberSince)}</p>
-            <p className="ac-canonical__rating" aria-label={`Rating ${ratingLine}`}>
-              {ratingLine}
-            </p>
-          </div>
-        </Link>
-      </div>
+        </span>
+      </Link>
     </section>
   );
 }

@@ -1,0 +1,54 @@
+# ROVEXO My Account Master Template v1.0 (PERMANENT LOCK)
+
+**STATUS: APPROVED | PERMANENT LOCK | PRODUCTION GATE**
+
+SSOT: `lib/design-system/my-account-v1.ts`  
+Template: `features/account-canonical/MyAccountTemplate.tsx`
+
+## Golden rule
+
+**Forbidden:** building My Account pages with private design systems.
+
+```
+PROFILE → MyAccountTemplate → Header/Spacing/Button/Card/Typography/Responsive/Full Width engines → MY ACCOUNT v1.0
+```
+
+## Rules #22–#28
+
+| # | Rule |
+|---|------|
+| 22 | Master Template Engine — one template for all My Account pages |
+| 23 | Inheritance Lock — Settings/Addresses/Account Details/Security/Verification/… inherit `MyAccountTemplate` |
+| 24 | One Change Rule — Profile token change updates all pages automatically |
+| 25 | Design Lock — identical padding/height/radius/width; only CONTENT may differ |
+| 26 | Master Component Lock — header/title/section/button/card/arrow/divider/spacing/footer via template |
+| 27 | Production Gate — private padding/spacing/header/buttons/components/proportions → REJECTED (no UI LOCK / Freeze / Certification / Production) |
+| 28 | Future Proof — Subscription / AI Settings / Wallet Settings / etc. inherit template; never build individually |
+
+## Forbidden private pages
+
+Addresses · Security · Verification · Currency · Privacy · Notifications · AccountDetails · Settings — must not ship their own design system.
+
+## Required pattern
+
+```tsx
+import { MyAccountTemplate } from "@/features/account-canonical";
+
+export function ExamplePage() {
+  return (
+    <MyAccountTemplate surface="settings" title="Settings" backHref="/account" showHeaderTitle>
+      {/* CONTENT ONLY */}
+    </MyAccountTemplate>
+  );
+}
+```
+
+## Cursor must never
+
+- Create page-local headers, paddings, button heights, radii, or widths for My Account
+- Duplicate design systems per Settings subpage
+- Skip `MyAccountTemplate` for listed inheritance pages
+
+## Master Page Lock
+
+See `.cursor/rules/my-account-master-page-lock-v1.mdc` — PROFILE PAGE is the permanent master for icons, colours, components, spacing, typography, proportions, and full width.

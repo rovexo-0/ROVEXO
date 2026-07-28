@@ -22,30 +22,30 @@ const profile = {
   accountKind: ROVEXO_ACCOUNT_KIND,
 } as UserProfile;
 
-describe("Master Menu Design — My Account", () => {
-  it("exposes Buying / Selling / Business hubs without duplicate wallets", () => {
-    const titles = buildAccountMenuSections(profile).flatMap((s) => s.items.map((i) => i.title));
+describe("Master Menu Design — Profile main", () => {
+  it("exposes Profile menu without Business hub", () => {
+    const titles = buildAccountMenuSections(profile, { activeListingCount: 1 }).flatMap((s) =>
+      s.items.map((i) => i.title),
+    );
     expect(titles).toEqual([
-      "Buying",
-      "Selling",
-      "Business",
-      "Wallet",
-      "Messages",
-      "Notifications",
-      "Verification",
+      "Favourites",
+      "Balance",
+      "My Orders",
+      "Holiday Mode",
+      "Promote",
       "Settings",
+      "Rovexo Ideas",
       "Help Centre",
-      "Trust Centre",
-      "Legal Centre",
+      "Legal Information",
     ]);
-    expect(titles.filter((t) => t.includes("Wallet"))).toHaveLength(1);
+    expect(titles.filter((t) => t.includes("Business"))).toHaveLength(0);
   });
 
-  it("routes Messages to Messages hub", () => {
-    const messages = buildAccountMenuSections(profile)
-      .flatMap((s) => s.items)
-      .find((i) => i.id === "messages");
-    expect(messages?.href).toBe("/inbox");
+  it("routes Favourites and Orders to existing surfaces", () => {
+    const items = buildAccountMenuSections(profile).flatMap((s) => s.items);
+    expect(items.find((i) => i.id === "favourites")?.href).toBe("/saved");
+    expect(items.find((i) => i.id === "my-orders")?.href).toBe("/orders");
+    expect(items.find((i) => i.id === "settings")?.href).toBe("/settings");
   });
 });
 
@@ -118,12 +118,16 @@ describe("Master Menu Design — Messages Transaction Hub", () => {
 
 describe("Wallet architecture — PO Absolute Final", () => {
   it("Personal Wallet destinations", () => {
-    const titles = buildPersonalWalletMenuSections().flatMap((s) => s.items.map((i) => i.title));
-    expect(titles).toEqual(["Transactions", "Personal Bank", "Business Bank"]);
+    const titles = buildPersonalWalletMenuSections({ isBusinessVerified: true }).flatMap((s) =>
+      s.items.map((i) => i.title),
+    );
+    expect(titles).toEqual(["Transactions", "Payment Methods", "Bank Accounts"]);
   });
 
   it("Business Wallet destinations", () => {
-    const titles = buildBusinessWalletMenuSections().flatMap((s) => s.items.map((i) => i.title));
-    expect(titles).toEqual(["Transactions", "Personal Bank", "Business Bank"]);
+    const titles = buildBusinessWalletMenuSections({ isBusinessVerified: true }).flatMap((s) =>
+      s.items.map((i) => i.title),
+    );
+    expect(titles).toEqual(["Transactions", "Payment Methods", "Bank Accounts"]);
   });
 });

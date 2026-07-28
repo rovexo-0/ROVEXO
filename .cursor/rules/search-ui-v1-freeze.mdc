@@ -1,0 +1,32 @@
+---
+description: SEARCH_UI_v1.0 — Owner-approved Search landing visual freeze (2026-07-25). No UI polish without Owner approval.
+globs: features/search/**/*.tsx,features/search/**/*.ts,styles/rovexo/search-landing-v1.css,app/search/**/*.tsx,lib/search/**/*.ts,public/search/**,docs/modules/search/**
+alwaysApply: true
+---
+
+# ROVEXO SEARCH UI FREEZE — SEARCH_UI_v1.0
+
+**STATUS: FROZEN · OWNER APPROVED · CERTIFIED · 2026-07-25**
+
+SSOT: `lib/search/search-ui-v1-freeze.ts`  
+UI: `features/search/components/SearchLandingView.tsx`  
+Card: `features/search/components/SearchCategoryBrowseCard.tsx`  
+CSS: `styles/rovexo/search-landing-v1.css`  
+Heroes: `public/search/categories/` · `lib/search/search-category-heroes-v1.ts`  
+DOM: `data-search-freeze="SEARCH_UI_v1.0"` · `data-search-ui="v1.0"`
+
+## Frozen (presentation)
+
+Search Page Layout · Search Bar · Camera · Clear · Browse Categories · Category Grid · Category Images · Transparent Backgrounds · Natural Soft Shadows · Typography · Item Counter · Spacing · Card Layout · Responsive · Recent Searches · Trending Searches · Bottom Navigation · Mobile / Tablet / Desktop scaling
+
+## Locked — forbidden without Owner approval
+
+Visual redesign · spacing · padding · margin · grid · category size · image size · typography · shadow · border radius · animation · visual refactoring
+
+## Not included (may continue outside UI)
+
+Search Engine · Ranking · API · AI Search · Camera Recognition · Recent/Trending logic · Category Database · Backend · Supabase · Caching · Performance · Analytics
+
+## Cursor must never
+
+Change Search landing visual density, tokens, layout, heroes, or polish under SEARCH_UI_v1.0 without explicit Owner re-authorization.

@@ -49,7 +49,7 @@ describe("homepage category integrity analyzer", () => {
   it("passes canonical category nav without duplicates", () => {
     const findings = scanCategoryNavDuplication();
     expect(findings.filter((f) => f.status === "fail")).toHaveLength(0);
-    expect(HOME_CATEGORY_NAV.length).toBeGreaterThan(10);
+    expect(HOME_CATEGORY_NAV.length).toBe(10);
   });
 
   it("passes default homepage builder without duplicate sections", () => {

@@ -52,13 +52,11 @@ export function CheckoutPayFooter({
       <Button
         type="button"
         variant="primary"
-        size="lg"
         fullWidth
         disabled={disabled || loading}
         onClick={onPay}
-        className="shadow-[var(--ds-shadow-medium)]"
       >
-        {loading ? "Confirming…" : `Confirm & Pay ${formatGBP(total)}`}
+        {loading ? "Confirming…" : `Pay Securely ${formatGBP(total)}`}
       </Button>
     </div>
   );

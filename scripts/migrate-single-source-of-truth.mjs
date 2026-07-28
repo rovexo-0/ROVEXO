@@ -94,7 +94,7 @@ const LEGACY_STYLE_ARCHIVE = [
 const CONSUMER_FILES = [
   "app/page.tsx",
   "components/beta/BetaAppShell.tsx",
-  "lib/homepage/demo-data.ts",
+  "lib/homepage/feed-resolve.ts",
   "components/ui/BottomNavigation.tsx",
   "tests/mobile-header-scroll.test.ts",
   "tests/home-hydration.test.ts",

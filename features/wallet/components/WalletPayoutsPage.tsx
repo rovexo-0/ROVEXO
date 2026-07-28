@@ -20,7 +20,7 @@ export function WalletPayoutsPage({ transactions }: WalletPayoutsPageProps) {
   const payouts = transactions.filter((transaction) => transaction.type === "withdrawal");
 
   return (
-    <AccountCanonicalShell title="Payouts" backHref={WALLET_ROUTES.hub} backLabel="Wallet" showHeaderTitle>
+    <AccountCanonicalShell title="Payouts" backHref={WALLET_ROUTES.hub} backLabel="Balance" showHeaderTitle>
       <div data-wallet-payouts={WALLET_CANONICAL_VERSION}>
         <AccountPageStack aria-label="Payouts">
           <CanonicalInfoBlock variant="description">

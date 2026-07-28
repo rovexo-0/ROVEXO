@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, tryCreateAdminClient } from "@/lib/supabase/admin";
 import {
   breadcrumbsFromPath,
   findNodeBySlugPath,
@@ -153,11 +153,15 @@ export async function materializeCategoryChain(
   return leafId;
 }
 
-function createSupabaseCategoryStore(): CategoryChainStore {
-  const admin = createAdminClient();
+async function createSupabaseCategoryStore(): Promise<CategoryChainStore> {
+  // Reads use the authenticated/anon session — categories are publicly selectable.
+  // Creates require service role (categories_insert_admin). When service role is
+  // unavailable, existing DB rows still resolve; missing rows fail closed.
+  const supabase = await createClient();
+  const admin = tryCreateAdminClient();
 
   const selectId = async (slug: string, parentId: string | null): Promise<string | null> => {
-    let query = admin.from("categories").select("id").eq("slug", slug);
+    let query = supabase.from("categories").select("id").eq("slug", slug);
     query = parentId === null ? query.is("parent_id", null) : query.eq("parent_id", parentId);
     const { data } = await query.maybeSingle();
     return (data as { id: string } | null)?.id ?? null;
@@ -166,6 +170,14 @@ function createSupabaseCategoryStore(): CategoryChainStore {
   return {
     findId: selectId,
     async create(input) {
+      if (!admin) {
+        const existing = await selectId(input.slug, input.parentId);
+        if (existing) return existing;
+        throw new Error(
+          `Category "${input.slug}" is not provisioned in the database. Provision categories or configure SUPABASE_SERVICE_ROLE_KEY.`,
+        );
+      }
+
       const { data, error } = await admin
         .from("categories")
         .insert({
@@ -201,7 +213,7 @@ export async function resolveOrCreateCategoryIdBySlugPath(
 ): Promise<string | null> {
   const nodes = resolveCanonicalCategoryNodes(slugs);
   if (!nodes) return null;
-  return materializeCategoryChain(nodes, createSupabaseCategoryStore());
+  return materializeCategoryChain(nodes, await createSupabaseCategoryStore());
 }
 
 export async function getDescendantCategoryIds(rootId: string): Promise<string[]> {

@@ -40,6 +40,7 @@ describe("inventory guards", () => {
     expect(isPurchasable(3, "published")).toBe(true);
     expect(isPurchasable(0, "published")).toBe(false);
     expect(isPurchasable(1, "sold")).toBe(false);
+    expect(isPurchasable(1, "reserved")).toBe(false);
   });
 });
 

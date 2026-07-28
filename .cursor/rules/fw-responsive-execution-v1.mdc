@@ -1,0 +1,48 @@
+---
+description: Level 8 Full Width + Responsive Execution — engine auto-adapts; no redesign; fail on any defect (P0).
+alwaysApply: true
+---
+
+# ROVEXO Level 8 Full Width + Responsive Execution v1.0 (ABSOLUTE P0)
+
+## Owner requirements (every approved implementation)
+
+100% FULL WIDTH · RESPONSIVE · ADAPTIVE · VISIBLE · ALIGNED · PRODUCTION READY
+
+## Engine must automatically
+
+1. Calculate available width → use 100%  
+2. Calculate safe areas → adapt  
+3. Calculate screen size → adapt  
+4. Calculate browser limits → adapt  
+5. Calculate OS limits → adapt  
+6. Calculate responsive limits → adapt  
+
+## Alignment
+
+Perfect horizontal · vertical · responsive · adaptive · visibility
+
+## Devices + modes
+
+All iPhones · Android · Pixel · Samsung · Fold · Tablets · Desktops  
+Including: small/large · zoom · safe area · a11y · portrait · landscape
+
+## Production checks (every component)
+
+Width · height · alignment · visibility · responsive · adaptive · overflow · clipping · cropping · safe area · spacing · viewport · accessibility
+
+## Auto-fix allowed only
+
+Overflow · clipping · alignment · responsive · adaptive · browser · a11y · viewport · rendering · performance  
+
+**Without:** redesign · replace components · change dimensions · change Owner design/implementation
+
+## Certification fail if any
+
+1 hidden · cropped · overflow · clipping · responsive · adaptive · browser · alignment · spacing · visibility problem
+
+## Mandate
+
+**Do not redesign / rebuild / replace.** Optimize existing. Fix root cause. Keep Owner-approved implementation. Engine adapts to it — until perfect alignment, responsive, full width, visibility, production readiness.
+
+SSOT: `lib/master-engine/fw-responsive-execution-v1.ts` · CSS: `styles/rovexo/full-width-engine-v1.css`

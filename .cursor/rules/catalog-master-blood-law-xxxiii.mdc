@@ -1,0 +1,44 @@
+---
+description: Absolute Blood Law XXXIII — Catalog Master CERTIFIED. Final System Freeze. Sell LOCKED.
+globs: lib/catalog/**/*.ts,lib/categories/**/*.ts,app/api/categories/**/*.ts,instrumentation.ts,features/sell/**/*.{ts,tsx}
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XXXIII — CATALOG MASTER CERTIFICATION
+
+**STATUS: CERTIFIED | LOCKED | PRODUCTION READY | FINAL SYSTEM FREEZE**
+
+SSOT: `lib/catalog/supreme-blood-law-xxxiii-catalog-master-v1.ts`  
+Resolution: `Catalog Master → getCategoryTree() → SSOT`  
+Child laws: XXX · XXXI · XXXII
+
+## Final certification
+
+This is the **final production certification** of ROVEXO Catalog Master v1.0.
+
+## System freeze (architecture)
+
+Frozen forever (only **content** may evolve): Catalog Architecture · Roots · Hierarchy · Tree · Product Types · Attributes · Colour / Brand / Material / Condition / Size DBs · Validation · Protection.
+
+## Sell system — LOCKED
+
+Sell Page · UI · UX · Flow · Publishing Logic — **no Catalog update may modify any Sell component.**
+
+## Startup chain (fail closed)
+
+```
+Startup → Protection → Validation → Production Certification → Blood Certification → Ready
+```
+
+Any fail → **BLOCK APPLICATION**. Never fallback.
+
+## Production roots (10)
+
+Women's Fashion · Men's Fashion · Designer · Kids & Baby · Home & Garden · Electronics · Books & Media · Hobbies & Collectables · Sports & Outdoors · Vehicle Parts & Accessories
+
+## Cursor must never
+
+- Unfreeze architecture without Owner Catalog Master revision  
+- Touch Sell for catalog work  
+- Add roots / parallel taxonomy / legacy API / silent fallback  
+- Claim uncertified Catalog Master  

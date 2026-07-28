@@ -4,7 +4,6 @@ import type { UserRole } from "@/lib/supabase/types/database";
 export type SellerStats = {
   listings: number;
   sales: number;
-  followers: number;
 };
 
 export type UserProfile = {

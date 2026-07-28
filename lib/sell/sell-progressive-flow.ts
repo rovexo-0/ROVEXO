@@ -1,15 +1,7 @@
 import type { FlatCategoryPath } from "@/lib/categories/types";
 
-import {
-
-  getQuickSellAttributeDefs,
-
-  isAttributeCompleted,
-
-  type AttributeDef,
-
-} from "@/lib/sell/attribute-engine";
-
+import { getQuickSellAttributeDefs, isAttributeCompleted, type AttributeDef } from "@/lib/sell/attribute-engine";
+import { categorySupportsCondition } from "@/lib/sell/aa-quick-sell-attributes";
 import { isSellQuickCondition } from "@/lib/sell/sell-condition-options";
 
 import { validateListingTitle } from "@/lib/sell/listing-title";
@@ -112,9 +104,9 @@ export function isTitleStepComplete(title: string): boolean {
 
 
 
-export function isDescriptionStepComplete(_description: string): boolean {
-  // Description is optional (Smart Description Engine §STEP 10).
-  return true;
+export function isDescriptionStepComplete(description: string): boolean {
+  // Absolute Authority: Description required for publish (min 10).
+  return description.trim().length >= 10;
 }
 
 
@@ -160,42 +152,32 @@ export function isPriceStepComplete(draft: SellListingDraft): boolean {
 
 
 export function buildSellProgressiveSteps(draft: SellListingDraft): SellProgressiveStep[] {
-
   const steps: SellProgressiveStep[] = [
     { id: "photos", fieldId: sellFieldDomId("photos") },
     { id: "title", fieldId: sellFieldDomId("title") },
-    { id: "category", fieldId: sellFieldDomId("category") },
     { id: "description", fieldId: sellFieldDomId("description") },
+    { id: "category", fieldId: sellFieldDomId("category") },
   ];
 
-
-
   if (draft.categoryPath) {
-
-    for (const def of getQuickSellAttributeDefs(draft.categoryPath)) {
-
-      steps.push({
-
-        id: `attribute:${def.id}`,
-
-        fieldId: sellFieldDomId(`attribute:${def.id}`),
-
-      });
-
+    const attrs = getQuickSellAttributeDefs(draft.categoryPath);
+    for (const def of attrs) {
+      if (def.id === "condition") {
+        steps.push({ id: "condition", fieldId: sellFieldDomId("condition") });
+      } else {
+        steps.push({
+          id: `attribute:${def.id}`,
+          fieldId: sellFieldDomId(`attribute:${def.id}`),
+        });
+      }
     }
-
-    steps.push({ id: "condition", fieldId: sellFieldDomId("condition") });
-
-    steps.push({ id: "parcel", fieldId: sellFieldDomId("parcel") });
-
-    steps.push({ id: "price", fieldId: sellFieldDomId("price") });
-
   }
 
-
+  // Always present in initial view (Absolute Authority).
+  steps.push({ id: "price", fieldId: sellFieldDomId("price") });
+  steps.push({ id: "parcel", fieldId: sellFieldDomId("parcel") });
 
   return steps;
-
 }
 
 
@@ -285,117 +267,47 @@ export function getFirstIncompleteSellStep(
 
 
 export function isSellProgressiveStepVisible(
-
   step: SellProgressiveStep,
-
   steps: SellProgressiveStep[],
-
   draft: SellListingDraft,
-
   input: { title: string; description: string },
-
 ): boolean {
-
-  if (step.id === "photos" || step.id === "title") {
+  // Absolute Authority initial view — always visible core fields.
+  if (
+    step.id === "photos" ||
+    step.id === "title" ||
+    step.id === "description" ||
+    step.id === "category" ||
+    step.id === "price" ||
+    step.id === "parcel"
+  ) {
     return true;
   }
 
-  if (step.id === "category") {
-    return isTitleStepComplete(input.title);
-  }
-
-  if (step.id === "description") {
-    return isCategoryStepComplete(draft.categoryPath);
-  }
-
-
-
+  // Dynamic attributes + Condition only after category selection (taxonomy-driven).
   if (!draft.categoryPath) return false;
 
-
-
-  const postCategorySteps = steps.filter(
-
-    (item) =>
-
-      item.id !== "photos" &&
-
-      item.id !== "title" &&
-
-      item.id !== "description" &&
-
-      item.id !== "category",
-
-  );
-
-  const stepIndex = postCategorySteps.findIndex((item) => item.id === step.id);
-
-  if (stepIndex < 0) return false;
-
-
-
-  for (let index = 0; index < stepIndex; index += 1) {
-
-    const prior = postCategorySteps[index];
-
-    if (!prior) continue;
-
-    if (!isSellProgressiveStepComplete(prior, draft, input)) {
-
-      return false;
-
-    }
-
+  if (step.id === "condition") {
+    return categorySupportsCondition(draft.categoryPath);
   }
 
+  if (step.id.startsWith("attribute:")) {
+    return true;
+  }
 
-
-  return true;
-
+  void steps;
+  void input;
+  return false;
 }
 
-
-
 export function getVisibleAttributeDefs(
-
   draft: SellListingDraft,
-
   input: { title: string; description: string },
-
 ): AttributeDef[] {
-
+  void input;
   if (!draft.categoryPath) return [];
-
-
-
-  const defs = getQuickSellAttributeDefs(draft.categoryPath);
-
-  const steps = buildSellProgressiveSteps(draft);
-
-  const visible: AttributeDef[] = [];
-
-
-
-  for (const def of defs) {
-
-    const stepId = `attribute:${def.id}` as SellProgressiveStepId;
-
-    const step = steps.find((item) => item.id === stepId);
-
-    if (!step) continue;
-
-    if (!isSellProgressiveStepVisible(step, steps, draft, input)) break;
-
-    visible.push(def);
-
-    if (!isAttributeCompleted(draft, def)) break;
-
-  }
-
-
-
-  return visible;
-
+  // Show all category attributes after selection (no unused fields; no one-by-one drip).
+  return getQuickSellAttributeDefs(draft.categoryPath);
 }
 
 

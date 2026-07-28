@@ -1,0 +1,272 @@
+/**
+ * ROVEXO v1.0 — SPRING 2 TRANSACTION HUB ENGINE
+ * CANONICAL CODE BLOOD v2.0
+ *
+ * STATUS: BLOOD v2.0 LOCKED · WAITING FOR IMPLEMENTATION
+ *
+ * GOLDEN RULE:
+ * IF I RECEIVE IT → I MUST SEE IT
+ * IF I SEE IT → I MUST OPEN IT
+ * IF I OPEN IT → IT MUST DO SOMETHING
+ * IF I CANNOT SEE IT → IT DOES NOT EXIST
+ * IF IT DOES NOT WORK → IT DOES NOT EXIST
+ *
+ * Certification only: localhost:3000 → Owner clicks → sees → opens → uses → approves → FREEZE
+ *
+ * Evolve in place: /inbox — ZERO parallel systems.
+ */
+
+export const TRANSACTION_HUB_CODE_BLOOD = {
+  version: "2.0",
+  spring: "SPRING_2",
+  name: "TRANSACTION_HUB_ENGINE",
+  blood: "CANONICAL_CODE_BLOOD_V2",
+  status: "IN_DEVELOPMENT_IMPLEMENTATION",
+  freezeApproved: false,
+  ownerApproved: false,
+  certified: false,
+  host: "http://localhost:3000",
+  law: "ABSOLUTE_FUNCTIONAL_LAW_V1",
+  implementationNote:
+    "Badge split: Inbox bottom = conversation unread; Notifications tab/bell = non-message unread. Deep links + product images on order/offer/message/refund/review.",
+  goldenRule: [
+    "IF_I_RECEIVE_IT_I_MUST_SEE_IT",
+    "IF_I_SEE_IT_I_MUST_OPEN_IT",
+    "IF_I_OPEN_IT_IT_MUST_DO_SOMETHING",
+    "IF_I_CANNOT_SEE_IT_IT_DOES_NOT_EXIST",
+    "IF_IT_DOES_NOT_WORK_IT_DOES_NOT_EXIST",
+  ] as const,
+} as const;
+
+/** @deprecated alias */
+export const TRANSACTION_HUB_SPRING_2 = TRANSACTION_HUB_CODE_BLOOD;
+
+export const TRANSACTION_HUB_MISSION_CHAIN = [
+  "RED_BADGE",
+  "NOTIFICATION",
+  "MESSAGE",
+  "PRODUCT_IMAGE",
+  "READ_UNREAD_STATUS",
+  "CLICK_PATH",
+  "REAL_PAGE",
+  "REAL_ACTION",
+  "VISUAL_PROOF",
+  "FREEZE",
+] as const;
+
+export const TRANSACTION_HUB_EVENTS = [
+  "NEW_MESSAGE",
+  "NEW_OFFER_RECEIVED",
+  "OFFER_ACCEPTED",
+  "OFFER_DECLINED",
+  "BUY_NOW_CREATED",
+  "PAYMENT_RECEIVED",
+  "PAYMENT_FAILED",
+  "ORDER_CREATED",
+  "ORDER_CANCELLED",
+  "SHIPPING_LABEL_CREATED",
+  "PARCEL_PREPARING",
+  "PARCEL_SHIPPED",
+  "PARCEL_DELIVERED",
+  "REFUND_CREATED",
+  "REFUND_COMPLETED",
+  "DISPUTE_CREATED",
+  "DISPUTE_CLOSED",
+] as const;
+
+export type TransactionHubEventId = (typeof TRANSACTION_HUB_EVENTS)[number];
+
+/** Every click must open a real page. Text-only = FAIL. */
+export const TRANSACTION_HUB_CLICK_PATHS = {
+  NEW_OFFER_RECEIVED: "OFFER_PAGE",
+  OFFER_ACCEPTED: "OFFER_PAGE",
+  OFFER_DECLINED: "OFFER_PAGE",
+  PAYMENT_RECEIVED: "ORDER_PAGE",
+  PAYMENT_FAILED: "ORDER_PAGE",
+  BUY_NOW_CREATED: "ORDER_PAGE",
+  ORDER_CREATED: "ORDER_PAGE",
+  ORDER_CANCELLED: "ORDER_PAGE",
+  PARCEL_SHIPPED: "TRACKING_PAGE",
+  PARCEL_DELIVERED: "TRACKING_PAGE",
+  PARCEL_PREPARING: "TRACKING_PAGE",
+  SHIPPING_LABEL_CREATED: "TRACKING_PAGE",
+  REFUND_CREATED: "REFUND_PAGE",
+  REFUND_COMPLETED: "REFUND_PAGE",
+  DISPUTE_CREATED: "DISPUTE_OR_CONVERSATION_PAGE",
+  DISPUTE_CLOSED: "DISPUTE_OR_CONVERSATION_PAGE",
+  NEW_MESSAGE: "CONVERSATION_PAGE",
+} as const;
+
+export const TRANSACTION_HUB_NOTIFICATION_FIELDS = [
+  "EVENT_ICON",
+  "PRODUCT_IMAGE",
+  "PRODUCT_TITLE",
+  "PRICE_IF_EXISTS",
+  "TIME",
+  "READ_UNREAD_STATUS",
+  "CLICK_ACTION",
+  "REAL_PAGE",
+] as const;
+
+export const TRANSACTION_HUB_MESSAGE_FIELDS = [
+  "USER_AVATAR",
+  "PRODUCT_IMAGE",
+  "PRODUCT_TITLE",
+  "LAST_MESSAGE",
+  "TIME",
+  "READ_UNREAD_STATUS",
+  "CLICK_ACTION",
+  "REAL_PAGE",
+] as const;
+
+export const TRANSACTION_HUB_BOTTOM_NAV = [
+  "HOME",
+  "SEARCH",
+  "SELL",
+  "INBOX",
+  "ACCOUNT",
+] as const;
+
+/** Badge must update in REAL TIME. */
+export const TRANSACTION_HUB_BADGE_LAW = {
+  zero: "0 · NO BADGE",
+  one: "+1",
+  ten: "+10",
+  ninetyNinePlus: "99+",
+  realtime: true,
+} as const;
+
+/** Product image required on every product-related surface. */
+export const TRANSACTION_HUB_PRODUCT_IMAGE_LAW = {
+  noImage: "NO_PASS",
+  requiredOn: [
+    "MESSAGES",
+    "NOTIFICATIONS",
+    "ORDERS",
+    "PAYMENTS",
+    "SHIPPING",
+  ] as const,
+} as const;
+
+export const TRANSACTION_HUB_READ_UNREAD_LAW = [
+  "UNREAD → RED BADGE EXISTS",
+  "USER CLICKS → EVENT OPENS",
+  "EVENT BECOMES READ",
+  "RED BADGE UPDATES",
+  "USER RETURNS → NO UNREAD → BADGE DISAPPEARS",
+] as const;
+
+/** One event = one notification. Duplicates = FAIL. */
+export const TRANSACTION_HUB_NO_DUPLICATES_LAW = {
+  oneEvent: "ONE_NOTIFICATION",
+  accepted: ["ONE_NOTIFICATION", "ONE_CLICK", "ONE_PAGE", "READ", "FINISHED"] as const,
+  forbidden: "DUPLICATE_IDENTICAL_NOTIFICATIONS",
+} as const;
+
+export const TRANSACTION_HUB_ABSOLUTE_UX_LAW = [
+  "NO_EMPTY_PAGES",
+  "NO_DEAD_BUTTONS",
+  "NO_DEAD_LINKS",
+  "NO_DEAD_NOTIFICATIONS",
+  "NO_EMPTY_STATES_WITHOUT_REASON",
+  "NO_TEXT_ONLY_EVENTS",
+  "NO_PARALLEL_SYSTEMS",
+  "NO_CLICK_WITHOUT_ACTION",
+  "NO_BADGE_WITHOUT_EVENT",
+  "NO_EVENT_WITHOUT_CLICK_PATH",
+] as const;
+
+export const TRANSACTION_HUB_VISUAL_PROOF_1_OFFER = [
+  "NEW OFFER RECEIVED",
+  "INBOX = 0 → BOTTOM MENU = +1",
+  "OWNER SEES +1",
+  "CLICK → NOTIFICATION + PRODUCT IMAGE + PRICE + TIME",
+  "CLICK → OFFER PAGE OPENS",
+  "READ → +1 DISAPPEARS → INBOX = 0",
+  "PASS",
+] as const;
+
+export const TRANSACTION_HUB_VISUAL_PROOF_2_MESSAGE = [
+  "MESSAGE RECEIVED",
+  "INBOX = 0 → +1",
+  "CLICK → MESSAGE + PRODUCT IMAGE + LAST MESSAGE + TIME",
+  "CLICK → CONVERSATION PAGE OPENS",
+  "READ → INBOX = 0",
+  "PASS",
+] as const;
+
+export const TRANSACTION_HUB_VISUAL_PROOF_3_PAYMENT = [
+  "PAYMENT RECEIVED → +1",
+  "CLICK → PAYMENT + PRODUCT IMAGE + ORDER + PRICE",
+  "CLICK → ORDER PAGE OPENS",
+  "READ → BADGE DISAPPEARS",
+  "PASS",
+] as const;
+
+export const TRANSACTION_HUB_VISUAL_PROOF_4_SHIPPED = [
+  "PARCEL SHIPPED → +1",
+  "CLICK → SHIPPED + TRACKING + PRODUCT IMAGE",
+  "CLICK → TRACKING PAGE OPENS",
+  "READ → BADGE DISAPPEARS",
+  "PASS",
+] as const;
+
+export const TRANSACTION_HUB_NO_PASS_IF = [
+  "NO_PRODUCT_IMAGE",
+  "NO_CLICK_ACTION",
+  "NO_REAL_PAGE",
+  "NO_READ_UNREAD",
+  "NO_RED_BADGE",
+  "NO_REAL_TIME_UPDATE",
+  "NO_LOCALHOST_3000_VISUAL_PROOF",
+  "NO_OWNER_APPROVAL",
+] as const;
+
+export const TRANSACTION_HUB_FORBIDDEN_AS_PASS = [
+  "HTTP_200",
+  "API_PASS",
+  "DATABASE_PASS",
+  "CONSOLE_PASS",
+  "TEST_PASS",
+  "UNIT_TEST_PASS",
+  "PLAYWRIGHT_PASS",
+  "SCREENSHOT_PASS_WITHOUT_OWNER_VISUAL",
+] as const;
+
+export const TRANSACTION_HUB_FINAL_CERTIFICATION = [
+  "EVENT CREATED",
+  "RED BADGE APPEARS",
+  "OWNER SEES IT",
+  "CLICK",
+  "NOTIFICATION EXISTS",
+  "PRODUCT IMAGE EXISTS",
+  "CLICK",
+  "REAL PAGE OPENS",
+  "READ STATUS CHANGES",
+  "RED BADGE UPDATES",
+  "OWNER USES IT",
+  "OWNER APPROVES IT",
+  "SPRING 2 PASSES",
+  "FREEZE",
+  "LOCK",
+  "CERTIFIED",
+  "NEXT SPRING",
+] as const;
+
+export const TRANSACTION_HUB_TEXT_ONLY_FORBIDDEN = true;
+
+export const TRANSACTION_HUB_EXISTING_SSOT = {
+  inboxHub: "lib/inbox/inbox-hub-master-v1.ts",
+  freeze: "lib/inbox/freeze.ts",
+  inboxPage: "features/inbox/components/InboxPage.tsx",
+  conversationHub: "features/inbox/components/ConversationHub.tsx",
+  entry: "/inbox",
+  bottomNavInboxBadge: true,
+  realtimeBadge: true,
+} as const;
+
+/** @deprecated */
+export const TRANSACTION_HUB_REQUIRED_EVENTS = TRANSACTION_HUB_EVENTS;
+export const TRANSACTION_HUB_EVENT_FANOUT = TRANSACTION_HUB_MISSION_CHAIN;
+export const TRANSACTION_HUB_ONLY_ACCEPTED_CERTIFICATION =
+  TRANSACTION_HUB_FINAL_CERTIFICATION;

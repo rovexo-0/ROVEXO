@@ -15,7 +15,7 @@ type NotificationBellProps = {
 
 export function NotificationBell({
   className,
-  href = "/notifications",
+  href = "/inbox?tab=notifications",
   size = 28,
 }: NotificationBellProps) {
   const { unreadCount } = useRealtimeNotifications();

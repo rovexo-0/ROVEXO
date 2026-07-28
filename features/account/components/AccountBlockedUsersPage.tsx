@@ -1,10 +1,17 @@
 "use client";
 
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalInfoBlock, CanonicalButton, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
+import {
+  CanonicalSection,
+  CanonicalCard,
+  CanonicalMenuRow,
+  CanonicalInfoBlock,
+  CanonicalButton,
+  CanonicalInput,
+} from "@/src/components/canonical";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AccountCanonicalShell } from "@/features/account-canonical";
+import { MyAccountTemplate } from "@/features/account-canonical";
 
 import { PeopleLineIcon } from "@/components/icons/RvxLineIcons";
 import { blockUsernameSchema } from "@/lib/account/schemas";
@@ -73,7 +80,7 @@ export function AccountBlockedUsersPage() {
   };
 
   return (
-    <AccountCanonicalShell title="Blocked Users" backHref="/account/settings">
+    <MyAccountTemplate title="Blocked Users" backHref="/account/settings">
       <CanonicalSection title="Block a user">
         <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
           <form onSubmit={onSubmit} className="flex flex-col gap-ds-4" noValidate>
@@ -110,6 +117,6 @@ export function AccountBlockedUsersPage() {
           ))}
         </CanonicalCard>
       </CanonicalSection>
-    </AccountCanonicalShell>
+    </MyAccountTemplate>
   );
 }

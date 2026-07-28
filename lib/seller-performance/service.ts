@@ -21,6 +21,7 @@ import {
 } from "@/lib/seller-performance/levels";
 import {
   ACHIEVEMENT_DEFINITIONS,
+  normalizeSellerLevel,
   type AchievementId,
   type RecalculationTrigger,
   type SellerLevel,
@@ -54,7 +55,7 @@ function defaultScore(userId: string): SellerPerformanceScore {
   return {
     userId,
     score: 0,
-    level: "new_seller",
+    level: "bronze",
     componentScores: {
       reviews: 0,
       completedOrders: 0,
@@ -79,7 +80,9 @@ function mapScore(row: Record<string, unknown>): SellerPerformanceScore {
   return {
     userId: String(row.user_id),
     score: Number(row.score),
-    level: (row.level as SellerLevel) ?? levelForScore(Number(row.score)),
+    level: row.level
+      ? normalizeSellerLevel(String(row.level))
+      : levelForScore(Number(row.score)),
     componentScores:
       (row.component_scores as ComponentScores) ?? defaultScore(String(row.user_id)).componentScores,
     factors: (row.factors_snapshot as SellerPerformanceFactors | null) ?? null,
@@ -491,11 +494,6 @@ export async function getPublicSellerPerformanceSummary(
 ): Promise<PublicSellerPerformanceSummary> {
   const score = await getSellerPerformanceScore(userId);
   const factors = score.factors;
-  const badgeDefs = new Map(ACHIEVEMENT_DEFINITIONS.map((entry) => [entry.id, entry.label]));
-  const badges = score.achievements.map((id) => ({
-    id,
-    label: badgeDefs.get(id) ?? id,
-  }));
 
   return {
     userId,
@@ -505,7 +503,12 @@ export async function getPublicSellerPerformanceSummary(
     reviewCount: factors?.reviews.reviewCount ?? 0,
     completedSales: factors?.completedOrders ?? 0,
     verified: profileVerified || Boolean(factors?.identityVerified),
-    badges,
+    /**
+     * P0 consolidation: seller-performance NEVER publishes public badges.
+     * Canonical badges → Badge Engine → Reputation public API.
+     * Field kept empty for backward-compatible shape only.
+     */
+    badges: [],
   };
 }
 
@@ -709,15 +712,18 @@ export async function getSellerPerformanceAnalyticsSummary(): Promise<{
     const { data } = await admin.from("seller_performance_scores").select("score, level");
     const rows = (data ?? []) as Array<{ score: number; level: SellerLevel }>;
     const byLevel: Record<SellerLevel, number> = {
-      new_seller: 0,
-      trusted_seller: 0,
-      top_seller: 0,
-      premium_seller: 0,
-      elite_seller: 0,
+      bronze: 0,
+      silver: 0,
+      gold: 0,
+      diamond: 0,
+      platinum: 0,
+      elite: 0,
+      legend: 0,
     };
     let total = 0;
     for (const row of rows) {
-      byLevel[row.level] = (byLevel[row.level] ?? 0) + 1;
+      const level = normalizeSellerLevel(String(row.level));
+      byLevel[level] = (byLevel[level] ?? 0) + 1;
       total += row.score;
     }
     return {
@@ -730,11 +736,13 @@ export async function getSellerPerformanceAnalyticsSummary(): Promise<{
       totalSellers: 0,
       averageScore: 0,
       byLevel: {
-        new_seller: 0,
-        trusted_seller: 0,
-        top_seller: 0,
-        premium_seller: 0,
-        elite_seller: 0,
+        bronze: 0,
+        silver: 0,
+        gold: 0,
+        diamond: 0,
+        platinum: 0,
+        elite: 0,
+        legend: 0,
       },
     };
   }

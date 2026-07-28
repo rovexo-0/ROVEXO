@@ -35,12 +35,15 @@ describe("AUTH_MASTER_SPEC v1.0 — login screen", () => {
     expect(screen).toContain("AuthPasswordInput");
     expect(screen).toContain("Checkbox");
     expect(screen).toContain("PrimaryButton");
-    expect(screen).toContain("SocialLogin");
+    expect(screen).not.toContain("SocialLogin");
+    expect(screen).not.toContain("Continue with");
     expect(screen).toContain("AuthFooter");
     expect(screen).toContain('name="remember"');
     expect(screen).toContain('href="/forgot-password"');
     expect(screen).toContain('href="/register"');
-    expect(screen).toContain('data-auth-version="v1.0-legal-lock"');
+    expect(screen).toContain('data-auth-version="canonical-freeze-v1"');
+    expect(screen).not.toContain("Welcome Back");
+    expect(screen).not.toContain("Good to see you again");
     expect(layout).toContain("auth-login-route");
   });
 

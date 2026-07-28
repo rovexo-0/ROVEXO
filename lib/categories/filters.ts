@@ -22,48 +22,22 @@ const COMMON_FILTERS: CategoryFilterDefinition[] = [
 
 export const CATEGORY_FILTER_GROUPS: CategoryFilterGroup[] = [
   {
-    categorySlug: "vehicles",
+    categorySlug: "vehicle-parts",
     filters: [
       ...COMMON_FILTERS,
-      { key: "make", label: "Make", type: "text", required: true },
-      { key: "model", label: "Model", type: "text", required: true },
-      { key: "year", label: "Year", type: "number" },
-      { key: "mileage", label: "Mileage", type: "number" },
-      { key: "fuel", label: "Fuel Type", type: "select", options: ["Petrol", "Diesel", "Electric", "Hybrid", "Other"] },
-      { key: "transmission", label: "Transmission", type: "select", options: ["Manual", "Automatic"] },
+      { key: "make", label: "Vehicle Make", type: "text", required: true },
+      { key: "model", label: "Model", type: "text" },
       { key: "colour", label: "Colour", type: "text" },
-      { key: "doors", label: "Doors", type: "select", options: ["2", "3", "4", "5"] },
-      { key: "seats", label: "Seats", type: "select", options: ["2", "4", "5", "7"] },
-      { key: "ulez", label: "ULEZ Compliant", type: "boolean" },
-      { key: "vat", label: "VAT Qualifying", type: "boolean" },
-      { key: "delivery", label: "Delivery Available", type: "boolean" },
     ],
   },
   {
-    categorySlug: "cars",
-    filters: [
-      ...COMMON_FILTERS,
-      { key: "make", label: "Make", type: "text", required: true },
-      { key: "model", label: "Model", type: "text", required: true },
-      { key: "year", label: "Year", type: "number" },
-      { key: "mileage", label: "Mileage", type: "number" },
-      { key: "fuel", label: "Fuel Type", type: "select", options: ["Petrol", "Diesel", "Electric", "Hybrid", "Other"] },
-      { key: "transmission", label: "Transmission", type: "select", options: ["Manual", "Automatic"] },
-      { key: "colour", label: "Colour", type: "text" },
-      { key: "doors", label: "Doors", type: "select", options: ["2", "3", "4", "5"] },
-      { key: "seats", label: "Seats", type: "select", options: ["2", "4", "5", "7"] },
-      { key: "ulez", label: "ULEZ Compliant", type: "boolean" },
-    ],
-  },
-  {
-    categorySlug: "phones",
+    categorySlug: "phones-tablets",
     filters: [
       ...COMMON_FILTERS,
       { key: "brand", label: "Brand", type: "text", required: true },
       { key: "model", label: "Model", type: "text" },
       { key: "storage", label: "Storage", type: "select", options: ["32GB", "64GB", "128GB", "256GB", "512GB", "1TB"] },
       { key: "colour", label: "Colour", type: "text" },
-      { key: "condition", label: "Condition", type: "select", options: ["New", "Like New", "Very Good", "Good", "Fair"] },
       { key: "warranty", label: "Warranty", type: "boolean" },
       { key: "unlocked", label: "Unlocked", type: "boolean" },
     ],
@@ -81,23 +55,12 @@ export const CATEGORY_FILTER_GROUPS: CategoryFilterGroup[] = [
     ],
   },
   {
-    categorySlug: "power-tools",
+    categorySlug: "diy-tools",
     filters: [
       ...COMMON_FILTERS,
       { key: "brand", label: "Brand", type: "text", required: true },
       { key: "voltage", label: "Voltage", type: "select", options: ["12V", "18V", "240V"] },
       { key: "cordless", label: "Cordless", type: "boolean" },
-      { key: "condition", label: "Condition", type: "select", options: ["New", "Like New", "Very Good", "Good", "Fair"] },
-    ],
-  },
-  {
-    categorySlug: "property",
-    filters: [
-      ...COMMON_FILTERS,
-      { key: "bedrooms", label: "Bedrooms", type: "number" },
-      { key: "bathrooms", label: "Bathrooms", type: "number" },
-      { key: "property_type", label: "Property Type", type: "select", options: ["House", "Flat", "Bungalow", "Land", "Commercial"] },
-      { key: "tenure", label: "Tenure", type: "select", options: ["Freehold", "Leasehold", "Rent"] },
     ],
   },
   {
@@ -107,6 +70,24 @@ export const CATEGORY_FILTER_GROUPS: CategoryFilterGroup[] = [
       { key: "storage", label: "Storage", type: "select", options: ["32GB", "64GB", "128GB", "256GB", "512GB", "1TB"] },
       { key: "colour", label: "Colour", type: "text" },
       { key: "warranty", label: "Warranty", type: "boolean" },
+    ],
+  },
+  {
+    categorySlug: "womens-fashion",
+    filters: [
+      ...COMMON_FILTERS,
+      { key: "size", label: "Size", type: "select", options: ["XS", "S", "M", "L", "XL", "XXL"] },
+      { key: "colour", label: "Colour", type: "text" },
+      { key: "material", label: "Material", type: "text" },
+    ],
+  },
+  {
+    categorySlug: "mens-fashion",
+    filters: [
+      ...COMMON_FILTERS,
+      { key: "size", label: "Size", type: "select", options: ["XS", "S", "M", "L", "XL", "XXL"] },
+      { key: "colour", label: "Colour", type: "text" },
+      { key: "material", label: "Material", type: "text" },
     ],
   },
   {
@@ -146,10 +127,8 @@ export const CATEGORY_FILTER_GROUPS: CategoryFilterGroup[] = [
       ...COMMON_FILTERS,
       { key: "size", label: "Bed Size", type: "select", options: ["Single", "Double", "King", "Super King"] },
       { key: "material", label: "Material", type: "text" },
-      { key: "thread_count", label: "Thread Count", type: "number" },
       { key: "colour", label: "Colour", type: "text" },
       { key: "brand", label: "Brand", type: "text" },
-      { key: "season", label: "Season", type: "select", options: ["Summer", "Winter", "All Season"] },
     ],
   },
   {
@@ -169,7 +148,7 @@ export const CATEGORY_FILTER_GROUPS: CategoryFilterGroup[] = [
     ],
   },
   {
-    categorySlug: "pets",
+    categorySlug: "pet-supplies",
     filters: [
       ...COMMON_FILTERS,
       { key: "pet_type", label: "Pet Type", type: "select", options: ["Dog", "Cat", "Bird", "Fish", "Other"] },
@@ -177,49 +156,28 @@ export const CATEGORY_FILTER_GROUPS: CategoryFilterGroup[] = [
     ],
   },
   {
-    categorySlug: "jobs",
-    filters: [
-      { key: "job_type", label: "Job Type", type: "select", options: ["Full Time", "Part Time", "Contract", "Freelance"] },
-      { key: "salary", label: "Salary", type: "range" },
-      { key: "remote", label: "Remote", type: "boolean" },
-      { key: "location", label: "Location", type: "text" },
-    ],
-  },
-  {
-    categorySlug: "services",
-    filters: [
-      { key: "service_type", label: "Service Type", type: "text" },
-      { key: "price", label: "Price", type: "range" },
-      { key: "location", label: "Location", type: "text" },
-    ],
-  },
-  {
-    categorySlug: "travel",
-    filters: [
-      { key: "destination", label: "Destination", type: "text" },
-      { key: "dates", label: "Travel Dates", type: "text" },
-      { key: "price", label: "Price", type: "range" },
-    ],
-  },
-  {
-    categorySlug: "events",
-    filters: [
-      { key: "event_type", label: "Event Type", type: "text" },
-      { key: "date", label: "Date", type: "text" },
-      { key: "location", label: "Location", type: "text" },
-      { key: "price", label: "Price", type: "range" },
-    ],
-  },
-  {
-    categorySlug: "free-stuff",
-    filters: [
-      { key: "condition", label: "Condition", type: "select", options: ["New", "Like New", "Very Good", "Good", "Fair"] },
-      { key: "location", label: "Location", type: "text" },
-    ],
-  },
-  {
-    categorySlug: "everything-else",
+    categorySlug: "books",
     filters: [...COMMON_FILTERS],
+  },
+  {
+    categorySlug: "collectibles",
+    filters: [...COMMON_FILTERS],
+  },
+  {
+    categorySlug: "jewellery",
+    filters: [
+      ...COMMON_FILTERS,
+      { key: "material", label: "Material", type: "text" },
+      { key: "colour", label: "Colour", type: "text" },
+    ],
+  },
+  {
+    categorySlug: "kids-fashion",
+    filters: [
+      ...COMMON_FILTERS,
+      { key: "size", label: "Size", type: "text" },
+      { key: "colour", label: "Colour", type: "text" },
+    ],
   },
 ];
 

@@ -229,12 +229,14 @@ export async function cancelBuyerOrder(input: {
     await notifyOrderCancelled({
       buyerId: context.buyerId,
       buyerEmail: buyerProfile?.email ?? "",
+      orderId: input.orderId,
       orderNumber: context.orderNumber,
       reason: BUYER_CANCELLATION_REASON,
     });
     await notifySellerOrderCancelledByBuyer({
       sellerId: context.sellerId,
       sellerEmail: sellerProfile?.email ?? "",
+      orderId: input.orderId,
       orderNumber: context.orderNumber,
       productTitle: context.productTitle,
     });
@@ -295,12 +297,14 @@ export async function cancelBuyerOrder(input: {
   await notifyOrderCancelled({
     buyerId: context.buyerId,
     buyerEmail: buyerProfile?.email ?? "",
+    orderId: input.orderId,
     orderNumber: context.orderNumber,
     reason: BUYER_CANCELLATION_REASON,
   });
   await notifySellerOrderCancelledByBuyer({
     sellerId: context.sellerId,
     sellerEmail: sellerProfile?.email ?? "",
+    orderId: input.orderId,
     orderNumber: context.orderNumber,
     productTitle: context.productTitle,
     refundInitiated: Boolean(stripeRefundId),

@@ -25,6 +25,17 @@ export function computePromotionScore(
   bumpCount: number,
   bumpedUntil: string | null,
   featuredUntil: string | null,
+  lastBumpedAt: string | null = null,
+  featuredStartedAt: string | null = null,
+  durationHours: number | null = null,
 ): number {
-  return computeStoredPromotionScore({ bumpCount, bumpedUntil, featuredUntil });
+  return computeStoredPromotionScore({
+    bumpCount,
+    bumpedUntil,
+    featuredUntil,
+    lastBumpedAt,
+    featuredStartedAt,
+    bumpDurationHours: durationHours,
+    featureDurationHours: durationHours,
+  });
 }

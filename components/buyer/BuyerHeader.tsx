@@ -31,7 +31,7 @@ export function BuyerHeader() {
           <RovexoIcon icon={RovexoIcons.chat.messages} variant="header" />
           {unreadMessages > 0 ? <span className="buyer-header__badge-count">{unreadMessages}</span> : null}
         </Link>
-        <Link href="/notifications" className="buyer-header__action" aria-label="Notifications">
+        <Link href="/inbox?tab=notifications" className="buyer-header__action" aria-label="Notifications">
           <RovexoIcon icon={RovexoIcons.notifications.bell} variant="header" />
           {unreadNotifications > 0 ? (
             <span className="buyer-header__badge-count">{unreadNotifications}</span>

@@ -54,6 +54,15 @@ export function ComposeLineIcon(props: IconProps) {
   );
 }
 
+export function CameraLineIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M4.5 8.5h3l1.4-2h6.2l1.4 2H19.5A1.5 1.5 0 0 1 21 10v8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18v-8a1.5 1.5 0 0 1 1.5-1.5Z" />
+      <circle cx="12" cy="14" r="3.2" />
+    </svg>
+  );
+}
+
 export function BackLineIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>

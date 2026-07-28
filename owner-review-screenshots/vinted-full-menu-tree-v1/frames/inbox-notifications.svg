@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="624" viewBox="0 0 390 624"><rect width="390" height="624" fill="#F2F2F2"/><rect width="390" height="44" fill="#FFFFFF"/><text x="16" y="28" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="48" fill="#FFFFFF"/><text x="195" y="74" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Inbox</text>
+<rect x="0" y="92" width="390" height="44" fill="#FFFFFF"/>
+<text x="97.5" y="118" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="500" fill="#666666">Messages</text>
+<text x="292.5" y="118" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="700" fill="#1A1A1A">Notifications</text>
+<rect x="219" y="134" width="147" height="2" fill="#9333ea"/>
+<line x1="0" y1="136" x2="390" y2="136" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="136" width="390" height="72" fill="#FFFFFF"/>
+<g transform="translate(16 160)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 0 1 12 0c0 5 1.8 6.5 1.8 6.5H4.2S6 14.5 6 9.5z"/><path d="M9.8 19a2.3 2.3 0 0 0 4.4 0"/></svg></g>
+<text x="54" y="164" font-size="15" font-weight="600" fill="#1A1A1A">Price drop on Saved item</text>
+<text x="54" y="184" font-size="13" fill="#666666">Nike trainers now £22</text>
+<text x="374" y="164" text-anchor="end" font-size="12" fill="#999999">5m</text>
+<line x1="54" y1="208" x2="390" y2="208" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="208" width="390" height="72" fill="#FFFFFF"/>
+<g transform="translate(16 232)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 0 1 12 0c0 5 1.8 6.5 1.8 6.5H4.2S6 14.5 6 9.5z"/><path d="M9.8 19a2.3 2.3 0 0 0 4.4 0"/></svg></g>
+<text x="54" y="236" font-size="15" font-weight="600" fill="#1A1A1A">Someone favourited your listing</text>
+<text x="54" y="256" font-size="13" fill="#666666">Vintage denim jacket</text>
+<text x="374" y="236" text-anchor="end" font-size="12" fill="#999999">40m</text>
+<line x1="54" y1="280" x2="390" y2="280" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="280" width="390" height="72" fill="#FFFFFF"/>
+<g transform="translate(16 304)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 0 1 12 0c0 5 1.8 6.5 1.8 6.5H4.2S6 14.5 6 9.5z"/><path d="M9.8 19a2.3 2.3 0 0 0 4.4 0"/></svg></g>
+<text x="54" y="308" font-size="15" font-weight="600" fill="#1A1A1A">Platform Fee receipt</text>
+<text x="54" y="328" font-size="13" fill="#666666">Order #4821 · £1.65 fee</text>
+<text x="374" y="308" text-anchor="end" font-size="12" fill="#999999">2h</text>
+<line x1="54" y1="352" x2="390" y2="352" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="352" width="390" height="72" fill="#FFFFFF"/>
+<g transform="translate(16 376)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 0 1 12 0c0 5 1.8 6.5 1.8 6.5H4.2S6 14.5 6 9.5z"/><path d="M9.8 19a2.3 2.3 0 0 0 4.4 0"/></svg></g>
+<text x="54" y="380" font-size="15" font-weight="600" fill="#1A1A1A">New follower</text>
+<text x="54" y="400" font-size="13" fill="#666666">Sam started following you</text>
+<text x="374" y="380" text-anchor="end" font-size="12" fill="#999999">Yesterday</text>
+<rect x="0" y="424" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="432" width="390" height="100" fill="#FFFFFF"/>
+<text x="16" y="456" font-size="13" font-weight="700" fill="#666666">Inbox Hub · funcții ROVEXO</text>
+<text x="16" y="472" font-size="12" font-weight="600" fill="#9333ea">Orders</text>
+<text x="106" y="472" font-size="12" font-weight="600" fill="#9333ea">Tracking</text>
+<text x="196" y="472" font-size="12" font-weight="600" fill="#9333ea">Offers</text>
+<text x="286" y="472" font-size="12" font-weight="600" fill="#9333ea">Reviews</text>
+<text x="16" y="500" font-size="12" font-weight="600" fill="#9333ea">Refunds</text>
+<text x="106" y="500" font-size="12" font-weight="600" fill="#9333ea">Disputes</text>
+<text x="196" y="500" font-size="12" font-weight="600" fill="#9333ea">Support</text>
+<g transform="translate(0 532)"><rect x="0" y="0" width="390" height="64" fill="#FFFFFF"/><line x1="0" y1="0" x2="390" y2="0" stroke="#E0E0E0" stroke-width="1"/><g transform="translate(27 8)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20h-5v-6h-4v6H4z"/></svg></g><text x="39" y="52" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="10" font-weight="500" fill="#999999">Home</text><g transform="translate(105 8)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.5-3.5"/></svg></g><text x="117" y="52" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="10" font-weight="500" fill="#999999">Search</text><g transform="translate(183 8)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></g><text x="195" y="52" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="10" font-weight="500" fill="#999999">Sell</text><g transform="translate(261 8)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg></g><text x="273" y="52" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="10" font-weight="700" fill="#9333ea">Inbox</text><circle cx="283" cy="10" r="7" fill="#9333ea"/><text x="283" y="13" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">3</text><g transform="translate(339 8)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></g><text x="351" y="52" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="10" font-weight="500" fill="#999999">Profile</text></g>
+<rect x="0" y="596" width="390" height="28" fill="#F2F2F2"/><text x="16" y="614" font-size="9" font-family="ui-monospace,monospace" fill="#999999">Vinted Inbox = Messages + Notifications · ROVEXO Transaction Hub</text></svg>

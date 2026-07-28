@@ -1,0 +1,35 @@
+---
+description: ROVEXO Profile Icon System v1.0 — minimalist 24px line icons (colours only differ)
+alwaysApply: true
+---
+
+# ROVEXO PROFILE ICON SYSTEM v1.0
+
+**STATUS: PERMANENTLY LOCKED**
+
+Do **not** change Profile typography, spacing, paddings, row heights, touch targets, responsiveness, or Full Width. **Only icons + colours** may differ across menu rows.
+
+## Spec (24px · stroke · currentColor)
+
+| Item | Icon | Colour |
+|------|------|--------|
+| Favourites | Heart | `#FF5FA2` |
+| Balance | Wallet | `#06B6D4` |
+| My Orders | Package | `#F59E0B` |
+| Holiday Mode | Palm tree | `#22C55E` |
+| Promote | Megaphone | `#EC4899` |
+| Settings | Gear | `#9333EA` |
+| Rovexo Ideas | Lightbulb | `#FFD54A` |
+| Help Centre | Question mark | `#EF4444` |
+| Legal Information | Shield | `#60A5FA` |
+| Sign Out | Logout | `#DC2626` |
+
+## Forbidden
+
+Emojis · filled icons · oversized icons · inconsistent colours · custom spacings / row styles.
+
+## SSOT
+
+- `lib/account-center/profile-icon-system-v1.ts`
+- `features/account-center/components/ProfileMenuIcons.tsx`
+---

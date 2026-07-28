@@ -1,0 +1,8 @@
+# ROVEXO LANGUAGE ENGINE v1.0 → superseded by v2.0
+
+**STATUS: SUPERSEDED**
+
+Canonical lock: `.cursor/rules/language-engine-v2-lock.mdc`  
+SSOT: `lib/i18n/language-engine-v2.ts`
+
+`lib/i18n/language-engine-v1.ts` is a compatibility re-export only.

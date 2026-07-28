@@ -2,6 +2,9 @@ import { OrganicGrowthDashboardView } from "@/features/super-admin/organic-growt
 import { SuperAdminPageHeader } from "@/features/super-admin/components/SuperAdminShell";
 import { buildOrganicGrowthDashboard } from "@/lib/organic-growth/dashboard";
 
+/** Heavy dashboard — never SSG (Build Absolute Law: no 60s static timeout). */
+export const dynamic = "force-dynamic";
+
 export default async function SuperAdminOrganicGrowthPage() {
   const dashboard = await buildOrganicGrowthDashboard();
 

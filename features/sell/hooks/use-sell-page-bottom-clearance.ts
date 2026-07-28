@@ -2,17 +2,15 @@
 
 import { useEffect, type RefObject } from "react";
 
-/** Minimum gap between last field and publish bar (px). */
-const BAR_GAP_PX = 32;
+/** Minimum gap between last field and sticky publish CTA (px). */
+const BAR_GAP_PX = 12;
 
-/** Minimum bottom padding floor (px) before safe area. */
-const MIN_CLEARANCE_PX = 128;
+/** Minimum bottom padding floor (px). */
+const MIN_CLEARANCE_PX = 72;
 
 /**
- * Measures the fixed publish bar and keyboard inset, writing CSS variables on the sell shell:
- * - --sell-publish-bar-measured
- * - --sell-keyboard-offset
- * - --sell-scroll-keyboard-extra
+ * Measures the sticky publish CTA and writes Account-compatible clearance on the sell shell:
+ * - --sell-sticky-clearance
  */
 export function useSellPageBottomClearance(
   shellRef: RefObject<HTMLElement | null>,
@@ -22,11 +20,9 @@ export function useSellPageBottomClearance(
     const shell = shellRef.current;
     if (!shell) return;
 
-    const root = shell;
-
     const applyBarHeight = (height: number) => {
-      const measured = Math.max(height, MIN_CLEARANCE_PX - BAR_GAP_PX);
-      root.style.setProperty("--sell-publish-bar-measured", `${Math.ceil(measured)}px`);
+      const measured = Math.max(height + BAR_GAP_PX, MIN_CLEARANCE_PX);
+      shell.style.setProperty("--sell-sticky-clearance", `${Math.ceil(measured)}px`);
     };
 
     const bar = publishBarRef.current;
@@ -39,40 +35,14 @@ export function useSellPageBottomClearance(
       if (!entry) return;
       const height =
         entry.borderBoxSize?.[0]?.blockSize ??
-        entry.target.getBoundingClientRect().height;
+        entry.contentRect.height ??
+        bar.getBoundingClientRect().height;
       applyBarHeight(height);
     });
     resizeObserver.observe(bar);
 
-    const updateKeyboard = () => {
-      const vv = window.visualViewport;
-      if (!vv) {
-        root.style.setProperty("--sell-keyboard-offset", "0px");
-        root.style.setProperty("--sell-scroll-keyboard-extra", "0px");
-        return;
-      }
-
-      const keyboardInset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-      root.style.setProperty("--sell-keyboard-offset", `${Math.ceil(keyboardInset)}px`);
-      root.style.setProperty(
-        "--sell-scroll-keyboard-extra",
-        keyboardInset > 0 ? `${Math.ceil(keyboardInset)}px` : "0px",
-      );
-    };
-
-    updateKeyboard();
-    window.visualViewport?.addEventListener("resize", updateKeyboard);
-    window.visualViewport?.addEventListener("scroll", updateKeyboard);
-    window.addEventListener("resize", updateKeyboard);
-
     return () => {
       resizeObserver.disconnect();
-      window.visualViewport?.removeEventListener("resize", updateKeyboard);
-      window.visualViewport?.removeEventListener("scroll", updateKeyboard);
-      window.removeEventListener("resize", updateKeyboard);
-      root.style.removeProperty("--sell-publish-bar-measured");
-      root.style.removeProperty("--sell-keyboard-offset");
-      root.style.removeProperty("--sell-scroll-keyboard-extra");
     };
   }, [publishBarRef, shellRef]);
 }

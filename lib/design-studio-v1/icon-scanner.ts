@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join, relative } from "node:path";
 import { RovexoIcons, getRovexoIconPath } from "@/lib/icons/icons";
 import {
@@ -140,7 +141,7 @@ function computeIconScanScore(findings: IconScanFinding[], registeredIcons: numb
 }
 
 export function scanDesignStudioIcons(options: ScanOptions = {}): IconScanSummary {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? workspacePath();
   const scannedAt = new Date().toISOString();
   const totalAssets = countPublicIcons(join(rootDir, "public", "icons"));
   const registeredIcons = collectRegisteredIcons().length;

@@ -16,7 +16,7 @@ describe("transaction mode engine", () => {
     expect(TRANSACTION_MODES).toEqual(["MARKETPLACE", "DIRECT_CONTACT"]);
   });
 
-  it("assigns DIRECT_CONTACT to classified root sectors", () => {
+  it("keeps DIRECT_CONTACT resolver for legacy classified slugs", () => {
     for (const slug of DIRECT_CONTACT_ROOT_SLUGS) {
       expect(resolveTransactionModeForRootSlug(slug)).toBe("DIRECT_CONTACT");
     }
@@ -27,17 +27,21 @@ describe("transaction mode engine", () => {
     expect(resolveTransactionModeForRootSlug("home-garden")).toBe("MARKETPLACE");
   });
 
-  it("stamps enterprise tree nodes with inherited transaction modes", () => {
-    const vehicles = categoryTree.find((node) => node.slug === "vehicles");
+  it("stamps Catalog Master tree with MARKETPLACE modes only", () => {
+    expect(categoryTree.some((node) => node.slug === "vehicles")).toBe(false);
     const electronics = categoryTree.find((node) => node.slug === "electronics");
-
-    expect(vehicles?.transactionMode).toBe("DIRECT_CONTACT");
     expect(electronics?.transactionMode).toBe("MARKETPLACE");
-    const vehiclePath = flattenCategoryPaths().find((path) => path.categorySlug === "vehicles");
-    const marketplacePath = flattenCategoryPaths().find((path) => path.categorySlug === "electronics");
 
-    expect(vehiclePath && resolveTransactionModeFromFlatPath(vehiclePath)).toBe("DIRECT_CONTACT");
-    expect(marketplacePath && resolveTransactionModeFromFlatPath(marketplacePath)).toBe("MARKETPLACE");
+    const marketplacePath = flattenCategoryPaths().find(
+      (path) => path.categorySlug === "electronics",
+    );
+    expect(marketplacePath && resolveTransactionModeFromFlatPath(marketplacePath)).toBe(
+      "MARKETPLACE",
+    );
+
+    for (const root of categoryTree) {
+      expect(root.transactionMode).toBe("MARKETPLACE");
+    }
   });
 
   it("gates marketplace capabilities correctly", () => {
@@ -58,9 +62,10 @@ describe("transaction mode engine", () => {
     expect(direct.messaging).toBe(true);
   });
 
-  it("covers every enterprise sector root", () => {
+  it("covers every Catalog Master sector root", () => {
     for (const sector of ENTERPRISE_SECTORS) {
       const mode = resolveTransactionModeForRootSlug(sector.slug);
+      expect(mode).toBe("MARKETPLACE");
       expect(TRANSACTION_MODES).toContain(mode);
     }
   });

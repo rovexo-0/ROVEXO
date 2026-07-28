@@ -1,0 +1,31 @@
+---
+description: ROVEXO Sell Page — Master Architect Account DS lock
+alwaysApply: true
+---
+
+# Sell Page — Master Architect Fix Policy (Level 8)
+
+**Canonical:** `features/sell/ui/SellPage.tsx` · `/sell`
+
+## Design (ZERO EXCEPTIONS)
+
+Sell inherits **100% Account design system** only:
+- `AccountCanonicalShell`
+- `AccountPageStack` (`--cds-space-section-gap`)
+- `CanonicalMenuRow` / `CanonicalInput` / `CanonicalTextarea` / `CanonicalButton`
+- `.account-settings-sticky-action`
+
+Forbidden: Sell-only cards, Sell spacing tokens, Sell menu rows, Sell buttons, hotfixes that diverge from Profile/Settings.
+
+## Publish gate (core-6 ONLY)
+
+Photo + Title + Description + Category + Price + Parcel.  
+Optional attributes never block Publish.
+
+## Category (permanent)
+
+Suggested category · Choose another category · Search categories
+
+## Release
+
+Freeze / Certify / Commit / Production **forbidden** until Level 8 = 100% PASS.

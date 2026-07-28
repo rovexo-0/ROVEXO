@@ -1,0 +1,27 @@
+# ROVEXO CHECKOUT MASTER FREEZE v1.0 (1:1) + CHECKOUT_UI_v1.0
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN**
+
+SSOT: `lib/checkout/freeze.ts` · `lib/checkout/checkout-ui-v1-freeze.ts`  
+UI: `features/checkout/components/CheckoutWizardV1.tsx`
+
+## UI freeze (Owner 2026-07-25)
+
+`CHECKOUT_UI_v1.0` locks presentation (layout, density, PAY button, cards, footer).  
+No visual redesign / spacing / polish without Owner approval.
+
+## Fee label (absolute)
+
+- **Platform Fee** only
+- Forbidden: Buyer Protection · Buyer Protection Fee · Buyer Protection Included
+
+## CTA presentation (CHECKOUT_UI_v1.0)
+
+- Frozen label pattern: **PAY £TOTAL**
+- Full width · sticky footer · ROVEXO purple gradient
+- Height / radius locked in `CHECKOUT_UI_V1_FREEZE.visualLock`
+
+## Cursor must never
+
+Change architecture, layout, icons, typography, spacing, or Checkout CSS tokens without Owner re-authorization.  
+Backend / payment completion work must not alter frozen visuals.

@@ -10,7 +10,7 @@ type HelpAssistantProps = {
  * Consumer AI Help Assistant removed (NO AI policy).
  * Retained export so legacy imports resolve to Contact Support only.
  */
-export function HelpAssistant(_props: HelpAssistantProps = {}) {
+export function HelpAssistant({}: HelpAssistantProps = {}) {
   return (
     <p className="text-sm text-text-secondary">
       Need help?{" "}

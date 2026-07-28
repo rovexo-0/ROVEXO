@@ -1,4 +1,4 @@
-import { isPromotionActive } from "@/lib/promotions/format";
+import { computeTimeDecayPromotionScore } from "@/lib/promotions/boost-time-decay-v1";
 import type { Product } from "@/lib/products/types";
 
 /** Canonical homepage priority weights — promotions rank inside All Listings only. */
@@ -86,18 +86,25 @@ export function compareHomepageFeedProducts(a: Product, b: Product): number {
   return (b.views ?? 0) - (a.views ?? 0);
 }
 
-/** DB-backed promotion score (bump/feature windows) aligned to homepage weights. */
+/** DB-backed promotion score — Promotions Final Freeze (Owner 0–100 × SCALE). */
 export function computeStoredPromotionScore(input: {
-  bumpCount: number;
+  bumpCount?: number;
   bumpedUntil: string | null;
   featuredUntil: string | null;
+  lastBumpedAt?: string | null;
+  featuredStartedAt?: string | null;
+  bumpDurationHours?: number | null;
+  featureDurationHours?: number | null;
+  now?: Date;
 }): number {
-  let score = 0;
-  if (isPromotionActive(input.featuredUntil)) {
-    score += HOMEPAGE_PRIORITY_WEIGHTS.featured;
-  }
-  if (isPromotionActive(input.bumpedUntil)) {
-    score += HOMEPAGE_PRIORITY_WEIGHTS.boost + input.bumpCount;
-  }
-  return score;
+  void input.bumpCount;
+  return computeTimeDecayPromotionScore({
+    bumpedUntil: input.bumpedUntil,
+    featuredUntil: input.featuredUntil,
+    lastBumpedAt: input.lastBumpedAt,
+    featuredStartedAt: input.featuredStartedAt,
+    bumpDurationHours: input.bumpDurationHours,
+    featureDurationHours: input.featureDurationHours,
+    now: input.now,
+  });
 }

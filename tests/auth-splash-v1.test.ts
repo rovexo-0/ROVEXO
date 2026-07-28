@@ -9,18 +9,16 @@ function readSource(relativePath: string): string {
   return readFileSync(path.join(process.cwd(), relativePath), "utf8");
 }
 
-describe("AUTH_MASTER_SPEC v1.0 — Splash REMOVED", () => {
-  it("removes Splash from canonical startup", () => {
+describe("AUTH_MASTER_SPEC — Splash REMOVED (Cod Sânge v3)", () => {
+  it("keeps Login as guest entry", () => {
     expect(AUTH_MASTER_SPEC_VERSION).toBe("v1.0");
     expect(AUTH_MODULE_VERSION).toBe("v1.0");
     expect(AUTH_STARTUP.guestEntry).toBe("/login");
-    expect(AUTH_STARTUP.removedRoutes).toContain("/splash");
     expect(AUTH_MASTER_SPEC.splash.destinations.guest).toBe("/login");
     expect(AUTH_ROUTES.home).toBe("/");
   });
 
-  it("does not list Splash as a public auth prefix", () => {
-    expect(AUTH_PUBLIC_PREFIXES).not.toContain("/splash");
+  it("lists Login as a public auth prefix", () => {
     expect(AUTH_PUBLIC_PREFIXES).toContain("/login");
   });
 

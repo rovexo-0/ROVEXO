@@ -1,0 +1,49 @@
+---
+description: Full Width + Responsive Production Law v1.0 — engine adapts to design; zero redesign; Level 8 P0.
+alwaysApply: true
+---
+
+# ROVEXO Full Width + Responsive Production Law v1.0 (ABSOLUTE P0 · LEVEL 8)
+
+## Absolute
+
+**Owner-approved design always wins.**  
+Responsive engine adapts to the Owner-approved implementation.  
+The implementation is **never** modified to fit the engine.
+
+## Forbidden
+
+Redesign of: components · cards · pages · layouts · spacing · dimensions · icons · typography · colours · animations · shadows · borders · paddings · tokens · interactions  
+
+Create: v2 · duplicated implementations/responsive systems · temporary/experimental/hidden/replacement layouts
+
+## Full Width Absolute (every page)
+
+100% available width · height · safe area · responsive · adaptive  
+Always: `width:100%` · max available width · safe-area · browser/viewport/orientation compatibility
+
+## Production alignment
+
+Every component: **100% visible · aligned · responsive · accessible · production ready**  
+
+Never: cropped/hidden text · overflow · broken alignment · clipped/invisible/overlapping elements · inconsistent spacing/padding/margin/height/width
+
+## Engine may only
+
+Alignment · overflow · responsive · adaptive · browser · a11y · performance · infrastructure · rendering · safe area · orientation · viewport fixes  
+
+**Without** redesign · resizing Owner components · replacing components · changing dimensions/tokens/approved spacing/interactions
+
+## Identical across
+
+iPhone · Samsung · Pixel · Fold · Tablet · Desktop · macOS · Windows · Linux · Android · iOS · Chrome · Safari · Edge · Firefox  
+(+ small/large/ultra-wide · Dynamic Island · notch · fold · zoom · a11y modes)
+
+## Golden rule
+
+**Do not modify the design — modify the engine.  
+Do not rebuild — optimize.  
+One page · one implementation · one design · one responsive system · one Full Width Engine · one canonical version · forever.**
+
+Aligns with Full Width Absolute Law · Design Protection Absolute · Full Width Engine.  
+SSOT: `lib/master-engine/full-width-responsive-production-law-v1.ts`

@@ -1,0 +1,56 @@
+---
+description: Absolute Blood Law XXXVI — Category Visual Library Freeze. LOCKED · CERTIFIED · FROZEN.
+globs: lib/home/category-premium-library.ts,lib/search/search-category-heroes-v1.ts,lib/supreme-blood-law-xxxv-category-visual-identity-v1.ts,lib/supreme-blood-law-xxxvi-category-visual-library-freeze-v1.ts,public/categories/**,public/search/categories/**
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XXXVI — CATEGORY VISUAL LIBRARY FREEZE
+
+**STATUS: LOCKED | CERTIFIED | FROZEN | PRODUCTION READY**
+
+SSOT: `lib/supreme-blood-law-xxxvi-category-visual-library-freeze-v1.ts`  
+Parent: Blood Law XXXV (`lib/supreme-blood-law-xxxv-category-visual-identity-v1.ts`)  
+Frozen until: **ROVEXO v2.0** (Owner-approved major version only)
+
+## Mission
+
+The Category Visual Library is permanent Design System.  
+Only **asset quality improvements** are permitted. Visual language is locked.
+
+## Official library (10)
+
+Women's Fashion · Men's Fashion · Designer · Kids & Baby · Home & Garden · Electronics · Books & Media · Hobbies & Collectables · Sports & Outdoors · Vehicle Parts & Accessories
+
+## Visual language (locked)
+
+Studio product photography · White background · Premium soft shadow · Centered · 45° · Premium lighting · Photorealistic materials · Consistent scale/spacing
+
+## Vehicle Parts (official composition)
+
+Alloy wheel · Ventilated brake disc · Purple brake caliper · LED headlight · Coilover · Car battery · Performance air filter · Side mirror · Spark plug  
+
+**Whole vehicles permanently prohibited.**
+
+## Permitted
+
+Higher resolution · Better cutout / lighting / shadows / textures · Better compression / formats / rendering — **identity unchanged**
+
+## Forbidden
+
+New illustration styles · Cartoons · Icons replacing photos · Mixed languages · Dark backgrounds · Busy scenes · Random objects · Whole vehicles · Different composition / perspective / lighting · Lower-quality replacements
+
+## Frozen (do not modify)
+
+Image style · Visual language · Composition rules · Design family · Card layout/size/radius/shadows/typography · Search / Sell / Homepage layouts · Category grid · Asset mapping
+
+## Fail policy
+
+Breaks visual identity → **Reject asset · Restore certified production asset · Never deploy inconsistent visuals**
+
+## Cursor must never
+
+- Redesign category art style or mix visual languages  
+- Replace photos with icons/cartoons/illustrations  
+- Change asset mapping keys for the 10 roots  
+- Touch Search / Sell / Homepage / card layout for “visual library” work  
+- Deploy a lower-quality replacement than the certified production asset  

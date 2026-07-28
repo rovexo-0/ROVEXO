@@ -4,11 +4,7 @@ import {
   getDemoAdminClient,
   hasDemoEnvironmentConfig,
 } from "@/lib/demo-environment/guards";
-import { seedDemoListings } from "@/lib/demo-environment/listings";
-import { seedDemoMarketplaceData } from "@/lib/demo-environment/marketplace";
-import { seedFullDemoMarketplaceData } from "@/lib/demo-environment/full-demo-marketplace";
-import { ensureDemoUsers, type DemoUserRecord } from "@/lib/demo-environment/users";
-import { FULL_DEMO_PRODUCT_TARGET } from "@/lib/full-demo/canonical";
+import { ensureDemoUsers } from "@/lib/demo-environment/users";
 
 export type DemoEnvironmentSeedReport = {
   ok: boolean;
@@ -31,6 +27,10 @@ export type DemoEnvironmentSeedReport = {
   warnings: string[];
 };
 
+/**
+ * Absolute Law v5.0 — accounts only.
+ * Never seeds fake/demo/test marketplace listings.
+ */
 export async function runDemoEnvironmentSeed(): Promise<DemoEnvironmentSeedReport> {
   if (!isDemoSeedEnabled()) {
     throw new Error(
@@ -44,7 +44,9 @@ export async function runDemoEnvironmentSeed(): Promise<DemoEnvironmentSeedRepor
 
   await assertDemoEnvironmentReachable();
 
-  const warnings: string[] = [];
+  const warnings: string[] = [
+    "Absolute Law v5.0: listing / marketplace fake inventory seed permanently disabled. Real products only.",
+  ];
   const admin = getDemoAdminClient();
   const users = await ensureDemoUsers(DEMO_USERS);
 
@@ -54,37 +56,6 @@ export async function runDemoEnvironmentSeed(): Promise<DemoEnvironmentSeedRepor
   if (!liveBuyer || !liveSeller) {
     throw new Error("Permanent Full Demo Accounts (live-buyer / live-seller) are missing from seed.");
   }
-
-  const buyers = users.filter((user) => user.role === "buyer");
-  const sellers = users.filter(
-    (user) => user.role === "seller" || user.role === "business",
-  ) as DemoUserRecord[];
-
-  const { created: listings, productIds } = await seedDemoListings({
-    admin,
-    sellers,
-  });
-
-  // Guarantee ≥100 published listings for the permanent LIVE SELLER.
-  const { created: liveSellerListings, productIds: liveSellerProductIds } = await seedDemoListings({
-    admin,
-    sellers: [liveSeller],
-    targetCount: FULL_DEMO_PRODUCT_TARGET,
-  });
-
-  const marketplace = await seedDemoMarketplaceData({
-    admin,
-    buyers,
-    sellers,
-    productIds,
-  });
-
-  const fullDemo = await seedFullDemoMarketplaceData({
-    admin,
-    liveBuyer,
-    liveSeller,
-    productIds: liveSellerProductIds.length ? liveSellerProductIds : productIds,
-  });
 
   const { data: superAdmins } = await admin
     .from("profiles")
@@ -108,19 +79,19 @@ export async function runDemoEnvironmentSeed(): Promise<DemoEnvironmentSeedRepor
       { key: liveBuyer.key, email: liveBuyer.email, label: "ROVEXO LIVE BUYER" },
       { key: liveSeller.key, email: liveSeller.email, label: "ROVEXO LIVE SELLER" },
     ],
-    listings: listings + liveSellerListings,
-    orders: marketplace.orders + fullDemo.orders,
-    conversations: marketplace.conversations + fullDemo.conversations,
-    notifications: marketplace.notifications + fullDemo.notifications,
-    savedItems: marketplace.savedItems + fullDemo.savedItems,
-    reviews: marketplace.reviews + fullDemo.reviews,
-    walletTransactions: marketplace.walletTransactions + fullDemo.walletTransactions,
-    offers: fullDemo.offers,
-    counterOffers: fullDemo.counterOffers,
-    disputes: fullDemo.disputes,
-    parcels: fullDemo.parcels,
-    promotions: fullDemo.promotions,
-    analyticsEvents: fullDemo.analyticsEvents,
+    listings: 0,
+    orders: 0,
+    conversations: 0,
+    notifications: 0,
+    savedItems: 0,
+    reviews: 0,
+    walletTransactions: 0,
+    offers: 0,
+    counterOffers: 0,
+    disputes: 0,
+    parcels: 0,
+    promotions: 0,
+    analyticsEvents: 0,
     warnings,
   };
 }

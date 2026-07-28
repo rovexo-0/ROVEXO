@@ -1,0 +1,57 @@
+---
+description: ROVEXO Documentation Master Lock — five master specs, single status, if undocumented it does not exist
+alwaysApply: true
+---
+
+# ROVEXO Documentation Master Lock
+
+**STATUS: GLOBAL | MANDATORY | ENTIRE PLATFORM**
+
+## Every module must have
+
+1. Master Engineering Specification
+2. Master UI Specification
+3. Master UX Specification
+4. Master Database Specification
+5. Master Performance Specification
+
+## Every page has exactly one status
+
+- REVIEW
+- APPROVED
+- LOCKED
+- FROZEN
+- CERTIFIED
+- PRODUCTION READY
+
+## Forbidden
+
+- Unknown status
+- Multiple official versions
+- Undocumented features
+- Undocumented database changes
+- Undocumented API changes
+- Undocumented implementations
+
+## Every change must document
+
+- What changed
+- Why it changed
+- What was not changed
+- Performance impact
+- Responsive impact
+- Security impact
+- Database impact
+
+## No feature may exist without
+
+- Documentation
+- Owner approval
+- Visual review
+- Status assignment
+
+## Final rule
+
+**If it is not documented = it does not exist.**
+
+**Owner approval required.**

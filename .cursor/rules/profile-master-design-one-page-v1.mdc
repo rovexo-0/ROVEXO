@@ -1,0 +1,41 @@
+# ROVEXO My Account v1.0 — UI/UX + Visual Proportion MASTER LOCK
+
+**STATUS: PERMANENTLY LOCKED | APPROVED | PRODUCTION READY**
+
+SSOT: `lib/design-system/my-account-v1.ts`
+
+## Golden rule
+
+```
+PROFILE = VISUAL MASTER TEMPLATE
+        + VISUAL PROPORTION LOCK
+        + SSOT
+        + ONE DESIGN SYSTEM
+        + ONE LOOK RULE
+        + ONE PREMIUM FEELING
+        → MY ACCOUNT v1.0
+ONLY CONTENT MAY DIFFER · DESIGN NEVER DOES
+```
+
+## Rules #14–#21 (Visual Proportion Lock)
+
+| # | Rule |
+|---|------|
+| 14 | Profile → 100% only (no partial inheritance) |
+| 15 | Visual clone — side-by-side pages look identical except content |
+| 16 | Same page breathing — no crowded/compressed variants |
+| 17 | Content lock — text/fields only; structure/spacing locked |
+| 18 | Visual QA — Profile + Account Details + Addresses + Settings + Security side-by-side |
+| 19 | One Look — “same product” within 3 seconds |
+| 20 | Rejection — any page &lt; 9.5/10 rejects UI LOCK |
+| 21 | Production — all listed pages ≥ 9.5/10 or PRODUCTION blocked |
+
+## Gate API
+
+`evaluateMyAccountVisualGate(scores)` — fail-closed if any production page &lt; 9.5
+
+## Rules #22–#28 (Master Template)
+
+See `.cursor/rules/my-account-master-template-v1.mdc` and `docs/modules/account/MY_ACCOUNT_MASTER_TEMPLATE_V1.md`.
+
+All My Account pages inherit `MyAccountTemplate` — never private design systems.

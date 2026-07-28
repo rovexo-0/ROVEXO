@@ -1,7 +1,9 @@
-/** Canonical quick-sell condition values (SELL_MASTER_SPEC — no "For Parts"). */
+/** Canonical quick-sell condition values — Owner Attribute Engine freeze. */
 export const SELL_QUICK_CONDITIONS = [
+  "New with tags",
   "New",
   "Like New",
+  "Excellent",
   "Very Good",
   "Good",
   "Fair",

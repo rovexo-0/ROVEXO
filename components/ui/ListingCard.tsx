@@ -22,6 +22,7 @@ import {
   formatListingPrice,
   formatListingPriceIncl,
   humanizeListingCondition,
+  resolveListingShippingForIncl,
 } from "@/lib/listing-card/format";
 import { resolveHomepagePromotionBadge } from "@/lib/homepage/feed-ranking";
 import { getActiveMarket } from "@/lib/seo/markets";
@@ -171,6 +172,11 @@ export const ListingCard = memo(function ListingCard({
     product.listingType === "auction" && product.auctionCurrentBid != null
       ? product.auctionCurrentBid
       : product.price;
+  const shippingForIncl = resolveListingShippingForIncl({
+    freeDelivery: product.freeDelivery,
+    shippingPrice: product.shippingPrice,
+  });
+  const inclLabel = formatListingPriceIncl(amount, shippingForIncl);
   const condition = humanizeListingCondition(product.condition);
   const promoted = Boolean(product.isFeatured || product.isBumped) && UUID.test(product.id);
 
@@ -216,12 +222,17 @@ export const ListingCard = memo(function ListingCard({
   const isHomepageCard = surface === "homepage";
   const showFooter = !isHomepageCard && (showSeller || showRating || showViews);
   const ratingEnd = surface === "homepage" && showRating && !showSeller && !showViews;
+  const soldBadge = Boolean(
+    statusBadgeLabel && /^sold$/i.test(statusBadgeLabel.trim()),
+  );
   const promotionBadge =
     showStatusBadge && surface === "homepage"
       ? statusBadgeLabel
-        ? { label: statusBadgeLabel, tone: "featured" as const }
+        ? { label: statusBadgeLabel, tone: soldBadge ? ("sold" as const) : ("featured" as const) }
         : resolveHomepagePromotionBadge(product)
-      : null;
+      : showStatusBadge && statusBadgeLabel
+        ? { label: statusBadgeLabel, tone: soldBadge ? ("sold" as const) : ("featured" as const) }
+        : null;
 
   return (
     <article
@@ -271,19 +282,29 @@ export const ListingCard = memo(function ListingCard({
               <p className={css.conditionHomepage}>{condition}</p>
             ) : null}
             <p className={css.priceHomepage}>{priceLabel ?? formatListingPrice(amount)}</p>
-            <div className={css.metaRowHomepage}>
-              {showBuyerProtection ? (
-                <span className={css.inclTotalHomepage}>
-                  <span>{formatListingPriceIncl(amount)}</span>
-                  <ShieldLineIcon className={css.inclShieldHomepage} aria-hidden />
-                </span>
-              ) : (
-                <span className={css.inclSpacerHomepage} aria-hidden />
-              )}
+            {showBuyerProtection ? (
+              <p className={css.inclTotalHomepage}>
+                <span>{inclLabel}</span>
+                <ShieldLineIcon className={css.inclShieldHomepage} aria-hidden />
+              </p>
+            ) : null}
+            <div className={css.metaRowHomepage} data-product-card-stats="v1.0">
               {showRating ? (
                 <span className={css.ratingHomepage} aria-label={`Rating ${formatCardRating(product)}`}>
                   <IconStar />
                   <span className={css.ratingValueHomepage}>{formatCardRating(product)}</span>
+                </span>
+              ) : (
+                <span className={css.inclSpacerHomepage} aria-hidden />
+              )}
+              {showViews ? (
+                <span
+                  className={css.viewsHomepage}
+                  aria-label={formatProductViewsLabel(liveViews)}
+                  data-view-live={product.slug}
+                >
+                  <EyeLineIcon className={css.viewsIconHomepage} aria-hidden />
+                  {formatCardViews(liveViews)}
                 </span>
               ) : null}
             </div>
@@ -295,7 +316,7 @@ export const ListingCard = memo(function ListingCard({
           <p className={css.price}>{priceLabel ?? formatListingPrice(amount)}</p>
           {showBuyerProtection ? (
             <p className={css.protection}>
-              <span>{formatListingPriceIncl(amount)}</span>
+              <span>{inclLabel}</span>
               <ShieldLineIcon className={css.protectionIcon} aria-hidden />
             </p>
           ) : null}

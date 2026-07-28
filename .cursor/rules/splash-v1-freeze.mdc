@@ -1,17 +1,10 @@
----
-description: Splash removed — Login is guest entry (PO private deployment contract)
-alwaysApply: true
----
+# ROVEXO v1.0 — SPLASH REMOVED (Cod Sânge v3)
 
-# ROVEXO v1.0 — SPLASH REMOVED
-
-**STATUS: REMOVED | Product Owner private deployment contract**
-
-Splash Screen is permanently removed from the canonical startup flow.
+**STATUS: REMOVED**
 
 - Guest entry: `/login`
-- Valid session: `/` (Homepage)
 - `/splash` permanently redirects to `/login`
+- `/welcome` permanently redirects to `/login`
 - PWA `start_url`: `/`
 
-Do not restore Splash without a new approved Auth Master Specification.
+Do not restore Splash without a new Owner Auth Master Specification.

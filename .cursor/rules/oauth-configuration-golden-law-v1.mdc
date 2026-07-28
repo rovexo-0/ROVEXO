@@ -1,0 +1,46 @@
+---
+description: OAuth Configuration Golden Law — providers only no code
+alwaysApply: true
+---
+
+# ROVEXO OAUTH CONFIGURATION GOLDEN LAW v1.0 (LEVEL 8)
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN | CANONICAL SSOT**
+
+SSOT: `lib/auth/oauth-configuration-golden-law-v1.ts`  
+Companion: `lib/auth/oauth-configuration-freeze-v1.ts`
+
+## Root cause (only)
+
+`SUPABASE_CONFIGURATION: true`  
+Error: `400 validation_failed : provider is not enabled`  
+**Not** code · architecture · auth system · header · search · camera · cookies.
+
+## Auth core = PASS
+
+Email login/register · cookie session · session restore · callback · header · search · camera
+
+## OAuth = FAIL until configured
+
+Google · Apple · Facebook → `Provider Disabled`  
+Google/Apple **MUST BE ENABLED** · Facebook **OPTIONAL BUT SUPPORTED**
+
+## Callbacks
+
+- `http://localhost:3000/auth/callback`
+- `https://rovexo.com/auth/callback`
+- `https://staging.rovexo.com/auth/callback`
+
+## Allowed only
+
+ENABLE GOOGLE/APPLE/FACEBOOK · ADD CALLBACK URLS · ALLOWLIST ORIGINS · SAVE · TEST
+
+## Forbidden
+
+AUTH V2 · OAUTH V2 · new auth/providers · cookie/session/header/search/callback rewrites · Supabase replacement · **code changes for config errors**
+
+## Equation
+
+If configuration fails **and** auth core passes → **NO CODE CHANGES.**  
+Only: enable providers + allowlist callbacks + test + pass + deploy.  
+**100/100 = DEPLOY · 99 = NO DEPLOY · 1 FAIL = NO DEPLOY · ZERO EXCEPTIONS.**

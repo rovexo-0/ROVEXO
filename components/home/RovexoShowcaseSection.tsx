@@ -5,7 +5,6 @@ import Link from "next/link";
 import { memo } from "react";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { BusinessBadge, resolveBusinessBadgeKinds } from "@/components/ui/BusinessBadge";
-import { FollowSellerButton } from "@/features/launch/components/FollowSellerButton";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { RovexoIcons } from "@/lib/icons";
 import { HOMEPAGE_LISTING_CARD_PROPS } from "@/components/home/constants";
@@ -78,8 +77,6 @@ export const RovexoShowcaseSection = memo(function RovexoShowcaseSection({
             </span>
           </span>
         </Link>
-
-        <FollowSellerButton sellerId={section.sellerId} compact />
       </div>
 
       <div className="rx-showcase-v2__rail" role="list">

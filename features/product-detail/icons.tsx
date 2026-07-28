@@ -21,7 +21,7 @@ function createLineFeatureIcon(
 ): ComponentType<FeatureIconProps> {
   return function LineFeatureIcon(props) {
     const { className, size, ...rest } = props;
-    const resolved = resolvePixelSize(props, defaultSize);
+    const resolved = resolvePixelSize({ size, ...rest }, defaultSize);
     return <Icon className={className} width={resolved} height={resolved} {...rest} />;
   };
 }

@@ -6,10 +6,23 @@ type WalletPageProps = {
   backHref?: string;
   connectMessage?: string;
   variant?: "personal" | "business";
+  isBusinessVerified?: boolean;
 };
 
-export function WalletPage({ data, backHref, connectMessage, variant = "personal" }: WalletPageProps) {
+export function WalletPage({
+  data,
+  backHref,
+  connectMessage,
+  variant = "personal",
+  isBusinessVerified = false,
+}: WalletPageProps) {
   return (
-    <WalletHubV1 data={data} backHref={backHref} connectMessage={connectMessage} variant={variant} />
+    <WalletHubV1
+      data={data}
+      backHref={backHref}
+      connectMessage={connectMessage}
+      variant={variant}
+      isBusinessVerified={isBusinessVerified}
+    />
   );
 }

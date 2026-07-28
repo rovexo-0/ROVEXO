@@ -28,15 +28,36 @@ function product(partial: Partial<Product> & Pick<Product, "id" | "sellerId">): 
 describe("final platform spec surfaces", () => {
   it("groups paid showcase sellers into dedicated homepage sections", () => {
     const sections = buildShowcaseSellerSections([
-      product({ id: "a1", sellerId: "s1", isFeatured: true, sellerName: "Alpha" }),
-      product({ id: "a2", sellerId: "s1", isFeatured: true }),
-      product({ id: "b1", sellerId: "s2", isFeatured: true, sellerName: "Beta" }),
-      product({ id: "c1", sellerId: "s3", isFeatured: false }),
+      product({
+        id: "a1",
+        sellerId: "s1",
+        isFeatured: true,
+        sellerName: "Alpha",
+        sellerUsername: "alpha",
+        slug: "alpha-1",
+      }),
+      product({
+        id: "a2",
+        sellerId: "s1",
+        isFeatured: true,
+        sellerUsername: "alpha",
+        slug: "alpha-2",
+      }),
+      product({
+        id: "b1",
+        sellerId: "s2",
+        isFeatured: true,
+        sellerName: "Beta",
+        sellerUsername: "beta",
+        slug: "beta-1",
+      }),
+      product({ id: "c1", sellerId: "s3", isFeatured: false, sellerUsername: "gamma", slug: "gamma-1" }),
     ]);
 
     expect(sections).toHaveLength(2);
     expect(sections[0]?.listings).toHaveLength(2);
-    expect(sections[0]?.profileHref).toContain("/search?seller=");
+    expect(sections[0]?.profileHref).toBe("/store/alpha");
+    expect(sections[1]?.profileHref).toBe("/store/beta");
   });
 
   it("labels showcase promotions on listing cards", () => {
@@ -53,7 +74,7 @@ describe("final platform spec surfaces", () => {
       expect.objectContaining({ id: "28d", priceCents: 450, priceLabel: "£4.50" }),
     ]);
     expect(marketplacePricingToFeatureOptions(DEFAULT_MARKETPLACE_PRICING)).toEqual([
-      expect.objectContaining({ priceCents: 600, priceLabel: "£6" }),
+      expect.objectContaining({ priceCents: 630, priceLabel: "£6.30" }),
     ]);
   });
 

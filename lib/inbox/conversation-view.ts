@@ -5,9 +5,15 @@
 
 import type { ChatMessage, Conversation, ConversationProduct, SenderRole } from "@/lib/messages/types";
 import type { OrderReference } from "@/lib/inbox/types";
+import { resolveSprint1BuyerTotal, resolveSprint1ConversationStatus } from "@/lib/inbox/conversation-payment-sprint1";
+import { formatPayNowLabel } from "@/lib/inbox/conversation-hub-sprint1-freeze-v1";
+import {
+  formatMasterStackActiveLabel,
+} from "@/lib/inbox/master-stack-buyer-hub-v1";
 import { getViewerRole } from "@/lib/messages/types";
 import type { Order, OrderStatus } from "@/lib/orders/types";
 import { getOrderStatusLabel, getTrackingUrl } from "@/lib/orders/status";
+import { shouldOmitOfferFromChatTimeline } from "@/lib/supreme-blood-code-viii-v1";
 
 export const CONVERSATION_HUB_VERSION = "v1.1-zoom-out" as const;
 
@@ -59,6 +65,8 @@ export type ConversationOfferView = {
   fromRole: SenderRole;
   createdAt: string;
   expiresAt?: string | null;
+  /** Set when this pending offer is a counter of a parent offer (Blood XLIII). */
+  parentOfferId?: string | null;
 };
 
 export type ConversationTrackingView = {
@@ -80,13 +88,6 @@ export type ConversationDisputeView = {
   evidenceCount?: number;
 };
 
-export type ConversationAttachmentView = {
-  id: string;
-  label: string;
-  kind: "photo" | "shipping_label" | "invoice" | "proof_of_dispatch" | "proof_of_delivery";
-  url: string;
-};
-
 export type ConversationTimelineItem =
   | { kind: "day"; id: string; label: string }
   | { kind: "message"; id: string; at: string; message: ChatMessage }
@@ -102,19 +103,34 @@ export type ConversationTimelineItem =
 
 export type ConversationDynamicAction = {
   id:
+    | "resume_payment"
     | "add_tracking"
     | "confirm_shipment"
     | "confirm_received"
     | "leave_feedback"
     | "report_issue"
     | "open_dispute"
+    | "view_dispute"
     | "print_label"
+    | "download_label"
     | "upload_proof"
     | "confirm_delivery"
     | "leave_review"
-    | "confirm_dispatch";
+    | "confirm_dispatch"
+    | "track_parcel"
+    | "view_order"
+    | "withdraw";
   label: string;
   role: SenderRole | "both";
+  /** First button = primary when true (default index 0). */
+  primary?: boolean;
+};
+
+export type ConversationActionBarPanel = {
+  title: string;
+  subtitle?: string;
+  meta?: string;
+  tone: "neutral" | "purple" | "success" | "danger" | "info";
 };
 
 export type ConversationHubView = {
@@ -123,20 +139,21 @@ export type ConversationHubView = {
   product: ConversationProduct;
   participantName: string;
   participantAvatarUrl?: string | null;
+  participantActiveLabel: string;
   orderReference: OrderReference;
   orderStatusLabel: string;
   orderDetailsHref: string;
   buyerName: string;
   sellerName: string;
-  sellerAvatarUrl?: string | null;
-  statusSteps: ConversationOrderStatusStep[];
   timeline: ConversationTimelineItem[];
   tracking: ConversationTrackingView | null;
   offers: ConversationOfferView[];
   dispute: ConversationDisputeView | null;
-  attachments: ConversationAttachmentView[];
   dynamicActions: ConversationDynamicAction[];
-  typingLabel: string | null;
+  /** Informational Action Bar panel (waiting drop-off, completed, etc.). */
+  actionBarPanel: ConversationActionBarPanel | null;
+  /** Product Card status badge — Sold / Available / Completed (not payment copy). */
+  productCardStatus: string;
   hasOrder: boolean;
 };
 
@@ -149,30 +166,33 @@ const STEP_LABELS: Record<ConversationOrderStatusStepId, string> = {
 };
 
 const SYSTEM_EVENT_COPY: Record<ConversationSystemEventType, { title: string; subtitle: string }> = {
-  tracking_added: { title: "Tracking available.", subtitle: "" },
-  delivered: { title: "Delivered.", subtitle: "" },
-  refund: { title: "Refund completed.", subtitle: "" },
-  cancelled: { title: "Cancelled.", subtitle: "" },
-  dispute_started: { title: "Dispute opened.", subtitle: "" },
-  offer_accepted: { title: "Offer accepted.", subtitle: "" },
-  offer_declined: { title: "Offer declined.", subtitle: "" },
-  payment_received: { title: "Payment received.", subtitle: "" },
-  label_created: { title: "Shipping label generated.", subtitle: "" },
-  shipping_label_generated: { title: "Shipping label generated.", subtitle: "" },
-  parcel_collected: { title: "Item shipped.", subtitle: "" },
-  tracking_updated: { title: "In transit.", subtitle: "" },
-  parcel_delivered: { title: "Delivered.", subtitle: "" },
-  refund_issued: { title: "Refund completed.", subtitle: "" },
-  refund_completed: { title: "Refund completed.", subtitle: "" },
-  review_available: { title: "Review received.", subtitle: "" },
-  payment_confirmed: { title: "Payment received.", subtitle: "" },
+  tracking_added: { title: "Tracking available", subtitle: "" },
+  delivered: { title: "Delivered", subtitle: "" },
+  refund: { title: "Refund completed", subtitle: "" },
+  cancelled: { title: "Cancelled", subtitle: "" },
+  dispute_started: { title: "Dispute opened", subtitle: "" },
+  offer_accepted: {
+    title: "Offer accepted!",
+    subtitle: "You can now proceed to buy.",
+  },
+  offer_declined: { title: "Offer declined", subtitle: "" },
+  payment_received: { title: "Payment received", subtitle: "" },
+  label_created: { title: "Shipping label generated", subtitle: "" },
+  shipping_label_generated: { title: "Shipping label generated", subtitle: "" },
+  parcel_collected: { title: "Item shipped", subtitle: "" },
+  tracking_updated: { title: "In transit", subtitle: "" },
+  parcel_delivered: { title: "Delivered", subtitle: "" },
+  refund_issued: { title: "Refund completed", subtitle: "" },
+  refund_completed: { title: "Refund completed", subtitle: "" },
+  review_available: { title: "Review received", subtitle: "" },
+  payment_confirmed: { title: "Payment received", subtitle: "" },
   funds_released: {
-    title: "Funds released.",
+    title: "Funds released",
     subtitle: "",
   },
   completed: {
-    title: "Completed.",
-    subtitle: "Thank you for using ROVEXO.",
+    title: "Completed",
+    subtitle: "",
   },
 };
 
@@ -277,40 +297,20 @@ export function buildOrderStatusSteps(
   });
 }
 
-function buildSystemEventsFromOrder(order: Order | null | undefined): ConversationTimelineItem[] {
+function buildSystemEventsFromOrder(
+  order: Order | null | undefined,
+  options?: { hasShippingLabel?: boolean },
+): ConversationTimelineItem[] {
   if (!order) return [];
   const items: ConversationTimelineItem[] = [];
 
-  if (order.paidAt) {
-    items.push({
-      kind: "system",
-      id: `system-payment-${order.id}`,
-      at: order.paidAt,
-      event: "payment_received",
-      title: SYSTEM_EVENT_COPY.payment_received.title,
-      subtitle: SYSTEM_EVENT_COPY.payment_received.subtitle,
-    });
-  }
-  if (order.trackingNumber && order.shippedAt) {
-    items.push({
-      kind: "system",
-      id: `system-tracking-${order.id}`,
-      at: order.shippedAt,
-      event: "tracking_added",
-      title: "Tracking available.",
-      subtitle: order.trackingNumber,
-    });
-  }
-  if (order.deliveredAt) {
-    items.push({
-      kind: "system",
-      id: `system-delivered-${order.id}`,
-      at: order.deliveredAt,
-      event: "delivered",
-      title: SYSTEM_EVENT_COPY.delivered.title,
-      subtitle: SYSTEM_EVENT_COPY.delivered.subtitle,
-    });
-  }
+  /* Messages Master Rewrite (COD SÂNGE):
+     Dynamic Transaction Card owns lifecycle status (Tracking / Delivered / Completed).
+     Timeline stays compact — never stack Funds Released + Completed + Delivered duplicates.
+     Only exceptional logistics/dispute/refund/cancel events remain here. */
+
+  void options;
+
   if (order.refundedAt || order.refundCompletedAt) {
     items.push({
       kind: "system",
@@ -343,25 +343,6 @@ function buildSystemEventsFromOrder(order: Order | null | undefined): Conversati
       subtitle: SYSTEM_EVENT_COPY.dispute_started.subtitle,
     });
   }
-  if (order.status === "completed" || order.completedAt) {
-    const completedAt = order.completedAt ?? order.deliveredAt ?? order.paidAt ?? order.createdAt;
-    items.push({
-      kind: "system",
-      id: `system-funds-${order.id}`,
-      at: completedAt,
-      event: "funds_released",
-      title: SYSTEM_EVENT_COPY.funds_released.title,
-      subtitle: SYSTEM_EVENT_COPY.funds_released.subtitle,
-    });
-    items.push({
-      kind: "system",
-      id: `system-completed-${order.id}`,
-      at: completedAt,
-      event: "completed",
-      title: SYSTEM_EVENT_COPY.completed.title,
-      subtitle: SYSTEM_EVENT_COPY.completed.subtitle,
-    });
-  }
 
   return items;
 }
@@ -372,49 +353,64 @@ function buildSystemEventsFallback(_conversation: Conversation): ConversationTim
   return [];
 }
 
+/** Seed-only logistics placeholders — never hide real payment/order chat that Inbox preview shows. */
+function isLogisticsPlaceholderMessage(content: string): boolean {
+  const text = content.trim().toLowerCase();
+  if (!text) return false;
+  if (text.includes("tracking pending")) return true;
+  if (text.includes("updates appear here")) return true;
+  return false;
+}
+
 function buildTimeline(
   conversation: Conversation,
   order: Order | null | undefined,
   offers: ConversationOfferView[],
+  options?: { hasShippingLabel?: boolean },
 ): ConversationTimelineItem[] {
   const items: ConversationTimelineItem[] = [];
 
   for (const message of conversation.messages) {
+    if (isLogisticsPlaceholderMessage(message.content)) continue;
     items.push({ kind: "message", id: message.id, at: message.sentAt, message });
   }
 
-  items.push(...(order ? buildSystemEventsFromOrder(order) : buildSystemEventsFallback(conversation)));
+  /* Inbox preview ↔ Hub sync: if last_message exists but rows are empty/filtered, surface preview. */
+  const hasVisibleMessage = items.some((item) => item.kind === "message");
+  const preview = conversation.lastMessage?.trim() ?? "";
+  if (!hasVisibleMessage && preview && !isLogisticsPlaceholderMessage(preview)) {
+    items.push({
+      kind: "message",
+      id: `preview-last-${conversation.id}`,
+      at: conversation.lastMessageAt || new Date().toISOString(),
+      message: {
+        id: `preview-last-${conversation.id}`,
+        senderRole: conversation.participant.role,
+        kind: "text",
+        content: preview,
+        sentAt: conversation.lastMessageAt || new Date().toISOString(),
+        status: "delivered",
+        reactions: {},
+      },
+    });
+  }
+
+  items.push(
+    ...(order
+      ? buildSystemEventsFromOrder(order, options)
+      : buildSystemEventsFallback(conversation)),
+  );
 
   for (const offer of offers) {
+    /* Owner canonical mockup: closed + open offers live in the unified conversation timeline. */
+    if (shouldOmitOfferFromChatTimeline({ kind: "offer", offerState: offer.state })) continue;
     items.push({ kind: "offer", id: `offer-${offer.id}`, at: offer.createdAt, offer });
-    if (offer.state === "accepted") {
-      const amountLabel = new Intl.NumberFormat("en-GB", {
-        style: "currency",
-        currency: offer.currency || "GBP",
-      }).format(offer.amount);
-      items.push({
-        kind: "system",
-        id: `system-offer-accepted-${offer.id}`,
-        at: offer.createdAt,
-        event: "offer_accepted",
-        title: SYSTEM_EVENT_COPY.offer_accepted.title,
-        subtitle: amountLabel,
-      });
-    }
-    if (offer.state === "declined") {
-      const amountLabel = new Intl.NumberFormat("en-GB", {
-        style: "currency",
-        currency: offer.currency || "GBP",
-      }).format(offer.amount);
-      items.push({
-        kind: "system",
-        id: `system-offer-declined-${offer.id}`,
-        at: offer.createdAt,
-        event: "offer_declined",
-        title: SYSTEM_EVENT_COPY.offer_declined.title,
-        subtitle: amountLabel,
-      });
-    }
+    /**
+     * Recovery Sprint I / DEFECT #3:
+     * Do NOT inject a duplicate "Offer accepted!" system card.
+     * Transaction Status Card is the only canonical accepted-state surface.
+     * Offer amount bubbles remain in the timeline above.
+     */
   }
 
   items.sort((a, b) => {
@@ -437,41 +433,161 @@ function buildTimeline(
   return withDays;
 }
 
+function buildActionBarPanel(
+  viewerRole: SenderRole,
+  order: Order | null | undefined,
+  options?: {
+    hasShippingLabel?: boolean;
+    tracking?: ConversationTrackingView | null;
+  },
+): ConversationActionBarPanel | null {
+  if (!order) return null;
+  const hasShippingLabel = Boolean(options?.hasShippingLabel);
+  const tracking = options?.tracking ?? null;
+  const carrierMeta = tracking
+    ? [tracking.courierName, tracking.trackingNumber].filter(Boolean).join(" · ")
+    : undefined;
+
+  if (viewerRole === "seller") {
+    if (order.status === "awaiting_shipment" && hasShippingLabel) {
+      return {
+        title: "Waiting for parcel drop-off",
+        meta: carrierMeta ?? "Royal Mail • Tracked 48",
+        tone: "purple",
+      };
+    }
+    if (order.status === "shipped") {
+      return {
+        title: tracking?.statusLabel?.toLowerCase().includes("out")
+          ? "Out for delivery"
+          : "Tracking Active",
+        subtitle: tracking?.latestScan ?? "Your parcel is with the carrier.",
+        meta: carrierMeta,
+        tone: "info",
+      };
+    }
+    if (order.status === "delivered") {
+      /* Dynamic Transaction Card owns “Waiting for buyer confirmation…” — no sticky duplicate. */
+      return null;
+    }
+    if (order.status === "completed") {
+      /* Dynamic Transaction Card owns “Sale completed / Funds released to Wallet.” */
+      return null;
+    }
+    if (order.status === "awaiting_payment") {
+      return {
+        title: "Waiting buyer payment...",
+        subtitle: "The buyer will complete checkout to confirm this order.",
+        tone: "neutral",
+      };
+    }
+  }
+
+  if (viewerRole === "buyer") {
+    if (order.status === "completed") {
+      /* Leave Review lives on the Dynamic Transaction Card — no sticky panel duplicate. */
+      return null;
+    }
+    if (order.status === "issue_open") {
+      return {
+        title: "Issue reported",
+        subtitle: "Resolution is in progress.",
+        tone: "purple",
+      };
+    }
+  }
+
+  return null;
+}
+
 function buildDynamicActions(
   viewerRole: SenderRole,
   order: Order | null | undefined,
   productStatus: ConversationProduct["status"],
+  options?: { hasShippingLabel?: boolean },
 ): ConversationDynamicAction[] {
-  if (order) {
-    if (viewerRole === "buyer") {
-      const actions: ConversationDynamicAction[] = [];
-      if (order.status === "delivered") {
-        actions.push({ id: "confirm_received", label: "Confirm received", role: "buyer" });
-      }
-      if (order.status === "completed") {
-        actions.push({ id: "leave_feedback", label: "Leave feedback", role: "buyer" });
-      }
-      if (order.status !== "cancelled" && order.status !== "completed") {
-        actions.push({ id: "report_issue", label: "Report issue", role: "buyer" });
-        actions.push({ id: "open_dispute", label: "Open dispute", role: "buyer" });
-      }
-      return actions;
-    }
-
-    const actions: ConversationDynamicAction[] = [];
-    if (order.status === "awaiting_shipment") {
-      actions.push({ id: "add_tracking", label: "Add tracking", role: "seller" });
-      actions.push({ id: "confirm_shipment", label: "Confirm shipment", role: "seller" });
-    }
-    if (order.status === "shipped") {
-      actions.push({ id: "confirm_shipment", label: "Update shipment", role: "seller" });
-    }
-    return actions;
+  void productStatus;
+  const hasShippingLabel = Boolean(options?.hasShippingLabel);
+  if (!order) {
+    /* Pre-purchase CTAs come from TransactionHubBottomActions via TransactionActionBar. */
+    return [];
   }
 
-  void productStatus;
-  /* Without a linked order, only pre-purchase hub actions apply (handled by TransactionHubBottomActions). */
-  return [];
+  if (viewerRole === "buyer") {
+    const actions: ConversationDynamicAction[] = [];
+    if (order.status === "awaiting_payment") {
+      const total = resolveSprint1BuyerTotal({
+        order,
+        itemPrice: order.totals.itemPrice,
+      });
+      actions.push({
+        id: "resume_payment",
+        label: formatPayNowLabel(total),
+        role: "buyer",
+        primary: true,
+      });
+      return actions.slice(0, 2);
+    }
+    if (order.status === "delivered") {
+      /* CTAs live on Dynamic Transaction Card only (Everything OK / I Have an Issue). */
+      return [];
+    }
+    if (order.status === "issue_open") {
+      actions.push({ id: "view_dispute", label: "View Details", role: "buyer" });
+      return actions.slice(0, 2);
+    }
+    if (order.status === "completed") {
+      /* Leave Review lives on Dynamic Transaction Card — avoid sticky duplicate. */
+      return [];
+    }
+    if (order.status === "awaiting_shipment" || order.status === "shipped") {
+      if (order.trackingNumber || order.status === "shipped") {
+        actions.push({
+          id: "track_parcel",
+          label: "View Tracking",
+          role: "buyer",
+          primary: true,
+        });
+      } else {
+        actions.push({
+          id: "view_order",
+          label: "Order Details",
+          role: "buyer",
+          primary: true,
+        });
+      }
+      if (order.status === "shipped") {
+        actions.push({ id: "report_issue", label: "I Have an Issue", role: "buyer" });
+      }
+      return actions.slice(0, 2);
+    }
+    return actions.slice(0, 2);
+  }
+
+  const actions: ConversationDynamicAction[] = [];
+  if (order.status === "awaiting_shipment") {
+    if (!hasShippingLabel) {
+      actions.push({
+        id: "print_label",
+        label: "Get Shipping Label",
+        role: "seller",
+        primary: true,
+      });
+      return actions.slice(0, 2);
+    }
+    /* Label generated — drop-off automation panel only (no Mark as Sent). */
+    return [];
+  }
+  if (order.status === "shipped") {
+    /* Carrier webhooks own tracking — seller sees info panel, no manual status buttons. */
+    return [];
+  }
+  if (order.status === "completed") {
+    /* Messages Master Rewrite: never Withdraw / Wallet CTAs in Messages.
+       Sale-completed copy lives on the Dynamic Transaction Card only. */
+    return [];
+  }
+  return actions.slice(0, 2);
 }
 
 function buildTracking(
@@ -494,26 +610,15 @@ function buildTracking(
   return null;
 }
 
-function buildAttachments(conversation: Conversation): ConversationAttachmentView[] {
-  return conversation.messages
-    .filter((message) => message.kind === "photo" && !message.deletedAt)
-    .map((message) => ({
-      id: message.id,
-      label: "Photo",
-      kind: "photo" as const,
-      url: message.content,
-    }));
-}
-
 export type BuildConversationHubViewInput = {
   conversation: Conversation;
   order?: Order | null;
   orderReference?: OrderReference | null;
   offers?: ConversationOfferView[];
   dispute?: ConversationDisputeView | null;
-  attachments?: ConversationAttachmentView[];
   tracking?: ConversationTrackingView | null;
-  typingLabel?: string | null;
+  /** True when a shipping label PDF is available for this order. */
+  hasShippingLabel?: boolean;
 };
 
 export function buildConversationHubView(input: BuildConversationHubViewInput): ConversationHubView {
@@ -522,6 +627,7 @@ export function buildConversationHubView(input: BuildConversationHubViewInput): 
   const orderReference = buildOrderReference(conversation, order, input.orderReference);
   const offers = input.offers ?? [];
   const hasOrder = Boolean(order);
+  const hasAcceptedOffer = offers.some((offer) => offer.state === "accepted");
 
   const buyerName = order
     ? order.buyer.name
@@ -534,8 +640,34 @@ export function buildConversationHubView(input: BuildConversationHubViewInput): 
       ? conversation.participant.name
       : "You";
 
-  const sellerAvatarUrl =
-    viewerRole === "buyer" ? conversation.participant.avatarUrl : null;
+  const sprint1Status = resolveSprint1ConversationStatus({
+    viewerRole,
+    orderStatus: order?.status ?? null,
+    hasAcceptedOffer,
+    hasOrder,
+  });
+  const fallbackStatus =
+    orderReference.statusLabel ?? statusLabelFromProduct(conversation.product.status);
+  const orderStatusLabel =
+    order?.status === "awaiting_payment" ||
+    order?.status === "awaiting_shipment" ||
+    (!hasOrder && hasAcceptedOffer)
+      ? sprint1Status
+      : fallbackStatus;
+
+  const tracking = buildTracking(conversation, order, input.tracking);
+  /* Label truth = API probe only. Tracking number / shipped status are separate. */
+  const hasShippingLabel = Boolean(input.hasShippingLabel);
+  const productCardStatus = (() => {
+    if (order?.status === "completed") return "Completed";
+    if (order?.status === "cancelled") return "Cancelled";
+    if (order?.status === "issue_open") return "Sold";
+    if (order) return "Sold";
+    if (hasAcceptedOffer) return "Offer Pending";
+    if (conversation.product.status === "sold") return "Sold";
+    if (conversation.product.status === "paused") return "Paused";
+    return "Available";
+  })();
 
   return {
     conversationId: conversation.id,
@@ -543,8 +675,12 @@ export function buildConversationHubView(input: BuildConversationHubViewInput): 
     product: conversation.product,
     participantName: conversation.participant.name,
     participantAvatarUrl: conversation.participant.avatarUrl,
+    participantActiveLabel: formatMasterStackActiveLabel({
+      online: conversation.participant.online,
+      lastSeen: conversation.participant.lastSeen,
+    }),
     orderReference,
-    orderStatusLabel: orderReference.statusLabel ?? statusLabelFromProduct(conversation.product.status),
+    orderStatusLabel,
     orderDetailsHref: hasOrder
       ? viewerRole === "seller"
         ? `/seller/orders/${encodeURIComponent(orderReference.orderId)}`
@@ -552,15 +688,18 @@ export function buildConversationHubView(input: BuildConversationHubViewInput): 
       : `/orders/${encodeURIComponent(orderReference.orderId)}`,
     buyerName,
     sellerName,
-    sellerAvatarUrl,
-    statusSteps: buildOrderStatusSteps(conversation.product.status, order?.status),
-    timeline: buildTimeline(conversation, order, offers),
-    tracking: buildTracking(conversation, order, input.tracking),
+    timeline: buildTimeline(conversation, order, offers, { hasShippingLabel }),
+    tracking,
     offers,
     dispute: input.dispute ?? null,
-    attachments: input.attachments ?? buildAttachments(conversation),
-    dynamicActions: buildDynamicActions(viewerRole, order, conversation.product.status),
-    typingLabel: input.typingLabel ?? null,
+    dynamicActions: buildDynamicActions(viewerRole, order, conversation.product.status, {
+      hasShippingLabel,
+    }),
+    actionBarPanel: buildActionBarPanel(viewerRole, order, {
+      hasShippingLabel,
+      tracking,
+    }),
+    productCardStatus,
     hasOrder,
   };
 }
@@ -574,8 +713,10 @@ export function mapOfferDbStatus(status: string): ConversationOfferState {
     case "accepted":
       return "accepted";
     case "rejected":
-    case "cancelled":
       return "declined";
+    /** Parent offer locked after a successful counter (Blood XLIII). */
+    case "cancelled":
+      return "countered";
     case "expired":
       return "expired";
     case "pending":

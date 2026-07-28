@@ -1,0 +1,60 @@
+---
+description: Supreme Blood Code XX — Sprint V Sell EXECUTION MODE (IN DEVELOPMENT)
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE XX — SPRINT V SELL EXECUTION MODE
+
+**STATUS: IN DEVELOPMENT · EXECUTION MODE · APPROVED TO START · BLOOD CODE LOCKED**  
+**NOT yet 100% · NOT permanently frozen** (Owner Certification pending)
+
+SSOT: `lib/supreme-blood-code-xx-v1.ts`  
+Official: `http://localhost:3000/sell`
+
+## Execution Mode
+
+```
+LESS RULES + MORE CODE + MORE IMPLEMENTATION + MORE QA + MORE OWNER CERTIFICATION
+= ROVEXO v1.0
+```
+
+## Absolute scope
+
+Modify **ONLY** `/sell`. Never touch Homepage · Inbox · Conversation · Orders · Wallet · Checkout · Shipping · Account · Settings · Profile · Legal · Help.
+
+## One Sell
+
+One implementation · one entry point = `/sell` only
+
+## Master flow
+
+Open → Photos → Category → Subcategory → Title → Brand → Colour → Condition → Parcel → Description → Price → Validations → Publish → Success (View · Share · Sell Another)
+
+## Photos / Validations / Publish
+
+- Gallery · Camera · Multi · Preview · Validation · Drag order · Remove · Replace  
+- No broken uploads / white screens / empty previews / loops  
+- Without validations = publish fails  
+- Publish once → success only View · Share · Sell Another
+
+## UI
+
+Compact Premium · Mobile first · Full width · iPhone 17 Pro Max  
+**No Search Bar / Homepage / Marketplace header**  
+**Bottom nav VISIBLE** (except flow-focused if UX requires)
+
+## Zero regression
+
+Must never break Sprint I–IV. Regression = PRODUCT FAIL
+
+## Live status
+
+| Sprint | Status |
+|--------|--------|
+| I–IV | LOCKED |
+| V Sell | **IN DEVELOPMENT** |
+| VI–VIII | FORBIDDEN TO START |
+
+## Goal
+
+Sell in under one minute on mobile when information is ready. Fast · Intuitive · Premium · Production ready.

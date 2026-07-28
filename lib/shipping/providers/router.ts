@@ -29,9 +29,9 @@ export type RoutedLabelResult = ShippingLabelResponse & {
   providerId: ShippingProviderId;
 };
 
-function resolveActiveShippingProvider(): ShippingProvider {
+function resolveActiveShippingProvider(forceDemo = false): ShippingProvider {
   // Certification / Full Demo — never call real Sendcloud HTTP.
-  if (mustUseDemoShipping()) {
+  if (forceDemo || mustUseDemoShipping()) {
     return demoShippingAdapter;
   }
   return sendcloudAdapter;
@@ -119,9 +119,10 @@ export async function fetchShippingQuotesRouted(
 export async function createShippingLabelRouted(
   request: ShippingLabelRequest,
 ): Promise<RoutedLabelResult> {
-  const provider = resolveActiveShippingProvider();
+  const forceDemo = Boolean(request.forceDemoShipping) || mustUseDemoShipping();
+  const provider = resolveActiveShippingProvider(forceDemo);
 
-  if (mustUseDemoShipping()) {
+  if (forceDemo) {
     try {
       const response = await withTimeout(provider.createLabel(request), PROVIDER_TIMEOUT_MS);
       return { ...response, providerId: PROVIDER_ID };

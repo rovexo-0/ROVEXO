@@ -6,6 +6,7 @@ import { ModalContainer } from "@/components/ui/ModalContainer";
 import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { sellPanel, focusRing } from "@/features/sell/ui/sell-classes";
 import { SellPanelHeader } from "@/features/sell/ui/SellPrimitives";
+import { CanonicalMenuRow, CanonicalButton } from "@/src/components/canonical";
 import type { SelectionOption } from "@/lib/sell/attribute-options";
 
 export type SellOptionPickerProps = {
@@ -30,17 +31,10 @@ function normalize(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function SearchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" strokeWidth={1.75} stroke="currentColor" className="h-5 w-5 text-text-muted" aria-hidden>
-      <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-4.35-4.35m1.35-5.4a6.75 6.75 0 1 1-13.5 0 6.75 6.75 0 0 1 13.5 0Z" />
-    </svg>
-  );
-}
-
 /**
- * Fullscreen attribute selector — tap to select, auto-close, return to sell form.
- * No Done / Apply / Save buttons. Scroll body is independent per page.
+ * Fullscreen attribute selector.
+ * Single: tap → auto-save → auto-return (no Done).
+ * Multiple: tap to toggle → Apply → auto-return.
  */
 export function SellOptionPicker({
   title,
@@ -60,6 +54,7 @@ export function SellOptionPicker({
   onDone,
 }: SellOptionPickerProps) {
   const [query, setQuery] = useState("");
+  const [draftSelection, setDraftSelection] = useState<string[]>(() => [...value]);
 
   const allOptions = useMemo<SelectionOption[]>(() => {
     const known = new Set(options.map((option) => option.id));
@@ -85,41 +80,63 @@ export function SellOptionPicker({
     return allOptions.filter((option) => set.has(option.id));
   }, [allOptions, popularIds, trimmed]);
 
-  const select = (id: string) => {
-    onDone(mode === "multiple" ? [id] : [id]);
+  const selectSingle = (id: string) => {
+    onDone([id]);
+    onClose();
+  };
+
+  const toggleMulti = (id: string) => {
+    setDraftSelection((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+    );
+  };
+
+  const applyMulti = () => {
+    onDone(draftSelection);
     onClose();
   };
 
   const useSwatchGrid = showSwatch && layout !== "grid";
+  const activeIds = mode === "multiple" ? draftSelection : value;
 
   const renderSwatchCell = (option: SelectionOption) => {
-    const active = value.includes(option.id);
+    const active = activeIds.includes(option.id) || activeIds.includes(option.label);
     return (
       <button
         key={option.id}
         type="button"
-        role="radio"
+        role={mode === "multiple" ? "checkbox" : "radio"}
         aria-checked={active}
         aria-label={option.label}
-        onClick={() => select(option.id)}
+        onClick={() => (mode === "multiple" ? toggleMulti(option.id) : selectSingle(option.id))}
         className={cn(
-          "flex flex-col items-center gap-ds-2 rounded-ds-md p-ds-2 transition-colors",
+          "flex min-h-[44px] w-full items-center gap-ds-2 rounded-ds-md px-ds-2 py-ds-1 text-left transition-colors",
           active ? "bg-primary/5" : "bg-transparent",
           focusRing,
         )}
       >
         <span
           className={cn(
-            "h-12 w-12 shrink-0 rounded-ds-full border-2 shadow-sm",
-            active ? "border-primary ring-2 ring-primary/30" : "border-border",
+            "grid h-5 w-5 shrink-0 place-items-center rounded-ds-full border-2",
+            active ? "border-primary" : "border-border",
           )}
-          style={{ backgroundColor: option.swatch ?? "transparent" }}
           aria-hidden
-        />
-        <span className={cn(
-          "max-w-full truncate text-center text-xs font-medium",
-          active ? "text-primary" : "text-text-secondary",
-        )}>
+        >
+          {active ? <span className="h-2.5 w-2.5 rounded-ds-full bg-primary" /> : null}
+        </span>
+        {option.swatch ? (
+          <span
+            className="h-5 w-5 shrink-0 rounded-ds-full border border-border"
+            style={{ backgroundColor: option.swatch }}
+            aria-hidden
+          />
+        ) : null}
+        <span
+          className={cn(
+            "min-w-0 flex-1 truncate text-sm font-medium",
+            active ? "text-primary" : "text-text-primary",
+          )}
+        >
           {option.label}
         </span>
       </button>
@@ -127,50 +144,42 @@ export function SellOptionPicker({
   };
 
   const renderRow = (option: SelectionOption) => {
-    const active = value.includes(option.id);
+    const active = activeIds.includes(option.id) || activeIds.includes(option.label);
     return (
       <li key={option.id}>
-        <button
-          type="button"
-          role="radio"
-          aria-checked={active}
-          onClick={() => select(option.id)}
-          className={cn(
-            "flex min-h-[56px] w-full items-center gap-ds-3 rounded-ds-md border-2 px-ds-4 text-left transition-colors",
-            active ? "border-primary bg-primary/5" : "border-border bg-surface-muted/40",
-            focusRing,
-          )}
-        >
-          {showSwatch ? (
-            <span className="h-6 w-6 shrink-0 rounded-ds-full border border-border" style={{ backgroundColor: option.swatch ?? "transparent" }} aria-hidden />
-          ) : null}
-          <span className="min-w-0 flex-1 truncate text-base font-medium text-text-primary">{option.label}</span>
-          <span
-            className={cn(
-              "grid h-6 w-6 shrink-0 place-items-center rounded-ds-full border-2",
-              active ? "border-primary bg-primary text-white" : "border-border",
-            )}
-            aria-hidden
-          >
-            {active ? <span className="h-2.5 w-2.5 rounded-ds-full bg-white" /> : null}
-          </span>
-        </button>
+        <CanonicalMenuRow
+          title={option.label}
+          icon={
+            showSwatch ? (
+              <span
+                className="h-6 w-6 shrink-0 rounded-ds-full border border-border"
+                style={{ backgroundColor: option.swatch ?? "transparent" }}
+                aria-hidden
+              />
+            ) : undefined
+          }
+          value={active ? "Selected" : undefined}
+          onClick={() => (mode === "multiple" ? toggleMulti(option.id) : selectSingle(option.id))}
+          hideChevron
+        />
       </li>
     );
   };
 
   const renderGridCell = (option: SelectionOption) => {
-    const active = value.includes(option.id);
+    const active = activeIds.includes(option.id) || activeIds.includes(option.label);
     return (
       <button
         key={option.id}
         type="button"
-        role="radio"
+        role={mode === "multiple" ? "checkbox" : "radio"}
         aria-checked={active}
-        onClick={() => select(option.id)}
+        onClick={() => (mode === "multiple" ? toggleMulti(option.id) : selectSingle(option.id))}
         className={cn(
-          "grid min-h-[56px] place-items-center rounded-ds-md border-2 px-ds-2 text-center text-base font-semibold transition-colors",
-          active ? "border-primary bg-primary/5 text-primary" : "border-border bg-surface-muted/40 text-text-primary",
+          "grid min-h-[44px] place-items-center rounded-ds-md border-2 px-ds-2 text-center text-base font-semibold transition-colors",
+          active
+            ? "border-primary bg-primary/5 text-primary"
+            : "border-border bg-surface-muted/40 text-text-primary",
           focusRing,
         )}
       >
@@ -185,24 +194,25 @@ export function SellOptionPicker({
         <SellPanelHeader title={title} onBack={onClose} />
 
         {searchable ? (
-          <div className="shrink-0 border-b border-border px-ds-4 py-ds-3">
-            <div className={cn("flex items-center gap-ds-2 rounded-ds-md bg-surface-muted px-ds-3", focusRing)}>
-              <SearchIcon />
-              <input
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={searchPlaceholder}
-                aria-label={searchPlaceholder}
-                autoComplete="off"
-                className="h-11 w-full flex-1 bg-transparent text-base text-text-primary outline-none placeholder:text-text-muted"
-              />
-            </div>
+          <div className="shrink-0 border-b border-border px-0 py-2">
+            <label className="sr-only" htmlFor={`sell-option-search-${title}`}>
+              {searchPlaceholder}
+            </label>
+            <input
+              id={`sell-option-search-${title}`}
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={searchPlaceholder}
+              aria-label={searchPlaceholder}
+              autoComplete="off"
+              className={cn("cds-input w-full", focusRing)}
+            />
           </div>
         ) : null}
 
-        <div className={cn(RX_MODAL_BODY, "min-h-0 flex-1 overflow-y-auto overscroll-contain px-ds-4 pt-ds-3")}>
-          {suggestedOption && !trimmed ? (
+        <div className={cn(RX_MODAL_BODY, "min-h-0 flex-1 overflow-y-auto overscroll-contain pt-2")}>
+          {suggestedOption && !trimmed && mode === "single" ? (
             <>
               <p className="px-ds-1 pb-ds-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
                 {suggestedSectionTitle ?? `Suggested ${title}`}
@@ -211,35 +221,51 @@ export function SellOptionPicker({
                 {renderRow(suggestedOption)}
               </ul>
               <div className="mb-ds-3 border-t border-border" role="separator" aria-hidden />
-              <p className="px-ds-1 pb-ds-2 text-xs font-semibold uppercase tracking-wide text-text-muted">{chooseAnotherLabel}</p>
+              <p className="px-ds-1 pb-ds-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
+                {chooseAnotherLabel}
+              </p>
             </>
           ) : null}
 
           {useSwatchGrid ? (
-            <div className="grid grid-cols-4 gap-ds-2 pb-ds-4 sm:grid-cols-5" role="radiogroup" aria-label={title}>
+            <div
+              className="grid grid-cols-2 gap-ds-1 pb-ds-4"
+              role={mode === "multiple" ? "group" : "radiogroup"}
+              aria-label={title}
+            >
               {filtered.map(renderSwatchCell)}
             </div>
           ) : layout === "grid" ? (
-            <div className="grid grid-cols-3 gap-ds-2 pb-ds-4" role="radiogroup" aria-label={title}>
+            <div
+              className="grid grid-cols-3 gap-ds-2 pb-ds-4"
+              role={mode === "multiple" ? "group" : "radiogroup"}
+              aria-label={title}
+            >
               {filtered.map(renderGridCell)}
             </div>
           ) : (
             <>
               {showCustom ? (
-                <ul className="mb-ds-3 flex flex-col gap-ds-2">{renderRow({ id: trimmed, label: `Use “${trimmed}”` })}</ul>
+                <ul className="mb-ds-3 flex flex-col gap-ds-2">
+                  {renderRow({ id: trimmed, label: `Use “${trimmed}”` })}
+                </ul>
               ) : null}
 
               {popularOptions.length > 0 ? (
                 <>
-                  <p className="px-ds-1 pb-ds-2 pt-ds-1 text-xs font-semibold uppercase tracking-wide text-text-muted">Popular</p>
-                  <ul className="mb-ds-3 flex flex-col gap-ds-2" role="radiogroup" aria-label={`Popular ${title}`}>
+                  <p className="px-ds-1 pb-ds-2 pt-ds-1 text-xs font-semibold uppercase tracking-wide text-text-muted">
+                    Popular
+                  </p>
+                  <ul className="mb-ds-3 flex flex-col gap-ds-2" role="list" aria-label={`Popular ${title}`}>
                     {popularOptions.map(renderRow)}
                   </ul>
-                  <p className="px-ds-1 pb-ds-2 pt-ds-1 text-xs font-semibold uppercase tracking-wide text-text-muted">All</p>
+                  <p className="px-ds-1 pb-ds-2 pt-ds-1 text-xs font-semibold uppercase tracking-wide text-text-muted">
+                    All
+                  </p>
                 </>
               ) : null}
 
-              <ul className="flex flex-col gap-ds-2 pb-ds-4" role="radiogroup" aria-label={title}>
+              <ul className="flex flex-col gap-ds-2 pb-ds-4" role="list" aria-label={title}>
                 {filtered.map(renderRow)}
               </ul>
 
@@ -249,6 +275,14 @@ export function SellOptionPicker({
             </>
           )}
         </div>
+
+        {mode === "multiple" ? (
+          <div className="shrink-0 border-t border-border px-0 py-2">
+            <CanonicalButton fullWidth onClick={applyMulti}>
+              Apply
+            </CanonicalButton>
+          </div>
+        ) : null}
       </div>
     </ModalContainer>
   );

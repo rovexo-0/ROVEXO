@@ -1,4 +1,5 @@
 import { readFileSync, existsSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join } from "node:path";
 import { BRING_YOUR_ITEM_PATH } from "@/lib/bring-your-item/paths";
 import {
@@ -81,7 +82,7 @@ function step(
   return { id, label, pass: checks.every((c) => c.pass), checks };
 }
 
-export function runBringYourItemCertification(rootDir: string = process.cwd()): BringYourItemCertificationReport {
+export function runBringYourItemCertification(rootDir: string = workspacePath()): BringYourItemCertificationReport {
   const legacyImportPage = readSource(rootDir, "app/import/page.tsx");
   const headerCta = readSource(rootDir, "components/header/HeaderBringYourItemCta.tsx");
   const migrationCenter = readSource(rootDir, "features/seller/migration/components/MigrationCenterPage.tsx");
@@ -212,7 +213,7 @@ export function runBringYourItemCertification(rootDir: string = process.cwd()): 
     ]),
     step("responsive", "Responsive Certification", [
       { id: "e2e-routes", label: "E2E responsive route coverage", pass: (masterQa.includes("/import") || masterQa.includes("/account/bring-your-item")) && masterQa.includes("/sell") },
-      { id: "safe-area", label: "Safe area insets", pass: readSource(rootDir, "features/sell/ui/SellScreen.tsx").includes("safe-area") },
+      { id: "safe-area", label: "Safe area insets", pass: readSource(rootDir, "features/sell/ui/SellPage.tsx").includes("safe-area") },
       { id: "mobile-nav", label: "Mobile navigation module", pass: existsSync(join(rootDir, "styles/rovexo/bottom-nav-premium.css")) },
     ]),
     step("performance", "Performance", [

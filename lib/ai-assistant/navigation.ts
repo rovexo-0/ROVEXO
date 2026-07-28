@@ -13,7 +13,7 @@ export const PLATFORM_NAVIGATION: NavigationTarget[] = [
   { label: "Messages", href: "/messages", description: "Buyer and seller chat", keywords: ["messages", "chat"] },
   { label: "Sell", href: "/sell", description: "Create a new listing", keywords: ["sell", "listing", "publish"] },
   { label: "Selling", href: "/seller", description: "Selling workspace and stats", keywords: ["selling", "listings"] },
-  { label: "Wallet", href: "/wallet", description: "Balance, withdrawals, and payouts", keywords: ["wallet", "withdraw", "payout"] },
+  { label: "Balance", href: "/balance", description: "Balance, withdrawals, and payouts", keywords: ["wallet", "withdraw", "payout", "balance"] },
   { label: "Business tools", href: "/business/dashboard", description: "Verified business information", keywords: ["business tools", "verification"] },
   { label: "Business Directory", href: "/business/directory", description: "Discover verified businesses", keywords: ["directory", "companies"] },
   { label: "Wholesale Center", href: "/wholesale", description: "Bulk trade and RFQ", keywords: ["wholesale", "rfq", "bulk"] },

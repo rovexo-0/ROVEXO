@@ -30,10 +30,27 @@ export function mustUseVirtualWallet(): boolean {
 export function mustUseDemoShipping(): boolean {
   // Playwright certification webServer must never hit real Sendcloud.
   if (process.env.PLAYWRIGHT_E2E === "1" || process.env.E2E_TEST === "1") return true;
+  // Virtual money paths (Full Demo / cert) never create real carrier labels.
+  if (mustUseVirtualPayments()) return true;
   return isSendcloudSandboxMode();
 }
 
-export function assertVirtualPaymentAllowed(context: string): void {
+/**
+ * Full Demo / @demo.rovexo.co.uk actors must never hit real Sendcloud —
+ * even when Sendcloud keys exist and virtual env flags are unset.
+ */
+export function mustUseDemoShippingForActors(
+  ...emails: Array<string | null | undefined>
+): boolean {
+  if (mustUseDemoShipping()) return true;
+  return emails.some((email) => isProtectedDemoActor(email));
+}
+
+export function assertVirtualPaymentAllowed(
+  context: string,
+  buyerEmail?: string | null,
+): void {
+  if (isProtectedDemoActor(buyerEmail)) return;
   if (!mustUseVirtualPayments()) {
     throw new Error(
       `[full-demo] Virtual payment blocked outside certification/virtual mode (${context}).`,
@@ -60,4 +77,18 @@ export function isProtectedDemoActor(email: string | null | undefined): boolean 
   const normalized = email.trim().toLowerCase();
   if (isFullDemoEmail(normalized)) return true;
   return normalized.endsWith("@demo.rovexo.co.uk");
+}
+
+/**
+ * Virtual / wallet settlement required — never open real Stripe Checkout.
+ * Full Demo accounts are always virtual regardless of env flags.
+ */
+export function mustSettleWithoutStripe(input?: {
+  buyerEmail?: string | null;
+  paymentMethod?: string | null;
+}): boolean {
+  if (mustUseVirtualPayments()) return true;
+  if (isProtectedDemoActor(input?.buyerEmail)) return true;
+  if (input?.paymentMethod === "rovexo_balance") return true;
+  return false;
 }

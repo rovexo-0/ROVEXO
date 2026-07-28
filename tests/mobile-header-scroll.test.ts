@@ -45,4 +45,17 @@ describe("RovexoMobileHeaderScrollContext regression", () => {
     expect(source).not.toContain("rovexo-chrome-spacer");
     expect(source).not.toContain("--rx-chrome-spacer-height");
   });
+
+  it("resets chrome visibility during pathname render transition", () => {
+    const source = readFileSync(
+      path.join(process.cwd(), "components/home/RovexoMobileHeaderScrollContext.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain("usePathname");
+    expect(source).toContain("setIsVisible(true)");
+    expect(source).toContain("if (pathname !== visibilityPath)");
+    expect(source).toContain("setVisibilityPath(pathname)");
+    expect(source).toContain("setIsVisible(true)");
+  });
 });

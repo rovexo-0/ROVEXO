@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join } from "node:path";
 import type { ScreenRegistryEntry } from "@/lib/design-studio-v1/types";
 
@@ -13,7 +14,7 @@ const CANONICAL_SCREENS: Omit<ScreenRegistryEntry, "routeCount" | "performanceSc
   { id: "checkout", label: "Checkout", route: "/checkout", owner: "XOS", status: "live", version: "3.0.0" },
   { id: "orders", label: "Orders", route: "/orders", owner: "XOS", status: "live", version: "3.0.0" },
   { id: "messages", label: "Messages", route: "/messages", owner: "XOS", status: "live", version: "3.0.0" },
-  { id: "wallet", label: "Wallet", route: "/account/wallet", owner: "XOS", status: "live", version: "3.0.0" },
+  { id: "wallet", label: "Balance", route: "/balance", owner: "XOS", status: "live", version: "3.1.0" },
   { id: "shipping", label: "Shipping", route: "/account", owner: "XOS", status: "live", version: "3.0.0" },
   { id: "notifications", label: "Notifications", route: "/notifications", owner: "XOS", status: "live", version: "3.0.0" },
   { id: "buyer-dashboard", label: "Buyer Dashboard", route: "/account", owner: "XOS", status: "live", version: "3.0.0" },
@@ -54,7 +55,7 @@ function countAppPages(rootDir: string, routePrefix: string): number {
 }
 
 export function buildScreenRegistry(options: ScanOptions = {}): ScreenRegistryEntry[] {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? workspacePath();
   const scannedAt = new Date().toISOString();
 
   return CANONICAL_SCREENS.map((screen) => {

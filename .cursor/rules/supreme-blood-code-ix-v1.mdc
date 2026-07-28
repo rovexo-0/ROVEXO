@@ -1,0 +1,31 @@
+---
+description: Supreme Blood Code IX — Search bar removal only on Conversation Hub
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE IX — SEARCH BAR REMOVAL ONLY
+
+**STATUS: MASTER UI APPROVED · PRIORITY 0 · PERMANENT FREEZE**
+
+SSOT: `lib/supreme-blood-code-ix-v1.ts`  
+Entry point only: `features/header/HeaderProvider.tsx`
+
+## Only approved change
+
+Remove ROVEXO logo + marketplace search bar above `/inbox/conversation/*`.
+
+First pixel must be Conversation Hub header: Back · Username · Status · Info.
+
+## Forbidden this sprint
+
+Redesign · refactor · move components · change paddings/margins/colours/fonts/stack order.
+
+Do **not** modify Product Card · Order Status · Seller Info · Order Summary · Offer History · Chat · Message Input · Sticky CTA.
+
+## Removal
+
+Must not exist on Conversation Hub (no `display:none` / `opacity:0` / `visibility:hidden` hide tricks).
+
+## Product PASS
+
+Search bar removed + no regressions + no UI changes + Owner visual PASS = 100/100.

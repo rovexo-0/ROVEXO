@@ -9,7 +9,7 @@
   --rovexo-space-20: 20px;
   --rovexo-space-24: 24px;
   --rovexo-content-width: 390px;
-  --rovexo-content-padding: 16px;
+  --rovexo-content-padding: var(--homepage-pad-x, 24px); /* Homepage token only — DD#002 */
   --rovexo-desktop-max: 1440px;
   --rovexo-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
   --rovexo-shadow-md: 0 8px 20px rgba(0, 0, 0, 0.08);

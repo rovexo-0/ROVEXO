@@ -11,7 +11,7 @@ describe("sell validation engine", () => {
     expect(issue?.field).toBe("photos");
   });
 
-  it("requires condition before parcel and price", () => {
+  it("core-6 gate: after photos/title/description/category next required is price (condition optional)", () => {
     const draft = {
       ...createEmptyDraft(),
       photos: [{ id: "1", previewUrl: "/x.jpg", uploaded: true }],
@@ -29,7 +29,7 @@ describe("sell validation engine", () => {
       title: draft.title,
       description: draft.description,
     });
-    expect(issue?.field).toBe("condition");
+    expect(issue?.field).toBe("price");
   });
 
   it("includes condition in progressive steps after attributes", () => {

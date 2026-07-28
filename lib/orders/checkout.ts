@@ -1,31 +1,36 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getDeliveryCarrierFromQuote, getDeliveryPrice } from "@/lib/checkout/delivery";
+import { getDeliveryCarrierFromQuote } from "@/lib/checkout/delivery";
 import {
   fetchCheckoutCarrierQuotes,
   findCheckoutCarrierQuote,
-  resolveLiveDeliveryPrice,
 } from "@/lib/checkout/shipping-quotes.server";
-import { isPurchasable, releaseProductInventory, reserveProductInventory } from "@/lib/inventory/service";
+import { isPurchasable, releaseProductInventory } from "@/lib/inventory/service";
 import { notifyOrderCancelled } from "@/lib/orders/notifications";
 import { onOrderCancelled } from "@/lib/trust/events";
-import { calculateOrderTotals } from "@/lib/orders/pricing";
 import { getOrderById } from "@/lib/orders/store";
 import type { Order } from "@/lib/orders/types";
-import { generateInvoiceNumber } from "@/lib/invoices/receipt";
 import { calculateSellerNetAmount } from "@/lib/wallet/sales";
-import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import { getAppBaseUrl, getStripeClient, isStripeConfigured, isStripeRequired } from "@/lib/stripe/server";
 import { ensureStripeCustomer } from "@/lib/payments/repository";
 import { assertMarketplacePurchaseAllowedForProductSlug } from "@/lib/transaction-mode/validate";
 import { completePaidOrderFulfillment } from "@/lib/orders/post-payment.server";
-import {
-  resolveLockedAcceptedOffer,
-  resolveTransactionItemPrice,
-} from "@/lib/offers/accepted-price";
-import { mustUseVirtualPayments } from "@/lib/full-demo/security";
+import { resolveLockedAcceptedOffer } from "@/lib/offers/accepted-price";
+import { mustSettleWithoutStripe, mustUseVirtualPayments } from "@/lib/full-demo/security";
 import { debitVirtualBuyerWallet } from "@/lib/full-demo/virtual-checkout";
+import { isSelfPurchaseBlocked } from "@/lib/checkout/self-purchase-absolute-law-v1";
+import {
+  CHECKOUT_SESSION_ENGINE_attachStripe,
+  CHECKOUT_SESSION_ENGINE_destroy,
+  CHECKOUT_SESSION_ENGINE_expireAll,
+  CHECKOUT_SESSION_ENGINE_getByPublicId,
+  CHECKOUT_SESSION_ENGINE_isExpired,
+  CHECKOUT_SESSION_ENGINE_markPaid,
+} from "@/lib/checkout/engines/checkout-session-engine-v1";
+import { CHECKOUT_SESSION_TTL_SECONDS } from "@/lib/checkout/engines/status-map-v1";
+import { createOrderFromPaidCheckoutSession } from "@/lib/orders/create-order-from-checkout-session.server";
 
-const RESERVATION_MINUTES = 30;
+/** @deprecated Legacy awaiting_payment window. Absolute Law = 120s checkout session. */
+const RESERVATION_MINUTES = Math.ceil(CHECKOUT_SESSION_TTL_SECONDS / 60);
 
 export const ORDER_CHECKOUT_RESERVATION_MINUTES = RESERVATION_MINUTES;
 
@@ -38,72 +43,89 @@ type CheckoutInput = {
   hubConversationId?: string;
   /** Wallet payment method id (SSOT) — maps to Stripe PM when present. */
   paymentMethodId?: string | null;
+  /** UI settlement choice — card vs Rovexo Balance. */
+  paymentMethod?: "card" | "rovexo_balance" | null;
   /** Accepted offer id — locks transaction price to offers.amount. */
   offerId?: string | null;
+  /** Buy Now / Confirm & Pay idempotency — prevents duplicate orders on double-submit. */
+  idempotencyKey?: string | null;
+  /** @deprecated Legacy Blood XXIV pending order — cutover drain only. */
+  orderId?: string | null;
+  /** Master Architecture — durable Checkout Session public_id (`cs`). */
+  checkoutSessionId?: string | null;
 };
 
 type CheckoutResult =
-  | { orderId: string; url: string; order?: Order }
+  | { orderId: string | null; url: string; order?: Order; checkoutSessionId?: string }
   | { error: string };
 
-function primaryImage(
-  images: Array<{ url: string; is_primary: boolean; sort_order: number }> | null | undefined,
-): string {
-  const sorted = [...(images ?? [])].sort(
-    (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
-  );
-  return sorted[0]?.url ?? PRODUCT_IMAGE_FALLBACK;
-}
+type CheckoutProductRow = {
+  id: string;
+  slug: string;
+  title: string;
+  price: number;
+  condition: string;
+  stock: number;
+  status: string;
+  seller_id: string;
+  shipping_price: number | null;
+  product_images: Array<{ url: string; is_primary: boolean; sort_order: number }> | null;
+};
 
-export async function createOrderCheckoutSession(
-  input: CheckoutInput,
+/**
+ * Blood XXIV — Confirm & Pay against an existing PENDING_PAYMENT order (no second order).
+ */
+async function finalizePendingOrderCheckoutSession(
+  input: CheckoutInput & { orderId: string; product: CheckoutProductRow },
 ): Promise<CheckoutResult> {
   const admin = createAdminClient();
-  const { data: product } = await admin
-    .from("products")
+  const product = input.product;
+
+  const { data: orderRow } = await admin
+    .from("orders")
     .select(
-      "id, slug, title, price, condition, stock, status, seller_id, shipping_price, product_images(url, is_primary, sort_order)",
+      "id, order_number, buyer_id, status, reserved_until, stripe_session_id, item_price, delivery_fee, protected_fee, total",
     )
-    .eq("slug", input.productSlug)
+    .eq("id", input.orderId)
     .maybeSingle();
 
-  if (!product) {
-    return { error: "Product not found." };
+  if (!orderRow || orderRow.buyer_id !== input.buyerId || orderRow.status !== "awaiting_payment") {
+    return { error: "Unable to create order." };
   }
 
-  const purchaseCheck = await assertMarketplacePurchaseAllowedForProductSlug(input.productSlug);
-  if (!purchaseCheck.allowed) {
-    return { error: purchaseCheck.error };
+  if (!orderRow.reserved_until || new Date(orderRow.reserved_until).getTime() <= Date.now()) {
+    return { error: "Payment session expired." };
   }
 
-  if (product.seller_id === input.buyerId) {
-    return { error: "You cannot purchase your own listing." };
+  if (orderRow.stripe_session_id && isStripeConfigured() && !mustUseVirtualPayments()) {
+    try {
+      const stripe = getStripeClient();
+      const session = await stripe.checkout.sessions.retrieve(orderRow.stripe_session_id);
+      if (session.url && session.status === "open") {
+        const order = await getOrderById(orderRow.id);
+        return { orderId: orderRow.id, url: session.url, order: order ?? undefined };
+      }
+    } catch {
+      // recreate session below
+    }
   }
 
-  if (!isPurchasable(product.stock, product.status)) {
-    return { error: "This item is out of stock." };
-  }
-
-  const { data: sellerSettings } = await admin
-    .from("user_settings")
-    .select("vacation_mode")
-    .eq("user_id", product.seller_id)
-    .maybeSingle();
-
-  if (sellerSettings?.vacation_mode) {
-    return { error: "This seller is currently on vacation and not accepting orders." };
-  }
-
-  const reserved = await reserveProductInventory(product.id, 1);
-  if (!reserved.success) {
-    return { error: reserved.error ?? "Unable to reserve inventory." };
+  // Absolute Total Price Law v1.0 — money locked at Buy Now must never change.
+  const lockedItemPrice = Number(orderRow.item_price);
+  const lockedDelivery = Number(orderRow.delivery_fee ?? 0);
+  const lockedPlatformFee = Number(orderRow.protected_fee);
+  const lockedTotal = Number(orderRow.total);
+  if (
+    !Number.isFinite(lockedItemPrice) ||
+    !Number.isFinite(lockedDelivery) ||
+    !Number.isFinite(lockedPlatformFee) ||
+    !Number.isFinite(lockedTotal) ||
+    lockedTotal <= 0
+  ) {
+    return { error: "Unable to create order." };
   }
 
   const listingOffersFreeDelivery = product.shipping_price === 0;
-  let deliveryPrice = getDeliveryPrice({
-    listingOffersFreeDelivery,
-    listingShippingPrice: product.shipping_price != null ? Number(product.shipping_price) : null,
-  });
   let deliveryCarrier = getDeliveryCarrierFromQuote(null);
 
   if (input.shippingQuoteId && input.shippingAddressId) {
@@ -114,35 +136,31 @@ export async function createOrderCheckoutSession(
       .maybeSingle();
 
     if (shippingAddress) {
-      const livePrice = await resolveLiveDeliveryPrice({
+      const { options } = await fetchCheckoutCarrierQuotes({
         productSlug: input.productSlug,
-        shippingQuoteId: input.shippingQuoteId,
         recipientName: shippingAddress.recipient_name,
         addressLine: shippingAddress.address_line,
         postcode: shippingAddress.postcode,
         country: shippingAddress.country,
       });
-
-      if (livePrice != null) {
-        deliveryPrice = livePrice;
-        const { options } = await fetchCheckoutCarrierQuotes({
-          productSlug: input.productSlug,
-          recipientName: shippingAddress.recipient_name,
-          addressLine: shippingAddress.address_line,
-          postcode: shippingAddress.postcode,
-          country: shippingAddress.country,
-        });
-        deliveryCarrier = getDeliveryCarrierFromQuote(
-          findCheckoutCarrierQuote(options, input.shippingQuoteId ?? ""),
-        );
-      }
+      deliveryCarrier = getDeliveryCarrierFromQuote(
+        findCheckoutCarrierQuote(options, input.shippingQuoteId ?? ""),
+      );
     }
   }
 
-  if (!listingOffersFreeDelivery && deliveryPrice == null) {
-    await releaseProductInventory(product.id, 1);
+  if (!listingOffersFreeDelivery && lockedDelivery < 0) {
     return { error: "Unable to retrieve shipping price." };
   }
+
+  const { platformFee, sellerAmount } = calculateSellerNetAmount(lockedItemPrice);
+  const totals = {
+    itemPrice: lockedItemPrice,
+    platformFee: lockedPlatformFee,
+    delivery: lockedDelivery,
+    deliveryPending: false,
+    total: lockedTotal,
+  };
 
   const lockedOffer = await resolveLockedAcceptedOffer({
     buyerId: input.buyerId,
@@ -150,66 +168,17 @@ export async function createOrderCheckoutSession(
     offerId: input.offerId,
   });
 
-  if (lockedOffer && lockedOffer.sellerId !== product.seller_id) {
-    await releaseProductInventory(product.id, 1);
-    return { error: "Accepted offer does not match this listing." };
-  }
-
-  const itemPrice = resolveTransactionItemPrice({
-    listingPrice: Number(product.price),
-    acceptedOfferPrice: lockedOffer?.acceptedOfferPrice,
-  });
-
-  const totals = calculateOrderTotals(itemPrice, deliveryPrice);
-  const { platformFee, sellerAmount } = calculateSellerNetAmount(totals.itemPrice);
-  const reservedUntil = new Date(Date.now() + RESERVATION_MINUTES * 60 * 1000).toISOString();
-  const imageUrl = primaryImage(product.product_images);
-
-  const { data: orderNumber } = await admin.rpc("generate_order_number");
-  const resolvedOrderNumber = orderNumber ?? `RVX${Date.now().toString(36).toUpperCase()}`;
-  const invoiceNumber = generateInvoiceNumber(resolvedOrderNumber);
-
-  const { data: orderRow, error: orderError } = await admin
+  await admin
     .from("orders")
-    .insert({
-      order_number: resolvedOrderNumber,
-      buyer_id: input.buyerId,
-      seller_id: product.seller_id,
-      status: "awaiting_payment",
+    .update({
       delivery_carrier: deliveryCarrier,
-      item_price: totals.itemPrice,
-      protected_fee: totals.platformFee,
-      delivery_fee: totals.delivery,
-      total: totals.total,
       platform_fee: platformFee,
       seller_payout: sellerAmount,
-      invoice_number: invoiceNumber,
-      reserved_until: reservedUntil,
       shipping_address_id: input.shippingAddressId ?? null,
     })
-    .select("id, order_number")
-    .single();
-
-  if (orderError || !orderRow) {
-    await releaseProductInventory(product.id, 1);
-    return { error: "Unable to create order." };
-  }
-
-  await admin.from("order_items").insert({
-    order_id: orderRow.id,
-    product_id: product.id,
-    title: product.title,
-    slug: product.slug,
-    price: totals.itemPrice,
-    image_url: imageUrl,
-    condition: product.condition,
-    quantity: 1,
-  });
-
-  await admin.from("cart_items").delete().eq("user_id", input.buyerId).eq("product_id", product.id);
+    .eq("id", orderRow.id);
 
   const baseUrl = getAppBaseUrl();
-  // Sprint 2: always land on checkout success (order + conversation CTAs). Chat return is opt-in via cancel only.
   const orderSuccessPath = `/checkout/${product.slug}/success?order_id=${orderRow.id}`;
   const orderSuccessUrl = `${baseUrl}${orderSuccessPath}`;
   const cancelQuery = new URLSearchParams({
@@ -220,11 +189,8 @@ export async function createOrderCheckoutSession(
     ? `/inbox/conversation/${input.hubConversationId}?payment=cancelled&${cancelQuery.toString()}&slug=${product.slug}`
     : `/checkout/${product.slug}?${cancelQuery.toString()}`;
   const cancelUrl = `${baseUrl}${cancelPath}`;
+  const resolvedOrderNumber = orderRow.order_number;
 
-  /**
-   * Full Demo / Certification virtual payments — never create a real Stripe session.
-   * Debits demo wallet funds, then runs the same fulfillment path as Stripe webhooks.
-   */
   if (mustUseVirtualPayments()) {
     const debit = await debitVirtualBuyerWallet({
       buyerId: input.buyerId,
@@ -235,7 +201,6 @@ export async function createOrderCheckoutSession(
     });
 
     if (!debit.ok) {
-      await cancelPendingOrder(orderRow.id);
       return { error: debit.error };
     }
 
@@ -257,22 +222,13 @@ export async function createOrderCheckoutSession(
       return { error: fulfilled.error ?? "Unable to complete virtual payment." };
     }
 
-    await admin
-      .from("orders")
-      .update({ stripe_session_id: debit.sessionId })
-      .eq("id", orderRow.id);
-
+    await admin.from("orders").update({ stripe_session_id: debit.sessionId }).eq("id", orderRow.id);
     const order = await getOrderById(orderRow.id);
-    return {
-      orderId: orderRow.id,
-      url: orderSuccessUrl,
-      order: order ?? undefined,
-    };
+    return { orderId: orderRow.id, url: orderSuccessUrl, order: order ?? undefined };
   }
 
   if (!isStripeConfigured()) {
     if (isStripeRequired()) {
-      await cancelPendingOrder(orderRow.id);
       return { error: "Payments are not configured." };
     }
 
@@ -287,17 +243,11 @@ export async function createOrderCheckoutSession(
     }
 
     const order = await getOrderById(orderRow.id);
-    return {
-      orderId: orderRow.id,
-      url: orderSuccessUrl,
-      order: order ?? undefined,
-    };
+    return { orderId: orderRow.id, url: orderSuccessUrl, order: order ?? undefined };
   }
 
   const stripe = getStripeClient();
   const customerId = await ensureStripeCustomer(input.buyerId);
-
-  // Prefer Wallet default / selected payment method as Stripe customer default.
   const { listPaymentMethods, setDefaultPaymentMethod } = await import("@/lib/payments/repository");
   const savedMethods = await listPaymentMethods(input.buyerId);
   const selected =
@@ -309,7 +259,7 @@ export async function createOrderCheckoutSession(
     try {
       await setDefaultPaymentMethod(input.buyerId, selected.id);
     } catch {
-      // Non-fatal — Checkout Session still proceeds with customer cards.
+      // non-fatal
     }
   }
 
@@ -326,10 +276,7 @@ export async function createOrderCheckoutSession(
       price_data: {
         currency: "gbp",
         unit_amount: Math.round(totals.itemPrice * 100),
-        product_data: {
-          name: product.title,
-          description: product.condition,
-        },
+        product_data: { name: product.title, description: product.condition },
       },
     },
     {
@@ -353,8 +300,6 @@ export async function createOrderCheckoutSession(
     });
   }
 
-  // Platform collects the full payment; seller payouts run after delivery + hold via Connect transfers.
-  // payment_method_types: card enables Visa/Mastercard and Apple Pay / Google Pay where available.
   const session = await stripe.checkout.sessions.create(
     {
       mode: "payment",
@@ -390,16 +335,433 @@ export async function createOrderCheckoutSession(
   );
 
   if (!session.url) {
-    await cancelPendingOrder(orderRow.id);
     return { error: "Unable to create checkout session." };
   }
 
-  await admin
-    .from("orders")
-    .update({ stripe_session_id: session.id })
-    .eq("id", orderRow.id);
-
+  await admin.from("orders").update({ stripe_session_id: session.id }).eq("id", orderRow.id);
   return { orderId: orderRow.id, url: session.url };
+}
+
+/**
+ * Master Checkout Architecture — Confirm & Pay against open Checkout Session.
+ * Creates Stripe session (or virtual pay → order). Never creates awaiting_payment.
+ */
+async function finalizeCheckoutSessionPayment(
+  input: CheckoutInput & { checkoutSessionId: string; product: CheckoutProductRow },
+): Promise<CheckoutResult> {
+  const admin = createAdminClient();
+  const product = input.product;
+  const csPublicId = input.checkoutSessionId;
+
+  const session = await CHECKOUT_SESSION_ENGINE_getByPublicId(csPublicId);
+  if (!session || session.buyer_id !== input.buyerId || session.listing_id !== product.id) {
+    return { error: "Unable to create order." };
+  }
+
+  if (session.status === "paid" && session.order_id) {
+    const order = await getOrderById(session.order_id);
+    const baseUrl = getAppBaseUrl();
+    return {
+      orderId: session.order_id,
+      checkoutSessionId: session.public_id,
+      url: `${baseUrl}/checkout/${product.slug}/success?order_id=${session.order_id}`,
+      order: order ?? undefined,
+    };
+  }
+
+  if (session.status !== "open" || CHECKOUT_SESSION_ENGINE_isExpired(session.expires_at)) {
+    if (session.status === "open") {
+      await CHECKOUT_SESSION_ENGINE_destroy({ session, status: "expired" });
+    }
+    return { error: "Payment session expired." };
+  }
+
+  if (!input.shippingAddressId) {
+    return { error: "Shipping address is required." };
+  }
+
+  const { data: buyerProfile } = await admin
+    .from("profiles")
+    .select("email")
+    .eq("id", input.buyerId)
+    .maybeSingle();
+  const settleWithoutStripe = mustSettleWithoutStripe({
+    buyerEmail: buyerProfile?.email,
+    paymentMethod: input.paymentMethod ?? null,
+  });
+
+  // Absolute Total Price Law — amounts locked on Checkout Session at Buy Now.
+  // Live carrier quote (Ship to Home) may refine shipping after Buy Now; when a
+  // quote is selected, persist shipping + total so PAY · debit · order stay equal.
+  const lockedItemPrice = Number(session.item_price);
+  let lockedDelivery = Number(session.shipping);
+  const lockedPlatformFee = Number(session.platform_fee);
+  let lockedTotal = Number(session.total);
+  if (
+    !Number.isFinite(lockedItemPrice) ||
+    !Number.isFinite(lockedDelivery) ||
+    !Number.isFinite(lockedPlatformFee) ||
+    !Number.isFinite(lockedTotal)
+  ) {
+    return { error: "Unable to create order." };
+  }
+
+  const roundMoney = (value: number) => Math.round(value * 100) / 100;
+
+  let deliveryCarrier = getDeliveryCarrierFromQuote(null);
+  if (input.shippingQuoteId && input.shippingAddressId) {
+    const { data: shippingAddress } = await admin
+      .from("shipping_addresses")
+      .select("recipient_name, address_line, postcode, country")
+      .eq("id", input.shippingAddressId)
+      .maybeSingle();
+    if (shippingAddress) {
+      const { options } = await fetchCheckoutCarrierQuotes({
+        productSlug: input.productSlug,
+        recipientName: shippingAddress.recipient_name,
+        addressLine: shippingAddress.address_line,
+        postcode: shippingAddress.postcode,
+        country: shippingAddress.country,
+      });
+      const selectedQuote = findCheckoutCarrierQuote(
+        options,
+        input.shippingQuoteId ?? "",
+      );
+      deliveryCarrier = getDeliveryCarrierFromQuote(selectedQuote);
+      if (selectedQuote && Number.isFinite(selectedQuote.price) && selectedQuote.price >= 0) {
+        lockedDelivery = roundMoney(selectedQuote.price);
+        lockedTotal = roundMoney(lockedItemPrice + lockedPlatformFee + lockedDelivery);
+        const { error: amountError } = await admin
+          .from("checkout_sessions")
+          .update({
+            shipping: lockedDelivery,
+            total: lockedTotal,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", session.id)
+          .eq("status", "open");
+        if (amountError) {
+          return { error: "Unable to lock shipping total." };
+        }
+      }
+    }
+  }
+
+  if (session.stripe_checkout_session_id && isStripeConfigured() && !settleWithoutStripe) {
+    try {
+      const stripe = getStripeClient();
+      const existing = await stripe.checkout.sessions.retrieve(session.stripe_checkout_session_id);
+      if (existing.url && existing.status === "open") {
+        return {
+          orderId: null,
+          checkoutSessionId: session.public_id,
+          url: existing.url,
+        };
+      }
+    } catch {
+      // recreate below
+    }
+  }
+
+  const baseUrl = getAppBaseUrl();
+  const orderSuccessPath = `/checkout/${product.slug}/success?cs=${encodeURIComponent(session.public_id)}`;
+  const orderSuccessUrl = `${baseUrl}${orderSuccessPath}`;
+  const cancelQuery = new URLSearchParams({
+    order: "cancelled",
+    cs: session.public_id,
+  });
+  const cancelPath = input.hubConversationId
+    ? `/inbox/conversation/${input.hubConversationId}?payment=cancelled&${cancelQuery.toString()}&slug=${product.slug}`
+    : `/checkout/${product.slug}?${cancelQuery.toString()}`;
+  const cancelUrl = `${baseUrl}${cancelPath}`;
+
+  if (settleWithoutStripe) {
+    const virtualSessionId = `virtual_${session.public_id}`;
+    const virtualPi = `pi_virtual_${session.public_id.replace(/[^a-zA-Z0-9]/g, "").slice(0, 20)}`;
+
+    const created = await createOrderFromPaidCheckoutSession({
+      checkoutSessionPublicId: session.public_id,
+      shippingAddressId: input.shippingAddressId,
+      deliveryCarrier,
+      stripeSessionId: virtualSessionId,
+      stripePaymentIntentId: virtualPi,
+      fulfill: false,
+    });
+    if (!created.success) {
+      return { error: created.error };
+    }
+
+    const { data: orderMeta } = await admin
+      .from("orders")
+      .select("order_number")
+      .eq("id", created.orderId)
+      .maybeSingle();
+
+    const debit = await debitVirtualBuyerWallet({
+      buyerId: input.buyerId,
+      amount: lockedTotal,
+      orderId: created.orderId,
+      orderNumber: orderMeta?.order_number ?? created.orderId,
+      productTitle: product.title,
+    });
+
+    if (!debit.ok) {
+      await admin.from("orders").update({ status: "cancelled" }).eq("id", created.orderId);
+      const fresh = await CHECKOUT_SESSION_ENGINE_getByPublicId(session.public_id);
+      if (fresh && fresh.status === "open") {
+        await CHECKOUT_SESSION_ENGINE_destroy({ session: fresh, status: "cancelled" });
+      } else {
+        await releaseProductInventory(product.id, 1);
+      }
+      return { error: debit.error };
+    }
+
+    await CHECKOUT_SESSION_ENGINE_markPaid({
+      sessionId: session.id,
+      orderId: created.orderId,
+      stripeSessionId: debit.sessionId,
+      stripePaymentIntentId: virtualPi,
+    });
+
+    const fulfilled = await completePaidOrderFulfillment({
+      orderId: created.orderId,
+      stripeSessionId: debit.sessionId,
+      stripePaymentIntentId: virtualPi,
+    });
+    if (!fulfilled.success) {
+      return { error: fulfilled.error ?? "Unable to complete virtual payment." };
+    }
+
+    const order = await getOrderById(created.orderId);
+    return {
+      orderId: created.orderId,
+      checkoutSessionId: session.public_id,
+      url: `${orderSuccessUrl}&order_id=${created.orderId}`,
+      order: order ?? undefined,
+    };
+  }
+
+  if (!isStripeConfigured()) {
+    if (isStripeRequired()) {
+      return { error: "Payments are not configured." };
+    }
+
+    const created = await createOrderFromPaidCheckoutSession({
+      checkoutSessionPublicId: session.public_id,
+      shippingAddressId: input.shippingAddressId,
+      deliveryCarrier,
+      stripeSessionId: `dev-${session.public_id}`,
+      stripePaymentIntentId: null,
+    });
+    if (!created.success) {
+      return { error: created.error };
+    }
+    const order = await getOrderById(created.orderId);
+    return {
+      orderId: created.orderId,
+      checkoutSessionId: session.public_id,
+      url: `${orderSuccessUrl}&order_id=${created.orderId}`,
+      order: order ?? undefined,
+    };
+  }
+
+  const stripe = getStripeClient();
+  const customerId = await ensureStripeCustomer(input.buyerId);
+
+  const { listPaymentMethods, setDefaultPaymentMethod } = await import("@/lib/payments/repository");
+  const savedMethods = await listPaymentMethods(input.buyerId);
+  const selected =
+    savedMethods.find((method) => method.id === input.paymentMethodId) ??
+    savedMethods.find((method) => method.isDefault) ??
+    savedMethods[0] ??
+    null;
+  if (selected && customerId) {
+    try {
+      await setDefaultPaymentMethod(input.buyerId, selected.id);
+    } catch {
+      // Non-fatal
+    }
+  }
+
+  const lineItems: Array<{
+    quantity: number;
+    price_data: {
+      currency: string;
+      unit_amount: number;
+      product_data: { name: string; description?: string };
+    };
+  }> = [
+    {
+      quantity: 1,
+      price_data: {
+        currency: (session.currency || "gbp").toLowerCase(),
+        unit_amount: Math.round(lockedItemPrice * 100),
+        product_data: {
+          name: product.title,
+          description: product.condition,
+        },
+      },
+    },
+    {
+      quantity: 1,
+      price_data: {
+        currency: (session.currency || "gbp").toLowerCase(),
+        unit_amount: Math.round(lockedPlatformFee * 100),
+        product_data: { name: "Platform Fee" },
+      },
+    },
+  ];
+
+  if (lockedDelivery > 0) {
+    lineItems.push({
+      quantity: 1,
+      price_data: {
+        currency: (session.currency || "gbp").toLowerCase(),
+        unit_amount: Math.round(lockedDelivery * 100),
+        product_data: { name: `${deliveryCarrier} delivery` },
+      },
+    });
+  }
+
+  // Stripe expires_at minimum is ~30m; ROVEXO Absolute Law enforces 120s via session destroy.
+  const stripeExpiresAt = Math.floor(Date.now() / 1000) + 30 * 60;
+
+  const stripeSession = await stripe.checkout.sessions.create(
+    {
+      mode: "payment",
+      payment_method_types: ["card"],
+      ...(customerId ? { customer: customerId } : {}),
+      line_items: lineItems,
+      metadata: {
+        checkoutType: "order",
+        checkoutSessionId: session.public_id,
+        buyerId: input.buyerId,
+        sellerId: product.seller_id,
+        productId: product.id,
+        shippingAddressId: input.shippingAddressId,
+        deliveryCarrier,
+        paymentMethodId: selected?.id ?? "",
+        offerId: session.offer_id ?? "",
+      },
+      payment_intent_data: {
+        metadata: {
+          checkoutType: "order",
+          checkoutSessionId: session.public_id,
+          buyerId: input.buyerId,
+          sellerId: product.seller_id,
+          productId: product.id,
+          shippingAddressId: input.shippingAddressId,
+          deliveryCarrier,
+          offerId: session.offer_id ?? "",
+        },
+      },
+      success_url: `${orderSuccessUrl}${orderSuccessUrl.includes("?") ? "&" : "?"}session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl,
+      expires_at: stripeExpiresAt,
+    },
+    {
+      idempotencyKey: `cs-checkout-${session.public_id}`,
+    },
+  );
+
+  if (!stripeSession.url) {
+    return { error: "Unable to create checkout session." };
+  }
+
+  await CHECKOUT_SESSION_ENGINE_attachStripe({
+    sessionId: session.id,
+    stripeCheckoutSessionId: stripeSession.id,
+    stripePaymentIntentId:
+      typeof stripeSession.payment_intent === "string"
+        ? stripeSession.payment_intent
+        : stripeSession.payment_intent?.id ?? null,
+  });
+
+  return {
+    orderId: null,
+    checkoutSessionId: session.public_id,
+    url: stripeSession.url,
+  };
+}
+
+export async function createOrderCheckoutSession(
+  input: CheckoutInput,
+): Promise<CheckoutResult> {
+  await CHECKOUT_SESSION_ENGINE_expireAll();
+  // Drain leftover Blood XXIV awaiting_payment (lazy import — avoid circular deps).
+  const { AUTO_CANCEL_ENGINE_run } = await import(
+    "@/lib/checkout/engines/auto-cancel-engine-v1"
+  );
+  await AUTO_CANCEL_ENGINE_run();
+
+  const admin = createAdminClient();
+  const { data: product } = await admin
+    .from("products")
+    .select(
+      "id, slug, title, price, condition, stock, status, seller_id, shipping_price, product_images(url, is_primary, sort_order)",
+    )
+    .eq("slug", input.productSlug)
+    .maybeSingle();
+
+  if (!product) {
+    return { error: "Product not found." };
+  }
+
+  const purchaseCheck = await assertMarketplacePurchaseAllowedForProductSlug(input.productSlug);
+  if (!purchaseCheck.allowed) {
+    return { error: purchaseCheck.error };
+  }
+
+  if (
+    isSelfPurchaseBlocked({
+      currentUserId: input.buyerId,
+      listingOwnerId: product.seller_id,
+    })
+  ) {
+    return { error: "You cannot purchase your own listing." };
+  }
+
+  const { data: sellerSettings } = await admin
+    .from("user_settings")
+    .select("vacation_mode")
+    .eq("user_id", product.seller_id)
+    .maybeSingle();
+
+  if (sellerSettings?.vacation_mode) {
+    return { error: "This seller is currently on vacation and not accepting orders." };
+  }
+
+  const csId = input.checkoutSessionId?.trim() || null;
+  if (csId) {
+    // Session owner may pay while listing is reserved (not published).
+    if (product.status !== "reserved" && product.status !== "published") {
+      return { error: "This item is out of stock." };
+    }
+    if (product.stock <= 0) {
+      return { error: "This item is out of stock." };
+    }
+    return finalizeCheckoutSessionPayment({
+      ...input,
+      checkoutSessionId: csId,
+      product,
+    });
+  }
+
+  // Legacy cutover: Confirm & Pay with old awaiting_payment orderId only.
+  const existingOrderId = input.orderId?.trim() || null;
+  if (!existingOrderId) {
+    return { error: "Checkout session required." };
+  }
+
+  if (!isPurchasable(product.stock, product.status) && product.status !== "reserved") {
+    return { error: "This item is out of stock." };
+  }
+
+  return finalizePendingOrderCheckoutSession({
+    ...input,
+    orderId: existingOrderId,
+    product,
+  });
 }
 
 export async function fulfillOrderFromStripeSession(session: {
@@ -407,15 +769,10 @@ export async function fulfillOrderFromStripeSession(session: {
   metadata: Record<string, string | undefined> | null;
   payment_intent?: string | { id: string } | null;
   payment_status?: string;
-}): Promise<{ success: boolean; error?: string }> {
+}): Promise<{ success: boolean; error?: string; orderId?: string }> {
   const metadata = session.metadata ?? {};
   if (metadata.checkoutType !== "order") {
     return { success: false, error: "Not an order checkout session." };
-  }
-
-  const orderId = metadata.orderId;
-  if (!orderId) {
-    return { success: false, error: "Missing order metadata." };
   }
 
   if (session.payment_status && session.payment_status !== "paid") {
@@ -427,11 +784,32 @@ export async function fulfillOrderFromStripeSession(session: {
       ? session.payment_intent
       : session.payment_intent?.id ?? null;
 
-  return completePaidOrderFulfillment({
+  const checkoutSessionId = metadata.checkoutSessionId?.trim() || null;
+  if (checkoutSessionId) {
+    const created = await createOrderFromPaidCheckoutSession({
+      checkoutSessionPublicId: checkoutSessionId,
+      shippingAddressId: metadata.shippingAddressId || null,
+      deliveryCarrier: metadata.deliveryCarrier || null,
+      stripeSessionId: session.id,
+      stripePaymentIntentId: paymentIntentId,
+    });
+    if (!created.success) {
+      return { success: false, error: created.error };
+    }
+    return { success: true, orderId: created.orderId };
+  }
+
+  const orderId = metadata.orderId;
+  if (!orderId) {
+    return { success: false, error: "Missing order metadata." };
+  }
+
+  const fulfilled = await completePaidOrderFulfillment({
     orderId,
     stripeSessionId: session.id,
     stripePaymentIntentId: paymentIntentId,
   });
+  return { ...fulfilled, orderId };
 }
 
 export async function cancelPendingOrder(
@@ -469,6 +847,7 @@ export async function cancelPendingOrder(
   await notifyOrderCancelled({
     buyerId: order.buyer_id,
     buyerEmail: buyerProfile?.email ?? "",
+    orderId,
     orderNumber: order.order_number,
     reason,
   });
@@ -505,7 +884,13 @@ export async function confirmOrderCheckoutSession(
     return { success: false, error: result.error };
   }
 
-  const orderId = session.metadata?.orderId;
-  const order = orderId ? await getOrderById(orderId) : null;
+  let finalOrderId: string | null = result.orderId ?? session.metadata?.orderId ?? null;
+  if (!finalOrderId && session.metadata?.checkoutSessionId) {
+    const row = await CHECKOUT_SESSION_ENGINE_getByPublicId(session.metadata.checkoutSessionId);
+    finalOrderId = row?.order_id ?? null;
+  }
+
+  const order = finalOrderId ? await getOrderById(finalOrderId) : null;
   return { success: true, order: order ?? undefined };
 }
+

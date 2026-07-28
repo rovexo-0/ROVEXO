@@ -1,28 +1,32 @@
 /**
- * ROVEXO Inbox Hub v1.0 — Vinted size system (UI only).
- * ROVEXO purple branding retained. No functional changes.
+ * ROVEXO Inbox Hub — Full Width Contract v1.0
+ * Canonical: same Full Width rules as Profile / Settings / Addresses / Rovexo Ideas.
+ * UI-only width/alignment/spacing. No UX / logic redesign.
  */
 
 .account-canonical:has(.inbox-hub) .account-canonical-header__bar--titled {
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 40px 1fr 40px;
+  grid-template-columns: 48px 1fr 48px;
   gap: 8px;
   align-items: center;
-  min-height: calc(56px + env(safe-area-inset-top, 0px));
-  height: calc(56px + env(safe-area-inset-top, 0px));
+  width: 100%;
+  max-width: none;
+  min-height: calc(64px + env(safe-area-inset-top, 0px));
+  height: calc(64px + env(safe-area-inset-top, 0px));
   padding-top: env(safe-area-inset-top, 0px);
+  /* Header → Tabs gap owned by content padding-top (12px) — no extra header bottom pad. */
   padding-bottom: 0;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-left: max(var(--fw-pad-x, 16px), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--fw-pad-x, 16px), env(safe-area-inset-right, 0px));
 }
 
 .account-canonical:has(.inbox-hub) .cds-header__back {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
 }
 
@@ -31,8 +35,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
 }
 
 .account-canonical:has(.inbox-hub) .account-canonical-header__action a,
@@ -40,8 +44,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   margin: 0;
   color: #111111;
   background: transparent;
@@ -62,21 +66,51 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  /* Profile / Universal UI v1.1 parity — do not invent Inbox title scale */
+  font-size: var(--uv1-section-title-size, 16px);
+  font-weight: 650;
+  line-height: 22px;
   letter-spacing: -0.01em;
-  color: #111111;
+  color: var(--uv1-text-primary, var(--cds-color-text-primary, #111111));
   text-align: center;
+}
+
+.account-canonical-shell:has(.inbox-hub) .cds-layout,
+.account-canonical-shell:has(.inbox-hub) .cds-layout--account-canonical,
+.account-canonical-shell:has(.inbox-hub) .account-canonical,
+.account-canonical-shell:has(.inbox-hub) .cds-layout__content--account-canonical {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
 }
 
 .account-canonical-shell:has(.inbox-hub) .cds-layout__content--account-canonical {
   background: #ffffff;
 }
 
+/*
+ * Owner Final UI Polish — Inbox vertical rhythm (spacing only).
+ * Header → Tabs 12px · Tabs → underline 6px · Underline → list/section 8px · Section → row 8px.
+ * Kill Full Width 24px top pad + section gap that pushed the list downward.
+ */
+[data-full-width-engine="v1.0"] .cds-layout__content--account-canonical:has(.inbox-hub),
+.account-canonical-shell:has(.inbox-hub) .cds-layout__content--account-canonical {
+  padding-top: 12px !important;
+  gap: 0 !important;
+}
+
+[data-universal-ui="v1.1"] .cds-layout__content--account-canonical:has(.inbox-hub),
+[data-compact-premium="v1"] .cds-layout__content--account-canonical:has(.inbox-hub) {
+  padding-top: 12px !important;
+  gap: 0 !important;
+}
+
 .inbox-hub {
-  --inbox-purple: #6d28d9;
+  --inbox-purple: #9333ea;
+  --inbox-purple-gradient: linear-gradient(135deg, #a855f7 0%, #9333ea 48%, #7c3aed 100%);
   --inbox-text: #111111;
   --inbox-muted: #8b8b93;
   --inbox-secondary: #6b6b73;
@@ -84,24 +118,42 @@
   --inbox-surface: #ffffff;
   --inbox-radius-card: 0;
   --inbox-shadow: none;
-  --inbox-pad-x: 16px;
-  --inbox-space: 4px;
-  --inbox-card-pad: 5px;
+  /* Shell Full Width pad 16px (Design Decision #001) — no nested horizontal pad */
+  --inbox-pad-x: 0px;
+  --inbox-space: 0px;
+  --inbox-tab-underline-gap: 6px;
+  --inbox-tab-list-gap: 8px;
+  --inbox-section-row-gap: 8px;
+  --inbox-card-pad: 0;
+  --inbox-thumb: 56px;
+  --inbox-row-min: 74px;
+  --inbox-media-gap: 12px;
   --inbox-fs-title: 13px;
   --inbox-fs-secondary: 12px;
   --inbox-fs-name: 13px;
   --inbox-fs-status: 12px;
   --inbox-fs-badge: 11px;
   --inbox-fs-time: 10px;
-  --inbox-btn-h: 46px;
+  --inbox-btn-h: 56px;
+  --inbox-empty-cta-h: 44px;
+  --inbox-btn-radius: 16px;
 
   box-sizing: border-box;
   width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: var(--inbox-space) var(--inbox-pad-x) 10px;
+  max-width: none !important;
+  margin: 0;
+  padding: 0 var(--inbox-pad-x) 10px;
   color: var(--inbox-text);
   background: #ffffff;
+}
+
+.inbox-hub:has(.inbox-hub__empty) {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(
+    100dvh - var(--fw-header-height, 64px) - env(safe-area-inset-top, 0px) -
+      var(--cds-bottom-nav-offset, 72px)
+  );
 }
 
 .inbox-hub *,
@@ -131,9 +183,13 @@
   position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 34px;
-  margin: 0 0 var(--inbox-space);
+  width: 100%;
+  max-width: none;
+  height: 44px;
+  margin: 0 0 var(--inbox-tab-list-gap);
+  padding: 0;
   border-bottom: 1px solid var(--inbox-border);
+  flex-shrink: 0;
 }
 
 .inbox-hub__tab {
@@ -143,7 +199,10 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 34px;
+  width: 100%;
+  max-width: none;
+  height: 44px;
+  padding: 0 0 var(--inbox-tab-underline-gap);
   border: none;
   background: transparent;
   color: var(--inbox-muted);
@@ -154,7 +213,11 @@
 }
 
 .inbox-hub__tab--on {
-  color: var(--inbox-purple);
+  color: #9333ea;
+  background-image: var(--inbox-purple-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .inbox-hub__tab-count {
@@ -165,30 +228,31 @@
   height: 16px;
   padding: 0 4px;
   border-radius: 999px;
-  background: rgb(109 40 217 / 0.12);
-  color: var(--inbox-purple);
+  background: var(--inbox-purple-gradient);
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
   font-size: var(--inbox-fs-badge);
   font-weight: 700;
   line-height: 1;
 }
 
-/* Pill underline centered under active tab label */
+/* Full-width tab underline — 50% each · ROVEXO purple */
 .inbox-hub__tab-indicator {
   position: absolute;
   bottom: 0;
-  left: 25%;
-  width: 72px;
+  left: 0;
+  width: 50%;
   height: 3px;
-  border-radius: 999px;
-  background: var(--inbox-purple);
-  transform: translateX(-50%);
+  border-radius: 0;
+  background: var(--inbox-purple-gradient);
+  transform: none;
   transition: left 220ms ease;
   pointer-events: none;
 }
 
 .inbox-hub__tab-indicator--notifications {
-  left: 75%;
-  transform: translateX(-50%);
+  left: 50%;
+  transform: none;
 }
 
 .inbox-hub__search {
@@ -253,6 +317,15 @@
   color: #ffffff;
 }
 
+.inbox-hub__pane[hidden] {
+  display: none !important;
+}
+
+.inbox-hub__pane:not([hidden]) {
+  display: block;
+  width: 100%;
+}
+
 .inbox-hub__list {
   margin: 0;
   padding: 0;
@@ -260,12 +333,21 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  width: 100%;
+  max-width: none;
+}
+
+.inbox-hub__list > li {
+  width: 100%;
+  max-width: none;
 }
 
 .inbox-hub__swipe {
   position: relative;
   overflow: hidden;
   border-radius: 0;
+  width: 100%;
+  max-width: none;
 }
 
 .inbox-hub__swipe-actions {
@@ -299,15 +381,15 @@
 }
 
 .inbox-hub__swipe-btn--read {
-  background: #6d28d9;
+  background: var(--inbox-purple-gradient);
 }
 
 .inbox-hub__swipe-btn--pin {
-  background: #4c1d95;
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
 }
 
 .inbox-hub__swipe-btn--archive {
-  background: #64748b;
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
 }
 
 .inbox-hub__swipe-btn--delete {
@@ -321,10 +403,15 @@
 }
 
 .inbox-hub__card {
-  display: block;
-  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--inbox-thumb) minmax(0, 1fr) auto;
+  column-gap: var(--inbox-media-gap);
+  align-items: center;
+  width: 100%;
+  max-width: none;
+  min-height: var(--inbox-row-min);
   height: auto;
-  padding: 5px 0;
+  padding: 9px 0;
   border-radius: 0;
   background: var(--inbox-surface);
   box-shadow: none;
@@ -337,56 +424,129 @@
 
 .inbox-hub__media {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: var(--inbox-thumb);
+  height: var(--inbox-thumb);
   flex-shrink: 0;
-  margin-top: 0;
-  margin-bottom: 0;
+  margin: 0;
 }
 
 .inbox-hub__thumb {
   position: relative;
   display: block;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: var(--inbox-thumb);
+  height: var(--inbox-thumb);
+  border-radius: 12px;
   overflow: hidden;
   background: #f3f4f6;
+  flex-shrink: 0;
 }
 
 .inbox-hub__thumb-img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  display: block;
 }
 
-.inbox-hub__avatar {
-  position: absolute;
-  left: -2px;
-  bottom: -6px;
-  z-index: 2;
+/* Seller avatar permanently removed from listing rows — product thumbnail preferred. */
+.inbox-hub__avatar,
+.inbox-hub__avatar-face {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Official ROVEXO — canonical RX App Icon (same asset as Home header). */
+.inbox-hub .cds-menu-row__icon:has(.inbox-hub__rx-mark) {
+  width: 48px;
+  height: 48px;
+}
+
+.inbox-hub__rx-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 0 0 2px #ffffff;
+  flex-shrink: 0;
   background: #ffffff;
+  box-shadow: none;
 }
 
-.inbox-hub__avatar-face {
-  width: 40px !important;
-  height: 40px !important;
-  min-width: 40px;
-  min-height: 40px;
+.inbox-hub__rx-mark-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Private conversation fallback — user avatar when no listing image. */
+.inbox-hub__user-avatar {
+  display: block;
+  width: var(--inbox-thumb);
+  height: var(--inbox-thumb);
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.inbox-hub__user-avatar-face {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+.inbox-hub__notif-icon {
+  width: 24px;
+  height: 24px;
+  color: inherit;
+}
+
+.inbox-hub__notif-icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+  stroke: currentColor;
+}
+
+/* Listing thumbnail — product image only (no seller / marketplace avatar). */
+.inbox-hub .cds-menu-row__icon:has(.inbox-hub__notif-thumb) {
+  width: 48px;
+  height: 48px;
+}
+
+.inbox-hub__notif-thumb {
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f3f4f6;
+}
+
+.inbox-hub__notif-thumb-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  display: block;
+  border-radius: 12px;
 }
 
 .inbox-hub__card-body {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-top: 0;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
 }
 
 .inbox-hub__card-top {
@@ -397,12 +557,12 @@
 }
 
 .inbox-hub__product-title {
-  flex: 1;
   min-width: 0;
+  max-width: 100%;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.25;
-  color: var(--inbox-text);
+  color: var(--inbox-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -410,54 +570,17 @@
 
 .inbox-hub__time {
   flex-shrink: 0;
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 400;
   line-height: 1.25;
   color: var(--inbox-muted);
-}
-
-.inbox-hub__meta {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  min-width: 0;
-}
-
-.inbox-hub__order-id {
-  font-size: var(--inbox-fs-secondary);
-  font-weight: 500;
-  line-height: 1.25;
-  color: var(--inbox-secondary);
+  text-align: right;
   white-space: nowrap;
-}
-
-.inbox-hub__status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 18px;
-  padding: 0 7px;
-  border-radius: 999px;
-  background: rgb(109 40 217 / 0.1);
-  color: var(--inbox-purple);
-  font-size: var(--inbox-fs-status);
-  font-weight: 600;
-  line-height: 1;
-  text-transform: capitalize;
-  white-space: nowrap;
-}
-
-.inbox-hub__party {
-  display: flex;
-  align-items: center;
-  min-height: 18px;
-  margin-top: 1px;
-  min-width: 0;
 }
 
 .inbox-hub__party-name {
-  font-size: var(--inbox-fs-name);
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   line-height: 1.25;
   color: var(--inbox-text);
   white-space: nowrap;
@@ -466,27 +589,24 @@
 }
 
 .inbox-hub__preview {
-  font-size: 12px;
-  line-height: 1.3;
-  color: var(--inbox-muted);
-  white-space: nowrap;
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.inbox-hub__preview--unread {
-  color: var(--inbox-text);
-  font-weight: 600;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--inbox-muted);
 }
 
 .inbox-hub__card-aside {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
   align-self: stretch;
-  min-height: 40px;
+  min-width: 0;
 }
 
 .inbox-hub__unread {
@@ -512,11 +632,12 @@
 }
 
 .inbox-hub__section {
-  margin: 0 0 10px;
+  margin: 0;
+  padding: 0;
 }
 
 .inbox-hub__section-label {
-  margin: 0 0 4px;
+  margin: 0 0 var(--inbox-section-row-gap);
   padding: 0;
   color: var(--inbox-muted);
   font-size: 10px;
@@ -526,18 +647,29 @@
   text-transform: uppercase;
 }
 
+.inbox-hub__notif-feed,
 .inbox-hub__notif-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: contents;
+}
+
+.inbox-hub__section,
+.inbox-hub .cds-menu-row,
+.inbox-hub .cds-section,
+.inbox-hub .cds-section__card {
+  width: 100%;
+  max-width: none;
 }
 
 .inbox-hub__empty {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   align-items: center;
-  margin-top: 16px;
-  padding: 0 16px 16px;
+  justify-content: center;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 24px 0;
   text-align: center;
 }
 
@@ -550,41 +682,99 @@
 
 .inbox-hub__empty-title {
   margin: 16px 0 0;
+  width: 100%;
+  max-width: none;
   font-size: 16px;
   font-weight: 700;
   color: var(--inbox-text);
 }
 
 .inbox-hub__empty-cta {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 16px;
-  height: var(--inbox-btn-h);
+  width: 100%;
+  max-width: none;
+  height: var(--inbox-empty-cta-h);
+  min-height: var(--inbox-empty-cta-h);
   padding: 0 20px;
-  border-radius: 14px;
-  background: var(--inbox-purple);
+  border-radius: var(--inbox-btn-radius);
+  background: var(--inbox-purple-gradient);
   color: #fff;
   font-size: 15px;
   font-weight: 600;
   text-decoration: none;
+  box-sizing: border-box;
 }
 
 .inbox-hub__skel {
   border-radius: var(--inbox-radius-card);
-  background: linear-gradient(90deg, #f3f4f6 0%, #eceef2 50%, #f3f4f6 100%);
+  background: #ffffff;
+  border-bottom: 1px solid var(--inbox-border);
+}
+
+.inbox-hub__skel--card {
+  min-height: var(--inbox-row-min, 74px);
+  height: auto;
+  border-radius: 0;
+  padding: 12px 16px;
+  box-sizing: border-box;
+}
+
+.inbox-hub__skel-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.inbox-hub__skel-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, #e8e9ed 0%, #f3f4f6 50%, #e8e9ed 100%);
   background-size: 200% 100%;
   animation: inbox-skel 1.2s ease-in-out infinite;
 }
 
-.inbox-hub__skel--card {
-  height: 64px;
-  border-radius: 0;
+.inbox-hub__skel-lines {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inbox-hub__skel-line {
+  display: block;
+  height: 10px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #e8e9ed 0%, #f3f4f6 50%, #e8e9ed 100%);
+  background-size: 200% 100%;
+  animation: inbox-skel 1.2s ease-in-out infinite;
+}
+
+.inbox-hub__skel-line--title {
+  width: 72%;
+}
+
+.inbox-hub__skel-line--party {
+  width: 48%;
+}
+
+.inbox-hub__skel-line--preview {
+  width: 88%;
 }
 
 .inbox-hub__skel--notif {
-  height: 52px;
+  height: 72px;
   border-radius: 0;
+  border-bottom: 1px solid var(--inbox-border);
+  background: linear-gradient(90deg, #e8e9ed 0%, #f3f4f6 50%, #e8e9ed 100%);
+  background-size: 200% 100%;
+  animation: inbox-skel 1.2s ease-in-out infinite;
 }
 
 @keyframes inbox-skel {
@@ -636,31 +826,31 @@
 
 @media (min-width: 768px) {
   .inbox-hub {
-    max-width: 100%;
-    --inbox-pad-x: 16px;
+    max-width: none;
+    width: 100%;
+    --inbox-pad-x: 0px;
   }
 
   .inbox-hub__list {
     display: grid;
     grid-template-columns: 1fr;
+    width: 100%;
+    max-width: none;
   }
 }
 
 @media (min-width: 1100px) {
   .inbox-hub {
-    max-width: 100%;
+    width: 100%;
+    max-width: none;
   }
 }
 
-/* Bottom nav — spacing-only density within Inbox Hub shells */
-.account-canonical-shell:has(.inbox-hub) [data-bottom-nav="v2"] .rx-bottom-nav-item:not(.rx-bottom-nav-item--sell) {
-  gap: 2px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
+/* Bottom nav — keep Owner content lift on Inbox / Conversation (do not pin labels low). */
+.account-canonical-shell:has(.inbox-hub) [data-bottom-nav="v2"] .rx-bottom-nav-item:not(.rx-bottom-nav-item--sell),
 .account-canonical-shell:has(.conv-hub) [data-bottom-nav="v2"] .rx-bottom-nav-item:not(.rx-bottom-nav-item--sell) {
   gap: 2px;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding-top: 0;
+  padding-bottom: calc(2px + var(--rx-bottom-nav-content-lift, 9px));
 }
+

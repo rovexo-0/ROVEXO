@@ -1,12 +1,18 @@
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getPublicSellerPerformanceSummary } from "@/lib/seller-performance/service";
+import { getReputationPublicProfile } from "@/lib/reputation/store";
+import { assertNoInternalScoreInPublicPayload } from "@/lib/reputation/public-contract";
 
 type RouteContext = {
   params: Promise<{ userId: string }>;
 };
 
+/**
+ * LEGACY public path — permanently redirected to Reputation Engine.
+ * Canonical: GET /api/reputation/[userId]
+ * Badges come from Badge Engine via Reputation public profile (never seller-performance).
+ */
 export async function GET(request: Request, context: RouteContext) {
   const limited = await enforceRateLimit(request, "seller-performance-public", 120, 60_000);
   if (limited) return limited;
@@ -23,16 +29,30 @@ export async function GET(request: Request, context: RouteContext) {
     .eq("id", userId)
     .maybeSingle();
 
-  const summary = await getPublicSellerPerformanceSummary(userId, Boolean(profile?.verified));
+  const reputation = await getReputationPublicProfile(userId, Boolean(profile?.verified));
+  const payload = {
+    userId: reputation.userId,
+    // Legacy field aliases (backward compatible)
+    level: reputation.levelLabel,
+    levelLabel: reputation.levelLabel,
+    averageRating: reputation.averageRating,
+    reviewCount: reputation.totalReviews,
+    completedSales: reputation.completedOrders,
+    verified: reputation.verificationStatus === "verified",
+    badges: reputation.publicBadges,
+    // Canonical pointers
+    canonicalApi: "/api/reputation/[userId]",
+    deprecated: true,
+  };
 
-  return NextResponse.json({
-    userId: summary.userId,
-    level: summary.level,
-    levelLabel: summary.levelLabel,
-    averageRating: summary.averageRating,
-    reviewCount: summary.reviewCount,
-    completedSales: summary.completedSales,
-    verified: summary.verified,
-    badges: summary.badges,
+  if (!assertNoInternalScoreInPublicPayload(payload as Record<string, unknown>)) {
+    return NextResponse.json({ error: "Reputation payload blocked." }, { status: 500 });
+  }
+
+  return NextResponse.json(payload, {
+    headers: {
+      Deprecation: "true",
+      Link: `</api/reputation/${userId}>; rel="successor-version"`,
+    },
   });
 }

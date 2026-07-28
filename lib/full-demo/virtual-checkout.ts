@@ -27,9 +27,14 @@ export async function debitVirtualBuyerWallet(input: {
   orderNumber: string;
   productTitle: string;
 }): Promise<{ ok: true; sessionId: string } | { ok: false; error: string }> {
-  assertVirtualPaymentAllowed("debitVirtualBuyerWallet");
-
   const admin = createAdminClient();
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("email")
+    .eq("id", input.buyerId)
+    .maybeSingle();
+  assertVirtualPaymentAllowed("debitVirtualBuyerWallet", profile?.email);
+
   const amount = roundMoney(input.amount);
   if (amount <= 0) {
     return { ok: false, error: "Invalid virtual payment amount." };
@@ -66,11 +71,6 @@ export async function debitVirtualBuyerWallet(input: {
     };
   }
 
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("email")
-    .eq("id", input.buyerId)
-    .maybeSingle();
   const permanentUnlimitedWallet = isFullDemoEmail(profile?.email);
   const nextBalance = permanentUnlimitedWallet
     ? FULL_DEMO_VIRTUAL_FUNDS_GBP

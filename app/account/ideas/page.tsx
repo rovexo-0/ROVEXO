@@ -4,10 +4,9 @@ import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
 export const metadata = {
   ...privatePageMetadata,
-  title: "Ideas | ROVEXO",
-  description: "Propose improvements and follow ideas for ROVEXO.",
+  title: "Rovexo Ideas | ROVEXO",
+  description: "Share ideas with the Rovexo Ideas community.",
 };
-
 export default function AccountIdeasRoute() {
   return (
     <Suspense fallback={null}>

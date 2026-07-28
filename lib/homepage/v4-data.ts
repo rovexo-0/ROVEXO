@@ -2,19 +2,12 @@ import type { Product, ProductsPage } from "@/lib/products/types";
 import type { ShowcaseSellerSection } from "@/lib/homepage/showcase-sellers";
 import { filterHomepageProducts } from "@/lib/homepage/homepage-eligibility";
 import {
-  HOMEPAGE_DEMO_PRODUCTS,
   resolveHomepageFeedItems,
   resolveShowcaseSections,
-} from "@/lib/homepage/demo-data";
-import { resolveHomepageMode } from "@/lib/homepage/config";
+} from "@/lib/homepage/feed-resolve";
 import { rotateShowcaseStores } from "@/lib/homepage/store-rotation";
 
 const FEATURED_LIMIT = 12;
-const SHOWCASE_SELLER_LIMIT = 6;
-
-function isHomepageDemoEnabled(): boolean {
-  return resolveHomepageMode() === "demo";
-}
 
 export type HomepageV4Sections = {
   showcases: ShowcaseSellerSection[];
@@ -34,32 +27,20 @@ function uniqueProducts(items: Product[]): Product[] {
 }
 
 function resolveFeatured(page: ProductsPage, exclude: Set<string>): Product[] {
-  const filtered = uniqueProducts(filterHomepageProducts(page.items)).filter(
-    (product) => !exclude.has(product.id),
-  );
-
-  if (filtered.length > 0) {
-    return filtered.slice(0, FEATURED_LIMIT);
-  }
-
-  if (!isHomepageDemoEnabled()) {
-    return [];
-  }
-
-  return HOMEPAGE_DEMO_PRODUCTS.filter(
-    (product) => product.isFeatured && !exclude.has(product.id),
-  ).slice(0, FEATURED_LIMIT);
+  return uniqueProducts(filterHomepageProducts(page.items))
+    .filter((product) => !exclude.has(product.id))
+    .slice(0, FEATURED_LIMIT);
 }
 
 function resolveShowcases(sections: ShowcaseSellerSection[]): ShowcaseSellerSection[] {
-  return rotateShowcaseStores(sections)
-    .map((section) => {
-      const listings = uniqueProducts(section.listings);
-      if (listings.length === 0) return null;
-      return { ...section, listings };
-    })
-    .filter((section): section is ShowcaseSellerSection => section !== null)
-    .slice(0, SHOWCASE_SELLER_LIMIT);
+  // FINAL Showcase v1.0: one store header + up to 10 listings (no multi-store rail).
+  const primary = rotateShowcaseStores(sections).find((section) => section.listings.length > 0);
+  if (!primary) return [];
+
+  const listings = uniqueProducts(primary.listings).slice(0, 10);
+  if (listings.length === 0) return [];
+
+  return [{ ...primary, listings }];
 }
 
 export function resolveHomepageV4Sections(input: {

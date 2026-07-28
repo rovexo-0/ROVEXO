@@ -42,16 +42,16 @@ describe("WOW Philosophy Freeze v1.0", () => {
 
   it("parcel freeze has exactly four standard sizes", () => {
     expect(PARCEL_SIZE_OPTIONS.map((o) => o.label)).toEqual([
-      "Small Parcel",
-      "Medium Parcel",
-      "Large Parcel",
-      "Extra Large Parcel",
+      "SMALL",
+      "MEDIUM",
+      "LARGE",
+      "EXTRA LARGE",
     ]);
   });
 
   it("consumer icons are line-based (no Fluency 3D asset paths in DashboardIcon3D)", () => {
     const icons = read("components/icons/DashboardIcon3D.tsx");
-    expect(icons).toContain("RvxLineIcons");
+    expect(icons).toMatch(/RvxLineIcons|AccountIcon/);
     expect(icons).not.toContain("getFluency3DAssetPath");
     expect(icons).toMatch(/line icons only|Absolute Final/i);
   });
@@ -62,8 +62,9 @@ describe("WOW Philosophy Freeze v1.0", () => {
     expect(messages).toMatch(/inbox/i);
   });
 
-  it("checkout freeze is Absolute Final single Confirm & Pay surface", () => {
+  it("checkout uses the frozen checkout UI and total-pay CTA", () => {
     const checkout = read("features/checkout/components/CheckoutWizardV1.tsx");
-    expect(checkout).toMatch(/ABSOLUTE-FINAL|Confirm|Pay/i);
+    expect(checkout).toContain('data-checkout-freeze="CHECKOUT_UI_v1.0"');
+    expect(checkout).toContain("TOTAL PAY");
   });
 });

@@ -48,10 +48,11 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     expect(AUTH_MASTER_SPEC.login.copy.title).toBe("Welcome back 👋");
     expect(AUTH_MASTER_SPEC.login.copy.createAccount).toBe("Create Free Account");
     expect(AUTH_MASTER_SPEC.login.copy.forgotPassword).toBe("Forgot Password");
-    expect(brand).toContain("BUY.");
+    expect(brand).toContain("canonical-rx-3d");
+    expect(brand).toContain("OFFICIAL_BRAND_PRIMARY_EMBLEM");
   });
 
-  it("locks register fields and OAuth entry points", () => {
+  it("locks register fields without social OAuth UI or GDPR checkbox (AUTH UI v1.2)", () => {
     const register = readSource("features/auth/components/RegisterScreen.tsx");
     const oauth = readSource("features/auth/components/AuthOAuthButtons.tsx");
     const actions = readSource("lib/auth/actions.ts");
@@ -61,8 +62,9 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     expect(register).toContain('name="fullName"');
     expect(register).toContain('name="confirmPassword"');
     expect(register).toContain('name="terms"');
-    expect(register).toContain('name="gdpr"');
-    expect(register).toContain("/legal/cookie-policy");
+    expect(register).not.toContain('name="gdpr"');
+    expect(register).not.toContain("SocialLogin");
+    expect(register).toContain("/legal/terms-and-conditions");
     expect(oauth).toContain("Apple");
     expect(oauth).toContain("Google");
     expect(actions).toContain("signInWithOAuthProvider");
@@ -75,32 +77,33 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     expect(titles).toContain("Settings");
     expect(titles.filter((title) => title === "Settings")).toHaveLength(1);
     expect(sections.flatMap((s) => s.items).find((i) => i.id === "settings")?.href).toBe(
-      "/account/settings",
+      "/settings",
     );
   });
 
-  it("consolidates account features under Settings", () => {
+  it("consolidates Settings inventory under Master Engine lock", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
     const menu = readSource("lib/account-center/settings-menu.ts");
 
-    expect(settings).toContain("AccountCanonicalShell");
+    expect(settings).toContain("MyAccountTemplate");
     expect(settings).toContain("SettingsMenuSections");
-    expect(menu).toContain('"Profile"');
+    expect(menu).toContain('"Personal Information"');
     expect(menu).toContain('"Addresses"');
-    expect(menu).toContain('"Payment Methods"');
     expect(menu).toContain('"Notifications"');
-    expect(menu).toContain('"Seller Performance"');
+    expect(menu).toContain('"Verification"');
+    expect(menu).not.toContain('"Payment Methods"');
     expect(menu).not.toContain('"Appearance"');
     expect(settings).not.toContain("Help Centre");
     expect(settings).not.toContain("SettingsAccordion");
   });
 
-  it("exposes Verification Master Menu page", () => {
+  it("keeps Verification page available without hub menu entry", () => {
     const verification = readSource("app/account/verification/page.tsx");
     const menu = readSource("lib/account-center/canonical-menu.ts");
 
     expect(verification).toContain("VerificationHubPage");
-    expect(menu).toContain('title: "Verification"');
+    expect(menu).not.toContain('title: "Verification"');
+    expect(menu).toContain('title: "Settings"');
     expect(menu).not.toContain("Personal Information");
     expect(menu).not.toContain("Address Book");
     expect(menu).not.toContain("Payment Methods");
@@ -110,7 +113,7 @@ describe("Auth + Account Architecture canonical v1.0", () => {
     const redirect = buildProfileCompletionRedirect("address", "/checkout/demo-item");
     expect(redirect).toContain("/account/addresses");
     expect(redirect).toContain(`${PROFILE_RETURN_TO_PARAM}=`);
-    expect(readSource("lib/profile/auto-verified.ts")).toContain("showVerifiedBadge");
+    expect(readSource("lib/profile/auto-verified.ts")).toContain("recalculateRovexoVerified");
     expect(readSource("app/auth/callback/route.ts")).toContain("syncAutoVerifiedProfile");
   });
 

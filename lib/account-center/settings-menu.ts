@@ -1,7 +1,17 @@
 /**
- * ROVEXO Settings hub — canonical menu v1.0 (flat sections).
- * Routes map to existing account surfaces; logical /settings/* names in comments only.
+ * ROVEXO Settings hub — SETTINGS v1.0 (PERMANENT LOCK · APPROVED).
+ *
+ * PROFILE PAGE = MASTER PAGE → SETTINGS v1.0 inherits 100% design.
+ * ONLY CONTENT MAY DIFFER. DESIGN NEVER DOES.
+ *
+ * Inventory (locked): Personal Information · Addresses · Notifications ·
+ * Privacy · Security · Verification · Currency · Delete Account.
+ *
+ * Removed from Settings (live on Profile / Wallet instead):
+ * Holiday Mode · Promote · Help Centre · Legal · Sign Out · Payment Methods · Bank Accounts · Language.
  */
+
+import type { SettingsIconTone } from "@/lib/settings/settings-v1";
 
 export type SettingsMenuRow = {
   id: string;
@@ -9,6 +19,7 @@ export type SettingsMenuRow = {
   subtitle: string;
   href: string;
   icon: SettingsMenuIcon;
+  tone: SettingsIconTone;
 };
 
 export type SettingsMenuSection = {
@@ -41,7 +52,11 @@ function withReturn(href: string, returnTo: string | null): string {
   return returnTo ? `${href}?returnTo=${encodeURIComponent(returnTo)}` : href;
 }
 
-export function buildSettingsMenuSections(returnTo: string | null): SettingsMenuSection[] {
+export function buildSettingsMenuSections(
+  returnTo: string | null,
+  _options?: { activeListingCount?: number },
+): SettingsMenuSection[] {
+  void _options;
   const href = (path: string) => withReturn(path, returnTo);
 
   return [
@@ -51,38 +66,27 @@ export function buildSettingsMenuSections(returnTo: string | null): SettingsMenu
       rows: [
         {
           id: "profile",
-          title: "Profile",
-          subtitle: "Name, photo, and public profile",
+          title: "Personal Information",
+          subtitle: "Name, photo and username.",
           href: href("/account/profile"),
           icon: "user",
+          tone: "purple",
         },
         {
           id: "addresses",
           title: "Addresses",
-          subtitle: "Delivery and billing addresses",
+          subtitle: "Delivery and return addresses.",
           href: href("/account/addresses"),
           icon: "location",
-        },
-        {
-          id: "payment-methods",
-          title: "Payment Methods",
-          subtitle: "Cards and payment options",
-          href: href("/wallet/payment-methods"),
-          icon: "credit-card",
+          tone: "blue",
         },
         {
           id: "notifications",
           title: "Notifications",
-          subtitle: "Alerts, email, and push",
+          subtitle: "Push, email and alerts.",
           href: href("/notifications/settings"),
           icon: "bell",
-        },
-        {
-          id: "ideas",
-          title: "ROVEXO Ideas",
-          subtitle: "Private suggestions for the platform",
-          href: href("/account/ideas"),
-          icon: "megaphone",
+          tone: "orange",
         },
       ],
     },
@@ -91,66 +95,28 @@ export function buildSettingsMenuSections(returnTo: string | null): SettingsMenu
       title: "SECURITY",
       rows: [
         {
-          id: "privacy-security",
-          title: "Privacy & Security",
-          subtitle: "Password, privacy, and data",
+          id: "privacy",
+          title: "Privacy",
+          subtitle: "Privacy controls and data.",
+          href: href("/account/privacy"),
+          icon: "shield",
+          tone: "green",
+        },
+        {
+          id: "security",
+          title: "Security",
+          subtitle: "Password, devices and sessions.",
           href: href("/account/security"),
           icon: "lock",
+          tone: "red",
         },
         {
-          id: "connected-accounts",
-          title: "Connected Accounts",
-          subtitle: "Linked social and sign-in",
-          href: href("/account/security"),
-          icon: "people",
-        },
-        {
-          id: "devices",
-          title: "Devices & Sessions",
-          subtitle: "Active devices and logins",
-          href: href("/account/security"),
-          icon: "phone",
-        },
-        {
-          id: "blocked-users",
-          title: "Blocked Users",
-          subtitle: "People you've blocked",
-          href: href("/account/blocked-users"),
-          icon: "people",
-        },
-      ],
-    },
-    {
-      id: "marketplace",
-      title: "MARKETPLACE",
-      rows: [
-        {
-          id: "business-verification",
-          title: "Business Verification",
-          subtitle: "Company and trade details",
-          href: href("/trust"),
+          id: "verification",
+          title: "Verification",
+          subtitle: "Identity and business verification.",
+          href: href("/account/verification"),
           icon: "shield",
-        },
-        {
-          id: "seller-performance",
-          title: "Seller Performance",
-          subtitle: "Reputation score and achievements",
-          href: href("/seller/performance"),
-          icon: "star",
-        },
-        {
-          id: "promotion-tools",
-          title: "Promotion Tools",
-          subtitle: "Boost listings and campaigns",
-          href: href("/account/promotion-tools"),
-          icon: "megaphone",
-        },
-        {
-          id: "wallet",
-          title: "Wallet",
-          subtitle: "Balance, payouts, and transactions",
-          href: href("/wallet"),
-          icon: "wallet",
+          tone: "rovexo-blue",
         },
       ],
     },
@@ -159,45 +125,12 @@ export function buildSettingsMenuSections(returnTo: string | null): SettingsMenu
       title: "PREFERENCES",
       rows: [
         {
-          id: "preferences",
-          title: "Preferences",
-          subtitle: "Shopping and recommendations",
-          href: href("/account/buyer/preferences"),
-          icon: "settings",
-        },
-        {
-          id: "language-currency",
-          title: "Language & Currency",
-          subtitle: "Region, language, and currency",
-          href: href("/account/preferences/language"),
-          icon: "globe",
-        },
-        {
-          id: "accessibility",
-          title: "Accessibility",
-          subtitle: "Accessibility options and statement",
-          href: "/legal/accessibility-statement",
-          icon: "headset",
-        },
-      ],
-    },
-    {
-      id: "legal",
-      title: "LEGAL",
-      rows: [
-        {
-          id: "terms-policies",
-          title: "Terms & Policies",
-          subtitle: "Terms, privacy, and cookies",
-          href: "/legal",
-          icon: "document",
-        },
-        {
-          id: "about",
-          title: "About ROVEXO",
-          subtitle: "About the platform",
-          href: "/account/settings/about",
-          icon: "info",
+          id: "currency",
+          title: "Currency",
+          subtitle: "Display currency.",
+          href: href("/account/preferences/currency"),
+          icon: "wallet",
+          tone: "gold",
         },
       ],
     },

@@ -73,7 +73,9 @@ describe("account shell standardization", () => {
   });
 
   it("standardizes address and payment settings on canonical shells", () => {
-    expect(readSource("features/account/components/AddressBookPage.tsx")).toContain("AccountCanonicalShell");
+    expect(readSource("features/account/components/addresses/AddressesPage.tsx")).toContain(
+      "MyAccountTemplate",
+    );
     expect(readSource("features/wallet/components/WalletPaymentMethodsPage.tsx")).toContain(
       "AccountCanonicalShell",
     );
@@ -99,20 +101,18 @@ describe("help centre header consistency", () => {
 
 describe("account hub menu alignment", () => {
   it("matches canonical menu item titles for e2e and audit", () => {
-    const sections = buildAccountMenuSections(baseProfile);
+    const sections = buildAccountMenuSections(baseProfile, { activeListingCount: 1 });
     const titles = sections.flatMap((section) => section.items.map((item) => item.title));
     expect(titles).toEqual([
-      "Buying",
-      "Selling",
-      "Business",
-      "Wallet",
-      "Messages",
-      "Notifications",
-      "Verification",
+      "Favourites",
+      "Balance",
+      "My Orders",
+      "Holiday Mode",
+      "Promote",
       "Settings",
+      "Rovexo Ideas",
       "Help Centre",
-      "Trust Centre",
-      "Legal Centre",
+      "Legal Information",
     ]);
   });
 });
@@ -136,7 +136,9 @@ describe("discovery header standardization", () => {
       const source = readSource(file);
       expect(source).not.toContain('import Header from "@/components/Header"');
       const usesCanonicalDiscovery =
-        source.includes("RovexoHeaderV2") || source.includes("DiscoveryPageShell");
+        source.includes("RovexoHeaderV2") ||
+        source.includes("DiscoveryPageShell") ||
+        source.includes("BetaAppShell");
       expect(usesCanonicalDiscovery, `${file} must use canonical discovery chrome`).toBe(true);
     }
   });
@@ -206,7 +208,7 @@ describe("canonical shell migrations", () => {
     }
 
     const notificationSettings = readSource("features/notifications/components/NotificationSettingsPage.tsx");
-    expect(notificationSettings).toContain("AccountCanonicalShell");
+    expect(notificationSettings).toContain("MyAccountTemplate");
   });
 });
 
@@ -217,9 +219,10 @@ describe("legacy shell discouragement", () => {
     "features/account/components/ProfileEditPage.tsx",
   ];
 
-  it("keeps settings routes on AccountCanonicalShell wrapper", () => {
+  it("keeps settings routes on MyAccountTemplate wrapper", () => {
     for (const file of ACCOUNT_SETTINGS_PAGES) {
-      expect(readSource(file)).toContain("AccountCanonicalShell");
+      const src = readSource(file);
+      expect(src).toMatch(/MyAccountTemplate|AccountCanonicalShell/);
     }
   });
 });

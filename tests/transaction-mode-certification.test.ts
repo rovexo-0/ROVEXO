@@ -183,7 +183,7 @@ describe("Transaction Mode — enterprise certification", () => {
       expect(page).toContain("getTransactionCapabilities");
       expect(page).toContain("capabilities.shipping");
       expect(page).toContain("transactionMode={product.transactionMode}");
-      expect(page).toContain('data-pd-detail-version="v1.2-universal-preview"');
+      expect(page).toContain('data-pd-detail-version="cod-sange-v3.1"');
     });
 
     it("switches action bar by transactionMode", () => {
@@ -201,9 +201,10 @@ describe("Transaction Mode — enterprise certification", () => {
   });
 
   describe("API exposure audit", () => {
-    it("category tree route serves nodes with transactionMode", () => {
+    it("category tree compatibility entry point delegates to Catalog Master", () => {
       const treeBuilder = readSource("lib/categories/build-tree-from-db.ts");
-      expect(treeBuilder).toContain("transactionMode");
+      expect(treeBuilder).toContain("getCategoryTree");
+      expect(treeBuilder).not.toContain("transactionMode");
     });
 
     it("search listings expose transactionMode on products", () => {

@@ -1,5 +1,7 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
+
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { detectParcelTier, mapLegacyParcelSize } from "@/lib/shipping/parcels";
@@ -23,6 +25,13 @@ import {
 import { createOrderShipment, getOrderShipment } from "@/lib/shipping/service";
 import { attachLabelToParcel, createShipmentParcel, listShipmentParcelsForOrder } from "@/lib/shipping/parcels-repository";
 import type { ShipmentParcel } from "@/lib/shipping/types";
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isUuid(value: string): boolean {
+  return UUID_RE.test(value);
+}
 
 type RecordRow = {
   id: string;
@@ -68,6 +77,7 @@ type QuoteRow = {
   estimated_days_max: number;
   recommended: string | null;
   expires_at: string | null;
+  quote_payload?: { externalQuoteId?: string } | null;
 };
 
 function mapLabel(row: LabelRow | null): ShippingLabelArtifact | null {
@@ -86,7 +96,7 @@ function mapPricing(quotes: QuoteRow[], selectedQuoteId: string | null): Shippin
   if (quotes.length === 0) return null;
   return {
     quotes: quotes.map((quote) => ({
-      id: quote.id,
+      id: quote.quote_payload?.externalQuoteId ?? quote.id,
       providerId: quote.provider_id,
       carrier: quote.carrier,
       serviceName: quote.service_name,
@@ -329,19 +339,24 @@ export async function saveShippingQuotes(input: {
 
   if (input.pricing.quotes.length > 0) {
     const { error: insertError } = await admin.from("shipping_quotes").insert(
-      input.pricing.quotes.map((quote) => ({
-        id: quote.id,
-        shipping_record_id: record.id,
-        provider_id: quote.providerId,
-        carrier: String(quote.carrier),
-        service_name: quote.serviceName,
-        price_pence: quote.pricePence,
-        currency: quote.currency,
-        estimated_days_min: quote.estimatedDays.min,
-        estimated_days_max: quote.estimatedDays.max,
-        recommended: quote.recommended ?? null,
-        expires_at: quote.expiresAt ?? null,
-      })),
+      input.pricing.quotes.map((quote) => {
+        const externalId = String(quote.id);
+        const rowId = isUuid(externalId) ? externalId : randomUUID();
+        return {
+          id: rowId,
+          shipping_record_id: record.id,
+          provider_id: quote.providerId,
+          carrier: String(quote.carrier),
+          service_name: quote.serviceName,
+          price_pence: quote.pricePence,
+          currency: quote.currency,
+          estimated_days_min: quote.estimatedDays.min,
+          estimated_days_max: quote.estimatedDays.max,
+          recommended: quote.recommended ?? null,
+          expires_at: quote.expiresAt ?? null,
+          quote_payload: isUuid(externalId) ? null : { externalQuoteId: externalId },
+        };
+      }),
     );
     if (insertError) {
       console.error("[shipping] saveShippingQuotes insert failed:", insertError.message);

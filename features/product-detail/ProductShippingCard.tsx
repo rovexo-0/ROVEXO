@@ -6,14 +6,16 @@ type ProductShippingCardProps = {
   product: ProductDetail;
 };
 
+/** Product Page v3.1 — Delivery · estimate · Tracked only. */
 export function ProductShippingCard({ product }: ProductShippingCardProps) {
   return (
     <Link href="/help/shipping" className="pd-v1__card pd-v1__shipping" aria-labelledby="pd-shipping-title">
       <span className="pd-v1__shipping-copy">
         <p id="pd-shipping-title" className="pd-v1__shipping-title">
-          Shipping
+          Delivery
         </p>
         <p className="pd-v1__shipping-sub">{resolveShippingEstimate(product)}</p>
+        <p className="pd-v1__shipping-sub">Tracked delivery available</p>
       </span>
     </Link>
   );

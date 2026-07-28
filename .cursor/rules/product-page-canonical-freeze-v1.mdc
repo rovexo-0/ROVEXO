@@ -1,0 +1,25 @@
+# ROVEXO v1.0 — PRODUCT PAGE FINAL FREEZE (Cod Sânge v3.1)
+
+**STATUS: OWNER APPROVED | FINAL FREEZE**
+
+SSOT: `lib/product-detail/product-page-canonical-freeze-v1.ts`  
+UI: `features/product-detail/ProductDetailPage.tsx`  
+Route: `/listing/[slug]`
+
+## Deleted forever
+
+Add to Cart · Platform Fee text · Report Seller · Shipping calculated at checkout · Old white header
+
+## Delivery (final)
+
+Delivery · 2-3 working days · Tracked delivery available
+
+## Header (final)
+
+Transparent · ← left · ••• right · nothing else
+
+## Locked
+
+Price · Views (right) · Description · Condition · Seller · Similar · Make Offer · Buy Now
+
+**Less is more. Premium > everything. If it works, do not touch it.**

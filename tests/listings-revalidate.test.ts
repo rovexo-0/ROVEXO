@@ -21,6 +21,8 @@ describe("revalidatePublishedListing", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/");
     expect(revalidatePath).toHaveBeenCalledWith("/", "layout");
     expect(revalidatePath).toHaveBeenCalledWith("/seller/listings");
+    expect(revalidatePath).toHaveBeenCalledWith("/user/[username]", "page");
+    expect(revalidatePath).toHaveBeenCalledWith("/store/[slug]", "page");
     expect(revalidatePath).toHaveBeenCalledWith("/search");
     expect(revalidatePath).toHaveBeenCalledWith("/categories");
     expect(revalidatePath).toHaveBeenCalledWith("/listing/nike-trainers-abc123");

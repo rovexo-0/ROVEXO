@@ -1,4 +1,4 @@
-import { resolveHomepageFeedItems } from "@/lib/homepage/demo-data";
+import { resolveHomepageFeedItems } from "@/lib/homepage/feed-resolve";
 import { getHomepageFeed } from "@/lib/products/catalog";
 import { NextResponse } from "next/server";
 import type { Product } from "@/lib/products/types";

@@ -187,7 +187,7 @@ export function NotificationsEngineAdmin({ initialSnapshot }: NotificationsEngin
       ) : null}
 
       <p className="text-sm text-text-muted">
-        Public notification center: <Link href="/notifications" className="ea-link">/notifications</Link> · Broadcast: <Link href="/super-admin/notifications" className="ea-link">/super-admin/notifications</Link>
+        Public notification center: <Link href="/inbox?tab=notifications" className="ea-link">/notifications</Link> · Broadcast: <Link href="/super-admin/notifications" className="ea-link">/super-admin/notifications</Link>
       </p>
     </EnterpriseEngineAdminShell>
   );

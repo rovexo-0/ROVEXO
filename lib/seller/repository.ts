@@ -44,6 +44,9 @@ function buildListingBreakdown(
     rejected: 0,
     expired: listings.filter((listing) => listing.status === "paused").length,
     sold: listings.filter((listing) => listing.status === "sold").length,
+    outOfStock: listings.filter(
+      (listing) => listing.status === "published" && listing.stock <= 0,
+    ).length,
     boosted,
   };
 }
@@ -72,7 +75,6 @@ function buildStatistics(input: {
     orders: input.orders.length,
     revenue: input.core.monthlyRevenue,
     pendingPayout: input.walletPending,
-    followers: input.core.followers,
     views: input.core.profileViews,
     favorites: input.favorites,
     conversionRate: input.core.conversionRate,
@@ -205,7 +207,9 @@ export async function fetchSellerDashboardRepository(
         availableBalance: 0,
         pendingBalance: 0,
         pendingAvailableAt: new Date().toISOString(),
+        lockedBalance: 0,
         paidOutBalance: 0,
+        pendingOrderCount: 0,
         withdrawalSummary: {
           processingTotal: 0,
           processingCount: 0,

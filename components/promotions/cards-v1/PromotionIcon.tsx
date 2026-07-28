@@ -8,8 +8,9 @@ export function PromotionIcon({ icon }: PromotionIconProps) {
   switch (icon) {
     case "arrow-up":
       return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} aria-hidden>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m0 0-6 6m6-6 6 6" />
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16.5 9 11l3.5 3.5L20 7" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14.5 7H20v5.5" />
         </svg>
       );
     case "star":
@@ -24,8 +25,11 @@ export function PromotionIcon({ icon }: PromotionIconProps) {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M14.5 9.5 19 5m0 0v4.5M19 5h-4.5M9.5 14.5 5 19m0 0h4.5M5 19v-4.5M8 16l-1.5 4.5L11 19M16 8l4.5-1.5L19 11"
+            d="M5 15.5c1.5 0 3.2-.4 4.5-1.5L18 5.5 18.5 6l-8.5 8.5C8.9 15.8 8.5 17.5 8.5 19"
           />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M14.5 5.5 18.5 9.5" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5.5 18.5 8 16" />
+          <circle cx="15.5" cy="8.5" r="1.1" fill="currentColor" />
         </svg>
       );
     case "crown":

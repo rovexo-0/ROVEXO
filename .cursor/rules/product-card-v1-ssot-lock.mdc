@@ -1,0 +1,24 @@
+---
+description: ROVEXO Product Card v1.0 — single ListingCard SSOT platform-wide
+globs: components/ui/ListingCard.*,lib/listing-card/**/*,features/**/*.tsx,components/homepage*/**/*,components/buyer/**/*,app/user/**/*
+alwaysApply: false
+---
+
+# ROVEXO Product Card v1.0 — CANONICAL LOCK
+
+**STATUS: CANONICAL | SSOT | PLATFORM-WIDE**
+
+One product listing card only: `components/ui/ListingCard.tsx`  
+One prop bundle: `LISTING_CARD_HOMEPAGE_PROPS` / `HP_CANONICAL_LISTING_PROPS` / `ROVEXO_PRODUCT_CARD_PROPS`
+
+## Required fields
+
+Image · Favourite ♥ · Price · Incl. total · Title · Condition · ★ rating · Views · click → product page
+
+## Forbidden
+
+Parallel cards (Search/Favourites/Seller/Related/Recommended/Category v2–v4), seller name/location on the card, duplicate CSS/components/routes.
+
+## Rule
+
+Every product grid must spread `{...LISTING_CARD_HOMEPAGE_PROPS}` or `{...HP_CANONICAL_LISTING_PROPS}` with `surface: "homepage"`. Do not override `surface` to a parallel visual.

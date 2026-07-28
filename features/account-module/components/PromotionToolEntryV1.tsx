@@ -25,7 +25,7 @@ export function PromotionToolEntryV1({
   const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
-    <AccountCanonicalShell title={menuItem.title} backHref="/account/promotion-tools">
+    <AccountCanonicalShell title={menuItem.title} backHref="/promote">
       <div className="promo-v1" data-promotion-tools-entry-version="v1.0-production">
         <div className="promo-v1__shell">
           <section aria-label={menuItem.title} className="promo-v1__grid" data-testid="promotion-tool-entry">

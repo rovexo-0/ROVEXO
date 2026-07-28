@@ -33,13 +33,13 @@ export const BUMP_DURATIONS: BumpDurationOption[] = marketplacePricingToBumpOpti
   DEFAULT_MARKETPLACE_PRICING,
 );
 
-/** Minimum hours between bumps on the same listing. */
-export const BUMP_COOLDOWN_HOURS = 1;
+/** Hours after a boost/bump window ends before a new purchase may activate (Final Freeze Rule #5). */
+export const BUMP_COOLDOWN_HOURS = 24;
 
 /** Maximum bump purchases per seller per rolling 24 hours. */
 export const MAX_BUMPS_PER_DAY = 10;
 
-/** Default Showcase / feature tier — overridden at runtime by Super Admin marketplace pricing. */
+/** Default Store Showcase / feature tier — overridden at runtime by Super Admin marketplace pricing. */
 export const FEATURE_DURATIONS: FeatureDurationOption[] = marketplacePricingToFeatureOptions(
   DEFAULT_MARKETPLACE_PRICING,
 );

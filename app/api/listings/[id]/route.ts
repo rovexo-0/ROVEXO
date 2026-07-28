@@ -18,6 +18,10 @@ import {
   formatListingApiValidationError,
   updateListingSchema,
 } from "@/lib/sell/listing-api-schema";
+import {
+  processFollowNotificationEvent,
+  resolveFollowNotificationActor,
+} from "@/lib/follow-notifications";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -51,6 +55,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     const body = updateListingSchema.parse(await request.json());
     let categoryId: string | null | undefined;
 
+    const existing = await getSellerListingById(auth.user.id, id);
+
     if (body.categoryPath !== undefined) {
       categoryId =
         body.categoryPath === null
@@ -64,7 +70,10 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     if (body.inventory) {
       const stock = clampInventory(body.inventory.stock);
-      const lowStockAlert = clampInventory(body.inventory.lowStockAlert ?? stock);
+      const lowStockAlert =
+        body.inventory.lowStockAlert !== undefined
+          ? clampInventory(body.inventory.lowStockAlert)
+          : stock;
       if (!isInventoryValid(stock, lowStockAlert)) {
         return NextResponse.json({ error: "Invalid inventory values." }, { status: 400 });
       }
@@ -93,7 +102,9 @@ export async function PATCH(request: Request, context: RouteContext) {
         ? {
             sku: body.inventory.sku?.trim() || null,
             stock: clampInventory(body.inventory.stock),
-            lowStockAlert: clampInventory(body.inventory.lowStockAlert),
+            ...(body.inventory.lowStockAlert !== undefined
+              ? { lowStockAlert: clampInventory(body.inventory.lowStockAlert) }
+              : {}),
           }
         : undefined,
       images: body.images,
@@ -109,6 +120,30 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     revalidatePublishedListing(listing.slug);
+
+    if (
+      existing &&
+      listing.status === "published" &&
+      typeof body.price === "number" &&
+      body.price < existing.price
+    ) {
+      void (async () => {
+        const actor = await resolveFollowNotificationActor(auth.user.id);
+        await processFollowNotificationEvent({
+          type: "PriceReduced",
+          actorId: auth.user.id,
+          actorName: actor.name,
+          actorUsername: actor.username,
+          actorAvatarUrl: actor.avatarUrl,
+          sellerId: auth.user.id,
+          listingId: listing.id,
+          listingSlug: listing.slug,
+          listingTitle: listing.title,
+          occurredAt: new Date().toISOString(),
+          dedupeKey: `price-reduced:${listing.id}:${body.price}`,
+        });
+      })();
+    }
 
     return NextResponse.json({ listing });
   } catch (error) {

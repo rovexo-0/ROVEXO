@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ROVEXO menus = structură Vinted + purple</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#F2F2F2;color:#1A1A1A}
+.banner{background:#9333ea;color:#fff;padding:14px 16px;font-size:13px;line-height:1.45}
+.panel{margin:16px;padding:16px;background:#fff}
+.panel h1{margin:0 0 8px;font-size:18px}
+.panel li{font-size:13px;color:#666666;margin:6px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;padding:16px}
+.card{display:block;background:#fff;text-decoration:none;color:#1A1A1A;border:1px solid #E0E0E0}
+.card .frame{width:100%;overflow:hidden}
+.card .frame svg{display:block;width:100%;height:auto}
+.card span{display:block;padding:12px 16px;font-size:15px;font-weight:600;border-top:1px solid #E0E0E0}
+</style>
+</head>
+<body>
+<div class="banner">
+  <strong>CORECTAT: structură Vinted reală</strong><br/>
+  Iconuri gri #333 (ca Vinted) · purple doar pe „View my profile” / CTA / badge · divider inset · secțiuni cu bandă gri · fără carduri
+</div>
+<section class="panel">
+  <h1>Ce s-a schimbat ca să fie ca pe Vinted</h1>
+  <ul>
+    <li>Header profil: avatar 64px + nume + <strong style="color:#9333ea">View my profile</strong> (accent brand)</li>
+    <li>Iconuri meniu <strong>gri închis #333</strong> — nu purple pe fiecare rând (Vinted folosește brand doar pe linkuri/CTA)</li>
+    <li>Text rând: <strong>16px / regular (400)</strong>, nu bold</li>
+    <li>Înălțime rând: <strong>56px</strong></li>
+    <li>Divider <strong>inset</strong> (începe după icon), nu full de la margine</li>
+    <li>Secțiuni separate cu bandă <strong>#F2F2F2</strong> + titlu gri 13px</li>
+    <li>CTA plin brand (Sell now / Withdraw / Upload) — height 48, radius 4</li>
+    <li>Fără carduri, fără umbre, fără bannere</li>
+    <li>Exclus: Homepage, Login, Register</li>
+  </ul>
+</section>
+<div class="grid"><a class="card" href="menus/my-account/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="1564" viewBox="0 0 390 1564">
+  <rect width="390" height="1564" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="100" fill="#FFFFFF"/>
+<circle cx="48" cy="94" r="32" fill="#E8E8E8"/>
+<circle cx="48" cy="88" r="12" fill="none" stroke="#BDBDBD" stroke-width="1.5"/>
+<path d="M36 104 a12 8 0 0 0 24 0" fill="none" stroke="#BDBDBD" stroke-width="1.5"/>
+<text x="94" y="90" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" fill="#1A1A1A">Alex Morgan</text>
+<text x="94" y="114" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#9333ea">View my profile</text>
+<path d="M202 109 l4 4 -4 4" fill="none" stroke="#9333ea" stroke-width="1.6" stroke-linecap="round"/>
+<line x1="0" y1="144" x2="390" y2="144" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="144" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="152" width="390" height="36" fill="#FFFFFF"/>
+<text x="16" y="176" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#666666">Buying</text>
+<rect x="0" y="188" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 204)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></g>
+<text x="54" y="222" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">My orders</text>
+<circle cx="346" cy="216" r="10" fill="#9333ea"/>
+<text x="346" y="220" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#fff">2</text>
+<line x1="54" y1="244" x2="390" y2="244" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="244" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 260)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5 10.7 19.3C6.1 15.1 3 12.3 3 8.9 3 6.2 5.2 4 8 4c1.6 0 3.1.8 4 2 .9-1.2 2.4-2 4-2 2.8 0 5 2.2 5 4.9 0 3.4-3.1 6.2-7.7 10.4L12 20.5Z"/></svg></g>
+<text x="54" y="278" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Favourites</text>
+<path d="M370 267 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="300" x2="390" y2="300" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="300" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 316)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.2 2"/></svg></g>
+<text x="54" y="334" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Recently viewed</text>
+<path d="M370 323 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="356" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="364" width="390" height="36" fill="#FFFFFF"/>
+<text x="16" y="388" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#666666">Selling</text>
+<rect x="0" y="400" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 416)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7.2a2 2 0 0 1 1.42.59l7 7a2 2 0 0 1 0 2.82l-4.8 4.8a2 2 0 0 1-2.82 0l-7-7A2 2 0 0 1 4 10.8V4z"/><circle cx="8.5" cy="8.5" r="1.3"/></svg></g>
+<text x="54" y="434" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">My listings</text>
+<path d="M370 423 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="456" x2="390" y2="456" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="456" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 472)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></g>
+<text x="54" y="490" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Seller orders</text>
+<path d="M370 479 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="512" x2="390" y2="512" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="512" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 528)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h10v9H3z"/><path d="M13 10h4l3 3v3h-7V10z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg></g>
+<text x="54" y="546" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Shipping</text>
+<path d="M370 535 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="568" x2="390" y2="568" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="568" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 584)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8 14.4 9l5.6.8-4.1 4 1 5.6L12 16.8 7.1 19.4l1-5.6-4.1-4L9.6 9 12 3.8Z"/></svg></g>
+<text x="54" y="602" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Reviews</text>
+<path d="M370 591 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="624" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="632" width="390" height="36" fill="#FFFFFF"/>
+<text x="16" y="656" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#666666">Business</text>
+<rect x="0" y="668" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 684)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5 6 4h12l2 5.5"/><path d="M4 9.5h16v10.5H4z"/><path d="M9.5 20V14h5v6"/></svg></g>
+<text x="54" y="702" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Business tools</text>
+<path d="M370 691 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="724" x2="390" y2="724" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="724" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 740)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5 12 4l8 4.5v9L12 22 4 17.5z"/><path d="M12 13v9"/><path d="M4 8.5 12 13l8-4.5"/></svg></g>
+<text x="54" y="758" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Inventory</text>
+<path d="M370 747 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="780" x2="390" y2="780" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="780" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 796)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M7 16V11"/><path d="M12 16V7"/><path d="M17 16v-4"/></svg></g>
+<text x="54" y="814" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Analytics</text>
+<path d="M370 803 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="836" x2="390" y2="836" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="836" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 852)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h7.5L13 7.5H20v12H4z"/></svg></g>
+<text x="54" y="870" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Directory</text>
+<path d="M370 859 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="892" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="900" width="390" height="36" fill="#FFFFFF"/>
+<text x="16" y="924" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#666666">Wallet &amp; account</text>
+<rect x="0" y="936" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 952)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M3 7.5A2 2 0 0 1 5 5.5h12"/><path d="M16 12.5h3v3h-3a1.5 1.5 0 0 1 0-3z"/></svg></g>
+<text x="54" y="970" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Wallet</text>
+<path d="M370 959 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="992" x2="390" y2="992" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="992" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 1008)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 9.5h18"/><path d="M6.5 14.5h4"/></svg></g>
+<text x="54" y="1026" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Personal bank</text>
+<path d="M370 1015 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="1048" x2="390" y2="1048" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="1048" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 1064)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg></g>
+<text x="54" y="1082" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Messages</text>
+<circle cx="346" cy="1076" r="10" fill="#9333ea"/>
+<text x="346" y="1080" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#fff">3</text>
+<line x1="54" y1="1104" x2="390" y2="1104" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="1104" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 1120)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 0 1 12 0c0 5 1.8 6.5 1.8 6.5H4.2S6 14.5 6 9.5z"/><path d="M9.8 19a2.3 2.3 0 0 0 4.4 0"/></svg></g>
+<text x="54" y="1138" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Notifications</text>
+<path d="M370 1127 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="1160" x2="390" y2="1160" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="1160" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 1176)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l7 2.6v5c0 4.4-3 8-7 9.4-4-1.4-7-5-7-9.4v-5l7-2.6z"/><path d="M9 12l2 2 4-4.2"/></svg></g>
+<text x="54" y="1194" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Verification</text>
+<path d="M370 1183 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="1216" x2="390" y2="1216" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="1216" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 1232)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg></g>
+<text x="54" y="1250" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Settings</text>
+<path d="M370 1239 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="1272" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="1280" width="390" height="36" fill="#FFFFFF"/>
+<text x="16" y="1304" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#666666">Support</text>
+<rect x="0" y="1316" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 1332)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.85.86c0 1.7-2.45 2.24-2.45 3.74"/><circle cx="12" cy="17" r="0.6" fill="#333333" stroke="none"/></svg></g>
+<text x="54" y="1350" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Help Centre</text>
+<path d="M370 1339 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="1372" x2="390" y2="1372" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="1372" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 1388)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l7 2.6v5c0 4.4-3 8-7 9.4-4-1.4-7-5-7-9.4v-5l7-2.6z"/><path d="M9 12l2 2 4-4.2"/></svg></g>
+<text x="54" y="1406" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Trust &amp; Safety</text>
+<path d="M370 1395 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="1428" x2="390" y2="1428" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="1428" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 1444)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4"/><path d="M9.5 12h6M9.5 15.5h6"/></svg></g>
+<text x="54" y="1462" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Legal</text>
+<path d="M370 1451 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="1484" x2="390" y2="1484" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="1484" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 1500)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M16 8l4 4-4 4"/><path d="M8 12h12"/></svg></g>
+<text x="54" y="1518" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Log out</text>
+<path d="M370 1507 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="1540" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="1556" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>My Account</span></a>
+<a class="card" href="menus/buying/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="512" viewBox="0 0 390 512">
+  <rect width="390" height="512" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Buying</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 112)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></g>
+<text x="54" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">My orders</text>
+<path d="M370 119 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="152" x2="390" y2="152" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="152" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 168)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h10v9H3z"/><path d="M13 10h4l3 3v3h-7V10z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg></g>
+<text x="54" y="186" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Tracking</text>
+<path d="M370 175 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="208" x2="390" y2="208" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="208" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 224)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8 14.4 9l5.6.8-4.1 4 1 5.6L12 16.8 7.1 19.4l1-5.6-4.1-4L9.6 9 12 3.8Z"/></svg></g>
+<text x="54" y="242" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Reviews</text>
+<path d="M370 231 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="264" x2="390" y2="264" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="264" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 280)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10H4.5V7.5"/><path d="M4.5 10a7.5 7.5 0 1 1 2.2 5.3"/></svg></g>
+<text x="54" y="298" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Refunds</text>
+<path d="M370 287 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="320" x2="390" y2="320" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="320" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 336)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 20.5 18H3.5L12 3.5Z"/><path d="M12 10v4"/><circle cx="12" cy="16.5" r="0.6" fill="#333333" stroke="none"/></svg></g>
+<text x="54" y="354" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Disputes</text>
+<path d="M370 343 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="376" x2="390" y2="376" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="376" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 392)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5 10.7 19.3C6.1 15.1 3 12.3 3 8.9 3 6.2 5.2 4 8 4c1.6 0 3.1.8 4 2 .9-1.2 2.4-2 4-2 2.8 0 5 2.2 5 4.9 0 3.4-3.1 6.2-7.7 10.4L12 20.5Z"/></svg></g>
+<text x="54" y="410" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Favourites</text>
+<path d="M370 399 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="432" x2="390" y2="432" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="432" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 448)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.2 2"/></svg></g>
+<text x="54" y="466" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Recently viewed</text>
+<path d="M370 455 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="488" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="504" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>Buying</span></a>
+<a class="card" href="menus/selling/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="592" viewBox="0 0 390 592">
+  <rect width="390" height="592" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Selling</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 112)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7.2a2 2 0 0 1 1.42.59l7 7a2 2 0 0 1 0 2.82l-4.8 4.8a2 2 0 0 1-2.82 0l-7-7A2 2 0 0 1 4 10.8V4z"/><circle cx="8.5" cy="8.5" r="1.3"/></svg></g>
+<text x="54" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Listings</text>
+<path d="M370 119 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="152" x2="390" y2="152" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="152" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 168)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></g>
+<text x="54" y="186" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Orders</text>
+<path d="M370 175 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="208" x2="390" y2="208" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="208" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 224)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8 14.4 9l5.6.8-4.1 4 1 5.6L12 16.8 7.1 19.4l1-5.6-4.1-4L9.6 9 12 3.8Z"/></svg></g>
+<text x="54" y="242" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Reviews</text>
+<path d="M370 231 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="264" x2="390" y2="264" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="264" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 280)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h10v9H3z"/><path d="M13 10h4l3 3v3h-7V10z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg></g>
+<text x="54" y="298" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Shipping</text>
+<path d="M370 287 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="320" x2="390" y2="320" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="320" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 336)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10H4.5V7.5"/><path d="M4.5 10a7.5 7.5 0 1 1 2.2 5.3"/></svg></g>
+<text x="54" y="354" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Returns</text>
+<path d="M370 343 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="376" x2="390" y2="376" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="376" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 392)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M7 16V11"/><path d="M12 16V7"/><path d="M17 16v-4"/></svg></g>
+<text x="54" y="410" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Performance</text>
+<path d="M370 399 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="432" x2="390" y2="432" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="432" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 448)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4"/><path d="M9.5 12h6M9.5 15.5h6"/></svg></g>
+<text x="54" y="466" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Compliance</text>
+<path d="M370 455 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="488" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="496" width="390" height="72" fill="#FFFFFF"/>
+<rect x="16" y="508" width="358" height="48" rx="4" fill="#9333ea"/>
+<text x="195" y="538" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">Sell now</text>
+<rect x="0" y="568" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="584" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>Selling</span></a>
+<a class="card" href="menus/business/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="512" viewBox="0 0 390 512">
+  <rect width="390" height="512" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Business</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 112)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></g>
+<text x="54" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Orders</text>
+<path d="M370 119 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="152" x2="390" y2="152" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="152" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 168)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5 12 4l8 4.5v9L12 22 4 17.5z"/><path d="M12 13v9"/><path d="M4 8.5 12 13l8-4.5"/></svg></g>
+<text x="54" y="186" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Inventory</text>
+<path d="M370 175 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="208" x2="390" y2="208" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="208" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 224)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M7 16V11"/><path d="M12 16V7"/><path d="M17 16v-4"/></svg></g>
+<text x="54" y="242" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Analytics</text>
+<path d="M370 231 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="264" x2="390" y2="264" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="264" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 280)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8 14.4 9l5.6.8-4.1 4 1 5.6L12 16.8 7.1 19.4l1-5.6-4.1-4L9.6 9 12 3.8Z"/></svg></g>
+<text x="54" y="298" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Reviews</text>
+<path d="M370 287 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="320" x2="390" y2="320" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="320" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 336)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M3 7.5A2 2 0 0 1 5 5.5h12"/><path d="M16 12.5h3v3h-3a1.5 1.5 0 0 1 0-3z"/></svg></g>
+<text x="54" y="354" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Wallet</text>
+<path d="M370 343 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="376" x2="390" y2="376" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="376" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 392)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4"/><path d="M9.5 12h6M9.5 15.5h6"/></svg></g>
+<text x="54" y="410" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">VAT</text>
+<path d="M370 399 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="432" x2="390" y2="432" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="432" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 448)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h7.5L13 7.5H20v12H4z"/></svg></g>
+<text x="54" y="466" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Directory</text>
+<path d="M370 455 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="488" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="504" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>Business</span></a>
+<a class="card" href="menus/wallet/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="616" viewBox="0 0 390 616">
+  <rect width="390" height="616" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Wallet</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="36" fill="#FFFFFF"/>
+<text x="16" y="120" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#666666">Balance</text>
+<rect x="0" y="132" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 148)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M3 7.5A2 2 0 0 1 5 5.5h12"/><path d="M16 12.5h3v3h-3a1.5 1.5 0 0 1 0-3z"/></svg></g>
+<text x="54" y="166" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Available</text>
+<path d="M370 155 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="188" x2="390" y2="188" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="188" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 204)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.2 2"/></svg></g>
+<text x="54" y="222" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Pending</text>
+<path d="M370 211 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="244" x2="390" y2="244" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="244" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 260)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 9.5h18"/><path d="M6.5 14.5h4"/></svg></g>
+<text x="54" y="278" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Withdraw</text>
+<path d="M370 267 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="300" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="308" width="390" height="36" fill="#FFFFFF"/>
+<text x="16" y="332" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#666666">Bank</text>
+<rect x="0" y="344" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 360)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 9.5h18"/><path d="M6.5 14.5h4"/></svg></g>
+<text x="54" y="378" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Personal bank</text>
+<path d="M370 367 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="400" x2="390" y2="400" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="400" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 416)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5 6 4h12l2 5.5"/><path d="M4 9.5h16v10.5H4z"/><path d="M9.5 20V14h5v6"/></svg></g>
+<text x="54" y="434" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Business bank</text>
+<path d="M370 423 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="456" x2="390" y2="456" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="456" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 472)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4"/><path d="M9.5 12h6M9.5 15.5h6"/></svg></g>
+<text x="54" y="490" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Transactions</text>
+<path d="M370 479 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="512" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="520" width="390" height="72" fill="#FFFFFF"/>
+<rect x="16" y="532" width="358" height="48" rx="4" fill="#9333ea"/>
+<text x="195" y="562" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">Withdraw</text>
+<rect x="0" y="592" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="608" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>Wallet</span></a>
+<a class="card" href="menus/transaction-hub/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="568" viewBox="0 0 390 568">
+  <rect width="390" height="568" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Messages</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 112)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg></g>
+<text x="54" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Inbox</text>
+<circle cx="346" cy="124" r="10" fill="#9333ea"/>
+<text x="346" y="128" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#fff">3</text>
+<line x1="54" y1="152" x2="390" y2="152" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="152" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 168)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></g>
+<text x="54" y="186" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Orders</text>
+<path d="M370 175 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="208" x2="390" y2="208" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="208" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 224)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h10v9H3z"/><path d="M13 10h4l3 3v3h-7V10z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg></g>
+<text x="54" y="242" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Tracking</text>
+<path d="M370 231 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="264" x2="390" y2="264" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="264" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 280)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg></g>
+<text x="54" y="298" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Messages</text>
+<path d="M370 287 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="320" x2="390" y2="320" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="320" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 336)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8 14.4 9l5.6.8-4.1 4 1 5.6L12 16.8 7.1 19.4l1-5.6-4.1-4L9.6 9 12 3.8Z"/></svg></g>
+<text x="54" y="354" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Reviews</text>
+<path d="M370 343 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="376" x2="390" y2="376" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="376" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 392)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13v-1a7 7 0 0 1 14 0v1"/><rect x="4" y="13" width="3.5" height="6" rx="1"/><rect x="16.5" y="13" width="3.5" height="6" rx="1"/></svg></g>
+<text x="54" y="410" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Support</text>
+<path d="M370 399 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="432" x2="390" y2="432" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="432" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 448)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10H4.5V7.5"/><path d="M4.5 10a7.5 7.5 0 1 1 2.2 5.3"/></svg></g>
+<text x="54" y="466" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Refunds</text>
+<path d="M370 455 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="488" x2="390" y2="488" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="488" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 504)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 20.5 18H3.5L12 3.5Z"/><path d="M12 10v4"/><circle cx="12" cy="16.5" r="0.6" fill="#333333" stroke="none"/></svg></g>
+<text x="54" y="522" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Disputes</text>
+<path d="M370 511 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="544" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="560" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>Messages</span></a>
+<a class="card" href="menus/settings/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="748" viewBox="0 0 390 748">
+  <rect width="390" height="748" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Settings</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="36" fill="#FFFFFF"/>
+<text x="16" y="120" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#666666">Account</text>
+<rect x="0" y="132" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 148)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></g>
+<text x="54" y="166" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Profile</text>
+<path d="M370 155 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="188" x2="390" y2="188" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="188" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 204)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6.5-5.2 6.5-10.2A6.5 6.5 0 0 0 5.5 10.8C5.5 15.8 12 21 12 21Z"/><circle cx="12" cy="10.5" r="2.1"/></svg></g>
+<text x="54" y="222" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Addresses</text>
+<path d="M370 211 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="244" x2="390" y2="244" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="244" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 260)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 9.5h18"/><path d="M6.5 14.5h4"/></svg></g>
+<text x="54" y="278" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Payment methods</text>
+<path d="M370 267 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="300" x2="390" y2="300" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="300" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 316)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 0 1 12 0c0 5 1.8 6.5 1.8 6.5H4.2S6 14.5 6 9.5z"/><path d="M9.8 19a2.3 2.3 0 0 0 4.4 0"/></svg></g>
+<text x="54" y="334" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Notifications</text>
+<path d="M370 323 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="356" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="364" width="390" height="36" fill="#FFFFFF"/>
+<text x="16" y="388" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#666666">Privacy &amp; security</text>
+<rect x="0" y="400" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 416)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l7 2.6v5c0 4.4-3 8-7 9.4-4-1.4-7-5-7-9.4v-5l7-2.6z"/><path d="M9 12l2 2 4-4.2"/></svg></g>
+<text x="54" y="434" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Privacy &amp; security</text>
+<path d="M370 423 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="456" x2="390" y2="456" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="456" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 472)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg></g>
+<text x="54" y="490" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Language &amp; currency</text>
+<path d="M370 479 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="512" x2="390" y2="512" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="512" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 528)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.85.86c0 1.7-2.45 2.24-2.45 3.74"/><circle cx="12" cy="17" r="0.6" fill="#333333" stroke="none"/></svg></g>
+<text x="54" y="546" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Accessibility</text>
+<path d="M370 535 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="568" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="576" width="390" height="36" fill="#FFFFFF"/>
+<text x="16" y="600" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#666666">About</text>
+<rect x="0" y="612" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 628)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4"/><path d="M9.5 12h6M9.5 15.5h6"/></svg></g>
+<text x="54" y="646" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Terms &amp; policies</text>
+<path d="M370 635 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="668" x2="390" y2="668" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="668" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 684)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.85.86c0 1.7-2.45 2.24-2.45 3.74"/><circle cx="12" cy="17" r="0.6" fill="#333333" stroke="none"/></svg></g>
+<text x="54" y="702" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">About ROVEXO</text>
+<path d="M370 691 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="724" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="740" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>Settings</span></a>
+<a class="card" href="menus/search/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="344" viewBox="0 0 390 344">
+  <rect width="390" height="344" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Search</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 112)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.5-3.5"/></svg></g>
+<text x="54" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Search items</text>
+<path d="M370 119 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="152" x2="390" y2="152" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="152" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 168)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7.2a2 2 0 0 1 1.42.59l7 7a2 2 0 0 1 0 2.82l-4.8 4.8a2 2 0 0 1-2.82 0l-7-7A2 2 0 0 1 4 10.8V4z"/><circle cx="8.5" cy="8.5" r="1.3"/></svg></g>
+<text x="54" y="186" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Categories</text>
+<path d="M370 175 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="208" x2="390" y2="208" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="208" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 224)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg></g>
+<text x="54" y="242" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Filters</text>
+<path d="M370 231 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="264" x2="390" y2="264" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="264" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 280)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5 10.7 19.3C6.1 15.1 3 12.3 3 8.9 3 6.2 5.2 4 8 4c1.6 0 3.1.8 4 2 .9-1.2 2.4-2 4-2 2.8 0 5 2.2 5 4.9 0 3.4-3.1 6.2-7.7 10.4L12 20.5Z"/></svg></g>
+<text x="54" y="298" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Saved searches</text>
+<path d="M370 287 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="320" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="336" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>Search</span></a>
+<a class="card" href="menus/sell/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="480" viewBox="0 0 390 480">
+  <rect width="390" height="480" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Sell an item</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 112)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6 9.5 4h5L16 6"/></svg></g>
+<text x="54" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Photos</text>
+<path d="M370 119 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="152" x2="390" y2="152" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="152" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 168)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7.2a2 2 0 0 1 1.42.59l7 7a2 2 0 0 1 0 2.82l-4.8 4.8a2 2 0 0 1-2.82 0l-7-7A2 2 0 0 1 4 10.8V4z"/><circle cx="8.5" cy="8.5" r="1.3"/></svg></g>
+<text x="54" y="186" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Title &amp; description</text>
+<path d="M370 175 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="208" x2="390" y2="208" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="208" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 224)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 9.5h18"/><path d="M6.5 14.5h4"/></svg></g>
+<text x="54" y="242" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Price</text>
+<path d="M370 231 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="264" x2="390" y2="264" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="264" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 280)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5 12 4l8 4.5v9L12 22 4 17.5z"/><path d="M12 13v9"/><path d="M4 8.5 12 13l8-4.5"/></svg></g>
+<text x="54" y="298" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Parcel size</text>
+<path d="M370 287 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="320" x2="390" y2="320" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="320" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 336)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h10v9H3z"/><path d="M13 10h4l3 3v3h-7V10z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg></g>
+<text x="54" y="354" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Shipping</text>
+<path d="M370 343 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="376" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="384" width="390" height="72" fill="#FFFFFF"/>
+<rect x="16" y="396" width="358" height="48" rx="4" fill="#9333ea"/>
+<text x="195" y="426" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="700" fill="#FFFFFF">Upload</text>
+<rect x="0" y="456" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="472" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>Sell an item</span></a>
+<a class="card" href="menus/orders/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="400" viewBox="0 0 390 400">
+  <rect width="390" height="400" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Orders</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 112)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></g>
+<text x="54" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Bought</text>
+<path d="M370 119 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="152" x2="390" y2="152" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="152" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 168)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7.2a2 2 0 0 1 1.42.59l7 7a2 2 0 0 1 0 2.82l-4.8 4.8a2 2 0 0 1-2.82 0l-7-7A2 2 0 0 1 4 10.8V4z"/><circle cx="8.5" cy="8.5" r="1.3"/></svg></g>
+<text x="54" y="186" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Sold</text>
+<path d="M370 175 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="208" x2="390" y2="208" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="208" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 224)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5l3.2 2"/></svg></g>
+<text x="54" y="242" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">In progress</text>
+<path d="M370 231 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="264" x2="390" y2="264" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="264" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 280)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 10 18l10-12"/></svg></g>
+<text x="54" y="298" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Completed</text>
+<path d="M370 287 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="320" x2="390" y2="320" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="320" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 336)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 20.5 18H3.5L12 3.5Z"/><path d="M12 10v4"/><circle cx="12" cy="16.5" r="0.6" fill="#333333" stroke="none"/></svg></g>
+<text x="54" y="354" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Cancelled</text>
+<path d="M370 343 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="376" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="392" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>Orders</span></a>
+<a class="card" href="menus/notifications/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="344" viewBox="0 0 390 344">
+  <rect width="390" height="344" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Notifications</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 112)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5a6 6 0 0 1 12 0c0 5 1.8 6.5 1.8 6.5H4.2S6 14.5 6 9.5z"/><path d="M9.8 19a2.3 2.3 0 0 0 4.4 0"/></svg></g>
+<text x="54" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">All</text>
+<path d="M370 119 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="152" x2="390" y2="152" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="152" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 168)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l1 12H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></g>
+<text x="54" y="186" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Orders</text>
+<path d="M370 175 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="208" x2="390" y2="208" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="208" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 224)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12" rx="2"/><path d="M3 7.5A2 2 0 0 1 5 5.5h12"/><path d="M16 12.5h3v3h-3a1.5 1.5 0 0 1 0-3z"/></svg></g>
+<text x="54" y="242" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Wallet</text>
+<path d="M370 231 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="264" x2="390" y2="264" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="264" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 280)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg></g>
+<text x="54" y="298" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Messages</text>
+<path d="M370 287 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="320" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="336" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>Notifications</span></a>
+<a class="card" href="menus/help/"><div class="frame"><svg xmlns="http://www.w3.org/2000/svg" width="390" height="344" viewBox="0 0 390 344">
+  <rect width="390" height="344" fill="#F2F2F2"/>
+  <rect width="390" height="44" fill="#FFFFFF"/>
+<text x="16" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="52" fill="#FFFFFF"/>
+<path d="M24 70 l-6 -6 6 -6" fill="none" stroke="#1A1A1A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="195" y="76" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Help Centre</text>
+<line x1="0" y1="96" x2="390" y2="96" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="96" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 112)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.85.86c0 1.7-2.45 2.24-2.45 3.74"/><circle cx="12" cy="17" r="0.6" fill="#333333" stroke="none"/></svg></g>
+<text x="54" y="130" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Help topics</text>
+<path d="M370 119 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="152" x2="390" y2="152" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="152" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 168)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13v-1a7 7 0 0 1 14 0v1"/><rect x="4" y="13" width="3.5" height="6" rx="1"/><rect x="16.5" y="13" width="3.5" height="6" rx="1"/></svg></g>
+<text x="54" y="186" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Contact support</text>
+<path d="M370 175 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="208" x2="390" y2="208" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="208" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 224)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l7 2.6v5c0 4.4-3 8-7 9.4-4-1.4-7-5-7-9.4v-5l7-2.6z"/><path d="M9 12l2 2 4-4.2"/></svg></g>
+<text x="54" y="242" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Trust &amp; Safety</text>
+<path d="M370 231 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="54" y1="264" x2="390" y2="264" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="264" width="390" height="56" fill="#FFFFFF"/>
+<g transform="translate(16 280)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333333" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h7l4 4v12H7z"/><path d="M14 4v4h4"/><path d="M9.5 12h6M9.5 15.5h6"/></svg></g>
+<text x="54" y="298" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="400" fill="#1A1A1A">Legal</text>
+<path d="M370 287 l5 5 -5 5" fill="none" stroke="#BBBBBB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="0" y="320" width="390" height="24" fill="#F2F2F2"/>
+<text x="16" y="336" font-family="ui-monospace,monospace" font-size="9" fill="#999999">Vinted structure · icons #333 · accent #9333ea · row 56px · inset divider</text>
+</svg></div><span>Help Centre</span></a></div>
+</body>
+</html>

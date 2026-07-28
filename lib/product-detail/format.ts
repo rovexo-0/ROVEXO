@@ -1,18 +1,19 @@
 import type { Product, ProductDetail } from "@/lib/products/types";
 import { normalizeCondition } from "@/lib/products/utils";
+import { resolveVerifiedStatus } from "@/lib/master-engine";
 
 const SUBTITLE_BY_SLUG: Record<string, string> = {
-  "demo-iphone-15-pro": "Natural Titanium",
   "nike-air-max-90": "White / Blue · UK 9",
 };
 
 const CONDITION_COPY: Record<string, string> = {
+  New: "This item is brand new, unused, and in original packaging where applicable.",
   "Like New":
     "This item is in excellent condition with minimal signs of use. Fully tested and in perfect working order.",
   "Very Good":
     "This item shows light signs of use but remains in great working condition. Fully tested before listing.",
   Good: "This item is in good condition with visible signs of use. Fully functional and ready to use.",
-  New: "This item is brand new, unused, and in original packaging where applicable.",
+  Fair: "This item shows clear signs of use and may have cosmetic wear. Fully functional unless stated otherwise.",
 };
 
 export function resolveProductSubtitle(product: Product): string | null {
@@ -38,9 +39,8 @@ export function resolveConditionCopy(condition: string): string {
 }
 
 export function resolveShippingEstimate(product: ProductDetail): string {
-  if (product.freeDelivery) return "Estimated delivery: 2-3 days";
-  if (product.deliveryCarriers.includes("DPD")) return "Estimated delivery: 1-2 days";
-  return "Estimated delivery: 2-3 days";
+  if (product.deliveryCarriers.includes("DPD")) return "1-2 working days";
+  return "2-3 working days";
 }
 
 export function isPremiumSeller(product: Product): boolean {
@@ -48,9 +48,7 @@ export function isPremiumSeller(product: Product): boolean {
 }
 
 export function isVerifiedStore(product: Product): boolean {
-  return (
-    Boolean(product.sellerVerified) ||
-    product.sellerTier === "business" ||
-    product.sellerTier === "verified"
-  );
+  return resolveVerifiedStatus({
+    isRovexoVerified: Boolean(product.sellerVerified),
+  }).showBadge;
 }

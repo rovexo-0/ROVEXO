@@ -1,9 +1,8 @@
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ComposeLineIcon } from "@/components/icons/RvxLineIcons";
+import { CameraLineIcon } from "@/components/icons/RvxLineIcons";
 import { cn } from "@/lib/cn";
-import { CanonicalCard } from "@/src/components/canonical";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { SellPhotoFileInput } from "@/features/sell/ui/SellPhotoFileInput";
 import { focusRing } from "@/features/sell/ui/sell-classes";
@@ -14,6 +13,10 @@ import { SellInlineError } from "@/features/sell/ui/SellPrimitives";
 
 const LONG_PRESS_MS = 400;
 const MOVE_CANCEL_PX = 12;
+
+/** Sell Photo Premium Micro Freeze — 76×114 (4:5), radius 16, gap 6. */
+const PHOTO_TILE =
+  "sell-photo-tile relative flex h-[114px] w-[76px] shrink-0 flex-col items-center justify-center overflow-hidden rounded-[16px]";
 
 export const SellPhotoRail = memo(function SellPhotoRail({
   onPhotosAdded,
@@ -127,130 +130,117 @@ export const SellPhotoRail = memo(function SellPhotoRail({
 
   const previewPhoto = previewId ? photos.find((photo) => photo.id === previewId) ?? null : null;
 
-  const tileBase =
-    "relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[var(--cds-radius-md)]";
-
   const addPhotosControl = (
     <label
       aria-label="Add Photos"
       className={cn(
-        "sell-photo-upload relative flex min-h-[7rem] w-full flex-col items-center justify-center gap-ds-2",
-        photoError && "border-destructive/50",
+        PHOTO_TILE,
+        "sell-photo-tile--add gap-1",
+        photoError && "cds-menu-row--error",
         focusRing,
       )}
     >
       <SellPhotoFileInput multiple onFilesSelected={handleFilesSelected} />
-      <ComposeLineIcon className="h-6 w-6 text-primary" aria-hidden />
-      <span className="text-sm font-medium text-text-primary">Add Photos</span>
+      <CameraLineIcon className="h-5 w-5 text-primary" aria-hidden />
+      <span className="sell-photo-tile__add-label">Add Photos</span>
     </label>
   );
 
   return (
-    <CanonicalCard
-      variant="medium"
+    <div
       role="region"
-      className={cn(
-        "relative flex flex-col gap-ds-3 overflow-hidden p-ds-4",
-        photoError && "ring-2 ring-destructive/40",
-      )}
-      aria-label="Add Photos"
+      className={cn("relative flex w-full max-w-none flex-col gap-2", photoError && "cds-field--error")}
+      aria-label="Photos"
+      data-blood-code-xxi-photo="1"
     >
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-text-primary">Add Photos</span>
+      <div className="sell-photo-section__header">
+        <span className="text-sm font-medium text-text-primary">Photos</span>
         <span className="text-xs font-medium tabular-nums text-text-muted" aria-live="polite">
-          {photos.length}/{SELL_PHOTO_MAX}
+          {photos.length} / {SELL_PHOTO_MAX}
         </span>
       </div>
 
-      {photos.length === 0 ? (
-        addPhotosControl
-      ) : (
-        <div
-          className="flex gap-ds-2 overflow-x-auto pb-ds-1"
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-          onTouchCancel={onTouchEnd}
-          onDragOver={(event) => event.preventDefault()}
-          onDrop={onFileDrop}
-          aria-label="Photo gallery"
-        >
-          {photos.map((photo, index) => (
-            <div
-              key={photo.id}
-              data-photo-index={index}
-              draggable
-              onDragStart={() => setDragIndex(index)}
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={(event) => {
-                event.preventDefault();
-                if (dragIndex !== null) reorderPhotos(dragIndex, index);
-                setDragIndex(null);
-              }}
-              onDragEnd={() => setDragIndex(null)}
-              onTouchStart={onTouchStart(index)}
-              className={cn(
-                tileBase,
-                "border border-border bg-surface-muted",
-                (dragIndex === index || activeTouch === index) && "ring-2 ring-primary",
-              )}
+      <div
+        className="sell-photo-rail overflow-x-auto"
+        onTouchMove={photos.length > 0 ? onTouchMove : undefined}
+        onTouchEnd={photos.length > 0 ? onTouchEnd : undefined}
+        onTouchCancel={photos.length > 0 ? onTouchEnd : undefined}
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={onFileDrop}
+        aria-label="Photo gallery"
+      >
+        {photos.map((photo, index) => (
+          <div
+            key={photo.id}
+            data-photo-index={index}
+            draggable
+            onDragStart={() => setDragIndex(index)}
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={(event) => {
+              event.preventDefault();
+              if (dragIndex !== null) reorderPhotos(dragIndex, index);
+              setDragIndex(null);
+            }}
+            onDragEnd={() => setDragIndex(null)}
+            onTouchStart={onTouchStart(index)}
+            className={cn(
+              PHOTO_TILE,
+              "sell-photo-tile--uploaded",
+              (dragIndex === index || activeTouch === index) && "ring-2 ring-primary",
+            )}
+          >
+            <button
+              type="button"
+              onClick={() => setPreviewId(photo.id)}
+              aria-label={index === 0 ? "Preview cover photo" : `Preview photo ${index + 1}`}
+              className="sell-photo-tile__preview"
             >
+              {/* eslint-disable-next-line @next/next/no-img-element -- blob:/draft preview; SafeImage uses next/image */}
+              <img
+                src={photo.previewUrl?.trim() || photo.url?.trim() || "/placeholder-product.svg"}
+                alt={index === 0 ? "Cover photo" : `Listing photo ${index + 1}`}
+                className="sell-photo-tile__image"
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+                style={{ objectFit: "cover", objectPosition: "center center" }}
+                onError={(event) => {
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.src = "/placeholder-product.svg";
+                }}
+              />
+            </button>
+
+            <DeletePhotoAction
+              photoId={photo.id}
+              ariaLabel={`Delete photo ${index + 1}`}
+              className="sell-photo-tile__delete"
+            />
+
+            {photo.uploading ? (
+              <div className="absolute inset-0 grid place-items-center bg-black/40">
+                <span
+                  className="h-6 w-6 animate-spin rounded-ds-full border-2 border-white border-t-transparent"
+                  aria-hidden
+                />
+                <span className="sr-only">Uploading photo</span>
+              </div>
+            ) : null}
+
+            {photo.uploadError ? (
               <button
                 type="button"
-                onClick={() => setPreviewId(photo.id)}
-                aria-label={index === 0 ? "Preview cover photo" : `Preview photo ${index + 1}`}
-                className="h-full w-full"
+                onClick={() => void retryPhotoUpload(photo.id)}
+                className="absolute inset-x-0 bottom-0 flex min-h-[44px] items-end justify-center rounded-b-[16px] bg-gradient-to-t from-black/70 to-transparent px-1 pb-1 text-[0.625rem] font-semibold text-white"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={photo.previewUrl}
-                  alt={index === 0 ? "Cover photo" : `Listing photo ${index + 1}`}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                  draggable={false}
-                />
+                <span className="rounded-ds-sm bg-danger px-1.5 py-0.5">Retry</span>
               </button>
+            ) : null}
+          </div>
+        ))}
 
-              <DeletePhotoAction
-                photoId={photo.id}
-                ariaLabel={`Delete photo ${index + 1}`}
-                className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-ds-full bg-black/60 text-xs text-white"
-              />
-
-              {photo.uploading ? (
-                <div className="absolute inset-0 grid place-items-center bg-black/40">
-                  <span
-                    className="h-6 w-6 animate-spin rounded-ds-full border-2 border-white border-t-transparent"
-                    aria-hidden
-                  />
-                  <span className="sr-only">Uploading photo</span>
-                </div>
-              ) : null}
-
-              {photo.uploadError ? (
-                <button
-                  type="button"
-                  onClick={() => void retryPhotoUpload(photo.id)}
-                  className="absolute inset-x-1 bottom-1 rounded-ds-sm bg-danger px-1 py-0.5 text-[0.625rem] font-semibold text-white"
-                >
-                  Retry
-                </button>
-              ) : null}
-            </div>
-          ))}
-
-          {canAdd ? (
-            <label
-              aria-label="Add Photos"
-              className={cn(tileBase, "sell-photo-upload flex-col gap-1", focusRing)}
-            >
-              <SellPhotoFileInput multiple onFilesSelected={handleFilesSelected} />
-              <ComposeLineIcon className="h-5 w-5 text-primary" aria-hidden />
-              <span className="text-[0.625rem] font-medium text-text-primary">Add</span>
-            </label>
-          ) : null}
-        </div>
-      )}
+        {canAdd ? addPhotosControl : null}
+      </div>
 
       <ModalContainer
         open={Boolean(previewPhoto)}
@@ -273,12 +263,20 @@ export const SellPhotoRail = memo(function SellPhotoRail({
         </button>
         {previewPhoto ? (
           <div className="flex max-h-full max-w-full flex-col items-center gap-ds-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- blob:/draft preview; SafeImage uses next/image */}
             <img
-              src={previewPhoto.url ?? previewPhoto.previewUrl}
+              src={
+                previewPhoto.url?.trim() ||
+                previewPhoto.previewUrl?.trim() ||
+                "/placeholder-product.svg"
+              }
               alt="Photo preview"
               className="max-h-[70vh] max-w-full rounded-ds-lg object-contain"
               decoding="async"
+              onError={(event) => {
+                event.currentTarget.onerror = null;
+                event.currentTarget.src = "/placeholder-product.svg";
+              }}
             />
             <label
               className={cn(
@@ -297,6 +295,6 @@ export const SellPhotoRail = memo(function SellPhotoRail({
       </ModalContainer>
 
       <SellInlineError message={photoError} />
-    </CanonicalCard>
+    </div>
   );
 });

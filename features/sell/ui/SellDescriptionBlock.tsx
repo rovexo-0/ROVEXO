@@ -1,11 +1,12 @@
 "use client";
 
 import { memo, useEffect, useId, useRef, useState } from "react";
-import { CanonicalCard, CanonicalTextarea } from "@/src/components/canonical";
+import { CanonicalTextarea } from "@/src/components/canonical";
 import { bumpPendingTextVersion } from "@/lib/sell/pending-text-store";
 import { useSell } from "@/features/sell/context/SellProvider";
 
-const DESCRIPTION_MAX = 500;
+const DESCRIPTION_MAX = 5000;
+const DESCRIPTION_MIN = 10;
 const PENDING_BUMP_MS = 300;
 
 export const SellDescriptionBlock = memo(function SellDescriptionBlock({
@@ -30,7 +31,8 @@ export const SellDescriptionBlock = memo(function SellDescriptionBlock({
     const el = document.getElementById(descId) as HTMLTextAreaElement | null;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = `${el.scrollHeight}px`;
+    const next = Math.min(Math.max(el.scrollHeight, 72), Math.round(window.innerHeight * 0.4));
+    el.style.height = `${next}px`;
   };
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export const SellDescriptionBlock = memo(function SellDescriptionBlock({
   };
 
   return (
-    <CanonicalCard variant="medium" className="p-ds-4">
+    <div className="w-full max-w-none">
       <CanonicalTextarea
         id={descId}
         label="Description"
@@ -99,14 +101,20 @@ export const SellDescriptionBlock = memo(function SellDescriptionBlock({
           flushBump();
           onStepComplete?.();
         }}
-        placeholder="Add extra details (optional)"
+        placeholder="Describe your item"
         rows={3}
         maxLength={DESCRIPTION_MAX}
         autoComplete="off"
         enterKeyHint="done"
         aria-label="Listing description"
-        className="min-h-[5.5rem] resize-none overflow-hidden"
+        aria-describedby={`${descId}-hint`}
+        className="sell-description-compact min-h-[72px] max-h-[40vh] resize-y overflow-y-auto"
       />
-    </CanonicalCard>
+      <p id={`${descId}-hint`} className="mt-0.5 text-xs text-muted-foreground">
+        {description.trim().length < DESCRIPTION_MIN
+          ? `Minimum ${DESCRIPTION_MIN} characters`
+          : `${description.length}/${DESCRIPTION_MAX}`}
+      </p>
+    </div>
   );
 });

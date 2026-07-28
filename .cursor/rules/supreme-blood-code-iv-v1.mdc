@@ -1,0 +1,58 @@
+---
+description: Supreme Blood Code IV — White Screen Kill Switch · fail closed + self recovery
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE IV — WHITE SCREEN KILL SWITCH
+
+**STATUS: OWNER APPROVED · PERMANENT FREEZE · NEVER REMOVE · FAIL CLOSED**
+
+SSOT: `lib/supreme-blood-code-iv-v1.ts`  
+Doc: `docs/engineering/SUPREME_BLOOD_CODE_IV_V1.md`  
+Parents: Blood I–III · View Analyzer · Fail Closed Engine
+
+## Forbidden
+
+White screen is **forbidden**. Also forbidden: empty · black · null · broken · crash · undefined · infinite loading · empty component.
+
+## Pre-render (all must PASS)
+
+DATA · COMPONENT · UI · PAGE · ROUTES · IMPORTS · AUTH · API · PREVIEW · VIEW  
+
+All PASS → render real page.  
+Any FAIL → **do not** render white screen.
+
+## Allowed only
+
+1. Real page  
+2. Skeleton page  
+3. Error component (`FailClosedPanel`)  
+4. Temporary message  
+5. Self-recovery page  
+
+## Self recovery
+
+Fail → skeleton/placeholder → retry → recover → load real UI.  
+Never crash. Never blank.
+
+Examples: Inbox / Pay Now / Image (`SafeImage` placeholder) / Messages.
+
+## Owner sees white screen → automatic
+
+CERTIFICATION FAIL · SPRINT FAIL · COMMIT BLOCKED · PUSH BLOCKED · FREEZE BLOCKED · OWNER APPROVAL BLOCKED
+
+## Absolute law
+
+White screen must never reach Owner · Buyer · Seller · Admin · Super Admin · Preview · Production.  
+If white screen exists → **the product does not exist.**
+
+Final law: No white / empty / null screen. Only real page · skeleton · self recovery · error component.
+
+Child law: Priority 0 Absolute Law (`lib/priority-0-v1.ts`) — nothing comes before white screen + preview + Conversation Hub.
+
+## Cursor must never
+
+- Ship blank/crash routes  
+- Skip skeleton / fail-closed / `SafeImage` fallbacks  
+- Treat missing data as empty DOM with no recovery UI  
+- Claim PASS when Owner can see a white screen on preview

@@ -1,0 +1,50 @@
+---
+description: Supreme Blood Code XI — Development Freeze Law (one sprint = one module)
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE XI — DEVELOPMENT FREEZE LAW
+
+**STATUS: APPROVED · PERMANENT LAW**
+
+SSOT: `lib/supreme-blood-code-xi-v1.ts`
+
+## Golden law
+
+```
+ONE SPRINT = ONE MODULE
+ONE FEATURE = ONE ENTRY POINT
+ONE MODULE = ONE IMPLEMENTATION = ONE FREEZE = ONE CERTIFICATION
+NO DUPLICATES
+```
+
+## Sprint map
+
+| Sprint | Module | Route | Status |
+|--------|--------|-------|--------|
+| I | Inbox | `/inbox` | LOCKED |
+| II | Conversation Hub | `/inbox/conversation` | LOCKED |
+| III | Orders | `/orders` | **LOCKED · 100% COMPLETE** |
+| IV | Wallet | `/wallet` | **IN DEVELOPMENT** (Blood XIII) |
+| V | Sell | `/sell` | PENDING |
+| VI | Checkout | `/checkout` | PENDING |
+| VII | Account | `/account` | PENDING |
+
+## Current
+
+Sprint IV Wallet — **IN DEVELOPMENT** (Blood XIII APPROVED TO START).  
+Official: `http://localhost:3000/wallet`  
+Sprint I–III remain LOCKED.
+
+## Search Bar Law
+
+Allowed only on `/` (Homepage). Everywhere else: **UNMOUNTED** (never CSS-hidden).  
+SSOT: `lib/header/homepage-search-bar-only-v1.ts`
+
+## Localhost Law
+
+Official development: `http://localhost:3000` only.
+
+## Freeze when 100% complete
+
+Do not touch again except: security fixes · critical bugs · Owner approval.

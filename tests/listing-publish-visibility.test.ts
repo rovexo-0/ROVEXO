@@ -7,14 +7,14 @@ function readSource(relativePath: string): string {
 }
 
 describe("Listing publish visibility", () => {
-  it("syncs verified profile via service role on publish", () => {
+  it("syncs verified profile through the canonical verification engine on publish", () => {
     const route = readSource("app/api/listings/route.ts");
     const sync = readSource("lib/profile/auto-verified.ts");
 
     expect(route).toContain("syncAutoVerifiedProfile");
     expect(route).not.toContain('.update({ verified: true })');
-    expect(sync).toContain("createAdminClient");
-    expect(sync).toContain("isFullDemoEmail");
+    expect(sync).toContain("isSupabaseAdminConfigured");
+    expect(sync).toContain("recalculateRovexoVerified");
   });
 
   it("rolls back listings when images cannot be saved", () => {

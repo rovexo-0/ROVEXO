@@ -16,12 +16,65 @@ import {
   syncStripeRefundFromCharge,
 } from "@/lib/stripe/webhook-sync";
 import { syncChargebackTrustFromDispute } from "@/lib/trust/chargeback";
+import {
+  confirmWithdrawalCompleted,
+  rollbackWithdrawal,
+} from "@/lib/wallet/store";
 
 function paymentIntentIdFrom(
   value: string | Stripe.PaymentIntent | null | undefined,
 ): string | null {
   if (!value) return null;
   return typeof value === "string" ? value : value.id;
+}
+
+/**
+ * Fail-closed: only settle wallet withdrawals when Stripe metadata uniquely
+ * identifies the pending row. Uncertain payouts stay pending (never auto-complete).
+ */
+async function syncWalletWithdrawalFromPayout(
+  eventType: "payout.paid" | "payout.failed",
+  payout: Stripe.Payout,
+): Promise<void> {
+  const userId = payout.metadata?.userId?.trim() || null;
+  const transactionId = payout.metadata?.walletTransactionId?.trim() || null;
+
+  if (!userId || !transactionId) {
+    logStripeWebhookEvent(
+      "Payout event ignored — missing walletTransactionId/userId metadata",
+      { eventType, payoutId: payout.id },
+      "warn",
+    );
+    return;
+  }
+
+  if (eventType === "payout.paid") {
+    // Idempotent confirm — may already be completed after transfer.create confirmation.
+    const ok = await confirmWithdrawalCompleted({
+      userId,
+      transactionId,
+      stripeTransferId: payout.id,
+    });
+    logStripeWebhookEvent("Withdrawal confirm from payout.paid", {
+      payoutId: payout.id,
+      transactionId,
+      confirmed: ok,
+    });
+    return;
+  }
+
+  // payout.failed: only roll back while still pending. If already completed,
+  // funds may sit on Connect — never invent Available credit (uncertainty rule).
+  const ok = await rollbackWithdrawal({
+    userId,
+    transactionId,
+    reason: `payout_failed:${payout.id}:${payout.failure_code ?? "unknown"}`,
+  });
+  logStripeWebhookEvent("Withdrawal rollback from payout.failed", {
+    payoutId: payout.id,
+    transactionId,
+    rolledBack: ok,
+  });
 }
 
 async function syncRefundRecord(refund: Stripe.Refund): Promise<void> {
@@ -82,10 +135,51 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session):
 /**
  * Processes a verified Stripe webhook event.
  * Shared by /api/stripe/webhook and /api/webhooks/stripe (legacy).
+ * Wallet Security Certification v1.0 — durable event idempotency.
  */
 export async function processStripeWebhookEvent(event: Stripe.Event): Promise<void> {
   logStripeWebhookEvent("Received event", { eventId: event.id, eventType: event.type });
 
+  const admin = createAdminClient();
+  const { data: claimed, error: claimError } = await admin
+    .from("stripe_webhook_events")
+    .insert({
+      event_id: event.id,
+      event_type: event.type,
+      status: "processing",
+    })
+    .select("event_id");
+
+  if (claimError) {
+    // Unique violation → already processed or in-flight (replay / retry protection).
+    if (claimError.code === "23505") {
+      logStripeWebhookEvent("Duplicate webhook skipped", {
+        eventId: event.id,
+        eventType: event.type,
+      });
+      return;
+    }
+    throw claimError;
+  }
+
+  if (!claimed?.length) {
+    return;
+  }
+
+  try {
+    await dispatchStripeWebhookEvent(event);
+    await admin
+      .from("stripe_webhook_events")
+      .update({ status: "completed", processed_at: new Date().toISOString() })
+      .eq("event_id", event.id);
+  } catch (error) {
+    // Release claim so Stripe retries can re-process (safe failure + recoverable).
+    await admin.from("stripe_webhook_events").delete().eq("event_id", event.id);
+    throw error;
+  }
+}
+
+async function dispatchStripeWebhookEvent(event: Stripe.Event): Promise<void> {
   switch (event.type) {
     case "checkout.session.completed": {
       await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
@@ -94,8 +188,24 @@ export async function processStripeWebhookEvent(event: Stripe.Event): Promise<vo
     case "checkout.session.expired":
     case "checkout.session.async_payment_failed": {
       const session = event.data.object as Stripe.Checkout.Session;
-      if (session.metadata?.checkoutType === "order" && session.metadata.orderId) {
-        await cancelPendingOrder(session.metadata.orderId);
+      if (session.metadata?.checkoutType === "order") {
+        if (session.metadata.checkoutSessionId) {
+          const {
+            CHECKOUT_SESSION_ENGINE_getByPublicId,
+            CHECKOUT_SESSION_ENGINE_destroy,
+          } = await import("@/lib/checkout/engines/checkout-session-engine-v1");
+          const row = await CHECKOUT_SESSION_ENGINE_getByPublicId(
+            session.metadata.checkoutSessionId,
+          );
+          if (row && row.status === "open") {
+            await CHECKOUT_SESSION_ENGINE_destroy({
+              session: row,
+              status: event.type === "checkout.session.expired" ? "expired" : "cancelled",
+            });
+          }
+        } else if (session.metadata.orderId) {
+          await cancelPendingOrder(session.metadata.orderId);
+        }
       } else if (
         session.metadata?.checkoutType === "promotion" &&
         session.metadata.promotionId
@@ -107,27 +217,61 @@ export async function processStripeWebhookEvent(event: Stripe.Event): Promise<vo
     }
     case "payment_intent.succeeded": {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      const orderId = paymentIntent.metadata?.orderId;
-      if (orderId) {
-        const result = await completePaidOrderFulfillment({
-          orderId,
+      const checkoutSessionId = paymentIntent.metadata?.checkoutSessionId;
+      if (checkoutSessionId) {
+        const { createOrderFromPaidCheckoutSession } = await import(
+          "@/lib/orders/create-order-from-checkout-session.server"
+        );
+        const result = await createOrderFromPaidCheckoutSession({
+          checkoutSessionPublicId: checkoutSessionId,
+          shippingAddressId: paymentIntent.metadata?.shippingAddressId || null,
+          deliveryCarrier: paymentIntent.metadata?.deliveryCarrier || null,
           stripePaymentIntentId: paymentIntent.id,
         });
         if (!result.success) {
           throw new Error(
-            result.error ?? "Order fulfillment failed after payment_intent.succeeded.",
+            result.error ?? "Order create failed after payment_intent.succeeded.",
           );
         }
-        logStripeWebhookEvent("payment_intent.succeeded fulfilled order", {
-          orderId,
+        logStripeWebhookEvent("payment_intent.succeeded created order from checkout session", {
+          checkoutSessionId,
+          orderId: result.orderId,
           paymentIntentId: paymentIntent.id,
         });
+      } else {
+        const orderId = paymentIntent.metadata?.orderId;
+        if (orderId) {
+          const result = await completePaidOrderFulfillment({
+            orderId,
+            stripePaymentIntentId: paymentIntent.id,
+          });
+          if (!result.success) {
+            throw new Error(
+              result.error ?? "Order fulfillment failed after payment_intent.succeeded.",
+            );
+          }
+          logStripeWebhookEvent("payment_intent.succeeded fulfilled order", {
+            orderId,
+            paymentIntentId: paymentIntent.id,
+          });
+        }
       }
       break;
     }
     case "payment_intent.payment_failed": {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      if (paymentIntent.metadata?.orderId) {
+      if (paymentIntent.metadata?.checkoutSessionId) {
+        const {
+          CHECKOUT_SESSION_ENGINE_getByPublicId,
+          CHECKOUT_SESSION_ENGINE_destroy,
+        } = await import("@/lib/checkout/engines/checkout-session-engine-v1");
+        const row = await CHECKOUT_SESSION_ENGINE_getByPublicId(
+          paymentIntent.metadata.checkoutSessionId,
+        );
+        if (row && row.status === "open") {
+          await CHECKOUT_SESSION_ENGINE_destroy({ session: row, status: "cancelled" });
+        }
+      } else if (paymentIntent.metadata?.orderId) {
         await cancelPendingOrder(paymentIntent.metadata.orderId);
       } else {
         await cancelOrderByPaymentIntent(paymentIntent.id);
@@ -194,6 +338,7 @@ export async function processStripeWebhookEvent(event: Stripe.Event): Promise<vo
         status: payout.status,
         destination: payout.destination,
       });
+      await syncWalletWithdrawalFromPayout(event.type, payout);
       break;
     }
     case "transfer.created": {

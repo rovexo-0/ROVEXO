@@ -1,0 +1,52 @@
+---
+description: Inbox Hub Master Implementation v1.0 — only Transaction Hub · Full Width · Purple
+alwaysApply: true
+---
+
+# ROVEXO INBOX HUB MASTER IMPLEMENTATION v1.0
+
+**STATUS: PERMANENTLY LOCKED**
+
+Not a redesign. Inbox Hub is the **only** official Transaction Hub.
+
+```
+ONE FEATURE = ONE ENTRY POINT (/inbox) = ONE IMPLEMENTATION
+```
+
+## Forbidden
+
+Second Inbox / Messages / Notifications / Orders / Offers / Tracking / Payments pages · duplicate hubs · 80–90% widths · centred layouts · mini containers · second design systems · blue/grey CTA colour systems.
+
+## Inherits 100%
+
+Profile · Settings · Full Width · Mobile First · CTA Design System · Premium Compact.
+
+## Tokens
+
+| Token | Value |
+|-------|-------|
+| Header | 64px · 100% |
+| Width | 100% only |
+| L/R pad | 24px (Full Width) |
+| Primary CTA | 56px · radius 16 · width 100% · purple gradient |
+| Active tab / badges | ROVEXO purple gradient |
+
+`linear-gradient(135deg, #a855f7, #9333ea, #7c3aed)`
+
+## Bottom navigation
+
+- **Inbox Hub** (Messages / Notifications): **SHOW** bottom nav
+- **Order conversations** `/inbox/conversation/*`: **HIDE** bottom nav — composer is permanent bottom chrome (Canonical Negotiation UI)
+- Also show on Shipping Label Viewer surfaces opened from Conversation
+- Hide only on Checkout / Payments / Tracking Details / Leave Review / Open Dispute (non-Inbox flows)
+
+`AccountCanonicalShell` + existing `BottomNavigation` — never a second nav component.
+
+## SSOT
+
+- `lib/inbox/inbox-hub-master-v1.ts`
+- `lib/inbox/freeze.ts`
+- `features/inbox/components/InboxPage.tsx`
+- `features/inbox/components/ConversationHub.tsx`
+- Official preview: `http://localhost:3000/inbox`
+---

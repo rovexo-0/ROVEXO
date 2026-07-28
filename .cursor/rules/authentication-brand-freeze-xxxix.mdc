@@ -1,0 +1,57 @@
+---
+description: Absolute Blood Law XXXIX — Authentication Brand Freeze. LOCKED · CERTIFIED · FROZEN.
+globs: features/auth/**,components/branding/RovexoBrandLogo.tsx,components/header/RovexoHeaderV2.tsx,styles/rovexo/auth-v1.css,styles/rovexo/header-v2.css,lib/brand/official-brand-application-v1.ts,lib/supreme-blood-law-xxxix-authentication-brand-freeze-v1.ts
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XXXIX — AUTHENTICATION BRAND FREEZE
+
+**STATUS: LOCKED | CERTIFIED | FROZEN | PRODUCTION READY**
+
+SSOT: `lib/supreme-blood-law-xxxix-authentication-brand-freeze-v1.ts`  
+Parent: Blood Law XXXVIII (`lib/supreme-blood-law-xxxviii-official-brand-application-v1.ts`)  
+Frozen until: **ROVEXO v2.0** (Owner-approved major version only)
+
+## Mission
+
+The Authentication visual identity is officially frozen.  
+Login and Register are the certified ROVEXO authentication experience.  
+Only maintenance and bug fixes are permitted — certified appearance must not change.
+
+## Frozen pages
+
+- Login — Official Primary RX Emblem · centered · certified size · LOCKED  
+- Register — Official Primary RX Emblem · centered below Back · LOCKED  
+
+## Official brand placement
+
+| Surface | Asset | Position | Certified size |
+|---|----|----|----|
+| Homepage | Official RX App Icon | Left of Search Bar | **28px** height |
+| Login | Official Primary Emblem | Centered | **180px** width |
+| Register | Official Primary Emblem | Centered below Back | **180px** width |
+
+## Locked (do NOT modify)
+
+Authentication Layout · Logo Position · Logo Scale · Search Header Branding · Input Layout · Button Layout · Typography · Form Hierarchy · White Space · Authentication Flow · Navigation · Design Language
+
+## Permitted (appearance unchanged)
+
+Bug fixes · Security · Accessibility · Performance · Asset quality improvements
+
+## Forbidden
+
+Logo redesign · Different emblem/icon · Alternative auth branding · Different logo position/scale · Layout redesign · Extra decorations · Visual experiments · Parallel authentication UI
+
+## Fail policy
+
+If auth branding differs from certified production → **Reject Release** → Restore Certified Version → Re-run Certification.  
+Zero visual regressions.
+
+## Cursor must never
+
+- Change Login/Register emblem scale or position  
+- Change Homepage header RX icon scale or placement  
+- Swap Primary Emblem ↔ App Icon across surfaces  
+- Introduce auth brand v2 / parallel login UI  
+- Claim production ready if XXXIX certification fails  

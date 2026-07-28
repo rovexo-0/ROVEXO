@@ -158,7 +158,7 @@ export async function countProfilesByStatus(status: string): Promise<number> {
 }
 
 export async function countProductsByStatus(
-  status: "draft" | "published" | "paused" | "sold" | "deleted",
+  status: "draft" | "published" | "paused" | "sold" | "deleted" | "reserved",
 ): Promise<number> {
   return countTableRows("products", (query) => query.eq("status", status));
 }

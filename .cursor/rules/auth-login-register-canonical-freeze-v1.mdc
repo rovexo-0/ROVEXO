@@ -1,0 +1,33 @@
+# ROVEXO v1.0 — LOGIN / REGISTER CANONICAL FREEZE
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN | CERTIFIED**
+
+SSOT: `lib/auth/auth-login-register-canonical-freeze-v1.ts`  
+Login: `features/auth/components/LoginScreen.tsx`  
+Register: `features/auth/components/RegisterScreen.tsx`  
+Logo: `lib/brand/canonical-rx-3d-logo-freeze-v1.ts`
+
+## Absolute
+
+NO MORE CHANGES WITHOUT OWNER APPROVAL.  
+If it does not work, it does not exist.
+
+## Login (LOCKED)
+
+RX · BUY • SELL • GROW · Email · Password · Remember Me · Forgot Password · Sign In · Secure Sign In · Create Account
+
+**Removed forever:** Welcome Back · Good to see you again · duplicates · dead spaces · oversized · dead clicks
+
+## Register (LOCKED)
+
+RX · BUY • SELL • GROW · Full Name · Email · Password · Confirm Password · Terms & Conditions · Optional marketing consent · Create Free Account · Secure Registration · Sign In
+
+**Removed forever:** Join ROVEXO Today · duplicates · empty spaces · dead clicks
+
+## Post-freeze allowed only
+
+Bug · performance · accessibility · security fixes
+
+## Forbidden
+
+Structural changes · redesign · extra texts · parallel systems · alternative pages

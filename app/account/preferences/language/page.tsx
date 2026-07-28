@@ -1,7 +1,6 @@
-import { AccountLanguagePage } from "@/features/account/components/AccountLanguagePage";
+import { permanentRedirect } from "next/navigation";
 
-export const metadata = { title: "Language" };
-
+/** Language preferences REMOVED — English (UK) only. */
 export default function AccountLanguageRoute() {
-  return <AccountLanguagePage />;
+  permanentRedirect("/account/settings");
 }

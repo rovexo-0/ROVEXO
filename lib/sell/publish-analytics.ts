@@ -33,7 +33,7 @@ export function trackPublishSuccessViewListing(payload: PublishSuccessPayload): 
 
 export function trackPublishSuccessShareListing(
   payload: PublishSuccessPayload,
-  method: "native" | "clipboard",
+  method: "native" | "clipboard" | "sheet",
 ): void {
   trackGaEvent("share_listing", {
     item_id: payload.listingId,

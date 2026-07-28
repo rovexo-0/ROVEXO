@@ -1,0 +1,58 @@
+---
+description: ROVEXO Performance Master Lock — never reduce performance, security, a11y, or responsive UX
+alwaysApply: true
+---
+
+# ROVEXO Performance Master Lock
+
+**STATUS: GLOBAL | MANDATORY | ENTIRE PLATFORM**
+
+## Never reduce
+
+No implementation may reduce: Performance · Speed · Responsiveness · SEO · Accessibility · Mobile experience · Security · Stability · Animations · Loading times.
+
+## Forbidden
+
+- Unnecessary re-renders
+- Duplicate components
+- Duplicate API calls
+- Unused imports / unused code
+- Large components / large images
+- Slow animations
+- Blocking requests
+- Memory leaks
+
+## Every new feature must be
+
+**Lighter · Faster · Safer · Simpler**
+
+## Choice rule
+
+If two solutions exist, always use: **the fastest + the safest + the simplest**.
+
+## Responsive design must never break
+
+iPhone · Android · Tablets · Desktop
+
+## All pages must respect
+
+- Mobile First
+- 100% Width
+- Zero UI Freeze
+- Instant UI Feedback
+- Background Loading
+- Skeleton Loading
+- Optimistic UI
+
+## Zero Performance Damage Policy
+
+- If performance can be reduced → **STOP**
+- If memory usage can increase → **STOP**
+- If responsive design can break → **STOP**
+- If a safer solution exists → **USE IT**
+
+## Final rule
+
+Never sacrifice Performance · Security · Responsive Design · UX · Stability for new features, visual effects, animations, or quick implementations.
+
+**Owner approval required.**

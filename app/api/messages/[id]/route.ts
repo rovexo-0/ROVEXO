@@ -6,10 +6,14 @@ import {
   deleteMessage,
   editMessage,
   getConversationById,
-  markConversationRead,
   reactToMessage,
   updateConversationPreferences,
 } from "@/lib/messages/store";
+import {
+  INBOX_EVENT_ENGINE_V1,
+  syncConversationOpen,
+  type InboxSyncOpenSource,
+} from "@/lib/inbox/inbox-event-engine-v1";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -84,6 +88,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     messageId?: string;
     content?: string;
     emoji?: string;
+    source?: InboxSyncOpenSource;
   };
 
   const existing = await getConversationById(id, auth.user.id);
@@ -92,8 +97,28 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   if (body.action === "read" || !body.action) {
-    await markConversationRead(id, auth.user.id);
-  } else if (body.action === "archive") {
+    void INBOX_EVENT_ENGINE_V1.bloodLaw;
+    const sync = await syncConversationOpen({
+      conversationId: id,
+      viewerId: auth.user.id,
+      source: body.source ?? "hub_mount",
+    });
+    if (!sync.ok) {
+      return NextResponse.json(
+        { success: false, error: sync.message, code: sync.code, bloodLaw: "XLIII" },
+        { status: sync.httpStatus },
+      );
+    }
+    const conversation = await getConversationById(id, auth.user.id);
+    return NextResponse.json({
+      success: true,
+      bloodLaw: "XLIII",
+      conversation,
+      sync,
+    });
+  }
+
+  if (body.action === "archive") {
     await updateConversationPreferences({
       conversationId: id,
       viewerId: auth.user.id,

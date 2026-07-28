@@ -24,12 +24,16 @@ export type ConnectPayoutStatus = {
 };
 
 export type WalletData = {
-  /** Legacy manual-withdraw balance (v1.0 automatic payouts do not increase this). */
+  /** Money that can be withdrawn now. Never includes pending/processing/locked. */
   availableBalance: number;
   pendingBalance: number;
   pendingAvailableAt: string;
+  /** Funds blocked (claims / security locks). Never withdrawable. */
+  lockedBalance: number;
   /** Completed sale payouts transferred to Stripe Connect. */
   paidOutBalance: number;
+  /** Live count of pending sale holds (protection period). */
+  pendingOrderCount: number;
   withdrawalSummary: {
     processingTotal: number;
     processingCount: number;

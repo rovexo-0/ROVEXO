@@ -13,7 +13,7 @@ export const fullNameSchema = z
   .string()
   .trim()
   .min(1, "Name is required")
-  .max(80, "Name must be at most 80 characters");
+  .max(50, "Name must be at most 50 characters");
 
 export const phoneSchema = z
   .string()
@@ -26,7 +26,7 @@ export const profileUpdateSchema = z.object({
   fullName: fullNameSchema.optional(),
   username: usernameSchema.optional(),
   phone: phoneSchema,
-  bio: z.string().trim().max(500, "Bio must be at most 500 characters").optional(),
+  bio: z.string().trim().max(250, "Bio must be at most 250 characters").optional(),
 });
 
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;

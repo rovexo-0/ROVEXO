@@ -1,9 +1,9 @@
 "use client";
 
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
+import { CanonicalSection, CanonicalMenuRow, CanonicalInfoBlock } from "@/src/components/canonical";
 import { useEffect, useState } from "react";
-import { AccountCanonicalShell } from "@/features/account-canonical";
-
+import { MyAccountTemplate } from "@/features/account-canonical";
+import { FailClosedPanel } from "@/components/fail-closed/FailClosedPanel";
 import { LockLineIcon, PeopleLineIcon, PhoneLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { PasswordChangeForm } from "@/features/account/components/PasswordChangeForm";
 
@@ -39,19 +39,25 @@ export function AccountSecurityPage() {
   const [session, setSession] = useState<SessionState | null>(null);
   const [sessionMessage, setSessionMessage] = useState<string | null>(null);
   const [signingOutOthers, setSigningOutOthers] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const [securityResponse, sessionResponse] = await Promise.all([
-        fetch("/api/account/security"),
-        fetch("/api/account/sessions"),
-      ]);
-      const securityPayload = (await securityResponse.json()) as SecurityState;
-      const sessionPayload = (await sessionResponse.json()) as SessionState;
-      if (!cancelled) {
-        setSecurity(securityPayload);
-        setSession(sessionPayload);
+      try {
+        const [securityResponse, sessionResponse] = await Promise.all([
+          fetch("/api/account/security"),
+          fetch("/api/account/sessions"),
+        ]);
+        if (!securityResponse.ok || !sessionResponse.ok) throw new Error("unavailable");
+        const securityPayload = (await securityResponse.json()) as SecurityState;
+        const sessionPayload = (await sessionResponse.json()) as SessionState;
+        if (!cancelled) {
+          setSecurity(securityPayload);
+          setSession(sessionPayload);
+        }
+      } catch {
+        if (!cancelled) setLoadFailed(true);
       }
     })();
     return () => {
@@ -73,67 +79,83 @@ export function AccountSecurityPage() {
     );
   };
 
+  if (loadFailed) {
+    return (
+      <MyAccountTemplate surface="security" title="Security" backHref="/account/settings" showHeaderTitle>
+        <FailClosedPanel density="section" onRetry={() => window.location.reload()} />
+      </MyAccountTemplate>
+    );
+  }
+
   return (
-    <AccountCanonicalShell title="Password & Security" backHref="/account/settings">
-      <CanonicalSection title="Password">
-        <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
-          <PasswordChangeForm />
-          <CanonicalMenuRow title="Reset via email" icon={<LockLineIcon />} href="/forgot-password" />
-        </CanonicalCard>
-      </CanonicalSection>
+    <MyAccountTemplate surface="security" title="Security" backHref="/account/settings" showHeaderTitle>
+      <div className="settings-subpage-v1 fw-engine__stack" data-settings-security="v1.0" data-full-width-surface="security">
+        <CanonicalSection title="Change Password">
+          <div className="fw-engine__group flex flex-col gap-ds-4">
+            <PasswordChangeForm />
+            <CanonicalMenuRow title="Reset via email" icon={<LockLineIcon />} href="/forgot-password" />
+          </div>
+        </CanonicalSection>
 
-      <CanonicalSection title="Devices & Sessions">
-        <CanonicalCard variant="list">
-          {session ? (
+        <CanonicalSection title="Two Factor Authentication">
+          <div className="fw-engine__group">
+            {/* Account Settings Engine v1.1 SSOT — 2FA is managed only on /account/profile */}
             <CanonicalMenuRow
-              title={formatDeviceLabel()}
-              description={`Current session · ${session.current.provider}`}
-              icon={<PhoneLineIcon />}
-              value="Active"
+              title="Two Factor Authentication"
+              description={
+                security
+                  ? security.mfa.enabled
+                    ? "On · manage in Account details"
+                    : "Off · manage in Account details"
+                  : "Manage in Account details"
+              }
+              icon={<ShieldLineIcon />}
+              href="/account/profile#two-factor"
+              value={security?.mfa.enabled ? "On" : "Off"}
             />
-          ) : (
-            <CanonicalMenuRow title="Loading session…" icon={<PhoneLineIcon />} disabled />
-          )}
-          <CanonicalMenuRow
-            title="Sign out all other devices"
-            icon={<ShieldLineIcon />}
-            onClick={() => void signOutOtherSessions()}
-            disabled={signingOutOthers}
-            value={signingOutOthers ? "Signing out…" : undefined}
-          />
-        </CanonicalCard>
-        {sessionMessage ? (
-          <CanonicalInfoBlock variant="description">{sessionMessage}</CanonicalInfoBlock>
-        ) : null}
-      </CanonicalSection>
+          </div>
+        </CanonicalSection>
 
-      <CanonicalSection title="Two-factor authentication">
-        <CanonicalCard variant="list">
-          <CanonicalMenuRow
-            title="Authenticator app"
-            description={
-              security
-                ? security.mfa.enabled
-                  ? `${security.mfa.factorCount} verified factor(s) active.`
-                  : "Two-factor authentication is not enabled yet."
-                : "Loading security status…"
-            }
-            icon={<ShieldLineIcon />}
-            value={security?.mfa.enabled ? "Enabled" : "Off"}
-          />
-        </CanonicalCard>
-      </CanonicalSection>
+        <CanonicalSection title="Devices">
+          <div className="fw-engine__group">
+            {session ? (
+              <CanonicalMenuRow
+                title="Devices"
+                description={`${formatDeviceLabel()} · ${session.current.provider}`}
+                icon={<PhoneLineIcon />}
+                value="Active"
+              />
+            ) : (
+              <CanonicalMenuRow title="Loading devices…" icon={<PhoneLineIcon />} disabled />
+            )}
+          </div>
+        </CanonicalSection>
 
-      <CanonicalSection title="Privacy">
-        <CanonicalCard variant="list">
-          <CanonicalMenuRow
-            title="Blocked Users"
-            description="Manage users you have blocked from contacting you"
-            icon={<PeopleLineIcon />}
-            href="/account/blocked-users"
-          />
-        </CanonicalCard>
-      </CanonicalSection>
-    </AccountCanonicalShell>
+        <CanonicalSection title="Sessions">
+          <div className="fw-engine__group">
+            {session ? (
+              <CanonicalMenuRow
+                title="Sessions"
+                description="Current session"
+                icon={<PeopleLineIcon />}
+                value="Active"
+              />
+            ) : (
+              <CanonicalMenuRow title="Loading sessions…" icon={<PeopleLineIcon />} disabled />
+            )}
+            <CanonicalMenuRow
+              title="Logout all devices"
+              icon={<ShieldLineIcon />}
+              onClick={() => void signOutOtherSessions()}
+              disabled={signingOutOthers}
+              value={signingOutOthers ? "Signing out…" : undefined}
+            />
+          </div>
+          {sessionMessage ? (
+            <CanonicalInfoBlock variant="description">{sessionMessage}</CanonicalInfoBlock>
+          ) : null}
+        </CanonicalSection>
+      </div>
+    </MyAccountTemplate>
   );
 }

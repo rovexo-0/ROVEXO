@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import {
   analyzeImageMetadata,
   analyzeListingContent,
@@ -18,6 +18,10 @@ function finalizeResult(hits: ModerationResult["hits"], base: ModerationResult):
   };
 }
 
+/**
+ * Pre-publish moderation scan — runs under the authenticated seller session.
+ * Duplicate checks use RLS-visible own listings (no service-role dependency).
+ */
 export async function scanListingBeforePublish(input: {
   sellerId: string;
   productId: string;
@@ -26,7 +30,7 @@ export async function scanListingBeforePublish(input: {
   brand?: string;
   imageNames?: string[];
 }): Promise<{ allowed: boolean; result: ModerationResult }> {
-  const admin = createAdminClient();
+  const supabase = await createClient();
   const textResult = analyzeListingContent({
     title: input.title,
     description: input.description,
@@ -41,7 +45,7 @@ export async function scanListingBeforePublish(input: {
   const mergedHits = [...textResult.hits, ...imageResults.flatMap((result) => result.hits)];
   let result = finalizeResult(mergedHits, textResult);
 
-  const { data: existingListings } = await admin
+  const { data: existingListings } = await supabase
     .from("products")
     .select("title, description")
     .eq("seller_id", input.sellerId)

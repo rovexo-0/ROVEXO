@@ -1,0 +1,35 @@
+---
+description: Supreme Blood Code XIII — Sprint IV Wallet approved to start (/wallet only)
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE XIII — SPRINT IV WALLET
+
+**STATUS: APPROVED TO START · IN DEVELOPMENT**
+
+SSOT: `lib/supreme-blood-code-xiii-v1.ts`  
+Official: `http://localhost:3000/wallet`
+
+## Locked (do not touch)
+
+Sprint I Inbox · Sprint II Conversation Hub · Sprint III Orders
+
+## Allowed
+
+`/wallet` only (Wallet Financial Engine children under `/wallet/*` for the same module).
+
+## Forbidden to touch
+
+Homepage · Search · Inbox · Notifications · Conversation · Orders · Sell · Checkout · Saved · Profile · Settings · Addresses · Payment Methods · Account · Verification · Legal Center
+
+## Absolute law
+
+- One feature = one entry point (`/wallet`)
+- One module = one implementation (`WalletHubV1` / `WalletPage`)
+- No redesigns · no duplicates · no cross-module edits
+- No Search Bar / marketplace header (Homepage-only unmount law)
+- Mobile first · iPhone 17 Pro Max master device
+
+## After Owner certification
+
+Sprint IV → PERMANENT FREEZE.

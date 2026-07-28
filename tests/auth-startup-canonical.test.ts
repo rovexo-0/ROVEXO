@@ -9,7 +9,7 @@ function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("ROVEXO canonical auth startup (Splash + Welcome removed)", () => {
+describe("ROVEXO canonical auth startup (Login guest entry)", () => {
   it("uses Login as the only guest entry", () => {
     expect(AUTH_GUEST_ENTRY_PATH).toBe("/login");
     expect(AUTH_ROUTES.login).toBe("/login");
@@ -22,9 +22,9 @@ describe("ROVEXO canonical auth startup (Splash + Welcome removed)", () => {
     expect(buildGuestAuthPath("/splash")).toBe("/login");
   });
 
-  it("redirects Splash and Welcome away permanently", () => {
-    expect(readSource("app/(auth)/splash/page.tsx")).toContain('permanentRedirect("/login")');
+  it("permanently redirects Splash and Welcome to Login", () => {
     expect(readSource("app/(auth)/welcome/page.tsx")).toContain('permanentRedirect("/login")');
+    expect(readSource("app/(auth)/splash/page.tsx")).toContain('permanentRedirect("/login")');
     expect(readSource("app/manifest.ts")).toContain('start_url: "/"');
   });
 
@@ -35,14 +35,14 @@ describe("ROVEXO canonical auth startup (Splash + Welcome removed)", () => {
     const redirects = readSource("lib/auth/redirects.ts");
 
     expect(middleware).toContain('loginUrl.pathname = "/login"');
-    expect(middleware).toContain('pathname === "/splash"');
     expect(middleware).toContain('pathname === "/welcome"');
+    expect(middleware).toContain('pathname === "/splash"');
     expect(actions).toContain('redirect("/login")');
     expect(signout).toContain('new URL("/login"');
     expect(redirects).toContain('export const AUTHENTICATED_HOME = "/"');
   });
 
-  it("declares removed startup routes in master spec", () => {
+  it("declares removed startup destinations in master spec", () => {
     expect([...AUTH_STARTUP.removedRoutes]).toEqual(["/splash", "/welcome"]);
   });
 });

@@ -33,6 +33,8 @@ export const RovexoIcons = {
     sports: icon("categories", "sports"),
     services: icon("categories", "services"),
     autoparts: icon("categories", "autoparts"),
+    books: icon("categories", "books"),
+    collectibles: icon("categories", "collectibles"),
   },
   navigation: {
     home: icon("navigation", "home"),

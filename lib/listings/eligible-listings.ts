@@ -17,6 +17,9 @@ import type { Product } from "@/lib/products/types";
  *     (verified seller, valid image, approved moderation, valid content, etc.)
  *     — implemented inside `searchListings` via `filterEligibleRows`.
  *
+ * ROVEXO v1.0 — real products only. Empty result stays empty.
+ * Never inject demo / mock / placeholder catalogue listings.
+ *
  * There must be NO other place that decides whether a listing is publicly
  * visible. If a listing passes here, it is visible on every surface.
  */
@@ -25,6 +28,12 @@ export async function getEligibleListings(
 ): Promise<SearchListingsResult> {
   const searchOptions: SearchListingsOptions = { ...options };
   delete (searchOptions as EligibleListingsOptions).surface;
+
+  // New Listing Priority Freeze: seller / store surfaces always newest-first.
+  if (options.surface === "seller" && searchOptions.sort == null) {
+    searchOptions.sort = "newest";
+  }
+
   return searchListings(searchOptions);
 }
 

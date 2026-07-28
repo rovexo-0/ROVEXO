@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { requireApiAuth, requireApiListingRole } from "@/lib/auth/session";
 import { buildProductImagePath, buildTempImagePath } from "@/lib/storage/server-images";
 import { getPublicStorageUrl, validateUploadFile } from "@/lib/storage/upload";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { analyzeImageMetadata } from "@/lib/moderation/analyzer";
 import { enqueueModerationReview } from "@/lib/moderation/service";
@@ -50,10 +49,18 @@ export async function POST(request: Request) {
       }
     }
 
-    const [fullBuffer, thumbnailBuffer] = await Promise.all([
+    const [fullRaw, thumbnailRaw] = await Promise.all([
       file.arrayBuffer().then((data) => Buffer.from(data)),
       thumbnail.arrayBuffer().then((data) => Buffer.from(data)),
     ]);
+
+    const { enhanceListingImage } = await import("@/lib/media/enhance-listing-image");
+    const [enhancedFull, enhancedThumb] = await Promise.all([
+      enhanceListingImage(fullRaw),
+      enhanceListingImage(thumbnailRaw),
+    ]);
+    const fullBuffer = enhancedFull.buffer;
+    const thumbnailBuffer = enhancedThumb.buffer;
     const contentType = "image/jpeg" as const;
     const filename = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}.jpg`;
 
@@ -63,18 +70,19 @@ export async function POST(request: Request) {
 
     const thumbPath = fullPath.replace(/\.jpg$/, "-thumb.jpg");
 
-    const admin = createAdminClient();
+    const supabase = await createClient();
 
     // Product image filenames are unique + immutable (timestamp + random id), so
     // they can be cached aggressively by the CDN and browsers for a year.
+    // Upload uses the authenticated seller session — storage RLS enforces own folder.
     const cacheControl = "31536000";
     const [fullUpload, thumbUpload] = await Promise.all([
-      admin.storage.from("products").upload(fullPath, fullBuffer, {
+      supabase.storage.from("products").upload(fullPath, fullBuffer, {
         contentType,
         upsert: true,
         cacheControl,
       }),
-      admin.storage.from("products").upload(thumbPath, thumbnailBuffer, {
+      supabase.storage.from("products").upload(thumbPath, thumbnailBuffer, {
         contentType,
         upsert: true,
         cacheControl,
@@ -128,9 +136,9 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }
 
-    const admin = createAdminClient();
+    const supabase = await createClient();
     const paths = [storagePath, thumbnailStoragePath].filter(Boolean) as string[];
-    await admin.storage.from("products").remove(paths);
+    await supabase.storage.from("products").remove(paths);
 
     return NextResponse.json({ success: true });
   } catch {

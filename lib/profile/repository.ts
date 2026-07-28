@@ -13,7 +13,7 @@ const PROFILE_READ_COLUMNS =
   "id, username, full_name, avatar_url, verified, role, created_at" as const;
 
 const SELLER_PROFILE_READ_COLUMNS =
-  "id, listing_count, sales_count, follower_count" as const;
+  "id, listing_count, sales_count" as const;
 
 function formatMemberSince(isoDate: string): string {
   return new Intl.DateTimeFormat("en-GB", {
@@ -29,7 +29,7 @@ type ProfileReadRow = Pick<
 
 type SellerProfileStatsRow = Pick<
   Tables<"seller_profiles">,
-  "listing_count" | "sales_count" | "follower_count"
+  "listing_count" | "sales_count"
 >;
 
 function mapProfileRow(
@@ -70,7 +70,6 @@ function mapProfileRow(
       ? {
           listings: sellerProfile.listing_count,
           sales: sellerProfile.sales_count,
-          followers: sellerProfile.follower_count,
         }
       : undefined,
     unreadMessages,

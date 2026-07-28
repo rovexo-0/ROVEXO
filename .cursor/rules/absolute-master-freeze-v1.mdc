@@ -1,0 +1,48 @@
+---
+description: Absolute Master Freeze v1.0 — Header Search Camera Auth Level 8
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — ABSOLUTE MASTER FREEZE (LEVEL 8)
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN | CANONICAL | SSOT READY | 50+ YEARS READY**
+
+SSOT: `lib/absolute-master-freeze-v1.ts`
+
+## Canonical systems (exactly one each)
+
+Header · Search Engine · Camera Search · Auth (Supabase) · Session · Cookie · User · Callback · Source of Truth
+
+## Child freezes (do not reopen)
+
+| Domain | SSOT |
+|-----|---|
+| Header | `lib/header/header-master-freeze-v1.ts` |
+| Search priority | `lib/header/search-priority-freeze-v1.ts` |
+| Search master | `lib/search/search-master-freeze-v1.ts` |
+| Camera Search | `lib/search/camera-search-v1-freeze.ts` |
+| Auth | `lib/auth/auth-master-freeze-v1.ts` |
+
+## Golden rules
+
+1. If it does not help Search → it does not belong in the Header.
+2. If Auth works → do not touch it.
+3. One feature = one entry point.
+4. One owner = one responsibility.
+5. Remove every removable click, question, page, API call, fetch, provider, state, step.
+6. User does less · ROVEXO does more.
+7. One source of truth for Header, Search, Camera Search, Auth, Session, User, Cookies, Callbacks, Navigation, Providers.
+8. No temporary fixes · no duplicated systems/providers/states/architectures.
+9. **Production deploy forbidden if one single gate fails.**
+
+## Cursor must never
+
+- Add a second Header, Search engine, Camera Search, Auth system, session/cookie/user/callback owner
+- Put Avatar / Notifications / Wallet / Inbox / Settings in the Header
+- Introduce Clerk, Firebase Auth, Auth.js, NextAuth, or custom sessions/cookies
+- Reopen frozen Header / Search / Camera / Auth architecture without Owner Level 8 re-authorization
+- Deploy when any Absolute Master Freeze gate is not PASS
+
+## Long term
+
+Architecture must scale from 100 → 1B users **without** changing Header, Search, Camera Search, Auth, Session, Provider, or Navigation architecture.

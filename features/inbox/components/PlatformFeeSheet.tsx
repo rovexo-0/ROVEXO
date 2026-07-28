@@ -19,15 +19,39 @@ const PLATFORM_FEE_POINTS = [
 type PlatformFeeSheetProps = {
   open: boolean;
   itemPrice: number;
+  /** Buyer shipping — omit or pending until checkout selects delivery. */
+  shippingPrice?: number | null;
+  shippingPending?: boolean;
+  platformFee?: number | null;
+  total?: number | null;
   onClose: () => void;
 };
 
-/** Locked Platform Fee sheet — Transaction Hub v1.0 FINAL. */
-export function PlatformFeeSheet({ open, itemPrice, onClose }: PlatformFeeSheetProps) {
+/**
+ * Locked Platform Fee sheet — Conversation Hub Sprint 1 FREEZE.
+ * Buyer-only: Item + Shipping + Platform Fee = Total.
+ * Never mount for seller viewers.
+ */
+export function PlatformFeeSheet({
+  open,
+  itemPrice,
+  shippingPrice = null,
+  shippingPending = true,
+  platformFee: platformFeeOverride = null,
+  total: totalOverride = null,
+  onClose,
+}: PlatformFeeSheetProps) {
   if (!open) return null;
 
-  const platformFee = calculatePlatformFee(itemPrice);
-  const total = Math.round((itemPrice + platformFee) * 100) / 100;
+  const platformFee =
+    platformFeeOverride != null && platformFeeOverride >= 0
+      ? platformFeeOverride
+      : calculatePlatformFee(itemPrice);
+  const shipping = shippingPending || shippingPrice == null ? null : shippingPrice;
+  const total =
+    totalOverride != null && totalOverride > 0
+      ? totalOverride
+      : Math.round((itemPrice + platformFee + (shipping ?? 0)) * 100) / 100;
 
   return (
     <div className="conv-hub__fee-sheet" role="dialog" aria-modal="true" aria-labelledby="conv-hub-fee-title">
@@ -52,11 +76,15 @@ export function PlatformFeeSheet({ open, itemPrice, onClose }: PlatformFeeSheetP
             <span>{formatListingPrice(itemPrice)}</span>
           </div>
           <div className="conv-hub__fee-row">
+            <span>Shipping</span>
+            <span>{shipping == null ? "At checkout" : formatListingPrice(shipping)}</span>
+          </div>
+          <div className="conv-hub__fee-row">
             <span>Platform fee</span>
             <span>{formatListingPrice(platformFee)}</span>
           </div>
           <div className="conv-hub__fee-row conv-hub__fee-row--total">
-            <span>TOTAL</span>
+            <span>Total buyer pays</span>
             <span>{formatListingPrice(total)}</span>
           </div>
         </div>

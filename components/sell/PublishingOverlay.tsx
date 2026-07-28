@@ -8,7 +8,10 @@ type PublishingOverlayProps = {
   isEdit?: boolean;
 };
 
-/** SELL-108 — publish phase label above the fixed bar. */
+/**
+ * Blood XXI Priority II — clear publish feedback so the user never asks
+ * “Did my item publish?” / “Why is nothing happening?”
+ */
 export function PublishingOverlay({ phase, uploadProgress, isEdit = false }: PublishingOverlayProps) {
   if (phase === "idle" || phase === "published" || phase === "error") return null;
 
@@ -17,15 +20,21 @@ export function PublishingOverlay({ phase, uploadProgress, isEdit = false }: Pub
 
   return (
     <div
-      className="fixed inset-x-0 bottom-[calc(var(--sell-publish-bar-measured,72px))] z-[109] border-t border-border bg-white px-[var(--cds-space-page-x)] py-ds-2"
+      className="fixed inset-0 z-[109] flex flex-col items-center justify-center bg-white/85 px-[var(--cds-space-page-x)] backdrop-blur-[2px]"
       role="status"
-      aria-live="polite"
+      aria-live="assertive"
+      aria-busy="true"
       data-sell-publish-phase={phase}
+      data-blood-code-xxi-publish="1"
     >
-      <div className="flex w-full max-w-none flex-col gap-ds-2">
-        <p className="text-center text-sm font-medium text-text-primary">{label}</p>
+      <div className="flex w-full max-w-none flex-col items-center gap-ds-4 pb-[var(--sell-sticky-clearance,96px)]">
+        <span
+          className="h-10 w-10 animate-spin rounded-ds-full border-[3px] border-primary border-t-transparent"
+          aria-hidden
+        />
+        <p className="text-center text-base font-semibold text-text-primary">{label}</p>
         {showBar ? (
-          <div className="h-1.5 overflow-hidden rounded-ds-full bg-surface-muted">
+          <div className="h-1.5 w-full max-w-[240px] overflow-hidden rounded-ds-full bg-surface-muted">
             <div
               className="h-full rounded-ds-full bg-primary transition-[width] duration-200"
               style={{ width: `${uploadProgress}%` }}

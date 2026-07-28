@@ -59,11 +59,13 @@ describe("seller performance MASTER_SPEC v1.0", () => {
   it("defines seller levels per spec", () => {
     expect(SELLER_LEVEL_THRESHOLDS).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ level: "new_seller", min: 0 }),
-        expect.objectContaining({ level: "trusted_seller", min: 60 }),
-        expect.objectContaining({ level: "top_seller", min: 75 }),
-        expect.objectContaining({ level: "premium_seller", min: 90 }),
-        expect.objectContaining({ level: "elite_seller", min: 98 }),
+        expect.objectContaining({ level: "bronze", min: 0 }),
+        expect.objectContaining({ level: "silver", min: 20 }),
+        expect.objectContaining({ level: "gold", min: 40 }),
+        expect.objectContaining({ level: "diamond", min: 55 }),
+        expect.objectContaining({ level: "platinum", min: 70 }),
+        expect.objectContaining({ level: "elite", min: 85 }),
+        expect.objectContaining({ level: "legend", min: 95 }),
       ]),
     );
   });
@@ -75,19 +77,21 @@ describe("seller performance MASTER_SPEC v1.0", () => {
   });
 
   it("maps scores to seller levels", () => {
-    expect(levelForScore(0)).toBe("new_seller");
-    expect(levelForScore(59)).toBe("new_seller");
-    expect(levelForScore(60)).toBe("trusted_seller");
-    expect(levelForScore(75)).toBe("top_seller");
-    expect(levelForScore(90)).toBe("premium_seller");
-    expect(levelForScore(98)).toBe("elite_seller");
-    expect(levelForScore(100)).toBe("elite_seller");
+    expect(levelForScore(0)).toBe("bronze");
+    expect(levelForScore(19)).toBe("bronze");
+    expect(levelForScore(20)).toBe("silver");
+    expect(levelForScore(40)).toBe("gold");
+    expect(levelForScore(55)).toBe("diamond");
+    expect(levelForScore(70)).toBe("platinum");
+    expect(levelForScore(85)).toBe("elite");
+    expect(levelForScore(95)).toBe("legend");
+    expect(levelForScore(100)).toBe("legend");
   });
 
   it("calculates progress toward next level", () => {
-    const progress = progressToNextLevel(65);
-    expect(progress.currentLevel).toBe("trusted_seller");
-    expect(progress.nextLevel).toBe("top_seller");
+    const progress = progressToNextLevel(45);
+    expect(progress.currentLevel).toBe("gold");
+    expect(progress.nextLevel).toBe("diamond");
     expect(progress.pointsToNext).toBe(10);
     expect(progress.percent).toBeGreaterThan(0);
   });
@@ -185,7 +189,8 @@ describe("seller performance MASTER_SPEC v1.0", () => {
   });
 
   it("exposes human-readable seller level labels", () => {
-    expect(SELLER_LEVEL_LABELS.elite_seller).toBe("Elite Seller");
-    expect(SELLER_LEVEL_LABELS.new_seller).toBe("New Seller");
+    expect(SELLER_LEVEL_LABELS.elite).toBe("Elite Seller");
+    expect(SELLER_LEVEL_LABELS.bronze).toBe("Bronze Seller");
+    expect(SELLER_LEVEL_LABELS.legend).toBe("Legend Seller");
   });
 });

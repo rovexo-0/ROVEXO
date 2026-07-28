@@ -1,0 +1,53 @@
+---
+description: Follow & Trust Canonical Freeze v1.0 — permanent; maintenance only; no redesign without Owner Architecture 2.0
+alwaysApply: true
+---
+
+# ROVEXO FOLLOW & TRUST — CANONICAL FREEZE v1.0
+
+**STATUS: PERMANENTLY FROZEN | OWNER AUTHORITY | INDEFINITE**
+
+SSOT: `lib/follow-trust/follow-trust-canonical-freeze-v1.ts`  
+P0 singularity: `lib/reputation/p0-architecture-consolidation-v1.ts`
+
+## Modules (frozen as one ecosystem)
+
+Follow · Rating · Reviews · Reputation · Badge · Follow Notifications · Homepage Following Feed
+
+## Maintenance may preserve only
+
+Canonical architecture · data flow · APIs · DB schema · business rules · UI behaviour · UX
+
+## Forbidden forever (until Architecture 2.0)
+
+temporary solutions · experimental code · feature flags for parallel behaviour · parallel implementations · fallback architectures · duplicate services / stores / APIs
+
+## If redesign is required
+
+**STOP** → return `ARCHITECTURE CHANGE REQUIRED` + full technical justification.  
+**Do NOT implement.** Owner approval mandatory.
+
+## Regression (before + after every fix)
+
+Follow · Unfollow · Followers · Following · Rating · Reviews · Reputation · Badges · Notifications · Following Feed · Profile · Admin overrides
+
+## Observability
+
+Logging · metrics · monitoring · error reporting · health checks · performance telemetry — allowed **only** if business behaviour is unchanged.
+
+## Documentation
+
+Approved maintenance must keep docs / architecture notes / changelog aligned with production behaviour.
+
+## Freeze exit
+
+Lifted **only** when Owner explicitly authorizes **Architecture Version 2.0**.  
+No automatic evolution.
+
+## Cursor must never
+
+- Create Badge / Reputation / Follow parallel systems  
+- Publish public badges from seller-performance  
+- Add a second public reputation API  
+- Bypass Rating → Reviews → Reputation → Badge → Public UI  
+- Treat praise or partial work as freeze exit

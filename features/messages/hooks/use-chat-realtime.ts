@@ -28,17 +28,20 @@ function mapRealtimeMessage(row: Record<string, unknown>): ChatMessage {
   };
 }
 
+/**
+ * Live message/meta/presence transport for Conversation Hub.
+ * Stays subscribed while the hub is mounted (visibility only gates presence online flag).
+ */
 export function useChatRealtime(
   conversationId: string,
   participantId: string,
   setConversation: Dispatch<SetStateAction<Conversation>>,
+  enabled = true,
 ) {
   const visible = useDocumentVisible();
 
   useEffect(() => {
-    if (!visible) return;
-
-    void updatePresence({ online: true });
+    if (!enabled) return;
 
     const channels: RealtimeChannel[] = [];
 
@@ -82,7 +85,12 @@ export function useChatRealtime(
         void channel.unsubscribe();
       }
     };
-  }, [conversationId, participantId, setConversation, visible]);
+  }, [conversationId, enabled, participantId, setConversation]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    void updatePresence({ online: visible });
+  }, [enabled, visible]);
 }
 
 export async function signalTyping(conversationId: string, typing: boolean): Promise<void> {

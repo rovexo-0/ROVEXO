@@ -17,7 +17,7 @@ export function levelForScore(score: number): SellerLevel {
   for (const entry of SELLER_LEVEL_THRESHOLDS) {
     if (normalized >= entry.min) return entry.level;
   }
-  return "new_seller";
+  return "bronze";
 }
 
 export function nextLevelForScore(score: number): SellerLevel | null {

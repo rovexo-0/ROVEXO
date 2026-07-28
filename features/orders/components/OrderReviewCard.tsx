@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CanonicalButton, CanonicalCard, CanonicalInfoBlock } from "@/src/components/canonical";
 import { Rating } from "@/components/ui/Rating";
 import type { Review } from "@/lib/reviews/types";
@@ -11,6 +12,7 @@ type OrderReviewCardProps = {
 };
 
 export function OrderReviewCard({ orderId, sellerName }: OrderReviewCardProps) {
+  const router = useRouter();
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [existingReview, setExistingReview] = useState<Review | null>(null);
@@ -56,10 +58,12 @@ export function OrderReviewCard({ orderId, sellerName }: OrderReviewCardProps) {
       setExistingReview(payload.review);
       setCanReview(false);
       setMessage("Thank you for your review.");
+      window.dispatchEvent(new CustomEvent("rovexo:inbox-sync"));
+      router.refresh();
     } finally {
       setIsSubmitting(false);
     }
-  }, [comment, orderId, rating]);
+  }, [comment, orderId, rating, router]);
 
   if (existingReview) {
     return (

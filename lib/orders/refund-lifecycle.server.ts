@@ -86,8 +86,17 @@ export async function applyOrderRefundLifecycle(input: ApplyRefundLifecycleInput
     admin.from("profiles").select("email").eq("id", existing.seller_id).maybeSingle(),
   ]);
 
+  const { data: orderItem } = await admin
+    .from("order_items")
+    .select("title, image_url")
+    .eq("order_id", input.orderId)
+    .limit(1)
+    .maybeSingle();
+
   const amount = input.amount || Number(existing.total);
   const orderNumber = existing.order_number;
+  const productTitle = orderItem?.title ?? undefined;
+  const productImageUrl = orderItem?.image_url ?? undefined;
 
   if (
     mappedStatus === "initiated" ||
@@ -98,15 +107,20 @@ export async function applyOrderRefundLifecycle(input: ApplyRefundLifecycleInput
       await notifyRefundInitiated({
         buyerId: existing.buyer_id,
         buyerEmail: buyer?.email ?? "",
+        orderId: input.orderId,
         orderNumber,
         amount,
         reference,
+        productTitle,
+        productImageUrl,
       });
       if (input.notifySeller !== false) {
         await notifySellerRefundInitiated({
           sellerId: existing.seller_id,
           sellerEmail: seller?.email ?? "",
+          orderId: input.orderId,
           orderNumber,
+          productImageUrl,
         });
       }
     }
@@ -116,9 +130,12 @@ export async function applyOrderRefundLifecycle(input: ApplyRefundLifecycleInput
     await notifyRefundCompleted({
       buyerId: existing.buyer_id,
       buyerEmail: buyer?.email ?? "",
+      orderId: input.orderId,
       orderNumber,
       amount,
       reference,
+      productTitle,
+      productImageUrl,
     });
   }
 
@@ -126,7 +143,9 @@ export async function applyOrderRefundLifecycle(input: ApplyRefundLifecycleInput
     await notifyRefundFailed({
       buyerId: existing.buyer_id,
       buyerEmail: buyer?.email ?? "",
+      orderId: input.orderId,
       orderNumber,
+      productImageUrl,
     });
   }
 

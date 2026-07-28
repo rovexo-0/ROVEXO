@@ -1,8 +1,9 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import path from "node:path";
 
 /** App Router page patterns derived from app directory page.tsx files (e.g. /help/:slug). */
-export function collectAppRoutePatterns(appRoot = path.join(process.cwd(), "app")): string[] {
+export function collectAppRoutePatterns(appRoot = workspacePath( "app")): string[] {
   const patterns: string[] = [];
 
   const rootPage = path.join(appRoot, "page.tsx");

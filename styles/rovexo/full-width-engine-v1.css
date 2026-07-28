@@ -1,0 +1,353 @@
+/**
+ * ROVEXO FULL WIDTH ENGINE v1.0 (LOCKED)
+ * MASTER FULL WIDTH CONTRACT v1.1 — Profile = internal design reference.
+ * DESIGN DECISION #001: Internal pad-x 16px · Homepage pad-x 24px (LOCKED).
+ * Vertical / section / header tokens unchanged.
+ */
+
+:root {
+  /* DESIGN DECISION #001 values · #002 isolation — two families, never bridge. */
+  --homepage-pad-x: 24px; /* Homepage Layout Tokens ONLY */
+  --internal-pad-x: 16px; /* Internal Layout Tokens ONLY */
+  --fw-pad-x: 16px; /* Full Width Engine = Internal family (same value, not Homepage) */
+  --fw-pad-y: 24px;
+  --fw-width: 100%;
+  --fw-max-width: none;
+  --fw-min-width: 100%;
+  --fw-height: 100%;
+  --fw-min-height: 100%;
+  --fw-safe-top: env(safe-area-inset-top, 0px);
+  --fw-safe-right: env(safe-area-inset-right, 0px);
+  --fw-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --fw-safe-left: env(safe-area-inset-left, 0px);
+  --fw-row-min-height: 56px;
+  --fw-header-height: 64px;
+  --fw-chevron-color: #1a1a1a;
+  --fw-chevron-size: 16px;
+  --fw-title-color: #1a1a1a;
+  --fw-bg: #ffffff;
+  --fw-page-title-size: 32px;
+  --fw-section-title-size: 24px;
+  --fw-description-size: 16px;
+  --fw-body-size: 16px;
+  --fw-small-size: 14px;
+  --fw-component-gap: 24px;
+  --fw-section-gap: 24px;
+  --fw-button-height: 56px; /* Global Button Recovery v1.0 — Profile functional */
+  --fw-button-radius: 16px;
+  --fw-input-height: 56px;
+  --fw-touch-min: 44px;
+  --fw-card-radius: 16px;
+  --fw-card-padding: 24px;
+  --fw-radius: 16px;
+}
+
+/*
+ * Level 8 Full Width + Responsive Execution v1.0
+ * Engine adapts to available width/height/safe areas — never redesigns Owner UI.
+ */
+[data-full-width-engine="v1.0"],
+[data-master-full-width="v1.0-master-fw"] {
+  box-sizing: border-box;
+  width: var(--fw-width);
+  min-width: var(--fw-min-width);
+  max-width: var(--fw-max-width);
+  min-height: var(--fw-min-height);
+  background: var(--fw-bg);
+  overflow-x: clip;
+  padding-left: max(0px, var(--fw-safe-left));
+  padding-right: max(0px, var(--fw-safe-right));
+}
+
+[data-full-width-engine="v1.0"] *,
+[data-full-width-engine="v1.0"] *::before,
+[data-full-width-engine="v1.0"] *::after,
+[data-master-full-width="v1.0-master-fw"] *,
+[data-master-full-width="v1.0-master-fw"] *::before,
+[data-master-full-width="v1.0-master-fw"] *::after {
+  box-sizing: border-box;
+}
+
+/* Prevent flex/grid children from forcing horizontal overflow (no redesign) */
+[data-full-width-engine="v1.0"] .cds-layout__content--account-canonical,
+[data-full-width-engine="v1.0"] .cds-menu-row,
+[data-full-width-engine="v1.0"] .cds-menu-row__title,
+[data-full-width-engine="v1.0"] .wallet-v2,
+[data-full-width-engine="v1.0"] .ac-canonical {
+  min-width: 0;
+  max-width: 100%;
+}
+
+[data-full-width-engine="v1.0"] .cds-menu-row__title,
+[data-full-width-engine="v1.0"] p,
+[data-full-width-engine="v1.0"] h1,
+[data-full-width-engine="v1.0"] h2,
+[data-full-width-engine="v1.0"] h3,
+[data-full-width-engine="v1.0"] span:not([class*="icon"]) {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Beat phone-width / compact-premium !important shells — Owner Full Width */
+[data-full-width-engine="v1.0"] .inbox-hub,
+[data-full-width-engine="v1.0"] .conv-hub,
+[data-full-width-engine="v1.0"] .wallet-v2,
+[data-full-width-engine="v1.0"] .orders-page,
+[data-full-width-engine="v1.0"] .ac-canonical,
+[data-full-width-engine="v1.0"] .account-canonical,
+[data-full-width-engine="v1.0"] .cds-layout,
+[data-full-width-engine="v1.0"] .cds-layout--account-canonical,
+[data-universal-ui="v1.1"][data-full-width-engine="v1.0"] .inbox-hub,
+[data-compact-premium="v1"][data-full-width-engine="v1.0"] .inbox-hub,
+[data-universal-ui="v1.1"] .inbox-hub {
+  width: 100% !important;
+  max-width: none !important;
+  margin-inline: 0 !important;
+}
+
+/* Wallet Production surface — Full Width 100% (no 390px cage) */
+[data-full-width-engine="v1.0"] .wallet-v2 {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 100% !important;
+  margin: 0 !important;
+  margin-inline: 0 !important;
+}
+
+/* Shell content — Owner spacing SSOT (wins over phone-width 16px inset) */
+[data-full-width-engine="v1.0"] .cds-layout__content--account-canonical {
+  width: var(--fw-width) !important;
+  max-width: var(--fw-max-width) !important;
+  padding: var(--fw-pad-y) var(--fw-pad-x) !important;
+  gap: var(--fw-component-gap);
+  background: var(--fw-bg);
+  margin-inline: 0 !important;
+}
+
+/*
+ * Wallet Production conflict fix (Owner approved — CSS only):
+ * Full Width Engine shell padding must NOT fight wallet-hub-v1.css.
+ * Wallet Production owns its own horizontal padding (--wallet-pad-x).
+ */
+[data-full-width-engine="v1.0"] .cds-layout__content--account-canonical:has(.wallet-v2) {
+  padding-top: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  gap: 0 !important;
+  background: #fafafc !important; /* Wallet Production --wallet-page-bg */
+}
+
+[data-full-width-engine="v1.0"] .cds-layout__content--account-canonical.cds-layout__content--with-bottom-nav {
+  padding-bottom: max(var(--fw-pad-y), var(--cds-bottom-nav-offset)) !important;
+}
+
+[data-full-width-engine="v1.0"]
+  .cds-layout__content--account-canonical.cds-layout__content--with-bottom-nav:has(.wallet-v2) {
+  padding-top: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: max(var(--fw-pad-y), var(--cds-bottom-nav-offset)) !important;
+  gap: 0 !important;
+  background: #fafafc !important;
+}
+
+[data-full-width-engine="v1.0"] .cds-layout__header,
+[data-full-width-engine="v1.0"] .cds-layout--account-canonical > .cds-layout__header {
+  width: var(--fw-width) !important;
+  max-width: var(--fw-max-width) !important;
+  min-height: var(--fw-header-height);
+  height: var(--fw-header-height);
+}
+
+/* Nested Profile/Wallet hubs — no double horizontal pad */
+[data-full-width-engine="v1.0"] .ac-canonical {
+  width: var(--fw-width);
+  max-width: var(--fw-max-width);
+  padding: 0;
+  gap: 12px;
+  background: var(--fw-bg);
+}
+
+/* REMOVE: cards · borders · shadows · boxes · rounded containers */
+[data-full-width-engine="v1.0"] .cds-card,
+[data-full-width-engine="v1.0"] .cds-card--list,
+[data-full-width-engine="v1.0"] .cds-section__card,
+[data-full-width-engine="v1.0"] .settings-canonical__card,
+[data-full-width-engine="v1.0"] .settings-canonical__danger-card,
+[data-full-width-engine="v1.0"] .rx-surface-card,
+[data-full-width-engine="v1.0"] .rx-glass {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  outline: none !important;
+  padding-inline: 0 !important;
+  width: var(--fw-width);
+  max-width: var(--fw-max-width);
+}
+
+/* Section titles remain — no borders / no cards */
+[data-full-width-engine="v1.0"] .cds-section {
+  width: var(--fw-width);
+  gap: 8px;
+}
+
+[data-full-width-engine="v1.0"] .cds-section__title {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+/* Flat full-width rows (Profile reference) */
+[data-full-width-engine="v1.0"] .cds-menu-row,
+[data-full-width-engine="v1.0"] .ac-canonical__menu .cds-menu-row,
+[data-full-width-engine="v1.0"] .settings-canonical .cds-menu-row,
+[data-full-width-engine="v1.0"] .cds-toggle-row {
+  width: var(--fw-width);
+  max-width: var(--fw-max-width);
+  min-height: var(--fw-row-min-height);
+  padding-inline: 0;
+  margin: 0;
+  border: none !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+[data-full-width-engine="v1.0"] .cds-menu-row__title {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--fw-title-color);
+}
+
+/* Platform chevron — same size · same color · all pages */
+[data-full-width-engine="v1.0"] .cds-menu-row__chevron {
+  color: var(--fw-chevron-color);
+  width: var(--fw-chevron-size);
+  height: var(--fw-chevron-size);
+}
+
+[data-full-width-engine="v1.0"] .cds-menu-row__chevron svg {
+  width: var(--fw-chevron-size);
+  height: var(--fw-chevron-size);
+}
+
+/* Settings / hub nav stacks */
+[data-full-width-engine="v1.0"] .settings-canonical,
+[data-full-width-engine="v1.0"] .settings-subpage-v1,
+[data-full-width-engine="v1.0"] .fw-engine__stack,
+[data-full-width-engine="v1.0"] .ac-canonical__menu {
+  display: flex;
+  flex-direction: column;
+  width: var(--fw-width);
+  max-width: var(--fw-max-width);
+  gap: var(--fw-section-gap);
+  background: var(--fw-bg);
+  border: none;
+  box-shadow: none;
+}
+
+[data-full-width-engine="v1.0"] .ac-canonical__menu-group,
+[data-full-width-engine="v1.0"] .fw-engine__group {
+  display: flex;
+  flex-direction: column;
+  width: var(--fw-width);
+  gap: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Forms / inputs / CTAs — 100% width · Owner heights */
+[data-full-width-engine="v1.0"] .cds-field,
+[data-full-width-engine="v1.0"] .cds-input,
+[data-full-width-engine="v1.0"] .cds-textarea,
+[data-full-width-engine="v1.0"] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+[data-full-width-engine="v1.0"] select,
+[data-full-width-engine="v1.0"] textarea {
+  width: var(--fw-width) !important;
+  max-width: var(--fw-max-width) !important;
+}
+
+[data-full-width-engine="v1.0"] .cds-input,
+[data-full-width-engine="v1.0"] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]) {
+  min-height: var(--fw-input-height);
+}
+
+[data-full-width-engine="v1.0"] .cds-button--primary,
+[data-full-width-engine="v1.0"] .cds-button--primary.cds-button--full,
+[data-full-width-engine="v1.0"] [data-my-account-primary-button] {
+  width: var(--fw-width) !important;
+  max-width: var(--fw-max-width) !important;
+  min-height: var(--fw-button-height);
+  border-radius: var(--fw-button-radius);
+}
+
+/* Sheets / modals under Profile tree — full width (no 480px float) */
+[data-full-width-engine="v1.0"] .account-settings-edit-sheet,
+[data-full-width-engine="v1.0"] .addresses-v1-edit-sheet,
+.account-settings-edit-sheet,
+.addresses-v1-edit-sheet {
+  width: 100% !important;
+  max-width: none !important;
+  margin-inline: 0 !important;
+}
+
+.account-settings-edit-sheet-backdrop,
+.addresses-v1-edit-backdrop {
+  padding-left: var(--fw-pad-x, 16px);
+  padding-right: var(--fw-pad-x, 16px);
+  justify-content: stretch;
+}
+
+/* Kill constrained utilities inside engine */
+[data-full-width-engine="v1.0"] .max-w-xs,
+[data-full-width-engine="v1.0"] .max-w-sm,
+[data-full-width-engine="v1.0"] .max-w-md,
+[data-full-width-engine="v1.0"] .max-w-lg,
+[data-full-width-engine="v1.0"] .max-w-xl,
+[data-full-width-engine="v1.0"] .max-w-2xl,
+[data-full-width-engine="v1.0"] .max-w-\[320px\],
+[data-full-width-engine="v1.0"] .max-w-\[360px\],
+[data-full-width-engine="v1.0"] .max-w-\[390px\],
+[data-full-width-engine="v1.0"] .max-w-\[420px\],
+[data-full-width-engine="v1.0"] .max-w-\[480px\],
+[data-full-width-engine="v1.0"] .mx-auto {
+  max-width: none !important;
+  margin-inline: 0 !important;
+}
+
+/* Forms / inputs stay usable but never as card chrome */
+[data-full-width-engine="v1.0"] .settings-subpage-v1 .cds-card {
+  padding-block: 0;
+}
+
+/* Fail-closed panel stays borderless under engine */
+[data-full-width-engine="v1.0"] .fail-closed-panel {
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  width: var(--fw-width);
+}
+
+/*
+ * DESIGN DECISION #002 — Dual token isolation (never inherit).
+ * Homepage pads with Homepage Tokens only (--homepage-pad-x / --hp-shell-pad).
+ * Does NOT mutate Internal tokens (--fw-pad-x / --rx-phone-inset-x / --cds-space-page-x).
+ */
+.rovexo-page-home,
+[data-homepage="canonical"],
+[data-homepage-surface] {
+  --hp-shell-pad: var(--homepage-pad-x);
+}
+
+/* Homepage header is a sibling of .rovexo-page-home — pad via Homepage token, not Internal vars. */
+body:has(.rovexo-page-home) .rx-h2__inner,
+.homepage-header__inner,
+.rovexo-page-home .rx4,
+[data-homepage="canonical"] .rx4 {
+  padding-left: var(--homepage-pad-x) !important;
+  padding-right: var(--homepage-pad-x) !important;
+  padding-inline: var(--homepage-pad-x) !important;
+}

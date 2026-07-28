@@ -11,8 +11,11 @@ export function revalidatePublishedListing(slug?: string | null): void {
   // Homepage (revalidate=60) + shared layout.
   revalidatePath("/");
   revalidatePath("/", "layout");
-  // My Listings.
+  // My Listings / Active / Sold / Draft tabs.
   revalidatePath("/seller/listings");
+  // Seller + Business storefronts — new listing must appear first immediately.
+  revalidatePath("/user/[username]", "page");
+  revalidatePath("/store/[slug]", "page");
   // My Account hub stats (listings counter).
   revalidatePath("/account");
   // Search results.
@@ -42,9 +45,6 @@ export function revalidatePublishedListing(slug?: string | null): void {
  */
 export function revalidateMarketplaceListings(): void {
   revalidatePublishedListing();
-  // Seller storefronts.
-  revalidatePath("/user/[username]", "page");
-  revalidatePath("/store/[slug]", "page");
 }
 
 /**
@@ -67,6 +67,7 @@ export function revalidateDeletedListing(slug?: string | null): void {
   revalidatePath("/seller/orders");
   revalidatePath("/seller/orders/[id]", "page");
   revalidatePath("/account/orders");
+  revalidatePath("/balance");
   revalidatePath("/wallet");
   revalidatePath("/wallet/transactions");
   revalidatePath("/notifications");

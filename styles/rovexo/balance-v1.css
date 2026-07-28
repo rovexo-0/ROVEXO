@@ -1,0 +1,182 @@
+/**
+ * Balance page — Profile Full Width + Global Button Recovery v1.0.
+ * Purple Available card = authorized financial component.
+ * Withdraw = original in-card position (compact on Available card).
+ */
+
+.balance-v1 {
+  --balance-purple-gradient: linear-gradient(135deg, #a855f7 0%, #9333ea 48%, #7c3aed 100%);
+  --balance-ink: #1a1a1a;
+  --balance-muted: #64748b;
+  --balance-surface: #ffffff;
+  --balance-icon-bg: #f3e8ff;
+  --balance-icon: #7c3aed;
+  --balance-radius: 16px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+  background: #ffffff;
+}
+
+.balance-v1__help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: #1a1a1a;
+  text-decoration: none;
+}
+
+.balance-v1__help:focus-visible {
+  outline: 2px solid #9333ea;
+  outline-offset: 2px;
+}
+
+/* Available — ROVEXO purple premium financial card (Owner reserved purple) */
+.balance-v1__available {
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+  margin: 0;
+  padding: 20px;
+  border-radius: var(--balance-radius);
+  background: var(--balance-purple-gradient);
+  color: #ffffff;
+  box-shadow:
+    0 8px 24px rgb(124 58 237 / 0.28),
+    0 2px 8px rgb(124 58 237 / 0.16);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.balance-v1__available-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.balance-v1__available-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.balance-v1__available-label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: rgb(255 255 255 / 0.92);
+}
+
+.balance-v1__eye {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.balance-v1__eye:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Withdraw — recovered original position (top-right on Available card) */
+.balance-v1__withdraw,
+.balance-v1 a.balance-v1__withdraw,
+.balance-v1 button.balance-v1__withdraw {
+  --balance-withdraw-height: 44px;
+  flex-shrink: 0;
+  width: auto;
+  max-width: none;
+  height: var(--balance-withdraw-height);
+  min-height: var(--balance-withdraw-height);
+  max-height: var(--balance-withdraw-height);
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.55);
+  color: #7c3aed;
+  background: #ffffff;
+  background-image: none;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.balance-v1__withdraw:hover:not(:disabled),
+.balance-v1 a.balance-v1__withdraw:hover {
+  filter: brightness(0.98);
+  background: #ffffff;
+  background-image: none;
+}
+
+.balance-v1__withdraw:disabled,
+.balance-v1__withdraw[aria-disabled="true"] {
+  opacity: 0.55;
+  color: #7c3aed;
+  background: #ffffff;
+  background-image: none;
+}
+
+.balance-v1__available-amount {
+  margin: 16px 0 0;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.balance-v1__available-hint {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: rgb(255 255 255 / 0.85);
+}
+
+.balance-v1__available[data-available-state="processing"] .balance-v1__available-hint,
+.balance-v1__available[data-available-state="locked"] .balance-v1__available-hint {
+  font-weight: 500;
+}
+
+/* Status + destinations — Profile CanonicalMenuRow inheritance */
+.balance-v1__status-menu,
+.balance-v1__menu {
+  width: 100%;
+  max-width: 100%;
+  min-width: 100%;
+}
+
+.wallet-profile-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: #1a1a1a;
+  text-decoration: none;
+}
+
+.wallet-profile-help:focus-visible {
+  outline: 2px solid #9333ea;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .balance-v1__available {
+    transition: none;
+  }
+}

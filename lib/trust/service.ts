@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/types/database";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseAdminConfigured } from "@/lib/supabase/env";
 import { TRUST_DEFAULT_SCORE, LOW_TRUST_THRESHOLD } from "@/lib/trust/constants";
 import { collectTrustFactors } from "@/lib/trust/factors";
 import { notifyTrustScoreChange } from "@/lib/trust/notifications";
@@ -25,6 +26,29 @@ import type {
   TrustVerificationStatus,
   TrustVerificationType,
 } from "@/lib/trust/types";
+
+/**
+ * Fail-closed public trust summary when admin credentials are unavailable.
+ * Never invents verifications, badges, or trust claims.
+ */
+export function failClosedPublicTrustSummary(userId: string): PublicTrustSummary {
+  return {
+    userId,
+    score: 0,
+    tier: "bronze",
+    level: "basic",
+    badges: [],
+    completedSales: 0,
+    completedPurchases: 0,
+    responseRate: null,
+    shippingReliability: null,
+    accountAgeDays: 0,
+    verifications: [],
+    isLowTrust: false,
+    trustReasons: [],
+    warnings: [],
+  };
+}
 
 function defaultScore(userId: string): TrustScore {
   return {
@@ -210,42 +234,52 @@ export function buildPublicTrustReasons(summary: PublicTrustSummary): string[] {
 }
 
 export async function getPublicTrustSummary(userId: string): Promise<PublicTrustSummary> {
-  const [score, verifications, factors] = await Promise.all([
-    getTrustScore(userId),
-    getTrustVerifications(userId),
-    collectTrustFactors(userId),
-  ]);
-
-  const approved = verifications
-    .filter((entry) => entry.status === "approved")
-    .map((entry) => entry.verificationType);
-
-  const summary: PublicTrustSummary = {
-    userId,
-    score: score.score,
-    tier: score.tier,
-    level: score.level,
-    badges: buildTrustBadges(score, verifications, factors.emailVerified),
-    completedSales: factors.completedSales,
-    completedPurchases: factors.completedPurchases,
-    responseRate: factors.responseRate,
-    shippingReliability: factors.shippingReliability,
-    accountAgeDays: factors.accountAgeDays,
-    verifications: approved,
-    isLowTrust: score.score < LOW_TRUST_THRESHOLD,
-    trustReasons: [],
-    warnings: [],
-  };
-
-  summary.trustReasons = buildPublicTrustReasons(summary);
-  if (summary.isLowTrust) {
-    summary.warnings.push("This seller has a lower trust score. Review their history before purchasing.");
-  }
-  if (factors.warnings > 0) {
-    summary.warnings.push("This account has received moderation warnings.");
+  // Fail closed for public reads when service-role credentials are absent.
+  // Does not disable security checks — admin write paths still require the key.
+  if (!isSupabaseAdminConfigured()) {
+    return failClosedPublicTrustSummary(userId);
   }
 
-  return summary;
+  try {
+    const [score, verifications, factors] = await Promise.all([
+      getTrustScore(userId),
+      getTrustVerifications(userId),
+      collectTrustFactors(userId),
+    ]);
+
+    const approved = verifications
+      .filter((entry) => entry.status === "approved")
+      .map((entry) => entry.verificationType);
+
+    const summary: PublicTrustSummary = {
+      userId,
+      score: score.score,
+      tier: score.tier,
+      level: score.level,
+      badges: buildTrustBadges(score, verifications, factors.emailVerified),
+      completedSales: factors.completedSales,
+      completedPurchases: factors.completedPurchases,
+      responseRate: factors.responseRate,
+      shippingReliability: factors.shippingReliability,
+      accountAgeDays: factors.accountAgeDays,
+      verifications: approved,
+      isLowTrust: score.score < LOW_TRUST_THRESHOLD,
+      trustReasons: [],
+      warnings: [],
+    };
+
+    summary.trustReasons = buildPublicTrustReasons(summary);
+    if (summary.isLowTrust) {
+      summary.warnings.push("This seller has a lower trust score. Review their history before purchasing.");
+    }
+    if (factors.warnings > 0) {
+      summary.warnings.push("This account has received moderation warnings.");
+    }
+
+    return summary;
+  } catch {
+    return failClosedPublicTrustSummary(userId);
+  }
 }
 
 export async function getTrustCenterData(userId: string, profileVerified: boolean): Promise<TrustCenterData> {

@@ -39,23 +39,26 @@ describe("My Account canonical final — Master Menu v2.0", () => {
     const page = readSource("features/account-center/components/AccountCenterPage.tsx");
     const css = readSource("styles/rovexo/account-canonical-v2.css");
 
-    expect(home).toContain('data-ac-hub-version="v2.0-master"');
+    expect(home).toContain('data-ac-hub-version="profile-v1"');
     expect(home).toContain("AccountCanonicalProfile");
     expect(home).toContain("AccountMenuSections");
     expect(home).not.toContain("AccountStatsStrip");
     expect(home).not.toContain("AccountSellerPerformanceCard");
     expect(home).toMatch(/AccountCanonicalProfile[\s\S]*AccountMenuSections/);
     expect(page).toContain("AccountCanonicalShell");
-    expect(page).toContain("hideBack");
+    expect(page).toContain('title="PROFILE"');
+    expect(page).toContain("showHeaderTitle");
+    expect(page).not.toContain("hideBack");
     expect(page).not.toContain("identity=");
-    expect(css).toContain(".ac-canonical__followers-row");
+    expect(css).not.toContain(".ac-canonical__followers-row");
     expect(css).toContain(".ac-canonical__avatar-wrap");
-    expect(css).toContain(".ac-canonical__name-row");
+    expect(css).toContain(".ac-canonical__view-profile");
+    expect(css).toContain(".ac-canonical__rating-star");
     expect(css).not.toContain(".ac-v1__profile-card");
   });
 
   it("builds Master Menu per PO Final Authorization", () => {
-    const sections = buildAccountMenuSections(baseProfile);
+    const sections = buildAccountMenuSections(baseProfile, { activeListingCount: 1 });
     const titles = sections.flatMap((section) => section.items.map((item) => item.title));
 
     expect(titles).toEqual([...ACCOUNT_MENU_TITLES]);
@@ -64,11 +67,38 @@ describe("My Account canonical final — Master Menu v2.0", () => {
     expect(titles).not.toContain("Edit Profile");
   });
 
-  it("uses shared AccountIcon in menu rows", () => {
+  it("uses Owner Profile Icon System v1.0 line icons in menu rows", () => {
     const menu = readSource("features/account-center/components/AccountMenuSections.tsx");
-    expect(menu).toContain("AccountIcon");
+    const icons = readSource("features/account-center/components/ProfileMenuIcons.tsx");
+    const colors = readSource("lib/account-center/profile-icon-system-v1.ts");
+
+    expect(menu).toContain("PROFILE_MENU_ICONS");
+    expect(menu).toContain("ProfileMenuIcon");
+    expect(menu).toContain('data-profile-icons="v1.0"');
     expect(menu).toContain("CanonicalMenuRow");
+    expect(menu).not.toContain("♡");
+    expect(menu).not.toContain("💳");
+    expect(menu).not.toContain("📦");
+    expect(menu).not.toContain("🌴");
+    expect(menu).not.toContain("CanonicalCard");
+    expect(menu).not.toContain("AccountIcon");
     expect(menu).not.toContain("View Public Profile");
     expect(menu).not.toContain("Edit Profile");
+
+    expect(icons).toContain("function Heart");
+    expect(icons).toContain("function Wallet");
+    expect(icons).toContain("function Lightbulb");
+    expect(icons).toContain("function Logout");
+    expect(colors).toContain("#FF5FA2");
+    expect(colors).toContain("#06B6D4");
+    expect(colors).toContain("#F59E0B");
+    expect(colors).toContain("#22C55E");
+    expect(colors).toContain("#EC4899");
+    expect(colors).toContain("#9333EA");
+    expect(colors).toContain("#FFD54A");
+    expect(colors).toContain("#EF4444");
+    expect(colors).toContain("#60A5FA");
+    expect(colors).toContain("#9333EA");
+    expect(colors).toContain("#DC2626");
   });
 });

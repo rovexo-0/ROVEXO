@@ -12,7 +12,7 @@ export const PERMISSION_AUDIT: PermissionAuditEntry[] = [
   { route: "/api/assistant", requiredRoles: ["public"], category: "api" },
   { route: "/api/recently-viewed", requiredRoles: ["authenticated"], category: "api" },
   { route: "/api/saved-searches", requiredRoles: ["authenticated"], category: "api" },
-  { route: "/api/follows", requiredRoles: ["authenticated"], category: "api" },
+  { route: "/api/messages", requiredRoles: ["authenticated"], category: "api" },
   { route: "/trust", requiredRoles: ["authenticated"], category: "authenticated" },
   { route: "/plans", requiredRoles: ["authenticated"], category: "authenticated" },
   { route: "/business/*", requiredRoles: ["authenticated"], category: "authenticated" },

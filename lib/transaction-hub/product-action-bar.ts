@@ -1,13 +1,12 @@
-/** TRANSACTION_HUB_MASTER_SPEC — Canonical Product Action Bar SSOT (FINAL UI LOCK) */
+/** ROVEXO Product Action Bar — Canonical Freeze (Buy Now + Make Offer ONLY). */
 
 export const PRODUCT_ACTION_BAR_UI_LOCK = true as const;
 
-export const PRODUCT_ACTION_BAR_VERSION = "v1.0-final" as const;
+export const PRODUCT_ACTION_BAR_VERSION = "v1.1-canonical-freeze" as const;
 
-/** Fixed order — must never change. */
+/** Fixed order — Buy Now + Make Offer only. Add to Cart removed forever. */
 export const PRODUCT_ACTION_BUTTONS = [
   { id: "buy_now", label: "Buy Now", variant: "primary" as const },
-  { id: "add_to_cart", label: "Add to Cart", variant: "secondary" as const },
   { id: "make_offer", label: "Make Offer", variant: "offer" as const },
 ] as const;
 
@@ -17,9 +16,11 @@ export type ProductActionButtonState = "idle" | "loading" | "success" | "in_cart
 
 export const PRODUCT_ACTION_BAR_COPY = {
   buyNow: "Buy Now",
-  addToCart: "Add to Cart",
+  buyNowLoading: "Loading...",
   makeOffer: "Make Offer",
   contactSeller: "Contact Seller",
+  /** @deprecated Add to Cart removed forever from Product Page */
+  addToCart: "Add to Cart",
   addedToCart: "Added to Cart",
   inCart: "In Cart",
 } as const;
@@ -28,7 +29,7 @@ export const PRODUCT_ACTION_BAR_COPY = {
 export const PRODUCT_ACTION_BAR_LAYOUT = {
   minTouchTargetPx: 48,
   preferredTouchTargetPx: 52,
-  columnCount: 3,
+  columnCount: 2,
   compactBreakpointPx: 320,
 } as const;
 
@@ -58,4 +59,5 @@ export type OfferComposerProduct = {
   slug: string;
   title: string;
   price: number;
+  imageUrl?: string | null;
 };

@@ -1,0 +1,36 @@
+---
+description: Full Width Absolute Law v1.0 — 100% width/height; engine adapts to design; zero redesign (P0).
+alwaysApply: true
+---
+
+# ROVEXO Full Width Absolute Law v1.0 (ABSOLUTE P0 · PERMANENT)
+
+## Shall use (always)
+
+- 100% available width  
+- 100% available height  
+- Responsive adaptation  
+- Adaptive behaviour  
+
+## Without changing
+
+Design · UI · UX · Components · Dimensions · Colours · Icons · Animations · Tokens · Owner-approved spacing
+
+## Display correctly on
+
+All iPhones · Android · Pixel · Samsung · Fold · Tablets · Desktops · Browsers · Operating systems
+
+## Engine adapts to (never the reverse)
+
+Display size · screen ratio · safe areas · browser/device limits · zoom · accessibility settings  
+
+**Forbidden to adapt the design. Design never adapts to the engine. Engine always adapts to the design.**
+
+## Outcomes
+
+**100% WIDTH · 100% VISIBILITY · ZERO OVERFLOW · ZERO CROPPING · ZERO MISALIGNMENT · ZERO REDESIGN**
+
+**Owner-approved design always wins.**
+
+Aligns with Full Width Absolute Law · Full Width + Responsive Production Law · Design Protection Absolute · Full Width Engine.  
+SSOT: `lib/master-engine/full-width-absolute-law-v1.ts`

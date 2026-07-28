@@ -1,9 +1,11 @@
 /**
- * Wallet — Absolute Final Freeze (officially locked).
- * Available · Pending · Withdraw · Transactions · Personal Bank · Business Bank.
+ * Wallet v2 — Master Engine lock.
+ * Transactions · Payment Methods · Bank Accounts (Personal + Business inside hub).
+ * Business bank row visibility is resolved inside the Bank Accounts page.
  */
 import type { AccountIconName } from "@/components/account/AccountIcons";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
+import { resolveFeatureVisibility } from "@/lib/master-engine";
 
 export type WalletMenuItem = {
   id: string;
@@ -18,62 +20,66 @@ export type WalletMenuSection = {
   items: WalletMenuItem[];
 };
 
-/** Destinations below balance rows (Available / Pending / Withdraw live on hub). */
-export function buildPersonalWalletMenuSections(): WalletMenuSection[] {
+function walletDestinationItems(): WalletMenuItem[] {
+  const showPaymentMethods = resolveFeatureVisibility("payment-methods").visible;
+  const showPersonalBank = resolveFeatureVisibility("personal-bank-account").visible;
+  const showBankAccountsHub =
+    showPersonalBank || resolveFeatureVisibility("business-bank-account").visible;
+
+  const items: WalletMenuItem[] = [
+    {
+      id: "transactions",
+      title: "Transactions",
+      href: WALLET_ROUTES.transactions,
+      icon: "wallet",
+    },
+  ];
+
+  if (showPaymentMethods) {
+    items.push({
+      id: "payment-methods",
+      title: "Payment Methods",
+      href: WALLET_ROUTES.paymentMethods,
+      icon: "payment",
+    });
+  }
+
+  if (showBankAccountsHub) {
+    items.push({
+      id: "bank-accounts",
+      title: "Bank Accounts",
+      href: WALLET_ROUTES.bankAccounts,
+      icon: "payment",
+    });
+  }
+
+  return items;
+}
+
+/** Destinations below balance rows (Available / Pending / Processing / Locked / Withdraw). */
+export function buildPersonalWalletMenuSections(_options?: {
+  isBusinessVerified?: boolean;
+}): WalletMenuSection[] {
+  void _options;
   return [
     {
       id: "wallet",
       title: "",
-      items: [
-        {
-          id: "transactions",
-          title: "Transactions",
-          href: WALLET_ROUTES.transactions,
-          icon: "wallet",
-        },
-        {
-          id: "personal-bank",
-          title: "Personal Bank",
-          href: WALLET_ROUTES.bankAccount,
-          icon: "payment",
-        },
-        {
-          id: "business-bank",
-          title: "Business Bank",
-          href: `${WALLET_ROUTES.bankAccount}?scope=business`,
-          icon: "payment",
-        },
-      ],
+      items: walletDestinationItems(),
     },
   ];
 }
 
-/** Business Wallet — same money destinations, business-scoped. */
-export function buildBusinessWalletMenuSections(): WalletMenuSection[] {
+/** Business Wallet — same money destinations (one Wallet SSOT). */
+export function buildBusinessWalletMenuSections(_options?: {
+  isBusinessVerified?: boolean;
+}): WalletMenuSection[] {
+  void _options;
   return [
     {
       id: "business-wallet",
       title: "",
-      items: [
-        {
-          id: "transactions",
-          title: "Transactions",
-          href: "/wallet/transactions?scope=business",
-          icon: "wallet",
-        },
-        {
-          id: "personal-bank",
-          title: "Personal Bank",
-          href: WALLET_ROUTES.bankAccount,
-          icon: "payment",
-        },
-        {
-          id: "business-bank",
-          title: "Business Bank",
-          href: `${WALLET_ROUTES.bankAccount}?scope=business`,
-          icon: "payment",
-        },
-      ],
+      items: walletDestinationItems(),
     },
   ];
 }

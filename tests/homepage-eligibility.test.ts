@@ -144,18 +144,18 @@ describe("HomepageEligibility engine", () => {
     ).toBe(true);
   });
 
-  it("allows certified demo listings in closed beta mode only", () => {
+  it("rejects certified demo listings even in closed beta (Absolute Law v5.0)", () => {
     process.env.ROVEXO_HOMEPAGE_CLOSED_BETA = "1";
 
     expect(
-      HomepageEligibility.isEligible(
+      HomepageEligibility.evaluate(
         input({
           slug: "demo-seller01-001",
           title: "Electronics — Item 1",
           sellerEmail: "seller01@demo.rovexo.co.uk",
         }),
-      ),
-    ).toBe(true);
+      ).reason,
+    ).toBe("DEMO_NOT_ALLOWED");
 
     expect(
       HomepageEligibility.isEligible(
@@ -207,17 +207,24 @@ describe("HomepageEligibility engine", () => {
     ).toBe("DEMO_NOT_ALLOWED");
   });
 
-  it("filters homepage products through the canonical engine", () => {
+  it("filters homepage products through the canonical engine (real products only)", () => {
     process.env.ROVEXO_HOMEPAGE_CLOSED_BETA = "1";
+    process.env.ROVEXO_APPROVED_TESTER_EMAILS = "tester@rovexo.co.uk";
 
     const filtered = filterHomepageProducts([
       product({ id: "1", slug: "demo-seller01-001", title: "Electronics — Item 1", price: 29.99 }),
-      product({ id: "2", slug: "test-listing", title: "Test listing item", price: 10 }),
+      product({
+        id: "2",
+        slug: "tester-listing-001",
+        title: "Tester listing item",
+        price: 10,
+        sellerEmail: "tester@rovexo.co.uk",
+      }),
       product({ id: "3", slug: "random-item", title: "Random production item", price: 99, sellerEmail: "real@example.com" }),
     ]);
 
     expect(filtered).toHaveLength(1);
-    expect(filtered[0]?.slug).toBe("demo-seller01-001");
+    expect(filtered[0]?.slug).toBe("tester-listing-001");
   });
 
   it("excludes lorem ipsum descriptions", () => {

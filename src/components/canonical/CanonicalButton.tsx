@@ -2,6 +2,7 @@
 
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 import Link from "next/link";
+import { PrimaryButton, PrimaryButtonLink } from "@/components/ui/PrimaryButton";
 import { cdsButtonClass } from "./utils";
 import type { CanonicalButtonVariant } from "./tokens";
 
@@ -33,7 +34,8 @@ function ButtonContent({ loading, children }: { loading?: boolean; children: Rea
 }
 
 /**
- * Canonical button — primary, secondary, ghost, outline, danger, loading, disabled.
+ * Canonical button — primary delegates to Global PrimaryButton v1.0.
+ * Secondary / ghost / outline / danger keep CDS variants.
  */
 export function CanonicalButton({
   variant = "primary",
@@ -45,6 +47,21 @@ export function CanonicalButton({
   type = "button",
   ...props
 }: CanonicalButtonProps) {
+  if (variant === "primary") {
+    return (
+      <PrimaryButton
+        type={type}
+        loading={loading}
+        fullWidth
+        disabled={disabled}
+        className={className}
+        {...props}
+      >
+        {children}
+      </PrimaryButton>
+    );
+  }
+
   return (
     <button
       type={type}
@@ -57,7 +74,7 @@ export function CanonicalButton({
   );
 }
 
-/** Anchor styled as canonical button. */
+/** Anchor styled as canonical button — primary → PrimaryButtonLink. */
 export function CanonicalButtonLink({
   href,
   variant = "primary",
@@ -67,6 +84,14 @@ export function CanonicalButtonLink({
   children,
   ...props
 }: CanonicalButtonLinkProps) {
+  if (variant === "primary") {
+    return (
+      <PrimaryButtonLink href={href} loading={loading} fullWidth className={className} {...props}>
+        {children}
+      </PrimaryButtonLink>
+    );
+  }
+
   return (
     <Link
       href={href}

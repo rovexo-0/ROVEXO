@@ -3,14 +3,12 @@
 import Link from "next/link";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { usePathname } from "next/navigation";
-import { type MouseEvent } from "react";
 import { RovexoIcon } from "@/components/icons/RovexoIcon";
 import { useRovexoMobileHeaderScrollContext } from "@/components/home/RovexoMobileHeaderScrollContext";
 import { RovexoIcons } from "@/lib/icons";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { resolveBottomNavGlassIcon } from "@/lib/icons/resolve";
 import { cn } from "@/lib/cn";
-import { useSearchOverlayOptional } from "@/features/search/client";
 import { useAvatarOptional } from "@/features/auth/providers/AvatarProvider";
 import type { MenuItemConfig } from "@/lib/platform-visual/types";
 import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
@@ -52,6 +50,7 @@ function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab
   if (pathname.startsWith("/search")) return "search";
   if (pathname.startsWith("/saved")) return "saved";
   if (pathname.startsWith("/account")) return "account";
+  if (pathname.startsWith("/promote")) return "account";
   return "home";
 }
 
@@ -113,17 +112,10 @@ export function RovexoFooterNavigation({
   visible = true,
 }: RovexoFooterNavigationProps) {
   const pathname = usePathname();
-  const searchOverlay = useSearchOverlayOptional();
   const scroll = useRovexoMobileHeaderScrollContext();
   const resolvedActive = resolveActiveTab(pathname, active);
   const items = menuItems?.length ? mapMenuItems(menuItems) : defaultNavItems;
   const isVisible = visible && (scroll?.isVisible ?? true);
-
-  function handleSearchClick(event: MouseEvent<HTMLAnchorElement>, item: NavItem) {
-    if (item.id !== "search" || !searchOverlay) return;
-    event.preventDefault();
-    searchOverlay.open();
-  }
 
   const sideItems = items.filter((item) => item.id !== "sell");
   const sellItem = items.find((item) => item.id === "sell");
@@ -148,7 +140,6 @@ export function RovexoFooterNavigation({
               href={item.href}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
-              onClick={(event) => handleSearchClick(event, item)}
               className="home-v1-bottom-nav__item"
             >
               <NavIcon id={item.id} />
@@ -180,7 +171,6 @@ export function RovexoFooterNavigation({
               href={item.href}
               aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
-              onClick={(event) => handleSearchClick(event, item)}
               className="home-v1-bottom-nav__item"
             >
               {item.id === "account" ? <AccountNavAvatar isActive={isActive} /> : <NavIcon id={item.id} />}

@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join } from "node:path";
 import { createServiceRoleClient } from "@/lib/supabase/admin";
 import { getPlatformHealthReport } from "@/lib/ops/health";
@@ -274,7 +275,7 @@ export async function getAiOperationsSnapshot(): Promise<AiOperationsSnapshot> {
 }
 
 function fileExists(path: string): boolean {
-  return existsSync(join(process.cwd(), path));
+  return existsSync(workspacePath( path));
 }
 
 export async function runAiOperationsScan(actorId: string): Promise<AiOperationsSnapshot> {

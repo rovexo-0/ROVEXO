@@ -8,6 +8,7 @@
  */
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join } from "node:path";
 import { runFullDemoCertificationScan } from "@/lib/full-demo/deploy-gate";
 import { isOfficialLaunchApproved, resolveLaunchCertificationSummary } from "@/lib/launch-certification/gate";
@@ -36,12 +37,12 @@ export type DeploymentCertificationReport = {
 };
 
 function read(relativePath: string): string {
-  const path = join(process.cwd(), relativePath);
+  const path = workspacePath( relativePath);
   return existsSync(path) ? readFileSync(path, "utf8") : "";
 }
 
 function has(relativePath: string): boolean {
-  return existsSync(join(process.cwd(), relativePath));
+  return existsSync(workspacePath( relativePath));
 }
 
 function check(id: string, pass: boolean, detail: string): DeploymentGateCheck {
@@ -49,7 +50,7 @@ function check(id: string, pass: boolean, detail: string): DeploymentGateCheck {
 }
 
 function migrationsPass(): boolean {
-  const directory = join(process.cwd(), "supabase/migrations");
+  const directory = workspacePath( "supabase/migrations");
   if (!existsSync(directory)) return false;
 
   const files = readdirSync(directory).filter((file) => file.endsWith(".sql"));
@@ -178,7 +179,7 @@ export function runDeploymentCertificationScan(): DeploymentCertificationReport 
         has("tests/homepage-eligibility.test.ts"),
       "Homepage freeze baseline + tests present",
     ),
-    // 9–10. Splash + Welcome removed.
+    // 9–10. Welcome removed; Splash = branded RX 3D flash → Login (not guest entry).
     check(
       "splash_welcome_removed",
       read("app/(auth)/splash/page.tsx").includes("permanentRedirect") &&
@@ -227,7 +228,9 @@ export function runDeploymentCertificationScan(): DeploymentCertificationReport 
     check("eslint", pkg.includes('"lint": "eslint"'), "ESLint gate wired"),
     check(
       "production_build",
-      pkg.includes('"build:production": "next build"'),
+      /"build:production":\s*"next build(?:\s+--webpack)?"/.test(pkg) ||
+        pkg.includes("prune-serverless-traces.mjs") ||
+        pkg.includes("next-build-and-prune.mjs"),
       "Production build gate wired",
     ),
     // Pre-deployment gate matrix — must be wired fail-closed.

@@ -1,0 +1,40 @@
+# ROVEXO My Account Primary Button v1.0 (PERMANENT LOCK)
+
+**STATUS: APPROVED | PERMANENTLY LOCKED**
+
+SSOT: `lib/design-system/my-account-primary-button-v1.ts`  
+CSS: `styles/rovexo/my-account-primary-button-v1.css`
+
+## Official primary colour
+
+ROVEXO purple/pink gradient (Add Address / Add Business Address / PremiumButton primary):
+
+`linear-gradient(135deg, #a855f7 0%, #9333ea 48%, #7c3aed 100%)`
+
+## Rules
+
+| Token | Value |
+|-------|-------|
+| Height | 56px |
+| Radius | 16px |
+| Width | 100% (full CTAs) |
+| Typography | inherits Profile (16px body) |
+
+## Applies to
+
+Add Address · Add Business Address · Save Address · Save Changes · Continue · Verify Account · Verify Business Account · Confirm · Submit · Complete Verification · all future primary CTAs
+
+## Forbidden
+
+Blue / black / grey buttons · different gradients · different radius/heights · second primary system
+
+## Golden rule
+
+ONE PRODUCT · ONE BUTTON SYSTEM · ONE PRIMARY COLOUR · ONE DESIGN SYSTEM  
+ONLY CONTENT MAY DIFFER. DESIGN NEVER DOES.
+
+## Cursor must never
+
+- Invent a second primary CTA colour for My Account
+- Use blue/black/grey for primary CTAs on Addresses / Verification / etc.
+- Change height/radius away from 56 / 16 without Owner approval

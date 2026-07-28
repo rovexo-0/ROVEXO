@@ -1,4 +1,8 @@
-/** Shared catalog item banks for enterprise taxonomy expansion. */
+/**
+ * @deprecated LEGACY ITEM BANKS — Absolute Law XXXI.
+ * FORBIDDEN as a live category / taxonomy source.
+ * Catalog Master (`lib/catalog`) is the ONLY SSOT. Do not import for trees.
+ */
 
 import type { ProductGroupDef } from "@/lib/categories/enterprise/builder";
 import {

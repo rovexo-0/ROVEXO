@@ -1,48 +1,89 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
 import { CardSetupSheet } from "@/features/account/components/CardSetupSheet";
+import { WalletHelpHeaderAction } from "@/features/wallet/components/WalletProfileChrome";
 import {
-  CanonicalButton,
   CanonicalCard,
   CanonicalInfoBlock,
   CanonicalMenuRow,
-  CanonicalSection,
+  PrimaryButton,
 } from "@/src/components/canonical";
+import { ADDRESSES_ROUTE } from "@/lib/addresses/freeze";
 import { readReturnToParam } from "@/lib/navigation/return-to";
 import type { SavedPaymentMethod } from "@/lib/payments/repository";
-import { WALLET_CANONICAL_VERSION, WALLET_ROUTES, walletRouteWithReturn } from "@/lib/wallet/canonical-routes";
+import {
+  formatPaymentBrandTitle,
+  formatSavedCardExpiry,
+  formatSavedCardMask,
+} from "@/lib/payments/format";
+import { detectWalletPayments, type DetectedWalletPayments } from "@/lib/payments/wallet-detection";
+import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import type { UserProfile } from "@/lib/profile/types";
+import "@/styles/rovexo/payment-methods-v4.css";
 
-type WalletPaymentMethodsPageProps = {
+export const PAYMENT_METHODS_UI_VERSION = "v5.0" as const;
+export const PAYMENT_METHODS_UI_DOM = "v5.0-fail-closed-empty" as const;
+
+const EMPTY_WALLETS: DetectedWalletPayments = { applePay: false, googlePay: false };
+const SUCCESS_CARD_SAVED = "Card saved.";
+
+function subscribeNoop() {
+  return () => undefined;
+}
+
+function useDetectedWallets(): DetectedWalletPayments {
+  return useSyncExternalStore(subscribeNoop, detectWalletPayments, () => EMPTY_WALLETS);
+}
+
+export type WalletPaymentMethodsPageProps = {
   profile: UserProfile;
+  /** Live billing address presence — false on missing / load failure (empty, not error). */
+  billingConfigured?: boolean;
 };
 
-export function WalletPaymentMethodsPage({ profile }: WalletPaymentMethodsPageProps) {
+/**
+ * Payment Methods v5.0 — Absolute Authority.
+ * Profile Master inheritance. Allowed UI states only: Loading · Empty · Functional · Success.
+ * Fail-closed protects Stripe/API/security — never blocks this UI with Retry / error pages.
+ * API/Stripe/DB/network/no-data → Empty State. Apple/Google Pay off-device → hide row.
+ */
+export function WalletPaymentMethodsPage({
+  profile,
+  billingConfigured = false,
+}: WalletPaymentMethodsPageProps) {
+  void profile;
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = readReturnToParam(searchParams);
   const [methods, setMethods] = useState<SavedPaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [setupPaused, setSetupPaused] = useState(false);
   const [setupOpen, setSetupOpen] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [startingSetup, setStartingSetup] = useState(false);
-
-  void profile;
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { applePay, googlePay } = useDetectedWallets();
 
   const loadMethods = async () => {
-    const response = await fetch("/api/payment-methods");
-    const payload = (await response.json()) as { methods?: SavedPaymentMethod[]; error?: string };
-    if (!response.ok) {
-      setMessage(payload.error ?? `Unable to load cards (HTTP ${response.status}).`);
-      setMethods([]);
-    } else {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/payment-methods");
+      if (!response.ok) {
+        setMethods([]);
+        return;
+      }
+      const payload = (await response.json()) as { methods?: SavedPaymentMethod[] };
       setMethods(payload.methods ?? []);
+    } catch {
+      // Stripe / API / network / DB → Empty State (never error page)
+      setMethods([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -52,16 +93,14 @@ export function WalletPaymentMethodsPage({ profile }: WalletPaymentMethodsPagePr
 
     void (async () => {
       if (setupSuccess) {
-        const completeResponse = await fetch("/api/payment-methods", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "complete_setup", sessionId }),
-        });
-        if (!completeResponse.ok) {
-          const payload = (await completeResponse.json()) as { error?: string };
-          if (!cancelled) {
-            setMessage(payload.error ?? `Unable to save card (HTTP ${completeResponse.status}).`);
-          }
+        try {
+          await fetch("/api/payment-methods", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "complete_setup", sessionId }),
+          });
+        } catch {
+          // swallow — page still renders empty/functional
         }
       }
 
@@ -75,7 +114,8 @@ export function WalletPaymentMethodsPage({ profile }: WalletPaymentMethodsPagePr
   }, [searchParams]);
 
   const addCard = async () => {
-    setMessage(null);
+    setSuccessMessage(null);
+    setSetupPaused(false);
     setStartingSetup(true);
 
     try {
@@ -84,22 +124,17 @@ export function WalletPaymentMethodsPage({ profile }: WalletPaymentMethodsPagePr
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "create_setup_intent" }),
       });
-      const payload = (await response.json()) as {
-        clientSecret?: string;
-        error?: string;
-        code?: string;
-      };
+      const payload = (await response.json()) as { clientSecret?: string };
 
       if (!response.ok || !payload.clientSecret) {
-        const detail = payload.error ?? `Card setup failed (HTTP ${response.status}).`;
-        setMessage(payload.code ? `${detail} [${payload.code}]` : detail);
+        setSetupPaused(true);
         return;
       }
 
       setClientSecret(payload.clientSecret);
       setSetupOpen(true);
     } catch {
-      setMessage("Network error while starting card setup. Check your connection and try again.");
+      setSetupPaused(true);
     } finally {
       setStartingSetup(false);
     }
@@ -111,149 +146,198 @@ export function WalletPaymentMethodsPage({ profile }: WalletPaymentMethodsPagePr
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "complete_setup_intent", setupIntentId }),
     });
-    const payload = (await response.json()) as { method?: SavedPaymentMethod; error?: string; code?: string };
+    const payload = (await response.json()) as { method?: SavedPaymentMethod };
     if (!response.ok || !payload.method) {
-      const detail = payload.error ?? `Unable to save card (HTTP ${response.status}).`;
-      throw new Error(payload.code ? `${detail} [${payload.code}]` : detail);
+      return;
     }
     await loadMethods();
-    setMessage("Card saved.");
+    setSuccessMessage(SUCCESS_CARD_SAVED);
     if (returnTo) {
       router.push(returnTo);
     }
   };
 
   const removeCard = async (id: string) => {
-    const response = await fetch(`/api/payment-methods/${id}`, { method: "DELETE" });
-    if (!response.ok) {
-      const payload = (await response.json()) as { error?: string };
-      setMessage(payload.error ?? `Unable to remove card (HTTP ${response.status}).`);
-      return;
+    try {
+      const response = await fetch(`/api/payment-methods/${id}`, { method: "DELETE" });
+      if (!response.ok) return;
+      setSelectedId(null);
+      await loadMethods();
+    } catch {
+      // keep functional UI
     }
-    await loadMethods();
   };
 
   const setDefault = async (id: string) => {
-    const response = await fetch(`/api/payment-methods/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "set_default" }),
-    });
-    if (!response.ok) {
-      const payload = (await response.json()) as { error?: string };
-      setMessage(payload.error ?? `Unable to update default card (HTTP ${response.status}).`);
-      return;
+    try {
+      const response = await fetch(`/api/payment-methods/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "set_default" }),
+      });
+      if (!response.ok) return;
+      setSelectedId(null);
+      await loadMethods();
+    } catch {
+      // keep functional UI
     }
-    await loadMethods();
   };
 
-  const defaultMethod = methods.find((method) => method.isDefault) ?? methods[0] ?? null;
+  const hasCards = methods.length > 0;
+  const defaultMethod = methods.find((method) => method.isDefault) ?? null;
+  const addressesHref = `${ADDRESSES_ROUTE}?returnTo=${encodeURIComponent(WALLET_ROUTES.paymentMethods)}`;
 
   return (
-    <AccountCanonicalShell title="Payment Methods" backHref={WALLET_ROUTES.hub} backLabel="Wallet">
-      <div data-wallet-payment-methods={WALLET_CANONICAL_VERSION}>
-      <AccountPageStack
-        className="wallet-payment-methods"
-        aria-label="Payment methods"
+    <AccountCanonicalShell
+      title="Payment Methods"
+      backHref={WALLET_ROUTES.hub}
+      backLabel="Balance"
+      showHeaderTitle
+      rightAction={<WalletHelpHeaderAction />}
+      dataMyAccountSurface="payments"
+    >
+      <div
+        className="pm-profile fw-engine__stack"
+        data-payment-methods-ui={PAYMENT_METHODS_UI_VERSION}
+        data-payment-methods-lock={PAYMENT_METHODS_UI_DOM}
+        data-profile-master="v7.0"
+        data-design-master="profile"
+        data-full-width-surface="payments"
+        data-icon-system="profile-v1.0"
+        data-fail-closed="v2-empty-only"
+        data-pm-state={loading ? "loading" : hasCards ? "success" : "empty"}
       >
-        <CanonicalSection title="Cards" intro="Debit and credit cards saved for checkout.">
-          {loading ? <p className="account-settings-empty">Loading cards…</p> : null}
-          {!loading && !methods.length ? (
-            <p className="account-settings-empty">No saved cards yet.</p>
+        <AccountPageStack aria-label="Payment methods">
+          {loading ? (
+            <CanonicalCard variant="list" className="pm-profile__list" data-pm-loading="true">
+              <CanonicalMenuRow title="Loading…" description="Payment methods" showChevron={false} />
+            </CanonicalCard>
           ) : null}
-          {!loading
-            ? methods.map((method) => (
-                <CanonicalCard key={method.id} variant="medium">
-                  <div className="account-settings-payment-card">
-                    <div>
-                      <p className="account-settings-payment-card__title">{method.brand}</p>
-                      <p className="account-settings-payment-card__meta">
-                        •••• {method.last4} · {String(method.expMonth).padStart(2, "0")}/{method.expYear}
-                        {method.isDefault ? " · Default" : ""}
-                      </p>
-                    </div>
-                    <div className="flex gap-3">
-                      {!method.isDefault ? (
-                        <button
-                          type="button"
-                          className="account-settings-text-action"
-                          onClick={() => void setDefault(method.id)}
-                        >
-                          Set Default
-                        </button>
-                      ) : null}
-                      <button
-                        type="button"
-                        className="account-settings-text-action account-settings-text-action--danger"
-                        onClick={() => void removeCard(method.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
+
+          {!loading && !hasCards ? (
+            <section className="pm-profile__empty" data-pm-empty="true" aria-label="Empty payment methods">
+              <p className="pm-profile__empty-title">No payment methods added yet.</p>
+              <p className="pm-profile__empty-copy">Your payment methods are secured by Stripe.</p>
+              <PrimaryButton
+                loading={startingSetup}
+                onClick={() => void addCard()}
+                data-pm-cta="add-card"
+              >
+                Add Card
+              </PrimaryButton>
+            </section>
+          ) : null}
+
+          {!loading && hasCards ? (
+            <CanonicalCard variant="list" className="pm-profile__list" data-pm-cards="true">
+              {methods.map((method) => {
+                const open = selectedId === method.id;
+                return (
+                  <div key={method.id}>
+                    <CanonicalMenuRow
+                      title={formatPaymentBrandTitle(method.brand)}
+                      description={`${formatSavedCardMask(method)} · ${formatSavedCardExpiry(method)}`}
+                      value={method.isDefault ? "DEFAULT CARD" : undefined}
+                      onClick={() => setSelectedId(open ? null : method.id)}
+                      showChevron
+                    />
+                        {open ? (
+                          <>
+                            {!method.isDefault ? (
+                              <CanonicalMenuRow
+                                title="Set as default"
+                                onClick={() => void setDefault(method.id)}
+                                showChevron={false}
+                              />
+                            ) : null}
+                            <CanonicalMenuRow
+                              title="Replace card"
+                              description="Add a new card to update card details."
+                              onClick={() => void addCard()}
+                              showChevron={false}
+                            />
+                            <CanonicalMenuRow
+                              title="Remove"
+                              destructive
+                              onClick={() => void removeCard(method.id)}
+                              hideChevron
+                            />
+                          </>
+                        ) : null}
                   </div>
-                </CanonicalCard>
-              ))
-            : null}
-          <CanonicalButton type="button" fullWidth onClick={() => void addCard()} loading={startingSetup}>
-            Add Card
-          </CanonicalButton>
-        </CanonicalSection>
+                );
+              })}
+            </CanonicalCard>
+          ) : null}
 
-        <CanonicalSection title="Bank Account" intro="Payout and withdrawal destination.">
-          <CanonicalCard variant="list">
-            <CanonicalMenuRow
-              title="Manage Bank Account"
-              description="Sort code, account number, and verification status."
-              href={walletRouteWithReturn(WALLET_ROUTES.bankAccount, returnTo)}
-            />
-          </CanonicalCard>
-        </CanonicalSection>
+          {!loading ? (
+            <CanonicalCard variant="list" className="pm-profile__list" data-pm-secondary="true">
+              {applePay ? (
+                <CanonicalMenuRow
+                  title="Apple Pay"
+                  description={hasCards ? "Enabled." : "Available at checkout."}
+                  showChevron={false}
+                />
+              ) : null}
+              {googlePay ? (
+                <CanonicalMenuRow
+                  title="Google Pay"
+                  description={hasCards ? "Enabled." : "Available at checkout."}
+                  showChevron={false}
+                />
+              ) : null}
+              <CanonicalMenuRow
+                href={addressesHref}
+                title="Billing Address"
+                description={
+                  billingConfigured ? "Configured." : "Manage your billing details."
+                }
+              />
+              {!hasCards ? (
+                <CanonicalMenuRow
+                  title="Default Payment Method"
+                  description="Not configured yet."
+                  showChevron={false}
+                />
+              ) : (
+                <CanonicalMenuRow
+                  title="Default Payment Method"
+                  description={
+                    defaultMethod
+                      ? `${formatPaymentBrandTitle(defaultMethod.brand)} ${formatSavedCardMask(defaultMethod)}`
+                      : "Not configured yet."
+                  }
+                  onClick={() => {
+                    if (defaultMethod) setSelectedId(defaultMethod.id);
+                  }}
+                  showChevron
+                />
+              )}
+            </CanonicalCard>
+          ) : null}
 
-        <CanonicalSection title="Digital Wallets" intro="Available at checkout on supported devices.">
-          <CanonicalCard variant="list">
-            <CanonicalMenuRow
-              title="Apple Pay"
-              description="Enabled when supported on your device at checkout."
-              showChevron={false}
-              value="Available"
-            />
-            <CanonicalMenuRow
-              title="Google Pay"
-              description="Enabled when supported on your device at checkout."
-              showChevron={false}
-              value="Available"
-            />
-          </CanonicalCard>
-        </CanonicalSection>
+          {!loading && hasCards ? (
+            <div className="pm-profile__cta">
+              <PrimaryButton
+                loading={startingSetup}
+                onClick={() => void addCard()}
+                data-pm-cta="add-new-card"
+              >
+                Add New Card
+              </PrimaryButton>
+            </div>
+          ) : null}
 
-        <CanonicalSection title="Security">
-          <CanonicalCard variant="list">
-            <CanonicalMenuRow
-              title="Billing Address"
-              description="Used for card verification at checkout."
-              href={walletRouteWithReturn("/account/addresses", returnTo)}
-            />
-            <CanonicalMenuRow
-              title="3D Secure"
-              description="Strong Customer Authentication at checkout."
-              showChevron={false}
-              value="Supported"
-            />
-            <CanonicalMenuRow
-              title="Default Payment"
-              description="Used automatically at checkout."
-              showChevron={false}
-              value={defaultMethod ? `${defaultMethod.brand} •••• ${defaultMethod.last4}` : "None"}
-            />
-          </CanonicalCard>
-        </CanonicalSection>
+          {setupPaused ? (
+            <CanonicalInfoBlock>
+              Card setup is temporarily paused. Your payment methods remain secured by Stripe.
+            </CanonicalInfoBlock>
+          ) : null}
 
-        {message ? (
-          <CanonicalInfoBlock variant={message === "Card saved." ? "success" : "error"}>
-            {message}
-          </CanonicalInfoBlock>
-        ) : null}
-      </AccountPageStack>
+          {successMessage ? (
+            <CanonicalInfoBlock variant="success">{successMessage}</CanonicalInfoBlock>
+          ) : null}
+        </AccountPageStack>
       </div>
 
       {clientSecret ? (
@@ -264,7 +348,9 @@ export function WalletPaymentMethodsPage({ profile }: WalletPaymentMethodsPagePr
             setSetupOpen(false);
             setClientSecret(null);
           }}
-          onComplete={completeSetupIntent}
+          onComplete={async (setupIntentId) => {
+            await completeSetupIntent(setupIntentId);
+          }}
         />
       ) : null}
     </AccountCanonicalShell>

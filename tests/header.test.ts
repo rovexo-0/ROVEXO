@@ -9,16 +9,16 @@ describe("official header design", () => {
     expect(ROVEXO_LOGO_DIMENSIONS.integratedControlHeight).toBe(40);
   });
 
-  it("opens Search Overlay from homepage field with Profile-family Search icon", () => {
+  it("navigates Homepage search field to /search (SEARCH_UI_v1.0 SSOT)", () => {
     const source = readFileSync(
       path.join(process.cwd(), "components/home/HomepageSearchField.tsx"),
       "utf8",
     );
 
-    expect(source).toContain("useSearchOverlayOptional");
-    expect(source).toContain("searchOverlay.open");
+    expect(source).toContain('router.push("/search")');
     expect(source).toContain("SearchBarSearchIcon");
     expect(source).toContain('role="search"');
+    expect(source).not.toContain("searchOverlay.open");
     expect(source).not.toContain("useDebouncedValue");
     expect(source).not.toContain("homepage-search__suggestions");
   });

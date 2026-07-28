@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
 import type { AccountDeletionEligibility } from "@/lib/account/deletion-eligibility";
+import { FAIL_CLOSED_USER_MESSAGE } from "@/lib/fail-closed/constants";
+import { coerceUserSafeText } from "@/lib/fail-closed/sanitize";
 import { SettingsMenuIconGlyph } from "@/features/account-module/components/SettingsMenuIcon";
-
 
 type DeleteAccountFlowProps = {
   className?: string;
@@ -22,14 +23,21 @@ export function DeleteAccountFlow({ className, standalone = false, dangerRow = f
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [eligibility, setEligibility] = useState<AccountDeletionEligibility | null>(null);
+  const [eligibilityLoadFailed, setEligibilityLoadFailed] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     if (step !== 2) return;
     void fetch("/api/account/delete")
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("unavailable");
+        return response.json();
+      })
       .then((payload: AccountDeletionEligibility) => setEligibility(payload))
-      .catch(() => setEligibility({ canDelete: false, blockers: [] }));
+      .catch(() => {
+        setEligibility(null);
+        setEligibilityLoadFailed(true);
+      });
   }, [step]);
 
   const handleDelete = () => {
@@ -49,7 +57,7 @@ export function DeleteAccountFlow({ className, standalone = false, dangerRow = f
         if (payload.blockers?.length) {
           setEligibility({ canDelete: false, blockers: payload.blockers });
         }
-        setError(payload.error ?? "Unable to delete account.");
+        setError(coerceUserSafeText(payload.error) || FAIL_CLOSED_USER_MESSAGE);
         return;
       }
 
@@ -63,7 +71,7 @@ export function DeleteAccountFlow({ className, standalone = false, dangerRow = f
   const row = dangerRow ? (
     <CanonicalMenuRow
       title="Delete Account"
-      description="Permanently remove your account"
+      description="Permanently remove your account."
       destructive
       className={className}
       icon={<SettingsMenuIconGlyph name="logout" danger />}
@@ -89,12 +97,18 @@ export function DeleteAccountFlow({ className, standalone = false, dangerRow = f
           setStep(2);
           setPassword("");
           setError(null);
+          setEligibility(null);
+          setEligibilityLoadFailed(false);
         }}
         onClose={() => setStep(0)}
       >
-        <p className="text-sm text-text-secondary">
-          Deleting your account is permanent. This action cannot be undone.
-        </p>
+        <div className="flex flex-col gap-ds-3 text-sm text-text-secondary">
+          <p>Deleting your account is permanent. This action cannot be undone.</p>
+          <p>
+            Before deletion we verify your balance, pending transactions, disputes, and open orders.
+            Deletion is blocked until your account is safe to close.
+          </p>
+        </div>
       </CanonicalModal>
 
       <CanonicalModal
@@ -104,7 +118,9 @@ export function DeleteAccountFlow({ className, standalone = false, dangerRow = f
         confirmLabel={isPending ? "Deleting…" : "Delete Account"}
         cancelLabel="Cancel"
         loading={isPending}
-        confirmDisabled={isPending || !password || eligibility?.canDelete === false}
+        confirmDisabled={
+          isPending || !password || eligibilityLoadFailed || eligibility?.canDelete === false
+        }
         onConfirm={() => void handleDelete()}
         onClose={() => setStep(0)}
       >
@@ -120,6 +136,9 @@ export function DeleteAccountFlow({ className, standalone = false, dangerRow = f
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
+          {eligibilityLoadFailed ? (
+            <p className="text-sm text-text-secondary">{FAIL_CLOSED_USER_MESSAGE}</p>
+          ) : null}
           {eligibility && !eligibility.canDelete ? (
             <div className="rounded-lg border border-danger/30 bg-danger/5 p-3 text-sm text-danger">
               <p className="font-medium">

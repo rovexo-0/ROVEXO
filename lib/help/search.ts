@@ -22,7 +22,7 @@ function buildExcerpt(content: string, queryTokens: string[]): string {
 const FEATURE_INDEX = [
   { id: "sell", title: "Sell", href: "/sell", keywords: ["sell", "listing", "publish"] },
   { id: "orders", title: "Orders", href: "/orders", keywords: ["orders", "purchases"] },
-  { id: "wallet", title: "Wallet", href: "/wallet", keywords: ["wallet", "withdraw", "balance", "payout"] },
+  { id: "wallet", title: "Balance", href: "/balance", keywords: ["wallet", "withdraw", "balance", "payout"] },
   { id: "messages", title: "Messages", href: "/inbox", keywords: ["messages", "chat", "inbox"] },
   { id: "settings", title: "Settings", href: "/account/settings", keywords: ["settings", "profile"] },
   { id: "search", title: "Search", href: "/search", keywords: ["search", "find"] },
@@ -210,7 +210,13 @@ export function suggestArticlesForPath(pathname: string) {
 }
 
 export function suggestTopicForPath(pathname: string): HelpTopicSlug | null {
-  if (pathname.startsWith("/wallet") || pathname.startsWith("/seller/wallet")) return "withdraw";
+  if (
+    pathname.startsWith("/balance") ||
+    pathname.startsWith("/wallet") ||
+    pathname.startsWith("/seller/wallet")
+  ) {
+    return "withdraw";
+  }
   if (pathname.startsWith("/seller")) return "seller";
   if (pathname.startsWith("/orders")) return "orders";
   if (pathname.startsWith("/inbox") || pathname.startsWith("/messages")) return "chat-messages";

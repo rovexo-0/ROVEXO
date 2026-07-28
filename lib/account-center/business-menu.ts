@@ -23,6 +23,7 @@ export type BusinessMenuSection = {
 export const BUSINESS_HUB_INTRO = "Manage your business.";
 
 export function buildBusinessMenuSections(_storeSlug?: string | null): BusinessMenuSection[] {
+  void _storeSlug;
   return [
     {
       id: "business",
@@ -35,8 +36,8 @@ export function buildBusinessMenuSections(_storeSlug?: string | null): BusinessM
           icon: "orders",
           badgeKeys: ["orders"],
         },
-        { id: "inventory", title: "Inventory", href: "/business/inventory", icon: "listings" },
-        { id: "analytics", title: "Analytics", href: "/business/analytics", icon: "business" },
+        { id: "inventory", title: "Inventory", href: "/business/inventory", icon: "inventory" },
+        { id: "analytics", title: "Analytics", href: "/business/analytics", icon: "analytics" },
         { id: "reviews", title: "Reviews", href: "/business/reviews", icon: "reviews" },
         {
           id: "wallet",
@@ -45,8 +46,8 @@ export function buildBusinessMenuSections(_storeSlug?: string | null): BusinessM
           icon: "wallet",
           badgeKeys: ["wallet-payout"],
         },
-        { id: "vat", title: "VAT", href: "/business/tax", icon: "help" },
-        { id: "directory", title: "Directory", href: "/business/directory", icon: "business" },
+        { id: "vat", title: "VAT", href: "/business/tax", icon: "vat" },
+        { id: "directory", title: "Directory", href: "/business/directory", icon: "directory" },
       ],
     },
   ];

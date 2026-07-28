@@ -103,6 +103,7 @@ describe("revalidateDeletedListing", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/cart");
     expect(revalidatePath).toHaveBeenCalledWith("/inbox");
     expect(revalidatePath).toHaveBeenCalledWith("/orders");
+    expect(revalidatePath).toHaveBeenCalledWith("/balance");
     expect(revalidatePath).toHaveBeenCalledWith("/wallet");
     expect(revalidatePath).toHaveBeenCalledWith("/notifications");
     expect(revalidatePath).toHaveBeenCalledWith("/user/[username]", "page");

@@ -96,11 +96,22 @@ describe("sell photo picker (Android / Samsung)", () => {
     }
   });
 
-  it("sell Add Photos uses only SellPhotoFileInput", () => {
+  it("single-select picker auto-returns — Apply only for multi", () => {
+    const picker = readSource("features/sell/ui/SellOptionPicker.tsx");
+    expect(picker).toContain("selectSingle");
+    expect(picker).toContain("onDone([id])");
+    expect(picker).toContain("applyMulti");
+    expect(picker).toMatch(/mode === "multiple" \? \([\s\S]*Apply[\s\S]*\) : null/);
+  });
+
+  it("sell Add Photos uses camera icon + native file input", () => {
     const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
     const input = readSource("features/sell/ui/SellPhotoFileInput.tsx");
 
     expect(rail).toContain("SellPhotoFileInput");
+    expect(rail).toContain("CameraLineIcon");
+    expect(rail).toContain("Add Photos");
+    expect(rail).not.toContain("ComposeLineIcon");
     expect(rail).not.toContain("NativeImageFileInput");
     expect(rail).not.toContain('intent="camera"');
     expect(rail).not.toContain("capture=");

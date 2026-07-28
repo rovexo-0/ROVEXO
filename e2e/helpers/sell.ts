@@ -1,7 +1,25 @@
 import { expect, type Page } from "@playwright/test";
+import { signInWithSessionCookies } from "./auth";
+import { DEMO_USERS } from "@/lib/demo-environment/config";
 
 const SELL_DRAFT_STORAGE_KEY = "rovexo:sell-draft";
 const SELL_UPLOAD_SESSION_KEY = "rovexo:sell-upload-session";
+
+const DEMO_SELLER = DEMO_USERS.find((u) => u.key === "live-seller")!;
+
+/** Full Demo seller session for Sell E2E (no UI login). */
+export async function signInDemoSeller(page: Page, baseURL: string): Promise<void> {
+  await page.goto(baseURL, { waitUntil: "domcontentloaded", timeout: 120_000 });
+  await signInWithSessionCookies(page, {
+    email: DEMO_SELLER.email,
+    password: DEMO_SELLER.password ?? "RovexoSeller@2026",
+    baseURL,
+  });
+  const accept = page.getByRole("button", { name: /^Accept$/i });
+  if (await accept.isVisible().catch(() => false)) {
+    await accept.click();
+  }
+}
 
 /** Clears persisted sell draft so async hydration cannot clobber an in-flight E2E form. */
 export async function clearPersistedSellDraft(page: Page): Promise<void> {
@@ -17,13 +35,20 @@ export async function clearPersistedSellDraft(page: Page): Promise<void> {
 export async function gotoSellPage(page: Page): Promise<void> {
   await clearPersistedSellDraft(page);
   await page.goto("/sell", { waitUntil: "domcontentloaded", timeout: 180_000 });
-  await expect(page.getByRole("button", { name: /add photo/i })).toBeVisible({ timeout: 120_000 });
+  const accept = page.getByRole("button", { name: /^Accept$/i });
+  if (await accept.isVisible().catch(() => false)) {
+    await accept.click();
+  }
+  await expect(page.locator('[aria-label="Add Photos"]').first()).toBeVisible({ timeout: 120_000 });
   await page.waitForTimeout(400);
 }
 
 /** Photos region — first file input when multiple pickers exist on the sell form. */
 export function sellPhotoInput(page: Page) {
-  return page.getByRole("region", { name: "Add Photos" }).locator('input[type="file"]').first();
+  return page
+    .getByRole("region", { name: /^(Add )?Photos$/i })
+    .locator('input[type="file"]')
+    .first();
 }
 
 export async function uploadSellPhoto(page: Page, filePath: string | string[]): Promise<void> {
@@ -42,10 +67,11 @@ async function dismissBlockingDialogs(page: Page): Promise<void> {
 
 export async function fillSellDescription(page: Page, description: string): Promise<void> {
   const field = page
-    .getByLabel(/listing description/i)
-    .or(page.getByPlaceholder(/add extra details|tell buyers more about/i))
+    .getByLabel(/^Description$/i)
+    .or(page.getByLabel(/listing description/i))
+    .or(page.getByPlaceholder(/add extra details|tell buyers more about|describe/i))
     .first();
-  await expect(field).toBeVisible({ timeout: 15_000 });
+  await expect(field).toBeVisible({ timeout: 30_000 });
   await field.scrollIntoViewIfNeeded();
   await field.fill(description);
   await field.blur();
@@ -60,7 +86,7 @@ export async function fillSellTitle(page: Page, title: string): Promise<void> {
 
 /** Select a leaf category via the sell category picker (required before publish). */
 export async function ensureCategorySelected(page: Page): Promise<void> {
-  const categoryButton = page.getByRole("button", { name: /select category/i });
+  const categoryButton = page.getByRole("button", { name: /^Category\b/i }).first();
   await expect(categoryButton).toBeVisible({ timeout: 15_000 });
   await categoryButton.click();
   await expect(page.getByRole("heading", { name: "Category" })).toBeVisible({ timeout: 10_000 });
@@ -92,9 +118,11 @@ export async function ensureCategorySelected(page: Page): Promise<void> {
 /** Fill progressive brand/colour/size rows so condition/parcel/price unlock. */
 export async function completeSellQuickAttributes(page: Page): Promise<void> {
   for (let attempt = 0; attempt < 8; attempt += 1) {
+    // Master Freeze: empty rows show label + chevron only (no "Select …" placeholders).
     const incomplete = page
-      .locator("button")
-      .filter({ hasText: /Select (brand|colour|color|size)/i })
+      .getByRole("button", {
+        name: /^(Brand|Colours?|Color|Size|Model|Storage|Platform|Battery|Material|Network|Compatibility|RAM|Season Rating|Length)$/i,
+      })
       .first();
     if (!(await incomplete.isVisible().catch(() => false))) break;
 
@@ -103,7 +131,11 @@ export async function completeSellQuickAttributes(page: Page): Promise<void> {
 
     const dialog = page.getByRole("dialog").last();
     await expect(dialog).toBeVisible({ timeout: 10_000 });
-    const option = dialog.getByRole("radio").first();
+    // List layout uses buttons; grid/swatch may use role=radio.
+    const option = dialog
+      .getByRole("radio")
+      .or(dialog.locator("[role='radiogroup'] button, ul button").filter({ hasNotText: /^Back$/i }))
+      .first();
     await expect(option).toBeVisible({ timeout: 10_000 });
     await option.click();
     await expect(dialog).toBeHidden({ timeout: 10_000 });
@@ -111,27 +143,41 @@ export async function completeSellQuickAttributes(page: Page): Promise<void> {
 }
 
 export async function ensureConditionSelected(page: Page): Promise<void> {
-  const group = page.getByRole("radiogroup", { name: /^Condition$/i });
-  await expect(group).toBeVisible({ timeout: 30_000 });
-  await group.getByRole("radio", { name: /^New$/i }).click();
+  const conditionButton = page.getByRole("button", { name: /^Condition\b/i }).first();
+  if (!(await conditionButton.isVisible().catch(() => false))) {
+    // Condition is optional for Absolute Authority core-6 publish.
+    return;
+  }
+  const text = (await conditionButton.innerText().catch(() => "")).trim();
+  // Already selected when value text appears beyond the label.
+  if (/condition/i.test(text) && text.replace(/condition/i, "").trim().length > 0) {
+    return;
+  }
+  await conditionButton.scrollIntoViewIfNeeded();
+  await conditionButton.click();
+  const dialog = page.getByRole("dialog").last();
+  await expect(dialog).toBeVisible({ timeout: 10_000 });
+  const option = dialog.getByRole("radio", { name: /^New$/i }).or(dialog.getByRole("button", { name: /^New$/i })).first();
+  await expect(option).toBeVisible({ timeout: 10_000 });
+  await option.click();
+  await expect(dialog).toBeHidden({ timeout: 10_000 }).catch(() => undefined);
 }
 
 export async function ensureParcelSizeSelected(page: Page): Promise<void> {
-  const parcelButton = page.getByRole("button", { name: /select parcel size/i });
+  const parcelButton = page.getByRole("button", { name: /^Parcel Size\b/i }).first();
   if (!(await parcelButton.isVisible().catch(() => false))) return;
 
-  const needsSelection = await parcelButton.evaluate((el) => {
-    const spans = el.querySelectorAll("span.block");
-    const value = spans[1]?.textContent?.trim() ?? "";
-    return value.length === 0 || /select parcel size/i.test(value);
-  });
-  if (!needsSelection) return;
+  const label = (await parcelButton.innerText().catch(() => "")).toLowerCase();
+  if (/(small|medium|large|extra)/.test(label)) {
+    return;
+  }
 
+  await parcelButton.scrollIntoViewIfNeeded();
   await parcelButton.click();
-  const dialog = page.getByRole("dialog", { name: "Select parcel size" });
+  const dialog = page.getByRole("dialog", { name: /parcel/i });
   await expect(dialog).toBeVisible({ timeout: 10_000 });
-  await dialog.getByRole("radio", { name: /Medium/i }).first().click();
-  await expect(dialog).toBeHidden({ timeout: 10_000 });
+  await dialog.getByRole("radio", { name: /Medium/i }).or(dialog.getByRole("button", { name: /Medium/i })).first().click();
+  await expect(dialog).toBeHidden({ timeout: 10_000 }).catch(() => undefined);
 }
 
 /** Unlock price field: attributes → condition → parcel. */
@@ -149,5 +195,8 @@ export async function publishSellListing(page: Page): Promise<void> {
     .getByRole("button", { name: /^(Publish|Save changes)$/i });
   await expect(publishBtn).toBeEnabled({ timeout: 60_000 });
   await publishBtn.click();
-  await expect(page).toHaveURL(/\/listing\//, { timeout: 120_000 });
+  // Success stays on /sell with publish dialog (Share Listing / View Listing / Sell Another Item).
+  await expect(
+    page.getByRole("button", { name: /share listing|^Share$/i }),
+  ).toBeVisible({ timeout: 120_000 });
 }

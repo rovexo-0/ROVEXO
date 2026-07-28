@@ -47,9 +47,23 @@ describe("transaction hub canonical", () => {
       product: publishedProduct,
     });
     expect(actions).toEqual({
-      buyNow: true,
+      buyNow: false,
       makeOffer: true,
       addToCart: true,
+    });
+  });
+
+  it("enables Buy Now only after an accepted offer", () => {
+    expect(
+      resolveChatBottomActions({
+        viewerRole: "buyer",
+        product: publishedProduct,
+        hasAcceptedOffer: true,
+      }),
+    ).toEqual({
+      buyNow: true,
+      makeOffer: false,
+      addToCart: false,
     });
   });
 
@@ -90,7 +104,7 @@ describe("transaction hub chat integration", () => {
       path.join(process.cwd(), "features/inbox/components/ConversationHub.tsx"),
       "utf8",
     );
-    expect(chat).toContain("TransactionHubBottomActions");
+    expect(chat).toContain("TransactionActionBar");
     expect(chat).toContain("data-conversation-hub");
   });
 
@@ -99,12 +113,15 @@ describe("transaction hub chat integration", () => {
       path.join(process.cwd(), "features/transaction-hub/TransactionHubBottomActions.tsx"),
       "utf8",
     );
-    expect(actions).toContain("Buy Now");
+    const hub = readFileSync(
+      path.join(process.cwd(), "features/inbox/components/ConversationHub.tsx"),
+      "utf8",
+    );
     expect(actions).toContain("Make Offer");
-    expect(actions).toContain("Add to Cart");
-    expect(actions).toContain("TRANSACTION_HUB_COPY.addedToCart");
-    expect(actions).toContain("/checkout/");
+    expect(actions).toContain("Canonical Offer Accepted + BUY NOW = Transaction Status Card only");
+    expect(hub).toContain("buildBuyNowCheckoutHref");
+    expect(hub).toContain("executeBuyNow");
     expect(actions).not.toContain("CheckoutHubSheet");
-    expect(actions).not.toContain('router.push("/cart")');
+    expect(hub).not.toContain('router.push("/cart")');
   });
 });

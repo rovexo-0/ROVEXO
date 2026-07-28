@@ -1,0 +1,50 @@
+---
+description: ROVEXO Supreme Blood Code — permanent maximum automation doctrine
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE v1.0
+
+**STATUS: OWNER APPROVED · PERMANENT FREEZE · ABSOLUTE AUTHORITY**  
+**Horizon: 50+ · 100+ · 200+ years without daily human operations**
+
+SSOT: `lib/supreme-blood-code-v1.ts`  
+Doc: `docs/engineering/SUPREME_BLOOD_CODE_V1.md`
+
+## Final rules (never violate)
+
+1. **The platform works for its owners. The owners never work for the platform.**
+2. **Automate everything that can be legally, technically and safely automated.**
+
+Child law: Supreme Blood Code II — Zero Regression (`lib/supreme-blood-code-ii-v1.ts`).  
+Child law: Supreme Blood Code III — Preview View Certification (`lib/supreme-blood-code-iii-v1.ts`).
+
+## Golden rule
+
+If a human does the same thing twice → ask “Can this be automated?” → if YES → **automate it**. No exceptions.
+
+## Defaults
+
+- Automation = default  
+- Human intervention = exception (law · fraud · security · court · legal · emergency only)  
+- Admin Center = **optional** — never required for payments, wallet, escrow, labels, tracking, HMRC, notifications, refunds, reports, promotions  
+- Super Admin = **Control Center** only: ON/OFF · ENABLE/DISABLE · FREEZE/UNFREEZE · LOCK/UNLOCK · OVERRIDE · MONITOR · AUDIT · REPORT · MAINTENANCE · EMERGENCY — **nothing more**
+
+## Platform independence
+
+Normal operations must continue if Super Admin is offline for 1 day · 1 week · 1 month · 6 months.
+
+## Never implement
+
+Daily manual: approvals · reports · tracking · reviews · labels · refunds · notifications · tax/HMRC · wallet · payment ops — unless legally / fraud / security / emergency required.
+
+## Engine law
+
+Every engine: modular · scalable · independent · automated · fail-safe · fail-closed · mobile first · future-proof · long-term compatible.
+
+## Cursor must never
+
+- Design flows that need daily human operators  
+- Make Admin / Super Admin a required step in marketplace money / shipping / tax / reporting paths  
+- Create parallel “manual ops” systems when automation is legal, technical, and safe  
+- Weaken fail-closed or money-safety for convenience

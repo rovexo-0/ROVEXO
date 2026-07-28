@@ -36,11 +36,17 @@ export function SearchInputActions({ className }: SearchInputActionsProps) {
 
   useEffect(() => {
     if (!loading) return;
-    setStepIndex(0);
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (!cancelled) setStepIndex(0);
+    });
     const timer = window.setInterval(() => {
       setStepIndex((index) => Math.min(index + 1, STEPS.length - 1));
     }, STEP_MS);
-    return () => window.clearInterval(timer);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
   }, [loading]);
 
   async function runAutoSearch(dataUrl: string | null) {

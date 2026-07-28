@@ -168,6 +168,7 @@ export async function refundOrderPayment(input: {
     buyerEmail: buyerProfile?.email ?? "",
     sellerId: order.seller_id,
     sellerEmail: sellerProfile?.email ?? "",
+    orderId: input.orderId,
     orderNumber: order.order_number,
     amount: Number(orderRow?.total ?? order.total),
   });

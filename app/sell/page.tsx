@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SellScreen } from "@/features/sell/ui/SellScreen";
+import { SellPage } from "@/features/sell/ui/SellPage";
 import { getProfile } from "@/lib/profile/data";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -12,5 +12,5 @@ export const metadata: Metadata = buildPageMetadata({
 
 export default async function SellRoute() {
   await getProfile();
-  return <SellScreen />;
+  return <SellPage />;
 }

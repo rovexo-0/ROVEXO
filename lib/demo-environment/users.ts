@@ -4,7 +4,6 @@ import {
   demoAvatarUrl,
   demoBannerUrl,
   type DemoUserDefinition,
-  resolveDemoSeedPassword,
   resolveDemoUserPassword,
 } from "@/lib/demo-environment/config";
 import { getDemoAdminClient } from "@/lib/demo-environment/guards";
@@ -228,7 +227,6 @@ async function enrichProfile(
         bio: `${user.fullName} — ROVEXO demo seller profile for QA and certification.`,
         rating: 4.7,
         review_count: 24,
-        follower_count: 128,
         listing_count: 0,
         sales_count: 18,
       },
@@ -283,7 +281,6 @@ async function enrichProfile(
         bio: `${user.fullName} — permanent Full Demo Certification account.`,
         rating: 4.95,
         review_count: 128,
-        follower_count: 512,
         listing_count: 0,
         sales_count: 96,
       },

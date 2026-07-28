@@ -1,25 +1,44 @@
 "use client";
 
-import { AccountCanonicalShell } from "@/features/account-canonical";
+import { MyAccountTemplate } from "@/features/account-canonical";
 import { AccountIcon } from "@/components/account/AccountIcons";
-import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
+import { CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
+import { FailClosedPanel } from "@/components/fail-closed/FailClosedPanel";
+import { SETTINGS_V1_VERIFICATION_ROWS } from "@/lib/settings/settings-v1";
+import "@/styles/rovexo/account-settings-canonical.css";
 
 type VerificationHubPageProps = {
   backHref?: string;
   backLabel?: string;
   context?: "account" | "business";
+  loadFailed?: boolean;
 };
 
+function statusForRow(id: string): string {
+  if (id === "rovexo-verified") return "Not Verified";
+  return "Not Started";
+}
+
 /**
- * Verification — same shell as My Account.
+ * Settings → Verification — Full Width Engine v1.0 (Profile reference).
  */
 export function VerificationHubPage({
-  backHref = "/account",
-  backLabel = "My Account",
+  backHref = "/account/settings",
+  backLabel = "Settings",
   context = "account",
+  loadFailed = false,
 }: VerificationHubPageProps) {
+  if (loadFailed) {
+    return (
+      <MyAccountTemplate surface="verification" title="Verification" backHref={backHref} backLabel={backLabel} showHeaderTitle>
+        <FailClosedPanel density="section" onRetry={() => window.location.reload()} />
+      </MyAccountTemplate>
+    );
+  }
+
   return (
-    <AccountCanonicalShell
+    <MyAccountTemplate
+      surface="verification"
       title="Verification"
       backHref={backHref}
       backLabel={backLabel}
@@ -27,50 +46,30 @@ export function VerificationHubPage({
       intro={
         context === "business"
           ? "Verify your business profile."
-          : "Verify your ROVEXO account."
+          : "Identity verification for your ROVEXO account."
       }
     >
-      <div className="ac-canonical">
-        <CanonicalSection title="Verification">
-          <CanonicalCard variant="list">
-            <CanonicalMenuRow
-              id="verification-trust"
-              href="/trust#verification"
-              title="Trust Centre"
-              description="Score and badges"
-              icon={
-                <span className="ac-canonical__menu-icon" aria-hidden>
-                  <AccountIcon name="verification" />
-                </span>
-              }
-            />
-            <CanonicalMenuRow
-              id="verification-settings"
-              href="/account/settings"
-              title="Settings"
-              description="Account and security"
-              icon={
-                <span className="ac-canonical__menu-icon" aria-hidden>
-                  <AccountIcon name="settings" />
-                </span>
-              }
-            />
-            {context === "business" ? (
+      <div className="settings-subpage-v1 fw-engine__stack" data-settings-verification="v1.0" data-full-width-surface="verification">
+        <CanonicalSection title="Identity Verification">
+          <div className="fw-engine__group">
+            {SETTINGS_V1_VERIFICATION_ROWS.map((row) => (
               <CanonicalMenuRow
-                id="verification-business-back"
-                href="/business/dashboard"
-                title="Business"
-                description="Return to Business"
+                key={row.id}
+                id={`verification-${row.id}`}
+                title={row.title}
+                description="Status"
+                value={statusForRow(row.id)}
                 icon={
-                  <span className="ac-canonical__menu-icon" aria-hidden>
-                    <AccountIcon name="business" />
+                  <span className="settings-canonical__icon settings-canonical__icon--rovexo-blue" aria-hidden>
+                    <AccountIcon name="verification" />
                   </span>
                 }
+                href="/trust#verification"
               />
-            ) : null}
-          </CanonicalCard>
+            ))}
+          </div>
         </CanonicalSection>
       </div>
-    </AccountCanonicalShell>
+    </MyAccountTemplate>
   );
 }

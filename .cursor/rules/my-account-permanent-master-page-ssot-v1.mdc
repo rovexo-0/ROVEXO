@@ -1,0 +1,64 @@
+# ROVEXO My Account v1.0 — PERMANENT MASTER PAGE LOCK (APPROVED)
+
+**STATUS: PERMANENTLY LOCKED | APPROVED | PERMANENT SSOT CONTRACT**
+
+SSOT: `lib/design-system/my-account-v1.ts` → `MY_ACCOUNT_V1_MASTER_PAGE_LOCK`  
+Tokens: `lib/design-system/profile-master-tokens.ts`
+
+## Very important
+
+**PROFILE PAGE is the ONLY master page of My Account v1.0.**
+
+No page may have its own design system. No page may invent typography, spacing, paddings, margins, icon sizes, component sizes, button sizes, row heights, headers, full width, click areas, animations, or visual proportions.
+
+**ALL pages must inherit from Profile.**
+
+## Golden rule
+
+**ONLY CONTENT MAY DIFFER. DESIGN NEVER DOES.**
+
+## Chain
+
+```
+PROFILE
+  → MASTER DESIGN SYSTEM
+  → MASTER TYPOGRAPHY
+  → MASTER COMPONENTS
+  → MASTER FULL WIDTH
+  → MASTER TOKENS
+  → MASTER SPACING
+  → MASTER ICON FAMILY
+  → MASTER BUTTON SYSTEM
+  → MASTER HEADER SYSTEM
+  → MY ACCOUNT v1.0
+```
+
+## Permanent inheriting pages
+
+PROFILE → SETTINGS → PERSONAL INFORMATION → ADDRESSES → NOTIFICATIONS → PRIVACY → SECURITY → VERIFICATION → CURRENCY → DELETE ACCOUNT → ALL FUTURE MY ACCOUNT PAGES
+
+## One Change Rule
+
+Any Profile change to typography / icons / buttons / spacing / header / row height / full width / animations / components / paddings updates **every** inheriting page automatically.
+
+## Side-by-side / Visual QA
+
+Profile + Settings + Personal Information + Addresses + Security + Privacy must look like the same product. Same proportions, breathing, typography, icons, components, full width, click areas, animations, design language.
+
+## Production gate — reject if
+
+- invents new PX / typography / spacing / icon sizes / components
+- breaks Profile inheritance
+- fails Side-by-Side QA
+
+## Final equation
+
+**PROFILE = SINGLE SOURCE OF TRUTH**
+
+No commit / push / deploy until UI/UX Lock + Side-by-Side QA = PASS (Owner gate).
+
+## Cursor must never
+
+- Override Profile tokens on any My Account page
+- Approve a page that invents design values
+- Claim production readiness without Owner Side-by-Side QA pass

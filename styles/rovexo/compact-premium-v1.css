@@ -185,17 +185,18 @@
   min-height: var(--cp-button-height, 44px);
 }
 
-/* —— Checkout Compact Premium (structure preserved; density only) —— */
+/* —— Checkout Compact Premium (structure preserved; density only) ——
+ * Design Decision #001 — Internal Layout pad 16px (never 12). */
 [data-compact-premium="v1"] .ckt-v1 {
   --ckt-gap: 16px;
   --ckt-radius: 16px;
-  --ckt-pad-x: 12px;
+  --ckt-pad-x: 16px;
 }
 
 [data-compact-premium="v1"] .ckt-v1__header-bar {
   height: var(--cp-header-height, 64px);
   min-height: var(--cp-header-height, 64px);
-  padding: 0 12px;
+  padding: 0 var(--ckt-pad-x, 16px);
 }
 
 [data-compact-premium="v1"] .ckt-v1 [class*="cta"],
@@ -270,7 +271,7 @@
 [data-compact-premium="v1"] .acm,
 [data-compact-premium="v1"] .cds-layout,
 [data-compact-premium="v1"] .pcu-module,
-[data-compact-premium="v1"] .notif-v1__shell,
+[data-compact-premium="v1"] .inbox-hub,
 [data-compact-premium="v1"] .wallet-v2,
 [data-compact-premium="v1"] .account-canonical,
 [data-compact-premium="v1"] .cart-v1,
@@ -285,7 +286,7 @@
 [data-universal-ui="v1.1"] .account-canonical,
 [data-universal-ui="v1.1"] .cart-v1,
 [data-universal-ui="v1.1"] .srch-results {
-  max-width: 100% !important;
+  max-width: none !important;
   width: 100% !important;
   margin-inline: 0 !important;
 }

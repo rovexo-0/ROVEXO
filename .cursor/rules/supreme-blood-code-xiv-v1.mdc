@@ -1,0 +1,50 @@
+---
+description: Supreme Blood Code XIV — Sprint IV Wallet Development Freeze Law (/wallet only)
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE XIV — WALLET DEVELOPMENT FREEZE LAW
+
+**STATUS: APPROVED TO START · BLOOD CODE XIV LOCKED**
+
+SSOT: `lib/supreme-blood-code-xiv-v1.ts`  
+Official: `http://localhost:3000/wallet` **ONLY**
+
+## Absolute law
+
+Sprint IV may modify **only** `/wallet` (Wallet engine children under `/wallet/*` for the same module).
+
+## Forbidden entry points
+
+`/balance` · `/wallet-v2` · `/wallet-new` · `/wallet-redesign` · `/wallet-beta` · `/wallet-test`
+
+## Locked modules (do not touch)
+
+Sprint I Inbox · Sprint II Conversation Hub · Sprint III Orders
+
+## Forbidden surfaces
+
+Homepage · Search · Inbox · Notifications · Conversation · Orders · Sell · Checkout · Shipping · Profile · Account · Settings · Addresses · Verification · Payment Methods · Saved · Legal · Help
+
+## Header
+
+Allowed: Back · **Balance** · Help  
+Forbidden: Search Bar · Marketplace / Homepage header · duplicates · desktop header
+
+## Bottom nav
+
+Always visible.
+
+## Absolute rules
+
+No new entry points · no duplicates · no redesigns · no cross-module edits · no desktop-first · no second Wallet · no CSS hiding · no module splitting
+
+## Permanent freeze
+
+Only after **all** conditions are 100%: functionality · visual · mobile · responsive · Owner approval · Production QA.
+
+## Next sprint
+
+Sprint V Sell is **STRICTLY FORBIDDEN** until Sprint IV is officially certified.
+
+## WALLET ONLY

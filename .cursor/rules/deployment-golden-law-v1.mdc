@@ -1,0 +1,64 @@
+---
+description: Deployment Golden Law — 100/100 only zero exceptions
+alwaysApply: true
+---
+
+# ROVEXO DEPLOYMENT GOLDEN LAW v1.0 (LEVEL 8)
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN | CANONICAL | SSOT READY**  
+**50+ YEARS READY · 100+ MILLION USERS READY**
+
+SSOT: `lib/deployment-golden-law-v1.ts`  
+Parent: Constitution (`lib/rovexo-constitution-v1.ts`)  
+Related: Final Release Protection · No Manual Override
+
+## Gate (zero exceptions)
+
+| Score | Action |
+|----|-----|
+| **100/100** | DEPLOY |
+| 99/100 or below | **NO DEPLOY** |
+| 1 FAIL | **NO DEPLOY** |
+
+**ZERO EXCEPTIONS.**
+
+## Any failure forbids deploy
+
+Constitution · Absolute Master Freeze · Golden Law · Engineering Principle · Domain Freeze · Production Gates · Tests · Security · Architecture · Performance · Auth · Payments · Wallet · Checkout · Orders · Search · Camera Search · Providers · Navigation · Session · Cookies · Callbacks · Database · API
+
+## Required 100% PASS categories
+
+Architecture · Tests · Performance · Security · Production Gates · Freeze Rules · SSOT Rules · Long Term Rules · Constitution Rules
+
+## Permanently forbidden language
+
+hot fix · quick fix · temporary fix · workaround · beta/experimental architecture · parallel/duplicated implementation · second owner/provider/SSOT · partial deploy · deploy anyway · good enough
+
+## Before deploy (all YES or NO DEPLOY)
+
+1. All tests pass  
+2. All gates pass  
+3. All freezes pass  
+4. All SSOT rules pass  
+5. All architectures pass  
+6. All security rules pass  
+7. All performance rules pass  
+8. All domains pass  
+9. **100/100 PASS?** ← if NO → deploy FORBIDDEN
+
+## Order (locked)
+
+BUILD → AUDIT → TEST → CERTIFY → LOCK → PASS → 100/100 → PRODUCTION DEPLOY → DONE  
+
+**Forbidden:** BUILD → DEPLOY → FIX AFTER
+
+## Purpose
+
+Deploy exists **only** to publish 100% certified canonical implementations.  
+Never to test fixes, validate architecture/freezes/assumptions/experiments.
+
+## Cursor must never
+
+- Push or production-deploy below 100/100  
+- Use “deploy anyway” / partial deploy / good enough  
+- Treat production as a validation environment

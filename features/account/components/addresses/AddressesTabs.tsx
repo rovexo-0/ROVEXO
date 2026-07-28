@@ -1,0 +1,46 @@
+"use client";
+
+import { cn } from "@/lib/cn";
+import type { AddressUiScope } from "@/lib/addresses/canonical";
+
+type AddressesTabsProps = {
+  activeScope: AddressUiScope;
+  onChange: (scope: AddressUiScope) => void;
+};
+
+/**
+ * Address Type · Personal | Business — both fully functional.
+ */
+export function AddressesTabs({ activeScope, onChange }: AddressesTabsProps) {
+  return (
+    <div className="addresses-v1-tabs-block" data-addresses-tabs="v1">
+      <p className="addresses-v1-label">Address Type</p>
+      <div className="addresses-v1-tabs" role="tablist" aria-label="Address type">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeScope === "personal"}
+          className={cn(
+            "addresses-v1-tabs__option",
+            activeScope === "personal" && "addresses-v1-tabs__option--active",
+          )}
+          onClick={() => onChange("personal")}
+        >
+          Personal
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeScope === "business"}
+          className={cn(
+            "addresses-v1-tabs__option",
+            activeScope === "business" && "addresses-v1-tabs__option--active",
+          )}
+          onClick={() => onChange("business")}
+        >
+          Business
+        </button>
+      </div>
+    </div>
+  );
+}

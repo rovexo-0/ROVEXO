@@ -1,0 +1,62 @@
+---
+description: ROVEXO Absolute Authority — One Owner, one permanent domain (Policy v3.0).
+alwaysApply: true
+---
+
+# ROVEXO — One Preview Link Absolute Authority
+
+**STATUS: LOCKED | OWNER AUTHORITY | Owner Preview Policy v3.0**
+
+## Golden rule
+
+**ONE PROJECT = ONE OFFICIAL OWNER URL = ONE PERMANENT DOMAIN = ALL MODULES.**
+
+Policy SSOT: `.cursor/rules/owner-preview-policy-v3.mdc` · `lib/preview/owner-preview-ssot.ts`
+
+## Current official Owner URL
+
+**https://www.rovexo.co.uk**
+
+Never cite localhost or `preview.rovexo.co.uk` (deprecated — DNS failure) for Owner approval.
+
+May be replaced only on DNS failure / permanent infra migration / catastrophic failure / Owner approval — then one new official URL only.
+
+Owner reviews the whole platform via paths:
+
+| Surface | Path |
+|---------|------|
+| Home | `/` |
+| Profile | `/account` |
+| Settings | `/account/settings` |
+| Balance | `/balance` |
+| Transactions | `/wallet/transactions` |
+| Payment Methods | `/wallet/payment-methods` |
+| Bank Accounts | `/wallet/bank-accounts` |
+| Orders | `/orders` |
+| Checkout | `/checkout` |
+| Sell | `/sell` |
+| Inbox | `/inbox` |
+
+## Cursor local (agent only — never Owner approval)
+
+`http://localhost:3000` — hot reload while coding.
+
+## Auto-sync model
+
+1. Cursor edits → `localhost:3000` (agent only).  
+2. After Owner stage approval → push/deploy so **https://www.rovexo.co.uk** shows the change.  
+3. Owner tests on phone + desktop on that single origin only.
+
+## Forbidden
+
+- Multiple official Owner URLs  
+- Preview URL per module / day / sprint  
+- localhost for Owner approval  
+- Screenshots/videos as sole approval evidence  
+- Asking Owner to approve inaccessible pages  
+
+## Agent communication
+
+When asking for Owner review, cite only:
+
+`https://www.rovexo.co.uk/<path>`

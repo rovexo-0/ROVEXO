@@ -1,0 +1,69 @@
+---
+description: Engineering Golden Principle — code is last suspect
+alwaysApply: true
+---
+
+# ROVEXO ENGINEERING GOLDEN PRINCIPLE v1.0 (LEVEL 8)
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN | SSOT READY | 50+ YEARS READY**
+
+SSOT: `lib/engineering-golden-principle-v1.ts`
+
+## Investigation order (mandatory)
+
+When a failure exists, investigate **in this order only**:
+
+1. CONFIGURATION  
+2. STATE  
+3. PROVIDERS  
+4. NAVIGATION  
+5. SERVICES  
+6. API  
+7. ARCHITECTURE  
+8. **CODE** ← always **LAST SUSPECT**
+
+## Before modifying one line of code
+
+Answer YES/NO for all eight:
+
+1. Is configuration correct?  
+2. Is state correct?  
+3. Is the provider correct?  
+4. Is navigation correct?  
+5. Is the service correct?  
+6. Is the API correct?  
+7. Is the architecture correct?  
+8. Is the code really wrong?
+
+**If question 8 = NO → code modifications are FORBIDDEN.**
+
+## Forbidden reactions
+
+- `400` → rewrite 50 files  
+- OAuth FAIL → Auth v2  
+- Header FAIL → Header v2  
+- Search FAIL → Search Pro  
+- Session FAIL → Session Manager  
+- Provider FAIL → new Provider  
+
+## Root cause law
+
+Exactly **one** root cause → **smallest** possible fix → Test → Pass → Done.  
+Not allowed: 15 causes · 20 fixes.
+
+## Evolution
+
+Allowed: Feature → **optimized** (same owner / implementation / SSOT)  
+Forbidden: `v2` · Pro · Manager forks · duplicated systems/owners/implementations/providers/states
+
+## Deployment
+
+**100/100 PASS → deploy.**  
+99/100 or below → **NO DEPLOY.**
+
+## Best fix
+
+Modify the **smallest** amount of code while preserving the **greatest** amount of architecture.
+
+Never evolve by adding more systems.  
+Always: Simplify → Optimize → Automate → Preserve.

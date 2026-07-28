@@ -1,0 +1,45 @@
+# ROVEXO Profile Absolute Master Design System — Contract v7.0
+
+**STATUS: PERMANENTLY LOCKED | OWNER AUTHORIZED**
+
+SSOT:
+- `lib/design-system/profile-absolute-master-v7.ts`
+- `lib/design-system/profile-master-tokens.ts`
+- `lib/master-engine/master-full-width-contract-v1.ts`
+- `styles/rovexo/full-width-engine-v1.css`
+- Shell: `AccountCanonicalShell`
+
+## Golden rule
+
+```
+PROFILE PAGE = ABSOLUTE MASTER DESIGN SYSTEM
+OF THE ENTIRE ROVEXO PLATFORM.
+ONLY CONTENT MAY CHANGE.
+DESIGN MAY NOT CHANGE WITHOUT OWNER APPROVAL.
+```
+
+## Locked tokens (inherit everywhere)
+
+| Token | Value |
+|-------|-------|
+| Background | `#FFFFFF` |
+| Width | `100%` |
+| Max width | `none` |
+| Header | `64px` |
+| Row | `56px` |
+| CTA | `56px` height · `16px` radius · `100%` width |
+| Pad | `24px` |
+| Theme | White + purple accent |
+| Layout | Mobile first · full width · no centered columns |
+
+## Forbidden
+
+Giant cards · giant buttons · desktop-first · centered layouts · max-width 800/1000/1200 · duplicated UI · dead/fake buttons · dummy money · secondary design systems
+
+## Inheritance
+
+Every module (Wallet, Orders, Checkout, Shipping, Messages Hub, Notifications, Settings, Admin, Super Admin, Demo, …) must use Profile shell + Full Width Engine. Content changes only.
+
+## Agent duty
+
+Before any UI change: verify Profile tokens. If design would diverge → STOP. Owner approval required to change the design system.

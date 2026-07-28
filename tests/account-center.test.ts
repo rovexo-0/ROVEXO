@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   ACCOUNT_QUICK_ACCESS,
@@ -54,13 +56,21 @@ describe("Account Center modules", () => {
     ]);
   });
 
-  it("account module includes ROVEXO Ideas", () => {
+  it("ROVEXO Ideas lives on Profile menu only (not account module tiles)", () => {
     const labels = getAccountModuleTiles().map((tile) => tile.label);
     const hrefs = getAccountModuleTiles().map((tile) => tile.href);
     expect(labels).toContain("Profile");
     expect(labels).toContain("Security");
-    expect(labels).toContain("ROVEXO Ideas");
-    expect(hrefs).toContain("/account/ideas");
+    expect(labels).not.toContain("Rovexo Ideas");
+    expect(labels).not.toContain("ROVEXO Ideas");
+    expect(hrefs).not.toContain("/account/ideas");
     expect(hrefs).not.toContain("/account/settings");
+
+    const menu = readFileSync(
+      join(process.cwd(), "lib/account-center/canonical-menu.ts"),
+      "utf8",
+    );
+    expect(menu).toContain('title: "Rovexo Ideas"');
+    expect(menu).toContain("/account/ideas");
   });
 });

@@ -1,0 +1,42 @@
+---
+description: ROVEXO Spring 2 Transaction Hub Canonical Code Blood v2.0 LOCKED
+alwaysApply: true
+---
+
+# ROVEXO SPRING 2 — TRANSACTION HUB · CODE BLOOD v2.0
+
+**STATUS: BLOOD v2.0 LOCKED · WAITING FOR IMPLEMENTATION**
+
+SSOT: `lib/inbox/transaction-hub-spring-2-v1.ts`  
+Spec: `docs/modules/inbox/MASTER_ENGINEERING_SPECIFICATION_TRANSACTION_HUB_SPRING_2.md`
+
+## Golden rule
+
+```
+RECEIVE → SEE → OPEN → SOMETHING HAPPENS
+CANNOT SEE / DOES NOT WORK → DOES NOT EXIST
+```
+
+## Mission
+
+EVENT → RED BADGE (realtime) → NOTIFICATION → MESSAGE → PRODUCT IMAGE → READ/UNREAD → CLICK → REAL PAGE → REAL ACTION → OWNER VISUAL → FREEZE
+
+## Hard laws
+
+- **Click path:** Offer→Offer · Payment/Order→Order · Shipped→Tracking · Refund→Refund · Message→Conversation  
+- **Product image:** required everywhere product-related — no image = NO PASS  
+- **No duplicates:** 1 event = 1 notification  
+- **No text-only** events  
+- **No parallel** Inbox / badge / hub systems  
+- **Badge:** 0 / +N / 99+ · real time  
+
+## Forbidden as PASS
+
+HTTP 200 · API · DB · console · unit · Playwright · screenshot without Owner click on localhost:3000
+
+## Cursor must never
+
+- Start until Owner says **START SPRING 2**
+- Ship dead notifications or text-only rows
+- Freeze without Owner visual use + approval
+---

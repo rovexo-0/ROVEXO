@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import path from "node:path";
 import { MODERNIZATION_CATEGORIES } from "@/lib/enterprise-marketplace-completion-engine/registry";
 import type {
@@ -12,12 +13,12 @@ function passStatus(): CompletionStatus {
 }
 
 function fileExists(relativePath: string): boolean {
-  return existsSync(path.join(process.cwd(), relativePath));
+  return existsSync(workspacePath( relativePath));
 }
 
 function readSource(relativePath: string): string {
   try {
-    return readFileSync(path.join(process.cwd(), relativePath), "utf8");
+    return readFileSync(workspacePath( relativePath), "utf8");
   } catch {
     return "";
   }

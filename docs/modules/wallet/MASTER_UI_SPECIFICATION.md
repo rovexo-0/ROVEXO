@@ -1,34 +1,65 @@
-# ROVEXO Wallet — Master UI Specification
+# ROVEXO Balance / Wallet — Master UI Specification
 
-**Route:** `/wallet`  
-**Canonical:** `WalletHubV1` + `styles/rovexo/wallet-hub-v1.css`  
-**Version:** v1.2 simplified UI  
-**Status:** Implemented — `data-wallet-ui="v1.2-simplified"` · `data-wallet-freeze="pending-visual-qa"`  
-**Freeze:** Only after explicit pixel-perfect visual QA approval
+**Route:** `/wallet` (canonical Wallet hub · Blood XIII)  
+**Canonical visible name:** **Balance**  
+**Status:** REVIEW — Sprint IV IN DEVELOPMENT (Blood XIII + **Blood XIV Development Freeze Law**)  
+**Markers:** `data-blood-code-xiii="13.0"` · `data-blood-code-xiv="14.0"` · `data-wallet-sprint="IV"` · `data-wallet-freeze="IN-DEVELOPMENT"` · `data-wallet-hub-version="v1.0-canonical"`
 
-## Universal UI v1.1 compatibility amendment
+## Absolute rules
 
-Approved 2026-07-15. Wallet APIs, payout logic and routing are unchanged. Presentation now consumes Universal UI v1.1: 60px header, 44px controls, 24px icons, 48px hero actions, 14px radii, no card shadows, 16px horizontal padding, 24px section rhythm, 14px body text and 16px section titles.
+```
+PROFILE = MASTER DESIGN SYSTEM
+Balance inherits Profile shell / Full Width / Compact Premium.
+ONLY financial components may differ (purple Available card + status cards).
+LIVE MONEY ONLY — no hardcoded £ amounts.
+width: 100%; max-width: none;
+ONE ENTRY POINT = /wallet (Blood XIV)
+Forbidden hubs: /balance · /wallet-v2 · /wallet-new · /wallet-redesign · /wallet-beta · /wallet-test
+Legacy /balance → redirects to /wallet
+```
 
-## Locked tokens (v1.2)
+## Header
+
+Allowed: Back · **Balance** · Help  
+Forbidden: Search Bar · Marketplace header · ROVEXO logo
+
+## Bottom navigation
+
+Home · Search · Sell · Inbox · Account — always visible
+
+## Withdraw button (Owner lock)
 
 | Token | Value |
 |-------|-------|
-| Header | 64px · pad 20 · controls 40×40 · title 32/700 · no shadow |
-| Page | bg `#FFFFFF` · pad 20 / 20 / 32 · max-width 430px (480 desktop) |
-| Hero | Only wallet summary · 170×24 radius · pad 24 · Withdraw / Bank Account 52×14 |
-| Quick Actions | No title · ONE card · 108px · four equal columns · 24px below hero |
-| Insights | View all · two cards 118×18 · 24px gaps |
-| Connected Bank | No title · compact 96px row · inline Connect CTA |
-| Transactions | Keep title + View all |
-| Desktop | same UI · wider max-width only |
+| height | 44px |
+| min-width | 140px |
+| border-radius | 16px |
+| font-size | 14px |
+| font-weight | 600 |
+| Forbidden | 56px · full width · giant · sharp corners |
 
-## Removed in v1.2
+## Available card states
 
-- Balance list (Pending / Available / Processing / Paid Out)
-- Section titles: Quick Actions, Connected Bank
+| State | Withdraw | Hint |
+|-------|----------|------|
+| available | enabled | Available to withdraw |
+| zero | disabled | Available to withdraw |
+| processing | disabled | Bank Processing |
+| locked | disabled | Security Lock |
 
-## Hard rules
+## Structure
 
-- Hero is the only balance summary
-- Do not change APIs, wallet logic, withdraw, bank, payment methods, or routing
+1. Header — Profile shell · **Balance** · Help  
+2. Available Balance — purple premium card + Withdraw · Bank Account  
+3. Pending · Available · Processing · Paid Out metrics  
+4. Quick Actions · Insights · Connected Bank · Transactions  
+
+## Required Sprint IV surfaces (via hub + `/wallet/*`)
+
+Wallet Balance · Transaction History · Withdraw · Bank Account · Pending / Completed / Refund transactions · Payout History · Platform Fee transactions · Responsive mobile
+
+## Preview
+
+`http://localhost:3000/wallet`
+
+No permanent freeze / commit / push / deploy until Owner certification.

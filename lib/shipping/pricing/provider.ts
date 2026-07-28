@@ -31,6 +31,8 @@ export type ShippingLabelRequest = {
   labelSize?: SellerDefaultLabelSize;
   /** Idempotency key so the same parcel cannot create duplicate shipments. */
   idempotencyKey?: string;
+  /** Force in-app demo adapter (Full Demo actors — never real Sendcloud). */
+  forceDemoShipping?: boolean;
 };
 
 export type ShippingLabelResponse = {

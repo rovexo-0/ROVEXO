@@ -3,6 +3,9 @@ import { SuperAdminPageHeader } from "@/features/super-admin/components/SuperAdm
 import { buildMosControlCenterSnapshot } from "@/lib/marketplace-os/dashboard";
 import { getMosDraft } from "@/lib/marketplace-os/engine";
 
+/** Heavy dashboard — never SSG (Build Absolute Law: no 60s static timeout). */
+export const dynamic = "force-dynamic";
+
 export default async function SuperAdminMarketplaceOsPage() {
   const [snapshot, draftDocument] = await Promise.all([
     buildMosControlCenterSnapshot(),

@@ -1,16 +1,11 @@
 "use client";
 
-import { CanonicalSwitch } from "@/src/components/canonical";
+import { CanonicalSwitch, type CanonicalSwitchProps } from "@/src/components/canonical";
 
-type SettingToggleProps = {
-  id: string;
-  label: string;
-  description?: string;
-  checked: boolean;
-  disabled?: boolean;
-  onChange: (checked: boolean) => void;
-};
-
-export function SettingToggle(props: SettingToggleProps) {
+/**
+ * Settings alias → Canonical Switch Engine v1.0 (LOCKED).
+ * Never implement a parallel toggle here.
+ */
+export function SettingToggle(props: CanonicalSwitchProps) {
   return <CanonicalSwitch {...props} />;
 }

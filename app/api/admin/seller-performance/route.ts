@@ -5,11 +5,10 @@ import {
   forceRecalculateSellerPerformance,
   getSellerPerformanceAnalyticsSummary,
   getSellerPerformanceDashboard,
-  grantSellerPerformanceBadge,
   listSellerPerformanceAudit,
-  revokeSellerPerformanceBadge,
 } from "@/lib/seller-performance/service";
-import type { AchievementId } from "@/lib/seller-performance/master-spec";
+import { BADGE_CATALOG, type BadgeId } from "@/lib/badge/badge-engine-v1";
+import { applyBadgeEmergencyOverride } from "@/lib/badge/store";
 
 function clientIp(request: Request): string | undefined {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? undefined;
@@ -45,7 +44,7 @@ export async function POST(request: Request) {
     action: "force_recalc" | "grant_badge" | "revoke_badge";
     userId: string;
     reason: string;
-    badgeId?: AchievementId;
+    badgeId?: string;
   };
 
   if (!body.userId || !body.reason?.trim()) {
@@ -64,30 +63,40 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, score });
   }
 
-  if (!body.badgeId) {
-    return NextResponse.json({ error: "badgeId is required" }, { status: 400 });
-  }
+  // P0: badge grant/revoke redirects to Badge Engine (seller-performance never publishes badges).
+  if (body.action === "grant_badge" || body.action === "revoke_badge") {
+    if (!body.badgeId || !(body.badgeId in BADGE_CATALOG)) {
+      return NextResponse.json(
+        {
+          error:
+            "Use Badge Engine badge ids. Canonical write API: POST /api/admin/badges",
+          canonicalApi: "/api/admin/badges",
+        },
+        { status: 400 },
+      );
+    }
 
-  if (body.action === "grant_badge") {
-    const score = await grantSellerPerformanceBadge({
+    const result = await applyBadgeEmergencyOverride({
       userId: body.userId,
-      adminId: auth.user.id,
-      badgeId: body.badgeId,
+      badgeId: body.badgeId as BadgeId,
+      action: body.action === "grant_badge" ? "force_enable" : "force_disable",
       reason: body.reason,
-      ipAddress,
+      actorId: auth.user.id,
     });
-    return NextResponse.json({ score });
-  }
 
-  if (body.action === "revoke_badge") {
-    const score = await revokeSellerPerformanceBadge({
-      userId: body.userId,
-      adminId: auth.user.id,
-      badgeId: body.badgeId,
-      reason: body.reason,
-      ipAddress,
+    if ("error" in result) {
+      return NextResponse.json(
+        { error: result.error, canonicalApi: "/api/admin/badges" },
+        { status: 400 },
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      redirectedTo: "badge-engine-v1",
+      canonicalApi: "/api/admin/badges",
+      deprecated: true,
     });
-    return NextResponse.json({ score });
   }
 
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });

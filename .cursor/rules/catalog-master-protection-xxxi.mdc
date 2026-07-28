@@ -1,0 +1,46 @@
+---
+description: Absolute Law XXXI — Catalog Master is the ONLY category source. Fail closed. No legacy.
+globs: lib/catalog/**/*.ts,lib/categories/**/*.ts,app/api/categories/**/*.ts,instrumentation.ts,features/sell/**/*.tsx
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE LAW XXXI — CATALOG MASTER PROTECTION
+
+**STATUS: OWNER APPROVED | PERMANENT | FAIL CLOSED**
+
+SSOT: `lib/catalog/catalog-master-protection-v1.ts`  
+Catalog: `lib/catalog/` · Resolution: `getCategoryTree()`
+
+## Equation
+
+```
+ONE CATALOG MASTER = ONLY CATEGORY SOURCE
+Catalog Master → getCategoryTree() → SSOT
+```
+
+## Forbidden
+
+- Legacy category arrays  
+- Hardcoded category lists for taxonomy  
+- Old database taxonomy trees as live source  
+- Old JSON category dumps  
+- Duplicate / parallel category trees  
+- Legacy cache versions (`category-tree:v1`, etc.)  
+- Silent fallback to legacy categories  
+
+## Required
+
+Every category request resolves to Catalog Master via `getCategoryTree()`.
+
+On application start (`instrumentation.ts`): verify Catalog Master → if fail → **BLOCK loading**.
+
+## Cache
+
+Only Catalog Master may be cached. Key epoch = Catalog Master version + law. Catalog change → automatic invalidation.
+
+## Cursor must never
+
+- Wire Sell / Search / API / hooks to DB taxonomy or legacy sector dumps  
+- Reintroduce Vehicles / Property / Jobs / Services as roots  
+- Add a second catalog / parallel tree  
+- Soft-fail to legacy when Catalog Master validation fails  

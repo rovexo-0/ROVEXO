@@ -19,7 +19,7 @@ describe("promotion config", () => {
     expect(FEATURE_DURATIONS).toHaveLength(1);
     expect(getPromotionDuration("bump", "7d")?.priceCents).toBe(130);
     expect(getPromotionDuration("bump", "14d")?.priceCents).toBe(250);
-    expect(getPromotionDuration("feature", "7d")?.priceCents).toBe(600);
+    expect(getPromotionDuration("feature", "7d")?.priceCents).toBe(630);
   });
 
   it("computes end dates from duration ids", () => {
@@ -38,9 +38,11 @@ describe("promotion config", () => {
 });
 
 describe("promotion scoring", () => {
-  it("scores featured listings highest", () => {
-    const future = new Date(Date.now() + 60_000).toISOString();
-    expect(computePromotionScore(1, future, future)).toBeGreaterThan(computePromotionScore(1, future, null));
+  it("scores active bump with Owner time-decay priority", () => {
+    const future = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const nowIso = new Date().toISOString();
+    expect(computePromotionScore(1, future, null, nowIso, null, 168)).toBeGreaterThan(0);
+    expect(computePromotionScore(1, future, future, nowIso, nowIso, 168)).toBeGreaterThan(0);
   });
 
   it("detects active promotions and remaining time", () => {
@@ -48,6 +50,10 @@ describe("promotion scoring", () => {
     expect(isPromotionActive(future)).toBe(true);
     expect(formatPromotionRemaining(future)).toMatch(/left/);
     expect(isPromotionActive(null)).toBe(false);
+  });
+
+  it("enforces 24h Final Freeze cooldown config", () => {
+    expect(BUMP_COOLDOWN_HOURS).toBe(24);
   });
 });
 

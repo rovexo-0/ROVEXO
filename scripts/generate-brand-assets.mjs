@@ -1,19 +1,26 @@
 /**
- * Generates official ROVEXO brand assets from brand/rovexo-app-icon.svg
+ * Generates official ROVEXO brand assets from the Law XXXVII master emblem PNG.
+ * Master: public/brand/canonical-rx/rx-mark-v3.png
  * Run: node scripts/generate-brand-assets.mjs
  */
-import { mkdirSync, writeFileSync, readFileSync, copyFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const sourceSvg = join(root, "brand", "rovexo-app-icon.svg");
-const svg = readFileSync(sourceSvg);
+const masterPng = join(root, "public", "brand", "canonical-rx", "rx-mark-v3.png");
+
+if (!existsSync(masterPng)) {
+  console.error("Missing official emblem master:", masterPng);
+  process.exit(1);
+}
+
+const master = readFileSync(masterPng);
 
 async function png(size, outPath, options = {}) {
   mkdirSync(dirname(outPath), { recursive: true });
-  let pipeline = sharp(svg, { density: Math.max(144, Math.ceil((size / 1024) * 384)) }).resize(size, size, {
+  let pipeline = sharp(master).resize(size, size, {
     fit: "contain",
     background: options.background ?? { r: 0, g: 0, b: 0, alpha: 0 },
   });
@@ -27,7 +34,7 @@ async function maskablePng(size, outPath) {
   mkdirSync(dirname(outPath), { recursive: true });
   const iconSize = Math.round(size * 0.72);
   const pad = Math.round((size - iconSize) / 2);
-  const icon = await sharp(svg, { density: 256 })
+  const icon = await sharp(master)
     .resize(iconSize, iconSize, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
@@ -41,7 +48,7 @@ async function maskablePng(size, outPath) {
 
 async function monochromePng(size, outPath) {
   mkdirSync(dirname(outPath), { recursive: true });
-  await sharp(svg, { density: 256 })
+  await sharp(master)
     .resize(size, size, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .greyscale()
     .threshold(140)
@@ -53,7 +60,7 @@ async function adaptiveForeground(size, outPath) {
   mkdirSync(dirname(outPath), { recursive: true });
   const iconSize = Math.round(size * 0.58);
   const pad = Math.round((size - iconSize) / 2);
-  const icon = await sharp(svg, { density: 256 })
+  const icon = await sharp(master)
     .resize(iconSize, iconSize, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
@@ -76,14 +83,14 @@ async function adaptiveBackground(size, outPath) {
 
 async function ogImage(outPath) {
   mkdirSync(dirname(outPath), { recursive: true });
-  const mark = await sharp(svg, { density: 256 })
+  const mark = await sharp(master)
     .resize(420, 420, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
   await sharp({
     create: { width: 1200, height: 630, channels: 3, background: { r: 247, g: 249, b: 252 } },
   })
-    .composite([{ input: mark, top: 105, left: 80 }])
+    .composite([{ input: mark, top: 105, left: 390 }])
     .png()
     .toFile(outPath);
 }
@@ -91,7 +98,12 @@ async function ogImage(outPath) {
 async function createIco(sizes) {
   const buffers = [];
   for (const s of sizes) {
-    buffers.push(await sharp(svg, { density: 256 }).resize(s, s).png().toBuffer());
+    buffers.push(
+      await sharp(master)
+        .resize(s, s, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+        .png()
+        .toBuffer(),
+    );
   }
 
   const count = buffers.length;
@@ -123,7 +135,7 @@ async function createIco(sizes) {
 async function splash(width, height, outPath) {
   mkdirSync(dirname(outPath), { recursive: true });
   const markSize = Math.min(width, height) * 0.28;
-  const mark = await sharp(svg, { density: 256 })
+  const mark = await sharp(master)
     .resize(Math.round(markSize), Math.round(markSize), {
       fit: "contain",
       background: { r: 0, g: 0, b: 0, alpha: 0 },
@@ -142,14 +154,26 @@ const webIcons = [
   ["public/icons/favicon-16.png", 16],
   ["public/icons/favicon-32.png", 32],
   ["public/icons/favicon-48.png", 48],
-  ["public/icons/icon-192.png", 192],
-  ["public/icons/icon-512.png", 512],
-  ["public/icons/icon-maskable-512.png", 512, "maskable"],
-  ["public/icons/icon-120.png", 120],
+  ["public/icons/favicon-64.png", 64],
+  ["public/icons/icon-16.png", 16],
+  ["public/icons/icon-32.png", 32],
+  ["public/icons/icon-48.png", 48],
+  ["public/icons/icon-64.png", 64],
+  ["public/icons/icon-96.png", 96],
+  ["public/icons/icon-128.png", 128],
+  ["public/icons/icon-144.png", 144],
   ["public/icons/icon-152.png", 152],
   ["public/icons/icon-167.png", 167],
   ["public/icons/icon-180.png", 180],
+  ["public/icons/icon-192.png", 192],
+  ["public/icons/icon-256.png", 256],
+  ["public/icons/icon-384.png", 384],
+  ["public/icons/icon-512.png", 512],
+  ["public/icons/icon-1024.png", 1024],
+  ["public/icons/icon-maskable-512.png", 512, "maskable"],
+  ["public/icons/icon-120.png", 120],
   ["app/apple-icon.png", 180],
+  ["public/apple-icon.png", 180],
   ["app/icon.png", 512],
 ];
 
@@ -191,8 +215,20 @@ const iosContents = {
 };
 
 async function main() {
-  copyFileSync(sourceSvg, join(root, "public", "brand", "rovexo-app-icon.svg"));
-  copyFileSync(sourceSvg, join(root, "public", "favicon.svg"));
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2048" height="2048" viewBox="0 0 2048 2048" role="img" aria-label="ROVEXO RX Emblem — BUY SELL GROW">
+  <title>ROVEXO Official Brand Emblem</title>
+  <image width="2048" height="2048" xlink:href="/brand/canonical-rx/rx-mark-v3.png" href="/brand/canonical-rx/rx-mark-v3.png"/>
+</svg>
+`;
+  writeFileSync(join(root, "public", "brand", "canonical-rx", "rx-emblem-v1.svg"), svg);
+  writeFileSync(join(root, "public", "favicon.svg"), svg);
+  await sharp(master)
+    .webp({ quality: 92, alphaQuality: 100 })
+    .toFile(join(root, "public", "brand", "canonical-rx", "rx-emblem-v1.webp"));
+  await sharp(master)
+    .avif({ quality: 55 })
+    .toFile(join(root, "public", "brand", "canonical-rx", "rx-emblem-v1.avif"));
 
   for (const [rel, size, kind] of webIcons) {
     const out = join(root, rel);
@@ -244,11 +280,7 @@ async function main() {
     console.log("✓", rel);
   }
 
-  writeFileSync(
-    join(root, "public", "brand", "rovexo-logo.svg"),
-    readFileSync(sourceSvg, "utf8").replace('aria-label="ROVEXO"', 'aria-label="ROVEXO mark"'),
-  );
-  console.log("\nOK — official ROVEXO brand assets generated");
+  console.log("\nOK — official ROVEXO brand emblem assets generated (Law XXXVII)");
 }
 
 main().catch((err) => {

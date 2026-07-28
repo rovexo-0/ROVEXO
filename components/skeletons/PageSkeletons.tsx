@@ -120,33 +120,30 @@ export function ProductSkeleton() {
 
 export function SellSkeleton() {
   return (
-    <div className={PAGE} aria-hidden="true">
-      <div className="flex items-center gap-ds-3">
-        <SkeletonCircle size={40} />
-        <Skeleton className="h-6 w-40" />
+    <div
+      className="flex w-full max-w-none flex-col gap-3"
+      aria-hidden="true"
+      data-sell-skeleton="v1.0"
+    >
+      <div className="flex flex-col gap-1.5">
+        <Skeleton className="h-3.5 w-14" />
+        <div className="flex gap-1.5">
+          <Skeleton className="h-[114px] w-[76px] shrink-0 rounded-[16px]" />
+          <Skeleton className="h-[114px] w-[76px] shrink-0 rounded-[16px]" />
+        </div>
       </div>
-      <SkeletonImage aspectRatio="16 / 9" rounded="lg" />
-      <Skeleton className="h-3.5 w-16" />
-      <SkeletonInput />
-      <Skeleton className="h-3.5 w-24" />
-      <SkeletonInput height={120} />
-      <Skeleton className="h-3.5 w-20" />
-      <SkeletonInput />
-      <Skeleton className="h-3.5 w-14" />
-      <SkeletonInput />
-      <Skeleton className="h-3.5 w-24" />
-      <SkeletonInput />
-      <Skeleton className="h-3.5 w-24" />
-      <div className="grid grid-cols-4 gap-ds-2">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <SkeletonButton key={i} fullWidth height={44} />
-        ))}
+      <div className="flex flex-col gap-1">
+        <Skeleton className="h-3.5 w-10" />
+        <SkeletonInput height={56} rounded="lg" />
       </div>
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-4" />
+      <div className="flex flex-col gap-1">
+        <Skeleton className="h-3.5 w-20" />
+        <SkeletonInput height={72} rounded="lg" />
       </div>
-      <SkeletonButton fullWidth height={52} rounded="lg" />
+      <Skeleton className="h-14 w-full rounded-none" />
+      <Skeleton className="h-14 w-full rounded-none" />
+      <Skeleton className="h-14 w-full rounded-none" />
+      <SkeletonButton fullWidth height={56} rounded="lg" />
     </div>
   );
 }

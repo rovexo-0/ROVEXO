@@ -7,7 +7,6 @@ import {
   platformFeeFromBuyer,
   sellerReceivesFullListingPrice,
   summarizeWalletWithdrawals,
-  SELLER_WALLET_COPY,
   walletTransactionCategory,
 } from "@/lib/transaction-hub/seller-wallet";
 import { PENDING_HOLD_HOURS } from "@/lib/wallet/sales";
@@ -80,7 +79,7 @@ describe("transaction hub seller wallet document 3", () => {
     expect(escrow).toContain("notifySellerFundsPending");
     expect(settlement).toContain("notifySellerFundsReleased");
     expect(wallet).toContain("Available");
-    expect(wallet).toContain("PersonalWalletMenuSections");
+    expect(wallet).toContain("BALANCE_PAGE_NAME");
     expect(wallet).toContain("WALLET_ROUTES.withdraw");
     expect(wallet).not.toContain("wallet-v2__balance-card");
   });

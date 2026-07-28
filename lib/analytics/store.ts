@@ -115,7 +115,6 @@ export async function getSellerAnalyticsData(
       { id: "direct", label: "Direct", value: 34 },
     ],
     recentActivity: {
-      followers: 0,
       reviews: products?.reduce((sum, product) => sum + product.likes, 0) ?? 0,
       saves: saves ?? 0,
     },

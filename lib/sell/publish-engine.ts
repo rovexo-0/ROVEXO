@@ -49,14 +49,13 @@ export function publishPhaseLabel(
       return "Publishing…";
     case "uploading":
       return options?.uploadProgress && options.uploadProgress > 0
-        ? `Uploading photos… ${options.uploadProgress}%`
-        : "Uploading photos…";
+        ? `Please wait… ${options.uploadProgress}%`
+        : "Please wait…";
     case "creating":
-      return options?.isEdit ? "Saving changes…" : "Creating listing…";
     case "finalising":
-      return "Finalising…";
+      return "Please wait…";
     case "published":
-      return "Published";
+      return "Listing successfully published.";
     default:
       return options?.isEdit ? "Save changes" : "Publish";
   }
@@ -107,10 +106,11 @@ async function createListingWithRetry(
         return response;
       }
 
-      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-      throw new Error(payload?.error ?? "Unable to save listing.");
+      void (await response.json().catch(() => null));
+      throw new Error("Unable to save listing.");
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error("Unable to save listing.");
+      lastError = new Error("Unable to save listing.");
+      void error;
       const delay = LISTING_CREATE_RETRY_MS[attempt];
       if (delay !== undefined && attempt < LISTING_CREATE_RETRY_MS.length - 1) {
         await new Promise((resolve) => setTimeout(resolve, delay));

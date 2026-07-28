@@ -93,8 +93,6 @@ const webServerEnvObj: Record<string, string> = {
   ROVEXO_VIRTUAL_WALLET: "1",
   SENDCLOUD_SANDBOX: "1",
   PLAYWRIGHT_E2E: "1",
-  NEXT_PUBLIC_ROVEXO_HOMEPAGE_DEMO: "1",
-  ROVEXO_HOMEPAGE_DEMO: "1",
   NODE_ENV: process.env.PLAYWRIGHT_DEV_SERVER === "1" ? "development" : "production",
 };
 

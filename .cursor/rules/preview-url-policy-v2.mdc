@@ -1,0 +1,16 @@
+---
+description: ROVEXO Preview URL Policy v2.0 — superseded by Owner Preview Policy v3.0.
+alwaysApply: true
+---
+
+# ROVEXO Preview URL Policy v2.0 → superseded by v3.0
+
+**STATUS:** Superseded by **Owner Preview Policy v3.0** (`.cursor/rules/owner-preview-policy-v3.mdc`).
+
+## Current official Owner URL
+
+**https://www.rovexo.co.uk**
+
+Deprecated: `https://preview.rovexo.co.uk` (DNS failure).
+
+Still enforced from v2.0: exactly one official Owner URL at a time; never localhost for Owner approval; never per-module preview URLs.

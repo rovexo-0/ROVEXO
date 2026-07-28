@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join, relative } from "node:path";
 import { SCAN_DIRS, walkFiles } from "@/lib/design-studio-v1/scan-utils";
 import type { DependencyGraphNode } from "@/lib/design-studio-v1/types";
@@ -31,7 +32,7 @@ function findDependents(rootDir: string, assetNeedle: string): string[] {
 }
 
 export function buildDependencyGraph(options: GraphOptions = {}): DependencyGraphNode[] {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? workspacePath();
   const assetPath = options.assetPath ?? "/icons";
   const dependents = findDependents(rootDir, assetPath.replace(/^\//, ""));
 

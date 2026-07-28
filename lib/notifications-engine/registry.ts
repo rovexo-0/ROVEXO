@@ -8,7 +8,7 @@ export const NOTIFICATIONS_ENGINE_MODULES: NotificationsEngineModule[] = [
   { id: "orders", label: "Orders Integration", icon: "📦", description: "Order lifecycle notifications", href: "/orders" },
   { id: "payments", label: "Payments Integration", icon: "💳", description: "Payment and refund alerts", href: "/payments" },
   { id: "shipping", label: "Shipping Integration", icon: "🚚", description: "Tracking and delivery updates", href: "/shipping" },
-  { id: "wallet", label: "Wallet Integration", icon: "👛", description: "Balance and withdrawal alerts", href: "/wallet" },
+  { id: "wallet", label: "Wallet Integration", icon: "👛", description: "Balance and withdrawal alerts", href: "/balance" },
   { id: "protection", label: "Purchase Protection Integration", icon: "🛡️", description: "Case and resolution alerts", href: "/protection" },
   { id: "analytics", label: "Analytics", icon: "📈", description: "Delivery, open rate, and performance", href: "/notifications?tab=analytics" },
 ];

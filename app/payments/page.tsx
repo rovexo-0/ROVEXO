@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
+import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 
-/** Payments management lives in Wallet — single entry point. */
-export default function PaymentsHubRedirect() {
-  redirect("/wallet");
+export default function PaymentsPage() {
+  redirect(WALLET_ROUTES.hub);
 }

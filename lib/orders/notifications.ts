@@ -1,15 +1,32 @@
 import { queueEmail } from "@/lib/email/service";
 import { createNotification } from "@/lib/notifications/create";
+import { NOTIFICATION_ROUTES } from "@/lib/notifications/routing";
+
+function orderHref(orderId?: string): string {
+  return orderId ? NOTIFICATION_ROUTES.order(orderId) : NOTIFICATION_ROUTES.orders;
+}
+
+function trackingHref(orderId?: string): string {
+  return orderId ? NOTIFICATION_ROUTES.orderTracking(orderId) : NOTIFICATION_ROUTES.orders;
+}
 
 export async function notifyOrderPaid(input: {
   buyerId: string;
   buyerEmail: string;
   sellerId: string;
   sellerEmail: string;
+  orderId: string;
   orderNumber: string;
   productTitle: string;
+  productImageUrl?: string;
+  itemPrice?: number;
 }): Promise<void> {
   const { emitSmartNotification } = await import("@/lib/notifications/events");
+  const href = orderHref(input.orderId);
+  const priceLabel =
+    typeof input.itemPrice === "number" && Number.isFinite(input.itemPrice)
+      ? `£${input.itemPrice.toFixed(2)}`
+      : undefined;
 
   await Promise.all([
     emitSmartNotification({
@@ -17,9 +34,13 @@ export async function notifyOrderPaid(input: {
       eventType: "new_order",
       idempotencyKey: `order-paid-buyer-${input.orderNumber}`,
       notificationType: "order",
-      title: "Order confirmed",
-      subtitle: `Payment received for ${input.productTitle}`,
-      href: "/orders",
+      title: "Order paid",
+      subtitle: priceLabel ?? `Payment received for ${input.productTitle}`,
+      href,
+      detail: priceLabel,
+      avatarUrl: input.productImageUrl,
+      avatarName: input.productTitle,
+      payload: { orderId: input.orderId, orderNumber: input.orderNumber },
     }),
     emitSmartNotification({
       userId: input.sellerId,
@@ -28,7 +49,11 @@ export async function notifyOrderPaid(input: {
       notificationType: "order",
       title: "New order",
       subtitle: `${input.orderNumber} — ${input.productTitle}`,
-      href: "/seller/orders",
+      href,
+      detail: priceLabel,
+      avatarUrl: input.productImageUrl,
+      avatarName: input.productTitle,
+      payload: { orderId: input.orderId, orderNumber: input.orderNumber },
     }),
     queueEmail({
       to: input.buyerEmail,
@@ -50,16 +75,22 @@ export async function notifyOrderPaid(input: {
 export async function notifyOrderShipped(input: {
   buyerId: string;
   buyerEmail: string;
+  orderId: string;
   orderNumber: string;
   trackingNumber: string;
+  productTitle?: string;
+  productImageUrl?: string;
 }): Promise<void> {
   await Promise.all([
     createNotification({
       userId: input.buyerId,
       type: "order",
       title: "Order shipped",
-      subtitle: `Tracking ${input.trackingNumber}`,
-      href: "/orders",
+      subtitle: "Tracking available",
+      href: trackingHref(input.orderId),
+      detail: input.trackingNumber ? `Tracking ${input.trackingNumber}` : input.productTitle,
+      avatarUrl: input.productImageUrl,
+      avatarName: input.productTitle ?? undefined,
     }),
     queueEmail({
       to: input.buyerEmail,
@@ -74,7 +105,10 @@ export async function notifyOrderShipped(input: {
 export async function notifyOrderDelivered(input: {
   buyerId: string;
   buyerEmail: string;
+  orderId: string;
   orderNumber: string;
+  productTitle?: string;
+  productImageUrl?: string;
 }): Promise<void> {
   await Promise.all([
     createNotification({
@@ -82,7 +116,10 @@ export async function notifyOrderDelivered(input: {
       type: "order",
       title: "Order delivered",
       subtitle: `Confirm receipt for ${input.orderNumber}`,
-      href: "/orders",
+      href: orderHref(input.orderId),
+      detail: input.productTitle,
+      avatarUrl: input.productImageUrl,
+      avatarName: input.productTitle,
     }),
     queueEmail({
       to: input.buyerEmail,
@@ -106,7 +143,7 @@ export async function notifyPayoutTransferred(input: {
       type: "system",
       title: "Payout sent",
       subtitle: `£${input.amount.toFixed(2)} for order ${input.orderNumber}`,
-      href: "/seller/wallet",
+      href: NOTIFICATION_ROUTES.walletTransactions,
     }),
     queueEmail({
       to: input.sellerEmail,
@@ -136,23 +173,28 @@ export async function notifyOrderRefunded(input: {
   buyerEmail: string;
   sellerId: string;
   sellerEmail: string;
+  orderId: string;
   orderNumber: string;
   amount: number;
+  productImageUrl?: string;
 }): Promise<void> {
+  const href = orderHref(input.orderId);
   await Promise.all([
     createNotification({
       userId: input.buyerId,
       type: "order",
       title: "Refund processed",
       subtitle: `Order ${input.orderNumber}`,
-      href: "/orders",
+      href,
+      avatarUrl: input.productImageUrl,
     }),
     createNotification({
       userId: input.sellerId,
       type: "order",
       title: "Order refunded",
       subtitle: input.orderNumber,
-      href: "/seller/orders",
+      href,
+      avatarUrl: input.productImageUrl,
     }),
     queueEmail({
       to: input.buyerEmail,
@@ -174,8 +216,10 @@ export async function notifyOrderRefunded(input: {
 export async function notifyOrderCancelled(input: {
   buyerId: string;
   buyerEmail: string;
+  orderId: string;
   orderNumber: string;
   reason?: string;
+  productImageUrl?: string;
 }): Promise<void> {
   await Promise.all([
     createNotification({
@@ -183,7 +227,8 @@ export async function notifyOrderCancelled(input: {
       type: "order",
       title: "Order cancelled",
       subtitle: input.orderNumber,
-      href: "/orders",
+      href: orderHref(input.orderId),
+      avatarUrl: input.productImageUrl,
     }),
     queueEmail({
       to: input.buyerEmail,
@@ -198,9 +243,11 @@ export async function notifyOrderCancelled(input: {
 export async function notifyBuyerOrderCancelledWithRefund(input: {
   buyerId: string;
   buyerEmail: string;
+  orderId: string;
   orderNumber: string;
   refunded: boolean;
   amount?: number;
+  productImageUrl?: string;
 }): Promise<void> {
   const body = input.refunded
     ? `Your order ${input.orderNumber} has been cancelled and refunded${input.amount != null ? ` (£${input.amount.toFixed(2)})` : ""}.`
@@ -212,7 +259,8 @@ export async function notifyBuyerOrderCancelledWithRefund(input: {
       type: "order",
       title: input.refunded ? "Order cancelled and refunded" : "Order cancelled",
       subtitle: input.orderNumber,
-      href: "/orders",
+      href: orderHref(input.orderId),
+      avatarUrl: input.productImageUrl,
     }),
     queueEmail({
       to: input.buyerEmail,
@@ -229,9 +277,11 @@ export async function notifyBuyerOrderCancelledWithRefund(input: {
 export async function notifySellerOrderCancelledByBuyer(input: {
   sellerId: string;
   sellerEmail: string;
+  orderId: string;
   orderNumber: string;
   productTitle: string;
   refundInitiated?: boolean;
+  productImageUrl?: string;
 }): Promise<void> {
   const sellerBody = input.refundInitiated
     ? `The buyer cancelled order ${input.orderNumber} for ${input.productTitle} before shipment. Refund initiated. No action required.`
@@ -245,7 +295,9 @@ export async function notifySellerOrderCancelledByBuyer(input: {
       subtitle: input.refundInitiated
         ? `${input.orderNumber} — refund initiated`
         : `${input.orderNumber} — ${input.productTitle}`,
-      href: "/seller/orders",
+      href: orderHref(input.orderId),
+      avatarUrl: input.productImageUrl,
+      avatarName: input.productTitle,
     }),
     queueEmail({
       to: input.sellerEmail,
@@ -257,12 +309,38 @@ export async function notifySellerOrderCancelledByBuyer(input: {
   ]);
 }
 
+export async function notifyRefundRequested(input: {
+  sellerId: string;
+  orderId: string;
+  orderNumber: string;
+  productTitle: string;
+  productImageUrl?: string;
+}): Promise<void> {
+  const { emitSmartNotification } = await import("@/lib/notifications/events");
+  await emitSmartNotification({
+    userId: input.sellerId,
+    eventType: "refund",
+    idempotencyKey: `refund-requested-${input.orderNumber}`,
+    notificationType: "order",
+    title: "Refund requested",
+    subtitle: "Buyer requested refund",
+    href: orderHref(input.orderId),
+    detail: input.productTitle,
+    avatarUrl: input.productImageUrl,
+    avatarName: input.productTitle,
+    payload: { orderId: input.orderId, orderNumber: input.orderNumber },
+  });
+}
+
 export async function notifyRefundInitiated(input: {
   buyerId: string;
   buyerEmail: string;
+  orderId: string;
   orderNumber: string;
   amount: number;
   reference: string;
+  productTitle?: string;
+  productImageUrl?: string;
 }): Promise<void> {
   const { emitSmartNotification } = await import("@/lib/notifications/events");
   const amountLabel = `£${input.amount.toFixed(2)}`;
@@ -276,8 +354,11 @@ export async function notifyRefundInitiated(input: {
       notificationType: "order",
       title: "Refund initiated",
       subtitle: `Refund in progress — ${amountLabel}`,
-      href: "/orders",
+      href: orderHref(input.orderId),
       detail: body,
+      avatarUrl: input.productImageUrl,
+      avatarName: input.productTitle,
+      payload: { orderId: input.orderId, orderNumber: input.orderNumber },
     }),
     queueEmail({
       to: input.buyerEmail,
@@ -292,9 +373,12 @@ export async function notifyRefundInitiated(input: {
 export async function notifyRefundCompleted(input: {
   buyerId: string;
   buyerEmail: string;
+  orderId: string;
   orderNumber: string;
   amount: number;
   reference: string;
+  productTitle?: string;
+  productImageUrl?: string;
 }): Promise<void> {
   const { emitSmartNotification } = await import("@/lib/notifications/events");
   const amountLabel = `£${input.amount.toFixed(2)}`;
@@ -308,8 +392,11 @@ export async function notifyRefundCompleted(input: {
       notificationType: "order",
       title: "Refund completed",
       subtitle: `${amountLabel} refunded`,
-      href: "/orders",
+      href: orderHref(input.orderId),
       detail: body,
+      avatarUrl: input.productImageUrl,
+      avatarName: input.productTitle,
+      payload: { orderId: input.orderId, orderNumber: input.orderNumber },
     }),
     queueEmail({
       to: input.buyerEmail,
@@ -324,7 +411,9 @@ export async function notifyRefundCompleted(input: {
 export async function notifyRefundFailed(input: {
   buyerId: string;
   buyerEmail: string;
+  orderId: string;
   orderNumber: string;
+  productImageUrl?: string;
 }): Promise<void> {
   const { emitSmartNotification } = await import("@/lib/notifications/events");
   const body =
@@ -338,8 +427,10 @@ export async function notifyRefundFailed(input: {
       notificationType: "order",
       title: "Refund failed",
       subtitle: input.orderNumber,
-      href: "/orders",
+      href: orderHref(input.orderId),
       detail: body,
+      avatarUrl: input.productImageUrl,
+      payload: { orderId: input.orderId, orderNumber: input.orderNumber },
     }),
     queueEmail({
       to: input.buyerEmail,
@@ -354,7 +445,9 @@ export async function notifyRefundFailed(input: {
 export async function notifySellerRefundInitiated(input: {
   sellerId: string;
   sellerEmail: string;
+  orderId: string;
   orderNumber: string;
+  productImageUrl?: string;
 }): Promise<void> {
   await Promise.all([
     createNotification({
@@ -362,7 +455,8 @@ export async function notifySellerRefundInitiated(input: {
       type: "order",
       title: "Refund initiated",
       subtitle: `${input.orderNumber} — buyer cancellation`,
-      href: "/seller/orders",
+      href: orderHref(input.orderId),
+      avatarUrl: input.productImageUrl,
     }),
     queueEmail({
       to: input.sellerEmail,
@@ -387,7 +481,7 @@ export async function notifyPromotionPurchased(input: {
       type: "system",
       title: "Promotion activated",
       subtitle: `${input.type} — ${input.productTitle}`,
-      href: "/seller/listings",
+      href: "/sell",
     }),
     queueEmail({
       to: input.sellerEmail,

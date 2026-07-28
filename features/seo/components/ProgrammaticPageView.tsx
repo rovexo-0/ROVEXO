@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { ListingCard } from "@/components/ui/ListingCard";
+import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import type { Product } from "@/lib/products/types";
 import type { ProgrammaticPage } from "@/lib/seo/programmatic/resolver";
 import { InternalLinksSection } from "@/features/seo/components/InternalLinksSection";
@@ -40,7 +41,7 @@ export function ProgrammaticPageView({ page, products, total }: ProgrammaticPage
       {products.length ? (
         <div className="mt-ds-6 rx-listing-grid">
           {products.map((product) => (
-            <ListingCard key={product.id} product={product} variant="grid" surface="category" />
+            <ListingCard key={product.id} product={product} variant="grid" {...HP_CANONICAL_LISTING_PROPS} />
           ))}
         </div>
       ) : (

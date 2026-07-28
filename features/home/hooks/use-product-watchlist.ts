@@ -1,8 +1,32 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+/**
+ * LIVE production heart hook — extracted from www deploy source (origin/main|develop).
+ * Optimistic 0ms UI · batch hydrate · rollback on fail · no shared bus · no soft RSC refresh
+ *
+ * Hydrate: one GET /api/saved (list) shared across cards — replaces N× GET ?slug= waterfall.
+ * Remount truth still comes from DB via that list endpoint (same Saved SSOT).
+ */
 
-export function useProductWatchlist(slug: string, initialSaved = false) {
+import { useCallback, useEffect, useState } from "react";
+import type { Product } from "@/lib/products/types";
+import {
+  invalidateSavedStatusCache,
+  loadSavedSlugSet,
+  markSavedInCache,
+} from "@/lib/saved/saved-status-cache";
+
+export function useProductWatchlist(
+  productOrSlug: Product | string | null | undefined,
+  initialSaved = false,
+) {
+  const slug =
+    !productOrSlug
+      ? ""
+      : typeof productOrSlug === "string"
+        ? productOrSlug
+        : productOrSlug.slug;
+
   const [isSaved, setIsSaved] = useState(initialSaved);
   const [isPending, setIsPending] = useState(false);
 
@@ -10,12 +34,9 @@ export function useProductWatchlist(slug: string, initialSaved = false) {
     if (!slug) return;
     let cancelled = false;
 
-    void fetch(`/api/saved?slug=${encodeURIComponent(slug)}`, { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload: { saved?: boolean } | null) => {
-        if (!cancelled && payload) {
-          setIsSaved(Boolean(payload.saved));
-        }
+    void loadSavedSlugSet()
+      .then((set) => {
+        if (!cancelled) setIsSaved(set.has(slug));
       })
       .catch(() => undefined);
 
@@ -29,6 +50,7 @@ export function useProductWatchlist(slug: string, initialSaved = false) {
 
     const nextSaved = !isSaved;
     setIsSaved(nextSaved);
+    markSavedInCache(slug, nextSaved);
     setIsPending(true);
 
     try {
@@ -42,9 +64,13 @@ export function useProductWatchlist(slug: string, initialSaved = false) {
 
       if (!response.ok) {
         setIsSaved(!nextSaved);
+        markSavedInCache(slug, !nextSaved);
+        invalidateSavedStatusCache();
       }
     } catch {
       setIsSaved(!nextSaved);
+      markSavedInCache(slug, !nextSaved);
+      invalidateSavedStatusCache();
     } finally {
       setIsPending(false);
     }

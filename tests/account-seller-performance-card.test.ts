@@ -118,7 +118,7 @@ describe("account seller performance summary messages", () => {
     const factors = { ...emptyFactors, completedOrders: 3 };
     progress.requirements = buildNextLevelRequirements(45, factors, components);
 
-    expect(progress.nextLevel).toBe("trusted_seller");
+    expect(progress.nextLevel).toBe("diamond");
     expect(progress.pointsToNext).toBeGreaterThan(0);
     expect(progress.requirements.length).toBeGreaterThan(0);
   });

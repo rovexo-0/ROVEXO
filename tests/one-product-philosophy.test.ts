@@ -48,11 +48,11 @@ describe("One Product Philosophy Freeze", () => {
     expect(types).not.toContain("⭐");
   });
 
-  it("Withdraw and Transactions use CanonicalMenuRow", () => {
+  it("Withdraw and Transactions use the canonical account shell", () => {
     const withdraw = readSource("features/wallet/components/withdraw/WithdrawPage.tsx");
     const txns = readSource("features/wallet/components/WalletTransactionsList.tsx");
-    expect(withdraw).toContain("CanonicalMenuRow");
-    expect(withdraw).toContain("AccountIcon");
+    expect(withdraw).toContain("AccountCanonicalShell");
+    expect(withdraw).toContain('data-full-width-surface="withdraw"');
     expect(txns).toContain("CanonicalMenuRow");
   });
 
@@ -79,11 +79,12 @@ describe("One Product Philosophy Freeze", () => {
     expect(search).not.toContain("rx-glow");
   });
 
-  it("Inbox notifications use CanonicalMenuRow", () => {
+  it("Inbox notifications use canonical menu rows", () => {
     const inbox = readSource("features/inbox/components/InboxPage.tsx");
+    expect(inbox).toContain("resolveInboxNotificationRowIcon");
+    expect(inbox).toContain("formatNotificationTime");
     expect(inbox).toContain("CanonicalMenuRow");
-    expect(inbox).toContain("AccountIcon");
-    expect(inbox).not.toContain("inbox-hub__notif-card");
+    expect(inbox).not.toContain("EARLIER");
   });
 
   it("Tracking uses AccountIcon not lucide Package", () => {
@@ -106,15 +107,15 @@ describe("One Product Philosophy Freeze", () => {
     expect(menu).toContain("Disputes");
   });
 
-  it("Checkout is Confirm & Pay only — no wizard steps", () => {
+  it("Checkout retains its frozen UI contract — no wizard steps", () => {
     const wizard = readSource("features/checkout/components/CheckoutWizardV1.tsx");
-    expect(wizard).toContain("Confirm & Pay");
-    expect(wizard).toContain("Products");
-    expect(wizard).toContain("Shipping");
+    expect(wizard).toContain('data-checkout-freeze="CHECKOUT_UI_v1.0"');
+    expect(wizard).not.toContain("Pay Securely");
+    expect(wizard).toContain('aria-label="Product"');
+    expect(wizard).toContain("Delivery option");
     expect(wizard).not.toContain("Continue to Payment");
     expect(wizard).not.toContain("CheckoutDeliveryStepV1");
     expect(wizard).not.toContain("CheckoutPaymentStepV1");
-    expect(wizard).toContain('data-checkout-freeze="ABSOLUTE-FINAL"');
   });
 
   it("Parcel freeze — four options only", () => {
@@ -122,8 +123,8 @@ describe("One Product Philosophy Freeze", () => {
     const parcels = readSource("lib/shipping/parcels.ts");
     const ops = readSource("features/commerce-ui/components/ParcelOperations.tsx");
     const store = readSource("features/store/components/ProStorePage.tsx");
-    expect(sell).toContain("Small Parcel");
-    expect(sell).toContain("Extra Large Parcel");
+    expect(sell).toContain('label: "SMALL"');
+    expect(sell).toContain('label: "EXTRA LARGE"');
     expect(sell).not.toContain('"custom"');
     expect(parcels).toContain("Extra Large Parcel");
     expect(parcels).not.toContain('label: "Letter"');
@@ -145,21 +146,22 @@ describe("One Product Philosophy Freeze", () => {
     expect(tracking).toContain('showOperations={false}');
   });
 
-  it("Inbox conversation rows are product-first without swipe", () => {
+  it("Inbox conversation rows are Vinted Master Stack without swipe", () => {
     const inbox = readSource("features/inbox/components/InboxPage.tsx");
-    expect(inbox).toContain("conversation.product?.title");
+    expect(inbox).toContain("conversation.product.title");
+    expect(inbox).toContain("conversation.participant.name");
+    expect(inbox).toContain("inbox-hub__user-avatar-face");
     expect(inbox).not.toContain("SwipeableConversationRow");
   });
 
-  it("ConversationHub is Transaction Hub — no chat attach sheet / typing / avatars", () => {
+  it("ConversationHub is Transaction Hub — no chat attach sheet / typing", () => {
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
     const css = readSource("styles/rovexo/conversation-hub-v1.css");
-    expect(hub).toContain("Message about this order");
+    expect(hub).toContain("Write a message...");
     expect(hub).not.toContain("signalTyping");
     expect(hub).not.toContain("attachSheetOpen");
     expect(hub).not.toContain("uploadListingImage");
     expect(hub).not.toContain("ShareListingSheet");
-    expect(hub).not.toContain('from "@/components/ui/Avatar"');
     expect(hub).not.toContain("Share listing");
     expect(hub).not.toContain("Video");
     expect(hub).not.toContain("conv-hub__preview");

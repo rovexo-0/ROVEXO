@@ -24,6 +24,7 @@ import { generateShippingLabelForOrder } from "@/lib/shipping/label-generation.s
 import { isSendcloudConfigured } from "@/lib/shipping/env";
 import type { UkCarrier } from "@/lib/shipping/carriers";
 import type { ShippingAddress, ShippingQuote } from "@/lib/shipping/types";
+import { markProductSold } from "@/lib/inventory/service";
 
 const PAID_ORDER_STATUSES = new Set([
   "awaiting_shipment",
@@ -268,7 +269,12 @@ export async function completePaidOrderFulfillment(input: {
   try {
     return await runCompletePaidOrderFulfillment(input);
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === "object" && error && "message" in error
+          ? String((error as { message: unknown }).message)
+          : String(error);
     console.error("[orders/post-payment] fulfillment failed:", message);
     return { success: false, error: message };
   }
@@ -360,6 +366,15 @@ async function runCompletePaidOrderFulfillment(input: {
 
   await ensureOrderShippingPipeline(row);
 
+  // Inventory Engine v1.0 — SOLD only after payment success (never on Buy Now reserve).
+  if (item.product_id) {
+    const sold = await markProductSold(item.product_id);
+    if (!sold.success) {
+      console.error("[orders/post-payment] mark_product_sold failed:", sold.error);
+      throw new Error(sold.error ?? "Failed to mark listing sold after payment.");
+    }
+  }
+
   const itemRow = item;
   const conversation = await ensureOrderConversation({
     buyerId: row.buyer_id,
@@ -393,8 +408,11 @@ async function runCompletePaidOrderFulfillment(input: {
     buyerEmail: buyerProfile?.email ?? "",
     sellerId: row.seller_id,
     sellerEmail: sellerProfile?.email ?? "",
+    orderId: input.orderId,
     orderNumber: row.order_number,
     productTitle: item.title,
+    productImageUrl: item.image_url ?? undefined,
+    itemPrice: Number(row.item_price),
   });
 
   return {

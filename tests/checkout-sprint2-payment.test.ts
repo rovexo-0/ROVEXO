@@ -10,13 +10,17 @@ function readSource(relativePath: string) {
 describe("checkout sprint 2 — payment + sendcloud", () => {
   it("opens Buy Now on full-page checkout without cart", () => {
     const product = readSource("features/product-detail/ProductDetailPage.tsx");
-    const hub = readSource("features/transaction-hub/TransactionHubBottomActions.tsx");
+    const conversationHub = readSource("features/inbox/components/ConversationHub.tsx");
+    const bottomActions = readSource("features/transaction-hub/TransactionHubBottomActions.tsx");
+    const nav = readSource("features/checkout/hooks/use-buy-now-navigation.ts");
 
-    expect(product).toContain("`/checkout/${product.slug}`");
+    expect(product).toContain("executeBuyNow");
+    expect(product).toContain("buildBuyNowCheckoutHref");
+    expect(nav).toContain("/api/checkout/buy-now");
     expect(product).not.toContain("CheckoutHubSheet");
-    expect(hub).toContain("/checkout/");
-    expect(hub).toContain("conversationId");
-    expect(hub).not.toContain("CheckoutHubSheet");
+    expect(conversationHub).toContain("executeBuyNow");
+    expect(conversationHub).toContain("conversationId");
+    expect(bottomActions).not.toContain("CheckoutHubSheet");
   });
 
   it("wires wallet paymentMethodId into order checkout", () => {
@@ -49,9 +53,16 @@ describe("checkout sprint 2 — payment + sendcloud", () => {
     expect(checkout).toContain("/checkout/${product.slug}/success?order_id=");
     expect(success).toContain("confirmOrderCheckoutSession");
     expect(success).toContain("CheckoutSuccessView");
-    expect(view).toContain("View Order");
-    expect(view).toContain("Open Conversation");
-    expect(view).toContain("Continue Shopping");
+    // Checkout Absolute Law v1.0 FINAL LOCK — DONE only after readiness gates
+    expect(view).toContain("DONE");
+    expect(view).toContain("doneReady");
+    expect(view).toContain("/inbox/conversation/");
+    expect(view).toContain("/api/checkout/done-ready");
+    expect(view).not.toMatch(/View Order/);
+    expect(view).not.toMatch(/Open Conversation/);
+    expect(view).not.toMatch(/Continue Shopping/);
+    expect(view).not.toMatch(/Track Order/);
+    expect(view).not.toMatch(/\borderNumber\b/);
   });
 
   it("maps Sendcloud lifecycle states onto shipping statuses", () => {
@@ -68,7 +79,7 @@ describe("checkout sprint 2 — payment + sendcloud", () => {
   it("marks sprint 3 qa freeze on the checkout shell", () => {
     const wizard = readSource("features/checkout/components/CheckoutWizardV1.tsx");
     expect(wizard).toContain('data-checkout-sprint="3-qa"');
-    expect(wizard).toContain('data-checkout-freeze="ABSOLUTE-FINAL"');
+    expect(wizard).toContain('data-checkout-freeze="CHECKOUT_UI_v1.0"');
     expect(wizard).toContain('data-checkout-version="v1.0"');
   });
 });

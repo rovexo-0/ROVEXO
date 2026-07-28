@@ -34,7 +34,7 @@ const PREMIUM_TO_ACCOUNT: Record<AccountPremiumIconKey, AccountIconName> = {
 };
 
 /** Absolute Final: AccountIcon line glyphs — no premium account WebP/PNG assets. */
-export function PremiumAccountIcon({ icon, size = 40, className, priority: _priority = false }: PremiumAccountIconProps) {
+export function PremiumAccountIcon({ icon, size = 40, className }: PremiumAccountIconProps) {
   return (
     <span
       className={cn("inline-flex shrink-0 items-center justify-center text-current", className)}

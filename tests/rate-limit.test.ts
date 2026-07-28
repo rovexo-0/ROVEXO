@@ -71,6 +71,25 @@ describe("rate limiting", () => {
     expect((await checkRateLimit(key, 1, 60_000)).allowed).toBe(true);
     expect((await getRateLimitStatus(key, 1, 60_000)).allowed).toBe(true);
   });
+
+  it("uses memory fallback on localhost production runtime without Upstash", async () => {
+    const prevNode = process.env.NODE_ENV;
+    const prevUrl = process.env.NEXT_PUBLIC_APP_URL;
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+
+    const key = `localhost-buy-now-${Date.now()}`;
+    expect((await checkRateLimit(key, 2, 60_000)).allowed).toBe(true);
+    expect((await checkRateLimit(key, 2, 60_000)).allowed).toBe(true);
+    expect((await checkRateLimit(key, 2, 60_000)).allowed).toBe(false);
+
+    vi.unstubAllEnvs();
+    process.env.NODE_ENV = prevNode;
+    if (prevUrl === undefined) delete process.env.NEXT_PUBLIC_APP_URL;
+    else process.env.NEXT_PUBLIC_APP_URL = prevUrl;
+  });
 });
 
 describe("auth rate limiting", () => {

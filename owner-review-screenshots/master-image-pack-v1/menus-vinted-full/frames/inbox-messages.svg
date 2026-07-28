@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="716" viewBox="0 0 390 716"><rect width="390" height="716" fill="#F2F2F2"/><rect width="390" height="44" fill="#FFFFFF"/><text x="16" y="28" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">9:41</text>
+<rect x="0" y="44" width="390" height="48" fill="#FFFFFF"/><text x="195" y="74" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="17" font-weight="700" fill="#1A1A1A">Inbox</text>
+<rect x="0" y="92" width="390" height="44" fill="#FFFFFF"/>
+<text x="97.5" y="118" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="700" fill="#1A1A1A">Messages</text>
+<rect x="24" y="134" width="147" height="2" fill="#9333ea"/>
+<text x="292.5" y="118" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="500" fill="#666666">Notifications</text>
+<line x1="0" y1="136" x2="390" y2="136" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="136" width="390" height="76" fill="#FFFFFF"/>
+<circle cx="38" cy="174" r="22" fill="#E8E8E8"/>
+<text x="70" y="164" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="700" fill="#1A1A1A">Sam · Order #4821</text>
+<text x="70" y="184" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="400" fill="#666666">Parcel shipped — tracking updated</text>
+<text x="374" y="164" text-anchor="end" font-size="12" fill="#999999">2m</text>
+<rect x="70" y="190" width="64" height="16" rx="8" fill="#F2F2F2"/><text x="102" y="202" text-anchor="middle" font-size="10" font-weight="600" fill="#666666">Tracking</text>
+<circle cx="368" cy="184" r="5" fill="#9333ea"/>
+<line x1="70" y1="212" x2="390" y2="212" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="212" width="390" height="76" fill="#FFFFFF"/>
+<circle cx="38" cy="250" r="22" fill="#E8E8E8"/>
+<text x="70" y="240" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="700" fill="#1A1A1A">Jordan · Offer</text>
+<text x="70" y="260" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="400" fill="#666666">Would you take £28?</text>
+<text x="374" y="240" text-anchor="end" font-size="12" fill="#999999">14m</text>
+<rect x="70" y="266" width="64" height="16" rx="8" fill="#F2F2F2"/><text x="102" y="278" text-anchor="middle" font-size="10" font-weight="600" fill="#666666">Offer</text>
+<circle cx="368" cy="260" r="5" fill="#9333ea"/>
+<line x1="70" y1="288" x2="390" y2="288" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="288" width="390" height="76" fill="#FFFFFF"/>
+<circle cx="38" cy="326" r="22" fill="#E8E8E8"/>
+<text x="70" y="316" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">Casey · Order #4790</text>
+<text x="70" y="336" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="400" fill="#666666">Thanks! Leave a review?</text>
+<text x="374" y="316" text-anchor="end" font-size="12" fill="#999999">1h</text>
+<rect x="70" y="342" width="64" height="16" rx="8" fill="#F2F2F2"/><text x="102" y="354" text-anchor="middle" font-size="10" font-weight="600" fill="#666666">Review</text>
+<line x1="70" y1="364" x2="390" y2="364" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="364" width="390" height="76" fill="#FFFFFF"/>
+<circle cx="38" cy="402" r="22" fill="#E8E8E8"/>
+<text x="70" y="392" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">ROVEXO Support</text>
+<text x="70" y="412" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="400" fill="#666666">Refund request received</text>
+<text x="374" y="392" text-anchor="end" font-size="12" fill="#999999">3h</text>
+<rect x="70" y="418" width="64" height="16" rx="8" fill="#F2F2F2"/><text x="102" y="430" text-anchor="middle" font-size="10" font-weight="600" fill="#666666">Support</text>
+<line x1="70" y1="440" x2="390" y2="440" stroke="#E0E0E0" stroke-width="1"/>
+<rect x="0" y="440" width="390" height="76" fill="#FFFFFF"/>
+<circle cx="38" cy="478" r="22" fill="#E8E8E8"/>
+<text x="70" y="468" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="15" font-weight="600" fill="#1A1A1A">Alex · Order #4702</text>
+<text x="70" y="488" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="400" fill="#666666">Item arrived — confirm?</text>
+<text x="374" y="468" text-anchor="end" font-size="12" fill="#999999">Yesterday</text>
+<rect x="70" y="494" width="64" height="16" rx="8" fill="#F2F2F2"/><text x="102" y="506" text-anchor="middle" font-size="10" font-weight="600" fill="#666666">Orders</text>
+<rect x="0" y="516" width="390" height="8" fill="#F2F2F2"/>
+<rect x="0" y="524" width="390" height="100" fill="#FFFFFF"/>
+<text x="16" y="548" font-size="13" font-weight="700" fill="#666666">Inbox Hub · funcții ROVEXO</text>
+<text x="16" y="564" font-size="12" font-weight="600" fill="#9333ea">Orders</text>
+<text x="106" y="564" font-size="12" font-weight="600" fill="#9333ea">Tracking</text>
+<text x="196" y="564" font-size="12" font-weight="600" fill="#9333ea">Offers</text>
+<text x="286" y="564" font-size="12" font-weight="600" fill="#9333ea">Reviews</text>
+<text x="16" y="592" font-size="12" font-weight="600" fill="#9333ea">Refunds</text>
+<text x="106" y="592" font-size="12" font-weight="600" fill="#9333ea">Disputes</text>
+<text x="196" y="592" font-size="12" font-weight="600" fill="#9333ea">Support</text>
+<g transform="translate(0 624)"><rect x="0" y="0" width="390" height="64" fill="#FFFFFF"/><line x1="0" y1="0" x2="390" y2="0" stroke="#E0E0E0" stroke-width="1"/><g transform="translate(27 8)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20h-5v-6h-4v6H4z"/></svg></g><text x="39" y="52" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="10" font-weight="500" fill="#999999">Home</text><g transform="translate(105 8)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-3.5-3.5"/></svg></g><text x="117" y="52" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="10" font-weight="500" fill="#999999">Search</text><g transform="translate(183 8)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></g><text x="195" y="52" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="10" font-weight="500" fill="#999999">Sell</text><g transform="translate(261 8)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3.5V16H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg></g><text x="273" y="52" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="10" font-weight="700" fill="#9333ea">Inbox</text><circle cx="283" cy="10" r="7" fill="#9333ea"/><text x="283" y="13" text-anchor="middle" font-size="9" font-weight="700" fill="#fff">3</text><g transform="translate(339 8)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></g><text x="351" y="52" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif" font-size="10" font-weight="500" fill="#999999">Profile</text></g>
+<rect x="0" y="688" width="390" height="28" fill="#F2F2F2"/><text x="16" y="706" font-size="9" font-family="ui-monospace,monospace" fill="#999999">Vinted Inbox = Messages + Notifications · ROVEXO Transaction Hub</text></svg>

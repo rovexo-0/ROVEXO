@@ -22,7 +22,8 @@ describe("Header Master Freeze v1.0 — OWNER LOCKED", () => {
     expect(HEADER_MASTER_FREEZE_V1.noHeaderProfileFetch).toBe(true);
     expect(HEADER_MASTER_FREEZE_V1.noHeaderNotificationFetch).toBe(true);
     expect(HEADER_MASTER_FREEZE_V1.headerSurvivesNavigation).toBe(true);
-    expect(HEADER_MASTER_FREEZE_V1.headerNeverRemountsOnNav).toBe(true);
+    expect(HEADER_MASTER_FREEZE_V1.headerNeverRemountsOnNav).toBe(false);
+    expect(HEADER_MASTER_FREEZE_V1.homepageSearchBarOnly).toBe(true);
     expect(HEADER_MASTER_FREEZE_V1.tokens.headerHeightPx).toBe(64);
     expect(HEADER_MASTER_FREEZE_V1.tokens.searchBar.heightPx).toBe(44);
     expect(HEADER_MASTER_FREEZE_V1.tokens.searchBar.radiusPx).toBe(16);

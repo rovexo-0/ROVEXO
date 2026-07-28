@@ -6,7 +6,7 @@ export const ANALYTICS_ENGINE_MODULES: AnalyticsEngineModule[] = [
   { id: "orders", label: "Orders Analytics", icon: "📦", description: "Order lifecycle and completion", href: "/orders" },
   { id: "listings", label: "Listings Analytics", icon: "🏷️", description: "Views, clicks, and conversion", href: "/seller/analytics" },
   { id: "shipping", label: "Shipping Analytics", icon: "🚚", description: "Delivery and carrier performance", href: "/shipping" },
-  { id: "wallet", label: "Wallet Analytics", icon: "👛", description: "Balances, withdrawals, and activity", href: "/wallet" },
+  { id: "wallet", label: "Wallet Analytics", icon: "👛", description: "Balances, withdrawals, and activity", href: "/balance" },
   { id: "payments", label: "Payments Analytics", icon: "💳", description: "Transactions, refunds, and fees", href: "/payments" },
   { id: "protection", label: "Purchase Protection Analytics", icon: "🛡️", description: "Cases, refunds, and resolution", href: "/protection" },
   { id: "messages", label: "Messages Analytics", icon: "💬", description: "Conversations and response time", href: "/messages?tab=analytics" },

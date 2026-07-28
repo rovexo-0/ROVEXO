@@ -7,11 +7,13 @@ function readSource(relativePath: string): string {
 }
 
 describe("sell scroll v1", () => {
-  it("does not trap sell main content in a flex scroll container", () => {
-    const source = readSource("features/sell/ui/SellScreen.tsx");
-    expect(source).not.toContain("min-h-0 flex-1 flex-col");
-    expect(source).toContain("sell-page-v1-shell");
+  it("uses Account shell document scroll — no SellScreen flex trap", () => {
+    const source = readSource("features/sell/ui/SellPage.tsx");
+    expect(source).toContain("AccountCanonicalShell");
+    expect(source).toContain("AccountPageStack");
+    expect(source).toContain("data-sell-shell");
     expect(source).toContain("clearBodyScrollLock");
+    expect(source).toContain("useSellPageBottomClearance");
   });
 
   it("sell fullscreen pickers never lock document body", () => {
@@ -38,19 +40,12 @@ describe("sell scroll v1", () => {
     expect(css).not.toContain("touch-action: none");
   });
 
-  it("uses dynamic bottom clearance for publish bar", () => {
-    const screen = readSource("features/sell/ui/SellScreen.tsx");
-    expect(screen).toContain("useSellPageBottomClearance");
-    expect(screen).toContain("sell-page-v1-content");
-    expect(screen).not.toContain("pb-[calc(5.5rem");
-
+  it("uses sticky publish clearance tokens", () => {
     const css = readSource("styles/rovexo/sell.css");
-    expect(css).toContain("--sell-content-bottom-padding");
-    expect(css).toContain("--sell-publish-bar-measured");
-    expect(css).toContain("--sell-keyboard-offset");
+    expect(css).toContain("--sell-sticky-clearance");
+    expect(css).toContain("account-settings-sticky-action");
 
     const hook = readSource("features/sell/hooks/use-sell-page-bottom-clearance.ts");
     expect(hook).toContain("ResizeObserver");
-    expect(hook).toContain("visualViewport");
   });
 });

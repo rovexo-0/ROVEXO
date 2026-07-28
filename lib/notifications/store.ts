@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/lib/supabase/types/database";
 import type { Notification, NotificationIcon, NotificationPreferences, NotificationSettings } from "@/lib/notifications/types";
+import { enrichNotificationProductMedia } from "@/lib/notifications/enrich-product-media";
+import { recoverNotificationHref } from "@/lib/notifications/routing";
 
 function notificationIcon(type: Tables<"notifications">["type"]): NotificationIcon {
   switch (type) {
@@ -14,14 +16,13 @@ function notificationIcon(type: Tables<"notifications">["type"]): NotificationIc
       return "review";
     case "payment":
       return "payment";
-    case "follower":
-      return "follower";
     case "moderation":
       return "moderation";
     case "promotion_expired":
       return "promotion";
     case "saved_item_sold":
     case "price_reduced":
+    case "saved_search_match":
       return "product";
     default:
       return "system";
@@ -29,12 +30,14 @@ function notificationIcon(type: Tables<"notifications">["type"]): NotificationIc
 }
 
 function mapNotification(row: Tables<"notifications">): Notification {
+  const type =
+    row.type === "follower" ? ("system" as const) : (row.type as Notification["type"]);
   return {
     id: row.id,
-    type: row.type,
+    type,
     title: row.title,
     subtitle: row.subtitle,
-    href: row.href,
+    href: recoverNotificationHref(row.href),
     read: row.read,
     avatarUrl: row.avatar_url,
     avatarName: row.avatar_name ?? undefined,
@@ -75,7 +78,8 @@ export async function listNotifications(userId: string): Promise<Notification[]>
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
-  return (data ?? []).map(mapNotification);
+  const mapped = (data ?? []).map(mapNotification);
+  return enrichNotificationProductMedia(mapped);
 }
 
 export async function getNotificationById(

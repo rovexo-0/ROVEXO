@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiAuth } from "@/lib/auth/session";
-import {
-  resolveProfileCompletionRedirect,
-  sanitizeReturnToPath,
-  type ProfileCompletionIntent,
-} from "@/lib/account/profile-completion";
+import { sanitizeReturnToPath, type ProfileCompletionIntent } from "@/lib/account/profile-completion";
+import { resolveProfileCompletionRedirect } from "@/lib/account/profile-completion.server";
 
 const INTENTS: ProfileCompletionIntent[] = ["checkout", "publish", "withdraw"];
 

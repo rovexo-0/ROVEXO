@@ -2,38 +2,32 @@
 
 import { CanonicalInfoBlock, CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 import { useEffect, useState } from "react";
-import { AccountCanonicalShell } from "@/features/account-canonical";
-
+import { MyAccountTemplate } from "@/features/account-canonical";
+import { FailClosedPanel } from "@/components/fail-closed/FailClosedPanel";
 import { SettingSection } from "@/features/settings/components/SettingSection";
 import { SettingToggle } from "@/features/settings/components/SettingToggle";
+import { resolveCanonicalSwitchChecked } from "@/lib/master-engine/switch-engine";
 import type { NotificationPreferences } from "@/lib/notifications/types";
 
-const DEFAULT_PREFERENCES: NotificationPreferences = {
-  orders: true,
-  messages: true,
-  payments: true,
-  support: true,
-  marketing: false,
-  security: true,
-  business: true,
-  ai: true,
-};
-
 export function NotificationPreferencesPage() {
-  const [preferences, setPreferences] = useState<NotificationPreferences>(DEFAULT_PREFERENCES);
+  const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
   const [saving, setSaving] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
     void fetch("/api/notifications/preferences")
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("unavailable");
+        return response.json();
+      })
       .then((payload: { preferences: NotificationPreferences }) => {
         setPreferences(payload.preferences);
-        setLoaded(true);
-      });
+      })
+      .catch(() => setLoadFailed(true));
   }, []);
 
   const updatePreference = async (patch: Partial<NotificationPreferences>) => {
+    if (!preferences) return;
     setSaving(true);
     const response = await fetch("/api/notifications/preferences", {
       method: "PATCH",
@@ -45,21 +39,29 @@ export function NotificationPreferencesPage() {
       const payload = (await response.json()) as { preferences: NotificationPreferences };
       setPreferences(payload.preferences);
     } else {
-      setPreferences((current) => ({ ...current, ...patch }));
+      setPreferences((current) => (current ? { ...current, ...patch } : current));
     }
     setSaving(false);
   };
 
-  if (!loaded) {
+  if (loadFailed) {
     return (
-      <AccountCanonicalShell title="Notification preferences" backHref="/notifications/settings" showHeaderTitle>
+      <MyAccountTemplate surface="notifications" title="Notification preferences" backHref="/notifications/settings" showHeaderTitle>
+        <FailClosedPanel density="section" onRetry={() => window.location.reload()} />
+      </MyAccountTemplate>
+    );
+  }
+
+  if (!preferences) {
+    return (
+      <MyAccountTemplate surface="notifications" title="Notification preferences" backHref="/notifications/settings" showHeaderTitle>
         <CanonicalInfoBlock variant="description">Loading preferences…</CanonicalInfoBlock>
-      </AccountCanonicalShell>
+      </MyAccountTemplate>
     );
   }
 
   return (
-    <AccountCanonicalShell title="Notification preferences" backHref="/notifications/settings" showHeaderTitle>
+    <MyAccountTemplate surface="notifications" title="Notification preferences" backHref="/notifications/settings" showHeaderTitle>
       {saving ? (
         <p className="sr-only" aria-live="polite">
           Saving preferences
@@ -71,56 +73,56 @@ export function NotificationPreferencesPage() {
           id="pref-orders"
           label="Orders"
           description="Order updates, shipping, and delivery"
-          checked={preferences.orders}
+          checked={resolveCanonicalSwitchChecked(preferences.orders)}
           onChange={(checked) => void updatePreference({ orders: checked })}
         />
         <SettingToggle
           id="pref-messages"
           label="Messages"
           description="Buyer and seller conversations"
-          checked={preferences.messages}
+          checked={resolveCanonicalSwitchChecked(preferences.messages)}
           onChange={(checked) => void updatePreference({ messages: checked })}
         />
         <SettingToggle
           id="pref-payments"
           label="Payments"
           description="Payments, refunds, and payouts"
-          checked={preferences.payments}
+          checked={resolveCanonicalSwitchChecked(preferences.payments)}
           onChange={(checked) => void updatePreference({ payments: checked })}
         />
         <SettingToggle
           id="pref-support"
           label="Support"
           description="Support replies and case updates"
-          checked={preferences.support}
+          checked={resolveCanonicalSwitchChecked(preferences.support)}
           onChange={(checked) => void updatePreference({ support: checked })}
         />
         <SettingToggle
           id="pref-marketing"
           label="Marketing"
           description="Promotions and announcements"
-          checked={preferences.marketing}
+          checked={resolveCanonicalSwitchChecked(preferences.marketing)}
           onChange={(checked) => void updatePreference({ marketing: checked })}
         />
         <SettingToggle
           id="pref-security"
           label="Security"
           description="Trust, verification, and account security"
-          checked={preferences.security}
+          checked={resolveCanonicalSwitchChecked(preferences.security)}
           onChange={(checked) => void updatePreference({ security: checked })}
         />
         <SettingToggle
           id="pref-business"
           label="Business"
           description="Wholesale leads and B2B activity"
-          checked={preferences.business}
+          checked={resolveCanonicalSwitchChecked(preferences.business)}
           onChange={(checked) => void updatePreference({ business: checked })}
         />
         <SettingToggle
           id="pref-ai"
           label="AI"
           description="Saved search matches and assistant alerts"
-          checked={preferences.ai}
+          checked={resolveCanonicalSwitchChecked(preferences.ai)}
           onChange={(checked) => void updatePreference({ ai: checked })}
         />
       </SettingSection>
@@ -134,6 +136,6 @@ export function NotificationPreferencesPage() {
           />
         </CanonicalCard>
       </CanonicalSection>
-    </AccountCanonicalShell>
+    </MyAccountTemplate>
   );
 }

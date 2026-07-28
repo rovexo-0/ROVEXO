@@ -1,24 +1,25 @@
 ---
-description: My Account hub — Final Freeze v2.0 menu (Buying/Selling/Business); layout chrome protected
+description: Profile (Main) hub — Owner Implementation Update; Profile-only redirects
 globs: features/account-center/**/*,lib/account-center/canonical-menu.ts,lib/account/freeze.ts,app/account/**
 alwaysApply: false
 ---
 
-# My Account — Final Freeze v2.0
+# Profile (Main) — Owner Implementation Update
 
-**STATUS: LAYOUT PROTECTED | MENU UPDATED UNDER PO FINAL FREEZE v2.0**
+**STATUS: PROFILE MAIN ONLY | ZERO DAMAGE | REDIRECTS ONLY**
 
-## Protected (do not redesign without PO)
+## Protected
 
-- Hub composition order: Profile → Stats → Seller Performance → Menu → Sign Out
-- Absence of View Public Profile / Edit Profile / Become Seller on the hub
+- Hub composition: Profile header → Menu → Sign Out
+- Do not modify Homepage, Checkout, Orders logic, Wallet logic, Settings module, Payments, Shipping, DB, APIs, Auth
 
-## Authorized (Final Freeze v2.0)
+## Authorized menu (Profile only)
 
-- Menu reorganization into BUYING / SELLING / BUSINESS / ACCOUNT / SUPPORT
-- Business tools entry points
-- Full-width mobile layout for account shells
-- Compact Premium density
+Favourites → `/saved` · Balance → `/wallet` · My Orders → `/orders` · Holiday Mode → `/seller` · Settings → `/settings` · Help → `/help` · Legal → `/legal` · Sign Out (confirm dialog)
+
+## Header
+
+Avatar 64px · username 16 Regular · View Profile purple · rating `5.0 ★ (n)` · full row clickable
 
 ## Reference
 

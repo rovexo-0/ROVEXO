@@ -52,7 +52,7 @@ function SellPlusIcon({ className }: { className?: string }) {
 }
 
 /** Absolute Final: line icons only — no premium nav WebP assets. */
-export function PremiumNavIcon({ type, size = 28, className, priority: _priority = false }: PremiumNavIconProps) {
+export function PremiumNavIcon({ type, size = 28, className }: PremiumNavIconProps) {
   const iconClass = cn("shrink-0", className);
 
   let icon: ReactNode;

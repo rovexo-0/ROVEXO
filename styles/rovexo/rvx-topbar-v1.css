@@ -1,0 +1,82 @@
+/**
+ * ROVEXO shared top app bar — SSOT for `.rvx-topbar`.
+ * Extracted from legacy messages-v1 (list/chat chrome removed; Inbox Hub is SSOT).
+ */
+
+.rvx-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  padding: calc(env(safe-area-inset-top) + 14px) 20px 12px;
+  background: #ffffff;
+}
+
+.rvx-topbar__logo {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  text-decoration: none;
+}
+
+.rvx-topbar__logo-img {
+  display: block;
+  height: 36px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+}
+
+.rvx-topbar__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rvx-topbar__icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--ds-color-text-primary);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.rvx-topbar__icon:hover {
+  background: var(--ds-color-surface-muted);
+}
+
+.rvx-topbar__icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.rvx-topbar__badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  background: var(--ds-color-primary);
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+}

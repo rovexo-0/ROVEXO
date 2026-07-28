@@ -9,12 +9,11 @@ function readSource(relativePath: string): string {
 const SETTINGS_SHELL_PAGES = [
   "features/account-module/components/SettingsV1.tsx",
   "features/account-module/components/PromotionToolsV1.tsx",
-  "features/account/components/AddressBookPage.tsx",
+  "features/account/components/addresses/AddressesPage.tsx",
   "features/account/components/AccountPrivacyPage.tsx",
   "features/account/components/AccountSecurityPage.tsx",
   "features/account/components/AccountBlockedUsersPage.tsx",
   "features/account/components/ProfileEditPage.tsx",
-  "features/account/components/AccountLanguagePage.tsx",
   "features/account/components/AccountCurrencyPage.tsx",
   "features/account/components/AccountTimezonePage.tsx",
   "features/account/components/AccountBuyerPreferencesPage.tsx",
@@ -38,9 +37,10 @@ describe("settings + account canonical experience", () => {
   it("routes settings menu primitives through canonical design system", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
     const sections = readSource("features/account-module/components/SettingsMenuSections.tsx");
-    expect(settings).toContain("AccountCanonicalShell");
+    expect(settings).toContain("MyAccountTemplate");
     expect(sections).toContain("CanonicalMenuRow");
-    expect(sections).toContain("CanonicalCard");
+    expect(sections).not.toContain("CanonicalCard");
+    expect(sections).toContain("fw-engine__group");
     expect(settings).not.toContain("CanonicalAccountMenuRow");
   });
 
@@ -54,7 +54,7 @@ describe("settings + account canonical experience", () => {
 
   it.each(SETTINGS_SHELL_PAGES)("%s uses shared canonical shell", (relativePath) => {
     const source = readSource(relativePath);
-    expect(source).toMatch(/AccountCanonicalShell|AccountCanonicalShell/);
+    expect(source).toMatch(/MyAccountTemplate|AccountCanonicalShell/);
     expect(source).not.toContain("rx-surface-card");
     expect(source).not.toContain("acm-settings__row");
   });
@@ -65,9 +65,9 @@ describe("settings + account canonical experience", () => {
     expect(source).not.toContain("CanonicalAccountMenuRow");
   });
 
-  it.each(ACCOUNT_MODULE_SHELL_PAGES)("%s uses AccountCanonicalShell", (relativePath) => {
+  it.each(ACCOUNT_MODULE_SHELL_PAGES)("%s uses a canonical account shell", (relativePath) => {
     const source = readSource(relativePath);
-    expect(source).toContain("AccountCanonicalShell");
+    expect(source).toMatch(/AccountCanonicalShell|MyAccountTemplate/);
   });
 
   it("AccountCanonicalShell uses canonical intro token", () => {

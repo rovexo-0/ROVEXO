@@ -120,5 +120,14 @@ export async function getConnectAccountStatus(sellerId: string): Promise<{
   connected: boolean;
   payoutsEnabled: boolean;
 }> {
-  return syncConnectAccountBySellerId(sellerId);
+  // Safe failure: never crash wallet/balance reads when admin secrets are absent.
+  const { tryCreateAdminClient } = await import("@/lib/supabase/admin");
+  if (!tryCreateAdminClient()) {
+    return { connected: false, payoutsEnabled: false };
+  }
+  try {
+    return await syncConnectAccountBySellerId(sellerId);
+  } catch {
+    return { connected: false, payoutsEnabled: false };
+  }
 }

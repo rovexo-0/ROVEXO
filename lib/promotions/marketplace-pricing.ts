@@ -30,9 +30,9 @@ export const DEFAULT_MARKETPLACE_PRICING: MarketplacePricingSettings = {
     { id: "28d", label: "28 days", hours: 672, priceCents: 450 },
   ],
   showcase: {
-    label: "Featured Store",
+    label: "Store Showcase",
     days: 7,
-    priceCents: 600,
+    priceCents: 630,
     durationId: "7d",
   },
   business: {

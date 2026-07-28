@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useEffect, useId, useRef, useState } from "react";
-import { CanonicalCard, CanonicalInput } from "@/src/components/canonical";
+import { CanonicalInput } from "@/src/components/canonical";
 import { bumpPendingTextVersion } from "@/lib/sell/pending-text-store";
 import { clampListingTitle, LISTING_TITLE_MAX, validateListingTitle } from "@/lib/sell/listing-title";
 import { isTitleStepComplete } from "@/lib/sell/sell-progressive-flow";
@@ -64,33 +64,33 @@ export const SellTitleBlock = memo(function SellTitleBlock({
   const titleError = showValidation ? validateListingTitle(title, { required: showValidation }) : undefined;
 
   return (
-    <CanonicalCard variant="medium" className="p-ds-4">
+    <div className="sell-aa-block">
       <CanonicalInput
-      id={titleId}
-      label="Title"
-      value={title}
-      onChange={(event) => {
-        const next = clampListingTitle(event.target.value);
-        typingTitle.current = true;
-        setTitle(next);
-        pendingTitleRef.current = next;
-        scheduleBump();
-      }}
-      onBlur={() => {
-        typingTitle.current = false;
-        syncTitleToDraft(titleRef.current);
-        flushBump();
-        if (isTitleStepComplete(titleRef.current)) {
-          onStepComplete?.();
-        }
-      }}
-      placeholder="What are you selling?"
-      maxLength={LISTING_TITLE_MAX}
-      autoComplete="off"
-      enterKeyHint="next"
-      aria-label="Listing title"
-      error={titleError}
+        id={titleId}
+        label="Title"
+        value={title}
+        onChange={(event) => {
+          const next = clampListingTitle(event.target.value);
+          typingTitle.current = true;
+          setTitle(next);
+          pendingTitleRef.current = next;
+          scheduleBump();
+        }}
+        onBlur={() => {
+          typingTitle.current = false;
+          syncTitleToDraft(titleRef.current);
+          flushBump();
+          if (isTitleStepComplete(titleRef.current)) {
+            onStepComplete?.();
+          }
+        }}
+        placeholder="What are you selling?"
+        maxLength={LISTING_TITLE_MAX}
+        autoComplete="off"
+        enterKeyHint="next"
+        aria-label="Listing title"
+        error={titleError}
       />
-    </CanonicalCard>
+    </div>
   );
 });

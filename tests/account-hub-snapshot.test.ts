@@ -16,7 +16,7 @@ describe("Account hub live profile stats", () => {
     expect(snapshot).toContain("countAccountActiveOrders");
     expect(snapshot).toContain("countAccountSavedItems");
     expect(snapshot).toContain("getAccountReviewSummary");
-    expect(snapshot).toContain("countAccountFollowers");
+    expect(snapshot).not.toContain("countAccountFollowers");
     expect(snapshot).not.toContain("countAccountFollowing");
     expect(snapshot).not.toContain("getTrustDashboardData");
     expect(snapshot).not.toContain("fetchOrdersForUser");
@@ -47,9 +47,10 @@ describe("Account hub live profile stats", () => {
     expect(route).toContain("fetchAccountHubSnapshot");
     expect(route).toContain("getWalletData");
     expect(hook).toContain("subscribeToAccountHubStats");
-    expect(hook).toContain('fetchDeduped("/api/account/snapshot"');
+    expect(hook).toContain('dedupeKey: "account-hub:snapshot"');
     expect(home).toContain("useAccountHubLive");
     expect(realtime).toContain("saved_items");
+    expect(realtime).not.toContain("seller_follows");
     expect(realtime).toContain("wallet_transactions");
   });
 });

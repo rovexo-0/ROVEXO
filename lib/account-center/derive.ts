@@ -18,7 +18,6 @@ export type AccountProfileView = {
   rating: number;
   ratingRounded: number;
   reviewCount: number;
-  followers: number;
   score: number;
   sentiment: SentimentBreakdown;
   /** Sparkline points (oldest → newest), 0–100. */
@@ -68,9 +67,10 @@ function deriveTrend(trustData: TrustDashboardData): number[] {
 }
 
 export function buildAccountProfileView(
-  profile: UserProfile,
+  _profile: UserProfile,
   trustData: TrustDashboardData,
 ): AccountProfileView {
+  void _profile;
   const { factors } = trustData;
   const rating = deriveRating(factors);
   const trend = deriveTrend(trustData);
@@ -78,7 +78,6 @@ export function buildAccountProfileView(
     rating,
     ratingRounded: Math.round(rating),
     reviewCount: factors.positiveReviews + factors.negativeReviews,
-    followers: profile.sellerStats?.followers ?? 0,
     score: clamp(trustData.score.score, 0, 100),
     sentiment: deriveSentiment(factors),
     trend,

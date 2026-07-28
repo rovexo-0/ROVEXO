@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isPurchasable } from "@/lib/inventory/service";
 import { assertMarketplacePurchaseAllowedForProductSlug } from "@/lib/transaction-mode/validate";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { isSelfPurchaseBlocked } from "@/lib/checkout/self-purchase-absolute-law-v1";
 
 export type CartItem = {
   id: string;
@@ -129,7 +130,12 @@ export async function addToCart(
     return { success: false, error: purchaseCheck.error };
   }
 
-  if (product.seller_id === userId) {
+  if (
+    isSelfPurchaseBlocked({
+      currentUserId: userId,
+      listingOwnerId: product.seller_id,
+    })
+  ) {
     return { success: false, error: "You cannot add your own listing to cart." };
   }
 

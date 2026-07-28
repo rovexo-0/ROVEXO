@@ -45,49 +45,55 @@ function PinchZoomSlide({
     panning: false,
   });
 
-  const onTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
-    if (event.touches.length === 2) {
-      pinchRef.current.initialDistance = getTouchDistance(event.touches);
-      pinchRef.current.initialScale = transform.scale;
-      pinchRef.current.panning = false;
-      return;
-    }
+  const onTouchStart = useCallback(
+    (event: React.TouchEvent<HTMLDivElement>) => {
+      if (event.touches.length === 2) {
+        pinchRef.current.initialDistance = getTouchDistance(event.touches);
+        pinchRef.current.initialScale = transform.scale;
+        pinchRef.current.panning = false;
+        return;
+      }
 
-    if (event.touches.length === 1 && transform.scale > 1) {
-      const touch = event.touches[0];
-      if (!touch) return;
-      pinchRef.current.panning = true;
-      pinchRef.current.panStart = { x: touch.clientX, y: touch.clientY };
-      pinchRef.current.lastPan = { x: transform.x, y: transform.y };
-    }
-  }, [transform.scale, transform.x, transform.y]);
+      if (event.touches.length === 1 && transform.scale > 1) {
+        const touch = event.touches[0];
+        if (!touch) return;
+        pinchRef.current.panning = true;
+        pinchRef.current.panStart = { x: touch.clientX, y: touch.clientY };
+        pinchRef.current.lastPan = { x: transform.x, y: transform.y };
+      }
+    },
+    [transform.scale, transform.x, transform.y],
+  );
 
-  const onTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
-    if (event.touches.length === 2) {
-      event.preventDefault();
-      const distance = getTouchDistance(event.touches);
-      if (!pinchRef.current.initialDistance) return;
-      const nextScale = Math.min(
-        MAX_ZOOM,
-        Math.max(MIN_ZOOM, (distance / pinchRef.current.initialDistance) * pinchRef.current.initialScale),
-      );
-      setTransform((current) => ({ ...current, scale: nextScale }));
-      return;
-    }
+  const onTouchMove = useCallback(
+    (event: React.TouchEvent<HTMLDivElement>) => {
+      if (event.touches.length === 2) {
+        event.preventDefault();
+        const distance = getTouchDistance(event.touches);
+        if (!pinchRef.current.initialDistance) return;
+        const nextScale = Math.min(
+          MAX_ZOOM,
+          Math.max(MIN_ZOOM, (distance / pinchRef.current.initialDistance) * pinchRef.current.initialScale),
+        );
+        setTransform((current) => ({ ...current, scale: nextScale }));
+        return;
+      }
 
-    if (pinchRef.current.panning && event.touches.length === 1 && transform.scale > 1) {
-      event.preventDefault();
-      const touch = event.touches[0];
-      if (!touch) return;
-      const dx = touch.clientX - pinchRef.current.panStart.x;
-      const dy = touch.clientY - pinchRef.current.panStart.y;
-      setTransform((current) => ({
-        ...current,
-        x: pinchRef.current.lastPan.x + dx,
-        y: pinchRef.current.lastPan.y + dy,
-      }));
-    }
-  }, [transform.scale]);
+      if (pinchRef.current.panning && event.touches.length === 1 && transform.scale > 1) {
+        event.preventDefault();
+        const touch = event.touches[0];
+        if (!touch) return;
+        const dx = touch.clientX - pinchRef.current.panStart.x;
+        const dy = touch.clientY - pinchRef.current.panStart.y;
+        setTransform((current) => ({
+          ...current,
+          x: pinchRef.current.lastPan.x + dx,
+          y: pinchRef.current.lastPan.y + dy,
+        }));
+      }
+    },
+    [transform.scale],
+  );
 
   const onTouchEnd = useCallback(() => {
     pinchRef.current.initialDistance = 0;
@@ -139,7 +145,9 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
   const images = useMemo(() => rawImages.filter(isRenderableImageSrc), [rawImages]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const mainScrollerRef = useRef<HTMLDivElement>(null);
   const lightboxScrollerRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
 
   const selectImage = useCallback((index: number) => {
     setActiveIndex(index);
@@ -149,6 +157,24 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
     setActiveIndex(index);
     setLightboxOpen(true);
   }, []);
+
+  const scrollMainTo = useCallback(
+    (index: number) => {
+      const node = mainScrollerRef.current;
+      if (!node) return;
+      const clamped = Math.min(Math.max(index, 0), images.length - 1);
+      node.scrollTo({ left: clamped * node.clientWidth, behavior: "smooth" });
+      setActiveIndex(clamped);
+    },
+    [images.length],
+  );
+
+  const handleMainScroll = useCallback(() => {
+    const node = mainScrollerRef.current;
+    if (!node || node.clientWidth === 0) return;
+    const index = Math.round(node.scrollLeft / node.clientWidth);
+    setActiveIndex(Math.min(Math.max(index, 0), images.length - 1));
+  }, [images.length]);
 
   const scrollLightboxTo = useCallback(
     (index: number) => {
@@ -194,6 +220,14 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightboxOpen]);
 
+  useEffect(() => {
+    const node = mainScrollerRef.current;
+    if (!node || lightboxOpen) return;
+    if (Math.round(node.scrollLeft / Math.max(node.clientWidth, 1)) !== activeIndex) {
+      node.scrollTo({ left: activeIndex * node.clientWidth });
+    }
+  }, [activeIndex, lightboxOpen]);
+
   if (images.length === 0) {
     return (
       <section className="pd-v1__gallery" aria-label={`${title} gallery`}>
@@ -210,32 +244,52 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
   return (
     <>
       <section className="pd-v1__gallery" aria-label={`${title} gallery`}>
-        <button
-          type="button"
-          className="pd-v1__gallery-main"
-          aria-label={`Open ${title} fullscreen gallery`}
-          onClick={() => openLightbox(activeIndex)}
-        >
-          {images.map((image, index) => (
-            <SafeImage
-              key={`${image}-${index}`}
-              src={image}
-              alt={`${title} — photo ${index + 1}`}
-              fill
-              priority={index === 0}
-              loading={index === 0 ? undefined : "lazy"}
-              sizes="100vw"
-              className={cn(
-                "pd-v1__gallery-image object-cover",
-                index === activeIndex && "pd-v1__gallery-image--active",
-              )}
-              draggable={false}
-            />
-          ))}
+        <div className="pd-v1__gallery-frame">
+          <div
+            ref={mainScrollerRef}
+            className="pd-v1__gallery-scroller"
+            onScroll={handleMainScroll}
+            onTouchStart={(event) => {
+              touchStartX.current = event.touches[0]?.clientX ?? null;
+            }}
+            onTouchEnd={(event) => {
+              const start = touchStartX.current;
+              const end = event.changedTouches[0]?.clientX;
+              touchStartX.current = null;
+              if (start == null || end == null || images.length < 2) return;
+              const delta = end - start;
+              if (Math.abs(delta) < 40) return;
+              if (delta < 0) scrollMainTo(activeIndex + 1);
+              else scrollMainTo(activeIndex - 1);
+            }}
+            aria-label={`${title} photos`}
+          >
+            {images.map((image, index) => (
+              <button
+                key={`${image}-${index}`}
+                type="button"
+                className="pd-v1__gallery-slide"
+                aria-label={`Open ${title} photo ${index + 1} fullscreen`}
+                onClick={() => openLightbox(index)}
+              >
+                <SafeImage
+                  src={image}
+                  alt={`${title} — photo ${index + 1}`}
+                  fill
+                  priority={index === 0}
+                  loading={index === 0 ? undefined : "lazy"}
+                  sizes="100vw"
+                  quality={92}
+                  className="pd-v1__gallery-image object-cover"
+                  draggable={false}
+                />
+              </button>
+            ))}
+          </div>
           <span className="pd-v1__gallery-counter" aria-live="polite">
             {activeIndex + 1} / {images.length}
           </span>
-        </button>
+        </div>
 
         {images.length > 1 ? (
           <div className="pd-v1__thumbs" role="tablist" aria-label="Product thumbnails">
@@ -248,7 +302,10 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
                 aria-label={`Show photo ${index + 1}`}
                 className="pd-v1__thumb"
                 data-active={index === activeIndex ? "true" : "false"}
-                onClick={() => selectImage(index)}
+                onClick={() => {
+                  selectImage(index);
+                  scrollMainTo(index);
+                }}
               >
                 <SafeImage src={image} alt="" fill loading="lazy" sizes="56px" className="object-cover" />
               </button>
@@ -265,66 +322,66 @@ export function ProductGalleryV1({ images: rawImages, title }: ProductGalleryV1P
         ariaLabel={`${title} fullscreen gallery`}
         panelClassName="pd-v1__lightbox"
       >
-          <div className="pd-v1__lightbox-chrome">
-            <p aria-live="polite" className="pd-v1__lightbox-count">
-              {activeIndex + 1} / {images.length}
-            </p>
+        <div className="pd-v1__lightbox-chrome">
+          <p aria-live="polite" className="pd-v1__lightbox-count">
+            {activeIndex + 1} / {images.length}
+          </p>
+          <button
+            type="button"
+            aria-label="Close gallery"
+            className={cn("pd-v1__lightbox-close", focusRing)}
+            onClick={() => setLightboxOpen(false)}
+          >
+            <svg viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" className="h-6 w-6" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </button>
+        </div>
+
+        {images.length > 1 ? (
+          <>
             <button
               type="button"
-              aria-label="Close gallery"
-              className={cn("pd-v1__lightbox-close", focusRing)}
-              onClick={() => setLightboxOpen(false)}
+              aria-label="Previous photo"
+              disabled={!canGoPrev}
+              className={cn("pd-v1__lightbox-nav pd-v1__lightbox-nav--prev", focusRing)}
+              onClick={() => scrollLightboxTo(activeIndex - 1)}
             >
               <svg viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" className="h-6 w-6" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6 6 18" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 6l-6 6 6 6" />
               </svg>
             </button>
-          </div>
+            <button
+              type="button"
+              aria-label="Next photo"
+              disabled={!canGoNext}
+              className={cn("pd-v1__lightbox-nav pd-v1__lightbox-nav--next", focusRing)}
+              onClick={() => scrollLightboxTo(activeIndex + 1)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" className="h-6 w-6" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
+          </>
+        ) : null}
 
-          {images.length > 1 ? (
-            <>
-              <button
-                type="button"
-                aria-label="Previous photo"
-                disabled={!canGoPrev}
-                className={cn("pd-v1__lightbox-nav pd-v1__lightbox-nav--prev", focusRing)}
-                onClick={() => scrollLightboxTo(activeIndex - 1)}
-              >
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" className="h-6 w-6" aria-hidden>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 6l-6 6 6 6" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                aria-label="Next photo"
-                disabled={!canGoNext}
-                className={cn("pd-v1__lightbox-nav pd-v1__lightbox-nav--next", focusRing)}
-                onClick={() => scrollLightboxTo(activeIndex + 1)}
-              >
-                <svg viewBox="0 0 24 24" fill="none" strokeWidth={2} stroke="currentColor" className="h-6 w-6" aria-hidden>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6" />
-                </svg>
-              </button>
-            </>
-          ) : null}
-
-          <div
-            ref={lightboxScrollerRef}
-            onScroll={handleLightboxScroll}
-            className="pd-v1__lightbox-scroller"
-            aria-label={`${title} fullscreen image`}
-          >
-            {images.map((image, index) => (
-              <div key={`fullscreen-${image}-${index}`} className="pd-v1__lightbox-panel">
-                <PinchZoomSlide
-                  key={`${image}-${index}-${index === activeIndex}`}
-                  image={image}
-                  alt={`${title} — photo ${index + 1}`}
-                  priority={index === activeIndex}
-                />
-              </div>
-            ))}
-          </div>
+        <div
+          ref={lightboxScrollerRef}
+          onScroll={handleLightboxScroll}
+          className="pd-v1__lightbox-scroller"
+          aria-label={`${title} fullscreen image`}
+        >
+          {images.map((image, index) => (
+            <div key={`fullscreen-${image}-${index}`} className="pd-v1__lightbox-panel">
+              <PinchZoomSlide
+                key={`${image}-${index}-${index === activeIndex}`}
+                image={image}
+                alt={`${title} — photo ${index + 1}`}
+                priority={index === activeIndex}
+              />
+            </div>
+          ))}
+        </div>
       </ModalContainer>
     </>
   );

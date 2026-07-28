@@ -8,6 +8,7 @@ export const AUTH_PROTECTED_PREFIXES = [
   "/payments",
   "/protection",
   "/wallet",
+  "/balance",
   "/shipping",
   "/messages",
   "/inbox",
@@ -29,8 +30,11 @@ export const AUTH_PROTECTED_PREFIXES = [
   "/resolution",
 ] as const;
 
+/** Platform Admin Console — `admin` + `super_admin` (not Super Admin Command Center). */
+export const AUTH_ADMIN_PREFIXES = ["/admin"] as const;
+
+/** Super Admin Command Center + staff console — `super_admin` only. */
 export const AUTH_SUPER_ADMIN_PREFIXES = [
-  "/admin",
   "/super-admin",
   "/dashboard",
   "/staff",

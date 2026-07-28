@@ -13,12 +13,10 @@ export function CheckoutPayFooter({ disabled, loading, onPay }: CheckoutPayFoote
         <Button
           variant="primary"
           fullWidth
-          size="lg"
-          className="h-14 rounded-ds-lg text-base font-semibold"
           disabled={disabled || loading}
           onClick={onPay}
         >
-          Pay Securely
+          Buy Now
         </Button>
       </div>
     </div>

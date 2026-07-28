@@ -11,6 +11,7 @@ type AccountCenterPageProps = {
   snapshot: AccountHubSnapshot;
   wallet?: WalletData | null;
   sellerPerformance: AccountSellerPerformanceSummary;
+  holidayModeEnabled?: boolean;
 };
 
 export function AccountCenterPage({
@@ -18,14 +19,21 @@ export function AccountCenterPage({
   snapshot,
   wallet = null,
   sellerPerformance,
+  holidayModeEnabled = false,
 }: AccountCenterPageProps) {
   return (
-    <AccountCanonicalShell title="My Account" hideBack>
+    <AccountCanonicalShell
+      title="PROFILE"
+      showHeaderTitle
+      backHref="/"
+      backLabel="Back"
+    >
       <AccountCenterHome
         profile={profile}
         snapshot={snapshot}
         wallet={wallet}
         sellerPerformance={sellerPerformance}
+        holidayModeEnabled={holidayModeEnabled}
       />
     </AccountCanonicalShell>
   );

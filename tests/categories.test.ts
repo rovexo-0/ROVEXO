@@ -10,66 +10,30 @@ import {
   resolveCategoryPathBySlugs,
 } from "@/lib/categories/queries";
 import { flatPathFromSegments } from "@/lib/categories/types";
+import { CANONICAL_ROOT_CATEGORIES } from "@/lib/categories/canonical-root-categories-v1";
 
-describe("marketplace category tree", () => {
-  it("includes all major top-level marketplace verticals", () => {
-    const slugs = new Set(homeCategories.map((category) => category.slug));
-    for (const slug of [
-      "vehicles",
-      "property",
-      "phones",
-      "computers",
-      "electronics",
-      "gaming",
-      "tv-audio",
-      "womens-fashion",
-      "mens-fashion",
-      "kids-fashion",
-      "home-garden",
-      "diy",
-      "tools",
-      "sports",
-      "health",
-      "beauty",
-      "pets",
-      "baby",
-      "toys",
-      "books",
-      "music",
-      "movies",
-      "collectibles",
-      "business",
-      "jobs",
-      "services",
-      "tickets",
-      "food",
-      "office",
-      "industrial",
-      "agriculture",
-      "travel",
-      "events",
-      "free-stuff",
-      "everything-else",
-      "cycling",
-      "fishing",
-      "camping",
-    ]) {
-      expect(slugs.has(slug)).toBe(true);
+describe("marketplace category tree (Catalog Master)", () => {
+  it("includes exactly the nine canonical courier-safe roots", () => {
+    const slugs = homeCategories.map((category) => category.slug);
+    expect(slugs).toEqual(CANONICAL_ROOT_CATEGORIES.map((r) => r.slug));
+    for (const forbidden of ["vehicles", "property", "business", "jobs", "services"]) {
+      expect(slugs).not.toContain(forbidden);
     }
   });
 
-  it("meets enterprise taxonomy scale targets", () => {
-    expect(categoryTree.length).toBeGreaterThanOrEqual(50);
-    expect(taxonomyStats.leaves).toBeGreaterThanOrEqual(1000);
+  it("meets Catalog Master scale (essential, not mega-dump)", () => {
+    expect(categoryTree).toHaveLength(10);
+    expect(taxonomyStats.roots).toBe(10);
+    expect(taxonomyStats.leaves).toBeGreaterThanOrEqual(100);
   });
 
-  it("supports deep Home & Garden nesting", () => {
-    const path = findNodeBySlugPath(categoryTree, [
+  it("supports Home & Garden nesting", () => {
+    const path = findNodeBySlugPath(categoryTree, ["home-garden", "furniture", "beds-and-mattresses"]);
+    expect(path?.map((node) => node.slug)).toEqual([
       "home-garden",
       "furniture",
-      "beds",
+      "beds-and-mattresses",
     ]);
-    expect(path?.map((node) => node.slug)).toEqual(["home-garden", "furniture", "beds"]);
   });
 
   it("builds breadcrumbs for nested paths", () => {
@@ -88,13 +52,14 @@ describe("marketplace category tree", () => {
   });
 
   it("resolves category paths by slug arrays", () => {
-    const flat = resolveCategoryPathBySlugs(["phones", "smartphones", "unlocked-phones"]);
-    expect(flat?.pathLabel).toContain("Phones");
-    expect(flat?.segments.at(-1)?.slug).toBe("unlocked-phones");
-
-    expect(resolveCategoryPathBySlugs(["tools", "power-tools", "drills"])).not.toBeNull();
-    expect(resolveCategoryPathBySlugs(["car-parts", "wheels-tyres", "tyres"])).not.toBeNull();
-    expect(resolveCategoryPathBySlugs(["electronics", "tv-video", "televisions"])).not.toBeNull();
+    expect(
+      resolveCategoryPathBySlugs(["electronics", "phones-tablets", "smartphones"]),
+    ).not.toBeNull();
+    expect(resolveCategoryPathBySlugs(["electronics", "computers", "laptops"])).not.toBeNull();
+    expect(
+      resolveCategoryPathBySlugs(["vehicle-parts", "tyres-and-wheels", "car-tyres"]),
+    ).not.toBeNull();
+    expect(resolveCategoryPathBySlugs(["electronics", "tv-audio", "televisions"])).not.toBeNull();
   });
 
   it("keeps legacy flatten helper working", () => {

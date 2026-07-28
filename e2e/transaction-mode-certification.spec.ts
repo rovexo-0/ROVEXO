@@ -15,11 +15,14 @@ test.describe("Transaction Mode Certification — API", () => {
 
     expect(body.tree?.length).toBeGreaterThan(0);
 
-    const vehicles = body.tree?.find((node) => node.slug === "vehicles");
+    const vehicleParts = body.tree?.find((node) => node.slug === "vehicle-parts");
     const electronics = body.tree?.find((node) => node.slug === "electronics");
+    const vehicles = body.tree?.find((node) => node.slug === "vehicles");
 
-    expect(vehicles?.transactionMode ?? "DIRECT_CONTACT").toBe("DIRECT_CONTACT");
+    expect(vehicles).toBeUndefined();
+    expect(vehicleParts?.transactionMode ?? "MARKETPLACE").toBe("MARKETPLACE");
     expect(electronics?.transactionMode ?? "MARKETPLACE").toBe("MARKETPLACE");
+    expect(body.tree?.length).toBe(10);
   });
 
   test("search results expose transactionMode when listings exist", async ({ request }) => {

@@ -1,14 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BankLineIcon } from "@/components/icons/RvxLineIcons";
-import {
-  CanonicalCard,
-  CanonicalInfoBlock,
-  CanonicalMenuRow,
-  CanonicalSection,
-} from "@/src/components/canonical";
+import { BankLineIcon, EditLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
+import { toUserSafeFailClosedMessage } from "@/lib/fail-closed";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import type { WithdrawMethod } from "@/lib/wallet/types";
 
@@ -27,8 +23,7 @@ export function WalletConnectedBank({ bank, verified }: WalletConnectedBankProps
     startTransition(async () => {
       const response = await fetch("/api/wallet/bank-account", { method: "DELETE" });
       if (!response.ok) {
-        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-        setError(payload?.error ?? "Unable to remove bank account.");
+        setError(toUserSafeFailClosedMessage(null, "unavailable").body);
         return;
       }
       router.refresh();
@@ -36,40 +31,73 @@ export function WalletConnectedBank({ bank, verified }: WalletConnectedBankProps
   };
 
   return (
-    <CanonicalSection title="Bank">
-      <CanonicalCard variant="list">
+    <section className="wallet-v2__section" aria-labelledby="wallet-bank-title">
+      <div className="wallet-v2__section-head">
+        <h2 id="wallet-bank-title" className="wallet-v2__section-title">
+          Connected Bank
+        </h2>
+      </div>
+
+      <div className="wallet-v2__bank-card">
         {bank ? (
           <>
-            <CanonicalMenuRow
-              title={bank.label}
-              description={`•••• ${bank.lastDigits}`}
-              icon={<BankLineIcon />}
-              value={verified ? "Verified" : undefined}
-              href={WALLET_ROUTES.bankAccount}
-            />
-            <CanonicalMenuRow title="Edit bank" href={WALLET_ROUTES.bankAccount} />
-            <CanonicalMenuRow title="Change bank" href={WALLET_ROUTES.bankAccount} />
-            <CanonicalMenuRow
-              title={isPending ? "Removing…" : "Remove bank"}
-              destructive
-              hideChevron
-              disabled={isPending}
-              onClick={removeBank}
-            />
+            <div className="wallet-v2__bank-row">
+              <span className="wallet-v2__bank-logo" aria-hidden>
+                <BankLineIcon />
+              </span>
+              <div className="wallet-v2__bank-copy">
+                <div className="wallet-v2__bank-name-row">
+                  <p className="wallet-v2__bank-name">{bank.label}</p>
+                  {verified ? (
+                    <span className="wallet-v2__bank-verified">
+                      <ShieldLineIcon />
+                      Verified
+                    </span>
+                  ) : null}
+                </div>
+                <p className="wallet-v2__bank-meta">****{bank.lastDigits}</p>
+              </div>
+            </div>
+            <div className="wallet-v2__bank-actions" role="group" aria-label="Bank account actions">
+              <Link href={WALLET_ROUTES.bankAccounts} className="wallet-v2__bank-action">
+                <EditLineIcon />
+                Edit Bank
+              </Link>
+              <Link href={WALLET_ROUTES.bankAccounts} className="wallet-v2__bank-action">
+                Change Bank
+              </Link>
+              <button
+                type="button"
+                className="wallet-v2__bank-action wallet-v2__bank-action--danger"
+                disabled={isPending}
+                onClick={removeBank}
+              >
+                {isPending ? "Removing…" : "Remove Bank"}
+              </button>
+            </div>
+            {error ? (
+              <p className="wallet-v2__bank-error" role="alert">
+                {error}
+              </p>
+            ) : null}
           </>
         ) : (
-          <CanonicalMenuRow
-            title="Connect bank account"
-            description="Required for withdrawals"
-            icon={<BankLineIcon />}
-            href={WALLET_ROUTES.bankAccount}
-          />
+          <div className="wallet-v2__bank-empty">
+            <div className="wallet-v2__bank-empty-row">
+              <span className="wallet-v2__bank-dash" aria-hidden>
+                <BankLineIcon />
+              </span>
+              <div className="wallet-v2__bank-copy">
+                <p className="wallet-v2__bank-name">No bank account connected</p>
+                <p className="wallet-v2__bank-meta">Add your bank account to withdraw funds.</p>
+              </div>
+            </div>
+            <Link href={WALLET_ROUTES.bankAccounts} className="wallet-v2__cta">
+              Connect Bank Account
+            </Link>
+          </div>
         )}
-      </CanonicalCard>
-
-      {error ? (
-        <CanonicalInfoBlock variant="error">{error}</CanonicalInfoBlock>
-      ) : null}
-    </CanonicalSection>
+      </div>
+    </section>
   );
 }

@@ -6,6 +6,10 @@ import { useAccountHubLive } from "@/features/account-center/hooks/useAccountHub
 import type { AccountSellerPerformanceSummary } from "@/lib/account-center/seller-performance-summary";
 import type { AccountHubSnapshot } from "@/lib/account-center/snapshot";
 import type { UserProfile } from "@/lib/profile/types";
+import {
+  formatAvailableBalanceLabel,
+  resolveWalletBalanceView,
+} from "@/lib/wallet/money-states";
 import type { WalletData } from "@/lib/wallet/types";
 
 type AccountCenterHomeProps = {
@@ -13,34 +17,47 @@ type AccountCenterHomeProps = {
   snapshot: AccountHubSnapshot;
   wallet?: WalletData | null;
   sellerPerformance: AccountSellerPerformanceSummary;
+  holidayModeEnabled?: boolean;
 };
 
 /**
  * My Account hub — Compact Premium (PO): profile + Master Menu only.
- * No stats strip, no duplicate wallet/orders cards, no dead space.
+ * Balance row shows Available only.
+ * Holiday Mode is an inline Profile toggle (no subpage).
  */
 export function AccountCenterHome({
   profile,
   snapshot,
   wallet = null,
   sellerPerformance,
+  holidayModeEnabled = false,
 }: AccountCenterHomeProps) {
   void sellerPerformance;
-  const { snapshot: liveSnapshot } = useAccountHubLive({
+  const { snapshot: liveSnapshot, wallet: liveWallet } = useAccountHubLive({
     userId: profile.id,
     snapshot,
     wallet,
   });
 
+  const availableLabel = liveWallet
+    ? formatAvailableBalanceLabel(resolveWalletBalanceView(liveWallet).available)
+    : undefined;
+
   return (
     <div
       className="ac-canonical"
-      data-ac-hub-version="v2.0-master"
-      data-account-menu="master-v2"
+      data-ac-hub-version="profile-v1"
+      data-account-menu="profile-v1"
       data-account-version="v1.0"
+      data-profile-scope="main-only"
     >
       <AccountCanonicalProfile profile={profile} snapshot={liveSnapshot} />
-      <AccountMenuSections profile={profile} />
+      <AccountMenuSections
+        profile={profile}
+        availableBalanceLabel={availableLabel}
+        holidayModeEnabled={holidayModeEnabled}
+        activeListingCount={liveSnapshot.listings}
+      />
     </div>
   );
 }

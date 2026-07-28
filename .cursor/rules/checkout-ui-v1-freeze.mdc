@@ -1,0 +1,31 @@
+---
+description: CHECKOUT_UI_v1.0 — Owner-approved visual freeze (2026-07-25). No UI polish without Owner approval.
+globs: features/checkout/**/*.tsx,features/checkout/**/*.ts,styles/rovexo/checkout-v1.css,app/checkout/**/*.tsx,lib/checkout/**/*.ts,docs/modules/checkout/**
+alwaysApply: true
+---
+
+# ROVEXO CHECKOUT UI FREEZE — CHECKOUT_UI_v1.0
+
+**STATUS: FROZEN · OWNER APPROVED · 2026-07-25**
+
+SSOT: `lib/checkout/checkout-ui-v1-freeze.ts`  
+Companion: `lib/checkout/freeze.ts`  
+UI: `features/checkout/components/CheckoutWizardV1.tsx`  
+CSS: `styles/rovexo/checkout-v1.css`  
+DOM: `data-checkout-freeze="CHECKOUT_UI_v1.0"` · `data-checkout-ui="v1.0"`
+
+## Frozen (presentation)
+
+Checkout Layout · Product Card · Address · Delivery Option · Delivery Details · Contact · Payment · Price Summary · PAY Button · Secure Checkout Footer · Typography · Radius · Padding · Margins · Spacing · Density · Responsive · Mobile · Visual Hierarchy
+
+## Locked — forbidden without Owner approval
+
+Visual redesign · spacing · padding · margin · card height · typography · button position · component order · visual polishing · UI refactoring
+
+## Not included (may continue outside UI)
+
+Payment Completion · Stripe Success · Order · Transaction · Escrow · Shipping · Print Label · Tracking · Delivery · Review · Seller Flow · Backend · Business Rules
+
+## Cursor must never
+
+Change Checkout visual density, tokens, layout, or polish under CHECKOUT_UI_v1.0 without explicit Owner re-authorization.

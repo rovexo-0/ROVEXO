@@ -16,8 +16,7 @@ export function AnalyticsRecentActivitySection({ activity }: AnalyticsRecentActi
   return (
     <CanonicalSection title="Recent Activity">
       <CanonicalCard variant="list">
-        <CanonicalMenuRow title="New Followers" value={String(activity.followers)} showChevron={false} />
-        <CanonicalMenuRow title="New Reviews" value={String(activity.reviews)} showChevron={false} />
+        <CanonicalMenuRow title="New Reviews" value={String(activity.reviews ?? 0)} showChevron={false} />
         <CanonicalMenuRow title="New Saves" value={String(activity.saves)} showChevron={false} />
       </CanonicalCard>
     </CanonicalSection>

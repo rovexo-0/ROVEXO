@@ -9,7 +9,6 @@ type CreateNotificationInput = {
     | "offer"
     | "review"
     | "payment"
-    | "follower"
     | "moderation"
     | "promotion_expired"
     | "saved_item_sold"

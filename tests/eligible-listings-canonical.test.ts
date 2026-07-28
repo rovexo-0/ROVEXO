@@ -30,6 +30,9 @@ describe("Canonical eligible-listings unification", () => {
     const canonical = readSource("lib/listings/eligible-listings.ts");
     expect(canonical).toContain("export async function getEligibleListings");
     expect(canonical).toContain("searchListings");
+    expect(canonical).not.toContain("filterCanonicalDemoListings");
+    expect(canonical).not.toContain("isDemoModeEnabled");
+    expect(canonical).not.toContain("demo-mode");
   });
 
   it("routes Similar Items through the canonical resolver", () => {

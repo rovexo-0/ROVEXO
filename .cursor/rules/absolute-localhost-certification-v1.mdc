@@ -1,0 +1,50 @@
+---
+description: Absolute Localhost Certification — all audits on localhost:3000 only until Owner approves deploy (P0 · Law v4.0).
+alwaysApply: true
+---
+
+# Absolute Localhost Certification Rule (ABSOLUTE P0 · Law v4.0)
+
+Parent: `localhost-3000-freeze-v4.mdc` · SSOT: `lib/localhost-3000-freeze-v4.ts`
+
+## Scope
+
+**ALL audits and certifications run on `http://localhost:3000` ONLY.**
+
+Forbidden as official: `localhost:3010` · `3001` · `4000` · `5000` · temporary / mock hosts.
+
+## Forbidden until Owner approves Commit → Push → Preview → Production
+
+- Production Certification / Verification / UI / Device / Financial Certification  
+- Certifying Preview or Deployments  
+- Auto commit · push · preview deploy · production deploy  
+- Auto login · passwords · tokens · auto payments  
+
+## Real verification means
+
+REAL UI · UX · components · responsive · functionality · API behaviour · buttons · navigation · loading states on **`http://localhost:3000`**.
+
+**Not:** SSOT · engines · docs · rules · code assumptions.
+
+## Production mirror
+
+localhost:3000 must use the same marketplace SSOT as production: real products only · one products table · one Buy Now / Checkout / Payment / Shipping chain. Never pad empty inventory with fakes.
+
+## Viewport matrix (localhost:3000)
+
+iPhone · Samsung · Pixel · Fold · Tablet · Desktop — real UI on localhost:3000.
+
+## Fail
+
+1 cropped / overflow / invisible button / alignment / responsive / performance / broken functionality → **FAIL** → Deployment Denied → Fix → Re-audit.
+
+If localhost:3000 FAILS → STOP. No Git Commit · Push · Preview · Production · Freeze · Certification.
+
+## Order
+
+Root cause → Fix → Localhost:3000 UI → UX → Responsive → Functional → Security · Financial · Performance → Real device (localhost:3000 viewports) → Zero defect → **20/20 = LOCALHOST:3000 CERTIFIED ONLY** → Owner review → Owner approval → Commit → Push → Preview → Owner approval → Production.
+
+## Absolute
+
+Cursor must **not** certify Production / Preview / Deployments unless Owner approves.  
+1 FAIL = FAIL. 20/20 = localhost:3000 certified only — not production ready by itself.

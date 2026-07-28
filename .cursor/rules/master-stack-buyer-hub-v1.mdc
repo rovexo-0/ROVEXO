@@ -1,0 +1,41 @@
+---
+description: Buyer Conversation Hub Master Stack — Owner 1:1 certification contract
+alwaysApply: true
+---
+
+# ROVEXO Master Stack — Buyer Conversation Hub v1.0
+
+**STATUS: OWNER CERTIFICATION CONTRACT · LOCKED**
+
+SSOT: `lib/inbox/master-stack-buyer-hub-v1.ts`  
+Surface: `/inbox/conversation/[conversationId]` · `ConversationHub.tsx`
+
+## Stack (top → bottom) — missing any = FAIL
+
+1. HEADER (44px · Back · Username · Last active · Info)
+2. PRODUCT CARD (72×72 · title ≤2 lines · price 16px · total buyer pays 14px · ACTIVE purple · whole card clickable)
+3. ORDER STATUS CARD (box icon · status · chevron · clickable)
+4. SELLER INFORMATION + ORDER SUMMARY (buyer: fee + You'll pay · seller: never fee / never buyer total)
+5. OFFER HISTORY (10 / 20 / 50+ offers)
+6. CHAT HISTORY
+7. MESSAGE INPUT (camera · Write a message... · Send)
+8. STICKY BUY NOW (56px · radius 16 · full width · purple · **TOTAL BUYER PAYS ALWAYS**)
+9. SAFE AREA
+
+## Sticky CTA — absolute rule
+
+Forbidden: `BUY NOW • £item` / `PAY NOW • £item`  
+Required: `BUY NOW • £total_buyer_pays` (or Pay Now with same total)
+
+CTA changes automatically through lifecycle — never leave the hub (checkout return only).
+
+## Product PASS
+
+Owner must see exact Master Stack + Total Buyer Pays + purple theme + automatic CTA + responsive + iPhone 17 Pro Max + zero white screen + zero regression + 100% automation = **BUYER CONVERSATION HUB v1.0 PASS**
+
+## Cursor must never
+
+- Put item-only price on sticky CTA  
+- Remove Seller Information / Order Summary for buyers  
+- Show Platform Fee / Total Buyer Pays to sellers  
+- Split this stack across pages

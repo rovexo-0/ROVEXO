@@ -3,6 +3,9 @@ import { SuperAdminPageHeader } from "@/features/super-admin/components/SuperAdm
 import { buildMarketplaceIntelligenceDashboard } from "@/lib/marketplace-intelligence/dashboard";
 import { getMarketplaceIntelligenceDraft } from "@/lib/marketplace-intelligence/engine";
 
+/** Heavy dashboard — never SSG (Build Absolute Law: no 60s static timeout). */
+export const dynamic = "force-dynamic";
+
 export default async function SuperAdminMarketplaceIntelligencePage() {
   const [snapshot, draftDocument] = await Promise.all([
     buildMarketplaceIntelligenceDashboard(),

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { workspacePath } from "@/lib/server/workspace-path";
 
 /**
  * Resolve a path under the repository root.

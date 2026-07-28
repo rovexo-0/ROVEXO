@@ -336,7 +336,7 @@ async function clearSellerPromotionEffects(
   const admin = createAdminClient();
   const { data: products } = await admin
     .from("products")
-    .select("id, bump_count, bumped_until, featured_until")
+    .select("id, bump_count, bumped_until, featured_until, last_bumped_at")
     .eq("seller_id", sellerId)
     .eq("status", "published");
 
@@ -353,6 +353,8 @@ async function clearSellerPromotionEffects(
           product.bump_count ?? 0,
           bumpedUntil,
           featuredUntil,
+          type === "boost_package" ? now : product.last_bumped_at,
+          null,
         ),
         ...(type === "boost_package" ? { last_bumped_at: now } : {}),
       })
@@ -502,7 +504,7 @@ async function executeListingAction(
 
     const { data: product } = await admin
       .from("products")
-      .select("bump_count, bumped_until, featured_until")
+      .select("bump_count, bumped_until, featured_until, last_bumped_at")
       .eq("id", promo.product_id)
       .maybeSingle();
 
@@ -525,6 +527,8 @@ async function executeListingAction(
             product.bump_count ?? 0,
             bumpedUntil,
             featuredUntil,
+            product.last_bumped_at,
+            null,
           ),
         })
         .eq("id", promo.product_id);

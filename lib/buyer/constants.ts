@@ -82,7 +82,6 @@ export const BUYER_PAYMENT_METHODS: BuyerPaymentMethod[] = [
 ];
 
 export const BUYER_SETTINGS_LINKS: BuyerSettingsLink[] = [
-  { id: "language", label: "Language", href: "/account/preferences/language", icon: RovexoIcons.dashboard.settings },
   { id: "currency", label: "Currency", href: "/account/preferences/currency", icon: RovexoIcons.payments.payment },
   { id: "notifications", label: "Notifications", href: "/notifications/settings", icon: RovexoIcons.notifications.bell },
   { id: "privacy", label: "Privacy", href: "/account/privacy", icon: RovexoIcons.security.shield },

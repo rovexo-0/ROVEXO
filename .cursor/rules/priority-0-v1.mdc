@@ -1,0 +1,51 @@
+---
+description: Priority 0 Absolute Law — White Screen + Preview + Conversation Hub first
+alwaysApply: true
+---
+
+# ROVEXO PRIORITY 0 — ABSOLUTE LAW
+
+**STATUS: OWNER APPROVED · PERMANENT FREEZE · NOTHING COMES BEFORE**
+
+SSOT: `lib/priority-0-v1.ts`  
+Doc: `docs/engineering/PRIORITY_0_V1.md`
+
+## Nothing comes before
+
+1. White screen kill  
+2. Preview view  
+3. Conversation Hub  
+
+## Owner sees any of these → PRODUCT FAIL
+
+White / empty / black / null / broken screen · no image · no button · no price · no Pay Now · no messages · no header · no responsive view  
+
+→ Sprint FAIL · Commit BLOCKED · Push BLOCKED · Certification BLOCKED
+
+## Validation order (1→16)
+
+Data → API → Auth → Imports → Routes → Component → Page → Mobile → Responsive → Image → Button → Preview → Owner visual → Zero regression → Self recovery → Certification
+
+## Fail closed
+
+Never show white/empty/black/null. Only: Loading Skeleton · Temporary · Error · Self Recovery · Refresh · Diagnostic.
+
+## Conversation Hub must never display
+
+White screen · broken component · null data · missing image/price/buttons · broken Pay Now
+
+## Owner law
+
+If Owner cannot SEE + SCROLL + CLICK + BUY + SELL + PAY + TRACK + TEST → **the product does not exist.**
+
+## Work order (Sprint 2 last)
+
+1 Fix white screen → 2 Preview → 3 Conversation Hub → 4 Responsive → 5 Pay Now → 6 Images → 7 Messages → 8 Visual certification → 9 Zero regression → **10 Sprint 2 unlocked**
+
+Child law: Build Must Live (`lib/priority-0-build-must-live-v1.ts`) — Build/CSS/Tailwind/Layout/Preview must PASS first.
+
+## Cursor must never
+
+- Start Sprint 2 before Priority 0 order steps 1–9 PASS  
+- Prioritize other features over white screen / preview / Conversation Hub  
+- Claim product exists when Owner cannot see/use Conversation Hub on official preview

@@ -1,0 +1,74 @@
+/**
+ * Fail Closed v1.0 — soft-fail UI (Owner copy).
+ */
+
+.fail-closed-v1 {
+  width: 100%;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: left;
+}
+
+.fail-closed-v1--page {
+  margin: 24px auto;
+  max-width: 420px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.fail-closed-v1__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.fail-closed-v1__body,
+.fail-closed-v1__hint {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.fail-closed-v1__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+  justify-content: flex-start;
+}
+
+.fail-closed-v1--page .fail-closed-v1__actions {
+  justify-content: center;
+}
+
+.fail-closed-v1__retry,
+.fail-closed-v1__home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+}
+
+.fail-closed-v1__retry {
+  background: #6d28d9;
+  color: #fff;
+}
+
+.fail-closed-v1__home {
+  background: #fff;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+}

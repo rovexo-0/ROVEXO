@@ -1,0 +1,34 @@
+---
+description: Auth UI Compact Premium v1.3 — email/password polish only
+alwaysApply: true
+---
+
+# ROVEXO AUTH UI COMPACT PREMIUM v1.3
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN**
+
+SSOT: `lib/auth/auth-ui-compact-premium-v1.3.ts`  
+Parent UI freeze: `lib/auth/auth-ui-master-freeze-v1.2.ts`
+
+## Scope
+
+Sign In + Register **UI polish only**. Email + Password only.
+
+## Login
+
+SECURE SIGN IN · Your data is protected.  
+Create Account = full-width outlined Compact Premium secondary button (same height/radius as Sign In).
+
+## Register
+
+Receive ROVEXO news and offers (OPTIONAL)  
+SECURE REGISTRATION · Your account is protected.  
+No default “At least 8 characters”. Validation only when needed (invalid email / password &lt; 8 / mismatch).
+
+## Forbidden
+
+OAuth UI · UK GDPR · auth/session/middleware/route/API/architecture changes · colour redesigns
+
+## Theme
+
+Keep official ROVEXO purple · gradients · Compact Premium · mobile first.

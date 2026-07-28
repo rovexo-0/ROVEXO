@@ -1,8 +1,33 @@
 import type { MetadataRoute } from "next";
 import { getAppUrl } from "@/lib/supabase/env";
+import {
+  CANONICAL_RX_PWA_SIZES,
+  CANONICAL_RX_APP_ICON,
+} from "@/lib/brand/canonical-rx-3d-logo-freeze-v1";
 
 export default function manifest(): MetadataRoute.Manifest {
   const baseUrl = getAppUrl();
+
+  const icons: MetadataRoute.Manifest["icons"] = [
+    ...CANONICAL_RX_PWA_SIZES.map((size) => ({
+      src: `/icons/icon-${size}.png`,
+      sizes: `${size}x${size}`,
+      type: "image/png" as const,
+      purpose: "any" as const,
+    })),
+    {
+      src: "/icons/icon-maskable-512.png",
+      sizes: "512x512",
+      type: "image/png",
+      purpose: "maskable",
+    },
+    {
+      src: CANONICAL_RX_APP_ICON,
+      sizes: "2048x2048",
+      type: "image/png",
+      purpose: "any",
+    },
+  ];
 
   return {
     name: "ROVEXO",
@@ -10,18 +35,13 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Buy and sell on the modern UK marketplace with purchase protection.",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#ffffff",
+    background_color: "#050508",
+    theme_color: "#050508",
     orientation: "portrait-primary",
     lang: "en-GB",
     dir: "ltr",
     categories: ["shopping", "marketplace"],
-    icons: [
-      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/icons/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
-      { src: "/favicon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-    ],
+    icons,
     screenshots: [{ src: "/brand/og-image.png", sizes: "1200x630", type: "image/png" }],
     shortcuts: [
       { name: "Search", url: "/search", description: "Search listings" },

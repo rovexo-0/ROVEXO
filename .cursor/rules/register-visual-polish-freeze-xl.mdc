@@ -1,0 +1,33 @@
+---
+description: Absolute Blood Law XL — Register Visual Polish Freeze. LOCKED · CERTIFIED.
+globs: features/auth/components/RegisterScreen.tsx,styles/rovexo/auth-v1.css,lib/supreme-blood-law-xl-register-visual-polish-freeze-v1.ts
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XL — REGISTER VISUAL POLISH FREEZE
+
+**STATUS: LOCKED | CERTIFIED | PRODUCTION READY**
+
+SSOT: `lib/supreme-blood-law-xl-register-visual-polish-freeze-v1.ts`  
+Parent: Blood Law XXXIX  
+Target: **`/register` ONLY**
+
+## Approved polish (done · frozen)
+
+Move Primary RX Emblem **+10px** downward (certified within 8–12px) for breathing room between ← Back and emblem.
+
+- Logo size unchanged (180px width)  
+- Logo centered  
+- White space below logo / form spacing unchanged  
+
+## Forbidden after freeze
+
+Any change to logo size/artwork, layout, inputs, buttons, typography, colours, form spacing, navigation, flow, validation, or CSS outside the Register brand container.
+
+## Fail policy
+
+If anything other than the certified Back→Emblem offset differs → Reject Build → Restore → Apply only approved polish.
+
+## Final status
+
+Homepage Header · Login · Register · Authentication Brand System = **FINAL FREEZE**

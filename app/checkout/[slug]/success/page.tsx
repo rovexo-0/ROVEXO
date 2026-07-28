@@ -1,8 +1,8 @@
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
-import { CheckoutPageHeader } from "@/features/checkout/components/CheckoutPageHeader";
 import { CheckoutSuccessView } from "@/features/checkout/components/CheckoutSuccessView";
 import { loadCheckoutPageProps } from "@/features/checkout/lib/load-checkout-page";
+import { evaluateDoneReadinessGate } from "@/lib/checkout/done-readiness-gate-v1";
 import { confirmOrderCheckoutSession } from "@/lib/orders/checkout";
 import { getOrderById } from "@/lib/orders/store";
 import type { OrderStatus } from "@/lib/orders/types";
@@ -12,7 +12,7 @@ import "@/styles/rovexo/checkout-v1.css";
 
 type Props = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ order_id?: string; session_id?: string }>;
+  searchParams: Promise<{ order_id?: string; session_id?: string; cs?: string; visual?: string }>;
 };
 
 /** Success UI is only for paid-or-later orders — never awaiting_payment. */
@@ -24,25 +24,58 @@ const SUCCESS_ORDER_STATUSES = new Set<OrderStatus>([
   "issue_open",
 ]);
 
-async function resolveConversationId(buyerId: string, productId: string | null, sellerId: string | null) {
-  if (!productId) return null;
-  const admin = createAdminClient();
-  let query = admin
-    .from("conversations")
-    .select("id")
-    .eq("product_id", productId)
-    .eq("buyer_id", buyerId);
-  if (sellerId) {
-    query = query.eq("seller_id", sellerId);
-  }
-  const { data } = await query.maybeSingle();
-  return data?.id ?? null;
-}
-
+/**
+ * Absolute Law FINAL LOCK — Payment Successful.
+ * DONE exists only when evaluateDoneReadinessGate().allPass.
+ */
 export default async function CheckoutSuccessRoute({ params, searchParams }: Props) {
   const { slug } = await params;
   const query = await searchParams;
-  await loadCheckoutPageProps(slug);
+
+  /**
+   * Localhost visual chrome only — Absolute Law forbids DONE without real gates.
+   * Shows success layout without DONE button (golden rule: no DONE until 100% PASS).
+   */
+  if (process.env.NODE_ENV === "development" && query.visual === "absolute-law") {
+    const auth = await getAuthContext();
+    if (!auth) {
+      redirect(`/login?next=${encodeURIComponent(`/checkout/${slug}/success?visual=absolute-law`)}`);
+    }
+    await loadCheckoutPageProps(slug, { enforceBuyNowGuard: false });
+    const admin = createAdminClient();
+    const { data: product } = await admin
+      .from("products")
+      .select("id, title, price")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (!product) {
+      redirect(`/listing/${slug}`);
+    }
+    const { calculateOrderTotals } = await import("@/lib/orders/pricing");
+    const totals = calculateOrderTotals(Number(product.price ?? 0), 4.49);
+    return (
+      <BetaAppShell showBottomNav={false} className="checkout-v1-shell">
+        <div
+          className="ckt-v1"
+          data-checkout-version="v1.0"
+          data-checkout-absolute-law="1.0-final-lock"
+          data-checkout-visual-proof="development-no-done"
+        >
+          <main className="ckt-v1__main flex min-h-[100dvh] w-full flex-col justify-center">
+            <CheckoutSuccessView
+              productTitle={product.title}
+              totalPaid={totals.total}
+              doneReady={false}
+              conversationId={null}
+              orderId={null}
+            />
+          </main>
+        </div>
+      </BetaAppShell>
+    );
+  }
+
+  await loadCheckoutPageProps(slug, { enforceBuyNowGuard: false });
 
   const auth = await getAuthContext();
   if (!auth) {
@@ -63,48 +96,50 @@ export default async function CheckoutSuccessRoute({ params, searchParams }: Pro
     }
   }
 
+  if (!orderId && query.cs) {
+    const { resolveOrderIdFromCheckoutSession } = await import(
+      "@/lib/orders/create-order-from-checkout-session.server"
+    );
+    orderId = await resolveOrderIdFromCheckoutSession(query.cs);
+  }
+
   if (!orderId) {
     redirect(`/checkout/${slug}`);
   }
 
   const order = await getOrderById(orderId);
   if (!order || order.buyer.id !== userId) {
-    redirect("/orders");
+    notFound();
   }
 
   if (!SUCCESS_ORDER_STATUSES.has(order.status)) {
-    // Unpaid / cancelled — never show Payment successful.
     if (query.session_id && !sessionConfirmed) {
       redirect(`/checkout/${slug}?order=payment_failed`);
     }
     redirect(`/checkout/${slug}`);
   }
 
-  const conversationId = await resolveConversationId(
-    userId,
-    order.product?.id ?? null,
-    order.seller?.id ?? null,
-  );
+  const gate = await evaluateDoneReadinessGate({
+    orderId: order.id,
+    buyerId: userId,
+  });
 
   return (
     <BetaAppShell showBottomNav={false} className="checkout-v1-shell">
       <div
         className="ckt-v1"
         data-checkout-version="v1.0"
-        data-checkout-sprint="3-qa"
-        data-checkout-freeze="FROZEN"
+        data-checkout-absolute-law="1.0-final-lock"
+        data-checkout-freeze="ABSOLUTE-LAW-V1"
+        data-done-gate={gate.allPass ? "PASS" : "PENDING"}
       >
-        <CheckoutPageHeader backHref="/orders" backLabel="Orders" />
-        <main className="ckt-v1__main">
+        <main className="ckt-v1__main flex min-h-[100dvh] w-full flex-col justify-center">
           <CheckoutSuccessView
+            productTitle={order.product.title}
+            totalPaid={order.totals.total}
             orderId={order.id}
-            orderNumber={order.orderNumber}
-            conversationId={conversationId}
-            estimatedDelivery={
-              order.trackingNumber
-                ? `Tracking ${order.trackingNumber}`
-                : null
-            }
+            doneReady={gate.allPass}
+            conversationId={gate.allPass ? gate.conversationId : null}
           />
         </main>
       </div>

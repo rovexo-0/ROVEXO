@@ -176,7 +176,7 @@ export async function onReviewSubmitted(input: {
       userId: input.reviewerId,
       eventType: "fraud_detected",
       delta: TRUST_EVENT_DELTAS.fraud_detected,
-      idempotencyKey: `fraud:review:${input.orderId}`,
+      idempotencyKey: `fraud:review:${input.orderId}:${input.reviewerId}`,
       metadata: { orderId: input.orderId, reason: fraud.reason },
     });
     return;
@@ -189,7 +189,7 @@ export async function onReviewSubmitted(input: {
     userId: input.revieweeId,
     eventType,
     delta: Math.round(delta),
-    idempotencyKey: `review:${input.orderId}`,
+    idempotencyKey: `review:${input.orderId}:${input.reviewerId}`,
     metadata: { orderId: input.orderId, rating: input.rating },
   });
 

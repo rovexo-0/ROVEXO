@@ -8,7 +8,7 @@ export const INBOX_ROUTES = {
   notificationsTab: "/inbox?tab=notifications",
   conversation: (conversationId: string) =>
     `/inbox/conversation/${encodeURIComponent(conversationId)}`,
-  search: "/inbox?search=1",
+  search: "/inbox?tab=messages&q=",
 } as const;
 
 export type InboxTab = "messages" | "notifications";

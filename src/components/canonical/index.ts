@@ -49,6 +49,10 @@ export type { CanonicalSelectorProps } from "./CanonicalSelector";
 export { CanonicalButton, CanonicalButtonLink } from "./CanonicalButton";
 export type { CanonicalButtonProps, CanonicalButtonLinkProps } from "./CanonicalButton";
 
+/** Global Button System v1.0 — marketplace primary CTA SSOT */
+export { PrimaryButton, PrimaryButtonLink } from "@/components/ui/PrimaryButton";
+export type { PrimaryButtonProps, PrimaryButtonLinkProps } from "@/components/ui/PrimaryButton";
+
 export { CanonicalModal } from "./CanonicalModal";
 export type { CanonicalModalProps } from "./CanonicalModal";
 

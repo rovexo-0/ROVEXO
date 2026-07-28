@@ -15,7 +15,6 @@ const SLUG_ICON_MAP: Record<string, HomeCategoryIconType> = {
   pets: "pets",
   "baby-kids": "baby",
   toys: "baby",
-  books: "more",
   music: "more",
   movies: "more",
   gaming: "gaming",
@@ -25,9 +24,11 @@ const SLUG_ICON_MAP: Record<string, HomeCategoryIconType> = {
   shoes: "shoes",
   jewellery: "jewellery",
   "car-parts": "autoparts",
+  autoparts: "autoparts",
   phones: "phones",
   computers: "computers",
-  collectibles: "auctions",
+  collectibles: "collectibles",
+  books: "books",
   business: "wholesale",
   jobs: "jobs",
   services: "services",
@@ -40,6 +41,7 @@ const SLUG_ICON_MAP: Record<string, HomeCategoryIconType> = {
   events: "more",
   "free-stuff": "more",
   "everything-else": "more",
+  kids: "kids-fashion",
 };
 
 export function resolveCategoryIconType(slug: string): HomeCategoryIconType {

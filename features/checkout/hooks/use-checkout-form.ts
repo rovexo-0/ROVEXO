@@ -11,6 +11,30 @@ import { calculateOrderTotals } from "@/lib/orders/pricing";
 import type { Order } from "@/lib/orders/types";
 import type { ProductDetail } from "@/lib/products/types";
 import type { CheckoutDraft, CheckoutView } from "@/features/checkout/types";
+import {
+  isCanonicalBuyNowRvxCode,
+  toBuyNowPublicMessage,
+  RVX_UNCLASSIFIED,
+  type RvxClassifiedCode,
+} from "@/lib/checkout/buy-now-guard-v1";
+import { mapOrderCheckoutErrorToRvx } from "@/lib/checkout/map-order-checkout-error-v1";
+
+function toPublicCheckoutError(raw: string, codeHint?: string): string {
+  const embedded = raw.match(/\bRVX-20(?:0[1-9]|1[0-2]|99)\b/);
+  const fromHint =
+    codeHint &&
+    (codeHint === RVX_UNCLASSIFIED || isCanonicalBuyNowRvxCode(codeHint))
+      ? (codeHint as RvxClassifiedCode)
+      : null;
+  const fromEmbed =
+    embedded?.[0] &&
+    (embedded[0] === RVX_UNCLASSIFIED || isCanonicalBuyNowRvxCode(embedded[0]))
+      ? (embedded[0] as RvxClassifiedCode)
+      : null;
+  if (fromHint) return toBuyNowPublicMessage(fromHint);
+  if (fromEmbed) return toBuyNowPublicMessage(fromEmbed);
+  return toBuyNowPublicMessage(mapOrderCheckoutErrorToRvx(raw).code);
+}
 
 function hasCompleteAddress(draft: CheckoutDraft): boolean {
   return (
@@ -28,12 +52,16 @@ export function useCheckoutForm(
     liveShippingEnabled?: boolean;
     hubConversationId?: string;
     offerId?: string | null;
+    pendingOrderId?: string | null;
+    checkoutSessionId?: string | null;
     onDraftChange?: (draft: CheckoutDraft) => void;
   },
 ) {
   const liveShippingEnabled = options?.liveShippingEnabled ?? true;
   const hubConversationId = options?.hubConversationId;
   const offerId = options?.offerId ?? null;
+  const pendingOrderId = options?.pendingOrderId ?? null;
+  const checkoutSessionId = options?.checkoutSessionId ?? null;
   const liveShippingActive = liveShippingEnabled;
   const [view, setView] = useState<CheckoutView>("checkout");
   const [draft, setDraft] = useState<CheckoutDraft>(initialDraft);
@@ -218,7 +246,7 @@ export function useCheckoutForm(
     if (!canPay || isSubmitting) return;
 
     if (typeof navigator !== "undefined" && !navigator.onLine) {
-      setErrorMessage("You're offline. Check your connection and try again.");
+      setErrorMessage(toBuyNowPublicMessage(RVX_UNCLASSIFIED));
       return;
     }
 
@@ -228,7 +256,7 @@ export function useCheckoutForm(
     try {
       const shippingAddressId = draft.addressId;
       if (!shippingAddressId) {
-        setErrorMessage("Delivery address is required. Return to Delivery and continue again.");
+        setErrorMessage(toBuyNowPublicMessage("RVX-2005"));
         return;
       }
 
@@ -247,9 +275,19 @@ export function useCheckoutForm(
         // Wallet methods optional for guest Stripe Checkout cards.
       }
 
+      let idempotencyKey: string | null = null;
+      try {
+        idempotencyKey = sessionStorage.getItem(`rvx_bn_idem_${product.slug}`);
+      } catch {
+        idempotencyKey = null;
+      }
+
       const response = await fetch("/api/orders/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
+        },
         body: JSON.stringify({
           productSlug: product.slug,
           deliveryOption: draft.deliveryOption,
@@ -257,7 +295,11 @@ export function useCheckoutForm(
           shippingQuoteId: selectedQuote?.id ?? null,
           hubConversationId,
           paymentMethodId: walletPaymentMethodId,
+          paymentMethod: draft.paymentMethod,
           offerId,
+          idempotencyKey,
+          orderId: pendingOrderId,
+          checkoutSessionId,
         }),
       });
 
@@ -266,22 +308,12 @@ export function useCheckoutForm(
         url?: string;
         order?: Order;
         error?: string;
+        code?: string;
       };
 
       if (!response.ok || !payload.success) {
-        const raw = payload.error ?? "Unable to start checkout.";
-        const lower = raw.toLowerCase();
-        if (lower.includes("declined")) {
-          setErrorMessage("Card declined. Try another payment method or card.");
-        } else if (lower.includes("3d") || lower.includes("authentication")) {
-          setErrorMessage("Payment authentication was cancelled. You can try again.");
-        } else if (lower.includes("cancel")) {
-          setErrorMessage("Payment was cancelled. Your checkout details were kept.");
-        } else if (lower.includes("ship") || lower.includes("sendcloud")) {
-          setErrorMessage("Shipping is temporarily unavailable. Try again in a moment.");
-        } else {
-          setErrorMessage(raw);
-        }
+        const raw = payload.error ?? "";
+        setErrorMessage(toPublicCheckoutError(raw, payload.code));
         return;
       }
 
@@ -290,13 +322,25 @@ export function useCheckoutForm(
         return;
       }
 
-      setErrorMessage("Unable to start checkout.");
+      setErrorMessage(toBuyNowPublicMessage(RVX_UNCLASSIFIED));
     } catch {
-      setErrorMessage("Something went wrong. Check your connection and try again.");
+      setErrorMessage(toBuyNowPublicMessage(RVX_UNCLASSIFIED));
     } finally {
       setIsSubmitting(false);
     }
-  }, [canPay, draft.addressId, draft.deliveryOption, hubConversationId, isSubmitting, offerId, product.slug, selectedQuote]);
+  }, [
+    canPay,
+    checkoutSessionId,
+    draft.addressId,
+    draft.deliveryOption,
+    draft.paymentMethod,
+    hubConversationId,
+    isSubmitting,
+    offerId,
+    pendingOrderId,
+    product.slug,
+    selectedQuote,
+  ]);
 
   return {
     view,
@@ -307,6 +351,7 @@ export function useCheckoutForm(
     isResolvingAddress,
     canPay,
     errorMessage,
+    clearErrorMessage: () => setErrorMessage(null),
     shippingQuotes: activeShippingQuotes,
     shippingQuotesLoading,
     liveQuotesAttempted: quotesAttempted,

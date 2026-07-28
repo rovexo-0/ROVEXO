@@ -93,8 +93,16 @@ describe("smart suggestion engine", () => {
 });
 
 describe("sell quick conditions", () => {
-  it("excludes For Parts and includes Very Good", () => {
-    expect(SELL_QUICK_CONDITIONS).toEqual(["New", "Like New", "Very Good", "Good", "Fair"]);
+  it("uses the frozen canonical condition set", () => {
+    expect(SELL_QUICK_CONDITIONS).toEqual([
+      "New with tags",
+      "New",
+      "Like New",
+      "Excellent",
+      "Very Good",
+      "Good",
+      "Fair",
+    ]);
     expect(SELL_QUICK_CONDITIONS).not.toContain("For Parts");
     expect(isSellQuickCondition("Very Good")).toBe(true);
     expect(isSellQuickCondition("For Parts")).toBe(false);

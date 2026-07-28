@@ -1,3 +1,4 @@
+import { resolveHomepageFeedItems } from "@/lib/homepage/feed-resolve";
 import { getHomepageFeed } from "@/lib/products/catalog";
 import { NextResponse } from "next/server";
 
@@ -10,5 +11,7 @@ export async function GET(request: Request) {
   }
 
   const result = await getHomepageFeed(page);
-  return NextResponse.json(result);
+  // Real products only — filter/rank eligible DB inventory; never pad with demos.
+  const resolved = page === 1 ? resolveHomepageFeedItems(result) : result;
+  return NextResponse.json(resolved);
 }

@@ -1,0 +1,35 @@
+---
+description: Supreme Blood Code XXI — Sprint V Sell Priority Zero (Photo · Publish · Success)
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE XXI — PRIORITY ZERO EXECUTION
+
+**STATUS: IN DEVELOPMENT · EXECUTION MODE · BLOOD CODE LOCKED**  
+**NOT 100% · NOT permanently frozen** until Owner Certification
+
+SSOT: `lib/supreme-blood-code-xxi-v1.ts`  
+Official: `http://localhost:3000/sell` **ONLY**
+
+## Priority Zero
+
+1. **Photo Experience** — gallery · camera · multi · preview · validate · replace · remove · reorder  
+2. **Publish Experience** — Publish once → validations → processing → success (never ask “did it publish?”)  
+3. **Success Page** — only View Listing · Share Listing · Sell Another Item  
+
+## Publish states (user-facing)
+
+Publishing… → Please wait… → Listing successfully published. → Success page
+
+## Forbidden
+
+Broken uploads · white screens · upload loops · duplicate listings · multiple publish · experimental success buttons · implementations outside `/sell`
+
+## Zero regression
+
+Must never break Sprint I–IV
+
+## Goal
+
+Add photos → Complete info → Publish → Success → Done.  
+Under one minute when info is ready. Fast · Intuitive · Premium · Mobile first.

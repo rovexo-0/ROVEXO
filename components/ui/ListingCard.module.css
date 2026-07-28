@@ -130,6 +130,16 @@
   color: #047857;
 }
 
+.badge[data-tone="urgent"] {
+  background: color-mix(in srgb, #dc2626 12%, #fff);
+  color: #b91c1c;
+}
+
+.badge[data-tone="sold"] {
+  background: #dc2626;
+  color: #fff;
+}
+
 .badge[data-tone="verified"],
 .badge[data-tone="business"] {
   background: #dbeafe;

@@ -6,6 +6,7 @@ import type { HomepageV4Sections } from "@/lib/homepage/v4-data";
 import { CanonicalCategoryRail } from "@/components/homepage/canonical/CanonicalCategoryRail";
 import { FeaturedStoreSection } from "@/components/homepage/canonical/featured-store/FeaturedStoreSection";
 import { CanonicalMarketplaceFeed } from "@/components/homepage/canonical/CanonicalMarketplaceFeed";
+import { FollowingFeedSection } from "@/features/home/components/FollowingFeedSection";
 import css from "@/components/homepage/canonical/CanonicalHomepage.module.css";
 
 export type CanonicalHomepageProps = HomepageV4Sections;
@@ -29,6 +30,8 @@ export const CanonicalHomepage = memo(function CanonicalHomepage({
     <ScrollContainer withBottomNav className={css.hpCanonical} data-hp-homepage="canonical" data-hp-homepage-version="phase-2-refinement-01">
       <CanonicalCategoryRail />
       <FeaturedStoreSection sections={showcases} />
+      {/* Blood XLVI — marketplace Following Feed (discovery only; guests = unmounted). */}
+      <FollowingFeedSection />
       <CanonicalMarketplaceFeed initialPage={feed} reservedIds={reservedIds} />
     </ScrollContainer>
   );

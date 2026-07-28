@@ -53,7 +53,9 @@ describe("wallet engine", () => {
       availableBalance: 10,
       pendingBalance: 50,
       pendingAvailableAt: new Date().toISOString(),
+      lockedBalance: 0,
       paidOutBalance: 100,
+      pendingOrderCount: 0,
       withdrawalSummary: {
         processingTotal: 0,
         processingCount: 0,
@@ -93,7 +95,9 @@ describe("wallet engine", () => {
       availableBalance: 10,
       pendingBalance: 50,
       pendingAvailableAt: new Date().toISOString(),
+      lockedBalance: 0,
       paidOutBalance: 100,
+      pendingOrderCount: 0,
       withdrawalSummary: {
         processingTotal: 0,
         processingCount: 0,

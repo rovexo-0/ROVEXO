@@ -1,0 +1,24 @@
+---
+description: SANGE Senior Production Audit — find/fix/optimize/freeze on localhost until 100/100 (P0).
+alwaysApply: true
+---
+
+# SANGE — Senior Production Audit (EXECUTION MODE · P0)
+
+## Mission
+
+Make the real product **100/100** on `http://localhost:3000` only.
+
+Always: FIND → FIX → OPTIMIZE → RE-AUDIT → POLISH → FREEZE → CONTINUE.  
+Never: stop at FAIL · report-only · redesign · rebuild · v2 · change Owner design.
+
+## Blockers
+
+**WAITING FOR OWNER** → pause component → continue next.  
+**EXTERNAL BLOCKER** → pause component → continue next.  
+FAIL = start of fixing, never the end.
+
+## Question
+
+Can it become better without redesign/rebuild/changing Owner implementation?  
+YES → make it better · NO → freeze (after 100/100 real verification).

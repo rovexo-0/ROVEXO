@@ -53,7 +53,12 @@ export type SmartNotificationEventType =
   | "business_verified"
   | "security_alert"
   | "policy_update"
-  | "legal_update";
+  | "legal_update"
+  | "follow_created"
+  | "follow_new_listing"
+  | "follow_price_reduced"
+  | "follow_listing_relisted"
+  | "follow_seller_badge";
 
 type EmitSmartNotificationInput = {
   userId: string;
@@ -67,6 +72,8 @@ type EmitSmartNotificationInput = {
   avatarUrl?: string;
   avatarName?: string;
   payload?: Record<string, unknown>;
+  /** Optional override for Follow Notifications grouping. */
+  groupKey?: string;
 };
 
 type PreferenceCategory =
@@ -124,6 +131,13 @@ function eventPreferenceCategory(eventType: SmartNotificationEventType): Prefere
       return "business";
     case "saved_search_match":
       return "ai";
+    case "follow_created":
+      return "messages";
+    case "follow_new_listing":
+    case "follow_price_reduced":
+    case "follow_listing_relisted":
+    case "follow_seller_badge":
+      return "orders";
     default:
       return "orders";
   }
@@ -205,16 +219,21 @@ export async function emitSmartNotification(input: EmitSmartNotificationInput): 
     });
 
   const priority = resolveNotificationPriority(input.eventType);
-  const groupKey = buildNotificationGroupKey({
-    userId: input.userId,
-    type: input.notificationType,
-    href: resolvedHref,
-  });
+  const groupKey =
+    input.groupKey ??
+    buildNotificationGroupKey({
+      userId: input.userId,
+      type: input.notificationType,
+      href: resolvedHref,
+    });
   const silent = !shouldSendForegroundPush(priority);
+
+  const persistedType =
+    input.notificationType === "follower" ? ("system" as const) : input.notificationType;
 
   const notificationId = await createNotification({
     userId: input.userId,
-    type: input.notificationType,
+    type: persistedType,
     title: input.title,
     subtitle: input.subtitle,
     href: resolvedHref,
@@ -247,7 +266,7 @@ export async function emitSmartNotification(input: EmitSmartNotificationInput): 
   await deliverNotificationChannels({
     userId: input.userId,
     notificationId,
-    type: input.notificationType,
+    type: persistedType,
     eventType: input.eventType,
     title: input.title,
     subtitle: input.subtitle,

@@ -2,13 +2,21 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { handleStripeWebhookEvent } from "@/lib/stripe/webhook-handler";
 import { getStripeClient, getStripeWebhookSecret, isStripeConfigured } from "@/lib/stripe/server";
+import {
+  isWalletMoneyEnvReady,
+  MISSING_REQUIRED_SECRET,
+} from "@/lib/wallet/env-validation";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+/** Legacy Stripe webhook path — same fail-closed contract as /api/stripe/webhook. */
 export async function POST(request: Request) {
-  if (!isStripeConfigured()) {
-    return NextResponse.json({ error: "Stripe is not configured." }, { status: 503 });
+  if (!isWalletMoneyEnvReady("webhook") || !isStripeConfigured()) {
+    return NextResponse.json(
+      { error: MISSING_REQUIRED_SECRET, code: "MISSING_REQUIRED_SECRET" },
+      { status: 503 },
+    );
   }
 
   const body = await request.text();

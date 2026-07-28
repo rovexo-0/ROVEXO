@@ -22,6 +22,7 @@ import type { OrderEscrowState } from "@/lib/commerce-engine/read-model";
 import type { OrderResolutionSummary } from "@/lib/resolution-engine/types";
 import { BuyerCancelOrderCard } from "@/features/orders/components/BuyerCancelOrderCard";
 import { RefundStatusCard } from "@/features/orders/components/RefundStatusCard";
+import { OrderActionsCard } from "@/features/orders/components/OrderActionsCard";
 import type { Order } from "@/lib/orders/types";
 
 type BuyerOrderDetailCanonicalProps = {
@@ -85,6 +86,7 @@ export function BuyerOrderDetailCanonical({
             ) : null}
           </CanonicalInfoBlock>
         </section>
+        <OrderActionsCard order={order} view="buyer" />
         <OrderReviewCard orderId={order.id} sellerName={order.seller.name} />
       </div>
     );
@@ -104,6 +106,8 @@ export function BuyerOrderDetailCanonical({
         embedded
         className="w-full"
       />
+
+      <OrderActionsCard order={order} view="buyer" />
 
       {escrowState ? <EscrowReleaseCard escrow={escrowState} view="buyer" /> : null}
 

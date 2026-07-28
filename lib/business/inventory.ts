@@ -5,8 +5,11 @@ export type InventoryStatus = "active" | "low_stock" | "out_of_stock";
 
 export type InventoryOverview = {
   totalProducts: number;
-  lowStock: number;
+  availableListings: number;
   outOfStock: number;
+  totalInventory: number;
+  unitsSold: number;
+  lowStock: number;
 };
 
 export type InventoryItem = {
@@ -68,12 +71,27 @@ export async function listInventoryItems(userId?: string): Promise<InventoryItem
 }
 
 export async function getInventoryOverview(userId?: string): Promise<InventoryOverview> {
-  const items = await listInventoryItems(userId);
+  const resolvedUserId = userId ?? (await requireAuthContext()).user.id;
+  const items = await listInventoryItems(resolvedUserId);
+  const supabase = await createClient();
+
+  const { data: orderRows } = await supabase
+    .from("orders")
+    .select("order_items(quantity)")
+    .eq("seller_id", resolvedUserId);
+
+  const unitsSold = (orderRows ?? []).reduce((sum, order) => {
+    const lines = (order.order_items ?? []) as Array<{ quantity: number | null }>;
+    return sum + lines.reduce((lineSum, line) => lineSum + Math.max(0, Number(line.quantity ?? 0)), 0);
+  }, 0);
 
   return {
     totalProducts: items.length,
-    lowStock: items.filter((item) => item.status === "low_stock").length,
+    availableListings: items.filter((item) => item.status !== "out_of_stock").length,
     outOfStock: items.filter((item) => item.status === "out_of_stock").length,
+    totalInventory: items.reduce((sum, item) => sum + Math.max(0, item.stock), 0),
+    unitsSold,
+    lowStock: items.filter((item) => item.status === "low_stock").length,
   };
 }
 

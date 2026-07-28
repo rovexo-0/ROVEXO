@@ -6,13 +6,23 @@ vi.mock("@/lib/stripe/server", () => ({
   getStripeWebhookSecret: vi.fn(() => "whsec_test"),
 }));
 
+vi.mock("@/lib/wallet/env-validation", () => ({
+  isWalletMoneyEnvReady: vi.fn(() => true),
+  MISSING_REQUIRED_SECRET: "MISSING REQUIRED SECRET",
+}));
+
 vi.mock("@/lib/stripe/webhook-handler", () => ({
   handleStripeWebhookEvent: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe("Stripe webhook route", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    vi.resetModules();
+    const { isWalletMoneyEnvReady } = await import("@/lib/wallet/env-validation");
+    const { isStripeConfigured } = await import("@/lib/stripe/server");
+    vi.mocked(isWalletMoneyEnvReady).mockReturnValue(true);
+    vi.mocked(isStripeConfigured).mockReturnValue(true);
   });
 
   it("GET returns 405 Method Not Allowed", async () => {
@@ -21,6 +31,20 @@ describe("Stripe webhook route", () => {
     expect(response.status).toBe(405);
     const body = await response.json();
     expect(body.error).toBe("Method Not Allowed");
+  });
+
+  it("POST returns 503 when wallet money env is not ready", async () => {
+    const { isWalletMoneyEnvReady } = await import("@/lib/wallet/env-validation");
+    vi.mocked(isWalletMoneyEnvReady).mockReturnValueOnce(false);
+
+    const { POST } = await import("@/app/api/stripe/webhook/route");
+    const response = await POST(
+      new Request("http://localhost/api/stripe/webhook", {
+        method: "POST",
+        body: "{}",
+      }),
+    );
+    expect(response.status).toBe(503);
   });
 
   it("POST returns 400 when stripe-signature header is missing", async () => {

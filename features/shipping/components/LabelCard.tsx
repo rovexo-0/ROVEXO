@@ -3,6 +3,10 @@
 import { memo, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { CanonicalCard } from "@/src/components/canonical";
+import {
+  ShippingLabelViewer,
+  cacheShippingLabelUrl,
+} from "@/features/shipping/components/ShippingLabelViewer";
 import { ShippingService } from "@/lib/shipping";
 import type { Order } from "@/lib/orders/types";
 import type { ShippingRecord } from "@/lib/shipping/types";
@@ -17,6 +21,7 @@ export const LabelCard = memo(function LabelCard({ order, record }: LabelCardPro
   const [localRecord, setLocalRecord] = useState(record ?? null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [viewerOpen, setViewerOpen] = useState(false);
 
   if (order.status !== "awaiting_shipment" && order.status !== "shipped") {
     return null;
@@ -48,11 +53,22 @@ export const LabelCard = memo(function LabelCard({ order, record }: LabelCardPro
       const payload = (await response.json()) as {
         error?: string;
         record?: ShippingRecord | null;
+        label?: { pdfUrl?: string | null } | null;
+        pdfUrl?: string | null;
       };
       if (!response.ok) {
         throw new Error(payload.error ?? "Unable to generate shipping label.");
       }
       if (payload.record) setLocalRecord(payload.record);
+      const url =
+        payload.pdfUrl ||
+        payload.label?.pdfUrl ||
+        payload.record?.label?.pdfUrl ||
+        null;
+      if (url) {
+        cacheShippingLabelUrl(order.id, url);
+        setViewerOpen(true);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to generate shipping label.");
     } finally {
@@ -60,7 +76,7 @@ export const LabelCard = memo(function LabelCard({ order, record }: LabelCardPro
     }
   }
 
-  function printLabel() {
+  function printDraftLabel() {
     const content = labelRef.current;
     if (!content) return;
 
@@ -88,7 +104,7 @@ export const LabelCard = memo(function LabelCard({ order, record }: LabelCardPro
         <h2 className="text-base font-semibold text-text-primary">Shipping label</h2>
         <p className="mt-ds-1 text-sm text-text-secondary">
           {hasCarrierLabel
-            ? "Your carrier label is ready. Download the PDF and attach it to your parcel."
+            ? "Your carrier label is ready. Open it in the ROVEXO Shipping Label Viewer."
             : "Generate a carrier label, or print a draft label for manual dispatch."}
         </p>
       </div>
@@ -125,20 +141,30 @@ export const LabelCard = memo(function LabelCard({ order, record }: LabelCardPro
         ) : null}
 
         {pdfUrl ? (
-          <a
-            href={pdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-ds-md bg-primary px-ds-4 text-sm font-semibold text-on-primary"
+          <Button
+            variant="primary"
+            fullWidth
+            onClick={() => {
+              cacheShippingLabelUrl(order.id, pdfUrl);
+              setViewerOpen(true);
+            }}
           >
-            Download label PDF
-          </a>
+            View shipping label
+          </Button>
         ) : null}
 
-        <Button variant="secondary" fullWidth onClick={printLabel}>
+        <Button variant="secondary" fullWidth onClick={printDraftLabel}>
           Print draft label
         </Button>
       </div>
+
+      <ShippingLabelViewer
+        open={viewerOpen}
+        onClose={() => setViewerOpen(false)}
+        pdfUrl={pdfUrl}
+        orderId={order.id}
+        carrierName={label.carrier}
+      />
     </CanonicalCard>
   );
 });

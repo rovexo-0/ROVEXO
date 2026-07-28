@@ -43,7 +43,7 @@ describe("platform canonical UI v1.0", () => {
 
   it("aligns notification settings with settings menu body", () => {
     const page = readSource("features/notifications/components/NotificationSettingsPage.tsx");
-    expect(page).toContain("AccountCanonicalShell");
+    expect(page).toContain("MyAccountTemplate");
     expect(page).toContain("SettingSection");
   });
 

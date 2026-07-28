@@ -1,18 +1,31 @@
 import { createClient } from "@/lib/supabase/server";
+import { tryCreateAdminClient } from "@/lib/supabase/admin";
 import type { Tables } from "@/lib/supabase/types/database";
 import { getProductCategorySlug } from "@/lib/saved/categories";
+import {
+  assertSavedRowsAbsent,
+  assertSavedRowsPresent,
+  resolveProductIdBySlug,
+} from "@/lib/saved/check";
 import type { SavedItem } from "@/lib/saved/types";
 import type { Product } from "@/lib/products/types";
+import { isForbiddenMarketplaceInventory } from "@/lib/listings/forbidden-marketplace-inventory";
 
-type SavedRow = Tables<"saved_items"> & {
-  products: Tables<"products"> & {
-    profiles: Pick<Tables<"profiles">, "full_name" | "avatar_url" | "verified"> | null;
-    product_images: Pick<Tables<"product_images">, "url" | "is_primary" | "sort_order">[];
-    categories: Pick<Tables<"categories">, "slug"> | null;
-  };
+type SavedProductJoin = Tables<"products"> & {
+  profiles: Pick<Tables<"profiles">, "full_name" | "avatar_url" | "verified"> | null;
+  product_images: Pick<Tables<"product_images">, "url" | "is_primary" | "sort_order">[];
+  categories: Pick<Tables<"categories">, "slug"> | null;
 };
 
-function mapSavedRow(row: SavedRow): SavedItem {
+type SavedRow = Tables<"saved_items"> & {
+  products: SavedProductJoin | null;
+};
+
+export type SavedMutationResult =
+  | { ok: true; verified: true; items: SavedItem[]; saved: boolean }
+  | { ok: false; verified: false; items: SavedItem[]; error: string; saved?: boolean };
+
+function mapSavedRow(row: SavedRow & { products: SavedProductJoin }): SavedItem {
   const images = [...(row.products.product_images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
@@ -45,6 +58,26 @@ function mapSavedRow(row: SavedRow): SavedItem {
   };
 }
 
+async function hydrateSoldProduct(productId: string): Promise<SavedProductJoin | null> {
+  const admin = tryCreateAdminClient();
+  if (!admin) return null;
+  const { data, error } = await admin
+    .from("products")
+    .select(
+      `
+      *,
+      profiles!products_seller_id_fkey ( full_name, avatar_url, verified ),
+      product_images ( url, is_primary, sort_order ),
+      categories ( slug )
+    `,
+    )
+    .eq("id", productId)
+    .eq("status", "sold")
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as SavedProductJoin;
+}
+
 export async function listSavedItems(userId: string): Promise<SavedItem[]> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -63,50 +96,269 @@ export async function listSavedItems(userId: string): Promise<SavedItem[]> {
     .eq("user_id", userId)
     .order("saved_at", { ascending: false });
 
-  return ((data as SavedRow[] | null) ?? []).map(mapSavedRow);
+  const rows = (data as SavedRow[] | null) ?? [];
+  const orphanProductIds: string[] = [];
+  const live: SavedItem[] = [];
+
+  for (const row of rows) {
+    let product = row.products;
+    // Keep sold Saved items visible even when RLS still hides sold from the join.
+    if (!product) {
+      product = await hydrateSoldProduct(row.product_id);
+    }
+    if (!product || product.status === "deleted") {
+      orphanProductIds.push(row.product_id);
+      continue;
+    }
+    if (
+      isForbiddenMarketplaceInventory({
+        slug: product.slug,
+        title: product.title,
+        description: product.description,
+      })
+    ) {
+      continue;
+    }
+    live.push(mapSavedRow({ ...row, products: product }));
+  }
+
+  if (orphanProductIds.length) {
+    void supabase
+      .from("saved_items")
+      .delete()
+      .eq("user_id", userId)
+      .in("product_id", orphanProductIds);
+  }
+
+  return live;
 }
 
-export async function removeSavedItems(
+/**
+ * CEO P0 unsave:
+ * 1) DELETE · 2) SELECT verify absent · 3) caller clears cache · 4) refetch list.
+ */
+export async function removeSavedItemsVerified(
   userId: string,
   productSlugs: string[],
-): Promise<SavedItem[]> {
+): Promise<SavedMutationResult> {
+  const current = await listSavedItems(userId);
   if (!productSlugs.length) {
-    return listSavedItems(userId);
+    return { ok: true, verified: true, items: current, saved: false };
   }
 
   const supabase = await createClient();
-  const { data: products } = await supabase
+  const { data: products, error: lookupError } = await supabase
     .from("products")
     .select("id, slug")
     .in("slug", productSlugs);
 
-  const productIds = products?.map((product) => product.id) ?? [];
-  if (productIds.length) {
-    await supabase
-      .from("saved_items")
-      .delete()
-      .eq("user_id", userId)
-      .in("product_id", productIds);
+  if (lookupError) {
+    return {
+      ok: false,
+      verified: false,
+      items: current,
+      error: "Unable to resolve listing.",
+      saved: true,
+    };
   }
 
-  return listSavedItems(userId);
+  const productIds = products?.map((product) => product.id) ?? [];
+
+  // Nothing in DB for these slugs → already FALSE (authority satisfied).
+  if (!productIds.length) {
+    const items = await listSavedItems(userId);
+    return { ok: true, verified: true, items, saved: false };
+  }
+
+  // STEP 1 — DELETE
+  const { error: deleteError } = await supabase
+    .from("saved_items")
+    .delete()
+    .eq("user_id", userId)
+    .in("product_id", productIds);
+
+  if (deleteError) {
+    return {
+      ok: false,
+      verified: false,
+      items: current,
+      error: "DELETE failed.",
+      saved: true,
+    };
+  }
+
+  // STEP 2 — READ AGAIN (must not exist)
+  const verify = await assertSavedRowsAbsent(userId, productIds);
+  if (!verify.ok) {
+    return {
+      ok: false,
+      verified: false,
+      items: current,
+      error: "VERIFY failed — saved_items row still present.",
+      saved: true,
+    };
+  }
+
+  // STEP 4 — REFETCH (DB only)
+  const items = await listSavedItems(userId);
+  const stillListed = items.some((item) => productSlugs.includes(item.productSlug));
+  if (stillListed) {
+    return {
+      ok: false,
+      verified: false,
+      items,
+      error: "VERIFY failed — listing still in saved list.",
+      saved: true,
+    };
+  }
+
+  return { ok: true, verified: true, items, saved: false };
 }
 
-export async function saveItem(userId: string, productSlug: string): Promise<void> {
-  const supabase = await createClient();
-  const { data: product } = await supabase
-    .from("products")
-    .select("id")
-    .eq("slug", productSlug)
-    .single();
+/** @deprecated Prefer removeSavedItemsVerified — kept for callers expecting list only. */
+export async function removeSavedItems(
+  userId: string,
+  productSlugs: string[],
+): Promise<SavedItem[]> {
+  const result = await removeSavedItemsVerified(userId, productSlugs);
+  return result.items;
+}
 
-  if (!product) {
-    return;
+/**
+ * CEO P0 save:
+ * 1) UPSERT · 2) SELECT verify present · 3) caller clears cache · 4) refetch list.
+ */
+export async function saveItemVerified(
+  userId: string,
+  productSlug: string,
+): Promise<SavedMutationResult> {
+  const current = await listSavedItems(userId);
+
+  // CEO: demo / showcase / mock listings must never enter saved_items.
+  if (
+    productSlug.startsWith("demo-") ||
+    productSlug.includes("demo-listing") ||
+    productSlug.startsWith("canonical-demo")
+  ) {
+    return {
+      ok: false,
+      verified: false,
+      items: current,
+      error: "Listing unavailable.",
+      saved: false,
+    };
   }
 
-  await supabase.from("saved_items").upsert({
+  const productId = await resolveProductIdBySlug(productSlug);
+  if (!productId) {
+    return {
+      ok: false,
+      verified: false,
+      items: current,
+      error: "Listing unavailable.",
+      saved: false,
+    };
+  }
+
+  if (productId.startsWith("demo-")) {
+    return {
+      ok: false,
+      verified: false,
+      items: current,
+      error: "Listing unavailable.",
+      saved: false,
+    };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("saved_items").upsert({
     user_id: userId,
-    product_id: product.id,
+    product_id: productId,
     saved_at: new Date().toISOString(),
   });
+
+  if (error) {
+    return {
+      ok: false,
+      verified: false,
+      items: current,
+      error: "SAVE failed.",
+      saved: false,
+    };
+  }
+
+  const verify = await assertSavedRowsPresent(userId, [productId]);
+  if (!verify.ok) {
+    return {
+      ok: false,
+      verified: false,
+      items: current,
+      error: "VERIFY failed — saved_items row missing after save.",
+      saved: false,
+    };
+  }
+
+  const items = await listSavedItems(userId);
+  const present = items.some((item) => item.productSlug === productSlug);
+  if (!present) {
+    return {
+      ok: false,
+      verified: false,
+      items,
+      error: "VERIFY failed — listing missing from saved list.",
+      saved: false,
+    };
+  }
+
+  // Spring 2: seller sees "Added to favourites" with product image → listing page
+  void (async () => {
+    try {
+      const { data: product } = await supabase
+        .from("products")
+        .select(
+          "id, slug, title, seller_id, product_images ( url, is_primary, sort_order )",
+        )
+        .eq("id", productId)
+        .maybeSingle();
+      if (!product || product.seller_id === userId) return;
+      const images = (
+        product as {
+          product_images?: Array<{
+            url: string;
+            is_primary: boolean | null;
+            sort_order: number | null;
+          }>;
+        }
+      ).product_images;
+      const productImageUrl = [...(images ?? [])].sort(
+        (a, b) =>
+          Number(Boolean(b.is_primary)) - Number(Boolean(a.is_primary)) ||
+          (a.sort_order ?? 0) - (b.sort_order ?? 0),
+      )[0]?.url;
+      const { emitSmartNotification } = await import("@/lib/notifications/events");
+      await emitSmartNotification({
+        userId: product.seller_id,
+        eventType: "listing_sold",
+        idempotencyKey: `favourite:${productId}:${userId}`,
+        notificationType: "system",
+        title: "Added to favourites",
+        subtitle: "Someone favourited your listing",
+        detail: product.title,
+        href: `/listing/${encodeURIComponent(product.slug)}`,
+        avatarUrl: productImageUrl,
+        avatarName: product.title,
+        payload: { productId, productSlug: product.slug },
+      });
+    } catch {
+      /* fail-closed — save already verified */
+    }
+  })();
+
+  return { ok: true, verified: true, items, saved: true };
+}
+
+/** Returns true when a `saved_items` row was written and verified. */
+export async function saveItem(userId: string, productSlug: string): Promise<boolean> {
+  const result = await saveItemVerified(userId, productSlug);
+  return result.ok && result.saved === true;
 }

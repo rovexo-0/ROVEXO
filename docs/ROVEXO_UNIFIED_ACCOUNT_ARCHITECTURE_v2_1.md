@@ -38,29 +38,27 @@ One ROVEXO account per email. Capabilities expand by action and verification. No
 
 
 
-1. Profile  
+1. Profile (Favourites · Balance · My Orders · Holiday Mode · Promote · Settings · **ROVEXO Ideas** · Help Centre · Legal Information · Sign Out)
 
-2. Selling (expandable workspace)  
+2. Selling (expandable workspace)
 
-3. Orders  
+3. Orders
 
-4. Cart  
+4. Cart
 
-5. Saved  
+5. Saved
 
-6. Messages  
+6. Messages
 
-7. Notifications  
+7. Notifications
 
-8. Wallet  
+8. Wallet
 
-9. Verification  
+9. Verification
 
-10. **ROVEXO Ideas**  
+10. Settings subpages (includes Delete Account)
 
-11. Settings (includes Delete Account)  
-
-12. Log Out  
+11. Log Out
 
 
 
@@ -68,13 +66,19 @@ One ROVEXO account per email. Capabilities expand by action and verification. No
 
 
 
-- User route: `/account/ideas` — private suggestion form (subject, idea, optional screenshot)
+- User route: `/account/ideas` — Profile menu only (icon + title + chevron). Inherits Profile design 100%.
+
+- SSOT: `lib/rovexo-ideas/rovexo-ideas-v1-lock.ts` · **STATUS: PERMANENTLY LOCKED**
+
+- Community-driven: users may submit, vote, comment, follow, search, discuss, share.
+
+- Forbidden: mandatory categories/templates/questionnaires; implementation or release-date promises; cards/banners/dashboards/statistics; duplicate menu entries.
+
+- ROVEXO decides prioritisation, implementation, releases, and future development.
 
 - Admin route: `/super-admin/rovexo-ideas` — search, filter, status management
 
 - Statuses: New, Under Review, Planned, In Development, Implemented, Closed
-
-- No voting, comments, forum, or public roadmap
 
 
 

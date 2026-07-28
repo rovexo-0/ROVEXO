@@ -6,7 +6,7 @@ export const PROTECTION_ENGINE_MODULES: ProtectionEngineModule[] = [
   { id: "evidence", label: "Evidence Center", icon: "📎", description: "Upload photos, documents, and tracking", href: "/resolution" },
   { id: "orders", label: "Orders Integration", icon: "📦", description: "Order timeline and completion", href: "/orders" },
   { id: "shipping", label: "Shipping Integration", icon: "🚚", description: "Tracking and delivery confirmation", href: "/shipping" },
-  { id: "wallet", label: "Wallet Integration", icon: "👛", description: "Protection hold and fund release", href: "/wallet" },
+  { id: "wallet", label: "Wallet Integration", icon: "👛", description: "Protection hold and fund release", href: "/balance" },
   { id: "payments", label: "Payments Integration", icon: "💳", description: "Payment verification and refunds", href: "/payments" },
   { id: "seller-performance", label: "Seller Performance", icon: "⭐", description: "Dispute rate and resolution time", href: "/protection?tab=performance" },
   { id: "analytics", label: "Analytics", icon: "📈", description: "Cases, refunds, and dispute metrics", href: "/protection?tab=analytics" },

@@ -1,13 +1,17 @@
 import type { DeliveryCarrier } from "@/lib/products/types";
 import type { OrderStatus } from "@/lib/orders/types";
+import {
+  ordersV7ToneToBadgeVariant,
+  resolveOrdersV7StatusFromStatus,
+} from "@/lib/orders/orders-v7-status";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
-  awaiting_payment: "Awaiting Payment",
-  awaiting_shipment: "Awaiting Shipment",
-  shipped: "Shipped",
+  awaiting_payment: "In Progress",
+  awaiting_shipment: "Awaiting Shipping",
+  shipped: "In Progress",
   delivered: "Delivered",
-  issue_open: "Issue Open",
-  completed: "Delivered",
+  issue_open: "Dispute",
+  completed: "Completed",
   cancelled: "Cancelled",
 };
 
@@ -15,26 +19,12 @@ export function getOrderStatusLabel(status: OrderStatus): string {
   return STATUS_LABELS[status];
 }
 
+/** Orders v7.0 Owner colour lock via shared tone mapping. */
 export function getStatusBadgeVariant(
   status: OrderStatus,
 ): "default" | "primary" | "success" | "warning" | "danger" {
-  switch (status) {
-    case "awaiting_payment":
-      return "warning";
-    case "awaiting_shipment":
-      return "default";
-    case "shipped":
-      return "primary";
-    case "delivered":
-    case "completed":
-      return "success";
-    case "issue_open":
-      return "danger";
-    case "cancelled":
-      return "default";
-    default:
-      return "default";
-  }
+  const view = resolveOrdersV7StatusFromStatus(status);
+  return ordersV7ToneToBadgeVariant(view.tone);
 }
 
 const TRACKING_BASE_URLS: Partial<Record<DeliveryCarrier, string>> = {
@@ -77,6 +67,13 @@ export function getOrderDetailHref(orderId: string, view: "buyer" | "seller"): s
 }
 
 export function getMessageHref(orderId: string, view: "buyer" | "seller"): string {
-  const param = view === "buyer" ? "seller" : "buyer";
-  return `/messages?order=${orderId}&with=${param}`;
+  // Conversation Hub is the SSOT for order messaging (Blood V / Inbox Hub).
+  // Legacy `/messages` is not the Transaction Hub.
+  void view;
+  return `/inbox?order=${encodeURIComponent(orderId)}`;
+}
+
+/** Track parcel — Hub first; external carrier URL is secondary. */
+export function getOrderHubTrackHref(orderId: string): string {
+  return `/inbox?order=${encodeURIComponent(orderId)}&focus=tracking`;
 }

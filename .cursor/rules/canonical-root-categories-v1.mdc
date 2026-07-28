@@ -1,0 +1,45 @@
+---
+description: Law XXX / Blood XXVIII — Exactly 10 canonical courier-safe roots. Vehicle Parts own root. Locked.
+globs: lib/categories/**/*.ts,lib/catalog/**/*.ts,lib/home/category-premium-library.ts,lib/home/constants.ts,components/home/constants.ts,features/search/components/SearchLandingView.tsx,components/homepage/canonical/**/*.tsx,app/categories/**/*.tsx,app/search/**/*.tsx
+alwaysApply: true
+---
+
+# ROVEXO CANONICAL ROOT CATEGORIES — LAW XXX + BLOOD XXVIII
+
+**STATUS: OWNER APPROVED | LOCKED | Absolute Law XXX | 2026-07-25**
+
+SSOT: `lib/catalog/` (Catalog Master) · `lib/categories/canonical-root-categories-v1.ts`  
+Blood: `lib/supreme-blood-code-xxviii-v1.ts`  
+Rail: `ROVEXO_HOME_CATEGORY_RAIL` (exactly **10**)
+
+## Exactly ten roots (fixed order)
+
+1. Women's Fashion  
+2. Men's Fashion  
+3. Designer  
+4. Kids & Baby  
+5. Home & Garden  
+6. Electronics  
+7. Books & Media  
+8. Hobbies & Collectables  
+9. Sports & Outdoors  
+10. Vehicle Parts & Accessories  
+
+## Forbidden as roots
+
+Whole Vehicles (cars/motorcycles/vans/trucks/boats/tractors) · Property · Business · Jobs · Services · Live Animals
+
+## Vehicle Parts law
+
+Vehicle Parts & Accessories is its **own root**. Never under Electronics. Courier-shippable parts only.
+
+## Surfaces
+
+Homepage category rail · Search landing grid · `/categories` index · Catalog Master — **only these ten**.
+
+## Cursor must never
+
+- Put Vehicle Parts under Electronics  
+- Restore whole Vehicles / Property / Business / Jobs / Services as roots  
+- Add hierarchy deeper than Category → Subcategory → Product Type  
+- Modify frozen Sell Page / Sell UI / Sell Flow for catalog changes  

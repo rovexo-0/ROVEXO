@@ -2,6 +2,7 @@ export {
   countSearchProducts,
   getHomepageFeed,
   getProductBySlug,
+  getProductBySlugForCheckout,
   getProductsBySection,
   getShowcaseSellerSections,
   getSimilarProducts,

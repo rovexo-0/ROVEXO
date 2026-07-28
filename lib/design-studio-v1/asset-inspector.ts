@@ -1,4 +1,5 @@
 import { readFileSync, statSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join, relative } from "node:path";
 import { walkPublicAssets } from "@/lib/design-studio-v1/scan-utils";
 import type { AssetInspectorRecord } from "@/lib/design-studio-v1/types";
@@ -73,7 +74,7 @@ function inspectAsset(rootDir: string, filePath: string): AssetInspectorRecord {
 }
 
 export function inspectDesignStudioAssets(options: InspectOptions = {}): AssetInspectorRecord[] {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? workspacePath();
   const limit = options.limit ?? 24;
   const publicDir = join(rootDir, "public", "icons");
 

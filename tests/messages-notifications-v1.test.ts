@@ -23,8 +23,8 @@ describe("Messages + Notifications → Inbox Hub Sprint 1", () => {
     expect(messagesMenu).toContain("buildMessagesMenuSections");
     expect(notificationsRoute).toContain("redirect");
     expect(index).toContain("./inbox-hub-v1.css");
-    expect(index).toContain("./messages-v1.css");
-    expect(index).toContain("./notifications-v1.css");
+    expect(index).not.toContain("./messages-v1.css");
+    expect(index).not.toContain("./notifications-v1.css");
   });
 
   it("uses ConversationHub as the only live transaction messaging surface", () => {
@@ -33,30 +33,28 @@ describe("Messages + Notifications → Inbox Hub Sprint 1", () => {
 
     expect(hub).toContain("data-conversation-hub");
     expect(hub).toContain("useChatRealtime");
-    expect(hub).toContain("TransactionHubBottomActions");
+    expect(hub).toContain("TransactionActionBar");
     expect(hub).not.toContain("uploadListingImage");
     expect(hub).not.toContain("signalTyping");
     expect(hub).not.toContain("ShareListingSheet");
-    expect(css).toContain("--conv-composer-h: 44px");
+    expect(css).toContain("--conv-composer-h: 48px");
     expect(css).not.toContain(".conv-hub__typing");
     expect(css).not.toContain(".conv-hub__attach-sheet");
   });
 
   it("renders notifications inside Inbox Hub", () => {
     const inbox = readSource("features/inbox/components/InboxPage.tsx");
-    const css = readSource("styles/rovexo/notifications-v1.css");
-
     expect(inbox).toContain("useRealtimeNotifications");
     expect(inbox).toContain("Mark all");
-    expect(css).toContain(".notif-v1");
+    expect(() => readSource("styles/rovexo/notifications-v1.css")).toThrow();
   });
 
   it("uses shared ROVEXO top bar with purple accent tokens", () => {
     const topbar = readSource("components/header/RvxTopBar.tsx");
-    const css = readSource("styles/rovexo/messages-v1.css");
+    const css = readSource("styles/rovexo/inbox-hub-v1.css");
 
-    expect(topbar).toContain("rvx-topbar__mark");
-    expect(css).toContain("var(--ds-color-primary)");
+    expect(topbar).toContain("rvx-topbar__logo");
+    expect(css).toContain("--inbox-purple-gradient");
     expect(css).not.toContain("#6F3FF5");
   });
 });

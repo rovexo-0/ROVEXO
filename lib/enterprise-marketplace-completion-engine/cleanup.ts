@@ -1,4 +1,5 @@
 import { existsSync, readdirSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import path from "node:path";
 import { CLEANUP_CATEGORIES } from "@/lib/enterprise-marketplace-completion-engine/registry";
 import type { CleanupProposal, MarketplaceCleanupResult } from "@/lib/enterprise-marketplace-completion-engine/types";
@@ -8,7 +9,7 @@ function labelize(value: string): string {
 }
 
 function listFiles(relativeDir: string): string[] {
-  const root = path.join(process.cwd(), relativeDir);
+  const root = workspacePath( relativeDir);
   if (!existsSync(root)) return [];
   const results: string[] = [];
   const walk = (dir: string) => {

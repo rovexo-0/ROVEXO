@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { ListingCard } from "@/components/ui/ListingCard";
+import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import type { Product } from "@/lib/products/types";
 
 /**
@@ -52,7 +53,7 @@ export function RecentlyViewedPage() {
       ) : (
         <div className="rx-listing-grid grid grid-cols-2 gap-3" data-listing-grid="2-col">
           {items.map((product) => (
-            <ListingCard key={product.id} product={product} variant="grid" surface="recently-viewed" />
+            <ListingCard key={product.id} product={product} variant="grid" {...HP_CANONICAL_LISTING_PROPS} />
           ))}
         </div>
       )}

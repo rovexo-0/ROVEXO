@@ -1,0 +1,47 @@
+---
+description: Absolute Blood Law XLV — Final Live Production Certification. localhost:3000 · Demo Session · FAIL CLOSED.
+globs: lib/full-demo/final-live-certification-v1.ts,lib/full-demo/discover-app-routes-v1.ts,lib/supreme-blood-law-xlv-final-live-production-certification-v1.ts,scripts/run-final-live-certification.ts,instrumentation.ts,tests/final-live-production-certification-xlv.test.ts
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XLV — FINAL LIVE PRODUCTION CERTIFICATION
+
+**STATUS: SUPREME | FAIL CLOSED | DEPLOYMENT BLOCKED UNTIL COMPLETE**
+
+SSOT: `lib/supreme-blood-law-xlv-final-live-production-certification-v1.ts`  
+Runner: `scripts/run-final-live-certification.ts`  
+Host: **http://localhost:3000 ONLY**  
+Parent: XLIV Demo Session Environment
+
+## Objective
+
+PROVE the platform works visually + functionally + end-to-end.  
+Not “tests green” — live evidence on localhost inside Demo Session.
+
+## Absolute
+
+- No production data mutation  
+- No original user/listing edits  
+- Demo Session only  
+- First FAIL → STOP → RCA → smallest fix → retest → regression → continue  
+- Architecture / security / business rules / DB / frozen UI changes → STOP for Owner  
+
+## Wallets
+
+Buyer · Seller · Business £100,000 · Admin unlimited
+
+## Evidence
+
+Before/after screenshots · console · network · videos · HTML + text reports under  
+`test-results/final-live-certification-xlv/`
+
+## Gates
+
+- Startup: `assertFinalLiveProductionCertificationOrBlock()`  
+- Release: `assertFinalLiveProductionReleaseOrBlock({ runtimeLiveEvidencePass, productionUnchanged, zeroCritical, zeroHigh, demoSessionCleaned })`
+
+## Cursor must never
+
+- Mark FULLY CERTIFIED / PRODUCTION READY without complete live evidence  
+- Continue past FAIL without fix + retest (unless Owner sets FINAL_CERT_CONTINUE=1 for diagnostics)  
+- Use Preview/production hosts for this certification  

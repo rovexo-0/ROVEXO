@@ -1,7 +1,8 @@
-import { listSellerReviews } from "@/lib/reviews/store";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Card } from "@/components/ui/Card";
 import { Rating } from "@/components/ui/Rating";
+import { listSellerReviews } from "@/lib/reviews/store";
+import { SELLER_RATING_RULES } from "@/lib/reviews/seller-rating-system-v1";
 import type { Review } from "@/lib/reviews/types";
 
 type SellerReviewsSectionProps = {
@@ -31,6 +32,11 @@ export function SellerReviewsSection({ reviews }: SellerReviewsSectionProps) {
             </p>
             <Rating value={review.rating} size="sm" />
           </div>
+          {(review.verifiedPurchase ?? true) ? (
+            <p className="mt-ds-1 text-xs font-semibold text-emerald-600">
+              {SELLER_RATING_RULES.verifiedPurchaseLabel}
+            </p>
+          ) : null}
           {review.comment && (
             <p className="mt-ds-2 text-sm text-text-secondary">{review.comment}</p>
           )}

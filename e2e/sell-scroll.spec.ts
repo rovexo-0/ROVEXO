@@ -96,13 +96,6 @@ async function closeCategoryPicker(page: Page) {
     .click();
 }
 
-async function closeParcelPicker(page: Page) {
-  await page
-    .getByRole("dialog", { name: "Select parcel size" })
-    .getByRole("button", { name: "Back" })
-    .click();
-}
-
 test.describe("sell page scroll", () => {
   let admin: SupabaseClient<Database>;
   let tempUser: TempSeller | null = null;

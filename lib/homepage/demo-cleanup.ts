@@ -1,15 +1,7 @@
-import {
-  APPROVED_DEMO_SLUG_PATTERN,
-  HomepageEligibility,
-} from "@/lib/homepage/homepage-eligibility";
-import { DEMO_EMAIL_DOMAIN } from "@/lib/demo-environment/config";
+import { HomepageEligibility } from "@/lib/homepage/homepage-eligibility";
 import { getDemoAdminClient, hasDemoEnvironmentConfig } from "@/lib/demo-environment/guards";
-import {
-  isExternalPlaceholderImageUrl,
-  resolveOfficialDemoProductImage,
-} from "@/lib/media/official-demo-images";
-import { isFullDemoEmail } from "@/lib/full-demo/canonical";
-import { isFullDemoProtectedSlug } from "@/lib/full-demo/permanence";
+import { isExternalPlaceholderImageUrl } from "@/lib/media/official-demo-images";
+import { isForbiddenMarketplaceInventory } from "@/lib/listings/forbidden-marketplace-inventory";
 
 type ListingRow = {
   id: string;
@@ -31,24 +23,17 @@ type ListingRow = {
   product_images: Array<{ id: string; url: string | null }> | null;
 };
 
-function productionTitle(title: string, slug: string): string {
-  if (!APPROVED_DEMO_SLUG_PATTERN.test(slug)) return title.replace(/^Demo\s+/i, "").trim();
-
-  const numbered = title.match(/#(\d+)$/);
-  const suffix = numbered ? ` — Item ${numbered[1]}` : "";
-  const leaf = title.replace(/^Demo\s+/i, "").replace(/\s+#\d+$/, "").trim();
-  return `${leaf}${suffix}`.trim();
+function isForbiddenInventorySlug(
+  slug: string,
+  title: string,
+  description?: string | null,
+): boolean {
+  return isForbiddenMarketplaceInventory({ slug, title, description });
 }
 
-function productionDescription(title: string): string {
-  const cleanTitle = title.replace(/\s+—\s+Item\s+\d+$/, "").trim();
-  return [
-    `${cleanTitle} in excellent condition, ready to ship across the UK.`,
-    "Verified ROVEXO seller with secure checkout, tracked delivery, and purchase protection.",
-    "Photos show the actual item. Message the seller for combined postage or collection.",
-  ].join(" ");
-}
-
+/**
+ * Absolute Law v5.0 — pause forbidden inventory. Never polish or re-publish demos.
+ */
 export async function runHomepageDemoCleanup(): Promise<{
   paused: number;
   polished: number;
@@ -76,62 +61,33 @@ export async function runHomepageDemoCleanup(): Promise<{
 
   const rows = (data ?? []) as ListingRow[];
   let paused = 0;
-  let polished = 0;
-  let imagesReplaced = 0;
   const affectedAccounts = new Set<string>();
   const hiddenSlugs: string[] = [];
   const exclusionReasons: Record<string, number> = {};
 
   for (const row of rows) {
     const email = row.profiles?.email ?? "";
+    const forbidden = isForbiddenInventorySlug(row.slug, row.title, row.description);
 
-    /** Permanent Full Demo Certification listings — never pause or hide. */
-    if (isFullDemoEmail(email) || isFullDemoProtectedSlug(row.slug)) {
-      const nextTitle = productionTitle(row.title, row.slug);
-      const nextDescription = productionDescription(nextTitle);
-      if (nextTitle !== row.title || nextDescription !== row.description || row.status !== "published") {
-        await admin
-          .from("products")
-          .update({
-            title: nextTitle,
-            description: nextDescription,
-            status: "published",
-            moderation_status: "approved",
-            moderation_summary: "Full Demo Certification listing — permanent",
-          })
-          .eq("id", row.id);
-        polished += 1;
-      }
+    if (forbidden && row.status === "published") {
+      await admin.from("products").update({ status: "paused" }).eq("id", row.id);
+      paused += 1;
+      hiddenSlugs.push(row.slug);
+      exclusionReasons.DEMO_NOT_ALLOWED = (exclusionReasons.DEMO_NOT_ALLOWED ?? 0) + 1;
+      if (email) affectedAccounts.add(email);
+      else if (row.profiles?.username) affectedAccounts.add(row.profiles.username);
       continue;
     }
 
-    const isCertifiedDemo =
-      APPROVED_DEMO_SLUG_PATTERN.test(row.slug) && email.endsWith(`@${DEMO_EMAIL_DOMAIN}`);
-
-    for (const image of row.product_images ?? []) {
-      if (image.url && isExternalPlaceholderImageUrl(image.url)) {
-        const nextUrl = resolveOfficialDemoProductImage(`${row.slug}-${image.id}`);
-        await admin.from("product_images").update({ url: nextUrl }).eq("id", image.id);
-        imagesReplaced += 1;
-      }
-    }
-
-    if (isCertifiedDemo) {
-      const nextTitle = productionTitle(row.title, row.slug);
-      const nextDescription = productionDescription(nextTitle);
-      if (nextTitle !== row.title || nextDescription !== row.description || row.status !== "published") {
-        await admin
-          .from("products")
-          .update({
-            title: nextTitle,
-            description: nextDescription,
-            status: "published",
-            moderation_status: "approved",
-            moderation_summary: "Closed beta demo listing",
-          })
-          .eq("id", row.id);
-        polished += 1;
-      }
+    const hasPlaceholderImage = (row.product_images ?? []).some((image) =>
+      isExternalPlaceholderImageUrl(image.url),
+    );
+    if (hasPlaceholderImage && row.status === "published") {
+      await admin.from("products").update({ status: "paused" }).eq("id", row.id);
+      paused += 1;
+      hiddenSlugs.push(row.slug);
+      exclusionReasons.PLACEHOLDER_IMAGE = (exclusionReasons.PLACEHOLDER_IMAGE ?? 0) + 1;
+      if (email) affectedAccounts.add(email);
       continue;
     }
 
@@ -168,8 +124,8 @@ export async function runHomepageDemoCleanup(): Promise<{
 
   return {
     paused,
-    polished,
-    imagesReplaced,
+    polished: 0,
+    imagesReplaced: 0,
     visibleApproved: visibleApproved ?? 0,
     affectedAccounts: [...affectedAccounts].sort(),
     hiddenSlugs: hiddenSlugs.sort(),

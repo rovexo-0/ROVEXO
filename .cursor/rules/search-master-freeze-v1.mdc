@@ -1,0 +1,28 @@
+---
+description: Search Master Freeze v1.0 — user 5% ROVEXO 95%
+alwaysApply: true
+---
+
+# ROVEXO SEARCH MASTER FREEZE v1.0
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN**
+
+SSOT: `lib/search/search-master-freeze-v1.ts`  
+Parent: Absolute Master Freeze (`lib/absolute-master-freeze-v1.ts`)  
+Engine: `lib/search/search-engine-v1.ts`
+
+## Philosophy
+
+**User does 5%. ROVEXO does 95%.**
+
+## Empty state — ONLY
+
+Recent Searches · Trending Searches
+
+## When typing — ONLY IF RELEVANT
+
+Suggestions · Relevant Products · Relevant Categories · Relevant Stores · Relevant Members · Similar Products
+
+## Forbidden
+
+AI Search · Chat Search · Multiple Search Engines · Multiple Search Providers · Dead Ends · Empty Results Pages

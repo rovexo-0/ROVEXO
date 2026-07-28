@@ -1,15 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useSearchOverlayOptional } from "@/features/search/client";
-
-/** Opens search overlay; no marketing landing chrome. */
+/** Legacy stub — Search SSOT is /search (SEARCH_UI_v1.0). Do not open overlay. */
 export function SearchLandingClient() {
-  const searchOverlay = useSearchOverlayOptional();
-
-  useEffect(() => {
-    searchOverlay?.open();
-  }, [searchOverlay]);
-
   return null;
 }

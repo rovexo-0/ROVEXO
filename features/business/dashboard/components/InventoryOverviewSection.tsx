@@ -12,19 +12,29 @@ export function InventoryOverviewSection({ overview }: InventoryOverviewSectionP
   return (
     <CanonicalSection title="Inventory Overview" titleId="inventory-overview-heading">
       <CanonicalMenuRow
-        title="Total Products"
-        value={String(overview.totalProducts)}
+        title="Available listings"
+        value={String(overview.availableListings)}
         href="/business/inventory"
+      />
+      <CanonicalMenuRow
+        title="Out of stock listings"
+        value={String(overview.outOfStock)}
+        href="/business/inventory?filter=out_of_stock"
+      />
+      <CanonicalMenuRow
+        title="Total inventory"
+        value={String(overview.totalInventory)}
+        href="/business/inventory"
+      />
+      <CanonicalMenuRow
+        title="Units sold"
+        value={String(overview.unitsSold)}
+        href="/seller/orders"
       />
       <CanonicalMenuRow
         title="Low Stock"
         value={String(overview.lowStock)}
         href="/business/inventory?filter=low_stock"
-      />
-      <CanonicalMenuRow
-        title="Out of Stock"
-        value={String(overview.outOfStock)}
-        href="/business/inventory?filter=out_of_stock"
       />
     </CanonicalSection>
   );

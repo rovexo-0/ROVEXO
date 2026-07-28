@@ -16,7 +16,7 @@ export default function NotificationBell({
 
   return (
     <Link
-      href="/notifications"
+      href="/inbox?tab=notifications"
       aria-label={
         hasUnread
           ? `Notifications, ${unreadCount} unread`

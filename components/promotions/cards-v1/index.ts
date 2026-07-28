@@ -1,3 +1,4 @@
+export { PromotionPaymentMethodSelector } from "@/components/promotions/cards-v1/PromotionPaymentMethodSelector";
 export { PromotionBadge } from "@/components/promotions/cards-v1/PromotionBadge";
 export { PromotionBenefits } from "@/components/promotions/cards-v1/PromotionBenefits";
 export { PromotionButton } from "@/components/promotions/cards-v1/PromotionButton";

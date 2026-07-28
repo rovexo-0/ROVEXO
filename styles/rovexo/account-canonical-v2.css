@@ -6,22 +6,17 @@
 .ac-canonical {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  /* Page pad 16px — bottom nav offset comes from AccountCanonicalShell only (no double reserve). */
-  padding: 16px;
+  gap: 12px;
+  /* Full Width Engine v1.0 — shell owns 16px L/R (Design Decision #001); hub stays 100% flat. */
+  padding: 0;
   width: 100%;
   max-width: 100%;
   background: #ffffff;
+  border: none;
+  box-shadow: none;
 }
 
-/* ── Profile ── */
-.ac-canonical__profile-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-}
-
+/* ── Profile header (Owner Profile v1.0) ── */
 .ac-canonical__identity {
   display: flex;
   align-items: center;
@@ -31,96 +26,206 @@
   color: inherit;
 }
 
+.ac-canonical__identity--full {
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 0;
+  box-sizing: border-box;
+}
+
 .ac-canonical__avatar-wrap {
   display: inline-flex;
   flex-shrink: 0;
-  padding: 2px;
   border-radius: 999px;
-  background: #7c3aed;
 }
 
 .ac-canonical__avatar {
-  width: 52px;
-  height: 52px;
-  border: 2px solid #ffffff;
+  width: 64px !important;
+  height: 64px !important;
   border-radius: 999px;
-  background: #f8fafc;
+  background: #f5f5f5;
 }
 
 .ac-canonical__identity-copy {
   min-width: 0;
+  flex: 1;
 }
 
 .ac-canonical__name-row {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
+  min-width: 0;
 }
 
 .ac-canonical__name {
   margin: 0;
   font-size: 16px;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  color: #111111;
-}
-
-.ac-canonical__meta {
-  margin: 3px 0 0;
-  font-size: 0.8125rem;
   font-weight: 400;
   line-height: 1.25;
-  color: #94a3b8;
+  letter-spacing: -0.01em;
+  color: #1a1a1a;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ac-canonical__verified-badge {
+  margin-left: 2px;
+}
+
+.ac-canonical__new-member {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgb(147 51 234 / 0.1);
+  color: #9333ea;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.ac-canonical__view-profile {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 450;
+  line-height: 1.25;
+  color: #9333ea;
+  text-transform: none;
+  white-space: nowrap;
 }
 
 .ac-canonical__rating {
   margin: 2px 0 0;
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 400;
   line-height: 1.25;
-  color: #111111;
+  color: #9333ea;
   white-space: nowrap;
 }
 
-.ac-canonical__followers-row {
+.ac-canonical__rating-value,
+.ac-canonical__rating-count {
+  color: #9333ea;
+}
+
+.ac-canonical__rating-star {
+  color: #f5b301;
+}
+
+.ac-canonical__profile-trailing {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.ac-canonical__profile-chevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: #1a1a1a;
+}
+
+.ac-canonical__profile-chevron svg {
+  width: 18px;
+  height: 18px;
+}
+
+
+
+
+
+
+
+
+/* Profile menu — no cards / no shadows / no borders / coloured icons / black chevrons */
+.ac-canonical__menu-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.ac-canonical__menu .cds-menu-row {
+  min-height: 56px;
+  padding-inline: 0;
+  border: none;
+  border-bottom: none;
+  background: transparent;
+  box-shadow: none;
+  font-size: 16px;
+  font-weight: 400;
+  transition: none;
+}
+
+.ac-canonical__menu .cds-menu-row:active:not(:disabled) {
+  background: transparent;
+}
+
+.ac-canonical__menu .cds-menu-row__title {
+  font-size: 16px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+.ac-canonical__menu .cds-menu-row__title--danger {
+  justify-content: flex-start;
+  width: auto;
+  font-weight: 400;
+  color: #dc2626;
+}
+
+.ac-canonical__menu .cds-menu-row__icon,
+.ac-canonical__menu .ac-canonical__menu-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.ac-canonical__menu-emoji,
+.ac-canonical__menu-line-icon {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  min-height: 44px;
-  padding: 0 0 0 8px;
-  text-decoration: none;
-  color: inherit;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  line-height: 1;
 }
 
-.ac-canonical__followers-icon {
+.ac-canonical__menu-line-icon {
+  font-size: 0;
+}
+
+.ac-canonical__menu .cds-menu-row__chevron {
+  color: #1a1a1a;
+}
+
+.ac-canonical__menu .cds-menu-row__chevron svg {
   width: 16px;
   height: 16px;
-  flex-shrink: 0;
-  color: #111111;
 }
 
-.ac-canonical__followers-count {
-  font-size: 0.875rem;
-  font-weight: 700;
-  line-height: 1;
-  color: #111111;
+/* Sign Out: icon + title, left-aligned, no chevron (Owner Final Review). */
+.ac-canonical__menu .cds-menu-row--destructive-center {
+  justify-content: flex-start;
+  min-height: 56px;
+  padding-inline: 0;
 }
 
-.ac-canonical__followers-label {
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1;
-  color: #94a3b8;
-}
 
-.ac-canonical__followers-chevron {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  color: #94a3b8;
-}
+
+
+
 
 /* ── Statistics ── */
 .ac-canonical__stats {
@@ -560,7 +665,7 @@
 .ac-canonical__menu {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 8px;
   margin-top: 0;
 }
 
@@ -647,6 +752,17 @@
   height: 20px;
 }
 
+/* ── Holiday Mode v1.0 — inline Profile toggle (Canonical Switch SSOT) ── */
+.ac-holiday-mode-row {
+  cursor: pointer;
+  user-select: none;
+}
+
+.ac-holiday-mode-row--pending {
+  opacity: 0.72;
+  cursor: wait;
+}
+
 .ac-canonical__row-copy {
   min-width: 0;
   flex: 1;
@@ -726,53 +842,16 @@
 }
 
 /* ── Followers subpage ── */
-.ac-followers {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 8px 0 24px;
-}
 
-.ac-followers__tabs {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
 
-.ac-followers__tab {
-  flex-shrink: 0;
-  min-height: 36px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: #f8fafc;
-  color: #111111;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  text-decoration: none;
-}
 
-.ac-followers__tab[aria-current="page"] {
-  background: rgb(124 58 237 / 0.12);
-  color: #7c3aed;
-}
 
-.ac-followers__tab[data-soon="true"] {
-  opacity: 0.72;
-}
 
-.ac-followers__summary {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: #64748b;
-}
 
-.ac-followers__empty {
-  margin: 12px 0 0;
-  font-size: 0.875rem;
-  color: #94a3b8;
-}
+
+
+
+
 
 /* ── Ideas hub shell ── */
 .ac-ideas-hub {
@@ -851,3 +930,4 @@
     margin-inline: 0;
   }
 }
+

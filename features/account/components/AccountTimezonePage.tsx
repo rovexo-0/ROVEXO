@@ -1,11 +1,17 @@
 "use client";
 
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
+import {
+  CanonicalSection,
+  CanonicalCard,
+  CanonicalButton,
+  CanonicalInfoBlock,
+  CanonicalSelector,
+} from "@/src/components/canonical";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { AccountCanonicalShell } from "@/features/account-canonical";
+import { MyAccountTemplate } from "@/features/account-canonical";
 
 import { TIMEZONE_OPTIONS } from "@/lib/account/timezones";
 import { timezoneSchema } from "@/lib/account/schemas";
@@ -53,7 +59,7 @@ export function AccountTimezonePage() {
   });
 
   return (
-    <AccountCanonicalShell title="Timezone" backHref="/account/settings">
+    <MyAccountTemplate title="Timezone" backHref="/account/settings">
       <CanonicalSection title="Timezone">
         <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
           <form onSubmit={onSubmit} className="flex flex-col gap-ds-4" noValidate>
@@ -75,6 +81,6 @@ export function AccountTimezonePage() {
           </form>
         </CanonicalCard>
       </CanonicalSection>
-    </AccountCanonicalShell>
+    </MyAccountTemplate>
   );
 }

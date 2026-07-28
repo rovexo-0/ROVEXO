@@ -1,0 +1,48 @@
+---
+description: Absolute Blood Law XLI — Authentication Experience Final Freeze. SUPREME · LOCKED · FINAL.
+globs: features/auth/**,components/branding/RovexoBrandLogo.tsx,components/header/RovexoHeaderV2.tsx,styles/rovexo/auth-v1.css,styles/rovexo/header-v2.css,lib/brand/**,lib/supreme-blood-law-xxxix-authentication-brand-freeze-v1.ts,lib/supreme-blood-law-xl-register-visual-polish-freeze-v1.ts,lib/supreme-blood-law-xli-authentication-experience-final-freeze-v1.ts
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XLI — AUTHENTICATION EXPERIENCE FINAL FREEZE
+
+**STATUS: SUPREME | LOCKED | CERTIFIED | FINAL | PRODUCTION READY**
+
+SSOT: `lib/supreme-blood-law-xli-authentication-experience-final-freeze-v1.ts`  
+Parents: XXXVIII · XXXIX · XL  
+Frozen until: **ROVEXO v2.0**
+
+## Mission
+
+Completes the ROVEXO v1.0 Authentication UI.  
+Homepage Header · Login · Register = certified production implementation. **FINAL FREEZE.**
+
+## Certified branding
+
+| Surface | Asset | Spec | Status |
+|---|----|---|-----|
+| Homepage | RX App Icon | Left of Search · **28px** height | LOCKED |
+| Login | Primary Emblem | Centered · **180px** width · transparent | LOCKED |
+| Register | Primary Emblem | Centered · **180px** · **+10px** offset · transparent | LOCKED |
+
+## Locked
+
+Homepage Header Brand · Search Header Layout · Login/Register Brand Placement · Logo Size/Alignment/Container · Auth Layout · Typography · Inputs · Buttons · Navigation · White Space · Design Language
+
+## Permitted (appearance identical)
+
+Bug · Security · Accessibility · Performance · Asset quality
+
+## Forbidden
+
+Brand redesign · New logo variants · Different sizes/positions · Alternative auth layouts · Header/Search/Auth redesign · Extra branding · Experimental UI
+
+## Fail policy
+
+Any certified branding change → Reject Release → Restore → Re-certify. Zero visual regressions.
+
+## Cursor must never
+
+- Alter Homepage/Login/Register certified brand placement or scale  
+- Introduce auth/header brand alternatives  
+- Claim production ready if XLI (or parents XXXIX/XL) fail  

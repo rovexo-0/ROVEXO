@@ -99,6 +99,12 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
     }
   }, [debouncedQuery]);
 
+  /** Leave overlay for a result/listing — dismiss UI before route paints. */
+  const handleResultNavigate = useCallback(() => {
+    saveCurrentQuery();
+    onClose();
+  }, [onClose, saveCurrentQuery]);
+
   const suggestionTerms = useMemo(() => {
     if (!results || !hasQuery) return [] as string[];
     const terms: string[] = [];
@@ -118,10 +124,10 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
         history,
         hasQuery,
         onSelectTerm: applySearch,
-        onSelectQuery: saveCurrentQuery,
+        onSelectQuery: handleResultNavigate,
         suggestionTerms,
       }),
-    [results, history, hasQuery, applySearch, saveCurrentQuery, suggestionTerms],
+    [results, history, hasQuery, applySearch, handleResultNavigate, suggestionTerms],
   );
 
   const { activeIndex, setActiveIndex, handleKeyDown } = useSearchKeyboard(navItems, debouncedQuery);
@@ -338,7 +344,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                   activeIndex={activeIndex}
                   navOffset={productOffset}
                   onHoverIndex={setActiveIndex}
-                  onNavigate={saveCurrentQuery}
+                  onNavigate={handleResultNavigate}
                   maxProducts={SEARCH_PRIMARY_PRODUCT_COUNT}
                   kinds={["product"]}
                 />
@@ -352,6 +358,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                       activeIndex={activeIndex}
                       navOffset={categoryQueryOffset}
                       onHoverIndex={setActiveIndex}
+                      onNavigate={handleResultNavigate}
                     />
                   </div>
                 </SearchSection>
@@ -365,6 +372,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                       activeIndex={activeIndex}
                       navOffset={storeQueryOffset}
                       onHoverIndex={setActiveIndex}
+                      onNavigate={handleResultNavigate}
                     />
                   </div>
                 </SearchSection>
@@ -379,7 +387,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                       activeIndex={activeIndex}
                       navOffset={memberOffset}
                       onHoverIndex={setActiveIndex}
-                      onNavigate={saveCurrentQuery}
+                      onNavigate={handleResultNavigate}
                     />
                   </div>
                 </SearchSection>
@@ -395,7 +403,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                     hasMore={results.productsHasMore}
                     isLoadingMore={isLoadingMore}
                     onHoverIndex={setActiveIndex}
-                    onNavigate={saveCurrentQuery}
+                    onNavigate={handleResultNavigate}
                     onLoadMore={() => void loadMoreProducts()}
                   />
                 </SearchSection>
@@ -421,7 +429,7 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
                   <a
                     href={`/search?q=${encodeURIComponent(debouncedQuery)}`}
                     className="text-sm font-semibold text-primary"
-                    onClick={saveCurrentQuery}
+                    onClick={handleResultNavigate}
                   >
                     View all results
                   </a>

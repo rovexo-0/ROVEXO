@@ -1,0 +1,45 @@
+---
+description: Absolute Blood Law XXXVII — Official RX Brand Emblem Master Identity. SUPREME · LOCKED.
+globs: lib/brand/**,components/branding/**,components/brand/**,public/brand/**,public/icons/**,app/manifest.ts,app/layout.tsx,app/icon.png,app/apple-icon.png,scripts/generate-brand-assets.mjs
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XXXVII — OFFICIAL BRAND EMBLEM
+
+**STATUS: SUPREME | LOCKED | CERTIFIED | PRODUCTION READY**
+
+SSOT: `lib/supreme-blood-law-xxxvii-official-brand-emblem-v1.ts`  
+Brand engine: `lib/brand/canonical-rx-3d-logo-freeze-v1.ts`  
+Master: `public/brand/canonical-rx/rx-mark-v3.png` (+ `logo-full-v3.png`, `rx-emblem-v1.webp|avif|svg`)
+
+## Official emblem (ONE)
+
+RX Monogram + Protective Hands + Premium 3D Metallic Finish + ROVEXO Purple + **BUY • SELL • GROW**
+
+## Transparent master
+
+PNG · SVG · WEBP · AVIF — **no** baked white/black canvas, **no** shadow outside emblem.
+
+## Surfaces (same master only)
+
+Login · Register · Forgot/Reset/Verify · PWA · Favicon · Apple · Android · Manifest · Loading · Empty · Marketing · Emails · Docs · Social
+
+## Icon matrix (from master)
+
+16 · 32 · 48 · 64 · 96 · 128 · 180 · 192 · 256 · 384 · 512 · 1024 (+ PWA extras)
+
+## Forbidden
+
+Alternative RX logos · flat redesigns · different hands/typography/purple/metal/slogan · multiple identities · baked backgrounds · stretch/crop
+
+## Fail closed
+
+Startup: Master exists → Transparent → Sizes → Manifest → PWA → Auth wired → **READY**  
+Any fail → **BLOCK RELEASE**. Never substitute another logo.
+
+## Cursor must never
+
+- Create a second brand emblem or parallel logo tree  
+- Bake backgrounds into the master  
+- Duplicate BUY • SELL • GROW as CSS when the master already includes it  
+- Change Auth/Search/Homepage layouts for “logo redesign”  

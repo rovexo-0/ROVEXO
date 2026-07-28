@@ -6,7 +6,7 @@ export const PAYMENTS_ENGINE_MODULES: PaymentsEngineModule[] = [
   { id: "receipts", label: "Receipts", icon: "🧾", description: "Receipts and confirmations", href: "/payments?tab=receipts" },
   { id: "refunds", label: "Refunds", icon: "↩️", description: "Refund timeline and history", href: "/payments?tab=refunds" },
   { id: "orders", label: "Orders Integration", icon: "📦", description: "Order timeline and status", href: "/orders" },
-  { id: "wallet", label: "Wallet Integration", icon: "👛", description: "Seller earnings and payouts", href: "/wallet" },
+  { id: "wallet", label: "Wallet Integration", icon: "👛", description: "Seller earnings and payouts", href: "/balance" },
   { id: "shipping", label: "Shipping Integration", icon: "🚚", description: "Delivery and tracking", href: "/shipping" },
   { id: "protection", label: "Purchase Protection", icon: "🛡️", description: "Protected funds and disputes", href: "/protection" },
   { id: "analytics", label: "Analytics", icon: "📈", description: "Revenue and transaction metrics", href: "/payments?tab=analytics" },

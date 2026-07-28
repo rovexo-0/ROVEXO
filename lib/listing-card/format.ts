@@ -1,13 +1,32 @@
-import { calculatePlatformFee } from "@/lib/orders/pricing";
+import { calculateOrderTotals, calculatePlatformFee } from "@/lib/orders/pricing";
 
 export function formatListingPrice(amount: number): string {
   return `£${amount.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export function formatListingPriceIncl(amount: number): string {
-  const fee = calculatePlatformFee(amount);
-  const total = Math.round((amount + fee) * 100) / 100;
-  return `${formatListingPrice(total)} incl.`;
+/**
+ * Absolute Total Price Law v1.0 — buyer-facing payable total.
+ * TOTAL INCL. = item + shipping + platform fee. Never item-only + fee.
+ */
+export function resolveListingShippingForIncl(input: {
+  freeDelivery?: boolean;
+  shippingPrice?: number | null;
+}): number {
+  if (input.freeDelivery || input.shippingPrice === 0) return 0;
+  if (input.shippingPrice != null && Number.isFinite(input.shippingPrice) && input.shippingPrice >= 0) {
+    return Number(input.shippingPrice);
+  }
+  return 0;
+}
+
+export function formatListingPriceIncl(
+  amount: number,
+  shipping: number | null | undefined = 0,
+): string {
+  const delivery =
+    shipping != null && Number.isFinite(shipping) && shipping >= 0 ? Number(shipping) : 0;
+  const totals = calculateOrderTotals(amount, delivery);
+  return `${formatListingPrice(totals.total)} incl.`;
 }
 
 /** Homepage listing card — buyer-facing Platform Fee line only. */

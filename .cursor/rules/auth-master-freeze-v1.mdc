@@ -1,0 +1,59 @@
+---
+description: Auth Master Freeze v1.0 — Supabase Auth SSOT, Owner locked
+alwaysApply: true
+---
+
+# ROVEXO AUTH v1.0 — MASTER FREEZE (LOCKED)
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN | SSOT READY | LEVEL 8**
+
+SSOT: `lib/auth/auth-master-freeze-v1.ts`
+
+## Canonical system
+
+**ONE auth system only: Supabase Auth.**
+
+| Owner | System |
+|----|-----|
+| Auth | Supabase Auth |
+| Session | Supabase Auth |
+| Cookie | Supabase Auth |
+| User | Supabase Auth |
+| Callback | Supabase Auth |
+
+## Canonical methods
+
+**Login / Register (ACTIVE):** Email · Google · Apple  
+**Facebook:** OPTIONAL on Login and Register
+
+## Callback origins (allowlist only)
+
+- Local: `http://localhost:3000`
+- Production: `https://rovexo.com`
+- Staging (optional): `https://staging.rovexo.com`
+
+Forbidden: wrong ports · duplicated callbacks · wildcards · unknown origins.
+
+Canonical path: `/auth/callback`
+
+## Flows (locked)
+
+Email / Google / Apple / Facebook → (OAuth consent when social) → Supabase callback → session → cookie → Homepage.
+
+## Forbidden forever
+
+- Multiple auth systems / session / cookie / user owners
+- Custom auth or custom session systems
+- Duplicated callbacks, redirects, OAuth implementations, middleware, providers, session managers, user stores, auth APIs
+- Application rewrites to replace Supabase Auth
+
+## Cursor must never
+
+- Introduce Better Auth, Clerk, Auth.js, NextAuth, Firebase Auth, or parallel session stores
+- Create a second `/auth/callback` or alternate OAuth stack
+- Change auth architecture without Owner re-authorization
+
+## Related freezes (still active)
+
+- Login UI freeze · Register freeze · Splash/Welcome removed · Auth startup (guest → Login)
+- This Master Freeze owns **architecture singularity**; UI freezes own **presentation**

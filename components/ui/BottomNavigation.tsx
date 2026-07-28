@@ -9,7 +9,6 @@ import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScro
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { cn } from "@/lib/cn";
 import { INBOX_ROUTES } from "@/lib/inbox/canonical-routes";
-import { useSearchOverlayOptional } from "@/features/search/client";
 import { focusRing, transitionFast } from "@/components/ui/tokens";
 import type { MenuItemConfig } from "@/lib/platform-visual/types";
 import { useTranslation } from "@/lib/i18n/use-translation";
@@ -45,9 +44,20 @@ function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab
   if (active) return active;
   if (pathname.startsWith("/sell")) return "sell";
   if (pathname.startsWith("/search")) return "search";
+  // 4th tab id is "saved" but label is Inbox (canonical bottom nav).
   if (pathname.startsWith("/inbox") || pathname.startsWith("/messages")) return "saved";
-  if (pathname.startsWith("/saved")) return "account";
-  if (pathname.startsWith("/account")) return "account";
+  // Account-tree surfaces (Profile master) — not Inbox.
+  if (
+    pathname.startsWith("/account") ||
+    pathname.startsWith("/orders") ||
+    pathname.startsWith("/balance") ||
+    pathname.startsWith("/wallet") ||
+    pathname.startsWith("/saved") ||
+    pathname.startsWith("/promote") ||
+    pathname.startsWith("/seller/orders")
+  ) {
+    return "account";
+  }
   return "home";
 }
 
@@ -117,7 +127,6 @@ export function BottomNavigation({
   visible = true,
 }: BottomNavigationProps) {
   const pathname = usePathname();
-  const searchOverlay = useSearchOverlayOptional();
   const scroll = useMobileHeaderScrollContext();
   const { mobileBadges } = useRealtimeNotifications();
   const { t, tx } = useTranslation();
@@ -140,21 +149,12 @@ export function BottomNavigation({
   const sell = menuItems?.find((item) => item.id === "sell" && item.enabled);
   const sellLabel = sell ? tx(sell.label) : t("nav.sell");
   const isSellActive = activeTab === "sell";
-  const inboxBadge = Math.max(0, (mobileBadges.messages ?? 0) + (mobileBadges.notifications ?? 0));
-
-  function handleSearchNavigate(event: MouseEvent<HTMLAnchorElement>) {
-    if (pathname === "/" && searchOverlay) {
-      event.preventDefault();
-      searchOverlay.open();
-    }
-  }
+  const inboxBadge = Math.max(
+    0,
+    (mobileBadges.messages ?? 0) + (mobileBadges.notifications ?? 0),
+  );
 
   if (!visible) return null;
-
-  // Transaction Hub conversation is full-screen — never mount bottom nav.
-  if (pathname.startsWith("/inbox/conversation")) {
-    return null;
-  }
 
   return (
     <nav
@@ -177,7 +177,7 @@ export function BottomNavigation({
             <NavLink item={home} isActive={activeTab === "home"} />
           </li>
           <li>
-            <NavLink item={search} isActive={activeTab === "search"} onNavigate={handleSearchNavigate} />
+            <NavLink item={search} isActive={activeTab === "search"} />
           </li>
 
           {sell ? (

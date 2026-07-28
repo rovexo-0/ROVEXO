@@ -21,11 +21,11 @@ function readSource(relativePath: string) {
   return readFileSync(path.join(process.cwd(), relativePath), "utf8");
 }
 
-describe("Settings v1.0 — CANONICAL FREEZE", () => {
+describe("Settings v1.0 — PERMANENT LOCK (Master Engine)", () => {
   it("locks freeze constants", () => {
-    expect(SETTINGS_STATUS).toBe("CANONICAL_FROZEN_v1.0");
-    expect(SETTINGS_UI_FREEZE).toBe("CANONICAL_FROZEN_v1.0");
-    expect(SETTINGS_CANONICAL_STATUS).toBe("CANONICAL_FROZEN_v1.0");
+    expect(SETTINGS_STATUS).toBe("PERMANENT_LOCK_v1.0_APPROVED");
+    expect(SETTINGS_UI_FREEZE).toBe("PERMANENT_LOCK_v1.0_APPROVED");
+    expect(SETTINGS_CANONICAL_STATUS).toBe("PERMANENT_LOCK_v1.0_APPROVED");
     expect(SETTINGS_CANONICAL_FROZEN).toBe(true);
     expect(SETTINGS_SPEC_VERSION).toBe("1.0");
     expect(SETTINGS_ROUTES.hub).toBe("/account/settings");
@@ -36,22 +36,25 @@ describe("Settings v1.0 — CANONICAL FREEZE", () => {
       "DeleteAccountFlow",
       "SettingsMenuIconGlyph",
       "AccountCanonicalShell",
+      "MyAccountTemplate",
     ]);
   });
 
-  it("locks approved hub shell without redesign markers", () => {
+  it("locks approved hub shell without Sign Out in Settings", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
     const sections = readSource("features/account-module/components/SettingsMenuSections.tsx");
 
-    expect(settings).toContain("AccountCanonicalShell");
+    expect(settings).toContain("MyAccountTemplate");
     expect(settings).toContain("showHeaderTitle");
     expect(settings).toContain('title="Settings"');
     expect(settings).toContain("SettingsMenuSections");
     expect(sections).toContain('data-settings-canonical="v1.0"');
     expect(sections).toContain("buildSettingsMenuSections");
     expect(sections).toContain("DeleteAccountFlow");
-    expect(sections).toContain('title="Sign Out"');
+    expect(sections).not.toContain('title="Sign Out"');
     expect(sections).toContain('title="DANGER ZONE"');
+    expect(sections).toContain("fw-engine__group");
+    expect(sections).not.toContain("CanonicalCard");
   });
 
   it("locks frozen section and row inventory", () => {
@@ -61,7 +64,7 @@ describe("Settings v1.0 — CANONICAL FREEZE", () => {
 
     expect(titles).toEqual([...SETTINGS_SECTION_TITLES]);
     expect(rowTitles).toEqual([...SETTINGS_MENU_ROW_TITLES]);
-    expect(SETTINGS_DANGER_ACTIONS).toEqual(["Sign Out", "Delete Account"]);
+    expect(SETTINGS_DANGER_ACTIONS).toEqual(["Delete Account"]);
     expect(SETTINGS_APPROVED_INVENTORY).toEqual([
       ...SETTINGS_MENU_ROW_TITLES,
       ...SETTINGS_DANGER_ACTIONS,
@@ -73,11 +76,11 @@ describe("Settings v1.0 — CANONICAL FREEZE", () => {
     const freezeDoc = readSource("docs/modules/settings/SETTINGS_FREEZE.md");
     const spec = readSource("docs/modules/settings/SETTINGS_SPECIFICATION.md");
 
-    expect(freezeTs).toContain('SETTINGS_STATUS = "CANONICAL_FROZEN_v1.0"');
-    expect(freezeDoc).toContain("FROZEN");
-    expect(freezeDoc).toContain("2026-07-14");
-    expect(freezeDoc).toContain("Settings v1.1");
-    expect(spec).toContain("CANONICAL_FROZEN_v1.0");
+    expect(freezeTs).toContain('SETTINGS_STATUS = "PERMANENT_LOCK_v1.0_APPROVED"');
+    expect(freezeDoc).toContain("PERMANENT LOCK");
+    expect(freezeDoc).toContain("2026-07-20");
+    expect(freezeDoc).toContain("Personal Information");
+    expect(spec).toContain("PERMANENT_LOCK_v1.0_APPROVED");
     expect(spec).toContain("STATUS:");
     expect(existsSync(path.join(process.cwd(), "tests/settings-freeze.test.ts"))).toBe(true);
   });

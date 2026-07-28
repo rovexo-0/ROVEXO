@@ -47,14 +47,15 @@ describe("Search canonical v1.0 final UI lock", () => {
     expect(filters).not.toContain("price?:");
   });
 
-  it("routes homepage communication through the singular Inbox hub", () => {
+  it("keeps homepage header search-only", () => {
     const header = readSource("components/header/RovexoHeaderV2.tsx");
     const nav = readSource("lib/homepage/canonical-nav.ts");
     const messagesMenu = readSource("lib/account-center/messages-menu.ts");
 
     expect(header).not.toContain('href="/messages"');
     expect(header).not.toContain("MessageCircle");
-    expect(header).toContain('href="/inbox?tab=notifications"');
+    expect(header).not.toContain('href="/inbox?tab=notifications"');
+    expect(header).toContain("HomepageSearchField");
     expect(nav).toContain('label: "Inbox"');
     expect(nav).toContain('href: "/inbox"');
     expect(messagesMenu).toContain('title: "Messages"');

@@ -1,0 +1,29 @@
+---
+description: Localhost Component Master Audit — 5/5 per component on localhost:3000 only (P0 L20).
+alwaysApply: true
+---
+
+# Localhost Component Master Audit System (ABSOLUTE P0 · LEVEL 20)
+
+## Absolute
+
+All audits on **`http://localhost:3000` ONLY**.  
+Certify **real product only** — not SSOT, rules, engines, docs, assumptions.
+
+Forbidden: Preview/Production certification · auto deploy/commit/push · auto login/passwords.
+
+## Per component (5 / 5 required)
+
+1. REAL UI · 2. REAL UX · 3. REAL FUNCTIONAL · 4. REAL RESPONSIVE · 5. REAL PRODUCTION POLISH  
+
+No component certified until **5/5**. No page until all components. No module until all pages. No deployment until **100/100**.
+
+## Fail
+
+1 cropped/overflow/alignment/invisible button/responsive/API/perf/loading/financial/security/nav/duplication issue → **FAIL**.
+
+## Order
+
+Root cause → Fix → Component → Page → Module → Localhost certified only → Owner review → approvals for Commit → Push → Preview → Production.
+
+1 FAIL = FAIL. 1 component FAIL = page FAIL = module FAIL = Deployment Denied.

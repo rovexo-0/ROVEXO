@@ -27,22 +27,42 @@ export const SELLER_PERFORMANCE_WEIGHTS = {
 export type SellerPerformanceComponentKey = keyof typeof SELLER_PERFORMANCE_WEIGHTS;
 
 export const SELLER_LEVEL_THRESHOLDS = [
-  { level: "elite_seller" as const, min: 98, label: "Elite Seller" },
-  { level: "premium_seller" as const, min: 90, label: "Premium Seller" },
-  { level: "top_seller" as const, min: 75, label: "Top Seller" },
-  { level: "trusted_seller" as const, min: 60, label: "Trusted Seller" },
-  { level: "new_seller" as const, min: 0, label: "New Seller" },
+  { level: "legend" as const, min: 95, label: "Legend Seller" },
+  { level: "elite" as const, min: 85, label: "Elite Seller" },
+  { level: "platinum" as const, min: 70, label: "Platinum Seller" },
+  { level: "diamond" as const, min: 55, label: "Diamond Seller" },
+  { level: "gold" as const, min: 40, label: "Gold Seller" },
+  { level: "silver" as const, min: 20, label: "Silver Seller" },
+  { level: "bronze" as const, min: 0, label: "Bronze Seller" },
 ] as const;
 
 export type SellerLevel = (typeof SELLER_LEVEL_THRESHOLDS)[number]["level"];
 
 export const SELLER_LEVEL_LABELS: Record<SellerLevel, string> = {
-  new_seller: "New Seller",
-  trusted_seller: "Trusted Seller",
-  top_seller: "Top Seller",
-  premium_seller: "Premium Seller",
-  elite_seller: "Elite Seller",
+  bronze: "Bronze Seller",
+  silver: "Silver Seller",
+  gold: "Gold Seller",
+  diamond: "Diamond Seller",
+  platinum: "Platinum Seller",
+  elite: "Elite Seller",
+  legend: "Legend Seller",
 };
+
+/** Legacy level ids → Blood Code XLVI badge ids (evolve in place). */
+export const LEGACY_SELLER_LEVEL_MAP = {
+  new_seller: "bronze",
+  trusted_seller: "gold",
+  top_seller: "platinum",
+  premium_seller: "elite",
+  elite_seller: "legend",
+} as const satisfies Record<string, SellerLevel>;
+
+export function normalizeSellerLevel(value: string | null | undefined): SellerLevel {
+  if (!value) return "bronze";
+  if (value in SELLER_LEVEL_LABELS) return value as SellerLevel;
+  const mapped = LEGACY_SELLER_LEVEL_MAP[value as keyof typeof LEGACY_SELLER_LEVEL_MAP];
+  return mapped ?? "bronze";
+}
 
 export const PROFILE_COMPLETION_FIELDS = [
   "avatar",

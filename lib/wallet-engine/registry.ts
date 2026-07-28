@@ -2,7 +2,7 @@ import type { WalletEngineFilterId, WalletEngineModule } from "@/lib/wallet-engi
 
 export const WALLET_ENGINE_MODULES: WalletEngineModule[] = [
   { id: "buyer-wallet", label: "Buyer Wallet", icon: "🛍️", description: "Payment and refund history", href: "/wallet?type=buyer" },
-  { id: "seller-wallet", label: "Seller Wallet", icon: "🏷️", description: "Earnings, payouts, and withdrawals", href: "/wallet" },
+  { id: "seller-wallet", label: "Seller Balance", icon: "🏷️", description: "Earnings, payouts, and withdrawals", href: "/balance" },
   { id: "business-wallet", label: "Business Wallet", icon: "🏢", description: "Business payments and bulk payouts", href: "/wallet?type=business" },
   { id: "transactions", label: "Transaction History", icon: "📑", description: "Complete financial ledger", href: "/wallet?tab=transactions" },
   { id: "withdrawals", label: "Withdrawals", icon: "💸", description: "Payout status and history", href: "/wallet?tab=withdrawals" },

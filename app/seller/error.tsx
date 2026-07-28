@@ -1,20 +1,11 @@
 "use client";
 
-import { SellerErrorState } from "@/components/seller/SellerErrorState";
+import { FailClosedPanel } from "@/components/fail-closed/FailClosedPanel";
 
-export default function SellerError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+export default function SellerError({ reset }: { error: Error; reset: () => void }) {
   return (
-    <div className="seller-page">
-      <SellerErrorState message={error.message || "Something went wrong. Please try again."} />
-      <button type="button" className="seller-hero__cta" onClick={reset}>
-        Try again
-      </button>
+    <div className="seller-page" style={{ padding: 16 }}>
+      <FailClosedPanel density="section" onRetry={() => reset()} />
     </div>
   );
 }

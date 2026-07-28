@@ -1,10 +1,16 @@
 import { AccountModuleSkeleton } from "@/components/skeletons/PageSkeletons";
-import { AccountCanonicalShell } from "@/features/account-canonical";
+import { MyAccountTemplate } from "@/features/account-canonical";
 
 export default function AccountSettingsLoading() {
   return (
-    <AccountCanonicalShell title="Settings" backHref="/account" showHeaderTitle showBottomNav={false}>
+    <MyAccountTemplate
+      surface="settings"
+      title="Settings"
+      backHref="/account"
+      showHeaderTitle
+      showBottomNav={false}
+    >
       <AccountModuleSkeleton />
-    </AccountCanonicalShell>
+    </MyAccountTemplate>
   );
 }

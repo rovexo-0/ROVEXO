@@ -10,7 +10,7 @@ export type PromotionToolMenuItem = {
 
 export const PROMOTION_TOOL_MENU_ITEMS: PromotionToolMenuItem[] = [
   { slug: "bump", title: "Bump Listing", catalogId: "bump" },
-  { slug: "store-featured", title: "Featured Store", catalogId: "store_featured" },
+  { slug: "store-featured", title: "Store Showcase", catalogId: "store_featured" },
   { slug: "boost", title: "Boost Package", catalogId: "boost" },
 ];
 

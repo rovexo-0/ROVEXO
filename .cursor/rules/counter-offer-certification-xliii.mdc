@@ -1,0 +1,81 @@
+---
+description: Absolute Blood Law XLIII — Counter Offer + Inbox Event Engine Singularity. FAIL CLOSED.
+globs: lib/offers/**/*.ts,lib/inbox/inbox-event-engine-v1.ts,lib/supreme-blood-law-xliii-counter-offer-certification-v1.ts,app/api/offers/**/*.ts,app/api/messages/**/*.ts,features/inbox/components/ConversationHub.tsx,features/inbox/components/InboxPage.tsx,features/notifications/components/RealtimeNotificationProvider.tsx,instrumentation.ts,tests/counter-offer-certification-xliii.test.ts,supabase/migrations/20260725160000_inbox_event_engine_sync_open_xliii.sql
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XLIII — COUNTER OFFER + INBOX EVENT ENGINE
+
+**STATUS: SUPREME | LOCKED | FAIL CLOSED**
+
+SSOT: `lib/supreme-blood-law-xliii-counter-offer-certification-v1.ts`  
+Targets: `CERTIFICATION_TARGETS` (canonical paths — no duplicated strings)  
+Counter Engine: `lib/offers/counter-offer-engine-v1.ts`  
+Inbox Event Engine: `lib/inbox/inbox-event-engine-v1.ts`  
+RPC: `sync_conversation_open_v1`
+
+## Inbox UI sync architecture (canonical)
+
+```
+ConversationHub.tsx
+  → dispatchEvent("rovexo:inbox-sync")
+InboxPage.tsx
+  → window.addEventListener("rovexo:inbox-sync")
+  → window.removeEventListener("rovexo:inbox-sync")
+RealtimeNotificationProvider.tsx
+  → window.addEventListener("rovexo:inbox-sync")
+  → window.removeEventListener("rovexo:inbox-sync")
+  → UI Refresh
+```
+
+Certification reads **only** these components via `CERTIFICATION_TARGETS`.  
+Forbidden as sync cert targets: `app/inbox/page.tsx` · `BadgeProvider.tsx` (deleted — never recreate).
+
+## Inbox singularity (mandatory)
+
+```
+Conversation → Inbox Event Engine
+  ├── Messages
+  ├── Notifications
+  ├── Conversation
+  ├── Unread
+  ├── Badge
+  ├── Last Message
+  ├── Last Activity
+  ├── Conversation Order
+  └── Read Status
+```
+
+NO separate message state · notification state · badge state.
+
+## On conversation open (any entry)
+
+Notification · Offer · Counter · Accepted · Declined · Order · Tracking · Messages tab
+
+ONE transaction must:
+mark notification READ · conversation READ · latest messages READ · update unread · refresh badge · update last activity · reorder inbox · refresh Messages tab · refresh Notifications tab
+
+Broadcast: `rovexo:inbox-sync`  
+API: `PATCH /api/messages/[id]` `{ action: "read", source }`
+
+## Forbidden
+
+Manual refresh · page reload · eventual consistency · duplicate unread owners · message-type-only notification clear · silent partial sync · recreating BadgeProvider · certifying thin `app/inbox/page.tsx` for sync
+
+## Counter Offer (same law)
+
+Deterministic counter · explicit errors · Accept/Counter/Decline only while Pending · buyer accepts seller counters
+
+## Gates
+
+- `assertCounterOfferCertificationOrBlock()` (includes Inbox Event Engine + UI sync architecture)
+- Fail-closed errors name the exact missing contract (dispatch / listener register / listener cleanup / file missing)
+- Production blocked until runtime Message ↔ Notification ↔ Conversation sync verified
+
+## Cursor must never
+
+- Reintroduce split mark-read that only clears `type=message`
+- Open Conversation Hub without Inbox Event Engine sync
+- Create parallel badge/unread stores or restore BadgeProvider
+- Certify obsolete inbox sync paths
+- Declare Production Ready without Owner runtime sync verification

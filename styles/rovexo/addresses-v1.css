@@ -1,0 +1,299 @@
+/**
+ * Addresses v1.0 — Profile / Full Width tokens only (no second design system).
+ * Structure follows Owner mockup; tokens inherit PROFILE master.
+ */
+
+.addresses-v1 {
+  width: var(--fw-width, 100%);
+}
+
+.addresses-v1__stack {
+  gap: var(--fw-component-gap, 24px) !important;
+}
+
+.addresses-v1__cta {
+  margin-top: 0;
+}
+
+.addresses-v1-label {
+  margin: 0 0 10px;
+  font-size: var(--fw-small-size, 14px);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--cds-color-text-secondary, #64748b);
+}
+
+.addresses-v1-tabs-block {
+  width: 100%;
+}
+
+.addresses-v1-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  height: 48px;
+  min-height: 48px;
+  padding: 4px;
+  border-radius: var(--fw-radius, 16px);
+  background: var(--cds-color-surface-muted, #f1f5f9);
+  box-sizing: border-box;
+}
+
+.addresses-v1-tabs__option {
+  height: 100%;
+  border: none;
+  border-radius: calc(var(--fw-radius, 16px) - 4px);
+  background: transparent;
+  color: var(--cds-color-text-secondary, #64748b);
+  font-size: var(--fw-small-size, 14px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--cds-duration-fast, 150ms) ease,
+    color var(--cds-duration-fast, 150ms) ease,
+    box-shadow var(--cds-duration-fast, 150ms) ease;
+}
+
+.addresses-v1-tabs__option--active {
+  background: #ffffff;
+  color: var(--fw-title-color, #1a1a1a);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 0.08);
+}
+
+.addresses-v1-list {
+  width: 100%;
+}
+
+.addresses-v1-list__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.addresses-v1-empty {
+  margin: 0;
+  padding: 12px 0;
+  font-size: var(--fw-small-size, 14px);
+  color: var(--cds-color-text-secondary, #64748b);
+}
+
+.addresses-v1-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 20px;
+  border: 1px solid rgb(15 23 42 / 0.08);
+  border-radius: var(--fw-card-radius, 16px);
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.addresses-v1-card__header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.addresses-v1-card__name {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--fw-title-color, #1a1a1a);
+}
+
+.addresses-v1-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.addresses-v1-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgb(147 51 234 / 0.1);
+  color: var(--cds-color-primary, #9333ea);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.addresses-v1-badge--vat {
+  background: rgb(147 51 234 / 0.1);
+  color: var(--cds-color-primary, #9333ea);
+}
+
+.addresses-v1-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.addresses-v1-card__line {
+  margin: 0;
+  font-size: var(--fw-small-size, 14px);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--cds-color-text-secondary, #64748b);
+}
+
+.addresses-v1-card__actions {
+  display: flex;
+  gap: 16px;
+}
+
+.addresses-v1-card__action {
+  border: none;
+  background: transparent;
+  padding: 0;
+  min-height: 32px;
+  color: var(--fw-title-color, #1a1a1a);
+  font-size: var(--fw-small-size, 14px);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.addresses-v1-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.addresses-v1-form__label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cds-color-text-secondary, #64748b);
+}
+
+.addresses-v1-form__value {
+  margin: 0;
+  font-size: var(--fw-body-size, 16px);
+  font-weight: 500;
+  color: var(--fw-title-color, #1a1a1a);
+}
+
+.addresses-v1-form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fw-component-gap, 24px);
+  margin-top: 8px;
+}
+
+.addresses-v1-lookup-results {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.addresses-v1-lookup-result {
+  width: 100%;
+  min-height: var(--cds-touch-target, 44px);
+  padding: 12px 14px;
+  border: 1px solid rgb(15 23 42 / 0.08);
+  border-radius: var(--cds-radius-md, 12px);
+  background: #ffffff;
+  color: var(--fw-title-color, #1a1a1a);
+  font-size: var(--fw-small-size, 14px);
+  text-align: left;
+  cursor: pointer;
+}
+
+.addresses-v1-lookup-result--selected {
+  border-color: var(--cds-color-primary, #9333ea);
+  background: rgb(147 51 234 / 0.06);
+}
+
+.addresses-v1-edit-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgb(15 23 42 / 0.4);
+  padding: 16px;
+}
+
+.addresses-v1-edit-sheet {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 16px 16px 12px 12px;
+  background: #ffffff;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.addresses-v1-edit-sheet__title {
+  margin: 0 0 8px;
+  font-size: var(--fw-body-size, 16px);
+  font-weight: 600;
+  color: var(--fw-title-color, #1a1a1a);
+  text-align: center;
+}
+
+.addresses-v1-edit-sheet__copy {
+  margin: 0 0 12px;
+  font-size: var(--fw-small-size, 14px);
+  color: var(--cds-color-text-secondary, #64748b);
+  text-align: center;
+}
+
+.addresses-v1-edit-sheet__row {
+  width: 100%;
+  min-height: 52px;
+  border: none;
+  border-radius: var(--cds-radius-md, 12px);
+  background: transparent;
+  color: var(--fw-title-color, #1a1a1a);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: left;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.addresses-v1-edit-sheet__row:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.addresses-v1-edit-sheet__row--danger {
+  color: var(--cds-color-danger, #dc2626);
+}
+
+.addresses-v1-edit-sheet__cancel {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 8px;
+  border: none;
+  border-radius: var(--cds-radius-md, 12px);
+  background: var(--cds-color-surface-muted, #f8fafc);
+  color: var(--fw-title-color, #1a1a1a);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .addresses-v1-tabs__option {
+    transition: none;
+  }
+}

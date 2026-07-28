@@ -9,18 +9,25 @@ import { Avatar } from "@/components/ui/Avatar";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import {
+  ACCOUNT_SETTINGS_FAIL_CLOSED_COPY,
+  isAccountSettingsPhotoFileValid,
+} from "@/lib/account/account-settings-v1";
 
 type AvatarUploaderProps = {
   name: string;
   avatarUrl: string | null;
   onUpdated: (avatarUrl: string | null) => void;
+  /** Account Settings v1.3 — Change Photo → Take / Gallery / Remove / Cancel. */
+  accountSettings?: boolean;
 };
 
 const CROP_SIZE = 280;
 
-export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderProps) {
+export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = false }: AvatarUploaderProps) {
   const router = useRouter();
   const pickerId = useId();
+  const cameraId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [sourceImage, setSourceImage] = useState<HTMLImageElement | null>(null);
@@ -28,6 +35,7 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
   const [scale, setScale] = useState(1);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const dragRef = useRef<{ x: number; y: number } | null>(null);
 
   const drawCrop = useCallback(() => {
@@ -58,6 +66,12 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
     if (!file) return;
 
     setError(null);
+    setMenuOpen(false);
+    if (accountSettings && !isAccountSettingsPhotoFileValid(file)) {
+      setError(ACCOUNT_SETTINGS_FAIL_CLOSED_COPY);
+      return;
+    }
+
     const objectUrl = URL.createObjectURL(file);
     const image = new Image();
     image.onload = () => {
@@ -69,6 +83,10 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
         y: (CROP_SIZE - image.height * fitScale) / 2,
       });
       setPreview(objectUrl);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      setError(ACCOUNT_SETTINGS_FAIL_CLOSED_COPY);
     };
     image.src = objectUrl;
   };
@@ -123,9 +141,11 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
       onUpdated(payload.avatarUrl);
       setPreview(null);
       setSourceImage(null);
-      router.refresh();
-    } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : "Upload failed.");
+      if (!accountSettings) {
+        router.refresh();
+      }
+    } catch {
+      setError(accountSettings ? ACCOUNT_SETTINGS_FAIL_CLOSED_COPY : "Upload failed.");
     } finally {
       setBusy(false);
     }
@@ -134,40 +154,47 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
   const removeAvatar = async () => {
     setBusy(true);
     setError(null);
+    setMenuOpen(false);
     try {
       const response = await fetch("/api/profile/avatar", { method: "DELETE" });
       if (!response.ok) {
-        const payload = (await response.json()) as { error?: string };
-        throw new Error(payload.error ?? "Unable to remove avatar.");
+        throw new Error("Unable to remove avatar.");
       }
       onUpdated(null);
       setPreview(null);
       setSourceImage(null);
-      router.refresh();
-    } catch (removeError) {
-      setError(removeError instanceof Error ? removeError.message : "Unable to remove avatar.");
+      if (!accountSettings) {
+        router.refresh();
+      }
+    } catch {
+      setError(accountSettings ? ACCOUNT_SETTINGS_FAIL_CLOSED_COPY : "Unable to remove avatar.");
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center gap-ds-4">
+    <div className={cn("flex flex-col gap-ds-4", accountSettings ? "as-v1-photo items-start" : "items-center")}>
       {!preview ? (
-        <label
-          htmlFor={pickerId}
-          className={cn("rounded-ds-full", focusRing, busy && "pointer-events-none opacity-50")}
-          aria-label="Change profile photo"
+        <div
+          className={cn(
+            "rounded-ds-full",
+            accountSettings && "as-v1-photo__preview",
+            busy && "pointer-events-none opacity-50",
+          )}
         >
           <Avatar name={name} alt={name} src={avatarUrl} size="xl" />
-        </label>
+        </div>
       ) : (
-        <div className="flex flex-col items-center gap-ds-3">
+        <div className={cn("flex flex-col gap-ds-3", accountSettings ? "items-start" : "items-center")}>
           <canvas
             ref={canvasRef}
             width={CROP_SIZE}
             height={CROP_SIZE}
-            className="touch-none rounded-ds-full border border-border shadow-md"
+            className={cn(
+              "touch-none rounded-ds-full",
+              accountSettings ? "h-20 w-20" : "border border-border shadow-md",
+            )}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
@@ -191,47 +218,133 @@ export function AvatarUploader({ name, avatarUrl, onUpdated }: AvatarUploaderPro
 
       <NativeImageFileInput
         id={pickerId}
-        intent="any"
+        intent="gallery"
+        accept={accountSettings ? "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" : undefined}
         disabled={busy}
         onFilesSelected={(files) => void onFileChange(files)}
       />
+      {accountSettings ? (
+        <NativeImageFileInput
+          id={cameraId}
+          intent="camera"
+          accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+          disabled={busy}
+          onFilesSelected={(files) => void onFileChange(files)}
+        />
+      ) : null}
 
-      <div className="flex flex-wrap justify-center gap-ds-2">
+      <div className={cn("flex flex-wrap gap-ds-2", accountSettings ? "as-v1-photo__actions" : "justify-center")}>
         {!preview ? (
           <>
-            <label
-              htmlFor={pickerId}
-              className={cn(cdsButtonClass("secondary"), focusRing, busy && "pointer-events-none opacity-50")}
-            >
-              Upload Photo
-            </label>
-            {avatarUrl ? (
-              <CanonicalButton type="button" variant="ghost" onClick={() => void removeAvatar()} disabled={busy}>
-                Remove Photo
-              </CanonicalButton>
-            ) : null}
+            {accountSettings ? (
+              <>
+                {!menuOpen ? (
+                  <button
+                    type="button"
+                    className="as-v1-photo__change"
+                    disabled={busy}
+                    onClick={() => setMenuOpen(true)}
+                  >
+                    Change Photo
+                  </button>
+                ) : (
+                  <>
+                    <label
+                      htmlFor={cameraId}
+                      className={cn("as-v1-photo__action", busy && "pointer-events-none opacity-40")}
+                    >
+                      Take Photo
+                    </label>
+                    <label
+                      htmlFor={pickerId}
+                      className={cn("as-v1-photo__action", busy && "pointer-events-none opacity-40")}
+                    >
+                      Choose From Gallery
+                    </label>
+                    {avatarUrl ? (
+                      <button
+                        type="button"
+                        className="as-v1-photo__action as-v1-photo__action--danger"
+                        onClick={() => void removeAvatar()}
+                        disabled={busy}
+                      >
+                        Remove Photo
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="as-v1-photo__action as-v1-photo__action--muted"
+                      onClick={() => setMenuOpen(false)}
+                      disabled={busy}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                <label
+                  htmlFor={pickerId}
+                  className={cn(cdsButtonClass("secondary"), focusRing, busy && "pointer-events-none opacity-50")}
+                >
+                  Upload Photo
+                </label>
+                {avatarUrl ? (
+                  <CanonicalButton type="button" variant="ghost" onClick={() => void removeAvatar()} disabled={busy}>
+                    Remove Photo
+                  </CanonicalButton>
+                ) : null}
+              </>
+            )}
           </>
         ) : (
           <>
-            <CanonicalButton type="button" onClick={() => void uploadCropped()} disabled={busy} loading={busy}>
-              {busy ? "Saving…" : "Save photo"}
-            </CanonicalButton>
-            <CanonicalButton
-              type="button"
-              variant="ghost"
-              onClick={() => {
-                setPreview(null);
-                setSourceImage(null);
-              }}
-              disabled={busy}
-            >
-              Cancel
-            </CanonicalButton>
+            {accountSettings ? (
+              <>
+                <button
+                  type="button"
+                  className="as-v1-photo__action"
+                  onClick={() => void uploadCropped()}
+                  disabled={busy}
+                >
+                  {busy ? "Saving..." : "Apply"}
+                </button>
+                <button
+                  type="button"
+                  className="as-v1-photo__action as-v1-photo__action--muted"
+                  onClick={() => {
+                    setPreview(null);
+                    setSourceImage(null);
+                  }}
+                  disabled={busy}
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                <CanonicalButton type="button" onClick={() => void uploadCropped()} disabled={busy} loading={busy}>
+                  {busy ? "Saving…" : "Save photo"}
+                </CanonicalButton>
+                <CanonicalButton
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setPreview(null);
+                    setSourceImage(null);
+                  }}
+                  disabled={busy}
+                >
+                  Cancel
+                </CanonicalButton>
+              </>
+            )}
           </>
         )}
       </div>
 
-      {error ? <p className="text-sm text-danger">{error}</p> : null}
+      {error ? <p className="as-v1-hint as-v1-hint--error">{error}</p> : null}
     </div>
   );
 }

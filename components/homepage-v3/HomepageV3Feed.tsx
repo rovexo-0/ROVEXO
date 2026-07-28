@@ -5,8 +5,6 @@ import { ListingCard } from "@/components/ui/ListingCard";
 import { HP3_LISTING_CARD_PROPS } from "@/components/homepage-v3/constants";
 import { HomepageV3SkeletonGrid } from "@/components/homepage-v3/HomepageV3Skeleton";
 import { useMarketplaceFeedColumns } from "@/components/home/hooks/useMarketplaceFeedColumns";
-import { HOMEPAGE_DEMO_PRODUCTS } from "@/lib/homepage/demo-data";
-import { isClosedBetaHomepageMode } from "@/lib/homepage/config";
 import type { Product, ProductsPage } from "@/lib/products/types";
 import type { CSSProperties } from "react";
 
@@ -25,9 +23,6 @@ function mergeUniqueProducts(current: Product[], incoming: Product[]): Product[]
   return merged;
 }
 
-const STATIC_DEMO_FALLBACK =
-  process.env.NEXT_PUBLIC_ROVEXO_HOMEPAGE_DEMO === "1" && !isClosedBetaHomepageMode();
-
 export const HomepageV3Feed = memo(function HomepageV3Feed({ initialPage }: HomepageV3FeedProps) {
   const [items, setItems] = useState<Product[]>(initialPage.items);
   const [page, setPage] = useState(initialPage.page);
@@ -35,7 +30,6 @@ export const HomepageV3Feed = memo(function HomepageV3Feed({ initialPage }: Home
   const [loading, setLoading] = useState(initialPage.items.length === 0);
   const [bootstrapped, setBootstrapped] = useState(initialPage.items.length > 0);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const demoOffsetRef = useRef(0);
   const columnCount = useMarketplaceFeedColumns();
 
   const loadTriggerIndex = useMemo(
@@ -43,41 +37,18 @@ export const HomepageV3Feed = memo(function HomepageV3Feed({ initialPage }: Home
     [items.length],
   );
 
-  const appendDemoPage = useCallback(() => {
-    const nextSlice: Product[] = [];
-    let cursor = demoOffsetRef.current % HOMEPAGE_DEMO_PRODUCTS.length;
-
-    while (nextSlice.length < 12) {
-      nextSlice.push({
-        ...HOMEPAGE_DEMO_PRODUCTS[cursor % HOMEPAGE_DEMO_PRODUCTS.length],
-        id: `demo-feed-${demoOffsetRef.current + nextSlice.length}`,
-        slug: `demo-feed-${demoOffsetRef.current + nextSlice.length}`,
-      });
-      cursor += 1;
-    }
-
-    demoOffsetRef.current += nextSlice.length;
-    setItems((current) => mergeUniqueProducts(current, nextSlice));
-    setHasMore(true);
-    setBootstrapped(true);
-  }, []);
-
   const loadMore = useCallback(async () => {
     if (loading) return;
 
     setLoading(true);
     try {
-      if (!hasMore) {
-        if (STATIC_DEMO_FALLBACK) appendDemoPage();
-        return;
-      }
+      if (!hasMore) return;
 
       const nextPage = items.length === 0 ? 1 : page + 1;
       const response = await fetch(`/api/homepage/feed?page=${nextPage}`, { cache: "no-store" });
 
       if (!response.ok) {
-        if (STATIC_DEMO_FALLBACK) appendDemoPage();
-        else setHasMore(false);
+        setHasMore(false);
         return;
       }
 
@@ -85,7 +56,6 @@ export const HomepageV3Feed = memo(function HomepageV3Feed({ initialPage }: Home
 
       if (payload.items.length === 0) {
         setHasMore(false);
-        if (STATIC_DEMO_FALLBACK) appendDemoPage();
         return;
       }
 
@@ -96,20 +66,12 @@ export const HomepageV3Feed = memo(function HomepageV3Feed({ initialPage }: Home
     } finally {
       setLoading(false);
     }
-  }, [appendDemoPage, hasMore, items.length, loading, page]);
+  }, [hasMore, items.length, loading, page]);
 
   useEffect(() => {
     if (bootstrapped) return;
 
     if (initialPage.items.length > 0) {
-      setBootstrapped(true);
-      setLoading(false);
-      return;
-    }
-
-    if (STATIC_DEMO_FALLBACK) {
-      setItems(HOMEPAGE_DEMO_PRODUCTS.slice(0, 12));
-      setHasMore(true);
       setBootstrapped(true);
       setLoading(false);
       return;

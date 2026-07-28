@@ -1,0 +1,63 @@
+---
+description: Supreme Blood Code XVIII — Sprint V Sell APPROVED TO START (IN DEVELOPMENT)
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE XVIII — SPRINT V SELL
+
+**STATUS: APPROVED TO START · IN DEVELOPMENT · BLOOD CODE LOCKED**  
+**NOT yet 100% COMPLETE · NOT yet Permanently Frozen** (Owner Certification pending)
+
+SSOT: `lib/supreme-blood-code-xviii-v1.ts`  
+Official: `http://localhost:3000/sell`
+
+## Absolute scope
+
+Sprint V may modify **ONLY** `/sell`.  
+
+Forbidden to touch: Homepage · Inbox · Conversation · Orders · Wallet · Checkout · Shipping · Account · Profile · Settings · Legal · Help
+
+## One Sell
+
+One implementation · one entry point = `/sell` only  
+
+Forbidden: `/sell-v2` · `/sell-beta` · `/sell-new` · `/sell-redesign` · `/sell-test` · `/sell-wizard`
+
+## Sell flow
+
+Category → Subcategory → Photos → Title → Brand → Colour → Condition → Parcel → Description → Price → Automatic validations → Publish → Success
+
+## Required (summary)
+
+Photos (gallery + camera + validation) · Category/Brand/Colour/Condition/Parcel · Description · Price · UK + policy + publish validation · Publish · Success (View · Share · Sell Another)
+
+## UI / Photo / Search / Nav
+
+- Mobile first · iPhone 17 Pro Max · Full width · Compact Premium  
+- No broken uploads / white screens / empty images / upload loops  
+- **No Search Bar / Marketplace / Homepage header on Sell**  
+- Bottom nav visible (except flow-focused states)
+
+## Forbidden
+
+Multi-step wizard · Desktop-first · Duplicate buttons/fields/entry points · Experimental / temporary / beta / partial implementations
+
+## Automation
+
+Take photos → Add details → Publish → Done.  
+User must never ask “where next?” or “how do I sell?”
+
+## Live sprint status
+
+| Sprint | Status |
+|--------|--------|
+| I–III | LOCKED |
+| IV Wallet | WAITING OWNER CERTIFICATION |
+| V Sell | **IN DEVELOPMENT** |
+| VI–VIII | FORBIDDEN TO START |
+
+## Completion law
+
+No Owner Certification → no 100% → no Permanent Freeze → no next sprint (VI)
+
+Inherits Account design system (`sell-absolute-authority-v1-freeze`). No redesign outside Owner-approved Sell work under `/sell`.

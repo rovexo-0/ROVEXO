@@ -38,21 +38,20 @@ describe("category picker search (database-only, no AI)", () => {
     }
   });
 
-  it("returns hierarchical suggestions for phone queries (iph)", () => {
+  it("returns Catalog Master suggestions for phone queries (iph)", () => {
     const results = searchCategoryPicker("iph");
     expect(results.length).toBeGreaterThan(0);
-    expect(resultNames("iph")).toEqual(expect.arrayContaining(["Phones", "Smartphones", "Apple iPhone"]));
+    expect(resultNames("iph")).toEqual(expect.arrayContaining(["Smartphones", "Phones & Tablets"]));
   });
 
-  it("returns hierarchical suggestions for camping queries (tent)", () => {
+  it("returns Catalog Master suggestions for camping queries (tent)", () => {
     const names = resultNames("tent");
-    expect(names).toEqual(expect.arrayContaining(["Camping", "Tents", "Family Tents"]));
+    expect(names).toEqual(expect.arrayContaining(["Camping"]));
   });
 
-  it("returns multi-vertical suggestions for bench queries", () => {
+  it("returns matching Catalog Master suggestions for bench queries", () => {
     const names = resultNames("bench");
-    expect(names).toEqual(expect.arrayContaining(["Interior", "Bench Seats", "Benches"]));
-    expect(names.filter((name) => name === "Benches").length).toBeGreaterThanOrEqual(1);
+    expect(names).toEqual(expect.arrayContaining(["Seat Covers"]));
   });
 
   it("returns textile suggestions for home textiles", () => {

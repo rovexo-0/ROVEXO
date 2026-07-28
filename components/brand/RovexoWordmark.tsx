@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import { OFFICIAL_BRAND_APP_ICON } from "@/lib/brand/official-brand-application-v1";
 
 export type RovexoWordmarkProps = {
   className?: string;
@@ -8,20 +12,16 @@ export type RovexoWordmarkProps = {
   asLink?: boolean;
 };
 
-/** Official ROVEXO wordmark — ROVE black, X #7C3AED, O black. No effects. */
+/** Application chrome wordmark — Level III App Icon (Law XXXVIII). */
 export function RovexoWordmark({ className, asLink = false }: RovexoWordmarkProps) {
   const mark = (
-    <span className={cn("rx-wordmark", className)} role="img" aria-label="ROVEXO">
-      <span className="rx-wordmark__rove" aria-hidden>
-        ROVE
-      </span>
-      <span className="rx-wordmark__x" aria-hidden>
-        X
-      </span>
-      <span className="rx-wordmark__o" aria-hidden>
-        O
-      </span>
-    </span>
+    <SafeImage
+      src={OFFICIAL_BRAND_APP_ICON}
+      alt="ROVEXO"
+      width={48}
+      height={48}
+      className={cn("rx-wordmark rx-wordmark--canonical", className)}
+    />
   );
 
   if (!asLink) return mark;

@@ -1,0 +1,76 @@
+---
+description: ROVEXO Absolute Owner Design Lock — one page, images first, owner-only approval
+alwaysApply: true
+---
+
+# ROVEXO Absolute Owner Design Lock
+
+**STATUS: MANDATORY | OWNER AUTHORITY | NEVER OVERRIDE**
+
+The Owner has absolute authority. Only the Owner may: Approve · Modify · Freeze · Certify · Authorize Implementation · Authorize Deployments · Authorize Production.
+
+## Cursor must never decide (without Owner approval)
+
+- A page is approved
+- A page is finished / complete
+- A page is frozen
+- A page is certified
+- A page is production ready
+
+## One Page Rule
+
+Only **one page** may be developed at a time.
+
+Flow (mandatory, no skipping):
+
+1. Images (local only)
+2. Visual review
+3. Modifications (if Owner requests)
+4. Owner approval
+5. Design Lock
+6. Implementation
+7. Typecheck · ESLint · Build · Playwright · QA
+8. Owner approval
+9. Freeze
+10. Owner approval
+11. Certification
+12. Owner approval
+13. Next page
+
+Forbidden: multi-page batches, complete modules, skipping any gate.
+
+## Image Generation Mode (READ ONLY)
+
+**Allowed:** SVG · PNG · JPG · local HTML previews · local galleries
+
+**Forbidden:** Deploy · Commit · Push · Implementation · Production changes · GitHub Actions · Vercel deployments · Alias changes
+
+Previews remain **local**. Wait for Owner visual approval.
+
+## Current page (until Owner advances)
+
+**PROFILE PAGE (MAIN)** — including Profile Header, Favourites, Balance, My Orders, Holiday Mode, Settings, Rovexo Ideas, Help Centre, Legal Information, Sign Out.
+
+## Profile UI contract (visual)
+
+- Device: iPhone 17 Pro Max · mobile first · full width 100%
+- White · purple accent · black icons · black text
+- Menu rows: 56px · 16px Regular (400)
+- Header: Avatar 64px · username · View Profile · review score
+- Rating examples: `5.0 ⭐ (55)` · empty: `New member` or `No reviews yet`
+- Bottom nav: Home · Search · Sell · Inbox · Profile
+- Legal: Privacy · Terms · Cookies · Platform Rules · About ROVEXO · Contact Us
+
+## Platform Fee display
+
+- Show: `incl. 🛡`
+- Never show: `5.5%` or Platform Fee %
+- Info: Platform Fee helps maintain ROVEXO, supports secure payments, buyer and seller protection, platform maintenance, customer support and future improvements.
+
+## Final rule
+
+No code before: Images → Visual review → Owner approval → Design Lock.
+
+After Design Lock only: Implementation → gates → Owner approvals → Freeze → Certification → Production.
+
+Wait for Owner approval before every phase.

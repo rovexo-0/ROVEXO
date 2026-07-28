@@ -5,7 +5,10 @@ import { generateOrderShippingLabel } from "@/lib/shipping/server";
 import { getSellerShippingSettings } from "@/lib/seller/shipping-settings";
 import { getShippingRecord, saveShippingQuotes } from "@/lib/shipping/store";
 import { getShipmentParcelById, createShipmentParcel } from "@/lib/shipping/parcels-repository";
-import { mustUseDemoShipping } from "@/lib/full-demo/security";
+import {
+  mustUseDemoShipping,
+  mustUseDemoShippingForActors,
+} from "@/lib/full-demo/security";
 import type { ShippingAddress } from "@/lib/shipping/types";
 
 /**
@@ -20,7 +23,7 @@ export async function generateShippingLabelForOrder(
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, order_number, seller_id, shipping_address_id, status")
+    .select("id, order_number, seller_id, buyer_id, shipping_address_id, status")
     .eq("id", orderId)
     .maybeSingle();
 
@@ -28,16 +31,33 @@ export async function generateShippingLabelForOrder(
     return { ok: false as const, error: "Order not found or access denied." };
   }
 
-  if (order.status === "cancelled") {
-    return { ok: false as const, error: "Cancelled orders cannot generate labels." };
+  if (order.status === "cancelled" || order.status === "awaiting_payment") {
+    return {
+      ok: false as const,
+      error:
+        order.status === "awaiting_payment"
+          ? "Shipping starts after payment success."
+          : "Cancelled orders cannot generate labels.",
+    };
   }
+
+  const partyIds = [order.seller_id, order.buyer_id].filter(Boolean) as string[];
+  const { data: partyProfiles } = await admin
+    .from("profiles")
+    .select("id, email")
+    .in("id", partyIds);
+  const partyEmails = (partyProfiles ?? []).map((p) => p.email);
+  const forceDemoShipping = mustUseDemoShippingForActors(...partyEmails);
 
   let record = await getShippingRecord(orderId);
   let quoteId = record?.pricing?.selectedQuoteId ?? record?.pricing?.quotes[0]?.id;
 
   // Full Demo / sandbox / Playwright: materialize demo quotes if checkout never attached any.
   const shouldSeedDemoQuotes =
-    mustUseDemoShipping() || process.env.PLAYWRIGHT_E2E === "1" || process.env.E2E_TEST === "1";
+    forceDemoShipping ||
+    mustUseDemoShipping() ||
+    process.env.PLAYWRIGHT_E2E === "1" ||
+    process.env.E2E_TEST === "1";
 
   if (!quoteId && shouldSeedDemoQuotes) {
     const { demoShippingAdapter } = await import("@/lib/shipping/pricing/demo-adapter");
@@ -106,7 +126,7 @@ export async function generateShippingLabelForOrder(
 
   const collectionAddress =
     record?.collectionAddress ??
-    (mustUseDemoShipping()
+    (forceDemoShipping || mustUseDemoShipping()
       ? ({
           role: "collection",
           fullName: "ROVEXO Demo Seller",
@@ -120,7 +140,7 @@ export async function generateShippingLabelForOrder(
   const deliveryAddress =
     record?.deliveryAddress ??
     (await resolveOrderDeliveryAddress(order.shipping_address_id)) ??
-    (mustUseDemoShipping()
+    (forceDemoShipping || mustUseDemoShipping()
       ? ({
           role: "delivery",
           fullName: "ROVEXO Demo Buyer",
@@ -148,6 +168,7 @@ export async function generateShippingLabelForOrder(
     parcelNumber: parcel.parcelNumber,
     labelSize: sellerSettings.defaultLabelSize,
     idempotencyKey: `rovexo-order-${orderId}-parcel-${parcel.parcelNumber}`,
+    forceDemoShipping,
   });
 
   const updatedParcel = await getShipmentParcelById(parcel.id);

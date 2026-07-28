@@ -1,0 +1,63 @@
+---
+description: Supreme Blood Code III — Preview View Certification · Owner visual PASS only
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE III — PREVIEW VIEW CERTIFICATION
+
+**STATUS: OWNER APPROVED · PERMANENT FREEZE · NEVER REMOVE**
+
+SSOT: `lib/supreme-blood-code-iii-v1.ts`  
+Doc: `docs/engineering/SUPREME_BLOOD_CODE_III_V1.md`
+
+## First principle
+
+**If the user cannot see it → it does not exist.**
+
+## View results only
+
+`VIEW = PASS` or `VIEW = FAIL`. Nothing else.
+
+## Not allowed
+
+White/empty screen · broken UI/image · missing button · loading forever · preview fail · Owner cannot verify · partial implementation · “code is ready” · “almost ready” · “95% done”
+
+## Pipeline (every step must PASS)
+
+CODE → TYPESCRIPT → ESLINT → BUILD → TESTS → PREVIEW → VISUAL PREVIEW → OWNER VIEW → FREEZE → COMMIT → PUSH → CERTIFY
+
+## Automatic sprint FAIL
+
+Preview fail · white screen · broken image · button missing · Pay Now wrong · broken responsive · Owner cannot verify
+
+## Preview must show
+
+Images · titles · buttons · prices · Pay Now · Make Offer · tracking · labels · notifications · messages · header · scroll · responsive UI · animations · status · totals · platform/buyer/seller flows
+
+## Zero regression
+
+New code must not break old code. Sprint 50 must not break Sprint 1. Sprint 100 must not break Pay Now. Sprint 200 must not break Tracking. Sprint 500 must not break Checkout.
+
+## Absolute laws
+
+- Code PASS ≠ Product PASS  
+- Preview PASS ≠ Product PASS  
+- Product PASS = Code + Test + Preview + Visual + Owner + Zero Regression + Certification — **all PASS**
+
+## Final law
+
+If it is not tested · verified · previewed · visually approved · Owner approved · zero-regression certified → **it does not exist.**
+
+## Absolute law of ROVEXO
+
+If the Owner cannot see it → the user cannot use it → the product does not exist → **CERTIFICATION = FAIL.**
+
+Child law: View Analyzer (`lib/view-analyzer-v1.ts`) — Owner must see required surfaces; never white screen.  
+Child law: Supreme Blood Code IV — White Screen Kill Switch (`lib/supreme-blood-code-iv-v1.ts`).
+
+## Cursor must never
+
+- Claim done/ready/certified without Owner-visible official preview evidence  
+- Treat code/test green as product PASS  
+- Skip visual / responsive / Owner view gates  
+- Break frozen Sprint 1 surfaces (Pay Now, tracking, checkout, etc.) in later sprints

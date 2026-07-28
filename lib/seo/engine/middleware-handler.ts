@@ -61,6 +61,13 @@ const RESERVED_ROOT_SEGMENTS = new Set([
  */
 export async function applySeoRouting(request: NextRequest): Promise<NextResponse | null> {
   const pathname = request.nextUrl.pathname;
+  const firstSegment = pathname.split("/").filter(Boolean)[0] ?? "";
+
+  // App-owned first segments never use SEO slug discovery — skip the redirect
+  // map entirely so middleware cannot wait on seo_redirects for /login, /api, etc.
+  if (firstSegment && RESERVED_ROOT_SEGMENTS.has(firstSegment)) {
+    return null;
+  }
 
   const redirect = await getSeoRedirect(pathname);
   if (redirect) {
@@ -72,22 +79,16 @@ export async function applySeoRouting(request: NextRequest): Promise<NextRespons
 
   const discoverRewrite = shouldRewriteToDiscover(pathname);
   if (discoverRewrite) {
-    const firstSegment = pathname.split("/").filter(Boolean)[0]!;
-    if (!RESERVED_ROOT_SEGMENTS.has(firstSegment)) {
-      const rewriteUrl = request.nextUrl.clone();
-      rewriteUrl.pathname = discoverRewrite;
-      return NextResponse.rewrite(rewriteUrl);
-    }
+    const rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.pathname = discoverRewrite;
+    return NextResponse.rewrite(rewriteUrl);
   }
 
   const locationRewrite = resolveLocationFirstRewrite(pathname);
   if (locationRewrite) {
-    const firstSegment = pathname.split("/").filter(Boolean)[0]!;
-    if (!RESERVED_ROOT_SEGMENTS.has(firstSegment)) {
-      const rewriteUrl = request.nextUrl.clone();
-      rewriteUrl.pathname = locationRewrite;
-      return NextResponse.rewrite(rewriteUrl);
-    }
+    const rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.pathname = locationRewrite;
+    return NextResponse.rewrite(rewriteUrl);
   }
 
   return null;

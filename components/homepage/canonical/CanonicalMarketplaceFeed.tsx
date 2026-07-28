@@ -6,8 +6,6 @@ import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/cons
 import { CanonicalFeedSkeletonGrid } from "@/components/homepage/canonical/CanonicalFeedSkeleton";
 import { HomepageEmptyState } from "@/components/homepage/canonical/HomepageEmptyState";
 import { useMarketplaceFeedColumns } from "@/components/home/hooks/useMarketplaceFeedColumns";
-import { HOMEPAGE_DEMO_PRODUCTS } from "@/lib/homepage/demo-data";
-import { isClosedBetaHomepageMode } from "@/lib/homepage/config";
 import type { Product, ProductsPage } from "@/lib/products/types";
 import type { CSSProperties } from "react";
 import css from "@/components/homepage/canonical/CanonicalHomepage.module.css";
@@ -16,9 +14,6 @@ type CanonicalMarketplaceFeedProps = {
   initialPage: ProductsPage;
   reservedIds?: string[];
 };
-
-const STATIC_DEMO_FALLBACK =
-  process.env.NEXT_PUBLIC_ROVEXO_HOMEPAGE_DEMO === "1" && !isClosedBetaHomepageMode();
 
 /** Opt-in pipeline tracing (set NEXT_PUBLIC_HOMEPAGE_FEED_DEBUG=1). No-op in prod. */
 const FEED_DEBUG = process.env.NEXT_PUBLIC_HOMEPAGE_FEED_DEBUG === "1";
@@ -39,14 +34,7 @@ function mergeUniqueProducts(current: Product[], incoming: Product[], reserved: 
 }
 
 function resolveSeedItems(initialPage: ProductsPage, reserved: Set<string>): Product[] {
-  const fromServer = initialPage.items.filter((product) => !reserved.has(product.id));
-  if (fromServer.length > 0) return fromServer;
-
-  if (STATIC_DEMO_FALLBACK) {
-    return HOMEPAGE_DEMO_PRODUCTS.filter((product) => !reserved.has(product.id)).slice(0, 12);
-  }
-
-  return [];
+  return initialPage.items.filter((product) => !reserved.has(product.id));
 }
 
 export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
@@ -70,35 +58,12 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
   // re-fetch loops and repeated reconciliation on unrelated re-renders.
   const initialFetchDoneRef = useRef(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const demoOffsetRef = useRef(seedItems.length);
   const columnCount = useMarketplaceFeedColumns();
 
   const loadTriggerIndex = useMemo(
     () => Math.max(0, Math.floor(items.length * 0.75) - 1),
     [items.length],
   );
-
-  const appendDemoPage = useCallback(() => {
-    const nextSlice: Product[] = [];
-    let cursor = demoOffsetRef.current % HOMEPAGE_DEMO_PRODUCTS.length;
-
-    while (nextSlice.length < 12) {
-      const source = HOMEPAGE_DEMO_PRODUCTS[cursor % HOMEPAGE_DEMO_PRODUCTS.length];
-      const id = `demo-feed-${demoOffsetRef.current + nextSlice.length}`;
-      if (!reserved.has(id)) {
-        nextSlice.push({
-          ...source,
-          id,
-          slug: id,
-        });
-      }
-      cursor += 1;
-    }
-
-    demoOffsetRef.current += nextSlice.length;
-    setItems((current) => mergeUniqueProducts(current, nextSlice, reserved));
-    setHasMore(true);
-  }, [reserved]);
 
   /**
    * Canonical fetch: retrieves an exact page from /api/homepage/feed. `mode`
@@ -119,8 +84,7 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
 
         if (!response.ok) {
           feedDebugLog("fetch:error", { targetPage, status: response.status });
-          if (STATIC_DEMO_FALLBACK && mode === "replace") appendDemoPage();
-          else if (mode === "append") setHasMore(false);
+          if (mode === "append") setHasMore(false);
           return;
         }
 
@@ -140,7 +104,6 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
             setPage(1);
           }
           setHasMore(false);
-          if (STATIC_DEMO_FALLBACK) appendDemoPage();
           return;
         }
 
@@ -162,18 +125,15 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
         setLoading(false);
       }
     },
-    [appendDemoPage, reserved],
+    [reserved],
   );
 
   // Infinite scroll — advances beyond page 1 only while more pages remain.
   const loadMore = useCallback(() => {
     if (fetchingRef.current) return;
-    if (!hasMore) {
-      if (STATIC_DEMO_FALLBACK) appendDemoPage();
-      return;
-    }
+    if (!hasMore) return;
     void loadPage(page + 1, "append");
-  }, [appendDemoPage, hasMore, loadPage, page]);
+  }, [hasMore, loadPage, page]);
 
   /**
    * ROOT-CAUSE FIX: the SSR seed can be stale (ISR `revalidate`) — empty when

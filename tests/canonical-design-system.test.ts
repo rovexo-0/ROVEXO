@@ -78,8 +78,8 @@ describe("ROVEXO Canonical Design System v1.0", () => {
     expect(row).toContain("cds-menu-row__chevron");
     expect(row).toContain("cds-menu-row__badge");
     expect(menu).toContain("CanonicalMenuRow");
-    expect(menu).toContain("CanonicalSection");
-    expect(menu).toContain("ac-canonical__menu-icon");
+    expect(menu).toContain("HolidayModeProfileRow");
+    expect(menu).toContain("icon={<ProfileMenuIcon id={item.id} />}");
   });
 
   it("CanonicalMenuRow CSS aligns with ac-canonical row tokens", () => {

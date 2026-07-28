@@ -1,0 +1,49 @@
+---
+description: ROVEXO Master Engine Golden Rule — no feature visibility outside the Master Engine.
+alwaysApply: true
+---
+
+# ROVEXO MASTER ENGINE — GOLDEN RULE (LOCK)
+
+**NO FEATURE MAY BE IMPLEMENTED OUTSIDE THE MASTER ENGINE.**
+
+## Correct APIs (only)
+
+```ts
+import {
+  resolveFeatureVisibility,
+  resolveVerifiedStatus,
+  resolveBusinessVisibility,
+  resolveStoreShowcaseVisibility,
+  registerSmartFeature,
+  registerStoreShowcase,
+} from "@/lib/master-engine";
+
+resolveFeatureVisibility("holiday-mode", user);
+resolveVerifiedStatus(user);
+resolveBusinessVisibility(user);
+resolveStoreShowcaseVisibility(user);
+```
+
+## Forbidden
+
+```ts
+// WRONG
+if (user.hasListings) showHolidayMode();
+if (user.isVerified) showVerifiedBadge();
+showBusinessBank();
+if (user.hasListings >= 2) showStoreShowcase();
+```
+
+## Required for every new feature
+
+1. `registerSmartFeature({ id, label, isAvailableInProduction })` (or `registerStoreShowcase()`)
+2. Resolve via Master Engine APIs only
+3. Never inline production predicates in UI / menus / pages
+
+## Modes
+
+Local / QA / Demo / Certification / Visual / E2E → SHOW EVERYTHING  
+Production only after Owner `activateProductionRules()`  
+
+Nothing deleted — only show / hide / enable / disable / block.

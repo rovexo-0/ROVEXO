@@ -1,0 +1,61 @@
+---
+description: ROVEXO No Damage Master Lock — zero damage, preserve existing features, one page at a time
+alwaysApply: true
+---
+
+# ROVEXO No Damage Master Lock
+
+**STATUS: GLOBAL | MANDATORY | ENTIRE PLATFORM**
+
+## Core policy
+
+**Never break existing features.**
+
+If a change is made to UI, UX, database, components, routes, performance, responsive design, payments, shipping, authentication, search, orders, wallet, settings, profile, inbox, checkout, sell page, or homepage — Cursor must verify that **nothing else has been broken**.
+
+## Forbidden unless Owner explicitly requests
+
+- Delete / break / remove features
+- Change existing logic
+- Change database structure
+- Change API behaviour
+- Change payment / shipping / authentication logic
+
+## Order of approach
+
+**ADD → MODERNIZE → SIMPLIFY → PRESERVE**
+
+Never: modify → break → delete → rebuild everything.
+
+## Scope isolation (example: Profile)
+
+When Profile is being modified:
+
+- **Allowed:** Profile only
+- **Forbidden** unless explicitly requested: Settings, Wallet, Orders, Checkout, Homepage, Inbox, Payments, Shipping, Database, Authentication
+
+## Pre-implementation checklist (mandatory)
+
+Before any implementation, answer:
+
+1. What will change?
+2. What will not change?
+3. Can something break?
+4. Can something be simplified?
+5. Can performance be reduced?
+6. Can responsive design break?
+7. Can another page be affected?
+
+**If there is any possibility of damage: STOP.**
+
+## Zero Damage Policy
+
+No implementation may damage existing:
+
+- Code · Features · UX · Performance · Responsive design · Database logic
+
+When a safer solution exists, **always use the safer solution**.
+
+## Final rule
+
+Small changes. Safe changes. One page at a time. Zero damage. Owner approval required.

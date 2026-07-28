@@ -1,0 +1,31 @@
+# ROVEXO ABSOLUTE LAW — COD SÂNGE v1.0 SSOT (User Singularity)
+
+**STATUS: OWNER APPROVED | LOCKED | PRIORITY #1**
+
+SSOT: `lib/checkout/buy-now-absolute-law-v1.ts` · `lib/checkout/self-purchase-absolute-law-v1.ts`  
+Evidence: `http://localhost:3000` only
+
+## There is only USER
+
+One User account. The same User may buy, sell, run business tools, own store/orders/wallet/messages.  
+There are **no** Buyer / Seller / Business / Self-employed **accounts**.
+
+## Only forbidden purchase law — Self Purchase
+
+```
+currentUser.id === listing.owner.id  →  BLOCK
+currentUser.id !== listing.owner.id  →  ALLOW → Buy Now → Checkout → Payment → Stripe → Success → Order
+```
+
+Canonical helper: `isSelfPurchaseBlocked({ currentUserId, listingOwnerId })`
+
+Forbidden in self-purchase code: `buyer == seller` · `buyerId == sellerId`
+
+## Priority 1
+
+Buy Now → Checkout → Payment → Order  
+Zero skip · zero fake · zero disabled security/gates
+
+## Social Follow
+
+Follow / Following remain **permanently removed** (marketplace-only). User singularity does not restore social Follow.

@@ -14,6 +14,41 @@ export function PwaProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
 
+    // Dev / localhost must never keep a Service Worker. Cached HTML navigations
+    // embed hashed /_next CSS+JS URLs; after `.next` rebuild those hashes die and
+    // the UI falls back to unstyled/raw HTML with oversized images.
+    const host = window.location.hostname;
+    const isLocalDev =
+      process.env.NODE_ENV !== "production" ||
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host === "[::1]";
+
+    if (isLocalDev) {
+      void (async () => {
+        try {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const reg of regs) {
+            reg.active?.postMessage({ type: "ROVEXO_DEV_UNREGISTER" });
+            reg.waiting?.postMessage({ type: "ROVEXO_DEV_UNREGISTER" });
+            reg.installing?.postMessage({ type: "ROVEXO_DEV_UNREGISTER" });
+            await reg.unregister();
+          }
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            await Promise.all(
+              keys
+                .filter((key) => key.startsWith("rovexo-static"))
+                .map((key) => caches.delete(key)),
+            );
+          }
+        } catch {
+          /* ignore */
+        }
+      })();
+      return;
+    }
+
     navigator.serviceWorker.register("/sw.js").catch(() => undefined);
 
     const onBeforeInstall = (event: Event) => {

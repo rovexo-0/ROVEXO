@@ -11,7 +11,7 @@
   --uv1-input-height: 44px;
   --uv1-radius: 16px;
   --uv1-section-gap: 16px;
-  --uv1-inner-padding: 12px;
+  --uv1-inner-padding: 16px; /* Design Decision #001 — Internal Layout 16px */
   --uv1-body-size: 14px;
   --uv1-section-title-size: 16px;
   --uv1-background: #ffffff;
@@ -195,16 +195,21 @@
   --inbox-fs-title: var(--uv1-body-size);
   --inbox-fs-secondary: var(--uv1-body-size);
   --inbox-fs-time: 12px;
+  --inbox-tab-underline-gap: 6px;
+  --inbox-tab-list-gap: 8px;
+  --inbox-section-row-gap: 8px;
   padding-top: 0;
 }
 
 [data-universal-ui="v1.1"] .inbox-hub__tabs {
   height: 44px;
-  margin-bottom: 0;
+  margin-bottom: var(--inbox-tab-list-gap);
+  padding-bottom: 0;
 }
 
 [data-universal-ui="v1.1"] .inbox-hub__tab {
   height: 44px;
+  padding-bottom: var(--inbox-tab-underline-gap);
   font-size: var(--uv1-body-size);
   font-weight: 650;
 }
@@ -218,10 +223,10 @@
 }
 
 [data-universal-ui="v1.1"] .inbox-hub__card {
-  grid-template-columns: 44px minmax(0, 1fr) auto;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
   column-gap: 12px;
   align-items: center;
-  min-height: 68px;
+  min-height: 72px;
   padding: 12px 0;
   border: 0;
   border-bottom: 1px solid var(--uv1-border);
@@ -230,25 +235,57 @@
 }
 
 [data-universal-ui="v1.1"] .inbox-hub__thumb {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+[data-universal-ui="v1.1"] .inbox-hub__avatar-face {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px;
+  min-height: 48px;
 }
 
 [data-universal-ui="v1.1"] .inbox-hub__product-title {
-  font-size: var(--uv1-body-size);
-  font-weight: 650;
-  line-height: 20px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+[data-universal-ui="v1.1"] .inbox-hub__party-name {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 [data-universal-ui="v1.1"] .inbox-hub__preview {
-  font-size: var(--uv1-body-size);
-  font-weight: 450;
-  line-height: 20px;
+  display: none;
 }
 
 [data-universal-ui="v1.1"] .inbox-hub__card-aside {
-  min-height: 44px;
+  min-height: 0;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+[data-universal-ui="v1.1"] .inbox-hub__notif-card {
+  grid-template-columns: 48px minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--uv1-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+[data-universal-ui="v1.1"] .inbox-hub__notif-media,
+[data-universal-ui="v1.1"] .inbox-hub__notif-avatar {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px;
+  min-height: 48px;
 }
 
 [data-universal-ui="v1.1"].pd-v1 {

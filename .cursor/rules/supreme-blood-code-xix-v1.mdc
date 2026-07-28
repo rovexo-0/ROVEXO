@@ -1,0 +1,75 @@
+---
+description: Supreme Blood Code XIX — Sprint IV Wallet WAITING OWNER CERTIFICATION (not 100%/freeze)
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE XIX — SPRINT IV WALLET
+
+**STATUS: WAITING OWNER CERTIFICATION · DEVELOPMENT FREEZE · BLOOD CODE LOCKED**
+
+SSOT: `lib/supreme-blood-code-xix-v1.ts`  
+Official: `http://localhost:3000/wallet`
+
+## This does NOT mean
+
+- 100% COMPLETE  
+- PERMANENT FREEZE  
+- PRODUCTION READY  
+- NEXT SPRINT APPROVED  
+
+**It means only: WAITING OWNER CERTIFICATION.**
+
+## Allowed Wallet work only
+
+Bug fixes · UI polish · QA · Certifications · Responsive improvements · Mobile improvements
+
+## Forbidden
+
+Starting Sprint VI · Declaring Permanent Freeze · Declaring 100% Complete · Production Certification · Partial Certifications
+
+## One Wallet
+
+One implementation · one entry point = `/wallet` only
+
+## Owner must certify
+
+- **Visual** — UI · UX · Compact Premium · Mobile · Responsive  
+- **Functional** — Balance · Withdraw · Bank · Transactions · Details · Payouts · Platform fees · Navigation  
+- **Mobile** — iPhone · Safari · Scroll · Sticky · Safe areas · Touch  
+- **Localhost** — `http://localhost:3000/wallet` must PASS  
+- **Production** — Production ready · QA ready · Regression free · Owner approved  
+
+## Auto-cert chain (all required)
+
+TypeScript → ESLint → Build → Functional → Responsive → Mobile → Visual → No Regression → Automatic Certification  
+
+Without all = **PRODUCT FAIL**
+
+## Permanent freeze requires all five
+
+1. Automatic Certification PASS  
+2. Owner Certification PASS  
+3. 100% COMPLETE  
+4. Zero Regression PASS  
+5. Production Ready PASS  
+
+Then: LOCKED + 100% COMPLETE + PERMANENT FREEZE
+
+## Sprint VI
+
+Forbidden until Sprint IV is LOCKED + 100% + Owner Certified + Permanently Frozen
+
+## Live status
+
+| Sprint | Status |
+|--------|--------|
+| I–III | LOCKED |
+| IV Wallet | **LOCKED** |
+| V Sell | IN DEVELOPMENT |
+| VI–VIII | FORBIDDEN TO START |
+
+## Owner rights (absolute)
+
+Approve · Reject · Request changes · UI polish · More QA · More implementation — without limitations
+
+No compromises. No shortcuts. Only 100% + Owner certified + Production ready + Permanent freeze.

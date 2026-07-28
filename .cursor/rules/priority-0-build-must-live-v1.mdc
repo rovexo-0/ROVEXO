@@ -1,0 +1,43 @@
+---
+description: Priority 0 Build Must Live — CSS/Tailwind/layout/preview gate
+alwaysApply: true
+---
+
+# ROVEXO PRIORITY 0 — BUILD MUST LIVE
+
+**STATUS: OWNER APPROVED · PERMANENT FREEZE · NEVER REMOVE**
+
+SSOT: `lib/priority-0-build-must-live-v1.ts`  
+Parent: `lib/priority-0-v1.ts`
+
+## Absolute law
+
+If **BUILD / CSS / TAILWIND / LAYOUT / PREVIEW = FAIL** → **the product does not exist.**
+
+## Phase 1 order
+
+Build fix → `styles/rovexo/index.css` → Tailwind → PostCSS → Global CSS → Root layout → Imports → Preview → **BUILD PASS**
+
+## Required
+
+`npm run build` · `npm run typecheck` · `npm run lint` · Local preview · Owner preview — all PASS
+
+## CSS not allowed
+
+Invalid imports/variables/tokens/syntax · duplicate imports · broken Tailwind · null/empty files · invalid root variables
+
+## Fail closed
+
+Tailwind/API/data fail → `Loading interface...`  
+Image fail → placeholder  
+Preview fail → block commit/push/certification
+
+## Sprinters blocked until
+
+BUILD + CSS + PREVIEW + WHITE SCREEN + OWNER CERTIFICATION = PASS
+
+## Cursor must never
+
+- Ship with failing build/CSS/Tailwind  
+- Leave white/empty/null screens when styles fail  
+- Unlock Sprint 2 before Build Must Live + Priority 0 visual gates PASS

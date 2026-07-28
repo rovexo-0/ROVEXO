@@ -1,10 +1,11 @@
 import { readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join } from "node:path";
 import type { Recommendation } from "@/lib/super-admin/operations/types";
 
 function packageDependencies(): Record<string, string> {
   try {
-    const raw = readFileSync(join(process.cwd(), "package.json"), "utf8");
+    const raw = readFileSync(workspacePath( "package.json"), "utf8");
     const json = JSON.parse(raw) as {
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
@@ -103,7 +104,7 @@ export function buildAiRecommendations(input: {
     category: "Accessibility improvements",
     estimatedGain: "WCAG 2.2 AA compliance",
     difficulty: "low",
-    filesAffected: ["features/sell/ui/SellScreen.tsx"],
+    filesAffected: ["features/sell/ui/SellPage.tsx"],
     detail: "Verify keyboard trap-free category picker and visible focus rings.",
   });
 

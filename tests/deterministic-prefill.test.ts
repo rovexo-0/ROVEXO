@@ -16,7 +16,7 @@ describe("deterministic sell prefill", () => {
     const draft = createEmptyDraft();
     draft.title = "Tempur memory foam pillow excellent condition";
     const patch = buildDeterministicPrefill(draft);
-    expect(patch.brand).toBe("Tempur");
+    expect(patch.brand).toBeUndefined();
     expect(patch.material).toBe("Memory Foam");
     expect(patch.condition).toBe("Very Good");
   });

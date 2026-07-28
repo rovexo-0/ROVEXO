@@ -17,6 +17,7 @@ port = 54323
 
 [auth]
 enabled = true
+# Owner Auth Master Freeze v1.0 — local origin SSOT: http://localhost:3000
 site_url = "http://localhost:3000"
 additional_redirect_urls = [
   "http://localhost:3000/auth/callback",

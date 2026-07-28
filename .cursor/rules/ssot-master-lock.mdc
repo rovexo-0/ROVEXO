@@ -1,0 +1,54 @@
+---
+description: ROVEXO Single Source of Truth Master Lock — one feature, one implementation, zero duplication
+alwaysApply: true
+---
+
+# ROVEXO Single Source of Truth Master Lock
+
+**STATUS: GLOBAL | MANDATORY | ENTIRE PLATFORM**
+
+## Core policy
+
+**Everything must exist only once.**
+
+**One feature = One implementation = One source of truth.**
+
+## Forbidden
+
+- Duplicate pages
+- Duplicate components
+- Duplicate routes
+- Duplicate features
+- Duplicate database logic
+- Duplicate API logic
+- Duplicate states
+- Duplicate UI implementations
+
+## Examples
+
+**Allowed:** One Homepage · One Profile · One Settings · One Wallet · One Checkout · One Search · One Design System · One Shipping Engine · One Payment Engine
+
+**Forbidden:** `*_V2` · `*_NEW` · `*_BACKUP` · `*_BETA` · `OLD_*` · unused / legacy parallel components
+
+## Cursor must never
+
+- Create duplicate files
+- Create temporary features
+- Create unused components / routes / states
+- Create unused database structures
+
+## When improving a feature
+
+**IMPROVE → SIMPLIFY → REUSE → PRESERVE**
+
+Never: Copy → Paste → Duplicate → Rebuild
+
+## Reuse rule
+
+If an existing component can be reused, **it must be reused**.
+
+## Zero Duplication Policy
+
+One feature = One source of truth.
+
+**Owner approval required.**

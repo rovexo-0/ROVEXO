@@ -1,12 +1,20 @@
 /**
- * ROVEXO Inbox + Transaction Hub — freeze markers v1.1
- * STATUS = UI LOCK ENABLED when INBOX_HUB_CANONICAL_FROZEN === true.
+ * ROVEXO Inbox + Transaction Hub — freeze markers
+ * STATUS: MASTER IMPLEMENTATION v1.0 · PERMANENTLY LOCKED
+ * Visual tokens inherit Profile / Full Width / Purple CTA (not a redesign).
  */
 
-export const INBOX_HUB_SPEC_VERSION = "1.1" as const;
+import {
+  INBOX_HUB_MASTER_PURPLE_GRADIENT,
+  INBOX_HUB_MASTER_STATUS,
+  INBOX_HUB_MASTER_TOKENS,
+  INBOX_HUB_MASTER_VERSION,
+} from "@/lib/inbox/inbox-hub-master-v1";
 
-/** Canonical freeze — Inbox Hub + Transaction Hub v1.1 zoom-out SSOT. */
-export const INBOX_HUB_CANONICAL_STATUS = "CANONICAL_UI_LOCK_v1.1" as const;
+export const INBOX_HUB_SPEC_VERSION = INBOX_HUB_MASTER_VERSION;
+
+/** Canonical freeze — Inbox Hub = only Transaction Hub. */
+export const INBOX_HUB_CANONICAL_STATUS = INBOX_HUB_MASTER_STATUS;
 export const INBOX_HUB_CANONICAL_FROZEN = true as const;
 
 export const INBOX_HUB_ROUTES = {
@@ -20,20 +28,28 @@ export const INBOX_HUB_LEGACY_REDIRECTS = [
   "/notifications",
 ] as const;
 
-/** Visual tokens — v1.1 global zoom-out (UI only). */
+/** Visual tokens — Master Implementation v1.0 (Profile + Full Width + Purple). */
 export const INBOX_HUB_VISUAL_LOCK = {
-  headerHeightPx: 40,
-  controlSizePx: 36,
-  tabHeightPx: 34,
+  headerHeightPx: INBOX_HUB_MASTER_TOKENS.headerPx,
+  controlSizePx: 48,
+  tabHeightPx: 44,
   cardRadiusPx: 0,
-  cardPaddingPx: 5,
+  cardPaddingPx: 0,
   thumbSizePx: 0,
-  pagePadXPx: 12,
+  pagePadXPx: INBOX_HUB_MASTER_TOKENS.paddingXPx,
+  width: INBOX_HUB_MASTER_TOKENS.width,
+  maxWidth: INBOX_HUB_MASTER_TOKENS.maxWidth,
   shadow: "none",
-  purple: "#6d28d9",
+  purple: "#9333ea",
+  purpleGradient: INBOX_HUB_MASTER_PURPLE_GRADIENT,
+  primaryCtaHeightPx: INBOX_HUB_MASTER_TOKENS.primaryCtaHeightPx,
+  primaryCtaRadiusPx: INBOX_HUB_MASTER_TOKENS.primaryCtaRadiusPx,
+  primaryCtaWidth: INBOX_HUB_MASTER_TOKENS.primaryCtaWidth,
+  emptyCtaHeightPx: INBOX_HUB_MASTER_TOKENS.emptyCtaHeightPx,
+  tabSplit: INBOX_HUB_MASTER_TOKENS.tabSplit,
 } as const;
 
-/** Order progress step labels (ids unchanged; rail chrome hidden in v1.1 UI). */
+/** Order progress step labels (ids unchanged; rail chrome hidden in UI). */
 export const INBOX_CONVERSATION_STATUS_RAIL = [
   "Paid",
   "Prep",

@@ -52,7 +52,7 @@ describe("Official Listing Card — supersedes v3/v4 freeze", () => {
     const { formatCardRating, formatCardViews } = await import("@/components/ui/ListingCard");
 
     expect(formatCardRating({ rating: 4.9 })).toBe("4.9");
-    expect(formatCardRating({ rating: 0 })).toBe("—");
+    expect(formatCardRating({ rating: 0 })).toBe("0.0");
     expect(formatCardViews(235)).toBe("235");
     expect(formatCardViews(1200)).toBe("1.2K");
   });

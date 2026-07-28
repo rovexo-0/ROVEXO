@@ -1,0 +1,66 @@
+---
+description: ROVEXO Master Full Width Contract v1.1 — Profile = design system, Design Decision #001
+alwaysApply: true
+---
+
+# ROVEXO MASTER FULL WIDTH CONTRACT v1.1
+
+**STATUS: PERMANENTLY LOCKED**
+
+Applies to the **entire** Profile / Settings tree (and every menu / submenu / child page under AccountCanonicalShell) — not only Addresses, Settings, or Ideas.
+
+## DESIGN DECISION #001 (Owner APPROVED · ROVEXO v1.1)
+
+| Surface | L/R padding |
+|---------|-------------|
+| Homepage (marketing) | **24px** LOCKED |
+| Internal application | **16px** |
+
+SSOT: `lib/design-system/design-decision-001-internal-ui-v1.1.ts`
+
+## Equation
+
+```
+PROFILE = MASTER DESIGN SYSTEM
++ 100% FULL WIDTH
++ ALL MENU PAGES
++ ALL SUBMENU PAGES
+= FINAL IMPLEMENTATION
+```
+
+**P0 Design Protection Absolute v1.1:** Owner-approved design always wins. Full Width / Responsive / Adaptive (and Theme, A11y, AI, CSS overrides, hotfixes, Cursor) must **never** redesign it — only bug/perf/a11y/responsive/overflow/alignment/security/compat fixes. Same design on every device. See `design-protection-absolute-v1.mdc`.
+
+## Tokens (SSOT)
+
+| Token | Value |
+|-------|-------|
+| Header | 64px |
+| Primary button | 56px |
+| Radius | 16px |
+| Width | **100% only** |
+| Primary CTA | 100% |
+| L/R padding (internal) | **16px** |
+| L/R padding (Homepage) | **24px** |
+| Top / section spacing | 24px |
+| Input height | 56px |
+| Touch target | ≥ 44px |
+
+## Forbidden
+
+70% · 80% · 85% · 90% · 95% · centered layouts · mini cards · floating containers · secondary layouts · secondary design systems.
+
+## Required
+
+Every page / modal / sheet / form / CTA under Profile or Settings: **100% width** + inherit Profile (typography, colours, radius, paddings, spacings, shadows, icons, touch targets, responsiveness, animations, buttons, forms, headers, menu rows, separators).
+
+## Implementation
+
+- SSOT: `lib/master-engine/master-full-width-contract-v1.ts`
+- Engine CSS: `styles/rovexo/full-width-engine-v1.css`
+- Shell: `AccountCanonicalShell` stamps `data-full-width-engine` + Profile master DOM
+- Prefer `MyAccountTemplate` for surface tagging
+
+## Agent duty
+
+Scan → detect non-100% / non-Profile inheritance → **auto-fix** under this contract. No secondary design systems.
+---

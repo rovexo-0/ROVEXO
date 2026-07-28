@@ -25,6 +25,8 @@ export type CanonicalMenuRowProps = {
   comingSoon?: boolean;
   id?: string;
   className?: string;
+  /** Optional accessible name when title alone is insufficient. */
+  ariaLabel?: string;
 };
 
 function MenuRowContent({
@@ -90,6 +92,7 @@ export function CanonicalMenuRow({
   comingSoon = false,
   id,
   className,
+  ariaLabel,
 }: CanonicalMenuRowProps) {
   const { tx } = useTranslation();
   const chevronVisible = showChevron && !hideChevron;
@@ -118,14 +121,21 @@ export function CanonicalMenuRow({
 
   if (href) {
     return (
-      <Link href={href} id={id} className={rowClassName}>
+      <Link href={href} id={id} className={rowClassName} aria-label={ariaLabel}>
         {content}
       </Link>
     );
   }
 
   return (
-    <button type="button" id={id} className={rowClassName} disabled={disabled} onClick={onClick}>
+    <button
+      type="button"
+      id={id}
+      className={rowClassName}
+      disabled={disabled}
+      onClick={onClick}
+      aria-label={ariaLabel}
+    >
       {content}
     </button>
   );

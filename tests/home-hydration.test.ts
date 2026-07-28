@@ -26,16 +26,15 @@ describe("Home page hydration safety", () => {
 
   it("keeps HomepageSearchField hydration-safe with stable SSR markup", () => {
     const search = readSource("components/home/HomepageSearchField.tsx");
-    const hydratedHook = readSource("lib/react/use-client-hydrated.ts");
 
-    expect(search).toContain("useClientHydrated");
-    expect(hydratedHook).toContain("useSyncExternalStore");
+    expect(search).not.toContain("useClientHydrated");
     expect(search).not.toContain("Date.now()");
     expect(search).not.toContain("Math.random()");
     expect(search).not.toContain("crypto.randomUUID");
     expect(search).not.toContain("typeof window");
     expect(search).toContain('inputId: string');
-    expect(search).toContain('role={hydrated ? "combobox" : "searchbox"}');
+    expect(search).toContain('role="searchbox"');
+    expect(search).not.toContain('role={hydrated');
   });
 
   it("formats listing prices with a stable locale during SSR", () => {

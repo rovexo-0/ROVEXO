@@ -1,75 +1,59 @@
-# Settings module v1.0 — Freeze
+# Settings module v1.0 — Permanent Lock
 
 | Field | Value |
 |-------|-------|
 | Module | Settings |
 | Version | v1.0 |
-| STATUS | **FROZEN** |
-| Canonical status | `CANONICAL_FROZEN_v1.0` |
+| STATUS | **PERMANENT LOCK · UI/UX APPROVED · PRODUCTION READY** |
+| Canonical status | `PERMANENT_LOCK_v1.0_APPROVED` |
 | Freeze constant | `SETTINGS_STATUS` / `SETTINGS_CANONICAL_FROZEN = true` |
 | Spec | `docs/modules/settings/SETTINGS_SPECIFICATION.md` |
+| Permanent lock | `docs/modules/account/SETTINGS_V1_PERMANENT_LOCK.md` |
 | Freeze module | `lib/settings/freeze.ts` |
 | Guard test | `tests/settings-freeze.test.ts` |
-| Freeze date | **2026-07-14** |
+| Lock date | **2026-07-20** |
+
+## Master rule
+
+PROFILE PAGE = MASTER PAGE + SETTINGS v1.0 = PROFILE DESIGN + DIFFERENT CONTENT.  
+**ONLY CONTENT MAY DIFFER. DESIGN NEVER DOES.**
 
 ## Approved reference
 
-Authoritative live preview (develop):
+http://localhost:3010/account/settings
 
-- https://rovexo-git-develop-rovexo.vercel.app/account/settings
-
-Current Settings hub UI and inventory are approved exactly as deployed. **No pixel may change under Settings v1.0.**
-
-## Frozen implementation surfaces
+## Locked implementation surfaces
 
 | Layer | Path / component |
 |-------|------------------|
 | Route | `/account/settings` |
 | Hub | `SettingsV1` |
+| Template | `MyAccountTemplate` (inherits Profile) |
 | Menu | `SettingsMenuSections` + `lib/account-center/settings-menu.ts` |
-| Icons | `SettingsMenuIconGlyph` |
-| Danger | `DeleteAccountFlow` + Sign Out row |
-| Shell | `AccountCanonicalShell` (`showHeaderTitle`, intro frozen) |
+| Icons | `SettingsMenuIconGlyph` → `AccountIcon` |
+| Danger | `DeleteAccountFlow` (DANGER ZONE) |
+| Shell | `MyAccountTemplate` → `AccountCanonicalShell` |
 | Styles | `styles/rovexo/account-settings-canonical.css` |
-| DOM | `data-settings-canonical="v1.0"` |
+| DOM | `data-settings-canonical="v1.0"` · `data-settings-lock="permanent"` |
 
 ## Approved inventory (exact)
 
-**ACCOUNT** · Profile · Addresses · Payment Methods · Notifications  
+**ACCOUNT** · Personal Information · Addresses · Notifications  
 
-**SECURITY** · Privacy & Security · Connected Accounts · Devices & Sessions · Blocked Users  
+**SECURITY** · Privacy · Security · Verification  
 
-**MARKETPLACE** · Business Verification · Seller Performance · Promotion Tools · Wallet  
+**PREFERENCES** · Currency  
 
-**PREFERENCES** · Preferences · Language & Currency · Accessibility  
+**DANGER ZONE** · Delete Account  
 
-**LEGAL** · Terms & Policies · About ROVEXO  
+Sign Out lives on Profile only. Language removed (English UK only).
 
-**DANGER ZONE** · Sign Out · Delete Account  
+## Freeze rules
 
-## Rules for future development
-
-### Allowed under Settings v1.0
-
-- Bug fixes that restore the approved structure without changing layout, spacing, typography, icons, colours, cards, buttons, header, navigation, or inventory
-- Crash / load fixes that preserve visual and functional parity
-
-### Prohibited under Settings v1.0
-
-- Redesign, simplify, rebuild, or restyle the Settings hub
-- Add / remove / reorder menu rows or sections
-- Spacing, padding, margin, typography, icon, colour, card, or button changes
-- Navigation, scroll, animation, or localization behaviour changes on this hub
-- Touching Home, Browse, Sell, Inbox, My Account, Wallet, Orders, Language engine, APIs, DB, or routing as part of Settings v1.0 work
-
-### Required for new Settings work
-
-- Ship as **Settings v1.1**, **v1.2**, or **v2.0** with an explicit version bump
-- Never mutate frozen Settings v1.0 (`CANONICAL_FROZEN_v1.0`) in place
-
-## Versioning
+- Never mutate Settings v1.0 inventory or design without Owner approval
+- Future modules inherit Master Page / Template / Icon / Color / Typography / Components / Full Width
+- Status remains `PERMANENT_LOCK_v1.0_APPROVED` until Owner advances version
 
 | Version | Status |
 |---------|--------|
-| Settings v1.0 | `CANONICAL_FROZEN_v1.0` — current approved production |
-| Settings v1.1+ | Future work only |
+| Settings v1.0 | `PERMANENT_LOCK_v1.0_APPROVED` — Owner approved production |

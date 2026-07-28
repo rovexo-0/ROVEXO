@@ -5,6 +5,7 @@ export async function revalidatePromotionSurfaces(): Promise<void> {
   const paths = [
     "/",
     "/search",
+    "/promote",
     "/account/promotion-tools",
     "/seller/listings",
     "/account",

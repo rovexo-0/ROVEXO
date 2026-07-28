@@ -15,82 +15,78 @@ import {
 } from "@/lib/categories/taxonomy-validation-report";
 import {
   loadCategoryScopedTaxonomy,
-  excludesElectronicsBrands,
 } from "@/lib/category-loaders";
 import { getProductFamiliesForGroup } from "@/lib/product-types";
 import { MARKETPLACE_COLOURS } from "@/lib/colours";
 import { MARKETPLACE_BRANDS } from "@/lib/brands";
 import { validateBrand, validateMaterial, validateColour } from "@/lib/categories/taxonomy-engine";
+import { CATALOG_NO_BRAND } from "@/lib/catalog";
 
-describe("enterprise canonical taxonomy v1.0", () => {
+describe("Catalog Master taxonomy v1.0", () => {
   it("passes structural validation", () => {
     const report = validateMarketplaceTaxonomy();
     expect(report.valid, report.issues.map((i) => i.message).join("; ")).toBe(true);
   });
 
-  it("meets enterprise scale targets", () => {
-    expect(PRODUCT_TYPE_COUNT).toBeGreaterThanOrEqual(10_000);
-    expect(BRAND_COUNT).toBeGreaterThanOrEqual(2_000);
-    expect(MATERIAL_COUNT).toBeGreaterThanOrEqual(800);
-    expect(COLOUR_COUNT).toBeGreaterThanOrEqual(200);
+  it("meets Catalog Master scale targets", () => {
+    expect(PRODUCT_TYPE_COUNT).toBeGreaterThanOrEqual(100);
+    expect(BRAND_COUNT).toBeGreaterThanOrEqual(50);
+    expect(MATERIAL_COUNT).toBeGreaterThanOrEqual(20);
+    expect(COLOUR_COUNT).toBeGreaterThanOrEqual(12);
+    expect(COLOUR_COUNT).toBeLessThanOrEqual(24);
   });
 
-  it("supports 4-level bedding pillow paths", () => {
-    const memoryFoam = resolveCategoryPathBySlugs([
-      "home-garden", "bedding", "pillows", "memory-foam-pillow",
-    ]);
-    expect(memoryFoam?.segments.length).toBe(4);
-    expect(memoryFoam?.pathLabel).toContain("Memory Foam Pillow");
+  it("supports bedding pillow paths", () => {
+    const pillows = resolveCategoryPathBySlugs(["home-garden", "bedding", "pillows"]);
+    expect(pillows?.segments.length).toBe(3);
+    expect(pillows?.pathLabel).toContain("Pillows");
   });
 
-  it("has massive pillow product families from registry", () => {
-    const families = getProductFamiliesForGroup("pillows");
-    expect(families.length).toBeGreaterThanOrEqual(30);
-    expect(families.map(([, slug]) => slug)).toContain("memory-foam-pillow");
-    expect(families.map(([, slug]) => slug)).toContain("travel-pillow");
+  it("exposes bedding product types from Catalog Master", () => {
+    const families = getProductFamiliesForGroup("bedding");
+    expect(families.map(([, slug]) => slug)).toContain("pillows");
+    expect(families.map(([, slug]) => slug)).toContain("duvets");
   });
 
-  it("loads category-scoped brands for pillows (no electronics)", () => {
-    const pillowPath = resolveCategoryPathBySlugs([
-      "home-garden", "bedding", "pillows", "memory-foam-pillow",
-    ]);
+  it("loads category-scoped brands for pillows", () => {
+    const pillowPath = resolveCategoryPathBySlugs(["home-garden", "bedding", "pillows"]);
     const scoped = loadCategoryScopedTaxonomy(pillowPath);
-    expect(scoped!.brands).toContain("Tempur");
-    expect(scoped!.brands).not.toContain("Apple");
-    expect(excludesElectronicsBrands(pillowPath)).toBe(true);
+    expect(scoped!.brands).toContain(CATALOG_NO_BRAND);
+    expect(scoped!.brands).toContain("IKEA");
   });
 
   it("loads category-scoped materials for pillows", () => {
-    const pillowPath = resolveCategoryPathBySlugs([
-      "home-garden", "bedding", "pillows", "memory-foam-pillow",
-    ]);
+    const pillowPath = resolveCategoryPathBySlugs(["home-garden", "bedding", "pillows"]);
     const scoped = loadCategoryScopedTaxonomy(pillowPath);
-    expect(scoped!.materials).toContain("Memory Foam");
-    expect(scoped!.materials).not.toContain("ABS");
+    expect(scoped!.materials).toContain("Memory foam");
   });
 
-  it("loads electronics brands for phones only", () => {
-    const phonePath = resolveCategoryPathBySlugs(["phones", "smartphones", "apple-iphone"]);
+  it("loads electronics brands for phones", () => {
+    const phonePath = resolveCategoryPathBySlugs([
+      "electronics",
+      "phones-tablets",
+      "smartphones",
+    ]);
     const scoped = loadCategoryScopedTaxonomy(phonePath);
     expect(scoped!.brands).toContain("Apple");
     expect(scoped!.brands).toContain("Samsung");
   });
 
-  it("has premium 200+ colour palette with rgb", () => {
-    expect(MARKETPLACE_COLOURS.length).toBeGreaterThanOrEqual(200);
+  it("has compact colour palette with rgb", () => {
+    expect(MARKETPLACE_COLOURS.length).toBeLessThanOrEqual(24);
     const white = MARKETPLACE_COLOURS.find((c) => c.id === "White");
     expect(white?.rgb).toMatch(/^rgb\(/);
     expect(white?.slug).toBe("white");
   });
 
-  it("validates brand material colour against canonical database", () => {
+  it("validates brand material colour against Catalog Master", () => {
     expect(validateBrand("Apple")).toBe(true);
     expect(validateBrand("FakeBrandXYZ")).toBe(false);
-    expect(validateMaterial("Memory Foam")).toBe(true);
-    expect(validateColour("Navy")).toBe(true);
+    expect(validateMaterial("Memory foam")).toBe(true);
+    expect(validateColour("Blue")).toBe(true);
   });
 
-  it("generates validation report with all targets met", () => {
+  it("generates validation report with Catalog Master targets met", () => {
     const report = generateCanonicalTaxonomyReport();
     expect(report.valid).toBe(true);
     expect(report.targets.productTypes.met).toBe(true);
@@ -100,16 +96,16 @@ describe("enterprise canonical taxonomy v1.0", () => {
     expect(report.lazyLoadingEnabled).toBe(true);
 
     const formatted = formatCanonicalTaxonomyReport(report);
-    expect(formatted).toContain("Enterprise Taxonomy");
+    expect(formatted).toContain("Catalog Master");
   });
 
   it("has no duplicate brands", () => {
     expect(new Set(MARKETPLACE_BRANDS).size).toBe(MARKETPLACE_BRANDS.length);
   });
 
-  it("increased taxonomy tree scale", () => {
-    expect(taxonomyStats.roots).toBeGreaterThanOrEqual(50);
-    expect(taxonomyStats.leaves).toBeGreaterThan(1000);
-    expect(categoryTree.length).toBeGreaterThanOrEqual(50);
+  it("uses ten-root Catalog Master tree", () => {
+    expect(taxonomyStats.roots).toBe(10);
+    expect(taxonomyStats.leaves).toBeGreaterThanOrEqual(100);
+    expect(categoryTree).toHaveLength(10);
   });
 });

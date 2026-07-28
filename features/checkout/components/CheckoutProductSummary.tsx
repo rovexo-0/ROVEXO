@@ -12,7 +12,7 @@ type CheckoutProductSummaryProps = {
   product: ProductDetail;
 };
 
-/** Compact product summary card — Sprint 1 foundation. */
+/** Compact product summary — Blood Compact UI (~70px). */
 export function CheckoutProductSummary({ product }: CheckoutProductSummaryProps) {
   const imageSrc = isRenderableImageSrc(product.imageUrl)
     ? product.imageUrl
@@ -25,11 +25,10 @@ export function CheckoutProductSummary({ product }: CheckoutProductSummaryProps)
       aria-label={`${product.title}. Open listing.`}
     >
       <span className="ckt-v1__product-media">
-        <SafeImage src={imageSrc} alt="" fill className="object-cover" sizes="72px" />
+        <SafeImage src={imageSrc} alt="" fill className="object-cover" sizes="64px" />
       </span>
       <span className="ckt-v1__product-copy">
         <span className="ckt-v1__product-title">{product.title}</span>
-        {product.brand ? <span className="ckt-v1__product-meta">{product.brand}</span> : null}
         {product.condition ? (
           <span className="ckt-v1__product-meta">{normalizeCondition(product.condition)}</span>
         ) : null}
@@ -43,8 +42,8 @@ export function CheckoutProductSummary({ product }: CheckoutProductSummaryProps)
           />
           <span className="ckt-v1__product-seller-name">{product.sellerName}</span>
         </span>
+        <span className="ckt-v1__product-price">{formatListingPrice(product.price)}</span>
       </span>
-      <span className="ckt-v1__product-price">{formatListingPrice(product.price)}</span>
     </Link>
   );
 }

@@ -180,6 +180,9 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     isBumped: isPromotionActive(row.bumped_until),
     categoryId: row.category_id ?? null,
     transactionMode,
+    freeDelivery: row.shipping_price === 0,
+    shippingPrice: row.shipping_price != null ? Number(row.shipping_price) : null,
+    stock: Number(row.stock ?? 0),
   };
 }
 
@@ -197,6 +200,7 @@ export async function getRecentPublishedListings(limit = 8): Promise<Product[]> 
     .from("products")
     .select(PRODUCT_LIST_SELECT)
     .eq("status", "published")
+    .eq("is_demo", false)
     .order("created_at", { ascending: false })
     .limit(Math.max(1, limit));
 
@@ -359,10 +363,17 @@ async function moveImageToProductFolder(
   // Only remove the temp sources now that the destination is confirmed present.
   await supabase.storage.from("products").remove([image.storagePath, oldThumbPath]).catch(() => undefined);
 
+  // Never persist a dangling -thumb URL when the thumb object was not created
+  // (e.g. API/e2e uploads that only provide the full JPEG). Cards must point
+  // at an object that exists — Gate 3 / SafeImage still soft-fail, but feed
+  // must not emit guaranteed 400s.
+  const thumbExists = await storageObjectExists(supabase, newThumbPath);
+  const publicUrl = getPublicStorageUrl("products", newPath);
+
   return {
     ...image,
-    url: getPublicStorageUrl("products", newPath),
-    thumbnailUrl: getPublicStorageUrl("products", newThumbPath),
+    url: publicUrl,
+    thumbnailUrl: thumbExists ? getPublicStorageUrl("products", newThumbPath) : publicUrl,
     storagePath: newPath,
   };
 }
@@ -869,7 +880,8 @@ export async function searchListings(
       `*, profiles!products_seller_id_fkey ( full_name, avatar_url, verified, username, email, account_status, role ), product_images (*), brands ( name )`,
       { count: "exact" },
     )
-    .eq("status", "published");
+    .eq("status", "published")
+    .eq("is_demo", false);
 
   if (options.query?.trim()) {
     const term = options.query.trim();

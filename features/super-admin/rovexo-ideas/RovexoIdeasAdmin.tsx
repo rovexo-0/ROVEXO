@@ -61,7 +61,7 @@ export function RovexoIdeasAdmin({ initialIdeas }: RovexoIdeasAdminProps) {
   return (
     <EnterpriseAdminShell
       moduleId="rovexo-ideas"
-      eyebrow="ROVEXO Ideas"
+      eyebrow="Rovexo Ideas"
       title="User suggestions"
       description="Private user suggestions — search, filter, and update status."
       stateTabs={[{ id: "suggestions", label: "Suggestions" }]}

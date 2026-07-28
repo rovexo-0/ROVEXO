@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
+import { StoreUnavailablePage } from "@/components/store/StoreUnavailablePage";
 import { ProductDetailPage } from "@/features/product-detail/ProductDetailPage";
 import { fetchProductBySlug, fetchSimilarProducts } from "@/lib/products/queries";
 import { getCategoryBreadcrumbsForProduct } from "@/lib/categories/server";
 import { productPageMetadata } from "@/lib/seo/engine";
 import { productJsonLd } from "@/lib/seo/json-ld";
+import { STORE_UNAVAILABLE_COPY } from "@/lib/homepage/homepage-final-freeze-v1";
+import { isForbiddenMarketplaceSlug } from "@/lib/listings/forbidden-marketplace-inventory";
 
 type ListingPageProps = {
   params: Promise<{ slug: string }>;
@@ -17,7 +20,10 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   const product = await fetchProductBySlug(slug);
 
   if (!product) {
-    return { title: "Listing not found · ROVEXO", robots: { index: false, follow: false } };
+    return {
+      title: `${STORE_UNAVAILABLE_COPY.title} · ROVEXO`,
+      robots: { index: false, follow: false },
+    };
   }
 
   return productPageMetadata({
@@ -36,7 +42,11 @@ export default async function ListingPage({ params }: ListingPageProps) {
   ]);
 
   if (!product) {
-    notFound();
+    // Owner cleanup: old RUN4 / certification URLs redirect safely to Home.
+    if (isForbiddenMarketplaceSlug(slug)) {
+      redirect("/");
+    }
+    return <StoreUnavailablePage kind="listing" />;
   }
 
   if (product.listingType === "auction") {

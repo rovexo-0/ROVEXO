@@ -1,0 +1,96 @@
+/* Canonical RX 3D Splash visual — animated purple neon glow (PWA / launch) */
+
+.rx3d-splash {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 100dvh;
+  min-height: 100%;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 70%, rgb(124 58 237 / 0.35), transparent 70%),
+    radial-gradient(ellipse 100% 100% at 50% 0%, #1a0b2e 0%, #050508 55%, #000 100%);
+  overflow: hidden;
+}
+
+.rx3d-splash__glow {
+  position: absolute;
+  inset: 20% 10% auto;
+  height: 55%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(168 85 247 / 0.45), transparent 68%);
+  filter: blur(28px);
+  pointer-events: none;
+  animation: rx3d-splash-glow 7s ease-in-out infinite;
+}
+
+.rx3d-splash__logo {
+  position: relative;
+  z-index: 1;
+  width: min(62vw, 280px);
+  max-width: 280px;
+  filter: none;
+  animation: rx3d-splash-sheen 8s ease-in-out infinite;
+}
+
+.rx3d-splash__logo .rovexo-brand-logo {
+  width: 100%;
+}
+
+.rx3d-splash__logo .rovexo-brand-logo__tagline {
+  font-size: 0.875rem;
+  letter-spacing: 0.22em;
+}
+
+.rx3d-splash__logo .rovexo-brand-logo__buy,
+.rx3d-splash__logo .rovexo-brand-logo__grow {
+  color: #f4f4f8;
+  -webkit-text-fill-color: #f4f4f8;
+  background: none;
+  text-shadow: 0 0 12px rgb(255 255 255 / 0.35);
+}
+
+.rx3d-splash__logo .rovexo-brand-logo__sell {
+  color: #c084fc;
+  -webkit-text-fill-color: #c084fc;
+  background: none;
+  text-shadow: 0 0 14px rgb(168 85 247 / 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx3d-splash__logo {
+    animation: none;
+  }
+}
+
+@keyframes rx3d-splash-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes rx3d-splash-sheen {
+  0%,
+  100% {
+    opacity: 0.96;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx3d-splash__glow,
+  .rx3d-splash__logo {
+    animation: none;
+  }
+}

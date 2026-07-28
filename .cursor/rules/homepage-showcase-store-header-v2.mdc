@@ -1,0 +1,17 @@
+---
+description: Showcase Store Header — Follow 4 states per Homepage CEO Final Lock.
+alwaysApply: false
+globs:
+  - components/homepage/canonical/featured-store/**
+  - features/launch/components/FollowSellerButton.tsx
+---
+
+# Showcase Store Header v2.0 (under CEO Final Lock)
+
+Keep only: Avatar · Store Name · Rating · Joined date · FOLLOW button.
+
+- Visit Store removed — identity opens seller store.
+- Follow states only: `FOLLOW` → `(...)` → `FOLLOWING ✓` → `UNFOLLOW`
+- Do not redesign cards or Showcase layout.
+
+**Canonical:** `.cursor/rules/homepage-ceo-final-lock-v1.mdc`

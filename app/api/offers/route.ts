@@ -3,8 +3,13 @@ import { z } from "zod";
 import { requireAuthContext } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { detectSelfOffer } from "@/lib/trust/anti-fraud";
+import { isSelfPurchaseBlocked } from "@/lib/checkout/self-purchase-absolute-law-v1";
 import { emitSmartNotification } from "@/lib/notifications/events";
 import { transactionHubInboxHref } from "@/lib/transaction-hub/inbox-routes";
+import {
+  parseCounterOfferMessageMeta,
+  resolveOfferFromRole,
+} from "@/lib/offers/counter-offer-engine-v1";
 
 const createOfferSchema = z.object({
   productSlug: z.string().min(1),
@@ -39,6 +44,7 @@ export async function GET(request: Request) {
       offers: (offers ?? []).map((offer) => {
         const product = offer.products as { title?: string } | { title?: string }[] | null;
         const productTitle = Array.isArray(product) ? product[0]?.title : product?.title;
+        const meta = parseCounterOfferMessageMeta(offer.message);
         return {
           id: offer.id,
           amount: Number(offer.amount),
@@ -48,6 +54,11 @@ export async function GET(request: Request) {
           sellerId: offer.seller_id,
           message: offer.message,
           productTitle: productTitle ?? "Offer",
+          fromRole: resolveOfferFromRole({
+            buyerId: offer.buyer_id,
+            message: offer.message,
+          }),
+          parentOfferId: meta.parentOfferId,
         };
       }),
     });
@@ -75,15 +86,23 @@ export async function GET(request: Request) {
     .order("created_at", { ascending: true });
 
   return NextResponse.json({
-    offers: (offers ?? []).map((offer) => ({
-      id: offer.id,
-      amount: Number(offer.amount),
-      status: offer.status,
-      createdAt: offer.created_at,
-      buyerId: offer.buyer_id,
-      sellerId: offer.seller_id,
-      message: offer.message,
-    })),
+    offers: (offers ?? []).map((offer) => {
+      const meta = parseCounterOfferMessageMeta(offer.message);
+      return {
+        id: offer.id,
+        amount: Number(offer.amount),
+        status: offer.status,
+        createdAt: offer.created_at,
+        buyerId: offer.buyer_id,
+        sellerId: offer.seller_id,
+        message: offer.message,
+        fromRole: resolveOfferFromRole({
+          buyerId: offer.buyer_id,
+          message: offer.message,
+        }),
+        parentOfferId: meta.parentOfferId,
+      };
+    }),
   });
 }
 
@@ -105,7 +124,9 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   const { data: product } = await supabase
     .from("products")
-    .select("id, slug, title, price, status, accept_offers, seller_id")
+    .select(
+      "id, slug, title, price, status, accept_offers, seller_id, product_images ( url, is_primary, sort_order )",
+    )
     .eq("slug", parsed.data.productSlug)
     .maybeSingle();
 
@@ -117,7 +138,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "This listing does not accept offers." }, { status: 400 });
   }
 
-  if (product.seller_id === user.id) {
+  if (
+    isSelfPurchaseBlocked({
+      currentUserId: user.id,
+      listingOwnerId: product.seller_id,
+    })
+  ) {
     return NextResponse.json({ success: false, error: "You cannot offer on your own listing." }, { status: 403 });
   }
 
@@ -150,14 +176,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "Unable to submit offer." }, { status: 500 });
   }
 
+  const images = (
+    product as {
+      product_images?: Array<{ url: string; is_primary: boolean | null; sort_order: number | null }>;
+    }
+  ).product_images;
+  const productImageUrl = [...(images ?? [])].sort(
+    (a, b) => Number(b.is_primary) - Number(a.is_primary) || (a.sort_order ?? 0) - (b.sort_order ?? 0),
+  )[0]?.url;
+
   void emitSmartNotification({
     userId: product.seller_id,
     eventType: "new_offer",
     idempotencyKey: `offer:${offer.id}`,
     notificationType: "offer",
-    title: "New offer received",
-    subtitle: `You received an offer on ${product.title}.`,
+    title: "Offer received",
+    subtitle: `Buyer offered £${parsed.data.amount.toFixed(2)}`,
+    detail: product.title,
     href: transactionHubInboxHref(parsed.data.conversationId),
+    avatarUrl: productImageUrl,
+    avatarName: product.title,
     payload: {
       offerId: offer.id,
       productSlug: product.slug,

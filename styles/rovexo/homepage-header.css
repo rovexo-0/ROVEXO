@@ -31,7 +31,7 @@
   width: 100%;
   max-width: 100%;
   margin-inline: 0;
-  padding-inline: var(--rx-phone-inset-x, 16px);
+  padding-inline: var(--homepage-pad-x, 24px);
 }
 
 .homepage-header__row {

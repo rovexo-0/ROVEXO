@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import path from "node:path";
 import { MARKETPLACE_CONSISTENCY_DOMAINS, MARKETPLACE_CONSISTENCY_DIMENSIONS } from "@/lib/enterprise-marketplace-completion-engine/registry";
 import type {
@@ -16,7 +17,7 @@ function labelize(value: string): string {
 }
 
 function fileExists(relativePath: string): boolean {
-  return existsSync(path.join(process.cwd(), relativePath));
+  return existsSync(workspacePath( relativePath));
 }
 
 const DOMAIN_REFS: Record<(typeof MARKETPLACE_CONSISTENCY_DOMAINS)[number], string[]> = {

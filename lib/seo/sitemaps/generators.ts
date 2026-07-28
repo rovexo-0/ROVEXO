@@ -61,6 +61,7 @@ export async function buildProductSitemapEntries(limit = 5000): Promise<Metadata
       .from("products")
       .select("slug, updated_at")
       .eq("status", "published")
+      .eq("is_demo", false)
       .order("updated_at", { ascending: false })
       .limit(limit);
 

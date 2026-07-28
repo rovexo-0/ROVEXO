@@ -61,7 +61,7 @@ describe("ROVEXO Full Demo Certification Mode", () => {
     expect(FULL_DEMO_VERSION).toBe("v1.0");
     expect(FULL_DEMO_ACCOUNTS).toHaveLength(2);
     expect(FULL_DEMO_VIRTUAL_FUNDS_GBP).toBe(50_000);
-    expect(FULL_DEMO_PRODUCT_TARGET).toBeGreaterThanOrEqual(100);
+    expect(FULL_DEMO_PRODUCT_TARGET).toBe(0);
     expect(FULL_DEMO_PERMANENCE_CONTRACT.neverDelete).toBe(true);
     expect(FULL_DEMO_PERMANENCE_CONTRACT.neverExpire).toBe(true);
     expect(FULL_DEMO_PERMANENCE_CONTRACT.neverDisable).toBe(true);
@@ -92,7 +92,7 @@ describe("ROVEXO Full Demo Certification Mode", () => {
     });
     expect(FULL_DEMO_SELLER_QUOTAS).toMatchObject({
       virtualBalanceGbp: 50_000,
-      products: 100,
+      products: 0,
       completedSales: 100,
       cancelledSales: 50,
       refundedSales: 50,
@@ -188,7 +188,9 @@ describe("ROVEXO Full Demo Certification Mode", () => {
     expect(readSource("lib/account/delete-account.ts")).toContain("assertFullDemoNotDeletable");
     expect(readSource("scripts/marketplace-reset.ts")).toContain("isFullDemoProtectedSlug");
     expect(readSource("scripts/closed-beta-cleanup.mjs")).toContain("isFullDemoEmail");
-    expect(readSource("lib/homepage/demo-cleanup.ts")).toContain("isFullDemoProtectedSlug");
+    // Absolute Law v5.0: demo-cleanup pauses fake/demo listings (never preserves seeded catalogue).
+    expect(readSource("lib/homepage/demo-cleanup.ts")).toContain("Absolute Law v5.0");
+    expect(readSource("lib/homepage/demo-cleanup.ts")).toContain("isForbiddenInventorySlug");
     expect(() =>
       assertFullDemoActionAllowed("demo.seller@rovexo.co.uk", "suspend"),
     ).toThrow(FullDemoPermanenceError);
@@ -208,8 +210,9 @@ describe("ROVEXO Full Demo Certification Mode", () => {
       "mfaVerified !== true",
     );
     // Auto-verified sync must never unverify permanent certification accounts.
-    expect(readSource("lib/profile/auto-verified.ts")).toContain("isFullDemoEmail");
-    expect(readSource("lib/profile/auto-verified.ts")).toContain("verified: true");
+    expect(readSource("lib/profile/auto-verified.ts")).toContain("recalculateRovexoVerified");
+    expect(readSource("lib/verified/recalculate.ts")).toContain("isFullDemoEmail");
+    expect(readSource("lib/verified/recalculate.ts")).toContain("verified: true");
     expect(readSource("lib/demo-environment/users.ts")).toContain(
       "must remain verified and active after seed",
     );

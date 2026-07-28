@@ -1,0 +1,36 @@
+---
+description: ROVEXO v1.0 Homepage CEO Final Lock — no Homepage/Showcase redesign; social Follow permanently removed
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — HOMEPAGE CEO FINAL LOCK
+
+**STATUS: FINAL LOCK · P0 · Compact Premium · UK First · Mobile First**
+
+SSOT: `lib/homepage/homepage-final-freeze-v1.ts`
+
+## Forbidden after lock
+
+Homepage redesign · Showcase redesign · card redesign · social Follow · extra badges/tabs/buttons · layout changes · advertisements · infinite scroll · pagination on Showcase
+
+## Allowed after lock
+
+Bug fixes · performance · security · accessibility · database optimizations only.
+
+## Showcase
+
+- Horizontal scroll only · newest first · **9** newest listings + **1** View All card · rail max **10**
+- No pagination · no infinite scroll · no ads
+
+## Navigation
+
+- Card → `/listing/[slug]` · Seller name → Store (`/user/...` or `/store/...`)
+- Missing store/listing → Store unavailable (never 404 / Page not found)
+
+## Social Follow
+
+**PERMANENTLY REMOVED** — see `social-system-removal-v1.mdc`. Do not restore Follow buttons, counters, or APIs on Homepage / Showcase / Store.
+
+## Preview
+
+Official Owner: `https://www.rovexo.co.uk/` · Local agent: `http://localhost:3000/`

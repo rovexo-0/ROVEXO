@@ -97,7 +97,7 @@ export function generateCanonicalTaxonomyReport(): CanonicalTaxonomyReport {
     version: "1.0",
     generatedAt: new Date().toISOString(),
     valid: validation.valid,
-    ssotPath: "lib/brands|lib/materials|lib/colours|lib/product-types|lib/category-loaders|lib/categories",
+    ssotPath: "lib/catalog (Catalog Master v1.0)",
     counts: {
       categories: taxonomyStats.roots,
       subcategories: hierarchy.subcategories,
@@ -121,10 +121,11 @@ export function generateCanonicalTaxonomyReport(): CanonicalTaxonomyReport {
     lazyLoadingEnabled: true,
     zeroDuplicates: validation.valid,
     targets: {
-      productTypes: { target: 10_000, met: PRODUCT_TYPE_COUNT >= 10_000 },
-      brands: { target: 2_000, met: BRAND_COUNT >= 2_000 },
-      materials: { target: 800, met: MATERIAL_COUNT >= 800 },
-      colours: { target: 200, met: COLOUR_COUNT >= 200 },
+      /** Catalog Master: courier-safe essential product types (not mega-dump). */
+      productTypes: { target: 100, met: PRODUCT_TYPE_COUNT >= 100 },
+      brands: { target: 50, met: BRAND_COUNT >= 50 },
+      materials: { target: 20, met: MATERIAL_COUNT >= 20 },
+      colours: { target: 12, met: COLOUR_COUNT >= 12 && COLOUR_COUNT <= 24 },
     },
   };
 }
@@ -133,7 +134,7 @@ export function formatCanonicalTaxonomyReport(report: CanonicalTaxonomyReport): 
   const { counts, targets } = report;
   const status = (met: boolean) => (met ? "✅" : "❌");
   return [
-    "ROVEXO Enterprise Taxonomy — Validation Report",
+    "ROVEXO Catalog Master — Validation Report",
     "═".repeat(52),
     `SSOT: ${report.ssotPath}`,
     `Valid: ${report.valid ? "✅ YES" : "❌ NO"}`,

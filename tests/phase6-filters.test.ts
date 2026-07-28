@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { getFiltersForCategorySlug, getAllFilterGroupSlugs } from "@/lib/categories/filters";
 
 describe("category filters", () => {
-  it("provides vehicle-specific filters", () => {
-    const filters = getFiltersForCategorySlug("vehicles");
+  it("provides vehicle-parts filters (courier shippable)", () => {
+    const filters = getFiltersForCategorySlug("vehicle-parts");
     expect(filters.some((filter) => filter.key === "make")).toBe(true);
-    expect(filters.some((filter) => filter.key === "mileage")).toBe(true);
+    expect(filters.some((filter) => filter.key === "mileage")).toBe(false);
   });
 
   it("provides bedding size filters", () => {
@@ -18,10 +18,19 @@ describe("category filters", () => {
     expect(filters.some((filter) => filter.key === "condition")).toBe(true);
   });
 
-  it("covers enterprise top-level slugs", () => {
+  it("covers Catalog Master filter group slugs", () => {
     const slugs = getAllFilterGroupSlugs();
-    for (const slug of ["travel", "events", "free-stuff", "everything-else"]) {
+    for (const slug of [
+      "electronics",
+      "home-garden",
+      "womens-fashion",
+      "vehicle-parts",
+      "books",
+    ]) {
       expect(slugs).toContain(slug);
+    }
+    for (const forbidden of ["vehicles", "property", "jobs", "services"]) {
+      expect(slugs).not.toContain(forbidden);
     }
   });
 });

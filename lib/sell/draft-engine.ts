@@ -4,7 +4,6 @@ import {
   clearSellDraft,
   loadSellDraft,
   loadUploadSessionId,
-  saveUploadSessionId,
 } from "@/lib/sell/draft-storage";
 import { persistSellDraftSnapshot } from "@/lib/sell/persist-sell-draft";
 import { inferUserModifiedFromDraft } from "@/lib/sell/suggestion-field-lock";

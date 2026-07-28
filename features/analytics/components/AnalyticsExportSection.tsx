@@ -125,7 +125,6 @@ export function buildSellerExportExtras(data: SellerAnalyticsData): string[][] {
     ...data.trafficSources.map((segment) => [segment.label, segment.value.toString()]),
     [],
     ["Recent Activity", "Count"],
-    ["New Followers", data.recentActivity.followers.toString()],
     ["New Reviews", data.recentActivity.reviews.toString()],
     ["New Saves", data.recentActivity.saves.toString()],
   ];

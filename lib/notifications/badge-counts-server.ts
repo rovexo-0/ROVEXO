@@ -23,7 +23,8 @@ export async function getUnreadNotificationCount(userId: string): Promise<number
     .from("notifications")
     .select("*", { count: "exact", head: true })
     .eq("user_id", userId)
-    .eq("read", false);
+    .eq("read", false)
+    .neq("type", "message");
 
   return count ?? 0;
 }
@@ -36,7 +37,7 @@ export async function getNotificationBadgeCounts(userId: string): Promise<Dashbo
     .eq("user_id", userId)
     .eq("read", false);
 
-  const rows = data ?? [];
+  const rows = (data ?? []).filter((row) => row.type !== "message");
   const byHref: Record<string, number> = {};
 
   for (const row of rows) {
@@ -45,7 +46,7 @@ export async function getNotificationBadgeCounts(userId: string): Promise<Dashbo
 
   const counts: DashboardBadgeCounts = {
     total: rows.length,
-    messages: rows.filter((row) => row.type === "message").length,
+    messages: 0,
     notifications: rows.length,
     orders: rows.filter((row) => row.type === "order").length,
     saved: rows.filter(

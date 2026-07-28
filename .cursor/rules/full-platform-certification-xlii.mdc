@@ -1,0 +1,56 @@
+---
+description: Absolute Blood Law XLII — Full Platform Certification. SUPREME · FAIL CLOSED.
+globs: lib/supreme-blood-law-xlii-full-platform-certification-v1.ts,e2e/full-platform-certification.spec.ts,tests/full-platform-certification-xlii.test.ts,instrumentation.ts,lib/full-demo/**
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XLII — FULL PLATFORM CERTIFICATION
+
+**STATUS: SUPREME | LOCKED | FAIL CLOSED**
+
+SSOT: `lib/supreme-blood-law-xlii-full-platform-certification-v1.ts`  
+Parents: XXXVIII · XXXIX · XL · **XLI (Auth Experience Final Freeze)** · Full Demo · Deployment Certification  
+
+> **Numbering:** XLI = Authentication Experience Final Freeze (already locked).  
+> This law is **XLII** — Full Platform Certification.
+
+## Mission
+
+FINAL functional + visual certification of the entire platform before Production.  
+NOT a redesign · NOT a refactor · NOT a feature sprint.
+
+## Environment
+
+**ONLY** `http://localhost:3000`  
+Forbidden: Preview · Storybook · mocked pages · screenshots-only · isolated components
+
+## Data protection
+
+Never modify/delete/edit production listings or users.  
+Never corrupt Wallet · Orders · Messages · Offers · Transactions.
+
+## Demo layer
+
+Isolated Full Demo only: `demo.buyer@rovexo.co.uk` · `demo.seller@rovexo.co.uk`  
+Virtual money only · restore after · zero permanent changes
+
+## Modules (20)
+
+01 Auth · 02 Homepage · 03 Search · 04 Listing · 05 Messaging · 06 Offers · 07 Checkout · 08 Wallet · 09 Withdraw · 10 Payment Methods · 11 Shipping · 12 Orders · 13 Tracking · 14 Reviews · 15 Notifications · 16 Dashboards · 17 Visual QA · 18 Performance · 19 Errors · 20 End-to-End
+
+## Fail policy
+
+FAIL CLOSED. One fail → do not pass. Exact **100%** only for Production Ready.
+
+## Gates
+
+- Startup: `assertFullPlatformCertificationOrBlock()`  
+- Release: `assertFullPlatformProductionReleaseOrBlock({ runtimeE2eEvidencePass: true })`  
+- E2E: `e2e/full-platform-certification.spec.ts` against localhost:3000
+
+## Cursor must never
+
+- Declare Production Ready below 100%  
+- Skip modules or convert runtime gates to static-only  
+- Mutate production data during certification  
+- Use Preview/Storybook as certification evidence  

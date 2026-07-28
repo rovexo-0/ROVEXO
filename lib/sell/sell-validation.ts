@@ -1,11 +1,6 @@
 import type { FlatCategoryPath } from "@/lib/categories/types";
 import type { SellListingDraft } from "@/features/sell/types";
-import {
-  getQuickSellAttributeDefs,
-  isAttributeCompleted,
-} from "@/lib/sell/attribute-engine";
 import { validateListingTitle } from "@/lib/sell/listing-title";
-import { isSellQuickCondition } from "@/lib/sell/sell-condition-options";
 import { sellFieldDomId } from "@/lib/sell/sell-progressive-flow";
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
 import { resolveTransactionModeFromFlatPath } from "@/lib/transaction-mode/resolver";
@@ -28,6 +23,8 @@ export type SellValidationIssue = {
   fieldDomId: string;
 };
 
+const DESCRIPTION_MIN = 10;
+
 function hasValidPhotos(draft: SellListingDraft): boolean {
   return (
     draft.photos.length > 0 &&
@@ -40,6 +37,10 @@ function hasValidPrice(draft: SellListingDraft): boolean {
   return Number(draft.price) > 0;
 }
 
+function hasValidDescription(description: string): boolean {
+  return description.trim().length >= DESCRIPTION_MIN;
+}
+
 function needsParcelSize(draft: SellListingDraft): boolean {
   const directContact = draft.categoryPath
     ? isDirectContactMode(resolveTransactionModeFromFlatPath(draft.categoryPath))
@@ -47,11 +48,11 @@ function needsParcelSize(draft: SellListingDraft): boolean {
   return !directContact && draft.shippingMethod !== "collection_only";
 }
 
-function applicableAttributeIds(categoryPath: FlatCategoryPath | null): string[] {
-  return getQuickSellAttributeDefs(categoryPath).map((def) => def.id);
-}
-
-/** §41 — first failing field in canonical order; stops at first error. */
+/**
+ * Absolute Authority Sell v1.0 — Publish Listing enabled ONLY when:
+ * Photo + Title + Description + Category + Price + Parcel are complete.
+ * Dynamic attributes remain in UI but do not block the publish CTA.
+ */
 export function getFirstSellValidationIssue(
   draft: SellListingDraft,
   input: { title: string; description: string },
@@ -71,6 +72,14 @@ export function getFirstSellValidationIssue(
     return { field: "title", message: titleError, fieldDomId: sellFieldDomId("title") };
   }
 
+  if (!hasValidDescription(input.description)) {
+    return {
+      field: "description",
+      message: "Add a description (at least 10 characters).",
+      fieldDomId: sellFieldDomId("description"),
+    };
+  }
+
   if (!draft.categoryPath) {
     return {
       field: "category",
@@ -79,26 +88,11 @@ export function getFirstSellValidationIssue(
     };
   }
 
-  const attributeIds = applicableAttributeIds(draft.categoryPath);
-  const attributeDefs = getQuickSellAttributeDefs(draft.categoryPath);
-
-  for (const def of attributeDefs) {
-    if (!isAttributeCompleted(draft, def)) {
-      const field = def.id as "brand" | "colour" | "size";
-      if (!attributeIds.includes(def.id)) continue;
-      return {
-        field,
-        message: `Select ${def.label.toLowerCase()}.`,
-        fieldDomId: sellFieldDomId(`attribute:${def.id}`),
-      };
-    }
-  }
-
-  if (!draft.condition.trim() || !isSellQuickCondition(draft.condition)) {
+  if (!hasValidPrice(draft)) {
     return {
-      field: "condition",
-      message: "Select condition.",
-      fieldDomId: sellFieldDomId("condition"),
+      field: "price",
+      message: "Enter a price greater than zero.",
+      fieldDomId: sellFieldDomId("price"),
     };
   }
 
@@ -107,14 +101,6 @@ export function getFirstSellValidationIssue(
       field: "parcelSize",
       message: "Select a parcel size.",
       fieldDomId: sellFieldDomId("parcel"),
-    };
-  }
-
-  if (!hasValidPrice(draft)) {
-    return {
-      field: "price",
-      message: "Enter a price greater than zero.",
-      fieldDomId: sellFieldDomId("price"),
     };
   }
 
@@ -136,4 +122,10 @@ export function getSellValidationErrorForField(
   const issue = getFirstSellValidationIssue(draft, input);
   if (!issue || issue.field !== field) return undefined;
   return issue.message;
+}
+
+/** @deprecated Prefer getQuickSellAttributeDefs — kept for callers expecting id lists. */
+export function applicableAttributeIds(categoryPath: FlatCategoryPath | null): string[] {
+  void categoryPath;
+  return [];
 }

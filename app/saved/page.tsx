@@ -4,8 +4,8 @@ import { privatePageMetadata } from "@/lib/seo/private-metadata";
 
 export const metadata = privatePageMetadata;
 
+/** LIVE production Saved route — server list → SavedItemsV1 initialItems */
 export default async function SavedRoute() {
   const items = await fetchSavedItems();
-
   return <SavedItemsV1 initialItems={items} />;
 }

@@ -87,6 +87,7 @@ export async function executeAutomaticRefund(input: {
     buyerEmail: buyerProfile?.email ?? "",
     sellerId: order.seller_id,
     sellerEmail: sellerProfile?.email ?? "",
+    orderId: input.orderId,
     orderNumber: order.order_number,
     amount: refundAmount,
   });

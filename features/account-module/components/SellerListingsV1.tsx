@@ -13,10 +13,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ShareListingSheet } from "@/components/share/ShareListingSheet";
 import { AccountCanonicalShell, AccountPageStack } from "@/features/account-canonical";
 import { PromotionPicker } from "@/features/seller/listings/components/PromotionPicker";
+import { RestockListingDialog } from "@/features/seller/listings/components/RestockListingDialog";
 import { cn } from "@/lib/cn";
 import type { PromotionType } from "@/lib/promotions/config";
 import type { ListingFilter, SellerListing } from "@/lib/listings/types";
 import type { SellerListingsData } from "@/lib/seller/listings-queries";
+import { formatSellerStockLabel } from "@/lib/sell/inventory";
 import { formatCurrency } from "@/lib/wallet/utils";
 import "@/styles/rovexo/orders-page-v1.css";
 
@@ -53,6 +55,7 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
 
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<SellerListing | null>(null);
+  const [restockTarget, setRestockTarget] = useState<SellerListing | null>(null);
   const [shareTarget, setShareTarget] = useState<SellerListing | null>(null);
   const [promotionTarget, setPromotionTarget] = useState<{
     listingId: string;
@@ -133,6 +136,11 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
 
     if (action === "edit") {
       router.push(`/seller/listings/${listing.id}/edit`);
+      return;
+    }
+
+    if (action === "restock") {
+      setRestockTarget(listing);
       return;
     }
 
@@ -230,7 +238,8 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
                       <p className="cds-menu-row__title truncate">{listing.title}</p>
                     </Link>
                     <p className="cds-menu-row__subtitle">
-                      {formatCurrency(listing.price)} · {listingStatusLabel(listing)} · {listing.views} views
+                      {formatCurrency(listing.price)} · {formatSellerStockLabel(listing.stock)} ·{" "}
+                      {listingStatusLabel(listing)} · {listing.views} views
                     </p>
                   </div>
 
@@ -262,6 +271,14 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
                           onClick={() => void runMenuAction("edit", listing)}
                         >
                           Edit
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
+                          onClick={() => void runMenuAction("restock", listing)}
+                        >
+                          Restock
                         </button>
                         {listing.status === "published" ? (
                           <button
@@ -324,6 +341,15 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
           </p>
         ) : null}
       </CanonicalModal>
+
+      <RestockListingDialog
+        open={restockTarget !== null}
+        listingId={restockTarget?.id ?? ""}
+        listingTitle={restockTarget?.title ?? ""}
+        currentQuantity={restockTarget?.stock ?? 0}
+        onClose={() => setRestockTarget(null)}
+        onSaved={() => router.refresh()}
+      />
 
       <ShareListingSheet
         open={shareTarget !== null}

@@ -1,28 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ModalContainer } from "@/components/ui/ModalContainer";
-import { CheckoutProcessingOverlay } from "@/features/checkout/components/CheckoutProcessingOverlay";
-import { CheckoutWizardV1 } from "@/features/checkout/components/CheckoutWizardV1";
-import { useCheckoutForm } from "@/features/checkout/hooks/use-checkout-form";
-import type { CheckoutDraft } from "@/features/checkout/types";
-import type { ProductDetail } from "@/lib/products/types";
 import {
-  clearHubCheckoutDraft,
-  loadHubCheckoutDraft,
-  persistHubCheckoutDraft,
-} from "@/lib/transaction-hub/checkout-validation";
-import { trackTransactionHubCheckoutStarted } from "@/lib/transaction-hub/analytics";
-import { trackGaEvent } from "@/lib/analytics/ga4-events";
-import { getActiveMarket } from "@/lib/seo/markets";
-
-type CheckoutBootstrap = {
-  product: ProductDetail;
-  initialDraft: CheckoutDraft;
-  buyerPhone: string | null;
-  liveShippingEnabled: boolean;
-};
+  buildBuyNowCheckoutHref,
+  useBuyNowNavigation,
+} from "@/features/checkout/hooks/use-buy-now-navigation";
 
 type CheckoutHubSheetProps = {
   open: boolean;
@@ -32,20 +16,37 @@ type CheckoutHubSheetProps = {
   /** Locked accepted offer — checkout must price from this, not listing price. */
   offerId?: string | null;
   acceptedOfferPrice?: number | null;
+  /**
+   * Demo / known-invalid resume — never call Buy Now; show canonical session fail-closed.
+   * Live failures on resume also map to the same Owner copy (never generic Sorry).
+   */
+  sessionUnavailable?: boolean;
 };
 
+/** Blood XXIV + Owner freeze blocker — resume fail-closed (never generic runtime dialogs). */
+export const CHECKOUT_RESUME_SESSION_UNAVAILABLE = {
+  code: "RVX-2010",
+  title: "Checkout session is no longer available.",
+  body: "Return to your Order and start Checkout again.",
+} as const;
+
+/**
+ * Blood XXIV — hub resume no longer embeds a parallel checkout wizard.
+ * Opens Buy Now guard → full-page `/checkout/{slug}` only.
+ * Forbidden: payment without order guard · duplicate checkout UI · generic errors.
+ */
 export function CheckoutHubSheet({
   open,
   onClose,
   productSlug,
   conversationId,
   offerId = null,
-  acceptedOfferPrice = null,
+  sessionUnavailable = false,
 }: CheckoutHubSheetProps) {
   const router = useRouter();
-  const [bootstrap, setBootstrap] = useState<CheckoutBootstrap | null>(null);
+  const { executeBuyNow } = useBuyNowNavigation();
+  const [showSessionUnavailable, setShowSessionUnavailable] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -53,168 +54,105 @@ export function CheckoutHubSheet({
     }
 
     let cancelled = false;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- bootstrap fetch on sheet open
+
+    if (sessionUnavailable) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resume fail-closed opens with sheet
+      setShowSessionUnavailable(true);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
-    setError(null);
+    setShowSessionUnavailable(false);
 
-    void fetch(
-      `/api/transaction-hub/checkout?slug=${encodeURIComponent(productSlug)}${conversationId ? `&conversationId=${encodeURIComponent(conversationId)}` : ""}`,
-    )
-      .then(async (response) => {
-        const payload = (await response.json()) as CheckoutBootstrap & {
-          success?: boolean;
-          error?: string;
-          completionRedirect?: string;
-        };
-
-        if (cancelled) return;
-
-        if (!response.ok || !payload.success || !payload.product) {
-          if (payload.completionRedirect) {
-            router.push(payload.completionRedirect);
-            onClose();
-            return;
-          }
-          setError(payload.error ?? "Unable to open checkout.");
-          return;
-        }
-
-        const restoredDraft = loadHubCheckoutDraft(productSlug);
-        const lockedPrice =
-          acceptedOfferPrice != null &&
-          Number.isFinite(acceptedOfferPrice) &&
-          acceptedOfferPrice > 0
-            ? Math.round(acceptedOfferPrice * 100) / 100
-            : null;
-
-        setBootstrap({
-          product:
-            lockedPrice != null
-              ? { ...payload.product, price: lockedPrice }
-              : payload.product,
-          initialDraft: restoredDraft ?? payload.initialDraft,
-          buyerPhone: payload.buyerPhone,
-          liveShippingEnabled: payload.liveShippingEnabled,
-        });
-
-        trackTransactionHubCheckoutStarted({
-          conversationId: conversationId ?? "product-detail",
-          productSlug,
-          productId: payload.product.id,
-        });
-
-        const { currency } = getActiveMarket();
-        trackGaEvent("begin_checkout", {
-          item_id: payload.product.id,
-          item_name: payload.product.title,
-          value: lockedPrice ?? payload.product.price,
-          currency,
-          source: "transaction_hub_embedded",
-        });
-      })
-      .catch(() => {
-        if (!cancelled) setError("Unable to open checkout.");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+    void (async () => {
+      const result = await executeBuyNow({
+        productSlug,
+        offerId,
+        conversationId: conversationId ?? null,
       });
+
+      if (cancelled) return;
+
+      if (!result.ok) {
+        /* Resume path: failed guard → canonical session fail-closed (never Buy Now public Sorry dialog). */
+        setShowSessionUnavailable(true);
+        setLoading(false);
+        return;
+      }
+
+      onClose();
+      router.push(buildBuyNowCheckoutHref(productSlug, result.checkoutPath));
+    })().catch(() => {
+      if (!cancelled) {
+        setShowSessionUnavailable(true);
+        setLoading(false);
+      }
+    });
 
     return () => {
       cancelled = true;
     };
-  }, [acceptedOfferPrice, conversationId, onClose, open, productSlug, router]);
-
-  const handleDraftChange = useCallback(
-    (draft: CheckoutDraft) => {
-      persistHubCheckoutDraft(productSlug, draft);
-    },
-    [productSlug],
-  );
+  }, [
+    conversationId,
+    executeBuyNow,
+    offerId,
+    onClose,
+    open,
+    productSlug,
+    router,
+    sessionUnavailable,
+  ]);
 
   if (!open) return null;
 
   return (
-    <ModalContainer
-      open
-      onClose={onClose}
-      variant="fullscreen"
-      zIndex={230}
-      ariaLabel="Checkout"
-      lockScroll
-      panelClassName="thub-v1__checkout-panel"
-    >
-      {loading ? (
+    <>
+      <ModalContainer
+        open={loading && !showSessionUnavailable}
+        onClose={onClose}
+        variant="fullscreen"
+        zIndex={230}
+        ariaLabel="Checkout"
+        lockScroll
+        panelClassName="thub-v1__checkout-panel"
+      >
         <div className="flex min-h-[50dvh] items-center justify-center p-ds-6 text-sm text-text-secondary">
-          Loading checkout…
+          Opening checkout…
         </div>
-      ) : null}
+      </ModalContainer>
 
-      {error ? (
-        <div className="flex min-h-[40dvh] flex-col items-center justify-center gap-ds-3 p-ds-6 text-center">
-          <p className="text-sm text-destructive" role="alert">
-            {error}
+      <ModalContainer
+        open={showSessionUnavailable}
+        onClose={onClose}
+        variant="centered"
+        zIndex={240}
+        ariaLabel="Checkout unavailable"
+        lockScroll
+        panelClassName="bn-public-error"
+      >
+        <div
+          className="bn-public-error__panel"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="checkout-resume-fail-title"
+          data-checkout-resume-fail-closed="RVX-2010"
+        >
+          <p
+            className="bn-public-error__title"
+            data-rvx-code={CHECKOUT_RESUME_SESSION_UNAVAILABLE.code}
+          >
+            {CHECKOUT_RESUME_SESSION_UNAVAILABLE.code}
           </p>
-          <button type="button" className="text-sm font-semibold text-primary" onClick={onClose}>
-            Back to chat
+          <p id="checkout-resume-fail-title" className="bn-public-error__body">
+            {CHECKOUT_RESUME_SESSION_UNAVAILABLE.title}
+          </p>
+          <p className="bn-public-error__body">{CHECKOUT_RESUME_SESSION_UNAVAILABLE.body}</p>
+          <button type="button" className="bn-public-error__ok" onClick={onClose}>
+            OK
           </button>
         </div>
-      ) : null}
-
-      {bootstrap ? (
-        <CheckoutHubContent
-          bootstrap={bootstrap}
-          conversationId={conversationId}
-          offerId={offerId}
-          onClose={() => {
-            clearHubCheckoutDraft(productSlug);
-            onClose();
-          }}
-          onDraftChange={handleDraftChange}
-        />
-      ) : null}
-    </ModalContainer>
-  );
-}
-
-function CheckoutHubContent({
-  bootstrap,
-  conversationId,
-  offerId,
-  onClose,
-  onDraftChange,
-}: {
-  bootstrap: CheckoutBootstrap;
-  conversationId?: string;
-  offerId?: string | null;
-  onClose: () => void;
-  onDraftChange: (draft: CheckoutDraft) => void;
-}) {
-  const form = useCheckoutForm(bootstrap.product, bootstrap.initialDraft, {
-    liveShippingEnabled: bootstrap.liveShippingEnabled,
-    hubConversationId: conversationId,
-    offerId,
-    onDraftChange,
-  });
-
-  return (
-    <div className="thub-v1__checkout" data-transaction-hub-checkout="embedded">
-      {form.errorMessage ? (
-        <div className="w-full px-ds-4 pt-ds-3">
-          <p className="rounded-ds-md border border-destructive/30 bg-destructive/5 px-ds-3 py-ds-2 text-sm text-destructive" role="alert">
-            {form.errorMessage}
-          </p>
-        </div>
-      ) : null}
-
-      <CheckoutWizardV1
-        product={bootstrap.product}
-        form={form}
-        buyerPhone={bootstrap.buyerPhone}
-        embedded
-        onClose={onClose}
-      />
-
-      {form.isSubmitting ? <CheckoutProcessingOverlay /> : null}
-    </div>
+      </ModalContainer>
+    </>
   );
 }

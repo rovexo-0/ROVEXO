@@ -1,0 +1,31 @@
+# ROVEXO BUILD ABSOLUTE LAW v1.0
+
+**STATUS: OWNER APPROVED | LOCKED**
+
+SSOT: `lib/build-absolute-law-v1.ts`  
+Parent: Priority 0 Build Must Live (`lib/priority-0-build-must-live-v1.ts`)
+
+## Absolute
+
+**NO FEATURE MAY BE CERTIFIED IF BUILD = FAIL.**  
+Only **0%** or **100%**. No 99%.
+
+## Environments
+
+| Surface | Role |
+|---|---|
+| `http://localhost:3000` | Development · build · E2E evidence only |
+| `https://www.rovexo.co.uk` | LIVE · LOCKED · security fix only |
+
+## Chain (mandatory)
+
+BUILD → APPLICATION → BUY NOW → CHECKOUT → PAYMENT → … → E2E → CERTIFICATION → FREEZE → DEPLOY
+
+## Owner only
+
+Only the Owner may declare BUILD / BUY NOW / CHECKOUT / PAYMENT / E2E / CERTIFICATION = PASS.  
+Until then: **IN DEVELOPMENT**.
+
+## Cursor must never
+
+Certify Buy Now / Payment / Checkout when build fails · claim Owner PASS · deploy without 100% Owner chain

@@ -1,19 +1,43 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiAuth } from "@/lib/auth/session";
+import { enforceRateLimitForUser } from "@/lib/api/rate-limit";
 import { emitSmartNotification } from "@/lib/notifications/events";
 import { NOTIFICATION_ROUTES } from "@/lib/notifications/routing";
+import {
+  isWalletMoneyEnvReady,
+  MISSING_REQUIRED_SECRET,
+  validateWalletMoneyEnv,
+} from "@/lib/wallet/env-validation";
 import { recordWithdrawal } from "@/lib/wallet/store";
 
 const withdrawSchema = z.object({
   methodId: z.string().uuid(),
   amount: z.number().positive(),
+  idempotencyKey: z.string().min(8).max(128).optional(),
 });
 
 export async function POST(request: Request) {
   const auth = await requireApiAuth();
   if (auth instanceof NextResponse) {
     return auth;
+  }
+
+  const limited = await enforceRateLimitForUser(auth.user.id, "wallet-withdraw", 10, 60_000);
+  if (limited) {
+    return limited;
+  }
+
+  if (!isWalletMoneyEnvReady("withdraw")) {
+    const validation = validateWalletMoneyEnv("withdraw");
+    return NextResponse.json(
+      {
+        error: MISSING_REQUIRED_SECRET,
+        code: "MISSING_REQUIRED_SECRET",
+        ownerControlledMissing: validation.ok ? [] : validation.ownerControlledMissing,
+      },
+      { status: 503 },
+    );
   }
 
   let body: unknown;
@@ -28,15 +52,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Enter a valid withdrawal amount." }, { status: 400 });
   }
 
+  const headerKey = request.headers.get("idempotency-key");
+  const clientKey = parsed.data.idempotencyKey ?? headerKey;
+
   const transaction = await recordWithdrawal({
     userId: auth.user.id,
     methodId: parsed.data.methodId,
     amount: parsed.data.amount,
+    idempotencyKey: clientKey,
   });
 
   if (!transaction) {
     return NextResponse.json(
-      { error: "Unable to submit withdrawal. Check your balance and bank account." },
+      {
+        error:
+          "Unable to submit withdrawal. Check your balance, bank account, and encryption configuration.",
+      },
       { status: 400 },
     );
   }
@@ -46,10 +77,14 @@ export async function POST(request: Request) {
     eventType: "payout",
     idempotencyKey: `withdraw:${transaction.id}`,
     notificationType: "payment",
-    title: "Withdrawal submitted",
-    subtitle: `£${parsed.data.amount.toFixed(2)} is being transferred to your bank account.`,
+    title:
+      transaction.status === "completed" ? "Withdrawal confirmed" : "Withdrawal submitted",
+    subtitle:
+      transaction.status === "completed"
+        ? `£${parsed.data.amount.toFixed(2)} was transferred securely.`
+        : `£${parsed.data.amount.toFixed(2)} is being processed securely.`,
     href: `${NOTIFICATION_ROUTES.walletWithdrawal(transaction.id)}`,
-    payload: { transactionId: transaction.id, amount: parsed.data.amount },
+    payload: { transactionId: transaction.id, amount: parsed.data.amount, status: transaction.status },
   });
 
   return NextResponse.json({ transaction });

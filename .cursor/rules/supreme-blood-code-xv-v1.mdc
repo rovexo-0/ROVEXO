@@ -1,0 +1,66 @@
+---
+description: Supreme Blood Code XV — Owner Certification & Freeze Law (all sprints, 100% only)
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE XV — OWNER CERTIFICATION & FREEZE LAW
+
+**STATUS: PERMANENT LAW · APPROVED · PERMANENTLY LOCKED**
+
+SSOT: `lib/supreme-blood-code-xv-v1.ts`
+
+## Absolute Owner Law
+
+```
+NO OWNER CERTIFICATION = NO PERMANENT FREEZE
+NO 100% COMPLETE = NO NEXT SPRINT
+NO EXCEPTIONS
+```
+
+## Sprint sequence (mandatory order)
+
+Development → TypeScript → ESLint → Build → Functional QA → Responsive QA → Mobile QA → Visual QA → **Owner Certification** → 100% COMPLETE → Permanent Freeze → Next Sprint
+
+## Absolute Pass Law
+
+95% · 98% · 99% · 99.99% = **FAIL**  
+**100% only = PASS**
+
+## No Partial Freeze
+
+Forbidden: 95/98/99% lock · partial · temporary · beta lock  
+Allowed: 100% → Owner certified → Permanent Freeze **only**
+
+## After Owner Certification
+
+Sprint = LOCKED + 100% COMPLETE + PERMANENT FREEZE  
+
+Post-freeze allowed only with Owner approval: critical bugs · security · legal compliance
+
+## No Cross Module
+
+One sprint → one module only (e.g. Sprint IV = `/wallet` only)
+
+## Owner Visual Certification must verify
+
+UI · UX · Responsive · Functionality · Scroll · Mobile · Compact Premium · iPhone 17 Pro Max · localhost:3000 · Production readiness  
+
+Any fail = PRODUCT FAIL
+
+## Localhost Law
+
+Official: `http://localhost:3000` only (not 3010 / preview-only / future sprints)
+
+## Search Bar
+
+Homepage `/` only — unmounted everywhere else
+
+## Live status (do not invent Owner PASS)
+
+| Sprint | Module | Live |
+|--------|--------|------|
+| I–V | Inbox · Conversation · Orders · Wallet · Sell | LOCKED |
+| VI | Checkout | IN DEVELOPMENT (Blood XXIII) |
+| VII–VIII | Shipping · Account | FORBIDDEN TO START |
+
+Applies to **all present and future sprints** without exceptions.

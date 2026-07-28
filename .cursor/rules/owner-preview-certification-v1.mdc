@@ -1,0 +1,37 @@
+---
+description: ROVEXO Owner Preview Certification v1.0 — official URL must be public HTTPS mobile-accessible.
+alwaysApply: true
+---
+
+# ROVEXO Owner Preview Certification v1.0 (CANONICAL FREEZE · OWNER APPROVED)
+
+Aligned with **Owner Preview Policy v3.0**.
+
+## Mission
+
+The official Owner URL must be: **PUBLIC · HTTPS · MOBILE ACCESSIBLE · 24/7 · OWNER TESTABLE · RESPONSIVE · STABLE**.
+
+**If the Owner cannot open the URL from their phone, it is not ready for approval.**
+
+## Official URL
+
+**https://www.rovexo.co.uk** — SSOT `lib/preview/owner-preview-ssot.ts`
+
+## Certification gates (all required)
+
+1. DNS PASS  
+2. HTTPS PASS  
+3. PUBLIC ACCESS PASS  
+4. MOBILE PASS (iPhone · Android · Safari · Chrome Mobile · Tablet · Desktop)  
+5. OWNER ACCESS PASS  
+6. RESPONSIVE PASS  
+7. FUNCTIONAL / NAVIGATION PASS  
+8. OWNER VISUAL APPROVAL  
+
+## Forbidden as official
+
+localhost · HTTP-only · invalid/expired/inaccessible URLs · temporary / per-module previews · multiple official URLs · screenshots-only approval
+
+## Freeze gate
+
+Until Owner has successfully tested on the official URL: **no Freeze · Commit · Push · Deploy · Production Certification**.

@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join } from "node:path";
 import type { HealthStatus } from "@/lib/ops/health-types";
 
@@ -160,7 +161,7 @@ const ENV_SPECS: EnvSpec[] = [
 ];
 
 function fileExists(relativePath: string): boolean {
-  return existsSync(join(process.cwd(), relativePath));
+  return existsSync(workspacePath( relativePath));
 }
 
 export function validateProductionEnvironment(): ProductionEnvironmentReport {

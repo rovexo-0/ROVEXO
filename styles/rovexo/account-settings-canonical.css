@@ -1,36 +1,61 @@
 /**
- * ROVEXO Settings hub — Master Menu Design System.
- * 20px radius, 56px rows, 24px section gap, #EFEFEF dividers.
+ * ROVEXO Settings hub — Full Width Engine v1.0 (Profile reference).
+ * Mobile first · white · coloured icons · flat rows · no cards.
  */
 
 .settings-canonical {
   --cds-space-section-gap: 24px;
-  --cds-radius-card: 20px;
   --cds-row-min-height: 56px;
-  --cds-row-padding-x: 16px;
-  --cds-color-divider: #efefef;
+  --cds-row-padding-x: 0;
   display: flex;
   flex-direction: column;
   gap: var(--cds-space-section-gap);
   width: 100%;
+  max-width: 100%;
+  background: #ffffff;
+  border: none;
+  box-shadow: none;
 }
 
-.settings-canonical__card {
-  border-radius: 20px;
+.settings-canonical-v1 {
+  background: #ffffff;
 }
 
-.settings-canonical__danger-card {
-  border-color: rgb(254 202 202 / 0.65);
-  background: #fef2f2;
-}
-
-.settings-canonical__danger-card .cds-menu-row:active:not(:disabled) {
-  background: rgb(254 226 226 / 0.55);
-}
-
-.settings-canonical__danger-icon {
+.settings-canonical__icon {
   display: inline-flex;
-  color: var(--cds-color-danger);
+  color: #9333ea; /* Profile settings purple */
+}
+
+.settings-canonical__icon--purple {
+  color: #9333ea; /* Profile settings */
+}
+
+.settings-canonical__icon--blue {
+  color: #60a5fa; /* Profile legal */
+}
+
+.settings-canonical__icon--orange {
+  color: #f59e0b; /* Profile my-orders */
+}
+
+.settings-canonical__icon--green {
+  color: #22c55e; /* Profile holiday-mode */
+}
+
+.settings-canonical__icon--red {
+  color: #ef4444; /* Profile help */
+}
+
+.settings-canonical__icon--rovexo-blue {
+  color: #06b6d4; /* Profile balance */
+}
+
+.settings-canonical__icon--gold {
+  color: #ffd54a; /* Profile ideas */
+}
+
+.settings-canonical__icon--soft-red {
+  color: #dc2626; /* Profile logout */
 }
 
 .settings-canonical .cds-menu-row__title--danger {
@@ -39,10 +64,16 @@
   color: var(--cds-color-danger);
 }
 
+.settings-subpage-v1 {
+  width: 100%;
+  max-width: 100%;
+  background: #ffffff;
+  border: none;
+  box-shadow: none;
+}
 
-
-
-
-
-
-
+.settings-subpage-v1__status {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}

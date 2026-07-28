@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import path from "node:path";
 import { isLaunchReadinessPass, runLaunchReadinessScan } from "@/lib/enterprise-launch-readiness-engine";
 import { isHomepageEngineeringPass, runFullHomepageEngineeringScan } from "@/lib/homepage-engineering-director";
@@ -60,12 +61,12 @@ function labelize(value: string): string {
 }
 
 function fileExists(relativePath: string): boolean {
-  return existsSync(path.join(process.cwd(), relativePath));
+  return existsSync(workspacePath( relativePath));
 }
 
 function readSource(relativePath: string): string {
   try {
-    return readFileSync(path.join(process.cwd(), relativePath), "utf8");
+    return readFileSync(workspacePath( relativePath), "utf8");
   } catch {
     return "";
   }

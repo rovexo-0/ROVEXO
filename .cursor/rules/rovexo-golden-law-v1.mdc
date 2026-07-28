@@ -1,0 +1,56 @@
+---
+description: ROVEXO Golden Law v1.0 — one owner one implementation one SSOT
+alwaysApply: true
+---
+
+# ROVEXO GOLDEN LAW v1.0 (LEVEL 8)
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN**
+
+SSOT: `lib/rovexo-golden-law-v1.ts`  
+Parent: Absolute Master Freeze (`lib/absolute-master-freeze-v1.ts`)
+
+## Chain (immutable)
+
+1. One way → **one owner**
+2. One owner → **one implementation**
+3. One implementation → **one source of truth**
+4. One source of truth → **one responsibility**
+5. One responsibility → **one production gate**
+6. **If one production gate fails → PRODUCTION DEPLOY is forbidden**
+
+## Equation
+
+```
+ONE OWNER = ONE RESPONSIBILITY = ONE IMPLEMENTATION = ONE SOURCE OF TRUTH = ONE PRODUCTION GATE
+```
+
+## Singularity (examples)
+
+| Domain | Allowed | Forbidden |
+|-----|---|-----|
+| Header | ONE | 2 headers |
+| Search | ONE engine | 2 engines |
+| Auth | ONE system | 2 systems |
+| Session / Cookie / User / Callback | ONE owner | 2 owners |
+| Database / Payments / Notifications / Providers | ONE owner | 2 owners |
+
+## Evolution
+
+**Allowed:** Feature → optimized (same owner, same implementation, same SSOT)
+
+**Forbidden:** `*_v2` · `*_v3` · Search Pro · Session Manager · Cookie Manager · User Manager · parallel architectures
+
+## Final rule
+
+Remove duplicated code, owners, systems, providers, implementations, and states **until only one remains**.
+
+## Principle
+
+Simpler → Smaller → Faster → More scalable → More maintainable → More automated → More longevity
+
+## Cursor must never
+
+- Create a second owner, implementation, or SSOT for a frozen domain
+- Evolve by forking (`v2` / Pro / Manager) instead of optimizing in place
+- Authorize or perform production deploy when any production gate fails

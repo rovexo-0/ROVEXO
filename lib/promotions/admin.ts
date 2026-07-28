@@ -177,7 +177,7 @@ export async function adminSuspendPromotion(promotionId: string): Promise<{ succ
 
   const { data: product } = await admin
     .from("products")
-    .select("bump_count, bumped_until, featured_until")
+    .select("bump_count, bumped_until, featured_until, last_bumped_at")
     .eq("id", promotion.product_id)
     .maybeSingle();
 
@@ -198,6 +198,8 @@ export async function adminSuspendPromotion(promotionId: string): Promise<{ succ
     product.bump_count ?? 0,
     bumpedUntil,
     featuredUntil,
+    product.last_bumped_at,
+    null,
   );
 
   await admin
@@ -228,7 +230,7 @@ export async function adminExpirePromotion(promotionId: string): Promise<{ succe
 
   const { data: product } = await admin
     .from("products")
-    .select("bump_count, bumped_until, featured_until")
+    .select("bump_count, bumped_until, featured_until, last_bumped_at")
     .eq("id", promotion.product_id)
     .maybeSingle();
 

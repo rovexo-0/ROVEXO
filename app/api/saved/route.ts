@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { requireApiAuth } from "@/lib/auth/session";
 import { listSavedItems, removeSavedItems, saveItem } from "@/lib/saved/store";
 
+/**
+ * LIVE production Saved API — extracted from origin/main|develop.
+ * POST → { saved: true } · DELETE → { items } · GET ?slug= → { saved }
+ */
+
 export async function GET(request: Request) {
   const auth = await requireApiAuth();
   if (auth instanceof NextResponse) {

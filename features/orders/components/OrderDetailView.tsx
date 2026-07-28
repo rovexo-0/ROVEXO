@@ -17,6 +17,7 @@ import { OrderActionsCard } from "@/features/orders/components/OrderActionsCard"
 import { SellerOrderFulfillment } from "@/features/orders/components/SellerOrderFulfillment";
 import { OrderProductCard } from "@/features/orders/components/OrderProductCard";
 import { OrderSummaryTotals } from "@/features/commerce-ui/components/OrderSummaryTotals";
+import { SellerOrderSummaryTotals } from "@/features/orders/components/SellerOrderSummaryTotals";
 import { mapOrderToCommerceTotals } from "@/lib/commerce/mappers";
 import type { SellerShipmentView } from "@/lib/commerce/view-types";
 import { EscrowReleaseCard } from "@/features/commerce/components/EscrowReleaseCard";
@@ -101,6 +102,7 @@ export function OrderDetailView({
             ) : null}
           </CanonicalInfoBlock>
         </section>
+        <OrderActionsCard order={order} view={view} />
         <OrderReviewCard orderId={order.id} sellerName={order.seller.name} />
       </div>
     );
@@ -129,7 +131,11 @@ export function OrderDetailView({
         </CanonicalInfoBlock>
       ) : null}
 
-      <OrderSummaryTotals totals={mapOrderToCommerceTotals(order.totals)} title="Summary" />
+      {view === "seller" ? (
+        <SellerOrderSummaryTotals totals={order.totals} title="Summary" />
+      ) : (
+        <OrderSummaryTotals totals={mapOrderToCommerceTotals(order.totals)} title="Summary" />
+      )}
 
       {escrowState && view ? <EscrowReleaseCard escrow={escrowState} view={view} /> : null}
 

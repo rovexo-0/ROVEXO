@@ -160,7 +160,7 @@ export function WalletEngineAdmin({ initialSnapshot }: WalletEngineAdminProps) {
       ) : null}
 
       <p className="text-sm text-text-muted">
-        Public wallet hub: <Link href="/wallet" className="ea-link">/wallet</Link>
+        Public balance hub: <Link href="/balance" className="ea-link">/balance</Link>
       </p>
     </EnterpriseEngineAdminShell>
   );

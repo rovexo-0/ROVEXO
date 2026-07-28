@@ -10,11 +10,11 @@
  * taxonomy databases — single source of truth with filters and Super Admin.
  */
 
+import { AA_SELL_COLOURS } from "@/lib/sell/aa-sell-colours";
 import {
   MARKETPLACE_BRANDS,
   POPULAR_BRAND_IDS,
 } from "@/lib/categories/enterprise/brands";
-import { MARKETPLACE_COLOURS } from "@/lib/categories/enterprise/colours";
 import { MARKETPLACE_DEFAULT_SIZES } from "@/lib/categories/enterprise/sizes";
 import { MARKETPLACE_MATERIALS } from "@/lib/categories/enterprise/materials";
 
@@ -49,10 +49,11 @@ export const BRAND_OPTIONS: SelectionOption[] = toOptions(MARKETPLACE_BRANDS);
 
 export const SIZE_OPTIONS: SelectionOption[] = toOptions(MARKETPLACE_DEFAULT_SIZES);
 
-export const COLOUR_OPTIONS: SelectionOption[] = MARKETPLACE_COLOURS.map((colour) => ({
+/** Absolute Authority Sell colours — max 18 (no fancy shade names). */
+export const COLOUR_OPTIONS: SelectionOption[] = AA_SELL_COLOURS.map((colour) => ({
   id: colour.id,
   label: colour.label,
-  swatch: colour.swatch,
+  swatch: colour.swatch.startsWith("#") ? colour.swatch : undefined,
 }));
 
 export const MATERIAL_OPTIONS: SelectionOption[] = toOptions(MARKETPLACE_MATERIALS);

@@ -21,6 +21,27 @@ export function formatMessageTime(iso: string): string {
   }).format(date);
 }
 
+/** Inbox list relative time (Vinted-style) — Messages module only. */
+export function formatInboxRelativeTime(iso: string, nowMs = Date.now()): string {
+  const then = new Date(iso).getTime();
+  if (!Number.isFinite(then)) return "";
+  const diffMs = Math.max(0, nowMs - then);
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 1) return "now";
+  if (mins === 1) return "1 min ago";
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours === 1) return "1 hour ago";
+  if (hours < 24) return `${hours} hours ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "Yesterday";
+  if (days < 7) return `${days} days ago`;
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+  }).format(new Date(iso));
+}
+
 export function formatLastSeen(iso: string): string {
   return `Last seen ${formatMessageTime(iso)}`;
 }

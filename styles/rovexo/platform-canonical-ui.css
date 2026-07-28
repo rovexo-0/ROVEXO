@@ -6,6 +6,7 @@
 
 @import "./account-canonical-v2.css";
 @import "./account-settings-ui.css";
+@import "./addresses-v1.css";
 
 :root {
   --pcu-card-radius: 14px;

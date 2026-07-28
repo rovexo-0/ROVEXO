@@ -1,0 +1,28 @@
+# ROVEXO MAKE OFFER — Cod Sânge v1.0 FINAL FREEZE
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN**
+
+SSOT: `lib/transaction-hub/make-offer-freeze-v1.ts`  
+UI: `features/transaction-hub/OfferComposerSheet.tsx` only  
+CSS: `styles/rovexo/make-offer-v1.css`
+
+## Canonical stack (only)
+
+Close · Product image · Product title · £XX.XX · 5% OFF · 10% OFF · CUSTOM · £0.00 · Submit Offer · XX offers left for today
+
+## Forbidden forever
+
+Make Offer title · Item price / Listing price labels · Your offer (£) · Message / note · Cancel · Buyer Protection fee · Learn why · green/teal % colours · extra pages/confirmations
+
+## Buttons
+
+- 5% / 10% / Custom — white · purple border · premium shadow · Custom active when selected
+- Submit Offer — ROVEXO purple gradient (same family as Buy Now)
+
+## Keep
+
+Validations · limitations · security · `/api/offers` · DB · notifications · numeric keyboard
+
+## Cursor must never
+
+Redesign Make Offer · restore deleted chrome · add parallel offer composers · change backend for this freeze

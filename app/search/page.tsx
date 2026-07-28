@@ -8,6 +8,12 @@ import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
 import { SearchResultsView } from "@/features/search/components/SearchResultsView";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { CAMERA_SEARCH_V1 } from "@/lib/search/camera-search-v1-freeze";
+import { getTopLevelCategoryCounts } from "@/lib/categories/server";
+import { getTrendingSearches } from "@/lib/search/trending";
+import {
+  aggregateCountsByCanonicalRoot,
+  CANONICAL_ROOT_CATEGORIES,
+} from "@/lib/categories/canonical-root-categories-v1";
 
 type SearchPageProps = {
   searchParams: Promise<{ q?: string; visual?: string; category?: string }>;
@@ -47,18 +53,50 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
   });
 }
 
+async function SearchPageBody({
+  hasBrowseTarget,
+}: {
+  hasBrowseTarget: boolean;
+}) {
+  if (hasBrowseTarget) {
+    return <SearchResultsView />;
+  }
+
+  let categoryCounts: { slug: string; itemCount: number }[] = [];
+  let trending: string[] = [];
+  try {
+    const [counts, trend] = await Promise.all([
+      getTopLevelCategoryCounts(),
+      getTrendingSearches([], 8),
+    ]);
+    const aggregated = aggregateCountsByCanonicalRoot(counts);
+    categoryCounts = CANONICAL_ROOT_CATEGORIES.map((root) => ({
+      slug: root.slug,
+      itemCount: aggregated[root.slug],
+    }));
+    trending = trend;
+  } catch {
+    categoryCounts = [];
+    trending = [];
+  }
+
+  return <SearchResultsView categoryCounts={categoryCounts} trending={trending} />;
+}
+
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { visual } = await searchParams;
+  const { visual, q, category } = await searchParams;
 
   if (visual === "1") {
     redirect(CAMERA_SEARCH_V1.resultsRoute);
   }
 
+  const hasBrowseTarget = Boolean(q?.trim()) || Boolean(category?.trim());
+
   return (
     <BetaAppShell bottomNavTab="search">
       <HubPageMain className="gap-0 px-0 py-0">
         <Suspense fallback={<ProductGridSkeleton count={8} />}>
-          <SearchResultsView />
+          <SearchPageBody hasBrowseTarget={hasBrowseTarget} />
         </Suspense>
       </HubPageMain>
     </BetaAppShell>

@@ -30,10 +30,63 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   // Pin workspace root so Next.js does not pick up parent lockfiles on Windows.
   outputFileTracingRoot: projectRoot,
-  // Static premium assets are served from CDN/public; exclude from serverless traces.
+  /**
+   * Serverless NFT size guard (Preview/Production).
+   *
+   * Route key MUST be `*` (not only `/*`): Next traces `instrumentation` without a
+   * leading slash, and `/*` does not match it — so heavy repo trees were previously
+   * bundled into every function (~800MB+), exceeding Vercel’s 250MB limit.
+   *
+   * Excludes: build/QA/docs/heavy asset trees that must never ship in lambdas.
+   * Startup blood-law source files are injected post-build by
+   * `scripts/ensure-startup-trace-files.mjs` (surgical — avoids NFT bloat).
+   */
   outputFileTracingExcludes: {
-    "/*": ["public/**", "scripts/**", "e2e/**", "tests/**", "mobile/**", ".next/cache/**"],
+    "*": [
+      "./public/**/source/**/*",
+      "./public/icons/premium-studio/**/*",
+      "./public/icons/fluency-3d/**/*",
+      "./public/icons/premium/**/*",
+      "./public/assets/empty-states/**/*",
+      "./public/hero/**/*",
+      "./public/demo/**/*",
+      "./lighthouse*.json",
+      "./e2e-cert-run.log",
+      "./*.log",
+      "./scripts/**/*",
+      "./e2e/**/*",
+      "./tests/**/*",
+      "./mobile/**/*",
+      "./docs/**/*",
+      "./reports/**/*",
+      "./archive/**/*",
+      "./apps/**/*",
+      "./owner-review-screenshots/**/*",
+      "./audit-captures/**/*",
+      "./audit-captures-auth/**/*",
+      "./test-results/**/*",
+      "./playwright-report/**/*",
+      "./.cursor/**/*",
+      "./.next/cache/**/*",
+      "./.git/**/*",
+      "./.local-chromium-libs/**/*",
+      "./node_modules/@sparticuz/**/*",
+      "./node_modules/playwright/**/*",
+      "./node_modules/playwright-core/**/*",
+      "./node_modules/@playwright/**/*",
+      "./node_modules/typescript/**/*",
+      "./node_modules/@typescript-eslint/**/*",
+      "./node_modules/eslint/**/*",
+      "./node_modules/eslint-config-next/**/*",
+      "./node_modules/vitest/**/*",
+      "./node_modules/jsdom/**/*",
+      "./node_modules/@axe-core/**/*",
+    ],
   },
+  // Large Super Admin / location matrices can exceed the default 60s when the
+  // worker pool is saturated. Prefer finishing a correct production build over
+  // aborting at 60s — pages stay fail-closed at runtime.
+  staticPageGenerationTimeout: 180,
   turbopack: {
     root: projectRoot,
   },
@@ -47,7 +100,7 @@ const nextConfig: NextConfig = {
     // the now-unlocked file. Capping pages-per-worker reduces concurrent file
     // contention so the race is far less likely to occur in the first place.
     staticGenerationRetryCount: 3,
-    staticGenerationMaxConcurrency: 6,
+    staticGenerationMaxConcurrency: 2,
   },
   ...(isProduction
     ? {
@@ -106,6 +159,11 @@ const nextConfig: NextConfig = {
       { source: "/account/wallet/:path*", destination: "/wallet/:path*", permanent: true },
       { source: "/seller/wallet", destination: "/wallet", permanent: true },
       { source: "/seller/wallet/:path*", destination: "/wallet/:path*", permanent: true },
+      { source: "/balance", destination: "/wallet", permanent: true },
+      { source: "/payments", destination: "/wallet", permanent: true },
+      { source: "/legal/terms", destination: "/legal/terms-and-conditions", permanent: true },
+      { source: "/legal/privacy", destination: "/legal/privacy-policy", permanent: true },
+      { source: "/legal/cookies", destination: "/legal/cookie-policy", permanent: true },
       { source: "/item/:slug", destination: "/listing/:slug", permanent: true },
       { source: "/products/:slug", destination: "/listing/:slug", permanent: true },
       { source: "/product/:slug", destination: "/listing/:slug", permanent: true },

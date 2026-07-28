@@ -1,0 +1,27 @@
+---
+description: Balance Execution Audit — find/fix/optimize/re-audit on localhost until 100/100 (P0).
+alwaysApply: true
+---
+
+# Balance Execution Audit (ABSOLUTE P0 · EXECUTION MODE)
+
+## Mission
+
+Find → Fix → Optimize → Re-audit → Production polish → Freeze → Continue  
+until Balance is **FINAL CERTIFIED (100/100)**.
+
+Localhost **`http://localhost:3000` only**. Real product only. Optimize in place. No redesign/v2/duplication.
+
+## Never
+
+Report-only · stop at FAIL as final · redesign · rebuild · auto login/passwords · certify docs/rules/engines · auto commit/push/deploy
+
+## Every issue
+
+Found → root cause → smallest fix → re-audit → (optimize if better without redesign) → polish → re-audit → 100/100 → Component Freeze → next.
+
+## Status board (after every fix)
+
+TOTAL 11 · FINAL CERTIFIED · OPTIMIZATION REQUIRED · WAITING FOR OWNER · EXTERNAL BLOCKERS · PROGRESS % · CURRENT · NEXT · AUDIT CONTINUES
+
+FAIL = fix + re-audit only — never final.

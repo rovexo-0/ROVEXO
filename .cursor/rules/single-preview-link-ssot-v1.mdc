@@ -1,0 +1,77 @@
+---
+description: ROVEXO v1.0 — One module, one route, one official Owner URL (Policy v3.0).
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — Single Preview Link + SSOT (OWNER APPROVED · LOCKED)
+
+## Canonical architecture
+
+ONE FEATURE → ONE COMPONENT → ONE ROUTE → ONE OWNER URL → ONE OWNER REVIEW → ONE CERTIFIED VERSION → ONE DEPLOYMENT
+
+Forbidden: duplicate pages/components/cards, temporary pages, parallel/legacy/backup/experimental UI versions.
+
+## Official Owner URL (Policy v3.0)
+
+**https://www.rovexo.co.uk** + path below.
+
+One permanent domain. All modules. Never localhost or module-specific preview URLs for Owner approval. See `owner-preview-policy-v3.mdc`.
+
+| Module | Official Owner URL |
+|---|---|
+| Homepage | `https://www.rovexo.co.uk/` |
+| Profile | `https://www.rovexo.co.uk/account` |
+| Favourites | `https://www.rovexo.co.uk/saved` |
+| Balance | `https://www.rovexo.co.uk/balance` |
+| Transactions | `https://www.rovexo.co.uk/wallet/transactions` |
+| Payment Methods | `https://www.rovexo.co.uk/wallet/payment-methods` |
+| Bank Accounts | `https://www.rovexo.co.uk/wallet/bank-accounts` |
+| Orders | `https://www.rovexo.co.uk/orders` |
+| Inbox | `https://www.rovexo.co.uk/inbox` |
+| Settings | `https://www.rovexo.co.uk/account/settings` |
+| Checkout | `https://www.rovexo.co.uk/checkout` |
+| Sell | `https://www.rovexo.co.uk/sell` |
+
+Cursor local hot-reload (agent only — never Owner approval): `http://localhost:3000` + same paths.  
+SSOT: `lib/preview/owner-preview-ssot.ts` · rule: `owner-preview-policy-v3.mdc`
+
+## Official preview links ONLY (local agent mirror)
+
+| Module | Official route |
+|---|---|
+| Homepage | `http://localhost:3000/` |
+| Profile | `http://localhost:3000/account` |
+| Favourites | `http://localhost:3000/saved` |
+| Balance | `http://localhost:3000/balance` |
+| Orders | `http://localhost:3000/orders` |
+| Inbox | `http://localhost:3000/inbox` |
+| Settings | `http://localhost:3000/account/settings` |
+| Rovexo Ideas | `http://localhost:3000/account/ideas` |
+| Checkout | `http://localhost:3000/checkout` |
+
+## Forbidden temporary previews
+
+Never create or serve: `empty.html`, `products.html`, `profile.html`, `favourites.html`, `preview.html`, `test-preview.html`, `v2-preview.html`, `localhost:8768` (or any alternate preview port), duplicated preview environments.
+
+All Owner reviews use **official application routes only** on **https://www.rovexo.co.uk**.
+
+## Visibility gate
+
+Do **not** claim Owner-reviewable until the change is visible on `https://www.rovexo.co.uk/<path>` (and Owner can open it on mobile). Agent may use `localhost:3000` for development only.
+
+## Workflow (mandatory order)
+
+IMPLEMENT → SAVE → BUILD → TYPECHECK → ESLINT → TESTS → HOT RELOAD → DEPLOY TO OFFICIAL OWNER URL → OWNER REVIEW → OWNER APPROVED → FREEZE → CERTIFICATION → GIT COMMIT → GITHUB PUSH (as Owner authorizes)
+
+Never skip. Never commit/push/deploy before Owner approval for the stage.
+
+## Product Card SSOT
+
+Only `ListingCard.tsx`. Used by Homepage, Search, Categories, Favourites, Seller, Stores, Recently viewed, Similar, Recommended, Related, Browse. Never create parallel `*Card.tsx` product cards.
+
+Mandatory fields always visible (including new products ★ 0.0 / 👁 0): image, favourite, price, incl., title, condition, rating, views, click → product page.
+
+## Profile / Favourites
+
+- Profile: `/account` — back, PROFILE, avatar, username, View profile, rating, coloured icons, black chevrons (except Sign Out). Social Follow permanently removed.
+- Favourites: `/saved` — empty state or 2-col `ListingCard` grid only.

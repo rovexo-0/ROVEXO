@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join, relative } from "node:path";
 import { SCAN_DIRS, walkFiles, walkPublicAssets } from "@/lib/design-studio-v1/scan-utils";
 import type { AssetScanFinding, AssetScanSummary } from "@/lib/design-studio-v1/types";
@@ -75,7 +76,7 @@ function collectReferencedAssets(rootDir: string): Set<string> {
 }
 
 export function scanBrokenAssets(options: ScanOptions = {}): AssetScanSummary {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? workspacePath();
   const scannedAt = new Date().toISOString();
   const publicDir = join(rootDir, "public");
   const totalFiles = existsSync(publicDir) ? walkPublicAssets(publicDir).length : 0;

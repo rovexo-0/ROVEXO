@@ -87,7 +87,7 @@ export const MARKETPLACE_MODULE_REGISTRY = [
   { id: "company-dashboard", label: "Company Dashboard", route: "/business/dashboard", pageRef: "app/business/dashboard/page.tsx" },
   { id: "orders", label: "Orders", route: "/account/orders", pageRef: "app/account/orders/page.tsx", apiRef: "app/seller/orders/page.tsx" },
   { id: "checkout", label: "Checkout", route: "/checkout", pageRef: "app/checkout/[slug]/page.tsx" },
-  { id: "wallet", label: "Wallet", route: "/wallet", pageRef: "app/wallet/page.tsx", apiRef: "app/account/wallet/page.tsx" },
+  { id: "wallet", label: "Balance", route: "/balance", pageRef: "app/balance/page.tsx", apiRef: "app/account/wallet/page.tsx" },
   { id: "payments", label: "Payments", route: "/account/payment-methods", pageRef: "app/account/payment-methods/page.tsx", apiRef: "lib/stripe/server.ts" },
   { id: "shipping", label: "Shipping", route: "/shipping", pageRef: "app/shipping/page.tsx", apiRef: "app/account/seller/shipping/page.tsx" },
   { id: "returns", label: "Returns", route: "/resolution", pageRef: "app/resolution/page.tsx" },

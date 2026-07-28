@@ -72,10 +72,10 @@ describe("Notifications canonical v1.0", () => {
   it("resolves navigation actions for core examples", () => {
     expect(
       resolveCanonicalNotificationHref("seller.new_order", { orderId: "o1" }),
-    ).toBe("/orders/o1");
+    ).toBe("/inbox?order=o1");
     expect(
       resolveCanonicalNotificationHref("buyer.tracking_updated", { orderId: "o2" }),
-    ).toBe("/orders/o2/tracking");
+    ).toBe("/inbox?order=o2&focus=tracking");
     expect(
       resolveCanonicalNotificationHref("buyer.offer_accepted", { offerId: "off1" }),
     ).toContain("/checkout?offerId=off1");
@@ -88,26 +88,80 @@ describe("Notifications canonical v1.0", () => {
     expect(
       resolveCanonicalNotificationHref("seller.new_message", { conversationId: "c1" }),
     ).toBe("/inbox/conversation/c1");
+    expect(
+      resolveCanonicalNotificationHref("seller.offer_received", {
+        conversationId: "c9",
+        offerId: "off9",
+      }),
+    ).toBe("/inbox/conversation/c9?offerId=off9");
 
     expect(resolveSmartNotificationHref("order_shipped", { orderId: "o9" })).toBe(
-      "/orders/o9/tracking",
+      "/inbox?order=o9&focus=tracking",
     );
     expect(getCanonicalNotification("marketplace.security_alert").control).toBe("security");
   });
 
-  it("exposes the six canonical user controls", () => {
+  it("recovers legacy /orders detail destinations to the Transaction Hub", async () => {
+    const { recoverNotificationHref } = await import("@/lib/notifications/routing");
+    expect(recoverNotificationHref("/orders/ord-abc")).toBe("/inbox?order=ord-abc");
+    expect(recoverNotificationHref("/orders/ord-abc/tracking")).toBe(
+      "/inbox?order=ord-abc&focus=tracking",
+    );
+    expect(recoverNotificationHref("/seller/orders/ord-abc")).toBe("/inbox?order=ord-abc");
+    expect(recoverNotificationHref("/inbox/conversation/c1")).toBe("/inbox/conversation/c1");
+  });
+
+  it("never recovers Funds Pending wallet hub links to Balance", async () => {
+    const {
+      recoverNotificationHref,
+      isFundsPendingNotificationFamily,
+      isWalletHubNotificationHref,
+      extractOrderRefFromNotificationSubtitle,
+    } = await import("@/lib/notifications/routing");
+
+    expect(recoverNotificationHref("/wallet")).toBe("/inbox");
+    expect(recoverNotificationHref("/balance")).toBe("/inbox");
+    expect(recoverNotificationHref("/seller/wallet")).toBe("/inbox");
+    expect(recoverNotificationHref("/wallet?order=ord-1")).toBe("/inbox?order=ord-1");
+    expect(isWalletHubNotificationHref("/wallet")).toBe(true);
+    expect(isWalletHubNotificationHref("/wallet/transactions/t1")).toBe(false);
+    expect(isFundsPendingNotificationFamily({ title: "Funds pending" })).toBe(true);
+    expect(
+      extractOrderRefFromNotificationSubtitle(
+        "£12.00 from order #RVX-99 — waiting for successful delivery.",
+      ),
+    ).toBe("RVX-99");
+    /* Withdrawal detail links stay on wallet transactions */
+    expect(recoverNotificationHref("/wallet/transactions/tx-1")).toBe(
+      "/wallet/transactions/tx-1",
+    );
+  });
+
+  it("Funds pending emit targets Transaction Conversation, not Wallet", async () => {
+    const source = readSource("lib/transaction-hub/seller-wallet-notifications.ts");
+    expect(source).toContain('title: "Funds pending"');
+    expect(source).toContain("NOTIFICATION_ROUTES.order(input.orderId)");
+    expect(source).not.toMatch(
+      /title:\s*"Funds pending"[\s\S]{0,400}NOTIFICATION_ROUTES\.wallet\b/,
+    );
+  });
+
+  it("exposes the canonical Settings v1.0 user controls", () => {
     expect(NOTIFICATION_USER_CONTROLS.map((item) => item.id)).toEqual([
+      "orders",
+      "inbox",
+      "wallet",
+      "payments",
+      "promotions",
+      "reviews",
       "push",
       "email",
-      "orders",
-      "offers",
-      "marketing",
-      "security",
     ]);
 
     expect(readUserControl(baseSettings, "push")).toBe(true);
     expect(readUserControl(baseSettings, "email")).toBe(true);
-    expect(readUserControl(baseSettings, "marketing")).toBe(false);
+    expect(readUserControl(baseSettings, "promotions")).toBe(false);
+    expect(readUserControl(null, "orders")).toBe(false);
 
     expect(patchForUserControl("email", false)).toEqual({
       emailMessages: false,
@@ -115,7 +169,8 @@ describe("Notifications canonical v1.0", () => {
       emailPromotions: false,
       emailMarketing: false,
     });
-    expect(patchForUserControl("security", false)).toEqual({ system: false });
+    expect(patchForUserControl("payments", true)).toEqual({ offers: true });
+    expect(patchForUserControl("reviews", false)).toEqual({ reviews: false });
   });
 
   it("uses idempotent grouping keys for zero-duplicate smart refresh", () => {
@@ -135,17 +190,16 @@ describe("Notifications canonical v1.0", () => {
 
   it("keeps canonical UI surfaces and empty states", () => {
     const inbox = readSource("features/inbox/components/InboxPage.tsx");
-    const empty = readSource("features/notifications/components/NotificationsEmptyState.tsx");
     const settings = readSource("features/notifications/components/NotificationSettingsPage.tsx");
-    const css = readSource("styles/rovexo/notifications-v1.css");
+    const css = readSource("styles/rovexo/inbox-hub-v1.css");
     const route = readSource("app/notifications/page.tsx");
 
     expect(inbox).toContain("useRealtimeNotifications");
     expect(inbox).toContain("Mark all");
-    expect(empty).toContain("No Notifications Yet");
-    expect(empty).toContain("No Order Notifications");
+    expect(inbox).toContain("You&apos;re all caught up");
+    expect(inbox).toContain("No conversations yet");
     expect(settings).toContain("NOTIFICATION_USER_CONTROLS");
-    expect(css).toContain(".notif-v1");
+    expect(css).toContain(".inbox-hub");
     expect(route).toContain("redirect");
   });
 

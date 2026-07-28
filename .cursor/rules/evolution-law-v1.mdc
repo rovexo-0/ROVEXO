@@ -1,0 +1,41 @@
+---
+description: Evolution Law v1.0 — evolve in place; protect→optimize→adapt→simplify; never duplicate (P0).
+alwaysApply: true
+---
+
+# ROVEXO Evolution Law v1.0 (ABSOLUTE P0 · PERMANENT)
+
+## In place only
+
+Every Owner-approved implementation evolves **in place**.  
+Never by: duplication · recreation · replacement · redesign · hidden migration · parallel / temporary / experimental implementations.
+
+## Questions (mandatory order)
+
+1. **Does it already exist?** YES → #2 · NO → Owner approval required  
+2. **Can it be optimized?** YES → optimize · NO → #3  
+3. **Can it be adapted?** YES → adapt · NO → #4  
+4. **Can it be simplified?** YES → simplify · NO → #5  
+5. **Is a new implementation absolutely required?** NO → do not create it · YES → Owner approval first  
+
+## Evolution path (only)
+
+**PROTECT → OPTIMIZE → ADAPT → SIMPLIFY → CERTIFY → DEPLOY**
+
+Never: REBUILD → DUPLICATE → REPLACE → REDESIGN → MIGRATE → DEPLOY
+
+## Pass vs Fail
+
+- **PASS:** Wallet/Balance → optimized/secured/responsive/accessible/faster → **same implementation**  
+- **FAIL:** Wallet v2 / Pro / Manager / Hub · Balance Lite / Pro  
+
+## Golden principle
+
+If it exists, protect it. If it can be optimized, optimize it. If adapted, adapt. If simplified, simplify. If not absolutely necessary, **do not create it**.
+
+## Master equation
+
+ONE OWNER + ONE IMPLEMENTATION + ONE DESIGN + ONE SSOT + ONE RESPONSIVE SYSTEM + ONE EVOLUTION PATH + ZERO DUPLICATIONS + ZERO PARALLEL SYSTEMS + MAXIMUM SCALABILITY = **ROVEXO**
+
+Aligns with Design Protection Absolute v1.1 · Implementation Protection Law v1.1.  
+SSOT: `lib/master-engine/evolution-law-v1.ts`

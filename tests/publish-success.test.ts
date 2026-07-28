@@ -42,28 +42,43 @@ describe("publish success payload", () => {
     });
   });
 
-  it("parses API publish block", () => {
-    const publish = buildPublishSuccessPayload(sampleListing, "seller-1", "https://www.rovexo.co.uk");
+  it("parses listing-only API response as publish fallback", () => {
     const parsed = parsePublishSuccessResponse({
-      listing: sampleListing as SellerListing,
-      publish,
+      listing: {
+        ...sampleListing,
+        sellerId: "seller-1",
+      },
     });
     expect(parsed.listingId).toBe("listing-123");
     expect(parsed.listingSlug).toBe("memory-foam-pillow-white");
-    expect(parsed.listingUrl).toContain("/listing/memory-foam-pillow-white");
+    expect(parsed.sellerId).toBe("seller-1");
   });
 });
 
-describe("publish success dialog", () => {
-  it("exposes functional buttons without auto-redirect", () => {
+describe("publish success dialog — Absolute Authority v1.0", () => {
+  it("exposes X→Home · View Listing · Share Listing · Sell Another Item · photo", () => {
     const source = readFileSync(
       path.join(process.cwd(), "components/sell/PublishSuccessDialog.tsx"),
       "utf8",
     );
-    expect(source).toContain("Share Listing");
+    expect(source).toContain("ShareListingSheet");
     expect(source).toContain("Sell Another Item");
+    expect(source).toContain("Share Listing");
     expect(source).toContain("View Listing");
+    expect(source).toContain("onDismissToHome");
+    expect(source).toContain("Listing successfully published");
+    expect(source).toContain("Your listing is now live.");
+    expect(source).toContain("photoSrc");
     expect(source).not.toContain("setTimeout");
-    expect(source).toContain("LISTING_VIEW_ERROR_MESSAGE");
+  });
+
+  it("locks Sell Absolute Authority freeze SSOT", () => {
+    const freeze = readFileSync(
+      path.join(process.cwd(), "lib/sell/sell-absolute-authority-freeze-v1.ts"),
+      "utf8",
+    );
+    expect(freeze).toContain('title: "Listing successfully published"');
+    expect(freeze).toContain("parcelRecommended: false");
+    expect(freeze).toContain("controlHeightPx: 56");
   });
 });

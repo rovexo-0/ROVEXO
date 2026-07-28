@@ -1,0 +1,31 @@
+---
+description: Absolute Law v5.0 — real products only; remove all fake/demo/test marketplace listings (PERMANENT).
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE LAW v5.0 — REAL PRODUCTS ONLY
+
+**STATUS: OWNER APPROVED | PERMANENT FREEZE**
+
+SSOT: `lib/real-products-only-v5.ts`  
+Host: `http://localhost:3000` (Law v4.0)
+
+## Law
+
+Empty database → show only:
+
+ROVEXO MARKETPLACE · No listings available. · Be the first to sell on ROVEXO. · **SELL NOW**
+
+N database products → show N real products. Never pad.
+
+## Forbidden forever
+
+Fake / demo / test / placeholder / mock / canonical-demo / generated listings · automatic inventory injection · product detail image/description fallbacks from demo assets · `seedDemoListings`
+
+## Keep
+
+Full Demo accounts only: `demo.buyer@rovexo.co.uk` · `demo.seller@rovexo.co.uk` (no fake catalogue).
+
+## Cursor must never
+
+Create replacement/fake/demo/fallback products. Bypass Buy Now guards. Certify while fake inventory is visible on localhost:3000.

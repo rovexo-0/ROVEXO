@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join } from "node:path";
 import { cacheControlValue } from "@/lib/api/cache-headers";
 import { validatePerformanceHeaderConfiguration } from "@/lib/ops/performance-headers";
@@ -40,17 +41,17 @@ const REQUIRED_INDEXES = [
 ] as const;
 
 function readProjectFile(relativePath: string): string {
-  const absolutePath = join(process.cwd(), relativePath);
+  const absolutePath = workspacePath( relativePath);
   if (!existsSync(absolutePath)) return "";
   return readFileSync(absolutePath, "utf8");
 }
 
 function fileExists(relativePath: string): boolean {
-  return existsSync(join(process.cwd(), relativePath));
+  return existsSync(workspacePath( relativePath));
 }
 
 function migrationContainsIndex(indexName: string): boolean {
-  const migrationsDir = join(process.cwd(), "supabase", "migrations");
+  const migrationsDir = workspacePath( "supabase", "migrations");
   if (!existsSync(migrationsDir)) return false;
 
   return readdirSync(migrationsDir)

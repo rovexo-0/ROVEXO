@@ -1,12 +1,9 @@
 /**
- * ROVEXO Material Database — canonical SSOT.
- * Target: 800+ materials with category-scoped loading.
+ * ROVEXO Material Database — Catalog Master SSOT (compact).
  */
 
-import { dedupeSorted, expandCombinations, slugify } from "@/lib/categories/taxonomy-utils";
-import { MATERIAL_FAMILIES } from "@/lib/materials/families";
-import { MATERIAL_QUALIFIERS } from "@/lib/materials/qualifiers";
-import { MATERIAL_FINISHES } from "@/lib/materials/finishes";
+import { CATALOG_MATERIALS } from "@/lib/catalog/materials";
+import { slugify } from "@/lib/categories/taxonomy-utils";
 
 export type MaterialRecord = {
   id: string;
@@ -18,66 +15,23 @@ export type MaterialRecord = {
   verticals: readonly string[];
 };
 
-function buildMaterial(name: string, family: string, verticals: readonly string[]): MaterialRecord {
-  const trimmed = name.trim();
-  return {
-    id: trimmed,
-    name: trimmed,
-    slug: slugify(trimmed),
-    family,
-    aliases: [],
-    keywords: [trimmed.toLowerCase(), family.toLowerCase()],
-    verticals,
-  };
-}
-
-function generateMaterials(): MaterialRecord[] {
-  const records: MaterialRecord[] = [];
-
-  for (const [family, bases, verticals] of MATERIAL_FAMILIES) {
-    for (const base of bases) {
-      records.push(buildMaterial(base, family, verticals));
-    }
-    const qualifiers = MATERIAL_QUALIFIERS[family] ?? MATERIAL_QUALIFIERS.default ?? [];
-    const finishes = MATERIAL_FINISHES[family] ?? [];
-    const expanded = expandCombinations(bases, qualifiers, finishes);
-    for (const name of expanded) {
-      if (name !== bases.find((b) => b === name)) {
-        records.push(buildMaterial(name, family, verticals));
-      }
-    }
-  }
-
-  const seen = new Set<string>();
-  return records.filter((r) => {
-    const key = r.id.toLowerCase();
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-export const MATERIAL_DATABASE: MaterialRecord[] = generateMaterials();
+export const MATERIAL_DATABASE: MaterialRecord[] = [...CATALOG_MATERIALS].map((name) => ({
+  id: name,
+  name,
+  slug: slugify(name),
+  family: "catalog",
+  aliases: [],
+  keywords: [name.toLowerCase()],
+  verticals: ["general", "fashion", "home", "pillows", "bedding"],
+}));
 
 export const MARKETPLACE_MATERIALS: readonly string[] = MATERIAL_DATABASE.map((m) => m.name);
-
 export const MATERIAL_COUNT = MATERIAL_DATABASE.length;
 
-export const FASHION_MATERIALS = dedupeSorted(
-  MATERIAL_DATABASE.filter((m) => m.verticals.includes("fashion")).map((m) => m.name),
-);
-
-export const HOME_MATERIALS = dedupeSorted(
-  MATERIAL_DATABASE.filter((m) => m.verticals.includes("home")).map((m) => m.name),
-);
-
-export const PILLOW_MATERIALS = dedupeSorted(
-  MATERIAL_DATABASE.filter((m) => m.verticals.includes("pillows") || m.verticals.includes("bedding")).map((m) => m.name),
-);
-
-export const BEDDING_MATERIALS = dedupeSorted(
-  MATERIAL_DATABASE.filter((m) => m.verticals.includes("bedding")).map((m) => m.name),
-);
+export const FASHION_MATERIALS = MARKETPLACE_MATERIALS;
+export const HOME_MATERIALS = MARKETPLACE_MATERIALS;
+export const PILLOW_MATERIALS = MARKETPLACE_MATERIALS;
+export const BEDDING_MATERIALS = MARKETPLACE_MATERIALS;
 
 export const MARKETPLACE_MATERIALS_BY_VERTICAL = {
   default: MARKETPLACE_MATERIALS,

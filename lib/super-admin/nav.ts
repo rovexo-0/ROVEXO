@@ -21,7 +21,7 @@ export const COMMAND_CENTER_SIDEBAR_NAV: SuperAdminNavItem[] = [
   { href: "/super-admin/messages-engine", label: "Messages", icon: "mail" },
   { href: "/super-admin/protection-engine", label: "Disputes", icon: "scale" },
   { href: "/super-admin/reviews", label: "Reviews", icon: "star" },
-  { href: "/super-admin/rovexo-ideas", label: "ROVEXO Ideas", icon: "lightbulb" },
+  { href: "/super-admin/rovexo-ideas", label: "Rovexo Ideas", icon: "lightbulb" },
   { href: "/super-admin/command-os", label: "Command OS", icon: "terminal" },
   { href: "/super-admin/analytics-engine", label: "Analytics", icon: "bar-chart-3" },
   { href: "/super-admin/security-engine", label: "Security", icon: "shield" },

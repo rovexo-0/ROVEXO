@@ -75,7 +75,6 @@ export async function ensureOrderConversation(input: {
   const seeds = [
     `Payment confirmed for order ${input.orderNumber}.`,
     `Order ${input.orderNumber} has been created.`,
-    "Tracking pending — updates appear here once the seller ships.",
   ];
 
   const { count } = await admin

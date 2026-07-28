@@ -1,0 +1,34 @@
+---
+description: Balance Final Certification — only FINAL CERTIFIED at 100/100; four statuses only (P0).
+alwaysApply: true
+---
+
+# Balance Final Certification (ABSOLUTE P0)
+
+## Not finished until 100/100 on all
+
+1. All components · 2. All real functionalities · 3. All real device tests · 4. All responsive · 5. All financial · 6. All security · 7. All performance · 8. All accessibility · 9. All Owner requirements · 10. Zero defect  
+
+Localhost only (`http://localhost:3000`) until Owner approves later deploy stages.
+
+## Owner questions (any NO = FAIL)
+
+Simple · Fast · Minimalist · Professional · Full Width · Responsive · Future proof · Marketplace ready · Zero defect · Owner approved
+
+## Improve without redesign?
+
+YES → apply improvements · continue audit  
+NO → only then consider Final Certified (Owner still must approve)
+
+## Allowed states only
+
+1. **FAIL**  
+2. **AUDIT IN PROGRESS**  
+3. **WAITING FOR OWNER**  
+4. **FINAL CERTIFIED**  
+
+## Forbidden
+
+Declaring Balance complete / ready / certified / freeze ready unless **FINAL CERTIFIED (100/100)**.
+
+**FINAL CERTIFIED** = nothing left to fix/optimize/align/improve/certify · Owner approved · localhost + zero defect certified · freeze/commit/push/preview/production ready — each still needs Owner stage approval.

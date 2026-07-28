@@ -1,0 +1,41 @@
+# ROVEXO INVENTORY ENGINE v1.0 — COD SÂNGE RVX-2012
+
+**STATUS: OWNER APPROVED | LOCKED | ONLY BLOCKER = SQL MIGRATION APPLY**
+
+SSOT: `lib/inventory/inventory-engine-v1.ts` · `lib/inventory/service.ts`  
+SQL: `20260724223000_inventory_engine_reserved_enum_v1.sql`  
+SQL: `20260724223100_inventory_engine_reserved_rpc_v1.sql`  
+Timer: `BUY_NOW_AUTO_CANCEL_MINUTES = 15` · `AUTO_CANCEL_ENGINE`
+
+## Allowed only
+
+```
+BUY NOW → RESERVED → CHECKOUT → PAYMENT → SUCCESS → ORDER → SOLD
+```
+
+## Forbidden
+
+Buy Now → SOLD → Checkout / Payment / Order  
+Buy Now → Order → Payment  
+Buy Now → Payment → Checkout  
+Buy Now → SOLD without payment
+
+## Reservation SSOT (no parallel table)
+
+PENDING_PAYMENT `orders` row:
+
+| Field | Source |
+|----|-----|
+| reservationId | `orders.id` |
+| buyerId | `orders.buyer_id` |
+| listingId | `order_items.product_id` |
+| expiresAt | `orders.reserved_until` (15 min) |
+| checkoutId / paymentId / stripeId / transactionId | Buy Now / Stripe engines |
+
+## Release → PUBLISHED (stock unchanged)
+
+Payment fail · Payment timeout (15m countdown → AUTO RELEASE) · Abandoned session
+
+## Success → SOLD
+
+`mark_product_sold` → `status=sold` · `stock=0`

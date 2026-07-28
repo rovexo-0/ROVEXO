@@ -128,12 +128,16 @@ describe("Final Preview Certification v1.0 — Parcel Freeze", () => {
   it("sell UI exposes only Small Medium Large Extra Large", () => {
     expect([...PARCEL_SIZES]).toEqual(["small", "medium", "large", "xl"]);
     expect(PARCEL_SIZE_OPTIONS.map((o) => o.label)).toEqual([
-      "Small Parcel",
-      "Medium Parcel",
-      "Large Parcel",
-      "Extra Large Parcel",
+      "SMALL",
+      "MEDIUM",
+      "LARGE",
+      "EXTRA LARGE",
     ]);
     expect(PARCEL_SIZE_OPTIONS.some((o) => /custom/i.test(o.label))).toBe(false);
+    expect(PARCEL_SIZE_OPTIONS.find((o) => o.id === "medium")?.description).toBe(
+      "Shoes, handbags and\neveryday products.",
+    );
+    expect(PARCEL_SIZE_OPTIONS.every((o) => !o.recommended)).toBe(true);
   });
 
   it("shipping tiers match Absolute Final labels and remap custom → XL", () => {
@@ -169,7 +173,7 @@ describe("Final Preview Certification v1.0 — Master Menu + Phone Width", () =>
     const sections = buildAccountMenuSections(stubProfile);
     expect(sections.length).toBeGreaterThan(0);
     const titles = sections.flatMap((s) => s.items.map((i) => i.title));
-    expect(titles.some((t) => /wallet/i.test(t))).toBe(true);
+    expect(titles.some((t) => /balance/i.test(t))).toBe(true);
     expect(titles.some((t) => /buying|order/i.test(t))).toBe(true);
   });
 

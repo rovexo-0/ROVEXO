@@ -10,16 +10,49 @@ import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 type ConversationRow = Tables<"conversations"> & {
   products: Pick<
     Tables<"products">,
-    "id" | "slug" | "title" | "price" | "condition" | "status" | "listing_type" | "accept_offers"
+    | "id"
+    | "slug"
+    | "title"
+    | "price"
+    | "condition"
+    | "status"
+    | "listing_type"
+    | "accept_offers"
+    | "location_city"
   > & {
     product_images: Pick<Tables<"product_images">, "url" | "is_primary" | "sort_order">[];
-  };
+  } | null;
   buyer: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url">;
-  seller: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url">;
+  seller: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url"> & {
+    seller_profiles: Pick<Tables<"seller_profiles">, "rating" | "review_count"> | null;
+  };
   messages: Tables<"messages">[];
 };
 
-function productImage(images: ConversationRow["products"]["product_images"]): string {
+const PRODUCT_EMBED_SELECT =
+  "id, slug, title, price, condition, status, listing_type, accept_offers, location_city, product_images ( url, is_primary, sort_order )";
+
+/**
+ * Sold listings are hidden from marketplace RLS. Conversation parties still need
+ * the product card — hydrate via service role when the embed is null.
+ */
+async function hydrateConversationProduct(row: ConversationRow): Promise<ConversationRow> {
+  if (row.products) return row;
+  const { tryCreateAdminClient } = await import("@/lib/supabase/admin");
+  const admin = tryCreateAdminClient();
+  if (!admin || !row.product_id) return row;
+  const { data: product } = await admin
+    .from("products")
+    .select(PRODUCT_EMBED_SELECT)
+    .eq("id", row.product_id)
+    .maybeSingle();
+  if (!product) return row;
+  return { ...row, products: product as NonNullable<ConversationRow["products"]> };
+}
+
+function productImage(
+  images: NonNullable<ConversationRow["products"]>["product_images"],
+): string {
   const sorted = [...(images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
@@ -43,7 +76,9 @@ function mapMessage(row: Tables<"messages">): ChatMessage {
 }
 
 async function getPresence(userId: string) {
-  const admin = createAdminClient();
+  const { tryCreateAdminClient } = await import("@/lib/supabase/admin");
+  const admin = tryCreateAdminClient();
+  if (!admin) return null;
   const { data } = await admin
     .from("user_presence")
     .select("online, last_seen_at")
@@ -53,8 +88,16 @@ async function getPresence(userId: string) {
 }
 
 function mapConversation(row: ConversationRow, viewerId: string): Conversation {
+  if (!row.products) {
+    throw new Error("Conversation product unavailable");
+  }
+  const product = row.products;
   const isBuyer = row.buyer_id === viewerId;
   const participant = isBuyer ? row.seller : row.buyer;
+  const sellerProfileRaw = row.seller?.seller_profiles;
+  const sellerProfile = Array.isArray(sellerProfileRaw)
+    ? sellerProfileRaw[0]
+    : sellerProfileRaw;
 
   return {
     id: row.id,
@@ -65,17 +108,20 @@ function mapConversation(row: ConversationRow, viewerId: string): Conversation {
       role: isBuyer ? "seller" : "buyer",
       online: false,
       lastSeen: undefined,
+      rating: isBuyer ? (sellerProfile?.rating ?? null) : null,
+      reviewCount: isBuyer ? (sellerProfile?.review_count ?? null) : null,
     },
     product: {
-      id: row.products.id,
-      slug: row.products.slug,
-      title: row.products.title,
-      price: Number(row.products.price),
-      condition: row.products.condition,
-      imageUrl: productImage(row.products.product_images),
-      status: row.products.status as ProductListingStatus,
-      listingType: row.products.listing_type === "auction" ? "auction" : "fixed",
-      acceptOffers: Boolean(row.products.accept_offers),
+      id: product.id,
+      slug: product.slug,
+      title: product.title,
+      price: Number(product.price),
+      condition: product.condition,
+      imageUrl: productImage(product.product_images),
+      status: product.status as ProductListingStatus,
+      listingType: product.listing_type === "auction" ? "auction" : "fixed",
+      acceptOffers: Boolean(product.accept_offers),
+      locationCity: product.location_city ?? null,
     },
     lastMessage: row.last_message,
     lastMessageAt: row.last_message_at,
@@ -92,9 +138,9 @@ function mapConversation(row: ConversationRow, viewerId: string): Conversation {
 
 const conversationSelect = `
   *,
-  products ( id, slug, title, price, condition, status, listing_type, accept_offers, product_images ( url, is_primary, sort_order ) ),
+  products ( id, slug, title, price, condition, status, listing_type, accept_offers, location_city, product_images ( url, is_primary, sort_order ) ),
   buyer:profiles!conversations_buyer_id_fkey ( id, full_name, avatar_url ),
-  seller:profiles!conversations_seller_id_fkey ( id, full_name, avatar_url ),
+  seller:profiles!conversations_seller_id_fkey ( id, full_name, avatar_url, seller_profiles ( rating, review_count ) ),
   messages ( * )
 `;
 
@@ -109,7 +155,9 @@ export async function listConversations(viewerId: string): Promise<Conversation[
   const rows = (data as ConversationRow[] | null) ?? [];
   const enriched = await Promise.all(
     rows.map(async (row) => {
-      const conversation = mapConversation(row, viewerId);
+      const hydrated = await hydrateConversationProduct({ ...row, messages: row.messages ?? [] });
+      if (!hydrated.products) return null;
+      const conversation = mapConversation(hydrated, viewerId);
       const presence = await getPresence(conversation.participant.id);
       conversation.participant.online = presence?.online ?? false;
       conversation.participant.lastSeen = presence?.last_seen_at ?? undefined;
@@ -117,7 +165,9 @@ export async function listConversations(viewerId: string): Promise<Conversation[
     }),
   );
 
-  return enriched.sort((a, b) => Number(b.pinned) - Number(a.pinned));
+  return enriched
+    .filter((conversation): conversation is Conversation => conversation != null)
+    .sort((a, b) => Number(b.pinned) - Number(a.pinned));
 }
 
 export async function getConversationById(id: string, viewerId: string): Promise<Conversation | null> {
@@ -130,7 +180,10 @@ export async function getConversationById(id: string, viewerId: string): Promise
 
   if (!data) return null;
 
-  const conversation = mapConversation(data as ConversationRow, viewerId);
+  const hydrated = await hydrateConversationProduct(data as unknown as ConversationRow);
+  if (!hydrated.products) return null;
+
+  const conversation = mapConversation(hydrated, viewerId);
   const presence = await getPresence(conversation.participant.id);
   conversation.participant.online = presence?.online ?? false;
   conversation.participant.lastSeen = presence?.last_seen_at ?? undefined;

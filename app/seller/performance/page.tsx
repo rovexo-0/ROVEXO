@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { SellerPerformanceDashboardView } from "@/features/seller-performance/components/SellerPerformanceDashboardView";
 import { getAuthContext } from "@/lib/auth/session";
 import { getSellerPerformanceDashboard } from "@/lib/seller-performance/service";
+import { getPublicBadges } from "@/lib/badge/store";
 
 export const metadata: Metadata = {
   title: "Performance · ROVEXO",
@@ -15,6 +16,15 @@ export default async function SellerPerformancePage() {
     redirect("/login?next=/seller/performance");
   }
 
-  const data = await getSellerPerformanceDashboard(auth.user.id);
-  return <SellerPerformanceDashboardView data={data} />;
+  const [data, badges] = await Promise.all([
+    getSellerPerformanceDashboard(auth.user.id),
+    getPublicBadges(auth.user.id),
+  ]);
+
+  return (
+    <SellerPerformanceDashboardView
+      data={data}
+      publicBadges={badges.map((b) => ({ id: b.id, label: b.label }))}
+    />
+  );
 }

@@ -42,24 +42,23 @@ export type ParcelSizeOption = {
 export const PARCEL_SIZE_OPTIONS: ParcelSizeOption[] = [
   {
     id: "small",
-    label: "Small Parcel",
-    description: "Fits a large letterbox.",
+    label: "SMALL",
+    description: "Jewellery, accessories and\nsmall lightweight items.",
   },
   {
     id: "medium",
-    label: "Medium Parcel",
-    description: "Shoebox size.",
-    recommended: true,
+    label: "MEDIUM",
+    description: "Shoes, handbags and\neveryday products.",
   },
   {
     id: "large",
-    label: "Large Parcel",
-    description: "Cabin-bag size.",
+    label: "LARGE",
+    description: "Electronics, jackets and\nlarger products.",
   },
   {
     id: "xl",
-    label: "Extra Large Parcel",
-    description: "Bulky items.",
+    label: "EXTRA LARGE",
+    description: "Bulky, oversized and\nlarge outdoor products.",
   },
 ];
 
@@ -220,8 +219,12 @@ export function getListingValidationErrors(
     return errors;
   }
 
-  if (draft.title.trim().length < 3) {
-    errors.title = "Title must be at least 3 characters.";
+  if (draft.title.trim().length < 5) {
+    errors.title = "Title must be at least 5 characters.";
+  }
+
+  if (draft.description.trim().length < 20) {
+    errors.description = "Add a description (at least 20 characters).";
   }
 
   if (!draft.categoryPath) {

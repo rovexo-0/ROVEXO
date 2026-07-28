@@ -1,107 +1,117 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useMemo } from "react";
 import type { ShowcaseSellerSection } from "@/lib/homepage/showcase-sellers";
+import {
+  isShowcaseListingNavigable,
+} from "@/lib/homepage/showcase-sellers";
 import { FeaturedStoreHeader } from "@/components/homepage/canonical/featured-store/FeaturedStoreHeader";
+import { ShowcaseViewAllCard } from "@/components/homepage/canonical/featured-store/ShowcaseViewAllCard";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
-import { StoreProfileCard } from "@/components/homepage/canonical/featured-store/StoreProfileCard";
+import {
+  SHOWCASE_FINAL_DOM_VALUE,
+  SHOWCASE_LISTING_CARD_DENSITY,
+  takeShowcaseListings,
+} from "@/lib/homepage/showcase-final-freeze-v1";
+import {
+  isValidHomepageStoreHref,
+  listingHrefFromSlug,
+} from "@/lib/homepage/homepage-final-freeze-v1";
+import { storeListingCardAttr } from "@/lib/store/store-listing-card-premium-v1";
 import css from "@/components/homepage/canonical/featured-store/FeaturedStore.module.css";
 
 export type FeaturedStoreSectionProps = {
   sections: ShowcaseSellerSection[];
 };
 
+function uniqueById<T extends { id: string }>(items: T[]): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const item of items) {
+    if (seen.has(item.id)) continue;
+    seen.add(item.id);
+    out.push(item);
+  }
+  return out;
+}
+
+/**
+ * Homepage Showcase Final Freeze v1.0:
+ * Store header → 9 newest ListingCards → 1 View All card → horizontal scroll only.
+ * Cap: nine listings + one View All. Never opens 404 / broken routes.
+ * Real products only — never inject demo catalogue listings.
+ */
 export const FeaturedStoreSection = memo(function FeaturedStoreSection({
   sections,
 }: FeaturedStoreSectionProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const profileRailRef = useRef<HTMLDivElement | null>(null);
+  const store = useMemo(() => {
+    const primary =
+      sections.find(
+        (section) =>
+          section.listings.length > 0 && isValidHomepageStoreHref(section.profileHref),
+      ) ?? null;
+    if (!primary) return null;
 
-  const stores = useMemo(() => sections.filter((section) => section.listings.length > 0), [sections]);
-  const activeStore = stores[activeIndex] ?? stores[0] ?? null;
+    const pool = uniqueById(primary.listings).filter(isShowcaseListingNavigable);
+    const listings = takeShowcaseListings(pool);
+    if (listings.length === 0) return null;
 
-  const listings = useMemo(() => (activeStore ? activeStore.listings : []), [activeStore]);
+    const listingCount = Math.max(
+      primary.listingCount ?? 0,
+      primary.listings.length,
+      pool.length,
+      listings.length,
+    );
 
-  const selectStore = useCallback((index: number) => {
-    setActiveIndex(index);
-  }, []);
+    return { ...primary, listings, listingCount };
+  }, [sections]);
 
-  useEffect(() => {
-    if (stores.length <= 1) return;
-    const timer = window.setInterval(() => {
-      setActiveIndex((current) => (current + 1) % stores.length);
-    }, 12_000);
-    return () => window.clearInterval(timer);
-  }, [stores.length]);
-
-  useEffect(() => {
-    const rail = profileRailRef.current;
-    if (!rail) return;
-    const card = rail.children[activeIndex] as HTMLElement | undefined;
-    card?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }, [activeIndex]);
-
-  if (stores.length === 0) {
+  if (!store || !isValidHomepageStoreHref(store.profileHref)) {
     return null;
   }
 
+  const storeCardAttr = storeListingCardAttr(SHOWCASE_LISTING_CARD_DENSITY);
+
   return (
     <section
-      aria-label="Featured stores"
+      aria-label="Featured store"
       className={css.block}
       data-hp-featured-store
       data-hp-featured-store-version="v1.0-canonical"
+      data-hp-showcase={SHOWCASE_FINAL_DOM_VALUE}
+      data-hp-homepage-final="v1.0"
     >
-      <div ref={profileRailRef} className={css.profileRail} role="list">
-        {stores.map((section, index) => (
-          <div key={section.sellerId} role="listitem" className={css.profileRailItem}>
-            <button
-              type="button"
-              className={css.profileRailButton}
-              aria-pressed={index === activeIndex}
-              aria-label={`Show ${section.sellerName} store`}
-              onClick={() => selectStore(index)}
+      <FeaturedStoreHeader section={store} />
+      <div className={css.carousel} role="list" aria-label="Showcase listings">
+        {store.listings.map((product, index) => {
+          const href = listingHrefFromSlug(product.slug);
+          if (!href) return null;
+          return (
+            <div
+              key={product.id}
+              role="listitem"
+              className={css.carouselItem}
+              {...storeCardAttr}
             >
-              <StoreProfileCard
-                section={section}
-                active={index === activeIndex}
-                priority={index === 0}
+              <ListingCard
+                product={product}
+                href={href}
+                variant="grid"
+                priority={index < 3}
+                {...HP_CANONICAL_LISTING_PROPS}
               />
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {stores.length > 1 ? (
-        <div className={css.profileDots} aria-hidden>
-          {stores.map((section, index) => (
-            <span
-              key={section.sellerId}
-              className={css.profileDot}
-              data-active={index === activeIndex ? "true" : "false"}
-            />
-          ))}
+            </div>
+          );
+        })}
+        <div role="listitem" className={css.carouselItem} data-hp-showcase-slot="view-all">
+          <ShowcaseViewAllCard
+            href={store.profileHref}
+            listingCount={store.listingCount ?? store.listings.length}
+            storeName={store.sellerName}
+          />
         </div>
-      ) : null}
-
-      {activeStore ? (
-        <>
-          <FeaturedStoreHeader section={activeStore} />
-          <div className={css.carousel} role="list">
-            {listings.map((product, index) => (
-              <div key={product.id} role="listitem" className={css.carouselItem}>
-                <ListingCard
-                  product={product}
-                  variant="grid"
-                  priority={index < 2}
-                  {...HP_CANONICAL_LISTING_PROPS}
-                />
-              </div>
-            ))}
-          </div>
-        </>
-      ) : null}
+      </div>
     </section>
   );
 });

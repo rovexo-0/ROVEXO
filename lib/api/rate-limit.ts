@@ -197,6 +197,28 @@ function failClosedInProduction(windowMs: number): RateLimitResult {
   return { allowed: false, retryAfterSeconds: windowSec };
 }
 
+/**
+ * Localhost Absolute Law / Buy Now First Law:
+ * `next start` on localhost sets NODE_ENV=production but must not block Buy Now E2E
+ * when Upstash is absent. Live www only fail-closes without Redis.
+ */
+function isLocalhostAppRuntime(): boolean {
+  const appUrl = [
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.SITE_URL,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return /localhost|127\.0\.0\.1/i.test(appUrl);
+}
+
+function shouldFailClosedWithoutUpstash(): boolean {
+  if (process.env.NODE_ENV !== "production") return false;
+  if (isLocalhostAppRuntime()) return false;
+  return true;
+}
+
 export function getClientIp(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
@@ -227,7 +249,7 @@ export async function checkRateLimit(
     return upstash;
   }
 
-  if (process.env.NODE_ENV === "production") {
+  if (shouldFailClosedWithoutUpstash()) {
     return failClosedInProduction(windowMs);
   }
 
@@ -253,7 +275,7 @@ export async function getRateLimitStatus(
     return upstash;
   }
 
-  if (process.env.NODE_ENV === "production") {
+  if (shouldFailClosedWithoutUpstash()) {
     return failClosedInProduction(windowMs);
   }
 
@@ -280,7 +302,7 @@ export async function resetRateLimit(key: string): Promise<void> {
     return;
   }
 
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "production" && shouldFailClosedWithoutUpstash()) {
     console.error("[rate-limit] Upstash is not configured in production.");
     return;
   }

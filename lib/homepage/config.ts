@@ -1,4 +1,4 @@
-export type HomepageMode = "production" | "closed_beta" | "demo";
+export type HomepageMode = "production" | "closed_beta";
 
 export function resolveHomepageMode(): HomepageMode {
   // Bracket access — Next must not bake these to undefined at build time.
@@ -7,14 +7,6 @@ export function resolveHomepageMode(): HomepageMode {
     process.env["NEXT_PUBLIC_ROVEXO_HOMEPAGE_CLOSED_BETA"] === "1";
   if (closedBeta) {
     return "closed_beta";
-  }
-
-  const demo =
-    process.env["ROVEXO_HOMEPAGE_DEMO"] === "1" ||
-    process.env["NEXT_PUBLIC_ROVEXO_HOMEPAGE_DEMO"] === "1" ||
-    process.env["PLAYWRIGHT_E2E"] === "1";
-  if (demo) {
-    return "demo";
   }
 
   return "production";

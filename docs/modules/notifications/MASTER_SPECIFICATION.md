@@ -12,7 +12,7 @@
 | Controls | `lib/notifications/controls.ts` |
 | Markers | `lib/notifications/canonical.ts` |
 | Live list surface | Inbox Hub `/inbox?tab=notifications` (Inbox v1.0 frozen) |
-| Canonical list component | `NotificationsInboxV1` |
+| Canonical list component | `features/inbox/components/InboxPage.tsx` (Notifications tab) |
 | Settings UI | `/notifications/settings` |
 | Freeze date | 2026-07-14 |
 
@@ -75,7 +75,7 @@ Every notification must resolve:
 
 ## Channels
 
-- **In App** — notifications table + Inbox / NotificationsInboxV1
+- **In App** — notifications table + Inbox Hub Notifications tab (`InboxPage`)
 - **Push** — deliver pipeline when `pushEnabled`
 - **Email** — deliver pipeline when email* controls enabled
 
@@ -85,7 +85,7 @@ Every notification must resolve:
 - Background sync via RealtimeNotificationProvider
 - Zero duplicates via `idempotency_key` on `notification_events`
 - Smart refresh on visibility / reconnect
-- Infinite scroll (client page chunks) in NotificationsInboxV1
+- Infinite scroll (client page chunks) in Inbox Hub Notifications tab
 - No UI freeze (transitions for load-more)
 
 ## Empty states

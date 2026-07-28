@@ -1,0 +1,53 @@
+import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+function readSource(relativePath: string): string {
+  return readFileSync(join(process.cwd(), relativePath), "utf8");
+}
+
+describe("My Profile v8.0 — Share removed · More menu · Bio routes", () => {
+  it("removes Share completely from View Profile", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    expect(page).toContain('MY_PROFILE_VERSION = "v8.0"');
+    expect(page).not.toContain("ShareIcon");
+    expect(page).not.toContain("shareProfile");
+    expect(page).not.toContain("navigator.share");
+    expect(page).not.toContain("Share profile");
+    expect(page).not.toContain('aria-label="Share profile"');
+    expect(page).toContain('title={isOwnProfile ? "My Profile"');
+    expect(page).toContain('aria-label="More"');
+  });
+
+  it("ships own More menu routes + Copy Profile Link", () => {
+    const page = readSource("features/profile/components/ViewProfilePage.tsx");
+    expect(page).toContain("/account/edit-profile");
+    expect(page).toContain("/account/profile/avatar");
+    expect(page).toContain("/account/profile/bio");
+    expect(page).toContain("/settings");
+    expect(page).toContain("Add / Edit Bio");
+    expect(page).toContain("Copy Profile Link");
+    expect(page).toContain("Profile link copied.");
+    expect(page).toContain("Cancel");
+    expect(page).toContain("Follow");
+    expect(page).toContain("Message");
+    expect(page).toContain("Block User");
+    expect(page).toContain("Report User");
+  });
+
+  it("ships bio 250 + avatar/bio entry pages", () => {
+    const schema = readSource("lib/account/schemas.ts");
+    const bioPage = readSource("app/account/profile/bio/page.tsx");
+    const avatarPage = readSource("app/account/profile/avatar/page.tsx");
+    const editProfile = readSource("app/account/edit-profile/page.tsx");
+    const editor = readSource("features/profile/components/ProfileBioEditor.tsx");
+    expect(schema).toContain(".max(250");
+    expect(editor).toContain("BIO_MAX = 250");
+    expect(bioPage).toContain("ProfileBioEditor");
+    expect(avatarPage).toContain("ProfileAvatarEditor");
+    expect(editProfile).toContain('redirect("/account/profile")');
+    expect(readSource("features/profile/components/ViewProfilePage.tsx")).toContain(
+      "Add your bio.",
+    );
+  });
+});

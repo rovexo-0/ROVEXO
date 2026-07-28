@@ -33,7 +33,6 @@ export type AnalyticsGeographicCountry = {
 };
 
 export type AnalyticsRecentActivity = {
-  followers: number;
   reviews: number;
   saves: number;
 };

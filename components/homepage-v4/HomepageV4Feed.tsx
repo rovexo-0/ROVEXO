@@ -5,8 +5,6 @@ import { ListingCard } from "@/components/ui/ListingCard";
 import { HP4_LISTING_CARD_PROPS } from "@/components/homepage-v4/constants";
 import { HomepageV4SkeletonGrid } from "@/components/homepage-v4/HomepageV4Skeleton";
 import { useMarketplaceFeedColumns } from "@/components/home/hooks/useMarketplaceFeedColumns";
-import { HOMEPAGE_DEMO_PRODUCTS } from "@/lib/homepage/demo-data";
-import { isClosedBetaHomepageMode } from "@/lib/homepage/config";
 import type { Product, ProductsPage } from "@/lib/products/types";
 import type { CSSProperties } from "react";
 
@@ -14,9 +12,6 @@ type HomepageV4FeedProps = {
   initialPage: ProductsPage;
   reservedIds?: string[];
 };
-
-const STATIC_DEMO_FALLBACK =
-  process.env.NEXT_PUBLIC_ROVEXO_HOMEPAGE_DEMO === "1" && !isClosedBetaHomepageMode();
 
 function mergeUniqueProducts(current: Product[], incoming: Product[], reserved: Set<string>): Product[] {
   const seen = new Set([...reserved, ...current.map((item) => item.id)]);
@@ -30,14 +25,7 @@ function mergeUniqueProducts(current: Product[], incoming: Product[], reserved: 
 }
 
 function resolveSeedItems(initialPage: ProductsPage, reserved: Set<string>): Product[] {
-  const fromServer = initialPage.items.filter((product) => !reserved.has(product.id));
-  if (fromServer.length > 0) return fromServer;
-
-  if (STATIC_DEMO_FALLBACK) {
-    return HOMEPAGE_DEMO_PRODUCTS.filter((product) => !reserved.has(product.id)).slice(0, 12);
-  }
-
-  return [];
+  return initialPage.items.filter((product) => !reserved.has(product.id));
 }
 
 export const HomepageV4Feed = memo(function HomepageV4Feed({
@@ -56,7 +44,6 @@ export const HomepageV4Feed = memo(function HomepageV4Feed({
   const [loading, setLoading] = useState(false);
   const fetchingRef = useRef(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const demoOffsetRef = useRef(seedItems.length);
   const columnCount = useMarketplaceFeedColumns();
 
   const loadTriggerIndex = useMemo(
@@ -64,44 +51,18 @@ export const HomepageV4Feed = memo(function HomepageV4Feed({
     [items.length],
   );
 
-  const appendDemoPage = useCallback(() => {
-    const nextSlice: Product[] = [];
-    let cursor = demoOffsetRef.current % HOMEPAGE_DEMO_PRODUCTS.length;
-
-    while (nextSlice.length < 12) {
-      const source = HOMEPAGE_DEMO_PRODUCTS[cursor % HOMEPAGE_DEMO_PRODUCTS.length];
-      const id = `demo-feed-${demoOffsetRef.current + nextSlice.length}`;
-      if (!reserved.has(id)) {
-        nextSlice.push({
-          ...source,
-          id,
-          slug: id,
-        });
-      }
-      cursor += 1;
-    }
-
-    demoOffsetRef.current += nextSlice.length;
-    setItems((current) => mergeUniqueProducts(current, nextSlice, reserved));
-    setHasMore(true);
-  }, [reserved]);
-
   const loadMore = useCallback(async () => {
     if (fetchingRef.current) return;
     fetchingRef.current = true;
     setLoading(true);
     try {
-      if (!hasMore) {
-        if (STATIC_DEMO_FALLBACK) appendDemoPage();
-        return;
-      }
+      if (!hasMore) return;
 
       const nextPage = items.length === 0 ? 1 : page + 1;
       const response = await fetch(`/api/homepage/feed?page=${nextPage}`, { cache: "no-store" });
 
       if (!response.ok) {
-        if (STATIC_DEMO_FALLBACK) appendDemoPage();
-        else setHasMore(false);
+        setHasMore(false);
         return;
       }
 
@@ -109,7 +70,6 @@ export const HomepageV4Feed = memo(function HomepageV4Feed({
 
       if (payload.items.length === 0) {
         setHasMore(false);
-        if (STATIC_DEMO_FALLBACK) appendDemoPage();
         return;
       }
 
@@ -120,7 +80,7 @@ export const HomepageV4Feed = memo(function HomepageV4Feed({
       fetchingRef.current = false;
       setLoading(false);
     }
-  }, [appendDemoPage, hasMore, items.length, page, reserved]);
+  }, [hasMore, items.length, page, reserved]);
 
   useEffect(() => {
     if (seedItems.length === 0) return;

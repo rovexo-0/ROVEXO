@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { SearchOverlayContextValue } from "@/features/search/types";
 import { SEARCH_TRANSITION_MS } from "@/features/search/types";
 import {
@@ -23,6 +23,7 @@ export function useSearchOverlayState(isSeller: boolean): {
   value: SearchOverlayContextValue;
 } {
   const router = useRouter();
+  const pathname = usePathname() ?? "";
   const [isOpen, setIsOpen] = useState(false);
   const [initialQuery, setInitialQuery] = useState("");
   const [loading, setLoadingState] = useState(false);
@@ -51,6 +52,15 @@ export function useSearchOverlayState(isSeller: boolean): {
     setResultsState(null);
   }, []);
 
+  // Soft-nav away (listing/store/etc.) must never leave overlay mounted over the page.
+  // Adjust during render when pathname changes (React-supported) — no sync effect setState.
+  const [overlayPath, setOverlayPath] = useState(pathname);
+  if (pathname !== overlayPath) {
+    setOverlayPath(pathname);
+    setIsOpen(false);
+    setInitialQuery("");
+  }
+
   const setLoading = useCallback((value: boolean) => {
     setLoadingState(value);
   }, []);
@@ -73,7 +83,9 @@ export function useSearchOverlayState(isSeller: boolean): {
 
     // Overlay still open → SearchProvider.close() only (never Header/Results/Router).
     if (!overlayClosed) {
-      close();
+      void Promise.resolve().then(() => {
+        close();
+      });
       return;
     }
 
@@ -88,9 +100,11 @@ export function useSearchOverlayState(isSeller: boolean): {
     // MASTER GATE — all three must pass.
     if (resultsReady === true && overlayClosed === true && navigationReady === true) {
       router.replace(CAMERA_SEARCH_V1.resultsRoute);
-      setResultsReadyState(false);
-      setNavigationReady(false);
-      setLoadingState(false);
+      void Promise.resolve().then(() => {
+        setResultsReadyState(false);
+        setNavigationReady(false);
+        setLoadingState(false);
+      });
     }
   }, [
     resultsReady,

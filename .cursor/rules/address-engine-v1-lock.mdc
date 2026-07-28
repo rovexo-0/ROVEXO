@@ -1,0 +1,35 @@
+---
+description: ROVEXO ADDRESS ENGINE v1.0 — postcode is lookup-only; address entity is unique
+alwaysApply: true
+---
+
+# ROVEXO ADDRESS ENGINE v1.0 (PERMANENT)
+
+**STATUS: PERMANENTLY LOCKED | PLATFORM-WIDE | NO EXCEPTIONS**
+
+```
+POSTCODE = LOOKUP ONLY
+ADDRESS ENTITY = UNIQUE IDENTIFIER
+UNLIMITED ADDRESSES PER POSTCODE
+```
+
+## Forbidden
+
+- Limit addresses by postcode
+- Assume 1 postcode → 1 address
+- Reject saves because another address uses the same postcode
+- Use postcode as the unique key
+
+## Required
+
+- Lookup returns **all** available addresses for a postcode
+- User selects one address, then saves
+- Duplicate detection = full address entity (line1 + line2 + city + postcode + country + type)
+- Defaults: max 1 Default Personal + 1 Default Business
+
+## SSOT
+
+`lib/addresses/address-engine-v1.ts`
+
+Applies to: Account · Checkout · Seller · Orders · Returns · Sendcloud · Stripe · Business · Admin.
+---

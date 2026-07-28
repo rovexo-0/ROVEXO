@@ -1,0 +1,53 @@
+---
+description: Absolute Blood Law XXXV — Category Visual Identity System. LOCKED. Premium studio category art.
+globs: lib/home/category-premium-library.ts,lib/search/search-category-heroes-v1.ts,public/categories/**,public/search/categories/**,features/search/components/SearchLandingView.tsx,components/home/**/*Category*
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XXXV — CATEGORY VISUAL IDENTITY
+
+**STATUS: LOCKED | PRODUCTION READY**
+
+SSOT: `lib/supreme-blood-law-xxxv-category-visual-identity-v1.ts`  
+Assets: `public/categories/{key}.*` · Search heroes: `public/search/categories/{key}.png`
+
+## Mission
+
+Every Root Category has a unique premium visual identity for **navigation**.  
+Users must recognise the category before reading its name.
+
+## Style (mandatory)
+
+Studio photography · White background · Soft shadow · 45° perspective · Centered · Premium lighting · Minimal distractions · Same size / margin / composition / family.
+
+## Forbidden
+
+Random / mixed illustration / cartoon / low-res / dark backgrounds / busy / inconsistent lighting / different perspectives / fantasy dragons on Collectables / **whole vehicles** on Vehicle Parts.
+
+## Production root subjects (locked brief)
+
+| Root | Subjects |
+|------|----------|
+| Women's Fashion | Handbag · Heels · Sunglasses |
+| Men's Fashion | Sneakers · Leather jacket · Watch |
+| Designer | Luxury watch · Diamond ring · Jewellery |
+| Kids & Baby | Teddy · Baby toy · Kids accessories |
+| Home & Garden | Chair · Coffee table · Lamp · Plant |
+| Electronics | Gaming PC · Laptop · Monitor · Headphones · Tablet |
+| Books & Media | Books · Notebook · Magazine · E-reader |
+| Hobbies & Collectables | Cards · Coins · Miniature · Statue |
+| Sports & Outdoors | Football · Basketball · Running shoes · Dumbbells · Fitness |
+| Vehicle Parts & Accessories | Alloy wheel · Ventilated disc · Purple caliper · Headlight · Coilover · Battery · Air filter · Side mirror · Spark plug |
+
+## Evolution
+
+Asset **replacements** must keep the same design language and subject brief.  
+Library freeze: Blood Law XXXVI — quality improvements only until ROVEXO v2.0.  
+Do **not** redesign category cards / Search landing layout without Owner architecture revision.
+
+## Cursor must never
+
+- Mix illustration styles or use cartoons  
+- Put whole vehicles in Vehicle Parts art  
+- Use fantasy / unrelated art for Collectables  
+- Point Homepage/Search roots at non-XXXV asset keys  

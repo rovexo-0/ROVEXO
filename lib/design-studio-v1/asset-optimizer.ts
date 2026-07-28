@@ -1,4 +1,5 @@
 import { statSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join } from "node:path";
 import { walkPublicAssets } from "@/lib/design-studio-v1/scan-utils";
 import type { AssetOptimizerRecord, AssetOptimizerSummary } from "@/lib/design-studio-v1/types";
@@ -25,7 +26,7 @@ function scoreAsset(format: string, bytes: number): number {
 }
 
 export function scanAssetOptimization(options: ScanOptions = {}): AssetOptimizerSummary {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? workspacePath();
   const limit = options.limit ?? 20;
   const publicDir = join(rootDir, "public");
   const scannedAt = new Date().toISOString();

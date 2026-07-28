@@ -1,23 +1,55 @@
-# ROVEXO Orders — Canonical Specification
+# ROVEXO Orders — Master UI Specification
 
-**Route:** `/orders`  
+**STATUS:** LOCKED (Supreme Blood Code XII — Sprint III · 100% COMPLETE · PERMANENT FREEZE)  
+**Route:** `http://localhost:3000/orders`  
 **Single UI component:** `features/orders/components/OrdersPage.tsx`  
 **Styles:** `styles/rovexo/orders-page-v1.css`  
+**Status SSOT:** `lib/orders/orders-v7-status.ts`  
+**Blood Code:** `lib/supreme-blood-code-xii-v1.ts`  
+**DOM lock:** `data-orders-page="v7.0"` · `data-profile-master="v7.0"` · `data-full-width-surface="orders"` · `data-blood-code-xii="12.0"` · `data-orders-freeze="PERMANENT"`
 
-## Universal UI v1.1 compatibility amendment
+## What changed (Blood XII freeze)
 
-Approved 2026-07-15. Orders data and status behavior are unchanged. Presentation now consumes Universal UI v1.1: 60px header, 44px back/tab/chip targets, 24px icons, 16px inner padding, 14px body text, 14px controls and divider-based compact rows.
+- Sprint III Orders declared 100% complete and permanently frozen
+- Official localhost locked to `http://localhost:3000/orders`
+- Marketplace Search Bar remains Homepage-only (unmounted on `/orders`)
+
+## What did not change
+
+- Auth, Stripe, Sendcloud, DB schema, escrow money movement APIs
+- Canonical route `/orders` and detail routes `/orders/[id]` · `/seller/orders/[id]`
+- Order fetch via `fetchOrdersForUser`
+- No redesign · no new components · no cross-module edits
 
 ## Architecture
 
 - One Orders UI module only: `OrdersPage`
-- Deleted: `OrdersHubV1`, `OrdersCanonicalPage`, `OrdersV1`
-- Route renders `<OrdersPage />` (data loaded in `app/orders/page.tsx`)
+- Deleted (must stay deleted): `OrdersHubV1`, `OrdersCanonicalPage`, `OrdersV1`
 
 ## Sections
 
-1. Header  
-2. Sold / Bought tabs  
-3. Chips: All · Processing · Completed  
-4. Empty state (or order rows when data exists)  
-5. Bottom navigation (shell)
+1. Header (Back · Orders) — no Search Bar / ROVEXO logo
+2. Sold / Bought tabs
+3. Chips: All · In Progress · Completed · Cancelled
+4. Empty state or order list with status pills
+5. Bottom navigation (Home · Search · Sell · Inbox · Account) — permanent
+
+## Financial absolute law
+
+- Buyer: Subtotal · Shipping · Platform Fee · TOTAL PAID — never YOU'LL RECEIVE
+- Seller: Subtotal · Shipping · YOU'LL RECEIVE — never TOTAL PAID
+
+## Responsive
+
+Design identical across breakpoints. Master certification device: iPhone 17 Pro Max.  
+Only shell width inherits Full Width Engine (100%).
+
+## Post-freeze
+
+Allowed only: critical bug fixes with Owner approval.  
+Forbidden: redesign, duplicates, new components, cross-module changes.
+
+## QA (Owner)
+
+Official: `http://localhost:3000/orders`  
+Gates: Typecheck · ESLint · Build · Orders vitest · Visual QA · Mobile QA · Owner Certification.

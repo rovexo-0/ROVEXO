@@ -1,0 +1,67 @@
+---
+description: Absolute Financial Law v1.0 Freeze — no pass without payment flow pass
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE FINANCIAL LAW v1.0 (FREEZE)
+
+**STATUS: PERMANENT LAW · FREEZE · SUPREME BLOOD XXIV**
+
+SSOT: `lib/supreme-blood-code-xxiv-v1.ts`  
+Buy Now Guard: `lib/checkout/buy-now-guard-v1.ts`
+
+## Absolute
+
+```
+NO PASS WITHOUT PAYMENT FLOW PASS
+100% VERIFIED OR 100% FAIL
+```
+
+```
+1 CLICK = 1 PAYMENT = 1 ORDER = 1 TRANSACTION = 1 ESCROW = 1 COMPLETION
+```
+
+## Root Cause Detection Mode (BLOOD FIX)
+
+```
+BUY NOW → MUST NEVER router.push("/checkout") WITHOUT PASSES
+IF FAIL → STOP · NO PAYMENT · NO ORDER · NO CHECKOUT · NO REDIRECT · NO PRODUCTION PASS
+```
+
+Forbidden masked errors: “Something went wrong.”  
+Show: `RVX-20xx` + Owner message.
+
+## Master flow
+
+Buy Now → Checkout Guard (16 checks) → Lock listing → Verify listing/buyer/price/fee/shipping → Create order · transaction · checkout session → Financial Auditor PASS → Load `/checkout` → Payment method · Price summary → Confirm & Pay → Stripe → Payment success → Escrow · Order record → Notifications → Transaction Hub → Completed
+
+## Forbidden
+
+Buy Now → Error page with generic copy · Payment then Create order · Multiple transactions/payments · Duplicate orders · Refresh/double-click/back → new payment · Buy Now fail → `/checkout` → payment success
+
+## Checkout Guard (all PASS)
+
+listingID · buyerID · sellerID · orderID · transactionID · price · platform fee · shipping · currency · checkout session · payment session · listingLock · financialAudit · idempotency · buyerAuthenticated · sellerAcceptingOrders
+
+**One fail → STOP** (no payment · no order · no transaction · no redirect)
+
+## Chain integrity (any ≠ → STOP)
+
+```
+PRICE = PAYMENT = ORDER = TRANSACTION = ESCROW = COMPLETION
+```
+
+## Errors
+
+Forbidden: “Something went wrong.”  
+Allowed: `RVX-2001` … `RVX-2012` (Buy Now BLOOD FIX table)
+
+## Production
+
+No Checkout freeze until Buy Now → Checkout → Payment → Success → Escrow → Completed = **100%**
+
+## Supreme Blood Law
+
+No fake/partial pass · no financial bypass · no duplicates · no payment without audit · no production without financial certification
+
+Sprint VI inherits this law. Never invent Financial Certification PASS.

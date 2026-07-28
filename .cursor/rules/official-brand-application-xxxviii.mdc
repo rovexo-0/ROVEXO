@@ -1,0 +1,40 @@
+---
+description: Absolute Blood Law XXXVIII — Official Brand Application System. LOCKED.
+globs: lib/brand/**,components/branding/**,components/brand/**,components/header/**,public/brand/**,public/icons/**,app/manifest.ts,features/auth/**
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XXXVIII — BRAND APPLICATION
+
+**STATUS: LOCKED | CERTIFIED | PRODUCTION READY**
+
+SSOT: `lib/supreme-blood-law-xxxviii-official-brand-application-v1.ts`  
+Registry: `lib/brand/official-brand-application-v1.ts`  
+Parent emblem: Blood Law XXXVII
+
+## Hierarchy
+
+| Level | Asset | Use |
+|------|--------|-----|
+| I Master | RX + Hands + BUY • SELL • GROW | Marketing / brand identity |
+| II Primary | RX + Hands | Login · Register · Forgot/Reset/Verify |
+| III App Icon | RX only | Header · Nav · PWA · Toolbar |
+| IV Favicon | Simplified RX | 16 / 32 / 48 browser tabs |
+
+## Rules
+
+- Auth → **Primary Emblem only** (centered, no stretch, no background, no card effects)
+- App chrome → **App Icon** — never Primary/Master in headers, search, cards, buttons, footer
+- **No Splash Screen**
+- Transparent PNG/SVG/WEBP/AVIF — no white box / baked shadow
+
+## Forbidden
+
+Stretch · compress · crop · rotate · recolour · unofficial logos · mix levels · hero logo in tiny UI
+
+## Cursor must never
+
+- Put Master/Primary Emblem in the Header  
+- Put App Icon on Login/Register  
+- Restore Splash  
+- Create parallel logo files outside the Asset Registry  

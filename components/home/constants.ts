@@ -22,15 +22,8 @@ export const ROVEXO_CATEGORIES: readonly RovexoCategory[] = ROVEXO_HOME_CATEGORY
   }),
 );
 
-/** Homepage category rail — excludes Vehicles and Property per product spec. */
-export const ROVEXO_HOMEPAGE_CATEGORIES: readonly RovexoCategory[] = ROVEXO_HOME_CATEGORY_RAIL.filter(
-  (item) => item.slug !== "vehicles" && item.slug !== "property",
-).map((item: RovexoCategoryPremiumItem) => ({
-  name: item.name,
-  slug: item.slug,
-  icon: item.icon,
-  href: item.href ?? `/search?category=${item.slug}`,
-}));
+/** Homepage category rail — Law XXX / Catalog Master exactly 10 canonical roots. */
+export const ROVEXO_HOMEPAGE_CATEGORIES: readonly RovexoCategory[] = ROVEXO_CATEGORIES;
 
 /** Approved marketplace import sources (display / certification). */
 export const BRING_YOUR_ITEMS_PLATFORMS = [

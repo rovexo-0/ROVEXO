@@ -58,7 +58,7 @@ function scanWorkflow(scan: MarketplaceCompletionScanResult): CompletionValidati
     if (check.includes("draft") || check.includes("resume") || check.includes("auto-save")) pass = draftStorage && wizard.includes("saveSellDraft");
     if (check === "edit") pass = fileExists("app/seller/listings/[id]/edit/page.tsx");
     if (check === "duplicate") pass = fileExists("app/api/listings/[id]/duplicate/route.ts");
-    if (check === "preview") pass = fileExists("features/sell/ui/SellScreen.tsx");
+    if (check === "preview") pass = fileExists("features/sell/ui/SellPage.tsx");
     if (check === "publish") pass = wizard.includes("publishListing");
     if (check.includes("pause") || check.includes("archive") || check.includes("delete") || check.includes("republish")) {
       pass = fileExists("app/api/listings/[id]/status/route.ts");
@@ -153,7 +153,7 @@ function scanLiveValidation(scan: MarketplaceCompletionScanResult): CompletionVa
 }
 
 function scanPreviewEngine(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const sellPage = readSource("features/sell/ui/SellScreen.tsx");
+  const sellPage = readSource("features/sell/ui/SellPage.tsx");
   const productCard = fileExists("components/ui/ProductCard.tsx");
 
   return LISTING_PREVIEW_VALIDATION.map((check) => {
@@ -189,7 +189,7 @@ function scanPublishValidation(scan: MarketplaceCompletionScanResult): Completio
 }
 
 function scanButtonValidation(scan: MarketplaceCompletionScanResult): CompletionValidationItem[] {
-  const sellPage = readSource("features/sell/ui/SellScreen.tsx");
+  const sellPage = readSource("features/sell/ui/SellPage.tsx");
   const footer = readSource("features/sell/components/SellPublishFooter.tsx");
   const header = fileExists("features/sell/components/SellPageHeader.tsx");
 
@@ -320,7 +320,7 @@ function buildPassConditions(
   const mapping: Record<(typeof LISTING_PASS_CONDITIONS)[number], boolean> = {
     "create-pass": fileExists("app/sell/page.tsx") && foundation,
     "draft-pass": fileExists("lib/sell/draft-storage.ts"),
-    "preview-pass": fileExists("features/sell/ui/SellScreen.tsx"),
+    "preview-pass": fileExists("features/sell/ui/SellPage.tsx"),
     "publish-pass": readSource("features/sell/hooks/use-sell-wizard.ts").includes("publishListing"),
     "image-upload-pass": fileExists("app/api/listings/upload/route.ts"),
     "ai-validation-pass": fileExists("lib/sell/category-detection-pro.ts"),

@@ -45,7 +45,6 @@ export function subscribeToAccountHubStats(
   attachTableListener(channel, "saved_items", `user_id=eq.${userId}`, onChange);
   attachTableListener(channel, "orders", `buyer_id=eq.${userId}`, onChange);
   attachTableListener(channel, "orders", `seller_id=eq.${userId}`, onChange);
-  attachTableListener(channel, "seller_follows", `seller_id=eq.${userId}`, onChange);
   attachTableListener(channel, "seller_profiles", `id=eq.${userId}`, onChange);
   attachTableListener(channel, "reviews", `reviewee_id=eq.${userId}`, onChange);
   attachTableListener(channel, "wallets", `user_id=eq.${userId}`, onChange);

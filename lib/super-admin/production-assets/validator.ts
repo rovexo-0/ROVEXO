@@ -1,4 +1,5 @@
 import { access, readFile, readdir, stat } from "node:fs/promises";
+import { repoPath } from "@/lib/ops/repo-path";
 import path from "node:path";
 import {
   ROVEXO_CATEGORY_PREMIUM_KEYS,
@@ -17,8 +18,6 @@ import {
   type ProductionAssetValidationReport,
   type ValidationIssue,
 } from "@/lib/super-admin/production-assets/types";
-
-const ROOT = process.cwd();
 
 const ASSET_ROOTS = [
   "public/categories",
@@ -60,7 +59,7 @@ function minCategoryRailBytes(size: number, ext: "avif" | "webp" | "png"): numbe
 }
 
 async function readCategoryPipeline(): Promise<string | undefined> {
-  const manifestPath = path.join(ROOT, "public/categories/manifest.json");
+  const manifestPath = repoPath("public/categories/manifest.json");
   try {
     const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as { pipeline?: string };
     return manifest.pipeline;
@@ -92,7 +91,7 @@ async function exists(filePath: string): Promise<boolean> {
 }
 
 function relativePublicPath(absolutePath: string): string {
-  return path.relative(ROOT, absolutePath).replace(/\\/g, "/");
+  return path.relative(repoPath(), absolutePath).replace(/\\/g, "/");
 }
 
 function pushIssue(
@@ -132,7 +131,7 @@ async function scanDirectoryForIssues(
     skipSubdirs?: string[];
   } = {},
 ): Promise<{ files: string[]; counts: { avif: number; webp: number; png: number; svg: number } }> {
-  const dir = path.join(ROOT, dirRelative);
+  const dir = repoPath(dirRelative);
   const counts = { avif: 0, webp: 0, png: 0, svg: 0 };
   if (!(await exists(dir))) return { files: [], counts };
 
@@ -184,7 +183,7 @@ async function scanDirectoryForIssues(
 
 async function validateCategoryRail(issues: ValidationIssue[]): Promise<number> {
   let count = 0;
-  const categoryRoot = path.join(ROOT, "public/categories");
+  const categoryRoot = repoPath("public/categories");
 
   for (const icon of ROVEXO_CATEGORY_PREMIUM_KEYS) {
     for (const size of CATEGORY_SIZES) {
@@ -254,7 +253,7 @@ async function validateCategoryRail(issues: ValidationIssue[]): Promise<number> 
 
 async function validateHeroCampaigns(issues: ValidationIssue[]): Promise<number> {
   let count = 0;
-  const heroRoot = path.join(ROOT, "public/hero");
+  const heroRoot = repoPath("public/hero");
   const activeIds = new Set<string>(HERO_CAMPAIGN_IDS);
 
   for (const id of HERO_CAMPAIGN_IDS) {
@@ -335,8 +334,8 @@ async function validateHeroCampaigns(issues: ValidationIssue[]): Promise<number>
 
 async function validateSourceMasters(issues: ValidationIssue[]): Promise<number> {
   let count = 0;
-  const categorySource = path.join(ROOT, "public/categories/source");
-  const heroSource = path.join(ROOT, "public/hero/source");
+  const categorySource = repoPath("public/categories/source");
+  const heroSource = repoPath("public/hero/source");
   const categoryPipeline = await readCategoryPipeline();
   const category3dPack = categoryPipeline === "v16-raster-3d";
   const minCategorySourceBytes = category3dPack ? MIN_CATEGORY_3D_SOURCE_BYTES : MIN_CATEGORY_SOURCE_BYTES;
@@ -435,8 +434,8 @@ async function validateSourceMasters(issues: ValidationIssue[]): Promise<number>
 }
 
 async function validateRuntimeReferences(issues: ValidationIssue[]): Promise<void> {
-  const constantsPath = path.join(ROOT, "lib/home/constants.ts");
-  const heroImagesPath = path.join(ROOT, "lib/home/hero-images.ts");
+  const constantsPath = repoPath("lib/home/constants.ts");
+  const heroImagesPath = repoPath("lib/home/hero-images.ts");
 
   if (await exists(constantsPath)) {
     const contents = await readFile(constantsPath, "utf8");
@@ -468,7 +467,7 @@ async function validateResponsiveCategoryAssets(): Promise<boolean> {
     for (const size of CATEGORY_SIZES) {
       for (const ext of ["avif", "webp", "png"] as const) {
         const filename = size === 1024 ? `${icon}.${ext}` : `${icon}-${size}.${ext}`;
-        if (!(await exists(path.join(ROOT, "public/categories", filename)))) return false;
+        if (!(await exists(repoPath("public/categories", filename)))) return false;
       }
     }
   }
@@ -480,7 +479,7 @@ async function validateResponsiveHeroAssets(): Promise<boolean> {
     for (const width of HERO_CAMPAIGN_WIDTHS) {
       for (const ext of ["avif", "webp", "png"] as const) {
         const filename = width === 1920 ? `${id}.${ext}` : `${id}-${width}.${ext}`;
-        if (!(await exists(path.join(ROOT, "public/hero", filename)))) return false;
+        if (!(await exists(repoPath("public/hero", filename)))) return false;
       }
     }
   }
@@ -489,7 +488,7 @@ async function validateResponsiveHeroAssets(): Promise<boolean> {
 
 async function validateEmptyStates(issues: ValidationIssue[]): Promise<number> {
   let count = 0;
-  const root = path.join(ROOT, "public/assets/empty-states");
+  const root = repoPath("public/assets/empty-states");
 
   for (const id of PREMIUM_EMPTY_STATE_IDS) {
     for (const size of PREMIUM_EMPTY_STATE_SIZES) {
@@ -534,7 +533,7 @@ async function validateEmptyStates(issues: ValidationIssue[]): Promise<number> {
 }
 
 async function validateLegacyPaths(issues: ValidationIssue[]): Promise<void> {
-  const legacyHome = path.join(ROOT, "public/categories/home");
+  const legacyHome = repoPath("public/categories/home");
   if (await exists(legacyHome)) {
     pushIssue(issues, {
       code: "legacy-directory",

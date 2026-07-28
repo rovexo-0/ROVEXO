@@ -13,7 +13,6 @@ import {
   generateDemoDeliveryDate,
   generateDemoTrackingNumber,
 } from "@/lib/full-demo/canonical";
-import { mustUseDemoShipping } from "@/lib/full-demo/security";
 import type {
   ShippingLabelRequest,
   ShippingLabelResponse,
@@ -33,6 +32,28 @@ export const DEMO_SHIPPING_QUOTE_PREFIX = "demo:";
  */
 export function isDemoShippingQuoteId(quoteId: string): boolean {
   return quoteId.startsWith(DEMO_SHIPPING_QUOTE_PREFIX);
+}
+
+/** Full Demo / certification tracking numbers — never real carrier labels. */
+export function isDemoShippingTrackingNumber(tracking: string | null | undefined): boolean {
+  return Boolean(tracking && /^RVXDEMO[A-Z0-9]+$/i.test(tracking.trim()));
+}
+
+/**
+ * Live demo label presentation URL (relative).
+ * Always resolve at view time — never serve a stored HTML snapshot as the document.
+ */
+export function buildDemoShippingLabelPresentationUrl(input: {
+  tracking: string;
+  carrier?: string | null;
+  service?: string | null;
+}): string {
+  const qs = new URLSearchParams({
+    tracking: input.tracking.trim().toUpperCase(),
+    carrier: (input.carrier ?? "Royal Mail").trim() || "Royal Mail",
+    service: (input.service ?? "Tracked 48").trim().replace(/^Demo\s+/i, "") || "Tracked 48",
+  });
+  return `/api/shipping/demo-label?${qs.toString()}`;
 }
 
 function buildDemoQuotes(): ShippingQuote[] {
@@ -82,10 +103,12 @@ export class DemoShippingAdapter implements ShippingProvider {
   readonly name = "ROVEXO Demo Shipping";
 
   isConfigured(): boolean {
-    return mustUseDemoShipping();
+    // Always available — router / label engine decide when to select demo vs Sendcloud.
+    return true;
   }
 
   async getQuotes(_request: ShippingQuoteRequest): Promise<ShippingQuoteResponse> {
+    void _request;
     if (!this.isConfigured()) {
       return { available: false, quotes: [], reason: "provider_not_configured" };
     }
@@ -124,14 +147,18 @@ export class DemoShippingAdapter implements ShippingProvider {
     const parcelNumber = request.parcelNumber ?? 1;
     const seed = `${request.orderNumber}-${parcelNumber}`;
     const trackingNumber = generateDemoTrackingNumber(seed);
-    const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "http://127.0.0.1:3000").replace(/\/$/, "");
+    const serviceName = quote.serviceName.replace(/^Demo\s+/i, "");
 
     return {
       available: true,
       trackingNumber,
       barcode: trackingNumber,
       qrPayload: trackingNumber,
-      pdfUrl: `${appUrl}/api/shipping/demo-label?tracking=${encodeURIComponent(trackingNumber)}`,
+      pdfUrl: buildDemoShippingLabelPresentationUrl({
+        tracking: trackingNumber,
+        carrier: quote.carrier,
+        service: serviceName,
+      }),
       carrier: quote.carrier,
       sendcloudParcelId: null,
       serviceCode: quote.serviceName,

@@ -125,7 +125,8 @@ export type PublicSellerPerformanceSummary = {
   reviewCount: number;
   completedSales: number;
   verified: boolean;
-  badges: Array<{ id: AchievementId; label: string }>;
+  /** Deprecated empty — public badges live on Badge Engine / Reputation API only. */
+  badges: Array<{ id: string; label: string }>;
 };
 
 export type SellerPerformanceBadgeHistoryEntry = {

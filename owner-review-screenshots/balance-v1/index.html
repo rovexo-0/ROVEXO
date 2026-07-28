@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ROVEXO Balance Page v1.0 — Owner Visual Review</title>
+  <style>
+    :root {
+      --purple: #9333ea;
+      --purple-soft: rgb(147 51 234 / 0.08);
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: rgb(15 23 42 / 0.08);
+      --bg: #ffffff;
+      --gold: #f5b301;
+      --danger: #dc2626;
+      --success: #059669;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      background: #f1f5f9;
+      color: var(--text);
+    }
+    header.review {
+      position: sticky; top: 0; z-index: 20;
+      background: #0f172a; color: #fff;
+      padding: 16px 20px;
+    }
+    header.review h1 { margin: 0 0 6px; font-size: 18px; font-weight: 700; }
+    header.review p { margin: 0; font-size: 13px; opacity: 0.85; line-height: 1.45; }
+    header.review .status {
+      display: inline-block; margin-top: 10px;
+      padding: 4px 10px; border-radius: 999px;
+      background: #f59e0b; color: #0f172a;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 390px));
+      gap: 28px;
+      justify-content: center;
+      padding: 28px 16px 64px;
+    }
+    .frame-wrap { display: flex; flex-direction: column; gap: 10px; }
+    .frame-label {
+      font-size: 12px; font-weight: 700; color: #334155;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .phone {
+      width: 390px; max-width: 100%;
+      min-height: 844px;
+      background: var(--bg);
+      border-radius: 28px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 18px 48px rgb(15 23 42 / 0.12);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .status-bar {
+      height: 44px; display: flex; align-items: flex-end;
+      justify-content: space-between; padding: 0 22px 6px;
+      font-size: 12px; font-weight: 600;
+    }
+    .nav {
+      height: 56px; display: flex; align-items: center; gap: 8px;
+      padding: 0 12px; border-bottom: 1px solid var(--border);
+    }
+    .back {
+      width: 40px; height: 40px; border: 0; background: transparent;
+      font-size: 22px; color: var(--text); cursor: default;
+    }
+    .nav h2 {
+      flex: 1; margin: 0; text-align: center;
+      font-size: 17px; font-weight: 700; padding-right: 40px;
+    }
+    .content { flex: 1; padding: 16px 16px 28px; }
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .row {
+      display: flex; align-items: center; gap: 12px;
+      min-height: 56px; padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .row:last-child { border-bottom: 0; }
+    .row .title { flex: 1; font-size: 15px; font-weight: 600; }
+    .row .value { font-size: 15px; font-weight: 600; color: var(--text); }
+    .row .chev { color: var(--muted); font-size: 18px; font-weight: 400; }
+    .row .muted { color: var(--muted); font-size: 13px; font-weight: 500; }
+    .icon-dot {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: grid; place-items: center; font-size: 16px;
+      background: var(--purple-soft); color: var(--purple);
+      flex: 0 0 36px;
+    }
+    .hero {
+      text-align: center; padding: 28px 16px 20px;
+    }
+    .hero .amount {
+      font-size: 36px; font-weight: 700; letter-spacing: -0.03em;
+      color: var(--text); line-height: 1.1;
+    }
+    .hero .label {
+      margin-top: 8px; font-size: 14px; font-weight: 500; color: var(--muted);
+    }
+    .actions {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin: 8px 0 24px;
+    }
+    .action {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      padding: 14px 8px; border-radius: 16px;
+      border: 1px solid var(--border); background: #fff;
+      text-decoration: none; color: var(--text);
+      min-height: 88px; justify-content: center;
+    }
+    .action .glyph {
+      width: 44px; height: 44px; border-radius: 999px;
+      display: grid; place-items: center;
+      background: var(--purple); color: #fff;
+      font-size: 18px;
+    }
+    .action span { font-size: 12px; font-weight: 600; }
+    .section-title {
+      margin: 0 0 10px; font-size: 13px; font-weight: 700;
+      color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .tx .sign-pos { color: var(--success); font-weight: 700; }
+    .tx .sign-neg { color: var(--danger); font-weight: 700; }
+    .tx .meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .profile-head {
+      padding: 20px 16px 12px; display: flex; align-items: center; gap: 14px;
+    }
+    .avatar {
+      width: 56px; height: 56px; border-radius: 999px;
+      background: linear-gradient(135deg, #e9d5ff, #ddd6fe);
+      display: grid; place-items: center;
+      font-weight: 700; color: var(--purple); font-size: 18px;
+    }
+    .stars { color: var(--gold); font-size: 12px; letter-spacing: 1px; }
+    .note {
+      margin: 0 16px 20px; padding: 12px 14px;
+      border-radius: 12px; background: #f8fafc;
+      border: 1px solid var(--border);
+      font-size: 13px; color: var(--muted); line-height: 1.45;
+    }
+    .bank-name { font-size: 15px; font-weight: 700; }
+    .bank-mask { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .edit {
+      margin-left: auto; color: var(--purple);
+      font-size: 13px; font-weight: 700; text-decoration: none;
+    }
+    .amount-field {
+      margin-top: 8px; padding: 16px;
+      border: 1px solid var(--border); border-radius: 16px;
+      background: #fff;
+    }
+    .amount-field label {
+      display: block; font-size: 13px; font-weight: 600; color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .amount-field .big {
+      font-size: 28px; font-weight: 700; letter-spacing: -0.02em;
+    }
+    .cta {
+      margin-top: 20px; width: 100%; height: 52px;
+      border: 0; border-radius: 999px;
+      background: var(--purple); color: #fff;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+    }
+    .open {
+      max-width: 720px; margin: 0 auto 24px; padding: 0 16px;
+    }
+    .open details {
+      background: #fff; border: 1px solid #cbd5e1; border-radius: 12px;
+      padding: 12px 16px;
+    }
+    .open summary { font-weight: 700; cursor: pointer; }
+    .open ul { margin: 10px 0 0; padding-left: 18px; font-size: 13px; line-height: 1.55; color: #334155; }
+  </style>
+</head>
+<body>
+  <header class="review">
+    <h1>ROVEXO Balance Page v1.0 — Owner Visual Review</h1>
+    <p>
+      LOCAL PREVIEW ONLY · No production code · Status: AWAITING OWNER APPROVAL<br />
+      Routes unchanged: Profile Balance → <code>/wallet</code> · Withdraw → <code>/wallet/withdraw</code><br />
+      Purple token (unchanged Design System): <code>#9333ea</code> · White background · No gradients on Balance surfaces
+    </p>
+    <span class="status">AWAITING APPROVAL — DO NOT IMPLEMENT UNTIL APPROVED</span>
+  </header>
+
+  <div class="open">
+    <details open>
+      <summary>Open Owner decisions (required before implementation)</summary>
+      <ul>
+        <li><strong>Shop</strong> action destination — proposed existing route: <code>/</code> (Homepage). Confirm or name another existing route.</li>
+        <li><strong>Donate</strong> — no existing Donate route. Name an existing destination, or authorize a new route (currently blocked by “DO NOT CHANGE Routing”).</li>
+        <li><strong>Page title</strong> — preview uses “Balance” on hub (route stays <code>/wallet</code>). Confirm rename from “Wallet”.</li>
+        <li><strong>Amounts</strong> — preview uses demo £1,245.50 / £54.00; live UI will bind existing wallet balances only.</li>
+      </ul>
+    </details>
+  </div>
+
+  <div class="gallery">
+    <!-- 1. Profile row -->
+    <div class="frame-wrap">
+      <div class="frame-label">1 · Profile — Balance row</div>
+      <div class="phone" aria-label="Profile Balance row preview">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="nav"><button class="back" aria-hidden>‹</button><h2>My Account</h2></div>
+        <div class="profile-head">
+          <div class="avatar">RX</div>
+          <div>
+            <div style="font-weight:700;font-size:16px">Demo Seller</div>
+            <div class="stars">★★★★★ <span style="color:var(--muted);font-weight:600">5.0</span></div>
+          </div>
+        </div>
+        <div class="content" style="padding-top:8px">
+          <div class="card">
+            <div class="row">
+              <div class="icon-dot">♡</div>
+              <div class="title">Favourites</div>
+              <span class="chev">›</span>
+            </div>
+            <div class="row" style="background: rgb(147 51 234 / 0.04)">
+              <div class="icon-dot">💳</div>
+              <div class="title">Balance</div>
+              <div class="value">Available £1,245.50</div>
+              <span class="chev">›</span>
+            </div>
+            <div class="row">
+              <div class="icon-dot">📦</div>
+              <div class="title">My Orders</div>
+              <span class="chev">›</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Balance page -->
+    <div class="frame-wrap">
+      <div class="frame-label">2 · Balance page (/wallet)</div>
+      <div class="phone" aria-label="Balance page preview">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="nav"><button class="back">‹</button><h2>Balance</h2></div>
+        <div class="content">
+          <div class="card" style="margin-bottom:16px">
+            <div class="row">
+              <div class="title">Pending Balance</div>
+              <div class="value">£54.00</div>
+              <span class="chev">›</span>
+            </div>
+          </div>
+
+          <div class="hero">
+            <div class="amount">£1,245.50</div>
+            <div class="label">Available Balance</div>
+          </div>
+
+          <div class="actions">
+            <a class="action" href="#withdraw">
+              <div class="glyph">↑</div>
+              <span>Withdraw</span>
+            </a>
+            <a class="action" href="#shop">
+              <div class="glyph">🛍</div>
+              <span>Shop</span>
+            </a>
+            <a class="action" href="#donate">
+              <div class="glyph">♥</div>
+              <span>Donate</span>
+            </a>
+          </div>
+
+          <p class="section-title">Transaction History</p>
+          <div class="card tx">
+            <div class="row">
+              <div style="flex:1">
+                <div class="title">SOLD</div>
+                <div class="meta">19 Jul 2026</div>
+              </div>
+              <div class="sign-pos">+£42.00</div>
+            </div>
+            <div class="row">
+              <div style="flex:1">
+                <div class="title">PAYMENT RECEIVED</div>
+                <div class="meta">18 Jul 2026</div>
+              </div>
+              <div class="sign-pos">+£128.50</div>
+            </div>
+            <div class="row">
+              <div style="flex:1">
+                <div class="title">REFUND</div>
+                <div class="meta">17 Jul 2026</div>
+              </div>
+              <div class="sign-neg">−£18.00</div>
+            </div>
+            <div class="row">
+              <div style="flex:1">
+                <div class="title">WITHDRAWAL</div>
+                <div class="meta">15 Jul 2026</div>
+              </div>
+              <div class="sign-neg">−£200.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Withdraw page -->
+    <div class="frame-wrap">
+      <div class="frame-label">3 · Withdraw page (/wallet/withdraw)</div>
+      <div class="phone" aria-label="Withdraw page preview">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="nav"><button class="back">‹</button><h2>Withdraw</h2></div>
+        <div class="content">
+          <p style="margin:0 0 6px;font-size:17px;font-weight:700">Withdraw to bank account</p>
+          <p class="note" style="margin:0 0 20px">
+            Funds are usually transferred within 1–5 business days.
+          </p>
+
+          <p class="section-title">Bank Account</p>
+          <div class="card" style="margin-bottom:20px">
+            <div class="row">
+              <div class="icon-dot">🏦</div>
+              <div style="flex:1">
+                <div class="bank-name">HSBC BANK</div>
+                <div class="bank-mask">****7517</div>
+              </div>
+              <a class="edit" href="#edit">EDIT</a>
+            </div>
+          </div>
+
+          <div class="hero" style="padding-top:8px;padding-bottom:16px">
+            <div class="amount" style="font-size:32px">£1,245.50</div>
+            <div class="label">Available Balance</div>
+          </div>
+
+          <div class="amount-field">
+            <label>Withdrawal amount</label>
+            <div class="big">£0.00</div>
+          </div>
+
+          <button class="cta" type="button">WITHDRAW TO BANK ACCOUNT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

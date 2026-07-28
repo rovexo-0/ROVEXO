@@ -25,6 +25,7 @@ function readCanPublish(
   });
 }
 
+/** Sticky publish CTA — Settings sticky action + CanonicalButton only. */
 export const SellPublishBar = forwardRef<HTMLDivElement>(function SellPublishBar(_props, ref) {
   const {
     draft,
@@ -51,21 +52,19 @@ export const SellPublishBar = forwardRef<HTMLDivElement>(function SellPublishBar
   return (
     <div
       ref={ref}
-      className="sell-publish-bar fixed inset-x-0 z-[110] border-t border-border bg-white"
+      className="account-settings-sticky-action w-full max-w-none"
       data-sell-publish-bar
       role="region"
       aria-label="Publish listing"
     >
-      <div className="w-full max-w-none px-[max(env(safe-area-inset-left),16px)] pr-[max(env(safe-area-inset-right),16px)] py-ds-3">
-        <CanonicalButton
-          fullWidth
-          loading={isPublishing}
-          disabled={!canPublish || isPublishing}
-          onClick={() => void publishListing()}
-        >
-          {label}
-        </CanonicalButton>
-      </div>
+      <CanonicalButton
+        fullWidth
+        loading={isPublishing}
+        disabled={!canPublish || isPublishing}
+        onClick={() => void publishListing()}
+      >
+        {label}
+      </CanonicalButton>
     </div>
   );
 });

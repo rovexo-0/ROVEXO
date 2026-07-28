@@ -1,10 +1,17 @@
 "use client";
 
-import { CanonicalButton, CanonicalInfoBlock, CanonicalSelector, CanonicalSwitch, CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalInput, CanonicalTextarea } from "@/src/components/canonical";
+import {
+  CanonicalButton,
+  CanonicalInfoBlock,
+  CanonicalSelector,
+  CanonicalSwitch,
+  CanonicalSection,
+  CanonicalCard,
+} from "@/src/components/canonical";
 import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AccountCanonicalShell } from "@/features/account-canonical";
+import { MyAccountTemplate } from "@/features/account-canonical";
 
 
 import { UK_DEFAULT_COUNTRY } from "@/lib/i18n/uk-first";
@@ -92,7 +99,7 @@ export function AccountBuyerPreferencesPage() {
   });
 
   return (
-    <AccountCanonicalShell title="Buyer preferences" backHref="/account/profile" backLabel="Settings">
+    <MyAccountTemplate title="Buyer preferences" backHref="/account/profile" backLabel="Settings">
       <CanonicalSection title="Buyer preferences">
         <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
           <form onSubmit={onSubmit} className="flex flex-col gap-ds-4" noValidate>
@@ -167,6 +174,6 @@ export function AccountBuyerPreferencesPage() {
           </form>
         </CanonicalCard>
       </CanonicalSection>
-    </AccountCanonicalShell>
+    </MyAccountTemplate>
   );
 }

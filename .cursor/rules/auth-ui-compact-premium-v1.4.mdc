@@ -1,0 +1,35 @@
+---
+description: Auth UI Compact Premium v1.4 — Create Account text link
+alwaysApply: true
+---
+
+# ROVEXO AUTH UI COMPACT PREMIUM v1.4
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN**
+
+SSOT: `lib/auth/auth-ui-compact-premium-v1.4.ts`
+
+## Mission
+
+Return to Compact Premium Sign In. Keep successful improvements. **Email + Password only.**
+
+## Create Account (critical)
+
+**NOT** a full-width secondary button.  
+**IS** centered text link:
+
+```
+New to ROVEXO?
+Create Account
+```
+
+Purple · font-weight 600 · 15–16px · premium hover · compact spacing.  
+**NO LARGE BUTTON ALLOWED.**
+
+## Keep
+
+SECURE SIGN IN · Sign In button design unchanged · platform purple · contextual validation · no OAuth/GDPR UI
+
+## Forbidden
+
+Architecture / auth / session / middleware / route / API / Search / Header changes · colour redesigns · restoring OAuth UI

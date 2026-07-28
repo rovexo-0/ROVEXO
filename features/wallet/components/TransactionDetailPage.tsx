@@ -13,6 +13,7 @@ import {
   getDaysUntilAvailable,
 } from "@/lib/wallet/utils";
 import type { WalletEngineTransactionContext } from "@/lib/wallet-engine/types";
+import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import type { WalletTransaction } from "@/lib/wallet/types";
 import type { UserProfile } from "@/lib/profile/types";
 
@@ -24,10 +25,9 @@ type TransactionDetailPageProps = {
 };
 
 export function TransactionDetailPage({
-  profile: _profile,
   transaction,
   transactionContext,
-  backHref = "/wallet",
+  backHref = WALLET_ROUTES.hub,
 }: TransactionDetailPageProps) {
   const amount = Math.abs(transaction.amount);
   const pendingDays =
@@ -39,7 +39,7 @@ export function TransactionDetailPage({
     <AccountCanonicalShell
       title="Transaction"
       backHref={backHref}
-      backLabel="Wallet"
+      backLabel="Balance"
       showHeaderTitle
       showBottomNav={false}
     >

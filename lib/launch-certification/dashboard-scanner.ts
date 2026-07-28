@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import path from "node:path";
 import {
   CERTIFICATION_DASHBOARD_MODULES,
@@ -29,7 +30,7 @@ const DASHBOARD_PROBES: DashboardProbe[] = [
   {
     id: "sell",
     label: "Sell",
-    requiredPaths: ["features/sell/ui/SellScreen.tsx", "tests/sell-scroll-v1.test.ts"],
+    requiredPaths: ["features/sell/ui/SellPage.tsx", "tests/sell-scroll-v1.test.ts"],
   },
   {
     id: "homepage",
@@ -143,7 +144,7 @@ const DASHBOARD_PROBES: DashboardProbe[] = [
 ];
 
 function readProjectFile(relativePath: string): string | null {
-  const absolute = path.join(process.cwd(), relativePath);
+  const absolute = workspacePath( relativePath);
   if (!existsSync(absolute)) return null;
   return readFileSync(absolute, "utf8");
 }
@@ -154,7 +155,7 @@ function probeDashboardModule(module: DashboardProbe): CertificationModuleResult
   for (const requiredPath of module.requiredPaths) {
     checks.push({
       id: `path:${requiredPath}`,
-      pass: existsSync(path.join(process.cwd(), requiredPath)),
+      pass: existsSync(workspacePath( requiredPath)),
       detail: requiredPath,
     });
   }

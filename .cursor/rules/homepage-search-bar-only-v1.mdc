@@ -1,0 +1,29 @@
+# ROVEXO v1.0 — HOMEPAGE SEARCH BAR ONLY
+
+**STATUS: OWNER APPROVED · PERMANENT FREEZE**
+
+## Absolute law
+
+Marketplace **Search Bar** exists **only** on Homepage (`/`).
+
+On every other route the marketplace header (**ROVEXO + Search**) must be **UNMOUNTED**.
+
+## Forbidden hide tricks
+
+`hidden` · `display:none` · `opacity:0` · `visibility:hidden` · responsive-only hide
+
+## Header chrome
+
+| Surface | Header |
+|---|---|
+| Homepage | ROVEXO · Search Bar |
+| Inbox / Notifications | Back · Inbox |
+| Conversation | Back · Username · Info · Active now |
+| Profile / Settings / Wallet / Orders / Sell | Back · Title |
+
+## SSOT
+
+- `lib/header/homepage-search-bar-only-v1.ts`
+- Entry: `features/header/HeaderProvider.tsx`
+
+Any other implementation = PRODUCT FAIL.

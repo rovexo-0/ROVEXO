@@ -31,6 +31,7 @@ export type HomeCategoryIconType =
   | "luxury"
   | "collectibles"
   | "handmade"
+  | "books"
   | "more";
 
 import { ROVEXO_HOME_CATEGORY_RAIL } from "@/lib/home/category-premium-library";
@@ -45,8 +46,14 @@ export type HomeCategoryNavItem = {
   href?: string;
 };
 
-/** Approved homepage horizontal category bar — assets from category-premium-library */
-export const HOME_CATEGORY_NAV: HomeCategoryNavItem[] = [...ROVEXO_HOME_CATEGORY_RAIL];
+/** Blood XXVIII + Law XXX — exactly 10 canonical roots (Catalog Master SSOT). */
+export const HOME_CATEGORY_NAV: HomeCategoryNavItem[] = ROVEXO_HOME_CATEGORY_RAIL.map((item) => ({
+  name: item.name,
+  slug: item.slug,
+  icon: item.icon as HomeCategoryIconType,
+  subtitle: item.subtitle,
+  href: item.href,
+}));
 
 /** @deprecated Use HOME_CATEGORY_NAV */
 export type HomeCategoryRailItem = HomeCategoryNavItem;

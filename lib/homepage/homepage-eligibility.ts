@@ -1,7 +1,5 @@
-import { DEMO_EMAIL_DOMAIN } from "@/lib/demo-environment/config";
 import {
   isExternalPlaceholderImageUrl,
-  resolveOfficialDemoProductImage,
 } from "@/lib/media/official-demo-images";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import type { Product } from "@/lib/products/types";
@@ -12,8 +10,9 @@ import {
   resolveHomepageMode,
   type HomepageMode,
 } from "@/lib/homepage/config";
+import { isForbiddenMarketplaceInventory } from "@/lib/listings/forbidden-marketplace-inventory";
 
-/** Certified closed-beta demo seed slug: demo-seller01-001 */
+/** @deprecated Absolute Law v5.0 — demo seed slugs are never marketplace inventory. */
 export const APPROVED_DEMO_SLUG_PATTERN =
   /^demo-(?:live-buyer|live-seller|buyer|seller|business)\d{0,2}-\d{3}$/;
 
@@ -90,8 +89,10 @@ function hasValidImage(input: HomepageListingInput): boolean {
     return false;
   }
 
-  const candidates = urls.length ? urls : [resolveOfficialDemoProductImage(input.slug)];
-  return candidates.some(
+  // Absolute Law v5.0 — never invent demo/category images for eligibility.
+  if (!urls.length) return false;
+
+  return urls.some(
     (url) =>
       url &&
       url !== PRODUCT_IMAGE_FALLBACK &&
@@ -99,12 +100,8 @@ function hasValidImage(input: HomepageListingInput): boolean {
   );
 }
 
-function isApprovedDemoListing(input: HomepageListingInput): boolean {
-  const email = input.sellerEmail?.toLowerCase() ?? "";
-  return (
-    APPROVED_DEMO_SLUG_PATTERN.test(input.slug) &&
-    email.endsWith(`@${DEMO_EMAIL_DOMAIN}`)
-  );
+function isFakeOrDemoSlug(slug: string, title: string, description?: string | null): boolean {
+  return isForbiddenMarketplaceInventory({ slug, title, description });
 }
 
 function isApprovedTesterListing(input: HomepageListingInput): boolean {
@@ -191,16 +188,18 @@ function evaluateCoreEligibility(input: HomepageListingInput): HomepageEligibili
     return { eligible: false, reason: "NO_IMAGES", mode };
   }
 
+  if (isFakeOrDemoSlug(input.slug, input.title, input.description)) {
+    return { eligible: false, reason: "DEMO_NOT_ALLOWED", mode };
+  }
+
   if (mode === "closed_beta") {
-    if (isApprovedDemoListing(input) || isApprovedTesterListing(input)) {
+    // Closed beta allows approved tester emails with REAL listings only (no demo seed).
+    if (isApprovedTesterListing(input)) {
       return { eligible: true, mode };
     }
     return { eligible: false, reason: "NOT_APPROVED_FOR_CLOSED_BETA", mode };
   }
 
-  if (isApprovedDemoListing(input)) {
-    return { eligible: false, reason: "DEMO_NOT_ALLOWED", mode };
-  }
   if (isInternalPlatformSeller(input)) {
     return { eligible: false, reason: "MARKETPLACE_NOT_APPROVED", mode };
   }

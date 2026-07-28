@@ -23,7 +23,7 @@ describe("Module 2 — Core Surface Simplification", () => {
     expect(readSource("features/business/dashboard/components/BusinessProfileCard.tsx")).toContain(
       "BusinessBadge",
     );
-    expect(readSource("features/product-detail/ProductStoreSection.tsx")).toContain("Verified Store");
+    expect(readSource("features/product-detail/ProductStoreSection.tsx")).toContain("VerifiedBadge");
   });
 
   it("uses design tokens on showcase grid and sell upload surfaces", () => {
@@ -32,7 +32,7 @@ describe("Module 2 — Core Surface Simplification", () => {
 
     expect(gridLock).toContain("var(--ds-color-surface)");
     expect(gridLock).not.toContain('[data-theme="dark"]');
-    expect(sell).toContain("var(--ds-color-surface-muted)");
+    expect(sell).toContain("var(--cds-color-surface-muted, #f5f5f7)");
     expect(sell).toContain("background: #ffffff");
   });
 

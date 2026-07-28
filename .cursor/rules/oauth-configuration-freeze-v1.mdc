@@ -1,0 +1,54 @@
+---
+description: OAuth Configuration Freeze — enable providers in Supabase only
+alwaysApply: true
+---
+
+# ROVEXO OAUTH CONFIGURATION FREEZE v1.0 (LEVEL 8)
+
+**STATUS: OWNER APPROVED | LOCKED | FROZEN | SSOT READY**
+
+SSOT: `lib/auth/oauth-configuration-freeze-v1.ts`
+
+## Mission
+
+**NO code changes. NO auth rewrites. NO new auth systems.**  
+**ONLY configuration is allowed.**
+
+## Root cause (only one)
+
+Supabase Auth providers are **not enabled** → `400 validation_failed` · Unsupported provider · provider is not enabled.
+
+## Current status
+
+Email / Remember Me / Forgot Password / Session / Cookie / Header / Search / Camera Search → **PASS**  
+Google / Apple / Facebook Login → **FAIL** (configuration)
+
+## Allowed (Owner / ops only)
+
+1. Enable Google · Apple · Facebook in Supabase Auth  
+2. Configure callback URLs + local (`http://localhost:3000`) + production (`https://rovexo.com`)  
+3. Path `/auth/callback`  
+4. Save → Test → Pass → Production ready
+
+## Forbidden forever
+
+- Auth / session / cookie / middleware / login / register / header / search **rewrites**
+- New auth / session / cookie systems · custom OAuth · multiple callbacks / user owners  
+- **GOOGLE/APPLE/FACEBOOK FAILS → REWRITE AUTH** — absolutely forbidden
+
+## Golden rule
+
+`400` → **AUDIT → ROOT CAUSE → CONFIGURATION FIX → PASS → DONE**  
+Never: rewrites, refactors, new architectures, duplicates.
+
+## Level 8 law
+
+If Header + Search + Camera Search + Auth core **PASS** and the only failure is OAuth configuration →  
+**application code must not be modified — only configuration may be modified.**
+
+## Cursor must never
+
+- Rewrite Auth because OAuth returns 400  
+- Add Clerk / Firebase / Auth.js / NextAuth / custom OAuth  
+- Touch Login/Register/Header/Search to “fix” disabled providers  
+- Claim production OAuth PASS until Owner has enabled providers and tested

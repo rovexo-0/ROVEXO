@@ -4,6 +4,8 @@
  */
 
 import type { NotificationType } from "@/lib/notifications/types";
+import { getMessageHref, getOrderHubTrackHref } from "@/lib/orders/status";
+import { INBOX_ROUTES } from "@/lib/inbox/canonical-routes";
 
 export type NotificationAudience = "buyer" | "seller" | "marketplace";
 
@@ -87,21 +89,33 @@ export type CanonicalNotificationDefinition = {
 };
 
 function orderHref(ctx: NotificationRouteContext) {
-  return ctx.orderId ? `/orders/${ctx.orderId}` : "/orders";
+  if (ctx.conversationId) {
+    return INBOX_ROUTES.conversation(ctx.conversationId);
+  }
+  if (ctx.orderId) return getMessageHref(ctx.orderId, "buyer");
+  return INBOX_ROUTES.hub;
 }
 
 function trackingHref(ctx: NotificationRouteContext) {
-  return ctx.orderId ? `/orders/${ctx.orderId}/tracking` : "/orders";
+  if (ctx.conversationId) {
+    return `${INBOX_ROUTES.conversation(ctx.conversationId)}?focus=tracking`;
+  }
+  if (ctx.orderId) return getOrderHubTrackHref(ctx.orderId);
+  return INBOX_ROUTES.hub;
 }
 
 function offerHref(ctx: NotificationRouteContext) {
+  if (ctx.conversationId) {
+    const base = INBOX_ROUTES.conversation(ctx.conversationId);
+    return ctx.offerId ? `${base}?offerId=${encodeURIComponent(ctx.offerId)}` : base;
+  }
   return ctx.offerId
     ? `/inbox?tab=messages&filter=offers&offer=${encodeURIComponent(ctx.offerId)}`
     : "/inbox?tab=messages&filter=offers";
 }
 
 function conversationHref(ctx: NotificationRouteContext) {
-  return ctx.conversationId ? `/inbox/conversation/${ctx.conversationId}` : "/inbox";
+  return ctx.conversationId ? INBOX_ROUTES.conversation(ctx.conversationId) : INBOX_ROUTES.hub;
 }
 
 function productHref(ctx: NotificationRouteContext) {

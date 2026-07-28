@@ -6,14 +6,10 @@ import { buildCategorySitemapEntries, buildStaticSitemapEntries } from "@/lib/se
 import { MARKET_REGIONS, getActiveMarket } from "@/lib/seo/markets";
 
 describe("enterprise SEO engine", () => {
-  it("resolves programmatic browse pages", () => {
-    const carsLondon = resolveProgrammaticPage(["cars", "london"]);
-    expect(carsLondon?.type).toBe("category-location");
-    expect(carsLondon?.locationName).toBe("London");
+  it("resolves only canonical catalog browse pages", () => {
+    expect(resolveProgrammaticPage(["cars", "london"])).toBeNull();
 
-    const phonesApple = resolveProgrammaticPage(["phones", "apple"]);
-    expect(phonesApple?.type).toBe("category-brand");
-    expect(phonesApple?.brand).toBe("Apple");
+    expect(resolveProgrammaticPage(["phones", "apple"])).toBeNull();
 
     const bedding = resolveProgrammaticPage(["bedding"]);
     expect(bedding?.categorySlugs).toContain("bedding");
@@ -27,7 +23,7 @@ describe("enterprise SEO engine", () => {
 
   it("generates category and static sitemap entries", () => {
     expect(buildStaticSitemapEntries().length).toBeGreaterThan(5);
-    expect(buildCategorySitemapEntries().length).toBeGreaterThan(1000);
+    expect(buildCategorySitemapEntries().length).toBe(363);
   });
 
   it("reports sitemap segments and audit score", () => {

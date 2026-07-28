@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import path from "node:path";
 import { isHomepageIntegrityPass, runHomepageCategoryIntegrityScan } from "@/lib/homepage-category-integrity-engine";
 import { isGlobalUiIntegrityPass, runGlobalUiIntegrityScan } from "@/lib/omega-global-ui-integrity-engine";
@@ -30,7 +31,7 @@ function passStatus(): EngineeringStatus {
 
 function readSource(relativePath: string): string {
   try {
-    return readFileSync(path.join(process.cwd(), relativePath), "utf8");
+    return readFileSync(workspacePath( relativePath), "utf8");
   } catch {
     return "";
   }

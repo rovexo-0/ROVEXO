@@ -3,7 +3,7 @@
 
 
 import { Avatar } from "@/components/ui/Avatar";
-
+import { PremiumButtonLink } from "@/components/ui/PremiumButton";
 import Link from "next/link";
 
 import { memo, useId } from "react";
@@ -130,11 +130,9 @@ export const StoresHeader = memo(function StoresHeader({ section }: StoresHeader
 
       </Link>
 
-      <Link href={section.profileHref} className={css.visit}>
-
+      <PremiumButtonLink href={section.profileHref} variant="primary" size="sm" pair>
         Visit Store
-
-      </Link>
+      </PremiumButtonLink>
 
     </header>
 

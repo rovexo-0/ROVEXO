@@ -1,0 +1,40 @@
+---
+description: Balance Final Freeze v1.1 — Wallet Production UI · /balance · Full Width
+alwaysApply: true
+---
+
+# ROVEXO BALANCE FINAL FREEZE v1.1 + SENIOR AUDIT
+
+**STATUS: OWNER APPROVED | LOCKED | WALLET PRODUCTION REUSE**
+
+SSOT: `lib/wallet/balance-final-freeze-v1.1.ts`
+
+## Equation
+
+```
+PROFILE → Balance → /balance → WalletPage → WalletHubV1 (wallet-v2)
+→ Wallet Production UI → Full Width 100% → DONE
+```
+
+## Canonical
+
+- **Visible title:** Balance only (`BALANCE_PAGE_NAME`)
+- **Route:** `/balance`
+- **UI:** Wallet Production (`.wallet-v2*`) — NOT balance-v1 menu redesign
+- **Engine:** Wallet Financial Engine unchanged
+- **Thin route:** `app/balance/page.tsx` imports `WalletPage` only
+
+## Must keep (Wallet Production)
+
+Available Balance · Withdraw · Bank Account · Add Bank · Transactions ·
+Payment Methods · Insights · This Month · Next Payout · Connect Bank Account ·
+No transactions yet · View all · cards · gradients · shadows · skeletons
+
+## Forbidden
+
+Balance v2 · own Balance cards/sections · balance-v1 hub as live UI ·
+duplicate financial systems · financial logic changes · showing “Wallet” as title
+
+## Full width
+
+`.wallet-v2 { width/max-width/min-width: 100% }`

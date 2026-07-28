@@ -3,6 +3,7 @@ import "server-only";
 import { generateShippingLabel } from "@/lib/shipping/labels/service.server";
 import { fetchShippingQuotesRouted } from "@/lib/shipping/providers/router";
 import { persistShippingLabelPdf } from "@/lib/shipping/label-storage.server";
+import { isDemoShippingTrackingNumber } from "@/lib/shipping/pricing/demo-adapter";
 import { saveShippingLabel, saveShippingQuotes } from "@/lib/shipping/store";
 import { debitShippingReserveForLabel } from "@/lib/commerce-engine/shipping-reserve";
 import type { ShippingLabelRequest, ShippingQuoteRequest } from "@/lib/shipping/pricing/provider";
@@ -33,7 +34,13 @@ export async function generateOrderShippingLabel(orderId: string, request: Shipp
     });
   }
 
-  if (label.pdfUrl && label.trackingNumber) {
+  // Production only: persist the official carrier PDF bytes.
+  // Demo: keep the live presentation URL — never snapshot HTML into storage.
+  if (
+    label.pdfUrl &&
+    label.trackingNumber &&
+    !isDemoShippingTrackingNumber(label.trackingNumber)
+  ) {
     const stored = await persistShippingLabelPdf({
       orderId,
       parcelNumber: request.parcelNumber ?? 1,

@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import path from "node:path";
 import {
   ACCESSIBILITY_CERTIFICATION_AREAS,
@@ -23,8 +24,8 @@ const MODULE_PROBES: ModuleProbe[] = [
   {
     id: "sell",
     label: "Sell",
-    requiredPaths: ["features/sell/ui/SellScreen.tsx", "tests/sell-scroll-v1.test.ts"],
-    requiredSnippets: [{ id: "publish", path: "features/sell/ui/SellScreen.tsx", contains: "SellScreen" }],
+    requiredPaths: ["features/sell/ui/SellPage.tsx", "tests/sell-scroll-v1.test.ts"],
+    requiredSnippets: [{ id: "publish", path: "features/sell/ui/SellPage.tsx", contains: "SellPage" }],
   },
   {
     id: "product_details",
@@ -147,7 +148,7 @@ const MODULE_PROBES: ModuleProbe[] = [
 ];
 
 function readProjectFile(relativePath: string): string | null {
-  const absolute = path.join(process.cwd(), relativePath);
+  const absolute = workspacePath( relativePath);
   if (!existsSync(absolute)) return null;
   return readFileSync(absolute, "utf8");
 }
@@ -158,7 +159,7 @@ function probeModule(module: ModuleProbe): CertificationModuleResult {
   for (const requiredPath of module.requiredPaths) {
     checks.push({
       id: `path:${requiredPath}`,
-      pass: existsSync(path.join(process.cwd(), requiredPath)),
+      pass: existsSync(workspacePath( requiredPath)),
       detail: requiredPath,
     });
   }

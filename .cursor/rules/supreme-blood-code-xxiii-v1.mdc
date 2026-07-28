@@ -1,0 +1,59 @@
+---
+description: Supreme Blood Code XXIII — Sprint VI Checkout APPROVED TO START (IN DEVELOPMENT)
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE XXIII — SPRINT VI CHECKOUT
+
+**STATUS: APPROVED TO START · IN DEVELOPMENT · EXECUTION MODE · BLOOD CODE LOCKED**  
+**NOT yet 100% frozen** — “100% Verified / Audited” = **required gates** before Owner freeze
+
+SSOT: `lib/supreme-blood-code-xxiii-v1.ts`  
+Official: `http://localhost:3000/checkout` **ONLY**
+
+## Absolute scope
+
+Modify **only** `/checkout`. Never touch Homepage · Inbox · Conversation · Orders · Wallet · Sell · Shipping · Account · Settings · Profile · Legal · Help.
+
+## One Checkout
+
+One implementation · one entry point = `/checkout`
+
+## Payment equation (absolute)
+
+```
+ONE CLICK = ONE PAYMENT = ONE ORDER = ONE TRANSACTION
+```
+
+No duplicate payments · no double confirm · no silent processing.
+
+## Buyer must always know
+
+What · How much · Where · Which payment · If payment succeeded.  
+Confusion = **PRODUCT FAIL**
+
+## Flow
+
+Buy Now → Checkout → Product · Delivery · Payment · Price → Confirm & Pay → Processing → Success → Done
+
+Success: **DONE** exists only after readiness gates PASS → AUTO OPEN `/inbox/conversation/{id}`.
+Silent poll until ready. **No** Inbox fallback · Loading copy · Please try again · Conversation not found.
+SSOT: `lib/checkout/checkout-absolute-law-v1.ts` + `lib/checkout/done-readiness-gate-v1.ts`
+
+## UI laws
+
+- **No** Search Bar / Homepage / Marketplace header  
+- **No** Bottom Navigation (flow-focused page)  
+- Master device: iPhone 17 Pro Max  
+
+## Live status
+
+| Sprint | Status |
+|--------|--------|
+| I–V | LOCKED |
+| VI Checkout | **IN DEVELOPMENT** |
+| VII–VIII | FORBIDDEN TO START |
+
+## Goal
+
+Paying feels Fast · Safe · Intuitive · Transparent · Production ready.

@@ -1,9 +1,8 @@
 "use client";
 
 import { useRef, type KeyboardEvent } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
-import { useClientHydrated } from "@/lib/react/use-client-hydrated";
-import { useSearchOverlayOptional } from "@/features/search/client";
 import { captureHomepageScroll } from "@/lib/navigation/homepage-scroll-restore";
 import { SEARCH_SYSTEM_V1 } from "@/lib/search/search-system-v1-lock";
 import { SearchBarSearchIcon } from "@/features/search/components/SearchBarIcons";
@@ -17,25 +16,21 @@ export type HomepageSearchFieldProps = {
 
 /**
  * Homepage search entry — Search Bar Icon Freeze.
- * Left: Profile-family Search icon 20×20. Opens overlay (Camera + Close live there).
+ * Navigates to /search (SEARCH_UI_v1.0 SSOT). No overlay bypass.
  */
 export function HomepageSearchField({ inputId, className }: HomepageSearchFieldProps) {
-  const hydrated = useClientHydrated();
-  const searchOverlay = useSearchOverlayOptional();
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
-  function openOverlay() {
+  function goToSearch() {
     captureHomepageScroll();
-    if (searchOverlay) {
-      searchOverlay.open();
-      return;
-    }
+    router.push("/search");
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      openOverlay();
+      goToSearch();
     }
   }
 
@@ -60,12 +55,10 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
             placeholder={SEARCH_SYSTEM_V1.placeholder}
             autoComplete="off"
             enterKeyHint="search"
-            role={hydrated ? "combobox" : "searchbox"}
-            aria-expanded={hydrated ? Boolean(searchOverlay?.isOpen) : undefined}
-            aria-haspopup="dialog"
+            role="searchbox"
             data-header-search="field"
-            onFocus={openOverlay}
-            onClick={openOverlay}
+            onFocus={goToSearch}
+            onClick={goToSearch}
             onKeyDown={handleKeyDown}
             className={cn("homepage-search__input", focusRing)}
           />

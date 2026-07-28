@@ -1,7 +1,6 @@
 import { logCronEvent, logOpsEvent } from "@/lib/ops/logger";
 import { recordCronJobRun } from "@/lib/ops/production-status";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { cancelPendingOrder } from "@/lib/orders/checkout";
+import { AUTO_CANCEL_ENGINE_run } from "@/lib/checkout/engines/auto-cancel-engine-v1";
 
 export type OrderCleanupResult = {
   cleaned: number;
@@ -25,23 +24,8 @@ export async function runOrderCleanupJob(): Promise<OrderCleanupResult> {
   }
 }
 
+/** Blood XXIV + Master Architecture — AUTO_CANCEL_ENGINE (120s sessions + legacy PENDING_PAYMENT drain). */
 export async function cleanupExpiredOrders(): Promise<number> {
-  const admin = createAdminClient();
-  const now = new Date().toISOString();
-
-  const { data: expired } = await admin
-    .from("orders")
-    .select("id")
-    .eq("status", "awaiting_payment")
-    .lt("reserved_until", now);
-
-  if (!expired?.length) {
-    return 0;
-  }
-
-  for (const order of expired) {
-    await cancelPendingOrder(order.id);
-  }
-
-  return expired.length;
+  const result = await AUTO_CANCEL_ENGINE_run();
+  return result.cancelled;
 }

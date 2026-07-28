@@ -1,4 +1,4 @@
-/** ROVEXO AUTH v1 — re-exports AUTH_MASTER_SPEC v1.0 SSOT */
+/** ROVEXO AUTH v1 — re-exports AUTH_MASTER_SPEC v1.0 + MASTER FREEZE SSOT */
 
 import { AUTH_MASTER_SPEC, AUTH_MASTER_SPEC_VERSION } from "@/lib/auth/master-spec";
 
@@ -7,6 +7,41 @@ export {
   AUTH_MASTER_SPEC_VERSION,
   type AuthSplashPhase,
 } from "@/lib/auth/master-spec";
+
+export {
+  AUTH_MASTER_FREEZE_V1,
+  type AuthMasterFreezeV1,
+} from "@/lib/auth/auth-master-freeze-v1";
+
+export {
+  OAUTH_CONFIGURATION_FREEZE_V1,
+  type OauthConfigurationFreezeV1,
+} from "@/lib/auth/oauth-configuration-freeze-v1";
+
+export {
+  ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1,
+  type RovexoOauthConfigurationGoldenLawV1,
+} from "@/lib/auth/oauth-configuration-golden-law-v1";
+
+export {
+  AUTH_SENIOR_AUDIT_V1,
+  type AuthSeniorAuditV1,
+} from "@/lib/auth/auth-senior-audit-v1";
+
+export {
+  AUTH_UI_MASTER_FREEZE_V1_2,
+  type AuthUiMasterFreezeV12,
+} from "@/lib/auth/auth-ui-master-freeze-v1.2";
+
+export {
+  AUTH_UI_COMPACT_PREMIUM_V1_3,
+  type AuthUiCompactPremiumV13,
+} from "@/lib/auth/auth-ui-compact-premium-v1.3";
+
+export {
+  AUTH_UI_COMPACT_PREMIUM_V1_4,
+  type AuthUiCompactPremiumV14,
+} from "@/lib/auth/auth-ui-compact-premium-v1.4";
 
 export const AUTH_MODULE_VERSION = AUTH_MASTER_SPEC_VERSION;
 

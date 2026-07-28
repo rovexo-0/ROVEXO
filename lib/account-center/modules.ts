@@ -70,9 +70,7 @@ export function getAccountModuleTiles(): MobileTile[] {
     tile("/account/security", "Security", "Password, 2FA & sessions"),
     tile("/account/addresses", "Addresses", "Shipping & billing"),
     tile("/wallet/payment-methods", "Payment Methods", "Cards & checkout"),
-    tile("/account/preferences/language", "Language", "Locale & region"),
     tile("/notifications/settings", "Notifications", "Push & email", "notifications"),
-    tile("/account/ideas", "ROVEXO Ideas", "Suggest improvements"),
     tile("/help", "Help", "Guides & troubleshooting"),
     tile("/account/privacy", "Privacy", "Visibility & marketing"),
   ];

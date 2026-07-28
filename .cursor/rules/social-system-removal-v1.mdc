@@ -1,0 +1,33 @@
+---
+description: ROVEXO v1.0 — Social media permanently removed; marketplace Follow via Blood Code XLVI
+alwaysApply: true
+---
+
+# ROVEXO v1.0 — SOCIAL MEDIA REMOVAL + MARKETPLACE FOLLOW
+
+**STATUS: SOCIAL MEDIA PERMANENTLY REMOVED | MARKETPLACE FOLLOW AUTHORIZED (XLVI)**
+
+## Removed forever (social media)
+
+Posts · Stories · Reels · Likes · Comments · Instagram-style Social Feed · Friends · Influencer systems
+
+## Authorized (Absolute Blood Code XLVI)
+
+Marketplace Follow / Unfollow · Followers / Following counters · Follow notification prefs  
+Events ONLY: New Listing · Price Drop · New Review · Verified Badge · Vacation Mode OFF
+
+## Keep
+
+Ratings · Reviews · Verification · Orders · Messages · Listings · Promotions · Wallet · Analytics · Store statistics
+
+## Philosophy
+
+ROVEXO is marketplace-first — not Instagram / Facebook / TikTok / a social network.
+
+## SSOT
+
+- Blood Code: `lib/supreme-blood-code-xlvi-follow-rating-badge-v1.ts`
+- Gate: `lib/social/social-system-removal-v1.ts`
+- Follow store: `lib/follow/marketplace-follow-store-v1.ts`
+- Migration: `supabase/migrations/20260726223000_marketplace_follow_xlvi_v1.sql`
+- Lock test: `tests/social-system-removal-v1.test.ts` · `tests/blood-code-xlvi-follow-rating-badge-v1.test.ts`

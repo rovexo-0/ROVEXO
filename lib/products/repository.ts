@@ -18,6 +18,7 @@ import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
 import { toProductDetail } from "@/lib/products/detail";
 import { resolveProductLocationCity, stripListingLocationMarker } from "@/lib/sell/listing-location";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { isForbiddenMarketplaceInventory } from "@/lib/listings/forbidden-marketplace-inventory";
 import type {
   DeliveryCarrier,
   Product,
@@ -109,6 +110,9 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     description: row.description ?? undefined,
     moderationStatus: row.moderation_status,
     transactionMode,
+    freeDelivery: row.shipping_price === 0,
+    shippingPrice: row.shipping_price != null ? Number(row.shipping_price) : null,
+    stock: Number(row.stock ?? 0),
   };
 }
 
@@ -193,6 +197,7 @@ function mapProductDetail(row: ProductRow, transactionMode = DEFAULT_TRANSACTION
     .map((image) => image.url);
 
   const detail = toProductDetail(product);
+  const isSold = row.status === "sold";
   return {
     ...detail,
     images: images.length > 0 ? images : detail.images,
@@ -201,9 +206,9 @@ function mapProductDetail(row: ProductRow, transactionMode = DEFAULT_TRANSACTION
     freeDelivery: row.shipping_price === 0,
     shippingPrice: row.shipping_price != null ? Number(row.shipping_price) : null,
     salesCount: Math.max(1, row.review_count),
-    sellerFollowerCount: 0,
-    stock: row.stock,
-    availability: productAvailability(row.stock, row.low_stock_alert),
+    stock: isSold ? 0 : row.stock,
+    availability: isSold ? "out_of_stock" : productAvailability(row.stock, row.low_stock_alert),
+    status: row.status,
     sellerId: row.seller_id,
     sellerUsername: row.profiles?.username ?? null,
     categoryId: row.category_id,
@@ -235,7 +240,8 @@ export async function getProductsBySection(
   let query = supabase
     .from("products")
     .select(PRODUCT_SELECT, { count: "exact" })
-    .eq("status", "published");
+    .eq("status", "published")
+    .eq("is_demo", false);
 
   if (section === "trending") {
     query = query
@@ -270,6 +276,7 @@ export async function getProductsBySection(
       .from("products")
       .select(PRODUCT_SELECT, { count: "exact" })
       .eq("status", "published")
+      .eq("is_demo", false)
       .order("views", { ascending: false })
       .order("created_at", { ascending: false })
       .range(from, to);
@@ -287,6 +294,7 @@ export async function getProductsBySection(
       .from("products")
       .select(PRODUCT_SELECT, { count: "exact" })
       .eq("status", "published")
+      .eq("is_demo", false)
       .contains("sections", [section])
       .order("created_at", { ascending: false })
       .range(from, to);
@@ -324,26 +332,27 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
   const targetFrom = (page - 1) * pageSize;
   let scanFrom = targetFrom;
   const eligibleRows: ProductRow[] = [];
-  let totalPublished = 0;
   let exhausted = false;
 
   while (eligibleRows.length < pageSize && !exhausted) {
     const scanTo = scanFrom + pageSize * 3 - 1;
-    const { data, error, count } = await supabase
+    const { data, error } = await supabase
       .from("products")
-      .select(PRODUCT_SELECT, { count: scanFrom === targetFrom ? "exact" : undefined })
+      .select(PRODUCT_SELECT)
       .eq("status", "published")
+      .eq("is_demo", false)
       .order("promotion_score", { ascending: false })
       .order("created_at", { ascending: false })
       .order("views", { ascending: false })
       .range(scanFrom, scanTo);
 
     if (error) {
+      /* Past-end range → empty page (never surface PGRST103 as 500). */
+      if (error.code === "PGRST103") {
+        exhausted = true;
+        break;
+      }
       throw error;
-    }
-
-    if (scanFrom === targetFrom) {
-      totalPublished = count ?? 0;
     }
 
     const batch = (data as ProductRow[] | null) ?? [];
@@ -375,15 +384,15 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
     })),
   ).sort(compareHomepageFeedProducts);
 
-  const hiddenEstimate = Math.max(0, totalPublished - items.length);
-  const hasMore = exhausted
-    ? scanFrom < totalPublished || eligibleRows.length > pageSize
-    : true;
+  /* Empty page or exhausted scan → stop pagination (never infinite hasMore). */
+  if (items.length === 0) {
+    return { items: [], page, hasMore: false };
+  }
 
   return {
     items,
     page,
-    hasMore: hasMore || hiddenEstimate > 0,
+    hasMore: items.length >= pageSize && !exhausted,
   };
 }
 
@@ -402,6 +411,7 @@ export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection
     .from("products")
     .select("seller_id")
     .eq("status", "published")
+    .eq("is_demo", false)
     .gt("featured_until", now);
 
   if (anchorError || !anchorRows?.length) {
@@ -420,6 +430,7 @@ export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection
     .from("products")
     .select(PRODUCT_SELECT)
     .eq("status", "published")
+    .eq("is_demo", false)
     .gt("stock", 0)
     .in("seller_id", featuredSellerIds)
     .order("created_at", { ascending: false });
@@ -451,14 +462,44 @@ export const getProductBySlug = cache(async function getProductBySlug(
     .from("products")
     .select(PRODUCT_SELECT)
     .eq("slug", slug)
-    .in("status", ["published", "draft", "paused"])
+    .eq("is_demo", false)
+    // Sold remains publicly readable for the canonical SOLD Product Page (never Store unavailable).
+    .in("status", ["published", "draft", "paused", "sold"])
     .maybeSingle();
 
-  if (error || !data) {
+  let row = (!error && data ? (data as ProductRow) : null);
+
+  // Pre-migration / RLS lag: sold PDP must stay public — never Store unavailable.
+  if (!row) {
+    const admin = tryCreateAdminClient();
+    if (admin) {
+      const soldLookup = await admin
+        .from("products")
+        .select(PRODUCT_SELECT)
+        .eq("slug", slug)
+        .eq("is_demo", false)
+        .eq("status", "sold")
+        .maybeSingle();
+      if (!soldLookup.error && soldLookup.data) {
+        row = soldLookup.data as ProductRow;
+      }
+    }
+  }
+
+  if (!row) {
     return null;
   }
 
-  const row = data as ProductRow;
+  if (
+    isForbiddenMarketplaceInventory({
+      slug: row.slug,
+      title: row.title,
+      description: row.description,
+    })
+  ) {
+    return null;
+  }
+
   let mode = DEFAULT_TRANSACTION_MODE;
   if (row.category_id) {
     try {
@@ -471,25 +512,75 @@ export const getProductBySlug = cache(async function getProductBySlug(
   }
 
   const detail = mapProductDetail(row, mode);
+  return enrichProductDetailWithSellerRating(detail);
+});
 
+async function enrichProductDetailWithSellerRating(
+  detail: ProductDetail,
+): Promise<ProductDetail> {
   try {
-    const admin = tryCreateAdminClient();
-    if (!admin) {
-      return detail;
-    }
-    const { data: sellerProfile } = await admin
+    const supabase = await createClient();
+    const { data } = await supabase
       .from("seller_profiles")
-      .select("follower_count")
-      .eq("id", row.seller_id)
+      .select("rating, review_count")
+      .eq("id", detail.sellerId)
       .maybeSingle();
+
+    if (!data) return detail;
 
     return {
       ...detail,
-      sellerFollowerCount: sellerProfile?.follower_count ?? 0,
+      sellerRating: Number(data.rating ?? 0),
+      sellerReviewCount: Number(data.review_count ?? 0),
     };
   } catch {
     return detail;
   }
+}
+
+/**
+ * Checkout Session owner may load a reserved listing during the Absolute Law window.
+ * Do not use on public listing pages.
+ */
+export const getProductBySlugForCheckout = cache(async function getProductBySlugForCheckout(
+  slug: string,
+): Promise<ProductDetail | null> {
+  const admin = tryCreateAdminClient();
+  if (admin) {
+    const { data, error } = await admin
+      .from("products")
+      .select(PRODUCT_SELECT)
+      .eq("slug", slug)
+      .eq("is_demo", false)
+      .in("status", ["published", "draft", "paused", "reserved"])
+      .maybeSingle();
+    if (!error && data) {
+      const row = data as ProductRow;
+      if (
+        isForbiddenMarketplaceInventory({
+          slug: row.slug,
+          title: row.title,
+          description: row.description,
+        })
+      ) {
+        return null;
+      }
+      let mode = DEFAULT_TRANSACTION_MODE;
+      if (row.category_id) {
+        try {
+          mode =
+            (await resolveTransactionModeMapForCategoryIds([row.category_id])).get(
+              row.category_id,
+            ) ?? DEFAULT_TRANSACTION_MODE;
+        } catch {
+          mode = DEFAULT_TRANSACTION_MODE;
+        }
+      }
+      return enrichProductDetailWithSellerRating(mapProductDetail(row, mode));
+    }
+  }
+
+  return getProductBySlug(slug);
 });
 
 export async function getSimilarProducts(slug: string, limit = 8): Promise<Product[]> {
@@ -498,6 +589,7 @@ export async function getSimilarProducts(slug: string, limit = 8): Promise<Produ
     .from("products")
     .select("id, category_id, brand_id")
     .eq("slug", slug)
+    .eq("is_demo", false)
     .maybeSingle();
 
   if (!current) {

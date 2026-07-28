@@ -39,34 +39,37 @@ const baseProfile: UserProfile = {
 };
 
 describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
-  it("keeps Settings on the hub menu and Help/Ideas under Settings modules", () => {
-    const sections = buildAccountMenuSections(baseProfile);
+  it("keeps Settings on the hub menu; Promote lives on Profile (Master Engine)", () => {
+    const sections = buildAccountMenuSections(baseProfile, { activeListingCount: 1 });
     const titles = sections.flatMap((section) => section.items.map((item) => item.title));
     expect(titles).toContain("Settings");
+    expect(titles).toContain("Promote");
     expect(titles).not.toContain("Contact Support");
     expect(readSource("lib/account-center/canonical-menu.ts")).not.toContain("Contact Support");
-    expect(readSource("lib/account-center/settings-menu.ts")).toContain("Promotion Tools");
+    expect(readSource("lib/account-center/settings-menu.ts")).not.toContain("Promotion Tools");
   });
 
-  it("locks Settings hub sections for Module 02B", () => {
+  it("locks Settings hub sections for Master Engine", () => {
     const settings = readSource("features/account-module/components/SettingsV1.tsx");
     const menu = readSource("lib/account-center/settings-menu.ts");
     const sections = readSource("features/account-module/components/SettingsMenuSections.tsx");
 
-    expect(settings).toContain("AccountCanonicalShell");
+    expect(settings).toContain("MyAccountTemplate");
     expect(settings).toContain("SettingsMenuSections");
-    expect(menu).toContain('"Profile"');
+    expect(menu).toContain('"Personal Information"');
     expect(menu).toContain('"Addresses"');
-    expect(menu).toContain('"Payment Methods"');
     expect(menu).toContain('"Notifications"');
-    expect(menu).toContain('"Privacy & Security"');
-    expect(menu).toContain('"Seller Performance"');
-    expect(menu).toContain('"LEGAL"');
+    expect(menu).toContain('"Privacy"');
+    expect(menu).toContain('"Security"');
+    expect(menu).toContain('"Verification"');
+    expect(menu).not.toContain('"Payment Methods"');
+    expect(menu).not.toContain('"LEGAL"');
     expect(settings).not.toContain("🗑 Account");
     expect(settings).not.toContain("Identity Verification");
     expect(sections).toContain("DeleteAccountFlow");
     expect(sections).toContain("dangerRow");
-    expect(sections).toContain("CanonicalCard");
+    expect(sections).not.toContain("CanonicalCard");
+    expect(sections).toContain("fw-engine__group");
     expect(sections).toContain("CanonicalMenuRow");
   });
 
@@ -75,17 +78,16 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     const withdraw = readSource("features/wallet/components/withdraw/WithdrawPage.tsx");
     const withdrawApi = readSource("app/api/wallet/withdraw/route.ts");
 
-    expect(hub).toContain('data-wallet-hub-version="v3.0-standard"');
-    expect(hub).toContain("CanonicalMenuRow");
-    expect(hub).toContain("Available");
+    expect(hub).toContain('data-wallet-hub-version="v1.0-canonical"');
+    expect(hub).toContain("wallet-v2__hero");
+    expect(hub).toContain("Available Balance");
     expect(hub).toContain("Withdraw");
-    expect(hub).toContain("WALLET_ROUTES.withdraw");
-    expect(hub).toContain("PersonalWalletMenuSections");
-    expect(hub).not.toContain("wallet-v2__hero");
+    expect(hub).toContain("BALANCE_PAGE_NAME");
+    expect(hub).not.toContain('title="Wallet"');
     expect(hub).not.toContain("Platform Fee");
-    expect(withdraw).toContain('data-wallet-withdraw-version="v3.0-one-product"');
-    expect(withdraw).toContain("WALLET_ROUTES.bankAccount");
-    expect(withdraw).toContain("Withdraw to Bank Account");
+    expect(withdraw).toContain("WITHDRAW_PAGE_VERSION");
+    expect(withdraw).toContain("data-withdraw-ui");
+    expect(withdraw).toContain("WALLET_ROUTES");
     expect(withdrawApi).toContain("recordWithdrawal");
     expect(withdrawApi).toContain("emitSmartNotification");
     expect(withdrawApi).toContain("NOTIFICATION_ROUTES");
@@ -112,25 +114,33 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     expect(resolveSmartNotificationHref("new_offer", { offerId: "o1" })).toBe(
       "/inbox?tab=messages&filter=offers&offer=o1",
     );
-    expect(resolveSmartNotificationHref("new_order", { orderId: "ord1" })).toBe("/orders/ord1");
-    expect(resolveSmartNotificationHref("order_shipped", { orderId: "ord1" })).toBe(
-      "/orders/ord1/tracking",
+    expect(resolveSmartNotificationHref("new_order", { orderId: "ord1" })).toBe(
+      "/inbox?order=ord1",
     );
-    expect(resolveSmartNotificationHref("listing_sold", { productId: "p1" })).toBe("/orders");
-    expect(resolveSmartNotificationHref("listing_sold", { orderId: "ord1" })).toBe("/orders/ord1");
+    expect(resolveSmartNotificationHref("order_shipped", { orderId: "ord1" })).toBe(
+      "/inbox?order=ord1&focus=tracking",
+    );
+    expect(resolveSmartNotificationHref("listing_sold", { productId: "p1" })).toBe("/inbox");
+    expect(resolveSmartNotificationHref("listing_sold", { orderId: "ord1" })).toBe(
+      "/inbox?order=ord1",
+    );
     expect(resolveSmartNotificationHref("payment_received", { transactionId: "t1" })).toBe(
       "/wallet/transactions/t1",
     );
+    expect(resolveSmartNotificationHref("payment_received", { orderId: "ord1" })).toBe(
+      "/inbox?order=ord1",
+    );
     expect(resolveSmartNotificationHref("trust_verification")).toBe("/account/security");
 
-    expect(resolveNotificationTypeHref("follower")).toBe(NOTIFICATION_ROUTES.followers);
     expect(resolveNotificationTypeHref("review")).toBe(NOTIFICATION_ROUTES.reviews);
     expect(resolveNotificationTypeHref("payment", { transactionId: "t2" })).toBe(
       "/wallet/transactions/t2",
     );
+    expect(resolveNotificationTypeHref("payment", { orderId: "ord1" })).toBe("/inbox?order=ord1");
+    expect(resolveNotificationTypeHref("payment")).toBe("/inbox");
 
     expect(resolveCompletionGapHref("bank", "/wallet/withdraw")).toContain(
-      "/wallet/bank-account",
+      "/wallet/bank-accounts",
     );
     expect(resolveCompletionGapHref("address", "/checkout/item")).toContain("/account/addresses");
     expect(resolveCompletionGapHref("payment", "/checkout/item")).toContain("/wallet/payment-methods");
@@ -156,9 +166,9 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     expect(prefs).toContain("NOTIFICATION_USER_CONTROLS");
     expect(controls).toContain("Push Notifications");
     expect(controls).toContain("Email Notifications");
-    expect(controls).toContain("Order Notifications");
-    expect(controls).toContain("Offer Notifications");
-    expect(controls).toContain("Marketing Notifications");
-    expect(controls).toContain("Security Notifications");
+    expect(controls).toContain('label: "Orders"');
+    expect(controls).toContain('label: "Inbox"');
+    expect(controls).toContain('label: "Reviews"');
+    expect(controls).not.toContain('label: "Followers"');
   });
 });

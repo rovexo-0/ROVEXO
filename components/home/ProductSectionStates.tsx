@@ -37,9 +37,12 @@ export function ProductSectionError({ onRetry }: { onRetry?: () => void }) {
       role="status"
       aria-live="polite"
       className="rx-home-empty border-danger/50 bg-surface"
+      data-fail-closed="homepage-section-v1"
     >
-      <p className="rx-home-empty__title">Unable to load products</p>
-      <p className="rx-home-empty__message">Something went wrong. Please try again.</p>
+      <p className="rx-home-empty__title">Something went wrong.</p>
+      <p className="rx-home-empty__message">
+        Some information is temporarily unavailable. Please try again shortly.
+      </p>
       {onRetry && (
         <button
           type="button"

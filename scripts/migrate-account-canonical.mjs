@@ -25,69 +25,6 @@ walk(path.join(ROOT, "features"));
 walk(path.join(ROOT, "app"));
 walk(path.join(ROOT, "tests"));
 
-const REPLACEMENTS = [
-  [
-    /from "@\/features\/account-module\/components\/SettingsPageShell"/g,
-    'from "@/features/account-canonical"',
-  ],
-  [
-    /from "@\/features\/account-module\/components\/AccountModuleShell"/g,
-    'from "@/features/account-canonical"',
-  ],
-  [
-    /from "@\/features\/account\/components\/AccountPageShell"/g,
-    'from "@/features/account-canonical"',
-  ],
-  [/\bSettingsPageShell\b/g, "AccountCanonicalShell"],
-  [/\bAccountModuleShell\b/g, "AccountCanonicalShell"],
-  [/\bAccountPageShell\b/g, "AccountCanonicalShell"],
-  [
-    /from "@\/features\/account-module\/components\/SettingsMenu"/g,
-    'from "@/src/components/canonical"',
-  ],
-  [
-    /import\s*\{([^}]+)\}\s*from "@\/src\/components\/canonical";/g,
-    (match, imports) => {
-      const parts = imports.split(",").map((s) => s.trim()).filter(Boolean);
-      const map = {
-        SettingsPageBody: "AccountPageStack",
-        SettingsMenuSection: "CanonicalSection",
-        SettingsMenuCard: "CanonicalCard",
-        SettingsMenuRow: "CanonicalMenuRow",
-        SettingsFormPanel: null,
-        SettingsEmptyState: null,
-      };
-      const extra = [];
-      const out = [];
-      for (const p of parts) {
-        const alias = p.includes(" as ") ? p : p;
-        const name = alias.split(" as ")[0].trim();
-        if (map[name] === "AccountPageStack") {
-          extra.push('import { AccountPageStack } from "@/features/account-canonical";');
-        } else if (map[name]) {
-          out.push(map[name]);
-        } else if (name === "SettingsFormPanel") {
-          extra.push(
-            'import { CanonicalCard } from "@/src/components/canonical";',
-          );
-        } else if (name === "SettingsEmptyState") {
-          if (!out.includes("CanonicalInfoBlock")) out.push("CanonicalInfoBlock");
-        } else {
-          out.push(p);
-        }
-      }
-      const uniq = [...new Set(out)];
-      const main = uniq.length ? `import { ${uniq.join(", ")} } from "@/src/components/canonical";` : "";
-      return [main, ...extra].filter(Boolean).join("\n");
-    },
-  ],
-];
-
-// Simpler line-by-line for SettingsMenu - handle separately
-const SIMPLE_IMPORT_FIX = {
-  SettingsPageBody: 'AccountPageStack',
-};
-
 function migrateFile(filePath) {
   let src = fs.readFileSync(filePath, "utf8");
   const orig = src;
@@ -159,5 +96,7 @@ function migrateFile(filePath) {
 }
 
 let count = 0;
-for (const f of FILES) migrateFile(f) && count++;
+for (const f of FILES) {
+  if (migrateFile(f)) count++;
+}
 console.log(`Done: ${count} files`);

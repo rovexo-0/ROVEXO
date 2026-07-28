@@ -97,7 +97,7 @@ export type CreateListingInput = {
   inventory?: {
     sku?: string | null;
     stock: number;
-    lowStockAlert: number;
+    lowStockAlert?: number;
   };
   images: ListingImageInput[];
 };

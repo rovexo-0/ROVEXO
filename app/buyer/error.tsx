@@ -1,20 +1,11 @@
 "use client";
 
-import { BuyerErrorState } from "@/components/buyer/BuyerErrorState";
+import { FailClosedPanel } from "@/components/fail-closed/FailClosedPanel";
 
-export default function BuyerError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+export default function BuyerError({ reset }: { error: Error; reset: () => void }) {
   return (
-    <div className="buyer-page">
-      <BuyerErrorState message={error.message || "Something went wrong. Please try again."} />
-      <button type="button" className="buyer-hero__cta" onClick={reset}>
-        Try again
-      </button>
+    <div className="buyer-page" style={{ padding: 16 }}>
+      <FailClosedPanel density="section" onRetry={() => reset()} />
     </div>
   );
 }

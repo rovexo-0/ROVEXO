@@ -1,4 +1,6 @@
-import { isPremiumSeller, isVerifiedStore } from "@/lib/product-detail/format";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { resolveVerifiedStatus } from "@/lib/master-engine";
+import { isPremiumSeller } from "@/lib/product-detail/format";
 import type { Product } from "@/lib/products/types";
 
 type ProductDetailBadgesProps = {
@@ -6,16 +8,19 @@ type ProductDetailBadgesProps = {
 };
 
 export function ProductDetailBadges({ product }: ProductDetailBadgesProps) {
-  const verified = isVerifiedStore(product);
+  const { showBadge } = resolveVerifiedStatus({
+    isRovexoVerified: Boolean(product.sellerVerified),
+  });
   const premium = isPremiumSeller(product);
 
-  if (!verified && !premium) return null;
+  if (!showBadge && !premium) return null;
 
   return (
     <div className="pd-v1__badges">
-      {verified ? (
-        <span className="pd-v1__badge pd-v1__badge--verified">
-          <span aria-hidden>✓</span> Verified Seller
+      {showBadge ? (
+        <span className="pd-v1__badge pd-v1__badge--verified" aria-label="ROVEXO VERIFIED">
+          <VerifiedBadge />
+          <span>ROVEXO VERIFIED</span>
         </span>
       ) : null}
       {premium ? (

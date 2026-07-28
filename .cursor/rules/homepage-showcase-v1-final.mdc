@@ -1,0 +1,16 @@
+---
+description: Homepage Showcase — superseded by Homepage CEO Final Lock v1.0 (9 + View All).
+alwaysApply: false
+globs:
+  - components/homepage/canonical/**/*
+  - lib/homepage/v4-data.ts
+  - lib/homepage/demo-data.ts
+---
+
+# Homepage Showcase (superseded by CEO Final Lock)
+
+**Canonical:** `.cursor/rules/homepage-ceo-final-lock-v1.mdc` + `lib/homepage/homepage-final-freeze-v1.ts`
+
+Structure: Search → Category chips → **Store header** → **9 ListingCards + 1 View All** (horizontal, ~2.5 visible) → Homepage feed (2-col vertical).
+
+Forbidden: redesign · infinite scroll · pagination · ads · extra cards · 404 links.

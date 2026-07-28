@@ -1,0 +1,34 @@
+---
+description: ADDRESSES v1.0 — IMAGE MOCKUP #3 + Profile tokens (IMPLEMENTATION ONLY)
+alwaysApply: true
+---
+
+# ROVEXO Addresses v1.0 — FINAL OWNER CONTRACT
+
+**STATUS: PERMANENTLY LOCKED | IMAGE MOCKUP #3 | DO NOT REDESIGN | IMPLEMENTATION ONLY**
+
+```
+PROFILE DESIGN SYSTEM
++ IMAGE MOCKUP #3
++ FULL WIDTH
++ ROVEXO CTA SYSTEM
++ ADDRESS COMPONENTS
+= FINAL ROVEXO ADDRESSES v1.0
+```
+
+## Structure (locked)
+
+Header → Personal | Business → Address cards → Add Address / Add Business Address → Bottom nav
+
+## Mandatory components
+
+`AddressesTabs` · `AddressCard` · `PersonalAddresses` · `BusinessAddresses` · `AddressForm` · `BusinessAddressForm` · `EditAddress` · `AddressesPage`
+
+SSOT: `features/account/components/addresses/`
+
+## Cursor must never
+
+- Redesign colours / radius / paddings / typography / Profile tokens
+- Put Delete on the card (Delete only in Edit sheet)
+- Use separators / old menu rows / text-block layouts
+- Create parallel `*_V2` Addresses pages

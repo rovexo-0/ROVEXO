@@ -1,0 +1,57 @@
+/* Payment Methods v5.0 — Profile Master + Full Width + Empty/Success states */
+
+.wallet-profile-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: #1a1a1a;
+  text-decoration: none;
+}
+
+.wallet-profile-help:focus-visible {
+  outline: 2px solid #9333ea;
+  outline-offset: 2px;
+}
+
+.pm-profile {
+  width: 100%;
+  max-width: none;
+  background: #ffffff;
+}
+
+.pm-profile__list {
+  width: 100%;
+  max-width: none;
+}
+
+.pm-profile__empty {
+  width: 100%;
+  max-width: none;
+  padding: 8px 0 16px;
+}
+
+.pm-profile__empty-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: #1a1a1a;
+}
+
+.pm-profile__empty-copy {
+  margin: 8px 0 16px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.pm-profile__cta {
+  width: 100%;
+  max-width: none;
+  margin-top: 8px;
+}
+

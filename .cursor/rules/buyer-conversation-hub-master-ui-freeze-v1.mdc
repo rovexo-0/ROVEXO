@@ -1,0 +1,38 @@
+---
+description: Buyer Conversation Hub Master UI Freeze 1:1 — Absolute Master Approved
+alwaysApply: true
+---
+
+# ROVEXO BUYER CONVERSATION HUB v1.0 — MASTER UI FREEZE (1:1)
+
+**STATUS: ABSOLUTE MASTER APPROVED · PERMANENT FREEZE**
+
+SSOT: `lib/inbox/buyer-conversation-hub-master-ui-freeze-v1.ts`  
+Component (only): `features/inbox/components/ConversationHub.tsx`  
+Doc: `docs/modules/inbox/BUYER_CONVERSATION_HUB_MASTER_UI_FREEZE_V1.md`
+
+## Absolute
+
+Owner-approved image = **ONLY source of truth**.
+
+- DO NOT REDESIGN  
+- DO NOT IMPROVISE  
+- DO NOT CREATE NEW COMPONENTS  
+- DO NOT CHANGE MASTER UI WITHOUT OWNER APPROVAL  
+
+## Sticky CTA
+
+`BUY NOW • £TOTAL` — always Total Buyer Pays. Never item-only price.
+
+## Fail closed
+
+Never white/black/empty/null screen. Only skeleton · error · self recovery.
+
+## Product PASS
+
+All layers + responsive + white-screen + **Owner visual certification** = 100/100.  
+Code PASS ≠ Product PASS.
+
+## Equation
+
+1 ORDER = 1 CONVERSATION HUB = 1 PAGE = 1 SCROLL = 1 EXPERIENCE = 1 TRUTH

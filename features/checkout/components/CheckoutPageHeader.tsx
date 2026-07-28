@@ -9,17 +9,20 @@ type CheckoutPageHeaderProps = {
   backHref?: string;
   backLabel?: string;
   onBack?: () => void;
+  /** Absolute Law v1.0 — title "Checkout". */
+  title?: string;
 };
 
-/** Sprint 1 — back-only checkout header (no title, no trailing action). */
+/** Absolute Law — back + Checkout title. */
 export function CheckoutPageHeader({
   backHref = "/",
   backLabel = "Back",
   onBack,
+  title = "Checkout",
 }: CheckoutPageHeaderProps) {
   return (
     <header className="ckt-v1__header" data-checkout-header="v1.0">
-      <div className="ckt-v1__header-bar">
+      <div className="ckt-v1__header-bar ckt-v1__header-bar--titled">
         {onBack ? (
           <button
             type="button"
@@ -36,6 +39,8 @@ export function CheckoutPageHeader({
             className="ckt-v1__header-back-wrap"
           />
         )}
+        <h1 className="ckt-v1__header-title">{title}</h1>
+        <span className="ckt-v1__header-spacer" aria-hidden />
       </div>
     </header>
   );

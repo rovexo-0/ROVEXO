@@ -47,8 +47,13 @@ export function buildPublishSuccessPayload(
   };
 }
 
+type PublishListingFallback = Pick<
+  SellerListing,
+  "id" | "slug" | "title" | "status" | "createdAt" | "imageUrl" | "thumbnailUrl"
+> & { sellerId?: string };
+
 type ApiPublishResponse = {
-  listing?: SellerListing;
+  listing?: PublishListingFallback;
   publish?: PublishSuccessPayload;
 };
 
@@ -62,5 +67,5 @@ export function parsePublishSuccessResponse(body: ApiPublishResponse): PublishSu
     throw new Error("Listing was saved but publish details were not returned.");
   }
 
-  throw new Error("Listing was saved but publish details were not returned.");
+  return buildPublishSuccessPayload(listing, listing.sellerId ?? "");
 }

@@ -57,7 +57,7 @@ export async function getBusinessDashboardData(userId?: string): Promise<Busines
       { label: "Revenue", value: Math.round(revenue * 100), format: "currency" },
       { label: "Orders", value: sellerOrders.length },
       { label: "Views", value: (stats?.listings ?? 0) * 24 },
-      { label: "Saved", value: stats?.followers ?? 0 },
+      { label: "Saved", value: 0 },
     ],
     inventoryOverview: await getInventoryOverview(sellerId),
     performance,

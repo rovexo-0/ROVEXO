@@ -120,6 +120,7 @@ const DISPUTABLE_ORDER_STATUSES = new Set([
   "shipped",
   "delivered",
   "completed",
+  "issue_open",
 ]);
 
 export async function createProtectionCase(input: {
@@ -156,8 +157,8 @@ export async function createProtectionCase(input: {
     .in("status", ["open", "awaiting_seller", "awaiting_buyer", "under_review", "appealed"])
     .maybeSingle();
 
-  if (existingCase) {
-    return null;
+  if (existingCase?.id) {
+    return getProtectionCaseByOrderId(input.orderId);
   }
 
   const { data, error } = await admin

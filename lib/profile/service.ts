@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { tryCreateAdminClient } from "@/lib/supabase/admin";
 import type { ProfileUpdateInput } from "@/lib/account/schemas";
 import { sanitizeOptionalText, sanitizeText } from "@/lib/account/sanitize";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
@@ -17,33 +17,85 @@ export type ProfileDetails = {
   emailVerified: boolean;
 };
 
-export async function getProfileDetails(userId: string): Promise<ProfileDetails | null> {
-  const supabase = await createClient();
-  const admin = createAdminClient();
+type ProfileRow = {
+  id: string;
+  username: string;
+  full_name: string;
+  avatar_url: string | null;
+  verified: boolean;
+  role: string;
+  phone: string | null;
+  email: string | null;
+};
 
-  const [{ data: profile }, { data: seller }, authUser] = await Promise.all([
-    admin
+/**
+ * Load account profile details.
+ * Fail closed locally: never throw for missing SERVICE_ROLE / env / partial reads.
+ * Prefer admin when available; otherwise user-scoped createClient().
+ */
+export async function getProfileDetails(userId: string): Promise<ProfileDetails | null> {
+  try {
+    const supabase = await createClient();
+    const admin = tryCreateAdminClient();
+    const profileClient = admin ?? supabase;
+
+    const profileQuery = profileClient
       .from("profiles")
       .select("id, username, full_name, avatar_url, verified, role, phone, email")
       .eq("id", userId)
-      .maybeSingle(),
-    supabase.from("seller_profiles").select("bio").eq("id", userId).maybeSingle(),
-    admin.auth.admin.getUserById(userId),
-  ]);
+      .maybeSingle();
 
-  if (!profile) return null;
+    const sellerQuery = supabase.from("seller_profiles").select("bio").eq("id", userId).maybeSingle();
 
+    if (admin) {
+      const [{ data: profile }, { data: seller }, authUser] = await Promise.all([
+        profileQuery,
+        sellerQuery,
+        admin.auth.admin.getUserById(userId).catch(() => ({ data: { user: null } })),
+      ]);
+
+      if (!profile) return null;
+      return mapProfileDetails(profile as ProfileRow, seller?.bio ?? null, {
+        email: authUser.data.user?.email,
+        emailVerified: Boolean(authUser.data.user?.email_confirmed_at),
+      });
+    }
+
+    const [{ data: profile }, { data: seller }, auth] = await Promise.all([
+      profileQuery,
+      sellerQuery,
+      supabase.auth.getUser().catch(() => ({ data: { user: null } })),
+    ]);
+
+    if (!profile) return null;
+
+    const sessionUser = auth.data.user?.id === userId ? auth.data.user : null;
+    return mapProfileDetails(profile as ProfileRow, seller?.bio ?? null, {
+      email: sessionUser?.email ?? undefined,
+      emailVerified: Boolean(sessionUser?.email_confirmed_at),
+    });
+  } catch {
+    // Missing ENV, network, or partial provider failure — never crash the page.
+    return null;
+  }
+}
+
+function mapProfileDetails(
+  profile: ProfileRow,
+  bio: string | null,
+  auth: { email?: string | null; emailVerified: boolean },
+): ProfileDetails {
   return {
     id: profile.id,
-    email: authUser.data.user?.email ?? profile.email,
+    email: auth.email ?? profile.email ?? "",
     role: profile.role,
     fullName: profile.full_name,
     username: profile.username,
     avatarUrl: normalizeAvatarUrl(profile.avatar_url),
     phone: profile.phone ?? null,
     verified: profile.verified,
-    bio: seller?.bio ?? null,
-    emailVerified: Boolean(authUser.data.user?.email_confirmed_at),
+    bio,
+    emailVerified: auth.emailVerified,
   };
 }
 
@@ -100,10 +152,10 @@ export async function updateProfileDetails(
 }
 
 export async function updateAvatarUrl(userId: string, avatarUrl: string | null): Promise<void> {
-  // Service-role write: the caller is already authenticated and scoped to their
-  // own id, so this must not silently fail on a profiles RLS edge case.
-  const admin = createAdminClient();
-  const { error } = await admin
+  // Prefer service-role when present; otherwise user-scoped client (no ENV crash).
+  const admin = tryCreateAdminClient();
+  const client = admin ?? (await createClient());
+  const { error } = await client
     .from("profiles")
     .update({ avatar_url: avatarUrl })
     .eq("id", userId);

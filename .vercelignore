@@ -17,10 +17,22 @@ coverage
 test-results
 playwright-report
 owner-review-screenshots
+reports
+archive
+audit-captures
+audit-captures-auth
+docs
 .git
 .vercel
 *.tsbuildinfo
 vercel-preview-deploy.log
+# Heavy public source/studio trees (CDN originals — not required for lambdas)
+public/**/source
+public/icons/premium-studio
+public/icons/fluency-3d
+public/icons/premium
+public/assets/empty-states
+public/demo
 
 # Accidental nested repository copy (~47k files, ~1.7GB). Because matching is
 # unanchored AND case-insensitive, "ROVEXO" also matches the legitimate

@@ -1,0 +1,32 @@
+---
+description: Final Certification Authority — FINAL CERTIFIED or NOT FINAL CERTIFIED only (P0).
+alwaysApply: true
+---
+
+# Final Certification Authority (ABSOLUTE P0)
+
+## Never declare without all questions TRUE
+
+COMPLETE · FINAL CERTIFIED · FREEZE/COMMIT/PUSH/PREVIEW/PRODUCTION READY — **forbidden** unless every gate below PASSes.
+
+## Questions
+
+1. Rebuild tomorrow → same canonical implementation? YES=PASS · NO=not certified  
+2. Any known unresolved issue? NO=PASS · YES=not certified  
+3. Obvious improvement now without changing Owner-approved implementation? NO=PASS · YES=implement → re-audit  
+4. Scale via optimize-in-place · zero duplication? YES=PASS · NO=not certified  
+5. All ROVEXO principles 100% YES? (one implementation · one SSOT · zero duplications · real verification · 100/100 · optimize before rebuild · protect before modify · Owner design wins · zero regressions · full width/responsive/adaptive 100%)  
+
+## Final question
+
+Would the Owner approve this page again today without changing its canonical implementation?  
+YES → **FINAL CERTIFIED (100/100)** · NO → **NOT FINAL CERTIFIED**
+
+## Meaning
+
+**FINAL CERTIFIED** = nothing known broken/requiring redesign/duplication/rebuild · existing implementation is correct · all real + Owner gates passed · may evolve via optimization only.  
+Does **not** mean never improve/optimize/fix bugs.
+
+## Allowed final status only
+
+**FINAL CERTIFIED (100/100)** · **or** · **NOT FINAL CERTIFIED**

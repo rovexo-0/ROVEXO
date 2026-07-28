@@ -30,9 +30,15 @@ export const HEADER_MASTER_FREEZE_V1 = {
   noHeaderProfileFetch: true,
   noHeaderNotificationFetch: true,
   noHeaderUserDataFetch: true,
+  /** Marketplace header survives Soft Nav only while remaining on Homepage. */
   headerSurvivesNavigation: true,
   headerNeverReloads: true,
-  headerNeverRemountsOnNav: true,
+  /**
+   * Owner permanent freeze 2026-07-23: Search Bar UNMOUNTS off Homepage.
+   * Remount is required when leaving `/` (CSS hide forbidden).
+   */
+  headerNeverRemountsOnNav: false,
+  homepageSearchBarOnly: true,
   searchHasAbsolutePriority: true,
   tokens: {
     headerHeightPx: 64,

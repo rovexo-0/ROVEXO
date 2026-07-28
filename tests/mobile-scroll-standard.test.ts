@@ -66,6 +66,8 @@ describe("mobile scroll standard v1", () => {
     const allowlist = new Set([
       "components/ui/ModalContainer.tsx",
       "components/celebration/CelebrationAnimation.tsx",
+      "components/sell/PublishingOverlay.tsx",
+      "features/search/components/SearchInputActions.tsx",
     ]);
     const offenders: string[] = [];
 

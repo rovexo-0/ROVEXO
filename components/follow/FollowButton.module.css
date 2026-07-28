@@ -1,0 +1,52 @@
+/* Phase 3 — Follow button (DB-backed · optimistic · no confirm dialog) */
+
+.root {
+  width: 100%;
+  position: relative;
+}
+
+.btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease,
+    transform 200ms ease;
+}
+
+.btn:disabled {
+  cursor: wait;
+  opacity: 0.92;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.follow {
+  background: linear-gradient(135deg, #a855f7, #9333ea, #7c3aed);
+  color: #fff;
+  border: 2px solid transparent;
+}
+
+.following {
+  background: #fff;
+  color: #9333ea;
+  border: 2px solid #9333ea;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}

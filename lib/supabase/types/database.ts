@@ -529,6 +529,99 @@ export type Database = {
           },
         ]
       }
+      badge_audit_log: {
+        Row: {
+          action: string
+          actor_id: string
+          badge_id: string
+          created_at: string
+          id: string
+          metadata: Json
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          badge_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          reason: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          badge_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "badge_audit_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "badge_audit_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      badge_overrides: {
+        Row: {
+          action: string
+          actor_id: string
+          badge_id: string
+          created_at: string
+          reason: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          badge_id: string
+          created_at?: string
+          reason: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          badge_id?: string
+          created_at?: string
+          reason?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "badge_overrides_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "badge_overrides_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brands: {
         Row: {
           created_at: string
@@ -652,6 +745,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      checkout_sessions: {
+        Row: {
+          id: string
+          public_id: string
+          buyer_id: string
+          seller_id: string
+          listing_id: string
+          product_slug: string
+          currency: string
+          item_price: number
+          platform_fee: number
+          shipping: number
+          total: number
+          offer_id: string | null
+          conversation_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_checkout_session_id: string | null
+          order_id: string | null
+          status: string
+          expires_at: string
+          created_at: string
+          updated_at: string
+          paid_at: string | null
+        }
+        Insert: {
+          id?: string
+          public_id: string
+          buyer_id: string
+          seller_id: string
+          listing_id: string
+          product_slug: string
+          currency: string
+          item_price: number
+          platform_fee: number
+          shipping: number
+          total: number
+          offer_id?: string | null
+          conversation_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_checkout_session_id?: string | null
+          order_id?: string | null
+          status?: string
+          expires_at: string
+          created_at?: string
+          updated_at?: string
+          paid_at?: string | null
+        }
+        Update: {
+          id?: string
+          public_id?: string
+          buyer_id?: string
+          seller_id?: string
+          listing_id?: string
+          product_slug?: string
+          currency?: string
+          item_price?: number
+          platform_fee?: number
+          shipping?: number
+          total?: number
+          offer_id?: string | null
+          conversation_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_checkout_session_id?: string | null
+          order_id?: string | null
+          status?: string
+          expires_at?: string
+          created_at?: string
+          updated_at?: string
+          paid_at?: string | null
+        }
+        Relationships: []
       }
       cart_items: {
         Row: {
@@ -2399,6 +2564,9 @@ export type Database = {
           total: number
           tracking_number: string | null
           updated_at: string
+          review_window_opens_at: string | null
+          review_window_closes_at: string | null
+          review_window_closed: boolean
         }
         Insert: {
           buyer_id: string
@@ -2443,6 +2611,9 @@ export type Database = {
           total: number
           tracking_number?: string | null
           updated_at?: string
+          review_window_opens_at?: string | null
+          review_window_closes_at?: string | null
+          review_window_closed?: boolean
         }
         Update: {
           buyer_id?: string
@@ -2487,6 +2658,9 @@ export type Database = {
           total?: number
           tracking_number?: string | null
           updated_at?: string
+          review_window_opens_at?: string | null
+          review_window_closes_at?: string | null
+          review_window_closed?: boolean
         }
         Relationships: [
           {
@@ -2724,6 +2898,38 @@ export type Database = {
           },
         ]
       }
+      product_view_events: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          viewer_key: string
+          viewer_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          viewer_key: string
+          viewer_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          viewer_key?: string
+          viewer_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_view_events_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           accept_offers: boolean
@@ -2744,6 +2950,9 @@ export type Database = {
           dispatch_days: number
           featured_until: string | null
           id: string
+          is_demo: boolean
+          demo_session_id: string | null
+          original_listing_id: string | null
           last_bumped_at: string | null
           likes: number
           listing_type: string
@@ -2760,6 +2969,7 @@ export type Database = {
           promotion_score: number
           rating: number
           reserve_price: number | null
+          reserved: boolean
           review_count: number
           sections: string[]
           seller_id: string
@@ -2794,6 +3004,9 @@ export type Database = {
           dispatch_days?: number
           featured_until?: string | null
           id?: string
+          is_demo?: boolean
+          demo_session_id?: string | null
+          original_listing_id?: string | null
           last_bumped_at?: string | null
           likes?: number
           listing_type?: string
@@ -2810,6 +3023,7 @@ export type Database = {
           promotion_score?: number
           rating?: number
           reserve_price?: number | null
+          reserved?: boolean
           review_count?: number
           sections?: string[]
           seller_id: string
@@ -2844,6 +3058,9 @@ export type Database = {
           dispatch_days?: number
           featured_until?: string | null
           id?: string
+          is_demo?: boolean
+          demo_session_id?: string | null
+          original_listing_id?: string | null
           last_bumped_at?: string | null
           likes?: number
           listing_type?: string
@@ -2860,6 +3077,7 @@ export type Database = {
           promotion_score?: number
           rating?: number
           reserve_price?: number | null
+          reserved?: boolean
           review_count?: number
           sections?: string[]
           seller_id?: string
@@ -2958,6 +3176,8 @@ export type Database = {
           updated_at: string
           username: string
           verified: boolean
+          follower_count: number
+          following_count: number
         }
         Insert: {
           account_status?: string
@@ -2975,6 +3195,8 @@ export type Database = {
           updated_at?: string
           username: string
           verified?: boolean
+          follower_count?: number
+          following_count?: number
         }
         Update: {
           account_status?: string
@@ -2992,8 +3214,70 @@ export type Database = {
           updated_at?: string
           username?: string
           verified?: boolean
+          follower_count?: number
+          following_count?: number
         }
         Relationships: []
+      }
+      user_follows: {
+        Row: {
+          id: string
+          follower_id: string
+          following_id: string
+          notify_new_listings: boolean
+          notify_price_drops: boolean
+          notify_sold_items: boolean
+          notify_user_returns: boolean
+          notify_new_reviews: boolean
+          notify_verified_badge: boolean
+          notify_vacation_off: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          follower_id: string
+          following_id: string
+          notify_new_listings?: boolean
+          notify_price_drops?: boolean
+          notify_sold_items?: boolean
+          notify_user_returns?: boolean
+          notify_new_reviews?: boolean
+          notify_verified_badge?: boolean
+          notify_vacation_off?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          follower_id?: string
+          following_id?: string
+          notify_new_listings?: boolean
+          notify_price_drops?: boolean
+          notify_sold_items?: boolean
+          notify_user_returns?: boolean
+          notify_new_reviews?: boolean
+          notify_verified_badge?: boolean
+          notify_vacation_off?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       promotion_analytics_events: {
         Row: {
@@ -3311,8 +3595,13 @@ export type Database = {
           order_id: string
           product_id: string | null
           rating: number
+          reply_at: string | null
+          reply_author_id: string | null
+          reply_text: string | null
           reviewee_id: string
           reviewer_id: string
+          updated_at: string
+          verified_purchase: boolean
         }
         Insert: {
           comment?: string | null
@@ -3321,8 +3610,13 @@ export type Database = {
           order_id: string
           product_id?: string | null
           rating: number
+          reply_at?: string | null
+          reply_author_id?: string | null
+          reply_text?: string | null
           reviewee_id: string
           reviewer_id: string
+          updated_at?: string
+          verified_purchase?: boolean
         }
         Update: {
           comment?: string | null
@@ -3331,14 +3625,19 @@ export type Database = {
           order_id?: string
           product_id?: string | null
           rating?: number
+          reply_at?: string | null
+          reply_author_id?: string | null
+          reply_text?: string | null
           reviewee_id?: string
           reviewer_id?: string
+          updated_at?: string
+          verified_purchase?: boolean
         }
         Relationships: [
           {
             foreignKeyName: "reviews_order_id_fkey"
             columns: ["order_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
@@ -3359,6 +3658,13 @@ export type Database = {
           {
             foreignKeyName: "reviews_reviewer_id_fkey"
             columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reply_author_id_fkey"
+            columns: ["reply_author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -4849,6 +5155,10 @@ export type Database = {
         Args: { p_product_id: string; p_quantity?: number }
         Returns: undefined
       }
+      mark_product_sold: {
+        Args: { p_product_id: string; p_quantity?: number }
+        Returns: boolean
+      }
       reserve_product_inventory: {
         Args: { p_product_id: string; p_quantity?: number }
         Returns: boolean
@@ -4914,7 +5224,7 @@ export type Database = {
         | "issue_open"
         | "completed"
         | "cancelled"
-      product_status: "draft" | "published" | "paused" | "sold" | "deleted"
+      product_status: "draft" | "published" | "paused" | "sold" | "deleted" | "reserved"
       transaction_mode: "MARKETPLACE" | "DIRECT_CONTACT"
       protection_case_outcome:
         | "pending"
@@ -5182,7 +5492,7 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
-      product_status: ["draft", "published", "paused", "sold", "deleted"],
+      product_status: ["draft", "published", "paused", "sold", "deleted", "reserved"],
       transaction_mode: ["MARKETPLACE", "DIRECT_CONTACT"],
       protection_case_outcome: [
         "pending",

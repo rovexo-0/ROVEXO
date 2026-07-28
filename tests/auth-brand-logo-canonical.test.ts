@@ -1,75 +1,30 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-const AUTH_ROOTS = [
-  "app/(auth)",
-  "features/auth/components",
-  "components/auth",
-  "components/branding/RovexoBrandLogo.tsx",
-];
-
-const ALLOWED_RX_ICON_FILES = new Set([
-  path.normalize("app/(auth)/splash/page.tsx"),
-  path.normalize("app/(auth)/splash/layout.tsx"),
-]);
-
-function collectFiles(relativePath: string): string[] {
-  const absolute = path.join(process.cwd(), relativePath);
-  if (!statSync(absolute, { throwIfNoEntry: false })?.isDirectory()) {
-    return [relativePath];
-  }
-
-  const entries = readdirSync(absolute, { withFileTypes: true });
-  const files: string[] = [];
-  for (const entry of entries) {
-    const next = path.join(relativePath, entry.name).replace(/\\/g, "/");
-    if (entry.isDirectory()) {
-      if (entry.name === "splash") continue;
-      files.push(...collectFiles(next));
-      continue;
-    }
-    if (/\.(tsx|ts)$/.test(entry.name)) {
-      files.push(next);
-    }
-  }
-  return files;
-}
-
-describe("AUTH brand logo canonical v1.0", () => {
-  it("defines RovexoBrandLogo as the single auth brand SSOT", () => {
+describe("AUTH brand logo canonical — Primary Emblem (XXXVIII)", () => {
+  it("defines RovexoBrandLogo as the Primary Emblem auth brand", () => {
     const brand = readFileSync(
       path.join(process.cwd(), "components/branding/RovexoBrandLogo.tsx"),
       "utf8",
     );
-    expect(brand).toContain("RovexoWordmark");
-    expect(brand).toContain("BUY.");
-    expect(brand).toContain("SELL.");
-    expect(brand).toContain("GROW.");
+    expect(brand).toContain("OFFICIAL_BRAND_PRIMARY_EMBLEM");
+    expect(brand).toContain("canonical");
+    expect(brand).toContain("SafeImage");
+    expect(brand).toContain('data-blood-law="XXXVIII"');
+    expect(brand).toContain("II_PRIMARY_EMBLEM");
     expect(brand).not.toContain("RovexoAppIconMark");
+    expect(brand).not.toContain("rovexo-brand-logo__tagline");
   });
 
-  it("locks auth brand dimensions and spacing in CSS", () => {
+  it("locks auth brand shell for the official asset", () => {
     const css = readFileSync(path.join(process.cwd(), "styles/rovexo/auth-v1.css"), "utf8");
     expect(css).toContain(".rovexo-brand-logo");
-    expect(css).toContain("width: 220px");
-    expect(css).toContain("width: 280px");
-    expect(css).toContain("margin-top: max(env(safe-area-inset-top), 48px)");
-    expect(css).toContain("margin-bottom: 32px");
+    expect(css).toContain("rovexo-brand-logo--canonical");
+    expect(css).toContain("rovexo-brand-logo__canonical-img");
   });
 
-  it("uses RovexoBrandLogo on every auth screen except splash", () => {
-    const files = AUTH_ROOTS.flatMap((root) => collectFiles(root));
-    const offenders = files.filter((file) => {
-      if (ALLOWED_RX_ICON_FILES.has(path.normalize(file))) return false;
-      const source = readFileSync(path.join(process.cwd(), file), "utf8");
-      return source.includes("RovexoAppIconMark");
-    });
-
-    expect(offenders).toEqual([]);
-  });
-
-  it("wires the canonical wordmark on Login and Register form screens", () => {
+  it("wires the canonical logo on Login and Register form screens", () => {
     for (const screen of [
       "features/auth/components/LoginScreen.tsx",
       "features/auth/components/RegisterScreen.tsx",

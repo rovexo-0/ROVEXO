@@ -20,7 +20,7 @@ export function PaymentsEnginePaymentPanel({ context }: PaymentsEnginePaymentPan
         </div>
         <div className="flex gap-ds-3">
           {context.walletIntegrated ? (
-            <Link href="/wallet" className="pe-link">
+            <Link href="/balance" className="pe-link">
               Wallet
             </Link>
           ) : null}

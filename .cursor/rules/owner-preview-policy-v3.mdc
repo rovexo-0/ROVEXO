@@ -1,0 +1,47 @@
+---
+description: ROVEXO Owner Preview Policy v3.0 — one permanent domain www.rovexo.co.uk for all Owner testing.
+alwaysApply: true
+---
+
+# ROVEXO Owner Preview Policy v3.0 (CANONICAL FREEZE · P0 · OWNER APPROVED)
+
+## Absolute rule
+
+**If the Owner cannot test it on their phone, it does not exist for approval.**  
+**If the Owner cannot open it, it is not ready.**  
+**If the Owner cannot approve it, Freeze is forbidden.**
+
+## Official Owner URL (sole)
+
+**https://www.rovexo.co.uk**
+
+One project · one official URL · one permanent domain · all modules under the same origin  
+(`/balance` · `/wallet` · `/checkout` · `/orders` · `/account` · `/settings` · `/sell` · `/inbox` · `/saved` · `/search` · …).
+
+SSOT: `lib/preview/owner-preview-ssot.ts`
+
+## Deprecated (never cite as official)
+
+`https://preview.rovexo.co.uk` — DNS failure · replaced under Policy v3.0.
+
+## Forbidden for Owner approval
+
+localhost / `:3000` / `:3010` · temporary links · multiple preview URLs · daily/module-specific links · screenshots-only · video-only · desktop-only · inaccessible URLs
+
+## Cursor must
+
+1. Keep one permanent Owner URL  
+2. Verify DNS · HTTPS · mobile · responsive · navigation  
+3. Send **only** `https://www.rovexo.co.uk/<path>`  
+4. Wait for Owner approval  
+
+## Cursor must never
+
+Redesign because localhost fails · request screenshot-only approval · create multiple preview links · replace official URL without Owner approval
+
+## Freeze gate
+
+No Freeze · Commit · Push · Deploy · Production Certification until:  
+Official URL exists · DNS · HTTPS · Mobile · iPhone · Android · Responsive · Navigation · Owner access · Owner visual approval — **all PASS**.
+
+URL may change only on: DNS failure · permanent infra migration · catastrophic failure · Owner approval.

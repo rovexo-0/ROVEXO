@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { ZeroResultRecovery } from "@/lib/organic-growth/zero-results";
+import { sanitizeSearchQuery } from "@/features/search/utils/sanitize-search-query";
 
 type SearchResultsEmptyProps = {
   variant: "idle" | "no-results";
@@ -23,15 +24,16 @@ function SearchIcon() {
 
 export function SearchResultsEmpty({ variant, query, resultCount = 0, entity = "results" }: SearchResultsEmptyProps) {
   const [recovery, setRecovery] = useState<ZeroResultRecovery | null>(null);
+  const safeQuery = sanitizeSearchQuery(query);
 
   useEffect(() => {
-    if (variant !== "no-results" || !query) return;
-    const params = new URLSearchParams({ q: query, count: String(resultCount) });
+    if (variant !== "no-results" || !safeQuery) return;
+    const params = new URLSearchParams({ q: safeQuery, count: String(resultCount) });
     fetch(`/api/marketplace-intelligence/zero-results?${params.toString()}`)
       .then((response) => response.json())
       .then((payload: { recovery: ZeroResultRecovery }) => setRecovery(payload.recovery))
       .catch(() => setRecovery(null));
-  }, [variant, query, resultCount]);
+  }, [variant, safeQuery, resultCount]);
 
   if (variant === "idle") {
     return (
@@ -48,8 +50,8 @@ export function SearchResultsEmpty({ variant, query, resultCount = 0, entity = "
 
   const label = entity === "results" ? "results" : entity;
   const title = `No ${label} found`;
-  const description = query
-    ? `We couldn't find any ${label} for "${query}". Try these alternatives instead.`
+  const description = safeQuery
+    ? `We couldn't find any ${label} for "${safeQuery}". Try these alternatives instead.`
     : "Try another keyword — check the spelling or use fewer words.";
 
   return (

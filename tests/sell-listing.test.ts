@@ -29,7 +29,7 @@ const CAR_SEAT_VISION: VisionResponsePayload = {
       dominantColour: "Black",
       material: null,
       size: null,
-      categorySlugs: ["baby", "pushchairs", "travel-systems"],
+      categorySlugs: ["kids-fashion", "baby", "pushchairs-and-travel"],
       attributes: { type: "car seat" },
       defects: [],
       accessories: [],
@@ -43,7 +43,7 @@ const CAR_SEAT_VISION: VisionResponsePayload = {
       dominantColour: "Black",
       material: null,
       size: null,
-      categorySlugs: ["baby", "pushchairs", "travel-systems"],
+      categorySlugs: ["kids-fashion", "baby", "pushchairs-and-travel"],
       attributes: {},
       defects: [],
       accessories: [],
@@ -69,7 +69,7 @@ describe("AI vision pipeline", () => {
     expect(result.autoSelected).toBe(true);
     expect(result.lowConfidence).toBe(false);
     expect(result.predictions).toHaveLength(2);
-    expect(result.matches[0]?.path.categorySlug).toBe("baby");
+    expect(result.matches[0]?.path.categorySlug).toBe("kids-fashion");
     expect(result.brand?.value).toBe("Maxi-Cosi");
     expect(result.condition?.value).toBe("Good");
     expect(result.color?.value).toBe("Black");
@@ -190,7 +190,7 @@ describe("sell listing validation", () => {
     ];
     draft.title = "Maxi-Cosi Car Seat";
     draft.description = "Selling a car seat in good condition.";
-    draft.categoryPath = resolveCategoryPathBySlugs(["baby", "pushchairs", "travel-systems"]);
+    draft.categoryPath = resolveCategoryPathBySlugs(["kids-fashion", "baby", "pushchairs-and-travel"]);
     draft.brand = "Maxi-Cosi";
     draft.color = "Black";
     draft.condition = "Good";

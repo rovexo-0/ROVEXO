@@ -12,8 +12,6 @@ export type GlassSurfaceProps = {
 /** Absolute Final: solid surface only — glass/glow removed platform-wide. */
 export function GlassSurface({
   as: Component = "div",
-  depth: _depth = 2,
-  glow: _glow = false,
   className,
   children,
   ...props

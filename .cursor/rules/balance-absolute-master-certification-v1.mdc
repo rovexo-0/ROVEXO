@@ -1,0 +1,47 @@
+---
+description: Balance Absolute Master Certification — localhost real product; 100/100 via optimize-in-place (P0 L20).
+alwaysApply: true
+---
+
+# Balance Absolute Master Certification System (ABSOLUTE P0 · LEVEL 20)
+
+## Mission
+
+Make the **existing Owner-approved** Balance implementation **100/100** via optimize-in-place.  
+Forbidden: redesign · rebuild · v2 · duplicates · changing Owner-approved design.
+
+## Localhost only
+
+All certification on **`http://localhost:3000`**.  
+Forbidden: Production/Preview/SSOT/Rules/Docs/Engine certification · assumptions · auto deploy/commit/push/login/passwords.
+
+## Valid results (only)
+
+| Result | Meaning |
+|--------|---------|
+| **PASS** | 100/100 |
+| **OPTIMIZATION REQUIRED** | &lt; 100/100 — continue fix/optimize/re-audit |
+| **WAITING FOR OWNER** | Owner action required |
+| **EXTERNAL BLOCKER** | Credentials / provider / infra / external approval |
+| **DENIED** | Owner does not approve |
+
+**FAIL is never a final status** — only: root cause found → fix required → re-audit required.
+
+## Order
+
+Root cause → smallest fix → re-audit → optimization → re-audit → polish → re-audit → 100/100? → Component Freeze → next component.  
+If cannot optimize → WAITING FOR OWNER or EXTERNAL BLOCKER.
+
+## Per component 5/5
+
+Real UI · UX · Functional · Responsive · Production Polish → Component Certified → freeze unless bug/Owner/security/perf/a11y/responsive issue.
+
+Components: Balance Card · Withdraw · Transactions · Payment Methods · Bank Account · Statements · Insights · Quick Actions · Navigation · Loading States · Responsive Behaviour.
+
+Devices: iPhone · Samsung · Pixel · Fold · Tablet · Desktop (1 fail → OPTIMIZATION REQUIRED).
+
+## Page final statuses only
+
+**FINAL CERTIFIED (100/100)** · **OPTIMIZATION REQUIRED** · **WAITING FOR OWNER** · **EXTERNAL BLOCKER** · **DENIED**
+
+Never declare COMPLETE / freeze/commit/push/preview/production ready unless FINAL CERTIFIED + Owner stage approvals.

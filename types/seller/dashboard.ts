@@ -28,7 +28,6 @@ export type SellerStatistics = {
   orders: number;
   revenue: number;
   pendingPayout: number;
-  followers: number;
   views: number;
   favorites: number;
   conversionRate: number;
@@ -42,6 +41,7 @@ export type SellerListingBreakdown = {
   rejected: number;
   expired: number;
   sold: number;
+  outOfStock: number;
   boosted: number;
 };
 

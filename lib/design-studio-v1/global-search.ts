@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { join, relative } from "node:path";
 import { SCAN_DIRS, walkFiles, walkPublicAssets } from "@/lib/design-studio-v1/scan-utils";
 import type { GlobalSearchResult } from "@/lib/design-studio-v1/types";
@@ -24,7 +25,7 @@ function classifySurface(filePath: string): string {
 }
 
 export function searchVisualAssets(options: SearchOptions = {}): GlobalSearchResult[] {
-  const rootDir = options.rootDir ?? process.cwd();
+  const rootDir = options.rootDir ?? workspacePath();
   const query = (options.query ?? "logo").toLowerCase().trim();
   const limit = options.limit ?? 30;
   const results: GlobalSearchResult[] = [];

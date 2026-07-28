@@ -31,7 +31,7 @@ export async function getSellerDashboardData(userId?: string): Promise<SellerDas
   ] = await Promise.all([
     supabase
       .from("seller_profiles")
-      .select("rating, review_count, follower_count, listing_count")
+      .select("rating, review_count, listing_count")
       .eq("id", sellerId)
       .maybeSingle(),
     getSellerAnalyticsData(sellerId, "30d"),
@@ -76,7 +76,6 @@ export async function getSellerDashboardData(userId?: string): Promise<SellerDas
     activePromotions,
     promotionStats,
     promotionHistory,
-    followers: sellerProfile?.follower_count ?? stats?.followers ?? 0,
     profileViews: Number(viewsMetric?.value ?? 0),
     responseTimeMinutes,
     conversionRate: Number(conversionMetric?.value ?? 0),
@@ -86,7 +85,6 @@ export async function getSellerDashboardData(userId?: string): Promise<SellerDas
       { label: "Sales Today", value: Math.round(todaySales * 100), format: "currency" },
       { label: "Orders", value: todayOrders.length },
       { label: "Views", value: Number(viewsMetric?.value ?? 0) },
-      { label: "Followers", value: sellerProfile?.follower_count ?? stats?.followers ?? 0 },
     ],
     performance: analytics.performance,
     recentOrders: mapOrdersToRecentOrders(sellerOrders.slice(0, 5), {

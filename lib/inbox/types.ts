@@ -90,9 +90,8 @@ export function mapNotificationCategory(type: NotificationType): NotificationCat
       return "promotions";
     case "moderation":
       return "security";
-    case "follower":
     case "saved_item_sold":
-    case "price_reduced":
+      case "price_reduced":
     case "saved_search_match":
       return "announcements";
     case "system":
@@ -113,8 +112,14 @@ export function filterInboxConversations(
     case "offers":
       return conversations.filter((item) => !item.archived && item.product.acceptOffers);
     case "disputes":
-      /* Sprint freeze: real dispute linkage lands in v1.1 — do not invent rows. */
-      return [];
+      /* Fail-closed: only surface conversations with dispute/protection language — no invented rows. */
+      return conversations.filter(
+        (item) =>
+          !item.archived &&
+          /dispute|protection|claim|resolution/i.test(
+            `${item.lastMessage ?? ""} ${item.product?.title ?? ""}`,
+          ),
+      );
     case "archived":
       return conversations.filter((item) => item.archived);
     case "all":

@@ -1,26 +1,37 @@
 "use client";
 
-import { useTransition } from "react";
 import { buildSettingsMenuSections } from "@/lib/account-center/settings-menu";
-import { signOut } from "@/lib/auth/actions";
-import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
+import { CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 import { DeleteAccountFlow } from "@/features/account-module/components/DeleteAccountFlow";
 import { SettingsMenuIconGlyph } from "@/features/account-module/components/SettingsMenuIcon";
 import "@/styles/rovexo/account-settings-canonical.css";
 
 type SettingsMenuSectionsProps = {
   returnTo: string | null;
+  activeListingCount?: number;
 };
 
-export function SettingsMenuSections({ returnTo }: SettingsMenuSectionsProps) {
-  const [isSigningOut, startSignOut] = useTransition();
-  const sections = buildSettingsMenuSections(returnTo);
+/**
+ * Settings — Full Width Engine v1.0 (Profile reference).
+ * Flat 100% rows · section titles · no cards / borders / shadows.
+ */
+export function SettingsMenuSections({
+  returnTo,
+  activeListingCount = 0,
+}: SettingsMenuSectionsProps) {
+  const sections = buildSettingsMenuSections(returnTo, { activeListingCount });
 
   return (
-    <nav className="settings-canonical" aria-label="Settings" data-settings-canonical="v1.0">
+    <nav
+      className="settings-canonical settings-canonical-v1 fw-engine__stack"
+      aria-label="Settings"
+      data-settings-canonical="v1.0"
+      data-settings-lock="permanent"
+      data-full-width-surface="settings"
+    >
       {sections.map((section) => (
         <CanonicalSection key={section.id} title={section.title}>
-          <CanonicalCard variant="list" className="settings-canonical__card">
+          <div className="fw-engine__group" data-section={section.id}>
             {section.rows.map((row) => (
               <CanonicalMenuRow
                 key={row.id}
@@ -28,25 +39,17 @@ export function SettingsMenuSections({ returnTo }: SettingsMenuSectionsProps) {
                 href={row.href}
                 title={row.title}
                 description={row.subtitle}
-                icon={<SettingsMenuIconGlyph name={row.icon} />}
+                icon={<SettingsMenuIconGlyph name={row.icon} tone={row.tone} />}
               />
             ))}
-          </CanonicalCard>
+          </div>
         </CanonicalSection>
       ))}
 
       <CanonicalSection title="DANGER ZONE" danger>
-        <CanonicalCard variant="list" className="settings-canonical__card settings-canonical__danger-card">
-          <CanonicalMenuRow
-            id="settings-sign-out"
-            title="Sign Out"
-            description="Sign out of this device"
-            icon={<SettingsMenuIconGlyph name="logout" />}
-            disabled={isSigningOut}
-            onClick={() => startSignOut(() => void signOut())}
-          />
+        <div className="fw-engine__group" data-section="danger">
           <DeleteAccountFlow dangerRow />
-        </CanonicalCard>
+        </div>
       </CanonicalSection>
     </nav>
   );

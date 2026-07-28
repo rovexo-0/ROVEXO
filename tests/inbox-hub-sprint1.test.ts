@@ -74,7 +74,7 @@ describe("Inbox Hub Sprint 1 canonical foundation", () => {
     const hub = readSource("features/inbox/components/ConversationHub.tsx");
     const route = readSource("app/inbox/conversation/[conversationId]/page.tsx");
     expect(hub).toContain("data-conversation-hub");
-    expect(hub).toContain("TransactionHubBottomActions");
+    expect(hub).toContain("TransactionActionBar");
     expect(route).toContain("ConversationHub");
   });
 });

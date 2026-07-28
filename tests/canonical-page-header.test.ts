@@ -19,7 +19,6 @@ const WRAPPER_FILES = ["components/beta/BetaPageHeader.tsx"];
 
 const CANONICAL_HEADER_CONSUMERS = [
   "features/inbox/components/ConversationHub.tsx",
-  "features/product-detail/ProductDetailPage.tsx",
 ];
 
 describe("CanonicalPageHeader platform standard", () => {
@@ -69,9 +68,10 @@ describe("CanonicalPageHeader platform standard", () => {
     expect(page).toContain("CanonicalSection");
   });
 
-  it("keeps product detail on the canonical header", () => {
+  it("keeps product detail on its frozen gallery chrome", () => {
     const page = readSource("features/product-detail/ProductDetailPage.tsx");
-    expect(page).toContain(CANONICAL_HEADER_EXPORT);
+    expect(page).toContain("ProductPageChrome");
+    expect(page).toContain('data-product-page-freeze="FINAL_FREEZE"');
   });
 
   it("discourages new inline rx-page-header shells on migrated routes", () => {

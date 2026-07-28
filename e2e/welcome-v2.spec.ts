@@ -1,10 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Welcome removed — redirects to Login", () => {
+test.describe("Welcome + Splash removed — redirects to Login", () => {
   test("GET /welcome redirects to Login", async ({ page }) => {
     await page.goto("/welcome", { waitUntil: "networkidle" });
     await expect(page).toHaveURL(/\/login/);
-    await expect(page.getByRole("heading", { name: /welcome back/i })).toBeVisible();
   });
 
   test("GET /splash redirects to Login", async ({ page }) => {

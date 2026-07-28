@@ -6,6 +6,7 @@ import {
   findNodeBySlugPath,
   segmentsFromPath,
 } from "@/lib/categories/navigation";
+import { assertCatalogMasterTreeOrThrow } from "@/lib/catalog/catalog-master-protection-v1";
 
 function buildPathLabel(path: CategoryPath): string {
   const parts = [path.category.name, path.subcategory.name];
@@ -67,6 +68,8 @@ export function flatPathToCategoryPath(flat: FlatCategoryPath): CategoryPath | n
 }
 
 export function getCategoryTree(): CategoryNode[] {
+  // Absolute Law XXXI — ONLY Catalog Master. Fail closed if compromised.
+  assertCatalogMasterTreeOrThrow(categoryTree, "getCategoryTree()");
   return categoryTree;
 }
 

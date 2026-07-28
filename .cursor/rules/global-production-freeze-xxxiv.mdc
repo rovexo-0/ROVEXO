@@ -1,0 +1,55 @@
+---
+description: Absolute Blood Law XXXIV — ROVEXO v1.0 Global Production Freeze. ABSOLUTE FREEZE until v2.0.
+alwaysApply: true
+---
+
+# ROVEXO ABSOLUTE BLOOD LAW XXXIV — GLOBAL PRODUCTION FREEZE
+
+**STATUS: ABSOLUTE FREEZE | LOCKED | CERTIFIED | PRODUCTION READY**
+
+SSOT: `lib/supreme-blood-law-xxxiv-global-production-freeze-v1.ts`  
+Architecture: **ROVEXO v1.0 · FROZEN** until Owner-approved major version (e.g. v2.0).
+
+## Mission
+
+The entire ROVEXO v1.0 Production Platform is officially frozen.  
+Certified production architecture is immutable except approved maintenance and controlled content evolution.
+
+## Globally frozen
+
+Homepage · Search · Catalog Master · Sell · Product · Checkout · Wallet · Orders · Transaction Hub · Dashboards · Account · Notifications · Messaging · Auth · Stripe · Sendcloud · Platform Fee · Design System · API Contracts · Database Contracts
+
+## Protected (architecture revision required)
+
+UI Structure · UX Flow · Navigation · Routing · Component Hierarchy · DB/API Contracts · State · Core Business Logic · Security · Validation · Protection Rules
+
+## Allowed
+
+Bug / security / performance / a11y / legal / translation / content / brand DB / product types / category **content** / assets / docs
+
+## Forbidden
+
+UI/UX redesign · new navigation · new architecture · parallel systems · duplicate logic · legacy restoration · silent fallback · breaking API/DB changes
+
+## Engineering chain (mandatory)
+
+Backward Compatible → Fully Tested → Production Safe → Certified → Deployable  
+Otherwise → **REJECT CHANGE**
+
+## Fail policy
+
+Any failed certification → **Deployment Blocked**  
+No partial deploy · No emergency bypass · No silent recovery · **Fail Closed**
+
+## Architecture change control
+
+1. Architecture Proposal → 2. Technical Review → 3. Engineering Approval → 4. Certification → 5. **New Blood Law** → 6. **New Version**  
+**No exceptions.**
+
+## Cursor must never
+
+- Redesign frozen production surfaces  
+- Introduce parallel / legacy / silent-fallback systems  
+- Break API or database contracts  
+- Bypass quality gates or deploy with failed certification  
+- Treat praise or partial work as permission to unfreeze v1.0  

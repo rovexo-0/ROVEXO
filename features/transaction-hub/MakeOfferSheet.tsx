@@ -8,9 +8,16 @@ type MakeOfferSheetProps = {
   onClose: () => void;
   conversationId: string;
   product: ConversationProduct;
+  onOfferSent?: (context: { conversationHref?: string }) => void;
 };
 
-export function MakeOfferSheet({ open, onClose, conversationId, product }: MakeOfferSheetProps) {
+export function MakeOfferSheet({
+  open,
+  onClose,
+  conversationId,
+  product,
+  onOfferSent,
+}: MakeOfferSheetProps) {
   return (
     <OfferComposerSheet
       open={open}
@@ -21,7 +28,9 @@ export function MakeOfferSheet({ open, onClose, conversationId, product }: MakeO
         slug: product.slug,
         title: product.title,
         price: product.price,
+        imageUrl: product.imageUrl,
       }}
+      onOfferSent={onOfferSent}
     />
   );
 }

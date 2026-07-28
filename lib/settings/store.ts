@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { isValidCurrency } from "@/lib/account/currencies";
-import { getLocaleOption } from "@/lib/i18n/config";
+import {
+  languageEngineLabel,
+  resolvePersistableLanguage,
+} from "@/lib/i18n/platform-language";
 import type { AppSettings, AppSettingsPatch } from "@/lib/settings/types";
 import { DEFAULT_APP_SETTINGS } from "@/lib/settings/types";
 import type { AppearanceMode, ProfileVisibility } from "@/lib/settings/types";
@@ -68,9 +71,10 @@ export async function updateAppSettings(
   const next = { ...current, ...patch };
 
   if (patch.localeCode) {
-    const locale = getLocaleOption(patch.localeCode);
-    next.language = locale.language;
-    next.currency = locale.currencyLabel;
+    // Language Engine v1.0: locale updates language only — never currency/country.
+    const persistable = resolvePersistableLanguage(patch.localeCode);
+    next.localeCode = persistable;
+    next.language = patch.language ?? languageEngineLabel(persistable);
   }
 
   if (patch.currency && !isValidCurrency(patch.currency)) {

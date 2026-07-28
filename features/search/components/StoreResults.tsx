@@ -8,6 +8,7 @@ type StoreResultsProps = {
   activeIndex: number;
   navOffset: number;
   onHoverIndex: (index: number) => void;
+  onNavigate?: () => void;
 };
 
 export function StoreResults({
@@ -15,6 +16,7 @@ export function StoreResults({
   activeIndex,
   navOffset,
   onHoverIndex,
+  onNavigate,
 }: StoreResultsProps) {
   if (items.length === 0) return null;
 
@@ -30,6 +32,7 @@ export function StoreResults({
               href={store.href}
               role="option"
               aria-selected={isActive}
+              onClick={onNavigate}
               onMouseEnter={() => onHoverIndex(navIndex)}
               className={cn(
                 "flex min-h-ds-7 flex-col justify-center rounded-ds-md px-ds-3 py-ds-2 hover:bg-secondary",

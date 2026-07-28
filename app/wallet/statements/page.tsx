@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { MonthlyStatementsList } from "@/features/wallet/components/MonthlyStatementsList";
+import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { buildMonthlyStatements, sellerHasStatements } from "@/lib/wallet/monthly-statements";
 import { fetchProfile } from "@/lib/profile/queries";
 
@@ -11,7 +12,7 @@ export default async function WalletStatementsRoute() {
 
   const statements = await buildMonthlyStatements(profile.id);
   if (!sellerHasStatements(statements)) {
-    redirect("/wallet");
+    redirect(WALLET_ROUTES.hub);
   }
 
   return <MonthlyStatementsList statements={statements} />;

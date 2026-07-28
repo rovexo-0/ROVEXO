@@ -1,11 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { CanonicalCard, CanonicalMenuRow } from "@/src/components/canonical";
+import { CanonicalCard, CanonicalMenuRow, PrimaryButtonLink } from "@/src/components/canonical";
 import { cn } from "@/lib/cn";
+import {
+  ORDERS_UI_DOM,
+  ORDERS_UI_VERSION,
+  resolveOrdersV7Status,
+} from "@/lib/orders/orders-v7-status";
+import { getMessageHref } from "@/lib/orders/status";
+import { SUPREME_BLOOD_CODE_XII_V1 } from "@/lib/supreme-blood-code-xii-v1";
 import type { Order } from "@/lib/orders/types";
 import "@/styles/rovexo/orders-page-v1.css";
 
@@ -42,15 +48,14 @@ function matchesChip(order: Order, chip: Chip): boolean {
   );
 }
 
+/**
+ * Owner nav adaptation (COD SÂNGE): Bought → Messages Hub (order context preload).
+ * Sold → seller Order Details unchanged. Messages Hub UI untouched.
+ */
 function detailHref(order: Order, tab: Tab): string {
-  return tab === "sold" ? `/seller/orders/${order.id}` : `/orders/${order.id}`;
-}
-
-function statusLabel(status: Order["status"]): string {
-  if (status === "awaiting_payment") return "Awaiting payment";
-  if (status === "awaiting_shipment") return "Preparing shipment";
-  if (status === "issue_open") return "Issue open";
-  return status.charAt(0).toUpperCase() + status.slice(1);
+  return tab === "sold"
+    ? `/seller/orders/${order.id}`
+    : getMessageHref(order.id, "buyer");
 }
 
 export function OrdersPageSkeleton() {
@@ -71,11 +76,27 @@ export function OrdersPageSkeleton() {
   );
 }
 
-/** ROVEXO Orders v1.1 — compact canonical density (My Account parity). */
+/** ROVEXO Orders v7.0 — Profile Master + Full Width + Owner status colours. */
+function resolveOrdersTab(
+  tabParam: string | null,
+  boughtCount: number,
+  soldCount: number,
+): Tab {
+  if (tabParam === "bought") return "bought";
+  if (tabParam === "sold") return "sold";
+  // Buyer with purchases only: never land on empty Sold (Blood XII / live cert).
+  if (soldCount === 0 && boughtCount > 0) return "bought";
+  return "sold";
+}
+
 export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const tab: Tab = searchParams.get("tab") === "bought" ? "bought" : "sold";
+  const tab = resolveOrdersTab(
+    searchParams.get("tab"),
+    boughtOrders.length,
+    soldOrders.length,
+  );
   const statusParam = searchParams.get("status");
   const chip: Chip =
     statusParam === "in_progress" ||
@@ -94,24 +115,37 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
   );
 
   const setTab = (next: Tab) => {
-    router.push(next === "sold" ? "/orders" : "/orders?tab=bought");
+    // Always encode tab explicitly so buyer-default Bought does not fight Sold clicks.
+    const params = new URLSearchParams();
+    params.set("tab", next);
+    if (chip !== "all") params.set("status", chip);
+    router.push(`/orders?${params.toString()}`);
   };
 
   const setChip = (next: Chip) => {
     const params = new URLSearchParams();
-    if (tab === "bought") params.set("tab", "bought");
+    params.set("tab", tab);
     if (next !== "all") params.set("status", next);
-    const qs = params.toString();
-    router.push(qs ? `/orders?${qs}` : "/orders");
+    router.push(`/orders?${params.toString()}`);
   };
 
   return (
-    <AccountCanonicalShell title="Orders" backHref="/account" backLabel="My Account" showHeaderTitle>
+    <AccountCanonicalShell
+      title="Orders"
+      backHref="/account"
+      backLabel="My Account"
+      showHeaderTitle
+      showBottomNav
+    >
       <div
-        className="orders-page"
-        data-orders-page="v1.1"
-        data-orders-ui="header-simplified"
-        data-orders-freeze="v1.0-certified"
+        className="orders-page fw-engine__stack"
+        data-orders-page={ORDERS_UI_VERSION}
+        data-orders-lock={ORDERS_UI_DOM}
+        data-orders-ui="v7-status-lock"
+        data-profile-master="v7.0"
+        data-full-width-surface="orders"
+        data-blood-code-xii={SUPREME_BLOOD_CODE_XII_V1.version}
+        data-orders-freeze="PERMANENT"
       >
         <div className="orders-page__tabs" role="tablist" aria-label="Order type">
           {TABS.map((item) => (
@@ -148,28 +182,28 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
             <p className="orders-page__empty-sub">
               {tab === "sold" ? "Sold items appear here." : "Purchases appear here."}
             </p>
-            <Link
+            <PrimaryButtonLink
               href={tab === "sold" ? "/sell" : "/search"}
               className="orders-page__empty-cta"
             >
               {tab === "sold" ? "Start selling" : "Browse items"}
-            </Link>
+            </PrimaryButtonLink>
           </div>
         ) : (
           <CanonicalCard variant="list" className="orders-page__list">
-            {visible.map((order) => (
-              <CanonicalMenuRow
-                key={order.id}
-                href={detailHref(order, tab)}
-                title={order.product.title}
-                description={order.orderNumber}
-                value={statusLabel(order.status)}
-                className={cn(
-                  "orders-page__row",
-                  order.status === "cancelled" && "orders-page__row--cancelled",
-                )}
-              />
-            ))}
+            {visible.map((order) => {
+              const status = resolveOrdersV7Status(order, tab === "sold" ? "seller" : "buyer");
+              return (
+                <CanonicalMenuRow
+                  key={order.id}
+                  href={detailHref(order, tab)}
+                  title={order.product.title}
+                  description={order.orderNumber}
+                  value={status.label}
+                  className={cn("orders-page__row", status.cssClass)}
+                />
+              );
+            })}
           </CanonicalCard>
         )}
       </div>

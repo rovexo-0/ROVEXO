@@ -1,0 +1,42 @@
+---
+description: Supreme Blood Code VIII — Conversation Hub Purification Priority 0
+alwaysApply: true
+---
+
+# ROVEXO SUPREME BLOOD CODE VIII — CONVERSATION HUB PURIFICATION
+
+**STATUS: PRIORITY 0 · PERMANENT FREEZE APPROVED**
+
+SSOT: `lib/supreme-blood-code-viii-v1.ts`  
+Hub: `features/inbox/components/ConversationHub.tsx` only
+
+## Absolute
+
+Owner master image = ONLY product. Everything else = FAIL.
+
+## Remove completely (not CSS hide)
+
+ROVEXO logo · Search bar/component/container/input/icon/wrapper · Global/Header/Conversation/Buyer/Seller search
+
+Forbidden hide tricks: `display:none` · `visibility:hidden` · `opacity:0`
+
+## Header only
+
+BACK · USERNAME · ACTIVE STATUS · INFO
+
+## Offer duplication = FAIL
+
+Offer History is the only closed-offer surface.  
+Chat must NEVER repeat accepted/declined offers as system cards or bubbles.
+
+Forbidden parallel files: `OfferAccepted*.tsx` · `AcceptedOffer*.tsx` · `SystemOfferAccepted.tsx` · `ConversationSearch.tsx` · etc.
+
+## Equation
+
+1 ORDER = 1 HUB = 1 PAGE = 1 SCROLL = 1 CHAT = 1 OFFER HISTORY = 1 MESSAGE INPUT = 1 BUY NOW = 1 TRUTH
+
+## Cursor must never
+
+- Add search to Conversation Hub  
+- Duplicate offer history into chat  
+- Claim Product PASS without Owner visual PASS

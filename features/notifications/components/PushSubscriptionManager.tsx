@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { subscribeToBrowserPush, unsubscribeFromBrowserPush } from "@/lib/push/client-subscribe";
 import { isDocumentVisible } from "@/lib/performance/visibility";
 import { AUTH_ROUTES } from "@/lib/auth/canonical";
-import { createClient } from "@/lib/supabase/client";
+import { tryCreateClient } from "@/lib/supabase/client";
 
 const PUBLIC_AUTH_ROUTES: ReadonlySet<string> = new Set([
   AUTH_ROUTES.login,
@@ -27,9 +27,11 @@ export function PushSubscriptionManager() {
 
     async function syncPushSubscription() {
       if (!isDocumentVisible() || cancelled) return;
+      const client = tryCreateClient();
+      if (!client) return;
       const {
         data: { session },
-      } = await createClient().auth.getSession();
+      } = await client.auth.getSession();
       if (!session || cancelled) return;
 
       const settingsResponse = await fetch("/api/notifications/settings", { cache: "no-store" });

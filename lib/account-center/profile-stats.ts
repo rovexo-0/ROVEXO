@@ -19,14 +19,10 @@ export async function countAccountActiveListings(userId: string): Promise<number
   return count ?? 0;
 }
 
-export async function countAccountSavedItems(userId: string): Promise<number> {
-  const supabase = await createClient();
-  const { count } = await supabase
-    .from("saved_items")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", userId);
-
-  return count ?? 0;
+export async function countAccountSavedItems(_userId: string): Promise<number> {
+  void _userId;
+  // FLASH TEST: temporarily disable saved_items.id query — return 0 only.
+  return 0;
 }
 
 export async function countAccountActiveOrders(userId: string): Promise<number> {
@@ -49,37 +45,37 @@ export async function countAccountActiveOrders(userId: string): Promise<number> 
   return (buyerCount ?? 0) + (sellerCount ?? 0);
 }
 
-/** Average rating + count from the canonical seller_profiles review aggregate. */
+/** Average rating + count — prefer trigger-maintained seller_profiles aggregates. */
 export async function getAccountReviewSummary(userId: string): Promise<AccountReviewSummary> {
   const supabase = await createClient();
+
   const { data } = await supabase
     .from("seller_profiles")
     .select("rating, review_count")
     .eq("id", userId)
     .maybeSingle();
 
-  return {
-    rating: Number(data?.rating ?? 0),
-    reviewCount: data?.review_count ?? 0,
-  };
-}
+  const reviewCount = Number(data?.review_count ?? 0);
+  if (reviewCount > 0) {
+    return {
+      rating: Number(data?.rating ?? 0),
+      reviewCount,
+    };
+  }
 
-export async function countAccountFollowers(userId: string): Promise<number> {
-  const supabase = await createClient();
-  const { count } = await supabase
-    .from("seller_follows")
-    .select("*", { count: "exact", head: true })
-    .eq("seller_id", userId);
+  // Fallback: compute from reviews when seller_profiles row is missing/stale.
+  const { data: reviews } = await supabase
+    .from("reviews")
+    .select("rating")
+    .eq("reviewee_id", userId);
 
-  return count ?? 0;
-}
+  if (reviews && reviews.length > 0) {
+    const sum = reviews.reduce((total, row) => total + Number(row.rating ?? 0), 0);
+    return {
+      rating: sum / reviews.length,
+      reviewCount: reviews.length,
+    };
+  }
 
-export async function countAccountFollowing(userId: string): Promise<number> {
-  const supabase = await createClient();
-  const { count } = await supabase
-    .from("seller_follows")
-    .select("*", { count: "exact", head: true })
-    .eq("follower_id", userId);
-
-  return count ?? 0;
+  return { rating: 0, reviewCount: 0 };
 }

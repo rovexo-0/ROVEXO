@@ -1,11 +1,12 @@
 "use client";
 
-import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalButton, CanonicalInfoBlock, CanonicalInput, CanonicalSelector, CanonicalSwitch, CanonicalTextarea } from "@/src/components/canonical";
+import { CanonicalSection, CanonicalButton, CanonicalInfoBlock, CanonicalSelector } from "@/src/components/canonical";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { AccountCanonicalShell } from "@/features/account-canonical";
+import { MyAccountTemplate } from "@/features/account-canonical";
+import { FailClosedPanel } from "@/components/fail-closed/FailClosedPanel";
 
 import { CURRENCY_OPTIONS } from "@/lib/account/currencies";
 import { currencySchema } from "@/lib/account/schemas";
@@ -16,6 +17,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function AccountCurrencyPage() {
   const [message, setMessage] = useState<string | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const {
     register,
     handleSubmit,
@@ -29,9 +31,14 @@ export function AccountCurrencyPage() {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const response = await fetch("/api/settings");
-      const payload = (await response.json()) as { settings: AppSettings };
-      if (!cancelled) reset({ currency: payload.settings.currency });
+      try {
+        const response = await fetch("/api/settings");
+        if (!response.ok) throw new Error("unavailable");
+        const payload = (await response.json()) as { settings: AppSettings };
+        if (!cancelled) reset({ currency: payload.settings.currency });
+      } catch {
+        if (!cancelled) setLoadFailed(true);
+      }
     })();
     return () => {
       cancelled = true;
@@ -52,11 +59,19 @@ export function AccountCurrencyPage() {
     }
   });
 
+  if (loadFailed) {
+    return (
+      <MyAccountTemplate surface="currency" title="Currency" backHref="/account/settings" showHeaderTitle>
+        <FailClosedPanel density="section" onRetry={() => window.location.reload()} />
+      </MyAccountTemplate>
+    );
+  }
+
   return (
-    <AccountCanonicalShell title="Currency" backHref="/account/settings">
-      <CanonicalSection title="Currency">
-        <CanonicalCard variant="medium" className="flex flex-col gap-ds-4 p-ds-4">
-          <form onSubmit={onSubmit} className="flex flex-col gap-ds-4" noValidate>
+    <MyAccountTemplate surface="currency" title="Currency" backHref="/account/settings" showHeaderTitle>
+      <div className="settings-subpage-v1 fw-engine__stack" data-full-width-surface="currency">
+        <CanonicalSection title="Currency">
+          <form onSubmit={onSubmit} className="fw-engine__group flex flex-col gap-ds-4" noValidate>
             <CanonicalSelector
               label="Display currency"
               id="currency"
@@ -73,8 +88,8 @@ export function AccountCurrencyPage() {
             </CanonicalButton>
             {message ? <CanonicalInfoBlock variant="description">{message}</CanonicalInfoBlock> : null}
           </form>
-        </CanonicalCard>
-      </CanonicalSection>
-    </AccountCanonicalShell>
+        </CanonicalSection>
+      </div>
+    </MyAccountTemplate>
   );
 }

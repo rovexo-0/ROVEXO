@@ -68,7 +68,11 @@ export function OrderProductCardContent({
             <span className="flex flex-col items-end gap-1">
               <OrderStatusBadge status={order.status} />
               <OrderRoleBadge role={view} />
-              <Price amount={order.totals.total} size="sm" />
+              {/* Seller never sees buyer total (item + platform fee). */}
+              <Price
+                amount={view === "seller" ? order.totals.itemPrice : order.totals.total}
+                size="sm"
+              />
             </span>
           }
         />

@@ -131,11 +131,14 @@ export async function openEscrowForOrder(input: {
       });
     }
   } catch (error) {
-    console.error(
-      "[commerce-engine] openEscrowForOrder threw",
-      error instanceof Error ? error.message : String(error),
-    );
-    throw error;
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === "object" && error && "message" in error
+          ? String((error as { message: unknown }).message)
+          : JSON.stringify(error);
+    console.error("[commerce-engine] openEscrowForOrder threw", message);
+    throw error instanceof Error ? error : new Error(message || "Escrow open failed");
   }
 }
 

@@ -70,6 +70,26 @@ describe("Official Listing Card — homepage grid lock", () => {
 
     expect(formatListingPriceIncl(20)).toBe("£21.10 incl.");
     expect(formatListingPriceIncl(100)).toBe("£105.50 incl.");
+    // Absolute Total Price Law: item + shipping + platform fee
+    expect(formatListingPriceIncl(1, 3)).toBe("£4.06 incl.");
+    expect(formatListingPriceIncl(10, 3)).toBe("£13.55 incl.");
+  });
+
+  it("prefers listing shipping over live quote for payable total", async () => {
+    const { getDeliveryPrice } = await import("@/lib/checkout/delivery");
+
+    expect(
+      getDeliveryPrice({
+        listingShippingPrice: 3,
+        selectedQuote: {
+          id: "q1",
+          carrier: "Royal Mail",
+          serviceName: "Tracked",
+          price: 9.99,
+          eta: "1-2 days",
+        },
+      }),
+    ).toBe(3);
   });
 
   it("formats card footer rating and views from listing data", async () => {
@@ -124,13 +144,14 @@ describe("Official Listing Card — homepage grid lock", () => {
     expect(provider).toContain("SEARCH_PRIORITY_FREEZE_V1");
   });
 
-  it("uses official ROVEXO wordmark colours", () => {
+  it("uses official ROVEXO canonical logo on Homepage header", () => {
     const wordmark = readSource("components/brand/RovexoWordmark.tsx");
+    const header = readSource("components/header/RovexoHeaderV2.tsx");
     const css = readSource("styles/rovexo/header-v2.css");
 
-    expect(wordmark).toContain("rx-wordmark__x");
-    expect(css).toContain("#111111");
-    expect(css).toContain("ds-color-primary");
+    expect(wordmark).toContain("OFFICIAL_BRAND_APP_ICON");
+    expect(header).toContain("OFFICIAL_BRAND_APP_ICON");
+    expect(css).toContain("rx-h2__logo-img");
   });
 
   it("uses canonical homepage bottom navigation labels", () => {

@@ -1,7 +1,17 @@
 import { getCategoryTree } from "@/lib/categories/queries";
+import { isCatalogMasterRootTree } from "@/lib/categories/is-catalog-master-tree";
+import {
+  getCatalogMasterCacheKey,
+  CATALOG_MASTER_PROTECTION_V1,
+} from "@/lib/catalog/catalog-master-protection-v1";
 import type { CategoryNode } from "@/lib/categories/types";
 
-const CACHE_KEY = "rovexo:category-tree:v1";
+/**
+ * Absolute Law XXXI — only Catalog Master may be cached.
+ * Cache key epoch changes when Catalog Master version/law changes → auto-invalidates legacy.
+ * Legacy cache keys (v1, v2-catalog-master without epoch) are never read.
+ */
+const CACHE_KEY = getCatalogMasterCacheKey();
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const RETRY_DELAY_MS = 400;
 
@@ -16,7 +26,17 @@ export type CategoryLoadResult = {
 type CachedTreePayload = {
   tree: CategoryNode[];
   savedAt: number;
+  epoch: string;
 };
+
+function catalogMasterStaticTree(): CategoryNode[] {
+  return getCategoryTree();
+}
+
+function acceptCatalogTree(tree: CategoryNode[] | null | undefined): CategoryNode[] | null {
+  if (!tree?.length) return null;
+  return isCatalogMasterRootTree(tree) ? tree : null;
+}
 
 function readSessionCache(): CategoryNode[] | null {
   if (typeof window === "undefined") return null;
@@ -27,9 +47,10 @@ function readSessionCache(): CategoryNode[] | null {
 
     const payload = JSON.parse(raw) as CachedTreePayload;
     if (!Array.isArray(payload.tree) || !payload.savedAt) return null;
+    if (payload.epoch !== CATALOG_MASTER_PROTECTION_V1.cacheEpoch) return null;
     if (Date.now() - payload.savedAt > CACHE_TTL_MS) return null;
 
-    return payload.tree;
+    return acceptCatalogTree(payload.tree);
   } catch {
     return null;
   }
@@ -37,12 +58,17 @@ function readSessionCache(): CategoryNode[] | null {
 
 export function writeCategoryTreeCache(tree: CategoryNode[]): void {
   if (typeof window === "undefined") return;
+  if (!isCatalogMasterRootTree(tree)) return;
 
   try {
-    const payload: CachedTreePayload = { tree, savedAt: Date.now() };
+    const payload: CachedTreePayload = {
+      tree,
+      savedAt: Date.now(),
+      epoch: CATALOG_MASTER_PROTECTION_V1.cacheEpoch,
+    };
     window.sessionStorage.setItem(CACHE_KEY, JSON.stringify(payload));
   } catch {
-    // Storage may be unavailable — listing flow continues with static tree.
+    // Storage may be unavailable — listing flow continues with static Catalog Master.
   }
 }
 
@@ -63,11 +89,13 @@ async function fetchCategoryTreeFromApi(attempt: number): Promise<CategoryNode[]
   }
 
   const payload = (await response.json()) as { tree?: CategoryNode[] };
-  if (!payload.tree?.length) {
-    throw new Error("Category API returned an empty tree");
+  const tree = acceptCatalogTree(payload.tree);
+  if (!tree) {
+    // Law XXXI: never silently accept legacy — reject and recover via Catalog Master static.
+    throw new Error("Category API returned a non-Catalog-Master tree");
   }
 
-  return payload.tree;
+  return tree;
 }
 
 export async function loadCategoriesWithRecovery(maxAttempts = 3): Promise<CategoryLoadResult> {
@@ -88,6 +116,9 @@ export async function loadCategoriesWithRecovery(maxAttempts = 3): Promise<Categ
     }
   }
 
-  const tree = getCategoryTree();
+  // Fail closed to Catalog Master static — never to legacy taxonomy.
+  const tree = catalogMasterStaticTree();
   return { tree, source: "static", recovered: true };
 }
+
+export const CATEGORY_TREE_CACHE_KEY = CACHE_KEY;

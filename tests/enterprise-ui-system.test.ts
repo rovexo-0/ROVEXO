@@ -62,7 +62,7 @@ describe("Enterprise UI system — design lock", () => {
     expect(card).toContain("DashboardIcon3D");
     expect(card).toContain("min-h-[56px]");
     expect(card).not.toContain("rx-dash-tile__body");
-    expect(dashboardIcon).toContain("RvxLineIcons");
+    expect(dashboardIcon).toContain("AccountIcon");
     expect(dashboardIcon).not.toContain(".webp");
     expect(dashboardIcon).not.toContain(".png");
     expect(dashboardIcon).not.toContain("<picture");
@@ -128,12 +128,13 @@ describe("Enterprise UI system — header", () => {
     expect(header).toContain('data-header-search-first="true"');
   });
 
-  it("opens Search Overlay from homepage field with Profile-family Search icon", () => {
+  it("routes Homepage search field to /search with Profile-family Search icon", () => {
     const header = readFileSync(join(process.cwd(), "components/header/RovexoHeaderV2.tsx"), "utf8");
     const searchField = readFileSync(join(process.cwd(), "components/home/HomepageSearchField.tsx"), "utf8");
     expect(header).toContain("HomepageSearchField");
     expect(searchField).toContain("SearchBarSearchIcon");
-    expect(searchField).toContain("useSearchOverlayOptional");
+    expect(searchField).toContain('router.push("/search")');
+    expect(searchField).not.toContain("useSearchOverlayOptional");
     expect(searchField).not.toContain("BottomNavIcon3D");
     expect(searchField).not.toContain("ImageSearchCamera");
   });

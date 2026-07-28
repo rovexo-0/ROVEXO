@@ -19,11 +19,9 @@ describe("ROVEXO SEO Engine v2.0", () => {
     expect(MIN_INVENTORY_TO_INDEX).toBe(3);
   });
 
-  it("resolves brand + location + category programmatic pages", () => {
+  it("does not resolve a legacy programmatic category path outside Catalog Master", () => {
     const page = resolveProgrammaticPage(["shoes", "nike", "manchester"]);
-    expect(page?.type).toBe("category-brand-location");
-    expect(page?.brand).toBe("Nike");
-    expect(page?.locationName).toBe("Manchester");
+    expect(page).toBeNull();
   });
 
   it("resolves discovery brand-location slugs", () => {

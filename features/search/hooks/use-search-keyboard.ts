@@ -19,13 +19,10 @@ export function useSearchKeyboard(items: SearchNavItem[], resetKey = "") {
       const item = items[index];
       if (!item) return;
 
-      if (item.onSelect) {
-        item.onSelect();
-        return;
-      }
+      item.onSelect?.();
 
       if (item.href) {
-        window.location.href = item.href;
+        window.location.assign(item.href);
       }
     },
     [items],

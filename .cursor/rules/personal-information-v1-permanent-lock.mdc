@@ -1,0 +1,39 @@
+# ROVEXO Personal Information v1.0 — PERMANENT LOCK (APPROVED)
+
+**STATUS: PERMANENT LOCK · UI/UX APPROVED · FULL WIDTH · MOBILE FIRST · PRODUCTION READY**
+
+SSOT: `lib/account/account-settings-v1.ts`  
+UI: `features/account/components/ProfileEditPage.tsx` → `MyAccountTemplate`  
+Route: `/account/profile`
+
+## Golden rule
+
+```
+PROFILE PAGE = VISUAL MASTER + TEMPLATE + FULL WIDTH + ICONS + COLOURS + TYPE + COMPONENTS
+             → PERSONAL INFORMATION v1.0
+ONLY CONTENT MAY DIFFER. DESIGN NEVER DOES.
+```
+
+## Locked inventory
+
+Profile Photo · Full Name · Username · Email Address · Phone Number · Date of Birth · Gender (Optional) · Country
+
+## Permanently removed (canonical homes)
+
+| Removed | Lives on |
+|---------|----------|
+| Currency | Settings |
+| Wallet / Payment Methods | Balance |
+| ROVEXO Verified | Verification |
+| Password / 2FA / Devices | Security |
+| Google / Apple / Facebook | Connected Accounts |
+| Business Information | Business Verification |
+
+## Visual lock
+
+Profile 9.9/10 ↔ Personal Information 9.9/10 — two design systems in &lt;3s = REJECTED.
+
+## Cursor must never
+
+- Add Currency, Connected Accounts, 2FA, Account Type, or ROVEXO Verified back onto Personal Information
+- Fork design tokens from Profile for this page

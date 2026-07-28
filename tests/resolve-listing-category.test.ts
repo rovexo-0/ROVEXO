@@ -36,40 +36,40 @@ function createMemoryStore() {
 }
 
 describe("canonical category validation", () => {
-  it("accepts real canonical paths (including the previously-failing toys → building)", () => {
-    expect(resolveCanonicalCategoryNodes(["toys", "building-toys"])).not.toBeNull();
-    expect(resolveCanonicalCategoryNodes(["toys", "building-toys", "lego"])).not.toBeNull();
-    expect(resolveCanonicalCategoryNodes(["phones", "smartphones", "unlocked-phones"])).not.toBeNull();
-    expect(resolveCanonicalCategoryNodes(["baby", "baby-toys", "soft-toys"])).not.toBeNull();
+  it("accepts real Catalog Master paths", () => {
+    expect(resolveCanonicalCategoryNodes(["kids-fashion", "toys-games"])).not.toBeNull();
+    expect(resolveCanonicalCategoryNodes(["kids-fashion", "toys-games", "building-sets"])).not.toBeNull();
+    expect(resolveCanonicalCategoryNodes(["electronics", "phones-tablets", "smartphones"])).not.toBeNull();
+    expect(resolveCanonicalCategoryNodes(["kids-fashion", "baby", "baby-clothes"])).not.toBeNull();
   });
 
   it("rejects invalid or incomplete paths (no bypass, no display-name matching)", () => {
-    expect(resolveCanonicalCategoryNodes(["toys", "does-not-exist"])).toBeNull();
+    expect(resolveCanonicalCategoryNodes(["kids-fashion", "does-not-exist"])).toBeNull();
     expect(resolveCanonicalCategoryNodes(["not-a-real-root", "child"])).toBeNull();
-    expect(resolveCanonicalCategoryNodes(["toys"])).toBeNull(); // needs >= 2 levels
+    expect(resolveCanonicalCategoryNodes(["kids-fashion"])).toBeNull(); // needs >= 2 levels
     expect(resolveCanonicalCategoryNodes([])).toBeNull();
     // Correct slugs but wrong parent order must not resolve.
-    expect(resolveCanonicalCategoryNodes(["building-toys", "toys"])).toBeNull();
+    expect(resolveCanonicalCategoryNodes(["toys-games", "kids-fashion"])).toBeNull();
   });
 });
 
 describe("materializeCategoryChain (get-or-create)", () => {
   it("creates the full chain in parent order and returns the leaf id", async () => {
-    const nodes = resolveCanonicalCategoryNodes(["toys", "building-toys", "lego"])!;
+    const nodes = resolveCanonicalCategoryNodes(["kids-fashion", "toys-games", "building-sets"])!;
     const { store, rows } = createMemoryStore();
 
     const leafId = await materializeCategoryChain(nodes, store);
 
     expect(leafId).toBe("cat-3");
-    expect(rows.map((row) => row.slug)).toEqual(["toys", "building-toys", "lego"]);
+    expect(rows.map((row) => row.slug)).toEqual(["kids-fashion", "toys-games", "building-sets"]);
     expect(rows[0]!.parentId).toBeNull();
     expect(rows[1]!.parentId).toBe(rows[0]!.id);
     expect(rows[2]!.parentId).toBe(rows[1]!.id);
-    expect(rows[2]!.pathLabel).toBe("Toys > Building > LEGO");
+    expect(rows[2]!.pathLabel).toBe("Kids & Baby > Toys & Games > Building Sets");
   });
 
   it("reuses existing rows and never duplicates on repeat publishes", async () => {
-    const nodes = resolveCanonicalCategoryNodes(["toys", "building-toys", "lego"])!;
+    const nodes = resolveCanonicalCategoryNodes(["kids-fashion", "toys-games", "building-sets"])!;
     const { store, rows } = createMemoryStore();
 
     const first = await materializeCategoryChain(nodes, store);
@@ -82,12 +82,18 @@ describe("materializeCategoryChain (get-or-create)", () => {
   it("shares the parent chain across sibling leaves", async () => {
     const { store, rows } = createMemoryStore();
 
-    await materializeCategoryChain(resolveCanonicalCategoryNodes(["toys", "building-toys", "lego"])!, store);
-    await materializeCategoryChain(resolveCanonicalCategoryNodes(["toys", "building-toys", "duplo"])!, store);
+    await materializeCategoryChain(
+      resolveCanonicalCategoryNodes(["kids-fashion", "toys-games", "building-sets"])!,
+      store,
+    );
+    await materializeCategoryChain(
+      resolveCanonicalCategoryNodes(["kids-fashion", "toys-games", "board-games"])!,
+      store,
+    );
 
-    // toys + building-toys + lego + duplo = 4 rows (parents shared).
+    // kids-fashion + toys-games + building-sets + board-games = 4 rows (parents shared).
     expect(rows).toHaveLength(4);
-    expect(rows.filter((row) => row.slug === "toys")).toHaveLength(1);
-    expect(rows.filter((row) => row.slug === "building-toys")).toHaveLength(1);
+    expect(rows.filter((row) => row.slug === "kids-fashion")).toHaveLength(1);
+    expect(rows.filter((row) => row.slug === "toys-games")).toHaveLength(1);
   });
 });

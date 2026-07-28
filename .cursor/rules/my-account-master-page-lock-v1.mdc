@@ -1,0 +1,29 @@
+# ROVEXO My Account v1.0 — MASTER PAGE LOCK (PERMANENT · APPROVED)
+
+**STATUS: PERMANENTLY LOCKED | APPROVED | PERMANENT SSOT CONTRACT**
+
+SSOT: `lib/design-system/my-account-v1.ts` → `MY_ACCOUNT_V1_MASTER_PAGE_LOCK`  
+Profile tokens: `lib/design-system/profile-master-tokens.ts`  
+Full contract: `.cursor/rules/my-account-permanent-master-page-ssot-v1.mdc`
+
+## Golden rule
+
+ONLY CONTENT MAY DIFFER. DESIGN NEVER DOES.
+
+## Equation
+
+PROFILE = ONLY MASTER PAGE = SINGLE SOURCE OF TRUTH → all My Account pages inherit 100%.
+
+## Forbidden
+
+Page-local design systems · invented px · invented typography/spacing/icons · overriding Profile.
+
+## One Change Rule
+
+Profile token change → all inheriting pages update automatically.
+
+## Cursor must never
+
+- Approve a My Account page that invents design values
+- Commit / push / deploy before Owner Side-by-Side QA pass
+- Claim a page is production ready without Profile inheritance

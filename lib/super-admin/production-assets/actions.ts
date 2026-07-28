@@ -1,6 +1,6 @@
 import { execFile } from "node:child_process";
+import { repoPath } from "@/lib/ops/repo-path";
 import { promisify } from "node:util";
-import path from "node:path";
 import {
   formatValidationReport,
   validateProductionAssets,
@@ -8,13 +8,13 @@ import {
 import type { ProductionAssetActionResult } from "@/lib/super-admin/production-assets/types";
 
 const execFileAsync = promisify(execFile);
-const ROOT = process.cwd();
 
 async function runNodeScript(scriptRelativePath: string): Promise<{ ok: boolean; output: string }> {
-  const scriptPath = path.join(ROOT, scriptRelativePath);
+  const scriptPath = repoPath(scriptRelativePath);
+  const root = repoPath();
   try {
     const { stdout, stderr } = await execFileAsync(process.execPath, [scriptPath], {
-      cwd: ROOT,
+      cwd: root,
       maxBuffer: 10 * 1024 * 1024,
       env: process.env,
     });

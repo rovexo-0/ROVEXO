@@ -17,7 +17,7 @@ describe("sell publish flow with pending title", () => {
       },
     ];
     draft.description = "A complete description for the listing.";
-    draft.categoryPath = resolveCategoryPathBySlugs(["shoes", "trainers", "nike"]);
+    draft.categoryPath = resolveCategoryPathBySlugs(["womens-fashion", "shoes", "trainers"]);
     draft.brand = "Nike";
     draft.color = "Black";
     draft.size = "9";

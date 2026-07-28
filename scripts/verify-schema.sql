@@ -86,8 +86,8 @@ where not exists (
   where table_schema = 'public' and table_name = 'recently_viewed'
 )
 union all
-select 'missing seller_follows table'
-where not exists (
+select 'unexpected seller_follows table still present'
+where exists (
   select 1 from information_schema.tables
   where table_schema = 'public' and table_name = 'seller_follows'
 )

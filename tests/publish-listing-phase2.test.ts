@@ -13,6 +13,7 @@ import { getCategoryTree } from "@/lib/categories/queries";
 import {
   loadCategoriesWithRecovery,
   writeCategoryTreeCache,
+  CATEGORY_TREE_CACHE_KEY,
 } from "@/lib/categories/category-loader";
 import {
   applyAiAnalysisFields,
@@ -26,15 +27,15 @@ import { resolveCategoryPathBySlugs } from "@/lib/categories/queries";
 const SAMPLE_TREE = getCategoryTree();
 
 describe("listing title field rules", () => {
-  it("accepts up to 120 characters including paste-sized input", () => {
+  it("accepts up to 100 characters including paste-sized input", () => {
     const pasted = "A".repeat(200);
     const clamped = clampListingTitle(pasted);
     expect(clamped).toHaveLength(LISTING_TITLE_MAX);
     expect(validateListingTitle(clamped)).toBeUndefined();
   });
 
-  it("requires at least 3 characters when required", () => {
-    expect(validateListingTitle("ab", { required: true })).toContain("3");
+  it("requires at least 5 characters when required", () => {
+    expect(validateListingTitle("abcd", { required: true })).toContain("5");
     expect(validateListingTitle("Valid title", { required: true })).toBeUndefined();
   });
 
@@ -100,7 +101,7 @@ describe("category recovery loader", () => {
     );
     const result = await loadCategoriesWithRecovery();
     expect(result.source).toBe("api");
-    expect(storage.has("rovexo:category-tree:v1")).toBe(true);
+    expect(storage.has(CATEGORY_TREE_CACHE_KEY)).toBe(true);
   });
 });
 
@@ -168,7 +169,11 @@ describe("AI category recovery bridge", () => {
     ];
     draft.title = "Nike Air Max Trainers";
     draft.description = "White trainers in good condition.";
-    draft.categoryPath = resolveCategoryPathBySlugs(["shoes", "trainers", "nike"]);
+    draft.categoryPath = resolveCategoryPathBySlugs([
+      "womens-fashion",
+      "shoes",
+      "trainers",
+    ]);
     draft.condition = "Good";
     draft.price = "80";
     draft.shippingMethod = "delivery_available";

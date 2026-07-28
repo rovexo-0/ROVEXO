@@ -15,7 +15,7 @@ export async function notifySellerFundsPending(input: {
     notificationType: "payment",
     title: "Funds pending",
     subtitle: `${formatCurrency(input.amount)} from order #${input.orderNumber} — waiting for successful delivery.`,
-    href: NOTIFICATION_ROUTES.wallet,
+    href: NOTIFICATION_ROUTES.order(input.orderId),
     payload: { orderId: input.orderId, amount: input.amount },
   });
 }
@@ -33,7 +33,7 @@ export async function notifySellerFundsReleased(input: {
     notificationType: "payment",
     title: "Funds are now available",
     subtitle: `${formatCurrency(input.amount)} from order #${input.orderNumber} has been released.`,
-    href: NOTIFICATION_ROUTES.wallet,
+    href: NOTIFICATION_ROUTES.order(input.orderId),
     payload: { orderId: input.orderId, amount: input.amount },
   });
 }

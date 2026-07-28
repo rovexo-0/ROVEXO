@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { workspacePath } from "@/lib/server/workspace-path";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { getPlatformHealthReport } from "@/lib/ops/health";
@@ -7,7 +8,7 @@ import { validatePlatformSecuritySurface } from "@/lib/ops/production-env";
 import { isStripeConfigured } from "@/lib/stripe/server";
 import type { ScanResultItem, ScanSeverity } from "@/lib/super-admin/operations/types";
 
-const ROOT = process.cwd();
+const ROOT = workspacePath();
 
 function severityFromHealth(
   status: "healthy" | "degraded" | "unhealthy",

@@ -1,12 +1,14 @@
 /**
- * Verify the permanent develop-branch preview URL responds.
+ * Verify the official Owner preview URL responds (Policy v3.0).
+ * Default: https://www.rovexo.co.uk
  * Usage: npm run verify:dev-preview
+ * Override: ROVEXO_DEV_PREVIEW_URL=https://…
  */
 const DEV_PREVIEW_URL =
-  process.env.ROVEXO_DEV_PREVIEW_URL ??
-  "https://rovexo-git-develop-rovexo.vercel.app";
+  process.env.ROVEXO_DEV_PREVIEW_URL ?? "https://www.rovexo.co.uk";
 
-const paths = ["/", "/splash", "/api/health/live"];
+/** Splash removed — health via home + live probe only. */
+const paths = ["/", "/login", "/api/health/live"];
 
 async function check(path) {
   const url = `${DEV_PREVIEW_URL.replace(/\/$/, "")}${path}`;
@@ -16,7 +18,7 @@ async function check(path) {
 }
 
 async function main() {
-  console.log(`ROVEXO dev preview: ${DEV_PREVIEW_URL}\n`);
+  console.log(`ROVEXO Official Owner URL (Policy v3.0): ${DEV_PREVIEW_URL}\n`);
 
   const results = await Promise.all(paths.map((path) => check(path)));
   let failed = false;
@@ -28,11 +30,12 @@ async function main() {
   }
 
   if (failed) {
-    console.error("\nDev preview verification failed.");
+    console.error("\nOwner preview verification failed.");
+    console.error("Official URL must be public HTTPS and Owner-accessible on mobile.");
     process.exit(1);
   }
 
-  console.log("\nDev preview is live.");
+  console.log("\nOfficial Owner URL is live (one permanent domain).");
 }
 
 main().catch((error) => {

@@ -5,7 +5,9 @@
 
 .rovexo-page-home {
   --hp-shell-max: min(90rem, 100%);
-  --hp-shell-pad: clamp(12px, 3.2vw, 32px);
+  /* DESIGN DECISION #001 — Homepage L/R locked at 24px.
+   * DESIGN DECISION #002 — Homepage token only (never inherit Internal). */
+  --hp-shell-pad: var(--homepage-pad-x);
   --hp-section-gap: clamp(12px, 2.4vw, 24px);
   --hp-grid-gap: clamp(10px, 2.8vw, 20px);
 
@@ -18,12 +20,12 @@
   --hp-listing-ref-img: 220px;
   --hp-listing-ref-body: 120px;
 
-  /* Featured store card reference (112×206) */
+  /* Featured store card reference (112×206) — FINAL: ~2.5 cards visible */
   --hp-store-card-aspect: 112 / 206;
   --hp-store-card-ref-w: 112px;
   --hp-store-card-ref-h: 206px;
   --hp-store-card-gap: clamp(10px, 2.5vw, 16px);
-  --hp-store-visible-cards: 3;
+  --hp-store-visible-cards: 2.5;
 }
 
 @media (min-width: 640px) {

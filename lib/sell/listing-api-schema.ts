@@ -12,8 +12,14 @@ const imageSchema = z.object({
 
 const inventorySchema = z.object({
   sku: z.string().optional(),
-  stock: z.number().int().nonnegative().default(1),
-  lowStockAlert: z.number().int().nonnegative().default(LISTING_DEFAULT_LOW_STOCK_ALERT),
+  stock: z.number().int().min(1).max(99999).default(1),
+  lowStockAlert: z.number().int().min(1).max(99999).default(LISTING_DEFAULT_LOW_STOCK_ALERT),
+});
+
+const updateInventorySchema = z.object({
+  sku: z.string().optional(),
+  stock: z.number().int().min(1).max(99999),
+  lowStockAlert: z.number().int().min(1).max(99999).optional(),
 });
 
 export const createListingSchema = z.object({
@@ -73,7 +79,7 @@ export const updateListingSchema = z.object({
     })
     .nullable()
     .optional(),
-  inventory: inventorySchema.optional(),
+  inventory: updateInventorySchema.optional(),
   images: z.array(imageSchema).min(1).max(SELL_PHOTO_MAX).optional(),
   removeImageIds: z.array(z.string()).optional(),
   deliveryCarriers: z.array(z.string()).optional(),

@@ -46,16 +46,13 @@ describe("ROVEXO Demo Testing Environment", () => {
     expect(users).not.toContain("MOCK_");
   });
 
-  it("targets 300+ demo listings and marketplace data seeders", () => {
-    expect(DEMO_LISTING_TARGET).toBeGreaterThanOrEqual(300);
+  it("permanently disables fake listing seeds (Absolute Law v5.0)", () => {
+    expect(DEMO_LISTING_TARGET).toBe(0);
     const listings = readSource("lib/demo-environment/listings.ts");
-    const marketplace = readSource("lib/demo-environment/marketplace.ts");
-    expect(listings).toContain('status: "published"');
-    expect(marketplace).toContain("orders");
-    expect(marketplace).toContain("conversations");
-    expect(marketplace).toContain("wallet_transactions");
-    expect(marketplace).toContain("saved_items");
-    expect(marketplace).toContain("reviews");
+    const seed = readSource("lib/demo-environment/seed.ts");
+    expect(listings).toContain("ABSOLUTE_LAW_V5");
+    expect(seed).toContain("Real products only");
+    expect(seed).not.toContain("seedDemoListings({");
   });
 
   it("ships seed and verify CLI scripts", () => {

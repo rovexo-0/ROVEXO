@@ -37,6 +37,16 @@
   color: var(--ds-color-text-primary);
 }
 
+/* Absolute Blood Law XXXIX — certified Homepage RX App Icon scale */
+.rx-h2__logo-img {
+  display: block;
+  height: 28px;
+  width: auto;
+  max-height: 28px;
+  max-width: 42px;
+  object-fit: contain;
+}
+
 .rx-h2__logo-text {
   font-size: 17px;
   font-weight: 800;

@@ -32,6 +32,7 @@ export {
   assertVirtualPaymentAllowed,
   isProtectedDemoActor,
   mustUseDemoShipping,
+  mustUseDemoShippingForActors,
   mustUseVirtualPayments,
   mustUseVirtualWallet,
   resolveFullDemoSecuritySnapshot,
@@ -79,3 +80,7 @@ export {
   assertReleaseProtectionNoOverride,
   isExactHundredPercentPass,
 } from "@/lib/full-demo/no-override";
+
+// XLIV Demo Session Engine is SERVER-ONLY — import from
+// `@/lib/full-demo/demo-session-engine-v1` in API / scripts / Playwright Node only.
+// Never re-export through this barrel (may be imported by shared certification UI).

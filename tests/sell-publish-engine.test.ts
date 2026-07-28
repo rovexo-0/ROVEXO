@@ -12,10 +12,10 @@ describe("publish-engine", () => {
   it("maps publish phases to user-facing labels", () => {
     expect(publishPhaseLabel("idle")).toBe("Publish");
     expect(publishPhaseLabel("validating")).toBe("Publishing…");
-    expect(publishPhaseLabel("uploading", { uploadProgress: 42 })).toContain("Uploading photos…");
-    expect(publishPhaseLabel("creating")).toBe("Creating listing…");
-    expect(publishPhaseLabel("finalising")).toBe("Finalising…");
-    expect(publishPhaseLabel("published")).toBe("Published");
+    expect(publishPhaseLabel("uploading", { uploadProgress: 42 })).toContain("Please wait…");
+    expect(publishPhaseLabel("creating")).toBe("Please wait…");
+    expect(publishPhaseLabel("finalising")).toBe("Please wait…");
+    expect(publishPhaseLabel("published")).toBe("Listing successfully published.");
   });
 
   it("exposes canonical publish failure copy", () => {
