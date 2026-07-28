@@ -15,7 +15,10 @@ export async function register() {
    * Official Brand Emblem → Official Brand Application →
    * Authentication Brand Freeze → Register Visual Polish Freeze →
    * Authentication Experience Final Freeze →
-   * Full Platform Certification → Application Ready
+   * Full Platform Production Runtime (XLII) → Application Ready
+   *
+   * XLII Local Full Platform + Release gates are NOT executed here.
+   * Instrumentation runs Production Runtime XLII only (fail closed on Production).
    *
    * Certification ALWAYS runs. Blocking is environment-aware
    * (see lib/startup/startup-certification-policy-v1.ts):
@@ -59,7 +62,7 @@ export async function register() {
   const { assertAuthenticationExperienceFinalFreezeOrBlock } = await import(
     "@/lib/supreme-blood-law-xli-authentication-experience-final-freeze-v1"
   );
-  const { assertFullPlatformCertificationOrBlock } = await import(
+  const { assertFullPlatformProductionRuntimeOrBlock } = await import(
     "@/lib/supreme-blood-law-xlii-full-platform-certification-v1"
   );
   const { assertCounterOfferCertificationOrBlock } = await import(
@@ -108,8 +111,8 @@ export async function register() {
   runStartupCertificationGate("BLOOD XLI Authentication Experience Final Freeze", () => {
     assertAuthenticationExperienceFinalFreezeOrBlock();
   });
-  runStartupCertificationGate("BLOOD XLII Full Platform Certification", () => {
-    assertFullPlatformCertificationOrBlock();
+  runStartupCertificationGate("BLOOD XLII Full Platform Production Runtime", () => {
+    assertFullPlatformProductionRuntimeOrBlock();
   });
   runStartupCertificationGate("BLOOD XLIII Counter Offer Certification", () => {
     assertCounterOfferCertificationOrBlock();

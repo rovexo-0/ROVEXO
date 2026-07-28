@@ -7,7 +7,11 @@ import {
   FULL_PLATFORM_CERT_ORIGIN,
   FULL_PLATFORM_CERTIFICATION_MODULES,
   certifyFullPlatformXlII,
+  certifyFullPlatformLocalXlII,
+  certifyFullPlatformProductionRuntimeXlII,
   assertFullPlatformCertificationOrBlock,
+  assertFullPlatformLocalOrBlock,
+  assertFullPlatformProductionRuntimeOrBlock,
   assertFullPlatformProductionReleaseOrBlock,
   formatFullPlatformCertificationReport,
 } from "@/lib/supreme-blood-law-xlii-full-platform-certification-v1";
@@ -35,14 +39,19 @@ describe("Absolute Blood Law XLII — Full Platform Certification", () => {
     expect(e2e).toContain("FULL_PLATFORM");
   });
 
-  it("passes contract gate without claiming production ready (E2E + OAuth evidence required)", () => {
+  it("passes Local contract gate without claiming production ready (E2E + OAuth evidence required)", () => {
+    expect(() => assertFullPlatformLocalOrBlock()).not.toThrow();
     expect(() => assertFullPlatformCertificationOrBlock()).not.toThrow();
-    const report = certifyFullPlatformXlII({ runtimeE2eEvidencePass: false });
+    const report = certifyFullPlatformLocalXlII({ runtimeE2eEvidencePass: false });
+    expect(certifyFullPlatformXlII({ runtimeE2eEvidencePass: false }).ok).toBe(report.ok);
     expect(report.bloodLaw).toBe("XLII");
     expect(report.modules).toHaveLength(20);
     expect(report.moduleSummary["End-to-End Certification"]).toBe("FAIL");
     expect(report.productionReady).toBe(false);
     expect(report.productionReadinessPercent).toBeLessThan(100);
+    expect(report.checks.some((c) => c.id === "full-demo-gate")).toBe(true);
+    expect(report.checks.some((c) => c.id === "deployment-gate")).toBe(true);
+    expect(report.checks.some((c) => c.id === "e2e-spec-present")).toBe(true);
     const formatted = formatFullPlatformCertificationReport(report);
     expect(formatted).toContain("Authentication");
     expect(formatted).toContain("Production Readiness");
@@ -51,11 +60,27 @@ describe("Absolute Blood Law XLII — Full Platform Certification", () => {
     ).toThrow(/PRODUCTION RELEASE BLOCKED/);
   });
 
-  it("wires startup gate in instrumentation", () => {
+  it("Production Runtime cert excludes Local-only gates and passes fail-closed", () => {
+    const runtime = certifyFullPlatformProductionRuntimeXlII();
+    expect(runtime.bloodLaw).toBe("XLII");
+    expect(runtime.ok).toBe(true);
+    expect(runtime.moduleSummary["End-to-End Certification"]).toBeUndefined();
+    expect(runtime.checks.some((c) => c.id === "full-demo-gate")).toBe(false);
+    expect(runtime.checks.some((c) => c.id === "deployment-gate")).toBe(false);
+    expect(runtime.checks.some((c) => c.id === "e2e-spec-present")).toBe(false);
+    expect(runtime.checks.some((c) => c.id === "oauth-config")).toBe(false);
+    expect(runtime.checks.some((c) => c.id === "startup-fail-closed-wiring")).toBe(true);
+    expect(runtime.checks.some((c) => c.id === "instrumentation-runtime-xlII")).toBe(true);
+    expect(() => assertFullPlatformProductionRuntimeOrBlock()).not.toThrow();
+  });
+
+  it("wires Production Runtime XLII only in instrumentation", () => {
     const instrumentation = readFileSync(
       path.join(process.cwd(), "instrumentation.ts"),
       "utf8",
     );
-    expect(instrumentation).toContain("assertFullPlatformCertificationOrBlock");
+    expect(instrumentation).toContain("assertFullPlatformProductionRuntimeOrBlock");
+    expect(instrumentation).not.toContain("assertFullPlatformCertificationOrBlock()");
+    expect(instrumentation).not.toMatch(/certifyFullPlatformLocalXlII\s*\(/);
   });
 });

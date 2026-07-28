@@ -4,21 +4,26 @@
  *
  * STATUS: SUPREME | LOCKED | CERTIFIED CONTRACT | FAIL CLOSED
  *
- * FINAL functional + visual certification of the entire ROVEXO platform
- * before Production. NOT a redesign · NOT a refactor · NOT a feature sprint.
+ * Architecture split (COD SÂNGE — Production Policy):
+ * 1. certifyFullPlatformLocalXlII — localhost:3000 / CI / Owner cert (Full Demo,
+ *    Playwright, E2E, Launch Dashboard, reports, .cursor, seeds, deploy evidence).
+ *    FAIL CLOSED. Never from Production request boot.
+ * 2. certifyFullPlatformProductionRuntimeXlII — live Production runtime invariants
+ *    only (NFT-safe). FAIL CLOSED. Instrumentation only.
+ * 3. assertFullPlatformProductionReleaseOrBlock — independent 100% release gate
+ *    (OAuth + runtime E2E + full local matrix). FAIL CLOSED. Never during boot.
  *
- * Environment: http://localhost:3000 ONLY
+ * XLII is NOT disabled. Production remains fail-closed. Preview policy unchanged.
+ * No FLASH_AUTH / CERT_BLOCK / env bypasses as substitutes for this split.
+ *
+ * Local Full Platform environment: http://localhost:3000 ONLY
  * Data: never mutate production listings/users/wallet/orders/messages/offers/transactions
  * Demo: isolated Full Demo Buyer + Seller only (virtual money)
- *
- * NOTE: Blood Law XLI = Authentication Experience Final Freeze (already locked).
- * This law is XLII — Full Platform Certification (next sequential blood law).
  *
  * Parents: XXXVIII · XXXIX · XL · XLI · Full Demo · Production Certification
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import path from "node:path";
 import { workspacePath } from "@/lib/server/workspace-path";
 import { FULL_DEMO_ACCOUNTS } from "@/lib/full-demo/canonical";
 import { runFullDemoCertificationScan } from "@/lib/full-demo/deploy-gate";
@@ -399,13 +404,64 @@ function moduleContractPass(spec: FullPlatformModuleSpec): {
   return { pass: checks.every((c) => c.pass), checks };
 }
 
+function isProductionRuntimeEvidencePath(relative: string): boolean {
+  return (
+    !relative.startsWith("e2e/") &&
+    !relative.startsWith("tests/") &&
+    !relative.startsWith("reports/") &&
+    !relative.startsWith(".cursor/") &&
+    !relative.startsWith("docs/") &&
+    !relative.startsWith("scripts/")
+  );
+}
+
+function finalizeFullPlatformReport(input: {
+  checks: FullPlatformCheck[];
+  modules: FullPlatformModuleReport[];
+  blockingIssues: FullPlatformBlockingIssue[];
+  errors: string[];
+}): FullPlatformCertificationReport {
+  const { checks, modules, blockingIssues, errors } = input;
+  const moduleSummary: Record<string, FullPlatformModuleResult> = {};
+  for (const mod of modules) {
+    moduleSummary[mod.label] = mod.result;
+  }
+
+  const modulePassCount = modules.filter((m) => m.result === "PASS").length;
+  const gatePassCount = checks.filter((c) => c.pass).length;
+  const totalUnits = modules.length + checks.length;
+  const passUnits = modulePassCount + gatePassCount;
+  const productionReadinessPercent =
+    totalUnits === 0 ? 0 : Math.round((passUnits / totalUnits) * 1000) / 10;
+
+  const allModulesPass = modules.every((m) => m.result === "PASS");
+  const allGatesPass = checks.every((c) => c.pass);
+  const ok = allModulesPass && allGatesPass;
+  const productionReady = ok && productionReadinessPercent === 100;
+
+  return {
+    ok,
+    bloodLaw: "XLII",
+    environment: FULL_PLATFORM_CERT_ORIGIN,
+    productionReady,
+    productionReadinessPercent,
+    modules,
+    moduleSummary,
+    blockingIssues,
+    checks,
+    errors: [...new Set(errors)],
+    generatedAt: new Date().toISOString(),
+  };
+}
+
 /**
- * Full Platform Certification — fail closed.
- * Aggregates module contracts + parent freezes + Full Demo + deployment gates.
- * Runtime E2E evidence is required via e2e/full-platform-certification.spec.ts
- * against http://localhost:3000 before Production Ready can be true.
+ * LOCAL FULL PLATFORM CERTIFICATION — fail closed.
+ * localhost:3000 · CI · Owner Certification.
+ * Aggregates module contracts + parent freezes + Full Demo + deployment gates +
+ * Launch Dashboard + E2E evidence requirements.
+ * NEVER executed from Production request boot.
  */
-export function certifyFullPlatformXlII(
+export function certifyFullPlatformLocalXlII(
   options: { runtimeE2eEvidencePass?: boolean } = {},
 ): FullPlatformCertificationReport {
   const law = SUPREME_BLOOD_LAW_XLII_FULL_PLATFORM_CERTIFICATION_V1;
@@ -505,7 +561,6 @@ export function certifyFullPlatformXlII(
   );
 
   const modules: FullPlatformModuleReport[] = [];
-  const moduleSummary: Record<string, FullPlatformModuleResult> = {};
 
   for (const spec of FULL_PLATFORM_CERTIFICATION_MODULES) {
     const { pass, checks: moduleChecks } = moduleContractPass(spec);
@@ -542,44 +597,172 @@ export function certifyFullPlatformXlII(
       result,
       checks: moduleChecks,
     });
-    moduleSummary[spec.label] = result;
   }
 
-  const modulePassCount = modules.filter((m) => m.result === "PASS").length;
-  const gatePassCount = checks.filter((c) => c.pass).length;
-  const totalUnits = modules.length + checks.length;
-  const passUnits = modulePassCount + gatePassCount;
-  const productionReadinessPercent =
-    totalUnits === 0 ? 0 : Math.round((passUnits / totalUnits) * 1000) / 10;
-
-  const allModulesPass = modules.every((m) => m.result === "PASS");
-  const allGatesPass = checks.every((c) => c.pass);
-  const ok = allModulesPass && allGatesPass;
-  // Exact 100% only — fail closed.
-  const productionReady = ok && productionReadinessPercent === 100;
-
-  return {
-    ok,
-    bloodLaw: "XLII",
-    environment: FULL_PLATFORM_CERT_ORIGIN,
-    productionReady,
-    productionReadinessPercent,
-    modules,
-    moduleSummary,
-    blockingIssues,
-    checks,
-    errors: [...new Set(errors)],
-    generatedAt: new Date().toISOString(),
-  };
+  return finalizeFullPlatformReport({ checks, modules, blockingIssues, errors });
 }
 
-/** Startup / release gate — fail closed. Runtime E2E evidence is NOT assumed. */
-export function assertFullPlatformCertificationOrBlock(): void {
-  const report = certifyFullPlatformXlII({ runtimeE2eEvidencePass: false });
+/** @deprecated Prefer certifyFullPlatformLocalXlII — alias kept for callers. */
+export function certifyFullPlatformXlII(
+  options: { runtimeE2eEvidencePass?: boolean } = {},
+): FullPlatformCertificationReport {
+  return certifyFullPlatformLocalXlII(options);
+}
 
-  // Startup gate: contract + parent freezes + wiring must pass.
-  // Runtime E2E (module 20) and OAuth may fail without blocking local boot,
-  // but productionReady remains false and release must reject.
+/**
+ * PRODUCTION RUNTIME CERTIFICATION — fail closed.
+ * Protects live Production requests only. NFT-safe evidence paths.
+ * Executed ONLY from instrumentation (via assertFullPlatformProductionRuntimeOrBlock).
+ * Does NOT run Launch Dashboard, Playwright, reports, .cursor, seeds, or deploy aggregates.
+ */
+export function certifyFullPlatformProductionRuntimeXlII(): FullPlatformCertificationReport {
+  const law = SUPREME_BLOOD_LAW_XLII_FULL_PLATFORM_CERTIFICATION_V1;
+  const checks: FullPlatformCheck[] = [];
+  const errors: string[] = [];
+  const blockingIssues: FullPlatformBlockingIssue[] = [];
+
+  const add = (
+    id: string,
+    label: string,
+    pass: boolean,
+    detail: string,
+    severity: FullPlatformBlockingIssue["severity"] = "Critical",
+  ) => {
+    checks.push({ id, label, pass, detail });
+    if (!pass) {
+      errors.push(detail);
+      blockingIssues.push({ severity, module: label, detail });
+    }
+  };
+
+  add(
+    "law-locked",
+    "Full Platform Certification Locked",
+    law.locked === true && law.failClosed === true && law.supreme === true,
+    "XLII Full Platform Certification must remain supreme · locked · fail-closed",
+  );
+
+  add(
+    "demo-isolation-constants",
+    "Demo Certification Layer Constants",
+    DEMO_CERTIFICATION_LAYER_V1.isolated &&
+      DEMO_CERTIFICATION_LAYER_V1.virtualMoneyOnly &&
+      DEMO_CERTIFICATION_LAYER_V1.zeroPermanentChanges &&
+      DEMO_CERTIFICATION_LAYER_V1.accounts.buyer.includes("demo.buyer@") &&
+      DEMO_CERTIFICATION_LAYER_V1.accounts.seller.includes("demo.seller@"),
+    "Demo isolation constants must remain locked (no production mutation contract)",
+  );
+
+  const policy = readRelative("lib/startup/startup-certification-policy-v1.ts");
+  add(
+    "startup-fail-closed-wiring",
+    "Startup fail-closed wiring",
+    policy.includes('productionOnFail: "throw-and-block"') &&
+      policy.includes("shouldBlockStartupOnCertificationFailure") &&
+      policy.includes('env.VERCEL_ENV === "preview"'),
+    "Production must throw-and-block; Preview log-and-continue wiring must remain",
+  );
+
+  const instrumentation = readRelative("instrumentation.ts");
+  add(
+    "instrumentation-runtime-xlII",
+    "Instrumentation wires Production Runtime XLII",
+    instrumentation.includes("assertFullPlatformProductionRuntimeOrBlock") &&
+      !instrumentation.includes("assertFullPlatformCertificationOrBlock()"),
+    "instrumentation.ts must execute Production Runtime XLII only (not Local Full Platform)",
+  );
+
+  add(
+    "auth-runtime-surfaces",
+    "Production authentication surfaces",
+    Boolean(firstExisting(["features/auth/components/LoginScreen.tsx"])) &&
+      Boolean(firstExisting(["features/auth/components/RegisterScreen.tsx"])) &&
+      Boolean(firstExisting(["app/(auth)/login/page.tsx", "app/login/page.tsx"])) &&
+      Boolean(firstExisting(["app/(auth)/register/page.tsx", "app/register/page.tsx"])),
+    "Login + Register runtime surfaces must be present",
+  );
+
+  add(
+    "fail-closed-runtime",
+    "Fail-closed runtime surfaces",
+    Boolean(firstExisting(["components/fail-closed/FailClosedPanel.tsx"])) &&
+      Boolean(firstExisting(["lib/fail-closed/index.ts"])) &&
+      Boolean(firstExisting(["app/error.tsx"])) &&
+      Boolean(firstExisting(["app/global-error.tsx"])),
+    "FailClosedPanel + error boundaries must be present for live requests",
+  );
+
+  add(
+    "marketplace-runtime-routes",
+    "Marketplace live routes",
+    Boolean(firstExisting(["app/page.tsx", "app/(main)/page.tsx"])) &&
+      Boolean(firstExisting(["app/search/page.tsx", "app/(main)/search/page.tsx"])) &&
+      Boolean(firstExisting(["app/listing/[slug]/page.tsx"])) &&
+      Boolean(firstExisting(["app/inbox/page.tsx", "app/(main)/inbox/page.tsx"])) &&
+      Boolean(firstExisting(["app/checkout/page.tsx", "app/(main)/checkout/page.tsx"])) &&
+      Boolean(firstExisting(["app/orders/page.tsx", "app/(main)/orders/page.tsx"])) &&
+      Boolean(firstExisting(["app/wallet/page.tsx", "app/(main)/wallet/page.tsx", "app/balance/page.tsx"])),
+    "Homepage · Search · Listing · Inbox · Checkout · Orders · Wallet routes must exist",
+  );
+
+  const xli = certifyAuthenticationExperienceFinalFreezeXli();
+  add(
+    "parent-xli",
+    "Parent Blood Law XLI (Auth Experience)",
+    xli.ok,
+    xli.ok ? "XLI PASS" : xli.errors[0] ?? "XLI failed",
+  );
+
+  const modules: FullPlatformModuleReport[] = [];
+
+  for (const spec of FULL_PLATFORM_CERTIFICATION_MODULES) {
+    // Module 20 is Local / Release evidence only — never a Production boot gate.
+    if (spec.id === "20_end_to_end") {
+      continue;
+    }
+
+    const runtimeSpec: FullPlatformModuleSpec = {
+      ...spec,
+      sourceEvidence: spec.sourceEvidence.filter(isProductionRuntimeEvidencePath),
+    };
+
+    if (runtimeSpec.routeEvidence.length === 0 && runtimeSpec.sourceEvidence.length === 0) {
+      continue;
+    }
+
+    const { pass, checks: moduleChecks } = moduleContractPass(runtimeSpec);
+    const result: FullPlatformModuleResult = pass ? "PASS" : "FAIL";
+
+    if (!pass) {
+      for (const failed of moduleChecks.filter((c) => !c.pass)) {
+        blockingIssues.push({
+          severity: "Critical",
+          module: spec.label,
+          detail: failed.detail,
+        });
+        errors.push(`[${spec.label}] ${failed.detail}`);
+      }
+    }
+
+    modules.push({
+      id: spec.id,
+      label: spec.label,
+      result,
+      checks: moduleChecks,
+    });
+  }
+
+  return finalizeFullPlatformReport({ checks, modules, blockingIssues, errors });
+}
+
+/**
+ * Local Full Platform contract assert — fail closed for CI / local cert.
+ * Runtime E2E + OAuth may fail without throwing here; release gate still rejects.
+ * NEVER call from Production instrumentation.
+ */
+export function assertFullPlatformLocalOrBlock(): void {
+  const report = certifyFullPlatformLocalXlII({ runtimeE2eEvidencePass: false });
+
   const contractErrors = report.errors.filter(
     (e) =>
       !e.includes("Runtime E2E evidence REQUIRED") &&
@@ -588,17 +771,40 @@ export function assertFullPlatformCertificationOrBlock(): void {
 
   if (contractErrors.length > 0) {
     throw new Error(
-      `[BLOOD LAW XLII] FULL PLATFORM CERTIFICATION CONTRACT FAILED — FAIL CLOSED.\n` +
+      `[BLOOD LAW XLII] LOCAL FULL PLATFORM CERTIFICATION FAILED — FAIL CLOSED.\n` +
         contractErrors.map((e) => ` - ${e}`).join("\n"),
     );
   }
 }
 
-/** Release gate — requires every module + OAuth + runtime E2E evidence = 100%. */
+/** @deprecated Prefer assertFullPlatformLocalOrBlock — local/CI contract only. */
+export function assertFullPlatformCertificationOrBlock(): void {
+  assertFullPlatformLocalOrBlock();
+}
+
+/**
+ * Production Runtime assert — FAIL CLOSED.
+ * Instrumentation MUST call this (and only this) for XLII.
+ */
+export function assertFullPlatformProductionRuntimeOrBlock(): void {
+  const report = certifyFullPlatformProductionRuntimeXlII();
+  if (!report.ok || report.errors.length > 0) {
+    throw new Error(
+      `[BLOOD LAW XLII] PRODUCTION RUNTIME CERTIFICATION FAILED — FAIL CLOSED.\n` +
+        report.errors.map((e) => ` - ${e}`).join("\n"),
+    );
+  }
+}
+
+/**
+ * PRODUCTION RELEASE GATE — fail closed.
+ * Requires every local module + OAuth + runtime E2E evidence = 100%.
+ * NEVER executed during request boot.
+ */
 export function assertFullPlatformProductionReleaseOrBlock(
   options: { runtimeE2eEvidencePass: boolean },
 ): void {
-  const report = certifyFullPlatformXlII(options);
+  const report = certifyFullPlatformLocalXlII(options);
   if (!report.productionReady) {
     throw new Error(
       `[BLOOD LAW XLII] PRODUCTION RELEASE BLOCKED — ${report.productionReadinessPercent}% (need 100%).\n` +

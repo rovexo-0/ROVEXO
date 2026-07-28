@@ -41,9 +41,10 @@ export function shouldBlockStartupOnCertificationFailure(
     return false;
   }
 
-  // Vercel Preview must boot for smoke. Blood XLII / Full Platform cert is
-  // localhost:3000-only (Absolute Localhost Certification). Preview still runs
-  // every gate and logs failures — it must not kill the serverless process.
+  // Vercel Preview must boot for smoke. Local Full Platform XLII remains
+  // localhost:3000-only (Absolute Localhost Certification). Instrumentation
+  // runs Production Runtime XLII only; Preview still runs gates and logs
+  // failures — it must not kill the serverless process.
   if (env.VERCEL_ENV === "preview") {
     return false;
   }
