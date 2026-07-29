@@ -43,8 +43,10 @@ export function PushSubscriptionManager() {
 
       const browserPushEnabled = settings.browserPush ?? true;
 
+      // Never prompt from background sync — iOS requires a user gesture.
+      // Prompt only from the Notifications Push toggle (allowPrompt: true).
       if (settings.pushEnabled && browserPushEnabled) {
-        await subscribeToBrowserPush();
+        await subscribeToBrowserPush({ allowPrompt: false });
       } else {
         await unsubscribeFromBrowserPush();
       }

@@ -29,11 +29,13 @@ export function filtersToSearchOptions(
   query: string,
   page: number,
 ) {
+  const category = filters.category?.trim();
   return {
     query,
     page,
     pageSize: 24,
-    categorySlug: filters.category,
+    // Root browse must include descendants (leaf listings). Exact slug-only match returns empty.
+    categorySlugPath: category ? [category] : undefined,
     sort: "newest" as const,
   };
 }

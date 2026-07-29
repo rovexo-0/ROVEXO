@@ -75,3 +75,9 @@ _wip/
 
 tmp/
 .local-chromium-libs/
+
+# Local package manager cache — never part of release
+.pnpm-store/
+
+# Local design source dumps — runtime assets live under public/assets
+/assets/

@@ -13,6 +13,10 @@ import {
   type NotificationUserControlId,
 } from "@/lib/notifications/controls";
 import type { NotificationSettings } from "@/lib/notifications/types";
+import {
+  subscribeToBrowserPush,
+  unsubscribeFromBrowserPush,
+} from "@/lib/push/client-subscribe";
 
 export function NotificationSettingsPage() {
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
@@ -52,6 +56,27 @@ export function NotificationSettingsPage() {
   };
 
   const updateControl = async (id: NotificationUserControlId, enabled: boolean) => {
+    // Push ON must request permission inside this click handler (iOS gesture requirement).
+    if (id === "push") {
+      setSaving(true);
+      try {
+        if (enabled) {
+          const subscribed = await subscribeToBrowserPush({ allowPrompt: true });
+          if (!subscribed) {
+            // Keep preference off when the OS denied / blocked the prompt or subscribe failed.
+            await updateSetting({ pushEnabled: false });
+            return;
+          }
+        } else {
+          await unsubscribeFromBrowserPush();
+        }
+        await updateSetting(patchForUserControl(id, enabled));
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     await updateSetting(patchForUserControl(id, enabled));
   };
 

@@ -168,3 +168,12 @@ export async function uploadProductImage(input: {
   const path = `${input.sellerId}/${input.productId}/${safeName}`;
   return uploadStorageObject({ bucket: "products", path, file: input.file });
 }
+
+/** Conversation photo — path `{conversationId}/{uuid}.{ext}` in private `messages` bucket. */
+export async function uploadMessageImage(conversationId: string, file: File) {
+  validateUploadFile("messages", file);
+  const rawExt = (file.type.split("/")[1] ?? "jpg").toLowerCase();
+  const extension = rawExt === "jpeg" ? "jpg" : rawExt;
+  const path = `${conversationId}/${crypto.randomUUID()}.${extension}`;
+  return uploadStorageObject({ bucket: "messages", path, file });
+}

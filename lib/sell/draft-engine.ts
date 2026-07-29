@@ -1,5 +1,5 @@
 import { createEmptyDraft, type SellListingDraft } from "@/features/sell/types";
-import { loadDraftPhotos } from "@/lib/sell/draft-photo-storage";
+import { loadSellDraftPhotosViaProductIntegration } from "@/lib/product-integration/upload-storage-orchestration-v1";
 import {
   clearSellDraft,
   loadSellDraft,
@@ -43,7 +43,7 @@ export function isMeaningfulDraft(
   return (
     (stored.title?.trim().length ?? 0) > 0 ||
     (stored.description?.trim().length ?? 0) > 0 ||
-    stored.categoryPath !== null && stored.categoryPath !== undefined ||
+    (stored.categoryPath !== null && stored.categoryPath !== undefined) ||
     (stored.price?.trim().length ?? 0) > 0
   );
 }
@@ -56,7 +56,7 @@ export async function detectRecoverableDraft(): Promise<boolean> {
   }
 
   const stored = loadSellDraft();
-  const photos = await loadDraftPhotos();
+  const photos = await loadSellDraftPhotosViaProductIntegration();
   return isMeaningfulDraft(stored, photos.length);
 }
 
@@ -65,7 +65,7 @@ export async function loadLocalDraftForRestore(): Promise<{
   uploadSessionId?: string;
 }> {
   const stored = loadSellDraft();
-  const photos = await loadDraftPhotos();
+  const photos = await loadSellDraftPhotosViaProductIntegration();
   const sessionId = loadUploadSessionId();
 
   const merged: SellListingDraft = {
@@ -86,7 +86,9 @@ export async function discardLocalDraft(): Promise<void> {
   }
 }
 
-export async function persistDraftOnPublishFailure(refs: Parameters<typeof persistSellDraftSnapshot>[0]): Promise<void> {
+export async function persistDraftOnPublishFailure(
+  refs: Parameters<typeof persistSellDraftSnapshot>[0],
+): Promise<void> {
   touchDraftSavedAt();
   await persistSellDraftSnapshot(refs);
 }

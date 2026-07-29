@@ -280,6 +280,44 @@
   cursor: pointer;
 }
 
+.slv-v1__pdf-wrap {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: #ffffff;
+}
+
+.slv-v1__pdf-wrap .slv-v1__frame {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0 auto;
+}
+
+.slv-v1__pdf-fallback {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px 16px;
+  text-align: center;
+  background: #ffffff;
+  border-top: 1px solid rgb(15 23 42 / 0.06);
+}
+
+.slv-v1__pdf-fallback-copy {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+.slv-v1__pdf-fallback .slv-v1__retry {
+  margin-top: 0;
+}
+
 .slv-v1__footer {
   flex-shrink: 0;
   display: flex;

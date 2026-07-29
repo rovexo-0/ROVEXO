@@ -6,7 +6,9 @@ import type { ListingCardProps } from "@/components/ui/ListingCard";
  *
  * Displays: image · favourite · price · incl. total · title · condition ·
  * gold ★ rating · views · click → product page.
- * Never: seller name · location · parallel card implementations.
+ * Never: seller name · location · parallel marketplace card implementations.
+ * SearchResultCard is the Owner-approved Search typeahead / autocomplete exception only
+ * (Cluster 4 SSOT lock — not a second marketplace card).
  */
 export const LISTING_CARD_HOMEPAGE_PROPS = {
   surface: "homepage" as const,

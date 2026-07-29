@@ -2,7 +2,8 @@ import type { MessageKey } from "@/lib/i18n/messages/en-GB";
 
 export const esES: Record<MessageKey, string> = {
   "nav.home": "Inicio",
-  "nav.search": "Explorar",
+  "nav.search": "Buscar",
+  "nav.browse": "Explorar",
   "nav.sell": "Vender",
   "nav.saved": "Bandeja",
   "nav.account": "Perfil",

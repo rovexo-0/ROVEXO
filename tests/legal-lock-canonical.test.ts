@@ -65,10 +65,15 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
     expect(readSource("lib/account-center/canonical-menu.ts")).not.toContain("Contact Support");
   });
 
-  it("locks wallet annual statements, filters, and PDF export", () => {
+  it("locks wallet annual statements, PDF export, and simplified transactions list", () => {
     const txn = readSource("features/wallet/components/WalletTransactionsList.tsx");
-    expect(txn).toContain("Search transactions");
-    expect(txn).toContain("Filter by type");
+    expect(txn).toContain('data-transactions-ui="simplified-v1.0"');
+    expect(txn).toContain("CanonicalMenuRow");
+    expect(txn).not.toContain("Search by title or order #");
+    expect(txn).not.toContain("All types");
+    expect(txn).not.toContain("All years");
+    expect(txn).not.toContain("Export / Invoices");
+    expect(txn).not.toContain(">Payouts<");
     expect(readSource("features/wallet/components/AnnualStatementDetail.tsx")).toContain("Download PDF");
     expect(readSource("app/wallet/statements/annual/page.tsx")).toContain("AnnualStatementsList");
   });

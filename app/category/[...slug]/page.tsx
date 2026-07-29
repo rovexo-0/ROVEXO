@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CategoryPageView } from "@/features/categories/components/CategoryPageView";
 import { resolveCategoryPage } from "@/lib/categories/server";
-import { getEligibleListings } from "@/lib/listings/eligible-listings";
+import {
+  buildCategoryEligibleListingsOptions,
+  getEligibleListings,
+} from "@/lib/listings/eligible-listings";
 import { breadcrumbJsonLd, categoryJsonLd } from "@/lib/seo/json-ld";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 
@@ -42,13 +45,14 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const results = await getEligibleListings({
-    surface: "category",
-    categoryIds: category.categoryIds.length ? category.categoryIds : undefined,
-    categorySlugPath: category.categoryIds.length ? undefined : slug,
-    page: 1,
-    pageSize: 24,
-  });
+  const results = await getEligibleListings(
+    buildCategoryEligibleListingsOptions({
+      slugPath: slug,
+      categoryIds: category.categoryIds,
+      page: 1,
+      pageSize: 24,
+    }),
+  );
 
   const description =
     category.seoDescription ??

@@ -30,7 +30,7 @@ export function createDefaultMenuBuilderConfig(): MenuBuilderConfig {
     updatedAt: new Date().toISOString(),
     bottomNav: [
       { id: "home", label: "Home", href: "/", icon: "home", enabled: true, order: 0 },
-      { id: "search", label: "Search", href: "/search", icon: "search", enabled: true, order: 1 },
+      { id: "search", label: "Browse", href: "/browse", icon: "search", enabled: true, order: 1 },
       { id: "sell", label: "Sell", href: "/sell", icon: "sell", enabled: true, order: 2, featured: true },
       { id: "saved", label: "Inbox", href: "/inbox", icon: "messages", enabled: true, order: 3 },
       { id: "account", label: "Account", href: "/account", icon: "account", enabled: true, order: 4 },

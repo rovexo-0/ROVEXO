@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { MyAccountTemplate } from "@/features/account-canonical";
+import { MyAccountTemplate, AccountPageStack } from "@/features/account-canonical";
+import { CanonicalInfoBlock } from "@/src/components/canonical";
 import { AvatarUploader } from "@/features/account/components/AvatarUploader";
 import { useToast } from "@/components/ui/Toast";
 import "@/styles/rovexo/account-settings-v1.css";
@@ -27,21 +28,26 @@ export function ProfileAvatarEditor({ name, avatarUrl, returnTo }: ProfileAvatar
       backLabel="Profile"
       showHeaderTitle
     >
-      <div className="fw-engine__stack" data-profile-avatar="v8.0" style={{ padding: "8px 0" }}>
-        <AvatarUploader
-          name={name}
-          avatarUrl={avatarUrl}
-          accountSettings
-          onUpdated={(next) => {
-            pushToast({
-              title: next ? "Photo updated." : "Photo removed.",
-              variant: "success",
-            });
-            router.push(returnTo);
-            router.refresh();
-          }}
-        />
-      </div>
+      <AccountPageStack className="fw-engine__stack" aria-label="Change Profile Picture">
+        <div data-profile-avatar="v8.0" className="flex w-full flex-col gap-[var(--cds-space-section-gap)]">
+          <CanonicalInfoBlock variant="description">
+            Take a photo or choose from your gallery. You can crop before saving.
+          </CanonicalInfoBlock>
+          <AvatarUploader
+            name={name}
+            avatarUrl={avatarUrl}
+            accountSettings
+            onUpdated={(next) => {
+              pushToast({
+                title: next ? "Photo updated." : "Photo removed.",
+                variant: "success",
+              });
+              router.push(returnTo);
+              router.refresh();
+            }}
+          />
+        </div>
+      </AccountPageStack>
     </MyAccountTemplate>
   );
 }

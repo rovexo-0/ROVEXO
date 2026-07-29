@@ -12,6 +12,7 @@ import {
 } from "@/lib/inbox/master-stack-buyer-hub-v1";
 import { getViewerRole } from "@/lib/messages/types";
 import type { Order, OrderStatus } from "@/lib/orders/types";
+import { buildOrderConversationHref } from "@/lib/orders/order-conversation-href";
 import { getOrderStatusLabel, getTrackingUrl } from "@/lib/orders/status";
 import { shouldOmitOfferFromChatTimeline } from "@/lib/supreme-blood-code-viii-v1";
 
@@ -681,11 +682,10 @@ export function buildConversationHubView(input: BuildConversationHubViewInput): 
     }),
     orderReference,
     orderStatusLabel,
-    orderDetailsHref: hasOrder
-      ? viewerRole === "seller"
-        ? `/seller/orders/${encodeURIComponent(orderReference.orderId)}`
-        : `/orders/${encodeURIComponent(orderReference.orderId)}`
-      : `/orders/${encodeURIComponent(orderReference.orderId)}`,
+    orderDetailsHref: buildOrderConversationHref({
+      orderId: orderReference.orderId,
+      conversationId: conversation.id,
+    }),
     buyerName,
     sellerName,
     timeline: buildTimeline(conversation, order, offers, { hasShippingLabel }),

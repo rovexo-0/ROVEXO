@@ -123,6 +123,16 @@
   overflow: hidden;
 }
 
+.conv-hub__header-profile-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
 .conv-hub__header-avatar {
   flex-shrink: 0;
 }
@@ -1584,6 +1594,56 @@
   cursor: not-allowed;
 }
 
+.conv-hub__composer-pending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0 0 8px;
+}
+
+.conv-hub__composer-pending-thumb {
+  position: relative;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #f3f4f6;
+}
+
+.conv-hub__composer-pending-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.conv-hub__composer-pending-remove {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--conv-purple);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.conv-hub__composer-pending-remove:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.conv-hub__bubble-photo {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
 .conv-hub__composer .conv-hub__icon-btn {
   flex: 0 0 38px;
   width: 38px;
@@ -1613,7 +1673,8 @@
   background: #ffffff;
   color: var(--conv-text);
   font: inherit;
-  font-size: 14px;
+  /* iOS Safari/Chrome: font-size < 16px on focus auto-zooms the viewport and can persist after Back. */
+  font-size: 16px;
   line-height: 44px;
   resize: none;
   overflow: hidden;
@@ -1623,7 +1684,7 @@
 }
 
 .conv-hub__composer-field::placeholder {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--conv-muted);
   line-height: 44px;
 }

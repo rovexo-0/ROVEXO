@@ -1,6 +1,6 @@
 import type { SellListingDraft } from "@/features/sell/types";
 import { PARCEL_SIZES } from "@/features/sell/types";
-import { clearDraftPhotos } from "@/lib/sell/draft-photo-storage";
+import { clearSellDraftPhotosViaProductIntegration } from "@/lib/product-integration/upload-storage-orchestration-v1";
 
 const STORAGE_KEY = "rovexo:sell-draft";
 const SESSION_KEY = "rovexo:sell-upload-session";
@@ -98,5 +98,5 @@ export function clearSellDraft(): void {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(STORAGE_KEY);
   window.localStorage.removeItem(SESSION_KEY);
-  void clearDraftPhotos();
+  void clearSellDraftPhotosViaProductIntegration();
 }

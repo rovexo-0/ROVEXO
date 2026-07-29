@@ -42,6 +42,8 @@ export type Product = {
   views?: number;
   likes?: number;
   imageUrl: string;
+  /** Full `product_images.url` for one-shot thumb→url card fallback. */
+  imageFullUrl?: string;
   imageCount?: number;
   sections: ProductSection[];
   isFeatured?: boolean;
@@ -82,6 +84,11 @@ export type ProductDetail = Product & {
   /** Seller reputation from seller_profiles (not listing aggregates). */
   sellerRating?: number;
   sellerReviewCount?: number;
+  /**
+   * Seller Holiday Mode ON — listing stays published; public purchase CTAs hidden.
+   * Driven by `user_settings.vacation_mode`, not listing status.
+   */
+  sellerOnHoliday?: boolean;
 };
 
 export type ProductsPage = {

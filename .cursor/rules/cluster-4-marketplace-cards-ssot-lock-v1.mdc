@@ -1,0 +1,35 @@
+---
+description: Cluster 4 — Marketplace Card SSOT + SearchResultCard Search UX exception (architecture lock)
+globs: components/ui/ListingCard.tsx,features/search/components/SearchResultCard.tsx,lib/listing-card/**
+alwaysApply: false
+---
+
+# ROVEXO CLUSTER 4 — MARKETPLACE CARDS SSOT LOCK v1.0
+
+**STATUS: OWNER APPROVED | ARCHITECTURE SCOPE LOCKED**
+
+SSOT: `lib/listing-card/cluster-4-marketplace-cards-ssot-lock-v1.ts`
+
+## Marketplace Card SSOT (only)
+
+**`ListingCard`** (`components/ui/ListingCard.tsx`)
+
+Allowed: Homepage · Browse · Categories · Saved · Featured · Product grids · Store · Marketplace feeds · Search **results grid**
+
+## Approved Search UX exception (only)
+
+**`SearchResultCard`** — **NOT** a marketplace card · **NOT** a second marketplace card
+
+Allowed ONLY: Search Typeahead · Instant Search Suggestions · Search Autocomplete  
+Direct importers ONLY: `SearchSuggestionList` · `ProductResults`  
+Hosts ONLY: `SearchTypeaheadPanel` · `SearchOverlay`
+
+## Forbidden
+
+- Second marketplace card
+- `SearchResultCard` on Homepage / feeds / Categories / Saved / Featured / product grids
+- New marketplace cards without explicit Owner approval
+
+## Cursor must never
+
+Treat `SearchResultCard` as a marketplace card SSOT competitor · create ListingCard v2 · use SearchResultCard outside Search UX exception surfaces

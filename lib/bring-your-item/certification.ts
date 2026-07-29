@@ -165,7 +165,15 @@ export function runBringYourItemCertification(rootDir: string = workspacePath())
     ]),
     step("step-6-media", "STEP 6 — Media Upload", [
       { id: "photo-uploader", label: "Photo rail component", pass: photoUploader.includes("SellPhotoRail") || photoUploader.includes("addPhotos") },
-      { id: "compression", label: "Image compression", pass: sellProvider.includes("compressListingImage") },
+      // Cluster 5: compression lives in Product Integration; Sell calls canonical entry.
+      {
+        id: "compression",
+        label: "Image compression",
+        pass:
+          sellProvider.includes("intakeSellPhotoFromCanonicalEntry") ||
+          sellProvider.includes("compressListingImage") ||
+          readSource(rootDir, "lib/product-integration/sell-photo-intake-v1.ts").includes("compressListingImage"),
+      },
       { id: "reorder-delete", label: "Reorder and delete photos", pass: sellProvider.includes("reorderPhotos") && sellProvider.includes("removePhoto") },
       { id: "preview", label: "Photo preview URLs", pass: sellProvider.includes("thumbnailUrl") || photoUploader.includes("preview") },
     ]),
@@ -203,7 +211,15 @@ export function runBringYourItemCertification(rootDir: string = workspacePath())
       { id: "listing-route", label: "Public listing page", pass: existsSync(join(rootDir, "app/listing/[slug]/page.tsx")) },
       { id: "search-route", label: "Search route", pass: existsSync(join(rootDir, "app/search/page.tsx")) || masterQa.includes("/search") },
       { id: "saved-route", label: "Favorites/saved route", pass: existsSync(join(rootDir, "app/saved/page.tsx")) },
-      { id: "messages-route", label: "Messaging route", pass: existsSync(join(rootDir, "app/messages/page.tsx")) || existsSync(join(rootDir, "app/messages")) },
+      // Inbox Hub freeze: canonical messaging is /inbox (legacy /messages redirects).
+      {
+        id: "messages-route",
+        label: "Messaging route",
+        pass:
+          existsSync(join(rootDir, "app/inbox/page.tsx")) ||
+          existsSync(join(rootDir, "app/messages/page.tsx")) ||
+          existsSync(join(rootDir, "app/messages")),
+      },
     ]),
     step("seller", "Seller Validation", [
       { id: "seller-dashboard", label: "Seller dashboard sections", pass: sellerDash.includes("/seller") },
@@ -213,19 +229,39 @@ export function runBringYourItemCertification(rootDir: string = workspacePath())
     ]),
     step("responsive", "Responsive Certification", [
       { id: "e2e-routes", label: "E2E responsive route coverage", pass: (masterQa.includes("/import") || masterQa.includes("/account/bring-your-item")) && masterQa.includes("/sell") },
-      { id: "safe-area", label: "Safe area insets", pass: readSource(rootDir, "features/sell/ui/SellPage.tsx").includes("safe-area") },
+      // Sell Absolute Authority: safe-area lives on sell shell CSS (not SellPage.tsx string).
+      {
+        id: "safe-area",
+        label: "Safe area insets",
+        pass:
+          readSource(rootDir, "styles/rovexo/sell.css").includes("safe-area-inset") ||
+          readSource(rootDir, "features/sell/ui/SellPage.tsx").includes("safe-area"),
+      },
       { id: "mobile-nav", label: "Mobile navigation module", pass: existsSync(join(rootDir, "styles/rovexo/bottom-nav-premium.css")) },
     ]),
     step("performance", "Performance", [
       { id: "sell-profiler", label: "Sell performance profiler", pass: sellProvider.includes("sellProfile") || sellProvider.includes("initSellProfiler") },
-      { id: "image-compress", label: "Client image compression", pass: sellProvider.includes("compressListingImage") },
+      {
+        id: "image-compress",
+        label: "Product Integration photo intake (pipeline prep)",
+        pass:
+          sellProvider.includes("intakeSellPhotoFromCanonicalEntry") ||
+          sellProvider.includes("intakeSellGalleryPhoto"),
+      },
       { id: "no-hydration-audit", label: "Sell uses client boundary correctly", pass: sellProvider.includes('"use client"') },
     ]),
     step("security", "Security", [
       { id: "oauth-secrets", label: "No client OAuth secrets", pass: !oauthService.includes("NEXT_PUBLIC_") && oauthService.includes("CONNECTOR_CREDENTIALS") || oauthService.includes("connectMarketplaceCredentials") },
       { id: "credential-encryption", label: "Connector credential encryption", pass: readSource(rootDir, "lib/seller/migration/connectors/credentials.ts").includes("assertConnectorCredentialsSecret") },
       { id: "server-validation", label: "Listing API Zod schema", pass: listingSchema.includes("z.object") || listingSchema.includes("z.string") },
-      { id: "image-validation", label: "Client image validation", pass: sellProvider.includes("validateClientImage") },
+      {
+        id: "image-validation",
+        label: "Canonical Sell photo intake validation",
+        pass:
+          sellProvider.includes("@/lib/product-integration") &&
+          (sellProvider.includes("intakeSellPhotoFromCanonicalEntry") ||
+            sellProvider.includes("intakeSellGalleryPhoto")),
+      },
     ]),
     step("final", "Final Certification Gate", [
       { id: "phases-1-4", label: "Phases 1–4 frozen architecture", pass: MIGRATION_WIZARD_STEPS.map((s) => s.label).join(",") === "Marketplace,Connect,Import" },

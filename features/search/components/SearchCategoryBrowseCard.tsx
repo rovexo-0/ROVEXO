@@ -47,7 +47,7 @@ export function SearchCategoryBrowseCard({
 
   return (
     <Link
-      href={href ?? `/search?category=${encodeURIComponent(slug)}`}
+      href={href ?? `/category/${encodeURIComponent(slug)}`}
       className={cn("srch-land__cat", focusRing)}
       aria-label={`${name}, ${formatItemCount(itemCount)}`}
     >

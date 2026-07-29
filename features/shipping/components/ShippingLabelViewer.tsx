@@ -173,26 +173,71 @@ export function ShippingLabelViewer({
   const handlePrintShare = useCallback(async () => {
     const href = embedUrl || sourceUrl;
     if (!href) return;
-    try {
-      const printFrame = document.querySelector<HTMLIFrameElement>(".slv-v1__frame");
-      if (printFrame?.contentWindow) {
-        printFrame.contentWindow.focus();
-        printFrame.contentWindow.print();
-        return;
-      }
-    } catch {
-      /* cross-origin / blocked */
-    }
-    if (typeof navigator !== "undefined" && typeof navigator.share === "function" && sourceUrl) {
+
+    // Prefer native share with the label file (mobile / PWA) — avoids broken print preview.
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
       try {
-        await navigator.share({ title: "Shipping Label", url: resolveAbsoluteUrl(sourceUrl) });
-        return;
+        if (embedUrl?.startsWith("blob:")) {
+          const blob = await fetch(embedUrl).then((response) => response.blob());
+          const extension = mimeType.includes("png")
+            ? "png"
+            : mimeType.includes("html")
+              ? "html"
+              : "pdf";
+          const file = new File([blob], `rovexo-shipping-label.${extension}`, {
+            type: mimeType || blob.type || "application/pdf",
+          });
+          if (typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: "Shipping Label" });
+            return;
+          }
+        }
+        if (sourceUrl) {
+          await navigator.share({
+            title: "Shipping Label",
+            url: resolveAbsoluteUrl(sourceUrl),
+          });
+          return;
+        }
       } catch {
-        /* cancelled */
+        /* user cancelled or share unsupported — fall through */
       }
     }
-    window.open(href, "_blank", "noopener,noreferrer");
-  }, [embedUrl, sourceUrl]);
+
+    // HTML demo labels can print from the same-origin iframe.
+    if (mimeType.includes("html")) {
+      try {
+        const printFrame = document.querySelector<HTMLIFrameElement>(".slv-v1__frame");
+        if (printFrame?.contentWindow) {
+          printFrame.contentWindow.focus();
+          printFrame.contentWindow.print();
+          return;
+        }
+      } catch {
+        /* cross-origin / blocked */
+      }
+    }
+
+    // Open label in a browser tab so the platform print dialog works
+    // (embedded PDF print often shows "This app doesn't support print preview").
+    const absolute = resolveAbsoluteUrl(sourceUrl || href);
+    const printWindow = window.open(absolute, "_blank", "noopener,noreferrer");
+    if (printWindow) {
+      const triggerPrint = () => {
+        try {
+          printWindow.focus();
+          printWindow.print();
+        } catch {
+          /* user can print from the opened tab */
+        }
+      };
+      printWindow.addEventListener("load", triggerPrint, { once: true });
+      window.setTimeout(triggerPrint, 750);
+      return;
+    }
+
+    handleDownload();
+  }, [embedUrl, sourceUrl, mimeType, handleDownload]);
 
   const pdfSrc =
     viewEmbedUrl && mimeType.includes("pdf")
@@ -283,19 +328,37 @@ export function ShippingLabelViewer({
           ) : null}
 
           {showDocument && !isImage && !isHtml ? (
-            <object
-              className="slv-v1__frame"
-              data={pdfSrc!}
-              type="application/pdf"
-              aria-label="Official Carrier PDF"
-            >
-              <iframe
+            <div className="slv-v1__pdf-wrap">
+              <object
                 className="slv-v1__frame"
-                title="Official Carrier PDF"
-                src={pdfSrc!}
-                onError={() => setLoadState("error")}
-              />
-            </object>
+                data={pdfSrc!}
+                type="application/pdf"
+                aria-label="Official Carrier PDF"
+              >
+                <iframe
+                  className="slv-v1__frame"
+                  title="Official Carrier PDF"
+                  src={pdfSrc!}
+                  onError={() => setLoadState("error")}
+                />
+              </object>
+              <div className="slv-v1__pdf-fallback">
+                <p className="slv-v1__pdf-fallback-copy">
+                  If the label preview is blank, open it in your browser to view or print.
+                </p>
+                <button
+                  type="button"
+                  className="slv-v1__retry"
+                  onClick={() => {
+                    const href = embedUrl || sourceUrl;
+                    if (!href) return;
+                    window.open(resolveAbsoluteUrl(href), "_blank", "noopener,noreferrer");
+                  }}
+                >
+                  Open label
+                </button>
+              </div>
+            </div>
           ) : null}
         </div>
 

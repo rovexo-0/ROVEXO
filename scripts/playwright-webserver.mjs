@@ -12,12 +12,35 @@ export function hasProductionBuild(cwd = process.cwd()) {
 
 /**
  * Run `next build` with the same env Playwright uses for the web server.
+ *
+ * Prefer the Next binary directly — `pnpm run build` can abort in non-TTY
+ * environments with ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY (deps purge prompt).
  */
 export function runProductionBuild(env = process.env) {
-  const pm = resolvePackageManager();
+  const nextBin = path.join(process.cwd(), "node_modules", "next", "dist", "bin", "next");
+  const buildEnv = {
+    ...process.env,
+    ...env,
+    NODE_ENV: "production",
+    // Fail-closed CI mode so package managers never prompt for module purge.
+    CI: process.env.CI || "true",
+  };
+
+  if (fs.existsSync(nextBin)) {
+    execSync(`${JSON.stringify(process.execPath)} ${JSON.stringify(nextBin)} build`, {
+      stdio: "inherit",
+      env: buildEnv,
+      cwd: process.cwd(),
+      shell: true,
+    });
+    return;
+  }
+
+  // Fallback: npm scripts (avoid pnpm interactive install gates).
+  const pm = resolvePackageManager() === "pnpm" ? "npm" : resolvePackageManager();
   execSync(`${pm} run build`, {
     stdio: "inherit",
-    env: { ...process.env, ...env, NODE_ENV: "production" },
+    env: buildEnv,
     cwd: process.cwd(),
     shell: true,
   });

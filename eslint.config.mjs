@@ -10,6 +10,9 @@ const eslintConfig = defineConfig([
     // Default ignores of eslint-config-next:
     ".next/**",
     "ROVEXO/.next/**",
+    // Vercel build output — generated launchers/bundles (not source).
+    ".vercel/**",
+    "ROVEXO/.vercel/**",
     "ROVEXO/**",
     "archive/**",
     "out/**",

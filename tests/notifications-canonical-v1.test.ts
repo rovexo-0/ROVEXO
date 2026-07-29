@@ -57,8 +57,8 @@ describe("Notifications canonical v1.0", () => {
   it("ships complete buyer / seller / marketplace catalog", () => {
     expect(listCanonicalKindsByAudience("buyer").length).toBe(12);
     expect(listCanonicalKindsByAudience("seller").length).toBe(11);
-    expect(listCanonicalKindsByAudience("marketplace").length).toBe(7);
-    expect(CANONICAL_NOTIFICATION_CATALOG.length).toBe(30);
+    expect(listCanonicalKindsByAudience("marketplace").length).toBe(8);
+    expect(CANONICAL_NOTIFICATION_CATALOG.length).toBe(31);
 
     for (const entry of CANONICAL_NOTIFICATION_CATALOG) {
       expect(entry.title.length).toBeGreaterThan(0);

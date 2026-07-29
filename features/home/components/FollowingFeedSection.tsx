@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { Avatar } from "@/components/ui/Avatar";
+import { useCardImageSrc } from "@/lib/media/use-card-image-src";
 import { useAuthOptional } from "@/features/auth/providers/AuthProvider";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
 import { FOLLOWING_FEED_ENGINE_V1 } from "@/lib/following-feed/following-feed-engine-v1";
@@ -75,6 +76,8 @@ const FollowingFeedCardView = memo(function FollowingFeedCardView({
   const router = useRouter();
   const href = `/listing/${card.listingSlug}`;
   const drop = priceDropLabel(card);
+  const { src: cardImageSrc, onError: onCardImageError, unoptimized: cardImageUnoptimized } =
+    useCardImageSrc(card.imageUrl, card.imageFullUrl);
 
   const open = () => {
     router.push(href);
@@ -124,7 +127,14 @@ const FollowingFeedCardView = memo(function FollowingFeedCardView({
     >
       <div className={css.media}>
         {drop ? <span className={css.badge}>{drop}</span> : null}
-        <SafeImage src={card.imageUrl} alt={card.title} fill sizes="112px" />
+        <SafeImage
+          src={cardImageSrc}
+          alt={card.title}
+          fill
+          sizes="112px"
+          unoptimized={cardImageUnoptimized}
+          onError={onCardImageError}
+        />
       </div>
       <div className={css.body}>
         <div className={css.sellerRow}>

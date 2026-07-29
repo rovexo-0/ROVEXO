@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import type { SVGProps } from "react";
 import { formatCurrency, formatWalletDate } from "@/lib/wallet/utils";
-import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 
 type WalletInsightsProps = {
   sales: number;
@@ -23,29 +21,15 @@ function CalendarLineIcon(props: IconProps) {
   );
 }
 
-function PurseLineIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <path d="M4 10h16v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9Z" />
-      <path d="M8 10V8a4 4 0 0 1 8 0v2" strokeLinecap="round" />
-      <path d="M12 14v2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
+/** Balance Insights — This Month + Next Payout. Visual polish only. */
 export function WalletInsights({ sales, withdrawn, pending, pendingAvailableAt }: WalletInsightsProps) {
   const hasUpcoming = pending > 0 && Boolean(pendingAvailableAt);
 
   return (
-    <section className="wallet-v2__section" aria-labelledby="wallet-insights-title">
-      <div className="wallet-v2__section-head">
-        <h2 id="wallet-insights-title" className="wallet-v2__section-title">
-          Insights
-        </h2>
-        <Link href={WALLET_ROUTES.payouts} className="wallet-v2__section-link">
-          View all
-        </Link>
-      </div>
+    <section className="wallet-v2__section wallet-v2__section--insights" aria-labelledby="wallet-insights-title">
+      <h2 id="wallet-insights-title" className="sr-only">
+        Insights
+      </h2>
 
       <div className="wallet-v2__insights">
         <article className="wallet-v2__insight-card">
@@ -74,7 +58,7 @@ export function WalletInsights({ sales, withdrawn, pending, pendingAvailableAt }
         <article className="wallet-v2__insight-card">
           <h3 className="wallet-v2__insight-heading">
             <span className="wallet-v2__insight-heading-icon" aria-hidden>
-              <PurseLineIcon />
+              <CalendarLineIcon />
             </span>
             Next Payout
           </h3>
@@ -83,9 +67,9 @@ export function WalletInsights({ sales, withdrawn, pending, pendingAvailableAt }
               <p className="wallet-v2__insight-kicker">Estimated payout</p>
               <p className="wallet-v2__insight-amount">{formatCurrency(pending)}</p>
               <p className="wallet-v2__insight-status">
-                Status · <strong>Pending release</strong>
+                Status: <strong>Pending release</strong>
               </p>
-              <p className="wallet-v2__insight-copy">Expected · {formatWalletDate(pendingAvailableAt)}</p>
+              <p className="wallet-v2__insight-copy">Expected: {formatWalletDate(pendingAvailableAt)}</p>
             </>
           ) : (
             <>

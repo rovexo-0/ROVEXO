@@ -6,14 +6,18 @@ import type {
 } from "@/lib/listings/types";
 import type { Product } from "@/lib/products/types";
 
+export { resolveEligibleVisibleTotal } from "@/lib/listings/resolve-eligible-visible-total";
+
 /**
  * ROVEXO canonical marketplace listings resolver — SINGLE SOURCE OF TRUTH.
  *
  * Every public surface (Homepage, Search, Category, Seller store, Similar,
  * Recommended, Featured, Recent) MUST resolve its listings through this
  * function. It guarantees identical visibility rules everywhere by:
- *  1. querying only `status = 'published'` products, and
- *  2. running each row through the canonical `HomepageEligibility` gate
+ *  1. querying only `status = 'published'` products,
+ *  2. hiding sellers with Holiday Mode ON (`user_settings.vacation_mode`)
+ *     without mass-editing listing rows, and
+ *  3. running each row through the canonical `HomepageEligibility` gate
  *     (verified seller, valid image, approved moderation, valid content, etc.)
  *     — implemented inside `searchListings` via `filterEligibleRows`.
  *
@@ -43,4 +47,72 @@ export async function getEligibleListingItems(
 ): Promise<Product[]> {
   const result = await getEligibleListings(options);
   return result.items;
+}
+
+/**
+ * Exact eligible total for a query — same visibility pipeline as the Listing Grid.
+ * When the DB match set fits in one fetch, total equals visible item count.
+ */
+export async function countEligibleListings(
+  options: EligibleListingsOptions = {},
+): Promise<number> {
+  const probe = await getEligibleListings({ ...options, page: 1, pageSize: 1 });
+  if (probe.total <= 0) return 0;
+  if (probe.total === 1) return probe.items.length;
+
+  const full = await getEligibleListings({
+    ...options,
+    page: 1,
+    pageSize: probe.total,
+  });
+  return full.items.length;
+}
+
+/** Same category scope options used by `/category/[...slug]` Listing Grid. */
+export function buildCategoryEligibleListingsOptions(input: {
+  slugPath: string[];
+  categoryIds: string[];
+  page?: number;
+  pageSize?: number;
+}): EligibleListingsOptions {
+  const hasIds = input.categoryIds.length > 0;
+  return {
+    surface: "category",
+    categoryIds: hasIds ? input.categoryIds : undefined,
+    categorySlugPath: hasIds ? undefined : input.slugPath,
+    page: input.page ?? 1,
+    pageSize: input.pageSize ?? 24,
+  };
+}
+
+/**
+ * Browse Categories counters — ONE SSOT with `/category/[slug]` grid.
+ * Counts via `getEligibleListings` / `countEligibleListings` only.
+ * Never uses raw published product tallies or legacy sector aggregation.
+ */
+export async function getCanonicalBrowseCategoryCounts(): Promise<
+  Array<{ slug: string; itemCount: number }>
+> {
+  const { resolveCategoryPage } = await import("@/lib/categories/server");
+  const { CANONICAL_ROOT_CATEGORIES } = await import(
+    "@/lib/categories/canonical-root-categories-v1"
+  );
+
+  return Promise.all(
+    CANONICAL_ROOT_CATEGORIES.map(async (root) => {
+      const category = await resolveCategoryPage([root.slug]);
+      if (!category || !category.isActive) {
+        return { slug: root.slug, itemCount: 0 };
+      }
+
+      const itemCount = await countEligibleListings(
+        buildCategoryEligibleListingsOptions({
+          slugPath: [root.slug],
+          categoryIds: category.categoryIds,
+        }),
+      );
+
+      return { slug: root.slug, itemCount };
+    }),
+  );
 }

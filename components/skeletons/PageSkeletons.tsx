@@ -128,8 +128,8 @@ export function SellSkeleton() {
       <div className="flex flex-col gap-1.5">
         <Skeleton className="h-3.5 w-14" />
         <div className="flex gap-1.5">
-          <Skeleton className="h-[114px] w-[76px] shrink-0 rounded-[16px]" />
-          <Skeleton className="h-[114px] w-[76px] shrink-0 rounded-[16px]" />
+          <Skeleton className="h-[168px] w-[112px] shrink-0 rounded-[16px]" />
+          <Skeleton className="h-[168px] w-[112px] shrink-0 rounded-[16px]" />
         </div>
       </div>
       <div className="flex flex-col gap-1">

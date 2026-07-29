@@ -1,0 +1,42 @@
+---
+description: Cluster 6 — Authentication & Identity Scope Lock (Supabase Auth · Email public · OAuth UI-gated)
+globs: lib/auth/**,features/auth/**,app/(auth)/**,app/auth/**,middleware.ts,lib/supabase/middleware.ts
+alwaysApply: false
+---
+
+# ROVEXO CLUSTER 6 — AUTHENTICATION & IDENTITY SCOPE LOCK v1.0
+
+**STATUS: OWNER APPROVED | PRODUCTION READY | FROZEN | CERTIFIED**
+
+SSOT: `lib/auth/cluster-6-authentication-scope-lock-v1.ts`  
+Parent policy: `lib/auth/cluster-6-oauth-policy-lock-v1.ts`
+
+## Canonical flow (v1.0 ONLY)
+
+User → Login/Register → Email + Password → Supabase Auth → Session → Middleware → Protected Routes → Application
+
+## Locked
+
+- Sole provider: **Supabase Auth**
+- Public methods: Email · Password · Reset · Verify · Session
+- Google / Apple: **code-ready · UI-gated**
+- Facebook: **deferred to v1.1**
+- Singularity: one entry · one middleware chain · one AuthProvider · one `/auth/callback` · one protected-route SSOT · one profile bootstrap
+
+## Forbidden
+
+Clerk · NextAuth · Auth.js · Firebase Auth · Better Auth · parallel sessions · second callback · public OAuth UI · new auth surfaces without Owner approval
+
+## Certification gates
+
+| Gate | Status |
+|---|---|
+| Architecture Scope Lock | PASS |
+| Technical Certification | PASS |
+| Owner Visual QA | PASS |
+| Production Freeze | APPLIED |
+| productionStatus | CERTIFIED |
+
+## Cursor must never
+
+Rewrite auth · enable OAuth UI · change Supabase config · introduce a second identity system · reopen Production Freeze without Owner approval

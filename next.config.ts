@@ -130,11 +130,11 @@ const nextConfig: NextConfig = {
     // optimized results are cached for 30 days to avoid re-optimizing and let
     // browsers reuse cached images across repeat visits.
     formats: ["image/avif", "image/webp"],
-    // Next 15 rejects any `quality` not in this allowlist. 75 stays the default
+    // Next 16 rejects any `quality` not in this allowlist. 75 stays the default
     // for cards/thumbnails (small payloads); 90 is used for the full-bleed
-    // Product Detail hero + lightbox so detailed photos render crisply instead
-    // of showing AVIF compression softness at high-DPR / near-1:1 display sizes.
-    qualities: [75, 90],
+    // Product Detail hero + lightbox; 100 is used for official brand marks
+    // (header app icon / auth primary emblem) with no visual degradation.
+    qualities: [75, 90, 100],
     minimumCacheTTL: 2592000,
     remotePatterns: [
       ...supabaseImageHostnames().map((hostname) => ({

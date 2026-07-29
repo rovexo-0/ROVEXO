@@ -6,6 +6,7 @@ import { buildProductImagePath } from "@/lib/storage/server-images";
 import { getPublicStorageUrl } from "@/lib/storage/upload";
 import { formatPromotionRemaining, isPromotionActive } from "@/lib/promotions/format";
 import { HomepageEligibility } from "@/lib/homepage/homepage-eligibility";
+import { resolveEligibleVisibleTotal } from "@/lib/listings/resolve-eligible-visible-total";
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { applyAntiMonopolyRotation } from "@/lib/promotions/boost-time-decay-v1";
 import { scanListingBeforePublish } from "@/lib/moderation/scan-listing";
@@ -984,7 +985,8 @@ export async function searchListings(
   }
 
   const { data, count } = await query.range(from, to);
-  const rows = HomepageEligibility.filterEligibleRows((data as ProductRow[] | null) ?? []);
+  const rawRows = (data as ProductRow[] | null) ?? [];
+  const rows = HomepageEligibility.filterEligibleRows(rawRows);
   const mapped = rows.map((row) => mapProductRow(row));
   const withModes = await attachTransactionModes(mapped);
   const items =
@@ -992,11 +994,20 @@ export async function searchListings(
       ? withModes
       : applyAntiMonopolyRotation(withModes);
 
+  const dbTotal = count ?? 0;
+  const total = resolveEligibleVisibleTotal({
+    page,
+    pageSize,
+    dbTotal,
+    rawRowCount: rawRows.length,
+    eligibleItemCount: items.length,
+  });
+
   return {
     items,
-    total: count ?? 0,
+    total,
     page,
-    hasMore: from + items.length < (count ?? 0),
+    hasMore: from + rawRows.length < dbTotal,
   };
 }
 

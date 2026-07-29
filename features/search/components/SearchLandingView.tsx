@@ -35,6 +35,12 @@ export type SearchLandingCategoryCount = {
 type SearchLandingViewProps = {
   categoryCounts?: SearchLandingCategoryCount[];
   trending?: string[];
+  /**
+   * Navigation SSOT separation:
+   * - browse → Bottom Nav Browse (Browse Categories)
+   * - search → Header Global Search (Recent / Trending / typeahead — no category grid)
+   */
+  surface?: "browse" | "search";
 };
 
 function ClockIcon() {
@@ -64,18 +70,19 @@ function ChipCloseIcon() {
 }
 
 /**
- * SEARCH_UI_v1.0 — /search idle landing (Owner frozen 2026-07-25).
- * Hierarchy: Search Bar → Category Grid → Recent → Trending.
- * Typeahead runs inline on this page (no separate Homepage overlay).
+ * SEARCH_UI_v1.0 — browse / global-search idle surfaces (presentation reused).
+ * Typeahead runs inline (no Homepage overlay bypass).
  */
 export function SearchLandingView({
   categoryCounts = [],
   trending = [],
+  surface = "browse",
 }: SearchLandingViewProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [history, setHistory] = useState<string[]>([]);
   const [query, setQuery] = useState("");
+  const isGlobalSearch = surface === "search";
 
   useEffect(() => {
     // Hydrate from localStorage after paint — setState must not run sync in the effect body.
@@ -88,6 +95,11 @@ export function SearchLandingView({
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!isGlobalSearch) return;
+    inputRef.current?.focus();
+  }, [isGlobalSearch]);
 
   const countBySlug = new Map(categoryCounts.map((row) => [row.slug, row.itemCount]));
   const isTyping = query.trim().length > 0;
@@ -139,6 +151,7 @@ export function SearchLandingView({
       data-blood-code-xxix="29.0"
       data-blood-code-xxxi="31.0"
       data-search-landing="v1"
+      data-search-surface={surface}
     >
       <div className="srch-land__bar-row">
         <form className="srch-land__bar" role="search" onSubmit={handleSubmit}>
@@ -185,28 +198,30 @@ export function SearchLandingView({
         <SearchTypeaheadPanel query={query} onQueryChange={setQuery} />
       ) : (
         <>
-          <section className="srch-land__section" aria-labelledby="srch-land-categories-title">
-            <div className="srch-land__section-head">
-              <h2 id="srch-land-categories-title" className="srch-land__section-title">
-                Browse categories
-              </h2>
-              <Link href="/categories" className={cn("srch-land__section-action", focusRing)}>
-                View all &gt;
-              </Link>
-            </div>
-            <div className="srch-land__grid">
-              {ROVEXO_HOME_CATEGORY_RAIL.map((item) => (
-                <SearchCategoryBrowseCard
-                  key={item.slug}
-                  name={item.name}
-                  slug={item.slug}
-                  iconKey={item.icon}
-                  itemCount={countBySlug.get(item.slug) ?? 0}
-                  href={item.href ?? `/search?category=${encodeURIComponent(item.slug)}`}
-                />
-              ))}
-            </div>
-          </section>
+          {!isGlobalSearch ? (
+            <section className="srch-land__section" aria-labelledby="srch-land-categories-title">
+              <div className="srch-land__section-head">
+                <h2 id="srch-land-categories-title" className="srch-land__section-title">
+                  Browse categories
+                </h2>
+                <Link href="/categories" className={cn("srch-land__section-action", focusRing)}>
+                  View all &gt;
+                </Link>
+              </div>
+              <div className="srch-land__grid">
+                {ROVEXO_HOME_CATEGORY_RAIL.map((item) => (
+                  <SearchCategoryBrowseCard
+                    key={item.slug}
+                    name={item.name}
+                    slug={item.slug}
+                    iconKey={item.icon}
+                    itemCount={countBySlug.get(item.slug) ?? 0}
+                    href={item.href ?? `/category/${encodeURIComponent(item.slug)}`}
+                  />
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           {history.length > 0 ? (
             <section className="srch-land__section" aria-labelledby="srch-land-recent-title">

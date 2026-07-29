@@ -41,9 +41,16 @@ export function getSendcloudBaseUrl(): string {
   return configured.replace(/\/+$/, "");
 }
 
-/** Optional webhook verification secret — server-side only. */
+/**
+ * Webhook verification secret — server-side only.
+ * Required before any Sendcloud webhook may be processed (fail-closed).
+ */
 export function getSendcloudWebhookSecret(): string | null {
   return process.env[WEBHOOK_SECRET_ENV]?.trim() || null;
+}
+
+export function isSendcloudWebhookSecretConfigured(): boolean {
+  return Boolean(getSendcloudWebhookSecret());
 }
 
 function shouldSkipSendcloudStartupValidation(): boolean {
@@ -57,18 +64,32 @@ function shouldSkipSendcloudStartupValidation(): boolean {
 /**
  * Validates Sendcloud configuration when the Node.js server starts.
  * Production fails fast; development logs a warning so local work can continue.
+ * When API keys are present in production, WEBHOOK_SECRET is also required
+ * (live tracking webhooks must never run unsigned).
  */
 export function validateSendcloudEnvironmentOnStartup(): void {
   if (shouldSkipSendcloudStartupValidation()) return;
 
-  if (isSendcloudConfigured()) return;
+  if (!isSendcloudConfigured()) {
+    const message =
+      "Sendcloud is not configured. Set SENDCLOUD_PUBLIC_KEY and SENDCLOUD_SECRET_KEY in .env.local (local) or Vercel environment variables (production). All Sendcloud requests are server-side only.";
 
-  const message =
-    "Sendcloud is not configured. Set SENDCLOUD_PUBLIC_KEY and SENDCLOUD_SECRET_KEY in .env.local (local) or Vercel environment variables (production). All Sendcloud requests are server-side only.";
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(message);
+    }
 
-  if (process.env.NODE_ENV === "production") {
-    throw new Error(message);
+    console.warn(`[shipping] ${message}`);
+    return;
   }
 
-  console.warn(`[shipping] ${message}`);
+  if (!isSendcloudWebhookSecretConfigured()) {
+    const webhookMessage =
+      "SENDCLOUD_WEBHOOK_SECRET is not configured. Set it before enabling Sendcloud webhooks. Unsigned webhooks are rejected.";
+
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(webhookMessage);
+    }
+
+    console.warn(`[shipping] ${webhookMessage}`);
+  }
 }

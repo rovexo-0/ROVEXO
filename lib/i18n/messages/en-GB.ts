@@ -1,6 +1,7 @@
 export const enGB = {
   "nav.home": "Home",
   "nav.search": "Search",
+  "nav.browse": "Browse",
   "nav.sell": "Sell",
   "nav.saved": "Inbox",
   "nav.account": "Account",

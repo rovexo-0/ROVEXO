@@ -12,7 +12,7 @@ test.describe("marketplace core", () => {
     await waitForHomepageUi(page);
     const categories = page.locator(CATEGORY_RAIL_SELECTOR);
     await expect(categories).toBeVisible();
-    await expect(categories.locator("a[href*='/search?category=']").first()).toBeVisible();
+    await expect(categories.locator("a[href*='/category/']").first()).toBeVisible();
   });
 
   test("categories index is reachable", async ({ page }) => {

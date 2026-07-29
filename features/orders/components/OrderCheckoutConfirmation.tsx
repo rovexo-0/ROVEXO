@@ -23,10 +23,10 @@ export function OrderCheckoutConfirmation({ orderId }: OrderCheckoutConfirmation
     void fetch(`/api/orders/confirm?session_id=${encodeURIComponent(sessionId)}`)
       .then((response) => response.json())
       .then((payload: { success?: boolean }) => {
-        router.replace(payload.success ? `/orders/${orderId}?placed=1` : `/orders/${orderId}`);
+        router.replace(payload.success ? `/inbox?order=${encodeURIComponent(orderId)}&placed=1` : `/inbox?order=${encodeURIComponent(orderId)}`);
       })
       .catch(() => {
-        router.replace(`/orders/${orderId}`);
+        router.replace(`/inbox?order=${encodeURIComponent(orderId)}`);
       });
   }, [orderId, router, searchParams]);
 

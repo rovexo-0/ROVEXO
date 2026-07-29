@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { dispatchNotification } from "@/lib/notifications/dispatch";
+import { emitSmartNotification } from "@/lib/notifications/events";
 
 export type SavedSearchNotificationResult = {
   searchesProcessed: number;
@@ -54,13 +54,20 @@ export async function processSavedSearchNotifications(
 
       if (existing) continue;
 
-      await dispatchNotification({
+      await emitSmartNotification({
         userId: String(search.user_id),
-        type: "saved_search_match",
+        eventType: "saved_search_match",
+        idempotencyKey: `saved-search-${search.id}-${product.id}`,
+        notificationType: "saved_search_match",
         title: "New listing for your saved search",
         subtitle: `"${product.title}" matches "${search.query}"`,
         href: `/listing/${product.slug}`,
         detail: search.query,
+        payload: {
+          savedSearchId: search.id,
+          productId: product.id,
+          productSlug: product.slug,
+        },
       });
 
       await admin.from("saved_search_notification_log").insert({

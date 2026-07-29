@@ -127,6 +127,11 @@ export type SearchListingsOptions = {
   pageSize?: number;
   /** Exclude a specific listing by slug (used by Similar Items). */
   excludeSlug?: string;
+  /**
+   * Owner / seller-management only. When true, do not hide listings for sellers
+   * on Holiday Mode (listings stay ACTIVE internally). Never set on public discovery.
+   */
+  includeHolidayModeListings?: boolean;
 };
 
 /**

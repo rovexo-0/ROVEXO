@@ -18,7 +18,7 @@ export const ROVEXO_CATEGORIES: readonly RovexoCategory[] = ROVEXO_HOME_CATEGORY
     name: item.name,
     slug: item.slug,
     icon: item.icon,
-    href: item.href ?? `/search?category=${item.slug}`,
+    href: item.href ?? `/category/${item.slug}`,
   }),
 );
 

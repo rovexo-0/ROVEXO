@@ -9,6 +9,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
+import { sanitizeNativeImagePickerId } from "@/lib/media/native-image-picker";
 import {
   ACCOUNT_SETTINGS_FAIL_CLOSED_COPY,
   isAccountSettingsPhotoFileValid,
@@ -18,16 +19,37 @@ type AvatarUploaderProps = {
   name: string;
   avatarUrl: string | null;
   onUpdated: (avatarUrl: string | null) => void;
-  /** Account Settings v1.3 — Change Photo → Take / Gallery / Remove / Cancel. */
+  /** Account Settings — Take / Gallery / Remove shown immediately (no Change Photo gate). */
   accountSettings?: boolean;
+  /**
+   * My Profile camera — open OS native image picker only (no ROVEXO sheet).
+   * Crop / upload / refresh stay on Profile via the existing pipeline.
+   */
+  nativeDirect?: boolean;
+  /** Stable id for Profile `<label htmlFor>` (Samsung-safe after sanitize). */
+  pickerInputId?: string;
+  /** Notifies Profile when crop UI is active (hide avatar hit while cropping). */
+  onCroppingChange?: (cropping: boolean) => void;
 };
 
 const CROP_SIZE = 280;
+const PHOTO_ACCEPT = "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp";
 
-export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = false }: AvatarUploaderProps) {
+export function AvatarUploader({
+  name,
+  avatarUrl,
+  onUpdated,
+  accountSettings = false,
+  nativeDirect = false,
+  pickerInputId,
+  onCroppingChange,
+}: AvatarUploaderProps) {
   const router = useRouter();
-  const pickerId = useId();
-  const cameraId = useId();
+  const reactId = useId();
+  const pickerId = pickerInputId
+    ? sanitizeNativeImagePickerId(pickerInputId)
+    : sanitizeNativeImagePickerId(reactId);
+  const cameraId = sanitizeNativeImagePickerId(`${reactId}-cam`);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [sourceImage, setSourceImage] = useState<HTMLImageElement | null>(null);
@@ -35,8 +57,13 @@ export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = f
   const [scale, setScale] = useState(1);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const dragRef = useRef<{ x: number; y: number } | null>(null);
+  const usePhotoActions = accountSettings || nativeDirect;
+  const strictPhotoValidation = usePhotoActions;
+
+  useEffect(() => {
+    onCroppingChange?.(Boolean(preview));
+  }, [preview, onCroppingChange]);
 
   const drawCrop = useCallback(() => {
     const canvas = canvasRef.current;
@@ -66,8 +93,7 @@ export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = f
     if (!file) return;
 
     setError(null);
-    setMenuOpen(false);
-    if (accountSettings && !isAccountSettingsPhotoFileValid(file)) {
+    if (strictPhotoValidation && !isAccountSettingsPhotoFileValid(file)) {
       setError(ACCOUNT_SETTINGS_FAIL_CLOSED_COPY);
       return;
     }
@@ -141,11 +167,11 @@ export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = f
       onUpdated(payload.avatarUrl);
       setPreview(null);
       setSourceImage(null);
-      if (!accountSettings) {
+      if (!usePhotoActions) {
         router.refresh();
       }
     } catch {
-      setError(accountSettings ? ACCOUNT_SETTINGS_FAIL_CLOSED_COPY : "Upload failed.");
+      setError(usePhotoActions ? ACCOUNT_SETTINGS_FAIL_CLOSED_COPY : "Upload failed.");
     } finally {
       setBusy(false);
     }
@@ -154,7 +180,6 @@ export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = f
   const removeAvatar = async () => {
     setBusy(true);
     setError(null);
-    setMenuOpen(false);
     try {
       const response = await fetch("/api/profile/avatar", { method: "DELETE" });
       if (!response.ok) {
@@ -163,15 +188,83 @@ export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = f
       onUpdated(null);
       setPreview(null);
       setSourceImage(null);
-      if (!accountSettings) {
+      if (!usePhotoActions) {
         router.refresh();
       }
     } catch {
-      setError(accountSettings ? ACCOUNT_SETTINGS_FAIL_CLOSED_COPY : "Unable to remove avatar.");
+      setError(usePhotoActions ? ACCOUNT_SETTINGS_FAIL_CLOSED_COPY : "Unable to remove avatar.");
     } finally {
       setBusy(false);
     }
   };
+
+  const clearCrop = () => {
+    setPreview(null);
+    setSourceImage(null);
+    setError(null);
+  };
+
+  if (nativeDirect) {
+    return (
+      <div className="vp-v1__avatar-native" data-avatar-uploader="native-direct">
+        {/* Gallery intent + image/* · no capture → OS Photo Picker (Take Photo / Gallery). */}
+        <NativeImageFileInput
+          id={pickerId}
+          intent="gallery"
+          disabled={busy}
+          onFilesSelected={(files) => void onFileChange(files)}
+        />
+
+        {preview ? (
+          <div className="vp-v1__avatar-crop">
+            <canvas
+              ref={canvasRef}
+              width={CROP_SIZE}
+              height={CROP_SIZE}
+              className="vp-v1__avatar-crop-canvas touch-none rounded-ds-full"
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              aria-label="Drag to reposition your profile photo"
+            />
+            <label className="sr-only" htmlFor="avatar-scale-native">
+              Zoom
+            </label>
+            <input
+              id="avatar-scale-native"
+              type="range"
+              min="0.5"
+              max="3"
+              step="0.01"
+              value={scale}
+              onChange={(event) => setScale(Number(event.target.value))}
+              className="vp-v1__avatar-crop-zoom"
+            />
+            <div className="vp-v1__avatar-crop-actions">
+              <button
+                type="button"
+                className="vp-v1__avatar-crop-save"
+                onClick={() => void uploadCropped()}
+                disabled={busy}
+              >
+                {busy ? "Saving…" : "Save photo"}
+              </button>
+              <button
+                type="button"
+                className="vp-v1__avatar-crop-cancel"
+                onClick={clearCrop}
+                disabled={busy}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {error ? <p className="vp-v1__avatar-crop-error">{error}</p> : null}
+      </div>
+    );
+  }
 
   return (
     <div className={cn("flex flex-col gap-ds-4", accountSettings ? "as-v1-photo items-start" : "items-center")}>
@@ -219,7 +312,7 @@ export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = f
       <NativeImageFileInput
         id={pickerId}
         intent="gallery"
-        accept={accountSettings ? "image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" : undefined}
+        accept={accountSettings ? PHOTO_ACCEPT : undefined}
         disabled={busy}
         onFilesSelected={(files) => void onFileChange(files)}
       />
@@ -227,7 +320,7 @@ export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = f
         <NativeImageFileInput
           id={cameraId}
           intent="camera"
-          accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+          accept={PHOTO_ACCEPT}
           disabled={busy}
           onFilesSelected={(files) => void onFileChange(files)}
         />
@@ -238,49 +331,28 @@ export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = f
           <>
             {accountSettings ? (
               <>
-                {!menuOpen ? (
+                <label
+                  htmlFor={cameraId}
+                  className={cn("as-v1-photo__action", busy && "pointer-events-none opacity-40")}
+                >
+                  Take Photo
+                </label>
+                <label
+                  htmlFor={pickerId}
+                  className={cn("as-v1-photo__action", busy && "pointer-events-none opacity-40")}
+                >
+                  Choose From Gallery
+                </label>
+                {avatarUrl ? (
                   <button
                     type="button"
-                    className="as-v1-photo__change"
+                    className="as-v1-photo__action as-v1-photo__action--danger"
+                    onClick={() => void removeAvatar()}
                     disabled={busy}
-                    onClick={() => setMenuOpen(true)}
                   >
-                    Change Photo
+                    Remove Photo
                   </button>
-                ) : (
-                  <>
-                    <label
-                      htmlFor={cameraId}
-                      className={cn("as-v1-photo__action", busy && "pointer-events-none opacity-40")}
-                    >
-                      Take Photo
-                    </label>
-                    <label
-                      htmlFor={pickerId}
-                      className={cn("as-v1-photo__action", busy && "pointer-events-none opacity-40")}
-                    >
-                      Choose From Gallery
-                    </label>
-                    {avatarUrl ? (
-                      <button
-                        type="button"
-                        className="as-v1-photo__action as-v1-photo__action--danger"
-                        onClick={() => void removeAvatar()}
-                        disabled={busy}
-                      >
-                        Remove Photo
-                      </button>
-                    ) : null}
-                    <button
-                      type="button"
-                      className="as-v1-photo__action as-v1-photo__action--muted"
-                      onClick={() => setMenuOpen(false)}
-                      disabled={busy}
-                    >
-                      Cancel
-                    </button>
-                  </>
-                )}
+                ) : null}
               </>
             ) : (
               <>
@@ -308,15 +380,12 @@ export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = f
                   onClick={() => void uploadCropped()}
                   disabled={busy}
                 >
-                  {busy ? "Saving..." : "Apply"}
+                  {busy ? "Saving…" : "Save photo"}
                 </button>
                 <button
                   type="button"
                   className="as-v1-photo__action as-v1-photo__action--muted"
-                  onClick={() => {
-                    setPreview(null);
-                    setSourceImage(null);
-                  }}
+                  onClick={clearCrop}
                   disabled={busy}
                 >
                   Cancel
@@ -327,15 +396,7 @@ export function AvatarUploader({ name, avatarUrl, onUpdated, accountSettings = f
                 <CanonicalButton type="button" onClick={() => void uploadCropped()} disabled={busy} loading={busy}>
                   {busy ? "Saving…" : "Save photo"}
                 </CanonicalButton>
-                <CanonicalButton
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setPreview(null);
-                    setSourceImage(null);
-                  }}
-                  disabled={busy}
-                >
+                <CanonicalButton type="button" variant="ghost" onClick={clearCrop} disabled={busy}>
                   Cancel
                 </CanonicalButton>
               </>

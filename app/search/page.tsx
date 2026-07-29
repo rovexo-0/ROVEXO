@@ -8,12 +8,7 @@ import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
 import { SearchResultsView } from "@/features/search/components/SearchResultsView";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { CAMERA_SEARCH_V1 } from "@/lib/search/camera-search-v1-freeze";
-import { getTopLevelCategoryCounts } from "@/lib/categories/server";
 import { getTrendingSearches } from "@/lib/search/trending";
-import {
-  aggregateCountsByCanonicalRoot,
-  CANONICAL_ROOT_CATEGORIES,
-} from "@/lib/categories/canonical-root-categories-v1";
 
 type SearchPageProps = {
   searchParams: Promise<{ q?: string; visual?: string; category?: string }>;
@@ -62,25 +57,15 @@ async function SearchPageBody({
     return <SearchResultsView />;
   }
 
-  let categoryCounts: { slug: string; itemCount: number }[] = [];
   let trending: string[] = [];
   try {
-    const [counts, trend] = await Promise.all([
-      getTopLevelCategoryCounts(),
-      getTrendingSearches([], 8),
-    ]);
-    const aggregated = aggregateCountsByCanonicalRoot(counts);
-    categoryCounts = CANONICAL_ROOT_CATEGORIES.map((root) => ({
-      slug: root.slug,
-      itemCount: aggregated[root.slug],
-    }));
-    trending = trend;
+    trending = await getTrendingSearches([], 8);
   } catch {
-    categoryCounts = [];
     trending = [];
   }
 
-  return <SearchResultsView categoryCounts={categoryCounts} trending={trending} />;
+  /* Idle /search = Global Search only (no Browse Categories grid). */
+  return <SearchResultsView categoryCounts={[]} trending={trending} />;
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {

@@ -1,11 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { HomepageEligibility, type EligibilityRow } from "@/lib/homepage/homepage-eligibility";
+import { applyHolidayModeVisibilityFilter } from "@/lib/listings/holiday-mode-visibility-v1";
 import type { Product } from "@/lib/products/types";
 
 type RecentlyViewedRow = {
   viewed_at: string;
   products: EligibilityRow & {
     id: string;
+    seller_id?: string | null;
     slug: string;
     title: string;
     price: number;
@@ -70,7 +72,7 @@ export async function listRecentlyViewed(userId: string, limit = 12): Promise<Pr
         `
         viewed_at,
         products (
-          id, slug, title, description, status, price, condition, rating, review_count, views, likes,
+          id, seller_id, slug, title, description, status, price, condition, rating, review_count, views, likes,
           category_id, moderation_status,
           profiles!products_seller_id_fkey ( full_name, avatar_url, verified, email, username, account_status, role ),
           product_images ( url, thumbnail_url, is_primary, sort_order )
@@ -81,9 +83,11 @@ export async function listRecentlyViewed(userId: string, limit = 12): Promise<Pr
       .order("viewed_at", { ascending: false })
       .limit(limit);
 
-    return ((data as RecentlyViewedRow[] | null) ?? [])
+    const products = ((data as RecentlyViewedRow[] | null) ?? [])
       .map((row) => row.products)
-      .filter((product): product is NonNullable<RecentlyViewedRow["products"]> => product !== null)
+      .filter((product): product is NonNullable<RecentlyViewedRow["products"]> => product !== null);
+    const visible = await applyHolidayModeVisibilityFilter(supabase, products);
+    return visible
       .filter((product) => HomepageEligibility.isRowEligible(product))
       .map((product) => mapProduct(product));
   } catch {

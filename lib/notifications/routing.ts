@@ -172,6 +172,8 @@ export function resolveSmartNotificationHref(
       return NOTIFICATION_ROUTES.settings;
     case "support_reply":
       return NOTIFICATION_ROUTES.inbox;
+    case "review_received":
+      return NOTIFICATION_ROUTES.reviews;
     case "promotion":
     case "admin_announcement":
     case "business_lead":

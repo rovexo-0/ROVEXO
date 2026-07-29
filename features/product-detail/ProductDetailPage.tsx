@@ -35,6 +35,7 @@ import {
   useBuyNowNavigation,
 } from "@/features/checkout/hooks/use-buy-now-navigation";
 import { resolveStoreHrefFromSeller } from "@/lib/store/store-href";
+import { HOLIDAY_MODE_LISTING_UNAVAILABLE_MESSAGE } from "@/lib/listings/holiday-mode-visibility-v1";
 
 type ProductDetailPageProps = {
   product: ProductDetail;
@@ -44,6 +45,7 @@ type ProductDetailPageProps = {
 /**
  * ROVEXO Product Page — Cod Sânge v3.1 + Dynamic Offer Action Engine (UI).
  * Sold listings render the canonical public SOLD PDP (never Store unavailable).
+ * Holiday Mode sellers: listing remains; Buy Now / Make Offer / Checkout hidden.
  */
 export function ProductDetailPage({ product, similarProducts }: ProductDetailPageProps) {
   const router = useRouter();
@@ -52,12 +54,18 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
   const [buyNowError, setBuyNowError] = useState<string | null>(null);
   const capabilities = getTransactionCapabilities(product.transactionMode);
   const isSold = product.status === "sold";
+  const sellerOnHoliday = product.sellerOnHoliday === true;
   const isFixedPrice = product.listingType !== "auction";
   const outOfStock =
     isSold || product.availability === "out_of_stock" || product.stock <= 0;
-  const isPurchasable = !isSold && capabilities.buyNow && !outOfStock;
+  const isPurchasable =
+    !isSold && !sellerOnHoliday && capabilities.buyNow && !outOfStock;
   const offerEnabled =
-    !isSold && Boolean(product.acceptOffers) && isFixedPrice && isPurchasable;
+    !isSold &&
+    !sellerOnHoliday &&
+    Boolean(product.acceptOffers) &&
+    isFixedPrice &&
+    isPurchasable;
 
   const amount =
     product.listingType === "auction" && product.auctionCurrentBid != null
@@ -173,6 +181,16 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
             </div>
           ) : null}
 
+          {sellerOnHoliday && !isSold ? (
+            <div
+              className="pd-v1__sold-banner"
+              data-holiday-mode-banner
+              role="status"
+            >
+              <p className="pd-v1__sold-subtitle">{HOLIDAY_MODE_LISTING_UNAVAILABLE_MESSAGE}</p>
+            </div>
+          ) : null}
+
           <section aria-labelledby="pd-product-title" className="pd-v1__price-block">
             <h1 id="pd-product-title" className="pd-v1__title">
               {product.title}
@@ -205,37 +223,39 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
         </ScrollContainer>
       </div>
 
-      <ProductActionBarV1
-        transactionMode={product.transactionMode}
-        sold={isSold}
-        similarHref={similarHref}
-        sellerHref={sellerHref}
-        outOfStock={outOfStock}
-        negotiation={isSold ? null : negotiationView}
-        negotiationBusy={canNegotiateAsBuyer ? negotiation.busy : null}
-        buyDisabled={!isPurchasable || isOwnListing}
-        offerDisabled={!offerEnabled || isOwnListing}
-        buyState={buyState}
-        onContact={() => {
-          void fetch("/api/messages", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ productSlug: product.slug }),
-          })
-            .then(async (response) => {
-              const payload = (await response.json()) as { href?: string };
-              router.push(payload.href ?? "/inbox");
+      {!sellerOnHoliday ? (
+        <ProductActionBarV1
+          transactionMode={product.transactionMode}
+          sold={isSold}
+          similarHref={similarHref}
+          sellerHref={sellerHref}
+          outOfStock={outOfStock}
+          negotiation={isSold ? null : negotiationView}
+          negotiationBusy={canNegotiateAsBuyer ? negotiation.busy : null}
+          buyDisabled={!isPurchasable || isOwnListing}
+          offerDisabled={!offerEnabled || isOwnListing}
+          buyState={buyState}
+          onContact={() => {
+            void fetch("/api/messages", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ productSlug: product.slug }),
             })
-            .catch(() => router.push("/inbox"));
-        }}
-        onBuy={handleBuyNow}
-        onMakeOffer={handleMakeOffer}
-        onCancelOffer={() => {
-          if (!negotiationView.offerId) return;
-          void negotiation.cancel(negotiationView.offerId);
-        }}
-      />
-      {!isSold ? (
+              .then(async (response) => {
+                const payload = (await response.json()) as { href?: string };
+                router.push(payload.href ?? "/inbox");
+              })
+              .catch(() => router.push("/inbox"));
+          }}
+          onBuy={handleBuyNow}
+          onMakeOffer={handleMakeOffer}
+          onCancelOffer={() => {
+            if (!negotiationView.offerId) return;
+            void negotiation.cancel(negotiationView.offerId);
+          }}
+        />
+      ) : null}
+      {!isSold && !sellerOnHoliday ? (
         <OfferComposerSheet
           open={offerOpen}
           onClose={() => setOfferOpen(false)}

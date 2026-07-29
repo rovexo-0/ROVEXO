@@ -6,6 +6,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Product } from "@/lib/products/types";
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
+import { isSellerOnVacation } from "@/lib/settings/vacation";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 
@@ -25,6 +26,11 @@ export type PublicSellerProfile = {
   emailVerified: boolean;
   /** Public bio from seller_profiles (may be null). */
   bio: string | null;
+  /**
+   * Seller Holiday Mode ON — public listings hidden; profile shell remains.
+   * Driven by `user_settings.vacation_mode`.
+   */
+  holidayModeEnabled: boolean;
   listings: Product[];
   soldListings: Product[];
   /** Own-profile only — never exposed to other viewers. */
@@ -98,6 +104,7 @@ export async function getPublicSellerProfile(
     { data: taxProfile },
     { data: soldRows },
     publicBadges,
+    holidayModeEnabled,
   ] = await Promise.all([
     supabase
       .from("seller_profiles")
@@ -131,6 +138,7 @@ export async function getPublicSellerProfile(
     import("@/lib/badge/store")
       .then((m) => m.getPublicBadges(profile.id))
       .catch(() => []),
+    isSellerOnVacation(supabase, profile.id).catch(() => false),
   ]);
 
   const listings: Product[] = storeListings.items ?? [];
@@ -174,6 +182,7 @@ export async function getPublicSellerProfile(
     country: taxProfile?.country?.trim() || null,
     emailVerified: Boolean(profile.verified),
     bio: typeof sellerProfile?.bio === "string" ? sellerProfile.bio.trim() || null : null,
+    holidayModeEnabled: Boolean(holidayModeEnabled),
     listings,
     soldListings,
     draftListings: [],

@@ -40,6 +40,7 @@ export type ConversationProduct = {
 export type ConversationParticipant = {
   id: string;
   name: string;
+  username?: string | null;
   avatarUrl?: string | null;
   role: SenderRole;
   online: boolean;

@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -12,7 +13,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   BackLineIcon,
-  MoreLineIcon,
+  InfoLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { useChatRealtime } from "@/features/messages/hooks/use-chat-realtime";
@@ -27,9 +28,15 @@ import {
   ShippingLabelViewer,
   cacheShippingLabelUrl,
 } from "@/features/shipping/components/ShippingLabelViewer";
+import { NativeImageFileInput } from "@/components/ui/NativeImageFileInput";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
+import { isRenderableImageSrc } from "@/lib/media/is-valid-image-src";
+import { sanitizeNativeImagePickerId } from "@/lib/media/native-image-picker";
+import { resolvePublicProfileHref } from "@/lib/profile/public-profile-href";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
+import Link from "next/link";
 import {
   CONVERSATION_HUB_VERSION,
   INBOX_ROUTES,
@@ -61,7 +68,6 @@ import { formatCurrency } from "@/lib/wallet/utils";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { calculateOrderTotals } from "@/lib/orders/pricing";
 import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
-import { SafeImage } from "@/components/ui/SafeImage";
 /* conversation-hub-v1.css loads via styles/rovexo/index.css — do not dual-import (Turbopack CSS). */
 
 function formatCompactSystemWhen(iso: string): string {
@@ -141,6 +147,8 @@ function MessageBubble({
 }) {
   /** Canonical mockup: Buyer left · Seller right. */
   const isBuyer = message.senderRole === "buyer";
+  const photoSrc =
+    message.kind === "photo" && isRenderableImageSrc(message.content) ? message.content : null;
   const content = message.kind === "photo" ? "Shared photo" : message.content;
   const avatar = (
     <Avatar
@@ -157,7 +165,18 @@ function MessageBubble({
       {isBuyer ? avatar : null}
       <div className="conv-hub__msg-stack">
         <div className={cn("conv-hub__bubble", isBuyer ? "conv-hub__bubble--buyer" : "conv-hub__bubble--seller")}>
-          {content}
+          {photoSrc ? (
+            <SafeImage
+              src={photoSrc}
+              alt=""
+              width={200}
+              height={200}
+              className="conv-hub__bubble-photo"
+              sizes="200px"
+            />
+          ) : (
+            content
+          )}
         </div>
         <span className="conv-hub__msg-meta">
           <time dateTime={message.sentAt}>{formatMessageTime(message.sentAt)}</time>
@@ -210,6 +229,7 @@ export function ConversationHub({
   const { profile } = useProfile();
   const { refresh: refreshBadges } = useRealtimeNotifications();
   const { executeBuyNow } = useBuyNowNavigation();
+  const cameraPickerId = sanitizeNativeImagePickerId(`conv-hub-camera-${useId()}`);
 
   const [conversation, setConversation] = useState(initialConversation);
   const [order, setOrder] = useState<Order | null>(initialOrder);
@@ -218,9 +238,9 @@ export function ConversationHub({
   const [offers, setOffers] = useState<ConversationOfferView[]>(initialOffers ?? []);
   const [dispute, setDispute] = useState<ConversationDisputeView | null>(initialDispute);
   const [draft, setDraft] = useState("");
+  const [pendingPhoto, setPendingPhoto] = useState<{ file: File; previewUrl: string } | null>(null);
   const [sending, setSending] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [loadState, setLoadState] = useState<LoadState>("ready");
   const [historyCount, setHistoryCount] = useState(HISTORY_PAGE);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
@@ -836,11 +856,130 @@ export function ConversationHub({
     ],
   );
 
-  const handleSend = () => void sendMessage(draft);
+  const clearPendingPhoto = useCallback(() => {
+    setPendingPhoto((current) => {
+      if (current?.previewUrl) URL.revokeObjectURL(current.previewUrl);
+      return null;
+    });
+  }, []);
+
+  const handlePhotoSelected = useCallback(
+    (files: FileList) => {
+      const file = files.item(0);
+      if (!file || conversation.blocked || sending) return;
+      const previewUrl = URL.createObjectURL(file);
+      setPendingPhoto((current) => {
+        if (current?.previewUrl) URL.revokeObjectURL(current.previewUrl);
+        return { file, previewUrl };
+      });
+    },
+    [conversation.blocked, sending],
+  );
+
+  const sendPhoto = useCallback(async () => {
+    if (!pendingPhoto || sending || conversation.blocked) return;
+
+    if (demoMode) {
+      pushToast({
+        title: "Demo conversation — messaging is read-only.",
+        variant: "info",
+      });
+      return;
+    }
+
+    setSending(true);
+    const isFirstMessage = conversation.messages.length === 0;
+    const optimisticId = `optimistic-photo-${Date.now()}`;
+    const optimistic: ChatMessage = {
+      id: optimisticId,
+      senderRole: view.viewerRole,
+      kind: "photo",
+      content: pendingPhoto.previewUrl,
+      sentAt: new Date().toISOString(),
+      status: "sent",
+      reactions: {},
+    };
+
+    setConversation((current) => ({
+      ...current,
+      messages: [...current.messages, optimistic],
+      lastMessage: "Shared photo",
+      lastMessageAt: optimistic.sentAt,
+    }));
+
+    const attachment = pendingPhoto;
+    clearPendingPhoto();
+
+    try {
+      const body = new FormData();
+      body.append("file", attachment.file);
+      body.append("senderRole", view.viewerRole);
+      const response = await fetch(`/api/messages/${conversation.id}/photo`, {
+        method: "POST",
+        body,
+      });
+      const payload = (await response.json()) as {
+        conversation?: Conversation;
+        warning?: string | null;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        setConversation((current) => ({
+          ...current,
+          messages: current.messages.filter((message) => message.id !== optimisticId),
+        }));
+        setWarning(payload.error ?? "Unable to send photo.");
+        return;
+      }
+
+      if (payload.conversation) {
+        setConversation(payload.conversation);
+        if (isFirstMessage) {
+          trackGaEvent("chat_started", {
+            conversation_id: conversation.id,
+            item_id: conversation.product.slug,
+            item_name: conversation.product.title,
+          });
+        }
+      }
+      setWarning(payload.warning ?? null);
+      void refreshBadges();
+    } finally {
+      setSending(false);
+    }
+  }, [
+    pendingPhoto,
+    sending,
+    conversation.blocked,
+    conversation.id,
+    conversation.messages.length,
+    conversation.product.slug,
+    conversation.product.title,
+    demoMode,
+    pushToast,
+    view.viewerRole,
+    clearPendingPhoto,
+    refreshBadges,
+  ]);
+
+  const handleSend = () => {
+    if (pendingPhoto) {
+      void sendPhoto();
+      return;
+    }
+    void sendMessage(draft);
+  };
 
   const handleDraftChange = (value: string) => {
     setDraft(value);
   };
+
+  useEffect(() => {
+    return () => {
+      if (pendingPhoto?.previewUrl) URL.revokeObjectURL(pendingPhoto.previewUrl);
+    };
+  }, [pendingPhoto]);
 
   const patchOffer = async (offerId: string, action: "accept" | "decline" | "counter", amount?: number) => {
     if (demoMode) {
@@ -1184,6 +1323,9 @@ export function ConversationHub({
   }
 
   const headerPrice = itemPrice;
+  const participantProfileHref = resolvePublicProfileHref(
+    conversation.participant.username,
+  );
 
   /* Accepted + no order: Transaction Status Card owns CTA — skip empty sticky spacer. */
   const hideStickyActions =
@@ -1226,53 +1368,64 @@ export function ConversationHub({
             <BackLineIcon />
           </button>
           <div className="conv-hub__header-centre conv-hub__header-centre--identity">
-            <Avatar
-              src={view.participantAvatarUrl}
-              alt={view.participantName}
-              name={view.participantName}
-              size="sm"
-              className="conv-hub__header-avatar"
-            />
-            <div className="conv-hub__header-identity">
-              <p className="conv-hub__header-title">{view.participantName}</p>
-              <p
-                className={cn(
-                  "conv-hub__header-sub",
-                  conversation.participant.online && "conv-hub__header-sub--online",
-                )}
+            {participantProfileHref ? (
+              <Link
+                href={participantProfileHref}
+                className="conv-hub__header-profile-link"
+                aria-label={`View ${view.participantName} profile`}
               >
-                {conversation.participant.online ? (
-                  <span className="conv-hub__online-dot" aria-hidden />
-                ) : null}
-                {view.participantActiveLabel}
-              </p>
-            </div>
+                <Avatar
+                  src={view.participantAvatarUrl}
+                  alt={view.participantName}
+                  name={view.participantName}
+                  size="sm"
+                  className="conv-hub__header-avatar"
+                />
+                <div className="conv-hub__header-identity">
+                  <p className="conv-hub__header-title">{view.participantName}</p>
+                  <p
+                    className={cn(
+                      "conv-hub__header-sub",
+                      conversation.participant.online && "conv-hub__header-sub--online",
+                    )}
+                  >
+                    {conversation.participant.online ? (
+                      <span className="conv-hub__online-dot" aria-hidden />
+                    ) : null}
+                    {view.participantActiveLabel}
+                  </p>
+                </div>
+              </Link>
+            ) : (
+              <>
+                <Avatar
+                  src={view.participantAvatarUrl}
+                  alt={view.participantName}
+                  name={view.participantName}
+                  size="sm"
+                  className="conv-hub__header-avatar"
+                />
+                <div className="conv-hub__header-identity">
+                  <p className="conv-hub__header-title">{view.participantName}</p>
+                  <p
+                    className={cn(
+                      "conv-hub__header-sub",
+                      conversation.participant.online && "conv-hub__header-sub--online",
+                    )}
+                  >
+                    {conversation.participant.online ? (
+                      <span className="conv-hub__online-dot" aria-hidden />
+                    ) : null}
+                    {view.participantActiveLabel}
+                  </p>
+                </div>
+              </>
+            )}
           </div>
           <div className="conv-hub__menu">
-            <button
-              type="button"
-              className="conv-hub__icon-btn"
-              aria-label="Info"
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((open) => !open)}
-            >
-              <MoreLineIcon />
+            <button type="button" className="conv-hub__icon-btn" aria-label="Info">
+              <InfoLineIcon />
             </button>
-            {menuOpen && (order?.status === "delivered" || order?.status === "shipped") ? (
-              <div className="conv-hub__menu-panel" role="menu">
-                <button
-                  type="button"
-                  className="conv-hub__menu-item"
-                  role="menuitem"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    void runOrderAction("report_issue");
-                  }}
-                >
-                  Report issue
-                </button>
-              </div>
-            ) : null}
           </div>
         </header>
 
@@ -1390,7 +1543,14 @@ export function ConversationHub({
 
           {reviewOpen && order ? (
             <div className="conv-hub__inline-review" aria-label="Leave review">
-              <OrderReviewCard orderId={order.id} sellerName={view.sellerName} />
+              <OrderReviewCard
+                orderId={order.id}
+                sellerName={
+                  view.viewerRole === "seller"
+                    ? view.participantName || "buyer"
+                    : view.sellerName
+                }
+              />
             </div>
           ) : null}
 
@@ -1669,23 +1829,51 @@ export function ConversationHub({
               handleSend();
             }}
           >
+            {pendingPhoto ? (
+              <div className="conv-hub__composer-pending" data-photo-attachment="pending">
+                <div className="conv-hub__composer-pending-thumb">
+                  {/* Local object URL — plain img bypasses next/image remote restrictions. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={pendingPhoto.previewUrl}
+                    alt=""
+                    className="conv-hub__composer-pending-img"
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="conv-hub__composer-pending-remove"
+                  aria-label="Remove photo"
+                  disabled={sending}
+                  onClick={clearPendingPhoto}
+                >
+                  Remove
+                </button>
+              </div>
+            ) : null}
             <div className="conv-hub__composer-row">
               <button
                 type="button"
                 className="conv-hub__composer-cam"
                 aria-label="Add photo"
                 disabled={conversation.blocked || sending}
-                onClick={() =>
-                  pushToast({
-                    title: "Photo messages coming soon.",
-                    variant: "info",
-                  })
-                }
+                onClick={() => {
+                  if (conversation.blocked || sending) return;
+                  const input = document.getElementById(cameraPickerId);
+                  if (input instanceof HTMLInputElement) input.click();
+                }}
               >
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden fill="currentColor">
+                <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden fill="currentColor">
                   <path d="M9.4 5.5 8.2 7H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3.2l-1.2-1.5a1.5 1.5 0 0 0-1.2-.5H10.6a1.5 1.5 0 0 0-1.2.5ZM12 17.2A3.7 3.7 0 1 1 12 9.8a3.7 3.7 0 0 1 0 7.4Zm0-1.8a1.9 1.9 0 1 0 0-3.8 1.9 1.9 0 0 0 0 3.8Z" />
                 </svg>
               </button>
+              <NativeImageFileInput
+                id={cameraPickerId}
+                intent="camera"
+                placement="associated"
+                disabled={conversation.blocked || sending}
+                onFilesSelected={handlePhotoSelected}
+              />
               <label className="sr-only" htmlFor="conv-hub-composer">
                 Message about this order
               </label>
@@ -1709,7 +1897,7 @@ export function ConversationHub({
                 type="submit"
                 className="conv-hub__send"
                 aria-label="Send message"
-                disabled={conversation.blocked || sending || !draft.trim()}
+                disabled={conversation.blocked || sending || (!draft.trim() && !pendingPhoto)}
               >
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
                   <path d="M3.4 20.6 21 12 3.4 3.4l.1 6.6L15 12 3.5 14z" />

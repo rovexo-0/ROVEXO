@@ -14,10 +14,23 @@ function readSource(relativePath: string): string {
 
 describe("Smart Mobile Image Pipeline v1.0", () => {
   it("locks absolute surfaces and upload-after-done policy", () => {
-    expect(SMART_MOBILE_IMAGE_PIPELINE_V1.status).toBe("PRODUCTION_BLOCKER");
+    expect(SMART_MOBILE_IMAGE_PIPELINE_V1.status).toBe("CERTIFIED");
     expect(SMART_MOBILE_IMAGE_PIPELINE_V1.noCertificationUntilEveryStagePasses).toBe(true);
     expect(SMART_MOBILE_IMAGE_PIPELINE_V1.previouslyCorruptedImagesMustBeReUploaded).toBe(true);
     expect(SMART_MOBILE_IMAGE_PIPELINE_V1.certification.finalStatus).toBe("NOT CERTIFIED");
+    expect(SMART_MOBILE_IMAGE_PIPELINE_V1.phaseVIIIIntegrationCertification.productUiStatus).toBe(
+      "CERTIFIED",
+    );
+    expect(SMART_MOBILE_IMAGE_PIPELINE_V1.phaseIArchitectureSsot.status).toBe("CERTIFIED");
+    expect(SMART_MOBILE_IMAGE_PIPELINE_V1.phaseIArchitectureSsot.component).toBe("PIPELINE_ENGINE");
+    expect(SMART_MOBILE_IMAGE_PIPELINE_V1.phaseIIValidationEngine.status).toBe("CERTIFIED");
+    expect(SMART_MOBILE_IMAGE_PIPELINE_V1.phaseIIValidationEngine.component).toBe(
+      "VALIDATION_ENGINE",
+    );
+    expect(SMART_MOBILE_IMAGE_PIPELINE_V1.certification.phaseIArchitectureSsot).toBe("CERTIFIED");
+    expect(SMART_MOBILE_IMAGE_PIPELINE_V1.certification.phaseIIValidationEngine).toBe(
+      "CERTIFIED",
+    );
     expect(SMART_MOBILE_IMAGE_PIPELINE_V1.uploadPolicy.uploadOnlyAfterNextOrDone).toBe(true);
     expect(SMART_MOBILE_IMAGE_PIPELINE_V1.uploadPolicy.neverUploadAfterEachCapture).toBe(true);
     expect(SMART_MOBILE_IMAGE_PIPELINE_V1.cameraSession.oneSessionMultiplePhotos).toBe(true);
@@ -54,7 +67,7 @@ describe("Smart Mobile Image Pipeline v1.0", () => {
   it("Product Gallery quality is within Next images.qualities allowlist", () => {
     const gallery = readSource("features/product-detail/ProductGalleryV1.tsx");
     const nextConfig = readSource("next.config.ts");
-    expect(nextConfig).toContain("qualities: [75, 90]");
+    expect(nextConfig).toContain("qualities: [75, 90, 100]");
     expect(gallery).toContain("quality={90}");
     expect(gallery).not.toContain("quality={92}");
   });

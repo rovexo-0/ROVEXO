@@ -69,6 +69,7 @@ export type CanonicalNotificationKind =
   | "marketplace.business_verified"
   | "marketplace.promotional_campaign"
   | "marketplace.feature_announcement"
+  | "marketplace.review_received"
   | "marketplace.security_alert"
   | "marketplace.policy_update"
   | "marketplace.legal_update";
@@ -488,6 +489,19 @@ export const CANONICAL_NOTIFICATION_CATALOG: readonly CanonicalNotificationDefin
     eventType: "admin_announcement",
   },
   {
+    kind: "marketplace.review_received",
+    audience: "marketplace",
+    title: "Review received",
+    description: "You received a new review from a completed order.",
+    actionLabel: "View reviews",
+    entity: "account",
+    status: "review_received",
+    channels: ALL_CHANNELS,
+    control: "orders",
+    dbType: "review",
+    eventType: "review_received",
+  },
+  {
     kind: "marketplace.security_alert",
     audience: "marketplace",
     title: "Security alert",
@@ -579,6 +593,9 @@ export function resolveCanonicalNotificationHref(
     case "payout":
       return payoutHref(context);
     case "account":
+      if (def.kind === "marketplace.review_received") {
+        return "/account/reviews";
+      }
       return def.control === "security" ? "/account/security" : "/account/settings";
     case "policy":
       return "/legal";

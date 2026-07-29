@@ -1,33 +1,40 @@
 # ROVEXO Smart Multi Camera Session v1.0
 
-**STATUS: NEXT MAJOR MODULE | GATED | COD SÂNGE**
+**STATUS: PHASE I SESSION ENGINE CERTIFIED | READY FOR PHASE II (LOGIC ONLY) | UI GATE ACTIVE**
 
 SSOT: `lib/media/smart-multi-camera-session-v1.ts`  
-Prerequisite: `lib/media/smart-mobile-image-pipeline-v1.ts` → **CERTIFIED**
+Session Engine: `lib/media/smart-multi-camera-session/session-engine-v1.ts`  
+Engineering: `docs/modules/smart-multi-camera-session/MASTER_ENGINEERING_SPECIFICATION.md`  
+UI: `docs/modules/smart-multi-camera-session/MASTER_UI_SPECIFICATION.md`  
+Owner master: `docs/modules/smart-multi-camera-session/assets/smart-multi-camera-session-v1-owner-master.png`  
+Prerequisite for UI: `lib/media/smart-mobile-image-pipeline-v1.ts` → **CERTIFIED**
 
-## Absolute
+## Phase status
 
-Seller SHALL NEVER be forced into Take Photo → Return → Upload → repeat per photo.  
-That flow is **FORBIDDEN**.
+| Phase | Scope | Status |
+|-------|-------|--------|
+| I | Session Engine | **CERTIFIED** |
+| II | Logic Layer Only | **READY** |
+| UI / Camera / Sell | Presentation | **GATE ACTIVE** |
 
-## Canonical
+## Absolute Law
 
-ONE continuous camera session → 1…8 photos → live bottom thumbnails → delete/reorder → Done/Next → ONE automatic parallel upload → Ready to Publish.
+```
+ONE CAMERA SESSION · ONE PHOTO RAIL · ONE NEXT · ONE UPLOAD · ONE RETURN TO SELL
+```
 
-Upload starts **only** after Done/Next.
+Seller MUST NEVER leave the camera after every photo.  
+Camera stays open until **Next** or **Close**.
 
-## Implementation order (locked)
+## UI Gate (ACTIVE)
 
-1. Smart Mobile Image Pipeline → **CERTIFIED**  
-2. Smart Multi Camera Session → **IMPLEMENTED**  
-3. Android Certification → PASS  
-4. iPhone Certification → PASS  
-5. ROVEXO Photo Experience → **CERTIFIED**
+No camera preview · thumbnail rail · camera screen · Sell wiring until Image Pipeline CERTIFIED.
 
 ## Cursor must never
 
-- Implement Multi Camera Session before Image Pipeline CERTIFIED  
-- Restore per-photo leave-camera-and-upload loops  
-- Start upload after each capture  
-- Replace the native camera UI when OS multi-capture exists  
-- Mark CERTIFIED without Owner Android + iPhone Production PASS
+- Implement session UI while UI Gate is ACTIVE  
+- Restore per-photo leave-and-upload loops  
+- Upload after each capture  
+- Show a photo counter  
+- Claim module CERTIFIED without Android + iPhone + Owner PASS  
+- Redesign against Owner master image without Owner re-approval

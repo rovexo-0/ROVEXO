@@ -1,4 +1,4 @@
-import { createNotification } from "@/lib/notifications/create";
+import { emitSmartNotification } from "@/lib/notifications/events";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type ModerationNotificationInput = {
@@ -7,12 +7,15 @@ type ModerationNotificationInput = {
   subtitle: string;
   href?: string;
   detail?: string;
+  idempotencyKey: string;
 };
 
 export async function notifyModerationEvent(input: ModerationNotificationInput): Promise<void> {
-  await createNotification({
+  await emitSmartNotification({
     userId: input.userId,
-    type: "moderation",
+    eventType: "admin_announcement",
+    idempotencyKey: input.idempotencyKey,
+    notificationType: "moderation",
     title: input.title,
     subtitle: input.subtitle,
     href: input.href,
@@ -31,6 +34,7 @@ export async function notifySellerReviewCaseCreated(input: {
     subtitle: `“${input.productTitle}” was reported and is hidden from search while we review it.`,
     href: `/seller/review-center/${input.caseId}`,
     detail: "Open Review Center to respond or update your listing.",
+    idempotencyKey: `moderation-case-created-${input.caseId}-${input.sellerId}`,
   });
 }
 
@@ -52,6 +56,7 @@ export async function notifySuperAdminsNewReport(input: {
       subtitle: `“${input.productTitle}” — ${input.reason}`,
       href: `/super-admin/moderation?case=${input.queueId}`,
       detail: "A buyer report requires moderation review.",
+      idempotencyKey: `moderation-new-report-${input.queueId}-${profile.id}`,
     });
   }
 }
@@ -86,5 +91,6 @@ export async function notifySellerModerationResolved(input: {
     title: copy.title,
     subtitle: copy.subtitle,
     href: `/seller/review-center/${input.caseId}`,
+    idempotencyKey: `moderation-resolved-${input.caseId}-${input.outcome}-${input.sellerId}`,
   });
 }

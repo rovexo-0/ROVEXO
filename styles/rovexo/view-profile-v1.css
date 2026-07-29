@@ -19,8 +19,33 @@
 .vp-v1__header-actions {
   display: inline-flex;
   align-items: center;
-  gap: 0;
+  gap: 4px;
   margin-right: -4px;
+}
+
+/* Public Profile: Follow + ··· need auto width (not 48px header track). */
+.vp-v1 [data-canonical-page-header="v1"] > div {
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+}
+
+.vp-v1__header-follow {
+  display: inline-flex;
+  align-items: center;
+  max-width: min(148px, 42vw);
+}
+
+.vp-v1__header-follow [data-follow-button="follow-engine-v1.0"] {
+  width: auto;
+}
+
+.vp-v1__header-follow [data-follow-button="follow-engine-v1.0"] > button {
+  width: auto;
+  min-width: 6.5rem;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: 12px;
+  letter-spacing: 0.01em;
 }
 
 .vp-v1__avatar-wrap {
@@ -62,11 +87,64 @@
   border-radius: 999px;
 }
 
-.vp-v1__avatar-sheet {
-  padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+.vp-v1__avatar-native {
+  width: 100%;
+  min-width: 0;
+}
+
+.vp-v1__avatar-crop {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.vp-v1__avatar-crop-canvas {
+  width: 96px;
+  height: 96px;
+  border: 1px solid var(--vp-border);
+  background: #f8fafc;
+}
+
+.vp-v1__avatar-crop-zoom {
+  width: 100%;
+  max-width: 200px;
+}
+
+.vp-v1__avatar-crop-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+.vp-v1__avatar-crop-save,
+.vp-v1__avatar-crop-cancel {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vp-v1__avatar-crop-save {
+  color: #9333ea;
+}
+
+.vp-v1__avatar-crop-cancel {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.vp-v1__avatar-crop-error {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #dc2626;
 }
 
 .vp-v1__bio {
@@ -342,6 +420,10 @@
   margin-top: 4px;
 }
 
+.vp-v1__actions--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .vp-v1__follow-slot {
   min-width: 0;
   width: 100%;
@@ -537,6 +619,11 @@
 
 .vp-v1__menu-item--danger {
   color: #dc2626;
+}
+
+.vp-v1__menu-item--primary {
+  color: #9333ea;
+  font-weight: 600;
 }
 
 .vp-v1__menu-item--nav {
@@ -755,6 +842,39 @@
   gap: 12px 12px;
 }
 
+/**
+ * My Profile listings — image width refinement (Phase I).
+ * Scoped to owner My Profile grid only. Card shell / tokens elsewhere unchanged.
+ * Does not touch Homepage · Showcase · Search · Business · shared store CSS.
+ */
+.vp-v1[data-my-profile]
+  .vp-v1__grid[data-store-listing-cards="store"]
+  > [data-listing-card="rovexo"]
+  figure {
+  width: 92% !important;
+  max-width: 92% !important;
+  min-width: 0 !important;
+  height: var(--rx-store-img-h) !important;
+  min-height: var(--rx-store-img-h);
+  max-height: var(--rx-store-img-h);
+  flex: 0 0 var(--rx-store-img-h) !important;
+  margin-top: var(--rx-store-img-pad) !important;
+  margin-right: auto !important;
+  margin-bottom: 0 !important;
+  margin-left: auto !important;
+}
+
+.vp-v1[data-my-profile]
+  .vp-v1__grid[data-store-listing-cards="store"]
+  > [data-listing-card="rovexo"]
+  figure
+  img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
 @media (min-width: 768px) {
   .vp-v1 .vp-v1__grid.rx-listing-grid,
   .vp-v1__grid {
@@ -904,6 +1024,17 @@
   margin: 8px 0 0;
   font-size: 12px;
   color: var(--vp-muted);
+}
+
+.vp-v1__review-author {
+  color: inherit;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.vp-v1__review-author:hover {
+  color: var(--vp-purple);
+  text-decoration: underline;
 }
 
 .vp-v1__about-title {

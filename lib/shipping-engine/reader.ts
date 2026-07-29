@@ -22,7 +22,18 @@ export async function getShippingEngineSnapshot(): Promise<ShippingEngineSnapsho
   };
 }
 
-export async function getShippingOrderContext(orderId: string): Promise<ShippingEngineOrderContext | null> {
+export async function getShippingOrderContext(
+  orderId: string,
+  participantUserId?: string,
+): Promise<ShippingEngineOrderContext | null> {
+  if (participantUserId) {
+    const { assertOrderShippingParticipant } = await import(
+      "@/lib/shipping/assert-order-shipping-access.server"
+    );
+    const access = await assertOrderShippingParticipant(orderId, participantUserId);
+    if (!access.ok) return null;
+  }
+
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")

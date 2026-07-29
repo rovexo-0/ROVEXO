@@ -71,6 +71,8 @@ export type Order = {
   refundEstimatedArrival?: string;
   refundLastUpdated?: string;
   disputesDisabled: boolean;
+  /** Canonical Conversation Hub id when buyer↔seller thread exists for this order. */
+  conversationId?: string;
 };
 
 export type CreateOrderInput = {

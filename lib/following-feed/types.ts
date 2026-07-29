@@ -35,6 +35,8 @@ export type FollowingFeedCard = {
   price: number;
   originalPrice: number | null;
   imageUrl: string;
+  /** Full listing image for one-shot thumb→url fallback. */
+  imageFullUrl?: string;
   seller: FollowingFeedSeller;
   /** Grouping — cards with same groupKey may collapse in UI. */
   groupKey: string;

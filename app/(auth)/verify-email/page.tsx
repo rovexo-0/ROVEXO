@@ -20,6 +20,7 @@ export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageP
       description="We sent a confirmation link to your inbox. Verify your email to activate your account."
       action={resendVerificationEmail}
       submitLabel="Resend Verification Email"
+      showOAuth={false}
       footer={<AuthLink href="/login">Back to sign in</AuthLink>}
     >
       <AuthFieldGroup>

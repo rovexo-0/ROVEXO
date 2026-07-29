@@ -853,69 +853,7 @@
 
 
 
-/* ── Ideas hub shell ── */
-.ac-ideas-hub {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 4px 0 20px;
-}
-
-.ac-ideas-hub__tabs {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  -webkit-overflow-scrolling: touch;
-}
-
-.ac-ideas-hub__tab {
-  flex-shrink: 0;
-  min-height: 34px;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: #f8fafc;
-  color: #111111;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: background-color 120ms ease, color 120ms ease;
-}
-
-.ac-ideas-hub__tab[aria-current="page"] {
-  background: rgb(124 58 237 / 0.12);
-  color: #7c3aed;
-}
-
-.ac-ideas-hub__tab--action {
-  color: #7c3aed;
-  font-weight: 600;
-}
-
-.ac-ideas-hub__search {
-  width: 100%;
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid rgb(15 23 42 / 0.08);
-  border-radius: 999px;
-  background: #f8fafc;
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: #111111;
-  outline: none;
-}
-
-.ac-ideas-hub__search::placeholder {
-  color: #94a3b8;
-}
-
-.ac-ideas-hub__empty {
-  margin: 16px 0 0;
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: #94a3b8;
-  text-align: center;
-}
+/* ── Ideas hub shell (legacy unused — live UI uses CanonicalMenuRow) ── */
 
 @media (min-width: 768px) {
   .ac-canonical {

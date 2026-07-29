@@ -1,4 +1,4 @@
-import { dispatchNotification } from "@/lib/notifications/dispatch";
+import { emitSmartNotification } from "@/lib/notifications/events";
 import type { MigrationJob } from "@/lib/seller/migration/types";
 import { IMPORT_WIZARD_PATH } from "@/lib/seller/migration/config";
 
@@ -27,13 +27,16 @@ export async function notifyMigrationEvent(
     failed: job.errorMessage ?? "Migration could not be completed.",
   };
 
-  await dispatchNotification({
+  await emitSmartNotification({
     userId: sellerId,
-    type: "system",
+    eventType: "admin_announcement",
+    idempotencyKey: `migration-${job.id}-${event}`,
+    notificationType: "system",
     title: titles[event],
     subtitle: subtitles[event],
     href: jobHref(job.id),
     detail: JSON.stringify({ jobId: job.id, event }),
+    payload: { jobId: job.id, event },
   });
 }
 
@@ -66,12 +69,15 @@ export async function notifyPublishingEvent(
     failed: "Publishing could not be completed.",
   };
 
-  await dispatchNotification({
+  await emitSmartNotification({
     userId: sellerId,
-    type: "system",
+    eventType: "admin_announcement",
+    idempotencyKey: `migration-publish-${job.id}-${event}`,
+    notificationType: "system",
     title: titles[event],
     subtitle: subtitles[event],
     href: jobHref(job.id),
     detail: JSON.stringify({ jobId: job.id, event }),
+    payload: { jobId: job.id, event },
   });
 }

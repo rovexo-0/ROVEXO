@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/types/database";
 import type { DemoUserRecord } from "@/lib/demo-environment/users";
 import { demoProductImageUrl } from "@/lib/demo-environment/config";
-import { createNotification } from "@/lib/notifications/create";
+import { emitSmartNotification } from "@/lib/notifications/events";
 
 type ProductRow = {
   id: string;
@@ -232,16 +232,20 @@ export async function seedDemoMarketplaceData(input: {
   }
 
   for (const buyer of input.buyers) {
-    await createNotification({
+    await emitSmartNotification({
       userId: buyer.id,
-      type: "order",
+      eventType: "new_order",
+      idempotencyKey: `demo-order-update-${buyer.id}`,
+      notificationType: "order",
       title: "Demo order update",
       subtitle: "Your demo marketplace order is ready for QA review.",
       href: "/orders",
     });
-    await createNotification({
+    await emitSmartNotification({
       userId: buyer.id,
-      type: "message",
+      eventType: "new_message",
+      idempotencyKey: `demo-message-${buyer.id}`,
+      notificationType: "message",
       title: "New demo message",
       subtitle: "A seller replied in your demo conversation.",
       href: "/messages",

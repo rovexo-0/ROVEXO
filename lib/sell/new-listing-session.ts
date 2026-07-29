@@ -1,5 +1,5 @@
 import { clearSellDraft } from "@/lib/sell/draft-storage";
-import { clearDraftPhotos } from "@/lib/sell/draft-photo-storage";
+import { clearSellDraftPhotosViaProductIntegration } from "@/lib/product-integration/upload-storage-orchestration-v1";
 import { createEmptyDraft, type SellListingDraft } from "@/features/sell/types";
 import { createEmptyUserModified } from "@/lib/sell/suggestion-field-lock";
 import type { DescriptionEditState } from "@/lib/sell/smart-description-engine";
@@ -27,7 +27,7 @@ export async function createNewListingSession(
 ): Promise<NewListingSessionReset> {
   revokeDraftPhotoUrls(currentDraft);
   clearSellDraft();
-  await clearDraftPhotos();
+  await clearSellDraftPhotosViaProductIntegration();
 
   if (typeof window !== "undefined") {
     window.scrollTo(0, 0);

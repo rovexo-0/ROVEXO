@@ -1,15 +1,13 @@
 import Link from "next/link";
 import { HubPageMain } from "@/components/layout/HubPageMain";
-import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
-import { CategoryChip } from "@/components/ui/CategoryChip";
-import { getCategoryIcon } from "@/lib/categories/visuals";
 import type { CategoryPageData } from "@/lib/categories/server";
 import type { Product } from "@/lib/products/types";
 import { InternalLinksSection } from "@/features/seo/components/InternalLinksSection";
+import { MarketplaceNoProductsEmpty } from "@/features/search/components/MarketplaceNoProductsEmpty";
 import { popularBrowseLinks, relatedCategoryLinks } from "@/lib/seo/internal-links";
-import { SafeImage } from "@/components/ui/SafeImage";
+import "@/styles/rovexo/search-results-v1.css";
 
 type CategoryPageViewProps = {
   category: CategoryPageData;
@@ -17,81 +15,79 @@ type CategoryPageViewProps = {
   total: number;
 };
 
+/**
+ * Category page = Listings page (Phase I mobile-first simplification).
+ * Empty state: Owner Global Empty State Lock (Search & Browse).
+ */
 export function CategoryPageView({ category, products, total }: CategoryPageViewProps) {
-  const { node, breadcrumbs, subcategories, imageUrl } = category;
-  const hrefPrefix = breadcrumbs[breadcrumbs.length - 1]?.href ?? `/category/${node.slug}`;
+  const { node, breadcrumbs } = category;
   const slugPath = breadcrumbs.map((crumb) => crumb.slug);
   const internalLinkGroups = [
     relatedCategoryLinks(slugPath),
     popularBrowseLinks(),
   ];
 
-  return (
-    <HubPageMain className="flex w-full max-w-none flex-col gap-ds-6 px-[16px] py-ds-5 pt-[calc(7.5rem+env(safe-area-inset-top))]">
-      <Breadcrumbs items={breadcrumbs} />
-
-      <section className="relative overflow-hidden rounded-ds-xl bg-secondary">
-        <div className="relative aspect-[21/9] min-h-[140px] w-full md:min-h-[200px]">
-          <SafeImage
-            src={imageUrl}
-            alt={`${node.name} category on ROVEXO`}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-          <div className="absolute inset-0 flex flex-col justify-end p-ds-5">
-            <p className="text-sm text-white/80">{getCategoryIcon(node.slug)} Browse</p>
-            <h1 className="text-2xl font-bold text-white md:text-3xl">{node.name}</h1>
-            <p className="mt-ds-1 text-sm text-white/85">
-              {total.toLocaleString()} {total === 1 ? "listing" : "listings"}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {subcategories.length > 0 && (
-        <section aria-labelledby="subcategories-heading">
-          <h2 id="subcategories-heading" className="mb-ds-3 text-lg font-semibold text-text-primary">
-            Subcategories
-          </h2>
-          <div className="flex flex-wrap gap-ds-2">
-            {subcategories.map((subcategory) => (
-              <CategoryChip
-                key={subcategory.id}
-                label={subcategory.name}
-                href={`${hrefPrefix}/${subcategory.slug}`}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section aria-labelledby="listings-heading">
-        <h2 id="listings-heading" className="mb-ds-3 text-lg font-semibold text-text-primary">
-          Listings
-        </h2>
-        {products.length > 0 ? (
-          <div className="rx-listing-grid">
-            {products.map((product) => (
-              <ListingCard key={product.id} product={product} variant="grid" {...HP_CANONICAL_LISTING_PROPS} />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-ds-xl border border-dashed border-border bg-secondary/50 px-ds-5 py-ds-8 text-center">
-            <p className="text-sm font-medium text-text-primary">No listings in this category yet</p>
-            <p className="mt-ds-1 text-sm text-text-secondary">
-              Check back soon or browse related categories above.
-            </p>
-            <Link
-              href="/sell"
-              className="mt-ds-4 inline-flex min-h-ds-7 items-center rounded-ds-full bg-primary px-ds-5 text-sm font-semibold text-primary-foreground"
-            >
-              Sell in {node.name}
+  if (products.length === 0) {
+    return (
+      <HubPageMain className="srch-results srch-results--empty flex w-full max-w-none flex-col px-0 py-0">
+        <div data-empty-state="no-products-v1" className="flex min-h-0 flex-1 flex-col">
+          <div className="srch-results__empty-chrome">
+            <Link href="/browse" className="srch-results__empty-back" aria-label="Back to Browse">
+              <svg
+                className="srch-results__empty-back-icon"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                aria-hidden
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+              </svg>
+            </Link>
+            <Link href="/search" className="srch-results__empty-bar" aria-label="Search">
+              <span className="srch-results__empty-bar-icon" aria-hidden>
+                <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                  />
+                </svg>
+              </span>
+              <span className="srch-results__empty-bar-input" style={{ pointerEvents: "none" }}>
+                Search ROVEXO
+              </span>
             </Link>
           </div>
-        )}
+          <div className="srch-results__empty-body">
+            <MarketplaceNoProductsEmpty />
+          </div>
+        </div>
+      </HubPageMain>
+    );
+  }
+
+  return (
+    <HubPageMain className="flex w-full max-w-none flex-col gap-ds-3 px-[16px] py-ds-3">
+      <section aria-labelledby="listings-heading">
+        <div className="mb-ds-2 flex items-baseline justify-between gap-ds-2">
+          <h1 id="listings-heading" className="text-base font-semibold text-text-primary">
+            {node.name}
+          </h1>
+          <p className="shrink-0 text-xs text-text-secondary">
+            {total.toLocaleString()} {total === 1 ? "listing" : "listings"}
+          </p>
+        </div>
+        <div className="rx-listing-grid">
+          {products.map((product) => (
+            <ListingCard
+              key={product.id}
+              product={product}
+              variant="grid"
+              {...HP_CANONICAL_LISTING_PROPS}
+            />
+          ))}
+        </div>
       </section>
 
       <InternalLinksSection groups={internalLinkGroups} />

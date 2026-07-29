@@ -67,7 +67,7 @@ describe("Sell module hydration safety", () => {
     expect(source).toContain('addEventListener("visibilitychange"');
     expect(source).toContain('addEventListener("pageshow"');
     expect(source).toContain("persistSellDraftSnapshot");
-    expect(source).toContain("loadDraftPhotos");
+    expect(source).toContain("loadSellDraftPhotosViaProductIntegration");
   });
 
   it("uses deterministic server/client snapshots for publish button state", () => {

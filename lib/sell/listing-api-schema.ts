@@ -28,7 +28,11 @@ export const createListingSchema = z.object({
   brand: z.string().optional(),
   color: z.string().optional(),
   size: z.string().optional(),
-  condition: z.string().min(1),
+  // Sell core-6: condition optional in UI; coerce empty for DB NOT NULL.
+  condition: z
+    .string()
+    .optional()
+    .transform((value) => (value && value.trim().length > 0 ? value.trim() : "Good")),
   price: z.number().positive(),
   locationCity: z.string().min(1).max(80).optional(),
   acceptOffers: z.boolean(),

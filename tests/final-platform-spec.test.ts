@@ -56,8 +56,8 @@ describe("final platform spec surfaces", () => {
 
     expect(sections).toHaveLength(2);
     expect(sections[0]?.listings).toHaveLength(2);
-    expect(sections[0]?.profileHref).toBe("/store/alpha");
-    expect(sections[1]?.profileHref).toBe("/store/beta");
+    expect(sections[0]?.profileHref).toBe("/user/alpha");
+    expect(sections[1]?.profileHref).toBe("/user/beta");
   });
 
   it("labels showcase promotions on listing cards", () => {

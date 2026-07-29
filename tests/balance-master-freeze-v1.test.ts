@@ -44,33 +44,39 @@ describe("Balance Senior Audit — Wallet Production reuse", () => {
     const hub = readSource("features/wallet/components/WalletHubV1.tsx");
     const insights = readSource("features/wallet/components/WalletInsights.tsx");
     const txns = readSource("features/wallet/components/WalletRecentTransactions.tsx");
-    const bank = readSource("features/wallet/components/WalletConnectedBank.tsx");
+    const css = readSource("styles/rovexo/wallet-hub-v1.css");
 
     expect(hub).toContain("BALANCE_PAGE_NAME");
     expect(hub).toContain("wallet-v2__hero");
     expect(hub).toContain("Available Balance");
     expect(hub).toContain("Withdraw");
     expect(hub).toContain("Bank Account");
-    expect(hub).toContain("Add Bank");
-    expect(hub).toContain("Transactions");
-    expect(hub).toContain("Payment Methods");
     expect(hub).toContain("WalletInsights");
     expect(hub).toContain("WalletRecentTransactions");
-    expect(hub).toContain("WalletConnectedBank");
+    expect(hub).not.toContain("WalletConnectedBank");
+    expect(hub).not.toContain("Quick Actions");
+    expect(hub).not.toContain("Add Bank");
+    expect(hub).not.toContain("Payment Methods");
     expect(hub).toContain('data-wallet-ssot="docs/modules/wallet/wallet-v1-canonical-mockup.png"');
+    expect(hub).toContain('data-balance-visual="final-polish-v1.0"');
     expect(hub).not.toContain('title="Wallet"');
     expect(hub).not.toContain("balance-v1__available");
     expect(hub).not.toContain("CanonicalMenuRow");
 
-    expect(insights).toContain("Insights");
+    expect(css).toContain("/wallet/balance-hero-banking-v1.png");
+
     expect(insights).toContain("This Month");
     expect(insights).toContain("Next Payout");
-    expect(insights).toContain("View all");
+    expect(insights).toContain('className="sr-only"');
+    expect(insights).not.toContain("View all");
 
     expect(txns).toContain("No transactions yet");
-    expect(txns).toContain("View all");
-
-    expect(bank).toContain("Connect Bank Account");
+    expect(txns).toContain("Latest transactions");
+    expect(txns).toContain("ProductRowImage");
+    expect(txns).toContain("wallet-v2__txn-thumb");
+    expect(txns).toContain("Load more");
+    expect(txns).not.toContain("Order #");
+    expect(txns).not.toContain("View all");
   });
 
   it("fixes Full Width Engine conflict so Wallet Production owns padding + 100% width", () => {
@@ -81,6 +87,10 @@ describe("Balance Senior Audit — Wallet Production reuse", () => {
     expect(productionCss).toContain("wallet-v2__hero");
     expect(productionCss).toContain("--wallet-purple-start");
     expect(productionCss).toContain("wallet-v1-canonical-mockup.png");
+    expect(productionCss).toContain("/wallet/balance-hero-banking-v1.png");
+    expect(productionCss).toContain("repeat(4, minmax(0, 1fr))");
+    expect(productionCss).toContain("--wallet-txn-thumb: 56px");
+    expect(productionCss).toContain("wallet-v2__txn-thumb-media");
 
     expect(fullWidth).toContain("Wallet Production conflict fix");
     expect(fullWidth).toContain(

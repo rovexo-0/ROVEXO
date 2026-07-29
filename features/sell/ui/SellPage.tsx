@@ -19,8 +19,6 @@ import { SellPublishBar } from "@/features/sell/ui/SellPublishBar";
 import { PublishSuccessDialog } from "@/components/sell/PublishSuccessDialog";
 import { PublishingOverlay } from "@/components/sell/PublishingOverlay";
 import { sellFieldDomId } from "@/lib/sell/sell-progressive-flow";
-import { clearSellDraft } from "@/lib/sell/draft-storage";
-import { clearDraftPhotos } from "@/lib/sell/draft-photo-storage";
 import { SELL_ABSOLUTE_AUTHORITY_FREEZE_V1 } from "@/lib/sell/sell-absolute-authority-freeze-v1";
 
 /** Canonical sell page — Account design system only. */
@@ -47,14 +45,6 @@ function SellPageInner() {
   const [successOpen, setSuccessOpen] = useState(false);
 
   useSellPageBottomClearance(shellRef, publishBarRef);
-
-  useEffect(() => {
-    if (editListingId) return;
-    return () => {
-      clearSellDraft();
-      void clearDraftPhotos();
-    };
-  }, [editListingId]);
 
   useEffect(() => {
     const hash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "") : "";
@@ -170,8 +160,6 @@ function SellPageInner() {
 
 /** Canonical Sell Page — 100% Account / Settings / Profile design system. */
 export function SellPage({ editListingId, initialDraft }: SellPageProps) {
-  const freshSession = !editListingId && !initialDraft;
-
   return (
     <AccountCanonicalShell
       title="Sell an item"
@@ -185,7 +173,6 @@ export function SellPage({ editListingId, initialDraft }: SellPageProps) {
       <SellProvider
         editListingId={editListingId}
         initialDraft={initialDraft}
-        freshSession={freshSession}
       >
         <div
           data-sell-canonical={SELL_PAGE_CANONICAL_VERSION}

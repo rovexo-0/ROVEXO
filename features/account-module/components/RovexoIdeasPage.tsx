@@ -7,7 +7,6 @@ import {
   CanonicalInfoBlock,
   CanonicalInput,
   CanonicalTextarea,
-  cdsButtonClass,
 } from "@/src/components/canonical";
 import { useId, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
@@ -22,7 +21,7 @@ const IDEA_TABS = [
   { id: "newest", label: "Newest" },
   { id: "popular", label: "Popular" },
   { id: "following", label: "Following" },
-  { id: "new", label: "New Idea", action: true },
+  { id: "new", label: "New Idea" },
 ] as const;
 
 type IdeasTabId = (typeof IDEA_TABS)[number]["id"];
@@ -91,15 +90,14 @@ export function RovexoIdeasPage() {
     >
       <div data-rovexo-ideas-version={ROVEXO_IDEAS_DOM} data-full-width-surface="ideas">
         <AccountPageStack className="fw-engine__stack" aria-label={ROVEXO_IDEAS_MENU_TITLE}>
-          <CanonicalSection title="Views">
-            <div className="fw-engine__group flex flex-col">
+          <CanonicalSection title="Browse">
+            <div className="fw-engine__group">
               {IDEA_TABS.map((tab) => (
                 <CanonicalMenuRow
                   key={tab.id}
                   title={tab.label}
                   href={tab.id === "ideas" ? "/account/ideas" : `/account/ideas?tab=${tab.id}`}
                   value={activeTab === tab.id ? "Selected" : undefined}
-                  destructive={"action" in tab && tab.action}
                 />
               ))}
             </div>
@@ -118,7 +116,7 @@ export function RovexoIdeasPage() {
 
           {activeTab === "new" ? (
             <CanonicalSection title="Submit idea">
-              <form className="flex flex-col gap-ds-4" onSubmit={handleSubmit}>
+              <form className="flex w-full flex-col gap-ds-4" onSubmit={handleSubmit}>
                 <CanonicalInput
                   id="idea-subject"
                   label="Subject"
@@ -140,7 +138,7 @@ export function RovexoIdeasPage() {
                   maxLength={5000}
                   disabled={isPending}
                 />
-                <div className="cds-field">
+                <div className="cds-field w-full">
                   <span className="cds-field__label">Screenshot (optional)</span>
                   <NativeImageFileInput
                     id={screenshotInputId}
@@ -154,9 +152,8 @@ export function RovexoIdeasPage() {
                   <label
                     htmlFor={screenshotInputId}
                     className={cn(
-                      cdsButtonClass("outline"),
+                      "cds-button cds-button--outline cds-button--full mt-ds-2",
                       focusRing,
-                      "mt-ds-2 inline-flex",
                       isPending && "pointer-events-none opacity-50",
                     )}
                   >

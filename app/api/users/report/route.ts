@@ -1,7 +1,7 @@
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 import { requireApiAuth } from "@/lib/auth/session";
 import { createContentReport } from "@/lib/moderation/service";
-import { createNotification } from "@/lib/notifications/create";
+import { emitSmartNotification } from "@/lib/notifications/events";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -29,12 +29,15 @@ export async function POST(request: Request) {
       details: body.message,
     });
 
-    await createNotification({
+    await emitSmartNotification({
       userId: auth.user.id,
-      type: "system",
+      eventType: "support_reply",
+      idempotencyKey: `seller-report-ack-${auth.user.id}-${body.sellerId}`,
+      notificationType: "system",
       title: "Seller report received",
       subtitle: "We received your report and will review it.",
       href: "/help/category/safety",
+      payload: { sellerId: body.sellerId, reason: body.reason },
     });
 
     return NextResponse.json({ success: true });

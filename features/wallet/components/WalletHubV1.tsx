@@ -14,10 +14,7 @@ import { SUPREME_BLOOD_CODE_XIX_V1 } from "@/lib/supreme-blood-code-xix-v1";
 import { formatCurrency } from "@/lib/wallet/utils";
 import type { WalletData } from "@/lib/wallet/types";
 import {
-  BankLineIcon,
   ChevronRightLineIcon,
-  CreditCardLineIcon,
-  DocumentLineIcon,
   InfoLineIcon,
   WalletLineIcon,
 } from "@/components/icons/RvxLineIcons";
@@ -73,29 +70,6 @@ function RefreshLineIcon(props: IconProps) {
   );
 }
 
-function WithdrawUpIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <path d="M12 16V5" strokeLinecap="round" />
-      <path d="M7 9l5-5 5 5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5 19h14" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function AddBankIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
-      <path d="M3 10h18" strokeLinecap="round" />
-      <path d="M5 10v8M9 10v8M15 10v8M19 10v8" strokeLinecap="round" />
-      <path d="M3 18h18" strokeLinecap="round" />
-      <path d="M12 3l9 5H3l9-5Z" strokeLinejoin="round" />
-      <circle cx="18" cy="6" r="4" fill="currentColor" stroke="none" />
-      <path d="M18 4.5v3M16.5 6h3" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 const WalletInsights = dynamic(
   () => import("@/features/wallet/components/WalletInsights").then((mod) => mod.WalletInsights),
   { ssr: true, loading: () => <WalletSectionSkeleton label="Insights" tall /> },
@@ -107,12 +81,6 @@ const WalletRecentTransactions = dynamic(
       (mod) => mod.WalletRecentTransactions,
     ),
   { ssr: true, loading: () => <WalletSectionSkeleton label="Transactions" tall /> },
-);
-
-const WalletConnectedBank = dynamic(
-  () =>
-    import("@/features/wallet/components/WalletConnectedBank").then((mod) => mod.WalletConnectedBank),
-  { ssr: true, loading: () => <WalletSectionSkeleton label="Connected Bank" /> },
 );
 
 function WalletSectionSkeleton({ label, tall = false }: { label: string; tall?: boolean }) {
@@ -157,25 +125,6 @@ function BalanceMetricCard({
   );
 }
 
-function QuickActionCard({
-  href,
-  label,
-  icon,
-}: {
-  href: string;
-  label: string;
-  icon: ReactNode;
-}) {
-  return (
-    <Link href={href} className="wallet-v2__quick" aria-label={label}>
-      <span className="wallet-v2__quick-icon" aria-hidden>
-        {icon}
-      </span>
-      <span className="wallet-v2__quick-label">{label}</span>
-    </Link>
-  );
-}
-
 export function WalletHubV1({
   data,
   backHref = "/account",
@@ -187,8 +136,6 @@ export function WalletHubV1({
   const isBusiness = variant === "business";
   const withdrawable = resolveManualWithdrawableBalance(data);
   const { withdrawalSummary } = data;
-  const connectedBank = data.withdrawMethods.find((method) => method.connected) ?? null;
-  const walletVerified = data.connectStatus.connected && data.connectStatus.payoutsEnabled;
 
   return (
     <AccountCanonicalShell
@@ -210,6 +157,7 @@ export function WalletHubV1({
         data-wallet-ui="v1.0-canonical-mockup"
         data-wallet-visual="canonical-light"
         data-wallet-final-spec="v1.0-canonical-lock"
+        data-balance-visual="final-polish-v1.0"
         data-blood-code-xiii={SUPREME_BLOOD_CODE_XIII_V1.version}
         data-blood-code-xiv={SUPREME_BLOOD_CODE_XIV_V1.version}
         data-blood-code-xix={SUPREME_BLOOD_CODE_XIX_V1.version}
@@ -254,11 +202,9 @@ export function WalletHubV1({
                   if (withdrawable <= 0) event.preventDefault();
                 }}
               >
-                <WithdrawUpIcon />
                 Withdraw
               </Link>
               <Link href={WALLET_ROUTES.bankAccounts} className="wallet-v2__hero-btn wallet-v2__hero-btn--secondary">
-                <BankLineIcon />
                 Bank Account
               </Link>
             </div>
@@ -296,32 +242,12 @@ export function WalletHubV1({
           />
         </section>
 
-        <section className="wallet-v2__section wallet-v2__section--quick" aria-labelledby="wallet-quick-title">
-          <div className="wallet-v2__section-head">
-            <h2 id="wallet-quick-title" className="wallet-v2__section-title">
-              Quick Actions
-            </h2>
-          </div>
-          <div className="wallet-v2__quick-grid">
-            <QuickActionCard href={WALLET_ROUTES.bankAccounts} label="Add Bank" icon={<AddBankIcon />} />
-            <QuickActionCard href={WALLET_ROUTES.withdraw} label="Withdraw" icon={<WithdrawUpIcon />} />
-            <QuickActionCard href={WALLET_ROUTES.transactions} label="Transactions" icon={<DocumentLineIcon />} />
-            <QuickActionCard
-              href={WALLET_ROUTES.paymentMethods}
-              label="Payment Methods"
-              icon={<CreditCardLineIcon />}
-            />
-          </div>
-        </section>
-
         <WalletInsights
           sales={data.monthSummary.revenue.value}
           withdrawn={data.monthSummary.withdrawn.value}
           pending={data.pendingBalance}
           pendingAvailableAt={data.pendingAvailableAt}
         />
-
-        <WalletConnectedBank bank={connectedBank} verified={walletVerified} />
 
         <WalletRecentTransactions transactions={data.transactions} />
       </div>

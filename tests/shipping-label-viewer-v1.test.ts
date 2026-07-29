@@ -22,6 +22,11 @@ describe("Shipping Label Viewer v1.0", () => {
     expect(viewer).toContain("Shipping label unavailable.");
     expect(viewer).toContain("application/pdf");
     expect(viewer).toContain("view=Fit");
+    expect(viewer).toContain("Open label");
+    expect(viewer).toContain("If the label preview is blank");
+    expect(viewer).toContain("navigator.canShare");
+    expect(viewer).toContain("window.open(absolute");
+    expect(css).toContain(".slv-v1__pdf-fallback");
     expect(viewer).not.toContain("generateShippingLabel");
     expect(viewer).not.toContain('method: "POST"');
     expect(css).toContain(".slv-v1__shell");

@@ -3,6 +3,7 @@
 import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { memo, useCallback, type SyntheticEvent } from "react";
+import { useCardImageSrc } from "@/lib/media/use-card-image-src";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
 import {
   formatListingPrice,
@@ -50,6 +51,8 @@ export const StoreCard = memo(function StoreCard({ product, priority = false }: 
 
   const { isSaved, toggle } = useProductWatchlist(product.slug);
   const pinned = isSaved;
+  const { src: cardImageSrc, onError: onCardImageError, unoptimized: cardImageUnoptimized } =
+    useCardImageSrc(product.imageUrl, product.imageFullUrl);
 
   const pin = useCallback(
     (event: SyntheticEvent) => {
@@ -74,12 +77,14 @@ export const StoreCard = memo(function StoreCard({ product, priority = false }: 
       <Link href={href} className={css.link} aria-label={product.title}>
         <div className={css.media}>
           <SafeImage
-            src={product.imageUrl}
+            src={cardImageSrc}
             alt={product.title}
             fill
             priority={priority}
             loading={priority ? undefined : "lazy"}
             sizes="112px"
+            unoptimized={cardImageUnoptimized}
+            onError={onCardImageError}
           />
           <button
             type="button"

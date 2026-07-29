@@ -34,8 +34,23 @@ function subscribeNoop() {
   return () => undefined;
 }
 
+/** Stable client snapshot — React requires getSnapshot to return cached equals. */
+let clientWalletsSnapshot: DetectedWalletPayments = EMPTY_WALLETS;
+
+function getClientWalletsSnapshot(): DetectedWalletPayments {
+  const next = detectWalletPayments();
+  if (
+    next.applePay === clientWalletsSnapshot.applePay &&
+    next.googlePay === clientWalletsSnapshot.googlePay
+  ) {
+    return clientWalletsSnapshot;
+  }
+  clientWalletsSnapshot = next;
+  return clientWalletsSnapshot;
+}
+
 function useDetectedWallets(): DetectedWalletPayments {
-  return useSyncExternalStore(subscribeNoop, detectWalletPayments, () => EMPTY_WALLETS);
+  return useSyncExternalStore(subscribeNoop, getClientWalletsSnapshot, () => EMPTY_WALLETS);
 }
 
 export type WalletPaymentMethodsPageProps = {

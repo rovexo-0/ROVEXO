@@ -69,9 +69,21 @@ describe("Pre-launch production config", () => {
     const listSource = readFileSync(path.join(process.cwd(), "app/seller/orders/page.tsx"), "utf8");
     expect(listSource).toContain('permanentRedirect("/orders")');
 
+    // Phase I Conversation Routing: seller order detail is redirect-only → Hub.
+    // Order ownership still resolves via fetchOrderForUser inside the server helper.
     const detailSource = readFileSync(path.join(process.cwd(), "app/seller/orders/[id]/page.tsx"), "utf8");
     expect(detailSource).toContain("getProfile()");
-    expect(detailSource).toContain("fetchOrderForUser");
+    expect(detailSource).toContain("resolveOrderConversationHrefForUser");
+    expect(detailSource).toContain("redirect(");
+    expect(detailSource).not.toContain("OrderDetailPageShell");
+    expect(detailSource).not.toContain("fetchOrderForUser");
+
+    const resolver = readFileSync(
+      path.join(process.cwd(), "lib/orders/resolve-order-conversation-href.server.ts"),
+      "utf8",
+    );
+    expect(resolver).toContain("fetchOrderForUser");
+    expect(resolver).toContain("buildOrderConversationHref");
   });
 
   it("blocks checkout when seller is on vacation", () => {

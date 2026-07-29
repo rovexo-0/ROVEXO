@@ -98,13 +98,24 @@ export async function preparePlaywrightChromium() {
     throw new Error("playwright install chromium failed");
   }
 
-  // Best-effort local deps; do not fail closed for interactive local machines.
-  if (process.platform === "linux" && (process.env.CI || !process.stdin.isTTY)) {
+  // Best-effort system deps. Skip by default — workspace `.local-chromium-libs`
+  // already provides libnspr4.so. Apt install-deps fails without root/TTY.
+  if (
+    process.platform === "linux" &&
+    process.env.PLAYWRIGHT_INSTALL_DEPS === "1" &&
+    (process.env.CI || !process.stdin.isTTY)
+  ) {
     run("npx", ["playwright", "install-deps", "chromium"]);
   }
 
   console.log("[playwright] Chromium install complete.");
-  return localLibsEnv();
+  const libs = localLibsEnv();
+  if (!libs.LD_LIBRARY_PATH && process.platform === "linux") {
+    console.warn(
+      "[playwright] WARNING: libnspr4.so not found under .local-chromium-libs/lib — Chromium may fail to launch.",
+    );
+  }
+  return libs;
 }
 
 const isMain =

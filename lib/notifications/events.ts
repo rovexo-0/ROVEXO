@@ -58,7 +58,8 @@ export type SmartNotificationEventType =
   | "follow_new_listing"
   | "follow_price_reduced"
   | "follow_listing_relisted"
-  | "follow_seller_badge";
+  | "follow_seller_badge"
+  | "review_received";
 
 type EmitSmartNotificationInput = {
   userId: string;
@@ -74,6 +75,8 @@ type EmitSmartNotificationInput = {
   payload?: Record<string, unknown>;
   /** Optional override for Follow Notifications grouping. */
   groupKey?: string;
+  /** Optional email delivered only via deliverNotificationChannels. */
+  email?: { to: string; subject: string; body: string };
 };
 
 type PreferenceCategory =
@@ -137,6 +140,8 @@ function eventPreferenceCategory(eventType: SmartNotificationEventType): Prefere
     case "follow_price_reduced":
     case "follow_listing_relisted":
     case "follow_seller_badge":
+      return "orders";
+    case "review_received":
       return "orders";
     default:
       return "orders";
@@ -274,6 +279,7 @@ export async function emitSmartNotification(input: EmitSmartNotificationInput): 
     priority,
     silent,
     groupKey,
+    email: input.email,
     skipPush: !(settings?.push_enabled ?? false),
   });
 

@@ -7,7 +7,6 @@
 
 import { existsSync, readFileSync } from "node:fs";
 import { workspacePath } from "@/lib/server/workspace-path";
-import { join } from "node:path";
 import { mustUseVirtualPayments, mustUseVirtualWallet } from "@/lib/full-demo/security";
 import { isBankEncryptionConfigured } from "@/lib/wallet/crypto";
 import { isStripeConfigured } from "@/lib/stripe/server";

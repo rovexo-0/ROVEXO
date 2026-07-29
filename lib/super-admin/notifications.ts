@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { dispatchNotification } from "@/lib/notifications/dispatch";
+import { emitSmartNotification } from "@/lib/notifications/events";
 import { auditSuperAdminAction } from "@/lib/super-admin/audit";
 import type { PushPriority } from "@/lib/push/vapid";
 
@@ -44,8 +44,8 @@ export async function broadcastSuperAdminNotification(input: {
   let skipped = 0;
 
   const kind = input.kind ?? "platform";
-  const priority: PushPriority = kind === "emergency" ? "emergency" : kind === "category" ? "normal" : "high";
-  const silent = kind !== "emergency";
+  const broadcastStamp = `${input.actorId}-${Date.now()}`;
+  const eventType = kind === "emergency" ? "security_alert" : "admin_announcement";
 
   const countryFilter = input.country?.trim().toUpperCase();
 
@@ -78,14 +78,15 @@ export async function broadcastSuperAdminNotification(input: {
       }
     }
 
-    await dispatchNotification({
+    await emitSmartNotification({
       userId: profile.id,
-      type: "system",
+      eventType,
+      idempotencyKey: `admin-broadcast-${broadcastStamp}-${profile.id}`,
+      notificationType: "system",
       title: input.title,
       subtitle: input.subtitle,
       href: "/notifications",
-      priority,
-      silent,
+      payload: { audience: input.audience, kind, actorId: input.actorId },
       email: profile.email
         ? {
             to: profile.email,
@@ -157,12 +158,15 @@ export async function sendSuperAdminEmailNotification(input: {
     throw new Error("User email not found.");
   }
 
-  await dispatchNotification({
+  await emitSmartNotification({
     userId: input.userId,
-    type: "system",
+    eventType: "admin_announcement",
+    idempotencyKey: `admin-email-${input.actorId}-${input.userId}-${Date.now()}`,
+    notificationType: "system",
     title: input.title,
     subtitle: input.subtitle,
     href: "/notifications",
+    payload: { actorId: input.actorId },
     email: {
       to: profile.email,
       subject: input.title,

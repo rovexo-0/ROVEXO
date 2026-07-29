@@ -9,6 +9,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getEligibleListings } from "@/lib/listings/eligible-listings";
+import { isSellerOnVacation } from "@/lib/settings/vacation";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 import type { Product } from "@/lib/products/types";
@@ -35,6 +36,8 @@ export type StoreRecord = {
   salesCount: number;
   followerCount: number;
   followingCount: number;
+  /** Seller Holiday Mode — public listings hidden via visibility SSOT. */
+  holidayModeEnabled: boolean;
   listings: Product[];
   soldListings: Product[];
 };
@@ -100,7 +103,7 @@ async function loadStoreFromProfile(profile: {
 
   const supabase = await createClient();
 
-  const [{ data: sellerProfile }, storeListings, { data: business }, soldResult] =
+  const [{ data: sellerProfile }, storeListings, { data: business }, soldResult, holidayModeEnabled] =
     await Promise.all([
       supabase
         .from("seller_profiles")
@@ -128,6 +131,7 @@ async function loadStoreFromProfile(profile: {
         .eq("is_demo", false)
         .order("created_at", { ascending: false })
         .limit(24),
+      isSellerOnVacation(supabase, profile.id).catch(() => false),
     ]);
 
   const listings = storeListings.items ?? [];
@@ -159,6 +163,7 @@ async function loadStoreFromProfile(profile: {
     // Phase 3 will wire live counters — do not select DB columns that may be absent.
     followerCount: 0,
     followingCount: 0,
+    holidayModeEnabled: Boolean(holidayModeEnabled),
     listings,
     soldListings,
   };

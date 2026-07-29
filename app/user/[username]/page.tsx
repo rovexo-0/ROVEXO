@@ -52,6 +52,7 @@ function storeToPublicProfile(store: StoreRecord): PublicSellerProfile {
     country: null,
     emailVerified: store.verified,
     bio: store.bio,
+    holidayModeEnabled: store.holidayModeEnabled,
     listings: store.listings,
     soldListings: store.soldListings,
     draftListings: [],
@@ -106,6 +107,20 @@ async function loadViewProfilePayload(routeParam: string): Promise<ViewProfilePa
         }).catch(() => [])
       : [];
 
+    // Owner still sees ACTIVE listings while Holiday Mode hides them from buyers.
+    let ownerListings = profile.listings;
+    if (isOwnProfile && profile.holidayModeEnabled) {
+      const { getEligibleListings } = await import("@/lib/listings/eligible-listings");
+      const owned = await getEligibleListings({
+        surface: "seller",
+        sellerId: profile.id,
+        page: 1,
+        pageSize: 24,
+        includeHolidayModeListings: true,
+      }).catch(() => null);
+      if (owned) ownerListings = owned.items;
+    }
+
     const [followCounts, viewerFollowing] = await Promise.all([
       getFollowCounts(profile.id).catch(() => ({
         followerCount: 0,
@@ -118,6 +133,7 @@ async function loadViewProfilePayload(routeParam: string): Promise<ViewProfilePa
 
     const safeProfile: PublicSellerProfile = {
       ...profile,
+      listings: isOwnProfile ? ownerListings : profile.listings,
       draftListings,
       badgeLabel: profile.badgeLabel ?? null,
       followerCount: followCounts.followerCount,
@@ -146,7 +162,13 @@ async function loadViewProfilePayload(routeParam: string): Promise<ViewProfilePa
     // Soft fail — still show Public Profile shell (empty store / reviews).
     return {
       kind: "ok",
-      profile: { ...profile, draftListings: [], listings: [], soldListings: [] },
+      profile: {
+        ...profile,
+        draftListings: [],
+        listings: [],
+        soldListings: [],
+        holidayModeEnabled: profile.holidayModeEnabled ?? false,
+      },
       reviews: [],
       trustSummary: failClosedPublicTrustSummary(profile.id),
       isOwnProfile: false,

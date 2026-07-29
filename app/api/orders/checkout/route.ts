@@ -41,6 +41,17 @@ export async function POST(request: Request) {
       );
     }
 
+    // Platform Integration P0 — Confirm & Pay requires Buy Now session or pending order.
+    const hasCheckoutSession = Boolean(body.checkoutSessionId?.trim());
+    const hasPendingOrder = Boolean(body.orderId?.trim());
+    if (!hasCheckoutSession && !hasPendingOrder) {
+      const mapped = mapOrderCheckoutErrorToRvx("Checkout session required.");
+      return NextResponse.json(
+        { success: false, code: mapped.code, error: mapped.userFacing },
+        { status: 400 },
+      );
+    }
+
     const result = await createOrderCheckoutSession({
       buyerId: auth.user.id,
       productSlug: body.productSlug,

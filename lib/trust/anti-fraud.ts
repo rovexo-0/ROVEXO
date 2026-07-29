@@ -36,7 +36,12 @@ export async function detectReviewFraud(input: {
     return { blocked: true, reason: "self_purchase" };
   }
 
-  if (order.buyer_id !== input.reviewerId || order.seller_id !== input.revieweeId) {
+  // Dual-slot Reviews Authority: buyer→seller OR seller→buyer.
+  const buyerReviewsSeller =
+    order.buyer_id === input.reviewerId && order.seller_id === input.revieweeId;
+  const sellerReviewsBuyer =
+    order.seller_id === input.reviewerId && order.buyer_id === input.revieweeId;
+  if (!buyerReviewsSeller && !sellerReviewsBuyer) {
     return { blocked: true, reason: "invalid_participants" };
   }
 

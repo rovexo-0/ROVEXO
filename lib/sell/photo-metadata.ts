@@ -1,14 +1,22 @@
+/**
+ * ROVEXO Sell photo-metadata — DELEGATE ONLY (Product Integration Phase II).
+ *
+ * Metadata Engine (Smart Mobile Image Pipeline) is the sole metadata owner.
+ * This module retains Sell draft types + analysis helpers and delegates
+ * metadata projection to Product Integration. No ownership of metadata logic.
+ */
+
 import type { SellPhoto } from "@/features/sell/types";
+import type { MetadataRecord } from "@/lib/media/smart-mobile-image-pipeline/metadata-types-v1";
+import {
+  projectMetadataRecordToSellDraft,
+  type SellDraftPhotoMetadata,
+  type SellDraftPhotoOrientation,
+} from "@/lib/product-integration/sell-photo-metadata-adapter-v1";
 
-export type PhotoOrientation = "landscape" | "portrait" | "square";
+export type PhotoOrientation = SellDraftPhotoOrientation;
 
-export type PhotoMetadataEntry = {
-  id: string;
-  width: number;
-  height: number;
-  orientation: PhotoOrientation;
-  dominantColour: string | null;
-};
+export type PhotoMetadataEntry = SellDraftPhotoMetadata;
 
 export type PhotoAnalysisSnapshot = {
   count: number;
@@ -20,11 +28,6 @@ export type PhotoAnalysisSnapshot = {
   /** Deterministic heuristic — uniform backgrounds score higher. */
   backgroundQuality: "good" | "fair" | "unknown";
 };
-
-function orientationFromDimensions(width: number, height: number): PhotoOrientation {
-  if (width === height) return "square";
-  return width > height ? "landscape" : "portrait";
-}
 
 function fingerprintPhoto(photo: SellPhoto): string {
   const name = photo.file?.name ?? photo.storagePath ?? photo.id;
@@ -74,35 +77,13 @@ export function buildPhotoAnalysisSnapshot(
   };
 }
 
-/** Read image dimensions client-side after upload (canvas-free). */
-export async function readPhotoDimensions(file: File): Promise<{ width: number; height: number } | null> {
-  if (typeof window === "undefined" || !file.type.startsWith("image/")) return null;
-
-  return new Promise((resolve) => {
-    const url = URL.createObjectURL(file);
-    const image = new Image();
-    image.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve({ width: image.naturalWidth, height: image.naturalHeight });
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(url);
-      resolve(null);
-    };
-    image.src = url;
-  });
-}
-
+/**
+ * Compatibility wrapper — delegates to Product Integration Metadata Engine projection.
+ * Callers must supply a certified MetadataRecord (never invent dimensions here).
+ */
 export function createPhotoMetadataEntry(
-  photo: SellPhoto,
-  dimensions: { width: number; height: number },
+  record: MetadataRecord,
   dominantColour: string | null = null,
 ): PhotoMetadataEntry {
-  return {
-    id: photo.id,
-    width: dimensions.width,
-    height: dimensions.height,
-    orientation: orientationFromDimensions(dimensions.width, dimensions.height),
-    dominantColour,
-  };
+  return projectMetadataRecordToSellDraft(record, dominantColour);
 }

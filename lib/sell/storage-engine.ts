@@ -1,27 +1,19 @@
-import {
-  deleteListingImage,
-  uploadListingImage,
+/**
+ * Sell storage-engine — DELEGATE ONLY (Product Integration Phase IV).
+ *
+ * Upload/storage orchestration is owned by Product Integration.
+ * This module re-exports orchestration APIs for compatibility.
+ * Sell feature code must import from `@/lib/product-integration`.
+ */
+
+export {
+  SELL_UPLOAD_RETRY_DELAYS_MS as UPLOAD_RETRY_DELAYS_MS,
+  deleteSellListingPhoto as deleteListingImage,
+  uploadSellListingPhoto as uploadListingImageWithBackoff,
   type UploadedImageResult,
-} from "@/lib/listings/upload-client";
+} from "@/lib/product-integration/upload-storage-orchestration-v1";
 
-/** SELL-107 — upload retry backoff (seconds → ms). */
-export const UPLOAD_RETRY_DELAYS_MS = [2000, 5000, 10000] as const;
+export type { UploadSellListingPhotoInput as StorageUploadInput } from "@/lib/product-integration/upload-storage-orchestration-v1";
 
-export type StorageUploadInput = {
-  file: File;
-  productId?: string;
-  sessionId?: string;
-  onProgress?: (progress: number) => void;
-};
-
-export async function uploadListingImageWithBackoff(
-  input: StorageUploadInput,
-): Promise<UploadedImageResult> {
-  return uploadListingImage({
-    ...input,
-    maxRetries: UPLOAD_RETRY_DELAYS_MS.length,
-    retryDelaysMs: [...UPLOAD_RETRY_DELAYS_MS],
-  });
-}
-
-export { deleteListingImage, uploadListingImage, type UploadedImageResult };
+/** @deprecated Use uploadSellListingPhoto from Product Integration. */
+export { uploadSellListingPhoto as uploadListingImage } from "@/lib/product-integration/upload-storage-orchestration-v1";

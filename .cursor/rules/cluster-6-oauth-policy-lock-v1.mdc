@@ -1,0 +1,31 @@
+---
+description: Cluster 6 — OAuth Policy Lock (Email-only public UI · Google/Apple gated · Facebook deferred)
+globs: lib/auth/**,features/auth/**,app/(auth)/**,app/auth/**
+alwaysApply: false
+---
+
+# ROVEXO CLUSTER 6 — OAUTH POLICY LOCK v1.0
+
+**STATUS: OWNER APPROVED | POLICY LOCKED**
+
+SSOT: `lib/auth/cluster-6-oauth-policy-lock-v1.ts`
+
+## Public v1.0 authentication (ONLY)
+
+Email · Password · Password reset · Email verification · Session management
+
+## Code-ready · UI-gated (not public)
+
+Google OAuth · Apple OAuth — implementation + `/auth/callback` preserved.  
+Forbidden on Login · Register · Verify Email · Forgot · Reset without Owner approval.
+
+## Deferred to v1.1
+
+Facebook OAuth
+
+## Cursor must never
+
+- Restore public OAuth buttons on auth screens without Owner approval  
+- Delete OAuth action/callback infrastructure  
+- Introduce a second auth system or new public auth surface  
+- Treat Supabase provider config as permission to show OAuth UI

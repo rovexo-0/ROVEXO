@@ -53,9 +53,9 @@ describe("ROVEXO v1.0 — Homepage Final Freeze", () => {
     expect(isValidHomepageStoreHref("/user/null")).toBe(false);
     expect(isValidHomepageListingHref("/listing/iphone-18-pro")).toBe(true);
     expect(listingHrefFromSlug("undefined")).toBeNull();
-    // SSOT: PRODUCT.seller_id → store_slug → /store/...
+    // Public Profile: username → /user/... · fallback store_slug → /store/...
     expect(resolveShowcaseProfileHref(product({ sellerUsername: "alpha", sellerId: "s1" }))).toBe(
-      "/store/alpha",
+      "/user/alpha",
     );
     expect(
       resolveShowcaseProfileHref(
@@ -65,7 +65,7 @@ describe("ROVEXO v1.0 — Homepage Final Freeze", () => {
           sellerId: "8346d7b6-19e9-4e93-a60a-fb93452a19ad",
         }),
       ),
-    ).toBe("/store/acme");
+    ).toBe("/user/acme");
     expect(
       resolveShowcaseProfileHref(
         product({

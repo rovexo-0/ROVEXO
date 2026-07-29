@@ -43,7 +43,14 @@ function mapMenuItems(items: MenuItemConfig[]): NavItem[] {
 function resolveActiveTab(pathname: string, active?: BottomNavTab): BottomNavTab {
   if (active) return active;
   if (pathname.startsWith("/sell")) return "sell";
-  if (pathname.startsWith("/search")) return "search";
+  if (
+    pathname.startsWith("/browse") ||
+    pathname.startsWith("/search") ||
+    pathname.startsWith("/category") ||
+    pathname.startsWith("/categories")
+  ) {
+    return "search";
+  }
   // 4th tab id is "saved" but label is Inbox (canonical bottom nav).
   if (pathname.startsWith("/inbox") || pathname.startsWith("/messages")) return "saved";
   // Account-tree surfaces (Profile master) — not Inbox.
@@ -135,7 +142,7 @@ export function BottomNavigation({
   const hasScrollBehavior = Boolean(scroll);
   const localizedDefaults: NavItem[] = [
     { id: "home", label: t("nav.home"), href: "/", icon: "home" },
-    { id: "search", label: t("nav.search"), href: "/search", icon: "search" },
+    { id: "search", label: t("nav.browse"), href: "/browse", icon: "search" },
     { id: "saved", label: t("nav.saved"), href: INBOX_ROUTES.hub, icon: "saved" },
     { id: "account", label: t("nav.account"), href: "/account", icon: "account" },
   ];

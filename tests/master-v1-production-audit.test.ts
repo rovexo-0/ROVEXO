@@ -63,6 +63,9 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
     expect(fields).not.toContain("/legal/cookie-policy");
     expect(fields).not.toContain("copy.cookieLabel");
     expect(actions).toContain("marketing_emails");
+    expect(actions).toContain('terms: z.literal("on"');
+    expect(actions).not.toContain("formData.get(\"gdpr\")");
+    expect(actions).not.toContain("gdpr: z.literal");
   });
 
   it("reports UK compliance readiness", () => {

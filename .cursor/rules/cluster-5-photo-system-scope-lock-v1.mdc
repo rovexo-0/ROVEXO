@@ -1,0 +1,37 @@
+---
+description: Cluster 5 — Photo System Scope Lock (OS picker SSOT · Multi Camera UI deferred)
+globs: lib/product-integration/**,features/sell/ui/SellPhoto*.tsx,features/sell/context/SellProvider.tsx
+alwaysApply: false
+---
+
+# ROVEXO CLUSTER 5 — PHOTO SYSTEM SCOPE LOCK v1.0
+
+**STATUS: OWNER APPROVED | PRODUCTION READY | FROZEN**
+
+SSOT: `lib/product-integration/cluster-5-photo-system-scope-lock-v1.ts`
+
+## Canonical acquisition (v1.0)
+
+- Native OS Gallery Picker  
+- Native OS Camera Picker **only when exposed by the OS**
+
+## Canonical flow
+
+User → OS Picker → Smart Mobile Image Pipeline → Product Integration → Upload → Supabase Storage → Draft → Publish
+
+## Mandatory active
+
+Compression · Thumbnail · EXIF · Orientation · Retry · Validation · Smart Mobile Image Pipeline
+
+## Deferred to v1.1
+
+Standalone Smart Multi Camera UI · Advanced in-app camera workflow  
+UI gate remains **ACTIVE**. `pipeline.certification.finalStatus` stays **NOT CERTIFIED** so Multi Camera UI stays closed. Removing Multi Camera UI must not affect canonical upload.
+
+## Forbidden
+
+Second listing upload workflow · Sell bypass of Product Integration · Promoting Multi Camera UI to v1.0 without Owner approval
+
+## Cursor must never
+
+Treat Multi Camera UI as required for v1.0 · create parallel Sell upload paths · reopen deferred camera UI without Owner approval · reopen Production Freeze without Owner approval

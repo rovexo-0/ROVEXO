@@ -276,6 +276,16 @@
   min-height: var(--rx-listing-seller-size, 22px);
 }
 
+.sellerProfileLink {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+}
+
 .rating {
   display: inline-flex;
   align-items: center;

@@ -10,6 +10,7 @@ export type Review = {
   createdAt: string;
   updatedAt?: string;
   reviewerName?: string;
+  reviewerUsername?: string | null;
   reviewerAvatarUrl?: string | null;
   /** Every ROVEXO order-backed review is a Verified Purchase. */
   verifiedPurchase: boolean;

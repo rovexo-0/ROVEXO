@@ -1,0 +1,61 @@
+---
+description: Cluster 7 — Wallet & Payments Scope Lock (Commerce Engine authority · Stripe processor · deferred wallet-pay)
+globs: lib/wallet/**,lib/commerce-engine/**,lib/stripe/**,lib/payments/**,lib/payments-engine/**,features/wallet/**,app/wallet/**,app/balance/**,app/api/wallet/**,app/api/stripe/**
+alwaysApply: false
+---
+
+# ROVEXO CLUSTER 7 — WALLET & PAYMENTS SCOPE LOCK v1.0
+
+**STATUS: OWNER APPROVED | PRODUCTION READY | FROZEN | CERTIFIED**
+
+SSOT: `lib/wallet/cluster-7-wallet-payments-scope-lock-v1.ts`
+
+## Money authority (LOCKED)
+
+| Layer | Role |
+|---|---|
+| Commerce Engine | Sole financial authority |
+| Ledger | Sole financial ledger |
+| Wallet | Balance projection layer |
+| Settlement | Release authority |
+| Withdrawal Engine | Payout authority |
+| Stripe | External payment processor only |
+
+## Canonical money flow (v1.0 ONLY)
+
+Buyer → Checkout → Stripe Payment → Commerce Engine → Ledger → Wallet → Settlement Policy → Withdrawal Engine → Stripe Payout
+
+## Enabled v1.0
+
+Wallet · Balance · Pending · Transactions · Buyer payment summary · Seller earnings · Platform fee · Stripe Checkout · Settlement · Withdrawals · Financial audit trail
+
+## Deferred to v1.1
+
+Buyer Wallet Pay · Multi-currency ledger  
+(`wallet-payment` remains `enabled: false` in payments-engine registry)
+
+## Legacy
+
+| Item | Class |
+|---|---|
+| Dual Stripe webhook mount | Compatibility (same handler) |
+| Withdraw v3–v6 | Compatibility (re-export → v7) |
+| `balance-v1.css` | Dead (not wired) |
+
+## Forbidden
+
+Second ledger · Orders writing wallet without Commerce Engine · Wallet UI mutating ledger · Admin config bypassing money authority · Alternative live payment processor without Owner approval
+
+## Certification gates
+
+| Gate | Status |
+|---|---|
+| Architecture Scope Lock | PASS |
+| Technical Certification | PASS |
+| Owner Visual QA | PASS |
+| Production Freeze | APPLIED |
+| productionStatus | CERTIFIED |
+
+## Cursor must never
+
+Create a parallel money path · enable Buyer Wallet Pay in v1.0 · introduce multi-currency ledger in v1.0 · reopen Production Freeze without Owner approval

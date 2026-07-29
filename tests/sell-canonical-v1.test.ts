@@ -52,28 +52,28 @@ describe("sell page Absolute Authority v1.0", () => {
     expect(page.indexOf("<SellPricingBlock")).toBeLessThan(page.indexOf("<SellParcelBlock"));
   });
 
-  it("photo rail Micro Freeze is 76×114 · 4:5 · radius 16 · gap 8", () => {
+  it("photo rail tiles are 112×168 · 4:5 · radius 16 · gap 10", () => {
     const rail = readSource("features/sell/ui/SellPhotoRail.tsx");
     const css = readSource("styles/rovexo/sell.css");
-    expect(rail).toContain("h-[114px] w-[76px]");
+    expect(rail).toContain("h-[168px] w-[112px]");
     expect(rail).toContain("sell-photo-tile--uploaded");
     expect(rail).toContain("sell-photo-tile__delete");
     expect(rail).toContain("sell-photo-section__header");
     expect(rail).not.toContain("h-11 w-11 place-items-center rounded-ds-full bg-black/60");
-    expect(css).toContain("--sell-photo-w: 76px");
-    expect(css).toContain("--sell-photo-h: 114px");
+    expect(css).toContain("--sell-photo-w: 112px");
+    expect(css).toContain("--sell-photo-h: 168px");
     expect(css).toContain("--sell-photo-radius: 16px");
-    expect(css).toContain("--sell-photo-gap: 8px");
+    expect(css).toContain("--sell-photo-gap: 10px");
     expect(css).toContain("object-fit: cover");
     expect(css).toContain("object-position: center center");
     expect(css).toContain(".sell-photo-tile__delete");
-    expect(css).toContain("width: 18px");
-    expect(css).toContain("top: 5px");
-    expect(css).toContain("right: 5px");
+    expect(css).toContain("width: 22px");
+    expect(css).toContain("top: 6px");
+    expect(css).toContain("right: 6px");
     expect(css).toContain("rgba(0, 0, 0, 0.38)");
     expect(css).toContain("rgba(255, 255, 255, 0.18)");
     expect(css).toContain("border: 1px solid #ececec");
-    expect(css).toContain("gap: 8px");
+    expect(css).toContain("gap: var(--sell-photo-gap)");
   });
 
   it("category picker keeps Suggested + Choose another + Search", () => {

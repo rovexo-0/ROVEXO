@@ -46,6 +46,15 @@ describe("AUTH Register — Cod Sânge v1.0", () => {
     expect(screen).toContain("Receive ROVEXO news and offers (OPTIONAL)");
     expect(screen).not.toContain("AuthHeading");
     expect(layout).toContain("auth-register-route");
+
+    const actions = readSource("lib/auth/actions.ts");
+    expect(actions).toContain("supabase.auth.signUp");
+    expect(actions).toContain('terms: z.literal("on"');
+    expect(actions).not.toContain("gdpr: z.literal");
+    expect(actions).not.toContain('formData.get("gdpr")');
+    expect(actions).toContain("marketing_emails");
+    expect(actions).toContain('identities?.length === 0');
+    expect(actions).toContain("/verify-email");
   });
 
   it("uses fade-only register CSS without scale or bounce", () => {

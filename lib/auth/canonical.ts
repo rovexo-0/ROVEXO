@@ -43,6 +43,20 @@ export {
   type AuthUiCompactPremiumV14,
 } from "@/lib/auth/auth-ui-compact-premium-v1.4";
 
+export {
+  CLUSTER_6_OAUTH_POLICY_LOCK_V1,
+  assertCluster6OauthPolicyOrBlock,
+  getCluster6OauthPolicyLockSnapshot,
+  type Cluster6OauthPolicyLockV1,
+} from "@/lib/auth/cluster-6-oauth-policy-lock-v1";
+
+export {
+  CLUSTER_6_AUTHENTICATION_SCOPE_LOCK_V1,
+  assertCluster6AuthenticationArchitectureOrBlock,
+  getCluster6AuthenticationScopeLockSnapshot,
+  type Cluster6AuthenticationScopeLockV1,
+} from "@/lib/auth/cluster-6-authentication-scope-lock-v1";
+
 export const AUTH_MODULE_VERSION = AUTH_MASTER_SPEC_VERSION;
 
 export const AUTH_ROUTES = {

@@ -33,7 +33,7 @@ export function AuthForm({
   initialError,
   beforeSubmit,
   successContent,
-  showOAuth = true,
+  showOAuth = false,
   oauthNext,
   oauthDividerLabel,
 }: AuthFormProps) {

@@ -17,6 +17,7 @@
 
 import Image, { type ImageProps, type StaticImageData } from "next/image";
 import { useState, type CSSProperties, type SyntheticEvent } from "react";
+import { isFailedImageSrc, markFailedImageSrc } from "@/lib/media/failed-image-src";
 import { isRenderableImageSrc } from "@/lib/media/is-valid-image-src";
 import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
 
@@ -27,6 +28,7 @@ type ImageSrc = string | StaticImageData | null | undefined;
 function isUsableSafeImageSrc(src: ImageSrc): src is string | StaticImageData {
   if (src == null) return false;
   if (typeof src !== "string") return true;
+  if (isFailedImageSrc(src)) return false;
   return isRenderableImageSrc(src);
 }
 
@@ -98,14 +100,17 @@ export function SafeImage({
       className={className}
       style={style}
       onLoad={(event) => {
-        /* Some optimizer/host failures report complete with 0×0 — treat as broken. */
+        /* Optimizer/host failures and corrupt Storage objects can report
+         * complete with 0×0 or 1×1 placeholders — treat as broken. */
         const el = event.currentTarget;
-        if (el.naturalWidth === 0 || el.naturalHeight === 0) {
+        if (el.naturalWidth <= 2 || el.naturalHeight <= 2) {
+          markFailedImageSrc(sourceKey);
           setFailedKey(sourceKey);
         }
         onLoad?.(event);
       }}
       onError={(event: SyntheticEvent<HTMLImageElement, Event>) => {
+        markFailedImageSrc(sourceKey);
         setFailedKey(sourceKey);
         onError?.(event);
       }}

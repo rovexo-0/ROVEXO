@@ -103,6 +103,7 @@ function buildCard(
     price: product.price,
     originalPrice: product.originalPrice ?? null,
     imageUrl: product.imageUrl,
+    imageFullUrl: product.imageFullUrl ?? product.imageUrl,
     seller: toSeller(product, badgeLabel),
     groupKey: `${product.sellerId}:${eventType}:${dayKey}`,
     groupCount: 1,

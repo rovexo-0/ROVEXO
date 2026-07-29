@@ -1,3 +1,10 @@
+/**
+ * Listing image upload client — transport only for prepared files.
+ *
+ * Product Integration owns upload preparation / orchestration (Phase IV).
+ * This module owns HTTP transport to `/api/listings/upload` (protocol unchanged).
+ */
+
 import {
   compressListingImage,
   createListingThumbnail,
@@ -13,17 +20,23 @@ export type UploadedImageResult = {
   sessionId: string;
 };
 
-export async function uploadListingImage(input: {
+export type UploadPreparedListingImageInput = {
   file: File;
+  thumbnail: File;
   productId?: string;
   sessionId?: string;
   onProgress?: (progress: number) => void;
   maxRetries?: number;
   retryDelaysMs?: number[];
-}): Promise<UploadedImageResult> {
-  validateClientImage(input.file);
-  const compressed = await compressListingImage(input.file);
-  const thumbnail = await createListingThumbnail(compressed);
+};
+
+/**
+ * Transport: POST prepared file + thumbnail. No re-compression.
+ * FormData contract unchanged (file · thumbnail · productId · sessionId).
+ */
+export async function uploadPreparedListingImage(
+  input: UploadPreparedListingImageInput,
+): Promise<UploadedImageResult> {
   const sessionId = input.sessionId ?? safeRandomUUID();
   const maxRetries = input.maxRetries ?? 3;
   const retryDelaysMs = input.retryDelaysMs;
@@ -35,8 +48,8 @@ export async function uploadListingImage(input: {
       input.onProgress?.(Math.round((attempt / maxRetries) * 30));
 
       const formData = new FormData();
-      formData.append("file", compressed, compressed.name || "listing.jpg");
-      formData.append("thumbnail", thumbnail, "listing-thumb.jpg");
+      formData.append("file", input.file, input.file.name || "listing.jpg");
+      formData.append("thumbnail", input.thumbnail, "listing-thumb.jpg");
       if (input.productId) formData.append("productId", input.productId);
       formData.append("sessionId", sessionId);
 
@@ -62,6 +75,32 @@ export async function uploadListingImage(input: {
   }
 
   throw lastError ?? new Error("Upload failed.");
+}
+
+/**
+ * Legacy convenience: validate + compress + thumbnail, then transport.
+ * Sell / Product Integration must use Product Integration orchestration instead.
+ */
+export async function uploadListingImage(input: {
+  file: File;
+  productId?: string;
+  sessionId?: string;
+  onProgress?: (progress: number) => void;
+  maxRetries?: number;
+  retryDelaysMs?: number[];
+}): Promise<UploadedImageResult> {
+  validateClientImage(input.file);
+  const compressed = await compressListingImage(input.file);
+  const thumbnail = await createListingThumbnail(compressed);
+  return uploadPreparedListingImage({
+    file: compressed,
+    thumbnail,
+    productId: input.productId,
+    sessionId: input.sessionId,
+    onProgress: input.onProgress,
+    maxRetries: input.maxRetries,
+    retryDelaysMs: input.retryDelaysMs,
+  });
 }
 
 export async function deleteListingImage(input: {

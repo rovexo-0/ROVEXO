@@ -1,4 +1,5 @@
-import { createNotification } from "@/lib/notifications/create";
+import { emitSmartNotification } from "@/lib/notifications/events";
+import { getMessageHref } from "@/lib/orders/status";
 
 export async function notifyResolutionUpdate(input: {
   orderId: string;
@@ -7,25 +8,32 @@ export async function notifyResolutionUpdate(input: {
   status: string;
   message: string;
 }): Promise<void> {
-  const href = `/orders/${input.orderId}`;
+  const buyerHref = getMessageHref(input.orderId, "buyer");
+  const sellerHref = getMessageHref(input.orderId, "seller");
 
   if (input.buyerId) {
-    await createNotification({
+    await emitSmartNotification({
       userId: input.buyerId,
-      type: "order",
+      eventType: "buyer_reported_issue",
+      idempotencyKey: `resolution-${input.orderId}-buyer-${input.status}`,
+      notificationType: "order",
       title: "Resolution update",
       subtitle: input.message,
-      href,
+      href: buyerHref,
+      payload: { orderId: input.orderId, status: input.status },
     });
   }
 
   if (input.sellerId) {
-    await createNotification({
+    await emitSmartNotification({
       userId: input.sellerId,
-      type: "order",
+      eventType: "buyer_reported_issue",
+      idempotencyKey: `resolution-${input.orderId}-seller-${input.status}`,
+      notificationType: "order",
       title: "Resolution update",
       subtitle: input.message,
-      href: `/seller/orders/${input.orderId}`,
+      href: sellerHref,
+      payload: { orderId: input.orderId, status: input.status },
     });
   }
 }

@@ -11,13 +11,15 @@ import {
   type ShowcaseSellerSection,
 } from "@/lib/homepage/showcase-sellers";
 import { HomepageEligibility } from "@/lib/homepage/homepage-eligibility";
+import { applyHolidayModeVisibilityFilter } from "@/lib/listings/holiday-mode-visibility-v1";
+import { isSellerOnVacation } from "@/lib/settings/vacation";
 import { isPromotionActive } from "@/lib/promotions/format";
 import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { resolveTransactionModeMapForCategoryIds } from "@/lib/transaction-mode/server";
 import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
 import { toProductDetail } from "@/lib/products/detail";
 import { resolveProductLocationCity, stripListingLocationMarker } from "@/lib/sell/listing-location";
-import { PRODUCT_IMAGE_FALLBACK } from "@/lib/media/product-image";
+import { resolveCardImageSources } from "@/lib/media/product-image";
 import { isForbiddenMarketplaceInventory } from "@/lib/listings/forbidden-marketplace-inventory";
 import type {
   DeliveryCarrier,
@@ -49,15 +51,14 @@ const PRODUCT_SELECT = `
   brands ( name )
 `;
 
-function primaryImage(row: ProductRow): string {
+function primaryCardImages(row: ProductRow) {
   const sorted = [...(row.product_images ?? [])].sort(
     (a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order,
   );
-  // Cards render at ~176px, so prefer the pre-generated 400px thumbnail over the
-  // full-resolution upload (up to 2000px). This ships a far smaller source to the
-  // image optimizer and to the browser without any visual change.
+  // Cards prefer the 400px thumbnail; imageFullUrl keeps product_images.url for
+  // one-shot client fallback when the thumb object is missing/invalid.
   const primary = sorted[0];
-  return primary?.thumbnail_url ?? primary?.url ?? PRODUCT_IMAGE_FALLBACK;
+  return resolveCardImageSources(primary?.thumbnail_url, primary?.url);
 }
 
 function deriveTrustScore(rating: number, verified: boolean): number {
@@ -68,6 +69,7 @@ function deriveTrustScore(rating: number, verified: boolean): number {
 function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MODE): Product {
   const verified = row.profiles?.verified ?? false;
   const rating = Number(row.rating);
+  const cardImages = primaryCardImages(row);
 
   return {
     id: row.id,
@@ -99,7 +101,8 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     reviewCount: row.review_count,
     views: row.views,
     likes: row.likes,
-    imageUrl: primaryImage(row),
+    imageUrl: cardImages.imageUrl,
+    imageFullUrl: cardImages.imageFullUrl,
     imageCount: row.product_images?.length ?? 0,
     sections: (row.sections ?? []) as Product["sections"],
     isFeatured: isPromotionActive(row.featured_until),
@@ -307,7 +310,8 @@ export async function getProductsBySection(
     total = fallback.count ?? rawRows.length;
   }
 
-  const mapped = rawRows.map((row) => mapProductRow(row));
+  const visibleRows = await applyHolidayModeVisibilityFilter(supabase, rawRows);
+  const mapped = visibleRows.map((row) => mapProductRow(row));
   const withModes = await attachTransactionModes(mapped);
   const enriched = await enrichProductsWithTrust(withModes);
   const items = HomepageEligibility.filterProducts(enriched);
@@ -361,7 +365,8 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
       break;
     }
 
-    for (const row of batch) {
+    const visibleBatch = await applyHolidayModeVisibilityFilter(supabase, batch);
+    for (const row of visibleBatch) {
       if (HomepageEligibility.isRowEligible(row)) {
         eligibleRows.push(row);
         if (eligibleRows.length >= pageSize) break;
@@ -439,7 +444,9 @@ export async function getShowcaseSellerSections(): Promise<ShowcaseSellerSection
     return [];
   }
 
-  const rows = HomepageEligibility.filterEligibleRows(data as ProductRow[]);
+  const rows = HomepageEligibility.filterEligibleRows(
+    await applyHolidayModeVisibilityFilter(supabase, data as ProductRow[]),
+  );
   const mapped = rows.map((row) => mapProductRow(row));
   const withModes = await attachTransactionModes(mapped);
   const enriched = await enrichProductsWithTrust(withModes);
@@ -512,7 +519,14 @@ export const getProductBySlug = cache(async function getProductBySlug(
   }
 
   const detail = mapProductDetail(row, mode);
-  return enrichProductDetailWithSellerRating(detail);
+  const withRating = await enrichProductDetailWithSellerRating(detail);
+  try {
+    const onHoliday = await isSellerOnVacation(supabase, withRating.sellerId);
+    if (!onHoliday) return withRating;
+    return { ...withRating, sellerOnHoliday: true };
+  } catch {
+    return withRating;
+  }
 });
 
 async function enrichProductDetailWithSellerRating(

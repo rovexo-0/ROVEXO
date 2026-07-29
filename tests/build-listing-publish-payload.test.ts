@@ -87,6 +87,28 @@ describe("buildListingPublishPayload", () => {
 
     expect(parsed.inventory).toEqual({ stock: 3, lowStockAlert: 5 });
   });
+  it("defaults condition to Good when Sell leaves it empty (core-6 optional)", () => {
+    const draft = createEmptyDraft();
+    draft.title = "Optional condition item";
+    draft.description = "Publish must not fail when condition is empty.";
+    draft.categoryPath = resolveCategoryPathBySlugs(["shoes", "trainers", "nike"]);
+    draft.condition = "";
+    draft.price = "15";
+    draft.shippingMethod = "delivery_available";
+
+    const payload = buildListingPublishPayload(draft, [
+      {
+        id: "1",
+        previewUrl: "https://example.com/a.jpg",
+        url: "https://example.com/a.jpg",
+        storagePath: "seller/temp/a.jpg",
+        uploaded: true,
+      },
+    ]);
+
+    expect(payload.condition).toBe("Good");
+    expect(createListingSchema.parse({ ...payload, condition: "" }).condition).toBe("Good");
+  });
 });
 
 describe("parsePublishPrice", () => {

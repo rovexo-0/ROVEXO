@@ -1,26 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import type { SVGProps } from "react";
 import { cn } from "@/lib/cn";
-import { walletTransactionCategory } from "@/lib/transaction-hub/seller-wallet";
+import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { formatCurrency, formatWalletDate } from "@/lib/wallet/utils";
 import type { WalletTransaction } from "@/lib/wallet/types";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 
 const PAGE_SIZE = 6;
-
-const TABS = [
-  { id: "all", label: "All" },
-  { id: "sale", label: "Sales" },
-  { id: "withdrawal", label: "Withdrawals" },
-  { id: "refund", label: "Refunds" },
-  { id: "other", label: "Other" },
-] as const;
-
-type TabId = (typeof TABS)[number]["id"];
 
 type WalletRecentTransactionsProps = {
   transactions: WalletTransaction[];
@@ -40,58 +30,22 @@ function EmptyTxnIcon(props: IconProps) {
   );
 }
 
-function matchesTab(transaction: WalletTransaction, tab: TabId): boolean {
-  if (tab === "all") return true;
-  if (tab === "sale") return transaction.type === "sale";
-  if (tab === "withdrawal") return transaction.type === "withdrawal";
-  if (tab === "refund") return transaction.type === "refund";
-  return transaction.type === "fee" || transaction.type === "promotion";
+function ChevronDownIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden {...props}>
+      <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
 }
 
+/**
+ * Balance hub recent transactions — visual density aligned to Inbox/Orders list.
+ * Presentation only: thumb 56×56 · title · date · amount · chevron. Engine untouched.
+ */
 export function WalletRecentTransactions({ transactions }: WalletRecentTransactionsProps) {
-  const [tab, setTab] = useState<TabId>("all");
-  const [visibleByTab, setVisibleByTab] = useState<Record<TabId, number>>({
-    all: PAGE_SIZE,
-    sale: PAGE_SIZE,
-    withdrawal: PAGE_SIZE,
-    refund: PAGE_SIZE,
-    other: PAGE_SIZE,
-  });
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const hasAnyTransactions = transactions.length > 0;
-
-  const filtered = useMemo(
-    () => transactions.filter((transaction) => matchesTab(transaction, tab)),
-    [tab, transactions],
-  );
-
-  const visibleCount = visibleByTab[tab];
-  const visible = filtered.slice(0, visibleCount);
-  const hasMore = visibleCount < filtered.length;
-
-  useEffect(() => {
-    const node = sentinelRef.current;
-    if (!node || !hasMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setVisibleByTab((current) => ({
-            ...current,
-            [tab]: current[tab] + PAGE_SIZE,
-          }));
-        }
-      },
-      { rootMargin: "120px" },
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [hasMore, tab, visible.length]);
-
-  const selectTab = (next: TabId) => {
-    setTab(next);
-  };
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const visible = transactions.slice(0, visibleCount);
+  const hasMore = visibleCount < transactions.length;
 
   return (
     <section className="wallet-v2__section" aria-labelledby="wallet-txn-title">
@@ -99,29 +53,16 @@ export function WalletRecentTransactions({ transactions }: WalletRecentTransacti
         <h2 id="wallet-txn-title" className="wallet-v2__section-title">
           Transactions
         </h2>
-        <Link href={WALLET_ROUTES.transactions} className="wallet-v2__section-link">
-          View all
+        <Link
+          href={WALLET_ROUTES.transactions}
+          className="wallet-v2__section-link wallet-v2__section-link--latest"
+        >
+          Latest transactions
+          <ChevronDownIcon />
         </Link>
       </div>
 
-      {hasAnyTransactions ? (
-        <div className="wallet-v2__tabs" role="tablist" aria-label="Transaction filters">
-          {TABS.map((entry) => (
-            <button
-              key={entry.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === entry.id}
-              className={cn("wallet-v2__tab", tab === entry.id && "is-active")}
-              onClick={() => selectTab(entry.id)}
-            >
-              {entry.label}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
-      <div className="wallet-v2__txn-card" role={hasAnyTransactions ? "tabpanel" : undefined}>
+      <div className="wallet-v2__txn-list">
         {visible.length === 0 ? (
           <div className="wallet-v2__txn-empty">
             <span className="wallet-v2__txn-empty-icon" aria-hidden>
@@ -134,34 +75,25 @@ export function WalletRecentTransactions({ transactions }: WalletRecentTransacti
           <>
             {visible.map((transaction) => {
               const positive = transaction.amount >= 0;
-              const category = walletTransactionCategory(transaction);
-              const title = transaction.orderNumber
-                ? `Order #${transaction.orderNumber}`
-                : transaction.productTitle;
+              const title = transaction.productTitle || "Transaction";
               return (
                 <Link
                   key={transaction.id}
                   href={`${WALLET_ROUTES.transactions}/${transaction.id}`}
                   className="wallet-v2__txn"
-                  aria-label={`${category}: ${formatCurrency(Math.abs(transaction.amount))}`}
+                  aria-label={`${title}: ${formatCurrency(Math.abs(transaction.amount))}`}
                 >
-                  <span className="wallet-v2__txn-icon" aria-hidden>
-                    {transaction.type === "withdrawal"
-                      ? "↗"
-                      : transaction.type === "refund"
-                        ? "↺"
-                        : "£"}
+                  <span className="wallet-v2__txn-thumb" aria-hidden>
+                    <ProductRowImage
+                      src={transaction.productImageUrl}
+                      alt=""
+                      containerClassName="wallet-v2__txn-thumb-media"
+                      sizes="56px"
+                    />
                   </span>
                   <span className="wallet-v2__txn-copy">
                     <span className="wallet-v2__txn-title">{title}</span>
-                    <span className="wallet-v2__txn-sub">{category}</span>
-                    <span className="wallet-v2__txn-meta">
-                      <span className={cn("wallet-v2__txn-status", `is-${transaction.status}`)}>
-                        {transaction.status}
-                      </span>
-                      <span>·</span>
-                      <span>{formatWalletDate(transaction.createdAt)}</span>
-                    </span>
+                    <span className="wallet-v2__txn-date">{formatWalletDate(transaction.createdAt)}</span>
                   </span>
                   <span className={cn("wallet-v2__txn-amount", positive ? "is-in" : "is-out")}>
                     {positive ? "+" : "−"}
@@ -173,7 +105,16 @@ export function WalletRecentTransactions({ transactions }: WalletRecentTransacti
                 </Link>
               );
             })}
-            {hasMore ? <div ref={sentinelRef} className="wallet-v2__infinite-sentinel" aria-hidden /> : null}
+            {hasMore ? (
+              <button
+                type="button"
+                className="wallet-v2__load-more"
+                onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+              >
+                Load more
+                <ChevronDownIcon />
+              </button>
+            ) : null}
           </>
         )}
       </div>

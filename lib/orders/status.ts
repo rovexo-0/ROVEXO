@@ -4,6 +4,7 @@ import {
   ordersV7ToneToBadgeVariant,
   resolveOrdersV7StatusFromStatus,
 } from "@/lib/orders/orders-v7-status";
+import { buildOrderConversationHref } from "@/lib/orders/order-conversation-href";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   awaiting_payment: "In Progress",
@@ -62,18 +63,35 @@ export function getCounterpartyName(
   return view === "buyer" ? order.seller.name : order.buyer.name;
 }
 
+/**
+ * Legacy name — never opens Order Details.
+ * Always Conversation Hub (direct when conversationId known).
+ */
 export function getOrderDetailHref(orderId: string, view: "buyer" | "seller"): string {
-  return view === "buyer" ? `/orders/${orderId}` : `/seller/orders/${orderId}`;
+  return getMessageHref(orderId, view);
 }
 
-export function getMessageHref(orderId: string, view: "buyer" | "seller"): string {
-  // Conversation Hub is the SSOT for order messaging (Blood V / Inbox Hub).
-  // Legacy `/messages` is not the Transaction Hub.
+/**
+ * Order → Conversation Hub.
+ * Prefer direct `/inbox/conversation/:id?order=` when conversationId is known.
+ */
+export function getMessageHref(
+  orderId: string,
+  view: "buyer" | "seller",
+  conversationId?: string | null,
+): string {
   void view;
-  return `/inbox?order=${encodeURIComponent(orderId)}`;
+  return buildOrderConversationHref({ orderId, conversationId });
 }
 
 /** Track parcel — Hub first; external carrier URL is secondary. */
-export function getOrderHubTrackHref(orderId: string): string {
-  return `/inbox?order=${encodeURIComponent(orderId)}&focus=tracking`;
+export function getOrderHubTrackHref(
+  orderId: string,
+  conversationId?: string | null,
+): string {
+  return buildOrderConversationHref({
+    orderId,
+    conversationId,
+    focus: "tracking",
+  });
 }

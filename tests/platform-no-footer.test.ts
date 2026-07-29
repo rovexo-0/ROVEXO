@@ -47,9 +47,11 @@ describe("Sell draft persistence", () => {
   });
 
   it("persists upload session id with draft autosave", () => {
+    // Cluster 5 Photo System: draft photos persist via Product Integration orchestration.
     const storage = readSource("lib/sell/draft-storage.ts");
     const persist = readSource("lib/sell/persist-sell-draft.ts");
     expect(storage).toContain("saveUploadSessionId");
-    expect(persist).toContain("saveDraftPhotos");
+    expect(persist).toContain("saveUploadSessionId");
+    expect(persist).toContain("saveSellDraftPhotosViaProductIntegration");
   });
 });

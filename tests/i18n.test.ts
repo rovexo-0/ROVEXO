@@ -15,6 +15,7 @@ describe("i18n — English (UK) only", () => {
 
   it("keeps English chrome stable", () => {
     expect(translate("en-GB", "nav.search")).toBe("Search");
+    expect(translate("en-GB", "nav.browse")).toBe("Browse");
     expect(translate("en-GB", "nav.saved")).toBe("Inbox");
     expect(translate("en-GB", "nav.account")).toBe("Account");
     expect(hasNativeCatalog("en-GB")).toBe(true);

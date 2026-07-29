@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { writeAuditLog } from "@/lib/platform-analytics/events";
 import type { OrderStatus } from "@/lib/orders/types";
 
 export type AdminOrderRow = {
@@ -17,6 +18,42 @@ export type AdminStats = {
   awaitingShipment: number;
   completed: number;
 };
+
+export type AdminOrderStatusUpdateResult = {
+  ok: false;
+  error: string;
+  code: "RVX_ADMIN_STATUS_FORBIDDEN";
+};
+
+/**
+ * Platform Integration P0 — Admin status fail-closed.
+ * Raw status writes bypass payment / escrow / commerce lifecycle and are FORBIDDEN.
+ * Canonical transitions remain Orders / Checkout / Shipping / Wallet engines.
+ */
+export async function adminUpdateOrderStatus(
+  orderId: string,
+  status: OrderStatus,
+  actorId?: string | null,
+): Promise<AdminOrderStatusUpdateResult> {
+  await writeAuditLog({
+    actorId: actorId ?? null,
+    action: "admin.order_status_mutation_rejected",
+    resourceType: "order",
+    resourceId: orderId,
+    metadata: {
+      attemptedStatus: status,
+      reason: "raw_status_mutation_forbidden",
+      policy: "PLATFORM_INTEGRATION_P0_FAIL_CLOSED",
+    },
+  });
+
+  return {
+    ok: false,
+    error:
+      "Direct order status mutation is forbidden. Order lifecycle must proceed through canonical commerce engines.",
+    code: "RVX_ADMIN_STATUS_FORBIDDEN",
+  };
+}
 
 export async function getAdminStats(): Promise<AdminStats> {
   const admin = createAdminClient();
@@ -62,13 +99,4 @@ export async function listAdminOrders(limit = 50): Promise<AdminOrderRow[]> {
       createdAt: row.created_at,
     };
   });
-}
-
-export async function adminUpdateOrderStatus(
-  orderId: string,
-  status: OrderStatus,
-): Promise<boolean> {
-  const admin = createAdminClient();
-  const { error } = await admin.from("orders").update({ status }).eq("id", orderId);
-  return !error;
 }

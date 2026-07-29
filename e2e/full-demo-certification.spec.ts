@@ -272,8 +272,14 @@ test.describe.serial("Full Demo — mandatory deployment certification", () => {
   });
 
   test("10 SELLER RECEIVES ORDER", async () => {
+    // Orders list (Cluster III freeze) shows product title + status — not RVX order numbers.
     await sellerPage.goto("/orders", { waitUntil: "domcontentloaded" });
-    await expect(sellerPage.getByText(orderNumber).first()).toBeVisible({ timeout: 30_000 });
+    await expect(sellerPage.getByText(productTitle).first()).toBeVisible({ timeout: 30_000 });
+    if (orderId) {
+      await expect(
+        sellerPage.locator(`a[href*="order=${orderId}"]`).first(),
+      ).toBeVisible({ timeout: 10_000 });
+    }
   });
 
   test("11 ACCEPT ORDER", async () => {
@@ -352,6 +358,7 @@ test.describe.serial("Full Demo — mandatory deployment certification", () => {
   test("18 REVIEW CREATED", async () => {
     // Service-role RPC is the SSOT writer (API wraps the same function).
     // Assert participant + engine path without flaky cookie RLS false-negatives.
+    // Cluster 9: create_order_review is buyer→seller on completed orders (seller→buyer deferred v1.1).
     const { data: reviewId, error } = await admin.rpc("create_order_review", {
       p_order_id: orderId,
       p_reviewer_id: buyerId,

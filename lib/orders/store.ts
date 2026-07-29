@@ -92,7 +92,7 @@ function mapOrderRow(row: OrderRow): Order {
 
 export async function listOrders(): Promise<Order[]> {
   const rows = await fetchOrderRows();
-  return rows.map(mapOrderRow);
+  return attachConversationIds(rows.map(mapOrderRow));
 }
 
 export async function getOrderById(id: string): Promise<Order | null> {
@@ -107,29 +107,47 @@ export async function getOrderById(id: string): Promise<Order | null> {
     return null;
   }
 
-  return mapOrderRow(data as OrderRow);
+  const [order] = await attachConversationIds([mapOrderRow(data as OrderRow)]);
+  return order ?? null;
+}
+
+async function attachConversationIds(orders: Order[]): Promise<Order[]> {
+  if (orders.length === 0) return orders;
+
+  const productIds = [
+    ...new Set(orders.map((order) => order.product.id).filter(Boolean)),
+  ];
+  if (productIds.length === 0) return orders;
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("conversations")
+    .select("id, product_id, buyer_id, seller_id")
+    .in("product_id", productIds);
+
+  const byKey = new Map<string, string>();
+  for (const row of data ?? []) {
+    if (!row.id || !row.product_id || !row.buyer_id || !row.seller_id) continue;
+    byKey.set(`${row.product_id}|${row.buyer_id}|${row.seller_id}`, row.id);
+  }
+
+  return orders.map((order) => ({
+    ...order,
+    conversationId:
+      byKey.get(`${order.product.id}|${order.buyer.id}|${order.seller.id}`) ?? undefined,
+  }));
 }
 
 export async function createOrder(
   input: CreateOrderInput,
   buyerId: string,
 ): Promise<Order | null> {
-  const { createOrderCheckoutSession } = await import("@/lib/orders/checkout");
-  const result = await createOrderCheckoutSession({
-    buyerId,
-    productSlug: input.productSlug,
-    deliveryOption: input.deliveryCarrier === "DPD" ? "express" : "standard",
-  });
-
-  if ("error" in result) {
-    return null;
-  }
-
-  if (!result.orderId) {
-    return null;
-  }
-
-  return getOrderById(result.orderId);
+  // Platform Integration P0 — Checkout singularity.
+  // Live order creation is BUY_NOW_ENGINE only (/api/checkout/buy-now).
+  // Confirm & Pay is createOrderCheckoutSession (/api/orders/checkout) with session/orderId.
+  void input;
+  void buyerId;
+  return null;
 }
 
 export async function applyOrderAction(

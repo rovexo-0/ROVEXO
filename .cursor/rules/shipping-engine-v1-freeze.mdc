@@ -1,48 +1,49 @@
 ---
-description: ROVEXO Shipping Engine v1.0 — Sendcloud (UI LOCK)
-globs: lib/shipping/providers/**,lib/shipping/pricing/**,lib/shipping/labels/**,lib/shipping/server.ts,lib/shipping/label-generation.server.ts,app/api/shipping/labels/**,features/shipping/components/ShipmentWizard.tsx,features/shipping/components/ParcelCard.tsx
+description: ROVEXO Shipping Engine v1.0 — Scope Lock + Sendcloud SSOT
+globs: lib/shipping/**,app/api/shipping/**,features/shipping/**,app/api/webhooks/sendcloud/**,app/api/cron/shipping/**
 alwaysApply: false
 ---
 
-# ROVEXO Shipping Engine v1.0 — Canonical Architecture (UI LOCK)
+# ROVEXO Shipping Engine v1.0 — SCOPE LOCK (OWNER APPROVED)
 
-**STATUS: UI LOCK | FROZEN | SINGLE SOURCE OF TRUTH**
+**STATUS: OWNER APPROVED | SCOPE LOCKED | CLUSTER 3**
 
-## Provider hierarchy (mandatory)
+SSOT: `lib/shipping/shipping-engine-v1-scope-lock.ts`  
+Provider: `lib/shipping/providers/router.ts` → Sendcloud (+ Demo)
+
+## Canonical live v1.0 only
+
+Checkout Shipping Quotes · Sendcloud Runtime · Demo Adapter · Auto Single Parcel ·  
+Label Generation API · ShippingLabelViewer · Conversation Hub PRINT/VIEW LABEL ·  
+Tracking Timeline · Sendcloud Webhooks · Tracking Sync · Address fail-closed
+
+## Deferred to v1.1 (do not delete schema/APIs)
+
+ShipmentWizard UI · Multi-Parcel Seller UI · ShippingEngineHub · ROVEXO Delivery ·  
+EU/International · Shipping analytics · Carrier comparison · Advanced parcel workflows
+
+## Live seller path (v1.0)
 
 ```
-ShippingEngine (router)
-  ↓
-SendcloudAdapter  — sole production provider
+Conversation Hub → PRINT/VIEW LABEL → /api/shipping/labels → ShippingLabelViewer
 ```
 
-- ONE shipping engine — `lib/shipping/providers/router.ts`
-- Every quote/label operation routes through **Sendcloud**
-- Platform code must never hardcode provider selection outside the router
+Forbidden as live v1.0 destination: Order Details fulfillment wizard · `/shipping` hub
 
 ## Buyer rules
 
-- Checkout is **financial only** — Products, Shipping, Platform Fee, Total
-- Never show label count, parcel count, carrier, tracking, or provider at checkout
-- Buyer sees **Parcel X of Y** — never labels
+Checkout is **financial only**. Never show provider names, label counts, or multi-parcel chrome at checkout.
 
-## Seller rules
+## Provider hierarchy
 
-- Shipment Wizard → Parcels → Generate Label via `/api/shipping/labels` (provider-agnostic)
-- Unlimited parcels per shipment
+```
+ShippingEngine (router) → SendcloudAdapter (sole production) | Demo (Full Demo)
+```
 
 ## Allowed
 
-- Bug fixes, provider API updates, health monitoring
-- Super-admin provider status panels
+Bug / security / performance / a11y · Label Viewer polish · Sendcloud ops · Owner QA · Freeze
 
 ## Prohibited
 
-- Parallel shipping flows or duplicate label APIs
-- Direct Sendcloud usage outside the router path
-- Provider names exposed to buyers
-- Duplicate or parallel shipping provider integrations
-
-## Reference
-
-`lib/shipping/providers/router.ts` — canonical entry point
+Redesign · new shipping features · restoring ShipmentWizard as live v1.0 · deleting parcel schema/APIs · parallel providers · Cluster 1/2/4 scope bleed

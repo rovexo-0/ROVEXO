@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiAuth } from "@/lib/auth/session";
+import { assertOrderShippingParticipant } from "@/lib/shipping/assert-order-shipping-access.server";
 import { parcelTierLabel } from "@/lib/shipping/parcels";
 import type { ShippingQuoteRequest } from "@/lib/shipping/pricing/provider";
 import { fetchOrderShippingQuotes } from "@/lib/shipping/server";
@@ -74,13 +75,18 @@ export async function POST(request: Request) {
     );
   }
 
+  const access = await assertOrderShippingParticipant(parsed.data.orderId, auth.user.id);
+  if (!access.ok) {
+    return NextResponse.json({ error: "Order not found." }, { status: 404 });
+  }
+
   const quoteRequest: ShippingQuoteRequest = {
     parcelTier: parsed.data.parcelTier,
     collectionAddress: collection.normalized,
     deliveryAddress: delivery.normalized,
   };
 
-  const pricing = await fetchOrderShippingQuotes(parsed.data.orderId, quoteRequest);
+  const pricing = await fetchOrderShippingQuotes(access.orderId, quoteRequest);
 
   return NextResponse.json({
     pricing,

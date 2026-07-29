@@ -28,6 +28,9 @@ type SellPhotoFileInputProps = {
  *
  * Android → system Photo Picker / Gallery
  * iPhone  → Photos library
+ *
+ * Product Integration Phase III: gallery entry is owned by Product Integration
+ * (files flow through intakeSellPhotoFromCanonicalEntry via SellProvider).
  */
 export function SellPhotoFileInput({
   multiple = true,
@@ -55,6 +58,7 @@ export function SellPhotoFileInput({
       onChange={handleChange}
       data-native-photo-picker={NATIVE_PHOTO_PICKER_V1.version}
       data-universal-photo-intent="gallery"
+      data-product-integration-entry="gallery_picker"
       className={cn(
         placement === "overlay"
           ? nativeImageFileInputOverlayClassName

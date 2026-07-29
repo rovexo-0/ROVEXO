@@ -35,7 +35,7 @@ export const FeaturedStoreHeader = memo(function FeaturedStoreHeader({
 
   return (
     <header className={css.headerCard} data-hp-store-header="v2.0">
-      <Link href={section.profileHref} className={css.identity} aria-label={`Open ${section.sellerName} store`}>
+      <Link href={section.profileHref} className={css.identity} aria-label={`Open ${section.sellerName} profile`}>
         <span className={css.logo}>
           <Avatar
             src={section.sellerAvatar}

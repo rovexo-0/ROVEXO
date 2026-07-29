@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BuyerEmptyState } from "@/components/buyer/BuyerEmptyState";
 import { BuyerSection } from "@/components/buyer/BuyerSection";
 import { useBuyerDashboard } from "@/hooks/buyer";
+import { getMessageHref } from "@/lib/orders/status";
 
 export function BuyerOrderHistory() {
   const { data } = useBuyerDashboard();
@@ -16,7 +17,11 @@ export function BuyerOrderHistory() {
       ) : (
         <div className="buyer-scroll">
           {data.orderHistory.map((order) => (
-            <Link key={order.id} href={`/orders/${order.id}`} className="buyer-order-history-card">
+            <Link
+              key={order.id}
+              href={getMessageHref(order.id, "buyer", order.conversationId)}
+              className="buyer-order-history-card"
+            >
               <SafeImage
                 src={order.product.imageUrl}
                 alt=""

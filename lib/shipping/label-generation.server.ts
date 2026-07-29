@@ -107,14 +107,8 @@ export async function generateShippingLabelForOrder(
   }
 
   let parcel = parcelId ? await getShipmentParcelById(parcelId) : null;
-  if (!parcel) {
-    parcel = await createShipmentParcel({ orderId, productItemIds: [] });
-  }
-  if (!parcel) {
-    return { ok: false as const, error: "Unable to prepare shipment parcel." };
-  }
 
-  if (parcel.label?.status === "ready" && parcel.trackingNumber) {
+  if (parcel?.label?.status === "ready" && parcel.trackingNumber) {
     return {
       ok: true as const,
       label: parcel.label,
@@ -153,6 +147,13 @@ export async function generateShippingLabelForOrder(
       : null);
   if (!collectionAddress || !deliveryAddress) {
     return { ok: false as const, error: "Shipping addresses are incomplete for label generation." };
+  }
+
+  if (!parcel) {
+    parcel = await createShipmentParcel({ orderId, productItemIds: [] });
+  }
+  if (!parcel) {
+    return { ok: false as const, error: "Unable to prepare shipment parcel." };
   }
 
   const sellerSettings = await getSellerShippingSettings(sellerId);

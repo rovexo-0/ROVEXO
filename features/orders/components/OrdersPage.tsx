@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { CanonicalCard, CanonicalMenuRow, PrimaryButtonLink } from "@/src/components/canonical";
+import { PrimaryButtonLink } from "@/src/components/canonical";
+import { OrdersListItem } from "@/features/orders/components/OrdersListItem";
 import { cn } from "@/lib/cn";
 import {
   ORDERS_UI_DOM,
@@ -49,13 +50,15 @@ function matchesChip(order: Order, chip: Chip): boolean {
 }
 
 /**
- * Owner nav adaptation (COD SÂNGE): Bought → Messages Hub (order context preload).
- * Sold → seller Order Details unchanged. Messages Hub UI untouched.
+ * Owner nav: order row → Conversation Hub directly (no Order Details).
+ * Bought and Sold reuse getMessageHref with conversationId when known.
  */
 function detailHref(order: Order, tab: Tab): string {
-  return tab === "sold"
-    ? `/seller/orders/${order.id}`
-    : getMessageHref(order.id, "buyer");
+  return getMessageHref(
+    order.id,
+    tab === "sold" ? "seller" : "buyer",
+    order.conversationId,
+  );
 }
 
 export function OrdersPageSkeleton() {
@@ -190,21 +193,24 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
             </PrimaryButtonLink>
           </div>
         ) : (
-          <CanonicalCard variant="list" className="orders-page__list">
+          <div className="orders-page__list" role="list">
             {visible.map((order) => {
-              const status = resolveOrdersV7Status(order, tab === "sold" ? "seller" : "buyer");
+              const role = tab === "sold" ? "seller" : "buyer";
+              const status = resolveOrdersV7Status(order, role);
+              const priceAmount =
+                role === "seller" ? order.totals.itemPrice : order.totals.total;
               return (
-                <CanonicalMenuRow
-                  key={order.id}
-                  href={detailHref(order, tab)}
-                  title={order.product.title}
-                  description={order.orderNumber}
-                  value={status.label}
-                  className={cn("orders-page__row", status.cssClass)}
-                />
+                <div key={order.id} role="listitem">
+                  <OrdersListItem
+                    order={order}
+                    href={detailHref(order, tab)}
+                    status={status}
+                    priceAmount={priceAmount}
+                  />
+                </div>
               );
             })}
-          </CanonicalCard>
+          </div>
         )}
       </div>
     </AccountCanonicalShell>

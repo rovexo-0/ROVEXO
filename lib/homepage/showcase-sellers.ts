@@ -1,5 +1,6 @@
 import type { Product } from "@/lib/products/types";
 import { listingHrefFromSlug } from "@/lib/homepage/homepage-final-freeze-v1";
+import { resolvePublicProfileHref } from "@/lib/profile/public-profile-href";
 import { resolveStoreHrefFromSeller } from "@/lib/store/store-href";
 
 export type ShowcaseSellerSection = {
@@ -19,8 +20,10 @@ export type ShowcaseSellerSection = {
   profileHref: string;
 };
 
-/** Store href only — /store/[store_slug|store_id]. Never search / empty / broken. */
+/** Identity tap → Public Profile when username exists; else Store. */
 export function resolveShowcaseProfileHref(product: Product): string | null {
+  const publicHref = resolvePublicProfileHref(product.sellerUsername);
+  if (publicHref) return publicHref;
   return resolveStoreHrefFromSeller({
     sellerId: product.sellerId,
     storeSlug: product.sellerUsername,

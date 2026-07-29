@@ -2,7 +2,8 @@ import type { MessageKey } from "@/lib/i18n/messages/en-GB";
 
 export const plPL: Record<MessageKey, string> = {
   "nav.home": "Start",
-  "nav.search": "Przeglądaj",
+  "nav.search": "Szukaj",
+  "nav.browse": "Przeglądaj",
   "nav.sell": "Sprzedaj",
   "nav.saved": "Skrzynka",
   "nav.account": "Profil",

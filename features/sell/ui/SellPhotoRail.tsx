@@ -14,9 +14,9 @@ import { SellInlineError } from "@/features/sell/ui/SellPrimitives";
 const LONG_PRESS_MS = 400;
 const MOVE_CANCEL_PX = 12;
 
-/** Sell Photo Premium Micro Freeze — 76×114 (4:5), radius 16, gap 6. */
+/** Sell Photo tiles — 112×168 (4:5), radius 16, gap 10. UI size only. */
 const PHOTO_TILE =
-  "sell-photo-tile relative flex h-[114px] w-[76px] shrink-0 flex-col items-center justify-center overflow-hidden rounded-[16px]";
+  "sell-photo-tile relative flex h-[168px] w-[112px] shrink-0 flex-col items-center justify-center overflow-hidden rounded-[16px]";
 
 export const SellPhotoRail = memo(function SellPhotoRail({
   onPhotosAdded,
@@ -205,7 +205,7 @@ export const SellPhotoRail = memo(function SellPhotoRail({
       data-native-photo-picker-trigger="1"
     >
       <SellPhotoFileInput multiple onFilesSelected={handleFilesSelected} />
-      <CameraLineIcon className="h-5 w-5 text-primary" aria-hidden />
+      <CameraLineIcon className="h-7 w-7 text-primary" aria-hidden />
       <span className="sell-photo-tile__add-label">Add Photos</span>
     </label>
   );
@@ -336,8 +336,8 @@ export const SellPhotoRail = memo(function SellPhotoRail({
             {/* eslint-disable-next-line @next/next/no-img-element -- blob:/draft preview; SafeImage uses next/image */}
             <img
               src={
-                previewPhoto.url?.trim() ||
                 previewPhoto.previewUrl?.trim() ||
+                previewPhoto.url?.trim() ||
                 "/placeholder-product.svg"
               }
               alt="Photo preview"

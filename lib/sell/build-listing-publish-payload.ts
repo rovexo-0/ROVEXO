@@ -61,7 +61,8 @@ export function buildListingPublishPayload(
     description:
       buildPublishDescription(draft.title, draft.description, draft.material) +
       formatAttributeNote(draft.attributes),
-    condition: draft.condition,
+    // Core-6 publish gate: condition is optional in Sell UI; DB requires NOT NULL.
+    condition: draft.condition.trim() || "Good",
     price: parsePublishPrice(draft.price),
     acceptOffers: draft.acceptOffers,
     freeDelivery: draft.freeDelivery,

@@ -23,6 +23,7 @@ import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { applySessionPersistence } from "@/lib/auth/session-cookies";
 import { isPublicRegistrationEnabled } from "@/lib/launch-certification/private-mode";
 
+/** Canonical Register consent = Terms (mandatory) + Marketing (optional). GDPR UI permanently removed (AUTH UI v1.2). */
 const registerSchema = z
   .object({
     fullName: z.string().trim().min(1, "Full name is required."),
@@ -30,9 +31,6 @@ const registerSchema = z
     password: z.string().min(8),
     confirmPassword: z.string().min(8),
     terms: z.literal("on", { message: "Accept the Terms, Privacy Policy, and Cookie Policy." }),
-    gdpr: z.literal("on", {
-      message: "Confirm you understand how ROVEXO processes your personal data.",
-    }),
     marketing: z.enum(["on", "off"]).optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -89,7 +87,6 @@ export async function signUp(
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
     terms: formData.get("terms"),
-    gdpr: formData.get("gdpr"),
     marketing: formData.get("marketing") === "on" ? "on" : "off",
   });
 

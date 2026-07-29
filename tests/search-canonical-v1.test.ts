@@ -33,15 +33,17 @@ describe("Search canonical v1.0 final UI lock", () => {
     expect(rail).toContain("captureHomepageScroll");
   });
 
-  it("shows the real category filter only after a search (Absolute Master Freeze)", () => {
+  it("hides the All categories selector on Search Results (UI cleanup v1.0)", () => {
     const results = readSource("features/search/components/SearchResultsView.tsx");
     const filters = readSource("features/search/utils/filters.ts");
 
-    expect(results).toContain("{query ? (");
-    expect(results).toContain('aria-label="Search filters"');
-    expect(results).toContain("<select");
-    expect(results).toContain("All categories");
-    expect(results).toContain("HOME_CATEGORY_NAV");
+    expect(results).not.toContain("All categories");
+    expect(results).not.toContain('aria-label="Search filters"');
+    expect(results).not.toContain("HOME_CATEGORY_NAV");
+    expect(results).not.toContain("handleCategoryChange");
+    expect(results).not.toContain("srch-results__filters");
+    // Internal category filter param remains for URL / API browsing
+    expect(results).toContain("fetchResults(query, category");
     expect(filters).toContain("category?: string");
     expect(filters).not.toContain("condition?:");
     expect(filters).not.toContain("price?:");

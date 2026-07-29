@@ -1,0 +1,55 @@
+---
+description: Cluster 9 — Reviews, Ratings & Reputation Scope Lock + Production Freeze (singular engines · moderation deferred · v1.1 UI deferred)
+globs: lib/reviews/**,lib/rating/**,lib/reputation/**,lib/seller-performance/**,lib/badge/**,app/api/reviews/**,app/api/reputation/**,app/api/badges/**,features/orders/components/OrderReviewCard.tsx,features/account-module/components/ReviewsV1.tsx,features/profile/components/SellerReviewsSection.tsx
+alwaysApply: false
+---
+
+# ROVEXO CLUSTER 9 — REVIEWS, RATINGS & REPUTATION SCOPE LOCK v1.0
+
+**STATUS: OWNER APPROVED | ARCHITECTURE SCOPE LOCKED | TECHNICALLY CERTIFIED | OWNER VISUAL QA PASS | PRODUCTION READY · FROZEN**
+
+SSOT: `lib/reviews/cluster-9-reviews-ratings-reputation-scope-lock-v1.ts`
+
+## Authorities (LOCKED — one each)
+
+| Authority | SSOT |
+|---|---|
+| Review | `lib/reviews/store.ts` + RPC `create_order_review` · `/api/reviews` |
+| Rating | `lib/rating/rating-engine-v1.ts` (+ aggregation triggers) |
+| Reputation | `lib/seller-performance/*` via `lib/reputation/store.ts` |
+| Badge | `lib/badge/*` |
+
+No parallel Reviews / Rating / Reputation / Badge engines.
+
+## Canonical flow (v1.0 ONLY)
+
+Completed Order → Eligibility → Review Authority → Rating Aggregation → Reputation Engine → Badge Engine → emitSmartNotification (`review_received`) → Public Profile / Listing
+
+## Enabled v1.0
+
+Buyer→Seller · Seller→Buyer · Verified Purchase · Public ratings · Reputation score · Reputation badges · Review notifications · Public review display
+
+## Deferred to v1.1
+
+Report flow · Moderation UI · Reply UI · Edit UI · Buyer review history · Review analytics
+
+## Moderation (v1.0)
+
+User delete **forbidden** · Super Admin may remove (**policy only**) · Product workflow / UI / audit product flow = **DEFERRED_V1_1**  
+Moderation must **never** become a second Review Authority.
+
+## Certification
+
+- Technical Certification: **PASS**
+- Owner Visual QA: **PASS**
+- Production Freeze: **APPLIED**
+- productionReady: **true**
+- productionStatus: **CERTIFIED**
+
+## Exclusions (not Reviews Authority)
+
+Seller Review Center · Trust Review · Withdraw review step
+
+## Cursor must never
+
+Rewrite Reviews / Rating / Reputation / Badge engines · promote deferred v1.1 into Cluster 9 certification · treat Seller Review Center as order Reviews · invent a second review pipeline · classify review notifications as `admin_announcement` · unfreeze without Owner re-authorization

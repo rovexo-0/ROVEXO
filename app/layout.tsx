@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "@/styles/rovexo/index.css";
@@ -35,6 +35,13 @@ const geistMono = Geist_Mono({
 // Pre-paint locale sync: applies the stored locale to <html lang/dir> before
 // hydration so language and text direction (incl. RTL) never flash on first paint.
 const LOCALE_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("rovexo-locale");if(!c||!/^[a-z]{2}-[A-Z]{2}$/.test(c))return;var el=document.documentElement;el.setAttribute("lang",c);el.setAttribute("dir",c==="ar-SA"?"rtl":"ltr");}catch(e){}})();`;
+
+/** Single root viewport SSOT — do not duplicate conflicting viewport tags. */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(getAppUrl()),
@@ -95,6 +102,7 @@ export default function RootLayout({
       lang="en-GB"
       dir="ltr"
       data-theme="light"
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth`}
     >
       <head>

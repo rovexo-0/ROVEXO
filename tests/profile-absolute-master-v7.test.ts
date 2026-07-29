@@ -74,9 +74,10 @@ describe("Profile Absolute Master Design System — Contract v7.0", () => {
     expect(hub).toContain('className="wallet-v2"');
     expect(tx).toContain("AccountCanonicalShell");
     expect(tx).toContain('data-wallet-transactions-version="v3.0-profile-master"');
+    expect(tx).toContain('data-transactions-ui="simplified-v1.0"');
     expect(tx).not.toContain("CanonicalCard");
-    expect(tx).toContain("min-h-[56px]");
-    expect(tx).toContain("rounded-[16px]");
+    expect(tx).toContain("CanonicalMenuRow");
+    expect(tx).toContain("CanonicalSection");
   });
 
   it("snapshot is fail-closed aligned", () => {

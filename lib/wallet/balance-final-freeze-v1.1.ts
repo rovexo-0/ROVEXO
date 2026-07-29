@@ -72,14 +72,11 @@ export const BALANCE_FINAL_FREEZE_V1_1 = {
     "Available status badge",
     "Withdraw",
     "Bank Account",
-    "Add Bank",
     "Transactions",
-    "Payment Methods",
     "Insights",
     "View All",
     "This Month",
     "Next Payout",
-    "Connect Bank Account",
     "Transaction history",
     "Empty states",
     "Loading states",
@@ -90,6 +87,15 @@ export const BALANCE_FINAL_FREEZE_V1_1 = {
     "Wallet gradients",
     "Wallet shadows",
     "Wallet layouts",
+    "Balance hero banking artwork",
+  ] as const,
+
+  /** Balance Visual Refinement v1.0 — removed from Balance hub presentation only. */
+  removedFromHubPresentation: [
+    "Connected Bank section",
+    "Quick Actions",
+    "Add Bank quick action",
+    "Payment Methods quick action",
   ] as const,
 
   fullWidth: {

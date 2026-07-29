@@ -24,6 +24,11 @@ describe("Orders v7.0 — Owner status + Full Width lock", () => {
     expect(ORDERS_UI_VERSION).toBe("v7.0");
     expect(css).toContain("max-width: none");
     expect(css).toContain("--orders-purple: #9333ea");
+    expect(css).toContain("orders-page__item");
+    expect(css).toContain("orders-page__item-thumb");
+    expect(css).toContain("--orders-thumb: 56px");
+    expect(css).toContain("--orders-media-gap: 12px");
+    expect(css).toContain("--orders-row-min: 74px");
     expect(css).toContain("orders-page__row--green");
     expect(css).toContain("orders-page__row--purple");
     expect(css).toContain("orders-page__row--orange");
@@ -31,6 +36,7 @@ describe("Orders v7.0 — Owner status + Full Width lock", () => {
     expect(css).toContain("orders-page__row--yellow");
     expect(css).toContain("min-height: 64px");
     expect(css).not.toMatch(/max-width:\s*(600|700|900|1000|1200)px/);
+    expect(css).not.toContain("cds-menu-row__value");
   });
 
   it("maps Owner status colours", () => {

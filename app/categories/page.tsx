@@ -30,7 +30,7 @@ export default function CategoriesIndexPage() {
             name={category.name}
             slug={category.slug}
             subtitle={category.subtitle}
-            href={`/search?category=${encodeURIComponent(category.slug)}`}
+            href={`/category/${encodeURIComponent(category.slug)}`}
           />
         ))}
       </div>

@@ -46,6 +46,35 @@
   background: #ffffff;
 }
 
+/*
+ * Owner Final UI Polish — Orders vertical rhythm (spacing only).
+ * Header → Tabs 16px · Tabs → Filters 12px · Filters → First order 12px.
+ * Kill Full Width 24px top pad + fw-engine__stack 24px gap (Inbox-aligned).
+ */
+[data-full-width-engine="v1.0"] .cds-layout__content--account-canonical:has(.orders-page),
+.account-canonical-shell:has(.orders-page) .cds-layout__content--account-canonical {
+  padding-top: 16px !important;
+  gap: 0 !important;
+}
+
+[data-universal-ui="v1.1"] .cds-layout__content--account-canonical:has(.orders-page),
+[data-compact-premium="v1"] .cds-layout__content--account-canonical:has(.orders-page) {
+  padding-top: 16px !important;
+  gap: 0 !important;
+}
+
+.orders-page.fw-engine__stack,
+[data-full-width-engine="v1.0"] .orders-page.fw-engine__stack,
+[data-universal-ui="v1.1"] .orders-page.fw-engine__stack,
+[data-compact-premium="v1"] .orders-page.fw-engine__stack {
+  gap: 0 !important;
+}
+
+/* Nested Universal UI pad stacked on shell — zero top (rhythm owned above). */
+[data-universal-ui="v1.1"] .orders-page {
+  padding-top: 0 !important;
+}
+
 .orders-page {
   --orders-purple: #9333ea;
   --orders-purple-deep: #7c3aed;
@@ -57,6 +86,9 @@
   --orders-text: #1a1a1a;
   --orders-border: rgb(15 23 42 / 0.06);
   --orders-chip-border: #e5e7eb;
+  --orders-header-tabs-gap: 16px;
+  --orders-tabs-filters-gap: 12px;
+  --orders-filters-list-gap: 12px;
 
   box-sizing: border-box;
   width: 100%;
@@ -77,7 +109,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: 44px;
-  margin-bottom: 12px;
+  margin: 0 0 var(--orders-tabs-filters-gap);
   border-bottom: 1px solid var(--orders-border);
 }
 
@@ -113,6 +145,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin: 0;
+  padding: 0;
 }
 
 .orders-page__chip {
@@ -141,8 +175,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-top: 16px;
-  padding: 8px 0 0;
+  margin-top: var(--orders-filters-list-gap);
+  padding: 0;
   text-align: left;
 }
 
@@ -169,43 +203,173 @@
 }
 
 .orders-page__list {
-  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: var(--orders-filters-list-gap);
   width: 100%;
   max-width: none;
-  border-radius: 16px;
 }
 
-.orders-page__row .cds-menu-row__value {
+/*
+ * Density aligned to Inbox Hub Messages list (inbox-hub-v1.css):
+ * --inbox-thumb: 56px · --inbox-media-gap: 12px · --inbox-row-min: 74px · pad 9px 0
+ */
+.orders-page__item {
+  --orders-thumb: 56px;
+  --orders-media-gap: 12px;
+  --orders-row-min: 74px;
+
+  display: grid;
+  grid-template-columns: var(--orders-thumb) minmax(0, 1fr) 20px;
+  align-items: center;
+  column-gap: var(--orders-media-gap);
+  width: 100%;
+  min-height: var(--orders-row-min);
+  padding: 9px 0;
+  border: none;
+  border-bottom: 1px solid var(--orders-border);
+  border-radius: 0;
+  background: #ffffff;
+  box-shadow: none;
+  text-decoration: none;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.orders-page__item:hover {
+  background: rgb(15 23 42 / 0.02);
+  box-shadow: none;
+}
+
+.orders-page__item:focus-visible {
+  outline: 2px solid var(--orders-purple);
+  outline-offset: -2px;
+}
+
+.orders-page__item-thumb {
+  display: block;
+  width: var(--orders-thumb);
+  height: var(--orders-thumb);
   flex-shrink: 0;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 11px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.orders-page__item-thumb-media {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+}
+
+.orders-page__item-thumb-media img {
+  object-fit: cover;
+}
+
+.orders-page__item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.orders-page__item-title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--orders-text);
+}
+
+.orders-page__item-price {
+  font-size: 14px;
   font-weight: 700;
+  line-height: 1.25;
+  color: var(--orders-text);
 }
 
-.orders-page__row--purple .cds-menu-row__value {
-  background: rgb(147 51 234 / 0.1);
-  color: var(--orders-purple-deep);
+.orders-page__item-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 1px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--orders-muted);
 }
 
-.orders-page__row--green .cds-menu-row__value {
-  background: rgb(5 150 105 / 0.12);
+.orders-page__item-status-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.orders-page__item-status-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orders-page__item-status--green {
   color: var(--orders-green);
 }
 
-.orders-page__row--orange .cds-menu-row__value {
-  background: rgb(234 88 12 / 0.12);
+.orders-page__item-status--purple {
+  color: var(--orders-purple-deep);
+}
+
+.orders-page__item-status--orange {
   color: var(--orders-orange);
 }
 
-.orders-page__row--red .cds-menu-row__value {
-  background: rgb(220 38 38 / 0.12);
+.orders-page__item-status--red {
   color: var(--orders-red);
 }
 
-.orders-page__row--yellow .cds-menu-row__value {
-  background: rgb(202 138 4 / 0.14);
+.orders-page__item-status--yellow {
   color: var(--orders-yellow);
+}
+
+.orders-page__item-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
+}
+
+.orders-page__item-chevron svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Tone hooks retained for v7 status lock (applied on list items). */
+.orders-page__row--green {
+  --orders-item-tone: var(--orders-green);
+}
+
+.orders-page__row--purple {
+  --orders-item-tone: var(--orders-purple-deep);
+}
+
+.orders-page__row--orange {
+  --orders-item-tone: var(--orders-orange);
+}
+
+.orders-page__row--red {
+  --orders-item-tone: var(--orders-red);
+}
+
+.orders-page__row--yellow {
+  --orders-item-tone: var(--orders-yellow);
 }
 
 /* Detail / shared OrderStatusBadge — Owner tone colours (Dispute yellow ≠ Refund orange) */

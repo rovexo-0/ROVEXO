@@ -1,8 +1,8 @@
 "use client";
 
 import {
+  BrowseCategoriesLineIcon,
   ChatLineIcon,
-  SearchLineIcon,
   UserLineIcon,
 } from "@/components/icons/RvxLineIcons";
 import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
@@ -45,7 +45,8 @@ export function BottomNavV2Icon({ type, href, className }: BottomNavV2IconProps)
     case "home":
       return <HomeLineIcon className={iconClass} />;
     case "search":
-      return <SearchLineIcon className={iconClass} />;
+      /* Tab id stays "search" for routing; visual = Browse Categories grid. */
+      return <BrowseCategoriesLineIcon className={iconClass} />;
     case "account":
       return <UserLineIcon className={iconClass} />;
     default:

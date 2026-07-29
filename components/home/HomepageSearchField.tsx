@@ -16,7 +16,7 @@ export type HomepageSearchFieldProps = {
 
 /**
  * Homepage search entry — Search Bar Icon Freeze.
- * Navigates to /search (SEARCH_UI_v1.0 SSOT). No overlay bypass.
+ * Navigates to Global Search `/search` (not Browse `/browse`).
  */
 export function HomepageSearchField({ inputId, className }: HomepageSearchFieldProps) {
   const router = useRouter();

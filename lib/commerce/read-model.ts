@@ -12,6 +12,7 @@ import {
 import { getShippingRecord } from "@/lib/shipping/store";
 import { listShipmentParcelsForOrder } from "@/lib/shipping/parcels-repository";
 import type { Order } from "@/lib/orders/types";
+import { getOrderHubTrackHref } from "@/lib/orders/status";
 import type { BuyerCommerceOrderView, SellerShipmentView } from "@/lib/commerce/view-types";
 
 export type { BuyerCommerceOrderView, SellerShipmentView };
@@ -39,7 +40,7 @@ export async function getBuyerCommerceOrderView(order: Order): Promise<BuyerComm
     parcels.length > 0
       ? mapShipmentParcelsToUi(order, record, parcels)
       : getUiParcelsFromOrder(order, record);
-  const trackingHref = `/orders/${order.id}/tracking`;
+  const trackingHref = getOrderHubTrackHref(order.id, order.conversationId);
 
   return {
     meta: mapOrderToMeta(order),

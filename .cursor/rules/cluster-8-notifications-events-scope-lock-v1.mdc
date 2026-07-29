@@ -1,0 +1,51 @@
+---
+description: Cluster 8 — Notifications & Events Scope Lock + Production Freeze (emitSmart authority · prefs singularity · Spring 2 deferred)
+globs: lib/notifications/**,lib/notifications-engine/**,lib/follow-notifications/**,lib/inbox/**,features/inbox/**,features/notifications/**,app/notifications/**,app/api/notifications/**
+alwaysApply: false
+---
+
+# ROVEXO CLUSTER 8 — NOTIFICATIONS & EVENTS SCOPE LOCK v1.0
+
+**STATUS: OWNER APPROVED | ARCHITECTURE SCOPE LOCKED | TECHNICALLY CERTIFIED | OWNER VISUAL QA PASS | PRODUCTION READY · FROZEN**
+
+SSOT: `lib/notifications/cluster-8-notifications-events-scope-lock-v1.ts`
+
+## Event authority (LOCKED)
+
+| Path | Role |
+|---|---|
+| `emitSmartNotification` | Sole public runtime entry |
+| `createNotification` | Internal persistence only |
+| `dispatchNotification` | Compatibility layer only |
+
+## Canonical flow (v1.0 ONLY)
+
+Feature Event → emitSmartNotification → notification_events → notification_preferences → notifications → Inbox Hub → deliverNotificationChannels → Push / Email
+
+## Enabled v1.0
+
+Inbox Notifications · Unread · Mark read / Mark all · Orders · Shipping · Wallet · Offers · Messages · Reviews · Trust · Marketplace Follow · Admin broadcasts · Push · Email
+
+## Deferred to v1.1
+
+Notification Delete UI · Authentication notifications · Spring 2 Transaction Hub events
+
+## Preferences
+
+`notification_preferences` = sole authority · `notification_settings` = compatibility only
+
+## Certification
+
+- Technical Certification: **PASS**
+- Owner Visual QA: **PASS**
+- Production Freeze: **APPLIED**
+- productionReady: **true**
+- productionStatus: **CERTIFIED**
+
+## Forbidden
+
+Second emit entry · producer `createNotification` / `dispatchNotification` · direct DB writes · email bypass beside deliver · Social Follow · promoting deferred v1.1 without Owner approval · redesign of frozen Inbox Notifications Hub
+
+## Cursor must never
+
+Enable Delete UI / Auth notifs / Spring 2 under Cluster 8 · reopen producer bypass paths · redesign Notification Hub rows/tabs · treat `notifications-engine` admin config as runtime authority · unfreeze without Owner re-authorization

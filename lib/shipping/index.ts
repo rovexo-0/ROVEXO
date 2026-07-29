@@ -1,7 +1,15 @@
 /**
  * ROVEXO Shipping Engine v1.0 — public API.
  * All pages and services must import shipping logic from here.
+ *
+ * Scope lock SSOT: lib/shipping/shipping-engine-v1-scope-lock.ts
  */
+
+export {
+  SHIPPING_ENGINE_V1_SCOPE_LOCK,
+  assertShippingEngineV1ScopeLock,
+} from "@/lib/shipping/shipping-engine-v1-scope-lock";
+export type { ShippingEngineV1ScopeLock } from "@/lib/shipping/shipping-engine-v1-scope-lock";
 
 export { ShippingService } from "@/lib/shipping/engine";
 export type { ShippingRecord, ShippingStatus, ParcelTier, ShippingAddress } from "@/lib/shipping/engine";

@@ -15,7 +15,7 @@ import {
   generateDemoDeliveryDate,
   generateDemoTrackingNumber,
 } from "@/lib/full-demo/canonical";
-import { createNotification } from "@/lib/notifications/create";
+import { emitSmartNotification } from "@/lib/notifications/events";
 import { createShippingAdminClient } from "@/lib/shipping/db-client";
 
 type ProductRow = {
@@ -569,9 +569,11 @@ export async function seedFullDemoMarketplaceData(input: {
 
   // Notifications
   for (let i = 0; i < FULL_DEMO_BUYER_QUOTAS.notifications; i += 1) {
-    await createNotification({
+    await emitSmartNotification({
       userId: input.liveBuyer.id,
-      type: i % 2 === 0 ? "order" : "message",
+      eventType: i % 2 === 0 ? "new_order" : "new_message",
+      idempotencyKey: `full-demo-buyer-notif-${input.liveBuyer.id}-${i + 1}`,
+      notificationType: i % 2 === 0 ? "order" : "message",
       title: `Full Demo buyer update #${i + 1}`,
       subtitle: "Permanent certification notification.",
       href: i % 2 === 0 ? "/orders" : "/messages",
@@ -579,9 +581,11 @@ export async function seedFullDemoMarketplaceData(input: {
     notifications += 1;
   }
   for (let i = 0; i < FULL_DEMO_SELLER_QUOTAS.notifications; i += 1) {
-    await createNotification({
+    await emitSmartNotification({
       userId: input.liveSeller.id,
-      type: i % 2 === 0 ? "order" : "offer",
+      eventType: i % 2 === 0 ? "new_order" : "new_offer",
+      idempotencyKey: `full-demo-seller-notif-${input.liveSeller.id}-${i + 1}`,
+      notificationType: i % 2 === 0 ? "order" : "offer",
       title: `Full Demo seller update #${i + 1}`,
       subtitle: "Permanent certification notification.",
       href: i % 2 === 0 ? "/orders" : "/messages",

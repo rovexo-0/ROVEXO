@@ -1,4 +1,4 @@
-import { dispatchNotification } from "@/lib/notifications/dispatch";
+import { emitSmartNotification } from "@/lib/notifications/events";
 import type { AdminPromotionAction } from "@/lib/promotions/canonical-engine";
 
 export type PromotionActivationKind = "bump" | "store_featured" | "boost_package" | "feature";
@@ -61,29 +61,19 @@ export async function notifyPromotionActivated(input: {
 }): Promise<void> {
   const copy = resolveActivationCopy(input);
   try {
-    await dispatchNotification({
+    await emitSmartNotification({
       userId: input.userId,
-      type: "payment",
+      eventType: "promotion",
+      idempotencyKey: `promo-activated-${input.userId}-${input.kind}-${input.endsAt ?? "open"}`,
+      notificationType: "payment",
       title: copy.title,
       subtitle: copy.subtitle,
       href: "/promote",
       detail: copy.detail,
-      priority: "high",
+      payload: { kind: input.kind, endsAt: input.endsAt ?? null },
     });
   } catch {
-    try {
-      const { createNotification } = await import("@/lib/notifications/create");
-      await createNotification({
-        userId: input.userId,
-        type: "payment",
-        title: copy.title,
-        subtitle: copy.subtitle,
-        href: "/promote",
-        detail: copy.detail,
-      });
-    } catch {
-      // Fail closed — activation already succeeded; notification is best-effort.
-    }
+    // Fail closed — activation already succeeded; notification is best-effort.
   }
 }
 
@@ -116,13 +106,17 @@ export async function notifyPromotionLifecycle(input: {
       ? `ROVEXO granted ${input.promotionLabel}.`
       : `Your ${input.promotionLabel} promotion was updated.`);
 
-  await dispatchNotification({
+  await emitSmartNotification({
     userId: input.userId,
-    type: input.action === "expire" || input.action === "expiring_soon" ? "promotion_expired" : "system",
+    eventType: "promotion",
+    idempotencyKey: `promo-lifecycle-${input.userId}-${input.action}-${input.promotionLabel}`,
+    notificationType:
+      input.action === "expire" || input.action === "expiring_soon" ? "promotion_expired" : "system",
     title,
     subtitle,
     href: "/promote",
     detail: subtitle,
+    payload: { action: input.action, promotionLabel: input.promotionLabel },
   });
 }
 

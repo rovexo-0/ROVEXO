@@ -1,20 +1,22 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
 import { SearchLandingView } from "@/features/search/components/SearchLandingView";
 import type { SearchLandingCategoryCount } from "@/features/search/components/SearchLandingView";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import type { Product } from "@/lib/products/types";
 import { ProductGridSkeleton } from "@/components/home/ProductSectionStates";
-import { SearchResultsEmpty } from "@/features/search/components/SearchResultsEmpty";
+import { MarketplaceNoProductsEmpty } from "@/features/search/components/MarketplaceNoProductsEmpty";
+import { SearchBarSearchIcon } from "@/features/search/components/SearchBarIcons";
 import { parseSearchFilters, serializeSearchFilters } from "@/features/search/utils/filters";
 import { closeSearchAndReturnHome } from "@/lib/navigation/homepage-scroll-restore";
 import { useIntersectionWhenVisible } from "@/lib/performance/hooks";
+import { SEARCH_MIN_CHARS } from "@/features/search/types";
+import { SEARCH_SYSTEM_V1 } from "@/lib/search/search-system-v1-lock";
 import { focusRing } from "@/components/ui/tokens";
 import { cn } from "@/lib/cn";
-import { HOME_CATEGORY_NAV } from "@/lib/home/constants";
 
 type SearchResultsResponse = {
   items: Product[];
@@ -49,6 +51,14 @@ function CloseIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
+function BackIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
     </svg>
   );
 }
@@ -132,16 +142,70 @@ export function SearchResultsView({
     closeSearchAndReturnHome((href) => router.push(href));
   }
 
-  function handleCategoryChange(nextCategory: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (nextCategory) params.set("category", nextCategory);
-    else params.delete("category");
-    params.delete("page");
+  function handleEmptySearchSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const normalized = String(form.get("q") ?? "").trim();
+    if (normalized.length < SEARCH_MIN_CHARS) return;
+    const params = new URLSearchParams();
+    params.set("q", normalized);
     router.replace(`/search?${params.toString()}`);
   }
 
   if (!hasBrowseTarget) {
-    return <SearchLandingView categoryCounts={categoryCounts} trending={trending} />;
+    return (
+      <SearchLandingView
+        categoryCounts={categoryCounts}
+        trending={trending}
+        surface="search"
+      />
+    );
+  }
+
+  const showCanonicalEmpty = !loading && !error && items.length === 0;
+
+  if (showCanonicalEmpty) {
+    return (
+      <div
+        className="srch-results srch-results--empty"
+        data-search-version="v1.0-final"
+        data-empty-state="no-products-v1"
+      >
+        <div className="srch-results__empty-chrome">
+          <button
+            type="button"
+            className={cn("srch-results__empty-back", focusRing)}
+            aria-label="Go back"
+            onClick={handleClose}
+          >
+            <BackIcon className="srch-results__empty-back-icon" />
+          </button>
+          <form
+            key={query}
+            className="srch-results__empty-bar"
+            role="search"
+            onSubmit={handleEmptySearchSubmit}
+          >
+            <span className="srch-results__empty-bar-icon" aria-hidden>
+              <SearchBarSearchIcon />
+            </span>
+            <input
+              type="search"
+              name="q"
+              defaultValue={query}
+              placeholder={SEARCH_SYSTEM_V1.placeholder}
+              className="srch-results__empty-bar-input"
+              aria-label={SEARCH_SYSTEM_V1.placeholder}
+              autoComplete="off"
+              enterKeyHint="search"
+            />
+          </form>
+        </div>
+        <div className="srch-results__empty-body">
+          <MarketplaceNoProductsEmpty />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -165,26 +229,6 @@ export function SearchResultsView({
         </div>
       </div>
 
-      {query ? (
-        <div className="srch-results__filters" aria-label="Search filters">
-          <label className="srch-results__filter">
-            <span className="sr-only">Category</span>
-            <select
-              className={cn("srch-results__filter-select", focusRing)}
-              value={category ?? ""}
-              onChange={(event) => handleCategoryChange(event.target.value)}
-            >
-              <option value="">All categories</option>
-              {HOME_CATEGORY_NAV.map((item) => (
-                <option key={item.slug} value={item.slug}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      ) : null}
-
       <div className="rx-listing-grid srch-results__grid">
         {loading ? (
           <ProductGridSkeleton count={8} />
@@ -194,10 +238,6 @@ export function SearchResultsView({
             <button type="button" onClick={() => void loadPage(1, false)}>
               Retry
             </button>
-          </div>
-        ) : items.length === 0 ? (
-          <div className="col-span-full">
-            <SearchResultsEmpty variant="no-results" query={query || category || ""} entity="products" />
           </div>
         ) : (
           items.map((product) => (

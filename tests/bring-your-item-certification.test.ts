@@ -218,11 +218,11 @@ describe("Bring Your Item — Official Certification Phase", () => {
     expect(report.version).toBe("1.0.0");
   });
 
-  it("reports the current responsive source-scan blocker", () => {
+  it("reports a clean certification score with zero critical blockers", () => {
     expect(report.score).toBeGreaterThanOrEqual(95);
     const criticalBlockers = report.blockers.filter((b) => !b.includes("Live keys configured"));
-    expect(criticalBlockers).toEqual(["Responsive Certification: Safe area insets"]);
-    expect(report.pass).toBe(false);
+    expect(criticalBlockers).toEqual([]);
+    expect(report.pass).toBe(true);
   });
 
   it("passes STEP 1 — Open Bring Your Item", () => {
@@ -266,11 +266,17 @@ describe("Bring Your Item — Official Certification Phase", () => {
     expect(wiringChecks.every((c) => c.pass)).toBe(true);
   });
 
-  it("passes current Publishing, Buyer, Seller, Performance, and Security checks", () => {
-    for (const id of ["publishing", "buyer", "seller", "performance", "security"] as const) {
+  it("passes current Publishing, Buyer, Seller, Performance, Security, and Responsive checks", () => {
+    for (const id of [
+      "publishing",
+      "buyer",
+      "seller",
+      "performance",
+      "security",
+      "responsive",
+    ] as const) {
       expect(report.steps.find((s) => s.id === id)?.pass).toBe(true);
     }
-    expect(report.steps.find((s) => s.id === "responsive")?.pass).toBe(false);
   });
 
   it("passes Final Certification Gate", () => {

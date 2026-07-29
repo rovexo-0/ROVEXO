@@ -1,6 +1,6 @@
 import type { MutableRefObject } from "react";
 import type { SellListingDraft } from "@/features/sell/types";
-import { saveDraftPhotos } from "@/lib/sell/draft-photo-storage";
+import { saveSellDraftPhotosViaProductIntegration } from "@/lib/product-integration/upload-storage-orchestration-v1";
 import { saveSellDraft, saveUploadSessionId } from "@/lib/sell/draft-storage";
 import { touchDraftSavedAt } from "@/lib/sell/draft-engine";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
@@ -57,7 +57,7 @@ export async function persistSellDraftSnapshot(refs: PersistableDraftRefs): Prom
     description: refs.pendingDescriptionRef.current,
   });
   try {
-    await saveDraftPhotos(draft.photos);
+    await saveSellDraftPhotosViaProductIntegration(draft.photos);
   } catch (error) {
     sellInputDiag("persist.snapshot.error", {
       message: error instanceof Error ? error.message : "unknown",

@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * DEFERRED TO v1.1 — Shipping Engine v1.0 Scope Lock
+ * Multi-parcel seller UI is not a live v1.0 surface (unreachable after Order Details → Hub).
+ * Keep file + parcel APIs/schema for extensibility. Exclude from Cluster 3 release package.
+ * Canonical v1.0 labels: Conversation Hub PRINT/VIEW → /api/shipping/labels → ShippingLabelViewer.
+ * SSOT: lib/shipping/shipping-engine-v1-scope-lock.ts
+ */
+
 import { useCallback, useMemo, useState } from "react";
 import { ComposeLineIcon } from "@/components/icons/RvxLineIcons";
 import { Button } from "@/components/ui/Button";

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BuyerEmptyState } from "@/components/buyer/BuyerEmptyState";
 import { BuyerSection } from "@/components/buyer/BuyerSection";
 import { useBuyerDashboard } from "@/hooks/buyer";
+import { getMessageHref } from "@/lib/orders/status";
 
 function orderProgress(status: string) {
   const steps = ["placed", "shipped", "delivered"] as const;
@@ -49,7 +50,10 @@ export function BuyerOrders() {
               />
             ))}
           </div>
-          <Link href={`/orders/${order.id}`} className="buyer-hero__cta">
+          <Link
+            href={getMessageHref(order.id, "buyer", order.conversationId)}
+            className="buyer-hero__cta"
+          >
             Track order
           </Link>
         </article>

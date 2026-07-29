@@ -6,11 +6,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { EyeLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { memo, useCallback, useEffect, useState, type SyntheticEvent } from "react";
 import { ShareListingSheet } from "@/components/share/ShareListingSheet";
 import { Avatar } from "@/components/ui/Avatar";
 import { SafeImage } from "@/components/ui/SafeImage";
+import { useCardImageSrc } from "@/lib/media/use-card-image-src";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
 import { trackPromotionEvent } from "@/components/promotions/PromotionAnalyticsBeacon";
 import { trackSaveListing } from "@/lib/analytics/marketplace-events";
@@ -25,6 +27,7 @@ import {
   resolveListingShippingForIncl,
 } from "@/lib/listing-card/format";
 import { resolveHomepagePromotionBadge } from "@/lib/homepage/feed-ranking";
+import { resolvePublicProfileHref } from "@/lib/profile/public-profile-href";
 import { getActiveMarket } from "@/lib/seo/markets";
 import { useLiveProductViews } from "@/lib/views/use-live-product-views";
 import { cn } from "@/lib/cn";
@@ -186,6 +189,10 @@ export const ListingCard = memo(function ListingCard({
   const pinned = favoriteMode === "watchlist" ? isSaved : Boolean(isFavoriteProp);
   const [shareOpen, setShareOpen] = useState(false);
   const liveViews = useLiveProductViews(product.slug, product.views);
+  const { src: cardImageSrc, onError: onCardImageError, unoptimized: cardImageUnoptimized } =
+    useCardImageSrc(product.imageUrl, product.imageFullUrl);
+  const router = useRouter();
+  const sellerProfileHref = resolvePublicProfileHref(product.sellerUsername);
 
   useEffect(() => {
     if (!promoted || !trackImpressions) return;
@@ -251,12 +258,14 @@ export const ListingCard = memo(function ListingCard({
       >
         <figure className={cn(css.visual, isHomepageCard && css.visualHomepage)}>
           <SafeImage
-            src={product.imageUrl}
+            src={cardImageSrc}
             alt={product.title}
             fill
             priority={priority}
             loading={priority ? undefined : "lazy"}
             sizes={imageSizes ?? IMG_SIZES}
+            unoptimized={cardImageUnoptimized}
+            onError={onCardImageError}
           />
           {promotionBadge ? (
             <ListingPromotionBadge label={promotionBadge.label} tone={promotionBadge.tone} />
@@ -328,13 +337,34 @@ export const ListingCard = memo(function ListingCard({
                 {!ratingEnd ? (
                   <div className={css.footerLeft}>
                     {showSeller ? (
-                      <Avatar
-                        src={product.sellerAvatar}
-                        alt={product.sellerName}
-                        name={product.sellerName}
-                        size="sm"
-                        className={css.sellerAvatar}
-                      />
+                      sellerProfileHref ? (
+                        <button
+                          type="button"
+                          className={css.sellerProfileLink}
+                          aria-label={`View ${product.sellerName} profile`}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            router.push(sellerProfileHref);
+                          }}
+                        >
+                          <Avatar
+                            src={product.sellerAvatar}
+                            alt={product.sellerName}
+                            name={product.sellerName}
+                            size="sm"
+                            className={css.sellerAvatar}
+                          />
+                        </button>
+                      ) : (
+                        <Avatar
+                          src={product.sellerAvatar}
+                          alt={product.sellerName}
+                          name={product.sellerName}
+                          size="sm"
+                          className={css.sellerAvatar}
+                        />
+                      )
                     ) : null}
                     {showRating ? (
                       <span className={css.rating} aria-label={`Rating ${formatCardRating(product)}`}>

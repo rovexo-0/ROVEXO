@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { CheckLineIcon } from "@/components/icons/RvxLineIcons";
 import { CanonicalButton } from "@/src/components/canonical";
 import { ModalContainer } from "@/components/ui/ModalContainer";
@@ -16,12 +15,11 @@ type TransactionHubPaymentSuccessProps = {
 /** Payment success overlay — stays inside the Transaction Hub conversation. */
 export function TransactionHubPaymentSuccess({
   open,
-  orderId,
+  orderId: _orderId,
   orderNumber,
   onContinueChat,
 }: TransactionHubPaymentSuccessProps) {
-  const router = useRouter();
-
+  void _orderId;
   if (!open) return null;
 
   return (
@@ -50,12 +48,7 @@ export function TransactionHubPaymentSuccess({
         </div>
 
         <div className="flex w-full flex-col gap-2">
-          <CanonicalButton
-            fullWidth
-            onClick={() => {
-              router.push(`/orders/${orderId}?placed=1`);
-            }}
-          >
+          <CanonicalButton fullWidth onClick={onContinueChat}>
             {TRANSACTION_HUB_COPY.viewOrder}
           </CanonicalButton>
           <CanonicalButton fullWidth variant="outline" onClick={onContinueChat}>

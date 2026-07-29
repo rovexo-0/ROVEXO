@@ -8,7 +8,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useCallback, useId, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
@@ -22,6 +22,7 @@ import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/cons
 import { useToast } from "@/components/ui/Toast";
 import { resolveVerifiedStatus } from "@/lib/master-engine";
 import type { PublicSellerProfile } from "@/lib/profile/public";
+import { resolvePublicProfileHref } from "@/lib/profile/public-profile-href";
 import type { Review } from "@/lib/reviews/types";
 import {
   buildRatingDistribution,
@@ -30,10 +31,13 @@ import {
 import { SELLER_RATING_RULES } from "@/lib/reviews/seller-rating-system-v1";
 import { FOLLOW_RATING_BADGE_STAR_COLOR } from "@/lib/reviews/follow-rating-badge-spec-v1";
 import { FollowButton, type FollowCounts } from "@/components/follow/FollowButton";
+import { AvatarUploader } from "@/features/account/components/AvatarUploader";
 import type { PublicTrustSummary } from "@/lib/trust/types";
+import { sanitizeNativeImagePickerId } from "@/lib/media/native-image-picker";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { storeListingCardAttr } from "@/lib/store/store-listing-card-premium-v1";
+import { HOLIDAY_MODE_PROFILE_EMPTY_MESSAGE } from "@/lib/listings/holiday-mode-visibility-v1";
 import "@/styles/rovexo/view-profile-v1.css";
 
 export const MY_PROFILE_VERSION = "v8.0" as const;
@@ -134,6 +138,10 @@ export function ViewProfilePage({
   const [storeFilter, setStoreFilter] = useState<StoreFilter>("active");
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [liveAvatarUrl, setLiveAvatarUrl] = useState(profile.avatarUrl);
+  const [avatarCropping, setAvatarCropping] = useState(false);
+  const avatarPickerReactId = useId();
+  const avatarPickerId = sanitizeNativeImagePickerId(avatarPickerReactId || "vp-avatar-native");
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState("Scam or fraud");
   const [reportMessage, setReportMessage] = useState("");
@@ -145,7 +153,29 @@ export function ViewProfilePage({
     setCountProfileId(profile.id);
     setFollowerCount(profile.followerCount);
     setFollowingCount(profile.followingCount);
+    setLiveAvatarUrl(profile.avatarUrl);
   }
+
+  const openNativeAvatarPicker = useCallback(() => {
+    setMenuOpen(false);
+    const input = document.getElementById(avatarPickerId);
+    if (input instanceof HTMLInputElement && !input.disabled) {
+      input.click();
+    }
+  }, [avatarPickerId]);
+
+  const onAvatarUpdated = useCallback(
+    (next: string | null) => {
+      setLiveAvatarUrl(next);
+      setAvatarCropping(false);
+      pushToast({
+        title: next ? "Photo updated." : "Photo removed.",
+        variant: "success",
+      });
+      router.refresh();
+    },
+    [pushToast, router],
+  );
 
   const onFollowCountsChange = useCallback((counts: FollowCounts) => {
     setFollowerCount(counts.followerCount);
@@ -309,15 +339,29 @@ export function ViewProfilePage({
           title={isOwnProfile ? "My Profile" : `@${profile.username}`}
           backHref={isOwnProfile ? "/account" : "/search"}
           rightAction={
-            <button
-              type="button"
-              className={cn("vp-v1__menu-btn", focusRing)}
-              aria-label="More"
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((open) => !open)}
-            >
-              ···
-            </button>
+            <div className="vp-v1__header-actions" data-profile-header-actions>
+              {!isOwnProfile ? (
+                <div className="vp-v1__header-follow">
+                  <FollowButton
+                    userId={profile.id}
+                    initialFollowing={profile.isFollowing}
+                    followerCount={followerCount}
+                    followingCount={followingCount}
+                    onCountsChange={onFollowCountsChange}
+                    className="vp-v1__follow-btn"
+                  />
+                </div>
+              ) : null}
+              <button
+                type="button"
+                className={cn("vp-v1__menu-btn", focusRing)}
+                aria-label="More"
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((open) => !open)}
+              >
+                ···
+              </button>
+            </div>
           }
         />
 
@@ -346,10 +390,7 @@ export function ViewProfilePage({
                   <button
                     type="button"
                     className="vp-v1__menu-item vp-v1__menu-item--nav"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      router.push("/account/profile/avatar");
-                    }}
+                    onClick={openNativeAvatarPicker}
                   >
                     <span>Change Profile Picture</span>
                     <span aria-hidden>›</span>
@@ -440,23 +481,34 @@ export function ViewProfilePage({
             <div className="vp-v1__hero-top">
               <div className="vp-v1__avatar-wrap">
                 {isOwnProfile ? (
-                  <button
-                    type="button"
-                    className={cn("vp-v1__avatar-hit", focusRing)}
-                    aria-label={profile.avatarUrl ? "Change profile photo" : "Add profile photo"}
-                    onClick={() => router.push("/account/profile/avatar")}
-                  >
-                    <Avatar
-                      src={profile.avatarUrl}
-                      alt={profile.fullName}
+                  <>
+                    {!avatarCropping ? (
+                      <label
+                        htmlFor={avatarPickerId}
+                        className={cn("vp-v1__avatar-hit", focusRing)}
+                        aria-label={liveAvatarUrl ? "Change profile photo" : "Add profile photo"}
+                      >
+                        <Avatar
+                          src={liveAvatarUrl}
+                          alt={profile.fullName}
+                          name={profile.fullName}
+                          size="xl"
+                          className="vp-v1__avatar"
+                        />
+                        <span className="vp-v1__avatar-camera" aria-hidden>
+                          <CameraIcon />
+                        </span>
+                      </label>
+                    ) : null}
+                    <AvatarUploader
                       name={profile.fullName}
-                      size="xl"
-                      className="vp-v1__avatar"
+                      avatarUrl={liveAvatarUrl}
+                      nativeDirect
+                      pickerInputId={avatarPickerId}
+                      onCroppingChange={setAvatarCropping}
+                      onUpdated={onAvatarUpdated}
                     />
-                    <span className="vp-v1__avatar-camera" aria-hidden>
-                      <CameraIcon />
-                    </span>
-                  </button>
+                  </>
                 ) : (
                   <Avatar
                     src={profile.avatarUrl}
@@ -529,7 +581,9 @@ export function ViewProfilePage({
               </div>
             </div>
 
-            <div className="vp-v1__actions">
+            <div
+              className={cn("vp-v1__actions", !isOwnProfile && "vp-v1__actions--single")}
+            >
               {isOwnProfile ? (
                 <Link
                   href="/account/edit-profile"
@@ -538,18 +592,6 @@ export function ViewProfilePage({
                   Edit Profile
                 </Link>
               ) : (
-                <div className="vp-v1__follow-slot">
-                  <FollowButton
-                    userId={profile.id}
-                    initialFollowing={profile.isFollowing}
-                    followerCount={followerCount}
-                    followingCount={followingCount}
-                    onCountsChange={onFollowCountsChange}
-                    className="vp-v1__follow-btn"
-                  />
-                </div>
-              )}
-              {!isOwnProfile ? (
                 <button
                   type="button"
                   className={cn("vp-v1__action-btn", "vp-v1__action-btn--secondary", focusRing)}
@@ -559,14 +601,15 @@ export function ViewProfilePage({
                   <MessageBubbleIcon />
                   Message
                 </button>
-              ) : (
+              )}
+              {isOwnProfile ? (
                 <Link
                   href="/account/profile/bio"
                   className={cn("vp-v1__action-btn", "vp-v1__action-btn--secondary", focusRing)}
                 >
                   Edit Bio
                 </Link>
-              )}
+              ) : null}
             </div>
           </section>
 
@@ -652,7 +695,10 @@ export function ViewProfilePage({
                   ))}
                 </div>
               ) : (
-                <YourStoreEmptyState showCreateCta={isOwnProfile} />
+                <YourStoreEmptyState
+                  showCreateCta={isOwnProfile}
+                  holidayMode={!isOwnProfile && profile.holidayModeEnabled}
+                />
               )}
             </section>
           ) : null}
@@ -726,7 +772,17 @@ export function ViewProfilePage({
                         </p>
                       )}
                       <p className="vp-v1__review-meta">
-                        <span>{review.reviewerName ?? "Member"}</span>
+                        {(() => {
+                          const href = resolvePublicProfileHref(review.reviewerUsername);
+                          const label = review.reviewerName ?? "Member";
+                          return href ? (
+                            <Link href={href} className="vp-v1__review-author">
+                              {label}
+                            </Link>
+                          ) : (
+                            <span>{label}</span>
+                          );
+                        })()}
                         <span aria-hidden>·</span>
                         <time dateTime={review.createdAt}>{formatReviewDate(review.createdAt)}</time>
                       </p>
@@ -885,7 +941,24 @@ export function ViewProfilePage({
   );
 }
 
-function YourStoreEmptyState({ showCreateCta }: { showCreateCta: boolean }) {
+function YourStoreEmptyState({
+  showCreateCta,
+  holidayMode = false,
+}: {
+  showCreateCta: boolean;
+  holidayMode?: boolean;
+}) {
+  if (holidayMode) {
+    return (
+      <div className="vp-v1__store-empty" data-your-store-empty="holiday-mode">
+        <div className="vp-v1__store-empty-icon" aria-hidden>
+          <StorefrontIcon />
+        </div>
+        <p className="vp-v1__store-empty-title">{HOLIDAY_MODE_PROFILE_EMPTY_MESSAGE}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="vp-v1__store-empty" data-your-store-empty="v8.0">
       <div className="vp-v1__store-empty-icon" aria-hidden>

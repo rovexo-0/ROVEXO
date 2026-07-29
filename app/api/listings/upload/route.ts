@@ -55,7 +55,9 @@ export async function POST(request: Request) {
     ]);
 
     const { enhanceListingImage } = await import("@/lib/media/enhance-listing-image");
-    const { assertValidJpegBuffer } = await import("@/lib/media/smart-mobile-image-pipeline-v1");
+    const { assertValidJpegBuffer } = await import(
+      "@/lib/product-integration/photo-system-integration-foundation-v1"
+    );
     const [enhancedFull, enhancedThumb] = await Promise.all([
       enhanceListingImage(fullRaw),
       enhanceListingImage(thumbnailRaw),

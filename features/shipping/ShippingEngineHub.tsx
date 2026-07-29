@@ -1,9 +1,17 @@
 "use client";
 
+/**
+ * DEFERRED TO v1.1 — Shipping Engine v1.0 Scope Lock
+ * Not a live v1.0 destination (`/shipping` redirects to `/orders`).
+ * Do not include in Cluster 3 Production Release package.
+ * SSOT: lib/shipping/shipping-engine-v1-scope-lock.ts
+ */
+
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ModuleIcon } from "@/components/icons/ModuleIcon";
 import { cn } from "@/lib/cn";
+import { getMessageHref } from "@/lib/orders/status";
 import type { ShippingEngineDocument, ShippingEngineModule } from "@/lib/shipping-engine/types";
 
 type ShippingOrderRow = {
@@ -98,7 +106,7 @@ export function ShippingEngineHub({ config, modules, orders }: ShippingEngineHub
           <div className="se-list">
             {orders.length === 0 ? <p className="text-sm text-text-muted">No active shipments.</p> : null}
             {orders.map((order) => (
-              <Link key={order.id} href={`/orders/${order.id}`} className="se-list__row se-list__row--link">
+              <Link key={order.id} href={getMessageHref(order.id, "seller")} className="se-list__row se-list__row--link">
                 <div>
                   <p className="font-semibold">{order.order_number}</p>
                   <p className="text-sm text-text-secondary">{order.status.replace(/_/g, " ")}</p>
@@ -136,7 +144,7 @@ export function ShippingEngineHub({ config, modules, orders }: ShippingEngineHub
           <p className="se-panel__desc">Open an order to view the complete carrier-independent shipment timeline.</p>
           <div className="se-list">
             {orders.map((order) => (
-              <Link key={order.id} href={`/orders/${order.id}`} className="se-list__row se-list__row--link">
+              <Link key={order.id} href={getMessageHref(order.id, "seller")} className="se-list__row se-list__row--link">
                 <div>
                   <p className="font-semibold">{order.order_number}</p>
                   <p className="text-sm text-text-secondary">

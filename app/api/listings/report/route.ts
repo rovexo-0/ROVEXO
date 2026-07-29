@@ -1,7 +1,7 @@
 import { enforceRateLimit } from "@/lib/api/rate-limit";
 import { requireApiAuth } from "@/lib/auth/session";
 import { createContentReport } from "@/lib/moderation/service";
-import { createNotification } from "@/lib/notifications/create";
+import { emitSmartNotification } from "@/lib/notifications/events";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -42,13 +42,16 @@ export async function POST(request: Request) {
       details: body.message,
     });
 
-    await createNotification({
+    await emitSmartNotification({
       userId: auth.user.id,
-      type: "system",
+      eventType: "support_reply",
+      idempotencyKey: `listing-report-ack-${auth.user.id}-${product.id}`,
+      notificationType: "system",
       title: "Listing report received",
       subtitle: `We received your report for “${product.title}”.`,
       href: `/listing/${body.productSlug}`,
       detail: [body.reason, body.message].filter(Boolean).join(" — "),
+      payload: { productId: product.id, productSlug: body.productSlug, reason: body.reason },
     });
 
     return NextResponse.json({ success: true });

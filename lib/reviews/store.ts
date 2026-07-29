@@ -102,7 +102,7 @@ function mapReview(row: {
   reply_text?: string | null;
   reply_at?: string | null;
   reply_author_id?: string | null;
-  reviewer?: { full_name: string; avatar_url?: string | null } | null;
+  reviewer?: { full_name: string; username?: string | null; avatar_url?: string | null } | null;
 }): Review {
   return {
     id: row.id,
@@ -115,6 +115,7 @@ function mapReview(row: {
     createdAt: row.created_at,
     updatedAt: row.updated_at ?? undefined,
     reviewerName: row.reviewer?.full_name,
+    reviewerUsername: row.reviewer?.username ?? null,
     reviewerAvatarUrl: row.reviewer?.avatar_url ?? null,
     verifiedPurchase: row.verified_purchase !== false,
     replyText: row.reply_text ?? null,
@@ -260,7 +261,7 @@ export async function createOrderReview(
       const stars = "★".repeat(Math.min(5, Math.max(1, Math.round(input.rating))));
       await emitSmartNotification({
         userId: review.reviewee_id,
-        eventType: "admin_announcement",
+        eventType: "review_received",
         idempotencyKey: `review-received:${review.id}`,
         notificationType: "review",
         title: "Review received",
@@ -389,7 +390,7 @@ export async function listSellerReviews(
     .select(
       `
       *,
-      reviewer:profiles!reviews_reviewer_id_fkey ( full_name, avatar_url )
+      reviewer:profiles!reviews_reviewer_id_fkey ( full_name, username, avatar_url )
     `,
     )
     .eq("reviewee_id", sellerId)
@@ -427,7 +428,7 @@ export async function listOrderReviews(
     .select(
       `
       *,
-      reviewer:profiles!reviews_reviewer_id_fkey ( full_name, avatar_url )
+      reviewer:profiles!reviews_reviewer_id_fkey ( full_name, username, avatar_url )
     `,
     )
     .eq("order_id", orderId)
@@ -472,7 +473,7 @@ export async function getReviewForOrder(orderId: string): Promise<Review | null>
     .select(
       `
       *,
-      reviewer:profiles!reviews_reviewer_id_fkey ( full_name, avatar_url )
+      reviewer:profiles!reviews_reviewer_id_fkey ( full_name, username, avatar_url )
     `,
     )
     .eq("order_id", orderId)

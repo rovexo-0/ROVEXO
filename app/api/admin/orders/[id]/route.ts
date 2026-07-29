@@ -19,12 +19,15 @@ export async function PATCH(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Status is required." }, { status: 400 });
     }
 
-    const ok = await adminUpdateOrderStatus(id, body.status);
-    if (!ok) {
-      return NextResponse.json({ error: "Unable to update order." }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true });
+    const result = await adminUpdateOrderStatus(id, body.status, auth.user.id);
+    return NextResponse.json(
+      {
+        success: false,
+        code: result.code,
+        error: result.error,
+      },
+      { status: 403 },
+    );
   } catch {
     return NextResponse.json({ error: "Unable to update order." }, { status: 500 });
   }

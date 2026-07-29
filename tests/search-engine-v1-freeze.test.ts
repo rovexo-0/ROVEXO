@@ -99,8 +99,12 @@ describe("Search Engine v1.0 Senior Architect Freeze", () => {
     expect(server).not.toContain("@/lib/search-engine");
     expect(adminEngine).toContain("updatePlatformSetting");
 
+    // SEARCH_UI_v1.0 + Search Engine freeze: results use URL-encoded filters
+    // (serializeSearchFilters) and browse-target gating — not a separate filter chrome.
     const resultsView = readSource("features/search/components/SearchResultsView.tsx");
-    expect(resultsView).toContain("{query ? (");
-    expect(resultsView).toContain('aria-label="Search filters"');
+    expect(resultsView).toContain("hasBrowseTarget");
+    expect(resultsView).toContain("serializeSearchFilters");
+    expect(resultsView).toContain("ListingCard");
+    expect(resultsView).not.toContain('aria-label="Search filters"');
   });
 });

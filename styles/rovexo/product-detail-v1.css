@@ -540,6 +540,17 @@ a.pd-v1__action-btn {
   gap: 12px;
 }
 
+.pd-v1__store-identity-link,
+.pd-v1__store-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+  color: inherit;
+  text-decoration: none;
+}
+
 .pd-v1__store-meta {
   min-width: 0;
   flex: 1;

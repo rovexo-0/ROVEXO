@@ -13,6 +13,10 @@ import {
   isWalletHubNotificationHref,
   recoverNotificationHref,
 } from "@/lib/notifications/routing";
+import {
+  buildOrderConversationHref,
+  matchConversationIdForOrder,
+} from "@/lib/orders/order-conversation-href";
 import { getMessageHref } from "@/lib/orders/status";
 import type { Order } from "@/lib/orders/types";
 
@@ -80,13 +84,18 @@ async function resolveConversationHrefForOrderRef(orderRef: string): Promise<str
     );
     if (!order) return null;
 
-    const match = (messagesPayload.conversations ?? []).find(
-      (item) =>
-        item.product.id === order.product.id || item.product.slug === order.product.slug,
-    );
-    if (!match) return getMessageHref(order.id, "buyer");
+    const conversationId =
+      order.conversationId ??
+      matchConversationIdForOrder({
+        productId: order.product.id,
+        productSlug: order.product.slug,
+        conversations: messagesPayload.conversations ?? [],
+      });
 
-    return `${INBOX_ROUTES.conversation(match.id)}?order=${encodeURIComponent(order.id)}`;
+    return buildOrderConversationHref({
+      orderId: order.id,
+      conversationId,
+    });
   } catch {
     return null;
   }

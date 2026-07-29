@@ -9,10 +9,14 @@ import { SendcloudError } from "@/lib/shipping/sendcloud/errors";
 import { mapSendcloudTrackingStatus } from "@/lib/shipping/sendcloud/status-mapper";
 import type { SendcloudWebhookPayload } from "@/lib/shipping/sendcloud/types";
 
+/**
+ * Fail-closed: SENDCLOUD_WEBHOOK_SECRET is required in every environment.
+ * Missing secret or missing/invalid signature → reject (never process unsigned).
+ */
 export function verifySendcloudWebhookRequest(request: Request, rawBody: string): boolean {
   const expected = getSendcloudWebhookSecret();
   if (!expected) {
-    return process.env.NODE_ENV !== "production";
+    return false;
   }
 
   const signature = request.headers.get("sendcloud-signature");
@@ -20,9 +24,12 @@ export function verifySendcloudWebhookRequest(request: Request, rawBody: string)
 
   const digest = createHmac("sha256", expected).update(rawBody).digest("hex");
   try {
-    return timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
+    const left = Buffer.from(signature);
+    const right = Buffer.from(digest);
+    if (left.length !== right.length) return false;
+    return timingSafeEqual(left, right);
   } catch {
-    return signature === digest;
+    return false;
   }
 }
 

@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Tables, TablesUpdate } from "@/lib/supabase/types/database";
 import { inspectMessageContent, buildAutoReplyWarning } from "@/lib/messages/security";
-import { dispatchNotification } from "@/lib/notifications/dispatch";
+import { emitSmartNotification } from "@/lib/notifications/events";
 import { onSellerMessageReply } from "@/lib/seller-performance/events";
 import type { ChatMessage, Conversation, ProductListingStatus } from "@/lib/messages/types";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
@@ -22,8 +22,8 @@ type ConversationRow = Tables<"conversations"> & {
   > & {
     product_images: Pick<Tables<"product_images">, "url" | "is_primary" | "sort_order">[];
   } | null;
-  buyer: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url">;
-  seller: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url"> & {
+  buyer: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url" | "username">;
+  seller: Pick<Tables<"profiles">, "id" | "full_name" | "avatar_url" | "username"> & {
     seller_profiles: Pick<Tables<"seller_profiles">, "rating" | "review_count"> | null;
   };
   messages: Tables<"messages">[];
@@ -75,6 +75,39 @@ function mapMessage(row: Tables<"messages">): ChatMessage {
   };
 }
 
+const MESSAGE_PHOTO_SIGN_TTL_SECONDS = 60 * 60 * 24 * 7;
+
+/** Private `messages` bucket paths → signed URLs for Conversation bubble display. */
+async function signPhotoMessageContents(messages: ChatMessage[]): Promise<ChatMessage[]> {
+  const needsSign = messages.some(
+    (message) =>
+      message.kind === "photo" &&
+      Boolean(message.content) &&
+      !message.deletedAt &&
+      !/^https?:\/\//i.test(message.content),
+  );
+  if (!needsSign) return messages;
+
+  const supabase = await createClient();
+  return Promise.all(
+    messages.map(async (message) => {
+      if (
+        message.kind !== "photo" ||
+        !message.content ||
+        message.deletedAt ||
+        /^https?:\/\//i.test(message.content)
+      ) {
+        return message;
+      }
+      const { data } = await supabase.storage
+        .from("messages")
+        .createSignedUrl(message.content, MESSAGE_PHOTO_SIGN_TTL_SECONDS);
+      if (!data?.signedUrl) return message;
+      return { ...message, content: data.signedUrl };
+    }),
+  );
+}
+
 async function getPresence(userId: string) {
   const { tryCreateAdminClient } = await import("@/lib/supabase/admin");
   const admin = tryCreateAdminClient();
@@ -104,6 +137,7 @@ function mapConversation(row: ConversationRow, viewerId: string): Conversation {
     participant: {
       id: participant.id,
       name: participant.full_name,
+      username: participant.username ?? null,
       avatarUrl: normalizeAvatarUrl(participant.avatar_url) ?? undefined,
       role: isBuyer ? "seller" : "buyer",
       online: false,
@@ -139,8 +173,8 @@ function mapConversation(row: ConversationRow, viewerId: string): Conversation {
 const conversationSelect = `
   *,
   products ( id, slug, title, price, condition, status, listing_type, accept_offers, location_city, product_images ( url, is_primary, sort_order ) ),
-  buyer:profiles!conversations_buyer_id_fkey ( id, full_name, avatar_url ),
-  seller:profiles!conversations_seller_id_fkey ( id, full_name, avatar_url, seller_profiles ( rating, review_count ) ),
+  buyer:profiles!conversations_buyer_id_fkey ( id, full_name, avatar_url, username ),
+  seller:profiles!conversations_seller_id_fkey ( id, full_name, avatar_url, username, seller_profiles ( rating, review_count ) ),
   messages ( * )
 `;
 
@@ -184,6 +218,7 @@ export async function getConversationById(id: string, viewerId: string): Promise
   if (!hydrated.products) return null;
 
   const conversation = mapConversation(hydrated, viewerId);
+  conversation.messages = await signPhotoMessageContents(conversation.messages);
   const presence = await getPresence(conversation.participant.id);
   conversation.participant.online = presence?.online ?? false;
   conversation.participant.lastSeen = presence?.last_seen_at ?? undefined;
@@ -198,10 +233,14 @@ export async function appendMessage(input: {
   kind?: "text" | "photo" | "emoji";
   replyToId?: string;
 }): Promise<{ message: ChatMessage | null; error?: string; warning?: string | null }> {
-  const security = inspectMessageContent(input.content);
+  const kind = input.kind ?? "text";
+  const security =
+    kind === "photo" ? inspectMessageContent("Shared photo") : inspectMessageContent(input.content);
   if (security.blocked) {
     return { message: null, error: security.warning ?? "Message blocked by safety filters." };
   }
+
+  const previewText = kind === "photo" ? "Shared photo" : input.content;
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -211,7 +250,7 @@ export async function appendMessage(input: {
       sender_id: input.senderId,
       sender_role: input.senderRole,
       content: input.content,
-      kind: input.kind ?? "text",
+      kind,
       status: "sent",
       reply_to_id: input.replyToId ?? null,
       moderation_decision: security.result.decision,
@@ -241,7 +280,7 @@ export async function appendMessage(input: {
     await supabase
       .from("conversations")
       .update({
-        last_message: input.content,
+        last_message: previewText,
         last_message_at: new Date().toISOString(),
         buyer_unread_count: isBuyer
           ? conversation.buyer_unread_count
@@ -260,18 +299,21 @@ export async function appendMessage(input: {
       .eq("id", recipientId)
       .maybeSingle();
 
-    await dispatchNotification({
+    await emitSmartNotification({
       userId: recipientId,
-      type: "message",
+      eventType: "new_message",
+      idempotencyKey: `new-message-${data.id}`,
+      notificationType: "message",
       title: "New message",
-      subtitle: input.content.slice(0, 120),
+      subtitle: previewText.slice(0, 120),
       href: `/inbox/conversation/${input.conversationId}`,
       detail: buildAutoReplyWarning(security.warning) ?? undefined,
+      payload: { conversationId: input.conversationId, messageId: data.id },
       email: recipientProfile?.email
         ? {
             to: recipientProfile.email,
             subject: "New ROVEXO message",
-            body: `${input.content.slice(0, 500)}\n\nOpen: /inbox/conversation/${input.conversationId}`,
+            body: `${previewText.slice(0, 500)}\n\nOpen: /inbox/conversation/${input.conversationId}`,
           }
         : undefined,
     });

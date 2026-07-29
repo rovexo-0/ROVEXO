@@ -1,5 +1,26 @@
 "use client";
 
+export type SubscribeToBrowserPushOptions = {
+  /**
+   * When true, may call Notification.requestPermission().
+   * Must only be set from a user gesture (toggle / button).
+   * iOS WebKit never shows the permission dialog without a gesture.
+   */
+  allowPrompt?: boolean;
+};
+
+export type PushOsPermission = "default" | "granted" | "denied" | "unsupported";
+
+/** Pure gate — used by subscribe + unit tests. */
+export function resolvePushPermissionAction(
+  permission: PushOsPermission,
+  allowPrompt: boolean,
+): "request" | "subscribe" | "abort" {
+  if (permission === "unsupported" || permission === "denied") return "abort";
+  if (permission === "granted") return "subscribe";
+  return allowPrompt ? "request" : "abort";
+}
+
 function detectPlatform(): "web" | "android" | "ios" {
   if (typeof navigator === "undefined") return "web";
   const ua = navigator.userAgent.toLowerCase();
@@ -26,13 +47,38 @@ export async function getVapidPublicKey(): Promise<string | null> {
   return payload.publicKey ?? null;
 }
 
-export async function subscribeToBrowserPush(): Promise<boolean> {
-  if (typeof window === "undefined" || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+export async function subscribeToBrowserPush(
+  options: SubscribeToBrowserPushOptions = {},
+): Promise<boolean> {
+  const allowPrompt = options.allowPrompt === true;
+
+  if (typeof window === "undefined" || !("Notification" in window)) {
     return false;
   }
 
-  const permission = await Notification.requestPermission();
+  const action = resolvePushPermissionAction(
+    typeof Notification.permission === "string"
+      ? (Notification.permission as PushOsPermission)
+      : "unsupported",
+    allowPrompt,
+  );
+
+  let permission: NotificationPermission =
+    typeof Notification.permission === "string" ? Notification.permission : "denied";
+
+  if (action === "abort") {
+    return false;
+  }
+
+  if (action === "request") {
+    permission = await Notification.requestPermission();
+  }
+
   if (permission !== "granted") {
+    return false;
+  }
+
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
     return false;
   }
 

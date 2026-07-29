@@ -2,7 +2,8 @@ import type { MessageKey } from "@/lib/i18n/messages/en-GB";
 
 export const roRO: Record<MessageKey, string> = {
   "nav.home": "Acasă",
-  "nav.search": "Răsfoiește",
+  "nav.search": "Căutare",
+  "nav.browse": "Răsfoiește",
   "nav.sell": "Vinde",
   "nav.saved": "Inbox",
   "nav.account": "Profil",

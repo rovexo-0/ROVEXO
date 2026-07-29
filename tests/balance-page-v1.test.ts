@@ -52,7 +52,8 @@ describe("Balance page — Wallet Production presentation", () => {
     expect(hub).toContain("wallet-v2__hero");
     expect(hub).toContain("WalletInsights");
     expect(hub).toContain("WalletRecentTransactions");
-    expect(hub).toContain("WalletConnectedBank");
+    expect(hub).not.toContain("WalletConnectedBank");
+    expect(hub).not.toContain("Quick Actions");
     expect(hub).not.toContain('title="Wallet"');
     expect(hub).not.toContain("balance-v1__available");
   });
@@ -101,6 +102,7 @@ describe("Balance page — Wallet Production presentation", () => {
     expect(css).toContain(".wallet-v2");
     expect(css).toContain("wallet-v2__hero");
     expect(css).toContain("wallet-v1-canonical-mockup.png");
+    expect(css).toContain("/wallet/balance-hero-banking-v1.png");
     expect(fullWidth).toContain("Wallet Production conflict fix");
     expect(fullWidth).toContain("min-width: 100% !important");
   });
