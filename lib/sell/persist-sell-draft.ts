@@ -7,6 +7,7 @@ import {
   type DatabaseDraftPersistResult,
 } from "@/lib/sell/draft-database-ssot-v1";
 import {
+  clearDatabaseDraftId,
   loadDatabaseDraftId,
   saveDatabaseDraftId,
   saveSellDraft,
@@ -118,6 +119,11 @@ export async function persistDatabaseDraftFromSellDraft(
     } | null;
 
     if (!response.ok || !body?.ok || !body.draftId) {
+      // Stale draft id → clear and create a fresh draft row once.
+      if (response.status === 404 && draftId) {
+        clearDatabaseDraftId();
+        return persistDatabaseDraftFromSellDraft(draft, { draftId: null });
+      }
       return {
         ok: false,
         error: body?.code || body?.error || `HTTP_${response.status}`,

@@ -141,12 +141,17 @@ const CATALOG_PHRASE_RULES: ReadonlyArray<{
   },
   {
     patterns: ["sleeping bag", "sleepingbag", "camping sleeping bag"],
-    slugs: ["sports", "outdoor-sports", "camping"],
+    slugs: ["sports", "camping", "sleeping-bags"],
     rank: "exact_synonym",
   },
   {
-    patterns: ["camping tent", "family tent", "camping"],
-    slugs: ["sports", "outdoor-sports", "camping"],
+    patterns: ["camping tent", "family tent", "tent"],
+    slugs: ["sports", "camping", "tents"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["camping"],
+    slugs: ["sports", "camping", "sleeping-bags"],
     rank: "exact_product_type",
   },
 ];

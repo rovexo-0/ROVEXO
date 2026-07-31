@@ -225,16 +225,26 @@ export async function runPublishPipeline(input: PublishPipelineInput): Promise<P
 
   onPhase("creating");
   const payload = buildListingPublishPayload(draft, uploadedPhotos);
-  const endpoint = editListingId ? `/api/listings/${editListingId}` : "/api/listings";
-  const method = editListingId ? "PATCH" : "POST";
+  // Keep editListingId in the PATCH URL (Canonical Edit Listing Engine contract).
+  let endpoint = editListingId ? `/api/listings/${editListingId}` : "/api/listings";
+  let method: "POST" | "PATCH" = editListingId ? "PATCH" : "POST";
+  let usedEditId = Boolean(editListingId);
 
-  const response = await createListingWithRetry(
+  let response = await createListingWithRetry(
     endpoint,
     method,
-    editListingId
+    usedEditId
       ? { ...payload, removeImageIds: removedImageIds, status: "published" }
       : payload,
   );
+
+  // Soft recovery: stale draft UUID → "Listing not found." — retry once as create.
+  if (response.status === 404 && usedEditId) {
+    usedEditId = false;
+    endpoint = "/api/listings";
+    method = "POST";
+    response = await createListingWithRetry(endpoint, method, payload);
+  }
 
   if (response.status === 428) {
     const body = (await response.json().catch(() => null)) as { redirect?: string } | null;
@@ -260,11 +270,17 @@ export async function runPublishPipeline(input: PublishPipelineInput): Promise<P
 
   const result = (await response.json()) as Parameters<typeof parsePublishSuccessResponse>[0];
   const publish = parsePublishSuccessResponse(result);
+  const primaryPhoto = uploadedPhotos[0];
 
   onPhase("published");
   return {
     ...publish,
     title: publish.title || draft.title.trim(),
+    imageUrl:
+      publish.imageUrl ||
+      primaryPhoto?.thumbnailUrl ||
+      primaryPhoto?.url ||
+      undefined,
     photos: uploadedPhotos,
   };
 }

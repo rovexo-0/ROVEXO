@@ -18,6 +18,7 @@ import {
   trackPublishSuccessShareListing,
   trackPublishSuccessViewListing,
 } from "@/lib/sell/publish-analytics";
+import { waitListingViewReadyMs } from "@/lib/sell/listing-view-readiness-v1";
 
 type PublishSuccessDialogProps = {
   open: boolean;
@@ -63,6 +64,16 @@ export function PublishSuccessDialog({
 
     try {
       const path = getListingCanonicalPath(publish.listingSlug);
+      // Soft readiness — avoid racing RSC before the listing is readable.
+      for (let attempt = 0; attempt < 6; attempt += 1) {
+        try {
+          const probe = await fetch(path, { credentials: "same-origin", cache: "no-store" });
+          if (probe.ok) break;
+        } catch {
+          /* retry */
+        }
+        await waitListingViewReadyMs(250);
+      }
       trackPublishSuccessViewListing(publish);
       router.push(path);
       router.refresh();

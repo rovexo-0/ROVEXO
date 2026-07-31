@@ -23,6 +23,11 @@ import { loadCategoryScopedTaxonomy } from "@/lib/category-loaders/scoped";
 import {
   resolveAaQuickSellAttributeIds,
 } from "@/lib/sell/aa-quick-sell-attributes";
+import {
+  catalogPathRequiresSize,
+  catalogSizeOptionsForPath,
+} from "@/lib/sell/catalog-size-visibility-v1";
+import { resolveSellAttributeIdsFromCatalog } from "@/lib/sell/catalog-attribute-bridge-v1";
 import { SELL_QUICK_CONDITIONS } from "@/lib/sell/sell-condition-options";
 
 export type AttributeInput = "select-single" | "select-multi" | "grid-single" | "text";
@@ -255,6 +260,20 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     target: { kind: "map" },
     placeholder: "e.g. 1.2 kg",
   },
+  temperatureRating: {
+    id: "temperatureRating",
+    label: "Temperature Rating",
+    input: "text",
+    target: { kind: "map" },
+    placeholder: "e.g. Comfort 0°C",
+  },
+  dimensions: {
+    id: "dimensions",
+    label: "Dimensions",
+    input: "text",
+    target: { kind: "map" },
+    placeholder: "e.g. 120 × 60 × 40 cm",
+  },
   age: {
     id: "age",
     label: "Age",
@@ -419,13 +438,6 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     target: { kind: "map" },
     placeholder: "e.g. 45000",
     inputMode: "numeric",
-  },
-  dimensions: {
-    id: "dimensions",
-    label: "Dimensions",
-    input: "text",
-    target: { kind: "map" },
-    placeholder: "e.g. 120 x 60 x 45 cm",
   },
   width: {
     id: "width",
@@ -643,7 +655,10 @@ function applyCategoryScopedOptions(defs: AttributeDef[], categoryPath: FlatCate
           label: "Colours",
         };
       case "size":
-        return { ...def, options: toOptions(scoped.sizes) };
+        return {
+          ...def,
+          options: toOptions([...catalogSizeOptionsForPath(categoryPath)]),
+        };
       case "pattern":
         return { ...def, options: toOptions(scoped.patterns) };
       case "style":
@@ -674,7 +689,25 @@ function applyCategoryScopedOptions(defs: AttributeDef[], categoryPath: FlatCate
 export function getQuickSellAttributeDefs(categoryPath: FlatCategoryPath | null): AttributeDef[] {
   if (!categoryPath) return [];
 
-  const ids = resolveAaQuickSellAttributeIds(categoryPath);
+  const requiresSize = catalogPathRequiresSize(categoryPath);
+  const catalogIds = resolveSellAttributeIdsFromCatalog(categoryPath);
+  const aaIds = resolveAaQuickSellAttributeIds(categoryPath);
+
+  // Prefer Catalog Master product-type attributes; fall back to AA map.
+  const baseIds = catalogIds.length > 0 ? catalogIds : aaIds;
+  const ids = baseIds.filter((id) => {
+    if (id === "size") return requiresSize;
+    return true;
+  });
+
+  if (requiresSize && !ids.includes("size")) {
+    const brandIdx = ids.indexOf("brand");
+    const conditionIdx = ids.indexOf("condition");
+    const insertAt =
+      brandIdx >= 0 ? brandIdx + 1 : conditionIdx >= 0 ? conditionIdx + 1 : ids.length;
+    ids.splice(insertAt, 0, "size");
+  }
+
   const defs = ids
     .map((id) => ATTRIBUTE_DEFS[id])
     .filter((def): def is AttributeDef => Boolean(def));

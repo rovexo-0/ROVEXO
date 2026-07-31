@@ -7,56 +7,44 @@ import { createEmptyDraft } from "@/features/sell/types";
 import { SELL_QUICK_CONDITIONS } from "@/lib/sell/sell-condition-options";
 
 describe("canonical dynamic sell attribute engine", () => {
-  it("phones: Condition → Colour → Storage → Network (no Material)", () => {
+  it("phones: Catalog Master Brand → Model → Storage → Colour → Condition", () => {
     const path = flatPathFromSegments([
-      { id: "phones", slug: "phones", name: "Phones" },
+      { id: "electronics", slug: "electronics", name: "Electronics" },
+      { id: "phones", slug: "phones-tablets", name: "Phones & Tablets" },
       { id: "smartphones", slug: "smartphones", name: "Smartphones" },
     ]);
-    expect(resolveAaQuickSellAttributeIds(path)).toEqual([
-      "condition",
-      "colour",
-      "storage",
-      "network",
-    ]);
     const defs = getQuickSellAttributeDefs(path);
-    expect(defs.map((d) => d.id)).toEqual(["condition", "colour", "storage", "network"]);
+    expect(defs.map((d) => d.id)).toEqual(["brand", "model", "storage", "colour", "condition"]);
     expect(defs.find((d) => d.id === "material")).toBeUndefined();
-    expect(defs.find((d) => d.id === "colour")?.label).toBe("Colours");
-    expect(defs.find((d) => d.id === "colour")?.input).toBe("select-single");
-    expect(defs.find((d) => d.id === "colour")?.showSwatch).toBe(true);
+    expect(defs.find((d) => d.id === "size")).toBeUndefined();
   });
 
-  it("shoes: Brand → Condition → Size → Colour → Material (recommended)", () => {
+  it("shoes: Catalog Master Brand → Size → Colour → Condition", () => {
     const path = flatPathFromSegments([
+      { id: "mens", slug: "mens-fashion", name: "Men's Fashion" },
       { id: "shoes", slug: "shoes", name: "Shoes" },
       { id: "trainers", slug: "trainers", name: "Trainers" },
     ]);
-    expect(resolveAaQuickSellAttributeIds(path)).toEqual([
-      "brand",
-      "condition",
-      "size",
-      "colour",
-      "material",
-    ]);
-    expect(getQuickSellAttributeDefs(path).find((d) => d.id === "material")?.label).toBe(
-      "Material (recommended)",
-    );
+    const defs = getQuickSellAttributeDefs(path);
+    expect(defs.map((d) => d.id)).toEqual(["brand", "size", "colour", "condition"]);
+    expect(defs.find((d) => d.id === "size")).toBeDefined();
   });
 
-  it("camping sleeping bags: Brand → Condition → Colour → Material → Season Rating → Length", () => {
+  it("camping sleeping bags: Brand → Temperature → Season → Length → Weight → Condition", () => {
     const path = flatPathFromSegments([
+      { id: "sports", slug: "sports", name: "Sports & Outdoors" },
       { id: "camping", slug: "camping", name: "Camping" },
-      { id: "camping-sleeping", slug: "camping-sleeping", name: "Sleeping" },
       { id: "sleeping-bags", slug: "sleeping-bags", name: "Sleeping Bags" },
     ]);
-    expect(resolveAaQuickSellAttributeIds(path)).toEqual([
+    expect(getQuickSellAttributeDefs(path).map((d) => d.id)).toEqual([
       "brand",
-      "condition",
-      "colour",
-      "material",
+      "temperatureRating",
       "seasonRating",
       "length",
+      "weight",
+      "condition",
     ]);
+    expect(getQuickSellAttributeDefs(path).find((d) => d.id === "size")).toBeUndefined();
   });
 
   it("car parts: Compatibility → Brand → Condition → Colour (no Material)", () => {
@@ -73,11 +61,12 @@ describe("canonical dynamic sell attribute engine", () => {
     expect(resolveAaQuickSellAttributeIds(path)).not.toContain("material");
   });
 
-  it("progressive steps follow taxonomy order with Condition as step id", () => {
+  it("progressive steps follow Catalog Master attribute order", () => {
     const draft = {
       ...createEmptyDraft(),
       categoryPath: flatPathFromSegments([
-        { id: "phones", slug: "phones", name: "Phones" },
+        { id: "electronics", slug: "electronics", name: "Electronics" },
+        { id: "phones", slug: "phones-tablets", name: "Phones & Tablets" },
         { id: "smartphones", slug: "smartphones", name: "Smartphones" },
       ]),
     };
@@ -86,10 +75,11 @@ describe("canonical dynamic sell attribute engine", () => {
       "title",
       "description",
       "category",
-      "condition",
-      "attribute:colour",
+      "attribute:brand",
+      "attribute:model",
       "attribute:storage",
-      "attribute:network",
+      "attribute:colour",
+      "condition",
       "price",
       "parcel",
     ]);

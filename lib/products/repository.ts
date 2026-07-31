@@ -244,7 +244,8 @@ export async function getProductsBySection(
     .from("products")
     .select(PRODUCT_SELECT, { count: "exact" })
     .eq("status", "published")
-    .eq("is_demo", false);
+    .eq("is_demo", false)
+    .gt("stock", 0);
 
   if (section === "trending") {
     query = query
@@ -345,6 +346,7 @@ export async function getHomepageFeed(page = 1): Promise<ProductsPage> {
       .select(PRODUCT_SELECT)
       .eq("status", "published")
       .eq("is_demo", false)
+      .gt("stock", 0)
       .order("promotion_score", { ascending: false })
       .order("created_at", { ascending: false })
       .order("views", { ascending: false })

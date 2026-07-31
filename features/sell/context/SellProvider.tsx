@@ -575,7 +575,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
       });
     }
 
-    const CONCURRENCY = 3;
+    const CONCURRENCY = 6;
     let cursor = 0;
 
     const processPlaceholder = async (placeholder: SellPhoto) => {

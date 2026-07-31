@@ -18,6 +18,7 @@ type SellCategoryBlockProps = {
 
 /**
  * Category picker + live Suggested Category (confirm-only).
+ * Presentation: one continuous Description → Suggest → Apply → Category flow.
  * Category Suggestion Engine v1.0 — never auto-selects / overwrites.
  */
 export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps) {
@@ -64,7 +65,7 @@ export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps
     (!draft.categoryPath || live.betterSuggestionAvailable);
 
   return (
-    <div className="flex flex-col gap-3" data-sell-category-block="v1.0">
+    <section className="sell-category-flow" data-sell-category-block="v1.0" aria-label="Category">
       {showSuggestion && live.suggestion ? (
         <SellCategorySuggestionCard
           suggestion={live.suggestion}
@@ -73,15 +74,18 @@ export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps
         />
       ) : null}
 
-      <div className="flex flex-col gap-1">
+      <div className="sell-category-flow__row">
         <SellNavRow
           label="Category"
           value={draft.categoryPath?.pathLabel}
           hasError={Boolean(categoryError)}
           onClick={() => setOpen(true)}
-          ariaLabel="Category"
+          ariaLabel={draft.categoryPath ? "Change category" : "Category"}
           iconFieldId="category"
         />
+        {draft.categoryPath ? (
+          <p className="sell-category-flow__change-hint">Tap to change</p>
+        ) : null}
         <SellInlineError message={categoryError} />
 
         <SellCategoryPicker
@@ -90,6 +94,6 @@ export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps
           onSelect={commitCategory}
         />
       </div>
-    </div>
+    </section>
   );
 }

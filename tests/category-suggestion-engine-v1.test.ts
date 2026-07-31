@@ -52,9 +52,8 @@ describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () 
       },
       {
         title: "Camping Sleeping Bag",
-        // Catalog Master has Camping as product type (no Sleeping Bags leaf).
-        slugs: ["sports", "outdoor-sports", "camping"] as const,
-        label: "Sports & Outdoors > Outdoor Sports > Camping",
+        slugs: ["sports", "camping", "sleeping-bags"] as const,
+        label: "Sports & Outdoors > Camping > Sleeping Bags",
       },
     ] as const;
 

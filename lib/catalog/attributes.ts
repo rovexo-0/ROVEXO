@@ -16,7 +16,12 @@ export type CatalogAttributeKey =
   | "vehicleMake"
   | "vehicleModel"
   | "gender"
-  | "ageGroup";
+  | "ageGroup"
+  | "temperatureRating"
+  | "seasonRating"
+  | "length"
+  | "weight"
+  | "dimensions";
 
 export type CatalogAttributeDef = {
   key: CatalogAttributeKey;
@@ -77,6 +82,11 @@ export const ATTR = {
   },
   gender: { key: "gender", label: "Gender", options: "gender" },
   ageGroup: { key: "ageGroup", label: "Age", options: "ageGroup" },
+  temperatureRating: { key: "temperatureRating", label: "Temperature Rating" },
+  seasonRating: { key: "seasonRating", label: "Season" },
+  length: { key: "length", label: "Length" },
+  weight: { key: "weight", label: "Weight" },
+  dimensions: { key: "dimensions", label: "Dimensions" },
 } as const satisfies Record<string, CatalogAttributeDef>;
 
 /** Presets used by product types. */
@@ -113,6 +123,7 @@ export const ATTR_PRESETS = {
   ],
   homeSoft: [ATTR.brand, ATTR.material, ATTR.colour, ATTR.condition],
   homeHard: [ATTR.brand, ATTR.material, ATTR.colour, ATTR.condition],
+  furniture: [ATTR.brand, ATTR.dimensions, ATTR.material, ATTR.colour, ATTR.condition],
   jewellery: [ATTR.brand, ATTR.material, ATTR.colour, ATTR.condition],
   jewellerySized: [
     ATTR.brand,
@@ -125,6 +136,16 @@ export const ATTR_PRESETS = {
   book: [ATTR.brand, ATTR.condition, ATTR.colour],
   toy: [ATTR.brand, ATTR.ageGroup, ATTR.condition, ATTR.colour],
   sports: [ATTR.brand, ATTR.size, ATTR.colour, ATTR.condition],
+  campingSleepingBag: [
+    ATTR.brand,
+    ATTR.temperatureRating,
+    ATTR.seasonRating,
+    ATTR.length,
+    ATTR.weight,
+    ATTR.condition,
+  ],
+  campingTent: [ATTR.brand, ATTR.condition, ATTR.colour, ATTR.material],
+  campingGear: [ATTR.brand, ATTR.condition, ATTR.colour],
   /** Law XXX: Brand · Vehicle Make · Vehicle Model · Condition */
   vehicleParts: [
     ATTR.brand,

@@ -1,24 +1,26 @@
 "use client";
 
-import { useId, useMemo } from "react";
+import { useId, useState } from "react";
 import { CanonicalInput } from "@/src/components/canonical";
 import { SellFieldMasterIcon } from "@/features/account-center/components/MasterMenuIcon";
 import { useSell } from "@/features/sell/context/SellProvider";
 import { INVENTORY_MAX, INVENTORY_MIN, parseInventoryInput } from "@/lib/sell/inventory";
 
 /**
- * Sell Quantity — same visual system as Price (CanonicalInput).
- * Persists `draft.stock` → publish `inventory.stock` (DB column `products.stock`).
+ * Sell Quantity (Stock) — inline on Sell form only (no Quantity page / popup).
+ * User may clear and type 1…999+ directly; clamp on blur.
  */
 export function SellStockQuantityBlock() {
   const { draft, updateDraft } = useSell();
   const quantityId = useId();
+  const [editingValue, setEditingValue] = useState<string | null>(null);
 
-  const displayValue = useMemo(() => {
-    const n = Number(draft.stock);
-    if (!Number.isFinite(n) || n < INVENTORY_MIN) return String(INVENTORY_MIN);
-    return String(Math.min(INVENTORY_MAX, Math.max(INVENTORY_MIN, Math.round(n))));
-  }, [draft.stock]);
+  const committed = String(
+    Number.isFinite(draft.stock) && draft.stock >= INVENTORY_MIN
+      ? Math.min(INVENTORY_MAX, Math.round(draft.stock))
+      : INVENTORY_MIN,
+  );
+  const displayValue = editingValue !== null ? editingValue : committed;
 
   return (
     <div className="sell-aa-block sell-price-with-icon" data-sell-quantity>
@@ -27,27 +29,25 @@ export function SellStockQuantityBlock() {
         <div className="sell-price-with-icon__field min-w-0 flex-1">
           <CanonicalInput
             id={quantityId}
-            label="Quantity"
-            inputType="number"
+            label="Quantity (Stock)"
+            inputType="text"
             enterKeyHint="done"
             autoComplete="off"
             inputMode="numeric"
-            aria-label="Quantity"
+            aria-label="Quantity (Stock)"
             placeholder="1"
-            min={INVENTORY_MIN}
-            max={INVENTORY_MAX}
-            step={1}
             value={displayValue}
+            onFocus={() => setEditingValue(committed)}
             onChange={(event) => {
               const digits = event.target.value.replace(/\D/g, "").slice(0, 5);
-              if (!digits) {
-                updateDraft({ stock: INVENTORY_MIN });
-                return;
-              }
+              setEditingValue(digits);
+              if (!digits) return;
               updateDraft({ stock: parseInventoryInput(digits, INVENTORY_MIN) });
             }}
             onBlur={() => {
-              updateDraft({ stock: parseInventoryInput(displayValue, INVENTORY_MIN) });
+              const next = parseInventoryInput(editingValue ?? committed, INVENTORY_MIN);
+              updateDraft({ stock: next });
+              setEditingValue(null);
             }}
           />
         </div>

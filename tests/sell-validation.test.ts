@@ -18,6 +18,7 @@ describe("sell validation engine", () => {
       title: "Blue Nike trainers",
       description: "Great trainers in good condition for sale.",
       categoryPath: flatPathFromSegments([
+        { id: "mens", slug: "mens-fashion", name: "Men's Fashion" },
         { id: "shoes", slug: "shoes", name: "Shoes" },
         { id: "trainers", slug: "trainers", name: "Trainers" },
       ]),
@@ -36,8 +37,9 @@ describe("sell validation engine", () => {
     const draft = {
       ...createEmptyDraft(),
       categoryPath: flatPathFromSegments([
-        { id: "health", slug: "health", name: "Health" },
-        { id: "wellness", slug: "wellness", name: "Wellness" },
+        { id: "electronics", slug: "electronics", name: "Electronics" },
+        { id: "phones", slug: "phones-tablets", name: "Phones & Tablets" },
+        { id: "smartphones", slug: "smartphones", name: "Smartphones" },
       ]),
     };
     const steps = buildSellProgressiveSteps(draft).map((step) => step.id);
@@ -49,13 +51,14 @@ describe("sell validation engine", () => {
     const draft = {
       ...createEmptyDraft(),
       photos: [{ id: "1", previewUrl: "/x.jpg", uploaded: true }],
-      title: "Vitamin bottle",
-      description: "Sealed supplement bottle for testing.",
+      title: "iPhone 16 Pro",
+      description: "Sealed smartphone for testing publish gate.",
       categoryPath: flatPathFromSegments([
-        { id: "health", slug: "health", name: "Health" },
-        { id: "wellness", slug: "wellness", name: "Wellness" },
+        { id: "electronics", slug: "electronics", name: "Electronics" },
+        { id: "phones", slug: "phones-tablets", name: "Phones & Tablets" },
+        { id: "smartphones", slug: "smartphones", name: "Smartphones" },
       ]),
-      brand: "Brand X",
+      brand: "Apple",
       condition: "New",
       parcelSize: "small" as const,
       price: "12",

@@ -966,9 +966,8 @@ export async function searchListings(
     query = query.or("delivery_carriers.is.null,delivery_carriers.eq.{}");
   }
 
-  if (options.inStock) {
-    query = query.gt("stock", 0);
-  }
+  // Marketplace SSOT: stock 0 = Out of stock → never surface on Browse/Search/Category.
+  query = query.gt("stock", 0);
 
   if (options.locationCity?.trim()) {
     query = query.eq("location_city", options.locationCity.trim());

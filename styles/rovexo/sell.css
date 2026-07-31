@@ -31,10 +31,10 @@
 /* (existing rules continue below) */
 
 [data-sell-shell] {
-  /* Compact Premium inputs — 48px controls · description 110px · Publish stays 56px */
-  --cds-space-section-gap: 12px;
-  --sell-control-height: 48px;
-  --sell-description-min-height: 110px;
+  /* Compact Premium — breathable mobile rhythm (not compressed) */
+  --cds-space-section-gap: 20px;
+  --sell-control-height: 52px;
+  --sell-description-min-height: 120px;
   --sell-publish-height: 56px;
   /* Account sticky clearance + publish height — clears Bottom Nav + safe area */
   --sell-sticky-clearance: calc(var(--cds-bottom-nav-offset, 72px) + var(--sell-publish-height) + 24px);
@@ -54,10 +54,87 @@
   --uv1-input-height: var(--sell-control-height);
   width: 100%;
   max-width: none;
+  background: #ffffff;
+  color: #111111;
 }
 
 [data-sell-shell] [aria-label="Sell an item"] {
   gap: var(--cds-space-section-gap);
+}
+
+/* Category continuous flow — Suggest + Category = one module */
+[data-sell-shell] .sell-category-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 4px 0 0;
+}
+
+[data-sell-shell] .sell-category-flow__suggestion {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 14px;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, #9333ea 18%, #ececec);
+  background: color-mix(in srgb, #9333ea 4%, #ffffff);
+  padding: 16px;
+}
+
+[data-sell-shell] .sell-category-flow__suggestion-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+[data-sell-shell] .sell-category-flow__eyebrow {
+  margin: 0;
+  font-size: var(--sell-font-helper);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #6b7280;
+}
+
+[data-sell-shell] .sell-category-flow__better {
+  margin: 0;
+  font-size: var(--sell-font-helper);
+  font-weight: 600;
+  color: #9333ea;
+}
+
+[data-sell-shell] .sell-category-flow__path-root {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.35;
+  color: #111;
+}
+
+[data-sell-shell] .sell-category-flow__path-step {
+  margin: 0;
+  font-size: var(--sell-font-control);
+  line-height: 1.35;
+  color: #111;
+}
+
+[data-sell-shell] .sell-category-flow__confidence {
+  margin: 6px 0 0;
+  font-size: var(--sell-font-helper);
+  color: #6b7280;
+}
+
+[data-sell-shell] .sell-category-flow__row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+[data-sell-shell] .sell-category-flow__change-hint {
+  margin: 0;
+  padding: 0 2px;
+  font-size: var(--sell-font-helper);
+  color: #6b7280;
 }
 
 [data-sell-shell] input,
