@@ -65,5 +65,6 @@ export type SendcloudLabelResult = {
 export type SendcloudWebhookPayload = {
   action?: string;
   parcel?: SendcloudParcelResponse;
-  timestamp?: number;
+  /** Official: unix epoch milliseconds (number). Numeric strings accepted at parse time. */
+  timestamp?: number | string;
 };

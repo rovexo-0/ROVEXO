@@ -6,7 +6,6 @@ import {
   SENDCLOUD_WEBHOOK_IDEMPOTENCY_V1,
   extractSendcloudWebhookEventId,
 } from "@/lib/shipping/sendcloud/webhook-idempotency-v1";
-import { SendcloudError } from "@/lib/shipping/sendcloud/errors";
 import type { SendcloudWebhookPayload } from "@/lib/shipping/sendcloud/types";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -84,26 +83,45 @@ describe("Sendcloud webhook idempotency v1.0 — identity", () => {
     expect(claim.timestamp).toBe(1_720_000_000);
   });
 
-  it("rejects missing official event identity (fail closed)", () => {
+  it("rejects missing official event identity with precise field reasons", () => {
     expect(() =>
       extractSendcloudWebhookEventId({
         timestamp: 1,
         parcel: { id: 1, status: { id: undefined as unknown as number, message: "x" } },
       }),
-    ).toThrow(SendcloudError);
+    ).toThrow(/Missing parcel\.status\.id/);
 
     expect(() =>
       extractSendcloudWebhookEventId({
         parcel: { id: 1, status: { id: 2, message: "x" } },
       }),
-    ).toThrow(/missing official event identity/i);
+    ).toThrow(/Missing timestamp/);
 
     expect(() =>
       extractSendcloudWebhookEventId({
         timestamp: 9,
         parcel: { id: undefined as unknown as number, status: { id: 2, message: "x" } },
       }),
-    ).toThrow(SendcloudError);
+    ).toThrow(/Missing parcel\.id/);
+
+    expect(() =>
+      extractSendcloudWebhookEventId({
+        timestamp: "2026-07-31T12:00:00Z",
+        parcel: { id: 1, status: { id: 2, message: "x" } },
+      }),
+    ).toThrow(/unix epoch milliseconds/);
+  });
+
+  it("accepts numeric-string timestamp (official ms epoch)", () => {
+    const claim = extractSendcloudWebhookEventId(
+      basePayload({ timestamp: "1720000000000" }),
+    );
+    expect(claim.timestamp).toBe(1_720_000_000_000);
+    expect(claim.webhookEventId).toBe("998877:11:1720000000000");
+  });
+
+  it("documents official Test API Webhook action test_webhook", () => {
+    expect(SENDCLOUD_WEBHOOK_IDEMPOTENCY_V1.testAction).toBe("test_webhook");
   });
 
   it("different status or timestamp yields different event ids", () => {
@@ -343,14 +361,18 @@ describe("Sendcloud webhook idempotency v1.0 — atomic claim + side-effect gate
     vi.resetModules();
   });
 
-  it("route returns 401 for invalid signature and 400 for missing identity", async () => {
+  it("route returns structured errors and acknowledges official test_webhook", async () => {
     const routeSource = readFileSync(
       join(process.cwd(), "app/api/webhooks/sendcloud/route.ts"),
       "utf8",
     );
-    expect(routeSource).toContain('status: 401');
-    expect(routeSource).toContain("Invalid Sendcloud webhook signature.");
-    expect(routeSource).toContain("duplicate: true");
+    expect(routeSource).toContain("success: false");
+    expect(routeSource).toContain("Missing Sendcloud-Signature header");
+    expect(routeSource).toContain("Signature mismatch");
+    expect(routeSource).toContain("test_webhook");
+    expect(routeSource).toContain("Test webhook acknowledged");
+    expect(routeSource).toContain("[Sendcloud Webhook]");
+    expect(routeSource).toContain("duplicate: Boolean(result.duplicate)");
     expect(routeSource).toContain("error.statusCode");
 
     const handler = readFileSync(join(process.cwd(), "lib/shipping/sendcloud/webhooks.ts"), "utf8");

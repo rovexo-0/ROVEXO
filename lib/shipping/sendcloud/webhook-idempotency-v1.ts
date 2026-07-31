@@ -7,6 +7,9 @@
  * Sendcloud parcel-status-changed has no dedicated event UUID.
  * Docs require timestamp for delivery ordering; parcel.id + status.id
  * are official parcel / status identifiers on the webhook payload.
+ *
+ * Official timestamp (JouwWeb/Sendcloud SDK + panel): unix epoch **milliseconds** (number).
+ * Official Test API Webhook action: `test_webhook` (may omit parcel).
  */
 
 import "server-only";
@@ -24,6 +27,8 @@ export const SENDCLOUD_WEBHOOK_IDEMPOTENCY_V1 = {
   /** Official composite — not a hashed payload, not a random UUID. */
   identityFormula: "{parcel.id}:{status.id}:{timestamp}",
   source: "sendcloud",
+  /** Official Sendcloud panel "Test API Webhook" action. */
+  testAction: "test_webhook",
 } as const;
 
 export type SendcloudWebhookEventClaim = {
@@ -37,34 +42,61 @@ export type SendcloudWebhookEventClaim = {
 };
 
 /**
+ * Official Sendcloud timestamp is unix epoch milliseconds (number).
+ * Numeric strings are coerced; ISO date strings are rejected (not official).
+ */
+export function normalizeSendcloudWebhookTimestamp(
+  value: unknown,
+): { ok: true; timestamp: number } | { ok: false; reason: string } {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return { ok: true, timestamp: value };
+  }
+  if (typeof value === "string" && value.trim() !== "") {
+    const trimmed = value.trim();
+    if (!/^-?\d+(\.\d+)?$/.test(trimmed)) {
+      return {
+        ok: false,
+        reason: "timestamp must be unix epoch milliseconds (number), not an ISO date string",
+      };
+    }
+    const parsed = Number(trimmed);
+    if (!Number.isFinite(parsed)) {
+      return { ok: false, reason: "timestamp is not a finite number" };
+    }
+    return { ok: true, timestamp: parsed };
+  }
+  if (value === undefined || value === null) {
+    return { ok: false, reason: "Missing timestamp" };
+  }
+  return { ok: false, reason: "timestamp must be a number (unix epoch milliseconds)" };
+}
+
+/**
  * Fail-closed extraction of the official delivery identity.
- * Missing parcel.id | status.id | timestamp → reject (never guess).
+ * Returns precise field-level reasons (never a generic missing-identity blob).
  */
 export function extractSendcloudWebhookEventId(
   event: SendcloudWebhookPayload,
 ): SendcloudWebhookEventClaim {
   const parcelId = event.parcel?.id;
   const statusId = event.parcel?.status?.id;
-  const timestamp = event.timestamp;
+  const ts = normalizeSendcloudWebhookTimestamp(event.timestamp);
 
-  if (
-    typeof parcelId !== "number" ||
-    !Number.isFinite(parcelId) ||
-    typeof statusId !== "number" ||
-    !Number.isFinite(statusId) ||
-    typeof timestamp !== "number" ||
-    !Number.isFinite(timestamp)
-  ) {
-    throw new SendcloudError(
-      "webhook_invalid",
-      "Sendcloud webhook missing official event identity (parcel.id, status.id, timestamp).",
-      { statusCode: 400 },
-    );
+  if (typeof parcelId !== "number" || !Number.isFinite(parcelId)) {
+    throw new SendcloudError("webhook_invalid", "Missing parcel.id", { statusCode: 400 });
+  }
+  if (typeof statusId !== "number" || !Number.isFinite(statusId)) {
+    throw new SendcloudError("webhook_invalid", "Missing parcel.status.id", { statusCode: 400 });
+  }
+  if (!ts.ok) {
+    throw new SendcloudError("webhook_invalid", ts.reason, { statusCode: 400 });
   }
 
+  const timestamp = ts.timestamp;
   const webhookEventId = `${parcelId}:${statusId}:${timestamp}`;
   const trackingNumber = event.parcel?.tracking_number?.trim() || null;
-  const eventType = event.action?.trim() || event.parcel?.status?.message?.trim() || "parcel_status_changed";
+  const eventType =
+    event.action?.trim() || event.parcel?.status?.message?.trim() || "parcel_status_changed";
   const payloadHash = createHash("sha256").update(webhookEventId).digest("hex");
 
   return {
