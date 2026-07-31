@@ -356,8 +356,9 @@ export const KNOWN_BRANDS = new Set(
  */
 export const TITLE_CATEGORY_PATH_ALIASES: Record<string, readonly string[]> = {
   // Phones → Electronics > Phones & Tablets
-  "phones/smartphones/unlocked-phones": ["electronics", "phones-tablets", "smartphones"],
-  "phones/smartphones": ["electronics", "phones-tablets", "smartphones"],
+  "phones/smartphones/unlocked-phones": ["electronics", "phones-tablets", "android-phones"],
+  "phones/smartphones": ["electronics", "phones-tablets", "android-phones"],
+  "electronics/phones-tablets/smartphones": ["electronics", "phones-tablets", "android-phones"],
   "phones/wearables/smartwatches": ["electronics", "wearables", "smartwatches"],
 
   // Computers → Electronics > Computers

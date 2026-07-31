@@ -53,7 +53,7 @@ describe("Inbox Hub Master Implementation v1.0", () => {
     expect(css).toContain("--inbox-btn-h: 56px");
     expect(css).toContain("--inbox-empty-cta-h: 44px");
     expect(css).toContain("--inbox-btn-radius: 16px");
-    expect(css).toContain("min-height: calc(64px + env(safe-area-inset-top, 0px))");
+    expect(css).toContain("min-height: calc(52px + env(safe-area-inset-top, 0px))");
     expect(css).toContain("grid-template-columns: 1fr 1fr");
     expect(css).toContain("width: 50%");
     expect(css).toContain("max-width: none");

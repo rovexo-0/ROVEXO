@@ -32,17 +32,18 @@
 
 [data-sell-shell] {
   /* Compact Premium — breathable mobile rhythm (not compressed) */
-  --cds-space-section-gap: 20px;
+  --cds-space-section-gap: 24px;
   --sell-control-height: 52px;
-  --sell-description-min-height: 120px;
+  --sell-description-min-height: 128px;
   --sell-publish-height: 56px;
   /* Account sticky clearance + publish height — clears Bottom Nav + safe area */
   --sell-sticky-clearance: calc(var(--cds-bottom-nav-offset, 72px) + var(--sell-publish-height) + 24px);
-  --sell-font-page-title: 24px;
-  --sell-font-section: 20px;
-  --sell-font-button: 18px;
-  --sell-font-control: 16px;
-  --sell-font-helper: 15px;
+  --sell-font-page-title: 18px;
+  --sell-font-section: 17px;
+  --sell-font-button: 17px;
+  --sell-font-control: 17px;
+  --sell-font-helper: 16px;
+  --sell-font-label: 17px;
   --sell-photo-w: 112px;
   --sell-photo-h: 168px;
   --sell-photo-radius: 16px;
@@ -62,38 +63,42 @@
   gap: var(--cds-space-section-gap);
 }
 
-/* Category continuous flow — Suggest + Category = one module */
+/* Category continuous flow — Suggest + Category = one module (no separate card look) */
 [data-sell-shell] .sell-category-flow {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   width: 100%;
-  padding: 4px 0 0;
+  padding: 0;
+  margin: 0;
+  border-radius: 16px;
+  background: #ffffff;
 }
 
 [data-sell-shell] .sell-category-flow__suggestion {
   display: flex;
   width: 100%;
   flex-direction: column;
-  gap: 14px;
-  border-radius: 16px;
-  border: 1px solid color-mix(in srgb, #9333ea 18%, #ececec);
-  background: color-mix(in srgb, #9333ea 4%, #ffffff);
-  padding: 16px;
+  gap: 12px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid #ececec;
+  background: transparent;
+  padding: 4px 0 16px;
 }
 
 [data-sell-shell] .sell-category-flow__suggestion-copy {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 [data-sell-shell] .sell-category-flow__eyebrow {
   margin: 0;
-  font-size: var(--sell-font-helper);
+  font-size: var(--sell-font-label);
   font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #6b7280;
+  letter-spacing: 0;
+  color: #111111;
 }
 
 [data-sell-shell] .sell-category-flow__better {
@@ -105,17 +110,17 @@
 
 [data-sell-shell] .sell-category-flow__path-root {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--sell-font-control);
   font-weight: 650;
-  line-height: 1.35;
+  line-height: 1.4;
   color: #111;
 }
 
 [data-sell-shell] .sell-category-flow__path-step {
   margin: 0;
   font-size: var(--sell-font-control);
-  line-height: 1.35;
-  color: #111;
+  line-height: 1.4;
+  color: #374151;
 }
 
 [data-sell-shell] .sell-category-flow__confidence {
@@ -132,9 +137,24 @@
 
 [data-sell-shell] .sell-category-flow__change-hint {
   margin: 0;
-  padding: 0 2px;
+  padding: 0 2px 4px;
   font-size: var(--sell-font-helper);
+  font-weight: 600;
+  color: #9333ea;
+}
+
+[data-sell-shell] .sell-category-picker__hint,
+[data-sell-shell] .sell-category-picker__breadcrumb {
+  margin: 0;
+  padding: 0 4px 10px;
+  font-size: var(--sell-font-helper);
+  font-weight: 600;
   color: #6b7280;
+}
+
+[data-sell-shell] .sell-category-picker__breadcrumb {
+  font-weight: 500;
+  padding-bottom: 4px;
 }
 
 [data-sell-shell] input,
@@ -212,8 +232,9 @@
 }
 
 [data-my-account-surface="sell"] .account-canonical-header__title {
-  font-size: 24px !important;
+  font-size: var(--sell-font-page-title) !important;
   line-height: 1.25;
+  font-weight: 600;
 }
 
 /* Title / Price / text inputs → 48px */
@@ -453,7 +474,7 @@
   max-width: 100%;
   padding: 0 4px;
   margin: 0;
-  font-size: 0.6875rem;
+  font-size: var(--sell-font-helper);
   font-weight: 600;
   line-height: 1.2;
   color: var(--cds-color-text-primary, #111);
@@ -478,9 +499,9 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 48px;
-  min-height: 48px;
-  max-height: 48px;
+  height: var(--sell-control-height);
+  min-height: var(--sell-control-height);
+  max-height: var(--sell-control-height);
   padding: 0 6px;
   margin: 0;
   border: 1px solid #ececec;

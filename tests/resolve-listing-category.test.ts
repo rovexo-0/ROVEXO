@@ -39,7 +39,7 @@ describe("canonical category validation", () => {
   it("accepts real Catalog Master paths", () => {
     expect(resolveCanonicalCategoryNodes(["kids-fashion", "toys-games"])).not.toBeNull();
     expect(resolveCanonicalCategoryNodes(["kids-fashion", "toys-games", "building-sets"])).not.toBeNull();
-    expect(resolveCanonicalCategoryNodes(["electronics", "phones-tablets", "smartphones"])).not.toBeNull();
+    expect(resolveCanonicalCategoryNodes(["electronics", "phones-tablets", "android-phones"])).not.toBeNull();
     expect(resolveCanonicalCategoryNodes(["kids-fashion", "baby", "baby-clothes"])).not.toBeNull();
   });
 

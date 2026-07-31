@@ -47,8 +47,18 @@ describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () 
       },
       {
         title: "iPhone 16 Pro",
-        slugs: ["electronics", "phones-tablets", "smartphones"] as const,
-        label: "Electronics > Phones & Tablets > Smartphones",
+        slugs: ["electronics", "phones-tablets", "iphones"] as const,
+        label: "Electronics > Phones & Tablets > iPhones",
+      },
+      {
+        title: "Sleeping bag",
+        slugs: ["sports", "camping", "sleeping-bags"] as const,
+        label: "Sports & Outdoors > Camping > Sleeping Bags",
+      },
+      {
+        title: "sleeping-bag",
+        slugs: ["sports", "camping", "sleeping-bags"] as const,
+        label: "Sports & Outdoors > Camping > Sleeping Bags",
       },
       {
         title: "Camping Sleeping Bag",
@@ -94,7 +104,7 @@ describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () 
     expect(applied.segments).toHaveLength(3);
     expect(applied.categorySlug).toBe("electronics");
     expect(applied.subcategorySlug).toBe("phones-tablets");
-    expect(applied.childCategorySlug).toBe("smartphones");
+    expect(applied.childCategorySlug).toBe("iphones");
   });
 
   it("Homepage / Browse mapping uses published category slugs only", () => {
@@ -109,8 +119,13 @@ describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () 
     expect(href).toContain("pillows");
   });
 
+  it("resolves Catalog Master phone leaves", () => {
+    const path = resolveCategoryPathBySlugs(["electronics", "phones-tablets", "iphones"]);
+    expect(path?.pathLabel).toBe("Electronics > Phones & Tablets > iPhones");
+  });
+
   it("prohibited validation still fails closed before publish", () => {
-    const path = resolveCategoryPathBySlugs(["electronics", "phones-tablets", "smartphones"]);
+    const path = resolveCategoryPathBySlugs(["electronics", "phones-tablets", "android-phones"]);
     const gate = assertSellCategoryPublishGate({
       categoryPath: path,
       title: "Illegal handgun for sale",

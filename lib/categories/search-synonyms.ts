@@ -70,10 +70,12 @@ const CORE_SEARCH_SYNONYMS: Record<string, string> = {
   tent: "tents",
   tents: "family tents",
   awning: "awnings",
-  // Catalog Master leaf is Camping (no Sleeping Bags product type).
-  sleepingbag: "camping",
-  "sleeping bag": "camping",
-  "sleeping bags": "camping",
+  // Catalog Master: Sports › Camping › Sleeping Bags
+  sleepingbag: "sleeping bags",
+  "sleeping bag": "sleeping bags",
+  "sleeping bags": "sleeping bags",
+  "sleeping-bag": "sleeping bags",
+  "sleeping-bags": "sleeping bags",
 
   // Fashion & baby
   trainers: "trainers",

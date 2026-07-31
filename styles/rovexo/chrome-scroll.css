@@ -6,7 +6,8 @@
 }
 
 [data-chrome-scroll="registered"].home-v1-header,
-[data-chrome-scroll="registered"].rx-header-shell {
+[data-chrome-scroll="registered"].rx-header-shell,
+[data-chrome-scroll="registered"].account-canonical-header {
   position: fixed;
   left: 0;
   right: 0;
@@ -34,7 +35,8 @@
 
 @media (min-width: 1024px) {
   [data-chrome-scroll="registered"].home-v1-header,
-  [data-chrome-scroll="registered"].rx-header-shell {
+  [data-chrome-scroll="registered"].rx-header-shell,
+  [data-chrome-scroll="registered"].account-canonical-header {
     position: sticky;
     transform: none !important;
   }

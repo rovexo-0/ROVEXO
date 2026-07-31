@@ -39,7 +39,7 @@ describe("sell validation engine", () => {
       categoryPath: flatPathFromSegments([
         { id: "electronics", slug: "electronics", name: "Electronics" },
         { id: "phones", slug: "phones-tablets", name: "Phones & Tablets" },
-        { id: "smartphones", slug: "smartphones", name: "Smartphones" },
+        { id: "android-phones", slug: "android-phones", name: "Android Phones" },
       ]),
     };
     const steps = buildSellProgressiveSteps(draft).map((step) => step.id);
@@ -56,7 +56,7 @@ describe("sell validation engine", () => {
       categoryPath: flatPathFromSegments([
         { id: "electronics", slug: "electronics", name: "Electronics" },
         { id: "phones", slug: "phones-tablets", name: "Phones & Tablets" },
-        { id: "smartphones", slug: "smartphones", name: "Smartphones" },
+        { id: "android-phones", slug: "android-phones", name: "Android Phones" },
       ]),
       brand: "Apple",
       condition: "New",

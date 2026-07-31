@@ -64,7 +64,7 @@ describe("Category Engine v1.0 — manual only · Catalog Master · fail closed"
   });
 
   it("prohibited content fails closed before publish", () => {
-    const path = resolveCategoryPathBySlugs(["electronics", "phones-tablets", "smartphones"]);
+    const path = resolveCategoryPathBySlugs(["electronics", "phones-tablets", "android-phones"]);
     expect(path).not.toBeNull();
     const gate = assertSellCategoryPublishGate({
       categoryPath: path,

@@ -57,6 +57,8 @@ const BY_CATEGORY: Record<string, readonly SellAttributeId[]> = {
 const BY_LEAF: Record<string, readonly SellAttributeId[]> = {
   // Phones leaves
   smartphones: ["condition", "colour", "storage", "network"],
+  "android-phones": ["brand", "condition", "colour", "storage", "network"],
+  iphones: ["brand", "condition", "colour", "storage", "network"],
   // Laptops
   laptops: ["brand", "condition", "storage", "ram", "colour"],
   "gaming-laptops": ["brand", "condition", "storage", "ram", "colour"],

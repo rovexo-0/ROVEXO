@@ -84,7 +84,7 @@ export function SellCategoryBlock({ onCategorySelected }: SellCategoryBlockProps
           iconFieldId="category"
         />
         {draft.categoryPath ? (
-          <p className="sell-category-flow__change-hint">Tap to change</p>
+          <p className="sell-category-flow__change-hint">Change</p>
         ) : null}
         <SellInlineError message={categoryError} />
 

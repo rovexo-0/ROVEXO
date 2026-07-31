@@ -26,10 +26,11 @@ export const EXTENDED_MARKETPLACE_SYNONYMS: Record<string, string> = {
   velvet: "velvet curtains",
 
   // Phones & electronics
-  phone: "smartphones",
+  phone: "android phones",
   mob: "mobile phone",
   moby: "mobile phone",
-  android: "smartphones",
+  android: "android phones",
+  iphone: "iphones",
   galaxy: "samsung galaxy",
   pixel: "google pixel",
   macbook: "macbooks",

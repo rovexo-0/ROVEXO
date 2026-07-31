@@ -11,7 +11,7 @@ describe("canonical dynamic sell attribute engine", () => {
     const path = flatPathFromSegments([
       { id: "electronics", slug: "electronics", name: "Electronics" },
       { id: "phones", slug: "phones-tablets", name: "Phones & Tablets" },
-      { id: "smartphones", slug: "smartphones", name: "Smartphones" },
+      { id: "android-phones", slug: "android-phones", name: "Android Phones" },
     ]);
     const defs = getQuickSellAttributeDefs(path);
     expect(defs.map((d) => d.id)).toEqual(["brand", "model", "storage", "colour", "condition"]);
@@ -67,7 +67,7 @@ describe("canonical dynamic sell attribute engine", () => {
       categoryPath: flatPathFromSegments([
         { id: "electronics", slug: "electronics", name: "Electronics" },
         { id: "phones", slug: "phones-tablets", name: "Phones & Tablets" },
-        { id: "smartphones", slug: "smartphones", name: "Smartphones" },
+        { id: "android-phones", slug: "android-phones", name: "Android Phones" },
       ]),
     };
     expect(buildSellProgressiveSteps(draft).map((s) => s.id)).toEqual([

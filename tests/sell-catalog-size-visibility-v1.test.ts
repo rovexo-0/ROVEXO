@@ -58,7 +58,7 @@ describe("catalog-size-visibility-v1", () => {
         path({
           categorySlug: "electronics",
           subcategorySlug: "phones",
-          childCategorySlug: "smartphones",
+          childCategorySlug: "android-phones",
         }),
       ),
     ).toBe(false);
@@ -114,7 +114,7 @@ describe("catalog-size-visibility-v1", () => {
       path({
         categorySlug: "electronics",
         subcategorySlug: "phones",
-        childCategorySlug: "smartphones",
+        childCategorySlug: "android-phones",
       }),
     );
     expect(phone.some((def) => def.id === "size")).toBe(false);

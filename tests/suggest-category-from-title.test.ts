@@ -59,8 +59,8 @@ describe("title-only category detection", () => {
 
   it("maps release example titles to expected categories", () => {
     const cases = [
-      { title: "iPhone 15 Pro Max", categorySlug: "electronics", childSlug: "smartphones" },
-      { title: "Samsung Galaxy S25 Ultra", categorySlug: "electronics", childSlug: "smartphones" },
+      { title: "iPhone 15 Pro Max", categorySlug: "electronics", childSlug: "iphones" },
+      { title: "Samsung Galaxy S25 Ultra", categorySlug: "electronics", childSlug: "android-phones" },
       { title: "Apple Magic Mouse", categorySlug: "electronics", childSlug: "mice" },
       { title: "MacBook Pro M4", categorySlug: "electronics", childSlug: "laptops" },
       { title: "Nike Air Max 270", categorySlug: "mens-fashion", childSlug: "trainers" },

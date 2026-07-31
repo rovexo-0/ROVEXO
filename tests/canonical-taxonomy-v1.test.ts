@@ -62,14 +62,18 @@ describe("Catalog Master taxonomy v1.0", () => {
   });
 
   it("loads electronics brands for phones", () => {
-    const phonePath = resolveCategoryPathBySlugs([
+    const androidPath = resolveCategoryPathBySlugs([
       "electronics",
       "phones-tablets",
-      "smartphones",
+      "android-phones",
     ]);
-    const scoped = loadCategoryScopedTaxonomy(phonePath);
-    expect(scoped!.brands).toContain("Apple");
-    expect(scoped!.brands).toContain("Samsung");
+    const iphonePath = resolveCategoryPathBySlugs([
+      "electronics",
+      "phones-tablets",
+      "iphones",
+    ]);
+    expect(loadCategoryScopedTaxonomy(androidPath)!.brands).toContain("Samsung");
+    expect(loadCategoryScopedTaxonomy(iphonePath)!.brands).toContain("Apple");
   });
 
   it("has compact colour palette with rgb", () => {

@@ -34,7 +34,7 @@ describe("Orders v7.0 — Owner status + Full Width lock", () => {
     expect(css).toContain("orders-page__row--orange");
     expect(css).toContain("orders-page__row--red");
     expect(css).toContain("orders-page__row--yellow");
-    expect(css).toContain("min-height: 64px");
+    expect(css).toContain("min-height: 52px");
     expect(css).not.toMatch(/max-width:\s*(600|700|900|1000|1200)px/);
     expect(css).not.toContain("cds-menu-row__value");
   });

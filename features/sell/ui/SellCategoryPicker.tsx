@@ -58,10 +58,19 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
     ? currentNodes.filter((node) => node.name.toLowerCase().includes(searchQuery))
     : currentNodes;
 
-  const headerTitle = isRoot ? "Category" : stack[stack.length - 1]!.name;
+  const headerTitle = isRoot
+    ? "Department"
+    : stack.length === 1
+      ? "Category"
+      : "Product Type";
   const breadcrumb = isRoot
-    ? "All categories"
+    ? "Department › Category › Product Type"
     : stack.map((node) => node.name).join(" › ");
+  const levelHint = isRoot
+    ? "Choose a department"
+    : stack.length === 1
+      ? "Choose a category"
+      : "Choose a product type";
 
   const close = () => {
     setStack([]);
@@ -129,11 +138,12 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
           className={cn(RX_MODAL_BODY, "min-h-0 flex-1 overflow-y-auto overscroll-contain pt-1")}
         >
           {isRoot ? (
-            <p className="px-1 pb-1.5 text-xs font-semibold uppercase tracking-wide text-text-muted">
-              Choose a category
-            </p>
+            <p className="sell-category-picker__hint">{levelHint}</p>
           ) : (
-            <p className="px-ds-1 pb-ds-2 text-xs font-medium text-text-muted">{breadcrumb}</p>
+            <>
+              <p className="sell-category-picker__breadcrumb">{breadcrumb}</p>
+              <p className="sell-category-picker__hint">{levelHint}</p>
+            </>
           )}
 
           <ul className="flex flex-col gap-ds-2" role="list" data-category-engine="v1.0-manual">

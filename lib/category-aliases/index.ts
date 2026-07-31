@@ -18,13 +18,24 @@ export const CATEGORY_HIDDEN_ALIASES: Record<string, readonly string[]> = {
   "memory-foam-pillow": ["memory foam", "viscoelastic", "tempur style"],
   "travel-pillow": ["neck pillow", "plane pillow", "car pillow", "BCOZZY"],
   smartphones: ["mobile phone", "cell phone", "iphone", "android phone"],
+  "android-phones": ["android phone", "android smartphone", "galaxy phone", "pixel phone"],
+  iphones: ["iphone", "apple phone", "apple iphone"],
   trainers: ["sneakers", "tennis shoes", "athletic shoes", "kicks", "air max"],
-  camping: ["sleeping bag", "sleeping bags", "sleepingbag", "camp bed", "tent"],
+  /** Leaf aliases — Catalog Master `sports/camping/sleeping-bags` (not fashion Bags). */
+  "sleeping-bags": [
+    "sleeping bag",
+    "sleeping bags",
+    "sleepingbag",
+    "sleeping-bag",
+    "sleeping-bags",
+    "camp sleeping bag",
+  ],
+  tents: ["tent", "tents", "camping tent", "dome tent", "pop up tent"],
   sofas: ["couch", "settee", "chesterfield"],
   duvets: ["comforter", "quilt", "doona"],
 };
 
-/** Keyword mapping for deterministic category detection. */
+/** Keyword mapping for deterministic category detection — Catalog Master path keys only. */
 export const CATEGORY_KEYWORD_MAP: Record<string, readonly string[]> = {
   "home-garden/bedding/pillows": [
     "pillow",
@@ -38,14 +49,15 @@ export const CATEGORY_KEYWORD_MAP: Record<string, readonly string[]> = {
     "body pillow",
     "wedge pillow",
   ],
-  "electronics/phones-tablets/smartphones": [
-    "iphone",
+  "electronics/phones-tablets/android-phones": [
+    "android phone",
     "samsung galaxy",
     "pixel",
+    "android smartphone",
     "smartphone",
     "mobile phone",
-    "android",
   ],
+  "electronics/phones-tablets/iphones": ["iphone", "apple iphone"],
   "mens-fashion/shoes/trainers": [
     "nike",
     "air max",
@@ -54,21 +66,19 @@ export const CATEGORY_KEYWORD_MAP: Record<string, readonly string[]> = {
     "sneakers",
     "running shoes",
   ],
-  "sports/outdoor-sports/camping": [
+  "sports/camping/sleeping-bags": [
     "camping",
     "sleeping bag",
+    "sleeping bags",
     "sleepingbag",
-    "tent",
+    "sleeping-bag",
     "camp bed",
   ],
-  "mens-fashion/clothing/coats-and-jackets": [
-    "jacket",
-    "coat",
-    "parka",
-    "bomber",
-    "puffer",
-    "gilet",
-  ],
+  "sports/camping/tents": ["tent", "tents", "camping tent", "dome tent"],
+  "mens-fashion/jackets/leather-jackets": ["leather jacket", "biker jacket"],
+  "mens-fashion/jackets/bomber-jackets": ["bomber", "bomber jacket"],
+  "mens-fashion/jackets/puffer-jackets": ["puffer", "puffer jacket", "down jacket"],
+  "womens-fashion/jackets/leather-jackets": ["leather jacket", "biker jacket"],
 };
 
 export function getAliasesForSlug(slug: string): readonly string[] {

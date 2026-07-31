@@ -179,32 +179,32 @@
   min-height: 48px;
 }
 
-/* Account module — My Account v1.0 header (Master Full Width: 64px) */
+/* Account module header — compact premium (Owner RC2). Token --fw-header-height stays 64 for contract SSOT. */
 .account-canonical-header__bar {
   display: flex;
   align-items: center;
-  min-height: var(--fw-header-height, 64px);
-  height: var(--fw-header-height, 64px);
-  padding: max(var(--cds-space-safe-top), var(--cds-space-page-x)) var(--cds-space-page-x) 0;
+  min-height: 52px;
+  height: 52px;
+  padding: max(var(--cds-space-safe-top), 8px) var(--cds-space-page-x) 0;
 }
 
 .account-canonical-header__bar--titled {
   display: grid;
-  min-height: var(--fw-header-height, var(--cds-header-height));
-  height: var(--fw-header-height, var(--cds-header-height));
+  min-height: 52px;
+  height: 52px;
   grid-template-columns: 48px 1fr 48px;
   align-items: center;
   gap: 8px;
-  padding: max(var(--cds-space-safe-top), var(--cds-space-page-x)) var(--cds-space-page-x) 8px;
+  padding: max(var(--cds-space-safe-top), 8px) var(--cds-space-page-x) 6px;
 }
 
 .account-canonical-header__title {
   margin: 0;
   overflow: hidden;
   text-align: center;
-  font-size: var(--cds-font-size-title);
-  font-weight: var(--cds-font-weight-title);
-  line-height: 1.25;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.2;
   color: var(--cds-color-text-primary);
   text-overflow: ellipsis;
   white-space: nowrap;

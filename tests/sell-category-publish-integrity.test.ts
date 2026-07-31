@@ -50,7 +50,7 @@ const CANONICAL_SELECTIONS: string[][] = [
   ["kids-fashion", "toys-games", "building-sets"],
   ["home-garden", "furniture", "tables"],
   ["home-garden", "appliances", "vacuum-cleaners"],
-  ["electronics", "phones-tablets", "smartphones"],
+  ["electronics", "phones-tablets", "android-phones"],
   ["electronics", "computers", "laptops"],
   ["electronics", "tv-audio", "televisions"],
   ["electronics", "gaming", "consoles"],

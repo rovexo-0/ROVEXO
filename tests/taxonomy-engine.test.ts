@@ -45,8 +45,10 @@ describe("marketplace taxonomy engine (Catalog Master)", () => {
     const textileNames = searchCategoryPicker("textile").map((result) => result.matchName);
     expect(textileNames).toEqual(expect.arrayContaining(["Home Textiles"]));
 
-    const phoneNames = searchCategoryPicker("smart").map((result) => result.matchName);
-    expect(phoneNames).toEqual(expect.arrayContaining(["Smartphones"]));
+    const phoneNames = searchCategoryPicker("android").map((result) => result.matchName);
+    expect(phoneNames).toEqual(expect.arrayContaining(["Android Phones"]));
+    const iphoneNames = searchCategoryPicker("iphone").map((result) => result.matchName);
+    expect(iphoneNames).toEqual(expect.arrayContaining(["iPhones"]));
   });
 
   it("completes search under 100ms after warm-up", () => {
@@ -61,7 +63,7 @@ describe("marketplace taxonomy engine (Catalog Master)", () => {
     const phone = resolveCategoryPathBySlugs([
       "electronics",
       "phones-tablets",
-      "smartphones",
+      "android-phones",
     ]);
     const parts = resolveCategoryPathBySlugs([
       "vehicle-parts",

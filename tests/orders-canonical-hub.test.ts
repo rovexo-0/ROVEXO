@@ -35,7 +35,7 @@ describe("OrdersPage single source of truth", () => {
     expect(ui).not.toContain("orders-page__notify");
     expect(ui).not.toContain("Total Sales");
     expect(css).toContain(".orders-page");
-    expect(css).toContain("min-height: 64px");
+    expect(css).toContain("min-height: 52px");
     expect(css).toContain("width: 40px");
     expect(css).toContain("max-width: none");
     expect(css).not.toContain("orders-page__notify");

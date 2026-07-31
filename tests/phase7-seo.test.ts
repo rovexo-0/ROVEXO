@@ -23,7 +23,7 @@ describe("enterprise SEO engine", () => {
 
   it("generates category and static sitemap entries", () => {
     expect(buildStaticSitemapEntries().length).toBeGreaterThan(5);
-    expect(buildCategorySitemapEntries().length).toBe(383);
+    expect(buildCategorySitemapEntries().length).toBe(432);
   });
 
   it("reports sitemap segments and audit score", () => {

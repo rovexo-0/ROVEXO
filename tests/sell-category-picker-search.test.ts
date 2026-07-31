@@ -41,7 +41,7 @@ describe("category picker search (database-only, no AI)", () => {
   it("returns Catalog Master suggestions for phone queries (iph)", () => {
     const results = searchCategoryPicker("iph");
     expect(results.length).toBeGreaterThan(0);
-    expect(resultNames("iph")).toEqual(expect.arrayContaining(["Smartphones", "Phones & Tablets"]));
+    expect(resultNames("iph")).toEqual(expect.arrayContaining(["iPhones", "Phones & Tablets"]));
   });
 
   it("returns Catalog Master suggestions for camping queries (tent)", () => {

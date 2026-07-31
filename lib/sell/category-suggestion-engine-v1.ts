@@ -135,12 +135,30 @@ const CATALOG_PHRASE_RULES: ReadonlyArray<{
     rank: "exact_product_type",
   },
   {
-    patterns: ["iphone", "smartphone", "mobile phone"],
-    slugs: ["electronics", "phones-tablets", "smartphones"],
+    patterns: ["iphone", "apple iphone"],
+    slugs: ["electronics", "phones-tablets", "iphones"],
     rank: "exact_product_type",
   },
   {
-    patterns: ["sleeping bag", "sleepingbag", "camping sleeping bag"],
+    patterns: ["android phone", "android smartphone", "samsung galaxy", "google pixel"],
+    slugs: ["electronics", "phones-tablets", "android-phones"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["smartphone", "mobile phone"],
+    slugs: ["electronics", "phones-tablets", "android-phones"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: [
+      "sleeping bag",
+      "sleeping bags",
+      "sleepingbag",
+      "sleeping-bag",
+      "sleeping-bags",
+      "camping sleeping bag",
+      "camping sleeping-bags",
+    ],
     slugs: ["sports", "camping", "sleeping-bags"],
     rank: "exact_synonym",
   },
@@ -187,9 +205,9 @@ function normalizeText(input: string): string {
     const pattern = new RegExp(`\\b${abbrev.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi");
     text = text.replace(pattern, full);
   }
-  // Compound synonym tokens (sleepingbag → camping)
-  text = text.replace(/\bsleeping\s*bags?\b/g, " camping ");
-  text = text.replace(/\bsleepingbag\b/g, " camping ");
+  // Sleeping bag → camping leaf path (hyphen / space / concatenated). Data only.
+  text = text.replace(/\bsleeping[- ]*bags?\b/g, " camping sleeping-bags ");
+  text = text.replace(/\bsleepingbag\b/g, " camping sleeping-bags ");
   return text.replace(/\s+/g, " ").trim();
 }
 

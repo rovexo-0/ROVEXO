@@ -53,7 +53,7 @@ describe("marketplace category tree (Catalog Master)", () => {
 
   it("resolves category paths by slug arrays", () => {
     expect(
-      resolveCategoryPathBySlugs(["electronics", "phones-tablets", "smartphones"]),
+      resolveCategoryPathBySlugs(["electronics", "phones-tablets", "android-phones"]),
     ).not.toBeNull();
     expect(resolveCategoryPathBySlugs(["electronics", "computers", "laptops"])).not.toBeNull();
     expect(
