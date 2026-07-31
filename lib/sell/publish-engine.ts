@@ -19,6 +19,9 @@ export const LISTING_CREATE_RETRY_MS = [500, 1500, 3000] as const;
 export const PUBLISH_FAILURE_MESSAGE =
   "Publishing failed. Your draft has been safely saved.";
 
+export const PUBLISH_NETWORK_FAILURE_MESSAGE =
+  "Network error while publishing. Check your connection and try again.";
+
 export type PublishSuccessResult = PublishSuccessPayload & {
   photos: SellPhoto[];
 };
@@ -34,12 +37,58 @@ export type PublishPipelineInput = {
 
 export class PublishEngineError extends Error {
   readonly persistDraft: boolean;
+  readonly status?: number;
+  readonly code?: string;
 
-  constructor(message: string, options?: { persistDraft?: boolean }) {
+  constructor(
+    message: string,
+    options?: { persistDraft?: boolean; status?: number; code?: string },
+  ) {
     super(message);
     this.name = "PublishEngineError";
     this.persistDraft = options?.persistDraft ?? false;
+    this.status = options?.status;
+    this.code = options?.code;
   }
+}
+
+type ListingApiErrorBody = {
+  error?: unknown;
+  message?: unknown;
+  code?: unknown;
+};
+
+/** Surface backend `{ error | message, code }` — never discard the response body. */
+export function extractListingApiErrorMessage(status: number, body: unknown): string {
+  if (body && typeof body === "object") {
+    const record = body as ListingApiErrorBody;
+    for (const candidate of [record.error, record.message]) {
+      if (typeof candidate === "string" && candidate.trim()) {
+        return candidate.trim();
+      }
+    }
+  }
+  if (status === 401 || status === 403) {
+    return "Please sign in again to publish.";
+  }
+  if (status === 413) {
+    return "Photos are too large. Try fewer or smaller photos.";
+  }
+  if (status >= 500) {
+    return "Server could not publish right now. Please try again.";
+  }
+  return PUBLISH_FAILURE_MESSAGE;
+}
+
+export function extractListingApiErrorCode(body: unknown): string | undefined {
+  if (!body || typeof body !== "object") return undefined;
+  const code = (body as ListingApiErrorBody).code;
+  return typeof code === "string" && code.trim() ? code.trim() : undefined;
+}
+
+/** Retry only transient failures — never retry validation / auth / business 4xx. */
+export function isRetryableListingCreateStatus(status: number): boolean {
+  return status === 408 || status === 429 || status >= 500;
 }
 
 export function publishPhaseLabel(
@@ -94,13 +143,14 @@ async function createListingWithRetry(
   method: string,
   body: unknown,
 ): Promise<Response> {
-  let lastError: Error | null = null;
+  let lastError: PublishEngineError | null = null;
 
   for (let attempt = 0; attempt < LISTING_CREATE_RETRY_MS.length; attempt += 1) {
     try {
       const response = await fetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify(body),
       });
 
@@ -108,19 +158,44 @@ async function createListingWithRetry(
         return response;
       }
 
-      void (await response.json().catch(() => null));
-      throw new Error("Unable to save listing.");
-    } catch (error) {
-      lastError = new Error("Unable to save listing.");
-      void error;
-      const delay = LISTING_CREATE_RETRY_MS[attempt];
-      if (delay !== undefined && attempt < LISTING_CREATE_RETRY_MS.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, delay));
+      const parsed = await response.json().catch(() => null);
+      const apiError = new PublishEngineError(
+        extractListingApiErrorMessage(response.status, parsed),
+        {
+          persistDraft: true,
+          status: response.status,
+          code: extractListingApiErrorCode(parsed),
+        },
+      );
+
+      if (!isRetryableListingCreateStatus(response.status)) {
+        throw apiError;
       }
+
+      lastError = apiError;
+    } catch (error) {
+      if (error instanceof PublishEngineError) {
+        if (error.status !== undefined && !isRetryableListingCreateStatus(error.status)) {
+          throw error;
+        }
+        lastError = error;
+      } else {
+        lastError = new PublishEngineError(PUBLISH_NETWORK_FAILURE_MESSAGE, {
+          persistDraft: true,
+        });
+      }
+    }
+
+    const delay = LISTING_CREATE_RETRY_MS[attempt];
+    if (delay !== undefined && attempt < LISTING_CREATE_RETRY_MS.length - 1) {
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 
-  throw lastError ?? new Error("Unable to save listing.");
+  throw (
+    lastError ??
+    new PublishEngineError(PUBLISH_FAILURE_MESSAGE, { persistDraft: true })
+  );
 }
 
 export async function runPublishPipeline(input: PublishPipelineInput): Promise<PublishSuccessResult> {
@@ -171,7 +246,12 @@ export async function runPublishPipeline(input: PublishPipelineInput): Promise<P
   }
 
   if (!response.ok) {
-    throw new PublishEngineError(PUBLISH_FAILURE_MESSAGE, { persistDraft: true });
+    const parsed = await response.json().catch(() => null);
+    throw new PublishEngineError(extractListingApiErrorMessage(response.status, parsed), {
+      persistDraft: true,
+      status: response.status,
+      code: extractListingApiErrorCode(parsed),
+    });
   }
 
   onPhase("finalising");

@@ -964,6 +964,8 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
         return;
       }
 
+      // P0-01: always surface the real PublishEngineError message (API/network).
+      // Never replace a specific backend error with the generic fallback.
       if (error instanceof PublishEngineError && error.persistDraft) {
         await persistDraftOnPublishFailure({
           draftRef,
@@ -971,9 +973,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
           pendingDescriptionRef,
           uploadSessionId: uploadSessionRef.current,
         });
-        setFormError(
-          error.message.trim() ? error.message : PUBLISH_FAILURE_MESSAGE,
-        );
+        setFormError(error.message.trim() || PUBLISH_FAILURE_MESSAGE);
         setPublishPhase("error");
         return;
       }
@@ -981,7 +981,9 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
       setFormError(
         error instanceof PublishEngineError && error.message.trim()
           ? error.message
-          : PUBLISH_FAILURE_MESSAGE,
+          : error instanceof Error && error.message.trim()
+            ? error.message
+            : PUBLISH_FAILURE_MESSAGE,
       );
       setPublishPhase("error");
     } finally {

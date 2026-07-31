@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
-import { publishPhaseLabel, PUBLISH_FAILURE_MESSAGE } from "@/lib/sell/publish-engine";
+import {
+  extractListingApiErrorCode,
+  extractListingApiErrorMessage,
+  isRetryableListingCreateStatus,
+  publishPhaseLabel,
+  PUBLISH_FAILURE_MESSAGE,
+  PUBLISH_NETWORK_FAILURE_MESSAGE,
+} from "@/lib/sell/publish-engine";
 import {
   DRAFT_AUTOSAVE_MS,
   DRAFT_EXPIRY_MS,
@@ -18,8 +27,44 @@ describe("publish-engine", () => {
     expect(publishPhaseLabel("published")).toBe("Listing successfully published.");
   });
 
-  it("exposes canonical publish failure copy", () => {
+  it("exposes canonical publish failure copy as last-resort fallback", () => {
     expect(PUBLISH_FAILURE_MESSAGE).toContain("draft has been safely saved");
+    expect(PUBLISH_NETWORK_FAILURE_MESSAGE).toContain("Network error");
+  });
+
+  it("extracts real backend error + code from listing API JSON", () => {
+    expect(
+      extractListingApiErrorMessage(422, {
+        error: "This listing cannot be published under ROVEXO marketplace rules.",
+        code: "MARKETPLACE_RULES",
+      }),
+    ).toBe("This listing cannot be published under ROVEXO marketplace rules.");
+    expect(
+      extractListingApiErrorCode({
+        error: "Select a category, subcategory, and product type.",
+        code: "CATEGORY_MISSING",
+      }),
+    ).toBe("CATEGORY_MISSING");
+    expect(extractListingApiErrorMessage(401, null)).toContain("sign in");
+    expect(extractListingApiErrorMessage(500, {})).toContain("Server could not publish");
+  });
+
+  it("retries only transient listing create statuses", () => {
+    expect(isRetryableListingCreateStatus(400)).toBe(false);
+    expect(isRetryableListingCreateStatus(401)).toBe(false);
+    expect(isRetryableListingCreateStatus(422)).toBe(false);
+    expect(isRetryableListingCreateStatus(408)).toBe(true);
+    expect(isRetryableListingCreateStatus(429)).toBe(true);
+    expect(isRetryableListingCreateStatus(500)).toBe(true);
+  });
+
+  it("createListingWithRetry preserves API body and credentials (P0-01)", () => {
+    const source = readFileSync(join(process.cwd(), "lib/sell/publish-engine.ts"), "utf8");
+    expect(source).toContain('credentials: "same-origin"');
+    expect(source).toContain("extractListingApiErrorMessage");
+    expect(source).toContain("isRetryableListingCreateStatus");
+    expect(source).not.toContain('void (await response.json().catch(() => null))');
+    expect(source).not.toContain('throw new Error("Unable to save listing.")');
   });
 });
 

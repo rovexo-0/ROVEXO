@@ -1,0 +1,72 @@
+---
+description: ROVEXO Mobile First Absolute Engineering Law — Mobile is reference; Desktop secondary; no PASS/FREEZE without Mobile Certification
+alwaysApply: true
+---
+
+# ROVEXO MOBILE FIRST ABSOLUTE ENGINEERING LAW v1.0
+
+**STATUS: OWNER APPROVED · PERMANENT · EFFECTIVE IMMEDIATELY · NO EXCEPTIONS**
+
+SSOT: `lib/mobile-first/mobile-first-absolute-law-v1.ts`
+
+## Absolute
+
+ROVEXO is a **100% MOBILE FIRST MARKETPLACE**.
+
+**Mobile = reference platform.**  
+**Desktop = required compatibility, SECONDARY priority.**
+
+```
+Desktop PASS + Mobile FAIL = FAIL
+until Mobile is corrected.
+```
+
+## Platform priority
+
+1. iPhone Safari (**PRIMARY REFERENCE**)  
+2. iPhone Chrome  
+3. Android Chrome  
+4. Samsung Internet  
+5. PWA  
+6. iPad Safari  
+7. Desktop Chrome  
+8. Desktop Edge  
+9. Desktop Safari  
+10. Desktop Firefox  
+
+## Incomplete / not certified
+
+- Works ONLY on Desktop → **NOT COMPLETE**  
+- Works ONLY on Windows → **NOT CERTIFIED**  
+- Must work **100% on Mobile first**
+
+## Every new module must verify
+
+Touch · Viewport · Safe Area · Dynamic Toolbar · Keyboard · **visualViewport** · Orientation · HEIC · Camera · Gallery · Upload · Scroll · Swipe · Sticky · Bottom Navigation · PWA · Offline Restore · Session Restore · Cookies · SameSite · Storage · IndexedDB · localStorage · Background Restore · Memory · Performance · Battery
+
+## Every bug
+
+Ask first: **Can this happen ONLY on Mobile?**  
+If YES → investigate **Mobile FIRST**. Desktop secondary.
+
+## Every audit
+
+Classify: Desktop · Mobile · Desktop + Mobile  
+Never certify Desktop only.
+
+## Owner certification
+
+No module may receive **PASS + FREEZE** until **Mobile Certification** passes.
+
+Mandatory Mobile Certification: iPhone Safari · iPhone Chrome · Android Chrome · Samsung Internet · PWA · Landscape · Portrait · Keyboard Open/Closed · Low Network · 4G · Wi-Fi · Image Upload · Camera · Gallery
+
+## Identity
+
+Mobile and Desktop behaviour must be **identical**, unless Owner explicitly approves platform-specific behaviour.
+
+## Cursor must never
+
+- Treat Desktop / Windows as the reference  
+- Claim PASS / FREEZE / CERTIFY without Mobile Certification  
+- Skip visualViewport / safe-area / keyboard / HEIC / PWA on new work  
+- Prefer Desktop fixes when the defect is Mobile-only  
