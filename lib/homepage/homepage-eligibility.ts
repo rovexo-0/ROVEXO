@@ -59,8 +59,6 @@ export type HomepageEligibilityResult = {
   mode: HomepageMode;
 };
 
-const INTERNAL_PLATFORM_ROLES = new Set(["admin", "super_admin"]);
-
 const LOREM_PATTERN = /lorem ipsum|dolor sit amet/i;
 
 let lastExclusionLog: Array<{ slug: string; reason: HomepageExclusionReason }> = [];
@@ -108,11 +106,6 @@ function isApprovedTesterListing(input: HomepageListingInput): boolean {
   const email = input.sellerEmail?.toLowerCase() ?? "";
   if (!email) return false;
   return parseApprovedTesterEmails().has(email);
-}
-
-function isInternalPlatformSeller(input: HomepageListingInput): boolean {
-  const role = input.sellerRole?.toLowerCase() ?? "";
-  return INTERNAL_PLATFORM_ROLES.has(role);
 }
 
 /** Published listings with moderation warnings remain visible; only pending/blocked are hidden. */
@@ -200,9 +193,9 @@ function evaluateCoreEligibility(input: HomepageListingInput): HomepageEligibili
     return { eligible: false, reason: "NOT_APPROVED_FOR_CLOSED_BETA", mode };
   }
 
-  if (isInternalPlatformSeller(input)) {
-    return { eligible: false, reason: "MARKETPLACE_NOT_APPROVED", mode };
-  }
+  // Unified Account: admin / super_admin may buy and sell on the same account.
+  // Never exclude real published listings by platform role — that hides Owner /
+  // staff inventory from Homepage, Search, Featured, and public Store.
 
   return { eligible: true, mode };
 }

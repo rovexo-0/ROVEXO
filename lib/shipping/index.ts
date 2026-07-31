@@ -15,6 +15,15 @@ export { ShippingService } from "@/lib/shipping/engine";
 export type { ShippingRecord, ShippingStatus, ParcelTier, ShippingAddress } from "@/lib/shipping/engine";
 
 export {
+  SERVICE_POINT_ENGINE_V1,
+  isServicePointEngineEnabled,
+  servicePointEngineDisabledBody,
+  servicePointEngineDisabledResponse,
+  assertServicePointEngineEnabled,
+} from "@/lib/shipping/service-point-engine-v1";
+export type { ServicePointDisabledBody } from "@/lib/shipping/service-point-engine-v1";
+
+export {
   PARCEL_TIERS,
   SHIPPING_STATUSES,
   type LegacyParcelSize,

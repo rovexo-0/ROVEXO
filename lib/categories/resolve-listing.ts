@@ -13,15 +13,18 @@ export async function resolveListingCategoryId(
 ): Promise<string | null> {
   if (!categoryPath) return null;
 
-  if (categoryPath.categorySlugs?.length) {
-    return resolveOrCreateCategoryIdBySlugPath(categoryPath.categorySlugs);
-  }
+  const slugs = categoryPath.categorySlugs?.length
+    ? categoryPath.categorySlugs
+    : [
+        categoryPath.categorySlug,
+        categoryPath.subcategorySlug,
+        ...(categoryPath.childCategorySlug ? [categoryPath.childCategorySlug] : []),
+      ];
 
-  const slugs = [
-    categoryPath.categorySlug,
-    categoryPath.subcategorySlug,
-    ...(categoryPath.childCategorySlug ? [categoryPath.childCategorySlug] : []),
-  ];
+  // Category Engine v1.0 — Catalog Master leaf only (exactly 3 levels).
+  if (slugs.length !== 3 || slugs.some((slug) => !slug?.trim())) {
+    return null;
+  }
 
   return resolveOrCreateCategoryIdBySlugPath(slugs);
 }

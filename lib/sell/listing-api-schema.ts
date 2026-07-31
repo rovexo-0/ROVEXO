@@ -44,10 +44,10 @@ export const createListingSchema = z.object({
   status: z.enum(["draft", "published"]).optional(),
   categoryPath: z
     .object({
-      categorySlug: z.string(),
-      subcategorySlug: z.string(),
-      childCategorySlug: z.string().optional(),
-      categorySlugs: z.array(z.string()).optional(),
+      categorySlug: z.string().min(1),
+      subcategorySlug: z.string().min(1),
+      childCategorySlug: z.string().min(1),
+      categorySlugs: z.array(z.string().min(1)).length(3).optional(),
     })
     .nullable(),
   inventory: inventorySchema.default({
@@ -76,10 +76,10 @@ export const updateListingSchema = z.object({
   shippingPrice: z.number().nonnegative().nullable().optional(),
   categoryPath: z
     .object({
-      categorySlug: z.string(),
-      subcategorySlug: z.string(),
-      childCategorySlug: z.string().optional(),
-      categorySlugs: z.array(z.string()).optional(),
+      categorySlug: z.string().min(1),
+      subcategorySlug: z.string().min(1),
+      childCategorySlug: z.string().min(1),
+      categorySlugs: z.array(z.string().min(1)).length(3).optional(),
     })
     .nullable()
     .optional(),

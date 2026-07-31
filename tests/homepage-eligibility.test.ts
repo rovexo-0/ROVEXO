@@ -142,6 +142,27 @@ describe("HomepageEligibility engine", () => {
         input({ slug: "warning-listing", title: "Valid Title Here", moderationStatus: "warning" }),
       ),
     ).toBe(true);
+    // Unified Account: platform roles must not hide real published listings.
+    expect(
+      HomepageEligibility.isEligible(
+        input({
+          slug: "owner-super-admin-listing",
+          title: "Valid Title Here",
+          sellerRole: "super_admin",
+          sellerEmail: "owner@rovexo.co.uk",
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      HomepageEligibility.isEligible(
+        input({
+          slug: "staff-admin-listing",
+          title: "Valid Title Here",
+          sellerRole: "admin",
+          sellerEmail: "admin@rovexo.co.uk",
+        }),
+      ),
+    ).toBe(true);
   });
 
   it("rejects certified demo listings even in closed beta (Absolute Law v5.0)", () => {

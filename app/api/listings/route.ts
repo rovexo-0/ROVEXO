@@ -17,6 +17,7 @@ import {
   createListingSchema,
   formatListingApiValidationError,
 } from "@/lib/sell/listing-api-schema";
+import { validateManualCategorySlugs, validateListingAgainstProhibitedEngine } from "@/lib/sell/category-engine-v1";
 import type { ListingFilter } from "@/lib/listings/types";
 import { clampInventory, isInventoryValid } from "@/lib/sell/inventory";
 import {
@@ -62,6 +63,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Category is required." }, { status: 400 });
     }
 
+    const pathSlugs = body.categoryPath.categorySlugs?.length
+      ? body.categoryPath.categorySlugs
+      : [
+          body.categoryPath.categorySlug,
+          body.categoryPath.subcategorySlug,
+          body.categoryPath.childCategorySlug,
+        ];
+
+    const taxonomyGate = validateManualCategorySlugs(pathSlugs);
+    if (!taxonomyGate.ok) {
+      return NextResponse.json(
+        { error: taxonomyGate.message, code: taxonomyGate.code },
+        { status: 400 },
+      );
+    }
+
+    const prohibitedGate = validateListingAgainstProhibitedEngine({
+      title: body.title,
+      description: body.description,
+      brand: body.brand,
+    });
+    if (!prohibitedGate.ok) {
+      return NextResponse.json(
+        { error: prohibitedGate.message, code: prohibitedGate.code },
+        { status: 422 },
+      );
+    }
+
     if (body.listingType === "auction") {
       if (!body.auctionStartPrice || Number(body.auctionStartPrice) < 1) {
         return NextResponse.json({ error: "Auction start price is required." }, { status: 400 });
@@ -73,7 +102,10 @@ export async function POST(request: Request) {
 
     const categoryId = await resolveListingCategoryId(body.categoryPath);
     if (!categoryId) {
-      return NextResponse.json({ error: "Invalid category selected." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid category selected.", code: "UNKNOWN_TAXONOMY_NODE" },
+        { status: 400 },
+      );
     }
 
     if (body.inventory) {
@@ -138,6 +170,17 @@ export async function POST(request: Request) {
 
     await syncAutoVerifiedProfile(auth.user.id);
 
+    // Fail closed: marketplace publish must remain status=published.
+    if (publishStatus === "published" && listing.status !== "published") {
+      return NextResponse.json(
+        {
+          error:
+            "This listing cannot be published under ROVEXO marketplace rules. Review the content and try again.",
+        },
+        { status: 422 },
+      );
+    }
+
     revalidatePublishedListing(listing.slug);
 
     if (listing.status === "published") {
@@ -174,6 +217,12 @@ export async function POST(request: Request) {
       message: error instanceof Error ? error.message : "unknown",
       name: error instanceof Error ? error.name : typeof error,
     });
+    if (
+      error instanceof Error &&
+      /cannot be published under ROVEXO marketplace rules/i.test(error.message)
+    ) {
+      return NextResponse.json({ error: error.message }, { status: 422 });
+    }
     return NextResponse.json({ error: "Unable to publish listing." }, { status: 500 });
   }
 }

@@ -53,12 +53,15 @@ export function detectCategoryFromTitle(
   };
 }
 
+/**
+ * Category Suggestion Engine v1.0 — NEVER auto-select.
+ * Seller must press Apply Suggestion.
+ */
 export function shouldAutoSelectCategory(
   suggestions: TitleCategorySuggestion[],
 ): TitleCategorySuggestion | null {
-  const top = suggestions[0];
-  if (!top || top.confidence < AUTO_SELECT_CONFIDENCE) return null;
-  return top;
+  void suggestions;
+  return null;
 }
 
 /** @deprecated Alias for title-only detection. */

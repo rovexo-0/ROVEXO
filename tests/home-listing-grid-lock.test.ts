@@ -32,8 +32,9 @@ describe("Official Listing Card — homepage grid lock", () => {
   it("locks homepage feed to two columns", () => {
     const homepage = readSource("components/homepage/canonical/CanonicalHomepage.module.css");
 
-    expect(homepage).toContain("grid-template-columns: repeat(2, minmax(0, 1fr))");
+    expect(homepage).toContain("repeat(var(--hp-grid-cols, 2), minmax(0, 1fr))");
     expect(homepage).not.toContain("--hp-grid-cols: 3");
+    expect(homepage).toContain('data-listing-card="rovexo"');
   });
 
   it("uses purple category chips on homepage", () => {

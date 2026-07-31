@@ -1,4 +1,5 @@
 import { buildListingPublishPayload } from "@/lib/sell/build-listing-publish-payload";
+import { assertSellCategoryPublishGate } from "@/lib/sell/category-engine-v1";
 import type { PublishSuccessPayload } from "@/lib/sell/publish-success";
 import { parsePublishSuccessResponse } from "@/lib/sell/publish-success";
 import type { SellListingDraft, SellPhoto } from "@/features/sell/types";
@@ -124,6 +125,17 @@ async function createListingWithRetry(
 
 export async function runPublishPipeline(input: PublishPipelineInput): Promise<PublishSuccessResult> {
   const { draft, editListingId, removedImageIds, uploadPhoto, onPhase, onUploadProgress } = input;
+
+  onPhase("validating");
+  const categoryGate = assertSellCategoryPublishGate({
+    categoryPath: draft.categoryPath,
+    title: draft.title,
+    description: draft.description,
+    brand: draft.brand,
+  });
+  if (!categoryGate.ok) {
+    throw new PublishEngineError(categoryGate.message, { persistDraft: true });
+  }
 
   onPhase("uploading");
   onUploadProgress(0);

@@ -26,6 +26,7 @@ import type {
 import type { ShippingAddress, ShippingQuote, ParcelTier } from "@/lib/shipping/types";
 import type { SellerDefaultLabelSize } from "@/lib/shipping/label-size";
 import { resolveSellerDefaultLabelSize } from "@/lib/shipping/label-size";
+import { isServicePointEngineEnabled } from "@/lib/shipping/service-point-engine-v1";
 
 function assertConfigured(): void {
   if (!isSendcloudConfigured()) {
@@ -86,7 +87,10 @@ export const SendcloudService = {
       const minWeight = Number.parseFloat(method.min_weight);
       const maxWeight = Number.parseFloat(method.max_weight);
       if (spec.weightKg < minWeight || spec.weightKg > maxWeight) return false;
-      if (method.service_point_input === "required") return false;
+      // Gate 0: never expose Service Point–required methods until certified.
+      if (method.service_point_input === "required" && !isServicePointEngineEnabled()) {
+        return false;
+      }
       return true;
     });
 

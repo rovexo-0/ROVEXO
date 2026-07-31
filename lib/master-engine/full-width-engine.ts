@@ -2,7 +2,7 @@
  * ROVEXO FULL WIDTH ENGINE v1.0 (LOCKED)
  * Backed by MASTER FULL WIDTH CONTRACT v1.1 — Profile = official visual reference.
  *
- * DESIGN DECISION #001: Internal L/R 16px · Homepage L/R 24px (LOCKED).
+ * DESIGN DECISION #001: Internal L/R 16px · Homepage content L/R 16px · Header 24px.
  * Forbidden: borders · decorative cards · shadows · boxes · custom widths · custom spacing.
  * Required: 100% width · flat rows · Switch Engine · chevron >
  */

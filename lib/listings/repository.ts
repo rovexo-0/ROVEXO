@@ -526,7 +526,7 @@ export async function createSellerListing(
   // reads image *names* from the input, not the freshly inserted rows), so run
   // them concurrently instead of serializing two round-trip chains.
   try {
-    await Promise.all([
+    const [, moderation] = await Promise.all([
       insertProductImages(product.id, input.sellerId, input.images),
       status === "published"
         ? scanListingBeforePublish({
@@ -537,8 +537,16 @@ export async function createSellerListing(
             brand: input.brand,
             imageNames: input.images.map((image) => image.storagePath || image.url),
           })
-        : Promise.resolve(),
+        : Promise.resolve(null),
     ]);
+
+    // Fail closed: never return success for a listing moderation paused/blocked.
+    if (moderation && !moderation.allowed) {
+      throw new Error(
+        moderation.result.summary?.trim() ||
+          "This listing cannot be published under ROVEXO marketplace rules.",
+      );
+    }
   } catch (error) {
     const supabaseRollback = await createClient();
     await supabaseRollback

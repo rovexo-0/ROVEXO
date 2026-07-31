@@ -5,7 +5,7 @@
  * Companion to DESIGN DECISION #001 (pad values).
  *
  * ```
- * Homepage 24px  →  never inherit  →  Internal Layout Tokens
+ * Homepage content 16px / header 24px  →  never inherit  →  Internal Layout Tokens
  * Internal 16px  →  never inherit  →  Homepage Tokens
  * ```
  *
@@ -14,7 +14,8 @@
  */
 
 import {
-  HOMEPAGE_PAD_X_PX,
+  HOMEPAGE_CONTENT_PAD_X_PX,
+  HOMEPAGE_HEADER_PAD_X_PX,
   INTERNAL_PAD_X_PX,
 } from "@/lib/design-system/design-decision-001-internal-ui-v1.1";
 
@@ -25,7 +26,10 @@ export const DESIGN_DECISION_002_LAW = "NEVER_INHERIT" as const;
 /** Homepage Layout Tokens — marketing `/` only. */
 export const HOMEPAGE_LAYOUT_TOKENS = {
   family: "homepage" as const,
-  padXPx: HOMEPAGE_PAD_X_PX,
+  /** Content shell pad (--hp-shell-pad). */
+  padXPx: HOMEPAGE_CONTENT_PAD_X_PX,
+  /** Header pad (--homepage-pad-x) — frozen separately. */
+  headerPadXPx: HOMEPAGE_HEADER_PAD_X_PX,
   /** Canonical CSS custom property names (Homepage family only). */
   cssVars: ["--homepage-pad-x", "--hp-shell-pad"] as const,
   /** Forbidden: reading or writing Internal family vars on Homepage surfaces. */

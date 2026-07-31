@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ListingCard } from "@/components/ui/ListingCard";
 import { HP_CANONICAL_LISTING_PROPS } from "@/components/homepage/canonical/constants";
 import { CanonicalFeedSkeletonGrid } from "@/components/homepage/canonical/CanonicalFeedSkeleton";
@@ -59,11 +59,6 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
   const initialFetchDoneRef = useRef(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const columnCount = useMarketplaceFeedColumns();
-
-  const loadTriggerIndex = useMemo(
-    () => Math.max(0, Math.floor(items.length * 0.75) - 1),
-    [items.length],
-  );
 
   /**
    * Canonical fetch: retrieves an exact page from /api/homepage/feed. `mode`
@@ -156,7 +151,7 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
 
   useEffect(() => {
     const node = sentinelRef.current;
-    if (!node || items.length === 0) return;
+    if (!node || items.length === 0 || !hasMore) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -169,7 +164,7 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [items.length, loadTriggerIndex, loadMore]);
+  }, [items.length, hasMore, loadMore]);
 
   useEffect(() => {
     feedDebugLog("render-state", {
@@ -197,19 +192,21 @@ export const CanonicalMarketplaceFeed = memo(function CanonicalMarketplaceFeed({
         {showInitialSkeleton ? (
           <CanonicalFeedSkeletonGrid count={columnCount * 2} />
         ) : (
-          items.map((product, index) => (
-            <Fragment key={product.id}>
+          <>
+            {items.map((product, index) => (
               <ListingCard
+                key={product.id}
                 product={product}
                 variant="grid"
                 priority={index < 2}
                 {...HP_CANONICAL_LISTING_PROPS}
               />
-              {index === loadTriggerIndex ? (
-                <div ref={sentinelRef} className={css.feedSentinel} aria-hidden />
-              ) : null}
-            </Fragment>
-          ))
+            ))}
+            {/* Sentinel MUST be after all cards — mid-grid span collapses the 2-col layout. */}
+            {hasMore ? (
+              <div ref={sentinelRef} className={css.feedSentinel} aria-hidden />
+            ) : null}
+          </>
         )}
       </div>
       {loading && items.length > 0 ? (

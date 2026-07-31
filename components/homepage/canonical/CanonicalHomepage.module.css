@@ -8,7 +8,7 @@
 
   margin-inline: auto;
 
-  padding-inline: var(--hp-shell-pad, var(--homepage-pad-x, 24px));
+  padding-inline: var(--hp-shell-pad, 16px);
 
   padding-bottom: calc(var(--bottom-nav-shell-height, 56px) + env(safe-area-inset-bottom, 0px));
 
@@ -117,29 +117,28 @@
 
 
 .feedGrid {
-
   --hp-grid-cols: 2;
-
   container-type: inline-size;
-
   container-name: hp-feed;
-
   display: grid;
-
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
+  /* Canonical mobile marketplace grid — equal columns, stretch equal heights. */
+  grid-template-columns: repeat(var(--hp-grid-cols, 2), minmax(0, 1fr)) !important;
+  align-items: stretch;
   column-gap: var(--hp-grid-gap, 12px);
-
   row-gap: 16px;
-
   width: 100%;
-
   max-width: 100%;
-
   margin-inline: 0;
-
   min-width: 0;
+}
 
+.feedGrid > [data-listing-card="rovexo"],
+.feedGrid > [data-listing-card-skeleton="rovexo"] {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: 100%;
 }
 
 

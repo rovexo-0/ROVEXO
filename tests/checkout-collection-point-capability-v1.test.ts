@@ -27,5 +27,6 @@ describe("Checkout Collection Point UI capability flag", () => {
     expect(wizard).toContain("Collection Point");
     expect(wizard).toContain("Ship to Home");
     expect(flag).toContain("collectionPoint: false");
+    expect(flag).toContain("isServicePointEngineEnabled");
   });
 });

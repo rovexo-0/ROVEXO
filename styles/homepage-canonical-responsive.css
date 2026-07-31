@@ -5,9 +5,9 @@
 
 .rovexo-page-home {
   --hp-shell-max: min(90rem, 100%);
-  /* DESIGN DECISION #001 — Homepage L/R locked at 24px.
-   * DESIGN DECISION #002 — Homepage token only (never inherit Internal). */
-  --hp-shell-pad: var(--homepage-pad-x);
+  /* DESIGN DECISION #001 — Homepage content L/R 16px (COD SÂNGE).
+   * Header stays on --homepage-pad-x (24px). Never inherit Internal tokens. */
+  --hp-shell-pad: 16px;
   --hp-section-gap: clamp(12px, 2.4vw, 24px);
   --hp-grid-gap: clamp(10px, 2.8vw, 20px);
 

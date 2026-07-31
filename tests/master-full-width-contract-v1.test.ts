@@ -43,8 +43,8 @@ describe("Master Full Width Contract v1.1 (Design Decision #001)", () => {
     expect(MASTER_FULL_WIDTH_TOKENS.primaryButtonPx).toBe(56);
     expect(MASTER_FULL_WIDTH_TOKENS.paddingLeftPx).toBe(16);
     expect(MASTER_FULL_WIDTH_TOKENS.paddingRightPx).toBe(16);
-    expect(MASTER_FULL_WIDTH_TOKENS.homepagePaddingLeftPx).toBe(24);
-    expect(MASTER_FULL_WIDTH_TOKENS.homepagePaddingRightPx).toBe(24);
+    expect(MASTER_FULL_WIDTH_TOKENS.homepagePaddingLeftPx).toBe(16);
+    expect(MASTER_FULL_WIDTH_TOKENS.homepagePaddingRightPx).toBe(16);
     expect(MASTER_FULL_WIDTH_TOKENS.sectionSpacingPx).toBe(24);
     expect(MASTER_FULL_WIDTH_TOKENS.inputHeightPx).toBe(56);
     expect(MASTER_FULL_WIDTH_TOKENS.touchTargetMinPx).toBe(44);
@@ -54,12 +54,13 @@ describe("Master Full Width Contract v1.1 (Design Decision #001)", () => {
     expect(getFullWidthEngineSnapshot().contractDom).toBe(MASTER_FULL_WIDTH_CONTRACT_DOM);
   });
 
-  it("ships CSS with 100% width and Owner spacing (internal 16 · homepage 24)", () => {
+  it("ships CSS with 100% width and Owner spacing (internal 16 · homepage content 16 · header 24)", () => {
     const css = readSource("styles/rovexo/full-width-engine-v1.css");
     expect(css).toContain("--fw-width: 100%");
     expect(css).toContain("--fw-max-width: none");
     expect(css).toContain("--fw-pad-x: 16px");
     expect(css).toContain("--homepage-pad-x: 24px");
+    expect(css).toContain("--hp-shell-pad: 16px");
     expect(css).toContain("--fw-pad-y: 24px");
     expect(css).toContain("--fw-header-height: 64px");
     expect(css).toContain("--fw-section-gap: 24px");

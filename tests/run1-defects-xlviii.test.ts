@@ -68,7 +68,7 @@ describe("RUN #1 DEFECT #004 — Badge performance path", () => {
 });
 
 describe("RUN #1 DEFECT #006 — Full Width padding lock", () => {
-  it("Design Decision #001: Internal 16px · Homepage 24px (9px still blocked)", () => {
+  it("Design Decision #001: Internal 16px · Homepage content 16px · header 24px (9px still blocked)", () => {
     const contract = readFileSync(
       join(root, "lib/master-engine/master-full-width-contract-v1.ts"),
       "utf8",
@@ -81,7 +81,8 @@ describe("RUN #1 DEFECT #006 — Full Width padding lock", () => {
       "utf8",
     );
     expect(decision).toContain("INTERNAL_PAD_X_PX = 16");
-    expect(decision).toContain("HOMEPAGE_PAD_X_PX = 24");
+    expect(decision).toContain("HOMEPAGE_CONTENT_PAD_X_PX = 16");
+    expect(decision).toContain("HOMEPAGE_HEADER_PAD_X_PX = 24");
     expect(decision).not.toContain("INTERNAL_PAD_X_PX = 9");
   });
 });

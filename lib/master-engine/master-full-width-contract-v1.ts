@@ -3,7 +3,8 @@
  * PERMANENTLY LOCKED · PROFILE = MASTER DESIGN SYSTEM (INTERNAL)
  *
  * DESIGN DECISION #001 (Owner APPROVED · ROVEXO v1.1):
- * - Homepage marketing: 24px L/R (LOCKED separately)
+ * - Homepage content container: 16px L/R (COD SÂNGE Spacing Standardization)
+ * - Homepage header: 24px L/R (unchanged)
  * - Internal application (Profile tree + commerce shells): 16px L/R
  *
  * PROFILE + 100% FULL WIDTH + ALL MENU / SUBMENU PAGES = FINAL IMPLEMENTATION
@@ -32,7 +33,7 @@ export const MASTER_FULL_WIDTH_TOKENS = {
   /** Internal application horizontal page padding (Design Decision #001). */
   paddingLeftPx: INTERNAL_PAD_X_PX,
   paddingRightPx: INTERNAL_PAD_X_PX,
-  /** Homepage marketing horizontal padding — LOCKED at 24px. */
+  /** Homepage content container horizontal padding — 16px (COD SÂNGE). */
   homepagePaddingLeftPx: HOMEPAGE_PAD_X_PX,
   homepagePaddingRightPx: HOMEPAGE_PAD_X_PX,
   topSpacingPx: 24,

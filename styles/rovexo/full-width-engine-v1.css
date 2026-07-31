@@ -1,13 +1,14 @@
 /**
  * ROVEXO FULL WIDTH ENGINE v1.0 (LOCKED)
  * MASTER FULL WIDTH CONTRACT v1.1 — Profile = internal design reference.
- * DESIGN DECISION #001: Internal pad-x 16px · Homepage pad-x 24px (LOCKED).
+ * DESIGN DECISION #001: Internal pad-x 16px · Homepage content pad-x 16px ·
+ * Homepage header pad-x 24px (header token --homepage-pad-x; content --hp-shell-pad).
  * Vertical / section / header tokens unchanged.
  */
 
 :root {
   /* DESIGN DECISION #001 values · #002 isolation — two families, never bridge. */
-  --homepage-pad-x: 24px; /* Homepage Layout Tokens ONLY */
+  --homepage-pad-x: 24px; /* Homepage HEADER only — do not use for content shell */
   --internal-pad-x: 16px; /* Internal Layout Tokens ONLY */
   --fw-pad-x: 16px; /* Full Width Engine = Internal family (same value, not Homepage) */
   --fw-pad-y: 24px;
@@ -333,13 +334,14 @@
 
 /*
  * DESIGN DECISION #002 — Dual token isolation (never inherit).
- * Homepage pads with Homepage Tokens only (--homepage-pad-x / --hp-shell-pad).
+ * Homepage content uses --hp-shell-pad (16px). Header uses --homepage-pad-x (24px).
  * Does NOT mutate Internal tokens (--fw-pad-x / --rx-phone-inset-x / --cds-space-page-x).
+ * COD SÂNGE: content shell 16px — never alias content pad to Internal vars.
  */
 .rovexo-page-home,
 [data-homepage="canonical"],
 [data-homepage-surface] {
-  --hp-shell-pad: var(--homepage-pad-x);
+  --hp-shell-pad: 16px;
 }
 
 /* Homepage header is a sibling of .rovexo-page-home — pad via Homepage token, not Internal vars. */

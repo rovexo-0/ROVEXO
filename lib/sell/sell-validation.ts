@@ -1,5 +1,6 @@
 import type { FlatCategoryPath } from "@/lib/categories/types";
 import type { SellListingDraft } from "@/features/sell/types";
+import { validateManualCategoryPath } from "@/lib/sell/category-engine-v1";
 import { validateListingTitle } from "@/lib/sell/listing-title";
 import { sellFieldDomId } from "@/lib/sell/sell-progressive-flow";
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
@@ -80,10 +81,11 @@ export function getFirstSellValidationIssue(
     };
   }
 
-  if (!draft.categoryPath) {
+  const categoryGate = validateManualCategoryPath(draft.categoryPath);
+  if (!categoryGate.ok) {
     return {
       field: "category",
-      message: "Select a category.",
+      message: categoryGate.message,
       fieldDomId: sellFieldDomId("category"),
     };
   }

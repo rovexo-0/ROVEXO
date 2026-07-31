@@ -18,7 +18,8 @@ export const CATEGORY_HIDDEN_ALIASES: Record<string, readonly string[]> = {
   "memory-foam-pillow": ["memory foam", "viscoelastic", "tempur style"],
   "travel-pillow": ["neck pillow", "plane pillow", "car pillow", "BCOZZY"],
   smartphones: ["mobile phone", "cell phone", "iphone", "android phone"],
-  trainers: ["sneakers", "tennis shoes", "athletic shoes", "kicks"],
+  trainers: ["sneakers", "tennis shoes", "athletic shoes", "kicks", "air max"],
+  camping: ["sleeping bag", "sleeping bags", "sleepingbag", "camp bed", "tent"],
   sofas: ["couch", "settee", "chesterfield"],
   duvets: ["comforter", "quilt", "doona"],
 };
@@ -26,17 +27,47 @@ export const CATEGORY_HIDDEN_ALIASES: Record<string, readonly string[]> = {
 /** Keyword mapping for deterministic category detection. */
 export const CATEGORY_KEYWORD_MAP: Record<string, readonly string[]> = {
   "home-garden/bedding/pillows": [
-    "pillow", "cushion", "memory foam", "tempur", "orthopaedic", "neck pillow",
-    "travel pillow", "pregnancy pillow", "body pillow", "wedge pillow",
+    "pillow",
+    "cushion",
+    "memory foam",
+    "tempur",
+    "orthopaedic",
+    "neck pillow",
+    "travel pillow",
+    "pregnancy pillow",
+    "body pillow",
+    "wedge pillow",
   ],
-  "phones/smartphones": [
-    "iphone", "samsung galaxy", "pixel", "smartphone", "mobile phone", "android",
+  "electronics/phones-tablets/smartphones": [
+    "iphone",
+    "samsung galaxy",
+    "pixel",
+    "smartphone",
+    "mobile phone",
+    "android",
   ],
-  "mens-fashion/mens-clothing/jackets": [
-    "jacket", "coat", "parka", "bomber", "puffer", "gilet",
+  "mens-fashion/shoes/trainers": [
+    "nike",
+    "air max",
+    "air force",
+    "trainers",
+    "sneakers",
+    "running shoes",
   ],
-  "sports/running/running-shoes": [
-    "running shoes", "trainers", "jogging shoes", "marathon shoes",
+  "sports/outdoor-sports/camping": [
+    "camping",
+    "sleeping bag",
+    "sleepingbag",
+    "tent",
+    "camp bed",
+  ],
+  "mens-fashion/clothing/coats-and-jackets": [
+    "jacket",
+    "coat",
+    "parka",
+    "bomber",
+    "puffer",
+    "gilet",
   ],
 };
 

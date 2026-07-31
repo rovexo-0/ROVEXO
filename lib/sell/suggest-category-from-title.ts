@@ -1,13 +1,6 @@
-import { matchCategoriesFromLabels } from "@/lib/ai-camera/rules";
-import { resolveCategoryPathBySlugs, toPathId } from "@/lib/categories/queries";
-import { searchCanonicalCategories } from "@/lib/sell/canonical-category-search";
+import { TITLE_SYNONYMS } from "@/lib/sell/title-category-rules";
+import { suggestCategory } from "@/lib/sell/category-suggestion-engine-v1";
 import type { FlatCategoryPath } from "@/lib/categories/types";
-import {
-  KNOWN_BRANDS,
-  TITLE_CATEGORY_RULES,
-  TITLE_SYNONYMS,
-  resolveTitleCategoryPath,
-} from "@/lib/sell/title-category-rules";
 
 export type TitleCategorySuggestion = {
   path: FlatCategoryPath;
@@ -29,79 +22,10 @@ export function normalizeListingText(title: string): string {
   return expandSynonyms(title.trim().toLowerCase()).replace(/\s+/g, " ");
 }
 
-function titleToLabels(title: string): string[] {
-  const normalized = normalizeListingText(title);
-  if (!normalized) return [];
-
-  const tokens = normalized.split(/[\s,./\-–—|+()]+/).filter((token) => token.length >= 2);
-  const brands = tokens.filter((token) => KNOWN_BRANDS.has(token));
-  return [normalized, ...tokens, ...brands];
-}
-
-function patternMatchesTitle(pattern: string, title: string): boolean {
-  const alternatives = pattern.split("|").map((part) => part.trim()).filter(Boolean);
-  return alternatives.some((part) => title.includes(part));
-}
-
-function scoreTitleRule(title: string, rule: (typeof TITLE_CATEGORY_RULES)[number]): number | null {
-  const allPatternsMatch = rule.patterns.every((pattern) => patternMatchesTitle(pattern, title));
-  if (!allPatternsMatch) return null;
-
-  let confidence = rule.confidence;
-  if (rule.brands?.length) {
-    const brandHit = rule.brands.some((brand) => title.includes(brand));
-    if (brandHit) confidence = Math.min(confidence + 0.01, 0.99);
-  }
-
-  return confidence;
-}
-
-function matchTitleRules(title: string): TitleCategorySuggestion[] {
-  const matches = new Map<string, TitleCategorySuggestion>();
-
-  for (const rule of TITLE_CATEGORY_RULES) {
-    const confidence = scoreTitleRule(title, rule);
-    if (confidence == null) continue;
-
-    const path = resolveTitleCategoryPath(rule.path);
-    if (!path) continue;
-
-    const pathId = toPathId(path);
-    const existing = matches.get(pathId);
-    if (!existing || confidence > existing.confidence) {
-      matches.set(pathId, { path, confidence });
-    }
-  }
-
-  return [...matches.values()].sort((a, b) => b.confidence - a.confidence);
-}
-
 /**
- * Guarantee every suggestion is a real path in the canonical marketplace tree
- * (the single source of truth shared with the picker and server validation).
- * Any suggestion that does not fully resolve is dropped, so the AI can never
- * surface a category that would fail publish with "Invalid category selected".
+ * Compatibility wrapper → Category Suggestion Engine v1.0 (Catalog Master).
+ * Returns at most one highest-ranked path. Never auto-applies.
  */
-function canonicalize(suggestions: TitleCategorySuggestion[]): TitleCategorySuggestion[] {
-  const result: TitleCategorySuggestion[] = [];
-  const seen = new Set<string>();
-
-  for (const suggestion of suggestions) {
-    const canonicalPath = resolveCategoryPathBySlugs(
-      suggestion.path.segments.map((segment) => segment.slug),
-    );
-    if (!canonicalPath) continue;
-
-    const pathId = toPathId(canonicalPath);
-    if (seen.has(pathId)) continue;
-    seen.add(pathId);
-
-    result.push({ path: canonicalPath, confidence: suggestion.confidence });
-  }
-
-  return result;
-}
-
 export function suggestCategoryFromTitle(
   title: string,
   description = "",
@@ -109,27 +33,9 @@ export function suggestCategoryFromTitle(
   const trimmed = title.trim();
   if (trimmed.length < MIN_TITLE_LENGTH) return [];
 
-  const normalized = normalizeListingText(trimmed);
-
-  // 1. High-precision title rules (auto-select tier).
-  const ruleMatches = canonicalize(matchTitleRules(normalized));
-  if (ruleMatches.length > 0) {
-    return ruleMatches.slice(0, 3);
-  }
-
-  // 2. Canonical keyword/synonym search over the whole tree (suggest tier).
-  const searchMatches = canonicalize(searchCanonicalCategories(trimmed, description));
-  if (searchMatches.length > 0) {
-    return searchMatches.slice(0, 3);
-  }
-
-  // 3. Label/product-rule fallback (also canonical by construction).
-  return canonicalize(
-    matchCategoriesFromLabels(titleToLabels(trimmed)).map(({ path, confidence }) => ({
-      path,
-      confidence,
-    })),
-  ).slice(0, 3);
+  const top = suggestCategory(trimmed, description);
+  if (!top) return [];
+  return [{ path: top.path, confidence: top.confidence }];
 }
 
 /** Anonymous hash for learning logs — never store raw titles. */

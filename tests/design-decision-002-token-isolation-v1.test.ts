@@ -18,7 +18,8 @@ describe("DESIGN DECISION #002 — Dual Layout Token Isolation", () => {
   it("locks never-inherit law and dual families", () => {
     expect(DESIGN_DECISION_002_STATUS).toBe("APPROVED");
     expect(DESIGN_DECISION_002_LAW).toBe("NEVER_INHERIT");
-    expect(HOMEPAGE_LAYOUT_TOKENS.padXPx).toBe(24);
+    expect(HOMEPAGE_LAYOUT_TOKENS.padXPx).toBe(16);
+    expect(HOMEPAGE_LAYOUT_TOKENS.headerPadXPx).toBe(24);
     expect(INTERNAL_LAYOUT_TOKENS.padXPx).toBe(16);
     expect(HOMEPAGE_LAYOUT_TOKENS.cssVars).toContain("--homepage-pad-x");
     expect(INTERNAL_LAYOUT_TOKENS.cssVars).toContain("--fw-pad-x");
@@ -30,6 +31,7 @@ describe("DESIGN DECISION #002 — Dual Layout Token Isolation", () => {
   it("CSS declares both families without cross-family bridges", () => {
     const css = readSource("styles/rovexo/full-width-engine-v1.css");
     expect(css).toContain("--homepage-pad-x: 24px");
+    expect(css).toContain("--hp-shell-pad: 16px");
     expect(css).toContain("--internal-pad-x: 16px");
     expect(css).toContain("--fw-pad-x: 16px");
     expect(css).toContain("DESIGN DECISION #002");

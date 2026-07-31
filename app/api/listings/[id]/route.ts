@@ -18,6 +18,7 @@ import {
   formatListingApiValidationError,
   updateListingSchema,
 } from "@/lib/sell/listing-api-schema";
+import { validateManualCategorySlugs } from "@/lib/sell/category-engine-v1";
 import {
   processFollowNotificationEvent,
   resolveFollowNotificationActor,
@@ -58,13 +59,32 @@ export async function PATCH(request: Request, context: RouteContext) {
     const existing = await getSellerListingById(auth.user.id, id);
 
     if (body.categoryPath !== undefined) {
-      categoryId =
-        body.categoryPath === null
-          ? null
-          : await resolveListingCategoryId(body.categoryPath);
+      if (body.categoryPath === null) {
+        return NextResponse.json({ error: "Category is required." }, { status: 400 });
+      }
 
-      if (body.categoryPath !== null && !categoryId) {
-        return NextResponse.json({ error: "Invalid category selected." }, { status: 400 });
+      const pathSlugs = body.categoryPath.categorySlugs?.length
+        ? body.categoryPath.categorySlugs
+        : [
+            body.categoryPath.categorySlug,
+            body.categoryPath.subcategorySlug,
+            body.categoryPath.childCategorySlug,
+          ];
+      const taxonomyGate = validateManualCategorySlugs(pathSlugs);
+      if (!taxonomyGate.ok) {
+        return NextResponse.json(
+          { error: taxonomyGate.message, code: taxonomyGate.code },
+          { status: 400 },
+        );
+      }
+
+      categoryId = await resolveListingCategoryId(body.categoryPath);
+
+      if (!categoryId) {
+        return NextResponse.json(
+          { error: "Invalid category selected.", code: "UNKNOWN_TAXONOMY_NODE" },
+          { status: 400 },
+        );
       }
     }
 

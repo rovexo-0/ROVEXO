@@ -78,10 +78,16 @@ describe("sell page Absolute Authority v1.0", () => {
     expect(css).toContain("gap: var(--sell-photo-gap)");
   });
 
-  it("category picker keeps Suggested + Choose another + Search", () => {
+  it("category picker stays manual; suggestion lives above picker (confirm-only)", () => {
     const picker = readSource("features/sell/ui/SellCategoryPicker.tsx");
-    expect(picker).toContain("Suggested");
-    expect(picker).toContain("Choose another category");
+    const block = readSource("features/sell/ui/SellCategoryBlock.tsx");
+    expect(picker).toContain("Search categories");
+    expect(picker).toContain("CATEGORY_ENGINE_V1");
+    expect(picker).not.toContain("Suggested");
+    expect(picker).not.toContain("suggestCategoryFromTitle");
+    expect(picker).not.toContain("detectCategoryFromTitle");
+    expect(block).toContain("SellCategorySuggestionCard");
+    expect(block).toContain("resolveLiveCategorySuggestion");
   });
 
   it("pricing block is price-only — no seller fee preview", () => {

@@ -185,21 +185,32 @@
 /* Compact Premium Two Column Policy — mobile default 2 columns everywhere */
 .rx-listing-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: stretch;
   gap: 8px 10px;
   width: 100%;
+  min-width: 0;
+}
+
+.rx-listing-grid > [data-listing-card="rovexo"],
+.rx-listing-grid > [data-listing-card-skeleton="rovexo"],
+.rx-listing-grid > * {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
 }
 
 @media (min-width: 768px) {
   .rx-listing-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 10px 12px;
   }
 }
 
 @media (min-width: 1024px) {
   .rx-listing-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
 }
 
