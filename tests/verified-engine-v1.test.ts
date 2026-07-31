@@ -143,7 +143,7 @@ describe("ROVEXO Smart Visibility Engine v1.0", () => {
     ).toEqual({
       showHolidayMode: true,
       showPromoteListings: true,
-      showBusinessBankAccount: true,
+      showBusinessBankAccount: false,
       showPaymentMethods: true,
       showPersonalBankAccount: true,
       showWithdraw: true,

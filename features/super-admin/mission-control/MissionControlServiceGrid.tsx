@@ -9,6 +9,7 @@ const STATUS_LABEL = {
   online: "ONLINE",
   warning: "WARNING",
   offline: "OFFLINE",
+  not_configured: "NOT CONFIGURED",
 } as const;
 
 export function MissionControlServiceGrid({ services }: MissionControlServiceGridProps) {

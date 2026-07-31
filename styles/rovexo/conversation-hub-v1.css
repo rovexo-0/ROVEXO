@@ -1644,6 +1644,16 @@
   object-fit: cover;
 }
 
+.conv-hub__bubble-photo-pending {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  min-height: 72px;
+  opacity: 0.72;
+  font-size: 13px;
+}
+
 .conv-hub__composer .conv-hub__icon-btn {
   flex: 0 0 38px;
   width: 38px;

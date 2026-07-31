@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import { PrimaryButtonLink } from "@/src/components/canonical";
@@ -116,6 +116,16 @@ export function OrdersPage({ boughtOrders, soldOrders }: OrdersPageProps) {
         .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)),
     [orders, chip],
   );
+
+  /* Phase A1 — warm Conversation RSC payloads so Orders → Hub feels instant. */
+  useEffect(() => {
+    for (const order of visible) {
+      const href = detailHref(order, tab);
+      if (href.includes("/inbox/conversation/")) {
+        router.prefetch(href);
+      }
+    }
+  }, [visible, tab, router]);
 
   const setTab = (next: Tab) => {
     // Always encode tab explicitly so buyer-default Bought does not fight Sold clicks.

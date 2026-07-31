@@ -70,7 +70,8 @@
   margin: 0 8px;
   border: 0;
   background: transparent;
-  font-size: 14px;
+  /* Phase B: 16px prevents iOS Safari zoom on focus (bar height stays 44px). */
+  font-size: 16px;
   line-height: 1.2;
   color: var(--srch-land-text);
   outline: none;
@@ -82,6 +83,7 @@
 }
 
 .srch-land__camera {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -93,14 +95,28 @@
   color: var(--srch-land-purple);
 }
 
+/* Phase B: invisible ≥44px hit target — visual chrome stays 34×34. */
+.srch-land__camera::after {
+  content: "";
+  position: absolute;
+  inset: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
 .srch-land__camera .text-text-secondary {
   color: var(--srch-land-purple);
 }
 
 .srch-land__camera label {
+  position: relative;
+  box-sizing: content-box;
   width: 34px !important;
   height: 34px !important;
-  min-height: 34px;
+  /* Expand hit area without growing visible chrome. */
+  padding: 5px;
+  margin: -5px;
   border-radius: 10px;
   color: var(--srch-land-purple);
 }
@@ -109,9 +125,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  /* Phase B: ≥44px touch target (was 40). */
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   flex-shrink: 0;
   padding: 0;
   border: 1px solid #e5e7eb;

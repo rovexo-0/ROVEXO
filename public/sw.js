@@ -1,4 +1,5 @@
-const CACHE_NAME = "rovexo-static-v13";
+/** Aligned with lib/app/version.ts → ROVEXO_SW_CACHE_NAME (RC1). */
+const CACHE_NAME = "rovexo-static-v15";
 const OFFLINE_URL = "/offline";
 
 const PRECACHE_URLS = ["/", OFFLINE_URL, "/icons/icon-192.png", "/icons/icon-512.png"];

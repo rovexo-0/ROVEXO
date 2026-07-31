@@ -8,7 +8,8 @@ export const SEARCH_BAR_ICON_SIZE_PX = 20 as const;
 export const SEARCH_BAR_ICON_STROKE = 1.9 as const;
 export const SEARCH_BAR_HEIGHT_PX = 44 as const;
 export const SEARCH_BAR_RADIUS_PX = 16 as const;
-export const SEARCH_BAR_TEXT_PX = 14 as const;
+/** 16px — Phase B a11y: prevents iOS Safari input zoom (layout/height unchanged). */
+export const SEARCH_BAR_TEXT_PX = 16 as const;
 
 type IconProps = { className?: string };
 

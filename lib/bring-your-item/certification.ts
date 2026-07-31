@@ -216,6 +216,7 @@ export function runBringYourItemCertification(rootDir: string = workspacePath())
         id: "messages-route",
         label: "Messaging route",
         pass:
+          existsSync(join(rootDir, "app/inbox/(list)/page.tsx")) ||
           existsSync(join(rootDir, "app/inbox/page.tsx")) ||
           existsSync(join(rootDir, "app/messages/page.tsx")) ||
           existsSync(join(rootDir, "app/messages")),

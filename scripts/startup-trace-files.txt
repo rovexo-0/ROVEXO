@@ -625,11 +625,8 @@ public/search/categories/sports.png
 public/search/categories/sports.webp
 public/search/categories/womens-fashion.png
 public/search/categories/womens-fashion.webp
-scripts/run-final-live-certification.ts
 lib/supreme-blood-law-xlii-full-platform-certification-v1.ts
 lib/startup/startup-certification-policy-v1.ts
-e2e/full-demo-certification-environment-xliv.spec.ts
-e2e/full-platform-certification.spec.ts
 styles/rovexo/auth-v1.css
 styles/rovexo/full-width-engine-v1.css
 styles/rovexo/header-v2.css

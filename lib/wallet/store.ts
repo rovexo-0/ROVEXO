@@ -157,7 +157,7 @@ export async function getWalletData(userId: string): Promise<WalletData> {
   return {
     availableBalance: Number(wallet?.available_balance ?? 0),
     pendingBalance: Number(wallet?.pending_balance ?? 0),
-    pendingAvailableAt: wallet?.pending_available_at ?? new Date().toISOString(),
+    pendingAvailableAt: wallet?.pending_available_at ?? "",
     lockedBalance: Number(wallet?.locked_balance ?? 0),
     paidOutBalance,
     pendingOrderCount: pendingOrderCount ?? 0,

@@ -1,8 +1,12 @@
 /**
- * LOCALHOST ONLY — Messages Hub lifecycle demo fixtures (COD SÂNGE pre-freeze).
- * Never writes to DB. Never served in production.
+ * Messages Hub lifecycle demo fixtures (COD SÂNGE).
+ * Never writes to DB.
  *
- * Buyer/Seller visual certification URLs:
+ * Inbox merge is gated by Owner Demo Mode (Super Admin + explicit ON).
+ * See lib/inbox/demo/owner-demo-mode-v1.ts.
+ * Fixture helpers remain available for Vitest / Owner Demo Mode.
+ *
+ * Owner Demo Mode ON + Super Admin:
  *   /inbox/conversation/00000000-0000-4000-8000-00000000d1xx
  */
 

@@ -86,7 +86,7 @@ describe("Canonical Switch Engine v1.0 (LOCKED)", () => {
       "CanonicalSwitch",
     );
     expect(readSource("features/account/components/AccountSecurityPage.tsx")).toContain(
-      'href="/account/profile#two-factor"',
+      'href="/account/security/two-factor"',
     );
   });
 

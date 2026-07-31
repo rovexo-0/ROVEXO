@@ -1,0 +1,7 @@
+{
+  "insert1Ok": true,
+  "insert1Err": null,
+  "duplicateRejected": true,
+  "duplicateCode": "23505",
+  "deleteOk": true
+}

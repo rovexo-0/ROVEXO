@@ -1,6 +1,5 @@
 import { existsSync } from "node:fs";
 import { workspacePath } from "@/lib/server/workspace-path";
-import { join } from "node:path";
 import type { HealthStatus } from "@/lib/ops/health-types";
 
 export type EnvValidationItem = {
@@ -99,31 +98,31 @@ const ENV_SPECS: EnvSpec[] = [
   {
     key: "RESEND_API_KEY",
     group: "Email",
-    required: true,
+    required: false,
     validate: (value) => (value.startsWith("re_") ? null : "Invalid Resend API key format"),
   },
   {
     key: "EMAIL_FROM",
     group: "Email",
-    required: true,
+    required: false,
   },
   {
     key: "UPSTASH_REDIS_REST_URL",
     group: "Redis",
-    required: true,
+    required: false,
     aliases: ["REDIS_URL"],
     validate: (value) => (value.startsWith("https://") ? null : "Redis REST URL must use HTTPS"),
   },
   {
     key: "UPSTASH_REDIS_REST_TOKEN",
     group: "Redis",
-    required: true,
+    required: false,
     aliases: ["REDIS_TOKEN"],
   },
   {
     key: "CRON_SECRET",
     group: "Cron",
-    required: true,
+    required: false,
     validate: (value) => (value.length >= 16 ? null : "CRON_SECRET should be at least 16 characters"),
   },
   {
@@ -139,7 +138,7 @@ const ENV_SPECS: EnvSpec[] = [
   {
     key: "NEXT_PUBLIC_GA_MEASUREMENT_ID",
     group: "Analytics",
-    required: true,
+    required: false,
     validate: (value) => (value.startsWith("G-") ? null : "GA4 measurement ID must start with G-"),
   },
   {

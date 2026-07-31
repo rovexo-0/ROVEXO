@@ -45,13 +45,13 @@ export const HELP_CONTENT_REQUIREMENTS: HelpContentRequirement[] = [
     requiredKeywords: ["promoted", "featured", "bump", "promotion"],
   },
   {
-    featureId: "business-accounts",
-    featureName: "Business Accounts",
-    requiredTopicSlug: "business-accounts",
-    requiredArticleSlug: "business-accounts-setup",
-    requiredTree: true,
-    requiredFaq: true,
-    requiredKeywords: ["business", "company", "vat", "inventory"],
+    featureId: "seller-tax-registration",
+    featureName: "Seller Tax Registration",
+    requiredTopicSlug: "seller",
+    requiredArticleSlug: "seller-tax-registration",
+    requiredTree: false,
+    requiredFaq: false,
+    requiredKeywords: ["tax", "vat", "personal", "payout"],
   },
 ];
 

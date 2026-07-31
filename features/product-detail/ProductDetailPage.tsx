@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ScrollContainer } from "@/components/ui/ScrollContainer";
+import { useToast } from "@/components/ui/Toast";
 import { RecordRecentlyViewed } from "@/features/launch/components/RecordRecentlyViewed";
 import { RecordProductViewBeacon } from "@/features/product-detail/RecordProductViewBeacon";
 import { ProductViewsLive } from "@/features/product-detail/ProductViewsLive";
@@ -35,7 +36,6 @@ import {
   useBuyNowNavigation,
 } from "@/features/checkout/hooks/use-buy-now-navigation";
 import { resolveStoreHrefFromSeller } from "@/lib/store/store-href";
-import { HOLIDAY_MODE_LISTING_UNAVAILABLE_MESSAGE } from "@/lib/listings/holiday-mode-visibility-v1";
 
 type ProductDetailPageProps = {
   product: ProductDetail;
@@ -49,6 +49,7 @@ type ProductDetailPageProps = {
  */
 export function ProductDetailPage({ product, similarProducts }: ProductDetailPageProps) {
   const router = useRouter();
+  const { pushToast } = useToast();
   const { executeBuyNow } = useBuyNowNavigation();
   const [offerOpen, setOfferOpen] = useState(false);
   const [buyNowError, setBuyNowError] = useState<string | null>(null);
@@ -153,6 +154,14 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
     });
   }, [product.id, product.price, product.title]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("updated") !== "1") return;
+    pushToast({ title: "Listing updated.", variant: "success" });
+    router.replace(`/listing/${product.slug}`, { scroll: false });
+  }, [product.slug, pushToast, router]);
+
   return (
     <div
       className="pd-v1"
@@ -167,7 +176,16 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
 
       <div className="pd-v1__shell">
         <div className="pd-v1__hero">
-          <ProductPageChrome productSlug={product.slug} productTitle={product.title} />
+          <ProductPageChrome
+            productId={product.id}
+            productSlug={product.slug}
+            productTitle={product.title}
+            productStatus={product.status ?? "published"}
+            sellerId={product.sellerId}
+            sellerName={product.sellerName}
+            sellerUsername={product.sellerUsername ?? null}
+            isOwner={isOwnListing}
+          />
           <ProductGalleryV1 images={product.images} title={product.title} />
         </div>
 
@@ -181,15 +199,7 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
             </div>
           ) : null}
 
-          {sellerOnHoliday && !isSold ? (
-            <div
-              className="pd-v1__sold-banner"
-              data-holiday-mode-banner
-              role="status"
-            >
-              <p className="pd-v1__sold-subtitle">{HOLIDAY_MODE_LISTING_UNAVAILABLE_MESSAGE}</p>
-            </div>
-          ) : null}
+          {/* Phase C — Holiday Mode banner removed; switch + listing gates remain. */}
 
           <section aria-labelledby="pd-product-title" className="pd-v1__price-block">
             <h1 id="pd-product-title" className="pd-v1__title">

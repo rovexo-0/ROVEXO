@@ -20,7 +20,9 @@ describe("sell page Absolute Authority v1.0", () => {
     expect(route).toContain("SellPage");
     expect(route).not.toContain("SellScreen");
     expect(page).toContain("AccountCanonicalShell");
-    expect(page).toContain('title="Sell an item"');
+    expect(page).toContain("sellPageTitle");
+    expect(page).toContain("CREATE");
+    expect(page).toContain("EDIT");
     expect(page).toContain("showHeaderTitle");
     expect(page).toContain("AccountPageStack");
     expect(page).toContain("SellPhotoRail");

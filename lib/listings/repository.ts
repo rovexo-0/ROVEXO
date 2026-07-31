@@ -113,6 +113,13 @@ function mapSellerListing(row: ProductRow, transactionMode = DEFAULT_TRANSACTION
     shippingMethod: row.shipping_method ?? null,
     shippingPrice: row.shipping_price != null ? Number(row.shipping_price) : null,
     freeDelivery: row.shipping_price === 0,
+    parcelSize:
+      row.parcel_size === "small" ||
+      row.parcel_size === "medium" ||
+      row.parcel_size === "large" ||
+      row.parcel_size === "xl"
+        ? row.parcel_size
+        : null,
     sku: row.sku,
     lowStockAlert: row.low_stock_alert,
     views: row.views,

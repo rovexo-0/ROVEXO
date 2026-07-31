@@ -9,6 +9,10 @@ import {
   computeHomepagePriorityScore,
 } from "@/lib/homepage/feed-ranking";
 import { filterHomepageProducts } from "@/lib/homepage/homepage-eligibility";
+import {
+  injectPreferredMarketplaceStoreSlots,
+  type PreferredMarketplaceStoreConfig,
+} from "@/lib/preferred-marketplace-stores/preferred-marketplace-stores-engine-v1";
 
 /**
  * ROVEXO v1.0 — real products only.
@@ -51,21 +55,30 @@ export type HomepageEnrichedData = {
   businesses: RovexoBusiness[];
 };
 
-export function resolveHomepageFeedItems(feed: ProductsPage): ProductsPage {
+export function resolveHomepageFeedItems(
+  feed: ProductsPage,
+  options?: { preferredStores?: PreferredMarketplaceStoreConfig[] },
+): ProductsPage {
   const filtered = filterHomepageProducts(feed.items);
 
   if (filtered.length === 0) {
     return { ...feed, items: [] };
   }
 
+  const ranked = [...filtered]
+    .map((product) => ({
+      ...product,
+      homepagePriorityScore: computeHomepagePriorityScore(product),
+    }))
+    .sort(compareHomepageFeedProducts);
+
+  const withPreferred = options?.preferredStores?.length
+    ? injectPreferredMarketplaceStoreSlots(ranked, options.preferredStores)
+    : ranked;
+
   return {
     ...feed,
-    items: [...filtered]
-      .map((product) => ({
-        ...product,
-        homepagePriorityScore: computeHomepagePriorityScore(product),
-      }))
-      .sort(compareHomepageFeedProducts),
+    items: withPreferred,
   };
 }
 

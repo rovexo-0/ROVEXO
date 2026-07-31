@@ -1,7 +1,7 @@
 "use client";
 
 import { MyAccountTemplate } from "@/features/account-canonical";
-import { AccountIcon } from "@/components/account/AccountIcons";
+import { SettingsMenuIconGlyph } from "@/features/account-module/components/SettingsMenuIcon";
 import { CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
 import { FailClosedPanel } from "@/components/fail-closed/FailClosedPanel";
 import { SETTINGS_V1_VERIFICATION_ROWS } from "@/lib/settings/settings-v1";
@@ -59,11 +59,7 @@ export function VerificationHubPage({
                 title={row.title}
                 description="Status"
                 value={statusForRow(row.id)}
-                icon={
-                  <span className="settings-canonical__icon settings-canonical__icon--rovexo-blue" aria-hidden>
-                    <AccountIcon name="verification" />
-                  </span>
-                }
+                icon={<SettingsMenuIconGlyph name="shield" tone="rovexo-blue" />}
                 href="/trust#verification"
               />
             ))}

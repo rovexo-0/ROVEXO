@@ -1,0 +1,175 @@
+/**
+ * ROVEXO Command Centre Unified Theme RC1
+ * White = default · Dark = optional · same layout tokens for Admin + Super Admin
+ */
+
+.cc-unified {
+  --cc-purple: #9333ea;
+  --cc-purple-soft: rgb(147 51 234 / 0.1);
+  --cc-radius: 14px;
+  --cc-shadow: 0 4px 14px rgb(15 23 42 / 0.06);
+}
+
+/* White Theme (default) — remap CC2 tokens to light surfaces */
+[data-cc-appearance="light"].cc-unified.cc2-shell,
+[data-cc-appearance="light"].cc-unified .cc2-shell {
+  --cc2-bg: #ffffff;
+  --cc2-surface: #ffffff;
+  --cc2-surface-2: #f8fafc;
+  --cc2-border: rgb(226 232 240 / 0.95);
+  --cc2-text: #0f172a;
+  --cc2-muted: #64748b;
+  --cc2-accent: var(--cc-purple);
+  background: var(--cc2-bg);
+  color: var(--cc2-text);
+}
+
+[data-cc-appearance="light"].cc-unified .cc2-sidebar {
+  background: #ffffff;
+  border-right-color: var(--cc2-border);
+  box-shadow: var(--cc-shadow);
+}
+
+[data-cc-appearance="light"].cc-unified .cc2-sidebar__link:hover {
+  background: var(--cc-purple-soft);
+  color: var(--cc-purple);
+}
+
+[data-cc-appearance="light"].cc-unified .cc2-sidebar__link--active {
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 50%, #7c3aed 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgb(147 51 234 / 0.28);
+}
+
+[data-cc-appearance="light"].cc-unified .cc2-sidebar__brand strong {
+  color: var(--cc-purple);
+}
+
+[data-cc-appearance="light"].cc-unified .cc2-sidebar__omega {
+  border-color: var(--cc2-border);
+  background: #f8fafc;
+  color: var(--cc2-text);
+}
+
+[data-cc-appearance="light"].cc-unified .cc2-sidebar__collapse {
+  color: var(--cc2-muted);
+}
+
+[data-cc-appearance="light"].cc-unified .sa-premium-header {
+  background: rgb(255 255 255 / 0.92);
+  border-bottom: 1px solid var(--cc2-border);
+  box-shadow: var(--cc-shadow);
+}
+
+[data-cc-appearance="light"].cc-unified .cc-unified__main {
+  background: #ffffff;
+}
+
+[data-cc-appearance="light"].cc-unified .cc2-main--home {
+  background: #ffffff;
+}
+
+/* Cards / surfaces inside Command Centre — soft white elevation */
+[data-cc-appearance="light"].cc-unified .cc2-card,
+[data-cc-appearance="light"].cc-unified [class*="Card"],
+[data-cc-appearance="light"].cc-unified .rounded-ds-xl {
+  border-color: var(--cc2-border);
+}
+
+.cc-unified__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--cc-purple);
+}
+
+.cc-unified__title-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.cc-unified__theme-btn {
+  width: auto !important;
+  min-width: 52px;
+  min-height: 44px;
+  padding: 0 12px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.cc-unified__menu-btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.cc-unified__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  border: 0;
+  background: rgb(15 23 42 / 0.35);
+  cursor: pointer;
+}
+
+[data-cc-appearance="light"].cc-unified .cc2-theme-toggle {
+  background: #f1f5f9;
+  border: 1px solid var(--cc2-border);
+}
+
+[data-cc-appearance="light"].cc-unified .cc2-theme-toggle__btn--active {
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+  color: #ffffff;
+}
+
+/* Dark Theme (optional) — preserve CC2 dark tokens */
+[data-cc-appearance="dark"].cc-unified.cc2-shell {
+  --cc2-bg: #0b0e14;
+  --cc2-surface: #111827;
+  --cc2-surface-2: #151c2c;
+  --cc2-border: rgba(148, 163, 184, 0.12);
+  --cc2-text: #f8fafc;
+  --cc2-muted: #94a3b8;
+  --cc2-accent: #9333ea;
+  background: var(--cc2-bg);
+  color: var(--cc2-text);
+}
+
+[data-cc-appearance="dark"].cc-unified .sa-premium-header {
+  background: rgb(17 24 39 / 0.92);
+  border-bottom-color: var(--cc2-border);
+  color: var(--cc2-text);
+}
+
+[data-cc-appearance="dark"].cc-unified .cc-unified__title {
+  color: #c084fc;
+}
+
+[data-cc-appearance="dark"].cc-unified .sa-premium-search-trigger {
+  background: var(--cc2-surface);
+  border-color: var(--cc2-border);
+  color: var(--cc2-muted);
+}
+
+[data-cc-appearance="dark"].cc-unified .cc-unified__main {
+  background: var(--cc2-bg);
+}
+
+@media (max-width: 1023px) {
+  .cc-unified .cc2-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cc-unified .cc2-sidebar:not(.cc2-sidebar--closed) {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 60;
+    width: min(280px, 86vw);
+  }
+}

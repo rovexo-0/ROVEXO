@@ -61,9 +61,12 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
     expect(menu).toContain('"Notifications"');
     expect(menu).toContain('"Privacy"');
     expect(menu).toContain('"Security"');
-    expect(menu).toContain('"Verification"');
-    expect(menu).not.toContain('"Payment Methods"');
-    expect(menu).not.toContain('"LEGAL"');
+    expect(menu).not.toContain('title: "Verification"');
+    expect(menu).not.toContain('title: "Payment Methods"');
+    expect(menu).toContain('title: "HMRC Reporting"');
+    expect(menu).not.toContain('title: "Accessibility"');
+    expect(menu).toContain('"LEGAL"');
+    expect(menu).toContain("Help Centre");
     expect(settings).not.toContain("🗑 Account");
     expect(settings).not.toContain("Identity Verification");
     expect(sections).toContain("DeleteAccountFlow");
@@ -162,13 +165,15 @@ describe("Module 02B — Settings + Wallet + Smart Notifications SSOT", () => {
   it("exposes Module 02B notification preference labels", () => {
     const prefs = readSource("features/notifications/components/NotificationSettingsPage.tsx");
     const controls = readSource("lib/notifications/controls.ts");
+    const engine = readSource("lib/notifications/notification-engine-v1.ts");
 
-    expect(prefs).toContain("NOTIFICATION_USER_CONTROLS");
-    expect(controls).toContain("Push Notifications");
-    expect(controls).toContain("Email Notifications");
-    expect(controls).toContain('label: "Orders"');
+    expect(prefs).toContain("NOTIFICATION_ENGINE_SECTIONS");
+    expect(engine).toContain("Push Notifications");
+    expect(engine).toContain("Email Notifications");
+    expect(engine).toContain('label: "Orders"');
+    expect(engine).toContain('label: "New Reviews"');
+    expect(controls).toContain("NOTIFICATION_USER_CONTROLS");
     expect(controls).toContain('label: "Inbox"');
-    expect(controls).toContain('label: "Reviews"');
     expect(controls).not.toContain('label: "Followers"');
   });
 });

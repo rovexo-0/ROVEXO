@@ -31,8 +31,9 @@ describe("Messages photo attachment — Phase I", () => {
   it("signs private photo paths on conversation load", () => {
     const store = readSource("lib/messages/store.ts");
     expect(store).toContain("signPhotoMessageContents");
-    expect(store).toContain('createSignedUrl(message.content');
-    expect(store).toContain('last_message: previewText');
+    expect(store).toContain("signSinglePhotoPath");
+    expect(store).toContain("createSignedUrl");
+    expect(store).toContain("last_message: previewText");
   });
 
   it("shows pending preview and photo bubble without composer redesign", () => {

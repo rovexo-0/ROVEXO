@@ -1,7 +1,8 @@
 "use client";
 
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { AccountIcon } from "@/components/account/AccountIcons";
+import { MasterMenuIcon } from "@/features/account-center/components/MasterMenuIcon";
+import { MASTER_ICON_COLORS, resolveHubMenuIconColor } from "@/lib/design-system/master-icon-system-v1";
 import { TrustVerificationActions } from "@/features/trust/components/TrustVerificationActions";
 import type { TrustDashboardData } from "@/lib/trust/types";
 import { TRUST_CENTER_SECTIONS } from "@/lib/trust/types";
@@ -36,11 +37,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
               description={data.score.tier}
               value={String(data.score.score)}
               showChevron={false}
-              icon={
-                <span className="ac-canonical__menu-icon" aria-hidden>
-                  <AccountIcon name="verification" />
-                </span>
-              }
+              icon={<MasterMenuIcon icon="verification" color={MASTER_ICON_COLORS.green} />}
             />
             <CanonicalMenuRow title="Buyer" value={String(data.score.buyerScore)} showChevron={false} />
             <CanonicalMenuRow title="Seller" value={String(data.score.sellerScore)} showChevron={false} />
@@ -70,11 +67,7 @@ export function TrustCenterPage({ data }: TrustCenterPageProps) {
                 href={section.href}
                 title={section.title}
                 description={section.description}
-                icon={
-                  <span className="ac-canonical__menu-icon" aria-hidden>
-                    <AccountIcon name={section.icon} />
-                  </span>
-                }
+                icon={<MasterMenuIcon icon={section.icon} color={resolveHubMenuIconColor(section.icon)} />}
               />
             ))}
           </CanonicalCard>

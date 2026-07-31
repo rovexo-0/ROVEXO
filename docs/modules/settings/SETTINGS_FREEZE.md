@@ -36,15 +36,19 @@ http://localhost:3010/account/settings
 | Styles | `styles/rovexo/account-settings-canonical.css` |
 | DOM | `data-settings-canonical="v1.0"` · `data-settings-lock="permanent"` |
 
-## Approved inventory (exact)
+## Approved inventory (exact) — UK Public Launch Simplification v1.0
 
-**ACCOUNT** · Personal Information · Addresses · Notifications  
+**ACCOUNT** · Personal Information · Security · Privacy · Notifications · Addresses · Currency & Region · Accessibility · Blocked Users  
 
-**SECURITY** · Privacy · Security · Verification  
+**SUPPORT** · Help Centre · Contact Support  
 
-**PREFERENCES** · Currency  
+**LEGAL** · Legal Information · Terms & Conditions · Privacy Policy · Cookie Policy · Community Guidelines · Prohibited Items · Buyer Protection · Seller Protection · Fees · Digital Platform Reporting · GDPR & Data Rights  
+
+**ABOUT** · About ROVEXO  
 
 **DANGER ZONE** · Delete Account  
+
+Verification, Marketplace prefs, Finance entries, Report a Problem, and Feedback are **removed from Settings navigation only** (backends retained).
 
 Sign Out lives on Profile only. Language removed (English UK only).
 

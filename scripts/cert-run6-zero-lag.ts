@@ -661,7 +661,8 @@ async function certNextjs() {
       "app/wallet/loading.tsx",
       "app/balance/loading.tsx",
       "app/account/loading.tsx",
-      "app/inbox/loading.tsx",
+      "app/inbox/(list)/loading.tsx",
+      "app/inbox/conversation/[conversationId]/loading.tsx",
     ];
     const missing = required.filter((p) => !existsSync(join(process.cwd(), p)));
     if (missing.length) throw new Error(`Missing loading.tsx: ${missing.join(", ")}`);

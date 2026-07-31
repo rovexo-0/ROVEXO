@@ -45,19 +45,24 @@ export const SETTINGS_V1_MASTER_RULE = {
   ] as const,
 } as const;
 
-/** Locked hub inventory (content SSOT). */
+/** Locked hub inventory (content SSOT) — UK Public Launch Simplification v1.0. */
 export const SETTINGS_V1_INVENTORY = {
   account: [
     { title: "Personal Information", subtitle: "Name, photo and username." },
+    { title: "Security", subtitle: "Password, sessions and devices." },
+    { title: "Privacy", subtitle: "Privacy controls, GDPR and data rights." },
+    { title: "Notifications", subtitle: "Push, email and marketplace alerts." },
     { title: "Addresses", subtitle: "Delivery and return addresses." },
-    { title: "Notifications", subtitle: "Push, email and alerts." },
+    { title: "Currency & Region", subtitle: "United Kingdom · GBP · English." },
+    { title: "Blocked Users", subtitle: "Manage blocked members." },
   ],
-  security: [
-    { title: "Privacy", subtitle: "Privacy controls and data." },
-    { title: "Security", subtitle: "Password, devices and sessions." },
-    { title: "Verification", subtitle: "Identity and business verification." },
+  support: [
+    { title: "Help Centre", subtitle: "Guides, FAQs and support." },
   ],
-  preferences: [{ title: "Currency", subtitle: "Display currency." }],
+  legal: [
+    { title: "Legal Information", subtitle: "Official ROVEXO Legal Centre — all policies." },
+    { title: "HMRC Reporting", subtitle: "UK digital platform reporting." },
+  ],
   dangerZone: [{ title: "Delete Account", subtitle: "Permanently remove your account." }],
 } as const;
 
@@ -87,13 +92,9 @@ export const SETTINGS_V1_PROHIBITED = [
 export const SETTINGS_V1_QA_CHAIN = [
   "PROFILE",
   "SETTINGS",
-  "PERSONAL INFORMATION",
-  "ADDRESSES",
-  "NOTIFICATIONS",
-  "PRIVACY",
-  "SECURITY",
-  "VERIFICATION",
-  "CURRENCY",
+  "ACCOUNT",
+  "SUPPORT",
+  "LEGAL",
   "DELETE ACCOUNT",
 ] as const;
 
@@ -119,16 +120,18 @@ export type SettingsIconTone =
   | "gold"
   | "soft-red";
 
-export const SETTINGS_ICON_TONES: readonly SettingsIconTone[] = [
-  "purple",
-  "blue",
-  "orange",
-  "green",
-  "red",
-  "rovexo-blue",
-  "gold",
-  "soft-red",
-] as const;
+export const SETTINGS_ICON_TONE_COLORS: Record<SettingsIconTone, string> = {
+  purple: "#9333EA",
+  blue: "#60A5FA",
+  orange: "#F59E0B",
+  green: "#22C55E",
+  red: "#EF4444",
+  "rovexo-blue": "#06B6D4",
+  gold: "#FFD54A",
+  "soft-red": "#DC2626",
+};
+
+export const SETTINGS_ICON_TONES = Object.keys(SETTINGS_ICON_TONE_COLORS) as SettingsIconTone[];
 
 export const SETTINGS_ICON_TONE_BY_ROW: Record<string, SettingsIconTone> = {
   profile: "purple",
@@ -138,7 +141,13 @@ export const SETTINGS_ICON_TONE_BY_ROW: Record<string, SettingsIconTone> = {
   security: "red",
   verification: "rovexo-blue",
   currency: "gold",
+  accessibility: "rovexo-blue",
+  help: "red",
+  "legal-information": "purple",
+  hmrc: "rovexo-blue",
+  wallet: "gold",
   "delete-account": "soft-red",
+  "blocked-users": "red",
 };
 
 /** Language preferences removed — English (UK) only. */
@@ -148,8 +157,6 @@ export type VerificationStatusLabel = "Not Started" | "Pending" | "Verified" | "
 
 export const SETTINGS_V1_VERIFICATION_ROWS = [
   { id: "individual", title: "Individual Seller" },
-  { id: "self-employed", title: "Self Employed" },
-  { id: "ltd", title: "Ltd Company" },
   { id: "rovexo-verified", title: "ROVEXO VERIFIED" },
 ] as const;
 

@@ -50,7 +50,8 @@ describe("Official ROVEXO canonical logo engine", () => {
     const layout = readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
     const manifest = readFileSync(path.join(process.cwd(), "app/manifest.ts"), "utf8");
     expect(layout).toContain("/brand/og-image.png");
-    expect(layout).toContain("/brand/canonical-rx/rx-mark-v3.png");
+    expect(layout).toContain("/brand/canonical-rx/app-icon-v1.png");
+    expect(layout).not.toContain("/brand/canonical-rx/rx-mark-v3.png");
     expect(manifest).toContain("CANONICAL_RX_PWA_SIZES");
     expect(manifest).toContain("CANONICAL_RX_APP_ICON");
     expect(manifest).toContain("icon-maskable-512.png");

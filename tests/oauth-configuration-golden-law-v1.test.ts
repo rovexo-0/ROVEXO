@@ -53,7 +53,7 @@ describe("OAuth Configuration Golden Law v1.0 — LEVEL 8", () => {
       "http://localhost:3000/auth/callback",
     );
     expect(ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1.CALLBACKS.PRODUCTION).toBe(
-      "https://rovexo.com/auth/callback",
+      "https://www.rovexo.co.uk/auth/callback",
     );
     expect(ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1.PROVIDERS.GOOGLE).toBe(
       "MUST BE ENABLED",

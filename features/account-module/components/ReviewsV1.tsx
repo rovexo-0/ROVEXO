@@ -6,7 +6,8 @@ import {
   CanonicalMenuRow,
   CanonicalInfoBlock,
 } from "@/src/components/canonical";
-import { AccountIcon } from "@/components/account/AccountIcons";
+import { MasterMenuIcon } from "@/features/account-center/components/MasterMenuIcon";
+import { MASTER_ICON_COLORS } from "@/lib/design-system/master-icon-system-v1";
 import { AccountCanonicalShell } from "@/features/account-canonical";
 import {
   buildRatingDistribution,
@@ -42,11 +43,7 @@ export function ReviewsV1({ rating, reviewCount, reviews }: ReviewsV1Props) {
               description={`${reviewCount} reviews`}
               value={displayRating}
               showChevron={false}
-              icon={
-                <span className="ac-canonical__menu-icon" aria-hidden>
-                  <AccountIcon name="reviews" />
-                </span>
-              }
+              icon={<MasterMenuIcon icon="reviews" color={MASTER_ICON_COLORS.gold} />}
             />
           </CanonicalCard>
         </CanonicalSection>
@@ -86,11 +83,7 @@ export function ReviewsV1({ rating, reviewCount, reviews }: ReviewsV1Props) {
                   }
                   value={`${review.rating}/5`}
                   showChevron={false}
-                  icon={
-                    <span className="ac-canonical__menu-icon" aria-hidden>
-                      <AccountIcon name="reviews" />
-                    </span>
-                  }
+                  icon={<MasterMenuIcon icon="reviews" color={MASTER_ICON_COLORS.gold} />}
                 />
               ))}
             </CanonicalCard>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiAuth, requireApiRole } from "@/lib/auth/session";
+import { updateProfileDetails } from "@/lib/profile/service";
 import { upsertSellerTaxProfile } from "@/lib/seller/tax/service";
 import { createConnectAccountLink } from "@/lib/stripe/connect";
 
@@ -14,6 +15,13 @@ const taxSchema = z.object({
   country: z.string().optional(),
   email: z.string().email().optional(),
   phone: z.string().optional(),
+  /** ISO YYYY-MM-DD — persisted on profiles.date_of_birth for HMRC prefill */
+  dateOfBirth: z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid date of birth.")
+    .optional()
+    .or(z.literal("")),
   nino: z.string().optional(),
   utr: z.string().optional(),
   companyName: z.string().optional(),
@@ -44,6 +52,9 @@ export async function POST(request: Request) {
 
   try {
     const body = taxSchema.parse(await request.json());
+    if (body.dateOfBirth !== undefined) {
+      await updateProfileDetails(auth.user.id, { dateOfBirth: body.dateOfBirth });
+    }
     const profile = await upsertSellerTaxProfile({
       sellerId: auth.user.id,
       registrationType: body.registrationType,

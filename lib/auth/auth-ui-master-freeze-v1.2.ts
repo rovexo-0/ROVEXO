@@ -1,10 +1,14 @@
 /**
- * ROVEXO AUTH UI MASTER FREEZE v1.2
+ * ROVEXO AUTH UI MASTER FREEZE v1.2 (+ RC1 OAuth amendment)
  * OWNER APPROVED · LOCKED · FROZEN · SSOT
  *
  * Sign In + Register presentation only.
  * Email auth / session / Supabase / middleware UNCHANGED.
- * Social OAuth UI + UK GDPR checkbox REMOVED from auth screens.
+ * UK GDPR checkbox REMOVED permanently.
+ *
+ * OAuth RC1 (Owner authorized): Google / Apple buttons may appear only when
+ * `loadPublicOauthProviders()` confirms the provider is enabled. Facebook stays hidden.
+ * Never hardcode always-visible OAuth buttons.
  */
 
 export const AUTH_UI_MASTER_FREEZE_V1_2 = {
@@ -12,16 +16,14 @@ export const AUTH_UI_MASTER_FREEZE_V1_2 = {
   status: "OWNER_APPROVED_LOCKED_FROZEN",
   approvedByOwner: true,
   freezeLocked: true,
+  oauthRc1Amendment: "GATED_GOOGLE_APPLE_WHEN_ENABLED",
 
   scope: ["login", "register"] as const,
 
   removedFromUi: [
-    "Continue With",
-    "Continue with Apple",
-    "Continue with Google",
+    "Always-visible OAuth without availability gate",
     "Continue with Facebook",
-    "All Social Login UI",
-    "All OAuth related UI on Sign In / Register",
+    "All Facebook OAuth UI on Sign In / Register",
     "UK GDPR checkbox",
     "UK GDPR text",
   ] as const,

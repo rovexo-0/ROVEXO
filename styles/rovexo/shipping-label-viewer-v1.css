@@ -7,7 +7,11 @@
 .slv-v1__panel {
   position: relative !important;
   z-index: 1 !important;
-  width: min(100vw - 16px, 720px) !important;
+  /* Phase B: avoid 100vw horizontal overflow (scrollbar / safe-area). */
+  width: min(
+    720px,
+    calc(100dvw - 16px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px))
+  ) !important;
   max-height: min(calc(96dvh - var(--cds-bottom-nav-offset, 72px)), 960px) !important;
   padding: 0 !important;
   overflow: hidden !important;

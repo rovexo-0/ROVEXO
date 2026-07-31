@@ -24,6 +24,8 @@ export const COMMAND_CENTER_SIDEBAR_NAV: SuperAdminNavItem[] = [
   { href: "/super-admin/rovexo-ideas", label: "Rovexo Ideas", icon: "lightbulb" },
   { href: "/super-admin/command-os", label: "Command OS", icon: "terminal" },
   { href: "/super-admin/analytics-engine", label: "Analytics", icon: "bar-chart-3" },
+  { href: "/super-admin/preferred-marketplace-stores", label: "Preferred Marketplace Stores", icon: "star" },
+  { href: "/super-admin/owner-demo-mode", label: "Owner Demo Mode", icon: "flask-conical" },
   { href: "/super-admin/security-engine", label: "Security", icon: "shield" },
   { href: "/super-admin/platform", label: "Settings", icon: "settings" },
   { href: "/super-admin/observability/omega", label: "Omega / Sentinel", icon: "hexagon" },
@@ -54,6 +56,10 @@ export const SUPER_ADMIN_PRIMARY_NAV: SuperAdminNavItem[] = [
   { href: "/super-admin/assets", label: "Brand Center", description: "Logos, icons & brand system", icon: "🎨" },
 
   { href: "/super-admin/homepage-builder", label: "Homepage Manager", description: "Homepage sections & publish", icon: "🏠" },
+
+  { href: "/super-admin/preferred-marketplace-stores", label: "Preferred Marketplace Stores", description: "Homepage slot privileges for preferred sellers", icon: "⭐" },
+
+  { href: "/super-admin/owner-demo-mode", label: "Owner Demo Mode", description: "Inbox lifecycle demo fixtures (default OFF)", icon: "🧪" },
 
   { href: "/super-admin/banners", label: "Banner Manager", description: "Hero campaigns & sliders", icon: "🖼️" },
 

@@ -3,9 +3,10 @@
 import { CanonicalSection, CanonicalMenuRow, CanonicalInfoBlock, CanonicalInput } from "@/src/components/canonical";
 import { useMemo, useState } from "react";
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { AccountIcon } from "@/components/account/AccountIcons";
+import { MasterMenuIcon } from "@/features/account-center/components/MasterMenuIcon";
 
 import { HelpCentreCategoryGrid } from "@/features/help/components/HelpCentreCanonicalSection";
+import { HELP_CENTRE_SUPPORT_ICONS } from "@/lib/help/help-centre-icons-v1";
 import { searchHelpCentre } from "@/lib/help/search";
 import type { HelpSearchResult } from "@/lib/help/types";
 
@@ -19,7 +20,7 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
   const hasQuery = query.trim().length > 0;
 
   return (
-    <AccountCanonicalShell title="Help Centre" backHref="/account" showHeaderTitle>
+    <AccountCanonicalShell title="Help Centre" backHref="/account/settings" backLabel="Settings" showHeaderTitle>
       <div className="fw-engine__stack" data-full-width-surface="help-centre">
         <CanonicalSection title="Search">
           <div className="fw-engine__group flex flex-col gap-ds-3">
@@ -42,27 +43,40 @@ export function HelpCentrePage({ initialQuery = "" }: HelpCentrePageProps) {
         ) : (
           <>
             <HelpCentreCategoryGrid />
-            <CanonicalSection title="Contact Support">
+            <CanonicalSection title="Need support?">
               <div className="fw-engine__group">
                 <CanonicalMenuRow
-                  title="Email"
-                  description="Submit a support request"
+                  title="Contact Support"
+                  description="Submit a support request (Help Centre entry point)"
                   icon={
-                    <span className="ac-canonical__menu-icon" aria-hidden>
-                      <AccountIcon name="messages" />
-                    </span>
+                    <MasterMenuIcon
+                      icon={HELP_CENTRE_SUPPORT_ICONS.contactSupport.icon}
+                      color={HELP_CENTRE_SUPPORT_ICONS.contactSupport.color}
+                    />
                   }
                   href="/support"
                 />
                 <CanonicalMenuRow
-                  title="Report Problem"
+                  title="Report a Problem"
                   description="Report an issue with an order or listing"
                   icon={
-                    <span className="ac-canonical__menu-icon" aria-hidden>
-                      <AccountIcon name="support" />
-                    </span>
+                    <MasterMenuIcon
+                      icon={HELP_CENTRE_SUPPORT_ICONS.reportProblem.icon}
+                      color={HELP_CENTRE_SUPPORT_ICONS.reportProblem.color}
+                    />
                   }
                   href="/support?category=report"
+                />
+                <CanonicalMenuRow
+                  title="Legal Centre"
+                  description="Official ROVEXO Legal Centre"
+                  icon={
+                    <MasterMenuIcon
+                      icon={HELP_CENTRE_SUPPORT_ICONS.legalCentre.icon}
+                      color={HELP_CENTRE_SUPPORT_ICONS.legalCentre.color}
+                    />
+                  }
+                  href="/legal"
                 />
               </div>
             </CanonicalSection>

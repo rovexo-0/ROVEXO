@@ -808,8 +808,9 @@ html[data-theme="dark"] .wallet-v2,
   justify-content: center;
   box-sizing: border-box;
   width: 100%;
-  height: 48px;
-  min-height: 48px;
+  /* Phase B: Master Full Width primary CTA = 56px (Account inheritance). */
+  height: 56px;
+  min-height: 56px;
   padding: 0 16px;
   border-radius: var(--wallet-radius-btn);
   background: var(--wallet-purple);

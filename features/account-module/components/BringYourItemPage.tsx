@@ -336,7 +336,7 @@ export function BringYourItemPage() {
 
         {publishComplete ? (
           <div className="acm-byi__section acm-byi__success" role="status" aria-live="polite">
-            <p className="acm-byi__success-title">✅ Import completed successfully</p>
+            <p className="acm-byi__success-title">Import completed successfully</p>
             <dl className="acm-byi__success-stats">
               <div>
                 <dt>Imported</dt>

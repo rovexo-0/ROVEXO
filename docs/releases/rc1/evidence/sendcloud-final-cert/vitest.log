@@ -1,0 +1,10 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+ RUN  v4.1.9 /home/mihai/ROVEXO
+
+
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Start at  14:32:48
+   Duration  905ms (transform 509ms, setup 17ms, import 763ms, tests 23ms, environment 0ms)
+

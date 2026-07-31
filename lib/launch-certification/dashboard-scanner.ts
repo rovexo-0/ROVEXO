@@ -53,7 +53,7 @@ const DASHBOARD_PROBES: DashboardProbe[] = [
   {
     id: "messages",
     label: "Messages",
-    requiredPaths: ["features/inbox/components/ConversationHub.tsx", "app/inbox/page.tsx"],
+    requiredPaths: ["features/inbox/components/ConversationHub.tsx", "app/inbox/(list)/page.tsx"],
   },
   {
     id: "transaction_hub",

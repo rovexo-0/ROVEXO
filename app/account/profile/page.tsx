@@ -23,6 +23,7 @@ function profileDetailsFromSession(profile: UserProfile): ProfileDetails {
     verified: profile.verified,
     bio: null,
     emailVerified: false,
+    dateOfBirth: null,
   };
 }
 

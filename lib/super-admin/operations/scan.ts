@@ -11,9 +11,10 @@ import type { ScanResultItem, ScanSeverity } from "@/lib/super-admin/operations/
 const ROOT = workspacePath();
 
 function severityFromHealth(
-  status: "healthy" | "degraded" | "unhealthy",
+  status: "healthy" | "degraded" | "unhealthy" | "not_configured",
 ): ScanSeverity {
   if (status === "healthy") return "healthy";
+  if (status === "not_configured") return "healthy";
   if (status === "degraded") return "warning";
   return "critical";
 }

@@ -47,7 +47,7 @@ export const AUTH_MASTER_FREEZE_V1 = {
   /** Owner-approved OAuth / auth redirect origins only. */
   allowedOrigins: {
     localDevelopment: "http://localhost:3000",
-    production: "https://rovexo.com",
+    production: "https://www.rovexo.co.uk",
     stagingOptional: "https://staging.rovexo.com",
   } as const,
 

@@ -91,10 +91,9 @@ export const SEARCH_MIN_CHARS = 2;
 export const SEARCH_PRODUCT_PAGE_SIZE = 8;
 export const SEARCH_TRANSITION_MS = 200;
 
-export type SearchFilterScope = "products" | "auctions" | "businesses" | "sellers";
+export type SearchFilterScope = "products" | "auctions" | "sellers";
 
 export const SEARCH_FILTER_SCOPES: { id: SearchFilterScope; label: string }[] = [
   { id: "products", label: "Products" },
-  { id: "businesses", label: "Businesses" },
   { id: "sellers", label: "Sellers" },
 ];

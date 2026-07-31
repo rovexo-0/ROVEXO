@@ -41,7 +41,9 @@ describe("Product Page Canonical Freeze v3.1", () => {
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.buyNow).toBe(true);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.actions.makeOffer).toBe(true);
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.removedForever).toContain("Add to Cart");
-    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.removedForever).toContain("Report Seller");
+    expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.removedForever).toContain(
+      "Report Seller on page body / seller card",
+    );
     expect(PRODUCT_PAGE_CANONICAL_FREEZE_V1.removedForever).toContain(
       "Shipping calculated at checkout",
     );
@@ -95,7 +97,7 @@ describe("Product Page Canonical Freeze v3.1", () => {
     expect(page).toContain('<div className="pd-v1__shell">');
     expect(chrome).toContain("pd-v1__chrome");
     expect(chrome).toContain('aria-label={back.label}');
-    expect(chrome).toContain('trigger="menu"');
+    expect(chrome).toContain("ProductListingActionsMenu");
     expect(chrome).toContain("goBack");
   });
 

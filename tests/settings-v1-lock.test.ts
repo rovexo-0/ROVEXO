@@ -10,6 +10,7 @@ import {
   settingsV1Snapshot,
 } from "@/lib/settings/settings-v1";
 import { buildSettingsMenuSections } from "@/lib/account-center/settings-menu";
+import { SETTINGS_MENU_ROW_TITLES } from "@/lib/settings/freeze";
 
 function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
@@ -29,18 +30,10 @@ describe("Settings v1.0 lock — hub + Master Engine", () => {
   it("matches Owner inventory titles and subtitles", () => {
     const sections = buildSettingsMenuSections(null);
     const rows = sections.flatMap((s) => s.rows);
-    expect(rows.map((r) => r.title)).toEqual([
-      "Personal Information",
-      "Addresses",
-      "Notifications",
-      "Privacy",
-      "Security",
-      "Verification",
-      "Currency",
-    ]);
+    expect(rows.map((r) => r.title)).toEqual([...SETTINGS_MENU_ROW_TITLES]);
     expect(rows[0].subtitle).toBe("Name, photo and username.");
-    expect(rows[1].subtitle).toBe("Delivery and return addresses.");
-    expect(rows[2].subtitle).toBe("Push, email and alerts.");
+    expect(rows.some((r) => r.title === "Help Centre")).toBe(true);
+    expect(rows.some((r) => r.title === "Legal Information")).toBe(true);
   });
 
   it("shows the hub in non-production preview modes", () => {

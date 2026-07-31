@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Bell, Grid3X3, Mail, Search } from "lucide-react";
+import { AccountIcon } from "@/components/account/AccountIcons";
+import { BrowseCategoriesLineIcon, SearchLineIcon } from "@/components/icons/RvxLineIcons";
 import type {
   CommandCenterAdminIdentity,
   CommandCenterNotification,
@@ -58,18 +59,18 @@ export function CcHeader({ notifications, messageCount, admin }: CcHeaderProps) 
         <CcUtcClock />
 
         <Link href="/super-admin/search" className="cc2-header__icon-btn" aria-label="Search">
-          <Search size={18} />
+          <SearchLineIcon className="h-[18px] w-[18px]" />
         </Link>
         <Link href="/super-admin/monitoring" className="cc2-header__icon-btn" aria-label="Notifications">
-          <Bell size={18} />
+          <AccountIcon name="notifications" className="h-[18px] w-[18px]" />
           {notifications.length > 0 ? <span className="cc2-header__badge">{notifications.length}</span> : null}
         </Link>
         <Link href="/super-admin/messages-engine" className="cc2-header__icon-btn" aria-label="Messages">
-          <Mail size={18} />
+          <AccountIcon name="messages" className="h-[18px] w-[18px]" />
           {messageCount > 0 ? <span className="cc2-header__badge">{messageCount}</span> : null}
         </Link>
         <Link href="/super-admin/platform" className="cc2-header__icon-btn" aria-label="Apps">
-          <Grid3X3 size={18} />
+          <BrowseCategoriesLineIcon className="h-[18px] w-[18px]" />
         </Link>
 
         <Link href="/super-admin/staff" className="cc2-header__profile" title="Account settings">

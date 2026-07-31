@@ -1,12 +1,19 @@
 "use client";
 
 import { usePageBack } from "@/hooks/navigation/usePageBack";
-import { ProductReportDialog } from "@/features/product-detail/ProductReportDialog";
+import { ProductListingActionsMenu } from "@/features/product-detail/ProductListingActionsMenu";
 import { useProductWatchlist } from "@/features/home/hooks/use-product-watchlist";
+import type { ProductStatus } from "@/lib/supabase/types/database";
 
 type ProductPageChromeProps = {
+  productId: string;
   productSlug: string;
   productTitle: string;
+  productStatus: ProductStatus | string;
+  sellerId: string;
+  sellerName: string;
+  sellerUsername: string | null;
+  isOwner: boolean;
 };
 
 function IconHeart({ filled }: { filled: boolean }) {
@@ -25,15 +32,25 @@ function IconHeart({ filled }: { filled: boolean }) {
 
 /**
  * Product Page chrome ON the gallery image.
- * ← back (left) · ♥ save · ••• menu (right).
- * Save required for RUN #3 LISTING UX certification (same watchlist SSOT as ListingCard).
+ * ← back (left) · ♥ save (buyers) · ••• menu (right).
+ * Seller ••• = Edit / Sold / Pause / Relist / Delete.
+ * Buyer ••• = Report Listing / Report Seller / Block / Share.
  */
-export function ProductPageChrome({ productSlug, productTitle }: ProductPageChromeProps) {
+export function ProductPageChrome({
+  productId,
+  productSlug,
+  productTitle,
+  productStatus,
+  sellerId,
+  sellerName,
+  sellerUsername,
+  isOwner,
+}: ProductPageChromeProps) {
   const back = usePageBack({ backHref: "/", preferHistory: true, backLabel: "Back" });
   const { isSaved, toggle, isPending } = useProductWatchlist(productSlug);
 
   return (
-    <div className="pd-v1__chrome" data-pd-chrome="v3">
+    <div className="pd-v1__chrome" data-pd-chrome="v3" data-listing-owner={isOwner ? "true" : "false"}>
       <button
         type="button"
         className="pd-v1__chrome-btn"
@@ -51,20 +68,31 @@ export function ProductPageChrome({ productSlug, productTitle }: ProductPageChro
         </svg>
       </button>
       <div className="pd-v1__chrome-actions">
-        <button
-          type="button"
-          className="pd-v1__chrome-btn pd-v1__chrome-save"
-          data-active={isSaved ? "true" : "false"}
-          aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
-          aria-pressed={isSaved}
-          disabled={isPending}
-          onClick={() => {
-            void toggle();
-          }}
-        >
-          <IconHeart filled={isSaved} />
-        </button>
-        <ProductReportDialog productSlug={productSlug} productTitle={productTitle} trigger="menu" />
+        {!isOwner ? (
+          <button
+            type="button"
+            className="pd-v1__chrome-btn pd-v1__chrome-save"
+            data-active={isSaved ? "true" : "false"}
+            aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
+            aria-pressed={isSaved}
+            disabled={isPending}
+            onClick={() => {
+              void toggle();
+            }}
+          >
+            <IconHeart filled={isSaved} />
+          </button>
+        ) : null}
+        <ProductListingActionsMenu
+          isOwner={isOwner}
+          listingId={productId}
+          listingSlug={productSlug}
+          listingTitle={productTitle}
+          listingStatus={productStatus}
+          sellerId={sellerId}
+          sellerName={sellerName}
+          sellerUsername={sellerUsername}
+        />
       </div>
     </div>
   );

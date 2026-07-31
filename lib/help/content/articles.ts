@@ -13,7 +13,7 @@ export const HELP_CATEGORIES: Array<{ id: HelpCategory; label: string; descripti
   { id: "delivery", label: "Delivery", description: "Shipping, tracking, and delivery options" },
   { id: "chat", label: "Chat", description: "Messaging buyers and sellers safely" },
   { id: "pro-seller", label: "Pro Seller", description: "Analytics, promotions, and growth tools" },
-  { id: "business-accounts", label: "Business verification", description: "Company verification and inventory" },
+  { id: "business-accounts", label: "Seller tax status", description: "Tax registration on your Personal Account" },
   { id: "safety", label: "Safety", description: "Stay safe on ROVEXO" },
   { id: "ai-moderation", label: "AI Moderation", description: "How automated review works" },
   { id: "prohibited-items", label: "Prohibited Items", description: "Items not allowed on ROVEXO" },
@@ -247,20 +247,20 @@ Promotions expire automatically. You receive a notification when a promotion end
   },
   {
     slug: "business-accounts-setup",
-    title: "Business verification",
-    category: "business-accounts",
-    summary: "Verify your business on ROVEXO.",
-    keywords: ["business", "company", "inventory", "vat"],
-    content: `# Business verification
+    title: "Seller tax status",
+    category: "selling",
+    summary: "Complete seller tax registration on your Personal Account before payouts.",
+    keywords: ["tax", "company", "vat", "sole trader", "payout"],
+    content: `# Seller tax status
 
-Verified business information unlocks higher-volume selling and inventory tools on your ROVEXO account.
+ROVEXO v1.0 uses one **Personal Account**. Tax registration status is information used for payouts and reporting — not a separate commercial account product.
 
-## Verification
-- Choose **Business Sole Trader** or **Business Company** during tax registration.
-- Provide accurate company details and VAT number when applicable.
-- Complete bank account setup for payouts.
+## Tax registration
+- Open Seller Tax Registration and choose the status that matches your situation: **Personal**, **Pro Seller**, **Sole Trader**, or **Company**.
+- Provide accurate details and VAT number when applicable.
+- Complete bank account setup for Wallet withdrawals.
 
-Verified businesses must comply with commercial selling regulations.`,
+You remain responsible for your own tax and consumer-law obligations when selling commercially.`,
   },
   {
     slug: "safety-tips",
@@ -319,19 +319,11 @@ Each appeal is reviewed individually. Duplicate appeals do not speed up processi
     keywords: ["prohibited", "banned", "weapons", "drugs"],
     content: `# Prohibited items
 
-The following are not allowed on ROVEXO:
+The canonical prohibited and restricted items rules live in Legal.
 
-- Weapons, ammunition, and weapon accessories
-- Illegal drugs and prescription medicines sold without authorisation
-- Counterfeit or replica branded goods presented as authentic
-- Adult content and escort services
-- Stolen goods
-- Fake identity documents
-- Explosives and dangerous chemicals
-- Animal abuse content
-- Tobacco, vapes, and alcohol where restricted
+→ [Prohibited & Restricted Items](/legal/prohibited-restricted-items)
 
-Listings may be removed without notice. Repeated violations may lead to account suspension.`,
+This Help entry exists for search only and redirects to the Legal document.`,
   },
   {
     slug: "community-guidelines",
@@ -341,15 +333,11 @@ Listings may be removed without notice. Repeated violations may lead to account 
     keywords: ["community", "guidelines", "behaviour", "respect"],
     content: `# Community guidelines
 
-ROVEXO is built on trust. All members must:
+The canonical Community Guidelines live in Legal.
 
-- Be honest in listings and messages
-- Respect other users
-- Not harass, threaten, or discriminate
-- Not spam or manipulate reviews
-- Follow applicable laws
+→ [Community Guidelines](/legal/community-guidelines)
 
-We may restrict accounts that harm the community.`,
+This Help entry exists for search only and redirects to the Legal document.`,
   },
   {
     slug: "reports-appeals-process",
@@ -380,18 +368,11 @@ Submitting multiple reports for the same issue does not speed up processing.`,
     keywords: ["privacy", "data", "gdpr", "cookies"],
     content: `# Privacy policy
 
-ROVEXO processes personal data to operate the marketplace, prevent fraud, and improve the service.
+The canonical Privacy Policy lives in Legal.
 
-## Data we collect
-- Account details (name, email, profile information)
-- Transaction and messaging metadata
-- Device and usage data for security and performance
+→ [Privacy Policy](/legal/privacy-policy)
 
-## Your rights
-- Access, correct, or delete your data subject to legal retention requirements
-- Manage marketing and notification preferences in Settings
-
-Contact Support for privacy requests. We respond within applicable legal timeframes.
+This Help entry exists for search only and redirects to the Legal document.
 
 ${PRIVACY_DATA_CONTROLLER_MARKDOWN}`,
   },
@@ -403,16 +384,13 @@ ${PRIVACY_DATA_CONTROLLER_MARKDOWN}`,
     keywords: ["terms", "service", "legal", "agreement"],
     content: `# Terms of service
 
-By using ROVEXO you agree to:
+The canonical Terms & Conditions live in Legal.
 
-- Provide accurate account and listing information
-- Comply with prohibited items and community guidelines
-- Use ROVEXO checkout for eligible transactions
-- Accept platform fees on seller transactions
+→ [Terms & Conditions](/legal/terms-and-conditions)
 
-ROVEXO may update these terms. Continued use after changes constitutes acceptance.
+Platform Fee is paid by the buyer. Seller Fee is £0. See [Platform Fee Policy](/legal/platform-fee-policy).
 
-Disputes relating to these Help Centre terms summaries are governed by the laws of England and Wales. The full contract is in Legal → Terms & Conditions (/legal/terms-and-conditions).
+This Help entry exists for search only and redirects to the Legal document.
 
 ${TERMS_PLATFORM_OPERATOR_MARKDOWN}`,
   },
@@ -438,19 +416,19 @@ Report concerns through Contact Support or in-app report tools.`,
     slug: "seller-tax-registration",
     title: "Seller tax registration",
     category: "selling",
-    summary: "Register as Personal, Pro Seller, or Business before payouts.",
-    keywords: ["tax", "vat", "utr", "nino", "stripe connect"],
+    summary: "Complete tax registration on your Personal Account before payouts.",
+    keywords: ["tax", "vat", "utr", "nino", "stripe connect", "personal"],
     content: `# Seller tax registration
 
-Before receiving payouts, complete seller tax registration:
+Before receiving payouts, complete seller tax registration on your Personal Account:
 
-## Registration types
+## Registration status (tax purposes)
 - **Personal** — occasional selling
 - **Pro Seller** — regular individual selling
-- **Business Sole Trader** — self-employed business
-- **Business Company** — registered company
+- **Sole Trader** — sole trader tax status
+- **Company** — registered company tax status
 
-Provide accurate details including address and tax identifiers where required. Then add your bank account for payouts.`,
+These are tax registration statuses, not separate marketplace roles or products. Provide accurate details including address and tax identifiers where required. Then add your bank account for Wallet withdrawals.`,
   },
 ];
 

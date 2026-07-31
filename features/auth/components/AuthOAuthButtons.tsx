@@ -10,6 +10,8 @@ export type SocialButtonProps = {
   provider: AuthSocialProvider;
   label: string;
   next?: string;
+  /** Surface that started OAuth — used for error redirects (`/login` | `/register`). */
+  returnPath?: "/login" | "/register";
   disabled?: boolean;
   className?: string;
 };
@@ -63,6 +65,7 @@ export function SocialButton({
   provider,
   label,
   next,
+  returnPath = "/login",
   disabled,
   className,
 }: SocialButtonProps) {
@@ -74,10 +77,13 @@ export function SocialButton({
       disabled={disabled || pending}
       aria-busy={pending}
       aria-label={label}
+      data-oauth-provider={provider}
+      data-testid={`oauth-${provider}`}
       onClick={() => {
         startTransition(async () => {
           const formData = new FormData();
           formData.set("provider", provider);
+          formData.set("returnPath", returnPath);
           if (next) formData.set("next", next);
           await signInWithOAuthProvider(formData);
         });
@@ -90,14 +96,16 @@ export function SocialButton({
       )}
     >
       {SOCIAL_ICONS[provider]}
-      <span>{label}</span>
+      <span>{pending ? "Connecting…" : label}</span>
     </button>
   );
 }
 
 type AuthOAuthButtonsProps = {
   next?: string;
+  returnPath?: "/login" | "/register";
   className?: string;
+  /** Empty = render nothing (fail closed — never show broken OAuth). */
   providers?: readonly AuthSocialProvider[];
   labels?: Partial<Record<AuthSocialProvider, string>>;
 };
@@ -114,24 +122,31 @@ export function AuthOAuthDivider({ label = "or continue with" }: { label?: strin
 
 export function AuthOAuthButtons({
   next,
+  returnPath = "/login",
   className,
-  providers = ["apple", "google"],
+  providers = [],
   labels,
 }: AuthOAuthButtonsProps) {
   const defaultLabels: Record<AuthSocialProvider, string> = {
-    apple: "Apple",
-    google: "Google",
-    facebook: "Facebook",
+    apple: "Continue with Apple",
+    google: "Continue with Google",
+    facebook: "Continue with Facebook",
   };
 
+  const publicProviders = providers.filter((provider) => provider !== "facebook");
+  if (publicProviders.length === 0) {
+    return null;
+  }
+
   return (
-    <div className={cn("auth-social-login", className)}>
-      {providers.map((provider) => (
+    <div className={cn("auth-social-login", className)} data-oauth-rc1="v1">
+      {publicProviders.map((provider) => (
         <SocialButton
           key={provider}
           provider={provider}
           label={labels?.[provider] ?? defaultLabels[provider]}
           next={next}
+          returnPath={returnPath}
         />
       ))}
     </div>

@@ -14,7 +14,7 @@ export default async function SuperAdminLayout({ children }: { children: React.R
 
 export async function generateMetadata() {
   return {
-    title: "Super Admin | ROVEXO",
+    title: "Super Admin Command Centre | ROVEXO",
     robots: { index: false, follow: false },
   };
 }

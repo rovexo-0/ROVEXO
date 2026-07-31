@@ -77,7 +77,7 @@ describe("Search System v1.0 production lock", () => {
     expect(icons).toContain("SEARCH_BAR_ICON_STROKE = 1.9");
     expect(icons).toContain("SEARCH_BAR_HEIGHT_PX = 44");
     expect(icons).toContain("SEARCH_BAR_RADIUS_PX = 16");
-    expect(icons).toContain("SEARCH_BAR_TEXT_PX = 14");
+    expect(icons).toContain("SEARCH_BAR_TEXT_PX = 16");
     expect(icons).toContain("Profile Icons Family");
     expect(field).toContain("SearchBarSearchIcon");
     expect(camera).toContain("SearchBarCameraIcon");

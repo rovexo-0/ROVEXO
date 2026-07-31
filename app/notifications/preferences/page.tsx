@@ -1,8 +1,9 @@
-import { NotificationPreferencesPage } from "@/features/notifications/components/NotificationPreferences";
-import { privatePageMetadata } from "@/lib/seo/private-metadata";
+import { redirect } from "next/navigation";
 
-export const metadata = privatePageMetadata;
-
+/**
+ * Notification Preferences redirects to the singular Notifications Settings surface.
+ * Cluster 8 emit still uses notification_preferences (synced from Notification Engine v1.0).
+ */
 export default function NotificationPreferencesRoute() {
-  return <NotificationPreferencesPage />;
+  redirect("/notifications/settings");
 }

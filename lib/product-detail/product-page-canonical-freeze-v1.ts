@@ -17,7 +17,7 @@ export const PRODUCT_PAGE_CANONICAL_FREEZE_V1 = {
   implementationPass: [
     "DELETE Add To Cart",
     "DELETE Platform Fee text",
-    "DELETE Report Seller",
+    "Report Seller only in buyer ••• menu (Canonical Edit Listing Engine)",
     "DELETE Shipping calculated at checkout",
     "DELETE Old Header",
     "Transparent chrome ← / •••",
@@ -46,7 +46,7 @@ export const PRODUCT_PAGE_CANONICAL_FREEZE_V1 = {
   removedForever: [
     "Add to Cart",
     "Platform Fee text on product page",
-    "Report Seller",
+    "Report Seller on page body / seller card",
     "Shipping calculated at checkout",
     "White header title bar",
     "Header product title",

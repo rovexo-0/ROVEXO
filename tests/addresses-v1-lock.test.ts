@@ -46,12 +46,12 @@ describe("Addresses v1.0 final implementation", () => {
     expect(defaultBadgeForScope("business")).toBe("Default Business");
   });
 
-  it("Business tab is always available (fully functional)", () => {
+  it("Phase C — Business addresses tab hidden in v1.0 (components retained for v2.0)", () => {
     expect(resolveBusinessAddressesVisibility({ isBusinessVerified: false }).showBusinessAddressesTab).toBe(
-      true,
+      false,
     );
     expect(resolveBusinessAddressesVisibility({ isBusinessVerified: true }).showBusinessAddressesTab).toBe(
-      true,
+      false,
     );
   });
 
@@ -73,12 +73,12 @@ describe("Addresses v1.0 final implementation", () => {
     expect(form).not.toMatch(/\bDelete Address\b/);
   });
 
-  it("tabs never disable Business", () => {
+  it("tabs hide Business in v1.0 via Master Engine gate (Phase C)", () => {
     const tabs = readFileSync(join(addressesDir, "AddressesTabs.tsx"), "utf8");
     expect(tabs).toContain("Personal");
     expect(tabs).toContain("Business");
-    expect(tabs).not.toContain("disabled");
-    expect(tabs).not.toContain("showBusiness");
+    expect(tabs).toContain("resolveBusinessAddressesVisibility");
+    expect(tabs).toContain("showBusiness");
   });
 
   it("UK lookup normalises and returns multiple addresses per postcode", async () => {

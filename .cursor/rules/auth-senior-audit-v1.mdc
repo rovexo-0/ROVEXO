@@ -29,7 +29,7 @@ Error: `400 validation_failed` · provider is not enabled
 ## Smallest fix (ops only)
 
 Enable Google · Apple · Facebook  
-Allowlist `http://localhost:3000` (+ `/auth/callback`) · `https://rovexo.com` (+ `/auth/callback`)  
+Allowlist `http://localhost:3000` (+ `/auth/callback`) · `https://www.rovexo.co.uk` (+ `/auth/callback`)  
 Save → Test → Pass
 
 ## Forbidden

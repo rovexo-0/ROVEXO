@@ -27,6 +27,13 @@ export const profileUpdateSchema = z.object({
   username: usernameSchema.optional(),
   phone: phoneSchema,
   bio: z.string().trim().max(250, "Bio must be at most 250 characters").optional(),
+  /** ISO date YYYY-MM-DD or empty to clear. UI uses DD/MM/YYYY separately. */
+  dateOfBirth: z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid date of birth.")
+    .optional()
+    .or(z.literal("")),
 });
 
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
@@ -94,12 +101,26 @@ export const settingsPatchSchema = z.object({
 export type SettingsPatchInput = z.infer<typeof settingsPatchSchema>;
 
 export const privacyPatchSchema = z.object({
-  profileVisibility: profileVisibilitySchema,
-  marketingEmails: z.boolean(),
-  showActivityStatus: z.boolean(),
+  profileVisibility: profileVisibilitySchema.optional(),
+  marketingEmails: z.boolean().optional(),
+  showActivityStatus: z.boolean().optional(),
+  switchId: z.string().optional(),
+  switchEnabled: z.boolean().optional(),
+  whoCanViewProfile: profileVisibilitySchema.optional(),
+  engine: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type PrivacyPatchInput = z.infer<typeof privacyPatchSchema>;
+
+export const cookiePreferencesPatchSchema = z.object({
+  functional: z.boolean().optional(),
+  analytics: z.boolean().optional(),
+  performance: z.boolean().optional(),
+  advertising: z.boolean().optional(),
+  personalisation: z.boolean().optional(),
+});
+
+export type CookiePreferencesPatchInput = z.infer<typeof cookiePreferencesPatchSchema>;
 
 export const buyerPreferencesSchema = z.object({
   saveSearchAlerts: z.boolean(),
@@ -196,4 +217,8 @@ export const notificationSettingsPatchSchema = z.object({
   quietHoursEnd: z.string().optional(),
   sound: z.boolean().optional(),
   vibration: z.boolean().optional(),
+  topicId: z.string().optional(),
+  channelId: z.string().optional(),
+  enabled: z.boolean().optional(),
+  engine: z.record(z.string(), z.unknown()).optional(),
 });

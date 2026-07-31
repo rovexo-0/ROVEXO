@@ -737,19 +737,20 @@
   cursor: wait;
 }
 
+/* Profile icon SSOT: 24px (Profile Icon System v1.0) — Phase B cleanup of legacy 22/20. */
 .ac-canonical__menu-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   color: #111111;
 }
 
 .ac-canonical__menu-lucide {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
 }
 
 /* ── Holiday Mode v1.0 — inline Profile toggle (Canonical Switch SSOT) ── */
@@ -868,4 +869,39 @@
     margin-inline: 0;
   }
 }
+
+/* ── Profile Footer Banner v1.0 RC1 — FULL WIDTH (Owner COD SÂNGE) ── */
+.profile-footer-banner {
+  margin-top: 24px;
+  margin-bottom: 32px;
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  line-height: 0;
+  overflow: visible;
+}
+
+.profile-footer-banner__img,
+.profile-footer-banner img {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  user-select: none;
+  pointer-events: none;
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-footer-banner {
+    content-visibility: auto;
+  }
+}
+
 

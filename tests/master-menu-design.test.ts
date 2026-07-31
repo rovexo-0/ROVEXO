@@ -35,8 +35,7 @@ describe("Master Menu Design — Profile main", () => {
       "Promote",
       "Settings",
       "Rovexo Ideas",
-      "Help Centre",
-      "Legal Information",
+      
     ]);
     expect(titles.filter((t) => t.includes("Business"))).toHaveLength(0);
   });

@@ -66,7 +66,7 @@ export type CommandCenterCountryMarker = {
 
 import type { NocCriticalAlert, NocHealthCard } from "@/lib/super-admin/noc-v1/types";
 
-export type CommandCenterServiceState = "online" | "warning" | "error" | "live";
+export type CommandCenterServiceState = "online" | "warning" | "error" | "live" | "not_configured";
 
 export type CommandCenterServiceStatus = {
   id: string;

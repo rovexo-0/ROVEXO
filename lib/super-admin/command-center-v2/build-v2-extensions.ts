@@ -23,7 +23,7 @@ import type { CommandCenterProductionSections } from "@/lib/super-admin/command-
 import type { CategoryPerformanceRow } from "@/lib/super-admin/command-center-v1/queries";
 
 function mapHealthToServiceState(status: HealthStatus | string, configured = true): CommandCenterServiceState {
-  if (!configured) return "error";
+  if (!configured || status === "not_configured") return "not_configured";
   if (status === "healthy" || status === "online" || status === "live") return "online";
   if (status === "degraded" || status === "warning") return "warning";
   return "error";
@@ -33,6 +33,7 @@ function serviceStatusLabel(state: CommandCenterServiceState): string {
   if (state === "online") return "ONLINE";
   if (state === "warning") return "WARNING";
   if (state === "live") return "LIVE";
+  if (state === "not_configured") return "NOT CONFIGURED";
   return "ERROR";
 }
 
@@ -91,7 +92,7 @@ export function buildCommandCenterV2Extensions(input: {
   const apiState = mapHealthToServiceState(checks.api.status);
   const sendcloudState = sendcloudConfigured
     ? mapHealthToServiceState(sendcloudHealth.status === "healthy" ? "healthy" : sendcloudHealth.status === "degraded" ? "degraded" : "unhealthy", true)
-    : "error";
+    : "not_configured";
   const stripeState = mapHealthToServiceState(checks.stripe.status, stripeConfigured);
   const queueState = mapHealthToServiceState(checks.redis.status);
   const cronState = mapHealthToServiceState(checks.cron.status);
@@ -178,7 +179,7 @@ export function buildCommandCenterV2Extensions(input: {
           ? sendcloudState === "online"
             ? "CONNECTED"
             : serviceStatusLabel(sendcloudState)
-          : "ERROR",
+          : "NOT CONFIGURED",
         detail: sendcloudConfigured ? `${sendcloudHealth.latencyMs} ms` : "Not configured",
         href: SERVICE_DIAGNOSTICS_HREF.sendcloud,
       },
@@ -190,7 +191,7 @@ export function buildCommandCenterV2Extensions(input: {
           ? stripeState === "online"
             ? "CONNECTED"
             : serviceStatusLabel(stripeState)
-          : "ERROR",
+          : "NOT CONFIGURED",
         detail: stripeConfigured ? `${checks.stripe.latencyMs} ms` : "Not configured",
         href: SERVICE_DIAGNOSTICS_HREF.stripe,
       },
@@ -199,7 +200,10 @@ export function buildCommandCenterV2Extensions(input: {
         label: "QUEUE",
         state: queueState,
         statusLabel: serviceStatusLabel(queueState),
-        detail: `${queuePending} Pending`,
+        detail:
+          queueState === "not_configured"
+            ? "Not configured"
+            : `${queuePending} Pending`,
         href: SERVICE_DIAGNOSTICS_HREF.queue,
       },
       {
@@ -207,7 +211,10 @@ export function buildCommandCenterV2Extensions(input: {
         label: "CRON",
         state: cronState,
         statusLabel: cronState === "online" ? "RUNNING" : serviceStatusLabel(cronState),
-        detail: `${num(sections.audit.cronJobs)} today`,
+        detail:
+          cronState === "not_configured"
+            ? "Not configured"
+            : `${num(sections.audit.cronJobs)} today`,
         href: SERVICE_DIAGNOSTICS_HREF.cron,
       },
     ],

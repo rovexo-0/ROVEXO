@@ -28,7 +28,9 @@ const LISTING_TABS: { id: Extract<ListingFilter, "published" | "sold">; label: s
 ];
 
 function listingStatusLabel(listing: SellerListing): string {
-  return listing.status === "sold" ? "Sold" : "Active";
+  if (listing.status === "sold") return "Sold";
+  if (listing.status === "paused") return "Paused";
+  return "Active";
 }
 
 function MoreIcon({ className }: { className?: string }) {
@@ -179,6 +181,48 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
       return;
     }
 
+    if (action === "pause") {
+      setBusyId(listing.id);
+      try {
+        const response = await fetch(`/api/listings/${listing.id}/status`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "pause" }),
+        });
+        if (!response.ok) {
+          setActionError("Unable to pause listing.");
+          return;
+        }
+        router.refresh();
+      } catch {
+        setActionError("Unable to pause listing.");
+      } finally {
+        setBusyId(null);
+      }
+      return;
+    }
+
+    if (action === "relist") {
+      setBusyId(listing.id);
+      try {
+        const response = await fetch(`/api/listings/${listing.id}/status`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "reactivate" }),
+        });
+        if (!response.ok) {
+          setActionError("Unable to relist listing.");
+          return;
+        }
+        router.refresh();
+      } catch {
+        setActionError("Unable to relist listing.");
+      } finally {
+        setBusyId(null);
+      }
+      return;
+    }
+
     if (action === "delete") {
       setDeleteError(null);
       setPendingDelete(listing);
@@ -270,7 +314,7 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
                           className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
                           onClick={() => void runMenuAction("edit", listing)}
                         >
-                          Edit
+                          Edit Listing
                         </button>
                         <button
                           type="button"
@@ -280,14 +324,34 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
                         >
                           Restock
                         </button>
-                        {listing.status === "published" ? (
+                        {listing.status === "published" || listing.status === "paused" ? (
                           <button
                             type="button"
                             role="menuitem"
                             className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
                             onClick={() => void runMenuAction("sold", listing)}
                           >
-                            Mark sold
+                            Mark as Sold
+                          </button>
+                        ) : null}
+                        {listing.status === "published" ? (
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
+                            onClick={() => void runMenuAction("pause", listing)}
+                          >
+                            Pause Listing
+                          </button>
+                        ) : null}
+                        {listing.status === "paused" || listing.status === "sold" ? (
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
+                            onClick={() => void runMenuAction("relist", listing)}
+                          >
+                            Relist
                           </button>
                         ) : null}
                         <button
@@ -296,7 +360,7 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
                           className="block w-full px-ds-4 py-ds-3 text-left text-sm text-text-primary hover:bg-surface-muted"
                           onClick={() => void runMenuAction("delete", listing)}
                         >
-                          Delete
+                          Delete Listing
                         </button>
                         <button
                           type="button"
@@ -327,14 +391,14 @@ export function SellerListingsV1({ data }: SellerListingsV1Props) {
       <CanonicalModal
         open={pendingDelete !== null}
         variant="delete"
-        title="Delete listing?"
+        title="Delete Listing"
         cancelLabel="Cancel"
         confirmLabel={isDeleting ? "Deleting…" : "Delete"}
         loading={isDeleting}
         onClose={closeDialog}
         onConfirm={() => void confirmDelete()}
       >
-        <p className="text-sm text-text-secondary">This cannot be undone.</p>
+        <p className="text-sm text-text-secondary">This action cannot be undone.</p>
         {deleteError ? (
           <p className="mt-ds-2 text-sm text-danger" role="alert">
             {deleteError}

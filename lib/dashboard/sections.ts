@@ -54,7 +54,7 @@ export const ACCOUNT_DASHBOARD_TILES: MobileTile[] = [
   tile("/help/faq", "FAQ", "Common questions"),
   tile("/help/policies", "Policies", "Terms & platform rules"),
   tile("/account/settings", "Settings", "Account & privacy"),
-  tile("/legal", "About ROVEXO", "Legal & policies"),
+  tile("/legal", "Legal Centre", "Legal & policies"),
 ];
 
 /** @deprecated Use QUICK_ACCESS_TILES — hub navigation removed from account dashboard. */

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const APP_VERSION = process.env.npm_package_version ?? "0.1.0";
+const APP_VERSION = process.env.npm_package_version ?? "1.0.0-rc.1";
 
 export function getRequestCorrelationId(request?: Request): string {
   if (request) {

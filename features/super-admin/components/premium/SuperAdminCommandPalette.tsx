@@ -137,10 +137,11 @@ function SuperAdminCommandPalettePanel({ onClose }: { onClose: () => void }) {
   );
 }
 
-export function useSuperAdminCommandPalette() {
+export function useSuperAdminCommandPalette(enabled = true) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (!enabled) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
@@ -149,7 +150,7 @@ export function useSuperAdminCommandPalette() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [enabled]);
 
   return { open, setOpen, close: () => setOpen(false) };
 }

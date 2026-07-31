@@ -134,7 +134,7 @@ export const FULL_PLATFORM_CERTIFICATION_MODULES: readonly FullPlatformModuleSpe
   {
     id: "05_messaging",
     label: "Messaging",
-    routeEvidence: ["app/(main)/inbox/page.tsx", "app/inbox/page.tsx"],
+    routeEvidence: ["app/(main)/inbox/page.tsx", "app/inbox/(list)/page.tsx", "app/inbox/page.tsx"],
     sourceEvidence: [
       "features/inbox/components/InboxPage.tsx",
       "features/inbox/components/ConversationHub.tsx",
@@ -698,7 +698,7 @@ export function certifyFullPlatformProductionRuntimeXlII(): FullPlatformCertific
     Boolean(firstExisting(["app/page.tsx", "app/(main)/page.tsx"])) &&
       Boolean(firstExisting(["app/search/page.tsx", "app/(main)/search/page.tsx"])) &&
       Boolean(firstExisting(["app/listing/[slug]/page.tsx"])) &&
-      Boolean(firstExisting(["app/inbox/page.tsx", "app/(main)/inbox/page.tsx"])) &&
+      Boolean(firstExisting(["app/inbox/(list)/page.tsx", "app/inbox/page.tsx", "app/(main)/inbox/page.tsx"])) &&
       Boolean(firstExisting(["app/checkout/page.tsx", "app/(main)/checkout/page.tsx"])) &&
       Boolean(firstExisting(["app/orders/page.tsx", "app/(main)/orders/page.tsx"])) &&
       Boolean(firstExisting(["app/wallet/page.tsx", "app/(main)/wallet/page.tsx", "app/balance/page.tsx"])),

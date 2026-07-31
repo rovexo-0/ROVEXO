@@ -26,7 +26,7 @@ Google / Apple / Facebook Login → **FAIL** (configuration)
 ## Allowed (Owner / ops only)
 
 1. Enable Google · Apple · Facebook in Supabase Auth  
-2. Configure callback URLs + local (`http://localhost:3000`) + production (`https://rovexo.com`)  
+2. Configure callback URLs + local (`http://localhost:3000`) + production (`https://www.rovexo.co.uk`)  
 3. Path `/auth/callback`  
 4. Save → Test → Pass → Production ready
 

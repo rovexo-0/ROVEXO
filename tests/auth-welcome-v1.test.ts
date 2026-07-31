@@ -20,7 +20,10 @@ describe("AUTH_MASTER_SPEC v1.0 — Welcome REMOVED", () => {
     expect(readSource("app/(auth)/welcome/page.tsx")).toContain('permanentRedirect("/login")');
   });
 
-  it("keeps Facebook OAuth available in auth actions SSOT", () => {
-    expect(readSource("lib/auth/actions.ts")).toContain('"facebook"');
+  it("blocks Facebook on public OAuth RC1 (deferred)", () => {
+    const actions = readSource("lib/auth/actions.ts");
+    expect(actions).toContain("signInWithOAuthProvider");
+    expect(actions).toContain('provider !== "google" && provider !== "apple"');
+    expect(actions).toContain("Facebook and unknown providers stay blocked");
   });
 });

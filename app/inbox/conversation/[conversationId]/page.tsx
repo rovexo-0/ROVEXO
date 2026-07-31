@@ -1,30 +1,54 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { ConversationHub } from "@/features/inbox/components/ConversationHub";
 import {
   getConversationMockupDemoBundle,
-  isConversationMockupDemoEnabled,
   isConversationMockupDemoId,
 } from "@/lib/inbox/demo/conversation-mockup-demo-fixture-v1";
 import {
   getMessagesLifecycleDemoBundle,
-  isMessagesLifecycleDemoEnabled,
   isMessagesLifecycleDemoId,
 } from "@/lib/inbox/demo/messages-lifecycle-demo-fixtures-v1";
+import {
+  OWNER_DEMO_MODE_V1,
+  parseOwnerDemoModeFlag,
+  shouldShowOwnerDemoInboxRows,
+} from "@/lib/inbox/demo/owner-demo-mode-v1";
 import { fetchConversationById } from "@/lib/messages/queries";
+import { fetchOrderForUser } from "@/lib/orders/queries";
 import { getProfile } from "@/lib/profile/data";
 
 export const dynamic = "force-dynamic";
 
 type ConversationRouteProps = {
   params: Promise<{ conversationId: string }>;
+  searchParams: Promise<{
+    order?: string;
+    order_id?: string;
+    focus?: string;
+    offerId?: string;
+  }>;
 };
 
-export default async function InboxConversationRoute({ params }: ConversationRouteProps) {
+export default async function InboxConversationRoute({
+  params,
+  searchParams,
+}: ConversationRouteProps) {
   const { conversationId } = await params;
-  await getProfile();
+  const sp = await searchParams;
+  const profile = await getProfile();
+  const cookieStore = await cookies();
+  const ownerDemoModeEnabled = parseOwnerDemoModeFlag(
+    cookieStore.get(OWNER_DEMO_MODE_V1.cookieName)?.value,
+  );
+  const ownerDemoAllowed = shouldShowOwnerDemoInboxRows({
+    authenticated: Boolean(profile?.id),
+    role: profile?.role ?? null,
+    ownerDemoModeEnabled,
+  });
 
-  if (isConversationMockupDemoEnabled() && isConversationMockupDemoId(conversationId)) {
+  if (ownerDemoAllowed && isConversationMockupDemoId(conversationId)) {
     const demo = getConversationMockupDemoBundle();
     return (
       <Suspense fallback={null}>
@@ -37,7 +61,7 @@ export default async function InboxConversationRoute({ params }: ConversationRou
     );
   }
 
-  if (isMessagesLifecycleDemoEnabled() && isMessagesLifecycleDemoId(conversationId)) {
+  if (ownerDemoAllowed && isMessagesLifecycleDemoId(conversationId)) {
     const demo = getMessagesLifecycleDemoBundle(conversationId);
     if (!demo) notFound();
     return (
@@ -55,7 +79,13 @@ export default async function InboxConversationRoute({ params }: ConversationRou
     );
   }
 
-  const conversation = await fetchConversationById(conversationId);
+  const orderId = sp.order?.trim() || sp.order_id?.trim() || null;
+
+  /* Phase A1 — parallel hydrate: conversation + optional order in one server round. */
+  const [conversation, initialOrder] = await Promise.all([
+    fetchConversationById(conversationId),
+    orderId ? fetchOrderForUser(orderId, profile.id) : Promise.resolve(null),
+  ]);
 
   if (!conversation) {
     notFound();
@@ -63,7 +93,10 @@ export default async function InboxConversationRoute({ params }: ConversationRou
 
   return (
     <Suspense fallback={null}>
-      <ConversationHub initialConversation={conversation} />
+      <ConversationHub
+        initialConversation={conversation}
+        initialOrder={initialOrder}
+      />
     </Suspense>
   );
 }

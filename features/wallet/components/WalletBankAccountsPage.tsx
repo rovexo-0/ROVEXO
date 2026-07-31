@@ -101,7 +101,7 @@ export function WalletBankAccountsPage({
           ) : null}
 
           {returnTo ? (
-            <CanonicalMenuRow href={returnTo} title="Continue where you left off" />
+            <CanonicalMenuRow href={returnTo} title="Back to Balance" />
           ) : null}
         </AccountPageStack>
       </div>

@@ -61,7 +61,8 @@ export function HolidayModeProfileRow({ initialEnabled }: HolidayModeProfileRowP
         const confirmed = payload.settings?.vacationMode === true;
         setEnabled(confirmed);
         pushToast({
-          title: confirmed ? "Holiday Mode enabled." : "Holiday Mode disabled.",
+          // Phase C — no "Holiday Mode enabled" banner toast; keep confirm feedback subtle.
+          title: confirmed ? "Holiday Mode updated." : "Holiday Mode updated.",
           variant: "success",
         });
       } catch {

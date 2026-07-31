@@ -1,13 +1,40 @@
 import { HELP_TOPICS } from "@/lib/help/content/topics";
 import { HELP_ARTICLES } from "@/lib/help/content/articles";
+import { listHelpCategoryHubs } from "@/lib/help/content/category-hubs-v1";
 import { getAllDecisionTrees } from "@/lib/help/decision-trees/registry";
+import { CANONICAL_LEGAL_DOCUMENTS } from "@/lib/legal/canonical-documents";
 import type { HelpSearchResult, HelpTopicSlug } from "@/lib/help/types";
 
+/** Synonyms expand user queries so plain-English and platform terms match. */
+const HELP_SEARCH_SYNONYMS: Record<string, string[]> = {
+  fee: ["platform", "seller", "commission", "charge"],
+  fees: ["platform", "seller", "commission", "charge"],
+  commission: ["fee", "seller", "platform"],
+  payout: ["withdraw", "withdrawal", "balance", "wallet"],
+  payouts: ["withdraw", "withdrawal", "balance", "wallet"],
+  refund: ["return", "money", "cancel"],
+  refunds: ["return", "money", "cancel"],
+  dispute: ["issue", "problem", "claim", "appeal"],
+  disputes: ["issue", "problem", "claim", "appeal"],
+  postage: ["shipping", "delivery", "parcel"],
+  delivery: ["shipping", "tracking", "parcel"],
+  tracking: ["shipping", "delivery", "parcel"],
+  gdpr: ["privacy", "data", "rights"],
+  protection: ["buyer", "seller", "safety"],
+};
+
 function tokenize(input: string): string[] {
-  return input
+  const base = input
     .toLowerCase()
-    .split(/[^a-z0-9]+/)
+    .split(/[^a-z0-9£]+/)
     .filter((token) => token.length > 1);
+  const expanded = new Set(base);
+  for (const token of base) {
+    for (const synonym of HELP_SEARCH_SYNONYMS[token] ?? []) {
+      expanded.add(synonym);
+    }
+  }
+  return [...expanded];
 }
 
 function buildExcerpt(content: string, queryTokens: string[]): string {
@@ -24,9 +51,13 @@ const FEATURE_INDEX = [
   { id: "orders", title: "Orders", href: "/orders", keywords: ["orders", "purchases"] },
   { id: "wallet", title: "Balance", href: "/balance", keywords: ["wallet", "withdraw", "balance", "payout"] },
   { id: "messages", title: "Messages", href: "/inbox", keywords: ["messages", "chat", "inbox"] },
-  { id: "settings", title: "Settings", href: "/account/settings", keywords: ["settings", "profile"] },
+  { id: "settings", title: "Settings", href: "/account/settings", keywords: ["settings", "profile", "account control"] },
+  { id: "privacy", title: "Privacy", href: "/account/privacy", keywords: ["privacy", "gdpr", "data rights"] },
+  { id: "security", title: "Security", href: "/account/security", keywords: ["security", "password", "sessions", "mfa"] },
+  { id: "verification", title: "Verification", href: "/account/verification", keywords: ["verification", "identity", "verify"] },
   { id: "search", title: "Search", href: "/search", keywords: ["search", "find"] },
   { id: "support", title: "Contact Support", href: "/support", keywords: ["support", "contact", "ticket"] },
+  { id: "legal", title: "Legal Information", href: "/legal", keywords: ["legal", "terms", "policy", "policies"] },
 ];
 
 const ERROR_INDEX = [
@@ -43,6 +74,15 @@ export function searchHelpCentre(query: string, limit = 16): HelpSearchResult[] 
   const results: HelpSearchResult[] = [];
 
   for (const article of HELP_ARTICLES) {
+    // Help stubs that redirect to Legal Centre must not compete in search.
+    if (
+      article.slug === "privacy-policy" ||
+      article.slug === "terms-of-service" ||
+      article.slug === "community-guidelines" ||
+      article.slug === "prohibited-items-list"
+    ) {
+      continue;
+    }
     const haystack = [article.title, article.summary, article.content, ...article.keywords].join(" ").toLowerCase();
     let score = 0;
     for (const token of tokens) {
@@ -60,6 +100,51 @@ export function searchHelpCentre(query: string, limit = 16): HelpSearchResult[] 
         score,
         article,
       });
+    }
+  }
+
+  for (const hub of listHelpCategoryHubs()) {
+    const haystack = [hub.title, hub.summary, hub.content, ...hub.keywords].join(" ").toLowerCase();
+    let score = 0;
+    for (const token of tokens) {
+      if (hub.title.toLowerCase().includes(token)) score += 7;
+      if (hub.summary.toLowerCase().includes(token)) score += 4;
+      if (hub.keywords.some((keyword) => keyword.toLowerCase().includes(token))) score += 3;
+      if (haystack.includes(token)) score += 2;
+    }
+    if (score > 0) {
+      results.push({
+        type: "topic",
+        id: hub.slug,
+        title: hub.title,
+        excerpt: buildExcerpt(hub.content, tokens),
+        href: `/help/category/${hub.slug}`,
+        score,
+      });
+    }
+
+    const faqBlock = hub.content.split("## Frequently Asked Questions")[1]?.split("\n## ")[0] ?? "";
+    for (const line of faqBlock.split("\n")) {
+      const match =
+        line.match(/^\*\*Q:\s*(.+?)\*\*/) ||
+        line.match(/^Q:\s*(.+)/i) ||
+        line.match(/^A:\s*(.+)/i);
+      if (!match?.[1]) continue;
+      const text = match[1].replace(/\*\*/g, "").trim();
+      let faqScore = 0;
+      for (const token of tokens) {
+        if (text.toLowerCase().includes(token)) faqScore += 5;
+      }
+      if (faqScore > 0) {
+        results.push({
+          type: "faq",
+          id: `hub:${hub.slug}:${text.slice(0, 48)}`,
+          title: `${hub.title} — FAQ`,
+          excerpt: text.slice(0, 180),
+          href: `/help/category/${hub.slug}`,
+          score: faqScore,
+        });
+      }
     }
   }
 
@@ -160,6 +245,28 @@ export function searchHelpCentre(query: string, limit = 16): HelpSearchResult[] 
     }
   }
 
+  for (const document of CANONICAL_LEGAL_DOCUMENTS) {
+    const haystack = [document.title, document.summary, document.content, document.slug]
+      .join(" ")
+      .toLowerCase();
+    let score = 0;
+    for (const token of tokens) {
+      if (document.title.toLowerCase().includes(token)) score += 6;
+      if (document.summary.toLowerCase().includes(token)) score += 3;
+      if (haystack.includes(token)) score += 1;
+    }
+    if (score > 0) {
+      results.push({
+        type: "policy",
+        id: `legal:${document.slug}`,
+        title: document.title,
+        excerpt: buildExcerpt(document.content, tokens),
+        href: `/legal/${document.slug}`,
+        score,
+      });
+    }
+  }
+
   for (const errorEntry of ERROR_INDEX) {
     let score = 0;
     for (const token of tokens) {
@@ -177,7 +284,54 @@ export function searchHelpCentre(query: string, limit = 16): HelpSearchResult[] 
     }
   }
 
-  return results.sort((a, b) => b.score - a.score).slice(0, limit);
+  return dedupeHelpSearchResults(results.sort((a, b) => b.score - a.score)).slice(0, limit);
+}
+
+/**
+ * Prefer one canonical result per title/href.
+ * When Help stubs collide with Legal Centre docs, keep the /legal result.
+ * Do not globally re-rank Legal above higher-scoring Help/feature hits.
+ */
+function dedupeHelpSearchResults(results: HelpSearchResult[]): HelpSearchResult[] {
+  const byHref = new Map<string, HelpSearchResult>();
+  const byTitle = new Map<string, HelpSearchResult>();
+
+  for (const result of results) {
+    const hrefKey = result.href.split("?")[0] ?? result.href;
+    const titleKey = result.title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+    const existingHref = byHref.get(hrefKey);
+    if (!existingHref || result.score > existingHref.score) {
+      byHref.set(hrefKey, result);
+    }
+
+    if (!titleKey) continue;
+    const existingTitle = byTitle.get(titleKey);
+    if (!existingTitle) {
+      byTitle.set(titleKey, result);
+      continue;
+    }
+    const existingLegal = existingTitle.href.startsWith("/legal/");
+    const nextLegal = result.href.startsWith("/legal/");
+    if (nextLegal && !existingLegal) {
+      byTitle.set(titleKey, result);
+    } else if (nextLegal === existingLegal && result.score > existingTitle.score) {
+      byTitle.set(titleKey, result);
+    }
+  }
+
+  const chosen = new Set<HelpSearchResult>();
+  for (const result of byTitle.values()) chosen.add(result);
+  for (const result of byHref.values()) {
+    const titleKey = result.title.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    const titleWinner = titleKey ? byTitle.get(titleKey) : undefined;
+    if (titleWinner && titleWinner !== result && titleWinner.href.startsWith("/legal/") && result.href.startsWith("/help/")) {
+      continue;
+    }
+    chosen.add(result);
+  }
+
+  return [...chosen].sort((a, b) => b.score - a.score);
 }
 
 export function searchHelpArticles(query: string, limit = 12) {

@@ -51,6 +51,13 @@ export {
 } from "@/lib/auth/cluster-6-oauth-policy-lock-v1";
 
 export {
+  OAUTH_RC1_PUBLIC_PROVIDERS_V1,
+  resolvePublicOauthProviders,
+  type OauthRc1PublicProvider,
+  type OauthProviderAvailability,
+} from "@/lib/auth/oauth-rc1-public-providers-v1";
+
+export {
   CLUSTER_6_AUTHENTICATION_SCOPE_LOCK_V1,
   assertCluster6AuthenticationArchitectureOrBlock,
   getCluster6AuthenticationScopeLockSnapshot,

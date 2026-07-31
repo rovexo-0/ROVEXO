@@ -107,13 +107,14 @@ export function registerCanonicalSmartFeatures(): void {
   registerSmartFeature({
     id: "business-bank-account",
     label: "Business Bank Account",
-    isAvailableInProduction: (ctx) => Boolean(ctx.isBusinessVerified),
+    // Phase C — postponed to Business v2.0 (never show in v1.0 production).
+    isAvailableInProduction: () => false,
   });
   registerSmartFeature({
     id: "business-addresses-tab",
     label: "Business Addresses Tab",
-    // Owner final contract: Business address book available to every ROVEXO account.
-    isAvailableInProduction: () => true,
+    // Phase C — Personal Account only in v1.0.
+    isAvailableInProduction: () => false,
   });
   registerSmartFeature({
     id: "withdraw",

@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MyAccountTemplate } from "@/features/account-canonical";
 
-import { PeopleLineIcon } from "@/components/icons/RvxLineIcons";
+import { SettingsMenuIconGlyph } from "@/features/account-module/components/SettingsMenuIcon";
 import { blockUsernameSchema } from "@/lib/account/schemas";
 import type { BlockedUser } from "@/lib/account/blocked-users";
 import { z } from "zod";
@@ -24,6 +24,7 @@ export function AccountBlockedUsersPage() {
   const [blocked, setBlocked] = useState<BlockedUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
+  const [unblockingId, setUnblockingId] = useState<string | null>(null);
 
   const {
     register,
@@ -74,9 +75,23 @@ export function AccountBlockedUsersPage() {
     }
   });
 
-  const unblock = async (id: string) => {
-    await fetch(`/api/account/blocked-users/${id}`, { method: "DELETE" });
-    await loadBlocked();
+  const unblock = async (blockId: string) => {
+    setMessage(null);
+    setUnblockingId(blockId);
+    try {
+      const response = await fetch(`/api/account/blocked-users/${encodeURIComponent(blockId)}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+      if (!response.ok) {
+        setMessage(payload.error ?? "Unable to unblock user.");
+        return;
+      }
+      setBlocked((prev) => prev.filter((entry) => entry.id !== blockId));
+      setMessage("User unblocked.");
+    } finally {
+      setUnblockingId(null);
+    }
   };
 
   return (
@@ -106,14 +121,21 @@ export function AccountBlockedUsersPage() {
         ) : null}
         <CanonicalCard variant="list">
           {blocked.map((entry) => (
-            <div key={entry.id}>
-              <CanonicalMenuRow
-                title={`@${entry.username}`}
-                description={entry.fullName}
-                icon={<PeopleLineIcon />}
-              />
-              <CanonicalMenuRow title="Unblock" onClick={() => void unblock(entry.id)} />
-            </div>
+            <CanonicalMenuRow
+              key={entry.id}
+              id={`blocked-user-${entry.id}`}
+              title={`@${entry.username}`}
+              description={entry.fullName}
+              icon={<SettingsMenuIconGlyph name="people" tone="green" />}
+              value={unblockingId === entry.id ? "…" : "Unblock"}
+              showChevron={false}
+              onClick={() => {
+                if (unblockingId) return;
+                void unblock(entry.id);
+              }}
+              disabled={unblockingId === entry.id}
+              ariaLabel={`Unblock @${entry.username}`}
+            />
           ))}
         </CanonicalCard>
       </CanonicalSection>

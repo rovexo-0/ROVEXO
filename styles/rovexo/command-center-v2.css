@@ -378,6 +378,14 @@
   background: #ef4444;
 }
 
+.cc2-service-bar__item--not_configured .cc2-service-bar__dot {
+  background: #94a3b8;
+}
+
+.cc2-service-bar__item--not_configured span {
+  color: #94a3b8;
+}
+
 .cc2-service-bar__item strong {
   display: block;
   font-size: 0.6875rem;

@@ -171,8 +171,9 @@ describe("ROVEXO unified account architecture v1.0", () => {
     expect(menu).toContain('title: "Holiday Mode"');
     expect(menu).toContain('title: "Promote"');
     expect(menu).toContain('title: "Settings"');
-    expect(menu).toContain('title: "Help Centre"');
-    expect(menu).toContain('title: "Legal Information"');
+    expect(menu).not.toContain('title: "Help Centre"');
+    expect(menu).not.toContain('title: "Legal Information"');
+    expect(menu).toContain('title: "Settings"');
     expect(menu).toContain('title: "Sign Out"');
     expect(menu).toContain('href: "/orders"');
     expect(menu).toContain('href: "/settings"');

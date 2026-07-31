@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   getDeliveryPrice,
   pickDefaultShippingQuote,
@@ -66,6 +66,8 @@ export function useCheckoutForm(
   const [view, setView] = useState<CheckoutView>("checkout");
   const [draft, setDraft] = useState<CheckoutDraft>(initialDraft);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  /** Sync lock — blocks double-click before React re-renders isSubmitting. */
+  const submittingLockRef = useRef(false);
   const [isResolvingAddress, setIsResolvingAddress] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -243,13 +245,14 @@ export function useCheckoutForm(
   }, [draft.addressId, draft.addressLine, draft.country, draft.postcode, draft.recipientName, updateDraft]);
 
   const placeOrder = useCallback(async () => {
-    if (!canPay || isSubmitting) return;
+    if (!canPay || isSubmitting || submittingLockRef.current) return;
 
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       setErrorMessage(toBuyNowPublicMessage(RVX_UNCLASSIFIED));
       return;
     }
 
+    submittingLockRef.current = true;
     setIsSubmitting(true);
     setErrorMessage(null);
 
@@ -326,6 +329,7 @@ export function useCheckoutForm(
     } catch {
       setErrorMessage(toBuyNowPublicMessage(RVX_UNCLASSIFIED));
     } finally {
+      submittingLockRef.current = false;
       setIsSubmitting(false);
     }
   }, [

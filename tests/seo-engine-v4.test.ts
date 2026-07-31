@@ -92,7 +92,7 @@ describe("ROVEXO Organic Growth Platform v4.0", () => {
   });
 
   it("validates WebSite and SearchAction structured data", () => {
-    const schema = buildWebSiteSearchAction("https://rovexo.com");
+    const schema = buildWebSiteSearchAction("https://www.rovexo.co.uk");
     expect(hasCriticalStructuredDataErrors([schema])).toBe(false);
   });
 

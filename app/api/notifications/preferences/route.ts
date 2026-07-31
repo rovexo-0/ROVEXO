@@ -43,7 +43,10 @@ export async function PATCH(request: Request) {
       );
     }
 
-    const preferences = await updateNotificationPreferences(auth.user.id, parsed.data);
+    const preferences = await updateNotificationPreferences(auth.user.id, {
+      ...parsed.data,
+      security: true,
+    });
     return NextResponse.json({ preferences: preferences ?? DEFAULT_PREFERENCES });
   } catch {
     return NextResponse.json({ error: "Unable to update preferences." }, { status: 500 });

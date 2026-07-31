@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { SignOutIcon } from "@/features/profile/icons";
+import { ProfileMenuIcon } from "@/features/account-center/components/ProfileMenuIcons";
 import { ConfirmDialog } from "@/features/settings/components/ConfirmDialog";
 import { signOut } from "@/lib/auth/actions";
 import { cn } from "@/lib/cn";
@@ -30,7 +30,7 @@ export function LogoutButton({ className }: LogoutButtonProps) {
         disabled={pending}
         className={cn("rx-dash-logout", focusRing, className)}
       >
-        <SignOutIcon className="h-5 w-5" aria-hidden />
+        <ProfileMenuIcon id="logout" className="ac-canonical__menu-icon" />
         {pending ? "Signing out…" : "Sign Out"}
       </button>
 

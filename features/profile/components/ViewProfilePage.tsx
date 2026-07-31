@@ -8,7 +8,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useId, useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { BetaAppShell } from "@/components/beta/BetaAppShell";
 import { CanonicalPageHeader } from "@/components/navigation/CanonicalPageHeader";
@@ -31,9 +31,10 @@ import {
 import { SELLER_RATING_RULES } from "@/lib/reviews/seller-rating-system-v1";
 import { FOLLOW_RATING_BADGE_STAR_COLOR } from "@/lib/reviews/follow-rating-badge-spec-v1";
 import { FollowButton, type FollowCounts } from "@/components/follow/FollowButton";
-import { AvatarUploader } from "@/features/account/components/AvatarUploader";
+import { CanonicalProfileAvatar, type CanonicalProfileAvatarHandle } from "@/features/profile/components/CanonicalProfileAvatar";
+import { ProfileCommandCentreButton } from "@/features/profile/components/ProfileCommandCentreButton";
 import type { PublicTrustSummary } from "@/lib/trust/types";
-import { sanitizeNativeImagePickerId } from "@/lib/media/native-image-picker";
+import type { ProfileCommandCentreEntry } from "@/lib/profile/command-centre-entry-v1";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { storeListingCardAttr } from "@/lib/store/store-listing-card-premium-v1";
@@ -55,6 +56,8 @@ export type ViewProfilePageProps = {
   jsonLdScript?: string;
   /** Fail-closed → empty Your Store (no Retry / Home / technical UI). */
   loadFailed?: boolean;
+  /** Own-profile Admin / Super Admin CTA only — null = do not render. */
+  commandCentre?: ProfileCommandCentreEntry | null;
 };
 
 const CREATE_LISTING_HREF = "/sell";
@@ -131,6 +134,7 @@ export function ViewProfilePage({
   isOwnProfile,
   jsonLdScript,
   loadFailed = false,
+  commandCentre = null,
 }: ViewProfilePageProps) {
   const router = useRouter();
   const { pushToast } = useToast();
@@ -139,9 +143,7 @@ export function ViewProfilePage({
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
   const [menuOpen, setMenuOpen] = useState(false);
   const [liveAvatarUrl, setLiveAvatarUrl] = useState(profile.avatarUrl);
-  const [avatarCropping, setAvatarCropping] = useState(false);
-  const avatarPickerReactId = useId();
-  const avatarPickerId = sanitizeNativeImagePickerId(avatarPickerReactId || "vp-avatar-native");
+  const avatarRef = useRef<CanonicalProfileAvatarHandle>(null);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState("Scam or fraud");
   const [reportMessage, setReportMessage] = useState("");
@@ -156,18 +158,14 @@ export function ViewProfilePage({
     setLiveAvatarUrl(profile.avatarUrl);
   }
 
-  const openNativeAvatarPicker = useCallback(() => {
+  const openAvatarSheet = useCallback(() => {
     setMenuOpen(false);
-    const input = document.getElementById(avatarPickerId);
-    if (input instanceof HTMLInputElement && !input.disabled) {
-      input.click();
-    }
-  }, [avatarPickerId]);
+    avatarRef.current?.openSheet();
+  }, []);
 
   const onAvatarUpdated = useCallback(
     (next: string | null) => {
       setLiveAvatarUrl(next);
-      setAvatarCropping(false);
       pushToast({
         title: next ? "Photo updated." : "Photo removed.",
         variant: "success",
@@ -390,7 +388,7 @@ export function ViewProfilePage({
                   <button
                     type="button"
                     className="vp-v1__menu-item vp-v1__menu-item--nav"
-                    onClick={openNativeAvatarPicker}
+                    onClick={openAvatarSheet}
                   >
                     <span>Change Profile Picture</span>
                     <span aria-hidden>›</span>
@@ -481,34 +479,12 @@ export function ViewProfilePage({
             <div className="vp-v1__hero-top">
               <div className="vp-v1__avatar-wrap">
                 {isOwnProfile ? (
-                  <>
-                    {!avatarCropping ? (
-                      <label
-                        htmlFor={avatarPickerId}
-                        className={cn("vp-v1__avatar-hit", focusRing)}
-                        aria-label={liveAvatarUrl ? "Change profile photo" : "Add profile photo"}
-                      >
-                        <Avatar
-                          src={liveAvatarUrl}
-                          alt={profile.fullName}
-                          name={profile.fullName}
-                          size="xl"
-                          className="vp-v1__avatar"
-                        />
-                        <span className="vp-v1__avatar-camera" aria-hidden>
-                          <CameraIcon />
-                        </span>
-                      </label>
-                    ) : null}
-                    <AvatarUploader
-                      name={profile.fullName}
-                      avatarUrl={liveAvatarUrl}
-                      nativeDirect
-                      pickerInputId={avatarPickerId}
-                      onCroppingChange={setAvatarCropping}
-                      onUpdated={onAvatarUpdated}
-                    />
-                  </>
+                  <CanonicalProfileAvatar
+                    ref={avatarRef}
+                    name={profile.fullName}
+                    avatarUrl={liveAvatarUrl}
+                    onUpdated={onAvatarUpdated}
+                  />
                 ) : (
                   <Avatar
                     src={profile.avatarUrl}
@@ -611,6 +587,10 @@ export function ViewProfilePage({
                 </Link>
               ) : null}
             </div>
+
+            {isOwnProfile && commandCentre ? (
+              <ProfileCommandCentreButton entry={commandCentre} />
+            ) : null}
           </section>
 
           <nav className="vp-v1__tabs" aria-label="Profile sections">
@@ -979,20 +959,6 @@ function YourStoreEmptyState({
         </Link>
       ) : null}
     </div>
-  );
-}
-
-function CameraIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M4 8h3l2-2h6l2 2h3v11H4V8Z"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="13" r="3.5" stroke="currentColor" strokeWidth="1.75" />
-    </svg>
   );
 }
 

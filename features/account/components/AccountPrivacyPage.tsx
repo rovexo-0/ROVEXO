@@ -2,42 +2,28 @@
 
 import {
   CanonicalSection,
-  CanonicalMenuRow,
-  CanonicalButton,
   CanonicalInfoBlock,
   CanonicalSelector,
-  CanonicalSwitch,
 } from "@/src/components/canonical";
-import { useEffect, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MyAccountTemplate } from "@/features/account-canonical";
 import { FailClosedPanel } from "@/components/fail-closed/FailClosedPanel";
-import { DocumentLineIcon, LockLineIcon, PeopleLineIcon } from "@/components/icons/RvxLineIcons";
-import { coerceUserSafeText } from "@/lib/fail-closed/sanitize";
-import { privacyPatchSchema, type PrivacyPatchInput } from "@/lib/account/schemas";
+import { SettingSection } from "@/features/settings/components/SettingSection";
+import { PreferenceToggleRow } from "@/features/settings/components/PreferenceToggleRow";
+import {
+  PRIVACY_ENGINE_SECTIONS,
+  PRIVACY_PROFILE_VISIBILITY_OPTIONS,
+  createDefaultPrivacyEngineState,
+  type PrivacyEngineState,
+  type PrivacySwitchId,
+} from "@/lib/privacy/privacy-engine-v1";
+import type { ProfileVisibility } from "@/lib/settings/types";
 
 export function AccountPrivacyPage() {
-  const [message, setMessage] = useState<string | null>(null);
+  const [privacy, setPrivacy] = useState<PrivacyEngineState | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    reset,
-    control,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<PrivacyPatchInput>({
-    resolver: zodResolver(privacyPatchSchema),
-    defaultValues: {
-      profileVisibility: "public",
-      marketingEmails: false,
-      showActivityStatus: true,
-    },
-  });
-
-  const marketingEmails = useWatch({ control, name: "marketingEmails" });
-  const showActivityStatus = useWatch({ control, name: "showActivityStatus" });
+  const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
+  const inflight = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -45,8 +31,22 @@ export function AccountPrivacyPage() {
       try {
         const response = await fetch("/api/account/privacy");
         if (!response.ok) throw new Error("unavailable");
-        const payload = (await response.json()) as { privacy: PrivacyPatchInput };
-        if (!cancelled) reset(payload.privacy);
+        const payload = (await response.json()) as {
+          privacy: {
+            engine?: PrivacyEngineState;
+            switches?: PrivacyEngineState["switches"];
+            whoCanViewProfile?: ProfileVisibility;
+          };
+        };
+        if (cancelled) return;
+        if (payload.privacy.engine) {
+          setPrivacy(payload.privacy.engine);
+        } else {
+          const next = createDefaultPrivacyEngineState();
+          if (payload.privacy.switches) next.switches = { ...next.switches, ...payload.privacy.switches };
+          if (payload.privacy.whoCanViewProfile) next.whoCanViewProfile = payload.privacy.whoCanViewProfile;
+          setPrivacy(next);
+        }
       } catch {
         if (!cancelled) setLoadFailed(true);
       }
@@ -54,22 +54,77 @@ export function AccountPrivacyPage() {
     return () => {
       cancelled = true;
     };
-  }, [reset]);
+  }, []);
 
-  const onSubmit = handleSubmit(async (values) => {
-    setMessage(null);
-    const response = await fetch("/api/account/privacy", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+  const markSaving = (id: string, on: boolean) => {
+    setSavingIds((prev) => {
+      const next = new Set(prev);
+      if (on) next.add(id);
+      else next.delete(id);
+      return next;
     });
-    const payload = (await response.json()) as { error?: string };
-    if (response.ok) {
-      setMessage("Privacy settings saved.");
-    } else {
-      setMessage(coerceUserSafeText(payload.error));
+  };
+
+  const persistSwitch = useCallback(async (switchId: PrivacySwitchId, enabled: boolean) => {
+    if (!privacy || inflight.current.has(switchId)) return;
+    inflight.current.add(switchId);
+    markSaving(switchId, true);
+    const rollback = privacy;
+    const optimistic: PrivacyEngineState = {
+      ...privacy,
+      switches: { ...privacy.switches, [switchId]: enabled },
+    };
+    setPrivacy(optimistic);
+
+    try {
+      const response = await fetch("/api/account/privacy", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ switchId, switchEnabled: enabled }),
+      });
+      if (!response.ok) {
+        setPrivacy(rollback);
+        return;
+      }
+      const payload = (await response.json()) as { privacy: { engine: PrivacyEngineState } };
+      setPrivacy(payload.privacy.engine);
+    } catch {
+      setPrivacy(rollback);
+    } finally {
+      inflight.current.delete(switchId);
+      markSaving(switchId, false);
     }
-  });
+  }, [privacy]);
+
+  const persistVisibility = useCallback(
+    async (whoCanViewProfile: ProfileVisibility) => {
+      if (!privacy || inflight.current.has("whoCanViewProfile")) return;
+      inflight.current.add("whoCanViewProfile");
+      markSaving("whoCanViewProfile", true);
+      const rollback = privacy;
+      const optimistic = { ...privacy, whoCanViewProfile };
+      setPrivacy(optimistic);
+      try {
+        const response = await fetch("/api/account/privacy", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ whoCanViewProfile }),
+        });
+        if (!response.ok) {
+          setPrivacy(rollback);
+          return;
+        }
+        const payload = (await response.json()) as { privacy: { engine: PrivacyEngineState } };
+        setPrivacy(payload.privacy.engine);
+      } catch {
+        setPrivacy(rollback);
+      } finally {
+        inflight.current.delete("whoCanViewProfile");
+        markSaving("whoCanViewProfile", false);
+      }
+    },
+    [privacy],
+  );
 
   if (loadFailed) {
     return (
@@ -79,78 +134,80 @@ export function AccountPrivacyPage() {
     );
   }
 
+  if (!privacy) {
+    return (
+      <MyAccountTemplate surface="privacy" title="Privacy" backHref="/account/settings" showHeaderTitle>
+        <CanonicalInfoBlock variant="description">Loading privacy…</CanonicalInfoBlock>
+      </MyAccountTemplate>
+    );
+  }
+
   return (
     <MyAccountTemplate surface="privacy" title="Privacy" backHref="/account/settings" showHeaderTitle>
-      <div className="settings-subpage-v1 fw-engine__stack" data-settings-privacy="v1.0" data-full-width-surface="privacy">
-        <form onSubmit={onSubmit} className="fw-engine__stack" noValidate>
-          <CanonicalSection title="Privacy Controls">
-            <div className="fw-engine__group">
-              <CanonicalSwitch
-                id="marketingEmails"
-                label="Marketing emails"
-                description="Receive offers, tips, and product updates from ROVEXO."
-                checked={marketingEmails === true}
-                onChange={(checked) => setValue("marketingEmails", checked, { shouldDirty: true })}
-              />
-              <CanonicalSwitch
-                id="showActivityStatus"
-                label="Show activity status"
-                description="Let others see when you were last active in messages."
-                checked={showActivityStatus === true}
-                onChange={(checked) =>
-                  setValue("showActivityStatus", checked, { shouldDirty: true })
-                }
-              />
-            </div>
-          </CanonicalSection>
+      <div
+        className="settings-subpage-v1 fw-engine__stack"
+        data-settings-privacy="v1.1"
+        data-privacy-engine="v1.0"
+        data-full-width-surface="privacy"
+      >
+        {savingIds.size > 0 ? (
+          <p className="sr-only" aria-live="polite">
+            Saving privacy settings
+          </p>
+        ) : null}
 
-          <CanonicalSection title="Profile Visibility">
-            <div className="fw-engine__group flex flex-col gap-ds-4">
-              <CanonicalSelector
-                label="Profile visibility"
-                id="profileVisibility"
-                kind="generic"
-                options={[
-                  { value: "public", label: "Public — anyone can view" },
-                  { value: "members_only", label: "Members only — signed-in users" },
-                  { value: "private", label: "Private — only you" },
-                ]}
-                error={errors.profileVisibility?.message}
-                {...register("profileVisibility")}
-              />
-              <CanonicalButton type="submit" fullWidth loading={isSubmitting}>
-                {isSubmitting ? "Saving…" : "Save privacy settings"}
-              </CanonicalButton>
-              {message ? <CanonicalInfoBlock variant="description">{message}</CanonicalInfoBlock> : null}
-            </div>
-          </CanonicalSection>
-        </form>
+        {PRIVACY_ENGINE_SECTIONS.map((section) => {
+          if (section.kind === "switches" && section.controls) {
+            return (
+              <SettingSection key={section.id} title={section.title} intro={section.intro}>
+                {section.controls.map((control) => {
+                  const switchId = control.id as PrivacySwitchId;
+                  return (
+                    <PreferenceToggleRow
+                      key={control.id}
+                      id={`privacy-${control.id}`}
+                      label={control.label}
+                      description={control.description}
+                      checked={privacy.switches[switchId] === true}
+                      saving={savingIds.has(switchId)}
+                      disabled={savingIds.has(switchId)}
+                      icon={section.icon}
+                      tone={section.tone}
+                      onChange={(enabled) => {
+                        void persistSwitch(switchId, enabled);
+                      }}
+                    />
+                  );
+                })}
+              </SettingSection>
+            );
+          }
 
-        <CanonicalSection title="Data Controls">
-          <div className="fw-engine__group">
-            <CanonicalMenuRow
-              title="Download My Data"
-              icon={<DocumentLineIcon />}
-              href="/support?category=data-export"
-            />
-          </div>
-        </CanonicalSection>
+          if (section.kind === "selector") {
+            return (
+              <CanonicalSection key={section.id} title={section.title}>
+                <div className="fw-engine__group">
+                  <CanonicalSelector
+                    label="Who can view my profile"
+                    id="whoCanViewProfile"
+                    kind="generic"
+                    options={PRIVACY_PROFILE_VISIBILITY_OPTIONS.map((o) => ({
+                      value: o.value,
+                      label: o.label,
+                    }))}
+                    value={privacy.whoCanViewProfile}
+                    disabled={savingIds.has("whoCanViewProfile")}
+                    onChange={(event) => {
+                      void persistVisibility(event.target.value as ProfileVisibility);
+                    }}
+                  />
+                </div>
+              </CanonicalSection>
+            );
+          }
 
-        <CanonicalSection title="Cookie Preferences">
-          <div className="fw-engine__group">
-            <CanonicalMenuRow title="Cookie Preferences" icon={<LockLineIcon />} href="/legal/cookie-policy" />
-          </div>
-        </CanonicalSection>
-
-        <CanonicalSection title="Blocked Users">
-          <div className="fw-engine__group">
-            <CanonicalMenuRow
-              title="Blocked Users"
-              icon={<PeopleLineIcon />}
-              href="/account/blocked-users"
-            />
-          </div>
-        </CanonicalSection>
+          return null;
+        })}
       </div>
     </MyAccountTemplate>
   );

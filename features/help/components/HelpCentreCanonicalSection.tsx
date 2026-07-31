@@ -1,18 +1,7 @@
-import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
 import { CanonicalCard, CanonicalMenuRow, CanonicalSection } from "@/src/components/canonical";
+import { MasterMenuIcon } from "@/features/account-center/components/MasterMenuIcon";
 import { HELP_CENTRE_CATEGORY_BUTTONS } from "@/lib/help/help-centre-categories";
-
-/** One Product — same AccountIcon language as My Account. */
-const CATEGORY_ICONS: Record<string, AccountIconName> = {
-  Buying: "orders",
-  Selling: "listings",
-  "Payments & Wallet": "wallet",
-  Shipping: "shipping",
-  Orders: "orders",
-  Account: "profile",
-  Safety: "security",
-  "Reports & Appeals": "support",
-};
+import { resolveHelpCategoryIcon } from "@/lib/help/help-centre-icons-v1";
 
 export function HelpCentreCategoryGrid() {
   return (
@@ -43,17 +32,13 @@ export function HelpTextCard({
   title: string;
   description: string;
 }) {
-  const iconName = CATEGORY_ICONS[title] ?? "help";
+  const { icon, color } = resolveHelpCategoryIcon(title);
   return (
     <CanonicalMenuRow
       href={href}
       title={title}
       description={description}
-      icon={
-        <span className="ac-canonical__menu-icon" aria-hidden>
-          <AccountIcon name={iconName} />
-        </span>
-      }
+      icon={<MasterMenuIcon icon={icon} color={color} />}
     />
   );
 }

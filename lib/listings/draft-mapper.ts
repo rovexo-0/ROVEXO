@@ -16,10 +16,13 @@ export async function sellerListingToDraft(listing: SellerListing): Promise<Sell
     existingImageId: image.id,
   }));
 
+  const collectionOnly = listing.shippingMethod === "collection_only";
+
   return {
     ...createEmptyDraft(),
     photos,
     categoryPath,
+    parcelSize: listing.parcelSize ?? null,
     listingType: "fixed",
     brand: listing.brand ?? "",
     color: listing.color ?? "",
@@ -31,6 +34,7 @@ export async function sellerListingToDraft(listing: SellerListing): Promise<Sell
     acceptOffers: listing.acceptOffers,
     shippingMethod: listing.shippingMethod ?? "delivery_available",
     freeDelivery: listing.freeDelivery,
+    collectionEnabled: collectionOnly,
     stock: listing.stock,
     analysis: null,
   };

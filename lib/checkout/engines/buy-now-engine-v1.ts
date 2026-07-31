@@ -385,19 +385,24 @@ export async function BUY_NOW_ENGINE(input: {
       listingID: Boolean(product.id),
       buyerID: Boolean(input.buyerId),
       sellerID: Boolean(sellerId),
-      orderID: true,
-      transactionID: true,
+      /**
+       * Master Architecture: Order/Transaction mint AFTER payment.
+       * At Buy Now, checkout-session + payment shell are the fail-closed bindings
+       * (never soft-true unconditionally).
+       */
+      orderID: Boolean(sessionResult.session.public_id),
+      transactionID: Boolean(paymentIntent.id),
       price: Boolean(lockedOffer) || amountsMatch(itemPrice, Number(product.price)),
-      platformFee: true,
-      shipping: true,
-      currency: true,
+      platformFee: audit.ok && Number.isFinite(audit.platformFee),
+      shipping: Number.isFinite(shippingValue) && shippingValue >= 0,
+      currency: Boolean(currency),
       checkoutSession: Boolean(sessionResult.session.public_id),
       paymentSession: Boolean(paymentIntent.id),
-      listingLock: true,
+      listingLock: lock.ok,
       financialAudit: audit.ok,
       idempotency: Boolean(idempotencyKey),
-      buyerAuthenticated: true,
-      sellerAcceptingOrders: true,
+      buyerAuthenticated: Boolean(input.buyerId),
+      sellerAcceptingOrders: Boolean(sellerId),
     };
 
     if (CHECKOUT_GUARD(guard16) !== "ALL_PASSED") {

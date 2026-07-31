@@ -21,7 +21,6 @@ const SETTINGS_SHELL_PAGES = [
 
 const SETTINGS_MENU_PAGES = [
   ...SETTINGS_SHELL_PAGES,
-  "features/account-module/components/SettingsAboutV1.tsx",
 ];
 
 const ACCOUNT_MODULE_SHELL_PAGES = [

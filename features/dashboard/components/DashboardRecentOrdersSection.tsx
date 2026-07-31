@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { ProductRowImage } from "@/components/ui/ProductRowImage";
 import { Price } from "@/components/ui/Price";
 import { OrderStatusBadge } from "@/features/orders/components/OrderStatusBadge";
-import { ChevronRightIcon } from "@/features/dashboard/icons";
+import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import type { DashboardRecentOrder } from "@/features/dashboard/types";
 
 function formatOrderDate(iso: string): string {
@@ -45,7 +45,7 @@ function RecentOrderRow({ order }: { order: DashboardRecentOrder }) {
           </time>
         </div>
 
-        <ChevronRightIcon className="h-4 w-4 shrink-0 text-text-muted" />
+        <ChevronRightLineIcon className="h-4 w-4 shrink-0 text-text-muted" />
       </div>
     </Link>
   );

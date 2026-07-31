@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
+import { AdminCommandCentreShell } from "@/features/command-centre/AdminCommandCentreShell";
 
 /**
  * Platform Admin Console (`/admin/*`).
- * Access: `admin` + `super_admin` (aligned with `requireAdmin()`).
- * Super Admin Command Center remains `/super-admin` (separate surface).
+ * Access: `admin` + `super_admin`.
+ * UI: shared Command Centre White Theme (same shell as Super Admin).
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   try {
@@ -13,9 +14,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/403");
   }
 
-  return <>{children}</>;
+  return <AdminCommandCentreShell>{children}</AdminCommandCentreShell>;
 }
 
 export async function generateMetadata() {
-  return { title: "Admin | ROVEXO", robots: { index: false, follow: false } };
+  return { title: "Admin Command Centre | ROVEXO", robots: { index: false, follow: false } };
 }

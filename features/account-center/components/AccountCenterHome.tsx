@@ -1,5 +1,6 @@
 "use client";
 
+import { ProfileFooterBanner } from "@/components/profile/ProfileFooterBanner";
 import { AccountCanonicalProfile } from "@/features/account-center/components/AccountCanonicalProfile";
 import { AccountMenuSections } from "@/features/account-center/components/AccountMenuSections";
 import { useAccountHubLive } from "@/features/account-center/hooks/useAccountHubLive";
@@ -58,6 +59,8 @@ export function AccountCenterHome({
         holidayModeEnabled={holidayModeEnabled}
         activeListingCount={liveSnapshot.listings}
       />
+      {/* Sign Out → 24px → Profile Footer Banner → 32px safe (CSS) */}
+      <ProfileFooterBanner />
     </div>
   );
 }

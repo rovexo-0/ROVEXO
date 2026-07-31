@@ -82,7 +82,7 @@ export function buildBuyerRetentionPlan(input?: {
   if (input?.hasPriceDrops) notifications.push("Price drop alerts enabled for saved listings");
   if (input?.hasSavedSearches) notifications.push("New listing alerts for saved searches");
   if (input?.hasFavorites) notifications.push("Updates on your favorite listings");
-  if (input?.hasRecentlyViewed) notifications.push("Continue where you left off");
+  if (input?.hasRecentlyViewed) notifications.push("New items near your recent views");
 
   if (!notifications.length) {
     notifications.push(

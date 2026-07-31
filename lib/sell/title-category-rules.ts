@@ -196,7 +196,8 @@ export const TITLE_CATEGORY_RULES: TitleCategoryRule[] = [
     confidence: 0.94,
   },
   {
-    patterns: ["lego", "duplo"],
+    // Single pattern with | alternates — AND across patterns would require both tokens.
+    patterns: ["lego|duplo"],
     path: ["toys", "building-toys", "lego"],
     confidence: 0.96,
   },
@@ -345,6 +346,101 @@ export const KNOWN_BRANDS = new Set(
   ].map((brand) => brand.toLowerCase()),
 );
 
+/**
+ * Catalog Master (Law XXX) renamed/merged many legacy title-engine leaves into
+ * the 10 production roots. Title rules and tests still reference pre-Catalog
+ * paths (phones, computers, shoes, car-parts, …). Map them to live slugs so
+ * resolveTitleCategoryPath never silently returns null for known legacy paths.
+ *
+ * Key = legacy slug path joined by "/". Value = Catalog Master slug path.
+ */
+export const TITLE_CATEGORY_PATH_ALIASES: Record<string, readonly string[]> = {
+  // Phones → Electronics > Phones & Tablets
+  "phones/smartphones/unlocked-phones": ["electronics", "phones-tablets", "smartphones"],
+  "phones/smartphones": ["electronics", "phones-tablets", "smartphones"],
+  "phones/wearables/smartwatches": ["electronics", "wearables", "smartwatches"],
+
+  // Computers → Electronics > Computers
+  "computers/computer-accessories/mice": ["electronics", "computers", "mice"],
+  "computers/computer-accessories/monitors": ["electronics", "computers", "monitors"],
+  "computers/laptops/macbooks": ["electronics", "computers", "laptops"],
+  "computers/laptops": ["electronics", "computers", "laptops"],
+
+  // Gaming → Electronics > Gaming
+  "gaming/consoles/playstation": ["electronics", "gaming", "consoles"],
+  "gaming/consoles/xbox": ["electronics", "gaming", "consoles"],
+  "gaming/consoles/nintendo": ["electronics", "gaming", "consoles"],
+  "gaming/consoles": ["electronics", "gaming", "consoles"],
+
+  // Shoes → Men's Fashion > Shoes (default for trainer brands)
+  "shoes/trainers/nike": ["mens-fashion", "shoes", "trainers"],
+  "shoes/trainers/adidas": ["mens-fashion", "shoes", "trainers"],
+  "shoes/trainers": ["mens-fashion", "shoes", "trainers"],
+
+  // Tools → Home & Garden > DIY & Tools
+  "tools/power-tools/drills": ["home-garden", "diy-tools", "power-tools"],
+  "tools/power-tools": ["home-garden", "diy-tools", "power-tools"],
+
+  // Appliances → Home & Garden > Home Appliances
+  "appliances/cleaning-appliances/vacuum-cleaners": ["home-garden", "appliances", "vacuum-cleaners"],
+  "appliances/vacuum-cleaners": ["home-garden", "appliances", "vacuum-cleaners"],
+
+  // Vehicle parts (car-parts root → vehicle-parts)
+  "car-parts/body-parts/bumpers": ["vehicle-parts", "car-parts", "body-panels"],
+  "car-parts/wheels-tyres/alloy-wheels": ["vehicle-parts", "tyres-and-wheels", "alloy-wheels"],
+  "car-parts/wheels-tyres/tyres": ["vehicle-parts", "tyres-and-wheels", "car-tyres"],
+  "car-parts/wheels-tyres": ["vehicle-parts", "tyres-and-wheels"],
+
+  // Furniture leaf rename
+  "home-garden/furniture/sofas": ["home-garden", "furniture", "sofas-and-armchairs"],
+
+  // Electronics leaf renames
+  "electronics/audio/earbuds": ["electronics", "tv-audio", "earbuds"],
+  "electronics/cameras/mirrorless": ["electronics", "cameras", "digital-cameras"],
+  "electronics/cameras/drones": ["collectibles", "hobby-electronics", "drones"],
+  "electronics/tv-video/televisions": ["electronics", "tv-audio", "televisions"],
+
+  // Toys → Kids & Baby
+  "toys/building-toys/lego": ["kids-fashion", "toys-games", "building-sets"],
+  "toys/building-toys": ["kids-fashion", "toys-games", "building-sets"],
+
+  // Baby / pushchairs
+  "baby/pushchairs/prams": ["kids-fashion", "baby", "pushchairs-and-travel"],
+  "baby/pushchairs/travel-systems": ["kids-fashion", "baby", "pushchairs-and-travel"],
+  "baby/baby-toys/soft-toys": ["kids-fashion", "toys-games", "soft-toys"],
+
+  // Bags rename
+  "womens-fashion/womens-bags/handbags": ["womens-fashion", "bags", "handbags"],
+
+  // Books path (Books & Media > Books > Fiction)
+  "books/fiction/crime": ["books", "books", "fiction"],
+
+  // Office / cycling (nearest Catalog Master leaves)
+  "office/office-furniture/office-chairs": ["home-garden", "furniture", "chairs"],
+  "cycling/bikes/mountain-bikes": ["vehicle-parts", "bicycle-parts", "frames"],
+  "cycling/bikes/road-bikes": ["vehicle-parts", "bicycle-parts", "frames"],
+};
+
 export function resolveTitleCategoryPath(slugs: [string, string, string?]): FlatCategoryPath | null {
-  return resolveCategoryPathBySlugs(slugs.filter(Boolean) as string[]);
+  const cleaned = slugs.filter(Boolean) as string[];
+  if (cleaned.length < 2) return null;
+
+  const direct = resolveCategoryPathBySlugs(cleaned);
+  if (direct) return direct;
+
+  const aliasKey = cleaned.join("/");
+  const aliased = TITLE_CATEGORY_PATH_ALIASES[aliasKey];
+  if (aliased) {
+    return resolveCategoryPathBySlugs([...aliased]);
+  }
+
+  // Prefix fallback: try progressively shorter alias keys (root/sub only).
+  if (cleaned.length >= 3) {
+    const prefixAlias = TITLE_CATEGORY_PATH_ALIASES[`${cleaned[0]}/${cleaned[1]}`];
+    if (prefixAlias) {
+      return resolveCategoryPathBySlugs([...prefixAlias]);
+    }
+  }
+
+  return null;
 }

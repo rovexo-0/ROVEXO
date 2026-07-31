@@ -22,6 +22,7 @@ const STATUS_VARIANT: Record<HealthStatus, "success" | "warning" | "danger"> = {
   healthy: "success",
   degraded: "warning",
   unhealthy: "danger",
+  not_configured: "warning",
 };
 
 function formatMoney(value: number): string {

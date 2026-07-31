@@ -12,7 +12,7 @@ export type SearchFilterValues = {
   brand?: string;
   category?: string;
   location?: string;
-  scope?: "products" | "auctions" | "businesses" | "sellers";
+  scope?: "products" | "auctions" | "sellers";
   sort?: "newest" | "price_asc" | "price_desc" | "most_viewed" | "nearest";
   postedToday?: boolean;
   delivery?: boolean;

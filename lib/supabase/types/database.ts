@@ -2137,6 +2137,7 @@ export type Database = {
           email_messages: boolean
           email_orders: boolean
           email_promotions: boolean
+          engine_v1: Json
           marketing: boolean
           messages: boolean
           offers: boolean
@@ -2159,6 +2160,7 @@ export type Database = {
           email_messages?: boolean
           email_orders?: boolean
           email_promotions?: boolean
+          engine_v1?: Json
           marketing?: boolean
           messages?: boolean
           offers?: boolean
@@ -2181,6 +2183,7 @@ export type Database = {
           email_messages?: boolean
           email_orders?: boolean
           email_promotions?: boolean
+          engine_v1?: Json
           marketing?: boolean
           messages?: boolean
           offers?: boolean
@@ -2857,6 +2860,69 @@ export type Database = {
           },
         ]
       }
+      preferred_marketplace_stores: {
+        Row: {
+          id: string
+          seller_id: string
+          enabled: boolean
+          homepage_visibility: boolean
+          promotion_priority: number
+          min_position: number
+          max_position: number
+          start_at: string | null
+          end_at: string | null
+          max_simultaneous_listings: number
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          enabled?: boolean
+          homepage_visibility?: boolean
+          promotion_priority?: number
+          min_position?: number
+          max_position?: number
+          start_at?: string | null
+          end_at?: string | null
+          max_simultaneous_listings?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          enabled?: boolean
+          homepage_visibility?: boolean
+          promotion_priority?: number
+          min_position?: number
+          max_position?: number
+          start_at?: string | null
+          end_at?: string | null
+          max_simultaneous_listings?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "preferred_marketplace_stores_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "preferred_marketplace_stores_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_images: {
         Row: {
           created_at: string
@@ -3164,6 +3230,7 @@ export type Database = {
           account_status: string
           avatar_url: string | null
           created_at: string
+          date_of_birth: string | null
           deleted_at: string | null
           email: string
           full_name: string
@@ -3183,6 +3250,7 @@ export type Database = {
           account_status?: string
           avatar_url?: string | null
           created_at?: string
+          date_of_birth?: string | null
           deleted_at?: string | null
           email: string
           full_name: string
@@ -3202,6 +3270,7 @@ export type Database = {
           account_status?: string
           avatar_url?: string | null
           created_at?: string
+          date_of_birth?: string | null
           deleted_at?: string | null
           email?: string
           full_name?: string
@@ -4113,6 +4182,42 @@ export type Database = {
           },
         ]
       }
+      sendcloud_webhook_events: {
+        Row: {
+          event_type: string
+          metadata: Json
+          order_id: string | null
+          payload_hash: string | null
+          processed_at: string
+          source: string
+          status: string
+          tracking_number: string | null
+          webhook_event_id: string
+        }
+        Insert: {
+          event_type: string
+          metadata?: Json
+          order_id?: string | null
+          payload_hash?: string | null
+          processed_at?: string
+          source?: string
+          status?: string
+          tracking_number?: string | null
+          webhook_event_id: string
+        }
+        Update: {
+          event_type?: string
+          metadata?: Json
+          order_id?: string | null
+          payload_hash?: string | null
+          processed_at?: string
+          source?: string
+          status?: string
+          tracking_number?: string | null
+          webhook_event_id?: string
+        }
+        Relationships: []
+      }
       stripe_webhook_events: {
         Row: {
           event_id: string
@@ -4734,12 +4839,14 @@ export type Database = {
       user_settings: {
         Row: {
           appearance_mode: string
+          cookie_preferences_v1: Json
           currency: string
           dark_mode: boolean
           email_notifications: boolean
           language: string
           locale_code: string
           marketing_emails: boolean
+          privacy_engine_v1: Json
           profile_visibility: string
           push_notifications: boolean
           show_activity_status: boolean
@@ -4750,12 +4857,14 @@ export type Database = {
         }
         Insert: {
           appearance_mode?: string
+          cookie_preferences_v1?: Json
           currency?: string
           dark_mode?: boolean
           email_notifications?: boolean
           language?: string
           locale_code?: string
           marketing_emails?: boolean
+          privacy_engine_v1?: Json
           profile_visibility?: string
           push_notifications?: boolean
           show_activity_status?: boolean
@@ -4766,12 +4875,14 @@ export type Database = {
         }
         Update: {
           appearance_mode?: string
+          cookie_preferences_v1?: Json
           currency?: string
           dark_mode?: boolean
           email_notifications?: boolean
           language?: string
           locale_code?: string
           marketing_emails?: boolean
+          privacy_engine_v1?: Json
           profile_visibility?: string
           push_notifications?: boolean
           show_activity_status?: boolean
@@ -5058,8 +5169,13 @@ export type Database = {
         Row: {
           admin_notes: string
           body: string
+          category: string
+          comment_count: number
           created_at: string
+          dislike_count: number
+          follow_count: number
           id: string
+          like_count: number
           screenshot_url: string | null
           status: string
           subject: string
@@ -5069,8 +5185,13 @@ export type Database = {
         Insert: {
           admin_notes?: string
           body: string
+          category?: string
+          comment_count?: number
           created_at?: string
+          dislike_count?: number
+          follow_count?: number
           id?: string
+          like_count?: number
           screenshot_url?: string | null
           status?: string
           subject: string
@@ -5080,8 +5201,13 @@ export type Database = {
         Update: {
           admin_notes?: string
           body?: string
+          category?: string
+          comment_count?: number
           created_at?: string
+          dislike_count?: number
+          follow_count?: number
           id?: string
+          like_count?: number
           screenshot_url?: string | null
           status?: string
           subject?: string
@@ -5094,6 +5220,161 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rovexo_idea_votes: {
+        Row: {
+          created_at: string
+          id: string
+          idea_id: string
+          updated_at: string
+          user_id: string
+          vote: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idea_id: string
+          updated_at?: string
+          user_id: string
+          vote: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idea_id?: string
+          updated_at?: string
+          user_id?: string
+          vote?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rovexo_idea_votes_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "rovexo_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rovexo_idea_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rovexo_idea_comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          idea_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          idea_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          idea_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rovexo_idea_comments_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "rovexo_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rovexo_idea_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rovexo_idea_follows: {
+        Row: {
+          created_at: string
+          id: string
+          idea_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idea_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idea_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rovexo_idea_follows_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "rovexo_ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rovexo_idea_follows_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rovexo_idea_updates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          idea_id: string
+          message: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          idea_id: string
+          message?: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          idea_id?: string
+          message?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rovexo_idea_updates_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "rovexo_ideas"
             referencedColumns: ["id"]
           },
         ]

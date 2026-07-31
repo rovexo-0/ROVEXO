@@ -1,5 +1,6 @@
 import type { UserProfile } from "@/lib/profile/types";
 import { SUPER_ADMIN_PRIMARY_NAV } from "@/lib/super-admin/nav";
+import { isV1BusinessUxRemoved } from "@/lib/phase-c-v1-business-cleanup-v1";
 export type NavLink = {
   href: string;
   label: string;
@@ -69,9 +70,8 @@ export const SUPER_ADMIN_NAV_LINK: NavLink = {
 };
 
 /**
- * @deprecated LEGACY. The `/admin/*` tree redirects to `/super-admin` (see
- * `app/admin/layout.tsx`). Retained temporarily to avoid regressions; will be
- * migrated to the Super Admin Command Center. Do not add new entries.
+ * Admin Command Centre modules (`/admin/*`).
+ * Shared shell with Super Admin (White Theme RC1); role limits this list only.
  */
 export const ADMIN_NAV: NavLink[] = [
   { href: "/admin", label: "Admin Dashboard", subtitle: "Orders & promotions overview" },
@@ -107,7 +107,10 @@ export function getNavigationSections(profile: UserProfile) {
     { id: "selling", title: "Selling", links: SELLER_NAV },
   ];
 
-  if (profile.capabilities.hasBusinessVerification || profile.isAdmin) {
+  if (
+    !isV1BusinessUxRemoved() &&
+    (profile.capabilities.hasBusinessVerification || profile.isAdmin)
+  ) {
     sections.push({ id: "business", title: "Business tools", links: BUSINESS_NAV });
   }
 

@@ -1,0 +1,70 @@
+[ensure-e2e-env] OK — Playwright certification secrets present (service_role mode)
+[ensure-e2e-env] OK — public Supabase credentials present
+[playwright] Installing Playwright ffmpeg (best-effort)…
+[playwright] Vercel Chromium ready: /tmp/chromium
+{
+  "config": {
+    "argv": [
+      "/usr/bin/node",
+      "/home/mihai/ROVEXO/node_modules/@playwright/test/cli.js",
+      "test",
+      "e2e/checkout-blood-xxiii-certification.spec.ts",
+      "--project=chromium",
+      "--reporter=json"
+    ],
+    "configFile": "/home/mihai/ROVEXO/playwright.config.ts",
+    "rootDir": "/home/mihai/ROVEXO/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "/home/mihai/ROVEXO/scripts/playwright-global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/mihai/ROVEXO/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/home/mihai/ROVEXO/e2e",
+        "testIgnore": [
+          "/sell-android\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/home/mihai/ROVEXO/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/home/mihai/ROVEXO/e2e",
+        "testIgnore": [
+          "/sell-android\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 180000
+      },
+      {
+        "outputDir": "/home/mihai/ROVEXO/test-results",
+        "repeatEach": 1,
+        "retries": 0,

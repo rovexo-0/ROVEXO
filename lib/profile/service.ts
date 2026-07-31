@@ -15,6 +15,7 @@ export type ProfileDetails = {
   verified: boolean;
   bio: string | null;
   emailVerified: boolean;
+  dateOfBirth: string | null;
 };
 
 type ProfileRow = {
@@ -26,6 +27,7 @@ type ProfileRow = {
   role: string;
   phone: string | null;
   email: string | null;
+  date_of_birth: string | null;
 };
 
 /**
@@ -41,7 +43,7 @@ export async function getProfileDetails(userId: string): Promise<ProfileDetails 
 
     const profileQuery = profileClient
       .from("profiles")
-      .select("id, username, full_name, avatar_url, verified, role, phone, email")
+      .select("id, username, full_name, avatar_url, verified, role, phone, email, date_of_birth")
       .eq("id", userId)
       .maybeSingle();
 
@@ -96,6 +98,7 @@ function mapProfileDetails(
     verified: profile.verified,
     bio,
     emailVerified: auth.emailVerified,
+    dateOfBirth: profile.date_of_birth ?? null,
   };
 }
 
@@ -115,6 +118,9 @@ export async function updateProfileDetails(
   if (input.phone !== undefined) {
     updates.phone = sanitizeOptionalText(input.phone) ?? null;
   }
+  if (input.dateOfBirth !== undefined) {
+    updates.date_of_birth = input.dateOfBirth.trim() ? input.dateOfBirth.trim() : null;
+  }
 
   if (Object.keys(updates).length) {
     const { error } = await supabase
@@ -123,6 +129,7 @@ export async function updateProfileDetails(
         ...(updates.full_name != null ? { full_name: updates.full_name } : {}),
         ...(updates.username != null ? { username: updates.username } : {}),
         ...(updates.phone !== undefined ? { phone: updates.phone } : {}),
+        ...(updates.date_of_birth !== undefined ? { date_of_birth: updates.date_of_birth } : {}),
       })
       .eq("id", userId);
     if (error) {

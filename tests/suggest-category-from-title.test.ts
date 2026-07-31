@@ -14,9 +14,12 @@ import { resolveTitleCategoryPath } from "@/lib/sell/title-category-rules";
 
 describe("title-only category detection", () => {
   it("resolves core marketplace paths used by title rules", () => {
+    // Legacy title-engine paths remain resolvable via Catalog Master aliases.
     expect(resolveTitleCategoryPath(["computers", "computer-accessories", "mice"])).not.toBeNull();
     expect(resolveTitleCategoryPath(["tools", "power-tools", "drills"])).not.toBeNull();
     expect(resolveTitleCategoryPath(["home-garden", "furniture", "tables"])).not.toBeNull();
+    expect(resolveTitleCategoryPath(["phones", "smartphones", "unlocked-phones"])).not.toBeNull();
+    expect(resolveTitleCategoryPath(["car-parts", "wheels-tyres", "alloy-wheels"])).not.toBeNull();
   });
 
   it("returns empty suggestions for short titles", () => {
@@ -40,7 +43,9 @@ describe("title-only category detection", () => {
     const auto = shouldAutoSelectCategory(suggestCategoryFromTitle("iPhone 15 Pro Max 256GB"));
     expect(auto).not.toBeNull();
     expect(auto!.confidence).toBeGreaterThanOrEqual(AUTO_SELECT_CONFIDENCE);
-    expect(auto!.path.categorySlug).toBe("phones");
+    // Catalog Master root: phones → electronics
+    expect(auto!.path.categorySlug).toBe("electronics");
+    expect(auto!.path.subcategorySlug).toBe("phones-tablets");
   });
 
   it("confidently classifies an unambiguous book title", () => {
@@ -54,16 +59,16 @@ describe("title-only category detection", () => {
 
   it("maps release example titles to expected categories", () => {
     const cases = [
-      { title: "iPhone 15 Pro Max", categorySlug: "phones" },
-      { title: "Samsung Galaxy S25 Ultra", categorySlug: "phones" },
-      { title: "Apple Magic Mouse", categorySlug: "computers", childSlug: "mice" },
-      { title: "MacBook Pro M4", categorySlug: "computers" },
-      { title: "Nike Air Max 270", categorySlug: "shoes" },
-      { title: "PlayStation 5 Console", categorySlug: "gaming" },
+      { title: "iPhone 15 Pro Max", categorySlug: "electronics", childSlug: "smartphones" },
+      { title: "Samsung Galaxy S25 Ultra", categorySlug: "electronics", childSlug: "smartphones" },
+      { title: "Apple Magic Mouse", categorySlug: "electronics", childSlug: "mice" },
+      { title: "MacBook Pro M4", categorySlug: "electronics", childSlug: "laptops" },
+      { title: "Nike Air Max 270", categorySlug: "mens-fashion", childSlug: "trainers" },
+      { title: "PlayStation 5 Console", categorySlug: "electronics", childSlug: "consoles" },
       // "PS5" alone is below MIN_TITLE_LENGTH (5); use a full title.
-      { title: "PS5 Console", categorySlug: "gaming" },
-      { title: "BMW F30 Front Bumper", categorySlug: "car-parts", childSlug: "bumpers" },
-      { title: "Sofa Grey Leather", categorySlug: "home-garden", childSlug: "sofas" },
+      { title: "PS5 Console", categorySlug: "electronics", childSlug: "consoles" },
+      { title: "BMW F30 Front Bumper", categorySlug: "vehicle-parts", childSlug: "body-panels" },
+      { title: "Sofa Grey Leather", categorySlug: "home-garden", childSlug: "sofas-and-armchairs" },
       { title: "Dining Table Oak", categorySlug: "home-garden", childSlug: "tables" },
     ] as const;
 
@@ -79,14 +84,18 @@ describe("title-only category detection", () => {
   });
 
   it("handles misspellings and abbreviations", () => {
-    expect(suggestCategoryFromTitle("ifone 15 pro max")[0]?.path.categorySlug).toBe("phones");
-    expect(suggestCategoryFromTitle("ps5 console")[0]?.path.categorySlug).toBe("gaming");
-    expect(suggestCategoryFromTitle("macbok air m2")[0]?.path.categorySlug).toBe("computers");
+    expect(suggestCategoryFromTitle("ifone 15 pro max")[0]?.path.categorySlug).toBe("electronics");
+    expect(suggestCategoryFromTitle("ps5 console")[0]?.path.categorySlug).toBe("electronics");
+    expect(suggestCategoryFromTitle("macbok air m2")[0]?.path.categorySlug).toBe("electronics");
   });
 
   it("handles multilingual title tokens", () => {
-    expect(suggestCategoryFromTitle("téléphone samsung galaxy")[0]?.path.categorySlug).toBe("phones");
-    expect(suggestCategoryFromTitle("chaussures nike air max")[0]?.path.categorySlug).toBe("shoes");
+    expect(suggestCategoryFromTitle("téléphone samsung galaxy")[0]?.path.categorySlug).toBe(
+      "electronics",
+    );
+    expect(suggestCategoryFromTitle("chaussures nike air max")[0]?.path.categorySlug).toBe(
+      "mens-fashion",
+    );
   });
 
   it("produces stable anonymous title hashes for learning", () => {
@@ -117,18 +126,19 @@ describe("title-only category detection", () => {
 });
 
 describe("title category batch accuracy", () => {
+  // Expected roots are Catalog Master production roots (Law XXX).
   const batch = [
-    ["Samsung Galaxy S24 Ultra", "phones"],
-    ["DeWalt XR Combi Drill", "tools"],
-    ["Adidas Ultraboost Running Shoes", "shoes"],
-    ["Audi Alloy Wheels 18 inch", "car-parts"],
-    ["Apple MacBook Air M2", "computers"],
-    ["PlayStation 5 Console", "gaming"],
-    ["Dyson Cordless Vacuum", "appliances"],
+    ["Samsung Galaxy S24 Ultra", "electronics"],
+    ["DeWalt XR Combi Drill", "home-garden"],
+    ["Adidas Ultraboost Running Shoes", "mens-fashion"],
+    ["Audi Alloy Wheels 18 inch", "vehicle-parts"],
+    ["Apple MacBook Air M2", "electronics"],
+    ["PlayStation 5 Console", "electronics"],
+    ["Dyson Cordless Vacuum", "home-garden"],
     ["Chesterfield Fabric Sofa", "home-garden"],
-    ["Lego Technic Supercar", "toys"],
+    ["Lego Technic Supercar", "kids-fashion"],
     ["OLED Smart TV 55 inch", "electronics"],
-    ["Continental Winter Tyres 225/45", "car-parts"],
+    ["Continental Winter Tyres 225/45", "vehicle-parts"],
   ] as const;
 
   it.each(batch)("classifies %s under %s", (title, expectedCategory) => {

@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn";
 import type { AddressUiScope } from "@/lib/addresses/canonical";
+import { resolveBusinessAddressesVisibility } from "@/lib/master-engine";
 
 type AddressesTabsProps = {
   activeScope: AddressUiScope;
@@ -9,9 +10,16 @@ type AddressesTabsProps = {
 };
 
 /**
- * Address Type · Personal | Business — both fully functional.
+ * Address Type · Personal only in v1.0 (Phase C).
+ * BusinessAddresses components remain for v2.0 — tab hidden when Business UX removed.
  */
 export function AddressesTabs({ activeScope, onChange }: AddressesTabsProps) {
+  const showBusiness = resolveBusinessAddressesVisibility().showBusinessAddressesTab;
+
+  if (!showBusiness) {
+    return null;
+  }
+
   return (
     <div className="addresses-v1-tabs-block" data-addresses-tabs="v1">
       <p className="addresses-v1-label">Address Type</p>

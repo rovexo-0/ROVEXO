@@ -114,13 +114,10 @@ export function ShippingLabelViewer({
       setLoadState("ready");
     } catch {
       if (generation !== loadGeneration.current) return;
-      /* Same-origin relative URLs can still embed directly. */
-      if (sourceUrl.startsWith("/")) {
-        setMimeType(sourceUrl.includes("demo-label") ? "text/html" : "application/pdf");
-        setEmbedUrl(sourceUrl);
-        setLoadState("ready");
-        return;
-      }
+      /*
+       * Do not embed raw same-origin /api paths — global X-Frame-Options: DENY blanks iframes.
+       * Keep error + Open/Download recovery instead of a false "ready" blank stage.
+       */
       setLoadState("error");
     }
   }, [sourceUrl, orderId, revokeObjectUrl]);
@@ -153,28 +150,49 @@ export function ShippingLabelViewer({
     void loadLabel();
   }, [loadLabel]);
 
-  const handleDownload = useCallback(() => {
-    const href = embedUrl || sourceUrl;
-    if (!href) return;
-    const anchor = document.createElement("a");
-    anchor.href = href;
-    anchor.target = "_blank";
-    anchor.rel = "noopener noreferrer";
-    anchor.download = mimeType.includes("png")
-      ? "rovexo-shipping-label.png"
-      : mimeType.includes("html")
-        ? "rovexo-shipping-label.html"
-        : "rovexo-shipping-label.pdf";
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
+  const handleDownload = useCallback(async () => {
+    try {
+      let blob: Blob | null = null;
+      let type = mimeType;
+
+      if (embedUrl?.startsWith("blob:")) {
+        blob = await fetch(embedUrl).then((response) => response.blob());
+      } else if (sourceUrl) {
+        const response = await fetch(resolveAbsoluteUrl(sourceUrl), {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error("download_failed");
+        blob = await response.blob();
+        if (blob.type && blob.type !== "application/octet-stream") type = blob.type;
+      }
+      if (!blob || blob.size === 0) return;
+
+      const extension = type.includes("png")
+        ? "png"
+        : type.includes("html")
+          ? "html"
+          : "pdf";
+      const objectUrl = URL.createObjectURL(
+        blob.type ? blob : new Blob([blob], { type: type || "application/pdf" }),
+      );
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = `rovexo-shipping-label.${extension}`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2_000);
+    } catch {
+      /* fail closed — keep viewer usable */
+    }
   }, [embedUrl, sourceUrl, mimeType]);
 
   const handlePrintShare = useCallback(async () => {
     const href = embedUrl || sourceUrl;
     if (!href) return;
 
-    // Prefer native share with the label file (mobile / PWA) — avoids broken print preview.
     if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
       try {
         if (embedUrl?.startsWith("blob:")) {
@@ -204,7 +222,6 @@ export function ShippingLabelViewer({
       }
     }
 
-    // HTML demo labels can print from the same-origin iframe.
     if (mimeType.includes("html")) {
       try {
         const printFrame = document.querySelector<HTMLIFrameElement>(".slv-v1__frame");
@@ -218,10 +235,12 @@ export function ShippingLabelViewer({
       }
     }
 
-    // Open label in a browser tab so the platform print dialog works
-    // (embedded PDF print often shows "This app doesn't support print preview").
-    const absolute = resolveAbsoluteUrl(sourceUrl || href);
-    const printWindow = window.open(absolute, "_blank", "noopener,noreferrer");
+    /*
+     * Phase A3 — never use noopener here: modern browsers return null and print never runs.
+     * Prefer the in-memory blob URL so print opens the exact fetched PDF bytes.
+     */
+    const absolute = resolveAbsoluteUrl(embedUrl || sourceUrl || href);
+    const printWindow = window.open(absolute, "_blank");
     if (printWindow) {
       const triggerPrint = () => {
         try {
@@ -236,7 +255,7 @@ export function ShippingLabelViewer({
       return;
     }
 
-    handleDownload();
+    void handleDownload();
   }, [embedUrl, sourceUrl, mimeType, handleDownload]);
 
   const pdfSrc =
@@ -329,19 +348,12 @@ export function ShippingLabelViewer({
 
           {showDocument && !isImage && !isHtml ? (
             <div className="slv-v1__pdf-wrap">
-              <object
+              <iframe
                 className="slv-v1__frame"
-                data={pdfSrc!}
-                type="application/pdf"
-                aria-label="Official Carrier PDF"
-              >
-                <iframe
-                  className="slv-v1__frame"
-                  title="Official Carrier PDF"
-                  src={pdfSrc!}
-                  onError={() => setLoadState("error")}
-                />
-              </object>
+                title="Official Carrier PDF"
+                src={pdfSrc!}
+                onError={() => setLoadState("error")}
+              />
               <div className="slv-v1__pdf-fallback">
                 <p className="slv-v1__pdf-fallback-copy">
                   If the label preview is blank, open it in your browser to view or print.
@@ -352,7 +364,7 @@ export function ShippingLabelViewer({
                   onClick={() => {
                     const href = embedUrl || sourceUrl;
                     if (!href) return;
-                    window.open(resolveAbsoluteUrl(href), "_blank", "noopener,noreferrer");
+                    window.open(resolveAbsoluteUrl(href), "_blank");
                   }}
                 >
                   Open label

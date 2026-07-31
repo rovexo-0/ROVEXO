@@ -74,6 +74,7 @@ export type CommandCenterProductionData = {
 function mapHealthLabel(status: HealthStatus): string {
   if (status === "healthy") return "Healthy";
   if (status === "degraded") return "Degraded";
+  if (status === "not_configured") return "Not configured";
   return "Unhealthy";
 }
 
@@ -422,7 +423,10 @@ export async function fetchCommandCenterProductionSections(
       adminActivity: auditEvents24h,
       blockedIps: securityErrors24h,
       bruteForce: authErrors24h,
-      rateLimiting: mapHealthLabel(checks.redis.status),
+      rateLimiting: mapConfiguredHealth(
+        Boolean(process.env.UPSTASH_REDIS_REST_URL?.trim() && process.env.UPSTASH_REDIS_REST_TOKEN?.trim()),
+        checks.redis.status,
+      ),
       apiAbuse: apiAbuse24h,
       spamDetection: reportedListings,
       malwareDetection: securityErrors24h,
@@ -436,10 +440,14 @@ export async function fetchCommandCenterProductionSections(
       supabaseHealth: mapConfiguredHealth(operations.environment.supabase, checks.database.status),
       api: mapHealthLabel(checks.api.status),
       database: mapHealthLabel(checks.database.status),
-      redis: mapHealthLabel(checks.redis.status),
+      redis: mapConfiguredHealth(
+        Boolean(process.env.UPSTASH_REDIS_REST_URL?.trim() && process.env.UPSTASH_REDIS_REST_TOKEN?.trim()),
+        checks.redis.status,
+      ),
       supabase: mapConfiguredHealth(operations.environment.supabase, checks.database.status),
       storage: mapHealthLabel(checks.storage.status),
       edgeFunctions: mapHealthLabel(checks.api.status),
+      authentication: mapHealthLabel(checks.authentication.status),
       connections: liveAnalytics?.performance.databaseConnections ?? 0,
       readSpeed: checks.database.latencyMs,
       writeSpeed: checks.database.latencyMs,
@@ -448,21 +456,30 @@ export async function fetchCommandCenterProductionSections(
       queryLatency: checks.database.latencyMs,
       slowQueries: operations.errors.filter((entry) => entry.category === "database").length,
       locks: 0,
-      queues: mapHealthLabel(checks.redis.status),
+      queues: mapConfiguredHealth(
+        Boolean(process.env.UPSTASH_REDIS_REST_URL?.trim() && process.env.UPSTASH_REDIS_REST_TOKEN?.trim()),
+        checks.redis.status,
+      ),
       workers: operations.cron.recentRuns.length,
       cronJobs: cronRunsToday,
-      scheduler: mapHealthLabel(checks.cron.status),
+      scheduler: mapConfiguredHealth(Boolean(process.env.CRON_SECRET?.trim()), checks.cron.status),
       memoryUsagePercent: liveAnalytics?.performance.ramUsagePercent ?? 0,
       cpuUsagePercent: liveAnalytics?.performance.cpuUsagePercent ?? 0,
       disk: mapHealthLabel(database.storage.status),
       bandwidthMbps: 0,
-      realtime: mapHealthLabel(checks.redis.status),
+      realtime: mapConfiguredHealth(
+        Boolean(process.env.UPSTASH_REDIS_REST_URL?.trim() && process.env.UPSTASH_REDIS_REST_TOKEN?.trim()),
+        checks.redis.status,
+      ),
       latencyMs: checks.api.latencyMs,
     },
     performance: {
       rest: mapHealthLabel(checks.api.status),
-      realtime: mapHealthLabel(checks.redis.status),
-      auth: mapHealthLabel(checks.api.status),
+      realtime: mapConfiguredHealth(
+        Boolean(process.env.UPSTASH_REDIS_REST_URL?.trim() && process.env.UPSTASH_REDIS_REST_TOKEN?.trim()),
+        checks.redis.status,
+      ),
+      auth: mapHealthLabel(checks.authentication.status),
       storage: mapHealthLabel(checks.storage.status),
       edgeFunctions: mapHealthLabel(checks.api.status),
       averageResponseTime: checks.api.latencyMs,

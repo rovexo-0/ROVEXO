@@ -74,7 +74,7 @@ export const OAUTH_CONFIGURATION_FREEZE_V1 = {
 
   callbackRules: {
     local: "http://localhost:3000",
-    production: "https://rovexo.com",
+    production: "https://www.rovexo.co.uk",
     stagingOptional: "https://staging.rovexo.com",
     authCallbackPath: "/auth/callback",
   } as const,

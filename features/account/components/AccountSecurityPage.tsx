@@ -4,7 +4,7 @@ import { CanonicalSection, CanonicalMenuRow, CanonicalInfoBlock } from "@/src/co
 import { useEffect, useState } from "react";
 import { MyAccountTemplate } from "@/features/account-canonical";
 import { FailClosedPanel } from "@/components/fail-closed/FailClosedPanel";
-import { LockLineIcon, PeopleLineIcon, PhoneLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
+import { SettingsMenuIconGlyph } from "@/features/account-module/components/SettingsMenuIcon";
 import { PasswordChangeForm } from "@/features/account/components/PasswordChangeForm";
 
 type SecurityState = {
@@ -93,24 +93,27 @@ export function AccountSecurityPage() {
         <CanonicalSection title="Change Password">
           <div className="fw-engine__group flex flex-col gap-ds-4">
             <PasswordChangeForm />
-            <CanonicalMenuRow title="Reset via email" icon={<LockLineIcon />} href="/forgot-password" />
+            <CanonicalMenuRow
+              title="Reset via email"
+              icon={<SettingsMenuIconGlyph name="lock" tone="red" />}
+              href="/account/security/reset-via-email"
+            />
           </div>
         </CanonicalSection>
 
         <CanonicalSection title="Two Factor Authentication">
           <div className="fw-engine__group">
-            {/* Account Settings Engine v1.1 SSOT — 2FA is managed only on /account/profile */}
             <CanonicalMenuRow
               title="Two Factor Authentication"
               description={
                 security
                   ? security.mfa.enabled
-                    ? "On · manage in Account details"
-                    : "Off · manage in Account details"
-                  : "Manage in Account details"
+                    ? "On · manage 2FA"
+                    : "Off · set up 2FA"
+                  : "Manage 2FA"
               }
-              icon={<ShieldLineIcon />}
-              href="/account/profile#two-factor"
+              icon={<SettingsMenuIconGlyph name="shield" tone="rovexo-blue" />}
+              href="/account/security/two-factor"
               value={security?.mfa.enabled ? "On" : "Off"}
             />
           </div>
@@ -122,11 +125,16 @@ export function AccountSecurityPage() {
               <CanonicalMenuRow
                 title="Devices"
                 description={`${formatDeviceLabel()} · ${session.current.provider}`}
-                icon={<PhoneLineIcon />}
+                icon={<SettingsMenuIconGlyph name="phone" tone="blue" />}
+                href="/account/security/devices"
                 value="Active"
               />
             ) : (
-              <CanonicalMenuRow title="Loading devices…" icon={<PhoneLineIcon />} disabled />
+              <CanonicalMenuRow
+                title="Loading devices…"
+                icon={<SettingsMenuIconGlyph name="phone" tone="blue" />}
+                disabled
+              />
             )}
           </div>
         </CanonicalSection>
@@ -137,15 +145,20 @@ export function AccountSecurityPage() {
               <CanonicalMenuRow
                 title="Sessions"
                 description="Current session"
-                icon={<PeopleLineIcon />}
+                icon={<SettingsMenuIconGlyph name="people" tone="green" />}
+                href="/account/security/sessions"
                 value="Active"
               />
             ) : (
-              <CanonicalMenuRow title="Loading sessions…" icon={<PeopleLineIcon />} disabled />
+              <CanonicalMenuRow
+                title="Loading sessions…"
+                icon={<SettingsMenuIconGlyph name="people" tone="green" />}
+                disabled
+              />
             )}
             <CanonicalMenuRow
               title="Logout all devices"
-              icon={<ShieldLineIcon />}
+              icon={<SettingsMenuIconGlyph name="shield" tone="red" />}
               onClick={() => void signOutOtherSessions()}
               disabled={signingOutOthers}
               value={signingOutOthers ? "Signing out…" : undefined}

@@ -82,7 +82,8 @@ describe("My Account v1.0 — PROFILE MAIN (Owner Implementation)", () => {
 
     expect(home).toContain("AccountCanonicalProfile");
     expect(home).toContain("AccountMenuSections");
-    expect(home).toMatch(/AccountCanonicalProfile[\s\S]*AccountMenuSections/);
+    expect(home).toContain("ProfileFooterBanner");
+    expect(home).toMatch(/AccountCanonicalProfile[\s\S]*AccountMenuSections[\s\S]*ProfileFooterBanner/);
 
     expect(profile).toContain("ac-canonical__profile");
     expect(profile).toContain("View Profile");

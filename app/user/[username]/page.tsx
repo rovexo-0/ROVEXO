@@ -19,6 +19,7 @@ import {
 } from "@/lib/store/store-repository";
 import type { Review } from "@/lib/reviews/types";
 import type { PublicTrustSummary } from "@/lib/trust/types";
+import { resolveProfileCommandCentreEntry } from "@/lib/profile/command-centre-entry-v1";
 
 type PageProps = {
   params: Promise<{ username: string }>;
@@ -34,6 +35,7 @@ type ViewProfilePayload =
       isOwnProfile: boolean;
       loadFailed: boolean;
       jsonLdScript?: string;
+      commandCentre: ReturnType<typeof resolveProfileCommandCentreEntry>;
     };
 
 function storeToPublicProfile(store: StoreRecord): PublicSellerProfile {
@@ -157,6 +159,10 @@ async function loadViewProfilePayload(routeParam: string): Promise<ViewProfilePa
       isOwnProfile,
       loadFailed: false,
       jsonLdScript: JSON.stringify([jsonLd.profile, jsonLd.itemList].filter(Boolean)),
+      commandCentre: resolveProfileCommandCentreEntry({
+        isOwnProfile,
+        role: auth?.role ?? null,
+      }),
     };
   } catch {
     // Soft fail — still show Public Profile shell (empty store / reviews).
@@ -173,6 +179,7 @@ async function loadViewProfilePayload(routeParam: string): Promise<ViewProfilePa
       trustSummary: failClosedPublicTrustSummary(profile.id),
       isOwnProfile: false,
       loadFailed: true,
+      commandCentre: null,
     };
   }
 }
@@ -193,6 +200,7 @@ export default async function PublicSellerProfilePage({ params }: PageProps) {
       isOwnProfile={payload.isOwnProfile}
       loadFailed={payload.loadFailed}
       jsonLdScript={payload.jsonLdScript}
+      commandCentre={payload.commandCentre}
     />
   );
 }

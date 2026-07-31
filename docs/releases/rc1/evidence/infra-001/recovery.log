@@ -1,0 +1,53 @@
+=== INFRA-001 recovery start 2026-07-31T04:23:04+01:00 ===
+--- before ---
+LISTEN 0      511                 *:3000             *:*    users:(("next-server (v1",pid=2839319,fd=26))
+2839301 2839300 node /home/mihai/ROVEXO/node_modules/.bin/../next/dist/bin/next dev
+2839319 2839301 next-server (v16.2.9)
+SIGTERM 2839301 node /home/mihai/ROVEXO/node_modules/.bin/../next/dist/bin/next dev 
+SIGTERM 2839319 next-server (v16.2.9)                                                                                                                                                                                    
+--- after kill ---
+--- wipe .next ---
+WIPE_OK
+=== clean production build 2026-07-31T04:23:35+01:00 ===
+BUILD_EXIT=0
+├ ƒ /user/[username]/followers
+├ ƒ /user/[username]/following
+├ ƒ /verification-policy
+├ ƒ /verify-email
+├ ƒ /wallet
+├ ƒ /wallet-terms
+├ ƒ /wallet/bank-account
+├ ƒ /wallet/bank-accounts
+├ ƒ /wallet/locked
+├ ƒ /wallet/payment-methods
+├ ƒ /wallet/payouts
+├ ƒ /wallet/pending
+├ ƒ /wallet/processing
+├ ƒ /wallet/statements
+├ ƒ /wallet/statements/[period]
+├ ƒ /wallet/statements/annual
+├ ƒ /wallet/statements/annual/[year]
+├ ƒ /wallet/transactions
+├ ƒ /wallet/transactions/[id]
+├ ƒ /wallet/withdraw
+├ ƒ /welcome
+└ ƒ /wholesale
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
+BUILD_ID=3eE-OsVE67DHBme_g7abu
+DEV_DIR=absent
+ROUTES=present
+14449 .next/required-server-files.json
+ports_still_free_ok
+=== Playwright Blood XXIII 2026-07-31T04:25:41+01:00 ===
+PW_EXIT=0
+115:  6 skipped
+--- post runtime ---
+BUILD_ID=m8GEEiQcnP8PZkanXQMTo
+DEV_DIR=absent

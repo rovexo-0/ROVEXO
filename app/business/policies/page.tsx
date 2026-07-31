@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 
 /**
- * Business Policies — Business Seller Terms + Legal Centre (canonical legal SSOT).
- * One Feature = Legal documents; entry stays under Business hub via back path.
+ * Business Policies entry — redirects to Seller Terms (Business Seller Terms withdrawn in v1.0).
+ * Phase C Business hub UX is removed; this route remains as a safe redirect only.
  */
 export default function BusinessPoliciesRedirect() {
-  redirect("/legal/business-seller-terms?returnTo=/business/dashboard");
+  redirect("/legal/seller-terms");
 }

@@ -1,4 +1,4 @@
-export type MissionControlServiceStatus = "online" | "warning" | "offline";
+export type MissionControlServiceStatus = "online" | "warning" | "offline" | "not_configured";
 
 export type MissionControlNotificationSeverity =
   | "info"

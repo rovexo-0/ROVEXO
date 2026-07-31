@@ -92,9 +92,9 @@ export async function getPublicSellerProfile(
     return null;
   }
 
-  // Unified ROVEXO account: default role is `buyer`; selling is unlocked by activity,
-  // not a separate profile tier. Any marketplace profile may expose a public store.
-  if (!["buyer", "seller", "business", "admin"].includes(profile.role)) {
+  // Unified ROVEXO account: selling is unlocked by activity, not a separate tier.
+  // Platform admins / Super Admin may still expose a public My Profile / store.
+  if (!["buyer", "seller", "business", "admin", "super_admin"].includes(profile.role)) {
     return null;
   }
 

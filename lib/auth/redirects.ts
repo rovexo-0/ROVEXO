@@ -68,6 +68,10 @@ export const AUTHENTICATED_HOME = "/";
 
 export const AUTH_ERROR_MESSAGES: Record<string, string> = {
   auth_callback_failed: "Sign-in link expired or invalid. Please try again.",
+  oauth_provider_unavailable: "This sign-in method is temporarily unavailable.",
+  oauth_cancelled: "Sign-in was cancelled.",
+  oauth_account_exists: "An account with this email already exists. Sign in with email and password.",
+  oauth_network: "Network error. Check your connection and try again.",
   reset_session_required: "Open the password reset link from your email to continue.",
   profile_missing: "Your account session is incomplete. Please sign in again.",
 };

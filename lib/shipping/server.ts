@@ -46,8 +46,22 @@ export async function generateOrderShippingLabel(orderId: string, request: Shipp
       parcelNumber: request.parcelNumber ?? 1,
       labelUrl: label.pdfUrl,
     });
-    if (stored?.signedUrl) {
-      label.pdfUrl = stored.signedUrl;
+    if (stored?.storagePath) {
+      /* Persist bucket key (not temporary signed URL) so GET can re-sign forever. */
+      await saveShippingLabel({
+        orderId,
+        parcelId: request.parcelId,
+        label: {
+          ...label,
+          pdfUrl: stored.storagePath,
+        },
+        internalPlatformFeePence,
+        providerId,
+        providerParcelId: sendcloud?.parcelId ?? null,
+      });
+      if (stored.signedUrl) {
+        label.pdfUrl = stored.signedUrl;
+      }
     }
   }
 

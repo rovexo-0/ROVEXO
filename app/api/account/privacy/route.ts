@@ -1,5 +1,6 @@
 import { privacyPatchSchema } from "@/lib/account/schemas";
-import { getAppSettings, updatePrivacySettings } from "@/lib/settings/store";
+import { getPrivacyEngine, updatePrivacyEngine } from "@/lib/settings/store";
+import { privacyEngineToLegacy } from "@/lib/privacy/privacy-engine-v1";
 import { requireApiAuth } from "@/lib/auth/session";
 import { NextResponse } from "next/server";
 
@@ -9,13 +10,16 @@ export async function GET() {
     return auth;
   }
 
-  const settings = await getAppSettings(auth.user.id);
+  const { privacy, cookies } = await getPrivacyEngine(auth.user.id);
+  const legacy = privacyEngineToLegacy(privacy);
   return NextResponse.json({
     privacy: {
-      profileVisibility: settings.profileVisibility,
-      marketingEmails: settings.marketingEmails,
-      showActivityStatus: settings.showActivityStatus,
+      ...legacy,
+      whoCanViewProfile: privacy.whoCanViewProfile,
+      switches: privacy.switches,
+      engine: privacy,
     },
+    cookies,
   });
 }
 
@@ -35,12 +39,56 @@ export async function PATCH(request: Request) {
       );
     }
 
-    const settings = await updatePrivacySettings(auth.user.id, parsed.data);
+    const privacy = await updatePrivacyEngine(auth.user.id, {
+      switchId: parsed.data.switchId,
+      switchEnabled: parsed.data.switchEnabled,
+      whoCanViewProfile: parsed.data.whoCanViewProfile ?? parsed.data.profileVisibility,
+      engine: parsed.data.engine,
+    });
+    const legacy = privacyEngineToLegacy(privacy);
+
+    // Support legacy full-object saves (activity + marketing + visibility together).
+    if (
+      parsed.data.marketingEmails !== undefined ||
+      parsed.data.showActivityStatus !== undefined ||
+      parsed.data.profileVisibility !== undefined
+    ) {
+      const next = await updatePrivacyEngine(auth.user.id, {
+        whoCanViewProfile: parsed.data.profileVisibility ?? privacy.whoCanViewProfile,
+        engine: {
+          ...privacy,
+          whoCanViewProfile: parsed.data.profileVisibility ?? privacy.whoCanViewProfile,
+          switches: {
+            ...privacy.switches,
+            ...(parsed.data.marketingEmails !== undefined
+              ? { marketingEmails: parsed.data.marketingEmails }
+              : {}),
+            ...(parsed.data.showActivityStatus !== undefined
+              ? {
+                  showOnlineStatus: parsed.data.showActivityStatus,
+                  showLastSeen: parsed.data.showActivityStatus,
+                }
+              : {}),
+          },
+        },
+      });
+      const nextLegacy = privacyEngineToLegacy(next);
+      return NextResponse.json({
+        privacy: {
+          ...nextLegacy,
+          whoCanViewProfile: next.whoCanViewProfile,
+          switches: next.switches,
+          engine: next,
+        },
+      });
+    }
+
     return NextResponse.json({
       privacy: {
-        profileVisibility: settings.profileVisibility,
-        marketingEmails: settings.marketingEmails,
-        showActivityStatus: settings.showActivityStatus,
+        ...legacy,
+        whoCanViewProfile: privacy.whoCanViewProfile,
+        switches: privacy.switches,
+        engine: privacy,
       },
     });
   } catch {

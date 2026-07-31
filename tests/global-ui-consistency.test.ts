@@ -111,8 +111,6 @@ describe("account hub menu alignment", () => {
       "Promote",
       "Settings",
       "Rovexo Ideas",
-      "Help Centre",
-      "Legal Information",
     ]);
   });
 });

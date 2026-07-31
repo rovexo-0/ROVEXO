@@ -62,9 +62,12 @@ import { isWalletHubNotificationHref } from "@/lib/notifications/routing";
 import { resolveNotificationOpenHref } from "@/lib/notifications/resolve-notification-open-href";
 import type { Order } from "@/lib/orders/types";
 import {
-  isMessagesLifecycleDemoEnabled,
   listMessagesLifecycleDemoInboxRows,
 } from "@/lib/inbox/demo/messages-lifecycle-demo-fixtures-v1";
+import { shouldShowOwnerDemoInboxRows } from "@/lib/inbox/demo/owner-demo-mode-v1";
+import { useOwnerDemoMode } from "@/features/inbox/hooks/use-owner-demo-mode";
+import { useProfile } from "@/features/auth/hooks/use-profile";
+import { shareInflightJson } from "@/lib/performance/fetch";
 import "@/styles/rovexo/inbox-hub-v1.css";
 
 const PAGE_SIZE = 20;
@@ -221,6 +224,8 @@ export function InboxPage() {
   const tab = parseInboxTab(searchParams.get("tab"));
   const messageFilter = searchParams.get("filter");
   const notificationCategory = searchParams.get("category");
+  const { profile } = useProfile();
+  const { enabled: ownerDemoModeEnabled, hydrated: ownerDemoHydrated } = useOwnerDemoMode();
   const {
     notifications: providerNotifications,
     setNotifications,
@@ -283,17 +288,29 @@ export function InboxPage() {
   );
 
   const loadMessages = useCallback(async () => {
-    const response = await fetch("/api/messages", { cache: "no-store" });
-    if (!response.ok) return;
-    const payload = (await response.json()) as { conversations?: Conversation[] };
-    applyConversations(payload.conversations ?? []);
+    try {
+      const payload = await shareInflightJson<{ conversations?: Conversation[] }>(
+        "GET:/api/messages",
+        "/api/messages",
+        { ttlMs: 1200 },
+      );
+      applyConversations(payload.conversations ?? []);
+    } catch {
+      /* keep cache / fail closed */
+    }
   }, [applyConversations]);
 
   const loadNotifications = useCallback(async () => {
-    const response = await fetch("/api/notifications", { cache: "no-store" });
-    if (!response.ok) return;
-    const payload = (await response.json()) as { notifications?: Notification[] };
-    applyNotifications(payload.notifications ?? []);
+    try {
+      const payload = await shareInflightJson<{ notifications?: Notification[] }>(
+        "GET:/api/notifications",
+        "/api/notifications",
+        { ttlMs: 1200 },
+      );
+      applyNotifications(payload.notifications ?? []);
+    } catch {
+      /* keep cache / fail closed */
+    }
   }, [applyNotifications]);
 
   /* External cache seed only — React list state is mirrored during render above. */
@@ -310,14 +327,22 @@ export function InboxPage() {
 
     void (async () => {
       try {
-        const [messagesResponse, notificationsResponse] = await Promise.all([
-          fetch("/api/messages", { cache: "no-store" }),
-          fetch("/api/notifications", { cache: "no-store" }),
+        const [messagesPayload, notificationsPayload] = await Promise.all([
+          shareInflightJson<{ conversations?: Conversation[] }>(
+            "GET:/api/messages",
+            "/api/messages",
+            { ttlMs: 1200 },
+          ).catch(() => null),
+          shareInflightJson<{ notifications?: Notification[] }>(
+            "GET:/api/notifications",
+            "/api/notifications",
+            { ttlMs: 1200 },
+          ).catch(() => null),
         ]);
 
         if (cancelled) return;
 
-        if (!messagesResponse.ok && !notificationsResponse.ok) {
+        if (!messagesPayload && !notificationsPayload) {
           if (!hasCachedLists) {
             setHubError(
               typeof navigator !== "undefined" && !navigator.onLine
@@ -329,21 +354,8 @@ export function InboxPage() {
         }
 
         setHubError(null);
-
-        await Promise.all([
-          (async () => {
-            if (!messagesResponse.ok) return;
-            const payload = (await messagesResponse.json()) as { conversations?: Conversation[] };
-            if (!cancelled) applyConversations(payload.conversations ?? []);
-          })(),
-          (async () => {
-            if (!notificationsResponse.ok) return;
-            const payload = (await notificationsResponse.json()) as {
-              notifications?: Notification[];
-            };
-            if (!cancelled) applyNotifications(payload.notifications ?? []);
-          })(),
-        ]);
+        if (messagesPayload) applyConversations(messagesPayload.conversations ?? []);
+        if (notificationsPayload) applyNotifications(notificationsPayload.notifications ?? []);
       } catch {
         if (!cancelled && !hasCachedLists) {
           setHubError(
@@ -365,7 +377,7 @@ export function InboxPage() {
     };
   }, [applyConversations, applyNotifications]);
 
-  /* Deep-link recovery: /inbox?order=… → Transaction Conversation */
+  /* Deep-link recovery: /inbox?order=… → Transaction Conversation (fallback when server could not resolve). */
   useEffect(() => {
     const orderId = searchParams.get("order");
     if (!orderId || loadingMessages || conversations.length === 0) return;
@@ -373,9 +385,12 @@ export function InboxPage() {
     let cancelled = false;
     void (async () => {
       try {
-        const response = await fetch("/api/orders", { cache: "no-store" });
-        if (!response.ok || cancelled) return;
-        const payload = (await response.json()) as { orders?: Order[] };
+        const payload = await shareInflightJson<{ orders?: Order[] }>(
+          "GET:/api/orders",
+          "/api/orders",
+          { ttlMs: 1500 },
+        ).catch(() => null);
+        if (!payload || cancelled) return;
         const order = (payload.orders ?? []).find((item) => item.id === orderId);
         if (!order || cancelled) return;
 
@@ -496,7 +511,14 @@ export function InboxPage() {
         ? messageFilter
         : "all";
     const filtered = filterInboxConversations(base, filter);
-    const demoRows = isMessagesLifecycleDemoEnabled()
+    const allowDemoRows =
+      ownerDemoHydrated &&
+      shouldShowOwnerDemoInboxRows({
+        authenticated: Boolean(profile?.id),
+        role: profile?.role ?? null,
+        ownerDemoModeEnabled,
+      });
+    const demoRows = allowDemoRows
       ? [
           ...listMessagesLifecycleDemoInboxRows("buyer"),
           ...listMessagesLifecycleDemoInboxRows("seller"),
@@ -511,7 +533,15 @@ export function InboxPage() {
         return true;
       })
       .sort((a, b) => +new Date(b.lastMessageAt) - +new Date(a.lastMessageAt));
-  }, [conversations, query, messageFilter]);
+  }, [
+    conversations,
+    query,
+    messageFilter,
+    profile?.id,
+    profile?.role,
+    ownerDemoModeEnabled,
+    ownerDemoHydrated,
+  ]);
 
   const filteredNotifications = useMemo(() => {
     return effectiveNotifications

@@ -22,8 +22,8 @@ describe("My Profile v8.0 — Share removed · More menu · Bio routes", () => {
   it("ships own More menu routes + Copy Profile Link", () => {
     const page = readSource("features/profile/components/ViewProfilePage.tsx");
     expect(page).toContain("/account/edit-profile");
-    expect(page).toContain("AvatarUploader");
-    expect(page).toContain("openNativeAvatarPicker");
+    expect(page).toContain("CanonicalProfileAvatar");
+    expect(page).toContain("openAvatarSheet");
     expect(page).toContain("/account/profile/bio");
     expect(page).toContain("/settings");
     expect(page).toContain("Add / Edit Bio");
@@ -36,16 +36,18 @@ describe("My Profile v8.0 — Share removed · More menu · Bio routes", () => {
     expect(page).toContain("Report User");
   });
 
-  it("opens native avatar picker from camera without sheet or page navigation", () => {
+  it("opens canonical avatar sheet from camera without page navigation", () => {
     const page = readSource("features/profile/components/ViewProfilePage.tsx");
-    const uploader = readSource("features/account/components/AvatarUploader.tsx");
+    const canonical = readSource("features/profile/components/CanonicalProfileAvatar.tsx");
     expect(page).not.toContain('router.push("/account/profile/avatar")');
     expect(page).not.toContain("ProfileAvatarQuickSheet");
-    expect(page).toContain(`htmlFor={avatarPickerId}`);
-    expect(page).toContain("nativeDirect");
-    expect(uploader).toContain('data-avatar-uploader="native-direct"');
-    expect(uploader).toContain('intent="gallery"');
-    expect(uploader).toContain("/api/profile/avatar");
+    expect(page).toContain("CanonicalProfileAvatar");
+    expect(page).toContain("openAvatarSheet");
+    expect(page).not.toContain("nativeDirect");
+    expect(canonical).toContain('data-avatar-uploader="canonical"');
+    expect(canonical).toContain('intent="gallery"');
+    expect(canonical).toContain('intent="camera"');
+    expect(canonical).toContain("/api/profile/avatar");
   });
 
   it("ships bio 250 + avatar/bio entry pages", () => {

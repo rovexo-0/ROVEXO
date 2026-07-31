@@ -37,9 +37,25 @@ export async function GET(request: Request) {
         const reason = normalized.includes("expired") ? "expired" : "invalid";
         return NextResponse.redirect(`${origin}/reset-password?error=${reason}`);
       }
-      return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
+      const normalized = error.message.toLowerCase();
+      let authError = "auth_callback_failed";
+      if (
+        normalized.includes("already") ||
+        normalized.includes("identity") ||
+        normalized.includes("registered")
+      ) {
+        authError = "oauth_account_exists";
+      } else if (normalized.includes("expired")) {
+        authError = "auth_callback_failed";
+      }
+      return NextResponse.redirect(`${origin}/login?error=${authError}`);
     }
   } else {
+    // Cancel / missing code (IdP cancel often returns error=access_denied).
+    const oauthError = searchParams.get("error");
+    if (oauthError === "access_denied" || oauthError === "user_cancelled") {
+      return NextResponse.redirect(`${origin}/login?error=oauth_cancelled`);
+    }
     return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
   }
 

@@ -53,7 +53,11 @@ export async function POST(request: Request, context: RouteContext) {
     }
 
     const conversation = await getConversationById(id, auth.user.id);
-    return NextResponse.json({ conversation, warning: result.warning ?? null });
+    return NextResponse.json({
+      conversation,
+      message: result.message,
+      warning: result.warning ?? null,
+    });
   } catch (error) {
     if (error instanceof StorageValidationError) {
       return NextResponse.json({ error: error.message }, { status: 400 });

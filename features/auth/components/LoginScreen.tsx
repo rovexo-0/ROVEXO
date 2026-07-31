@@ -12,15 +12,22 @@ import {
 import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
 import { MailLineIcon, ShieldLineIcon } from "@/components/icons/RvxLineIcons";
 import { AuthAlert } from "@/features/auth/components/AuthAlert";
+import {
+  AuthOAuthButtons,
+  AuthOAuthDivider,
+} from "@/features/auth/components/AuthOAuthButtons";
 import { AuthLink } from "@/features/auth/components/AuthLink";
 import { AuthSpinner } from "@/features/auth/components/AuthSpinner";
 import { signIn, type AuthActionState } from "@/lib/auth/actions";
 import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { AUTH_MODULE_VERSION } from "@/lib/auth/canonical";
+import type { OauthRc1PublicProvider } from "@/lib/auth/oauth-rc1-public-providers-v1";
 
 type LoginScreenProps = {
   next?: string;
   initialError?: string;
+  /** Fail-closed: only providers confirmed available by the server probe. */
+  oauthProviders?: readonly OauthRc1PublicProvider[];
 };
 
 /**
@@ -40,11 +47,16 @@ const LOGIN_UI = {
   trustCopy: "Your data is protected.",
 } as const;
 
-export function LoginScreen({ next, initialError }: LoginScreenProps) {
+export function LoginScreen({
+  next,
+  initialError,
+  oauthProviders = [],
+}: LoginScreenProps) {
   const { copy } = AUTH_MASTER_SPEC.login;
   const [state, formAction, pending] = useActionState(signIn, {} as AuthActionState);
   const [clientError, setClientError] = useState<string | null>(null);
   const alertMessage = clientError ?? state.error ?? initialError;
+  const showOAuth = oauthProviders.length > 0;
 
   return (
     <div
@@ -130,6 +142,17 @@ export function LoginScreen({ next, initialError }: LoginScreenProps) {
             </div>
           </div>
         </form>
+
+        {showOAuth ? (
+          <div className="auth-login__oauth" data-oauth-surface="login">
+            <AuthOAuthDivider />
+            <AuthOAuthButtons
+              next={next}
+              returnPath="/login"
+              providers={oauthProviders}
+            />
+          </div>
+        ) : null}
 
         <AuthFooter className="auth-login__footer">
           <p className="auth-login__register-prompt">

@@ -8,10 +8,26 @@ import {
 } from "@/lib/sell/category-detection-pro";
 import { resolveTitleCategoryPath } from "@/lib/sell/title-category-rules";
 
+/**
+ * STEP 7 paths: legacy title-rule keys still resolve via aliases;
+ * detection surfaces Catalog Master segments after canonicalize.
+ */
 const STEP7_CASES = [
-  { title: "Apple Magic Mouse", path: ["computers", "computer-accessories", "mice"] as const },
-  { title: "Nike Air Max", path: ["shoes", "trainers", "nike"] as const },
-  { title: "PlayStation 5", path: ["gaming", "consoles", "playstation"] as const },
+  {
+    title: "Apple Magic Mouse",
+    legacyPath: ["computers", "computer-accessories", "mice"] as const,
+    catalogPath: ["electronics", "computers", "mice"] as const,
+  },
+  {
+    title: "Nike Air Max",
+    legacyPath: ["shoes", "trainers", "nike"] as const,
+    catalogPath: ["mens-fashion", "shoes", "trainers"] as const,
+  },
+  {
+    title: "PlayStation 5",
+    legacyPath: ["gaming", "consoles", "playstation"] as const,
+    catalogPath: ["electronics", "gaming", "consoles"] as const,
+  },
 ] as const;
 
 describe("category detection confidence bands", () => {
@@ -32,13 +48,17 @@ describe("category detection confidence bands", () => {
 });
 
 describe("STEP 7 — deterministic category detection", () => {
-  it("resolves expected marketplace paths", () => {
+  it("resolves expected marketplace paths (legacy + catalog)", () => {
     for (const testCase of STEP7_CASES) {
-      expect(resolveTitleCategoryPath([...testCase.path]), testCase.title).not.toBeNull();
+      expect(resolveTitleCategoryPath([...testCase.legacyPath]), testCase.title).not.toBeNull();
+      const resolved = resolveTitleCategoryPath([...testCase.legacyPath]);
+      expect(resolved!.categorySlug, testCase.title).toBe(testCase.catalogPath[0]);
+      expect(resolved!.subcategorySlug, testCase.title).toBe(testCase.catalogPath[1]);
+      expect(resolved!.childCategorySlug, testCase.title).toBe(testCase.catalogPath[2]);
     }
   });
 
-  it.each(STEP7_CASES.map((c) => [c.title, c.path] as const))(
+  it.each(STEP7_CASES.map((c) => [c.title, c.catalogPath] as const))(
     "detects %s with at least possible-match confidence",
     (title, expectedPath) => {
       const detection = detectCategoryFromTitle(title);

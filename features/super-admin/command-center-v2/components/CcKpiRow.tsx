@@ -1,25 +1,17 @@
-import {
-  Activity,
-  MessageSquare,
-  Package,
-  Percent,
-  PoundSterling,
-  Users,
-  UserRound,
-} from "lucide-react";
+import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
 import { cn } from "@/lib/cn";
 import type { CommandCenterKpiCard } from "@/lib/super-admin/command-center-v1/types";
 import { CcAnimatedCounter } from "@/features/super-admin/command-center-v2/components/CcAnimatedCounter";
 import { CcSparkline } from "@/features/super-admin/command-center-v2/components/CcSparkline";
 
-const KPI_ICONS: Record<string, typeof Users> = {
-  "users-online": Users,
-  "registered-users": UserRound,
-  "active-listings": Package,
-  "active-orders": Activity,
-  "revenue-today": PoundSterling,
-  "live-messages": MessageSquare,
-  "conversion-rate": Percent,
+const KPI_ICONS: Record<string, AccountIconName> = {
+  "users-online": "following",
+  "registered-users": "profile",
+  "active-listings": "listings",
+  "active-orders": "orders",
+  "revenue-today": "wallet",
+  "live-messages": "messages",
+  "conversion-rate": "analytics",
 };
 
 const KPI_STROKE: Record<CommandCenterKpiCard["tone"], string> = {
@@ -40,12 +32,12 @@ export function CcKpiRow({ cards }: CcKpiRowProps) {
   return (
     <div className="cc2-kpi-row">
       {cards.map((card) => {
-        const Icon = KPI_ICONS[card.id] ?? Activity;
+        const icon = KPI_ICONS[card.id] ?? "analytics";
         return (
           <article key={card.id} className={cn("cc2-kpi-card", `cc2-kpi-card--${card.tone}`)}>
             <div className="cc2-kpi-card__top">
               <span className="cc2-kpi-card__icon" aria-hidden>
-                <Icon size={18} />
+                <AccountIcon name={icon} className="h-[18px] w-[18px]" />
               </span>
               <p className="cc2-kpi-card__label">{card.label}</p>
             </div>

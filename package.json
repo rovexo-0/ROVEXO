@@ -1,6 +1,6 @@
 {
   "name": "rovexo",
-  "version": "0.1.0",
+  "version": "1.0.0-rc.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -50,6 +50,8 @@
     "predeploy:private": "npm run certify:predeploy",
     "deploy:private": "npx vercel deploy --yes",
     "cleanup:homepage-demo": "npx tsx scripts/cleanup-homepage-demo-data.ts",
+    "phase-d:qa-reset": "npx tsx scripts/phase-d-qa-data-reset.ts",
+    "launch:reset": "npx tsx scripts/production-launch-reset-v1.ts",
     "marketplace:reset": "npx tsx scripts/marketplace-reset.ts",
     "audit:homepage-images": "npx tsx scripts/audit-homepage-images.ts",
     "restore:super-admin": "npx tsx scripts/restore-super-admin-access.ts",

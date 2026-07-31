@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
-  getNotificationSettings,
+  getNotificationEngine,
+  updateNotificationEngine,
   updateNotificationSettings,
 } from "@/lib/notifications/store";
 import { requireApiAuth } from "@/lib/auth/session";
@@ -13,29 +14,8 @@ export async function GET() {
     return auth;
   }
 
-  const settings = await getNotificationSettings(auth.user.id);
-  return NextResponse.json({
-    settings: settings ?? {
-      pushEnabled: true,
-      browserPush: true,
-      messages: true,
-      orders: true,
-      offers: true,
-      reviews: true,
-      promotions: true,
-      marketing: false,
-      system: true,
-      emailMessages: true,
-      emailOrders: true,
-      emailPromotions: false,
-      emailMarketing: false,
-      quietHoursEnabled: false,
-      quietHoursStart: "22:00",
-      quietHoursEnd: "07:00",
-      sound: true,
-      vibration: true,
-    },
-  });
+  const { settings, engine } = await getNotificationEngine(auth.user.id);
+  return NextResponse.json({ settings, engine });
 }
 
 export async function PATCH(request: Request) {
@@ -46,8 +26,20 @@ export async function PATCH(request: Request) {
 
   try {
     const body = notificationSettingsPatchSchema.parse(await request.json());
+
+    if (body.topicId || body.channelId || body.engine) {
+      const result = await updateNotificationEngine(auth.user.id, {
+        topicId: body.topicId,
+        channelId: body.channelId,
+        enabled: body.enabled,
+        engine: body.engine,
+      });
+      return NextResponse.json(result);
+    }
+
     const settings = await updateNotificationSettings(auth.user.id, body);
-    return NextResponse.json({ settings });
+    const { engine } = await getNotificationEngine(auth.user.id);
+    return NextResponse.json({ settings, engine });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues[0]?.message ?? "Invalid settings." }, { status: 400 });

@@ -267,13 +267,43 @@ export function parseDobDdMmYyyy(value: string): Date | null {
 
 /** Display: 22 January 1988 */
 export function formatDobDisplay(value: string): string {
-  const parsed = parseDobDdMmYyyy(value);
+  const parsed = parseDobDdMmYyyy(value) ?? parseDobIso(value);
   if (!parsed) return value.trim() || "DD / MM / YYYY.";
   return new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
   }).format(parsed);
+}
+
+/** Parse ISO YYYY-MM-DD → Date or null. */
+export function parseDobIso(value: string | null | undefined): Date | null {
+  const raw = (value ?? "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+  const [y, m, d] = raw.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return null;
+  return date;
+}
+
+/** DD/MM/YYYY → YYYY-MM-DD or null. */
+export function dobDdMmYyyyToIso(value: string): string | null {
+  const parsed = parseDobDdMmYyyy(value);
+  if (!parsed) return null;
+  const y = parsed.getFullYear();
+  const m = String(parsed.getMonth() + 1).padStart(2, "0");
+  const d = String(parsed.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** YYYY-MM-DD → DD/MM/YYYY or "". */
+export function dobIsoToDdMmYyyy(value: string | null | undefined): string {
+  const parsed = parseDobIso(value);
+  if (!parsed) return "";
+  const d = String(parsed.getDate()).padStart(2, "0");
+  const m = String(parsed.getMonth() + 1).padStart(2, "0");
+  const y = parsed.getFullYear();
+  return `${d}/${m}/${y}`;
 }
 
 export function isAtLeastAge(dob: Date, minAge: number = ACCOUNT_SETTINGS_MIN_AGE): boolean {

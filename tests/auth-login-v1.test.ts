@@ -3,6 +3,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { AUTH_MASTER_SPEC, AUTH_MASTER_SPEC_VERSION } from "@/lib/auth/master-spec";
 import { AUTH_ROUTES } from "@/lib/auth/canonical";
+import { OAUTH_RC1_PUBLIC_PROVIDERS_V1 } from "@/lib/auth/oauth-rc1-public-providers-v1";
 
 function readSource(relativePath: string): string {
   return readFileSync(path.join(process.cwd(), relativePath), "utf8");
@@ -19,7 +20,9 @@ describe("AUTH_MASTER_SPEC v1.0 — login screen", () => {
     expect(AUTH_MASTER_SPEC.login.copy.forgotPassword).toBe("Forgot Password");
     expect(AUTH_MASTER_SPEC.login.copy.signIn).toBe("Sign In");
     expect(AUTH_MASTER_SPEC.login.copy.createAccount).toBe("Create Free Account");
-    expect(AUTH_MASTER_SPEC.login.socialProviders).toEqual(["apple", "google", "facebook"]);
+    // OAuth RC1 public policy: Google + Apple enabled · Facebook disabled
+    expect(OAUTH_RC1_PUBLIC_PROVIDERS_V1.publicProviders).toEqual(["google", "apple"]);
+    expect(OAUTH_RC1_PUBLIC_PROVIDERS_V1.publicForbidden).toEqual(["facebook"]);
   });
 
   it("implements login screen with approved auth components", () => {
@@ -36,8 +39,10 @@ describe("AUTH_MASTER_SPEC v1.0 — login screen", () => {
     expect(screen).toContain("Checkbox");
     expect(screen).toContain("PrimaryButton");
     expect(screen).not.toContain("SocialLogin");
-    expect(screen).not.toContain("Continue with");
+    expect(screen).toContain("AuthOAuthButtons");
+    expect(screen).toContain("oauthProviders");
     expect(screen).toContain("AuthFooter");
+    expect(page).toContain("loadPublicOauthProviders");
     expect(screen).toContain('name="remember"');
     expect(screen).toContain('href="/forgot-password"');
     expect(screen).toContain('href="/register"');

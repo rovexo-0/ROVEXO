@@ -21,7 +21,13 @@ export function answerHelpQuestion(query: string): HelpAssistantResponse {
 
   if (intent) {
     const guideHref = guideHrefForTopic(intent.topicSlug);
-    const topArticle = results.find((result) => result.type === "article");
+    const topArticle =
+      results.find(
+        (result) =>
+          result.type === "article" &&
+          (result.article?.slug.includes("protection") ||
+            result.title.toLowerCase().includes("protection")),
+      ) ?? results.find((result) => result.type === "article");
     return {
       matched: true,
       answer: [

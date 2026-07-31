@@ -180,7 +180,7 @@ export const WITHDRAW_DECISION_TREE = tree(
       ],
       requirements: ["UK bank account in your name", "Payout setup access"],
       processingTime: "Instant or 1–2 business days depending on verification method",
-      commonMistakes: ["Wrong sort code", "Business account name mismatch"],
+      commonMistakes: ["Wrong sort code", "Bank account name mismatch"],
       troubleshooting: ["Remove and re-add the bank account if verification fails twice"],
       relatedQuestions: [{ label: "Incorrect bank details", href: "/help/category/withdraw" }],
       relatedTopics: ["stripe", "verification"],

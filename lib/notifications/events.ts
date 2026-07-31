@@ -129,8 +129,11 @@ function eventPreferenceCategory(eventType: SmartNotificationEventType): Prefere
     case "admin_announcement":
       return "marketing";
     case "trust_verification":
+    case "security_alert":
       return "security";
     case "business_lead":
+    case "policy_update":
+    case "legal_update":
       return "business";
     case "saved_search_match":
       return "ai";
@@ -152,6 +155,8 @@ async function isPreferenceEnabled(
   userId: string,
   category: PreferenceCategory,
 ): Promise<boolean> {
+  if (category === "security") return true;
+
   const admin = createAdminClient();
   const { data } = await admin
     .from("notification_preferences")

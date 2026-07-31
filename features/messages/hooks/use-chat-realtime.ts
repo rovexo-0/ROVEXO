@@ -8,6 +8,12 @@ import {
   subscribeToPresence,
   updatePresence,
 } from "@/lib/messages/realtime";
+import {
+  isMessagePhotoStoragePath,
+  isRenderableMessagePhotoSrc,
+  messagePhotoInboxPreview,
+} from "@/lib/messages/message-photo-url-v1";
+import { resolveMessagePhotoUrl } from "@/lib/messages/resolve-message-photo-url.client";
 import { useDocumentVisible } from "@/lib/performance/hooks";
 import type { ChatMessage, Conversation } from "@/lib/messages/types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -29,6 +35,21 @@ function mapRealtimeMessage(row: Record<string, unknown>): ChatMessage {
 }
 
 /**
+ * Never replace a renderable photo URL with a raw storage path (Phase A2 root-cause fix).
+ */
+function mergeRealtimePhotoContent(existing: ChatMessage | undefined, incoming: ChatMessage): ChatMessage {
+  if (incoming.kind !== "photo") return incoming;
+  if (
+    existing &&
+    isRenderableMessagePhotoSrc(existing.content) &&
+    isMessagePhotoStoragePath(incoming.content)
+  ) {
+    return { ...incoming, content: existing.content };
+  }
+  return incoming;
+}
+
+/**
  * Live message/meta/presence transport for Conversation Hub.
  * Stays subscribed while the hub is mounted (visibility only gates presence online flag).
  */
@@ -44,17 +65,47 @@ export function useChatRealtime(
     if (!enabled) return;
 
     const channels: RealtimeChannel[] = [];
+    let cancelled = false;
+
+    const applyIncoming = (incomingRaw: ChatMessage) => {
+      setConversation((current) => {
+        const existing = current.messages.find((message) => message.id === incomingRaw.id);
+        const incoming = mergeRealtimePhotoContent(existing, incomingRaw);
+        const messages = existing
+          ? current.messages.map((message) => (message.id === incoming.id ? incoming : message))
+          : [...current.messages, incoming];
+        return {
+          ...current,
+          messages,
+          lastMessage: messagePhotoInboxPreview(incoming.kind, incoming.content),
+          lastMessageAt: incoming.sentAt,
+        };
+      });
+
+      if (
+        incomingRaw.kind === "photo" &&
+        isMessagePhotoStoragePath(incomingRaw.content) &&
+        !isRenderableMessagePhotoSrc(incomingRaw.content)
+      ) {
+        const path = incomingRaw.content;
+        const messageId = incomingRaw.id;
+        void resolveMessagePhotoUrl(path).then((url) => {
+          if (!url || cancelled) return;
+          setConversation((current) => ({
+            ...current,
+            messages: current.messages.map((message) =>
+              message.id === messageId &&
+              (message.content === path || isMessagePhotoStoragePath(message.content))
+                ? { ...message, content: url }
+                : message,
+            ),
+          }));
+        });
+      }
+    };
 
     const messageChannel = subscribeToConversationMessages(conversationId, (row) => {
-      const incoming = mapRealtimeMessage(row);
-      setConversation((current) => ({
-        ...current,
-        messages: current.messages.some((message) => message.id === incoming.id)
-          ? current.messages.map((message) => (message.id === incoming.id ? incoming : message))
-          : [...current.messages, incoming],
-        lastMessage: incoming.content,
-        lastMessageAt: incoming.sentAt,
-      }));
+      applyIncoming(mapRealtimeMessage(row));
     });
     if (messageChannel) channels.push(messageChannel);
 
@@ -80,6 +131,7 @@ export function useChatRealtime(
     if (presenceChannel) channels.push(presenceChannel);
 
     return () => {
+      cancelled = true;
       void updatePresence({ online: false, typingConversationId: null });
       for (const channel of channels) {
         void channel.unsubscribe();

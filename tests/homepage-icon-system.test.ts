@@ -88,11 +88,8 @@ describe("Canonical Homepage — Absolute Final icon freeze", () => {
   it("legacy wrappers that remain on consumer paths use RvxLineIcons or AccountIcon", () => {
     const bottomNav3d = readSource("components/icons/BottomNavIcon3D.tsx");
     const dashboard3d = readSource("components/icons/DashboardIcon3D.tsx");
-    const fluency = readSource("components/icons/Fluency3DIcon.tsx");
     expect(bottomNav3d).toContain("RvxLineIcons");
     expect(dashboard3d).toMatch(/RvxLineIcons|AccountIcon/);
-    expect(fluency).toContain("RvxLineIcons");
-    expect(fluency).not.toContain("<picture");
-    expect(fluency).not.toMatch(/fluency-3d\/.*\.(webp|png)/);
+    expect(existsSync(join(process.cwd(), "components/icons/Fluency3DIcon.tsx"))).toBe(false);
   });
 });

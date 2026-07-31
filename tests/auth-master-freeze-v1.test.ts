@@ -36,7 +36,7 @@ describe("AUTH Master Freeze v1.0 — OWNER LOCKED", () => {
     expect(AUTH_MASTER_FREEZE_V1.allowedOrigins.localDevelopment).toBe(
       "http://localhost:3000",
     );
-    expect(AUTH_MASTER_FREEZE_V1.allowedOrigins.production).toBe("https://rovexo.com");
+    expect(AUTH_MASTER_FREEZE_V1.allowedOrigins.production).toBe("https://www.rovexo.co.uk");
     expect(AUTH_MASTER_FREEZE_V1.allowedOrigins.stagingOptional).toBe(
       "https://staging.rovexo.com",
     );

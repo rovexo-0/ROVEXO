@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { HealthStatus } from "@/lib/ops/health-types";
 import { auditSuperAdminAction } from "@/lib/super-admin/audit";
 import { getPlatformSetting, updatePlatformSetting } from "@/lib/super-admin/settings";
 
@@ -134,7 +135,7 @@ async function listUserAuditForInsights(userId: string) {
 export type MonitoringWidget = {
   id: string;
   label: string;
-  status: "healthy" | "degraded" | "unhealthy";
+  status: HealthStatus;
   detail: string;
 };
 

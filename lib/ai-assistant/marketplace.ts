@@ -42,9 +42,9 @@ const PERSONA_SUGGESTIONS: Record<AssistantPersona, Array<{ label: string; href:
     { label: "Promote listings", href: "/seller/listings" },
   ],
   business: [
-    { label: "Business tools", href: "/business/dashboard" },
-    { label: "Business verification", href: "/trust#verification" },
-    { label: "Business directory", href: "/business/directory" },
+    { label: "Selling workspace", href: "/seller" },
+    { label: "Verification", href: "/account/verification" },
+    { label: "Wholesale center", href: "/wholesale" },
   ],
   wholesale: [
     { label: "Wholesale center", href: "/wholesale" },

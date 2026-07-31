@@ -39,7 +39,8 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
   });
 
   it("exposes all canonical legal documents from scratch SSOT", () => {
-    expect(LEGAL_DOCUMENT_SLUGS).toHaveLength(22);
+    expect(LEGAL_DOCUMENT_SLUGS).toHaveLength(25);
+    expect(getLegalDocument("business-seller-terms")).toBeNull();
     expect(getLegalDocument("terms-and-conditions")?.title).toBe("Terms & Conditions");
     expect(getLegalDocument("cookie-policy")?.title).toBe("Cookie Policy");
     expect(getLegalDocument("wallet-terms")).toBeTruthy();
@@ -53,6 +54,8 @@ describe("UI Lock + Legal Lock + Compliance Lock SSOT", () => {
     expect(readSource("app/cookies/page.tsx")).toContain("/legal/cookie-policy");
     expect(readSource("app/verification-policy/page.tsx")).toContain("/legal/verification-policy");
     expect(readSource("app/trust-center/page.tsx")).toContain('redirect("/trust")');
+    expect(readSource("lib/legal/canonical-documents.ts")).not.toContain("Business Seller Terms");
+    expect(readSource("lib/legal/canonical-documents.ts")).toContain("Personal Account");
   });
 
   it("locks help centre category buttons for account entry", () => {

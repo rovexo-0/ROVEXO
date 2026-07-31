@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2048" height="2048" viewBox="0 0 2048 2048" role="img" aria-label="ROVEXO favicon-rx-v1">
-  <title>ROVEXO favicon-rx-v1</title>
-  <image width="2048" height="2048" href="/brand/canonical-rx/favicon-rx-v1.png" xlink:href="/brand/canonical-rx/favicon-rx-v1.png"/>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2048" height="2048" viewBox="0 0 2048 2048" role="img" aria-label="ROVEXO RX App Icon">
+  <title>ROVEXO Official App Icon</title>
+  <image width="2048" height="2048" xlink:href="/brand/canonical-rx/app-icon-v1.png" href="/brand/canonical-rx/app-icon-v1.png"/>
 </svg>

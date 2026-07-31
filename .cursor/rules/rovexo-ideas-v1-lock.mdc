@@ -1,17 +1,13 @@
----
-description: Rovexo Ideas FINAL IMPLEMENTATION LOCK v1.0 — Profile row identical except icon+text
-alwaysApply: true
----
-
 # Rovexo Ideas FINAL IMPLEMENTATION LOCK v1.0
 
-**STATUS: PERMANENTLY LOCKED · ONE TIME IMPLEMENTATION ONLY**
+**STATUS: PERMANENTLY LOCKED · OWNER MOCKUPS = PAGE SSOT**
 
-Not a redesign. Inherit Profile / Settings / Full Width 100%. No second design system.
+Not a redesign. Profile menu row inherits Profile / Settings / Full Width 100%.
+Community page UI follows Owner Empty + Community mockups 1:1.
 
 ## Official name
 
-**Rovexo Ideas** only. Forbidden: `ROVEXO IDEAS` · `ROVEXO Ideas` · `ROVEXO IDEAS V1` · other variations.
+**Rovexo Ideas** only. Forbidden: `ROVEXO IDEAS` · `ROVEXO Ideas` · other variations.
 
 ## Profile menu
 
@@ -21,16 +17,22 @@ Settings → Rovexo Ideas → Help Centre
 
 Visually identical to Settings / Help / Promote / My Orders except **icon** and **text**.
 
-## Icon
+## Icon (Profile row)
 
 - Minimalist lightbulb · **24px** · `#FFD54A` soft golden yellow
-- Forbidden: circle · purple · emoji · gradient · complex icons
 
-## Forbidden for the row
+## Page (Owner mockups · UI LOCK)
 
-Custom typography · custom font weight/size · custom chevron colour · custom paddings · custom row height · 70–95% widths · centred layouts.
+- Route `/account/ideas` · single page · no modals · no secondary pages
+- Hero + Close X · CTA **Share Your Idea** (not Submit Idea)
+- **Empty** (`ideas` / submitted = 0): Hero · Stats · Filters · Empty Bear · Bottom nav — Search/List/cards/votes/comments/timeline **unmounted**
+- **Community** (`ideas` > 0): Search · Idea feed · expandable cards · votes · follow · comments · timeline · share · infinite scroll
+- Empty copy: `Hmm... we're waiting for your ideas!` · no button under bear
+- Auto Empty→Community fade on first idea (no refresh/nav)
 
 ## SSOT
 
 `lib/rovexo-ideas/rovexo-ideas-v1-lock.ts` · route `/account/ideas`
+UI: `features/account-module/components/RovexoIdeasPage.tsx`
+CSS: `styles/rovexo/rovexo-ideas-v1.css`
 ---

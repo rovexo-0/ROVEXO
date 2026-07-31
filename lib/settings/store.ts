@@ -7,6 +7,20 @@ import {
 import type { AppSettings, AppSettingsPatch } from "@/lib/settings/types";
 import { DEFAULT_APP_SETTINGS } from "@/lib/settings/types";
 import type { AppearanceMode, ProfileVisibility } from "@/lib/settings/types";
+import type { Json } from "@/lib/supabase/types/database";
+import {
+  applyPrivacySwitchPatch,
+  createDefaultCookiePreferences,
+  createDefaultPrivacyEngineState,
+  hydratePrivacyFromLegacy,
+  parseCookiePreferences,
+  parsePrivacyEngineState,
+  privacyEngineToLegacy,
+  type CookiePreferencesState,
+  type PrivacyEngineState,
+  type PrivacySwitchId,
+  isPrivacySwitchId,
+} from "@/lib/privacy/privacy-engine-v1";
 
 type SettingsRow = {
   push_notifications: boolean;
@@ -21,6 +35,8 @@ type SettingsRow = {
   profile_visibility?: string;
   marketing_emails?: boolean;
   show_activity_status?: boolean;
+  privacy_engine_v1?: Json;
+  cookie_preferences_v1?: Json;
 };
 
 function mapRow(data: SettingsRow): AppSettings {
@@ -47,6 +63,23 @@ function appearanceToDarkMode(appearanceMode: AppearanceMode, darkMode: boolean)
   return darkMode;
 }
 
+function resolvePrivacyEngine(row: SettingsRow | null): PrivacyEngineState {
+  if (!row) return createDefaultPrivacyEngineState();
+  const empty =
+    !row.privacy_engine_v1 ||
+    (typeof row.privacy_engine_v1 === "object" &&
+      !Array.isArray(row.privacy_engine_v1) &&
+      Object.keys(row.privacy_engine_v1 as object).length === 0);
+  if (empty) {
+    return hydratePrivacyFromLegacy({
+      profileVisibility: row.profile_visibility as ProfileVisibility | undefined,
+      marketingEmails: row.marketing_emails,
+      showActivityStatus: row.show_activity_status,
+    });
+  }
+  return parsePrivacyEngineState(row.privacy_engine_v1);
+}
+
 export async function getAppSettings(userId: string): Promise<AppSettings> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -62,6 +95,25 @@ export async function getAppSettings(userId: string): Promise<AppSettings> {
   return mapRow(data as SettingsRow);
 }
 
+export async function getPrivacyEngine(
+  userId: string,
+): Promise<{ privacy: PrivacyEngineState; cookies: CookiePreferencesState; settings: AppSettings }> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("user_settings")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const row = (data as SettingsRow | null) ?? null;
+  const settings = row ? mapRow(row) : DEFAULT_APP_SETTINGS;
+  return {
+    privacy: resolvePrivacyEngine(row),
+    cookies: parseCookiePreferences(row?.cookie_preferences_v1),
+    settings,
+  };
+}
+
 export async function updateAppSettings(
   userId: string,
   patch: AppSettingsPatch,
@@ -71,7 +123,6 @@ export async function updateAppSettings(
   const next = { ...current, ...patch };
 
   if (patch.localeCode) {
-    // Language Engine v1.0: locale updates language only — never currency/country.
     const persistable = resolvePersistableLanguage(patch.localeCode);
     next.localeCode = persistable;
     next.language = patch.language ?? languageEngineLabel(persistable);
@@ -89,6 +140,19 @@ export async function updateAppSettings(
   }
 
   const darkMode = appearanceToDarkMode(next.appearanceMode, next.darkMode);
+  const existing = await getPrivacyEngine(userId);
+  let privacy = existing.privacy;
+  if (patch.profileVisibility !== undefined) {
+    privacy = { ...privacy, whoCanViewProfile: patch.profileVisibility };
+  }
+  if (patch.marketingEmails !== undefined) {
+    privacy = applyPrivacySwitchPatch(privacy, "marketingEmails", patch.marketingEmails);
+  }
+  if (patch.showActivityStatus !== undefined) {
+    privacy = applyPrivacySwitchPatch(privacy, "showOnlineStatus", patch.showActivityStatus);
+    privacy = applyPrivacySwitchPatch(privacy, "showLastSeen", patch.showActivityStatus);
+  }
+  const legacy = privacyEngineToLegacy(privacy);
 
   const { error } = await supabase.from("user_settings").upsert({
     user_id: userId,
@@ -101,19 +165,128 @@ export async function updateAppSettings(
     locale_code: next.localeCode,
     appearance_mode: next.appearanceMode,
     timezone: next.timezone,
-    profile_visibility: next.profileVisibility,
-    marketing_emails: next.marketingEmails,
-    show_activity_status: next.showActivityStatus,
+    profile_visibility: legacy.profileVisibility,
+    marketing_emails: legacy.marketingEmails,
+    show_activity_status: legacy.showActivityStatus,
+    privacy_engine_v1: privacy as unknown as Json,
+    cookie_preferences_v1: existing.cookies as unknown as Json,
   });
 
   if (error) throw error;
 
-  return { ...next, darkMode };
+  return { ...next, darkMode, ...legacy };
+}
+
+export async function updatePrivacyEngine(
+  userId: string,
+  patch: {
+    switchId?: string;
+    switchEnabled?: boolean;
+    whoCanViewProfile?: ProfileVisibility;
+    engine?: unknown;
+  },
+): Promise<PrivacyEngineState> {
+  const supabase = await createClient();
+  const existing = await getPrivacyEngine(userId);
+  let privacy = existing.privacy;
+
+  if (patch.engine) {
+    privacy = parsePrivacyEngineState(patch.engine);
+  }
+  if (patch.whoCanViewProfile) {
+    privacy = { ...privacy, whoCanViewProfile: patch.whoCanViewProfile };
+  }
+  if (patch.switchId && isPrivacySwitchId(patch.switchId) && typeof patch.switchEnabled === "boolean") {
+    privacy = applyPrivacySwitchPatch(privacy, patch.switchId as PrivacySwitchId, patch.switchEnabled);
+  }
+
+  const legacy = privacyEngineToLegacy(privacy);
+  const settings = existing.settings;
+
+  const { error } = await supabase.from("user_settings").upsert({
+    user_id: userId,
+    push_notifications: settings.pushNotifications,
+    email_notifications: settings.emailNotifications,
+    dark_mode: settings.darkMode,
+    language: settings.language,
+    currency: settings.currency,
+    vacation_mode: settings.vacationMode,
+    locale_code: settings.localeCode,
+    appearance_mode: settings.appearanceMode,
+    timezone: settings.timezone,
+    profile_visibility: legacy.profileVisibility,
+    marketing_emails: legacy.marketingEmails,
+    show_activity_status: legacy.showActivityStatus,
+    privacy_engine_v1: privacy as unknown as Json,
+    cookie_preferences_v1: existing.cookies as unknown as Json,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) throw error;
+  return privacy;
+}
+
+export async function updateCookiePreferences(
+  userId: string,
+  patch: Partial<Omit<CookiePreferencesState, "version" | "necessary">>,
+): Promise<CookiePreferencesState> {
+  const supabase = await createClient();
+  const existing = await getPrivacyEngine(userId);
+  const cookies = parseCookiePreferences({
+    ...existing.cookies,
+    ...patch,
+    necessary: true,
+  });
+  const legacy = privacyEngineToLegacy(existing.privacy);
+  const settings = existing.settings;
+
+  const { error } = await supabase.from("user_settings").upsert({
+    user_id: userId,
+    push_notifications: settings.pushNotifications,
+    email_notifications: settings.emailNotifications,
+    dark_mode: settings.darkMode,
+    language: settings.language,
+    currency: settings.currency,
+    vacation_mode: settings.vacationMode,
+    locale_code: settings.localeCode,
+    appearance_mode: settings.appearanceMode,
+    timezone: settings.timezone,
+    profile_visibility: legacy.profileVisibility,
+    marketing_emails: legacy.marketingEmails,
+    show_activity_status: legacy.showActivityStatus,
+    privacy_engine_v1: existing.privacy as unknown as Json,
+    cookie_preferences_v1: cookies as unknown as Json,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) throw error;
+  return cookies;
 }
 
 export async function updatePrivacySettings(
   userId: string,
-  patch: Pick<AppSettings, "profileVisibility" | "marketingEmails" | "showActivityStatus">,
+  patch: Partial<Pick<AppSettings, "profileVisibility" | "marketingEmails" | "showActivityStatus">> & {
+    switchId?: string;
+    switchEnabled?: boolean;
+    whoCanViewProfile?: ProfileVisibility;
+    engine?: unknown;
+  },
 ): Promise<AppSettings> {
-  return updateAppSettings(userId, patch);
+  if (patch.switchId || patch.whoCanViewProfile || patch.engine) {
+    await updatePrivacyEngine(userId, {
+      switchId: patch.switchId,
+      switchEnabled: patch.switchEnabled,
+      whoCanViewProfile: patch.whoCanViewProfile ?? patch.profileVisibility,
+      engine: patch.engine,
+    });
+    return getAppSettings(userId);
+  }
+
+  return updateAppSettings(userId, {
+    profileVisibility: patch.profileVisibility,
+    marketingEmails: patch.marketingEmails,
+    showActivityStatus: patch.showActivityStatus,
+  });
 }
+
+export { createDefaultCookiePreferences, createDefaultPrivacyEngineState };

@@ -1,5 +1,6 @@
 import { AccountCanonicalShell } from "@/features/account-canonical";
-import { AccountIcon } from "@/components/account/AccountIcons";
+import { MasterMenuIcon } from "@/features/account-center/components/MasterMenuIcon";
+import { MASTER_ICON_COLORS } from "@/lib/design-system/master-icon-system-v1";
 import {
   CanonicalCard,
   CanonicalMenuRow,
@@ -34,11 +35,7 @@ function CaseSection({
               href={`/resolution/${caseRecord.id}`}
               title={caseRecord.caseType.replace("_", " ")}
               description={`${caseRecord.reason} · ${caseRecord.status}`}
-              icon={
-                <span className="ac-canonical__menu-icon" aria-hidden>
-                  <AccountIcon name="returns" />
-                </span>
-              }
+              icon={<MasterMenuIcon icon="returns" color={MASTER_ICON_COLORS.orange} />}
             />
           ))
         )}

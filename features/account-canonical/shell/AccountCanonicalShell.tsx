@@ -15,6 +15,8 @@ export type AccountCanonicalShellProps = {
   title: string;
   backHref?: string;
   backLabel?: string;
+  /** Optional back interceptor (e.g. unsaved changes on Edit Listing). */
+  onBack?: () => void;
   rightAction?: ReactNode;
   children: ReactNode;
   className?: string;
@@ -41,6 +43,7 @@ export function AccountCanonicalShell({
   title,
   backHref = "/account",
   backLabel = "Back",
+  onBack,
   rightAction,
   children,
   className,
@@ -78,6 +81,7 @@ export function AccountCanonicalShell({
                 backLabel={tx(backLabel)}
                 centeredTitle={showHeaderTitle ? tx(title) : undefined}
                 fallbackHref={backHref}
+                onBack={onBack}
                 rightAction={rightAction}
               />
             </div>

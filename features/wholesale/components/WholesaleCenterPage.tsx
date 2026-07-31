@@ -18,20 +18,19 @@ type WholesaleCenterPageProps = {
 };
 
 const QUICK_LINKS = [
-  { href: "/business/inventory", label: "Bulk pricing" },
-  { href: "/business/directory", label: "Business directory" },
+  { href: "/seller/listings", label: "Bulk pricing" },
   { href: "/plans", label: "Wholesale plans" },
   { href: "/help/category/wholesale", label: "Wholesale help" },
-  { href: "/trust#verification", label: "Verification" },
-  { href: "/business/dashboard", label: "Business tools" },
+  { href: "/account/verification", label: "Verification" },
+  { href: "/seller", label: "Selling" },
 ] as const;
 
 export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps) {
   return (
     <AccountCanonicalShell
       title="Wholesale"
-      backHref="/business/dashboard"
-      backLabel="Business tools"
+      backHref="/account"
+      backLabel="My Account"
       showHeaderTitle
       showBottomNav={false}
       intro="MOQ, bulk pricing, RFQ."
@@ -67,8 +66,8 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
             ) : (
               <CanonicalInfoBlock variant="description">
                 <p className="font-medium text-text-primary">No wholesale account</p>
-                <CanonicalButtonLink href="/business/dashboard" variant="secondary" className="mt-ds-3">
-                  Set up in Business tools
+                <CanonicalButtonLink href="/account/verification" variant="secondary" className="mt-ds-3">
+                  Complete verification
                 </CanonicalButtonLink>
               </CanonicalInfoBlock>
             )}
@@ -82,8 +81,8 @@ export function WholesaleCenterPage({ account, rfqs }: WholesaleCenterPageProps)
             <CanonicalInfoBlock variant="description">
               <p className="text-sm text-text-secondary">
                 Enable bulk pricing from{" "}
-                <Link href="/business/inventory" className="text-primary underline">
-                  business inventory
+                <Link href="/seller/listings" className="text-primary underline">
+                  your listings
                 </Link>
                 .
               </p>

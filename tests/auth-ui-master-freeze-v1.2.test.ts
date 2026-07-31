@@ -12,13 +12,14 @@ describe("AUTH UI Master Freeze v1.2", () => {
     expect(AUTH_UI_MASTER_FREEZE_V1_2.version).toBe("1.2");
     expect(AUTH_UI_MASTER_FREEZE_V1_2.status).toBe("OWNER_APPROVED_LOCKED_FROZEN");
     expect(AUTH_UI_MASTER_FREEZE_V1_2.approvedByOwner).toBe(true);
-    expect(AUTH_UI_MASTER_FREEZE_V1_2.removedFromUi).toContain(
-      "All Social Login UI",
+    expect(AUTH_UI_MASTER_FREEZE_V1_2.oauthRc1Amendment).toBe(
+      "GATED_GOOGLE_APPLE_WHEN_ENABLED",
     );
+    expect(AUTH_UI_MASTER_FREEZE_V1_2.removedFromUi).toContain("Continue with Facebook");
     expect(AUTH_UI_MASTER_FREEZE_V1_2.removedFromUi).toContain("UK GDPR checkbox");
   });
 
-  it("removes social OAuth UI from Login and Register screens", () => {
+  it("keeps email canonical UI · OAuth only via gated AuthOAuthButtons", () => {
     const login = readSource("features/auth/components/LoginScreen.tsx");
     const register = readSource("features/auth/components/RegisterScreen.tsx");
 
@@ -28,6 +29,8 @@ describe("AUTH UI Master Freeze v1.2", () => {
     expect(login).toContain("SECURE SIGN IN");
     expect(login).toContain("auth-platform-theme");
     expect(login).toContain("canonical-freeze-v1");
+    expect(login).toContain("AuthOAuthButtons");
+    expect(login).toContain("oauthProviders");
 
     expect(register).not.toContain("SocialLogin");
     expect(register).not.toContain('name="gdpr"');
@@ -37,6 +40,7 @@ describe("AUTH UI Master Freeze v1.2", () => {
     expect(register).toContain('name="terms"');
     expect(register).toContain("canonical-freeze-v1");
     expect(register).toContain("auth-platform-theme");
+    expect(register).toContain("AuthOAuthButtons");
   });
 
   it("keeps email auth actions and does not rewrite Supabase session paths", () => {

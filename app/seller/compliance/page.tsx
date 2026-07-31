@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { ComplianceDashboard } from "@/features/seller/compliance/ComplianceDashboard";
-import { getSellerTaxProfile } from "@/lib/seller/tax/service";
-import { buildAnnualStatementsForUser } from "@/lib/wallet/monthly-statements";
+import {
+  canAccessHmrcSellerCentre,
+  resolveHmrcEligibility,
+} from "@/lib/compliance/hmrc-eligibility-v1";
+import { loadHmrcSellerSnapshot } from "@/lib/compliance/hmrc-seller-snapshot.server";
 import { fetchProfile } from "@/lib/profile/queries";
 
 export default async function SellerComplianceRoute() {
@@ -10,10 +13,16 @@ export default async function SellerComplianceRoute() {
     redirect("/login?next=/seller/compliance");
   }
 
-  const [taxProfile, annualStatements] = await Promise.all([
-    getSellerTaxProfile(profile.id),
-    buildAnnualStatementsForUser(profile.id),
-  ]);
+  // Fail closed for pure buyers — seller-only HMRC Reporting Centre.
+  const access = resolveHmrcEligibility({
+    authenticated: true,
+    hasSellingActivity: Boolean(profile.capabilities?.hasSellingActivity),
+    role: profile.role,
+  });
+  if (!canAccessHmrcSellerCentre(access)) {
+    redirect("/account/settings?hmrc=seller_only");
+  }
 
-  return <ComplianceDashboard taxProfile={taxProfile} annualStatements={annualStatements} />;
+  const snapshot = await loadHmrcSellerSnapshot(profile);
+  return <ComplianceDashboard snapshot={snapshot} />;
 }

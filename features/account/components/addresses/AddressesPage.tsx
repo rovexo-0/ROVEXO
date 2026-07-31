@@ -20,6 +20,7 @@ import {
 import { ADDRESSES_MASTER_LOCK_DOM } from "@/lib/addresses/freeze";
 import { ADDRESS_ENGINE_DOM } from "@/lib/addresses/address-engine-v1";
 import { MY_ACCOUNT_PRIMARY_BUTTON_DOM } from "@/lib/design-system/my-account-primary-button-v1";
+import { resolveBusinessAddressesVisibility } from "@/lib/master-engine";
 import { AddressesTabs } from "@/features/account/components/addresses/AddressesTabs";
 import { PersonalAddresses } from "@/features/account/components/addresses/PersonalAddresses";
 import { BusinessAddresses } from "@/features/account/components/addresses/BusinessAddresses";
@@ -44,8 +45,11 @@ export function AddressesPage({
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = readReturnToParam(searchParams);
+  const showBusinessTab = resolveBusinessAddressesVisibility().showBusinessAddressesTab;
+  const safeInitialScope: AddressUiScope =
+    showBusinessTab && initialScope === "business" ? "business" : "personal";
 
-  const [activeScope, setActiveScope] = useState<AddressUiScope>(initialScope);
+  const [activeScope, setActiveScope] = useState<AddressUiScope>(safeInitialScope);
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);

@@ -232,7 +232,8 @@
   border: 0;
   background: transparent;
   padding: 0;
-  font-size: 14px;
+  /* Phase B: 16px prevents iOS Safari zoom on focus. */
+  font-size: 16px;
   font-weight: 500;
   line-height: 1.2;
   color: var(--ds-color-text-primary);

@@ -48,6 +48,7 @@ export type SellerListing = {
   shippingMethod: import("@/lib/shipping/carriers").ShippingMethod | null;
   shippingPrice: number | null;
   freeDelivery: boolean;
+  parcelSize?: ParcelSize | null;
   sku: string | null;
   lowStockAlert: number;
   views: number;

@@ -8,9 +8,9 @@
  * Equation:
  * Login/Register → Email + Password → Supabase Auth → Session → Middleware
  * → Protected Routes → Application
- * + Google/Apple code-ready UI-gated
- * + Facebook deferred to v1.1
- * = CLUSTER 6 v1.0 SCOPE LOCK
+ * + Google/Apple public when provider enabled (fail closed)
+ * + Facebook deferred / hidden
+ * = CLUSTER 6 v1.1 RC1 SCOPE LOCK
  *
  * This file is the Cluster 6 Architecture Scope Lock + Production Freeze SSOT.
  * Authentication behaviour must not change without Owner re-authorization.
@@ -61,8 +61,8 @@ export const CLUSTER_6_AUTHENTICATION_SCOPE_LOCK_V1 = {
   } as const,
 
   oauth: {
-    google: "CODE_READY_UI_GATED",
-    apple: "CODE_READY_UI_GATED",
+    google: "PUBLIC_WHEN_PROVIDER_ENABLED",
+    apple: "PUBLIC_WHEN_PROVIDER_ENABLED",
     facebook: "DEFERRED_V1_1",
     policyLock: CLUSTER_6_OAUTH_POLICY_LOCK_V1.id,
   } as const,
@@ -117,7 +117,8 @@ export const CLUSTER_6_AUTHENTICATION_SCOPE_LOCK_V1 = {
     "Custom parallel session stores",
     "Second /auth/callback",
     "Second middleware auth chain",
-    "Public OAuth UI without Owner approval",
+    "Facebook OAuth on public Login / Register",
+    "OAuth buttons when provider availability FAILS",
     "New public authentication surfaces without Owner approval",
   ] as const,
 

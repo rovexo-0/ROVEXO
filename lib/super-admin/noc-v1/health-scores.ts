@@ -7,6 +7,9 @@ function clampScore(value: number): number {
 }
 
 function scoreFromCheck(check: HealthCheckResult): number {
+  if (check.status === "not_configured") {
+    return 100;
+  }
   if (check.status === "unhealthy") {
     return clampScore(25 - Math.min(25, check.latencyMs / 120));
   }
@@ -75,7 +78,7 @@ export function buildNocHealthScores(input: BuildNocHealthScoresInput): NocHealt
   const apiScore = scoreFromCheck(input.checks.api);
   const databaseScore = scoreFromCheck(input.checks.database);
   const storageScore = scoreFromCheck(input.checks.storage);
-  const stripeScore = input.stripeConfigured ? scoreFromCheck(input.checks.stripe) : 55;
+  const stripeScore = scoreFromCheck(input.checks.stripe);
   const redisScore = scoreFromCheck(input.checks.redis);
   const cronScore = scoreFromCheck(input.checks.cron);
 
@@ -100,8 +103,7 @@ export function buildNocHealthScores(input: BuildNocHealthScoresInput): NocHealt
 
   const paymentDenominator = Math.max(1, input.completedOrders + input.failedPayments24h);
   const paymentScore = clampScore(
-    (input.stripeConfigured ? stripeScore : 55) -
-      (input.failedPayments24h / paymentDenominator) * 35,
+    stripeScore - (input.failedPayments24h / paymentDenominator) * 35,
   );
 
   const shippingDenominator = Math.max(1, input.labelsToday + input.failedShippingOrders);
@@ -120,9 +122,9 @@ export function buildNocHealthScores(input: BuildNocHealthScoresInput): NocHealt
       Math.max(0, input.ramUsagePercent - 85) * 0.5,
   );
 
-  const coreScores = [apiScore, databaseScore, storageScore];
-  if (input.stripeConfigured) coreScores.push(stripeScore);
-  coreScores.push(redisScore, cronScore);
+  const coreScores = [apiScore, databaseScore, storageScore, stripeScore];
+  if (input.checks.redis.status !== "not_configured") coreScores.push(redisScore);
+  if (input.checks.cron.status !== "not_configured") coreScores.push(cronScore);
 
   const overallScore = averageScore([
     averageScore(coreScores),

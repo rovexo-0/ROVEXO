@@ -71,8 +71,8 @@ export const PHOTO_SYSTEM_PRODUCT_INTEGRATION_PHASE_IV_V1 = {
   ] as const,
 } as const;
 
-/** SELL-107 — upload retry backoff (owned by Product Integration orchestration). */
-export const SELL_UPLOAD_RETRY_DELAYS_MS = [2000, 5000, 10000] as const;
+/** SELL-107 — upload retry backoff (owned by Product Integration orchestration). Phase A3: faster recover. */
+export const SELL_UPLOAD_RETRY_DELAYS_MS = [500, 1500, 3000] as const;
 
 export type PreparedSellListingUpload = {
   file: File;
@@ -107,6 +107,7 @@ export async function prepareSellListingUpload(
   const alreadyPrepared = options?.alreadyPipelinePrepared ?? true;
 
   if (alreadyPrepared) {
+    /* Intake already compressed — thumbnail only, never recompress the full file. */
     const thumbnail = await createListingThumbnail(file);
     return { file, thumbnail };
   }

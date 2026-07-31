@@ -1,6 +1,5 @@
 import { existsSync } from "node:fs";
 import { workspacePath } from "@/lib/server/workspace-path";
-import { join } from "node:path";
 import { createServiceRoleClient } from "@/lib/supabase/admin";
 import { getPlatformHealthReport } from "@/lib/ops/health";
 import type { Json } from "@/lib/supabase/types/database";
@@ -29,8 +28,8 @@ const DEFAULT_SETTINGS: AiOperationsSettings = {
   lastAutoRepairAt: null,
 };
 
-function mapLiveStatus(status: "healthy" | "degraded" | "unhealthy"): ScanSeverity {
-  if (status === "healthy") return "healthy";
+function mapLiveStatus(status: "healthy" | "degraded" | "unhealthy" | "not_configured"): ScanSeverity {
+  if (status === "healthy" || status === "not_configured") return "healthy";
   if (status === "degraded") return "warning";
   return "critical";
 }

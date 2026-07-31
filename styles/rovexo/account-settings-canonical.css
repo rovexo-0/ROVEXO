@@ -21,9 +21,48 @@
   background: #ffffff;
 }
 
+/* Parent `.cds-menu-row__icon` defaults to black text — do not inherit that here.
+   Tone colour comes from the glyph (inline style + modifier class) on first paint. */
+.settings-canonical .cds-menu-row__icon {
+  color: unset;
+}
+
 .settings-canonical__icon {
   display: inline-flex;
-  color: #9333ea; /* Profile settings purple */
+  color: #9333ea; /* Profile settings purple fallback */
+}
+
+/* Beat `.ac-canonical__menu-icon { color:#111 }` — higher specificity + first paint. */
+.ac-canonical__menu-icon.settings-canonical__icon--purple {
+  color: #9333ea;
+}
+
+.ac-canonical__menu-icon.settings-canonical__icon--blue {
+  color: #60a5fa;
+}
+
+.ac-canonical__menu-icon.settings-canonical__icon--orange {
+  color: #f59e0b;
+}
+
+.ac-canonical__menu-icon.settings-canonical__icon--green {
+  color: #22c55e;
+}
+
+.ac-canonical__menu-icon.settings-canonical__icon--red {
+  color: #ef4444;
+}
+
+.ac-canonical__menu-icon.settings-canonical__icon--rovexo-blue {
+  color: #06b6d4;
+}
+
+.ac-canonical__menu-icon.settings-canonical__icon--gold {
+  color: #ffd54a;
+}
+
+.ac-canonical__menu-icon.settings-canonical__icon--soft-red {
+  color: #dc2626;
 }
 
 .settings-canonical__icon--purple {
@@ -56,6 +95,13 @@
 
 .settings-canonical__icon--soft-red {
   color: #dc2626; /* Profile logout */
+}
+
+.settings-canonical__icon-svg {
+  width: 24px;
+  height: 24px;
+  color: inherit;
+  stroke: currentColor;
 }
 
 .settings-canonical .cds-menu-row__title--danger {

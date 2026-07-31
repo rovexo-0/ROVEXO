@@ -18,6 +18,7 @@ import type { ShowcaseSellerSection } from "@/lib/homepage/showcase-sellers";
 import { getAuthContext, getUserRole } from "@/lib/auth/session";
 import { getPlatformVisualConfig, getDefaultPlatformVisualConfig } from "@/lib/platform-visual/reader";
 import { HP_CANONICAL_BOTTOM_NAV } from "@/lib/homepage/canonical-nav";
+import { listActivePreferredMarketplaceStores } from "@/lib/preferred-marketplace-stores/store";
 
 const emptyPage: ProductsPage = { items: [], page: 1, hasMore: false };
 const siteUrl = getAppUrl();
@@ -72,17 +73,20 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     }
   }
 
-  const [visualConfig, featuredPage, feedResult, showcaseFromDb] = await Promise.all([
-    getPlatformVisualConfig({ mode: previewMode }).catch(() => getDefaultPlatformVisualConfig()),
-    fetchProducts("recommended", 1).catch(() => emptyPage),
-    fetchHomepageFeed(1).catch(() => emptyPage),
-    fetchShowcaseSellerSections().catch(() => [] as ShowcaseSellerSection[]),
-  ]);
+  const [visualConfig, featuredPage, feedResult, showcaseFromDb, preferredStores] =
+    await Promise.all([
+      getPlatformVisualConfig({ mode: previewMode }).catch(() => getDefaultPlatformVisualConfig()),
+      fetchProducts("recommended", 1).catch(() => emptyPage),
+      fetchHomepageFeed(1).catch(() => emptyPage),
+      fetchShowcaseSellerSections().catch(() => [] as ShowcaseSellerSection[]),
+      listActivePreferredMarketplaceStores().catch(() => []),
+    ]);
 
   const sections = resolveHomepageV4Sections({
     featuredPage,
     feed: feedResult,
     showcase: showcaseFromDb,
+    preferredStores,
   });
 
   const structuredData = homePageJsonLd(sections.feed.items, siteUrl);

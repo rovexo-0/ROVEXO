@@ -55,7 +55,7 @@ describe("OAuth Configuration Freeze v1.0 — LEVEL 8", () => {
       "http://localhost:3000",
     );
     expect(OAUTH_CONFIGURATION_FREEZE_V1.callbackRules.production).toBe(
-      "https://rovexo.com",
+      "https://www.rovexo.co.uk",
     );
     expect(OAUTH_CONFIGURATION_FREEZE_V1.callbackRules.authCallbackPath).toBe(
       "/auth/callback",

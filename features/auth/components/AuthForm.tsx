@@ -98,7 +98,7 @@ export function AuthForm({
       {showOAuth ? (
         <>
           <AuthOAuthDivider label={oauthDividerLabel} />
-          <AuthOAuthButtons next={oauthNext} />
+          <AuthOAuthButtons next={oauthNext} providers={["google", "apple"]} />
         </>
       ) : null}
 

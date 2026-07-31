@@ -70,7 +70,8 @@ describe("ROVEXO MASTER ENGINE v1.0 (LOCK)", () => {
     expect(resolveFeatureVisibility("holiday-mode", { activeListingCount: 0 }).visible).toBe(true);
     expect(resolveHolidayModeVisibility({ activeListingCount: 0 }).visible).toBe(true);
     expect(resolvePromoteVisibility({ activeListingCount: 0 }).visible).toBe(true);
-    expect(resolveBusinessVisibility({ isBusinessVerified: false }).showBusinessBank).toBe(true);
+    // Phase C — Business UX force-hidden via resolveBusinessVisibility (v1.0).
+    expect(resolveBusinessVisibility({ isBusinessVerified: false }).showBusinessBank).toBe(false);
     expect(resolveVerifiedStatus({ isRovexoVerified: false }).showBadge).toBe(false);
     expect(resolveVerifiedStatus({ isRovexoVerified: true }).showBadge).toBe(true);
   });
@@ -91,7 +92,8 @@ describe("ROVEXO MASTER ENGINE v1.0 (LOCK)", () => {
     expect(resolveFeatureVisibility("holiday-mode", { activeListingCount: 0 }).visible).toBe(false);
     expect(resolveFeatureVisibility("holiday-mode", { activeListingCount: 2 }).visible).toBe(true);
     expect(resolveBusinessVisibility({ isBusinessVerified: false }).showBusinessBank).toBe(false);
-    expect(resolveBusinessVisibility({ isBusinessVerified: true }).showBusinessBank).toBe(true);
+    // Phase C — Business bank remains hidden even when verified (v2.0 postponed).
+    expect(resolveBusinessVisibility({ isBusinessVerified: true }).showBusinessBank).toBe(false);
     expect(resolveVerifiedStatus({ isRovexoVerified: false }).showBadge).toBe(false);
     expect(resolveVerifiedStatus({ isRovexoVerified: true }).showBadge).toBe(true);
     deactivateProductionRules();
@@ -109,7 +111,7 @@ describe("ROVEXO MASTER ENGINE v1.0 (LOCK)", () => {
     ).toMatchObject({
       showHolidayMode: true,
       showPromoteListings: true,
-      showBusinessBankAccount: true,
+      showBusinessBankAccount: false,
       showPaymentMethods: true,
       showPersonalBankAccount: true,
       disableWithdrawForZeroBalance: false,

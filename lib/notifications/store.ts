@@ -1,8 +1,24 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Tables } from "@/lib/supabase/types/database";
-import type { Notification, NotificationIcon, NotificationPreferences, NotificationSettings } from "@/lib/notifications/types";
+import type { Json, Tables } from "@/lib/supabase/types/database";
+import type {
+  Notification,
+  NotificationIcon,
+  NotificationPreferences,
+  NotificationSettings,
+} from "@/lib/notifications/types";
 import { enrichNotificationProductMedia } from "@/lib/notifications/enrich-product-media";
 import { recoverNotificationHref } from "@/lib/notifications/routing";
+import {
+  applyNotificationEnginePatch,
+  createDefaultNotificationEngineState,
+  engineToLegacyNotificationSettings,
+  engineToNotificationPreferences,
+  hydrateEngineFromLegacySettings,
+  isNotificationChannelId,
+  isNotificationTopicId,
+  parseNotificationEngineState,
+  type NotificationEngineState,
+} from "@/lib/notifications/notification-engine-v1";
 
 function notificationIcon(type: Tables<"notifications">["type"]): NotificationIcon {
   switch (type) {
@@ -68,6 +84,19 @@ function mapSettings(row: Tables<"notification_settings">): NotificationSettings
     sound: row.sound,
     vibration: row.vibration,
   };
+}
+
+function resolveEngineFromRow(row: Tables<"notification_settings"> | null): NotificationEngineState {
+  if (!row) return createDefaultNotificationEngineState();
+  const empty =
+    !row.engine_v1 ||
+    (typeof row.engine_v1 === "object" &&
+      !Array.isArray(row.engine_v1) &&
+      Object.keys(row.engine_v1 as object).length === 0);
+  if (empty) {
+    return hydrateEngineFromLegacySettings(mapSettings(row));
+  }
+  return parseNotificationEngineState(row.engine_v1);
 }
 
 export async function listNotifications(userId: string): Promise<Notification[]> {
@@ -136,7 +165,7 @@ function mapPreferences(row: Tables<"notification_preferences">): NotificationPr
     payments: row.payments,
     support: row.support,
     marketing: row.marketing,
-    security: row.security,
+    security: true,
     business: row.business,
     ai: row.ai,
   };
@@ -162,6 +191,7 @@ export async function updateNotificationPreferences(
   const supabase = await createClient();
   const update: Partial<Tables<"notification_preferences">> = {
     updated_at: new Date().toISOString(),
+    security: true,
   };
 
   if (patch.orders !== undefined) update.orders = patch.orders;
@@ -169,7 +199,6 @@ export async function updateNotificationPreferences(
   if (patch.payments !== undefined) update.payments = patch.payments;
   if (patch.support !== undefined) update.support = patch.support;
   if (patch.marketing !== undefined) update.marketing = patch.marketing;
-  if (patch.security !== undefined) update.security = patch.security;
   if (patch.business !== undefined) update.business = patch.business;
   if (patch.ai !== undefined) update.ai = patch.ai;
 
@@ -198,12 +227,135 @@ export async function getNotificationSettings(
   return mapSettings(data);
 }
 
+const DEFAULT_SETTINGS: NotificationSettings = {
+  pushEnabled: true,
+  browserPush: true,
+  messages: true,
+  orders: true,
+  offers: true,
+  reviews: true,
+  promotions: true,
+  marketing: false,
+  system: true,
+  emailMessages: true,
+  emailOrders: true,
+  emailPromotions: false,
+  emailMarketing: false,
+  quietHoursEnabled: false,
+  quietHoursStart: "22:00",
+  quietHoursEnd: "07:00",
+  sound: true,
+  vibration: true,
+};
+
+export async function getNotificationEngine(
+  userId: string,
+): Promise<{ settings: NotificationSettings; engine: NotificationEngineState }> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("notification_settings")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (!data) {
+    const engine = createDefaultNotificationEngineState();
+    return {
+      settings: { ...DEFAULT_SETTINGS, ...engineToLegacyNotificationSettings(engine) },
+      engine,
+    };
+  }
+
+  return {
+    settings: mapSettings(data),
+    engine: resolveEngineFromRow(data),
+  };
+}
+
+async function persistEngineState(
+  userId: string,
+  engine: NotificationEngineState,
+  baseSettings: NotificationSettings | null,
+): Promise<{ settings: NotificationSettings; engine: NotificationEngineState }> {
+  const supabase = await createClient();
+  const legacy = engineToLegacyNotificationSettings(engine, baseSettings);
+  const prefs = engineToNotificationPreferences(engine);
+
+  await supabase.from("notification_settings").upsert({
+    user_id: userId,
+    push_enabled: legacy.pushEnabled ?? true,
+    browser_push: legacy.browserPush ?? true,
+    messages: legacy.messages ?? true,
+    orders: legacy.orders ?? true,
+    offers: legacy.offers ?? true,
+    reviews: legacy.reviews ?? true,
+    promotions: legacy.promotions ?? true,
+    marketing: legacy.marketing ?? false,
+    system: legacy.system ?? true,
+    email_messages: legacy.emailMessages ?? true,
+    email_orders: legacy.emailOrders ?? true,
+    email_promotions: legacy.emailPromotions ?? false,
+    email_marketing: legacy.emailMarketing ?? false,
+    quiet_hours_enabled: legacy.quietHoursEnabled ?? false,
+    quiet_hours_start: legacy.quietHoursStart ?? "22:00",
+    quiet_hours_end: legacy.quietHoursEnd ?? "07:00",
+    sound: legacy.sound ?? true,
+    vibration: legacy.vibration ?? true,
+    engine_v1: engine as unknown as Json,
+    updated_at: new Date().toISOString(),
+  });
+
+  await updateNotificationPreferences(userId, prefs);
+
+  return getNotificationEngine(userId);
+}
+
+export async function updateNotificationEngine(
+  userId: string,
+  patch: {
+    topicId?: string;
+    channelId?: string;
+    enabled?: boolean;
+    engine?: unknown;
+  },
+): Promise<{ settings: NotificationSettings; engine: NotificationEngineState }> {
+  const current = await getNotificationEngine(userId);
+  let nextEngine = current.engine;
+
+  if (patch.engine) {
+    nextEngine = parseNotificationEngineState(patch.engine);
+  } else {
+    const topicId =
+      patch.topicId && isNotificationTopicId(patch.topicId) ? patch.topicId : undefined;
+    const channelId =
+      patch.channelId && isNotificationChannelId(patch.channelId) ? patch.channelId : undefined;
+    nextEngine = applyNotificationEnginePatch(current.engine, {
+      topicId,
+      channelId,
+      enabled: patch.enabled,
+    });
+  }
+
+  return persistEngineState(userId, nextEngine, current.settings);
+}
+
 export async function updateNotificationSettings(
   userId: string,
-  patch: Partial<NotificationSettings>,
+  patch: Partial<NotificationSettings> & {
+    topicId?: string;
+    channelId?: string;
+    enabled?: boolean;
+    engine?: unknown;
+  },
 ): Promise<NotificationSettings | null> {
+  if (patch.topicId || patch.channelId || patch.engine) {
+    const result = await updateNotificationEngine(userId, patch);
+    return result.settings;
+  }
+
   const supabase = await createClient();
-  const update: Record<string, boolean | string | undefined> = {};
+  const current = await getNotificationEngine(userId);
+  const update: Record<string, boolean | string | Json | undefined> = {};
 
   if (patch.pushEnabled !== undefined) update.push_enabled = patch.pushEnabled;
   if (patch.browserPush !== undefined) update.browser_push = patch.browserPush;
@@ -224,11 +376,53 @@ export async function updateNotificationSettings(
   if (patch.sound !== undefined) update.sound = patch.sound;
   if (patch.vibration !== undefined) update.vibration = patch.vibration;
 
+  let engine = current.engine;
+  if (patch.pushEnabled !== undefined) {
+    engine = { ...engine, channels: { ...engine.channels, push: patch.pushEnabled } };
+  }
+  if (patch.browserPush !== undefined) {
+    engine = { ...engine, channels: { ...engine.channels, browser: patch.browserPush } };
+  }
+  if (
+    patch.emailMessages !== undefined ||
+    patch.emailOrders !== undefined ||
+    patch.emailPromotions !== undefined ||
+    patch.emailMarketing !== undefined
+  ) {
+    const emailOn =
+      (patch.emailMessages ?? current.settings.emailMessages) ||
+      (patch.emailOrders ?? current.settings.emailOrders) ||
+      (patch.emailPromotions ?? current.settings.emailPromotions) ||
+      (patch.emailMarketing ?? current.settings.emailMarketing);
+    engine = { ...engine, channels: { ...engine.channels, email: emailOn === true } };
+  }
+  update.engine_v1 = engine as unknown as Json;
+
   if (Object.keys(update).length) {
-    await supabase
-      .from("notification_settings")
-      .update(update as Tables<"notification_settings">)
-      .eq("user_id", userId);
+    await supabase.from("notification_settings").upsert({
+      user_id: userId,
+      push_enabled: patch.pushEnabled ?? current.settings.pushEnabled,
+      browser_push: patch.browserPush ?? current.settings.browserPush,
+      messages: patch.messages ?? current.settings.messages,
+      orders: patch.orders ?? current.settings.orders,
+      offers: patch.offers ?? current.settings.offers,
+      reviews: patch.reviews ?? current.settings.reviews,
+      promotions: patch.promotions ?? current.settings.promotions,
+      marketing: patch.marketing ?? current.settings.marketing,
+      system: patch.system ?? current.settings.system,
+      email_messages: patch.emailMessages ?? current.settings.emailMessages,
+      email_orders: patch.emailOrders ?? current.settings.emailOrders,
+      email_promotions: patch.emailPromotions ?? current.settings.emailPromotions,
+      email_marketing: patch.emailMarketing ?? current.settings.emailMarketing,
+      quiet_hours_enabled: patch.quietHoursEnabled ?? current.settings.quietHoursEnabled,
+      quiet_hours_start: patch.quietHoursStart ?? current.settings.quietHoursStart,
+      quiet_hours_end: patch.quietHoursEnd ?? current.settings.quietHoursEnd,
+      sound: patch.sound ?? current.settings.sound,
+      vibration: patch.vibration ?? current.settings.vibration,
+      engine_v1: update.engine_v1,
+      updated_at: new Date().toISOString(),
+    });
+    await updateNotificationPreferences(userId, engineToNotificationPreferences(engine));
   }
 
   return getNotificationSettings(userId);

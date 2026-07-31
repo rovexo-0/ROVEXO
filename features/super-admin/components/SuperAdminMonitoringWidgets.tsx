@@ -8,12 +8,14 @@ const STATUS_VARIANT: Record<MonitoringWidget["status"], "success" | "warning" |
   healthy: "success",
   degraded: "warning",
   unhealthy: "danger",
+  not_configured: "warning",
 };
 
 const STATUS_DOT: Record<MonitoringWidget["status"], string> = {
   healthy: "bg-emerald-500",
   degraded: "bg-amber-500",
   unhealthy: "bg-red-500",
+  not_configured: "bg-slate-400",
 };
 
 type SuperAdminMonitoringWidgetsProps = {

@@ -6,6 +6,12 @@ import { emitSmartNotification } from "@/lib/notifications/events";
 import { onSellerMessageReply } from "@/lib/seller-performance/events";
 import type { ChatMessage, Conversation, ProductListingStatus } from "@/lib/messages/types";
 import { normalizeAvatarUrl } from "@/lib/media/normalize-avatar-url";
+import {
+  isMessagePhotoStoragePath,
+  isRenderableMessagePhotoSrc,
+  MESSAGE_PHOTO_PREVIEW_LABEL,
+  MESSAGE_PHOTO_SIGN_TTL_SECONDS,
+} from "@/lib/messages/message-photo-url-v1";
 
 type ConversationRow = Tables<"conversations"> & {
   products: Pick<
@@ -75,35 +81,42 @@ function mapMessage(row: Tables<"messages">): ChatMessage {
   };
 }
 
-const MESSAGE_PHOTO_SIGN_TTL_SECONDS = 60 * 60 * 24 * 7;
-
 /** Private `messages` bucket paths → signed URLs for Conversation bubble display. */
+async function signSinglePhotoPath(path: string): Promise<string | null> {
+  const { tryCreateAdminClient } = await import("@/lib/supabase/admin");
+  const admin = tryCreateAdminClient();
+  const client = admin ?? (await createClient());
+  const { data, error } = await client.storage
+    .from("messages")
+    .createSignedUrl(path, MESSAGE_PHOTO_SIGN_TTL_SECONDS);
+  if (error || !data?.signedUrl) return null;
+  return data.signedUrl;
+}
+
 async function signPhotoMessageContents(messages: ChatMessage[]): Promise<ChatMessage[]> {
   const needsSign = messages.some(
     (message) =>
       message.kind === "photo" &&
       Boolean(message.content) &&
       !message.deletedAt &&
-      !/^https?:\/\//i.test(message.content),
+      isMessagePhotoStoragePath(message.content),
   );
   if (!needsSign) return messages;
 
-  const supabase = await createClient();
   return Promise.all(
     messages.map(async (message) => {
       if (
         message.kind !== "photo" ||
         !message.content ||
         message.deletedAt ||
-        /^https?:\/\//i.test(message.content)
+        isRenderableMessagePhotoSrc(message.content)
       ) {
         return message;
       }
-      const { data } = await supabase.storage
-        .from("messages")
-        .createSignedUrl(message.content, MESSAGE_PHOTO_SIGN_TTL_SECONDS);
-      if (!data?.signedUrl) return message;
-      return { ...message, content: data.signedUrl };
+      if (!isMessagePhotoStoragePath(message.content)) return message;
+      const signedUrl = await signSinglePhotoPath(message.content);
+      if (!signedUrl) return message;
+      return { ...message, content: signedUrl };
     }),
   );
 }
@@ -235,12 +248,14 @@ export async function appendMessage(input: {
 }): Promise<{ message: ChatMessage | null; error?: string; warning?: string | null }> {
   const kind = input.kind ?? "text";
   const security =
-    kind === "photo" ? inspectMessageContent("Shared photo") : inspectMessageContent(input.content);
+    kind === "photo"
+      ? inspectMessageContent(MESSAGE_PHOTO_PREVIEW_LABEL)
+      : inspectMessageContent(input.content);
   if (security.blocked) {
     return { message: null, error: security.warning ?? "Message blocked by safety filters." };
   }
 
-  const previewText = kind === "photo" ? "Shared photo" : input.content;
+  const previewText = kind === "photo" ? MESSAGE_PHOTO_PREVIEW_LABEL : input.content;
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -325,8 +340,19 @@ export async function appendMessage(input: {
     void onSellerMessageReply({ sellerId: conversation.seller_id });
   }
 
+  const mapped = mapMessage({ ...data, status: "delivered" });
+  if (kind === "photo" && isMessagePhotoStoragePath(mapped.content)) {
+    const signedUrl = await signSinglePhotoPath(mapped.content);
+    if (signedUrl) {
+      return {
+        message: { ...mapped, content: signedUrl },
+        warning: buildAutoReplyWarning(security.warning),
+      };
+    }
+  }
+
   return {
-    message: mapMessage({ ...data, status: "delivered" }),
+    message: mapped,
     warning: buildAutoReplyWarning(security.warning),
   };
 }

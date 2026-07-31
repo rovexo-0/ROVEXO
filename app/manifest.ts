@@ -4,6 +4,7 @@ import {
   CANONICAL_RX_PWA_SIZES,
   CANONICAL_RX_APP_ICON,
 } from "@/lib/brand/canonical-rx-3d-logo-freeze-v1";
+import { ROVEXO_APP_VERSION, ROVEXO_RELEASE_CODE } from "@/lib/app/version";
 
 export default function manifest(): MetadataRoute.Manifest {
   const baseUrl = getAppUrl();
@@ -32,7 +33,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "ROVEXO",
     short_name: "ROVEXO",
-    description: "Buy and sell on the modern UK marketplace with purchase protection.",
+    description: `Buy and sell on the modern UK marketplace with purchase protection. (${ROVEXO_RELEASE_CODE} ${ROVEXO_APP_VERSION})`,
     start_url: "/",
     display: "standalone",
     background_color: "#050508",
@@ -46,7 +47,7 @@ export default function manifest(): MetadataRoute.Manifest {
     shortcuts: [
       { name: "Search", url: "/search", description: "Search listings" },
       { name: "Sell", url: "/sell", description: "Create a listing" },
-      { name: "Messages", url: "/messages", description: "View conversations" },
+      { name: "Messages", url: "/inbox", description: "View conversations" },
     ],
     related_applications: [],
     prefer_related_applications: false,

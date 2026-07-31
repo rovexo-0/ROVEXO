@@ -1,0 +1,35 @@
+# ROVEXO RC1 — MASTER CODE FREEZE (OWNER CERTIFICATE)
+
+**STATUS: MASTER CODE FREEZE ACTIVE | OWNER AUTHORITY | LOCKED**
+
+SSOT: `lib/release/rovexo-v1-rc1-freeze-v1.ts`  
+Certificate: `docs/releases/rc1/CODE_FREEZE_CERTIFICATE.md`  
+Infrastructure: `lib/ops/rc1-infrastructure-classification-v1.ts`
+
+## Absolute
+
+The RC1 implementation scope from this conversation is **master-frozen**.  
+No further structural development within this release scope unless Owner re-authorizes or a critical production issue is identified.
+
+## Frozen (must not reopen)
+
+Profile Page · Profile Command Centre Button · Profile Footer Banner · Account Centre · Admin Command Centre · Super Admin Command Centre · Unified White Theme · Shared Command Centre Layout · Command Palette · Health Engine · Infrastructure Classification SSOT · OAuth RC1 public provider policy · Role / Admin / Super Admin middleware · Rovexo Ideas UI · Empty State Engine · Community Feed · Hero · Theme Engine (White default / Dark optional)
+
+## Allowed only
+
+Critical production bug · Security · Build · Browser compatibility · Accessibility · Performance with zero UX change · Regression · Documentation · Ops configuration
+
+## Forbidden
+
+New features · UI redesign · Layout restructuring · Navigation changes · Component rewrites · Behaviour changes · New animations · Design modifications · structural development without Owner approval
+
+## Deferred (do not implement in this freeze)
+
+Google / Apple OAuth live configuration · Real-device matrix · Full a11y audit · Field LCP/CLS/INP
+
+## Cursor must never
+
+- Add features or redesign master-frozen RC1 surfaces without Owner approval  
+- Treat Release Package READY as permission to push/deploy without Owner stage approval  
+- Reopen deferred OAuth as application code (ops/configuration only when Owner authorizes)  
+- Invent false Unhealthy alarms for optional Not Configured services

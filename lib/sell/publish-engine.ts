@@ -2,6 +2,7 @@ import { buildListingPublishPayload } from "@/lib/sell/build-listing-publish-pay
 import type { PublishSuccessPayload } from "@/lib/sell/publish-success";
 import { parsePublishSuccessResponse } from "@/lib/sell/publish-success";
 import type { SellListingDraft, SellPhoto } from "@/features/sell/types";
+import { sellPrimaryCtaLabel } from "@/lib/sell/canonical-edit-listing-engine-v1";
 
 export type PublishPhase =
   | "idle"
@@ -12,7 +13,7 @@ export type PublishPhase =
   | "published"
   | "error";
 
-export const LISTING_CREATE_RETRY_MS = [2000, 5000, 10000] as const;
+export const LISTING_CREATE_RETRY_MS = [500, 1500, 3000] as const;
 
 export const PUBLISH_FAILURE_MESSAGE =
   "Publishing failed. Your draft has been safely saved.";
@@ -57,7 +58,7 @@ export function publishPhaseLabel(
     case "published":
       return "Listing successfully published.";
     default:
-      return options?.isEdit ? "Save changes" : "Publish";
+      return options?.isEdit ? sellPrimaryCtaLabel(true) : sellPrimaryCtaLabel(false);
   }
 }
 
@@ -74,7 +75,7 @@ async function uploadAllPhotos(
 
   return Promise.all(
     photos.map((photo, index) => {
-      if (!photo.file) {
+      if (photo.uploaded || !photo.file) {
         fractions[index] = 100;
         reportAggregate();
         return Promise.resolve(photo);

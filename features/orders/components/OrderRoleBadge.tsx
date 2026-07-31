@@ -17,7 +17,7 @@ export function OrderRoleBadge({ role, className }: OrderRoleBadgeProps) {
         className,
       )}
     >
-      {isBuying ? "🟢 Buying" : "🔵 Selling"}
+      {isBuying ? "Buying" : "Selling"}
     </span>
   );
 }

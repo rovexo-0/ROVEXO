@@ -10,8 +10,8 @@
  */
 
 import { readFileSync } from "node:fs";
-import path from "node:path";
 import { workspacePath } from "@/lib/server/workspace-path";
+import { shouldLoadTestingArtifactsOnStartup } from "@/lib/startup/startup-certification-policy-v1";
 import {
   DEMO_SESSION_ENGINE_V1,
   XLIV_DEMO_WALLET_GBP,
@@ -83,9 +83,13 @@ export function certifyFullDemoCertificationEnvironmentXliv(): XlivCertification
   );
   const productsRepo = readWorkspace("lib/products/repository.ts");
   const instrumentation = readWorkspace("instrumentation.ts");
-  const e2e = readWorkspace(
-    SUPREME_BLOOD_LAW_XLIV_FULL_DEMO_CERTIFICATION_ENVIRONMENT_V1.e2ePath,
-  );
+
+  // Production MUST NEVER read e2e/*.spec.ts — excluded from Vercel NFT (ENOENT).
+  // E2E artifact checks run only in development / ROVEXO_CERTIFICATION_MODE.
+  const loadE2eArtifacts = shouldLoadTestingArtifactsOnStartup();
+  const e2e = loadE2eArtifacts
+    ? readWorkspace(SUPREME_BLOOD_LAW_XLIV_FULL_DEMO_CERTIFICATION_ENVIRONMENT_V1.e2ePath)
+    : "";
 
   gates.push({
     id: "engine",
@@ -141,16 +145,21 @@ export function certifyFullDemoCertificationEnvironmentXliv(): XlivCertification
   gates.push({
     id: "visual-steps",
     label: "20 visual certification steps defined",
-    pass: XLIV_VISUAL_STEPS.length === 20 && e2e.includes("XLIV_VISUAL_STEPS"),
+    pass: loadE2eArtifacts
+      ? XLIV_VISUAL_STEPS.length === 20 && e2e.includes("XLIV_VISUAL_STEPS")
+      : XLIV_VISUAL_STEPS.length === 20,
   });
 
   gates.push({
     id: "report-statuses",
     label: "Report supports PASS · FAIL · WARNING",
-    pass:
-      SUPREME_BLOOD_LAW_XLIV_FULL_DEMO_CERTIFICATION_ENVIRONMENT_V1.moduleResultStatuses.includes(
-        "WARNING",
-      ) && e2e.includes("FULL PLATFORM CERTIFICATION REPORT"),
+    pass: loadE2eArtifacts
+      ? SUPREME_BLOOD_LAW_XLIV_FULL_DEMO_CERTIFICATION_ENVIRONMENT_V1.moduleResultStatuses.includes(
+          "WARNING",
+        ) && e2e.includes("FULL PLATFORM CERTIFICATION REPORT")
+      : SUPREME_BLOOD_LAW_XLIV_FULL_DEMO_CERTIFICATION_ENVIRONMENT_V1.moduleResultStatuses.includes(
+          "WARNING",
+        ),
   });
 
   gates.push({

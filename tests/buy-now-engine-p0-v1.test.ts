@@ -75,6 +75,10 @@ describe("Master Checkout Architecture — Buy Now engines (order AFTER payment)
     expect(api).toContain("BUY_NOW_ENGINE");
     expect(buyNow).toContain("CHECKOUT_SESSION_ENGINE_create");
     expect(buyNow).toContain("orderId: null");
+    expect(buyNow).not.toMatch(/orderID:\s*true/);
+    expect(buyNow).not.toMatch(/transactionID:\s*true/);
+    expect(buyNow).toContain("orderID: Boolean(sessionResult.session.public_id)");
+    expect(buyNow).toContain("transactionID: Boolean(paymentIntent.id)");
     expect(loader).toContain("checkoutSessionId");
     expect(loader).toContain("CHECKOUT_SESSION_ENGINE");
     expect(ordersApi).toContain("checkoutSessionId");

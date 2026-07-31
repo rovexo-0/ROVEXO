@@ -155,21 +155,52 @@ export async function signUp(
 
 export async function signInWithOAuthProvider(formData: FormData): Promise<void> {
   const provider = formData.get("provider");
-  if (provider !== "google" && provider !== "apple" && provider !== "facebook") {
-    return;
+  const returnPathRaw = formData.get("returnPath")?.toString() ?? "/login";
+  const returnPath =
+    returnPathRaw === "/register" || returnPathRaw.startsWith("/register?")
+      ? "/register"
+      : "/login";
+
+  if (provider !== "google" && provider !== "apple") {
+    // Facebook and unknown providers stay blocked on public RC1.
+    redirect(`${returnPath}?error=oauth_provider_unavailable`);
   }
 
   const next = sanitizeNextPath(formData.get("next")?.toString());
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: {
-      redirectTo: authCallbackUrl(next),
-    },
-  });
 
-  if (error || !data.url) {
-    return;
+  let data: { url: string } | null = null;
+  let error: { message: string } | null = null;
+  try {
+    const result = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: authCallbackUrl(next),
+        skipBrowserRedirect: false,
+      },
+    });
+    data = result.data.url ? { url: result.data.url } : null;
+    error = result.error;
+  } catch {
+    redirect(
+      `${returnPath}?error=oauth_network${next !== "/" ? `&next=${encodeURIComponent(next)}` : ""}`,
+    );
+  }
+
+  if (error || !data?.url) {
+    const message = (error?.message ?? "").toLowerCase();
+    let code = "oauth_provider_unavailable";
+    if (message.includes("cancel")) code = "oauth_cancelled";
+    if (
+      message.includes("already") ||
+      message.includes("identity") ||
+      message.includes("registered")
+    ) {
+      code = "oauth_account_exists";
+    }
+    if (message.includes("network") || message.includes("fetch")) code = "oauth_network";
+    const nextQs = next !== "/" ? `&next=${encodeURIComponent(next)}` : "";
+    redirect(`${returnPath}?error=${code}${nextQs}`);
   }
 
   redirect(data.url);

@@ -35,7 +35,9 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
     expect(settings).toContain("SettingsMenuSections");
     expect(menu).toContain('"Personal Information"');
     expect(menu).toContain('"Addresses"');
-    expect(menu).toContain('"Currency"');
+    expect(menu).toContain('"Currency & Region"');
+    expect(menu).toContain("Help Centre");
+    expect(menu).toContain("Legal Information");
     expect(menu).not.toContain("Identity Verification");
     expect(menu).not.toContain("Download My Data");
     expect(readSource("features/account-module/components/SettingsMenuSections.tsx")).toContain(
@@ -55,12 +57,14 @@ describe("ROVEXO v1.0 Master Production Audit", () => {
     expect(detail).toContain("Opening Balance");
   });
 
-  it("locks Terms registration consent (GDPR checkbox removed AUTH UI v1.2)", () => {
+  it("locks Terms registration consent with Privacy + Cookie links (AUTH UI v1.2 · Phase C.1)", () => {
     const fields = readSource("features/auth/components/RegisterScreen.tsx");
     const actions = readSource("lib/auth/actions.ts");
     expect(fields).toContain('name="terms"');
     expect(fields).not.toContain('name="gdpr"');
-    expect(fields).not.toContain("/legal/cookie-policy");
+    expect(fields).toContain("/legal/terms-and-conditions");
+    expect(fields).toContain("/legal/privacy-policy");
+    expect(fields).toContain("/legal/cookie-policy");
     expect(fields).not.toContain("copy.cookieLabel");
     expect(actions).toContain("marketing_emails");
     expect(actions).toContain('terms: z.literal("on"');

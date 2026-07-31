@@ -257,7 +257,7 @@
   transform: none;
 }
 
-/* Delete — 22×22 · top/right 6px · hover opacity only */
+/* Delete — 22×22 visual · top/right 6px · Phase B: ≥44px invisible hit target */
 [data-sell-shell] .sell-photo-tile__delete {
   position: absolute;
   top: 6px;
@@ -286,6 +286,15 @@
   cursor: pointer;
   opacity: 0.92;
   transition: opacity 0.2s ease;
+}
+
+[data-sell-shell] .sell-photo-tile__delete::after {
+  content: "";
+  position: absolute;
+  inset: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
 }
 
 [data-sell-shell] .sell-photo-tile__delete:hover,
@@ -354,6 +363,7 @@
 }
 
 [data-sell-shell] .sell-stock-stepper__btn {
+  position: relative;
   box-sizing: border-box;
   width: 36px;
   height: 36px;
@@ -372,6 +382,16 @@
   line-height: 1;
   cursor: pointer;
   transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+/* Phase B: ≥44px hit target — visual control stays 36×36. */
+[data-sell-shell] .sell-stock-stepper__btn::after {
+  content: "";
+  position: absolute;
+  inset: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
 }
 
 [data-sell-shell] .sell-stock-stepper__btn:hover:not(:disabled),
@@ -499,6 +519,16 @@
   background: transparent;
   cursor: pointer;
   align-items: center;
+}
+
+.sell-parcel-option:focus-visible {
+  outline: 2px solid #9333ea;
+  outline-offset: -2px;
+  background: color-mix(in srgb, #9333ea 6%, #fff);
+}
+
+.sell-parcel-option--active {
+  background: color-mix(in srgb, #9333ea 4%, #fff);
 }
 
 .sell-parcel-option:last-child {

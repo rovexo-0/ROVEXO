@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import type { MouseEvent } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, type MouseEvent } from "react";
 import type { BottomNavIconType } from "@/lib/icons/bottom-nav-icon-type";
 import { BottomNavV2Icon } from "@/components/ui/BottomNavV2Icon";
 import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
@@ -134,6 +134,7 @@ export function BottomNavigation({
   visible = true,
 }: BottomNavigationProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const scroll = useMobileHeaderScrollContext();
   const { mobileBadges } = useRealtimeNotifications();
   const { t, tx } = useTranslation();
@@ -160,6 +161,14 @@ export function BottomNavigation({
     0,
     (mobileBadges.messages ?? 0) + (mobileBadges.notifications ?? 0),
   );
+
+  /* Phase A1 — warm primary destinations once bottom nav mounts. */
+  useEffect(() => {
+    const targets = ["/", "/browse", "/search", "/inbox", "/account", "/orders", "/sell", "/balance"];
+    for (const href of targets) {
+      router.prefetch(href);
+    }
+  }, [router]);
 
   if (!visible) return null;
 

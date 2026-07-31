@@ -3,14 +3,14 @@
 import type { LiveEventItem } from "@/lib/analytics/live-center/types";
 
 const EVENT_ICONS: Record<LiveEventItem["type"], string> = {
-  visitor_joined: "🟢",
-  seller_registered: "🟢",
-  listing_published: "🟢",
-  order_created: "🟢",
-  payment_completed: "🟢",
-  refund_created: "🟢",
-  user_signed_in: "🟢",
-  user_signed_out: "🟢",
+  visitor_joined: "•",
+  seller_registered: "•",
+  listing_published: "•",
+  order_created: "•",
+  payment_completed: "•",
+  refund_created: "•",
+  user_signed_in: "•",
+  user_signed_out: "•",
 };
 
 type LiveEventFeedProps = {
@@ -21,7 +21,7 @@ export function LiveEventFeed({ events }: LiveEventFeedProps) {
   return (
     <section className="live-analytics-glass rounded-[24px] p-ds-4">
       <header className="mb-ds-3">
-        <h3 className="text-sm font-semibold text-text-primary">⚡ Live Event Feed</h3>
+        <h3 className="text-sm font-semibold text-text-primary">Live Event Feed</h3>
         <p className="mt-ds-1 text-xs text-text-secondary">Realtime platform activity</p>
       </header>
 

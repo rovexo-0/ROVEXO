@@ -131,7 +131,8 @@
   bottom: calc(var(--cds-bottom-nav-offset) - 24px);
   z-index: 20;
   margin-top: 8px;
-  padding: 12px 0 4px;
+  /* Phase B: safe-area so sticky Save/Publish clears the home indicator. */
+  padding: 12px 0 max(4px, env(safe-area-inset-bottom, 0px));
   background: linear-gradient(180deg, rgb(255 255 255 / 0) 0%, #ffffff 24%);
 }
 

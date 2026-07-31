@@ -15,7 +15,7 @@ function readSource(relativePath: string): string {
 
 describe("Inbox Hub Sprint 1 canonical foundation", () => {
   it("locks /inbox as the live hub route", () => {
-    const route = readSource("app/inbox/page.tsx");
+    const route = readSource("app/inbox/(list)/page.tsx");
     const legacyMessages = readSource("app/messages/page.tsx");
     const legacyNotifications = readSource("app/notifications/page.tsx");
     const conversation = readSource("app/inbox/conversation/[conversationId]/page.tsx");

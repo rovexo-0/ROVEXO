@@ -1,0 +1,423 @@
+/**
+ * HMRC Reporting Centre v1.1 — approved design layout.
+ * Mobile first · Full Width · ROVEXO purple.
+ */
+.hmrc-rc {
+  --hmrc-purple: #7c3aed;
+  --hmrc-purple-soft: #f3e8ff;
+  --hmrc-green: #16a34a;
+  --hmrc-green-soft: #dcfce7;
+  --hmrc-amber: #d97706;
+  --hmrc-amber-soft: #fef3c7;
+  --hmrc-red: #dc2626;
+  --hmrc-red-soft: #fee2e2;
+  --hmrc-blue: #2563eb;
+  --hmrc-blue-soft: #dbeafe;
+  --hmrc-slate: #475569;
+  --hmrc-slate-soft: #f1f5f9;
+  --hmrc-radius: 16px;
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 28px;
+  color: #0f172a;
+}
+
+.hmrc-rc__intro {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hmrc-rc__page-title {
+  margin: 0;
+  font-size: 1.375rem;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.hmrc-rc__page-sub {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.hmrc-rc__help-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: #0f172a;
+}
+
+.hmrc-rc__card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--hmrc-radius);
+  padding: 16px;
+  width: 100%;
+}
+
+.hmrc-rc__card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.hmrc-rc__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.hmrc-rc__card-copy {
+  margin: 0 0 12px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.hmrc-rc__edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--hmrc-purple);
+  border-radius: 10px;
+  color: var(--hmrc-purple);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hmrc-rc__status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  border-radius: var(--hmrc-radius);
+  padding: 16px;
+  border: 1px solid transparent;
+  background: var(--hmrc-green-soft);
+  color: inherit;
+  min-height: 72px;
+  text-decoration: none;
+}
+
+.hmrc-rc__status--amber {
+  background: var(--hmrc-amber-soft);
+}
+
+.hmrc-rc__status--red {
+  background: var(--hmrc-red-soft);
+}
+
+.hmrc-rc__status--blue {
+  background: var(--hmrc-blue-soft);
+}
+
+.hmrc-rc__status--slate {
+  background: var(--hmrc-slate-soft);
+}
+
+.hmrc-rc__status-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: var(--hmrc-green);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.hmrc-rc__status--amber .hmrc-rc__status-badge {
+  background: var(--hmrc-amber);
+}
+
+.hmrc-rc__status--red .hmrc-rc__status-badge {
+  background: var(--hmrc-red);
+}
+
+.hmrc-rc__status--blue .hmrc-rc__status-badge {
+  background: var(--hmrc-blue);
+}
+
+.hmrc-rc__status--slate .hmrc-rc__status-badge {
+  background: var(--hmrc-slate);
+}
+
+.hmrc-rc__status-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.hmrc-rc__status-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--hmrc-green);
+}
+
+.hmrc-rc__status--amber .hmrc-rc__status-title {
+  color: var(--hmrc-amber);
+}
+
+.hmrc-rc__status--red .hmrc-rc__status-title {
+  color: var(--hmrc-red);
+}
+
+.hmrc-rc__status--blue .hmrc-rc__status-title {
+  color: var(--hmrc-blue);
+}
+
+.hmrc-rc__status--slate .hmrc-rc__status-title {
+  color: var(--hmrc-slate);
+}
+
+.hmrc-rc__status-text {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #334155;
+}
+
+.hmrc-rc__status-cta {
+  margin: 8px 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--hmrc-purple);
+}
+
+.hmrc-rc__status-chevron {
+  color: #94a3b8;
+  font-size: 1.25rem;
+  line-height: 1;
+  margin-top: 8px;
+}
+
+.hmrc-rc__metric-list,
+.hmrc-rc__prefill-list,
+.hmrc-rc__doc-list,
+.hmrc-rc__help-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.hmrc-rc__metric-row,
+.hmrc-rc__prefill-row,
+.hmrc-rc__doc-row,
+.hmrc-rc__help-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+  text-decoration: none;
+  color: inherit;
+}
+
+.hmrc-rc__doc-row--unavailable {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.hmrc-rc__metric-row:last-child,
+.hmrc-rc__prefill-row:last-child,
+.hmrc-rc__doc-list li:last-child .hmrc-rc__doc-row,
+.hmrc-rc__help-list li:last-child .hmrc-rc__help-row {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.hmrc-rc__metric-icon,
+.hmrc-rc__prefill-icon,
+.hmrc-rc__doc-icon,
+.hmrc-rc__help-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--hmrc-purple);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.hmrc-rc__metric-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9375rem;
+  color: #334155;
+}
+
+.hmrc-rc__metric-value {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--hmrc-purple);
+  text-align: right;
+}
+
+.hmrc-rc__progress-figures {
+  margin: 12px 0 4px;
+  font-size: 1.0625rem;
+}
+
+.hmrc-rc__progress-current {
+  font-weight: 700;
+  color: var(--hmrc-purple);
+}
+
+.hmrc-rc__progress-sep,
+.hmrc-rc__progress-threshold {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.hmrc-rc__progress-caption {
+  margin: 0 0 12px;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.hmrc-rc__progress-track {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: visible;
+}
+
+.hmrc-rc__progress-fill {
+  position: relative;
+  height: 100%;
+  min-width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #a855f7, #7c3aed);
+  transition: width 0.35s ease;
+}
+
+.hmrc-rc__progress-pill {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(50%, -50%);
+  background: var(--hmrc-purple);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 5px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.hmrc-rc__prefill-copy,
+.hmrc-rc__doc-copy,
+.hmrc-rc__help-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hmrc-rc__prefill-label {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.hmrc-rc__prefill-value {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+.hmrc-rc__verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--hmrc-green-soft);
+  color: var(--hmrc-green);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.hmrc-rc__secure-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 12px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.hmrc-rc__secure-note span:first-child {
+  color: var(--hmrc-purple);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.hmrc-rc__doc-title,
+.hmrc-rc__help-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.hmrc-rc__doc-sub,
+.hmrc-rc__help-sub {
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.hmrc-rc__doc-download,
+.hmrc-rc__help-ext {
+  color: var(--hmrc-purple);
+  font-size: 1.125rem;
+  margin-top: 4px;
+}
+
+.hmrc-rc__legal {
+  margin: 8px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #475569;
+}
+
+@media (min-width: 768px) {
+  .hmrc-rc {
+    gap: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hmrc-rc__progress-fill {
+    transition: none;
+  }
+}

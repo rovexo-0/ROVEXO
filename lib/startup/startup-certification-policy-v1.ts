@@ -15,16 +15,40 @@
  *   PASS → continue
  *   FAIL → throw → block startup
  *
+ * Testing artifacts (e2e/ · playwright · *.spec.ts · cert runners under scripts/):
+ *   Load ONLY when NODE_ENV !== "production", or ROVEXO_CERTIFICATION_MODE is set.
+ *   Production MUST NEVER readFileSync / import Playwright or E2E files (ENOENT on Vercel —
+ *   outputFileTracingExcludes ships without ./e2e/** and ./scripts/**).
+ *
  * Does not remove, skip, or weaken certification engines or assertions.
  */
 
 export const STARTUP_CERTIFICATION_POLICY_V1 = {
-  version: "1.0",
+  version: "1.1",
   id: "startup-certification-policy-v1",
   developmentOnFail: "log-and-continue",
   productionOnFail: "throw-and-block",
   certificationModeOnFail: "throw-and-block",
+  testingArtifacts: "development-or-certification-mode-only",
 } as const;
+
+/**
+ * True when startup may read Playwright / E2E / certification runner files from disk.
+ * False in Production — those paths are excluded from the serverless bundle.
+ */
+export function shouldLoadTestingArtifactsOnStartup(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  if (env.ROVEXO_CERTIFICATION_MODE === "1" || env.ROVEXO_CERTIFICATION_MODE === "true") {
+    return true;
+  }
+  // Production runtime (Vercel production / `next start`) — never touch e2e/scripts artifacts.
+  if (env.NODE_ENV === "production") {
+    return false;
+  }
+  // development · test (Vitest) · unset
+  return true;
+}
 
 /**
  * True when a failed startup certification must abort process boot.

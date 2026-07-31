@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { redirectIfAuthenticated } from "@/lib/auth/guest-redirect";
 import { AUTH_ERROR_MESSAGES } from "@/lib/auth/redirects";
+import { loadPublicOauthProviders } from "@/lib/auth/oauth-provider-availability.server";
 import { LoginScreen } from "@/features/auth/components/LoginScreen";
 
 export const metadata: Metadata = {
@@ -24,5 +25,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     ? AUTH_ERROR_MESSAGES[error] ?? "Unable to sign in. Please try again."
     : undefined;
 
-  return <LoginScreen next={next} initialError={initialError} />;
+  const oauthProviders = await loadPublicOauthProviders();
+
+  return (
+    <LoginScreen
+      next={next}
+      initialError={initialError}
+      oauthProviders={oauthProviders}
+    />
+  );
 }

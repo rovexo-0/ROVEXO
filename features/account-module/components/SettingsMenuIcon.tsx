@@ -2,10 +2,14 @@
 
 import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
 import type { SettingsMenuIcon } from "@/lib/account-center/settings-menu";
-import type { SettingsIconTone } from "@/lib/settings/settings-v1";
+import {
+  SETTINGS_ICON_TONE_COLORS,
+  type SettingsIconTone,
+} from "@/lib/settings/settings-v1";
 
 /**
- * Settings icons — One Product freeze + v1.0 accent tones.
+ * Settings icons — One Product freeze + Profile accent tones.
+ * Colour is inline (SSR + first paint) — never wait on CSS chunk load.
  */
 const SETTINGS_TO_ACCOUNT_ICON: Record<SettingsMenuIcon, AccountIconName> = {
   user: "profile",
@@ -37,17 +41,23 @@ export function SettingsMenuIconGlyph({
   tone?: SettingsIconTone;
   danger?: boolean;
 }) {
-  const toneClass = danger
-    ? "settings-canonical__icon--soft-red"
-    : tone
-      ? `settings-canonical__icon--${tone}`
-      : "";
+  const resolvedTone: SettingsIconTone = danger
+    ? "soft-red"
+    : tone ?? "purple";
+  const color = SETTINGS_ICON_TONE_COLORS[resolvedTone];
+
   return (
     <span
-      className={`cds-menu-row__icon ac-canonical__menu-icon settings-canonical__icon ${toneClass}`.trim()}
+      className={`ac-canonical__menu-icon settings-canonical__icon settings-canonical__icon--${resolvedTone}`}
+      style={{ color, display: "inline-flex", width: 24, height: 24 }}
       aria-hidden
+      data-settings-icon={name}
+      data-settings-tone={resolvedTone}
     >
-      <AccountIcon name={SETTINGS_TO_ACCOUNT_ICON[name] ?? "settings"} />
+      <AccountIcon
+        name={SETTINGS_TO_ACCOUNT_ICON[name] ?? "settings"}
+        className="settings-canonical__icon-svg"
+      />
     </span>
   );
 }

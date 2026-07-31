@@ -477,6 +477,110 @@
   cursor: not-allowed;
 }
 
+/* Admin / Super Admin Command Centre — full width · premium red · no subtitle */
+.vp-v1__command-centre {
+  width: 100%;
+  max-width: 480px;
+  margin-top: 10px;
+}
+
+.vp-v1__command-centre-btn {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #b91c1c 0%, #dc2626 45%, #ef4444 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgb(185 28 28 / 0.32);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.vp-v1__command-centre-btn:hover {
+  filter: brightness(1.04);
+  box-shadow: 0 6px 18px rgb(185 28 28 / 0.38);
+}
+
+.vp-v1__command-centre-btn:active {
+  transform: scale(0.985);
+}
+
+.vp-v1__command-centre-btn:focus-visible {
+  outline: 2px solid #fecaca;
+  outline-offset: 2px;
+}
+
+.vp-v1__command-centre-leading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.vp-v1__command-centre-icon {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  color: #ffffff;
+}
+
+.vp-v1__command-centre-label {
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+}
+
+.vp-v1__command-centre-trailing {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.vp-v1__command-centre-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgb(127 29 29 / 0.88);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.vp-v1__command-centre-chevron {
+  width: 18px;
+  height: 18px;
+  color: #ffffff;
+  opacity: 0.95;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vp-v1__command-centre-btn {
+    transition: none;
+  }
+
+  .vp-v1__command-centre-btn:active {
+    transform: none;
+  }
+}
+
 /* Your Store empty — My Profile v10.0 (icon · copy · Create Listing only) */
 .vp-v1__store-empty {
   display: flex;

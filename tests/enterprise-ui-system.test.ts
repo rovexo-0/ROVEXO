@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -19,11 +19,11 @@ describe("Enterprise UI system — homepage hero", () => {
     expect(constants).toContain("Learn more");
     expect(constants).toContain("Shop now");
     expect(constants).toContain("Start selling");
-    expect(constants).toContain("Open store");
     expect(constants).toContain('href: "/sell"');
     expect(constants).toContain('href: "/trust"');
     expect(constants).toContain('href: "/sell/new"');
-    expect(constants).toContain('href: "/business/dashboard"');
+    expect(constants).not.toContain('href: "/business/dashboard"');
+    expect(constants).not.toContain("Grow Your Business");
     expect(constants).toContain("HOME_HERO_BANNERS");
     expect(constants).not.toContain("unsplash.com");
   });
@@ -72,13 +72,17 @@ describe("Enterprise UI system — design lock", () => {
 
 describe("Enterprise UI system — Absolute Final icon freeze", () => {
   const legacyWrappers = [
-    "components/icons/Fluency3DIcon.tsx",
     "components/icons/DashboardIcon3D.tsx",
     "components/icons/BottomNavIcon3D.tsx",
     "components/icons/PremiumIcon.tsx",
     "components/icons/PremiumNavIcon.tsx",
     "components/icons/PremiumAccountIcon.tsx",
   ] as const;
+
+  it("Fluency3D pack is deleted from the tree", () => {
+    expect(existsSync(join(process.cwd(), "components/icons/Fluency3DIcon.tsx"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "lib/icons/fluency-3d-registry.ts"))).toBe(false);
+  });
 
   it("legacy icon wrappers render line icons only — no 3D picture assets", () => {
     for (const rel of legacyWrappers) {

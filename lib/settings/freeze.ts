@@ -1,9 +1,9 @@
 /**
- * ROVEXO Settings module — freeze markers v1.0
- * Master Engine lock: Settings inventory (no Holiday/Promote/Help/Legal/Sign Out/Payments/Bank).
+ * ROVEXO Settings module — freeze markers v1.0 + Phase C.3 Account Control Centre.
+ * Design lock unchanged. Content inventory expanded under Phase C.3.
  */
 
-/** Canonical freeze label — Settings hub v1.0 permanent lock. */
+/** Canonical freeze label — Settings hub v1.0 permanent design lock. */
 export const SETTINGS_STATUS = "PERMANENT_LOCK_v1.0_APPROVED" as const;
 
 export const SETTINGS_SPEC_VERSION = "1.0" as const;
@@ -17,7 +17,6 @@ export const SETTINGS_UI_FREEZE = SETTINGS_STATUS;
 
 export const SETTINGS_ROUTES = {
   hub: "/account/settings",
-  about: "/account/settings/about",
 } as const;
 
 /** DOM markers locked at freeze. */
@@ -35,24 +34,33 @@ export const SETTINGS_CANONICAL_COMPONENTS = [
   "MyAccountTemplate",
 ] as const;
 
-/** Frozen section titles in render order (excl. DANGER ZONE). */
-export const SETTINGS_SECTION_TITLES = ["ACCOUNT", "SECURITY", "PREFERENCES"] as const;
+/** UK Public Launch Simplification v1.0 section titles (excl. DANGER ZONE). */
+export const SETTINGS_SECTION_TITLES = [
+  "ACCOUNT",
+  "SUPPORT",
+  "LEGAL",
+] as const;
 
 /**
- * Frozen menu row titles in render order (from `buildSettingsMenuSections`).
+ * UK Public Launch menu row titles in render order (from `buildSettingsMenuSections`).
  * Delete Account lives in DANGER ZONE. Sign Out lives on Profile only.
+ * Verification / Marketplace / Finance / Report / Feedback = navigation removed only.
+ * About ROVEXO removed — version metadata stays internal (lib/app/version.ts).
  */
 export const SETTINGS_MENU_ROW_TITLES = [
   "Personal Information",
-  "Addresses",
-  "Notifications",
-  "Privacy",
   "Security",
-  "Verification",
-  "Currency",
+  "Privacy",
+  "Notifications",
+  "Addresses",
+  "Currency & Region",
+  "Blocked Users",
+  "Help Centre",
+  "Legal Information",
+  "HMRC Reporting",
 ] as const;
 
-/** Frozen danger-zone actions (render after PREFERENCES). */
+/** Frozen danger-zone actions (render after LEGAL). */
 export const SETTINGS_DANGER_ACTIONS = ["Delete Account"] as const;
 
 /** Full approved inventory including danger zone. */

@@ -34,6 +34,13 @@ import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import { isRenderableImageSrc } from "@/lib/media/is-valid-image-src";
 import { sanitizeNativeImagePickerId } from "@/lib/media/native-image-picker";
+import {
+  isMessagePhotoStoragePath,
+  isRenderableMessagePhotoSrc,
+  MESSAGE_PHOTO_PREVIEW_LABEL,
+} from "@/lib/messages/message-photo-url-v1";
+import { prepareMessagePhotoFile } from "@/lib/messages/prepare-message-photo-v1";
+import { resolveMessagePhotoUrl } from "@/lib/messages/resolve-message-photo-url.client";
 import { resolvePublicProfileHref } from "@/lib/profile/public-profile-href";
 import { trackGaEvent } from "@/lib/analytics/ga4-events";
 import Link from "next/link";
@@ -68,6 +75,7 @@ import { formatCurrency } from "@/lib/wallet/utils";
 import { WALLET_ROUTES } from "@/lib/wallet/canonical-routes";
 import { calculateOrderTotals } from "@/lib/orders/pricing";
 import { AccountIcon, type AccountIconName } from "@/components/account/AccountIcons";
+import { shareInflightJson } from "@/lib/performance/fetch";
 /* conversation-hub-v1.css loads via styles/rovexo/index.css — do not dual-import (Turbopack CSS). */
 
 function formatCompactSystemWhen(iso: string): string {
@@ -136,6 +144,54 @@ type LoadState = "ready" | "loading" | "error" | "offline";
 
 const HISTORY_PAGE = 40;
 
+function MessagePhotoBubble({ content }: { content: string }) {
+  const [src, setSrc] = useState<string | null>(() =>
+    isRenderableMessagePhotoSrc(content) ? content : null,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    if (isRenderableMessagePhotoSrc(content)) {
+      setSrc(content);
+      return () => {
+        cancelled = true;
+      };
+    }
+    if (!isMessagePhotoStoragePath(content)) {
+      setSrc(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+    setSrc(null);
+    void resolveMessagePhotoUrl(content).then((url) => {
+      if (!cancelled) setSrc(url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [content]);
+
+  if (src && isRenderableImageSrc(src)) {
+    return (
+      <SafeImage
+        src={src}
+        alt=""
+        width={200}
+        height={200}
+        className="conv-hub__bubble-photo"
+        sizes="200px"
+      />
+    );
+  }
+
+  return (
+    <span className="conv-hub__bubble-photo-pending" aria-busy="true" aria-label="Loading photo">
+      {MESSAGE_PHOTO_PREVIEW_LABEL}
+    </span>
+  );
+}
+
 function MessageBubble({
   message,
   avatarSrc,
@@ -147,9 +203,8 @@ function MessageBubble({
 }) {
   /** Canonical mockup: Buyer left · Seller right. */
   const isBuyer = message.senderRole === "buyer";
-  const photoSrc =
-    message.kind === "photo" && isRenderableImageSrc(message.content) ? message.content : null;
-  const content = message.kind === "photo" ? "Shared photo" : message.content;
+  const isPhoto = message.kind === "photo";
+  const content = isPhoto ? MESSAGE_PHOTO_PREVIEW_LABEL : message.content;
   const avatar = (
     <Avatar
       src={avatarSrc}
@@ -165,18 +220,7 @@ function MessageBubble({
       {isBuyer ? avatar : null}
       <div className="conv-hub__msg-stack">
         <div className={cn("conv-hub__bubble", isBuyer ? "conv-hub__bubble--buyer" : "conv-hub__bubble--seller")}>
-          {photoSrc ? (
-            <SafeImage
-              src={photoSrc}
-              alt=""
-              width={200}
-              height={200}
-              className="conv-hub__bubble-photo"
-              sizes="200px"
-            />
-          ) : (
-            content
-          )}
+          {isPhoto ? <MessagePhotoBubble content={message.content} /> : content}
         </div>
         <span className="conv-hub__msg-meta">
           <time dateTime={message.sentAt}>{formatMessageTime(message.sentAt)}</time>
@@ -234,7 +278,8 @@ export function ConversationHub({
   const [conversation, setConversation] = useState(initialConversation);
   const [order, setOrder] = useState<Order | null>(initialOrder);
   const [hasShippingLabel, setHasShippingLabel] = useState(initialHasShippingLabel);
-  const [relatedReady, setRelatedReady] = useState(demoMode);
+  /* Phase A1 — paint immediately from initialConversation; related hydrates in background. */
+  const [relatedReady, setRelatedReady] = useState(true);
   const [offers, setOffers] = useState<ConversationOfferView[]>(initialOffers ?? []);
   const [dispute, setDispute] = useState<ConversationDisputeView | null>(initialDispute);
   const [draft, setDraft] = useState("");
@@ -259,6 +304,7 @@ export function ConversationHub({
   const refreshBadgesRef = useRef(refreshBadges);
   const pushToastRef = useRef(pushToast);
   const focusSyncAtRef = useRef(0);
+  const reloadGenerationRef = useRef(0);
 
   // Keep latest callbacks in refs for async/event handlers — sync in layout, not during render.
   useLayoutEffect(() => {
@@ -277,6 +323,34 @@ export function ConversationHub({
 
   useChatRealtime(conversation.id, conversation.participant.id, setConversation, !demoMode);
 
+  /* Phase A2 — sign any photo storage paths present on first paint (failed server sign / stale cache). */
+  useEffect(() => {
+    if (demoMode) return;
+    let cancelled = false;
+    for (const message of conversation.messages) {
+      if (message.kind !== "photo" || !isMessagePhotoStoragePath(message.content)) continue;
+      const path = message.content;
+      const messageId = message.id;
+      void resolveMessagePhotoUrl(path).then((url) => {
+        if (!url || cancelled) return;
+        setConversation((current) => ({
+          ...current,
+          messages: current.messages.map((item) =>
+            item.id === messageId &&
+            (item.content === path || isMessagePhotoStoragePath(item.content))
+              ? { ...item, content: url }
+              : item,
+          ),
+        }));
+      });
+    }
+    return () => {
+      cancelled = true;
+    };
+    // Only on conversation identity change — not every message append.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Phase A2 mount hydrate
+  }, [conversation.id, demoMode]);
+
   const reloadRelated = useCallback(async () => {
     if (demoMode) {
       setLoadState("ready");
@@ -289,36 +363,15 @@ export function ConversationHub({
       return;
     }
 
-    setLoadState("loading");
+    /* Soft background hydrate — never blank the hub (Phase A1). */
     try {
-      const [ordersRes, offersRes] = await Promise.all([
-        fetch("/api/orders", { cache: "no-store" }),
-        fetch(`/api/offers?productSlug=${encodeURIComponent(conversation.product.slug)}`, {
-          cache: "no-store",
-        }),
-      ]);
-
-      let nextOrder: Order | null = null;
-      if (ordersRes.ok) {
-        const payload = (await ordersRes.json()) as { orders?: Order[] };
-        const matchingOrders = (payload.orders ?? []).filter(
-          (item) =>
-            item.product.id === conversation.product.id ||
-            item.product.slug === conversation.product.slug,
-        );
-        nextOrder = requestedOrderId
-          ? matchingOrders.find((item) => item.id === requestedOrderId) ?? null
-          : matchingOrders.length === 0
-            ? null
-            : [...matchingOrders].sort(
-                (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
-              )[0] ?? null;
-        setOrder(nextOrder);
-        if (!nextOrder) setHasShippingLabel(false);
-      }
-
-      if (offersRes.ok) {
-        const payload = (await offersRes.json()) as {
+      const ordersKey = "GET:/api/orders";
+      const offersKey = `GET:/api/offers?productSlug=${conversation.product.slug}`;
+      const [ordersPayload, offersPayload] = await Promise.all([
+        shareInflightJson<{ orders?: Order[] }>(ordersKey, "/api/orders", { ttlMs: 1500 }).catch(
+          () => ({ orders: [] as Order[] }),
+        ),
+        shareInflightJson<{
           offers?: Array<{
             id: string;
             amount: number;
@@ -328,31 +381,78 @@ export function ConversationHub({
             fromRole?: "buyer" | "seller";
             parentOfferId?: string | null;
           }>;
-        };
-        setOffers(
-          (payload.offers ?? []).map((offer) => ({
-            id: offer.id,
-            amount: offer.amount,
-            currency: "GBP",
-            state: mapOfferDbStatus(offer.status),
-            fromRole: offer.fromRole === "seller" || offer.fromRole === "buyer" ? offer.fromRole : "buyer",
-            createdAt: offer.createdAt,
-            parentOfferId: offer.parentOfferId ?? null,
-          })),
-        );
-      }
+        }>(
+          offersKey,
+          `/api/offers?productSlug=${encodeURIComponent(conversation.product.slug)}`,
+          { ttlMs: 1500 },
+        ).catch(() => ({ offers: [] as Array<{
+          id: string;
+          amount: number;
+          status: string;
+          createdAt: string;
+          buyerId: string;
+          fromRole?: "buyer" | "seller";
+          parentOfferId?: string | null;
+        }> })),
+      ]);
+
+      let nextOrder: Order | null = null;
+      const matchingOrders = (ordersPayload.orders ?? []).filter(
+        (item) =>
+          item.product.id === conversation.product.id ||
+          item.product.slug === conversation.product.slug,
+      );
+      nextOrder = requestedOrderId
+        ? matchingOrders.find((item) => item.id === requestedOrderId) ?? null
+        : matchingOrders.length === 0
+          ? null
+          : [...matchingOrders].sort(
+              (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
+            )[0] ?? null;
+      setOrder(nextOrder);
+      if (!nextOrder) setHasShippingLabel(false);
+
+      setOffers(
+        (offersPayload.offers ?? []).map((offer) => ({
+          id: offer.id,
+          amount: offer.amount,
+          currency: "GBP",
+          state: mapOfferDbStatus(offer.status),
+          fromRole: offer.fromRole === "seller" || offer.fromRole === "buyer" ? offer.fromRole : "buyer",
+          createdAt: offer.createdAt,
+          parentOfferId: offer.parentOfferId ?? null,
+        })),
+      );
 
       if (nextOrder) {
-        const labelRes = await fetch(
-          `/api/shipping/labels?orderId=${encodeURIComponent(nextOrder.id)}`,
-          { cache: "no-store" },
-        );
-        if (labelRes.ok) {
-          const labelPayload = (await labelRes.json()) as {
+        const labelKey = `GET:/api/shipping/labels?orderId=${nextOrder.id}`;
+        const caseKey = `GET:/api/protection/cases?orderId=${nextOrder.id}`;
+        const [labelPayload, casePayload] = await Promise.all([
+          shareInflightJson<{
             ok?: boolean;
             pdfUrl?: string | null;
             trackingNumber?: string | null;
-          };
+          }>(
+            labelKey,
+            `/api/shipping/labels?orderId=${encodeURIComponent(nextOrder.id)}`,
+            { ttlMs: 2000 },
+          ).catch(() => null),
+          shareInflightJson<{
+            case?: {
+              id: string;
+              status: string;
+              reason: string;
+              resolvedAt?: string | null;
+              adminNotes?: string;
+            } | null;
+          }>(
+            caseKey,
+            `/api/protection/cases?orderId=${encodeURIComponent(nextOrder.id)}`,
+            { ttlMs: 2000 },
+          ).catch(() => null),
+        ]);
+
+        if (labelPayload) {
           setHasShippingLabel(
             Boolean(
               labelPayload.ok ||
@@ -375,36 +475,22 @@ export function ConversationHub({
           );
         }
 
-        const caseRes = await fetch(`/api/protection/cases?orderId=${encodeURIComponent(nextOrder.id)}`, {
-          cache: "no-store",
-        });
-        if (caseRes.ok) {
-          const payload = (await caseRes.json()) as {
-            case?: {
-              id: string;
-              status: string;
-              reason: string;
-              resolvedAt?: string | null;
-              adminNotes?: string;
-            } | null;
-          };
-          if (payload.case) {
-            const status =
-              payload.case.status === "resolved" || payload.case.status === "closed"
-                ? "resolved"
-                : payload.case.status === "under_review"
-                  ? "under_review"
-                  : "open";
-            setDispute({
-              id: payload.case.id,
-              status,
-              title: payload.case.reason || "Transaction dispute",
-              updatedAt: payload.case.resolvedAt ?? new Date().toISOString(),
-              decisionSummary: payload.case.adminNotes || null,
-            });
-          } else {
-            setDispute(null);
-          }
+        if (casePayload?.case) {
+          const status =
+            casePayload.case.status === "resolved" || casePayload.case.status === "closed"
+              ? "resolved"
+              : casePayload.case.status === "under_review"
+                ? "under_review"
+                : "open";
+          setDispute({
+            id: casePayload.case.id,
+            status,
+            title: casePayload.case.reason || "Transaction dispute",
+            updatedAt: casePayload.case.resolvedAt ?? new Date().toISOString(),
+            decisionSummary: casePayload.case.adminNotes || null,
+          });
+        } else if (casePayload) {
+          setDispute(null);
         }
       }
 
@@ -416,10 +502,12 @@ export function ConversationHub({
     }
   }, [conversation.product.id, conversation.product.slug, demoMode, requestedOrderId]);
 
+  /* Ignore stale background hydrates after conversation switch / unmount (Phase A1 memory). */
   useEffect(() => {
+    const generation = ++reloadGenerationRef.current;
     let cancelled = false;
     queueMicrotask(() => {
-      if (cancelled) return;
+      if (cancelled || generation !== reloadGenerationRef.current) return;
       void reloadRelated();
     });
     return () => {
@@ -863,21 +951,39 @@ export function ConversationHub({
     });
   }, []);
 
+  /** Clear composer pending without revoking — blob may still be the optimistic bubble src. */
+  const dismissPendingPhotoKeepBlob = useCallback(() => {
+    setPendingPhoto(null);
+  }, []);
+
+  const photoUploadLockRef = useRef(false);
+
   const handlePhotoSelected = useCallback(
     (files: FileList) => {
       const file = files.item(0);
-      if (!file || conversation.blocked || sending) return;
-      const previewUrl = URL.createObjectURL(file);
-      setPendingPhoto((current) => {
-        if (current?.previewUrl) URL.revokeObjectURL(current.previewUrl);
-        return { file, previewUrl };
-      });
+      if (!file || conversation.blocked || sending || photoUploadLockRef.current) return;
+
+      void (async () => {
+        try {
+          const prepared = await prepareMessagePhotoFile(file);
+          const previewUrl = URL.createObjectURL(prepared);
+          setPendingPhoto((current) => {
+            if (current?.previewUrl) URL.revokeObjectURL(current.previewUrl);
+            return { file: prepared, previewUrl };
+          });
+        } catch {
+          pushToast({
+            title: "This photo could not be processed. Try JPEG or PNG.",
+            variant: "error",
+          });
+        }
+      })();
     },
-    [conversation.blocked, sending],
+    [conversation.blocked, sending, pushToast],
   );
 
   const sendPhoto = useCallback(async () => {
-    if (!pendingPhoto || sending || conversation.blocked) return;
+    if (!pendingPhoto || sending || conversation.blocked || photoUploadLockRef.current) return;
 
     if (demoMode) {
       pushToast({
@@ -887,6 +993,7 @@ export function ConversationHub({
       return;
     }
 
+    photoUploadLockRef.current = true;
     setSending(true);
     const isFirstMessage = conversation.messages.length === 0;
     const optimisticId = `optimistic-photo-${Date.now()}`;
@@ -903,12 +1010,12 @@ export function ConversationHub({
     setConversation((current) => ({
       ...current,
       messages: [...current.messages, optimistic],
-      lastMessage: "Shared photo",
+      lastMessage: MESSAGE_PHOTO_PREVIEW_LABEL,
       lastMessageAt: optimistic.sentAt,
     }));
 
     const attachment = pendingPhoto;
-    clearPendingPhoto();
+    dismissPendingPhotoKeepBlob();
 
     try {
       const body = new FormData();
@@ -920,6 +1027,7 @@ export function ConversationHub({
       });
       const payload = (await response.json()) as {
         conversation?: Conversation;
+        message?: ChatMessage;
         warning?: string | null;
         error?: string;
       };
@@ -929,12 +1037,65 @@ export function ConversationHub({
           ...current,
           messages: current.messages.filter((message) => message.id !== optimisticId),
         }));
+        if (attachment.previewUrl) URL.revokeObjectURL(attachment.previewUrl);
         setWarning(payload.error ?? "Unable to send photo.");
         return;
       }
 
       if (payload.conversation) {
-        setConversation(payload.conversation);
+        setConversation((current) => {
+          const next = payload.conversation!;
+          const signedFromAppend =
+            payload.message && isRenderableMessagePhotoSrc(payload.message.content)
+              ? payload.message
+              : null;
+
+          const mergedMessages = next.messages.map((serverMessage) => {
+            if (signedFromAppend && serverMessage.id === signedFromAppend.id) {
+              return { ...serverMessage, content: signedFromAppend.content };
+            }
+            if (serverMessage.kind !== "photo") return serverMessage;
+            if (isRenderableMessagePhotoSrc(serverMessage.content)) return serverMessage;
+            const optimisticMatch = current.messages.find(
+              (message) =>
+                message.id === optimisticId && isRenderableMessagePhotoSrc(message.content),
+            );
+            if (optimisticMatch) {
+              return { ...serverMessage, content: optimisticMatch.content };
+            }
+            return serverMessage;
+          });
+          return { ...next, messages: mergedMessages };
+        });
+
+        for (const message of payload.conversation.messages) {
+          if (message.kind === "photo" && isMessagePhotoStoragePath(message.content)) {
+            void resolveMessagePhotoUrl(message.content).then((url) => {
+              if (!url) return;
+              setConversation((current) => ({
+                ...current,
+                messages: current.messages.map((item) =>
+                  item.id === message.id &&
+                  (item.content === message.content ||
+                    item.content === attachment.previewUrl ||
+                    isMessagePhotoStoragePath(item.content))
+                    ? { ...item, content: url }
+                    : item,
+                ),
+              }));
+              if (attachment.previewUrl) URL.revokeObjectURL(attachment.previewUrl);
+            });
+          }
+        }
+
+        if (
+          payload.message &&
+          isRenderableMessagePhotoSrc(payload.message.content) &&
+          attachment.previewUrl
+        ) {
+          URL.revokeObjectURL(attachment.previewUrl);
+        }
+
         if (isFirstMessage) {
           trackGaEvent("chat_started", {
             conversation_id: conversation.id,
@@ -946,6 +1107,7 @@ export function ConversationHub({
       setWarning(payload.warning ?? null);
       void refreshBadges();
     } finally {
+      photoUploadLockRef.current = false;
       setSending(false);
     }
   }, [
@@ -959,7 +1121,7 @@ export function ConversationHub({
     demoMode,
     pushToast,
     view.viewerRole,
-    clearPendingPhoto,
+    dismissPendingPhotoKeepBlob,
     refreshBadges,
   ]);
 
@@ -1869,7 +2031,7 @@ export function ConversationHub({
               </button>
               <NativeImageFileInput
                 id={cameraPickerId}
-                intent="camera"
+                intent="gallery"
                 placement="associated"
                 disabled={conversation.blocked || sending}
                 onFilesSelected={handlePhotoSelected}

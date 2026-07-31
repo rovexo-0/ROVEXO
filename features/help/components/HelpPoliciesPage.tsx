@@ -1,8 +1,9 @@
 "use client";
 
-import { AccountIcon } from "@/components/account/AccountIcons";
 import { CanonicalSection, CanonicalCard, CanonicalMenuRow, CanonicalInfoBlock } from "@/src/components/canonical";
 import { AccountCanonicalShell } from "@/features/account-canonical";
+import { MasterMenuIcon } from "@/features/account-center/components/MasterMenuIcon";
+import { MASTER_ICON_COLORS } from "@/lib/design-system/master-icon-system-v1";
 
 import type { HelpPolicyEntry } from "@/lib/help/policies";
 
@@ -25,11 +26,7 @@ export function HelpPoliciesPage({ policies }: HelpPoliciesPageProps) {
               title={policy.title}
               description={policy.summary}
               href={policy.href}
-              icon={
-                <span className="ac-canonical__menu-icon" aria-hidden>
-                  <AccountIcon name="help" />
-                </span>
-              }
+              icon={<MasterMenuIcon icon="legal" color={MASTER_ICON_COLORS.blue} />}
             />
           ))}
         </CanonicalCard>

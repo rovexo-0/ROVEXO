@@ -119,7 +119,7 @@ describe("AI category recovery bridge", () => {
         dominantColour: "White",
         material: null,
         size: "UK 9",
-        categorySlugs: ["shoes", "trainers", "nike"],
+        categorySlugs: ["mens-fashion", "shoes", "trainers"],
         attributes: { type: "trainer" },
         defects: [],
         accessories: [],

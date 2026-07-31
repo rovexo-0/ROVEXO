@@ -6,6 +6,7 @@ import {
   resolveShowcaseSections,
 } from "@/lib/homepage/feed-resolve";
 import { rotateShowcaseStores } from "@/lib/homepage/store-rotation";
+import type { PreferredMarketplaceStoreConfig } from "@/lib/preferred-marketplace-stores/preferred-marketplace-stores-engine-v1";
 
 const FEATURED_LIMIT = 12;
 
@@ -47,6 +48,7 @@ export function resolveHomepageV4Sections(input: {
   featuredPage: ProductsPage;
   feed: ProductsPage;
   showcase: ShowcaseSellerSection[];
+  preferredStores?: PreferredMarketplaceStoreConfig[];
 }): HomepageV4Sections {
   const allShowcaseSections = resolveShowcaseSections(input.showcase, input.feed.items);
   const showcases = resolveShowcases(allShowcaseSections);
@@ -64,7 +66,9 @@ export function resolveHomepageV4Sections(input: {
   // homepage even though /api/homepage/feed returns them.
   const reservedIds = new Set(showcaseIds);
 
-  const feedPage = resolveHomepageFeedItems(input.feed);
+  const feedPage = resolveHomepageFeedItems(input.feed, {
+    preferredStores: input.preferredStores,
+  });
   const feedItems = uniqueProducts(filterHomepageProducts(feedPage.items)).filter(
     (product) => !reservedIds.has(product.id),
   );

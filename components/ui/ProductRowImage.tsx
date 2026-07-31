@@ -35,6 +35,8 @@ export function ProductRowImage({
           fill
           className={cn("object-cover", className)}
           sizes={sizes}
+          loading="lazy"
+          decoding="async"
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center">

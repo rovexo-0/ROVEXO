@@ -7,6 +7,8 @@ import { getHelpArticle } from "@/lib/help/content/articles";
 const HELP_TO_LEGAL: Record<string, string> = {
   "privacy-policy": "/legal/privacy-policy",
   "terms-of-service": "/legal/terms-and-conditions",
+  "community-guidelines": "/legal/community-guidelines",
+  "prohibited-items-list": "/legal/prohibited-restricted-items",
 };
 
 type HelpArticleRouteProps = {

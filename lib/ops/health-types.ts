@@ -1,4 +1,5 @@
-export type HealthStatus = "healthy" | "degraded" | "unhealthy";
+export type PlatformOverallStatus = "healthy" | "degraded" | "unhealthy";
+export type HealthStatus = PlatformOverallStatus | "not_configured";
 
 export type HealthCheckResult = {
   status: HealthStatus;
@@ -7,13 +8,14 @@ export type HealthCheckResult = {
 };
 
 export type PlatformHealthReport = {
-  status: HealthStatus;
+  status: PlatformOverallStatus;
   timestamp: string;
   version: string;
   checks: {
     api: HealthCheckResult;
     database: HealthCheckResult;
     storage: HealthCheckResult;
+    authentication: HealthCheckResult;
     stripe: HealthCheckResult;
     redis: HealthCheckResult;
     cron: HealthCheckResult;

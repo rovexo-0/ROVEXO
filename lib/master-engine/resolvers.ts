@@ -18,6 +18,7 @@ import {
   resolveFeatureVisibility,
   type SmartFeatureContext,
 } from "@/lib/smart-platform/features";
+import { isV1BusinessUxRemoved } from "@/lib/phase-c-v1-business-cleanup-v1";
 
 export type MasterUserContext = SmartFeatureContext;
 
@@ -69,6 +70,10 @@ export function resolveVerifiedStatus(
 export function resolveBusinessVisibility(
   user: Pick<MasterUserContext, "isBusinessVerified"> | { isBusinessVerified?: boolean | null },
 ): BusinessVisibilityResult {
+  // Phase C — v1.0 public release: Business Bank UX postponed to v2.0.
+  if (isV1BusinessUxRemoved()) {
+    return { showBusinessBank: false, reason: "production-hidden" };
+  }
   const { visible, reason } = resolveFeatureVisibility("business-bank-account", {
     isBusinessVerified: Boolean(user.isBusinessVerified),
   });
@@ -95,6 +100,10 @@ export function resolveBusinessAddressesVisibility(
   _user?: Pick<MasterUserContext, "isBusinessVerified"> | { isBusinessVerified?: boolean | null },
 ): BusinessAddressesVisibilityResult {
   void _user;
+  // Phase C — v1.0 public release: Personal addresses only.
+  if (isV1BusinessUxRemoved()) {
+    return { showBusinessAddressesTab: false, reason: "production-hidden" };
+  }
   const { visible, reason } = resolveFeatureVisibility("business-addresses-tab", {
     isBusinessVerified: true,
   });

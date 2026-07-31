@@ -165,17 +165,17 @@
   color: var(--ds-color-text-secondary);
 }
 
-/* Primary CTA — matches acm-cta__btn */
+/* Primary CTA — Master Full Width Account inheritance (Phase B). */
 .pcu-btn-primary,
 .wallet-hub__withdraw--primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 52px;
+  min-height: 56px;
   padding: 0 24px;
   border: none;
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--ds-color-primary);
   color: #ffffff;
   font-size: 1rem;

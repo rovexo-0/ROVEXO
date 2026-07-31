@@ -1,10 +1,14 @@
 /**
- * ROVEXO Notifications — Switch Engine v1.0 control inventory.
- * Maps Owner-mandated toggles onto existing `notification_settings` columns (no schema change).
+ * ROVEXO Notifications — Switch Engine control inventory (legacy coarse + Engine v1.0).
+ * Coarse IDs remain for compatibility tests; Settings UI uses Notification Engine v1.0.
  */
 
 import type { NotificationSettings } from "@/lib/notifications/types";
 import { resolveCanonicalSwitchChecked } from "@/lib/master-engine/switch-engine";
+import {
+  NOTIFICATION_ENGINE_SECTIONS,
+  type NotificationEngineState,
+} from "@/lib/notifications/notification-engine-v1";
 
 export type NotificationUserControlId =
   | "orders"
@@ -22,7 +26,7 @@ export type NotificationUserControl = {
   description: string;
 };
 
-/** Canonical ON/OFF controls — Notifications page (Switch Engine LOCK). */
+/** @deprecated Coarse controls — Settings page uses NOTIFICATION_ENGINE_SECTIONS. */
 export const NOTIFICATION_USER_CONTROLS: readonly NotificationUserControl[] = [
   { id: "orders", label: "Orders", description: "Purchases, shipping, and delivery" },
   { id: "inbox", label: "Inbox", description: "Messages and conversation alerts" },
@@ -65,7 +69,6 @@ export function readUserControl(
   }
 }
 
-/** Expand a single control toggle into the existing settings patch shape. */
 export function patchForUserControl(
   id: NotificationUserControlId,
   enabled: boolean,
@@ -95,3 +98,19 @@ export function patchForUserControl(
       return { reviews: on };
   }
 }
+
+export function readEngineTopic(
+  engine: NotificationEngineState,
+  topicId: keyof NotificationEngineState["topics"],
+): boolean {
+  return resolveCanonicalSwitchChecked(engine.topics[topicId]);
+}
+
+export function readEngineChannel(
+  engine: NotificationEngineState,
+  channelId: keyof NotificationEngineState["channels"],
+): boolean {
+  return resolveCanonicalSwitchChecked(engine.channels[channelId]);
+}
+
+export { NOTIFICATION_ENGINE_SECTIONS };

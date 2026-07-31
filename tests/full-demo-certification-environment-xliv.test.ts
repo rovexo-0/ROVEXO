@@ -67,4 +67,16 @@ describe("Absolute Blood Law XLIV — Full Demo Certification Environment", () =
     );
     expect(instrumentation).toContain("assertFullDemoCertificationEnvironmentOrBlock");
   });
+
+  it("production mode never readFileSyncs e2e spec (ENOENT root cause)", async () => {
+    const previous = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+    try {
+      const report = certifyFullDemoCertificationEnvironmentXliv();
+      expect(report.ok, report.errors.join("; ")).toBe(true);
+      expect(() => assertFullDemoCertificationEnvironmentOrBlock()).not.toThrow();
+    } finally {
+      process.env.NODE_ENV = previous;
+    }
+  });
 });

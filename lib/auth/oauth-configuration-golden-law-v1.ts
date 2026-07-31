@@ -86,7 +86,7 @@ export const ROVEXO_OAUTH_CONFIGURATION_GOLDEN_LAW_V1 = Object.freeze({
    ***************************************************************/
   CALLBACKS: Object.freeze({
     LOCAL: "http://localhost:3000/auth/callback",
-    PRODUCTION: "https://rovexo.com/auth/callback",
+    PRODUCTION: "https://www.rovexo.co.uk/auth/callback",
     STAGING: "https://staging.rovexo.com/auth/callback",
   }),
 

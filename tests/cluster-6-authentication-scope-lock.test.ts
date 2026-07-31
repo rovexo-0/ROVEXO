@@ -38,8 +38,8 @@ describe("Cluster 6 Authentication Scope Lock", () => {
       "PROTECTED_ROUTES",
       "APPLICATION",
     ]);
-    expect(lock.oauth.google).toBe("CODE_READY_UI_GATED");
-    expect(lock.oauth.apple).toBe("CODE_READY_UI_GATED");
+    expect(lock.oauth.google).toBe("PUBLIC_WHEN_PROVIDER_ENABLED");
+    expect(lock.oauth.apple).toBe("PUBLIC_WHEN_PROVIDER_ENABLED");
     expect(lock.oauth.facebook).toBe("DEFERRED_V1_1");
     expect(lock.deferredToV1_1).toContain("Facebook OAuth");
     assertCluster6AuthenticationArchitectureOrBlock();
@@ -92,7 +92,7 @@ describe("Cluster 6 Authentication Scope Lock", () => {
     }
   });
 
-  it("keeps public auth UI email-only and dependency prefixes under protected routes", () => {
+  it("keeps AuthForm OAuth off by default and dependency prefixes under protected routes", () => {
     const form = readSource("features/auth/components/AuthForm.tsx");
     expect(form).toContain("showOAuth = false");
 

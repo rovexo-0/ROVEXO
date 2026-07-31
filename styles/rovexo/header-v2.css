@@ -87,7 +87,8 @@
 }
 
 .rx-h2-search .homepage-search__input {
-  font-size: 14px;
+  /* Phase B: align with SEARCH_BAR_TEXT_PX (iOS zoom prevention). */
+  font-size: 16px;
 }
 
 .rx-h2-search .homepage-search__control:focus-within {

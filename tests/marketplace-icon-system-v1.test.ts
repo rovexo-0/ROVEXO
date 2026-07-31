@@ -26,7 +26,8 @@ describe("Canonical marketplace icon system v1", () => {
     expect(read("lib/account-center/messages-menu.ts")).toContain('icon: "inbox"');
     expect(read("lib/account-center/business-menu.ts")).toContain('icon: "directory"');
     expect(read("lib/account-center/canonical-menu.ts")).toContain('icon: "saved"');
-    expect(read("lib/account-center/canonical-menu.ts")).toContain('icon: "legal"');
+    expect(read("lib/account-center/canonical-menu.ts")).toContain('icon: "settings"');
+    expect(read("lib/account-center/settings-menu.ts")).toContain('icon: "document"');
   });
 
   it("DashboardIcon3D uses AccountIcon family only", () => {

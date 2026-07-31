@@ -32,15 +32,35 @@ export function renderMarkdown(content: string): string {
       continue;
     }
 
+    if (line.startsWith("#### ")) {
+      closeList();
+      html.push(
+        `<h5 class="mt-ds-3 text-sm font-semibold text-text-primary">${inlineMarkdown(line.slice(5))}</h5>`,
+      );
+      continue;
+    }
+
+    if (line.startsWith("### ")) {
+      closeList();
+      html.push(
+        `<h4 class="mt-ds-4 text-sm font-semibold text-text-primary">${inlineMarkdown(line.slice(4))}</h4>`,
+      );
+      continue;
+    }
+
     if (line.startsWith("## ")) {
       closeList();
-      html.push(`<h3 class="mt-ds-4 text-base font-semibold text-text-primary">${inlineMarkdown(line.slice(3))}</h3>`);
+      html.push(
+        `<h3 class="mt-ds-4 text-base font-semibold text-text-primary">${inlineMarkdown(line.slice(3))}</h3>`,
+      );
       continue;
     }
 
     if (line.startsWith("# ")) {
       closeList();
-      html.push(`<h2 class="mt-ds-5 text-lg font-semibold text-text-primary">${inlineMarkdown(line.slice(2))}</h2>`);
+      html.push(
+        `<h2 class="mt-ds-5 text-lg font-semibold text-text-primary">${inlineMarkdown(line.slice(2))}</h2>`,
+      );
       continue;
     }
 

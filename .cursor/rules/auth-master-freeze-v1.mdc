@@ -29,7 +29,7 @@ SSOT: `lib/auth/auth-master-freeze-v1.ts`
 ## Callback origins (allowlist only)
 
 - Local: `http://localhost:3000`
-- Production: `https://rovexo.com`
+- Production: `https://www.rovexo.co.uk`
 - Staging (optional): `https://staging.rovexo.com`
 
 Forbidden: wrong ports · duplicated callbacks · wildcards · unknown origins.

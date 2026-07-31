@@ -12,11 +12,14 @@ import {
   CanonicalMenuRow,
   CanonicalSection,
 } from "@/src/components/canonical";
+import { dobDdMmYyyyToIso, dobIsoToDdMmYyyy, parseDobDdMmYyyy } from "@/lib/account/account-settings-v1";
 import { SELLER_REGISTRATION_OPTIONS, type SellerRegistrationType } from "@/lib/seller/tax/types";
 import type { SellerTaxProfile } from "@/lib/seller/tax/types";
 
 type SellerTaxRegistrationPageProps = {
   initialProfile: SellerTaxProfile | null;
+  /** ISO YYYY-MM-DD from profiles.date_of_birth */
+  initialDateOfBirth?: string | null;
   connectUrl?: string | null;
   backHref?: string;
   backLabel?: string;
@@ -33,6 +36,7 @@ type TaxStep = "type" | "form";
 
 export function SellerTaxRegistrationPage({
   initialProfile,
+  initialDateOfBirth = null,
   connectUrl,
   backHref = "/account/settings",
   backLabel = "Settings",
@@ -51,6 +55,7 @@ export function SellerTaxRegistrationPage({
     country: initialProfile?.country ?? "GB",
     email: initialProfile?.email ?? "",
     phone: initialProfile?.phone ?? "",
+    dateOfBirth: dobIsoToDdMmYyyy(initialDateOfBirth),
     nino: initialProfile?.nino ?? "",
     utr: initialProfile?.utr ?? "",
     companyName: initialProfile?.companyName ?? "",
@@ -69,10 +74,30 @@ export function SellerTaxRegistrationPage({
   const save = async () => {
     setSaving(true);
     setError(null);
+
+    let dateOfBirthIso = "";
+    if (form.dateOfBirth.trim()) {
+      if (!parseDobDdMmYyyy(form.dateOfBirth)) {
+        setSaving(false);
+        setError("Enter date of birth as DD/MM/YYYY.");
+        return;
+      }
+      dateOfBirthIso = dobDdMmYyyyToIso(form.dateOfBirth.trim()) ?? "";
+      if (!dateOfBirthIso) {
+        setSaving(false);
+        setError("Enter a valid date of birth.");
+        return;
+      }
+    }
+
     const response = await fetch("/api/seller/tax", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ registrationType, ...form }),
+      body: JSON.stringify({
+        registrationType,
+        ...form,
+        dateOfBirth: dateOfBirthIso,
+      }),
     });
     const payload = (await response.json()) as { success?: boolean; error?: string; connectUrl?: string };
     setSaving(false);
@@ -87,6 +112,7 @@ export function SellerTaxRegistrationPage({
       return;
     }
 
+    router.push("/seller/compliance");
     router.refresh();
   };
 
@@ -167,6 +193,13 @@ export function SellerTaxRegistrationPage({
                       value={form.phone}
                       onChange={(event) => update("phone", event.target.value)}
                     />
+                    <CanonicalInput
+                      id="dateOfBirth"
+                      label="Date of birth"
+                      value={form.dateOfBirth}
+                      placeholder="DD/MM/YYYY"
+                      onChange={(event) => update("dateOfBirth", event.target.value)}
+                    />
                     {registrationType === "business_sole_trader" || registrationType === "pro_seller" ? (
                       <>
                         <CanonicalInput
@@ -229,6 +262,13 @@ export function SellerTaxRegistrationPage({
                       label="Phone"
                       value={form.phone}
                       onChange={(event) => update("phone", event.target.value)}
+                    />
+                    <CanonicalInput
+                      id="companyDateOfBirth"
+                      label="Date of birth"
+                      value={form.dateOfBirth}
+                      placeholder="DD/MM/YYYY"
+                      onChange={(event) => update("dateOfBirth", event.target.value)}
                     />
                   </>
                 ) : null}

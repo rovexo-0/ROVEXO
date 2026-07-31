@@ -149,6 +149,17 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    // Explicit sitemap index — Next generateSitemaps() children live at /sitemap/:id.xml
+    // but the metadata root index is not reliably served on live (404). Avoid conflicting
+    // with app/sitemap.ts by rewriting /sitemap.xml → API route (not a parallel metadata route).
+    return [
+      {
+        source: "/sitemap.xml",
+        destination: "/api/seo/sitemap-index",
+      },
+    ];
+  },
   async redirects() {
     return [
       { source: "/business", destination: "/business/dashboard", permanent: true },
@@ -164,6 +175,11 @@ const nextConfig: NextConfig = {
       { source: "/legal/terms", destination: "/legal/terms-and-conditions", permanent: true },
       { source: "/legal/privacy", destination: "/legal/privacy-policy", permanent: true },
       { source: "/legal/cookies", destination: "/legal/cookie-policy", permanent: true },
+      {
+        source: "/legal/business-seller-terms",
+        destination: "/legal/seller-terms",
+        permanent: true,
+      },
       { source: "/item/:slug", destination: "/listing/:slug", permanent: true },
       { source: "/products/:slug", destination: "/listing/:slug", permanent: true },
       { source: "/product/:slug", destination: "/listing/:slug", permanent: true },

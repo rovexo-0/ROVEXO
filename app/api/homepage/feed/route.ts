@@ -1,5 +1,6 @@
 import { resolveHomepageFeedItems } from "@/lib/homepage/feed-resolve";
 import { getHomepageFeed } from "@/lib/products/catalog";
+import { listActivePreferredMarketplaceStores } from "@/lib/preferred-marketplace-stores/store";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -11,7 +12,11 @@ export async function GET(request: Request) {
   }
 
   const result = await getHomepageFeed(page);
-  // Real products only — filter/rank eligible DB inventory; never pad with demos.
-  const resolved = page === 1 ? resolveHomepageFeedItems(result) : result;
+  if (page !== 1) {
+    return NextResponse.json(result);
+  }
+
+  const preferredStores = await listActivePreferredMarketplaceStores().catch(() => []);
+  const resolved = resolveHomepageFeedItems(result, { preferredStores });
   return NextResponse.json(resolved);
 }

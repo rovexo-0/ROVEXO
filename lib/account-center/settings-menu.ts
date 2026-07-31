@@ -1,17 +1,16 @@
 /**
- * ROVEXO Settings hub — SETTINGS v1.0 (PERMANENT LOCK · APPROVED).
+ * ROVEXO Settings hub — UK Public Launch Simplification v1.0
  *
- * PROFILE PAGE = MASTER PAGE → SETTINGS v1.0 inherits 100% design.
- * ONLY CONTENT MAY DIFFER. DESIGN NEVER DOES.
+ * PROFILE PAGE = MASTER PAGE → Settings inherits 100% design.
+ * ONLY CONTENT / NAVIGATION MAY DIFFER. DESIGN NEVER DOES.
  *
- * Inventory (locked): Personal Information · Addresses · Notifications ·
- * Privacy · Security · Verification · Currency · Delete Account.
- *
- * Removed from Settings (live on Profile / Wallet instead):
- * Holiday Mode · Promote · Help Centre · Legal · Sign Out · Payment Methods · Bank Accounts · Language.
+ * Navigation-only removals (backends retained): Verification, Marketplace prefs,
+ * Finance entries, Report a Problem, Feedback.
+ * Accessibility lives in Legal Centre (not Settings → Account).
  */
 
 import type { SettingsIconTone } from "@/lib/settings/settings-v1";
+import { PHASE_C3_SETTINGS_IA_V1 } from "@/lib/settings/phase-c3-settings-information-architecture-v1";
 
 export type SettingsMenuRow = {
   id: string;
@@ -52,6 +51,8 @@ function withReturn(href: string, returnTo: string | null): string {
   return returnTo ? `${href}?returnTo=${encodeURIComponent(returnTo)}` : href;
 }
 
+const R = PHASE_C3_SETTINGS_IA_V1.routes;
+
 export function buildSettingsMenuSections(
   returnTo: string | null,
   _options?: { activeListingCount?: number },
@@ -68,69 +69,93 @@ export function buildSettingsMenuSections(
           id: "profile",
           title: "Personal Information",
           subtitle: "Name, photo and username.",
-          href: href("/account/profile"),
+          href: href(R.personalInformation),
           icon: "user",
           tone: "purple",
+        },
+        {
+          id: "security",
+          title: "Security",
+          subtitle: "Password, sessions and devices.",
+          href: href(R.security),
+          icon: "lock",
+          tone: "red",
+        },
+        {
+          id: "privacy",
+          title: "Privacy",
+          subtitle: "Privacy controls, GDPR and data rights.",
+          href: href(R.privacy),
+          icon: "shield",
+          tone: "green",
+        },
+        {
+          id: "notifications",
+          title: "Notifications",
+          subtitle: "Push, email and marketplace alerts.",
+          href: href(R.notifications),
+          icon: "bell",
+          tone: "orange",
         },
         {
           id: "addresses",
           title: "Addresses",
           subtitle: "Delivery and return addresses.",
-          href: href("/account/addresses"),
+          href: href(R.addresses),
           icon: "location",
           tone: "blue",
         },
         {
-          id: "notifications",
-          title: "Notifications",
-          subtitle: "Push, email and alerts.",
-          href: href("/notifications/settings"),
-          icon: "bell",
-          tone: "orange",
-        },
-      ],
-    },
-    {
-      id: "security",
-      title: "SECURITY",
-      rows: [
-        {
-          id: "privacy",
-          title: "Privacy",
-          subtitle: "Privacy controls and data.",
-          href: href("/account/privacy"),
-          icon: "shield",
-          tone: "green",
+          id: "currency",
+          title: "Currency & Region",
+          subtitle: "United Kingdom · GBP · English.",
+          href: href(R.currency),
+          icon: "globe",
+          tone: "gold",
         },
         {
-          id: "security",
-          title: "Security",
-          subtitle: "Password, devices and sessions.",
-          href: href("/account/security"),
-          icon: "lock",
+          id: "blocked-users",
+          title: "Blocked Users",
+          subtitle: "Manage blocked members.",
+          href: href(R.blockedUsers),
+          icon: "people",
           tone: "red",
         },
+      ],
+    },
+    {
+      id: "support",
+      title: "SUPPORT",
+      rows: [
         {
-          id: "verification",
-          title: "Verification",
-          subtitle: "Identity and business verification.",
-          href: href("/account/verification"),
-          icon: "shield",
-          tone: "rovexo-blue",
+          id: "help",
+          title: "Help Centre",
+          subtitle: "Guides, FAQs and support.",
+          href: href(R.help),
+          icon: "info",
+          tone: "red",
         },
       ],
     },
     {
-      id: "preferences",
-      title: "PREFERENCES",
+      id: "legal",
+      title: "LEGAL",
       rows: [
         {
-          id: "currency",
-          title: "Currency",
-          subtitle: "Display currency.",
-          href: href("/account/preferences/currency"),
-          icon: "wallet",
-          tone: "gold",
+          id: "legal-information",
+          title: "Legal Information",
+          subtitle: "Official ROVEXO Legal Centre — all policies.",
+          href: href(R.legalIndex),
+          icon: "document",
+          tone: "purple",
+        },
+        {
+          id: "hmrc",
+          title: "HMRC Reporting",
+          subtitle: "UK digital platform reporting.",
+          href: href(R.hmrc),
+          icon: "document",
+          tone: "rovexo-blue",
         },
       ],
     },

@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { CRON_STALE_AFTER_MS } from "@/lib/cron/constants";
 import { isSupabaseAdminConfigured, getSupabaseServiceRoleKey, getSupabaseUrl } from "@/lib/supabase/env";
-import type { HealthCheckResult, HealthStatus, PlatformHealthReport } from "@/lib/ops/health-types";
+import type { HealthCheckResult, PlatformHealthReport, PlatformOverallStatus } from "@/lib/ops/health-types";
 
 function getHealthClient() {
   if (!isSupabaseAdminConfigured()) {
@@ -12,26 +12,21 @@ function getHealthClient() {
   });
 }
 
-function overallStatus(checks: HealthCheckResult[]): HealthStatus {
-  if (checks.some((check) => check.status === "unhealthy")) return "unhealthy";
-  if (checks.some((check) => check.status === "degraded")) return "degraded";
+function overallStatus(checks: HealthCheckResult[]): PlatformOverallStatus {
+  const active = checks.filter((check) => check.status !== "not_configured");
+  if (active.some((check) => check.status === "unhealthy")) return "unhealthy";
+  if (active.some((check) => check.status === "degraded")) return "degraded";
   return "healthy";
 }
 
 function corePlatformChecks(checks: PlatformHealthReport["checks"]): HealthCheckResult[] {
-  const core: HealthCheckResult[] = [checks.api, checks.database, checks.storage];
-
-  if (process.env.STRIPE_SECRET_KEY?.trim()) {
-    core.push(checks.stripe);
-  }
-  if (process.env.UPSTASH_REDIS_REST_URL?.trim() && process.env.UPSTASH_REDIS_REST_TOKEN?.trim()) {
-    core.push(checks.redis);
-  }
-  if (process.env.CRON_SECRET?.trim()) {
-    core.push(checks.cron);
-  }
-
-  return core;
+  return [
+    checks.api,
+    checks.database,
+    checks.storage,
+    checks.authentication,
+    checks.stripe,
+  ];
 }
 
 async function timedCheck(run: () => Promise<HealthCheckResult>): Promise<HealthCheckResult> {
@@ -48,6 +43,19 @@ async function timedCheck(run: () => Promise<HealthCheckResult>): Promise<Health
   }
 }
 
+async function checkApi(): Promise<HealthCheckResult> {
+  const start = Date.now();
+  // Liveness without recursion into getPlatformHealthReport — process is serving requests.
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() && !process.env.NEXT_PUBLIC_APP_URL?.trim()) {
+    return { status: "unhealthy", latencyMs: 0, message: "API runtime environment incomplete" };
+  }
+  return {
+    status: "healthy",
+    latencyMs: Math.max(0, Date.now() - start),
+    message: "API runtime reachable",
+  };
+}
+
 async function checkDatabase(): Promise<HealthCheckResult> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()) {
     return { status: "unhealthy", latencyMs: 0, message: "Supabase URL not configured" };
@@ -58,30 +66,63 @@ async function checkDatabase(): Promise<HealthCheckResult> {
   if (error) {
     return { status: "unhealthy", latencyMs: 0, message: error.message };
   }
-  return { status: "healthy", latencyMs: 0 };
+  return { status: "healthy", latencyMs: 0, message: "Database read OK" };
 }
 
 async function checkStorage(): Promise<HealthCheckResult> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()) {
-    return { status: "degraded", latencyMs: 0, message: "Storage not configured" };
+    return { status: "unhealthy", latencyMs: 0, message: "Storage not configured" };
   }
 
-  const client = getHealthClient();
-  const { data, error } = await client.storage.listBuckets();
-  if (error) {
-    return { status: "degraded", latencyMs: 0, message: error.message };
+  try {
+    const client = getHealthClient();
+    const { data, error } = await client.storage.listBuckets();
+    if (error) {
+      return { status: "unhealthy", latencyMs: 0, message: error.message };
+    }
+    if (!data?.length) {
+      return { status: "degraded", latencyMs: 0, message: "No storage buckets found" };
+    }
+    return { status: "healthy", latencyMs: 0, message: `${data.length} bucket(s) reachable` };
+  } catch (error) {
+    return {
+      status: "unhealthy",
+      latencyMs: 0,
+      message: error instanceof Error ? error.message : "Storage check failed",
+    };
   }
-  if (!data?.length) {
-    return { status: "degraded", latencyMs: 0, message: "No storage buckets found" };
+}
+
+async function checkAuthentication(): Promise<HealthCheckResult> {
+  if (!isSupabaseAdminConfigured()) {
+    return { status: "unhealthy", latencyMs: 0, message: "Supabase Auth admin not configured" };
   }
-  return { status: "healthy", latencyMs: 0 };
+
+  try {
+    const client = getHealthClient();
+    const { error } = await client.auth.admin.listUsers({ page: 1, perPage: 1 });
+    if (error) {
+      return { status: "unhealthy", latencyMs: 0, message: error.message };
+    }
+    return { status: "healthy", latencyMs: 0, message: "Supabase Auth admin reachable" };
+  } catch (error) {
+    return {
+      status: "unhealthy",
+      latencyMs: 0,
+      message: error instanceof Error ? error.message : "Auth check failed",
+    };
+  }
 }
 
 /** Lightweight Stripe connectivity check without importing the Stripe SDK. */
 async function checkStripe(): Promise<HealthCheckResult> {
   const secretKey = process.env.STRIPE_SECRET_KEY?.trim();
   if (!secretKey) {
-    return { status: "degraded", latencyMs: 0, message: "Stripe not configured" };
+    return {
+      status: "unhealthy",
+      latencyMs: 0,
+      message: "Stripe required for RC1 — STRIPE_SECRET_KEY missing",
+    };
   }
 
   const response = await fetch("https://api.stripe.com/v1/balance", {
@@ -97,7 +138,7 @@ async function checkStripe(): Promise<HealthCheckResult> {
     };
   }
 
-  return { status: "healthy", latencyMs: 0 };
+  return { status: "healthy", latencyMs: 0, message: "Stripe API reachable" };
 }
 
 async function checkRedis(): Promise<HealthCheckResult> {
@@ -105,7 +146,11 @@ async function checkRedis(): Promise<HealthCheckResult> {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
 
   if (!url || !token) {
-    return { status: "healthy", latencyMs: 0, message: "Memory fallback active — Redis optional" };
+    return {
+      status: "not_configured",
+      latencyMs: 0,
+      message: "Redis optional for RC1 — memory fallback active",
+    };
   }
 
   const response = await fetch(`${url}/ping`, {
@@ -114,15 +159,23 @@ async function checkRedis(): Promise<HealthCheckResult> {
   });
 
   if (!response.ok) {
-    return { status: "unhealthy", latencyMs: 0, message: `Redis ping failed (${response.status})` };
+    return {
+      status: "degraded",
+      latencyMs: 0,
+      message: `Redis credentials invalid (${response.status}) — optional for RC1; memory fallback active`,
+    };
   }
 
-  return { status: "healthy", latencyMs: 0 };
+  return { status: "healthy", latencyMs: 0, message: "Redis ping OK" };
 }
 
 async function checkCron(): Promise<HealthCheckResult> {
   if (!process.env.CRON_SECRET?.trim()) {
-    return { status: "healthy", latencyMs: 0, message: "Development only — CRON_SECRET not configured" };
+    return {
+      status: "not_configured",
+      latencyMs: 0,
+      message: "Scheduled jobs optional for RC1 — CRON_SECRET not configured",
+    };
   }
 
   try {
@@ -151,7 +204,7 @@ async function checkCron(): Promise<HealthCheckResult> {
       };
     }
 
-    return { status: "healthy", latencyMs: 0 };
+    return { status: "healthy", latencyMs: 0, message: "Cron scheduler healthy" };
   } catch {
     return { status: "degraded", latencyMs: 0, message: "Cron history unavailable" };
   }
@@ -161,15 +214,23 @@ function checkEmail(): HealthCheckResult {
   const hasResend = Boolean(process.env.RESEND_API_KEY?.trim());
   const hasFrom = Boolean(process.env.EMAIL_FROM?.trim());
 
-  if (!hasResend || !hasFrom) {
+  if (!hasResend && !hasFrom) {
     return {
-      status: "healthy",
+      status: "not_configured",
       latencyMs: 0,
-      message: "Development only — configure RESEND_API_KEY and EMAIL_FROM for production email",
+      message: "Transactional email optional for RC1 — Resend not configured",
     };
   }
 
-  return { status: "healthy", latencyMs: 0 };
+  if (!hasResend || !hasFrom) {
+    return {
+      status: "degraded",
+      latencyMs: 0,
+      message: "Email partially configured — set both RESEND_API_KEY and EMAIL_FROM",
+    };
+  }
+
+  return { status: "healthy", latencyMs: 0, message: "Resend credentials present" };
 }
 
 function checkPush(): HealthCheckResult {
@@ -185,22 +246,27 @@ function checkPush(): HealthCheckResult {
     return { status: "degraded", latencyMs: 0, message: "Web push partially configured" };
   }
 
-  return { status: "healthy", latencyMs: 0, message: "Development only — web push optional" };
+  return {
+    status: "not_configured",
+    latencyMs: 0,
+    message: "Web push optional for RC1 — VAPID not configured",
+  };
 }
 
 export async function getPlatformHealthReport(): Promise<PlatformHealthReport> {
-  const [database, storage, stripe, redis, cron] = await Promise.all([
+  const [api, database, storage, authentication, stripe, redis, cron] = await Promise.all([
+    timedCheck(checkApi),
     timedCheck(checkDatabase),
     timedCheck(checkStorage),
+    timedCheck(checkAuthentication),
     timedCheck(checkStripe),
     timedCheck(checkRedis),
     timedCheck(checkCron),
   ]);
 
-  const api: HealthCheckResult = { status: "healthy", latencyMs: 0 };
   const email = checkEmail();
   const push = checkPush();
-  const checks = { api, database, storage, stripe, redis, cron, email, push };
+  const checks = { api, database, storage, authentication, stripe, redis, cron, email, push };
 
   return {
     status: overallStatus(corePlatformChecks(checks)),

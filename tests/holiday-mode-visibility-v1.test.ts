@@ -48,7 +48,7 @@ describe("ROVEXO Holiday Mode — Global Listing Visibility Engine", () => {
     expect(listingsRepo).not.toContain("applyHolidayModeVisibilityFilter");
   });
 
-  it("confirms toggle + hides PDP purchase CTAs + profile empty copy", () => {
+  it("confirms toggle + hides PDP purchase CTAs + profile empty copy (Phase C: no banner)", () => {
     const row = readSource("features/account-center/components/HolidayModeProfileRow.tsx");
     const pdp = readSource("features/product-detail/ProductDetailPage.tsx");
     const profile = readSource("features/profile/components/ViewProfilePage.tsx");
@@ -56,7 +56,10 @@ describe("ROVEXO Holiday Mode — Global Listing Visibility Engine", () => {
     expect(row).toContain("HOLIDAY_MODE_DISABLE_CONFIRM");
     expect(row).toContain("Dialog");
     expect(row).not.toContain("no confirmation");
-    expect(pdp).toContain("HOLIDAY_MODE_LISTING_UNAVAILABLE_MESSAGE");
+    expect(row).not.toContain("Holiday Mode enabled.");
+    // Phase C — banner removed; purchase CTAs still gated by sellerOnHoliday.
+    expect(pdp).not.toContain("data-holiday-mode-banner");
+    expect(pdp).not.toContain("HOLIDAY_MODE_LISTING_UNAVAILABLE_MESSAGE");
     expect(pdp).toContain("sellerOnHoliday");
     expect(pdp).toContain("{!sellerOnHoliday ? (");
     expect(profile).toContain("HOLIDAY_MODE_PROFILE_EMPTY_MESSAGE");

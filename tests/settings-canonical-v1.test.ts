@@ -40,7 +40,7 @@ describe("Settings canonical v1.0 hub — Master Engine lock", () => {
     expect(hrefs).toContain("/notifications/settings");
     expect(hrefs).toContain("/account/privacy");
     expect(hrefs).toContain("/account/security");
-    expect(hrefs).toContain("/account/verification");
+    expect(hrefs).not.toContain("/account/verification");
     expect(hrefs).not.toContain("/account/profile#language");
     expect(hrefs).not.toContain("/account/preferences/language");
     expect(hrefs).toContain("/account/preferences/currency");
@@ -49,8 +49,11 @@ describe("Settings canonical v1.0 hub — Master Engine lock", () => {
     expect(hrefs).not.toContain("/wallet/payment-methods");
     expect(hrefs).not.toContain("/account/promotion-tools");
     expect(hrefs).not.toContain("/wallet");
-    expect(hrefs).not.toContain("/help");
-    expect(hrefs).not.toContain("/legal");
+    expect(hrefs).toContain("/help");
+    expect(hrefs).toContain("/legal");
+    expect(hrefs).toContain("/account/blocked-users");
+    expect(hrefs).toContain("/help");
+    expect(hrefs).not.toContain("/support");
   });
 
   it("uses AccountIcon — One Product icon system", () => {

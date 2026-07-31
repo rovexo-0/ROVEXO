@@ -1688,7 +1688,8 @@
   color: #52525b;
 }
 
-.auth-login.auth-login--premium .auth-login__social {
+.auth-login.auth-login--premium .auth-login__social,
+.auth-login.auth-login--premium .auth-login__oauth {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -2070,6 +2071,28 @@ a.auth-login__register-cta:active {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: 4px;
+}
+
+.auth-register.auth-register--premium .auth-register__oauth {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.auth-register.auth-register--premium .auth-register__oauth .auth-social-login {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+}
+
+.auth-register.auth-register--premium .auth-register__oauth .auth-social-button {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .auth-compact-premium .auth-login__trust,

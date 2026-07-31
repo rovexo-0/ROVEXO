@@ -1,31 +1,27 @@
 ---
-description: Cluster 6 — OAuth Policy Lock (Email-only public UI · Google/Apple gated · Facebook deferred)
+description: Cluster 6 — OAuth Policy Lock RC1 (Email + gated Google/Apple · Facebook deferred)
 globs: lib/auth/**,features/auth/**,app/(auth)/**,app/auth/**
 alwaysApply: false
 ---
 
-# ROVEXO CLUSTER 6 — OAUTH POLICY LOCK v1.0
+# ROVEXO CLUSTER 6 — OAUTH POLICY LOCK v1.1 (RC1)
 
-**STATUS: OWNER APPROVED | POLICY LOCKED**
+**STATUS: OWNER APPROVED | POLICY LOCKED | RC1**
 
-SSOT: `lib/auth/cluster-6-oauth-policy-lock-v1.ts`
+SSOT: `lib/auth/cluster-6-oauth-policy-lock-v1.ts`  
+RC1: `lib/auth/oauth-rc1-public-providers-v1.ts`  
+Availability: `lib/auth/oauth-provider-availability.server.ts`
 
-## Public v1.0 authentication (ONLY)
+## Public authentication
 
-Email · Password · Password reset · Email verification · Session management
-
-## Code-ready · UI-gated (not public)
-
-Google OAuth · Apple OAuth — implementation + `/auth/callback` preserved.  
-Forbidden on Login · Register · Verify Email · Forgot · Reset without Owner approval.
-
-## Deferred to v1.1
-
-Facebook OAuth
+- Email · Password · Reset · Verification · Session — always
+- Google / Apple — **only when** Supabase provider availability probe PASSes (fail closed)
+- Facebook — deferred / never on public Login · Register
 
 ## Cursor must never
 
-- Restore public OAuth buttons on auth screens without Owner approval  
+- Show OAuth buttons when the provider probe FAILS  
+- Show Facebook on public Login / Register  
 - Delete OAuth action/callback infrastructure  
-- Introduce a second auth system or new public auth surface  
-- Treat Supabase provider config as permission to show OAuth UI
+- Introduce a second auth system  
+- Rewrite email auth / sessions to “fix” disabled providers

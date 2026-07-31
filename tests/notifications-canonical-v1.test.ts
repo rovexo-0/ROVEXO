@@ -198,7 +198,8 @@ describe("Notifications canonical v1.0", () => {
     expect(inbox).toContain("Mark all");
     expect(inbox).toContain("You&apos;re all caught up");
     expect(inbox).toContain("No conversations yet");
-    expect(settings).toContain("NOTIFICATION_USER_CONTROLS");
+    expect(settings).toContain("NOTIFICATION_ENGINE_SECTIONS");
+    expect(settings).toContain('data-notification-engine="v1.0"');
     expect(css).toContain(".inbox-hub");
     expect(route).toContain("redirect");
   });

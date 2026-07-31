@@ -232,9 +232,10 @@ export function SearchOverlay({ initialQuery = "", onClose }: SearchOverlayProps
           >
             <div
               className={cn(
+                /* Phase B: single focus chrome — border colour shift, no double ring+border. */
                 "relative flex w-full items-center border border-border bg-white pl-3 pr-1",
                 transitionFast,
-                "focus-within:ring-2 focus-within:ring-primary/25",
+                "focus-within:border-primary/45 focus-within:bg-white",
               )}
               style={{
                 height: SEARCH_BAR_HEIGHT_PX,

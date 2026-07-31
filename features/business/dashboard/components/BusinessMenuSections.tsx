@@ -1,10 +1,11 @@
 "use client";
 
-import { AccountIcon } from "@/components/account/AccountIcons";
+import { MasterMenuIcon } from "@/features/account-center/components/MasterMenuIcon";
 import {
   buildBusinessMenuSections,
   type BusinessMenuItem,
 } from "@/lib/account-center/business-menu";
+import { resolveHubMenuIconColor } from "@/lib/design-system/master-icon-system-v1";
 import { useRealtimeNotifications } from "@/features/notifications/components/RealtimeNotificationProvider";
 import { resolveHrefBadge } from "@/lib/notifications/badge-counts";
 import { resolveMobileBadge } from "@/features/mobile-ui/hooks/use-mobile-badges";
@@ -46,11 +47,7 @@ export function BusinessMenuSections({ storeSlug }: BusinessMenuSectionsProps) {
                 title={item.title}
                 description={item.subtitle}
                 badge={resolveMenuBadge(item, badgeCounts, mobileBadges)}
-                icon={
-                  <span className="ac-canonical__menu-icon" aria-hidden>
-                    <AccountIcon name={item.icon} />
-                  </span>
-                }
+                icon={<MasterMenuIcon icon={item.icon} color={resolveHubMenuIconColor(item.icon)} />}
               />
             ))}
           </CanonicalCard>

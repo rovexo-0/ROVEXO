@@ -145,6 +145,45 @@ export function resolveSellFieldMasterIcon(fieldId: string): {
   return { icon: "categories", color: MASTER_ICON_COLORS.purple };
 }
 
+/** Hub menu rows (Buying / Selling / Business) — Profile accent by glyph. */
+const HUB_MENU_ICON_COLORS: Partial<Record<AccountIconName, string>> = {
+  orders: MASTER_ICON_COLORS.orange,
+  tracking: MASTER_ICON_COLORS.cyan,
+  reviews: MASTER_ICON_COLORS.gold,
+  refunds: MASTER_ICON_COLORS.red,
+  disputes: MASTER_ICON_COLORS.red,
+  saved: MASTER_ICON_COLORS.pink,
+  recent: MASTER_ICON_COLORS.purple,
+  listings: MASTER_ICON_COLORS.purple,
+  inventory: MASTER_ICON_COLORS.cyan,
+  analytics: MASTER_ICON_COLORS.purple,
+  promotions: MASTER_ICON_COLORS.magenta,
+  shipping: MASTER_ICON_COLORS.orange,
+  wallet: MASTER_ICON_COLORS.cyan,
+  business: MASTER_ICON_COLORS.blue,
+  stores: MASTER_ICON_COLORS.cyan,
+  verification: MASTER_ICON_COLORS.green,
+  settings: MASTER_ICON_COLORS.purple,
+  help: MASTER_ICON_COLORS.red,
+  support: MASTER_ICON_COLORS.red,
+  legal: MASTER_ICON_COLORS.blue,
+  messages: MASTER_ICON_COLORS.blue,
+  payment: MASTER_ICON_COLORS.cyan,
+  product: MASTER_ICON_COLORS.orange,
+  import: MASTER_ICON_COLORS.purple,
+  trust: MASTER_ICON_COLORS.green,
+  following: MASTER_ICON_COLORS.pink,
+  address: MASTER_ICON_COLORS.blue,
+  cart: MASTER_ICON_COLORS.orange,
+  profile: MASTER_ICON_COLORS.purple,
+  security: MASTER_ICON_COLORS.red,
+  returns: MASTER_ICON_COLORS.orange,
+};
+
+export function resolveHubMenuIconColor(icon: AccountIconName): string {
+  return HUB_MENU_ICON_COLORS[icon] ?? MASTER_ICON_COLORS.purple;
+}
+
 export function masterIconSystemSnapshot() {
   return {
     name: MASTER_ICON_SYSTEM_NAME,

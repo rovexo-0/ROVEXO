@@ -14,6 +14,11 @@ export type AccountCanonicalHeaderProps = {
   centeredTitle?: string;
   /** History fallback when back stack is empty. Defaults to /account. */
   fallbackHref?: string;
+  /**
+   * When set, called instead of the default back navigation.
+   * Use for unsaved-changes confirmation (Edit Listing).
+   */
+  onBack?: () => void;
   /** Optional trailing action (e.g. Help on Wallet). */
   rightAction?: ReactNode;
 };
@@ -28,6 +33,7 @@ export function AccountCanonicalHeader({
   backLabel = "Back",
   centeredTitle,
   fallbackHref = ACCOUNT_BACK_FALLBACK,
+  onBack,
   rightAction,
 }: AccountCanonicalHeaderProps) {
   const back = usePageBack({
@@ -54,7 +60,7 @@ export function AccountCanonicalHeader({
       >
         <button
           type="button"
-          onClick={back.goBack}
+          onClick={onBack ?? back.goBack}
           className={cn("cds-header__back", focusRing)}
           aria-label={back.label}
         >

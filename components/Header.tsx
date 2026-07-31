@@ -34,11 +34,6 @@ const HeaderActions = memo(function HeaderActions({
       <HeaderIconLink href="/inbox?tab=notifications" label="Notifications" badge={unreadNotifications} size="compact">
         <RovexoIcon icon={RovexoIcons.notifications.bell} variant="header" />
       </HeaderIconLink>
-      {!compact ? (
-        <HeaderIconLink href="/business/dashboard" label="Business" size="compact">
-          <RovexoIcon icon={RovexoIcons.dashboard["business-hub"]} variant="header" />
-        </HeaderIconLink>
-      ) : null}
       <HeaderProfileLink className="rx-header-premium__profile-link" avatarClassName="rx-header-premium__avatar" />
     </>
   );

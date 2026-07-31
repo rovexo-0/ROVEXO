@@ -31,6 +31,7 @@ import type {
 function mapHealth(status: HealthStatus): MissionControlServiceStatus {
   if (status === "healthy") return "online";
   if (status === "degraded") return "warning";
+  if (status === "not_configured") return "not_configured";
   return "offline";
 }
 
@@ -120,6 +121,8 @@ export async function getMissionControlSnapshot(): Promise<MissionControlSnapsho
   const services = buildServices(dashboard.operations.health, dashboard.operations.environment);
   const counters = buildCounters(dashboard, messageDelta, reviewCount, auditCount);
   const platformHealth = mapHealth(resolveCorePlatformStatus(dashboard.operations.health.checks));
+  const platformHealthUi: "online" | "warning" | "offline" =
+    platformHealth === "not_configured" ? "warning" : platformHealth;
 
   const modules = MISSION_CONTROL_MODULES.map((mod) => {
     const counter = counters.find((item) => item.id === mod.id || item.label.toLowerCase() === mod.label.toLowerCase());
@@ -135,7 +138,7 @@ export async function getMissionControlSnapshot(): Promise<MissionControlSnapsho
     banners,
     features,
     ai,
-    platformHealth,
+    platformHealth: platformHealthUi,
   };
 }
 

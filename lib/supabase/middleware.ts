@@ -4,6 +4,7 @@ import type { Database } from "@/lib/supabase/types/database";
 import { AUTHENTICATED_HOME } from "@/lib/auth/redirects";
 import {
   AUTH_PROTECTED_PREFIXES,
+  AUTH_ADMIN_PREFIXES,
   AUTH_SUPER_ADMIN_PREFIXES,
 } from "@/lib/auth/protected-routes";
 import { ROVEXO_PATHNAME_HEADER } from "@/lib/auth/request-pathname";
@@ -197,8 +198,17 @@ export async function updateSession(request: NextRequest) {
       const isStaffPage = !isApiRoute && (pathname === "/staff" || pathname.startsWith("/staff/"));
       const isSuperAdminPage =
         !isApiRoute && matchesRoutePrefix(pathname, [...AUTH_SUPER_ADMIN_PREFIXES]);
+      const isAdminPage =
+        !isApiRoute && matchesRoutePrefix(pathname, [...AUTH_ADMIN_PREFIXES]);
 
-      if (isSuperAdminApi || isAdminApi || isSuperAdminPage || isStaffApi || isStaffPage) {
+      if (
+        isSuperAdminApi ||
+        isAdminApi ||
+        isSuperAdminPage ||
+        isAdminPage ||
+        isStaffApi ||
+        isStaffPage
+      ) {
         const role = await resolveRole();
 
         if (isSuperAdminApi && role !== "super_admin") {
@@ -210,6 +220,10 @@ export async function updateSession(request: NextRequest) {
         }
 
         if (isSuperAdminPage && role !== "super_admin") {
+          return forbiddenPageRedirect(request, pendingCookies);
+        }
+
+        if (isAdminPage && role !== "super_admin" && role !== "admin") {
           return forbiddenPageRedirect(request, pendingCookies);
         }
 

@@ -14,11 +14,16 @@ import {
 import { RovexoBrandLogo } from "@/components/branding/RovexoBrandLogo";
 import { MailLineIcon, ShieldLineIcon, UserLineIcon } from "@/components/icons/RvxLineIcons";
 import { AuthAlert } from "@/features/auth/components/AuthAlert";
+import {
+  AuthOAuthButtons,
+  AuthOAuthDivider,
+} from "@/features/auth/components/AuthOAuthButtons";
 import { AuthLink } from "@/features/auth/components/AuthLink";
 import { AuthSpinner } from "@/features/auth/components/AuthSpinner";
 import { signUp, type AuthActionState } from "@/lib/auth/actions";
 import { AUTH_MASTER_SPEC } from "@/lib/auth/master-spec";
 import { AUTH_MODULE_VERSION } from "@/lib/auth/canonical";
+import type { OauthRc1PublicProvider } from "@/lib/auth/oauth-rc1-public-providers-v1";
 import { focusRing } from "@/components/ui/tokens";
 
 /**
@@ -58,11 +63,23 @@ function resolveRegisterClientError(form: HTMLFormElement): string | null {
   return null;
 }
 
-export function RegisterScreen() {
+type RegisterScreenProps = {
+  next?: string;
+  initialError?: string;
+  /** Fail-closed: only providers confirmed available by the server probe. */
+  oauthProviders?: readonly OauthRc1PublicProvider[];
+};
+
+export function RegisterScreen({
+  next,
+  initialError,
+  oauthProviders = [],
+}: RegisterScreenProps) {
   const { copy, routes } = AUTH_MASTER_SPEC.register;
   const [state, formAction, pending] = useActionState(signUp, {} as AuthActionState);
   const [clientError, setClientError] = useState<string | null>(null);
-  const alertMessage = clientError ?? state.error;
+  const alertMessage = clientError ?? state.error ?? initialError;
+  const showOAuth = oauthProviders.length > 0;
 
   return (
     <div
@@ -136,8 +153,17 @@ export function RegisterScreen() {
             <label className={cn("auth-register-checkbox", focusRing)}>
               <input type="checkbox" name="terms" required className="auth-register-checkbox__input" />
               <span className="auth-register-checkbox__text">
+                I agree to the{" "}
                 <Link href="/legal/terms-and-conditions" className="auth-register-checkbox__link">
                   {REGISTER_UI.termsLabel}
+                </Link>
+                {", "}
+                <Link href="/legal/privacy-policy" className="auth-register-checkbox__link">
+                  Privacy Policy
+                </Link>
+                {" and "}
+                <Link href="/legal/cookie-policy" className="auth-register-checkbox__link">
+                  Cookie Policy
                 </Link>
               </span>
             </label>
@@ -167,6 +193,17 @@ export function RegisterScreen() {
             </div>
           </div>
         </form>
+
+        {showOAuth ? (
+          <div className="auth-register__oauth" data-oauth-surface="register">
+            <AuthOAuthDivider />
+            <AuthOAuthButtons
+              next={next}
+              returnPath="/register"
+              providers={oauthProviders}
+            />
+          </div>
+        ) : null}
 
         <AuthFooter className="auth-register__footer">
           <p className="auth-register__sign-in-prompt">

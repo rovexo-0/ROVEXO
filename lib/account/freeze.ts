@@ -39,7 +39,7 @@ export const ACCOUNT_CANONICAL_COMPONENTS = [
   "AccountMenuSections",
 ] as const;
 
-/** Profile menu titles — Master Engine lock (Holiday Mode + Promote on Profile). */
+/** Profile menu titles — Phase C.3: Help/Legal moved into Settings. */
 export const ACCOUNT_MENU_TITLES = [
   "Favourites",
   "Balance",
@@ -48,6 +48,4 @@ export const ACCOUNT_MENU_TITLES = [
   "Promote",
   "Settings",
   "Rovexo Ideas",
-  "Help Centre",
-  "Legal Information",
 ] as const;

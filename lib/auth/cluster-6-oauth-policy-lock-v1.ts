@@ -1,20 +1,20 @@
 /**
- * ROVEXO CLUSTER 6 — OAUTH POLICY LOCK v1.0
+ * ROVEXO CLUSTER 6 — OAUTH POLICY LOCK v1.1 (RC1 amendment)
  *
  * OWNER APPROVED · ARCHITECTURE POLICY LOCKED
- * Cod Sânge — Cluster 6 · Owner Authentication Policy Decision
+ * Cod Sânge — Google + Apple OAuth RC1
  *
- * Public v1.0 authentication UI = EMAIL ONLY.
- * Google / Apple = code-ready, UI-gated (not public surfaces).
- * Facebook = deferred to v1.1.
+ * Public authentication UI:
+ * - Email always enabled
+ * - Google / Apple shown ONLY when Supabase provider availability PASSes (fail closed)
+ * - Facebook remains deferred / hidden
  *
- * This file locks OAuth product policy.
- * Cluster 6 Scope Lock: `lib/auth/cluster-6-authentication-scope-lock-v1.ts`.
- * Does not grant Technical Cert, Owner Visual QA, or Production Freeze.
+ * Parent RC1 SSOT: `lib/auth/oauth-rc1-public-providers-v1.ts`
+ * Availability: `lib/auth/oauth-provider-availability.server.ts`
  */
 
 export const CLUSTER_6_OAUTH_POLICY_LOCK_V1 = {
-  version: "1.0",
+  version: "1.1",
   cluster: "CLUSTER_6_AUTHENTICATION_IDENTITY",
   id: "cluster-6-oauth-policy-lock-v1",
   status: "OWNER_APPROVED_POLICY_LOCKED",
@@ -23,13 +23,18 @@ export const CLUSTER_6_OAUTH_POLICY_LOCK_V1 = {
   architectureCertified: true,
   /** Scope Lock applied — see cluster-6-authentication-scope-lock-v1. */
   scopeLocked: true,
-  /** Owner Visual QA PASS · Production Freeze applied (see authentication scope lock). */
-  productionReady: true,
+  /**
+   * Production Ready remains gated by live Supabase provider enablement.
+   * Policy architecture is locked; live OAuth may still FAIL until ops enable providers.
+   */
+  productionReady: false,
   freezeApplied: true,
   technicalCertificationPass: true,
-  ownerVisualQaPass: true,
+  ownerVisualQaPass: false,
+  rc1: "oauth-rc1-public-providers-v1",
 
-  equation: "EMAIL_PUBLIC_UI + GOOGLE_APPLE_CODE_READY_UI_GATED + FACEBOOK_DEFERRED_V1_1",
+  equation:
+    "EMAIL_PUBLIC + GOOGLE_WHEN_ENABLED + APPLE_WHEN_ENABLED + FACEBOOK_HIDDEN_FAIL_CLOSED",
 
   publicV1Methods: {
     email: "ENABLED",
@@ -41,17 +46,17 @@ export const CLUSTER_6_OAUTH_POLICY_LOCK_V1 = {
 
   codeReadyUiGated: {
     google: {
-      status: "CODE_READY_UI_GATED",
+      status: "PUBLIC_WHEN_PROVIDER_ENABLED",
       implementation: "PRESERVED",
       callback: "PRESERVED",
-      publicLoginRegisterUi: "FORBIDDEN",
+      publicLoginRegisterUi: "GATED_BY_AVAILABILITY",
       publicVerifyEmailUi: "FORBIDDEN",
     },
     apple: {
-      status: "CODE_READY_UI_GATED",
+      status: "PUBLIC_WHEN_PROVIDER_ENABLED",
       implementation: "PRESERVED",
       callback: "PRESERVED",
-      publicLoginRegisterUi: "FORBIDDEN",
+      publicLoginRegisterUi: "GATED_BY_AVAILABILITY",
       publicVerifyEmailUi: "FORBIDDEN",
     },
   } as const,
@@ -59,8 +64,8 @@ export const CLUSTER_6_OAUTH_POLICY_LOCK_V1 = {
   deferredToV1_1: ["Facebook OAuth"] as const,
 
   publicAuthSurfaces: [
-    "app/(auth)/login/page.tsx → LoginScreen",
-    "app/(auth)/register/page.tsx → RegisterScreen",
+    "app/(auth)/login/page.tsx → LoginScreen (OAuth gated)",
+    "app/(auth)/register/page.tsx → RegisterScreen (OAuth gated)",
     "app/(auth)/verify-email/page.tsx → AuthForm (showOAuth=false)",
     "app/(auth)/forgot-password/page.tsx → ForgotPasswordScreen",
     "app/(auth)/reset-password/page.tsx → ResetPasswordScreen",
@@ -70,12 +75,13 @@ export const CLUSTER_6_OAUTH_POLICY_LOCK_V1 = {
     oauthAction: "lib/auth/actions.ts → signInWithOAuthProvider",
     oauthButtons: "features/auth/components/AuthOAuthButtons.tsx",
     callback: "app/auth/callback/route.ts",
+    availabilityProbe: "lib/auth/oauth-provider-availability.server.ts",
     authFormOptIn: "features/auth/components/AuthForm.tsx → showOAuth default false",
   } as const,
 
   permanentlyForbiddenWithoutOwnerApproval: [
-    "Public OAuth buttons on Login / Register / Verify Email / Forgot / Reset",
-    "Restoring Facebook to public v1.0 UI",
+    "Facebook on public Login / Register",
+    "Showing OAuth buttons when provider probe FAILS",
     "Second authentication system",
     "New public authentication surfaces",
   ] as const,
@@ -86,6 +92,7 @@ export const CLUSTER_6_OAUTH_POLICY_LOCK_V1 = {
     compactPremium: "lib/auth/auth-ui-compact-premium-v1.4.ts",
     oauthConfigurationGoldenLaw: "lib/auth/oauth-configuration-golden-law-v1.ts",
     oauthConfigurationFreeze: "lib/auth/oauth-configuration-freeze-v1.ts",
+    oauthRc1: "lib/auth/oauth-rc1-public-providers-v1.ts",
   } as const,
 
   ssot: "lib/auth/cluster-6-oauth-policy-lock-v1.ts",
@@ -104,5 +111,11 @@ export function assertCluster6OauthPolicyOrBlock(): void {
   }
   if (lock.publicV1Methods.email !== "ENABLED") {
     throw new Error("CLUSTER 6 invariant broken: Email must be the public v1.0 method.");
+  }
+  if (lock.codeReadyUiGated.google.publicLoginRegisterUi !== "GATED_BY_AVAILABILITY") {
+    throw new Error("CLUSTER 6 RC1: Google must be availability-gated on Login/Register.");
+  }
+  if (lock.codeReadyUiGated.apple.publicLoginRegisterUi !== "GATED_BY_AVAILABILITY") {
+    throw new Error("CLUSTER 6 RC1: Apple must be availability-gated on Login/Register.");
   }
 }

@@ -25,5 +25,11 @@ export default async function EditListingRoute({ params }: EditListingRouteProps
 
   const initialDraft = await sellerListingToDraft(listing);
 
-  return <SellPage editListingId={listing.id} initialDraft={initialDraft} />;
+  return (
+    <SellPage
+      editListingId={listing.id}
+      editListingSlug={listing.slug}
+      initialDraft={initialDraft}
+    />
+  );
 }

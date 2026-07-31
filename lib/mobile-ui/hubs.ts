@@ -5,6 +5,7 @@ import {
 } from "@/lib/navigation/map";
 import { SUPER_ADMIN_NAV } from "@/lib/super-admin/nav";
 import type { UserProfile } from "@/lib/profile/types";
+import { isV1BusinessUxRemoved } from "@/lib/phase-c-v1-business-cleanup-v1";
 import type {
   MobileHubContext,
   MobileHubSection,
@@ -129,7 +130,7 @@ export function getMobilePrimaryHubs(
   profile: UserProfile,
   context?: MobileHubContext,
 ): MobilePrimaryHub[] {
-  return [
+  const hubs: MobilePrimaryHub[] = [
     {
       id: "buy",
       label: "Buy",
@@ -142,19 +143,26 @@ export function getMobilePrimaryHubs(
       subtitle: profile.isSeller ? "Listings, orders & wallet" : "Start selling on ROVEXO",
       tiles: getSellHubTiles(profile),
     },
-    {
+  ];
+
+  // Phase C — Business hub postponed to v2.0.
+  if (!isV1BusinessUxRemoved()) {
+    hubs.push({
       id: "business",
       label: "Business",
       subtitle: "B2B tools, wholesale & analytics",
       tiles: getBusinessHubTiles(profile, context),
-    },
-    {
-      id: "support",
-      label: "Support",
-      subtitle: "Help, trust, policies & tickets",
-      tiles: getSupportHubTiles(),
-    },
-  ];
+    });
+  }
+
+  hubs.push({
+    id: "support",
+    label: "Support",
+    subtitle: "Help, trust, policies & tickets",
+    tiles: getSupportHubTiles(),
+  });
+
+  return hubs;
 }
 
 export function getMobilePrimaryHub(

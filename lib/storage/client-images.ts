@@ -34,8 +34,12 @@ export async function compressListingImage(file: File): Promise<File> {
 }
 
 export async function createListingThumbnail(file: File): Promise<File> {
-  const normalized = await normalizeImageFile(file);
-  return compressWithFallback(normalized, THUMBNAIL_OPTIONS);
+  /* Already-normalized JPEG/PNG/WebP — skip second HEIC/normalize pass (Phase A3). */
+  const source =
+    file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/webp"
+      ? file
+      : await normalizeImageFile(file);
+  return compressWithFallback(source, THUMBNAIL_OPTIONS);
 }
 
 export const ALLOWED_IMAGE_TYPES = [

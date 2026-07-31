@@ -3,6 +3,7 @@ import {
   STARTUP_CERTIFICATION_POLICY_V1,
   runStartupCertificationGate,
   shouldBlockStartupOnCertificationFailure,
+  shouldLoadTestingArtifactsOnStartup,
 } from "@/lib/startup/startup-certification-policy-v1";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -12,6 +13,18 @@ describe("Startup Certification Policy v1.0", () => {
     expect(STARTUP_CERTIFICATION_POLICY_V1.developmentOnFail).toBe("log-and-continue");
     expect(STARTUP_CERTIFICATION_POLICY_V1.productionOnFail).toBe("throw-and-block");
     expect(STARTUP_CERTIFICATION_POLICY_V1.certificationModeOnFail).toBe("throw-and-block");
+  });
+
+  it("never loads e2e/playwright artifacts in production unless certification mode", () => {
+    expect(shouldLoadTestingArtifactsOnStartup({ NODE_ENV: "production" })).toBe(false);
+    expect(
+      shouldLoadTestingArtifactsOnStartup({
+        NODE_ENV: "production",
+        ROVEXO_CERTIFICATION_MODE: "1",
+      }),
+    ).toBe(true);
+    expect(shouldLoadTestingArtifactsOnStartup({ NODE_ENV: "development" })).toBe(true);
+    expect(shouldLoadTestingArtifactsOnStartup({ NODE_ENV: "test" })).toBe(true);
   });
 
   it("does not block ordinary development", () => {

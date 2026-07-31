@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -21,18 +21,21 @@ describe("One Product Philosophy Freeze", () => {
     expect(icon).not.toContain("RvxLineIcons");
   });
 
-  it("Help uses AccountIcon", () => {
+  it("Help uses MasterMenuIcon → AccountIcon family", () => {
     const help = readSource("features/help/components/HelpCentreCanonicalSection.tsx");
     const page = readSource("features/help/components/HelpCentrePage.tsx");
-    expect(help).toContain("AccountIcon");
-    expect(page).toContain("AccountIcon");
+    const master = readSource("features/account-center/components/MasterMenuIcon.tsx");
+    expect(help).toContain("MasterMenuIcon");
+    expect(page).toContain("MasterMenuIcon");
+    expect(master).toContain("AccountIcon");
     expect(help).not.toContain("RvxLineIcons");
+    expect(help).not.toContain("lucide-react");
   });
 
   it("Resolution uses CanonicalMenuRow not legacy ac-canonical__row", () => {
     const resolution = readSource("features/resolution/components/ResolutionCentreView.tsx");
     expect(resolution).toContain("CanonicalMenuRow");
-    expect(resolution).toContain("AccountIcon");
+    expect(resolution).toContain("MasterMenuIcon");
     expect(resolution).not.toContain("ac-canonical__row");
   });
 
@@ -169,12 +172,10 @@ describe("One Product Philosophy Freeze", () => {
     expect(css).not.toContain(".conv-hub__attach-sheet");
   });
 
-  it("Fluency3DIcon renders line icons — no 3D picture assets", () => {
-    const fluency = readSource("components/icons/Fluency3DIcon.tsx");
-    expect(fluency).toContain("RvxLineIcons");
-    expect(fluency).not.toContain("<picture");
-    expect(fluency).not.toContain("getFluency3DAssetPath");
-    expect(fluency).not.toMatch(/\.webp|\.png/);
+  it("Fluency3DIcon pack is removed — canonical AccountIcon / RvxLine only", () => {
+    expect(existsSync(join(process.cwd(), "components/icons/Fluency3DIcon.tsx"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "components/icons/fluency-3d-feature.tsx"))).toBe(false);
+    expect(existsSync(join(process.cwd(), "lib/icons/fluency-3d-registry.ts"))).toBe(false);
   });
 
   it("Absolute Final — all legacy icon wrappers forbid 3D asset loading", () => {

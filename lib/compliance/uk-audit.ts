@@ -44,8 +44,9 @@ export const UK_COMPLIANCE_AUDIT: UkComplianceFinding[] = [
   {
     area: "business",
     status: "implemented",
-    requirement: "Business seller disclosures",
-    implementation: "Business Seller Terms, business verification on profile",
+    requirement: "Commercial seller tax disclosures without a separate Business Account product",
+    implementation:
+      "Personal Account only in v1.0; Seller Terms; Seller Tax Registration (Personal / Pro Seller / Sole Trader / Company); Digital Platform Reporting & Tax Notice",
   },
   {
     area: "wallet",

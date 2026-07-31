@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { MyAccountTemplate } from "@/features/account-canonical";
-import { AvatarUploader } from "@/features/account/components/AvatarUploader";
+import { CanonicalProfileAvatar } from "@/features/profile/components/CanonicalProfileAvatar";
 import { ChevronRightLineIcon } from "@/components/icons/RvxLineIcons";
 import { CanonicalInput, CanonicalSelector } from "@/src/components/canonical";
 import {
@@ -24,6 +24,8 @@ import {
   maskEmailAddress,
   maskPhoneNumber,
   parseDobDdMmYyyy,
+  dobDdMmYyyyToIso,
+  dobIsoToDdMmYyyy,
   type AccountSettingsFormSnapshot,
 } from "@/lib/account/account-settings-v1";
 import {
@@ -153,13 +155,14 @@ export function ProfileEditPage({
   const rerunRef = useRef(false);
   const scheduleSaveRef = useRef<() => void>(() => {});
   const initialExtras = readExtras(initialProfile.username);
+  const serverDob = dobIsoToDdMmYyyy(initialProfile.dateOfBirth);
 
   const initialSnapshot: AccountSettingsFormSnapshot = {
     fullName: initialProfile.fullName,
     username: initialProfile.username,
     email: initialProfile.email,
     phone: initialProfile.phone ?? "",
-    dob: initialExtras.dob,
+    dob: serverDob || initialExtras.dob,
     gender: initialExtras.gender,
   };
 
@@ -281,6 +284,13 @@ export function ProfileEditPage({
       const emailChanged = snapshot.email.trim().toLowerCase() !== activeProfile.email.toLowerCase();
       const normalizedUsername = snapshot.username.trim().toLowerCase().replace(/^@+/, "");
 
+      const dobIso = snapshot.dob.trim() ? dobDdMmYyyyToIso(snapshot.dob.trim()) : "";
+      if (snapshot.dob.trim() && !dobIso) {
+        fail("Enter date of birth as DD/MM/YYYY.");
+        setEditor("dob");
+        return;
+      }
+
       const [profileResponse, settingsResponse, emailResponse] = await Promise.all([
         fetch("/api/profile", {
           method: "PATCH",
@@ -289,6 +299,7 @@ export function ProfileEditPage({
             fullName: snapshot.fullName.trim().slice(0, ACCOUNT_SETTINGS_FULL_NAME_MAX),
             username: normalizedUsername.slice(0, ACCOUNT_SETTINGS_USERNAME_MAX),
             phone: snapshot.phone.trim(),
+            dateOfBirth: dobIso ?? "",
           }),
         }),
         fetch("/api/settings", {
@@ -341,7 +352,7 @@ export function ProfileEditPage({
         username: nextProfile.username,
         email: nextEmail,
         phone: nextPhone,
-        dob: snapshot.dob.trim(),
+        dob: dobIsoToDdMmYyyy(nextProfile.dateOfBirth) || snapshot.dob.trim(),
         gender: snapshot.gender,
       };
 
@@ -468,17 +479,15 @@ export function ProfileEditPage({
         data-profile-master-tokens="v1.0"
       >
         <div className="as-v1__stack">
-          <div className="as-v1-row">
+          <div className="as-v1-row as-v1-row--profile-photo">
             <div className="as-v1-row__hit" style={{ cursor: "default" }}>
               <span className="as-v1-row__copy">
                 <span className="as-v1-row__title">Profile Photo</span>
-                <span className="as-v1-row__value">Add or change your profile photo.</span>
               </span>
             </div>
-            <AvatarUploader
+            <CanonicalProfileAvatar
               name={form.fullName || profile.fullName}
               avatarUrl={profile.avatarUrl}
-              accountSettings
               onUpdated={(avatarUrl) => {
                 captureScroll();
                 setProfile((current) => {

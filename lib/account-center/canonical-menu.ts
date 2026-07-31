@@ -41,7 +41,8 @@ export const ACCOUNT_LOGOUT_MENU_ITEM: AccountMenuItem = {
 
 /**
  * Profile main menu — Favourites · Balance · Orders · Holiday · Promote ·
- * Settings · Rovexo Ideas · Help · Legal.
+ * Settings · Rovexo Ideas.
+ * Help Centre + Legal Information live under Settings (Phase C.3).
  * Sign Out is rendered by AccountMenuSections (not Settings).
  */
 export function buildAccountMenuSections(
@@ -112,18 +113,6 @@ export function buildAccountMenuSections(
       title: "Rovexo Ideas",
       href: "/account/ideas",
       icon: "ideas",
-    },
-    {
-      id: "help",
-      title: "Help Centre",
-      href: "/help",
-      icon: "help",
-    },
-    {
-      id: "legal",
-      title: "Legal Information",
-      href: "/legal",
-      icon: "legal",
     },
   );
 

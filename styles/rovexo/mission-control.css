@@ -175,6 +175,11 @@
   --mc-status-color: var(--ds-color-danger);
 }
 
+.mc-service-card__dot--not_configured,
+.mc-service-card--not_configured {
+  --mc-status-color: #94a3b8;
+}
+
 .mc-service-card__dot {
   background: var(--mc-status-color);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--mc-status-color) 18%, transparent);

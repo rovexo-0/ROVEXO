@@ -28,7 +28,7 @@ Google/Apple **MUST BE ENABLED** · Facebook **OPTIONAL BUT SUPPORTED**
 ## Callbacks
 
 - `http://localhost:3000/auth/callback`
-- `https://rovexo.com/auth/callback`
+- `https://www.rovexo.co.uk/auth/callback`
 - `https://staging.rovexo.com/auth/callback`
 
 ## Allowed only
