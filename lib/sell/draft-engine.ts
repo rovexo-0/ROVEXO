@@ -88,7 +88,11 @@ export async function discardLocalDraft(): Promise<void> {
 
 export async function persistDraftOnPublishFailure(
   refs: Parameters<typeof persistSellDraftSnapshot>[0],
-): Promise<void> {
+  options?: { databaseDraftId?: string | null },
+): Promise<{ databaseDraftSaved: boolean; draftId?: string }> {
   touchDraftSavedAt();
-  await persistSellDraftSnapshot(refs);
+  return persistSellDraftSnapshot(refs, {
+    databaseDraftId: options?.databaseDraftId,
+    persistDatabase: true,
+  });
 }

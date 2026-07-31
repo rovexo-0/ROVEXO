@@ -17,7 +17,7 @@ export type PublishPhase =
 export const LISTING_CREATE_RETRY_MS = [500, 1500, 3000] as const;
 
 export const PUBLISH_FAILURE_MESSAGE =
-  "Publishing failed. Your draft has been safely saved.";
+  "Publishing failed. Please try again.";
 
 export const PUBLISH_NETWORK_FAILURE_MESSAGE =
   "Network error while publishing. Check your connection and try again.";
@@ -231,7 +231,9 @@ export async function runPublishPipeline(input: PublishPipelineInput): Promise<P
   const response = await createListingWithRetry(
     endpoint,
     method,
-    editListingId ? { ...payload, removeImageIds: removedImageIds } : payload,
+    editListingId
+      ? { ...payload, removeImageIds: removedImageIds, status: "published" }
+      : payload,
   );
 
   if (response.status === 428) {
@@ -255,20 +257,6 @@ export async function runPublishPipeline(input: PublishPipelineInput): Promise<P
   }
 
   onPhase("finalising");
-
-  if (editListingId) {
-    onPhase("published");
-    return {
-      listingId: editListingId,
-      listingSlug: "",
-      listingUrl: "",
-      sellerId: "",
-      listingStatus: "published",
-      publishedAt: new Date().toISOString(),
-      title: draft.title.trim(),
-      photos: uploadedPhotos,
-    };
-  }
 
   const result = (await response.json()) as Parameters<typeof parsePublishSuccessResponse>[0];
   const publish = parsePublishSuccessResponse(result);

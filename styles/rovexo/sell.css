@@ -36,7 +36,13 @@
   --sell-control-height: 48px;
   --sell-description-min-height: 110px;
   --sell-publish-height: 56px;
-  --sell-sticky-clearance: 96px;
+  /* Account sticky clearance + publish height — clears Bottom Nav + safe area */
+  --sell-sticky-clearance: calc(var(--cds-bottom-nav-offset, 72px) + var(--sell-publish-height) + 24px);
+  --sell-font-page-title: 24px;
+  --sell-font-section: 20px;
+  --sell-font-button: 18px;
+  --sell-font-control: 16px;
+  --sell-font-helper: 15px;
   --sell-photo-w: 112px;
   --sell-photo-h: 168px;
   --sell-photo-radius: 16px;
@@ -67,14 +73,70 @@
 
 [data-sell-shell] .cds-field__label {
   margin: 0;
-  font-size: 0.8125rem;
-  line-height: 1.2;
+  font-size: var(--sell-font-control);
+  line-height: 1.25;
+  font-weight: 500;
 }
 
 [data-sell-shell] .cds-field__hint,
 [data-sell-shell] .cds-field__error,
 [data-sell-shell] .text-xs.text-muted-foreground {
   margin-top: 2px;
+  font-size: var(--sell-font-helper) !important;
+  line-height: 1.35;
+}
+
+/* P0-02 Sell-only typography — editable controls never under 16px (iOS zoom) */
+[data-sell-shell] .cds-input,
+[data-sell-shell] .cds-textarea,
+[data-sell-shell] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+[data-sell-shell] textarea,
+[data-sell-shell] select,
+[data-sell-shell] [role="spinbutton"],
+[data-sell-shell] [contenteditable="true"] {
+  font-size: var(--sell-font-control) !important;
+  line-height: 1.35 !important;
+}
+
+[data-sell-shell] .cds-menu-row__title,
+[data-sell-shell] .cds-menu-row__value,
+[data-sell-shell] .cds-menu-row__trailing,
+[data-sell-shell] .sell-photo-section__header,
+[data-sell-shell] [aria-label="Photos"] .text-sm,
+[data-sell-shell] [aria-label="Photos"] .text-xs {
+  font-size: var(--sell-font-control) !important;
+  line-height: 1.35;
+}
+
+[data-sell-shell] .cds-menu-row__subtitle,
+[data-sell-shell] .cds-menu-row__description {
+  font-size: var(--sell-font-helper) !important;
+  line-height: 1.35;
+}
+
+[data-sell-shell] .text-xs:not(.cds-menu-row__title):not(.cds-menu-row__value),
+[data-sell-shell] .text-sm:not(.cds-menu-row__title):not(.cds-menu-row__value) {
+  font-size: var(--sell-font-helper) !important;
+  line-height: 1.35;
+}
+
+[data-sell-shell] [data-sell-publish-bar] .cds-btn,
+[data-sell-shell] [data-sell-publish-bar] button,
+[data-sell-shell] .cds-btn {
+  font-size: var(--sell-font-button) !important;
+  line-height: 1.25;
+}
+
+[data-sell-shell] [aria-label="Sell an item"] > h2,
+[data-sell-shell] .sell-section-title {
+  font-size: var(--sell-font-section) !important;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+[data-my-account-surface="sell"] .account-canonical-header__title {
+  font-size: 24px !important;
+  line-height: 1.25;
 }
 
 /* Title / Price / text inputs → 48px */
@@ -113,19 +175,6 @@
 [data-sell-shell] .cds-menu-row {
   min-height: var(--sell-control-height) !important;
   gap: 8px;
-}
-
-[data-sell-shell] .cds-menu-row__title,
-[data-sell-shell] .cds-menu-row__value,
-[data-sell-shell] .cds-menu-row__trailing {
-  font-size: 0.9375rem;
-  line-height: 1.25;
-}
-
-[data-sell-shell] .cds-menu-row__subtitle,
-[data-sell-shell] .cds-menu-row__description {
-  font-size: 0.75rem;
-  line-height: 1.2;
 }
 
 /* Photos — identical tiles · cover crop · gap 8 · header aligned with counter */
@@ -436,14 +485,14 @@
   margin: 0;
 }
 
-/* Sticky publish — CTA stays 56px (inputs only were compacted) */
+/* Sticky publish — same Account clearance (--cds-bottom-nav-offset); never overlap Bottom Nav */
 [data-sell-shell] .account-settings-sticky-action,
 [data-sell-shell] [data-sell-publish-bar] {
   position: sticky;
-  bottom: 0;
+  bottom: calc(var(--cds-bottom-nav-offset, 72px) - 24px);
   z-index: 20;
   margin-top: 8px;
-  padding: 12px 0 max(env(safe-area-inset-bottom, 0px), 4px);
+  padding: 12px 0 max(4px, env(safe-area-inset-bottom, 0px));
   background: linear-gradient(180deg, rgb(255 255 255 / 0) 0%, #ffffff 24%);
 }
 
@@ -481,8 +530,8 @@
 }
 
 [data-sell-shell] .sell-price-with-icon__row > .master-menu-icon {
-  /* Align 24px icon with 48px input under Account label */
-  margin-top: calc(0.8125rem * 1.2 + 4px + (var(--sell-control-height) - 24px) / 2);
+  /* Align 24px icon with 48px input under Account label (16px label) */
+  margin-top: calc(var(--sell-font-control) * 1.25 + 4px + (var(--sell-control-height) - 24px) / 2);
 }
 
 [data-sell-shell] .sell-price-with-icon__field {
@@ -594,7 +643,7 @@
 }
 
 .sell-parcel-option__label {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: 0.02em;
@@ -608,10 +657,10 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  height: 18px;
+  height: 20px;
   padding: 0 8px;
   border-radius: 999px;
-  font-size: 10px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1;
   color: #9333ea;
@@ -622,9 +671,9 @@
 }
 
 .sell-parcel-option__desc {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 400;
-  line-height: 1.1;
+  line-height: 1.2;
   color: #6b7280;
   margin: 0;
   white-space: pre-line;

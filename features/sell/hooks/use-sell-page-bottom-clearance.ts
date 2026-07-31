@@ -5,12 +5,10 @@ import { useEffect, type RefObject } from "react";
 /** Minimum gap between last field and sticky publish CTA (px). */
 const BAR_GAP_PX = 12;
 
-/** Minimum bottom padding floor (px). */
-const MIN_CLEARANCE_PX = 72;
-
 /**
  * Measures the sticky publish CTA and writes Account-compatible clearance on the sell shell:
- * - --sell-sticky-clearance
+ * --sell-sticky-clearance = bar height + gap + --cds-bottom-nav-offset
+ * (same token Account sticky actions use — clears Bottom Nav + safe area).
  */
 export function useSellPageBottomClearance(
   shellRef: RefObject<HTMLElement | null>,
@@ -21,8 +19,11 @@ export function useSellPageBottomClearance(
     if (!shell) return;
 
     const applyBarHeight = (height: number) => {
-      const measured = Math.max(height + BAR_GAP_PX, MIN_CLEARANCE_PX);
-      shell.style.setProperty("--sell-sticky-clearance", `${Math.ceil(measured)}px`);
+      const barPart = Math.ceil(Math.max(height + BAR_GAP_PX, 72));
+      shell.style.setProperty(
+        "--sell-sticky-clearance",
+        `calc(${barPart}px + var(--cds-bottom-nav-offset, 72px))`,
+      );
     };
 
     const bar = publishBarRef.current;

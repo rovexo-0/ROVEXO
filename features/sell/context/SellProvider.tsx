@@ -13,7 +13,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
 import type { FlatCategoryPath } from "@/lib/categories/types";
-import { clearSellDraft, loadSellDraft, loadUploadSessionId } from "@/lib/sell/draft-storage";
+import { clearSellDraft, loadDatabaseDraftId, loadSellDraft, loadUploadSessionId } from "@/lib/sell/draft-storage";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
 import {
   DRAFT_AUTOSAVE_MS,
@@ -21,6 +21,10 @@ import {
   loadLocalDraftForRestore,
   persistDraftOnPublishFailure,
 } from "@/lib/sell/draft-engine";
+import {
+  DRAFT_DATABASE_SAVED_MESSAGE,
+  PUBLISH_FAILURE_NO_DRAFT_MESSAGE,
+} from "@/lib/sell/draft-database-ssot-v1";
 import {
   PublishEngineError,
   PUBLISH_FAILURE_MESSAGE,
@@ -90,6 +94,8 @@ export type SellProviderOptions = {
   editListingId?: string;
   /** Public slug — used to return to Listing Details after Save Changes. */
   editListingSlug?: string;
+  /** When editing an existing draft, autosave updates products.status='draft'. */
+  editListingStatus?: string;
   initialDraft?: SellListingDraft;
   /** Clears stored draft and starts empty (default for /sell). */
   freshSession?: boolean;
@@ -141,6 +147,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     listingMode = "quick",
     editListingId,
     editListingSlug,
+    editListingStatus,
     initialDraft,
     freshSession = false,
     restoreDraft = false,
@@ -356,27 +363,42 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
   }, []);
 
   const persistDraftSnapshot = useCallback(() => {
-    if (initialDraft || editListingId || draftRecoveryPending || publishSuccessRef.current) return;
-    void persistSellDraftSnapshot({
-      draftRef,
-      pendingTitleRef,
-      pendingDescriptionRef,
-      uploadSessionId: uploadSessionRef.current,
-    });
-  }, [draftRecoveryPending, editListingId, initialDraft]);
+    if (draftRecoveryPending || publishSuccessRef.current) return;
+    const isCreateAutosave = !editListingId && !initialDraft;
+    const isDraftEditAutosave = Boolean(editListingId && editListingStatus === "draft");
+    if (!isCreateAutosave && !isDraftEditAutosave) return;
+    void persistSellDraftSnapshot(
+      {
+        draftRef,
+        pendingTitleRef,
+        pendingDescriptionRef,
+        uploadSessionId: uploadSessionRef.current,
+      },
+      {
+        databaseDraftId: editListingId ?? loadDatabaseDraftId(),
+        persistDatabase: true,
+      },
+    );
+  }, [draftRecoveryPending, editListingId, editListingStatus, initialDraft]);
 
   const persistDraftTextSync = useCallback(() => {
-    if (initialDraft || editListingId || draftRecoveryPending || publishSuccessRef.current) return false;
+    if (draftRecoveryPending || publishSuccessRef.current) return false;
+    const isCreateAutosave = !editListingId && !initialDraft;
+    const isDraftEditAutosave = Boolean(editListingId && editListingStatus === "draft");
+    if (!isCreateAutosave && !isDraftEditAutosave) return false;
     return persistSellDraftTextSync({
       draftRef,
       pendingTitleRef,
       pendingDescriptionRef,
       uploadSessionId: uploadSessionRef.current,
     });
-  }, [draftRecoveryPending, editListingId, initialDraft]);
+  }, [draftRecoveryPending, editListingId, editListingStatus, initialDraft]);
 
   useEffect(() => {
-    if (initialDraft || editListingId || draftRecoveryPending || publishSuccess) return;
+    if (draftRecoveryPending || publishSuccess) return;
+    const isCreateAutosave = !editListingId && !initialDraft;
+    const isDraftEditAutosave = Boolean(editListingId && editListingStatus === "draft");
+    if (!isCreateAutosave && !isDraftEditAutosave) return;
 
     sellProfileAutosave("schedule");
     const autosaveTimer = window.setTimeout(() => {
@@ -389,10 +411,20 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
     }, DRAFT_AUTOSAVE_MS);
 
     return () => window.clearTimeout(autosaveTimer);
-  }, [draft, draftRecoveryPending, editListingId, initialDraft, persistDraftSnapshot, publishSuccess]);
+  }, [
+    draft,
+    draftRecoveryPending,
+    editListingId,
+    editListingStatus,
+    initialDraft,
+    persistDraftSnapshot,
+    publishSuccess,
+  ]);
 
   useEffect(() => {
-    if (initialDraft || editListingId || draftRecoveryPending || publishSuccess) return;
+    if (draftRecoveryPending || publishSuccess) return;
+    const isCreateAutosave = !editListingId && !initialDraft;
+    if (!isCreateAutosave) return;
 
     const persistOnHide = () => {
       persistDraftTextSync();
@@ -435,7 +467,14 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
       window.removeEventListener("pagehide", persistOnHide);
       window.removeEventListener("pageshow", restoreOnShow);
     };
-  }, [draftRecoveryPending, editListingId, initialDraft, persistDraftSnapshot, persistDraftTextSync, publishSuccess]);
+  }, [
+    draftRecoveryPending,
+    editListingId,
+    initialDraft,
+    persistDraftSnapshot,
+    persistDraftTextSync,
+    publishSuccess,
+  ]);
 
   const ensureUploadSessionId = useCallback(() => {
     if (!uploadSessionRef.current) {
@@ -897,9 +936,12 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
         return;
       }
 
+      const databaseDraftId = !editListingId ? loadDatabaseDraftId() : null;
+      const publishTargetId = editListingId ?? databaseDraftId ?? undefined;
+
       const result = await runPublishPipeline({
         draft: baseDraft,
-        editListingId,
+        editListingId: publishTargetId,
         removedImageIds,
         uploadPhoto,
         onPhase: handlePhase,
@@ -919,6 +961,8 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
         router.refresh();
         return;
       }
+
+      clearSellDraft();
 
       const publishDurationMs = performance.now() - publishStartedAtRef.current;
       const uploadDurationMs =
@@ -964,16 +1008,32 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
         return;
       }
 
-      // P0-01: always surface the real PublishEngineError message (API/network).
-      // Never replace a specific backend error with the generic fallback.
+      // Surface real PublishEngineError message. Claim draft saved only if DB draft OK.
       if (error instanceof PublishEngineError && error.persistDraft) {
-        await persistDraftOnPublishFailure({
-          draftRef,
-          pendingTitleRef,
-          pendingDescriptionRef,
-          uploadSessionId: uploadSessionRef.current,
-        });
-        setFormError(error.message.trim() || PUBLISH_FAILURE_MESSAGE);
+        const persistResult = await persistDraftOnPublishFailure(
+          {
+            draftRef,
+            pendingTitleRef,
+            pendingDescriptionRef,
+            uploadSessionId: uploadSessionRef.current,
+          },
+          { databaseDraftId: editListingId ?? loadDatabaseDraftId() },
+        );
+        const apiMessage = error.message.trim();
+        const claimsFakeDraftSave = /draft has been safely saved/i.test(apiMessage);
+        if (persistResult.databaseDraftSaved) {
+          setFormError(
+            claimsFakeDraftSave || !apiMessage || apiMessage === PUBLISH_FAILURE_MESSAGE
+              ? DRAFT_DATABASE_SAVED_MESSAGE
+              : apiMessage,
+          );
+        } else {
+          setFormError(
+            claimsFakeDraftSave || !apiMessage || apiMessage === PUBLISH_FAILURE_MESSAGE
+              ? PUBLISH_FAILURE_NO_DRAFT_MESSAGE
+              : apiMessage,
+          );
+        }
         setPublishPhase("error");
         return;
       }
@@ -983,7 +1043,7 @@ function useSellFormInternal(options: SellProviderOptions = {}): SellContextValu
           ? error.message
           : error instanceof Error && error.message.trim()
             ? error.message
-            : PUBLISH_FAILURE_MESSAGE,
+            : PUBLISH_FAILURE_NO_DRAFT_MESSAGE,
       );
       setPublishPhase("error");
     } finally {

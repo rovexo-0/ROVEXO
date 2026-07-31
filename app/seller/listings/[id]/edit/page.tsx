@@ -29,6 +29,7 @@ export default async function EditListingRoute({ params }: EditListingRouteProps
     <SellPage
       editListingId={listing.id}
       editListingSlug={listing.slug}
+      editListingStatus={listing.status}
       initialDraft={initialDraft}
     />
   );

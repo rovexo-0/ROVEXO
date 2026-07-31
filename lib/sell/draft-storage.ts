@@ -4,6 +4,7 @@ import { clearSellDraftPhotosViaProductIntegration } from "@/lib/product-integra
 
 const STORAGE_KEY = "rovexo:sell-draft";
 const SESSION_KEY = "rovexo:sell-upload-session";
+const DATABASE_DRAFT_ID_KEY = "rovexo:sell-database-draft-id";
 
 export function saveSellDraft(draft: SellListingDraft): void {
   if (typeof window === "undefined") return;
@@ -94,9 +95,26 @@ export function loadUploadSessionId(): string | null {
   return window.localStorage.getItem(SESSION_KEY);
 }
 
+export function saveDatabaseDraftId(draftId: string): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(DATABASE_DRAFT_ID_KEY, draftId);
+}
+
+export function loadDatabaseDraftId(): string | null {
+  if (typeof window === "undefined") return null;
+  const value = window.localStorage.getItem(DATABASE_DRAFT_ID_KEY);
+  return value?.trim() || null;
+}
+
+export function clearDatabaseDraftId(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(DATABASE_DRAFT_ID_KEY);
+}
+
 export function clearSellDraft(): void {
   if (typeof window === "undefined") return;
   window.localStorage.removeItem(STORAGE_KEY);
   window.localStorage.removeItem(SESSION_KEY);
+  window.localStorage.removeItem(DATABASE_DRAFT_ID_KEY);
   void clearSellDraftPhotosViaProductIntegration();
 }

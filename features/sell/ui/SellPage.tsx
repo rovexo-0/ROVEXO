@@ -35,6 +35,7 @@ export const SELL_PAGE_FREEZE = "FROZEN" as const;
 type SellPageProps = {
   editListingId?: string;
   editListingSlug?: string;
+  editListingStatus?: string;
   initialDraft?: SellListingDraft;
 };
 
@@ -262,11 +263,17 @@ function SellPageInner() {
 }
 
 /** Canonical Sell Page — CREATE + EDIT modes share this one form. */
-export function SellPage({ editListingId, editListingSlug, initialDraft }: SellPageProps) {
+export function SellPage({
+  editListingId,
+  editListingSlug,
+  editListingStatus,
+  initialDraft,
+}: SellPageProps) {
   return (
     <SellProvider
       editListingId={editListingId}
       editListingSlug={editListingSlug}
+      editListingStatus={editListingStatus}
       initialDraft={initialDraft}
     >
       <SellPageInner />

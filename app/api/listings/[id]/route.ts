@@ -118,6 +118,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       categoryId,
       deliveryCarriers: body.deliveryCarriers,
       parcelSize: body.parcelSize,
+      status: body.status,
       inventory: body.inventory
         ? {
             sku: body.inventory.sku?.trim() || null,
@@ -133,6 +134,17 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     if (!listing) {
       return NextResponse.json({ error: "Listing not found." }, { status: 404 });
+    }
+
+    // Fail closed: draft→publish must land as published.
+    if (body.status === "published" && listing.status !== "published") {
+      return NextResponse.json(
+        {
+          error:
+            "This listing cannot be published under ROVEXO marketplace rules. Review the content and try again.",
+        },
+        { status: 422 },
+      );
     }
 
     if (listing.status === "published" && auth.user.email_confirmed_at) {

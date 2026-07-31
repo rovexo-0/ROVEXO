@@ -590,7 +590,13 @@ export async function updateSellerListing(
     ...(input.condition !== undefined && { condition: input.condition }),
     ...(input.price !== undefined && { price: input.price }),
     ...(input.acceptOffers !== undefined && { accept_offers: input.acceptOffers }),
-    ...(input.status !== undefined && { status: input.status }),
+    ...(input.status !== undefined && {
+      status: input.status,
+      sections:
+        input.status === "published"
+          ? (["new", "trending", "recommended"] as ProductSection[])
+          : ([] as ProductSection[]),
+    }),
     ...(input.inventory?.stock !== undefined && { stock: input.inventory.stock }),
     ...(input.inventory?.sku !== undefined && { sku: input.inventory.sku }),
     ...(input.inventory?.lowStockAlert !== undefined && {

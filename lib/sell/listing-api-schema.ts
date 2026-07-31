@@ -88,6 +88,8 @@ export const updateListingSchema = z.object({
   removeImageIds: z.array(z.string()).optional(),
   deliveryCarriers: z.array(z.string()).optional(),
   parcelSize: z.enum(["small", "medium", "large", "xl"]).optional(),
+  /** Promote draft → published (Sell Draft SSOT). */
+  status: z.enum(["draft", "published"]).optional(),
 });
 
 export function formatListingApiValidationError(error: z.ZodError): string {

@@ -1,7 +1,17 @@
 import type { MutableRefObject } from "react";
 import type { SellListingDraft } from "@/features/sell/types";
 import { saveSellDraftPhotosViaProductIntegration } from "@/lib/product-integration/upload-storage-orchestration-v1";
-import { saveSellDraft, saveUploadSessionId } from "@/lib/sell/draft-storage";
+import {
+  canPersistDatabaseDraft,
+  DRAFT_DATABASE_SSOT_V1,
+  type DatabaseDraftPersistResult,
+} from "@/lib/sell/draft-database-ssot-v1";
+import {
+  loadDatabaseDraftId,
+  saveDatabaseDraftId,
+  saveSellDraft,
+  saveUploadSessionId,
+} from "@/lib/sell/draft-storage";
 import { touchDraftSavedAt } from "@/lib/sell/draft-engine";
 import { resolveEffectiveSellDraft } from "@/lib/sell/resolve-effective-draft";
 import { sellInputDiag } from "@/lib/sell/sell-input-diagnostics";
@@ -48,7 +58,86 @@ export function persistSellDraftTextSync(refs: PersistableDraftRefs): boolean {
   }
 }
 
-export async function persistSellDraftSnapshot(refs: PersistableDraftRefs): Promise<void> {
+export async function persistDatabaseDraftFromSellDraft(
+  draft: SellListingDraft,
+  options?: { draftId?: string | null },
+): Promise<DatabaseDraftPersistResult> {
+  if (!canPersistDatabaseDraft(draft)) {
+    return { ok: false, error: "DRAFT_PHOTO_REQUIRED" };
+  }
+
+  const draftId = options?.draftId?.trim() || loadDatabaseDraftId();
+  const uploaded = draft.photos.filter(
+    (photo) => photo.uploaded && photo.url && photo.storagePath,
+  );
+
+  try {
+    const response = await fetch(DRAFT_DATABASE_SSOT_V1.apiPath, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        draftId: draftId || undefined,
+        title: draft.title,
+        description: draft.description,
+        brand: draft.brand,
+        color: draft.color,
+        size: draft.size,
+        condition: draft.condition,
+        price: draft.price,
+        acceptOffers: draft.acceptOffers,
+        freeDelivery: draft.freeDelivery,
+        shippingMethod: draft.shippingMethod,
+        parcelSize: draft.parcelSize,
+        stock: draft.stock,
+        categoryPath: draft.categoryPath
+          ? {
+              categorySlug: draft.categoryPath.categorySlug,
+              subcategorySlug: draft.categoryPath.subcategorySlug,
+              childCategorySlug: draft.categoryPath.childCategorySlug,
+              categorySlugs: draft.categoryPath.segments.map((segment) => segment.slug),
+              pathLabel: draft.categoryPath.pathLabel,
+              segments: draft.categoryPath.segments,
+            }
+          : null,
+        images: uploaded.map((photo, index) => ({
+          url: photo.url!,
+          thumbnailUrl: photo.thumbnailUrl ?? photo.url!,
+          storagePath: photo.storagePath!,
+          sortOrder: index,
+          isPrimary: index === 0,
+        })),
+      }),
+    });
+
+    const body = (await response.json().catch(() => null)) as {
+      ok?: boolean;
+      draftId?: string;
+      error?: string;
+      code?: string;
+    } | null;
+
+    if (!response.ok || !body?.ok || !body.draftId) {
+      return {
+        ok: false,
+        error: body?.code || body?.error || `HTTP_${response.status}`,
+      };
+    }
+
+    saveDatabaseDraftId(body.draftId);
+    return { ok: true, draftId: body.draftId };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "DRAFT_SAVE_FAILED",
+    };
+  }
+}
+
+export async function persistSellDraftSnapshot(
+  refs: PersistableDraftRefs,
+  options?: { databaseDraftId?: string | null; persistDatabase?: boolean },
+): Promise<{ databaseDraftSaved: boolean; draftId?: string }> {
   sellProfilePersist("snapshot");
   sellInputDiag("persist.snapshot.start");
   persistSellDraftTextSync(refs);
@@ -63,5 +152,20 @@ export async function persistSellDraftSnapshot(refs: PersistableDraftRefs): Prom
       message: error instanceof Error ? error.message : "unknown",
     });
   }
-  sellInputDiag("persist.snapshot.done");
+
+  if (options?.persistDatabase === false) {
+    sellInputDiag("persist.snapshot.done");
+    return { databaseDraftSaved: false };
+  }
+
+  const dbResult = await persistDatabaseDraftFromSellDraft(draft, {
+    draftId: options?.databaseDraftId,
+  });
+  sellInputDiag("persist.snapshot.done", {
+    databaseDraftSaved: dbResult.ok,
+    draftId: dbResult.ok ? dbResult.draftId : undefined,
+  });
+  return dbResult.ok
+    ? { databaseDraftSaved: true, draftId: dbResult.draftId }
+    : { databaseDraftSaved: false };
 }

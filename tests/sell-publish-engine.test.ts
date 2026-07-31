@@ -27,8 +27,9 @@ describe("publish-engine", () => {
     expect(publishPhaseLabel("published")).toBe("Listing successfully published.");
   });
 
-  it("exposes canonical publish failure copy as last-resort fallback", () => {
-    expect(PUBLISH_FAILURE_MESSAGE).toContain("draft has been safely saved");
+  it("exposes fail-closed publish failure copy (no fake draft-saved claim)", () => {
+    expect(PUBLISH_FAILURE_MESSAGE).not.toContain("draft has been safely saved");
+    expect(PUBLISH_FAILURE_MESSAGE).toContain("Please try again");
     expect(PUBLISH_NETWORK_FAILURE_MESSAGE).toContain("Network error");
   });
 
