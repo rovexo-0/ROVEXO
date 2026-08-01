@@ -61,6 +61,18 @@ export function writeCategoryTreeCache(tree: CategoryNode[]): void {
   if (!isCatalogMasterRootTree(tree)) return;
 
   try {
+    // Purge any legacy category-tree session keys from older Catalog Master epochs.
+    for (let i = window.sessionStorage.length - 1; i >= 0; i -= 1) {
+      const key = window.sessionStorage.key(i);
+      if (!key) continue;
+      if (
+        key.startsWith("rovexo:category-tree:") &&
+        key !== CACHE_KEY
+      ) {
+        window.sessionStorage.removeItem(key);
+      }
+    }
+
     const payload: CachedTreePayload = {
       tree,
       savedAt: Date.now(),

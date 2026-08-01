@@ -11,6 +11,7 @@ import {
   CATEGORY_SEGMENT_ALIASES,
   expandSearchSynonyms,
 } from "@/lib/categories/search-synonyms";
+import { CATALOG_MASTER_PROTECTION_V1 } from "@/lib/catalog/catalog-master-protection-v1";
 
 /**
  * Manual, database-only category search over the canonical marketplace tree —
@@ -81,10 +82,12 @@ type IndexedSegment = {
 };
 
 let indexCache: IndexedSegment[] | null = null;
+let indexEpoch: string | null = null;
 
-/** Clear the warmed search index (tests / hot reload). */
+/** Clear the warmed search index (Catalog Master content change / tests / hot reload). */
 export function invalidateCategoryPickerIndex(): void {
   indexCache = null;
+  indexEpoch = null;
 }
 
 function levenshtein(a: string, b: string): number {
@@ -118,7 +121,10 @@ function fuzzyTokenMatches(queryToken: string, entryTokens: Set<string>): boolea
 }
 
 function buildIndex(): IndexedSegment[] {
-  if (indexCache) return indexCache;
+  const epoch = CATALOG_MASTER_PROTECTION_V1.cacheEpoch;
+  if (indexCache && indexEpoch === epoch) return indexCache;
+  indexCache = null;
+  indexEpoch = epoch;
 
   const leaves = collectLeafPaths(categoryTree).filter(
     ({ segments }) => !segments.some((segment) => segment.slug === "by-brand"),
@@ -161,13 +167,22 @@ function scoreEntry(entry: IndexedSegment, trimmed: string, queryTokens: Set<str
   else if (entry.nameLower.startsWith(trimmed)) score += 500;
   else if (entry.nameLower.includes(trimmed)) score += 220;
 
+  // Prefer Product Type leaves when the full query phrase appears in the leaf name.
+  if (entry.matchDepth === 3 && trimmed.length >= 4 && entry.nameLower.includes(trimmed)) {
+    score += 400;
+  }
+
   for (const token of queryTokens) {
     if (entry.tokens.has(token)) score += 70;
     else if (fuzzyTokenMatches(token, entry.tokens)) score += 42;
   }
 
+  // No lexical overlap → not a hit (never rank every leaf).
+  if (score <= 0) return 0;
+
   // Prefer the most specific segment when the query is a short prefix.
   if (trimmed.length <= 4 && entry.matchDepth >= 3) score += 12;
+  if (entry.matchDepth === 3) score += 8;
 
   return score;
 }

@@ -21,6 +21,7 @@ import { categoryTree } from "@/lib/categories/tree";
 import type { FlatCategoryPath } from "@/lib/categories/types";
 import { flatPathFromSegments } from "@/lib/categories/types";
 import { PRODUCT_TYPE_DATABASE } from "@/lib/product-types";
+import { CATALOG_MASTER_PROTECTION_V1 } from "@/lib/catalog/catalog-master-protection-v1";
 import {
   TITLE_CATEGORY_RULES,
   TITLE_SYNONYMS,
@@ -244,6 +245,13 @@ type IndexedLeaf = {
 };
 
 let leafIndex: IndexedLeaf[] | null = null;
+let leafIndexEpoch: string | null = null;
+
+/** Clear warmed suggestion leaf index (Catalog Master content change / tests). */
+export function invalidateCategorySuggestionIndex(): void {
+  leafIndex = null;
+  leafIndexEpoch = null;
+}
 
 function singularize(token: string): string {
   if (token.length <= 3) return token;
@@ -281,7 +289,10 @@ function wholeWordIncludes(haystack: string, needle: string): boolean {
 }
 
 function buildLeafIndex(): IndexedLeaf[] {
-  if (leafIndex) return leafIndex;
+  const epoch = CATALOG_MASTER_PROTECTION_V1.cacheEpoch;
+  if (leafIndex && leafIndexEpoch === epoch) return leafIndex;
+  leafIndex = null;
+  leafIndexEpoch = epoch;
 
   const productBySlug = new Map<string, (typeof PRODUCT_TYPE_DATABASE)[number]>();
   for (const record of PRODUCT_TYPE_DATABASE) {

@@ -32,8 +32,8 @@ export const CATALOG_MASTER_PROTECTION_V1 = {
     "silent-legacy-fallback",
   ] as const,
   cacheKeyPrefix: "rovexo:category-tree:catalog-master",
-  /** Changing Catalog Master version/law invalidates all previous caches. */
-  cacheEpoch: `${CATALOG_MASTER_V1.version}:${CATALOG_MASTER_V1.law}:xxxi:xxxii:xxxiii`,
+  /** Changing Catalog Master version/law/content invalidates all previous caches. */
+  cacheEpoch: `${CATALOG_MASTER_V1.version}:${CATALOG_MASTER_V1.contentRevision}:${CATALOG_MASTER_V1.law}:xxxi:xxxii:xxxiii`,
   finalLaw: "XXXII",
   bloodLaw: "XXXIII",
 } as const;

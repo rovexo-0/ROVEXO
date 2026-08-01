@@ -46,17 +46,51 @@ describe("category picker search (database-only, no AI)", () => {
 
   it("returns Catalog Master suggestions for camping queries (tent)", () => {
     const names = resultNames("tent");
-    expect(names).toEqual(expect.arrayContaining(["Outdoor & Camping", "Tents"]));
+    expect(names).toEqual(expect.arrayContaining(["Outdoor & Camping", "Camping Tents"]));
+  });
+
+  it("returns Owner Catalog Master product types for Sell search queries", () => {
+    const cases: Array<{ query: string; mustInclude: RegExp }> = [
+      { query: "Travel Pillow", mustInclude: /travel pillows?/i },
+      { query: "Pregnancy Pillow", mustInclude: /pregnancy pillows?/i },
+      { query: "Memory Foam Pillow", mustInclude: /memory foam pillows?/i },
+      { query: "Camping Tent", mustInclude: /camping tents?/i },
+      { query: "Sleeping Bag", mustInclude: /sleeping bags?/i },
+      { query: "Garden Chair", mustInclude: /garden chairs?/i },
+      { query: "BBQ", mustInclude: /bbq/i },
+      { query: "iPhone", mustInclude: /iphones?/i },
+      { query: "Football Boots", mustInclude: /football boots?/i },
+      { query: "Running Shoes", mustInclude: /running shoes?/i },
+    ];
+    for (const { query, mustInclude } of cases) {
+      const results = searchCategoryPicker(query);
+      expect(results.length, `no results for "${query}"`).toBeGreaterThan(0);
+      expect(
+        results.some(
+          (result) =>
+            mustInclude.test(result.matchName) || mustInclude.test(result.breadcrumb),
+        ),
+        `expected ${mustInclude} for "${query}", got ${results
+          .slice(0, 5)
+          .map((r) => r.breadcrumb)
+          .join(" | ")}`,
+      ).toBe(true);
+      // First hit must never be Women's Fashion Bags for sleeping/camping queries.
+      if (/sleeping|camping tent/i.test(query)) {
+        expect(results[0]?.breadcrumb).not.toMatch(/Women's Fashion > Bags/i);
+        expect(results[0]?.breadcrumb).toMatch(/Sports & Outdoors/i);
+      }
+    }
   });
 
   it("returns matching Catalog Master suggestions for bench queries", () => {
     const names = resultNames("bench");
-    expect(names).toEqual(expect.arrayContaining(["Seat Covers"]));
+    expect(names).toEqual(expect.arrayContaining(["Garden Benches"]));
   });
 
   it("returns textile suggestions for home textiles", () => {
     const names = resultNames("textile");
-    expect(names).toEqual(expect.arrayContaining(["Home & Garden", "Home Textiles"]));
+    expect(names).toEqual(expect.arrayContaining(["Home Textiles"]));
   });
 
   it("produces globally unique render keys for hierarchical suggestions", () => {

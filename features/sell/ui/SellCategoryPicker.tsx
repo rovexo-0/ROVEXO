@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { ModalContainer } from "@/components/ui/ModalContainer";
@@ -19,6 +19,13 @@ import {
 } from "@/lib/categories/types";
 import { recordCategorySelection } from "@/lib/categories/category-history";
 import { CATEGORY_ENGINE_V1 } from "@/lib/sell/category-engine-v1";
+import {
+  invalidateCategoryPickerIndex,
+  searchCategoryPicker,
+  warmCategoryPickerIndex,
+  type CategoryPickerResult,
+} from "@/lib/sell/category-picker-search";
+import { invalidateCategorySuggestionIndex } from "@/lib/sell/category-suggestion-engine-v1";
 
 type Props = {
   open: boolean;
@@ -27,7 +34,8 @@ type Props = {
 };
 
 /**
- * Manual Category → Subcategory → Product Type picker only.
+ * Manual Category → Subcategory → Product Type picker.
+ * Browse = Catalog Master tree. Search = Catalog Master leaf index (same SSOT).
  * Category Engine v1.0 — no AI, auto-category, or title-based ranking.
  */
 export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
@@ -41,36 +49,52 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
     if (!open || treeRequested.current) return;
     treeRequested.current = true;
     let cancelled = false;
+    invalidateCategoryPickerIndex();
+    invalidateCategorySuggestionIndex();
+    warmCategoryPickerIndex();
     void loadCategoriesWithRecovery().then((result) => {
-      if (!cancelled && result.tree.length > 0) setTree(result.tree);
+      if (!cancelled && result.tree.length > 0) {
+        setTree(result.tree);
+        invalidateCategoryPickerIndex();
+        warmCategoryPickerIndex();
+      }
     });
     return () => {
       cancelled = true;
     };
   }, [open]);
 
+  const searchQuery = search.trim();
+  const isSearching = searchQuery.length >= 2;
+
+  const searchResults: CategoryPickerResult[] = useMemo(() => {
+    if (!isSearching) return [];
+    return searchCategoryPicker(searchQuery);
+  }, [isSearching, searchQuery]);
+
   if (!open) return null;
 
   const isRoot = stack.length === 0;
   const currentNodes = isRoot ? tree : (stack[stack.length - 1]!.children ?? []);
-  const searchQuery = search.trim().toLowerCase();
-  const visibleNodes = searchQuery
-    ? currentNodes.filter((node) => node.name.toLowerCase().includes(searchQuery))
-    : currentNodes;
+  const visibleNodes = isSearching ? [] : currentNodes;
 
-  const headerTitle = isRoot
-    ? "Department"
-    : stack.length === 1
-      ? "Category"
-      : "Product Type";
+  const headerTitle = isSearching
+    ? "Search"
+    : isRoot
+      ? "Department"
+      : stack.length === 1
+        ? "Category"
+        : "Product Type";
   const breadcrumb = isRoot
     ? "Department › Category › Product Type"
     : stack.map((node) => node.name).join(" › ");
-  const levelHint = isRoot
-    ? "Choose a department"
-    : stack.length === 1
-      ? "Choose a category"
-      : "Choose a product type";
+  const levelHint = isSearching
+    ? "Catalog Master product types"
+    : isRoot
+      ? "Choose a department"
+      : stack.length === 1
+        ? "Choose a category"
+        : "Choose a product type";
 
   const close = () => {
     setStack([]);
@@ -98,7 +122,15 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
     commit(flatPathFromSegments(segments));
   };
 
+  const handleSearchResult = (result: CategoryPickerResult) => {
+    commit(result.path);
+  };
+
   const handleBack = () => {
+    if (searchQuery) {
+      setSearch("");
+      return;
+    }
     if (stack.length > 0) {
       setStack((current) => current.slice(0, -1));
       return;
@@ -137,7 +169,9 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
           ref={bodyRef}
           className={cn(RX_MODAL_BODY, "min-h-0 flex-1 overflow-y-auto overscroll-contain pt-1")}
         >
-          {isRoot ? (
+          {isSearching ? (
+            <p className="sell-category-picker__hint">{levelHint}</p>
+          ) : isRoot ? (
             <p className="sell-category-picker__hint">{levelHint}</p>
           ) : (
             <>
@@ -146,21 +180,45 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
             </>
           )}
 
-          <ul className="flex flex-col gap-ds-2" role="list" data-category-engine="v1.0-manual">
-            {visibleNodes.map((node) => {
-              const hasChildren = Boolean(node.children?.length);
-              return (
-                <li key={node.id}>
-                  <CanonicalMenuRow
-                    title={node.name}
-                    icon={<CategoryMasterIcon slug={node.slug} />}
-                    onClick={() => handleNode(node)}
-                    showChevron={hasChildren}
-                  />
-                </li>
-              );
-            })}
-          </ul>
+          {isSearching ? (
+            <ul className="flex flex-col gap-ds-2" role="list" data-category-engine="v1.0-catalog-search">
+              {searchResults.length === 0 ? (
+                <li className="sell-category-picker__hint px-1 py-3">No matching product types</li>
+              ) : (
+                searchResults.map((result) => {
+                  const leaf = result.path.segments[result.path.segments.length - 1]!;
+                  const key = `${result.path.segments.map((s) => s.slug).join("/")}#${result.matchDepth}`;
+                  return (
+                    <li key={key}>
+                      <CanonicalMenuRow
+                        title={result.matchName}
+                        description={result.breadcrumb}
+                        icon={<CategoryMasterIcon slug={leaf.slug} />}
+                        onClick={() => handleSearchResult(result)}
+                        showChevron={false}
+                      />
+                    </li>
+                  );
+                })
+              )}
+            </ul>
+          ) : (
+            <ul className="flex flex-col gap-ds-2" role="list" data-category-engine="v1.0-manual">
+              {visibleNodes.map((node) => {
+                const hasChildren = Boolean(node.children?.length);
+                return (
+                  <li key={node.id}>
+                    <CanonicalMenuRow
+                      title={node.name}
+                      icon={<CategoryMasterIcon slug={node.slug} />}
+                      onClick={() => handleNode(node)}
+                      showChevron={hasChildren}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </div>
     </ModalContainer>

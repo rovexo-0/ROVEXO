@@ -11,6 +11,8 @@
 
 export const CATALOG_MASTER_V1 = {
   version: "1.0",
+  /** Content revision — bump when Catalog Master leaves/categories change (cache + index invalidation). */
+  contentRevision: "uk-960-rc2b-2026-08-01",
   law: "XXX",
   protectionLaw: "XXXI",
   finalLaw: "XXXII",
@@ -24,6 +26,7 @@ export const CATALOG_MASTER_V1 = {
   rewrittenAt: "2026-07-25",
   lockedAt: "2026-07-25",
   certifiedAt: "2026-07-25",
+  contentRevisedAt: "2026-08-01",
   equation: "CATEGORY > SUBCATEGORY > PRODUCT_TYPE > ESSENTIAL_ATTRIBUTES",
   resolutionPath: "Catalog Master → getCategoryTree() → SSOT",
   rootCount: 10,
