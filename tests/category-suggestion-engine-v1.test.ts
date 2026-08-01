@@ -37,8 +37,18 @@ describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () 
     const cases = [
       {
         title: "Memory Foam Pillow",
-        slugs: ["home-garden", "bedding", "pillows"] as const,
-        label: "Home & Garden > Bedding > Pillows",
+        slugs: ["home-garden", "pillows-cushions", "memory-foam-pillows"] as const,
+        label: "Home & Garden > Pillows & Cushions > Memory Foam Pillows",
+      },
+      {
+        title: "Pregnancy Pillow",
+        slugs: ["home-garden", "pillows-cushions", "pregnancy-pillows"] as const,
+        label: "Home & Garden > Pillows & Cushions > Pregnancy Pillows",
+      },
+      {
+        title: "Camping Tent",
+        slugs: ["sports", "camping", "camping-tents"] as const,
+        label: "Sports & Outdoors > Outdoor & Camping > Camping Tents",
       },
       {
         title: "Nike Air Max",
@@ -53,17 +63,17 @@ describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () 
       {
         title: "Sleeping bag",
         slugs: ["sports", "camping", "sleeping-bags"] as const,
-        label: "Sports & Outdoors > Camping > Sleeping Bags",
+        label: "Sports & Outdoors > Outdoor & Camping > Sleeping Bags",
       },
       {
         title: "sleeping-bag",
         slugs: ["sports", "camping", "sleeping-bags"] as const,
-        label: "Sports & Outdoors > Camping > Sleeping Bags",
+        label: "Sports & Outdoors > Outdoor & Camping > Sleeping Bags",
       },
       {
         title: "Camping Sleeping Bag",
         slugs: ["sports", "camping", "sleeping-bags"] as const,
-        label: "Sports & Outdoors > Camping > Sleeping Bags",
+        label: "Sports & Outdoors > Outdoor & Camping > Sleeping Bags",
       },
     ] as const;
 
@@ -75,6 +85,23 @@ describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () 
       ]);
       expect(suggestion!.path.pathLabel, testCase.title).toBe(testCase.label);
       expect(suggestionConfidencePercent(suggestion!), testCase.title).toBeGreaterThanOrEqual(80);
+    }
+  });
+
+  it("Sleeping Bag never maps to Women's Fashion Bags", () => {
+    for (const title of ["Sleeping bag", "sleeping-bag", "Camping Sleeping Bag"] as const) {
+      const suggestion = suggestCategory(title);
+      expect(suggestion, title).not.toBeNull();
+      const slugs = suggestion!.path.segments.map((s) => s.slug);
+      expect(slugs[0], title).toBe("sports");
+      expect(slugs[1], title).toBe("camping");
+      expect(slugs[2], title).toBe("sleeping-bags");
+      expect(slugs.join("/"), title).not.toMatch(/womens-fashion|mens-fashion|\/bags\//);
+      expect(slugs[0], title).not.toBe("womens-fashion");
+      expect(slugs[2], title).not.toBe("handbags");
+      expect(slugs[2], title).not.toBe("shoulder-bags");
+      expect(suggestion!.path.pathLabel.toLowerCase(), title).not.toContain("women");
+      expect(suggestion!.path.pathLabel.toLowerCase(), title).not.toMatch(/shoulder bag|handbag/);
     }
   });
 
@@ -92,7 +119,7 @@ describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () 
     });
 
     expect(live.suggestion).not.toBeNull();
-    expect(live.suggestion!.path.childCategorySlug).toBe("pillows");
+    expect(live.suggestion!.path.childCategorySlug).toBe("memory-foam-pillows");
     expect(live.betterSuggestionAvailable).toBe(true);
     expect(toSamePath(live.suggestion!.path, manual!)).toBe(false);
   });

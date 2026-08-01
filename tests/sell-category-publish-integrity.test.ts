@@ -60,7 +60,7 @@ const CANONICAL_SELECTIONS: string[][] = [
   ["collectibles", "arts-crafts", "art-supplies"],
   ["sports", "camping", "sleeping-bags"],
   ["sports", "team-sports", "football"],
-  ["vehicle-parts", "car-parts", "brakes"],
+  ["vehicle-parts", "car-parts", "car-brakes"],
   ["vehicle-parts", "vehicle-accessories", "seat-covers"],
   ["vehicle-parts", "tyres-and-wheels", "alloy-wheels"],
 ];

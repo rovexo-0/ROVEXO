@@ -105,6 +105,17 @@ export const EXTENDED_MARKETPLACE_SYNONYMS: Record<string, string> = {
   tackle: "fishing tackle",
   mtb: "mountain bikes",
   bmx: "bikes",
+  // Camping — never fashion bags
+  "sleeping bag": "sleeping bags",
+  "sleeping-bag": "sleeping bags",
+  sleepingbag: "sleeping bags",
+  sleepbag: "sleeping bags",
+  campmat: "sleeping mats",
+  rollmat: "sleeping mats",
+  tent: "tents",
+  tarp: "tarps & shelters",
+  hammock: "hammocks",
+  coolbox: "cool boxes",
 
   // Property & business
   apartment: "flats",

@@ -170,8 +170,8 @@
 
 /* —— Orders: compact header + rows —— */
 [data-compact-premium="v1"] .account-canonical:has(.orders-page) .account-canonical-header__bar {
-  min-height: var(--cp-header-height, 64px);
-  height: var(--cp-header-height, 64px);
+  min-height: 44px;
+  height: 44px;
 }
 
 /* —— Wallet: keep 64 header; compact action tiles —— */

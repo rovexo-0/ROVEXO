@@ -64,7 +64,7 @@ export const ATTR = {
     options: "conditionsParts",
   },
   size: { key: "size", label: "Size", options: "clothingSizes" },
-  shoeSize: { key: "size", label: "Size", options: "shoeSizes" },
+  shoeSize: { key: "size", label: "UK Size", options: "shoeSizes" },
   kidsSize: { key: "size", label: "Size", options: "kidsSizes" },
   ringSize: { key: "size", label: "Size", options: "ringSizes" },
   storage: { key: "storage", label: "Storage", options: "storage" },

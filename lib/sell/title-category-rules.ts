@@ -217,8 +217,33 @@ export const TITLE_CATEGORY_RULES: TitleCategoryRule[] = [
     confidence: 0.93,
   },
   {
+    patterns: ["sleeping bag", "sleeping-bag", "sleeping bags", "camp sleeping"],
+    path: ["sports", "camping", "sleeping-bags"],
+    confidence: 0.97,
+  },
+  {
+    patterns: ["camping tent", "camping tents", "family tent", "dome tent"],
+    path: ["sports", "camping", "camping-tents"],
+    confidence: 0.96,
+  },
+  {
+    patterns: ["memory foam pillow", "memory-foam pillow"],
+    path: ["home-garden", "pillows-cushions", "memory-foam-pillows"],
+    confidence: 0.97,
+  },
+  {
+    patterns: ["pregnancy pillow"],
+    path: ["home-garden", "pillows-cushions", "pregnancy-pillows"],
+    confidence: 0.97,
+  },
+  {
+    patterns: ["maternity pillow"],
+    path: ["home-garden", "pillows-cushions", "maternity-pillows"],
+    confidence: 0.97,
+  },
+  {
     patterns: ["handbag", "tote bag", "designer bag"],
-    path: ["womens-fashion", "womens-bags", "handbags"],
+    path: ["womens-fashion", "bags", "handbags"],
     confidence: 0.92,
   },
   {

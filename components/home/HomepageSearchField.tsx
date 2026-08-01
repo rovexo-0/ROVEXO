@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { captureHomepageScroll } from "@/lib/navigation/homepage-scroll-restore";
 import { SEARCH_SYSTEM_V1 } from "@/lib/search/search-system-v1-lock";
 import { SearchBarSearchIcon } from "@/features/search/components/SearchBarIcons";
-import { focusRing, transitionFast } from "@/components/ui/tokens";
+import { transitionFast } from "@/components/ui/tokens";
 
 export type HomepageSearchFieldProps = {
   /** Stable id required — must match between server and client markup. */
@@ -60,7 +60,7 @@ export function HomepageSearchField({ inputId, className }: HomepageSearchFieldP
             onFocus={goToSearch}
             onClick={goToSearch}
             onKeyDown={handleKeyDown}
-            className={cn("homepage-search__input", focusRing)}
+            className="homepage-search__input"
           />
         </div>
       </div>

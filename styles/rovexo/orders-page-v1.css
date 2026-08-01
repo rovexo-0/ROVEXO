@@ -5,8 +5,8 @@
   display: grid;
   grid-template-columns: 40px 1fr 40px;
   align-items: center;
-  min-height: 52px;
-  height: 52px;
+  min-height: 44px;
+  height: 44px;
   padding: 0;
   gap: 8px;
   box-shadow: none;
@@ -28,8 +28,8 @@
 
 .account-canonical:has(.orders-page) .account-canonical-header__title {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.02em;
   text-align: center;

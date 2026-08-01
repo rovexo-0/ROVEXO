@@ -173,7 +173,7 @@ function SellPageInner() {
         >
           <AccountPageStack
             aria-label={sellPageTitle(isEdit)}
-            className="w-full max-w-none gap-5 pb-[var(--sell-sticky-clearance,96px)]"
+            className="w-full max-w-none gap-[var(--cds-space-section-gap)] pb-[var(--sell-sticky-clearance,96px)]"
           >
             <div id={sellFieldDomId("photos")}>
               <SellPhotoRail onPhotosAdded={handlePhotosAdded} />

@@ -179,30 +179,30 @@
   min-height: 48px;
 }
 
-/* Account module header — compact premium (Owner RC2). Token --fw-header-height stays 64 for contract SSOT. */
+/* Account module header — compact premium ~44px (Owner). Token --fw-header-height stays 64 for contract SSOT. */
 .account-canonical-header__bar {
   display: flex;
   align-items: center;
-  min-height: 52px;
-  height: 52px;
-  padding: max(var(--cds-space-safe-top), 8px) var(--cds-space-page-x) 0;
+  min-height: 44px;
+  height: 44px;
+  padding: max(var(--cds-space-safe-top), 4px) var(--cds-space-page-x) 0;
 }
 
 .account-canonical-header__bar--titled {
   display: grid;
-  min-height: 52px;
-  height: 52px;
-  grid-template-columns: 48px 1fr 48px;
+  min-height: 44px;
+  height: 44px;
+  grid-template-columns: 44px 1fr 44px;
   align-items: center;
   gap: 8px;
-  padding: max(var(--cds-space-safe-top), 8px) var(--cds-space-page-x) 6px;
+  padding: max(var(--cds-space-safe-top), 4px) var(--cds-space-page-x) 4px;
 }
 
 .account-canonical-header__title {
   margin: 0;
   overflow: hidden;
   text-align: center;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 1.2;
   color: var(--cds-color-text-primary);
@@ -211,14 +211,14 @@
 }
 
 .account-canonical-header__spacer {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
 }
 
 .account-canonical-header__action {
   display: inline-flex;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   align-items: center;
   justify-content: center;
 }
@@ -255,8 +255,8 @@
 }
 
 .account-canonical-header__action svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
 }
 
 .cds-layout--account-canonical .cds-layout__content--account-canonical {

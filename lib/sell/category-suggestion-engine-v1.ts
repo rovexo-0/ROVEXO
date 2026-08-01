@@ -102,12 +102,62 @@ const CATALOG_PHRASE_RULES: ReadonlyArray<{
   rank: CategoryMatchRank;
 }> = [
   {
-    patterns: ["memory foam pillow", "foam pillow", "orthopaedic pillow", "orthopedic pillow"],
-    slugs: ["home-garden", "bedding", "pillows"],
+    patterns: [
+      "memory foam pillow",
+      "memory-foam pillow",
+      "memory foam pillows",
+      "viscoelastic pillow",
+    ],
+    slugs: ["home-garden", "pillows-cushions", "memory-foam-pillows"],
     rank: "exact_product_type",
   },
   {
-    patterns: ["pillow"],
+    patterns: ["orthopaedic pillow", "orthopedic pillow", "ortho pillow"],
+    slugs: ["home-garden", "pillows-cushions", "orthopedic-pillows"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["pregnancy pillow", "pregnancy pillows"],
+    slugs: ["home-garden", "pillows-cushions", "pregnancy-pillows"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["maternity pillow", "maternity pillows"],
+    slugs: ["home-garden", "pillows-cushions", "maternity-pillows"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["travel pillow", "travel pillows", "plane pillow"],
+    slugs: ["home-garden", "pillows-cushions", "travel-pillows"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["neck pillow", "neck pillows"],
+    slugs: ["home-garden", "pillows-cushions", "neck-pillows"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["body pillow", "body pillows"],
+    slugs: ["home-garden", "pillows-cushions", "body-pillows"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["cooling pillow", "cooling pillows"],
+    slugs: ["home-garden", "pillows-cushions", "cooling-pillows"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["feather pillow", "feather pillows"],
+    slugs: ["home-garden", "pillows-cushions", "feather-pillows"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["down pillow", "down pillows"],
+    slugs: ["home-garden", "pillows-cushions", "down-pillows"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["pillow", "pillows"],
     slugs: ["home-garden", "bedding", "pillows"],
     rank: "contains",
   },
@@ -163,8 +213,13 @@ const CATALOG_PHRASE_RULES: ReadonlyArray<{
     rank: "exact_synonym",
   },
   {
-    patterns: ["camping tent", "family tent", "tent"],
-    slugs: ["sports", "camping", "tents"],
+    patterns: ["camping tent", "camping tents", "family tent", "dome tent", "pop up tent"],
+    slugs: ["sports", "camping", "camping-tents"],
+    rank: "exact_product_type",
+  },
+  {
+    patterns: ["tent", "tents"],
+    slugs: ["sports", "camping", "camping-tents"],
     rank: "exact_product_type",
   },
   {

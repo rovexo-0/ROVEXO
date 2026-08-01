@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { ModalContainer } from "@/components/ui/ModalContainer";
 import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
-import { sellPanel, focusRing } from "@/features/sell/ui/sell-classes";
+import { sellPanel } from "@/features/sell/ui/sell-classes";
 import { SellPanelHeader } from "@/features/sell/ui/SellPrimitives";
 import { CanonicalMenuRow } from "@/src/components/canonical";
 import { categoryTree } from "@/lib/categories/tree";
@@ -129,7 +129,7 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search categories"
             autoComplete="off"
-            className={cn("cds-input w-full", focusRing)}
+            className="cds-input w-full outline-none ring-0 focus:border-[var(--ds-color-primary,#9333ea)] focus:outline-none focus:ring-0"
           />
         </div>
 

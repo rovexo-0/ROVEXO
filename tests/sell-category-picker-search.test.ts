@@ -46,7 +46,7 @@ describe("category picker search (database-only, no AI)", () => {
 
   it("returns Catalog Master suggestions for camping queries (tent)", () => {
     const names = resultNames("tent");
-    expect(names).toEqual(expect.arrayContaining(["Camping"]));
+    expect(names).toEqual(expect.arrayContaining(["Outdoor & Camping", "Tents"]));
   });
 
   it("returns matching Catalog Master suggestions for bench queries", () => {

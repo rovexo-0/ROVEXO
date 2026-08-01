@@ -7,13 +7,13 @@
 .account-canonical:has(.inbox-hub) .account-canonical-header__bar--titled {
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 48px 1fr 48px;
+  grid-template-columns: 44px 1fr 44px;
   gap: 8px;
   align-items: center;
   width: 100%;
   max-width: none;
-  min-height: calc(52px + env(safe-area-inset-top, 0px));
-  height: calc(52px + env(safe-area-inset-top, 0px));
+  min-height: calc(44px + env(safe-area-inset-top, 0px));
+  height: calc(44px + env(safe-area-inset-top, 0px));
   padding-top: env(safe-area-inset-top, 0px);
   /* Header → Tabs gap owned by content padding-top (12px) — no extra header bottom pad. */
   padding-bottom: 0;
@@ -25,8 +25,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
 }
 
@@ -35,8 +35,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
 }
 
 .account-canonical:has(.inbox-hub) .account-canonical-header__action a,
@@ -69,10 +69,10 @@
   width: 100%;
   max-width: none;
   height: auto;
-  /* Profile / Universal UI v1.1 parity — do not invent Inbox title scale */
-  font-size: var(--uv1-section-title-size, 16px);
+  /* Profile / Universal UI v1.1 parity — compact internal header title */
+  font-size: 15px;
   font-weight: 650;
-  line-height: 22px;
+  line-height: 20px;
   letter-spacing: -0.01em;
   color: var(--uv1-text-primary, var(--cds-color-text-primary, #111111));
   text-align: center;

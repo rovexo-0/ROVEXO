@@ -210,11 +210,10 @@
 
 .homepage-search__control:focus-within,
 .homepage-search__control--open {
-  border-color: color-mix(in srgb, var(--ds-color-primary) 40%, var(--ds-color-border));
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-color-primary) 12%, transparent);
+  /* Single purple ROVEXO border — no outer ring / no nested double rectangle */
+  border-color: var(--ds-color-primary, #9333ea);
+  box-shadow: none;
 }
-
-
 
 .homepage-search__icon {
   display: inline-flex;
@@ -238,6 +237,27 @@
   line-height: 1.2;
   color: var(--ds-color-text-primary);
   outline: none;
+  box-shadow: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.homepage-search__input:focus,
+.homepage-search__input:focus-visible,
+.homepage-search__input:active {
+  outline: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Safari / Chrome / Android — kill native search field chrome & focus ornaments */
+.homepage-search__input::-webkit-search-decoration,
+.homepage-search__input::-webkit-search-cancel-button,
+.homepage-search__input::-webkit-search-results-button,
+.homepage-search__input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
 }
 
 .homepage-search__input::placeholder {

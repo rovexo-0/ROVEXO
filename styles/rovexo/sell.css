@@ -32,18 +32,19 @@
 
 [data-sell-shell] {
   /* Compact Premium — breathable mobile rhythm (not compressed) */
-  --cds-space-section-gap: 24px;
+  --cds-space-section-gap: 20px;
   --sell-control-height: 52px;
   --sell-description-min-height: 128px;
   --sell-publish-height: 56px;
   /* Account sticky clearance + publish height — clears Bottom Nav + safe area */
   --sell-sticky-clearance: calc(var(--cds-bottom-nav-offset, 72px) + var(--sell-publish-height) + 24px);
-  --sell-font-page-title: 18px;
-  --sell-font-section: 17px;
-  --sell-font-button: 17px;
-  --sell-font-control: 17px;
-  --sell-font-helper: 16px;
-  --sell-font-label: 17px;
+  --sell-font-page-title: 17px;
+  --sell-font-section: 15px;
+  --sell-font-button: 16px;
+  --sell-font-control: 16px;
+  --sell-font-helper: 13px;
+  --sell-font-label: 14px;
+  --sell-font-description: 16px;
   --sell-photo-w: 112px;
   --sell-photo-h: 168px;
   --sell-photo-radius: 16px;
@@ -170,7 +171,7 @@
 
 [data-sell-shell] .cds-field__label {
   margin: 0;
-  font-size: var(--sell-font-control);
+  font-size: var(--sell-font-label);
   line-height: 1.25;
   font-weight: 500;
 }
@@ -183,7 +184,7 @@
   line-height: 1.35;
 }
 
-/* P0-02 Sell-only typography — editable controls never under 16px (iOS zoom) */
+/* P0-02 Sell typography — balanced premium (not tiny, not oversized) */
 [data-sell-shell] .cds-input,
 [data-sell-shell] .cds-textarea,
 [data-sell-shell] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
@@ -195,14 +196,23 @@
   line-height: 1.35 !important;
 }
 
-[data-sell-shell] .cds-menu-row__title,
+[data-sell-shell] .cds-textarea,
+[data-sell-shell] textarea {
+  font-size: var(--sell-font-description) !important;
+}
+
+[data-sell-shell] .cds-menu-row__title {
+  font-size: var(--sell-font-label) !important;
+  line-height: 1.3 !important;
+}
+
 [data-sell-shell] .cds-menu-row__value,
 [data-sell-shell] .cds-menu-row__trailing,
 [data-sell-shell] .sell-photo-section__header,
 [data-sell-shell] [aria-label="Photos"] .text-sm,
 [data-sell-shell] [aria-label="Photos"] .text-xs {
   font-size: var(--sell-font-control) !important;
-  line-height: 1.35;
+  line-height: 1.3 !important;
 }
 
 [data-sell-shell] .cds-menu-row__subtitle,
@@ -562,7 +572,7 @@
   border: 0;
   background: transparent;
   color: #111;
-  font-size: 18px;
+  font-size: var(--sell-font-control);
   font-weight: 600;
   line-height: 1;
   text-align: center;
@@ -615,7 +625,7 @@
 @media (min-width: 768px) {
   [data-sell-shell] {
     /* Desktop: same Absolute Authority tokens — only layout width changes */
-    --cds-space-section-gap: 12px;
+    --cds-space-section-gap: 20px;
   }
 }
 

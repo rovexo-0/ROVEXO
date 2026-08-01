@@ -1,10 +1,9 @@
 "use client";
 
-import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { HomepageSearchField } from "@/components/home/HomepageSearchField";
 import { SafeImage } from "@/components/ui/SafeImage";
-import { useMobileHeaderScrollContext } from "@/components/home/MobileHeaderScrollContext";
 import { cn } from "@/lib/cn";
 import { focusRing } from "@/components/ui/tokens";
 import { HEADER_MASTER_FREEZE_V1 } from "@/lib/header/header-master-freeze-v1";
@@ -30,20 +29,12 @@ const SEARCH_FIELD_ID = "rx-h2-search";
 /**
  * ROVEXO HEADER v1.0 — SEARCH PRIORITY FREEZE
  * Purpose: SEARCH only. Stateless. Identical on Home / Search / Results / Discovery.
+ * Homepage is excluded from compact hide-on-scroll (Owner) — chrome stays visible.
  */
 function RovexoHeaderV2({ showSearch = true, layout = "default" }: RovexoHeaderV2Props) {
   const isAccountLayout = layout === "account";
-  const scroll = useMobileHeaderScrollContext();
-  const registerHeader = scroll?.registerHeader;
-  const isChromeVisible = scroll?.isVisible ?? true;
-  const hasScrollBehavior = Boolean(scroll);
   const headerRef = useRef<HTMLElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-
-  useLayoutEffect(() => {
-    registerHeader?.(headerRef.current);
-    return () => registerHeader?.(null);
-  }, [registerHeader]);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 2);
@@ -62,13 +53,11 @@ function RovexoHeaderV2({ showSearch = true, layout = "default" }: RovexoHeaderV
       data-header-freeze="v1.0-locked"
       data-search-priority-freeze={SEARCH_PRIORITY_FREEZE_V1.version}
       data-header-search-first="true"
+      data-homepage-chrome-scroll="excluded"
       className={cn(
         "rx-h2",
         isAccountLayout && "rx-h2--account",
         isScrolled && "rx-h2--scrolled",
-        hasScrollBehavior &&
-          "max-lg:transition-[transform,opacity] max-lg:duration-[200ms] max-lg:ease-out",
-        hasScrollBehavior && !isChromeVisible && "max-lg:-translate-y-full max-lg:opacity-0",
       )}
     >
       <div className={cn("rx-h2__inner", isAccountLayout && "rx-h2__inner--row1")}>

@@ -4,10 +4,10 @@
  * Tokens from FINAL CANONICAL IMPLEMENTATION spec (no estimates).
  */
 
-/* Wallet-only header lock: 64px bar · 16px pad (Design Decision #001) · 40×40 controls */
+/* Wallet-only header lock: compact 44px bar · 16px pad (Design Decision #001) · 40×40 controls */
 .account-canonical:has(.wallet-v2) .account-canonical-header__bar--titled {
-  min-height: 52px;
-  height: 52px;
+  min-height: 44px;
+  height: 44px;
   padding-top: 0;
   padding-bottom: 0;
   padding-left: 16px;

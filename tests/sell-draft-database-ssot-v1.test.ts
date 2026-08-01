@@ -36,11 +36,13 @@ describe("draft-database-ssot-v1", () => {
     expect(css).not.toMatch(/\[data-sell-publish-bar\][\s\S]{0,120}bottom:\s*0;/);
   });
 
-  it("exposes Sell-only 16px+ control typography", () => {
+  it("exposes Sell balanced premium typography tokens", () => {
     const css = readFileSync(join(process.cwd(), "styles/rovexo/sell.css"), "utf8");
-    expect(css).toContain("--sell-font-control: 17px");
-    expect(css).toContain("--sell-font-button: 17px");
-    expect(css).toContain("--sell-font-section: 17px");
-    expect(css).toContain("--sell-font-helper: 16px");
+    expect(css).toContain("--sell-font-page-title: 22px");
+    expect(css).toContain("--sell-font-section: 16px");
+    expect(css).toContain("--sell-font-label: 15px");
+    expect(css).toContain("--sell-font-control: 16px");
+    expect(css).toContain("--sell-font-description: 16px");
+    expect(css).toContain("--sell-font-helper: 14px");
   });
 });

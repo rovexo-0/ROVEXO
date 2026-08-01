@@ -21,7 +21,7 @@ export const CATEGORY_HIDDEN_ALIASES: Record<string, readonly string[]> = {
   "android-phones": ["android phone", "android smartphone", "galaxy phone", "pixel phone"],
   iphones: ["iphone", "apple phone", "apple iphone"],
   trainers: ["sneakers", "tennis shoes", "athletic shoes", "kicks", "air max"],
-  /** Leaf aliases — Catalog Master `sports/camping/sleeping-bags` (not fashion Bags). */
+  /** Leaf aliases — Catalog Master pillows / camping (not fashion Bags). */
   "sleeping-bags": [
     "sleeping bag",
     "sleeping bags",
@@ -30,25 +30,41 @@ export const CATEGORY_HIDDEN_ALIASES: Record<string, readonly string[]> = {
     "sleeping-bags",
     "camp sleeping bag",
   ],
-  tents: ["tent", "tents", "camping tent", "dome tent", "pop up tent"],
+  tents: ["tent", "tents"],
+  "camping-tents": ["camping tent", "camping tents", "family tent", "dome tent", "pop up tent"],
+  "memory-foam-pillows": ["memory foam pillow", "memory foam pillows", "viscoelastic pillow", "tempur style pillow"],
+  "orthopedic-pillows": ["orthopedic pillow", "orthopaedic pillow", "ortho pillow"],
+  "pregnancy-pillows": ["pregnancy pillow", "pregnancy pillows"],
+  "maternity-pillows": ["maternity pillow", "maternity pillows"],
+  "travel-pillows": ["travel pillow", "plane pillow", "car pillow"],
+  "neck-pillows": ["neck pillow", "neck support pillow"],
   sofas: ["couch", "settee", "chesterfield"],
   duvets: ["comforter", "quilt", "doona"],
 };
 
 /** Keyword mapping for deterministic category detection — Catalog Master path keys only. */
 export const CATEGORY_KEYWORD_MAP: Record<string, readonly string[]> = {
-  "home-garden/bedding/pillows": [
-    "pillow",
-    "cushion",
+  "home-garden/pillows-cushions/memory-foam-pillows": [
+    "memory foam pillow",
     "memory foam",
-    "tempur",
-    "orthopaedic",
-    "neck pillow",
-    "travel pillow",
-    "pregnancy pillow",
-    "body pillow",
-    "wedge pillow",
+    "viscoelastic",
+    "tempur pillow",
   ],
+  "home-garden/pillows-cushions/orthopedic-pillows": [
+    "orthopedic pillow",
+    "orthopaedic pillow",
+  ],
+  "home-garden/pillows-cushions/pregnancy-pillows": [
+    "pregnancy pillow",
+    "pregnancy pillows",
+  ],
+  "home-garden/pillows-cushions/maternity-pillows": [
+    "maternity pillow",
+    "maternity pillows",
+  ],
+  "home-garden/pillows-cushions/travel-pillows": ["travel pillow", "plane pillow"],
+  "home-garden/pillows-cushions/neck-pillows": ["neck pillow"],
+  "home-garden/bedding/pillows": ["pillow", "pillows", "cushion pillow"],
   "electronics/phones-tablets/android-phones": [
     "android phone",
     "samsung galaxy",
@@ -74,7 +90,8 @@ export const CATEGORY_KEYWORD_MAP: Record<string, readonly string[]> = {
     "sleeping-bag",
     "camp bed",
   ],
-  "sports/camping/tents": ["tent", "tents", "camping tent", "dome tent"],
+  "sports/camping/camping-tents": ["camping tent", "camping tents", "family tent", "dome tent"],
+  "sports/camping/tents": ["tent", "tents"],
   "mens-fashion/jackets/leather-jackets": ["leather jacket", "biker jacket"],
   "mens-fashion/jackets/bomber-jackets": ["bomber", "bomber jacket"],
   "mens-fashion/jackets/puffer-jackets": ["puffer", "puffer jacket", "down jacket"],
