@@ -67,3 +67,14 @@ export {
   assertCatalogMasterBloodCertificationOrBlock,
   type CatalogMasterBloodCertificationReport,
 } from "@/lib/catalog/supreme-blood-law-xxxiii-catalog-master-v1";
+export { SUGGEST_SSOT_HARDENING_V1 } from "@/lib/catalog/suggest-ssot-hardening-v1";
+export { RUNTIME_CATALOG_FINGERPRINT_LOCK_V1 } from "@/lib/catalog/runtime-catalog-fingerprint-lock-v1";
+export {
+  getRuntimeCatalogIndex,
+  assertRuntimeCatalogIndexOrBlock,
+  assertRuntimeCatalogFingerprintOrBlock,
+  getCatalogEnvironmentParityReport,
+  resetRuntimeCatalogIndexForTests,
+  type RuntimeCatalogIndex,
+  type RuntimeCatalogFingerprint,
+} from "@/lib/catalog/runtime-catalog-index-v1";

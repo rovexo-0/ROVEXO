@@ -123,4 +123,11 @@ export async function register() {
   runStartupCertificationGate("BLOOD XLV Final Live Production Certification", () => {
     assertFinalLiveProductionCertificationOrBlock();
   });
+
+  const { assertRuntimeCatalogIndexOrBlock } = await import(
+    "@/lib/catalog/runtime-catalog-index-v1"
+  );
+  runStartupCertificationGate("Suggest SSOT Runtime Catalog Index", () => {
+    assertRuntimeCatalogIndexOrBlock();
+  });
 }

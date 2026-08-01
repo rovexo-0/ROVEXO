@@ -7,9 +7,21 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.join(root, "..");
+
+const fingerprint = spawnSync("npx", ["tsx", "scripts/assert-catalog-runtime-fingerprint.ts"], {
+  cwd: repoRoot,
+  stdio: "inherit",
+  env: process.env,
+  shell: process.platform === "win32",
+});
+
+if (fingerprint.status !== 0) {
+  process.exit(fingerprint.status ?? 1);
+}
 
 const build = spawnSync("npx", ["next", "build"], {
-  cwd: path.join(root, ".."),
+  cwd: repoRoot,
   stdio: "inherit",
   env: process.env,
   shell: process.platform === "win32",

@@ -1,57 +1,53 @@
 /**
- * ROVEXO Category Suggestion Engine v1.0 — Catalog Master Edition.
+ * ROVEXO Category Suggestion Engine v1.0 — Catalog Master SSOT Edition.
  *
- * STATUS: OWNER APPROVED · RULE-BASED · NO AI · NO AUTO CATEGORY
+ * STATUS: OWNER APPROVED · DETERMINISTIC · NO AI · NO AUTO CATEGORY · FAIL CLOSED
  *
- * SSOT taxonomy: Catalog Master → getCategoryTree() / categoryTree.
- * Suggests Category → Subcategory → Product Type only.
- * Seller always confirms via Apply. Never auto-selects or overwrites.
+ * Runtime flow (ONE instance only):
+ * Catalog Master (lib/catalog/tree.ts)
+ *   → Runtime Catalog Builder
+ *   → Leaf Index · Phrase Index · Synonym Index
+ *   → Suggest Engine → Sell
+ *
+ * Never guesses below Owner confidence threshold.
+ * Never uses generated taxonomy JSON, legacy keyword maps, or parallel trees.
  */
 
+import { SUGGEST_SSOT_HARDENING_V1 } from "@/lib/catalog/suggest-ssot-hardening-v1";
 import {
-  CATEGORY_HIDDEN_ALIASES,
-  CATEGORY_KEYWORD_MAP,
-  getAliasesForSlug,
-  getKeywordsForPath,
-} from "@/lib/category-aliases";
-import { CATEGORY_SEARCH_SYNONYMS } from "@/lib/categories/search-synonyms";
-import { collectLeafPaths } from "@/lib/categories/navigation";
+  getRuntimeCatalogIndex,
+  normalizeCatalogText,
+  resetRuntimeCatalogIndexForTests,
+  tokenizeCatalogText,
+  type RuntimeLeafEntry,
+} from "@/lib/catalog/runtime-catalog-index-v1";
 import { resolveCategoryPathBySlugs, toPathId } from "@/lib/categories/queries";
-import { categoryTree } from "@/lib/categories/tree";
 import type { FlatCategoryPath } from "@/lib/categories/types";
-import { flatPathFromSegments } from "@/lib/categories/types";
-import { PRODUCT_TYPE_DATABASE } from "@/lib/product-types";
-import { CATALOG_MASTER_PROTECTION_V1 } from "@/lib/catalog/catalog-master-protection-v1";
-import {
-  TITLE_CATEGORY_RULES,
-  TITLE_SYNONYMS,
-  resolveTitleCategoryPath,
-} from "@/lib/sell/title-category-rules";
 
 export const CATEGORY_SUGGESTION_ENGINE_V1 = {
   id: "category-suggestion-engine-v1",
   version: "1.0.0",
   status: "ACTIVE",
-  ssot: "lib/catalog/tree.ts",
-  method: "deterministic_rules",
+  ssot: SUGGEST_SSOT_HARDENING_V1.ssot,
+  runtimeIndex: "lib/catalog/runtime-catalog-index-v1.ts",
+  method: "deterministic_catalog_master_index",
+  ownerConfidenceThreshold: SUGGEST_SSOT_HARDENING_V1.ownerConfidenceThreshold,
+  noSuggestionMessage: SUGGEST_SSOT_HARDENING_V1.noSuggestionMessage,
   forbidden: [
     "ai",
     "machine_learning",
     "llm",
     "embeddings",
     "vector_search",
+    "fuzzy_ai_matching",
+    "keyword_patches",
+    "special_cases",
     "auto_publish",
     "auto_category",
     "auto_select",
+    "duplicate_taxonomy",
   ] as const,
-  ranking: [
-    "exact_product_type",
-    "exact_alias",
-    "exact_synonym",
-    "contains",
-    "keyword_score",
-    "path_confidence",
-  ] as const,
+  ranking: ["exact_product_type", "exact_alias", "exact_synonym"] as const,
 } as const;
 
 export type CategoryMatchRank =
@@ -96,239 +92,11 @@ const RANK_CONFIDENCE: Record<CategoryMatchRank, number> = {
 
 const MIN_QUERY_LENGTH = 5;
 
-/** Catalog Master–aligned high-precision phrases (deterministic, not AI). */
-const CATALOG_PHRASE_RULES: ReadonlyArray<{
-  patterns: readonly string[];
-  slugs: readonly [string, string, string];
-  rank: CategoryMatchRank;
-}> = [
-  {
-    patterns: [
-      "memory foam pillow",
-      "memory-foam pillow",
-      "memory foam pillows",
-      "viscoelastic pillow",
-    ],
-    slugs: ["home-garden", "pillows-cushions", "memory-foam-pillows"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["orthopaedic pillow", "orthopedic pillow", "ortho pillow"],
-    slugs: ["home-garden", "pillows-cushions", "orthopedic-pillows"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["pregnancy pillow", "pregnancy pillows"],
-    slugs: ["home-garden", "pillows-cushions", "pregnancy-pillows"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["maternity pillow", "maternity pillows"],
-    slugs: ["home-garden", "pillows-cushions", "maternity-pillows"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["travel pillow", "travel pillows", "plane pillow"],
-    slugs: ["home-garden", "pillows-cushions", "travel-pillows"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["neck pillow", "neck pillows"],
-    slugs: ["home-garden", "pillows-cushions", "neck-pillows"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["body pillow", "body pillows"],
-    slugs: ["home-garden", "pillows-cushions", "body-pillows"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["cooling pillow", "cooling pillows"],
-    slugs: ["home-garden", "pillows-cushions", "cooling-pillows"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["feather pillow", "feather pillows"],
-    slugs: ["home-garden", "pillows-cushions", "feather-pillows"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["down pillow", "down pillows"],
-    slugs: ["home-garden", "pillows-cushions", "down-pillows"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["pillow", "pillows"],
-    slugs: ["home-garden", "bedding", "pillows"],
-    rank: "contains",
-  },
-  {
-    patterns: [
-      "nike air max",
-      "air max",
-      "nike trainers",
-      "nike sneakers",
-      "nike dunk",
-      "nike air force",
-    ],
-    slugs: ["mens-fashion", "shoes", "trainers"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: [
-      "adidas ultraboost",
-      "ultraboost",
-      "adidas trainers",
-      "adidas sneakers",
-      "stan smith",
-    ],
-    slugs: ["mens-fashion", "shoes", "trainers"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["iphone", "apple iphone"],
-    slugs: ["electronics", "phones-tablets", "iphones"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["android phone", "android smartphone", "samsung galaxy", "google pixel"],
-    slugs: ["electronics", "phones-tablets", "android-phones"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["smartphone", "mobile phone"],
-    slugs: ["electronics", "phones-tablets", "android-phones"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: [
-      "sleeping bag",
-      "sleeping bags",
-      "sleepingbag",
-      "sleeping-bag",
-      "sleeping-bags",
-      "camping sleeping bag",
-      "camping sleeping-bags",
-    ],
-    slugs: ["sports", "camping", "sleeping-bags"],
-    rank: "exact_synonym",
-  },
-  {
-    patterns: ["camping tent", "camping tents", "family tent", "dome tent", "pop up tent"],
-    slugs: ["sports", "camping", "camping-tents"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["tent", "tents"],
-    slugs: ["sports", "camping", "camping-tents"],
-    rank: "exact_product_type",
-  },
-  {
-    patterns: ["camping"],
-    slugs: ["sports", "camping", "sleeping-bags"],
-    rank: "exact_product_type",
-  },
-];
-
-/** Prefer Men's Fashion trainers when menswear brand signals are present. */
-const MENS_TRAINER_BRANDS = ["nike", "adidas", "puma", "reebok", "new balance", "jordan"] as const;
-
-type IndexedLeaf = {
-  path: FlatCategoryPath;
-  pathKey: string;
-  leafName: string;
-  leafSlug: string;
-  leafNorm: string;
-  aliases: readonly string[];
-  keywords: readonly string[];
-  productTypeKeywords: readonly string[];
-};
-
-let leafIndex: IndexedLeaf[] | null = null;
-let leafIndexEpoch: string | null = null;
-
-/** Clear warmed suggestion leaf index (Catalog Master content change / tests). */
-export function invalidateCategorySuggestionIndex(): void {
-  leafIndex = null;
-  leafIndexEpoch = null;
-}
-
-function singularize(token: string): string {
-  if (token.length <= 3) return token;
-  if (token.endsWith("ies")) return `${token.slice(0, -3)}y`;
-  if (/(ses|xes|zes|ches|shes)$/.test(token)) return token.slice(0, -2);
-  if (token.endsWith("ss")) return token;
-  if (token.endsWith("s")) return token.slice(0, -1);
-  return token;
-}
-
-function normalizeText(input: string): string {
-  let text = input.trim().toLowerCase().replace(/\s+/g, " ");
-  for (const [abbrev, full] of Object.entries(TITLE_SYNONYMS)) {
-    const pattern = new RegExp(`\\b${abbrev.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi");
-    text = text.replace(pattern, full);
-  }
-  // Sleeping bag → camping leaf path (hyphen / space / concatenated). Data only.
-  text = text.replace(/\bsleeping[- ]*bags?\b/g, " camping sleeping-bags ");
-  text = text.replace(/\bsleepingbag\b/g, " camping sleeping-bags ");
-  return text.replace(/\s+/g, " ").trim();
-}
-
-function tokenize(text: string): string[] {
-  return text
-    .split(/[^a-z0-9]+/)
-    .filter((token) => token.length >= 2)
-    .map(singularize);
-}
-
 function wholeWordIncludes(haystack: string, needle: string): boolean {
   if (!needle) return false;
   if (needle.includes(" ")) return haystack.includes(needle);
   const pattern = new RegExp(`\\b${needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
   return pattern.test(haystack);
-}
-
-function buildLeafIndex(): IndexedLeaf[] {
-  const epoch = CATALOG_MASTER_PROTECTION_V1.cacheEpoch;
-  if (leafIndex && leafIndexEpoch === epoch) return leafIndex;
-  leafIndex = null;
-  leafIndexEpoch = epoch;
-
-  const productBySlug = new Map<string, (typeof PRODUCT_TYPE_DATABASE)[number]>();
-  for (const record of PRODUCT_TYPE_DATABASE) {
-    productBySlug.set(record.slug, record);
-  }
-
-  leafIndex = collectLeafPaths(categoryTree)
-    .filter(({ segments }) => !segments.some((segment) => segment.slug === "by-brand"))
-    .map(({ segments }) => {
-      const path = flatPathFromSegments(segments);
-      const leaf = segments[segments.length - 1]!;
-      const pathKey = segments.map((segment) => segment.slug).join("/");
-      const product = productBySlug.get(leaf.slug);
-      const aliases = [
-        ...getAliasesForSlug(leaf.slug),
-        ...(CATEGORY_HIDDEN_ALIASES[leaf.slug] ?? []),
-      ];
-      const keywords = [
-        ...getKeywordsForPath(pathKey),
-        ...(CATEGORY_KEYWORD_MAP[pathKey] ?? []),
-        ...(product?.keywords ?? []),
-      ];
-
-      return {
-        path,
-        pathKey,
-        leafName: leaf.name,
-        leafSlug: leaf.slug,
-        leafNorm: normalizeText(leaf.name),
-        aliases: [...new Set(aliases.map((alias) => alias.toLowerCase()))],
-        keywords: [...new Set(keywords.map((keyword) => keyword.toLowerCase()))],
-        productTypeKeywords: product?.keywords.map((keyword) => keyword.toLowerCase()) ?? [],
-      } satisfies IndexedLeaf;
-    });
-
-  return leafIndex;
 }
 
 function canonicalize(
@@ -346,145 +114,98 @@ function canonicalize(
   };
 }
 
-function patternMatches(title: string, pattern: string): boolean {
-  return pattern
-    .split("|")
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .some((part) => title.includes(part));
-}
-
-function matchTitleRules(normalized: string): CategorySuggestion | null {
-  let best: CategorySuggestion | null = null;
-
-  for (const rule of TITLE_CATEGORY_RULES) {
-    if (!rule.patterns.every((pattern) => patternMatches(normalized, pattern))) continue;
-    const path = resolveTitleCategoryPath(rule.path);
-    if (!path) continue;
-    // High-confidence title rules rank above generic alias/contains scans.
-    const rank: CategoryMatchRank =
-      rule.confidence >= 0.95 ? "exact_alias" : "path_confidence";
-    const candidate = canonicalize(path, Math.min(rule.confidence, 0.99), rank);
-    if (!candidate) continue;
-    if (
-      !best ||
-      RANK_PRIORITY[candidate.rank] > RANK_PRIORITY[best.rank] ||
-      (candidate.rank === best.rank && candidate.confidence > best.confidence)
-    ) {
-      best = candidate;
-    }
+function passesOwnerConfidenceGate(suggestion: CategorySuggestion | null): CategorySuggestion | null {
+  if (!suggestion) return null;
+  if (suggestion.confidence < SUGGEST_SSOT_HARDENING_V1.ownerConfidenceThreshold) {
+    return null;
   }
-
-  return best;
+  return suggestion;
 }
 
-function matchPhraseRules(normalized: string): CategorySuggestion | null {
-  let best: CategorySuggestion | null = null;
-
-  for (const rule of CATALOG_PHRASE_RULES) {
-    if (!rule.patterns.some((pattern) => normalized.includes(pattern))) continue;
-    const path = resolveCategoryPathBySlugs([...rule.slugs]);
-    if (!path) continue;
-    const candidate = canonicalize(path, RANK_CONFIDENCE[rule.rank], rule.rank);
-    if (!candidate) continue;
-    if (
-      !best ||
-      RANK_PRIORITY[candidate.rank] > RANK_PRIORITY[best.rank] ||
-      (candidate.rank === best.rank && candidate.confidence > best.confidence)
-    ) {
-      best = candidate;
-    }
+/**
+ * Fail closed: a short Catalog Master phrase must not absorb unrelated query words.
+ * Allows model noise only (digits, tokens length ≤ 3) — never typo dictionaries.
+ */
+function phraseExplainsQuery(phrase: string, queryTokens: ReadonlySet<string>): boolean {
+  const phraseTokens = tokenizeCatalogText(phrase);
+  if (phraseTokens.length === 0) return false;
+  if (phraseTokens.length >= 2) {
+    return phraseTokens.every((token) => queryTokens.has(token));
   }
-
-  return best;
-}
-
-function matchCatalogLeaves(normalized: string): CategorySuggestion | null {
-  const queryTokens = new Set(tokenize(normalized));
-  const expandedTokens = new Set(queryTokens);
+  const leafToken = phraseTokens[0]!;
   for (const token of queryTokens) {
-    const synonym = CATEGORY_SEARCH_SYNONYMS[token];
-    if (synonym) {
-      for (const extra of tokenize(normalizeText(synonym))) expandedTokens.add(extra);
+    if (token === leafToken) continue;
+    if (/^\d+$/.test(token)) continue;
+    if (token.length <= 3) continue;
+    return false;
+  }
+  return queryTokens.has(leafToken);
+}
+
+/**
+ * Match Catalog Master leaf phrases (derived from tree.ts leaf names only).
+ * Longest phrase wins — deterministic, no keyword patches.
+ */
+function matchPhraseIndex(normalized: string): CategorySuggestion | null {
+  const { phraseIndex } = getRuntimeCatalogIndex();
+  const queryTokens = new Set(tokenizeCatalogText(normalized));
+  let bestLeaf: RuntimeLeafEntry | null = null;
+  let bestPhraseLen = 0;
+
+  for (const [phrase, leaf] of phraseIndex) {
+    if (phrase.length < bestPhraseLen) continue;
+    if (!(normalized === phrase || wholeWordIncludes(normalized, phrase))) continue;
+    if (!phraseExplainsQuery(phrase, queryTokens)) continue;
+    if (phrase.length > bestPhraseLen) {
+      bestPhraseLen = phrase.length;
+      bestLeaf = leaf;
     }
   }
 
+  if (!bestLeaf) return null;
+  return canonicalize(bestLeaf.path, RANK_CONFIDENCE.exact_product_type, "exact_product_type");
+}
+
+/**
+ * Full leaf-token coverage from Catalog Master synonym index.
+ * Every Catalog Master leaf token must appear in the query.
+ * Single-token leaves only when the query is that token alone (never "… pillow" → Pillows).
+ */
+function matchSynonymIndex(normalized: string): CategorySuggestion | null {
+  const queryTokens = new Set(tokenizeCatalogText(normalized));
+  if (queryTokens.size === 0) return null;
+
+  const { synonymIndex, leaves } = getRuntimeCatalogIndex();
+  const candidates = new Set<RuntimeLeafEntry>();
+
+  for (const token of queryTokens) {
+    const bucket = synonymIndex.get(token);
+    if (!bucket) continue;
+    for (const leaf of bucket) candidates.add(leaf);
+  }
+
+  // Stable fallback: Catalog Master leaf order when no shared synonym token.
+  const pool = candidates.size > 0 ? candidates : leaves;
+
   let best: CategorySuggestion | null = null;
+  let bestTokenCount = 0;
 
-  const consider = (candidate: CategorySuggestion | null) => {
-    if (!candidate) return;
-    if (
-      !best ||
-      RANK_PRIORITY[candidate.rank] > RANK_PRIORITY[best.rank] ||
-      (candidate.rank === best.rank && candidate.confidence > best.confidence)
-    ) {
+  for (const leaf of pool) {
+    if (leaf.tokens.length === 0) continue;
+    if (leaf.tokens.length === 1 && queryTokens.size !== 1) continue;
+    if (leaf.tokens.length === 1 && leaf.tokens[0]!.length < 5) continue;
+    if (!leaf.tokens.every((token) => queryTokens.has(token))) continue;
+
+    const candidate = canonicalize(
+      leaf.path,
+      RANK_CONFIDENCE.exact_product_type,
+      "exact_product_type",
+    );
+    if (!candidate) continue;
+
+    if (!best || leaf.tokens.length > bestTokenCount) {
       best = candidate;
-    }
-  };
-
-  for (const leaf of buildLeafIndex()) {
-    // 1. Exact product type name
-    if (normalized === leaf.leafNorm) {
-      consider(
-        canonicalize(leaf.path, RANK_CONFIDENCE.exact_product_type, "exact_product_type"),
-      );
-    } else if (wholeWordIncludes(normalized, leaf.leafNorm) && leaf.leafNorm.length >= 4) {
-      // Multi-word queries: only exact_product_type when the leaf phrase is present.
-      consider(
-        canonicalize(leaf.path, RANK_CONFIDENCE.exact_product_type, "exact_product_type"),
-      );
-    }
-
-    // Singular leaf slug/token — only when query is short (avoids "fiction" stealing book titles)
-    const leafToken = singularize(leaf.leafSlug);
-    if (queryTokens.size <= 3 && queryTokens.has(leafToken)) {
-      consider(
-        canonicalize(leaf.path, RANK_CONFIDENCE.exact_product_type, "exact_product_type"),
-      );
-    }
-
-    // 2. Exact alias
-    for (const alias of leaf.aliases) {
-      if (wholeWordIncludes(normalized, alias) || normalized === alias) {
-        if (
-          leaf.leafSlug === "trainers" &&
-          leaf.path.categorySlug === "womens-fashion" &&
-          MENS_TRAINER_BRANDS.some((brand) => wholeWordIncludes(normalized, brand))
-        ) {
-          continue;
-        }
-        consider(canonicalize(leaf.path, RANK_CONFIDENCE.exact_alias, "exact_alias"));
-      }
-    }
-
-    // 3. Exact synonym — expanded query tokens vs leaf name/aliases (no nested synonym map)
-    const leafTokens = new Set(tokenize(leaf.leafNorm));
-    let synonymHit = false;
-    for (const token of expandedTokens) {
-      if (leafTokens.has(token) || leaf.aliases.some((alias) => singularize(alias) === token)) {
-        synonymHit = true;
-        break;
-      }
-    }
-    if (synonymHit) {
-      consider(canonicalize(leaf.path, RANK_CONFIDENCE.exact_synonym, "exact_synonym"));
-    }
-
-    // 4. Contains
-    if (leaf.leafNorm.length >= 4 && normalized.includes(leaf.leafNorm)) {
-      consider(canonicalize(leaf.path, RANK_CONFIDENCE.contains, "contains"));
-    }
-
-    // 5. Keyword score
-    let keywordHits = 0;
-    for (const keyword of leaf.keywords) {
-      if (wholeWordIncludes(normalized, keyword) || normalized.includes(keyword)) {
-        keywordHits += keyword.includes(" ") ? 2 : 1;
-      }
-    }
-    if (keywordHits > 0) {
-      const confidence = Math.min(0.9, RANK_CONFIDENCE.keyword_score + keywordHits * 0.02);
-      consider(canonicalize(leaf.path, confidence, "keyword_score"));
+      bestTokenCount = leaf.tokens.length;
     }
   }
 
@@ -506,33 +227,36 @@ function pickBest(...candidates: Array<CategorySuggestion | null>): CategorySugg
   return best;
 }
 
+/** Clear warmed runtime index pointer (Catalog Master content change / tests). */
+export function invalidateCategorySuggestionIndex(): void {
+  resetRuntimeCatalogIndexForTests();
+}
+
 /**
  * Suggest the single highest-ranked Catalog Master path for title + description.
  * Never mutates selection — UI must call Apply.
+ * Below Owner confidence threshold → null (no unrelated category).
  */
 export function suggestCategory(
   title: string,
   description = "",
 ): CategorySuggestion | null {
   const combined = `${title} ${description}`.trim();
-  if (combined.replace(/\s+/g, " ").trim().length < MIN_QUERY_LENGTH) return null;
+  if (normalizeCatalogText(combined).length < MIN_QUERY_LENGTH) return null;
 
-  const normalized = normalizeText(combined);
+  const normalized = normalizeCatalogText(combined);
   if (!normalized) return null;
 
-  // Warm index once; phrase + title rules short-circuit before full leaf scan.
-  const phrase = matchPhraseRules(normalized);
-  if (phrase && RANK_PRIORITY[phrase.rank] >= RANK_PRIORITY.exact_alias) {
+  // Warm / reuse the ONE runtime Catalog Master index.
+  getRuntimeCatalogIndex();
+
+  const phrase = matchPhraseIndex(normalized);
+  if (phrase && phrase.confidence >= SUGGEST_SSOT_HARDENING_V1.ownerConfidenceThreshold) {
     return phrase;
   }
 
-  const titleRule = matchTitleRules(normalized);
-  if (titleRule && titleRule.confidence >= 0.9) {
-    return titleRule;
-  }
-
-  buildLeafIndex();
-  return pickBest(phrase, titleRule, matchCatalogLeaves(normalized));
+  const synonym = matchSynonymIndex(normalized);
+  return passesOwnerConfidenceGate(pickBest(phrase, synonym));
 }
 
 /**
@@ -557,7 +281,6 @@ export function resolveLiveCategorySuggestion(input: {
     return { suggestion: null, betterSuggestionAvailable: false };
   }
 
-  // Manual selection kept — only signal a better alternative.
   return {
     suggestion,
     betterSuggestionAvailable: true,
@@ -578,3 +301,5 @@ export function applyCategorySuggestion(suggestion: CategorySuggestion): FlatCat
 export function shouldAutoApplyCategorySuggestion(): false {
   return false;
 }
+
+export { SUGGEST_SSOT_HARDENING_V1 };

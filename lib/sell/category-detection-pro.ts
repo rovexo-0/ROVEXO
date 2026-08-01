@@ -11,11 +11,11 @@ export type CategoryDetectionResult = {
   tier: CategoryDetectionTier;
 };
 
-/** ≥95% — auto suggested band (§29). */
+/** ≥95% — Owner Suggest SSOT confidence floor (never guess below). */
 export const AUTO_SELECT_CONFIDENCE = 0.95;
-/** 80–94% — suggested band. */
-export const SUGGEST_CONFIDENCE_MIN = 0.8;
-/** 50–79% — possible match band. */
+/** Owner Suggest SSOT threshold — aligned with SUGGEST_SSOT_HARDENING_V1. */
+export const SUGGEST_CONFIDENCE_MIN = 0.95;
+/** 50–94% — possible match band (never returned by Suggest Engine under SSOT). */
 export const POSSIBLE_MATCH_MIN = 0.5;
 
 export function getCategoryDetectionTier(confidence: number): CategoryDetectionTier {

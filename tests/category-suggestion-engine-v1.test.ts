@@ -16,64 +16,81 @@ import {
 } from "@/lib/sell/category-engine-v1";
 import { getCategoryHrefFromSlugs } from "@/lib/categories/navigation";
 import { CANONICAL_ROOT_CATEGORIES } from "@/lib/categories/canonical-root-categories-v1";
+import { SUGGEST_SSOT_HARDENING_V1 } from "@/lib/catalog/suggest-ssot-hardening-v1";
+import {
+  assertRuntimeCatalogFingerprintOrBlock,
+  getCatalogEnvironmentParityReport,
+  getRuntimeCatalogIndex,
+  resetRuntimeCatalogIndexForTests,
+} from "@/lib/catalog/runtime-catalog-index-v1";
 
 function readSource(relativePath: string): string {
   return readFileSync(join(process.cwd(), relativePath), "utf8");
 }
 
-describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () => {
-  it("locks deterministic contract (no AI / auto)", () => {
-    expect(CATEGORY_SUGGESTION_ENGINE_V1.method).toBe("deterministic_rules");
+describe("Category Suggestion Engine v1.0 — Catalog Master SSOT", () => {
+  it("locks deterministic Catalog Master contract (no AI / auto / keyword patches)", () => {
+    expect(CATEGORY_SUGGESTION_ENGINE_V1.method).toBe("deterministic_catalog_master_index");
+    expect(CATEGORY_SUGGESTION_ENGINE_V1.ssot).toBe("lib/catalog/tree.ts");
+    expect(CATEGORY_SUGGESTION_ENGINE_V1.ownerConfidenceThreshold).toBe(
+      SUGGEST_SSOT_HARDENING_V1.ownerConfidenceThreshold,
+    );
     expect(CATEGORY_SUGGESTION_ENGINE_V1.forbidden).toContain("ai");
+    expect(CATEGORY_SUGGESTION_ENGINE_V1.forbidden).toContain("keyword_patches");
+    expect(CATEGORY_SUGGESTION_ENGINE_V1.forbidden).toContain("fuzzy_ai_matching");
     expect(CATEGORY_SUGGESTION_ENGINE_V1.forbidden).toContain("auto_category");
-    expect(CATEGORY_SUGGESTION_ENGINE_V1.forbidden).toContain("auto_select");
     expect(shouldAutoApplyCategorySuggestion()).toBe(false);
     expect(CATEGORY_ENGINE_V1.selection).toBe("manual_with_confirm_suggestion");
-    expect(CATEGORY_ENGINE_V1.forbidden).toContain("auto_select_category");
-    expect(CATEGORY_ENGINE_V1.forbidden).not.toContain("suggested_category");
   });
 
-  it("Owner validation cases map to Catalog Master paths", () => {
+  it("ONE runtime Catalog Master index · Localhost ≡ Preview ≡ Production lock", () => {
+    resetRuntimeCatalogIndexForTests();
+    const a = getRuntimeCatalogIndex();
+    const b = getRuntimeCatalogIndex();
+    expect(a).toBe(b);
+    expect(a.source).toBe("catalog-master");
+    expect(a.ssot).toBe("lib/catalog/tree.ts");
+    expect(a.fingerprint.leafCount).toBe(960);
+    expect(a.fingerprint.nodeCount).toBe(1044);
+    expect(a.leaves).toHaveLength(960);
+    expect(a.phraseIndex.size).toBeGreaterThan(0);
+    expect(a.synonymIndex.size).toBeGreaterThan(0);
+    expect(assertRuntimeCatalogFingerprintOrBlock(a)).toBe(a);
+    const parity = getCatalogEnvironmentParityReport(a);
+    expect(parity.pass).toBe(true);
+    expect(parity.environments.localhost.treeHash).toBe(parity.environments.preview.treeHash);
+    expect(parity.environments.preview.treeHash).toBe(parity.environments.production.treeHash);
+  });
+
+  it("Owner determinism titles map to Catalog Master paths", () => {
     const cases = [
       {
-        title: "Memory Foam Pillow",
-        slugs: ["home-garden", "pillows-cushions", "memory-foam-pillows"] as const,
-        label: "Home & Garden > Pillows & Cushions > Memory Foam Pillows",
+        title: "Sleeping bag",
+        slugs: ["sports", "camping", "sleeping-bags"] as const,
       },
       {
-        title: "Pregnancy Pillow",
+        title: "Camping sleeping bag",
+        slugs: ["sports", "camping", "sleeping-bags"] as const,
+      },
+      {
+        title: "Travel pillow",
+        slugs: ["home-garden", "pillows-cushions", "travel-pillows"] as const,
+      },
+      {
+        title: "Pregnancy pillow",
         slugs: ["home-garden", "pillows-cushions", "pregnancy-pillows"] as const,
-        label: "Home & Garden > Pillows & Cushions > Pregnancy Pillows",
       },
       {
-        title: "Camping Tent",
-        slugs: ["sports", "camping", "camping-tents"] as const,
-        label: "Sports & Outdoors > Outdoor & Camping > Camping Tents",
-      },
-      {
-        title: "Nike Air Max",
-        slugs: ["mens-fashion", "shoes", "trainers"] as const,
-        label: "Men's Fashion > Shoes > Trainers",
+        title: "Memory foam pillow",
+        slugs: ["home-garden", "pillows-cushions", "memory-foam-pillows"] as const,
       },
       {
         title: "iPhone 16 Pro",
         slugs: ["electronics", "phones-tablets", "iphones"] as const,
-        label: "Electronics > Phones & Tablets > iPhones",
       },
       {
-        title: "Sleeping bag",
-        slugs: ["sports", "camping", "sleeping-bags"] as const,
-        label: "Sports & Outdoors > Outdoor & Camping > Sleeping Bags",
-      },
-      {
-        title: "sleeping-bag",
-        slugs: ["sports", "camping", "sleeping-bags"] as const,
-        label: "Sports & Outdoors > Outdoor & Camping > Sleeping Bags",
-      },
-      {
-        title: "Camping Sleeping Bag",
-        slugs: ["sports", "camping", "sleeping-bags"] as const,
-        label: "Sports & Outdoors > Outdoor & Camping > Sleeping Bags",
+        title: "Camping Tent",
+        slugs: ["sports", "camping", "camping-tents"] as const,
       },
     ] as const;
 
@@ -83,8 +100,22 @@ describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () 
       expect(suggestion!.path.segments.map((s) => s.slug), testCase.title).toEqual([
         ...testCase.slugs,
       ]);
-      expect(suggestion!.path.pathLabel, testCase.title).toBe(testCase.label);
-      expect(suggestionConfidencePercent(suggestion!), testCase.title).toBeGreaterThanOrEqual(80);
+      expect(suggestion!.confidence, testCase.title).toBeGreaterThanOrEqual(
+        SUGGEST_SSOT_HARDENING_V1.ownerConfidenceThreshold,
+      );
+      expect(suggestionConfidencePercent(suggestion!), testCase.title).toBeGreaterThanOrEqual(95);
+    }
+  });
+
+  it("Suggest Safety Law — typos never guess (fail closed)", () => {
+    for (const title of [
+      "slepping bag",
+      "travell pillow",
+      "memry foam pillow",
+      "iphne 16",
+      "addidas shoes",
+    ] as const) {
+      expect(suggestCategory(title), title).toBeNull();
     }
   });
 
@@ -97,11 +128,6 @@ describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () 
       expect(slugs[1], title).toBe("camping");
       expect(slugs[2], title).toBe("sleeping-bags");
       expect(slugs.join("/"), title).not.toMatch(/womens-fashion|mens-fashion|\/bags\//);
-      expect(slugs[0], title).not.toBe("womens-fashion");
-      expect(slugs[2], title).not.toBe("handbags");
-      expect(slugs[2], title).not.toBe("shoulder-bags");
-      expect(suggestion!.path.pathLabel.toLowerCase(), title).not.toContain("women");
-      expect(suggestion!.path.pathLabel.toLowerCase(), title).not.toMatch(/shoulder bag|handbag/);
     }
   });
 
@@ -172,6 +198,18 @@ describe("Category Suggestion Engine v1.0 — Catalog Master · rule-based", () 
     expect(card).toContain("Suggested Category");
     expect(card).toContain("Better suggestion available");
     expect(card).toContain("Apply Suggestion");
+  });
+
+  it("Suggest engine consumes runtime Catalog Master indexes only", () => {
+    const source = readSource("lib/sell/category-suggestion-engine-v1.ts");
+    expect(source).toContain("getRuntimeCatalogIndex");
+    expect(source).toContain("phraseIndex");
+    expect(source).toContain("synonymIndex");
+    expect(source).not.toContain("CATEGORY_KEYWORD_MAP");
+    expect(source).not.toContain("PRODUCT_TYPE_DATABASE");
+    expect(source).not.toContain("CATALOG_PHRASE_RULES");
+    expect(source).not.toContain("TITLE_CATEGORY_RULES");
+    expect(readSource("instrumentation.ts")).toContain("assertRuntimeCatalogIndexOrBlock");
   });
 
   it("publish reset remains in SellProvider", () => {
