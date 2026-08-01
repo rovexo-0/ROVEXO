@@ -151,6 +151,7 @@ export function SearchLandingView({
       data-blood-code-xxix="29.0"
       data-blood-code-xxxi="31.0"
       data-search-landing="v1"
+      data-ui-polish-phase1="search-v1"
       data-search-surface={surface}
     >
       <div className="srch-land__bar-row">

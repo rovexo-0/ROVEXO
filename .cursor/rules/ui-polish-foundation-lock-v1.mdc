@@ -1,0 +1,50 @@
+---
+description: ROVEXO UI Polish v1.0 Foundation Lock — refine only; Listing Card permanently locked
+alwaysApply: true
+---
+
+# ROVEXO UI POLISH v1.0 — FOUNDATION LOCK
+
+**STATUS: OWNER APPROVED | LOCKED**
+
+SSOT: `lib/design-system/ui-polish-foundation-lock-v1.ts`
+
+## Mission
+
+Refine the existing ROVEXO UI for consistency, alignment, premium polish, and maintainability.
+
+**Do NOT redesign. Do NOT change visual identity. Do NOT copy Vinted / eBay / other marketplaces.**
+
+## Permanently locked — Listing Card
+
+SSOT: `components/ui/ListingCard.tsx`
+
+**Forbidden:** product image layout · card dimensions · price/title position · favourite icon · badge positions · rating · view counter · overall card appearance · redesign
+
+**Allowed only:** bug fixes · accessibility · performance
+
+Listing Card is **excluded** from UI Elements polish scope.
+
+## Official Design System (reuse only)
+
+1. **Tokens** — brand colours · typography · font scale · radius · shadows · elevation · motion · timing  
+2. **Components** — Primary/Secondary Button · Inputs · Dropdown · Search Field · Checkbox · Radio · Switch · Chips · Badges · Tabs  
+3. **UI Elements** — Modal · Toast · Bottom Sheet · Empty/Loading/Skeleton · Success/Error/Warning/Info *(not Listing Card)*  
+4. **Spacing & Layout** — pad/margin/grid/section/component spacing · button/input height · icon sizes · containers  
+
+## Global rules
+
+One Design System · One Component Library · One Layout System · One Interaction System  
+Zero duplicated components/styles · Mobile First · White background · ROVEXO Purple primary accent  
+
+## Implementation gate
+
+- One page at a time (Owner designates the page)  
+- Approved Master UI Spec before visual implementation  
+- Owner visual approval before Freeze / Commit / Push / Deploy  
+
+## Cursor must never
+
+- Redesign Listing Card or create ListingCard v2  
+- Invent parallel tokens, buttons, or layout systems  
+- Start multi-page polish batches without Owner page unlock  

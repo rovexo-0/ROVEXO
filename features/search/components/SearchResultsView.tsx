@@ -209,7 +209,7 @@ export function SearchResultsView({
   }
 
   return (
-    <div className="srch-results" data-search-version="v1.0-final">
+    <div className="srch-results" data-search-version="v1.0-final" data-ui-polish-phase1="search-v1">
       <div className="srch-results__top">
         <button
           type="button"
@@ -235,7 +235,11 @@ export function SearchResultsView({
         ) : error ? (
           <div role="alert" className="col-span-full srch-results__error">
             <p>Search unavailable</p>
-            <button type="button" onClick={() => void loadPage(1, false)}>
+            <button
+              type="button"
+              className={cn("srch-results__error-retry", focusRing)}
+              onClick={() => void loadPage(1, false)}
+            >
               Retry
             </button>
           </div>
