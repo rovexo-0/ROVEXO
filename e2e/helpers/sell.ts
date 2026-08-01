@@ -123,7 +123,7 @@ export async function completeSellQuickAttributes(page: Page): Promise<void> {
     const incomplete = page
       .getByRole("button", {
         // Season Rating / Length are OPTIONAL — do not force-fill for Publish.
-        name: /^(Brand|Colours?|Color|Size|Model|Storage|Platform|Battery|Material|Network|Compatibility|RAM)$/i,
+        name: /^(Brand|Colours?|Color|Size|Model|Storage|Platform|Battery|Material|Network|Compatibility|Compatible With|RAM)$/i,
       })
       .first();
     if (!(await incomplete.isVisible().catch(() => false))) break;

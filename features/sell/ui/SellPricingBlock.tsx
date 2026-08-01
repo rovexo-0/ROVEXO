@@ -1,10 +1,10 @@
 "use client";
 
 import { useId, useMemo } from "react";
-import { CanonicalInput } from "@/src/components/canonical";
 import { SellFieldMasterIcon } from "@/features/account-center/components/MasterMenuIcon";
 import { useSell } from "@/features/sell/context/SellProvider";
 import { getListingValidationErrors } from "@/features/sell/types";
+import { SELL_CURRENCY_SSR_DEFAULT } from "@/lib/sell/currency";
 
 export function SellPricingBlock({ bare = false }: { bare?: boolean }) {
   void bare;
@@ -21,18 +21,34 @@ export function SellPricingBlock({ bare = false }: { bare?: boolean }) {
       <div className="sell-price-with-icon__row">
         <SellFieldMasterIcon fieldId="price" />
         <div className="sell-price-with-icon__field min-w-0 flex-1">
-          <CanonicalInput
-            id={priceId}
-            label="Price"
-            inputType="price"
-            enterKeyHint="done"
-            autoComplete="off"
-            aria-label="Price"
-            placeholder="0.00"
-            value={draft.price}
-            error={errors.price}
-            onChange={(event) => updateDraft({ price: event.target.value.replace(/[^\d.]/g, "") })}
-          />
+          <div className="cds-field sell-price-currency__field">
+            <label htmlFor={priceId} className="cds-field__label">
+              Price
+            </label>
+            {/* Adornment wraps the control only — never the label — so £ stays inside the input. */}
+            <div className="sell-price-currency">
+              <span className="sell-price-currency__symbol" aria-hidden="true">
+                {SELL_CURRENCY_SSR_DEFAULT.symbol}
+              </span>
+              <input
+                id={priceId}
+                type="text"
+                inputMode="decimal"
+                enterKeyHint="done"
+                autoComplete="off"
+                aria-label="Price"
+                placeholder="0.00"
+                value={draft.price}
+                className="cds-input"
+                onChange={(event) => updateDraft({ price: event.target.value.replace(/[^\d.]/g, "") })}
+              />
+            </div>
+            {errors.price ? (
+              <p className="cds-field__error" role="alert">
+                {errors.price}
+              </p>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

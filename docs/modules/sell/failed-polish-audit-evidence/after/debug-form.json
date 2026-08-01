@@ -1,0 +1,27 @@
+{
+  "ids": [
+    "sell-field-photos",
+    "sell-field-title",
+    "sell-field-description",
+    "sell-field-category",
+    "sell-field-brand",
+    "sell-field-size",
+    "sell-field-colour",
+    "sell-field-condition",
+    "sell-field-material",
+    "sell-field-price",
+    "sell-field-stock",
+    "sell-field-parcel"
+  ],
+  "buttons": [
+    "Back",
+    "Change category",
+    "Brand",
+    "Size",
+    "Colours",
+    "Condition",
+    "Material (recommended)",
+    "Parcel Size",
+    "Publish"
+  ]
+}

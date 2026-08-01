@@ -44,17 +44,20 @@ describe("master icon system v1.0 (Profile SSOT)", () => {
     expect(parcel).toContain("sell-parcel-option");
     expect(parcel).toContain("choose(option.id)");
     expect(parcel).toContain("sell-parcel-option__title-row");
+    expect(parcel).toContain("sell-parcel-option__art");
+    expect(parcel).toContain("sell-parcel-option__weight");
     expect(parcel).not.toContain("recommendParcelTier");
     expect(parcel).not.toContain("sell-parcel-option__badge");
     expect(parcel).not.toContain("Recommended");
     expect(parcel).not.toContain("CanonicalButton");
     expect(parcel).not.toMatch(/>\s*(Apply|Confirm|Done|Publish)\s*</);
     const css = readSource("styles/rovexo/sell.css");
-    expect(css).toMatch(/\.sell-parcel-option[\s\S]*height:\s*48px/);
-    expect(css).toMatch(/\.sell-parcel-option[\s\S]*min-height:\s*48px/);
+    expect(css).toMatch(/\.sell-parcel-option[\s\S]*min-height:\s*96px/);
+    expect(css).toMatch(/\.sell-parcel-option[\s\S]*height:\s*auto/);
     expect(css).toMatch(/\.sell-parcel-option__radio[\s\S]*width:\s*24px/);
-    expect(css).toMatch(/\.sell-parcel-option__label[\s\S]*font-size:\s*15px/);
+    expect(css).toMatch(/\.sell-parcel-option__label[\s\S]*font-size:\s*16px/);
     expect(css).toContain("sell-parcel-radio-pop");
+    expect(css).toContain("sell-colour-swatch-grid");
   });
 
   it("maps category roots without grey/emoji", () => {

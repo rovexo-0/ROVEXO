@@ -67,7 +67,7 @@ export function SellPanelHeader({
   onBack: () => void;
 }) {
   return (
-    <header className="account-canonical-header cds-header sticky top-0 z-50">
+    <header className="account-canonical-header cds-header sell-compact-picker__header sticky top-0 z-50">
       <div className="account-canonical-header__bar account-canonical-header__bar--titled">
         <button
           type="button"
@@ -77,7 +77,7 @@ export function SellPanelHeader({
         >
           <BackLineIcon />
         </button>
-        <h1 className="account-canonical-header__title">{title}</h1>
+        <h1 className="account-canonical-header__title sell-compact-picker__title">{title}</h1>
         <span className="account-canonical-header__spacer" aria-hidden />
       </div>
     </header>

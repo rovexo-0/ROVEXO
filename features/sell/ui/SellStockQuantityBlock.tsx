@@ -25,7 +25,7 @@ export function SellStockQuantityBlock() {
   return (
     <div className="sell-aa-block sell-price-with-icon" data-sell-quantity>
       <div className="sell-price-with-icon__row">
-        <SellFieldMasterIcon fieldId="price" />
+        <SellFieldMasterIcon fieldId="quantity" />
         <div className="sell-price-with-icon__field min-w-0 flex-1">
           <CanonicalInput
             id={quantityId}

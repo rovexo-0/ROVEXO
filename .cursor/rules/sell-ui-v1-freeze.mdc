@@ -1,0 +1,38 @@
+# ROVEXO SELL v1.0 — UI/UX FREEZE (COD SÂNGE)
+
+**STATUS: OWNER LOCKED | UI/UX FROZEN**
+
+SSOT: `lib/sell/sell-ui-v1-freeze.ts`  
+Official: `http://localhost:3000/sell`  
+Parents: Blood XXII · Sell Absolute Authority · Premium Picker Freeze v1.1
+
+## Scope frozen
+
+Sell Flow · Photo · Title · Description · Category · Attribute UI · Brand · Material · Colours · Condition · Compatibility · Price · Quantity · Parcel · Publish
+
+## Visual frozen
+
+spacing · padding · typography · icons · shadows · radius · colours · search fields · picker family · animations · responsive layout
+
+## Logic untouched
+
+Publish Engine · Attribute Engine · Validation · AI Category · Upload · Category Engine · Routing · API · Database · Supabase · IDs · Enums
+
+## Canonical components (one each)
+
+`SellPage` · `SellProvider` · `SellCategoryPicker` · `SellOptionPicker` · `SellPricingBlock` · `SellStockQuantityBlock` · `SellParcelBlock` · `SellPublishBar`
+
+## Premium picker family (mandatory inheritance)
+
+Brand · Material · Condition · Colours · Category · Parcel — all future Sell pickers inherit this family.
+
+## Post-freeze allowed
+
+Bug fixes · performance · a11y · responsive remediation · internal refactors with **zero** UI/UX change
+
+## Cursor must never
+
+- Redesign Sell UI/UX without Owner unlock  
+- Create parallel pickers / duplicate Sell components  
+- Touch Publish / Attribute / Validation / Category / Upload engines for “visual polish”  
+- Soft-fail this freeze

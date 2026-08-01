@@ -1,0 +1,12 @@
+npm warn Unknown env config "devdir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: /^Category\b/i }).first()
+
+    at openCategorySearch (/home/mihai/ROVEXO/scripts/audit-sell-polish-visibility.ts:19:24)
+    at main (/home/mihai/ROVEXO/scripts/audit-sell-polish-visibility.ts:136:9) {
+  log: [
+    "  - waiting for getByRole('button', { name: /^Category\\b/i }).first()"
+  ],
+  name: 'TimeoutError'
+}

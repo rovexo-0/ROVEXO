@@ -43,9 +43,26 @@ function toOptions(labels: readonly string[]): SelectionOption[] {
   return labels.map((label) => ({ id: label, label }));
 }
 
+/** Case/punctuation-insensitive brand key — one brand = one row. */
+function brandDedupeKey(label: string): string {
+  return label.trim().toLowerCase().replace(/[^a-z0-9&]/g, "");
+}
+
+function toUniqueBrandOptions(labels: readonly string[]): SelectionOption[] {
+  const seen = new Set<string>();
+  const out: SelectionOption[] = [];
+  for (const label of labels) {
+    const key = brandDedupeKey(label);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push({ id: label, label });
+  }
+  return out;
+}
+
 export const BRAND_POPULAR_IDS = [...POPULAR_BRAND_IDS];
 
-export const BRAND_OPTIONS: SelectionOption[] = toOptions(MARKETPLACE_BRANDS);
+export const BRAND_OPTIONS: SelectionOption[] = toUniqueBrandOptions(MARKETPLACE_BRANDS);
 
 export const SIZE_OPTIONS: SelectionOption[] = toOptions(MARKETPLACE_DEFAULT_SIZES);
 
@@ -53,7 +70,10 @@ export const SIZE_OPTIONS: SelectionOption[] = toOptions(MARKETPLACE_DEFAULT_SIZ
 export const COLOUR_OPTIONS: SelectionOption[] = AA_SELL_COLOURS.map((colour) => ({
   id: colour.id,
   label: colour.label,
-  swatch: colour.swatch.startsWith("#") ? colour.swatch : undefined,
+  swatch:
+    colour.swatch.startsWith("#") || colour.swatch.includes("gradient")
+      ? colour.swatch
+      : undefined,
 }));
 
 export const MATERIAL_OPTIONS: SelectionOption[] = toOptions(MARKETPLACE_MATERIALS);

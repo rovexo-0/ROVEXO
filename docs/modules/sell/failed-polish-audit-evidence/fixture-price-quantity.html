@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sell polish DOM fixture (investigation only)</title>
+  <!--
+    Static fixture mirroring SellPricingBlock + Quantity markup + sell.css rules.
+    Not a product page. Open via file:// or any static server for visual CSS proof
+    when Playwright/browser MCP cannot reach authenticated /sell.
+  -->
+  <link rel="stylesheet" href="/styles/rovexo/index.css" />
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #fff; }
+    .fixture { max-width: 430px; margin: 24px auto; padding: 16px; }
+    .note { font-size: 13px; color: #64748b; margin-bottom: 16px; }
+    .cds-field { display: flex; flex-direction: column; gap: 4px; }
+    .cds-field__label { margin: 0; font-size: 14px; line-height: 1.25; font-weight: 500; }
+    .cds-input {
+      width: 100%; box-sizing: border-box; height: 52px; min-height: 52px;
+      padding: 0 14px; border: 1px solid #e2e8f0; border-radius: 16px; font-size: 16px;
+    }
+    .sell-price-with-icon__row { display: flex; align-items: flex-start; gap: 8px; width: 100%; }
+    .master-menu-icon {
+      width: 24px; height: 24px; margin-top: calc(14px * 1.25 + 4px + (52px - 24px) / 2);
+      border-radius: 4px; background: #06b6d4;
+    }
+    .master-menu-icon--qty { background: #3b82f6; }
+    [data-sell-shell] { --sell-font-label: 14px; --sell-control-height: 52px; --sell-font-control: 16px; }
+    [data-sell-shell] .sell-price-currency { position: relative; }
+    [data-sell-shell] .sell-price-currency__symbol {
+      position: absolute; z-index: 1; left: 14px;
+      top: calc(var(--sell-font-label) * 1.25 + 4px + (var(--sell-control-height) / 2));
+      transform: translateY(-50%); font-size: 16px; font-weight: 600; line-height: 1; color: #111; pointer-events: none;
+    }
+    [data-sell-shell] .sell-price-currency .cds-input { padding-left: 28px; }
+  </style>
+</head>
+<body>
+  <div class="fixture" data-sell-shell>
+    <p class="note">Fixture only — proves £ CSS + dual icons. Canonical page remains /sell after login.</p>
+    <div id="sell-field-price" class="sell-aa-block sell-price-with-icon">
+      <div class="sell-price-with-icon__row">
+        <div class="master-menu-icon" data-master-icon="wallet" title="price/wallet"></div>
+        <div class="sell-price-with-icon__field sell-price-currency min-w-0 flex-1">
+          <span class="sell-price-currency__symbol" aria-hidden="true">£</span>
+          <div class="cds-field sell-price-currency__field">
+            <label class="cds-field__label" for="p">Price</label>
+            <input id="p" class="cds-input" placeholder="0.00" value="" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+    <div data-sell-quantity class="sell-aa-block sell-price-with-icon">
+      <div class="sell-price-with-icon__row">
+        <div class="master-menu-icon master-menu-icon--qty" data-master-icon="inventory" title="quantity/inventory"></div>
+        <div class="sell-price-with-icon__field min-w-0 flex-1">
+          <div class="cds-field">
+            <label class="cds-field__label" for="q">Quantity (Stock)</label>
+            <input id="q" class="cds-input" value="1" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

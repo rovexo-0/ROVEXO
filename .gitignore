@@ -75,6 +75,7 @@ _wip/
 
 tmp/
 .local-chromium-libs/
+.local-chromium-deps/
 
 # Local package manager cache — never part of release
 .pnpm-store/

@@ -1,0 +1,15 @@
+{
+  "symbolText": "£",
+  "display": "block",
+  "visibility": "visible",
+  "opacity": "1",
+  "color": "rgb(17, 17, 17)",
+  "rect": {
+    "x": 62,
+    "y": 412.1875,
+    "w": 9.9375,
+    "h": 16
+  },
+  "inputPaddingLeft": "28px",
+  "inViewport": true
+}

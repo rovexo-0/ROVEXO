@@ -7,7 +7,9 @@ import { ModalContainer } from "@/components/ui/ModalContainer";
 import { RX_MODAL_BODY } from "@/lib/mobile-ui/scroll-standard";
 import { sellPanel } from "@/features/sell/ui/sell-classes";
 import { SellPanelHeader } from "@/features/sell/ui/SellPrimitives";
-import { CanonicalMenuRow } from "@/src/components/canonical";
+import { SellPickerSectionLabel } from "@/features/sell/ui/SellPickerLeadingMark";
+import { CanonicalMenuRow, CanonicalInput } from "@/src/components/canonical";
+import { SearchLineIcon } from "@/components/icons/RvxLineIcons";
 import { categoryTree } from "@/lib/categories/tree";
 import { loadCategoriesWithRecovery } from "@/lib/categories/category-loader";
 import { CategoryMasterIcon } from "@/features/account-center/components/MasterMenuIcon";
@@ -89,12 +91,12 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
     ? "Department › Category › Product Type"
     : stack.map((node) => node.name).join(" › ");
   const levelHint = isSearching
-    ? "Catalog Master product types"
+    ? "Matching product types"
     : isRoot
-      ? "Choose a department"
+      ? "Choose department"
       : stack.length === 1
-        ? "Choose a category"
-        : "Choose a product type";
+        ? "Choose category"
+        : "Choose product type";
 
   const close = () => {
     setStack([]);
@@ -150,40 +152,50 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
       <div className={cn(sellPanel, "sell-compact-picker flex min-h-0 flex-1 flex-col")}>
         <SellPanelHeader title={headerTitle} onBack={handleBack} />
 
-        <div className="border-b border-border px-0 py-1.5">
-          <label className="sr-only" htmlFor="sell-category-search">
-            Search categories
-          </label>
-          <input
+        <div className="sell-option-picker__search shrink-0 border-b border-border">
+          <span className="sell-option-picker__search-icon" aria-hidden>
+            <SearchLineIcon />
+          </span>
+          <CanonicalInput
             id="sell-category-search"
-            type="search"
+            inputType="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search categories"
+            aria-label="Search categories"
             autoComplete="off"
-            className="cds-input w-full outline-none ring-0 focus:border-[var(--ds-color-primary,#9333ea)] focus:outline-none focus:ring-0"
+            className="sell-option-picker__search-field"
           />
         </div>
 
         <div
           ref={bodyRef}
-          className={cn(RX_MODAL_BODY, "min-h-0 flex-1 overflow-y-auto overscroll-contain pt-1")}
+          className={cn(
+            RX_MODAL_BODY,
+            "sell-option-picker__body min-h-0 flex-1 overflow-y-auto overscroll-contain pt-ds-2",
+          )}
         >
           {isSearching ? (
-            <p className="sell-category-picker__hint">{levelHint}</p>
+            <div className="px-ds-1 pb-ds-2">
+              <SellPickerSectionLabel label={levelHint} variant="all" />
+            </div>
           ) : isRoot ? (
-            <p className="sell-category-picker__hint">{levelHint}</p>
+            <div className="px-ds-1 pb-ds-2">
+              <SellPickerSectionLabel label={levelHint} variant="all" />
+            </div>
           ) : (
             <>
-              <p className="sell-category-picker__breadcrumb">{breadcrumb}</p>
-              <p className="sell-category-picker__hint">{levelHint}</p>
+              <p className="sell-category-picker__breadcrumb px-ds-1">{breadcrumb}</p>
+              <div className="px-ds-1 pb-ds-2">
+                <SellPickerSectionLabel label={levelHint} variant="all" />
+              </div>
             </>
           )}
 
           {isSearching ? (
-            <ul className="flex flex-col gap-ds-2" role="list" data-category-engine="v1.0-catalog-search">
+            <ul className="flex flex-col gap-ds-1 pb-ds-4" role="list" data-category-engine="v1.0-catalog-search">
               {searchResults.length === 0 ? (
-                <li className="sell-category-picker__hint px-1 py-3">No matching product types</li>
+                <li className="sell-category-picker__hint px-ds-1 py-ds-3">No matching product types</li>
               ) : (
                 searchResults.map((result) => {
                   const leaf = result.path.segments[result.path.segments.length - 1]!;
@@ -203,7 +215,7 @@ export function SellCategoryPicker({ open, onClose, onSelect }: Props) {
               )}
             </ul>
           ) : (
-            <ul className="flex flex-col gap-ds-2" role="list" data-category-engine="v1.0-manual">
+            <ul className="flex flex-col gap-ds-1 pb-ds-4" role="list" data-category-engine="v1.0-manual">
               {visibleNodes.map((node) => {
                 const hasChildren = Boolean(node.children?.length);
                 return (

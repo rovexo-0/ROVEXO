@@ -145,6 +145,7 @@ export function SellProgressiveAttributes() {
       {activeDef ? (
         <SellOptionPicker
           title={activeDef.label}
+          attributeId={activeDef.id}
           options={activeDef.options ?? []}
           mode={isMulti ? "multiple" : "single"}
           layout={activeDef.input === "grid-single" ? "grid" : "list"}

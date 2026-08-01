@@ -96,6 +96,9 @@ const CATALOG_EXTENDED_BRANDS = [
   "Lacoste",
   "LG",
   "Logitech",
+  "Makita",
+  "DeWalt",
+  "Dior",
   "Mamas & Papas",
   "Matalan",
   "Mattel",
@@ -119,9 +122,16 @@ const CATALOG_EXTENDED_BRANDS = [
 ] as const;
 
 /** Full searchable brand pool (popular first, then extended — no duplicates). */
-export const CATALOG_BRANDS = [
-  ...CATALOG_POPULAR_BRANDS,
-  ...CATALOG_EXTENDED_BRANDS,
-] as const;
+export const CATALOG_BRANDS = (() => {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const name of [...CATALOG_POPULAR_BRANDS, ...CATALOG_EXTENDED_BRANDS]) {
+    const key = name.trim().toLowerCase().replace(/[^a-z0-9&]/g, "");
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(name);
+  }
+  return out as readonly string[];
+})();
 
 export const CATALOG_POPULAR_BRAND_IDS = CATALOG_POPULAR_BRANDS;

@@ -351,7 +351,7 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
   },
   compatibility: {
     id: "compatibility",
-    label: "Compatibility",
+    label: "Compatible With",
     input: "text",
     target: { kind: "map" },
     placeholder: "e.g. Fits BMW 3 Series",

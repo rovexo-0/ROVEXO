@@ -491,107 +491,7 @@
   text-align: center;
 }
 
-/* Stock Quantity — full-width stepper · same width as Price · 48px · radius 16 */
-[data-sell-shell] .sell-stock-quantity {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-[data-sell-shell] .sell-stock-quantity .cds-field__label {
-  margin: 0;
-}
-
-[data-sell-shell] .sell-stock-stepper {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  height: var(--sell-control-height);
-  min-height: var(--sell-control-height);
-  max-height: var(--sell-control-height);
-  padding: 0 6px;
-  margin: 0;
-  border: 1px solid #ececec;
-  border-radius: 16px;
-  background: #ffffff;
-}
-
-[data-sell-shell] .sell-stock-stepper__btn {
-  position: relative;
-  box-sizing: border-box;
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  min-height: 36px;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 999px;
-  background: #f7f7f7;
-  color: #111;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 1;
-  cursor: pointer;
-  transition: background-color 0.15s ease, opacity 0.15s ease;
-}
-
-/* Phase B: ≥44px hit target — visual control stays 36×36. */
-[data-sell-shell] .sell-stock-stepper__btn::after {
-  content: "";
-  position: absolute;
-  inset: 50%;
-  width: 44px;
-  height: 44px;
-  transform: translate(-50%, -50%);
-}
-
-[data-sell-shell] .sell-stock-stepper__btn:hover:not(:disabled),
-[data-sell-shell] .sell-stock-stepper__btn:focus-visible:not(:disabled) {
-  background: #efefef;
-  outline: none;
-}
-
-[data-sell-shell] .sell-stock-stepper__btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-[data-sell-shell] .sell-stock-stepper__value,
-[data-sell-shell] .sell-stock-stepper__value-input {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  margin: 0;
-  padding: 0 8px;
-  border: 0;
-  background: transparent;
-  color: #111;
-  font-size: var(--sell-font-control);
-  font-weight: 600;
-  line-height: 1;
-  text-align: center;
-  appearance: textfield;
-}
-
-[data-sell-shell] .sell-stock-stepper__value {
-  cursor: text;
-}
-
-[data-sell-shell] .sell-stock-stepper__value-input:focus {
-  outline: none;
-}
-
-[data-sell-shell] .sell-stock-stepper__value-input::-webkit-outer-spin-button,
-[data-sell-shell] .sell-stock-stepper__value-input::-webkit-inner-spin-button {
-  appearance: none;
-  margin: 0;
-}
+/* Stock Quantity — inline CanonicalInput (stepper UI removed; dead CSS purged) */
 
 /* Sticky publish — same Account clearance (--cds-bottom-nav-offset); never overlap Bottom Nav */
 [data-sell-shell] .account-settings-sticky-action,
@@ -617,11 +517,6 @@
   outline-offset: 0;
 }
 
-/* Fullscreen pickers opened from Sell — match Sell input height */
-.sell-compact-picker .cds-menu-row {
-  min-height: var(--sell-control-height, 48px);
-}
-
 @media (min-width: 768px) {
   [data-sell-shell] {
     /* Desktop: same Absolute Authority tokens — only layout width changes */
@@ -638,8 +533,8 @@
 }
 
 [data-sell-shell] .sell-price-with-icon__row > .master-menu-icon {
-  /* Align 24px icon with 48px input under Account label (16px label) */
-  margin-top: calc(var(--sell-font-control) * 1.25 + 4px + (var(--sell-control-height) - 24px) / 2);
+  /* Align 24px icon with control under Account label */
+  margin-top: calc(var(--sell-font-label) * 1.25 + 4px + (var(--sell-control-height) - 24px) / 2);
 }
 
 [data-sell-shell] .sell-price-with-icon__field {
@@ -647,49 +542,462 @@
   flex: 1;
 }
 
+/* Price £ adornment — wraps the control only (never the label). Presentation only. */
+[data-sell-shell] .sell-price-currency {
+  position: relative;
+  width: 100%;
+}
+
+[data-sell-shell] .sell-price-currency__symbol {
+  position: absolute;
+  z-index: 2;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--sell-font-control);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--cds-color-text-primary, #111111);
+  pointer-events: none;
+}
+
+[data-sell-shell] .sell-price-currency .cds-input {
+  padding-left: 28px !important;
+}
+
+/* Attribute option picker — section hierarchy (fullscreen UX unchanged) */
+.sell-option-picker__section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding-top: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cds-color-primary, #9333ea);
+}
+
+.sell-option-picker__section-ico {
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  color: var(--cds-color-primary, #9333ea);
+  flex-shrink: 0;
+}
+
+.sell-option-picker__section-ico svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Leading marks — brand / material / condition / colour */
+.sell-picker-mark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.sell-picker-mark--brand {
+  position: relative;
+  background: #f8fafc;
+  border: 1px solid var(--cds-color-border, #e2e8f0);
+}
+
+.sell-picker-mark--material {
+  background: color-mix(in srgb, var(--cds-color-primary, #9333ea) 8%, #fff);
+  color: var(--cds-color-primary, #9333ea);
+}
+
+.sell-picker-mark--condition {
+  border-radius: 10px;
+}
+
+.sell-picker-mark--swatch {
+  border-radius: 999px;
+  border: 1px solid var(--cds-color-border, #e2e8f0);
+  box-shadow: inset 0 0 0 1px rgb(15 23 42 / 0.04);
+}
+
+.sell-picker-mark__glyph {
+  width: 20px;
+  height: 20px;
+}
+
+.sell-picker-mark__mono {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--cds-color-text-secondary, #64748b);
+  line-height: 1;
+}
+
+.sell-picker-mark__logo {
+  position: absolute !important;
+  inset: 4px !important;
+  width: calc(100% - 8px) !important;
+  height: calc(100% - 8px) !important;
+  object-fit: contain !important;
+  background: #fff;
+  border-radius: 6px;
+  z-index: 1;
+}
+
+.sell-picker-mark--brand:has(img) .sell-picker-mark__mono,
+.sell-picker-mark__mono--behind {
+  opacity: 0;
+}
+
+.sell-compact-picker .sell-option-picker__row--condition {
+  min-height: 64px;
+  align-items: flex-start;
+  padding-block: 12px;
+}
+
+.sell-compact-picker .sell-option-picker__row--condition .cds-menu-row__subtitle {
+  margin-top: 2px;
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  color: var(--cds-color-text-secondary, #64748b) !important;
+}
+
+.sell-option-picker__search {
+  position: relative;
+  padding-inline: 16px;
+  padding-block: 10px 12px;
+  border-bottom-color: var(--cds-color-divider, rgb(15 23 42 / 0.06));
+}
+
+.sell-option-picker__search-icon {
+  position: absolute;
+  z-index: 2;
+  left: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: var(--cds-color-text-muted, #94a3b8);
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+
+.sell-option-picker__search-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sell-option-picker__search .cds-field {
+  gap: 0;
+}
+
+.sell-option-picker__search .cds-field__label {
+  display: none;
+}
+
+.sell-option-picker__search .cds-input,
+.sell-option-picker__search .cds-input--search {
+  min-height: 48px;
+  height: 48px;
+  padding: 0 16px 0 44px;
+  border-radius: 16px;
+  border-color: var(--cds-color-border, #e2e8f0);
+  background: var(--cds-color-surface, #fff);
+  color: var(--cds-color-text-primary, #111);
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.sell-option-picker__search .cds-input::placeholder,
+.sell-option-picker__search .cds-input--search::placeholder {
+  color: var(--cds-color-text-muted, #94a3b8);
+}
+
+.sell-option-picker__search .cds-input:focus,
+.sell-option-picker__search .cds-input--search:focus {
+  outline: none;
+  border-color: var(--cds-color-primary, #9333ea);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cds-color-primary, #9333ea) 18%, transparent);
+}
+
+.sell-option-picker__body {
+  padding-inline: 8px;
+}
+
+.sell-compact-picker__header {
+  padding-top: env(safe-area-inset-top, 0px);
+  background: #fff;
+  border-bottom: 1px solid var(--cds-color-divider, rgb(15 23 42 / 0.06));
+}
+
+.sell-compact-picker__title {
+  font-size: 17px !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.01em;
+  color: var(--cds-color-text-primary, #111) !important;
+}
+
+.sell-compact-picker .cds-header__back {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.sell-compact-picker .cds-menu-row {
+  min-height: 52px;
+  min-width: var(--cds-touch-target, 44px);
+  padding-block: 10px;
+  border-radius: 12px;
+  margin-inline: 4px;
+}
+
+.sell-compact-picker .cds-menu-row__title {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+}
+
+.sell-compact-picker .sell-option-picker__row--selected {
+  background: color-mix(in srgb, var(--cds-color-primary, #9333ea) 7%, #fff);
+}
+
+.sell-compact-picker .sell-option-picker__row--selected .cds-menu-row__title {
+  font-weight: 600 !important;
+  color: var(--cds-color-text-primary, #111) !important;
+}
+
+.sell-compact-picker .sell-option-picker__row--selected .cds-menu-row__value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cds-color-primary, #9333ea) 12%, #fff);
+  color: var(--cds-color-primary, #9333ea);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.sell-option-picker__check {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--cds-color-primary, #9333ea);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.sell-option-picker__check svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+}
+
+.sell-option-picker__radio {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid var(--cds-color-border, #d1d5db);
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.sell-compact-picker .cds-menu-row__icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  display: grid;
+  place-items: center;
+}
+
+.sell-option-picker__selected-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cds-color-primary, #9333ea) 12%, #fff);
+  color: var(--cds-color-primary, #9333ea);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
 /*
- * Parcel Size Premium Freeze v2 — Compact Premium.
- * 48px rows · 24px radios · 15/600 titles · inline Recommended pill.
- * One badge · one tap · 0.2s radio pop · auto-return.
+ * Colour picker — compact single-page 4-column swatch grid (V1.1).
+ */
+.sell-colour-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 6px;
+  padding: 4px 10px 12px;
+}
+
+.sell-colour-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 2px 1px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.sell-colour-swatch__mark {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+}
+
+.sell-colour-swatch__dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgb(15 23 42 / 0.1);
+  display: grid;
+  place-items: center;
+  background-size: cover;
+}
+
+.sell-colour-swatch__dot--light {
+  box-shadow: inset 0 0 0 1px rgb(15 23 42 / 0.18);
+}
+
+.sell-colour-swatch--selected .sell-colour-swatch__dot {
+  box-shadow:
+    0 0 0 1.5px #fff,
+    0 0 0 3px var(--cds-color-primary, #9333ea);
+}
+
+.sell-colour-swatch__plus {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+}
+
+.sell-colour-swatch__check {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--cds-color-primary, #9333ea);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 1.5px #fff;
+}
+
+.sell-colour-swatch__check svg {
+  width: 9px;
+  height: 9px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+}
+
+.sell-colour-swatch__label {
+  max-width: 100%;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: var(--cds-color-text-primary, #111);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 360px) {
+  .sell-colour-swatch-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px 4px;
+  }
+}
+
+/*
+ * Parcel Size — premium shipping cards (canonical freeze).
+ * Behaviour unchanged: one tap → auto-save → auto-return.
  */
 .sell-parcel-picker {
   width: 100%;
   margin: 0;
-  padding: 0;
+  padding: 0 8px;
   list-style: none;
-  border-radius: 16px;
-  overflow: hidden;
   gap: 0;
 }
 
 .sell-parcel-option {
+  position: relative;
   box-sizing: border-box;
   width: 100%;
-  height: 48px;
-  min-height: 48px;
-  margin: 0;
-  padding: 2px;
-  gap: 16px;
-  border: 0;
-  border-bottom: 1px solid color-mix(in srgb, #111 8%, transparent);
-  border-radius: 0;
-  background: transparent;
+  min-height: 96px;
+  height: auto;
+  margin: 0 0 12px;
+  padding: 14px 14px;
+  gap: 12px;
+  border: 1.5px solid var(--cds-color-border, #e2e8f0);
+  border-radius: 16px;
+  background: #fff;
   cursor: pointer;
   align-items: center;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
 }
 
 .sell-parcel-option:focus-visible {
-  outline: 2px solid #9333ea;
-  outline-offset: -2px;
-  background: color-mix(in srgb, #9333ea 6%, #fff);
+  outline: 2px solid var(--cds-color-primary, #9333ea);
+  outline-offset: 2px;
 }
 
 .sell-parcel-option--active {
-  background: color-mix(in srgb, #9333ea 4%, #fff);
+  border-color: var(--cds-color-primary, #9333ea);
+  background: color-mix(in srgb, var(--cds-color-primary, #9333ea) 5%, #fff);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--cds-color-primary, #9333ea) 35%, transparent);
 }
 
 .sell-parcel-option:last-child {
-  border-bottom: 0;
+  margin-bottom: 0;
+}
+
+.sell-parcel-option__art {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: color-mix(in srgb, #c4a574 14%, #fff);
+}
+
+.sell-parcel-option__box {
+  width: 44px;
+  height: 44px;
+  transform: scale(var(--sell-parcel-scale, 1));
+  transform-origin: center;
 }
 
 .sell-parcel-option__radio {
@@ -698,24 +1006,26 @@
   height: 24px;
   min-width: 24px;
   min-height: 24px;
-  border-radius: 999px;
-  border: 2px solid #1a1a1a;
-  background: #fff;
+  margin-top: 0;
+  border-radius: var(--cds-radius-pill, 999px);
+  border: 2px solid var(--cds-color-border, #d1d5db);
+  background: var(--cds-color-surface, #fff);
   position: relative;
   flex-shrink: 0;
   transform: scale(1);
+  align-self: center;
 }
 
 .sell-parcel-option__radio--checked {
-  border-color: #9333ea;
+  border-color: var(--cds-color-primary, #9333ea);
 }
 
 .sell-parcel-option__radio--checked::after {
   content: "";
   position: absolute;
   inset: 5px;
-  border-radius: 999px;
-  background: #9333ea;
+  border-radius: var(--cds-radius-pill, 999px);
+  background: var(--cds-color-primary, #9333ea);
 }
 
 .sell-parcel-option--pending .sell-parcel-option__radio {
@@ -738,7 +1048,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
   min-height: 0;
   min-width: 0;
 }
@@ -746,17 +1056,18 @@
 .sell-parcel-option__title-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
+  flex-wrap: wrap;
 }
 
 .sell-parcel-option__label {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.2;
-  letter-spacing: 0.02em;
-  color: #111;
-  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--cds-color-text-primary, #111);
+  text-transform: none;
   flex-shrink: 0;
 }
 
@@ -767,28 +1078,71 @@
   box-sizing: border-box;
   height: 20px;
   padding: 0 8px;
-  border-radius: 999px;
-  font-size: 15px;
+  border-radius: var(--cds-radius-pill, 999px);
+  font-size: var(--sell-font-section, 15px);
   font-weight: 500;
   line-height: 1;
-  color: #9333ea;
-  background: color-mix(in srgb, #9333ea 12%, #fff);
+  color: var(--cds-color-primary, #9333ea);
+  background: color-mix(in srgb, var(--cds-color-primary, #9333ea) 12%, #fff);
   white-space: nowrap;
   flex-shrink: 0;
   align-self: center;
 }
 
 .sell-parcel-option__desc {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 400;
-  line-height: 1.2;
-  color: #6b7280;
+  line-height: 1.35;
+  color: var(--cds-color-text-secondary, #6b7280);
   margin: 0;
   white-space: pre-line;
 }
 
+.sell-parcel-option__weight {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #2563eb;
+  margin: 2px 0 0;
+}
+
 .sell-parcel-option--active .sell-parcel-option__label {
-  color: #9333ea;
+  color: var(--cds-color-text-primary, #111);
+}
+
+.sell-parcel-guide {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 16px 8px 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--cds-color-primary, #9333ea) 8%, #fff);
+  color: var(--cds-color-text-secondary, #64748b);
+}
+
+.sell-parcel-guide__ico {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--cds-color-primary, #9333ea) 14%, #fff);
+  color: var(--cds-color-primary, #9333ea);
+  flex-shrink: 0;
+}
+
+.sell-parcel-guide__title {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cds-color-text-primary, #111);
+}
+
+.sell-parcel-guide__text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 @media (prefers-reduced-motion: reduce) {
