@@ -2,20 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ScrollContainer } from "@/components/ui/ScrollContainer";
 import { useToast } from "@/components/ui/Toast";
 import { RecordRecentlyViewed } from "@/features/launch/components/RecordRecentlyViewed";
 import { RecordProductViewBeacon } from "@/features/product-detail/RecordProductViewBeacon";
 import { ProductViewsLive } from "@/features/product-detail/ProductViewsLive";
 import { ProductActionBarV1 } from "@/features/product-detail/ProductActionBarV1";
-import { ProductConditionCard } from "@/features/product-detail/ProductConditionCard";
 import { ProductDescriptionV1 } from "@/features/product-detail/ProductDescriptionV1";
 import { ProductGalleryV1 } from "@/features/product-detail/ProductGalleryV1";
+import { ProductInformationRows } from "@/features/product-detail/ProductInformationRows";
 import { ProductPageChrome } from "@/features/product-detail/ProductPageChrome";
-import { ProductShippingCard } from "@/features/product-detail/ProductShippingCard";
-import { ProductSimilarItems } from "@/features/product-detail/ProductSimilarItems";
+import { ProductQuantityStepper } from "@/features/product-detail/ProductQuantityStepper";
 import { ProductStockStatus } from "@/features/product-detail/ProductStockStatus";
 import { ProductStoreSection } from "@/features/product-detail/ProductStoreSection";
+import { buildProductInformationRows } from "@/features/product-detail/build-product-information-rows";
 import { useProductOfferNegotiation } from "@/features/product-detail/use-product-offer-negotiation";
 import { useAuthOptional } from "@/features/auth/providers/AuthProvider";
 import { resolveProductOfferActionView } from "@/lib/transaction-hub/dynamic-offer-action-engine-v1";
@@ -36,23 +35,30 @@ import {
   useBuyNowNavigation,
 } from "@/features/checkout/hooks/use-buy-now-navigation";
 import { resolveStoreHrefFromSeller } from "@/lib/store/store-href";
+import { clampStockLevel } from "@/lib/sell/inventory";
 
 type ProductDetailPageProps = {
   product: ProductDetail;
-  similarProducts: Product[];
+  /** Kept for route compatibility — Similar Items not mounted (View Item freeze). */
+  similarProducts?: Product[];
 };
 
 /**
- * ROVEXO Product Page — Cod Sânge v3.1 + Dynamic Offer Action Engine (UI).
- * Sold listings render the canonical public SOLD PDP (never Store unavailable).
- * Holiday Mode sellers: listing remains; Buy Now / Make Offer / Checkout hidden.
+ * ROVEXO View Item v1.0 — OWNER UI/UX FREEZE.
+ * Product Information dynamic field map · stock once under price · document scroll.
+ * Bundle Engine excluded from Preview Certification (Owner scope).
  */
-export function ProductDetailPage({ product, similarProducts }: ProductDetailPageProps) {
+export function ProductDetailPage({ product }: ProductDetailPageProps) {
   const router = useRouter();
   const { pushToast } = useToast();
   const { executeBuyNow } = useBuyNowNavigation();
   const [offerOpen, setOfferOpen] = useState(false);
   const [buyNowError, setBuyNowError] = useState<string | null>(null);
+  const stockQty = clampStockLevel(product.stock);
+  const [qtyState, setQtyState] = useState({ productId: product.id, quantity: 1 });
+  const quantity = qtyState.productId === product.id ? qtyState.quantity : 1;
+  const setQuantity = (next: number) => setQtyState({ productId: product.id, quantity: next });
+
   const capabilities = getTransactionCapabilities(product.transactionMode);
   const isSold = product.status === "sold";
   const sellerOnHoliday = product.sellerOnHoliday === true;
@@ -77,10 +83,10 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
     freeDelivery: product.freeDelivery,
     shippingPrice: product.shippingPrice,
   });
-  const displayPrice =
-    /* negotiated lock shown in action card; listing price remains above until buy */
-    amount;
+  const displayPrice = amount;
   const inclLabel = formatListingPriceIncl(displayPrice, shippingForIncl);
+
+  const infoRows = useMemo(() => buildProductInformationRows(product), [product]);
 
   const offerProduct = useMemo(
     () => ({
@@ -126,7 +132,6 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
     productSlug: product.slug,
     productId: product.id,
     canBuyNow: Boolean(capabilities.checkout && isPurchasable && !isOwnListing),
-    // Product page freeze: Buy Now + Make Offer only. Negotiation CTAs live in Conversation Hub.
     canMakeOffer:
       offerEnabled &&
       !isOwnListing &&
@@ -166,7 +171,9 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
     <div
       className="pd-v1"
       data-pd-detail-version="cod-sange-v3.1"
-      data-product-page-freeze="FINAL_FREEZE"
+      data-product-page-freeze="FROZEN"
+      data-view-item-ui-lock="FROZEN"
+      data-view-item-version="1.0"
       data-add-to-cart="removed-forever"
       data-dynamic-offer-action="v1.0"
       data-listing-sold={isSold ? "true" : "false"}
@@ -189,7 +196,7 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
           <ProductGalleryV1 images={product.images} title={product.title} />
         </div>
 
-        <ScrollContainer withBottomNav={false} className="pd-v1__main">
+        <main className="pd-v1__main" data-pd-scroll="document">
           {isSold ? (
             <div className="pd-v1__sold-banner" data-sold-banner role="status">
               <span className="pd-v1__badge pd-v1__badge--sold" aria-label="Sold">
@@ -198,8 +205,6 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
               <p className="pd-v1__sold-subtitle">This item has been sold.</p>
             </div>
           ) : null}
-
-          {/* Phase C — Holiday Mode banner removed; switch + listing gates remain. */}
 
           <section aria-labelledby="pd-product-title" className="pd-v1__price-block">
             <h1 id="pd-product-title" className="pd-v1__title">
@@ -221,16 +226,18 @@ export function ProductDetailPage({ product, similarProducts }: ProductDetailPag
             </div>
           </section>
 
-          <ProductDescriptionV1 description={product.description} />
-
-          {product.condition ? <ProductConditionCard condition={product.condition} /> : null}
-
-          {capabilities.shipping ? <ProductShippingCard product={product} /> : null}
-
           <ProductStoreSection product={product} />
 
-          <ProductSimilarItems products={similarProducts} categoryId={product.categoryId} />
-        </ScrollContainer>
+          <ProductDescriptionV1 description={product.description} />
+
+          <ProductInformationRows rows={infoRows} />
+
+          {!isSold && !outOfStock && stockQty > 1 ? (
+            <ProductQuantityStepper max={stockQty} value={quantity} onChange={setQuantity} />
+          ) : null}
+
+          <div className="pd-v1__scroll-end" data-pd-scroll-end aria-hidden />
+        </main>
       </div>
 
       {!sellerOnHoliday ? (

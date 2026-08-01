@@ -1,46 +1,78 @@
 /**
- * ROVEXO v1.0 — PRODUCT PAGE FINAL FREEZE (CODE BLOOD v3.1)
+ * ROVEXO v1.0 — PRODUCT PAGE / VIEW ITEM OWNER UI/UX FREEZE
  *
- * STATUS: OWNER APPROVED · FINAL FREEZE
+ * STATUS: FROZEN · OWNER LOCKED · CANONICAL (VIEW ITEM v1.0)
  * Route: /listing/[slug]
  * UI: features/product-detail/ProductDetailPage.tsx
+ * Freeze: lib/product-detail/view-item-ui-ux-freeze-v1.ts
  *
  * Absolute: Less is more. Premium > complexity. If it looks premium, do not touch it.
+ * Delivery on View Item: REMOVED (Checkout / Order Tracking only).
+ * Bug fixes only after freeze — no UI/UX redesign without Owner lift.
  */
 
 export const PRODUCT_PAGE_CANONICAL_FREEZE_V1 = {
   version: "cod-sange-v3.1",
-  status: "FINAL_FREEZE",
+  status: "FROZEN",
+  viewItemVersion: "1.0",
   ownerCertified: true,
   freezeLocked: true,
+  viewItemUiUxFreeze: "lib/product-detail/view-item-ui-ux-freeze-v1.ts",
+  viewItemFinalUiLock: "lib/product-detail/view-item-final-ui-lock-v1.ts",
   officialLocal: "http://localhost:3000/listing/[slug]",
+  extension: "lib/product-detail/view-item-bundle-multi-stock-v1.ts",
   implementationPass: [
     "DELETE Add To Cart",
     "DELETE Platform Fee text",
     "Report Seller only in buyer ••• menu (Canonical Edit Listing Engine)",
     "DELETE Shipping calculated at checkout",
+    "DELETE Delivery section from View Item",
     "DELETE Old Header",
     "Transparent chrome ← / •••",
     "Views right-aligned",
     "£incl. only",
+    "Stock once under price",
+    "Seller Card before Description",
+    "Quantity only when stock > 1",
+    "Dynamic Product Information field map",
+    "Document scroll clears sticky actions",
   ] as const,
-  delivery: ["Delivery", "2-3 working days", "Tracked delivery available"] as const,
-  locked: [
+  deliveryRemovedFromViewItem: true,
+  lockedLayoutOrder: [
     "Gallery",
+    "Header / Favourite / Share",
+    "Title",
     "Price",
-    "Views",
-    "Description",
-    "Condition",
-    "Delivery",
+    "Stock Status",
+    "Total incl.",
+    "View Counter",
     "Seller Card",
-    "Visit Store",
-    "Similar Items",
-    "Make Offer",
+    "Description",
+    "Product Information (populated only)",
+    "Quantity (stock > 1)",
     "Buy Now",
+    "Make Offer",
+  ] as const,
+  locked: [
+    "Image Gallery",
+    "Header",
+    "Favourite",
+    "Share",
+    "Price Section",
+    "Stock Status",
+    "Seller Card",
+    "Description",
+    "Product Information Table",
+    "Quantity Selector",
+    "Buy Now",
+    "Make Offer",
+    "Bottom Action Bar",
+    "Full Page Scroll",
   ] as const,
   actions: {
     buyNow: true,
     makeOffer: true,
+    addToBundle: false,
     addToCart: false,
   } as const,
   removedForever: [
@@ -48,23 +80,45 @@ export const PRODUCT_PAGE_CANONICAL_FREEZE_V1 = {
     "Platform Fee text on product page",
     "Report Seller on page body / seller card",
     "Shipping calculated at checkout",
+    "Delivery on View Item",
     "White header title bar",
     "Header product title",
+    "Duplicated Stock in specification table",
+    "Similar Items on View Item body",
   ] as const,
   forbiddenPostFreeze: [
     "redesign",
+    "ui-redesign",
+    "ux-redesign",
     "experiments",
-    "additional features",
-    "new buttons",
+    "add-to-cart",
+    "delivery-on-view-item",
+    "move-sections",
+    "change-spacing",
+    "change-buttons",
+    "change-typography",
+    "change-colours",
     "unnecessary text",
-    "structural changes",
     "colour redesign",
+  ] as const,
+  productionGatesBeforeCommit: [
+    "TypeScript",
+    "ESLint",
+    "Build",
+    "Responsive QA",
+    "Mobile QA",
+    "Desktop QA",
+    "Regression Testing",
+    "Owner Approval",
   ] as const,
   ssot: {
     freeze: "lib/product-detail/product-page-canonical-freeze-v1.ts",
+    viewItemUiUxFreeze: "lib/product-detail/view-item-ui-ux-freeze-v1.ts",
+    viewItemUiLock: "lib/product-detail/view-item-final-ui-lock-v1.ts",
+    fieldMap: "lib/product-detail/product-information-field-map-v1.ts",
     page: "features/product-detail/ProductDetailPage.tsx",
     chrome: "features/product-detail/ProductPageChrome.tsx",
-    delivery: "features/product-detail/ProductShippingCard.tsx",
+    viewItemBundle: "lib/product-detail/view-item-bundle-multi-stock-v1.ts",
     actionBar: "lib/transaction-hub/product-action-bar.ts",
   } as const,
 } as const;

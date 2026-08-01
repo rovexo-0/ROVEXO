@@ -18,6 +18,7 @@ import { refreshExpiredPromotions } from "@/lib/promotions/service";
 import { resolveTransactionModeMapForCategoryIds } from "@/lib/transaction-mode/server";
 import { DEFAULT_TRANSACTION_MODE } from "@/lib/transaction-mode/types";
 import { toProductDetail } from "@/lib/products/detail";
+import { resolveProductInformationValuesV1 } from "@/lib/product-detail/parse-listing-attribute-notes-v1";
 import { resolveProductLocationCity, stripListingLocationMarker } from "@/lib/sell/listing-location";
 import { resolveCardImageSources } from "@/lib/media/product-image";
 import { isForbiddenMarketplaceInventory } from "@/lib/listings/forbidden-marketplace-inventory";
@@ -79,6 +80,8 @@ function mapProductRow(row: ProductRow, transactionMode = DEFAULT_TRANSACTION_MO
     originalPrice: row.original_price != null ? Number(row.original_price) : null,
     condition: row.condition,
     brand: row.brands?.name,
+    colour: row.color?.trim() || null,
+    size: row.size?.trim() || null,
     sellerName: row.profiles?.full_name ?? "Seller",
     sellerId: row.seller_id,
     sellerUsername: row.profiles?.username ?? null,
@@ -201,10 +204,24 @@ function mapProductDetail(row: ProductRow, transactionMode = DEFAULT_TRANSACTION
 
   const detail = toProductDetail(product);
   const isSold = row.status === "sold";
+  const description = stripListingLocationMarker(row.description) || detail.description;
+  const attrs = resolveProductInformationValuesV1({
+    colour: product.colour,
+    material: product.material,
+    size: product.size,
+    description,
+  });
   return {
     ...detail,
     images: images.length > 0 ? images : detail.images,
-    description: stripListingLocationMarker(row.description) || detail.description,
+    description,
+    colour: attrs.colour ?? product.colour ?? null,
+    material: attrs.material ?? null,
+    size: attrs.size ?? product.size ?? null,
+    storage: attrs.storage ?? null,
+    network: attrs.network ?? null,
+    season: attrs.season ?? null,
+    compatibility: attrs.compatibility ?? null,
     deliveryCarriers: (row.delivery_carriers ?? detail.deliveryCarriers) as DeliveryCarrier[],
     freeDelivery: row.shipping_price === 0,
     shippingPrice: row.shipping_price != null ? Number(row.shipping_price) : null,

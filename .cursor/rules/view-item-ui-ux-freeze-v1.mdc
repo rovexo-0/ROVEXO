@@ -1,0 +1,28 @@
+# ROVEXO VIEW ITEM v1.0 — OWNER UI/UX FREEZE
+
+**STATUS: FROZEN | OWNER LOCKED**
+
+SSOT: `lib/product-detail/view-item-ui-ux-freeze-v1.ts`  
+Page: `features/product-detail/ProductDetailPage.tsx` · `/listing/[slug]`
+
+## Absolute
+
+No structural UI/UX modifications unless Owner explicitly lifts this freeze.  
+Bug fixes only. Extend Bundle / Multi-Stock / Offers / Checkout without redesign.
+
+## Locked
+
+Gallery · Header · Favourite · Share · Price · Stock · Seller · Description · Product Information · Quantity · Buy Now · Make Offer · Add to Bundle · Sticky action bar · Full page scroll
+
+## Product Information order
+
+Category → Brand → Condition → Material → Colour → Size → Storage → Network → Compatibility → Season → Uploaded  
+(populated only · no empty rows · no Stock row)
+
+## Cursor must never
+
+- Redesign spacing / typography / colours / buttons / radius / shadows / hierarchy  
+- Move locked sections  
+- Duplicate Stock in the information table  
+- Reintroduce Delivery / Similar Items / Add to Cart on View Item  
+- Commit without TypeScript · ESLint · Build · Responsive/Mobile/Desktop QA · Regression · Owner Approval

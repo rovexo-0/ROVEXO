@@ -71,7 +71,8 @@ describe("CanonicalPageHeader platform standard", () => {
   it("keeps product detail on its frozen gallery chrome", () => {
     const page = readSource("features/product-detail/ProductDetailPage.tsx");
     expect(page).toContain("ProductPageChrome");
-    expect(page).toContain('data-product-page-freeze="FINAL_FREEZE"');
+    expect(page).toContain('data-product-page-freeze="FROZEN"');
+    expect(page).toContain('data-view-item-version="1.0"');
   });
 
   it("discourages new inline rx-page-header shells on migrated routes", () => {

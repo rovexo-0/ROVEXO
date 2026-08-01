@@ -21,6 +21,17 @@ export type Product = {
   originalPrice?: number | null;
   condition: string;
   brand?: string;
+  /** Listing colour (`products.color`) — shown as Colour on View Item when present. */
+  colour?: string | null;
+  /** Listing material — DB field and/or Sell description note `Material: …`. */
+  material?: string | null;
+  /** Listing size (`products.size`) and/or description note. */
+  size?: string | null;
+  /** Sell attribute notes / future columns — Product Information rows when populated. */
+  storage?: string | null;
+  network?: string | null;
+  season?: string | null;
+  compatibility?: string | null;
   sellerName: string;
   sellerId?: string;
   sellerUsername?: string | null;

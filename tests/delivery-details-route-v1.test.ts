@@ -22,11 +22,16 @@ describe("Delivery Details route — fail-closed (no 404)", () => {
     expect(getHelpArticle("shipping")).toBeUndefined();
   });
 
-  it("ProductShippingCard never links to /help/shipping", () => {
-    const card = readSource("features/product-detail/ProductShippingCard.tsx");
-    expect(card).toContain("PRODUCT_DELIVERY_DETAILS_HREF");
-    expect(card).not.toContain('href="/help/shipping"');
-    expect(card).not.toContain("Coming Soon");
+  it("View Item never mounts ProductShippingCard (Delivery = Checkout / Tracking only)", () => {
+    const page = readSource("features/product-detail/ProductDetailPage.tsx");
+    expect(page).not.toContain("ProductShippingCard");
+    expect(page).not.toContain("PRODUCT_DELIVERY_DETAILS_HREF");
+  });
+
+  it("help Delivery Details href SSOT never uses legacy /help/shipping as canonical", () => {
+    const route = readSource("lib/product-detail/delivery-details-route-v1.ts");
+    expect(route).toContain('"/help/delivery-shipping"');
+    expect(route).not.toContain('PRODUCT_DELIVERY_DETAILS_HREF = "/help/shipping"');
   });
 
   it("help/[slug] redirects legacy Delivery slugs instead of notFound", () => {

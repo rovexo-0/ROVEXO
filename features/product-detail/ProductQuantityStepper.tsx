@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useId, useState } from "react";
+import { useToast } from "@/components/ui/Toast";
 
 type ProductQuantityStepperProps = {
   max: number;
@@ -16,10 +17,11 @@ function clampQty(value: number, max: number): number {
 
 /**
  * Buyer quantity on product page when stock > 1.
- * Caps at available stock. Does not alter checkout totals until Buy Now passes qty.
+ * Never exceeds stock. Toast on max attempt.
  */
 export function ProductQuantityStepper({ max, value, onChange }: ProductQuantityStepperProps) {
   const labelId = useId();
+  const { pushToast } = useToast();
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(String(value));
   const qty = clampQty(value, max);
@@ -27,12 +29,19 @@ export function ProductQuantityStepper({ max, value, onChange }: ProductQuantity
   const atMax = qty >= Math.max(1, max);
 
   const commit = useCallback(
-    (next: number) => {
+    (next: number, fromPlus = false) => {
+      const ceiling = Math.max(1, Math.floor(max));
+      if (fromPlus && next > ceiling) {
+        pushToast({ title: "Maximum stock reached.", variant: "info" });
+        onChange(ceiling);
+        setText(String(ceiling));
+        return;
+      }
       const normalized = clampQty(next, max);
       onChange(normalized);
       setText(String(normalized));
     },
-    [max, onChange],
+    [max, onChange, pushToast],
   );
 
   if (max <= 1) return null;
@@ -61,7 +70,11 @@ export function ProductQuantityStepper({ max, value, onChange }: ProductQuantity
             onChange={(event) => setText(event.target.value.replace(/\D/g, "").slice(0, 4))}
             onBlur={() => {
               setEditing(false);
-              commit(Number(text) || 1);
+              const parsed = Number(text) || 1;
+              if (parsed > max) {
+                pushToast({ title: "Maximum stock reached.", variant: "info" });
+              }
+              commit(parsed);
             }}
             onKeyDown={(event) => {
               if (event.key === "Enter") event.currentTarget.blur();
@@ -85,8 +98,13 @@ export function ProductQuantityStepper({ max, value, onChange }: ProductQuantity
           type="button"
           className="pd-v1__qty-btn"
           aria-label="Increase quantity"
-          disabled={atMax}
-          onClick={() => commit(qty + 1)}
+          onClick={() => {
+            if (atMax) {
+              pushToast({ title: "Maximum stock reached.", variant: "info" });
+              return;
+            }
+            commit(qty + 1, true);
+          }}
         >
           +
         </button>

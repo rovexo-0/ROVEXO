@@ -66,7 +66,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <ProductDetailPage product={product} similarProducts={similarProducts} />
+      <ProductDetailPage
+        product={{ ...product, categoryBreadcrumbs: breadcrumbs }}
+        similarProducts={similarProducts}
+      />
     </>
   );
 }

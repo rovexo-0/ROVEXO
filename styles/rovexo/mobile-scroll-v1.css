@@ -188,6 +188,25 @@ html.rx-scroll-locked {
   overflow: hidden !important;
 }
 
+/*
+ * View Item P0 scroll hotfix — `.rx-scroll-page--no-nav` must never clobber
+ * sticky Buy Now / Make Offer / Add to Bundle clearance on PDP.
+ */
+.pd-v1 .pd-v1__main,
+.pd-v1 .pd-v1__main.rx-scroll-page,
+.pd-v1 .pd-v1__main.rx-scroll-page--no-nav,
+.pd-v1 .pd-v1__main.rx-scroll-page--with-nav {
+  padding-bottom: calc(
+    var(--pd-v1-sticky-action-clearance) + var(--pd-v1-sticky-bundle-clearance, 0px)
+  ) !important;
+  scroll-padding-bottom: calc(
+    var(--pd-v1-sticky-action-clearance) + var(--pd-v1-sticky-bundle-clearance, 0px)
+  );
+  max-height: none;
+  height: auto;
+  overflow: visible;
+}
+
 /* Keyboard: keep focused fields visible */
 input:not([type="hidden"]):not([disabled]),
 textarea:not([disabled]),

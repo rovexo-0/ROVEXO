@@ -1,25 +1,41 @@
-# ROVEXO v1.0 — PRODUCT PAGE FINAL FREEZE (Cod Sânge v3.1)
+# ROVEXO VIEW ITEM v1.0 — OWNER UI/UX FREEZE
 
-**STATUS: OWNER APPROVED | FINAL FREEZE**
+**STATUS: FROZEN | OWNER LOCKED | CANONICAL**
 
-SSOT: `lib/product-detail/product-page-canonical-freeze-v1.ts`  
+SSOT: `lib/product-detail/view-item-ui-ux-freeze-v1.ts`  
+Canonical freeze: `lib/product-detail/product-page-canonical-freeze-v1.ts`  
+UI Lock: `lib/product-detail/view-item-final-ui-lock-v1.ts`  
+Field map: `lib/product-detail/product-information-field-map-v1.ts`  
 UI: `features/product-detail/ProductDetailPage.tsx`  
 Route: `/listing/[slug]`
 
-## Deleted forever
+## Locked modules
 
-Add to Cart · Platform Fee text · Report Seller · Shipping calculated at checkout · Old white header
+Image Gallery · Header · Favourite · Share · Price Section · Stock Status · Seller Card · Description · Product Information Table · Quantity Selector · Buy Now · Make Offer · Add to Bundle · Bottom Action Bar · Full Page Scroll
 
-## Delivery (final)
+## Product Information order (populated only)
 
-Delivery · 2-3 working days · Tracked delivery available
+Category → Brand → Condition → Material → Colour → Size → Storage → Network → Compatibility → Season → Uploaded
 
-## Header (final)
+No empty rows · No duplicated Stock · Stock once under price · Quantity only when stock > 1
 
-Transparent · ← left · ••• right · nothing else
+## Bundle
 
-## Locked
+Add to Bundle below Buy Now / Make Offer · sticky bar fixed · design system only · no button redesign
 
-Price · Views (right) · Description · Condition · Seller · Similar · Make Offer · Buy Now
+## Scroll
 
-**Less is more. Premium > everything. If it works, do not touch it.**
+Single document scroll · last pixel reachable · never hide content behind sticky CTAs · iOS safe area preserved
+
+## Design freeze
+
+Do NOT modify: spacing · typography · colours · button dimensions · radius · shadows · card layout · dividers · animations · visual hierarchy
+
+**Allowed:** bug fixes only  
+**Forbidden:** UI/UX redesign · structural changes without Owner lift
+
+## Production gates (any future commit touching this page)
+
+TypeScript · ESLint · Build · Responsive QA · Mobile QA · Desktop QA · Regression · Owner Approval
+
+**VIEW ITEM v1.0 — FROZEN.** Extend only. Never redesign unless freeze is explicitly lifted.
