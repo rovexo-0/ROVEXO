@@ -5,6 +5,7 @@ import { validateListingTitle } from "@/lib/sell/listing-title";
 import { sellFieldDomId } from "@/lib/sell/sell-progressive-flow";
 import { isDirectContactMode } from "@/lib/transaction-mode/capabilities";
 import { resolveTransactionModeFromFlatPath } from "@/lib/transaction-mode/resolver";
+import { categorySupportsCondition } from "@/lib/sell/aa-quick-sell-attributes";
 
 export type SellValidationFieldId =
   | "photos"
@@ -42,6 +43,10 @@ function hasValidDescription(description: string): boolean {
   return description.trim().length >= DESCRIPTION_MIN;
 }
 
+function hasValidBrand(draft: SellListingDraft): boolean {
+  return draft.brand.trim().length > 0;
+}
+
 function needsParcelSize(draft: SellListingDraft): boolean {
   const directContact = draft.categoryPath
     ? isDirectContactMode(resolveTransactionModeFromFlatPath(draft.categoryPath))
@@ -50,9 +55,8 @@ function needsParcelSize(draft: SellListingDraft): boolean {
 }
 
 /**
- * Absolute Authority Sell v1.0 — Publish Listing enabled ONLY when:
- * Photo + Title + Description + Category + Price + Parcel are complete.
- * Dynamic attributes remain in UI but do not block the publish CTA.
+ * Publish Listing enabled when Owner core fields are complete.
+ * Temperature Rating · Season Rating · Length are OPTIONAL — never block Publish.
  */
 export function getFirstSellValidationIssue(
   draft: SellListingDraft,
@@ -90,6 +94,22 @@ export function getFirstSellValidationIssue(
     };
   }
 
+  if (!hasValidBrand(draft)) {
+    return {
+      field: "brand",
+      message: "Select a brand (or No Brand).",
+      fieldDomId: sellFieldDomId("attribute:brand"),
+    };
+  }
+
+  if (categorySupportsCondition(draft.categoryPath) && !draft.condition.trim()) {
+    return {
+      field: "condition",
+      message: "Select a condition.",
+      fieldDomId: sellFieldDomId("condition"),
+    };
+  }
+
   if (!hasValidPrice(draft)) {
     return {
       field: "price",
@@ -106,6 +126,7 @@ export function getFirstSellValidationIssue(
     };
   }
 
+  // Explicit: Temperature Rating / Season Rating / Length never appear here.
   return null;
 }
 

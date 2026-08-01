@@ -50,7 +50,25 @@ export type AttributeDef = {
   showSwatch?: boolean;
   placeholder?: string;
   inputMode?: "text" | "numeric";
+  /**
+   * When false, attribute is shown but never blocks Publish / progressive completion.
+   * Default: required for taxonomy-driven core attrs (Brand, Condition, Size, …).
+   */
+  required?: boolean;
 };
+
+/** Camping / product detail fields — OPTIONAL. Never block Publish when empty. */
+export const OPTIONAL_SELL_ATTRIBUTE_IDS = new Set<string>([
+  "temperatureRating",
+  "seasonRating",
+  "length",
+  "weight",
+  "dimensions",
+]);
+
+export function isSellAttributeRequired(attributeId: string): boolean {
+  return !OPTIONAL_SELL_ATTRIBUTE_IDS.has(attributeId);
+}
 
 function toOptions(labels: readonly string[]): SelectionOption[] {
   return labels.map((label) => ({ id: label, label }));
@@ -244,6 +262,7 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     target: { kind: "map" },
     options: toOptions(["1 Season", "2 Season", "3 Season", "4 Season", "5 Season"]),
     placeholder: "",
+    required: false,
   },
   length: {
     id: "length",
@@ -252,6 +271,7 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     target: { kind: "map" },
     options: toOptions(["Short", "Regular", "Long", "Extra Long"]),
     placeholder: "",
+    required: false,
   },
   weight: {
     id: "weight",
@@ -259,6 +279,7 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     input: "text",
     target: { kind: "map" },
     placeholder: "e.g. 1.2 kg",
+    required: false,
   },
   temperatureRating: {
     id: "temperatureRating",
@@ -266,6 +287,7 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     input: "text",
     target: { kind: "map" },
     placeholder: "e.g. Comfort 0°C",
+    required: false,
   },
   dimensions: {
     id: "dimensions",
@@ -273,6 +295,7 @@ export const ATTRIBUTE_DEFS: Record<string, AttributeDef> = {
     input: "text",
     target: { kind: "map" },
     placeholder: "e.g. 120 × 60 × 40 cm",
+    required: false,
   },
   age: {
     id: "age",
@@ -710,7 +733,10 @@ export function getQuickSellAttributeDefs(categoryPath: FlatCategoryPath | null)
 
   const defs = ids
     .map((id) => ATTRIBUTE_DEFS[id])
-    .filter((def): def is AttributeDef => Boolean(def));
+    .filter((def): def is AttributeDef => Boolean(def))
+    .map((def) =>
+      OPTIONAL_SELL_ATTRIBUTE_IDS.has(def.id) ? { ...def, required: false } : def,
+    );
 
   return applyCategoryScopedOptions(defs, categoryPath);
 }
@@ -755,6 +781,12 @@ export function readAttributeValue(draft: SellListingDraft, def: AttributeDef): 
 /** True when an attribute has a non-empty value. */
 export function isAttributeCompleted(draft: SellListingDraft, def: AttributeDef): boolean {
   return readAttributeValue(draft, def).trim().length > 0;
+}
+
+/** Optional attrs never block Publish / progressive completeness. */
+export function isAttributeRequiredForPublish(def: AttributeDef): boolean {
+  if (def.required === false) return false;
+  return isSellAttributeRequired(def.id);
 }
 
 /** Count completed attributes for the draft's current category. */

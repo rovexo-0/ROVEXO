@@ -122,7 +122,8 @@ export async function completeSellQuickAttributes(page: Page): Promise<void> {
     // Master Freeze: empty rows show label + chevron only (no "Select …" placeholders).
     const incomplete = page
       .getByRole("button", {
-        name: /^(Brand|Colours?|Color|Size|Model|Storage|Platform|Battery|Material|Network|Compatibility|RAM|Season Rating|Length)$/i,
+        // Season Rating / Length are OPTIONAL — do not force-fill for Publish.
+        name: /^(Brand|Colours?|Color|Size|Model|Storage|Platform|Battery|Material|Network|Compatibility|RAM)$/i,
       })
       .first();
     if (!(await incomplete.isVisible().catch(() => false))) break;

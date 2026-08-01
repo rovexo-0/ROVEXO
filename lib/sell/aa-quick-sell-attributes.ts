@@ -84,7 +84,7 @@ const BY_LEAF: Record<string, readonly SellAttributeId[]> = {
   shirts: ["brand", "condition", "size", "colour", "material"],
   dresses: ["brand", "condition", "size", "colour", "material"],
   "baby-clothing": ["brand", "condition", "size", "colour", "material"],
-  // Camping > Sleeping Bags — Season Rating + Length
+  // Camping > Sleeping Bags — Season Rating + Length OPTIONAL (display only; never block Publish)
   "sleeping-bags": ["brand", "condition", "colour", "material", "seasonRating", "length"],
   "camping-sleeping": ["brand", "condition", "colour", "material", "seasonRating", "length"],
   // Consoles — colour yes, no material

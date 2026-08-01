@@ -1,6 +1,6 @@
 import type { FlatCategoryPath } from "@/lib/categories/types";
 
-import { getQuickSellAttributeDefs, isAttributeCompleted, type AttributeDef } from "@/lib/sell/attribute-engine";
+import { getQuickSellAttributeDefs, isAttributeCompleted, isAttributeRequiredForPublish, type AttributeDef } from "@/lib/sell/attribute-engine";
 import { categorySupportsCondition } from "@/lib/sell/aa-quick-sell-attributes";
 import { isSellQuickCondition } from "@/lib/sell/sell-condition-options";
 
@@ -230,7 +230,11 @@ export function isSellProgressiveStepComplete(
 
       const def = getQuickSellAttributeDefs(draft.categoryPath).find((item) => item.id === attributeId);
 
-      return def ? isAttributeCompleted(draft, def) : false;
+      if (!def) return false;
+      // Temperature / Season / Length / Weight — OPTIONAL; never block progressive flow.
+      if (!isAttributeRequiredForPublish(def)) return true;
+
+      return isAttributeCompleted(draft, def);
 
     }
 
@@ -316,7 +320,9 @@ export function areRequiredAttributesComplete(draft: SellListingDraft): boolean 
 
   if (!draft.categoryPath) return false;
 
-  return getQuickSellAttributeDefs(draft.categoryPath).every((def) => isAttributeCompleted(draft, def));
+  return getQuickSellAttributeDefs(draft.categoryPath)
+    .filter((def) => isAttributeRequiredForPublish(def))
+    .every((def) => isAttributeCompleted(draft, def));
 
 }
 
